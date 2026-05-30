@@ -292,14 +292,12 @@ private:
     /** @brief The production of [0,1[ random numbers takes place here */
     void producer(std::uint32_t seed);
 
-    std::atomic<bool> finalized_ = ATOMIC_VAR_INIT(false);
-    std::atomic<bool> threads_started_ =
-        ATOMIC_VAR_INIT(false); ///< Indicates whether threads were already started
-    std::atomic<bool> threads_stop_requested_ =
-        ATOMIC_VAR_INIT(false); ///< Indicates whether all threads were requested to stop
-    std::atomic<std::uint16_t> n_producer_threads_ = ATOMIC_VAR_INIT(
+    std::atomic<bool> finalized_{false};
+    std::atomic<bool> threads_started_{false}; ///< Indicates whether threads were already started
+    std::atomic<bool> threads_stop_requested_{false}; ///< Indicates whether all threads were requested to stop
+    std::atomic<std::uint16_t> n_producer_threads_{
         DEFAULT01PRODUCERTHREADS
-    ); ///< The number of threads used to produce random numbers
+    }; ///< The number of threads used to produce random numbers
 
     Gem::Common::GThreadGroup
         producer_threads_; ///< A thread group that holds [0,1[ producer threads
@@ -341,7 +339,7 @@ private:
         std::vector<seed_type>(DEFAULTSEEDVECTORSIZE); ///< Holds pre-calculated seeds
     std::vector<seed_type>::const_iterator seed_cit_ =
         seed_collection_.begin(); ///< Iterators over the seedCollection_
-    std::atomic<bool> seeding_has_started_ = ATOMIC_VAR_INIT(false);
+    std::atomic<bool> seeding_has_started_{false};
 };
 
 /******************************************************************************/

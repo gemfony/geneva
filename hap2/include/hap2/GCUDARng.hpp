@@ -1,7 +1,3 @@
-/**
- * @file GCUDARng.hpp
- */
-
 /********************************************************************************
  *
  * This file is part of the Geneva library collection. The following license
@@ -33,80 +29,46 @@
 
 #pragma once
 
-// Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
-// Standard headers go here
-#include <algorithm>
-#include <atomic>
-#include <condition_variable>
+#include <cstddef>
 #include <cstdint>
-#include <deque>
-#include <iostream>
-#include <limits>
-#include <mutex>
-#include <thread>
-#include <vector>
-
-// Boost headers go here
-
-// Geneva headers go here
 
 namespace Gem::Hap2 {
+
 /**
-     * GCudaRNG is a class that provides a C++20-conforming uniform random generator interface.
-     * Internally, it produces random numbers on a CUDA-enabled GPU and buffers them in a pool on the host.
-     * If more numbers are requested than are available in the pool, the generator will block until enough
-     * numbers have been produced. If too many numbers accumulate, production will be reduced.
-     */
+ * GPU-based bulk random-number backend built on the cuRAND host API. It serves
+ * as a refill backend for the random-number containers: a single curandGenerate
+ * call fills a device buffer which is copied to the host. It exposes the same
+ * bulk interface (generate(dst, n)) as the SIMD CPU refill engines, so the
+ * producer can use it interchangeably.
+ *
+ * The cuRAND generator, CUDA stream and device buffer are held as void* so this
+ * header pulls in no CUDA headers and can be included from ordinary C++
+ * translation units (the producer). All CUDA code lives in GCUDARng.cu.
+ */
 class GCudaRNG {
 public:
-    // Required by the UniformRandomBitGenerator concept
-    using result_type = std::uint32_t;
+    using result_type = std::uint64_t;
 
-    static constexpr result_type min() {
-        return std::numeric_limits<result_type>::min();
-    }
-
-    static constexpr result_type max() {
-        return std::numeric_limits<result_type>::max();
-    }
-
-    // @param poolCapacity     Maximum number of cached random values on the host
-    // @param initialBatchSize Initial number of random values generated per GPU batch
-    GCudaRNG(std::size_t poolCapacity = 1'000'000, std::size_t initialBatchSize = 100'000);
-
+    /** @brief Creates a cuRAND generator seeded from the given value. */
+    explicit GCudaRNG(std::uint64_t seed);
     ~GCudaRNG();
 
-    // Retrieves the next random number (may block if the pool is empty).
-    result_type operator()();
+    GCudaRNG(GCudaRNG const &)            = delete;
+    GCudaRNG &operator=(GCudaRNG const &) = delete;
+
+    /** @brief Fills dst[0..n) with n 64-bit values (one device generate + copy). */
+    void generate(result_type *dst, std::size_t n);
+
+    /** @brief True iff at least one usable CUDA device is present at runtime. */
+    static bool deviceAvailable() noexcept;
 
 private:
-    // The background thread that continuously generates random numbers on the GPU.
-    void productionLoop();
-
-    // Fills buf with n random numbers from the persistent GPU states.
-    void fillBuffer(std::size_t n, std::vector<result_type> &buf);
-
-private:
-    // Host pool of random numbers
-    std::deque<result_type> pool_;
-    const std::size_t poolCapacity_;
-
-    // Dynamic batch size
-    std::atomic<std::size_t> batchSize_;
-
-    // Synchronization
-    std::mutex mutex_;
-    std::condition_variable cv_;
-
-    std::atomic<bool> stop_{false};
-    std::thread productionThread_;
-
-    // Persistent GPU buffers — allocated once in the constructor, freed in the destructor.
-    // Typed as void* to avoid leaking CUDA types into non-CUDA translation units.
-    void *d_states_{nullptr}; ///< curandState array on the GPU
-    void *d_out_{nullptr};    ///< uint32_t output array on the GPU
-    void *stream_{nullptr};   ///< dedicated cudaStream_t for RNG (decoupled from default stream)
+    void       *gen_{nullptr};    ///< curandGenerator_t
+    void       *stream_{nullptr}; ///< cudaStream_t
+    void       *d_buf_{nullptr};  ///< device buffer (32-bit words)
+    std::size_t d_words_{0};      ///< current capacity of d_buf_ in 32-bit words
 };
+
 } /* namespace Gem::Hap2 */

@@ -28,11 +28,37 @@
 ################################################################################
 
 
-ADD_SUBDIRECTORY ( UnitTests )
-ADD_SUBDIRECTORY ( Hap2QualityTests )
-ADD_SUBDIRECTORY ( Hap2ConcurrencyTests )
-ADD_SUBDIRECTORY ( ManualTests )
-ADD_SUBDIRECTORY ( DocuPrograms )
-ADD_SUBDIRECTORY ( Hap2NeonCrossTest )  # optional; only active with aarch64 cross-tools
+FIND_PACKAGE ( Threads REQUIRED )
 
-GENEVA_AGGREGATE_TARGET( "tests-hap2" )
+SET ( EXECUTABLENAME Hap2ConcurrencyTests )
+
+SET ( ${EXECUTABLENAME}_SRCS
+    Hap2ConcurrencyTests.cpp
+)
+
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
+)
+
+SET(LIBRARIES_TO_LINK
+		${HAP2_LIBNAME}
+		${COMMON_LIBNAME}
+		${Boost_LIBRARIES}
+		Catch2::Catch2WithMain
+		Threads::Threads)
+
+# Add MPI Libraries in case building with MPI-consumer
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(LIBRARIES_TO_LINK
+			${LIBRARIES_TO_LINK}
+			${MPI_LIBRARIES})
+ENDIF()
+
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+		${LIBRARIES_TO_LINK})
+
+ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/hap2/Hap2ConcurrencyTests )
+
+GENEVA_AGGREGATE_TARGET( "tests-hap2-concurrency" )

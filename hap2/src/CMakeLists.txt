@@ -101,6 +101,18 @@ TARGET_COMPILE_FEATURES(${HAP2_LIBNAME} PUBLIC cxx_std_20)
 # Inter-library dependency: hap2 builds on common (exactly like hap).
 TARGET_LINK_LIBRARIES(${HAP2_LIBNAME} PUBLIC ${COMMON_LIBNAME})
 
+# When CUDA RNG is enabled at build time, the producer can refill containers on
+# the GPU via the cuRAND host API at run time (only when a device is actually
+# present; otherwise it falls back to the CPU engine). This needs the
+# HAP2_USE_CUDA compile definition and links the cuRAND + CUDA-runtime host
+# libraries. cuRAND is part of the (optional) NVIDIA CUDA Toolkit the user
+# provides; it is never vendored into the source tree.
+IF(GENEVA_USE_CUDA_RNG)
+	FIND_PACKAGE(CUDAToolkit REQUIRED)
+	TARGET_COMPILE_DEFINITIONS(${HAP2_LIBNAME} PRIVATE HAP2_USE_CUDA=1)
+	TARGET_LINK_LIBRARIES(${HAP2_LIBNAME} PRIVATE CUDA::curand CUDA::cudart)
+ENDIF()
+
 ################################################################################
 # SIMD bulk-refill backend selection. Compile-time only (no runtime
 # dispatch). The probes decide which vectorised xoshiro256++ variant (if any)

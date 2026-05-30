@@ -36,6 +36,10 @@
 #if defined(HAP2_AVX2_BACKEND) || defined(HAP2_NEON_BACKEND)
 #include "hap2/GXoshiro256ppSIMD.hpp" // SIMD bulk-refill engine
 #endif
+#if defined(HAP2_USE_CUDA)
+#include "hap2/GCUDARng.hpp" // GPU bulk-refill backend (cuRAND host API)
+#include <optional>
+#endif
 #include <atomic>
 #include <chrono>
 #include <cstddef>
@@ -56,7 +60,7 @@ namespace Gem::Hap2 {
 /**
  * Initialization of static data members
  */
-std::atomic<bool> GRandomFactory::multiple_call_trap_ = ATOMIC_VAR_INIT(false);
+std::atomic<bool> GRandomFactory::multiple_call_trap_{false};
 
 /******************************************************************************/
 /**
@@ -342,6 +346,38 @@ void GRandomFactory::producer(std::uint32_t seed) {
         using RefillEngine = G_CPU_BASE_GENERATOR;
 #endif
         RefillEngine mt(static_cast<RefillEngine::result_type>(seed));
+
+        // When built with CUDA support and a GPU device is present at run time,
+        // containers are refilled on the GPU via cuRAND; otherwise the CPU engine
+        // above is used. The choice is made once per producer thread, with a
+        // clean fallback when no device is available.
+#if defined(HAP2_USE_CUDA)
+        const bool              useCuda = GCudaRNG::deviceAvailable();
+        std::optional<GCudaRNG> cuda;
+        if(useCuda) {
+            cuda.emplace(static_cast<std::uint64_t>(seed));
+            glogger << "In GRandomFactory::producer(): CUDA device present;"
+                    << " refilling random-number containers via cuRAND." << '\n'
+                    << GLOGGING;
+        }
+#else
+        [[maybe_unused]] constexpr bool useCuda = false;
+#endif
+
+        // Fills (fresh=true) or refreshes (fresh=false) a container from the
+        // active backend (GPU when useCuda, else the CPU engine).
+        auto fill = [&](std::unique_ptr<random_container> &cont, bool fresh) {
+#if defined(HAP2_USE_CUDA)
+            if(useCuda) {
+                if(fresh) cont.reset(new random_container(*cuda));
+                else      cont->refresh(*cuda);
+                return;
+            }
+#endif
+            if(fresh) cont.reset(new random_container(mt));
+            else      cont->refresh(mt);
+        };
+
         std::unique_ptr<random_container> p;
 
         while(not threads_stop_requested_) {
@@ -362,10 +398,10 @@ void GRandomFactory::producer(std::uint32_t seed) {
 #endif /* DEBUG */
 
                 // Replace "used" random numbers with new ones
-                p->refresh(mt);
+                fill(p, /*fresh=*/false);
             }
             else { // O.k., so we need to create a new container
-                p.reset(new random_container(mt));
+                fill(p, /*fresh=*/true);
             }
 
             // Try to submit the item and check for termination conditions along the way
