@@ -603,7 +603,7 @@ private:
         auto it = items.begin();
         while(it != items.end()) {
             // Check if storage address is already known
-            if(T *raw_ptr = it->get(); knownAddresses.find(raw_ptr) != knownAddresses.end()) {
+            if(T *raw_ptr = it->get(); knownAddresses.contains(raw_ptr)) {
                 // Found a duplicate -- remove it. "it" will then point to
                 // the next element.
                 it = items.erase(it);

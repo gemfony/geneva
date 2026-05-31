@@ -1020,8 +1020,8 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
     }
 
     // Mark all individuals as being on the pareto front initially
-    for(it = this->begin(); it != this->end(); ++it) {
-        (*it)
+    for(const auto &ind : *this) {
+        ind
             ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
             ->resetParetoTag();
     }
@@ -1070,8 +1070,8 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
 
     // Count the number of individuals on the pareto front
     std::size_t n_individuals_on_pareto_front = 0;
-    for(it = this->begin(); it != this->end(); ++it) {
-        if((*it)
+    for(const auto &ind : *this) {
+        if(ind
                ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
                ->isOnParetoFront()) {
             n_individuals_on_pareto_front++;
@@ -1194,8 +1194,8 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
 
     // Count the number of individuals on the pareto front
     std::size_t n_individuals_on_pareto_front = 0;
-    for(it = this->begin(); it != this->end(); ++it) {
-        if((*it)
+    for(const auto &ind : *this) {
+        if(ind
                ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
                ->isOnParetoFront()) {
             n_individuals_on_pareto_front++;

@@ -529,7 +529,7 @@ std::string networkData::getNetworkGeometryString() const {
  */
 std::shared_ptr<networkData> networkData::clone() const {
     // Lock access to this function
-    std::unique_lock<std::mutex> lock(m_);
+    std::scoped_lock<std::mutex> lock(m_);
     std::shared_ptr<networkData> result(new networkData(*this));
     return result;
 }
@@ -749,7 +749,6 @@ void GNeuralNetworkIndividual::init(
         );
     }
 
-    networkData::iterator layer_iterator;
     std::size_t layer_number = 0;
     std::size_t n_nodes = 0;
     std::size_t n_nodes_previous = 0;
@@ -758,9 +757,9 @@ void GNeuralNetworkIndividual::init(
     std::uniform_real_distribution<double> uniform_real_distribution(min, max);
 
     // Set up the architecture
-    for(layer_iterator = n_d_->begin(); layer_iterator != n_d_->end(); ++layer_iterator) {
-        if(*layer_iterator) { // Add the next network layer to this class, if possible
-            n_nodes = *layer_iterator;
+    for(const auto &layer_n_nodes : *n_d_) {
+        if(layer_n_nodes) { // Add the next network layer to this class, if possible
+            n_nodes = layer_n_nodes;
 
             // Set up a GDoubleObjectCollection
             std::shared_ptr<gpar::GDoubleObjectCollection> gdoc(new gpar::GDoubleObjectCollection());
@@ -799,7 +798,7 @@ void GNeuralNetworkIndividual::init(
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GNeuralNetworkIndividual::init([...]): Error!" << '\n'
-                << "Found invalid number of nodes in layer: " << *layer_iterator << '\n'
+                << "Found invalid number of nodes in layer: " << layer_n_nodes << '\n'
                 << "Did you set up the network architecture ?" << '\n'
             );
         }

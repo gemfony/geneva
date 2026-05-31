@@ -219,12 +219,11 @@ protected:
     bool randomInit_(const activityMode &am, Gem::Hap::GRandomBase &gr) override {
         bool randomized = false;
 
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
+        for(const auto &parameter : *this) {
             // Note that we do not call the randomInit_() function. First of all, we
             // do not have access to it. Secondly it might be that re-initialization of
             // a specific object is not desired.
-            if((*it)->GParameterBase::randomInit(am, gr)) {
+            if(parameter->GParameterBase::randomInit(am, gr)) {
                 randomized = true;
             }
         }
@@ -238,9 +237,8 @@ protected:
      * objects contained in the container.
      */
     void floatStreamline(std::vector<float> &par_vec, const activityMode &am) const override {
-        typename GParameterTCollectionT<T>::const_iterator cit;
-        for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template streamline<float>(par_vec, am);
+        for(const auto &parameter : *this) {
+            parameter->template streamline<float>(par_vec, am);
         }
     }
 
@@ -255,9 +253,8 @@ protected:
      * objects contained in the container.
      */
     void doubleStreamline(std::vector<double> &par_vec, const activityMode &am) const override {
-        typename GParameterTCollectionT<T>::const_iterator cit;
-        for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template streamline<double>(par_vec, am);
+        for(const auto &parameter : *this) {
+            parameter->template streamline<double>(par_vec, am);
         }
     }
 
@@ -273,9 +270,8 @@ protected:
      */
     void
     int32Streamline(std::vector<std::int32_t> &par_vec, const activityMode &am) const override {
-        typename GParameterTCollectionT<T>::const_iterator cit;
-        for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template streamline<std::int32_t>(par_vec, am);
+        for(const auto &parameter : *this) {
+            parameter->template streamline<std::int32_t>(par_vec, am);
         }
     }
 
@@ -290,9 +286,8 @@ protected:
      * to objects contained in the container.
      */
     void booleanStreamline(std::vector<bool> &par_vec, const activityMode &am) const override {
-        typename GParameterTCollectionT<T>::const_iterator cit;
-        for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template streamline<bool>(par_vec, am);
+        for(const auto &parameter : *this) {
+            parameter->template streamline<bool>(par_vec, am);
         }
     }
 
@@ -310,9 +305,8 @@ protected:
         std::map<std::string, std::vector<float>> &par_vec,
         const activityMode &am
     ) const override {
-        typename GParameterTCollectionT<T>::const_iterator cit;
-        for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template streamline<float>(par_vec, am);
+        for(const auto &parameter : *this) {
+            parameter->template streamline<float>(par_vec, am);
         }
     }
 
@@ -330,9 +324,8 @@ protected:
         std::map<std::string, std::vector<double>> &par_vec,
         const activityMode &am
     ) const override {
-        typename GParameterTCollectionT<T>::const_iterator cit;
-        for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template streamline<double>(par_vec, am);
+        for(const auto &parameter : *this) {
+            parameter->template streamline<double>(par_vec, am);
         }
     }
 
@@ -350,9 +343,8 @@ protected:
         std::map<std::string, std::vector<std::int32_t>> &par_vec,
         const activityMode &am
     ) const override {
-        typename GParameterTCollectionT<T>::const_iterator cit;
-        for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template streamline<std::int32_t>(par_vec, am);
+        for(const auto &parameter : *this) {
+            parameter->template streamline<std::int32_t>(par_vec, am);
         }
     }
 
@@ -370,9 +362,8 @@ protected:
         std::map<std::string, std::vector<bool>> &par_vec,
         const activityMode &am
     ) const override {
-        typename GParameterTCollectionT<T>::const_iterator cit;
-        for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template streamline<bool>(par_vec, am);
+        for(const auto &parameter : *this) {
+            parameter->template streamline<bool>(par_vec, am);
         }
     }
 
@@ -390,9 +381,8 @@ protected:
         std::vector<float> &u_bnd_vec,
         const activityMode &am
     ) const override {
-        typename GParameterTCollectionT<T>::const_iterator cit;
-        for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template boundaries<float>(l_bnd_vec, u_bnd_vec, am);
+        for(const auto &parameter : *this) {
+            parameter->template boundaries<float>(l_bnd_vec, u_bnd_vec, am);
         }
     }
 
@@ -405,9 +395,8 @@ protected:
         std::vector<double> &u_bnd_vec,
         const activityMode &am
     ) const override {
-        typename GParameterTCollectionT<T>::const_iterator cit;
-        for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template boundaries<double>(l_bnd_vec, u_bnd_vec, am);
+        for(const auto &parameter : *this) {
+            parameter->template boundaries<double>(l_bnd_vec, u_bnd_vec, am);
         }
     }
 
@@ -420,9 +409,8 @@ protected:
         std::vector<std::int32_t> &u_bnd_vec,
         const activityMode &am
     ) const override {
-        typename GParameterTCollectionT<T>::const_iterator cit;
-        for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template boundaries<std::int32_t>(l_bnd_vec, u_bnd_vec, am);
+        for(const auto &parameter : *this) {
+            parameter->template boundaries<std::int32_t>(l_bnd_vec, u_bnd_vec, am);
         }
     }
 
@@ -438,9 +426,8 @@ protected:
         std::vector<bool> &u_bnd_vec,
         const activityMode &am
     ) const override {
-        typename GParameterTCollectionT<T>::const_iterator cit;
-        for(cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->template boundaries<bool>(l_bnd_vec, u_bnd_vec, am);
+        for(const auto &parameter : *this) {
+            parameter->template boundaries<bool>(l_bnd_vec, u_bnd_vec, am);
         }
     }
 
@@ -455,9 +442,8 @@ protected:
     std::size_t countFloatParameters(const activityMode &am) const override {
         std::size_t result = 0;
 
-        typename GParameterTCollectionT<T>::const_iterator cit;
-        for(cit = this->begin(); cit != this->end(); ++cit) {
-            result += (*cit)->template countParameters<float>(am);
+        for(const auto &parameter : *this) {
+            result += parameter->template countParameters<float>(am);
         }
 
         return result;
@@ -474,9 +460,8 @@ protected:
     std::size_t countDoubleParameters(const activityMode &am) const override {
         std::size_t result = 0;
 
-        typename GParameterTCollectionT<T>::const_iterator cit;
-        for(cit = this->begin(); cit != this->end(); ++cit) {
-            result += (*cit)->template countParameters<double>(am);
+        for(const auto &parameter : *this) {
+            result += parameter->template countParameters<double>(am);
         }
 
         return result;
@@ -493,9 +478,8 @@ protected:
     std::size_t countInt32Parameters(const activityMode &am) const override {
         std::size_t result = 0;
 
-        typename GParameterTCollectionT<T>::const_iterator cit;
-        for(cit = this->begin(); cit != this->end(); ++cit) {
-            result += (*cit)->template countParameters<std::int32_t>(am);
+        for(const auto &parameter : *this) {
+            result += parameter->template countParameters<std::int32_t>(am);
         }
 
         return result;
@@ -512,9 +496,8 @@ protected:
     std::size_t countBoolParameters(const activityMode &am) const override {
         std::size_t result = 0;
 
-        typename GParameterTCollectionT<T>::const_iterator cit;
-        for(cit = this->begin(); cit != this->end(); ++cit) {
-            result += (*cit)->template countParameters<bool>(am);
+        for(const auto &parameter : *this) {
+            result += parameter->template countParameters<bool>(am);
         }
 
         return result;
@@ -529,9 +512,8 @@ protected:
         std::size_t &pos,
         const activityMode &am
     ) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template assignValueVector<float>(par_vec, pos, am);
+        for(const auto &parameter : *this) {
+            parameter->template assignValueVector<float>(par_vec, pos, am);
         }
     }
 
@@ -549,9 +531,8 @@ protected:
         std::size_t &pos,
         const activityMode &am
     ) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template assignValueVector<double>(par_vec, pos, am);
+        for(const auto &parameter : *this) {
+            parameter->template assignValueVector<double>(par_vec, pos, am);
         }
     }
 
@@ -569,9 +550,8 @@ protected:
         std::size_t &pos,
         const activityMode &am
     ) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template assignValueVector<std::int32_t>(par_vec, pos, am);
+        for(const auto &parameter : *this) {
+            parameter->template assignValueVector<std::int32_t>(par_vec, pos, am);
         }
     }
 
@@ -589,9 +569,8 @@ protected:
         std::size_t &pos,
         const activityMode &am
     ) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template assignValueVector<bool>(par_vec, pos, am);
+        for(const auto &parameter : *this) {
+            parameter->template assignValueVector<bool>(par_vec, pos, am);
         }
     }
 
@@ -608,9 +587,8 @@ protected:
         const std::map<std::string, std::vector<float>> &par_map,
         const activityMode &am
     ) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template assignValueVectors<float>(par_map, am);
+        for(const auto &parameter : *this) {
+            parameter->template assignValueVectors<float>(par_map, am);
         }
     }
 
@@ -627,9 +605,8 @@ protected:
         const std::map<std::string, std::vector<double>> &par_map,
         const activityMode &am
     ) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template assignValueVectors<double>(par_map, am);
+        for(const auto &parameter : *this) {
+            parameter->template assignValueVectors<double>(par_map, am);
         }
     }
 
@@ -646,9 +623,8 @@ protected:
         const std::map<std::string, std::vector<std::int32_t>> &par_map,
         const activityMode &am
     ) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template assignValueVectors<std::int32_t>(par_map, am);
+        for(const auto &parameter : *this) {
+            parameter->template assignValueVectors<std::int32_t>(par_map, am);
         }
     }
 
@@ -665,9 +641,8 @@ protected:
         const std::map<std::string, std::vector<bool>> &par_map,
         const activityMode &am
     ) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template assignValueVectors<bool>(par_map, am);
+        for(const auto &parameter : *this) {
+            parameter->template assignValueVectors<bool>(par_map, am);
         }
     }
 
@@ -686,9 +661,8 @@ protected:
         const activityMode &am,
         Gem::Hap::GRandomBase &gr
     ) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template multiplyByRandom<float>(min, max, am, gr);
+        for(const auto &parameter : *this) {
+            parameter->template multiplyByRandom<float>(min, max, am, gr);
         }
     }
 
@@ -702,9 +676,8 @@ protected:
         const activityMode &am,
         Gem::Hap::GRandomBase &gr
     ) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template multiplyByRandom<double>(min, max, am, gr);
+        for(const auto &parameter : *this) {
+            parameter->template multiplyByRandom<double>(min, max, am, gr);
         }
     }
 
@@ -718,9 +691,8 @@ protected:
         const activityMode &am,
         Gem::Hap::GRandomBase &gr
     ) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template multiplyByRandom<std::int32_t>(min, max, am, gr);
+        for(const auto &parameter : *this) {
+            parameter->template multiplyByRandom<std::int32_t>(min, max, am, gr);
         }
     }
 
@@ -729,9 +701,8 @@ protected:
      * Multiplication with a random value in the range [0,1[
      */
     void floatMultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &gr) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template multiplyByRandom<float>(am, gr);
+        for(const auto &parameter : *this) {
+            parameter->template multiplyByRandom<float>(am, gr);
         }
     }
 
@@ -740,9 +711,8 @@ protected:
      * Multiplication with a random value in the range [0,1[
      */
     void doubleMultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &gr) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template multiplyByRandom<double>(am, gr);
+        for(const auto &parameter : *this) {
+            parameter->template multiplyByRandom<double>(am, gr);
         }
     }
 
@@ -751,9 +721,8 @@ protected:
      * Multiplication with a random value in the range [0,1[
      */
     void int32MultiplyByRandom(const activityMode &am, Gem::Hap::GRandomBase &gr) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template multiplyByRandom<std::int32_t>(am, gr);
+        for(const auto &parameter : *this) {
+            parameter->template multiplyByRandom<std::int32_t>(am, gr);
         }
     }
 
@@ -762,9 +731,8 @@ protected:
      * Multiplication with a constant value
      */
     void floatMultiplyBy(const float &value, const activityMode &am) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template multiplyBy<float>(value, am);
+        for(const auto &parameter : *this) {
+            parameter->template multiplyBy<float>(value, am);
         }
     }
 
@@ -773,9 +741,8 @@ protected:
      * Multiplication with a constant value
      */
     void doubleMultiplyBy(const double &value, const activityMode &am) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template multiplyBy<double>(value, am);
+        for(const auto &parameter : *this) {
+            parameter->template multiplyBy<double>(value, am);
         }
     }
 
@@ -784,9 +751,8 @@ protected:
      * Multiplication with a constant value
      */
     void int32MultiplyBy(const std::int32_t &value, const activityMode &am) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template multiplyBy<std::int32_t>(value, am);
+        for(const auto &parameter : *this) {
+            parameter->template multiplyBy<std::int32_t>(value, am);
         }
     }
 
@@ -795,9 +761,8 @@ protected:
      * Initialization with a constant value
      */
     void floatFixedValueInit(const float &value, const activityMode &am) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template fixedValueInit<float>(value, am);
+        for(const auto &parameter : *this) {
+            parameter->template fixedValueInit<float>(value, am);
         }
     }
 
@@ -806,9 +771,8 @@ protected:
      * Initialization with a constant value
      */
     void doubleFixedValueInit(const double &value, const activityMode &am) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template fixedValueInit<double>(value, am);
+        for(const auto &parameter : *this) {
+            parameter->template fixedValueInit<double>(value, am);
         }
     }
 
@@ -817,9 +781,8 @@ protected:
      * Initialization with a constant value
      */
     void int32FixedValueInit(const std::int32_t &value, const activityMode &am) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template fixedValueInit<std::int32_t>(value, am);
+        for(const auto &parameter : *this) {
+            parameter->template fixedValueInit<std::int32_t>(value, am);
         }
     }
 
@@ -828,9 +791,8 @@ protected:
      * Initialization with a constant value
      */
     void booleanFixedValueInit(const bool &value, const activityMode &am) override {
-        typename GParameterTCollectionT<T>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it)->template fixedValueInit<bool>(value, am);
+        for(const auto &parameter : *this) {
+            parameter->template fixedValueInit<bool>(value, am);
         }
     }
 

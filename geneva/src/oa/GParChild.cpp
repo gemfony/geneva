@@ -549,11 +549,8 @@ void GParChild::markChildren() {
  */
 void GParChild::markIndividualPositions() {
     std::size_t pos = 0;
-    typename std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator it;
-    for(it = GBase::data_cnt_.begin();
-        it != GBase::data_cnt_.end();
-        ++it) {
-        (*it)
+    for(const auto &individual : GBase::data_cnt_) {
+        individual
             ->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
             ->setPopulationPosition(pos++);
     }
@@ -666,10 +663,8 @@ void GParChild::adjustPopulation_() {
 
     // Do the smart pointers actually point to any objects ?
     typename std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator it;
-    for(it = GBase::data_cnt_.begin();
-        it != GBase::data_cnt_.end();
-        ++it) {
-        if(not(*it)) { // shared_ptr can be implicitly converted to bool
+    for(const auto &individual : GBase::data_cnt_) {
+        if(not individual) { // shared_ptr can be implicitly converted to bool
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParChild::adjustPopulation() :" << '\n'

@@ -430,7 +430,7 @@ bool GParserBuilder::parseConfigFile(std::filesystem::path const &config_file, b
     // Make sure only one entity is parsed at once. This allows us to
     // concurrently create e.g. optimization algorithms, letting them
     // parse the same config file.
-    std::unique_lock<std::mutex> lk(GParserBuilder::configfile_parser_mutex_);
+    std::scoped_lock lk(GParserBuilder::configfile_parser_mutex_);
 
     namespace pt = boost::property_tree;
 

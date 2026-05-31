@@ -482,9 +482,8 @@ public:
         );
 
         // Add user-defined constants
-        typename constants_map::const_iterator cit;
-        for(cit = user_constants.begin(); cit != user_constants.end(); ++cit) {
-            constants_.add(cit->first, cit->second);
+        for(const auto &c : user_constants) {
+            constants_.add(c.first, c.second);
         }
 
         //---------------------------------------------------------------------------

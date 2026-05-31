@@ -56,7 +56,6 @@
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
-#include "common/GThreadGroup.hpp"
 #include "common/GThreadPool.hpp"
 #include "courtier/GBaseClientT.hpp"
 #include "courtier/consumers/GBaseConsumerT.hpp"
@@ -442,7 +441,8 @@ private:
 
         // Act on the command received
         switch(inboundCommand) {
-        case networked_consumer_payload_command::COMPUTE: {
+            using enum Gem::Courtier::networked_consumer_payload_command;
+        case COMPUTE: {
             // Process the work item
             command_container_.process();
 
@@ -453,7 +453,7 @@ private:
             command_container_.set_command(networked_consumer_payload_command::RESULT);
         } break;
 
-        case networked_consumer_payload_command::NODATA: { // This must be a command payload
+        case NODATA: { // This must be a command payload
             // Update the nodata counter for bookkeeping
             n_nodata_++;
 
@@ -1011,11 +1011,12 @@ private:
 
             // Act on the command received
             switch(inboundCommand) {
-            case networked_consumer_payload_command::GETDATA: {
+                using enum Gem::Courtier::networked_consumer_payload_command;
+            case GETDATA: {
                 return getAndSerializeWorkItem();
             } /* break; */ // break is unreachable
 
-            case networked_consumer_payload_command::RESULT: {
+            case RESULT: {
                 // Retrieve the payload from the command container
                 auto payload_ptr = command_container_.get_payload();
 

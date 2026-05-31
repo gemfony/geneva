@@ -540,7 +540,7 @@ private:
 	  */
     GBUFFERPORT_PTR getNextRawBufferPort() {
         // Protect access to the iterator
-        std::unique_lock<std::mutex> switchGetPositionLock(switch_get_position_mutex_);
+        std::scoped_lock switchGetPositionLock(switch_get_position_mutex_);
 
         if(not raw_buffers_.empty()) {
             // Save the current get position
@@ -565,7 +565,7 @@ private:
 	  */
     GBUFFERPORT_PTR getProcessedBufferPort(BUFFERPORT_ID_TYPE id) {
         // Protect access to the map
-        std::unique_lock<std::mutex> findProcessedBufferLock(find_procesed_buffer_mutex_);
+        std::scoped_lock findProcessedBufferLock(find_procesed_buffer_mutex_);
 
         // Find the buffer port (if any)
         try {

@@ -630,7 +630,7 @@ public:
           * @return The currently remaining space in the buffer
           */
     std::size_t getRemainingSpace() {
-        std::unique_lock<std::mutex> lock(mutex_);
+        std::scoped_lock lock(mutex_);
         return t_capacity - container_.size();
     }
 
@@ -644,7 +644,7 @@ public:
           * @return The current size of the buffer
           */
     std::size_t size() {
-        std::unique_lock<std::mutex> lock(mutex_);
+        std::scoped_lock lock(mutex_);
         return container_.size();
     }
 
@@ -653,7 +653,7 @@ public:
           * Checks whether the queue is empty
           */
     bool empty() const {
-        std::unique_lock<std::mutex> lock(mutex_);
+        std::scoped_lock lock(mutex_);
         return container_.empty();
     }
 
@@ -667,7 +667,7 @@ public:
           * @return True if the buffer is not empty
           */
     bool isNotEmpty() {
-        std::unique_lock<std::mutex> lock(mutex_);
+        std::scoped_lock lock(mutex_);
         return not container_.empty();
     }
 

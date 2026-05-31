@@ -120,7 +120,7 @@ std::filesystem::file_time_type touch_time(
  */
 unsigned int getNHardwareThreads() {
     if(not g_hwt_read) {
-        std::unique_lock<std::mutex> lock(g_hwt_read_mutex);
+        std::scoped_lock lock(g_hwt_read_mutex);
         if(not g_hwt_read) {
             g_nHardwareThreads.store(std::thread::hardware_concurrency());
 

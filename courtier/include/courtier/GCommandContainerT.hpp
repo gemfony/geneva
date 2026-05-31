@@ -211,21 +211,22 @@ std::string container_to_string(
 ) {
     try {
         switch(serMode) {
-        case Gem::Common::serializationMode::TEXT: {
+            using enum Gem::Common::serializationMode;
+        case TEXT: {
             std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
             boost::archive::text_oarchive oa(oss);
             oa << boost::serialization::make_nvp("command_container", container);
             return oss.str();
         } break; // archive and stream closed at end of scope
 
-        case Gem::Common::serializationMode::XML: {
+        case XML: {
             std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
             boost::archive::xml_oarchive oa(oss);
             oa << boost::serialization::make_nvp("command_container", container);
             return oss.str();
         } break;
 
-        case Gem::Common::serializationMode::BINARY: {
+        case BINARY: {
             std::ostringstream oss(std::ios_base::binary);
             boost::archive::binary_oarchive oa(oss);
             oa << boost::serialization::make_nvp("command_container", container);
@@ -278,19 +279,20 @@ void container_from_string(
 
     try {
         switch(serMode) {
-        case Gem::Common::serializationMode::TEXT: {
+            using enum Gem::Common::serializationMode;
+        case TEXT: {
             std::istringstream iss(descr);
             boost::archive::text_iarchive ia(iss);
             ia >> boost::serialization::make_nvp("command_container", container);
         } break; // archive and stream closed at end of scope
 
-        case Gem::Common::serializationMode::XML: {
+        case XML: {
             std::istringstream iss(descr);
             boost::archive::xml_iarchive ia(iss);
             ia >> boost::serialization::make_nvp("command_container", container);
         } break;
 
-        case Gem::Common::serializationMode::BINARY: {
+        case BINARY: {
             std::istringstream iss(descr, std::ios_base::binary);
             boost::archive::binary_iarchive ia(iss);
             ia >> boost::serialization::make_nvp("command_container", container);

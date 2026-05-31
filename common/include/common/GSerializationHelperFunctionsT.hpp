@@ -76,19 +76,20 @@ sharedPtrToString(std::shared_ptr<T> gt_ptr, const Gem::Common::serializationMod
     std::ostringstream oarchive_stream; // NOLINT(cppcoreguidelines-init-variables)
 
     switch(ser_mod) {
-    case Gem::Common::serializationMode::TEXT: {
+        using enum Gem::Common::serializationMode;
+    case TEXT: {
         boost::archive::text_oarchive oa(oarchive_stream);
         oa << boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
     } // note: explicit scope here is essential so the oa-destructor gets called
 
     break;
 
-    case Gem::Common::serializationMode::XML: {
+    case XML: {
         boost::archive::xml_oarchive oa(oarchive_stream);
         oa << boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
     } break;
 
-    case Gem::Common::serializationMode::BINARY: {
+    case BINARY: {
         boost::archive::binary_oarchive oa(oarchive_stream);
         oa << boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
     }
@@ -116,21 +117,22 @@ sharedPtrFromString(const std::string &gt_string, const Gem::Common::serializati
 
     try {
         switch(ser_mod) {
-        case Gem::Common::serializationMode::TEXT: {
+            using enum Gem::Common::serializationMode;
+        case TEXT: {
             boost::archive::text_iarchive ia(istr);
             ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
         } // note: explicit scope here is essential so the ia-destructor gets called
 
         break;
 
-        case Gem::Common::serializationMode::XML: {
+        case XML: {
             boost::archive::xml_iarchive ia(istr);
             ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
         }
 
         break;
 
-        case Gem::Common::serializationMode::BINARY: {
+        case BINARY: {
             boost::archive::binary_iarchive ia(istr);
             ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
         } break;
@@ -211,15 +213,16 @@ void load(
     ar &make_nvp("tbs", tbs);
 
     switch(tbs) {
-    case Gem::Common::triboolStates::TBS_FALSE:
+        using enum Gem::Common::triboolStates;
+    case TBS_FALSE:
         val = Gem::Common::tribool::False;
         break;
 
-    case Gem::Common::triboolStates::TBS_TRUE:
+    case TBS_TRUE:
         val = Gem::Common::tribool::True;
         break;
 
-    case Gem::Common::triboolStates::TBS_INDETERMINATE:
+    case TBS_INDETERMINATE:
         val = Gem::Common::tribool::Indeterminate;
         break;
     };

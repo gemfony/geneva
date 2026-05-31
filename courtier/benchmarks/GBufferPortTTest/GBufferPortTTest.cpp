@@ -39,7 +39,6 @@
 
 #include "common/GExceptions.hpp"
 #include "common/GParserBuilder.hpp"
-#include "common/GThreadGroup.hpp"
 #include "courtier/GBufferPortT.hpp"
 #include "courtier/GDemoProcessingContainers.hpp"
 

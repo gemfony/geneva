@@ -609,12 +609,8 @@ protected:
         // First identify invalid checks
         std::vector<double> invalid_checks;
         double validity_level = 0.;
-        typename std::vector<
-            std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>>::const_iterator cit;
-        for(cit = GValidityCheckContainerT<ind_type>::validity_checks_.begin();
-            cit != GValidityCheckContainerT<ind_type>::validity_checks_.end();
-            ++cit) {
-            if(not(*cit)->isValid(cp, validity_level)) {
+        for(const auto &validity_check : GValidityCheckContainerT<ind_type>::validity_checks_) {
+            if(not validity_check->isValid(cp, validity_level)) {
                 invalid_checks.push_back(validity_level);
             }
         }
@@ -625,39 +621,38 @@ protected:
         }
 
         // Now act on the invalid tests
+        using enum Gem::Geneva::validityCheckCombinerPolicy;
         switch(combiner_policy_) {
         // --------------------------------------------------------------------
         // Multiply all invalidities
-        case Gem::Geneva::validityCheckCombinerPolicy::MULTIPLYINVALID: {
+        case MULTIPLYINVALID: {
             double result = 1.;
-            std::vector<double>::const_iterator d_cit;
-            for(d_cit = invalid_checks.begin(); d_cit != invalid_checks.end(); ++d_cit) {
+            for(const auto &invalidity : invalid_checks) {
                 // If we encounter an invalidity at the numeric boundaries, we simply
                 // return MAX_DOUBLE
-                if(std::numeric_limits<double>::max() == *d_cit ||
-                   std::numeric_limits<double>::lowest() == *d_cit) {
+                if(std::numeric_limits<double>::max() == invalidity ||
+                   std::numeric_limits<double>::lowest() == invalidity) {
                     return std::numeric_limits<double>::max();
                 }
 
-                result *= *d_cit;
+                result *= invalidity;
             }
             return result;
         } break;
 
             // --------------------------------------------------------------------
             // Add all invalidities
-        case Gem::Geneva::validityCheckCombinerPolicy::ADDINVALID: {
+        case ADDINVALID: {
             double result = 0.;
-            std::vector<double>::const_iterator d_cit;
-            for(d_cit = invalid_checks.begin(); d_cit != invalid_checks.end(); ++d_cit) {
+            for(const auto &invalidity : invalid_checks) {
                 // If we encounter an invalidity at the numeric boundaries, we simply
                 // return MAX_DOUBLE
-                if(std::numeric_limits<double>::max() == *d_cit ||
-                   std::numeric_limits<double>::lowest() == *d_cit) {
+                if(std::numeric_limits<double>::max() == invalidity ||
+                   std::numeric_limits<double>::lowest() == invalidity) {
                     return std::numeric_limits<double>::max();
                 }
 
-                result += *d_cit;
+                result += invalidity;
             }
             return result;
         } break;

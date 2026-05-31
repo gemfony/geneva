@@ -161,19 +161,20 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::submissionReturnMode &s
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Courtier::processingStatus &srm) {
     switch(srm) {
-    case processingStatus::DO_IGNORE:
+        using enum Gem::Courtier::processingStatus;
+    case DO_IGNORE:
         o << "processingStatus::DO_IGNORE";
         break;
-    case processingStatus::DO_PROCESS:
+    case DO_PROCESS:
         o << "processingStatus::DO_PROCESS";
         break;
-    case processingStatus::PROCESSED:
+    case PROCESSED:
         o << "processingStatus::PROCESSED";
         break;
-    case processingStatus::EXCEPTION_CAUGHT:
+    case EXCEPTION_CAUGHT:
         o << "processingStatus::EXCEPTION_CAUGHT";
         break;
-    case processingStatus::ERROR_FLAGGED:
+    case ERROR_FLAGGED:
         o << "processingStatus::ERROR_FLAGGED";
         break;
     default:

@@ -585,27 +585,23 @@ void GParameterScan::updateSelectedParameters() {
             // Add the data items from the parSet object to the vectors
 
             // 1) For boolean data
-            std::vector<singleBPar>::iterator b_it;
-            for(b_it = p_s->bParVec.begin(); b_it != p_s->bParVec.end(); ++b_it) {
-                this->addDataPoint<bool>(*b_it, b_data);
+            for(const auto &b_par : p_s->bParVec) {
+                this->addDataPoint<bool>(b_par, b_data);
             }
 
             // 2) For std::int32_t data
-            std::vector<singleInt32Par>::iterator i_it;
-            for(i_it = p_s->iParVec.begin(); i_it != p_s->iParVec.end(); ++i_it) {
-                this->addDataPoint<std::int32_t>(*i_it, i_data);
+            for(const auto &i_par : p_s->iParVec) {
+                this->addDataPoint<std::int32_t>(i_par, i_data);
             }
 
             // 3) For float values
-            std::vector<singleFPar>::iterator f_it;
-            for(f_it = p_s->fParVec.begin(); f_it != p_s->fParVec.end(); ++f_it) {
-                this->addDataPoint<float>(*f_it, f_data);
+            for(const auto &f_par : p_s->fParVec) {
+                this->addDataPoint<float>(f_par, f_data);
             }
 
             // 4) For double values
-            std::vector<singleDPar>::iterator d_it;
-            for(d_it = p_s->dParVec.begin(); d_it != p_s->dParVec.end(); ++d_it) {
-                this->addDataPoint<double>(*d_it, d_data);
+            for(const auto &d_par : p_s->dParVec) {
+                this->addDataPoint<double>(d_par, d_data);
             }
 
             // Copy the data back into the individual
@@ -634,27 +630,23 @@ void GParameterScan::updateSelectedParameters() {
             // Add the data items from the parSet object to the maos
 
             // 1) For boolean data
-            std::vector<singleBPar>::iterator b_it;
-            for(b_it = p_s->bParVec.begin(); b_it != p_s->bParVec.end(); ++b_it) {
-                this->addDataPoint<bool>(*b_it, b_data);
+            for(const auto &b_par : p_s->bParVec) {
+                this->addDataPoint<bool>(b_par, b_data);
             }
 
             // 2) For std::int32_t data
-            std::vector<singleInt32Par>::iterator i_it;
-            for(i_it = p_s->iParVec.begin(); i_it != p_s->iParVec.end(); ++i_it) {
-                this->addDataPoint<std::int32_t>(*i_it, i_data);
+            for(const auto &i_par : p_s->iParVec) {
+                this->addDataPoint<std::int32_t>(i_par, i_data);
             }
 
             // 3) For float values
-            std::vector<singleFPar>::iterator f_it;
-            for(f_it = p_s->fParVec.begin(); f_it != p_s->fParVec.end(); ++f_it) {
-                this->addDataPoint<float>(*f_it, f_data);
+            for(const auto &f_par : p_s->fParVec) {
+                this->addDataPoint<float>(f_par, f_data);
             }
 
             // 4) For double values
-            std::vector<singleDPar>::iterator d_it;
-            for(d_it = p_s->dParVec.begin(); d_it != p_s->dParVec.end(); ++d_it) {
-                this->addDataPoint<double>(*d_it, d_data);
+            for(const auto &d_par : p_s->dParVec) {
+                this->addDataPoint<double>(d_par, d_data);
             }
 
             // Copy the data back into the individual
@@ -779,9 +771,8 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
 
     // Extract the relevant data and store it in a parSet object
     // 1) For boolean objects
-    std::vector<std::shared_ptr<bScanPar>>::iterator b_it;
-    for(b_it = b_cnt_.begin(); b_it != b_cnt_.end(); ++b_it) {
-        gpar::NAMEANDIDTYPE var = (*b_it)->getVarAddress();
+    for(const auto &b_scan_par : b_cnt_) {
+        gpar::NAMEANDIDTYPE var = b_scan_par->getVarAddress();
 
         if(mode_set) {
             if(std::get<0>(var) != mode) {
@@ -798,7 +789,7 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
         }
 
         singleBPar item(
-            (*b_it)->getCurrentItem(gr_),
+            b_scan_par->getCurrentItem(gr_),
             std::get<0>(var),
             std::get<1>(var),
             std::get<2>(var)
@@ -806,9 +797,8 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
         (result->bParVec).push_back(item);
     }
     // 2) For std::int32_t objects
-    std::vector<std::shared_ptr<int32ScanPar>>::iterator i_it;
-    for(i_it = int32_cnt_.begin(); i_it != int32_cnt_.end(); ++i_it) {
-        gpar::NAMEANDIDTYPE var = (*i_it)->getVarAddress();
+    for(const auto &i_scan_par : int32_cnt_) {
+        gpar::NAMEANDIDTYPE var = i_scan_par->getVarAddress();
 
         if(mode_set) {
             if(std::get<0>(var) != mode) {
@@ -825,7 +815,7 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
         }
 
         singleInt32Par item(
-            (*i_it)->getCurrentItem(gr_),
+            i_scan_par->getCurrentItem(gr_),
             std::get<0>(var),
             std::get<1>(var),
             std::get<2>(var)
@@ -833,9 +823,8 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
         (result->iParVec).push_back(item);
     }
     // 3) For float objects
-    std::vector<std::shared_ptr<fScanPar>>::iterator f_it;
-    for(f_it = f_cnt_.begin(); f_it != f_cnt_.end(); ++f_it) {
-        gpar::NAMEANDIDTYPE var = (*f_it)->getVarAddress();
+    for(const auto &f_scan_par : f_cnt_) {
+        gpar::NAMEANDIDTYPE var = f_scan_par->getVarAddress();
 
         if(mode_set) {
             if(std::get<0>(var) != mode) {
@@ -852,7 +841,7 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
         }
 
         singleFPar item(
-            (*f_it)->getCurrentItem(gr_),
+            f_scan_par->getCurrentItem(gr_),
             std::get<0>(var),
             std::get<1>(var),
             std::get<2>(var)
@@ -860,9 +849,8 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
         (result->fParVec).push_back(item);
     }
     // 4) For double objects
-    std::vector<std::shared_ptr<dScanPar>>::iterator d_it;
-    for(d_it = d_cnt_.begin(); d_it != d_cnt_.end(); ++d_it) {
-        gpar::NAMEANDIDTYPE var = (*d_it)->getVarAddress();
+    for(const auto &d_scan_par : d_cnt_) {
+        gpar::NAMEANDIDTYPE var = d_scan_par->getVarAddress();
 
         if(mode_set) {
             if(std::get<0>(var) != mode) {
@@ -879,7 +867,7 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
         }
 
         singleDPar item(
-            (*d_it)->getCurrentItem(gr_),
+            d_scan_par->getCurrentItem(gr_),
             std::get<0>(var),
             std::get<1>(var),
             std::get<2>(var)

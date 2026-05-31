@@ -150,13 +150,6 @@ public:
             return distance_ == p.distance();
         }
 
-        /**
- 			* Compare for inequality with another param_type object
- 			*/
-        bool operator!=(const param_type &p) const {
-            return not operator==(p);
-        }
-
     private:
         fp_type mean_ = 0.;
         fp_type sigma1_ = 0.;
@@ -325,18 +318,6 @@ bool operator==(
     const bi_normal_distribution<fp_type> &rhs
 ) {
     return lhs.param() == rhs.param();
-};
-
-/******************************************************************************/
-/**
- * Checks two bi_normal_distribution distributions for inequality
- */
-template <std::floating_point fp_type>
-bool operator!=(
-    const bi_normal_distribution<fp_type> &lhs,
-    const bi_normal_distribution<fp_type> &rhs
-) {
-    return lhs.param() != rhs.param();
 };
 
 /******************************************************************************/

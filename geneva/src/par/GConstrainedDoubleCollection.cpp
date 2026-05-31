@@ -140,9 +140,8 @@ void GConstrainedDoubleCollection::doubleStreamline(
     std::vector<double> &par_vec,
     [[maybe_unused]] const activityMode & am
 ) const {
-    GConstrainedDoubleCollection::const_iterator cit;
-    for(cit = this->begin(); cit != this->end(); ++cit) {
-        par_vec.push_back(this->transfer(*cit));
+    for(const auto &val : *this) {
+        par_vec.push_back(this->transfer(val));
     }
 }
 

@@ -61,7 +61,6 @@
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
-#include "common/GThreadGroup.hpp"
 #include "common/GThreadPool.hpp"
 #include "courtier/GBaseClientT.hpp"
 #include "courtier/consumers/GBaseConsumerT.hpp"
@@ -206,7 +205,7 @@ public:
         glogger << "GMPIConsumerWorkerNodeT with rank " << commRank_ << " started up" << '\n'
                 << GLOGGING;
         // create the buffer for incoming messages
-        incomingMessageBuffer_ = std::unique_ptr<char[]>(new char[GMPICONSUMERMAXMESSAGESIZE]);
+        incomingMessageBuffer_ = std::make_unique<char[]>(GMPICONSUMERMAXMESSAGESIZE);
     }
 
     /**
@@ -375,7 +374,8 @@ private:
          */
     void processWorkItem() {
         switch(commandContainer_.get_command()) {
-        case networked_consumer_payload_command::COMPUTE: {
+            using enum Gem::Courtier::networked_consumer_payload_command;
+        case COMPUTE: {
             // process item. This will put the result into the container
             commandContainer_.process();
 
@@ -385,7 +385,7 @@ private:
             // mark the container as "contains a result"
             commandContainer_.set_command(networked_consumer_payload_command::RESULT);
         } break;
-        case networked_consumer_payload_command::NODATA: {
+        case NODATA: {
             // Update the NODATA counter for bookkeeping
             ++nNoData_;
 
@@ -399,7 +399,7 @@ private:
             // Tell the server again we need work
             commandContainer_.reset(networked_consumer_payload_command::GETDATA);
         } break;
-        case networked_consumer_payload_command::STOP: {
+        case STOP: {
             this->stopRequestReceived_ = true;
         } break;
         default: {
@@ -599,11 +599,12 @@ private:
 
             // If we have some payload received, add it to its destination
             switch(inboundCommand) {
-            case networked_consumer_payload_command::RESULT: {
+                using enum Gem::Courtier::networked_consumer_payload_command;
+            case RESULT: {
                 putWorkItem();
                 return true;
             }
-            case networked_consumer_payload_command::GETDATA: {
+            case GETDATA: {
                 return true; // no data to process
             }
             default: { // clients may only send RESULT or GETDATA commands
@@ -945,7 +946,7 @@ private:
     }
 
     void pushOpenSession(std::shared_ptr<GMPIConsumerSessionT<processable_type>> session) {
-        std::lock_guard<std::mutex> guard(openSessionsMutex_);
+        std::scoped_lock guard(openSessionsMutex_);
         openSessions_.push_back(session);
     }
 
@@ -979,7 +980,7 @@ private:
             const auto timeCurr = std::chrono::steady_clock::now();
 
             // lock access to open sessions vector
-            std::lock_guard<std::mutex> guard(openSessionsMutex_);
+            std::scoped_lock guard(openSessionsMutex_);
 
             for(auto sessionIter{openSessions_.begin()}; sessionIter != openSessions_.end();
                 /* no increment */) {

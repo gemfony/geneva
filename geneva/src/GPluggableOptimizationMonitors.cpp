@@ -1633,8 +1633,6 @@ void GNAdpationsLogger::informationFunction_(
     } break;
 
     case Gem::Geneva::infoMode::INFOEND: {
-        std::vector<std::tuple<double, double>>::iterator it;
-
         if(monitor_best_only_) {
             // Create the graph object
             n_adaptions_graph2_d_oa_ =
@@ -1644,8 +1642,8 @@ void GNAdpationsLogger::informationFunction_(
             n_adaptions_graph2_d_oa_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 
             // Fill the object with data
-            for(it = n_adaptions_store_.begin(); it != n_adaptions_store_.end(); ++it) {
-                (*n_adaptions_graph2_d_oa_) & *it;
+            for(const auto &n_adaptions : n_adaptions_store_) {
+                (*n_adaptions_graph2_d_oa_) & n_adaptions;
             }
 
             // Add the histogram to the plot designer
@@ -1654,9 +1652,9 @@ void GNAdpationsLogger::informationFunction_(
         else { // All individuals are monitored
             // Within n_adaptions_store_, find the largest number of adaptions performed
             std::size_t max_n_adaptions = 0;
-            for(it = n_adaptions_store_.begin(); it != n_adaptions_store_.end(); ++it) {
-                if(std::get<1>(*it) > max_n_adaptions) {
-                    max_n_adaptions = Gem::Common::narrow<std::size_t>(std::get<1>(*it));
+            for(const auto &n_adaptions : n_adaptions_store_) {
+                if(std::get<1>(n_adaptions) > max_n_adaptions) {
+                    max_n_adaptions = Gem::Common::narrow<std::size_t>(std::get<1>(n_adaptions));
                 }
             }
 
@@ -1675,8 +1673,8 @@ void GNAdpationsLogger::informationFunction_(
             n_adaptions_hist2_d_oa_->setDrawingArguments("BOX");
 
             // Fill the object with data
-            for(it = n_adaptions_store_.begin(); it != n_adaptions_store_.end(); ++it) {
-                (*n_adaptions_hist2_d_oa_) & *it;
+            for(const auto &n_adaptions : n_adaptions_store_) {
+                (*n_adaptions_hist2_d_oa_) & n_adaptions;
             }
 
             // Add the histogram to the plot designer

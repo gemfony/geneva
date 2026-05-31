@@ -443,8 +443,8 @@ int main(int argc, char **argv) {
     producer_counter = 0;
 
     // Some thread groups needed for producers and workers
-    Gem::Common::GStdThreadGroup producer_gtg;
-    Gem::Common::GStdThreadGroup worker_gtg;
+    Gem::Common::GThreadGroup producer_gtg;
+    Gem::Common::GThreadGroup worker_gtg;
 
     //--------------------------------------------------------------------------------
     // Find out about our configuration options

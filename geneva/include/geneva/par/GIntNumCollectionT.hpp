@@ -96,9 +96,8 @@ public:
         typename std::uniform_int_distribution<int_type> uniform_int(min, max);
 
         // Fill the vector with random values
-        typename GIntNumCollectionT<int_type>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            *it = uniform_int(gr);
+        for(auto &value : *this) {
+            value = uniform_int(gr);
         }
     }
 
@@ -206,9 +205,8 @@ protected:
             lower_boundary,
             upper_boundary
         );
-        typename GIntNumCollectionT<int_type>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it) = uniform_int(gr);
+        for(auto &value : *this) {
+            value = uniform_int(gr);
         }
 
         return true;

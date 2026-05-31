@@ -143,9 +143,8 @@ void GDoubleCollection::doubleStreamline(
     std::vector<double> &par_vec,
     [[maybe_unused]] const activityMode & am
 ) const {
-    GDoubleCollection::const_iterator cit;
-    for(cit = this->begin(); cit != this->end(); ++cit) {
-        par_vec.push_back(*cit);
+    for(const auto &val : *this) {
+        par_vec.push_back(val);
     }
 }
 
@@ -242,10 +241,9 @@ void GDoubleCollection::assignDoubleValueVectors(
     const std::map<std::string, std::vector<double>> &par_map,
     [[maybe_unused]] const activityMode & am
 ) {
-    GDoubleCollection::iterator it;
     std::size_t cnt = 0;
-    for(it = this->begin(); it != this->end(); ++it) {
-        *it = (Gem::Common::getMapItem(par_map, this->getParameterName())).at(cnt++);
+    for(auto &val : *this) {
+        val = (Gem::Common::getMapItem(par_map, this->getParameterName())).at(cnt++);
     }
 }
 

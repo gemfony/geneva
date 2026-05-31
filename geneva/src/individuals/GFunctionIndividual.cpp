@@ -133,9 +133,8 @@ double GDoubleSumConstraint::check_(const gpar::GParameterSet *p) const {
     p->streamline(par_vec);
 
     double sum = 0.;
-    std::vector<double>::iterator it;
-    for(it = par_vec.begin(); it != par_vec.end(); ++it) {
-        sum += *it;
+    for(const auto &val : par_vec) {
+        sum += val;
     }
 
     if(sum < c_) {
@@ -233,9 +232,8 @@ double GDoubleSumGapConstraint::check_(const gpar::GParameterSet *p) const {
     p->streamline(par_vec);
 
     double sum = 0.;
-    std::vector<double>::iterator it;
-    for(it = par_vec.begin(); it != par_vec.end(); ++it) {
-        sum += *it;
+    for(const auto &val : par_vec) {
+        sum += val;
     }
 
     // Is the sum in the allowed corridor ?
@@ -332,9 +330,8 @@ double GSphereConstraint::check_(const gpar::GParameterSet *p) const {
     p->streamline(par_vec);
 
     double sum = 0.;
-    std::vector<double>::iterator it;
-    for(it = par_vec.begin(); it != par_vec.end(); ++it) {
-        sum += Gem::Common::gsquared(*it);
+    for(const auto &val : par_vec) {
+        sum += Gem::Common::gsquared(val);
     }
     sum = sqrt(sum);
 

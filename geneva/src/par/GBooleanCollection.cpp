@@ -293,9 +293,8 @@ std::string GBooleanCollection::name_() const {
  * in the sequence in which they were registered.
  */
 void GBooleanCollection::booleanStreamline(std::vector<bool> &par_vec, const activityMode &) const {
-    GBooleanCollection::const_iterator cit;
-    for(cit = this->begin(); cit != this->end(); ++cit) {
-        par_vec.push_back(*cit);
+    for(const auto &val : *this) {
+        par_vec.push_back(val);
     }
 }
 

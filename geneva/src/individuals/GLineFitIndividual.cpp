@@ -182,9 +182,8 @@ double GLineFitIndividual::fitnessCalculation() {
 
     // Sum up the square deviation of line and data points
     double deviation = 0.;
-    std::vector<std::tuple<double, double>>::iterator it;
-    for(it = data_points_.begin(); it != data_points_.end(); ++it) {
-        deviation = (a + b * std::get<0>(*it)) - std::get<1>(*it);
+    for(const auto &data_point : data_points_) {
+        deviation = (a + b * std::get<0>(data_point)) - std::get<1>(data_point);
         result += Gem::Common::gsquared(deviation);
     }
 

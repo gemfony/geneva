@@ -252,7 +252,7 @@ std::optional<target_type> environmentVariableAs(std::string const &var) {
     {
         // std::getenv is not thread-safe; serialise access with a local mutex.
         static std::mutex read_env_mutex;
-        std::unique_lock<std::mutex> lk(read_env_mutex);
+        std::scoped_lock lk(read_env_mutex);
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
         char *env_ptr = 0;

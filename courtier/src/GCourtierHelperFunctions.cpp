@@ -115,19 +115,20 @@ std::vector<bool> getBooleanMask(std::size_t vec_size, std::size_t start, std::s
  */
 std::string psToStr(const processingStatus &ps) {
     switch(ps) {
-    case processingStatus::DO_IGNORE:
+        using enum Gem::Courtier::processingStatus;
+    case DO_IGNORE:
         return "DO_IGNORE";
 
-    case processingStatus::DO_PROCESS:
+    case DO_PROCESS:
         return "DO_PROCESS";
 
-    case processingStatus::PROCESSED:
+    case PROCESSED:
         return "PROCESSED";
 
-    case processingStatus::EXCEPTION_CAUGHT:
+    case EXCEPTION_CAUGHT:
         return "EXCEPTION_CAUGHT";
 
-    case processingStatus::ERROR_FLAGGED:
+    case ERROR_FLAGGED:
         return "ERROR_FLAGGED";
     }
 
@@ -141,22 +142,23 @@ std::string psToStr(const processingStatus &ps) {
  */
 std::string pcToStr(const networked_consumer_payload_command &pc) {
     switch(pc) {
-    case networked_consumer_payload_command::NONE:
+        using enum Gem::Courtier::networked_consumer_payload_command;
+    case NONE:
         return "NONE";
 
-    case networked_consumer_payload_command::GETDATA:
+    case GETDATA:
         return "GETDATA";
 
-    case networked_consumer_payload_command::NODATA:
+    case NODATA:
         return "NODATA";
 
-    case networked_consumer_payload_command::COMPUTE:
+    case COMPUTE:
         return "COMPUTE";
 
-    case networked_consumer_payload_command::RESULT:
+    case RESULT:
         return "RESULT";
 
-    case networked_consumer_payload_command::STOP:
+    case STOP:
         return "STOP";
     }
 

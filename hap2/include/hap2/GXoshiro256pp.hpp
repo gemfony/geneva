@@ -48,6 +48,7 @@
 
 #pragma once
 
+#include <bit>
 #include <cstdint>
 #include <limits>
 
@@ -102,7 +103,7 @@ private:
     static constexpr result_type default_seed = 0x9e3779b97f4a7c15ULL;
 
     static std::uint64_t rotl(std::uint64_t x, int k) noexcept {
-        return (x << k) | (x >> (64 - k));
+        return std::rotl(x, k);
     }
 
     // splitmix64 — used only to expand the seed into the 256-bit state.

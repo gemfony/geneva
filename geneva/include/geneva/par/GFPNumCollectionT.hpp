@@ -210,9 +210,8 @@ protected:
             lower_boundary,
             upper_boundary
         );
-        typename GFPNumCollectionT<fp_type>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            (*it) = uniform_real_distribution(gr);
+        for(auto &value : *this) {
+            value = uniform_real_distribution(gr);
         }
 
         return true;

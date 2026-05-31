@@ -208,14 +208,13 @@ void GParameterPropertyParser::parse() {
     }
 
     // Process each individual string
-    std::vector<std::tuple<char, std::string>>::iterator it;
-    for(it = variable_descriptions.begin(); it != variable_descriptions.end(); ++it) {
-        std::string var_descr = std::get<1>(*it);
+    for(const auto &variable_description : variable_descriptions) {
+        std::string var_descr = std::get<1>(variable_description);
 
         from = var_descr.begin();
         to = var_descr.end();
 
-        if('d' == std::get<0>(*it)) {
+        if('d' == std::get<0>(variable_description)) {
             success = phrase_parse(
                 from,
                 to,
@@ -223,7 +222,7 @@ void GParameterPropertyParser::parse() {
                 space
             );
         }
-        else if('f' == std::get<0>(*it)) {
+        else if('f' == std::get<0>(variable_description)) {
             success = phrase_parse(
                 from,
                 to,
@@ -231,7 +230,7 @@ void GParameterPropertyParser::parse() {
                 space
             );
         }
-        else if('i' == std::get<0>(*it)) {
+        else if('i' == std::get<0>(variable_description)) {
             success = phrase_parse(
                 from,
                 to,
@@ -239,7 +238,7 @@ void GParameterPropertyParser::parse() {
                 space
             );
         }
-        else if('b' == std::get<0>(*it)) {
+        else if('b' == std::get<0>(variable_description)) {
             success = phrase_parse(
                 from,
                 to,
@@ -247,7 +246,7 @@ void GParameterPropertyParser::parse() {
                 space
             );
         }
-        else if('s' == std::get<0>(*it)) {
+        else if('s' == std::get<0>(variable_description)) {
             success = phrase_parse(
                 from,
                 to,
@@ -259,7 +258,7 @@ void GParameterPropertyParser::parse() {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterPropertyParser::parse(): Error!" << '\n'
-                << "Invalid type specifier: " << std::get<0>(*it) << '\n'
+                << "Invalid type specifier: " << std::get<0>(variable_description) << '\n'
             );
         }
 

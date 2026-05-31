@@ -1260,16 +1260,11 @@ void GExternalEvaluatorIndividualFactory::archive(
     ptr_out.put(batch + ".n_individuals", arch.size());
 
     // Output the individuals in turn
-    std::vector<std::shared_ptr<GExternalEvaluatorIndividual>>::const_iterator cit;
     std::size_t pos = 0;
     std::string basename;
-    for(cit = arch.begin(); cit != arch.
-
-                                   end();
-
-        ++cit) {
+    for(const auto &individual : arch) {
         basename = batch + ".individuals.individual" + Gem::Common::to_string(pos++);
-        (*cit)->toPropertyTree(ptr_out, basename);
+        individual->toPropertyTree(ptr_out, basename);
     }
 
     // Create a suitable extension and exchange file names for this object
@@ -1645,9 +1640,6 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
             "batch.individuals.individual0.n_bounds"
         ); // NOLINT(cppcoreguidelines-init-variables)
 
-        // Get an iterator over a property tree
-        ptree::const_iterator cit;
-
         // If variables have been specified, extract them
         boost::optional<ptree &> var_set_node_opt =
             ptr_.get_child_optional("batch.individuals.individual0.vars");
@@ -1656,15 +1648,15 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
             // Note that for now we only query GConstrainedDoubleObject objects
             std::size_t var_counter = 0;
             std::string var_string = "var0";
-            for(cit = (*var_set_node_opt).begin(); cit != (*var_set_node_opt).end(); ++cit) {
-                if(var_string == cit->first) { // O.k., we found a varX string
+            for(const auto &[var_name, var_subtree] : *var_set_node_opt) {
+                if(var_string == var_name) { // O.k., we found a varX string
                     // Just treat GConstrainedDoubleObject objects for now
-                    if("GConstrainedDoubleObject" == (cit->second).get<std::string>("type")) {
+                    if("GConstrainedDoubleObject" == var_subtree.get<std::string>("type")) {
                         // Extract the boundaries and initial values
-                        std::string p_name = (cit->second).get<std::string>("name");
-                        double min_var = (cit->second).get<double>("lowerBoundary");
-                        double max_var = (cit->second).get<double>("upperBoundary");
-                        double init_value = (cit->second).get<double>("values.value0");
+                        std::string p_name = var_subtree.get<std::string>("name");
+                        double min_var = var_subtree.get<double>("lowerBoundary");
+                        double max_var = var_subtree.get<double>("upperBoundary");
+                        double init_value = var_subtree.get<double>("values.value0");
 
                         // Create an initial (empty) pointer to a GConstrainedDoubleObject
                         std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr;
@@ -1682,8 +1674,8 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
                             // Disable mutations
                             gcdo_ptr->setAdaptionsInactive();
                         }
-                        else if(0 == (cit->second).count("initRandom") ||
-                                false == (cit->second).get<bool>("initRandom")) {
+                        else if(0 == var_subtree.count("initRandom") ||
+                                false == var_subtree.get<bool>("initRandom")) {
                             // Create the parameter object
                             gcdo_ptr = std::make_shared<gpar::GConstrainedDoubleObject>(
                                 init_value,
@@ -1708,7 +1700,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
                             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                             << "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!"
                             << '\n'
-                            << (cit->second).get<std::string>("type") << " provided as type name."
+                            << var_subtree.get<std::string>("type") << " provided as type name."
                             << '\n'
                             << "Currently only GConstrainedDoubleObject is supported." << '\n'
                         );
@@ -1744,10 +1736,10 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
             // Note that for now we only query GConstrainedDoubleObject objects
             std::size_t bounds_counter = 0;
             std::string bound_string = "bound0";
-            for(cit = (*bounds_node_opt).begin(); cit != (*bounds_node_opt).end(); ++cit) {
-                if(cit->first == bound_string) {
-                    std::string expression = (cit->second).get<std::string>("expression");
-                    bool allow_negative = (cit->second).get<bool>("allow_negative");
+            for(const auto &[bound_name, bound_subtree] : *bounds_node_opt) {
+                if(bound_name == bound_string) {
+                    std::string expression = bound_subtree.get<std::string>("expression");
+                    bool allow_negative = bound_subtree.get<bool>("allow_negative");
 
                     // The actual "function-constraint"
                     std::shared_ptr<gpar::GParameterSetFormulaConstraint> formula_constraint(

@@ -2082,11 +2082,10 @@ private:
                 best->queryAdaptor(adaptor_name_, property_, data);
 
                 // Attach the data to adaptor_property_store_
-                std::vector<std::any>::iterator prop_it;
-                for(prop_it = data.begin(); prop_it != data.end(); ++prop_it) {
+                for(const auto &property : data) {
                     adaptor_property_store_.emplace_back(
                         static_cast<double>(iteration),
-                        double(std::any_cast<num_type>(*prop_it))
+                        double(std::any_cast<num_type>(property))
 
                     );
                 }
@@ -2101,11 +2100,10 @@ private:
                     ind->queryAdaptor(adaptor_name_, property_, data);
 
                     // Attach the data to adaptor_property_store_
-                    std::vector<std::any>::iterator prop_it;
-                    for(prop_it = data.begin(); prop_it != data.end(); ++prop_it) {
+                    for(const auto &property : data) {
                         adaptor_property_store_.emplace_back(
                             static_cast<double>(iteration),
-                            double(std::any_cast<num_type>(*prop_it))
+                            double(std::any_cast<num_type>(property))
 
                         );
                     }
@@ -2114,13 +2112,11 @@ private:
         } break;
 
         case Gem::Geneva::infoMode::INFOEND: {
-            std::vector<std::tuple<double, double>>::iterator it;
-
             // Within adaptor_property_store_, find the largest number of adaptions performed
             double max_property = 0.;
-            for(it = adaptor_property_store_.begin(); it != adaptor_property_store_.end(); ++it) {
-                if(std::get<1>(*it) > max_property) {
-                    max_property = std::get<1>(*it);
+            for(const auto &property_entry : adaptor_property_store_) {
+                if(std::get<1>(property_entry) > max_property) {
+                    max_property = std::get<1>(property_entry);
                 }
             }
 
@@ -2142,8 +2138,8 @@ private:
             adaptor_property_hist2_d_oa_->setDrawingArguments("BOX");
 
             // Fill the object with data
-            for(it = adaptor_property_store_.begin(); it != adaptor_property_store_.end(); ++it) {
-                (*adaptor_property_hist2_d_oa_) & *it;
+            for(const auto &property_entry : adaptor_property_store_) {
+                (*adaptor_property_hist2_d_oa_) & property_entry;
             }
 
             // Add the histogram to the plot designer

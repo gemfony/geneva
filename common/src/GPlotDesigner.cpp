@@ -2299,75 +2299,76 @@ std::string GHistogram2D::drawingArguments(bool is_secondary) const {
     }
     else {
         switch(dropt_) {
-        case tddropt::TDEMPTY:
+            using enum tddropt;
+        case TDEMPTY:
             d_a = "";
             break;
 
-        case tddropt::SURFONE:
+        case SURFONE:
             d_a = "SURF1";
             break;
 
-        case tddropt::SURFTWOZ:
+        case SURFTWOZ:
             d_a = "SURF2Z";
             break;
 
-        case tddropt::SURFTHREE:
+        case SURFTHREE:
             d_a = "SURF3";
             break;
 
-        case tddropt::SURFFOUR:
+        case SURFFOUR:
             d_a = "SURF4";
             break;
 
-        case tddropt::CONTZ:
+        case CONTZ:
             d_a = "CONTZ";
             break;
 
-        case tddropt::CONTONE:
+        case CONTONE:
             d_a = "CONT1";
             break;
 
-        case tddropt::CONTTWO:
+        case CONTTWO:
             d_a = "CONT2";
             break;
 
-        case tddropt::CONTTHREE:
+        case CONTTHREE:
             d_a = "CONT3";
             break;
 
-        case tddropt::TEXT:
+        case TEXT:
             d_a = "TEXT";
             break;
 
-        case tddropt::SCAT:
+        case SCAT:
             d_a = "SCAT";
             break;
 
-        case tddropt::BOX:
+        case BOX:
             d_a = "BOX";
             break;
 
-        case tddropt::ARR:
+        case ARR:
             d_a = "ARR";
             break;
 
-        case tddropt::COLZ:
+        case COLZ:
             d_a = "COLZ";
             break;
 
-        case tddropt::LEGO:
+        case LEGO:
             d_a = "LEGO";
             break;
 
-        case tddropt::LEGOONE:
+        case LEGOONE:
             d_a = "LEGO1";
             break;
 
-        case tddropt::SURFONEPOL:
+        case SURFONEPOL:
             d_a = "SURF1POL";
             break;
 
-        case tddropt::SURFONECYL:
+        case SURFONECYL:
             d_a = "SURF1CYL";
             break;
         }

@@ -496,9 +496,10 @@ public:
 
         // We want to enforce specific targets depending on the current state
         switch(processing_status_) {
+            using enum Gem::Courtier::processingStatus;
             //------------------------------------------------------------------------------------
 
-        case processingStatus::DO_IGNORE:
+        case DO_IGNORE:
             if(target_ps == processingStatus::DO_PROCESS) {
                 // Store the new state
                 processing_status_ = target_ps;
@@ -520,7 +521,7 @@ public:
 
             //------------------------------------------------------------------------------------
 
-        case processingStatus::DO_PROCESS:
+        case DO_PROCESS:
             if(target_ps == processingStatus::DO_IGNORE) {
                 // Store the new state
                 processing_status_ = target_ps;
@@ -542,7 +543,7 @@ public:
 
             //------------------------------------------------------------------------------------
 
-        case processingStatus::PROCESSED:
+        case PROCESSED:
             if(target_ps == processingStatus::DO_IGNORE ||
                target_ps == processingStatus::DO_PROCESS) {
                 // Store the new state
@@ -565,8 +566,8 @@ public:
 
             //------------------------------------------------------------------------------------
 
-        case processingStatus::EXCEPTION_CAUGHT:
-        case processingStatus::ERROR_FLAGGED:
+        case EXCEPTION_CAUGHT:
+        case ERROR_FLAGGED:
             if(target_ps == processingStatus::DO_IGNORE ||
                target_ps == processingStatus::DO_PROCESS) {
                 // Store the new state

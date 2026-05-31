@@ -108,9 +108,8 @@ public:
         );
 
         // Assign random values to each position
-        typename GConstrainedFPNumCollectionT<fp_type>::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            *it = uniform_real_distribution(gr);
+        for(auto &value : *this) {
+            value = uniform_real_distribution(gr);
         }
     }
 

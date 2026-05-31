@@ -348,7 +348,7 @@ protected:
         // freshly created object (no disk I/O / JSON re-parse). The file does not
         // change between produce() calls, so this is purely an efficiency win.
         {
-            std::unique_lock<std::mutex> config_lock(init_mutex_);
+            std::scoped_lock config_lock(init_mutex_);
             if(config_ptree_cached_) {
                 // Re-apply the cached ptree to this freshly produced object. The
                 // unknown-key diagnostic already ran on the first (real) parse, so
