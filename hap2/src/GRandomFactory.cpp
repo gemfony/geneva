@@ -404,25 +404,27 @@ void GRandomFactory::producer(std::uint32_t seed) {
                 fill(p, /*fresh=*/true);
             }
 
-            // Try to submit the item and check for termination conditions along the way
+            // Submit the freshly filled container. Block on the buffer's
+            // not-full condition (woken the instant a consumer frees space)
+            // rather than polling with a fixed sleep; the timeout lets us
+            // periodically re-check the stop flag so shutdown stays responsive.
+            // A timed-out push leaves p untouched (the move happens only on
+            // success), so the loop simply retries with the same container.
             while(not threads_stop_requested_) {
-                if(not p_fresh_bfr_.try_push_move(std::move(p))) {
-#ifdef DEBUG
-                    // p should never be empty here
-                    if(not p) {
-                        throw geneva_exception(
-                            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                            << "In RandomFactory::producer(): Error!" << '\n'
-                            << "Got empty pointer after unsuccesfull submission" << '\n'
-                        );
-                    }
-#endif
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                    continue;
+                if(p_fresh_bfr_.push_and_wait_move(
+                       std::move(p), std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT))) {
+                    break; // submitted -- stop the inner loop
                 }
-                // We have submitted the item -- stop the inner loop
-                    break;
-               
+#ifdef DEBUG
+                // p must still be valid after a timed-out (unsuccessful) push.
+                if(not p) {
+                    throw geneva_exception(
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                        << "In RandomFactory::producer(): Error!" << '\n'
+                        << "Got empty pointer after timed-out submission" << '\n'
+                    );
+                }
+#endif
             }
         }
     }
