@@ -10,8 +10,8 @@ source_dir: /home/rberlich/ClionProjects/geneva
 # Writable scratch area: per-job build dirs, generated Dockerfiles, logs, reports.
 workdir: /home/rberlich/Testplan
 
-# Container/VM backend: podman | docker | multipass | auto
-# Podman is the default: it runs rootless (no daemon, no 'docker' group needed).
+# Container backend. Only Podman is supported (rootless: no daemon, no 'docker'
+# group needed). 'auto' resolves to podman.
 backend: podman
 
 # Where the from-source Boost 1.91 (built in C++20 mode) lives inside the guest
@@ -20,7 +20,7 @@ backend: podman
 boost_root: /opt/boost
 
 # Parallel jobs (matrix cells run concurrently). 1 = sequential.
-jobs: 1
+jobs: 2
 
 # Guest operating systems to test against.
 guests:

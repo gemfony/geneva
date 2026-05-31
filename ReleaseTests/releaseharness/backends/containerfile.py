@@ -70,13 +70,20 @@ def _base_packages(with_mpi: bool) -> str:
     return " ".join(pkgs)
 
 
-def containerfile(guest: GuestOS, *, with_mpi: bool = False) -> str:
+def containerfile(guest: GuestOS, *, with_mpi: bool = False,
+                  boost_root: str | None = None) -> str:
     """Render the Containerfile for one guest OS.
 
     The image installs both toolchains and builds Boost 1.91 from source with
     GCC in C++20 mode (``b2 cxxstd=20``). Build jobs later mount the read-only
     Geneva source and a writable build dir and run ``prepareBuild.sh``.
+
+    ``boost_root`` is where Boost is installed inside the image (and exported as
+    ``BOOST_ROOT``); it MUST match the build-time ``BOOSTROOT`` derived from the
+    same config value, so the from-source Boost is actually found. Defaults to
+    IMAGE_BOOST_ROOT (``/opt/boost``).
     """
+    boost_root = boost_root or IMAGE_BOOST_ROOT
     pkgs = _base_packages(with_mpi)
     return f"""\
 FROM {guest.image}
@@ -89,6 +96,15 @@ RUN apt-get update \\
  && apt-get install -y --no-install-recommends {pkgs} \\
  && rm -rf /var/lib/apt/lists/*
 
+# --- Clang compiler-rt sanitizer runtimes (for the Sanitize build type) -----
+# The distro `clang` package does not pull in libclang_rt.tsan/asan/etc., so a
+# Clang Sanitize build fails at link ("cannot find libclang_rt.tsan-*.a").
+# Install the runtime package matching the installed Clang major version.
+RUN CLANG_MAJOR="$(clang --version | sed -nE 's/.*version ([0-9]+).*/\\1/p' | head -1)" \\
+ && apt-get update \\
+ && apt-get install -y --no-install-recommends "libclang-rt-${{CLANG_MAJOR}}-dev" \\
+ && rm -rf /var/lib/apt/lists/*
+
 # --- Boost {BOOST_VERSION} from source, C++20 ABI --------------------------------
 # Built ONCE with the system GCC; GCC and Clang share libstdc++ on Linux so the
 # same Boost serves both compilers. The distro libboost packages (1.83/1.88/
@@ -97,7 +113,7 @@ RUN cd /tmp \\
  && curl -fsSL -o {BOOST_TARBALL} "{BOOST_URL}" \\
  && tar xf {BOOST_TARBALL} \\
  && cd boost_{BOOST_UNDERSCORE} \\
- && ./bootstrap.sh --prefix={IMAGE_BOOST_ROOT} \\
+ && ./bootstrap.sh --prefix={boost_root} \\
         --with-libraries={BOOST_LIBRARIES} \\
  && ./b2 -j"$(nproc)" \\
         cxxstd=20 \\
@@ -109,8 +125,8 @@ RUN cd /tmp \\
  && cd / \\
  && rm -rf /tmp/boost_{BOOST_UNDERSCORE} /tmp/{BOOST_TARBALL}
 
-ENV BOOST_ROOT={IMAGE_BOOST_ROOT}
-ENV LD_LIBRARY_PATH={IMAGE_BOOST_ROOT}/lib:$LD_LIBRARY_PATH
+ENV BOOST_ROOT={boost_root}
+ENV LD_LIBRARY_PATH={boost_root}/lib:$LD_LIBRARY_PATH
 
 WORKDIR /work
 """

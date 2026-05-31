@@ -102,25 +102,6 @@ class BuildSpec:
             'CXXEXTRAFLAGS=""\n'
         )
 
-    def cmake_args(self, source_dir: str, install_dir: str | None = None) -> list[str]:
-        """Render the equivalent direct ``cmake`` argument list (fallback path)."""
-        cc = "clang" if self.compiler is Compiler.CLANG else "gcc"
-        cxx = "clang++" if self.compiler is Compiler.CLANG else "g++"
-        args = [
-            source_dir,
-            f"-DGENEVA_BUILD_TYPE={self.build_type.value}",
-            f"-DGENEVA_BUILD_TESTS={'TRUE' if self.build_tests else 'FALSE'}",
-            f"-DGENEVA_BUILD_EXAMPLES={'TRUE' if self.build_examples else 'FALSE'}",
-            f"-DGENEVA_BUILD_BENCHMARKS={'TRUE' if self.build_benchmarks else 'FALSE'}",
-            f"-DGENEVA_BUILD_WITH_MPI_CONSUMER={'TRUE' if self.with_mpi else 'FALSE'}",
-            f"-DUSECUDARNG={'TRUE' if self.with_cuda_rng else 'FALSE'}",
-            f"-DCMAKE_C_COMPILER={cc}",
-            f"-DCMAKE_CXX_COMPILER={cxx}",
-            f"-DBOOST_ROOT={self.boost_root}",
-            f"-DCMAKE_INSTALL_PREFIX={install_dir or self.install_dir}",
-        ]
-        return args
-
 
 @dataclass(frozen=True)
 class Job:

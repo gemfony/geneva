@@ -62,8 +62,12 @@ class ContainerBackend(abc.ABC):
         """Stable image/instance identifier for a (guest, spec) combination."""
 
     @abc.abstractmethod
-    def build_image(self, guest: GuestOS, spec: BuildSpec, *, images_dir: Path) -> CommandResult:
-        """Build/prepare the guest environment. Idempotent where possible."""
+    def build_image(self, guest: GuestOS, spec: BuildSpec, *, images_dir: Path,
+                    boost_root: str | None = None) -> CommandResult:
+        """Build/prepare the guest environment. Idempotent where possible.
+
+        ``boost_root`` overrides where Boost is installed inside the image; it
+        must match the build-time BOOSTROOT. ``None`` uses the image default."""
 
     # -- execution --------------------------------------------------------
     @abc.abstractmethod

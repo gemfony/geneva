@@ -84,37 +84,6 @@ def _diagnose_podman() -> Diagnosis:
     )
 
 
-def _diagnose_docker() -> Diagnosis:
-    if shutil.which("docker") is None:
-        return Diagnosis(
-            "docker", "ABSENT", "docker binary not found",
-            "Install Docker:  sudo apt install -y docker.io  "
-            "(Podman is preferred here and needs no daemon/group).",
-        )
-    rc, out, err = _run(["docker", "info"], timeout=20)
-    blob = (out + err).lower()
-    if rc == 0:
-        return Diagnosis("docker", "WORKING", "docker daemon reachable",
-                         "Ready. (Podman remains the harness default.)")
-    if "permission denied" in blob or "dial unix" in blob and "permission" in blob:
-        return Diagnosis(
-            "docker", "PERMISSION_DENIED",
-            "user not in the 'docker' group (daemon socket access denied)",
-            "Grant access:  sudo usermod -aG docker $USER && newgrp docker  "
-            "(then re-run). Or just use Podman, which needs no group.",
-        )
-    if "cannot connect" in blob or "is the docker daemon running" in blob:
-        return Diagnosis(
-            "docker", "UNREACHABLE", "Docker daemon not running",
-            "Start it:  sudo systemctl enable --now docker  "
-            "(or use Podman, which has no daemon).",
-        )
-    return Diagnosis(
-        "docker", "UNREACHABLE", (err or out).strip()[:200] or f"exit {rc}",
-        "Run `docker info` for the full error; consider Podman instead.",
-    )
-
-
 def _diagnose_gpu() -> Diagnosis:
     if shutil.which("nvidia-smi") is None:
         return Diagnosis(
@@ -126,8 +95,7 @@ def _diagnose_gpu() -> Diagnosis:
     blob = (out + err).lower()
     if rc == 0 and "driver version" in blob:
         return Diagnosis("gpu", "WORKING", "nvidia-smi reports a usable GPU",
-                         "CUDA passthrough: Podman --device nvidia.com/gpu=all "
-                         "(CDI); Docker --gpus all.")
+                         "CUDA passthrough: Podman --device nvidia.com/gpu=all (CDI).")
     if "version mismatch" in blob or "driver/library version mismatch" in blob:
         return Diagnosis(
             "gpu", "VERSION_MISMATCH",
@@ -137,7 +105,7 @@ def _diagnose_gpu() -> Diagnosis:
             "(sudo rmmod nvidia_uvm nvidia_drm nvidia_modeset nvidia; "
             "sudo modprobe nvidia). Ensure your user is in the 'video' and "
             "'render' groups for device access. CUDA passthrough still works "
-            "for compute (Podman --device nvidia.com/gpu=all, Docker --gpus all).",
+            "for compute (Podman --device nvidia.com/gpu=all).",
         )
     return Diagnosis(
         "gpu", "UNREACHABLE",
@@ -151,6 +119,5 @@ def collect() -> list[Diagnosis]:
     """Diagnose all backends and the GPU."""
     return [
         _diagnose_podman(),
-        _diagnose_docker(),
         _diagnose_gpu(),
     ]

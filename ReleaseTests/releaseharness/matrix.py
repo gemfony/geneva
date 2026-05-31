@@ -16,10 +16,23 @@ from .runner import GUEST_BUILD
 _GUEST_INSTALL_PREFIX = f"{GUEST_BUILD}/install-prefix"
 
 
+# The release-test images ship NO CUDA toolkit (see backends/containerfile.py),
+# so a containerized build can never compile CUDA regardless of the host GPU --
+# enabling GENEVA_USE_CUDA_RNG there makes hap's ENABLE_LANGUAGE(CUDA) hard-fail
+# ("Failed to find nvcc"). CUDA must therefore be gated on the IMAGE providing a
+# toolkit, not on host gpu_available. Until a CUDA image variant exists this is
+# always False. Flip to True (and add CUDA to the Containerfile + GPU passthrough
+# in the backend) to actually exercise the CUDA build.
+_IMAGES_HAVE_CUDA = False
+
+
 def _spec(cfg: Config, compiler: Compiler, build_type: BuildType,
           fs: FeatureSet, gpu_available: bool) -> BuildSpec:
-    # CUDA is only enabled when the feature set wants it *and* a GPU exists.
-    want_cuda = fs.cuda and gpu_available
+    # CUDA needs: the feature set wants it, a usable host GPU, AND a CUDA toolkit
+    # inside the build image. The image has none, so this is currently always
+    # off -- which keeps the otherwise-CUDA-less "full" set (MPI+benchmarks)
+    # buildable instead of failing cmake configuration.
+    want_cuda = fs.cuda and gpu_available and _IMAGES_HAVE_CUDA
     return BuildSpec(
         build_type=build_type,
         compiler=compiler,

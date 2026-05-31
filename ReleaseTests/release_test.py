@@ -49,8 +49,8 @@ def _shared_options() -> argparse.ArgumentParser:
     common.add_argument("--workdir", default=S,
                         help="override the writable work area")
     common.add_argument("--backend", default=S,
-                        choices=["podman", "docker", "multipass", "auto"],
-                        help="container/VM backend (default from config; 'auto' detects)")
+                        choices=["podman", "auto"],
+                        help="container backend (only Podman is supported; default from config)")
     common.add_argument("--filter", default=S,
                         help="narrow the matrix: key=value[,key=value]; "
                              "keys: os, compiler, buildtype, label")
@@ -146,7 +146,7 @@ def cmd_doctor(args: argparse.Namespace) -> int:
         print(f"\n{marker} {d.component:<8} : {d.state}")
         print(f"        {d.detail}")
         print(f"        -> {d.recommendation}")
-        if d.component in ("podman", "docker") and d.state in ok_states:
+        if d.component == "podman" and d.state in ok_states:
             any_backend_ok = True
 
     print("\n" + "-" * 64)
@@ -239,7 +239,8 @@ def cmd_provision(cfg, args) -> int:
         log.error("backend %s not available; cannot provision. Try `doctor`.",
                   backend.name)
         return 2
-    return orchestrator.provision(backend, jobs, layout, verbose=verbose)
+    return orchestrator.provision(backend, jobs, layout,
+                                  boost_root=cfg.boost_root, verbose=verbose)
 
 
 def cmd_run(cfg, args) -> int:
@@ -247,6 +248,10 @@ def cmd_run(cfg, args) -> int:
     log = get_console_logger(verbose)
     layout = ensure_workdir(cfg.workdir)
     jobs = _expand(cfg, args)
+    if not jobs:
+        log.error("matrix expanded to 0 jobs (check --filter / --build-type); "
+                  "nothing to run -> failing.")
+        return 1
     full = _resolve_tier(args)
     dry = getattr(args, "dry_run", False)
     gpu = gpu_available()
@@ -254,7 +259,7 @@ def cmd_run(cfg, args) -> int:
 
     rep = orchestrator.run_matrix(
         backend, jobs, layout, cfg.source_dir,
-        quick=not full, dry_run=dry, verbose=verbose,
+        quick=not full, dry_run=dry, max_parallel=cfg.jobs, verbose=verbose,
     )
     text = report.render_text(rep)
     print("\n" + text)

@@ -32,9 +32,12 @@ def smoke_start(ctx: JobContext) -> CheckResult:
         return ctx.skipped("benchmark/smoke-start", tier, "skipped")
     started = time.monotonic()
     script = (
-        f"cd {GUEST_BUILD}/benchmarks 2>/dev/null || "
-        "{ echo 'no benchmarks dir'; exit 1; }\n"
-        "mapfile -t exes < <(find . -type f -perm -u+x "
+        # Post-Lager-A there is no top-level benchmarks/ dir; benchmark
+        # executables live under per-library trees (common/benchmarks/...,
+        # hap/benchmarks/..., courtier/..., geneva/...). Search the whole build
+        # tree restricted to */benchmarks/* paths.
+        f"cd {GUEST_BUILD}\n"
+        "mapfile -t exes < <(find . -type f -perm -u+x -path '*/benchmarks/*' "
         "! -name '*.so*' ! -name '*.sh' ! -name '*.cmake' "
         "! -path '*CMakeFiles*' | grep -vi cuda | sort)\n"
         "if [ ${#exes[@]} -eq 0 ]; then "
