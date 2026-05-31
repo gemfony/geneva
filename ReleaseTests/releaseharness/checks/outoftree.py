@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import time
 
-from ..model import Compiler, CheckResult, Tier
+from ..model import BuildType, Compiler, CheckResult, Tier
 from ..runner import GUEST_BUILD, GUEST_SRC, JobContext
 
 # 10_GStarter is the canonical downstream template: it is NOT built in-tree and
@@ -28,6 +28,15 @@ def build_against_install(ctx: JobContext) -> CheckResult:
     tier = Tier.SHORT
     if not ctx.should_run(tier):
         return ctx.skipped("outoftree/findgeneva", tier, "skipped")
+    if ctx.job.spec.build_type is BuildType.SANITIZE:
+        # A standalone downstream app built WITHOUT -fsanitize links against the
+        # TSan/ASan-instrumented installed Geneva libraries and aborts at startup
+        # (the sanitizer runtime must be in the main executable). Out-of-tree
+        # install/link correctness is covered by the non-Sanitize cells, so skip
+        # this combination rather than report a spurious failure.
+        return ctx.skipped("outoftree/findgeneva", tier,
+                           "n/a for Sanitize builds (sanitized libs vs. "
+                           "non-sanitized downstream app)")
     spec = ctx.job.spec
     prefix = spec.install_dir
     cxx = "clang++" if spec.compiler is Compiler.CLANG else "g++"

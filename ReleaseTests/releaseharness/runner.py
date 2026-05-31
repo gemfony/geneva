@@ -14,7 +14,7 @@ from pathlib import Path
 
 from .backends.base import CommandResult, ContainerBackend, Mount
 from .logging_util import job_log_path
-from .model import CheckResult, Job, Status, Tier
+from .model import BuildType, CheckResult, Job, Status, Tier
 
 # Standard in-guest paths.
 GUEST_SRC = "/work/src"
@@ -44,6 +44,13 @@ class JobContext:
 
     def exec_in_guest(self, argv: list[str], *, workdir: str = GUEST_BUILD,
                       use_gpu: bool = False, timeout: int | None = None) -> CommandResult:
+        # Sanitizer-instrumented binaries refuse to start under high ASLR entropy
+        # ("Please rerun with lower ASLR entropy"). Disable ASLR per-process via
+        # `setarch -R` for the whole Sanitize cell (harmless for build commands).
+        # This needs the personality() syscall, which the podman backend unblocks
+        # with --security-opt seccomp=unconfined for Sanitize builds.
+        if self.job.spec.build_type is BuildType.SANITIZE:
+            argv = ["setarch", "-R", *argv]
         return self.backend.run(
             self.job.guest, self.job.spec, argv,
             mounts=self.mounts(), workdir=workdir,

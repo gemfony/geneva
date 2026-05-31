@@ -17,7 +17,7 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-from ..model import BuildSpec, GuestOS
+from ..model import BuildSpec, BuildType, GuestOS
 from .base import CommandResult, ContainerBackend, Mount
 from .containerfile import containerfile
 
@@ -79,6 +79,11 @@ class PodmanBackend(ContainerBackend):
     ) -> CommandResult:
         tag = self.image_tag(guest, spec)
         cmd: list[str] = [self.executable, "run", "--rm", "-w", workdir]
+        # Sanitize cells run their test binaries under `setarch -R` (ASLR off,
+        # required by the TSan/ASan runtime); the personality() syscall that needs
+        # is blocked by the default seccomp profile, so relax it for these cells.
+        if spec.build_type is BuildType.SANITIZE:
+            cmd += ["--security-opt", "seccomp=unconfined"]
         cmd += self._gpu_flags(use_gpu)
         for m in mounts:
             opt = "ro" if m.read_only else "rw"
