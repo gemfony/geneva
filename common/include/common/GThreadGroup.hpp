@@ -69,13 +69,19 @@ class GThreadPool;
 
 /******************************************************************************/
 /**
- * A simple thread group based on std::thread. This class was adapted from
- * a version by Anthony Williams, as offered as part of the Boost 1.36 release
+ * A simple thread group based on std::jthread. This class was adapted from
+ * a version by Anthony Williams, as offered as part of the Boost 1.36 release.
+ *
+ * Note: the threads are stored as std::shared_ptr<std::jthread>. No stop_token
+ * is observed by the managed functors, so jthread's cooperative cancellation is
+ * a no-op here; join()/joinable() behave exactly as for std::thread. The only
+ * behavioural difference is that an std::jthread auto-joins on destruction, so
+ * a group destroyed without an explicit join_all() will not std::terminate.
  */
 class GThreadGroup {
     friend class GThreadPool;
 
-    using thread_ptr = std::shared_ptr<std::thread>;
+    using thread_ptr = std::shared_ptr<std::jthread>;
     using thread_vector = std::vector<thread_ptr>;
 
 public:
@@ -107,14 +113,14 @@ public:
 	  * TODO: Add perfect forwarding, so we may pass arguments directly
 	  *
 	  * @param f The function to be run by the thread
-	  * @return A pointer to the newly created thread
+	  * @return A pointer to the newly created std::jthread
 	  */
     template <typename F>
-    std::shared_ptr<std::thread> create_thread(F f) {
+    std::shared_ptr<std::jthread> create_thread(F f) {
         // Build the thread before taking the lock so the only critical
         // section is the vector push. Use make_shared instead of a bare
-        // `new std::thread(...)` for exception-safe single-allocation.
-        auto new_thread = std::make_shared<std::thread>(std::move(f));
+        // `new std::jthread(...)` for exception-safe single-allocation.
+        auto new_thread = std::make_shared<std::jthread>(std::move(f));
         std::scoped_lock guard(mutex_);
         threads_.push_back(new_thread);
         return new_thread;
