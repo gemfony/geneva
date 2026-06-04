@@ -59,7 +59,6 @@ Recommended Versions:
   Boost.Serialization class-export keys changed: checkpoint/archive files
   written by earlier Geneva versions are not loadable by this version (this
   archive break was a deliberate, accepted decision).
-
 - Hap now uses the xoshiro256++ engine (64-bit, with a SIMD bulk-refill backend
   and an optional cuRAND GPU backend): the previously experimental Hap2 was promoted
   to be the one and only Hap. The legacy mt19937-based Hap and the Hap-vs-Hap2
@@ -69,7 +68,6 @@ Recommended Versions:
   code that uses the proxy as a UniformRandomBitGenerator with <random> distributions
   (as Geneva does throughout), but code that consumed the raw 32-bit output directly
   would need review.
-
 - The GBoundedBufferT bounded buffer was replaced by GBlockingMPMCQueueT
   (common/GBlockingMPMCQueueT.hpp), a modernised multi-producer/multi-consumer
   blocking queue: one perfect-forwarding push family, std::optional-returning pop
@@ -78,7 +76,6 @@ Recommended Versions:
   (the old unbounded case underflowed). The Hap, Hap2 and Courtier (GBufferPortT)
   buffers were migrated and GBoundedBufferT was removed. SOURCE-breaking for code
   that used Gem::Common::GBoundedBufferT directly.
-
 - The geneva-individuals library has been dissolved into the geneva library.
   The reusable sample individuals now live in the Gem::Geneva::Individuals
   namespace (global alias `gind`), with headers in geneva/individuals/; the
@@ -113,7 +110,6 @@ Recommended Versions:
   code relied on them. To exchange two parameter objects, swap the owning
   shared_ptr instead (e.g. std::swap(ptrA, ptrB)) -- same effect in O(1), and
   each object keeps its own (correct) processing state.
-
 - CONFIG-FILE BREAKING: all configuration-file parameter names are now spelled
   in snake_case (e.g. "maxIteration" -> "max_iteration", "parDim" -> "par_dim",
   "adProb" -> "ad_prob", "nNeighborhoodMembers" -> "n_neighborhood_members").
@@ -127,7 +123,6 @@ Recommended Versions:
   "individual_update_stall_counter_threshold"). To catch such drift in future,
   GParserBuilder now warns about unknown configuration-file keys (escalatable to
   an error via GParserBuilder::setUnknownKeyIsError(true)).
-
 - MINOR (SOURCE-breaking): several Go2 public-API changes. The redundant
   getClientMode() was removed -- use clientMode() instead (it returned exactly
   the same flag). The Go2 iteration-offset accessors (setOffset() /
@@ -140,7 +135,6 @@ Recommended Versions:
   every consumer now reconciles the requested --client flag itself via the new
   virtual GBaseConsumerT::determineClientMode() (the MPI consumer derives its role
   from its process rank, as before) -- runtime behaviour is unchanged.
-
 - SOURCE/ABI-BREAKING: the monolithic GObject base class has been removed.
   GObject was the single common root of the entire Geneva object model; it has
   been decomposed into seven independent per-category CRTP roots, each deriving
