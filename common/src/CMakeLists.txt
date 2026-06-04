@@ -36,7 +36,6 @@ SET ( COMMONSOURCES
 	GLogger.cpp
 	GParserBuilder.cpp
 	GPlotDesigner.cpp
-	GTaskPool.cpp
 	GThreadGroup.cpp
 	GThreadPool.cpp
 )

@@ -76,6 +76,17 @@ Recommended Versions:
   (the old unbounded case underflowed). The Hap, Hap2 and Courtier (GBufferPortT)
   buffers were migrated and GBoundedBufferT was removed. SOURCE-breaking for code
   that used Gem::Common::GBoundedBufferT directly.
+- GThreadPool (common/GThreadPool.hpp) was reimplemented on top of Geneva's own
+  primitives -- a GThreadGroup of std::jthread workers draining a GBlockingMPMCQueueT
+  task queue -- and no longer depends on Boost.ASIO (the io_context / work guard are
+  gone). The public API is a drop-in match (construct with a thread count,
+  async_schedule() returning a std::future, wait(), get/setNThreads), with two
+  behavioural refinements: worker threads now start eagerly in the constructor, so
+  getNThreads() reports the live worker count immediately instead of 0 until the first
+  submission; and a thread count of 0 falls back to the hardware default (with a
+  warning) rather than throwing on first submission. A fire-and-forget post() overload
+  was added for tasks whose result need not be observed. The void/non-void
+  async_schedule split was folded into a single if-constexpr template body.
 - The geneva-individuals library has been dissolved into the geneva library.
   The reusable sample individuals now live in the Gem::Geneva::Individuals
   namespace (global alias `gind`), with headers in geneva/individuals/; the

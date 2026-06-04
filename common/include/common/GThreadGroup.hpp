@@ -80,7 +80,6 @@ class GThreadPool;
  */
 class GThreadGroup {
     friend class GThreadPool;
-    friend class GTaskPool;
 
     using thread_ptr = std::shared_ptr<std::jthread>;
     using thread_vector = std::vector<thread_ptr>;
