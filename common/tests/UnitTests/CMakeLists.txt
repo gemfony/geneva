@@ -86,6 +86,7 @@ geneva_common_test(GSerializationHelperFunctionsTTests
 geneva_common_test(GSerializeTupleTTests          GSerializeTupleTTests.cpp)
 geneva_common_test(GSingletonTTests               GSingletonTTests.cpp)
 geneva_common_test(GThreadGroupTests              GThreadGroupTests.cpp)
+geneva_common_test(GTaskPoolTests                 GTaskPoolTests.cpp)
 geneva_common_test(GThreadPoolTests               GThreadPoolTests.cpp)
 geneva_common_test(GTupleIOTests                  GTupleIOTests.cpp)
 geneva_common_test(GTypeToStringTTests            GTypeToStringTTests.cpp)
