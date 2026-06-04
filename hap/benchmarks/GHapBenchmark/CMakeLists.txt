@@ -27,42 +27,25 @@
 #
 ################################################################################
 
+SET ( EXECUTABLENAME GHapBenchmark )
 
-################################################################################
-#
-# This file is part of the Geneva library collection. Apache License 2.0.
-# See the NOTICE file in the top-level directory for contributors/copyright.
-#
-################################################################################
-#
-# Orchestrator for the Hap library subtree.
-#
-# Hap mirrors Hap with identical class names in namespace Gem::Hap, library
-# gemfony-hap and include prefix <hap/...>, so it can act as a drop-in
-# replacement. Both libraries build in parallel; the GHapVsHap benchmark links
-# both for side-by-side comparison.
-#
-# Layout:
-#   hap/include/hap/*.hpp   public headers
-#   hap/src/*.cpp *.cu       implementation + the gemfony-hap target
-################################################################################
+ADD_EXECUTABLE ( ${EXECUTABLENAME} GHapBenchmark.cpp )
 
-ADD_SUBDIRECTORY ( include/hap )
-ADD_SUBDIRECTORY ( src )
+SET ( LIBRARIES_TO_LINK
+		${HAP_LIBNAME}
+		${COMMON_LIBNAME}
+		${Boost_LIBRARIES} )
 
-IF ( GENEVA_BUILD_TESTS )
-	ADD_SUBDIRECTORY ( tests )
+IF ( GENEVA_BUILD_WITH_MPI_CONSUMER )
+	SET ( LIBRARIES_TO_LINK ${LIBRARIES_TO_LINK} ${MPI_LIBRARIES} )
 ENDIF ()
 
-IF ( GENEVA_BUILD_EXAMPLES )
-	ADD_SUBDIRECTORY ( examples )
-ENDIF ()
+TARGET_LINK_LIBRARIES ( ${EXECUTABLENAME} ${LIBRARIES_TO_LINK} )
 
-IF ( GENEVA_BUILD_BENCHMARKS )
-	ADD_SUBDIRECTORY ( benchmarks )
-ENDIF ()
+# NOTE: deliberately NOT registered via ADD_TEST() -- this is a long-running
+# benchmark, not a unit test. Run it by hand:
+#   ./GHapBenchmark --quick
+#   ./GHapBenchmark --proxies 32 --producers 8 --total 2000000000
 
-# Per-library Doxygen target (doc-hap), mirroring hap/.
-ADD_SUBDIRECTORY ( doc )
-
-GENEVA_AGGREGATE_TARGET( "hap-all" )
+INSTALL ( TARGETS ${EXECUTABLENAME}
+	DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/hap/GHapBenchmark )
