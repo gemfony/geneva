@@ -127,6 +127,10 @@ void GRandomFactory::finalize() {
 
     // Flag all threads to stop
     threads_stop_requested_.store(true);
+    // Wake any producer parked in a blocking push() so it observes the stop flag
+    // and exits -- otherwise join_all() below would deadlock on a full buffer.
+    p_fresh_bfr_.close();
+    p_ret_bfr_.close();
     // Wait for all threads to return
     producer_threads_.join_all();
 
@@ -404,27 +408,12 @@ void GRandomFactory::producer(std::uint32_t seed) {
                 fill(p, /*fresh=*/true);
             }
 
-            // Submit the freshly filled container. Block on the buffer's
-            // not-full condition (woken the instant a consumer frees space)
-            // rather than polling with a fixed sleep; the timeout lets us
-            // periodically re-check the stop flag so shutdown stays responsive.
-            // A timed-out push leaves p untouched (the move happens only on
-            // success), so the loop simply retries with the same container.
-            while(not threads_stop_requested_) {
-                if(p_fresh_bfr_.push_wait(
-                       std::move(p), std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT))) {
-                    break; // submitted -- stop the inner loop
-                }
-#ifdef DEBUG
-                // p must still be valid after a timed-out (unsuccessful) push.
-                if(not p) {
-                    throw geneva_exception(
-                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                        << "In RandomFactory::producer(): Error!" << '\n'
-                        << "Got empty pointer after timed-out submission" << '\n'
-                    );
-                }
-#endif
+            // Blocking submit: sleep on the buffer's not-full condition until a
+            // consumer frees space, or until finalize() closes the buffer at
+            // shutdown (push() then returns false, and we leave the loop). No
+            // timeout polling -- producers stay fully asleep while the buffer is full.
+            if(not p_fresh_bfr_.push(std::move(p))) {
+                break; // buffer closed at shutdown -- leave the producer loop
             }
         }
     }

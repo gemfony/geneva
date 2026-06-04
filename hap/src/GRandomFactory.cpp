@@ -120,6 +120,10 @@ void GRandomFactory::finalize() {
 
     // Flag all threads to stop
     threads_stop_requested_.store(true);
+    // Wake any producer parked in a blocking push() so it observes the stop flag
+    // and exits -- otherwise join_all() below would deadlock on a full buffer.
+    p_fresh_bfr_.close();
+    p_ret_bfr_.close();
     // Wait for all threads to return
     producer_threads_.join_all();
 
@@ -354,25 +358,13 @@ void GRandomFactory::producer(std::uint32_t seed) {
                 p.reset(new random_container(mt));
             }
 
-            // Try to submit the item and check for termination conditions along the way
-            while(not threads_stop_requested_) {
-                if(not p_fresh_bfr_.try_push(std::move(p))) {
-#ifdef DEBUG
-                    // p should never be empty here
-                    if(not p) {
-                        throw geneva_exception(
-                            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                            << "In RandomFactory::producer(): Error!" << '\n'
-                            << "Got empty pointer after unsuccesfull submission" << '\n'
-                        );
-                    }
-#endif
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                    continue;
-                }
-                // We have submitted the item -- stop the inner loop
-                    break;
-               
+            // Blocking submit: sleep on the buffer's not-full condition until a
+            // consumer frees space, or until finalize() closes the buffer at
+            // shutdown (push() then returns false, and we leave the loop). This
+            // replaces the former try_push + 100ms-sleep poll -- no submission
+            // latency and no spinning while the buffer is full.
+            if(not p_fresh_bfr_.push(std::move(p))) {
+                break; // buffer closed at shutdown -- leave the producer loop
             }
         }
     }
