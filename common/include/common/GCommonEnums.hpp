@@ -68,7 +68,7 @@ namespace Gem::Common {
 
 /******************************************************************************/
 /**
- * By default GBoundedBufferT will have this size. As the buffer
+ * By default GBlockingMPMCQueueT will have this size. As the buffer
  * dynamically grows and shrinks, we choose a very high value. This
  * is a safeguard against errors like endless loops that might keep
  * filling the buffer until memory is exhausted. In normal work

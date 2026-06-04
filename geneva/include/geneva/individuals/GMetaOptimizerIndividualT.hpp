@@ -46,6 +46,7 @@
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
+#include "common/GPlotDesigner.hpp"
 #include "courtier/GExecutorT.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
 #include "geneva/par/GConstrainedDoubleCollection.hpp"

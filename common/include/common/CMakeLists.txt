@@ -37,7 +37,6 @@
 #
 
 SET ( GENEVACOMMONINCLUDES
-	GBoundedBufferT.hpp
 	GCommonEnums.hpp
 	GCommonHelperFunctions.hpp
 	GCommonHelperFunctionsT.hpp

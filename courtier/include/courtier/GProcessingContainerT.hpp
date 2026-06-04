@@ -63,6 +63,7 @@
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GSerializableFunctionObjectT.hpp"
+#include "common/GSerializationHelperFunctionsT.hpp" // serialization of std::chrono time_point members
 #include "common/GSerializeTupleT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"

@@ -27,7 +27,34 @@
 #
 ################################################################################
 
-ADD_SUBDIRECTORY(GContainerTBenchmark)
-ADD_SUBDIRECTORY(GBlockingMPMCQueueTBenchmark)
+SET ( EXECUTABLENAME GBlockingMPMCQueueTBenchmark )
 
-GENEVA_AGGREGATE_TARGET( "benchmarks-common" )
+SET ( ${EXECUTABLENAME}_SRCS
+	GBlockingMPMCQueueTBenchmark.cpp
+)
+
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
+)
+
+SET(LIBRARIES_TO_LINK
+		${GENEVA_LIBRARIES}
+		${Boost_LIBRARIES})
+
+# Add MPI Libraries in case building with MPI-consumer
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(LIBRARIES_TO_LINK
+			${LIBRARIES_TO_LINK}
+			${MPI_LIBRARIES})
+ENDIF()
+
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+		${LIBRARIES_TO_LINK})
+
+# NOTE: This benchmark is deliberately NOT registered via ADD_TEST() so that
+# ctest does not run it during normal test runs. Run it manually instead:
+#   ./GBlockingMPMCQueueTBenchmark --quick
+#   ./GBlockingMPMCQueueTBenchmark --producers 8 --consumers 8 --items 50000000
+
+INSTALL ( TARGETS ${EXECUTABLENAME}
+	DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/common/GBlockingMPMCQueueTBenchmark )

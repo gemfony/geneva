@@ -52,7 +52,7 @@
 
 // Geneva headers go here
 
-#include "common/GBoundedBufferT.hpp"
+#include "common/GBlockingMPMCQueueT.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GErrorStreamer.hpp"
@@ -267,10 +267,10 @@ private:
         producer_threads_; ///< A thread group that holds [0,1[ producer threads
 
     /** @brief A bounded buffer holding the random number packages */
-    Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>, DEFAULTFACTORYBUFFERSIZE>
+    Gem::Common::GBlockingMPMCQueueT<std::unique_ptr<random_container>, DEFAULTFACTORYBUFFERSIZE>
         p_fresh_bfr_; // Note: Absolutely needs to be defined after the thread group !!!
     /** @brief A bounded buffer holding random number packages ready for recycling */
-    Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>, DEFAULTFACTORYBUFFERSIZE>
+    Gem::Common::GBlockingMPMCQueueT<std::unique_ptr<random_container>, DEFAULTFACTORYBUFFERSIZE>
         p_ret_bfr_;
 
     static std::atomic<bool>

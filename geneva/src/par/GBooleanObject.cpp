@@ -29,6 +29,7 @@
 
 #include "geneva/par/GBooleanObject.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GDefaultValueT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"

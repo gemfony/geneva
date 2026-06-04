@@ -41,7 +41,7 @@
 #include <thread>
 
 // Geneva header files go here
-#include "common/GBoundedBufferT.hpp"
+#include "common/GBlockingMPMCQueueT.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GProcessingContainerT.hpp"
@@ -53,7 +53,7 @@ class GBrokerT;
 
 /******************************************************************************/
 /**
- * A GBufferPortT<processable_type> consists of two GBoundedBufferT<std::shared_ptr<processable_type>>
+ * A GBufferPortT<processable_type> consists of two GBlockingMPMCQueueT<std::shared_ptr<processable_type>>
  * objects, one intended for "raw" items, the other for returning, processed items. While this class could
  * be useful in many scenarios, the most common application is as a mediator
  * between optimization algorithms and GConsumer-derivatives. The optimization algorithm
@@ -78,8 +78,8 @@ class GBufferPortT {
     friend class GBrokerT<processable_type>;
 
     using RAW_BUFFER_TYPE =
-        Common::GBoundedBufferT<std::shared_ptr<processable_type>, Common::DEFAULTBUFFERSIZE>;
-    using PROCESSED_BUFFER_TYPE = Common::GBoundedBufferT<std::shared_ptr<processable_type>, 0>;
+        Common::GBlockingMPMCQueueT<std::shared_ptr<processable_type>, Common::DEFAULTBUFFERSIZE>;
+    using PROCESSED_BUFFER_TYPE = Common::GBlockingMPMCQueueT<std::shared_ptr<processable_type>, 0>;
 
 public:
     /***************************************************************************/
@@ -107,8 +107,8 @@ public:
             // Make it known to the work item when it has left its origin
             // This timing may be wrong if the submission has blocked.
             item_ptr->markRawSubmissionTime();
-            // The actual submission
-            raw_ptr_->push_and_block_copy(item_ptr);
+            // The actual submission (blocks until space; void cast: never closed here)
+            (void)raw_ptr_->push(item_ptr);
         }
     }
 
@@ -130,7 +130,7 @@ public:
             // Make it known to the work item when it has left its origin
             item_ptr->markRawSubmissionTime();
             // The actual submission
-            success = raw_ptr_->push_and_wait_copy(item_ptr, timeout);
+            success = raw_ptr_->push_wait(item_ptr, timeout);
 
 #ifdef DEBUG
             // Items may be lost here. This should be a very rare occasion. Emit
@@ -157,8 +157,9 @@ public:
       * @param item_ptr A reference to the item to be retrieved
       */
     void pop_raw(std::shared_ptr<processable_type> &item_ptr) {
-        // Do the actual retrieval
-        raw_ptr_->pop_and_block_copy(item_ptr);
+        // Do the actual retrieval (nullopt only if the queue was closed and drained)
+        auto popped = raw_ptr_->pop();
+        item_ptr = popped ? std::move(*popped) : nullptr;
 
         if(item_ptr) {
             // Make it known to the work item when it was taken from the raw queue for processing
@@ -190,7 +191,11 @@ public:
         const std::chrono::duration<double> &timeout
     ) {
         // Do the actual retrieval
-        bool success = raw_ptr_->pop_and_wait_copy(item_ptr, timeout);
+        auto popped = raw_ptr_->pop_wait(timeout);
+        bool success = popped.has_value();
+        if(success) {
+            item_ptr = std::move(*popped);
+        }
         if(success && item_ptr) {
             // Make it known to the work item when it has returned to its origin
             item_ptr->markRawRetrievalTime();
@@ -220,8 +225,8 @@ public:
             // Make it known to the work item when it has entered the processed queue.
             // This timing may be wrong if the submission has blocked.
             item_ptr->markProcSubmissionTime();
-            // The actual submission
-            processed_ptr_->push_and_block_copy(item_ptr);
+            // The actual submission (blocks until space; void cast: never closed here)
+            (void)processed_ptr_->push(item_ptr);
         }
     }
 
@@ -243,7 +248,7 @@ public:
             // Make it known to the work item when it has entered the processed queue
             item_ptr->markProcSubmissionTime();
             // The actual submission
-            success = processed_ptr_->push_and_wait_copy(item_ptr, timeout);
+            success = processed_ptr_->push_wait(item_ptr, timeout);
 
 #ifdef DEBUG
             // Items may be lost here. This should be a very rare occasion. Emit
@@ -271,8 +276,9 @@ public:
       * @param item_ptr The item that was retrieved from the queue
       */
     void pop_processed(std::shared_ptr<processable_type> &item_ptr) {
-        // The actual retrieval
-        processed_ptr_->pop_and_block_copy(item_ptr);
+        // The actual retrieval (nullopt only if the queue was closed and drained)
+        auto popped = processed_ptr_->pop();
+        item_ptr = popped ? std::move(*popped) : nullptr;
 
         if(item_ptr) {
             // Make it known to the work item when it has returned to its origin
@@ -294,7 +300,11 @@ public:
         const std::chrono::duration<double> &timeout
     ) {
         // The actual retrieval
-        bool success = processed_ptr_->pop_and_wait_copy(item_ptr, timeout);
+        auto popped = processed_ptr_->pop_wait(timeout);
+        bool success = popped.has_value();
+        if(success) {
+            item_ptr = std::move(*popped);
+        }
         if(success && item_ptr) {
             // Make it known to the work item when it has returned to its origin
             item_ptr->markProcRetrievalTime();

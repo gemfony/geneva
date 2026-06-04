@@ -60,6 +60,15 @@ Recommended Versions:
   written by earlier Geneva versions are not loadable by this version (this
   archive break was a deliberate, accepted decision).
 
+- The GBoundedBufferT bounded buffer was replaced by GBlockingMPMCQueueT
+  (common/GBlockingMPMCQueueT.hpp), a modernised multi-producer/multi-consumer
+  blocking queue: one perfect-forwarding push family, std::optional-returning pop
+  (move-only friendly), if-constexpr bounded/unbounded handling, a close() shutdown
+  that wakes all waiters, [[nodiscard]] throughout, and a fixed remaining_space()
+  (the old unbounded case underflowed). The Hap, Hap2 and Courtier (GBufferPortT)
+  buffers were migrated and GBoundedBufferT was removed. SOURCE-breaking for code
+  that used Gem::Common::GBoundedBufferT directly.
+
 - The geneva-individuals library has been dissolved into the geneva library.
   The reusable sample individuals now live in the Gem::Geneva::Individuals
   namespace (global alias `gind`), with headers in geneva/individuals/; the

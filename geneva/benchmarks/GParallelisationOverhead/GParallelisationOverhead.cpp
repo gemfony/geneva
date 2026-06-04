@@ -42,6 +42,7 @@
 
 // Geneva header files go here
 #include "common/GCommonMathHelperFunctionsT.hpp"
+#include "common/GPlotDesigner.hpp"
 #include "common/GThreadPool.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/Go2.hpp"

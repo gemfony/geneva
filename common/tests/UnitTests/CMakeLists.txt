@@ -61,7 +61,7 @@ ENDFUNCTION()
 ################################################################################
 # Test executables — one per production file, alphabetical.
 
-geneva_common_test(GBoundedBufferTTests           GBoundedBufferTTests.cpp)
+geneva_common_test(GBlockingMPMCQueueTTests           GBlockingMPMCQueueTTests.cpp)
 geneva_common_test(GCommonEnumsTests              GCommonEnumsTests.cpp)
 geneva_common_test(GCommonHelperFunctionsTests    GCommonHelperFunctionsTests.cpp)
 geneva_common_test(GCommonHelperFunctionsTTests   GCommonHelperFunctionsTTests.cpp)

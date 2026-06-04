@@ -187,7 +187,7 @@ seed_type GRandomFactory::getSeed() {
  */
 void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container> &&p) {
     // We try to add the item to the p_ret_bfr_ queue.
-    if(not p_ret_bfr_.try_push_move(std::move(p))) {
+    if(not p_ret_bfr_.try_push(std::move(p))) {
         p.reset();
     }
 }
@@ -311,11 +311,10 @@ std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
     }
 
     std::unique_ptr<random_container> p; // empty
-    if(not p_fresh_bfr_.pop_and_wait_move(p, std::chrono::milliseconds(DEFAULTFACTORYGETWAIT))) {
-        // nothing - our way of signaling a time out
-        // is to return an empty std::unique_ptr
-        p = std::unique_ptr<random_container>();
+    if(auto popped = p_fresh_bfr_.pop_wait(std::chrono::milliseconds(DEFAULTFACTORYGETWAIT))) {
+        p = std::move(*popped);
     }
+    // On timeout p stays empty -- our way of signaling a time out is an empty std::unique_ptr
 
     return p;
 }
@@ -383,7 +382,8 @@ void GRandomFactory::producer(std::uint32_t seed) {
         while(not threads_stop_requested_) {
             // First we try to retrieve a "recycled" item from the p_ret_bfr_ buffer. If this
             // fails (likely because the buffer is empty), we create a new item instead
-            if(p_ret_bfr_.try_pop_move(p)) {
+            if(auto recycled = p_ret_bfr_.try_pop()) {
+                p = std::move(*recycled);
                 // If we reach this line, we have successfully retrieved a recycled container.
                 // First do some error-checking
 #ifdef DEBUG
@@ -411,7 +411,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
             // A timed-out push leaves p untouched (the move happens only on
             // success), so the loop simply retries with the same container.
             while(not threads_stop_requested_) {
-                if(p_fresh_bfr_.push_and_wait_move(
+                if(p_fresh_bfr_.push_wait(
                        std::move(p), std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT))) {
                     break; // submitted -- stop the inner loop
                 }
