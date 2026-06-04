@@ -28,7 +28,7 @@
 ################################################################################
 
 
-SET ( EXECUTABLENAME PlotRNGDistributionsHap )
+SET ( EXECUTABLENAME PlotRNGDistributions )
 
 SET ( ${EXECUTABLENAME}_SRCS
 	PlotRNGDistributions.cpp

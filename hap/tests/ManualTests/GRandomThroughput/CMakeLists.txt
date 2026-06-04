@@ -28,7 +28,7 @@
 ################################################################################
 
 
-SET ( EXECUTABLENAME GRandomThroughputHap )
+SET ( EXECUTABLENAME GRandomThroughput )
 
 SET ( ${EXECUTABLENAME}_SRCS
     GRandomThroughput.cpp

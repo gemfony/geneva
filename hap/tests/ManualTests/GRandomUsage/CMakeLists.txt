@@ -28,7 +28,7 @@
 ################################################################################
 
 
-SET ( EXECUTABLENAME GRandomUsageHap )
+SET ( EXECUTABLENAME GRandomUsage )
 
 SET ( ${EXECUTABLENAME}_SRCS
 	GRandomUsage.cpp

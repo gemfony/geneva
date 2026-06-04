@@ -28,7 +28,7 @@
 ################################################################################
 
 
-SET ( EXECUTABLENAME DependentDistributionTestsHap )
+SET ( EXECUTABLENAME DependentDistributionTests )
 
 SET ( ${EXECUTABLENAME}_SRCS
 	DependentDistributionTests.cpp
