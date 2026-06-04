@@ -33,6 +33,13 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "hap/GRandomDefines.hpp"
+#if defined(HAP_AVX2_BACKEND) || defined(HAP_NEON_BACKEND)
+#include "hap/GXoshiro256ppSIMD.hpp" // SIMD bulk-refill engine
+#endif
+#if defined(HAP_USE_CUDA)
+#include "hap/GCUDARng.hpp" // GPU bulk-refill backend (cuRAND host API)
+#include <optional>
+#endif
 #include <atomic>
 #include <chrono>
 #include <cstddef>
@@ -53,7 +60,7 @@ namespace Gem::Hap {
 /**
  * Initialization of static data members
  */
-std::atomic<bool> GRandomFactory::multiple_call_trap_ = ATOMIC_VAR_INIT(false);
+std::atomic<bool> GRandomFactory::multiple_call_trap_{false};
 
 /******************************************************************************/
 /**
@@ -330,7 +337,50 @@ std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
  */
 void GRandomFactory::producer(std::uint32_t seed) {
     try {
-        G_CPU_BASE_GENERATOR mt(static_cast<G_CPU_BASE_GENERATOR::result_type>(seed));
+        // When a SIMD backend is compiled in, the producer refills containers
+        // with the vectorised engine (bulk generate()). The public engine type
+        // (G_CPU_BASE_GENERATOR) stays scalar so the headers are consistent for
+        // every consumer; the SIMD type lives only in this (library-private)
+        // translation unit. Without a SIMD backend the scalar engine both
+        // refills and serves the local generator.
+#if defined(HAP_AVX2_BACKEND) || defined(HAP_NEON_BACKEND)
+        using RefillEngine = xoshiro256pp_simd;
+#else
+        using RefillEngine = G_CPU_BASE_GENERATOR;
+#endif
+        RefillEngine mt(static_cast<RefillEngine::result_type>(seed));
+
+        // When built with CUDA support and a GPU device is present at run time,
+        // containers are refilled on the GPU via cuRAND; otherwise the CPU engine
+        // above is used. The choice is made once per producer thread, with a
+        // clean fallback when no device is available.
+#if defined(HAP_USE_CUDA)
+        const bool              useCuda = GCudaRNG::deviceAvailable();
+        std::optional<GCudaRNG> cuda;
+        if(useCuda) {
+            cuda.emplace(static_cast<std::uint64_t>(seed));
+            glogger << "In GRandomFactory::producer(): CUDA device present;"
+                    << " refilling random-number containers via cuRAND." << '\n'
+                    << GLOGGING;
+        }
+#else
+        [[maybe_unused]] constexpr bool useCuda = false;
+#endif
+
+        // Fills (fresh=true) or refreshes (fresh=false) a container from the
+        // active backend (GPU when useCuda, else the CPU engine).
+        auto fill = [&](std::unique_ptr<random_container> &cont, bool fresh) {
+#if defined(HAP_USE_CUDA)
+            if(useCuda) {
+                if(fresh) cont.reset(new random_container(*cuda));
+                else      cont->refresh(*cuda);
+                return;
+            }
+#endif
+            if(fresh) cont.reset(new random_container(mt));
+            else      cont->refresh(mt);
+        };
+
         std::unique_ptr<random_container> p;
 
         while(not threads_stop_requested_) {
@@ -352,28 +402,26 @@ void GRandomFactory::producer(std::uint32_t seed) {
 #endif /* DEBUG */
 
                 // Replace "used" random numbers with new ones
-                p->refresh(mt);
+                fill(p, /*fresh=*/false);
             }
             else { // O.k., so we need to create a new container
-                p.reset(new random_container(mt));
+                fill(p, /*fresh=*/true);
             }
 
             // Blocking submit: sleep on the buffer's not-full condition until a
             // consumer frees space, or until finalize() closes the buffer at
-            // shutdown (push() then returns false, and we leave the loop). This
-            // replaces the former try_push + 100ms-sleep poll -- no submission
-            // latency and no spinning while the buffer is full.
+            // shutdown (push() then returns false, and we leave the loop). No
+            // timeout polling -- producers stay fully asleep while the buffer is full.
             if(not p_fresh_bfr_.push(std::move(p))) {
                 break; // buffer closed at shutdown -- leave the producer loop
             }
         }
     }
-    // H-4 fix: producer() is the body of a std::thread. The previous code
-    // re-threw a geneva_exception from these handlers, which -- escaping the
-    // thread's top-level function -- would call std::terminate() and crash the
-    // whole process. We now log the condition (so it is not silent) and return,
-    // letting this producer thread exit cleanly. (This also consolidates the
-    // four former near-identical handlers into two, addressing H-3.)
+    // producer() is the body of a std::thread, so no exception may escape it:
+    // an exception leaving a thread's top-level function calls std::terminate()
+    // and crashes the whole process. We log the condition (so it is not silent)
+    // and return, letting this producer thread exit cleanly; the remaining
+    // producer threads keep supplying random numbers.
     catch(const std::exception &e) {
         glogger
             << "In GRandomFactory::producer(): Warning!" << '\n'

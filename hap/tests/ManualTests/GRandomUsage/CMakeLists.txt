@@ -27,7 +27,8 @@
 #
 ################################################################################
 
-SET ( EXECUTABLENAME GRandomUsage )
+
+SET ( EXECUTABLENAME GRandomUsageHap )
 
 SET ( ${EXECUTABLENAME}_SRCS
 	GRandomUsage.cpp
@@ -38,7 +39,8 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 )
 
 SET(LIBRARIES_TO_LINK
-		${GENEVA_LIBRARIES}
+		${HAP_LIBNAME}
+		${COMMON_LIBNAME}
 		${Boost_LIBRARIES})
 
 # Add MPI Libraries in case building with MPI-consumer
@@ -50,8 +52,6 @@ ENDIF()
 
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 		${LIBRARIES_TO_LINK})
-
-#ADD_SUBDIRECTORY (config)
 
 ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
 

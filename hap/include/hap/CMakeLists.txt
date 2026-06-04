@@ -27,10 +27,21 @@
 #
 ################################################################################
 
+
+################################################################################
+#
+# This file is part of the Geneva library collection. Apache License 2.0.
+# See the NOTICE file in the top-level directory for contributors/copyright.
+#
+################################################################################
+#
+# Hap: public headers (identical class names in Gem::Hap, include prefix
+# <hap/...>).
+#
+################################################################################
+
 IF(GENEVA_USE_CUDA_RNG)
 	ENABLE_LANGUAGE(CUDA)
-
-	# Setting the CUDA-Standard
 	set(CMAKE_CUDA_STANDARD 20)
 	set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 ENDIF()
@@ -38,14 +49,12 @@ ENDIF()
 SET ( HAPINCLUDES
 	GHapEnums.hpp
 	GRandomBase.hpp
-    GRandomDistributionsT.hpp
+	GRandomDistributionsT.hpp
 	GRandomDefines.hpp
 	GRandomFactory.hpp
 	GRandomT.hpp
 )
 
-# If we compile with CUDA support,
-# add the appropriate file
 IF(GENEVA_USE_CUDA_RNG)
 	SET(HAPINCLUDES
 		${HAPINCLUDES}
@@ -53,12 +62,12 @@ IF(GENEVA_USE_CUDA_RNG)
 	)
 ENDIF ()
 
-# This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
+# CLion-visibility helper (mirrors the Hap subtree).
 ADD_CUSTOM_TARGET(CLION_ALL_HAP_HEADERS SOURCES ${HAPINCLUDES})
 
 SET_TARGET_PROPERTIES(
-    CLION_ALL_HAP_HEADERS
-    PROPERTIES
+	CLION_ALL_HAP_HEADERS
+	PROPERTIES
 	CXX_STANDARD 20
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF

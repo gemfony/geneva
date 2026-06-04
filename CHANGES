@@ -60,6 +60,16 @@ Recommended Versions:
   written by earlier Geneva versions are not loadable by this version (this
   archive break was a deliberate, accepted decision).
 
+- Hap now uses the xoshiro256++ engine (64-bit, with a SIMD bulk-refill backend
+  and an optional cuRAND GPU backend): the previously experimental Hap2 was promoted
+  to be the one and only Hap. The legacy mt19937-based Hap and the Hap-vs-Hap2
+  benchmark were removed. Namespace, library and include prefix are unchanged
+  (Gem::Hap / gemfony-hap / <hap/...>), so consumers need no changes. Note that the
+  RNG result_type is now 64-bit (uint64_t) instead of 32-bit; this is transparent to
+  code that uses the proxy as a UniformRandomBitGenerator with <random> distributions
+  (as Geneva does throughout), but code that consumed the raw 32-bit output directly
+  would need review.
+
 - The GBoundedBufferT bounded buffer was replaced by GBlockingMPMCQueueT
   (common/GBlockingMPMCQueueT.hpp), a modernised multi-producer/multi-consumer
   blocking queue: one perfect-forwarding push family, std::optional-returning pop

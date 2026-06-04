@@ -26,20 +26,20 @@
 # collection for a list of contributors and copyright information.
 #
 ################################################################################
+
+
 #
-# Per-library Doxygen target for the Hap library (random-number generation).
+# Per-library Doxygen target for the Hap library.
 
 IF (NOT DOXYGEN_FOUND)
 	RETURN ()
 ENDIF ()
 
 SET (GENEVA_DOC_LIB_NAME "hap")
-SET (GENEVA_DOC_LIB_DESC "Random-number generation: GRandomT, GRandomFactory, "
-		"distribution wrappers, optional CUDA-based RNG (GCUDARng under "
-		"USECUDARNG)")
+SET (GENEVA_DOC_LIB_DESC "Random-number library: GRandomT, GRandomFactory, "
+		"distribution wrappers, xoshiro256++ "
+		"engine with optional SIMD bulk-refill")
 # Upstream: common -- relative html path from hap/doc/html to common/doc/html.
-# ${CMAKE_BINARY_DIR} is expanded NOW (at configure time); the resulting plain
-# string is then carried into Doxyfile via @GENEVA_DOC_TAGFILES@.
 SET (GENEVA_DOC_TAGFILES
 		"${CMAKE_BINARY_DIR}/common/doc/common.tag=../../../common/doc/html")
 

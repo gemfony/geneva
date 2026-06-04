@@ -196,7 +196,6 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 
 	SET ( COMMON_LIBNAME            "gemfony-common" )
 	SET ( HAP_LIBNAME               "gemfony-hap" )
-	SET ( HAP2_LIBNAME              "gemfony-hap2" )
 	SET ( COURTIER_LIBNAME          "gemfony-courtier" )
 	SET ( GENEVA_LIBNAME            "gemfony-geneva" )
 	SET ( GENEVA_INDIVIDUAL_LIBNAME "gemfony-geneva-individuals" )

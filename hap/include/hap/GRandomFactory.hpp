@@ -47,6 +47,7 @@
 #include <limits>
 #include <mutex>
 #include <random>
+#include <type_traits>
 #include <sstream>
 #include <thread>
 
@@ -60,12 +61,27 @@
 #include "common/GSingletonT.hpp"
 #include "common/GThreadGroup.hpp"
 #include "hap/GRandomDefines.hpp"
+#include "hap/GXoshiro256pp.hpp"
 
 /******************************************************************************/
 
 namespace Gem::Hap {
 
-using G_CPU_BASE_GENERATOR = std::mt19937;
+// CPU engine: xoshiro256++ (local implementation in GXoshiro256pp.hpp).
+// 64-bit output with a 32-byte state (vs ~2.5 KiB for the Mersenne twister),
+// giving far better cache locality in the producer thread. Any
+// std::uniform_random_bit_generator (e.g. std::mt19937_64) can be substituted
+// here; every call site is engine-agnostic.
+using G_CPU_BASE_GENERATOR = xoshiro256pp;
+
+/** @brief Name of the compiled-in public CPU engine (G_CPU_BASE_GENERATOR).
+ *  For diagnostics / benchmark labelling; reflects exactly what consumers get. */
+inline const char *cpuEngineName() noexcept {
+    if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, std::mt19937_64>) return "mt19937_64";
+    else if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, std::mt19937>) return "mt19937";
+    else if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, xoshiro256pp>) return "xoshiro256++";
+    else return "unknown";
+}
 
 class GRandomFactory; // Forward declaration, so we can make random_container constructor private
 
@@ -143,13 +159,33 @@ public:
 private:
     /***************************************************************************/
     /**
+	  * Fills the first n entries of the buffer. If the engine exposes a bulk
+	  * generate(dst, n) method (the SIMD bulk-refill engines do), it is used —
+	  * one vectorised call fills many words. Otherwise (plain
+	  * std::uniform_random_bit_generator, e.g. the scalar xoshiro256++ or
+	  * std::mt19937_64) values are drawn one at a time. Selected at compile
+	  * time via a requires-expression; no virtual dispatch.
+	  */
+    template <typename RNG>
+    void fill_from(RNG &rng, std::size_t n) {
+        if constexpr (requires { rng.generate(r_.data(), n); }) {
+            rng.generate(r_.data(), n);
+        }
+        else {
+            std::generate(r_.begin(), r_.begin() + n, [&]() { return rng(); });
+        }
+    }
+
+    /***************************************************************************/
+    /**
 	  * Initialization with the number of entries in the buffer
 	  *
 	  * @param rng A reference to an external random number generator
 	  */
-    explicit random_container(G_CPU_BASE_GENERATOR &rng) {
+    template <typename RNG>
+    explicit random_container(RNG &rng) {
         try {
-            std::generate(r_.begin(), r_.end(), [&]() { return rng(); });
+            fill_from(rng, r_.size());
         }
         catch(const std::bad_alloc &e) {
             throw geneva_exception(
@@ -171,10 +207,12 @@ private:
     /***************************************************************************/
     /**
 	  * Replaces "used" random numbers by new numbers and resets the current_pos_
-	  * pointer. T_RNG must be one of the standard C++1x-generators
+	  * pointer. RNG is either a std::uniform_random_bit_generator or a bulk
+	  * refill engine exposing generate(dst, n).
 	  */
-    void refresh(G_CPU_BASE_GENERATOR &rng) {
-        std::generate(r_.begin(), r_.begin() + current_pos_, [&]() { return rng(); });
+    template <typename RNG>
+    void refresh(RNG &rng) {
+        fill_from(rng, current_pos_);
         current_pos_ = 0;
     }
     /***************************************************************************/
@@ -254,14 +292,12 @@ private:
     /** @brief The production of [0,1[ random numbers takes place here */
     void producer(std::uint32_t seed);
 
-    std::atomic<bool> finalized_ = ATOMIC_VAR_INIT(false);
-    std::atomic<bool> threads_started_ =
-        ATOMIC_VAR_INIT(false); ///< Indicates whether threads were already started
-    std::atomic<bool> threads_stop_requested_ =
-        ATOMIC_VAR_INIT(false); ///< Indicates whether all threads were requested to stop
-    std::atomic<std::uint16_t> n_producer_threads_ = ATOMIC_VAR_INIT(
+    std::atomic<bool> finalized_{false};
+    std::atomic<bool> threads_started_{false}; ///< Indicates whether threads were already started
+    std::atomic<bool> threads_stop_requested_{false}; ///< Indicates whether all threads were requested to stop
+    std::atomic<std::uint16_t> n_producer_threads_{
         DEFAULT01PRODUCERTHREADS
-    ); ///< The number of threads used to produce random numbers
+    }; ///< The number of threads used to produce random numbers
 
     Gem::Common::GThreadGroup
         producer_threads_; ///< A thread group that holds [0,1[ producer threads
@@ -303,7 +339,7 @@ private:
         std::vector<seed_type>(DEFAULTSEEDVECTORSIZE); ///< Holds pre-calculated seeds
     std::vector<seed_type>::const_iterator seed_cit_ =
         seed_collection_.begin(); ///< Iterators over the seedCollection_
-    std::atomic<bool> seeding_has_started_ = ATOMIC_VAR_INIT(false);
+    std::atomic<bool> seeding_has_started_{false};
 };
 
 /******************************************************************************/

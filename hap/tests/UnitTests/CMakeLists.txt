@@ -27,6 +27,7 @@
 #
 ################################################################################
 
+
 SET ( EXECUTABLENAME GHapStandardTests )
 
 SET ( ${EXECUTABLENAME}_SRCS
@@ -37,8 +38,11 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
 )
 
+# Hap is consumed in isolation here: link the Hap library + Common, not the
+# whole Geneva stack (and deliberately NOT gemfony-hap).
 SET(LIBRARIES_TO_LINK
-		${GENEVA_LIBRARIES}
+		${HAP_LIBNAME}
+		${COMMON_LIBNAME}
 		${Boost_LIBRARIES}
 		Catch2::Catch2WithMain)
 
@@ -55,10 +59,5 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/hap/UnitTests )
-
-
-#
-# Take care of other particularities of this test
-#
 
 GENEVA_AGGREGATE_TARGET( "tests-hap-unit" )

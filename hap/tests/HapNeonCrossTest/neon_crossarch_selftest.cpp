@@ -28,12 +28,12 @@
  ********************************************************************************/
 
 
-// Standalone AArch64/NEON self-test for Hap2's GXoshiro256ppSIMD.hpp.
+// Standalone AArch64/NEON self-test for Hap's GXoshiro256ppSIMD.hpp.
 // Cross-compiled for aarch64 and run under qemu-aarch64 (user mode), since the
 // build host is x86_64. Validates the NEON SIMD engine WITHOUT the full Geneva
 // stack.
 //
-//   aarch64-linux-gnu-g++ -std=c++20 -O2 -static -I hap2/include \
+//   aarch64-linux-gnu-g++ -std=c++20 -O2 -static -I hap/include \
 //       neon_selftest.cpp -o neon_selftest
 //   qemu-aarch64 ./neon_selftest
 //
@@ -42,16 +42,16 @@
 // So lane 0 of the NEON output MUST equal scalar xoshiro256pp(seed) bit-for-bit.
 // A wrong rotate/shift/lane-crossing in the NEON path breaks this immediately.
 
-#define HAP2_NEON_BACKEND 1
+#define HAP_NEON_BACKEND 1
 
 #include <cstdint>
 #include <cstdio>
 #include <vector>
 
-#include "hap2/GXoshiro256pp.hpp"     // scalar reference
-#include "hap2/GXoshiro256ppSIMD.hpp" // NEON engine under test
+#include "hap/GXoshiro256pp.hpp"     // scalar reference
+#include "hap/GXoshiro256ppSIMD.hpp" // NEON engine under test
 
-using namespace Gem::Hap2;
+using namespace Gem::Hap;
 using u64 = std::uint64_t;
 
 int main() {

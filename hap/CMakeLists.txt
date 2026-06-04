@@ -26,20 +26,25 @@
 # collection for a list of contributors and copyright information.
 #
 ################################################################################
+
+
+################################################################################
 #
-# Orchestrator for the self-contained Hap library subtree.
+# This file is part of the Geneva library collection. Apache License 2.0.
+# See the NOTICE file in the top-level directory for contributors/copyright.
 #
-# Layout (per the 2026-05-28 repo-layout reorganisation):
-#   hap/include/hap/*.hpp   public headers (install layout 1:1)
-#   hap/src/*.cpp *.cu      implementation + the gemfony-hap target
-#                           (CUDA random-number source under USECUDARNG)
-#   hap/tests/              UnitTests + ManualTests + DocuPrograms
-#   hap/examples/           05_GHapUsagePatterns
-#   hap/benchmarks/         stub for layout symmetry (no benchmark binaries
-#                           yet; aggregator only -- see comment in the file)
+################################################################################
 #
-# Tests / examples / benchmarks gated on the top-level options. The
-# "hap-all" aggregate is picked up by gemfony-build-all at the top level.
+# Orchestrator for the Hap library subtree.
+#
+# Hap mirrors Hap with identical class names in namespace Gem::Hap, library
+# gemfony-hap and include prefix <hap/...>, so it can act as a drop-in
+# replacement. Both libraries build in parallel; the GHapVsHap benchmark links
+# both for side-by-side comparison.
+#
+# Layout:
+#   hap/include/hap/*.hpp   public headers
+#   hap/src/*.cpp *.cu       implementation + the gemfony-hap target
 ################################################################################
 
 ADD_SUBDIRECTORY ( include/hap )
@@ -54,10 +59,9 @@ IF ( GENEVA_BUILD_EXAMPLES )
 ENDIF ()
 
 IF ( GENEVA_BUILD_BENCHMARKS )
-	ADD_SUBDIRECTORY ( benchmarks )
 ENDIF ()
 
-# Per-library Doxygen target (doc-hap).
+# Per-library Doxygen target (doc-hap), mirroring hap/.
 ADD_SUBDIRECTORY ( doc )
 
 GENEVA_AGGREGATE_TARGET( "hap-all" )

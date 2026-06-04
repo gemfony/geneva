@@ -28,9 +28,34 @@
 ################################################################################
 
 
-ADD_CUSTOM_TARGET ( "hap2-docu-progs" )
+SET ( EXECUTABLENAME HapQualityTests )
 
-ADD_SUBDIRECTORY ( DependentDistributionTests )
-ADD_SUBDIRECTORY ( PlotRNGDistributions )
+SET ( ${EXECUTABLENAME}_SRCS
+    HapQualityTests.cpp
+)
 
-GENEVA_AGGREGATE_TARGET( "tests-hap2-docuprogs" )
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
+)
+
+SET(LIBRARIES_TO_LINK
+		${HAP_LIBNAME}
+		${COMMON_LIBNAME}
+		${Boost_LIBRARIES}
+		Catch2::Catch2WithMain)
+
+# Add MPI Libraries in case building with MPI-consumer
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(LIBRARIES_TO_LINK
+			${LIBRARIES_TO_LINK}
+			${MPI_LIBRARIES})
+ENDIF()
+
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+		${LIBRARIES_TO_LINK})
+
+ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/hap/HapQualityTests )
+
+GENEVA_AGGREGATE_TARGET( "tests-hap-quality" )

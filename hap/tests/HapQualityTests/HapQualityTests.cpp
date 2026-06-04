@@ -35,13 +35,13 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include "hap2/GRandomT.hpp"
-#include "hap2/GXoshiro256pp.hpp"
+#include "hap/GRandomT.hpp"
+#include "hap/GXoshiro256pp.hpp"
 
-using namespace Gem::Hap2;
+using namespace Gem::Hap;
 
 // Dependency-free statistical quality checks. The proxy-based tests draw
-// through Gem::Hap2::GRandom and therefore exercise the shipped pipeline,
+// through Gem::Hap::GRandom and therefore exercise the shipped pipeline,
 // including the SIMD bulk-refill on hosts where it is compiled in. Bounds are
 // deliberately generous: they must never flag a healthy generator (the factory
 // is seeded from std::random_device, so the runs are stochastic) yet still
@@ -54,7 +54,7 @@ constexpr std::uint64_t N = 1'000'000;
 
 } // namespace
 
-TEST_CASE("Hap2 quality: uniform Kolmogorov-Smirnov", "[hap2][quality]") {
+TEST_CASE("Hap quality: uniform Kolmogorov-Smirnov", "[hap][quality]") {
     GRandom                                rng;
     std::uniform_real_distribution<double> u(0., 1.);
     std::vector<double>                    v;
@@ -71,7 +71,7 @@ TEST_CASE("Hap2 quality: uniform Kolmogorov-Smirnov", "[hap2][quality]") {
     REQUIRE(d < 0.0040);
 }
 
-TEST_CASE("Hap2 quality: chi-squared frequency (256 buckets)", "[hap2][quality]") {
+TEST_CASE("Hap quality: chi-squared frequency (256 buckets)", "[hap][quality]") {
     GRandom                    rng;
     std::vector<std::uint64_t> buckets(256, 0);
     for (std::uint64_t i = 0; i < N; ++i) buckets[static_cast<std::uint64_t>(rng()) >> 56]++;
@@ -85,7 +85,7 @@ TEST_CASE("Hap2 quality: chi-squared frequency (256 buckets)", "[hap2][quality]"
     REQUIRE(chi2 < 400.0);
 }
 
-TEST_CASE("Hap2 quality: lag-1 serial correlation", "[hap2][quality]") {
+TEST_CASE("Hap quality: lag-1 serial correlation", "[hap][quality]") {
     GRandom                                rng;
     std::uniform_real_distribution<double> u(0., 1.);
     std::vector<double>                    v;
@@ -102,7 +102,7 @@ TEST_CASE("Hap2 quality: lag-1 serial correlation", "[hap2][quality]") {
     REQUIRE(std::abs(r) < 0.005);
 }
 
-TEST_CASE("Hap2 quality: monobit (global bit balance)", "[hap2][quality]") {
+TEST_CASE("Hap quality: monobit (global bit balance)", "[hap][quality]") {
     GRandom       rng;
     std::uint64_t ones = 0;
     for (std::uint64_t i = 0; i < N; ++i)
@@ -112,7 +112,7 @@ TEST_CASE("Hap2 quality: monobit (global bit balance)", "[hap2][quality]") {
     REQUIRE(std::abs(fraction - 0.5) < 0.0005);
 }
 
-TEST_CASE("Hap2 quality: scalar xoshiro256++ engine contract", "[hap2][quality]") {
+TEST_CASE("Hap quality: scalar xoshiro256++ engine contract", "[hap][quality]") {
     // Deterministic checks on the header-visible scalar engine (the SIMD engine
     // is library-private and is covered above via the proxy).
     SECTION("reproducible from a fixed seed") {

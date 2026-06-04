@@ -27,8 +27,38 @@
 #
 ################################################################################
 
-# No benchmark sub-directories yet -- this CMakeLists exists for layout
-# symmetry across the four libraries (every <lib>/ has benchmarks/, doc/,
-# examples/, include/, src/, tests/). The aggregator below collects nothing
-# until a benchmark is added.
-GENEVA_AGGREGATE_TARGET( "benchmarks-hap" )
+
+FIND_PACKAGE ( Threads REQUIRED )
+
+SET ( EXECUTABLENAME HapConcurrencyTests )
+
+SET ( ${EXECUTABLENAME}_SRCS
+    HapConcurrencyTests.cpp
+)
+
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
+)
+
+SET(LIBRARIES_TO_LINK
+		${HAP_LIBNAME}
+		${COMMON_LIBNAME}
+		${Boost_LIBRARIES}
+		Catch2::Catch2WithMain
+		Threads::Threads)
+
+# Add MPI Libraries in case building with MPI-consumer
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(LIBRARIES_TO_LINK
+			${LIBRARIES_TO_LINK}
+			${MPI_LIBRARIES})
+ENDIF()
+
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+		${LIBRARIES_TO_LINK})
+
+ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/hap/HapConcurrencyTests )
+
+GENEVA_AGGREGATE_TARGET( "tests-hap-concurrency" )

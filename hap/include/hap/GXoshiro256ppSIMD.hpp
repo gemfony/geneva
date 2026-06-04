@@ -30,7 +30,7 @@
 
 /********************************************************************************
  *
- * GXoshiro256ppSIMD.hpp — SIMD bulk-refill engines for Hap2.
+ * GXoshiro256ppSIMD.hpp — SIMD bulk-refill engines for Hap.
  *
  * Vectorised xoshiro256++ that advances several independent streams in parallel
  * SIMD lanes and writes them interleaved into a destination buffer. Used for
@@ -41,11 +41,11 @@
  *   - NEON (AArch64): 2 parallel streams in uint64x2_t-> xoshiro256pp_simd
  *
  * Which (if any) variant is compiled is decided at BUILD time by the CMake
- * probes HAP2_HAS_AVX2 / HAP2_HAS_NEON (-> HAP2_AVX2_BACKEND / HAP2_NEON_BACKEND
- * compile definitions). On every other ISA this header defines nothing and Hap2
+ * probes HAP_HAS_AVX2 / HAP_HAS_NEON (-> HAP_AVX2_BACKEND / HAP_NEON_BACKEND
+ * compile definitions). On every other ISA this header defines nothing and Hap
  * falls back to the scalar xoshiro256++ (GXoshiro256pp.hpp). No runtime
  * dispatch. The interleaving of N independent streams is statistically sound
- * (each stream is a full xoshiro256++); Hap2 has no cross-thread determinism
+ * (each stream is a full xoshiro256++); Hap has no cross-thread determinism
  * requirement.
  *
  * Algorithm: David Blackman & Sebastiano Vigna, xoshiro256++ 1.0, public domain
@@ -62,15 +62,15 @@
 #include <cstdint>
 #include <limits>
 
-#if defined(HAP2_AVX2_BACKEND)
+#if defined(HAP_AVX2_BACKEND)
 #include <immintrin.h>
-#elif defined(HAP2_NEON_BACKEND)
+#elif defined(HAP_NEON_BACKEND)
 #include <arm_neon.h>
 #endif
 
-namespace Gem::Hap2 {
+namespace Gem::Hap {
 
-#if defined(HAP2_AVX2_BACKEND) || defined(HAP2_NEON_BACKEND)
+#if defined(HAP_AVX2_BACKEND) || defined(HAP_NEON_BACKEND)
 
 namespace detail {
 // splitmix64 — seed expansion only.
@@ -85,7 +85,7 @@ inline std::uint64_t splitmix64(std::uint64_t &x) noexcept {
 #endif
 
 /******************************************************************************/
-#if defined(HAP2_AVX2_BACKEND)
+#if defined(HAP_AVX2_BACKEND)
 
 /**
  * AVX2 variant: 4 independent xoshiro256++ streams in __m256i lanes.
@@ -162,7 +162,7 @@ private:
     int                      bufpos_ = LANES;
 };
 
-#elif defined(HAP2_NEON_BACKEND)
+#elif defined(HAP_NEON_BACKEND)
 
 /**
  * NEON variant: 2 independent xoshiro256++ streams in uint64x2_t lanes.
@@ -232,4 +232,4 @@ private:
 
 #endif // backend selection
 
-} /* namespace Gem::Hap2 */
+} /* namespace Gem::Hap */

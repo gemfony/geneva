@@ -35,10 +35,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include "hap2/GRandomDistributionsT.hpp"
-#include "hap2/GRandomT.hpp"
+#include "hap/GRandomDistributionsT.hpp"
+#include "hap/GRandomT.hpp"
 
-using namespace Gem::Hap2;
+using namespace Gem::Hap;
 
 // Concurrency stress for the factory/proxy machinery: many proxies drawing at
 // once. As a normal ctest this catches crashes, hangs and out-of-range values;
@@ -51,7 +51,7 @@ constexpr std::uint64_t kRawPer  = 500'000;
 constexpr std::uint64_t kDistPer = 200'000;
 } // namespace
 
-TEST_CASE("Hap2 concurrency: 16 proxies draw raw values", "[hap2][concurrency]") {
+TEST_CASE("Hap concurrency: 16 proxies draw raw values", "[hap][concurrency]") {
     std::atomic<std::uint64_t> checksum{0};
     std::vector<std::thread>   threads;
     threads.reserve(kThreads);
@@ -67,7 +67,7 @@ TEST_CASE("Hap2 concurrency: 16 proxies draw raw values", "[hap2][concurrency]")
     REQUIRE(checksum.load() != 0); // sanity: the run actually produced numbers
 }
 
-TEST_CASE("Hap2 concurrency: 16 proxies draw distributions", "[hap2][concurrency]") {
+TEST_CASE("Hap concurrency: 16 proxies draw distributions", "[hap][concurrency]") {
     std::atomic<std::uint64_t> outOfRange{0};
     std::vector<std::thread>   threads;
     threads.reserve(kThreads);

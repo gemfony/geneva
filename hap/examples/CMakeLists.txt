@@ -27,6 +27,7 @@
 #
 ################################################################################
 
+
 ADD_SUBDIRECTORY( 05_GHapUsagePatterns )
 
 GENEVA_AGGREGATE_TARGET( "examples-hap" )

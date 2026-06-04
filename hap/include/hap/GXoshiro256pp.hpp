@@ -30,7 +30,7 @@
 
 /********************************************************************************
  *
- * GXoshiro256pp.hpp — local xoshiro256++ pseudo-random generator for Hap2.
+ * GXoshiro256pp.hpp — local xoshiro256++ pseudo-random generator for Hap.
  *
  * xoshiro256++ 1.0 by David Blackman and Sebastiano Vigna (2018), state-of-the-
  * art for non-cryptographic Monte-Carlo work: 256-bit state, passes BigCrush,
@@ -38,7 +38,7 @@
  * (CC0): http://prng.di.unimi.it/xoshiro256plusplus.c . This file is an
  * independent C++ re-implementation of that algorithm (no vendored code),
  * wrapped as a std::uniform_random_bit_generator so it can be dropped in as
- * Hap2's G_CPU_BASE_GENERATOR. Seeding expands a single 64-bit seed via
+ * Hap's G_CPU_BASE_GENERATOR. Seeding expands a single 64-bit seed via
  * splitmix64 (http://prng.di.unimi.it/splitmix64.c , also CC0).
  *
  * This file is part of the Geneva library collection. Apache License 2.0
@@ -52,7 +52,7 @@
 #include <cstdint>
 #include <limits>
 
-namespace Gem::Hap2 {
+namespace Gem::Hap {
 
 /******************************************************************************/
 /**
@@ -119,4 +119,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Hap2 */
+} /* namespace Gem::Hap */
