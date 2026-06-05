@@ -2176,8 +2176,8 @@ protected:
             );
         }
 
-        // Store the id of the buffer port in the item
-        w_ptr->setBufferId(current_buffer_port_ptr_->getUniqueTag());
+        // Store the id of the buffer port in the item (its transport correlation id)
+        w_ptr->setCorrelationId(current_buffer_port_ptr_->getUniqueTag());
 
         // Perform the actual submission
         current_buffer_port_ptr_->push_raw(w_ptr);

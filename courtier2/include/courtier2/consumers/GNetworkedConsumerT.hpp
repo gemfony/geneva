@@ -86,7 +86,7 @@ public:
 protected:
     /***************************************************************************/
     /** @brief Hands the next pending slot's item to a calling session, or null if none is pending.
-     *  The item's dispatch state flips PENDING -> IN_FLIGHT; correlation rides its bufferport id. */
+     *  The item's dispatch state flips PENDING -> IN_FLIGHT; correlation rides its correlation id. */
     item_ptr checkout() {
         std::lock_guard<std::mutex> lk(mtx_);
         return checkout_locked();
@@ -106,7 +106,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Accepts a returned result and writes it into its slot. The result's (generation, slot)
-     *  is decoded from its bufferport id; a result from a previous (timed-out) round or a duplicate
+     *  is decoded from its correlation id; a result from a previous (timed-out) round or a duplicate
      *  -- i.e. one whose generation is stale or whose slot is no longer IN_FLIGHT -- is dropped,
      *  which is what makes resubmission safe. */
     void checkin(item_ptr p) {
@@ -117,7 +117,7 @@ protected:
         if(current_batch_ == nullptr) {
             return; // no active round (e.g. a very late arrival after dispatch_ returned)
         }
-        const Gem::Courtier::BUFFERPORT_ID_TYPE id = p->getBufferId();
+        const Gem::Courtier::BUFFERPORT_ID_TYPE id = p->getCorrelationId();
         if(decodeGeneration(id) != (generation_ & GENERATION_MASK)) {
             return; // stale: from a previous round
         }
@@ -138,7 +138,7 @@ protected:
     /***************************************************************************/
     /** @brief Returns a slot's still-in-flight item to PENDING so another client picks it up
      *  immediately (the RAII put-back on a client disconnect). Caller passes the item it checked
-     *  out; the slot is located via its bufferport id. A no-op if the round moved on or the slot is
+     *  out; the slot is located via its correlation id. A no-op if the round moved on or the slot is
      *  no longer in flight. */
     void requeue(const item_ptr &p) {
         if(not p) {
@@ -148,7 +148,7 @@ protected:
         if(current_batch_ == nullptr) {
             return;
         }
-        const Gem::Courtier::BUFFERPORT_ID_TYPE id = p->getBufferId();
+        const Gem::Courtier::BUFFERPORT_ID_TYPE id = p->getCorrelationId();
         if(decodeGeneration(id) != (generation_ & GENERATION_MASK)) {
             return;
         }
@@ -196,7 +196,7 @@ protected:
             pending_count_ = n;
             for(std::size_t k = 0; k < n; ++k) {
                 // (generation, slot) correlation token -- slot is the index into this round's batch.
-                items[k]->setBufferId(encodeId(generation_, k));
+                items[k]->setCorrelationId(encodeId(generation_, k));
                 items[k]->setDispatchState(Gem::Courtier::dispatchState::PENDING);
             }
         }
@@ -232,12 +232,11 @@ protected:
 
 private:
     /***************************************************************************/
-    // The bufferport id (a uint32) is reused as the wire correlation token: the high bits hold a
-    // round generation (so a stale return from a timed-out round is rejected), the low bits the slot
-    // index within the round. NB: this bounds a single batch to 2^24 items -- vastly beyond any real
-    // Geneva population -- and the generation wraps every 2^8 rounds (a harmless, astronomically
-    // unlikely aliasing). When the old courtier (the real buffer-port user) is removed in Phase 6,
-    // the field should be renamed to correlation_id_.
+    // The work item's correlation id (a uint32) carries the wire correlation token: the high bits
+    // hold a round generation (so a stale return from a timed-out round is rejected), the low bits
+    // the slot index within the round. NB: this bounds a single batch to 2^24 items -- vastly beyond
+    // any real Geneva population -- and the generation wraps every 2^8 rounds (a harmless,
+    // astronomically unlikely aliasing).
     static constexpr Gem::Courtier::BUFFERPORT_ID_TYPE SLOT_BITS = 24;
     static constexpr Gem::Courtier::BUFFERPORT_ID_TYPE SLOT_MASK = (1u << SLOT_BITS) - 1u;
     static constexpr Gem::Courtier::BUFFERPORT_ID_TYPE GENERATION_MASK = 0xFFu;

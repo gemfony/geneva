@@ -100,7 +100,7 @@ class GProcessingContainerT {
         ar &BOOST_SERIALIZATION_NVP(iteration_counter_) &
             BOOST_SERIALIZATION_NVP(resubmission_counter_) &
             BOOST_SERIALIZATION_NVP(collection_position_) &
-            BOOST_SERIALIZATION_NVP(bufferport_id_) &
+            BOOST_SERIALIZATION_NVP(correlation_id_) &
             BOOST_SERIALIZATION_NVP(pre_processing_disabled_) &
             BOOST_SERIALIZATION_NVP(post_processing_disabled_) &
             BOOST_SERIALIZATION_NVP(pre_processor_ptr_) &
@@ -144,7 +144,7 @@ public:
       : iteration_counter_(cp.iteration_counter_)
       , resubmission_counter_(cp.resubmission_counter_)
       , collection_position_(cp.collection_position_)
-      , bufferport_id_(cp.bufferport_id_)
+      , correlation_id_(cp.correlation_id_)
       , pre_processing_disabled_(cp.pre_processing_disabled_)
       , post_processing_disabled_(cp.post_processing_disabled_)
       , pre_processing_time_(cp.pre_processing_time_)
@@ -174,7 +174,7 @@ public:
         iteration_counter_ = cp.iteration_counter_;
         resubmission_counter_ = cp.resubmission_counter_;
         collection_position_ = cp.collection_position_;
-        bufferport_id_ = cp.bufferport_id_;
+        correlation_id_ = cp.correlation_id_;
         pre_processing_disabled_ = cp.pre_processing_disabled_;
         post_processing_disabled_ = cp.post_processing_disabled_;
         pre_processing_time_ = cp.pre_processing_time_;
@@ -659,18 +659,20 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to set the id inside of the originating buffer
+	  * Sets the transport correlation id -- the token used to route/match a work item through the
+	  * transport layer (the originating buffer-port index in the courtier broker; a (generation,
+	  * slot) token in the courtier2 networked consumers).
 	  */
-    void setBufferId(const BUFFERPORT_ID_TYPE &id) noexcept {
-        bufferport_id_ = id;
+    void setCorrelationId(const BUFFERPORT_ID_TYPE &id) noexcept {
+        correlation_id_ = id;
     }
 
     /***************************************************************************/
     /**
-	  * Allows to retrieve the id of the originating buffer
+	  * Retrieves the transport correlation id (see setCorrelationId()).
 	  */
-    BUFFERPORT_ID_TYPE getBufferId() const noexcept {
-        return bufferport_id_;
+    BUFFERPORT_ID_TYPE getCorrelationId() const noexcept {
+        return correlation_id_;
     }
 
     /***************************************************************************/
@@ -873,7 +875,7 @@ public:
         iteration_counter_ = p_load->iteration_counter_;
         resubmission_counter_ = p_load->resubmission_counter_;
         collection_position_ = p_load->collection_position_;
-        bufferport_id_ = p_load->bufferport_id_;
+        correlation_id_ = p_load->correlation_id_;
         pre_processing_disabled_ = p_load->pre_processing_disabled_;
         post_processing_disabled_ = p_load->post_processing_disabled_;
         pre_processing_time_ = p_load->pre_processing_time_;
@@ -1033,7 +1035,7 @@ private:
     ITERATION_COUNTER_TYPE iteration_counter_ = static_cast<ITERATION_COUNTER_TYPE>(0);
     RESUBMISSION_COUNTER_TYPE resubmission_counter_ = static_cast<RESUBMISSION_COUNTER_TYPE>(0);
     COLLECTION_POSITION_TYPE collection_position_ = static_cast<COLLECTION_POSITION_TYPE>(0);
-    BUFFERPORT_ID_TYPE bufferport_id_ = BUFFERPORT_ID_TYPE();
+    BUFFERPORT_ID_TYPE correlation_id_ = BUFFERPORT_ID_TYPE();
 
     /// Transient, server-side-only per-batch scheduling state for the courtier2 networked consumers.
     /// Deliberately NOT part of serialize()/load_ (the wire/clone never needs it; see dispatchState).

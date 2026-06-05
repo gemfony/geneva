@@ -451,7 +451,7 @@ public:
 	  */
     void put(std::shared_ptr<processable_type> p) {
         // Retrieve the correct processed buffer for a given id
-        auto portId = p->getBufferId();
+        auto portId = p->getCorrelationId();
         auto processedBuffer_ptr = getProcessedBufferPort(portId);
 
         // Submit the item
@@ -482,7 +482,7 @@ public:
 	  */
     bool put(std::shared_ptr<processable_type> p, std::chrono::duration<double> timeout) {
         // Retrieve the correct processed buffer for our id
-        auto portId = p->getBufferId();
+        auto portId = p->getCorrelationId();
         auto processedBuffer_ptr = getProcessedBufferPort(portId);
 
         // Submit the item
