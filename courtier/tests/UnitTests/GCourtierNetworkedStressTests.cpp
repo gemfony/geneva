@@ -46,6 +46,7 @@
 
 // Standard headers
 #include <atomic>
+#include <chrono>
 #include <cstddef>
 #include <memory>
 #include <thread>
@@ -291,4 +292,46 @@ TEST_CASE(
     CHECK_FALSE(r.client_threw);          // the client must not die on a bad item
     CHECK(r.processed == N_GOOD);          // every well-behaved item must still come back
     CHECK(r.status.is_complete);           // nothing left stranded (faulty item returns flagged)
+}
+
+/******************************************************************************/
+
+TEST_CASE(
+    "submission(asio-loopback): first_item_max_wait bounds the wait when no client ever connects",
+    "[courtier][submission][net][asio]"
+) {
+    // Regression for the first-item indefinite block. With NO client started, no work item is
+    // ever retrieved, so by default the executor would block forever (first at getFirstRetrievalTime,
+    // then at the first-item retrieval). A positive first_item_max_wait_seconds must bound both
+    // waits so workOn() returns (incomplete) instead of hanging. The default (0) keeps the
+    // historical unbounded behaviour and is therefore NOT exercised here.
+    const unsigned short port = free_tcp_port();
+
+    resetBroker<GFaultyContainer>();
+    auto consumer = std::make_shared<Consumers::GAsioConsumerT<GFaultyContainer>>();
+    consumer->setPort(port);
+    consumer->setSerializationMode(Gem::Common::serializationMode::BINARY);
+    broker<GFaultyContainer>()->init();
+    broker<GFaultyContainer>()->enrol_consumer(consumer); // server only -- no client is started
+
+    GBrokerExecutorT<GFaultyContainer> exec;
+    exec.init();
+    exec.setFirstItemMaxWaitSeconds(2.0); // opt-in bound on the otherwise-indefinite first waits
+
+    std::vector<std::shared_ptr<GFaultyContainer>> items;
+    for(std::size_t i = 0; i < 5; ++i) {
+        items.push_back(make_item(i));
+    }
+
+    const auto t0 = std::chrono::steady_clock::now();
+    auto status = exec.workOn(items);
+    const double elapsed =
+        std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
+    exec.finalize();
+
+    broker<GFaultyContainer>()->finalize();
+    resetBroker<GFaultyContainer>();
+
+    REQUIRE_FALSE(status.is_complete);     // no client -> nothing could be processed
+    REQUIRE(elapsed < 20.0);                // bounded by the timeout, NOT an infinite hang
 }

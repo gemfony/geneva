@@ -1776,6 +1776,7 @@ class GBrokerExecutorT
             boost::serialization::base_object<GBaseExecutorT<processable_type>>(*this)
         ) & BOOST_SERIALIZATION_NVP(wait_factor_) &
             BOOST_SERIALIZATION_NVP(min_partial_return_percentage_) &
+            BOOST_SERIALIZATION_NVP(first_item_max_wait_seconds_) &
             BOOST_SERIALIZATION_NVP(capable_of_full_return_) & BOOST_SERIALIZATION_NVP(gpd_) &
             BOOST_SERIALIZATION_NVP(waiting_times_graph_) &
             BOOST_SERIALIZATION_NVP(returned_items_graph_) &
@@ -1819,6 +1820,7 @@ public:
       : GBaseExecutorT<processable_type>(cp)
       , wait_factor_(cp.wait_factor_)
       , min_partial_return_percentage_(cp.min_partial_return_percentage_)
+      , first_item_max_wait_seconds_(cp.first_item_max_wait_seconds_)
       , capable_of_full_return_(cp.capable_of_full_return_)
       , gpd_("Maximum waiting times and returned items", 1, 2) // Intentionally not copied
       , wait_factor_warning_emitted_(cp.wait_factor_warning_emitted_) {
@@ -1866,6 +1868,32 @@ public:
 	  */
     double getWaitFactor() const {
         return wait_factor_;
+    }
+
+    /***************************************************************************/
+    /**
+	  * Sets the maximum time (in seconds) to wait, in the FIRST iteration, for the first client
+	  * to connect and for the first work item to return. These two initial waits cannot be bounded
+	  * by the regular timeout, which is only calibrated once the first item has returned.
+	  *
+	  * A value <= 0 (the DEFAULT) means "wait indefinitely" and preserves the historical behaviour:
+	  * on a cluster the batch system may only start the clients minutes or hours after the server,
+	  * so a timeout here would shut the server down before any client connects. A positive value
+	  * (typically only useful for local tests, where client start-up is controllable) bounds these
+	  * waits so the run ends gracefully instead of blocking forever should no item ever return.
+	  * Later iterations are unaffected: the clients are already running there, so the regular
+	  * calibrated timeout applies and a missing return is treated as the error it is.
+	  */
+    void setFirstItemMaxWaitSeconds(double seconds) {
+        first_item_max_wait_seconds_ = (seconds > 0. ? seconds : 0.);
+    }
+
+    /***************************************************************************/
+    /**
+	  * Retrieves the maximum time (in seconds) to wait for the first item (0 == indefinitely).
+	  */
+    double getFirstItemMaxWaitSeconds() const {
+        return first_item_max_wait_seconds_;
     }
 
     /***************************************************************************/
@@ -1929,6 +1957,10 @@ public:
             IDENTITY(min_partial_return_percentage_, p_load->min_partial_return_percentage_),
             token
         );
+        compare_t(
+            IDENTITY(first_item_max_wait_seconds_, p_load->first_item_max_wait_seconds_),
+            token
+        );
         compare_t(IDENTITY(capable_of_full_return_, p_load->capable_of_full_return_), token);
         compare_t(IDENTITY(wait_factor_warning_emitted_, p_load->wait_factor_warning_emitted_), token);
 
@@ -1959,6 +1991,7 @@ protected:
         // Local data
         wait_factor_ = p_load_ptr->wait_factor_;
         min_partial_return_percentage_ = p_load_ptr->min_partial_return_percentage_;
+        first_item_max_wait_seconds_ = p_load_ptr->first_item_max_wait_seconds_;
         capable_of_full_return_ = p_load_ptr->capable_of_full_return_;
         wait_factor_warning_emitted_ = p_load_ptr->wait_factor_warning_emitted_;
     }
@@ -2101,6 +2134,23 @@ protected:
           << '\n'
           << "minPartialReturnPercentage percent of the expected work items" << '\n'
           << "have returned. Set to 0 to disable this option.";
+
+        gpb.registerFileParameter<double>(
+            "first_item_max_wait_seconds" // The name of the variable
+            ,
+            DEFAULTEXECUTORFIRSTITEMMAXWAITSECONDS // The default value
+            ,
+            [this](double s) { this->setFirstItemMaxWaitSeconds(s); }
+        ) << "Maximum time (in seconds) to wait, in the FIRST iteration, for the first client to" << '\n'
+          << "connect AND return the first work item. The regular timeout is only calibrated once" << '\n'
+          << "the first item has returned, so these two initial waits are otherwise unbounded." << '\n'
+          << "0 (the DEFAULT) means \"wait indefinitely\" and preserves the historical behaviour:" << '\n'
+          << "on a cluster the batch system may start the clients minutes or hours after the" << '\n'
+          << "server, and a timeout here would shut the server down before any client connects." << '\n'
+          << "A positive value (typically only for local tests, where client start-up is" << '\n'
+          << "controllable) bounds these waits, so the run ends instead of blocking forever in the" << '\n'
+          << "unlikely case that no item ever returns. Later iterations are unaffected (clients" << '\n'
+          << "are already running there, so the calibrated timeout applies).";
     }
 
     /***************************************************************************/
@@ -2443,12 +2493,34 @@ private:
         // Wait indefinitely for a processed item, if this is the very first individual retrieved.
         // We have no information on which we might base a timeout.
         if(this->firstRetrieval()) {
+            // The very first item cannot be bounded by the regular timeout, which is only
+            // calibrated once the first item has returned (max_timeout_ is still 0 here). By
+            // default we therefore wait indefinitely. If a positive first_item_max_wait_seconds_
+            // is configured, we instead wait at most that long, so we cannot block forever in the
+            // unlikely case that no item ever returns (e.g. the only client died before returning
+            // anything).
+            const bool bounded = (first_item_max_wait_seconds_ > 0.);
             do {
-                // Wait indefinitely for the very first, successfully processed individual
-                w_ptr = this->retrieve();
+                w_ptr =
+                    bounded
+                        ? this->retrieve(std::chrono::duration<double>(first_item_max_wait_seconds_))
+                        : this->retrieve();
 
-                // It is a severe error if we get an empty pointer here
                 if(not w_ptr) {
+                    if(bounded) {
+                        // The configured first-item timeout elapsed (or the buffer port was
+                        // closed) before the first item arrived. Give up gracefully: an empty
+                        // pointer lets waitForTimeOut() terminate via its halt() check (max_timeout_
+                        // is 0 here, so halt() is satisfied) and the cycle is reported as
+                        // incomplete instead of blocking forever.
+                        glogger << "In GBrokerExecutorT<>::getNextItem():" << '\n'
+                                << "No work item returned within the configured "
+                                << "first_item_max_wait_seconds of " << first_item_max_wait_seconds_
+                                << " s. Giving up on this cycle." << '\n'
+                                << GWARNING;
+                        return std::shared_ptr<processable_type>();
+                    }
+                    // Unbounded mode: an empty pointer here is a severe error.
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In GBrokerExecutorT<processable_type>::getNextItem(): Received empty "
@@ -2472,7 +2544,7 @@ private:
                             << '\n'
                             << "we do emit a warning here." << '\n'
                             << GWARNING;
-               
+
             }
             while(true);
         }
@@ -2689,7 +2761,14 @@ private:
         }
 #endif
 
-        return current_buffer_port_ptr_->getFirstRetrievalTime();
+        // Honour the optional first-item timeout here too: getFirstRetrievalTime() blocks until
+        // the very first client retrieves work, which only happens in the first cycle. A value of
+        // 0 (the default) keeps the historical unbounded wait -- essential on a cluster, where the
+        // batch system may start the clients minutes or hours after the server. A positive value
+        // (typically only set for local tests) bounds that wait.
+        return current_buffer_port_ptr_->getFirstRetrievalTime(
+            std::chrono::duration<double>(first_item_max_wait_seconds_)
+        );
     }
 
     /***************************************************************************/
@@ -2698,6 +2777,9 @@ private:
 
     std::uint16_t min_partial_return_percentage_ =
         DEFAULTEXECUTORPARTIALRETURNPERCENTAGE; ///< Minimum percentage of returned items after which execution continues
+
+    double first_item_max_wait_seconds_ =
+        DEFAULTEXECUTORFIRSTITEMMAXWAITSECONDS; ///< Max seconds to wait for the very first item of a run (0 == indefinitely)
 
     GBufferPortT_ptr
         current_buffer_port_ptr_; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied

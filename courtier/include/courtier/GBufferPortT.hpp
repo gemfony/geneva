@@ -329,14 +329,30 @@ public:
       *
       * @return The timepoint of the first retrieval
       */
-    std::chrono::high_resolution_clock::time_point getFirstRetrievalTime() const {
+    std::chrono::high_resolution_clock::time_point getFirstRetrievalTime(
+        std::chrono::duration<double> timeout = std::chrono::duration<double>(0.)
+    ) const {
         std::unique_lock<std::mutex> lock(first_retrieval_mutex_);
 
-        // Wait until a first work item was retrieved
-        retrieval_time_condition_.wait(lock, [this]() -> bool { return not this->no_retrieval_; });
+        if(timeout <= std::chrono::duration<double>(0.)) {
+            // Wait indefinitely (the default). The very first client may only be started minutes
+            // or hours after the server (e.g. by a cluster batch system), so timing out here
+            // would shut the server down before any client ever connects.
+            retrieval_time_condition_.wait(lock, [this]() -> bool {
+                return not this->no_retrieval_;
+            });
+            return retrieval_start_time_;
+        }
 
-        // Let the audience know when the first retrieval has occurred
-        return retrieval_start_time_;
+        // Bounded wait (opt-in, e.g. for local tests where client start-up is controllable).
+        // If no work item has been retrieved within the timeout, give up and return "now" as a
+        // fallback cycle-start time; the caller's own first-item wait then lets the cycle end.
+        if(retrieval_time_condition_.wait_for(lock, timeout, [this]() -> bool {
+               return not this->no_retrieval_;
+           })) {
+            return retrieval_start_time_;
+        }
+        return std::chrono::high_resolution_clock::now();
     }
 
     /***************************************************************************/

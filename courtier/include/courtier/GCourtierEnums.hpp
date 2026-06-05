@@ -214,6 +214,9 @@ constexpr double DEFAULTINITIALBROKERWAITFACTOR2 = 1.;
 constexpr std::uint16_t DEFAULTEXECUTORPARTIALRETURNPERCENTAGE =
     0; ///< The minimum percentage of returned items in an iteration after which execution will continue
 
+constexpr double DEFAULTEXECUTORFIRSTITEMMAXWAITSECONDS =
+    0.; ///< Max seconds to wait for the very first item of a run (0 == wait indefinitely)
+
 /******************************************************************************/
 /**
  * A 0 time period . timedHalt will not trigger if this duration is set
