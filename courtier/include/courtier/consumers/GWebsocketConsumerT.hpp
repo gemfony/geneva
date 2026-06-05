@@ -323,16 +323,15 @@ private:
             return;
         }
 
-        // Send the first command to the server
+        // Send the first command to the server. The read for the response is started once
+        // the write completes (when_written), giving a strict write->read->process->write
+        // ping-pong on the single io thread -- no overlapping reads/writes, no thread pool.
         async_start_write(
             Gem::Courtier::container_to_string(
                 command_container_.reset(networked_consumer_payload_command::GETDATA),
                 serialization_mode_
             )
         );
-
-        // Start the read cycle -- it will keep itself alife
-        async_start_read();
     }
 
     //-------------------------------------------------------------------------
@@ -351,16 +350,17 @@ private:
                     << "This will terminate the client." << '\n'
                     << GLOGGING;
 
-            // Give the audience a hint why we are terminating
+            // Give the audience a hint why we are terminating. We do not re-arm any async
+            // operation, so io_context::run() drains and the client terminates.
             close_code_ = boost::beast::websocket::close_code::going_away;
-
-            // This will terminate the client
-            // TODO: It is not quite true that this will terminate the client
             return;
         }
 
         // Clear the outgoing message -- no longer needed
         outgoing_message_.clear();
+
+        // The request has been sent; read the server's response.
+        async_start_read();
     }
 
     //-------------------------------------------------------------------------
@@ -382,37 +382,14 @@ private:
 
             // Give the audience a hint why we are terminating
             close_code_ = boost::beast::websocket::close_code::going_away;
-
-            // This will terminate the client
             return;
         }
 
-        // There should be no situation where in this location processing is active
-        if(processing_is_active_) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GWebsocketClientT<processable_type>::when_read():" << '\n'
-                << "process_reques() is running in a location where it shouldn't be" << '\n'
-            );
-        }
-
-        // Deal with the message and send a response back. Processing
-        // of work items is done inside of process_request().
-        try {
-            // Start asynchronous processing of the work item.
-            auto self = this->shared_from_this();
-            gtp_.async_schedule([self]() { self->process_request(); });
-
-            async_start_read();
-        }
-        catch(...) {
-            // Give the audience a hint why we are terminating
-            glogger << "In GWebsocketClientT<processable_type>::when_read():" << '\n'
-                    << "Caught exception" << '\n'
-                    << GWARNING;
-
-            close_code_ = boost::beast::websocket::close_code::internal_error;
-        }
+        // Deal with the message and send a response back. Processing happens INLINE on the io
+        // thread (not on a thread pool): this keeps the read->process->write cycle strictly
+        // sequential -- no overlapping ws_ operations from a second thread (which Beast forbids)
+        // and no risk of the client being destroyed on one of its own pool threads.
+        process_request();
     }
 
     //-------------------------------------------------------------------------
@@ -420,21 +397,26 @@ private:
 	  * Processing of incoming messages and creation of responses takes place here
 	  */
     void process_request() {
-        // Make it known that we are processing a new work item
-        processing_is_active_ = true;
-
         // Extract the string from the buffer
         auto message = boost::beast::buffers_to_string(incoming_buffer_.data());
 
         // Clear the buffer, so we may later fill it with data to be sent
         incoming_buffer_.consume(incoming_buffer_.size());
 
-        // De-serialize the object
-        Gem::Courtier::container_from_string(
-            message,
-            command_container_,
-            serialization_mode_
-        ); // may throw
+        // De-serialize the object. A malformed/truncated message makes this throw; that must
+        // not escape into io_context::run() (it would unwind the client's only io thread).
+        try {
+            Gem::Courtier::container_from_string(message, command_container_, serialization_mode_);
+        }
+        catch(const std::exception &e) {
+            glogger << "In GWebsocketClientT<processable_type>::process_request():" << '\n'
+                    << "Could not de-serialize an incoming message:" << '\n'
+                    << e.what() << '\n'
+                    << "The client will shut down." << '\n'
+                    << GWARNING;
+            close_code_ = boost::beast::websocket::close_code::internal_error;
+            return;
+        }
 
         // Extract the command
         auto inboundCommand = command_container_.get_command();
@@ -443,8 +425,21 @@ private:
         switch(inboundCommand) {
             using enum Gem::Courtier::networked_consumer_payload_command;
         case COMPUTE: {
-            // Process the work item
-            command_container_.process();
+            // Process the work item. A failure in the user's processing code surfaces as a
+            // g_processing_exception, with the work item already flagged (EXCEPTION_CAUGHT).
+            // We must NOT let that kill the client: catch it and return the flagged item to
+            // the server like any other result, so the item is accounted for, not lost.
+            try {
+                command_container_.process();
+            }
+            catch(const g_processing_exception &e) {
+                glogger << "In GWebsocketClientT<processable_type>::process_request():" << '\n'
+                        << "The work item flagged a processing exception:" << '\n'
+                        << e.what() << '\n'
+                        << "It is returned to the server flagged; the client keeps running."
+                        << '\n'
+                        << GWARNING;
+            }
 
             // Update the processed counter
             this->incrementProcessingCounter();
@@ -467,21 +462,32 @@ private:
         } break;
 
         default: {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "GWebsocketClientT<processable_type><>::process_request():" << '\n'
-                << "Received invalid command " << pcToStr(inboundCommand) << '\n'
-            );
-        } /* break; */ // break is unreachable
+            // An unknown/invalid command is unrecoverable; log and shut down cleanly (do NOT
+            // throw -- that would unwind the io thread).
+            glogger << "In GWebsocketClientT<processable_type>::process_request():" << '\n'
+                    << "Received invalid command " << pcToStr(inboundCommand) << '\n'
+                    << "The client will shut down." << '\n'
+                    << GWARNING;
+            close_code_ = boost::beast::websocket::close_code::internal_error;
+            return;
+        }
         }
 
-        // Processing has finished
-        processing_is_active_ = false;
-
-        // Serialize the object again and return the result
-        this->async_start_write(
-            Gem::Courtier::container_to_string(command_container_, serialization_mode_)
-        );
+        // Serialize the object again and return the result. when_written() will re-arm the
+        // read for the next response, continuing the ping-pong.
+        try {
+            this->async_start_write(
+                Gem::Courtier::container_to_string(command_container_, serialization_mode_)
+            );
+        }
+        catch(const std::exception &e) {
+            glogger << "In GWebsocketClientT<processable_type>::process_request():" << '\n'
+                    << "Could not serialize the outgoing message:" << '\n'
+                    << e.what() << '\n'
+                    << "The client will shut down." << '\n'
+                    << GWARNING;
+            close_code_ = boost::beast::websocket::close_code::internal_error;
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -559,13 +565,9 @@ private:
         networked_consumer_payload_command::NONE
     }; ///< Holds the current command and payload (if any)
 
-    Gem::Common::GThreadPool gtp_{
-        1
-    }; ///< Holds workers doing the processing and serialization of incoming workloads
-
-    std::atomic<bool> processing_is_active_{
-        false
-    }; ///< A safeguard against accidental processing of two work items
+    // Note: request processing now runs inline on the io thread (see process_request()), so the
+    // client no longer owns a worker thread pool. This removes the cross-thread ws_ write race
+    // and the risk of the client being destroyed on one of its own pool threads (self-join).
 
     //-------------------------------------------------------------------------
 };

@@ -222,11 +222,17 @@ public:
         }
 
         //---------------------------------------------------------------------
-        // Make it known if there was a problem
+        // Make it known if there was a problem. run() is the top-level function of a worker
+        // thread, so an exception must NOT escape it -- that would call std::terminate and take
+        // the whole process down. (Per-item processing failures are already funnelled into a
+        // g_processing_exception and handled in process(); reaching here means an exception from
+        // retrieve()/submit()/processInit()/processFinalize().) Log it loudly and return so this
+        // worker stops while the rest of the application keeps running.
         if(has_error) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace()) << error_streamer.str()
-            );
+            glogger << "In GWorkerT<processable_type>::run(): a worker is stopping after an error:"
+                    << '\n'
+                    << error_streamer.str() << '\n'
+                    << GWARNING;
         }
 
         //---------------------------------------------------------------------

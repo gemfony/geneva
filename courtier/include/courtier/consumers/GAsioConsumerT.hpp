@@ -353,12 +353,25 @@ private:
 	  * Processing of incoming messages and creation of responses takes place here
 	  */
     void async_process_request() {
-        // Extract the string from the buffer and de-serialize the object
-        Gem::Courtier::container_from_string(
-            incoming_message_str_,
-            command_container_,
-            serialization_mode_
-        ); // may throw
+        // Extract the string from the buffer and de-serialize the object. A malformed or
+        // truncated message makes this throw; that must not escape into io_context::run()
+        // (it would unwind the client's only io thread and silence the client for good).
+        try {
+            Gem::Courtier::container_from_string(
+                incoming_message_str_,
+                command_container_,
+                serialization_mode_
+            );
+        }
+        catch(const std::exception &e) {
+            glogger << "In GAsioConsumerClientT<processable_type>::async_process_request():" << '\n'
+                    << "Could not de-serialize an incoming message:" << '\n'
+                    << e.what() << '\n'
+                    << "The client will shut down." << '\n'
+                    << GWARNING;
+            this->shutdown();
+            return;
+        }
 
         // Clear the buffer, so we may later fill it with data to be sent
         incoming_message_str_.clear();
@@ -370,8 +383,23 @@ private:
         switch(inboundCommand) {
             using enum Gem::Courtier::networked_consumer_payload_command;
         case COMPUTE: {
-            // Process the work item ...
-            command_container_.process();
+            // Process the work item. A failure in the user's processing code surfaces as a
+            // g_processing_exception, with the work item already flagged (EXCEPTION_CAUGHT)
+            // and carrying its error description. We must NOT let that kill the client:
+            // catch it and return the flagged item to the server like any other result, so
+            // the item is accounted for rather than lost.
+            try {
+                command_container_.process();
+            }
+            catch(const g_processing_exception &e) {
+                glogger << "In GAsioConsumerClientT<processable_type>::async_process_request():"
+                        << '\n'
+                        << "The work item flagged a processing exception:" << '\n'
+                        << e.what() << '\n'
+                        << "It is returned to the server flagged; the client keeps running."
+                        << '\n'
+                        << GWARNING;
+            }
 
             // Update the processed counter
             this->incrementProcessingCounter();
@@ -394,22 +422,32 @@ private:
         } break;
 
         default: {
-            // Terminate operation and return
+            // An unknown/invalid command is unrecoverable for this client; log and shut down
+            // cleanly (do NOT throw -- that would unwind the io thread).
+            glogger << "In GAsioConsumerClientT<processable_type>::async_process_request():" << '\n'
+                    << "Got unknown or invalid command " << inboundCommand << '\n'
+                    << "The client will shut down." << '\n'
+                    << GWARNING;
             this->shutdown();
-
-            // Emit an exception
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "GWebsocketClientT<processable_type>::process_request():" << '\n'
-                << "Got unknown or invalid command "
-                << inboundCommand << '\n'
-            );
-        } break;
+            return;
+        }
         }
 
-        // Transfer the command contaner into the outgoing message string
-        outgoing_message_str_ =
-            Gem::Courtier::container_to_string(command_container_, serialization_mode_);
+        // Transfer the command container into the outgoing message string. Guard the
+        // serialization too: a failure here must not escape the io thread.
+        try {
+            outgoing_message_str_ =
+                Gem::Courtier::container_to_string(command_container_, serialization_mode_);
+        }
+        catch(const std::exception &e) {
+            glogger << "In GAsioConsumerClientT<processable_type>::async_process_request():" << '\n'
+                    << "Could not serialize the outgoing message:" << '\n'
+                    << e.what() << '\n'
+                    << "The client will shut down." << '\n'
+                    << GWARNING;
+            this->shutdown();
+            return;
+        }
 
         // Asynchronously submit the container to the remote side
         async_start_send_chain();

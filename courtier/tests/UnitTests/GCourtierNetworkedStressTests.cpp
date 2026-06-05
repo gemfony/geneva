@@ -262,13 +262,13 @@ TEST_CASE("submission(websocket-loopback): all items conserved over real sockets
 
 TEST_CASE(
     "submission(asio-loopback): client survives a throwing work item",
-    "[.t1][courtier][submission][net][asio]"
+    "[courtier][submission][net][asio]"
 ) {
-    // HIDDEN until T1. Reproduces P0.2/P1.x: a work item whose process() throws is sent to the
-    // client; the client handler is unguarded, so the client thread dies (r.client_threw) and the
-    // item is lost. This test asserts the DESIRED post-T1 behaviour and therefore FAILS today.
-    // Run explicitly with the "[t1]" tag. The faulty item is placed last so the well-behaved items
-    // return first (avoiding the first-item indefinite-block, P1.4).
+    // Regression for T1 (P0.2/P1.x). A work item whose process() throws is sent to the client.
+    // The client handler now catches the (normalised) g_processing_exception and returns the item
+    // flagged instead of letting it unwind the io thread, so: the client does not die, every
+    // well-behaved item still returns, and the faulty item is accounted for (not lost). The faulty
+    // item is placed last so the well-behaved items return first.
     const unsigned short port = free_tcp_port();
 
     auto consumer = std::make_shared<Consumers::GAsioConsumerT<GFaultyContainer>>();
