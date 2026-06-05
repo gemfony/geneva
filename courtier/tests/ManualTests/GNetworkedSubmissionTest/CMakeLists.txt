@@ -27,7 +27,31 @@
 #
 ################################################################################
 
-ADD_SUBDIRECTORY ( UnitTests )
-ADD_SUBDIRECTORY ( ManualTests )
+SET ( EXECUTABLENAME GNetworkedSubmissionTest )
 
-GENEVA_AGGREGATE_TARGET( "tests-courtier" )
+SET ( ${EXECUTABLENAME}_SRCS
+	GNetworkedSubmissionTest.cpp
+)
+
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
+)
+
+SET(LIBRARIES_TO_LINK
+		${GENEVA_LIBRARIES}
+		${Boost_LIBRARIES})
+
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(LIBRARIES_TO_LINK
+			${LIBRARIES_TO_LINK}
+			${MPI_LIBRARIES})
+ENDIF()
+
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+		${LIBRARIES_TO_LINK})
+
+# This is a long-running, multi-process networked program (server/client), normally driven by
+# scripts/startLocalJobs.sh. As a CTest smoke check we only verify it starts and prints its help.
+ADD_TEST(NAME ${EXECUTABLENAME}_help COMMAND ${EXECUTABLENAME} --help)
+
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/courtier/ManualTests/${EXECUTABLENAME} )

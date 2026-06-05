@@ -27,7 +27,6 @@
 #
 ################################################################################
 
-ADD_SUBDIRECTORY ( UnitTests )
-ADD_SUBDIRECTORY ( ManualTests )
+ADD_SUBDIRECTORY ( GNetworkedSubmissionTest )
 
-GENEVA_AGGREGATE_TARGET( "tests-courtier" )
+GENEVA_AGGREGATE_TARGET( "tests-courtier-manual" )
