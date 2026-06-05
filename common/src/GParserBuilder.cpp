@@ -34,6 +34,7 @@
 #include <exception>
 #include <filesystem>
 #include <fstream>
+#include <system_error>
 #include <ios>
 #include <iostream>
 #include <mutex>
@@ -442,12 +443,30 @@ bool GParserBuilder::parseConfigFile(std::filesystem::path const &config_file, b
     try {
         // Assemble a path object from the config file, possibly adding a base directory
         if(not config_base_dir_.empty()) {
-            // Check that the base directory exists
+            // Make sure the base directory exists, creating it if necessary. As a missing config
+            // file is auto-created below, a missing config directory must be created too, so the
+            // mechanism works in a fresh run directory regardless of which caller runs first.
             if(not std::filesystem::exists(config_base_dir_)) {
+                std::error_code ec;
+                std::filesystem::create_directories(config_base_dir_, ec);
+                if(ec) {
+                    throw geneva_exception(
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                        << "In GParserBuilder::parseConfigFile(): Error!" << '\n'
+                        << "Base-directory " << config_base_dir_.string()
+                        << " does not exist and could not be created: " << ec.message() << '\n'
+                    );
+                }
+                glogger << "Note: In GParserBuilder::parseConfigFile():" << '\n'
+                        << "The configuration directory " << config_base_dir_.string()
+                        << " did not exist and was created for you." << '\n'
+                        << GLOGGING;
+            }
+            else if(not std::filesystem::is_directory(config_base_dir_)) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GParserBuilder::parseConfigFile(): Error!" << '\n'
-                    << "Base-directory " << config_base_dir_.string() << " does not exist"
+                    << "Base-directory " << config_base_dir_.string() << " is not a directory"
                     << '\n'
                 );
             }
@@ -571,18 +590,39 @@ void GParserBuilder::writeConfigFile(
             );
         }
 
-        // Check that the target path exists and is a directory
-        if(not std::filesystem::exists(std::filesystem::path(config_file).remove_filename()) ||
-           not std::filesystem::is_directory(
-               std::filesystem::path(config_file).remove_filename()
-           )) { // We need to act on a copy
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParserBuilder::writeConfigFile(): Error!" << '\n'
-                << "The target path "
-                << std::filesystem::path(config_file).remove_filename().string()
-                << " does not exist or is no directory." << '\n'
-            );
+        // Make sure the target directory exists, creating it if necessary. We auto-create a
+        // missing config FILE here (this is the "does not exist" path of parseConfigFile), so we
+        // must also create a missing config DIRECTORY -- otherwise, on a fresh run directory with
+        // no config/ folder, writing the very first config (e.g. Go2's own) would fail and abort
+        // the whole program via GTERMINATION before any config could be created.
+        const std::filesystem::path target_dir = std::filesystem::path(config_file).remove_filename();
+        if(not target_dir.empty()) {
+            if(std::filesystem::exists(target_dir)) {
+                if(not std::filesystem::is_directory(target_dir)) {
+                    throw geneva_exception(
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                        << "In GParserBuilder::writeConfigFile(): Error!" << '\n'
+                        << "The target path " << target_dir.string() << " is not a directory."
+                        << '\n'
+                    );
+                }
+            }
+            else {
+                std::error_code ec;
+                std::filesystem::create_directories(target_dir, ec);
+                if(ec) {
+                    throw geneva_exception(
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                        << "In GParserBuilder::writeConfigFile(): Error!" << '\n'
+                        << "Could not create the target directory " << target_dir.string() << ": "
+                        << ec.message() << '\n'
+                    );
+                }
+                glogger << "Note: In GParserBuilder::writeConfigFile():" << '\n'
+                        << "The configuration directory " << target_dir.string()
+                        << " did not exist and was created for you." << '\n'
+                        << GLOGGING;
+            }
         }
 
         // Check that the configuration file has the required extension
