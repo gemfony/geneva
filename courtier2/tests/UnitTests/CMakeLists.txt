@@ -47,6 +47,7 @@ FUNCTION(geneva_courtier2_test name)
 ENDFUNCTION()
 
 geneva_courtier2_test(GCourtier2PolicyTests    GCourtier2PolicyTests.cpp)
+geneva_courtier2_test(GCourtier2TimeoutTests   GCourtier2TimeoutTests.cpp)
 geneva_courtier2_test(GCourtier2AsioTests      GCourtier2AsioTests.cpp)
 geneva_courtier2_test(GCourtier2WebsocketTests GCourtier2WebsocketTests.cpp)
 

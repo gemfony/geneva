@@ -82,7 +82,8 @@ public:
      * successfully evaluated item (possibly a clone, for tolerant policies). Terminates the
      * program if the policy cannot be honoured.
      */
-    void processBatch(std::span<item_ptr> items, const GSubmissionPolicy &policy) {
+    void processBatch(std::span<item_ptr> items, const GSubmissionPolicy &policy,
+                      item_ptr clone_template = nullptr) {
         using Gem::Courtier::processingStatus;
 
         const std::size_t n = items.size();
@@ -178,7 +179,7 @@ public:
                 continue;
             }
             if(policy.unresolved_action == on_unresolved::clone) {
-                items[i] = this->clone_a_successful_(items);
+                items[i] = this->clone_for_refill_(items, clone_template);
             }
             else {
                 this->fatal_(
@@ -216,24 +217,31 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Returns a clone of the first successfully evaluated item in the batch (for the
-     *  clone-on-partial-return policy). Requires a copy-constructible work item; a future
-     *  refinement can take a clone functor (e.g. EA's re-pad-from-parents). */
-    item_ptr clone_a_successful_(std::span<item_ptr> items) const {
-        for(auto &it : items) {
-            if(it && it->is_processed()) {
-                if constexpr(std::is_copy_constructible_v<processable_type>) {
+    /** @brief Produces a replacement item to refill an unresolved slot under clone-on-partial-return.
+     *  Prefers a caller-supplied @p clone_template (e.g. a representative, already-evaluated
+     *  individual the algorithm hands down) when present; otherwise clones the first successfully
+     *  evaluated sibling in the batch. Requires a copy-constructible work item. */
+    item_ptr clone_for_refill_(std::span<item_ptr> items, const item_ptr &clone_template) const {
+        if constexpr(std::is_copy_constructible_v<processable_type>) {
+            if(clone_template) {
+                return std::make_shared<processable_type>(*clone_template);
+            }
+            for(auto &it : items) {
+                if(it && it->is_processed()) {
                     return std::make_shared<processable_type>(*it);
                 }
-                else {
-                    this->fatal_(
-                        "clone-on-partial-return needs a copy-constructible work item "
-                        "(or a clone functor, to be supplied by the algorithm)."
-                    );
-                }
             }
+            this->fatal_(
+                "clone-on-partial-return: no clone template was supplied and no successfully "
+                "evaluated item is available to clone from."
+            );
         }
-        this->fatal_("clone-on-partial-return: no successfully evaluated item to clone from.");
+        else {
+            this->fatal_(
+                "clone-on-partial-return needs a copy-constructible work item "
+                "(or a clone template, to be supplied by the algorithm)."
+            );
+        }
         return {};
     }
 };

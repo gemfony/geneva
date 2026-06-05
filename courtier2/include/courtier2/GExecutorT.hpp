@@ -69,14 +69,18 @@ public:
      * Evaluates and reconciles the given batch in place against the policy. On return every slot
      * holds a successfully evaluated item (or the program has terminated, per the policy).
      */
-    void workOn(std::span<item_ptr> items, const GSubmissionPolicy &policy) {
-        broker_->consumer().processBatch(items, policy);
+    void workOn(std::span<item_ptr> items, const GSubmissionPolicy &policy,
+                item_ptr clone_template = nullptr) {
+        broker_->consumer().processBatch(items, policy, std::move(clone_template));
     }
 
     /***************************************************************************/
-    /** @brief Convenience overload taking a vector reference. */
-    void workOn(std::vector<item_ptr> &items, const GSubmissionPolicy &policy) {
-        this->workOn(std::span<item_ptr>(items.data(), items.size()), policy);
+    /** @brief Convenience overload taking a vector reference. The optional @p clone_template is a
+     *  representative, already-evaluated item the consumer clones from when refilling unresolved
+     *  slots under clone-on-partial-return (instead of cloning a successful sibling). */
+    void workOn(std::vector<item_ptr> &items, const GSubmissionPolicy &policy,
+                item_ptr clone_template = nullptr) {
+        this->workOn(std::span<item_ptr>(items.data(), items.size()), policy, std::move(clone_template));
     }
 
 private:

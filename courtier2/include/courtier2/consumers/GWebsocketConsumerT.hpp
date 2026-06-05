@@ -149,6 +149,13 @@ public:
         gtg_.join_all();
     }
 
+protected:
+    /***************************************************************************/
+    /** @brief The websocket consumer has a real client-liveness signal (its persistent session +
+     *  keep-alive ping/pong), so it reclaims a lost item immediately on disconnect via the session's
+     *  CheckoutLease and does NOT use the time lease -- a live-but-slow client keeps its item. */
+    bool usesTimeLease() const override { return false; }
+
 private:
     /***************************************************************************/
     static std::size_t default_threads() {
@@ -174,13 +181,29 @@ private:
             }
         }
         else {
+            // The websocket session is persistent (the client computes inline on the open
+            // connection), so a disconnect IS a real death signal. Give the session a CheckoutLease:
+            // if it dies still holding an item, the lease requeues that item immediately for another
+            // client -- liveness-driven put-back, no time lease needed (see usesTimeLease()).
+            auto lease = std::make_shared<typename GNetworkedConsumerT<processable_type>::CheckoutLease>();
+            lease->on_abandon = [w = this->weak_from_this()](const std::shared_ptr<processable_type> &p) {
+                if(auto s = w.lock()) {
+                    s->requeue(p);
+                }
+            };
+
             std::make_shared<session_type>(
                 io_context_,
                 std::move(socket_),
-                [self = this->shared_from_this()]() -> std::shared_ptr<processable_type> {
-                    return self->checkout();
+                [self = this->shared_from_this(), lease]() -> std::shared_ptr<processable_type> {
+                    auto p = self->checkout();
+                    if(p) {
+                        lease->current = p;
+                    }
+                    return p;
                 },
-                [self = this->shared_from_this()](std::shared_ptr<processable_type> p) {
+                [self = this->shared_from_this(), lease](std::shared_ptr<processable_type> p) {
+                    lease->current.reset(); // returned normally -> nothing for the lease to reclaim
                     self->checkin(p);
                 },
                 [self = this->shared_from_this()]() -> bool { return self->stopped(); },
