@@ -42,13 +42,13 @@
 
 #include <chrono>
 #include <cstddef>
-#include <initializer_list>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <thread>
 #include <vector>
 
+#include "common/GParserBuilder.hpp"
 #include "courtier/GDemoProcessingContainers.hpp"
 #include "courtier/consumers/GAsioConsumerT.hpp"
 #include "courtier/consumers/GWebsocketConsumerT.hpp"
@@ -66,43 +66,6 @@ namespace ccons = Gem::Courtier::Consumers;
 namespace {
 
 constexpr auto BIN = Gem::Common::serializationMode::BINARY;
-
-std::string arg_value(int argc, char **argv, const std::string &key, const std::string &dflt) {
-    for(int i = 1; i < argc; ++i) {
-        const std::string a = argv[i];
-        if(a == key && i + 1 < argc) {
-            return argv[i + 1];
-        }
-        const std::string eq = key + "=";
-        if(a.rfind(eq, 0) == 0) {
-            return a.substr(eq.size());
-        }
-    }
-    return dflt;
-}
-
-bool has_flag(int argc, char **argv, const std::string &key) {
-    for(int i = 1; i < argc; ++i) {
-        if(std::string(argv[i]) == key) {
-            return true;
-        }
-    }
-    return false;
-}
-
-/** @brief First non-empty value among several keys (so the same binary accepts both the generic
- *  --port/--ip and the Geneva-convention --asio_port/--asio_ip / --beast_port/--beast_ip that
- *  startLocalJobs.sh passes). */
-std::string first_arg(int argc, char **argv, std::initializer_list<const char *> keys,
-                      const std::string &dflt) {
-    for(const char *k : keys) {
-        const std::string v = arg_value(argc, argv, k, "");
-        if(not v.empty()) {
-            return v;
-        }
-    }
-    return dflt;
-}
 
 int run_server(const std::string &consumer, unsigned short port, std::size_t n, std::size_t fault_every) {
     auto broker = std::make_shared<c2::GBrokerT<GFaultyContainer>>();
@@ -190,21 +153,46 @@ int run_client(const std::string &consumer, const std::string &ip, unsigned shor
 } /* anonymous namespace */
 
 int main(int argc, char **argv) {
-    const std::string consumer = arg_value(argc, argv, "-c", arg_value(argc, argv, "--consumer", "asio"));
-    // Accept both the generic --port/--ip and the Geneva-convention names that
-    // startLocalJobs.sh passes (--asio_port/--asio_ip, --beast_port/--beast_ip).
-    const auto port = static_cast<unsigned short>(
-        std::stoi(first_arg(argc, argv, {"--port", "--asio_port", "--beast_port"}, "10000"))
-    );
-    const bool is_client = has_flag(argc, argv, "--client");
+    std::string consumer;
+    bool is_client = false;
+    std::string asio_ip;
+    std::string beast_ip;
+    unsigned short asio_port = 0;
+    unsigned short beast_port = 0;
+    std::size_t n = 0;
+    std::size_t fault_every = 0;
 
-    if(is_client) {
-        const std::string ip = first_arg(argc, argv, {"--ip", "--asio_ip", "--beast_ip"}, "127.0.0.1");
-        return run_client(consumer, ip, port);
+    // Use Geneva's own command-line parser. The consumer-specific option names (--asio_*/--beast_*)
+    // match what real Geneva programs expose, so this exerciser is drop-in with startLocalJobs.sh.
+    Gem::Common::GParserBuilder gpb;
+    gpb.registerCLParameter("consumer,c", consumer, std::string("asio"),
+                            "the consumer to exercise: asio or beast");
+    gpb.registerCLParameter("client", is_client, false,
+                            "run as a client (default: server)",
+                            Gem::Common::GCL_IMPLICIT_ALLOWED, true);
+    gpb.registerCLParameter("asio_ip", asio_ip, std::string("127.0.0.1"),
+                            "server ip/host the asio client connects to");
+    gpb.registerCLParameter("asio_port", asio_port, static_cast<unsigned short>(10000),
+                            "the asio server's TCP port");
+    gpb.registerCLParameter("beast_ip", beast_ip, std::string("127.0.0.1"),
+                            "server ip/host the beast client connects to");
+    gpb.registerCLParameter("beast_port", beast_port, static_cast<unsigned short>(10000),
+                            "the beast server's TCP port");
+    gpb.registerCLParameter("nWorkItems", n, static_cast<std::size_t>(200),
+                            "number of work items the server submits");
+    gpb.registerCLParameter("faultEvery", fault_every, static_cast<std::size_t>(0),
+                            "every K-th item throws (0 = none); switches to clone-on-partial-return");
+
+    if(gpb.parseCommandLine(argc, argv) == Gem::Common::GCL_HELP_REQUESTED) {
+        return 0;
     }
 
-    const auto n = static_cast<std::size_t>(std::stoul(arg_value(argc, argv, "--n", "200")));
-    const auto fault_every =
-        static_cast<std::size_t>(std::stoul(arg_value(argc, argv, "--faultEvery", "0")));
+    const bool beast = (consumer == "beast");
+    const unsigned short port = beast ? beast_port : asio_port;
+    const std::string ip = beast ? beast_ip : asio_ip;
+
+    if(is_client) {
+        return run_client(consumer, ip, port);
+    }
     return run_server(consumer, port, n, fault_every);
 }

@@ -60,12 +60,12 @@ INSTALL(TARGETS GCourtier2FatalExerciser
 		DESTINATION ${INSTALL_PREFIX_DATA}/tests/courtier2/UnitTests)
 
 ADD_TEST(NAME GCourtier2Fatal_ok
-		COMMAND GCourtier2FatalExerciser ok)
+		COMMAND GCourtier2FatalExerciser --scenario=ok)
 SET_TESTS_PROPERTIES(GCourtier2Fatal_ok PROPERTIES LABELS "courtier2")
 
 FOREACH(scenario fatal-unfixable fatal-none-fatal fatal-none-clone)
 	ADD_TEST(NAME GCourtier2Fatal_${scenario}
-			COMMAND sh -c "$<TARGET_FILE:GCourtier2FatalExerciser> ${scenario}; test $? -ne 0")
+			COMMAND sh -c "$<TARGET_FILE:GCourtier2FatalExerciser> --scenario=${scenario}; test $? -ne 0")
 	SET_TESTS_PROPERTIES(GCourtier2Fatal_${scenario} PROPERTIES LABELS "courtier2")
 ENDFOREACH()
 

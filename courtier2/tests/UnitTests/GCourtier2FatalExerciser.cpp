@@ -48,6 +48,7 @@
 #include <string>
 #include <vector>
 
+#include "common/GParserBuilder.hpp"
 #include "courtier/GDemoProcessingContainers.hpp"
 #include "courtier2/GBrokerT.hpp"
 #include "courtier2/GExecutorT.hpp"
@@ -74,11 +75,20 @@ std::vector<item_ptr> make_batch(std::size_t n, fault_mode fm_for_all = fault_mo
 } /* anonymous namespace */
 
 int main(int argc, char **argv) {
-    if(argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " <scenario>\n";
+    std::string scenario;
+    Gem::Common::GParserBuilder gpb;
+    gpb.registerCLParameter(
+        "scenario", scenario, std::string(""),
+        "which fatal path to exercise: ok | fatal-unfixable | fatal-none-fatal | fatal-none-clone"
+    );
+    if(gpb.parseCommandLine(argc, argv) == Gem::Common::GCL_HELP_REQUESTED) {
+        return 0;
+    }
+    if(scenario.empty()) {
+        std::cerr << "Error: --scenario is required "
+                     "(ok | fatal-unfixable | fatal-none-fatal | fatal-none-clone)\n";
         return 2;
     }
-    const std::string scenario = argv[1];
 
     auto broker = std::make_shared<GBrokerT<GFaultyContainer>>();
     broker->registerConsumer(std::make_shared<GStdThreadConsumerT<GFaultyContainer>>(4));
