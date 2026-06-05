@@ -1143,6 +1143,20 @@ public:
     GWebsocketConsumerT &operator=(const GWebsocketConsumerT<processable_type> &) = delete;
     GWebsocketConsumerT &operator=(GWebsocketConsumerT<processable_type> &&) = delete;
 
+    //-------------------------------------------------------------------------
+    /** @brief Sets the port the server should listen on (parity with GAsioConsumerT) */
+    void setPort(unsigned short port) {
+        port_ = port;
+    }
+    /** @brief Retrieves the configured port */
+    [[nodiscard]] unsigned short getPort() const {
+        return port_;
+    }
+    /** @brief Sets the serialization mode used on the wire (parity with GAsioConsumerT) */
+    void setSerializationMode(Gem::Common::serializationMode serialization_mode) {
+        serialization_mode_ = serialization_mode;
+    }
+
 protected:
     //-------------------------------------------------------------------------
     /**

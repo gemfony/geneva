@@ -48,7 +48,8 @@ FUNCTION(geneva_courtier_test name)
 	INSTALL(TARGETS ${name} DESTINATION ${INSTALL_PREFIX_DATA}/tests/courtier/UnitTests)
 ENDFUNCTION()
 
-geneva_courtier_test(GCourtierStandardTests        GCourtierStandardTests.cpp)
+geneva_courtier_test(GCourtierStandardTests         GCourtierStandardTests.cpp)
 geneva_courtier_test(GCourtierSubmissionStressTests GCourtierSubmissionStressTests.cpp)
+geneva_courtier_test(GCourtierNetworkedStressTests  GCourtierNetworkedStressTests.cpp)
 
 GENEVA_AGGREGATE_TARGET( "tests-courtier-unit" )
