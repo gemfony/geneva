@@ -2401,8 +2401,12 @@ private:
             return true;
         }
 
-        // Check if we have reached the minimum percentage
-        double realPercentage = Gem::Common::narrow<double>(n_returned_current_) /
+        // Check if we have reached the minimum percentage. getMinPartialReturnPercentage()
+        // is a percentage in [0,100], so the returned fraction must be scaled to a percentage
+        // before the comparison -- otherwise the fraction (<= 1.0) is compared against a value
+        // up to 100 and the threshold can essentially never be reached (the feature was a no-op
+        // for any setting other than 0 or, via the exact-equality branch above, 100).
+        double realPercentage = 100. * Gem::Common::narrow<double>(n_returned_current_) /
                                 Gem::Common::narrow<double>(expectedNumber);
         return (
             realPercentage >= Gem::Common::narrow<double>(this->getMinPartialReturnPercentage())
