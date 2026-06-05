@@ -32,6 +32,7 @@
 #include "common/GLogger.hpp"
 #include <mutex>
 #include <shared_mutex>
+#include <stop_token>
 
 namespace Gem::Common {
 
@@ -62,7 +63,10 @@ GThreadPool::GThreadPool(unsigned int n_threads)
  */
 GThreadPool::~GThreadPool() {
     try {
-        task_queue_->close();
+        // Shut the workers down through the cooperative stop_token: join_all() requests stop on
+        // each worker jthread, whose stop_callback closes the task queue; the workers then drain
+        // any remaining tasks (satisfying their futures) and exit. No exception may escape a
+        // destructor.
         worker_group_.join_all();
         worker_group_.clearThreads();
     }
@@ -75,7 +79,7 @@ GThreadPool::~GThreadPool() {
  * Starts n worker threads, each draining the current task queue.
  */
 void GThreadPool::start_workers(unsigned int n) {
-    worker_group_.create_threads([this]() { this->worker_loop(); }, n);
+    worker_group_.create_threads([this](std::stop_token st) { this->worker_loop(st); }, n);
 }
 
 /******************************************************************************/
@@ -109,7 +113,14 @@ bool GThreadPool::enqueue(std::function<void()> task) {
  * tasks after close(), and returns std::nullopt once the queue is closed and
  * empty -- which is how a worker leaves the loop and terminates.
  */
-void GThreadPool::worker_loop() {
+void GThreadPool::worker_loop(std::stop_token st) {
+    // A stop request (e.g. from GThreadGroup::join_all()) closes the task queue. The drain loop
+    // below then finishes the remaining tasks and exits once the queue is closed and empty, so
+    // pending tasks' futures are still satisfied -- request_stop() is a graceful "drain and
+    // stop", not an abrupt abandon. (A stop_token cannot by itself wake a blocked pop(); closing
+    // the queue can, which is why we route the stop through close().)
+    const std::stop_callback stop_cb(st, [this]() { task_queue_->close(); });
+
     while(auto task = task_queue_->pop()) {
         // The task wrapper fulfils its own promise and never lets an exception
         // escape, so the in-flight bookkeeping below always runs.
@@ -174,8 +185,9 @@ void GThreadPool::setNThreads(unsigned int n_threads) {
         start_workers(n - n_threads_);
     }
     else {
-        // Shrink: the queue's close() is terminal, so recreate it.
-        task_queue_->close();
+        // Shrink: stop the current workers via the stop_token (join_all -> request_stop ->
+        // stop_callback closes the queue -> drain -> exit), then recreate the queue (its close()
+        // is terminal) and restart with the new worker count.
         worker_group_.join_all();
         worker_group_.clearThreads();
         task_queue_.emplace(); // fresh, open queue

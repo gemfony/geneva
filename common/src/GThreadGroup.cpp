@@ -78,6 +78,14 @@ void GThreadGroup::join_all() {
         std::scoped_lock guard(mutex_);
         to_join = threads_; // shared_ptrs — cheap copy, keeps threads alive
     }
+    // Request cooperative stop on every thread FIRST, then join. A functor that observes its
+    // std::stop_token (e.g. GWorkerT, or GThreadPool via a stop_callback) thus gets the signal
+    // before we block on the first join; a functor that ignores the token is unaffected.
+    for(auto &t : to_join) {
+        if(t) {
+            t->request_stop();
+        }
+    }
     for(auto &t : to_join) {
         if(t && t->joinable()) {
             t->join();

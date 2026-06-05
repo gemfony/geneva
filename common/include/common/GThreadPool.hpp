@@ -42,6 +42,7 @@
 #include <mutex>
 #include <optional>
 #include <shared_mutex>
+#include <stop_token>
 #include <type_traits>
 #include <utility>
 
@@ -219,8 +220,11 @@ private:
     bool enqueue(std::function<void()> task);
 
     /***************************************************************************/
-    /** @brief Worker body: drains the queue until it is closed and empty */
-    void worker_loop();
+    /** @brief Worker body: drains the queue until it is closed and empty. Observes the
+     *  jthread's stop_token: a stop request closes the task queue, so the worker still drains
+     *  the remaining tasks (their futures complete) and then exits -- request_stop() is thus a
+     *  graceful "drain and stop", never an abrupt abandon. */
+    void worker_loop(std::stop_token st);
     /** @brief Starts n worker threads draining the (current) queue */
     void start_workers(unsigned int n);
     /** @brief Blocks (under counter_mutex_) until no tasks are in flight */
