@@ -50,10 +50,9 @@ geneva_courtier2_test(GCourtier2PolicyTests    GCourtier2PolicyTests.cpp)
 geneva_courtier2_test(GCourtier2AsioTests      GCourtier2AsioTests.cpp)
 geneva_courtier2_test(GCourtier2WebsocketTests GCourtier2WebsocketTests.cpp)
 
-# The fatal reconciliation paths terminate the process (GTERMINATION -> std::terminate -> SIGABRT),
-# so they are exercised as subprocesses. The "ok" control must succeed (exit 0); each fatal scenario
-# must abort. CTest's WILL_FAIL does NOT cover signal deaths (only non-zero return codes), so the
-# fatal scenarios are wrapped in a shell that asserts a non-zero/aborting exit.
+# The fatal reconciliation paths exit the process cleanly with a non-zero status (via LOGEXIT, no
+# core dump), so they are exercised as subprocesses: the "ok" control must succeed (exit 0); each
+# fatal scenario must exit non-zero, which CTest's WILL_FAIL asserts directly.
 ADD_EXECUTABLE(GCourtier2FatalExerciser GCourtier2FatalExerciser.cpp)
 TARGET_LINK_LIBRARIES(GCourtier2FatalExerciser ${LIBRARIES_TO_LINK})
 INSTALL(TARGETS GCourtier2FatalExerciser
@@ -65,8 +64,8 @@ SET_TESTS_PROPERTIES(GCourtier2Fatal_ok PROPERTIES LABELS "courtier2")
 
 FOREACH(scenario fatal-unfixable fatal-none-fatal fatal-none-clone)
 	ADD_TEST(NAME GCourtier2Fatal_${scenario}
-			COMMAND sh -c "$<TARGET_FILE:GCourtier2FatalExerciser> --scenario=${scenario}; test $? -ne 0")
-	SET_TESTS_PROPERTIES(GCourtier2Fatal_${scenario} PROPERTIES LABELS "courtier2")
+			COMMAND GCourtier2FatalExerciser --scenario=${scenario})
+	SET_TESTS_PROPERTIES(GCourtier2Fatal_${scenario} PROPERTIES LABELS "courtier2" WILL_FAIL TRUE)
 ENDFOREACH()
 
 # The MPI consumer fixes its rank layout at launch, so it is exercised as a multi-process program

@@ -1109,7 +1109,7 @@ void Go2::parseConfigFile(std::filesystem::path const &config_filename) {
     if(not gpb.parseConfigFile(config_filename)) {
         glogger << "In Go2::parseConfigFile: Error!" << '\n'
                 << "Could not parse configuration file " << config_filename.string() << '\n'
-                << GTERMINATION;
+                << LOGEXIT(EXIT_FAILURE);
     }
 }
 

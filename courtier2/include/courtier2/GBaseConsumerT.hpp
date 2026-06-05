@@ -33,6 +33,7 @@
 
 // Standard headers
 #include <cstddef>
+#include <cstdlib>
 #include <memory>
 #include <span>
 #include <string>
@@ -204,11 +205,13 @@ protected:
     virtual void dispatch_(std::vector<item_ptr> &items) = 0;
 
     /***************************************************************************/
-    /** @brief Clean, fatal termination when the policy cannot be honoured. */
+    /** @brief Clean, fatal exit when the policy cannot be honoured. This is an expected terminal
+     *  condition (e.g. a lost evaluation under a need-all policy), not an internal fault, so it
+     *  exits cleanly via LOGEXIT rather than std::terminate()-ing with a core dump. */
     void fatal_(const std::string &msg) const {
         glogger << "In Gem::Courtier2 consumer:" << '\n'
                 << "FATAL: " << msg << '\n'
-                << GTERMINATION;
+                << LOGEXIT(EXIT_FAILURE);
     }
 
 private:

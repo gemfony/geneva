@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <cstdlib>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -118,7 +119,7 @@ public:
                     << '\n'
                     << "lower_boundary_ = " << lower_boundary_ << "is larger than" << '\n'
                     << "upper_boundary_ = " << upper_boundary_ << '\n'
-                    << GTERMINATION;
+                    << LOGEXIT(EXIT_FAILURE);
         }
 
         // We might have constraints regarding the allowed boundaries. Cross-check
@@ -133,7 +134,7 @@ public:
                     << "GConstrainedValueLimit<num_type>::lowest() = "
                     << GConstrainedValueLimitT<num_type>::lowest() << '\n'
                     << "GConstrainedValueLimit<num_type>::highest() = "
-                    << GConstrainedValueLimitT<num_type>::highest() << GTERMINATION;
+                    << GConstrainedValueLimitT<num_type>::highest() << LOGEXIT(EXIT_FAILURE);
         }
     }
 
@@ -163,7 +164,7 @@ public:
                     << '\n'
                     << "lower_boundary_ = " << lower_boundary_ << "is larger than" << '\n'
                     << "upper_boundary_ = " << upper_boundary_ << '\n'
-                    << GTERMINATION;
+                    << LOGEXIT(EXIT_FAILURE);
         }
 
         // We might have constraints regarding the allowed boundaries. Cross-check
@@ -179,7 +180,7 @@ public:
                     << GConstrainedValueLimitT<num_type>::lowest() << '\n'
                     << "GConstrainedValueLimit<num_type>::highest() = "
                     << GConstrainedValueLimitT<num_type>::highest() << '\n'
-                    << GTERMINATION;
+                    << LOGEXIT(EXIT_FAILURE);
         }
 
         // Check that assigned value is in the allowed range
@@ -191,7 +192,7 @@ public:
                     << "val = " << val << '\n'
                     << "lowerBoundary = " << lower_boundary << '\n'
                     << "upperBoundary = " << upper_boundary << '\n'
-                    << GTERMINATION;
+                    << LOGEXIT(EXIT_FAILURE);
         }
     }
 

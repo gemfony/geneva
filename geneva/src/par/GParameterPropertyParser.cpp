@@ -32,6 +32,7 @@
 #include "common/GLogger.hpp"
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -117,14 +118,13 @@ GParameterPropertyParser::GParameterPropertyParser(const std::string &rw)
     }
     catch(
         const geneva_exception &e
-    ) { // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
+    ) { // NOLINT(bugprone-empty-catch) — logs and exits cleanly via LOGEXIT
         glogger << "In GParameterPropertyParser::GParameterPropertyParser(const std::string& raw): "
                    "Error!"
                 << '\n'
-                << "Caught Geneva exception with message " << '\n'
+                << "Caught Geneva exception while parsing the parameter-property string:" << '\n'
                 << e.what() << '\n'
-                << "Terminating the application" << '\n'
-                << GTERMINATION;
+                << LOGEXIT(EXIT_FAILURE);
     }
 }
 

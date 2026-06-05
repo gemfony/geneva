@@ -29,17 +29,17 @@
 
 /**
  * Standalone exerciser for the FATAL reconciliation paths of the courtier2 submission policies.
- * These paths route through GTERMINATION -> std::terminate(), which cannot be caught in-process by
- * Catch2, so each scenario is driven from CTest as a subprocess and asserted via the process exit
- * status (see the CMakeLists). Usage:
+ * These paths exit the process via LOGEXIT (std::exit, a clean non-zero exit -- no core dump),
+ * which still cannot be observed in-process by Catch2, so each scenario is driven from CTest as a
+ * subprocess and asserted via the process exit status (see the CMakeLists). Usage:
  *
- *   GCourtier2FatalExerciser <scenario>
+ *   GCourtier2FatalExerciser --scenario=<scenario>
  *
  * Scenarios:
  *   ok                 -- a clean batch under full-success-or-fatal: returns 0 (control case).
- *   fatal-unfixable    -- a deterministically failing slot under full-success-or-fatal: must terminate.
- *   fatal-none-fatal   -- every slot fails under full-success-or-fatal: zero-usable floor, must terminate.
- *   fatal-none-clone   -- every slot fails under clone-on-partial-return: nothing to clone from, must terminate.
+ *   fatal-unfixable    -- a deterministically failing slot under full-success-or-fatal: must exit non-zero.
+ *   fatal-none-fatal   -- every slot fails under full-success-or-fatal: zero-usable floor, must exit non-zero.
+ *   fatal-none-clone   -- every slot fails under clone-on-partial-return: nothing to clone from, must exit non-zero.
  */
 
 #include <cstdlib>

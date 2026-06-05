@@ -48,6 +48,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <exception>
 #include <filesystem>
 #include <memory>
@@ -601,7 +602,7 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
                "Error!"
             << '\n'
             << "Program name was empty" << '\n'
-            << GTERMINATION;
+            << LOGEXIT(EXIT_FAILURE);
     }
 
     // Check that the file exists
@@ -612,7 +613,7 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
             << '\n'
             << "External program " << program_name_.value() << " does not seem to exist"
             << '\n'
-            << GTERMINATION;
+            << LOGEXIT(EXIT_FAILURE);
     }
 
     // Collect all command-line arguments
@@ -638,7 +639,7 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
                 << "Execution of external command failed." << '\n'
                 << "Command: " << command << '\n'
                 << "Error code: " << error_code << '\n'
-                << GTERMINATION;
+                << LOGEXIT(EXIT_FAILURE);
     }
 }
 
