@@ -69,4 +69,17 @@ FOREACH(scenario fatal-unfixable fatal-none-fatal fatal-none-clone)
 	SET_TESTS_PROPERTIES(GCourtier2Fatal_${scenario} PROPERTIES LABELS "courtier2")
 ENDFOREACH()
 
+# The MPI consumer fixes its rank layout at launch, so it is exercised as a multi-process program
+# under mpirun (1 master + 2 workers) rather than as an in-process Catch2 test.
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	ADD_EXECUTABLE(GCourtier2MpiExerciser GCourtier2MpiExerciser.cpp)
+	TARGET_LINK_LIBRARIES(GCourtier2MpiExerciser ${LIBRARIES_TO_LINK})
+	INSTALL(TARGETS GCourtier2MpiExerciser
+			DESTINATION ${INSTALL_PREFIX_DATA}/tests/courtier2/UnitTests)
+	ADD_TEST(NAME GCourtier2MpiTest
+			COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3
+					${MPIEXEC_PREFLAGS} $<TARGET_FILE:GCourtier2MpiExerciser> ${MPIEXEC_POSTFLAGS})
+	SET_TESTS_PROPERTIES(GCourtier2MpiTest PROPERTIES LABELS "courtier2")
+ENDIF()
+
 GENEVA_AGGREGATE_TARGET( "tests-courtier2-unit" )

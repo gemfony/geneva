@@ -1008,6 +1008,12 @@ private:
          * @return A work item (possibly empty)
          */
     std::shared_ptr<processable_type> getPayloadItem() {
+        // If an external source has been injected (e.g. the courtier2 reconcile-the-span path),
+        // use it instead of the broker. Default (no functor set) is the original broker behaviour.
+        if(getPayloadItemFn_) {
+            return getPayloadItemFn_();
+        }
+
         std::shared_ptr<processable_type> p;
 
         // Try to retrieve a work item from the broker
@@ -1030,6 +1036,12 @@ private:
             );
         }
 
+        // Use the injected sink if present (see getPayloadItem()); otherwise the broker.
+        if(putPayloadItemFn_) {
+            putPayloadItemFn_(p);
+            return;
+        }
+
         if(not brokerPtr_->put(p, timeout_)) {
             glogger << "In GMPIConsumerMasterNodeT<>::putPayloadItem():" << '\n'
                     << "Work item could not be submitted to the broker" << '\n'
@@ -1037,6 +1049,24 @@ private:
                     << GWARNING;
         }
     }
+
+public:
+    //-------------------------------------------------------------------------
+    /**
+         * Injects an external source/sink for work items, bypassing the broker. This is the seam the
+         * courtier2 networked-consumer path uses to drive the MPI master node from a span+policy
+         * batch instead of the broker's buffer ports. With no functors set the node behaves exactly
+         * as before (broker-backed), so this is behaviour-neutral for existing callers.
+         */
+    void setPayloadFunctors(
+        std::function<std::shared_ptr<processable_type>()> getPayloadItemFn,
+        std::function<void(std::shared_ptr<processable_type>)> putPayloadItemFn
+    ) {
+        getPayloadItemFn_ = std::move(getPayloadItemFn);
+        putPayloadItemFn_ = std::move(putPayloadItemFn);
+    }
+
+private:
 
     //-------------------------------------------------------------------------
     // Data
@@ -1069,6 +1099,10 @@ private:
     const std::chrono::duration<double> timeout_ = std::chrono::milliseconds(
         GMPICONSUMERBROKERACCESSBROKERTIMEOUT
     ); ///< A timeout for put- and get-operations via the broker
+
+    /// Optional external source/sink, bypassing the broker (see setPayloadFunctors()).
+    std::function<std::shared_ptr<processable_type>()> getPayloadItemFn_;
+    std::function<void(std::shared_ptr<processable_type>)> putPayloadItemFn_;
 };
 
 /**

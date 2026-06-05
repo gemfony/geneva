@@ -1,0 +1,179 @@
+/********************************************************************************
+ *
+ * This file is part of the Geneva library collection. The following license
+ * applies to this file:
+ *
+ * ------------------------------------------------------------------------------
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------
+ *
+ * Note that other files in the Geneva library collection may use a different
+ * license. Please see the licensing information in each file.
+ *
+ ********************************************************************************
+ *
+ * See the NOTICE file in the top-level directory of the Geneva library
+ * collection for a list of contributors and copyright information.
+ *
+ ********************************************************************************/
+
+#pragma once
+
+#include "common/GGlobalDefines.hpp"
+
+// The whole consumer is only available when the MPI consumer was enabled at configure time.
+#ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
+
+// Standard headers
+#include <atomic>
+#include <chrono>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+
+// MPI
+#include <mpi.h>
+
+// Geneva headers
+#include "courtier/consumers/GMPIConsumerT.hpp" // reuse the existing master/worker nodes + MPI init
+#include "courtier2/consumers/GNetworkedConsumerT.hpp"
+
+namespace Gem::Courtier2 {
+
+/******************************************************************************/
+/**
+ * The courtier2 MPI consumer. Unlike the ASIO/websocket consumers -- whose sessions take the
+ * get/put functors and so were reused wholesale -- the MPI master node sources/sinks work items
+ * through member methods that default to the broker. We therefore reuse the existing, battle-tested
+ * Gem::Courtier::Consumers master and worker nodes and inject the courtier2 per-batch queue into the
+ * master via its setPayloadFunctors() seam (a behaviour-neutral addition: with no functors set the
+ * old node still uses the broker).
+ *
+ * MPI fixes the process layout at launch: rank 0 is the master (it runs the optimization and serves
+ * work) and every other rank is a worker. So usage differs from the socket consumers -- the program
+ * must branch on isMasterNode(): the master registers this consumer, startServer()s and runs the
+ * optimization; a worker just runWorker()s until the master broadcasts the stop signal.
+ */
+template <typename processable_type>
+class GMPIConsumerT final : public GNetworkedConsumerT<processable_type> {
+public:
+    using master_node_type = Gem::Courtier::Consumers::GMPIConsumerMasterNodeT<processable_type>;
+    using worker_node_type = Gem::Courtier::Consumers::GMPIConsumerWorkerNodeT<processable_type>;
+    using config_type = Gem::Courtier::Consumers::MPIConsumerConfig;
+
+    /***************************************************************************/
+    /** @brief Initializes MPI (if not already done), learns this node's rank, and builds the
+     *  matching node (master on rank 0, worker otherwise). */
+    explicit GMPIConsumerT(int *argc = nullptr, char ***argv = nullptr, config_type config = config_type{})
+        : config_(config)
+    {
+        // Reuse the existing, correct MPI initialization (MPI_THREAD_MULTIPLE).
+        i_initialized_mpi_ =
+            Gem::Courtier::Consumers::GMPIConsumerT<processable_type>::initializeMPI(argc, argv);
+
+        MPI_Comm_size(MPI_COMM_WORLD, &comm_size_);
+        MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank_);
+
+        if(isMasterNode()) {
+            master_ = std::make_shared<master_node_type>(comm_size_, config_);
+            // Drive the master node from the courtier2 per-batch queue instead of the broker.
+            master_->setPayloadFunctors(
+                [this]() -> std::shared_ptr<processable_type> {
+                    return this->checkoutWait(checkout_wait_);
+                },
+                [this](std::shared_ptr<processable_type> p) { this->checkin(p); }
+            );
+        }
+        else {
+            worker_ = std::make_shared<worker_node_type>(
+                comm_rank_,
+                [this]() -> bool { return worker_halt_.load(); },
+                [this]() { ++n_worker_processed_; },
+                config_
+            );
+        }
+    }
+
+    ~GMPIConsumerT() override {
+        if(isMasterNode()) {
+            this->stopServer();
+        }
+        if(i_initialized_mpi_) {
+            int finalized = 0;
+            MPI_Finalized(&finalized);
+            if(not finalized) {
+                MPI_Finalize();
+            }
+        }
+    }
+
+    GMPIConsumerT(const GMPIConsumerT &) = delete;
+    GMPIConsumerT(GMPIConsumerT &&) = delete;
+    GMPIConsumerT &operator=(const GMPIConsumerT &) = delete;
+    GMPIConsumerT &operator=(GMPIConsumerT &&) = delete;
+
+    /***************************************************************************/
+    [[nodiscard]] bool isMasterNode() const noexcept { return comm_rank_ == 0; }
+    [[nodiscard]] std::int32_t getRank() const noexcept { return comm_rank_; }
+    [[nodiscard]] std::int32_t getCommSize() const noexcept { return comm_size_; }
+
+    /***************************************************************************/
+    /** @brief (Master only) starts the background threads that serve worker requests. */
+    void startServer() {
+        if(isMasterNode() && master_ && not server_started_.exchange(true)) {
+            master_->async_startProcessing();
+        }
+    }
+
+    /** @brief (Master only) signals the workers to stop and joins the master's background threads. */
+    void stopServer() {
+        if(isMasterNode() && master_ && not server_stopped_.exchange(true)) {
+            this->requestStop();
+            master_->shutdown(); // sends the stop signal to every worker and joins its threads
+        }
+    }
+
+    /** @brief (Worker only) runs the worker loop until the master broadcasts the stop signal. */
+    void runWorker() {
+        if(worker_) {
+            worker_->run();
+        }
+    }
+
+    /** @brief (Worker only) asks the worker loop to halt at the next opportunity. */
+    void haltWorker() noexcept { worker_halt_.store(true); }
+
+private:
+    /***************************************************************************/
+    config_type config_;
+    std::int32_t comm_size_ = 1;
+    std::int32_t comm_rank_ = 0;
+    bool i_initialized_mpi_ = false;
+
+    std::shared_ptr<master_node_type> master_;
+    std::shared_ptr<worker_node_type> worker_;
+
+    std::atomic<bool> server_started_{false};
+    std::atomic<bool> server_stopped_{false};
+    std::atomic<bool> worker_halt_{false};
+    std::atomic<std::uint64_t> n_worker_processed_{0};
+
+    /// How long the master blocks for a pending item before answering a worker with "no data".
+    std::chrono::milliseconds checkout_wait_{50};
+};
+
+/******************************************************************************/
+
+} /* namespace Gem::Courtier2 */
+
+#endif /* GENEVA_BUILD_WITH_MPI_CONSUMER */

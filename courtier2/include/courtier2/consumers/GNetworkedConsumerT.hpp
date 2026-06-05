@@ -90,13 +90,19 @@ protected:
     /** @brief Hands the next pending item to a calling session, or null if none is pending. */
     item_ptr checkout() {
         std::lock_guard<std::mutex> lk(mtx_);
+        return checkout_locked();
+    }
+
+    /***************************************************************************/
+    /** @brief Like checkout(), but blocks up to @p wait for an item to become available before
+     *  giving up and returning null. Mirrors the brief blocking get() the broker offered, which
+     *  keeps a transport from churning "no data" responses during the gaps between batches. */
+    item_ptr checkoutWait(std::chrono::milliseconds wait) {
+        std::unique_lock<std::mutex> lk(mtx_);
         if(pending_.empty()) {
-            return nullptr;
+            cv_work_.wait_for(lk, wait, [this] { return not pending_.empty() || stop_.load(); });
         }
-        auto p = pending_.front();
-        pending_.pop_front();
-        outstanding_[p->getBufferId()] = p;
-        return p;
+        return checkout_locked();
     }
 
     /***************************************************************************/
@@ -154,6 +160,7 @@ protected:
                 pending_.push_back(items[k]);
             }
         }
+        cv_work_.notify_all(); // wake any session blocked in checkoutWait()
 
         // Bounded wait: a first-item budget plus a per-item budget. The predicate returns as soon as
         // every item is back, so the happy path does not wait for the deadline.
@@ -189,8 +196,21 @@ protected:
     }
 
 private:
+    /***************************************************************************/
+    /** @brief Pops the next pending item and records it as outstanding. Caller holds mtx_. */
+    item_ptr checkout_locked() {
+        if(pending_.empty()) {
+            return nullptr;
+        }
+        auto p = pending_.front();
+        pending_.pop_front();
+        outstanding_[p->getBufferId()] = p;
+        return p;
+    }
+
     mutable std::mutex mtx_;
-    std::condition_variable cv_done_;
+    std::condition_variable cv_done_; ///< Signalled when the last result of a batch returns
+    std::condition_variable cv_work_; ///< Signalled when a batch's items become available
 
     std::deque<item_ptr> pending_;                                              ///< Items awaiting a client
     std::unordered_map<Gem::Courtier::BUFFERPORT_ID_TYPE, item_ptr> outstanding_; ///< Checked out, not back
