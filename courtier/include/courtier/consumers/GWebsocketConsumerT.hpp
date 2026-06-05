@@ -203,15 +203,16 @@ private:
 	  *
 	  * @param message The message to be transferred to the peer
 	  */
-    void async_start_write(const std::string &message) {
+    void async_start_write(std::string message) {
         // Do nothing if we have been asked to stop
         if(this->halt()) {
             return;
         }
 
-        // We need to persist the message for asynchronous operations.
-        // It is hence stored in a class variable.
-        outgoing_message_ = message;
+        // We need to persist the message for asynchronous operations. It is hence moved into a
+        // class variable (all callers pass a freshly serialized rvalue, so this avoids a copy of
+        // the potentially large payload).
+        outgoing_message_ = std::move(message);
 
         // Send the message
         auto self = this->shared_from_this();
@@ -292,6 +293,11 @@ private:
 
             return;
         }
+
+        // Disable Nagle's algorithm on the underlying TCP socket: the request/response messages
+        // are small and latency-sensitive.
+        boost::system::error_code nd_ec;
+        ws_.next_layer().set_option(boost::asio::ip::tcp::no_delay(true), nd_ec);
 
         // Perform the handshake
         auto self = this->shared_from_this();
@@ -694,6 +700,11 @@ public:
     void async_start_run() {
         // ---------------------------------------------------
         // Connections and communication
+
+        // Disable Nagle's algorithm on the underlying TCP socket (already connected at this
+        // point): the request/response messages are small and latency-sensitive.
+        boost::system::error_code nd_ec;
+        ws_.next_layer().set_option(boost::asio::ip::tcp::no_delay(true), nd_ec);
 
         // Wait for a new websocket connection. Note that the
         // ASIO connection should already be active at this place.

@@ -256,6 +256,15 @@ private:
         // Reset the number of connection attempts so we start at 0 next time
         n_reconnects_ = 0;
 
+        // Disable Nagle's algorithm (TCP_NODELAY). Geneva's wire protocol is a strict, small
+        // request/response exchange (GETDATA/COMPUTE/RESULT). With Nagle enabled, a small segment
+        // is held back until the previous one is ACKed; combined with the peer's delayed ACKs this
+        // can add tens of milliseconds of latency to every round-trip for no throughput benefit
+        // (there is no second small write to coalesce with). We therefore disable it. Best-effort:
+        // a failure to set the option is not fatal.
+        boost::system::error_code nd_ec;
+        socket_ptr_->set_option(boost::asio::ip::tcp::no_delay(true), nd_ec);
+
         // Send the command container off to the remote side
         auto self = this->shared_from_this();
         boost::asio::async_write(
@@ -290,8 +299,11 @@ private:
         }
 
         // Shutdown the socket in send direction. This will result in an ec of boost::asio::error::eof
-        // on the server side indicating that all data was written.
-        socket_ptr_->shutdown(boost::asio::socket_base::shutdown_send);
+        // on the server side indicating that all data was written. Use the non-throwing overload:
+        // the peer may already have closed, and a throw out of this completion handler would
+        // unwind the io thread.
+        boost::system::error_code sd_ec;
+        socket_ptr_->shutdown(boost::asio::socket_base::shutdown_send, sd_ec);
 
         // Clear the outgoing message -- no longer needed
         outgoing_message_str_.clear();
@@ -551,6 +563,11 @@ public:
 	  * Starts the read-write cycle as the main purpose of this class
 	  */
     void async_start_run() {
+        // Disable Nagle's algorithm on the accepted connection: the request/response messages
+        // are small and latency-sensitive.
+        boost::system::error_code nd_ec;
+        socket_.set_option(boost::asio::ip::tcp::no_delay(true), nd_ec);
+
         // Initiate the read session -- we expect an incoming message
         async_start_read();
     }
@@ -666,8 +683,10 @@ private:
         }
 
         // Shutdown the socket in send direction. This will result in an ec of boost::asio::error::eof
-        // on the client-side indicating that all data was written.
-        socket_.shutdown(boost::asio::socket_base::shutdown_send);
+        // on the client-side indicating that all data was written. Non-throwing overload: a throw
+        // out of this completion handler would unwind the io thread.
+        boost::system::error_code sd_ec;
+        socket_.shutdown(boost::asio::socket_base::shutdown_send, sd_ec);
 
         // Clear the outgoing message string, no longer needed
         outgoing_message_str_.clear();
