@@ -538,8 +538,8 @@ public:
       , get_payload_item_(std::move(get_payload_item))
       , put_payload_item_(std::move(put_payload_item))
       , check_server_stopped_(std::move(check_server_stopped))
-      , serialization_mode_(serialization_mode)
-      , f_sign_on_(std::move(sign_on)) {
+      , f_sign_on_(std::move(sign_on))
+      , serialization_mode_(serialization_mode) {
         // Announce that this session has become active (RAII-balanced with the destructor),
         // so the consumer can report the number of concurrently active sessions.
         if(f_sign_on_) {

@@ -505,8 +505,10 @@ TEST_CASE("GParserBuilder::writeConfigFile throws when target file already exist
     std::filesystem::remove(cfg);
 }
 
-TEST_CASE("GParserBuilder::writeConfigFile throws when parent directory does not exist",
+TEST_CASE("GParserBuilder::writeConfigFile creates a missing parent directory",
           "[common][parser-builder]") {
+    // A missing parent directory is created for the user (with a logged note) rather than treated
+    // as an error -- this is what lets a fresh ./config directory come into being on first run.
     auto missing_dir = std::filesystem::temp_directory_path() / "gpb_no_such_parent_dir_xyz";
     std::filesystem::remove_all(missing_dir);
     auto cfg = missing_dir / "file.json";
@@ -514,7 +516,29 @@ TEST_CASE("GParserBuilder::writeConfigFile throws when parent directory does not
     GParserBuilder gpb;
     int v = 0;
     gpb.registerFileParameter<int>("v", v, 1);
+    CHECK_NOTHROW(gpb.writeConfigFile(cfg));
+    CHECK(std::filesystem::is_directory(missing_dir));
+    CHECK(std::filesystem::exists(cfg));
+
+    std::filesystem::remove_all(missing_dir);
+}
+
+TEST_CASE("GParserBuilder::writeConfigFile throws when the parent path is not a directory",
+          "[common][parser-builder]") {
+    // If the intended parent path already exists but is a regular file, it cannot be turned into a
+    // configuration directory -- that is a genuine error.
+    auto not_a_dir = std::filesystem::temp_directory_path() / "gpb_parent_is_a_file_xyz";
+    std::filesystem::remove_all(not_a_dir);
+    { std::ofstream ofs(not_a_dir); ofs << "x"; }
+    REQUIRE(std::filesystem::is_regular_file(not_a_dir));
+    auto cfg = not_a_dir / "file.json";
+
+    GParserBuilder gpb;
+    int v = 0;
+    gpb.registerFileParameter<int>("v", v, 1);
     CHECK_THROWS_AS(gpb.writeConfigFile(cfg), geneva_exception);
+
+    std::filesystem::remove(not_a_dir);
 }
 
 TEST_CASE("GParserBuilder::writeConfigFile throws for a non-.json extension",
