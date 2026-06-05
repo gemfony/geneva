@@ -121,8 +121,14 @@ public:
                 break; // every slot is resolved or unresolved
             }
 
-            // Consumer-specific evaluation of this round.
+            // Consumer-specific evaluation of this round. A networked consumer evaluates a copy on
+            // a remote client and hands back a *different* object (the deserialized result), so
+            // dispatch_ may replace entries of to_eval with those results; write them back into the
+            // batch. A local consumer mutates each item in place, so the write-back is a no-op.
             this->dispatch_(to_eval);
+            for(std::size_t k = 0; k < idx.size(); ++k) {
+                items[idx[k]] = to_eval[k];
+            }
 
             for(std::size_t k = 0; k < idx.size(); ++k) {
                 const std::size_t i = idx[k];
@@ -190,6 +196,10 @@ protected:
      * or -- for networked consumers that time out -- leave it DO_PROCESS to signal MISSING. Must
      * not let exceptions escape (a failed evaluation is reported via the item's status, not by
      * throwing).
+     *
+     * A consumer that evaluates a copy elsewhere (e.g. a remote client) may overwrite an entry of
+     * @p items with the resulting object; the replacement is written back into the batch by the
+     * caller. A consumer that mutates each item in place simply leaves the pointers untouched.
      */
     virtual void dispatch_(std::vector<item_ptr> &items) = 0;
 

@@ -47,6 +47,7 @@ FUNCTION(geneva_courtier2_test name)
 ENDFUNCTION()
 
 geneva_courtier2_test(GCourtier2PolicyTests GCourtier2PolicyTests.cpp)
+geneva_courtier2_test(GCourtier2AsioTests  GCourtier2AsioTests.cpp)
 
 # The fatal reconciliation paths terminate the process (GTERMINATION -> std::terminate -> SIGABRT),
 # so they are exercised as subprocesses. The "ok" control must succeed (exit 0); each fatal scenario
