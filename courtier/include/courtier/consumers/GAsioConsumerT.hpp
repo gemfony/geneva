@@ -518,14 +518,32 @@ public:
         std::function<std::shared_ptr<processable_type>()> get_payload_item,
         std::function<void(std::shared_ptr<processable_type>)> put_payload_item,
         std::function<bool()> check_server_stopped,
-        Gem::Common::serializationMode serialization_mode
+        Gem::Common::serializationMode serialization_mode,
+        std::function<void(bool)> sign_on
     )
       : socket_(std::move(socket))
       , strand_(io_context.get_executor())
       , get_payload_item_(std::move(get_payload_item))
       , put_payload_item_(std::move(put_payload_item))
       , check_server_stopped_(std::move(check_server_stopped))
-      , serialization_mode_(serialization_mode) { /* nothing */
+      , serialization_mode_(serialization_mode)
+      , f_sign_on_(std::move(sign_on)) {
+        // Announce that this session has become active (RAII-balanced with the destructor),
+        // so the consumer can report the number of concurrently active sessions.
+        if(f_sign_on_) {
+            f_sign_on_(true);
+        }
+    }
+
+    //-------------------------------------------------------------------------
+    /**
+	  * The destructor signs the session off again, so the active-session count stays accurate
+	  * however the session ends (served request, error or disconnect).
+	  */
+    ~GAsioConsumerSessionT() {
+        if(f_sign_on_) {
+            f_sign_on_(false);
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -757,6 +775,7 @@ private:
     std::function<std::shared_ptr<processable_type>()> get_payload_item_;
     std::function<void(std::shared_ptr<processable_type>)> put_payload_item_;
     std::function<bool()> check_server_stopped_;
+    std::function<void(bool)> f_sign_on_; ///< Signs the session on (true) / off (false) with the consumer
 
     Gem::Common::serializationMode serialization_mode_ = Gem::Common::serializationMode::BINARY;
 
@@ -1095,7 +1114,17 @@ private:
                 [this]() -> std::shared_ptr<processable_type> { return this->getPayloadItem(); },
                 [this](std::shared_ptr<processable_type> p) { this->putPayloadItem(p); },
                 [this]() -> bool { return this->stopped(); },
-                serialization_mode_
+                serialization_mode_,
+                [this](bool sign_on) {
+                    // Track the number of concurrently active sessions, so
+                    // getNProcessingUnitsEstimate_() reports a meaningful value rather than 0.
+                    if(sign_on) {
+                        ++n_active_sessions_;
+                    }
+                    else if(n_active_sessions_.load() > 0) {
+                        --n_active_sessions_;
+                    }
+                }
             )
                 ->async_start_run();
         }
