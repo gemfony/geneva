@@ -54,6 +54,7 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <span>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -1584,11 +1585,14 @@ Gem::Courtier::executor_status_t GBase::workOn(
 
 /******************************************************************************/
 /**
- * Phase-7 EA spike: submit the DO_PROCESS subset of @p work_items through courtier2's span+policy
- * executor backed by a local thread consumer (clone-on-partial-return, like EA). The consumer
- * processes each individual in place (same shared_ptr as in the population), so results land back in
- * the population directly; any refilled (cloned) slots are written back by position. This proves the
- * span+policy path on real GParameterSet individuals while both courtier libs coexist.
+ * Phase-7 (EA first): submit through courtier2's span+policy executor backed by a local thread
+ * consumer (clone-on-partial-return). The items needing processing always form a CONTIGUOUS range of
+ * the population vector (verified across all algorithms and all EA selection modes), so we submit a
+ * std::span over exactly that range. The span aliases the live population sub-range, so results --
+ * and any cloned refills, written in place over the slot -- land directly in the population: no
+ * subset copy, no write-back, and the DO_PROCESS/DO_IGNORE flagging becomes unnecessary for
+ * submission (the span IS the work set). [Still env-gated; making this the default for all execution
+ * modes needs the courtier2 consumer wired into the Go2 parallelisation selection.]
  */
 Gem::Courtier::executor_status_t GBase::workOnViaCourtier2_(
     std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items
@@ -1604,30 +1608,47 @@ Gem::Courtier::executor_status_t GBase::workOnViaCourtier2_(
         c2_executor_ = std::make_shared<Gem::Courtier2::GExecutorT<gpar::GParameterSet>>(c2_broker_);
     }
 
-    // Collect only the items that actually need evaluation (the rest are DO_IGNORE parents).
-    std::vector<std::shared_ptr<gpar::GParameterSet>> sub;
-    std::vector<std::size_t> idx;
-    sub.reserve(work_items.size());
+    // Locate the contiguous range of items that need evaluation.
+    std::size_t first = 0, last = 0;
+    bool any = false;
     for(std::size_t i = 0; i < work_items.size(); ++i) {
         if(work_items[i] && work_items[i]->is_due_for_processing()) {
-            sub.push_back(work_items[i]);
-            idx.push_back(i);
+            if(not any) {
+                first = i;
+                any = true;
+            }
+            last = i;
         }
     }
+    if(not any) {
+        return Gem::Courtier::executor_status_t{true, false};
+    }
+    const std::size_t count = last - first + 1;
 
-    if(not sub.empty()) {
-        c2_executor_->workOn(sub, Gem::Courtier2::GSubmissionPolicy::clone_on_partial_return());
-        // Propagate results (incl. any cloned refills) back into the population by position.
-        for(std::size_t k = 0; k < sub.size(); ++k) {
-            work_items[idx[k]] = sub[k];
+#ifdef DEBUG
+    // Empirically confirm the contiguity assumption: every slot in [first,last] must need processing.
+    for(std::size_t i = first; i <= last; ++i) {
+        if(not(work_items[i] && work_items[i]->is_due_for_processing())) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GBase::workOnViaCourtier2_(): Error!" << '\n'
+                << "Expected a contiguous to-process range [" << first << "," << last
+                << "] but slot " << i << " is not due for processing." << '\n'
+            );
         }
     }
+#endif
+
+    // Submit a span over exactly the contiguous range; it aliases the population sub-range, so
+    // results + any cloned refills are written straight into work_items[first..last].
+    std::span<std::shared_ptr<gpar::GParameterSet>> sp(work_items.data() + first, count);
+    c2_executor_->workOn(sp, Gem::Courtier2::GSubmissionPolicy::clone_on_partial_return());
 
     // clone-on-partial-return always returns a full, valid set, so the batch is complete; report any
     // residual error flags for parity with the legacy path.
     bool has_errors = false;
-    for(std::size_t k : idx) {
-        if(work_items[k] && work_items[k]->has_errors()) {
+    for(std::size_t i = first; i <= last; ++i) {
+        if(work_items[i] && work_items[i]->has_errors()) {
             has_errors = true;
             break;
         }
