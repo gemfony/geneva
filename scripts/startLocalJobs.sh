@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ################################################################################
 #
@@ -28,65 +28,127 @@
 # collection for a list of contributors and copyright information.
 #
 ################################################################################
-# This script will start a given Geneva program a predefined
-# number of times in client mode on the same host. It will also
-# start the server, using Geneva's standard syntax for networked mode.
-# This can be used to test networked execution of a Geneva program
-# using local (i.e. reliable, low latency) networking.
-# Note that if your program opens many connections to the server,
-# e.g. because it uses a large number of individuals and cycles,
-# you might quickly run out of local ports (max 64k). See the
-# Geneva FAQ for an advice in this situation.
+# Starts a Geneva program once in server mode and a given number of times in
+# client mode on the same host, using local (reliable, low-latency) networking.
+# Useful for testing networked execution of a Geneva program -- including the
+# submission path (broker / consumer / client round-trip) -- without needing a
+# cluster.
+#
+# Usage:
+#   ./startLocalJobs.sh <program> <n_clients> <port> [consumer]
+#
+#     program     Path to the Geneva executable.
+#     n_clients   Number of client processes to start (>= 1).
+#     port        TCP port the server listens on (> 1000).
+#     consumer    Consumer mnemonic: "asio" (default) or "beast" (websocket).
+#
+# Environment:
+#   GENEVA_RUN_TIMEOUT   If set to a positive number of seconds, the script runs
+#                        NON-interactively: it waits up to that long for the
+#                        server to finish, then tears everything down and exits
+#                        with the server's exit code (124 on timeout). This makes
+#                        the script usable as an automated integration test. If
+#                        unset, the script tails the server output interactively
+#                        (Ctrl-C to stop; all jobs are cleaned up on exit).
+#
+# Note: if your program opens many connections to the server (e.g. a large number
+# of individuals and cycles), you might run out of local ports (max 64k). See the
+# Geneva FAQ.
 ####################################################################
 
-# Check the number of command line arguments (should be exactly 3)
-if [ ! $# -eq 3 ]; then
-    echo "Usage: ./startLocalJobs.sh <program name> <number of clients> <port>"
+set -u
+
+# ---- argument handling ------------------------------------------------------
+if [ $# -lt 3 ] || [ $# -gt 4 ]; then
+    echo "Usage: ./startLocalJobs.sh <program> <n_clients> <port> [consumer: asio|beast]"
     exit 1
 fi
 
-# Read in the command line arguments
 PROGNAME=$1
 NCLIENTS=$2
 PORT=$3
+CONSUMER=${4:-asio}
 
-# Check that the program exists
-if [ ! -e ${PROGNAME} ]; then
-    echo "Error: Program file ${PROGNAME} does not exist."
-    exit
+if [ ! -x "${PROGNAME}" ] && [ ! -e "${PROGNAME}" ]; then
+    echo "Error: program file '${PROGNAME}' does not exist."
+    exit 1
+fi
+if ! echo "${NCLIENTS}" | grep -qE "^[0-9]+$" || [ "${NCLIENTS}" -lt 1 ]; then
+    echo "Error: number of clients '${NCLIENTS}' must be an integer >= 1. Leaving."
+    exit 1
+fi
+if ! echo "${PORT}" | grep -qE "^[0-9]+$" || [ "${PORT}" -le 1000 ]; then
+    echo "Error: port '${PORT}' must be an integer > 1000. Leaving."
+    exit 1
 fi
 
-# Check that the desired number of clients is integral and >= 0
-if [ ! $(echo "${NCLIENTS}" | grep -E "^[0-9]+$") ]; then
-    echo "Error: Number of clients Number of clients \"${NCLIENTS}\" is not a valid integer. Leaving."
-    exit
-fi
-if [ ! ${NCLIENTS} -gt 0 ];     then
-    echo "Error: \"${NCLIENTS}\" should at least be 1. Leaving"
-    exit
-fi
+# Map the consumer mnemonic to its CLI option names (verified against the current
+# courtier consumers: GAsioConsumerT -> "asio"/--asio_*, GWebsocketConsumerT -> "beast"/--beast_*).
+case "${CONSUMER}" in
+    asio)  IP_OPT="asio_ip";  PORT_OPT="asio_port"  ;;
+    beast) IP_OPT="beast_ip"; PORT_OPT="beast_port" ;;
+    *)
+        echo "Error: unknown consumer '${CONSUMER}'. Use 'asio' or 'beast'. Leaving."
+        exit 1
+        ;;
+esac
 
-# Check that the port number is integral and >= 1000
-if [ ! $(echo "${PORT}" | grep -E "^[0-9]+$") ]; then
-    echo "Error: Port \"${PORT}\" is not a valid integer. Leaving."
-    exit
-fi
-if [ ${PORT} -le 1000 ];     then
-    echo "Error: Port \"${PORT}\" should at least be 1001. Leaving"
-    exit
-fi
+mkdir -p ./output
 
-# Create an output directory
-if [ ! -d ./output ]; then
-    mkdir ./output
-fi
+# Invoke the program as given if it contains a path separator, else as ./name.
+case "${PROGNAME}" in
+    */*) PROG="${PROGNAME}" ;;
+    *)   PROG="./${PROGNAME}" ;;
+esac
 
-# Start the server
-(./$1 -c asio --asio_port=${PORT} >& ./output/output_server) &
+# ---- cleanup: never leave orphaned server/client processes behind -----------
+SERVER_PID=""
+CLIENT_PIDS=()
+cleanup() {
+    # Kill clients first, then the server. Ignore errors (already gone).
+    for p in "${CLIENT_PIDS[@]}"; do
+        kill "${p}" 2>/dev/null
+    done
+    [ -n "${SERVER_PID}" ] && kill "${SERVER_PID}" 2>/dev/null
+    wait 2>/dev/null
+}
+trap cleanup EXIT INT TERM
 
-# Start the workers
-for i in `seq 1 $2`; do
-    (./${PROGNAME} -c asio --client --asio_ip=localhost --asio_port=${PORT} >& ./output/output_client_$i) &
+# ---- start the server -------------------------------------------------------
+echo "Starting server (${CONSUMER}) on port ${PORT} ..."
+( "${PROG}" -c "${CONSUMER}" "--${PORT_OPT}=${PORT}" >& ./output/output_server ) &
+SERVER_PID=$!
+
+# Give the server a moment to bind its listening socket before the clients connect.
+sleep 1
+
+# ---- start the clients ------------------------------------------------------
+echo "Starting ${NCLIENTS} client(s) ..."
+for i in $(seq 1 "${NCLIENTS}"); do
+    ( "${PROG}" -c "${CONSUMER}" --client "--${IP_OPT}=localhost" "--${PORT_OPT}=${PORT}" \
+        >& "./output/output_client_${i}" ) &
+    CLIENT_PIDS+=($!)
 done
 
-tail -f ./output/output_server
+# ---- wait for completion ----------------------------------------------------
+TIMEOUT="${GENEVA_RUN_TIMEOUT:-0}"
+if echo "${TIMEOUT}" | grep -qE "^[0-9]+$" && [ "${TIMEOUT}" -gt 0 ]; then
+    # Automated mode: wait up to TIMEOUT seconds for the server, then report.
+    echo "Waiting up to ${TIMEOUT}s for the server to finish (automated mode) ..."
+    waited=0
+    while kill -0 "${SERVER_PID}" 2>/dev/null; do
+        if [ "${waited}" -ge "${TIMEOUT}" ]; then
+            echo "TIMEOUT: server did not finish within ${TIMEOUT}s." >&2
+            exit 124
+        fi
+        sleep 1
+        waited=$((waited + 1))
+    done
+    wait "${SERVER_PID}"
+    rc=$?
+    echo "Server finished with exit code ${rc}."
+    exit "${rc}"
+else
+    # Interactive mode: stream the server output until the user interrupts.
+    tail -f ./output/output_server
+fi
