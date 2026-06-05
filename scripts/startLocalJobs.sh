@@ -38,18 +38,29 @@
 #   ./startLocalJobs.sh <program> <n_clients> <port> [consumer]
 #
 #     program     Path to the Geneva executable.
-#     n_clients   Number of client processes to start (>= 1).
-#     port        TCP port the server listens on (> 1000).
-#     consumer    Consumer mnemonic: "asio" (default) or "beast" (websocket).
+#     n_clients   Number of client processes to start (>= 1). For the MPI consumer
+#                 this is the number of WORKER ranks; mpirun then launches
+#                 n_clients + 1 ranks (one rank-0 master plus n_clients workers).
+#     port        TCP port the server listens on (> 1000). IGNORED for the MPI
+#                 consumer (MPI uses no listening socket); pass any placeholder,
+#                 e.g. 0.
+#     consumer    Consumer mnemonic: "asio" (default), "beast" (websocket) or
+#                 "mpi". For "asio"/"beast" the program is started once in server
+#                 mode plus n_clients times in client mode over local TCP. For
+#                 "mpi" the program is launched ONCE via mpirun (one process that
+#                 internally splits into the rank-0 master and the worker ranks);
+#                 there are no separate client invocations and no port.
 #
 # Environment:
 #   GENEVA_RUN_TIMEOUT   If set to a positive number of seconds, the script runs
 #                        NON-interactively: it waits up to that long for the
-#                        server to finish, then tears everything down and exits
-#                        with the server's exit code (124 on timeout). This makes
-#                        the script usable as an automated integration test. If
-#                        unset, the script tails the server output interactively
-#                        (Ctrl-C to stop; all jobs are cleaned up on exit).
+#                        server (or, for MPI, the mpirun job) to finish, then tears
+#                        everything down and exits with its exit code (124 on
+#                        timeout). This makes the script usable as an automated
+#                        integration test. If unset, the script tails the server
+#                        output interactively (Ctrl-C to stop; all jobs are cleaned
+#                        up on exit).
+#   MPIRUN               Override the MPI launcher (default: mpirun). MPI only.
 #
 # Note: if your program opens many connections to the server (e.g. a large number
 # of individuals and cycles), you might run out of local ports (max 64k). See the
@@ -60,7 +71,8 @@ set -u
 
 # ---- argument handling ------------------------------------------------------
 if [ $# -lt 3 ] || [ $# -gt 4 ]; then
-    echo "Usage: ./startLocalJobs.sh <program> <n_clients> <port> [consumer: asio|beast]"
+    echo "Usage: ./startLocalJobs.sh <program> <n_clients> <port> [consumer: asio|beast|mpi]"
+    echo "       (for mpi the port is ignored and n_clients is the number of worker ranks)"
     exit 1
 fi
 
@@ -77,18 +89,24 @@ if ! echo "${NCLIENTS}" | grep -qE "^[0-9]+$" || [ "${NCLIENTS}" -lt 1 ]; then
     echo "Error: number of clients '${NCLIENTS}' must be an integer >= 1. Leaving."
     exit 1
 fi
-if ! echo "${PORT}" | grep -qE "^[0-9]+$" || [ "${PORT}" -le 1000 ]; then
-    echo "Error: port '${PORT}' must be an integer > 1000. Leaving."
-    exit 1
+# The MPI consumer uses no TCP port (mpirun handles transport), so only validate the
+# port for the socket consumers.
+if [ "${CONSUMER}" != "mpi" ]; then
+    if ! echo "${PORT}" | grep -qE "^[0-9]+$" || [ "${PORT}" -le 1000 ]; then
+        echo "Error: port '${PORT}' must be an integer > 1000. Leaving."
+        exit 1
+    fi
 fi
 
 # Map the consumer mnemonic to its CLI option names (verified against the current
-# courtier consumers: GAsioConsumerT -> "asio"/--asio_*, GWebsocketConsumerT -> "beast"/--beast_*).
+# courtier consumers: GAsioConsumerT -> "asio"/--asio_*, GWebsocketConsumerT -> "beast"/--beast_*,
+# GMPIConsumerT -> "mpi"). MPI is launched via mpirun rather than as server + clients.
 case "${CONSUMER}" in
     asio)  IP_OPT="asio_ip";  PORT_OPT="asio_port"  ;;
     beast) IP_OPT="beast_ip"; PORT_OPT="beast_port" ;;
+    mpi)   ;; # handled separately below
     *)
-        echo "Error: unknown consumer '${CONSUMER}'. Use 'asio' or 'beast'. Leaving."
+        echo "Error: unknown consumer '${CONSUMER}'. Use 'asio', 'beast' or 'mpi'. Leaving."
         exit 1
         ;;
 esac
@@ -114,21 +132,35 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-# ---- start the server -------------------------------------------------------
-echo "Starting server (${CONSUMER}) on port ${PORT} ..."
-( "${PROG}" -c "${CONSUMER}" "--${PORT_OPT}=${PORT}" >& ./output/output_server ) &
-SERVER_PID=$!
+if [ "${CONSUMER}" = "mpi" ]; then
+    # ---- MPI: a single mpirun launches 1 master (rank 0) + NCLIENTS worker ranks ----
+    MPIRUN="${MPIRUN:-mpirun}"
+    if ! command -v "${MPIRUN}" >/dev/null 2>&1; then
+        echo "Error: MPI launcher '${MPIRUN}' not found in PATH. Leaving."
+        exit 1
+    fi
+    NPROC=$((NCLIENTS + 1))
+    SERVER_OUT=./output/output_mpirun
+    echo "Launching ${MPIRUN} -np ${NPROC} (1 master + ${NCLIENTS} worker rank(s)) ..."
+    ( "${MPIRUN}" -np "${NPROC}" "${PROG}" -c mpi >& "${SERVER_OUT}" ) &
+    SERVER_PID=$!
+else
+    # ---- socket consumers: one server process + NCLIENTS client processes ----
+    SERVER_OUT=./output/output_server
+    echo "Starting server (${CONSUMER}) on port ${PORT} ..."
+    ( "${PROG}" -c "${CONSUMER}" "--${PORT_OPT}=${PORT}" >& "${SERVER_OUT}" ) &
+    SERVER_PID=$!
 
-# Give the server a moment to bind its listening socket before the clients connect.
-sleep 1
+    # Give the server a moment to bind its listening socket before the clients connect.
+    sleep 1
 
-# ---- start the clients ------------------------------------------------------
-echo "Starting ${NCLIENTS} client(s) ..."
-for i in $(seq 1 "${NCLIENTS}"); do
-    ( "${PROG}" -c "${CONSUMER}" --client "--${IP_OPT}=localhost" "--${PORT_OPT}=${PORT}" \
-        >& "./output/output_client_${i}" ) &
-    CLIENT_PIDS+=($!)
-done
+    echo "Starting ${NCLIENTS} client(s) ..."
+    for i in $(seq 1 "${NCLIENTS}"); do
+        ( "${PROG}" -c "${CONSUMER}" --client "--${IP_OPT}=localhost" "--${PORT_OPT}=${PORT}" \
+            >& "./output/output_client_${i}" ) &
+        CLIENT_PIDS+=($!)
+    done
+fi
 
 # ---- wait for completion ----------------------------------------------------
 TIMEOUT="${GENEVA_RUN_TIMEOUT:-0}"
@@ -149,6 +181,6 @@ if echo "${TIMEOUT}" | grep -qE "^[0-9]+$" && [ "${TIMEOUT}" -gt 0 ]; then
     echo "Server finished with exit code ${rc}."
     exit "${rc}"
 else
-    # Interactive mode: stream the server output until the user interrupts.
-    tail -f ./output/output_server
+    # Interactive mode: stream the server (or mpirun) output until the user interrupts.
+    tail -f "${SERVER_OUT}"
 fi

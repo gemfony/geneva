@@ -24,14 +24,19 @@ as a client (--client). Both helper scripts take an optional consumer mnemonic:
 options (--asio_ip/--asio_port resp. --beast_ip/--beast_port).
 
 startLocalJobs.sh
-   Starts a Geneva program once as a server and N times as clients on the LOCAL
-   host (reliable, low-latency networking) -- for testing networked execution
-   without a cluster. Cleans up all child processes on exit.
-   Usage: ./startLocalJobs.sh <program> <n_clients> <port> [consumer: asio|beast]
+   Starts a Geneva program on the LOCAL host (reliable, low-latency networking)
+   -- for testing networked execution without a cluster. Cleans up all child
+   processes on exit.
+   Usage: ./startLocalJobs.sh <program> <n_clients> <port> [consumer: asio|beast|mpi]
+   For asio/beast it runs the program once as a server plus n_clients times as
+   clients over local TCP. For mpi it launches the program ONCE via mpirun with
+   n_clients + 1 ranks (one rank-0 master plus n_clients workers); the port is
+   ignored (MPI uses no listening socket -- pass any placeholder, e.g. 0) and the
+   launcher can be overridden with the MPIRUN environment variable.
    Set the environment variable GENEVA_RUN_TIMEOUT=<seconds> to run
-   non-interactively: it then waits up to that long for the server to finish,
-   tears everything down, and returns the server's exit code (124 on timeout).
-   Without it, the server output is tailed until interrupted.
+   non-interactively: it then waits up to that long for the server (or mpirun job)
+   to finish, tears everything down, and returns its exit code (124 on timeout).
+   Without it, the server/mpirun output is tailed until interrupted.
 
 startClients.sh
    Starts a Geneva program N times as clients only (no server) -- they connect
