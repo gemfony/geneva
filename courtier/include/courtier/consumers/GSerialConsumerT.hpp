@@ -40,6 +40,7 @@
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/GThreadGroup.hpp"
 #include "courtier/consumers/GBaseConsumerT.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GWorkerT.hpp"
@@ -149,10 +150,8 @@ protected:
     void shutdown_() override {
         // This will set the GBaseConsumerT<processable_type>::stop_ flag
         GBaseConsumerT<processable_type>::shutdown_();
-        // Wait for our local threads to join
-        if(processing_thread_.joinable()) {
-            processing_thread_.join();
-        }
+        // Wait for our local worker thread to join
+        gtg_.join_all();
     }
 
     /***************************************************************************/
@@ -263,7 +262,7 @@ private:
         // Register the broker ferry with the worker
         p_worker->registerBrokerFerry(broker_ferry_ptr);
 
-        processing_thread_ = std::thread([p_worker]() -> void { p_worker->run(); });
+        gtg_.create_thread([p_worker]() -> void { p_worker->run(); });
 
         // Store the worker for later reference
         worker_ = p_worker;
@@ -297,7 +296,7 @@ private:
 
     /***************************************************************************/
 
-    std::thread processing_thread_; ///< A single thread holding the worker
+    Gem::Common::GThreadGroup gtg_; ///< Holds the single worker thread (std::jthread, consistent with GStdThreadConsumerT)
 
     bool is_capable_of_full_return_ =
         true; ///< Indicates whether this consumer is capable of full return

@@ -251,7 +251,7 @@ public:
         if(not workon_lock.try_lock()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GBaseExeuctorT<processable_type>::workOn(): Another call to this function "
+                << "In GBaseExecutorT<processable_type>::workOn(): Another call to this function "
                    "still seems"
                 << '\n'
                 << "to be active which is a severe error."
@@ -906,7 +906,7 @@ protected:
                 if(ps != desired_ps) {
 #ifdef DEBUG
                     // Some logging, as this condition should be very rare and might indicate a more general problem.
-                    glogger << "In GBaseExeuctorT<processable_type>::cleanItemsWithoutFlag():"
+                    glogger << "In GBaseExecutorT<processable_type>::cleanItemsWithoutFlag():"
                             << '\n'
                             << "Removing work item in submission " << this->get_iteration_counter()
                             << '\n'
@@ -997,7 +997,7 @@ private:
         if(external_iteration_counter < iteration_counter_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GBaseExeuctorT<processable_type>::set_external_iteration_counter():"
+                << "In GBaseExecutorT<processable_type>::set_external_iteration_counter():"
                 << '\n'
                 << "Tried to set external iteration counter to value " << external_iteration_counter
                 << " ," << '\n'
@@ -2369,7 +2369,7 @@ private:
         if(0 == n_returned_current_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GBrokerExeuctorT<processable_type>::updateTimeout():" << '\n'
+                << "In GBrokerExecutorT<processable_type>::updateTimeout():" << '\n'
                 << "nReturnedCurrent_ is 0" << '\n'
             );
         }
@@ -2540,7 +2540,7 @@ private:
                             << "unprocessed or has errors. Got processing status of "
                             << w_ptr->getProcessingStatus() << '\n'
                             << "but expected " << processingStatus::PROCESSED << " ." << '\n'
-                            << "The item will be discarded. As this should be a rare occurance,"
+                            << "The item will be discarded. As this should be a rare occurrence,"
                             << '\n'
                             << "we do emit a warning here." << '\n'
                             << GWARNING;
@@ -2566,7 +2566,7 @@ private:
             if(w_ptr->getRawRetrievalTime() >= w_ptr->getProcSubmissionTime()) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GBrokerExeuctorT<processable_type>::getNextItem():" << '\n'
+                    << "In GBrokerExecutorT<processable_type>::getNextItem():" << '\n'
                     << "Retrieval from the raw queue seems to have happened after" << '\n'
                     << "the submission to the processed queue." << '\n'
                 );

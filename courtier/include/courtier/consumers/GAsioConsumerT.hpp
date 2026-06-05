@@ -850,7 +850,7 @@ public:
 	  *
 	  * @return The name of the server configured for this class
 	  */
-    std::string getServerName() const {
+    [[nodiscard]] std::string getServerName() const {
         return server_;
     }
 
@@ -870,7 +870,7 @@ public:
 	  *
 	  * @return The port configured for this server
 	  */
-    unsigned short getPort() const {
+    [[nodiscard]] unsigned short getPort() const {
         return port_;
     }
 
@@ -891,7 +891,7 @@ public:
 	  *
 	  * @return The serialization mode configured for this class
 	  */
-    Gem::Common::serializationMode getSerializationMode() const {
+    [[nodiscard]] Gem::Common::serializationMode getSerializationMode() const {
         return serialization_mode_;
     }
 
@@ -908,7 +908,7 @@ public:
                     << "nThreads was set to 0. n_threads_ will be set to default "
                     << GCONSUMERLISTENERTHREADS << '\n'
                     << "This replaces the old behaviour where a value of 0 would have" << '\n'
-                    << "resulted in the number of hardware threads being unsed" << '\n'
+                    << "resulted in the number of hardware threads being unused" << '\n'
                     << GWARNING;
 
             n_threads_ = GCONSUMERLISTENERTHREADS;
@@ -923,7 +923,7 @@ public:
 	  * Allows to retrieve the number of processing threads to be used for processing
 	  * incoming connections in the server
 	  */
-    std::size_t getNProcessingThreads() const {
+    [[nodiscard]] std::size_t getNProcessingThreads() const {
         return n_threads_;
     }
 
@@ -941,7 +941,7 @@ public:
 	  * Allows to retrieve the maximum number of times a client will try to connect to
 	  * the server until it terminates.
 	  */
-    std::size_t getMaxReconnects() const {
+    [[nodiscard]] std::size_t getMaxReconnects() const {
         return n_max_reconnects_;
     }
 
