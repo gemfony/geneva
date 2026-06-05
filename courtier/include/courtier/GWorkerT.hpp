@@ -35,6 +35,7 @@
 // Standard headers go here
 #include <chrono>
 #include <functional>
+#include <stop_token>
 #include <type_traits>
 
 // Boost headers go here
@@ -145,9 +146,11 @@ public:
 
     /************************************************************************/
     /**
-         * The main entry point for the execution
+         * The main entry point for the execution. Observes the worker thread's std::stop_token
+         * (supplied by GThreadGroup's std::jthread) for cooperative cancellation: the consumer's
+         * shutdown joins the thread group, which requests stop on each worker, ending this loop.
          */
-    void run() {
+    void run(std::stop_token st) {
         //---------------------------------------------------------------------
         // For error descriptions
         std::ostringstream error_streamer; // NOLINT(cppcoreguidelines-init-variables)
@@ -197,7 +200,7 @@ public:
                 // to discard items if a submission is not possible.
                 this->submit(p, submission_timeout_);
             }
-            while(not this->stop_requested());
+            while(not st.stop_requested());
 
             // Perform any final work
             this->processFinalize();
@@ -361,14 +364,6 @@ private:
 
     /************************************************************************/
     /**
-         * Indicates whether the worker was asked to stop processing
-         */
-    [[nodiscard]] bool stop_requested() const {
-        return this->stop_requested_();
-    }
-
-    /************************************************************************/
-    /**
          * Setting of the total number of workers
          */
     void setNWorkers(std::size_t nWorkers) {
@@ -402,8 +397,6 @@ private:
     virtual std::shared_ptr<processable_type> retrieve_(const std::chrono::milliseconds &) = 0;
     /** @brief Submission of work items */
     virtual void submit_(std::shared_ptr<processable_type>, const std::chrono::milliseconds &) = 0;
-    /** @brief Indicates whether the worker was asked to stop processing */
-    [[nodiscard]] virtual bool stop_requested_() const = 0;
 
     /************************************************************************/
     // Data
@@ -441,13 +434,11 @@ public:
         std::function<std::shared_ptr<processable_type>(const std::chrono::milliseconds &)>
             retriever,
         std::function<void(std::shared_ptr<processable_type>, const std::chrono::milliseconds &)>
-            submitter,
-        std::function<bool()> stop_requested
+            submitter
     )
       : worker_id_(worker_id)
       , retriever_(retriever)
-      , submitter_(submitter)
-      , stop_requested_(stop_requested) {
+      , submitter_(submitter) {
         if(not retriever_) {
             glogger << "In GLocalConsumerWorkerT<processable_type>::GBrokerFerryT(): "
                        "Error!"
@@ -462,15 +453,6 @@ public:
                        "Error!"
                     << '\n'
                     << "Empty submitter function found!" << '\n'
-                    << "We cannot continue" << '\n'
-                    << GTERMINATION;
-        }
-
-        if(not stop_requested_) {
-            glogger << "In GLocalConsumerWorkerT<processable_type>::GBrokerFerryT(): "
-                       "Error!"
-                    << '\n'
-                    << "Empty termination function found!" << '\n'
                     << "We cannot continue" << '\n'
                     << GTERMINATION;
         }
@@ -503,14 +485,6 @@ public:
 
     /************************************************************************/
     /**
-         * Indicates whether the worker was asked to stop processing
-         */
-    [[nodiscard]] bool stop_requested() const {
-        return this->stop_requested_();
-    }
-
-    /************************************************************************/
-    /**
          * Access to the worker id
          */
     [[nodiscard]] std::size_t getWorkerId() const {
@@ -529,8 +503,7 @@ private:
         std::shared_ptr<processable_type>,
         const std::chrono::milliseconds &
     )>
-        submitter_;                        ///< Submission of processed work items
-    std::function<bool()> stop_requested_; ///< Termination of the exeecution run
+        submitter_; ///< Submission of processed work items
 
     /************************************************************************/
 };
@@ -587,12 +560,6 @@ private:
         const std::chrono::milliseconds &timeout
     ) override {
         this->broker_ferry_ptr_->submit(p, timeout);
-    }
-
-    /************************************************************************/
-    /** @brief Indicates whether the worker was asked to stop processing */
-    [[nodiscard]] bool stop_requested_() const override {
-        return this->broker_ferry_ptr_->stop_requested();
     }
 
     /************************************************************************/

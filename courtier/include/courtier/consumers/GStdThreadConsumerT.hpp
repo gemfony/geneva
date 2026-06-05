@@ -346,17 +346,15 @@ private:
                         const std::chrono::milliseconds &timeout
                     ) -> void { broker_ptr_->put(p, timeout); }
                     //----------------------
-                    ,
-                    [this]() -> bool { return this->stopped(); }
-                    //----------------------
                 )
             );
 
             // Register the broker ferry with the worker
             p_worker->registerBrokerFerry(broker_ferry_ptr);
 
-            // Start the actual thread
-            gtg_.create_thread([p_worker]() -> void { p_worker->run(); });
+            // Start the actual thread. The worker observes the jthread's stop_token for
+            // cooperative cancellation (GThreadGroup::join_all() requests stop on shutdown).
+            gtg_.create_thread([p_worker](std::stop_token st) -> void { p_worker->run(st); });
 
             // Store the worker for later reference
             workers_.push_back(p_worker);
