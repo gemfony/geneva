@@ -269,10 +269,15 @@ private:
     oa::courtier2_local_kind c2_local_kind_ =
         oa::courtier2_local_kind::none; ///< Which courtier2 local consumer to use (none == legacy/networked)
     unsigned int c2_local_threads_ = 0; ///< Thread-pool size for the multithreaded kind (0 == hardware concurrency)
-    /** @brief The single server-backed courtier2 broker for networked routing (asio/beast); shared
-     *  across all algorithms. Held here so its consumer (and thus the listening server) outlives the
-     *  optimization run and is torn down by RAII at Go2 destruction. Null for the local/legacy paths. */
+    /** @brief The single server-backed courtier2 broker for networked routing (asio/beast/mpi-master);
+     *  shared across all algorithms. Held here so its consumer (and thus the listening server) outlives
+     *  the optimization run and is torn down by RAII at Go2 destruction. Null for the local/legacy/
+     *  mpi-worker paths. */
     std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> c2_broker_;
+    /** @brief Set on a courtier2 MPI WORKER rank: runs the courtier2 worker loop (clientRun_ invokes
+     *  it instead of the legacy client). Type-erased so Go2.hpp needs no MPI headers; the captured
+     *  consumer shared_ptr keeps the worker node alive. Empty on master / non-MPI / legacy paths. */
+    std::function<void()> c2_mpi_run_worker_;
 
     /** @brief Builds the shared networked courtier2 broker from a concrete courtier2 server consumer:
      *  sets the polymorphic clone function, starts the server, and registers it. Mirrors the canonical
