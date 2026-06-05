@@ -124,6 +124,12 @@ void GParChild::setPopulationSizes(
 ) {
     GBase::setDefaultPopulationSize(pop_size);
     n_parents_ = n_parents;
+    // Keep the expected number of children consistent with the (possibly newly set) sizes. This is
+    // definitionally pop_size - n_parents; failing to update it here is why scheduled population
+    // growth was a no-op -- performScheduledPopulationGrowth() raises pop_size/n_parents via this
+    // function, but selectBest_() resizes to getNParents() + getDefaultNChildren(), which used a
+    // stale default_n_children_ (set once in init()) and shrank the population straight back.
+    default_n_children_ = pop_size - n_parents;
 }
 
 /******************************************************************************/
