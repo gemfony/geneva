@@ -402,6 +402,20 @@ public:
 
     /******************************************************************************/
     /**
+     * Injects a ready-to-use courtier2 broker that this algorithm should submit through, instead of
+     * building its own local consumer (Phase-7 increment 2). The broker must already have its
+     * consumer registered, its clone function set, and -- for networked consumers -- its server
+     * started. Used by Go2 for the networked consumers (asio/websocket), where a single server-backed
+     * consumer is shared across the whole run rather than created per algorithm. Transient runtime
+     * state, neither serialized nor cloned; takes precedence over setCourtier2LocalConsumer().
+     */
+    void setCourtier2Broker(std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> broker) {
+        c2_broker_          = std::move(broker);
+        c2_external_broker_ = true;
+    }
+
+    /******************************************************************************/
+    /**
       * Gives access to the current executor, converted to a given target type.
       * The executor is internally stored via its base class, so we need to
       * convert it to its final type in order to configure it via its API. The
@@ -823,6 +837,7 @@ private:
     // setCourtier2LocalConsumer() and select GSerialConsumerT vs GStdThreadConsumerT. ---
     courtier2_local_kind c2_local_kind_ = courtier2_local_kind::none; ///< Which local consumer (none == legacy path)
     unsigned int c2_local_threads_ = 0; ///< Thread-pool size for the multithreaded kind (0 == hardware concurrency)
+    bool c2_external_broker_ = false; ///< True when Go2 injected a ready broker (networked) via setCourtier2Broker()
     std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> c2_broker_;
     std::shared_ptr<Gem::Courtier2::GExecutorT<gpar::GParameterSet>> c2_executor_;
     /** @brief Submits the contiguous to-process sub-range of @p work_items through courtier2. */

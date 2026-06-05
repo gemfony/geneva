@@ -259,13 +259,33 @@ private:
         GO2_DEF_NOCONSUMER; ///< The name of a consumer requested by the user on the command line
 
     //---------------------------------------------------------------------------
-    // Phase-7 increment 1: courtier2 LOCAL-consumer routing. When GENEVA_USE_COURTIER2 is set and a
-    // local consumer ("sc"/"stc") was chosen, setupChosenConsumer() resolves these and
-    // runAlgorithmChain() plumbs them into each algorithm via setCourtier2LocalConsumer(). Networked
-    // mnemonics stay on the legacy path (courtier2 networked routing is a later increment).
+    // Phase-7 courtier2 routing (env-gated by GENEVA_USE_COURTIER2; server mode only).
+    // setupChosenConsumer() resolves the chosen mnemonic, runAlgorithmChain() plumbs the result into
+    // each algorithm. Two shapes:
+    //  - LOCAL  ("sc"/"stc", increment 1): the kind+threads below; each OA builds its own consumer.
+    //  - NETWORKED ("asio"/"beast", increment 2): a single server-backed courtier2 consumer is built
+    //    once here, its server started, and the shared c2_broker_ injected into every algorithm.
+    // MPI and unsupported mnemonics stay on the legacy path.
     oa::courtier2_local_kind c2_local_kind_ =
-        oa::courtier2_local_kind::none; ///< Which courtier2 local consumer to use (none == legacy path)
+        oa::courtier2_local_kind::none; ///< Which courtier2 local consumer to use (none == legacy/networked)
     unsigned int c2_local_threads_ = 0; ///< Thread-pool size for the multithreaded kind (0 == hardware concurrency)
+    /** @brief The single server-backed courtier2 broker for networked routing (asio/beast); shared
+     *  across all algorithms. Held here so its consumer (and thus the listening server) outlives the
+     *  optimization run and is torn down by RAII at Go2 destruction. Null for the local/legacy paths. */
+    std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> c2_broker_;
+
+    /** @brief Builds the shared networked courtier2 broker from a concrete courtier2 server consumer:
+     *  sets the polymorphic clone function, starts the server, and registers it. Mirrors the canonical
+     *  courtier2 networked setup (registerConsumer + startServer). */
+    template <typename C2Consumer>
+    void startCourtier2NetworkedServer_(const std::shared_ptr<C2Consumer> &consumer) {
+        consumer->setCloneFunction([](const std::shared_ptr<gpar::GParameterSet> &p) {
+            return p->clone<gpar::GParameterSet>();
+        });
+        consumer->startServer();
+        c2_broker_ = std::make_shared<Gem::Courtier2::GBrokerT<gpar::GParameterSet>>();
+        c2_broker_->registerConsumer(consumer);
+    }
 
     //---------------------------------------------------------------------------
     // Parameters for the random number generator

@@ -36,6 +36,12 @@
 #include "common/GProviderT.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/consumers/GBaseConsumerT.hpp"
+// --- Phase-7 increment 2: courtier2 networked routing. The legacy consumers are needed to read the
+//     configured port/serialization (via dynamic_cast); the courtier2 consumers provide the server. ---
+#include "courtier/consumers/GAsioConsumerT.hpp"
+#include "courtier/consumers/GWebsocketConsumerT.hpp"
+#include "courtier2/consumers/GAsioConsumerT.hpp"
+#include "courtier2/consumers/GWebsocketConsumerT.hpp"
 #include "geneva/GConsumerStore.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
@@ -554,9 +560,14 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
     sorted_           = false;
     bool is_first_algorithm = true;
     for(const auto &alg_ptr : algorithms_cnt_) {
-        // Phase-7 increment 1: if a courtier2 local consumer was selected, plumb it into the
-        // algorithm so its workOn() submits through courtier2 rather than the legacy executor.
-        if(c2_local_kind_ != oa::courtier2_local_kind::none) {
+        // Phase-7: if courtier2 routing was selected, plumb it into the algorithm so its workOn()
+        // submits through courtier2 rather than the legacy executor. A server-backed networked broker
+        // (asio/beast) takes precedence and is shared across all algorithms; otherwise a local
+        // consumer kind is plumbed and each algorithm builds its own.
+        if(c2_broker_) {
+            alg_ptr->setCourtier2Broker(c2_broker_);
+        }
+        else if(c2_local_kind_ != oa::courtier2_local_kind::none) {
             alg_ptr->setCourtier2LocalConsumer(c2_local_kind_, c2_local_threads_);
         }
 
@@ -1067,23 +1078,45 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
             c2_local_kind_    = oa::courtier2_local_kind::multithreaded;
             c2_local_threads_ = static_cast<unsigned int>(consumer->getNProcessingUnitsEstimate(exact));
         }
+        else if(mnemonic == "asio") {
+            // Reuse the legacy consumer's already-parsed port/serialization (the legacy client speaks
+            // the same wire protocol, so an unmodified client connects to the courtier2 server).
+            auto legacy = std::dynamic_pointer_cast<
+                Gem::Courtier::Consumers::GAsioConsumerT<gpar::GParameterSet>>(consumer);
+            this->startCourtier2NetworkedServer_(
+                std::make_shared<Gem::Courtier2::GAsioConsumerT<gpar::GParameterSet>>(
+                    legacy->getPort(), 0, legacy->getSerializationMode()
+                )
+            );
+        }
+        else if(mnemonic == "beast") {
+            auto legacy = std::dynamic_pointer_cast<
+                Gem::Courtier::Consumers::GWebsocketConsumerT<gpar::GParameterSet>>(consumer);
+            this->startCourtier2NetworkedServer_(
+                std::make_shared<Gem::Courtier2::GWebsocketConsumerT<gpar::GParameterSet>>(
+                    legacy->getPort(), 0, legacy->getSerializationMode()
+                )
+            );
+        }
         else {
             glogger << "In Go2::setupChosenConsumer(): Note!" << '\n'
-                    << "GENEVA_USE_COURTIER2 is set but consumer \"" << mnemonic << "\" is not a" << '\n'
-                    << "local consumer; courtier2 routing for it is not yet wired (a later" << '\n'
-                    << "increment). Falling back to the legacy broker path for this run." << '\n'
+                    << "GENEVA_USE_COURTIER2 is set but consumer \"" << mnemonic << "\" has no" << '\n'
+                    << "courtier2 routing yet (e.g. mpi); falling back to the legacy broker path." << '\n'
                     << GLOGGING;
         }
         if(c2_local_kind_ != oa::courtier2_local_kind::none) {
             std::cout << "Routing local consumer \"" << mnemonic << "\" through courtier2\n";
         }
+        else if(c2_broker_) {
+            std::cout << "Routing networked consumer \"" << mnemonic << "\" through courtier2\n";
+        }
     }
 
     // At this point the consumer should be fully configured.
     // Register the consumer with the broker, unless other consumers have already
-    // been registered or we are running in client mode. When courtier2 handles the
-    // (local) submission, the legacy consumer is left un-enrolled so it spawns no idle workers.
-    if(not client_mode_ && c2_local_kind_ == oa::courtier2_local_kind::none) {
+    // been registered or we are running in client mode. When courtier2 handles submission (local
+    // consumer or a server-backed networked broker), the legacy consumer is left un-enrolled.
+    if(not client_mode_ && c2_local_kind_ == oa::courtier2_local_kind::none && not c2_broker_) {
         if(not Gem::Courtier::broker<gpar::GParameterSet>()->hasConsumers()) {
             Gem::Courtier::broker<gpar::GParameterSet>()->enrol_consumer(consumer);
         }

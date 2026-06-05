@@ -101,8 +101,17 @@ struct GSubmissionPolicy {
 
     /***************************************************************************/
     /** @brief EA and other population-based algorithms: refill missing/failed slots with clones of
-     *  successful items (never fatal except the zero-usable floor). */
-    static GSubmissionPolicy clone_on_partial_return(std::size_t max_resub = 5) {
+     *  successful items (never fatal except the zero-usable floor).
+     *
+     *  Resubmission defaults to 0 here ON PURPOSE. A fitnessCalculation() is unbounded in time, so
+     *  resubmitting a MISSING item means waiting out *another* full (possibly very long) evaluation;
+     *  a tolerant algorithm gains nothing by that wait, because a clone of an already-evaluated
+     *  sibling is immediately available and is an acceptable population member. So for these
+     *  algorithms a single clone beats a resubmission: a slot that times out is cloned at once rather
+     *  than re-dispatched. (Need-all algorithms have no such option -- see full_success_or_fatal,
+     *  where resubmission is mandatory because only a real evaluation will do.) Pass a non-zero
+     *  @p max_resub only if a particular problem genuinely prefers re-evaluation over substitution. */
+    static GSubmissionPolicy clone_on_partial_return(std::size_t max_resub = 0) {
         GSubmissionPolicy p;
         p.unresolved_action = on_unresolved::clone;
         p.max_resubmissions = max_resub;

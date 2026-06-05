@@ -1169,6 +1169,10 @@ public:
     void setSerializationMode(Gem::Common::serializationMode serialization_mode) {
         serialization_mode_ = serialization_mode;
     }
+    /** @brief Retrieves the serialization mode used on the wire (parity with GAsioConsumerT) */
+    [[nodiscard]] Gem::Common::serializationMode getSerializationMode() const {
+        return serialization_mode_;
+    }
 
 protected:
     //-------------------------------------------------------------------------
