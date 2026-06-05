@@ -34,6 +34,7 @@
 // Standard headers
 #include <cstddef>
 #include <cstdlib>
+#include <functional>
 #include <memory>
 #include <span>
 #include <string>
@@ -215,35 +216,56 @@ protected:
                 << LOGEXIT(EXIT_FAILURE);
     }
 
+public:
+    /***************************************************************************/
+    /** @brief Sets a polymorphic clone function for clone-on-partial-return. REQUIRED when the work
+     *  item is a polymorphic base (e.g. GParameterSet holding a concrete individual): plain
+     *  copy-construction of processable_type would SLICE it. The functor should deep-clone via the
+     *  type's own clone mechanism, e.g. `[](const item_ptr& p){ return p->template clone<T>(); }`.
+     *  When unset, refill falls back to copy-construction (correct for leaf/concrete item types). */
+    void setCloneFunction(std::function<item_ptr(const item_ptr &)> fn) { clone_fn_ = std::move(fn); }
+
 private:
     /***************************************************************************/
     /** @brief Produces a replacement item to refill an unresolved slot under clone-on-partial-return.
-     *  Prefers a caller-supplied @p clone_template (e.g. a representative, already-evaluated
-     *  individual the algorithm hands down) when present; otherwise clones the first successfully
-     *  evaluated sibling in the batch. Requires a copy-constructible work item. */
+     *  Source = a caller-supplied @p clone_template (e.g. a representative individual) if present,
+     *  else the first successfully evaluated sibling in the batch. The clone itself uses the
+     *  polymorphic clone functor when set (required for polymorphic item types to avoid slicing),
+     *  otherwise copy-construction (leaf types). */
     item_ptr clone_for_refill_(std::span<item_ptr> items, const item_ptr &clone_template) const {
-        if constexpr(std::is_copy_constructible_v<processable_type>) {
-            if(clone_template) {
-                return std::make_shared<processable_type>(*clone_template);
-            }
+        item_ptr src = clone_template;
+        if(not src) {
             for(auto &it : items) {
                 if(it && it->is_processed()) {
-                    return std::make_shared<processable_type>(*it);
+                    src = it;
+                    break;
                 }
             }
+        }
+        if(not src) {
             this->fatal_(
                 "clone-on-partial-return: no clone template was supplied and no successfully "
                 "evaluated item is available to clone from."
             );
+            return {};
+        }
+        if(clone_fn_) {
+            return clone_fn_(src);
+        }
+        if constexpr(std::is_copy_constructible_v<processable_type>) {
+            return std::make_shared<processable_type>(*src);
         }
         else {
             this->fatal_(
-                "clone-on-partial-return needs a copy-constructible work item "
-                "(or a clone template, to be supplied by the algorithm)."
+                "clone-on-partial-return needs a clone function (setCloneFunction) or a "
+                "copy-constructible work item."
             );
         }
         return {};
     }
+
+    /***************************************************************************/
+    std::function<item_ptr(const item_ptr &)> clone_fn_; ///< Polymorphic clone (see setCloneFunction)
 };
 
 /******************************************************************************/

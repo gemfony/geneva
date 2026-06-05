@@ -49,6 +49,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <filesystem>
 #include <iomanip>
 #include <iostream>
@@ -1565,12 +1566,73 @@ Gem::Courtier::executor_status_t GBase::workOn(
     bool resubmit_unprocessed,
     const std::string &caller
 ) {
+    // Phase-7 EA spike: when GENEVA_USE_COURTIER2 is set in the environment, route submission
+    // through courtier2's span+policy path instead of the legacy executor. Env-gated so it is a
+    // no-op for everyone else; remove once the OAs are migrated wholesale (Phase 7 proper).
+    static const bool use_courtier2 = (std::getenv("GENEVA_USE_COURTIER2") != nullptr);
+    if(use_courtier2) {
+        return this->workOnViaCourtier2_(work_items);
+    }
+
     auto iteration_counter = std::make_tuple<Gem::Courtier::ITERATION_COUNTER_TYPE, bool>(
         Gem::Common::narrow<Gem::Courtier::ITERATION_COUNTER_TYPE>(this->getIteration()),
         true
     );
 
     return executor_ptr_->workOn(work_items, resubmit_unprocessed, iteration_counter, caller);
+}
+
+/******************************************************************************/
+/**
+ * Phase-7 EA spike: submit the DO_PROCESS subset of @p work_items through courtier2's span+policy
+ * executor backed by a local thread consumer (clone-on-partial-return, like EA). The consumer
+ * processes each individual in place (same shared_ptr as in the population), so results land back in
+ * the population directly; any refilled (cloned) slots are written back by position. This proves the
+ * span+policy path on real GParameterSet individuals while both courtier libs coexist.
+ */
+Gem::Courtier::executor_status_t GBase::workOnViaCourtier2_(
+    std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items
+) {
+    if(not c2_executor_) {
+        c2_broker_ = std::make_shared<Gem::Courtier2::GBrokerT<gpar::GParameterSet>>();
+        auto consumer = std::make_shared<Gem::Courtier2::GStdThreadConsumerT<gpar::GParameterSet>>();
+        // Polymorphic clone (GParameterSet holds a concrete individual; copy-construction would slice).
+        consumer->setCloneFunction([](const std::shared_ptr<gpar::GParameterSet> &p) {
+            return p->clone<gpar::GParameterSet>();
+        });
+        c2_broker_->registerConsumer(consumer);
+        c2_executor_ = std::make_shared<Gem::Courtier2::GExecutorT<gpar::GParameterSet>>(c2_broker_);
+    }
+
+    // Collect only the items that actually need evaluation (the rest are DO_IGNORE parents).
+    std::vector<std::shared_ptr<gpar::GParameterSet>> sub;
+    std::vector<std::size_t> idx;
+    sub.reserve(work_items.size());
+    for(std::size_t i = 0; i < work_items.size(); ++i) {
+        if(work_items[i] && work_items[i]->is_due_for_processing()) {
+            sub.push_back(work_items[i]);
+            idx.push_back(i);
+        }
+    }
+
+    if(not sub.empty()) {
+        c2_executor_->workOn(sub, Gem::Courtier2::GSubmissionPolicy::clone_on_partial_return());
+        // Propagate results (incl. any cloned refills) back into the population by position.
+        for(std::size_t k = 0; k < sub.size(); ++k) {
+            work_items[idx[k]] = sub[k];
+        }
+    }
+
+    // clone-on-partial-return always returns a full, valid set, so the batch is complete; report any
+    // residual error flags for parity with the legacy path.
+    bool has_errors = false;
+    for(std::size_t k : idx) {
+        if(work_items[k] && work_items[k]->has_errors()) {
+            has_errors = true;
+            break;
+        }
+    }
+    return Gem::Courtier::executor_status_t{true, has_errors};
 }
 
 /******************************************************************************/

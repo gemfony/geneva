@@ -52,6 +52,11 @@
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GStdFilesystemPathSerialization.hpp"
 #include "courtier/GExecutorT.hpp"
+// --- Phase-7 EA spike: optional submission via courtier2 (env-gated, see workOn) ---
+#include "courtier2/GBrokerT.hpp"
+#include "courtier2/GExecutorT.hpp"
+#include "courtier2/GSubmissionPolicy.hpp"
+#include "courtier2/consumers/GStdThreadConsumerT.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "geneva/par/GParameterSetFixedSizePriorityQueue.hpp"
 #include "geneva/GPersonalityTraits.hpp"
@@ -775,6 +780,16 @@ private:
         BROKER; ///< The default execution mode. Unless explicitöy requested by the user, we always go through the broker
     std::string default_executor_config_ =
         "./config/GBrokerExecutor.json"; ///< The default configuration file for the broker executor
+
+    // --- Phase-7 EA spike (TRANSIENT, not serialized/cloned): when the env var
+    // GENEVA_USE_COURTIER2 is set, workOn() routes submission through courtier2's span+policy
+    // executor + a local thread consumer instead of executor_ptr_. Lazily created on first use. ---
+    std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> c2_broker_;
+    std::shared_ptr<Gem::Courtier2::GExecutorT<gpar::GParameterSet>> c2_executor_;
+    /** @brief Submits the DO_PROCESS subset of @p work_items through courtier2 (EA-spike path). */
+    Gem::Courtier::executor_status_t workOnViaCourtier2_(
+        std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items
+    );
 };
 
 /*******************************************************************************/
