@@ -31,7 +31,10 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.27 FATAL_ERROR)
 
 MESSAGE ("")
 
-PROJECT (Geneva_Library_Collection LANGUAGES CXX)
+# C is enabled alongside CXX so the C compiler that the build scripts pass (CMAKE_C_COMPILER) is
+# actually consumed by the project -- otherwise CMake warns that it was "not used". Geneva itself
+# has no C sources, but several find-modules (Threads, ZLIB, MPI, ...) probe with the C toolchain.
+PROJECT (Geneva_Library_Collection LANGUAGES C CXX)
 
 # Emit compile_commands.json so clang-tidy / IWYU / clangd / IDE code-insight
 # can pick up the exact per-TU flags without an extra cmake invocation. Free
@@ -241,6 +244,7 @@ INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/common/include
 	${PROJECT_SOURCE_DIR}/hap/include
 	${PROJECT_SOURCE_DIR}/courtier/include
+	${PROJECT_SOURCE_DIR}/courtier2/include
 	${PROJECT_SOURCE_DIR}/geneva/include
 )
 
@@ -335,6 +339,7 @@ ENDIF ()
 ADD_SUBDIRECTORY (common)
 ADD_SUBDIRECTORY (hap)
 ADD_SUBDIRECTORY (courtier)
+ADD_SUBDIRECTORY (courtier2)
 ADD_SUBDIRECTORY (geneva)
 
 ################################################################################

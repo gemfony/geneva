@@ -1,0 +1,208 @@
+/********************************************************************************
+ *
+ * This file is part of the Geneva library collection. The following license
+ * applies to this file:
+ *
+ * ------------------------------------------------------------------------------
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------
+ *
+ * Note that other files in the Geneva library collection may use a different
+ * license. Please see the licensing information in each file.
+ *
+ ********************************************************************************
+ *
+ * See the NOTICE file in the top-level directory of the Geneva library
+ * collection for a list of contributors and copyright information.
+ *
+ ********************************************************************************/
+
+/**
+ * Tier-1 unit tests for the courtier2 submission path: the local (multi-threaded) consumer
+ * driving GBaseConsumerT::processBatch() against the various submission policies, using the
+ * GFaultyContainer test double to exhibit success / clean error flag / throwing evaluations.
+ *
+ * Fatal policy paths (full_success_or_fatal hitting an unfixable failure, the zero-usable floor)
+ * are intentionally NOT exercised here: they route through GTERMINATION -> std::terminate(), which
+ * cannot be caught in-process by Catch2. They are covered by the standalone manual exercisers.
+ */
+
+#include <catch2/catch_template_test_macros.hpp>
+#include <catch2/catch_test_macros.hpp>
+
+#include <algorithm>
+#include <cstddef>
+#include <memory>
+#include <vector>
+
+#include "courtier/GDemoProcessingContainers.hpp"
+#include "courtier2/GBrokerT.hpp"
+#include "courtier2/GExecutorT.hpp"
+#include "courtier2/GSubmissionPolicy.hpp"
+#include "courtier2/consumers/GSerialConsumerT.hpp"
+#include "courtier2/consumers/GStdThreadConsumerT.hpp"
+
+using namespace Gem::Courtier2;
+using Gem::Courtier::fault_mode;
+using Gem::Courtier::GFaultyContainer;
+
+namespace {
+
+using item_ptr = std::shared_ptr<GFaultyContainer>;
+
+/** @brief Wires a broker + a local consumer of type @p ConsumerT + executor for a test. */
+template <typename ConsumerT>
+struct LocalFixtureT {
+    std::shared_ptr<GBrokerT<GFaultyContainer>> broker = std::make_shared<GBrokerT<GFaultyContainer>>();
+    GExecutorT<GFaultyContainer> executor;
+
+    LocalFixtureT()
+        : executor(broker)
+    {
+        broker->registerConsumer(std::make_shared<ConsumerT>());
+    }
+};
+
+using LocalFixture = LocalFixtureT<GStdThreadConsumerT<GFaultyContainer>>;
+
+/** @brief Builds a batch of @p n items, the ones at @p faulty_indices exhibiting @p fm. */
+std::vector<item_ptr> make_batch(
+    std::size_t n,
+    const std::vector<std::size_t> &faulty_indices = {},
+    fault_mode fm = fault_mode::THROW_PROCESSING
+) {
+    std::vector<item_ptr> v;
+    v.reserve(n);
+    for(std::size_t i = 0; i < n; ++i) {
+        const bool faulty =
+            std::find(faulty_indices.begin(), faulty_indices.end(), i) != faulty_indices.end();
+        v.push_back(std::make_shared<GFaultyContainer>(i, faulty ? fm : fault_mode::NONE));
+    }
+    return v;
+}
+
+std::size_t count_processed(const std::vector<item_ptr> &v) {
+    std::size_t c = 0;
+    for(const auto &it : v) {
+        if(it && it->is_processed()) {
+            ++c;
+        }
+    }
+    return c;
+}
+
+} /* anonymous namespace */
+
+/******************************************************************************/
+
+TEST_CASE("courtier2: a clean batch is fully evaluated", "[courtier2][policy]") {
+    LocalFixture f;
+    auto batch = make_batch(16);
+
+    f.executor.workOn(batch, GSubmissionPolicy::full_success_or_fatal());
+
+    CHECK(batch.size() == 16);
+    CHECK(count_processed(batch) == 16);
+}
+
+TEST_CASE("courtier2: size is preserved across all policies", "[courtier2][policy]") {
+    LocalFixture f;
+    auto batch = make_batch(10, {2, 5, 9}, fault_mode::THROW_PROCESSING);
+
+    f.executor.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
+
+    // The span is fixed-size: clone-on-partial-return refills the failed slots, never shrinks.
+    CHECK(batch.size() == 10);
+}
+
+TEST_CASE("courtier2: clone-on-partial-return refills throwing slots", "[courtier2][policy]") {
+    LocalFixture f;
+    auto batch = make_batch(12, {1, 4, 7, 11}, fault_mode::THROW_PROCESSING);
+
+    f.executor.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
+
+    // Every slot ends up holding a successfully evaluated item (originals or clones of survivors).
+    CHECK(count_processed(batch) == 12);
+}
+
+TEST_CASE("courtier2: clone-on-partial-return handles a clean-error flag", "[courtier2][policy]") {
+    LocalFixture f;
+    auto batch = make_batch(8, {3, 6}, fault_mode::FLAG_ERROR);
+
+    f.executor.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
+
+    CHECK(count_processed(batch) == 8);
+}
+
+TEST_CASE("courtier2: a single-item clean batch works", "[courtier2][policy]") {
+    LocalFixture f;
+    auto batch = make_batch(1);
+
+    f.executor.workOn(batch, GSubmissionPolicy::fail_on_no_return());
+
+    CHECK(count_processed(batch) == 1);
+}
+
+TEST_CASE("courtier2: an empty batch is a no-op", "[courtier2][policy]") {
+    LocalFixture f;
+    std::vector<item_ptr> batch;
+
+    f.executor.workOn(batch, GSubmissionPolicy::full_success_or_fatal());
+
+    CHECK(batch.empty());
+}
+
+TEST_CASE("courtier2: a mostly-faulty batch still recovers via cloning", "[courtier2][policy]") {
+    LocalFixture f;
+    // 9 of 10 throw; the lone survivor seeds the clones.
+    auto batch = make_batch(10, {0, 1, 2, 3, 4, 5, 6, 8, 9}, fault_mode::THROW_PROCESSING);
+
+    f.executor.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
+
+    CHECK(count_processed(batch) == 10);
+}
+
+/******************************************************************************/
+// The same reconciliation contract must hold for every local consumer (serial + thread pool).
+
+using local_consumers =
+    std::tuple<GSerialConsumerT<GFaultyContainer>, GStdThreadConsumerT<GFaultyContainer>>;
+
+TEMPLATE_LIST_TEST_CASE(
+    "courtier2: every local consumer honours the reconciliation contract",
+    "[courtier2][policy][consumers]",
+    local_consumers
+) {
+    LocalFixtureT<TestType> f;
+
+    SECTION("clean batch") {
+        auto batch = make_batch(8);
+        f.executor.workOn(batch, GSubmissionPolicy::full_success_or_fatal());
+        CHECK(count_processed(batch) == 8);
+    }
+
+    SECTION("clone-on-partial-return refills throwing slots") {
+        auto batch = make_batch(8, {2, 5}, fault_mode::THROW_PROCESSING);
+        f.executor.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
+        CHECK(batch.size() == 8);
+        CHECK(count_processed(batch) == 8);
+    }
+
+    SECTION("clone-on-partial-return handles a clean-error flag") {
+        auto batch = make_batch(8, {1, 6}, fault_mode::FLAG_ERROR);
+        f.executor.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
+        CHECK(count_processed(batch) == 8);
+    }
+}
+
+/******************************************************************************/
