@@ -163,6 +163,21 @@ enum class processingStatus : Gem::Common::ENUMBASETYPE {
 
 /******************************************************************************/
 /**
+ * The per-batch SCHEDULING state of a work item, used by the courtier2 networked consumers. It is
+ * distinct from processingStatus (the item's domain/processing truth) and is NOT serialized: it is
+ * transient, server-side-only bookkeeping that lets the consumer track, within one dispatch round,
+ * which slots are awaiting a client, in flight, or done -- directly on the item, so no side queues
+ * are needed.
+ */
+enum class dispatchState : Gem::Common::ENUMBASETYPE {
+    NONE = 0,      ///< Default / not part of an active networked dispatch
+    PENDING = 1,   ///< Awaiting a client
+    IN_FLIGHT = 2, ///< Handed to a client, result not yet back
+    DONE = 3       ///< Result has been received and written into the slot
+};
+
+/******************************************************************************/
+/**
  * Determines how many items contribute to the rolling average and max calculation
  * of return times. This is calcultated as a multiple of the expected number of
  * return items from the first iteration.

@@ -675,6 +675,24 @@ public:
 
     /***************************************************************************/
     /**
+	  * Sets the courtier2 per-batch scheduling state. This is transient, server-side-only
+	  * bookkeeping (NOT serialized): it lets a networked consumer track, on the item itself,
+	  * whether the slot is awaiting a client / in flight / done within one dispatch round.
+	  */
+    void setDispatchState(dispatchState s) noexcept {
+        dispatch_state_ = s;
+    }
+
+    /***************************************************************************/
+    /**
+	  * Retrieves the courtier2 per-batch scheduling state (see setDispatchState()).
+	  */
+    dispatchState getDispatchState() const noexcept {
+        return dispatch_state_;
+    }
+
+    /***************************************************************************/
+    /**
 	  * Allows to retrieve the timepoint when a work item was retrieved from the raw queue
 	  */
     std::chrono::high_resolution_clock::time_point getRawRetrievalTime() const {
@@ -1016,6 +1034,10 @@ private:
     RESUBMISSION_COUNTER_TYPE resubmission_counter_ = static_cast<RESUBMISSION_COUNTER_TYPE>(0);
     COLLECTION_POSITION_TYPE collection_position_ = static_cast<COLLECTION_POSITION_TYPE>(0);
     BUFFERPORT_ID_TYPE bufferport_id_ = BUFFERPORT_ID_TYPE();
+
+    /// Transient, server-side-only per-batch scheduling state for the courtier2 networked consumers.
+    /// Deliberately NOT part of serialize()/load_ (the wire/clone never needs it; see dispatchState).
+    dispatchState dispatch_state_ = dispatchState::NONE;
 
     bool pre_processing_disabled_ = false; ///< Indicates whether pre-processing was diabled entirely
     bool post_processing_disabled_ =

@@ -36,14 +36,12 @@
 #include <chrono>
 #include <condition_variable>
 #include <cstddef>
-#include <deque>
 #include <memory>
 #include <mutex>
-#include <unordered_map>
 #include <vector>
 
 // Geneva headers
-#include "courtier/GCourtierEnums.hpp" // BUFFERPORT_ID_TYPE, processingStatus
+#include "courtier/GCourtierEnums.hpp" // BUFFERPORT_ID_TYPE, dispatchState
 #include "courtier2/GBaseConsumerT.hpp"
 
 namespace Gem::Courtier2 {
@@ -54,10 +52,10 @@ namespace Gem::Courtier2 {
  * machinery that turns the synchronous reconcile-the-span contract of GBaseConsumerT into the
  * asynchronous, checkout/return world of remote clients:
  *
- *  - dispatch_(items) loads the round's items into a pending queue (each tagged with a unique id
- *    reusing the otherwise-unused bufferport id field), then blocks until every item has come back
- *    or a bounded timeout elapses. Items that never return are left DO_PROCESS == MISSING, so the
- *    inherited reconciliation loop resubmits/clones/fails them per the policy.
+ *  - dispatch_(items) marks the round's items PENDING -- the scheduling state lives ON each item
+ *    (its dispatchState), so there are no side queues; the batch itself is the queue. It then blocks
+ *    until every slot reaches DONE or a bounded timeout elapses. Items that never return are left
+ *    DO_PROCESS == MISSING, so the inherited reconciliation loop resubmits/clones/fails them.
  *  - checkout()/checkin() are the queue endpoints a transport's session calls: checkout() hands the
  *    next pending item to a client (or null -> the client backs off), checkin() matches a returned
  *    (deserialized) result to its slot by id and replaces the slot's pointer with the result.
@@ -87,42 +85,85 @@ public:
 
 protected:
     /***************************************************************************/
-    /** @brief Hands the next pending item to a calling session, or null if none is pending. */
+    /** @brief Hands the next pending slot's item to a calling session, or null if none is pending.
+     *  The item's dispatch state flips PENDING -> IN_FLIGHT; correlation rides its bufferport id. */
     item_ptr checkout() {
         std::lock_guard<std::mutex> lk(mtx_);
         return checkout_locked();
     }
 
     /***************************************************************************/
-    /** @brief Like checkout(), but blocks up to @p wait for an item to become available before
+    /** @brief Like checkout(), but blocks up to @p wait for a slot to become available before
      *  giving up and returning null. Mirrors the brief blocking get() the broker offered, which
      *  keeps a transport from churning "no data" responses during the gaps between batches. */
     item_ptr checkoutWait(std::chrono::milliseconds wait) {
         std::unique_lock<std::mutex> lk(mtx_);
-        if(pending_.empty()) {
-            cv_work_.wait_for(lk, wait, [this] { return not pending_.empty() || stop_.load(); });
+        if(pending_count_ == 0) {
+            cv_work_.wait_for(lk, wait, [this] { return pending_count_ > 0 || stop_.load(); });
         }
         return checkout_locked();
     }
 
     /***************************************************************************/
-    /** @brief Accepts a returned result and matches it to its slot by id. A result whose id is not
-     *  currently outstanding (late/duplicate) is dropped. */
+    /** @brief Accepts a returned result and writes it into its slot. The result's (generation, slot)
+     *  is decoded from its bufferport id; a result from a previous (timed-out) round or a duplicate
+     *  -- i.e. one whose generation is stale or whose slot is no longer IN_FLIGHT -- is dropped,
+     *  which is what makes resubmission safe. */
     void checkin(item_ptr p) {
         if(not p) {
             return;
         }
         std::lock_guard<std::mutex> lk(mtx_);
-        const Gem::Courtier::BUFFERPORT_ID_TYPE id = p->getBufferId();
-        auto it = outstanding_.find(id);
-        if(it == outstanding_.end()) {
-            return; // stale or duplicate -- safe to ignore
+        if(current_batch_ == nullptr) {
+            return; // no active round (e.g. a very late arrival after dispatch_ returned)
         }
-        outstanding_.erase(it);
-        results_[id] = p;
-        if(results_.size() == n_pending_) {
+        const Gem::Courtier::BUFFERPORT_ID_TYPE id = p->getBufferId();
+        if(decodeGeneration(id) != (generation_ & GENERATION_MASK)) {
+            return; // stale: from a previous round
+        }
+        const std::size_t slot = decodeSlot(id);
+        auto &batch = *current_batch_;
+        if(slot >= batch.size() ||
+           batch[slot]->getDispatchState() != Gem::Courtier::dispatchState::IN_FLIGHT) {
+            return; // out of range, or duplicate / not currently in flight
+        }
+        p->setDispatchState(Gem::Courtier::dispatchState::DONE);
+        batch[slot] = p; // swap the processed copy into the slot in place
+        ++done_;
+        if(done_ == target_) {
             cv_done_.notify_one();
         }
+    }
+
+    /***************************************************************************/
+    /** @brief Returns a slot's still-in-flight item to PENDING so another client picks it up
+     *  immediately (the RAII put-back on a client disconnect). Caller passes the item it checked
+     *  out; the slot is located via its bufferport id. A no-op if the round moved on or the slot is
+     *  no longer in flight. */
+    void requeue(const item_ptr &p) {
+        if(not p) {
+            return;
+        }
+        std::lock_guard<std::mutex> lk(mtx_);
+        if(current_batch_ == nullptr) {
+            return;
+        }
+        const Gem::Courtier::BUFFERPORT_ID_TYPE id = p->getBufferId();
+        if(decodeGeneration(id) != (generation_ & GENERATION_MASK)) {
+            return;
+        }
+        const std::size_t slot = decodeSlot(id);
+        auto &batch = *current_batch_;
+        if(slot >= batch.size() ||
+           batch[slot]->getDispatchState() != Gem::Courtier::dispatchState::IN_FLIGHT) {
+            return;
+        }
+        batch[slot]->setDispatchState(Gem::Courtier::dispatchState::PENDING);
+        ++pending_count_;
+        if(slot < cursor_) {
+            cursor_ = slot; // let checkout re-find it
+        }
+        cv_work_.notify_one();
     }
 
     /***************************************************************************/
@@ -134,8 +175,10 @@ protected:
 
     /***************************************************************************/
     /**
-     * Loads one round of items into the pending queue, waits for them to return (or time out), and
-     * writes the returned results back into @p items. Unresolved items are left DO_PROCESS.
+     * Marks one round of items PENDING (state lives on the item itself, no side queues), waits for
+     * them to return (or time out), and -- because checkin() writes results straight into their
+     * slots -- simply returns. Items that never reached DONE are left DO_PROCESS == MISSING for the
+     * reconciliation loop.
      */
     void dispatch_(std::vector<item_ptr> &items) override {
         const std::size_t n = items.size();
@@ -143,45 +186,37 @@ protected:
             return;
         }
 
-        std::unordered_map<Gem::Courtier::BUFFERPORT_ID_TYPE, std::size_t> slot_of_id;
         {
             std::lock_guard<std::mutex> lk(mtx_);
-            pending_.clear();
-            outstanding_.clear();
-            results_.clear();
-            n_pending_ = n;
+            ++generation_; // a fresh round: stale returns from prior rounds will now be rejected
+            current_batch_ = &items;
+            target_ = n;
+            done_ = 0;
+            cursor_ = 0;
+            pending_count_ = n;
             for(std::size_t k = 0; k < n; ++k) {
-                const Gem::Courtier::BUFFERPORT_ID_TYPE id = next_id_++;
-                if(next_id_ == 0) { // never hand out 0; keeps ids stable across the unlikely wrap
-                    next_id_ = 1;
-                }
-                items[k]->setBufferId(id);
-                slot_of_id[id] = k;
-                pending_.push_back(items[k]);
+                // (generation, slot) correlation token -- slot is the index into this round's batch.
+                items[k]->setBufferId(encodeId(generation_, k));
+                items[k]->setDispatchState(Gem::Courtier::dispatchState::PENDING);
             }
         }
         cv_work_.notify_all(); // wake any session blocked in checkoutWait()
 
         // Bounded wait: a first-item budget plus a per-item budget. The predicate returns as soon as
-        // every item is back, so the happy path does not wait for the deadline.
+        // every slot is DONE, so the happy path does not wait for the deadline.
         const auto deadline = clock::now() + this->batchDeadline(n);
         {
             std::unique_lock<std::mutex> lk(mtx_);
             cv_done_.wait_until(lk, deadline, [this] {
-                return results_.size() == n_pending_ || stop_.load();
+                return done_ == target_ || stop_.load();
             });
-
-            for(const auto &[id, res] : results_) {
-                auto sit = slot_of_id.find(id);
-                if(sit != slot_of_id.end()) {
-                    items[sit->second] = res; // replace the slot with the processed copy
-                }
-            }
-            // Items not in results_ stay DO_PROCESS (== MISSING) for the reconciliation loop.
-            pending_.clear();
-            outstanding_.clear();
-            results_.clear();
-            n_pending_ = 0;
+            // Slots are already updated in place by checkin(); slots never reached DONE keep their
+            // original DO_PROCESS item == MISSING for the policy loop. Detach from the batch (whose
+            // storage is about to leave dispatch_'s scope) so any very late checkin() is a no-op.
+            current_batch_ = nullptr;
+            target_ = 0;
+            done_ = 0;
+            pending_count_ = 0;
         }
     }
 
@@ -197,26 +232,58 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Pops the next pending item and records it as outstanding. Caller holds mtx_. */
+    // The bufferport id (a uint32) is reused as the wire correlation token: the high bits hold a
+    // round generation (so a stale return from a timed-out round is rejected), the low bits the slot
+    // index within the round. NB: this bounds a single batch to 2^24 items -- vastly beyond any real
+    // Geneva population -- and the generation wraps every 2^8 rounds (a harmless, astronomically
+    // unlikely aliasing). When the old courtier (the real buffer-port user) is removed in Phase 6,
+    // the field should be renamed to correlation_id_.
+    static constexpr Gem::Courtier::BUFFERPORT_ID_TYPE SLOT_BITS = 24;
+    static constexpr Gem::Courtier::BUFFERPORT_ID_TYPE SLOT_MASK = (1u << SLOT_BITS) - 1u;
+    static constexpr Gem::Courtier::BUFFERPORT_ID_TYPE GENERATION_MASK = 0xFFu;
+
+    static Gem::Courtier::BUFFERPORT_ID_TYPE encodeId(std::size_t generation, std::size_t slot) {
+        return ((static_cast<Gem::Courtier::BUFFERPORT_ID_TYPE>(generation) & GENERATION_MASK) << SLOT_BITS)
+               | (static_cast<Gem::Courtier::BUFFERPORT_ID_TYPE>(slot) & SLOT_MASK);
+    }
+    static Gem::Courtier::BUFFERPORT_ID_TYPE decodeGeneration(Gem::Courtier::BUFFERPORT_ID_TYPE id) {
+        return (id >> SLOT_BITS) & GENERATION_MASK;
+    }
+    static std::size_t decodeSlot(Gem::Courtier::BUFFERPORT_ID_TYPE id) {
+        return static_cast<std::size_t>(id & SLOT_MASK);
+    }
+
+    /***************************************************************************/
+    /** @brief Scans from the cursor for the next PENDING slot, flips it IN_FLIGHT and returns its
+     *  item. Caller holds mtx_. */
     item_ptr checkout_locked() {
-        if(pending_.empty()) {
+        if(current_batch_ == nullptr || pending_count_ == 0) {
             return nullptr;
         }
-        auto p = pending_.front();
-        pending_.pop_front();
-        outstanding_[p->getBufferId()] = p;
-        return p;
+        auto &batch = *current_batch_;
+        while(cursor_ < batch.size() &&
+              batch[cursor_]->getDispatchState() != Gem::Courtier::dispatchState::PENDING) {
+            ++cursor_;
+        }
+        if(cursor_ >= batch.size()) {
+            return nullptr; // none pending from here (a put-back would have reset the cursor)
+        }
+        const std::size_t k = cursor_++;
+        batch[k]->setDispatchState(Gem::Courtier::dispatchState::IN_FLIGHT);
+        --pending_count_;
+        return batch[k];
     }
 
     mutable std::mutex mtx_;
-    std::condition_variable cv_done_; ///< Signalled when the last result of a batch returns
-    std::condition_variable cv_work_; ///< Signalled when a batch's items become available
+    std::condition_variable cv_done_; ///< Signalled when the last slot of a batch reaches DONE
+    std::condition_variable cv_work_; ///< Signalled when a batch's slots become available
 
-    std::deque<item_ptr> pending_;                                              ///< Items awaiting a client
-    std::unordered_map<Gem::Courtier::BUFFERPORT_ID_TYPE, item_ptr> outstanding_; ///< Checked out, not back
-    std::unordered_map<Gem::Courtier::BUFFERPORT_ID_TYPE, item_ptr> results_;     ///< Returned this round
-    std::size_t n_pending_ = 0;
-    Gem::Courtier::BUFFERPORT_ID_TYPE next_id_ = 1;
+    std::vector<item_ptr> *current_batch_ = nullptr; ///< The round's batch (valid while dispatch_ blocks)
+    std::size_t generation_ = 0;    ///< Bumped each round; encoded into the correlation token
+    std::size_t target_ = 0;        ///< Number of slots in the current round
+    std::size_t done_ = 0;          ///< Slots that have reached DONE this round
+    std::size_t pending_count_ = 0; ///< Slots currently PENDING (awaiting a client)
+    std::size_t cursor_ = 0;        ///< Next slot index to consider in checkout
 
     std::atomic<bool> stop_{false};
 
