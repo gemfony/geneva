@@ -419,6 +419,22 @@ public:
 
     /***************************************************************************/
     /**
+			 * Performs a deliberate, clean program exit with a chosen return code. Unlike
+			 * terminateApplication() this does NOT std::terminate() (no core dump): it prints
+			 * the message and calls std::exit(), which runs static destructors and atexit
+			 * handlers. The mutex is released before std::exit() for the same reason as in
+			 * terminateApplication().
+			 */
+    void exitApplication(std::string const &message, int return_code) {
+        {
+            std::scoped_lock lk(logger_mutex_);
+            std::cerr << message << std::flush;
+        }
+        std::exit(return_code);
+    }
+
+    /***************************************************************************/
+    /**
 		 * Output to stdout
 		 */
     void toStdOut(std::string const &message) {
@@ -465,6 +481,8 @@ public:
     explicit GManipulator(logType);
     /** @brief A constructor that stores both accompanying information and the logging type */
     GManipulator(std::string const &, logType);
+    /** @brief A constructor that additionally stores a process return code (for logType::EXIT) */
+    GManipulator(std::string const &, logType, int);
 
     /*************************************************************************/
     // Deleted and defaulted constructors, destructor and assignment operators.
@@ -485,10 +503,13 @@ public:
     std::string getAccompInfo() const;
     /** @brief Checks whether any accompanying information is available */
     bool hasAccompInfo() const;
+    /** @brief Retrieves the stored process return code (meaningful for logType::EXIT) */
+    int getReturnCode() const;
 
 private:
     std::string accomp_info_; ///< Holds accompanying information
     logType log_type_; ///< Holds the type of logging event used for instantiating the manipulator
+    int return_code_ = 0; ///< Process return code, used by logType::EXIT
 };
 
 /******************************************************************************/
@@ -641,6 +662,10 @@ namespace Gem::Common {
 #define GWARNING     Gem::Common::GManipulator(Gem::Common::locationString(), Gem::Common::logType::WARNING)
 #define GLOGGING     Gem::Common::GManipulator(Gem::Common::logType::LOGGING)
 #define GFILE        Gem::Common::GManipulator(Gem::Common::logType::FILE)
+// Logs the streamed message and then exits the process CLEANLY with the given return code
+// (std::exit, no core dump) -- the graceful counterpart to GTERMINATION, e.g. for command-line
+// errors or other deliberate early exits.
+#define LOGEXIT(returncode) Gem::Common::GManipulator(Gem::Common::locationString(), Gem::Common::logType::EXIT, (returncode))
 #define GSTDOUT      Gem::Common::GManipulator(Gem::Common::logType::STDOUT)
 #define GSTDERR      Gem::Common::GManipulator(Gem::Common::locationString(), Gem::Common::logType::STDERR)
 

@@ -31,6 +31,7 @@
 
 // Standard library headers used directly in this translation unit
 #include <cstddef>
+#include <cstdlib>
 #include <exception>
 #include <filesystem>
 #include <fstream>
@@ -744,18 +745,20 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, bool verbose) {
 
     bool result = GCL_NO_HELP_REQUESTED;
 
+    // The options description is needed both for parsing and for the usage message printed on a
+    // command-line error, so it is built outside the try block below.
+    std::string usage_string = std::string("Usage: ") + argv[0] + " [options]";
+    po::options_description desc(usage_string);
+
+    // We always want --help and -h to be available
+    desc.add_options()("help,h", "Emit help message");
+
+    // Add further options from the parameter objects
+    for(auto const &p_ptr : cl_parameter_proxies_) {
+        p_ptr->save_to(desc);
+    }
+
     try {
-        std::string usage_string = std::string("Usage: ") + argv[0] + " [options]";
-        po::options_description desc(usage_string);
-
-        // We always want --help and -h to be available
-        desc.add_options()("help,h", "Emit help message");
-
-        // Add further options from the parameter objects
-        for(auto const &p_ptr : cl_parameter_proxies_) {
-            p_ptr->save_to(desc);
-        }
-
         // Do the actual parsing
         po::variables_map vm;
         po::store(po::parse_command_line(argc, (const char *const *)argv, desc), vm);
@@ -777,15 +780,20 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, bool verbose) {
             }
         }
     }
-    catch(
-        po::error const &e
-    ) { // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
-        glogger << "In GParserBuilder::parseCommandLine(int argc, char **argv):" << '\n'
-                << "Error parsing the command line:" << '\n'
-                << e.what() << '\n'
-                << GTERMINATION;
+    catch(po::error const &e) {
+        // A malformed command line is a USER error, not an internal fault. Report it together with
+        // the usage and exit cleanly with a non-zero status via LOGEXIT -- rather than
+        // std::terminate()-ing via GTERMINATION (which would dump core on a mere CLI typo).
+        std::ostringstream usage; // NOLINT(cppcoreguidelines-init-variables)
+        usage << desc;
+        glogger << "Error on the command line: " << e.what() << '\n'
+                << '\n'
+                << usage.str()
+                << LOGEXIT(EXIT_FAILURE);
     }
-    catch(...) { // NOLINT(bugprone-empty-catch) — logs and terminates via GTERMINATION
+    catch(...) {
+        // Anything other than a program_options error here is an unexpected INTERNAL fault, so the
+        // hard stop is kept.
         glogger << "In GParserBuilder::parseCommandLine(int argc, char **argv):" << '\n'
                 << "Unknown error while parsing the command line" << '\n'
                 << GTERMINATION;

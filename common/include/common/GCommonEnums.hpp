@@ -153,7 +153,8 @@ enum class logType : Gem::Common::ENUMBASETYPE {
     LOGGING = 3,
     FILE = 4,
     STDOUT = 5,
-    STDERR = 6
+    STDERR = 6,
+    EXIT = 7 ///< A deliberate, clean program exit with a chosen return code (see LOGEXIT)
 };
 
 /** @brief Puts a Gem::Common::logType into a stream. Needed also for boost::lexical_cast<> */

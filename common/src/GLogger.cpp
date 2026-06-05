@@ -167,10 +167,28 @@ GManipulator::GManipulator(logType lt)
 
 /******************************************************************************/
 /**
+ * A constructor that additionally stores a process return code (used by logType::EXIT)
+ */
+GManipulator::GManipulator(std::string const &accomp_info, logType lt, int return_code)
+  : accomp_info_(accomp_info)
+  , log_type_(lt)
+  , return_code_(return_code) { /* nothing */
+}
+
+/******************************************************************************/
+/**
  * Retrieves the stored logging type
  */
 logType GManipulator::getLogType() const {
     return log_type_;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the stored process return code (meaningful for logType::EXIT)
+ */
+int GManipulator::getReturnCode() const {
+    return return_code_;
 }
 
 /******************************************************************************/
@@ -367,6 +385,24 @@ void GLogStreamer::operator<<(GManipulator const &gm) {
     //------------------------------------------------------------------------
     case Gem::Common::logType::STDERR: {
         glogger_ptr->toStdErr(oss_.str());
+    } break;
+
+    //------------------------------------------------------------------------
+    case Gem::Common::logType::EXIT: {
+        // A deliberate, clean exit with a chosen return code -- NOT a crash, so no "please file a
+        // bug" framing. Record the message in the normal log, then print it and exit cleanly
+        // (std::exit, no core dump).
+        std::ostringstream msg; // NOLINT(cppcoreguidelines-init-variables)
+        msg << oss_.str() << '\n';
+
+        if(this->hasExtension()) {
+            glogger_ptr->logWithSource(msg.str(), this->getExtension());
+        }
+        else {
+            glogger_ptr->log(msg.str());
+        }
+
+        glogger_ptr->exitApplication(msg.str(), gm.getReturnCode());
     } break;
 
         //------------------------------------------------------------------------
