@@ -554,6 +554,12 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
     sorted_           = false;
     bool is_first_algorithm = true;
     for(const auto &alg_ptr : algorithms_cnt_) {
+        // Phase-7 increment 1: if a courtier2 local consumer was selected, plumb it into the
+        // algorithm so its workOn() submits through courtier2 rather than the legacy executor.
+        if(c2_local_kind_ != oa::courtier2_local_kind::none) {
+            alg_ptr->setCourtier2LocalConsumer(c2_local_kind_, c2_local_threads_);
+        }
+
         // Add the pluggable optimization monitors to the algorithm
         for(auto const &pm_ptr : pluggable_monitors_cnt_) {
             alg_ptr->registerPluggableOM(pm_ptr);
@@ -1045,10 +1051,39 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
     // Finally give the consumer the chance to act on the command line options
     consumer->actOnCLOptions(vm);
 
+    // Phase-7 increment 1: when GENEVA_USE_COURTIER2 is set, route the LOCAL consumers (serial "sc",
+    // multithreaded "stc") through courtier2 instead of the legacy broker/executor. The choice is
+    // plumbed into each algorithm in runAlgorithmChain(); here we just resolve it (and read the
+    // configured thread count generically from the consumer). Networked mnemonics (asio/websocket/
+    // mpi) keep the legacy path -- their courtier2 routing is a later increment.
+    static const bool use_courtier2 = (std::getenv("GENEVA_USE_COURTIER2") != nullptr);
+    if(use_courtier2 && not client_mode_) {
+        const std::string mnemonic = consumer->getMnemonic();
+        if(mnemonic == "sc") {
+            c2_local_kind_ = oa::courtier2_local_kind::serial;
+        }
+        else if(mnemonic == "stc") {
+            bool exact = false;
+            c2_local_kind_    = oa::courtier2_local_kind::multithreaded;
+            c2_local_threads_ = static_cast<unsigned int>(consumer->getNProcessingUnitsEstimate(exact));
+        }
+        else {
+            glogger << "In Go2::setupChosenConsumer(): Note!" << '\n'
+                    << "GENEVA_USE_COURTIER2 is set but consumer \"" << mnemonic << "\" is not a" << '\n'
+                    << "local consumer; courtier2 routing for it is not yet wired (a later" << '\n'
+                    << "increment). Falling back to the legacy broker path for this run." << '\n'
+                    << GLOGGING;
+        }
+        if(c2_local_kind_ != oa::courtier2_local_kind::none) {
+            std::cout << "Routing local consumer \"" << mnemonic << "\" through courtier2\n";
+        }
+    }
+
     // At this point the consumer should be fully configured.
     // Register the consumer with the broker, unless other consumers have already
-    // been registered or we are running in client mode.
-    if(not client_mode_) {
+    // been registered or we are running in client mode. When courtier2 handles the
+    // (local) submission, the legacy consumer is left un-enrolled so it spawns no idle workers.
+    if(not client_mode_ && c2_local_kind_ == oa::courtier2_local_kind::none) {
         if(not Gem::Courtier::broker<gpar::GParameterSet>()->hasConsumers()) {
             Gem::Courtier::broker<gpar::GParameterSet>()->enrol_consumer(consumer);
         }

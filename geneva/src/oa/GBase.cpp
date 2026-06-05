@@ -1567,11 +1567,11 @@ Gem::Courtier::executor_status_t GBase::workOn(
     bool resubmit_unprocessed,
     const std::string &caller
 ) {
-    // Phase-7 EA spike: when GENEVA_USE_COURTIER2 is set in the environment, route submission
-    // through courtier2's span+policy path instead of the legacy executor. Env-gated so it is a
-    // no-op for everyone else; remove once the OAs are migrated wholesale (Phase 7 proper).
-    static const bool use_courtier2 = (std::getenv("GENEVA_USE_COURTIER2") != nullptr);
-    if(use_courtier2) {
+    // Phase-7 increment 1: when Go2 has selected a courtier2 LOCAL consumer for this algorithm
+    // (via setCourtier2LocalConsumer(), gated by the GENEVA_USE_COURTIER2 env var inside Go2),
+    // route submission through courtier2's span+policy path instead of the legacy executor. A
+    // default build never sets the kind, so this is a no-op for everyone else.
+    if(c2_local_kind_ != courtier2_local_kind::none) {
         return this->workOnViaCourtier2_(work_items);
     }
 
@@ -1599,7 +1599,16 @@ Gem::Courtier::executor_status_t GBase::workOnViaCourtier2_(
 ) {
     if(not c2_executor_) {
         c2_broker_ = std::make_shared<Gem::Courtier2::GBrokerT<gpar::GParameterSet>>();
-        auto consumer = std::make_shared<Gem::Courtier2::GStdThreadConsumerT<gpar::GParameterSet>>();
+        // Build the local consumer Go2 selected: inline (serial) or thread-pool (multithreaded).
+        std::shared_ptr<Gem::Courtier2::GBaseConsumerT<gpar::GParameterSet>> consumer;
+        if(c2_local_kind_ == courtier2_local_kind::serial) {
+            consumer = std::make_shared<Gem::Courtier2::GSerialConsumerT<gpar::GParameterSet>>();
+        }
+        else {
+            consumer = std::make_shared<Gem::Courtier2::GStdThreadConsumerT<gpar::GParameterSet>>(
+                c2_local_threads_
+            );
+        }
         // Polymorphic clone (GParameterSet holds a concrete individual; copy-construction would slice).
         consumer->setCloneFunction([](const std::shared_ptr<gpar::GParameterSet> &p) {
             return p->clone<gpar::GParameterSet>();
@@ -1640,12 +1649,14 @@ Gem::Courtier::executor_status_t GBase::workOnViaCourtier2_(
 #endif
 
     // Submit a span over exactly the contiguous range; it aliases the population sub-range, so
-    // results + any cloned refills are written straight into work_items[first..last].
+    // results + any cloned refills are written straight into work_items[first..last]. The policy is
+    // chosen per algorithm: clone-on-partial-return for tolerant population-based OAs (EA/SA/Swarm),
+    // full-success-or-fatal for the need-all OAs (GD/CGD/Nelder-Mead/ParameterScan).
     std::span<std::shared_ptr<gpar::GParameterSet>> sp(work_items.data() + first, count);
-    c2_executor_->workOn(sp, Gem::Courtier2::GSubmissionPolicy::clone_on_partial_return());
+    c2_executor_->workOn(sp, this->getSubmissionPolicy_());
 
-    // clone-on-partial-return always returns a full, valid set, so the batch is complete; report any
-    // residual error flags for parity with the legacy path.
+    // The consumer guarantees a full, valid set on return (or terminates fatally per the policy), so
+    // the batch is complete; report any residual error flags for parity with the legacy path.
     bool has_errors = false;
     for(std::size_t i = first; i <= last; ++i) {
         if(work_items[i] && work_items[i]->has_errors()) {

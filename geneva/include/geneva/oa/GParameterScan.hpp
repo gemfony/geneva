@@ -658,6 +658,12 @@ protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
+    /** @brief Need-all algorithm: a missing or failed evaluation cannot be tolerated, so it submits
+     *  through courtier2 under full-success-or-fatal (matches the legacy throw-on-error). */
+    Gem::Courtier2::GSubmissionPolicy getSubmissionPolicy_() const override {
+        return Gem::Courtier2::GSubmissionPolicy::full_success_or_fatal();
+    }
+
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
     /** @brief Loads the data of another population */

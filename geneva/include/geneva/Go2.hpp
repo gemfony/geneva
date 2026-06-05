@@ -259,6 +259,15 @@ private:
         GO2_DEF_NOCONSUMER; ///< The name of a consumer requested by the user on the command line
 
     //---------------------------------------------------------------------------
+    // Phase-7 increment 1: courtier2 LOCAL-consumer routing. When GENEVA_USE_COURTIER2 is set and a
+    // local consumer ("sc"/"stc") was chosen, setupChosenConsumer() resolves these and
+    // runAlgorithmChain() plumbs them into each algorithm via setCourtier2LocalConsumer(). Networked
+    // mnemonics stay on the legacy path (courtier2 networked routing is a later increment).
+    oa::courtier2_local_kind c2_local_kind_ =
+        oa::courtier2_local_kind::none; ///< Which courtier2 local consumer to use (none == legacy path)
+    unsigned int c2_local_threads_ = 0; ///< Thread-pool size for the multithreaded kind (0 == hardware concurrency)
+
+    //---------------------------------------------------------------------------
     // Parameters for the random number generator
     std::uint16_t n_producer_threads_ =
         GO2_DEF_NPRODUCERTHREADS; ///< The number of threads that will simultaneously produce random numbers

@@ -52,10 +52,12 @@
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GStdFilesystemPathSerialization.hpp"
 #include "courtier/GExecutorT.hpp"
-// --- Phase-7 EA spike: optional submission via courtier2 (env-gated, see workOn) ---
+// --- Phase-7: optional submission via courtier2 (env-gated; the local consumer is selected by
+//     Go2 and plumbed in via setCourtier2LocalConsumer(), see workOn) ---
 #include "courtier2/GBrokerT.hpp"
 #include "courtier2/GExecutorT.hpp"
 #include "courtier2/GSubmissionPolicy.hpp"
+#include "courtier2/consumers/GSerialConsumerT.hpp"
 #include "courtier2/consumers/GStdThreadConsumerT.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "geneva/par/GParameterSetFixedSizePriorityQueue.hpp"
@@ -64,6 +66,19 @@
 #include "geneva/GenevaHelperFunctions.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
+
+/******************************************************************************/
+/**
+ * Identifies which courtier2 LOCAL consumer an algorithm should submit through when courtier2
+ * routing is active (Phase-7 increment 1). Go2 maps the chosen parallelisation mnemonic onto one of
+ * these and plumbs it into the algorithm via GBase::setCourtier2LocalConsumer(). "none" (the
+ * default) means "do not route through courtier2" -- the legacy executor path is used instead.
+ */
+enum class courtier2_local_kind {
+    none,         ///< Not routed through courtier2 (legacy executor path).
+    serial,       ///< Inline, single-threaded courtier2 consumer (mnemonic "sc").
+    multithreaded ///< Thread-pool courtier2 consumer (mnemonic "stc").
+};
 
 /******************************************************************************/
 /*
@@ -375,6 +390,18 @@ public:
 
     /******************************************************************************/
     /**
+     * Selects the courtier2 LOCAL consumer this algorithm submits through (Phase-7 increment 1).
+     * Called by Go2 once the parallelisation mnemonic is known; transient runtime state, neither
+     * serialized nor cloned. With @p kind == none (the default) workOn() takes the legacy executor
+     * path. @p n_threads is honoured only for the multithreaded kind (0 == hardware concurrency).
+     */
+    void setCourtier2LocalConsumer(courtier2_local_kind kind, unsigned int n_threads = 0) {
+        c2_local_kind_    = kind;
+        c2_local_threads_ = n_threads;
+    }
+
+    /******************************************************************************/
+    /**
       * Gives access to the current executor, converted to a given target type.
       * The executor is internally stored via its base class, so we need to
       * convert it to its final type in order to configure it via its API. The
@@ -642,6 +669,14 @@ private:
     /** @brief Retrieve the number of processable items in the current iteration. */
     virtual std::size_t getNProcessableItems_() const;
 
+    /** @brief The submission policy this algorithm uses when routed through courtier2 (Phase 7).
+     *  Default: clone-on-partial-return (population-based, tolerant -- EA/SA/Swarm). The "need-all"
+     *  algorithms (GD/CGD/Nelder-Mead/ParameterScan), which cannot proceed with a missing or failed
+     *  evaluation, override this to full-success-or-fatal. */
+    virtual Gem::Courtier2::GSubmissionPolicy getSubmissionPolicy_() const {
+        return Gem::Courtier2::GSubmissionPolicy::clone_on_partial_return();
+    }
+
     /** @brief Retrieve a personality trait object belonging to this algorithm */
     virtual std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const = 0;
 
@@ -781,12 +816,16 @@ private:
     std::string default_executor_config_ =
         "./config/GBrokerExecutor.json"; ///< The default configuration file for the broker executor
 
-    // --- Phase-7 EA spike (TRANSIENT, not serialized/cloned): when the env var
-    // GENEVA_USE_COURTIER2 is set, workOn() routes submission through courtier2's span+policy
-    // executor + a local thread consumer instead of executor_ptr_. Lazily created on first use. ---
+    // --- Phase-7 (TRANSIENT, not serialized/cloned): when Go2 has selected a courtier2 LOCAL
+    // consumer (c2_local_kind_ != none), workOn() routes submission through courtier2's span+policy
+    // executor + that local consumer instead of executor_ptr_. The broker/executor/consumer are
+    // lazily created on first use; the kind/thread-count are plumbed in via
+    // setCourtier2LocalConsumer() and select GSerialConsumerT vs GStdThreadConsumerT. ---
+    courtier2_local_kind c2_local_kind_ = courtier2_local_kind::none; ///< Which local consumer (none == legacy path)
+    unsigned int c2_local_threads_ = 0; ///< Thread-pool size for the multithreaded kind (0 == hardware concurrency)
     std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> c2_broker_;
     std::shared_ptr<Gem::Courtier2::GExecutorT<gpar::GParameterSet>> c2_executor_;
-    /** @brief Submits the DO_PROCESS subset of @p work_items through courtier2 (EA-spike path). */
+    /** @brief Submits the contiguous to-process sub-range of @p work_items through courtier2. */
     Gem::Courtier::executor_status_t workOnViaCourtier2_(
         std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items
     );
