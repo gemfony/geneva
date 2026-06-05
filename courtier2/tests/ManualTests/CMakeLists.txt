@@ -27,7 +27,19 @@
 #
 ################################################################################
 
-ADD_SUBDIRECTORY ( UnitTests )
-ADD_SUBDIRECTORY ( ManualTests )
+SET(LIBRARIES_TO_LINK
+		${GENEVA_LIBRARIES}
+		${Boost_LIBRARIES})
 
-GENEVA_AGGREGATE_TARGET( "tests-courtier2" )
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(LIBRARIES_TO_LINK ${LIBRARIES_TO_LINK} ${MPI_LIBRARIES})
+ENDIF()
+
+# A standalone multi-process exerciser (its own main(), no Catch2). Launched by
+# scripts/startCourtier2Jobs.sh as separate server + client processes.
+ADD_EXECUTABLE(GCourtier2NetworkedExerciser GCourtier2NetworkedExerciser.cpp)
+TARGET_LINK_LIBRARIES(GCourtier2NetworkedExerciser ${LIBRARIES_TO_LINK})
+INSTALL(TARGETS GCourtier2NetworkedExerciser
+		DESTINATION ${INSTALL_PREFIX_DATA}/tests/courtier2/ManualTests)
+
+GENEVA_AGGREGATE_TARGET( "tests-courtier2-manual" )
