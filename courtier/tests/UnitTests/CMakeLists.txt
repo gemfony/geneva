@@ -27,16 +27,6 @@
 #
 ################################################################################
 
-SET ( EXECUTABLENAME GCourtierStandardTests )
-
-SET ( ${EXECUTABLENAME}_SRCS
-        GCourtierStandardTests.cpp
-)
-
-ADD_EXECUTABLE(${EXECUTABLENAME}
-	${${EXECUTABLENAME}_SRCS}
-)
-
 SET(LIBRARIES_TO_LINK
 		${GENEVA_LIBRARIES}
 		${Boost_LIBRARIES}
@@ -48,11 +38,17 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 			${MPI_LIBRARIES})
 ENDIF()
 
-TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-		${LIBRARIES_TO_LINK})
+# Helper: declare a Courtier Catch2 test executable, register it with CTest under the
+# "courtier" label, install it, and add it to the tests-courtier-unit aggregate.
+FUNCTION(geneva_courtier_test name)
+	ADD_EXECUTABLE(${name} ${ARGN})
+	TARGET_LINK_LIBRARIES(${name} ${LIBRARIES_TO_LINK})
+	ADD_TEST(${name} ${name})
+	SET_TESTS_PROPERTIES(${name} PROPERTIES LABELS "courtier")
+	INSTALL(TARGETS ${name} DESTINATION ${INSTALL_PREFIX_DATA}/tests/courtier/UnitTests)
+ENDFUNCTION()
 
-ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/courtier/UnitTests )
+geneva_courtier_test(GCourtierStandardTests        GCourtierStandardTests.cpp)
+geneva_courtier_test(GCourtierSubmissionStressTests GCourtierSubmissionStressTests.cpp)
 
 GENEVA_AGGREGATE_TARGET( "tests-courtier-unit" )

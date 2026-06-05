@@ -33,16 +33,23 @@
 
 #include "courtier/GDemoProcessingContainers.hpp"
 #include "courtier/GProcessingContainerT.hpp"
+#include "common/GErrorStreamer.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GCommonHelperFunctions.hpp"
 #include "hap/GHapEnums.hpp"
 #include "hap/GRandomT.hpp"
 #include <algorithm>
+#include <chrono>
 #include <cstddef>
 #include <iostream>
 #include <random>
+#include <stdexcept>
+#include <thread>
 #include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GSimpleContainer)       // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GRandomNumberContainer) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GFaultyContainer)       // NOLINT
 
 namespace Gem::Courtier {
 
@@ -105,6 +112,65 @@ void GRandomNumberContainer::print() const {
     for(std::size_t i = 0; i < random_numbers_.size(); i++) {
         std::cout << i << ": " << random_numbers_[i] << '\n';
     }
+}
+
+/********************************************************************************************/
+/**
+ * The standard constructor for the fault-injecting container.
+ *
+ * @param stored_number An id, used by tests to check item conservation
+ * @param fm The fault to exhibit during process_()
+ * @param sleep_ms The sleep length (ms) used by fault_mode::SLEEP
+ */
+GFaultyContainer::GFaultyContainer(std::size_t stored_number, fault_mode fm, unsigned int sleep_ms)
+  : Gem::Courtier::GProcessingContainerT<GFaultyContainer, bool>(1)
+  , stored_number_(stored_number)
+  , fault_mode_(fm)
+  , sleep_ms_(sleep_ms) { /* nothing */
+}
+
+/********************************************************************************************/
+/**
+ * Exhibits the configured (mis-)behaviour. THROW_PROCESSING raises the dedicated
+ * g_processing_exception, which the worker is expected to catch and turn into a flagged item;
+ * THROW_FATAL raises a plain std::runtime_error, which (pre-T1) escapes the worker thread.
+ */
+void GFaultyContainer::process_(const std::vector<bool> &) {
+    switch(fault_mode_) {
+    case fault_mode::NONE:
+        registerResult(0, true);
+        break;
+
+    case fault_mode::SLEEP:
+        std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms_));
+        registerResult(0, true);
+        break;
+
+    case fault_mode::FLAG_ERROR:
+        force_set_error("GFaultyContainer: injected FLAG_ERROR");
+        break;
+
+    case fault_mode::THROW_PROCESSING:
+        throw g_processing_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "GFaultyContainer: injected g_processing_exception" << '\n'
+        );
+
+    case fault_mode::THROW_FATAL:
+        throw std::runtime_error("GFaultyContainer: injected fatal std::runtime_error");
+    }
+}
+
+/********************************************************************************************/
+
+fault_mode GFaultyContainer::get_fault_mode() const {
+    return fault_mode_;
+}
+
+/********************************************************************************************/
+
+std::size_t GFaultyContainer::get_stored_number() const {
+    return stored_number_;
 }
 
 /********************************************************************************************/

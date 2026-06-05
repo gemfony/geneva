@@ -37,6 +37,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <cstdint>
 #include <iostream>
 #include <vector>
 
@@ -162,8 +163,77 @@ private:
 };
 
 /**********************************************************************************************/
+/**
+ * Fault modes the GFaultyContainer can be asked to exhibit during process_(). The mode is
+ * stored in the item and survives serialization, so it triggers identically whether the item
+ * is processed locally (GStdThread/GSerial consumer) or on a remote client over the wire.
+ */
+enum class fault_mode : std::uint8_t {
+    NONE = 0,             ///< Normal: register a result, no fault
+    SLEEP = 1,            ///< Sleep for sleep_ms_ then register a result (slow worker)
+    FLAG_ERROR = 2,       ///< Call force_set_error() (clean error flag, no throw)
+    THROW_PROCESSING = 3, ///< Throw g_processing_exception (the SAFE path: GWorkerT catches it)
+    THROW_FATAL = 4       ///< Throw a plain std::runtime_error (escapes the worker; pre-T1: terminate)
+};
+
+/**********************************************************************************************/
+/**
+ * A processing container that can be instructed to misbehave during process_(), for stress-
+ * and fault-injection tests of the courtier submission path. Like the other demo containers it
+ * has no dependency on the geneva optimization library. The fault mode is serialized, so a
+ * remote client will exhibit it after deserialization.
+ */
+class GFaultyContainer
+  : public Gem::Courtier::GProcessingContainerT<GFaultyContainer, bool> {
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
+
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        using boost::serialization::make_nvp;
+
+        ar &make_nvp(
+            "GProcessingContainerT_GFaultyContainer",
+            boost::serialization::base_object<
+                Gem::Courtier::GProcessingContainerT<GFaultyContainer, bool>>(*this)
+        ) & BOOST_SERIALIZATION_NVP(stored_number_) & BOOST_SERIALIZATION_NVP(fault_mode_) &
+            BOOST_SERIALIZATION_NVP(sleep_ms_);
+    }
+    ///////////////////////////////////////////////////////////////////////
+
+public:
+    /** @brief Standard constructor -- an id, the fault to exhibit, and an optional sleep length */
+    explicit GFaultyContainer(
+        std::size_t stored_number,
+        fault_mode fm = fault_mode::NONE,
+        unsigned int sleep_ms = 0
+    );
+    GFaultyContainer(const GFaultyContainer &) = default;
+    GFaultyContainer &operator=(const GFaultyContainer &) = default;
+    GFaultyContainer(GFaultyContainer &&) noexcept = default;
+    GFaultyContainer &operator=(GFaultyContainer &&) noexcept = default;
+    ~GFaultyContainer() override = default;
+
+    /** @brief Retrieves the configured fault mode */
+    [[nodiscard]] fault_mode get_fault_mode() const;
+    /** @brief Retrieves the stored id/number */
+    [[nodiscard]] std::size_t get_stored_number() const;
+
+private:
+    /** @brief The default constructor -- only needed for de-serialization purposes */
+    GFaultyContainer() = default;
+    /** @brief Performs the configured (mis-)behaviour */
+    void process_(const std::vector<bool> &res_vec = std::vector<bool>()) final;
+
+    std::size_t stored_number_ = 0;              ///< Identifies the item (for conservation checks)
+    fault_mode fault_mode_ = fault_mode::NONE;   ///< The fault to exhibit during process_()
+    unsigned int sleep_ms_ = 0;                  ///< Sleep length for fault_mode::SLEEP
+};
+
+/**********************************************************************************************/
 
 } /* namespace Gem::Courtier */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GSimpleContainer)       // NOLINT
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GRandomNumberContainer) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GFaultyContainer)       // NOLINT
