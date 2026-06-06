@@ -80,7 +80,10 @@ namespace Gem::Courtier {
  *
  * Timeout / death-detection (unchanged in spirit, now per batch): each dispatch_ waits until its batch
  * is DONE or progress stalls past an ADAPTIVE give-up window (a multiple of the running mean return
- * time, shared across batches). While waiting, where the transport has no client-liveness signal
+ * time, shared across batches). The give-up window only applies ONCE at least one result has ever been
+ * received: before that, dispatch_ waits INDEFINITELY, because under a batch-scheduling system the first
+ * worker may not enter the pool for minutes or hours. While waiting, where the transport has no
+ * client-liveness signal
  * (usesTimeLease(), default true: ASIO/MPI), stuck in-flight items of that batch are reclaimed once
  * they exceed an adaptive LEASE. A transport that detects client death directly (the websocket
  * consumer, via its persistent session + CheckoutLease) reclaims immediately on disconnect and
@@ -96,10 +99,6 @@ public:
     ~GNetworkedConsumerT() override = default;
 
     /***************************************************************************/
-    /** @brief Sets how long dispatch_ waits for the FIRST result of the very first batch before
-     *  giving up (no client ever connected). Once results have been seen, the give-up window becomes
-     *  adaptive (a multiple of the running mean return time). */
-    void setFirstItemMaxWait(std::chrono::milliseconds w) { first_return_window_ = w; }
     /** @brief Sets the lease used to reclaim a stuck in-flight item before the running mean is known. */
     void setLeaseBootstrap(std::chrono::milliseconds w) { lease_bootstrap_ = w; }
     /** @brief Sets the multiple of the running mean return time used as the reclaim lease. */
@@ -279,8 +278,13 @@ protected:
                     break;
                 }
                 const auto now = clock::now();
-                if(now - b.last_progress > currentStallWindow()) {
-                    break; // no progress for too long -> give up; unresolved slots become MISSING
+                // Never give up while NO result has EVER been received: under a batch-scheduling system
+                // the first worker may enter the pool arbitrarily later (minutes, even hours), so we
+                // wait indefinitely for the first return. The give-up window only bounds how long we
+                // keep waiting once workers ARE returning (it reclaims items handed to workers that
+                // have since gone slow/dead) -- it must not bound the wait for workers to appear.
+                if(n_return_samples_ > 0 && now - b.last_progress > currentStallWindow()) {
+                    break; // progress stalled with live workers -> give up; unresolved slots MISSING
                 }
                 if(this->usesTimeLease()) {
                     leaseSweep_locked(b, now);
@@ -424,12 +428,10 @@ private:
 
     /***************************************************************************/
     /** @brief The current give-up window: how long a batch's dispatch_ tolerates NO progress before
-     *  declaring the rest of that batch MISSING. A generous multiple of the running mean once returns
-     *  have been seen; the first-return window until then. */
+     *  declaring the rest of that batch MISSING. A generous multiple of the running mean return time,
+     *  clamped. Only ever consulted once n_return_samples_ > 0 (dispatch_ waits indefinitely before
+     *  the first return ever arrives), so there is no pre-sample fallback here. */
     std::chrono::milliseconds currentStallWindow() const {
-        if(n_return_samples_ == 0) {
-            return first_return_window_;
-        }
         const auto v = std::chrono::milliseconds(static_cast<long long>(stall_factor_ * mean_return_ms_));
         return std::clamp(v, min_stall_, max_stall_);
     }
@@ -452,7 +454,6 @@ private:
     double ema_alpha_ = 0.25;   ///< EMA weight for new return-time samples
     double lease_factor_ = 4.0; ///< Reclaim lease = lease_factor_ * mean return time (clamped)
     double stall_factor_ = 8.0; ///< Give-up window = stall_factor_ * mean return time (clamped)
-    std::chrono::milliseconds first_return_window_{60'000}; ///< Wait for the very first return
     std::chrono::milliseconds lease_bootstrap_{10'000};     ///< Reclaim lease before any return is seen
     std::chrono::milliseconds min_lease_{200};              ///< Lower clamp on the reclaim lease
     std::chrono::milliseconds max_lease_{300'000};          ///< Upper clamp on the reclaim lease

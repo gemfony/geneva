@@ -114,7 +114,6 @@ TEST_CASE("courtier(fanin): concurrent submitters to one networked consumer, res
     constexpr std::size_t CLIENTS = 4;
 
     SimNetConsumer consumer;
-    consumer.setFirstItemMaxWait(10s); // we always make progress; never give up spuriously
 
     // Each submitter owns a batch (the span borrows it, so it must outlive processBatch()).
     std::vector<std::vector<item_ptr>> batches;
@@ -188,7 +187,6 @@ TEST_CASE("courtier(fanin): concurrent submitters with failures stay size-preser
     constexpr std::size_t N = 20;
 
     SimNetConsumer consumer;
-    consumer.setFirstItemMaxWait(10s);
 
     std::vector<std::vector<item_ptr>> batches;
     batches.reserve(M);

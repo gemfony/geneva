@@ -109,7 +109,6 @@ void run_with_misbehaviour(std::vector<item_ptr> &batch, misbehave mode, VictimP
     consumer.setLeaseBootstrap(30ms);  // reclaim an abandoned item quickly
     consumer.setLeaseBounds(10ms, 5s);
     consumer.setSweepTick(5ms);
-    consumer.setFirstItemMaxWait(10s); // generous: we always make progress, never give up
 
     std::atomic<bool> finished{false};
     std::jthread worker([&] {
