@@ -44,9 +44,9 @@ namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
- * The courtier2 broker. Unlike the original courtier broker (which round-robined work items
- * across many simultaneously-registered consumers via raw/processed buffer ports), the courtier2
- * broker holds exactly ONE consumer. The fan-out to multiple workers / clients is the registered
+ * The broker. Unlike the original (pre-rework) broker -- which round-robined work items
+ * across many simultaneously-registered consumers via raw/processed buffer ports -- this broker
+ * holds exactly ONE consumer. The fan-out to multiple workers / clients is the registered
  * consumer's own responsibility (a thread pool locally, many clients networked). This collapses
  * the broker's queueing layer: the executor hands a whole batch straight to the consumer, which
  * reconciles it against the policy.

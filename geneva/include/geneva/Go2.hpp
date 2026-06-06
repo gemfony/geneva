@@ -124,7 +124,7 @@ public:
     /** @brief Makes it easier to add algorithms */
     Go2 &operator&(std::string const &);
 
-    /** @brief Supplies a custom, ready-to-use courtier2 broker (its consumer already registered, clone
+    /** @brief Supplies a custom, ready-to-use courtier broker (its consumer already registered, clone
      *  function set, and -- for networked consumers -- server started) for this run, OVERRIDING the
      *  mnemonic-based consumer selection. Used to plug in a custom consumer (e.g. a GPU consumer) that
      *  Go2 does not know how to build itself; the broker is injected into every algorithm. Call after
@@ -268,22 +268,22 @@ private:
         GO2_DEF_NOCONSUMER; ///< The name of a consumer requested by the user on the command line
 
     //---------------------------------------------------------------------------
-    // courtier2 routing (the DEFAULT submission path). setupChosenConsumer() builds the consumer for
+    // courtier routing (the DEFAULT submission path). setupChosenConsumer() builds the consumer for
     // the chosen mnemonic through the shared factory buildConsumerSetup() and stores the result here;
-    // runAlgorithmChain() injects broker_ into every algorithm. Consumers without a courtier2 form
+    // runAlgorithmChain() injects broker_ into every algorithm. Consumers without a courtier form
     // yet (e.g. cuda) stay on the legacy path until ported. A custom broker can be supplied directly
     // via registerBroker() (e.g. the CUDA examples).
-    /** @brief The single server-backed/local courtier2 broker, shared across all algorithms. Held here
+    /** @brief The single server-backed/local courtier broker, shared across all algorithms. Held here
      *  so its consumer (and any listening server) outlives the run and is torn down by RAII at Go2
-     *  destruction. Null when no courtier2 routing was built (legacy fallback, or an MPI worker rank). */
+     *  destruction. Null when no courtier routing was built (legacy fallback, or an MPI worker rank). */
     std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>> broker_;
-    /** @brief Set on a courtier2 MPI WORKER rank: runs the courtier2 worker loop (clientRun_ invokes
+    /** @brief Set on a courtier MPI WORKER rank: runs the courtier worker loop (clientRun_ invokes
      *  it instead of the legacy client). Type-erased so Go2.hpp needs no MPI headers; the captured
      *  consumer shared_ptr keeps the worker node alive. Empty on master / non-MPI / legacy paths. */
     std::function<void()> mpi_run_worker_;
     /** @brief The transport-agnostic spec for the chosen consumer, assembled from the command line in
      *  setupChosenConsumer(). Held so clientRun_() can build the matching networked client through the
-     *  courtier2 setup layer (buildConsumerClient) without re-touching the command line or the
+     *  courtier setup layer (buildConsumerClient) without re-touching the command line or the
      *  concrete consumer types. */
     ConsumerSpec consumer_spec_;
 

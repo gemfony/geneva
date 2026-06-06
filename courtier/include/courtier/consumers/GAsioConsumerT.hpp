@@ -53,13 +53,13 @@ namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
- * The courtier2 ASIO consumer. It is a TCP server that hands out work items from the current batch
+ * The courtier ASIO consumer. It is a TCP server that hands out work items from the current batch
  * to connected clients and collects the processed results, reconciling them against the submission
  * policy via the inherited GNetworkedConsumerT / GBaseConsumerT machinery.
  *
  * It deliberately reuses the existing courtier session (Gem::Courtier::Consumers::
  * GAsioConsumerSessionT) and its GCommandContainerT wire protocol, so an unmodified
- * Gem::Courtier::Consumers::GAsioConsumerClientT can serve a courtier2 server (the rework is
+ * Gem::Courtier::Consumers::GAsioConsumerClientT can serve a courtier server (the rework is
  * behaviour-neutral at the protocol level). Only the server lifecycle and the per-batch work
  * queue are new here.
  */

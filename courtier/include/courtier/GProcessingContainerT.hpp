@@ -430,8 +430,8 @@ public:
     /**
 	  * Checks whether the IGNORED flag is set
 	  */
-    bool is_ignored() const noexcept {
-        return (processingStatus::DO_IGNORE == this->getProcessingStatus());
+    bool is_unprocessed() const noexcept {
+        return (processingStatus::UNPROCESSED == this->getProcessingStatus());
     }
 
     /***************************************************************************/
@@ -479,7 +479,7 @@ public:
 	  *
 	  * @param target_ps The desired new processing status
 	  */
-    void set_processing_status(processingStatus target_ps = processingStatus::DO_IGNORE) {
+    void set_processing_status(processingStatus target_ps = processingStatus::UNPROCESSED) {
         // Do nothing if the new state is equal to the old one
         if(target_ps == processing_status_) {
             return;
@@ -500,7 +500,7 @@ public:
             using enum Gem::Courtier::processingStatus;
             //------------------------------------------------------------------------------------
 
-        case DO_IGNORE:
+        case UNPROCESSED:
             if(target_ps == processingStatus::DO_PROCESS) {
                 // Store the new state
                 processing_status_ = target_ps;
@@ -523,7 +523,7 @@ public:
             //------------------------------------------------------------------------------------
 
         case DO_PROCESS:
-            if(target_ps == processingStatus::DO_IGNORE) {
+            if(target_ps == processingStatus::UNPROCESSED) {
                 // Store the new state
                 processing_status_ = target_ps;
                 // Clear any remaining error messages
@@ -536,7 +536,7 @@ public:
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GProcessingContainerT<>::set_processing_status():" << '\n'
                     << "Got invalid target processing status " << psToStr(target_ps) << '\n'
-                    << "Expected a new state of DO_IGNORE for the" << '\n'
+                    << "Expected a new state of UNPROCESSED for the" << '\n'
                     << "current state of " << psToStr(processing_status_) << '\n'
                 );
             }
@@ -545,7 +545,7 @@ public:
             //------------------------------------------------------------------------------------
 
         case PROCESSED:
-            if(target_ps == processingStatus::DO_IGNORE ||
+            if(target_ps == processingStatus::UNPROCESSED ||
                target_ps == processingStatus::DO_PROCESS) {
                 // Store the new state
                 processing_status_ = target_ps;
@@ -559,7 +559,7 @@ public:
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GProcessingContainerT<>::set_processing_status():" << '\n'
                     << "Got invalid target processing status " << psToStr(target_ps) << '\n'
-                    << "Expected a new state of DO_IGNORE or DO_PROCESS for the" << '\n'
+                    << "Expected a new state of UNPROCESSED or DO_PROCESS for the" << '\n'
                     << "current state of " << psToStr(processing_status_) << '\n'
                 );
             }
@@ -569,7 +569,7 @@ public:
 
         case EXCEPTION_CAUGHT:
         case ERROR_FLAGGED:
-            if(target_ps == processingStatus::DO_IGNORE ||
+            if(target_ps == processingStatus::UNPROCESSED ||
                target_ps == processingStatus::DO_PROCESS) {
                 // Store the new state
                 processing_status_ = target_ps;
@@ -583,7 +583,7 @@ public:
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GProcessingContainerT<>::set_processing_status():" << '\n'
                     << "Got invalid target processing status " << psToStr(target_ps) << '\n'
-                    << "Expected a new state of DO_IGNORE or DO_PROCESS for the" << '\n'
+                    << "Expected a new state of UNPROCESSED or DO_PROCESS for the" << '\n'
                     << "current state of " << psToStr(processing_status_) << '\n'
                 );
             }
@@ -606,7 +606,7 @@ public:
 	  * Sets the IGNORE flag for this work item so that it will not be processed.
 	  */
     void mark_as_ignorable() {
-        processing_status_ = processingStatus::DO_IGNORE;
+        processing_status_ = processingStatus::UNPROCESSED;
     }
 
     /***************************************************************************/
@@ -661,7 +661,7 @@ public:
     /**
 	  * Sets the transport correlation id -- the token used to route/match a work item through the
 	  * transport layer (the originating buffer-port index in the courtier broker; a (generation,
-	  * slot) token in the courtier2 networked consumers).
+	  * slot) token in the courtier networked consumers).
 	  */
     void setCorrelationId(const BUFFERPORT_ID_TYPE &id) noexcept {
         correlation_id_ = id;
@@ -677,7 +677,7 @@ public:
 
     /***************************************************************************/
     /**
-	  * Sets the courtier2 per-batch scheduling state. This is transient, server-side-only
+	  * Sets the courtier per-batch scheduling state. This is transient, server-side-only
 	  * bookkeeping (NOT serialized): it lets a networked consumer track, on the item itself,
 	  * whether the slot is awaiting a client / in flight / done within one dispatch round.
 	  */
@@ -687,7 +687,7 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the courtier2 per-batch scheduling state (see setDispatchState()).
+	  * Retrieves the courtier per-batch scheduling state (see setDispatchState()).
 	  */
     dispatchState getDispatchState() const noexcept {
         return dispatch_state_;
@@ -805,7 +805,7 @@ public:
 	  *
 	  * @param ps The desired new processing status
 	  */
-    std::string get_and_clear_exceptions(processingStatus ps = processingStatus::DO_IGNORE) {
+    std::string get_and_clear_exceptions(processingStatus ps = processingStatus::UNPROCESSED) {
         std::string stored_exceptions =
             stored_error_descriptions_; // NOLINT(cppcoreguidelines-init-variables)
         this->set_processing_status(ps);
@@ -1037,7 +1037,7 @@ private:
     COLLECTION_POSITION_TYPE collection_position_ = static_cast<COLLECTION_POSITION_TYPE>(0);
     BUFFERPORT_ID_TYPE correlation_id_ = BUFFERPORT_ID_TYPE();
 
-    /// Transient, server-side-only per-batch scheduling state for the courtier2 networked consumers.
+    /// Transient, server-side-only per-batch scheduling state for the courtier networked consumers.
     /// Deliberately NOT part of serialize()/load_ (the wire/clone never needs it; see dispatchState).
     dispatchState dispatch_state_ = dispatchState::NONE;
 
@@ -1074,7 +1074,7 @@ private:
     std::string
         stored_error_descriptions_; ///< Stores exceptions that may have occurred during processing
     processingStatus processing_status_ =
-        processingStatus::DO_IGNORE; ///< By default no processing is initiated
+        processingStatus::UNPROCESSED; ///< By default no processing is initiated
 
     // std::string evaluation_id_ = "empty"; ///< A unique id that is assigned to an evaluation
 };

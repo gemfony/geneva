@@ -116,8 +116,8 @@ std::vector<bool> getBooleanMask(std::size_t vec_size, std::size_t start, std::s
 std::string psToStr(const processingStatus &ps) {
     switch(ps) {
         using enum Gem::Courtier::processingStatus;
-    case DO_IGNORE:
-        return "DO_IGNORE";
+    case UNPROCESSED:
+        return "UNPROCESSED";
 
     case DO_PROCESS:
         return "DO_PROCESS";

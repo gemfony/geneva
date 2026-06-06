@@ -37,14 +37,14 @@
 // Default values for the consumer command-line options.
 #include "courtier/GCourtierEnums.hpp"
 
-// The concrete courtier2 consumers -- known ONLY here.
+// The concrete courtier consumers -- known ONLY here.
 #include "courtier/consumers/GAsioConsumerT.hpp"
 #include "courtier/consumers/GMPIConsumerT.hpp" // self-guarded by GENEVA_BUILD_WITH_MPI_CONSUMER
 #include "courtier/consumers/GSerialConsumerT.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
 #include "courtier/consumers/GWebsocketConsumerT.hpp"
 
-// The networked clients are wire-compatible with the courtier2 socket servers and are reused as-is;
+// The networked clients are wire-compatible with the courtier socket servers and are reused as-is;
 // like the consumers, the concrete client types are known ONLY here.
 #include "courtier/transport/GAsioTransportT.hpp"     // GAsioConsumerClientT
 #include "courtier/transport/GWebsocketTransportT.hpp" // GWebsocketClientT
@@ -203,12 +203,12 @@ struct C2ConsumerInfo {
 };
 
 constexpr C2ConsumerInfo kC2Consumers[] = {
-    {"sc", "GSerialConsumerT (courtier2)", false},
-    {"stc", "GStdThreadConsumerT (courtier2)", false},
-    {"asio", "GAsioConsumerT (courtier2)", true},
-    {"beast", "GWebsocketConsumerT (courtier2)", true},
+    {"sc", "GSerialConsumerT", false},
+    {"stc", "GStdThreadConsumerT", false},
+    {"asio", "GAsioConsumerT", true},
+    {"beast", "GWebsocketConsumerT", true},
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
-    {"mpi", "GMPIConsumerT (courtier2)", true},
+    {"mpi", "GMPIConsumerT", true},
 #endif /* GENEVA_BUILD_WITH_MPI_CONSUMER */
 };
 
@@ -276,7 +276,7 @@ void addConsumerOptions(
         "\t[stc] A debugging option toggling timeouts in the executor");
 
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
-    // [mpi] -- accepted for command-line compatibility; the courtier2 mpi path currently uses its own
+    // [mpi] -- accepted for command-line compatibility; the courtier mpi path currently uses its own
     // defaults for these (per-option passthrough is a planned refinement).
     visible.add_options()(
         "mpi_asyncReq", po::value<bool>()->default_value(true),

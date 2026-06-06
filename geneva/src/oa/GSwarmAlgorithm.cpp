@@ -1324,7 +1324,7 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     using namespace Gem::Courtier;
 
     //--------------------------------------------------------------------------------
-    // Submit work items and wait for results (courtier2 marks + reconciles the whole population).
+    // Submit work items and wait for results (courtier marks + reconciles the whole population).
     auto status = this->workOn(this->data_cnt_, 0, this->data_cnt_.size());
 
     // Retrieve a vector of old work items

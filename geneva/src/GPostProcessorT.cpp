@@ -245,7 +245,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gpar::GParameterSet &p
     oa::GEvolutionaryAlgorithmFactory ea_factory(oa_config_file_);
     auto ea_ptr = ea_factory.get<oa::GEvolutionaryAlgorithm>();
 
-    // Submit the post-optimization through a courtier2 LOCAL consumer (post-processing refines each
+    // Submit the post-optimization through a courtier LOCAL consumer (post-processing refines each
     // individual locally): SERIAL -> inline, anything else -> multithreaded.
     ea_ptr->setLocalConsumer(
         execution_mode_ == execMode::SERIAL

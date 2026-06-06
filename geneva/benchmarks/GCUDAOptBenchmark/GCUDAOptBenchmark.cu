@@ -50,7 +50,7 @@
 
 /******************************************************************************/
 /**
- * @brief Builds a courtier2 broker holding the GPU batch consumer.
+ * @brief Builds a courtier broker holding the GPU batch consumer.
  *
  * Called from GCUDAOptBenchmarkMain.cpp::main() after GenevaInitializer has been constructed there.
  * The returned broker is handed to GAlgorithmBenchmarkRunner, which injects it into each algorithm

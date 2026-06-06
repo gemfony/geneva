@@ -389,7 +389,7 @@ int main(int argc, char **argv) {
     std::shared_ptr<oa::GEvolutionaryAlgorithm> pop_ptr(new oa::GEvolutionaryAlgorithm());
 
     // All three modes are LOCAL here (the "broker" mode used a local thread consumer too); route them
-    // through courtier2's local consumers. Serial -> inline, the others -> multithreaded.
+    // through courtier's local consumers. Serial -> inline, the others -> multithreaded.
     switch(parallelizationMode) {
     case execMode::SERIAL: // Serial (inline) execution
         std::cout << "Using serial execution." << std::endl;
@@ -403,7 +403,7 @@ int main(int argc, char **argv) {
         break;
 
     case execMode::BROKER: // Historically a local thread consumer behind the broker -- still local.
-        std::cout << "Using a local multi-threaded courtier2 consumer." << std::endl;
+        std::cout << "Using a local multi-threaded courtier consumer." << std::endl;
         pop_ptr->setLocalConsumer(
             oa::local_consumer_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
         break;

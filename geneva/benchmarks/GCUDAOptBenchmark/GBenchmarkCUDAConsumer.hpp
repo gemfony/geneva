@@ -49,9 +49,9 @@ namespace Gem::Geneva::Benchmarks {
 
 /******************************************************************************/
 /**
- * @brief GPU batch consumer for GFunctionIndividual (courtier2).
+ * @brief GPU batch consumer for GFunctionIndividual (courtier).
  *
- * A courtier2 local consumer: courtier2 hands dispatch_() the WHOLE round's batch (a vector of work
+ * A courtier local consumer: courtier hands dispatch_() the WHOLE round's batch (a vector of work
  * items) at once, so the GPU evaluates an entire population in one kernel launch -- the manual
  * batch-accumulation machinery (the broker get/put stream, batchSize_/flushTimeout_, the worker
  * thread) the old broker-stream consumer needed simply disappears. The persistent
@@ -61,11 +61,11 @@ namespace Gem::Geneva::Benchmarks {
  * demoFunction (the kernel funcId) and the double parameters. The pre-computed GPU fitness is
  * injected via individual->process(vector<parameterset_processing_result>{fitness}) -- the pattern
  * from examples/geneva/15_GCUDAWorker -- which performs all Geneva bookkeeping (leaving the item
- * PROCESSED, which is what courtier2's reconciliation reads) without triggering fitnessCalculation().
+ * PROCESSED, which is what courtier's reconciliation reads) without triggering fitnessCalculation().
  * GFunctionIndividual itself is not modified and remains CPU-runnable.
  *
  * Wiring (see GCUDAOptBenchmark.cu / GAlgorithmBenchmarkRunner): the benchmark registers this consumer
- * with a courtier2 GBrokerT and injects that broker into each algorithm via setBroker(),
+ * with a courtier GBrokerT and injects that broker into each algorithm via setBroker(),
  * rather than enrolling with the old singleton broker.
  */
 class GCUDABatchConsumer

@@ -285,7 +285,7 @@ int main(int argc, char **argv) {
     // If this is a client in networked mode, we can just start the listener and
     // return when it has finished
     if(execMode::BROKER == parallelizationMode && !serverMode) {
-        // Build the networked client through the courtier2 setup layer. The single mnemonic below
+        // Build the networked client through the courtier setup layer. The single mnemonic below
         // drives both this client and the server below -- change it (e.g. to "beast") in both places to
         // switch transport, with no other code change.
         ConsumerSpec spec;
@@ -333,7 +333,7 @@ int main(int argc, char **argv) {
         pop_ptr->push_back(ind);
     }
 
-    // Route submission through courtier2, depending on the parallelisation mode.
+    // Route submission through courtier, depending on the parallelisation mode.
     switch(parallelizationMode) {
     //----------------------------------------------------------------------------
     case execMode::SERIAL: // Serial (inline) execution
@@ -354,7 +354,7 @@ int main(int argc, char **argv) {
                 oa::local_consumer_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
         }
         else {
-            // Build a courtier2 ASIO server via the shared factory; the clients started above (built by
+            // Build a courtier ASIO server via the shared factory; the clients started above (built by
             // buildConsumerClient for the same mnemonic) connect to it.
             Gem::Geneva::ConsumerSpec spec;
             spec.mnemonic           = "asio";

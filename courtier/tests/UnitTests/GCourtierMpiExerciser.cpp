@@ -28,7 +28,7 @@
  ********************************************************************************/
 
 /**
- * Multi-process exerciser for the courtier2 MPI consumer. It cannot be an in-process Catch2 test
+ * Multi-process exerciser for the courtier MPI consumer. It cannot be an in-process Catch2 test
  * (MPI fixes the rank layout at launch), so it is launched by CTest via `mpirun -np N`: rank 0 is
  * the master (it registers the consumer, serves work and drives the batch through the span+policy
  * executor); every other rank is a worker. The master prints OK / FAIL and returns 0 only when

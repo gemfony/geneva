@@ -90,7 +90,7 @@ static MPI_Comm MPI_COMMUNICATOR =
  * Initializes MPI with MPI_THREAD_MULTIPLE if it has not been initialized yet. Returns true iff this
  * call performed the initialization (so the caller knows whether it owns the matching MPI_Finalize).
  * Relocated from the former GMPIConsumerT consumer class so it survives that class's removal; used by
- * the courtier2 MPI consumer and the MPI sub-client optimizer.
+ * the courtier MPI consumer and the MPI sub-client optimizer.
  */
 inline bool initializeMPI(int *argc = nullptr, char ***argv = nullptr) {
     int isAlreadyInitialized{0};
@@ -1155,9 +1155,9 @@ private:
          * @return A work item (possibly empty)
          */
     std::shared_ptr<processable_type> getPayloadItem() {
-        // If an external source has been injected (e.g. the courtier2 reconcile-the-span path),
+        // If an external source has been injected (e.g. the courtier reconcile-the-span path),
         // use it instead of the broker. Default (no functor set) is the original broker behaviour.
-        // The courtier2 consumer always injects a source via setPayloadFunctors(); the former broker
+        // The courtier consumer always injects a source via setPayloadFunctors(); the former broker
         // fallback was removed together with the legacy broker. An unset source yields no item.
         if(getPayloadItemFn_) {
             return getPayloadItemFn_();
@@ -1178,7 +1178,7 @@ private:
             );
         }
 
-        // The courtier2 consumer always injects a sink via setPayloadFunctors(); the former broker
+        // The courtier consumer always injects a sink via setPayloadFunctors(); the former broker
         // fallback was removed together with the legacy broker.
         if(putPayloadItemFn_) {
             putPayloadItemFn_(p);
@@ -1189,7 +1189,7 @@ public:
     //-------------------------------------------------------------------------
     /**
          * Injects an external source/sink for work items, bypassing the broker. This is the seam the
-         * courtier2 networked-consumer path uses to drive the MPI master node from a span+policy
+         * courtier networked-consumer path uses to drive the MPI master node from a span+policy
          * batch instead of the broker's buffer ports. With no functors set the node behaves exactly
          * as before (broker-backed), so this is behaviour-neutral for existing callers.
          */
@@ -1229,7 +1229,7 @@ private:
     // whether a stop request for the GMPIConsumerT has been received
     std::atomic_bool isToldToStop_;
     // whether the stop request has been sent to all clients
-    /// External source/sink injected by the courtier2 consumer via setPayloadFunctors().
+    /// External source/sink injected by the courtier consumer via setPayloadFunctors().
     std::function<std::shared_ptr<processable_type>()> getPayloadItemFn_;
     std::function<void(std::shared_ptr<processable_type>)> putPayloadItemFn_;
 };

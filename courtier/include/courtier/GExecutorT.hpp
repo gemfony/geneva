@@ -45,7 +45,7 @@ namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
- * The courtier2 executor. In the original courtier there were three executors (serial / MT /
+ * The executor. The original (pre-rework) courtier had three executors (serial / MT /
  * broker) each with its own resubmission logic; here a single thin executor hands the whole batch
  * -- a std::span over the population slice the algorithm wants evaluated -- to the broker's single
  * consumer, which reconciles it against the submission policy. Because every failure policy

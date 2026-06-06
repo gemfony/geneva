@@ -110,7 +110,7 @@ GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(
     // Create algorithm from factory + config file
     auto alg = makeAlgorithm(entry);
 
-    // Submit this algorithm's populations to the GPU consumer (courtier2): inject the shared broker
+    // Submit this algorithm's populations to the GPU consumer (courtier): inject the shared broker
     // so workOn() routes through it instead of the legacy executor.
     alg->setBroker(cudaBroker_);
 

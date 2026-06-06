@@ -285,7 +285,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             CHECK_NOTHROW(p_test->customAdaptions());
             // The dirty flag should not have been set yet (done in adapt() )
             INFO("Processing status = " << p_test->getProcessingStatusAsStr() << ", i = " << i);
-            CHECK((p_test->is_processed() || p_test->is_ignored()));
+            CHECK((p_test->is_processed() || p_test->is_unprocessed()));
             // Set the flag manually
             CHECK_NOTHROW(p_test->mark_as_due_for_processing());
             // Check that the dirty flag has indeed been set
@@ -352,7 +352,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure the individual is clean
-        CHECK_NOTHROW(p_test->is_processed() || p_test->is_ignored());
+        CHECK_NOTHROW(p_test->is_processed() || p_test->is_unprocessed());
 
         // Set the dirty flag
         CHECK_NOTHROW(p_test->mark_as_due_for_processing());
@@ -382,7 +382,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure the individual is clean
-        CHECK_NOTHROW(p_test->is_ignored() || p_test->is_processed());
+        CHECK_NOTHROW(p_test->is_unprocessed() || p_test->is_processed());
 
         // Set the dirty flag
         CHECK_NOTHROW(p_test->mark_as_due_for_processing());
@@ -409,7 +409,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure the individual is clean
-        CHECK_NOTHROW(p_test->is_ignored() || p_test->is_processed());
+        CHECK_NOTHROW(p_test->is_unprocessed() || p_test->is_processed());
 
         // Set the dirty flag
         CHECK_NOTHROW(p_test->mark_as_due_for_processing());

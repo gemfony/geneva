@@ -28,7 +28,7 @@
  ********************************************************************************/
 
 /**
- * Tier-2 loopback tests for the courtier2 ASIO consumer: a real TCP server (the courtier2
+ * Tier-2 loopback tests for the courtier ASIO consumer: a real TCP server (the courtier
  * GAsioConsumerT) driven by the span+policy executor, served by one or more unmodified existing
  * courtier ASIO clients over loopback sockets. Verifies that every item makes the full
  * server->client->server round-trip and is reconciled into the batch, that several clients can
@@ -85,7 +85,7 @@ std::size_t count_processed(const std::vector<item_ptr> &v) {
     return c;
 }
 
-/** @brief Runs @p n_clients reused courtier ASIO clients against a courtier2 server, drives the
+/** @brief Runs @p n_clients reused courtier ASIO clients against a courtier server, drives the
  *  batch through the executor, then tears everything down cleanly. */
 void run_over_sockets(std::vector<item_ptr> &items, const c2::GSubmissionPolicy &policy,
                       std::size_t n_clients = 1) {
@@ -133,22 +133,22 @@ void run_over_sockets(std::vector<item_ptr> &items, const c2::GSubmissionPolicy 
 
 /******************************************************************************/
 
-TEST_CASE("courtier2(asio): a clean batch is fully evaluated over real sockets",
-          "[courtier2][asio][net]") {
+TEST_CASE("courtier(asio): a clean batch is fully evaluated over real sockets",
+          "[courtier][asio][net]") {
     auto items = make_batch(120);
     run_over_sockets(items, c2::GSubmissionPolicy::full_success_or_fatal());
     CHECK(items.size() == 120);
     CHECK(count_processed(items) == 120);
 }
 
-TEST_CASE("courtier2(asio): several clients share the batch", "[courtier2][asio][net]") {
+TEST_CASE("courtier(asio): several clients share the batch", "[courtier][asio][net]") {
     auto items = make_batch(200);
     run_over_sockets(items, c2::GSubmissionPolicy::full_success_or_fatal(), /*n_clients=*/4);
     CHECK(count_processed(items) == 200);
 }
 
-TEST_CASE("courtier2(asio): throwing items are refilled under clone-on-partial-return",
-          "[courtier2][asio][net]") {
+TEST_CASE("courtier(asio): throwing items are refilled under clone-on-partial-return",
+          "[courtier][asio][net]") {
     auto items = make_batch(60, {3, 11, 27, 48}, fault_mode::THROW_PROCESSING);
     run_over_sockets(items, c2::GSubmissionPolicy::clone_on_partial_return(), /*n_clients=*/2);
     CHECK(items.size() == 60);

@@ -51,7 +51,7 @@ namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
- * Base class for networked courtier2 consumers (ASIO, websocket, MPI). It owns the work machinery
+ * Base class for networked courtier consumers (ASIO, websocket, MPI). It owns the work machinery
  * that turns the synchronous reconcile-the-span contract of GBaseConsumerT into the asynchronous,
  * checkout/return world of remote clients -- and it does so for MANY concurrent submitters at once
  * (the fan-in design), so a population of optimization algorithms can each submit to the SAME shared

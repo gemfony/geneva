@@ -53,7 +53,7 @@ namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
- * Base class for courtier2 consumers. A consumer is handed a *batch* -- a std::span over the
+ * Base class for courtier consumers. A consumer is handed a *batch* -- a std::span over the
  * population slice to evaluate -- together with a GSubmissionPolicy, and is SOLELY responsible
  * for turning that span into a fully, successfully evaluated population (or for terminating the
  * program when the policy cannot be honoured). There is no "guaranteed full return" assumption

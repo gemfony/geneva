@@ -28,8 +28,8 @@
  ********************************************************************************/
 
 /**
- * Tier-2 loopback tests for the courtier2 websocket consumer, mirroring the ASIO tests: a real
- * websocket server (the courtier2 GWebsocketConsumerT) driven by the span+policy executor and
+ * Tier-2 loopback tests for the courtier websocket consumer, mirroring the ASIO tests: a real
+ * websocket server (the courtier GWebsocketConsumerT) driven by the span+policy executor and
  * served by one or more unmodified existing courtier websocket clients over loopback.
  */
 
@@ -131,22 +131,22 @@ void run_over_sockets(std::vector<item_ptr> &items, const c2::GSubmissionPolicy 
 
 /******************************************************************************/
 
-TEST_CASE("courtier2(websocket): a clean batch is fully evaluated over real sockets",
-          "[courtier2][websocket][net]") {
+TEST_CASE("courtier(websocket): a clean batch is fully evaluated over real sockets",
+          "[courtier][websocket][net]") {
     auto items = make_batch(120);
     run_over_sockets(items, c2::GSubmissionPolicy::full_success_or_fatal());
     CHECK(items.size() == 120);
     CHECK(count_processed(items) == 120);
 }
 
-TEST_CASE("courtier2(websocket): several clients share the batch", "[courtier2][websocket][net]") {
+TEST_CASE("courtier(websocket): several clients share the batch", "[courtier][websocket][net]") {
     auto items = make_batch(200);
     run_over_sockets(items, c2::GSubmissionPolicy::full_success_or_fatal(), /*n_clients=*/4);
     CHECK(count_processed(items) == 200);
 }
 
-TEST_CASE("courtier2(websocket): throwing items are refilled under clone-on-partial-return",
-          "[courtier2][websocket][net]") {
+TEST_CASE("courtier(websocket): throwing items are refilled under clone-on-partial-return",
+          "[courtier][websocket][net]") {
     auto items = make_batch(60, {3, 11, 27, 48}, fault_mode::THROW_PROCESSING);
     run_over_sockets(items, c2::GSubmissionPolicy::clone_on_partial_return(), /*n_clients=*/2);
     CHECK(items.size() == 60);

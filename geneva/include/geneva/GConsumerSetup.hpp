@@ -48,16 +48,16 @@
 
 namespace Gem::Courtier {
 template <typename processable_type>
-class GBaseClientT; // the networked client base (wire-compatible with the courtier2 socket servers)
+class GBaseClientT; // the networked client base (wire-compatible with the courtier socket servers)
 } /* namespace Gem::Courtier */
 
 namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
- * A transport-agnostic description of the courtier2 consumer to build, assembled from configuration
+ * A transport-agnostic description of the courtier consumer to build, assembled from configuration
  * / command-line parameters by the caller (Go2 or a standalone example). Keeps the caller free of the
- * concrete courtier2 consumer types -- those are known only to buildConsumerSetup().
+ * concrete courtier consumer types -- those are known only to buildConsumerSetup().
  */
 struct ConsumerSpec {
     std::string mnemonic;            ///< "sc" | "stc" | "asio" | "beast" | "mpi"
@@ -73,7 +73,7 @@ struct ConsumerSpec {
 
 /******************************************************************************/
 /**
- * The result of building a courtier2 setup for the current process.
+ * The result of building a courtier setup for the current process.
  */
 struct ConsumerSetup {
     /** @brief A ready broker (consumer registered, clone function set, server started for networked
@@ -87,12 +87,12 @@ struct ConsumerSetup {
 
 /******************************************************************************/
 /**
- * Builds a courtier2 setup from @p spec: constructs the matching courtier2 consumer, sets the
+ * Builds a courtier setup from @p spec: constructs the matching courtier consumer, sets the
  * polymorphic GParameterSet clone function (required by clone-on-partial-return), registers it with a
  * fresh single-consumer broker, and -- for networked consumers -- starts the server (for MPI only on
  * the master rank; a worker rank yields a run_worker loop and a null broker instead).
  *
- * This is the SINGLE place that knows the concrete courtier2 consumer types, so callers (Go2 and the
+ * This is the SINGLE place that knows the concrete courtier consumer types, so callers (Go2 and the
  * standalone examples) share one construction path and stay free of consumer specifics. An unknown
  * mnemonic yields an empty setup (both fields null).
  */
@@ -125,7 +125,7 @@ buildConsumerClient(const ConsumerSpec &spec);
 
 /******************************************************************************/
 /**
- * Registers the command-line options for every supported courtier2 consumer (asio/beast/stc, and mpi
+ * Registers the command-line options for every supported courtier consumer (asio/beast/stc, and mpi
  * when built) into @p visible / @p hidden. This is the single place that owns the consumer option
  * surface, so callers (Go2) register them without iterating a consumer store. specFromCommandLine()
  * reads the matching values back out of the parsed map.

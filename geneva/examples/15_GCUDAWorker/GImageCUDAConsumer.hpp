@@ -63,15 +63,15 @@ constexpr bool GIC_DEF_USEGPU{true};
 
 /******************************************************************************/
 /**
- * A courtier2 local consumer that evaluates GImageIndividuals on the GPU (the courtier2 replacement
- * for the former GImageCUDAWorker + legacy GStdThreadConsumerT). courtier2 hands dispatch_() the whole
+ * A courtier local consumer that evaluates GImageIndividuals on the GPU (the courtier replacement
+ * for the former GImageCUDAWorker + legacy GStdThreadConsumerT). courtier hands dispatch_() the whole
  * round's batch at once; a single persistent GImageIndividualEvaluator (created lazily from the first
  * individual, which fixes the image dimensions) is reused across all items and generations, holding
  * its GPU memory + CUDA stream for the consumer's lifetime. evaluate() injects the fitness via the
- * individual's process(result) call, which also leaves the item PROCESSED -- exactly what courtier2's
+ * individual's process(result) call, which also leaves the item PROCESSED -- exactly what courtier's
  * reconciliation reads -- so dispatch_ needs to do nothing else.
  *
- * Wiring (see GImageBuilder.cpp): the example registers this consumer with a courtier2 GBrokerT and
+ * Wiring (see GImageBuilder.cpp): the example registers this consumer with a courtier GBrokerT and
  * hands that broker to Go2 via Go2::registerBroker(), rather than enrolling a worker with the
  * old broker. The evaluation is sequential on one GPU; the former multi-worker model is not needed for
  * a single device (a thread-pool of per-thread evaluators could be reintroduced later if it pays off).

@@ -28,7 +28,7 @@
  ********************************************************************************/
 
 /**
- * Tier-1 unit tests for the courtier2 submission path: the local (multi-threaded) consumer
+ * Tier-1 unit tests for the courtier submission path: the local (multi-threaded) consumer
  * driving GBaseConsumerT::processBatch() against the various submission policies, using the
  * GFaultyContainer test double to exhibit success / clean error flag / throwing evaluations.
  *
@@ -105,7 +105,7 @@ std::size_t count_processed(const std::vector<item_ptr> &v) {
 
 /******************************************************************************/
 
-TEST_CASE("courtier2: a clean batch is fully evaluated", "[courtier2][policy]") {
+TEST_CASE("courtier: a clean batch is fully evaluated", "[courtier][policy]") {
     LocalFixture f;
     auto batch = make_batch(16);
 
@@ -115,7 +115,7 @@ TEST_CASE("courtier2: a clean batch is fully evaluated", "[courtier2][policy]") 
     CHECK(count_processed(batch) == 16);
 }
 
-TEST_CASE("courtier2: size is preserved across all policies", "[courtier2][policy]") {
+TEST_CASE("courtier: size is preserved across all policies", "[courtier][policy]") {
     LocalFixture f;
     auto batch = make_batch(10, {2, 5, 9}, fault_mode::THROW_PROCESSING);
 
@@ -125,7 +125,7 @@ TEST_CASE("courtier2: size is preserved across all policies", "[courtier2][polic
     CHECK(batch.size() == 10);
 }
 
-TEST_CASE("courtier2: clone-on-partial-return refills throwing slots", "[courtier2][policy]") {
+TEST_CASE("courtier: clone-on-partial-return refills throwing slots", "[courtier][policy]") {
     LocalFixture f;
     auto batch = make_batch(12, {1, 4, 7, 11}, fault_mode::THROW_PROCESSING);
 
@@ -135,7 +135,7 @@ TEST_CASE("courtier2: clone-on-partial-return refills throwing slots", "[courtie
     CHECK(count_processed(batch) == 12);
 }
 
-TEST_CASE("courtier2: clone-on-partial-return handles a clean-error flag", "[courtier2][policy]") {
+TEST_CASE("courtier: clone-on-partial-return handles a clean-error flag", "[courtier][policy]") {
     LocalFixture f;
     auto batch = make_batch(8, {3, 6}, fault_mode::FLAG_ERROR);
 
@@ -144,7 +144,7 @@ TEST_CASE("courtier2: clone-on-partial-return handles a clean-error flag", "[cou
     CHECK(count_processed(batch) == 8);
 }
 
-TEST_CASE("courtier2: a single-item clean batch works", "[courtier2][policy]") {
+TEST_CASE("courtier: a single-item clean batch works", "[courtier][policy]") {
     LocalFixture f;
     auto batch = make_batch(1);
 
@@ -153,7 +153,7 @@ TEST_CASE("courtier2: a single-item clean batch works", "[courtier2][policy]") {
     CHECK(count_processed(batch) == 1);
 }
 
-TEST_CASE("courtier2: an empty batch is a no-op", "[courtier2][policy]") {
+TEST_CASE("courtier: an empty batch is a no-op", "[courtier][policy]") {
     LocalFixture f;
     std::vector<item_ptr> batch;
 
@@ -162,7 +162,7 @@ TEST_CASE("courtier2: an empty batch is a no-op", "[courtier2][policy]") {
     CHECK(batch.empty());
 }
 
-TEST_CASE("courtier2: a mostly-faulty batch still recovers via cloning", "[courtier2][policy]") {
+TEST_CASE("courtier: a mostly-faulty batch still recovers via cloning", "[courtier][policy]") {
     LocalFixture f;
     // 9 of 10 throw; the lone survivor seeds the clones.
     auto batch = make_batch(10, {0, 1, 2, 3, 4, 5, 6, 8, 9}, fault_mode::THROW_PROCESSING);
@@ -179,8 +179,8 @@ using local_consumers =
     std::tuple<GSerialConsumerT<GFaultyContainer>, GStdThreadConsumerT<GFaultyContainer>>;
 
 TEMPLATE_LIST_TEST_CASE(
-    "courtier2: every local consumer honours the reconciliation contract",
-    "[courtier2][policy][consumers]",
+    "courtier: every local consumer honours the reconciliation contract",
+    "[courtier][policy][consumers]",
     local_consumers
 ) {
     LocalFixtureT<TestType> f;

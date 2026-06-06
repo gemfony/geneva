@@ -51,7 +51,7 @@
 // The individual that should be optimized
 #include "GImageIndividual.hpp"
 
-// The courtier2 GPU consumer for GImageIndividuals
+// The courtier GPU consumer for GImageIndividuals
 #include "GImageCUDAConsumer.hpp"
 
 // Information retrieval and printing
@@ -332,7 +332,7 @@ int main(int argc, char **argv) {
         emitBestOnly
     );
 
-    // Build the GPU image consumer and wrap it in a courtier2 broker. The polymorphic clone function
+    // Build the GPU image consumer and wrap it in a courtier broker. The polymorphic clone function
     // is needed by the clone-on-partial-return policy the evolutionary algorithm uses.
     auto cudaConsumer_ptr =
         std::make_shared<Gem::Geneva::GImageCUDAConsumer>("./config/GImageCUDAWorker.json");

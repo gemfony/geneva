@@ -53,14 +53,14 @@ namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
- * The courtier2 websocket consumer. Functionally the websocket twin of GAsioConsumerT: a TCP server
+ * The courtier websocket consumer. Functionally the websocket twin of GAsioConsumerT: a TCP server
  * whose accepted connections are upgraded to websocket sessions (with keep-alive ping/pong) that
  * hand out work from the current batch and collect results, reconciled via the inherited
  * GNetworkedConsumerT / GBaseConsumerT machinery.
  *
  * As with the ASIO consumer it reuses the existing courtier session
  * (Gem::Courtier::Consumers::GWebsocketConsumerSessionT) and GCommandContainerT wire protocol, so an
- * unmodified Gem::Courtier::Consumers::GWebsocketClientT serves a courtier2 server.
+ * unmodified Gem::Courtier::Consumers::GWebsocketClientT serves a courtier server.
  */
 template <typename processable_type>
 class GWebsocketConsumerT final

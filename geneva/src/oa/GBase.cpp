@@ -1468,17 +1468,17 @@ Gem::Courtier::executor_status_t GBase::workOn(
     std::size_t start,
     std::size_t end
 ) {
-    // All submission goes through courtier2's span+policy path. init() guarantees a courtier2 routing
+    // All submission goes through courtier's span+policy path. init() guarantees a courtier routing
     // is selected (an injected broker, a chosen local kind, or the multithreaded default).
     return this->workOnViaConsumer_(work_items, start, end);
 }
 
 /******************************************************************************/
 /**
- * Submit through courtier2's span+policy executor. The algorithm passes the contiguous sub-range
+ * Submit through courtier's span+policy executor. The algorithm passes the contiguous sub-range
  * [start, end) it wants evaluated; we submit a std::span over exactly that range. The span aliases the
  * live population sub-range, so results -- and any cloned refills, written in place over the slot --
- * land directly in the population: no subset copy, no write-back, and no per-item DO_PROCESS/DO_IGNORE
+ * land directly in the population: no subset copy, no write-back, and no per-item DO_PROCESS/UNPROCESSED
  * flagging (the consumer marks the span DO_PROCESS internally). The policy is chosen per algorithm via
  * getSubmissionPolicy_(): clone-on-partial-return for the tolerant population-based OAs, full-success-
  * or-fatal for the need-all OAs.
@@ -1541,7 +1541,7 @@ Gem::Courtier::executor_status_t GBase::workOnViaConsumer_(
  * Retrieves a vector of old work items after job submission
  */
 std::vector<std::shared_ptr<gpar::GParameterSet>> GBase::getOldWorkItems() {
-    // courtier2 reconciles every slot in place, so there are never any "old" (late-returned) items to
+    // courtier reconciles every slot in place, so there are never any "old" (late-returned) items to
     // retrieve. (Capturing late returns for their quality is a planned future improvement.)
     return {};
 }
@@ -1726,8 +1726,8 @@ void GBase::resetStallCounter() {
  * as their first action, call this function.
  */
 void GBase::init() {
-    // courtier2 is the submission path. If no routing was injected (Go2, or setBroker /
-    // setLocalConsumer), default this algorithm to a courtier2 local multithreaded consumer
+    // courtier is the submission path. If no routing was injected (Go2, or setBroker /
+    // setLocalConsumer), default this algorithm to a courtier local multithreaded consumer
     // -- so a bare alg->optimize() works standalone, without Go2 and without enrolling a consumer.
     if(local_kind_ == local_consumer_kind::none && not external_broker_) {
         local_kind_ = local_consumer_kind::multithreaded; // 0 threads == hardware concurrency
@@ -1741,7 +1741,7 @@ void GBase::init() {
  * call this function as their last action.
  */
 void GBase::finalize() {
-    // Nothing to do: courtier2 needs no executor teardown (the consumer/broker are released by RAII).
+    // Nothing to do: courtier needs no executor teardown (the consumer/broker are released by RAII).
 }
 
 /******************************************************************************/

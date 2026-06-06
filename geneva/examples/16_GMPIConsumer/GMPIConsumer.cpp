@@ -242,7 +242,7 @@ int main(int argc, char **argv) {
     // Random numbers are our most valuable good. Set the number of threads
     randomFactory()->setNProducerThreads(nProducerThreads);
 
-    // Instantiate the MPI consumer through the shared courtier2 factory. It is built on every rank and
+    // Instantiate the MPI consumer through the shared courtier factory. It is built on every rank and
     // branches by rank: a worker yields a run_worker loop, the master a broker to submit through.
     auto mpiSetup = Gem::Geneva::buildConsumerSetup(Gem::Geneva::ConsumerSpec{.mnemonic = "mpi"});
 
@@ -284,7 +284,7 @@ int main(int argc, char **argv) {
         pop_ptr->push_back(i);
     }
 
-    // Submit through the courtier2 MPI master broker built above.
+    // Submit through the courtier MPI master broker built above.
     pop_ptr->setBroker(mpiSetup.broker);
 
     /****************************************************************************/

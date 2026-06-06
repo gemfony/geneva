@@ -28,7 +28,7 @@
  ********************************************************************************/
 
 /**
- * Tier-1 tests for the courtier2 Phase-5 machinery -- the adaptive timeout / death-detection (the
+ * Tier-1 tests for the courtier Phase-5 machinery -- the adaptive timeout / death-detection (the
  * reclaim lease + the explicit put-back) and the clone-from-template refill. The networked timeout
  * logic lives in GNetworkedConsumerT independently of any actual socket, so it is exercised here
  * deterministically by a test subclass acting as a simulated transport: a driver thread plays the
@@ -145,22 +145,22 @@ void run_with_misbehaviour(std::vector<item_ptr> &batch, misbehave mode, VictimP
 
 /******************************************************************************/
 
-TEST_CASE("courtier2(timeout): the reclaim lease recovers abandoned (dead-client) items",
-          "[courtier2][timeout]") {
+TEST_CASE("courtier(timeout): the reclaim lease recovers abandoned (dead-client) items",
+          "[courtier][timeout]") {
     auto batch = make_batch(40);
     run_with_misbehaviour(batch, misbehave::abandon, [](std::size_t id) { return id % 4 == 0; });
     CHECK(count_processed(batch) == 40); // every item came back despite the "deaths"
 }
 
-TEST_CASE("courtier2(timeout): an explicit requeue (session-death put-back) loses nothing",
-          "[courtier2][timeout]") {
+TEST_CASE("courtier(timeout): an explicit requeue (session-death put-back) loses nothing",
+          "[courtier][timeout]") {
     auto batch = make_batch(40);
     run_with_misbehaviour(batch, misbehave::requeue_it, [](std::size_t id) { return id % 3 == 0; });
     CHECK(count_processed(batch) == 40);
 }
 
-TEST_CASE("courtier2(timeout): every item abandoned once is still recovered",
-          "[courtier2][timeout]") {
+TEST_CASE("courtier(timeout): every item abandoned once is still recovered",
+          "[courtier][timeout]") {
     auto batch = make_batch(24);
     run_with_misbehaviour(batch, misbehave::abandon, [](std::size_t) { return true; });
     CHECK(count_processed(batch) == 24);
@@ -168,8 +168,8 @@ TEST_CASE("courtier2(timeout): every item abandoned once is still recovered",
 
 /******************************************************************************/
 
-TEST_CASE("courtier2(clone): unresolved slots are refilled from the supplied template",
-          "[courtier2][clone]") {
+TEST_CASE("courtier(clone): unresolved slots are refilled from the supplied template",
+          "[courtier][clone]") {
     // A representative, already-evaluated template the algorithm hands down.
     constexpr std::size_t TEMPLATE_ID = 9999;
     auto tmpl = std::make_shared<GFaultyContainer>(TEMPLATE_ID, fault_mode::NONE);

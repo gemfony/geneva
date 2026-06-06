@@ -174,7 +174,7 @@ private:
  */
 class GAlgorithmBenchmarkRunner {
 public:
-    /** @brief @p cudaBroker holds the courtier2 GPU consumer; it is injected into every algorithm
+    /** @brief @p cudaBroker holds the courtier GPU consumer; it is injected into every algorithm
      *  via setBroker() so each optimization submits its population to the GPU. */
     GAlgorithmBenchmarkRunner(
         BenchmarkConfig cfg,

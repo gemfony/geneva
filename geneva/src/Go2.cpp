@@ -35,7 +35,7 @@
 #include "common/GParserBuilder.hpp"
 #include "common/GProviderT.hpp"
 #include "courtier/GBaseClientT.hpp" // the networked client run by clientRun_ (built via the setup layer)
-// courtier2 consumer construction, the per-mnemonic command-line spec, the consumer option surface and
+// courtier consumer construction, the per-mnemonic command-line spec, the consumer option surface and
 // the networked client all live in the shared setup layer (buildConsumerSetup / specFromCommandLine /
 // addConsumerOptions / buildConsumerClient); Go2 no longer touches the concrete consumer
 // types or the consumer store at all.
@@ -100,7 +100,7 @@ Go2::Go2(
     //--------------------------------------------
     // The known optimization algorithms register themselves with the global factory store at
     // library-load time (see the self-registration helpers in each factory's .cpp). Consumers are
-    // built on demand by the courtier2 setup layer. The GenevaInitializer member gi_ performs the
+    // built on demand by the courtier setup layer. The GenevaInitializer member gi_ performs the
     // required runtime initialization (random factory) via its constructor / destructor.
 
     //--------------------------------------------
@@ -233,15 +233,15 @@ int Go2::clientRun() {
 }
 
 int Go2::clientRun_() {
-    // On an MPI worker rank routed through courtier2, serve work through the courtier2 worker node
+    // On an MPI worker rank routed through courtier, serve work through the courtier worker node
     // (held type-erased from setupChosenConsumer) instead of a networked client.
     if(mpi_run_worker_) {
         mpi_run_worker_();
         return 0;
     }
 
-    // Build the networked client for the chosen consumer through the courtier2 setup layer, from the
-    // spec assembled in setupChosenConsumer(). The client is wire-compatible with the courtier2 socket
+    // Build the networked client for the chosen consumer through the courtier setup layer, from the
+    // spec assembled in setupChosenConsumer(). The client is wire-compatible with the courtier socket
     // server. Go2 thus stays free of the concrete consumer/client types and the consumer store.
     std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GParameterSet>> p =
         Gem::Geneva::buildConsumerClient(consumer_spec_);
@@ -542,8 +542,8 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
     sorted_           = false;
     bool is_first_algorithm = true;
     for(const auto &alg_ptr : algorithms_cnt_) {
-        // If courtier2 routing was selected, inject the shared broker so the algorithm's workOn()
-        // submits through courtier2 rather than the legacy executor. (When no broker was built -- an
+        // If courtier routing was selected, inject the shared broker so the algorithm's workOn()
+        // submits through courtier rather than the legacy executor. (When no broker was built -- an
         // unknown legacy-only consumer -- the algorithm uses its own default, see GBase::init.)
         if(broker_) {
             alg_ptr->setBroker(broker_);
@@ -636,7 +636,7 @@ std::shared_ptr<gpar::GParameterSet> Go2::getBestGlobalIndividual_() const {
     }
 
     // Check if the best individual is processed
-    if(not this->front()->is_processed() && not this->front()->is_ignored()) {
+    if(not this->front()->is_processed() && not this->front()->is_unprocessed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::getBestGlobalIndividual_(): Error!" << '\n'
@@ -769,7 +769,7 @@ void Go2::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
 void Go2::setClientMode(bool client_mode) {
     // Note: a consumer that determines its client/server role autonomously (the MPI consumer, from its
     // process rank) overrides this request during command-line parsing -- see setupChosenConsumer(),
-    // which derives client_mode_ from the courtier2 setup result for mpi.
+    // which derives client_mode_ from the courtier setup result for mpi.
     client_mode_ = client_mode;
 }
 
@@ -892,7 +892,7 @@ void Go2::parseCommandLine(
             "Hidden algorithm- and consumer-options"
         );
 
-        // Register the consumer command-line options through the courtier2 setup layer (the single
+        // Register the consumer command-line options through the courtier setup layer (the single
         // owner of the consumer option surface) -- no consumer store iteration.
         Gem::Geneva::addConsumerOptions(visible, hidden);
 
@@ -996,7 +996,7 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
         );
     }
 
-    // Check that the requested consumer is one the courtier2 setup layer can build.
+    // Check that the requested consumer is one the courtier setup layer can build.
     if(not Gem::Geneva::isKnownConsumer(consumer_name_)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -1021,11 +1021,11 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
 
     std::cout << "Using consumer " << consumer_name_ << '\n';
 
-    // courtier2 is the submission path. Assemble the transport-agnostic spec from the command line and
+    // courtier is the submission path. Assemble the transport-agnostic spec from the command line and
     // remember it, so clientRun_() can build the matching networked client without a second pass.
     consumer_spec_ = Gem::Geneva::specFromCommandLine(consumer_name_, vm);
 
-    // Build the courtier2 consumer through the shared factory -- the single place that knows the
+    // Build the courtier consumer through the shared factory -- the single place that knows the
     // concrete consumer types -- and inject the resulting broker into every algorithm (in
     // runAlgorithmChain). MPI builds on EVERY rank (the consumer self-determines master/worker from its
     // process rank: master -> broker, worker -> run_worker); the socket and local consumers build a
@@ -1042,7 +1042,7 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
         }
 
         if(broker_) {
-            std::cout << "Routing consumer \"" << consumer_name_ << "\" through courtier2\n";
+            std::cout << "Routing consumer \"" << consumer_name_ << "\" through courtier\n";
         }
     }
 }

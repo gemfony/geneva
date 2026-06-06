@@ -28,7 +28,7 @@
  ********************************************************************************/
 
 /**
- * Fan-in (multi-submitter) tests for the courtier2 consumers. Several optimization algorithms can
+ * Fan-in (multi-submitter) tests for the courtier consumers. Several optimization algorithms can
  * submit to the SAME consumer concurrently -- the use case being a meta-optimization over a
  * population of inner algorithms, each submitting its individuals in parallel to one shared client
  * pool. Each submitter's processBatch() must complete, and -- crucially -- every result must return
@@ -107,8 +107,8 @@ public:
 
 /******************************************************************************/
 
-TEST_CASE("courtier2(fanin): concurrent submitters to one networked consumer, results not cross-routed",
-          "[courtier2][concurrency][fanin]") {
+TEST_CASE("courtier(fanin): concurrent submitters to one networked consumer, results not cross-routed",
+          "[courtier][concurrency][fanin]") {
     constexpr std::size_t M = 6;  // concurrent submitters (inner algorithms)
     constexpr std::size_t N = 25; // items per batch
     constexpr std::size_t CLIENTS = 4;
@@ -180,8 +180,8 @@ TEST_CASE("courtier2(fanin): concurrent submitters to one networked consumer, re
 
 /******************************************************************************/
 
-TEST_CASE("courtier2(fanin): concurrent submitters with failures stay size-preserved per batch",
-          "[courtier2][concurrency][fanin]") {
+TEST_CASE("courtier(fanin): concurrent submitters with failures stay size-preserved per batch",
+          "[courtier][concurrency][fanin]") {
     // Concurrent batches, each with a couple of throwing items, under clone-on-partial-return: each
     // batch must come back full (failed slots refilled from a successful sibling) and independent.
     constexpr std::size_t M = 5;
@@ -242,8 +242,8 @@ TEST_CASE("courtier2(fanin): concurrent submitters with failures stay size-prese
 
 /******************************************************************************/
 
-TEST_CASE("courtier2(fanin): concurrent submitters to one local thread consumer",
-          "[courtier2][concurrency][fanin]") {
+TEST_CASE("courtier(fanin): concurrent submitters to one local thread consumer",
+          "[courtier][concurrency][fanin]") {
     // The local thread-pool consumer shares one pool across submitters; concurrent processBatch()
     // calls must each wait for only their OWN items (per-batch wait), not the whole pool.
     constexpr std::size_t M = 8;

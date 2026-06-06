@@ -146,8 +146,9 @@ const std::size_t DEFAULTPROCESSEDBUFFERSIZE = Gem::Common::DEFAULTBUFFERSIZE;
  * and items for which an exception was thrown during processing.
  */
 enum class processingStatus : Gem::Common::ENUMBASETYPE {
-    DO_IGNORE =
-        0 // Set by the submitter when an item does not need to be processed. No defined object value.
+    UNPROCESSED =
+        0 // The default/initial (and post-reset) state: the item has not been selected for processing
+          // and carries no valid result yet. No defined object value.
         ,
     DO_PROCESS =
         1 // Marks a GProcessingContainerT as "needs to be processed". No defined object value.
@@ -163,7 +164,7 @@ enum class processingStatus : Gem::Common::ENUMBASETYPE {
 
 /******************************************************************************/
 /**
- * The per-batch SCHEDULING state of a work item, used by the courtier2 networked consumers. It is
+ * The per-batch SCHEDULING state of a work item, used by the courtier networked consumers. It is
  * distinct from processingStatus (the item's domain/processing truth) and is NOT serialized: it is
  * transient, server-side-only bookkeeping that lets the consumer track, within one dispatch round,
  * which slots are awaiting a client, in flight, or done -- directly on the item, so no side queues

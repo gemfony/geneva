@@ -28,14 +28,14 @@
  ********************************************************************************/
 
 /**
- * Standalone, multi-PROCESS exerciser for the courtier2 socket consumers. Unlike the in-process
+ * Standalone, multi-PROCESS exerciser for the courtier socket consumers. Unlike the in-process
  * loopback unit tests, this runs the server and the clients as separate OS processes (typically
  * launched together by startCourtierJobs.sh), so it validates the real cross-process behaviour.
  *
  *   server : GCourtierNetworkedExerciser [--server] -c asio|beast --port P [--n N] [--faultEvery K]
  *   client : GCourtierNetworkedExerciser  --client  -c asio|beast --ip HOST --port P
  *
- * The server submits a batch through the courtier2 span+policy executor and prints OK/FAIL plus the
+ * The server submits a batch through the courtier span+policy executor and prints OK/FAIL plus the
  * processed count; with --faultEvery K, every K-th item throws and the clone-on-partial-return
  * policy is used (so every slot must still end up processed).
  */
@@ -70,7 +70,7 @@ constexpr auto BIN = Gem::Common::serializationMode::BINARY;
 int run_server(const std::string &consumer, unsigned short port, std::size_t n, std::size_t fault_every) {
     auto broker = std::make_shared<c2::GBrokerT<GFaultyContainer>>();
 
-    // Build the chosen courtier2 consumer behind the common base type.
+    // Build the chosen courtier consumer behind the common base type.
     std::shared_ptr<c2::GBaseConsumerT<GFaultyContainer>> base;
     std::shared_ptr<c2::GAsioConsumerT<GFaultyContainer>> asio;
     std::shared_ptr<c2::GWebsocketConsumerT<GFaultyContainer>> beast;
@@ -92,7 +92,7 @@ int run_server(const std::string &consumer, unsigned short port, std::size_t n, 
         beast->startServer();
         port = beast->getPort();
     }
-    std::cout << "[server] courtier2 " << consumer << " consumer listening on port " << port
+    std::cout << "[server] courtier " << consumer << " consumer listening on port " << port
               << "; submitting " << n << " items (faultEvery=" << fault_every << ")\n"
               << std::flush;
 

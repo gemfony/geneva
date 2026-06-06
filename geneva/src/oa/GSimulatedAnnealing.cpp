@@ -425,7 +425,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
 #endif
 
     //--------------------------------------------------------------------------------
-    // Submit the [start, end) evaluation range and wait for results. courtier2 marks the span
+    // Submit the [start, end) evaluation range and wait for results. courtier marks the span
     // DO_PROCESS and reconciles it in place -- no per-item flagging needed.
     auto status = this->workOn(this->data_cnt_, std::get<0>(range), std::get<1>(range));
 
