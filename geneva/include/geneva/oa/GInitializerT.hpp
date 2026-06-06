@@ -58,8 +58,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * Each provide() call produces a freshly configured algorithm (the factory
  * re-reads its JSON config and bumps its instance id), which is what algorithm
  * chaining (e.g. "ea,gd,swarm") relies on. This is the factory flavour of the
- * shared Gem::Common::GProviderT abstraction; consumers use a prototype flavour
- * (GConsumerProviderT) instead.
+ * shared Gem::Common::GProviderT abstraction.
  */
 template <typename oaf_type>
 class GOAFactoryProviderT : public Gem::Common::GProviderT<GBase> {

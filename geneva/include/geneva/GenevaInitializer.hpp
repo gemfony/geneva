@@ -38,9 +38,7 @@
 // Boost header files go here
 
 // Geneva headers go here
-#include "courtier/GBrokerT.hpp"
-#include "geneva/GConsumerStore.hpp"
-#include "geneva/GIndividualStandardConsumerInitializerT.hpp"
+#include "geneva/GParameterSetCommandContainerExport.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
 #include "geneva/oa/GInitializerT.hpp"
@@ -66,12 +64,11 @@ public:
     ~GenevaInitializer();
 
     /***************************************************************************/
-    // Note: optimization-algorithm factories and consumers now register
-    // themselves with their respective global stores at library-load time (see
-    // the self-registration helpers in each factory's .cpp and in
-    // GIndividualStandardConsumers.cpp). GenevaInitializer therefore no longer
-    // exposes registerOAF() / registerConsumer(); it only performs the runtime
-    // init / finalize of the random factory and the broker (see ctor / dtor).
+    // Note: optimization-algorithm factories register themselves with the global factory store at
+    // library-load time (see the self-registration helpers in each factory's .cpp). Consumers are no
+    // longer registered in a store -- they are built on demand by the courtier2 setup layer.
+    // GenevaInitializer therefore exposes no registration API; it only performs the runtime
+    // init / finalize of the random factory (see ctor / dtor).
 
     /***************************************************************************/
 };

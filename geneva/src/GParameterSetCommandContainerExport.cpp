@@ -27,31 +27,12 @@
  *
  ********************************************************************************/
 
-#include "geneva/GenevaInitializer.hpp"
-#include "hap/GRandomFactory.hpp"
+#include "geneva/GParameterSetCommandContainerExport.hpp"
 
-namespace Gem::Geneva {
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The default constructor
- */
-GenevaInitializer::GenevaInitializer() {
-    Gem::Hap::randomFactory()->init();
-}
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GenevaInitializer::~GenevaInitializer() {
-    Gem::Hap::randomFactory()->finalize();
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-
-} /* namespace Gem::Geneva */
+// The single translation unit holding the Boost.Serialization implementation of the command-container
+// export keyed in GParameterSetCommandContainerExport.hpp.
+BOOST_CLASS_EXPORT_IMPLEMENT(
+    BOOST_IDENTITY_TYPE((Gem::Courtier::GCommandContainerT<
+                         gpar::GParameterSet,
+                         Gem::Courtier::networked_consumer_payload_command>))
+) // NOLINT

@@ -1,11 +1,9 @@
 SET ( OPTIMIZATIONINCLUDES
-	GConsumerStore.hpp
 	GenevaHelperFunctionsT.hpp
     GenevaHelperFunctions.hpp
 	GenevaInitializer.hpp
 	GIndividualMultiConstraint.hpp
-	GIndividualStandardConsumerInitializerT.hpp
-	GIndividualStandardConsumers.hpp
+	GParameterSetCommandContainerExport.hpp
     GMultiConstraintT.hpp
 	Go2.hpp
     GOptimizationEnums.hpp

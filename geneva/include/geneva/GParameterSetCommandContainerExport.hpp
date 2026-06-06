@@ -32,45 +32,28 @@
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
-// Standard header files go here
-#include <iostream>
-
 // Boost header files go here
+#include <boost/serialization/export.hpp>
+#include <boost/utility/identity_type.hpp>
 
 // Geneva headers go here
-#include "common/GGlobalOptionsT.hpp"
-#include "common/GLogger.hpp"
-#include "courtier/consumers/GBaseConsumerT.hpp"
-#include "geneva/GConsumerStore.hpp"
+#include "courtier/GCommandContainerT.hpp"
+#include "courtier/GCourtierHelperFunctions.hpp" // networked_consumer_payload_command
 #include "geneva/par/GParameterSet.hpp"
 
-namespace Gem::Geneva {
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This base class takes care of adding GParameterSet-based consumer objects
- * to a global store
+ * Boost.Serialization export of the command container instantiated for GParameterSet, the work-item
+ * payload type carried over the wire by the networked consumers / clients. The matching
+ * BOOST_CLASS_EXPORT_IMPLEMENT lives in GParameterSetCommandContainerExport.cpp (one translation unit
+ * in the geneva library). Including this header makes the registration visible at every networked
+ * (de)serialization site -- it is pulled in via GenevaInitializer.hpp, as the former
+ * GIndividualStandardConsumers.hpp once did.
  */
-template <typename c_type> // c_type stands for consumer type
-class GIndividualStandardConsumerInitializerT {
-public:
-    /** @brief The initializing constructor */
-    GIndividualStandardConsumerInitializerT() {
-        // Wrap a freshly built consumer instance in a provider and register it
-        // with the store, if it hasn't happened yet.
-        auto provider = std::make_shared<GConsumerProviderT>(
-            std::make_shared<c_type>()
-        );
-        consumerStore()->setOnce(provider->getMnemonic(), provider);
-    }
-    /** @brief An empty destructor */
-    virtual ~GIndividualStandardConsumerInitializerT() = default;
-};
+BOOST_CLASS_EXPORT_KEY(
+    BOOST_IDENTITY_TYPE((Gem::Courtier::GCommandContainerT<
+                         gpar::GParameterSet,
+                         Gem::Courtier::networked_consumer_payload_command>))
+) // NOLINT
 
 /******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-
-} /* namespace Gem::Geneva */

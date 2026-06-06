@@ -97,12 +97,10 @@ Go2::Go2(
 )
   : config_filename_(config_filename) {
     //--------------------------------------------
-    // The known optimization algorithms and consumers register themselves with
-    // their respective global stores at library-load time (see the self-
-    // registration helpers in each factory's .cpp and in
-    // GIndividualStandardConsumers.cpp). The GenevaInitializer member gi_ still
-    // performs the required runtime initialization (random factory + broker)
-    // via its constructor / destructor.
+    // The known optimization algorithms register themselves with the global factory store at
+    // library-load time (see the self-registration helpers in each factory's .cpp). Consumers are
+    // built on demand by the courtier2 setup layer. The GenevaInitializer member gi_ performs the
+    // required runtime initialization (random factory) via its constructor / destructor.
 
     //--------------------------------------------
     // Parse configuration file options

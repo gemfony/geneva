@@ -49,7 +49,7 @@ SET ( OPTIMIZATIONSOURCES
 	GCourtier2ConsumerSetup.cpp
 	GenevaInitializer.cpp
 	GIndividualMultiConstraint.cpp
-	GIndividualStandardConsumers.cpp
+	GParameterSetCommandContainerExport.cpp
 	par/GInt32Collection.cpp
 	par/GInt32FlipAdaptor.cpp
 	par/GInt32GaussAdaptor.cpp
