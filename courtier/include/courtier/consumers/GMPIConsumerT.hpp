@@ -78,6 +78,10 @@ constexpr int RANK_MASTER_NODE = 0;
 /// final double-buffered request, or an open session to finish) before abandoning them. Bounds
 /// shutdown so the loss of a worker cannot wedge the master at teardown.
 constexpr std::chrono::seconds GMPICONSUMERSHUTDOWNGRACE{10};
+/// How long a worker waits for the master to complete a send/receive before giving up. The master
+/// always answers a request promptly (work or NODATA), so this only trips when the master has died or
+/// gone silent -- it is generous to avoid ever false-killing a worker while a live master is busy.
+constexpr std::chrono::seconds GMPICONSUMERWORKERMPITIMEOUT{120};
 static MPI_Comm MPI_COMMUNICATOR =
     MPI_COMM_WORLD; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
@@ -364,8 +368,19 @@ private:
 
         MPI_Status status{};
 
-        // wait until sending completed
-        MPI_Wait(&sendHandle_, &status);
+        // Wait until sending completed -- bounded, so a dead/unresponsive master cannot hang the
+        // worker here forever.
+        if(not waitForRequestOrTimeout(sendHandle_, status)) {
+            glogger
+                << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork() "
+                   "with rank="
+                << commRank_ << ":" << '\n'
+                << "Timed out (or was halted) while sending to GMPIConsumerMasterNodeT." << '\n'
+                << "The master appears to be gone; worker node will shut down." << '\n'
+                << GWARNING;
+
+            return false;
+        }
 
         if(status.MPI_ERROR != MPI_SUCCESS) {
             glogger
@@ -380,8 +395,21 @@ private:
             return false;
         }
 
-        // wait until we have received the response.
-        MPI_Wait(&receiveHandle_, &status);
+        // Wait until we have received the response -- bounded for the same reason (this is where a
+        // dead master would otherwise hang the worker indefinitely).
+        if(not waitForRequestOrTimeout(receiveHandle_, status)) {
+            glogger
+                << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork() "
+                   "with rank="
+                << commRank_ << ":" << '\n'
+                << "Timed out (or was halted) while waiting for a response from "
+                   "GMPIConsumerMasterNodeT."
+                << '\n'
+                << "The master appears to be gone; worker node will shut down." << '\n'
+                << GWARNING;
+
+            return false;
+        }
 
         if(status.MPI_ERROR != MPI_SUCCESS) {
             glogger
@@ -401,6 +429,32 @@ private:
         incomingMessage_ = std::string(incomingMessageBuffer_.get(), mpiGetCount(status));
 
         return true;
+    }
+
+    /**
+         * Waits for an outstanding MPI request to complete, polling so the worker can give up if the
+         * master goes silent (GMPICONSUMERWORKERMPITIMEOUT) or a halt was requested, instead of
+         * blocking forever in MPI_Wait. On timeout/halt the request is cancelled and reclaimed so it
+         * cannot outlive into MPI_Finalize.
+         *
+         * @return true if the request completed (status filled); false on timeout / halt.
+         */
+    [[nodiscard]] bool waitForRequestOrTimeout(MPI_Request &handle, MPI_Status &status) {
+        const auto deadline = std::chrono::steady_clock::now() + GMPICONSUMERWORKERMPITIMEOUT;
+
+        while(true) {
+            int isCompleted{0};
+            MPI_Test(&handle, &isCompleted, &status);
+            if(isCompleted) {
+                return true;
+            }
+            if(halt_() || std::chrono::steady_clock::now() >= deadline) {
+                MPI_Cancel(&handle);
+                MPI_Wait(&handle, MPI_STATUS_IGNORE);
+                return false;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds{1});
+        }
     }
 
     /**
