@@ -61,12 +61,6 @@
 
 /******************************************************************************/
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GBrokerExecutorT<gpar::GParameterSet>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GSerialExecutorT<gpar::GParameterSet>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GMTExecutorT<gpar::GParameterSet>)     // NOLINT
-
-/******************************************************************************/
-
 namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
@@ -240,14 +234,9 @@ GBase::GBase(const GBase &cp)
   , termination_file_(cp.termination_file_)
   , terminate_on_file_modification_(cp.terminate_on_file_modification_)
   , emit_termination_reason_(cp.emit_termination_reason_)
-  , worst_known_valids_cnt_(cp.worst_known_valids_cnt_)
-  , default_exec_mode_(cp.default_exec_mode_)
-  , default_executor_config_(cp.default_executor_config_) {
+  , worst_known_valids_cnt_(cp.worst_known_valids_cnt_) {
     // Copy atomics over
     halted_.store(cp.halted_.load());
-
-    // Copy the executor over
-    Gem::Common::copyCloneableSmartPointer(cp.executor_ptr_, executor_ptr_);
 
     // Copy the pluggable optimization monitors over (if any)
     Gem::Common::copyCloneableSmartPointerContainer(
@@ -582,72 +571,6 @@ void GBase::resetToOptimizationStart_() {
     worst_known_valids_cnt_
         .clear(); // Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
 
-    executor_ptr_.reset(); // Removes the local executor
-}
-
-/******************************************************************************/
-/**
- * Adds a new executor to the class, replacing the default executor. The
- * executor is responsible for evaluating the individuals.
- *
- * @param executor_ptr A pointer to an executor
- * @param executor_config_file The name of a file used to configure the executor
- */
-void GBase::registerExecutor(
-    std::shared_ptr<Gem::Courtier::GBaseExecutorT<gpar::GParameterSet>> executor_ptr,
-    std::filesystem::path const &executor_config_file
-) {
-    if(not executor_ptr) {
-        glogger << "In GBase::registerExecutor(): Warning!" << '\n'
-                << "Tried to register empty executor-pointer. We will leave the existing"
-                << '\n'
-                << "executor in place" << '\n'
-                << GWARNING;
-
-        return;
-    }
-
-    if(not halted_) {
-        glogger << "In GBase::registerExecutor(): Warning!" << '\n'
-                << "Tried to register an executor while the optimization is already running"
-                << '\n'
-                << "The new executor will be ignored." << '\n'
-                << GWARNING;
-
-        return;
-    }
-
-    // Register the new executor
-    executor_ptr_ = executor_ptr;
-
-    // Give the executor a chance to configure itself from
-    // user-defined configuration options
-    Gem::Common::GParserBuilder gpb;
-    executor_ptr_->addConfigurationOptions(gpb);
-    if(not gpb.parseConfigFile(executor_config_file)) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBase::registerExecutor(): Error!" << '\n'
-            << "Could not parse configuration file " << executor_config_file.string() << '\n'
-        );
-    }
-
-    // TODO: Check that the new executor has the desired configuration
-}
-
-/******************************************************************************/
-/**
- * Adds a new executor to the class, using the chosen execution mode
- *
- * @param e The execution mode
- * @param executor_config_file The name of a file used to configure the executor
- */
-void GBase::registerExecutor(
-    execMode e,
-    std::filesystem::path const &executor_config_file
-) {
-    auto executor_ptr = this->createExecutor(e);
-    this->registerExecutor(executor_ptr, executor_config_file);
 }
 
 /******************************************************************************/
@@ -1387,27 +1310,6 @@ void GBase::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
         ,
         [this](bool etr) { this->setEmitTerminationReason(etr); }
     ) << "Triggers emission (1) or omission (0) of information about reasons for termination";
-
-    gpb.registerFileParameter<execMode, std::string>(
-        "default_exec_mode" // The name of the variable
-        ,
-        "default_exec_config",
-        this->default_exec_mode_ // The default value
-        ,
-        this->default_executor_config_,
-        [this](execMode e, std::string config) {
-            this->default_exec_mode_ = e;
-            this->default_executor_config_ = config;
-        },
-        "default_executor"
-    ) << "The default executor type to be used for this algorithm."
-      << '\n'
-      << "0: serial" << '\n'
-      << "1: multi-threaded" << '\n'
-      << "2: brokered" << '\n'
-      << Gem::Common::nextComment()
-      << "The configuration file for the default executor. Note that it needs to fit the executor "
-         "type.";
 }
 
 /******************************************************************************/
@@ -1540,9 +1442,8 @@ void GBase::load_(const GBase *cp) {
     Gem::Common::GPtrContainerT<gpar::GParameterSet>::operator=(*p_load);
 
     // All local data, derived from the single localMembers() declaration: plain members
-    // are assigned, the cloneable smart pointers (executor_ptr_, pluggable_monitors_cnt_)
-    // are deep-cloned, and halted_ (atomic) is loaded via .store(.load()) -- the tie
-    // dispatches on the member kind.
+    // are assigned, the cloneable container pluggable_monitors_cnt_ is deep-cloned, and
+    // halted_ (atomic) is loaded via .store(.load()) -- the tie dispatches on the member kind.
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 
     // best_iteration_individuals_pq_ is intentionally not persisted (transient per
@@ -1564,24 +1465,14 @@ void GBase::load_(const GBase *cp) {
 	 */
 Gem::Courtier::executor_status_t GBase::workOn(
     std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items,
-    bool resubmit_unprocessed,
-    const std::string &caller
+    [[maybe_unused]] bool resubmit_unprocessed,
+    [[maybe_unused]] const std::string &caller
 ) {
-    // Phase-7: when Go2 has wired this algorithm to courtier2 -- either a LOCAL consumer selected via
-    // setCourtier2LocalConsumer() or a ready, server-backed networked broker injected via
-    // setCourtier2Broker() -- route submission through courtier2's span+policy path instead of the
-    // legacy executor. Go2 sets one of these for every standard consumer (courtier2 is the default
-    // path now); only the legacy fallback (cuda/custom consumers) and non-Go2 use leave both unset.
-    if(c2_external_broker_ || c2_local_kind_ != courtier2_local_kind::none) {
-        return this->workOnViaCourtier2_(work_items);
-    }
-
-    auto iteration_counter = std::make_tuple<Gem::Courtier::ITERATION_COUNTER_TYPE, bool>(
-        Gem::Common::narrow<Gem::Courtier::ITERATION_COUNTER_TYPE>(this->getIteration()),
-        true
-    );
-
-    return executor_ptr_->workOn(work_items, resubmit_unprocessed, iteration_counter, caller);
+    // All submission now goes through courtier2's span+policy path. init() guarantees a courtier2
+    // routing is selected (an injected broker, a chosen local kind, or the multithreaded default), so
+    // workOnViaCourtier2_ always has a broker to use. (resubmit_unprocessed/caller are legacy executor
+    // parameters, unused here; they will be dropped from the signature in a later step.)
+    return this->workOnViaCourtier2_(work_items);
 }
 
 /******************************************************************************/
@@ -1677,11 +1568,8 @@ Gem::Courtier::executor_status_t GBase::workOnViaCourtier2_(
  * Retrieves a vector of old work items after job submission
  */
 std::vector<std::shared_ptr<gpar::GParameterSet>> GBase::getOldWorkItems() {
-    // Only the legacy executor sets work items aside; courtier2 reconciles every slot in place, so
-    // there are never any "old" items to retrieve on the default path.
-    if(executor_ptr_) {
-        return executor_ptr_->getOldWorkItems();
-    }
+    // courtier2 reconciles every slot in place, so there are never any "old" (late-returned) items to
+    // retrieve. (Capturing late returns for their quality is a planned future improvement.)
     return {};
 }
 
@@ -1865,18 +1753,11 @@ void GBase::resetStallCounter() {
  * as their first action, call this function.
  */
 void GBase::init() {
-    // courtier2 is the default submission path. If neither a courtier2 routing was injected (by Go2 or
-    // setCourtier2Broker/setCourtier2LocalConsumer) nor a legacy executor explicitly registered
-    // (registerExecutor(), now without callers), default this algorithm to a courtier2 local
-    // multithreaded consumer -- so a bare alg->optimize() works standalone, without Go2 and without
-    // enrolling a consumer.
-    if(not executor_ptr_ && c2_local_kind_ == courtier2_local_kind::none && not c2_external_broker_) {
+    // courtier2 is the submission path. If no routing was injected (Go2, or setCourtier2Broker /
+    // setCourtier2LocalConsumer), default this algorithm to a courtier2 local multithreaded consumer
+    // -- so a bare alg->optimize() works standalone, without Go2 and without enrolling a consumer.
+    if(c2_local_kind_ == courtier2_local_kind::none && not c2_external_broker_) {
         c2_local_kind_ = courtier2_local_kind::multithreaded; // 0 threads == hardware concurrency
-    }
-
-    // Initialize the legacy executor only if one was explicitly registered.
-    if(executor_ptr_) {
-        executor_ptr_->init();
     }
 }
 
@@ -1887,10 +1768,7 @@ void GBase::init() {
  * call this function as their last action.
  */
 void GBase::finalize() {
-    // Finalize the legacy executor only if one was explicitly registered (courtier2 needs no teardown).
-    if(executor_ptr_) {
-        executor_ptr_->finalize();
-    }
+    // Nothing to do: courtier2 needs no executor teardown (the consumer/broker are released by RAII).
 }
 
 /******************************************************************************/
@@ -2277,36 +2155,6 @@ void GBase::markBestFitness() {
  */
 bool GBase::stallCounterThresholdExceeded() const {
     return (stall_counter_ > stall_counter_threshold_);
-}
-
-/******************************************************************************/
-/**
- * Retrieves an executor for the given execution mode
- */
-std::shared_ptr<Gem::Courtier::GBaseExecutorT<gpar::GParameterSet>>
-GBase::createExecutor(const execMode &e) {
-    std::shared_ptr<Gem::Courtier::GBaseExecutorT<gpar::GParameterSet>> executor_ptr;
-
-    switch(e) {
-    case execMode::SERIAL:
-        glogger << "Creating GSerialExecutorT" << '\n' << GLOGGING;
-        executor_ptr = std::make_shared<Gem::Courtier::GSerialExecutorT<gpar::GParameterSet>>();
-        break;
-
-    case execMode::MULTITHREADED:
-        glogger << "Creating GMTExecutorT" << '\n' << GLOGGING;
-        executor_ptr = std::make_shared<Gem::Courtier::GMTExecutorT<gpar::GParameterSet>>(
-            Gem::Courtier::DEFAULTNSTDTHREADS
-        );
-        break;
-
-    case execMode::BROKER:
-        glogger << "Creating GBrokerExecutorT" << '\n' << GLOGGING;
-        executor_ptr = std::make_shared<Gem::Courtier::GBrokerExecutorT<gpar::GParameterSet>>();
-        break;
-    }
-
-    return executor_ptr;
 }
 
 /******************************************************************************/

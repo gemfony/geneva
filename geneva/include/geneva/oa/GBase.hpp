@@ -216,8 +216,7 @@ private:
     /**
      * Single declaration of this class'es local data members. This drives serialize(),
      * load_() and compare_() from one place. Plain members use make_member(); the
-     * cloneable smart pointer executor_ptr_ and the cloneable pointer container
-     * pluggable_monitors_cnt_ use make_cloneable_member() / make_cloneable_container_member()
+     * cloneable pointer container pluggable_monitors_cnt_ uses make_cloneable_container_member()
      * (deep-cloned on load); the atomic halted_ uses make_atomic_member() (loaded via
      * .store(.load()), compared via its loaded value, serialised through the existing
      * std::atomic<bool> free serialization).
@@ -261,11 +260,8 @@ private:
             Gem::Common::make_member("terminate_on_file_modification_", terminate_on_file_modification_),
             Gem::Common::make_member("emit_termination_reason_", emit_termination_reason_),
             Gem::Common::make_member("worst_known_valids_cnt_", worst_known_valids_cnt_),
-            Gem::Common::make_member("default_exec_mode_", default_exec_mode_),
-            Gem::Common::make_member("default_executor_config_", default_executor_config_),
             Gem::Common::make_atomic_member("halted_", halted_),
-            Gem::Common::make_cloneable_container_member("pluggable_monitors_cnt_", pluggable_monitors_cnt_),
-            Gem::Common::make_cloneable_member("executor_ptr_", executor_ptr_)
+            Gem::Common::make_cloneable_container_member("pluggable_monitors_cnt_", pluggable_monitors_cnt_)
         );
     }
     auto localMembers() const {
@@ -297,11 +293,8 @@ private:
             Gem::Common::make_member("terminate_on_file_modification_", terminate_on_file_modification_),
             Gem::Common::make_member("emit_termination_reason_", emit_termination_reason_),
             Gem::Common::make_member("worst_known_valids_cnt_", worst_known_valids_cnt_),
-            Gem::Common::make_member("default_exec_mode_", default_exec_mode_),
-            Gem::Common::make_member("default_executor_config_", default_executor_config_),
             Gem::Common::make_atomic_member("halted_", halted_),
-            Gem::Common::make_cloneable_container_member("pluggable_monitors_cnt_", pluggable_monitors_cnt_),
-            Gem::Common::make_cloneable_member("executor_ptr_", executor_ptr_)
+            Gem::Common::make_cloneable_container_member("pluggable_monitors_cnt_", pluggable_monitors_cnt_)
         );
     }
 
@@ -380,20 +373,13 @@ public:
     /** @brief Resets the class to the state before the optimize call. */
     void resetToOptimizationStart();
 
-    /** @brief Adds a new executor to the class, replacing the default executor */
-    void registerExecutor(
-        std::shared_ptr<Gem::Courtier::GBaseExecutorT<gpar::GParameterSet>> executor_ptr,
-        std::filesystem::path const &executor_config_file
-    );
-    /** @brief Adds a new executor to the class, using the chosen execution mode */
-    void registerExecutor(execMode e, std::filesystem::path const &executor_config_file);
-
     /******************************************************************************/
     /**
-     * Selects the courtier2 LOCAL consumer this algorithm submits through (Phase-7 increment 1).
-     * Called by Go2 once the parallelisation mnemonic is known; transient runtime state, neither
-     * serialized nor cloned. With @p kind == none (the default) workOn() takes the legacy executor
-     * path. @p n_threads is honoured only for the multithreaded kind (0 == hardware concurrency).
+     * Selects the courtier2 LOCAL consumer this algorithm submits through. Called by Go2 once the
+     * parallelisation mnemonic is known, or directly for standalone use; transient runtime state,
+     * neither serialized nor cloned. @p n_threads is honoured only for the multithreaded kind
+     * (0 == hardware concurrency). If neither this nor setCourtier2Broker() is called, init() defaults
+     * to a multithreaded local consumer.
      */
     void setCourtier2LocalConsumer(courtier2_local_kind kind, unsigned int n_threads = 0) {
         c2_local_kind_    = kind;
@@ -412,22 +398,6 @@ public:
     void setCourtier2Broker(std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> broker) {
         c2_broker_          = std::move(broker);
         c2_external_broker_ = true;
-    }
-
-    /******************************************************************************/
-    /**
-      * Gives access to the current executor, converted to a given target type.
-      * The executor is internally stored via its base class, so we need to
-      * convert it to its final type in order to configure it via its API. The
-      * function is only accessible when converting to a derived class of GBaseExecutorT.
-      * You need to take care yourself that the stored class matches the one you
-      * are converting to. The function will throw (via dynamic_pointer_cast), if
-      * this is not the case.
-      */
-    template <typename target_type>
-        requires std::derived_from<target_type, Gem::Courtier::GBaseExecutorT<gpar::GParameterSet>>
-    std::shared_ptr<target_type> getExecutor() {
-        return std::dynamic_pointer_cast<target_type>(executor_ptr_);
     }
 
     /******************************************************************************/
@@ -751,10 +721,6 @@ private:
     /** @brief Indicates whether the stall_counter_threshold_ has been exceeded */
     bool stallCounterThresholdExceeded() const;
 
-    /** @brief Retrieves an executor for the given execution mode */
-    std::shared_ptr<Gem::Courtier::GBaseExecutorT<gpar::GParameterSet>>
-    createExecutor(const execMode &e);
-
     /***************************************************************************/
     // Data
 
@@ -823,18 +789,11 @@ private:
     std::vector<std::shared_ptr<GBasePluggableOM>>
         pluggable_monitors_cnt_; ///< A collection of monitors
 
-    std::shared_ptr<Gem::Courtier::GBaseExecutorT<gpar::GParameterSet>>
-        executor_ptr_; ///< Holds the current executor for this algorithm
-    execMode default_exec_mode_ = execMode::
-        BROKER; ///< The default execution mode. Unless explicitöy requested by the user, we always go through the broker
-    std::string default_executor_config_ =
-        "./config/GBrokerExecutor.json"; ///< The default configuration file for the broker executor
-
-    // --- Phase-7 (TRANSIENT, not serialized/cloned): when Go2 has selected a courtier2 LOCAL
-    // consumer (c2_local_kind_ != none), workOn() routes submission through courtier2's span+policy
-    // executor + that local consumer instead of executor_ptr_. The broker/executor/consumer are
-    // lazily created on first use; the kind/thread-count are plumbed in via
-    // setCourtier2LocalConsumer() and select GSerialConsumerT vs GStdThreadConsumerT. ---
+    // --- courtier2 submission (TRANSIENT, not serialized/cloned). The algorithm submits through
+    // courtier2's span+policy executor; the broker/executor/consumer are lazily created on first use.
+    // For a LOCAL consumer the kind/thread-count are plumbed in via setCourtier2LocalConsumer()
+    // (selecting GSerialConsumerT vs GStdThreadConsumerT); a ready networked broker is injected via
+    // setCourtier2Broker(). init() defaults the kind to multithreaded when neither is set. ---
     courtier2_local_kind c2_local_kind_ = courtier2_local_kind::none; ///< Which local consumer (none == legacy path)
     unsigned int c2_local_threads_ = 0; ///< Thread-pool size for the multithreaded kind (0 == hardware concurrency)
     bool c2_external_broker_ = false; ///< True when Go2 injected a ready broker (networked) via setCourtier2Broker()
@@ -858,7 +817,4 @@ private:
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::OptimizationAlgorithms::GBasePluggableOM)             // NOLINT
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::OptimizationAlgorithms::GBase) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerExecutorT<gpar::GParameterSet>) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GSerialExecutorT<gpar::GParameterSet>) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GMTExecutorT<gpar::GParameterSet>)     // NOLINT
 /******************************************************************************/
