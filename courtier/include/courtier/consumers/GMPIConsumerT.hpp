@@ -37,6 +37,7 @@
 
 // Standard headers go here
 #include <array>
+#include <chrono>
 #include <cstdint>
 #include <functional>
 #include <iostream>
@@ -73,6 +74,10 @@ namespace Gem::Courtier::Consumers {
 constexpr int TAG_REQUEST_WORK_ITEM = 42;
 constexpr int TAG_SEND_WORK_ITEM = 43;
 constexpr int RANK_MASTER_NODE = 0;
+/// Once the master has been asked to stop, how long it keeps waiting for stragglers (a live worker's
+/// final double-buffered request, or an open session to finish) before abandoning them. Bounds
+/// shutdown so the loss of a worker cannot wedge the master at teardown.
+constexpr std::chrono::seconds GMPICONSUMERSHUTDOWNGRACE{10};
 static MPI_Comm MPI_COMMUNICATOR =
     MPI_COMM_WORLD; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
@@ -610,6 +615,20 @@ public:
     }
 
     /**
+         * Abandons the outstanding response send if it has not completed, reclaiming its MPI_Request so
+         * it cannot outlive into MPI_Finalize. Used during shutdown to release sessions whose worker
+         * died before receiving the response (so the master does not finalize with pending requests).
+         */
+    void cancelPendingResponse() {
+        int isCompleted{0};
+        MPI_Test(&mpiRequestHandle_, &isCompleted, MPI_STATUS_IGNORE);
+        if(not isCompleted) {
+            MPI_Cancel(&mpiRequestHandle_);
+            MPI_Wait(&mpiRequestHandle_, MPI_STATUS_IGNORE);
+        }
+    }
+
+    /**
          * @return command that the session is sending out to the client in the response
          */
     [[nodiscard]] networked_consumer_payload_command getOutCommand() const {
@@ -915,29 +934,50 @@ private:
                 &requestHandle
             );
 
+            int isCompleted{0};
+            MPI_Status status{};
+            std::optional<std::chrono::steady_clock::time_point> giveUpAt;
+
             while(true) {
-                int isCompleted{0};
-                MPI_Status status{};
-
                 MPI_Test(&requestHandle, &isCompleted, &status);
-
                 if(isCompleted) {
-                    // save atomic variable value
-                    const bool stopRequested =
-                        isToldToStop_.load(); // NOLINT(cppcoreguidelines-init-variables)
-
-                    if(stopRequested) {
-                        ++stopRequestsSendOut;
-                    }
-                    // let a new thread handle this request and listen for further requests
-                    // we capture copies of smart pointers in the closure, which keeps the underlying data alive
-                    const auto self = this->shared_from_this();
-                    handlerThreadPool_->async_schedule([self, status, buffer, stopRequested] {
-                        self->handleRequest(status, buffer, stopRequested);
-                    });
                     break;
                 }
+                // Do not busy-spin on MPI_Test, and make shutdown observable: once a stop has been
+                // requested, give live workers a short grace window to send their final (double-
+                // buffered) requests, then abandon the outstanding receive. Otherwise a worker that
+                // died before its final handshake would wedge this loop -- and thus shutdown() -- and
+                // MPI_Finalize would never be reached.
+                if(isToldToStop_.load()) {
+                    const auto now = std::chrono::steady_clock::now();
+                    if(not giveUpAt) {
+                        giveUpAt = now + GMPICONSUMERSHUTDOWNGRACE;
+                    }
+                    if(now >= *giveUpAt) {
+                        break; // isCompleted stays 0
+                    }
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds{1});
             }
+
+            if(not isCompleted) {
+                // Shutting down and a straggler request never arrived: cancel the outstanding receive
+                // so its MPI_Request is reclaimed, then stop listening.
+                MPI_Cancel(&requestHandle);
+                MPI_Wait(&requestHandle, MPI_STATUS_IGNORE);
+                break;
+            }
+
+            // The request completed normally -- dispatch it to a handler thread. We capture copies of
+            // the smart pointers in the closure, which keeps the underlying data alive.
+            const bool stopRequested = isToldToStop_.load();
+            if(stopRequested) {
+                ++stopRequestsSendOut;
+            }
+            const auto self = this->shared_from_this();
+            handlerThreadPool_->async_schedule([self, status, buffer, stopRequested] {
+                self->handleRequest(status, buffer, stopRequested);
+            });
         }
     }
 
@@ -998,9 +1038,12 @@ private:
         uint32_t stopSendOutsCompleted{0};
         // two stop requests for each client
         const int32_t reqNumStops{2 * (this->commSize_ - 1)};
+        std::optional<std::chrono::steady_clock::time_point> giveUpAt;
 
-        // keep running until all stop requests have been send out,
-        // since after that no more sessions should be opened because all clients will shut down
+        // keep running until all stop requests have been sent out (after that no more sessions should
+        // be opened because all clients will shut down) -- or, once shutdown was requested, until the
+        // grace window elapses, so a session that will never complete (its worker died mid-exchange)
+        // cannot wedge this thread and thus shutdown().
         while(stopSendOutsCompleted < reqNumStops) {
             // wait a short amount of time between checking if the sessions have been completed
             if(config_.masterCleanSessIntervalMSec > 0) {
@@ -1009,29 +1052,47 @@ private:
                 );
             }
 
-            const auto timeCurr = std::chrono::steady_clock::now();
+            {
+                // lock access to open sessions vector
+                std::scoped_lock guard(openSessionsMutex_);
 
-            // lock access to open sessions vector
-            std::scoped_lock guard(openSessionsMutex_);
+                for(auto sessionIter{openSessions_.begin()}; sessionIter != openSessions_.end();
+                    /* no increment */) {
+                    if((*sessionIter)->isCompleted()) {
+                        // track the completed stop requests
+                        if((*sessionIter)->getOutCommand() ==
+                           networked_consumer_payload_command::STOP) {
+                            ++stopSendOutsCompleted;
+                        }
 
-            for(auto sessionIter{openSessions_.begin()}; sessionIter != openSessions_.end();
-                /* no increment */) {
-                if((*sessionIter)->isCompleted()) {
-                    // track the completed stop requests
-                    if((*sessionIter)->getOutCommand() ==
-                       networked_consumer_payload_command::STOP) {
-                        ++stopSendOutsCompleted;
+                        // erase this session because it has completed
+                        sessionIter = openSessions_.erase(sessionIter);
                     }
-
-                    // erase this session because it has completed
-                    sessionIter = openSessions_.erase(sessionIter);
+                    else {
+                        // increment iterator in case no session has been erased
+                        ++sessionIter;
+                    }
                 }
-                else {
-                    // increment iterator in case no session has been erased
-                    ++sessionIter;
+            }
+
+            if(isToldToStop_.load()) {
+                const auto now = std::chrono::steady_clock::now();
+                if(not giveUpAt) {
+                    giveUpAt = now + GMPICONSUMERSHUTDOWNGRACE;
+                }
+                if(now >= *giveUpAt) {
+                    break;
                 }
             }
         }
+
+        // Release any sessions still open (only reached on the grace-timeout path): cancel their
+        // outstanding response sends so no MPI_Request outlives into MPI_Finalize.
+        std::scoped_lock guard(openSessionsMutex_);
+        for(auto &session : openSessions_) {
+            session->cancelPendingResponse();
+        }
+        openSessions_.clear();
     }
 
     /**
