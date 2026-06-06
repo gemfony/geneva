@@ -29,6 +29,9 @@
 
 #include "geneva/GCourtier2ConsumerSetup.hpp"
 
+// Standard headers
+#include <cstddef>
+
 // The concrete courtier2 consumers -- known ONLY here.
 #include "courtier2/consumers/GAsioConsumerT.hpp"
 #include "courtier2/consumers/GMPIConsumerT.hpp" // self-guarded by GENEVA_BUILD_WITH_MPI_CONSUMER
@@ -103,6 +106,47 @@ Courtier2Setup buildCourtier2Setup(const Courtier2ConsumerSpec &spec) {
 #endif /* GENEVA_BUILD_WITH_MPI_CONSUMER */
 
     return setup;
+}
+
+/******************************************************************************/
+
+Courtier2ConsumerSpec specFromCommandLine(
+    const std::string &mnemonic, const boost::program_options::variables_map &vm) {
+    Courtier2ConsumerSpec spec;
+    spec.mnemonic = mnemonic;
+
+    // The consumer command-line options are registered by the consumers' addCLOptions() during
+    // command-line parsing; here we read the ones the spec needs back out of the parsed map. Each
+    // read is guarded so an absent option leaves the spec default in place.
+    auto readPort = [&vm](const char *key, unsigned short &dst) {
+        if(vm.count(key) != 0u) {
+            dst = vm[key].as<unsigned short>();
+        }
+    };
+    auto readSerMode = [&vm](const char *key, Gem::Common::serializationMode &dst) {
+        if(vm.count(key) != 0u) {
+            dst = vm[key].as<Gem::Common::serializationMode>();
+        }
+    };
+
+    if(mnemonic == "asio") {
+        readPort("asio_port", spec.port);
+        readSerMode("asio_serializationMode", spec.serialization_mode);
+        spec.n_threads = 0; // networked IO threads: hardware concurrency
+    }
+    else if(mnemonic == "beast") {
+        readPort("beast_port", spec.port);
+        readSerMode("beast_serializationMode", spec.serialization_mode);
+        spec.n_threads = 0;
+    }
+    else if(mnemonic == "stc") {
+        if(vm.count("nWorkerThreads") != 0u) {
+            spec.n_threads = static_cast<unsigned int>(vm["nWorkerThreads"].as<std::size_t>());
+        }
+    }
+    // "sc" and "mpi" carry no networked spec fields: the defaults suffice.
+
+    return spec;
 }
 
 /******************************************************************************/

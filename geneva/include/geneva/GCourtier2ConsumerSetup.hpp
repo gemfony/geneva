@@ -36,6 +36,9 @@
 #include <memory>
 #include <string>
 
+// Boost headers
+#include <boost/program_options/variables_map.hpp>
+
 // Geneva headers
 #include "common/GCommonEnums.hpp" // serializationMode
 #include "courtier2/GBrokerT.hpp"
@@ -83,6 +86,18 @@ struct Courtier2Setup {
  * mnemonic yields an empty setup (both fields null).
  */
 Courtier2Setup buildCourtier2Setup(const Courtier2ConsumerSpec &spec);
+
+/******************************************************************************/
+/**
+ * Builds a Courtier2ConsumerSpec for @p mnemonic from the already-parsed command line @p vm.
+ *
+ * This is the single place that maps the consumer command-line options (asio_port,
+ * beast_serializationMode, nWorkerThreads, ...) onto the transport-agnostic spec, keeping callers
+ * (Go2, the standalone examples) free of per-consumer option knowledge. Options absent from @p vm
+ * fall back to the spec's defaults; an unknown mnemonic yields a spec carrying only the mnemonic.
+ */
+Courtier2ConsumerSpec specFromCommandLine(
+    const std::string &mnemonic, const boost::program_options::variables_map &vm);
 
 /******************************************************************************/
 

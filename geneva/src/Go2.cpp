@@ -36,10 +36,9 @@
 #include "common/GProviderT.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/consumers/GBaseConsumerT.hpp"
-// courtier2 consumer construction lives in the shared factory (buildCourtier2Setup); Go2 only needs
-// the legacy consumers to read the configured port/serialization (via dynamic_cast) for the spec.
-#include "courtier/consumers/GAsioConsumerT.hpp"
-#include "courtier/consumers/GWebsocketConsumerT.hpp"
+// courtier2 consumer construction AND the per-mnemonic command-line spec both live in the shared
+// setup layer (buildCourtier2Setup / specFromCommandLine); Go2 no longer reaches into the concrete
+// consumer types to read their configuration.
 #include "geneva/GCourtier2ConsumerSetup.hpp"
 #include "geneva/GConsumerStore.hpp"
 #include "geneva/GOptimizationEnums.hpp"
@@ -1075,25 +1074,10 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
     {
         const std::string mnemonic = consumer->getMnemonic();
 
-        // Assemble the spec from the chosen consumer's already-parsed configuration. Reading the
-        // port/serialization back from the legacy consumer (via dynamic_cast) is the remaining coupling
-        // to the old consumer classes, to be removed in the Go2 consumer-selection redesign.
-        Gem::Geneva::Courtier2ConsumerSpec spec;
-        spec.mnemonic = mnemonic;
-        bool exact = false;
-        spec.n_threads = static_cast<unsigned int>(consumer->getNProcessingUnitsEstimate(exact));
-        if(auto asio = std::dynamic_pointer_cast<
-               Gem::Courtier::Consumers::GAsioConsumerT<gpar::GParameterSet>>(consumer)) {
-            spec.port = asio->getPort();
-            spec.serialization_mode = asio->getSerializationMode();
-            spec.n_threads = 0; // networked IO threads: hardware concurrency
-        }
-        else if(auto beast = std::dynamic_pointer_cast<
-                    Gem::Courtier::Consumers::GWebsocketConsumerT<gpar::GParameterSet>>(consumer)) {
-            spec.port = beast->getPort();
-            spec.serialization_mode = beast->getSerializationMode();
-            spec.n_threads = 0;
-        }
+        // Assemble the spec for the chosen mnemonic straight from the parsed command line, via the
+        // courtier2 setup layer. This keeps Go2 free of the concrete consumer types -- no dynamic_cast
+        // back to GAsioConsumerT/GWebsocketConsumerT to read port/serialization.
+        Gem::Geneva::Courtier2ConsumerSpec spec = Gem::Geneva::specFromCommandLine(mnemonic, vm);
 
         // MPI must be built on the client ranks too (the worker loop lives in the courtier2 consumer);
         // the socket/local consumers are built only on the server.
