@@ -132,8 +132,7 @@ public:
      *  construction and before optimize(). */
     void registerCourtier2Broker(
         std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> broker) {
-        c2_broker_     = std::move(broker);
-        c2_local_kind_ = oa::courtier2_local_kind::none; // the injected broker takes precedence
+        c2_broker_ = std::move(broker);
     }
 
     /** @brief Retrieves the currently registered number of algorithms */
@@ -270,38 +269,19 @@ private:
         GO2_DEF_NOCONSUMER; ///< The name of a consumer requested by the user on the command line
 
     //---------------------------------------------------------------------------
-    // Phase-7 courtier2 routing (the DEFAULT submission path; server mode only).
-    // setupChosenConsumer() resolves the chosen mnemonic, runAlgorithmChain() plumbs the result into
-    // each algorithm. Two shapes:
-    //  - LOCAL  ("sc"/"stc"): the kind+threads below; each OA builds its own consumer.
-    //  - NETWORKED ("asio"/"beast"/"mpi"-master): a single server-backed courtier2 consumer is built
-    //    once here, its server started, and the shared c2_broker_ injected into every algorithm.
-    // Consumers without a courtier2 form yet (e.g. cuda) stay on the legacy path until ported.
-    oa::courtier2_local_kind c2_local_kind_ =
-        oa::courtier2_local_kind::none; ///< Which courtier2 local consumer to use (none == legacy/networked)
-    unsigned int c2_local_threads_ = 0; ///< Thread-pool size for the multithreaded kind (0 == hardware concurrency)
-    /** @brief The single server-backed courtier2 broker for networked routing (asio/beast/mpi-master);
-     *  shared across all algorithms. Held here so its consumer (and thus the listening server) outlives
-     *  the optimization run and is torn down by RAII at Go2 destruction. Null for the local/legacy/
-     *  mpi-worker paths. */
+    // courtier2 routing (the DEFAULT submission path). setupChosenConsumer() builds the consumer for
+    // the chosen mnemonic through the shared factory buildCourtier2Setup() and stores the result here;
+    // runAlgorithmChain() injects c2_broker_ into every algorithm. Consumers without a courtier2 form
+    // yet (e.g. cuda) stay on the legacy path until ported. A custom broker can be supplied directly
+    // via registerCourtier2Broker() (e.g. the CUDA examples).
+    /** @brief The single server-backed/local courtier2 broker, shared across all algorithms. Held here
+     *  so its consumer (and any listening server) outlives the run and is torn down by RAII at Go2
+     *  destruction. Null when no courtier2 routing was built (legacy fallback, or an MPI worker rank). */
     std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> c2_broker_;
     /** @brief Set on a courtier2 MPI WORKER rank: runs the courtier2 worker loop (clientRun_ invokes
      *  it instead of the legacy client). Type-erased so Go2.hpp needs no MPI headers; the captured
      *  consumer shared_ptr keeps the worker node alive. Empty on master / non-MPI / legacy paths. */
     std::function<void()> c2_mpi_run_worker_;
-
-    /** @brief Builds the shared networked courtier2 broker from a concrete courtier2 server consumer:
-     *  sets the polymorphic clone function, starts the server, and registers it. Mirrors the canonical
-     *  courtier2 networked setup (registerConsumer + startServer). */
-    template <typename C2Consumer>
-    void startCourtier2NetworkedServer_(const std::shared_ptr<C2Consumer> &consumer) {
-        consumer->setCloneFunction([](const std::shared_ptr<gpar::GParameterSet> &p) {
-            return p->clone<gpar::GParameterSet>();
-        });
-        consumer->startServer();
-        c2_broker_ = std::make_shared<Gem::Courtier2::GBrokerT<gpar::GParameterSet>>();
-        c2_broker_->registerConsumer(consumer);
-    }
 
     //---------------------------------------------------------------------------
     // Parameters for the random number generator

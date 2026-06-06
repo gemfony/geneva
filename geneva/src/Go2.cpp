@@ -36,13 +36,11 @@
 #include "common/GProviderT.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/consumers/GBaseConsumerT.hpp"
-// --- Phase-7 increment 2: courtier2 networked routing. The legacy consumers are needed to read the
-//     configured port/serialization (via dynamic_cast); the courtier2 consumers provide the server. ---
+// courtier2 consumer construction lives in the shared factory (buildCourtier2Setup); Go2 only needs
+// the legacy consumers to read the configured port/serialization (via dynamic_cast) for the spec.
 #include "courtier/consumers/GAsioConsumerT.hpp"
 #include "courtier/consumers/GWebsocketConsumerT.hpp"
-#include "courtier2/consumers/GAsioConsumerT.hpp"
-#include "courtier2/consumers/GWebsocketConsumerT.hpp"
-#include "courtier2/consumers/GMPIConsumerT.hpp" // self-guarded by GENEVA_BUILD_WITH_MPI_CONSUMER
+#include "geneva/GCourtier2ConsumerSetup.hpp"
 #include "geneva/GConsumerStore.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
@@ -570,15 +568,11 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
     sorted_           = false;
     bool is_first_algorithm = true;
     for(const auto &alg_ptr : algorithms_cnt_) {
-        // Phase-7: if courtier2 routing was selected, plumb it into the algorithm so its workOn()
-        // submits through courtier2 rather than the legacy executor. A server-backed networked broker
-        // (asio/beast) takes precedence and is shared across all algorithms; otherwise a local
-        // consumer kind is plumbed and each algorithm builds its own.
+        // If courtier2 routing was selected, inject the shared broker so the algorithm's workOn()
+        // submits through courtier2 rather than the legacy executor. (When no broker was built -- an
+        // unknown legacy-only consumer -- the algorithm uses its own default, see GBase::init.)
         if(c2_broker_) {
             alg_ptr->setCourtier2Broker(c2_broker_);
-        }
-        else if(c2_local_kind_ != oa::courtier2_local_kind::none) {
-            alg_ptr->setCourtier2LocalConsumer(c2_local_kind_, c2_local_threads_);
         }
 
         // Add the pluggable optimization monitors to the algorithm
@@ -1072,82 +1066,58 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
     // Finally give the consumer the chance to act on the command line options
     consumer->actOnCLOptions(vm);
 
-    // Phase-7 increment 4: courtier2 is now the DEFAULT submission path (the GENEVA_USE_COURTIER2 env
-    // gate is gone). The standard consumers ("sc"/"stc"/"asio"/"beast"/"mpi") are routed through
-    // courtier2 and plumbed into each algorithm in runAlgorithmChain() (MPI is special, see below);
-    // consumers without a courtier2 form yet (e.g. cuda) fall back to the legacy broker path until
-    // they are ported.
+    // courtier2 is the default submission path. Build the courtier2 consumer for the chosen mnemonic
+    // through the shared factory buildCourtier2Setup() -- the single place that knows the concrete
+    // courtier2 consumer types -- and inject the resulting broker into every algorithm (in
+    // runAlgorithmChain). Consumers without a courtier2 form yet (e.g. cuda) fall back to the legacy
+    // broker path. MPI builds on EVERY rank (master -> broker, worker -> run_worker); the socket and
+    // local consumers only on the server.
     {
         const std::string mnemonic = consumer->getMnemonic();
-        bool mpi_handled = false;
-#ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
-        if(mnemonic == "mpi") {
-            // MPI fixes the master/worker split by rank at launch within ONE program, so -- unlike the
-            // socket consumers (separate client processes that stay on the legacy client) -- the
-            // courtier2 MPI consumer is built on EVERY rank and branches on isMasterNode(). MPI was
-            // already initialised by the legacy consumer's init() above, so the courtier2 ctor's
-            // idempotent initializeMPI() is a no-op and the legacy consumer stays the MPI finaliser.
-            mpi_handled = true;
-            auto c2mpi = std::make_shared<Gem::Courtier2::GMPIConsumerT<gpar::GParameterSet>>();
-            if(c2mpi->isMasterNode()) {
-                this->startCourtier2NetworkedServer_(c2mpi); // clone fn + startServer + shared broker
-            }
-            else {
-                // Worker rank: hold the consumer alive (via the capture) so clientRun_ serves through
-                // it (runWorker) rather than the legacy client. Type-erased to keep MPI out of Go2.hpp.
-                c2_mpi_run_worker_ = [c2mpi]() { c2mpi->runWorker(); };
-            }
+
+        // Assemble the spec from the chosen consumer's already-parsed configuration. Reading the
+        // port/serialization back from the legacy consumer (via dynamic_cast) is the remaining coupling
+        // to the old consumer classes, to be removed in the Go2 consumer-selection redesign.
+        Gem::Geneva::Courtier2ConsumerSpec spec;
+        spec.mnemonic = mnemonic;
+        bool exact = false;
+        spec.n_threads = static_cast<unsigned int>(consumer->getNProcessingUnitsEstimate(exact));
+        if(auto asio = std::dynamic_pointer_cast<
+               Gem::Courtier::Consumers::GAsioConsumerT<gpar::GParameterSet>>(consumer)) {
+            spec.port = asio->getPort();
+            spec.serialization_mode = asio->getSerializationMode();
+            spec.n_threads = 0; // networked IO threads: hardware concurrency
         }
-#endif
-        if(not mpi_handled && not client_mode_) {
-            if(mnemonic == "sc") {
-                c2_local_kind_ = oa::courtier2_local_kind::serial;
+        else if(auto beast = std::dynamic_pointer_cast<
+                    Gem::Courtier::Consumers::GWebsocketConsumerT<gpar::GParameterSet>>(consumer)) {
+            spec.port = beast->getPort();
+            spec.serialization_mode = beast->getSerializationMode();
+            spec.n_threads = 0;
+        }
+
+        // MPI must be built on the client ranks too (the worker loop lives in the courtier2 consumer);
+        // the socket/local consumers are built only on the server.
+        if(mnemonic == "mpi" || not client_mode_) {
+            auto setup = Gem::Geneva::buildCourtier2Setup(spec);
+            c2_broker_         = setup.broker;     // injected into the algorithms (null on an MPI worker)
+            c2_mpi_run_worker_ = setup.run_worker; // MPI worker rank: clientRun_ serves through it
+
+            if(c2_broker_) {
+                std::cout << "Routing consumer \"" << mnemonic << "\" through courtier2\n";
             }
-            else if(mnemonic == "stc") {
-                bool exact = false;
-                c2_local_kind_    = oa::courtier2_local_kind::multithreaded;
-                c2_local_threads_ = static_cast<unsigned int>(consumer->getNProcessingUnitsEstimate(exact));
-            }
-            else if(mnemonic == "asio") {
-                // Reuse the legacy consumer's already-parsed port/serialization (the legacy client
-                // speaks the same wire protocol, so an unmodified client connects to the courtier2 server).
-                auto legacy = std::dynamic_pointer_cast<
-                    Gem::Courtier::Consumers::GAsioConsumerT<gpar::GParameterSet>>(consumer);
-                this->startCourtier2NetworkedServer_(
-                    std::make_shared<Gem::Courtier2::GAsioConsumerT<gpar::GParameterSet>>(
-                        legacy->getPort(), 0, legacy->getSerializationMode()
-                    )
-                );
-            }
-            else if(mnemonic == "beast") {
-                auto legacy = std::dynamic_pointer_cast<
-                    Gem::Courtier::Consumers::GWebsocketConsumerT<gpar::GParameterSet>>(consumer);
-                this->startCourtier2NetworkedServer_(
-                    std::make_shared<Gem::Courtier2::GWebsocketConsumerT<gpar::GParameterSet>>(
-                        legacy->getPort(), 0, legacy->getSerializationMode()
-                    )
-                );
-            }
-            else {
+            else if(not c2_mpi_run_worker_ && not client_mode_) {
                 glogger << "In Go2::setupChosenConsumer(): Note!" << '\n'
                         << "Consumer \"" << mnemonic << "\" has no courtier2 form yet;" << '\n'
                         << "falling back to the legacy broker path for this run." << '\n'
                         << GLOGGING;
             }
         }
-        if(c2_local_kind_ != oa::courtier2_local_kind::none) {
-            std::cout << "Routing local consumer \"" << mnemonic << "\" through courtier2\n";
-        }
-        else if(c2_broker_) {
-            std::cout << "Routing networked consumer \"" << mnemonic << "\" through courtier2\n";
-        }
     }
 
     // At this point the consumer should be fully configured.
-    // Register the consumer with the broker, unless other consumers have already
-    // been registered or we are running in client mode. When courtier2 handles submission (local
-    // consumer or a server-backed networked broker), the legacy consumer is left un-enrolled.
-    if(not client_mode_ && c2_local_kind_ == oa::courtier2_local_kind::none && not c2_broker_) {
+    // Register the consumer with the legacy broker only when courtier2 did NOT take over (an unknown
+    // mnemonic with no courtier2 form) and we are not a client / MPI worker.
+    if(not client_mode_ && not c2_broker_ && not c2_mpi_run_worker_) {
         if(not Gem::Courtier::broker<gpar::GParameterSet>()->hasConsumers()) {
             Gem::Courtier::broker<gpar::GParameterSet>()->enrol_consumer(consumer);
         }
