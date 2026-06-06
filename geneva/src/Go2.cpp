@@ -236,46 +236,24 @@ int Go2::clientRun() {
 }
 
 int Go2::clientRun_() {
-    // Phase-7 increment 3: on an MPI worker rank routed through courtier2, serve work through the
-    // courtier2 worker node (held type-erased from setupChosenConsumer) instead of the legacy client.
-    // The socket consumers (asio/beast) leave this unset and fall through to the legacy client below,
-    // which is wire-compatible with the courtier2 server.
+    // On an MPI worker rank routed through courtier2, serve work through the courtier2 worker node
+    // (held type-erased from setupChosenConsumer) instead of a networked client.
     if(c2_mpi_run_worker_) {
         c2_mpi_run_worker_();
         return 0;
     }
 
-    // Check that we have indeed been given a valid name
-    if(GO2_DEF_NOCONSUMER == consumer_name_ || not consumerStore()->exists(consumer_name_)) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In Go2::clientRun(): Error!\n"
-            << "Received invalid consumer name: " << consumer_name_ << "\n"
-        );
-    }
+    // Build the networked client for the chosen consumer through the courtier2 setup layer, from the
+    // spec assembled in setupChosenConsumer(). The client is wire-compatible with the courtier2 socket
+    // server. Go2 thus stays free of the concrete consumer/client types and the consumer store.
+    std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GParameterSet>> p =
+        Gem::Geneva::buildCourtier2Client(c2_spec_);
 
-    // Retrieve the client worker from the consumer
-    std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GParameterSet>> p;
-
-    auto consumer = consumerStore()->get(consumer_name_)->provide();
-    if(consumer->needsClient()) {
-        p = consumer->getClient();
-    }
-    else {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In Go2::clientRun(): Error!" << '\n'
-            << "Trying to execute clientRun() on consumer " << consumer_name_ << '\n'
-            << "which does not require a client" << '\n'
-        );
-    }
-
-    // Check for errors
     if(not p) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::clientRun(): Error!" << '\n'
-            << "Received empty client from consumer " << consumer_name_ << '\n'
+            << "Consumer \"" << consumer_name_ << "\" does not provide a networked client." << '\n'
         );
     }
 
@@ -1076,8 +1054,10 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
 
         // Assemble the spec for the chosen mnemonic straight from the parsed command line, via the
         // courtier2 setup layer. This keeps Go2 free of the concrete consumer types -- no dynamic_cast
-        // back to GAsioConsumerT/GWebsocketConsumerT to read port/serialization.
+        // back to GAsioConsumerT/GWebsocketConsumerT to read port/serialization. The spec is stored so
+        // clientRun_() can build the matching networked client from it (no second command-line pass).
         Gem::Geneva::Courtier2ConsumerSpec spec = Gem::Geneva::specFromCommandLine(mnemonic, vm);
+        c2_spec_ = spec;
 
         // MPI must be built on the client ranks too (the worker loop lives in the courtier2 consumer);
         // the socket/local consumers are built only on the server.

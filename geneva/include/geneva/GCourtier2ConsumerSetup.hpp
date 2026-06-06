@@ -32,6 +32,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers
+#include <cstddef>
 #include <functional>
 #include <memory>
 #include <string>
@@ -44,6 +45,11 @@
 #include "courtier2/GBrokerT.hpp"
 #include "geneva/par/GParameterSet.hpp"
 
+namespace Gem::Courtier {
+template <typename processable_type>
+class GBaseClientT; // the networked client base (wire-compatible with the courtier2 socket servers)
+} /* namespace Gem::Courtier */
+
 namespace Gem::Geneva {
 
 /******************************************************************************/
@@ -55,9 +61,13 @@ namespace Gem::Geneva {
 struct Courtier2ConsumerSpec {
     std::string mnemonic;            ///< "sc" | "stc" | "asio" | "beast" | "mpi"
     unsigned int n_threads = 0;      ///< local thread-pool / networked IO-thread count (0 == hardware concurrency)
-    unsigned short port = 0;         ///< listening port (networked socket consumers)
+    unsigned short port = 0;         ///< listening / target port (networked socket consumers)
     Gem::Common::serializationMode serialization_mode =
         Gem::Common::serializationMode::BINARY; ///< wire serialization (networked)
+    // --- client-side fields (networked socket consumers; ignored by the server build) ---
+    std::string ip = "localhost";        ///< server address the client connects to
+    std::size_t max_reconnects = 0;      ///< [asio] client reconnect attempts before giving up
+    bool verbose_control_frames = false; ///< [beast] client: log ping/pong/close frames
 };
 
 /******************************************************************************/
@@ -98,6 +108,19 @@ Courtier2Setup buildCourtier2Setup(const Courtier2ConsumerSpec &spec);
  */
 Courtier2ConsumerSpec specFromCommandLine(
     const std::string &mnemonic, const boost::program_options::variables_map &vm);
+
+/******************************************************************************/
+/**
+ * Builds the networked client for @p spec, for a process running in client mode. The socket servers
+ * built by buildCourtier2Setup() are wire-compatible with the existing client classes, so this is the
+ * single place that maps a mnemonic onto the matching client (asio/beast). The caller sets the maximum
+ * runtime and invokes run() on the returned client.
+ *
+ * Returns null for mnemonics that have no socket client (sc/stc are local; the mpi worker loop is
+ * obtained from buildCourtier2Setup().run_worker instead).
+ */
+std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GParameterSet>>
+buildCourtier2Client(const Courtier2ConsumerSpec &spec);
 
 /******************************************************************************/
 

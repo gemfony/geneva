@@ -39,6 +39,11 @@
 #include "courtier2/consumers/GStdThreadConsumerT.hpp"
 #include "courtier2/consumers/GWebsocketConsumerT.hpp"
 
+// The networked clients are wire-compatible with the courtier2 socket servers and are reused as-is;
+// like the consumers, the concrete client types are known ONLY here.
+#include "courtier/consumers/GAsioConsumerT.hpp"     // GAsioConsumerClientT
+#include "courtier/consumers/GWebsocketConsumerT.hpp" // GWebsocketClientT
+
 namespace Gem::Geneva {
 
 namespace {
@@ -128,15 +133,28 @@ Courtier2ConsumerSpec specFromCommandLine(
             dst = vm[key].as<Gem::Common::serializationMode>();
         }
     };
+    auto readString = [&vm](const char *key, std::string &dst) {
+        if(vm.count(key) != 0u) {
+            dst = vm[key].as<std::string>();
+        }
+    };
 
     if(mnemonic == "asio") {
         readPort("asio_port", spec.port);
         readSerMode("asio_serializationMode", spec.serialization_mode);
+        readString("asio_ip", spec.ip);
+        if(vm.count("asio_maxReconnects") != 0u) {
+            spec.max_reconnects = vm["asio_maxReconnects"].as<std::size_t>();
+        }
         spec.n_threads = 0; // networked IO threads: hardware concurrency
     }
     else if(mnemonic == "beast") {
         readPort("beast_port", spec.port);
         readSerMode("beast_serializationMode", spec.serialization_mode);
+        readString("beast_ip", spec.ip);
+        if(vm.count("beast_verboseControlFrames") != 0u) {
+            spec.verbose_control_frames = vm["beast_verboseControlFrames"].as<bool>();
+        }
         spec.n_threads = 0;
     }
     else if(mnemonic == "stc") {
@@ -147,6 +165,25 @@ Courtier2ConsumerSpec specFromCommandLine(
     // "sc" and "mpi" carry no networked spec fields: the defaults suffice.
 
     return spec;
+}
+
+/******************************************************************************/
+
+std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GParameterSet>>
+buildCourtier2Client(const Courtier2ConsumerSpec &spec) {
+    namespace cons = Gem::Courtier::Consumers;
+
+    if(spec.mnemonic == "asio") {
+        return std::make_shared<cons::GAsioConsumerClientT<gpar::GParameterSet>>(
+            spec.ip, spec.port, spec.serialization_mode, spec.max_reconnects);
+    }
+    if(spec.mnemonic == "beast") {
+        return std::make_shared<cons::GWebsocketClientT<gpar::GParameterSet>>(
+            spec.ip, spec.port, spec.serialization_mode, spec.verbose_control_frames);
+    }
+
+    // sc/stc are local-only; the mpi worker loop comes from buildCourtier2Setup().run_worker.
+    return nullptr;
 }
 
 /******************************************************************************/

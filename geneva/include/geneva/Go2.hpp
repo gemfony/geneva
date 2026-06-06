@@ -47,6 +47,7 @@
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
 #include "geneva/GConsumerStore.hpp"
+#include "geneva/GCourtier2ConsumerSetup.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GSigHupHandler.hpp"
 #include "geneva/par/GParameterObjectCollection.hpp"
@@ -282,6 +283,11 @@ private:
      *  it instead of the legacy client). Type-erased so Go2.hpp needs no MPI headers; the captured
      *  consumer shared_ptr keeps the worker node alive. Empty on master / non-MPI / legacy paths. */
     std::function<void()> c2_mpi_run_worker_;
+    /** @brief The transport-agnostic spec for the chosen consumer, assembled from the command line in
+     *  setupChosenConsumer(). Held so clientRun_() can build the matching networked client through the
+     *  courtier2 setup layer (buildCourtier2Client) without re-touching the command line or the
+     *  concrete consumer types. */
+    Courtier2ConsumerSpec c2_spec_;
 
     //---------------------------------------------------------------------------
     // Parameters for the random number generator
