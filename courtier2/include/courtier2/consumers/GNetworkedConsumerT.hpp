@@ -38,6 +38,7 @@
 #include <condition_variable>
 #include <cstddef>
 #include <functional>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -50,29 +51,40 @@ namespace Gem::Courtier2 {
 
 /******************************************************************************/
 /**
- * Base class for networked courtier2 consumers (ASIO, websocket, MPI). It owns the per-batch work
- * machinery that turns the synchronous reconcile-the-span contract of GBaseConsumerT into the
- * asynchronous, checkout/return world of remote clients:
+ * Base class for networked courtier2 consumers (ASIO, websocket, MPI). It owns the work machinery
+ * that turns the synchronous reconcile-the-span contract of GBaseConsumerT into the asynchronous,
+ * checkout/return world of remote clients -- and it does so for MANY concurrent submitters at once
+ * (the fan-in design), so a population of optimization algorithms can each submit to the SAME shared
+ * client pool simultaneously (e.g. a meta-optimization over a population of inner algorithms).
  *
- *  - dispatch_(items) marks the round's items PENDING -- the scheduling state lives ON each item
- *    (its dispatchState), so there are no side queues; the batch itself is the queue. It then blocks
- *    until every slot reaches DONE or a bounded timeout elapses. Items that never return are left
- *    DO_PROCESS == MISSING, so the inherited reconciliation loop resubmits/clones/fails them.
- *  - checkout()/checkin() are the queue endpoints a transport's session calls: checkout() hands the
- *    next pending item to a client (or null -> the client backs off), checkin() matches a returned
- *    (deserialized) result to its slot by id and replaces the slot's pointer with the result.
+ *  - dispatch_(items) registers the round's items as a new BATCH (the scheduling state lives ON each
+ *    item -- its dispatchState -- so there are no per-item side queues; each call BORROWS the caller's
+ *    round vector, it never owns/copies the items). It then blocks until every slot of ITS batch
+ *    reaches DONE or that batch's adaptive give-up window elapses; items left DO_PROCESS == MISSING are
+ *    resubmitted/cloned/failed by the inherited reconciliation loop.
+ *  - checkout()/checkin() are the queue endpoints a transport's session calls. checkout() serves the
+ *    next pending slot, round-robin INTERLEAVED across all currently-active batches (so concurrent
+ *    submitters make progress together, not one whole batch after another). checkin() matches a
+ *    returned (deserialized) result to its slot by id and writes it back.
  *
- * A result whose id is no longer outstanding (a late arrival from a previous, timed-out round, or a
- * duplicate) is silently dropped -- this is what makes resubmission safe. Concrete transports
- * implement only the server lifecycle (accept connections, run sessions wired to checkout/checkin).
+ * The wire correlation token is `(batch_id, slot)` -- the reincarnation of the old broker's
+ * bufferport routing: batch_id selects WHICH submitter's batch a result belongs to (so two concurrent
+ * batches' slot 0s never collide), slot the index within that batch. A result whose batch_id is no
+ * longer active (a late arrival from a batch that already timed out / finished) is silently dropped --
+ * this is what makes resubmission and lease-reclaim safe, and replaces the former per-round generation.
  *
- * Timeout / death-detection strategy: dispatch_ waits until every slot is DONE or progress stalls
- * past an ADAPTIVE give-up window (a multiple of the running mean return time, bootstrapped by a
- * first-return window). While waiting, stuck in-flight items are reclaimed (requeued for another
- * client) once they exceed an adaptive LEASE -- but only for transports without a client-liveness
- * signal (usesTimeLease(), default true: ASIO/MPI). A transport that knows when a client died
- * (the websocket consumer, via its persistent session + CheckoutLease) reclaims immediately on
- * disconnect and disables the time lease, so a live-but-slow client is never wrongly reclaimed.
+ * Borrow contract (also what makes the later shared_ptr->unique_ptr migration a localized change): the
+ * batch's vector is BORROWED for the duration of dispatch_; the consumer reads/serializes/schedules
+ * through it but never takes ownership. The only write is checkin() swapping a slot's pointer for the
+ * deserialized result -- the population stays the sole owner of its individuals.
+ *
+ * Timeout / death-detection (unchanged in spirit, now per batch): each dispatch_ waits until its batch
+ * is DONE or progress stalls past an ADAPTIVE give-up window (a multiple of the running mean return
+ * time, shared across batches). While waiting, where the transport has no client-liveness signal
+ * (usesTimeLease(), default true: ASIO/MPI), stuck in-flight items of that batch are reclaimed once
+ * they exceed an adaptive LEASE. A transport that detects client death directly (the websocket
+ * consumer, via its persistent session + CheckoutLease) reclaims immediately on disconnect and
+ * disables the time lease.
  */
 template <typename processable_type>
 class GNetworkedConsumerT : public GBaseConsumerT<processable_type> {
@@ -127,7 +139,8 @@ protected:
 
     /***************************************************************************/
     /** @brief Hands the next pending slot's item to a calling session, or null if none is pending.
-     *  The item's dispatch state flips PENDING -> IN_FLIGHT; correlation rides its correlation id. */
+     *  Round-robin across all active batches; the item's dispatch state flips PENDING -> IN_FLIGHT and
+     *  correlation rides its (batch_id, slot) id. */
     item_ptr checkout() {
         std::lock_guard<std::mutex> lk(mtx_);
         return checkout_locked();
@@ -135,70 +148,66 @@ protected:
 
     /***************************************************************************/
     /** @brief Like checkout(), but blocks up to @p wait for a slot to become available before
-     *  giving up and returning null. Mirrors the brief blocking get() the broker offered, which
-     *  keeps a transport from churning "no data" responses during the gaps between batches. */
+     *  giving up and returning null. Keeps a transport from churning "no data" responses during the
+     *  gaps between batches. */
     item_ptr checkoutWait(std::chrono::milliseconds wait) {
         std::unique_lock<std::mutex> lk(mtx_);
-        if(pending_count_ == 0) {
-            cv_work_.wait_for(lk, wait, [this] { return pending_count_ > 0 || stop_.load(); });
+        if(total_pending_ == 0) {
+            cv_work_.wait_for(lk, wait, [this] { return total_pending_ > 0 || stop_.load(); });
         }
         return checkout_locked();
     }
 
     /***************************************************************************/
-    /** @brief Accepts a returned result and writes it into its slot. The result's (generation, slot)
-     *  is decoded from its correlation id; a result from a previous (timed-out) round or a duplicate
-     *  -- i.e. one whose generation is stale or whose slot is no longer IN_FLIGHT -- is dropped,
-     *  which is what makes resubmission safe. */
+    /** @brief Accepts a returned result and writes it into its slot. The result's (batch_id, slot) is
+     *  decoded from its correlation id; a result whose batch is no longer active (timed out / finished)
+     *  or whose slot is no longer IN_FLIGHT (a duplicate) is dropped, which is what makes resubmission
+     *  safe. */
     void checkin(item_ptr p) {
         if(not p) {
             return;
         }
         std::lock_guard<std::mutex> lk(mtx_);
-        if(current_batch_ == nullptr) {
-            return; // no active round (e.g. a very late arrival after dispatch_ returned)
-        }
         const Gem::Courtier::BUFFERPORT_ID_TYPE id = p->getCorrelationId();
-        if(decodeGeneration(id) != (generation_ & GENERATION_MASK)) {
-            return; // stale: from a previous round
+        auto it = batches_.find(decodeBatch(id));
+        if(it == batches_.end()) {
+            return; // batch no longer active: a late arrival from a timed-out/finished batch
         }
+        BatchState &b = it->second;
         const std::size_t slot = decodeSlot(id);
-        auto &batch = *current_batch_;
-        if(slot >= batch.size() ||
-           batch[slot]->getDispatchState() != Gem::Courtier::dispatchState::IN_FLIGHT) {
+        if(slot >= b.items->size() ||
+           (*b.items)[slot]->getDispatchState() != Gem::Courtier::dispatchState::IN_FLIGHT) {
             return; // out of range, or duplicate / not currently in flight
         }
-        // Feed the adaptive timeout: how long this item took from checkout to return.
+        // Feed the (shared) adaptive timeout: how long this item took from checkout to return.
         const auto now = clock::now();
-        recordReturnTime_(now - checked_out_at_[slot]);
-        last_progress_ = now;
+        recordReturnTime_(now - b.checked_out_at[slot]);
+        b.last_progress = now;
 
         p->setDispatchState(Gem::Courtier::dispatchState::DONE);
-        batch[slot] = p; // swap the processed copy into the slot in place
-        ++done_;
-        if(done_ == target_) {
-            cv_done_.notify_one();
+        (*b.items)[slot] = p; // swap the processed copy into the slot in place
+        ++b.done;
+        if(b.done == b.target) {
+            cv_done_.notify_all(); // each waiting dispatch_ re-checks its own batch
         }
     }
 
     /***************************************************************************/
     /** @brief Returns a slot's still-in-flight item to PENDING so another client picks it up
-     *  immediately (the RAII put-back on a client disconnect). Caller passes the item it checked
-     *  out; the slot is located via its correlation id. A no-op if the round moved on or the slot is
+     *  immediately (the RAII put-back on a client disconnect). Caller passes the item it checked out;
+     *  the batch+slot are located via its correlation id. A no-op if the batch moved on or the slot is
      *  no longer in flight. */
     void requeue(const item_ptr &p) {
         if(not p) {
             return;
         }
         std::lock_guard<std::mutex> lk(mtx_);
-        if(current_batch_ == nullptr) {
-            return;
-        }
         const Gem::Courtier::BUFFERPORT_ID_TYPE id = p->getCorrelationId();
-        if(decodeGeneration(id) != (generation_ & GENERATION_MASK)) {
+        auto it = batches_.find(decodeBatch(id));
+        if(it == batches_.end()) {
             return;
         }
-        if(requeueSlot_locked(decodeSlot(id))) {
+        if(requeueSlot_locked(it->second, decodeSlot(id))) {
             cv_work_.notify_one();
         }
     }
@@ -207,8 +216,12 @@ protected:
     /** @brief Whether the server is being torn down (sessions use this to stop accepting work). */
     [[nodiscard]] bool stopped() const noexcept { return stop_.load(); }
 
-    /** @brief Requests teardown -- subclasses call this from their stop path. */
-    void requestStop() noexcept { stop_.store(true); }
+    /** @brief Requests teardown -- subclasses call this from their stop path. Wakes every waiter. */
+    void requestStop() noexcept {
+        stop_.store(true);
+        cv_work_.notify_all();
+        cv_done_.notify_all();
+    }
 
     /***************************************************************************/
     /** @brief Whether this consumer reclaims stuck in-flight items via the TIME lease. True for
@@ -220,10 +233,11 @@ protected:
 
     /***************************************************************************/
     /**
-     * Marks one round of items PENDING (state lives on the item itself, no side queues), waits for
-     * them to return (or time out), and -- because checkin() writes results straight into their
-     * slots -- simply returns. Items that never reached DONE are left DO_PROCESS == MISSING for the
-     * reconciliation loop.
+     * Registers @p items as a fresh batch (state lives on the items themselves, the vector is merely
+     * BORROWED), waits for them to return (or time out), and -- because checkin() writes results
+     * straight into their slots -- simply deregisters and returns. Items that never reached DONE are
+     * left DO_PROCESS == MISSING for the reconciliation loop. Safe to call concurrently from many
+     * threads: each call owns a distinct batch_id; the shared client pool is served round-robin.
      */
     void dispatch_(std::vector<item_ptr> &items) override {
         const std::size_t n = items.size();
@@ -232,132 +246,151 @@ protected:
         }
 
         const auto start = clock::now();
+        typename std::map<batch_key_t, BatchState>::iterator my_it;
         {
             std::lock_guard<std::mutex> lk(mtx_);
-            ++generation_; // a fresh round: stale returns from prior rounds will now be rejected
-            current_batch_ = &items;
-            target_ = n;
-            done_ = 0;
-            cursor_ = 0;
-            pending_count_ = n;
-            checked_out_at_.assign(n, start); // real checkout times are stamped in checkout_locked()
-            last_progress_ = start;
+            const batch_key_t key = (next_batch_id_++ & BATCH_MASK);
+            BatchState b;
+            b.items = &items;
+            b.target = n;
+            b.pending = n;
+            b.cursor = 0;
+            b.checked_out_at.assign(n, start);
+            b.last_progress = start;
             for(std::size_t k = 0; k < n; ++k) {
-                // (generation, slot) correlation token -- slot is the index into this round's batch.
-                items[k]->setCorrelationId(encodeId(generation_, k));
+                // (batch_id, slot) correlation token; slot is the index into this round's batch.
+                items[k]->setCorrelationId(encodeId(key, k));
                 items[k]->setDispatchState(Gem::Courtier::dispatchState::PENDING);
             }
+            my_it = batches_.emplace(key, std::move(b)).first;
+            total_pending_ += n;
         }
         cv_work_.notify_all(); // wake any session blocked in checkoutWait()
 
-        // Wait until every slot is DONE, or progress stalls past the (adaptive) give-up window. The
-        // happy path wakes on the final checkin() and exits at once. While waiting, where the
-        // transport has no liveness signal, we periodically reclaim items that have been in flight
-        // longer than the adaptive lease, so a dead client's slot is re-served to a live one.
+        // Wait until every slot of THIS batch is DONE, or its progress stalls past the (adaptive)
+        // give-up window. The happy path wakes on the final checkin() and exits at once. While
+        // waiting, where the transport has no liveness signal, periodically reclaim this batch's items
+        // that have been in flight longer than the adaptive lease.
         {
             std::unique_lock<std::mutex> lk(mtx_);
+            BatchState &b = my_it->second; // stable across wait_for: std::map refs survive other ins/erase
             while(true) {
-                if(done_ == target_ || stop_.load()) {
+                if(b.done == b.target || stop_.load()) {
                     break;
                 }
                 const auto now = clock::now();
-                if(now - last_progress_ > currentStallWindow()) {
+                if(now - b.last_progress > currentStallWindow()) {
                     break; // no progress for too long -> give up; unresolved slots become MISSING
                 }
                 if(this->usesTimeLease()) {
-                    leaseSweep_locked(now);
+                    leaseSweep_locked(b, now);
                 }
                 cv_done_.wait_for(lk, sweep_tick_);
             }
             // Slots are already updated in place by checkin(); slots never reached DONE keep their
-            // original DO_PROCESS item == MISSING for the policy loop. Detach from the batch (whose
-            // storage is about to leave dispatch_'s scope) so any very late checkin() is a no-op.
-            current_batch_ = nullptr;
-            target_ = 0;
-            done_ = 0;
-            pending_count_ = 0;
-            checked_out_at_.clear();
+            // original DO_PROCESS item == MISSING for the policy loop. Drop the still-PENDING slots
+            // from the global count and deregister the batch (its borrowed vector is about to leave
+            // dispatch_'s scope), so any very late checkin() for it becomes a no-op.
+            total_pending_ -= b.pending;
+            batches_.erase(my_it);
         }
     }
 
 private:
     /***************************************************************************/
-    // The work item's correlation id (a uint32) carries the wire correlation token: the high bits
-    // hold a round generation (so a stale return from a timed-out round is rejected), the low bits
-    // the slot index within the round. NB: this bounds a single batch to 2^24 items -- vastly beyond
-    // any real Geneva population -- and the generation wraps every 2^8 rounds (a harmless,
-    // astronomically unlikely aliasing).
-    static constexpr Gem::Courtier::BUFFERPORT_ID_TYPE SLOT_BITS = 24;
+    // The work item's correlation id (a uint32) carries the wire correlation token: the high 16 bits
+    // hold the batch_id (which active submitter's batch), the low 16 the slot index within it. NB:
+    // this bounds a single batch to 2^16 items (ample for any Geneva population) and the batch_id
+    // wraps every 2^16 dispatch rounds -- a harmless, astronomically unlikely aliasing, since a stale
+    // return only matters within a timeout window of its dispatch.
+    using batch_key_t = Gem::Courtier::BUFFERPORT_ID_TYPE;
+    static constexpr Gem::Courtier::BUFFERPORT_ID_TYPE SLOT_BITS = 16;
     static constexpr Gem::Courtier::BUFFERPORT_ID_TYPE SLOT_MASK = (1u << SLOT_BITS) - 1u;
-    static constexpr Gem::Courtier::BUFFERPORT_ID_TYPE GENERATION_MASK = 0xFFu;
+    static constexpr Gem::Courtier::BUFFERPORT_ID_TYPE BATCH_MASK = 0xFFFFu;
 
-    static Gem::Courtier::BUFFERPORT_ID_TYPE encodeId(std::size_t generation, std::size_t slot) {
-        return ((static_cast<Gem::Courtier::BUFFERPORT_ID_TYPE>(generation) & GENERATION_MASK) << SLOT_BITS)
+    static Gem::Courtier::BUFFERPORT_ID_TYPE encodeId(batch_key_t batch, std::size_t slot) {
+        return ((batch & BATCH_MASK) << SLOT_BITS)
                | (static_cast<Gem::Courtier::BUFFERPORT_ID_TYPE>(slot) & SLOT_MASK);
     }
-    static Gem::Courtier::BUFFERPORT_ID_TYPE decodeGeneration(Gem::Courtier::BUFFERPORT_ID_TYPE id) {
-        return (id >> SLOT_BITS) & GENERATION_MASK;
+    static batch_key_t decodeBatch(Gem::Courtier::BUFFERPORT_ID_TYPE id) {
+        return (id >> SLOT_BITS) & BATCH_MASK;
     }
     static std::size_t decodeSlot(Gem::Courtier::BUFFERPORT_ID_TYPE id) {
         return static_cast<std::size_t>(id & SLOT_MASK);
     }
 
     /***************************************************************************/
-    /** @brief Scans from the cursor for the next PENDING slot, flips it IN_FLIGHT and returns its
-     *  item. Caller holds mtx_. */
+    /** @brief Per-batch scheduling state. `items` is a BORROWED pointer to the caller's round vector
+     *  (valid only while that call's dispatch_ blocks); everything else is this batch's bookkeeping. */
+    struct BatchState {
+        std::vector<item_ptr> *items = nullptr; ///< Borrowed round vector (not owned)
+        std::size_t target = 0;                 ///< Number of slots in this batch
+        std::size_t done = 0;                   ///< Slots that have reached DONE
+        std::size_t pending = 0;                ///< Slots currently PENDING (awaiting a client)
+        std::size_t cursor = 0;                 ///< Next slot index to consider in checkout
+        std::vector<clock::time_point> checked_out_at; ///< Per-slot checkout time (lease + stats)
+        clock::time_point last_progress{};      ///< Time of the most recent checkin (stall basis)
+    };
+
+    /***************************************************************************/
+    /** @brief Serves the next PENDING slot, round-robin across active batches for fairness (so no
+     *  single submitter starves the others). Caller holds mtx_. */
     item_ptr checkout_locked() {
-        if(current_batch_ == nullptr || pending_count_ == 0) {
+        if(total_pending_ == 0 || batches_.empty()) {
             return nullptr;
         }
-        auto &batch = *current_batch_;
-        while(cursor_ < batch.size() &&
-              batch[cursor_]->getDispatchState() != Gem::Courtier::dispatchState::PENDING) {
-            ++cursor_;
+        // Start just past the last-served batch and walk the (ordered) map once, wrapping around.
+        auto it = batches_.upper_bound(last_served_batch_);
+        for(std::size_t scanned = 0; scanned < batches_.size(); ++scanned) {
+            if(it == batches_.end()) {
+                it = batches_.begin();
+            }
+            BatchState &b = it->second;
+            while(b.cursor < b.items->size() &&
+                  (*b.items)[b.cursor]->getDispatchState() != Gem::Courtier::dispatchState::PENDING) {
+                ++b.cursor;
+            }
+            if(b.cursor < b.items->size()) {
+                const std::size_t k = b.cursor++;
+                (*b.items)[k]->setDispatchState(Gem::Courtier::dispatchState::IN_FLIGHT);
+                b.checked_out_at[k] = clock::now();
+                --b.pending;
+                --total_pending_;
+                last_served_batch_ = it->first;
+                return (*b.items)[k];
+            }
+            ++it;
         }
-        if(cursor_ >= batch.size()) {
-            return nullptr; // none pending from here (a put-back would have reset the cursor)
-        }
-        const std::size_t k = cursor_++;
-        batch[k]->setDispatchState(Gem::Courtier::dispatchState::IN_FLIGHT);
-        checked_out_at_[k] = clock::now(); // start of this slot's lease / return-time measurement
-        --pending_count_;
-        return batch[k];
+        return nullptr;
     }
 
     /***************************************************************************/
-    /** @brief Flips a slot IN_FLIGHT -> PENDING (a put-back) and rewinds the cursor so checkout
-     *  re-finds it. Returns whether anything was flipped. Caller holds mtx_. */
-    bool requeueSlot_locked(std::size_t slot) {
-        if(current_batch_ == nullptr) {
+    /** @brief Flips a slot IN_FLIGHT -> PENDING (a put-back) within batch @p b and rewinds its cursor
+     *  so checkout re-finds it. Returns whether anything was flipped. Caller holds mtx_. */
+    bool requeueSlot_locked(BatchState &b, std::size_t slot) {
+        if(slot >= b.items->size() ||
+           (*b.items)[slot]->getDispatchState() != Gem::Courtier::dispatchState::IN_FLIGHT) {
             return false;
         }
-        auto &batch = *current_batch_;
-        if(slot >= batch.size() ||
-           batch[slot]->getDispatchState() != Gem::Courtier::dispatchState::IN_FLIGHT) {
-            return false;
-        }
-        batch[slot]->setDispatchState(Gem::Courtier::dispatchState::PENDING);
-        ++pending_count_;
-        if(slot < cursor_) {
-            cursor_ = slot;
+        (*b.items)[slot]->setDispatchState(Gem::Courtier::dispatchState::PENDING);
+        ++b.pending;
+        ++total_pending_;
+        if(slot < b.cursor) {
+            b.cursor = slot;
         }
         return true;
     }
 
     /***************************************************************************/
-    /** @brief Reclaims every slot that has been IN_FLIGHT longer than the adaptive lease, returning
-     *  it to PENDING for re-service. Caller holds mtx_. */
-    void leaseSweep_locked(clock::time_point now) {
-        if(current_batch_ == nullptr) {
-            return;
-        }
+    /** @brief Reclaims every slot of batch @p b that has been IN_FLIGHT longer than the adaptive
+     *  lease, returning it to PENDING for re-service. Caller holds mtx_. */
+    void leaseSweep_locked(BatchState &b, clock::time_point now) {
         const auto lease = currentLease();
         bool any = false;
-        auto &batch = *current_batch_;
-        for(std::size_t k = 0; k < batch.size(); ++k) {
-            if(batch[k]->getDispatchState() == Gem::Courtier::dispatchState::IN_FLIGHT &&
-               (now - checked_out_at_[k]) > lease) {
-                any = requeueSlot_locked(k) || any;
+        for(std::size_t k = 0; k < b.items->size(); ++k) {
+            if((*b.items)[k]->getDispatchState() == Gem::Courtier::dispatchState::IN_FLIGHT &&
+               (now - b.checked_out_at[k]) > lease) {
+                any = requeueSlot_locked(b, k) || any;
             }
         }
         if(any) {
@@ -390,9 +423,9 @@ private:
     }
 
     /***************************************************************************/
-    /** @brief The current give-up window: how long dispatch_ tolerates NO progress before declaring
-     *  the rest of the batch MISSING. A generous multiple of the running mean once returns have been
-     *  seen; the first-return window until then. */
+    /** @brief The current give-up window: how long a batch's dispatch_ tolerates NO progress before
+     *  declaring the rest of that batch MISSING. A generous multiple of the running mean once returns
+     *  have been seen; the first-return window until then. */
     std::chrono::milliseconds currentStallWindow() const {
         if(n_return_samples_ == 0) {
             return first_return_window_;
@@ -402,20 +435,16 @@ private:
     }
 
     mutable std::mutex mtx_;
-    std::condition_variable cv_done_; ///< Signalled when the last slot of a batch reaches DONE
-    std::condition_variable cv_work_; ///< Signalled when a batch's slots become available
+    std::condition_variable cv_done_; ///< Signalled when a batch's last slot reaches DONE
+    std::condition_variable cv_work_; ///< Signalled when a slot becomes available
 
-    std::vector<item_ptr> *current_batch_ = nullptr; ///< The round's batch (valid while dispatch_ blocks)
-    std::size_t generation_ = 0;    ///< Bumped each round; encoded into the correlation token
-    std::size_t target_ = 0;        ///< Number of slots in the current round
-    std::size_t done_ = 0;          ///< Slots that have reached DONE this round
-    std::size_t pending_count_ = 0; ///< Slots currently PENDING (awaiting a client)
-    std::size_t cursor_ = 0;        ///< Next slot index to consider in checkout
+    std::map<batch_key_t, BatchState> batches_; ///< All currently-active batches, keyed by batch_id
+    batch_key_t next_batch_id_ = 0;             ///< Monotonic batch_id source (masked to 16 bits)
+    batch_key_t last_served_batch_ = 0;         ///< Round-robin cursor across batches (for fairness)
+    std::size_t total_pending_ = 0;             ///< Slots PENDING across ALL batches (cv predicate)
 
-    std::vector<clock::time_point> checked_out_at_;     ///< Per-slot checkout time (lease + stats)
-    clock::time_point last_progress_{};                 ///< Time of the most recent checkin (stall basis)
-    double mean_return_ms_ = 0.0;                       ///< Running (EMA) mean checkout->return time
-    std::size_t n_return_samples_ = 0;                  ///< Returns observed so far (across rounds)
+    double mean_return_ms_ = 0.0;       ///< Running (EMA) mean checkout->return time (consumer-wide)
+    std::size_t n_return_samples_ = 0;  ///< Returns observed so far (across all batches)
 
     std::atomic<bool> stop_{false};
 

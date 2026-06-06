@@ -32,7 +32,11 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers
+#include <atomic>
+#include <condition_variable>
+#include <cstddef>
 #include <memory>
+#include <mutex>
 #include <thread>
 #include <vector>
 
@@ -69,10 +73,22 @@ protected:
     /**
      * Evaluates all items of one round concurrently. process() sets PROCESSED on success and
      * EXCEPTION_CAUGHT on a caught processing exception (which it also re-throws -- swallowed here).
+     *
+     * Waits on a PER-BATCH counter rather than GThreadPool::wait() (a global drain barrier): the pool
+     * is shared, so several algorithms can submit concurrently (the fan-in case -- e.g. a
+     * meta-optimization over a population of inner algorithms), and each must wait for ONLY its own
+     * items, not the whole pool. The captured @c remaining (shared, kept alive by the tasks) and the
+     * stack @c m / @c cv are valid throughout because dispatch_ blocks until every task has run.
      */
     void dispatch_(std::vector<item_ptr> &items) override {
+        if(items.empty()) {
+            return;
+        }
+        auto remaining = std::make_shared<std::atomic<std::size_t>>(items.size());
+        std::mutex m;
+        std::condition_variable cv;
         for(auto &it : items) {
-            pool_.post([it]() {
+            pool_.post([it, remaining, &m, &cv]() {
                 try {
                     it->process();
                 }
@@ -81,9 +97,14 @@ protected:
                     // re-thrown exception is intentionally swallowed so it never escapes the
                     // worker thread. Reconciliation reads the status, not an exception.
                 }
+                if(remaining->fetch_sub(1) == 1) { // this was the last item of THIS batch
+                    std::lock_guard<std::mutex> lk(m);
+                    cv.notify_one();
+                }
             });
         }
-        pool_.wait();
+        std::unique_lock<std::mutex> lk(m);
+        cv.wait(lk, [&] { return remaining->load() == 0; });
     }
 
 private:

@@ -46,10 +46,11 @@ FUNCTION(geneva_courtier2_test name)
 	INSTALL(TARGETS ${name} DESTINATION ${INSTALL_PREFIX_DATA}/tests/courtier2/UnitTests)
 ENDFUNCTION()
 
-geneva_courtier2_test(GCourtier2PolicyTests    GCourtier2PolicyTests.cpp)
-geneva_courtier2_test(GCourtier2TimeoutTests   GCourtier2TimeoutTests.cpp)
-geneva_courtier2_test(GCourtier2AsioTests      GCourtier2AsioTests.cpp)
-geneva_courtier2_test(GCourtier2WebsocketTests GCourtier2WebsocketTests.cpp)
+geneva_courtier2_test(GCourtier2PolicyTests      GCourtier2PolicyTests.cpp)
+geneva_courtier2_test(GCourtier2TimeoutTests     GCourtier2TimeoutTests.cpp)
+geneva_courtier2_test(GCourtier2ConcurrencyTests GCourtier2ConcurrencyTests.cpp)
+geneva_courtier2_test(GCourtier2AsioTests        GCourtier2AsioTests.cpp)
+geneva_courtier2_test(GCourtier2WebsocketTests   GCourtier2WebsocketTests.cpp)
 
 # The fatal reconciliation paths exit the process cleanly with a non-zero status (via LOGEXIT, no
 # core dump), so they are exercised as subprocesses: the "ok" control must succeed (exit 0); each
