@@ -77,8 +77,8 @@ void startReferenceMeasurement(
     // Create an evolutionary algorithm
     auto ea_alg_master = ea_serial_factory.get<oa::GEvolutionaryAlgorithm>();
 
-    // Register an appropriate executor
-    ea_alg_master->registerExecutor(execMode::SERIAL, "./config/GSerialExecutor.json");
+    // Submit through a courtier2 serial (inline) consumer.
+    ea_alg_master->setCourtier2LocalConsumer(oa::courtier2_local_kind::serial);
 
     //---------------------------------------------------------------------
     // Loop until no valid individuals can be retrieved anymore

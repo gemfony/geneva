@@ -55,6 +55,7 @@
 #include "courtier/consumers/GSerialConsumerT.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
 #include "geneva/oa/GSimulatedAnnealing.hpp"
+#include "geneva/GCourtier2ConsumerSetup.hpp"
 #include "geneva/GenevaInitializer.hpp"
 
 // The individual that should be optimized
@@ -326,53 +327,36 @@ int main(int argc, char **argv) {
         pop_ptr->push_back(ind);
     }
 
-    // Register executors, depending on the parallelisation mode, possibly adding
-    // a local consumer in broker-mode
+    // Route submission through courtier2, depending on the parallelisation mode.
     switch(parallelizationMode) {
     //----------------------------------------------------------------------------
-    case execMode::SERIAL: // Serial execution
-        pop_ptr->registerExecutor(execMode::SERIAL, "./config/GSerialExecutor.json");
+    case execMode::SERIAL: // Serial (inline) execution
+        pop_ptr->setCourtier2LocalConsumer(oa::courtier2_local_kind::serial);
         break;
 
         //----------------------------------------------------------------------------
-    case execMode::MULTITHREADED: // Multi-threaded execution
-        pop_ptr->registerExecutor(execMode::MULTITHREADED, "./config/GMTExecutor.json");
-
-        // Configure the number of threads
-        pop_ptr->getExecutor<Gem::Courtier::GMTExecutorT<gpar::GParameterSet>>()->setNThreads(
-            nEvaluationThreads
-        );
+    case execMode::MULTITHREADED: // Multi-threaded local execution
+        pop_ptr->setCourtier2LocalConsumer(
+            oa::courtier2_local_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
         break;
 
         //----------------------------------------------------------------------------
-    case execMode::
-        BROKER: // Execution with networked consumer and possibly a local, multi-threaded consumer
+    case execMode::BROKER: // Networked execution (or a purely local consumer for testing)
         if(addLocalConsumer) {
-            // Create a multi-threaded consumer. This
-            // is mainly for testing and benchmarking
-            std::shared_ptr<cons::GStdThreadConsumerT<gpar::GParameterSet>> gbtc(
-                new cons::GStdThreadConsumerT<gpar::GParameterSet>(nEvaluationThreads)
-            );
-            broker<gpar::GParameterSet>()->enrol_consumer(gbtc);
+            // "Broker mode" with only a local multi-threaded consumer (testing / benchmarking).
+            pop_ptr->setCourtier2LocalConsumer(
+                oa::courtier2_local_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
         }
         else {
-            // Create a network consumer and enrol_buffer_port it with the broker
-            std::shared_ptr<cons::GAsioConsumerT<gpar::GParameterSet>> gatc_ptr(
-                new cons::GAsioConsumerT<gpar::GParameterSet>()
-            );
-
-            // Set the required options
-            gatc_ptr->setServerName(ip);
-            gatc_ptr->setPort(port);
-            gatc_ptr->setSerializationMode(serMode);
-            gatc_ptr->setNThreads(nEvaluationThreads);
-            gatc_ptr->setMaxReconnects(maxReconnects);
-
-            // Add the consumer to the broker
-            broker<gpar::GParameterSet>()->enrol_consumer(gatc_ptr);
+            // Build a courtier2 ASIO server via the shared factory; the clients started above (the
+            // reused GAsioConsumerClientT) connect to it -- same wire protocol.
+            Gem::Geneva::Courtier2ConsumerSpec spec;
+            spec.mnemonic           = "asio";
+            spec.port               = port;
+            spec.serialization_mode = serMode;
+            auto setup = Gem::Geneva::buildCourtier2Setup(spec);
+            pop_ptr->setCourtier2Broker(setup.broker);
         }
-
-        pop_ptr->registerExecutor(execMode::BROKER, "./config/GBrokerExecutor.json");
         break;
 
         //----------------------------------------------------------------------------

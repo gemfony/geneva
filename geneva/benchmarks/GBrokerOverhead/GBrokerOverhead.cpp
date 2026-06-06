@@ -390,35 +390,25 @@ int main(int argc, char **argv) {
 
     std::shared_ptr<oa::GEvolutionaryAlgorithm> pop_ptr(new oa::GEvolutionaryAlgorithm());
 
+    // All three modes are LOCAL here (the "broker" mode used a local thread consumer too); route them
+    // through courtier2's local consumers. Serial -> inline, the others -> multithreaded.
     switch(parallelizationMode) {
-    case execMode::SERIAL: // Serial execution
+    case execMode::SERIAL: // Serial (inline) execution
         std::cout << "Using serial execution." << std::endl;
-        pop_ptr->registerExecutor(execMode::SERIAL, "./config/GSerialExecutor.json");
+        pop_ptr->setCourtier2LocalConsumer(oa::courtier2_local_kind::serial);
         break;
 
-    case execMode::MULTITHREADED: // Multi-threaded execution
+    case execMode::MULTITHREADED: // Multi-threaded local execution
         std::cout << "Using plain multi-threaded execution." << std::endl;
-        pop_ptr->registerExecutor(execMode::MULTITHREADED, "./config/GMTExecutor.json");
-
-        // Set the number of threads used in the executor
-        pop_ptr->getExecutor<Gem::Courtier::GMTExecutorT<gpar::GParameterSet>>()->setNThreads(
-            nEvaluationThreads
-        );
-
+        pop_ptr->setCourtier2LocalConsumer(
+            oa::courtier2_local_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
         break;
 
-    case execMode::
-        BROKER: // Execution with multi-threaded consumer. Note that we use BROKER here, even though no networked execution takes place
-    {
-        // Create a consumer and make it known to the global broker
-        std::shared_ptr<cons::GStdThreadConsumerT<gpar::GParameterSet>> stc(
-            new cons::GStdThreadConsumerT<gpar::GParameterSet>(nEvaluationThreads)
-        );
-        broker<gpar::GParameterSet>()->enrol_consumer(stc);
-
-        std::cout << "Using the GStdThreadConsumerT consumer." << std::endl;
-        pop_ptr->registerExecutor(execMode::BROKER, "./config/GBrokerExecutor.json");
-    } break;
+    case execMode::BROKER: // Historically a local thread consumer behind the broker -- still local.
+        std::cout << "Using a local multi-threaded courtier2 consumer." << std::endl;
+        pop_ptr->setCourtier2LocalConsumer(
+            oa::courtier2_local_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
+        break;
     }
 
     // Add individuals to the population

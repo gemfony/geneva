@@ -1865,10 +1865,11 @@ void GBase::resetStallCounter() {
  * as their first action, call this function.
  */
 void GBase::init() {
-    // courtier2 is the default submission path. If neither a courtier2 routing was injected (by Go2)
-    // nor a legacy executor explicitly registered (registerExecutor(), e.g. the 06_GDirect* examples),
-    // default this algorithm to a courtier2 local multithreaded consumer -- so a bare alg->optimize()
-    // works standalone, without Go2 and without enrolling a consumer.
+    // courtier2 is the default submission path. If neither a courtier2 routing was injected (by Go2 or
+    // setCourtier2Broker/setCourtier2LocalConsumer) nor a legacy executor explicitly registered
+    // (registerExecutor(), now without callers), default this algorithm to a courtier2 local
+    // multithreaded consumer -- so a bare alg->optimize() works standalone, without Go2 and without
+    // enrolling a consumer.
     if(not executor_ptr_ && c2_local_kind_ == courtier2_local_kind::none && not c2_external_broker_) {
         c2_local_kind_ = courtier2_local_kind::multithreaded; // 0 threads == hardware concurrency
     }

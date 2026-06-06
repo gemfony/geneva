@@ -72,7 +72,7 @@
 
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
-#include "courtier/consumers/GMPIConsumerT.hpp"
+#include "geneva/GCourtier2ConsumerSetup.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/GenevaInitializer.hpp"
 
@@ -242,28 +242,16 @@ int main(int argc, char **argv) {
     // Random numbers are our most valuable good. Set the number of threads
     randomFactory()->setNProducerThreads(nProducerThreads);
 
-    // Instantiate the MPI consumer.
-    auto consumer_ptr =
-        std::make_shared<cons::GMPIConsumerT<gpar::GParameterSet>>(/* optional configuration */);
-    // initialize MPI and figure out position in the cluster
-    consumer_ptr->setPositionInCluster();
-    // optionally synchronize processes. Makes only sense if some of the procs are doing very long init work
-    // This is not the case here. Synchronization just shown for demonstration purposes.
-    if(consumer_ptr->synchronize() && consumer_ptr->isMasterNode()) {
-        std::cout << "All MPI processes synchronized successfully." << '\n';
-    }
+    // Instantiate the MPI consumer through the shared courtier2 factory. It is built on every rank and
+    // branches by rank: a worker yields a run_worker loop, the master a broker to submit through.
+    auto mpiSetup = Gem::Geneva::buildCourtier2Setup(Gem::Geneva::Courtier2ConsumerSpec{.mnemonic = "mpi"});
 
     /****************************************************************************/
-    // If this is supposed to be a client start an MPI consumer client
-    if(consumer_ptr->isWorkerNode()) {
-        consumer_ptr->run();
-
+    // A worker rank serves work items until the master broadcasts the stop signal, then exits.
+    if(mpiSetup.run_worker) {
+        mpiSetup.run_worker();
         return 0;
     }
-
-    // If this is supposed to be the master node (server), then add it to the broker.
-    // This will allow the consumer to pull raw work items from the broker and put processed work items back.
-    broker<gpar::GParameterSet>()->enrol_consumer(consumer_ptr);
 
     /****************************************************************************/
     // We can now start creating populations. We refer to them through the base class
@@ -296,8 +284,8 @@ int main(int argc, char **argv) {
         pop_ptr->push_back(i);
     }
 
-    // set executor mode in the producer/optimization algorithm
-    pop_ptr->registerExecutor(execMode::BROKER, "./config/GBrokerExecutor.json");
+    // Submit through the courtier2 MPI master broker built above.
+    pop_ptr->setCourtier2Broker(mpiSetup.broker);
 
     /****************************************************************************/
     // Perform the actual optimization

@@ -1010,11 +1010,8 @@ protected:
                       << '\n';
             ea_ptr = ea.get<oa::GEvolutionaryAlgorithm>();
 
-            // Register an executor
-            ea_ptr->registerExecutor(
-                execMode::SERIAL,
-                "./config/GMetaOptimizerSerialExecutor.json"
-            );
+            // Submit the inner optimization through a courtier2 serial (inline) consumer.
+            ea_ptr->setCourtier2LocalConsumer(oa::courtier2_local_kind::serial);
 
             // Set the population parameters
             ea_ptr->setPopulationSizes(pop_size, n_parents);
