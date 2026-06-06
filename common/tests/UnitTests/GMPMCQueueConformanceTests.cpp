@@ -42,6 +42,7 @@
 #include <chrono>
 #include <cstddef>
 #include <memory>
+#include <stdexcept>
 #include <thread>
 #include <vector>
 
@@ -106,6 +107,25 @@ struct Tracked {
     int v_ = -1;
     std::vector<char> history_;
 };
+
+// A payload whose COPY constructor can be made to throw (its move constructor never throws, so the
+// queue can still move it out on pop). Used to check that a failed push leaves capacity intact.
+struct Thrower {
+    static std::atomic<int> copies;   // number of copy-constructions so far
+    static std::atomic<int> throw_on; // throw on the copy whose 1-based index equals this (-1 = never)
+    int v_ = 0;
+    explicit Thrower(int v) : v_(v) {}
+    Thrower(Thrower const &o) : v_(o.v_) {
+        if(copies.fetch_add(1) + 1 == throw_on.load()) {
+            throw std::runtime_error("Thrower copy boom");
+        }
+    }
+    Thrower(Thrower &&o) noexcept : v_(o.v_) {}
+    Thrower &operator=(Thrower const &) = default;
+    Thrower &operator=(Thrower &&) noexcept = default;
+};
+std::atomic<int> Thrower::copies{0};
+std::atomic<int> Thrower::throw_on{-1};
 
 // Backend tags: each exposes an alias template selecting one concrete facade specialisation.
 struct DequeTag {
@@ -411,6 +431,40 @@ TEMPLATE_TEST_CASE("GMPMCQueueT high-volume FIFO integrity", "[GMPMCQueueT]", MP
         ++next_out;
     }
     REQUIRE(q.empty());
+}
+
+/******************************************************************************/
+// A push whose element constructor throws must leave the queue unchanged (strong guarantee):
+// in particular it must NOT silently consume capacity.
+
+TEMPLATE_TEST_CASE("GMPMCQueueT a throwing element ctor preserves capacity", "[GMPMCQueueT]", MPMC_BACKENDS) {
+    constexpr int Cap = 4;
+    typename TestType::template queue<Thrower, Cap> q;
+
+    Thrower::copies.store(0);
+    Thrower::throw_on.store(1); // the very next copy throws
+
+    Thrower src(7);
+    bool threw = false;
+    try {
+        (void)q.try_push(src); // lvalue -> copy -> throws inside the queue's placement-new
+    } catch(const std::runtime_error &) {
+        threw = true;
+    }
+    REQUIRE(threw);
+    REQUIRE(q.empty()); // nothing was stored
+
+    // The reserved slot must have been handed back: the queue must still accept a full Cap items.
+    Thrower::throw_on.store(-1); // no more throwing
+    int accepted = 0;
+    for(int i = 0; i < Cap; ++i) {
+        Thrower item(i);
+        if(q.try_push(item)) { // copies (no throw now)
+            ++accepted;
+        }
+    }
+    REQUIRE(accepted == Cap); // without the give-back, only Cap-1 would fit
+    REQUIRE_FALSE(q.try_push(src)); // genuinely full now
 }
 
 /******************************************************************************/
