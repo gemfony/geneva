@@ -35,7 +35,7 @@ SET ( MONALISAINCLUDES
 	GCanvas.hpp
     GImageIndividual.hpp
     GImagePOM.hpp
-	GImageCUDAWorker.hpp
+	GImageCUDAConsumer.hpp
 	GImageHelperFunctions.hpp
 	GImageIndividualEvaluator.hpp
 	GCUDAFitnessIndividual.hpp
@@ -94,7 +94,6 @@ SET ( EXECUTABLENAME GCUDAWorker )
 SET ( ${EXECUTABLENAME}_SRCS
 	GCanvas.cpp
 	GImageBuilder.cpp
-	GImageCUDAWorker.cpp
     GImageIndividual.cpp
 	GImageHelperFunctions.cpp
 	GImageIndividualEvaluator.cu

@@ -125,6 +125,17 @@ public:
     /** @brief Makes it easier to add algorithms */
     Go2 &operator&(std::string const &);
 
+    /** @brief Supplies a custom, ready-to-use courtier2 broker (its consumer already registered, clone
+     *  function set, and -- for networked consumers -- server started) for this run, OVERRIDING the
+     *  mnemonic-based consumer selection. Used to plug in a custom consumer (e.g. a GPU consumer) that
+     *  Go2 does not know how to build itself; the broker is injected into every algorithm. Call after
+     *  construction and before optimize(). */
+    void registerCourtier2Broker(
+        std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> broker) {
+        c2_broker_     = std::move(broker);
+        c2_local_kind_ = oa::courtier2_local_kind::none; // the injected broker takes precedence
+    }
+
     /** @brief Retrieves the currently registered number of algorithms */
     std::size_t getNAlgorithms() const;
 

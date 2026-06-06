@@ -42,7 +42,7 @@
 
 // Geneva header files go here
 #include "common/GCommonHelperFunctions.hpp"
-#include "courtier/consumers/GStdThreadConsumerT.hpp"
+#include "courtier2/GBrokerT.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
 #include "geneva/Go2.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
@@ -51,8 +51,8 @@
 // The individual that should be optimized
 #include "GImageIndividual.hpp"
 
-// The consumer used for OpenCL targets
-#include "GImageCUDAWorker.hpp"
+// The courtier2 GPU consumer for GImageIndividuals
+#include "GImageCUDAConsumer.hpp"
 
 // Information retrieval and printing
 #include "GImagePOM.hpp"
@@ -308,18 +308,6 @@ void printDeviceInfo() {
 //////////////////////////////////////////////////////////////////////////////////
 /********************************************************************************/
 /**
- * Retrieves a worker to be added to the GStdThreadConsumerT
- *
- * @return A CUDA worker template for the consumer
- */
-std::shared_ptr<GImageCUDAWorker> getImageCUDAWorker() {
-    return std::make_shared<Gem::Courtier::GImageCUDAWorker>("./config/GImageCUDAWorker.json");
-}
-
-/********************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////
-/********************************************************************************/
-/**
  * The main function
  */
 int main(int argc, char **argv) {
@@ -344,18 +332,19 @@ int main(int argc, char **argv) {
         emitBestOnly
     );
 
-    // Retrieve workers
-    std::vector<std::shared_ptr<Gem::Courtier::GImageCUDAWorker>> workers;
-    std::tuple<std::size_t, std::size_t> imageDimensions;
+    // Build the GPU image consumer and wrap it in a courtier2 broker. The polymorphic clone function
+    // is needed by the clone-on-partial-return policy the evolutionary algorithm uses.
+    auto cudaConsumer_ptr =
+        std::make_shared<Gem::Geneva::GImageCUDAConsumer>("./config/GImageCUDAWorker.json");
+    cudaConsumer_ptr->setCloneFunction([](const std::shared_ptr<gpar::GParameterSet> &p) {
+        return p->clone<gpar::GParameterSet>();
+    });
+    auto cudaBroker_ptr = std::make_shared<Gem::Courtier2::GBrokerT<gpar::GParameterSet>>();
+    cudaBroker_ptr->registerConsumer(cudaConsumer_ptr);
 
-    // Retrieve a CUDA worker
-    auto cudaWorker_ptr = getImageCUDAWorker();
-
-    // Set up the consumer -- this call will register it with the broker
-    cons::GStdThreadConsumerT<gpar::GParameterSet>::setup("./config/GStdThreadConsumerT.json", cudaWorker_ptr);
-
-    // Create the optimizer
+    // Create the optimizer and hand it the GPU consumer (overrides Go2's mnemonic-based selection).
     Go2 go(argc, argv, "./config/Go2.json", user_options);
+    go.registerCourtier2Broker(cudaBroker_ptr);
 
     //---------------------------------------------------------------------------
     // As we are dealing with a server, register a signal handler that allows us
@@ -377,11 +366,11 @@ int main(int argc, char **argv) {
         logSigma,
         logImages,
         "./results/",
-        cudaWorker_ptr->getTargetImageFileName(),
+        cudaConsumer_ptr->getTargetImageFileName(),
         emitBestOnly,
-        cudaWorker_ptr->useGPU(),
-        cudaWorker_ptr->getBlockSize(),
-        cudaWorker_ptr->getGridSize()
+        cudaConsumer_ptr->useGPU(),
+        cudaConsumer_ptr->getBlockSize(),
+        cudaConsumer_ptr->getGridSize()
     );
 
     if(collectiveMonitor_ptr) {
