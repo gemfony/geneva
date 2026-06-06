@@ -46,6 +46,10 @@
 // Boost headers go here
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
+#include <boost/asio/executor_work_guard.hpp>
+#include <boost/asio/post.hpp>
+#include <boost/asio/steady_timer.hpp>
+#include <boost/asio/thread_pool.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/beast/websocket/rfc6455.hpp>
@@ -327,9 +331,16 @@ private:
             return;
         }
 
-        // Send the first command to the server. The read for the response is started once
-        // the write completes (when_written), giving a strict write->read->process->write
-        // ping-pong on the single io thread -- no overlapping reads/writes, no thread pool.
+        // Full-duplex operation: keep exactly one async_read outstanding at all times so Beast can
+        // service incoming pings (-> automatic pong) even while a work item is being evaluated on the
+        // compute pool. Without an in-flight read, a long (unbounded) evaluation would starve the pong
+        // and the server would wrongly declare this healthy client dead. The periodic halt poll
+        // cancels the outstanding read on shutdown so io_context::run() can drain.
+        async_start_read();
+        start_halt_timer();
+
+        // Send the first request. Subsequent requests are written from handle_message() (NODATA) and
+        // finish_compute() (RESULT); the read above is re-armed in when_read().
         async_start_write(
             Gem::Courtier::container_to_string(
                 command_container_.reset(networked_consumer_payload_command::GETDATA),
@@ -349,22 +360,20 @@ private:
         [[maybe_unused]] std::size_t nothing
     ) {
         if(ec) {
-            glogger << "In GWebsocketClientT<processable_type>::when_written():" << '\n'
-                    << "Got ec(\"" << ec.message() << "\")." << '\n'
-                    << "This will terminate the client." << '\n'
-                    << GLOGGING;
-
-            // Give the audience a hint why we are terminating. We do not re-arm any async
-            // operation, so io_context::run() drains and the client terminates.
+            // operation_aborted is the expected outcome of do_close() during shutdown -- not an error.
+            if(ec != boost::asio::error::operation_aborted) {
+                glogger << "In GWebsocketClientT<processable_type>::when_written():" << '\n'
+                        << "Got ec(\"" << ec.message() << "\")." << '\n'
+                        << "This will terminate the client." << '\n'
+                        << GLOGGING;
+            }
             close_code_ = boost::beast::websocket::close_code::going_away;
             return;
         }
 
-        // Clear the outgoing message -- no longer needed
+        // The request has been sent; the server's response is delivered to the always-outstanding
+        // read (re-armed in when_read()), so we do NOT start a read here. Just release the buffer.
         outgoing_message_.clear();
-
-        // The request has been sent; read the server's response.
-        async_start_read();
     }
 
     //-------------------------------------------------------------------------
@@ -378,29 +387,32 @@ private:
         [[maybe_unused]] std::size_t nothing
     ) {
         if(ec) {
-            glogger << "In GWebsocketClientT<processable_type>::when_read():" << '\n'
-                    << "Got ec(\"" << ec.message()
-                    << "\"). async_start_write() will not be executed." << '\n'
-                    << "This will terminate the client." << '\n'
-                    << GLOGGING;
-
-            // Give the audience a hint why we are terminating
+            // operation_aborted is the expected outcome of do_close() during shutdown -- not an error.
+            if(ec != boost::asio::error::operation_aborted) {
+                glogger << "In GWebsocketClientT<processable_type>::when_read():" << '\n'
+                        << "Got ec(\"" << ec.message() << "\")." << '\n'
+                        << "This will terminate the client." << '\n'
+                        << GLOGGING;
+            }
             close_code_ = boost::beast::websocket::close_code::going_away;
             return;
         }
 
-        // Deal with the message and send a response back. Processing happens INLINE on the io
-        // thread (not on a thread pool): this keeps the read->process->write cycle strictly
-        // sequential -- no overlapping ws_ operations from a second thread (which Beast forbids)
-        // and no risk of the client being destroyed on one of its own pool threads.
-        process_request();
+        // Handle the message: a COMPUTE item is moved to the compute pool (so the io thread stays free
+        // to service pings while the -- possibly long -- evaluation runs); lighter commands (NODATA)
+        // are answered directly. Then re-arm the read so exactly one read stays outstanding.
+        handle_message();
+
+        if(not this->halt()) {
+            async_start_read();
+        }
     }
 
     //-------------------------------------------------------------------------
     /**
 	  * Processing of incoming messages and creation of responses takes place here
 	  */
-    void process_request() {
+    void handle_message() {
         // Extract the string from the buffer
         auto message = boost::beast::buffers_to_string(incoming_buffer_.data());
 
@@ -413,7 +425,7 @@ private:
             Gem::Courtier::container_from_string(message, command_container_, serialization_mode_);
         }
         catch(const std::exception &e) {
-            glogger << "In GWebsocketClientT<processable_type>::process_request():" << '\n'
+            glogger << "In GWebsocketClientT<processable_type>::handle_message():" << '\n'
                     << "Could not de-serialize an incoming message:" << '\n'
                     << e.what() << '\n'
                     << "The client will shut down." << '\n'
@@ -422,70 +434,99 @@ private:
             return;
         }
 
-        // Extract the command
-        auto inboundCommand = command_container_.get_command();
-
         // Act on the command received
-        switch(inboundCommand) {
+        switch(command_container_.get_command()) {
             using enum Gem::Courtier::networked_consumer_payload_command;
-        case COMPUTE: {
-            // Process the work item. A failure in the user's processing code surfaces as a
-            // g_processing_exception, with the work item already flagged (EXCEPTION_CAUGHT).
-            // We must NOT let that kill the client: catch it and return the flagged item to
-            // the server like any other result, so the item is accounted for, not lost.
-            try {
-                command_container_.process();
-            }
-            catch(const g_processing_exception &e) {
-                glogger << "In GWebsocketClientT<processable_type>::process_request():" << '\n'
-                        << "The work item flagged a processing exception:" << '\n'
-                        << e.what() << '\n'
-                        << "It is returned to the server flagged; the client keeps running."
-                        << '\n'
-                        << GWARNING;
-            }
+        case COMPUTE:
+            // Hand the (possibly long-running, unbounded) evaluation to the compute pool so the io
+            // thread stays free to service pings -> auto-pong while it runs. The result is written
+            // back from finish_compute() once the worker is done.
+            dispatch_compute();
+            break;
 
-            // Update the processed counter
-            this->incrementProcessingCounter();
-
-            // Set the command for the way back to the server
-            command_container_.set_command(networked_consumer_payload_command::RESULT);
-        } break;
-
-        case NODATA: { // This must be a command payload
-            // Update the nodata counter for bookkeeping
+        case NODATA: {
+            // No work available yet. Wait briefly, then ask again. A short sleep on the io thread is
+            // acceptable here -- it is far below the ping interval and only happens while idle.
             n_nodata_++;
-
-            // sleep for a short while (between 50 and 200 milliseconds, randomly),
-            // before we ask for new work.
             std::uniform_int_distribution<> dist(50, 200);
             std::this_thread::sleep_for(std::chrono::milliseconds(dist(rng_engine_)));
-
-            // Tell the server again we need work
-            command_container_.reset(networked_consumer_payload_command::GETDATA);
+            send_command_(command_container_.reset(networked_consumer_payload_command::GETDATA));
         } break;
 
-        default: {
-            // An unknown/invalid command is unrecoverable; log and shut down cleanly (do NOT
-            // throw -- that would unwind the io thread).
-            glogger << "In GWebsocketClientT<processable_type>::process_request():" << '\n'
-                    << "Received invalid command " << pcToStr(inboundCommand) << '\n'
+        default:
+            // An unknown/invalid command is unrecoverable; log and shut down cleanly (do NOT throw
+            // -- that would unwind the io thread).
+            glogger << "In GWebsocketClientT<processable_type>::handle_message():" << '\n'
+                    << "Received invalid command " << pcToStr(command_container_.get_command())
+                    << '\n'
                     << "The client will shut down." << '\n'
                     << GWARNING;
             close_code_ = boost::beast::websocket::close_code::internal_error;
-            return;
+            break;
         }
-        }
+    }
 
-        // Serialize the object again and return the result. when_written() will re-arm the
-        // read for the next response, continuing the ping-pong.
+    //-------------------------------------------------------------------------
+    /**
+	  * Moves the just-received work item to the compute pool for evaluation, keeping the io thread
+	  * free to service pings. A work guard pins io_context::run() open from here until
+	  * finish_compute() has run, so the posted result is always delivered -- no premature drain and
+	  * no leftover-handler leak on shutdown.
+	  */
+    void dispatch_compute() {
+        // The item being evaluated lives in in_flight_container_, owned by the worker until it posts
+        // the result back; command_container_ is then free for the next read. Only one evaluation is
+        // ever in flight (the server sends the next item only after receiving the RESULT), so this
+        // container is never touched by two threads at once.
+        in_flight_container_ = std::move(command_container_);
+
+        auto self = this->shared_from_this();
+        auto guard = boost::asio::make_work_guard(io_context_);
+        boost::asio::post(
+            compute_pool_,
+            [self, guard = std::move(guard)]() mutable {
+                try {
+                    self->in_flight_container_.process();
+                }
+                catch(const g_processing_exception &e) {
+                    glogger << "In GWebsocketClientT<processable_type>::dispatch_compute():" << '\n'
+                            << "The work item flagged a processing exception:" << '\n'
+                            << e.what() << '\n'
+                            << "It is returned to the server flagged; the client keeps running."
+                            << '\n'
+                            << GWARNING;
+                }
+                // Hop back onto the io thread to send the result -- ws_ must only be touched there.
+                boost::asio::post(
+                    self->io_context_,
+                    [self, guard = std::move(guard)]() mutable { self->finish_compute(); }
+                );
+            }
+        );
+    }
+
+    //-------------------------------------------------------------------------
+    /** @brief Runs on the io thread once an evaluation has completed: returns the result to the
+	 *  server. The work guard captured by the posting lambda is released when this returns. */
+    void finish_compute() {
+        this->incrementProcessingCounter();
+        in_flight_container_.set_command(networked_consumer_payload_command::RESULT);
+        send_command_(in_flight_container_);
+    }
+
+    //-------------------------------------------------------------------------
+    /** @brief Serializes @p container and writes it to the server, guarding against serialization
+	 *  failures (which must not unwind the io thread). */
+    void send_command_(
+        const GCommandContainerT<processable_type, networked_consumer_payload_command> &container
+    ) {
         try {
             this->async_start_write(
-                Gem::Courtier::container_to_string(command_container_, serialization_mode_)
+                Gem::Courtier::container_to_string(container, serialization_mode_)
             );
         }
         catch(const std::exception &e) {
-            glogger << "In GWebsocketClientT<processable_type>::process_request():" << '\n'
+            glogger << "In GWebsocketClientT<processable_type>::send_command_():" << '\n'
                     << "Could not serialize the outgoing message:" << '\n'
                     << e.what() << '\n'
                     << "The client will shut down." << '\n'
@@ -501,8 +542,12 @@ private:
 	  * @param cc The close code to be sent to the peer
 	  */
     void do_close(close_code cc) {
+        // Stop the halt-poll timer; if it has already fired this is a harmless no-op.
+        halt_timer_.cancel();
+
         if(ws_.is_open()) {
-            ws_.close(cc);
+            boost::system::error_code wc_ec;
+            ws_.close(cc, wc_ec); // ec-overload: we are tearing down, do not throw
         }
 
         if(ws_.next_layer().is_open()) {
@@ -511,21 +556,40 @@ private:
             ws_.next_layer().shutdown(socket::shutdown_both, ec);
             ws_.next_layer().close(ec);
 
-            if(ec) {
+            // A failed shutdown/close (commonly the peer already went away) must NOT throw out of
+            // this async-handler context -- that would unwind the io thread. Log and move on.
+            if(ec && ec != boost::asio::error::not_connected) {
                 glogger << "In GWebsocketClientT<processable_type>::do_close():" << '\n'
-                        << "Got ec(\"" << ec.message() << "\")." << '\n'
-                        << "We will throw an exception, as there are no other options left"
-                        << '\n'
+                        << "Shutdown of the next layer reported: " << ec.message() << '\n'
                         << GLOGGING;
-
-                // Not much more we can do
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "GWebsocketClientT<processable_type>::do_close():" << '\n'
-                    << "Shutdown of next layer has failed" << '\n'
-                );
             }
         }
+    }
+
+    //-------------------------------------------------------------------------
+    /**
+	  * Arms a periodic timer that polls the base-class halt() condition (max runtime / stop request /
+	  * error flag). Because a read is kept outstanding at all times, a halt would otherwise never be
+	  * observed; on halt we do_close(), which aborts the outstanding read/write so io_context::run()
+	  * drains and the client terminates.
+	  */
+    void start_halt_timer() {
+        halt_timer_.expires_after(std::chrono::seconds(1));
+        auto self = this->shared_from_this();
+        halt_timer_.async_wait([self](boost::system::error_code ec) { self->on_halt_timer(ec); });
+    }
+
+    //-------------------------------------------------------------------------
+    /** @brief Timer callback: tears the connection down once a halt condition is reached. */
+    void on_halt_timer(boost::system::error_code ec) {
+        if(ec) { // the timer was cancelled (do_close) -- stop polling
+            return;
+        }
+        if(this->halt()) {
+            do_close(boost::beast::websocket::close_code::normal);
+            return;
+        }
+        start_halt_timer(); // keep polling
     }
 
     //-------------------------------------------------------------------------
@@ -567,11 +631,25 @@ private:
 
     GCommandContainerT<processable_type, networked_consumer_payload_command> command_container_{
         networked_consumer_payload_command::NONE
-    }; ///< Holds the current command and payload (if any)
+    }; ///< Holds the current command and payload (read/written on the io thread)
 
-    // Note: request processing now runs inline on the io thread (see process_request()), so the
-    // client no longer owns a worker thread pool. This removes the cross-thread ws_ write race
-    // and the risk of the client being destroyed on one of its own pool threads (self-join).
+    GCommandContainerT<processable_type, networked_consumer_payload_command> in_flight_container_{
+        networked_consumer_payload_command::NONE
+    }; ///< Holds the work item currently being evaluated on the compute pool (one at a time)
+
+    boost::asio::steady_timer halt_timer_{
+        io_context_
+    }; ///< Periodically polls halt() to cancel the outstanding read on shutdown
+
+    /// A single-thread pool that runs the (possibly long, unbounded) work-item evaluation OFF the io
+    /// thread, so the io thread stays free to answer websocket pings while a work item is computed.
+    /// Declared last so it is destroyed (and its thread joined) before io_context_ and ws_.
+    boost::asio::thread_pool compute_pool_{1};
+
+    // Note: the heavy evaluation now runs on compute_pool_ (not inline on the io thread); the io
+    // thread keeps an async_read outstanding throughout, so Beast services pings during evaluation.
+    // Only the io thread ever touches ws_ (the worker posts the result write back to it), so Beast's
+    // single-reader/single-writer rule is upheld.
 
     //-------------------------------------------------------------------------
 };
@@ -841,32 +919,37 @@ private:
 	  */
     void when_timer_fired(boost::system::error_code ec) {
         if(ec) {
-            if(ec != boost::asio::error::operation_aborted) {
-                glogger << "GWebsocketConsumerSessionT<processable_type>::when_timer_fired(): "
-                        << ec.message() << '\n'
-                        << GLOGGING;
-            }
-
-            ping_state_ = beast_ping_state::CONNECTION_IS_STALE;
+            // operation_aborted = the timer was cancelled by do_close() during teardown -- expected.
             return;
         }
 
         if(ping_state_ == beast_ping_state::CONNECTION_IS_ALIVE) {
-            // Start the next ping session, if this is a healthy connection
+            // A ping or pong was seen since the last tick: the peer is healthy. Reset the miss
+            // counter and start the next ping interval.
+            missed_pings_ = 0;
             async_start_ping();
             return;
         }
-                    ping_state_ = beast_ping_state::CONNECTION_IS_STALE;
 
+        // No pong came back within this interval. Tolerate a few consecutive misses before declaring
+        // the connection dead: a healthy client now answers pings promptly (it evaluates work items
+        // off its io thread), so a single miss is a transient hiccup, not death. Only a peer that is
+        // genuinely unresponsive over several intervals is torn down -- which reclaims the session
+        // and its socket (so the server does not slowly leak connections to vanished clients).
+        if(++missed_pings_ >= max_missed_pings_) {
             if(not this->check_server_stopped_()) {
-                // Either this is a stale connection or the SENDING_PING flag is still set
-                glogger << "GWebsocketConsumerSessionT<processable_type>::when_timer_fired():"
-                        << '\n'
-                        << "Connection seems to be dead: " << ping_state_ << '\n'
+                glogger << "GWebsocketConsumerSessionT<processable_type>::when_timer_fired():" << '\n'
+                        << "No pong after " << max_missed_pings_
+                        << " ping intervals; closing the connection." << '\n'
                         << GLOGGING;
             }
+            do_close(boost::beast::websocket::close_code::going_away);
             return;
-       
+        }
+
+        // Give the peer another interval to respond.
+        async_start_ping();
+
     }
 
     //-------------------------------------------------------------------------
@@ -973,7 +1056,8 @@ private:
 
         if(ws_.is_open()) {
             // Close the connection
-            ws_.close(cc);
+            boost::system::error_code wc_ec;
+            ws_.close(cc, wc_ec); // ec-overload: tearing down, do not throw
         }
 
         if(ws_.next_layer().is_open()) {
@@ -984,14 +1068,12 @@ private:
             ws_.next_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
             ws_.next_layer().close(ec);
 
-            if(ec) {
-                // Not much else we can do here
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "GWebsocketConsumerSessionT<processable_type>::do_close():" << '\n'
-                    << "Shutdown of next layer has failed" << '\n'
-                    << "Got error code " << ec.message() << '\n'
-                );
+            // A failed shutdown/close (commonly the peer already vanished) must NOT throw out of this
+            // async-handler context -- that would unwind an io thread. Log and move on.
+            if(ec && ec != boost::asio::error::not_connected) {
+                glogger << "GWebsocketConsumerSessionT<processable_type>::do_close():" << '\n'
+                        << "Shutdown of the next layer reported: " << ec.message() << '\n'
+                        << GLOGGING;
             }
         }
     }
@@ -1117,6 +1199,11 @@ private:
 
     std::atomic<beast_ping_state> ping_state_{beast_ping_state::CONNECTION_IS_ALIVE};
     const boost::beast::websocket::ping_data ping_data_;
+
+    /// Consecutive ping intervals without a pong; the connection is declared dead only once this
+    /// reaches max_missed_pings_ (tolerating transient hiccups -- a healthy client now pongs promptly).
+    unsigned int missed_pings_ = 0;
+    static constexpr unsigned int max_missed_pings_ = 3;
 
     GCommandContainerT<processable_type, networked_consumer_payload_command> command_container_{
         networked_consumer_payload_command::NONE
