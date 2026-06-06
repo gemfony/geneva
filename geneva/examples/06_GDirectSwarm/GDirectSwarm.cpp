@@ -51,10 +51,8 @@
 
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
-#include "courtier/consumers/GAsioConsumerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
-#include "courtier/consumers/GSerialConsumerT.hpp"
-#include "courtier/consumers/GStdThreadConsumerT.hpp"
+#include "geneva/GCourtier2ConsumerSetup.hpp"
 #include "geneva/oa/GSwarmAlgorithm.hpp"
 #include "geneva/GenevaInitializer.hpp"
 
@@ -326,12 +324,20 @@ int main(int argc, char **argv) {
     // If this is a client in networked mode, we can just start the listener and
     // return when it has finished
     if(clientMode && cType == consumerType::NETWORKED) {
-        std::shared_ptr<cons::GAsioConsumerClientT<gpar::GParameterSet>> p(
-            new cons::GAsioConsumerClientT<gpar::GParameterSet>(ip, port, serMode, maxReconnects)
-        );
+        // Build the networked client through the courtier2 setup layer. The single mnemonic below
+        // drives both this client and the server below -- change it (e.g. to "beast") in both places to
+        // switch transport, with no other code change.
+        Courtier2ConsumerSpec spec;
+        spec.mnemonic           = "asio";
+        spec.ip                 = ip;
+        spec.port               = port;
+        spec.serialization_mode = serMode;
+        spec.max_reconnects     = maxReconnects;
+
+        auto client = buildCourtier2Client(spec);
 
         // Start the actual processing loop
-        p->run();
+        client->run();
 
         return 0;
     }
@@ -344,41 +350,29 @@ int main(int argc, char **argv) {
         new oa::GSwarmAlgorithm(nNeighborhoods, nNeighborhoodMembers)
     );
 
-    // Create the actual populations
+    // Route submission through courtier2, depending on the requested consumer type.
     switch(cType) {
     //---------------------------------------------------------------------------
-    case consumerType::SERIAL: // Serial execution
-    {
-        std::shared_ptr<cons::GSerialConsumerT<gpar::GParameterSet>> sc(new cons::GSerialConsumerT<gpar::GParameterSet>());
-        broker<gpar::GParameterSet>()->enrol_consumer(sc);
-    } break;
+    case consumerType::SERIAL: // Serial (inline) execution
+        pop_ptr->setCourtier2LocalConsumer(oa::courtier2_local_kind::serial);
+        break;
 
         //---------------------------------------------------------------------------
-    case consumerType::MULTITHREADED: // Multi-threaded execution
-    {
-        std::shared_ptr<cons::GStdThreadConsumerT<gpar::GParameterSet>> gbtc(
-            new cons::GStdThreadConsumerT<gpar::GParameterSet>(nEvaluationThreads)
-        );
-        broker<gpar::GParameterSet>()->enrol_consumer(gbtc);
-    } break;
+    case consumerType::MULTITHREADED: // Multi-threaded local execution
+        pop_ptr->setCourtier2LocalConsumer(
+            oa::courtier2_local_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
+        break;
 
         //---------------------------------------------------------------------------
     case consumerType::NETWORKED: // Networked execution (server-side)
     {
-        // Create a network consumer and enrol_buffer_port it with the broker
-        std::shared_ptr<cons::GAsioConsumerT<gpar::GParameterSet>> gatc_ptr(
-            new cons::GAsioConsumerT<gpar::GParameterSet>()
-        );
-
-        // Set the required options
-        gatc_ptr->setServerName(ip);
-        gatc_ptr->setPort(port);
-        gatc_ptr->setSerializationMode(serMode);
-        gatc_ptr->setNThreads(nEvaluationThreads);
-        gatc_ptr->setMaxReconnects(maxReconnects);
-
-        // Add the consumer to the broker
-        broker<gpar::GParameterSet>()->enrol_consumer(gatc_ptr);
+        // Build a courtier2 ASIO server via the shared factory; the clients started above connect to it.
+        Courtier2ConsumerSpec spec;
+        spec.mnemonic           = "asio";
+        spec.port               = port;
+        spec.serialization_mode = serMode;
+        auto setup = buildCourtier2Setup(spec);
+        pop_ptr->setCourtier2Broker(setup.broker);
     } break;
 
         //----------------------------------------------------------------------------

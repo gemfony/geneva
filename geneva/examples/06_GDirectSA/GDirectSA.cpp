@@ -51,9 +51,6 @@
 
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
-#include "courtier/consumers/GAsioConsumerT.hpp"
-#include "courtier/consumers/GSerialConsumerT.hpp"
-#include "courtier/consumers/GStdThreadConsumerT.hpp"
 #include "geneva/oa/GSimulatedAnnealing.hpp"
 #include "geneva/GCourtier2ConsumerSetup.hpp"
 #include "geneva/GenevaInitializer.hpp"
@@ -287,12 +284,20 @@ int main(int argc, char **argv) {
     // If this is a client in networked mode, we can just start the listener and
     // return when it has finished
     if(execMode::BROKER == parallelizationMode && !serverMode) {
-        std::shared_ptr<cons::GAsioConsumerClientT<gpar::GParameterSet>> p(
-            new cons::GAsioConsumerClientT<gpar::GParameterSet>(ip, port, serMode, maxReconnects)
-        );
+        // Build the networked client through the courtier2 setup layer. The single mnemonic below
+        // drives both this client and the server below -- change it (e.g. to "beast") in both places to
+        // switch transport, with no other code change.
+        Courtier2ConsumerSpec spec;
+        spec.mnemonic           = "asio";
+        spec.ip                 = ip;
+        spec.port               = port;
+        spec.serialization_mode = serMode;
+        spec.max_reconnects     = maxReconnects;
+
+        auto client = buildCourtier2Client(spec);
 
         // Start the actual processing loop
-        p->run();
+        client->run();
 
         return 0;
     }
@@ -348,8 +353,8 @@ int main(int argc, char **argv) {
                 oa::courtier2_local_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
         }
         else {
-            // Build a courtier2 ASIO server via the shared factory; the clients started above (the
-            // reused GAsioConsumerClientT) connect to it -- same wire protocol.
+            // Build a courtier2 ASIO server via the shared factory; the clients started above (built by
+            // buildCourtier2Client for the same mnemonic) connect to it.
             Gem::Geneva::Courtier2ConsumerSpec spec;
             spec.mnemonic           = "asio";
             spec.port               = port;
