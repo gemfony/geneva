@@ -259,13 +259,13 @@ private:
         GO2_DEF_NOCONSUMER; ///< The name of a consumer requested by the user on the command line
 
     //---------------------------------------------------------------------------
-    // Phase-7 courtier2 routing (env-gated by GENEVA_USE_COURTIER2; server mode only).
+    // Phase-7 courtier2 routing (the DEFAULT submission path; server mode only).
     // setupChosenConsumer() resolves the chosen mnemonic, runAlgorithmChain() plumbs the result into
     // each algorithm. Two shapes:
-    //  - LOCAL  ("sc"/"stc", increment 1): the kind+threads below; each OA builds its own consumer.
-    //  - NETWORKED ("asio"/"beast", increment 2): a single server-backed courtier2 consumer is built
+    //  - LOCAL  ("sc"/"stc"): the kind+threads below; each OA builds its own consumer.
+    //  - NETWORKED ("asio"/"beast"/"mpi"-master): a single server-backed courtier2 consumer is built
     //    once here, its server started, and the shared c2_broker_ injected into every algorithm.
-    // MPI and unsupported mnemonics stay on the legacy path.
+    // Consumers without a courtier2 form yet (e.g. cuda) stay on the legacy path until ported.
     oa::courtier2_local_kind c2_local_kind_ =
         oa::courtier2_local_kind::none; ///< Which courtier2 local consumer to use (none == legacy/networked)
     unsigned int c2_local_threads_ = 0; ///< Thread-pool size for the multithreaded kind (0 == hardware concurrency)

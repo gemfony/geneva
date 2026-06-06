@@ -1072,11 +1072,12 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
     // Finally give the consumer the chance to act on the command line options
     consumer->actOnCLOptions(vm);
 
-    // Phase-7: when GENEVA_USE_COURTIER2 is set, route the chosen consumer through courtier2 instead
-    // of the legacy broker/executor. Local ("sc"/"stc") and the socket servers ("asio"/"beast") are
-    // resolved here and plumbed into each algorithm in runAlgorithmChain(); MPI is special (see below).
-    static const bool use_courtier2 = (std::getenv("GENEVA_USE_COURTIER2") != nullptr);
-    if(use_courtier2) {
+    // Phase-7 increment 4: courtier2 is now the DEFAULT submission path (the GENEVA_USE_COURTIER2 env
+    // gate is gone). The standard consumers ("sc"/"stc"/"asio"/"beast"/"mpi") are routed through
+    // courtier2 and plumbed into each algorithm in runAlgorithmChain() (MPI is special, see below);
+    // consumers without a courtier2 form yet (e.g. cuda) fall back to the legacy broker path until
+    // they are ported.
+    {
         const std::string mnemonic = consumer->getMnemonic();
         bool mpi_handled = false;
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
@@ -1129,8 +1130,8 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
             }
             else {
                 glogger << "In Go2::setupChosenConsumer(): Note!" << '\n'
-                        << "GENEVA_USE_COURTIER2 is set but consumer \"" << mnemonic << "\" has no" << '\n'
-                        << "courtier2 routing; falling back to the legacy broker path for this run." << '\n'
+                        << "Consumer \"" << mnemonic << "\" has no courtier2 form yet;" << '\n'
+                        << "falling back to the legacy broker path for this run." << '\n'
                         << GLOGGING;
             }
         }

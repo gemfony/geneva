@@ -1568,10 +1568,10 @@ Gem::Courtier::executor_status_t GBase::workOn(
     const std::string &caller
 ) {
     // Phase-7: when Go2 has wired this algorithm to courtier2 -- either a LOCAL consumer selected via
-    // setCourtier2LocalConsumer() (increment 1) or a ready, server-backed networked broker injected
-    // via setCourtier2Broker() (increment 2) -- route submission through courtier2's span+policy path
-    // instead of the legacy executor. A default build sets neither, so this is a no-op for everyone
-    // else. Both are gated by the GENEVA_USE_COURTIER2 env var inside Go2.
+    // setCourtier2LocalConsumer() or a ready, server-backed networked broker injected via
+    // setCourtier2Broker() -- route submission through courtier2's span+policy path instead of the
+    // legacy executor. Go2 sets one of these for every standard consumer (courtier2 is the default
+    // path now); only the legacy fallback (cuda/custom consumers) and non-Go2 use leave both unset.
     if(c2_external_broker_ || c2_local_kind_ != courtier2_local_kind::none) {
         return this->workOnViaCourtier2_(work_items);
     }
