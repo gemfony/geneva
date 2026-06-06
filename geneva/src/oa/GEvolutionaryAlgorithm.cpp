@@ -553,18 +553,9 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
 #endif
 
     //--------------------------------------------------------------------------------
-    // Set the "DO_PROCESS" flag in all required work items, the "DO_IGNORE" flag in all others.
-
-    setProcessingFlag(this->data_cnt_, range);
-
-    //--------------------------------------------------------------------------------
-    // Now submit work items and wait for results.
-    auto status = this->workOn(
-        this->data_cnt_,
-        false // do not resubmit unprocessed items
-        ,
-        "GEvolutionaryAlgorithm::runFitnessCalculation()"
-    );
+    // Submit the [start, end) evaluation range and wait for results. courtier2 marks the span
+    // DO_PROCESS and reconciles it in place -- no per-item flagging needed.
+    auto status = this->workOn(this->data_cnt_, std::get<0>(range), std::get<1>(range));
 
     //--------------------------------------------------------------------------------
     // Take care of unprocessed items, if these exist

@@ -1020,13 +1020,7 @@ void GParameterScan::runFitnessCalculation_() {
     //--------------------------------------------------------------------------------
     // Submit all work items and wait for their return
 
-    setProcessingFlag(this->data_cnt_, std::make_tuple(static_cast<std::size_t>(0), this->data_cnt_.size()));
-    auto status = this->workOn(
-        data_cnt_,
-        true // resubmit unprocessed items
-        ,
-        "GParameterScan::runFitnessCalculation()"
-    );
+    auto status = this->workOn(this->data_cnt_, 0, this->data_cnt_.size());
 
     //--------------------------------------------------------------------------------
     // Some error checks

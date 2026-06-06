@@ -550,13 +550,7 @@ void GNelderMead::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
 void GNelderMead::runFitnessCalculation_() {
     using namespace Gem::Courtier;
 
-    setProcessingFlag(this->data_cnt_, std::make_tuple(static_cast<std::size_t>(0), this->data_cnt_.size()));
-    auto status = this->workOn(
-        this->data_cnt_,
-        true // resubmit unprocessed items
-        ,
-        "GNelderMead::runFitnessCalculation()"
-    );
+    auto status = this->workOn(this->data_cnt_, 0, this->data_cnt_.size());
 
     if(not status.is_complete || status.has_errors) {
         throw geneva_exception(

@@ -1465,29 +1465,28 @@ void GBase::load_(const GBase *cp) {
 	 */
 Gem::Courtier::executor_status_t GBase::workOn(
     std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items,
-    [[maybe_unused]] bool resubmit_unprocessed,
-    [[maybe_unused]] const std::string &caller
+    std::size_t start,
+    std::size_t end
 ) {
-    // All submission now goes through courtier2's span+policy path. init() guarantees a courtier2
-    // routing is selected (an injected broker, a chosen local kind, or the multithreaded default), so
-    // workOnViaCourtier2_ always has a broker to use. (resubmit_unprocessed/caller are legacy executor
-    // parameters, unused here; they will be dropped from the signature in a later step.)
-    return this->workOnViaCourtier2_(work_items);
+    // All submission goes through courtier2's span+policy path. init() guarantees a courtier2 routing
+    // is selected (an injected broker, a chosen local kind, or the multithreaded default).
+    return this->workOnViaCourtier2_(work_items, start, end);
 }
 
 /******************************************************************************/
 /**
- * Phase-7 (EA first): submit through courtier2's span+policy executor backed by a local thread
- * consumer (clone-on-partial-return). The items needing processing always form a CONTIGUOUS range of
- * the population vector (verified across all algorithms and all EA selection modes), so we submit a
- * std::span over exactly that range. The span aliases the live population sub-range, so results --
- * and any cloned refills, written in place over the slot -- land directly in the population: no
- * subset copy, no write-back, and the DO_PROCESS/DO_IGNORE flagging becomes unnecessary for
- * submission (the span IS the work set). [Still env-gated; making this the default for all execution
- * modes needs the courtier2 consumer wired into the Go2 parallelisation selection.]
+ * Submit through courtier2's span+policy executor. The algorithm passes the contiguous sub-range
+ * [start, end) it wants evaluated; we submit a std::span over exactly that range. The span aliases the
+ * live population sub-range, so results -- and any cloned refills, written in place over the slot --
+ * land directly in the population: no subset copy, no write-back, and no per-item DO_PROCESS/DO_IGNORE
+ * flagging (the consumer marks the span DO_PROCESS internally). The policy is chosen per algorithm via
+ * getSubmissionPolicy_(): clone-on-partial-return for the tolerant population-based OAs, full-success-
+ * or-fatal for the need-all OAs.
  */
 Gem::Courtier::executor_status_t GBase::workOnViaCourtier2_(
-    std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items
+    std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items,
+    std::size_t start,
+    std::size_t end
 ) {
     if(not c2_executor_) {
         // A networked broker injected by Go2 (increment 2) arrives ready: consumer registered, clone
@@ -1513,48 +1512,22 @@ Gem::Courtier::executor_status_t GBase::workOnViaCourtier2_(
         c2_executor_ = std::make_shared<Gem::Courtier2::GExecutorT<gpar::GParameterSet>>(c2_broker_);
     }
 
-    // Locate the contiguous range of items that need evaluation.
-    std::size_t first = 0, last = 0;
-    bool any = false;
-    for(std::size_t i = 0; i < work_items.size(); ++i) {
-        if(work_items[i] && work_items[i]->is_due_for_processing()) {
-            if(not any) {
-                first = i;
-                any = true;
-            }
-            last = i;
-        }
-    }
-    if(not any) {
+    // Clamp the requested range to the population and bail out if it is empty.
+    end = std::min(end, work_items.size());
+    if(end <= start) {
         return Gem::Courtier::executor_status_t{true, false};
     }
-    const std::size_t count = last - first + 1;
+    const std::size_t count = end - start;
 
-#ifdef DEBUG
-    // Empirically confirm the contiguity assumption: every slot in [first,last] must need processing.
-    for(std::size_t i = first; i <= last; ++i) {
-        if(not(work_items[i] && work_items[i]->is_due_for_processing())) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GBase::workOnViaCourtier2_(): Error!" << '\n'
-                << "Expected a contiguous to-process range [" << first << "," << last
-                << "] but slot " << i << " is not due for processing." << '\n'
-            );
-        }
-    }
-#endif
-
-    // Submit a span over exactly the contiguous range; it aliases the population sub-range, so
-    // results + any cloned refills are written straight into work_items[first..last]. The policy is
-    // chosen per algorithm: clone-on-partial-return for tolerant population-based OAs (EA/SA/Swarm),
-    // full-success-or-fatal for the need-all OAs (GD/CGD/Nelder-Mead/ParameterScan).
-    std::span<std::shared_ptr<gpar::GParameterSet>> sp(work_items.data() + first, count);
+    // Submit a span over exactly [start, end); it aliases the population sub-range, so results + any
+    // cloned refills are written straight into work_items[start..end).
+    std::span<std::shared_ptr<gpar::GParameterSet>> sp(work_items.data() + start, count);
     c2_executor_->workOn(sp, this->getSubmissionPolicy_());
 
     // The consumer guarantees a full, valid set on return (or terminates fatally per the policy), so
     // the batch is complete; report any residual error flags for parity with the legacy path.
     bool has_errors = false;
-    for(std::size_t i = first; i <= last; ++i) {
+    for(std::size_t i = start; i < end; ++i) {
         if(work_items[i] && work_items[i]->has_errors()) {
             has_errors = true;
             break;

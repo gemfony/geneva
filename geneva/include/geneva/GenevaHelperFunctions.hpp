@@ -48,13 +48,6 @@
 namespace Gem::Geneva {
 
 /******************************************************************************/
-/** @brief Sets the processing flag in a given range */
-void setProcessingFlag(
-    std::vector<std::shared_ptr<gpar::GParameterSet>> &,
-    const std::tuple<std::size_t, std::size_t> &
-);
-
-/******************************************************************************/
 /** @brief Transforms the individual fitness so that the optimization algorithm always "sees" a minimization problem */
 double
 minOnly_transformed_fitness(const std::shared_ptr<gpar::GParameterSet> &, std::size_t = 0);

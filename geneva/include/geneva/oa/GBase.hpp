@@ -576,11 +576,13 @@ protected:
 
     /***************************************************************************/
 
-    /** @brief Delegation of work to be performed to the private executor object */
+    /** @brief Submits the contiguous sub-range [start, end) of @p work_items for evaluation through
+     *  courtier2. The algorithm passes the range it wants evaluated explicitly (no per-item DO_PROCESS
+     *  flagging needed); the consumer marks and reconciles exactly that span in place. */
     Gem::Courtier::executor_status_t workOn(
         std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items,
-        bool resubmit_unprocessed = false,
-        const std::string &caller = std::string()
+        std::size_t start,
+        std::size_t end
     );
     /** @brief Retrieves a vector of old work items after job submission */
     std::vector<std::shared_ptr<gpar::GParameterSet>> getOldWorkItems();
@@ -799,9 +801,11 @@ private:
     bool c2_external_broker_ = false; ///< True when Go2 injected a ready broker (networked) via setCourtier2Broker()
     std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> c2_broker_;
     std::shared_ptr<Gem::Courtier2::GExecutorT<gpar::GParameterSet>> c2_executor_;
-    /** @brief Submits the contiguous to-process sub-range of @p work_items through courtier2. */
+    /** @brief Submits the contiguous sub-range [start, end) of @p work_items through courtier2. */
     Gem::Courtier::executor_status_t workOnViaCourtier2_(
-        std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items
+        std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items,
+        std::size_t start,
+        std::size_t end
     );
 };
 

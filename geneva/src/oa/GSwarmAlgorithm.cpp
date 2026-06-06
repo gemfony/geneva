@@ -1324,17 +1324,8 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     using namespace Gem::Courtier;
 
     //--------------------------------------------------------------------------------
-    // Submit work items and wait for results.
-    setProcessingFlag(
-        this->data_cnt_,
-        std::make_tuple(static_cast<std::size_t>(0), this->data_cnt_.size())
-    );
-    auto status = this->workOn(
-        data_cnt_,
-        false // do not resubmit unprocessed items
-        ,
-        "GSwarmAlgorithm::runFitnessCalculation()"
-    );
+    // Submit work items and wait for results (courtier2 marks + reconciles the whole population).
+    auto status = this->workOn(this->data_cnt_, 0, this->data_cnt_.size());
 
     // Retrieve a vector of old work items
     auto old_work_items = this->getOldWorkItems();

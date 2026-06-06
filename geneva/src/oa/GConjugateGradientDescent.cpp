@@ -523,13 +523,7 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
     }
 #endif /* DEBUG */
 
-    setProcessingFlag(this->data_cnt_, std::make_tuple(static_cast<std::size_t>(0), this->data_cnt_.size()));
-    auto status = this->workOn(
-        this->data_cnt_,
-        true // resubmit unprocessed items
-        ,
-        "GConjugateGradientDescent::runFitnessCalculation()"
-    );
+    auto status = this->workOn(this->data_cnt_, 0, this->data_cnt_.size());
 
     // A conjugate-gradient method needs a complete set of evaluated solutions.
     if(not status.is_complete || status.has_errors) {
