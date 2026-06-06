@@ -78,6 +78,7 @@ geneva_common_test(GFixedSizePriorityQueueTTests  GFixedSizePriorityQueueTTests.
 geneva_common_test(GFormulaParserTTests           GFormulaParserTTests.cpp)
 geneva_common_test(GGlobalOptionsTTests           GGlobalOptionsTTests.cpp)
 geneva_common_test(GLoggerTests                   GLoggerTests.cpp)
+geneva_common_test(GMPMCQueueConformanceTests     GMPMCQueueConformanceTests.cpp)
 geneva_common_test(GParserBuilderTests            GParserBuilderTests.cpp)
 geneva_common_test(GSerializableFunctionObjectTTests
                                                   GSerializableFunctionObjectTTests.cpp)

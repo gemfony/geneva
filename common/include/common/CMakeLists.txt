@@ -37,6 +37,7 @@
 #
 
 SET ( GENEVACOMMONINCLUDES
+	GBlockingMPMCQueueT.hpp
 	GCommonEnums.hpp
 	GCommonHelperFunctions.hpp
 	GCommonHelperFunctionsT.hpp
@@ -53,9 +54,12 @@ SET ( GENEVACOMMONINCLUDES
 	GGlobalDefines.hpp
 	GGlobalOptionsT.hpp
 	GLogger.hpp
+	GMPMCQueueT.hpp
 	GParserBuilder.hpp
 	GPlotDesigner.hpp
+	GPreallocatedMPMCQueueT.hpp
 	GProviderT.hpp
+	GQueueCommon.hpp
 	GSerializableFunctionObjectT.hpp
 	GSerializationHelperFunctionsT.hpp
 	GSerializeTupleT.hpp

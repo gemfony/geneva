@@ -76,6 +76,17 @@ Recommended Versions:
   (the old unbounded case underflowed). The Hap, Hap2 and Courtier (GBufferPortT)
   buffers were migrated and GBoundedBufferT was removed. SOURCE-breaking for code
   that used Gem::Common::GBoundedBufferT directly.
+- ADDITIVE (no behaviour change by default): GBlockingMPMCQueueT gained an optional,
+  interface-identical sibling -- a preallocated ring-buffer queue
+  (common/GPreallocatedMPMCQueueT.hpp) plus a thin compile-time facade
+  Gem::Common::GMPMCQueueT<T, Cap, QueueBackend> that selects either backend. A shared
+  concept (common/GQueueCommon.hpp, MPMCQueue) guarantees the two backends are
+  interchangeable, and a type-parametrised conformance test exercises both. The
+  preallocated backend never allocates per item and stores elements contiguously, but is
+  bounded only (Cap > 0); the deque backend remains the default and the only one that
+  supports the unbounded case. GRandomFactory's package buffers now go through the facade
+  with the deque backend by default (behaviour unchanged); defining
+  GENEVA_HAP_FACTORY_QUEUE_PREALLOCATED at configure time switches them to the ring buffer.
 - GThreadPool (common/GThreadPool.hpp) was reimplemented on top of Geneva's own
   primitives -- a GThreadGroup of std::jthread workers draining a GBlockingMPMCQueueT
   task queue -- and no longer depends on Boost.ASIO (the io_context / work guard are
@@ -87,6 +98,34 @@ Recommended Versions:
   warning) rather than throwing on first submission. A fire-and-forget post() overload
   was added for tasks whose result need not be observed. The void/non-void
   async_schedule split was folded into a single if-constexpr template body.
+- SOURCE/ABI-BREAKING: the Courtier library's submission machinery was redesigned around a
+  span + policy model, and the entire legacy submission stack was removed. The broker
+  (GBrokerT) now holds exactly ONE consumer; fanning work out to many workers/clients is the
+  consumer's own responsibility (a thread pool locally, many clients over the network). A
+  single thin executor (GExecutorT) hands a whole round -- a std::span over the population
+  slice to be evaluated -- straight to the consumer, which evaluates and reconciles it in
+  place against a GSubmissionPolicy (clone-on-partial-return for EA/SA/Swarm,
+  full-success-or-fatal for GD/CGD/NM/ParameterScan, with a fail-on-no-return floor). The old
+  per-executor resubmission logic, the raw/processed buffer-port queueing layer, the worker
+  class and the base/local/networked-server consumer hierarchy were deleted. The transport
+  infrastructure (network clients, sessions, MPI nodes, the GCommandContainerT wire protocol
+  and MPI initialisation) was kept and relocated under courtier/transport/. Code that drove
+  submission through the old Courtier API directly must be updated; the usual high-level path
+  (subclass GParameterSet, drive it via Go2 with a consumer mnemonic) is unaffected.
+- The networked consumers (GAsioConsumerT, GWebsocketConsumerT and, when built,
+  GMPIConsumerT) now share a common fan-in core (GNetworkedConsumerT): many optimization
+  algorithms can submit to the SAME client pool concurrently, results are correlated by a
+  (batch_id, slot) token, and stuck or lost work is recovered by an adaptive give-up window
+  plus per-transport death detection (a time-based reclaim lease for asio/mpi; immediate
+  session-death requeue for the websocket consumer). The consumer now waits INDEFINITELY for
+  the first result of a run, so a server may be started before its clients arrive (e.g. under
+  a batch-scheduling system, possibly hours later) without failing the run. The asio/beast/mpi
+  transports were hardened against the "connections refused/dropped, or hangs, after a while"
+  failure modes (full-duplex websocket client with an off-thread compute pool, per-session
+  timeouts and back-off on the acceptors, bounded-with-grace MPI shutdown). Clients gained
+  OPTIONAL work-item prefetch (off by default; --asio_prefetchDepth / --beast_prefetchDepth),
+  which overlaps network transfer with computation while leaving the wire protocol unchanged.
+  The processing-status enum value DO_IGNORE was renamed to UNPROCESSED.
 - The geneva-individuals library has been dissolved into the geneva library.
   The reusable sample individuals now live in the Gem::Geneva::Individuals
   namespace (global alias `gind`), with headers in geneva/individuals/; the
