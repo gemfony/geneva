@@ -42,9 +42,9 @@
 
 // Geneva headers (reused from the common library)
 #include "common/GThreadPool.hpp"
-#include "courtier2/GBaseConsumerT.hpp"
+#include "courtier/GBaseConsumerT.hpp"
 
-namespace Gem::Courtier2 {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
@@ -118,4 +118,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Courtier2 */
+} /* namespace Gem::Courtier */

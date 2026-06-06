@@ -47,7 +47,7 @@ namespace Gem::Geneva::Benchmarks {
 
 GAlgorithmBenchmarkRunner::GAlgorithmBenchmarkRunner(
     BenchmarkConfig cfg,
-    std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> cudaBroker)
+    std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>> cudaBroker)
     : cfg_(std::move(cfg))
     , cudaBroker_(std::move(cudaBroker))
 {}

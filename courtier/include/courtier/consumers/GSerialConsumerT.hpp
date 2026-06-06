@@ -36,9 +36,9 @@
 #include <vector>
 
 // Geneva headers
-#include "courtier2/GBaseConsumerT.hpp"
+#include "courtier/GBaseConsumerT.hpp"
 
-namespace Gem::Courtier2 {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
@@ -72,4 +72,4 @@ protected:
 
 /******************************************************************************/
 
-} /* namespace Gem::Courtier2 */
+} /* namespace Gem::Courtier */

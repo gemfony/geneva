@@ -37,11 +37,11 @@
 #include <vector>
 
 // Geneva headers
-#include "courtier2/GBaseConsumerT.hpp"
-#include "courtier2/GBrokerT.hpp"
-#include "courtier2/GSubmissionPolicy.hpp"
+#include "courtier/GBaseConsumerT.hpp"
+#include "courtier/GBrokerT.hpp"
+#include "courtier/GSubmissionPolicy.hpp"
 
-namespace Gem::Courtier2 {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
@@ -89,4 +89,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Courtier2 */
+} /* namespace Gem::Courtier */

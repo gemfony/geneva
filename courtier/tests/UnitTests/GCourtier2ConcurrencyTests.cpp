@@ -53,15 +53,15 @@
 #include <vector>
 
 #include "courtier/GDemoProcessingContainers.hpp"
-#include "courtier2/GBrokerT.hpp"
-#include "courtier2/GExecutorT.hpp"
-#include "courtier2/GSubmissionPolicy.hpp"
-#include "courtier2/consumers/GNetworkedConsumerT.hpp"
-#include "courtier2/consumers/GStdThreadConsumerT.hpp"
+#include "courtier/GBrokerT.hpp"
+#include "courtier/GExecutorT.hpp"
+#include "courtier/GSubmissionPolicy.hpp"
+#include "courtier/consumers/GNetworkedConsumerT.hpp"
+#include "courtier/consumers/GStdThreadConsumerT.hpp"
 
 using Gem::Courtier::fault_mode;
 using Gem::Courtier::GFaultyContainer;
-namespace c2 = Gem::Courtier2;
+namespace c2 = Gem::Courtier;
 using namespace std::chrono_literals;
 
 namespace {

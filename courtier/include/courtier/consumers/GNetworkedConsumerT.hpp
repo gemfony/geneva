@@ -45,9 +45,9 @@
 
 // Geneva headers
 #include "courtier/GCourtierEnums.hpp" // BUFFERPORT_ID_TYPE, dispatchState
-#include "courtier2/GBaseConsumerT.hpp"
+#include "courtier/GBaseConsumerT.hpp"
 
-namespace Gem::Courtier2 {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
@@ -463,4 +463,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Courtier2 */
+} /* namespace Gem::Courtier */

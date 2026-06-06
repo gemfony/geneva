@@ -47,9 +47,9 @@
 #include "common/GLogger.hpp"
 #include "common/GThreadGroup.hpp"
 #include "courtier/transport/GAsioTransportT.hpp" // reuse the existing session + client + wire protocol
-#include "courtier2/consumers/GNetworkedConsumerT.hpp"
+#include "courtier/consumers/GNetworkedConsumerT.hpp"
 
-namespace Gem::Courtier2 {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
@@ -110,7 +110,7 @@ public:
         if(ec || not acceptor_.is_open()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In Gem::Courtier2::GAsioConsumerT::startServer(): could not open the acceptor: "
+                << "In Gem::Courtier::GAsioConsumerT::startServer(): could not open the acceptor: "
                 << ec.message() << '\n'
             );
         }
@@ -119,7 +119,7 @@ public:
         if(ec) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In Gem::Courtier2::GAsioConsumerT::startServer(): could not bind to port "
+                << "In Gem::Courtier::GAsioConsumerT::startServer(): could not bind to port "
                 << port_ << ": " << ec.message() << '\n'
             );
         }
@@ -130,7 +130,7 @@ public:
         if(ec) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In Gem::Courtier2::GAsioConsumerT::startServer(): could not listen: "
+                << "In Gem::Courtier::GAsioConsumerT::startServer(): could not listen: "
                 << ec.message() << '\n'
             );
         }
@@ -206,7 +206,7 @@ private:
             // -- must NOT be retried in a tight loop: that would pin an io thread at 100% and never
             // let the listen backlog drain. Back off briefly and try again, giving file descriptors
             // time to be reclaimed.
-            glogger << "In Gem::Courtier2::GAsioConsumerT::when_accepted(): " << ec.message()
+            glogger << "In Gem::Courtier::GAsioConsumerT::when_accepted(): " << ec.message()
                     << " -- backing off before retrying accept" << '\n'
                     << GWARNING;
             accept_retry_timer_.expires_after(std::chrono::milliseconds(100));
@@ -271,4 +271,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Courtier2 */
+} /* namespace Gem::Courtier */

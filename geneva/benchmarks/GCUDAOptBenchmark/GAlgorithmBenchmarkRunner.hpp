@@ -43,7 +43,7 @@
 // Geneva headers
 #include "common/GCommonEnums.hpp"
 #include "common/GLogger.hpp"
-#include "courtier2/GBrokerT.hpp"
+#include "courtier/GBrokerT.hpp"
 #include "geneva/GenevaInitializer.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GBase.hpp"
@@ -178,7 +178,7 @@ public:
      *  via setCourtier2Broker() so each optimization submits its population to the GPU. */
     GAlgorithmBenchmarkRunner(
         BenchmarkConfig cfg,
-        std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> cudaBroker);
+        std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>> cudaBroker);
 
     /**
      * @brief Runs the full benchmark and returns aggregated results per tag.
@@ -204,7 +204,7 @@ private:
     );
 
     BenchmarkConfig cfg_;
-    std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> cudaBroker_;
+    std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>> cudaBroker_;
 };
 
 /******************************************************************************/

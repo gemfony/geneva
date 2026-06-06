@@ -45,14 +45,14 @@
 #include <vector>
 
 #include "courtier/GDemoProcessingContainers.hpp"
-#include "courtier2/GBrokerT.hpp"
-#include "courtier2/GExecutorT.hpp"
-#include "courtier2/GSubmissionPolicy.hpp"
-#include "courtier2/consumers/GMPIConsumerT.hpp"
+#include "courtier/GBrokerT.hpp"
+#include "courtier/GExecutorT.hpp"
+#include "courtier/GSubmissionPolicy.hpp"
+#include "courtier/consumers/GMPIConsumerT.hpp"
 
 using Gem::Courtier::fault_mode;
 using Gem::Courtier::GFaultyContainer;
-namespace c2 = Gem::Courtier2;
+namespace c2 = Gem::Courtier;
 
 int main(int argc, char **argv) {
     constexpr std::size_t N = 120;

@@ -43,7 +43,7 @@
 
 // Geneva headers
 #include "common/GParserBuilder.hpp"
-#include "courtier2/GBaseConsumerT.hpp"
+#include "courtier/GBaseConsumerT.hpp"
 #include "geneva/par/GParameterSet.hpp"
 
 // Local headers for the image individual and evaluator
@@ -76,9 +76,9 @@ constexpr bool GIC_DEF_USEGPU{true};
  * old broker. The evaluation is sequential on one GPU; the former multi-worker model is not needed for
  * a single device (a thread-pool of per-thread evaluators could be reintroduced later if it pays off).
  */
-class GImageCUDAConsumer final : public Gem::Courtier2::GBaseConsumerT<gpar::GParameterSet> {
+class GImageCUDAConsumer final : public Gem::Courtier::GBaseConsumerT<gpar::GParameterSet> {
 public:
-    using item_ptr = typename Gem::Courtier2::GBaseConsumerT<gpar::GParameterSet>::item_ptr;
+    using item_ptr = typename Gem::Courtier::GBaseConsumerT<gpar::GParameterSet>::item_ptr;
 
     /***************************************************************************/
     /** @brief Initialization with the name of a configuration file (the same keys the former

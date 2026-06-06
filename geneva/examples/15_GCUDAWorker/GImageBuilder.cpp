@@ -42,7 +42,7 @@
 
 // Geneva header files go here
 #include "common/GCommonHelperFunctions.hpp"
-#include "courtier2/GBrokerT.hpp"
+#include "courtier/GBrokerT.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
 #include "geneva/Go2.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
@@ -339,7 +339,7 @@ int main(int argc, char **argv) {
     cudaConsumer_ptr->setCloneFunction([](const std::shared_ptr<gpar::GParameterSet> &p) {
         return p->clone<gpar::GParameterSet>();
     });
-    auto cudaBroker_ptr = std::make_shared<Gem::Courtier2::GBrokerT<gpar::GParameterSet>>();
+    auto cudaBroker_ptr = std::make_shared<Gem::Courtier::GBrokerT<gpar::GParameterSet>>();
     cudaBroker_ptr->registerConsumer(cudaConsumer_ptr);
 
     // Create the optimizer and hand it the GPU consumer (overrides Go2's mnemonic-based selection).

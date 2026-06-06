@@ -28,9 +28,11 @@
  ********************************************************************************/
 
 /**
- * Tier-2 loopback tests for the courtier2 websocket consumer, mirroring the ASIO tests: a real
- * websocket server (the courtier2 GWebsocketConsumerT) driven by the span+policy executor and
- * served by one or more unmodified existing courtier websocket clients over loopback.
+ * Tier-2 loopback tests for the courtier2 ASIO consumer: a real TCP server (the courtier2
+ * GAsioConsumerT) driven by the span+policy executor, served by one or more unmodified existing
+ * courtier ASIO clients over loopback sockets. Verifies that every item makes the full
+ * server->client->server round-trip and is reconciled into the batch, that several clients can
+ * share the load, and that throwing items are refilled under the clone-on-partial-return policy.
  */
 
 #include <catch2/catch_test_macros.hpp>
@@ -43,15 +45,15 @@
 #include <vector>
 
 #include "courtier/GDemoProcessingContainers.hpp"
-#include "courtier/transport/GWebsocketTransportT.hpp" // the (reused) client
-#include "courtier2/GBrokerT.hpp"
-#include "courtier2/GExecutorT.hpp"
-#include "courtier2/GSubmissionPolicy.hpp"
-#include "courtier2/consumers/GWebsocketConsumerT.hpp"
+#include "courtier/transport/GAsioTransportT.hpp" // the (reused) client
+#include "courtier/GBrokerT.hpp"
+#include "courtier/GExecutorT.hpp"
+#include "courtier/GSubmissionPolicy.hpp"
+#include "courtier/consumers/GAsioConsumerT.hpp"
 
 using Gem::Courtier::fault_mode;
 using Gem::Courtier::GFaultyContainer;
-namespace c2 = Gem::Courtier2;
+namespace c2 = Gem::Courtier;
 namespace ccons = Gem::Courtier::Consumers;
 
 namespace {
@@ -83,22 +85,22 @@ std::size_t count_processed(const std::vector<item_ptr> &v) {
     return c;
 }
 
+/** @brief Runs @p n_clients reused courtier ASIO clients against a courtier2 server, drives the
+ *  batch through the executor, then tears everything down cleanly. */
 void run_over_sockets(std::vector<item_ptr> &items, const c2::GSubmissionPolicy &policy,
                       std::size_t n_clients = 1) {
     auto broker = std::make_shared<c2::GBrokerT<GFaultyContainer>>();
-    auto consumer = std::make_shared<c2::GWebsocketConsumerT<GFaultyContainer>>(
-        /*port=*/0, /*threads=*/2, BIN
-    );
+    auto consumer = std::make_shared<c2::GAsioConsumerT<GFaultyContainer>>(/*port=*/0, /*threads=*/2, BIN);
     broker->registerConsumer(consumer);
     consumer->startServer();
     const unsigned short port = consumer->getPort();
 
-    std::vector<std::shared_ptr<ccons::GWebsocketClientT<GFaultyContainer>>> clients;
+    std::vector<std::shared_ptr<ccons::GAsioConsumerClientT<GFaultyContainer>>> clients;
     std::vector<std::jthread> client_threads;
     std::atomic<bool> any_threw{false};
     for(std::size_t c = 0; c < n_clients; ++c) {
-        auto client = std::make_shared<ccons::GWebsocketClientT<GFaultyContainer>>(
-            "127.0.0.1", port, BIN, /*verbose_control_frames=*/false
+        auto client = std::make_shared<ccons::GAsioConsumerClientT<GFaultyContainer>>(
+            "127.0.0.1", port, BIN, /*max_reconnects=*/50
         );
         clients.push_back(client);
         client_threads.emplace_back([client, &any_threw] {
@@ -131,22 +133,22 @@ void run_over_sockets(std::vector<item_ptr> &items, const c2::GSubmissionPolicy 
 
 /******************************************************************************/
 
-TEST_CASE("courtier2(websocket): a clean batch is fully evaluated over real sockets",
-          "[courtier2][websocket][net]") {
+TEST_CASE("courtier2(asio): a clean batch is fully evaluated over real sockets",
+          "[courtier2][asio][net]") {
     auto items = make_batch(120);
     run_over_sockets(items, c2::GSubmissionPolicy::full_success_or_fatal());
     CHECK(items.size() == 120);
     CHECK(count_processed(items) == 120);
 }
 
-TEST_CASE("courtier2(websocket): several clients share the batch", "[courtier2][websocket][net]") {
+TEST_CASE("courtier2(asio): several clients share the batch", "[courtier2][asio][net]") {
     auto items = make_batch(200);
     run_over_sockets(items, c2::GSubmissionPolicy::full_success_or_fatal(), /*n_clients=*/4);
     CHECK(count_processed(items) == 200);
 }
 
-TEST_CASE("courtier2(websocket): throwing items are refilled under clone-on-partial-return",
-          "[courtier2][websocket][net]") {
+TEST_CASE("courtier2(asio): throwing items are refilled under clone-on-partial-return",
+          "[courtier2][asio][net]") {
     auto items = make_batch(60, {3, 11, 27, 48}, fault_mode::THROW_PROCESSING);
     run_over_sockets(items, c2::GSubmissionPolicy::clone_on_partial_return(), /*n_clients=*/2);
     CHECK(items.size() == 60);

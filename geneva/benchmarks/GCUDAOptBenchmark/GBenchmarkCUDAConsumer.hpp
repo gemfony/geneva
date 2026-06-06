@@ -38,7 +38,7 @@
 
 // Geneva headers
 #include "common/GGlobalDefines.hpp"
-#include "courtier2/GBaseConsumerT.hpp"
+#include "courtier/GBaseConsumerT.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
 
@@ -69,12 +69,12 @@ namespace Gem::Geneva::Benchmarks {
  * rather than enrolling with the old singleton broker.
  */
 class GCUDABatchConsumer
-    : public Gem::Courtier2::GBaseConsumerT<gpar::GParameterSet>
+    : public Gem::Courtier::GBaseConsumerT<gpar::GParameterSet>
 {
     using individual_t = gpar::GParameterSet;
 
 public:
-    using item_ptr = typename Gem::Courtier2::GBaseConsumerT<gpar::GParameterSet>::item_ptr;
+    using item_ptr = typename Gem::Courtier::GBaseConsumerT<gpar::GParameterSet>::item_ptr;
 
     GCUDABatchConsumer() = default;
     ~GCUDABatchConsumer() override = default;

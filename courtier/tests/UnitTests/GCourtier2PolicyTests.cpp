@@ -46,13 +46,13 @@
 #include <vector>
 
 #include "courtier/GDemoProcessingContainers.hpp"
-#include "courtier2/GBrokerT.hpp"
-#include "courtier2/GExecutorT.hpp"
-#include "courtier2/GSubmissionPolicy.hpp"
-#include "courtier2/consumers/GSerialConsumerT.hpp"
-#include "courtier2/consumers/GStdThreadConsumerT.hpp"
+#include "courtier/GBrokerT.hpp"
+#include "courtier/GExecutorT.hpp"
+#include "courtier/GSubmissionPolicy.hpp"
+#include "courtier/consumers/GSerialConsumerT.hpp"
+#include "courtier/consumers/GStdThreadConsumerT.hpp"
 
-using namespace Gem::Courtier2;
+using namespace Gem::Courtier;
 using Gem::Courtier::fault_mode;
 using Gem::Courtier::GFaultyContainer;
 

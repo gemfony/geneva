@@ -130,7 +130,7 @@ public:
      *  Go2 does not know how to build itself; the broker is injected into every algorithm. Call after
      *  construction and before optimize(). */
     void registerCourtier2Broker(
-        std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> broker) {
+        std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>> broker) {
         c2_broker_ = std::move(broker);
     }
 
@@ -276,7 +276,7 @@ private:
     /** @brief The single server-backed/local courtier2 broker, shared across all algorithms. Held here
      *  so its consumer (and any listening server) outlives the run and is torn down by RAII at Go2
      *  destruction. Null when no courtier2 routing was built (legacy fallback, or an MPI worker rank). */
-    std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> c2_broker_;
+    std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>> c2_broker_;
     /** @brief Set on a courtier2 MPI WORKER rank: runs the courtier2 worker loop (clientRun_ invokes
      *  it instead of the legacy client). Type-erased so Go2.hpp needs no MPI headers; the captured
      *  consumer shared_ptr keeps the worker node alive. Empty on master / non-MPI / legacy paths. */

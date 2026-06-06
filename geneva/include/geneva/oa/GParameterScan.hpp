@@ -660,8 +660,8 @@ protected:
 
     /** @brief Need-all algorithm: a missing or failed evaluation cannot be tolerated, so it submits
      *  through courtier2 under full-success-or-fatal (matches the legacy throw-on-error). */
-    Gem::Courtier2::GSubmissionPolicy getSubmissionPolicy_() const override {
-        return Gem::Courtier2::GSubmissionPolicy::full_success_or_fatal();
+    Gem::Courtier::GSubmissionPolicy getSubmissionPolicy_() const override {
+        return Gem::Courtier::GSubmissionPolicy::full_success_or_fatal();
     }
 
     /** @brief Adds local configuration options to a GParserBuilder object */

@@ -1492,14 +1492,14 @@ Gem::Courtier::executor_status_t GBase::workOnViaCourtier2_(
         // A networked broker injected by Go2 (increment 2) arrives ready: consumer registered, clone
         // function set, server started. Only the LOCAL path (increment 1) builds its own consumer here.
         if(not c2_broker_) {
-            c2_broker_ = std::make_shared<Gem::Courtier2::GBrokerT<gpar::GParameterSet>>();
+            c2_broker_ = std::make_shared<Gem::Courtier::GBrokerT<gpar::GParameterSet>>();
             // Build the local consumer Go2 selected: inline (serial) or thread-pool (multithreaded).
-            std::shared_ptr<Gem::Courtier2::GBaseConsumerT<gpar::GParameterSet>> consumer;
+            std::shared_ptr<Gem::Courtier::GBaseConsumerT<gpar::GParameterSet>> consumer;
             if(c2_local_kind_ == courtier2_local_kind::serial) {
-                consumer = std::make_shared<Gem::Courtier2::GSerialConsumerT<gpar::GParameterSet>>();
+                consumer = std::make_shared<Gem::Courtier::GSerialConsumerT<gpar::GParameterSet>>();
             }
             else {
-                consumer = std::make_shared<Gem::Courtier2::GStdThreadConsumerT<gpar::GParameterSet>>(
+                consumer = std::make_shared<Gem::Courtier::GStdThreadConsumerT<gpar::GParameterSet>>(
                     c2_local_threads_
                 );
             }
@@ -1509,7 +1509,7 @@ Gem::Courtier::executor_status_t GBase::workOnViaCourtier2_(
             });
             c2_broker_->registerConsumer(consumer);
         }
-        c2_executor_ = std::make_shared<Gem::Courtier2::GExecutorT<gpar::GParameterSet>>(c2_broker_);
+        c2_executor_ = std::make_shared<Gem::Courtier::GExecutorT<gpar::GParameterSet>>(c2_broker_);
     }
 
     // Clamp the requested range to the population and bail out if it is empty.

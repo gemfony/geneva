@@ -44,7 +44,7 @@
 
 #include <memory>
 
-#include "courtier2/GBrokerT.hpp"
+#include "courtier/GBrokerT.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "GBenchmarkCUDAConsumer.hpp"
 
@@ -58,8 +58,8 @@
  * long as the runner. The clone function is the polymorphic GParameterSet clone, needed by the
  * clone-on-partial-return policy (used by the population-based algorithms).
  */
-std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> createCUDABroker() {
-    auto broker   = std::make_shared<Gem::Courtier2::GBrokerT<gpar::GParameterSet>>();
+std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>> createCUDABroker() {
+    auto broker   = std::make_shared<Gem::Courtier::GBrokerT<gpar::GParameterSet>>();
     auto consumer = std::make_shared<Gem::Geneva::Benchmarks::GCUDABatchConsumer>();
     consumer->setCloneFunction([](const std::shared_ptr<gpar::GParameterSet> &p) {
         return p->clone<gpar::GParameterSet>();

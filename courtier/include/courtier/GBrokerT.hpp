@@ -38,9 +38,9 @@
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "courtier2/GBaseConsumerT.hpp"
+#include "courtier/GBaseConsumerT.hpp"
 
-namespace Gem::Courtier2 {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
@@ -76,7 +76,7 @@ public:
         if(not consumer_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In Gem::Courtier2::GBrokerT::consumer():" << '\n'
+                << "In Gem::Courtier::GBrokerT::consumer():" << '\n'
                 << "No consumer has been registered with the broker." << '\n'
             );
         }
@@ -95,4 +95,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Courtier2 */
+} /* namespace Gem::Courtier */

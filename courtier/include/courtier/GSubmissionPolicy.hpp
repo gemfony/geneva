@@ -33,7 +33,7 @@
 
 #include <cstddef>
 
-namespace Gem::Courtier2 {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
@@ -134,4 +134,4 @@ struct GSubmissionPolicy {
 
 /******************************************************************************/
 
-} /* namespace Gem::Courtier2 */
+} /* namespace Gem::Courtier */

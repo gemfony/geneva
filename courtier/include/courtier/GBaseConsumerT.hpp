@@ -47,9 +47,9 @@
 #include "common/GLogger.hpp"
 #include "courtier/GCourtierEnums.hpp"       // processingStatus
 #include "courtier/GProcessingContainerT.hpp" // the work-item base (reused)
-#include "courtier2/GSubmissionPolicy.hpp"
+#include "courtier/GSubmissionPolicy.hpp"
 
-namespace Gem::Courtier2 {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
@@ -211,7 +211,7 @@ protected:
      *  condition (e.g. a lost evaluation under a need-all policy), not an internal fault, so it
      *  exits cleanly via LOGEXIT rather than std::terminate()-ing with a core dump. */
     void fatal_(const std::string &msg) const {
-        glogger << "In Gem::Courtier2 consumer:" << '\n'
+        glogger << "In Gem::Courtier consumer:" << '\n'
                 << "FATAL: " << msg << '\n'
                 << LOGEXIT(EXIT_FAILURE);
     }
@@ -270,4 +270,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Courtier2 */
+} /* namespace Gem::Courtier */

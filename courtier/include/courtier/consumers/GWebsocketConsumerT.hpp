@@ -47,9 +47,9 @@
 #include "common/GLogger.hpp"
 #include "common/GThreadGroup.hpp"
 #include "courtier/transport/GWebsocketTransportT.hpp" // reuse the existing session + client + protocol
-#include "courtier2/consumers/GNetworkedConsumerT.hpp"
+#include "courtier/consumers/GNetworkedConsumerT.hpp"
 
-namespace Gem::Courtier2 {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
@@ -104,7 +104,7 @@ public:
         if(ec || not acceptor_.is_open()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In Gem::Courtier2::GWebsocketConsumerT::startServer(): could not open the acceptor: "
+                << "In Gem::Courtier::GWebsocketConsumerT::startServer(): could not open the acceptor: "
                 << ec.message() << '\n'
             );
         }
@@ -113,7 +113,7 @@ public:
         if(ec) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In Gem::Courtier2::GWebsocketConsumerT::startServer(): could not bind to port "
+                << "In Gem::Courtier::GWebsocketConsumerT::startServer(): could not bind to port "
                 << port_ << ": " << ec.message() << '\n'
             );
         }
@@ -123,7 +123,7 @@ public:
         if(ec) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In Gem::Courtier2::GWebsocketConsumerT::startServer(): could not listen: "
+                << "In Gem::Courtier::GWebsocketConsumerT::startServer(): could not listen: "
                 << ec.message() << '\n'
             );
         }
@@ -200,7 +200,7 @@ private:
             // A transient accept failure (e.g. EMFILE -- too many open files) must NOT be retried in
             // a tight loop: back off briefly so the io thread is not pinned and the listen backlog can
             // drain as file descriptors free up.
-            glogger << "In Gem::Courtier2::GWebsocketConsumerT::when_accepted(): " << ec.message()
+            glogger << "In Gem::Courtier::GWebsocketConsumerT::when_accepted(): " << ec.message()
                     << " -- backing off before retrying accept" << '\n'
                     << GWARNING;
             accept_retry_timer_.expires_after(std::chrono::milliseconds(100));
@@ -284,4 +284,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Courtier2 */
+} /* namespace Gem::Courtier */

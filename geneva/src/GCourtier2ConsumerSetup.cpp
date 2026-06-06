@@ -38,11 +38,11 @@
 #include "courtier/GCourtierEnums.hpp"
 
 // The concrete courtier2 consumers -- known ONLY here.
-#include "courtier2/consumers/GAsioConsumerT.hpp"
-#include "courtier2/consumers/GMPIConsumerT.hpp" // self-guarded by GENEVA_BUILD_WITH_MPI_CONSUMER
-#include "courtier2/consumers/GSerialConsumerT.hpp"
-#include "courtier2/consumers/GStdThreadConsumerT.hpp"
-#include "courtier2/consumers/GWebsocketConsumerT.hpp"
+#include "courtier/consumers/GAsioConsumerT.hpp"
+#include "courtier/consumers/GMPIConsumerT.hpp" // self-guarded by GENEVA_BUILD_WITH_MPI_CONSUMER
+#include "courtier/consumers/GSerialConsumerT.hpp"
+#include "courtier/consumers/GStdThreadConsumerT.hpp"
+#include "courtier/consumers/GWebsocketConsumerT.hpp"
 
 // The networked clients are wire-compatible with the courtier2 socket servers and are reused as-is;
 // like the consumers, the concrete client types are known ONLY here.
@@ -60,9 +60,9 @@ parameterSetCloneFunction() {
 }
 
 /** @brief Wraps a ready consumer (clone function already set) in a fresh single-consumer broker. */
-std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>>
-brokerFor(std::shared_ptr<Gem::Courtier2::GBaseConsumerT<gpar::GParameterSet>> consumer) {
-    auto broker = std::make_shared<Gem::Courtier2::GBrokerT<gpar::GParameterSet>>();
+std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>>
+brokerFor(std::shared_ptr<Gem::Courtier::GBaseConsumerT<gpar::GParameterSet>> consumer) {
+    auto broker = std::make_shared<Gem::Courtier::GBrokerT<gpar::GParameterSet>>();
     broker->registerConsumer(std::move(consumer));
     return broker;
 }
@@ -72,7 +72,7 @@ brokerFor(std::shared_ptr<Gem::Courtier2::GBaseConsumerT<gpar::GParameterSet>> c
 /******************************************************************************/
 
 Courtier2Setup buildCourtier2Setup(const Courtier2ConsumerSpec &spec) {
-    namespace c2 = Gem::Courtier2;
+    namespace c2 = Gem::Courtier;
     Courtier2Setup setup;
 
     if(spec.mnemonic == "sc") {

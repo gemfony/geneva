@@ -27,7 +27,17 @@
 #
 ################################################################################
 
-# GNetworkedSubmissionTest exercised the legacy broker/executor networked path and was removed with
-# the legacy stack; the courtier2 networked path is exercised by courtier2/tests.
+# A standalone multi-process exerciser (its own main(), no Catch2), formerly in courtier2/tests,
+# merged in at Stage E. Launched by scripts/startCourtier2Jobs.sh as separate server + client
+# processes. (The "2" in the name is dropped at the Stage-E identifier rename, E2.)
+SET(LIBRARIES_TO_LINK ${GENEVA_LIBRARIES} ${Boost_LIBRARIES})
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(LIBRARIES_TO_LINK ${LIBRARIES_TO_LINK} ${MPI_LIBRARIES})
+ENDIF()
+
+ADD_EXECUTABLE(GCourtier2NetworkedExerciser GCourtier2NetworkedExerciser.cpp)
+TARGET_LINK_LIBRARIES(GCourtier2NetworkedExerciser ${LIBRARIES_TO_LINK})
+INSTALL(TARGETS GCourtier2NetworkedExerciser
+		DESTINATION ${INSTALL_PREFIX_DATA}/tests/courtier/ManualTests)
 
 GENEVA_AGGREGATE_TARGET( "tests-courtier-manual" )

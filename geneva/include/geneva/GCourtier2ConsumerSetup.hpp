@@ -43,7 +43,7 @@
 
 // Geneva headers
 #include "common/GCommonEnums.hpp" // serializationMode
-#include "courtier2/GBrokerT.hpp"
+#include "courtier/GBrokerT.hpp"
 #include "geneva/par/GParameterSet.hpp"
 
 namespace Gem::Courtier {
@@ -79,7 +79,7 @@ struct Courtier2Setup {
     /** @brief A ready broker (consumer registered, clone function set, server started for networked
      *  consumers) to inject into the algorithms via GBase::setCourtier2Broker(). Null when this
      *  process is not a submitter -- e.g. an MPI worker rank. */
-    std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> broker;
+    std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>> broker;
     /** @brief When this process must serve as a worker (an MPI worker rank), the loop to run; null
      *  otherwise. The caller invokes it instead of submitting. */
     std::function<void()> run_worker;

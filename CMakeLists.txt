@@ -244,7 +244,6 @@ INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/common/include
 	${PROJECT_SOURCE_DIR}/hap/include
 	${PROJECT_SOURCE_DIR}/courtier/include
-	${PROJECT_SOURCE_DIR}/courtier2/include
 	${PROJECT_SOURCE_DIR}/geneva/include
 )
 
@@ -339,7 +338,6 @@ ENDIF ()
 ADD_SUBDIRECTORY (common)
 ADD_SUBDIRECTORY (hap)
 ADD_SUBDIRECTORY (courtier)
-ADD_SUBDIRECTORY (courtier2)
 ADD_SUBDIRECTORY (geneva)
 
 ################################################################################

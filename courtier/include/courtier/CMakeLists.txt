@@ -29,42 +29,59 @@
 
 SET ( COMMUNICATIONINCLUDES
     GBaseClientT.hpp
+    GBaseConsumerT.hpp
+    GBrokerT.hpp
     GCommandContainerT.hpp
     GCourtierEnums.hpp
     GCourtierHelperFunctions.hpp
     GDemoProcessingContainers.hpp
     GExecutorStatusT.hpp
+    GExecutorT.hpp
     GProcessingContainerT.hpp
+    GSubmissionPolicy.hpp
+)
+
+# Consumer classes (namespace Gem::Courtier): the span+policy submission consumers (formerly the
+# courtier2 rework, merged in at Stage E).
+SET ( CONSUMER_INCLUDES
+    consumers/GAsioConsumerT.hpp
+    consumers/GNetworkedConsumerT.hpp
+    consumers/GSerialConsumerT.hpp
+    consumers/GStdThreadConsumerT.hpp
+    consumers/GWebsocketConsumerT.hpp
 )
 
 # Transport classes (namespace Gem::Courtier::Consumers): the asio/websocket sessions + clients and
-# the MPI master/worker nodes that the courtier2 networked consumers reuse. Kept here after the legacy
-# submission stack was deleted; named under transport/ so they no longer collide with the (courtier2)
-# consumer headers of the same mnemonic.
+# the MPI master/worker nodes that the networked consumers reuse. Named under transport/ so they no
+# longer collide with the consumer headers of the same mnemonic.
 SET ( TRANSPORT_INCLUDES
     transport/GAsioTransportT.hpp
     transport/GWebsocketTransportT.hpp
 )
 
-# MPI-transport is optional, only build it when requested
+# MPI consumer/transport is optional, only build it when requested
 IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
     SET( COMMUNICATIONINCLUDES
             ${COMMUNICATIONINCLUDES}
             GMPIHelperFunctions.hpp)
+    SET( CONSUMER_INCLUDES
+            ${CONSUMER_INCLUDES}
+            consumers/GMPIConsumerT.hpp)
     SET( TRANSPORT_INCLUDES
             ${TRANSPORT_INCLUDES}
             transport/GMPITransportT.hpp)
 ENDIF ()
 
 set_source_files_properties(
-    ${COMMUNICATIONINCLUDES} ${TRANSPORT_INCLUDES}
+    ${COMMUNICATIONINCLUDES} ${CONSUMER_INCLUDES} ${TRANSPORT_INCLUDES}
     PROPERTIES
     LANGUAGE CXX
     CXX_STANDARD 20
 )
 
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
-ADD_CUSTOM_TARGET(CLION_ALL_COURTIER_HEADERS SOURCES ${COMMUNICATIONINCLUDES} ${TRANSPORT_INCLUDES})
+ADD_CUSTOM_TARGET(CLION_ALL_COURTIER_HEADERS
+    SOURCES ${COMMUNICATIONINCLUDES} ${CONSUMER_INCLUDES} ${TRANSPORT_INCLUDES})
 
 SET_TARGET_PROPERTIES(
     CLION_ALL_COURTIER_HEADERS
@@ -75,4 +92,5 @@ SET_TARGET_PROPERTIES(
 )
 
 INSTALL ( FILES ${COMMUNICATIONINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/courtier )
+INSTALL ( FILES ${CONSUMER_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/courtier/consumers )
 INSTALL ( FILES ${TRANSPORT_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/courtier/transport )
