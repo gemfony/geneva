@@ -393,19 +393,19 @@ int main(int argc, char **argv) {
     switch(parallelizationMode) {
     case execMode::SERIAL: // Serial (inline) execution
         std::cout << "Using serial execution." << std::endl;
-        pop_ptr->setCourtier2LocalConsumer(oa::courtier2_local_kind::serial);
+        pop_ptr->setLocalConsumer(oa::local_consumer_kind::serial);
         break;
 
     case execMode::MULTITHREADED: // Multi-threaded local execution
         std::cout << "Using plain multi-threaded execution." << std::endl;
-        pop_ptr->setCourtier2LocalConsumer(
-            oa::courtier2_local_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
+        pop_ptr->setLocalConsumer(
+            oa::local_consumer_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
         break;
 
     case execMode::BROKER: // Historically a local thread consumer behind the broker -- still local.
         std::cout << "Using a local multi-threaded courtier2 consumer." << std::endl;
-        pop_ptr->setCourtier2LocalConsumer(
-            oa::courtier2_local_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
+        pop_ptr->setLocalConsumer(
+            oa::local_consumer_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
         break;
     }
 

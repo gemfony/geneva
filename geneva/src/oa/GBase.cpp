@@ -1470,7 +1470,7 @@ Gem::Courtier::executor_status_t GBase::workOn(
 ) {
     // All submission goes through courtier2's span+policy path. init() guarantees a courtier2 routing
     // is selected (an injected broker, a chosen local kind, or the multithreaded default).
-    return this->workOnViaCourtier2_(work_items, start, end);
+    return this->workOnViaConsumer_(work_items, start, end);
 }
 
 /******************************************************************************/
@@ -1483,33 +1483,33 @@ Gem::Courtier::executor_status_t GBase::workOn(
  * getSubmissionPolicy_(): clone-on-partial-return for the tolerant population-based OAs, full-success-
  * or-fatal for the need-all OAs.
  */
-Gem::Courtier::executor_status_t GBase::workOnViaCourtier2_(
+Gem::Courtier::executor_status_t GBase::workOnViaConsumer_(
     std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items,
     std::size_t start,
     std::size_t end
 ) {
-    if(not c2_executor_) {
+    if(not executor_) {
         // A networked broker injected by Go2 (increment 2) arrives ready: consumer registered, clone
         // function set, server started. Only the LOCAL path (increment 1) builds its own consumer here.
-        if(not c2_broker_) {
-            c2_broker_ = std::make_shared<Gem::Courtier::GBrokerT<gpar::GParameterSet>>();
+        if(not broker_) {
+            broker_ = std::make_shared<Gem::Courtier::GBrokerT<gpar::GParameterSet>>();
             // Build the local consumer Go2 selected: inline (serial) or thread-pool (multithreaded).
             std::shared_ptr<Gem::Courtier::GBaseConsumerT<gpar::GParameterSet>> consumer;
-            if(c2_local_kind_ == courtier2_local_kind::serial) {
+            if(local_kind_ == local_consumer_kind::serial) {
                 consumer = std::make_shared<Gem::Courtier::GSerialConsumerT<gpar::GParameterSet>>();
             }
             else {
                 consumer = std::make_shared<Gem::Courtier::GStdThreadConsumerT<gpar::GParameterSet>>(
-                    c2_local_threads_
+                    local_threads_
                 );
             }
             // Polymorphic clone (GParameterSet holds a concrete individual; copy-construction slices).
             consumer->setCloneFunction([](const std::shared_ptr<gpar::GParameterSet> &p) {
                 return p->clone<gpar::GParameterSet>();
             });
-            c2_broker_->registerConsumer(consumer);
+            broker_->registerConsumer(consumer);
         }
-        c2_executor_ = std::make_shared<Gem::Courtier::GExecutorT<gpar::GParameterSet>>(c2_broker_);
+        executor_ = std::make_shared<Gem::Courtier::GExecutorT<gpar::GParameterSet>>(broker_);
     }
 
     // Clamp the requested range to the population and bail out if it is empty.
@@ -1522,7 +1522,7 @@ Gem::Courtier::executor_status_t GBase::workOnViaCourtier2_(
     // Submit a span over exactly [start, end); it aliases the population sub-range, so results + any
     // cloned refills are written straight into work_items[start..end).
     std::span<std::shared_ptr<gpar::GParameterSet>> sp(work_items.data() + start, count);
-    c2_executor_->workOn(sp, this->getSubmissionPolicy_());
+    executor_->workOn(sp, this->getSubmissionPolicy_());
 
     // The consumer guarantees a full, valid set on return (or terminates fatally per the policy), so
     // the batch is complete; report any residual error flags for parity with the legacy path.
@@ -1726,11 +1726,11 @@ void GBase::resetStallCounter() {
  * as their first action, call this function.
  */
 void GBase::init() {
-    // courtier2 is the submission path. If no routing was injected (Go2, or setCourtier2Broker /
-    // setCourtier2LocalConsumer), default this algorithm to a courtier2 local multithreaded consumer
+    // courtier2 is the submission path. If no routing was injected (Go2, or setBroker /
+    // setLocalConsumer), default this algorithm to a courtier2 local multithreaded consumer
     // -- so a bare alg->optimize() works standalone, without Go2 and without enrolling a consumer.
-    if(c2_local_kind_ == courtier2_local_kind::none && not c2_external_broker_) {
-        c2_local_kind_ = courtier2_local_kind::multithreaded; // 0 threads == hardware concurrency
+    if(local_kind_ == local_consumer_kind::none && not external_broker_) {
+        local_kind_ = local_consumer_kind::multithreaded; // 0 threads == hardware concurrency
     }
 }
 

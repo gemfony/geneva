@@ -1010,7 +1010,7 @@ protected:
             ea_ptr = ea.get<oa::GEvolutionaryAlgorithm>();
 
             // Submit the inner optimization through a courtier2 serial (inline) consumer.
-            ea_ptr->setCourtier2LocalConsumer(oa::courtier2_local_kind::serial);
+            ea_ptr->setLocalConsumer(oa::local_consumer_kind::serial);
 
             // Set the population parameters
             ea_ptr->setPopulationSizes(pop_size, n_parents);

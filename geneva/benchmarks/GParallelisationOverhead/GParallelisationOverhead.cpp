@@ -78,7 +78,7 @@ void startReferenceMeasurement(
     auto ea_alg_master = ea_serial_factory.get<oa::GEvolutionaryAlgorithm>();
 
     // Submit through a courtier2 serial (inline) consumer.
-    ea_alg_master->setCourtier2LocalConsumer(oa::courtier2_local_kind::serial);
+    ea_alg_master->setLocalConsumer(oa::local_consumer_kind::serial);
 
     //---------------------------------------------------------------------
     // Loop until no valid individuals can be retrieved anymore

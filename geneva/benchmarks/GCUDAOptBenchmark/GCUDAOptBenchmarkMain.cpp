@@ -62,7 +62,7 @@ using namespace Gem::Geneva::Benchmarks;
 
 /******************************************************************************/
 // Forward declaration — implemented in GCUDAOptBenchmark.cu. Builds a courtier2 broker holding the
-// GPU consumer; handed to the runner, which injects it into every algorithm via setCourtier2Broker().
+// GPU consumer; handed to the runner, which injects it into every algorithm via setBroker().
 std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>> createCUDABroker();
 
 /******************************************************************************/

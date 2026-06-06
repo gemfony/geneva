@@ -30,10 +30,10 @@
 /**
  * Standalone, multi-PROCESS exerciser for the courtier2 socket consumers. Unlike the in-process
  * loopback unit tests, this runs the server and the clients as separate OS processes (typically
- * launched together by startCourtier2Jobs.sh), so it validates the real cross-process behaviour.
+ * launched together by startCourtierJobs.sh), so it validates the real cross-process behaviour.
  *
- *   server : GCourtier2NetworkedExerciser [--server] -c asio|beast --port P [--n N] [--faultEvery K]
- *   client : GCourtier2NetworkedExerciser  --client  -c asio|beast --ip HOST --port P
+ *   server : GCourtierNetworkedExerciser [--server] -c asio|beast --port P [--n N] [--faultEvery K]
+ *   client : GCourtierNetworkedExerciser  --client  -c asio|beast --ip HOST --port P
  *
  * The server submits a batch through the courtier2 span+policy executor and prints OK/FAIL plus the
  * processed count; with --faultEvery K, every K-th item throws and the clone-on-partial-return

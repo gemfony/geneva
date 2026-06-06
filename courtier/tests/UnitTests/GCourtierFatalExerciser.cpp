@@ -33,7 +33,7 @@
  * which still cannot be observed in-process by Catch2, so each scenario is driven from CTest as a
  * subprocess and asserted via the process exit status (see the CMakeLists). Usage:
  *
- *   GCourtier2FatalExerciser --scenario=<scenario>
+ *   GCourtierFatalExerciser --scenario=<scenario>
  *
  * Scenarios:
  *   ok                 -- a clean batch under full-success-or-fatal: returns 0 (control case).

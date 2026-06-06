@@ -46,7 +46,7 @@ SET ( OPTIMIZATIONSOURCES
 	par/GDoubleObjectCollection.cpp
 	GenevaHelperFunctionsT.cpp
 	GenevaHelperFunctions.cpp
-	GCourtier2ConsumerSetup.cpp
+	GConsumerSetup.cpp
 	GenevaInitializer.cpp
 	GIndividualMultiConstraint.cpp
 	GParameterSetCommandContainerExport.cpp

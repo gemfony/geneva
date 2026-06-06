@@ -112,7 +112,7 @@ GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(
 
     // Submit this algorithm's populations to the GPU consumer (courtier2): inject the shared broker
     // so workOn() routes through it instead of the legacy executor.
-    alg->setCourtier2Broker(cudaBroker_);
+    alg->setBroker(cudaBroker_);
 
     // Attach termination monitor
     auto monitor = std::make_shared<GBenchmarkTerminationMonitor>();

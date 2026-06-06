@@ -51,40 +51,40 @@ ENDFUNCTION()
 # Submission-path unit tests (formerly courtier2/tests/UnitTests, merged in at Stage E). The test
 # executable / file names still carry the "2" until the Stage-E identifier rename (E2); the CTest
 # labels and install paths are already "courtier".
-geneva_courtier_test(GCourtier2PolicyTests      GCourtier2PolicyTests.cpp)
-geneva_courtier_test(GCourtier2TimeoutTests     GCourtier2TimeoutTests.cpp)
-geneva_courtier_test(GCourtier2ConcurrencyTests GCourtier2ConcurrencyTests.cpp)
-geneva_courtier_test(GCourtier2AsioTests        GCourtier2AsioTests.cpp)
-geneva_courtier_test(GCourtier2WebsocketTests   GCourtier2WebsocketTests.cpp)
+geneva_courtier_test(GCourtierPolicyTests      GCourtierPolicyTests.cpp)
+geneva_courtier_test(GCourtierTimeoutTests     GCourtierTimeoutTests.cpp)
+geneva_courtier_test(GCourtierConcurrencyTests GCourtierConcurrencyTests.cpp)
+geneva_courtier_test(GCourtierAsioTests        GCourtierAsioTests.cpp)
+geneva_courtier_test(GCourtierWebsocketTests   GCourtierWebsocketTests.cpp)
 
 # The fatal reconciliation paths exit the process cleanly with a non-zero status (via LOGEXIT, no
 # core dump), so they are exercised as subprocesses: the "ok" control must succeed (exit 0); each
 # fatal scenario must exit non-zero, which CTest's WILL_FAIL asserts directly.
-ADD_EXECUTABLE(GCourtier2FatalExerciser GCourtier2FatalExerciser.cpp)
-TARGET_LINK_LIBRARIES(GCourtier2FatalExerciser ${LIBRARIES_TO_LINK})
-INSTALL(TARGETS GCourtier2FatalExerciser
+ADD_EXECUTABLE(GCourtierFatalExerciser GCourtierFatalExerciser.cpp)
+TARGET_LINK_LIBRARIES(GCourtierFatalExerciser ${LIBRARIES_TO_LINK})
+INSTALL(TARGETS GCourtierFatalExerciser
 		DESTINATION ${INSTALL_PREFIX_DATA}/tests/courtier/UnitTests)
 
-ADD_TEST(NAME GCourtier2Fatal_ok COMMAND GCourtier2FatalExerciser --scenario=ok)
-SET_TESTS_PROPERTIES(GCourtier2Fatal_ok PROPERTIES LABELS "courtier")
+ADD_TEST(NAME GCourtierFatal_ok COMMAND GCourtierFatalExerciser --scenario=ok)
+SET_TESTS_PROPERTIES(GCourtierFatal_ok PROPERTIES LABELS "courtier")
 
 FOREACH(scenario fatal-unfixable fatal-none-fatal fatal-none-clone)
-	ADD_TEST(NAME GCourtier2Fatal_${scenario}
-			COMMAND GCourtier2FatalExerciser --scenario=${scenario})
-	SET_TESTS_PROPERTIES(GCourtier2Fatal_${scenario} PROPERTIES LABELS "courtier" WILL_FAIL TRUE)
+	ADD_TEST(NAME GCourtierFatal_${scenario}
+			COMMAND GCourtierFatalExerciser --scenario=${scenario})
+	SET_TESTS_PROPERTIES(GCourtierFatal_${scenario} PROPERTIES LABELS "courtier" WILL_FAIL TRUE)
 ENDFOREACH()
 
 # The MPI consumer fixes its rank layout at launch, so it is exercised as a multi-process program
 # under mpirun (1 master + 2 workers) rather than as an in-process Catch2 test.
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	ADD_EXECUTABLE(GCourtier2MpiExerciser GCourtier2MpiExerciser.cpp)
-	TARGET_LINK_LIBRARIES(GCourtier2MpiExerciser ${LIBRARIES_TO_LINK})
-	INSTALL(TARGETS GCourtier2MpiExerciser
+	ADD_EXECUTABLE(GCourtierMpiExerciser GCourtierMpiExerciser.cpp)
+	TARGET_LINK_LIBRARIES(GCourtierMpiExerciser ${LIBRARIES_TO_LINK})
+	INSTALL(TARGETS GCourtierMpiExerciser
 			DESTINATION ${INSTALL_PREFIX_DATA}/tests/courtier/UnitTests)
-	ADD_TEST(NAME GCourtier2MpiTest
+	ADD_TEST(NAME GCourtierMpiTest
 			COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3
-					${MPIEXEC_PREFLAGS} $<TARGET_FILE:GCourtier2MpiExerciser> ${MPIEXEC_POSTFLAGS})
-	SET_TESTS_PROPERTIES(GCourtier2MpiTest PROPERTIES LABELS "courtier")
+					${MPIEXEC_PREFLAGS} $<TARGET_FILE:GCourtierMpiExerciser> ${MPIEXEC_POSTFLAGS})
+	SET_TESTS_PROPERTIES(GCourtierMpiTest PROPERTIES LABELS "courtier")
 ENDIF()
 
 GENEVA_AGGREGATE_TARGET( "tests-courtier-unit" )

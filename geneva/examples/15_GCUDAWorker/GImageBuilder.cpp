@@ -344,7 +344,7 @@ int main(int argc, char **argv) {
 
     // Create the optimizer and hand it the GPU consumer (overrides Go2's mnemonic-based selection).
     Go2 go(argc, argv, "./config/Go2.json", user_options);
-    go.registerCourtier2Broker(cudaBroker_ptr);
+    go.registerBroker(cudaBroker_ptr);
 
     //---------------------------------------------------------------------------
     // As we are dealing with a server, register a signal handler that allows us

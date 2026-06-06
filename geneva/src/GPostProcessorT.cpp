@@ -247,10 +247,10 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gpar::GParameterSet &p
 
     // Submit the post-optimization through a courtier2 LOCAL consumer (post-processing refines each
     // individual locally): SERIAL -> inline, anything else -> multithreaded.
-    ea_ptr->setCourtier2LocalConsumer(
+    ea_ptr->setLocalConsumer(
         execution_mode_ == execMode::SERIAL
-            ? oa::courtier2_local_kind::serial
-            : oa::courtier2_local_kind::multithreaded);
+            ? oa::local_consumer_kind::serial
+            : oa::local_consumer_kind::multithreaded);
 
     // Add our individual to the algorithm
     ea_ptr->push_back(p_unopt_ptr);

@@ -53,7 +53,7 @@
 #include "common/GParserBuilder.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "courtier/GBaseClientT.hpp"
-#include "geneva/GCourtier2ConsumerSetup.hpp"
+#include "geneva/GConsumerSetup.hpp"
 #include "geneva/GenevaInitializer.hpp"
 
 // The individual that should be optimized
@@ -300,14 +300,14 @@ int main(int argc, char **argv) {
         // Build the networked client through the courtier2 setup layer. The single mnemonic below
         // drives both this client and the server below -- change it (e.g. to "beast") in both places to
         // switch transport, with no other code change.
-        Courtier2ConsumerSpec spec;
+        ConsumerSpec spec;
         spec.mnemonic           = "asio";
         spec.ip                 = ip;
         spec.port               = port;
         spec.serialization_mode = serMode;
         spec.max_reconnects     = maxReconnects;
 
-        auto client = buildCourtier2Client(spec);
+        auto client = buildConsumerClient(spec);
 
         // Start the actual processing loop
         client->run();
@@ -350,31 +350,31 @@ int main(int argc, char **argv) {
     switch(parallelizationMode) {
     //----------------------------------------------------------------------------
     case execMode::SERIAL: // Serial (inline) execution
-        pop_ptr->setCourtier2LocalConsumer(oa::courtier2_local_kind::serial);
+        pop_ptr->setLocalConsumer(oa::local_consumer_kind::serial);
         break;
 
         //----------------------------------------------------------------------------
     case execMode::MULTITHREADED: // Multi-threaded local execution
-        pop_ptr->setCourtier2LocalConsumer(
-            oa::courtier2_local_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
+        pop_ptr->setLocalConsumer(
+            oa::local_consumer_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
         break;
 
         //----------------------------------------------------------------------------
     case execMode::BROKER: // Networked execution (or a purely local consumer for testing)
         if(addLocalConsumer) {
             // "Broker mode" with only a local multi-threaded consumer (testing / benchmarking).
-            pop_ptr->setCourtier2LocalConsumer(
-                oa::courtier2_local_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
+            pop_ptr->setLocalConsumer(
+                oa::local_consumer_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
         }
         else {
             // Build a courtier2 ASIO server via the shared factory; the clients started above (built by
-            // buildCourtier2Client for the same mnemonic) connect to it.
-            Gem::Geneva::Courtier2ConsumerSpec spec;
+            // buildConsumerClient for the same mnemonic) connect to it.
+            Gem::Geneva::ConsumerSpec spec;
             spec.mnemonic           = "asio";
             spec.port               = port;
             spec.serialization_mode = serMode;
-            auto setup = Gem::Geneva::buildCourtier2Setup(spec);
-            pop_ptr->setCourtier2Broker(setup.broker);
+            auto setup = Gem::Geneva::buildConsumerSetup(spec);
+            pop_ptr->setBroker(setup.broker);
         }
         break;
 

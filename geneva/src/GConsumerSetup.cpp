@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/GCourtier2ConsumerSetup.hpp"
+#include "geneva/GConsumerSetup.hpp"
 
 // Standard headers
 #include <cstddef>
@@ -71,9 +71,9 @@ brokerFor(std::shared_ptr<Gem::Courtier::GBaseConsumerT<gpar::GParameterSet>> co
 
 /******************************************************************************/
 
-Courtier2Setup buildCourtier2Setup(const Courtier2ConsumerSpec &spec) {
+ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
     namespace c2 = Gem::Courtier;
-    Courtier2Setup setup;
+    ConsumerSetup setup;
 
     if(spec.mnemonic == "sc") {
         auto consumer = std::make_shared<c2::GSerialConsumerT<gpar::GParameterSet>>();
@@ -120,9 +120,9 @@ Courtier2Setup buildCourtier2Setup(const Courtier2ConsumerSpec &spec) {
 
 /******************************************************************************/
 
-Courtier2ConsumerSpec specFromCommandLine(
+ConsumerSpec specFromCommandLine(
     const std::string &mnemonic, const boost::program_options::variables_map &vm) {
-    Courtier2ConsumerSpec spec;
+    ConsumerSpec spec;
     spec.mnemonic = mnemonic;
 
     // The consumer command-line options are registered by the consumers' addCLOptions() during
@@ -175,7 +175,7 @@ Courtier2ConsumerSpec specFromCommandLine(
 /******************************************************************************/
 
 std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GParameterSet>>
-buildCourtier2Client(const Courtier2ConsumerSpec &spec) {
+buildConsumerClient(const ConsumerSpec &spec) {
     namespace cons = Gem::Courtier::Consumers;
 
     if(spec.mnemonic == "asio") {
@@ -187,7 +187,7 @@ buildCourtier2Client(const Courtier2ConsumerSpec &spec) {
             spec.ip, spec.port, spec.serialization_mode, spec.verbose_control_frames);
     }
 
-    // sc/stc are local-only; the mpi worker loop comes from buildCourtier2Setup().run_worker.
+    // sc/stc are local-only; the mpi worker loop comes from buildConsumerSetup().run_worker.
     return nullptr;
 }
 
@@ -225,7 +225,7 @@ const C2ConsumerInfo *findC2Consumer(const std::string &mnemonic) {
 
 /******************************************************************************/
 
-void addCourtier2ConsumerOptions(
+void addConsumerOptions(
     boost::program_options::options_description &visible,
     boost::program_options::options_description &hidden) {
     namespace po = boost::program_options;
@@ -294,20 +294,20 @@ void addCourtier2ConsumerOptions(
 
 /******************************************************************************/
 
-bool isCourtier2Consumer(const std::string &mnemonic) {
+bool isKnownConsumer(const std::string &mnemonic) {
     return findC2Consumer(mnemonic) != nullptr;
 }
 
 /******************************************************************************/
 
-bool courtier2ConsumerNeedsClient(const std::string &mnemonic) {
+bool consumerNeedsClient(const std::string &mnemonic) {
     const C2ConsumerInfo *info = findC2Consumer(mnemonic);
     return info != nullptr && info->needs_client;
 }
 
 /******************************************************************************/
 
-std::string courtier2ConsumerListing() {
+std::string consumerListing() {
     std::string result;
     for(const auto &info : kC2Consumers) {
         result += std::string(info.mnemonic) + ":  " + info.name + "\n";
@@ -317,7 +317,7 @@ std::string courtier2ConsumerListing() {
 
 /******************************************************************************/
 
-std::size_t courtier2ConsumerCount() {
+std::size_t consumerCount() {
     return std::size(kC2Consumers);
 }
 

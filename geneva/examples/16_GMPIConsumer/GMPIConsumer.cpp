@@ -72,7 +72,7 @@
 
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
-#include "geneva/GCourtier2ConsumerSetup.hpp"
+#include "geneva/GConsumerSetup.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/GenevaInitializer.hpp"
 
@@ -244,7 +244,7 @@ int main(int argc, char **argv) {
 
     // Instantiate the MPI consumer through the shared courtier2 factory. It is built on every rank and
     // branches by rank: a worker yields a run_worker loop, the master a broker to submit through.
-    auto mpiSetup = Gem::Geneva::buildCourtier2Setup(Gem::Geneva::Courtier2ConsumerSpec{.mnemonic = "mpi"});
+    auto mpiSetup = Gem::Geneva::buildConsumerSetup(Gem::Geneva::ConsumerSpec{.mnemonic = "mpi"});
 
     /****************************************************************************/
     // A worker rank serves work items until the master broadcasts the stop signal, then exits.
@@ -285,7 +285,7 @@ int main(int argc, char **argv) {
     }
 
     // Submit through the courtier2 MPI master broker built above.
-    pop_ptr->setCourtier2Broker(mpiSetup.broker);
+    pop_ptr->setBroker(mpiSetup.broker);
 
     /****************************************************************************/
     // Perform the actual optimization

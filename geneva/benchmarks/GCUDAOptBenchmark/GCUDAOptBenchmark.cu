@@ -54,7 +54,7 @@
  *
  * Called from GCUDAOptBenchmarkMain.cpp::main() after GenevaInitializer has been constructed there.
  * The returned broker is handed to GAlgorithmBenchmarkRunner, which injects it into each algorithm
- * via setCourtier2Broker(); the broker (and thus the consumer + its persistent GPU context) lives as
+ * via setBroker(); the broker (and thus the consumer + its persistent GPU context) lives as
  * long as the runner. The clone function is the polymorphic GParameterSet clone, needed by the
  * clone-on-partial-return policy (used by the population-based algorithms).
  */

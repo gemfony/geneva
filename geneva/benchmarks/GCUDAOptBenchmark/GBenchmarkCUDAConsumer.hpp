@@ -65,7 +65,7 @@ namespace Gem::Geneva::Benchmarks {
  * GFunctionIndividual itself is not modified and remains CPU-runnable.
  *
  * Wiring (see GCUDAOptBenchmark.cu / GAlgorithmBenchmarkRunner): the benchmark registers this consumer
- * with a courtier2 GBrokerT and injects that broker into each algorithm via setCourtier2Broker(),
+ * with a courtier2 GBrokerT and injects that broker into each algorithm via setBroker(),
  * rather than enrolling with the old singleton broker.
  */
 class GCUDABatchConsumer

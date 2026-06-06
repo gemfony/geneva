@@ -57,9 +57,9 @@ namespace Gem::Geneva {
 /**
  * A transport-agnostic description of the courtier2 consumer to build, assembled from configuration
  * / command-line parameters by the caller (Go2 or a standalone example). Keeps the caller free of the
- * concrete courtier2 consumer types -- those are known only to buildCourtier2Setup().
+ * concrete courtier2 consumer types -- those are known only to buildConsumerSetup().
  */
-struct Courtier2ConsumerSpec {
+struct ConsumerSpec {
     std::string mnemonic;            ///< "sc" | "stc" | "asio" | "beast" | "mpi"
     unsigned int n_threads = 0;      ///< local thread-pool / networked IO-thread count (0 == hardware concurrency)
     unsigned short port = 0;         ///< listening / target port (networked socket consumers)
@@ -75,9 +75,9 @@ struct Courtier2ConsumerSpec {
 /**
  * The result of building a courtier2 setup for the current process.
  */
-struct Courtier2Setup {
+struct ConsumerSetup {
     /** @brief A ready broker (consumer registered, clone function set, server started for networked
-     *  consumers) to inject into the algorithms via GBase::setCourtier2Broker(). Null when this
+     *  consumers) to inject into the algorithms via GBase::setBroker(). Null when this
      *  process is not a submitter -- e.g. an MPI worker rank. */
     std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>> broker;
     /** @brief When this process must serve as a worker (an MPI worker rank), the loop to run; null
@@ -96,32 +96,32 @@ struct Courtier2Setup {
  * standalone examples) share one construction path and stay free of consumer specifics. An unknown
  * mnemonic yields an empty setup (both fields null).
  */
-Courtier2Setup buildCourtier2Setup(const Courtier2ConsumerSpec &spec);
+ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec);
 
 /******************************************************************************/
 /**
- * Builds a Courtier2ConsumerSpec for @p mnemonic from the already-parsed command line @p vm.
+ * Builds a ConsumerSpec for @p mnemonic from the already-parsed command line @p vm.
  *
  * This is the single place that maps the consumer command-line options (asio_port,
  * beast_serializationMode, nWorkerThreads, ...) onto the transport-agnostic spec, keeping callers
  * (Go2, the standalone examples) free of per-consumer option knowledge. Options absent from @p vm
  * fall back to the spec's defaults; an unknown mnemonic yields a spec carrying only the mnemonic.
  */
-Courtier2ConsumerSpec specFromCommandLine(
+ConsumerSpec specFromCommandLine(
     const std::string &mnemonic, const boost::program_options::variables_map &vm);
 
 /******************************************************************************/
 /**
  * Builds the networked client for @p spec, for a process running in client mode. The socket servers
- * built by buildCourtier2Setup() are wire-compatible with the existing client classes, so this is the
+ * built by buildConsumerSetup() are wire-compatible with the existing client classes, so this is the
  * single place that maps a mnemonic onto the matching client (asio/beast). The caller sets the maximum
  * runtime and invokes run() on the returned client.
  *
  * Returns null for mnemonics that have no socket client (sc/stc are local; the mpi worker loop is
- * obtained from buildCourtier2Setup().run_worker instead).
+ * obtained from buildConsumerSetup().run_worker instead).
  */
 std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GParameterSet>>
-buildCourtier2Client(const Courtier2ConsumerSpec &spec);
+buildConsumerClient(const ConsumerSpec &spec);
 
 /******************************************************************************/
 /**
@@ -130,25 +130,25 @@ buildCourtier2Client(const Courtier2ConsumerSpec &spec);
  * surface, so callers (Go2) register them without iterating a consumer store. specFromCommandLine()
  * reads the matching values back out of the parsed map.
  */
-void addCourtier2ConsumerOptions(
+void addConsumerOptions(
     boost::program_options::options_description &visible,
     boost::program_options::options_description &hidden);
 
 /******************************************************************************/
 /** @brief Whether @p mnemonic names a consumer this layer can build (sc/stc/asio/beast/mpi). */
-bool isCourtier2Consumer(const std::string &mnemonic);
+bool isKnownConsumer(const std::string &mnemonic);
 
 /******************************************************************************/
 /** @brief Whether a process selecting @p mnemonic can run as a networked client (asio/beast/mpi). */
-bool courtier2ConsumerNeedsClient(const std::string &mnemonic);
+bool consumerNeedsClient(const std::string &mnemonic);
 
 /******************************************************************************/
 /** @brief A "mnemonic:  human-readable-name" listing of the supported consumers, for help text. */
-std::string courtier2ConsumerListing();
+std::string consumerListing();
 
 /******************************************************************************/
 /** @brief The number of supported consumers (for help text). */
-std::size_t courtier2ConsumerCount();
+std::size_t consumerCount();
 
 /******************************************************************************/
 

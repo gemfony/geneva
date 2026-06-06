@@ -72,7 +72,7 @@ constexpr bool GIC_DEF_USEGPU{true};
  * reconciliation reads -- so dispatch_ needs to do nothing else.
  *
  * Wiring (see GImageBuilder.cpp): the example registers this consumer with a courtier2 GBrokerT and
- * hands that broker to Go2 via Go2::registerCourtier2Broker(), rather than enrolling a worker with the
+ * hands that broker to Go2 via Go2::registerBroker(), rather than enrolling a worker with the
  * old broker. The evaluation is sequential on one GPU; the former multi-worker model is not needed for
  * a single device (a thread-pool of per-thread evaluators could be reintroduced later if it pays off).
  */

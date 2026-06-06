@@ -53,7 +53,7 @@
 #include "common/GStdFilesystemPathSerialization.hpp"
 #include "courtier/GExecutorStatusT.hpp" // executor_status_t (workOn's return type)
 // --- Submission goes through courtier2: the local consumer is selected by Go2 (or a standalone main)
-//     and plumbed in via setCourtier2LocalConsumer() / setCourtier2Broker(), see workOn ---
+//     and plumbed in via setLocalConsumer() / setBroker(), see workOn ---
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GExecutorT.hpp"
 #include "courtier/GSubmissionPolicy.hpp"
@@ -71,10 +71,10 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /**
  * Identifies which courtier2 LOCAL consumer an algorithm should submit through when courtier2
  * routing is active (Phase-7 increment 1). Go2 maps the chosen parallelisation mnemonic onto one of
- * these and plumbs it into the algorithm via GBase::setCourtier2LocalConsumer(). "none" (the
+ * these and plumbs it into the algorithm via GBase::setLocalConsumer(). "none" (the
  * default) means "do not route through courtier2" -- the legacy executor path is used instead.
  */
-enum class courtier2_local_kind {
+enum class local_consumer_kind {
     none,         ///< Not routed through courtier2 (legacy executor path).
     serial,       ///< Inline, single-threaded courtier2 consumer (mnemonic "sc").
     multithreaded ///< Thread-pool courtier2 consumer (mnemonic "stc").
@@ -378,12 +378,12 @@ public:
      * Selects the courtier2 LOCAL consumer this algorithm submits through. Called by Go2 once the
      * parallelisation mnemonic is known, or directly for standalone use; transient runtime state,
      * neither serialized nor cloned. @p n_threads is honoured only for the multithreaded kind
-     * (0 == hardware concurrency). If neither this nor setCourtier2Broker() is called, init() defaults
+     * (0 == hardware concurrency). If neither this nor setBroker() is called, init() defaults
      * to a multithreaded local consumer.
      */
-    void setCourtier2LocalConsumer(courtier2_local_kind kind, unsigned int n_threads = 0) {
-        c2_local_kind_    = kind;
-        c2_local_threads_ = n_threads;
+    void setLocalConsumer(local_consumer_kind kind, unsigned int n_threads = 0) {
+        local_kind_    = kind;
+        local_threads_ = n_threads;
     }
 
     /******************************************************************************/
@@ -393,11 +393,11 @@ public:
      * consumer registered, its clone function set, and -- for networked consumers -- its server
      * started. Used by Go2 for the networked consumers (asio/websocket), where a single server-backed
      * consumer is shared across the whole run rather than created per algorithm. Transient runtime
-     * state, neither serialized nor cloned; takes precedence over setCourtier2LocalConsumer().
+     * state, neither serialized nor cloned; takes precedence over setLocalConsumer().
      */
-    void setCourtier2Broker(std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>> broker) {
-        c2_broker_          = std::move(broker);
-        c2_external_broker_ = true;
+    void setBroker(std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>> broker) {
+        broker_          = std::move(broker);
+        external_broker_ = true;
     }
 
     /******************************************************************************/
@@ -793,16 +793,16 @@ private:
 
     // --- courtier2 submission (TRANSIENT, not serialized/cloned). The algorithm submits through
     // courtier2's span+policy executor; the broker/executor/consumer are lazily created on first use.
-    // For a LOCAL consumer the kind/thread-count are plumbed in via setCourtier2LocalConsumer()
+    // For a LOCAL consumer the kind/thread-count are plumbed in via setLocalConsumer()
     // (selecting GSerialConsumerT vs GStdThreadConsumerT); a ready networked broker is injected via
-    // setCourtier2Broker(). init() defaults the kind to multithreaded when neither is set. ---
-    courtier2_local_kind c2_local_kind_ = courtier2_local_kind::none; ///< Which local consumer (none == legacy path)
-    unsigned int c2_local_threads_ = 0; ///< Thread-pool size for the multithreaded kind (0 == hardware concurrency)
-    bool c2_external_broker_ = false; ///< True when Go2 injected a ready broker (networked) via setCourtier2Broker()
-    std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>> c2_broker_;
-    std::shared_ptr<Gem::Courtier::GExecutorT<gpar::GParameterSet>> c2_executor_;
+    // setBroker(). init() defaults the kind to multithreaded when neither is set. ---
+    local_consumer_kind local_kind_ = local_consumer_kind::none; ///< Which local consumer (none == legacy path)
+    unsigned int local_threads_ = 0; ///< Thread-pool size for the multithreaded kind (0 == hardware concurrency)
+    bool external_broker_ = false; ///< True when Go2 injected a ready broker (networked) via setBroker()
+    std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>> broker_;
+    std::shared_ptr<Gem::Courtier::GExecutorT<gpar::GParameterSet>> executor_;
     /** @brief Submits the contiguous sub-range [start, end) of @p work_items through courtier2. */
-    Gem::Courtier::executor_status_t workOnViaCourtier2_(
+    Gem::Courtier::executor_status_t workOnViaConsumer_(
         std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items,
         std::size_t start,
         std::size_t end
