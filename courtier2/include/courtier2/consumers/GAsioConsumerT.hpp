@@ -33,6 +33,7 @@
 
 // Standard headers
 #include <atomic>
+#include <chrono>
 #include <memory>
 #include <thread>
 #include <vector>
@@ -151,8 +152,14 @@ public:
         }
         this->requestStop();
 
-        boost::system::error_code ec;
-        acceptor_.close(ec);
+        // Close the acceptor and cancel the retry timer ON the accept strand, so this never runs
+        // concurrently with the accept handler (a tcp::acceptor is not thread-safe). All other
+        // acceptor access also happens on the strand.
+        boost::asio::post(accept_strand_, [this]() {
+            boost::system::error_code ec;
+            acceptor_.close(ec);
+            accept_retry_timer_.cancel();
+        });
 
         // Drop the work guard and stop the context so run() returns on every io thread.
         work_guard_.reset();
@@ -169,48 +176,76 @@ private:
 
     /***************************************************************************/
     void async_start_accept() {
+        // Use the connectionless async_accept overload: each accept yields its own fresh socket, so
+        // there is no shared socket_ member to race on. The handler is bound to accept_strand_, which
+        // serializes all acceptor access across the io threads (acceptor is not thread-safe).
         auto self = this->shared_from_this();
-        acceptor_.async_accept(socket_, [self](boost::system::error_code ec) {
-            self->when_accepted(ec);
-        });
+        acceptor_.async_accept(
+            boost::asio::bind_executor(
+                accept_strand_,
+                [self](boost::system::error_code ec, boost::asio::ip::tcp::socket socket) {
+                    self->when_accepted(ec, std::move(socket));
+                }
+            )
+        );
     }
 
     /***************************************************************************/
-    void when_accepted(boost::system::error_code ec) {
-        if(ec) {
-            if(not this->stopped()) {
-                glogger << "In Gem::Courtier2::GAsioConsumerT::when_accepted(): " << ec.message()
-                        << '\n'
-                        << GWARNING;
-            }
-        }
-        else {
-            std::make_shared<session_type>(
-                io_context_,
-                std::move(socket_),
-                [self = this->shared_from_this()]() -> std::shared_ptr<processable_type> {
-                    return self->checkout();
-                },
-                [self = this->shared_from_this()](std::shared_ptr<processable_type> p) {
-                    self->checkin(p);
-                },
-                [self = this->shared_from_this()]() -> bool { return self->stopped(); },
-                serialization_mode_,
-                [self = this->shared_from_this()](bool sign_on) {
-                    if(sign_on) {
-                        ++self->n_active_sessions_;
-                    }
-                    else if(self->n_active_sessions_.load() > 0) {
-                        --self->n_active_sessions_;
-                    }
-                }
-            )
-                ->async_start_run();
+    void when_accepted(boost::system::error_code ec, boost::asio::ip::tcp::socket socket) {
+        if(this->stopped()) {
+            return; // shutting down: do not start a session and do not re-arm
         }
 
-        if(not this->stopped()) {
-            this->async_start_accept();
+        if(ec) {
+            // A closed acceptor (operation_aborted / bad_descriptor) means we are stopping -- give up.
+            if(ec == boost::asio::error::operation_aborted
+               || ec == boost::asio::error::bad_descriptor) {
+                return;
+            }
+            // A transient accept failure -- most importantly EMFILE/ENFILE ("too many open files")
+            // -- must NOT be retried in a tight loop: that would pin an io thread at 100% and never
+            // let the listen backlog drain. Back off briefly and try again, giving file descriptors
+            // time to be reclaimed.
+            glogger << "In Gem::Courtier2::GAsioConsumerT::when_accepted(): " << ec.message()
+                    << " -- backing off before retrying accept" << '\n'
+                    << GWARNING;
+            accept_retry_timer_.expires_after(std::chrono::milliseconds(100));
+            auto self = this->shared_from_this();
+            accept_retry_timer_.async_wait(
+                boost::asio::bind_executor(accept_strand_, [self](boost::system::error_code tec) {
+                    if(not tec && not self->stopped()) {
+                        self->async_start_accept();
+                    }
+                })
+            );
+            return;
         }
+
+        // Got a connection -- hand it to a new session.
+        std::make_shared<session_type>(
+            io_context_,
+            std::move(socket),
+            [self = this->shared_from_this()]() -> std::shared_ptr<processable_type> {
+                return self->checkout();
+            },
+            [self = this->shared_from_this()](std::shared_ptr<processable_type> p) {
+                self->checkin(p);
+            },
+            [self = this->shared_from_this()]() -> bool { return self->stopped(); },
+            serialization_mode_,
+            [self = this->shared_from_this()](bool sign_on) {
+                if(sign_on) {
+                    ++self->n_active_sessions_;
+                }
+                else if(self->n_active_sessions_.load() > 0) {
+                    --self->n_active_sessions_;
+                }
+            }
+        )
+            ->async_start_run();
+
+        // Re-arm for the next connection.
+        this->async_start_accept();
     }
 
     /***************************************************************************/
@@ -222,7 +257,12 @@ private:
     boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_guard_ =
         boost::asio::make_work_guard(io_context_);
     boost::asio::ip::tcp::acceptor acceptor_{io_context_};
-    boost::asio::ip::tcp::socket socket_{io_context_};
+    /// Serializes all acceptor access (async_accept re-arm, close, retry timer) across the io threads.
+    boost::asio::strand<boost::asio::io_context::executor_type> accept_strand_{
+        io_context_.get_executor()
+    };
+    /// Backoff timer used to retry accept after a transient failure (e.g. EMFILE) without busy-spinning.
+    boost::asio::steady_timer accept_retry_timer_{io_context_};
 
     Gem::Common::GThreadGroup gtg_;
     std::atomic<std::size_t> n_active_sessions_{0};

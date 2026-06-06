@@ -34,6 +34,7 @@
 
 // Standard headers go here
 #include <array>
+#include <chrono>
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -533,6 +534,7 @@ public:
     )
       : socket_(std::move(socket))
       , strand_(io_context.get_executor())
+      , deadline_timer_(io_context)
       , get_payload_item_(std::move(get_payload_item))
       , put_payload_item_(std::move(put_payload_item))
       , check_server_stopped_(std::move(check_server_stopped))
@@ -566,7 +568,9 @@ public:
         boost::system::error_code nd_ec;
         socket_.set_option(boost::asio::ip::tcp::no_delay(true), nd_ec);
 
-        // Initiate the read session -- we expect an incoming message
+        // Arm the deadline so a client that connects but never completes its request cannot pin the
+        // socket/fd forever, then initiate the read session -- we expect an incoming message.
+        arm_deadline();
         async_start_read();
     }
 
@@ -582,6 +586,35 @@ public:
     operator=(GAsioConsumerSessionT<processable_type> &&) = delete;
 
 private:
+    //-------------------------------------------------------------------------
+    /** @brief Arms the per-session deadline timer. On expiry the socket is closed, which aborts the
+	 *  outstanding read/write so the session (and its file descriptor) is released. */
+    void arm_deadline() {
+        deadline_timer_.expires_after(session_timeout_);
+        auto self = this->shared_from_this();
+        deadline_timer_.async_wait(
+            boost::asio::bind_executor(strand_, [self](boost::system::error_code ec) {
+                self->on_deadline(ec);
+            })
+        );
+    }
+
+    //-------------------------------------------------------------------------
+    /** @brief Deadline-timer callback: closes a stalled connection so its socket/fd is reclaimed. */
+    void on_deadline(boost::system::error_code ec) {
+        if(ec) { // the timer was cancelled because the session completed normally
+            return;
+        }
+        if(not check_server_stopped_()) {
+            glogger << "GAsioConsumerSessionT<processable_type>::on_deadline(): " << '\n'
+                    << "Connection exceeded the per-session timeout; closing it to reclaim the socket."
+                    << '\n'
+                    << GLOGGING;
+        }
+        boost::system::error_code ignore;
+        socket_.close(ignore); // aborts the outstanding read/write -> the session ends
+    }
+
     //-------------------------------------------------------------------------
     /**
 	  * Starts an asynchronous read session, whose termination is signalled by
@@ -624,18 +657,23 @@ private:
             async_start_write(process_request());
         }
         else {
-            if(ec) {
+            // operation_aborted is the expected result of on_deadline() closing a stalled socket --
+            // not an error worth logging.
+            if(ec && ec != boost::asio::error::operation_aborted) {
                 glogger << "GAsioConsumerSessionT<processable_type>::when_read(): " << '\n'
                         << "Leaving due to error code " << ec.message() << '\n'
                         << "Server session will terminate" << '\n'
                         << GLOGGING;
             }
-            else {
+            else if(not ec) {
                 glogger << "GAsioConsumerSessionT<processable_type>::when_read(): " << '\n'
                         << "No ec received but expected boost::asio::error::eof" << '\n'
                         << "Server session will terminate" << '\n'
                         << GLOGGING;
             }
+            // The session ends here (no write follows); cancel the deadline so it does not keep the
+            // session object alive until expiry.
+            deadline_timer_.cancel();
         }
     }
 
@@ -674,11 +712,15 @@ private:
         boost::system::error_code ec,
         [[maybe_unused]] std::size_t nothing
     ) {
-        if(ec) {
+        // operation_aborted is the expected result of on_deadline() closing a stalled socket.
+        if(ec && ec != boost::asio::error::operation_aborted) {
             glogger << "GAsioConsumerSessionT<processable_type>::when_written(): " << '\n'
                     << "Got error code " << ec.message() << '\n'
                     << GLOGGING;
         }
+
+        // The exchange is complete: cancel the deadline so it does not keep the session alive.
+        deadline_timer_.cancel();
 
         // Shutdown the socket in send direction. This will result in an ec of boost::asio::error::eof
         // on the client-side indicating that all data was written. Non-throwing overload: a throw
@@ -788,6 +830,15 @@ private:
 
     boost::asio::ip::tcp::socket socket_;
     boost::asio::strand<boost::asio::io_context::executor_type> strand_;
+
+    /// Bounds the lifetime of a single request/response exchange. Because this is a
+    /// one-connection-per-request transport and the client sends its request promptly on connect
+    /// (it closes the connection BEFORE evaluating a work item, so this never overlaps computation),
+    /// a connection still open after this long is a stalled/half-open/dead client and is closed --
+    /// otherwise its socket+fd would be pinned forever by the never-completing read, eventually
+    /// exhausting the server's file descriptors.
+    boost::asio::steady_timer deadline_timer_;
+    const std::chrono::seconds session_timeout_{300};
 
     std::function<std::shared_ptr<processable_type>()> get_payload_item_;
     std::function<void(std::shared_ptr<processable_type>)> put_payload_item_;
