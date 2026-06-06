@@ -27,6 +27,7 @@
 #
 ################################################################################
 
-ADD_SUBDIRECTORY ( GNetworkedSubmissionTest )
+# GNetworkedSubmissionTest exercised the legacy broker/executor networked path and was removed with
+# the legacy stack; the courtier2 networked path is exercised by courtier2/tests.
 
 GENEVA_AGGREGATE_TARGET( "tests-courtier-manual" )

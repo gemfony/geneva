@@ -42,7 +42,6 @@
 // Geneva headers go here
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
-#include "courtier/GExecutorT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GBase.hpp"

@@ -47,7 +47,6 @@
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GPlotDesigner.hpp"
-#include "courtier/GExecutorT.hpp"
 #include "geneva/par/GParameterPropertyParser.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GBase.hpp"

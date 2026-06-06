@@ -35,17 +35,14 @@ SET ( COMMUNICATIONINCLUDES
     GCourtierEnums.hpp
     GCourtierHelperFunctions.hpp
     GDemoProcessingContainers.hpp
-    GExecutorT.hpp
+    GExecutorStatusT.hpp
     GProcessingContainerT.hpp
-    GWorkerT.hpp
 )
 
 # Consumer classes (namespace Gem::Courtier::Consumers),
 # installed under courtier/consumers to mirror the `cons` alias.
 SET ( CONSUMER_INCLUDES
     consumers/GBaseConsumerT.hpp
-    consumers/GSerialConsumerT.hpp
-    consumers/GStdThreadConsumerT.hpp
     consumers/GAsioConsumerT.hpp
     consumers/GWebsocketConsumerT.hpp
 )

@@ -52,6 +52,7 @@
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
 #include "geneva/oa/GSimulatedAnnealing.hpp"
+#include "courtier/GBaseClientT.hpp"
 #include "geneva/GCourtier2ConsumerSetup.hpp"
 #include "geneva/GenevaInitializer.hpp"
 

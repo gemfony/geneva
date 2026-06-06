@@ -43,7 +43,6 @@
 
 // Geneva headers go here
 #include "common/GSerializableFunctionObjectT.hpp"
-#include "courtier/GExecutorT.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 

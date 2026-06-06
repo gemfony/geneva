@@ -44,8 +44,6 @@
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
-#include "courtier/GExecutorT.hpp"
-#include "courtier/consumers/GStdThreadConsumerT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/Go2.hpp"
 

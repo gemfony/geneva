@@ -48,8 +48,9 @@ FUNCTION(geneva_courtier_test name)
 	INSTALL(TARGETS ${name} DESTINATION ${INSTALL_PREFIX_DATA}/tests/courtier/UnitTests)
 ENDFUNCTION()
 
-geneva_courtier_test(GCourtierStandardTests         GCourtierStandardTests.cpp)
-geneva_courtier_test(GCourtierSubmissionStressTests GCourtierSubmissionStressTests.cpp)
-geneva_courtier_test(GCourtierNetworkedStressTests  GCourtierNetworkedStressTests.cpp)
+# The legacy courtier broker/executor/consumer unit tests were removed together with the legacy
+# stack; the courtier2 submission path is covered by courtier2/tests/UnitTests. New tests for the
+# kept courtier code (clients, sessions, command container, helpers) can be declared here via
+# geneva_courtier_test().
 
 GENEVA_AGGREGATE_TARGET( "tests-courtier-unit" )

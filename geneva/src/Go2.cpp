@@ -34,6 +34,7 @@
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GProviderT.hpp"
+#include "courtier/GBaseClientT.hpp" // the networked client run by clientRun_ (built via the setup layer)
 // courtier2 consumer construction, the per-mnemonic command-line spec, the consumer option surface and
 // the networked client all live in the shared setup layer (buildCourtier2Setup / specFromCommandLine /
 // addCourtier2ConsumerOptions / buildCourtier2Client); Go2 no longer touches the concrete consumer
