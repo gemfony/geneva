@@ -33,6 +33,7 @@
 
 // Standard headers
 #include <atomic>
+#include <chrono>
 #include <cstddef>
 #include <memory>
 #include <thread>
@@ -141,8 +142,13 @@ public:
         }
         this->requestStop();
 
-        boost::system::error_code ec;
-        acceptor_.close(ec);
+        // Close the acceptor and cancel the retry timer ON the accept strand, so this never runs
+        // concurrently with the accept handler (a tcp::acceptor is not thread-safe).
+        boost::asio::post(accept_strand_, [this]() {
+            boost::system::error_code ec;
+            acceptor_.close(ec);
+            accept_retry_timer_.cancel();
+        });
 
         work_guard_.reset();
         io_context_.stop();
@@ -165,66 +171,92 @@ private:
 
     /***************************************************************************/
     void async_start_accept() {
+        // Connectionless async_accept overload (a fresh socket per accept -- no shared socket_ to
+        // race on), with the handler bound to accept_strand_ so all acceptor access is serialized
+        // across the io threads (the acceptor is not thread-safe).
         auto self = this->shared_from_this();
-        acceptor_.async_accept(socket_, [self](boost::system::error_code ec) {
-            self->when_accepted(ec);
-        });
+        acceptor_.async_accept(
+            boost::asio::bind_executor(
+                accept_strand_,
+                [self](boost::system::error_code ec, boost::asio::ip::tcp::socket socket) {
+                    self->when_accepted(ec, std::move(socket));
+                }
+            )
+        );
     }
 
     /***************************************************************************/
-    void when_accepted(boost::system::error_code ec) {
+    void when_accepted(boost::system::error_code ec, boost::asio::ip::tcp::socket socket) {
+        if(this->stopped()) {
+            return; // shutting down: do not start a session and do not re-arm
+        }
+
         if(ec) {
-            if(not this->stopped()) {
-                glogger << "In Gem::Courtier2::GWebsocketConsumerT::when_accepted(): " << ec.message()
-                        << '\n'
-                        << GWARNING;
+            // A closed acceptor (operation_aborted / bad_descriptor) means we are stopping -- give up.
+            if(ec == boost::asio::error::operation_aborted
+               || ec == boost::asio::error::bad_descriptor) {
+                return;
             }
+            // A transient accept failure (e.g. EMFILE -- too many open files) must NOT be retried in
+            // a tight loop: back off briefly so the io thread is not pinned and the listen backlog can
+            // drain as file descriptors free up.
+            glogger << "In Gem::Courtier2::GWebsocketConsumerT::when_accepted(): " << ec.message()
+                    << " -- backing off before retrying accept" << '\n'
+                    << GWARNING;
+            accept_retry_timer_.expires_after(std::chrono::milliseconds(100));
+            auto self = this->shared_from_this();
+            accept_retry_timer_.async_wait(
+                boost::asio::bind_executor(accept_strand_, [self](boost::system::error_code tec) {
+                    if(not tec && not self->stopped()) {
+                        self->async_start_accept();
+                    }
+                })
+            );
+            return;
         }
-        else {
-            // The websocket session is persistent (the client computes inline on the open
-            // connection), so a disconnect IS a real death signal. Give the session a CheckoutLease:
-            // if it dies still holding an item, the lease requeues that item immediately for another
-            // client -- liveness-driven put-back, no time lease needed (see usesTimeLease()).
-            auto lease = std::make_shared<typename GNetworkedConsumerT<processable_type>::CheckoutLease>();
-            lease->on_abandon = [w = this->weak_from_this()](const std::shared_ptr<processable_type> &p) {
-                if(auto s = w.lock()) {
-                    s->requeue(p);
+
+        // The websocket session is persistent (the client keeps the connection open while it
+        // evaluates), so a disconnect IS a real death signal. Give the session a CheckoutLease: if it
+        // dies still holding an item, the lease requeues that item immediately for another client --
+        // liveness-driven put-back, no time lease needed (see usesTimeLease()).
+        auto lease = std::make_shared<typename GNetworkedConsumerT<processable_type>::CheckoutLease>();
+        lease->on_abandon = [w = this->weak_from_this()](const std::shared_ptr<processable_type> &p) {
+            if(auto s = w.lock()) {
+                s->requeue(p);
+            }
+        };
+
+        std::make_shared<session_type>(
+            io_context_,
+            std::move(socket),
+            [self = this->shared_from_this(), lease]() -> std::shared_ptr<processable_type> {
+                auto p = self->checkout();
+                if(p) {
+                    lease->current = p;
                 }
-            };
+                return p;
+            },
+            [self = this->shared_from_this(), lease](std::shared_ptr<processable_type> p) {
+                lease->current.reset(); // returned normally -> nothing for the lease to reclaim
+                self->checkin(p);
+            },
+            [self = this->shared_from_this()]() -> bool { return self->stopped(); },
+            [self = this->shared_from_this()](bool sign_on) {
+                if(sign_on) {
+                    ++self->n_active_sessions_;
+                }
+                else if(self->n_active_sessions_.load() > 0) {
+                    --self->n_active_sessions_;
+                }
+            },
+            serialization_mode_,
+            ping_interval_,
+            verbose_control_frames_
+        )
+            ->async_start_run();
 
-            std::make_shared<session_type>(
-                io_context_,
-                std::move(socket_),
-                [self = this->shared_from_this(), lease]() -> std::shared_ptr<processable_type> {
-                    auto p = self->checkout();
-                    if(p) {
-                        lease->current = p;
-                    }
-                    return p;
-                },
-                [self = this->shared_from_this(), lease](std::shared_ptr<processable_type> p) {
-                    lease->current.reset(); // returned normally -> nothing for the lease to reclaim
-                    self->checkin(p);
-                },
-                [self = this->shared_from_this()]() -> bool { return self->stopped(); },
-                [self = this->shared_from_this()](bool sign_on) {
-                    if(sign_on) {
-                        ++self->n_active_sessions_;
-                    }
-                    else if(self->n_active_sessions_.load() > 0) {
-                        --self->n_active_sessions_;
-                    }
-                },
-                serialization_mode_,
-                ping_interval_,
-                verbose_control_frames_
-            )
-                ->async_start_run();
-        }
-
-        if(not this->stopped()) {
-            this->async_start_accept();
-        }
+        // Re-arm for the next connection.
+        this->async_start_accept();
     }
 
     /***************************************************************************/
@@ -238,7 +270,12 @@ private:
     boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_guard_ =
         boost::asio::make_work_guard(io_context_);
     boost::asio::ip::tcp::acceptor acceptor_{io_context_};
-    boost::asio::ip::tcp::socket socket_{io_context_};
+    /// Serializes all acceptor access (async_accept re-arm, close, retry timer) across the io threads.
+    boost::asio::strand<boost::asio::io_context::executor_type> accept_strand_{
+        io_context_.get_executor()
+    };
+    /// Backoff timer used to retry accept after a transient failure (e.g. EMFILE) without busy-spinning.
+    boost::asio::steady_timer accept_retry_timer_{io_context_};
 
     Gem::Common::GThreadGroup gtg_;
     std::atomic<std::size_t> n_active_sessions_{0};
