@@ -78,19 +78,10 @@
 #include "courtier/GBufferPortT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
+#include "courtier/GExecutorStatusT.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 
 namespace Gem::Courtier {
-
-/******************************************************************************/
-/**
- * Status information for the workOn function and helper functions
- */
-struct executor_status_t {
-    bool is_complete = false; ///< Indicates whether a complete set of current items was obtained
-    bool has_errors =
-        false; ///< Indicates whether there were errors during processing of current items
-};
 
 /******************************************************************************/
 /**

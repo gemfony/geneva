@@ -51,9 +51,9 @@
 #include "common/GContainerT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GStdFilesystemPathSerialization.hpp"
-#include "courtier/GExecutorT.hpp"
-// --- Phase-7: optional submission via courtier2 (env-gated; the local consumer is selected by
-//     Go2 and plumbed in via setCourtier2LocalConsumer(), see workOn) ---
+#include "courtier/GExecutorStatusT.hpp" // executor_status_t (workOn's return type)
+// --- Submission goes through courtier2: the local consumer is selected by Go2 (or a standalone main)
+//     and plumbed in via setCourtier2LocalConsumer() / setCourtier2Broker(), see workOn ---
 #include "courtier2/GBrokerT.hpp"
 #include "courtier2/GExecutorT.hpp"
 #include "courtier2/GSubmissionPolicy.hpp"
