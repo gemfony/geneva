@@ -217,8 +217,9 @@ private:
 
         // The websocket session is persistent (the client keeps the connection open while it
         // evaluates), so a disconnect IS a real death signal. Give the session a CheckoutLease: if it
-        // dies still holding an item, the lease requeues that item immediately for another client --
-        // liveness-driven put-back, no time lease needed (see usesTimeLease()).
+        // dies still holding items, the lease requeues all of them immediately for other clients --
+        // liveness-driven put-back, no time lease needed (see usesTimeLease()). A prefetching client may
+        // hold several items at once, so the lease tracks the whole in-flight set, not just the latest.
         auto lease = std::make_shared<typename GNetworkedConsumerT<processable_type>::CheckoutLease>();
         lease->on_abandon = [w = this->weak_from_this()](const std::shared_ptr<processable_type> &p) {
             if(auto s = w.lock()) {
@@ -231,13 +232,11 @@ private:
             std::move(socket),
             [self = this->shared_from_this(), lease]() -> std::shared_ptr<processable_type> {
                 auto p = self->checkout();
-                if(p) {
-                    lease->current = p;
-                }
+                lease->add(p); // no-op for a null item
                 return p;
             },
             [self = this->shared_from_this(), lease](std::shared_ptr<processable_type> p) {
-                lease->current.reset(); // returned normally -> nothing for the lease to reclaim
+                lease->remove(p); // returned normally -> nothing for the lease to reclaim
                 self->checkin(p);
             },
             [self = this->shared_from_this()]() -> bool { return self->stopped(); },

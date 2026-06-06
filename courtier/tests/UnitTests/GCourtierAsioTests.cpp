@@ -88,7 +88,7 @@ std::size_t count_processed(const std::vector<item_ptr> &v) {
 /** @brief Runs @p n_clients reused courtier ASIO clients against a courtier server, drives the
  *  batch through the executor, then tears everything down cleanly. */
 void run_over_sockets(std::vector<item_ptr> &items, const c2::GSubmissionPolicy &policy,
-                      std::size_t n_clients = 1) {
+                      std::size_t n_clients = 1, std::size_t prefetch_depth = 1) {
     auto broker = std::make_shared<c2::GBrokerT<GFaultyContainer>>();
     auto consumer = std::make_shared<c2::GAsioConsumerT<GFaultyContainer>>(/*port=*/0, /*threads=*/2, BIN);
     broker->registerConsumer(consumer);
@@ -100,7 +100,7 @@ void run_over_sockets(std::vector<item_ptr> &items, const c2::GSubmissionPolicy 
     std::atomic<bool> any_threw{false};
     for(std::size_t c = 0; c < n_clients; ++c) {
         auto client = std::make_shared<ccons::GAsioConsumerClientT<GFaultyContainer>>(
-            "127.0.0.1", port, BIN, /*max_reconnects=*/50
+            "127.0.0.1", port, BIN, /*max_reconnects=*/50, prefetch_depth
         );
         clients.push_back(client);
         client_threads.emplace_back([client, &any_threw] {
@@ -153,6 +153,28 @@ TEST_CASE("courtier(asio): throwing items are refilled under clone-on-partial-re
     run_over_sockets(items, c2::GSubmissionPolicy::clone_on_partial_return(), /*n_clients=*/2);
     CHECK(items.size() == 60);
     CHECK(count_processed(items) == 60);
+}
+
+TEST_CASE("courtier(asio): prefetching clients evaluate the whole batch",
+          "[courtier][asio][net]") {
+    // Each client keeps several items in flight at once (a spare is fetched while another computes,
+    // each connection returning a finished item and fetching the next); every slot must come back once.
+    auto items = make_batch(200);
+    run_over_sockets(items, c2::GSubmissionPolicy::full_success_or_fatal(),
+                     /*n_clients=*/2, /*prefetch_depth=*/8);
+    CHECK(items.size() == 200);
+    CHECK(count_processed(items) == 200);
+}
+
+TEST_CASE("courtier(asio): prefetch + throwing items refilled under clone-on-partial-return",
+          "[courtier][asio][net]") {
+    // Combine prefetch with faulty items: the per-item time-lease reclaim and the reconciliation must
+    // cooperate so failed slots are refilled and the batch comes back full.
+    auto items = make_batch(120, {5, 17, 39, 64, 88, 103}, fault_mode::THROW_PROCESSING);
+    run_over_sockets(items, c2::GSubmissionPolicy::clone_on_partial_return(),
+                     /*n_clients=*/3, /*prefetch_depth=*/4);
+    CHECK(items.size() == 120);
+    CHECK(count_processed(items) == 120);
 }
 
 /******************************************************************************/

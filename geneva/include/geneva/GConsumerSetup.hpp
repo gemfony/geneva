@@ -69,6 +69,8 @@ struct ConsumerSpec {
     std::string ip = "localhost";        ///< server address the client connects to
     std::size_t max_reconnects = 0;      ///< [asio] client reconnect attempts before giving up
     bool verbose_control_frames = false; ///< [beast] client: log ping/pong/close frames
+    std::size_t client_prefetch_depth = 1; ///< [asio/beast] client: max work items held concurrently
+                                           ///< (1 == serial; >1 overlaps fetch/compute/return)
 };
 
 /******************************************************************************/

@@ -151,6 +151,9 @@ ConsumerSpec specFromCommandLine(
         if(vm.count("asio_maxReconnects") != 0u) {
             spec.max_reconnects = vm["asio_maxReconnects"].as<std::size_t>();
         }
+        if(vm.count("asio_prefetchDepth") != 0u) {
+            spec.client_prefetch_depth = vm["asio_prefetchDepth"].as<std::size_t>();
+        }
         spec.n_threads = 0; // networked IO threads: hardware concurrency
     }
     else if(mnemonic == "beast") {
@@ -159,6 +162,9 @@ ConsumerSpec specFromCommandLine(
         readString("beast_ip", spec.ip);
         if(vm.count("beast_verboseControlFrames") != 0u) {
             spec.verbose_control_frames = vm["beast_verboseControlFrames"].as<bool>();
+        }
+        if(vm.count("beast_prefetchDepth") != 0u) {
+            spec.client_prefetch_depth = vm["beast_prefetchDepth"].as<std::size_t>();
         }
         spec.n_threads = 0;
     }
@@ -180,11 +186,13 @@ buildConsumerClient(const ConsumerSpec &spec) {
 
     if(spec.mnemonic == "asio") {
         return std::make_shared<cons::GAsioConsumerClientT<gpar::GParameterSet>>(
-            spec.ip, spec.port, spec.serialization_mode, spec.max_reconnects);
+            spec.ip, spec.port, spec.serialization_mode, spec.max_reconnects,
+            spec.client_prefetch_depth);
     }
     if(spec.mnemonic == "beast") {
         return std::make_shared<cons::GWebsocketClientT<gpar::GParameterSet>>(
-            spec.ip, spec.port, spec.serialization_mode, spec.verbose_control_frames);
+            spec.ip, spec.port, spec.serialization_mode, spec.verbose_control_frames,
+            spec.client_prefetch_depth);
     }
 
     // sc/stc are local-only; the mpi worker loop comes from buildConsumerSetup().run_worker.
@@ -246,7 +254,10 @@ void addConsumerOptions(
         "\t[asio] The number of threads used to process incoming connections")(
         "asio_maxReconnects",
         po::value<std::size_t>()->default_value(Gem::Courtier::GASIOCONSUMERMAXCONNECTIONATTEMPTS),
-        "\t[asio] The maximum number of client reconnection attempts");
+        "\t[asio] The maximum number of client reconnection attempts")(
+        "asio_prefetchDepth",
+        po::value<std::size_t>()->default_value(1),
+        "\t[asio] Max work items a client holds at once (1 == serial; >1 overlaps fetch/compute/return)");
 
     // [beast]
     visible.add_options()(
@@ -266,7 +277,10 @@ void addConsumerOptions(
         "\t[beast] The number of seconds between two consecutive pings")(
         "beast_verboseControlFrames",
         po::value<bool>()->default_value(false)->implicit_value(true),
-        "\t[beast] Announce ping/pong/close frames");
+        "\t[beast] Announce ping/pong/close frames")(
+        "beast_prefetchDepth",
+        po::value<std::size_t>()->default_value(1),
+        "\t[beast] Max work items a client holds at once (1 == serial; >1 overlaps fetch/compute/return)");
 
     // [stc] -- 0 means "the consumer's own default" (hardware concurrency).
     hidden.add_options()(

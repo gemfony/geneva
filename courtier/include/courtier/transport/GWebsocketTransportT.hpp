@@ -34,6 +34,8 @@
 
 // Standard headers go here
 #include <array>
+#include <cstddef>
+#include <deque>
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -72,8 +74,22 @@ namespace Gem::Courtier::Consumers {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class is responsible for the client side of network communication
- * with Boost::Beast. Connections are kept open permanently.
+ * This class is responsible for the client side of network communication with Boost::Beast.
+ * Connections are kept open permanently.
+ *
+ * The client can keep up to prefetch_depth_ work items in flight at once (requested-but-unanswered +
+ * currently computing), overlapping network transfer with computation. A depth of 1 is the classic
+ * strictly-serial behaviour (one item at a time). It keeps a single async_read outstanding throughout
+ * so Beast can service pings -> auto-pong even while items evaluate on the compute pool, and serializes
+ * its outgoing messages through a write queue (Beast permits only one write at a time). All connection
+ * state (the in-flight counters, the write queue, the websocket stream) is touched only on the single
+ * io thread; the compute pool threads only ever touch the work-item container handed to them and then
+ * post the result back onto the io thread.
+ *
+ * The wire protocol is unchanged: GETDATA and RESULT are both "pulls" that the server answers with one
+ * COMPUTE/NODATA, so the server (and its sessions) need no knowledge of the client's prefetch depth.
+ * The client treats a late result as an ordinary RESULT -- whether it still matters is entirely the
+ * server's concern (it reconciles by correlation id and silently drops results for finished batches).
  */
 template <typename processable_type>
 class GWebsocketClientT final
@@ -98,14 +114,17 @@ public:
         std::string address,
         unsigned short port,
         Gem::Common::serializationMode serialization_mode,
-        bool verbose_control_frames
+        bool verbose_control_frames,
+        std::size_t prefetch_depth = 1
     )
       : resolver_(io_context_)
       , ws_(io_context_)
       , address_(std::move(address))
       , port_(port)
       , serialization_mode_(serialization_mode)
-      , verbose_control_frames_(verbose_control_frames) {
+      , verbose_control_frames_(verbose_control_frames)
+      , prefetch_depth_(prefetch_depth == 0 ? 1 : prefetch_depth)
+      , compute_pool_(prefetch_depth_) {
         // Set the auto_fragment option, so control frames are delivered timely
         ws_.auto_fragment(true);
         ws_.write_buffer_bytes(16384);
@@ -154,6 +173,7 @@ public:
                 << "GWebsocketClientT<> is shutting down. Processed " << this->getNProcessed()
                 << " items in total" << '\n'
                 << "\"no data\" was received " << n_nodata_ << " times" << '\n'
+                << "prefetch depth was " << prefetch_depth_ << '\n'
                 << '\n'
                 << GLOGGING;
     }
@@ -211,12 +231,25 @@ private:
             return;
         }
 
-        // We need to persist the message for asynchronous operations. It is hence moved into a
-        // class variable (all callers pass a freshly serialized rvalue, so this avoids a copy of
-        // the potentially large payload).
-        outgoing_message_ = std::move(message);
+        // Beast permits only ONE write to be outstanding at a time, but a prefetching client may want
+        // to send several messages close together (a RESULT from a just-finished evaluation plus a
+        // GETDATA top-up). Queue them and let the pump send them one after another.
+        write_queue_.push_back(std::move(message));
+        pump_write();
+    }
 
-        // Send the message
+    //-------------------------------------------------------------------------
+    /** @brief Sends the next queued message if no write is currently outstanding. Runs on the io
+		 *  thread only, so the single-writer invariant Beast requires is upheld. */
+    void pump_write() {
+        if(writing_ || write_queue_.empty() || this->halt()) {
+            return;
+        }
+        writing_ = true;
+        // Persist the message for the duration of the async write (avoids copying the payload).
+        outgoing_message_ = std::move(write_queue_.front());
+        write_queue_.pop_front();
+
         auto self = this->shared_from_this();
         ws_.async_write(
             boost::asio::buffer(outgoing_message_),
@@ -332,21 +365,17 @@ private:
         }
 
         // Full-duplex operation: keep exactly one async_read outstanding at all times so Beast can
-        // service incoming pings (-> automatic pong) even while a work item is being evaluated on the
+        // service incoming pings (-> automatic pong) even while work items are being evaluated on the
         // compute pool. Without an in-flight read, a long (unbounded) evaluation would starve the pong
         // and the server would wrongly declare this healthy client dead. The periodic halt poll
         // cancels the outstanding read on shutdown so io_context::run() can drain.
         async_start_read();
         start_halt_timer();
 
-        // Send the first request. Subsequent requests are written from handle_message() (NODATA) and
-        // finish_compute() (RESULT); the read above is re-armed in when_read().
-        async_start_write(
-            Gem::Courtier::container_to_string(
-                command_container_.reset(networked_consumer_payload_command::GETDATA),
-                serialization_mode_
-            )
-        );
+        // Prime the pipeline: send up to prefetch_depth_ GETDATA pulls. Further pulls are issued as
+        // RESULTs are returned (finish_compute()) and as NODATA replies are backed off and retried
+        // (schedule_refill_()); the read above is re-armed in when_read().
+        request_more_();
     }
 
     //-------------------------------------------------------------------------
@@ -368,12 +397,16 @@ private:
                         << GLOGGING;
             }
             close_code_ = boost::beast::websocket::close_code::going_away;
+            writing_ = false;
             return;
         }
 
         // The request has been sent; the server's response is delivered to the always-outstanding
-        // read (re-armed in when_read()), so we do NOT start a read here. Just release the buffer.
+        // read (re-armed in when_read()), so we do NOT start a read here. Release the buffer and send
+        // the next queued message, if any.
         outgoing_message_.clear();
+        writing_ = false;
+        pump_write();
     }
 
     //-------------------------------------------------------------------------
@@ -434,24 +467,32 @@ private:
             return;
         }
 
+        // Both COMPUTE and NODATA are answers to a pull (a GETDATA or RESULT we sent earlier), so one
+        // pull is now resolved.
+        if(pending_pulls_ > 0) {
+            --pending_pulls_;
+        }
+
         // Act on the command received
         switch(command_container_.get_command()) {
             using enum Gem::Courtier::networked_consumer_payload_command;
         case COMPUTE:
-            // Hand the (possibly long-running, unbounded) evaluation to the compute pool so the io
-            // thread stays free to service pings -> auto-pong while it runs. The result is written
-            // back from finish_compute() once the worker is done.
-            dispatch_compute();
+            // Work arrived. Move it out (so command_container_ is free for the next read) and hand the
+            // (possibly long-running, unbounded) evaluation to the compute pool, so the io thread stays
+            // free to service pings -> auto-pong while it runs. The result is written back from
+            // finish_compute() once the worker is done. One more item is now computing; the in-flight
+            // total is unchanged (one pull became one computation), so no top-up is needed here.
+            ++computing_;
+            dispatch_compute(std::move(command_container_));
             break;
 
-        case NODATA: {
-            // No work available yet. Wait briefly, then ask again. A short sleep on the io thread is
-            // acceptable here -- it is far below the ping interval and only happens while idle.
+        case NODATA:
+            // No work available yet. The in-flight total has dropped by one; back off, then top up
+            // again. The wait is an async timer (NOT a blocking sleep): at depth > 1 other items are
+            // still computing and their results / pings must not be stalled on the io thread.
             n_nodata_++;
-            std::uniform_int_distribution<> dist(50, 200);
-            std::this_thread::sleep_for(std::chrono::milliseconds(dist(rng_engine_)));
-            send_command_(command_container_.reset(networked_consumer_payload_command::GETDATA));
-        } break;
+            schedule_refill_();
+            break;
 
         default:
             // An unknown/invalid command is unrecoverable; log and shut down cleanly (do NOT throw
@@ -468,25 +509,57 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Moves the just-received work item to the compute pool for evaluation, keeping the io thread
-	  * free to service pings. A work guard pins io_context::run() open from here until
-	  * finish_compute() has run, so the posted result is always delivered -- no premature drain and
-	  * no leftover-handler leak on shutdown.
-	  */
-    void dispatch_compute() {
-        // The item being evaluated lives in in_flight_container_, owned by the worker until it posts
-        // the result back; command_container_ is then free for the next read. Only one evaluation is
-        // ever in flight (the server sends the next item only after receiving the RESULT), so this
-        // container is never touched by two threads at once.
-        in_flight_container_ = std::move(command_container_);
+		  * Issues GETDATA pulls until the number of in-flight items (sent-but-unanswered pulls plus
+		  * items currently being evaluated) reaches the configured prefetch depth. At depth 1 this keeps
+		  * exactly one item in flight -- the classic strictly-serial behaviour. Runs on the io thread.
+		  */
+    void request_more_() {
+        while(not this->halt() && (pending_pulls_ + computing_) < prefetch_depth_) {
+            ++pending_pulls_;
+            GCommandContainerT<processable_type, networked_consumer_payload_command> getdata{
+                networked_consumer_payload_command::GETDATA
+            };
+            send_command_(getdata);
+        }
+    }
 
+    //-------------------------------------------------------------------------
+    /** @brief After a NODATA reply, waits a short randomized backoff and then tops the pipeline back
+		 *  up. A single timer suffices: request_more_() refills the whole deficit at once. */
+    void schedule_refill_() {
+        std::uniform_int_distribution<> dist(50, 200);
+        nodata_timer_.expires_after(std::chrono::milliseconds(dist(rng_engine_)));
+        auto self = this->shared_from_this();
+        nodata_timer_.async_wait([self](boost::system::error_code ec) {
+            if(ec) { // cancelled during teardown
+                return;
+            }
+            if(not self->halt()) {
+                self->request_more_();
+            }
+        });
+    }
+
+    //-------------------------------------------------------------------------
+    /**
+	  * Hands the given work item to the compute pool for evaluation, keeping the io thread free to
+	  * service pings. A work guard pins io_context::run() open from here until finish_compute() has
+	  * run, so the posted result is always delivered -- no premature drain and no leftover-handler
+	  * leak on shutdown.
+	  */
+    void dispatch_compute(
+        GCommandContainerT<processable_type, networked_consumer_payload_command> container
+    ) {
+        // Each evaluation owns its OWN container (moved into the worker lambda), so several items can be
+        // computed concurrently on the compute pool without sharing state. The container travels back to
+        // the io thread for the result write -- ws_ must only be touched there.
         auto self = this->shared_from_this();
         auto guard = boost::asio::make_work_guard(io_context_);
         boost::asio::post(
             compute_pool_,
-            [self, guard = std::move(guard)]() mutable {
+            [self, container = std::move(container), guard = std::move(guard)]() mutable {
                 try {
-                    self->in_flight_container_.process();
+                    container.process();
                 }
                 catch(const g_processing_exception &e) {
                     glogger << "In GWebsocketClientT<processable_type>::dispatch_compute():" << '\n'
@@ -499,19 +572,30 @@ private:
                 // Hop back onto the io thread to send the result -- ws_ must only be touched there.
                 boost::asio::post(
                     self->io_context_,
-                    [self, guard = std::move(guard)]() mutable { self->finish_compute(); }
+                    [self, container = std::move(container), guard = std::move(guard)]() mutable {
+                        self->finish_compute(std::move(container));
+                    }
                 );
             }
         );
     }
 
     //-------------------------------------------------------------------------
-    /** @brief Runs on the io thread once an evaluation has completed: returns the result to the
-	 *  server. The work guard captured by the posting lambda is released when this returns. */
-    void finish_compute() {
+    /** @brief Runs on the io thread once an evaluation has completed: returns the result to the server
+	 *  (the RESULT is itself a pull the server answers with the next item) and tops the pipeline back
+	 *  up. The work guard captured by the posting lambda is released when this returns. */
+    void finish_compute(
+        GCommandContainerT<processable_type, networked_consumer_payload_command> container
+    ) {
         this->incrementProcessingCounter();
-        in_flight_container_.set_command(networked_consumer_payload_command::RESULT);
-        send_command_(in_flight_container_);
+        if(computing_ > 0) {
+            --computing_;
+        }
+        container.set_command(networked_consumer_payload_command::RESULT);
+        ++pending_pulls_; // the RESULT we are about to send is a pull (the server replies with an item)
+        send_command_(container);
+        // Cover any deficit left by an earlier NODATA (a no-op when already at full depth).
+        request_more_();
     }
 
     //-------------------------------------------------------------------------
@@ -542,8 +626,9 @@ private:
 	  * @param cc The close code to be sent to the peer
 	  */
     void do_close(close_code cc) {
-        // Stop the halt-poll timer; if it has already fired this is a harmless no-op.
+        // Stop the halt-poll and NODATA-backoff timers; if either has already fired this is a no-op.
         halt_timer_.cancel();
+        nodata_timer_.cancel();
 
         if(ws_.is_open()) {
             boost::system::error_code wc_ec;
@@ -612,7 +697,9 @@ private:
     unsigned int port_;   ///< The peer port
 
     boost::beast::multi_buffer incoming_buffer_;
-    std::string outgoing_message_; ///< Helps to persist outgoing messages
+    std::string outgoing_message_; ///< Holds the message currently being written (one write at a time)
+    std::deque<std::string> write_queue_; ///< Messages waiting to be written (Beast: one write at a time)
+    bool writing_ = false;                ///< Whether an async_write is currently outstanding
 
     std::random_device nondet_rng_; ///< Source of non-deterministic random numbers
     std::mt19937 rng_engine_{
@@ -627,24 +714,35 @@ private:
     bool verbose_control_frames_ =
         false; ///< Whether a diagnostic message should be emitted when a control frame arrives
 
+    /// Maximum number of work items the client keeps in flight at once (requested-but-not-yet-answered
+    /// pulls + currently computing). 1 == serial (one item at a time, the classic behaviour); a larger
+    /// depth overlaps network transfer with computation.
+    std::size_t prefetch_depth_ = 1;
+
+    /// In-flight bookkeeping, touched on the io thread only (no locking needed): pulls (GETDATA/RESULT)
+    /// sent but not yet answered, and items currently being evaluated on the compute pool. The client
+    /// keeps pending_pulls_ + computing_ == prefetch_depth_ whenever work is available.
+    std::size_t pending_pulls_ = 0;
+    std::size_t computing_ = 0;
+
     std::uint64_t n_nodata_ = 0;
 
     GCommandContainerT<processable_type, networked_consumer_payload_command> command_container_{
         networked_consumer_payload_command::NONE
-    }; ///< Holds the current command and payload (read/written on the io thread)
-
-    GCommandContainerT<processable_type, networked_consumer_payload_command> in_flight_container_{
-        networked_consumer_payload_command::NONE
-    }; ///< Holds the work item currently being evaluated on the compute pool (one at a time)
+    }; ///< The read/parse target; a COMPUTE item is moved out of it onto the compute pool
 
     boost::asio::steady_timer halt_timer_{
         io_context_
     }; ///< Periodically polls halt() to cancel the outstanding read on shutdown
+    boost::asio::steady_timer nodata_timer_{
+        io_context_
+    }; ///< Backoff timer that retries a GETDATA top-up after a NODATA reply (async, never blocks)
 
-    /// A single-thread pool that runs the (possibly long, unbounded) work-item evaluation OFF the io
-    /// thread, so the io thread stays free to answer websocket pings while a work item is computed.
-    /// Declared last so it is destroyed (and its thread joined) before io_context_ and ws_.
-    boost::asio::thread_pool compute_pool_{1};
+    /// A thread pool that runs the (possibly long, unbounded) work-item evaluations OFF the io thread,
+    /// so the io thread stays free to answer websocket pings while items are computed. Sized to the
+    /// prefetch depth so all in-flight items can compute concurrently. Declared last so it is destroyed
+    /// (and its threads joined) before io_context_ and ws_.
+    boost::asio::thread_pool compute_pool_;
 
     // Note: the heavy evaluation now runs on compute_pool_ (not inline on the io thread); the io
     // thread keeps an async_read outstanding throughout, so Beast services pings during evaluation.

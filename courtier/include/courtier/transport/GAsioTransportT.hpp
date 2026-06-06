@@ -35,6 +35,8 @@
 // Standard headers go here
 #include <array>
 #include <chrono>
+#include <cstddef>
+#include <deque>
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -90,12 +92,15 @@ public:
         std::string address,
         unsigned short port,
         Gem::Common::serializationMode serialization_mode,
-        std::size_t max_reconnects
+        std::size_t max_reconnects,
+        std::size_t prefetch_depth = 1
     )
       : address_(std::move(address))
       , port_(port)
       , serialization_mode_(serialization_mode)
-      , max_reconnects_(max_reconnects) { /* nothing */
+      , max_reconnects_(max_reconnects)
+      , prefetch_depth_(prefetch_depth == 0 ? 1 : prefetch_depth)
+      , compute_pool_(prefetch_depth_) { /* nothing */
     }
 
     //-------------------------------------------------------------------------
@@ -107,6 +112,7 @@ public:
                 << "GAsioConsumerClientT<> is shutting down. Processed " << this->getNProcessed()
                 << " items in total" << '\n'
                 << "\"no data\" was received " << n_nodata_ << " times" << '\n'
+                << "prefetch depth was " << prefetch_depth_ << '\n'
                 << '\n'
                 << GLOGGING;
     }
@@ -132,16 +138,16 @@ private:
 	  * Starts the main run-loop
 	  */
     void run_() override {
-        // Prepare the outgoing string for the first request
-        outgoing_message_str_ = Gem::Courtier::container_to_string(
-            command_container_.reset(networked_consumer_payload_command::GETDATA),
-            serialization_mode_
-        );
+        // Prime the pipeline: enqueue up to prefetch_depth_ GETDATA pulls and start the first
+        // connection cycle. Each connection performs exactly one exchange (the classic one-shot ASIO
+        // session): a GETDATA fetches an item, a RESULT returns a finished item AND fetches the next in
+        // the same exchange. Evaluations run on a pool, so while one item computes a spare is already in
+        // hand -- when it finishes, a connection returns it and fetches a replacement, and meanwhile the
+        // spare is already computing. A depth of 1 reproduces the classic strictly-serial behaviour.
+        maintain_();
+        start_halt_timer();
 
-        // Asynchronously submit the container to the remote side
-        async_start_send_chain();
-
-        // This call will block until no more work remains in the ASIO work queue
+        // This call will block until no more work remains (the work guard is released on shutdown).
         io_context_.run();
 
         // Let the audience know that we have finished the shutdown
@@ -151,18 +157,52 @@ private:
     }
 
     //-------------------------------------------------------------------------
-    /**
-	  * Asynchronously starts a call chain to send command_container_ to the remote side.
-	  * The function assumes that the command container has been prepared appropriately
-	  * and remains unchanged until all data has been submitted.
-	  */
-    void async_start_send_chain() {
-        // Check if we have been asked to stop operation
-        if(this->halt()) {
-            this->shutdown();
+    /** @brief Enqueues GETDATA pulls until the number of in-flight items (queued/in-progress exchanges
+		 *  plus items currently being evaluated) reaches the prefetch depth, then starts a connection if
+		 *  none is running. Runs on the io thread. */
+    void maintain_() {
+        while(not this->halt() && (pending_pulls_ + computing_) < prefetch_depth_) {
+            ++pending_pulls_;
+            GCommandContainerT<processable_type, networked_consumer_payload_command> getdata{
+                networked_consumer_payload_command::GETDATA
+            };
+            try {
+                exchange_queue_.push_back(
+                    Gem::Courtier::container_to_string(getdata, serialization_mode_)
+                );
+            }
+            catch(const std::exception &e) {
+                --pending_pulls_;
+                glogger << "In GAsioConsumerClientT<processable_type>::maintain_(): " << e.what()
+                        << '\n'
+                        << GWARNING;
+                break;
+            }
+        }
+        kick_exchange_();
+    }
+
+    //-------------------------------------------------------------------------
+    /** @brief Starts the next queued exchange if no connection is currently in progress (only one
+		 *  connection at a time -- the classic ASIO model). Runs on the io thread. */
+    void kick_exchange_() {
+        if(exchanging_ || exchange_queue_.empty() || this->halt()) {
             return;
         }
+        exchanging_ = true;
+        outgoing_message_str_ = std::move(exchange_queue_.front());
+        exchange_queue_.pop_front();
+        n_reconnects_ = 0;
+        start_connect_();
+    }
 
+    //-------------------------------------------------------------------------
+    /**
+	  * Opens a fresh connection for the current exchange (outgoing_message_str_, already set by
+	  * kick_exchange_). One exchange = one connection: resolve -> connect -> write request -> read
+	  * response -> close. Also re-entered by the reconnect backoff with the SAME outgoing message.
+	  */
+    void start_connect_() {
         // Prepare a new socket. This will delete the old socket.
         socket_ptr_ = std::make_unique<boost::asio::ip::tcp::socket>(io_context_);
 
@@ -240,13 +280,20 @@ private:
                 // Get rid of the old socket
                 socket_ptr_.reset();
 
-                // sleep for a short while (between 50 and 200 milliseconds, randomly),
-                // before we try to connect again.
+                // Back off a short while (randomly) before retrying the SAME exchange. The wait is an
+                // async timer, NOT a blocking sleep: at depth > 1 other items are still being evaluated
+                // on the compute pool and their result-returning connections must not be stalled.
                 std::uniform_int_distribution<> dist(500, 1000);
-                std::this_thread::sleep_for(std::chrono::milliseconds(dist(rng_engine_)));
-
-                // Restart the send chain
-                async_start_send_chain();
+                reconnect_timer_.expires_after(std::chrono::milliseconds(dist(rng_engine_)));
+                auto self = this->shared_from_this();
+                reconnect_timer_.async_wait([self](boost::system::error_code tec) {
+                    if(tec) { // cancelled during teardown
+                        return;
+                    }
+                    if(not self->halt()) {
+                        self->start_connect_();
+                    }
+                });
             }
 
             return;
@@ -336,8 +383,9 @@ private:
             // Disconnect from the remote side by destroying the socket
             socket_ptr_.reset();
 
-            // Deal with the message and send a response back
-            async_process_request();
+            // The exchange is complete: process the response (dispatch the item to the compute pool or
+            // back off on NODATA), then start the next queued exchange.
+            finish_exchange_();
         }
         else {
             if(ec) {
@@ -361,12 +409,16 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Processing of incoming messages and creation of responses takes place here
+	  * Completes the current exchange: de-serializes the server's response and acts on it. A COMPUTE
+	  * item is handed to the compute pool (so the io thread stays free to run further exchanges while
+	  * it evaluates); a NODATA is backed off and retried. The connection is now free, so the next
+	  * queued exchange (if any) is started.
 	  */
-    void async_process_request() {
-        // Extract the string from the buffer and de-serialize the object. A malformed or
-        // truncated message makes this throw; that must not escape into io_context::run()
-        // (it would unwind the client's only io thread and silence the client for good).
+    void finish_exchange_() {
+        exchanging_ = false;
+
+        // De-serialize the response. A malformed or truncated message makes this throw; that must not
+        // escape into io_context::run() (it would unwind the client's only io thread).
         try {
             Gem::Courtier::container_from_string(
                 incoming_message_str_,
@@ -375,7 +427,7 @@ private:
             );
         }
         catch(const std::exception &e) {
-            glogger << "In GAsioConsumerClientT<processable_type>::async_process_request():" << '\n'
+            glogger << "In GAsioConsumerClientT<processable_type>::finish_exchange_():" << '\n'
                     << "Could not de-serialize an incoming message:" << '\n'
                     << e.what() << '\n'
                     << "The client will shut down." << '\n'
@@ -384,84 +436,151 @@ private:
             return;
         }
 
-        // Clear the buffer, so we may later fill it with data to be sent
+        // Clear the buffer, ready for the next exchange's response.
         incoming_message_str_.clear();
 
-        // Extract the command
-        auto inboundCommand = command_container_.get_command();
+        // The exchange (a GETDATA or RESULT pull) has been answered.
+        if(pending_pulls_ > 0) {
+            --pending_pulls_;
+        }
 
-        // Act on the command received
+        const auto inboundCommand = command_container_.get_command();
         switch(inboundCommand) {
             using enum Gem::Courtier::networked_consumer_payload_command;
-        case COMPUTE: {
-            // Process the work item. A failure in the user's processing code surfaces as a
-            // g_processing_exception, with the work item already flagged (EXCEPTION_CAUGHT)
-            // and carrying its error description. We must NOT let that kill the client:
-            // catch it and return the flagged item to the server like any other result, so
-            // the item is accounted for rather than lost.
-            try {
-                command_container_.process();
-            }
-            catch(const g_processing_exception &e) {
-                glogger << "In GAsioConsumerClientT<processable_type>::async_process_request():"
-                        << '\n'
-                        << "The work item flagged a processing exception:" << '\n'
-                        << e.what() << '\n'
-                        << "It is returned to the server flagged; the client keeps running."
-                        << '\n'
-                        << GWARNING;
-            }
+        case COMPUTE:
+            // Work arrived. Move it out (so command_container_ is free for the next exchange's response)
+            // and evaluate it on the compute pool. One pull became one computation, so the in-flight
+            // total is unchanged; no top-up needed. Start the next queued exchange.
+            ++computing_;
+            dispatch_compute_(std::move(command_container_));
+            kick_exchange_();
+            break;
 
-            // Update the processed counter
-            this->incrementProcessingCounter();
-
-            // ... and set the command for the way back to the server
-            command_container_.set_command(networked_consumer_payload_command::RESULT);
-        } break;
-
-        case NODATA: { // This must be a command payload
-            // Update the nodata counter for bookkeeping
+        case NODATA:
+            // No work available yet. The in-flight total dropped by one; back off (async timer, never a
+            // blocking sleep) and top up later. Still start any queued RESULT exchange now.
             n_nodata_++;
+            schedule_refill_();
+            kick_exchange_();
+            break;
 
-            // sleep for a short while (between 50 and 200 milliseconds, randomly),
-            // before we ask for new work.
-            std::uniform_int_distribution<> dist(50, 200);
-            std::this_thread::sleep_for(std::chrono::milliseconds(dist(rng_engine_)));
-
-            // Tell the server again we need work
-            command_container_.reset(networked_consumer_payload_command::GETDATA);
-        } break;
-
-        default: {
-            // An unknown/invalid command is unrecoverable for this client; log and shut down
-            // cleanly (do NOT throw -- that would unwind the io thread).
-            glogger << "In GAsioConsumerClientT<processable_type>::async_process_request():" << '\n'
+        default:
+            // An unknown/invalid command is unrecoverable; log and shut down cleanly.
+            glogger << "In GAsioConsumerClientT<processable_type>::finish_exchange_():" << '\n'
                     << "Got unknown or invalid command " << inboundCommand << '\n'
                     << "The client will shut down." << '\n'
                     << GWARNING;
             this->shutdown();
             return;
         }
-        }
+    }
 
-        // Transfer the command container into the outgoing message string. Guard the
-        // serialization too: a failure here must not escape the io thread.
+    //-------------------------------------------------------------------------
+    /** @brief Hands a work item to the compute pool, keeping the io thread free to run further
+		 *  exchanges while it evaluates. Each evaluation owns its OWN container (moved into the worker),
+		 *  so several items compute concurrently. A work guard pins io_context::run() open until the
+		 *  result has been posted back, so it is never dropped. */
+    void dispatch_compute_(
+        GCommandContainerT<processable_type, networked_consumer_payload_command> container
+    ) {
+        auto self = this->shared_from_this();
+        auto guard = boost::asio::make_work_guard(io_context_);
+        boost::asio::post(
+            compute_pool_,
+            [self, container = std::move(container), guard = std::move(guard)]() mutable {
+                // A failure in the user's processing code surfaces as a g_processing_exception, with the
+                // work item already flagged (EXCEPTION_CAUGHT). We must NOT let that kill the client:
+                // catch it and return the flagged item like any other result, so it is accounted for.
+                try {
+                    container.process();
+                }
+                catch(const g_processing_exception &e) {
+                    glogger << "In GAsioConsumerClientT<processable_type>::dispatch_compute_():" << '\n'
+                            << "The work item flagged a processing exception:" << '\n'
+                            << e.what() << '\n'
+                            << "It is returned to the server flagged; the client keeps running."
+                            << '\n'
+                            << GWARNING;
+                }
+                // Hop back onto the io thread to enqueue the result -- all connection state lives there.
+                boost::asio::post(
+                    self->io_context_,
+                    [self, container = std::move(container), guard = std::move(guard)]() mutable {
+                        self->on_compute_done_(std::move(container));
+                    }
+                );
+            }
+        );
+    }
+
+    //-------------------------------------------------------------------------
+    /** @brief Runs on the io thread once an evaluation has finished: queues a RESULT exchange that
+		 *  returns the item AND fetches a replacement in one connection, then tops the pipeline up. */
+    void on_compute_done_(
+        GCommandContainerT<processable_type, networked_consumer_payload_command> container
+    ) {
+        this->incrementProcessingCounter();
+        if(computing_ > 0) {
+            --computing_;
+        }
+        container.set_command(networked_consumer_payload_command::RESULT);
+        ++pending_pulls_; // the RESULT exchange is a pull (the server replies with the next item)
         try {
-            outgoing_message_str_ =
-                Gem::Courtier::container_to_string(command_container_, serialization_mode_);
+            exchange_queue_.push_back(
+                Gem::Courtier::container_to_string(container, serialization_mode_)
+            );
         }
         catch(const std::exception &e) {
-            glogger << "In GAsioConsumerClientT<processable_type>::async_process_request():" << '\n'
-                    << "Could not serialize the outgoing message:" << '\n'
-                    << e.what() << '\n'
+            --pending_pulls_;
+            glogger << "In GAsioConsumerClientT<processable_type>::on_compute_done_(): " << e.what()
+                    << '\n'
                     << "The client will shut down." << '\n'
                     << GWARNING;
             this->shutdown();
             return;
         }
+        kick_exchange_();
+        maintain_(); // cover any deficit left by an earlier NODATA (a no-op when already at full depth)
+    }
 
-        // Asynchronously submit the container to the remote side
-        async_start_send_chain();
+    //-------------------------------------------------------------------------
+    /** @brief After a NODATA reply, waits a short randomized backoff and then tops the pipeline back
+		 *  up. A single timer suffices: maintain_() refills the whole deficit at once. */
+    void schedule_refill_() {
+        std::uniform_int_distribution<> dist(50, 200);
+        nodata_timer_.expires_after(std::chrono::milliseconds(dist(rng_engine_)));
+        auto self = this->shared_from_this();
+        nodata_timer_.async_wait([self](boost::system::error_code ec) {
+            if(ec) { // cancelled during teardown
+                return;
+            }
+            if(not self->halt()) {
+                self->maintain_();
+            }
+        });
+    }
+
+    //-------------------------------------------------------------------------
+    /** @brief Arms a periodic timer that polls halt(). Unlike the classic serial loop (which observed
+		 *  halt at the top of every cycle), a prefetching client can sit idle with all items computing
+		 *  and no exchange active, so a timer is needed to notice a stop request promptly. */
+    void start_halt_timer() {
+        halt_timer_.expires_after(std::chrono::seconds(1));
+        auto self = this->shared_from_this();
+        halt_timer_.async_wait([self](boost::system::error_code ec) { self->on_halt_timer(ec); });
+    }
+
+    //-------------------------------------------------------------------------
+    /** @brief Timer callback: shuts the client down once a halt condition is reached. */
+    void on_halt_timer(boost::system::error_code ec) {
+        if(ec) { // cancelled by shutdown()
+            return;
+        }
+        if(this->halt()) {
+            this->shutdown();
+            return;
+        }
+        start_halt_timer(); // keep polling
     }
 
     //-------------------------------------------------------------------------
@@ -469,9 +588,12 @@ private:
 	  * Shuts down the client
 	  */
     void shutdown() {
-        // Clear the socket
+        // Clear the socket and cancel the timers
         socket_ptr_.reset();
-        // Reset the work object, so it no longer keels the io_context alive
+        halt_timer_.cancel();
+        nodata_timer_.cancel();
+        reconnect_timer_.cancel();
+        // Reset the work object, so it no longer keeps the io_context alive
         work_.reset();
     }
 
@@ -495,8 +617,8 @@ private:
 
     std::uint64_t n_nodata_ = 0;
 
-    std::string incoming_message_str_; ///< Receives incoming messages
-    std::string outgoing_message_str_; ///< Helps to persist outgoing messages
+    std::string incoming_message_str_; ///< Receives the current exchange's response
+    std::string outgoing_message_str_; ///< Holds the current exchange's request (one exchange at a time)
 
     std::random_device nondet_rng_; ///< Source of non-deterministic random numbers
     std::mt19937 rng_engine_{
@@ -505,7 +627,39 @@ private:
 
     GCommandContainerT<processable_type, networked_consumer_payload_command> command_container_{
         networked_consumer_payload_command::NONE
-    }; ///< Holds the current command and payload (if any)
+    }; ///< Parse target for the current exchange's response (one exchange at a time)
+
+    /// Maximum number of work items the client keeps in flight at once (queued/in-progress exchanges +
+    /// items currently being evaluated). 1 == serial (one item at a time, the classic behaviour); a
+    /// larger depth keeps spare items so evaluation overlaps the fetch/return connections.
+    std::size_t prefetch_depth_ = 1;
+
+    /// In-flight bookkeeping, touched on the io thread only (no locking needed): pulls (GETDATA/RESULT
+    /// exchanges) queued or in progress, and items currently being evaluated on the compute pool. The
+    /// client keeps pending_pulls_ + computing_ == prefetch_depth_ whenever work is available.
+    std::size_t pending_pulls_ = 0;
+    std::size_t computing_ = 0;
+
+    /// Serialized requests waiting for a connection (only one connection runs at a time, so completed
+    /// evaluations and GETDATA top-ups queue here and are sent one after another).
+    std::deque<std::string> exchange_queue_;
+    bool exchanging_ = false; ///< Whether a connection cycle is currently in progress
+
+    boost::asio::steady_timer halt_timer_{
+        io_context_
+    }; ///< Periodically polls halt() so a stop is noticed even while all items are computing
+    boost::asio::steady_timer nodata_timer_{
+        io_context_
+    }; ///< Backoff timer that retries a GETDATA top-up after a NODATA reply (async, never blocks)
+    boost::asio::steady_timer reconnect_timer_{
+        io_context_
+    }; ///< Backoff timer for connection retries (async, never blocks the io thread)
+
+    /// A thread pool that runs the (possibly long, unbounded) work-item evaluations OFF the io thread,
+    /// so the io thread stays free to run connection exchanges while items are computed. Sized to the
+    /// prefetch depth so all in-flight items can compute concurrently. Declared last so it is destroyed
+    /// (and its threads joined) before io_context_.
+    boost::asio::thread_pool compute_pool_;
 };
 
 /******************************************************************************/

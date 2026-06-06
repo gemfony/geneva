@@ -84,7 +84,7 @@ std::size_t count_processed(const std::vector<item_ptr> &v) {
 }
 
 void run_over_sockets(std::vector<item_ptr> &items, const c2::GSubmissionPolicy &policy,
-                      std::size_t n_clients = 1) {
+                      std::size_t n_clients = 1, std::size_t prefetch_depth = 1) {
     auto broker = std::make_shared<c2::GBrokerT<GFaultyContainer>>();
     auto consumer = std::make_shared<c2::GWebsocketConsumerT<GFaultyContainer>>(
         /*port=*/0, /*threads=*/2, BIN
@@ -98,7 +98,7 @@ void run_over_sockets(std::vector<item_ptr> &items, const c2::GSubmissionPolicy 
     std::atomic<bool> any_threw{false};
     for(std::size_t c = 0; c < n_clients; ++c) {
         auto client = std::make_shared<ccons::GWebsocketClientT<GFaultyContainer>>(
-            "127.0.0.1", port, BIN, /*verbose_control_frames=*/false
+            "127.0.0.1", port, BIN, /*verbose_control_frames=*/false, prefetch_depth
         );
         clients.push_back(client);
         client_threads.emplace_back([client, &any_threw] {
@@ -151,6 +151,29 @@ TEST_CASE("courtier(websocket): throwing items are refilled under clone-on-parti
     run_over_sockets(items, c2::GSubmissionPolicy::clone_on_partial_return(), /*n_clients=*/2);
     CHECK(items.size() == 60);
     CHECK(count_processed(items) == 60);
+}
+
+TEST_CASE("courtier(websocket): prefetching clients evaluate the whole batch",
+          "[courtier][websocket][net]") {
+    // Each client holds several items in flight at once (overlapping fetch/compute/return); every slot
+    // must still come back exactly once. Fewer clients than the prefetch depth, so the depth genuinely
+    // multiplexes work onto each connection.
+    auto items = make_batch(200);
+    run_over_sockets(items, c2::GSubmissionPolicy::full_success_or_fatal(),
+                     /*n_clients=*/2, /*prefetch_depth=*/8);
+    CHECK(items.size() == 200);
+    CHECK(count_processed(items) == 200);
+}
+
+TEST_CASE("courtier(websocket): prefetch + throwing items refilled under clone-on-partial-return",
+          "[courtier][websocket][net]") {
+    // Combine prefetch with faulty items: the multi-item CheckoutLease and the reconciliation must
+    // cooperate so failed slots are refilled and the batch comes back full.
+    auto items = make_batch(120, {5, 17, 39, 64, 88, 103}, fault_mode::THROW_PROCESSING);
+    run_over_sockets(items, c2::GSubmissionPolicy::clone_on_partial_return(),
+                     /*n_clients=*/3, /*prefetch_depth=*/4);
+    CHECK(items.size() == 120);
+    CHECK(count_processed(items) == 120);
 }
 
 /******************************************************************************/

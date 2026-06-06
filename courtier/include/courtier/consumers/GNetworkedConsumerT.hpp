@@ -115,23 +115,56 @@ protected:
     /***************************************************************************/
     /**
      * A RAII checkout lease for transports with PERSISTENT, per-client sessions (e.g. the websocket
-     * consumer, whose client computes inline on an open connection). A session holds one of these and
-     * records the item it currently has in flight; if the session is destroyed while still holding an
-     * unreturned item -- the client disconnected mid-evaluation -- the lease requeues that item for
-     * another client immediately, a liveness-driven put-back that does not wait out the time lease.
-     * Transports with one-shot, per-request connections (ASIO) must NOT use this (their sessions end
-     * normally after every exchange); they rely on the time lease instead -- see usesTimeLease().
+     * consumer, whose client keeps an open connection while it evaluates). A session holds one of these
+     * and records EVERY item it currently has in flight (a prefetching client may hold several at once);
+     * if the session is destroyed while still holding unreturned items -- the client disconnected
+     * mid-evaluation -- the lease requeues all of them for other clients immediately, a liveness-driven
+     * put-back that does not wait out the time lease. Transports with one-shot, per-request connections
+     * (ASIO) must NOT use this (their sessions end normally after every exchange); they rely on the time
+     * lease instead -- see usesTimeLease().
+     *
+     * Items are keyed by their (batch_id, slot) correlation id, so add()/remove() pair up regardless of
+     * the order results come back in. Guarded by an internal mutex: although a single session drives its
+     * add()/remove() on one strand, the destructor may run on whichever io thread releases the last
+     * reference, so the two must not race.
      */
     struct CheckoutLease {
-        item_ptr current;
+        std::mutex mtx;
+        std::map<Gem::Courtier::BUFFERPORT_ID_TYPE, item_ptr> in_flight;
         std::function<void(const item_ptr &)> on_abandon;
 
         CheckoutLease() = default;
         CheckoutLease(const CheckoutLease &) = delete;
         CheckoutLease &operator=(const CheckoutLease &) = delete;
+
+        /** @brief Records an item just handed to the session. */
+        void add(const item_ptr &p) {
+            if(not p) {
+                return;
+            }
+            std::lock_guard<std::mutex> lk(mtx);
+            in_flight[p->getCorrelationId()] = p;
+        }
+        /** @brief Drops an item the session returned normally (nothing left for the lease to reclaim). */
+        void remove(const item_ptr &p) {
+            if(not p) {
+                return;
+            }
+            std::lock_guard<std::mutex> lk(mtx);
+            in_flight.erase(p->getCorrelationId());
+        }
         ~CheckoutLease() {
-            if(current && on_abandon) {
-                on_abandon(current);
+            std::map<Gem::Courtier::BUFFERPORT_ID_TYPE, item_ptr> remaining;
+            {
+                std::lock_guard<std::mutex> lk(mtx);
+                remaining.swap(in_flight);
+            }
+            if(on_abandon) {
+                for(auto &kv : remaining) {
+                    if(kv.second) {
+                        on_abandon(kv.second);
+                    }
+                }
             }
         }
     };
