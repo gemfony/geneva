@@ -46,8 +46,8 @@
 
 // The networked clients are wire-compatible with the courtier2 socket servers and are reused as-is;
 // like the consumers, the concrete client types are known ONLY here.
-#include "courtier/consumers/GAsioConsumerT.hpp"     // GAsioConsumerClientT
-#include "courtier/consumers/GWebsocketConsumerT.hpp" // GWebsocketClientT
+#include "courtier/transport/GAsioTransportT.hpp"     // GAsioConsumerClientT
+#include "courtier/transport/GWebsocketTransportT.hpp" // GWebsocketClientT
 
 namespace Gem::Geneva {
 

@@ -50,8 +50,8 @@
 
 #include "common/GParserBuilder.hpp"
 #include "courtier/GDemoProcessingContainers.hpp"
-#include "courtier/consumers/GAsioConsumerT.hpp"
-#include "courtier/consumers/GWebsocketConsumerT.hpp"
+#include "courtier/transport/GAsioTransportT.hpp"
+#include "courtier/transport/GWebsocketTransportT.hpp"
 #include "courtier2/GBrokerT.hpp"
 #include "courtier2/GExecutorT.hpp"
 #include "courtier2/GSubmissionPolicy.hpp"

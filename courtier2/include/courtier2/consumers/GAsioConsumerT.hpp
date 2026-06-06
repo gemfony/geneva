@@ -46,7 +46,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GThreadGroup.hpp"
-#include "courtier/consumers/GAsioConsumerT.hpp" // reuse the existing session + client + wire protocol
+#include "courtier/transport/GAsioTransportT.hpp" // reuse the existing session + client + wire protocol
 #include "courtier2/consumers/GNetworkedConsumerT.hpp"
 
 namespace Gem::Courtier2 {

@@ -43,7 +43,7 @@
 #include <vector>
 
 #include "courtier/GDemoProcessingContainers.hpp"
-#include "courtier/consumers/GWebsocketConsumerT.hpp" // the (reused) client
+#include "courtier/transport/GWebsocketTransportT.hpp" // the (reused) client
 #include "courtier2/GBrokerT.hpp"
 #include "courtier2/GExecutorT.hpp"
 #include "courtier2/GSubmissionPolicy.hpp"

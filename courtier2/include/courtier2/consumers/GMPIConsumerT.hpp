@@ -45,7 +45,7 @@
 #include <mpi.h>
 
 // Geneva headers
-#include "courtier/consumers/GMPIConsumerT.hpp" // reuse the existing master/worker nodes + MPI init
+#include "courtier/transport/GMPITransportT.hpp" // reuse the existing master/worker nodes + MPI init
 #include "courtier2/consumers/GNetworkedConsumerT.hpp"
 
 namespace Gem::Courtier2 {

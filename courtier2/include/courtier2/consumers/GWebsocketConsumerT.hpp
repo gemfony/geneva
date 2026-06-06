@@ -46,7 +46,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GThreadGroup.hpp"
-#include "courtier/consumers/GWebsocketConsumerT.hpp" // reuse the existing session + client + protocol
+#include "courtier/transport/GWebsocketTransportT.hpp" // reuse the existing session + client + protocol
 #include "courtier2/consumers/GNetworkedConsumerT.hpp"
 
 namespace Gem::Courtier2 {
