@@ -35,7 +35,7 @@
 # cluster.
 #
 # Usage:
-#   ./startLocalJobs.sh <program> <n_clients> <port> [consumer]
+#   ./startLocalJobs.sh <program> <n_clients> <port> [consumer] [-- <extra args>...]
 #
 #     program     Path to the Geneva executable.
 #     n_clients   Number of client processes to start (>= 1). For the MPI consumer
@@ -50,6 +50,16 @@
 #                 "mpi" the program is launched ONCE via mpirun (one process that
 #                 internally splits into the rank-0 master and the worker ranks);
 #                 there are no separate client invocations and no port.
+#     extra args  Everything after a literal "--" is forwarded VERBATIM to every
+#                 program invocation (server, clients, and the mpirun program), in
+#                 addition to the consumer/port/--client flags the script already
+#                 supplies. Use it for options the script does not model itself --
+#                 e.g. an algorithm chain (-a "ea,cgd") or a client prefetch depth
+#                 (--asio_prefetchDepth=4). Flags meant for one role are harmless to
+#                 the other (a client ignores -a; a server has no prefetch).
+#
+# Examples:
+#   ./startLocalJobs.sh ./GSimpleOptimizer 15 10000 asio -- -a "ea,cgd" --asio_prefetchDepth=4
 #
 # Environment:
 #   GENEVA_RUN_TIMEOUT   If set to a positive number of seconds, the script runs
@@ -70,9 +80,26 @@
 set -u
 
 # ---- argument handling ------------------------------------------------------
+# Split off any pass-through arguments after a literal "--": everything before it is
+# parsed by the script, everything after it is forwarded verbatim to the program.
+EXTRA_ARGS=()
+POSITIONAL=()
+seen_dashdash=0
+for arg in "$@"; do
+    if [ "${seen_dashdash}" -eq 1 ]; then
+        EXTRA_ARGS+=("${arg}")
+    elif [ "${arg}" = "--" ]; then
+        seen_dashdash=1
+    else
+        POSITIONAL+=("${arg}")
+    fi
+done
+set -- "${POSITIONAL[@]}"
+
 if [ $# -lt 3 ] || [ $# -gt 4 ]; then
-    echo "Usage: ./startLocalJobs.sh <program> <n_clients> <port> [consumer: asio|beast|mpi]"
+    echo "Usage: ./startLocalJobs.sh <program> <n_clients> <port> [consumer: asio|beast|mpi] [-- <extra args>...]"
     echo "       (for mpi the port is ignored and n_clients is the number of worker ranks)"
+    echo "       (everything after -- is forwarded to every program invocation)"
     exit 1
 fi
 
@@ -142,13 +169,13 @@ if [ "${CONSUMER}" = "mpi" ]; then
     NPROC=$((NCLIENTS + 1))
     SERVER_OUT=./output/output_mpirun
     echo "Launching ${MPIRUN} -np ${NPROC} (1 master + ${NCLIENTS} worker rank(s)) ..."
-    ( "${MPIRUN}" -np "${NPROC}" "${PROG}" -c mpi >& "${SERVER_OUT}" ) &
+    ( "${MPIRUN}" -np "${NPROC}" "${PROG}" -c mpi "${EXTRA_ARGS[@]}" >& "${SERVER_OUT}" ) &
     SERVER_PID=$!
 else
     # ---- socket consumers: one server process + NCLIENTS client processes ----
     SERVER_OUT=./output/output_server
     echo "Starting server (${CONSUMER}) on port ${PORT} ..."
-    ( "${PROG}" -c "${CONSUMER}" "--${PORT_OPT}=${PORT}" >& "${SERVER_OUT}" ) &
+    ( "${PROG}" -c "${CONSUMER}" "--${PORT_OPT}=${PORT}" "${EXTRA_ARGS[@]}" >& "${SERVER_OUT}" ) &
     SERVER_PID=$!
 
     # Give the server a moment to bind its listening socket before the clients connect.
@@ -157,7 +184,7 @@ else
     echo "Starting ${NCLIENTS} client(s) ..."
     for i in $(seq 1 "${NCLIENTS}"); do
         ( "${PROG}" -c "${CONSUMER}" --client "--${IP_OPT}=localhost" "--${PORT_OPT}=${PORT}" \
-            >& "./output/output_client_${i}" ) &
+            "${EXTRA_ARGS[@]}" >& "./output/output_client_${i}" ) &
         CLIENT_PIDS+=($!)
     done
 fi
