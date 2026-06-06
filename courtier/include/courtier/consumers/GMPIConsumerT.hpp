@@ -62,9 +62,6 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GThreadPool.hpp"
-#include "courtier/GBaseClientT.hpp"
-#include "courtier/consumers/GBaseConsumerT.hpp"
-#include "courtier/GBrokerT.hpp"
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
@@ -78,6 +75,45 @@ constexpr int TAG_SEND_WORK_ITEM = 43;
 constexpr int RANK_MASTER_NODE = 0;
 static MPI_Comm MPI_COMMUNICATOR =
     MPI_COMM_WORLD; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+
+/******************************************************************************/
+/**
+ * Initializes MPI with MPI_THREAD_MULTIPLE if it has not been initialized yet. Returns true iff this
+ * call performed the initialization (so the caller knows whether it owns the matching MPI_Finalize).
+ * Relocated from the former GMPIConsumerT consumer class so it survives that class's removal; used by
+ * the courtier2 MPI consumer and the MPI sub-client optimizer.
+ */
+inline bool initializeMPI(int *argc = nullptr, char ***argv = nullptr) {
+    int isAlreadyInitialized{0};
+    MPI_Initialized(&isAlreadyInitialized);
+
+    if(!isAlreadyInitialized) {
+        int providedThreadingLevel = 0;
+        MPI_Init_thread(argc, argv, MPI_THREAD_MULTIPLE, &providedThreadingLevel);
+
+        if(providedThreadingLevel != MPI_THREAD_MULTIPLE) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "Gem::Courtier::Consumers::initializeMPI():" << '\n'
+                << "Geneva requires an MPI implementation with level MPI_THREAD_MULTIPLE (a.k.a. "
+                << MPI_THREAD_MULTIPLE
+                << ") but the runtime environment only supports level " << providedThreadingLevel
+                << '\n'
+            );
+        }
+    }
+
+    return !isAlreadyInitialized;
+}
+
+/******************************************************************************/
+/**
+ * Sets the base communicator used for all master<->worker communication, letting user code use MPI
+ * alongside Geneva by splitting communicators. Relocated from the former GMPIConsumerT consumer class.
+ */
+inline void setMPICommunicator(MPI_Comm communicator) {
+    MPI_COMMUNICATOR = communicator;
+}
 
 /**
      * Stores configuration options which are used by master node and worker nodes
@@ -154,10 +190,6 @@ struct MPIConsumerConfig {
         return hwThreads != 0 ? hwThreads : 8;
     }
 };
-
-// forward declare class because we have a cyclic dependency between MPIConsumerT and MPIConsumerWorkerNodeT
-template <typename processable_type>
-class GMPIConsumerT;
 
 /**
      * This class is responsible for the client side of network communication using MPI.
@@ -1010,17 +1042,12 @@ private:
     std::shared_ptr<processable_type> getPayloadItem() {
         // If an external source has been injected (e.g. the courtier2 reconcile-the-span path),
         // use it instead of the broker. Default (no functor set) is the original broker behaviour.
+        // The courtier2 consumer always injects a source via setPayloadFunctors(); the former broker
+        // fallback was removed together with the legacy broker. An unset source yields no item.
         if(getPayloadItemFn_) {
             return getPayloadItemFn_();
         }
-
-        std::shared_ptr<processable_type> p;
-
-        // Try to retrieve a work item from the broker
-        brokerPtr_->get(p, timeout_);
-
-        // May be empty, if we ran into a timeout
-        return p;
+        return {};
     }
 
     //-------------------------------------------------------------------------
@@ -1036,17 +1063,10 @@ private:
             );
         }
 
-        // Use the injected sink if present (see getPayloadItem()); otherwise the broker.
+        // The courtier2 consumer always injects a sink via setPayloadFunctors(); the former broker
+        // fallback was removed together with the legacy broker.
         if(putPayloadItemFn_) {
             putPayloadItemFn_(p);
-            return;
-        }
-
-        if(not brokerPtr_->put(p, timeout_)) {
-            glogger << "In GMPIConsumerMasterNodeT<>::putPayloadItem():" << '\n'
-                    << "Work item could not be submitted to the broker" << '\n'
-                    << "The item will be discarded" << '\n'
-                    << GWARNING;
         }
     }
 
@@ -1094,491 +1114,10 @@ private:
     // whether a stop request for the GMPIConsumerT has been received
     std::atomic_bool isToldToStop_;
     // whether the stop request has been sent to all clients
-    std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> brokerPtr_ =
-        broker<processable_type>(); ///< Simplified access to the broker
-    const std::chrono::duration<double> timeout_ = std::chrono::milliseconds(
-        GMPICONSUMERBROKERACCESSBROKERTIMEOUT
-    ); ///< A timeout for put- and get-operations via the broker
-
-    /// Optional external source/sink, bypassing the broker (see setPayloadFunctors()).
+    /// External source/sink injected by the courtier2 consumer via setPayloadFunctors().
     std::function<std::shared_ptr<processable_type>()> getPayloadItemFn_;
     std::function<void(std::shared_ptr<processable_type>)> putPayloadItemFn_;
 };
 
-/**
-     *
-     * This class manages the initialization of MPI and is a wrapper around GMPIConsumerMasterNodeT and GMPIConsumerWorkerNodeT.
-     *
-     * This class is responsible for checking whether the current process is the master node (rank 0) or a worker node (any other rank).
-     * It is derived from both base classes - GBaseClientT and GBaseConsumerT - and can therefore be used as either of these.
-     * It instantiates the correct classes (GMPIConsumerMasterNodeT or GMPIConsumerWorkerNodeT) and forwards calls to its methods
-     * to one methods of the underlying object. This serves as an abstraction of MPI such that the user does not need to explicitly
-     * ask for the process's rank.
-     *
-     * The GMPIConsumerMasterNodeT is a server using MPI to wait for and serve connections initiated by instances of
-     * GMPIConsumerWorkerNodeT. The server cyclically waits for requests from any worker node and answers it.
-     *
-     * The GMPIConsumerT only uses asynchronous MPI communication and point-to-point messaging. This might be unusual
-     * when working with MPI, as most MPI-applications use synchronous communication e.g. with scatter and gather.
-     * However, collective communication would require us to synchronize after each batch, which requires us to wait
-     * for the slowest clients, would be potentially underutilized.
-     * The reason we chose point-to-point synchronization is that it realizes a natural load balancing among the clients.
-     * This is particularly useful on heterogeneous clusters or if the evaluation time of the function for the work items
-     * can vary.
-     *
-     * @tparam processable_type a type that is processable like GParameterSet
-     */
-template <typename processable_type>
-class GMPIConsumerT
-  : public GBaseConsumerT<processable_type>
-  , public Gem::Courtier::GBaseClientT<processable_type>
-  , public std::enable_shared_from_this<GMPIConsumerT<processable_type>> {
-public:
-    /**
-         *
-         * Constructor for a GMPIConsumerT
-         *
-         * @param argc argument count passed to main function, which will be forwarded to the MPI_Init call
-         * @param argv argument vector passed to main function, which will be forwarded to MPI_Init call
-         * @param config configuration options for users, default values are defined through the default values of the struct
-         */
-    explicit GMPIConsumerT(
-        int *argc = nullptr,
-        char ***argv = nullptr,
-        MPIConsumerConfig config = MPIConsumerConfig{}
-    )
-      : config_{config}
-      , commSize_{}
-      , commRank_{}
-      , argc_{argc}
-      , argv_{argv} {
-    }
-
-    /**
-         * The destructor finalizes the MPI framework.
-         *
-         * This destructor must call the MPI_Finalize function as this function encapsulates all MPI-specific action.
-         */
-    ~GMPIConsumerT() override {
-        this->finalizeMPI();
-    }
-
-    //-------------------------------------------------------------------------
-    // Deleted functions
-
-    // Deleted copy-constructors and assignment operators -- the client is non-copyable
-    GMPIConsumerT(const GMPIConsumerT<processable_type> &) = delete;
-
-    GMPIConsumerT(GMPIConsumerT<processable_type> &&) = delete;
-
-    GMPIConsumerT<processable_type> &operator=(const GMPIConsumerT<processable_type> &) = delete;
-
-    GMPIConsumerT<processable_type> &operator=(GMPIConsumerT<processable_type> &&) = delete;
-
-    //-------------------------------------------------------------------------
-
-    /**
-         *
-         * Initializes MPI in the required mode. This method is static, so that it can be called without a reference to
-         * an instance of GMPIConsumerT in case the user wants to initialize MPI on his own. This is useful in case of
-         * using MPI in the user code as well e.g. for creating MPI-subClients (look at examples/geneva/17_GMPISubClients/)
-         *
-         * @param argc argument count passed to main function, which will be forwarded to the MPI_Init call
-         * @param argv argument vector passed to main function, which will be forwarded to MPI_Init call
-         * @return true if MPI has been initialized by this call, false if it has already been initialized and therefore not initialized again
-         */
-    static bool initializeMPI(int *argc = nullptr, char ***argv = nullptr) {
-        int isAlreadyInitialized{0};
-        MPI_Initialized(&isAlreadyInitialized);
-
-        if(!isAlreadyInitialized) {
-            int providedThreadingLevel = 0;
-            MPI_Init_thread(argc, argv, MPI_THREAD_MULTIPLE, &providedThreadingLevel);
-
-            if(providedThreadingLevel != MPI_THREAD_MULTIPLE) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "GMPIConsumerT<> constructor" << '\n'
-                    << "Geneva requires MPI implementation with level MPI_THREAD_MULTIPLE (a.k.a. "
-                    << MPI_THREAD_MULTIPLE
-                    << ") but the runtime environment implementation of MPI only supports level "
-                    << providedThreadingLevel << '\n'
-                );
-            }
-        }
-
-        return !isAlreadyInitialized;
-    }
-
-    void finalizeMPI() {
-        // Do not finalize MPI if MPI Consumer has never been initialized.
-        // Note that it is still possible that MPI is initialized since the user code might use MPI
-        // Therefore we should not check for MPI_Initialized() but rather for our own flag
-        if(!this->isClusterPositionDefined) {
-            return;
-        }
-
-        int isAlreadyFinalized{0};
-        MPI_Finalized(&isAlreadyFinalized);
-
-        if(!isAlreadyFinalized) {
-            MPI_Finalize();
-        }
-        else {
-            glogger << "In GMPIConsumerT<>::finalizeMPI():" << '\n'
-                    << "MPI has been finalized GMPIConsumerT::finalizeMPI() has been called."
-                    << '\n'
-                    << "Happened on node with rank " << commRank_ << '\n'
-                    << "This might indicate issues in the user code." << '\n'
-                    << GWARNING;
-        }
-    }
-
-    /**
-          * Sets the nodes position in the cluster with regard to the MPI_COMMUNICATOR
-          * This method is required to be called before any instance method except the constructor is called
-          *
-          * @return a reference to itself to allow method call chaining
-          */
-    GMPIConsumerT<processable_type> &setPositionInCluster() {
-        // initialize MPI if not already happened
-        initializeMPI(argc_, argv_);
-
-        // set members regarding the position of the process in the MPI cluster
-        MPI_Comm_size(MPI_COMMUNICATOR, &commSize_);
-        MPI_Comm_rank(MPI_COMMUNICATOR, &commRank_);
-        isClusterPositionDefined = true;
-
-        return *this;
-    }
-
-    /**
-         * Sets the base communicator for all communication between the master and worker nodes.
-         * This allows also working with MPI in the user code by splitting the communicators.
-         * GMPIConsumerT must receive a user defined communicator in such case and cannot create its own, because
-         * MPI_Comm_split is a collective call that must be called by all ranks.
-         *
-         * @param communicator the new communicator for communication between master node and worker nodes
-         */
-    static void setMPICommunicator(MPI_Comm communicator) {
-        MPI_COMMUNICATOR = communicator;
-    }
-
-    /**
-         * Synchronize all participating MPI processes
-         * @return true if sucessful, false otherwise
-         */
-    [[nodiscard]] bool synchronize() const {
-        // handle for asynchronous MPI request
-        MPI_Request requestHandle{};
-
-        // asynchronously ask all processes to synchronize here.
-        MPI_Ibarrier(MPI_COMMUNICATOR, &requestHandle);
-
-        while(true) {
-            MPI_Status status{};
-
-            MPI_Wait(&requestHandle, &status);
-
-            if(status.MPI_ERROR != MPI_SUCCESS) {
-                glogger << "In GMPIConsumerT<processable_type>::synchronize():" << '\n'
-                        << "Received an error:" << '\n'
-                        << mpiErrorString(status.MPI_ERROR) << '\n'
-                        << "We will try to continue execution anyways." << '\n'
-                        << GWARNING;
-
-                return false; // synchronize stopped but unsuccessful
-            }
-
-            return true; // synchronize successful
-        }
-    }
-
-    /**
-         * Returns true for the master node, otherwise returns false.
-         *
-         * Requires that cluster position has already been set with setPositionInCluster()-method before
-         */
-    [[nodiscard]] inline bool isMasterNode() const {
-        if(!isClusterPositionDefined) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "GMPIConsumerT<>::isMasterNode():" << '\n'
-                << "The position of the process in the cluster is undefined." << '\n'
-                << "Use GMPIConsumerT<>::setPositionInCluster() to let the node figure out its "
-                   "position "
-                   "before calling any methods that require this information."
-            );
-        }
-        return commRank_ == RANK_MASTER_NODE;
-    }
-
-    /**
-         * Returns true for worker nodes, otherwise returns false
-         *
-         * Requires that cluster position has already been set with  setPositionInCluster
-         */
-    [[nodiscard]] inline bool isWorkerNode() const {
-        return !isMasterNode();
-    }
-
-protected:
-    /**
-         * Shuts down the consumer. This method shall only be called if the process is running a master node and if it
-         * has already started.
-         *
-         * Inherited from GBaseConsumerT
-         */
-    void shutdown_() override {
-        if(!isMasterNode()) {
-            glogger << "In GMPIConsumerT<>::shutdown_():" << '\n'
-                    << "shutdown_ method is only supposed to be called by instances running master "
-                       "mode."
-                    << '\n'
-                    << "But the calling node with rank " << commRank_ << " is a worker node."
-                    << '\n'
-                    << "The method will therefore exit." << '\n'
-                    << GWARNING;
-            return;
-        }
-        masterNodePtr_->shutdown();
-    }
-
-private:
-    //-------------------------------------------------------------------------
-    // private methods that override methods of the base class
-
-    /**
-         * Adds local command line options to a boost::program_options::options_description object.
-         *
-         * Inherited from GBaseConsumerT
-         *
-         * @param visible Command line options that should always be visible
-         * @param hidden Command line options that should only be visible upon request for details
-         */
-    void addCLOptions_(
-        boost::program_options::options_description &visible,
-        boost::program_options::options_description &hidden
-    ) override {
-        // Note that we use the current values of the members as default values, because in a default constructed
-        // instance the defaults are already set. This allows to reduce duplication of those values
-        namespace po = boost::program_options;
-
-        // add command line options from our configuration struct
-        config_.addCLOptions_(visible, hidden);
-    }
-
-    /**
-         * Takes a boost::program_options::variables_map object and acts on
-         * the received command line options.
-         *
-         * Inherited from GBaseConsumerT
-         *
-         */
-    void actOnCLOptions_(const boost::program_options::variables_map &vm) override { /* nothing */
-    }
-
-    /**
-         * A unique identifier for a given consumer
-         *
-         * Inherited from GBaseConsumerT
-         *
-         * @return A unique identifier for a given consumer
-         */
-    [[nodiscard]] std::string getConsumerName_() const override {
-        return {"GMPIConsumerT"};
-    }
-
-    /**
-         * Returns a short identifier for this consumer.
-         *
-         * Inherited form GBaseConsumerT
-         * @return short identifier for this consumer
-         */
-    [[nodiscard]] std::string getMnemonic_() const override {
-        return {"mpi"};
-    }
-
-    /**
-         * Inherited from GBaseConsumerT
-         *
-         * Requires that cluster position has already been set with the setPositionInCluster()-method
-         */
-    void async_startProcessing_() override {
-        if(!isMasterNode()) {
-            glogger << "In GMPIConsumerT<>::async_startProcessing_():" << '\n'
-                    << "async_startProcessing_ method is only supposed to be called by instances "
-                       "running master mode."
-                    << '\n'
-                    << "But the calling node with rank " << commRank_ << " is a worker node."
-                    << '\n'
-                    << "The method will therefore exit." << '\n'
-                    << GWARNING;
-            return;
-        }
-        instantiateNode();
-
-        masterNodePtr_->async_startProcessing();
-    }
-
-    /**
-         *
-         * Inherited from GBaseConsumerT
-         * @return true if the consumer needs clients to submit the work to, otherwise false
-         */
-    [[nodiscard]] bool needsClient_() const noexcept override {
-        return true;
-    }
-
-    /**
-         * Inherited from GBaseConsumerT. The MPI consumer's client/server role is
-         * fixed by its MPI rank (decided during init), not by the --client command
-         * line flag, so the requested mode is ignored.
-         *
-         * @return true if this process is an MPI worker (i.e. a client), false for the master
-         */
-    [[nodiscard]] bool determineClientMode_([[maybe_unused]] bool requested_client_mode) const override {
-        return isWorkerNode();
-    }
-
-    /**
-         * Inherited from GBaseConsumerT
-         * @param exact
-         * @return the amount of worker nodes in the cluster used by the instance of GMPIConsumerT
-         */
-    size_t getNProcessingUnitsEstimate_(bool &exact) const override {
-        exact = true; // mark the answer as exact
-        return commSize_ - 1;
-    }
-
-    /**
-         * Inherited from GBaseConsumerT
-         * @return
-         */
-    [[nodiscard]] bool capableOfFullReturn_() const override {
-        return true; // mpi errors are fatal in most cases, assume everything returns or we have an error
-    }
-
-    /**
-         * This method returns a client associated with this consumer.
-         *
-         * Inherited from GBaseonsumerT
-         * This function makes only sense to be called if the current node has rank 1-n (i.e. is a worker node).
-         * Therefore we can simply return the current object, because it is already a client.
-         */
-    std::shared_ptr<typename Gem::Courtier::GBaseClientT<processable_type>>
-    getClient_() const override {
-        if(isMasterNode()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "GMPIConsumerT<>::getClient_():" << '\n'
-                << "The current node is the master node in the MPI cluster." << '\n'
-                << "Trying to construct a client a.k.a. worker from this node is not permitted."
-                << '\n'
-                << "But still the getClient_ method has been called."
-            );
-        }
-
-        // As this is a const method we only get a const pointer to this.
-        // For the most consumers this method will simply create a new object of type GBaseClientT and then return it,
-        // which does not affect this and therefore does not collide with the const qualifier of this.
-        // However, as the GMPIConsumerT has the functionalities of a GBaseClientT and GBaseServerT in order to abstract
-        // away the calls to MPI_Init and friends, we must return this very object itself instead of instantiate a new client.
-        // As the returned object is expected to be mutable, we must advise the compiler to drop the const qualifier
-        // at this point. Of course, it would be nicer to not even have the const qualifier in the first place, but because
-        // this is an overridden method we can not change this. For the other consumers it makes sense to have the const
-        // qualifier here.
-        auto mutable_self = const_cast<GMPIConsumerT<processable_type> *>(this);
-
-        return std::dynamic_pointer_cast<GBaseClientT<processable_type>>(
-            mutable_self->shared_from_this()
-        );
-    }
-
-    void init_() override {
-        setPositionInCluster();
-    }
-
-    /**
-         * Inherited from GBaseClientT
-         */
-    void run_() override {
-        if(!isWorkerNode()) {
-            glogger << "In GMPIConsumerT<>::run_():" << '\n'
-                    << "run_ method is only supposed to be called by instances running worker mode."
-                    << '\n'
-                    << "But the calling node with rank " << commRank_ << " is the master node."
-                    << '\n'
-                    << "The method will therefore exit." << '\n'
-                    << GWARNING;
-            return;
-        }
-        instantiateNode();
-
-        workerNodePtr_->run();
-    }
-
-    /**
-         * Instantiates the node depending on what isWorkerNode() / isMasterNode() returns
-         *
-         * This is decoupled from the constructor in order to be able to construct the object first and later change its
-         * configuration (members) before constructing the contained node with the adjusted configuration.
-         */
-    void instantiateNode() {
-        // instantiate the correct class according to the position in the cluster
-        if(isMasterNode()) {
-            masterNodePtr_ =
-                std::make_shared<GMPIConsumerMasterNodeT<processable_type>>(commSize_, config_);
-        }
-        else {
-            // note that we cannot create a shared pointer from this because we are currently in the constructor
-            // and therefore the precondition that there must already exist one shared pointer pointing to this
-            // is not met. But as the lambdas are passed an instance that is a member of the consumer, we are pretty
-            // safe already with raw pointers, because the lifetime of the GMPIConsumerWorkerNodeT is bound to the
-            // lifetime of this object
-            workerNodePtr_ = std::make_shared<GMPIConsumerWorkerNodeT<processable_type>>(
-                commRank_,
-                [this]() -> bool { return this->halt(); },
-                [this]() -> void { this->incrementProcessingCounter(); },
-                config_
-            );
-        }
-    }
-
-    //-------------------------------------------------------------------------
-    // Data
-
-    MPIConsumerConfig config_;
-
-    // it might seem like unique pointers are sufficient in the first place.
-    // However, we need to call shared_from_this in the objects themselves to pass a reference to them
-    // to lambda functions which are used in different threads. shared_from_this has the precondition
-    // that there is already a shared pointer pointing to this. So we must use shared_ptr here already.
-    std::shared_ptr<GMPIConsumerMasterNodeT<processable_type>> masterNodePtr_;
-    std::shared_ptr<GMPIConsumerWorkerNodeT<processable_type>> workerNodePtr_;
-
-    std::int32_t commSize_;
-    std::int32_t commRank_;
-
-    int *argc_{nullptr};
-    char ***argv_{nullptr};
-
-    bool isClusterPositionDefined{false};
-
-    // This instance of a shared_ptr keeps it alive as long as the GMPIConsumerT exists
-    // Normally this should not be necessary, because we have a static instance of shared_ptr to the logger in the
-    // GSingleton class. However, there is a bug that was worked around by inserting this member variable.
-    // We are as of right now not sure why the bug persists.
-    // If nobody resets the GSingleton or the pointer manually that would mean that some parts of the Consumer are
-    // still running after the destructor of the static shared_ptr instance in GSingleton has been called. That would
-    // mean that there are threads in GMPIConsumerT that run longer than the main thread. This should not be the case
-    // as all threads are joined once GMPIConsumerT::shutdown() is called.
-    // TODO: investigate why there is a "pure virtual method called" error when compiling without the below line
-    //  NOTE: the error is non-deterministic and occurs roughly in 34% of the run, especially when using Go2
-    //      It occurs after the optimization has been completed in the GMPIConsumerSessionT class when logging that
-    //      a session has been told to stop and will be canceled.
-    std::shared_ptr<Gem::Common::GLogger<Gem::Common::GLogStreamer>> logger_ =
-        glogger_ptr; // DO NOT DELETE, unused but keeps instance behind shared_ptr alive
-};
 
 } /* namespace Gem::Courtier::Consumers */

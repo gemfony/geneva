@@ -75,8 +75,8 @@ GMPISubClientOptimizer::GMPISubClientOptimizer(
 
     // If the base communicator is already a sub communicator, this means MPI must already have been initialized by the user
     if(baseCommunicator == MPI_COMM_WORLD) {
-        // initialize MPI in the way this is required by GMPIConsumerT
-        cons::GMPIConsumerT<gpar::GParameterSet>::initializeMPI();
+        // initialize MPI in the way this is required by the MPI consumer
+        Gem::Courtier::Consumers::initializeMPI();
     }
 
     // initialize position in MPI world e.g. in the outermost communicator
@@ -134,8 +134,8 @@ GMPISubClientOptimizer::GMPISubClientOptimizer(
         }
     }
 
-    // Notify the GMPIConsumerT to use this inter-communicator
-    cons::GMPIConsumerT<gpar::GParameterSet>::setMPICommunicator(genevaComm_);
+    // Notify the MPI consumer to use this inter-communicator
+    Gem::Courtier::Consumers::setMPICommunicator(genevaComm_);
 
     // Notify the individual to use this inter-communicator
     GMPISubClientIndividual::setCommunicator(subClientComm_);

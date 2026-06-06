@@ -29,8 +29,6 @@
 
 SET ( COMMUNICATIONINCLUDES
     GBaseClientT.hpp
-    GBrokerT.hpp
-    GBufferPortT.hpp
     GCommandContainerT.hpp
     GCourtierEnums.hpp
     GCourtierHelperFunctions.hpp
@@ -42,7 +40,6 @@ SET ( COMMUNICATIONINCLUDES
 # Consumer classes (namespace Gem::Courtier::Consumers),
 # installed under courtier/consumers to mirror the `cons` alias.
 SET ( CONSUMER_INCLUDES
-    consumers/GBaseConsumerT.hpp
     consumers/GAsioConsumerT.hpp
     consumers/GWebsocketConsumerT.hpp
 )

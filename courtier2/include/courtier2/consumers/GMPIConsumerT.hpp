@@ -78,8 +78,7 @@ public:
         : config_(config)
     {
         // Reuse the existing, correct MPI initialization (MPI_THREAD_MULTIPLE).
-        i_initialized_mpi_ =
-            Gem::Courtier::Consumers::GMPIConsumerT<processable_type>::initializeMPI(argc, argv);
+        i_initialized_mpi_ = Gem::Courtier::Consumers::initializeMPI(argc, argv);
 
         MPI_Comm_size(MPI_COMM_WORLD, &comm_size_);
         MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank_);
