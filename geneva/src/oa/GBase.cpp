@@ -1677,7 +1677,12 @@ Gem::Courtier::executor_status_t GBase::workOnViaCourtier2_(
  * Retrieves a vector of old work items after job submission
  */
 std::vector<std::shared_ptr<gpar::GParameterSet>> GBase::getOldWorkItems() {
-    return executor_ptr_->getOldWorkItems();
+    // Only the legacy executor sets work items aside; courtier2 reconciles every slot in place, so
+    // there are never any "old" items to retrieve on the default path.
+    if(executor_ptr_) {
+        return executor_ptr_->getOldWorkItems();
+    }
+    return {};
 }
 
 /******************************************************************************/
@@ -1860,32 +1865,18 @@ void GBase::resetStallCounter() {
  * as their first action, call this function.
  */
 void GBase::init() {
-    // Add an executor, if none has been registered
-    if(not executor_ptr_) {
-        auto executor_ptr = this->createExecutor(default_exec_mode_);
-
-#ifdef DEBUG
-        if(not executor_ptr) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GBase<>::init(): Error!" << '\n'
-                << "Did not receive a valid executor" << '\n'
-            );
-        }
-#endif
-
-        glogger << "In GBase<>::init(): No explicit executor was "
-                   "registered. Using default"
-                << '\n'
-                << "\"" << executor_ptr->name() << "\" with config \""
-                << this->default_executor_config_ << "\" instead" << '\n'
-                << GLOGGING;
-
-        this->registerExecutor(executor_ptr, this->default_executor_config_);
+    // courtier2 is the default submission path. If neither a courtier2 routing was injected (by Go2)
+    // nor a legacy executor explicitly registered (registerExecutor(), e.g. the 06_GDirect* examples),
+    // default this algorithm to a courtier2 local multithreaded consumer -- so a bare alg->optimize()
+    // works standalone, without Go2 and without enrolling a consumer.
+    if(not executor_ptr_ && c2_local_kind_ == courtier2_local_kind::none && not c2_external_broker_) {
+        c2_local_kind_ = courtier2_local_kind::multithreaded; // 0 threads == hardware concurrency
     }
 
-    // Initialize the executor
-    executor_ptr_->init();
+    // Initialize the legacy executor only if one was explicitly registered.
+    if(executor_ptr_) {
+        executor_ptr_->init();
+    }
 }
 
 /******************************************************************************/
@@ -1895,8 +1886,10 @@ void GBase::init() {
  * call this function as their last action.
  */
 void GBase::finalize() {
-    // Finalize the broker connector
-    executor_ptr_->finalize();
+    // Finalize the legacy executor only if one was explicitly registered (courtier2 needs no teardown).
+    if(executor_ptr_) {
+        executor_ptr_->finalize();
+    }
 }
 
 /******************************************************************************/
