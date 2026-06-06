@@ -43,8 +43,7 @@
 // Geneva headers
 #include "common/GCommonEnums.hpp"
 #include "common/GLogger.hpp"
-#include "courtier/consumers/GBaseConsumerT.hpp"
-#include "courtier/GBrokerT.hpp"
+#include "courtier2/GBrokerT.hpp"
 #include "geneva/GenevaInitializer.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GBase.hpp"
@@ -175,12 +174,14 @@ private:
  */
 class GAlgorithmBenchmarkRunner {
 public:
-    explicit GAlgorithmBenchmarkRunner(BenchmarkConfig cfg);
+    /** @brief @p cudaBroker holds the courtier2 GPU consumer; it is injected into every algorithm
+     *  via setCourtier2Broker() so each optimization submits its population to the GPU. */
+    GAlgorithmBenchmarkRunner(
+        BenchmarkConfig cfg,
+        std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> cudaBroker);
 
     /**
      * @brief Runs the full benchmark and returns aggregated results per tag.
-     *
-     * Assumes a consumer has already been enrolled with broker<GParameterSet>().
      * Prints per-run progress to stdout.
      */
     std::vector<GAlgorithmBenchmarkResult> run();
@@ -203,6 +204,7 @@ private:
     );
 
     BenchmarkConfig cfg_;
+    std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> cudaBroker_;
 };
 
 /******************************************************************************/

@@ -61,8 +61,9 @@ using namespace Gem::Geneva;
 using namespace Gem::Geneva::Benchmarks;
 
 /******************************************************************************/
-// Forward declaration — implemented in GCUDAOptBenchmark.cu
-void createAndEnrollCUDAConsumer(std::size_t batchSize, std::uint32_t flushTimeoutMs);
+// Forward declaration — implemented in GCUDAOptBenchmark.cu. Builds a courtier2 broker holding the
+// GPU consumer; handed to the runner, which injects it into every algorithm via setCourtier2Broker().
+std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> createCUDABroker();
 
 /******************************************************************************/
 /**
@@ -162,11 +163,11 @@ int main(int argc, char **argv) {
     // Initialize Geneva — must outlive the runner and all optimization.
     Gem::Geneva::GenevaInitializer gi;
 
-    // Create and enroll the CUDA consumer (implemented in GCUDAOptBenchmark.cu).
+    // Build the courtier2 broker holding the GPU consumer (implemented in GCUDAOptBenchmark.cu).
     // Keeps this file free of CUDA headers so it compiles as C++20.
-    createAndEnrollCUDAConsumer(cfg.batchSize, cfg.flushTimeoutMs);
+    auto cudaBroker = createCUDABroker();
 
-    GAlgorithmBenchmarkRunner runner(cfg);
+    GAlgorithmBenchmarkRunner runner(cfg, cudaBroker);
     const auto results = runner.run();
 
     for (const auto &r : results) {

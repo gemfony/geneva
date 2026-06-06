@@ -42,28 +42,28 @@
  *
  ********************************************************************************/
 
-#include <chrono>
-#include <cstddef>
-#include <cstdint>
 #include <memory>
 
-// GBrokerT.hpp does not pull in GGlobalOptionsT — safe under C++17.
-#include "courtier/GBrokerT.hpp"
+#include "courtier2/GBrokerT.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "GBenchmarkCUDAConsumer.hpp"
 
 /******************************************************************************/
 /**
- * @brief Creates a GCUDABatchConsumer, configures it, and enrolls it with the
- * global broker for GParameterSet.
+ * @brief Builds a courtier2 broker holding the GPU batch consumer.
  *
- * Called from GCUDAOptBenchmarkMain.cpp::main() after GenevaInitializer has
- * been constructed there.  The consumer stays alive until the broker shuts
- * down because the broker holds the shared_ptr internally.
+ * Called from GCUDAOptBenchmarkMain.cpp::main() after GenevaInitializer has been constructed there.
+ * The returned broker is handed to GAlgorithmBenchmarkRunner, which injects it into each algorithm
+ * via setCourtier2Broker(); the broker (and thus the consumer + its persistent GPU context) lives as
+ * long as the runner. The clone function is the polymorphic GParameterSet clone, needed by the
+ * clone-on-partial-return policy (used by the population-based algorithms).
  */
-void createAndEnrollCUDAConsumer(std::size_t batchSize, std::uint32_t flushTimeoutMs) {
+std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> createCUDABroker() {
+    auto broker   = std::make_shared<Gem::Courtier2::GBrokerT<gpar::GParameterSet>>();
     auto consumer = std::make_shared<Gem::Geneva::Benchmarks::GCUDABatchConsumer>();
-    consumer->setBatchSize(batchSize);
-    consumer->setFlushTimeout(std::chrono::milliseconds{flushTimeoutMs});
-    Gem::Courtier::broker<gpar::GParameterSet>()->enrol_consumer(consumer);
+    consumer->setCloneFunction([](const std::shared_ptr<gpar::GParameterSet> &p) {
+        return p->clone<gpar::GParameterSet>();
+    });
+    broker->registerConsumer(consumer);
+    return broker;
 }

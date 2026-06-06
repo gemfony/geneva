@@ -45,8 +45,11 @@ namespace Gem::Geneva::Benchmarks {
 
 /******************************************************************************/
 
-GAlgorithmBenchmarkRunner::GAlgorithmBenchmarkRunner(BenchmarkConfig cfg)
+GAlgorithmBenchmarkRunner::GAlgorithmBenchmarkRunner(
+    BenchmarkConfig cfg,
+    std::shared_ptr<Gem::Courtier2::GBrokerT<gpar::GParameterSet>> cudaBroker)
     : cfg_(std::move(cfg))
+    , cudaBroker_(std::move(cudaBroker))
 {}
 
 /******************************************************************************/
@@ -106,6 +109,10 @@ GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(
 ) {
     // Create algorithm from factory + config file
     auto alg = makeAlgorithm(entry);
+
+    // Submit this algorithm's populations to the GPU consumer (courtier2): inject the shared broker
+    // so workOn() routes through it instead of the legacy executor.
+    alg->setCourtier2Broker(cudaBroker_);
 
     // Attach termination monitor
     auto monitor = std::make_shared<GBenchmarkTerminationMonitor>();

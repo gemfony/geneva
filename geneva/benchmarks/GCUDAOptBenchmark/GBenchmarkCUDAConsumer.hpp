@@ -33,19 +33,12 @@
 
 #pragma once
 
-#include <chrono>
 #include <memory>
-#include <thread>
 #include <vector>
-
-// Boost headers (required by GBaseConsumerT)
-#include <boost/program_options.hpp>
 
 // Geneva headers
 #include "common/GGlobalDefines.hpp"
-#include "common/GLogger.hpp"
-#include "courtier/consumers/GBaseConsumerT.hpp"
-#include "courtier/GBrokerT.hpp"
+#include "courtier2/GBaseConsumerT.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
 
@@ -56,34 +49,32 @@ namespace Gem::Geneva::Benchmarks {
 
 /******************************************************************************/
 /**
- * @brief Broker-integrated GPU batch consumer for GFunctionIndividual.
+ * @brief GPU batch consumer for GFunctionIndividual (courtier2).
  *
- * Registered with broker<GParameterSet>() — the same broker type Go2 uses.
- * Work items arrive as GParameterSet; they are cast to GFunctionIndividual
- * internally to extract demoFunction and parameters.
+ * A courtier2 local consumer: courtier2 hands dispatch_() the WHOLE round's batch (a vector of work
+ * items) at once, so the GPU evaluates an entire population in one kernel launch -- the manual
+ * batch-accumulation machinery (the broker get/put stream, batchSize_/flushTimeout_, the worker
+ * thread) the old broker-stream consumer needed simply disappears. The persistent
+ * GBenchmarkCUDAContext avoids repeated cudaMalloc across generations.
  *
- * Batch flushing policy:
- *   - batchSize_ > 0: flush when exactly batchSize_ items have arrived.
- *   - batchSize_ == 0: flush flushTimeout_ ms after the first item arrives,
- *     with whatever has accumulated by then.
- *
- * The persistent GBenchmarkCUDAContext avoids repeated cudaMalloc across
- * generations.
- *
- * The pre-computed GPU fitness is injected via
- *   individual->process(vector<parameterset_processing_result>{fitness})
- * following the pattern from examples/geneva/15_GCUDAWorker.
- * This bypasses fitnessCalculation() while performing all Geneva bookkeeping.
+ * Work items arrive as GParameterSet; they are cast to GFunctionIndividual internally to extract
+ * demoFunction (the kernel funcId) and the double parameters. The pre-computed GPU fitness is
+ * injected via individual->process(vector<parameterset_processing_result>{fitness}) -- the pattern
+ * from examples/geneva/15_GCUDAWorker -- which performs all Geneva bookkeeping (leaving the item
+ * PROCESSED, which is what courtier2's reconciliation reads) without triggering fitnessCalculation().
  * GFunctionIndividual itself is not modified and remains CPU-runnable.
+ *
+ * Wiring (see GCUDAOptBenchmark.cu / GAlgorithmBenchmarkRunner): the benchmark registers this consumer
+ * with a courtier2 GBrokerT and injects that broker into each algorithm via setCourtier2Broker(),
+ * rather than enrolling with the old singleton broker.
  */
 class GCUDABatchConsumer
-    : public cons::GBaseConsumerT<gpar::GParameterSet>
+    : public Gem::Courtier2::GBaseConsumerT<gpar::GParameterSet>
 {
     using individual_t = gpar::GParameterSet;
-    using base_t       = cons::GBaseConsumerT<individual_t>;
 
 public:
-    //--------------------------------------------------------------------------
+    using item_ptr = typename Gem::Courtier2::GBaseConsumerT<gpar::GParameterSet>::item_ptr;
 
     GCUDABatchConsumer() = default;
     ~GCUDABatchConsumer() override = default;
@@ -91,126 +82,18 @@ public:
     GCUDABatchConsumer(const GCUDABatchConsumer &) = delete;
     GCUDABatchConsumer &operator=(const GCUDABatchConsumer &) = delete;
 
-    //--------------------------------------------------------------------------
-    /**
-     * @brief Sets the target batch size.
-     *
-     * 0 (default): flush by timeout — the consumer flushes flushTimeout_ ms
-     *   after the first item of a new batch arrives.
-     * >0: flush when exactly that many items have accumulated, regardless of time.
-     *   Recommended value: population size of the optimizer being benchmarked.
-     */
-    void setBatchSize(std::size_t sz) { batchSize_ = sz; }
-    std::size_t getBatchSize() const  { return batchSize_; }
-
-    //--------------------------------------------------------------------------
-    /**
-     * @brief Sets the flush timeout.
-     *
-     * When batchSize_ == 0, the consumer flushes after this duration from the
-     * first item's arrival. Also used as the per-item get-timeout in the inner
-     * accumulation loop. Default: 50 ms.
-     */
-    void setFlushTimeout(std::chrono::milliseconds t) { flushTimeout_ = t; }
-
-    //--------------------------------------------------------------------------
-    /**
-     * @brief Convenience factory: creates and enrolls a consumer with the broker.
-     *
-     * Must be called BEFORE constructing Go2 so that Go2's hasConsumers() check
-     * finds the consumer already registered and skips its own enrollment.
-     */
-    static std::shared_ptr<GCUDABatchConsumer> setup() {
-        auto consumer_ptr = std::make_shared<GCUDABatchConsumer>();
-        Gem::Courtier::broker<gpar::GParameterSet>()->enrol_consumer(consumer_ptr);
-        return consumer_ptr;
-    }
-
 protected:
     //--------------------------------------------------------------------------
-    void shutdown_() override {
-        base_t::shutdown_();
-        if (processingThread_.joinable()) {
-            processingThread_.join();
-        }
+    /**
+     * @brief Evaluates the whole round's batch on the GPU in one launch. A GPU/cast failure throws
+     * (a hard benchmark error); on success every item is left PROCESSED for the policy reconciliation.
+     */
+    void dispatch_(std::vector<item_ptr> &items) override {
+        if (items.empty()) return;
+        evaluateBatchOnGPU(items);
     }
 
 private:
-    //--------------------------------------------------------------------------
-    // GBaseConsumerT pure-virtual interface
-
-    void addCLOptions_(
-        [[maybe_unused]] boost::program_options::options_description & visible,
-        [[maybe_unused]] boost::program_options::options_description & hidden
-    ) override { /* no command-line options */ }
-
-    void actOnCLOptions_(
-        [[maybe_unused]] const boost::program_options::variables_map & vm
-    ) override { /* nothing */ }
-
-    std::string getConsumerName_() const override { return "GCUDABatchConsumer"; }
-    std::string getMnemonic_()     const override { return "cuda"; }
-
-    bool capableOfFullReturn_() const override { return true; }
-
-    std::size_t getNProcessingUnitsEstimate_(bool &exact) const override {
-        exact = true;
-        return std::size_t{1}; // one GPU
-    }
-
-    //--------------------------------------------------------------------------
-    void async_startProcessing_() override {
-        glogger << "GCUDABatchConsumer: starting GPU batch worker thread" << std::endl
-                << GLOGGING;
-        processingThread_ = std::thread([this]() { workerLoop(); });
-    }
-
-    //--------------------------------------------------------------------------
-    void workerLoop() {
-        while (!this->stopped()) {
-            auto batch = collectBatch();
-            if (batch.empty()) continue;
-            evaluateBatchOnGPU(batch);
-            returnBatchToBroker(batch);
-        }
-    }
-
-    //--------------------------------------------------------------------------
-    /**
-     * @brief Collects a batch of individuals from the broker.
-     *
-     * Blocks on the first item (checking stopped() every flushTimeout_ ms).
-     * Once the first item arrives the flush deadline is set. Further items are
-     * collected with a short 10 ms inner timeout until the deadline expires
-     * (batchSize_ == 0) or batchSize_ items have arrived (batchSize_ > 0).
-     */
-    std::vector<std::shared_ptr<individual_t>> collectBatch() {
-        std::vector<std::shared_ptr<individual_t>> batch;
-
-        // Wait for first item
-        std::shared_ptr<individual_t> first;
-        while (!this->stopped() && !first) {
-            broker_ptr_->get(first, flushTimeout_);
-        }
-        if (!first) return batch; // stopped() fired before any item arrived
-
-        batch.push_back(std::move(first));
-
-        const auto deadline = std::chrono::steady_clock::now() + flushTimeout_;
-        constexpr auto innerTimeout = std::chrono::milliseconds{10};
-
-        while (!this->stopped()) {
-            if (batchSize_ > 0 && batch.size() >= batchSize_) break;
-            if (batchSize_ == 0 && std::chrono::steady_clock::now() >= deadline) break;
-
-            std::shared_ptr<individual_t> p;
-            broker_ptr_->get(p, innerTimeout);
-            if (p) batch.push_back(std::move(p));
-        }
-
-        return batch;
-    }
-
     //--------------------------------------------------------------------------
     /**
      * @brief GPU-evaluates all individuals in the batch in one kernel launch.
@@ -220,7 +103,7 @@ private:
      * Results are injected back via process(vector<parameterset_processing_result>{fitness})
      * on the base GParameterSet pointer — pattern from examples/geneva/15_GCUDAWorker.
      */
-    void evaluateBatchOnGPU(std::vector<std::shared_ptr<individual_t>> &batch) {
+    void evaluateBatchOnGPU(std::vector<item_ptr> &batch) {
         const int N = static_cast<int>(batch.size());
 
         // Cast first item to GFunctionIndividual to get demoFunction and dimension.
@@ -261,23 +144,9 @@ private:
     }
 
     //--------------------------------------------------------------------------
-    void returnBatchToBroker(std::vector<std::shared_ptr<individual_t>> &batch) {
-        for (auto &ind : batch) {
-            broker_ptr_->put(ind, flushTimeout_);
-        }
-    }
-
-    //--------------------------------------------------------------------------
     // Data members
 
-    std::thread               processingThread_;
-    GBenchmarkCUDAContext     cudaCtx_;
-
-    std::size_t               batchSize_   {0};
-    std::chrono::milliseconds flushTimeout_{50};
-
-    std::shared_ptr<Gem::Courtier::GBrokerT<individual_t>> broker_ptr_
-        = Gem::Courtier::broker<gpar::GParameterSet>();
+    GBenchmarkCUDAContext cudaCtx_; ///< Persistent GPU context (avoids per-generation cudaMalloc)
 };
 
 /******************************************************************************/
