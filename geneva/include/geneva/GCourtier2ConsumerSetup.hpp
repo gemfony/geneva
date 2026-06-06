@@ -38,6 +38,7 @@
 #include <string>
 
 // Boost headers
+#include <boost/program_options/options_description.hpp>
 #include <boost/program_options/variables_map.hpp>
 
 // Geneva headers
@@ -121,6 +122,33 @@ Courtier2ConsumerSpec specFromCommandLine(
  */
 std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GParameterSet>>
 buildCourtier2Client(const Courtier2ConsumerSpec &spec);
+
+/******************************************************************************/
+/**
+ * Registers the command-line options for every supported courtier2 consumer (asio/beast/stc, and mpi
+ * when built) into @p visible / @p hidden. This is the single place that owns the consumer option
+ * surface, so callers (Go2) register them without iterating a consumer store. specFromCommandLine()
+ * reads the matching values back out of the parsed map.
+ */
+void addCourtier2ConsumerOptions(
+    boost::program_options::options_description &visible,
+    boost::program_options::options_description &hidden);
+
+/******************************************************************************/
+/** @brief Whether @p mnemonic names a consumer this layer can build (sc/stc/asio/beast/mpi). */
+bool isCourtier2Consumer(const std::string &mnemonic);
+
+/******************************************************************************/
+/** @brief Whether a process selecting @p mnemonic can run as a networked client (asio/beast/mpi). */
+bool courtier2ConsumerNeedsClient(const std::string &mnemonic);
+
+/******************************************************************************/
+/** @brief A "mnemonic:  human-readable-name" listing of the supported consumers, for help text. */
+std::string courtier2ConsumerListing();
+
+/******************************************************************************/
+/** @brief The number of supported consumers (for help text). */
+std::size_t courtier2ConsumerCount();
 
 /******************************************************************************/
 

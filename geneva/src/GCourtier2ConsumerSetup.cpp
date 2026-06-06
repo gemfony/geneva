@@ -31,6 +31,11 @@
 
 // Standard headers
 #include <cstddef>
+#include <cstdint>
+#include <string>
+
+// Default values for the consumer command-line options.
+#include "courtier/GCourtierEnums.hpp"
 
 // The concrete courtier2 consumers -- known ONLY here.
 #include "courtier2/consumers/GAsioConsumerT.hpp"
@@ -184,6 +189,136 @@ buildCourtier2Client(const Courtier2ConsumerSpec &spec) {
 
     // sc/stc are local-only; the mpi worker loop comes from buildCourtier2Setup().run_worker.
     return nullptr;
+}
+
+/******************************************************************************/
+
+namespace {
+
+/** @brief One supported consumer: its mnemonic, human-readable name and whether it can have a client. */
+struct C2ConsumerInfo {
+    const char *mnemonic;
+    const char *name;
+    bool needs_client;
+};
+
+constexpr C2ConsumerInfo kC2Consumers[] = {
+    {"sc", "GSerialConsumerT (courtier2)", false},
+    {"stc", "GStdThreadConsumerT (courtier2)", false},
+    {"asio", "GAsioConsumerT (courtier2)", true},
+    {"beast", "GWebsocketConsumerT (courtier2)", true},
+#ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
+    {"mpi", "GMPIConsumerT (courtier2)", true},
+#endif /* GENEVA_BUILD_WITH_MPI_CONSUMER */
+};
+
+const C2ConsumerInfo *findC2Consumer(const std::string &mnemonic) {
+    for(const auto &info : kC2Consumers) {
+        if(mnemonic == info.mnemonic) {
+            return &info;
+        }
+    }
+    return nullptr;
+}
+
+} /* anonymous namespace */
+
+/******************************************************************************/
+
+void addCourtier2ConsumerOptions(
+    boost::program_options::options_description &visible,
+    boost::program_options::options_description &hidden) {
+    namespace po = boost::program_options;
+    using Gem::Common::serializationMode;
+
+    // [asio]
+    visible.add_options()(
+        "asio_ip", po::value<std::string>()->default_value(Gem::Courtier::GCONSUMERDEFAULTSERVER),
+        "\t[asio] The name or ip of the server")(
+        "asio_port", po::value<unsigned short>()->default_value(Gem::Courtier::GCONSUMERDEFAULTPORT),
+        "\t[asio] The port of the server");
+    hidden.add_options()(
+        "asio_serializationMode",
+        po::value<serializationMode>()->default_value(Gem::Courtier::GCONSUMERSERIALIZATIONMODE),
+        "\t[asio] Serialization in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")(
+        "asio_nProcessingThreads",
+        po::value<std::size_t>()->default_value(Gem::Courtier::GCONSUMERLISTENERTHREADS),
+        "\t[asio] The number of threads used to process incoming connections")(
+        "asio_maxReconnects",
+        po::value<std::size_t>()->default_value(Gem::Courtier::GASIOCONSUMERMAXCONNECTIONATTEMPTS),
+        "\t[asio] The maximum number of client reconnection attempts");
+
+    // [beast]
+    visible.add_options()(
+        "beast_ip", po::value<std::string>()->default_value(Gem::Courtier::GCONSUMERDEFAULTSERVER),
+        "\t[beast] The name or ip of the server")(
+        "beast_port", po::value<unsigned short>()->default_value(Gem::Courtier::GCONSUMERDEFAULTPORT),
+        "\t[beast] The port of the server");
+    hidden.add_options()(
+        "beast_serializationMode",
+        po::value<serializationMode>()->default_value(Gem::Courtier::GCONSUMERSERIALIZATIONMODE),
+        "\t[beast] Serialization in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")(
+        "beast_nListenerThreads",
+        po::value<std::size_t>()->default_value(Gem::Courtier::GCONSUMERLISTENERTHREADS),
+        "\t[beast] The number of threads used to listen for incoming connections")(
+        "beast_pingInterval",
+        po::value<std::size_t>()->default_value(Gem::Courtier::GBEASTCONSUMERPINGINTERVAL),
+        "\t[beast] The number of seconds between two consecutive pings")(
+        "beast_verboseControlFrames",
+        po::value<bool>()->default_value(false)->implicit_value(true),
+        "\t[beast] Announce ping/pong/close frames");
+
+    // [stc] -- 0 means "the consumer's own default" (hardware concurrency).
+    hidden.add_options()(
+        "nWorkerThreads", po::value<std::size_t>()->default_value(0),
+        "\t[stc] The number of worker threads (0 == hardware concurrency)")(
+        "stcCapableOfFullReturn", po::value<bool>()->default_value(true),
+        "\t[stc] A debugging option toggling timeouts in the executor");
+
+#ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
+    // [mpi] -- accepted for command-line compatibility; the courtier2 mpi path currently uses its own
+    // defaults for these (per-option passthrough is a planned refinement).
+    visible.add_options()(
+        "mpi_asyncReq", po::value<bool>()->default_value(true),
+        "\t[mpi] Whether clients prefetch the next work item")(
+        "mpi_nHandlerThreads", po::value<std::uint32_t>()->default_value(0),
+        "\t[mpi] The number of request-handler threads (0 == hardware concurrency)");
+    hidden.add_options()(
+        "mpi_cleanSessInterval", po::value<std::uint32_t>()->default_value(100),
+        "\t[mpi] Interval in ms between master session-completion checks")(
+        "mpi_serializationMode",
+        po::value<serializationMode>()->default_value(Gem::Courtier::GCONSUMERSERIALIZATIONMODE),
+        "\t[mpi] Serialization in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)");
+#endif /* GENEVA_BUILD_WITH_MPI_CONSUMER */
+}
+
+/******************************************************************************/
+
+bool isCourtier2Consumer(const std::string &mnemonic) {
+    return findC2Consumer(mnemonic) != nullptr;
+}
+
+/******************************************************************************/
+
+bool courtier2ConsumerNeedsClient(const std::string &mnemonic) {
+    const C2ConsumerInfo *info = findC2Consumer(mnemonic);
+    return info != nullptr && info->needs_client;
+}
+
+/******************************************************************************/
+
+std::string courtier2ConsumerListing() {
+    std::string result;
+    for(const auto &info : kC2Consumers) {
+        result += std::string(info.mnemonic) + ":  " + info.name + "\n";
+    }
+    return result;
+}
+
+/******************************************************************************/
+
+std::size_t courtier2ConsumerCount() {
+    return std::size(kC2Consumers);
 }
 
 /******************************************************************************/

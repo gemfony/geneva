@@ -34,13 +34,11 @@
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GProviderT.hpp"
-#include "courtier/GBrokerT.hpp"
-#include "courtier/consumers/GBaseConsumerT.hpp"
-// courtier2 consumer construction AND the per-mnemonic command-line spec both live in the shared
-// setup layer (buildCourtier2Setup / specFromCommandLine); Go2 no longer reaches into the concrete
-// consumer types to read their configuration.
+// courtier2 consumer construction, the per-mnemonic command-line spec, the consumer option surface and
+// the networked client all live in the shared setup layer (buildCourtier2Setup / specFromCommandLine /
+// addCourtier2ConsumerOptions / buildCourtier2Client); Go2 no longer touches the concrete consumer
+// types or the consumer store at all.
 #include "geneva/GCourtier2ConsumerSetup.hpp"
-#include "geneva/GConsumerStore.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/oa/GBase.hpp"
@@ -770,10 +768,9 @@ void Go2::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
  * @param client_mode Allows marking this object as belonging to a client as opposed to a server
  */
 void Go2::setClientMode(bool client_mode) {
-    // Note: a consumer that determines its client/server role autonomously (e.g.
-    // the MPI consumer, from its process rank) will override this request during
-    // command-line parsing -- see setupChosenConsumer() and
-    // GBaseConsumerT::determineClientMode().
+    // Note: a consumer that determines its client/server role autonomously (the MPI consumer, from its
+    // process rank) overrides this request during command-line parsing -- see setupChosenConsumer(),
+    // which derives client_mode_ from the courtier2 setup result for mpi.
     client_mode_ = client_mode;
 }
 
@@ -868,8 +865,8 @@ void Go2::parseCommandLine(
         std::ostringstream consumer_help; // NOLINT(cppcoreguidelines-init-variables)
         consumer_help << "The name of a consumer for brokered execution (an error will be flagged "
                          "if called with any other execution mode than (2) ). "
-                      << consumerStore()->size() << " consumers have been registered: " << '\n'
-                      << listMnemonics(consumerStore());
+                      << Gem::Geneva::courtier2ConsumerCount() << " consumers are available: " << '\n'
+                      << Gem::Geneva::courtier2ConsumerListing();
 
         auto usage_string = std::string("Usage: ") + argv[0] + " [options]";
 
@@ -896,15 +893,9 @@ void Go2::parseCommandLine(
             "Hidden algorithm- and consumer-options"
         );
 
-        // Retrieve available command-line options from registered consumers, if any.
-        // getContentSnapshot() takes the store's mutex once and returns an
-        // atomic snapshot of all stored values, so iteration is both cheap and
-        // race-free with respect to concurrent registrations.
-        if(not consumerStore()->empty()) {
-            for(auto const &consumer : consumerStore()->getContentSnapshot()) {
-                consumer->addCLOptions(visible, hidden);
-            }
-        }
+        // Register the consumer command-line options through the courtier2 setup layer (the single
+        // owner of the consumer option surface) -- no consumer store iteration.
+        Gem::Geneva::addCourtier2ConsumerOptions(visible, hidden);
 
         // Retrieve available command-line options from registered optimization
         // algorithm factories, if any (same snapshot pattern).
@@ -1006,21 +997,21 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
         );
     }
 
-    // Check that the requested consumer actually exists
-    if(vm.contains("consumer") && not consumerStore()->exists(consumer_name_)) {
+    // Check that the requested consumer is one the courtier2 setup layer can build.
+    if(not Gem::Geneva::isCourtier2Consumer(consumer_name_)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::setupChosenConsumer(): Error!" << '\n'
-            << "You have requested a consumer with name " << consumer_name_ << '\n'
-            << "which could not be found in the consumer store." << '\n'
+            << "You have requested an unknown consumer \"" << consumer_name_ << "\"." << '\n'
+            << "Available consumers are:" << '\n'
+            << Gem::Geneva::courtier2ConsumerListing()
         );
     }
 
-    // Fetch the chosen consumer once from its provider (the prototype model hands
-    // out the single registered instance) and use it throughout.
-    auto consumer = consumerStore()->get(consumer_name_)->provide();
-
-    if(client_mode_ && not consumer->needsClient()) {
+    // Client mode requires a consumer with a networked client form (asio/beast/mpi). For mpi the role
+    // is fixed by the rank rather than --client, so it is exempt from this up-front check.
+    if(client_mode_ && consumer_name_ != "mpi"
+       && not Gem::Geneva::courtier2ConsumerNeedsClient(consumer_name_)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::setupChosenConsumer(): Error!" << '\n'
@@ -1031,65 +1022,28 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
 
     std::cout << "Using consumer " << consumer_name_ << '\n';
 
-    // allow the consumer to perform necessary initialization before startup
-    consumer->init();
+    // courtier2 is the submission path. Assemble the transport-agnostic spec from the command line and
+    // remember it, so clientRun_() can build the matching networked client without a second pass.
+    c2_spec_ = Gem::Geneva::specFromCommandLine(consumer_name_, vm);
 
-    // Let the consumer reconcile the requested client/server role with the one it
-    // actually requires. Most consumers honour --client unchanged; the MPI consumer
-    // overrides this and decides from its process rank (determined in init() above).
-    // Go2 thus stays free of any concrete-consumer knowledge.
-    client_mode_ = consumer->determineClientMode(client_mode_);
+    // Build the courtier2 consumer through the shared factory -- the single place that knows the
+    // concrete consumer types -- and inject the resulting broker into every algorithm (in
+    // runAlgorithmChain). MPI builds on EVERY rank (the consumer self-determines master/worker from its
+    // process rank: master -> broker, worker -> run_worker); the socket and local consumers build a
+    // server only when this process is not a client.
+    if(consumer_name_ == "mpi" || not client_mode_) {
+        auto setup = Gem::Geneva::buildCourtier2Setup(c2_spec_);
+        c2_broker_         = setup.broker;     // injected into the algorithms (null on an MPI worker)
+        c2_mpi_run_worker_ = setup.run_worker; // MPI worker rank: clientRun_ serves through it
 
-    // Finally give the consumer the chance to act on the command line options
-    consumer->actOnCLOptions(vm);
-
-    // courtier2 is the default submission path. Build the courtier2 consumer for the chosen mnemonic
-    // through the shared factory buildCourtier2Setup() -- the single place that knows the concrete
-    // courtier2 consumer types -- and inject the resulting broker into every algorithm (in
-    // runAlgorithmChain). Consumers without a courtier2 form yet (e.g. cuda) fall back to the legacy
-    // broker path. MPI builds on EVERY rank (master -> broker, worker -> run_worker); the socket and
-    // local consumers only on the server.
-    {
-        const std::string mnemonic = consumer->getMnemonic();
-
-        // Assemble the spec for the chosen mnemonic straight from the parsed command line, via the
-        // courtier2 setup layer. This keeps Go2 free of the concrete consumer types -- no dynamic_cast
-        // back to GAsioConsumerT/GWebsocketConsumerT to read port/serialization. The spec is stored so
-        // clientRun_() can build the matching networked client from it (no second command-line pass).
-        Gem::Geneva::Courtier2ConsumerSpec spec = Gem::Geneva::specFromCommandLine(mnemonic, vm);
-        c2_spec_ = spec;
-
-        // MPI must be built on the client ranks too (the worker loop lives in the courtier2 consumer);
-        // the socket/local consumers are built only on the server.
-        if(mnemonic == "mpi" || not client_mode_) {
-            auto setup = Gem::Geneva::buildCourtier2Setup(spec);
-            c2_broker_         = setup.broker;     // injected into the algorithms (null on an MPI worker)
-            c2_mpi_run_worker_ = setup.run_worker; // MPI worker rank: clientRun_ serves through it
-
-            if(c2_broker_) {
-                std::cout << "Routing consumer \"" << mnemonic << "\" through courtier2\n";
-            }
-            else if(not c2_mpi_run_worker_ && not client_mode_) {
-                glogger << "In Go2::setupChosenConsumer(): Note!" << '\n'
-                        << "Consumer \"" << mnemonic << "\" has no courtier2 form yet;" << '\n'
-                        << "falling back to the legacy broker path for this run." << '\n'
-                        << GLOGGING;
-            }
+        // MPI fixes the client/server role by rank: a worker rank yields a run_worker loop (and a null
+        // broker). Reflect that in client_mode_ so the caller dispatches to clientRun_().
+        if(consumer_name_ == "mpi") {
+            client_mode_ = static_cast<bool>(c2_mpi_run_worker_);
         }
-    }
 
-    // At this point the consumer should be fully configured.
-    // Register the consumer with the legacy broker only when courtier2 did NOT take over (an unknown
-    // mnemonic with no courtier2 form) and we are not a client / MPI worker.
-    if(not client_mode_ && not c2_broker_ && not c2_mpi_run_worker_) {
-        if(not Gem::Courtier::broker<gpar::GParameterSet>()->hasConsumers()) {
-            Gem::Courtier::broker<gpar::GParameterSet>()->enrol_consumer(consumer);
-        }
-        else {
-            glogger << "In Go2::setupChosenConsumer(): Note!" << '\n'
-                    << "Could not register requested consumer," << '\n'
-                    << "as a consumer was already registered with the broker" << '\n'
-                    << GLOGGING;
+        if(c2_broker_) {
+            std::cout << "Routing consumer \"" << consumer_name_ << "\" through courtier2\n";
         }
     }
 }
