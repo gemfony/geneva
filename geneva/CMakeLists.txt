@@ -65,12 +65,10 @@ IF ( GENEVA_BUILD_BENCHMARKS )
 	ADD_SUBDIRECTORY ( benchmarks )
 ENDIF ()
 
-# EXPERIMENTAL: the unified GPU consumer framework (CPU/CUDA/OpenCL backends, runtime kernel loading)
-# and its demo programs. Self-contained under experimental/; does not touch the rest of Geneva. Built
-# alongside the examples.
-IF ( GENEVA_BUILD_EXAMPLES )
-	ADD_SUBDIRECTORY ( experimental/gpu )
-ENDIF ()
+# The unified GPU consumer framework (CPU/CUDA/OpenCL backends, runtime kernel loading) now lives in
+# the Courtier library (courtier/include/courtier/gpu + courtier/src/gpu, optional add-on
+# gemfony-courtier-gpu). It is exercised by example 15 (the Mona-Lisa problem) and the GPU
+# optimisation benchmark; the former experimental tree has been retired.
 
 # Per-library Doxygen target (doc-geneva).
 ADD_SUBDIRECTORY ( doc )
