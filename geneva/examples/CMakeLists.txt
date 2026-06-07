@@ -75,9 +75,11 @@ ADD_SUBDIRECTORY( 12_GExternalEvaluator )
 ADD_SUBDIRECTORY( 13_GPluggableOptimizationMonitors )
 ADD_SUBDIRECTORY( 14_GDependentConstraints )
 
-IF(CMAKE_CUDA_COMPILER_LOADED)
-    ADD_SUBDIRECTORY(15_GCUDAWorker)
-ENDIF()
+# Example 15 (Mona-Lisa) drives the optional courtier GPU consumer. Its kernel is runtime-compiled
+# (NVRTC/OpenCL), so it no longer needs the CUDA language enabled at build time -- it builds with an
+# ordinary C++ toolchain and selects CPU/CUDA/OpenCL at run time. It only requires libpng (its own
+# CMakeLists skips the example if libpng is absent).
+ADD_SUBDIRECTORY(15_GCUDAWorker)
 
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 	ADD_SUBDIRECTORY( 16_GMPIConsumer )

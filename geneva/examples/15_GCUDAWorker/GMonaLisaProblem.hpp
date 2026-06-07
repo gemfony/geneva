@@ -30,6 +30,7 @@
 #pragma once
 
 // Standard headers
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <numbers>
@@ -41,7 +42,7 @@
 #include "GImageHelperFunctions.hpp"
 
 /**
- * Shared CPU math for the EXPERIMENTAL Mona-Lisa port of example 15. The fitness of a candidate is the
+ * Shared CPU math for the Mona-Lisa problem of example 15. The fitness of a candidate is the
  * deviation of the alpha-blended triangle superimposition from a TARGET image, summed per pixel and
  * channel through a rational saturation function -- exactly the metric example 15's GPU kernel uses.
  *
@@ -69,7 +70,7 @@ struct Target {
     std::vector<double> rgb; ///< size width*height*3
 };
 
-/** @brief The process-wide target (set once by the demo before any evaluation). */
+/** @brief The process-wide target (set once before any evaluation). */
 inline Target &mutableTarget() {
     static Target t;
     return t;
@@ -163,6 +164,49 @@ inline double score(const double *params, int dim, int W, int H, const double *t
         }
     }
     return sum;
+}
+
+/**
+ * @brief Renders the flat genome @p params (dim = 10*NT+3) into an 8-bit RGB buffer (W*H*3 bytes,
+ * row-major, 3 bytes per pixel) using the SAME alpha-blend rasterisation as score(). This is what the
+ * image-output monitor saves to disk so the evolving candidate can be watched as a picture.
+ */
+inline void renderToRGB(const double *params, int dim, int W, int H,
+                        std::vector<unsigned char> &rgb_out) {
+    const int NT = (dim - 3) / 10;
+    const double bgR = params[10 * NT + 0];
+    const double bgG = params[10 * NT + 1];
+    const double bgB = params[10 * NT + 2];
+
+    std::vector<double> corners(static_cast<std::size_t>(NT) * 6);
+    for(int t = 0; t < NT; ++t) {
+        calculateCorners(params + t * 10, W, H, corners.data() + t * 6);
+    }
+
+    rgb_out.resize(static_cast<std::size_t>(W) * H * 3);
+    auto toByte = [](double v) -> unsigned char {
+        return static_cast<unsigned char>(std::clamp(v, 0.0, 1.0) * 255.0 + 0.5);
+    };
+    for(int y = 0; y < H; ++y) {
+        for(int x = 0; x < W; ++x) {
+            const double px = x + 0.5;
+            const double py = y + 0.5;
+            double r = bgR, g = bgG, b = bgB;
+            for(int t = 0; t < NT; ++t) {
+                if(pointInTriangle(px, py, corners.data() + t * 6)) {
+                    const double *tri = params + t * 10;
+                    const double a = tri[9];
+                    r = (1.0 - a) * r + a * tri[6];
+                    g = (1.0 - a) * g + a * tri[7];
+                    b = (1.0 - a) * b + a * tri[8];
+                }
+            }
+            const std::size_t idx = (static_cast<std::size_t>(y) * W + x) * 3;
+            rgb_out[idx + 0] = toByte(r);
+            rgb_out[idx + 1] = toByte(g);
+            rgb_out[idx + 2] = toByte(b);
+        }
+    }
 }
 
 /** @brief Convenience: score a genome against the process-wide target. */

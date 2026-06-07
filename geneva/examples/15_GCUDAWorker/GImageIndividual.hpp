@@ -53,7 +53,8 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include "GCanvas.hpp"
+// (GCanvas.hpp removed: unused -- it was only needed by the old example 15.s
+//  on-screen/file rendering path, replaced here by the shared rasteriser in GMonaLisaProblem.hpp.)
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"

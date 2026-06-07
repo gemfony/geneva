@@ -32,9 +32,9 @@
 # the optional gemfony-courtier-gpu add-on (see courtier/src/gpu/). These demos just drive it.
 #
 # NOTE: this experimental tree is being retired. The Mona-Lisa demo has been promoted to the official
-# example 15, and the CUDA optimisation benchmark reuses the same framework. The remaining demos here
-# are kept only as additional smoke tests until the migration is complete.
+# example 15 (geneva/examples/15_GCUDAWorker), and the CUDA optimisation benchmark reuses the same
+# framework. The remaining demos here are kept only as additional smoke tests until the migration is
+# complete.
 
 ADD_SUBDIRECTORY ( examples/function_demo )
 ADD_SUBDIRECTORY ( examples/image_demo )
-ADD_SUBDIRECTORY ( examples/monalisa_demo )

@@ -1,4 +1,4 @@
-// CUDA Mona-Lisa fitness kernel for the experimental example-15 port -- PIXEL-PARALLEL version.
+// CUDA Mona-Lisa fitness kernel for example 15 -- PIXEL-PARALLEL version.
 //
 // Runtime-compiled by the GGPUConsumer's CUDA backend (NVRTC). The batch is evaluated in ONE launch
 // of n_items * threads_per_item threads: each item is handled by `threads_per_item` cooperating
@@ -14,7 +14,7 @@
 // problem-constant blob (doubles): [W, H, target(W*H*3)].
 // per-item parameters (dim = 10*NT + 3): per triangle [cx cy radius a1 a2 a3 r g b alpha], then bg[3].
 
-#define MONALISA_MAXTRI 64   // the demo uses 64 triangles; corners are cached per thread
+#define MONALISA_MAXTRI 64   // example 15 uses 64 triangles; corners are cached per thread
 
 extern "C" __global__ void evaluate(
     const double *params, int n_items, int dim,

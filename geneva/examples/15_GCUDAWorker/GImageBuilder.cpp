@@ -31,375 +31,119 @@
  *
  ********************************************************************************/
 
-// Standard header files go here
-#include <iostream>
+/**
+ * @file
+ * Example 15 -- the Mona-Lisa problem: evolve a set of alpha-blended circle-triangles so that their
+ * superimposition resembles a target image. The candidate fitness is the per-pixel/per-channel
+ * deviation from the target through a rational saturation function.
+ *
+ * The evaluation runs on the GPU via the unified courtier GPU consumer
+ * (Gem::Courtier::GPU::GGPUConsumerT): a whole generation is flattened and scored in ONE bulk kernel
+ * launch (runtime-compiled with NVRTC; pixel-parallel so even a small population fills the GPU). The
+ * SAME render+score math is also available on the CPU (GImageIndividual::fitnessCalculation and the
+ * marshaller's host reference), so a CPU run cross-checks the GPU. Switch backend / kernel in
+ * config/GGPUConsumer.json -- no recompilation needed; set backend=cpu to run without a GPU.
+ *
+ * The useful output is produced at the end of each iteration: GImagePOM rasterises the current best
+ * candidate and writes it to ./results/ as a PNG, so the picture can be watched converging.
+ *
+ * Because there is no network involved, this example is also a convenient stress-test harness for the
+ * courtier framework, the broker, and Hap.
+ */
+
+// Standard headers
+#include <csignal>
 #include <memory>
-#include <tuple>
-#include <vector>
+#include <string>
 
 // Boost headers
 #include <boost/program_options.hpp>
 
-// Geneva header files go here
-#include "common/GCommonHelperFunctions.hpp"
+// Geneva headers
 #include "courtier/GBrokerT.hpp"
-#include "geneva/GPluggableOptimizationMonitors.hpp"
+#include "courtier/gpu/GGPUConsumer.hpp"
 #include "geneva/Go2.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 
-// The individual that should be optimized
+// Example-local headers
 #include "GImageIndividual.hpp"
-
-// The courtier GPU consumer for GImageIndividuals
-#include "GImageCUDAConsumer.hpp"
-
-// Information retrieval and printing
 #include "GImagePOM.hpp"
+#include "GMonaLisaGPUMarshaller.hpp"
+#include "GMonaLisaProblem.hpp"
 
 using namespace Gem::Geneva;
-using namespace Gem::Courtier;
-
 namespace po = boost::program_options;
+namespace gpu = Gem::Courtier::GPU;
+namespace gpar = Gem::Geneva::Parameters;
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * A function that allows parsing of the command line
- */
-void assembleCommandLineOptions(
-    boost::program_options::options_description &user_options,
-    bool &showDevices,
-    std::string &logAll,
-    std::string &logResults,
-    std::string &monitorNAdaptions,
-    std::string &logSigma,
-    bool &logImages,
-    bool &emitBestOnly
-) {
-    user_options.add_options()(
-        "showDevices"
-        , po::value<bool>(&showDevices)->implicit_value(true)->default_value(false)
-    )(
-        "logAll"
-        , po::value<std::string>(&logAll)->default_value("empty")
-        , "Logs all solutions to the file name provided as argument to this switch"
-    )(
-        "logResults"
-        , po::value<std::string>(&logResults)->default_value("empty")
-        , "Logs the results of all candidate solutions in an iteration"
-    )(
-        "monitorAdaptions"
-        , po::value<std::string>(&monitorNAdaptions)->implicit_value(std::string("./nAdaptions.C"))->
-                                                      default_value("empty")
-        , "Logs the number of adaptions for all individuals over the course of the optimization. Useful for evolutionary algorithms only."
-    )(
-        "logSigma"
-        , po::value<std::string>(&logSigma)->implicit_value(std::string("./sigmaLog.C"))->default_value("empty")
-        , "Logs the value of sigma for all or the best adaptors, if GDoubleGaussAdaptors are being used"
-    )(
-        "logImages"
-        , po::value<bool>(&logImages)->implicit_value(true)->default_value(true)
-        , "Logs the images in each iteration"
-    )(
-        "emitBestOnly"
-        , po::value<bool>(&emitBestOnly)->implicit_value(true)->default_value(true)
-        , "Determines whether only the best results should be emitted. Will only have an effect if \"logImages\" is set to \"true\""
-    );
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * Set up a number of optimization monitors, mostly for debugging and
- * profiling purposes
- */
-std::shared_ptr<GCollectiveMonitor> getPOM(
-    const std::string &logAll,
-    const std::string &logResults,
-    const std::string &monitorNAdaptions,
-    const std::string &logSigma,
-    bool logImages,
-    const std::string &resultDirectory,
-    const std::string &targetFileName,
-    bool emitBestOnly,
-    bool useGPU,
-    const std::tuple<int, int> &blockSize,
-    const std::tuple<int, int> &gridSize
-) {
-    std::shared_ptr<GCollectiveMonitor> collectiveMonitor_ptr(new GCollectiveMonitor());
-
-    if(logAll != "empty") {
-        std::shared_ptr<GAllSolutionFileLogger> allsolutionLogger_ptr(
-            new GAllSolutionFileLogger(logAll)
-        );
-
-        allsolutionLogger_ptr->setPrintWithNameAndType(
-            true
-        ); // Output information about variable names and types
-        allsolutionLogger_ptr->setPrintWithCommas(true); // Output commas between values
-        allsolutionLogger_ptr->setUseTrueFitness(
-            false
-        ); // Output "transformed" fitness, not the "true" value
-        allsolutionLogger_ptr->setShowValidity(true); // Indicate, whether this is a valid solution
-
-        collectiveMonitor_ptr->registerPluggableOM(allsolutionLogger_ptr);
-    }
-
-    if(logResults != "empty") {
-        std::shared_ptr<GIterationResultsFileLogger> iterationResultLogger_ptr(
-            new GIterationResultsFileLogger(logResults)
-        );
-
-        iterationResultLogger_ptr->setPrintWithCommas(true); // Output commas between values
-        iterationResultLogger_ptr->setUseTrueFitness(
-            false
-        ); // Output "transformed" fitness, not the "true" value
-
-        collectiveMonitor_ptr->registerPluggableOM(iterationResultLogger_ptr);
-    }
-
-    if(monitorNAdaptions != "empty") {
-        std::shared_ptr<GNAdpationsLogger> nAdaptionsLogger_ptr(
-            new GNAdpationsLogger(monitorNAdaptions)
-        );
-
-        nAdaptionsLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
-        nAdaptionsLogger_ptr->setAddPrintCommand(
-            true
-        ); // Create a PNG file if Root-file is executed
-
-        collectiveMonitor_ptr->registerPluggableOM(nAdaptionsLogger_ptr);
-    }
-
-    if(logSigma != "empty") {
-        std::shared_ptr<GAdaptorPropertyLogger<double>> sigmaLogger_ptr(
-            new GAdaptorPropertyLogger<double>(logSigma, "GDoubleGaussAdaptor", "sigma")
-        );
-
-        sigmaLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
-        sigmaLogger_ptr->setAddPrintCommand(true);  // Create a PNG file if Root-file is executed
-
-        collectiveMonitor_ptr->registerPluggableOM(sigmaLogger_ptr);
-    }
-
-    // Create an additional POM for the image emission, if requested
-    if(logImages) {
-        std::shared_ptr<GImagePOM> imageLogger_ptr(new GImagePOM(
-            resultDirectory,
-            targetFileName,
-            emitBestOnly,
-            useGPU,
-            blockSize,
-            gridSize
-        ));
-
-        collectiveMonitor_ptr->registerPluggableOM(imageLogger_ptr);
-    }
-
-    if(collectiveMonitor_ptr->hasOptimizationMonitors()) {
-        return collectiveMonitor_ptr;
-    }
-            return {}; // empty pointer indicates that no monitor was requested
-   
-}
-
-/********************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////
-/********************************************************************************/
-// Emits information on CUDA errors
-void checkCuda(cudaError_t err, const char *msg) {
-    if(err != cudaSuccess) {
-        fprintf(stderr, "CUDA Error! %s (%s)\n", msg, cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
-}
-
-/********************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////
-/********************************************************************************/
-/**
- * Prints out information about all devices
- */
-void printDeviceInfo() {
-    int deviceCount = 0;
-
-    // Anzahl der CUDA-fähigen Geräte abrufen
-    checkCuda(cudaGetDeviceCount(&deviceCount), "deviceCount");
-
-    if(deviceCount == 0) {
-        std::cout << "No CUDA-capable devices found." << '\n';
-        return;
-    }
-
-    std::cout << "Number of CUDA-capable devices: " << deviceCount << "\n" << '\n';
-
-    // Informationen zu jedem Gerät abrufen und ausgeben
-    for(int device = 0; device < deviceCount; ++device) {
-        cudaDeviceProp deviceProp;
-        checkCuda(cudaGetDeviceProperties(&deviceProp, device), "device properties");
-
-        std::cout << "Device " << device << ": " << deviceProp.name << '\n';
-        std::cout << "  Compute Capability: " << deviceProp.major << "." << deviceProp.minor
-                  << '\n';
-        std::cout << "  Global Memory: "
-                  << static_cast<float>(deviceProp.totalGlobalMem) / (1 << 20) << " MB"
-                  << '\n';
-        std::cout << "  Multiprocessors: " << deviceProp.multiProcessorCount << '\n';
-
-        // Number of CUDA-cores (this is an estimate)
-        int cudaCores = 0;
-        if(deviceProp.major == 2) {
-            // Fermi
-            cudaCores = deviceProp.multiProcessorCount * 32;
-        }
-        else if(deviceProp.major == 3) {
-            // Kepler
-            cudaCores = deviceProp.multiProcessorCount * 192;
-        }
-        else if(deviceProp.major == 5) {
-            // Maxwell
-            cudaCores = deviceProp.multiProcessorCount * 128;
-        }
-        else if(deviceProp.major == 6) {
-            // Pascal
-            cudaCores = deviceProp.multiProcessorCount * 64;
-        }
-        else if(deviceProp.major == 7) {
-            // Volta, Turing
-            cudaCores = deviceProp.multiProcessorCount * 64;
-        }
-        else if(deviceProp.major >= 8) {
-            // Ampere und neuer
-            cudaCores = deviceProp.multiProcessorCount * 64;
-        }
-        else {
-            cudaCores = deviceProp.multiProcessorCount * 128; // Default estimate
-        }
-
-        std::cout << "  CUDA-Cores (estimate): " << cudaCores << '\n';
-#if CUDART_VERSION < 12000
-        std::cout << "  Device Frequency: " << deviceProp.clockRate * 1e-3f << " MHz" << '\n';
-        std::cout << "  Memory Frequency: " << deviceProp.memoryClockRate * 1e-3f << " MHz"
-                  << '\n';
-#endif
-        std::cout << "  Memory Bandwidth: " << deviceProp.memoryBusWidth << " Bit" << '\n';
-        std::cout << "  L2-Cache: " << deviceProp.l2CacheSize << " Bytes" << '\n';
-        std::cout << "  Maximum number of threads per block: " << deviceProp.maxThreadsPerBlock
-                  << '\n';
-        std::cout << "  Maximum Thread-Dimension: (" << deviceProp.maxThreadsDim[0] << ", "
-                  << deviceProp.maxThreadsDim[1] << ", " << deviceProp.maxThreadsDim[2] << ")"
-                  << '\n';
-        std::cout << "  Maximum Grid-Size: (" << deviceProp.maxGridSize[0] << ", "
-                  << deviceProp.maxGridSize[1] << ", " << deviceProp.maxGridSize[2] << ")" << "\n"
-                  << '\n';
-        if(deviceProp.concurrentKernels) {
-            std::cout << "  The GPU supports concurrent Kernel-execution." << '\n';
-        }
-        else {
-            std::cout << "  The GPU does not support concurrent Kernel-execution." << '\n';
-        }
-    }
-}
-
-/********************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////
-/********************************************************************************/
-/**
- * The main function
- */
 int main(int argc, char **argv) {
-    boost::program_options::options_description user_options;
+    // ---- example-specific command-line options -----------------------------------------------
+    std::string targetFile;
+    std::string consumerConfig;
+    bool logImages = false;
+    bool emitBestOnly = false;
 
-    bool showDevices = false;
-    std::string logAll = "empty";
-    std::string logResults = "empty";
-    std::string monitorNAdaptions = "empty";
-    std::string logSigma = "empty";
-    bool logImages;
-    bool emitBestOnly;
+    po::options_description user_options;
+    user_options.add_options()(
+        "target",
+        po::value<std::string>(&targetFile)->default_value("./pictures/ml-small.png"),
+        "The target image (PNG) the triangle superimposition should resemble")(
+        "gpuConfig",
+        po::value<std::string>(&consumerConfig)->default_value("./config/GGPUConsumer.json"),
+        "The courtier GPU consumer configuration (backend + kernel selection)")(
+        "logImages",
+        po::value<bool>(&logImages)->implicit_value(true)->default_value(true),
+        "Write the best candidate image to ./results/ after each iteration")(
+        "emitBestOnly",
+        po::value<bool>(&emitBestOnly)->implicit_value(true)->default_value(true),
+        "When logging images, only emit one for iterations that improved the best result");
 
-    assembleCommandLineOptions(
-        user_options,
-        showDevices,
-        logAll,
-        logResults,
-        monitorNAdaptions,
-        logSigma,
-        logImages,
-        emitBestOnly
-    );
+    // Go2 parses both its own and the user options from the command line / config file.
+    Go2 go(argc, argv, "./config/Go2.json", user_options);
 
-    // Build the GPU image consumer and wrap it in a courtier broker. The polymorphic clone function
-    // is needed by the clone-on-partial-return policy the evolutionary algorithm uses.
-    auto cudaConsumer_ptr =
-        std::make_shared<Gem::Geneva::GImageCUDAConsumer>("./config/GImageCUDAWorker.json");
-    cudaConsumer_ptr->setCloneFunction([](const std::shared_ptr<gpar::GParameterSet> &p) {
+    // ---- load the target image (defines the canvas resolution and the fitness reference) -----
+    Gem::Geneva::MonaLisa::loadTarget(targetFile);
+    const auto &tgt = Gem::Geneva::MonaLisa::target();
+    glogger << "Example 15 (Mona-Lisa): target " << targetFile << " (" << tgt.width << "x"
+            << tgt.height << ")" << '\n'
+            << GLOGGING;
+
+    // ---- build the GPU consumer, wrap it in a broker and hand it to Go2 -----------------------
+    // GGPUConsumerT evaluates a whole generation in one bulk launch; the marshaller knows how to turn
+    // GImageIndividuals into flat device buffers and how to write the results back.
+    auto marshaller = std::make_shared<MonaLisa::GMonaLisaGPUMarshaller>();
+    auto consumer =
+        std::make_shared<gpu::GGPUConsumerT<gpar::GParameterSet>>(consumerConfig, marshaller);
+    // The clone-on-partial-return policy used by the evolutionary algorithm needs a polymorphic clone.
+    consumer->setCloneFunction([](const std::shared_ptr<gpar::GParameterSet> &p) {
         return p->clone<gpar::GParameterSet>();
     });
-    auto cudaBroker_ptr = std::make_shared<Gem::Courtier::GBrokerT<gpar::GParameterSet>>();
-    cudaBroker_ptr->registerConsumer(cudaConsumer_ptr);
+    auto broker = std::make_shared<Gem::Courtier::GBrokerT<gpar::GParameterSet>>();
+    broker->registerConsumer(consumer);
+    go.registerBroker(broker);
 
-    // Create the optimizer and hand it the GPU consumer (overrides Go2's mnemonic-based selection).
-    Go2 go(argc, argv, "./config/Go2.json", user_options);
-    go.registerBroker(cudaBroker_ptr);
-
-    //---------------------------------------------------------------------------
-    // As we are dealing with a server, register a signal handler that allows us
-    // to interrupt execution "on the run"
+    // ---- as this is a server, allow interrupting the run "on the fly" -------------------------
     signal(G_SIGHUP, Gem::Geneva::sigHupHandler);
 
-    //---------------------------------------------------------------------------
-    // If we have only been asked to print device info, do so and exit
-    if(showDevices) {
-        printDeviceInfo();
-        exit(0);
+    // ---- register the image-emitting pluggable optimization monitor --------------------------
+    if(logImages) {
+        go.registerPluggableOM(std::make_shared<GImagePOM>("./results/", emitBestOnly));
     }
 
-    // Register pluggable optimization monitors, if requested by the user
-    std::shared_ptr<GCollectiveMonitor> collectiveMonitor_ptr = getPOM(
-        logAll,
-        logResults,
-        monitorNAdaptions,
-        logSigma,
-        logImages,
-        "./results/",
-        cudaConsumer_ptr->getTargetImageFileName(),
-        emitBestOnly,
-        cudaConsumer_ptr->useGPU(),
-        cudaConsumer_ptr->getBlockSize(),
-        cudaConsumer_ptr->getGridSize()
-    );
-
-    if(collectiveMonitor_ptr) {
-        go.registerPluggableOM(collectiveMonitor_ptr);
-    }
-
-    // Create an image individual factory and create the first individual
+    // ---- create the initial individual from its factory and add it to Go2 ---------------------
     GImageIndividualFactory f("config/GImageIndividual.json");
-    std::shared_ptr<gpar::GParameterSet> imageIndividual_ptr = f();
+    go.push_back(f());
 
-    // Attach the individual to the collection
-    go.push_back(imageIndividual_ptr);
-
-    // Create an evolutionary algorithm in broker mode
+    // ---- create an evolutionary algorithm (broker mode) and run it ----------------------------
     oa::GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json");
     std::shared_ptr<oa::GEvolutionaryAlgorithm> ea_ptr = ea.get<oa::GEvolutionaryAlgorithm>();
-
-    // Add the algorithm
     go & ea_ptr;
 
-    // Perform the actual optimization and extract the best individual
-    std::shared_ptr<GImageIndividual> p =
-        go.optimize()->getBestGlobalIndividual<GImageIndividual>();
+    // Perform the optimization. The per-iteration picture (the useful output) is written by GImagePOM.
+    std::shared_ptr<GImageIndividual> best = go.optimize()->getBestGlobalIndividual<GImageIndividual>();
 
-    // Note that the useful work of this program is done at the end of each
-    // iteration when it writes out the current picture. So we do nothing
-    // with the best individual here.
+    glogger << "Example 15 finished. Best fitness: " << best->raw_fitness(0) << '\n' << GLOGGING;
+
+    return 0;
 }
-
-/********************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////
-/********************************************************************************/

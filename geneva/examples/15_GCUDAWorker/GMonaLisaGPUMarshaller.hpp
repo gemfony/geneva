@@ -45,7 +45,7 @@ namespace Gem::Geneva::MonaLisa {
 
 /******************************************************************************/
 /**
- * GGPUEvaluableI marshaller for the experimental Mona-Lisa (example-15) port.
+ * GGPUEvaluableI marshaller for the Mona-Lisa problem of example 15.
  *
  * flatten()           streamlines each individual's genome (10*NT triangle params + 3 background) into
  *                     a row-major buffer (alpha-sort is disabled on the individual, so the streamline
@@ -56,7 +56,7 @@ namespace Gem::Geneva::MonaLisa {
  *                     and the device kernel use.
  * scatter()           injects the device-computed fitness via process() (leaves each item PROCESSED).
  *
- * One kernel launch per batch (one thread per individual): minimal kernels, full bulk.
+ * One kernel launch per batch: minimal kernels, full bulk.
  */
 class GMonaLisaGPUMarshaller final
   : public Gem::Courtier::GPU::GGPUEvaluableI<gpar::GParameterSet> {

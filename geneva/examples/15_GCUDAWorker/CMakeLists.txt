@@ -27,131 +27,65 @@
 #
 ################################################################################
 
-# Headers listed here for CLion indexing — this target carries no CUDA dependency
-# and must remain before ENABLE_LANGUAGE(CUDA) so CLion sees it even when CUDA
-# is not configured in the IDE toolchain (mirrors the CLION_ALL_COMMON_HEADERS
-# pattern used by the Geneva libraries).
+# Example 15 -- the Mona-Lisa problem, evaluated through the unified courtier GPU consumer
+# (gemfony-courtier-gpu). Unlike the old example 15 it does NOT enable the CUDA language: the kernel
+# is runtime-compiled by NVRTC at run time, so the example builds with an ordinary C++ toolchain and
+# selects CPU / CUDA / OpenCL at run time via config/GGPUConsumer.json. It only needs libpng to load
+# the target image and write result pictures; if libpng is missing the example is skipped.
+
+FIND_PACKAGE ( PNG QUIET )
+IF ( NOT PNG_FOUND )
+	MESSAGE ( STATUS "Example 15 (GCUDAWorker): libpng not found -- skipping" )
+	RETURN ()
+ENDIF ()
+
+# Headers, listed for CLion indexing.
 SET ( MONALISAINCLUDES
-	GCanvas.hpp
-    GImageIndividual.hpp
-    GImagePOM.hpp
-	GImageCUDAConsumer.hpp
+	GImageIndividual.hpp
 	GImageHelperFunctions.hpp
-	GImageIndividualEvaluator.hpp
-	GCUDAFitnessIndividual.hpp
+	GImagePOM.hpp
+	GMonaLisaProblem.hpp
+	GMonaLisaGPUMarshaller.hpp
+)
+ADD_CUSTOM_TARGET ( CLION_EXAMPLE15_HEADERS SOURCES ${MONALISAINCLUDES} )
+SET_TARGET_PROPERTIES ( CLION_EXAMPLE15_HEADERS PROPERTIES
+	CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF )
+
+SET ( EXECUTABLENAME GCUDAWorker )
+
+ADD_EXECUTABLE ( ${EXECUTABLENAME}
+	GImageBuilder.cpp
+	GImageIndividual.cpp
+	GImageHelperFunctions.cpp
 )
 
-# This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
-ADD_CUSTOM_TARGET(CLION_MONALISA_HEADERS SOURCES ${MONALISAINCLUDES})
-
-SET_TARGET_PROPERTIES(
-    CLION_MONALISA_HEADERS
-    PROPERTIES
+SET_TARGET_PROPERTIES ( ${EXECUTABLENAME} PROPERTIES
 	CXX_STANDARD 20
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
 )
 
-ENABLE_LANGUAGE(CUDA)
+TARGET_INCLUDE_DIRECTORIES ( ${EXECUTABLENAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
 
-# Make CUDA:: imported targets (e.g. CUDA::cudart) available.  This is needed
-# so CXX source files that call the CUDA runtime API (e.g. cudaGetDeviceProperties,
-# which resolves to cudaGetDeviceProperties_v2 with CUDA 12+ headers) resolve
-# correctly at link time regardless of how many CUDA toolkit versions are installed.
-find_package(CUDAToolkit REQUIRED)
-
-# The CUDA toolkit's bundled g++ wrapper selects an older GCC whose library
-# directory is injected into the link command before the system CXX compiler's
-# directory. When Geneva's shared libraries are built with a newer GCC they
-# require a newer CXXABI that the older GCC's libstdc++.so does not provide.
-# Detect the CXX compiler's own libstdc++.so directory and store it so the
-# GCUDAWorker target can prepend it (see target_link_directories below).
-if(CMAKE_CXX_COMPILER AND NOT DEFINED GENEVA_CXX_RUNTIME_LIB_DIR)
-    execute_process(
-        COMMAND "${CMAKE_CXX_COMPILER}" -print-file-name=libstdc++.so
-        OUTPUT_VARIABLE _cxx_libstdcxx_path
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-    if(_cxx_libstdcxx_path AND NOT _cxx_libstdcxx_path STREQUAL "libstdc++.so")
-        get_filename_component(_cxx_lib_dir "${_cxx_libstdcxx_path}" DIRECTORY)
-        set(GENEVA_CXX_RUNTIME_LIB_DIR "${_cxx_lib_dir}" CACHE INTERNAL "CXX runtime lib dir for CUDA fix")
-    endif()
-    unset(_cxx_libstdcxx_path)
-    unset(_cxx_lib_dir)
-endif()
-
-# Setting the CUDA-Standard
-set(CMAKE_CUDA_STANDARD 20)
-set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-
-# Search for libpng
-FIND_PACKAGE(PNG REQUIRED)
-IF(NOT PNG_FOUND)
-	message(FATAL_ERROR "libpng could not be found")
-ENDIF()
-
-SET ( EXECUTABLENAME GCUDAWorker )
-SET ( ${EXECUTABLENAME}_SRCS
-	GCanvas.cpp
-	GImageBuilder.cpp
-    GImageIndividual.cpp
-	GImageHelperFunctions.cpp
-	GImageIndividualEvaluator.cu
-	GCUDAFitnessIndividual.cu
+# The GPU consumer add-on (carries the CUDA/OpenCL backends + NVRTC), the Geneva libraries, Boost and
+# libpng. gemfony-courtier-gpu is an OPTIONAL add-on built next to courtier (see courtier/src/gpu/).
+TARGET_LINK_LIBRARIES ( ${EXECUTABLENAME} PRIVATE
+	${COURTIER_GPU_LIBNAME}
+	${GENEVA_LIBRARIES}
+	${Boost_LIBRARIES}
+	PNG::PNG
 )
 
-ADD_EXECUTABLE(${EXECUTABLENAME}
-	${${EXECUTABLENAME}_SRCS}
-)
+# Runtime assets. The kernel is runtime-loaded source, so copy it at BUILD time (a POST_BUILD command)
+# -- editing the kernel + rebuilding then re-stages it, instead of the stale copy a configure-time
+# FILE(COPY) would leave. The target images and config rarely change, so a configure-time copy is fine.
+ADD_CUSTOM_COMMAND ( TARGET ${EXECUTABLENAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+		${CMAKE_CURRENT_SOURCE_DIR}/kernels ${CMAKE_CURRENT_BINARY_DIR}/kernels )
+FILE ( COPY ${CMAKE_CURRENT_SOURCE_DIR}/config   DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
+FILE ( COPY ${CMAKE_CURRENT_SOURCE_DIR}/pictures DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
 
-set_target_properties(${EXECUTABLENAME} PROPERTIES
-		CUDA_ARCHITECTURES 80 86 89
-)
-
-target_compile_options(${EXECUTABLENAME} PRIVATE
-		$<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>
-)
-
-SET(LIBRARIES_TO_LINK
-		${GENEVA_LIBRARIES}
-		${Boost_LIBRARIES}
-		${OpenCL_LIBRARIES}
-		CUDA::cudart)
-
-# Add MPI Libraries in case building with MPI-consumer
-IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	SET(LIBRARIES_TO_LINK
-			${LIBRARIES_TO_LINK}
-			${MPI_LIBRARIES})
-ENDIF()
-
-TARGET_LINK_LIBRARIES (${EXECUTABLENAME} PRIVATE
-		${LIBRARIES_TO_LINK}
-		PNG::PNG
-)
-
-# The CUDA toolkit's bundled host compiler (GCC 13) causes its older
-# libstdc++.so (missing CXXABI_1.3.15) to be found first during linking.
-# CMake filters -L flags from target_link_directories (implicit path
-# deduplication) and target_link_options (-L suppressed). Linking the
-# CXX compiler's libstdc++.so by its full path bypasses all filtering
-# and gives the linker a file that satisfies the required CXXABI version.
-if(DEFINED GENEVA_CXX_RUNTIME_LIB_DIR AND
-   EXISTS "${GENEVA_CXX_RUNTIME_LIB_DIR}/libstdc++.so")
-    target_link_libraries(${EXECUTABLENAME} PRIVATE
-        "${GENEVA_CXX_RUNTIME_LIB_DIR}/libstdc++.so"
-    )
-endif()
-
-ADD_SUBDIRECTORY(pictures)
-ADD_SUBDIRECTORY(config)
-
-IF (GENEVA_BUILD_TESTS)
-	ADD_SUBDIRECTORY(tests)
-ENDIF ()
-
-IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
-	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-ENDIF ()
-
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME} )
+INSTALL ( TARGETS ${EXECUTABLENAME}
+	DESTINATION ${INSTALL_PREFIX_DATA}/examples/15_GCUDAWorker )
+INSTALL ( DIRECTORY config kernels pictures
+	DESTINATION ${INSTALL_PREFIX_DATA}/examples/15_GCUDAWorker )

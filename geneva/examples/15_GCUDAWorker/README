@@ -1,9 +1,61 @@
-This example demonstrates on the example of CUDA how to write a more complex backend for the
-Courtier broker architecture. It may also serve as a starting point for users wishing to deal
-with CUDA-based optimization problems, where the evaluation step is performed in parallel on an
-OpenCL compute device.
+Example 15 -- the Mona-Lisa problem (GPU-accelerated)
+=====================================================
 
-Since this example could not be tested on a wide range of devices and operating systems, it is
-disabled by default and needs to be switched on explicitly by passing the appropriate define to CMake
-(cmp. the genecaConfig.gcfg / prepareBuild.sh combo, where it may be selected by choosing the
-corresponding option in the config file).
+Goal
+----
+Evolve a set of alpha-blended circle-triangles whose superimposition resembles a target image. Each
+candidate is a GImageIndividual: N triangles (10 parameters each: centre, radius, three angles, RGB,
+alpha) plus a background colour. The fitness is the per-pixel, per-channel deviation of the rendered
+candidate from the target image, passed through a rational saturation function -- the smaller, the
+closer the resemblance.
+
+What is new
+-----------
+This example is evaluated through the unified courtier GPU consumer
+(Gem::Courtier::GPU::GGPUConsumerT), which lives in the Courtier library and is built as the optional
+add-on `gemfony-courtier-gpu`. A whole generation is flattened and scored in ONE bulk kernel launch.
+The kernel (kernels/monalisa_eval.cu) is compiled at RUN TIME (NVRTC for CUDA), so:
+
+  * the example builds with an ordinary C++ toolchain -- no CUDA language is enabled at build time;
+  * the device-programming model AND the kernel are chosen in config/GGPUConsumer.json, so you can
+    switch between CPU, CUDA and OpenCL without recompiling.
+
+The kernel is pixel-parallel (256 threads cooperate on each candidate and atomic-accumulate its
+fitness), so even a modest population fills the GPU. The SAME render+score math is also implemented on
+the CPU (GImageIndividual::fitnessCalculation and the marshaller's host reference), so a CPU run
+cross-checks the GPU result.
+
+Because there is no network involved, this example doubles as a convenient stress-test harness for the
+courtier framework, the broker and Hap.
+
+Building
+--------
+The example is built automatically when libpng is available (it is skipped otherwise). The CUDA
+backend is compiled into gemfony-courtier-gpu when a CUDA toolkit is present; OpenCL when an OpenCL
+SDK is present. With neither, set backend=cpu in config/GGPUConsumer.json to run on the CPU.
+
+Running
+-------
+  ./GCUDAWorker
+
+Useful options:
+  --target <png>       The target image (default ./pictures/ml-small.png)
+  --gpuConfig <json>   The GPU consumer config (default ./config/GGPUConsumer.json)
+  --logImages <bool>   Write the best candidate image per iteration (default true)
+  --emitBestOnly <bool> Only emit an image when the best result improved (default true)
+
+To run on the CPU instead of the GPU, edit config/GGPUConsumer.json and set "backend" to "cpu"
+(the kernel path is then ignored; the host reference evaluation is used). For OpenCL, set "backend"
+to "opencl" and point "kernel_path" at an OpenCL (.cl) kernel.
+
+Output
+------
+The best candidate of each iteration is rasterised and written to ./results/ as
+<iteration>_<fitness>_bestIndividual.png, so the picture can be watched converging towards the target.
+
+Configuration files (config/)
+-----------------------------
+  Go2.json                   top-level Go2 settings
+  GEvolutionaryAlgorithm.json the evolutionary algorithm (population size, iterations, ...)
+  GImageIndividual.json      the image individual (number of triangles, adaption, ...)
+  GGPUConsumer.json          GPU consumer: backend (cpu|cuda|opencl), kernel path/entry, launch sizes

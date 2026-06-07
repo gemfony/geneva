@@ -32,6 +32,7 @@
  ********************************************************************************/
 
 #include "GImageIndividual.hpp"
+#include "GMonaLisaProblem.hpp"
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
@@ -519,14 +520,14 @@ gpar::GParameterSet *GImageIndividual::clone_() const {
 	 * @return The value of this object
 	 */
 double GImageIndividual::fitnessCalculation() {
-    throw geneva_exception(
-        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-        << "In GImageIndividual::fitnessCalculation(): Error!" << '\n'
-        << "This function is not meant to be called for this individual" << '\n'
-    );
-
-    // Make the compiler happy
-    return 0.;
+    // The host fitness is computed on the CPU via the SAME render+score the GPU kernel uses
+    // (Gem::Geneva::MonaLisa::score, shared in GMonaLisaProblem.hpp). This makes the individual
+    // evaluable purely on the CPU -- to cross-check the GPU result and compare speed -- while the
+    // GGPUConsumer path uses the device kernel. Requires the target image to have been loaded
+    // (Gem::Geneva::MonaLisa::loadTarget) beforehand.
+    std::vector<double> parVec;
+    this->streamline(parVec);
+    return Gem::Geneva::MonaLisa::scoreAgainstTarget(parVec.data(), static_cast<int>(parVec.size()));
 }
 
 /******************************************************************************/

@@ -1,3 +1,0 @@
-- Check that colors of 0 and 255 are reached
-- Check dass Kreismittelpunkte nur innerhalb des Kandidatenbildes liegen
-- Submission der gesamten Population und Berechnung "als Ganzes" --> eigener GBrokerExecutor

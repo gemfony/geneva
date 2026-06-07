@@ -153,14 +153,16 @@
         "comment": "The number of triangles that will constitute",
         "comment": "each candidate image",
         "comment": "Allowed value range [1,1000]",
+        "comment": "Capped at 64 to match the kernel's per-thread corner cache (MONALISA_MAXTRI)",
         "default": "300",
-        "value": "300"
+        "value": "64"
     },
     "alpha_sort": {
         "comment": "Whether triangles should be sorted according",
         "comment": "to their alpha channel",
+        "comment": "Disabled so streamline order == render order (CPU/GPU parity)",
         "default": "true",
-        "value": "true"
+        "value": "false"
     },
     "mutate_alpha_channel": {
         "comment": "Whether the alpha channel shall be mutated",
