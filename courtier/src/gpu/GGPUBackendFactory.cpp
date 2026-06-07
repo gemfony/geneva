@@ -66,19 +66,21 @@ bool backendAvailable(BackendKind kind) {
 
 /******************************************************************************/
 
-std::unique_ptr<GGPUDeviceBackendI> makeBackend(BackendKind kind, const GGPUHostEvalI *hostEval) {
+template <typename scalar_type>
+std::unique_ptr<GGPUDeviceBackendI<scalar_type>> makeBackend(BackendKind kind,
+                                                            const GGPUHostEvalI<scalar_type> *hostEval) {
     switch(kind) {
     case BackendKind::CPU:
-        return std::make_unique<GCPUBackend>(hostEval);
+        return std::make_unique<GCPUBackend<scalar_type>>(hostEval);
     case BackendKind::CUDA:
 #ifdef GPUGEN_HAVE_CUDA
-        return std::make_unique<GCUDABackend>();
+        return std::make_unique<GCUDABackend<scalar_type>>();
 #else
         break;
 #endif
     case BackendKind::OpenCL:
 #ifdef GPUGEN_HAVE_OPENCL
-        return std::make_unique<GOpenCLBackend>();
+        return std::make_unique<GOpenCLBackend<scalar_type>>();
 #else
         break;
 #endif
@@ -88,6 +90,14 @@ std::unique_ptr<GGPUDeviceBackendI> makeBackend(BackendKind kind, const GGPUHost
         << "Gem::Courtier::GPU::makeBackend(): backend '" << toString(kind)
         << "' was not compiled into this build (its toolkit was not found at configure time)." << '\n');
 }
+
+/******************************************************************************/
+// Explicit instantiations: this .cpp is where the CUDA/OpenCL backend headers and their toolkit
+// guards are available, so the templated backends are materialised here for the supported scalars.
+template std::unique_ptr<GGPUDeviceBackendI<double>>
+makeBackend<double>(BackendKind, const GGPUHostEvalI<double> *);
+template std::unique_ptr<GGPUDeviceBackendI<float>>
+makeBackend<float>(BackendKind, const GGPUHostEvalI<float> *);
 
 /******************************************************************************/
 

@@ -48,23 +48,24 @@ namespace Gem::Geneva::MonaLisa {
  * GGPUEvaluableI marshaller for the Mona-Lisa problem of example 15.
  *
  * flatten()           streamlines each individual's genome (10*NT triangle params + 3 background) into
- *                     a row-major buffer (alpha-sort is disabled on the individual, so the streamline
- *                     order is the canonical render order the kernel expects).
- * problemConstants()  packs, as doubles, [W, H, target(W*H*3)] -- the loaded target image; uploaded
+ *                     a row-major FLOAT buffer (alpha-sort is disabled on the individual, so the
+ *                     streamline order is the canonical render order the kernel expects).
+ * problemConstants()  packs, as floats, [W, H, target(W*H*3)] -- the loaded target image; uploaded
  *                     once per launch. NT and the background come from the per-item parameters.
- * hostEvaluate()      the CPU reference -- calls the SAME score() the individual's fitnessCalculation
- *                     and the device kernel use.
+ * hostEvaluate()      the CPU reference -- calls the SAME float score() the individual's
+ *                     fitnessCalculation and the device kernel use.
  * scatter()           injects the device-computed fitness via process() (leaves each item PROCESSED).
  *
  * One kernel launch per batch: minimal kernels, full bulk.
+ *
+ * The marshaller is FP32 end-to-end: GGPUEvaluableI<gpar::GParameterSet, float>, so the genome and
+ * fitness flat buffers, the device ABI and the CUDA kernel are all float -- the actual FP32 speedup,
+ * with no widening/narrowing (the genome and the target image were already float).
  */
 class GMonaLisaGPUMarshaller final
-  : public Gem::Courtier::GPU::GGPUEvaluableI<gpar::GParameterSet> {
+  : public Gem::Courtier::GPU::GGPUEvaluableI<gpar::GParameterSet, float> {
 public:
-    // The GPU framework buffers are double-typed, but the genome is now float. flatten() streamlines
-    // each item as float and widens into the double output buffer; problemConstants() likewise widens
-    // the float target to double; hostEvaluate() narrows the double params back to float for score().
-    void flatten(const std::vector<item_ptr> &items, std::vector<double> &params_out) const override {
+    void flatten(const std::vector<item_ptr> &items, std::vector<float> &params_out) const override {
         if(items.empty()) {
             params_out.clear();
             return;
@@ -82,14 +83,14 @@ public:
 
     [[nodiscard]] std::vector<std::byte> problemConstants() const override {
         const Target &t = target();
-        std::vector<double> blob;
+        std::vector<float> blob;
         blob.reserve(2 + t.rgb.size());
-        blob.push_back(static_cast<double>(t.width));
-        blob.push_back(static_cast<double>(t.height));
-        // Widen the float target to double (the CUDA kernel is still double-typed).
+        blob.push_back(static_cast<float>(t.width));
+        blob.push_back(static_cast<float>(t.height));
+        // The target image is already float -- pack it natively (no widening).
         blob.insert(blob.end(), t.rgb.begin(), t.rgb.end());
 
-        std::vector<std::byte> bytes(blob.size() * sizeof(double));
+        std::vector<std::byte> bytes(blob.size() * sizeof(float));
         std::memcpy(bytes.data(), blob.data(), bytes.size());
         return bytes;
     }
@@ -99,7 +100,7 @@ public:
      *  kernel atomic-accumulates each item's fitness; the CPU/OpenCL backends clamp this to 1. */
     [[nodiscard]] int parallelWorkPerItem() const override { return 256; }
 
-    void scatter(const std::vector<item_ptr> &items, const std::vector<double> &fitness) const override {
+    void scatter(const std::vector<item_ptr> &items, const std::vector<float> &fitness) const override {
         for(std::size_t i = 0; i < items.size(); ++i) {
             items[i]->process(std::vector<gpar::parameterset_processing_result>(
                 1, gpar::parameterset_processing_result(fitness[i])));
@@ -107,19 +108,15 @@ public:
     }
 
     void hostEvaluate(
-        const double *params, int n_items, int dim,
+        const float *params, int n_items, int dim,
         const std::byte * /*pconst*/, std::size_t /*pconst_size*/,
-        double *fitness_out) const override {
+        float *fitness_out) const override {
         const Target &t = target();
         std::vector<float> scratch;
-        std::vector<float> fparams(static_cast<std::size_t>(dim));
         for(int i = 0; i < n_items; ++i) {
-            const double *src = params + static_cast<std::size_t>(i) * static_cast<std::size_t>(dim);
-            // Narrow the (widened) double params back to float for the float score().
-            for(int j = 0; j < dim; ++j) {
-                fparams[static_cast<std::size_t>(j)] = static_cast<float>(src[j]);
-            }
-            fitness_out[i] = score(fparams.data(), dim, t.width, t.height, t.rgb.data(), scratch);
+            // Native float: the params buffer is already float, so feed it straight to score().
+            const float *src = params + static_cast<std::size_t>(i) * static_cast<std::size_t>(dim);
+            fitness_out[i] = score(src, dim, t.width, t.height, t.rgb.data(), scratch);
         }
     }
 };

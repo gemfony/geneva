@@ -92,7 +92,8 @@ bool endsWith(const std::string &s, const char *suffix) {
 
 /******************************************************************************/
 
-struct GCUDABackend::Impl {
+template <typename scalar_type>
+struct GCUDABackend<scalar_type>::Impl {
     KernelSpec spec;
     CUdevice device = 0;
     CUcontext context = nullptr;
@@ -139,15 +140,19 @@ struct GCUDABackend::Impl {
 
 /******************************************************************************/
 
-GCUDABackend::GCUDABackend()
+template <typename scalar_type>
+GCUDABackend<scalar_type>::GCUDABackend()
     : p_(std::make_unique<Impl>())
 { /* nothing */ }
 
-GCUDABackend::~GCUDABackend() = default;
+template <typename scalar_type>
+GCUDABackend<scalar_type>::~GCUDABackend() = default;
 
-std::string GCUDABackend::name() const { return "cuda"; }
+template <typename scalar_type>
+std::string GCUDABackend<scalar_type>::name() const { return "cuda"; }
 
-void GCUDABackend::initialize(const KernelSpec &spec) {
+template <typename scalar_type>
+void GCUDABackend<scalar_type>::initialize(const KernelSpec &spec) {
     p_->spec = spec;
 
     cuCheck(cuInit(0), "cuInit");
@@ -216,10 +221,11 @@ void GCUDABackend::initialize(const KernelSpec &spec) {
     cuCheck(cuCtxPopCurrent(&popped), "cuCtxPopCurrent");
 }
 
-void GCUDABackend::evaluate(
-    const double *params, int n_items, int dim,
+template <typename scalar_type>
+void GCUDABackend<scalar_type>::evaluate(
+    const scalar_type *params, int n_items, int dim,
     const std::byte *pconst, std::size_t pconst_size,
-    double *fitness_out, int threads_per_item) {
+    scalar_type *fitness_out, int threads_per_item) {
     if(n_items <= 0) {
         return;
     }
@@ -228,8 +234,8 @@ void GCUDABackend::evaluate(
     }
     cuCheck(cuCtxPushCurrent(p_->context), "cuCtxPushCurrent(evaluate)");
 
-    const std::size_t paramBytes = static_cast<std::size_t>(n_items) * static_cast<std::size_t>(dim) * sizeof(double);
-    const std::size_t fitnessBytes = static_cast<std::size_t>(n_items) * sizeof(double);
+    const std::size_t paramBytes = static_cast<std::size_t>(n_items) * static_cast<std::size_t>(dim) * sizeof(scalar_type);
+    const std::size_t fitnessBytes = static_cast<std::size_t>(n_items) * sizeof(scalar_type);
     const std::size_t pconstBytes = pconst_size > 0 ? pconst_size : 1; // avoid a 0-byte allocation
 
     p_->ensure(p_->d_params, p_->cap_params, paramBytes);
@@ -274,6 +280,13 @@ void GCUDABackend::evaluate(
     CUcontext popped = nullptr;
     cuCheck(cuCtxPopCurrent(&popped), "cuCtxPopCurrent(evaluate)");
 }
+
+/******************************************************************************/
+// Explicit instantiations. CUDA confined to this .cpp: the driver passes raw pointers, so the
+// runtime-compiled kernel interprets the buffer as its own scalar type; only the host-side byte
+// sizing (sizeof(scalar_type)) differs between the two.
+template class GCUDABackend<double>;
+template class GCUDABackend<float>;
 
 /******************************************************************************/
 

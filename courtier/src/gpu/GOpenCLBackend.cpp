@@ -71,7 +71,8 @@ std::string readFile(const std::string &path) {
 
 /******************************************************************************/
 
-struct GOpenCLBackend::Impl {
+template <typename scalar_type>
+struct GOpenCLBackend<scalar_type>::Impl {
     KernelSpec spec;
     cl_context context = nullptr;
     cl_command_queue queue = nullptr;
@@ -117,15 +118,19 @@ struct GOpenCLBackend::Impl {
 
 /******************************************************************************/
 
-GOpenCLBackend::GOpenCLBackend()
+template <typename scalar_type>
+GOpenCLBackend<scalar_type>::GOpenCLBackend()
     : p_(std::make_unique<Impl>())
 { /* nothing */ }
 
-GOpenCLBackend::~GOpenCLBackend() = default;
+template <typename scalar_type>
+GOpenCLBackend<scalar_type>::~GOpenCLBackend() = default;
 
-std::string GOpenCLBackend::name() const { return "opencl"; }
+template <typename scalar_type>
+std::string GOpenCLBackend<scalar_type>::name() const { return "opencl"; }
 
-void GOpenCLBackend::initialize(const KernelSpec &spec) {
+template <typename scalar_type>
+void GOpenCLBackend<scalar_type>::initialize(const KernelSpec &spec) {
     p_->spec = spec;
 
     // Pick a platform and the requested device (default: first GPU, else any).
@@ -189,10 +194,11 @@ void GOpenCLBackend::initialize(const KernelSpec &spec) {
     clCheck(err, "clCreateKernel (entry name correct?)");
 }
 
-void GOpenCLBackend::evaluate(
-    const double *params, int n_items, int dim,
+template <typename scalar_type>
+void GOpenCLBackend<scalar_type>::evaluate(
+    const scalar_type *params, int n_items, int dim,
     const std::byte *pconst, std::size_t pconst_size,
-    double *fitness_out, int /*threads_per_item*/) {
+    scalar_type *fitness_out, int /*threads_per_item*/) {
     if(n_items <= 0) {
         return;
     }
@@ -200,8 +206,8 @@ void GOpenCLBackend::evaluate(
     // backend always runs one work-item per item (overwrite). The kernel is told so via its
     // threads_per_item argument = 1.
     const int threads_per_item = 1;
-    const std::size_t paramBytes = static_cast<std::size_t>(n_items) * static_cast<std::size_t>(dim) * sizeof(double);
-    const std::size_t fitnessBytes = static_cast<std::size_t>(n_items) * sizeof(double);
+    const std::size_t paramBytes = static_cast<std::size_t>(n_items) * static_cast<std::size_t>(dim) * sizeof(scalar_type);
+    const std::size_t fitnessBytes = static_cast<std::size_t>(n_items) * sizeof(scalar_type);
     const std::size_t pconstBytes = pconst_size > 0 ? pconst_size : 1;
 
     p_->ensure(p_->d_params, p_->cap_params, paramBytes, CL_MEM_READ_ONLY);
@@ -239,6 +245,12 @@ void GOpenCLBackend::evaluate(
             "clEnqueueReadBuffer(fitness)");
     clCheck(clFinish(p_->queue), "clFinish");
 }
+
+/******************************************************************************/
+// Explicit instantiations. OpenCL confined to this .cpp: only the host-side byte sizing differs; the
+// runtime-compiled kernel interprets the raw buffer as its own scalar type.
+template class GOpenCLBackend<double>;
+template class GOpenCLBackend<float>;
 
 /******************************************************************************/
 

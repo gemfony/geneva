@@ -1,4 +1,4 @@
-// CUDA Mona-Lisa fitness kernel for example 15 -- PIXEL-PARALLEL version.
+// CUDA Mona-Lisa fitness kernel for example 15 -- PIXEL-PARALLEL, FP32 version.
 //
 // Runtime-compiled by the GGPUConsumer's CUDA backend (NVRTC). The batch is evaluated in ONE launch
 // of n_items * threads_per_item threads: each item is handled by `threads_per_item` cooperating
@@ -8,18 +8,20 @@
 // leave the GPU mostly idle); for large populations threads_per_item can be 1 and per-individual
 // parallelism already saturates the device.
 //
-// The math mirrors the host score() in GMonaLisaProblem.hpp exactly (double precision), so the GPU
-// result equals the CPU fitnessCalculation.
+// This is the FP32 path: params/fitness/target are all float (the genome and the target image are
+// float on the host too), so the whole device pipeline runs in single precision -- the actual FP32
+// speedup. The math mirrors the host float score() in GMonaLisaProblem.hpp, so a CPU run and a GPU run
+// agree closely (not bit-identical: the parallel-stripe atomic sum reassociates the per-pixel terms).
 //
-// problem-constant blob (doubles): [W, H, target(W*H*3)].
+// problem-constant blob (floats): [W, H, target(W*H*3)].
 // per-item parameters (dim = 10*NT + 3): per triangle [cx cy radius a1 a2 a3 r g b alpha], then bg[3].
 
 #define MONALISA_MAXTRI 64   // example 15 uses 64 triangles; corners are cached per thread
 
 extern "C" __global__ void evaluate(
-    const double *params, int n_items, int dim,
+    const float *params, int n_items, int dim,
     const unsigned char *pconst, int pconst_size,
-    double *fitness,
+    float *fitness,
     int threads_per_item)
 {
     if (threads_per_item < 1) {
@@ -32,74 +34,74 @@ extern "C" __global__ void evaluate(
         return;
     }
 
-    const double *pc = reinterpret_cast<const double *>(pconst);
+    const float *pc = reinterpret_cast<const float *>(pconst);
     const int W = (int)pc[0];
     const int H = (int)pc[1];
-    const double *target = pc + 2;
+    const float *target = pc + 2;
 
-    const double *p = params + (long long)item * dim;
+    const float *p = params + (long long)item * dim;
     int NT = (dim - 3) / 10;
     if (NT > MONALISA_MAXTRI) {
         NT = MONALISA_MAXTRI;
     }
-    const double bgR = p[10 * ((dim - 3) / 10) + 0];
-    const double bgG = p[10 * ((dim - 3) / 10) + 1];
-    const double bgB = p[10 * ((dim - 3) / 10) + 2];
+    const float bgR = p[10 * ((dim - 3) / 10) + 0];
+    const float bgG = p[10 * ((dim - 3) / 10) + 1];
+    const float bgB = p[10 * ((dim - 3) / 10) + 2];
 
-    const double scale = (double)(W < H ? W : H);
-    const double twoPi = 2.0 * 3.14159265358979323846;
+    const float scale = (float)(W < H ? W : H);
+    const float twoPi = 2.0f * 3.14159265358979323846f;
 
     // Precompute the three corners of every triangle once (image space).
-    double corners[MONALISA_MAXTRI * 6];
+    float corners[MONALISA_MAXTRI * 6];
     for (int t = 0; t < NT; ++t) {
-        const double *tri = p + t * 10;
-        const double cx = tri[0] * W;
-        const double cy = tri[1] * H;
-        const double radius = tri[2];
+        const float *tri = p + t * 10;
+        const float cx = tri[0] * W;
+        const float cy = tri[1] * H;
+        const float radius = tri[2];
         for (int k = 0; k < 3; ++k) {
-            const double ang = tri[3 + k] * twoPi;
-            corners[t * 6 + k * 2 + 0] = cx + radius * cos(ang) * scale;
-            corners[t * 6 + k * 2 + 1] = cy + radius * sin(ang) * scale;
+            const float ang = tri[3 + k] * twoPi;
+            corners[t * 6 + k * 2 + 0] = cx + radius * cosf(ang) * scale;
+            corners[t * 6 + k * 2 + 1] = cy + radius * sinf(ang) * scale;
         }
     }
 
     // This thread renders the pixels p where (p % threads_per_item == stripe).
     const long long nPixels = (long long)W * H;
-    double partial = 0.0;
+    float partial = 0.0f;
     for (long long pix = stripe; pix < nPixels; pix += threads_per_item) {
         const int x = (int)(pix % W);
         const int y = (int)(pix / W);
-        const double px = x + 0.5;
-        const double py = y + 0.5;
-        double r = bgR, g = bgG, b = bgB;
+        const float px = x + 0.5f;
+        const float py = y + 0.5f;
+        float r = bgR, g = bgG, b = bgB;
         for (int t = 0; t < NT; ++t) {
-            const double *c = corners + t * 6;
-            const double x1 = c[0], y1 = c[1], x2 = c[2], y2 = c[3], x3 = c[4], y3 = c[5];
-            const double minx = fmin(x1, fmin(x2, x3));
-            const double maxx = fmax(x1, fmax(x2, x3));
-            const double miny = fmin(y1, fmin(y2, y3));
-            const double maxy = fmax(y1, fmax(y2, y3));
+            const float *c = corners + t * 6;
+            const float x1 = c[0], y1 = c[1], x2 = c[2], y2 = c[3], x3 = c[4], y3 = c[5];
+            const float minx = fminf(x1, fminf(x2, x3));
+            const float maxx = fmaxf(x1, fmaxf(x2, x3));
+            const float miny = fminf(y1, fminf(y2, y3));
+            const float maxy = fmaxf(y1, fmaxf(y2, y3));
             if (px < minx || px > maxx || py < miny || py > maxy) {
                 continue;
             }
-            const double d1 = (px - x2) * (y1 - y2) - (py - y2) * (x1 - x2);
-            const double d2 = (px - x3) * (y2 - y3) - (py - y3) * (x2 - x3);
-            const double d3 = (px - x1) * (y3 - y1) - (py - y1) * (x3 - x1);
+            const float d1 = (px - x2) * (y1 - y2) - (py - y2) * (x1 - x2);
+            const float d2 = (px - x3) * (y2 - y3) - (py - y3) * (x2 - x3);
+            const float d3 = (px - x1) * (y3 - y1) - (py - y1) * (x3 - x1);
             const bool hasNeg = (d1 < 0) || (d2 < 0) || (d3 < 0);
             const bool hasPos = (d1 > 0) || (d2 > 0) || (d3 > 0);
             if (!(hasNeg && hasPos)) {
-                const double *tri = p + t * 10;
-                const double a = tri[9];
-                r = (1.0 - a) * r + a * tri[6];
-                g = (1.0 - a) * g + a * tri[7];
-                b = (1.0 - a) * b + a * tri[8];
+                const float *tri = p + t * 10;
+                const float a = tri[9];
+                r = (1.0f - a) * r + a * tri[6];
+                g = (1.0f - a) * g + a * tri[7];
+                b = (1.0f - a) * b + a * tri[8];
             }
         }
         const long long idx = pix * 3;
-        const double dr = target[idx] - r;
-        const double dg = target[idx + 1] - g;
-        const double db = target[idx + 2] - b;
-        const double f = 0.04;
+        const float dr = target[idx] - r;
+        const float dg = target[idx + 1] - g;
+        const float db = target[idx + 2] - b;
+        const float f = 0.04f;
         partial += dr * dr / (dr * dr + f);
         partial += dg * dg / (dg * dg + f);
         partial += db * db / (db * db + f);

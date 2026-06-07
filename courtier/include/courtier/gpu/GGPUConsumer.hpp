@@ -69,7 +69,7 @@ namespace Gem::Courtier::GPU {
  * GPU evaluation is deterministic and all-or-nothing, so a batch should be submitted under
  * GSubmissionPolicy::full_success_or_fatal.
  */
-template <typename processable_type>
+template <typename processable_type, typename scalar_type = double>
 class GGPUConsumerT final : public Gem::Courtier::GBaseConsumerT<processable_type> {
 public:
     using item_ptr = typename Gem::Courtier::GBaseConsumerT<processable_type>::item_ptr;
@@ -78,7 +78,7 @@ public:
      *  problem-specific @p marshaller. The backend is created and the kernel acquired lazily, on the
      *  first dispatch_, so construction is cheap and device errors surface at run time. */
     GGPUConsumerT(const std::string &configFile,
-                  std::shared_ptr<GGPUEvaluableI<processable_type>> marshaller)
+                  std::shared_ptr<GGPUEvaluableI<processable_type, scalar_type>> marshaller)
         : marshaller_(std::move(marshaller)) {
         cfg_.load(configFile);
     }
@@ -113,7 +113,7 @@ protected:
             pconst_ = marshaller_->problemConstants();
             pconst_built_ = true;
         }
-        fitness_.assign(static_cast<std::size_t>(n), 0.0);
+        fitness_.assign(static_cast<std::size_t>(n), scalar_type(0));
 
         backend_->evaluate(
             params_.data(), n, dim, pconst_.data(), pconst_.size(), fitness_.data(),
@@ -137,7 +137,7 @@ private:
                     << GWARNING;
             kind = BackendKind::CPU;
         }
-        backend_ = makeBackend(kind, marshaller_.get());
+        backend_ = makeBackend<scalar_type>(kind, marshaller_.get());
         backend_->initialize(cfg_.kernelSpec());
         glogger << "Gem::Courtier::GPU::GGPUConsumer using the '" << backend_->name()
                 << "' backend (kernel: " << cfg_.kernel_path << ")" << '\n'
@@ -145,12 +145,12 @@ private:
     }
 
     /***************************************************************************/
-    std::shared_ptr<GGPUEvaluableI<processable_type>> marshaller_; ///< Problem-specific flatten/scatter
+    std::shared_ptr<GGPUEvaluableI<processable_type, scalar_type>> marshaller_; ///< Problem-specific flatten/scatter
     GGPUConsumerConfig cfg_;                          ///< backend + kernel selection
-    std::unique_ptr<GGPUDeviceBackendI> backend_;    ///< The device backend (lazy)
+    std::unique_ptr<GGPUDeviceBackendI<scalar_type>> backend_;    ///< The device backend (lazy)
 
-    std::vector<double> params_;     ///< Reused host parameter buffer (avoids per-round reallocation)
-    std::vector<double> fitness_;    ///< Reused host fitness buffer
+    std::vector<scalar_type> params_;     ///< Reused host parameter buffer (avoids per-round reallocation)
+    std::vector<scalar_type> fitness_;    ///< Reused host fitness buffer
     std::vector<std::byte> pconst_;  ///< Cached problem-constant blob (built once when static)
     bool pconst_built_ = false;      ///< Whether pconst_ has been built
 };

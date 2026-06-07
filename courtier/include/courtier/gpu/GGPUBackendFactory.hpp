@@ -37,7 +37,9 @@
 
 namespace Gem::Courtier::GPU {
 
+template <typename scalar_type>
 class GGPUDeviceBackendI;
+template <typename scalar_type>
 class GGPUHostEvalI;
 
 /******************************************************************************/
@@ -47,8 +49,14 @@ class GGPUHostEvalI;
  * kernel) but take it for a uniform signature. Throws a geneva_exception if the requested backend was
  * not compiled in (its toolkit was absent at configure time) -- the caller can fall back to
  * BackendKind::CPU.
+ *
+ * Templated on scalar_type (default double). The CUDA/OpenCL backends whose definitions live in
+ * GGPUBackendFactory.cpp are explicitly instantiated there for double and float; other scalar types
+ * would need an additional explicit instantiation.
  */
-std::unique_ptr<GGPUDeviceBackendI> makeBackend(BackendKind kind, const GGPUHostEvalI *hostEval);
+template <typename scalar_type = double>
+std::unique_ptr<GGPUDeviceBackendI<scalar_type>> makeBackend(BackendKind kind,
+                                                             const GGPUHostEvalI<scalar_type> *hostEval);
 
 /** @brief Whether @p kind was compiled into this build (cpu is always true). */
 [[nodiscard]] bool backendAvailable(BackendKind kind);

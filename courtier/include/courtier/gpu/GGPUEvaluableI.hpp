@@ -43,10 +43,13 @@ namespace Gem::Courtier::GPU {
  * dependency on the Gem::Geneva layer (which sits above courtier). The concrete, GParameterSet-aware
  * marshallers live with the problems (the demos), not here.
  *
- * GGPUHostEvalI is the NON-templated host-reference part of a marshaller: it evaluates a batch in flat
- * doubles only (no individuals). The CPU backend and the backend factory depend only on this, so they
- * stay non-templated and free of the processable type.
+ * GGPUHostEvalI is the processable-type-free host-reference part of a marshaller: it evaluates a batch
+ * in flat scalars only (no individuals). It is templated ONLY on the scalar type (default double, for
+ * backward compatibility) -- not on the processable type -- so the CPU backend and the backend factory
+ * depend only on this, staying free of the processable type. scalar_type selects the genome/fitness
+ * flat-buffer element type (double for full parity, float for FP32 device speed).
  */
+template <typename scalar_type = double>
 class GGPUHostEvalI {
 public:
     virtual ~GGPUHostEvalI() = default;
@@ -54,9 +57,9 @@ public:
     /** @brief CPU reference evaluation mirroring the device kernel. params is n_items * dim row-major;
      *  writes n_items fitness values. Used by the CPU backend and for GPU/CPU parity checks. */
     virtual void hostEvaluate(
-        const double *params, int n_items, int dim,
+        const scalar_type *params, int n_items, int dim,
         const std::byte *pconst, std::size_t pconst_size,
-        double *fitness_out) const = 0;
+        scalar_type *fitness_out) const = 0;
 };
 
 /******************************************************************************/
@@ -65,19 +68,22 @@ public:
  * the device plumbing; the problem owns how a batch of items becomes flat device buffers and how
  * device results are written back.
  *
- * ABI: parameters are row-major, one row of `dim` doubles per item (params[i*dim + j] = parameter j of
- * item i); the kernel writes one fitness double per item. problemConstants() is an opaque byte blob
- * the kernel also receives (function id, target image, ...), uploaded once per launch. hostEvaluate()
- * (inherited) must compute the same fitness as the device kernel.
+ * ABI: parameters are row-major, one row of `dim` scalar_type per item (params[i*dim + j] = parameter
+ * j of item i); the kernel writes one fitness scalar_type per item. problemConstants() is an opaque
+ * byte blob the kernel also receives (function id, target image, ...), uploaded once per launch.
+ * hostEvaluate() (inherited) must compute the same fitness as the device kernel.
+ *
+ * scalar_type defaults to double, so GGPUEvaluableI<MyProblem> is unchanged from before; pass float as
+ * the second argument (GGPUEvaluableI<MyProblem, float>) for an FP32 device path.
  */
-template <typename processable_type>
-class GGPUEvaluableI : public GGPUHostEvalI {
+template <typename processable_type, typename scalar_type = double>
+class GGPUEvaluableI : public GGPUHostEvalI<scalar_type> {
 public:
     using item_ptr = std::shared_ptr<processable_type>;
 
-    /** @brief Flattens every item's parameters into a row-major buffer of n_items * dim doubles. The
-     *  dimension is inferred by the consumer as params_out.size() / items.size(). */
-    virtual void flatten(const std::vector<item_ptr> &items, std::vector<double> &params_out) const = 0;
+    /** @brief Flattens every item's parameters into a row-major buffer of n_items * dim scalar_type.
+     *  The dimension is inferred by the consumer as params_out.size() / items.size(). */
+    virtual void flatten(const std::vector<item_ptr> &items, std::vector<scalar_type> &params_out) const = 0;
 
     /** @brief Optional opaque constants the kernel needs. Default: none. */
     [[nodiscard]] virtual std::vector<std::byte> problemConstants() const { return {}; }
@@ -90,7 +96,7 @@ public:
 
     /** @brief Writes the per-item fitness back into each item (typically via item->process(result),
      *  which also leaves the item PROCESSED for the courtier reconciliation). */
-    virtual void scatter(const std::vector<item_ptr> &items, const std::vector<double> &fitness) const = 0;
+    virtual void scatter(const std::vector<item_ptr> &items, const std::vector<scalar_type> &fitness) const = 0;
 
     /** @brief How many GPU threads should cooperate on ONE item (intra-item / pixel-level parallelism).
      *  The default 1 means one thread per item (good when the population is large -- thousands of items

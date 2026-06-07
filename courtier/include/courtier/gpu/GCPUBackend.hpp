@@ -47,9 +47,10 @@ namespace Gem::Courtier::GPU {
  * be compared against. It is single-threaded by design (a parallel CPU path is the existing
  * GStdThreadConsumerT's job); here it exists for correctness and parity, not speed.
  */
-class GCPUBackend final : public GGPUDeviceBackendI {
+template <typename scalar_type = double>
+class GCPUBackend final : public GGPUDeviceBackendI<scalar_type> {
 public:
-    explicit GCPUBackend(const GGPUHostEvalI *hostEval)
+    explicit GCPUBackend(const GGPUHostEvalI<scalar_type> *hostEval)
         : hostEval_(hostEval)
     { /* nothing */ }
 
@@ -58,9 +59,9 @@ public:
     }
 
     void evaluate(
-        const double *params, int n_items, int dim,
+        const scalar_type *params, int n_items, int dim,
         const std::byte *pconst, std::size_t pconst_size,
-        double *fitness_out, int /*threads_per_item*/ = 1) override {
+        scalar_type *fitness_out, int /*threads_per_item*/ = 1) override {
         // The host reference is inherently per-item; intra-item parallelism does not apply.
         hostEval_->hostEvaluate(params, n_items, dim, pconst, pconst_size, fitness_out);
     }
@@ -68,7 +69,7 @@ public:
     [[nodiscard]] std::string name() const override { return "cpu"; }
 
 private:
-    const GGPUHostEvalI *hostEval_; ///< Non-owning; outlives the backend (the marshaller, held by the consumer)
+    const GGPUHostEvalI<scalar_type> *hostEval_; ///< Non-owning; outlives the backend (the marshaller, held by the consumer)
 };
 
 /******************************************************************************/

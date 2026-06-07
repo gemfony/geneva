@@ -48,7 +48,8 @@ namespace Gem::Courtier::GPU {
  *
  * Compiled only when a CUDA toolkit was found at configure time (see the courtier GPU CMakeLists).
  */
-class GCUDABackend final : public GGPUDeviceBackendI {
+template <typename scalar_type = double>
+class GCUDABackend final : public GGPUDeviceBackendI<scalar_type> {
 public:
     GCUDABackend();
     ~GCUDABackend() override;
@@ -58,9 +59,9 @@ public:
 
     void initialize(const KernelSpec &spec) override;
     void evaluate(
-        const double *params, int n_items, int dim,
+        const scalar_type *params, int n_items, int dim,
         const std::byte *pconst, std::size_t pconst_size,
-        double *fitness_out, int threads_per_item = 1) override;
+        scalar_type *fitness_out, int threads_per_item = 1) override;
     [[nodiscard]] std::string name() const override;
 
 private:

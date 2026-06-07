@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
     // GImageIndividuals into flat device buffers and how to write the results back.
     auto marshaller = std::make_shared<MonaLisa::GMonaLisaGPUMarshaller>();
     auto consumer =
-        std::make_shared<gpu::GGPUConsumerT<gpar::GParameterSet>>(consumerConfig, marshaller);
+        std::make_shared<gpu::GGPUConsumerT<gpar::GParameterSet, float>>(consumerConfig, marshaller);
     // The clone-on-partial-return policy used by the evolutionary algorithm needs a polymorphic clone.
     consumer->setCloneFunction([](const std::shared_ptr<gpar::GParameterSet> &p) {
         return p->clone<gpar::GParameterSet>();
