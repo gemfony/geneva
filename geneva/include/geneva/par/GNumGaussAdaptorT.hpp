@@ -36,6 +36,7 @@
 // Standard headers go here
 #include <any>
 #include <cmath>
+#include <limits>
 #include <tuple>
 
 // Boost headers go here
@@ -534,12 +535,26 @@ protected:
 
         // The following random distribution slightly favours values < 1. Selection pressure
         // will keep the values higher if needed
-        sigma_ *= std::exp(
+        const adaption_fp_type sigma_before = sigma_;
+        const adaption_fp_type sigma_mult = std::exp(
             GAdaptorT<parameter_type, adaption_fp_type>::normal_distribution_(
                 gr,
                 typename std::normal_distribution<adaption_fp_type>::param_type(0., std::abs(sigma_sigma_))
             )
         );
+        sigma_ *= sigma_mult;
+
+        // Guarantee an observable change of sigma_ before clamping: at low precision (e.g. float) the
+        // multiplicative step can round away below a ULP, leaving sigma_ unchanged. Nudge one ULP in
+        // the step's direction so the self-adaption of sigma actually progresses (mirrors the value
+        // adaption guarantee in GFPGaussAdaptorT). For double this never triggers; the subsequent
+        // range clamp may legitimately return it to a boundary.
+        if(sigma_ == sigma_before) {
+            const adaption_fp_type dir = (sigma_mult < adaption_fp_type(1))
+                ? std::numeric_limits<adaption_fp_type>::lowest()
+                : std::numeric_limits<adaption_fp_type>::max();
+            sigma_ = std::nextafter(sigma_before, dir);
+        }
 
         // make sure sigma_ doesn't get out of range
         Gem::Common::enforceRangeConstraint<adaption_fp_type>(
