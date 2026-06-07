@@ -65,6 +65,13 @@ IF ( GENEVA_BUILD_BENCHMARKS )
 	ADD_SUBDIRECTORY ( benchmarks )
 ENDIF ()
 
+# EXPERIMENTAL: the unified GPU consumer framework (CPU/CUDA/OpenCL backends, runtime kernel loading)
+# and its demo programs. Self-contained under experimental/; does not touch the rest of Geneva. Built
+# alongside the examples.
+IF ( GENEVA_BUILD_EXAMPLES )
+	ADD_SUBDIRECTORY ( experimental/gpu )
+ENDIF ()
+
 # Per-library Doxygen target (doc-geneva).
 ADD_SUBDIRECTORY ( doc )
 
