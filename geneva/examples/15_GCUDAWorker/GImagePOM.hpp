@@ -244,8 +244,10 @@ private:
             auto best_ptr =
                 goa->Interface::GOptimizerIT<oa::GBase>::getBestIterationIndividual<GImageIndividual>();
 
-            // Rasterise the candidate genome at the target resolution and write it out.
-            std::vector<float> parVec;
+            // Rasterise the candidate genome at the target resolution and write it out. The
+            // genome scalar type is selected at compile time (gimage_fp_t), so streamline into
+            // a matching buffer -- streamline<float> on a double genome collects nothing.
+            std::vector<gimage_fp_t> parVec;
             best_ptr->streamline(parVec);
             const MonaLisa::Target &tgt = MonaLisa::target();
             std::vector<unsigned char> rgb;

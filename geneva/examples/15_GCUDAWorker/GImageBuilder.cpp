@@ -69,6 +69,7 @@
 // Example-local headers
 #include "GImageIndividual.hpp"
 #include "GImagePOM.hpp"
+#include "GImageScalar.hpp"
 #include "GMonaLisaGPUMarshaller.hpp"
 #include "GMonaLisaProblem.hpp"
 
@@ -90,7 +91,7 @@ int main(int argc, char **argv) {
         po::value<std::string>(&targetFile)->default_value("./pictures/ml-small.png"),
         "The target image (PNG) the triangle superimposition should resemble")(
         "gpuConfig",
-        po::value<std::string>(&consumerConfig)->default_value("./config/GGPUConsumer.json"),
+        po::value<std::string>(&consumerConfig)->default_value(GIMAGE_DEFAULT_GPUCONFIG),
         "The courtier GPU consumer configuration (backend + kernel selection)")(
         "logImages",
         po::value<bool>(&logImages)->implicit_value(true)->default_value(true),
@@ -114,7 +115,7 @@ int main(int argc, char **argv) {
     // GImageIndividuals into flat device buffers and how to write the results back.
     auto marshaller = std::make_shared<MonaLisa::GMonaLisaGPUMarshaller>();
     auto consumer =
-        std::make_shared<gpu::GGPUConsumerT<gpar::GParameterSet, float>>(consumerConfig, marshaller);
+        std::make_shared<gpu::GGPUConsumerT<gpar::GParameterSet, gimage_fp_t>>(consumerConfig, marshaller);
     // The clone-on-partial-return policy used by the evolutionary algorithm needs a polymorphic clone.
     consumer->setCloneFunction([](const std::shared_ptr<gpar::GParameterSet> &p) {
         return p->clone<gpar::GParameterSet>();

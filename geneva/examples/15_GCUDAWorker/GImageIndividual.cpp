@@ -197,10 +197,10 @@ void GImageIndividual::init(
     // Create suitable adaptors
 
     // Gaussian distributed random numbers
-    std::shared_ptr<gpar::GFloatGaussAdaptor> gdga_ptr_tmpl(
-        new gpar::GFloatGaussAdaptor(
-            static_cast<float>(sigma), static_cast<float>(sigmaSigma),
-            static_cast<float>(minSigma), static_cast<float>(maxSigma)
+    std::shared_ptr<gpar::GIMAGE_GAUSS_ADAPTOR> gdga_ptr_tmpl(
+        new gpar::GIMAGE_GAUSS_ADAPTOR(
+            static_cast<gimage_fp_t>(sigma), static_cast<gimage_fp_t>(sigmaSigma),
+            static_cast<gimage_fp_t>(minSigma), static_cast<gimage_fp_t>(maxSigma)
         )
     );
     gdga_ptr_tmpl->setAdaptionProbability(adProb);
@@ -208,10 +208,10 @@ void GImageIndividual::init(
     gdga_ptr_tmpl->setAdProbRange(minAdProb, maxAdProb);
 
     // Gaussian distributed random numbers for location parameters
-    std::shared_ptr<gpar::GFloatGaussAdaptor> loc_gdga_ptr_tmpl(
-        new gpar::GFloatGaussAdaptor(
-            static_cast<float>(loc_sigma), static_cast<float>(loc_sigmaSigma),
-            static_cast<float>(loc_minSigma), static_cast<float>(loc_maxSigma)
+    std::shared_ptr<gpar::GIMAGE_GAUSS_ADAPTOR> loc_gdga_ptr_tmpl(
+        new gpar::GIMAGE_GAUSS_ADAPTOR(
+            static_cast<gimage_fp_t>(loc_sigma), static_cast<gimage_fp_t>(loc_sigmaSigma),
+            static_cast<gimage_fp_t>(loc_minSigma), static_cast<gimage_fp_t>(loc_maxSigma)
         )
     );
     loc_gdga_ptr_tmpl->setAdaptionProbability(loc_adProb);
@@ -225,11 +225,11 @@ void GImageIndividual::init(
     for(std::size_t t_cnt = 0; t_cnt < nTriangles_; t_cnt++) {
         //--------------------------------------------------------------------------------------------
         // Add objects for the middle-x and -y
-        std::shared_ptr<gpar::GConstrainedFloatObject> middle_x_ptr(
-            new gpar::GConstrainedFloatObject(0.f, 1.f)
+        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> middle_x_ptr(
+            new gpar::GIMAGE_CONSTRAINED_OBJECT(gimage_fp_t(0), gimage_fp_t(1))
         );
-        std::shared_ptr<gpar::GConstrainedFloatObject> middle_y_ptr(
-            new gpar::GConstrainedFloatObject(0.f, 1.f)
+        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> middle_y_ptr(
+            new gpar::GIMAGE_CONSTRAINED_OBJECT(gimage_fp_t(0), gimage_fp_t(1))
         );
         // ... and equip them with an adaptor. This will clone the adaptor ...
         middle_x_ptr->addAdaptor(loc_gdga_ptr_tmpl);
@@ -240,18 +240,18 @@ void GImageIndividual::init(
 
         //--------------------------------------------------------------------------------------------
         // Add an object for the radius ...
-        std::shared_ptr<gpar::GConstrainedFloatObject> radius_ptr;
+        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> radius_ptr;
 
         if(startSize < 0.) {
             // Random initialization of radius
-            radius_ptr = std::make_shared<gpar::GConstrainedFloatObject>(
-                static_cast<float>(minSize), static_cast<float>(maxSize)
+            radius_ptr = std::make_shared<gpar::GIMAGE_CONSTRAINED_OBJECT>(
+                static_cast<gimage_fp_t>(minSize), static_cast<gimage_fp_t>(maxSize)
             );
         }
         else {
             // Radius will be set to startSize
-            radius_ptr = std::make_shared<gpar::GConstrainedFloatObject>(
-                static_cast<float>(startSize), static_cast<float>(minSize), static_cast<float>(maxSize)
+            radius_ptr = std::make_shared<gpar::GIMAGE_CONSTRAINED_OBJECT>(
+                static_cast<gimage_fp_t>(startSize), static_cast<gimage_fp_t>(minSize), static_cast<gimage_fp_t>(maxSize)
             );
         }
 
@@ -262,9 +262,9 @@ void GImageIndividual::init(
 
         //--------------------------------------------------------------------------------------------
         // Create GConstrainedDoubleObjects holding three angles ...
-        std::shared_ptr<gpar::GConstrainedFloatObject> angle1_ptr(new gpar::GConstrainedFloatObject(0.f, 1.f));
-        std::shared_ptr<gpar::GConstrainedFloatObject> angle2_ptr(new gpar::GConstrainedFloatObject(0.f, 1.f));
-        std::shared_ptr<gpar::GConstrainedFloatObject> angle3_ptr(new gpar::GConstrainedFloatObject(0.f, 1.f));
+        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> angle1_ptr(new gpar::GIMAGE_CONSTRAINED_OBJECT(gimage_fp_t(0), gimage_fp_t(1)));
+        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> angle2_ptr(new gpar::GIMAGE_CONSTRAINED_OBJECT(gimage_fp_t(0), gimage_fp_t(1)));
+        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> angle3_ptr(new gpar::GIMAGE_CONSTRAINED_OBJECT(gimage_fp_t(0), gimage_fp_t(1)));
 
         // ... equip them with an adaptor
         angle1_ptr->addAdaptor(gdga_ptr_tmpl);
@@ -278,11 +278,11 @@ void GImageIndividual::init(
 
         //--------------------------------------------------------------------------------------------
         // Create GConstrainedDoubleObjects for the three colors and the alpha channel
-        std::shared_ptr<gpar::GConstrainedFloatObject> color_r_ptr(new gpar::GConstrainedFloatObject(0.f, 1.f));
-        std::shared_ptr<gpar::GConstrainedFloatObject> color_g_ptr(new gpar::GConstrainedFloatObject(0.f, 1.f));
-        std::shared_ptr<gpar::GConstrainedFloatObject> color_b_ptr(new gpar::GConstrainedFloatObject(0.f, 1.f));
-        std::shared_ptr<gpar::GConstrainedFloatObject> color_a_ptr(
-            new gpar::GConstrainedFloatObject(static_cast<float>(minOpaqueness), static_cast<float>(maxOpaqueness))
+        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> color_r_ptr(new gpar::GIMAGE_CONSTRAINED_OBJECT(gimage_fp_t(0), gimage_fp_t(1)));
+        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> color_g_ptr(new gpar::GIMAGE_CONSTRAINED_OBJECT(gimage_fp_t(0), gimage_fp_t(1)));
+        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> color_b_ptr(new gpar::GIMAGE_CONSTRAINED_OBJECT(gimage_fp_t(0), gimage_fp_t(1)));
+        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> color_a_ptr(
+            new gpar::GIMAGE_CONSTRAINED_OBJECT(static_cast<gimage_fp_t>(minOpaqueness), static_cast<gimage_fp_t>(maxOpaqueness))
         );
 
         // Disable changes to the alpha channel if requested
@@ -308,29 +308,29 @@ void GImageIndividual::init(
 
     //---------------------------------------------------------------------------
     // Add three parameters for the background color, ...
-    std::shared_ptr<gpar::GConstrainedFloatObject> bg_color_r_ptr;
-    std::shared_ptr<gpar::GConstrainedFloatObject> bg_color_g_ptr;
-    std::shared_ptr<gpar::GConstrainedFloatObject> bg_color_b_ptr;
+    std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> bg_color_r_ptr;
+    std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> bg_color_g_ptr;
+    std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> bg_color_b_ptr;
 
     if(bgRed < 0) {
-        bg_color_r_ptr = std::make_shared<gpar::GConstrainedFloatObject>(0.f, 1.f);
+        bg_color_r_ptr = std::make_shared<gpar::GIMAGE_CONSTRAINED_OBJECT>(gimage_fp_t(0), gimage_fp_t(1));
     }
     else {
-        bg_color_r_ptr = std::make_shared<gpar::GConstrainedFloatObject>(static_cast<float>(bgRed), 0.f, 1.f);
+        bg_color_r_ptr = std::make_shared<gpar::GIMAGE_CONSTRAINED_OBJECT>(static_cast<gimage_fp_t>(bgRed), gimage_fp_t(0), gimage_fp_t(1));
     }
 
     if(bgGreen < 0) {
-        bg_color_g_ptr = std::make_shared<gpar::GConstrainedFloatObject>(0.f, 1.f);
+        bg_color_g_ptr = std::make_shared<gpar::GIMAGE_CONSTRAINED_OBJECT>(gimage_fp_t(0), gimage_fp_t(1));
     }
     else {
-        bg_color_g_ptr = std::make_shared<gpar::GConstrainedFloatObject>(static_cast<float>(bgGreen), 0.f, 1.f);
+        bg_color_g_ptr = std::make_shared<gpar::GIMAGE_CONSTRAINED_OBJECT>(static_cast<gimage_fp_t>(bgGreen), gimage_fp_t(0), gimage_fp_t(1));
     }
 
     if(bgBlue < 0) {
-        bg_color_b_ptr = std::make_shared<gpar::GConstrainedFloatObject>(0.f, 1.f);
+        bg_color_b_ptr = std::make_shared<gpar::GIMAGE_CONSTRAINED_OBJECT>(gimage_fp_t(0), gimage_fp_t(1));
     }
     else {
-        bg_color_b_ptr = std::make_shared<gpar::GConstrainedFloatObject>(static_cast<float>(bgBlue), 0.f, 1.f);
+        bg_color_b_ptr = std::make_shared<gpar::GIMAGE_CONSTRAINED_OBJECT>(static_cast<gimage_fp_t>(bgBlue), gimage_fp_t(0), gimage_fp_t(1));
     }
 
     // ... equip them with an adaptor,
@@ -456,27 +456,27 @@ std::vector<CircleTriangle> GImageIndividual::getTriangleData() const {
         offset = i * 10;
 
         circle_cnt[i].cx =
-            static_cast<float>(this->at<gpar::GConstrainedFloatObject>(offset + 0)->value());
+            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 0)->value());
         circle_cnt[i].cy =
-            static_cast<float>(this->at<gpar::GConstrainedFloatObject>(offset + 1)->value());
+            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 1)->value());
         circle_cnt[i].radius =
-            static_cast<float>(this->at<gpar::GConstrainedFloatObject>(offset + 2)->value());
+            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 2)->value());
 
         circle_cnt[i].angle1 =
-            static_cast<float>(this->at<gpar::GConstrainedFloatObject>(offset + 3)->value());
+            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 3)->value());
         circle_cnt[i].angle2 =
-            static_cast<float>(this->at<gpar::GConstrainedFloatObject>(offset + 4)->value());
+            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 4)->value());
         circle_cnt[i].angle3 =
-            static_cast<float>(this->at<gpar::GConstrainedFloatObject>(offset + 5)->value());
+            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 5)->value());
 
         circle_cnt[i].r =
-            static_cast<float>(this->at<gpar::GConstrainedFloatObject>(offset + 6)->value());
+            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 6)->value());
         circle_cnt[i].g =
-            static_cast<float>(this->at<gpar::GConstrainedFloatObject>(offset + 7)->value());
+            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 7)->value());
         circle_cnt[i].b =
-            static_cast<float>(this->at<gpar::GConstrainedFloatObject>(offset + 8)->value());
+            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 8)->value());
         circle_cnt[i].a =
-            static_cast<float>(this->at<gpar::GConstrainedFloatObject>(offset + 9)->value());
+            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 9)->value());
     }
 
     if(alphaSort_) {
@@ -535,7 +535,9 @@ double GImageIndividual::fitnessCalculation() {
     // evaluable purely on the CPU -- to cross-check the GPU result and compare speed -- while the
     // GGPUConsumer path uses the device kernel. Requires the target image to have been loaded
     // (Gem::Geneva::MonaLisa::loadTarget) beforehand.
-    std::vector<float> parVec;
+    // The genome scalar type is selected at compile time (gimage_fp_t); streamline<gimage_fp_t>
+    // is required -- streamline<float> collects nothing from a double genome and vice-versa.
+    std::vector<gimage_fp_t> parVec;
     this->streamline(parVec);
     return Gem::Geneva::MonaLisa::scoreAgainstTarget(parVec.data(), static_cast<int>(parVec.size()));
 }

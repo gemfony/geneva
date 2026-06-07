@@ -62,9 +62,14 @@
 #include "common/GGlobalOptionsT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GSingletonT.hpp"
+#include "geneva/par/GConstrainedDoubleObject.hpp"
 #include "geneva/par/GConstrainedFloatObject.hpp"
+#include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GFloatGaussAdaptor.hpp"
 #include "geneva/par/GParameterSet.hpp"
+
+// Example-local headers
+#include "GImageScalar.hpp"
 
 namespace Gem::Geneva {
 constexpr std::size_t GII_DEF_NTRIANGLES = static_cast<std::size_t>(300);
@@ -107,12 +112,15 @@ constexpr int GII_DEF_IMAGE_HEIGHT = 768;
 
 typedef std::tuple<std::size_t, std::size_t> SCREENSIZE_t;
 
-// Circle-based triangle model
+// Circle-based triangle model. A host-side inspection/representation (off the fitness/GPU path;
+// populated by getTriangleData()). Its members follow the build's parameter precision
+// (gimage_fp_t = double by default, float when GIMAGE_USE_FLOAT), so getTriangleData() does not
+// narrow the genome values.
 struct CircleTriangle {
-    float r, g, b, a;             // Colors & transparency (0..255)
-    float cx, cy;                 // Middle-coordinates of the circle
-    float radius;                 // Radius
-    float angle1, angle2, angle3; // Angles in Radians (0..2*pi)
+    gimage_fp_t r, g, b, a;             // Colors & transparency (0..255)
+    gimage_fp_t cx, cy;                 // Middle-coordinates of the circle
+    gimage_fp_t radius;                 // Radius
+    gimage_fp_t angle1, angle2, angle3; // Angles in Radians (0..2*pi)
 };
 
 // Add a comparison-operator for our tests
@@ -213,16 +221,16 @@ public:
         if constexpr(std::is_same_v<fp_type, float>) {
             // We want colors to be specified as floats
             return {
-                std::clamp(this->at<gpar::GConstrainedFloatObject>(offset + 0)->value(), 0.f, 1.f), // r
-                std::clamp(this->at<gpar::GConstrainedFloatObject>(offset + 1)->value(), 0.f, 1.f), // g
-                std::clamp(this->at<gpar::GConstrainedFloatObject>(offset + 2)->value(), 0.f, 1.f)  // b
+                std::clamp(static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 0)->value()), 0.f, 1.f), // r
+                std::clamp(static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 1)->value()), 0.f, 1.f), // g
+                std::clamp(static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 2)->value()), 0.f, 1.f)  // b
             };
         }
         else if constexpr(std::is_same_v<fp_type, double>) {
             return {
-                std::clamp(static_cast<double>(this->at<gpar::GConstrainedFloatObject>(offset + 0)->value()), 0., 1.), // r
-                std::clamp(static_cast<double>(this->at<gpar::GConstrainedFloatObject>(offset + 1)->value()), 0., 1.), // g
-                std::clamp(static_cast<double>(this->at<gpar::GConstrainedFloatObject>(offset + 2)->value()), 0., 1.)  // b
+                std::clamp(static_cast<double>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 0)->value()), 0., 1.), // r
+                std::clamp(static_cast<double>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 1)->value()), 0., 1.), // g
+                std::clamp(static_cast<double>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 2)->value()), 0., 1.)  // b
             };
         }
         else {

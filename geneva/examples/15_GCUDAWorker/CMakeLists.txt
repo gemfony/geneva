@@ -33,6 +33,12 @@
 # selects CPU / CUDA / OpenCL at run time via config/GGPUConsumer.json. It only needs libpng to load
 # the target image and write result pictures; if libpng is missing the example is skipped.
 
+# Build example 15 (the Mona-Lisa problem) with FLOAT parameters + a float GPU kernel instead of
+# the default DOUBLE, so FP32 vs FP64 can be compared. Selects the scalar type at compile time
+# (gimage_fp_t) and the matching default GPU-consumer config / device kernel. Settable from
+# genevaConfig.gcfg via GIMAGE_USE_FLOAT.
+OPTION ( GIMAGE_USE_FLOAT "Build example 15 (Mona-Lisa) with float parameters + a float GPU kernel instead of double" OFF )
+
 FIND_PACKAGE ( PNG QUIET )
 IF ( NOT PNG_FOUND )
 	MESSAGE ( STATUS "Example 15 (GCUDAWorker): libpng not found -- skipping" )
@@ -44,6 +50,7 @@ SET ( MONALISAINCLUDES
 	GImageIndividual.hpp
 	GImageHelperFunctions.hpp
 	GImagePOM.hpp
+	GImageScalar.hpp
 	GMonaLisaProblem.hpp
 	GMonaLisaGPUMarshaller.hpp
 )
@@ -66,6 +73,14 @@ SET_TARGET_PROPERTIES ( ${EXECUTABLENAME} PROPERTIES
 )
 
 TARGET_INCLUDE_DIRECTORIES ( ${EXECUTABLENAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
+
+# Compile-time scalar selection: double (default) or float.
+IF ( GIMAGE_USE_FLOAT )
+	TARGET_COMPILE_DEFINITIONS ( ${EXECUTABLENAME} PRIVATE GIMAGE_USE_FLOAT )
+	MESSAGE ( STATUS "Example 15 (GCUDAWorker): building with FLOAT parameters + the float GPU kernel (GIMAGE_USE_FLOAT=ON)" )
+ELSE ()
+	MESSAGE ( STATUS "Example 15 (GCUDAWorker): building with DOUBLE parameters + the double GPU kernel (default)" )
+ENDIF ()
 
 # The GPU consumer add-on (carries the CUDA/OpenCL backends + NVRTC), the Geneva libraries, Boost and
 # libpng. gemfony-courtier-gpu is an OPTIONAL add-on built next to courtier (see courtier/src/gpu/).

@@ -2,7 +2,8 @@
     "header": {
         "comment": "Configuration for the courtier GPU consumer (Gem::Courtier::GPU::GGPUConsumerT).",
         "comment": "It selects the device-programming model AND the kernel, so the same program can",
-        "comment": "switch between CPU / CUDA / OpenCL without recompilation."
+        "comment": "switch between CPU / CUDA / OpenCL without recompilation.",
+        "comment": "FLOAT variant: used when example 15 is built with GIMAGE_USE_FLOAT (FP32 kernel)."
     },
     "backend": {
         "comment": "GPU backend: cpu | cuda | opencl.",
@@ -15,8 +16,8 @@
     "kernel_path": {
         "comment": "Path to the kernel source (.cu for CUDA via NVRTC, .cl for OpenCL),",
         "comment": "or a prebuilt module (.ptx/.cubin). Resolved relative to the working directory.",
-        "default": "./kernels/monalisa_eval_double.cu",
-        "value": "./kernels/monalisa_eval_double.cu"
+        "default": "./kernels/monalisa_eval_float.cu",
+        "value": "./kernels/monalisa_eval_float.cu"
     },
     "kernel_entry": {
         "comment": "Kernel entry-point name (must be un-mangled, e.g. extern \"C\").",

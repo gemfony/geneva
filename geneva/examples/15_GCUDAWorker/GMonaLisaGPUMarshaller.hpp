@@ -37,6 +37,7 @@
 // Geneva headers
 #include "geneva/par/GParameterSet.hpp"
 #include "courtier/gpu/GGPUEvaluableI.hpp"
+#include "GImageScalar.hpp"
 #include "GMonaLisaProblem.hpp"
 
 namespace gpar = Gem::Geneva::Parameters;
@@ -48,29 +49,31 @@ namespace Gem::Geneva::MonaLisa {
  * GGPUEvaluableI marshaller for the Mona-Lisa problem of example 15.
  *
  * flatten()           streamlines each individual's genome (10*NT triangle params + 3 background) into
- *                     a row-major FLOAT buffer (alpha-sort is disabled on the individual, so the
+ *                     a row-major scalar buffer (alpha-sort is disabled on the individual, so the
  *                     streamline order is the canonical render order the kernel expects).
- * problemConstants()  packs, as floats, [W, H, target(W*H*3)] -- the loaded target image; uploaded
+ * problemConstants()  packs, as scalars, [W, H, target(W*H*3)] -- the loaded target image; uploaded
  *                     once per launch. NT and the background come from the per-item parameters.
- * hostEvaluate()      the CPU reference -- calls the SAME float score() the individual's
+ * hostEvaluate()      the CPU reference -- calls the SAME score() the individual's
  *                     fitnessCalculation and the device kernel use.
  * scatter()           injects the device-computed fitness via process() (leaves each item PROCESSED).
  *
  * One kernel launch per batch: minimal kernels, full bulk.
  *
- * The marshaller is FP32 end-to-end: GGPUEvaluableI<gpar::GParameterSet, float>, so the genome and
- * fitness flat buffers, the device ABI and the CUDA kernel are all float -- the actual FP32 speedup,
- * with no widening/narrowing (the genome and the target image were already float).
+ * The scalar type (gimage_fp_t, see GImageScalar.hpp) is selected at COMPILE TIME: DOUBLE by default,
+ * or FLOAT when the example is built with GIMAGE_USE_FLOAT. The marshaller is that scalar end-to-end:
+ * GGPUEvaluableI<gpar::GParameterSet, gimage_fp_t>, so the genome and fitness flat buffers, the device
+ * ABI and the CUDA kernel all use it -- no widening/narrowing. The matching device kernel is selected
+ * through the default GPU-consumer config.
  */
 class GMonaLisaGPUMarshaller final
-  : public Gem::Courtier::GPU::GGPUEvaluableI<gpar::GParameterSet, float> {
+  : public Gem::Courtier::GPU::GGPUEvaluableI<gpar::GParameterSet, gimage_fp_t> {
 public:
-    void flatten(const std::vector<item_ptr> &items, std::vector<float> &params_out) const override {
+    void flatten(const std::vector<item_ptr> &items, std::vector<gimage_fp_t> &params_out) const override {
         if(items.empty()) {
             params_out.clear();
             return;
         }
-        std::vector<float> pv;
+        std::vector<gimage_fp_t> pv;
         items.front()->streamline(pv);
         const std::size_t dim = pv.size();
         params_out.resize(items.size() * dim);
@@ -83,14 +86,14 @@ public:
 
     [[nodiscard]] std::vector<std::byte> problemConstants() const override {
         const Target &t = target();
-        std::vector<float> blob;
+        std::vector<gimage_fp_t> blob;
         blob.reserve(2 + t.rgb.size());
-        blob.push_back(static_cast<float>(t.width));
-        blob.push_back(static_cast<float>(t.height));
-        // The target image is already float -- pack it natively (no widening).
+        blob.push_back(static_cast<gimage_fp_t>(t.width));
+        blob.push_back(static_cast<gimage_fp_t>(t.height));
+        // The target image already uses the selected scalar -- pack it natively.
         blob.insert(blob.end(), t.rgb.begin(), t.rgb.end());
 
-        std::vector<std::byte> bytes(blob.size() * sizeof(float));
+        std::vector<std::byte> bytes(blob.size() * sizeof(gimage_fp_t));
         std::memcpy(bytes.data(), blob.data(), bytes.size());
         return bytes;
     }
@@ -100,7 +103,7 @@ public:
      *  kernel atomic-accumulates each item's fitness; the CPU/OpenCL backends clamp this to 1. */
     [[nodiscard]] int parallelWorkPerItem() const override { return 256; }
 
-    void scatter(const std::vector<item_ptr> &items, const std::vector<float> &fitness) const override {
+    void scatter(const std::vector<item_ptr> &items, const std::vector<gimage_fp_t> &fitness) const override {
         for(std::size_t i = 0; i < items.size(); ++i) {
             items[i]->process(std::vector<gpar::parameterset_processing_result>(
                 1, gpar::parameterset_processing_result(fitness[i])));
@@ -108,14 +111,14 @@ public:
     }
 
     void hostEvaluate(
-        const float *params, int n_items, int dim,
+        const gimage_fp_t *params, int n_items, int dim,
         const std::byte * /*pconst*/, std::size_t /*pconst_size*/,
-        float *fitness_out) const override {
+        gimage_fp_t *fitness_out) const override {
         const Target &t = target();
-        std::vector<float> scratch;
+        std::vector<gimage_fp_t> scratch;
         for(int i = 0; i < n_items; ++i) {
-            // Native float: the params buffer is already float, so feed it straight to score().
-            const float *src = params + static_cast<std::size_t>(i) * static_cast<std::size_t>(dim);
+            // Native scalar: the params buffer already uses gimage_fp_t, so feed it straight to score().
+            const gimage_fp_t *src = params + static_cast<std::size_t>(i) * static_cast<std::size_t>(dim);
             fitness_out[i] = score(src, dim, t.width, t.height, t.rgb.data(), scratch);
         }
     }

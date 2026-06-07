@@ -207,6 +207,7 @@ MPIROOT=""
 BUILDMPICONSUMER="0"
 USECUDARNG="0"
 SKIPALLCUDA="0"
+GIMAGE_USE_FLOAT="0"
 WITHCOVERAGE="0"
 SANITIZER="none"
 CUDA_NVCC=""
@@ -292,6 +293,7 @@ _check_bool VERBOSEMAKEFILE  "${VERBOSEMAKEFILE}"
 _check_bool BUILDMPICONSUMER "${BUILDMPICONSUMER}"
 _check_bool USECUDARNG       "${USECUDARNG}"
 _check_bool SKIPALLCUDA      "${SKIPALLCUDA}"
+_check_bool GIMAGE_USE_FLOAT "${GIMAGE_USE_FLOAT}"
 _check_bool WITHCOVERAGE     "${WITHCOVERAGE}"
 
 # Sanitizer: validate and, when enabled, force CUDA + the MPI consumer OFF
@@ -389,6 +391,7 @@ if [ "${GENERATE_PRESET}" = "1" ]; then
 
 	[ -n "${MPIROOT}" ]          && _preset_add "MPI_HOME"               "PATH"   "${MPIROOT}"
 	_preset_add "GENEVA_SKIP_CUDA"              "BOOL"   "${SKIPALLCUDA}"
+	_preset_add "GIMAGE_USE_FLOAT"             "BOOL"   "${GIMAGE_USE_FLOAT}"
 	_preset_add "GENEVA_BUILD_WITH_COVERAGE"    "BOOL"   "${WITHCOVERAGE}"
 	_preset_add "GENEVA_SANITIZER"              "STRING" "${SANITIZER}"
 	[ -n "${CUDA_NVCC}" ] && [ "${SKIPALLCUDA}" = "0" ] && _preset_add "CMAKE_CUDA_COMPILER" "FILEPATH" "${CUDA_NVCC}"
@@ -453,6 +456,7 @@ cmake_args+=(
 	"-DGENEVA_BUILD_WITH_MPI_CONSUMER=${BUILDMPICONSUMER}"
 	"-DGENEVA_USE_CUDA_RNG=${USECUDARNG}"
 	"-DGENEVA_SKIP_CUDA=${SKIPALLCUDA}"
+	"-DGIMAGE_USE_FLOAT=${GIMAGE_USE_FLOAT}"
 	"-DGENEVA_BUILD_WITH_COVERAGE=${WITHCOVERAGE}"
 	"-DGENEVA_SANITIZER=${SANITIZER}"
 )

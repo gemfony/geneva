@@ -154,6 +154,10 @@ CUDA_ROOT=""
 # independently of this setting.
 USECUDARNG="0"
 
+# Build example 15 (GCUDAWorker) with float parameters + a float GPU kernel instead of
+# double, to compare FP32 vs FP64. Only affects example 15. Default 0 (double).
+GIMAGE_USE_FLOAT="0"
+
 # Further CMake parameters you might want to provide; these
 # will be passed 'verbatim' to CMake's command line
 CMAKEEXTRAFLAGS=""
