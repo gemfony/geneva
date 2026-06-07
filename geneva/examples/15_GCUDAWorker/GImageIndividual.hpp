@@ -62,8 +62,8 @@
 #include "common/GGlobalOptionsT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GSingletonT.hpp"
-#include "geneva/par/GConstrainedDoubleObject.hpp"
-#include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GConstrainedFloatObject.hpp"
+#include "geneva/par/GFloatGaussAdaptor.hpp"
 #include "geneva/par/GParameterSet.hpp"
 
 namespace Gem::Geneva {
@@ -213,22 +213,16 @@ public:
         if constexpr(std::is_same_v<fp_type, float>) {
             // We want colors to be specified as floats
             return {
-                static_cast<float>(
-                    std::clamp(this->at<gpar::GConstrainedDoubleObject>(offset + 0)->value(), 0., 1.)
-                ), // r
-                static_cast<float>(
-                    std::clamp(this->at<gpar::GConstrainedDoubleObject>(offset + 1)->value(), 0., 1.)
-                ), // g
-                static_cast<float>(
-                    std::clamp(this->at<gpar::GConstrainedDoubleObject>(offset + 2)->value(), 0., 1.)
-                ) // b
+                std::clamp(this->at<gpar::GConstrainedFloatObject>(offset + 0)->value(), 0.f, 1.f), // r
+                std::clamp(this->at<gpar::GConstrainedFloatObject>(offset + 1)->value(), 0.f, 1.f), // g
+                std::clamp(this->at<gpar::GConstrainedFloatObject>(offset + 2)->value(), 0.f, 1.f)  // b
             };
         }
         else if constexpr(std::is_same_v<fp_type, double>) {
             return {
-                std::clamp(this->at<gpar::GConstrainedDoubleObject>(offset + 0)->value(), 0., 1.), // r
-                std::clamp(this->at<gpar::GConstrainedDoubleObject>(offset + 1)->value(), 0., 1.), // g
-                std::clamp(this->at<gpar::GConstrainedDoubleObject>(offset + 2)->value(), 0., 1.)  // b
+                std::clamp(static_cast<double>(this->at<gpar::GConstrainedFloatObject>(offset + 0)->value()), 0., 1.), // r
+                std::clamp(static_cast<double>(this->at<gpar::GConstrainedFloatObject>(offset + 1)->value()), 0., 1.), // g
+                std::clamp(static_cast<double>(this->at<gpar::GConstrainedFloatObject>(offset + 2)->value()), 0., 1.)  // b
             };
         }
         else {

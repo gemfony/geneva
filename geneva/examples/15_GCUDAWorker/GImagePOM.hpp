@@ -245,7 +245,7 @@ private:
                 goa->Interface::GOptimizerIT<oa::GBase>::getBestIterationIndividual<GImageIndividual>();
 
             // Rasterise the candidate genome at the target resolution and write it out.
-            std::vector<double> parVec;
+            std::vector<float> parVec;
             best_ptr->streamline(parVec);
             const MonaLisa::Target &tgt = MonaLisa::target();
             std::vector<unsigned char> rgb;

@@ -61,12 +61,15 @@ namespace Gem::Geneva::MonaLisa {
 class GMonaLisaGPUMarshaller final
   : public Gem::Courtier::GPU::GGPUEvaluableI<gpar::GParameterSet> {
 public:
+    // The GPU framework buffers are double-typed, but the genome is now float. flatten() streamlines
+    // each item as float and widens into the double output buffer; problemConstants() likewise widens
+    // the float target to double; hostEvaluate() narrows the double params back to float for score().
     void flatten(const std::vector<item_ptr> &items, std::vector<double> &params_out) const override {
         if(items.empty()) {
             params_out.clear();
             return;
         }
-        std::vector<double> pv;
+        std::vector<float> pv;
         items.front()->streamline(pv);
         const std::size_t dim = pv.size();
         params_out.resize(items.size() * dim);
@@ -83,6 +86,7 @@ public:
         blob.reserve(2 + t.rgb.size());
         blob.push_back(static_cast<double>(t.width));
         blob.push_back(static_cast<double>(t.height));
+        // Widen the float target to double (the CUDA kernel is still double-typed).
         blob.insert(blob.end(), t.rgb.begin(), t.rgb.end());
 
         std::vector<std::byte> bytes(blob.size() * sizeof(double));
@@ -107,10 +111,15 @@ public:
         const std::byte * /*pconst*/, std::size_t /*pconst_size*/,
         double *fitness_out) const override {
         const Target &t = target();
-        std::vector<double> scratch;
+        std::vector<float> scratch;
+        std::vector<float> fparams(static_cast<std::size_t>(dim));
         for(int i = 0; i < n_items; ++i) {
-            fitness_out[i] = score(params + static_cast<std::size_t>(i) * static_cast<std::size_t>(dim),
-                                   dim, t.width, t.height, t.rgb.data(), scratch);
+            const double *src = params + static_cast<std::size_t>(i) * static_cast<std::size_t>(dim);
+            // Narrow the (widened) double params back to float for the float score().
+            for(int j = 0; j < dim; ++j) {
+                fparams[static_cast<std::size_t>(j)] = static_cast<float>(src[j]);
+            }
+            fitness_out[i] = score(fparams.data(), dim, t.width, t.height, t.rgb.data(), scratch);
         }
     }
 };
