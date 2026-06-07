@@ -36,7 +36,7 @@
 #include "common/GParserBuilder.hpp"
 #include "gpugen/GGPUKernelSpec.hpp"
 
-namespace Gem::Geneva::GPU {
+namespace Gem::Courtier::GPU {
 
 /******************************************************************************/
 /**
@@ -102,4 +102,4 @@ struct GGPUConsumerConfig {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::GPU */
+} /* namespace Gem::Courtier::GPU */

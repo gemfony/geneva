@@ -42,7 +42,7 @@
 
 namespace gpar = Gem::Geneva::Parameters;
 
-namespace Gem::Geneva::GPU::ImageDemo {
+namespace Gem::Courtier::GPU::ImageDemo {
 
 /******************************************************************************/
 /**
@@ -58,7 +58,7 @@ namespace Gem::Geneva::GPU::ImageDemo {
  * The whole batch is evaluated in ONE kernel launch (one thread per individual), the minimal-kernel /
  * maximal-bulk design.
  */
-class GImageGPUMarshaller final : public Gem::Geneva::GPU::GGPUEvaluableI {
+class GImageGPUMarshaller final : public Gem::Courtier::GPU::GGPUEvaluableI<gpar::GParameterSet> {
 public:
     void flatten(const std::vector<item_ptr> &items, std::vector<double> &params_out) const override {
         params_out.resize(items.size() * static_cast<std::size_t>(IMG_DIM));
@@ -110,4 +110,4 @@ public:
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::GPU::ImageDemo */
+} /* namespace Gem::Courtier::GPU::ImageDemo */

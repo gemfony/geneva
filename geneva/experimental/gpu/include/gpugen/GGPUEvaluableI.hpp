@@ -34,48 +34,25 @@
 #include <memory>
 #include <vector>
 
-// Geneva headers
-#include "geneva/par/GParameterSet.hpp"
-
-namespace Gem::Geneva::GPU {
+namespace Gem::Courtier::GPU {
 
 /******************************************************************************/
 /**
- * EXPERIMENTAL GPU consumer framework -- the problem-specific marshalling interface.
+ * EXPERIMENTAL GPU consumer framework. Logically a Gem::Courtier consumer (it derives from
+ * GBaseConsumerT), so it lives in Gem::Courtier::GPU and is generic in the processable type, with NO
+ * dependency on the Gem::Geneva layer (which sits above courtier). The concrete, GParameterSet-aware
+ * marshallers live with the problems (the demos), not here.
  *
- * The GPU consumer (GGPUConsumer) owns the device plumbing; the *problem* owns how a batch of
- * individuals is turned into flat device buffers and how device results are written back. An image
- * problem and a mathematical-function problem flatten and interpret very differently, so a small
- * marshaller object implementing this interface is supplied per problem. The consumer never needs to
- * know the concrete individual type.
- *
- * Contract / ABI: parameters are laid out row-major, one row of `dim` doubles per item
- * (params[i*dim + j] = parameter j of item i); the kernel writes one double of fitness per item
- * (fitness[i]). `problemConstants()` returns an opaque byte blob the kernel also receives (e.g. a
- * function id, a target image), uploaded once per launch. `hostEvaluate()` is a CPU reference that
- * MUST compute the same fitness as the device kernel -- the CPU backend uses it, so a CUDA/OpenCL run
- * and a CPU run of the same problem can be compared for parity.
+ * GGPUHostEvalI is the NON-templated host-reference part of a marshaller: it evaluates a batch in flat
+ * doubles only (no individuals). The CPU backend and the backend factory depend only on this, so they
+ * stay non-templated and free of the processable type.
  */
-class GGPUEvaluableI {
+class GGPUHostEvalI {
 public:
-    using item_ptr = std::shared_ptr<Gem::Geneva::Parameters::GParameterSet>;
+    virtual ~GGPUHostEvalI() = default;
 
-    virtual ~GGPUEvaluableI() = default;
-
-    /** @brief Flattens every item's parameters into a row-major buffer of n_items * dim doubles.
-     *  The dimension is inferred by the consumer as params_out.size() / items.size(), so all items in
-     *  a batch must share the same dimension. */
-    virtual void flatten(const std::vector<item_ptr> &items, std::vector<double> &params_out) const = 0;
-
-    /** @brief Optional opaque constants the kernel needs (function id, target image, ...). Default: none. */
-    [[nodiscard]] virtual std::vector<std::byte> problemConstants() const { return {}; }
-
-    /** @brief Writes the per-item fitness back into each item (typically via item->process(result),
-     *  which also leaves the item PROCESSED for the courtier reconciliation). */
-    virtual void scatter(const std::vector<item_ptr> &items, const std::vector<double> &fitness) const = 0;
-
-    /** @brief CPU reference evaluation mirroring the device kernel. Used by the CPU backend and for
-     *  GPU/CPU parity checks. params is n_items * dim row-major; writes n_items fitness values. */
+    /** @brief CPU reference evaluation mirroring the device kernel. params is n_items * dim row-major;
+     *  writes n_items fitness values. Used by the CPU backend and for GPU/CPU parity checks. */
     virtual void hostEvaluate(
         const double *params, int n_items, int dim,
         const std::byte *pconst, std::size_t pconst_size,
@@ -83,5 +60,33 @@ public:
 };
 
 /******************************************************************************/
+/**
+ * The problem-specific marshalling interface, generic in the processable type. The GPU consumer owns
+ * the device plumbing; the problem owns how a batch of items becomes flat device buffers and how
+ * device results are written back.
+ *
+ * ABI: parameters are row-major, one row of `dim` doubles per item (params[i*dim + j] = parameter j of
+ * item i); the kernel writes one fitness double per item. problemConstants() is an opaque byte blob
+ * the kernel also receives (function id, target image, ...), uploaded once per launch. hostEvaluate()
+ * (inherited) must compute the same fitness as the device kernel.
+ */
+template <typename processable_type>
+class GGPUEvaluableI : public GGPUHostEvalI {
+public:
+    using item_ptr = std::shared_ptr<processable_type>;
 
-} /* namespace Gem::Geneva::GPU */
+    /** @brief Flattens every item's parameters into a row-major buffer of n_items * dim doubles. The
+     *  dimension is inferred by the consumer as params_out.size() / items.size(). */
+    virtual void flatten(const std::vector<item_ptr> &items, std::vector<double> &params_out) const = 0;
+
+    /** @brief Optional opaque constants the kernel needs. Default: none. */
+    [[nodiscard]] virtual std::vector<std::byte> problemConstants() const { return {}; }
+
+    /** @brief Writes the per-item fitness back into each item (typically via item->process(result),
+     *  which also leaves the item PROCESSED for the courtier reconciliation). */
+    virtual void scatter(const std::vector<item_ptr> &items, const std::vector<double> &fitness) const = 0;
+};
+
+/******************************************************************************/
+
+} /* namespace Gem::Courtier::GPU */

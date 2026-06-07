@@ -37,7 +37,7 @@
 #include "gpugen/GGPUDeviceBackendI.hpp"
 #include "gpugen/GGPUEvaluableI.hpp"
 
-namespace Gem::Geneva::GPU {
+namespace Gem::Courtier::GPU {
 
 /******************************************************************************/
 /**
@@ -49,8 +49,8 @@ namespace Gem::Geneva::GPU {
  */
 class GCpuBackend final : public GGPUDeviceBackendI {
 public:
-    explicit GCpuBackend(const GGPUEvaluableI *marshaller)
-        : marshaller_(marshaller)
+    explicit GCpuBackend(const GGPUHostEvalI *hostEval)
+        : hostEval_(hostEval)
     { /* nothing */ }
 
     void initialize(const KernelSpec & /*spec*/) override {
@@ -61,15 +61,15 @@ public:
         const double *params, int n_items, int dim,
         const std::byte *pconst, std::size_t pconst_size,
         double *fitness_out) override {
-        marshaller_->hostEvaluate(params, n_items, dim, pconst, pconst_size, fitness_out);
+        hostEval_->hostEvaluate(params, n_items, dim, pconst, pconst_size, fitness_out);
     }
 
     [[nodiscard]] std::string name() const override { return "cpu"; }
 
 private:
-    const GGPUEvaluableI *marshaller_; ///< Non-owning; outlives the backend (held by the consumer)
+    const GGPUHostEvalI *hostEval_; ///< Non-owning; outlives the backend (the marshaller, held by the consumer)
 };
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::GPU */
+} /* namespace Gem::Courtier::GPU */

@@ -318,10 +318,10 @@ double GExpImageIndividual::fitnessCalculation() {
     // GStarter scaffolding) and is ignored.
     std::vector<double> parVec;
     this->streamline(parVec);
-    if(parVec.size() < static_cast<std::size_t>(Gem::Geneva::GPU::ImageDemo::IMG_DIM)) {
+    if(parVec.size() < static_cast<std::size_t>(Gem::Courtier::GPU::ImageDemo::IMG_DIM)) {
         return 0.; // not an image individual (e.g. default-constructed); nothing to score
     }
-    return Gem::Geneva::GPU::ImageDemo::scoreParams(parVec.data());
+    return Gem::Courtier::GPU::ImageDemo::scoreParams(parVec.data());
 }
 
 /******************************************************************************/

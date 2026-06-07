@@ -34,7 +34,7 @@
 #include <cstdint>
 #include <string>
 
-namespace Gem::Geneva::GPU {
+namespace Gem::Courtier::GPU {
 
 /******************************************************************************/
 /**
@@ -104,4 +104,4 @@ struct KernelSpec {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::GPU */
+} /* namespace Gem::Courtier::GPU */

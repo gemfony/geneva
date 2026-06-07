@@ -43,7 +43,7 @@
 #include "common/GExceptions.hpp"
 #include "gpugen/GCudaBackend.hpp"
 
-namespace Gem::Geneva::GPU {
+namespace Gem::Courtier::GPU {
 
 namespace {
 
@@ -258,4 +258,4 @@ void GCudaBackend::evaluate(
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::GPU */
+} /* namespace Gem::Courtier::GPU */

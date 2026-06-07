@@ -35,23 +35,24 @@
 // Geneva headers
 #include "gpugen/GGPUKernelSpec.hpp"
 
-namespace Gem::Geneva::GPU {
+namespace Gem::Courtier::GPU {
 
 class GGPUDeviceBackendI;
-class GGPUEvaluableI;
+class GGPUHostEvalI;
 
 /******************************************************************************/
 /**
- * Builds the device backend for @p kind. The CPU backend uses @p marshaller for its host reference
- * evaluation; the CUDA/OpenCL backends ignore it (they run the kernel) but take it for a uniform
- * signature. Throws a geneva_exception if the requested backend was not compiled in (its toolkit was
- * absent at configure time) -- the caller can fall back to BackendKind::Cpu.
+ * Builds the device backend for @p kind. The CPU backend uses @p hostEval for its host reference
+ * evaluation (a marshaller is-a GGPUHostEvalI); the CUDA/OpenCL backends ignore it (they run the
+ * kernel) but take it for a uniform signature. Throws a geneva_exception if the requested backend was
+ * not compiled in (its toolkit was absent at configure time) -- the caller can fall back to
+ * BackendKind::Cpu.
  */
-std::unique_ptr<GGPUDeviceBackendI> makeBackend(BackendKind kind, const GGPUEvaluableI *marshaller);
+std::unique_ptr<GGPUDeviceBackendI> makeBackend(BackendKind kind, const GGPUHostEvalI *hostEval);
 
 /** @brief Whether @p kind was compiled into this build (cpu is always true). */
 [[nodiscard]] bool backendAvailable(BackendKind kind);
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::GPU */
+} /* namespace Gem::Courtier::GPU */

@@ -47,7 +47,7 @@
  *   RGB difference to a TARGET image, which is generated once by rendering a fixed ground-truth
  *   individual (so the global optimum is ~0).
  */
-namespace Gem::Geneva::GPU::ImageDemo {
+namespace Gem::Courtier::GPU::ImageDemo {
 
 constexpr int IMG_W = 48;                 ///< canvas width
 constexpr int IMG_H = 48;                 ///< canvas height
@@ -162,4 +162,4 @@ inline double scoreParams(const double *params) {
     return renderScore(params, targetImage().data());
 }
 
-} /* namespace Gem::Geneva::GPU::ImageDemo */
+} /* namespace Gem::Courtier::GPU::ImageDemo */

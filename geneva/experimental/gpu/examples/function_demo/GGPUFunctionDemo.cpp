@@ -67,7 +67,7 @@
 #include "gpugen/GGPUDeviceBackendI.hpp"
 #include "GFunctionIndividualGPUMarshaller.hpp"
 
-namespace gpu = Gem::Geneva::GPU;
+namespace gpu = Gem::Courtier::GPU;
 namespace c2 = Gem::Courtier;
 namespace gind = Gem::Geneva::Individuals;
 namespace gpar = Gem::Geneva::Parameters;
@@ -158,7 +158,7 @@ int main(int argc, char **argv) {
         }
 
         try {
-            auto consumer = std::make_shared<gpu::GGPUConsumer>(cfgPath, marshaller);
+            auto consumer = std::make_shared<gpu::GGPUConsumerT<gpar::GParameterSet>>(cfgPath, marshaller);
             auto broker = std::make_shared<c2::GBrokerT<gpar::GParameterSet>>();
             broker->registerConsumer(consumer);
 

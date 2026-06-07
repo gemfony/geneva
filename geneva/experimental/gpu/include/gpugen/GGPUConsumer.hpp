@@ -40,16 +40,13 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "courtier/GBaseConsumerT.hpp"
-#include "geneva/par/GParameterSet.hpp"
 #include "gpugen/GCpuBackend.hpp"
 #include "gpugen/GGPUBackendFactory.hpp"
 #include "gpugen/GGPUConsumerConfig.hpp"
 #include "gpugen/GGPUDeviceBackendI.hpp"
 #include "gpugen/GGPUEvaluableI.hpp"
 
-namespace gpar = Gem::Geneva::Parameters;
-
-namespace Gem::Geneva::GPU {
+namespace Gem::Courtier::GPU {
 
 /******************************************************************************/
 /**
@@ -72,22 +69,24 @@ namespace Gem::Geneva::GPU {
  * GPU evaluation is deterministic and all-or-nothing, so a batch should be submitted under
  * GSubmissionPolicy::full_success_or_fatal.
  */
-class GGPUConsumer final : public Gem::Courtier::GBaseConsumerT<gpar::GParameterSet> {
+template <typename processable_type>
+class GGPUConsumerT final : public Gem::Courtier::GBaseConsumerT<processable_type> {
 public:
-    using item_ptr = typename Gem::Courtier::GBaseConsumerT<gpar::GParameterSet>::item_ptr;
+    using item_ptr = typename Gem::Courtier::GBaseConsumerT<processable_type>::item_ptr;
 
     /** @brief Builds the consumer from @p configFile (backend + kernel selection) and the
      *  problem-specific @p marshaller. The backend is created and the kernel acquired lazily, on the
      *  first dispatch_, so construction is cheap and device errors surface at run time. */
-    GGPUConsumer(const std::string &configFile, std::shared_ptr<GGPUEvaluableI> marshaller)
+    GGPUConsumerT(const std::string &configFile,
+                  std::shared_ptr<GGPUEvaluableI<processable_type>> marshaller)
         : marshaller_(std::move(marshaller)) {
         cfg_.load(configFile);
     }
 
-    ~GGPUConsumer() override = default;
+    ~GGPUConsumerT() override = default;
 
-    GGPUConsumer(const GGPUConsumer &) = delete;
-    GGPUConsumer &operator=(const GGPUConsumer &) = delete;
+    GGPUConsumerT(const GGPUConsumerT &) = delete;
+    GGPUConsumerT &operator=(const GGPUConsumerT &) = delete;
 
     /** @brief The backend actually in use (after the first dispatch_), e.g. "cuda" / "cpu". */
     [[nodiscard]] std::string activeBackendName() const {
@@ -126,20 +125,20 @@ private:
         }
         BackendKind kind = cfg_.backendKind();
         if(not backendAvailable(kind)) {
-            glogger << "In Gem::Geneva::GPU::GGPUConsumer: the '" << toString(kind)
+            glogger << "In Gem::Courtier::GPU::GGPUConsumer: the '" << toString(kind)
                     << "' backend was not compiled into this build; falling back to 'cpu'." << '\n'
                     << GWARNING;
             kind = BackendKind::Cpu;
         }
         backend_ = makeBackend(kind, marshaller_.get());
         backend_->initialize(cfg_.kernelSpec());
-        glogger << "Gem::Geneva::GPU::GGPUConsumer using the '" << backend_->name()
+        glogger << "Gem::Courtier::GPU::GGPUConsumer using the '" << backend_->name()
                 << "' backend (kernel: " << cfg_.kernel_path << ")" << '\n'
                 << GLOGGING;
     }
 
     /***************************************************************************/
-    std::shared_ptr<GGPUEvaluableI> marshaller_;     ///< Problem-specific flatten/scatter
+    std::shared_ptr<GGPUEvaluableI<processable_type>> marshaller_; ///< Problem-specific flatten/scatter
     GGPUConsumerConfig cfg_;                          ///< backend + kernel selection
     std::unique_ptr<GGPUDeviceBackendI> backend_;    ///< The device backend (lazy)
 
@@ -149,4 +148,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::GPU */
+} /* namespace Gem::Courtier::GPU */

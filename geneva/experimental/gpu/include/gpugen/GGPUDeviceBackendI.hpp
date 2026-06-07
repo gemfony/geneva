@@ -36,7 +36,7 @@
 // Geneva headers
 #include "gpugen/GGPUKernelSpec.hpp"
 
-namespace Gem::Geneva::GPU {
+namespace Gem::Courtier::GPU {
 
 /******************************************************************************/
 /**
@@ -70,4 +70,4 @@ public:
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::GPU */
+} /* namespace Gem::Courtier::GPU */

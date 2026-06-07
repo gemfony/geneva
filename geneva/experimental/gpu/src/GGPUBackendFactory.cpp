@@ -40,7 +40,7 @@
 #include "gpugen/GOpenCLBackend.hpp"
 #endif
 
-namespace Gem::Geneva::GPU {
+namespace Gem::Courtier::GPU {
 
 /******************************************************************************/
 
@@ -66,10 +66,10 @@ bool backendAvailable(BackendKind kind) {
 
 /******************************************************************************/
 
-std::unique_ptr<GGPUDeviceBackendI> makeBackend(BackendKind kind, const GGPUEvaluableI *marshaller) {
+std::unique_ptr<GGPUDeviceBackendI> makeBackend(BackendKind kind, const GGPUHostEvalI *hostEval) {
     switch(kind) {
     case BackendKind::Cpu:
-        return std::make_unique<GCpuBackend>(marshaller);
+        return std::make_unique<GCpuBackend>(hostEval);
     case BackendKind::Cuda:
 #ifdef GPUGEN_HAVE_CUDA
         return std::make_unique<GCudaBackend>();
@@ -85,10 +85,10 @@ std::unique_ptr<GGPUDeviceBackendI> makeBackend(BackendKind kind, const GGPUEval
     }
     throw geneva_exception(
         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-        << "Gem::Geneva::GPU::makeBackend(): backend '" << toString(kind)
+        << "Gem::Courtier::GPU::makeBackend(): backend '" << toString(kind)
         << "' was not compiled into this build (its toolkit was not found at configure time)." << '\n');
 }
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::GPU */
+} /* namespace Gem::Courtier::GPU */

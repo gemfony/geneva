@@ -43,7 +43,7 @@
 namespace gind = Gem::Geneva::Individuals;
 namespace gpar = Gem::Geneva::Parameters;
 
-namespace Gem::Geneva::GPU::Demo {
+namespace Gem::Courtier::GPU::Demo {
 
 /******************************************************************************/
 /**
@@ -56,7 +56,7 @@ namespace Gem::Geneva::GPU::Demo {
  * 0 = parabola (sum of squares), 1 = Rosenbrock. Because both the kernel and the host reference are
  * defined here, a CUDA/OpenCL run and a CPU run produce identical fitness -- the demo asserts that.
  */
-class GFunctionIndividualGPUMarshaller final : public GGPUEvaluableI {
+class GFunctionIndividualGPUMarshaller final : public GGPUEvaluableI<gpar::GParameterSet> {
 public:
     explicit GFunctionIndividualGPUMarshaller(int funcId = 0) : funcId_(funcId) {}
 
@@ -123,4 +123,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::GPU::Demo */
+} /* namespace Gem::Courtier::GPU::Demo */
