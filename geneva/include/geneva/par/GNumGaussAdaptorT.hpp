@@ -68,7 +68,7 @@ class GNumGaussAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
 
         ar &make_nvp(
             "GAdaptorT_num",
-            boost::serialization::base_object<GAdaptorT<parameter_type>>(*this)
+            boost::serialization::base_object<GAdaptorT<parameter_type, adaption_fp_type>>(*this)
         );
         // ... and then our own data, derived from the single localMembers() declaration
         Gem::Common::serialize_members(ar, this->localMembers());
@@ -95,7 +95,7 @@ public:
 	  * @param probability The likelihood for a adaption actually taking place
 	  */
     GNumGaussAdaptorT(const double &probability)
-      : GAdaptorT<parameter_type>(probability) { /* nothing */
+      : GAdaptorT<parameter_type, adaption_fp_type>(probability) { /* nothing */
     }
 
     /***************************************************************************/
@@ -140,7 +140,7 @@ public:
         const adaption_fp_type &max_sigma,
         const double &probability
     )
-      : GAdaptorT<parameter_type>(probability) {
+      : GAdaptorT<parameter_type, adaption_fp_type>(probability) {
         // These functions do error checks on their values
         setSigmaAdaptionRate(sigma_sigma);
         setSigmaRange(min_sigma, max_sigma);
@@ -418,7 +418,7 @@ public:
 	  */
     bool updateOnStall(const std::size_t &n_stalls, const parameter_type &range) override {
         // Call our parent class'es function
-        GAdaptorT<parameter_type>::updateOnStall(n_stalls, range);
+        GAdaptorT<parameter_type, adaption_fp_type>::updateOnStall(n_stalls, range);
 
         // Reset the adaption probability
         if(sigma_ == sigma_reset_) {
@@ -603,7 +603,7 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(GAdaptorT<parameter_type>::modify_GUnitTests_()) {
+        if(GAdaptorT<parameter_type, adaption_fp_type>::modify_GUnitTests_()) {
             result = true;
         }
 
@@ -627,7 +627,7 @@ protected:
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
-        GAdaptorT<parameter_type>::specificTestsNoFailureExpected_GUnitTests_();
+        GAdaptorT<parameter_type, adaption_fp_type>::specificTestsNoFailureExpected_GUnitTests_();
 
         // Get a random number generator
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -791,7 +791,7 @@ protected:
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
-        GAdaptorT<parameter_type>::specificTestsFailuresExpected_GUnitTests_();
+        GAdaptorT<parameter_type, adaption_fp_type>::specificTestsFailuresExpected_GUnitTests_();
 
         //------------------------------------------------------------------------------
 

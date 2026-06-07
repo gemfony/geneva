@@ -30,6 +30,7 @@
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/par/GBooleanAdaptor.hpp"
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
+#include "geneva/par/GFloatGaussAdaptor.hpp"
 #include "geneva/par/GInt32FlipAdaptor.hpp"
 #include "geneva/par/GAdaptorT.hpp"
 #include <cstdint>
@@ -47,6 +48,17 @@ namespace Gem::Geneva {
 template <>
 std::shared_ptr<gpar::GAdaptorT<double>> getDefaultAdaptor<double>() {
     return std::make_shared<gpar::GDoubleGaussAdaptor>();
+}
+
+/******************************************************************************/
+/**
+ * A factory function that returns the default adaptor for the base type "float"
+ *
+ * @return The default adaptor for the base type "float"
+ */
+template <>
+std::shared_ptr<gpar::GAdaptorT<float, float>> getDefaultAdaptor<float>() {
+    return std::make_shared<gpar::GFloatGaussAdaptor>();
 }
 
 /******************************************************************************/

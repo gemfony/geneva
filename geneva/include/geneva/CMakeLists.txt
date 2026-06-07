@@ -37,6 +37,8 @@ SET ( PARAM_INCLUDES
     par/GDoubleGaussAdaptor.hpp
     par/GDoubleObject.hpp
     par/GDoubleObjectCollection.hpp
+    par/GFloatGaussAdaptor.hpp
+    par/GFloatObject.hpp
     par/GFPBiGaussAdaptorT.hpp
     par/GFPGaussAdaptorT.hpp
     par/GFPNumCollectionT.hpp

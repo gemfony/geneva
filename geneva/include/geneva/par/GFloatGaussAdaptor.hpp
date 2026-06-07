@@ -1,0 +1,132 @@
+/********************************************************************************
+ *
+ * This file is part of the Geneva library collection. The following license
+ * applies to this file:
+ *
+ * ------------------------------------------------------------------------------
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------
+ *
+ * Note that other files in the Geneva library collection may use a different
+ * license. Please see the licensing information in each file.
+ *
+ ********************************************************************************
+ *
+ * See the NOTICE file in the top-level directory of the Geneva library
+ * collection for a list of contributors and copyright information.
+ *
+ ********************************************************************************/
+
+#pragma once
+
+// Global checks, defines and includes needed for all of Geneva
+#include "common/GGlobalDefines.hpp"
+
+// Standard headers go here
+
+// Boost headers go here
+
+// Geneva headers go here
+#include "geneva/par/GFPGaussAdaptorT.hpp"
+
+namespace Gem::Geneva::Parameters {
+
+/******************************************************************************/
+/**
+ * The GFloatGaussAdaptor represents an adaptor used for the adaption of
+ * float values through the addition of gaussian-distributed random numbers.
+ * It is the single-precision sibling of GDoubleGaussAdaptor; see the documentation
+ * of GNumGaussAdaptorT<T> for further information on adaptors in the Geneva context.
+ * This class is at the core of evolutionary strategies, as implemented by this
+ * library. It is implemented through a generic base class that can also be used to
+ * adapt other numeric types.
+ */
+class GFloatGaussAdaptor // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GFPGaussAdaptorT<float> {
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
+
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        using boost::serialization::make_nvp;
+
+        ar &make_nvp(
+            "GFPGaussAdaptorT_float",
+            boost::serialization::base_object<GFPGaussAdaptorT<float>>(*this)
+        );
+    }
+    ///////////////////////////////////////////////////////////////////////
+
+public:
+    /** @brief The default constructor */
+    GFloatGaussAdaptor() = default;
+    /** @brief The copy constructor */
+    GFloatGaussAdaptor(const GFloatGaussAdaptor &) = default;
+
+    /** @brief Initialization with a adaption probability */
+    explicit GFloatGaussAdaptor(const double &);
+    /** @brief Initialization with a number of values belonging to the width of the gaussian */
+
+    GFloatGaussAdaptor(const float &, const float &, const float &, const float &);
+    /** @brief Initialization with a number of values belonging to the width of the gaussian and the adaption probability */
+    GFloatGaussAdaptor(
+        const float &,
+        const float &,
+        const float &,
+        const float &,
+        const double &
+    );
+
+    /** @brief The destructor */
+    ~GFloatGaussAdaptor() override = default;
+
+protected:
+    /** @brief Loads the data of another GAdaptorT */
+    void load_(const GAdaptorT<float, float> *) override;
+
+    /** @brief Allow access to this classes compare_ function */
+    friend void Gem::Common::compare_base_t<GFloatGaussAdaptor>(
+        GFloatGaussAdaptor const &,
+        GFloatGaussAdaptor const &,
+        Gem::Common::GToken &
+    );
+
+    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    void compare_(
+        const GAdaptorT<float, float> & // the other object
+        ,
+        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        ,
+        const double & // the limit for allowed deviations of floating point types
+    ) const override;
+
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    bool modify_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    void specificTestsNoFailureExpected_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    void specificTestsFailuresExpected_GUnitTests_() override;
+
+    /** @brief Retrieves the id of this adaptor */
+    Gem::Geneva::adaptorId getAdaptorId_() const override;
+    /** @brief Emits a name for this class / object */
+    std::string name_() const override;
+    /** @brief Creates a deep clone of this object. */
+    GAdaptorT<float, float> *clone_() const override;
+};
+
+/******************************************************************************/
+
+} /* namespace Gem::Geneva::Parameters */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Parameters::GFloatGaussAdaptor) // NOLINT

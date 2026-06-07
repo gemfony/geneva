@@ -67,7 +67,7 @@ class GNumBiGaussAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
         // Save all necessary data
         ar &make_nvp(
             "GAdaptorT_num",
-            boost::serialization::base_object<GAdaptorT<parameter_type>>(*this)
+            boost::serialization::base_object<GAdaptorT<parameter_type, adaption_fp_type>>(*this)
         );
         // ... and then our own data, derived from the single localMembers() declaration
         Gem::Common::serialize_members(ar, this->localMembers());
@@ -88,7 +88,7 @@ public:
      * @param probability The likelihood for a adaption actually taking place
      */
     explicit GNumBiGaussAdaptorT(const adaption_fp_type &probability)
-      : GAdaptorT<parameter_type>(probability) { /* nothing */
+      : GAdaptorT<parameter_type, adaption_fp_type>(probability) { /* nothing */
     }
 
     /***************************************************************************/
@@ -706,19 +706,19 @@ protected:
         // The following random distribution slightly favours values < 1. Selection pressure
         // will keep the values higher if needed
         sigma1_ *= std::exp(
-            GAdaptorT<parameter_type>::normal_distribution_(
+            GAdaptorT<parameter_type, adaption_fp_type>::normal_distribution_(
                 gr,
                 typename std::normal_distribution<adaption_fp_type>::param_type(0., std::abs(sigma_sigma1_))
             )
         );
         sigma2_ *= std::exp(
-            GAdaptorT<parameter_type>::normal_distribution_(
+            GAdaptorT<parameter_type, adaption_fp_type>::normal_distribution_(
                 gr,
                 typename std::normal_distribution<adaption_fp_type>::param_type(0., std::abs(sigma_sigma2_))
             )
         );
         delta_ *= std::exp(
-            GAdaptorT<parameter_type>::normal_distribution_(
+            GAdaptorT<parameter_type, adaption_fp_type>::normal_distribution_(
                 gr,
                 typename std::normal_distribution<adaption_fp_type>::param_type(0., std::abs(sigma_delta_))
             )
@@ -764,7 +764,7 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(GAdaptorT<parameter_type>::modify_GUnitTests_()) {
+        if(GAdaptorT<parameter_type, adaption_fp_type>::modify_GUnitTests_()) {
             result = true;
         }
 
@@ -788,7 +788,7 @@ protected:
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
-        GAdaptorT<parameter_type>::specificTestsNoFailureExpected_GUnitTests_();
+        GAdaptorT<parameter_type, adaption_fp_type>::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset(
@@ -806,7 +806,7 @@ protected:
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
-        GAdaptorT<parameter_type>::specificTestsFailuresExpected_GUnitTests_();
+        GAdaptorT<parameter_type, adaption_fp_type>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset(

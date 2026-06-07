@@ -55,6 +55,18 @@ namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 /**
+ * The floating-point precision an adaptor uses for its adaption mathematics, given the type of the
+ * parameter value it adapts. A floating-point parameter is adapted in its own precision (so a float
+ * parameter is adapted natively in float); any non-floating-point parameter (int, bool) borrows
+ * double, since the gaussian/sigma math is inherently continuous and cannot live in the value type.
+ * This keeps double/int/bool behaviour exactly as before and only gives float its native precision.
+ */
+template <typename parameter_type>
+using adaption_fp_type_t =
+    std::conditional_t<std::is_floating_point_v<parameter_type>, parameter_type, double>;
+
+/******************************************************************************/
+/**
  * The following applies mostly to evolutionary algorithms.
  *
  * In Geneva, two mechanisms exist that let the user specify the

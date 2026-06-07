@@ -76,6 +76,12 @@ class GParameterBaseWithAdaptorsT // NOLINT(cppcoreguidelines-special-member-fun
 
 public:
     /***************************************************************************/
+    /** @brief The adaptor base type for a parameter of type T. The adaption precision follows the
+     *  parameter type: a floating-point parameter is adapted in its own precision (float -> float),
+     *  any other type borrows double (see adaption_fp_type_t). */
+    using adaptor_base_t = GAdaptorT<T, adaption_fp_type_t<T>>;
+
+    /***************************************************************************/
     /**
 	  * The default constructor.
 	  */
@@ -89,7 +95,7 @@ public:
 	  */
     GParameterBaseWithAdaptorsT(const GParameterBaseWithAdaptorsT<T> &cp)
       : GParameterBase(cp)
-      , adaptor_((cp.adaptor_)->template clone<GAdaptorT<T>>()) { /* nothing */
+      , adaptor_((cp.adaptor_)->template clone<adaptor_base_t>()) { /* nothing */
     }
 
     /***************************************************************************/
@@ -105,7 +111,7 @@ public:
 	  *
 	  * @param gat_ptr A std::shared_ptr to an adaptor
 	  */
-    void addAdaptor(std::shared_ptr<GAdaptorT<T>> gat_ptr) {
+    void addAdaptor(std::shared_ptr<adaptor_base_t> gat_ptr) {
         // Check that we have indeed been given an adaptor
         if(not gat_ptr) {
             throw geneva_exception(
@@ -121,7 +127,7 @@ public:
                 adaptor_->load(gat_ptr);
             }
             else { // Different type - need to clone and assign to gat_ptr
-                adaptor_ = gat_ptr->template clone<GAdaptorT<T>>();
+                adaptor_ = gat_ptr->template clone<adaptor_base_t>();
             }
         }
         else { // None there ? This should not happen
@@ -147,7 +153,7 @@ public:
 	  *
 	  * @return A std::shared_ptr to the adaptor
 	  */
-    std::shared_ptr<GAdaptorT<T>> getAdaptor() const {
+    std::shared_ptr<adaptor_base_t> getAdaptor() const {
 #ifdef DEBUG
         if(not adaptor_) {
             throw geneva_exception(
@@ -174,12 +180,12 @@ public:
 	  * will check in DEBUG mode whether an adaptor was indeed stored in this class. It will
 	  * also complain in DEBUG mode if this function was called while no local adaptor was
 	  * stored here. Note that this function will only be accessible to the compiler if adaptor_type
-	  * is a derivative of GAdaptorT<T>, thanks to the magic of std::enable_if and type_traits.
+	  * is a derivative of adaptor_base_t, thanks to the magic of std::enable_if and type_traits.
 	  *
 	  * @return The desired adaptor instance, using its "natural" type
 	  */
     template <typename adaptor_type>
-        requires std::derived_from<adaptor_type, GAdaptorT<T>>
+        requires std::derived_from<adaptor_type, adaptor_base_t>
     std::shared_ptr<adaptor_type> getAdaptor() const {
 #ifdef DEBUG
         if(not adaptor_) {
@@ -196,7 +202,7 @@ public:
 #endif /* DEBUG */
 
         // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<GAdaptorT<T>, adaptor_type>(adaptor_);
+        return Gem::Common::convertSmartPointer<adaptor_base_t, adaptor_type>(adaptor_);
     }
 
     /* ----------------------------------------------------------------------------------
@@ -269,7 +275,7 @@ protected:
             adaptor_->load(p_load->adaptor_);
         }
         else { // Different type - need to convert
-            adaptor_ = p_load->adaptor_->template clone<GAdaptorT<T>>();
+            adaptor_ = p_load->adaptor_->template clone<adaptor_base_t>();
         }
     }
 
@@ -530,7 +536,7 @@ private:
     /**
 	  * @brief Holds the adaptor used for adaption of the values stored in derived classes.
 	  */
-    std::shared_ptr<GAdaptorT<T>> adaptor_{Gem::Geneva::getDefaultAdaptor<T>()};
+    std::shared_ptr<adaptor_base_t> adaptor_{Gem::Geneva::getDefaultAdaptor<T>()};
 };
 
 /******************************************************************************/
