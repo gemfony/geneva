@@ -164,9 +164,9 @@ private:
  *   1. Creating a GenevaInitializer (must outlive this runner).
  *   2. Enrolling a consumer with broker<GParameterSet>() before calling run().
  *
- * This split avoids coupling the runner to CUDA headers: the CUDA consumer is
- * created in the main CUDA translation unit (GCUDAOptBenchmark.cu) and passed
- * to the runner; the runner itself is pure C++ and free of CUDA dependencies.
+ * The GPU consumer (Gem::Courtier::GPU::GGPUConsumerT, the same one example 15 uses) is created by
+ * the caller and passed to the runner via the broker; the runner itself is pure C++ and free of any
+ * CUDA build-time dependency (the kernel is runtime-compiled by the consumer's backend).
  *
  * For each algorithm entry and each run, the algorithm is created fresh via the
  * appropriate factory, a GFunctionIndividual is added, and optimize() is called.

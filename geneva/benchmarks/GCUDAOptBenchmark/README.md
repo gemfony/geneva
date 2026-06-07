@@ -14,9 +14,10 @@ For each configured algorithm entry and each repetition the benchmark:
 1. Creates a fresh algorithm instance from the appropriate Geneva factory and its JSON
    config file.
 2. Creates a `GFunctionIndividual` seeded with the chosen benchmark function.
-3. Calls `optimize()`. Every generation the broker dispatches the population to
-   `GCUDABatchConsumer`, which evaluates all individuals in one CUDA kernel launch and
-   returns the fitness values to the algorithm without touching `fitnessCalculation()`.
+3. Calls `optimize()`. Every generation the broker dispatches the population to the unified
+   courtier GPU consumer (`Gem::Courtier::GPU::GGPUConsumerT`, the SAME one example 15 uses),
+   which evaluates all individuals in one bulk, runtime-compiled kernel launch and returns the
+   fitness values to the algorithm without touching `fitnessCalculation()`.
 4. A pluggable monitor (`GBenchmarkTerminationMonitor`) records the final fitness,
    iteration count, wall-clock time, and termination reason at the end of each run.
 5. After all repetitions of one algorithm tag, mean and standard deviation are computed
@@ -34,21 +35,22 @@ would arise if each run used its own `Go2` instance.
 | Requirement | Version |
 |-------------|---------|
 | Geneva library (built) | ≥ 1.11 |
-| CUDA toolkit | ≥ 11.0 |
-| GPU compute capability | 8.0 / 8.6 / 8.9 (RTX 30/40 series) |
 | CMake | ≥ 3.27 |
 | GCC | ≥ 13 (C++20) |
 | Boost | ≥ 1.90 (program_options, property_tree) |
 
-GPU support for other compute capabilities can be added by editing
-`CUDA_ARCHITECTURES` in `CMakeLists.txt`.
+The benchmark itself builds with an ordinary C++ toolchain — it does **not** require the CUDA
+language at build time. The GPU backends live in the optional `gemfony-courtier-gpu` add-on: a CUDA
+toolkit enables the CUDA backend, an OpenCL SDK enables the OpenCL backend. With neither, set
+`backend` to `cpu` in `config/GGPUConsumer.json` to run on the CPU (the marshaller's host reference).
+The device/backend and kernel are chosen at run time, so no compute-capability list needs editing.
 
 ---
 
 ## Building
 
-The benchmark is built as part of the `benchmarks-geneva` target when
-`CMAKE_CUDA_COMPILER_LOADED` is true (i.e., CUDA was found by CMake).
+The benchmark is built as part of the `benchmarks-geneva` target (and the default build) whenever
+benchmarks are enabled — it no longer depends on CUDA being found at configure time.
 
 ```bash
 # From an existing out-of-source Geneva build directory:
@@ -217,34 +219,31 @@ A human-readable summary table is also printed to stdout at the end of the run.
 
 ```
 GCUDAOptBenchmarkMain.cpp   (C++20, compiled by GCC)
-  main() — parses config, creates GenevaInitializer, calls
-           createAndEnrollCUDAConsumer(), runs GAlgorithmBenchmarkRunner,
-           writes output via GBenchmarkResultWriter.
+  main() — parses config, creates GenevaInitializer, builds a broker holding a
+           Gem::Courtier::GPU::GGPUConsumerT<GParameterSet> + GBenchmarkGPUMarshaller
+           (the SAME unified GPU consumer example 15 uses), runs
+           GAlgorithmBenchmarkRunner, writes output via GBenchmarkResultWriter.
+           There is no build-time CUDA compilation unit any more.
 
-GCUDAOptBenchmark.cu        (C++17, compiled by NVCC)
-  createAndEnrollCUDAConsumer() — creates GCUDABatchConsumer and enrolls it
-           with broker<GParameterSet>(). Isolated here to avoid pulling
-           GenevaInitializer.hpp (which uses C++20 std::map::contains()) into
-           NVCC's C++17 compilation unit.
+GBenchmarkGPUMarshaller.hpp
+  GBenchmarkGPUMarshaller — a Gem::Courtier::GPU::GGPUEvaluableI marshaller: flattens a batch of
+           GFunctionIndividuals into a row-major device buffer, passes the benchmark function id
+           (read from the batch) as the opaque problem constant, and injects the device-computed
+           fitness back via process(). Its host reference reuses the shared function math
+           (geneva/individuals/GBenchmarkFunctions.hpp), so a CPU run cross-checks the GPU.
+
+kernels/benchmark_eval.cu / .cl
+  The evaluation kernel, loaded and compiled at RUN TIME (NVRTC for CUDA, clBuildProgram for
+           OpenCL) by the consumer's backend. One thread per individual; it mirrors the 15 functions
+           of GBenchmarkFunctions.hpp (funcId 0..14). Edit the kernel + rerun — no rebuild needed.
 
 GAlgorithmBenchmarkRunner.hpp/.cpp   (C++20, CUDA-agnostic)
   GBenchmarkTerminationMonitor — GBasePluggableOM subclass; captures
            termination reason, final fitness, and iteration count at INFOEND.
   GAlgorithmBenchmarkRunner — drives the nested run loop; creates algorithms
            via Geneva factories (not Go2, to avoid repeated broker finalization);
-           calls GStandardDeviation for aggregation.
-
-GBenchmarkCUDAConsumer.hpp  (included only from CUDA translation units)
-  GCUDABatchConsumer — GBaseConsumerT<GParameterSet> subclass; collects
-           individuals from the broker, evaluates them on the GPU via
-           GBenchmarkCUDAContext, injects fitness via process(), returns
-           evaluated individuals to the broker.
-
-GBenchmarkBatchEvaluator.cu/.cuh
-  CUDA kernel + GBenchmarkCUDAContext — stateful context that reuses device
-           buffers across generations to avoid repeated cudaMalloc overhead.
-           Kernel assigns one thread per individual; funcId maps directly to
-           the solverFunction enum integers 0–14.
+           parses the benchmark-function name (or id) and calls GStandardDeviation
+           for aggregation.
 
 GBenchmarkResultWriter.hpp/.cpp
   Static CSV and stdout writer.
@@ -258,7 +257,7 @@ GBenchmarkRunResult.hpp
 ### Broker / consumer lifecycle
 
 `GenevaInitializer` is constructed once in `main()` and lives for the duration of
-the process. `GCUDABatchConsumer` is enrolled with `broker<GParameterSet>()` once,
+the process. The `GGPUConsumerT` is enrolled with `broker<GParameterSet>()` once,
 before any optimization starts. Algorithm instances are created per-run via Geneva
 factories (`GEvolutionaryAlgorithmFactory`, etc.), which default to broker-mode
 execution and therefore route all evaluations through the already-enrolled consumer.

@@ -27,20 +27,15 @@
 #
 ################################################################################
 
-IF(CMAKE_CUDA_COMPILER_LOADED)
-    SET(_CUDA_BENCHMARK_DEPS GCUDAOptBenchmarkTest GCUDAOptBenchmark)
-ELSE()
-    SET(_CUDA_BENCHMARK_DEPS)
-ENDIF()
-
 ADD_SUBDIRECTORY ( GBrokerOverhead )
 ADD_SUBDIRECTORY ( GBrokerSanityChecks )
 ADD_SUBDIRECTORY ( GOptimizationBenchmark )
 ADD_SUBDIRECTORY ( GParallelisationOverhead )
 ADD_SUBDIRECTORY ( GSerializationOverhead )
 
-IF(CMAKE_CUDA_COMPILER_LOADED)
-    ADD_SUBDIRECTORY ( GCUDAOptBenchmark )
-ENDIF()
+# The GPU optimisation benchmark drives the unified courtier GPU consumer. Like example 15 its kernel
+# is runtime-compiled (NVRTC/OpenCL), so it no longer needs the CUDA language enabled at build time --
+# it builds with an ordinary C++ toolchain and selects CPU/CUDA/OpenCL at run time.
+ADD_SUBDIRECTORY ( GCUDAOptBenchmark )
 
 GENEVA_AGGREGATE_TARGET( "benchmarks-geneva" )

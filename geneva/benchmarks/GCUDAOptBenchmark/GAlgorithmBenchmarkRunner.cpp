@@ -33,15 +33,58 @@
 
 #include "GAlgorithmBenchmarkRunner.hpp"
 
+#include <algorithm>
+#include <cctype>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 #include <tuple>
 
 
 #include "common/GCommonMathHelperFunctionsT.hpp"
 
 namespace Gem::Geneva::Benchmarks {
+
+namespace {
+
+/******************************************************************************/
+/**
+ * @brief Maps a benchmark-function name (e.g. "PARABOLA", "ackley_canonical") to the corresponding
+ * GFunctionIndividual demo function. The names match the solverFunction enum identifiers (and the
+ * Gem::Geneva::Benchmarks::FUNC_* ids, 0..14). A plain integer id is also accepted. An unrecognised
+ * value is a fatal config error.
+ */
+gind::solverFunction parseBenchmarkFunction(const std::string &name) {
+    static const char *const kNames[] = {
+        "PARABOLA", "NOISYPARABOLA", "ROSENBROCK", "ACKLEY", "RASTRIGIN",
+        "SCHWEFEL", "SALOMON", "NEGPARABOLA", "ACKLEY_CANONICAL", "GRIEWANK",
+        "LEVY", "STYBLINSKI_TANG", "ELLIPSOID", "MICHALEWICZ", "ZAKHAROV"};
+    constexpr int kCount = static_cast<int>(sizeof(kNames) / sizeof(kNames[0]));
+
+    std::string up = name;
+    std::transform(up.begin(), up.end(), up.begin(),
+                   [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
+    for(int i = 0; i < kCount; ++i) {
+        if(up == kNames[i]) {
+            return static_cast<gind::solverFunction>(i);
+        }
+    }
+    // Integer fallback: accept "0".."14" as well.
+    try {
+        std::size_t pos = 0;
+        const int v = std::stoi(name, &pos);
+        if(pos == name.size() && v >= 0 && v < kCount) {
+            return static_cast<gind::solverFunction>(v);
+        }
+    } catch(...) {
+        /* fall through to the throw below */
+    }
+    throw std::invalid_argument(
+        "GAlgorithmBenchmarkRunner: unknown benchmarkFunction '" + name + "'");
+}
+
+} // namespace
 
 /******************************************************************************/
 
@@ -122,17 +165,7 @@ GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(
     // benchmarkFunction overrides whatever GFunctionIndividual.json specifies;
     // an unrecognised name is a fatal config error, not a silent fallback.
     auto ind = indFactory->get_as<gind::GFunctionIndividual>();
-    {
-        std::istringstream iss(cfg_.functionName);
-        gind::solverFunction sf{};
-        iss >> sf;
-        if (iss.fail()) {
-            throw std::invalid_argument(
-                "GAlgorithmBenchmarkRunner: unknown benchmarkFunction '"
-                + cfg_.functionName + "'");
-        }
-        ind->setDemoFunction(sf);
-    }
+    ind->setDemoFunction(parseBenchmarkFunction(cfg_.functionName));
     alg->push_back(ind);
 
     // Time the optimization

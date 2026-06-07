@@ -27,151 +27,63 @@
 #
 ################################################################################
 
-ENABLE_LANGUAGE(CUDA)
+# Multi-algorithm GPU optimisation benchmark. It is evaluated through the SAME unified courtier GPU
+# consumer (gemfony-courtier-gpu) that example 15 uses -- a whole population scored in one bulk,
+# runtime-compiled kernel launch. The kernel (kernels/benchmark_eval.cu via NVRTC, or .cl via OpenCL)
+# is loaded at run time, so this target no longer enables the CUDA language at build time: it builds
+# with an ordinary C++ toolchain and the backend (cpu/cuda/opencl) is chosen in config/GGPUConsumer.json.
 
-# CUDA standard — C++17 is required inside .cu files (lambdas in G_CALLABLE
-# functions); the host code is compiled as C++20 by the normal CXX rules.
-set(CMAKE_CUDA_STANDARD 20)
-set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+SET ( EXECUTABLENAME GCUDAOptBenchmark )
 
-# ---------------------------------------------------------------------------
-# libstdc++ ABI workaround
-#
-# The CUDA toolkit ships its own bundled host compiler (often an older GCC).
-# Its libstdc++.so may lack the CXXABI version required by Geneva's shared
-# libraries (built with a newer GCC).  Detect the CXX compiler's own
-# libstdc++.so and link it explicitly to keep the right ABI version first.
-# ---------------------------------------------------------------------------
-if(CMAKE_CXX_COMPILER AND NOT DEFINED GENEVA_CXX_RUNTIME_LIB_DIR)
-    execute_process(
-        COMMAND "${CMAKE_CXX_COMPILER}" -print-file-name=libstdc++.so
-        OUTPUT_VARIABLE _cxx_libstdcxx_path
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-    if(_cxx_libstdcxx_path AND NOT _cxx_libstdcxx_path STREQUAL "libstdc++.so")
-        get_filename_component(_cxx_lib_dir "${_cxx_libstdcxx_path}" DIRECTORY)
-        set(GENEVA_CXX_RUNTIME_LIB_DIR "${_cxx_lib_dir}"
-            CACHE INTERNAL "CXX runtime lib dir for CUDA link fix")
-    endif()
-    unset(_cxx_libstdcxx_path)
-    unset(_cxx_lib_dir)
-endif()
-
-# ---------------------------------------------------------------------------
-# Target
-# ---------------------------------------------------------------------------
-SET(EXECUTABLENAME GCUDAOptBenchmarkTest)
-
-SET(${EXECUTABLENAME}_SRCS
-    GBenchmarkCUDATest.cpp
-    GBenchmarkBatchEvaluator.cu
+ADD_EXECUTABLE ( ${EXECUTABLENAME}
+	GCUDAOptBenchmarkMain.cpp
+	GAlgorithmBenchmarkRunner.cpp
+	GBenchmarkResultWriter.cpp
 )
 
-ADD_EXECUTABLE(${EXECUTABLENAME}
-    ${${EXECUTABLENAME}_SRCS}
+SET_TARGET_PROPERTIES ( ${EXECUTABLENAME} PROPERTIES
+	CXX_STANDARD 20
+	CXX_STANDARD_REQUIRED ON
+	CXX_EXTENSIONS OFF
 )
 
-# RTX 4090 = compute capability 8.9; keep 80/86 for broader compatibility.
-set_target_properties(${EXECUTABLENAME} PROPERTIES
-    CUDA_ARCHITECTURES "80;86;89"
+TARGET_INCLUDE_DIRECTORIES ( ${EXECUTABLENAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
+
+# The GPU consumer add-on (carries the CUDA/OpenCL backends + NVRTC + the libstdc++ ABI fix), the
+# Geneva libraries and Boost. gemfony-courtier-gpu is the optional add-on built next to courtier.
+SET ( LIBRARIES_TO_LINK
+	${COURTIER_GPU_LIBNAME}
+	${GENEVA_LIBRARIES}
+	${Boost_LIBRARIES}
 )
+IF ( GENEVA_BUILD_WITH_MPI_CONSUMER )
+	SET ( LIBRARIES_TO_LINK ${LIBRARIES_TO_LINK} ${MPI_LIBRARIES} )
+ENDIF ()
 
-# --extended-lambda: required by levy() which captures nothing but uses a
-# local lambda inside a __host__ __device__ function.
-target_compile_options(${EXECUTABLENAME} PRIVATE
-    $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>
-)
-
-# Make the benchmark source directory visible so #include "GBenchmarkBatchEvaluator.cuh"
-# resolves without a path prefix.
-target_include_directories(${EXECUTABLENAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
-
-SET(LIBRARIES_TO_LINK
-    ${GENEVA_LIBRARIES}
-    ${Boost_LIBRARIES}
-)
-
-IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-    SET(LIBRARIES_TO_LINK ${LIBRARIES_TO_LINK} ${MPI_LIBRARIES})
-ENDIF()
-
-TARGET_LINK_LIBRARIES(${EXECUTABLENAME} PRIVATE
-    ${LIBRARIES_TO_LINK}
-)
-
-# Link the CXX compiler's libstdc++.so by full path (see ABI note above).
-if(DEFINED GENEVA_CXX_RUNTIME_LIB_DIR AND
-   EXISTS "${GENEVA_CXX_RUNTIME_LIB_DIR}/libstdc++.so")
-    target_link_libraries(${EXECUTABLENAME} PRIVATE
-        "${GENEVA_CXX_RUNTIME_LIB_DIR}/libstdc++.so"
-    )
-endif()
+TARGET_LINK_LIBRARIES ( ${EXECUTABLENAME} PRIVATE ${LIBRARIES_TO_LINK} )
 
 # CLion workaround: expose headers as a custom target so the IDE indexes them.
-SET(GBENCHMARK_CUDA_HEADERS
-    GBenchmarkBatchEvaluator.cuh
-    GBenchmarkCUDAConsumer.hpp
-    GBenchmarkRunResult.hpp
-    GAlgorithmBenchmarkRunner.hpp
-    GBenchmarkResultWriter.hpp
-    GCUDAOptBenchmarkMain.cpp
+SET ( GBENCHMARK_HEADERS
+	GBenchmarkGPUMarshaller.hpp
+	GBenchmarkRunResult.hpp
+	GAlgorithmBenchmarkRunner.hpp
+	GBenchmarkResultWriter.hpp
 )
-ADD_CUSTOM_TARGET(CLION_GBENCHMARKCUDA_HEADERS SOURCES ${GBENCHMARK_CUDA_HEADERS})
+ADD_CUSTOM_TARGET ( CLION_GBENCHMARKCUDA_HEADERS SOURCES ${GBENCHMARK_HEADERS} )
 
-IF(GENEVA_RUN_BENCHMARKS_AS_TESTS)
-    ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-ENDIF()
+# Runtime assets. The kernels are runtime-loaded source, so copy them at BUILD time (POST_BUILD) --
+# editing a kernel + rebuilding then re-stages it, instead of the stale copy a configure-time
+# FILE(COPY) would leave. The config rarely changes, so a configure-time copy is fine for it.
+ADD_CUSTOM_COMMAND ( TARGET ${EXECUTABLENAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+		${CMAKE_CURRENT_SOURCE_DIR}/kernels ${CMAKE_CURRENT_BINARY_DIR}/kernels )
+FILE ( COPY ${CMAKE_CURRENT_SOURCE_DIR}/config DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
 
-INSTALL(TARGETS ${EXECUTABLENAME}
-    DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/${EXECUTABLENAME}
-)
+IF ( GENEVA_RUN_BENCHMARKS_AS_TESTS )
+	ADD_TEST ( ${EXECUTABLENAME} ${EXECUTABLENAME} )
+ENDIF ()
 
-# ---------------------------------------------------------------------------
-# GCUDAOptBenchmark — the main multi-algorithm comparison benchmark
-# ---------------------------------------------------------------------------
-SET(BENCHMARK_EXECNAME GCUDAOptBenchmark)
-
-SET(${BENCHMARK_EXECNAME}_SRCS
-    GCUDAOptBenchmarkMain.cpp
-    GCUDAOptBenchmark.cu
-    GAlgorithmBenchmarkRunner.cpp
-    GBenchmarkResultWriter.cpp
-    GBenchmarkBatchEvaluator.cu
-)
-
-ADD_EXECUTABLE(${BENCHMARK_EXECNAME}
-    ${${BENCHMARK_EXECNAME}_SRCS}
-)
-
-set_target_properties(${BENCHMARK_EXECNAME} PROPERTIES
-    CUDA_ARCHITECTURES "80;86;89"
-)
-
-target_compile_options(${BENCHMARK_EXECNAME} PRIVATE
-    $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>
-)
-
-target_include_directories(${BENCHMARK_EXECNAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
-
-TARGET_LINK_LIBRARIES(${BENCHMARK_EXECNAME} PRIVATE
-    ${LIBRARIES_TO_LINK}
-)
-
-if(DEFINED GENEVA_CXX_RUNTIME_LIB_DIR AND
-   EXISTS "${GENEVA_CXX_RUNTIME_LIB_DIR}/libstdc++.so")
-    target_link_libraries(${BENCHMARK_EXECNAME} PRIVATE
-        "${GENEVA_CXX_RUNTIME_LIB_DIR}/libstdc++.so"
-    )
-endif()
-
-# Install the benchmark and its config files
-INSTALL(TARGETS ${BENCHMARK_EXECNAME}
-    DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/${BENCHMARK_EXECNAME}
-)
-INSTALL(DIRECTORY config/
-    DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/${BENCHMARK_EXECNAME}/config
-)
+INSTALL ( TARGETS ${EXECUTABLENAME}
+	DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/${EXECUTABLENAME} )
+INSTALL ( DIRECTORY config kernels
+	DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/${EXECUTABLENAME} )

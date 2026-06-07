@@ -2,12 +2,12 @@
  * @file GCUDAOptBenchmarkMain.cpp
  *
  * Main driver for the GPU-accelerated algorithm comparison benchmark.
- * This file is compiled as C++20 (by the host CXX compiler) and therefore
- * may include GenevaInitializer.hpp which uses C++20 std::map::contains().
  *
- * CUDA-specific code lives in GCUDAOptBenchmark.cu which is compiled with
- * NVCC at C++17.  The consumer is created there and returned via
- * createAndEnrollCUDAConsumer(), keeping this file free of CUDA headers.
+ * The whole population of each generation is scored in one bulk, runtime-compiled kernel launch
+ * through the unified courtier GPU consumer (Gem::Courtier::GPU::GGPUConsumerT) -- the SAME consumer
+ * example 15 uses. There is no build-time CUDA compilation unit any more: the kernel
+ * (kernels/benchmark_eval.cu via NVRTC, or .cl via OpenCL) is loaded at run time, and the backend
+ * (cpu/cuda/opencl) is selected in config/GGPUConsumer.json.
  */
 
 /********************************************************************************
@@ -52,18 +52,16 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
+#include "courtier/GBrokerT.hpp"
+#include "courtier/gpu/GGPUConsumer.hpp"
 #include "geneva/GenevaInitializer.hpp"
 #include "GAlgorithmBenchmarkRunner.hpp"
+#include "GBenchmarkGPUMarshaller.hpp"
 #include "GBenchmarkResultWriter.hpp"
 
 namespace po = boost::program_options;
 using namespace Gem::Geneva;
 using namespace Gem::Geneva::Benchmarks;
-
-/******************************************************************************/
-// Forward declaration — implemented in GCUDAOptBenchmark.cu. Builds a courtier broker holding the
-// GPU consumer; handed to the runner, which injects it into every algorithm via setBroker().
-std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>> createCUDABroker();
 
 /******************************************************************************/
 /**
@@ -163,9 +161,18 @@ int main(int argc, char **argv) {
     // Initialize Geneva — must outlive the runner and all optimization.
     Gem::Geneva::GenevaInitializer gi;
 
-    // Build the courtier broker holding the GPU consumer (implemented in GCUDAOptBenchmark.cu).
-    // Keeps this file free of CUDA headers so it compiles as C++20.
-    auto cudaBroker = createCUDABroker();
+    // Build the courtier broker holding the unified GPU consumer (the SAME GGPUConsumerT example 15
+    // uses). The whole population is scored in one bulk, runtime-compiled kernel launch; the backend
+    // (cpu/cuda/opencl) and kernel are selected in config/GGPUConsumer.json. The clone function is the
+    // polymorphic GParameterSet clone needed by the clone-on-partial-return policy.
+    auto marshaller = std::make_shared<GBenchmarkGPUMarshaller>();
+    auto consumer = std::make_shared<Gem::Courtier::GPU::GGPUConsumerT<gpar::GParameterSet>>(
+        "./config/GGPUConsumer.json", marshaller);
+    consumer->setCloneFunction([](const std::shared_ptr<gpar::GParameterSet> &p) {
+        return p->clone<gpar::GParameterSet>();
+    });
+    auto cudaBroker = std::make_shared<Gem::Courtier::GBrokerT<gpar::GParameterSet>>();
+    cudaBroker->registerConsumer(consumer);
 
     GAlgorithmBenchmarkRunner runner(cfg, cudaBroker);
     const auto results = runner.run();
