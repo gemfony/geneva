@@ -1328,14 +1328,14 @@ void compare_base_t(base_type const &x, base_type const &y, GToken &token) {
  */
 template <typename T>
 struct member_t {
-    std::string name;
+    const char* name;
     T &ref; // T& in a non-const context, T const& in a const context
 };
 
 /** @brief Builds one named member reference for a localMembers() tuple. */
 template <typename T>
-member_t<T> make_member(std::string name, T &ref) {
-    return member_t<T>{std::move(name), ref};
+member_t<T> make_member(const char* name, T &ref) {
+    return member_t<T>{name, ref};
 }
 
 /******************************************************************************/
@@ -1359,13 +1359,13 @@ member_t<T> make_member(std::string name, T &ref) {
  */
 template <typename T>
 struct cloneable_member_t {
-    std::string name;
+    const char* name;
     T &ref; ///< a std::shared_ptr<Cloneable> (const& in a const context)
 };
 
 template <typename T>
 struct cloneable_container_member_t {
-    std::string name;
+    const char* name;
     T &ref; ///< a container of std::shared_ptr<Cloneable> (const& in a const context)
 };
 
@@ -1378,26 +1378,26 @@ struct cloneable_container_member_t {
  */
 template <typename T>
 struct atomic_member_t {
-    std::string name;
+    const char* name;
     T &ref; ///< a std::atomic<...> (const& in a const context)
 };
 
 /** @brief Builds one named, deep-cloned single-pointer member for a localMembers() tuple. */
 template <typename T>
-cloneable_member_t<T> make_cloneable_member(std::string name, T &ref) {
-    return cloneable_member_t<T>{std::move(name), ref};
+cloneable_member_t<T> make_cloneable_member(const char* name, T &ref) {
+    return cloneable_member_t<T>{name, ref};
 }
 
 /** @brief Builds one named, deep-cloned pointer-container member for a localMembers() tuple. */
 template <typename T>
-cloneable_container_member_t<T> make_cloneable_container_member(std::string name, T &ref) {
-    return cloneable_container_member_t<T>{std::move(name), ref};
+cloneable_container_member_t<T> make_cloneable_container_member(const char* name, T &ref) {
+    return cloneable_container_member_t<T>{name, ref};
 }
 
 /** @brief Builds one named atomic member for a localMembers() tuple. */
 template <typename T>
-atomic_member_t<T> make_atomic_member(std::string name, T &ref) {
-    return atomic_member_t<T>{std::move(name), ref};
+atomic_member_t<T> make_atomic_member(const char* name, T &ref) {
+    return atomic_member_t<T>{name, ref};
 }
 
 /******************************************************************************/
@@ -1470,13 +1470,12 @@ void g_compare_members(ATuple a, BTuple b, GToken &token) {
  * derive its member list from the same single localMembers() declaration that
  * load_() and compare_() already use, keeping the member list in one place.
  *
- * The temporary tuple passed by value keeps its name strings alive for the full
- * duration of the call, during which the (ar & ...) operations run -- so the
- * c_str() pointers handed to make_nvp remain valid.
+ * The member names are compile-time string literals (const char*) with static
+ * storage duration, so the pointers handed to make_nvp are always valid.
  */
 template <typename Archive, typename Tuple, std::size_t... I>
 void serialize_members_impl(Archive& ar, Tuple& members, std::index_sequence<I...>) {
-    ((ar & boost::serialization::make_nvp(std::get<I>(members).name.c_str(), std::get<I>(members).ref)), ...);
+    ((ar & boost::serialization::make_nvp(std::get<I>(members).name, std::get<I>(members).ref)), ...);
 }
 template <typename Archive, typename Tuple>
 void serialize_members(Archive& ar, Tuple members) {
