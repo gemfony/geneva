@@ -72,7 +72,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /**
  * Identifies which courtier LOCAL consumer an algorithm should submit through when courtier
  * routing is active (Phase-7 increment 1). Go2 maps the chosen parallelisation mnemonic onto one of
- * these and plumbs it into the algorithm via GBase::setLocalConsumer(). "none" (the
+ * these and plumbs it into the algorithm via GOptimizationAlgorithmBase::setLocalConsumer(). "none" (the
  * default) means "do not route through courtier" -- the legacy executor path is used instead.
  */
 enum class local_consumer_kind {
@@ -84,13 +84,13 @@ enum class local_consumer_kind {
 /******************************************************************************/
 /*
  * This is a collection of simple pluggable modules suitable for emitting certain specialized
- * information from within optimization algorithms. They can be plugged into GBase
+ * information from within optimization algorithms. They can be plugged into GOptimizationAlgorithmBase
  * derivatives. A requirement is that they implement a private function "informationFunction_"
  * according to the API of GBasePluggableOM .
  */
 
 // Forward declaration
-class GBase;
+class GOptimizationAlgorithmBase;
 
 /*******************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////
@@ -138,7 +138,7 @@ public:
 
     /***************************************************************************/
     /** @brief Access tp information about the current iteration */
-    void informationFunction(infoMode, GBase const *const);
+    void informationFunction(infoMode, GOptimizationAlgorithmBase const *const);
 
     /** @brief Allows to set the use_raw_evaluation_ variable */
     void setUseRawEvaluation(bool use_raw);
@@ -193,7 +193,7 @@ private:
 
     /** @brief Overload this function in derived classes, specifying actions for initialization, the optimization cycles and finalization. */
     virtual void
-    informationFunction_(infoMode, GBase const *const) = 0;
+    informationFunction_(infoMode, GOptimizationAlgorithmBase const *const) = 0;
 };
 
 /******************************************************************************/
@@ -205,10 +205,10 @@ private:
  * a given amount of time. The class also defines the interface functions common to these
  * algorithms, such as a general call to "optimize()".
  */
-class GBase // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GCommonInterfaceT<GBase>
+class GOptimizationAlgorithmBase // NOLINT(cppcoreguidelines-special-member-functions)
+  : public Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>
   , public Gem::Common::GPtrContainerT<gpar::GParameterSet>
-  , public Interface::GOptimizerIT<GBase> {
+  , public Interface::GOptimizerIT<GOptimizationAlgorithmBase> {
 private:
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -306,7 +306,7 @@ private:
         using boost::serialization::make_nvp;
 
         // This is the CRTP category root. Its CRTP base
-        // (Gem::Common::GCommonInterfaceT<GBase>) carries no state and is therefore
+        // (Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>) carries no state and is therefore
         // not serialized as a base_object -- mirroring GObject, whose serialize() is
         // likewise empty. Only the stateful container base (GPtrContainerT), which is
         // a base-object rather than a local member, is serialized here.
@@ -327,18 +327,18 @@ private:
 public:
     // The private split-serialization member load(Archive&, unsigned) below
     // name-hides the public load(const&) / load(shared_ptr<>) inherited from
-    // Gem::Common::GCommonInterfaceT<GBase>. Re-expose them so callers (and
-    // the standard unit tests) can load one GBase from another.
-    using Gem::Common::GCommonInterfaceT<GBase>::load;
+    // Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>. Re-expose them so callers (and
+    // the standard unit tests) can load one GOptimizationAlgorithmBase from another.
+    using Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>::load;
 
     /** @brief The copy constructor */
-    GBase(GBase const &cp);
+    GOptimizationAlgorithmBase(GOptimizationAlgorithmBase const &cp);
 
     /***************************************************************************/
     // Defaulted functions
 
-    GBase() = default;
-    ~GBase() override = default;
+    GOptimizationAlgorithmBase() = default;
+    ~GOptimizationAlgorithmBase() override = default;
 
     /***************************************************************************/
 
@@ -510,7 +510,7 @@ public:
         if(pos >= this->size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GBase::individual_cast<>() : Error" << '\n'
+                << "In GOptimizationAlgorithmBase::individual_cast<>() : Error" << '\n'
                 << "Tried to access position " << pos << " which is >= array size " << this->size()
                 << '\n'
             );
@@ -552,18 +552,18 @@ protected:
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
     /** @brief Loads the data of another GOptimizationAlgorithm object */
-    void load_(const GBase *cp) override;
+    void load_(const GOptimizationAlgorithmBase *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GBase>(
-        GBase const &,
-        GBase const &,
+    friend void Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(
+        GOptimizationAlgorithmBase const &,
+        GOptimizationAlgorithmBase const &,
         Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GBase &cp,
+        const GOptimizationAlgorithmBase &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
@@ -646,11 +646,11 @@ private:
     // Overloaded or virtual base functions
 
     /** @brief This function encapsulates some common functionality of iteration-based optimization algorithms. */
-    GBase const *optimize_(std::uint32_t offset) final;
+    GOptimizationAlgorithmBase const *optimize_(std::uint32_t offset) final;
     /** @brief Emits a name for this class / object; this can be a long name with spaces */
     std::string name_() const override = 0;
     /** @brief Creates a deep clone of this object */
-    GBase *clone_() const override = 0;
+    GOptimizationAlgorithmBase *clone_() const override = 0;
 
     /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
     void runFitnessCalculation_() override = 0;
@@ -840,5 +840,5 @@ private:
 // specifiers are included in the macros, no need for an explicit namespace boost::serialization
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::OptimizationAlgorithms::GBasePluggableOM)             // NOLINT
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::OptimizationAlgorithms::GBase) // NOLINT
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::OptimizationAlgorithms::GOptimizationAlgorithmBase) // NOLINT
 /******************************************************************************/

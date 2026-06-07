@@ -38,7 +38,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include <cstddef>
@@ -216,7 +216,7 @@ std::string GGradientDescent::getAlgorithmName_() const {
  * @param e The expected outcome of the comparison
  */
 void GGradientDescent::compare_(
-    const GBase &cp,
+    const GOptimizationAlgorithmBase &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -224,12 +224,12 @@ void GGradientDescent::compare_(
 
     // Check that we are dealing with a GGradientDescent reference independent of this object and convert the pointer
     const GGradientDescent *p_load =
-        Gem::Common::g_convert_and_compare<GBase, GGradientDescent>(cp, this);
+        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GGradientDescent>(cp, this);
 
     GToken token("GGradientDescent", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GBase>(*this, *p_load, token);
+    Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration.
     // step_ratio_, dbl_lower_parameter_boundaries_, dbl_upper_parameter_boundaries_, adjusted_finite_step_
@@ -256,7 +256,7 @@ void GGradientDescent::resetToOptimizationStart_() {
 
     // There is no more work to be done here, so we simply call the
     // function of the parent class
-    GBase::resetToOptimizationStart_();
+    GOptimizationAlgorithmBase::resetToOptimizationStart_();
 }
 
 /******************************************************************************/
@@ -273,14 +273,14 @@ std::string GGradientDescent::name_() const {
  *
  * @param cp A pointer to another GGradientDescent object
  */
-void GGradientDescent::load_(const GBase *cp) {
+void GGradientDescent::load_(const GOptimizationAlgorithmBase *cp) {
     // Check that we are dealing with a GGradientDescent reference independent of this object and convert the pointer
     const GGradientDescent *p_load =
-        Gem::Common::g_convert_and_compare<GBase, GGradientDescent>(cp, this);
+        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GGradientDescent>(cp, this);
 
     // First load the parent class'es data.
     // This will also take care of copying all individuals.
-    GBase::load_(cp);
+    GOptimizationAlgorithmBase::load_(cp);
 
     // ... and then our own data, derived from the single localMembers() declaration.
     // step_ratio_, dbl_lower_parameter_boundaries_cnt_, dbl_upper_parameter_boundaries_cnt_
@@ -292,7 +292,7 @@ void GGradientDescent::load_(const GBase *cp) {
 /**
  * Creates a deep clone of this object
  */
-GBase *GGradientDescent::clone_() const {
+GOptimizationAlgorithmBase *GGradientDescent::clone_() const {
     return new GGradientDescent(*this);
 }
 
@@ -445,7 +445,7 @@ void GGradientDescent::updateParentIndividuals() {
  */
 void GGradientDescent::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    GBase::addConfigurationOptions_(gpb);
+    GOptimizationAlgorithmBase::addConfigurationOptions_(gpb);
 
     // Add local data
     gpb.registerFileParameter<std::size_t>(
@@ -533,7 +533,7 @@ void GGradientDescent::runFitnessCalculation_() {
  */
 void GGradientDescent::init() {
     // To be performed before any other action
-    GBase::init();
+    GOptimizationAlgorithmBase::init();
 
     // Extract the boundaries of all parameters
     this->at(0)->boundaries(
@@ -625,7 +625,7 @@ void GGradientDescent::updateDerivedQuantities() {
  */
 void GGradientDescent::finalize() {
     // Last action
-    GBase::finalize();
+    GOptimizationAlgorithmBase::finalize();
 }
 
 /******************************************************************************/
@@ -716,7 +716,7 @@ void GGradientDescent::adjustPopulation_() {
 #endif
 
     // Set the default size of the population
-    GBase::setDefaultPopulationSize(n_starting_points_ * (n_fp_parms_first_ + 1));
+    GOptimizationAlgorithmBase::setDefaultPopulationSize(n_starting_points_ * (n_fp_parms_first_ + 1));
 
     // First create a suitable number of start individuals and initialize them as required
     if(n_start < n_starting_points_) {
@@ -776,7 +776,7 @@ bool GGradientDescent::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GBase::modify_GUnitTests_()) {
+    if(GOptimizationAlgorithmBase::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -794,7 +794,7 @@ bool GGradientDescent::modify_GUnitTests_() {
 void GGradientDescent::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Call the parent class'es function
-    GBase::specificTestsNoFailureExpected_GUnitTests_();
+    GOptimizationAlgorithmBase::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
         "GGradientDescent::specificTestsNoFailureExpected_GUnitTests",
@@ -810,7 +810,7 @@ void GGradientDescent::specificTestsNoFailureExpected_GUnitTests_() {
 void GGradientDescent::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Call the parent class'es function
-    GBase::specificTestsFailuresExpected_GUnitTests_();
+    GOptimizationAlgorithmBase::specificTestsFailuresExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
         "GGradientDescent::specificTestsNoFailureExpected_GUnitTests",

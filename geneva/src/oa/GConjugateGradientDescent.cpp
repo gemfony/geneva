@@ -40,7 +40,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GConjugateGradientDescent_PersonalityTraits.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include <cstddef>
@@ -194,19 +194,19 @@ std::string GConjugateGradientDescent::getAlgorithmName_() const {
  * of the same type
  */
 void GConjugateGradientDescent::compare_(
-    const GBase &cp,
+    const GOptimizationAlgorithmBase &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
     const GConjugateGradientDescent *p_load =
-        Gem::Common::g_convert_and_compare<GBase, GConjugateGradientDescent>(cp, this);
+        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GConjugateGradientDescent>(cp, this);
 
     GToken token("GConjugateGradientDescent", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GBase>(*this, *p_load, token);
+    Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration.
     // dbl_lower_parameter_boundaries_, dbl_upper_parameter_boundaries_, adjusted_finite_step_,
@@ -231,7 +231,7 @@ void GConjugateGradientDescent::resetToOptimizationStart_() {
     prev_direction_.clear();
     cg_history_valid_.clear();
 
-    GBase::resetToOptimizationStart_();
+    GOptimizationAlgorithmBase::resetToOptimizationStart_();
 }
 
 /******************************************************************************/
@@ -246,12 +246,12 @@ std::string GConjugateGradientDescent::name_() const {
 /**
  * Loads the data of another population
  */
-void GConjugateGradientDescent::load_(const GBase *cp) {
+void GConjugateGradientDescent::load_(const GOptimizationAlgorithmBase *cp) {
     const GConjugateGradientDescent *p_load =
-        Gem::Common::g_convert_and_compare<GBase, GConjugateGradientDescent>(cp, this);
+        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GConjugateGradientDescent>(cp, this);
 
     // First load the parent class'es data (this also copies all individuals).
-    GBase::load_(cp);
+    GOptimizationAlgorithmBase::load_(cp);
 
     // ... and then our own (serialized) data, derived from the single localMembers() declaration.
     // adjusted_finite_step_, dbl*ParameterBoundaries_, prev_gradient_, prev_direction_,
@@ -263,7 +263,7 @@ void GConjugateGradientDescent::load_(const GBase *cp) {
 /**
  * Creates a deep clone of this object
  */
-GBase *GConjugateGradientDescent::clone_() const {
+GOptimizationAlgorithmBase *GConjugateGradientDescent::clone_() const {
     return new GConjugateGradientDescent(*this);
 }
 
@@ -474,7 +474,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
  */
 void GConjugateGradientDescent::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    GBase::addConfigurationOptions_(gpb);
+    GOptimizationAlgorithmBase::addConfigurationOptions_(gpb);
 
     gpb.registerFileParameter<std::size_t>(
         "n_starting_points",
@@ -542,7 +542,7 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
  */
 void GConjugateGradientDescent::init() {
     // To be performed before any other action
-    GBase::init();
+    GOptimizationAlgorithmBase::init();
 
     // Extract the boundaries of all active parameters
     this->at(0)->boundaries(
@@ -630,7 +630,7 @@ void GConjugateGradientDescent::resetCGState() {
  * Does any necessary finalization work
  */
 void GConjugateGradientDescent::finalize() {
-    GBase::finalize();
+    GOptimizationAlgorithmBase::finalize();
 }
 
 /******************************************************************************/
@@ -714,7 +714,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
     }
 #endif
 
-    GBase::setDefaultPopulationSize(
+    GOptimizationAlgorithmBase::setDefaultPopulationSize(
         n_starting_points_ * (n_fp_parms_first_ + 1)
     );
 
@@ -768,7 +768,7 @@ bool GConjugateGradientDescent::modify_GUnitTests_() {
 #ifdef GEM_TESTING
     bool result = false;
 
-    if(GBase::modify_GUnitTests_()) {
+    if(GOptimizationAlgorithmBase::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -785,7 +785,7 @@ bool GConjugateGradientDescent::modify_GUnitTests_() {
  */
 void GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-    GBase::specificTestsNoFailureExpected_GUnitTests_();
+    GOptimizationAlgorithmBase::specificTestsNoFailureExpected_GUnitTests_();
 #else  /* GEM_TESTING */
     Gem::Common::condnotset(
         "GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests",
@@ -800,7 +800,7 @@ void GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests_() {
  */
 void GConjugateGradientDescent::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-    GBase::specificTestsFailuresExpected_GUnitTests_();
+    GOptimizationAlgorithmBase::specificTestsFailuresExpected_GUnitTests_();
 #else  /* GEM_TESTING */
     Gem::Common::condnotset(
         "GConjugateGradientDescent::specificTestsFailuresExpected_GUnitTests",

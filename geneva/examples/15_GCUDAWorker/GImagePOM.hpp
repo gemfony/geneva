@@ -214,7 +214,7 @@ private:
      * Emits information at the various stages of the information cycle (initialization, during each
      * iteration, and during finalization).
      */
-    void informationFunction_(infoMode im, oa::GBase const *const goa) override {
+    void informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override {
         switch(im) {
         case Gem::Geneva::infoMode::INFOINIT: {
             // Make sure the target directory for result images exists.
@@ -242,7 +242,7 @@ private:
             }
 
             auto best_ptr =
-                goa->Interface::GOptimizerIT<oa::GBase>::getBestIterationIndividual<GImageIndividual>();
+                goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestIterationIndividual<GImageIndividual>();
 
             // Rasterise the candidate genome at the target resolution and write it out. The
             // genome scalar type is selected at compile time (gimage_fp_t), so streamline into
@@ -255,7 +255,7 @@ private:
                                   tgt.height, rgb);
 
             const std::uint32_t iteration =
-                goa->Interface::GOptimizerIT<oa::GBase>::getIteration();
+                goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getIteration();
             const double fitness = best_ptr->raw_fitness(0);
             const std::string resultFileName = resultImageDirectory_ + std::to_string(iteration) +
                                                "_" + std::to_string(fitness) + "_bestIndividual.png";

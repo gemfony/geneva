@@ -38,7 +38,7 @@
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/Interface/GOptimizerIT.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include <cstddef>
 #include <cstdint>
@@ -76,7 +76,7 @@ namespace Gem::Geneva {
  */
 void GStandardMonitor::informationFunction_(
     infoMode im,
-    oa::GBase const *const goa
+    oa::GOptimizationAlgorithmBase const *const goa
 ) {
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT: {
@@ -349,7 +349,7 @@ std::size_t GFitnessMonitor::getNMonitorIndividuals() const {
  */
 void GFitnessMonitor::informationFunction_(
     infoMode im,
-    oa::GBase const *const goa
+    oa::GOptimizationAlgorithmBase const *const goa
 ) {
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT: {
@@ -361,9 +361,9 @@ void GFitnessMonitor::informationFunction_(
     case Gem::Geneva::infoMode::INFOPROCESSING: {
         // Retrieve the list of globally- and iteration bests individuals
         auto global_bests =
-            goa->Interface::GOptimizerIT<oa::GBase>::template getBestGlobalIndividuals<gpar::GParameterSet>();
+            goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividuals<gpar::GParameterSet>();
         auto iter_bests =
-            goa->Interface::GOptimizerIT<oa::GBase>::template getBestIterationIndividuals<gpar::GParameterSet>();
+            goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestIterationIndividuals<gpar::GParameterSet>();
 
         // Retrieve the current iteration in the population
         std::uint32_t iteration = goa->getIteration();
@@ -621,7 +621,7 @@ GCollectiveMonitor::GCollectiveMonitor(const GCollectiveMonitor &cp)
  */
 void GCollectiveMonitor::informationFunction_(
     infoMode im,
-    oa::GBase const *const goa
+    oa::GOptimizationAlgorithmBase const *const goa
 ) {
     for(auto const &pm_ptr : pluggable_monitors_) {
         pm_ptr->informationFunction(im, goa);
@@ -1011,7 +1011,7 @@ bool GAllSolutionFileLogger::getShowIterationBoundaries() const {
  */
 void GAllSolutionFileLogger::informationFunction_(
     infoMode im,
-    oa::GBase const *const goa
+    oa::GOptimizationAlgorithmBase const *const goa
 ) {
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT: {
@@ -1079,7 +1079,7 @@ oa::GBasePluggableOM *GAllSolutionFileLogger::clone_() const {
  */
 void GAllSolutionFileLogger::printPopulation(
     const std::string &iteration_description,
-    oa::GBase const *const goa
+    oa::GOptimizationAlgorithmBase const *const goa
 ) {
     // Open the external file
     std::ofstream data(file_name_, std::ofstream::app); // NOLINT(cppcoreguidelines-init-variables)
@@ -1287,7 +1287,7 @@ bool GIterationResultsFileLogger::getUseTrueFitness() const {
  */
 void GIterationResultsFileLogger::informationFunction_(
     infoMode im,
-    oa::GBase const *const goa
+    oa::GOptimizationAlgorithmBase const *const goa
 ) {
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT: {
@@ -1573,7 +1573,7 @@ bool GNAdpationsLogger::getAddPrintCommand() const {
  */
 void GNAdpationsLogger::informationFunction_(
     infoMode im,
-    oa::GBase const *const goa
+    oa::GOptimizationAlgorithmBase const *const goa
 ) {
     using namespace Gem::Common;
 
@@ -1609,7 +1609,7 @@ void GNAdpationsLogger::informationFunction_(
 
         // Record the current fitness
         std::shared_ptr<gpar::GParameterSet> p =
-            goa->Interface::GOptimizerIT<oa::GBase>::template getBestGlobalIndividual<gpar::GParameterSet>();
+            goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividual<gpar::GParameterSet>();
         (*fitness_graph2_d_oa_) & std::tuple<double, double>(static_cast<double>(iteration), p->raw_fitness(0));
 
         // Update the largest known iteration and the number of recorded iterations
@@ -1619,7 +1619,7 @@ void GNAdpationsLogger::informationFunction_(
         // Do the actual logging
         if(monitor_best_only_) {
             std::shared_ptr<gpar::GParameterSet> best =
-                goa->Interface::GOptimizerIT<oa::GBase>::template getBestGlobalIndividual<gpar::GParameterSet>();
+                goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividual<gpar::GParameterSet>();
             n_adaptions_store_.emplace_back(static_cast<double>(iteration), static_cast<double>(best->getNAdaptions()));
         }
         else { // Monitor all individuals
@@ -2017,7 +2017,7 @@ std::size_t GProcessingTimesLogger::getNBinsY() const {
  */
 void GProcessingTimesLogger::informationFunction_(
     infoMode im,
-    oa::GBase const *const goa
+    oa::GOptimizationAlgorithmBase const *const goa
 ) {
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT: {

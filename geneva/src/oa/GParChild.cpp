@@ -35,7 +35,7 @@
 #include "common/GThreadPool.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GBaseParChildPersonalityTraits.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include <algorithm>
@@ -76,7 +76,7 @@ GParChild::GParChild() {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GParChild::compare_(
-    const GBase &cp,
+    const GOptimizationAlgorithmBase &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -84,12 +84,12 @@ void GParChild::compare_(
 
     // Check that we are dealing with a GParChild  reference independent of this object and convert the pointer
     const GParChild *p_load =
-        Gem::Common::g_convert_and_compare<GBase, GParChild>(cp, this);
+        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GParChild>(cp, this);
 
     GToken token("GParChild", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GBase>(*this, *p_load, token);
+    Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -106,7 +106,7 @@ void GParChild::compare_(
 void GParChild::resetToOptimizationStart_() {
     // There is nothing to reset here, so we simply call the
     // function of the parent class
-    GBase::resetToOptimizationStart_();
+    GOptimizationAlgorithmBase::resetToOptimizationStart_();
 }
 
 /******************************************************************************/
@@ -123,7 +123,7 @@ void GParChild::setPopulationSizes(
     std::size_t pop_size,
     std::size_t n_parents
 ) {
-    GBase::setDefaultPopulationSize(pop_size);
+    GOptimizationAlgorithmBase::setDefaultPopulationSize(pop_size);
     n_parents_ = n_parents;
     // Keep the expected number of children consistent with the (possibly newly set) sizes. This is
     // definitionally pop_size - n_parents; failing to update it here is why scheduled population
@@ -265,7 +265,7 @@ std::size_t GParChild::getMaxPopulationSize() const {
  */
 void GParChild::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    GBase::addConfigurationOptions_(gpb);
+    GOptimizationAlgorithmBase::addConfigurationOptions_(gpb);
 
     // Add local data
 
@@ -387,11 +387,11 @@ void GParChild::doRecombine() {
     // the per-individual RNG (gr_ is deliberately absent from localMembers()), so
     // children keep their own generators.
     Gem::Common::GThreadPool *tp = this->tp_ptr_.get();
-    const std::size_t n_children = GBase::data_cnt_.size() - n_parents_;
+    const std::size_t n_children = GOptimizationAlgorithmBase::data_cnt_.size() - n_parents_;
     if(tp != nullptr && amalgamation_likelihood_ <= 0. && n_children > 1) {
         const bool value_scheme =
             (duplicationScheme::VALUEDUPLICATIONSCHEME == recombination_method_)
-            && not GBase::inFirstIteration();
+            && not GOptimizationAlgorithmBase::inFirstIteration();
 
         // (1) Sequential parent selection -- mirrors the serial path's draws exactly.
         std::vector<std::size_t> parent_pos(n_children);
@@ -402,7 +402,7 @@ void GParChild::doRecombine() {
                 // too so the random-number stream stays identical.
                 (void) amalgamation_wanted(this->gr_);
                 if(value_scheme) {
-                    const double rand_test = GBase::uniform_real_distribution_(this->gr_);
+                    const double rand_test = GOptimizationAlgorithmBase::uniform_real_distribution_(this->gr_);
                     pp = n_parents_ - 1; // threshold[n_parents_-1] == 1, so a match is guaranteed
                     for(std::size_t par = 0; par < n_parents_; ++par) {
                         if(rand_test < threshold[par]) {
@@ -428,8 +428,8 @@ void GParChild::doRecombine() {
             const std::size_t child_idx = n_parents_ + c;
             const std::size_t pp = parent_pos[c];
             futures_cnt.push_back(tp->async_schedule([this, child_idx, pp]() {
-                std::shared_ptr<gpar::GParameterSet> &child = GBase::data_cnt_[child_idx];
-                child->load(GBase::data_cnt_[pp]);
+                std::shared_ptr<gpar::GParameterSet> &child = GOptimizationAlgorithmBase::data_cnt_[child_idx];
+                child->load(GOptimizationAlgorithmBase::data_cnt_[pp]);
                 child->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
                     ->setParentId(pp);
             }));
@@ -463,8 +463,8 @@ void GParChild::doRecombine() {
     // ------------------------------------------------------------------------
     // Serial path (original behaviour; also covers the cross-over / amalgamation case).
     std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator it;
-    for(it = GBase::data_cnt_.begin() + n_parents_;
-        it != GBase::data_cnt_.end();
+    for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
+        it != GOptimizationAlgorithmBase::data_cnt_.end();
         ++it) {
         // Retrieve a random number so we can decide whether to perform cross-over or duplication
         // If we do perform cross-over, we always cross the best individual with another random parent
@@ -494,7 +494,7 @@ void GParChild::doRecombine() {
 
             case duplicationScheme::VALUEDUPLICATIONSCHEME: {
                 if(n_parents_ == 1) {
-                    (*it)->load(*(GBase::data_cnt_.begin()));
+                    (*it)->load(*(GOptimizationAlgorithmBase::data_cnt_.begin()));
                     (*it)
                         ->GParameterSet::getPersonalityTraits<GBaseParChildPersonalityTraits>()
                         ->setParentId(0);
@@ -505,7 +505,7 @@ void GParChild::doRecombine() {
                     // value. Instead, this function might accidentaly trigger value
                     // calculation. Hence we fall back to random recombination in iteration 0.
                     // No value calculation takes place there.
-                    if(GBase::inFirstIteration()) {
+                    if(GOptimizationAlgorithmBase::inFirstIteration()) {
                         randomRecombine(*it);
                     }
                     else {
@@ -548,13 +548,13 @@ std::string GParChild::name_() const {
  *
  * @param cp A pointer to another GParChildT object
  */
-void GParChild::load_(const GBase *cp) {
+void GParChild::load_(const GOptimizationAlgorithmBase *cp) {
     // Check that we are dealing with a GParChild  reference independent of this object and convert the pointer
     const GParChild *p_load =
-        Gem::Common::g_convert_and_compare<GBase, GParChild>(cp, this);
+        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GParChild>(cp, this);
 
     // First load the parent class'es data ...
-    GBase::load_(cp);
+    GOptimizationAlgorithmBase::load_(cp);
 
     // ... and then our own data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -562,7 +562,7 @@ void GParChild::load_(const GBase *cp) {
 
 /******************************************************************************/
 /**
- * This function is called from GBase::optimize() and performs the
+ * This function is called from GOptimizationAlgorithmBase::optimize() and performs the
  * actual recombination, based on the recombination schemes defined by the user.
  *
  * Note that, in DEBUG mode, this implementation will enforce a minimum number of children,
@@ -611,8 +611,8 @@ std::tuple<std::size_t, std::size_t> GParChild::getAdaptionRange() const {
  */
 void GParChild::markParents() {
     typename std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator it;
-    for(it = GBase::data_cnt_.begin();
-        it != GBase::data_cnt_.begin() + n_parents_;
+    for(it = GOptimizationAlgorithmBase::data_cnt_.begin();
+        it != GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         ++it) {
         (*it)
             ->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
@@ -626,8 +626,8 @@ void GParChild::markParents() {
  */
 void GParChild::markChildren() {
     typename std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator it;
-    for(it = GBase::data_cnt_.begin() + n_parents_;
-        it != GBase::data_cnt_.end();
+    for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
+        it != GOptimizationAlgorithmBase::data_cnt_.end();
         ++it) {
         (*it)
             ->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
@@ -642,7 +642,7 @@ void GParChild::markChildren() {
  */
 void GParChild::markIndividualPositions() {
     std::size_t pos = 0;
-    for(const auto &individual : GBase::data_cnt_) {
+    for(const auto &individual : GOptimizationAlgorithmBase::data_cnt_) {
         individual
             ->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
             ->setPopulationPosition(pos++);
@@ -652,13 +652,13 @@ void GParChild::markIndividualPositions() {
 /******************************************************************************/
 /**
  * This function implements the logic that constitutes evolutionary algorithms. The
- * function is called by GBase for each cycle of the optimization,
+ * function is called by GOptimizationAlgorithmBase for each cycle of the optimization,
  *
  * @return The value of the best individual found
  */
 std::tuple<double, double> GParChild::cycleLogic_() {
     // If this is not the first iteration, check whether we need to increase the population
-    if(GBase::afterFirstIteration()) {
+    if(GOptimizationAlgorithmBase::afterFirstIteration()) {
         performScheduledPopulationGrowth();
     }
 
@@ -693,12 +693,12 @@ std::tuple<double, double> GParChild::cycleLogic_() {
 /******************************************************************************/
 /**
  * The function checks that the population size meets the requirements and does some
- * tagging. It is called from within GBase::optimize(), before the
+ * tagging. It is called from within GOptimizationAlgorithmBase::optimize(), before the
  * actual optimization cycle starts.
  */
 void GParChild::init() {
     // To be performed before any other action
-    GBase::init();
+    GOptimizationAlgorithmBase::init();
 
     // Perform some checks regarding population sizes
     populationSanityChecks_();
@@ -711,7 +711,7 @@ void GParChild::init() {
     // what the desired number of children is. This is particularly important, if, in a
     // network environment, some individuals might not return and some individuals return
     // late. The factual size of the population then changes and we need to take action.
-    default_n_children_ = GBase::getDefaultPopulationSize() - n_parents_;
+    default_n_children_ = GOptimizationAlgorithmBase::getDefaultPopulationSize() - n_parents_;
 }
 
 /******************************************************************************/
@@ -720,7 +720,7 @@ void GParChild::init() {
  */
 void GParChild::finalize() {
     // Last action
-    GBase::finalize();
+    GOptimizationAlgorithmBase::finalize();
 }
 
 /******************************************************************************/
@@ -729,16 +729,16 @@ void GParChild::finalize() {
  * population to the appropriate size, if required. An obvious precondition is that at
  * least one individual has been added to the population. Individuals that have already
  * been added will not be replaced. This function is called once before the optimization
- * cycle from within GBase::optimize()
+ * cycle from within GOptimizationAlgorithmBase::optimize()
  */
 void GParChild::adjustPopulation_() {
     // Has the population size been set at all ?
-    if(GBase::getDefaultPopulationSize() == 0) {
+    if(GOptimizationAlgorithmBase::getDefaultPopulationSize() == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParChild::adjustPopulation() :" << '\n'
             << "The population size is 0." << '\n'
-            << "Did you call GBase::setParentsAndPopulationSize() ?"
+            << "Did you call GOptimizationAlgorithmBase::setParentsAndPopulationSize() ?"
             << '\n'
         );
     }
@@ -756,7 +756,7 @@ void GParChild::adjustPopulation_() {
 
     // Do the smart pointers actually point to any objects ?
     typename std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator it;
-    for(const auto &individual : GBase::data_cnt_) {
+    for(const auto &individual : GOptimizationAlgorithmBase::data_cnt_) {
         if(not individual) { // shared_ptr can be implicitly converted to bool
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -767,15 +767,15 @@ void GParChild::adjustPopulation_() {
     }
 
     // Fill up as required. We are now sure we have a suitable number of individuals to do so
-    if(this_sz < GBase::getDefaultPopulationSize()) {
+    if(this_sz < GOptimizationAlgorithmBase::getDefaultPopulationSize()) {
         this->resize_clone(
-            GBase::getDefaultPopulationSize(),
-            GBase::data_cnt_[0]
+            GOptimizationAlgorithmBase::getDefaultPopulationSize(),
+            GOptimizationAlgorithmBase::data_cnt_[0]
         );
 
         // Randomly initialize new items
-        for(it = GBase::data_cnt_.begin() + this_sz;
-            it != GBase::data_cnt_.end();
+        for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + this_sz;
+            it != GOptimizationAlgorithmBase::data_cnt_.end();
             ++it) {
             (*it)->randomInit(activityMode::ACTIVEONLY);
         }
@@ -799,8 +799,8 @@ void GParChild::performScheduledPopulationGrowth() {
 
         // Add missing items as copies of the last individual in the list
         this->resize_clone(
-            GBase::getDefaultPopulationSize(),
-            GBase::data_cnt_[0]
+            GOptimizationAlgorithmBase::getDefaultPopulationSize(),
+            GOptimizationAlgorithmBase::data_cnt_[0]
         );
     }
 }
@@ -831,7 +831,7 @@ void GParChild::randomRecombine(std::shared_ptr<gpar::GParameterSet> &child) {
     }
 
     // Load the parent data into the individual
-    child->load(*(GBase::data_cnt_.begin() + parent_pos));
+    child->load(*(GOptimizationAlgorithmBase::data_cnt_.begin() + parent_pos));
 
     // Let the individual know the id of the parent
     child->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
@@ -855,12 +855,12 @@ void GParChild::valueRecombine(
 ) {
     bool done = false;
     double rand_test // get the test value // NOLINT(cppcoreguidelines-init-variables)
-        = GBase::uniform_real_distribution_(this->gr_);
+        = GOptimizationAlgorithmBase::uniform_real_distribution_(this->gr_);
 
     for(std::size_t par = 0; par < n_parents_; par++) {
         if(rand_test < threshold[par]) {
             // Load the parent's data
-            p->load(*(GBase::data_cnt_.begin() + par));
+            p->load(*(GOptimizationAlgorithmBase::data_cnt_.begin() + par));
             // Let the individual know the parent's id
             p->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
                 ->setParentId(par);
@@ -891,7 +891,7 @@ bool GParChild::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GBase::modify_GUnitTests_()) {
+    if(GOptimizationAlgorithmBase::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -910,7 +910,7 @@ bool GParChild::modify_GUnitTests_() {
 void GParChild::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Call the parent class'es function
-    GBase::specificTestsNoFailureExpected_GUnitTests_();
+    GOptimizationAlgorithmBase::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
@@ -927,7 +927,7 @@ void GParChild::specificTestsNoFailureExpected_GUnitTests_() {
 void GParChild::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Call the parent class'es function
-    GBase::specificTestsFailuresExpected_GUnitTests_();
+    GOptimizationAlgorithmBase::specificTestsFailuresExpected_GUnitTests_();
 
 #else  /* GEM_TESTING */
     Gem::Common::condnotset(

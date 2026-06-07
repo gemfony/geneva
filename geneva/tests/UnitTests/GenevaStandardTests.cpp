@@ -562,15 +562,15 @@ TEST_CASE(
 // so the class cannot be (de)serialised standalone. The fix follows the same proven
 // serialize_members pattern and is compile-checked.
 
-// Safety net for the oa::GBase serialize() refactor: oa::GBase is the central
+// Safety net for the oa::GOptimizationAlgorithmBase serialize() refactor: oa::GOptimizationAlgorithmBase is the central
 // serialised class for all optimization algorithms (checkpoints + network
 // transport). Its split save()/load() was collapsed into a single serialize()
 // after std::filesystem::path gained a free serialization. This test sets several
-// oa::GBase members -- in particular cp_directory_path_ (the path that forced the
+// oa::GOptimizationAlgorithmBase members -- in particular cp_directory_path_ (the path that forced the
 // former split) -- to NON-DEFAULT values and verifies they survive a round-trip in
 // all three modes, guarding against silently dropping a member.
 TEST_CASE(
-    "oa::GBase (via GEvolutionaryAlgorithm) round-trips its members incl. the checkpoint path",
+    "oa::GOptimizationAlgorithmBase (via GEvolutionaryAlgorithm) round-trips its members incl. the checkpoint path",
     "[geneva][serialization]"
 ) {
     using Gem::Common::serializationMode;
@@ -578,7 +578,7 @@ TEST_CASE(
     for (auto mode :
          {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
         oa::GEvolutionaryAlgorithm original;
-        // Set several oa::GBase members to non-default values via public setters.
+        // Set several oa::GOptimizationAlgorithmBase members to non-default values via public setters.
         // "." is an always-existing directory, so setCheckpointBaseName creates nothing.
         original.setCheckpointBaseName(".", "custom_checkpoint_base");
         original.setCheckpointInterval(7);
@@ -605,7 +605,7 @@ TEST_CASE(
         CHECK(restored.getMaxStallIteration() == 99);
 
         GEqualityPrinter gep(
-            "oa::GBase-roundtrip",
+            "oa::GOptimizationAlgorithmBase-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
         );

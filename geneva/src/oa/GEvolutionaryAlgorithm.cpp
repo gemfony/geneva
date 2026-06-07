@@ -41,7 +41,7 @@
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/individuals/GTestIndividual1.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GParChild.hpp"
 #include "geneva/par/GParameterSet.hpp"
@@ -92,7 +92,7 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm() {
   * @param limit The maximum deviation for floating point values (important for similarity checks)
   */
 void GEvolutionaryAlgorithm::compare_(
-    const GBase &cp // the other object
+    const GOptimizationAlgorithmBase &cp // the other object
     ,
     const Gem::Common::expectation &e // the expectation for this object, e.g. equality
     ,
@@ -102,7 +102,7 @@ void GEvolutionaryAlgorithm::compare_(
 
     // Check that we are dealing with a GEvolutionaryAlgorithm reference independent of this object and convert the pointer
     const GEvolutionaryAlgorithm *p_load =
-        Gem::Common::g_convert_and_compare<GBase, GEvolutionaryAlgorithm>(cp, this);
+        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GEvolutionaryAlgorithm>(cp, this);
 
     GToken token("GEvolutionaryAlgorithm", e);
 
@@ -227,7 +227,7 @@ void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
             clone,
             donotreplace
         );
-        // GBase::updateGlobalBestsPQ_(best_individuals);
+        // GOptimizationAlgorithmBase::updateGlobalBestsPQ_(best_individuals);
         break;
 
     //----------------------------------------------------------------------------
@@ -283,7 +283,7 @@ void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
             clone,
             donotreplace
         );
-        // GBase::updateIterationBestsPQ_(best_individuals);
+        // GOptimizationAlgorithmBase::updateIterationBestsPQ_(best_individuals);
     } break;
 
     //----------------------------------------------------------------------------
@@ -345,11 +345,11 @@ std::string GEvolutionaryAlgorithm::name_() const {
  *
   * @param cp A pointer to another GEvolutionaryAlgorithm object
   */
-void GEvolutionaryAlgorithm::load_(const GBase *cp) {
+void GEvolutionaryAlgorithm::load_(const GOptimizationAlgorithmBase *cp) {
     // Check that we are dealing with a GEvolutionaryAlgorithm reference independent
     // of this object and convert the pointer
     const GEvolutionaryAlgorithm *p_load =
-        Gem::Common::g_convert_and_compare<GBase, GEvolutionaryAlgorithm>(cp, this);
+        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GEvolutionaryAlgorithm>(cp, this);
 
     // First load the parent class's data ...
     GParChild::load_(cp);
@@ -364,7 +364,7 @@ void GEvolutionaryAlgorithm::load_(const GBase *cp) {
   *
   * @return A deep copy of this object
   */
-GBase *GEvolutionaryAlgorithm::clone_() const {
+GOptimizationAlgorithmBase *GEvolutionaryAlgorithm::clone_() const {
     return new GEvolutionaryAlgorithm(*this);
 }
 
@@ -782,7 +782,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GEvolutionaryAlgorithm::sortMuplusnuMode(): Error!" << '\n'
-                << "In iteration " << GBase::getIteration()
+                << "In iteration " << GOptimizationAlgorithmBase::getIteration()
                 << ": Found individual in position " << pos << '\n'
                 << " that is unprocessed." << '\n'
             );
@@ -793,9 +793,9 @@ void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
 
     // Only partially sort the arrays
     std::partial_sort(
-        GBase::data_cnt_.begin(),
-        GBase::data_cnt_.begin() + n_parents_,
-        GBase::data_cnt_.end(),
+        GOptimizationAlgorithmBase::data_cnt_.begin(),
+        GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_,
+        GOptimizationAlgorithmBase::data_cnt_.end(),
         [](const std::shared_ptr<gpar::GParameterSet> &x_ptr,
            const std::shared_ptr<gpar::GParameterSet> &y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
@@ -811,7 +811,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
  */
 void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
 #ifdef DEBUG
-    if(GBase::inFirstIteration()) {
+    if(GOptimizationAlgorithmBase::inFirstIteration()) {
         // Check that we do not accidentally trigger value calculation -- check the whole range
         typename GEvolutionaryAlgorithm::iterator it;
         for(it = this->begin(); it != this->end(); ++it) {
@@ -819,7 +819,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GEvolutionaryAlgorithm::sortMucommanuMode(): Error!" << '\n'
-                    << "In iteration " << GBase::getIteration()
+                    << "In iteration " << GOptimizationAlgorithmBase::getIteration()
                     << ": Found individual in position " << std::distance(this->begin(), it)
                     << '\n'
                     << " whose dirty flag is set." << '\n'
@@ -835,7 +835,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GEvolutionaryAlgorithm::sortMucommanuMode(): Error!" << '\n'
-                    << "In iteration " << GBase::getIteration()
+                    << "In iteration " << GOptimizationAlgorithmBase::getIteration()
                     << ": Found individual in position " << std::distance(this->begin(), it)
                     << '\n'
                     << " which is unprocessed." << '\n'
@@ -847,9 +847,9 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
 
     // Only sort the children
     std::partial_sort(
-        GBase::data_cnt_.begin() + n_parents_,
-        GBase::data_cnt_.begin() + 2 * n_parents_,
-        GBase::data_cnt_.end(),
+        GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_,
+        GOptimizationAlgorithmBase::data_cnt_.begin() + 2 * n_parents_,
+        GOptimizationAlgorithmBase::data_cnt_.end(),
         [](const std::shared_ptr<gpar::GParameterSet> &x_ptr,
            const std::shared_ptr<gpar::GParameterSet> &y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
@@ -857,9 +857,9 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
     );
 
     std::swap_ranges(
-        GBase::data_cnt_.begin(),
-        GBase::data_cnt_.begin() + n_parents_,
-        GBase::data_cnt_.begin() + n_parents_
+        GOptimizationAlgorithmBase::data_cnt_.begin(),
+        GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_,
+        GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_
     );
 }
 
@@ -882,7 +882,7 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GEvolutionaryAlgorithm::sortMunu1pretainMode(): Error!" << '\n'
-                << "In iteration " << GBase::getIteration()
+                << "In iteration " << GOptimizationAlgorithmBase::getIteration()
                 << ": Found individual in position " << std::distance(this->begin(), it)
                 << '\n'
                 << " whose dirty flag is set." << '\n'
@@ -893,9 +893,9 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 
     // Sort the children
     std::partial_sort(
-        GBase::data_cnt_.begin() + n_parents_,
-        GBase::data_cnt_.begin() + 2 * n_parents_,
-        GBase::data_cnt_.end(),
+        GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_,
+        GOptimizationAlgorithmBase::data_cnt_.begin() + 2 * n_parents_,
+        GOptimizationAlgorithmBase::data_cnt_.end(),
         [](const std::shared_ptr<gpar::GParameterSet> &x_ptr,
            const std::shared_ptr<gpar::GParameterSet> &y_ptr) -> bool {
             return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
@@ -904,25 +904,25 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 
     // Retrieve the best child's and the last generation's best parent's fitness
     double best_tranformed_child_fitness_min_only = minOnly_transformed_fitness(
-        *(GBase::data_cnt_.begin() + n_parents_)
+        *(GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_)
     );
     double best_tranformed_parent_fitness_min_only =
-        minOnly_transformed_fitness(*(GBase::data_cnt_.begin()));
+        minOnly_transformed_fitness(*(GOptimizationAlgorithmBase::data_cnt_.begin()));
 
     // Leave the best parent in place, if no better child was found
     if(best_tranformed_child_fitness_min_only < best_tranformed_parent_fitness_min_only) {
         // A better child was found. Overwrite all parents
         std::swap_ranges(
-            GBase::data_cnt_.begin(),
-            GBase::data_cnt_.begin() + n_parents_,
-            GBase::data_cnt_.begin() + n_parents_
+            GOptimizationAlgorithmBase::data_cnt_.begin(),
+            GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_,
+            GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_
         );
     }
     else {
         std::swap_ranges(
-            GBase::data_cnt_.begin() + 1,
-            GBase::data_cnt_.begin() + n_parents_,
-            GBase::data_cnt_.begin() + n_parents_
+            GOptimizationAlgorithmBase::data_cnt_.begin() + 1,
+            GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_,
+            GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_
         );
     }
 }

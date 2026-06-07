@@ -398,7 +398,7 @@ TEST_CASE("GSerializationHelperFunctionsT: time_point round-trips at millisecond
 //
 // Boost has no built-in support for std::filesystem::path. The free serialization
 // in GStdFilesystemPathSerialization.hpp stores a path as its string() and rebuilds
-// it on load, which is what lets path-holding classes (e.g. oa::GBase's
+// it on load, which is what lets path-holding classes (e.g. oa::GOptimizationAlgorithmBase's
 // cp_directory_path_) drop their hand-written save()/load() split. These tests
 // exercise that free serialization directly, for several representative paths and
 // through all three archive families.

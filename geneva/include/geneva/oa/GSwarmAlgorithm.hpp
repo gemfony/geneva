@@ -42,7 +42,7 @@
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/par/GParameterSet.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
 
 #ifdef GEM_TESTING
@@ -54,14 +54,14 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /******************************************************************************/
 /**
  * The GSwarmAlgorithm class implements a swarm optimization algorithm, based on the infrastructure
- * provided by the GBase class. Its population is based on a constant number
+ * provided by the GOptimizationAlgorithmBase class. Its population is based on a constant number
  * of neighborhoods, whose amount of members is allowed to vary. This happens so that late
  * arrivals in case of networked execution can still be integrated into later iterations.
  *
  * TODO: Mark checkpoints so the serialization mode can be determined automatically (e.g. using file extension ??)
  */
 class GSwarmAlgorithm // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBase {
+  : public GOptimizationAlgorithmBase {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -109,7 +109,7 @@ class GSwarmAlgorithm // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &make_nvp("GBase", boost::serialization::base_object<GBase>(*this));
+        ar &make_nvp("GOptimizationAlgorithmBase", boost::serialization::base_object<GOptimizationAlgorithmBase>(*this));
         // Unconditional members derived from the single localMembers() declaration ...
         Gem::Common::serialize_members(ar, this->localMembers());
         // ... and the manual tail for the conditionally-reconstructed members (kept as
@@ -220,7 +220,7 @@ protected:
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
     /** @brief Loads the data of another population */
-    void load_(const GBase *) override;
+    void load_(const GOptimizationAlgorithmBase *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GSwarmAlgorithm>(
@@ -231,7 +231,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GBase & // the other object
+        const GOptimizationAlgorithmBase & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -347,7 +347,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    GBase *clone_() const override;
+    GOptimizationAlgorithmBase *clone_() const override;
 
     /** @brief The actual business logic to be performed during each iteration; Returns the best achieved fitness */
     std::tuple<double, double> cycleLogic_() override;

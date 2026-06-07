@@ -43,7 +43,7 @@
 #include "common/GLogger.hpp"
 #include "common/GProviderT.hpp"
 #include "geneva/par/GParameterSet.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
 
@@ -60,16 +60,16 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * shared Gem::Common::GProviderT abstraction.
  */
 template <typename oaf_type>
-class GOAFactoryProviderT : public Gem::Common::GProviderT<GBase> {
+class GOAFactoryProviderT : public Gem::Common::GProviderT<GOptimizationAlgorithmBase> {
     // Make sure oaf_type has the expected type
     static_assert(
-        std::is_base_of_v<GOAFactoryT<GBase>, oaf_type>,
-        "GOAFactoryT<GBase> is not a base of oaf_type"
+        std::is_base_of_v<GOAFactoryT<GOptimizationAlgorithmBase>, oaf_type>,
+        "GOAFactoryT<GOptimizationAlgorithmBase> is not a base of oaf_type"
     );
 
 public:
-    std::shared_ptr<GBase> provide() override {
-        return factory_->Gem::Common::GFactoryT<GBase>::get();
+    std::shared_ptr<GOptimizationAlgorithmBase> provide() override {
+        return factory_->Gem::Common::GFactoryT<GOptimizationAlgorithmBase>::get();
     }
     std::string getMnemonic() const override { return factory_->getMnemonic(); }
     std::string getName() const override { return factory_->getAlgorithmName(); }
@@ -81,10 +81,10 @@ public:
     }
 
 private:
-    // Stored as the concrete factory base (GBase is not dependent here), so the
-    // qualified GFactoryT<GBase>::get() in provide() is well-formed; virtual
+    // Stored as the concrete factory base (GOptimizationAlgorithmBase is not dependent here), so the
+    // qualified GFactoryT<GOptimizationAlgorithmBase>::get() in provide() is well-formed; virtual
     // dispatch still reaches oaf_type's overrides.
-    std::shared_ptr<GOAFactoryT<GBase>> factory_{std::make_shared<oaf_type>()};
+    std::shared_ptr<GOAFactoryT<GOptimizationAlgorithmBase>> factory_{std::make_shared<oaf_type>()};
 };
 
 /******************************************************************************/

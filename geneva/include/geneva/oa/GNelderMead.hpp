@@ -44,7 +44,7 @@
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/par/GParameterSet.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GNelderMead_PersonalityTraits.hpp"
 
 #ifdef GEM_TESTING
@@ -99,7 +99,7 @@ constexpr std::size_t NM_CONTRACT = 2;
  * information.
  */
 class GNelderMead // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBase {
+  : public GOptimizationAlgorithmBase {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -131,7 +131,7 @@ class GNelderMead // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &make_nvp("GBase", boost::serialization::base_object<GBase>(*this));
+        ar &make_nvp("GOptimizationAlgorithmBase", boost::serialization::base_object<GOptimizationAlgorithmBase>(*this));
         // Member list derived from the single localMembers() declaration (same NVP
         // names/order as the previous explicit list).
         Gem::Common::serialize_members(ar, this->localMembers());
@@ -189,7 +189,7 @@ protected:
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
     /** @brief Loads the data of another population */
-    void load_(const GBase *) override;
+    void load_(const GOptimizationAlgorithmBase *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GNelderMead>(
@@ -200,7 +200,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GBase & // the other object
+        const GOptimizationAlgorithmBase & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -236,7 +236,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    GBase *clone_() const override;
+    GOptimizationAlgorithmBase *clone_() const override;
 
     /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
     std::tuple<double, double> cycleLogic_() override;

@@ -51,7 +51,7 @@
 #include "geneva/par/GParameterObjectCollection.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "geneva/Interface/GOptimizerIT.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GenevaInitializer.hpp"
@@ -77,7 +77,7 @@ void setRNFParameters(std::uint16_t);
 
 /******************************************************************************/
 /** Syntactic sugar -- make the code easier to read */
-using GOABase = oa::GBase;
+using GOABase = oa::GOptimizationAlgorithmBase;
 
 /******************************************************************************/
 /**
@@ -196,7 +196,7 @@ private:
     /***************************************************************************/
 
     // GOptimizerIT NVI hooks: keep these overrides private (do not
-    // widen access -- matches oa::GBase and the base's NVI contract).
+    // widen access -- matches oa::GOptimizationAlgorithmBase and the base's NVI contract).
     /** @brief Retrieves the best individual found */
     std::shared_ptr<gpar::GParameterSet> getBestGlobalIndividual_() const final;
     /** @brief Retrieves a list of the best individuals found */

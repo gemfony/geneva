@@ -264,7 +264,7 @@ public:
         }
                     throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GBase<>::getMaxIterationCL(): Error!" << '\n'
+                << "In GOptimizationAlgorithmBase<>::getMaxIterationCL(): Error!" << '\n'
                 << "max_iteration_cl_ wasn't set" << '\n'
             );
 
@@ -303,7 +303,7 @@ public:
         }
                     throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GBase<>::getMaxStallIterationCL(): Error!"
+                << "In GOptimizationAlgorithmBase<>::getMaxStallIterationCL(): Error!"
                 << '\n'
                 << "max_stall_iteration_cl_ wasn't set" << '\n'
             );
@@ -345,7 +345,7 @@ public:
         }
                     throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GBase<>::getMaxTimeCL(): Error!" << '\n'
+                << "In GOptimizationAlgorithmBase<>::getMaxTimeCL(): Error!" << '\n'
                 << "max_seconds_cl_ wasn't set" << '\n'
             );
 

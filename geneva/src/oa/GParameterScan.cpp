@@ -36,7 +36,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
 #include "geneva/par/GParameterPropertyParser.hpp"
 #include "geneva/par/GParameterSet.hpp"
@@ -318,7 +318,7 @@ std::ostream &operator<<(std::ostream &os, const parSet &p_s) {
  * @param cp A copy of another GradientDescent object
  */
 GParameterScan::GParameterScan(const GParameterScan &cp)
-  : GBase(cp)
+  : GOptimizationAlgorithmBase(cp)
   , cycle_logic_halt_(cp.cycle_logic_halt_)
   , scan_randomly_(cp.scan_randomly_)
   , n_monitor_inds_(cp.n_monitor_inds_)
@@ -374,7 +374,7 @@ std::size_t GParameterScan::getNProcessableItems_() const {
  * @param e The expected outcome of the comparison
  */
 void GParameterScan::compare_(
-    const GBase &cp,
+    const GOptimizationAlgorithmBase &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -382,12 +382,12 @@ void GParameterScan::compare_(
 
     // Check that we are dealing with a GParameterScan reference independent of this object and convert the pointer
     const GParameterScan *p_load =
-        Gem::Common::g_convert_and_compare<GBase, GParameterScan>(cp, this);
+        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GParameterScan>(cp, this);
 
     GToken token("GParameterScan", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GBase>(*this, *p_load, token);
+    Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
 
     // ... and then the unconditional plain local data, derived from the single localMembers() declaration
     g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -420,7 +420,7 @@ void GParameterScan::resetToOptimizationStart_() {
 
     // There is no more work to be done here, so we simply call the
     // function of the parent class
-    GBase::resetToOptimizationStart_();
+    GOptimizationAlgorithmBase::resetToOptimizationStart_();
 }
 
 /******************************************************************************/
@@ -455,14 +455,14 @@ std::size_t GParameterScan::getNMonitorInds() const {
  *
  * @param cp A pointer to another GParameterScan object
  */
-void GParameterScan::load_(const GBase *cp) {
+void GParameterScan::load_(const GOptimizationAlgorithmBase *cp) {
     // Check that we are dealing with a GParameterScan reference independent of this object and convert the pointer
     const GParameterScan *p_load =
-        Gem::Common::g_convert_and_compare<GBase, GParameterScan>(cp, this);
+        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GParameterScan>(cp, this);
 
     // First load the parent class'es data.
     // This will also take care of copying all individuals.
-    GBase::load_(cp);
+    GOptimizationAlgorithmBase::load_(cp);
 
     // ... and then our own unconditional plain data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -492,7 +492,7 @@ void GParameterScan::load_(const GBase *cp) {
  *
  * @return A deep copy of this object
  */
-GBase *GParameterScan::clone_() const {
+GOptimizationAlgorithmBase *GParameterScan::clone_() const {
     return new GParameterScan(*this);
 }
 
@@ -962,7 +962,7 @@ bool GParameterScan::customHalt_() const {
  */
 void GParameterScan::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    GBase::addConfigurationOptions_(gpb);
+    GOptimizationAlgorithmBase::addConfigurationOptions_(gpb);
 
     gpb.registerFileParameter<std::size_t>(
         "size" // The name of the first variable
@@ -1176,7 +1176,7 @@ bool GParameterScan::getScanRandomly() const {
  */
 void GParameterScan::init() {
     // To be performed before any other action
-    GBase::init();
+    GOptimizationAlgorithmBase::init();
 
     // Reset the custom halt criterion
     cycle_logic_halt_ = false;
@@ -1197,7 +1197,7 @@ void GParameterScan::init() {
  */
 void GParameterScan::finalize() {
     // Last action
-    GBase::finalize();
+    GOptimizationAlgorithmBase::finalize();
 }
 
 /******************************************************************************/
@@ -1268,7 +1268,7 @@ bool GParameterScan::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GBase::modify_GUnitTests_()) {
+    if(GOptimizationAlgorithmBase::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -1286,7 +1286,7 @@ bool GParameterScan::modify_GUnitTests_() {
 void GParameterScan::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Call the parent class'es function
-    GBase::specificTestsNoFailureExpected_GUnitTests_();
+    GOptimizationAlgorithmBase::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
         "GParameterScan::specificTestsNoFailureExpected_GUnitTests",
@@ -1302,7 +1302,7 @@ void GParameterScan::specificTestsNoFailureExpected_GUnitTests_() {
 void GParameterScan::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Call the parent class'es function
-    GBase::specificTestsFailuresExpected_GUnitTests_();
+    GOptimizationAlgorithmBase::specificTestsFailuresExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
         "GParameterScan::specificTestsNoFailureExpected_GUnitTests",

@@ -32,7 +32,7 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
 #include "geneva/oa/GParameterScan.hpp"
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
@@ -49,7 +49,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * The default constructor
  */
 GParameterScanFactory::GParameterScanFactory()
-  : GOAFactoryT<GBase>(
+  : GOAFactoryT<GOptimizationAlgorithmBase>(
         "./config/GParameterScan.json"
     ) { /* nothing */
 }
@@ -59,7 +59,7 @@ GParameterScanFactory::GParameterScanFactory()
  * Initialization with the name of the config file
  */
 GParameterScanFactory::GParameterScanFactory(std::filesystem::path const &config_file)
-  : GOAFactoryT<GBase>(config_file) { /* nothing */
+  : GOAFactoryT<GOptimizationAlgorithmBase>(config_file) { /* nothing */
 }
 
 /******************************************************************************/
@@ -71,7 +71,7 @@ GParameterScanFactory::GParameterScanFactory(
     std::filesystem::path const &config_file,
     std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> content_creator_ptr
 )
-  : GOAFactoryT<GBase>(
+  : GOAFactoryT<GOptimizationAlgorithmBase>(
         config_file,
         content_creator_ptr
     ) { /* nothing */
@@ -116,7 +116,7 @@ void GParameterScanFactory::addCLOptions(
     );
 
     // Add the parent class'es options
-    GOAFactoryT<GBase>::addCLOptions(visible, hidden);
+    GOAFactoryT<GOptimizationAlgorithmBase>::addCLOptions(visible, hidden);
 }
 
 /******************************************************************************/
@@ -149,7 +149,7 @@ void GParameterScanFactory::resetCLParameterSpecs() {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<GBase> GParameterScanFactory::getObject_(
+std::shared_ptr<GOptimizationAlgorithmBase> GParameterScanFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     [[maybe_unused]] const std::size_t & id
 ) {
@@ -168,16 +168,16 @@ std::shared_ptr<GBase> GParameterScanFactory::getObject_(
  *
  * @param p_base A smart-pointer to be acted on during post-processing
  */
-void GParameterScanFactory::postProcess_(std::shared_ptr<GBase> &p_base) {
+void GParameterScanFactory::postProcess_(std::shared_ptr<GOptimizationAlgorithmBase> &p_base) {
     if(parameter_spec_cl_ != "empty") {
         std::shared_ptr<GParameterScan> p =
-            Gem::Common::convertSmartPointer<GBase, GParameterScan>(p_base);
+            Gem::Common::convertSmartPointer<GOptimizationAlgorithmBase, GParameterScan>(p_base);
 
         p->setParameterSpecs(parameter_spec_cl_);
     }
 
     // Call our parent class'es function
-    GOAFactoryT<GBase>::postProcess_(p_base);
+    GOAFactoryT<GOptimizationAlgorithmBase>::postProcess_(p_base);
 }
 
 /******************************************************************************/

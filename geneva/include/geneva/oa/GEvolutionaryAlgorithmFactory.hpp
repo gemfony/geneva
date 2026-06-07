@@ -40,7 +40,7 @@
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
 #include "geneva/par/GParameterSet.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
 #include "geneva/oa/GInitializerT.hpp"
@@ -56,7 +56,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * broker.
  */
 class GEvolutionaryAlgorithmFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GOAFactoryT<GBase> {
+  : public GOAFactoryT<GOptimizationAlgorithmBase> {
 public:
     /** @brief The default constructor */
     GEvolutionaryAlgorithmFactory();
@@ -79,11 +79,11 @@ public:
 
 protected:
     /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<GBase> &) override;
+    void postProcess_(std::shared_ptr<GOptimizationAlgorithmBase> &) override;
 
 private:
     /** @brief Creates individuals of this type */
-    std::shared_ptr<GBase>
+    std::shared_ptr<GOptimizationAlgorithmBase>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 };
 

@@ -64,7 +64,7 @@ SET ( OPTIMIZATIONSOURCES
 	par/GInt32Object.cpp
 	par/GInt32ObjectCollection.cpp
 	Go2.cpp
-    oa/GBase.cpp
+    oa/GOptimizationAlgorithmBase.cpp
     oa/GEvolutionaryAlgorithm.cpp
     oa/GEvolutionaryAlgorithmFactory.cpp
     oa/GEvolutionaryAlgorithm_PersonalityTraits.cpp

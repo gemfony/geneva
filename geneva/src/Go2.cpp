@@ -42,7 +42,7 @@
 #include "geneva/GConsumerSetup.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "hap/GRandomFactory.hpp"
@@ -544,7 +544,7 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
     for(const auto &alg_ptr : algorithms_cnt_) {
         // If courtier routing was selected, inject the shared broker so the algorithm's workOn()
         // submits through courtier rather than the legacy executor. (When no broker was built -- an
-        // unknown legacy-only consumer -- the algorithm uses its own default, see GBase::init.)
+        // unknown legacy-only consumer -- the algorithm uses its own default, see GOptimizationAlgorithmBase::init.)
         if(broker_) {
             alg_ptr->setBroker(broker_);
         }

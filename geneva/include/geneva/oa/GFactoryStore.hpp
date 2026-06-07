@@ -40,7 +40,7 @@
 #include "common/GGlobalOptionsT.hpp"
 #include "common/GProviderT.hpp"
 #include "geneva/par/GParameterSet.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
 
 // A global store for optimization-algorithm providers. Each provider wraps a
@@ -48,7 +48,7 @@
 // produces a freshly configured algorithm on every provide() call.
 using GOAStore =
     Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<
-        std::shared_ptr<Gem::Common::GProviderT<oa::GBase>>>>;
+        std::shared_ptr<Gem::Common::GProviderT<oa::GOptimizationAlgorithmBase>>>>;
 // Drop-in replacement for the former GOAFactoryStore macro. Returns the global
 // optimization-algorithm-provider store singleton.
 [[nodiscard]] inline std::shared_ptr<GOAStore::STYPE> oaFactoryStore() {

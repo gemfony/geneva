@@ -41,7 +41,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GNelderMead_PersonalityTraits.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include <cstddef>
@@ -220,17 +220,17 @@ std::string GNelderMead::getAlgorithmName_() const {
  * of the same type
  */
 void GNelderMead::compare_(
-    const GBase &cp,
+    const GOptimizationAlgorithmBase &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
-    const GNelderMead *p_load = Gem::Common::g_convert_and_compare<GBase, GNelderMead>(cp, this);
+    const GNelderMead *p_load = Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GNelderMead>(cp, this);
 
     GToken token("GNelderMead", e);
 
-    Gem::Common::compare_base_t<GBase>(*this, *p_load, token);
+    Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
 
     // Local data, derived from the single localMembers() declaration.
     // dbl_lower_parameter_boundaries_, dbl_upper_parameter_boundaries_ and trials_pending_
@@ -247,7 +247,7 @@ void GNelderMead::resetToOptimizationStart_() {
     dbl_upper_parameter_boundaries_.clear();
     trials_pending_ = false;
 
-    GBase::resetToOptimizationStart_();
+    GOptimizationAlgorithmBase::resetToOptimizationStart_();
 }
 
 /******************************************************************************/
@@ -256,11 +256,11 @@ std::string GNelderMead::name_() const {
 }
 
 /******************************************************************************/
-void GNelderMead::load_(const GBase *cp) {
-    const GNelderMead *p_load = Gem::Common::g_convert_and_compare<GBase, GNelderMead>(cp, this);
+void GNelderMead::load_(const GOptimizationAlgorithmBase *cp) {
+    const GNelderMead *p_load = Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GNelderMead>(cp, this);
 
     // First load the parent class'es data (this also copies all individuals).
-    GBase::load_(cp);
+    GOptimizationAlgorithmBase::load_(cp);
 
     // ... and then our own (serialized) data, derived from the single localMembers() declaration.
     // dbl*ParameterBoundaries_ and trials_pending_ are transient and re-set in init().
@@ -268,7 +268,7 @@ void GNelderMead::load_(const GBase *cp) {
 }
 
 /******************************************************************************/
-GBase *GNelderMead::clone_() const {
+GOptimizationAlgorithmBase *GNelderMead::clone_() const {
     return new GNelderMead(*this);
 }
 
@@ -502,7 +502,7 @@ void GNelderMead::applyNelderMeadDecision() {
  * Adds local configuration options to a GParserBuilder object
  */
 void GNelderMead::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
-    GBase::addConfigurationOptions_(gpb);
+    GOptimizationAlgorithmBase::addConfigurationOptions_(gpb);
 
     gpb.registerFileParameter<std::size_t>(
         "n_simplices",
@@ -567,7 +567,7 @@ void GNelderMead::runFitnessCalculation_() {
  * Does some preparatory work before the optimization starts
  */
 void GNelderMead::init() {
-    GBase::init();
+    GOptimizationAlgorithmBase::init();
 
     this->at(0)->boundaries(
         dbl_lower_parameter_boundaries_,
@@ -633,7 +633,7 @@ void GNelderMead::buildInitialSimplices() {
 
 /******************************************************************************/
 void GNelderMead::finalize() {
-    GBase::finalize();
+    GOptimizationAlgorithmBase::finalize();
 }
 
 /******************************************************************************/
@@ -702,7 +702,7 @@ void GNelderMead::adjustPopulation_() {
     const std::size_t block_size = n_fp_parms_first_ + 1 + NM_NTRIALS;
     const std::size_t total_size = n_simplices_ * block_size;
 
-    GBase::setDefaultPopulationSize(total_size);
+    GOptimizationAlgorithmBase::setDefaultPopulationSize(total_size);
 
     // Make sure we have one (randomized) seed individual per simplex first.
     if(n_start < n_simplices_) {
@@ -761,7 +761,7 @@ bool GNelderMead::modify_GUnitTests_() {
 #ifdef GEM_TESTING
     bool result = false;
 
-    if(GBase::modify_GUnitTests_()) {
+    if(GOptimizationAlgorithmBase::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -775,7 +775,7 @@ bool GNelderMead::modify_GUnitTests_() {
 /******************************************************************************/
 void GNelderMead::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-    GBase::specificTestsNoFailureExpected_GUnitTests_();
+    GOptimizationAlgorithmBase::specificTestsNoFailureExpected_GUnitTests_();
 #else  /* GEM_TESTING */
     Gem::Common::condnotset(
         "GNelderMead::specificTestsNoFailureExpected_GUnitTests",
@@ -787,7 +787,7 @@ void GNelderMead::specificTestsNoFailureExpected_GUnitTests_() {
 /******************************************************************************/
 void GNelderMead::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-    GBase::specificTestsFailuresExpected_GUnitTests_();
+    GOptimizationAlgorithmBase::specificTestsFailuresExpected_GUnitTests_();
 #else  /* GEM_TESTING */
     Gem::Common::condnotset(
         "GNelderMead::specificTestsFailuresExpected_GUnitTests",

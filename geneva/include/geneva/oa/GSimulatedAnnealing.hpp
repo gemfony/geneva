@@ -116,7 +116,7 @@ protected:
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
     /** @brief Loads the data of another GSimulatedAnnealingT object */
-    void load_(const GBase *cp) override;
+    void load_(const GOptimizationAlgorithmBase *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GSimulatedAnnealing>(
@@ -127,7 +127,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GBase &cp // the other object
+        const GOptimizationAlgorithmBase &cp // the other object
         ,
         const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         ,
@@ -156,7 +156,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep copy of this object */
-    GBase *clone_() const override;
+    GOptimizationAlgorithmBase *clone_() const override;
 
     /** @brief  We submit individuals to the broker connector and wait for processed items. */
     void runFitnessCalculation_() override;

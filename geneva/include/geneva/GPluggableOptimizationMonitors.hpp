@@ -49,7 +49,7 @@
 #include "common/GPlotDesigner.hpp"
 #include "geneva/par/GParameterPropertyParser.hpp"
 #include "geneva/par/GParameterSet.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 
 namespace Gem::Geneva {
 
@@ -122,7 +122,7 @@ private:
 
     /** @brief Aggregates the work of all registered pluggable monitors */
     void
-    informationFunction_(infoMode, oa::GBase const *const goa) override;
+    informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
 };
 
 /******************************************************************************/
@@ -249,7 +249,7 @@ private:
 
     /** @brief Aggregates the work of all registered pluggable monitors */
     void
-    informationFunction_(infoMode, oa::GBase const *const goa) override;
+    informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
 
     /************************************************************************/
 
@@ -372,7 +372,7 @@ private:
 
     /** @brief Aggregates the work of all registered pluggable monitors */
     void
-    informationFunction_(infoMode, oa::GBase const *const goa) override;
+    informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
 
     std::vector<std::shared_ptr<oa::GBasePluggableOM>>
         pluggable_monitors_; ///< The collection of monitors
@@ -870,7 +870,7 @@ private:
      * Allows to emit information in different stages of the information cycle
      * (initialization, during each cycle and during finalization)
      */
-    void informationFunction_(infoMode im, oa::GBase const *const goa) override {
+    void informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override {
         switch(im) {
         case Gem::Geneva::infoMode::INFOINIT: {
             switch(this->nProfileVars()) {
@@ -928,7 +928,7 @@ private:
 
             if(monitor_best_only_) { // Monitor the best individuals only
                 std::shared_ptr<gpar::GParameterSet> p =
-                    goa->Interface::GOptimizerIT<oa::GBase>::template getBestGlobalIndividual<gpar::GParameterSet>();
+                    goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividual<gpar::GParameterSet>();
                 if(oa::GBasePluggableOM::use_raw_evaluation_) {
                     primary_fitness = p->raw_fitness(0);
                 }
@@ -1340,12 +1340,12 @@ private:
 
     /** @brief Allows to emit information in different stages of the information cycle */
     void
-    informationFunction_(infoMode, oa::GBase const *const goa) override;
+    informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
 
     /** @brief Does the actual printing */
     void printPopulation(
         const std::string &iteration_description,
-        oa::GBase const *const goa
+        oa::GOptimizationAlgorithmBase const *const goa
     );
 
     /***************************************************************************/
@@ -1474,7 +1474,7 @@ private:
 
     /** @brief Allows to emit information in different stages of the information cycle */
     void
-    informationFunction_(infoMode, oa::GBase const *const goa) override;
+    informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
 
     std::string file_name_ =
         "IterationResultsLog.txt"; ///< The name of the file to which solutions should be stored
@@ -1618,7 +1618,7 @@ private:
 
     /** @brief Allows to emit information in different stages of the information cycle */
     void
-    informationFunction_(infoMode, oa::GBase const *const goa) override;
+    informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
 
     std::string file_name_ =
         "NAdaptions.C"; ///< The name of the file to which solutions should be stored
@@ -2026,7 +2026,7 @@ private:
      * Allows to emit information in different stages of the information cycle
      * (initialization, during each cycle and during finalization)
      */
-    void informationFunction_(infoMode im, oa::GBase const *const goa) override {
+    void informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override {
         using namespace Gem::Common;
 
         switch(im) {
@@ -2061,7 +2061,7 @@ private:
 
             // Record the current fitness
             std::shared_ptr<gpar::GParameterSet> p =
-                goa->Interface::GOptimizerIT<oa::GBase>::template getBestGlobalIndividual<gpar::GParameterSet>();
+                goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividual<gpar::GParameterSet>();
             (*fitness_graph2_d_oa_) &
                 std::tuple<double, double>(static_cast<double>(iteration), p->raw_fitness(0));
 
@@ -2075,7 +2075,7 @@ private:
             // Do the actual logging
             if(monitor_best_only_) {
                 std::shared_ptr<gpar::GParameterSet> best =
-                    goa->Interface::GOptimizerIT<oa::GBase>::template getBestGlobalIndividual<gpar::GParameterSet>();
+                    goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividual<gpar::GParameterSet>();
 
                 // Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
                 best->queryAdaptor(adaptor_name_, property_, data);
@@ -2377,7 +2377,7 @@ private:
 
     /** @brief Allows to emit information in different stages of the information cycle */
     void
-    informationFunction_(infoMode, oa::GBase const *const goa) override;
+    informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
 
     /************************************************************************/
 

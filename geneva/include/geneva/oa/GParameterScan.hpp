@@ -47,7 +47,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/par/GParameterPropertyParser.hpp"
 #include "geneva/par/GParameterSet.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
 #include "hap/GRandomT.hpp"
 
@@ -578,7 +578,7 @@ constexpr std::size_t DEFAULTNMONITORINDS = 10;
  * with this class will simply store all parameters and results in an XML file.
  */
 class GParameterScan // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBase {
+  : public GOptimizationAlgorithmBase {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -615,7 +615,7 @@ class GParameterScan // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &make_nvp("GBase", boost::serialization::base_object<GBase>(*this));
+        ar &make_nvp("GOptimizationAlgorithmBase", boost::serialization::base_object<GOptimizationAlgorithmBase>(*this));
         // Unconditional plain members, derived from the single localMembers() declaration ...
         Gem::Common::serialize_members(ar, this->localMembers());
         // ... and the manual tail for the parameter-object vectors (cycle_logic_halt_ is
@@ -667,7 +667,7 @@ protected:
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
     /** @brief Loads the data of another population */
-    void load_(const GBase *) override;
+    void load_(const GOptimizationAlgorithmBase *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterScan>(
@@ -678,7 +678,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GBase & // the other object
+        const GOptimizationAlgorithmBase & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -709,7 +709,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    GBase *clone_() const override;
+    GOptimizationAlgorithmBase *clone_() const override;
 
     /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
     std::tuple<double, double> cycleLogic_() override;

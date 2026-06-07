@@ -38,7 +38,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GParChild.hpp"
 #include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
 #include "geneva/par/GParameterSet.hpp"
@@ -85,7 +85,7 @@ GSimulatedAnnealing::GSimulatedAnnealing() {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GSimulatedAnnealing::compare_(
-    const GBase &cp // the other object
+    const GOptimizationAlgorithmBase &cp // the other object
     ,
     const Gem::Common::expectation &e // the expectation for this object, e.g. equality
     ,
@@ -95,7 +95,7 @@ void GSimulatedAnnealing::compare_(
 
     // Check that we are dealing with a GSimulatedAnnealing reference independent of this object and convert the pointer
     const GSimulatedAnnealing *p_load =
-        Gem::Common::g_convert_and_compare<GBase, GSimulatedAnnealing>(cp, this);
+        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GSimulatedAnnealing>(cp, this);
 
     GToken token("GSimulatedAnnealing", e);
 
@@ -254,11 +254,11 @@ std::string GSimulatedAnnealing::name_() const {
   *
   * @param cp A pointer to another GSimulatedAnnealingT object
   */
-void GSimulatedAnnealing::load_(const GBase *cp) {
+void GSimulatedAnnealing::load_(const GOptimizationAlgorithmBase *cp) {
     // Check that we are dealing with a GSimulatedAnnealing reference independent
     // of this object and convert the pointer
     const GSimulatedAnnealing *p_load =
-        Gem::Common::g_convert_and_compare<GBase, GSimulatedAnnealing>(cp, this);
+        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GSimulatedAnnealing>(cp, this);
 
     // First load the parent class'es data ...
     GParChild::load_(cp);
@@ -273,7 +273,7 @@ void GSimulatedAnnealing::load_(const GBase *cp) {
   *
   * @return A deep copy of this object
   */
-GBase *GSimulatedAnnealing::clone_() const {
+GOptimizationAlgorithmBase *GSimulatedAnnealing::clone_() const {
     return new GSimulatedAnnealing(*this);
 }
 
@@ -505,7 +505,7 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
 
     // Mark the first this->n_parents_ individuals as parents and the rest of the individuals as children.
     // We want to have a sane population.
-    typename GBase::iterator it;
+    typename GOptimizationAlgorithmBase::iterator it;
     for(it = this->begin(); it != this->begin() + np; ++it) {
         (*it)
             ->GParameterSet::template getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()

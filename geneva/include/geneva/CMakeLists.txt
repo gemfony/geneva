@@ -80,7 +80,7 @@ SET ( PARAM_INCLUDES
 # Optimization-algorithm headers (namespace Gem::Geneva::OptimizationAlgorithms),
 # installed under geneva/oa to mirror the `oa` alias.
 SET ( OA_INCLUDES
-    oa/GBase.hpp
+    oa/GOptimizationAlgorithmBase.hpp
     oa/GParChild.hpp
     oa/GInitializerT.hpp
     oa/GOAFactoryT.hpp

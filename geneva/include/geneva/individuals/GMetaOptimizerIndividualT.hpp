@@ -2033,7 +2033,7 @@ private:
      * Allows to emit information in different stages of the information cycle
      * (initialization, during each cycle and during finalization)
      */
-    void informationFunction_(infoMode im, oa::GBase const *const goa) override {
+    void informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override {
         using namespace Gem::Common;
 
         switch(im) {

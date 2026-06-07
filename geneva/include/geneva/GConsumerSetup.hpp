@@ -79,7 +79,7 @@ struct ConsumerSpec {
  */
 struct ConsumerSetup {
     /** @brief A ready broker (consumer registered, clone function set, server started for networked
-     *  consumers) to inject into the algorithms via GBase::setBroker(). Null when this
+     *  consumers) to inject into the algorithms via GOptimizationAlgorithmBase::setBroker(). Null when this
      *  process is not a submitter -- e.g. an MPI worker rank. */
     std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>> broker;
     /** @brief When this process must serve as a worker (an MPI worker rank), the loop to run; null

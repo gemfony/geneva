@@ -31,7 +31,7 @@
 #include "geneva/oa/GInitializerT.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
@@ -49,7 +49,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * The default constructor
  */
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory()
-  : GOAFactoryT<GBase>(
+  : GOAFactoryT<GOptimizationAlgorithmBase>(
         "./config/GEvolutionaryAlgorithm.json"
     ) { /* nothing */
 }
@@ -61,7 +61,7 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory()
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
     std::filesystem::path const &config_file
 )
-  : GOAFactoryT<GBase>(config_file) { /* nothing */
+  : GOAFactoryT<GOptimizationAlgorithmBase>(config_file) { /* nothing */
 }
 
 /******************************************************************************/
@@ -73,7 +73,7 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
     const std::string &config_file,
     std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> content_creator_ptr
 )
-  : GOAFactoryT<GBase>(
+  : GOAFactoryT<GOptimizationAlgorithmBase>(
         config_file,
         content_creator_ptr
     ) { /* nothing */
@@ -101,7 +101,7 @@ std::string GEvolutionaryAlgorithmFactory::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<GBase> GEvolutionaryAlgorithmFactory::getObject_(
+std::shared_ptr<GOptimizationAlgorithmBase> GEvolutionaryAlgorithmFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     [[maybe_unused]] const std::size_t & id
 ) {
@@ -121,10 +121,10 @@ std::shared_ptr<GBase> GEvolutionaryAlgorithmFactory::getObject_(
  * @param p_base A smart-pointer to be acted on during post-processing
  */
 void GEvolutionaryAlgorithmFactory::postProcess_(
-    std::shared_ptr<GBase> &p_base
+    std::shared_ptr<GOptimizationAlgorithmBase> &p_base
 ) {
     // Call our parent class'es function
-    GOAFactoryT<GBase>::postProcess_(p_base);
+    GOAFactoryT<GOptimizationAlgorithmBase>::postProcess_(p_base);
 }
 
 /******************************************************************************/

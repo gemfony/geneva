@@ -192,25 +192,25 @@ GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(
  *
  * The algorithm is configured entirely from the JSON config file specified
  * in the AlgorithmEntry. Default executor mode is BROKER (see
- * GBase::default_exec_mode_).
+ * GOptimizationAlgorithmBase::default_exec_mode_).
  */
-std::shared_ptr<oa::GBase>
+std::shared_ptr<oa::GOptimizationAlgorithmBase>
 GAlgorithmBenchmarkRunner::makeAlgorithm(const AlgorithmEntry &entry) const {
     if (entry.mnemonic == "ea") {
         return oa::GEvolutionaryAlgorithmFactory(entry.configFile)
-            .get<oa::GBase>();
+            .get<oa::GOptimizationAlgorithmBase>();
     }
     if (entry.mnemonic == "sa") {
         return oa::GSimulatedAnnealingFactory(entry.configFile)
-            .get<oa::GBase>();
+            .get<oa::GOptimizationAlgorithmBase>();
     }
     if (entry.mnemonic == "swarm") {
         return oa::GSwarmAlgorithmFactory(entry.configFile)
-            .get<oa::GBase>();
+            .get<oa::GOptimizationAlgorithmBase>();
     }
     if (entry.mnemonic == "gd") {
         return oa::GGradientDescentFactory(entry.configFile)
-            .get<oa::GBase>();
+            .get<oa::GOptimizationAlgorithmBase>();
     }
     throw std::invalid_argument(
         "GAlgorithmBenchmarkRunner::makeAlgorithm: unknown mnemonic '" + entry.mnemonic + "'");

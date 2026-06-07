@@ -44,7 +44,7 @@
 #include "common/GExceptions.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/par/GParameterSet.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GBaseParChildPersonalityTraits.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -54,7 +54,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /******************************************************************************/
 /**
  * The GParChildT class adds the notion of parents and children to
- * the GBase class. The evolutionary adaptation is realized
+ * the GOptimizationAlgorithmBase class. The evolutionary adaptation is realized
  * through the cycle of adaption, evaluation, and sorting, as defined in this
  * class.
  *
@@ -72,7 +72,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * optimization starts.
  */
 class GParChild // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBase {
+  : public GOptimizationAlgorithmBase {
     /////////////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -102,7 +102,7 @@ class GParChild // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &make_nvp("GBase", boost::serialization::base_object<GBase>(*this));
+        ar &make_nvp("GOptimizationAlgorithmBase", boost::serialization::base_object<GOptimizationAlgorithmBase>(*this));
         // The member list is derived from the single localMembers() declaration,
         // emitting the same NVP names in the same order as the previous explicit list.
         Gem::Common::serialize_members(ar, this->localMembers());
@@ -188,7 +188,7 @@ protected:
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
     /** @brief Loads the data of another GParChildT object. */
-    void load_(const GBase *cp) override;
+    void load_(const GOptimizationAlgorithmBase *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParChild>(
@@ -199,7 +199,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GBase &cp,
+        const GOptimizationAlgorithmBase &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
@@ -224,7 +224,7 @@ protected:
 
     /***************************************************************************/
 
-    /** @brief This function is called from GBase::optimize() and performs the actual recombination */
+    /** @brief This function is called from GOptimizationAlgorithmBase::optimize() and performs the actual recombination */
     virtual void recombine();
 
     /** @brief Retrieves the adaption range in a given iteration and sorting scheme. */
@@ -265,7 +265,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    GBase *clone_() const override = 0;
+    GOptimizationAlgorithmBase *clone_() const override = 0;
 
     /** @brief This function implements the logic that constitutes evolutionary algorithms */
     std::tuple<double, double> cycleLogic_() override;

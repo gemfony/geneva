@@ -46,7 +46,7 @@
 #include "courtier/GBrokerT.hpp"
 #include "geneva/GenevaInitializer.hpp"
 #include "geneva/par/GParameterSet.hpp"
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/oa/GGradientDescentFactory.hpp"
 #include "geneva/oa/GSimulatedAnnealingFactory.hpp"
@@ -130,7 +130,7 @@ private:
 
     void informationFunction_(
         infoMode mode,
-        oa::GBase const *const goa
+        oa::GOptimizationAlgorithmBase const *const goa
     ) override {
         if (mode != infoMode::INFOEND) return;
 
@@ -193,7 +193,7 @@ private:
         const std::shared_ptr<gind::GFunctionIndividualFactory> &indFactory
     );
 
-    std::shared_ptr<oa::GBase>
+    std::shared_ptr<oa::GOptimizationAlgorithmBase>
     makeAlgorithm(const AlgorithmEntry &entry) const;
 
     static GAlgorithmBenchmarkResult aggregate(

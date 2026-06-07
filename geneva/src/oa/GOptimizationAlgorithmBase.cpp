@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/oa/GBase.hpp"
+#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 
 // Needed for the G_SIGHUP_SENT() signal-state query in sigHupHalt().
 #include "geneva/GSigHupHandler.hpp"
@@ -120,7 +120,7 @@ bool GBasePluggableOM::getUseRawEvaluation() const {
  */
 void GBasePluggableOM::informationFunction(
     infoMode im,
-    GBase const *const goa
+    GOptimizationAlgorithmBase const *const goa
 ) {
     informationFunction_(im, goa);
 }
@@ -202,10 +202,10 @@ void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_() {
  * The copy constructor. Note that the executor is neither copied nor cloned.
  * You need to register your own executor or let the algorithm use the default executor.
  *
- * @param cp A constant reference to another GBase object
+ * @param cp A constant reference to another GOptimizationAlgorithmBase object
  */
-GBase::GBase(const GBase &cp)
-  : Gem::Common::GCommonInterfaceT<GBase>(cp)
+GOptimizationAlgorithmBase::GOptimizationAlgorithmBase(const GOptimizationAlgorithmBase &cp)
+  : Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>(cp)
   , Gem::Common::GPtrContainerT<gpar::GParameterSet>(cp)
   , iteration_(cp.iteration_)
   , offset_(DEFAULTOFFSET)
@@ -253,7 +253,7 @@ GBase::GBase(const GBase &cp)
  *
  * @param is_better A boolean which indicates whether a better result was found
  */
-void GBase::checkpoint(bool is_better) const {
+void GOptimizationAlgorithmBase::checkpoint(bool is_better) const {
     bool do_save = false;
 
     // Determine a suitable name for the checkpoint file
@@ -297,7 +297,7 @@ void GBase::checkpoint(bool is_better) const {
 /**
  * Loads the state of the class from disc
  */
-void GBase::loadCheckpoint(std::filesystem::path const &cp_file) {
+void GOptimizationAlgorithmBase::loadCheckpoint(std::filesystem::path const &cp_file) {
     // Extract the name of the optimization algorithm used for this file
     std::string opt_desc = this->extractOptAlgFromPath(cp_file);
 
@@ -305,7 +305,7 @@ void GBase::loadCheckpoint(std::filesystem::path const &cp_file) {
     if(opt_desc != this->getAlgorithmPersonalityType()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBase<>::loadCheckpoint(): Error!" << '\n'
+            << "In GOptimizationAlgorithmBase<>::loadCheckpoint(): Error!" << '\n'
             << "Checkpoint file " << cp_file << '\n'
             << "seems to belong to another algorithm. Expected "
             << this->getAlgorithmPersonalityType() << '\n'
@@ -323,7 +323,7 @@ void GBase::loadCheckpoint(std::filesystem::path const &cp_file) {
  *
  * @return A boolean indicating whether the optimization process has been halted
  */
-bool GBase::halted() const {
+bool GOptimizationAlgorithmBase::halted() const {
     return halted_;
 }
 
@@ -335,7 +335,7 @@ bool GBase::halted() const {
  *
  * @param cp_interval The number of generations after which a checkpoint should be written
  */
-void GBase::setCheckpointInterval(std::int32_t cp_interval) {
+void GOptimizationAlgorithmBase::setCheckpointInterval(std::int32_t cp_interval) {
     cp_interval_ = cp_interval;
 }
 
@@ -345,7 +345,7 @@ void GBase::setCheckpointInterval(std::int32_t cp_interval) {
  *
  * @return The number of generations after which a checkpoint should be written
  */
-std::int32_t GBase::getCheckpointInterval() const {
+std::int32_t GOptimizationAlgorithmBase::getCheckpointInterval() const {
     return cp_interval_;
 }
 
@@ -357,7 +357,7 @@ std::int32_t GBase::getCheckpointInterval() const {
  * @param cp_directory The directory where checkpoint files should be stored
  * @param cp_base_name The base name used for the checkpoint files
  */
-void GBase::setCheckpointBaseName(
+void GOptimizationAlgorithmBase::setCheckpointBaseName(
     std::string cp_directory,
     std::string cp_base_name
 ) {
@@ -365,7 +365,7 @@ void GBase::setCheckpointBaseName(
     if(cp_base_name == "empty" || cp_base_name.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBase::setCheckpointBaseName(const std::string&, const "
+            << "In GOptimizationAlgorithmBase::setCheckpointBaseName(const std::string&, const "
                "std::string&):"
             << '\n'
             << "Error: Invalid cp_base_name: " << cp_base_name << '\n'
@@ -375,7 +375,7 @@ void GBase::setCheckpointBaseName(
     if(cp_directory == "empty" || cp_directory.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBase::setCheckpointBaseName(const std::string&, const "
+            << "In GOptimizationAlgorithmBase::setCheckpointBaseName(const std::string&, const "
                "std::string&):"
             << '\n'
             << "Error: Invalid cp_directory: " << cp_directory << '\n'
@@ -389,7 +389,7 @@ void GBase::setCheckpointBaseName(
 
     // Check that the provided directory exists
     if(not std::filesystem::exists(cp_directory_path_)) {
-        glogger << "In GBase::setCheckpointBaseName(): Warning!" << '\n'
+        glogger << "In GOptimizationAlgorithmBase::setCheckpointBaseName(): Warning!" << '\n'
                 << "Directory " << cp_directory_path_.string()
                 << " does not exist and will be created automatically." << '\n'
                 << GWARNING;
@@ -397,7 +397,7 @@ void GBase::setCheckpointBaseName(
         if(not std::filesystem::create_directory(cp_directory_path_)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GBase::setCheckpointBaseName(): Error!" << '\n'
+                << "In GOptimizationAlgorithmBase::setCheckpointBaseName(): Error!" << '\n'
                 << "Could not create directory " << cp_directory_path_.string() << '\n'
             );
         }
@@ -405,7 +405,7 @@ void GBase::setCheckpointBaseName(
     else if(not std::filesystem::is_directory(cp_directory_path_)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBase::setCheckpointBaseName(): Error!" << '\n'
+            << "In GOptimizationAlgorithmBase::setCheckpointBaseName(): Error!" << '\n'
             << cp_directory_path_.string() << " exists but is no directory." << '\n'
         );
     }
@@ -417,7 +417,7 @@ void GBase::setCheckpointBaseName(
  *
  * @return The base name used for checkpoint files
  */
-std::string GBase::getCheckpointBaseName() const {
+std::string GOptimizationAlgorithmBase::getCheckpointBaseName() const {
     return cp_base_name_;
 }
 
@@ -427,7 +427,7 @@ std::string GBase::getCheckpointBaseName() const {
  *
  * @return The base name used for checkpoint files
  */
-std::string GBase::getCheckpointDirectory() const {
+std::string GOptimizationAlgorithmBase::getCheckpointDirectory() const {
     return cp_directory_path_.string();
 }
 
@@ -437,7 +437,7 @@ std::string GBase::getCheckpointDirectory() const {
  *
  * @return The base name used for checkpoint files
  */
-std::filesystem::path GBase::getCheckpointDirectoryPath() const {
+std::filesystem::path GOptimizationAlgorithmBase::getCheckpointDirectoryPath() const {
     return cp_directory_path_;
 }
 
@@ -447,7 +447,7 @@ std::filesystem::path GBase::getCheckpointDirectoryPath() const {
  *
  * @param cp_ser_mode The desired new checkpointing serialization mode
  */
-void GBase::setCheckpointSerializationMode(
+void GOptimizationAlgorithmBase::setCheckpointSerializationMode(
     Gem::Common::serializationMode cp_ser_mode
 ) {
     cp_serialization_mode_ = cp_ser_mode;
@@ -460,7 +460,7 @@ void GBase::setCheckpointSerializationMode(
  * @return The current checkpointing serialization mode
  */
 Gem::Common::serializationMode
-GBase::getCheckpointSerializationMode() const {
+GOptimizationAlgorithmBase::getCheckpointSerializationMode() const {
     return cp_serialization_mode_;
 }
 
@@ -469,7 +469,7 @@ GBase::getCheckpointSerializationMode() const {
  * Allows to set the cp_overwrite_ flag (determines whether checkpoint files
  * should be removed or kept
  */
-void GBase::setRemoveCheckpointFiles(bool cp_remove) {
+void GOptimizationAlgorithmBase::setRemoveCheckpointFiles(bool cp_remove) {
     cp_remove_ = cp_remove;
 }
 
@@ -477,7 +477,7 @@ void GBase::setRemoveCheckpointFiles(bool cp_remove) {
 /**
  * Allows to check whether checkpoint files will be removed
  */
-bool GBase::checkpointFilesAreRemoved() const {
+bool GOptimizationAlgorithmBase::checkpointFilesAreRemoved() const {
     return cp_remove_;
 }
 
@@ -486,25 +486,25 @@ bool GBase::checkpointFilesAreRemoved() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GBase object
+ * @param cp A constant reference to another GOptimizationAlgorithmBase object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GBase::compare_(
-    const GBase &cp,
+void GOptimizationAlgorithmBase::compare_(
+    const GOptimizationAlgorithmBase &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
-    // Check that we are dealing with a GBase reference independent of this object and convert the pointer
-    const GBase *p_load =
-        Gem::Common::g_convert_and_compare<GBase, GBase>(cp, this);
+    // Check that we are dealing with a GOptimizationAlgorithmBase reference independent of this object and convert the pointer
+    const GOptimizationAlgorithmBase *p_load =
+        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GOptimizationAlgorithmBase>(cp, this);
 
-    GToken token("GBase", e);
+    GToken token("GOptimizationAlgorithmBase", e);
 
     // Compare our CRTP base data (the category root has no GObject parent) ...
-    Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GBase>>(*this, *p_load, token);
+    Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>>(*this, *p_load, token);
 
     // The container base'es data (the population) -- compared explicitly, as it is a
     // base-object rather than a local member.
@@ -532,7 +532,7 @@ void GBase::compare_(
 /**
  * Resets the class to the state before the optimize call.
  */
-void GBase::resetToOptimizationStart() {
+void GOptimizationAlgorithmBase::resetToOptimizationStart() {
     resetToOptimizationStart_();
 }
 
@@ -549,7 +549,7 @@ void GBase::resetToOptimizationStart() {
  * unless you register a new executor, calling this function will result in
  * the default executor being used.
  */
-void GBase::resetToOptimizationStart_() {
+void GOptimizationAlgorithmBase::resetToOptimizationStart_() {
     this->clear(); // Remove all individuals found in this population
 
     iteration_ = 0;                    // The current iteration
@@ -583,7 +583,7 @@ void GBase::resetToOptimizationStart_() {
  * @param offset Specifies the iteration number to start with (e.g. useful when starting from a checkpoint file)
  * @return A constant pointer to this object
  */
-GBase const *GBase::optimize_(std::uint32_t offset) {
+GOptimizationAlgorithmBase const *GOptimizationAlgorithmBase::optimize_(std::uint32_t offset) {
     // Reset the generation counter
     iteration_ = offset;
 
@@ -690,7 +690,7 @@ GBase const *GBase::optimize_(std::uint32_t offset) {
  *
  * @param im The information mode (INFOINIT, INFOPROCESSING or INFOEND)
  */
-void GBase::informationUpdate(infoMode const &im) {
+void GOptimizationAlgorithmBase::informationUpdate(infoMode const &im) {
     // Act on the information mode provided
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT:
@@ -725,7 +725,7 @@ void GBase::informationUpdate(infoMode const &im) {
  *
  * @return A boolean indicating whether a better solution was found
  */
-bool GBase::progress() const {
+bool GOptimizationAlgorithmBase::progress() const {
     return (0 == stall_counter_);
 }
 
@@ -734,7 +734,7 @@ bool GBase::progress() const {
  * Allows to register a pluggable optimization monitor. Note that this
  * function does NOT take ownership of the optimization monitor.
  */
-void GBase::registerPluggableOM(
+void GOptimizationAlgorithmBase::registerPluggableOM(
     std::shared_ptr<GBasePluggableOM> pluggable_om
 ) {
     if(pluggable_om) {
@@ -754,7 +754,7 @@ void GBase::registerPluggableOM(
 /**
  * Allows to reset the local pluggable optimization monitors
  */
-void GBase::resetPluggableOM() {
+void GOptimizationAlgorithmBase::resetPluggableOM() {
     pluggable_monitors_cnt_.clear();
 }
 
@@ -762,7 +762,7 @@ void GBase::resetPluggableOM() {
 /**
  * Allows to check whether pluggable optimization monitors were registered
   */
-bool GBase::hasPluggableOptimizationMonitors() const {
+bool GOptimizationAlgorithmBase::hasPluggableOptimizationMonitors() const {
     return not pluggable_monitors_cnt_.empty();
 }
 
@@ -772,7 +772,7 @@ bool GBase::hasPluggableOptimizationMonitors() const {
  *
  * @return The default population size
  */
-std::size_t GBase::getDefaultPopulationSize() const {
+std::size_t GOptimizationAlgorithmBase::getDefaultPopulationSize() const {
     return default_population_size_;
 }
 
@@ -782,7 +782,7 @@ std::size_t GBase::getDefaultPopulationSize() const {
  *
  * @return The current population size
  */
-std::size_t GBase::getPopulationSize() const {
+std::size_t GOptimizationAlgorithmBase::getPopulationSize() const {
     return this->size();
 }
 
@@ -793,12 +793,12 @@ std::size_t GBase::getPopulationSize() const {
  *
  * @param max_iteration The number of iterations after which the optimization should terminate
  */
-void GBase::setMaxIteration(std::uint32_t max_iteration) {
+void GOptimizationAlgorithmBase::setMaxIteration(std::uint32_t max_iteration) {
     // Check that the new maximum is > the current minimum (guard only applies when max != 0)
     if(max_iteration > 0 && max_iteration <= min_iteration_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBase<>::setMaxIteration(): Error!" << '\n'
+            << "In GOptimizationAlgorithmBase<>::setMaxIteration(): Error!" << '\n'
             << "Maximum number of iterations " << max_iteration << " is <= the minimum number "
             << min_iteration_ << '\n'
         );
@@ -814,7 +814,7 @@ void GBase::setMaxIteration(std::uint32_t max_iteration) {
  *
  * @return The number of iterations after which the optimization should terminate
  */
-std::uint32_t GBase::getMaxIteration() const {
+std::uint32_t GOptimizationAlgorithmBase::getMaxIteration() const {
     return max_iteration_;
 }
 
@@ -826,12 +826,12 @@ std::uint32_t GBase::getMaxIteration() const {
   * (Geneva checks whether a file was modified after Geneva has started). Set the number
   * of iterations to 0 in order to disable a check for the minimal number of iterations.
 */
-void GBase::setMinIteration(std::uint32_t min_iteration) {
+void GOptimizationAlgorithmBase::setMinIteration(std::uint32_t min_iteration) {
     // Check that the current maximum will remain > the new minimum (guard only applies when max != 0)
     if(max_iteration_ > 0 && max_iteration_ <= min_iteration) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBase<>::setMinIteration(): Error!" << '\n'
+            << "In GOptimizationAlgorithmBase<>::setMinIteration(): Error!" << '\n'
             << "Maximum number of iterations " << max_iteration_ << " is <= the minimum number "
             << min_iteration << '\n'
         );
@@ -844,7 +844,7 @@ void GBase::setMinIteration(std::uint32_t min_iteration) {
 /**
  * This function retrieves the value of the min_iteration_ variable
  */
-std::uint32_t GBase::getMinIteration() const {
+std::uint32_t GOptimizationAlgorithmBase::getMinIteration() const {
     return min_iteration_;
 }
 
@@ -855,7 +855,7 @@ std::uint32_t GBase::getMinIteration() const {
  *
  * @param max_stall_iteration The maximum number of allowed generations
  */
-void GBase::setMaxStallIteration(std::uint32_t max_stall_iteration) {
+void GOptimizationAlgorithmBase::setMaxStallIteration(std::uint32_t max_stall_iteration) {
     max_stall_iteration_ = max_stall_iteration;
 }
 
@@ -866,7 +866,7 @@ void GBase::setMaxStallIteration(std::uint32_t max_stall_iteration) {
  *
  * @return The maximum number of generations
  */
-std::uint32_t GBase::getMaxStallIteration() const {
+std::uint32_t GOptimizationAlgorithmBase::getMaxStallIteration() const {
     return max_stall_iteration_;
 }
 
@@ -876,11 +876,11 @@ std::uint32_t GBase::getMaxStallIteration() const {
  *
  * @param max_duration The maximum allowed processing time
  */
-void GBase::setMaxTime(std::chrono::duration<double> max_duration) {
+void GOptimizationAlgorithmBase::setMaxTime(std::chrono::duration<double> max_duration) {
     if(not Gem::Common::isClose<double>(max_duration.count(), 0.) && max_duration < min_duration_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBase<>::setMaxTime(): Error!" << '\n'
+            << "In GOptimizationAlgorithmBase<>::setMaxTime(): Error!" << '\n'
             << "Desired max_duration (" << max_duration.count() << " is smaller than min_duration_("
             << min_duration_.count() << ")" << '\n'
         );
@@ -895,7 +895,7 @@ void GBase::setMaxTime(std::chrono::duration<double> max_duration) {
  *
  * @return The maximum allowed processing time
  */
-std::chrono::duration<double> GBase::getMaxTime() const {
+std::chrono::duration<double> GOptimizationAlgorithmBase::getMaxTime() const {
     return max_duration_;
 }
 
@@ -906,11 +906,11 @@ std::chrono::duration<double> GBase::getMaxTime() const {
 *
 * @param min_duration The minimum allowed processing time
 */
-void GBase::setMinTime(std::chrono::duration<double> min_duration) {
+void GOptimizationAlgorithmBase::setMinTime(std::chrono::duration<double> min_duration) {
     if(not Gem::Common::isClose<double>(max_duration_.count(), 0.) && max_duration_ < min_duration) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBase<>::setMinTime(): Error!" << '\n'
+            << "In GOptimizationAlgorithmBase<>::setMinTime(): Error!" << '\n'
             << "Desired max_duration (" << max_duration_.count() << " is smaller than min_duration_("
             << min_duration.count() << ")" << '\n'
         );
@@ -925,7 +925,7 @@ void GBase::setMinTime(std::chrono::duration<double> min_duration) {
 *
 * @return The minimum required processing time
 */
-std::chrono::duration<double> GBase::getMinTime() const {
+std::chrono::duration<double> GOptimizationAlgorithmBase::getMinTime() const {
     return min_duration_;
 }
 
@@ -936,7 +936,7 @@ std::chrono::duration<double> GBase::getMinTime() const {
  *  @param quality_threshold A threshold beyond which optimization should stop
  *  @param has_quality_threshold Allows to (de-)activate the quality threshold
  */
-void GBase::setQualityThreshold(
+void GOptimizationAlgorithmBase::setQualityThreshold(
     double quality_threshold,
     bool has_quality_threshold
 ) {
@@ -952,7 +952,7 @@ void GBase::setQualityThreshold(
  * @param has_quality_threshold A boolean indicating whether a quality threshold has been set
  * @return The current value of the quality threshold
  */
-double GBase::getQualityThreshold(bool &has_quality_threshold) const {
+double GOptimizationAlgorithmBase::getQualityThreshold(bool &has_quality_threshold) const {
     has_quality_threshold = has_quality_threshold_;
     return quality_threshold_;
 }
@@ -966,7 +966,7 @@ double GBase::getQualityThreshold(bool &has_quality_threshold) const {
  *  @param termination_file The name of a file used to initiate termination
  *  @param terminate_on_file_modification Allows to (de-)activate "touched termination"
  */
-void GBase::setTerminationFile(
+void GOptimizationAlgorithmBase::setTerminationFile(
     std::string termination_file,
     bool terminate_on_file_modification
 ) {
@@ -983,7 +983,7 @@ void GBase::setTerminationFile(
  * @return The current value of the termination_file_ variable
  */
 std::string
-GBase::getTerminationFile(bool &terminate_on_file_modification) const {
+GOptimizationAlgorithmBase::getTerminationFile(bool &terminate_on_file_modification) const {
     terminate_on_file_modification = terminate_on_file_modification_;
     return termination_file_;
 }
@@ -992,7 +992,7 @@ GBase::getTerminationFile(bool &terminate_on_file_modification) const {
 /**
  * Removes the quality threshold
  */
-void GBase::resetQualityThreshold() {
+void GOptimizationAlgorithmBase::resetQualityThreshold() {
     has_quality_threshold_ = false;
 }
 
@@ -1002,7 +1002,7 @@ void GBase::resetQualityThreshold() {
  *
  * @return A boolean indicating whether a quality threshold has been set
  */
-bool GBase::hasQualityThreshold() const {
+bool GOptimizationAlgorithmBase::hasQualityThreshold() const {
     return has_quality_threshold_;
 }
 
@@ -1012,7 +1012,7 @@ bool GBase::hasQualityThreshold() const {
  *
  * @return The current iteration of the optimization run
  */
-std::uint32_t GBase::getIteration_() const {
+std::uint32_t GOptimizationAlgorithmBase::getIteration_() const {
     return iteration_;
 }
 
@@ -1023,7 +1023,7 @@ std::uint32_t GBase::getIteration_() const {
  *
  * @return The current iteration offset
  */
-std::uint32_t GBase::getStartIteration() const {
+std::uint32_t GOptimizationAlgorithmBase::getStartIteration() const {
     return offset_;
 }
 
@@ -1034,7 +1034,7 @@ std::uint32_t GBase::getStartIteration() const {
  *
  * @param iter The number of iterations after which information should be emitted
  */
-void GBase::setReportIteration(std::uint32_t iter) {
+void GOptimizationAlgorithmBase::setReportIteration(std::uint32_t iter) {
     report_iteration_ = iter;
 }
 
@@ -1045,7 +1045,7 @@ void GBase::setReportIteration(std::uint32_t iter) {
  *
  * @return The number of iterations after which information is emitted
  */
-std::uint32_t GBase::getReportIteration() const {
+std::uint32_t GOptimizationAlgorithmBase::getReportIteration() const {
     return report_iteration_;
 }
 
@@ -1055,7 +1055,7 @@ std::uint32_t GBase::getReportIteration() const {
  *
  * @return The current number of failed optimization attempts
  */
-std::uint32_t GBase::getStallCounter() const {
+std::uint32_t GOptimizationAlgorithmBase::getStallCounter() const {
     return stall_counter_;
 }
 
@@ -1064,7 +1064,7 @@ std::uint32_t GBase::getStallCounter() const {
  * Allows to set the number of iterations without improvement, after which
  * individuals are asked to update their internal data structures
  */
-void GBase::setStallCounterThreshold(std::uint32_t stall_counter_threshold) {
+void GOptimizationAlgorithmBase::setStallCounterThreshold(std::uint32_t stall_counter_threshold) {
     stall_counter_threshold_ = stall_counter_threshold;
 }
 
@@ -1073,7 +1073,7 @@ void GBase::setStallCounterThreshold(std::uint32_t stall_counter_threshold) {
  * Allows to retrieve the number of iterations without improvement, after which
  * individuals are asked to update their internal data structures
  */
-std::uint32_t GBase::getStallCounterThreshold() const {
+std::uint32_t GOptimizationAlgorithmBase::getStallCounterThreshold() const {
     return stall_counter_threshold_;
 }
 
@@ -1083,7 +1083,7 @@ std::uint32_t GBase::getStallCounterThreshold() const {
  *
  * @return The best raw and transformed fitness found so far
  */
-std::tuple<double, double> GBase::getBestKnownPrimaryFitness() const {
+std::tuple<double, double> GOptimizationAlgorithmBase::getBestKnownPrimaryFitness() const {
     return (best_global_individuals_pq_.best())->getFitnessTuple();
 
     // return best_known_primary_fitness_;
@@ -1095,7 +1095,7 @@ std::tuple<double, double> GBase::getBestKnownPrimaryFitness() const {
  *
  * @return The best raw and transformed fitness found in the current iteration
  */
-std::tuple<double, double> GBase::getBestCurrentPrimaryFitness() const {
+std::tuple<double, double> GOptimizationAlgorithmBase::getBestCurrentPrimaryFitness() const {
     return best_current_primary_fitness_;
 }
 
@@ -1105,7 +1105,7 @@ std::tuple<double, double> GBase::getBestCurrentPrimaryFitness() const {
  *
  * @param emit_termination_reason A boolean which specifies whether reasons for the termination of the optimization run should be emitted
  */
-void GBase::setEmitTerminationReason(bool emit_termination_reason) {
+void GOptimizationAlgorithmBase::setEmitTerminationReason(bool emit_termination_reason) {
     emit_termination_reason_ = emit_termination_reason;
 }
 
@@ -1115,7 +1115,7 @@ void GBase::setEmitTerminationReason(bool emit_termination_reason) {
  *
  * @return A boolean which specifies whether reasons for the termination of the optimization run will be emitted
  */
-bool GBase::getEmitTerminationReason() const {
+bool GOptimizationAlgorithmBase::getEmitTerminationReason() const {
     return emit_termination_reason_;
 }
 
@@ -1123,7 +1123,7 @@ bool GBase::getEmitTerminationReason() const {
 /**
  * Retrieve the number of processable items in the current iteration.
  */
-std::size_t GBase::getNProcessableItems() const {
+std::size_t GOptimizationAlgorithmBase::getNProcessableItems() const {
     return getNProcessableItems_();
 }
 
@@ -1135,7 +1135,7 @@ std::size_t GBase::getNProcessableItems() const {
  *
  * @return The number of processable items in the current iteration
  */
-std::size_t GBase::getNProcessableItems_() const {
+std::size_t GOptimizationAlgorithmBase::getNProcessableItems_() const {
     return this->size();
 }
 
@@ -1145,9 +1145,9 @@ std::size_t GBase::getNProcessableItems_() const {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GBase::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
+void GOptimizationAlgorithmBase::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our CRTP base class'es function (the category root has no GObject parent)
-    Gem::Common::GCommonInterfaceT<GBase>::addConfigurationOptions_(gpb);
+    Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>::addConfigurationOptions_(gpb);
 
     // The number of threads used for parallel organizational work (adaption, recombination, ...).
     // The option keeps its historical name for config-file compatibility.
@@ -1330,7 +1330,7 @@ void GBase::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
 	 * queue will be sorted by the first evaluation criterion of the individuals
 	 * and may either have a limited or unlimited size, depending on user-settings
 	 */
-void GBase::updateGlobalBestsPQ_(
+void GOptimizationAlgorithmBase::updateGlobalBestsPQ_(
     gpar::GParameterSetFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool clone = true;
@@ -1340,7 +1340,7 @@ void GBase::updateGlobalBestsPQ_(
     if(this->empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBase::updateGlobalBestsPQ() :" << '\n'
+            << "In GOptimizationAlgorithmBase::updateGlobalBestsPQ() :" << '\n'
             << "Tried to retrieve the best individuals even though the population is empty."
             << '\n'
         );
@@ -1360,7 +1360,7 @@ void GBase::updateGlobalBestsPQ_(
 	 * and may either have a limited or unlimited size, depending on user-
 	 * settings
 	 */
-void GBase::updateIterationBestsPQ_(
+void GOptimizationAlgorithmBase::updateIterationBestsPQ_(
     gpar::GParameterSetFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool clone = true;
@@ -1370,7 +1370,7 @@ void GBase::updateIterationBestsPQ_(
     if(this->empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBase::updateIterationBestsPQ() :" << '\n'
+            << "In GOptimizationAlgorithmBase::updateIterationBestsPQ() :" << '\n'
             << "Tried to retrieve the best individuals even though the population is empty."
             << '\n'
         );
@@ -1389,7 +1389,7 @@ void GBase::updateIterationBestsPQ_(
 	 * Only those individuals are stored in the priority queue that do not have the
 	 * "dirty flag" set.
 	 */
-void GBase::addCleanStoredBests(
+void GOptimizationAlgorithmBase::addCleanStoredBests(
     gpar::GParameterSetFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool clone = true;
@@ -1411,7 +1411,7 @@ void GBase::addCleanStoredBests(
  *
  * @return A boolean indicating whether we are inside of the first iteration
  */
-bool GBase::inFirstIteration() const {
+bool GOptimizationAlgorithmBase::inFirstIteration() const {
     return iteration_ == offset_;
 }
 
@@ -1421,7 +1421,7 @@ bool GBase::inFirstIteration() const {
  *
  * @return A boolean indicating whether we are after the first iteration
  */
-bool GBase::afterFirstIteration() const {
+bool GOptimizationAlgorithmBase::afterFirstIteration() const {
     return iteration_ > offset_;
 }
 
@@ -1430,7 +1430,7 @@ bool GBase::afterFirstIteration() const {
  * Checks whether a checkpoint-file has the same "personality" as our
  * own algorithm
  */
-bool GBase::cp_personality_fits(const std::filesystem::path &p) const {
+bool GOptimizationAlgorithmBase::cp_personality_fits(const std::filesystem::path &p) const {
     // Extract the name of the optimization algorithm used for this file
     std::string opt_desc = this->extractOptAlgFromPath(p);
 
@@ -1444,10 +1444,10 @@ bool GBase::cp_personality_fits(const std::filesystem::path &p) const {
  *
  * @param cp Another GOptimizationAlgorithm object
  */
-void GBase::load_(const GBase *cp) {
-    // Check that we are dealing with a GBase reference independent of this object and convert the pointer
-    const GBase *p_load =
-        Gem::Common::g_convert_and_compare<GBase, GBase>(cp, this);
+void GOptimizationAlgorithmBase::load_(const GOptimizationAlgorithmBase *cp) {
+    // Check that we are dealing with a GOptimizationAlgorithmBase reference independent of this object and convert the pointer
+    const GOptimizationAlgorithmBase *p_load =
+        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GOptimizationAlgorithmBase>(cp, this);
 
     // This is the category root; there is no GObject parent class to load.
     // Load the stateful base classes' data
@@ -1475,7 +1475,7 @@ void GBase::load_(const GBase *cp) {
 	 * @param caller The name of the caller (used for error messages and logs)
 	 * @return A struct which indicates whether all items have returned ("is_complete") and whether there were errors ("has_errors")
 	 */
-Gem::Courtier::executor_status_t GBase::workOn(
+Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOn(
     std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items,
     std::size_t start,
     std::size_t end
@@ -1495,7 +1495,7 @@ Gem::Courtier::executor_status_t GBase::workOn(
  * getSubmissionPolicy_(): clone-on-partial-return for the tolerant population-based OAs, full-success-
  * or-fatal for the need-all OAs.
  */
-Gem::Courtier::executor_status_t GBase::workOnViaConsumer_(
+Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
     std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items,
     std::size_t start,
     std::size_t end
@@ -1552,7 +1552,7 @@ Gem::Courtier::executor_status_t GBase::workOnViaConsumer_(
 /**
  * Retrieves a vector of old work items after job submission
  */
-std::vector<std::shared_ptr<gpar::GParameterSet>> GBase::getOldWorkItems() {
+std::vector<std::shared_ptr<gpar::GParameterSet>> GOptimizationAlgorithmBase::getOldWorkItems() {
     // courtier reconciles every slot in place, so there are never any "old" (late-returned) items to
     // retrieve. (Capturing late returns for their quality is a planned future improvement.)
     return {};
@@ -1562,7 +1562,7 @@ std::vector<std::shared_ptr<gpar::GParameterSet>> GBase::getOldWorkItems() {
 /**
  * Saves the state of the class to disc
  */
-void GBase::saveCheckpoint(std::filesystem::path const &output_file) const {
+void GOptimizationAlgorithmBase::saveCheckpoint(std::filesystem::path const &output_file) const {
     this->toFile(output_file, this->getCheckpointSerializationMode());
 }
 
@@ -1574,7 +1574,7 @@ void GBase::saveCheckpoint(std::filesystem::path const &output_file) const {
  * This is mainly used for checkpointing and associated cross-checks.
  */
 std::string
-GBase::extractOptAlgFromPath(const std::filesystem::path &p) const {
+GOptimizationAlgorithmBase::extractOptAlgFromPath(const std::filesystem::path &p) const {
     // Extract the filename
     std::string filename = p.filename().string();
 
@@ -1585,7 +1585,7 @@ GBase::extractOptAlgFromPath(const std::filesystem::path &p) const {
     if(tokens.size() < 2) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBase<>::extractOptAlgFromPath(): Error!" << '\n'
+            << "In GOptimizationAlgorithmBase<>::extractOptAlgFromPath(): Error!" << '\n'
             << "Found file name " << filename << " that does not comply to rules." << '\n'
             << "Expected \"/some/path/word1-PERSONALITY_EA-some-other-information \"" << '\n'
         );
@@ -1600,13 +1600,13 @@ GBase::extractOptAlgFromPath(const std::filesystem::path &p) const {
  * Retrieves the best individual found up to now (which is usually the best individual
  * in the priority queue).
  */
-std::shared_ptr<gpar::GParameterSet> GBase::getBestGlobalIndividual_() const {
+std::shared_ptr<gpar::GParameterSet> GOptimizationAlgorithmBase::getBestGlobalIndividual_() const {
     std::shared_ptr<gpar::GParameterSet> p = best_global_individuals_pq_.best();
 #ifdef DEBUG
     if(!p) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBase<T>::getBestGlobalIndividual_(): Error!" << '\n'
+            << "In GOptimizationAlgorithmBase<T>::getBestGlobalIndividual_(): Error!" << '\n'
             << "Best individual seems to be empty" << '\n'
         );
     }
@@ -1621,7 +1621,7 @@ std::shared_ptr<gpar::GParameterSet> GBase::getBestGlobalIndividual_() const {
  * the priority queue)
  */
 std::vector<std::shared_ptr<gpar::GParameterSet>>
-GBase::getBestGlobalIndividuals_() const {
+GOptimizationAlgorithmBase::getBestGlobalIndividuals_() const {
     std::vector<std::shared_ptr<gpar::GParameterSet>> best_individuals_vec;
 
     for(const auto &ind_ptr : best_global_individuals_pq_.toVector()) {
@@ -1636,13 +1636,13 @@ GBase::getBestGlobalIndividuals_() const {
  * Retrieves the best individual found in the iteration (which is the best individual
  * in the priority queue).
  */
-std::shared_ptr<gpar::GParameterSet> GBase::getBestIterationIndividual_() const {
+std::shared_ptr<gpar::GParameterSet> GOptimizationAlgorithmBase::getBestIterationIndividual_() const {
     std::shared_ptr<gpar::GParameterSet> p = best_iteration_individuals_pq_.best();
 #ifdef DEBUG
     if(!p) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBase<T>::getBestIterationIndividual_(): Error!"
+            << "In GOptimizationAlgorithmBase<T>::getBestIterationIndividual_(): Error!"
             << '\n'
             << "Best individual seems to be empty" << '\n'
         );
@@ -1658,7 +1658,7 @@ std::shared_ptr<gpar::GParameterSet> GBase::getBestIterationIndividual_() const 
  * the priority queue)
  */
 std::vector<std::shared_ptr<gpar::GParameterSet>>
-GBase::getBestIterationIndividuals_() const {
+GOptimizationAlgorithmBase::getBestIterationIndividuals_() const {
     return best_iteration_individuals_pq_.toVector();
 }
 
@@ -1666,7 +1666,7 @@ GBase::getBestIterationIndividuals_() const {
 /**
  * Allows to set the personality type of the individuals
  */
-void GBase::setIndividualPersonalities() {
+void GOptimizationAlgorithmBase::setIndividualPersonalities() {
     for(auto const &ind_ptr : *this) {
         ind_ptr->setPersonality(this->getPersonalityTraits_());
     }
@@ -1676,7 +1676,7 @@ void GBase::setIndividualPersonalities() {
 /**
  * Resets the individual's personality types
  */
-void GBase::resetIndividualPersonalities() {
+void GOptimizationAlgorithmBase::resetIndividualPersonalities() {
     for(auto const &ind_ptr : *this) {
         ind_ptr->resetPersonality();
     }
@@ -1688,7 +1688,7 @@ void GBase::resetIndividualPersonalities() {
  *
  * @param def_pop_size The desired size of the population
  */
-void GBase::setDefaultPopulationSize(std::size_t def_pop_size) {
+void GOptimizationAlgorithmBase::setDefaultPopulationSize(std::size_t def_pop_size) {
     default_population_size_ = def_pop_size;
 }
 
@@ -1698,13 +1698,13 @@ void GBase::setDefaultPopulationSize(std::size_t def_pop_size) {
  *
  * @param n_record_best_individuals The number of "best" individuals to be recorded in each iteration
  */
-void GBase::setNRecordBestIndividuals(
+void GOptimizationAlgorithmBase::setNRecordBestIndividuals(
     std::size_t n_record_best_individuals
 ) {
     if(0 == n_record_best_individuals) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBase<>::setNRecordBestIndividuals(): Error!" << '\n'
+            << "In GOptimizationAlgorithmBase<>::setNRecordBestIndividuals(): Error!" << '\n'
             << "Invalid number of individuals to be recorded: " << n_record_best_individuals << '\n'
         );
     }
@@ -1719,7 +1719,7 @@ void GBase::setNRecordBestIndividuals(
  *
  * @return The number of best individuals to be recorded in each iteration
  */
-std::size_t GBase::getNRecordBestIndividuals() const {
+std::size_t GOptimizationAlgorithmBase::getNRecordBestIndividuals() const {
     return n_recordbest_global_individuals_;
 }
 
@@ -1727,7 +1727,7 @@ std::size_t GBase::getNRecordBestIndividuals() const {
 /**
  * Allows derived classes to reset the stall counter.
  */
-void GBase::resetStallCounter() {
+void GOptimizationAlgorithmBase::resetStallCounter() {
     stall_counter_ = 0;
 }
 
@@ -1737,7 +1737,7 @@ void GBase::resetStallCounter() {
  * function will usually be overloaded by derived functions, which should however,
  * as their first action, call this function.
  */
-void GBase::init() {
+void GOptimizationAlgorithmBase::init() {
     // courtier is the submission path. If no routing was injected (Go2, or setBroker /
     // setLocalConsumer), default this algorithm to a courtier local multithreaded consumer
     // -- so a bare alg->optimize() works standalone, without Go2 and without enrolling a consumer.
@@ -1746,7 +1746,7 @@ void GBase::init() {
     }
 
     // Create the shared thread pool used for parallel organizational work (adaption,
-    // recombination, ...). Derived algorithms that call GBase::init() first get it for free.
+    // recombination, ...). Derived algorithms that call GOptimizationAlgorithmBase::init() first get it for free.
     tp_ptr_ = std::make_shared<Gem::Common::GThreadPool>(n_threads_);
 }
 
@@ -1756,7 +1756,7 @@ void GBase::init() {
  * This function will usually be overloaded by derived functions, which should however
  * call this function as their last action.
  */
-void GBase::finalize() {
+void GOptimizationAlgorithmBase::finalize() {
     // Release the shared thread pool created in init().
     tp_ptr_.reset();
     // Otherwise nothing to do: courtier needs no executor teardown (the consumer/broker are released by RAII).
@@ -1767,9 +1767,9 @@ void GBase::finalize() {
  * Sets the number of threads used for parallel organizational work (adaption,
  * recombination, ...). If n_threads is 0, the count falls back to the default.
  */
-void GBase::setNThreads(std::uint16_t n_threads) {
+void GOptimizationAlgorithmBase::setNThreads(std::uint16_t n_threads) {
     if(n_threads == 0) {
-        glogger << "In GBase::setNThreads(n_threads):" << '\n'
+        glogger << "In GOptimizationAlgorithmBase::setNThreads(n_threads):" << '\n'
                 << "n_threads == 0 was requested. n_threads_ was reset to the default "
                 << DEFAULTNSTDTHREADS << '\n'
                 << GWARNING;
@@ -1785,7 +1785,7 @@ void GBase::setNThreads(std::uint16_t n_threads) {
 /**
  * Retrieves the number of threads used for parallel organizational work.
  */
-std::uint16_t GBase::getNThreads() const {
+std::uint16_t GOptimizationAlgorithmBase::getNThreads() const {
     return n_threads_;
 }
 
@@ -1794,7 +1794,7 @@ std::uint16_t GBase::getNThreads() const {
  * Lets individuals know about the current iteration of the optimization
  * cycle.
  */
-void GBase::markIteration() {
+void GOptimizationAlgorithmBase::markIteration() {
     for(auto const &ind_ptr : *this) {
         ind_ptr->setAssignedIteration(iteration_);
     }
@@ -1804,7 +1804,7 @@ void GBase::markIteration() {
 /**
  * Let individuals know the number of stalls encountered so far
  */
-void GBase::markNStalls() {
+void GOptimizationAlgorithmBase::markNStalls() {
     for(auto const &ind_ptr : *this) {
         ind_ptr->setNStalls(stall_counter_);
     }
@@ -1816,7 +1816,7 @@ void GBase::markNStalls() {
  * here, so we can usually deal with finite values (due to the transformation
  * in the case of a constraint violation).
  */
-void GBase::updateStallCounter(const std::tuple<double, double> &best_eval) {
+void GOptimizationAlgorithmBase::updateStallCounter(const std::tuple<double, double> &best_eval) {
     auto m = this->at(0)->getMaxMode(); // We assume the same maxMode for all individuals
     if(isBetter(
            std::get<G_TRANSFORMED_FITNESS>(best_eval),
@@ -1835,11 +1835,11 @@ void GBase::updateStallCounter(const std::tuple<double, double> &best_eval) {
 /**
  * This function returns true once a given time (set with
  * GOptimizationAlgorithm<GParameterSet>::setMaxTime()) has passed.
- * It is used in the GBase::halt() function.
+ * It is used in the GOptimizationAlgorithmBase::halt() function.
  *
  * @return A boolean indicating whether a given amount of time has passed
  */
-bool GBase::timedHalt(
+bool GOptimizationAlgorithmBase::timedHalt(
     const std::chrono::system_clock::time_point &current_time
 ) const {
     if((current_time - start_time_) >= max_duration_) {
@@ -1859,7 +1859,7 @@ bool GBase::timedHalt(
 /**
  * This function checks whether a minimum amount of time has passed
   */
-bool GBase::minTimePassed(
+bool GOptimizationAlgorithmBase::minTimePassed(
     const std::chrono::system_clock::time_point &current_time
 ) const {
     return (current_time - start_time_) > min_duration_;
@@ -1874,7 +1874,7 @@ bool GBase::minTimePassed(
  *
  * @return A boolean indicating whether the quality is above or below a given threshold
  */
-bool GBase::qualityHalt() const {
+bool GOptimizationAlgorithmBase::qualityHalt() const {
     auto m = this->at(0)->getMaxMode(); // We assume the same maxMode for all individuals
     if(isBetter(
            std::get<G_RAW_FITNESS>(
@@ -1906,7 +1906,7 @@ bool GBase::qualityHalt() const {
  *
  * @return A boolean indicating whether the optimization has stalled too often in a row
  */
-bool GBase::stallHalt() const {
+bool GOptimizationAlgorithmBase::stallHalt() const {
     if(stall_counter_ >= max_stall_iteration_) {
         if(emit_termination_reason_) {
             glogger << "Terminating optimization run because" << '\n'
@@ -1928,7 +1928,7 @@ bool GBase::stallHalt() const {
  *
  * @return A boolean indicating whether the maximum number of iterations has been exceeded
  */
-bool GBase::iterationHalt() const {
+bool GOptimizationAlgorithmBase::iterationHalt() const {
     if(iteration_ >= max_iteration_) {
         if(emit_termination_reason_) {
             glogger << "Terminating optimization run because" << '\n'
@@ -1948,7 +1948,7 @@ bool GBase::iterationHalt() const {
  * This function returns true when the minimum number of iterations has
  * been passed.
  */
-bool GBase::minIterationPassed() const {
+bool GOptimizationAlgorithmBase::minIterationPassed() const {
     // iteration_ is incremented before halt()/this check is evaluated, so after
     // the N-th cycle iteration_ == N. ">=" makes the minimum pass at exactly
     // min_iteration_ cycles; ">" would run one extra iteration (and is
@@ -1963,7 +1963,7 @@ bool GBase::minIterationPassed() const {
  *
  * @return A boolean indicating whether the program was interrupted with a SIGHUP or CTRL_CLOSE_EVENT signal
  */
-bool GBase::sigHupHalt() const {
+bool GOptimizationAlgorithmBase::sigHupHalt() const {
     if(G_SIGHUP_SENT()) {
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
         std::cout
@@ -1987,7 +1987,7 @@ bool GBase::sigHupHalt() const {
  * is assumed that users may "touch" the file for termination only, so that the
  * possibility exists that the file isn't there until that time.
  */
-bool GBase::touchHalt() const {
+bool GOptimizationAlgorithmBase::touchHalt() const {
     // Create a suitable path object
     std::filesystem::path p(termination_file_);
 
@@ -2019,7 +2019,7 @@ bool GBase::touchHalt() const {
  *
  * @return A boolean indicating whether a custom halt criterion has been reached
  */
-bool GBase::customHalt() const {
+bool GOptimizationAlgorithmBase::customHalt() const {
     if(customHalt_()) {
         if(emit_termination_reason_) {
             glogger << "Terminating optimization run because custom halt criterion has triggered."
@@ -2039,7 +2039,7 @@ bool GBase::customHalt() const {
  *
  * @return A boolean indicating whether a custom halt criterion has been reached
  */
-bool GBase::customHalt_() const {
+bool GOptimizationAlgorithmBase::customHalt_() const {
     return false;
 }
 
@@ -2051,7 +2051,7 @@ bool GBase::customHalt_() const {
  *
  * @return A boolean indicating whether a halt criterion has been reached
  */
-bool GBase::halt() const {
+bool GOptimizationAlgorithmBase::halt() const {
     // Retrieve the current time, so all time-based functions act on the same basis
     std::chrono::system_clock::time_point current_time = std::chrono::system_clock::now();
 
@@ -2123,7 +2123,7 @@ bool GBase::halt() const {
  *
  * @return A boolean indicating whether the "max-iteration halt" has been set
  */
-bool GBase::maxIterationHaltset() const {
+bool GOptimizationAlgorithmBase::maxIterationHaltset() const {
     return 0 != max_iteration_;
 }
 
@@ -2133,7 +2133,7 @@ bool GBase::maxIterationHaltset() const {
  *
  * @return A boolean indicating whether a halt criterion based on the number of stalls has been set
  */
-bool GBase::stallHaltSet() const {
+bool GOptimizationAlgorithmBase::stallHaltSet() const {
     return 0 != max_stall_iteration_;
 }
 
@@ -2143,7 +2143,7 @@ bool GBase::stallHaltSet() const {
  *
  * @return A boolean indication whether the max-duration halt criterion has been set
  */
-bool GBase::maxDurationHaltSet() const {
+bool GOptimizationAlgorithmBase::maxDurationHaltSet() const {
     return 0. != max_duration_.count();
 }
 
@@ -2153,7 +2153,7 @@ bool GBase::maxDurationHaltSet() const {
  *
  * @return A boolean indicating whether the quality-threshold halt-criterion has been set
  */
-bool GBase::qualityThresholdHaltSet() const {
+bool GOptimizationAlgorithmBase::qualityThresholdHaltSet() const {
     return has_quality_threshold_;
 }
 
@@ -2161,7 +2161,7 @@ bool GBase::qualityThresholdHaltSet() const {
 /**
  * Marks the globally best known fitness in all individuals
  */
-void GBase::markBestFitness() {
+void GOptimizationAlgorithmBase::markBestFitness() {
     for(auto const &ind_ptr : *this) {
         ind_ptr->setBestKnownPrimaryFitness(this->getBestKnownPrimaryFitness());
     }
@@ -2171,7 +2171,7 @@ void GBase::markBestFitness() {
 /**
  * Indicates whether the stall_counter_threshold_ has been exceeded
  */
-bool GBase::stallCounterThresholdExceeded() const {
+bool GOptimizationAlgorithmBase::stallCounterThresholdExceeded() const {
     return (stall_counter_ > stall_counter_threshold_);
 }
 
@@ -2181,7 +2181,7 @@ bool GBase::stallCounterThresholdExceeded() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GBase::modify_GUnitTests_() {
+bool GOptimizationAlgorithmBase::modify_GUnitTests_() {
 #ifdef GEM_TESTING
     bool result = false;
 
@@ -2204,7 +2204,7 @@ bool GBase::modify_GUnitTests_() {
     return result;
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset("GBase<>::modify_GUnitTests", "GEM_TESTING");
+    Gem::Common::condnotset("GOptimizationAlgorithmBase<>::modify_GUnitTests", "GEM_TESTING");
     return false;
 #endif                  /* GEM_TESTING */
 }
@@ -2213,7 +2213,7 @@ bool GBase::modify_GUnitTests_() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GBase::specificTestsNoFailureExpected_GUnitTests_() {
+void GOptimizationAlgorithmBase::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // This is the category root; there is no GObject parent class to delegate to.
@@ -2222,7 +2222,7 @@ void GBase::specificTestsNoFailureExpected_GUnitTests_() {
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
-        "GBase<>::specificTestsNoFailureExpected_GUnitTests",
+        "GOptimizationAlgorithmBase<>::specificTestsNoFailureExpected_GUnitTests",
         "GEM_TESTING"
     );
 #endif                  /* GEM_TESTING */
@@ -2232,7 +2232,7 @@ void GBase::specificTestsNoFailureExpected_GUnitTests_() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GBase::specificTestsFailuresExpected_GUnitTests_() {
+void GOptimizationAlgorithmBase::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // This is the category root; there is no GObject parent class to delegate to.
@@ -2241,7 +2241,7 @@ void GBase::specificTestsFailuresExpected_GUnitTests_() {
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
-        "GBase<>::specificTestsFailuresExpected_GUnitTests",
+        "GOptimizationAlgorithmBase<>::specificTestsFailuresExpected_GUnitTests",
         "GEM_TESTING"
     );
 #endif                  /* GEM_TESTING */
