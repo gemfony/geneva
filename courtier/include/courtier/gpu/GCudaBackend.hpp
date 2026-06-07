@@ -30,28 +30,43 @@
 #pragma once
 
 // Standard headers
+#include <cstddef>
 #include <memory>
+#include <string>
 
 // Geneva headers
-#include "gpugen/GGPUKernelSpec.hpp"
+#include "courtier/gpu/GGPUDeviceBackendI.hpp"
 
 namespace Gem::Courtier::GPU {
 
-class GGPUDeviceBackendI;
-class GGPUHostEvalI;
-
 /******************************************************************************/
 /**
- * Builds the device backend for @p kind. The CPU backend uses @p hostEval for its host reference
- * evaluation (a marshaller is-a GGPUHostEvalI); the CUDA/OpenCL backends ignore it (they run the
- * kernel) but take it for a uniform signature. Throws a geneva_exception if the requested backend was
- * not compiled in (its toolkit was absent at configure time) -- the caller can fall back to
- * BackendKind::Cpu.
+ * CUDA device backend. It acquires the kernel at RUN TIME: a `.cu` source file from the config is
+ * compiled with NVRTC to PTX and loaded through the CUDA driver API; a prebuilt `.ptx`/`.cubin` is
+ * loaded directly. The whole batch is uploaded and evaluated in one cuLaunchKernel (bulk). All CUDA
+ * types are hidden behind a pimpl so this header pulls in no CUDA headers.
+ *
+ * Compiled only when a CUDA toolkit was found at configure time (see the courtier GPU CMakeLists).
  */
-std::unique_ptr<GGPUDeviceBackendI> makeBackend(BackendKind kind, const GGPUHostEvalI *hostEval);
+class GCudaBackend final : public GGPUDeviceBackendI {
+public:
+    GCudaBackend();
+    ~GCudaBackend() override;
 
-/** @brief Whether @p kind was compiled into this build (cpu is always true). */
-[[nodiscard]] bool backendAvailable(BackendKind kind);
+    GCudaBackend(const GCudaBackend &) = delete;
+    GCudaBackend &operator=(const GCudaBackend &) = delete;
+
+    void initialize(const KernelSpec &spec) override;
+    void evaluate(
+        const double *params, int n_items, int dim,
+        const std::byte *pconst, std::size_t pconst_size,
+        double *fitness_out, int threads_per_item = 1) override;
+    [[nodiscard]] std::string name() const override;
+
+private:
+    struct Impl;
+    std::unique_ptr<Impl> p_;
+};
 
 /******************************************************************************/
 

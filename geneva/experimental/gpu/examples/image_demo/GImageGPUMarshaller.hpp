@@ -37,7 +37,7 @@
 
 // Geneva headers
 #include "geneva/par/GParameterSet.hpp"
-#include "gpugen/GGPUEvaluableI.hpp"
+#include "courtier/gpu/GGPUEvaluableI.hpp"
 #include "GExpImageProblem.hpp"
 
 namespace gpar = Gem::Geneva::Parameters;

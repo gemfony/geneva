@@ -40,9 +40,9 @@ SET_TARGET_PROPERTIES ( ${EXECUTABLENAME} PROPERTIES
 # For the demo-local marshaller header (GFunctionIndividualGPUMarshaller.hpp).
 TARGET_INCLUDE_DIRECTORIES ( ${EXECUTABLENAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
 
-# gpugen brings in its public include dir, the Geneva libraries and (when present) CUDA/OpenCL.
+# gemfony-courtier-gpu brings in its public include dir, the courtier libraries and (when present) CUDA/OpenCL.
 TARGET_LINK_LIBRARIES ( ${EXECUTABLENAME} PRIVATE
-	gpugen
+	${COURTIER_GPU_LIBNAME}
 	${GENEVA_LIBRARIES}
 	${Boost_LIBRARIES}
 )

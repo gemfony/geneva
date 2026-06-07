@@ -59,6 +59,21 @@ SET ( TRANSPORT_INCLUDES
     transport/GWebsocketTransportT.hpp
 )
 
+# GPU consumer framework (namespace Gem::Courtier::GPU): the device-agnostic core, the CPU/CUDA/OpenCL
+# backends and the bulk-dispatch consumer. Header-only except for the backend .cpp files compiled into
+# the optional gemfony-courtier-gpu add-on (see src/gpu/).
+SET ( GPU_INCLUDES
+    gpu/GCpuBackend.hpp
+    gpu/GCudaBackend.hpp
+    gpu/GGPUBackendFactory.hpp
+    gpu/GGPUConsumer.hpp
+    gpu/GGPUConsumerConfig.hpp
+    gpu/GGPUDeviceBackendI.hpp
+    gpu/GGPUEvaluableI.hpp
+    gpu/GGPUKernelSpec.hpp
+    gpu/GOpenCLBackend.hpp
+)
+
 # MPI consumer/transport is optional, only build it when requested
 IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
     SET( COMMUNICATIONINCLUDES
@@ -73,7 +88,7 @@ IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
 ENDIF ()
 
 set_source_files_properties(
-    ${COMMUNICATIONINCLUDES} ${CONSUMER_INCLUDES} ${TRANSPORT_INCLUDES}
+    ${COMMUNICATIONINCLUDES} ${CONSUMER_INCLUDES} ${TRANSPORT_INCLUDES} ${GPU_INCLUDES}
     PROPERTIES
     LANGUAGE CXX
     CXX_STANDARD 20
@@ -81,7 +96,7 @@ set_source_files_properties(
 
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
 ADD_CUSTOM_TARGET(CLION_ALL_COURTIER_HEADERS
-    SOURCES ${COMMUNICATIONINCLUDES} ${CONSUMER_INCLUDES} ${TRANSPORT_INCLUDES})
+    SOURCES ${COMMUNICATIONINCLUDES} ${CONSUMER_INCLUDES} ${TRANSPORT_INCLUDES} ${GPU_INCLUDES})
 
 SET_TARGET_PROPERTIES(
     CLION_ALL_COURTIER_HEADERS
@@ -94,3 +109,4 @@ SET_TARGET_PROPERTIES(
 INSTALL ( FILES ${COMMUNICATIONINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/courtier )
 INSTALL ( FILES ${CONSUMER_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/courtier/consumers )
 INSTALL ( FILES ${TRANSPORT_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/courtier/transport )
+INSTALL ( FILES ${GPU_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/courtier/gpu )

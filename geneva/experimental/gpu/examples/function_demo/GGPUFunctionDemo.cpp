@@ -61,10 +61,10 @@
 #include "courtier/GSubmissionPolicy.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
 #include "geneva/par/GParameterSet.hpp"
-#include "gpugen/GGPUBackendFactory.hpp"
-#include "gpugen/GGPUConsumer.hpp"
-#include "gpugen/GGPUConsumerConfig.hpp"
-#include "gpugen/GGPUDeviceBackendI.hpp"
+#include "courtier/gpu/GGPUBackendFactory.hpp"
+#include "courtier/gpu/GGPUConsumer.hpp"
+#include "courtier/gpu/GGPUConsumerConfig.hpp"
+#include "courtier/gpu/GGPUDeviceBackendI.hpp"
 #include "GFunctionIndividualGPUMarshaller.hpp"
 
 namespace gpu = Gem::Courtier::GPU;

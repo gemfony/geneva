@@ -31,41 +31,44 @@
 
 // Standard headers
 #include <cstddef>
-#include <memory>
 #include <string>
 
 // Geneva headers
-#include "gpugen/GGPUDeviceBackendI.hpp"
+#include "courtier/gpu/GGPUKernelSpec.hpp"
 
 namespace Gem::Courtier::GPU {
 
 /******************************************************************************/
 /**
- * OpenCL device backend. It acquires the kernel at RUN TIME: a `.cl` source file from the config is
- * compiled with clBuildProgram; a prebuilt `.spv` (SPIR-V) is loaded via clCreateProgramWithIL. The
- * whole batch is evaluated in one clEnqueueNDRangeKernel (bulk). All OpenCL types are hidden behind a
- * pimpl so this header pulls in no OpenCL headers.
+ * The GPU consumer framework -- the device-programming-model abstraction.
  *
- * Compiled only when an OpenCL SDK was found at configure time (see the experimental CMakeLists).
+ * This is the "different technical content" layer: one interface, several implementations
+ * (GCpuBackend always; GCudaBackend / GOpenCLBackend when their toolkit is present). The consumer
+ * marshals a whole batch into flat host buffers (via GGPUEvaluableI) and hands them to a backend,
+ * which uploads, launches the kernel ONCE over the whole batch (bulk submission), and downloads the
+ * per-item fitness. All backends share this API; they differ only in how they acquire and run the
+ * kernel.
  */
-class GOpenCLBackend final : public GGPUDeviceBackendI {
+class GGPUDeviceBackendI {
 public:
-    GOpenCLBackend();
-    ~GOpenCLBackend() override;
+    virtual ~GGPUDeviceBackendI() = default;
 
-    GOpenCLBackend(const GOpenCLBackend &) = delete;
-    GOpenCLBackend &operator=(const GOpenCLBackend &) = delete;
+    /** @brief Selects the device and acquires the kernel described by @p spec (runtime-compiles a
+     *  source file, or loads a prebuilt module). Called once before the first evaluate(). */
+    virtual void initialize(const KernelSpec &spec) = 0;
 
-    void initialize(const KernelSpec &spec) override;
-    void evaluate(
+    /** @brief Evaluates a whole batch in one launch. @p params is n_items * dim row-major doubles;
+     *  @p pconst is an opaque problem-constant blob; writes n_items doubles into @p fitness_out.
+     *  @p threads_per_item requests intra-item (e.g. pixel-level) parallelism: a backend that supports
+     *  it launches n_items * threads_per_item threads and the kernel accumulates each item's fitness
+     *  (the backend zeroes fitness_out first); the default 1 is one thread per item (overwrite). */
+    virtual void evaluate(
         const double *params, int n_items, int dim,
         const std::byte *pconst, std::size_t pconst_size,
-        double *fitness_out, int threads_per_item = 1) override;
-    [[nodiscard]] std::string name() const override;
+        double *fitness_out, int threads_per_item = 1) = 0;
 
-private:
-    struct Impl;
-    std::unique_ptr<Impl> p_;
+    /** @brief A short human-readable backend name (for logging). */
+    [[nodiscard]] virtual std::string name() const = 0;
 };
 
 /******************************************************************************/

@@ -40,17 +40,17 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "courtier/GBaseConsumerT.hpp"
-#include "gpugen/GCpuBackend.hpp"
-#include "gpugen/GGPUBackendFactory.hpp"
-#include "gpugen/GGPUConsumerConfig.hpp"
-#include "gpugen/GGPUDeviceBackendI.hpp"
-#include "gpugen/GGPUEvaluableI.hpp"
+#include "courtier/gpu/GCpuBackend.hpp"
+#include "courtier/gpu/GGPUBackendFactory.hpp"
+#include "courtier/gpu/GGPUConsumerConfig.hpp"
+#include "courtier/gpu/GGPUDeviceBackendI.hpp"
+#include "courtier/gpu/GGPUEvaluableI.hpp"
 
 namespace Gem::Courtier::GPU {
 
 /******************************************************************************/
 /**
- * EXPERIMENTAL: a unified, device-model-agnostic GPU consumer.
+ * A unified, device-model-agnostic GPU consumer (part of the Courtier consumer family).
  *
  * It is an ordinary courtier LOCAL consumer (it derives from the same Gem::Courtier::GBaseConsumerT
  * that every other consumer -- serial, multi-threaded, asio, beast, mpi -- derives from), so it plugs

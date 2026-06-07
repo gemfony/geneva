@@ -41,7 +41,7 @@
 // Geneva headers
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
-#include "gpugen/GOpenCLBackend.hpp"
+#include "courtier/gpu/GOpenCLBackend.hpp"
 
 namespace Gem::Courtier::GPU {
 

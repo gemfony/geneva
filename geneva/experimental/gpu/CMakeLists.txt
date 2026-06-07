@@ -27,71 +27,14 @@
 #
 ################################################################################
 
-# EXPERIMENTAL: a unified, device-model-agnostic GPU consumer framework. Builds a small static
-# library (gpugen) carrying the device-agnostic core + the always-available CPU backend, plus the
-# CUDA and OpenCL backends when their toolkits are present, and then the demo programs.
+# Demo programs for the unified, device-model-agnostic GPU consumer framework. The framework itself
+# (CPU/CUDA/OpenCL backends, runtime kernel loading) now lives in the Courtier library and is built as
+# the optional gemfony-courtier-gpu add-on (see courtier/src/gpu/). These demos just drive it.
+#
+# NOTE: this experimental tree is being retired. The Mona-Lisa demo has been promoted to the official
+# example 15, and the CUDA optimisation benchmark reuses the same framework. The remaining demos here
+# are kept only as additional smoke tests until the migration is complete.
 
-SET ( GPUGEN_SRCS
-	src/GGPUBackendFactory.cpp
-)
-
-# --- optional CUDA backend (NVRTC + CUDA driver API; no nvcc compilation here) ----------------
-# CUDA is enabled globally by the top-level CMakeLists when a toolkit is found (CMAKE_CUDA_COMPILER).
-SET ( GPUGEN_HAVE_CUDA FALSE )
-IF ( CMAKE_CUDA_COMPILER )
-	SET ( GPUGEN_HAVE_CUDA TRUE )
-	SET ( GPUGEN_SRCS ${GPUGEN_SRCS} src/GCudaBackend.cpp )
-ENDIF ()
-
-# --- optional OpenCL backend ------------------------------------------------------------------
-FIND_PACKAGE ( OpenCL QUIET )
-SET ( GPUGEN_HAVE_OPENCL FALSE )
-IF ( OpenCL_FOUND )
-	SET ( GPUGEN_HAVE_OPENCL TRUE )
-	SET ( GPUGEN_SRCS ${GPUGEN_SRCS} src/GOpenCLBackend.cpp )
-ENDIF ()
-
-ADD_LIBRARY ( gpugen STATIC ${GPUGEN_SRCS} )
-
-TARGET_INCLUDE_DIRECTORIES ( gpugen PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include )
-
-SET_TARGET_PROPERTIES ( gpugen PROPERTIES
-	CXX_STANDARD 20
-	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF
-	POSITION_INDEPENDENT_CODE ON
-)
-
-TARGET_LINK_LIBRARIES ( gpugen PUBLIC
-	${GENEVA_LIBRARIES}
-	${Boost_LIBRARIES}
-)
-
-IF ( GPUGEN_HAVE_CUDA )
-	TARGET_COMPILE_DEFINITIONS ( gpugen PUBLIC GPUGEN_HAVE_CUDA )
-	# NVRTC for runtime kernel compilation; the CUDA driver API (cuda) for module load + launch.
-	TARGET_LINK_LIBRARIES ( gpugen PUBLIC CUDA::nvrtc CUDA::cuda_driver )
-	MESSAGE ( STATUS "gpugen: CUDA backend enabled (NVRTC + CUDA driver API)" )
-ELSE ()
-	MESSAGE ( STATUS "gpugen: CUDA backend DISABLED (no CUDA toolkit)" )
-ENDIF ()
-
-IF ( GPUGEN_HAVE_OPENCL )
-	TARGET_COMPILE_DEFINITIONS ( gpugen PUBLIC GPUGEN_HAVE_OPENCL )
-	TARGET_LINK_LIBRARIES ( gpugen PUBLIC OpenCL::OpenCL )
-	MESSAGE ( STATUS "gpugen: OpenCL backend enabled" )
-ELSE ()
-	MESSAGE ( STATUS "gpugen: OpenCL backend DISABLED (no OpenCL SDK)" )
-ENDIF ()
-
-# The CUDA toolkit's bundled host compiler can inject an older libstdc++ into the link step; link the
-# CXX compiler's own libstdc++.so by full path to satisfy the required CXXABI (see top-level notes).
-IF ( GPUGEN_HAVE_CUDA AND DEFINED GENEVA_CXX_RUNTIME_LIB_DIR
-     AND EXISTS "${GENEVA_CXX_RUNTIME_LIB_DIR}/libstdc++.so" )
-	TARGET_LINK_LIBRARIES ( gpugen PUBLIC "${GENEVA_CXX_RUNTIME_LIB_DIR}/libstdc++.so" )
-ENDIF ()
-
-# Demo programs that drive the framework.
 ADD_SUBDIRECTORY ( examples/function_demo )
 ADD_SUBDIRECTORY ( examples/image_demo )
 ADD_SUBDIRECTORY ( examples/monalisa_demo )

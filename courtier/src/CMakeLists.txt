@@ -78,3 +78,6 @@ IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
 ENDIF ()
 
 INSTALL(TARGETS ${COURTIER_LIBNAME} EXPORT GenevaTargets DESTINATION ${INSTALL_PREFIX_LIBS})
+
+# Optional GPU consumer add-on (CPU backend always, CUDA/OpenCL when available).
+ADD_SUBDIRECTORY ( gpu )

@@ -38,7 +38,7 @@ namespace Gem::Courtier::GPU {
 
 /******************************************************************************/
 /**
- * EXPERIMENTAL GPU consumer framework. Logically a Gem::Courtier consumer (it derives from
+ * The GPU consumer framework. Logically a Gem::Courtier consumer (it derives from
  * GBaseConsumerT), so it lives in Gem::Courtier::GPU and is generic in the processable type, with NO
  * dependency on the Gem::Geneva layer (which sits above courtier). The concrete, GParameterSet-aware
  * marshallers live with the problems (the demos), not here.

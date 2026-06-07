@@ -34,41 +34,41 @@
 #include <string>
 
 // Geneva headers
-#include "gpugen/GGPUKernelSpec.hpp"
+#include "courtier/gpu/GGPUDeviceBackendI.hpp"
+#include "courtier/gpu/GGPUEvaluableI.hpp"
 
 namespace Gem::Courtier::GPU {
 
 /******************************************************************************/
 /**
- * EXPERIMENTAL GPU consumer framework -- the device-programming-model abstraction.
- *
- * This is the "different technical content" layer: one interface, several implementations
- * (GCpuBackend always; GCudaBackend / GOpenCLBackend when their toolkit is present). The consumer
- * marshals a whole batch into flat host buffers (via GGPUEvaluableI) and hands them to a backend,
- * which uploads, launches the kernel ONCE over the whole batch (bulk submission), and downloads the
- * per-item fitness. All backends share this API; they differ only in how they acquire and run the
- * kernel.
+ * The always-available reference backend: it ignores the kernel file and evaluates the batch on the
+ * host by delegating to the marshaller's hostEvaluate(). This lets the whole framework build and run
+ * (and be unit-tested) on machines with no GPU toolkit, and provides the CPU reference a GPU run can
+ * be compared against. It is single-threaded by design (a parallel CPU path is the existing
+ * GStdThreadConsumerT's job); here it exists for correctness and parity, not speed.
  */
-class GGPUDeviceBackendI {
+class GCpuBackend final : public GGPUDeviceBackendI {
 public:
-    virtual ~GGPUDeviceBackendI() = default;
+    explicit GCpuBackend(const GGPUHostEvalI *hostEval)
+        : hostEval_(hostEval)
+    { /* nothing */ }
 
-    /** @brief Selects the device and acquires the kernel described by @p spec (runtime-compiles a
-     *  source file, or loads a prebuilt module). Called once before the first evaluate(). */
-    virtual void initialize(const KernelSpec &spec) = 0;
+    void initialize(const KernelSpec & /*spec*/) override {
+        // The CPU backend needs no kernel: it runs the marshaller's host reference.
+    }
 
-    /** @brief Evaluates a whole batch in one launch. @p params is n_items * dim row-major doubles;
-     *  @p pconst is an opaque problem-constant blob; writes n_items doubles into @p fitness_out.
-     *  @p threads_per_item requests intra-item (e.g. pixel-level) parallelism: a backend that supports
-     *  it launches n_items * threads_per_item threads and the kernel accumulates each item's fitness
-     *  (the backend zeroes fitness_out first); the default 1 is one thread per item (overwrite). */
-    virtual void evaluate(
+    void evaluate(
         const double *params, int n_items, int dim,
         const std::byte *pconst, std::size_t pconst_size,
-        double *fitness_out, int threads_per_item = 1) = 0;
+        double *fitness_out, int /*threads_per_item*/ = 1) override {
+        // The host reference is inherently per-item; intra-item parallelism does not apply.
+        hostEval_->hostEvaluate(params, n_items, dim, pconst, pconst_size, fitness_out);
+    }
 
-    /** @brief A short human-readable backend name (for logging). */
-    [[nodiscard]] virtual std::string name() const = 0;
+    [[nodiscard]] std::string name() const override { return "cpu"; }
+
+private:
+    const GGPUHostEvalI *hostEval_; ///< Non-owning; outlives the backend (the marshaller, held by the consumer)
 };
 
 /******************************************************************************/

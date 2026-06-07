@@ -38,7 +38,7 @@
 // Geneva headers
 #include "geneva/individuals/GFunctionIndividual.hpp"
 #include "geneva/par/GParameterSet.hpp"
-#include "gpugen/GGPUEvaluableI.hpp"
+#include "courtier/gpu/GGPUEvaluableI.hpp"
 
 namespace gind = Gem::Geneva::Individuals;
 namespace gpar = Gem::Geneva::Parameters;

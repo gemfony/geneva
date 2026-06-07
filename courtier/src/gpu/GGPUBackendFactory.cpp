@@ -27,49 +27,67 @@
  *
  ********************************************************************************/
 
-#pragma once
-
-// Standard headers
-#include <cstddef>
-#include <string>
-
 // Geneva headers
-#include "gpugen/GGPUDeviceBackendI.hpp"
-#include "gpugen/GGPUEvaluableI.hpp"
+#include "common/GErrorStreamer.hpp"
+#include "common/GExceptions.hpp"
+#include "courtier/gpu/GCpuBackend.hpp"
+#include "courtier/gpu/GGPUBackendFactory.hpp"
+
+#ifdef GPUGEN_HAVE_CUDA
+#include "courtier/gpu/GCudaBackend.hpp"
+#endif
+#ifdef GPUGEN_HAVE_OPENCL
+#include "courtier/gpu/GOpenCLBackend.hpp"
+#endif
 
 namespace Gem::Courtier::GPU {
 
 /******************************************************************************/
-/**
- * The always-available reference backend: it ignores the kernel file and evaluates the batch on the
- * host by delegating to the marshaller's hostEvaluate(). This lets the whole framework build and run
- * (and be unit-tested) on machines with no GPU toolkit, and provides the CPU reference a GPU run can
- * be compared against. It is single-threaded by design (a parallel CPU path is the existing
- * GStdThreadConsumerT's job); here it exists for correctness and parity, not speed.
- */
-class GCpuBackend final : public GGPUDeviceBackendI {
-public:
-    explicit GCpuBackend(const GGPUHostEvalI *hostEval)
-        : hostEval_(hostEval)
-    { /* nothing */ }
 
-    void initialize(const KernelSpec & /*spec*/) override {
-        // The CPU backend needs no kernel: it runs the marshaller's host reference.
+bool backendAvailable(BackendKind kind) {
+    switch(kind) {
+    case BackendKind::Cpu:
+        return true;
+    case BackendKind::Cuda:
+#ifdef GPUGEN_HAVE_CUDA
+        return true;
+#else
+        return false;
+#endif
+    case BackendKind::OpenCL:
+#ifdef GPUGEN_HAVE_OPENCL
+        return true;
+#else
+        return false;
+#endif
     }
+    return false;
+}
 
-    void evaluate(
-        const double *params, int n_items, int dim,
-        const std::byte *pconst, std::size_t pconst_size,
-        double *fitness_out, int /*threads_per_item*/ = 1) override {
-        // The host reference is inherently per-item; intra-item parallelism does not apply.
-        hostEval_->hostEvaluate(params, n_items, dim, pconst, pconst_size, fitness_out);
+/******************************************************************************/
+
+std::unique_ptr<GGPUDeviceBackendI> makeBackend(BackendKind kind, const GGPUHostEvalI *hostEval) {
+    switch(kind) {
+    case BackendKind::Cpu:
+        return std::make_unique<GCpuBackend>(hostEval);
+    case BackendKind::Cuda:
+#ifdef GPUGEN_HAVE_CUDA
+        return std::make_unique<GCudaBackend>();
+#else
+        break;
+#endif
+    case BackendKind::OpenCL:
+#ifdef GPUGEN_HAVE_OPENCL
+        return std::make_unique<GOpenCLBackend>();
+#else
+        break;
+#endif
     }
-
-    [[nodiscard]] std::string name() const override { return "cpu"; }
-
-private:
-    const GGPUHostEvalI *hostEval_; ///< Non-owning; outlives the backend (the marshaller, held by the consumer)
-};
+    throw geneva_exception(
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+        << "Gem::Courtier::GPU::makeBackend(): backend '" << toString(kind)
+        << "' was not compiled into this build (its toolkit was not found at configure time)." << '\n');
+}
 
 /******************************************************************************/
 

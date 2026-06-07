@@ -34,7 +34,7 @@
 
 // Geneva headers
 #include "common/GParserBuilder.hpp"
-#include "gpugen/GGPUKernelSpec.hpp"
+#include "courtier/gpu/GGPUKernelSpec.hpp"
 
 namespace Gem::Courtier::GPU {
 

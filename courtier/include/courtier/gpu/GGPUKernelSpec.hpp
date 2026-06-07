@@ -38,7 +38,7 @@ namespace Gem::Courtier::GPU {
 
 /******************************************************************************/
 /**
- * EXPERIMENTAL GPU consumer framework -- common, device-agnostic descriptors.
+ * The GPU consumer framework -- common, device-agnostic descriptors.
  *
  * Which device-programming-model backend evaluates a batch. The CPU backend is always available
  * (it runs the marshaller's host reference evaluation); the Cuda / OpenCL backends are compiled in

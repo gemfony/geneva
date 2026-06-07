@@ -27,67 +27,46 @@
  *
  ********************************************************************************/
 
-// Geneva headers
-#include "common/GErrorStreamer.hpp"
-#include "common/GExceptions.hpp"
-#include "gpugen/GCpuBackend.hpp"
-#include "gpugen/GGPUBackendFactory.hpp"
+#pragma once
 
-#ifdef GPUGEN_HAVE_CUDA
-#include "gpugen/GCudaBackend.hpp"
-#endif
-#ifdef GPUGEN_HAVE_OPENCL
-#include "gpugen/GOpenCLBackend.hpp"
-#endif
+// Standard headers
+#include <cstddef>
+#include <memory>
+#include <string>
+
+// Geneva headers
+#include "courtier/gpu/GGPUDeviceBackendI.hpp"
 
 namespace Gem::Courtier::GPU {
 
 /******************************************************************************/
+/**
+ * OpenCL device backend. It acquires the kernel at RUN TIME: a `.cl` source file from the config is
+ * compiled with clBuildProgram; a prebuilt `.spv` (SPIR-V) is loaded via clCreateProgramWithIL. The
+ * whole batch is evaluated in one clEnqueueNDRangeKernel (bulk). All OpenCL types are hidden behind a
+ * pimpl so this header pulls in no OpenCL headers.
+ *
+ * Compiled only when an OpenCL SDK was found at configure time (see the courtier GPU CMakeLists).
+ */
+class GOpenCLBackend final : public GGPUDeviceBackendI {
+public:
+    GOpenCLBackend();
+    ~GOpenCLBackend() override;
 
-bool backendAvailable(BackendKind kind) {
-    switch(kind) {
-    case BackendKind::Cpu:
-        return true;
-    case BackendKind::Cuda:
-#ifdef GPUGEN_HAVE_CUDA
-        return true;
-#else
-        return false;
-#endif
-    case BackendKind::OpenCL:
-#ifdef GPUGEN_HAVE_OPENCL
-        return true;
-#else
-        return false;
-#endif
-    }
-    return false;
-}
+    GOpenCLBackend(const GOpenCLBackend &) = delete;
+    GOpenCLBackend &operator=(const GOpenCLBackend &) = delete;
 
-/******************************************************************************/
+    void initialize(const KernelSpec &spec) override;
+    void evaluate(
+        const double *params, int n_items, int dim,
+        const std::byte *pconst, std::size_t pconst_size,
+        double *fitness_out, int threads_per_item = 1) override;
+    [[nodiscard]] std::string name() const override;
 
-std::unique_ptr<GGPUDeviceBackendI> makeBackend(BackendKind kind, const GGPUHostEvalI *hostEval) {
-    switch(kind) {
-    case BackendKind::Cpu:
-        return std::make_unique<GCpuBackend>(hostEval);
-    case BackendKind::Cuda:
-#ifdef GPUGEN_HAVE_CUDA
-        return std::make_unique<GCudaBackend>();
-#else
-        break;
-#endif
-    case BackendKind::OpenCL:
-#ifdef GPUGEN_HAVE_OPENCL
-        return std::make_unique<GOpenCLBackend>();
-#else
-        break;
-#endif
-    }
-    throw geneva_exception(
-        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-        << "Gem::Courtier::GPU::makeBackend(): backend '" << toString(kind)
-        << "' was not compiled into this build (its toolkit was not found at configure time)." << '\n');
-}
+private:
+    struct Impl;
+    std::unique_ptr<Impl> p_;
+};
 
 /******************************************************************************/
 
