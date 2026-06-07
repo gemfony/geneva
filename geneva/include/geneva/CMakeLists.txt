@@ -26,6 +26,7 @@ SET ( PARAM_INCLUDES
     par/GConstrainedDoubleObjectCollection.hpp
     par/GConstrainedFPNumCollectionT.hpp
     par/GConstrainedFPT.hpp
+    par/GConstrainedFloatObject.hpp
     par/GConstrainedInt32Object.hpp
     par/GConstrainedInt32ObjectCollection.hpp
     par/GConstrainedIntT.hpp
@@ -37,6 +38,7 @@ SET ( PARAM_INCLUDES
     par/GDoubleGaussAdaptor.hpp
     par/GDoubleObject.hpp
     par/GDoubleObjectCollection.hpp
+    par/GFloatBiGaussAdaptor.hpp
     par/GFloatGaussAdaptor.hpp
     par/GFloatObject.hpp
     par/GFPBiGaussAdaptorT.hpp
