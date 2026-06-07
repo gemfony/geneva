@@ -10,7 +10,8 @@
 __kernel void evaluate(
     __global const double *params, int n_items, int dim,
     __global const uchar *pconst, int pconst_size,
-    __global double *fitness)
+    __global double *fitness,
+    int threads_per_item)
 {
     const int i = get_global_id(0);
     if (i >= n_items) {

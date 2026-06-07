@@ -50,7 +50,9 @@ TARGET_LINK_LIBRARIES ( ${EXECUTABLENAME} PRIVATE
 # Runtime assets: the kernels are loaded at run time (NVRTC / clBuildProgram), and the demo's
 # consumer-integration part builds GFunctionIndividuals from a factory config. Stage both next to the
 # binary so it can be run from its build directory.
-FILE ( COPY ${CMAKE_CURRENT_SOURCE_DIR}/kernels DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
+ADD_CUSTOM_COMMAND ( TARGET ${EXECUTABLENAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+		${CMAKE_CURRENT_SOURCE_DIR}/kernels ${CMAKE_CURRENT_BINARY_DIR}/kernels )
 FILE ( COPY ${CMAKE_SOURCE_DIR}/geneva/examples/01_GSimpleOptimizer/config/GFunctionIndividual.json
        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/config )
 

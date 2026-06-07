@@ -107,6 +107,10 @@ struct GCudaBackend::Impl {
     std::size_t cap_pconst = 0;
     std::size_t cap_fitness = 0;
 
+    // To skip re-uploading an unchanged problem-constant blob (e.g. a fixed target image) every batch.
+    const void *last_pconst = nullptr;
+    std::size_t last_pconst_sz = 0;
+
     ~Impl() {
         if(context) {
             cuCtxPushCurrent(context);
@@ -215,9 +219,12 @@ void GCudaBackend::initialize(const KernelSpec &spec) {
 void GCudaBackend::evaluate(
     const double *params, int n_items, int dim,
     const std::byte *pconst, std::size_t pconst_size,
-    double *fitness_out) {
+    double *fitness_out, int threads_per_item) {
     if(n_items <= 0) {
         return;
+    }
+    if(threads_per_item < 1) {
+        threads_per_item = 1;
     }
     cuCheck(cuCtxPushCurrent(p_->context), "cuCtxPushCurrent(evaluate)");
 
@@ -230,20 +237,32 @@ void GCudaBackend::evaluate(
     p_->ensure(p_->d_pconst, p_->cap_pconst, pconstBytes);
 
     cuCheck(cuMemcpyHtoD(p_->d_params, params, paramBytes), "cuMemcpyHtoD(params)");
-    if(pconst_size > 0) {
+    // Upload the problem constants only when they actually changed (same pointer + size => the
+    // consumer reused its cached, static blob, so the device copy is still valid). This avoids
+    // re-sending e.g. a multi-MB target image every generation.
+    if(pconst_size > 0 && (pconst != p_->last_pconst || pconst_size != p_->last_pconst_sz)) {
         cuCheck(cuMemcpyHtoD(p_->d_pconst, pconst, pconst_size), "cuMemcpyHtoD(pconst)");
+        p_->last_pconst = pconst;
+        p_->last_pconst_sz = pconst_size;
     }
+    // Always zero the fitness buffer: a kernel that accumulates (atomicAdd, for intra-item
+    // parallelism) needs it, and a kernel that overwrites is unaffected. This keeps an accumulating
+    // kernel correct at ANY threads_per_item (including 1).
+    cuCheck(cuMemsetD8(p_->d_fitness, 0, fitnessBytes), "cuMemsetD8(fitness)");
 
     // Kernel ABI: evaluate(const double* params, int n, int dim,
-    //                      const unsigned char* pconst, int pconst_size, double* fitness)
+    //                      const unsigned char* pconst, int pconst_size, double* fitness,
+    //                      int threads_per_item)
     int pconstSizeArg = static_cast<int>(pconst_size);
     void *args[] = {
-        &p_->d_params, &n_items, &dim, &p_->d_pconst, &pconstSizeArg, &p_->d_fitness};
+        &p_->d_params, &n_items, &dim, &p_->d_pconst, &pconstSizeArg, &p_->d_fitness,
+        &threads_per_item};
 
+    // Total threads = n_items * threads_per_item (one per (item, work-unit)).
     const unsigned int bx = p_->spec.launch.block_x > 0 ? p_->spec.launch.block_x : 256;
-    const unsigned int gx = p_->spec.launch.grid_x > 0
-        ? p_->spec.launch.grid_x
-        : static_cast<unsigned int>((static_cast<unsigned int>(n_items) + bx - 1) / bx);
+    const unsigned long long totalThreads =
+        static_cast<unsigned long long>(n_items) * static_cast<unsigned long long>(threads_per_item);
+    const unsigned int gx = static_cast<unsigned int>((totalThreads + bx - 1) / bx);
 
     cuCheck(
         cuLaunchKernel(p_->kernel, gx, 1, 1, bx, 1, 1, 0, nullptr, args, nullptr),

@@ -90,6 +90,11 @@ public:
         return bytes;
     }
 
+    /** @brief Use intra-item (pixel-stripe) parallelism: 256 cooperating threads per individual, so a
+     *  small population still fills the GPU. The CUDA backend launches n_items*256 threads and the
+     *  kernel atomic-accumulates each item's fitness; the CPU/OpenCL backends clamp this to 1. */
+    [[nodiscard]] int parallelWorkPerItem() const override { return 256; }
+
     void scatter(const std::vector<item_ptr> &items, const std::vector<double> &fitness) const override {
         for(std::size_t i = 0; i < items.size(); ++i) {
             items[i]->process(std::vector<gpar::parameterset_processing_result>(

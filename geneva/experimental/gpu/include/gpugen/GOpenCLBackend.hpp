@@ -60,7 +60,7 @@ public:
     void evaluate(
         const double *params, int n_items, int dim,
         const std::byte *pconst, std::size_t pconst_size,
-        double *fitness_out) override;
+        double *fitness_out, int threads_per_item = 1) override;
     [[nodiscard]] std::string name() const override;
 
 private:

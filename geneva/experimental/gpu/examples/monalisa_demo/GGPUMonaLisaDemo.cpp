@@ -132,7 +132,8 @@ int main(int argc, char **argv) {
         backend->initialize(spec);
 
         const auto g0 = std::chrono::steady_clock::now();
-        backend->evaluate(params.data(), nItems, dim, pconst.data(), pconst.size(), gpuFit.data());
+        backend->evaluate(params.data(), nItems, dim, pconst.data(), pconst.size(), gpuFit.data(),
+                          marshaller->parallelWorkPerItem());
         const auto g1 = std::chrono::steady_clock::now();
         const auto c0 = std::chrono::steady_clock::now();
         marshaller->hostEvaluate(params.data(), nItems, dim, pconst.data(), pconst.size(), cpuFit.data());

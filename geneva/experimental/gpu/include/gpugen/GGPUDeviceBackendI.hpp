@@ -58,11 +58,14 @@ public:
     virtual void initialize(const KernelSpec &spec) = 0;
 
     /** @brief Evaluates a whole batch in one launch. @p params is n_items * dim row-major doubles;
-     *  @p pconst is an opaque problem-constant blob; writes n_items doubles into @p fitness_out. */
+     *  @p pconst is an opaque problem-constant blob; writes n_items doubles into @p fitness_out.
+     *  @p threads_per_item requests intra-item (e.g. pixel-level) parallelism: a backend that supports
+     *  it launches n_items * threads_per_item threads and the kernel accumulates each item's fitness
+     *  (the backend zeroes fitness_out first); the default 1 is one thread per item (overwrite). */
     virtual void evaluate(
         const double *params, int n_items, int dim,
         const std::byte *pconst, std::size_t pconst_size,
-        double *fitness_out) = 0;
+        double *fitness_out, int threads_per_item = 1) = 0;
 
     /** @brief A short human-readable backend name (for logging). */
     [[nodiscard]] virtual std::string name() const = 0;

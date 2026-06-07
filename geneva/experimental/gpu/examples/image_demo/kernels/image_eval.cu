@@ -12,7 +12,8 @@
 extern "C" __global__ void evaluate(
     const double *params, int n_items, int dim,
     const unsigned char *pconst, int pconst_size,
-    double *fitness)
+    double *fitness,
+    int threads_per_item)
 {
     const int i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i >= n_items) {

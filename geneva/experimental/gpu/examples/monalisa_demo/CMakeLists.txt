@@ -58,9 +58,13 @@ TARGET_LINK_LIBRARIES ( ${EXECUTABLENAME} PRIVATE
 	PNG::PNG
 )
 
-# Runtime assets: the CUDA kernel (loaded via NVRTC at run time), the target image(s), and the factory
-# config for building GImageIndividuals. Stage them next to the binary.
-FILE ( COPY ${CMAKE_CURRENT_SOURCE_DIR}/kernels  DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
+# Runtime assets. The kernels are runtime-loaded source, so copy them at BUILD time (a POST_BUILD
+# command) -- editing a kernel + rebuilding then re-stages it, instead of the stale copy a
+# configure-time FILE(COPY) would leave. The target images and factory config rarely change, so a
+# configure-time copy is fine for them.
+ADD_CUSTOM_COMMAND ( TARGET ${EXECUTABLENAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+		${CMAKE_CURRENT_SOURCE_DIR}/kernels ${CMAKE_CURRENT_BINARY_DIR}/kernels )
 FILE ( COPY ${CMAKE_CURRENT_SOURCE_DIR}/pictures DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
 FILE ( COPY ${CMAKE_CURRENT_SOURCE_DIR}/config   DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
 

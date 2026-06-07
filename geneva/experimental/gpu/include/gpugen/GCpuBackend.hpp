@@ -60,7 +60,8 @@ public:
     void evaluate(
         const double *params, int n_items, int dim,
         const std::byte *pconst, std::size_t pconst_size,
-        double *fitness_out) override {
+        double *fitness_out, int /*threads_per_item*/ = 1) override {
+        // The host reference is inherently per-item; intra-item parallelism does not apply.
         hostEval_->hostEvaluate(params, n_items, dim, pconst, pconst_size, fitness_out);
     }
 

@@ -106,11 +106,18 @@ protected:
         marshaller_->flatten(items, params_);
         const int dim = (n > 0) ? static_cast<int>(params_.size() / static_cast<std::size_t>(n)) : 0;
 
-        const std::vector<std::byte> pconst = marshaller_->problemConstants();
+        // Build the problem-constant blob ONCE when it is static (e.g. a fixed target image), rather
+        // than rebuilding it every generation. The backend likewise skips re-uploading an unchanged
+        // blob (it sees the same stable pointer).
+        if(not pconst_built_ || not marshaller_->problemConstantsStatic()) {
+            pconst_ = marshaller_->problemConstants();
+            pconst_built_ = true;
+        }
         fitness_.assign(static_cast<std::size_t>(n), 0.0);
 
         backend_->evaluate(
-            params_.data(), n, dim, pconst.data(), pconst.size(), fitness_.data());
+            params_.data(), n, dim, pconst_.data(), pconst_.size(), fitness_.data(),
+            marshaller_->parallelWorkPerItem());
 
         marshaller_->scatter(items, fitness_);
     }
@@ -142,8 +149,10 @@ private:
     GGPUConsumerConfig cfg_;                          ///< backend + kernel selection
     std::unique_ptr<GGPUDeviceBackendI> backend_;    ///< The device backend (lazy)
 
-    std::vector<double> params_;  ///< Reused host parameter buffer (avoids per-round reallocation)
-    std::vector<double> fitness_; ///< Reused host fitness buffer
+    std::vector<double> params_;     ///< Reused host parameter buffer (avoids per-round reallocation)
+    std::vector<double> fitness_;    ///< Reused host fitness buffer
+    std::vector<std::byte> pconst_;  ///< Cached problem-constant blob (built once when static)
+    bool pconst_built_ = false;      ///< Whether pconst_ has been built
 };
 
 /******************************************************************************/

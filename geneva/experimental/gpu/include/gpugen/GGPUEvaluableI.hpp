@@ -82,9 +82,24 @@ public:
     /** @brief Optional opaque constants the kernel needs. Default: none. */
     [[nodiscard]] virtual std::vector<std::byte> problemConstants() const { return {}; }
 
+    /** @brief Whether problemConstants() is the same on every call (e.g. a fixed target image). When
+     *  true (the default) the consumer builds the blob ONCE and the backend uploads it to the device
+     *  ONCE, instead of rebuilding/re-uploading it every generation. Override to false only if the
+     *  constants genuinely change between batches. */
+    [[nodiscard]] virtual bool problemConstantsStatic() const { return true; }
+
     /** @brief Writes the per-item fitness back into each item (typically via item->process(result),
      *  which also leaves the item PROCESSED for the courtier reconciliation). */
     virtual void scatter(const std::vector<item_ptr> &items, const std::vector<double> &fitness) const = 0;
+
+    /** @brief How many GPU threads should cooperate on ONE item (intra-item / pixel-level parallelism).
+     *  The default 1 means one thread per item (good when the population is large -- thousands of items
+     *  already saturate the GPU). A value > 1 adds parallelism WITHIN each item (e.g. one thread per
+     *  pixel-stripe of an image), which the CUDA backend serves by launching n_items * this threads and
+     *  atomic-accumulating each item's fitness -- essential when the population is small but each item
+     *  is heavy. The kernel must be written to match (accumulate, not overwrite); see the Mona-Lisa
+     *  demo. Backends without double atomics (OpenCL) clamp this to 1. */
+    [[nodiscard]] virtual int parallelWorkPerItem() const { return 1; }
 };
 
 /******************************************************************************/

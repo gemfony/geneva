@@ -86,6 +86,10 @@ struct GOpenCLBackend::Impl {
     std::size_t cap_pconst = 0;
     std::size_t cap_fitness = 0;
 
+    // To skip re-uploading an unchanged problem-constant blob (e.g. a fixed target image) every batch.
+    const void *last_pconst = nullptr;
+    std::size_t last_pconst_sz = 0;
+
     ~Impl() {
         if(d_params) clReleaseMemObject(d_params);
         if(d_pconst) clReleaseMemObject(d_pconst);
@@ -188,10 +192,14 @@ void GOpenCLBackend::initialize(const KernelSpec &spec) {
 void GOpenCLBackend::evaluate(
     const double *params, int n_items, int dim,
     const std::byte *pconst, std::size_t pconst_size,
-    double *fitness_out) {
+    double *fitness_out, int /*threads_per_item*/) {
     if(n_items <= 0) {
         return;
     }
+    // OpenCL 1.2 has no portable double atomics, so intra-item parallelism is not offered here: this
+    // backend always runs one work-item per item (overwrite). The kernel is told so via its
+    // threads_per_item argument = 1.
+    const int threads_per_item = 1;
     const std::size_t paramBytes = static_cast<std::size_t>(n_items) * static_cast<std::size_t>(dim) * sizeof(double);
     const std::size_t fitnessBytes = static_cast<std::size_t>(n_items) * sizeof(double);
     const std::size_t pconstBytes = pconst_size > 0 ? pconst_size : 1;
@@ -202,13 +210,18 @@ void GOpenCLBackend::evaluate(
 
     clCheck(clEnqueueWriteBuffer(p_->queue, p_->d_params, CL_TRUE, 0, paramBytes, params, 0, nullptr, nullptr),
             "clEnqueueWriteBuffer(params)");
-    if(pconst_size > 0) {
+    // Upload the problem constants only when they actually changed (same pointer + size => cached
+    // static blob reused), avoiding e.g. re-sending a multi-MB target image every generation.
+    if(pconst_size > 0 && (pconst != p_->last_pconst || pconst_size != p_->last_pconst_sz)) {
         clCheck(clEnqueueWriteBuffer(p_->queue, p_->d_pconst, CL_TRUE, 0, pconst_size, pconst, 0, nullptr, nullptr),
                 "clEnqueueWriteBuffer(pconst)");
+        p_->last_pconst = pconst;
+        p_->last_pconst_sz = pconst_size;
     }
 
     // Kernel ABI: evaluate(__global const double* params, int n, int dim,
-    //                      __global const uchar* pconst, int pconst_size, __global double* fitness)
+    //                      __global const uchar* pconst, int pconst_size, __global double* fitness,
+    //                      int threads_per_item)
     const int pconstSizeArg = static_cast<int>(pconst_size);
     clCheck(clSetKernelArg(p_->kernel, 0, sizeof(cl_mem), &p_->d_params), "clSetKernelArg(0)");
     clCheck(clSetKernelArg(p_->kernel, 1, sizeof(int), &n_items), "clSetKernelArg(1)");
@@ -216,6 +229,7 @@ void GOpenCLBackend::evaluate(
     clCheck(clSetKernelArg(p_->kernel, 3, sizeof(cl_mem), &p_->d_pconst), "clSetKernelArg(3)");
     clCheck(clSetKernelArg(p_->kernel, 4, sizeof(int), &pconstSizeArg), "clSetKernelArg(4)");
     clCheck(clSetKernelArg(p_->kernel, 5, sizeof(cl_mem), &p_->d_fitness), "clSetKernelArg(5)");
+    clCheck(clSetKernelArg(p_->kernel, 6, sizeof(int), &threads_per_item), "clSetKernelArg(6)");
 
     const std::size_t local = p_->spec.launch.block_x > 0 ? p_->spec.launch.block_x : 256;
     const std::size_t global = ((static_cast<std::size_t>(n_items) + local - 1) / local) * local;
