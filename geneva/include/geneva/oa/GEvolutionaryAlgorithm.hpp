@@ -74,14 +74,12 @@ class GEvolutionaryAlgorithm // NOLINT(cppcoreguidelines-special-member-function
     /** @brief Single declaration of this class'es local data members */
     auto localMembers() {
         return std::make_tuple(
-            Gem::Common::make_member("sorting_mode_", sorting_mode_),
-            Gem::Common::make_member("n_threads_", n_threads_)
+            Gem::Common::make_member("sorting_mode_", sorting_mode_)
         );
     }
     auto localMembers() const {
         return std::make_tuple(
-            Gem::Common::make_member("sorting_mode_", sorting_mode_),
-            Gem::Common::make_member("n_threads_", n_threads_)
+            Gem::Common::make_member("sorting_mode_", sorting_mode_)
         );
     }
 
@@ -116,11 +114,6 @@ public:
         std::vector<std::shared_ptr<gpar::GParameterSet>> &pareto_inds
     );
 
-    /** @brief Sets the number of threads this population uses for adaption */
-    void setNThreads(std::uint16_t n_threads);
-    /** @brief Retrieves the number of threads this population uses for adaption */
-    std::uint16_t getNThreads() const;
-
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
@@ -149,11 +142,6 @@ protected:
 
     /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
     void resetToOptimizationStart_() override;
-
-    /** @brief Does any necessary initialization work before the optimization cycle starts */
-    void init() override;
-    /** @brief Does any necessary finalization work */
-    void finalize() override;
 
     /** @brief Applies modifications to this object */
     bool modify_GUnitTests_() override;
@@ -227,9 +215,7 @@ private:
     /***************************************************************************/
     // Local data
 
-    sortingMode sorting_mode_ = DEFAULTEASORTINGMODE;                ///< The chosen sorting scheme
-    std::uint16_t n_threads_ = Gem::Common::DEFAULTNHARDWARETHREADS; ///< The number of threads
-    std::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
+    sortingMode sorting_mode_ = DEFAULTEASORTINGMODE; ///< The chosen sorting scheme
 
     /***************************************************************************/
 };

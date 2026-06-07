@@ -47,6 +47,7 @@
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonInterfaceT.hpp"
+#include "common/GThreadPool.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "common/GContainerT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
@@ -260,6 +261,7 @@ private:
             Gem::Common::make_member("terminate_on_file_modification_", terminate_on_file_modification_),
             Gem::Common::make_member("emit_termination_reason_", emit_termination_reason_),
             Gem::Common::make_member("worst_known_valids_cnt_", worst_known_valids_cnt_),
+            Gem::Common::make_member("n_threads_", n_threads_),
             Gem::Common::make_atomic_member("halted_", halted_),
             Gem::Common::make_cloneable_container_member("pluggable_monitors_cnt_", pluggable_monitors_cnt_)
         );
@@ -293,6 +295,7 @@ private:
             Gem::Common::make_member("terminate_on_file_modification_", terminate_on_file_modification_),
             Gem::Common::make_member("emit_termination_reason_", emit_termination_reason_),
             Gem::Common::make_member("worst_known_valids_cnt_", worst_known_valids_cnt_),
+            Gem::Common::make_member("n_threads_", n_threads_),
             Gem::Common::make_atomic_member("halted_", halted_),
             Gem::Common::make_cloneable_container_member("pluggable_monitors_cnt_", pluggable_monitors_cnt_)
         );
@@ -385,6 +388,12 @@ public:
         local_kind_    = kind;
         local_threads_ = n_threads;
     }
+
+    /** @brief Sets the number of threads used for parallel organizational work (adaption,
+     *  recombination, ...). 0 means "automatic" (hardware concurrency). */
+    void setNThreads(std::uint16_t n_threads);
+    /** @brief Retrieves the number of threads used for parallel organizational work. */
+    [[nodiscard]] std::uint16_t getNThreads() const;
 
     /******************************************************************************/
     /**
@@ -566,6 +575,17 @@ protected:
     virtual void init();
     /** @brief Finalization code to be run after the optimization cycle */
     virtual void finalize();
+
+    /***************************************************************************/
+    /**
+     * A thread pool shared by all optimization algorithms for parallel per-individual
+     * "organizational" work (e.g. EA adaption and recombination, SA adaption). It is
+     * created in init() (sized by n_threads_) and released in finalize(), so it only
+     * lives for the duration of a run and is neither serialized nor cloned.
+     */
+    std::shared_ptr<Gem::Common::GThreadPool> tp_ptr_;
+    /** @brief The number of threads used for parallel organizational work. */
+    std::uint16_t n_threads_ = Gem::Common::DEFAULTNHARDWARETHREADS;
 
     /** @brief Applies modifications to this object */
     bool modify_GUnitTests_() override;

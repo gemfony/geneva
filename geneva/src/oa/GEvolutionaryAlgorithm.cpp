@@ -310,20 +310,10 @@ void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
   * @param gpb The GParserBuilder object to which configuration options should be added
   */
 void GEvolutionaryAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
-    // Call our parent class'es function
+    // Call our parent class'es function (registers the shared n_adaption_threads option)
     GParChild::addConfigurationOptions_(gpb);
 
     // Add local data
-    gpb.registerFileParameter<std::uint16_t>(
-        "n_adaption_threads" // The name of the variable
-        ,
-        DEFAULTNSTDTHREADS // The default value
-        ,
-        [this](std::uint16_t nt) { this->setNThreads(nt); }
-    ) << "The number of threads used to simultaneously adapt individuals"
-      << '\n'
-      << "0 means \"automatic\"";
-
     gpb.registerFileParameter<sortingMode>(
         "sorting_method" // The name of the variable
         ,
@@ -347,38 +337,6 @@ void GEvolutionaryAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilde
   */
 std::string GEvolutionaryAlgorithm::name_() const {
     return {"GEvolutionaryAlgorithm"};
-}
-
-/******************************************************************************/
-/**
-  * Sets the number of threads this population uses for adaption. If n_threads is set
-  * to 0, an attempt will be made to set the number of threads to the number of hardware
-  * threading units (e.g. number of cores or hyper-threading units).
-  *
-  * @param n_threads The number of threads this class uses
-  */
-void GEvolutionaryAlgorithm::setNThreads(std::uint16_t n_threads) {
-    if(n_threads == 0) {
-        glogger << "In GEvolutionaryAlgorithm::setNThreads(n_threads):" << '\n'
-                << "n_threads == 0 was requested. n_threads was reset to the default "
-                << DEFAULTNSTDTHREADS << '\n'
-                << GWARNING;
-
-        n_threads_ = DEFAULTNSTDTHREADS;
-    }
-    else {
-        n_threads_ = n_threads;
-    }
-}
-
-/******************************************************************************/
-/**
- * Retrieves the number of threads this population uses for adaption
- *
- * @return The maximum number of allowed threads
- */
-std::uint16_t GEvolutionaryAlgorithm::getNThreads() const {
-    return n_threads_;
 }
 
 /******************************************************************************/
@@ -799,30 +757,6 @@ std::tuple<std::size_t, std::size_t> GEvolutionaryAlgorithm::getEvaluationRange_
         this->inFirstIteration() ? static_cast<std::size_t>(0) : this->getNParents(),
         this->size()
     );
-}
-
-/******************************************************************************/
-/**
- * Does any necessary initialization work
-  */
-void GEvolutionaryAlgorithm::init() {
-    // To be performed before any other action. Place any further work after this call.
-    GParChild::init();
-
-    // Initialize our thread pool
-    tp_ptr_ = std::make_shared<Gem::Common::GThreadPool>(n_threads_);
-}
-
-/******************************************************************************/
-/**
- * Does any necessary finalization work
- */
-void GEvolutionaryAlgorithm::finalize() {
-    // Terminate our thread pool
-    tp_ptr_.reset();
-
-    // Last action. Place any "local" finalization action before this call.
-    GParChild::finalize();
 }
 
 /******************************************************************************/

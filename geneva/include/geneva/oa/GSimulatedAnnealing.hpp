@@ -65,16 +65,14 @@ class GSimulatedAnnealing // NOLINT(cppcoreguidelines-special-member-functions)
         return std::make_tuple(
             Gem::Common::make_member("t0_", t0_),
             Gem::Common::make_member("t_", t_),
-            Gem::Common::make_member("alpha_", alpha_),
-            Gem::Common::make_member("n_threads_", n_threads_)
+            Gem::Common::make_member("alpha_", alpha_)
         );
     }
     auto localMembers() const {
         return std::make_tuple(
             Gem::Common::make_member("t0_", t0_),
             Gem::Common::make_member("t_", t_),
-            Gem::Common::make_member("alpha_", alpha_),
-            Gem::Common::make_member("n_threads_", n_threads_)
+            Gem::Common::make_member("alpha_", alpha_)
         );
     }
 
@@ -97,11 +95,6 @@ public:
     GSimulatedAnnealing(const GSimulatedAnnealing &) = default;
     /** @brief The standard destructor */
     ~GSimulatedAnnealing() override = default;
-
-    /** @brief Sets the number of threads this population uses for adaption */
-    void setNThreads(std::uint16_t n_threads);
-    /** @brief Retrieves the number of threads this population uses for adaption */
-    std::uint16_t getNThreads() const;
 
     /** @brief Determines the strength of the temperature degradation */
     void setTDegradationStrength(double alpha);
@@ -143,11 +136,6 @@ protected:
 
     /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
     void resetToOptimizationStart_() override;
-
-    /** @brief Does any necessary initialization work before the optimization loop starts */
-    void init() override;
-    /** @brief Does any necessary finalization work after the optimization loop has ended */
-    void finalize() override;
 
     /** @brief Applies modifications to this object */
     bool modify_GUnitTests_() override;
@@ -208,10 +196,6 @@ private:
     double t0_ = SA_T0;       ///< The start temperature, used in simulated annealing
     double t_ = t0_;         ///< The current temperature, used in simulated annealing
     double alpha_ = SA_ALPHA; ///< A constant used in the cooling schedule in simulated annealing
-
-    std::uint16_t n_threads_ = Gem::Common::DEFAULTNHARDWARETHREADS; ///< The number of threads
-
-    std::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
 };
 
 /******************************************************************************/

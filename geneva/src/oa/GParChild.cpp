@@ -32,6 +32,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
+#include "common/GThreadPool.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/oa/GBase.hpp"
@@ -372,10 +373,96 @@ void GParChild::doRecombine() {
         threshold[n_parents_ - 1] = 1.; // Necessary due to rounding errors
     }
 
-    std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator it;
     std::bernoulli_distribution amalgamation_wanted(
         amalgamation_likelihood_
     ); // true with a likelihood of amalgamation_likelihood_
+
+    // ------------------------------------------------------------------------
+    // Parallel fast path: when no cross-over can occur (amalgamation disabled)
+    // and a derived algorithm supplies a thread pool, select the parent for every
+    // child sequentially first -- this reproduces both the random-number sequence
+    // and the chosen recombination scheme exactly -- and then run only the heavy
+    // load() deep-copies in parallel. Parents are read only and each child slot is
+    // written by exactly one task, so there are no data races. load() does not copy
+    // the per-individual RNG (gr_ is deliberately absent from localMembers()), so
+    // children keep their own generators.
+    Gem::Common::GThreadPool *tp = this->tp_ptr_.get();
+    const std::size_t n_children = GBase::data_cnt_.size() - n_parents_;
+    if(tp != nullptr && amalgamation_likelihood_ <= 0. && n_children > 1) {
+        const bool value_scheme =
+            (duplicationScheme::VALUEDUPLICATIONSCHEME == recombination_method_)
+            && not GBase::inFirstIteration();
+
+        // (1) Sequential parent selection -- mirrors the serial path's draws exactly.
+        std::vector<std::size_t> parent_pos(n_children);
+        for(std::size_t c = 0; c < n_children; ++c) {
+            std::size_t pp = 0;
+            if(n_parents_ > 1) {
+                // The serial path flips an (always-false) cross-over coin here; flip it
+                // too so the random-number stream stays identical.
+                (void) amalgamation_wanted(this->gr_);
+                if(value_scheme) {
+                    const double rand_test = GBase::uniform_real_distribution_(this->gr_);
+                    pp = n_parents_ - 1; // threshold[n_parents_-1] == 1, so a match is guaranteed
+                    for(std::size_t par = 0; par < n_parents_; ++par) {
+                        if(rand_test < threshold[par]) {
+                            pp = par;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    pp = this->uniform_int_distribution_(
+                        this->gr_,
+                        std::uniform_int_distribution<std::size_t>::param_type(0, n_parents_ - 1)
+                    );
+                }
+            }
+            parent_pos[c] = pp;
+        }
+
+        // (2) Parallel deep-copy of the selected parent into each child.
+        std::vector<std::future<void>> futures_cnt;
+        futures_cnt.reserve(n_children);
+        for(std::size_t c = 0; c < n_children; ++c) {
+            const std::size_t child_idx = n_parents_ + c;
+            const std::size_t pp = parent_pos[c];
+            futures_cnt.push_back(tp->async_schedule([this, child_idx, pp]() {
+                std::shared_ptr<gpar::GParameterSet> &child = GBase::data_cnt_[child_idx];
+                child->load(GBase::data_cnt_[pp]);
+                child->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
+                    ->setParentId(pp);
+            }));
+        }
+        tp->wait();
+
+        // Consume futures so worker-thread exceptions are surfaced rather than dropped.
+        for(auto &f : futures_cnt) {
+            try {
+                f.get();
+            }
+            catch(std::exception &e) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GParChild::doRecombine() (parallel) :" << '\n'
+                    << "Got error during thread execution with message:" << '\n'
+                    << e.what() << '\n'
+                );
+            }
+            catch(...) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GParChild::doRecombine() (parallel) :" << '\n'
+                    << "Got unknown exception during thread execution" << '\n'
+                );
+            }
+        }
+        return;
+    }
+
+    // ------------------------------------------------------------------------
+    // Serial path (original behaviour; also covers the cross-over / amalgamation case).
+    std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator it;
     for(it = GBase::data_cnt_.begin() + n_parents_;
         it != GBase::data_cnt_.end();
         ++it) {

@@ -1149,6 +1149,18 @@ void GBase::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our CRTP base class'es function (the category root has no GObject parent)
     Gem::Common::GCommonInterfaceT<GBase>::addConfigurationOptions_(gpb);
 
+    // The number of threads used for parallel organizational work (adaption, recombination, ...).
+    // The option keeps its historical name for config-file compatibility.
+    gpb.registerFileParameter<std::uint16_t>(
+        "n_adaption_threads" // The name of the variable
+        ,
+        DEFAULTNSTDTHREADS // The default value
+        ,
+        [this](std::uint16_t nt) { this->setNThreads(nt); }
+    ) << "The number of threads used to simultaneously adapt and recombine individuals"
+      << '\n'
+      << "0 means \"automatic\"";
+
     // Add local data
     gpb.registerFileParameter<std::uint32_t>(
         "max_iteration" // The name of the variable
@@ -1732,6 +1744,10 @@ void GBase::init() {
     if(local_kind_ == local_consumer_kind::none && not external_broker_) {
         local_kind_ = local_consumer_kind::multithreaded; // 0 threads == hardware concurrency
     }
+
+    // Create the shared thread pool used for parallel organizational work (adaption,
+    // recombination, ...). Derived algorithms that call GBase::init() first get it for free.
+    tp_ptr_ = std::make_shared<Gem::Common::GThreadPool>(n_threads_);
 }
 
 /******************************************************************************/
@@ -1741,7 +1757,36 @@ void GBase::init() {
  * call this function as their last action.
  */
 void GBase::finalize() {
-    // Nothing to do: courtier needs no executor teardown (the consumer/broker are released by RAII).
+    // Release the shared thread pool created in init().
+    tp_ptr_.reset();
+    // Otherwise nothing to do: courtier needs no executor teardown (the consumer/broker are released by RAII).
+}
+
+/******************************************************************************/
+/**
+ * Sets the number of threads used for parallel organizational work (adaption,
+ * recombination, ...). If n_threads is 0, the count falls back to the default.
+ */
+void GBase::setNThreads(std::uint16_t n_threads) {
+    if(n_threads == 0) {
+        glogger << "In GBase::setNThreads(n_threads):" << '\n'
+                << "n_threads == 0 was requested. n_threads_ was reset to the default "
+                << DEFAULTNSTDTHREADS << '\n'
+                << GWARNING;
+
+        n_threads_ = DEFAULTNSTDTHREADS;
+    }
+    else {
+        n_threads_ = n_threads;
+    }
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the number of threads used for parallel organizational work.
+ */
+std::uint16_t GBase::getNThreads() const {
+    return n_threads_;
 }
 
 /******************************************************************************/
