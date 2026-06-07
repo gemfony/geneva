@@ -33,6 +33,8 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <cmath>
+#include <limits>
 #include <type_traits>
 
 // Boost headers go here
@@ -220,16 +222,29 @@ protected:
         using namespace Gem::Common;
         using namespace Gem::Hap;
 
-        // adapt the value in situ. Note that this changes
-        // the argument of this function
-        value +=
-            (range * GAdaptorT<adaption_fp_type, adaption_fp_type>::normal_distribution_(
-                         gr,
-                         typename std::normal_distribution<adaption_fp_type>::param_type(
-                             0.,
-                             GNumGaussAdaptorT<adaption_fp_type, adaption_fp_type>::sigma_
-                         )
-                     ));
+        // adapt the value in situ. Note that this changes the argument of this function
+        const adaption_fp_type before = value;
+        const adaption_fp_type delta =
+            range * GAdaptorT<adaption_fp_type, adaption_fp_type>::normal_distribution_(
+                        gr,
+                        typename std::normal_distribution<adaption_fp_type>::param_type(
+                            0.,
+                            GNumGaussAdaptorT<adaption_fp_type, adaption_fp_type>::sigma_
+                        )
+                    );
+        value = before + delta;
+
+        // Guarantee an observable change: at low precision (e.g. float) and large |value|, a small
+        // gaussian step can fall below half a ULP and round away, leaving the value unchanged. Mirror
+        // the integer adaptor's minimal-change guarantee by nudging one ULP in the step's direction,
+        // so an adaption that fires always actually adapts. For double in normal ranges this never
+        // triggers (the step is always representable).
+        if(value == before) {
+            const adaption_fp_type dir = (delta < adaption_fp_type(0))
+                ? std::numeric_limits<adaption_fp_type>::lowest()
+                : std::numeric_limits<adaption_fp_type>::max();
+            value = std::nextafter(before, dir);
+        }
     }
 
     /* ----------------------------------------------------------------------------------

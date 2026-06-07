@@ -33,6 +33,8 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <cmath>
+#include <limits>
 #include <type_traits>
 
 // Boost headers go here
@@ -170,6 +172,8 @@ protected:
         using namespace Gem::Common;
         using namespace Gem::Hap;
 
+        const adaption_fp_type before = value;
+
         if(GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type>::
                use_symmetric_sigmas_) { // Should we use the same sigma for both gaussians ?
             // adapt the value in situ. Note that this changes
@@ -200,6 +204,13 @@ protected:
                                  GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type>::delta_
                              )
                          ));
+        }
+
+        // Guarantee an observable change (see GFPGaussAdaptorT::customAdaptions): a sub-ULP step at
+        // low precision / large |value| can round away, leaving the value unchanged. Nudge one ULP so
+        // an adaption that fires always actually adapts. For double in normal ranges this never fires.
+        if(value == before) {
+            value = std::nextafter(before, std::numeric_limits<adaption_fp_type>::max());
         }
     }
 

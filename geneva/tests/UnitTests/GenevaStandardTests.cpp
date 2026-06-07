@@ -55,6 +55,14 @@
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GDoubleObject.hpp"
 #include "geneva/par/GDoubleObjectCollection.hpp"
+#include "geneva/par/GConstrainedFloatCollection.hpp"
+#include "geneva/par/GConstrainedFloatObject.hpp"
+#include "geneva/par/GConstrainedFloatObjectCollection.hpp"
+#include "geneva/par/GFloatBiGaussAdaptor.hpp"
+#include "geneva/par/GFloatCollection.hpp"
+#include "geneva/par/GFloatGaussAdaptor.hpp"
+#include "geneva/par/GFloatObject.hpp"
+#include "geneva/par/GFloatObjectCollection.hpp"
 #include "geneva/par/GInt32Collection.hpp"
 #include "geneva/par/GInt32FlipAdaptor.hpp"
 #include "geneva/par/GInt32GaussAdaptor.hpp"
@@ -140,6 +148,8 @@ TEMPLATE_TEST_CASE(
     gpar::GBooleanAdaptor,
     gpar::GInt32GaussAdaptor,
     gpar::GDoubleBiGaussAdaptor,
+    gpar::GFloatBiGaussAdaptor,
+    gpar::GFloatGaussAdaptor,
     gpar::GDoubleGaussAdaptor
 ) {
     Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
@@ -151,8 +161,10 @@ TEMPLATE_TEST_CASE(
     gpar::GBooleanObject,
     gpar::GInt32Object,
     gpar::GDoubleObject,
+    gpar::GFloatObject,
     gpar::GConstrainedInt32Object,
-    gpar::GConstrainedDoubleObject
+    gpar::GConstrainedDoubleObject,
+    gpar::GConstrainedFloatObject
 ) {
     Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
 }
@@ -165,7 +177,9 @@ TEMPLATE_TEST_CASE(
     gpar::GInt32ObjectCollection,
     gpar::GConstrainedInt32ObjectCollection,
     gpar::GDoubleObjectCollection,
-    gpar::GConstrainedDoubleObjectCollection
+    gpar::GFloatObjectCollection,
+    gpar::GConstrainedDoubleObjectCollection,
+    gpar::GConstrainedFloatObjectCollection
 ) {
     Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
 }
@@ -175,8 +189,10 @@ TEMPLATE_TEST_CASE(
     "[geneva][standard]",
     gpar::GInt32Collection,
     gpar::GDoubleCollection,
+    gpar::GFloatCollection,
     gpar::GBooleanCollection,
-    gpar::GConstrainedDoubleCollection
+    gpar::GConstrainedDoubleCollection,
+    gpar::GConstrainedFloatCollection
 ) {
     Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
 }
@@ -271,6 +287,8 @@ TEMPLATE_TEST_CASE(
     gpar::GBooleanAdaptor,
     gpar::GInt32GaussAdaptor,
     gpar::GDoubleBiGaussAdaptor,
+    gpar::GFloatBiGaussAdaptor,
+    gpar::GFloatGaussAdaptor,
     gpar::GDoubleGaussAdaptor
 ) {
     Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
@@ -282,8 +300,10 @@ TEMPLATE_TEST_CASE(
     gpar::GBooleanObject,
     gpar::GInt32Object,
     gpar::GDoubleObject,
+    gpar::GFloatObject,
     gpar::GConstrainedInt32Object,
-    gpar::GConstrainedDoubleObject
+    gpar::GConstrainedDoubleObject,
+    gpar::GConstrainedFloatObject
 ) {
     Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
 }
@@ -296,7 +316,9 @@ TEMPLATE_TEST_CASE(
     gpar::GInt32ObjectCollection,
     gpar::GConstrainedInt32ObjectCollection,
     gpar::GDoubleObjectCollection,
-    gpar::GConstrainedDoubleObjectCollection
+    gpar::GFloatObjectCollection,
+    gpar::GConstrainedDoubleObjectCollection,
+    gpar::GConstrainedFloatObjectCollection
 ) {
     Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
 }
@@ -306,8 +328,10 @@ TEMPLATE_TEST_CASE(
     "[geneva][standard][failures-expected]",
     gpar::GInt32Collection,
     gpar::GDoubleCollection,
+    gpar::GFloatCollection,
     gpar::GBooleanCollection,
-    gpar::GConstrainedDoubleCollection
+    gpar::GConstrainedDoubleCollection,
+    gpar::GConstrainedFloatCollection
 ) {
     Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
 }

@@ -378,7 +378,22 @@ public:
             }
 
             // fabs(mapping) will always be <= fabs(val), so this cast should never fail (if val was a valid fp value)
-            return Gem::Common::narrow<fp_type>(mapping);
+            fp_type result = Gem::Common::narrow<fp_type>(mapping);
+
+            // The fold above keeps `mapping` inside the half-open [lower, upper) range in long double.
+            // Narrowing it to fp_type can, at low precision (e.g. float), round onto a boundary; enforce
+            // the [lower, upper) contract the long-double computation guarantees. For double this is a
+            // no-op in practice (the proven fold already lands strictly inside), so it does not change
+            // the established double behaviour.
+            const fp_type lo = GConstrainedNumT<fp_type>::getLowerBoundary();
+            const fp_type hi = GConstrainedNumT<fp_type>::getUpperBoundary();
+            if(result < lo) {
+                result = lo;
+            }
+            else if(result >= hi) {
+                result = std::nextafter(hi, lo);
+            }
+            return result;
         }
 
         // Make the compiler happy

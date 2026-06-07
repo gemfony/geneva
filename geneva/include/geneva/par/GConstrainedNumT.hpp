@@ -580,6 +580,12 @@ protected:
                     std::nextafter(double(GConstrainedValueLimitT<T>::highest()), -std::numeric_limits<double>::infinity())
                 );
             }
+            else if(typeid(T) == typeid(float)) {
+                CHECK(
+                    float(p_test->getUpperBoundary()) ==
+                    std::nextafter(float(GConstrainedValueLimitT<T>::highest()), -std::numeric_limits<float>::infinity())
+                );
+            }
             else {
                 CHECK(p_test->getUpperBoundary() == GConstrainedValueLimitT<T>::highest());
             }
@@ -637,6 +643,12 @@ protected:
                 CHECK(
                     double(p_test->getUpperBoundary()) ==
                     std::nextafter(double(upper_boundary), -std::numeric_limits<double>::infinity())
+                );
+            }
+            else if(typeid(T) == typeid(float)) {
+                CHECK(
+                    float(p_test->getUpperBoundary()) ==
+                    std::nextafter(float(upper_boundary), -std::numeric_limits<float>::infinity())
                 );
             }
             else {
