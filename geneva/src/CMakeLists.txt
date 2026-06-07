@@ -38,6 +38,8 @@ SET ( OPTIMIZATIONSOURCES
 	par/GConstrainedDoubleObject.cpp
 	par/GConstrainedDoubleObjectCollection.cpp
 	par/GConstrainedFloatObject.cpp
+	par/GConstrainedFloatObjectCollection.cpp
+	par/GConstrainedFloatCollection.cpp
 	par/GConstrainedInt32Object.cpp
 	par/GConstrainedInt32ObjectCollection.cpp
 	par/GDoubleBiGaussAdaptor.cpp
@@ -48,6 +50,8 @@ SET ( OPTIMIZATIONSOURCES
 	par/GFloatBiGaussAdaptor.cpp
 	par/GFloatGaussAdaptor.cpp
 	par/GFloatObject.cpp
+	par/GFloatObjectCollection.cpp
+	par/GFloatCollection.cpp
 	GenevaHelperFunctionsT.cpp
 	GenevaHelperFunctions.cpp
 	GConsumerSetup.cpp

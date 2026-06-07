@@ -27,6 +27,8 @@ SET ( PARAM_INCLUDES
     par/GConstrainedFPNumCollectionT.hpp
     par/GConstrainedFPT.hpp
     par/GConstrainedFloatObject.hpp
+    par/GConstrainedFloatObjectCollection.hpp
+    par/GConstrainedFloatCollection.hpp
     par/GConstrainedInt32Object.hpp
     par/GConstrainedInt32ObjectCollection.hpp
     par/GConstrainedIntT.hpp
@@ -41,6 +43,8 @@ SET ( PARAM_INCLUDES
     par/GFloatBiGaussAdaptor.hpp
     par/GFloatGaussAdaptor.hpp
     par/GFloatObject.hpp
+    par/GFloatObjectCollection.hpp
+    par/GFloatCollection.hpp
     par/GFPBiGaussAdaptorT.hpp
     par/GFPGaussAdaptorT.hpp
     par/GFPNumCollectionT.hpp
