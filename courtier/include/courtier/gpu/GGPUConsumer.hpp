@@ -40,7 +40,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "courtier/GBaseConsumerT.hpp"
-#include "courtier/gpu/GCpuBackend.hpp"
+#include "courtier/gpu/GCPUBackend.hpp"
 #include "courtier/gpu/GGPUBackendFactory.hpp"
 #include "courtier/gpu/GGPUConsumerConfig.hpp"
 #include "courtier/gpu/GGPUDeviceBackendI.hpp"
@@ -135,7 +135,7 @@ private:
             glogger << "In Gem::Courtier::GPU::GGPUConsumer: the '" << toString(kind)
                     << "' backend was not compiled into this build; falling back to 'cpu'." << '\n'
                     << GWARNING;
-            kind = BackendKind::Cpu;
+            kind = BackendKind::CPU;
         }
         backend_ = makeBackend(kind, marshaller_.get());
         backend_->initialize(cfg_.kernelSpec());

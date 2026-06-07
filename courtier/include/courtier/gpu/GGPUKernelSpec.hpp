@@ -45,28 +45,28 @@ namespace Gem::Courtier::GPU {
  * only when their toolkit was found at configure time.
  */
 enum class BackendKind {
-    Cpu,
-    Cuda,
+    CPU,
+    CUDA,
     OpenCL
 };
 
 /** @brief Parse a backend mnemonic ("cpu" | "cuda" | "opencl"); falls back to Cpu on anything else. */
 inline BackendKind backendKindFromString(const std::string &s) {
     if(s == "cuda") {
-        return BackendKind::Cuda;
+        return BackendKind::CUDA;
     }
     if(s == "opencl") {
         return BackendKind::OpenCL;
     }
-    return BackendKind::Cpu;
+    return BackendKind::CPU;
 }
 
 /** @brief Human-readable name of a backend kind. */
 inline const char *toString(BackendKind k) {
     switch(k) {
-    case BackendKind::Cuda:   return "cuda";
+    case BackendKind::CUDA:   return "cuda";
     case BackendKind::OpenCL: return "opencl";
-    case BackendKind::Cpu:    return "cpu";
+    case BackendKind::CPU:    return "cpu";
     }
     return "cpu";
 }

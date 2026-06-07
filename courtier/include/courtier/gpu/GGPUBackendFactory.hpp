@@ -46,7 +46,7 @@ class GGPUHostEvalI;
  * evaluation (a marshaller is-a GGPUHostEvalI); the CUDA/OpenCL backends ignore it (they run the
  * kernel) but take it for a uniform signature. Throws a geneva_exception if the requested backend was
  * not compiled in (its toolkit was absent at configure time) -- the caller can fall back to
- * BackendKind::Cpu.
+ * BackendKind::CPU.
  */
 std::unique_ptr<GGPUDeviceBackendI> makeBackend(BackendKind kind, const GGPUHostEvalI *hostEval);
 

@@ -63,8 +63,8 @@ SET ( TRANSPORT_INCLUDES
 # backends and the bulk-dispatch consumer. Header-only except for the backend .cpp files compiled into
 # the optional gemfony-courtier-gpu add-on (see src/gpu/).
 SET ( GPU_INCLUDES
-    gpu/GCpuBackend.hpp
-    gpu/GCudaBackend.hpp
+    gpu/GCPUBackend.hpp
+    gpu/GCUDABackend.hpp
     gpu/GGPUBackendFactory.hpp
     gpu/GGPUConsumer.hpp
     gpu/GGPUConsumerConfig.hpp

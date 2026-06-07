@@ -47,9 +47,9 @@ namespace Gem::Courtier::GPU {
  * be compared against. It is single-threaded by design (a parallel CPU path is the existing
  * GStdThreadConsumerT's job); here it exists for correctness and parity, not speed.
  */
-class GCpuBackend final : public GGPUDeviceBackendI {
+class GCPUBackend final : public GGPUDeviceBackendI {
 public:
-    explicit GCpuBackend(const GGPUHostEvalI *hostEval)
+    explicit GCPUBackend(const GGPUHostEvalI *hostEval)
         : hostEval_(hostEval)
     { /* nothing */ }
 

@@ -48,13 +48,13 @@ namespace Gem::Courtier::GPU {
  *
  * Compiled only when a CUDA toolkit was found at configure time (see the courtier GPU CMakeLists).
  */
-class GCudaBackend final : public GGPUDeviceBackendI {
+class GCUDABackend final : public GGPUDeviceBackendI {
 public:
-    GCudaBackend();
-    ~GCudaBackend() override;
+    GCUDABackend();
+    ~GCUDABackend() override;
 
-    GCudaBackend(const GCudaBackend &) = delete;
-    GCudaBackend &operator=(const GCudaBackend &) = delete;
+    GCUDABackend(const GCUDABackend &) = delete;
+    GCUDABackend &operator=(const GCUDABackend &) = delete;
 
     void initialize(const KernelSpec &spec) override;
     void evaluate(

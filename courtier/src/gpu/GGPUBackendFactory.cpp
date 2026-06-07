@@ -30,11 +30,11 @@
 // Geneva headers
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
-#include "courtier/gpu/GCpuBackend.hpp"
+#include "courtier/gpu/GCPUBackend.hpp"
 #include "courtier/gpu/GGPUBackendFactory.hpp"
 
 #ifdef GPUGEN_HAVE_CUDA
-#include "courtier/gpu/GCudaBackend.hpp"
+#include "courtier/gpu/GCUDABackend.hpp"
 #endif
 #ifdef GPUGEN_HAVE_OPENCL
 #include "courtier/gpu/GOpenCLBackend.hpp"
@@ -46,9 +46,9 @@ namespace Gem::Courtier::GPU {
 
 bool backendAvailable(BackendKind kind) {
     switch(kind) {
-    case BackendKind::Cpu:
+    case BackendKind::CPU:
         return true;
-    case BackendKind::Cuda:
+    case BackendKind::CUDA:
 #ifdef GPUGEN_HAVE_CUDA
         return true;
 #else
@@ -68,11 +68,11 @@ bool backendAvailable(BackendKind kind) {
 
 std::unique_ptr<GGPUDeviceBackendI> makeBackend(BackendKind kind, const GGPUHostEvalI *hostEval) {
     switch(kind) {
-    case BackendKind::Cpu:
-        return std::make_unique<GCpuBackend>(hostEval);
-    case BackendKind::Cuda:
+    case BackendKind::CPU:
+        return std::make_unique<GCPUBackend>(hostEval);
+    case BackendKind::CUDA:
 #ifdef GPUGEN_HAVE_CUDA
-        return std::make_unique<GCudaBackend>();
+        return std::make_unique<GCUDABackend>();
 #else
         break;
 #endif

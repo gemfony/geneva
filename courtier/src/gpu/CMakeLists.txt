@@ -42,7 +42,7 @@ SET ( COURTIER_GPU_SRCS
 SET ( COURTIER_GPU_HAVE_CUDA FALSE )
 IF ( CMAKE_CUDA_COMPILER )
 	SET ( COURTIER_GPU_HAVE_CUDA TRUE )
-	SET ( COURTIER_GPU_SRCS ${COURTIER_GPU_SRCS} GCudaBackend.cpp )
+	SET ( COURTIER_GPU_SRCS ${COURTIER_GPU_SRCS} GCUDABackend.cpp )
 ENDIF ()
 
 # --- optional OpenCL backend ------------------------------------------------------------------

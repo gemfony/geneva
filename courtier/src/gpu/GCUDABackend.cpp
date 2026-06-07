@@ -41,7 +41,7 @@
 // Geneva headers
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
-#include "courtier/gpu/GCudaBackend.hpp"
+#include "courtier/gpu/GCUDABackend.hpp"
 
 namespace Gem::Courtier::GPU {
 
@@ -56,7 +56,7 @@ void cuCheck(CUresult r, const char *what) {
         cuGetErrorString(r, &desc);
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "GCudaBackend: CUDA driver error in " << what << ": "
+            << "GCUDABackend: CUDA driver error in " << what << ": "
             << (name ? name : "?") << " -- " << (desc ? desc : "?") << '\n');
     }
 }
@@ -66,7 +66,7 @@ void nvrtcCheck(nvrtcResult r, const char *what, const std::string &log = {}) {
     if(r != NVRTC_SUCCESS) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "GCudaBackend: NVRTC error in " << what << ": " << nvrtcGetErrorString(r) << '\n'
+            << "GCUDABackend: NVRTC error in " << what << ": " << nvrtcGetErrorString(r) << '\n'
             << (log.empty() ? std::string{} : ("NVRTC build log:\n" + log + "\n")));
     }
 }
@@ -76,7 +76,7 @@ std::string readFile(const std::string &path) {
     if(not in) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "GCudaBackend: could not open kernel file '" << path << "'" << '\n');
+            << "GCUDABackend: could not open kernel file '" << path << "'" << '\n');
     }
     std::ostringstream ss;
     ss << in.rdbuf();
@@ -92,7 +92,7 @@ bool endsWith(const std::string &s, const char *suffix) {
 
 /******************************************************************************/
 
-struct GCudaBackend::Impl {
+struct GCUDABackend::Impl {
     KernelSpec spec;
     CUdevice device = 0;
     CUcontext context = nullptr;
@@ -139,15 +139,15 @@ struct GCudaBackend::Impl {
 
 /******************************************************************************/
 
-GCudaBackend::GCudaBackend()
+GCUDABackend::GCUDABackend()
     : p_(std::make_unique<Impl>())
 { /* nothing */ }
 
-GCudaBackend::~GCudaBackend() = default;
+GCUDABackend::~GCUDABackend() = default;
 
-std::string GCudaBackend::name() const { return "cuda"; }
+std::string GCUDABackend::name() const { return "cuda"; }
 
-void GCudaBackend::initialize(const KernelSpec &spec) {
+void GCUDABackend::initialize(const KernelSpec &spec) {
     p_->spec = spec;
 
     cuCheck(cuInit(0), "cuInit");
@@ -156,12 +156,12 @@ void GCudaBackend::initialize(const KernelSpec &spec) {
     if(n_devices <= 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "GCudaBackend: no CUDA devices found" << '\n');
+            << "GCUDABackend: no CUDA devices found" << '\n');
     }
     if(spec.device_id < 0 || spec.device_id >= n_devices) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "GCudaBackend: device_id " << spec.device_id << " out of range [0," << n_devices << ")"
+            << "GCUDABackend: device_id " << spec.device_id << " out of range [0," << n_devices << ")"
             << '\n');
     }
     cuCheck(cuDeviceGet(&p_->device, spec.device_id), "cuDeviceGet");
@@ -216,7 +216,7 @@ void GCudaBackend::initialize(const KernelSpec &spec) {
     cuCheck(cuCtxPopCurrent(&popped), "cuCtxPopCurrent");
 }
 
-void GCudaBackend::evaluate(
+void GCUDABackend::evaluate(
     const double *params, int n_items, int dim,
     const std::byte *pconst, std::size_t pconst_size,
     double *fitness_out, int threads_per_item) {

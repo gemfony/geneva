@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
     if(not gpu::backendAvailable(kind)) {
         std::printf("Requested backend '%s' is not compiled into this build; using 'cpu'.\n",
                     gpu::toString(requested));
-        kind = gpu::BackendKind::Cpu;
+        kind = gpu::BackendKind::CPU;
     }
 
     auto marshaller = std::make_shared<gpu::Demo::GFunctionIndividualGPUMarshaller>(funcId);

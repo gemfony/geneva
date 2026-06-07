@@ -92,7 +92,7 @@ int main(int argc, char **argv) {
     gpu::BackendKind kind = gpu::backendKindFromString(backendStr);
     if(not gpu::backendAvailable(kind)) {
         std::printf("Requested backend '%s' not compiled in; using 'cpu'.\n", gpu::toString(kind));
-        kind = gpu::BackendKind::Cpu;
+        kind = gpu::BackendKind::CPU;
     }
 
     try {
