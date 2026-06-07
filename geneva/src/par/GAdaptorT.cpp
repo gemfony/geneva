@@ -42,7 +42,7 @@ namespace Gem::Geneva::Parameters {
 /******************************************************************************/
 /**
  * Common interface for all adaptors to the adaption functionality. Specialization
- * for the T==bool case . Note that
+ * for the parameter_type==bool case . Note that
  *
  * @return The number of adaptions that were carried out
  */

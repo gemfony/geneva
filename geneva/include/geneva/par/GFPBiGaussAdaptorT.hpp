@@ -52,9 +52,9 @@ namespace Gem::Geneva::Parameters {
  * two different sigma/sigmaSigma values and adaption rates for both gaussians. Note that this adaptor
  * is experimental. Your mileage may vary.
  */
-template <typename fp_type>
+template <typename adaption_fp_type>
 class GFPBiGaussAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GNumBiGaussAdaptorT<fp_type, fp_type> {
+  : public GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -65,15 +65,15 @@ class GFPBiGaussAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
         // Save all necessary data
         ar &make_nvp(
             "GAdaptorT_num",
-            boost::serialization::base_object<GNumBiGaussAdaptorT<fp_type, fp_type>>(*this)
+            boost::serialization::base_object<GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type>>(*this)
         );
     }
     ///////////////////////////////////////////////////////////////////////
 
-    // Make sure this class can only be instantiated if fp_type really is a floating point type
+    // Make sure this class can only be instantiated if adaption_fp_type really is a floating point type
     static_assert(
-        std::is_floating_point_v<fp_type>,
-        "fp_type should be a floating point type"
+        std::is_floating_point_v<adaption_fp_type>,
+        "adaption_fp_type should be a floating point type"
     );
 
 public:
@@ -89,15 +89,15 @@ public:
      *
      * @param probability The likelihood for a adaption actually taking place
      */
-    GFPBiGaussAdaptorT(const fp_type &probability)
-      : GNumBiGaussAdaptorT<fp_type, fp_type>(probability) { /* nothing */
+    GFPBiGaussAdaptorT(const adaption_fp_type &probability)
+      : GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type>(probability) { /* nothing */
     }
 
     /***************************************************************************/
     /**
      * A standard copy constructor
      */
-    GFPBiGaussAdaptorT(const GFPBiGaussAdaptorT<fp_type> &) = default;
+    GFPBiGaussAdaptorT(const GFPBiGaussAdaptorT<adaption_fp_type> &) = default;
 
     /***************************************************************************/
     /**
@@ -114,21 +114,21 @@ protected:
      *
      * @param cp A copy of another GFPBiGaussAdaptorT, camouflaged as a GAdaptorT
      */
-    void load_(const GAdaptorT<fp_type, fp_type> *cp) override {
-        // Check that we are dealing with a GFPBiGaussAdaptorT<fp_type> reference independent of this object and convert the pointer
-        const GFPBiGaussAdaptorT<fp_type> *p_load =
-            Gem::Common::g_convert_and_compare<GAdaptorT<fp_type, fp_type>, GFPBiGaussAdaptorT<fp_type>>(cp, this);
+    void load_(const GAdaptorT<adaption_fp_type, adaption_fp_type> *cp) override {
+        // Check that we are dealing with a GFPBiGaussAdaptorT<adaption_fp_type> reference independent of this object and convert the pointer
+        const GFPBiGaussAdaptorT<adaption_fp_type> *p_load =
+            Gem::Common::g_convert_and_compare<GAdaptorT<adaption_fp_type, adaption_fp_type>, GFPBiGaussAdaptorT<adaption_fp_type>>(cp, this);
 
         // Load the data of our parent class ...
-        GNumBiGaussAdaptorT<fp_type, fp_type>::load_(cp);
+        GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type>::load_(cp);
 
         // no local data ...
     }
 
     /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GFPBiGaussAdaptorT<fp_type>>(
-        GFPBiGaussAdaptorT<fp_type> const &,
-        GFPBiGaussAdaptorT<fp_type> const &,
+    friend void Gem::Common::compare_base_t<GFPBiGaussAdaptorT<adaption_fp_type>>(
+        GFPBiGaussAdaptorT<adaption_fp_type> const &,
+        GFPBiGaussAdaptorT<adaption_fp_type> const &,
         Gem::Common::GToken &
     );
 
@@ -141,20 +141,20 @@ protected:
      * @param e The expected outcome of the comparison
      */
     void compare_(
-        const GAdaptorT<fp_type, fp_type> &cp,
+        const GAdaptorT<adaption_fp_type, adaption_fp_type> &cp,
         const Gem::Common::expectation &e,
         [[maybe_unused]] const double & limit
     ) const override {
         using namespace Gem::Common;
 
-        // Check that we are dealing with a GFPBiGaussAdaptorT<fp_type> reference independent of this object and convert the pointer
-        const GFPBiGaussAdaptorT<fp_type> *p_load =
-            Gem::Common::g_convert_and_compare<GAdaptorT<fp_type, fp_type>, GFPBiGaussAdaptorT<fp_type>>(cp, this);
+        // Check that we are dealing with a GFPBiGaussAdaptorT<adaption_fp_type> reference independent of this object and convert the pointer
+        const GFPBiGaussAdaptorT<adaption_fp_type> *p_load =
+            Gem::Common::g_convert_and_compare<GAdaptorT<adaption_fp_type, adaption_fp_type>, GFPBiGaussAdaptorT<adaption_fp_type>>(cp, this);
 
-        GToken token("GFPBiGaussAdaptorT<fp_type>", e);
+        GToken token("GFPBiGaussAdaptorT<adaption_fp_type>", e);
 
         // Compare our parent data ...
-        compare_base_t<GNumBiGaussAdaptorT<fp_type, fp_type>>(*this, *p_load, token);
+        compare_base_t<GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type>>(*this, *p_load, token);
 
         // ... no local data
 
@@ -166,24 +166,24 @@ protected:
     /**
      * The actual adaption of the supplied value takes place here
      */
-    void customAdaptions(fp_type &value, const fp_type &range, Gem::Hap::GRandomBase &gr) override {
+    void customAdaptions(adaption_fp_type &value, const adaption_fp_type &range, Gem::Hap::GRandomBase &gr) override {
         using namespace Gem::Common;
         using namespace Gem::Hap;
 
-        if(GNumBiGaussAdaptorT<fp_type, fp_type>::
+        if(GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type>::
                use_symmetric_sigmas_) { // Should we use the same sigma for both gaussians ?
             // adapt the value in situ. Note that this changes
             // the argument of this function
             value +=
-                (range * GNumBiGaussAdaptorT<fp_type, fp_type>::bi_normal_distribution_(
+                (range * GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type>::bi_normal_distribution_(
                              gr,
-                             typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
-                                 fp_type(0.),
-                                 GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_,
-                                 GNumBiGaussAdaptorT<fp_type, fp_type>::
+                             typename Gem::Hap::bi_normal_distribution<adaption_fp_type>::param_type(
+                                 adaption_fp_type(0.),
+                                 GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type>::sigma1_,
+                                 GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type>::
                                      sigma1_ // Intended to be sigma1_ (symmetry-case)
                                  ,
-                                 GNumBiGaussAdaptorT<fp_type, fp_type>::delta_
+                                 GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type>::delta_
                              )
                          ));
         }
@@ -191,13 +191,13 @@ protected:
             // adapt the value in situ. Note that this changes
             // the argument of this function
             value +=
-                (range * GNumBiGaussAdaptorT<fp_type, fp_type>::bi_normal_distribution_(
+                (range * GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type>::bi_normal_distribution_(
                              gr,
-                             typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
-                                 fp_type(0.),
-                                 GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_,
-                                 GNumBiGaussAdaptorT<fp_type, fp_type>::sigma2_,
-                                 GNumBiGaussAdaptorT<fp_type, fp_type>::delta_
+                             typename Gem::Hap::bi_normal_distribution<adaption_fp_type>::param_type(
+                                 adaption_fp_type(0.),
+                                 GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type>::sigma1_,
+                                 GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type>::sigma2_,
+                                 GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type>::delta_
                              )
                          ));
         }
@@ -215,7 +215,7 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(GNumBiGaussAdaptorT<fp_type, fp_type>::modify_GUnitTests_()) {
+        if(GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type>::modify_GUnitTests_()) {
             result = true;
         }
 
@@ -235,7 +235,7 @@ protected:
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
-        GNumBiGaussAdaptorT<fp_type, fp_type>::specificTestsNoFailureExpected_GUnitTests_();
+        GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type>::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset(
@@ -253,7 +253,7 @@ protected:
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
-        GNumBiGaussAdaptorT<fp_type, fp_type>::specificTestsFailuresExpected_GUnitTests_();
+        GNumBiGaussAdaptorT<adaption_fp_type, adaption_fp_type>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset(
@@ -278,7 +278,7 @@ private:
 
     /***************************************************************************/
     /** @brief This function creates a deep copy of this object */
-    GAdaptorT<fp_type, fp_type> *clone_() const override = 0;
+    GAdaptorT<adaption_fp_type, adaption_fp_type> *clone_() const override = 0;
 };
 
 /******************************************************************************/
@@ -288,9 +288,9 @@ private:
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 namespace boost::serialization {
-template <typename fp_type>
-struct is_abstract<Gem::Geneva::Parameters::GFPBiGaussAdaptorT<fp_type>> : public boost::true_type {};
-template <typename fp_type>
-struct is_abstract<const Gem::Geneva::Parameters::GFPBiGaussAdaptorT<fp_type>> : public boost::true_type {};
+template <typename adaption_fp_type>
+struct is_abstract<Gem::Geneva::Parameters::GFPBiGaussAdaptorT<adaption_fp_type>> : public boost::true_type {};
+template <typename adaption_fp_type>
+struct is_abstract<const Gem::Geneva::Parameters::GFPBiGaussAdaptorT<adaption_fp_type>> : public boost::true_type {};
 } /* namespace boost::serialization */
 /******************************************************************************/

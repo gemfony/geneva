@@ -52,17 +52,17 @@ namespace Gem::Geneva::Parameters {
  * types, by flipping a number to the next larger or smaller one. The unerlying
  * type needs to be specified as a template parameter.
  */
-template <typename num_type>
-    requires Gem::Common::arithmetic<num_type>
+template <typename parameter_type>
+    requires Gem::Common::arithmetic<parameter_type>
 class GNumFlipAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GAdaptorT<num_type> {
+  : public GAdaptorT<parameter_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &make_nvp("GAdaptorT", boost::serialization::base_object<GAdaptorT<num_type>>(*this));
+        ar &make_nvp("GAdaptorT", boost::serialization::base_object<GAdaptorT<parameter_type>>(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -73,7 +73,7 @@ public:
      * The standard constructor.
      */
     GNumFlipAdaptorT()
-      : GAdaptorT<num_type>(DEFAULTADPROB) { /* nothing */
+      : GAdaptorT<parameter_type>(DEFAULTADPROB) { /* nothing */
     }
 
     /***************************************************************************/
@@ -84,7 +84,7 @@ public:
      * @param ad_prob The probability for a flip
      */
     explicit GNumFlipAdaptorT(const double &ad_prob)
-      : GAdaptorT<num_type>(ad_prob) { /* nothing */
+      : GAdaptorT<parameter_type>(ad_prob) { /* nothing */
     }
 
     /***************************************************************************/
@@ -93,7 +93,7 @@ public:
      *
      * @param cp Another GNumFlipAdaptorT object
      */
-    GNumFlipAdaptorT(const GNumFlipAdaptorT<num_type> &cp) = default;
+    GNumFlipAdaptorT(const GNumFlipAdaptorT<parameter_type> &cp) = default;
 
     /***************************************************************************/
     /**
@@ -118,22 +118,22 @@ protected:
      *
      * @param cp A copy of another GNumFlipAdaptorT, camouflaged as a GAdaptorT
      */
-    void load_(const GAdaptorT<num_type> *cp) override {
+    void load_(const GAdaptorT<parameter_type> *cp) override {
         // Convert the pointer to our target type and check for self-assignment
-        const GNumFlipAdaptorT<num_type> *p_load =
-            Gem::Common::g_convert_and_compare<GAdaptorT<num_type>, GNumFlipAdaptorT<num_type>>(cp, this);
+        const GNumFlipAdaptorT<parameter_type> *p_load =
+            Gem::Common::g_convert_and_compare<GAdaptorT<parameter_type>, GNumFlipAdaptorT<parameter_type>>(cp, this);
 
         // Load the data of our parent class ...
-        GAdaptorT<num_type>::load_(cp);
+        GAdaptorT<parameter_type>::load_(cp);
 
         // no local data
     }
 
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GNumFlipAdaptorT<num_type>>(
-        GNumFlipAdaptorT<num_type> const &,
-        GNumFlipAdaptorT<num_type> const &,
+    friend void Gem::Common::compare_base_t<GNumFlipAdaptorT<parameter_type>>(
+        GNumFlipAdaptorT<parameter_type> const &,
+        GNumFlipAdaptorT<parameter_type> const &,
         Gem::Common::GToken &
     );
 
@@ -146,20 +146,20 @@ protected:
      * @param e The expected outcome of the comparison
      */
     void compare_(
-        const GAdaptorT<num_type> &cp,
+        const GAdaptorT<parameter_type> &cp,
         const Gem::Common::expectation &e,
         [[maybe_unused]] const double & limit
     ) const override {
         using namespace Gem::Common;
 
-        // Check that we are dealing with a GNumFlipAdaptorT<num_type> reference independent of this object and convert the pointer
-        const GNumFlipAdaptorT<num_type> *p_load =
-            Gem::Common::g_convert_and_compare<GAdaptorT<num_type>, GNumFlipAdaptorT<num_type>>(cp, this);
+        // Check that we are dealing with a GNumFlipAdaptorT<parameter_type> reference independent of this object and convert the pointer
+        const GNumFlipAdaptorT<parameter_type> *p_load =
+            Gem::Common::g_convert_and_compare<GAdaptorT<parameter_type>, GNumFlipAdaptorT<parameter_type>>(cp, this);
 
-        GToken token("GNumFlipAdaptorT<num_type>", e);
+        GToken token("GNumFlipAdaptorT<parameter_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<GAdaptorT<num_type>>(*this, *p_load, token);
+        Gem::Common::compare_base_t<GAdaptorT<parameter_type>>(*this, *p_load, token);
 
         // ... no local data
 
@@ -172,15 +172,15 @@ protected:
      * Flip the value up or down by 1, depending on a random number.
      */
     void customAdaptions(
-        num_type &value,
-        [[maybe_unused]] const num_type & range
+        parameter_type &value,
+        [[maybe_unused]] const parameter_type & range
         ,
         Gem::Hap::GRandomBase &gr
     ) override {
         using namespace Gem::Common;
         using namespace Gem::Hap;
 
-        if(GAdaptorT<num_type>::weighted_bool_(gr, std::bernoulli_distribution::param_type(0.5))) {
+        if(GAdaptorT<parameter_type>::weighted_bool_(gr, std::bernoulli_distribution::param_type(0.5))) {
             value += 1;
         }
         else {
@@ -189,7 +189,7 @@ protected:
     }
 
     /* ----------------------------------------------------------------------------------
-     * Tested in GAdaptorT<num_type>::specificTestsNoFailuresExpected_GUnitTests()
+     * Tested in GAdaptorT<parameter_type>::specificTestsNoFailuresExpected_GUnitTests()
      * ----------------------------------------------------------------------------------
      */
 
@@ -205,7 +205,7 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(GAdaptorT<num_type>::modify_GUnitTests_()) {
+        if(GAdaptorT<parameter_type>::modify_GUnitTests_()) {
             result = true;
         }
 
@@ -227,7 +227,7 @@ protected:
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
-        GAdaptorT<num_type>::specificTestsNoFailureExpected_GUnitTests_();
+        GAdaptorT<parameter_type>::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset(
@@ -245,7 +245,7 @@ protected:
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
-        GAdaptorT<num_type>::specificTestsFailuresExpected_GUnitTests_();
+        GAdaptorT<parameter_type>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset(
@@ -288,7 +288,7 @@ private:
      *
      * @return A deep copy of this object
      */
-    GAdaptorT<num_type> *clone_() const override = 0;
+    GAdaptorT<parameter_type> *clone_() const override = 0;
 };
 
 /******************************************************************************/
@@ -298,9 +298,9 @@ private:
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) // NOLINT
 namespace boost::serialization {
-template <typename num_type>
-struct is_abstract<Gem::Geneva::Parameters::GNumFlipAdaptorT<num_type>> : public boost::true_type {};
-template <typename num_type>
-struct is_abstract<const Gem::Geneva::Parameters::GNumFlipAdaptorT<num_type>> : public boost::true_type {};
+template <typename parameter_type>
+struct is_abstract<Gem::Geneva::Parameters::GNumFlipAdaptorT<parameter_type>> : public boost::true_type {};
+template <typename parameter_type>
+struct is_abstract<const Gem::Geneva::Parameters::GNumFlipAdaptorT<parameter_type>> : public boost::true_type {};
 } /* namespace boost::serialization */
 /******************************************************************************/

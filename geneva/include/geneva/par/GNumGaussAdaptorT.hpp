@@ -56,9 +56,9 @@ namespace Gem::Geneva::Parameters {
  * types may be used, including Boost's integer representations.
  * The type used needs to be specified as a template parameter.
  */
-template <typename num_type, typename fp_type>
+template <typename parameter_type, typename adaption_fp_type>
 class GNumGaussAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GAdaptorT<num_type, fp_type> {
+  : public GAdaptorT<parameter_type, adaption_fp_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -68,17 +68,17 @@ class GNumGaussAdaptorT // NOLINT(cppcoreguidelines-special-member-functions)
 
         ar &make_nvp(
             "GAdaptorT_num",
-            boost::serialization::base_object<GAdaptorT<num_type>>(*this)
+            boost::serialization::base_object<GAdaptorT<parameter_type>>(*this)
         );
         // ... and then our own data, derived from the single localMembers() declaration
         Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 
-    // Make sure this class can only be instantiated if fp_type really is a floating point type
+    // Make sure this class can only be instantiated if adaption_fp_type really is a floating point type
     static_assert(
-        std::is_floating_point_v<fp_type>,
-        "fp_type should be a floating point type"
+        std::is_floating_point_v<adaption_fp_type>,
+        "adaption_fp_type should be a floating point type"
     );
 
 public:
@@ -95,7 +95,7 @@ public:
 	  * @param probability The likelihood for a adaption actually taking place
 	  */
     GNumGaussAdaptorT(const double &probability)
-      : GAdaptorT<num_type>(probability) { /* nothing */
+      : GAdaptorT<parameter_type>(probability) { /* nothing */
     }
 
     /***************************************************************************/
@@ -108,10 +108,10 @@ public:
 	  * @param max_sigma The maximal value allowed for sigma_
 	  */
     GNumGaussAdaptorT(
-        const fp_type &sigma,
-        const fp_type &sigma_sigma,
-        const fp_type &min_sigma,
-        const fp_type &max_sigma
+        const adaption_fp_type &sigma,
+        const adaption_fp_type &sigma_sigma,
+        const adaption_fp_type &min_sigma,
+        const adaption_fp_type &max_sigma
     ) {
         // These functions do error checks on their values
         setSigmaAdaptionRate(sigma_sigma);
@@ -134,13 +134,13 @@ public:
 	  * @param probability The likelihood for a adaption actually taking place
 	  */
     GNumGaussAdaptorT(
-        const fp_type &sigma,
-        const fp_type &sigma_sigma,
-        const fp_type &min_sigma,
-        const fp_type &max_sigma,
+        const adaption_fp_type &sigma,
+        const adaption_fp_type &sigma_sigma,
+        const adaption_fp_type &min_sigma,
+        const adaption_fp_type &max_sigma,
         const double &probability
     )
-      : GAdaptorT<num_type>(probability) {
+      : GAdaptorT<parameter_type>(probability) {
         // These functions do error checks on their values
         setSigmaAdaptionRate(sigma_sigma);
         setSigmaRange(min_sigma, max_sigma);
@@ -158,7 +158,7 @@ public:
 	  *
 	  * @param cp Another GNumGaussAdaptorT object
 	  */
-    GNumGaussAdaptorT(const GNumGaussAdaptorT<num_type, fp_type> &cp) = default;
+    GNumGaussAdaptorT(const GNumGaussAdaptorT<parameter_type, adaption_fp_type> &cp) = default;
 
     /***************************************************************************/
     /**
@@ -177,9 +177,9 @@ public:
 	  *
 	  * @param sigma The new value of the sigma_ parameter
 	  */
-    void setSigma(const fp_type &sigma) {
+    void setSigma(const adaption_fp_type &sigma) {
         // Sigma must be in the allowed value range.
-        if(not Gem::Common::checkRangeCompliance<fp_type>(
+        if(not Gem::Common::checkRangeCompliance<adaption_fp_type>(
                sigma,
                min_sigma_,
                max_sigma_,
@@ -187,7 +187,7 @@ public:
            )) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GNumGaussAdaptorT::setSigma(const fp_type&):" << '\n'
+                << "In GNumGaussAdaptorT::setSigma(const adaption_fp_type&):" << '\n'
                 << "sigma is not in the allowed range: " << '\n'
                 << min_sigma_ << " <= " << sigma << " < " << max_sigma_ << '\n'
                 << "If you want to use these values you need to" << '\n'
@@ -204,7 +204,7 @@ public:
 	  *
 	  * @return The current value of sigma_reset_
 	  */
-    fp_type getResetSigma() const {
+    adaption_fp_type getResetSigma() const {
         return sigma_reset_;
     }
 
@@ -215,9 +215,9 @@ public:
 	  *
 	  * @param sigma_reset The new value of the sigma_ parameter
 	  */
-    void setResetSigma(const fp_type &sigma_reset) {
+    void setResetSigma(const adaption_fp_type &sigma_reset) {
         // Sigma must be in the allowed value range.
-        if(not Gem::Common::checkRangeCompliance<fp_type>(
+        if(not Gem::Common::checkRangeCompliance<adaption_fp_type>(
                sigma_reset,
                min_sigma_,
                max_sigma_,
@@ -225,7 +225,7 @@ public:
            )) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GNumGaussAdaptorT::setResetSigma(const fp_type&):" << '\n'
+                << "In GNumGaussAdaptorT::setResetSigma(const adaption_fp_type&):" << '\n'
                 << "sigma_reset is not in the allowed range: " << '\n'
                 << min_sigma_ << " <= " << sigma_reset << " < " << max_sigma_ << '\n'
                 << "If you want to use these values you need to" << '\n'
@@ -242,7 +242,7 @@ public:
 	  *
 	  * @return The current value of sigma_
 	  */
-    fp_type getSigma() const {
+    adaption_fp_type getSigma() const {
         return sigma_;
     }
 
@@ -258,13 +258,13 @@ public:
 	  * @param min_sigma The minimum allowed value of sigma_
 	  * @param max_sigma The maximum allowed value of sigma_
 	  */
-    void setSigmaRange(const fp_type &min_sigma, const fp_type &max_sigma) {
+    void setSigmaRange(const adaption_fp_type &min_sigma, const adaption_fp_type &max_sigma) {
         using namespace Gem::Common;
 
-        if(min_sigma < fp_type(0.) || min_sigma > max_sigma || max_sigma > fp_type(1.)) {
+        if(min_sigma < adaption_fp_type(0.) || min_sigma > max_sigma || max_sigma > adaption_fp_type(1.)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GNumGaussAdaptorT::setSigmaRange(const fp_type&, const fp_type&):" << '\n'
+                << "In GNumGaussAdaptorT::setSigmaRange(const adaption_fp_type&, const adaption_fp_type&):" << '\n'
                 << "Invalid values for min_sigma and max_sigma given: " << min_sigma << " / "
                 << max_sigma << '\n'
                 << "Expected a range [0:1]. Note: Sigma is a percentage of the allowed or" << '\n'
@@ -279,15 +279,15 @@ public:
         max_sigma_ = max_sigma;
 
         // Rectify sigma_ and reset_sigma_, if necessary
-        Gem::Common::enforceRangeConstraint<fp_type>(
+        Gem::Common::enforceRangeConstraint<adaption_fp_type>(
             sigma_,
-            std::max(fp_type(min_sigma_), fp_type(DEFAULTMINSIGMA)),
+            std::max(adaption_fp_type(min_sigma_), adaption_fp_type(DEFAULTMINSIGMA)),
             max_sigma_,
             "GNumGaussAdaptorT<>::setSigmaRange() / 1"
         );
-        Gem::Common::enforceRangeConstraint<fp_type>(
+        Gem::Common::enforceRangeConstraint<adaption_fp_type>(
             sigma_reset_,
-            std::max(fp_type(min_sigma_), fp_type(DEFAULTMINSIGMA)),
+            std::max(adaption_fp_type(min_sigma_), adaption_fp_type(DEFAULTMINSIGMA)),
             max_sigma_,
             "GNumGaussAdaptorT<>::setSigmaRange() / 2"
         );
@@ -306,7 +306,7 @@ public:
 	  *
 	  * @return The allowed value range for sigma
 	  */
-    std::tuple<fp_type, fp_type> getSigmaRange() const {
+    std::tuple<adaption_fp_type, adaption_fp_type> getSigmaRange() const {
         return std::make_tuple(min_sigma_, max_sigma_);
     }
 
@@ -324,7 +324,7 @@ public:
 	  *
 	  * @param sigma_sigma The new value of the sigmaSigma_ parameter
 	  */
-    void setSigmaAdaptionRate(const fp_type &sigma_sigma) {
+    void setSigmaAdaptionRate(const adaption_fp_type &sigma_sigma) {
         // sigma_sigma <= 0 is a valid contract ("do not adapt sigma"); only
         // non-finite values (NaN / +-inf) are rejected -- they would otherwise
         // propagate silently through the adaption and corrupt the whole run.
@@ -350,7 +350,7 @@ public:
 	  *
 	  * @return The value of the sigmaSigma_ parameter
 	  */
-    fp_type getSigmaAdaptionRate() const {
+    adaption_fp_type getSigmaAdaptionRate() const {
         return sigma_sigma_;
     }
 
@@ -370,10 +370,10 @@ public:
 	  * @param max_sigma The maximum value allowed for sigma_
 	  */
     void setAll(
-        const fp_type &sigma,
-        const fp_type &sigma_sigma,
-        const fp_type &min_sigma,
-        const fp_type &max_sigma
+        const adaption_fp_type &sigma,
+        const adaption_fp_type &sigma_sigma,
+        const adaption_fp_type &min_sigma,
+        const adaption_fp_type &max_sigma
     ) {
         setSigmaAdaptionRate(sigma_sigma);
         setSigmaRange(min_sigma, max_sigma);
@@ -381,7 +381,7 @@ public:
     }
 
     /* ----------------------------------------------------------------------------------
-	  * Tested in GNumGaussAdaptorT<num_type, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	  * Tested in GNumGaussAdaptorT<parameter_type, adaption_fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
@@ -393,11 +393,11 @@ public:
 	  */
     std::string printDiagnostics() const override {
         std::ostringstream diag; // NOLINT(cppcoreguidelines-init-variables)
-        std::tuple<fp_type, fp_type> sigma_range = getSigmaRange();
+        std::tuple<adaption_fp_type, adaption_fp_type> sigma_range = getSigmaRange();
 
-        diag << "Diagnostic message by GNumAdaptorT<num_type,fp_type>" << '\n'
-             << "with typeid(num_type).name() = " << typeid(num_type).name() << '\n'
-             << "and typeid(fp_type).name() = " << typeid(fp_type).name() << " :" << '\n'
+        diag << "Diagnostic message by GNumAdaptorT<parameter_type,adaption_fp_type>" << '\n'
+             << "with typeid(parameter_type).name() = " << typeid(parameter_type).name() << '\n'
+             << "and typeid(adaption_fp_type).name() = " << typeid(adaption_fp_type).name() << " :" << '\n'
              << "getSigma() = " << getSigma() << '\n'
              << "getResetSigma() = " << getResetSigma() << '\n'
              << "getSigmaRange() = " << std::get<0>(sigma_range) << " --> "
@@ -416,9 +416,9 @@ public:
 	  * @param range A typical value range for type T
 	  * @return A boolean indicating whether updates were performed
 	  */
-    bool updateOnStall(const std::size_t &n_stalls, const num_type &range) override {
+    bool updateOnStall(const std::size_t &n_stalls, const parameter_type &range) override {
         // Call our parent class'es function
-        GAdaptorT<num_type>::updateOnStall(n_stalls, range);
+        GAdaptorT<parameter_type>::updateOnStall(n_stalls, range);
 
         // Reset the adaption probability
         if(sigma_ == sigma_reset_) {
@@ -456,21 +456,21 @@ protected:
 
     /***************************************************************************/
     /**
-	  * This function loads the data of another GNumGaussAdaptorT<num_type, fp_type>, camouflaged as a GAdaptorT.
+	  * This function loads the data of another GNumGaussAdaptorT<parameter_type, adaption_fp_type>, camouflaged as a GAdaptorT.
 	  * We assume that the values given to us by the other object are correct and do no error checks.
 	  *
-	  * @param cp A copy of another GNumGaussAdaptorT<num_type, fp_type>, camouflaged as a GAdaptorT
+	  * @param cp A copy of another GNumGaussAdaptorT<parameter_type, adaption_fp_type>, camouflaged as a GAdaptorT
 	  */
-    void load_(const GAdaptorT<num_type, fp_type> *cp) override {
-        // Check that we are dealing with a GNumGaussAdaptorT<num_type, fp_type> reference independent of this object and convert the pointer
-        const GNumGaussAdaptorT<num_type, fp_type> *p_load =
-            Gem::Common::g_convert_and_compare<GAdaptorT<num_type, fp_type>, GNumGaussAdaptorT<num_type, fp_type>>(
+    void load_(const GAdaptorT<parameter_type, adaption_fp_type> *cp) override {
+        // Check that we are dealing with a GNumGaussAdaptorT<parameter_type, adaption_fp_type> reference independent of this object and convert the pointer
+        const GNumGaussAdaptorT<parameter_type, adaption_fp_type> *p_load =
+            Gem::Common::g_convert_and_compare<GAdaptorT<parameter_type, adaption_fp_type>, GNumGaussAdaptorT<parameter_type, adaption_fp_type>>(
                 cp,
                 this
             );
 
         // Load the data of our parent class ...
-        GAdaptorT<num_type, fp_type>::load_(cp);
+        GAdaptorT<parameter_type, adaption_fp_type>::load_(cp);
 
         // ... and then our own data, derived from the single localMembers() declaration
         Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -478,9 +478,9 @@ protected:
 
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GNumGaussAdaptorT<num_type, fp_type>>(
-        GNumGaussAdaptorT<num_type, fp_type> const &,
-        GNumGaussAdaptorT<num_type, fp_type> const &,
+    friend void Gem::Common::compare_base_t<GNumGaussAdaptorT<parameter_type, adaption_fp_type>>(
+        GNumGaussAdaptorT<parameter_type, adaption_fp_type> const &,
+        GNumGaussAdaptorT<parameter_type, adaption_fp_type> const &,
         Gem::Common::GToken &
     );
 
@@ -493,23 +493,23 @@ protected:
      * @param e The expected outcome of the comparison
      */
     void compare_(
-        const GAdaptorT<num_type, fp_type> &cp,
+        const GAdaptorT<parameter_type, adaption_fp_type> &cp,
         const Gem::Common::expectation &e,
         [[maybe_unused]] const double & limit
     ) const override {
         using namespace Gem::Common;
 
-        // Check that we are dealing with a GNumGaussAdaptorT<num_type, fp_type> reference independent of this object and convert the pointer
-        const GNumGaussAdaptorT<num_type, fp_type> *p_load =
-            Gem::Common::g_convert_and_compare<GAdaptorT<num_type, fp_type>, GNumGaussAdaptorT<num_type, fp_type>>(
+        // Check that we are dealing with a GNumGaussAdaptorT<parameter_type, adaption_fp_type> reference independent of this object and convert the pointer
+        const GNumGaussAdaptorT<parameter_type, adaption_fp_type> *p_load =
+            Gem::Common::g_convert_and_compare<GAdaptorT<parameter_type, adaption_fp_type>, GNumGaussAdaptorT<parameter_type, adaption_fp_type>>(
                 cp,
                 this
             );
 
-        GToken token("GNumGaussAdaptorT<num_type, fp_type>", e);
+        GToken token("GNumGaussAdaptorT<parameter_type, adaption_fp_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<GAdaptorT<num_type, fp_type>>(*this, *p_load, token);
+        Gem::Common::compare_base_t<GAdaptorT<parameter_type, adaption_fp_type>>(*this, *p_load, token);
 
         // ... and then the local data
         Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -525,7 +525,7 @@ protected:
 	  *
 	  */
     void customAdaptAdaption(
-        [[maybe_unused]] const num_type & val
+        [[maybe_unused]] const parameter_type & val
         ,
         Gem::Hap::GRandomBase &gr
     ) override {
@@ -535,14 +535,14 @@ protected:
         // The following random distribution slightly favours values < 1. Selection pressure
         // will keep the values higher if needed
         sigma_ *= std::exp(
-            GAdaptorT<num_type, fp_type>::normal_distribution_(
+            GAdaptorT<parameter_type, adaption_fp_type>::normal_distribution_(
                 gr,
-                typename std::normal_distribution<fp_type>::param_type(0., std::abs(sigma_sigma_))
+                typename std::normal_distribution<adaption_fp_type>::param_type(0., std::abs(sigma_sigma_))
             )
         );
 
         // make sure sigma_ doesn't get out of range
-        Gem::Common::enforceRangeConstraint<fp_type>(
+        Gem::Common::enforceRangeConstraint<adaption_fp_type>(
             sigma_,
             min_sigma_,
             max_sigma_,
@@ -556,7 +556,7 @@ protected:
 	  * The actual adaption of the supplied value takes place here. Purely virtual, as the actual
 	  * adaptions are defined in the derived classes.
 	  */
-    void customAdaptions(num_type &, const num_type &, Gem::Hap::GRandomBase &) override = 0;
+    void customAdaptions(parameter_type &, const parameter_type &, Gem::Hap::GRandomBase &) override = 0;
 
     /***************************************************************************/
     /**
@@ -566,9 +566,9 @@ protected:
         using namespace Gem::Common;
         using namespace Gem::Hap;
 
-        sigma_ = GAdaptorT<num_type, fp_type>::uniform_real_distribution_(
+        sigma_ = GAdaptorT<parameter_type, adaption_fp_type>::uniform_real_distribution_(
             gr,
-            typename std::uniform_real_distribution<fp_type>::param_type(min_sigma_, max_sigma_)
+            typename std::uniform_real_distribution<adaption_fp_type>::param_type(min_sigma_, max_sigma_)
         );
 
         return true;
@@ -603,12 +603,12 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(GAdaptorT<num_type>::modify_GUnitTests_()) {
+        if(GAdaptorT<parameter_type>::modify_GUnitTests_()) {
             result = true;
         }
 
         // A relatively harmless change
-        sigma_sigma_ *= fp_type(1.1);
+        sigma_sigma_ *= adaption_fp_type(1.1);
         result = true;
 
         return result;
@@ -627,7 +627,7 @@ protected:
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
-        GAdaptorT<num_type>::specificTestsNoFailureExpected_GUnitTests_();
+        GAdaptorT<parameter_type>::specificTestsNoFailureExpected_GUnitTests_();
 
         // Get a random number generator
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -635,17 +635,17 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Test setting and retrieval of the sigma range
-            std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test =
-                this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+            std::shared_ptr<GNumGaussAdaptorT<parameter_type, adaption_fp_type>> p_test =
+                this->template clone<GNumGaussAdaptorT<parameter_type, adaption_fp_type>>();
 
-            for(fp_type dlower = fp_type(0.); dlower < fp_type(0.8); dlower += fp_type(0.1)) {
-                fp_type dupper = std::min(fp_type(2.) * dlower, fp_type(1.));
+            for(adaption_fp_type dlower = adaption_fp_type(0.); dlower < adaption_fp_type(0.8); dlower += adaption_fp_type(0.1)) {
+                adaption_fp_type dupper = std::min(adaption_fp_type(2.) * dlower, adaption_fp_type(1.));
                 if(0 == dupper) {
                     dupper = 1.;
                 }
 
                 CHECK_NOTHROW(p_test->setSigmaRange(dlower, dupper));
-                typename std::tuple<fp_type, fp_type> range;
+                typename std::tuple<adaption_fp_type, adaption_fp_type> range;
                 CHECK_NOTHROW(range = p_test->getSigmaRange());
 
                 using namespace boost;
@@ -653,11 +653,11 @@ protected:
                 if(dlower ==
                    0.) { // Account for the fact that a lower boundary of 0. will be silently changed
                     INFO(
-                        std::get<0>(range) << " / " << Gem::Common::narrow<fp_type>(DEFAULTMINSIGMA)
+                        std::get<0>(range) << " / " << Gem::Common::narrow<adaption_fp_type>(DEFAULTMINSIGMA)
                     );
-                    CHECK(std::get<0>(range) == Gem::Common::narrow<fp_type>(DEFAULTMINSIGMA));
-                    INFO(std::get<1>(range) << " / " << Gem::Common::narrow<fp_type>(1.));
-                    CHECK(std::get<1>(range) == Gem::Common::narrow<fp_type>(1.));
+                    CHECK(std::get<0>(range) == Gem::Common::narrow<adaption_fp_type>(DEFAULTMINSIGMA));
+                    INFO(std::get<1>(range) << " / " << Gem::Common::narrow<adaption_fp_type>(1.));
+                    CHECK(std::get<1>(range) == Gem::Common::narrow<adaption_fp_type>(1.));
                 }
                 else {
                     CHECK(std::get<0>(range) == dlower);
@@ -668,23 +668,23 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Test that setting a sigma of 0. will result in a sigma with value DEFAULTMINSIGMA
-            std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test =
-                this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+            std::shared_ptr<GNumGaussAdaptorT<parameter_type, adaption_fp_type>> p_test =
+                this->template clone<GNumGaussAdaptorT<parameter_type, adaption_fp_type>>();
 
-            CHECK_NOTHROW(p_test->setSigmaRange(fp_type(0.), fp_type(1.)));
-            CHECK_NOTHROW(p_test->setSigma(fp_type(DEFAULTMINSIGMA)));
-            CHECK(p_test->getSigma() == fp_type(DEFAULTMINSIGMA));
+            CHECK_NOTHROW(p_test->setSigmaRange(adaption_fp_type(0.), adaption_fp_type(1.)));
+            CHECK_NOTHROW(p_test->setSigma(adaption_fp_type(DEFAULTMINSIGMA)));
+            CHECK(p_test->getSigma() == adaption_fp_type(DEFAULTMINSIGMA));
         }
 
         //------------------------------------------------------------------------------
 
         { // Tests setting and retrieval of the sigma parameter
-            std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test =
-                this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+            std::shared_ptr<GNumGaussAdaptorT<parameter_type, adaption_fp_type>> p_test =
+                this->template clone<GNumGaussAdaptorT<parameter_type, adaption_fp_type>>();
 
-            CHECK_NOTHROW(p_test->setSigmaRange(fp_type(0.), fp_type(1.)));
+            CHECK_NOTHROW(p_test->setSigmaRange(adaption_fp_type(0.), adaption_fp_type(1.)));
 
-            for(fp_type d = fp_type(0.1); d < fp_type(0.9); d += fp_type(0.1)) {
+            for(adaption_fp_type d = adaption_fp_type(0.1); d < adaption_fp_type(0.9); d += adaption_fp_type(0.1)) {
                 CHECK_NOTHROW(p_test->setSigma(d));
                 CHECK(p_test->getSigma() == d);
             }
@@ -693,10 +693,10 @@ protected:
         //------------------------------------------------------------------------------
 
         { // Test setting and retrieval of the sigma adaption rate
-            std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test =
-                this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+            std::shared_ptr<GNumGaussAdaptorT<parameter_type, adaption_fp_type>> p_test =
+                this->template clone<GNumGaussAdaptorT<parameter_type, adaption_fp_type>>();
 
-            for(fp_type d = fp_type(0.1); d < fp_type(0.9); d += fp_type(0.1)) {
+            for(adaption_fp_type d = adaption_fp_type(0.1); d < adaption_fp_type(0.9); d += adaption_fp_type(0.1)) {
                 CHECK_NOTHROW(p_test->setSigmaAdaptionRate(d));
                 CHECK(p_test->getSigmaAdaptionRate() == d);
             }
@@ -707,45 +707,45 @@ protected:
         { // Check that simultaneous setting of all "sigma-values" has an effect
             using namespace boost;
 
-            std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test =
-                this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+            std::shared_ptr<GNumGaussAdaptorT<parameter_type, adaption_fp_type>> p_test =
+                this->template clone<GNumGaussAdaptorT<parameter_type, adaption_fp_type>>();
 
-            CHECK_NOTHROW(p_test->setAll(fp_type(0.5), fp_type(0.8), fp_type(0.), fp_type(1.)));
-            CHECK(p_test->getSigma() == fp_type(0.5));
-            CHECK(p_test->getSigmaAdaptionRate() == fp_type(0.8));
-            std::tuple<fp_type, fp_type> range;
+            CHECK_NOTHROW(p_test->setAll(adaption_fp_type(0.5), adaption_fp_type(0.8), adaption_fp_type(0.), adaption_fp_type(1.)));
+            CHECK(p_test->getSigma() == adaption_fp_type(0.5));
+            CHECK(p_test->getSigmaAdaptionRate() == adaption_fp_type(0.8));
+            std::tuple<adaption_fp_type, adaption_fp_type> range;
             CHECK_NOTHROW(range = p_test->getSigmaRange());
-            CHECK(std::get<0>(range) == fp_type(DEFAULTMINSIGMA));
-            CHECK(std::get<1>(range) == fp_type(1.));
+            CHECK(std::get<0>(range) == adaption_fp_type(DEFAULTMINSIGMA));
+            CHECK(std::get<1>(range) == adaption_fp_type(1.));
         }
 
         //------------------------------------------------------------------------------
 
         { // Test sigma adaption
-            std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test =
-                this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+            std::shared_ptr<GNumGaussAdaptorT<parameter_type, adaption_fp_type>> p_test =
+                this->template clone<GNumGaussAdaptorT<parameter_type, adaption_fp_type>>();
 
             // true: Adaptions should happen always, independent of the adaption probability
             CHECK_NOTHROW(p_test->setAdaptionMode(adaptionMode::ALWAYS));
 
-            const fp_type min_sigma = fp_type(0.0001);
-            const fp_type max_sigma = fp_type(1.);
-            const fp_type sigma_start = fp_type(1.);
-            const fp_type sigma_sigma = fp_type(0.001);
+            const adaption_fp_type min_sigma = adaption_fp_type(0.0001);
+            const adaption_fp_type max_sigma = adaption_fp_type(1.);
+            const adaption_fp_type sigma_start = adaption_fp_type(1.);
+            const adaption_fp_type sigma_sigma = adaption_fp_type(0.001);
 
             CHECK_NOTHROW(p_test->setSigmaRange(min_sigma, max_sigma));
             CHECK_NOTHROW(p_test->setSigma(sigma_start));
             CHECK_NOTHROW(p_test->setSigmaAdaptionRate(sigma_sigma));
 
-            fp_type old_sigma = p_test->getSigma();
-            fp_type new_sigma = 0.;
+            adaption_fp_type old_sigma = p_test->getSigma();
+            adaption_fp_type new_sigma = 0.;
             CHECK(old_sigma == sigma_start);
 
             std::size_t n_tests = 10000;
             std::size_t max_counter = 0;
             std::size_t max_max_counter = 500;
             for(std::size_t i = 0; i < n_tests; i++) {
-                CHECK_NOTHROW(p_test->adaptAdaption(num_type(1), gr));
+                CHECK_NOTHROW(p_test->adaptAdaption(parameter_type(1), gr));
                 new_sigma = p_test->getSigma();
                 CHECK((new_sigma >= min_sigma && new_sigma <= max_sigma));
 
@@ -791,53 +791,53 @@ protected:
 #ifdef GEM_TESTING
 
         // Call the parent classes' functions
-        GAdaptorT<num_type>::specificTestsFailuresExpected_GUnitTests_();
+        GAdaptorT<parameter_type>::specificTestsFailuresExpected_GUnitTests_();
 
         //------------------------------------------------------------------------------
 
         { // Test that setting a minimal sigma < 0. throws
-            std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test =
-                this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+            std::shared_ptr<GNumGaussAdaptorT<parameter_type, adaption_fp_type>> p_test =
+                this->template clone<GNumGaussAdaptorT<parameter_type, adaption_fp_type>>();
 
-            CHECK_THROWS_AS((p_test->setSigmaRange(fp_type(-1.), fp_type(2.))), geneva_exception);
+            CHECK_THROWS_AS((p_test->setSigmaRange(adaption_fp_type(-1.), adaption_fp_type(2.))), geneva_exception);
         }
 
         //------------------------------------------------------------------------------
 
         { // Test that setting a minimal sigma > the maximum sigma throws
-            std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test =
-                this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+            std::shared_ptr<GNumGaussAdaptorT<parameter_type, adaption_fp_type>> p_test =
+                this->template clone<GNumGaussAdaptorT<parameter_type, adaption_fp_type>>();
 
-            CHECK_THROWS_AS((p_test->setSigmaRange(fp_type(2.), fp_type(1.))), geneva_exception);
+            CHECK_THROWS_AS((p_test->setSigmaRange(adaption_fp_type(2.), adaption_fp_type(1.))), geneva_exception);
         }
 
         //------------------------------------------------------------------------------
 
         { // Test that setting a negative sigma throws
-            std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test =
-                this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+            std::shared_ptr<GNumGaussAdaptorT<parameter_type, adaption_fp_type>> p_test =
+                this->template clone<GNumGaussAdaptorT<parameter_type, adaption_fp_type>>();
 
-            CHECK_THROWS_AS((p_test->setSigma(fp_type(-1.))), geneva_exception);
+            CHECK_THROWS_AS((p_test->setSigma(adaption_fp_type(-1.))), geneva_exception);
         }
 
         //------------------------------------------------------------------------------
 
         { // Test that setting a sigma below the allowed range throws
-            std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test =
-                this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+            std::shared_ptr<GNumGaussAdaptorT<parameter_type, adaption_fp_type>> p_test =
+                this->template clone<GNumGaussAdaptorT<parameter_type, adaption_fp_type>>();
 
-            CHECK_NOTHROW(p_test->setSigmaRange(fp_type(0.5), fp_type(1.)));
-            CHECK_THROWS_AS((p_test->setSigma(fp_type(0.1))), geneva_exception);
+            CHECK_NOTHROW(p_test->setSigmaRange(adaption_fp_type(0.5), adaption_fp_type(1.)));
+            CHECK_THROWS_AS((p_test->setSigma(adaption_fp_type(0.1))), geneva_exception);
         }
 
         //------------------------------------------------------------------------------
 
         { // Test that setting a sigma above the allowed range throws
-            std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test =
-                this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+            std::shared_ptr<GNumGaussAdaptorT<parameter_type, adaption_fp_type>> p_test =
+                this->template clone<GNumGaussAdaptorT<parameter_type, adaption_fp_type>>();
 
-            CHECK_NOTHROW(p_test->setSigmaRange(fp_type(0.5), fp_type(1.)));
-            CHECK_THROWS_AS((p_test->setSigma(fp_type(3.))), geneva_exception);
+            CHECK_NOTHROW(p_test->setSigmaRange(adaption_fp_type(0.5), adaption_fp_type(1.)));
+            CHECK_THROWS_AS((p_test->setSigma(adaption_fp_type(3.))), geneva_exception);
         }
 
         //------------------------------------------------------------------------------
@@ -852,12 +852,12 @@ protected:
 
     // "protected" for performance reasons, so we do not have to go through access functions
     /***************************************************************************/
-    fp_type sigma_ = fp_type(DEFAULTSIGMA); ///< The width of the gaussian used to adapt values
-    fp_type sigma_reset_ =
+    adaption_fp_type sigma_ = adaption_fp_type(DEFAULTSIGMA); ///< The width of the gaussian used to adapt values
+    adaption_fp_type sigma_reset_ =
         sigma_; ///< The value to which sigma_ will be reset if "updateOnStall()" is called
-    fp_type sigma_sigma_ = fp_type(DEFAULTSIGMASIGMA); ///< affects sigma_ adaption
-    fp_type min_sigma_ = fp_type(DEFAULTMINSIGMA);     ///< minimum allowed value for sigma_
-    fp_type max_sigma_ = fp_type(DEFAULTMAXSIGMA);     ///< maximum allowed value for sigma_
+    adaption_fp_type sigma_sigma_ = adaption_fp_type(DEFAULTSIGMASIGMA); ///< affects sigma_ adaption
+    adaption_fp_type min_sigma_ = adaption_fp_type(DEFAULTMINSIGMA);     ///< minimum allowed value for sigma_
+    adaption_fp_type max_sigma_ = adaption_fp_type(DEFAULTMAXSIGMA);     ///< maximum allowed value for sigma_
 
 private:
     /***************************************************************************/
@@ -880,7 +880,7 @@ private:
 	  *
 	  * @return A deep copy of this object
 	  */
-    GAdaptorT<num_type, fp_type> *clone_() const override = 0;
+    GAdaptorT<parameter_type, adaption_fp_type> *clone_() const override = 0;
 };
 
 /******************************************************************************/
@@ -890,9 +890,9 @@ private:
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 namespace boost::serialization {
-template <typename num_type, typename fp_type>
-struct is_abstract<Gem::Geneva::Parameters::GNumGaussAdaptorT<num_type, fp_type>> : public boost::true_type {};
-template <typename num_type, typename fp_type>
-struct is_abstract<const Gem::Geneva::Parameters::GNumGaussAdaptorT<num_type, fp_type>>
+template <typename parameter_type, typename adaption_fp_type>
+struct is_abstract<Gem::Geneva::Parameters::GNumGaussAdaptorT<parameter_type, adaption_fp_type>> : public boost::true_type {};
+template <typename parameter_type, typename adaption_fp_type>
+struct is_abstract<const Gem::Geneva::Parameters::GNumGaussAdaptorT<parameter_type, adaption_fp_type>>
   : public boost::true_type {};
 } /* namespace boost::serialization */
