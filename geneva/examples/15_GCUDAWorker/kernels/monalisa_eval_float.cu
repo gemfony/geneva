@@ -70,7 +70,10 @@ extern "C" __global__ void evaluate(
         const float bgB = p[10 * NT_full + 2];
 
         __shared__ float s_corners[MONALISA_MAXTRI * 6];
-        // Cooperatively compute the three corners of every triangle once.
+        // Cooperatively compute the three corners of every triangle once. The FLOAT kernel uses the
+        // fast __cosf/__sinf intrinsics (the double kernel has no such intrinsic): corners are computed
+        // only once per item, not per pixel, so the reduced precision barely shifts edge pixels while
+        // giving the best GPU time for this FP32 personality.
         for (int t = threadIdx.x; t < NT; t += blockDim.x) {
             const float *tri = p + t * 10;
             const float cx = tri[0] * W;
@@ -78,8 +81,8 @@ extern "C" __global__ void evaluate(
             const float radius = tri[2];
             for (int k = 0; k < 3; ++k) {
                 const float ang = tri[3 + k] * twoPi;
-                s_corners[t * 6 + k * 2 + 0] = cx + radius * cosf(ang) * scale;
-                s_corners[t * 6 + k * 2 + 1] = cy + radius * sinf(ang) * scale;
+                s_corners[t * 6 + k * 2 + 0] = cx + radius * __cosf(ang) * scale;
+                s_corners[t * 6 + k * 2 + 1] = cy + radius * __sinf(ang) * scale;
             }
         }
         __syncthreads();
@@ -156,9 +159,9 @@ extern "C" __global__ void evaluate(
             const float cy = tri[1] * H;
             const float radius = tri[2];
             const float a0 = tri[3] * twoPi, a1 = tri[4] * twoPi, a2 = tri[5] * twoPi;
-            const float x1 = cx + radius * cosf(a0) * scale, y1 = cy + radius * sinf(a0) * scale;
-            const float x2 = cx + radius * cosf(a1) * scale, y2 = cy + radius * sinf(a1) * scale;
-            const float x3 = cx + radius * cosf(a2) * scale, y3 = cy + radius * sinf(a2) * scale;
+            const float x1 = cx + radius * __cosf(a0) * scale, y1 = cy + radius * __sinf(a0) * scale;
+            const float x2 = cx + radius * __cosf(a1) * scale, y2 = cy + radius * __sinf(a1) * scale;
+            const float x3 = cx + radius * __cosf(a2) * scale, y3 = cy + radius * __sinf(a2) * scale;
             const float minx = fminf(x1, fminf(x2, x3));
             const float maxx = fmaxf(x1, fmaxf(x2, x3));
             const float miny = fminf(y1, fminf(y2, y3));
