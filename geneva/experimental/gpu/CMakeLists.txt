@@ -94,3 +94,4 @@ ENDIF ()
 # Demo programs that drive the framework.
 ADD_SUBDIRECTORY ( examples/function_demo )
 ADD_SUBDIRECTORY ( examples/image_demo )
+ADD_SUBDIRECTORY ( examples/monalisa_demo )
