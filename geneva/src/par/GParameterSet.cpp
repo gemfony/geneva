@@ -271,7 +271,7 @@ GParameterSet::GParameterSet(GParameterSet const &cp)
   : Gem::Common::GCommonInterfaceT<GParameterSet>(cp)
   , Interface::GMutableI(cp)
   , Interface::GRateableI(cp)
-  , Gem::Common::GPtrContainerT<GParameterBase>(cp)
+  , Gem::Common::GUniquePtrContainerT<GParameterBase>(cp)
   , Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>(cp)
   , best_past_primary_fitness_(cp.best_past_primary_fitness_)
   , n_stalls_(cp.n_stalls_)
@@ -583,9 +583,9 @@ std::string GParameterSet::toCSV(
      * @param pos The position of the item we aim to retrieve from the std::vector<GParameterBase>
      * @return The item we aim to retrieve from the std::vector<GParameterBase>
      */
-Gem::Common::GPtrContainerT<GParameterBase>::reference
+Gem::Common::GUniquePtrContainerT<GParameterBase>::reference
 GParameterSet::at(std::size_t const &pos) {
-    return Gem::Common::GPtrContainerT<GParameterBase>::at(pos);
+    return Gem::Common::GUniquePtrContainerT<GParameterBase>::at(pos);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -842,9 +842,10 @@ void GParameterSet::cannibalize(GParameterSet &cp) {
     // Make sure we have no local parameters
     this->clear();
 
-    // Copy all "foreign" parameters over
-    for(const auto &t_ptr : cp) {
-        this->push_back(t_ptr);
+    // Move all "foreign" parameters over (cp is emptied right after -- a true cannibalisation, so the
+    // uniquely-owned parameters are transferred, not cloned).
+    for(auto &t_ptr : cp) {
+        this->push_back(std::move(t_ptr));
     }
 
     // Empty the foreign GParmeterSet object
@@ -1712,7 +1713,7 @@ void GParameterSet::load_(const GParameterSet *cp) {
 
     // This is the category root; there is no GObject parent class to load.
     // Load the stateful base classes' data
-    Gem::Common::GPtrContainerT<GParameterBase>::operator=(*p_load);
+    Gem::Common::GUniquePtrContainerT<GParameterBase>::operator=(*p_load);
     Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>::load_pc(
         p_load
     );
@@ -2022,7 +2023,7 @@ bool GParameterSet::modify_GUnitTests_() {
 
     // This is the category root; there is no modifiable GObject parent class.
     // Call the stateful base class'es function
-    if(Gem::Common::GPtrContainerT<GParameterBase>::modify_GUnitTests_()) {
+    if(Gem::Common::GUniquePtrContainerT<GParameterBase>::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -2061,7 +2062,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
     // This is the category root; there is no GObject parent class to delegate to.
     // Call the stateful base class'es function
-    Gem::Common::GPtrContainerT<GParameterBase>::specificTestsNoFailureExpected_GUnitTests_();
+    Gem::Common::GUniquePtrContainerT<GParameterBase>::specificTestsNoFailureExpected_GUnitTests_();
 
     // --------------------------------------------------------------------------
 
@@ -2871,7 +2872,7 @@ void GParameterSet::specificTestsFailuresExpected_GUnitTests_() {
 
     // This is the category root; there is no GObject parent class to delegate to.
     // Call the stateful base class'es function
-    Gem::Common::GPtrContainerT<GParameterBase>::specificTestsFailuresExpected_GUnitTests_();
+    Gem::Common::GUniquePtrContainerT<GParameterBase>::specificTestsFailuresExpected_GUnitTests_();
 
     // no tests here yet
 

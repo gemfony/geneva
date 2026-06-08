@@ -182,7 +182,7 @@ class GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GCommonInterfaceT<GParameterSet>
   , public Interface::GMutableI
   , public Interface::GRateableI
-  , public Gem::Common::GPtrContainerT<GParameterBase>
+  , public Gem::Common::GUniquePtrContainerT<GParameterBase>
   , public Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result> {
     friend class Gem::Geneva::Individuals::GTestIndividual1; ///< Needed for testing purposes
 
@@ -252,7 +252,7 @@ class GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
         // base-objects rather than local members.
         ar &make_nvp(
                 "GStdPtrVectorInterfaceT_GParameterBase",
-                boost::serialization::base_object<Gem::Common::GPtrContainerT<GParameterBase>>(*this)
+                boost::serialization::base_object<Gem::Common::GUniquePtrContainerT<GParameterBase>>(*this)
             ) &
             make_nvp(
                 "GProcessingContainerT_ParameterSet_double",
@@ -298,7 +298,7 @@ public:
     ) const;
 
     /** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
-    Gem::Common::GPtrContainerT<GParameterBase>::reference
+    Gem::Common::GUniquePtrContainerT<GParameterBase>::reference
     at(std::size_t const &pos);
 
     /** @brief Checks whether this object is better than a given set of evaluations */
@@ -508,8 +508,11 @@ public:
     template <typename par_type>
         requires std::derived_from<par_type, GParameterBase>
     const std::shared_ptr<par_type> at(std::size_t const &pos) const {
-        // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<GParameterBase, par_type>(data_cnt_.at(pos));
+        // The parameters are owned by unique_ptr; hand the caller a NON-OWNING shared_ptr view of the
+        // live element (it outlives the transient access). Error checks on the conversion are internal.
+        return Gem::Common::convertSmartPointer<GParameterBase, par_type>(
+            Gem::Common::nonOwningShared(data_cnt_.at(pos))
+        );
     }
 
     /* ----------------------------------------------------------------------------------
@@ -942,7 +945,7 @@ public:
         // std::shared_ptr<GParameterBase>, contrary to the calling conventions
         // of this function.
         for(it = this->begin(), cit = p->begin(); it != this->end(); ++it, ++cit) {
-            (*it)->add<par_type>(*cit, am);
+            (*it)->add<par_type>(Gem::Common::nonOwningShared(*cit), am);
         }
 
         // As we have modified our internal data sets, make sure the item is reprocessed
@@ -962,7 +965,7 @@ public:
         // std::shared_ptr<GParameterBase>, contrary to the calling conventions
         // of this function.
         for(it = this->begin(), cit = p->begin(); it != this->end(); ++it, ++cit) {
-            (*it)->subtract<par_type>(*cit, am);
+            (*it)->subtract<par_type>(Gem::Common::nonOwningShared(*cit), am);
         }
 
         // As we have modified our internal data sets, make sure the item is reprocessed

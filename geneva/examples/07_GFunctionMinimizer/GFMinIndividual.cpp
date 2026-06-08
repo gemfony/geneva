@@ -152,12 +152,12 @@ double GFMinIndividual::getAverageSigma() const {
     // Extract the parameter object
     std::shared_ptr<gpar::GConstrainedDoubleCollection> ind = this->at<gpar::GConstrainedDoubleCollection>(0);
 
-    // Extract the adaptor
-    std::shared_ptr<gpar::GDoubleGaussAdaptor> adaptor = ind->getAdaptor<gpar::GDoubleGaussAdaptor>();
+    // Extract the adaptor (getAdaptor<>() hands back a reference to the uniquely-owned adaptor)
+    const gpar::GDoubleGaussAdaptor &adaptor = ind->getAdaptor<gpar::GDoubleGaussAdaptor>();
 
     // Extract and return the sigma value. Only a single parameter object
     // has been registered, so we do not need to calculate any averages.
-    return adaptor->getSigma();
+    return adaptor.getSigma();
 }
 
 /******************************************************************************/

@@ -54,7 +54,7 @@ namespace Gem::Geneva {
  * @return The default adaptor for a given base type
  */
 template <typename T>
-std::shared_ptr<gpar::GAdaptorT<T, gpar::adaption_fp_type_t<T>>> getDefaultAdaptor() {
+std::unique_ptr<gpar::GAdaptorT<T, gpar::adaption_fp_type_t<T>>> getDefaultAdaptor() {
     throw geneva_exception(
         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In getDefaultAdaptor():" << '\n'
@@ -62,19 +62,19 @@ std::shared_ptr<gpar::GAdaptorT<T, gpar::adaption_fp_type_t<T>>> getDefaultAdapt
     );
 
     // Make the compiler happy
-    return std::shared_ptr<gpar::GAdaptorT<T, gpar::adaption_fp_type_t<T>>>();
+    return std::unique_ptr<gpar::GAdaptorT<T, gpar::adaption_fp_type_t<T>>>();
 }
 
 // Specializations for double, float, std::int32_t and bool
 /******************************************************************************/
 template <>
-std::shared_ptr<gpar::GAdaptorT<double>> getDefaultAdaptor<double>();
+std::unique_ptr<gpar::GAdaptorT<double>> getDefaultAdaptor<double>();
 template <>
-std::shared_ptr<gpar::GAdaptorT<float, float>> getDefaultAdaptor<float>();
+std::unique_ptr<gpar::GAdaptorT<float, float>> getDefaultAdaptor<float>();
 template <>
-std::shared_ptr<gpar::GAdaptorT<std::int32_t>> getDefaultAdaptor<std::int32_t>();
+std::unique_ptr<gpar::GAdaptorT<std::int32_t>> getDefaultAdaptor<std::int32_t>();
 template <>
-std::shared_ptr<gpar::GAdaptorT<bool>> getDefaultAdaptor<bool>();
+std::unique_ptr<gpar::GAdaptorT<bool>> getDefaultAdaptor<bool>();
 
 /******************************************************************************/
 

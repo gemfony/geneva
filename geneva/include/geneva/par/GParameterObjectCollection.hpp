@@ -110,8 +110,10 @@ public:
         }
 #endif /* DEBUG */
 
-        // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<GParameterBase, parameter_type>(data_cnt_.at(pos));
+        // Non-owning shared_ptr view of the unique_ptr-owned element (it outlives the transient access).
+        return Gem::Common::convertSmartPointer<GParameterBase, parameter_type>(
+            Gem::Common::nonOwningShared(data_cnt_.at(pos))
+        );
     }
 
 protected:

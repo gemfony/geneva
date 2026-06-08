@@ -390,10 +390,10 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests_() {
 
     // Make sure we have an appropriate adaptor loaded when performing these tests
     bool adaptor_stored = false;
-    std::shared_ptr<GAdaptorT<std::int32_t>> stored_adaptor;
+    std::unique_ptr<adaptor_base_t> stored_adaptor;
 
     if(this->hasAdaptor()) {
-        stored_adaptor = this->getAdaptor();
+        stored_adaptor = this->getAdaptor().clone_unique();
         adaptor_stored = true;
     }
 
@@ -420,25 +420,25 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(p_test->addAdaptor(giga_ptr));
 
         // Check that the addresses of both adaptors differ
-        std::shared_ptr<GInt32GaussAdaptor> giga_clone_ptr;
-        CHECK_NOTHROW(giga_clone_ptr = p_test->getAdaptor<GInt32GaussAdaptor>());
-        CHECK(giga_clone_ptr.get() != giga_ptr.get());
+        GInt32GaussAdaptor* giga_clone_ptr = nullptr;
+        CHECK_NOTHROW(giga_clone_ptr = &p_test->getAdaptor<GInt32GaussAdaptor>());
+        CHECK(giga_clone_ptr != giga_ptr.get());
 
         //********************************
         // Adding an adaptor when an adaptor of the same type is present should leave the original address intact
 
         // Make a note of the stored adaptor's address
-        GInt32GaussAdaptor *ptr_store = giga_clone_ptr.get();
+        GInt32GaussAdaptor *ptr_store = giga_clone_ptr;
 
         // Add the "global" adaptor again, should be load()-ed
         CHECK_NOTHROW(p_test->addAdaptor(giga_ptr));
 
         // Retrieve the adaptor again
-        std::shared_ptr<GInt32GaussAdaptor> giga_clone2_ptr;
-        CHECK_NOTHROW(giga_clone2_ptr = p_test->getAdaptor<GInt32GaussAdaptor>());
+        GInt32GaussAdaptor* giga_clone2_ptr = nullptr;
+        CHECK_NOTHROW(giga_clone2_ptr = &p_test->getAdaptor<GInt32GaussAdaptor>());
 
         // Check that the address hasn't changed
-        CHECK(ptr_store == giga_clone2_ptr.get());
+        CHECK(ptr_store == giga_clone2_ptr);
 
         //********************************
     }
@@ -448,7 +448,7 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests_() {
 
     // Load the old adaptor, if needed
     if(adaptor_stored) {
-        this->addAdaptor(stored_adaptor);
+        this->addAdaptor(Gem::Common::nonOwningShared(stored_adaptor));
     }
 
     // --------------------------------------------------------------------------
@@ -482,10 +482,10 @@ void GInt32Object::specificTestsFailuresExpected_GUnitTests_() {
 
     // Make sure we have an appropriate adaptor loaded when performing these tests
     bool adaptor_stored = false;
-    std::shared_ptr<GAdaptorT<std::int32_t>> stored_adaptor;
+    std::unique_ptr<adaptor_base_t> stored_adaptor;
 
     if(this->hasAdaptor()) {
-        stored_adaptor = this->getAdaptor();
+        stored_adaptor = this->getAdaptor().clone_unique();
         adaptor_stored = true;
     }
 
@@ -520,7 +520,7 @@ void GInt32Object::specificTestsFailuresExpected_GUnitTests_() {
 
     // Load the old adaptor, if needed
     if(adaptor_stored) {
-        this->addAdaptor(stored_adaptor);
+        this->addAdaptor(Gem::Common::nonOwningShared(stored_adaptor));
     }
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

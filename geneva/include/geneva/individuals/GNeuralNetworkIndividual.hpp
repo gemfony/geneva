@@ -37,6 +37,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <mutex>
 #include <optional>
 #include <sstream>
@@ -192,6 +193,18 @@ class networkData : public Gem::Common::GPodContainerT<std::size_t> {
         Gem::Common::g_array_delete(data_);
 
         ar &BOOST_SERIALIZATION_NVP(array_size_);
+
+        // array_size_ has just been read from the (possibly untrusted) archive. Reject a value that
+        // would overflow the array allocation before handing it to new[]. This also bounds the size
+        // for the compiler, silencing g++'s -Walloc-size-larger-than for the allocation below.
+        if(array_size_ > std::numeric_limits<std::ptrdiff_t>::max() /
+                              static_cast<std::ptrdiff_t>(sizeof(std::shared_ptr<trainingSet>))) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GNeuralNetworkIndividual::load(Archive&):" << '\n'
+                << "Deserialized array_size_ = " << array_size_ << " is too large" << '\n'
+            );
+        }
 
         data_ = new std::shared_ptr<trainingSet>[array_size_];
 

@@ -379,10 +379,10 @@ void GFloatObject::specificTestsNoFailureExpected_GUnitTests_() {
 
     // Make sure we have an appropriate adaptor loaded when performing these tests
     bool adaptor_stored = false;
-    std::shared_ptr<GAdaptorT<float, float>> stored_adaptor;
+    std::unique_ptr<adaptor_base_t> stored_adaptor;
 
     if(this->hasAdaptor()) {
-        stored_adaptor = this->getAdaptor();
+        stored_adaptor = this->getAdaptor().clone_unique();
         adaptor_stored = true;
     }
 
@@ -467,23 +467,23 @@ void GFloatObject::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(p_test->hasAdaptor() == true);
 
         // Retrieve a pointer to the adaptor
-        std::shared_ptr<GAdaptorT<float, float>> p_adaptor_base;
+        GAdaptorT<float, float>* p_adaptor_base = nullptr;
         CHECK(not p_adaptor_base);
-        CHECK_NOTHROW(p_adaptor_base = p_test->getAdaptor());
+        CHECK_NOTHROW(p_adaptor_base = &p_test->getAdaptor());
 
         // Check that we have indeed received an adaptor
         CHECK(p_adaptor_base);
 
         // Retrieve another, converted pointer to the adaptor
-        std::shared_ptr<GFloatGaussAdaptor> gfga_clone_ptr;
+        GFloatGaussAdaptor* gfga_clone_ptr = nullptr;
         CHECK(not gfga_clone_ptr);
-        CHECK_NOTHROW(gfga_clone_ptr = p_test->getAdaptor<GFloatGaussAdaptor>());
+        CHECK_NOTHROW(gfga_clone_ptr = &p_test->getAdaptor<GFloatGaussAdaptor>());
 
         // Check that we have indeed received an adaptor
         CHECK(gfga_clone_ptr);
 
         // The address of the original adaptor and of this one should differ
-        CHECK(gfga_clone_ptr.get() != gfga_ptr.get());
+        CHECK(gfga_clone_ptr != gfga_ptr.get());
 
         // The adaptors should otherwise be identical
         CHECK(*gfga_clone_ptr == *gfga_ptr);
@@ -516,7 +516,7 @@ void GFloatObject::specificTestsNoFailureExpected_GUnitTests_() {
 
     // Load the old adaptor, if needed
     if(adaptor_stored) {
-        this->addAdaptor(stored_adaptor);
+        this->addAdaptor(Gem::Common::nonOwningShared(stored_adaptor));
     }
 
     // --------------------------------------------------------------------------
@@ -549,10 +549,10 @@ void GFloatObject::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Make sure we have an appropriate adaptor loaded when performing these tests
     bool adaptor_stored = false;
-    std::shared_ptr<GAdaptorT<float, float>> stored_adaptor;
+    std::unique_ptr<adaptor_base_t> stored_adaptor;
 
     if(this->hasAdaptor()) {
-        stored_adaptor = this->getAdaptor();
+        stored_adaptor = this->getAdaptor().clone_unique();
         adaptor_stored = true;
     }
 
@@ -590,7 +590,7 @@ void GFloatObject::specificTestsFailuresExpected_GUnitTests_() {
 
     // Load the old adaptor, if needed
     if(adaptor_stored) {
-        this->addAdaptor(stored_adaptor);
+        this->addAdaptor(Gem::Common::nonOwningShared(stored_adaptor));
     }
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

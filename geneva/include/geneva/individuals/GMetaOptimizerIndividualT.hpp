@@ -473,7 +473,7 @@ public:
         npar_ptr->setParameterName("n_parents");
 
         // Add to the individual
-        p->at(MOT_NPARENTS) = npar_ptr;
+        p->at(MOT_NPARENTS) = npar_ptr->clone_unique();
 
         assert(p->at(MOT_NPARENTS));
 
@@ -502,7 +502,7 @@ public:
         nch_ptr->setParameterName("n_children");
 
         // Add to the individual
-        p->at(MOT_NCHILDREN) = nch_ptr;
+        p->at(MOT_NCHILDREN) = nch_ptr->clone_unique();
 
         //------------------------------------------------------------
         // amalgamationLklh
@@ -533,7 +533,7 @@ public:
         amalgamation_lklh_ptr->setParameterName("amalgamation_likelihood");
 
         // Add to the individual
-        p->at(MOT_AMALGAMATION) = amalgamation_lklh_ptr;
+        p->at(MOT_AMALGAMATION) = amalgamation_lklh_ptr->clone_unique();
 
         //------------------------------------------------------------
         // min_ad_prob
@@ -550,7 +550,7 @@ public:
         min_ad_prob_ptr->setParameterName("min_ad_prob");
 
         // Add to the individual
-        p->at(MOT_MINADPROB) = min_ad_prob_ptr;
+        p->at(MOT_MINADPROB) = min_ad_prob_ptr->clone_unique();
 
         //------------------------------------------------------------
         // ad_prob_range
@@ -567,7 +567,7 @@ public:
         ad_prob_range_ptr->setParameterName("ad_prob_range");
 
         // Add to the individual
-        p->at(MOT_ADPROBRANGE) = ad_prob_range_ptr;
+        p->at(MOT_ADPROBRANGE) = ad_prob_range_ptr->clone_unique();
 
         //------------------------------------------------------------
         // ad_prob_start_percentage
@@ -586,7 +586,7 @@ public:
         ad_prob_start_percentage_ptr->setParameterName("ad_prob_start_percentage");
 
         // Add to the individual
-        p->at(MOT_ADPROBSTARTPERCENTAGE) = ad_prob_start_percentage_ptr;
+        p->at(MOT_ADPROBSTARTPERCENTAGE) = ad_prob_start_percentage_ptr->clone_unique();
 
         //------------------------------------------------------------
         // adapt_ad_prob
@@ -602,7 +602,7 @@ public:
         adapt_ad_prob_ptr->setParameterName("adapt_ad_prob");
 
         // Add to the individual
-        p->at(MOT_ADAPTADPROB) = adapt_ad_prob_ptr;
+        p->at(MOT_ADAPTADPROB) = adapt_ad_prob_ptr->clone_unique();
 
         //------------------------------------------------------------
         // min_sigma
@@ -618,7 +618,7 @@ public:
         minsigma_ptr->setParameterName("min_sigma");
 
         // Add to the individual
-        p->at(MOT_MINSIGMA) = minsigma_ptr;
+        p->at(MOT_MINSIGMA) = minsigma_ptr->clone_unique();
 
         //------------------------------------------------------------
         // sigma_range
@@ -634,7 +634,7 @@ public:
         sigmarange_ptr->setParameterName("sigma_range");
 
         // Add to the individual
-        p->at(MOT_SIGMARANGE) = sigmarange_ptr;
+        p->at(MOT_SIGMARANGE) = sigmarange_ptr->clone_unique();
 
         //------------------------------------------------------------
         // sigma_range_percentage
@@ -653,7 +653,7 @@ public:
         sigma_range_percentage_ptr->setParameterName("sigma_range_percentage");
 
         // Add to the individual
-        p->at(MOT_SIGMARANGEPERCENTAGE) = sigma_range_percentage_ptr;
+        p->at(MOT_SIGMARANGEPERCENTAGE) = sigma_range_percentage_ptr->clone_unique();
 
         //------------------------------------------------------------
         // sigma_sigma
@@ -670,7 +670,7 @@ public:
         sigmasigma_ptr->setParameterName("sigma_sigma");
 
         // Add to the individual
-        p->at(MOT_SIGMASIGMA) = sigmasigma_ptr;
+        p->at(MOT_SIGMASIGMA) = sigmasigma_ptr->clone_unique();
 
         //------------------------------------------------------------
     }

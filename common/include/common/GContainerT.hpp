@@ -807,6 +807,22 @@ public:
     }
 
     /**
+     * @brief Transitional overload for unique_ptr storage: appends an INDEPENDENT deep clone of a
+     * shared_ptr-held object. This lets code that still builds elements as shared_ptr (e.g. a genome
+     * built with push_back(std::make_shared<...>())) keep working while the container owns its elements
+     * by unique_ptr. The shared_ptr is only read; the container stores a clone. New code can instead
+     * push a std::unique_ptr (moved in) to avoid the clone.
+     *
+     * @param item A shared_ptr to a (derived-of-ValueType) object to clone into the container.
+     */
+    template <typename U>
+        requires(std::same_as<StoredType, std::unique_ptr<ValueType>> &&
+                 std::derived_from<U, ValueType>)
+    void push_back(const std::shared_ptr<U> &item) {
+        data_cnt_.push_back(item->template clone_unique<ValueType>());
+    }
+
+    /**
      * @brief Constructs an element in-place at the back of the container.
      *
      * Only available for PodStorage (emplace_back on shared_ptr would require
@@ -1110,7 +1126,7 @@ public:
         requires (!std::same_as<StoredType, ValueType>)
     {
         if constexpr(std::same_as<StoredType, std::unique_ptr<ValueType>>) {
-            return p->clone_unique();
+            return p->template clone_unique<ValueType>();
         }
         else {
             return p->template clone<ValueType>();
@@ -1392,6 +1408,28 @@ public:
     // ------------------------------------------------------------------
 
     /**
+     * @brief Attempts a polymorphic down-cast of a stored pointer to @p DerivedType,
+     *        returning the result as a std::shared_ptr<DerivedType> (or null on mismatch).
+     *
+     * For SharedPtrStorage this is a co-owning std::dynamic_pointer_cast. For UniquePtrStorage
+     * the element is owned uniquely by this container, so a NON-OWNING shared_ptr view (no-op
+     * deleter) is returned instead -- it must not outlive the container. This keeps the
+     * shared_ptr-returning convenience views (attachViewTo / filteredView) usable on both storage
+     * policies without transferring ownership out of a unique container.
+     */
+    template <typename DerivedType>
+    [[nodiscard]] static std::shared_ptr<DerivedType> viewCast_(const StoredType &ptr) {
+        if constexpr(std::same_as<StoredType, std::shared_ptr<ValueType>>) {
+            return std::dynamic_pointer_cast<DerivedType>(ptr);
+        }
+        else {
+            auto *raw = dynamic_cast<DerivedType *>(ptr.get());
+            return raw ? std::shared_ptr<DerivedType>(raw, [](DerivedType *) { /* non-owning */ })
+                       : std::shared_ptr<DerivedType>();
+        }
+    }
+
+    /**
      * @brief Clones the element at index @p pos and returns it as a shared_ptr
      *        to @p TargetType.
      *
@@ -1423,7 +1461,7 @@ public:
         requires(!std::same_as<StoredType, ValueType>)
     {
         for(auto &item_ptr : data_cnt_) {
-            if(std::shared_ptr<DerivedType> cast = std::dynamic_pointer_cast<DerivedType>(item_ptr)) {
+            if(std::shared_ptr<DerivedType> cast = viewCast_<DerivedType>(item_ptr)) {
                 target.push_back(std::move(cast));
             }
         }
@@ -1448,7 +1486,7 @@ public:
         requires(!std::same_as<StoredType, ValueType>)
     {
         return data_cnt_ | std::views::transform([](const StoredType &ptr) {
-            return std::dynamic_pointer_cast<DerivedType>(ptr);
+            return viewCast_<DerivedType>(ptr);
         }) | std::views::filter([](const std::shared_ptr<DerivedType> &ptr) {
             return static_cast<bool>(ptr);
         });
@@ -1467,7 +1505,7 @@ public:
         requires(!std::same_as<StoredType, ValueType>)
     {
         return data_cnt_ | std::views::transform([](const StoredType &ptr) {
-            return std::dynamic_pointer_cast<DerivedType>(ptr);
+            return viewCast_<DerivedType>(ptr);
         }) | std::views::filter([](const std::shared_ptr<DerivedType> &ptr) {
             return static_cast<bool>(ptr);
         });

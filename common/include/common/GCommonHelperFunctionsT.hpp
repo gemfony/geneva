@@ -494,11 +494,23 @@ void copyCloneableSmartPointer(const std::unique_ptr<T> &from, std::unique_ptr<T
         to.reset();
     }
     else if(not to or typeid(*to) != typeid(*from)) {
-        to = from->clone_unique();
+        to = from->template clone_unique<T>();
     }
     else {
         to->T::load(*from);
     }
+}
+
+/******************************************************************************/
+/**
+ * Wraps a uniquely-owned object in a NON-OWNING std::shared_ptr (a no-op deleter), for APIs that still
+ * take a const std::shared_ptr<T>& but only read through it. The unique_ptr retains sole ownership; the
+ * returned shared_ptr must not outlive it. Lets unique_ptr-owned objects be passed to such read-only
+ * shared_ptr APIs without changing those APIs or co-owning the object.
+ */
+template <typename T>
+std::shared_ptr<T> nonOwningShared(const std::unique_ptr<T> &p) {
+    return std::shared_ptr<T>(p.get(), [](T *) { /* non-owning: do not delete */ });
 }
 
 /******************************************************************************/
@@ -576,7 +588,7 @@ void copyCloneableSmartPointerContainer(
             copyCloneableSmartPointer(*it_from, *it_to);
         }
         for(const_iter_t it = from.begin() + size_to; it != from.end(); ++it) {
-            to.push_back((*it)->clone_unique());
+            to.push_back((*it)->template clone_unique<T>());
         }
     }
     else { // size_from < size_to

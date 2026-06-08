@@ -135,7 +135,8 @@ void GParameterObjectCollection::load_(const GParameterBase *cp) {
  */
 std::shared_ptr<Gem::Geneva::Parameters::GParameterBase>
 GParameterObjectCollection::at(const std::size_t &pos) {
-    return data_cnt_.at(pos);
+    // Parameters are owned by unique_ptr; return a NON-OWNING shared_ptr view of the live element.
+    return Gem::Common::nonOwningShared(data_cnt_.at(pos));
 }
 
 /******************************************************************************/

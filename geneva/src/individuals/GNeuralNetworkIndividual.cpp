@@ -788,8 +788,9 @@ void GNeuralNetworkIndividual::init(
                 gdoc->push_back(gd_ptr);
             }
 
-            // Make the parameter collection known to this individual
-            this->data_cnt_.push_back(gdoc);
+            // Make the parameter collection known to this individual (cloned into the unique_ptr
+            // container via the container's shared_ptr-accepting push_back overload).
+            this->push_back(gdoc);
 
             n_nodes_previous = n_nodes;
             layer_number++;

@@ -1084,6 +1084,41 @@ void compare(
 
 /******************************************************************************/
 /**
+ * unique_ptr counterpart of the shared_ptr compare() above. A uniquely-owned member is deep-compared
+ * by its pointee, exactly like the shared_ptr case -- without it, compare_t(IDENTITY(unique_ptr, ...))
+ * would fall back to comparing the raw pointer addresses, so two independent clones would always be
+ * reported as unequal. The pointees are viewed through NON-OWNING shared_ptrs (no-op deleter) so the
+ * full shared_ptr comparison logic (null handling, EQUALITY / INEQUALITY) is reused verbatim.
+ *
+ * @param x The first parameter to be compared
+ * @param y The second parameter to be compared
+ * @param x_name The name of the first parameter
+ * @param y_name The name of the second parameter
+ * @param e The expectation both parameters need to fulfill
+ * @param limit The maximum allowed deviation of two floating point values
+ */
+template <typename geneva_type>
+    requires Gem::Common::gemfony_common_interface<geneva_type>
+void compare(
+    std::unique_ptr<geneva_type> const &x,
+    std::unique_ptr<geneva_type> const &y,
+    std::string const &x_name,
+    std::string const &y_name,
+    Gem::Common::expectation e,
+    double limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
+) {
+    compare(
+        std::shared_ptr<geneva_type>(x.get(), [](geneva_type *) { /* non-owning */ }),
+        std::shared_ptr<geneva_type>(y.get(), [](geneva_type *) { /* non-owning */ }),
+        x_name,
+        y_name,
+        e,
+        limit
+    );
+}
+
+/******************************************************************************/
+/**
  * This function checks whether two containers of smart pointers to complex types meet a given expectation.
  * It is assumed that these types have the standard Geneva interface with corresponding "compare"
  * functions. For an idea of what the template specifier does, search for "template template" in conjunction
@@ -1235,6 +1270,44 @@ void compare(
     if(not expectation_met) {
         throw g_expectation_violation(error.str());
     }
+}
+
+/******************************************************************************/
+/**
+ * unique_ptr counterpart of the shared_ptr container compare() above. A container of uniquely-owned
+ * elements is deep-compared element-by-element, exactly like the shared_ptr case -- without it,
+ * compare_t(IDENTITY(data_cnt_, ...)) for a unique_ptr container would fall back to comparing the raw
+ * element addresses, so two independent clones would always be reported as unequal. Non-owning
+ * shared_ptr views (no-op deleter) are built so the full shared_ptr container logic is reused verbatim.
+ *
+ * @param x The first vector to be compared
+ * @param y The second vector to be compared
+ * @param x_name The name of the first parameter
+ * @param y_name The name of the second parameter
+ * @param e The expectation both parameters need to fulfill
+ * @param limit The maximum allowed deviation of two floating point values
+ */
+template <typename geneva_type, template <typename, typename> class c_type>
+    requires Gem::Common::gemfony_common_interface<geneva_type>
+void compare(
+    c_type<std::unique_ptr<geneva_type>, std::allocator<std::unique_ptr<geneva_type>>> const &x,
+    c_type<std::unique_ptr<geneva_type>, std::allocator<std::unique_ptr<geneva_type>>> const &y,
+    std::string const &x_name,
+    std::string const &y_name,
+    Gem::Common::expectation e,
+    double limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
+) {
+    std::vector<std::shared_ptr<geneva_type>> x_view;
+    std::vector<std::shared_ptr<geneva_type>> y_view;
+    x_view.reserve(x.size());
+    y_view.reserve(y.size());
+    for(auto const &p : x) {
+        x_view.emplace_back(p.get(), [](geneva_type *) { /* non-owning */ });
+    }
+    for(auto const &p : y) {
+        y_view.emplace_back(p.get(), [](geneva_type *) { /* non-owning */ });
+    }
+    compare(x_view, y_view, x_name, y_name, e, limit);
 }
 
 /******************************************************************************/

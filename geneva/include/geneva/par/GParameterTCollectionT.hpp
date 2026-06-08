@@ -59,7 +59,7 @@ namespace Gem::Geneva::Parameters {
 template <typename T>
 class GParameterTCollectionT // NOLINT(cppcoreguidelines-special-member-functions)
   : public GParameterBase
-  , public Gem::Common::GPtrContainerT<T> {
+  , public Gem::Common::GUniquePtrContainerT<T> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -71,7 +71,7 @@ class GParameterTCollectionT // NOLINT(cppcoreguidelines-special-member-function
         ar &make_nvp("GParameterBase", boost::serialization::base_object<GParameterBase>(*this)) &
             make_nvp(
                 "GStdPtrVectorInterfaceT_T",
-                boost::serialization::base_object<Gem::Common::GPtrContainerT<T>>(*this)
+                boost::serialization::base_object<Gem::Common::GUniquePtrContainerT<T>>(*this)
             );
     }
     ///////////////////////////////////////////////////////////////////////
@@ -104,7 +104,7 @@ public:
      */
     GParameterTCollectionT(const std::size_t &n_cp, std::shared_ptr<T> tmpl_ptr) {
         for(std::size_t i = 0; i < n_cp; i++) {
-            this->push_back(tmpl_ptr->template clone<T>());
+            this->push_back(tmpl_ptr->template clone_unique<T>());
         }
     }
 
@@ -170,7 +170,7 @@ protected:
 
         // Load our parent class'es data ...
         GParameterBase::load_(cp);
-        Gem::Common::GPtrContainerT<T>::operator=(*p_load);
+        Gem::Common::GUniquePtrContainerT<T>::operator=(*p_load);
     }
 
     /***************************************************************************/
@@ -818,7 +818,7 @@ protected:
         typename GParameterTCollectionT<T>::iterator it;
         typename GParameterTCollectionT<T>::iterator p_it;
         for(it = this->begin(), p_it = p->begin(); it != this->end(); ++it, ++p_it) {
-            (*it)->template add<float>(*p_it, am);
+            (*it)->template add<float>(Gem::Common::nonOwningShared(*p_it), am);
         }
     }
 
@@ -844,7 +844,7 @@ protected:
         typename GParameterTCollectionT<T>::iterator it;
         typename GParameterTCollectionT<T>::iterator p_it;
         for(it = this->begin(), p_it = p->begin(); it != this->end(); ++it, ++p_it) {
-            (*it)->template add<double>(*p_it, am);
+            (*it)->template add<double>(Gem::Common::nonOwningShared(*p_it), am);
         }
     }
 
@@ -870,7 +870,7 @@ protected:
         typename GParameterTCollectionT<T>::iterator it;
         typename GParameterTCollectionT<T>::iterator p_it;
         for(it = this->begin(), p_it = p->begin(); it != this->end(); ++it, ++p_it) {
-            (*it)->template add<std::int32_t>(*p_it, am);
+            (*it)->template add<std::int32_t>(Gem::Common::nonOwningShared(*p_it), am);
         }
     }
 
@@ -896,7 +896,7 @@ protected:
         typename GParameterTCollectionT<T>::iterator it;
         typename GParameterTCollectionT<T>::iterator p_it;
         for(it = this->begin(), p_it = p->begin(); it != this->end(); ++it, ++p_it) {
-            (*it)->template subtract<float>(*p_it, am);
+            (*it)->template subtract<float>(Gem::Common::nonOwningShared(*p_it), am);
         }
     }
 
@@ -922,7 +922,7 @@ protected:
         typename GParameterTCollectionT<T>::iterator it;
         typename GParameterTCollectionT<T>::iterator p_it;
         for(it = this->begin(), p_it = p->begin(); it != this->end(); ++it, ++p_it) {
-            (*it)->template subtract<double>(*p_it, am);
+            (*it)->template subtract<double>(Gem::Common::nonOwningShared(*p_it), am);
         }
     }
 
@@ -948,7 +948,7 @@ protected:
         typename GParameterTCollectionT<T>::iterator it;
         typename GParameterTCollectionT<T>::iterator p_it;
         for(it = this->begin(), p_it = p->begin(); it != this->end(); ++it, ++p_it) {
-            (*it)->template subtract<std::int32_t>(*p_it, am);
+            (*it)->template subtract<std::int32_t>(Gem::Common::nonOwningShared(*p_it), am);
         }
     }
 
@@ -966,7 +966,7 @@ protected:
         if(GParameterBase::modify_GUnitTests_()) {
             result = true;
         }
-        if(Gem::Common::GPtrContainerT<T>::modify_GUnitTests_()) {
+        if(Gem::Common::GUniquePtrContainerT<T>::modify_GUnitTests_()) {
             result = true;
         }
 
@@ -986,7 +986,7 @@ protected:
 #ifdef GEM_TESTING
         // Call the parent classes' functions
         GParameterBase::specificTestsNoFailureExpected_GUnitTests_();
-        Gem::Common::GPtrContainerT<T>::specificTestsNoFailureExpected_GUnitTests_();
+        Gem::Common::GUniquePtrContainerT<T>::specificTestsNoFailureExpected_GUnitTests_();
 
         //------------------------------------------------------------------------------
 
@@ -1006,7 +1006,7 @@ protected:
 #ifdef GEM_TESTING
         // Call the parent classes' functions
         GParameterBase::specificTestsFailuresExpected_GUnitTests_();
-        Gem::Common::GPtrContainerT<T>::specificTestsFailuresExpected_GUnitTests_();
+        Gem::Common::GUniquePtrContainerT<T>::specificTestsFailuresExpected_GUnitTests_();
 
         //------------------------------------------------------------------------------
 

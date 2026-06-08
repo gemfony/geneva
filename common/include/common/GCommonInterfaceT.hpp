@@ -428,6 +428,30 @@ public:
 
     /***************************************************************************/
     /**
+     * The templated counterpart of clone_unique(): creates a deep clone, converts it to a pointer to a
+     * derived class, and emits it as a std::unique_ptr<clone_type> (sole ownership). The unique_ptr
+     * counterpart of clone<clone_type>(); only accessible if g_class_type is a base of clone_type.
+     *
+     * @return A converted deep clone of this object, wrapped into a std::unique_ptr<clone_type>
+     */
+    template <typename clone_type>
+        requires std::derived_from<clone_type, g_class_type>
+    std::unique_ptr<clone_type> clone_unique() const {
+        g_class_type *raw = this->clone_();
+        auto *converted = dynamic_cast<clone_type *>(raw);
+        if(converted == nullptr) {
+            delete raw;
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GCommonInterfaceT<>::clone_unique<clone_type>():" << '\n'
+                << "Invalid conversion to type " << typeid(clone_type).name() << '\n'
+            );
+        }
+        return std::unique_ptr<clone_type>(converted);
+    }
+
+    /***************************************************************************/
+    /**
      * Loads the data of another g_class_type(-derivative), wrapped in a shared pointer. Note that this
      * function is only accessible to the compiler if load_type is a derivative of g_class_type.
      *

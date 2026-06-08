@@ -34,8 +34,10 @@
 
 // Standard header files go here
 #include <concepts>
+#include <memory>
 
 // Boost header files go here
+#include <boost/serialization/unique_ptr.hpp>
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
@@ -95,12 +97,25 @@ public:
 	  */
     GParameterBaseWithAdaptorsT(const GParameterBaseWithAdaptorsT<T> &cp)
       : GParameterBase(cp)
-      , adaptor_((cp.adaptor_)->template clone<adaptor_base_t>()) { /* nothing */
+      , adaptor_(cp.adaptor_ ? cp.adaptor_->clone_unique() : nullptr) { /* nothing */
     }
 
     /***************************************************************************/
     /**
-	  * The destructor. All cleanup work is done by std::shared_ptr.
+	  * The copy-assignment operator. The adaptor is uniquely owned, so it is deep-cloned (the
+	  * unique_ptr member would otherwise leave the class with a deleted implicit copy-assignment).
+	  */
+    GParameterBaseWithAdaptorsT<T> &operator=(const GParameterBaseWithAdaptorsT<T> &cp) {
+        if(this != &cp) {
+            GParameterBase::operator=(cp);
+            adaptor_ = cp.adaptor_ ? cp.adaptor_->clone_unique() : nullptr;
+        }
+        return *this;
+    }
+
+    /***************************************************************************/
+    /**
+	  * The destructor. All cleanup work is done by std::unique_ptr.
 	  */
     ~GParameterBaseWithAdaptorsT() override = default;
 
@@ -127,7 +142,7 @@ public:
                 adaptor_->load(gat_ptr);
             }
             else { // Different type - need to clone and assign to gat_ptr
-                adaptor_ = gat_ptr->template clone<adaptor_base_t>();
+                adaptor_ = gat_ptr->clone_unique();
             }
         }
         else { // None there ? This should not happen
@@ -151,10 +166,9 @@ public:
 	  * Retrieves the adaptor. Throws in DBEUG mode , if we have no adaptor. It is assumed
 	  * that only the object holding the "master" adaptor pointer should be allowed to modify it.
 	  *
-	  * @return A std::shared_ptr to the adaptor
+	  * @return A reference to the (uniquely owned) adaptor; the parameter object retains ownership
 	  */
-    std::shared_ptr<adaptor_base_t> getAdaptor() const {
-#ifdef DEBUG
+    adaptor_base_t &getAdaptor() const {
         if(not adaptor_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -163,9 +177,8 @@ public:
                 << "Tried to retrieve adaptor while none is present" << '\n'
             );
         }
-#endif /* DEBUG */
 
-        return adaptor_;
+        return *adaptor_;
     }
 
     /* ----------------------------------------------------------------------------------
@@ -186,8 +199,7 @@ public:
 	  */
     template <typename adaptor_type>
         requires std::derived_from<adaptor_type, adaptor_base_t>
-    std::shared_ptr<adaptor_type> getAdaptor() const {
-#ifdef DEBUG
+    adaptor_type &getAdaptor() const {
         if(not adaptor_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -195,14 +207,19 @@ public:
                 << "with typeid(T).name() = " << typeid(T).name() << " :" << '\n'
                 << "Tried to access empty adaptor pointer." << '\n'
             );
-
-            // Make the compiler happy
-            return std::shared_ptr<adaptor_type>();
         }
-#endif /* DEBUG */
 
-        // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<adaptor_base_t, adaptor_type>(adaptor_);
+        auto *p = dynamic_cast<adaptor_type *>(adaptor_.get());
+        if(not p) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GParameterBaseWithAdaptorsT::getAdaptor<adaptor_type>()" << '\n'
+                << "with typeid(T).name() = " << typeid(T).name() << " :" << '\n'
+                << "The stored adaptor is not of the requested type "
+                << typeid(adaptor_type).name() << '\n'
+            );
+        }
+        return *p;
     }
 
     /* ----------------------------------------------------------------------------------
@@ -275,7 +292,7 @@ protected:
             adaptor_->load(p_load->adaptor_);
         }
         else { // Different type - need to convert
-            adaptor_ = p_load->adaptor_->template clone<adaptor_base_t>();
+            adaptor_ = p_load->adaptor_->clone_unique();
         }
     }
 
@@ -536,7 +553,7 @@ private:
     /**
 	  * @brief Holds the adaptor used for adaption of the values stored in derived classes.
 	  */
-    std::shared_ptr<adaptor_base_t> adaptor_{Gem::Geneva::getDefaultAdaptor<T>()};
+    std::unique_ptr<adaptor_base_t> adaptor_{Gem::Geneva::getDefaultAdaptor<T>()};
 };
 
 /******************************************************************************/

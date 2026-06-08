@@ -119,6 +119,19 @@ struct TestBase : Gem::Common::gemfony_common_interface_indicator {
         return std::make_unique<TestBase>(val);
     }
 
+    // Typed counterpart, mirroring GCommonInterfaceT::clone_unique<clone_type>(): clones the dynamic
+    // type (via the virtual overload above) and hands back a unique_ptr to the requested static type.
+    template <typename TargetType>
+    [[nodiscard]] std::unique_ptr<TargetType> clone_unique() const {
+        std::unique_ptr<TestBase> base = this->clone_unique();
+        auto *converted = dynamic_cast<TargetType *>(base.get());
+        if(converted == nullptr) {
+            throw std::runtime_error("TestBase::clone_unique<TargetType>(): dynamic_cast failed");
+        }
+        base.release();
+        return std::unique_ptr<TargetType>(converted);
+    }
+
     void load(std::shared_ptr<TestBase> cp) {
         val = cp->val;
     }

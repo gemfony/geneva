@@ -439,10 +439,10 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
 
     // Make sure we have an appropriate adaptor loaded when performing these tests
     bool adaptor_stored = false;
-    std::shared_ptr<GAdaptorT<bool>> stored_adaptor;
+    std::unique_ptr<adaptor_base_t> stored_adaptor;
 
     if(this->hasAdaptor()) {
-        stored_adaptor = this->getAdaptor();
+        stored_adaptor = this->getAdaptor().clone_unique();
         adaptor_stored = true;
     }
 
@@ -821,7 +821,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
 
     // Load the old adaptor, if needed
     if(adaptor_stored) {
-        this->addAdaptor(stored_adaptor);
+        this->addAdaptor(Gem::Common::nonOwningShared(stored_adaptor));
     }
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
@@ -843,10 +843,10 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests_() {
 
     // Make sure we have an appropriate adaptor loaded when performing these tests
     bool adaptor_stored = false;
-    std::shared_ptr<GAdaptorT<bool>> stored_adaptor;
+    std::unique_ptr<adaptor_base_t> stored_adaptor;
 
     if(this->hasAdaptor()) {
-        stored_adaptor = this->getAdaptor();
+        stored_adaptor = this->getAdaptor().clone_unique();
         adaptor_stored = true;
     }
 
@@ -910,7 +910,7 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests_() {
 
     // Load the old adaptor, if needed
     if(adaptor_stored) {
-        this->addAdaptor(stored_adaptor);
+        this->addAdaptor(Gem::Common::nonOwningShared(stored_adaptor));
     }
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

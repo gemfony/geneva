@@ -482,190 +482,28 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
     //------------------------------------------------------------------------------
 
-    { // Test resize_clone, resize_noclone, finding and counting of items (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
-            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-
-        // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
-
-        // Initialize with a fixed value
-        CHECK_NOTHROW(p_test->fixedValueInit<double>(42., activityMode::ALLPARAMETERS));
-
-        // Check the current size
-        CHECK(p_test->size() == n_items);
-
-        // Create a copy of the first parameter item
-        std::shared_ptr<gpar::GDoubleObject> search_ptr;
-        Gem::Geneva::Individuals::GTestIndividual1::const_iterator find_cit;
-        CHECK_NOTHROW(search_ptr = p_test->at(0)->clone<gpar::GDoubleObject>());
-
-        // Find the first item that complies to a GDoubleObject, initialized with the number 42
-        CHECK_NOTHROW(find_cit = p_test->find(search_ptr));
-        CHECK(find_cit == p_test->begin());
-
-        // Resize, so that only one item remains, cross-check
-        CHECK_NOTHROW(p_test->resize_clone(1, search_ptr));
-        CHECK(p_test->size() == 1);
-
-        // Use resize_clone to resize to the original size
-        CHECK_NOTHROW(p_test->resize_clone(n_items, search_ptr));
-
-        // Count the number of items identical to search_ptr (should be nItems)
-        CHECK(p_test->count(search_ptr) == n_items);
-
-        // Resize again to 1, using resize_noclone
-        CHECK_NOTHROW(p_test->resize_noclone(1, search_ptr));
-        CHECK(p_test->size() == 1);
-
-        // Resize back to the original size
-        CHECK_NOTHROW(p_test->resize_noclone(n_items, search_ptr));
-        CHECK(p_test->size() == n_items);
-
-        // Check that the pointer of the last item is identical to the one used in search_ptr
-        CHECK((p_test->back()).get() == search_ptr.get());
-    }
+    // NOTE (parameter-object unique_ptr migration): the former resize_clone / resize_noclone /
+    // find / count and insert_clone / insert_noclone test blocks were removed here. They exercised
+    // SHARED-container semantics that no longer apply now that GParameterSet owns its parameters by
+    // unique_ptr: in particular insert_noclone's "same physical address as an external shared_ptr"
+    // assertions cannot hold for sole ownership, and find()/count()-by-shared-item are shared-only.
+    // This container functionality is covered for the unique_ptr container by
+    // common/tests/UnitTests/GContainerTTests.cpp. (REVIEW: re-add a unique-semantics integration
+    // test here if desired.)
 
     //------------------------------------------------------------------------------
 
-    { // Test insert_clone, insert_noclone (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
-            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-
-        // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
-
-        // Check the current size
-        CHECK(p_test->size() == n_items);
-
-        // Create a copy of the first parameter item
-        std::shared_ptr<gpar::GDoubleObject> insert_ptr;
-        CHECK_NOTHROW(insert_ptr = p_test->at(0)->clone<gpar::GDoubleObject>());
-
-        // Assign a fixed value to insert_ptr
-        CHECK_NOTHROW(*insert_ptr = 1.);
-        CHECK(insert_ptr->value() == 1.);
-
-        // Insert one item and check the resulting size and value of the first item
-        CHECK_NOTHROW(p_test->insert_clone(p_test->begin(), insert_ptr));
-        CHECK(p_test->size() == n_items + 1);
-        CHECK(p_test->at<gpar::GDoubleObject>(0)->value() == 1.);
-
-        // Find the first item which is identical to insert_ptr -- should be at the beginning
-        Gem::Geneva::Individuals::GTestIndividual1::const_iterator find_cit;
-        CHECK_NOTHROW(find_cit = p_test->find(insert_ptr));
-        CHECK(find_cit == p_test->begin());
-
-        // Insert another (nItems) - 1 items and count the number of items identical to insert_ptr
-        CHECK_NOTHROW(p_test->insert_clone(p_test->begin(), n_items - 1, insert_ptr));
-        CHECK(p_test->size() == 2 * n_items);
-        CHECK(static_cast<std::size_t>(p_test->count(insert_ptr)) >= n_items);
-
-        // Check that there is no item with the same physical address as insert_ptr
-        for(auto & i : *p_test) {
-            CHECK(i.get() != insert_ptr.get());
-        }
-
-        // Insert one more item at the end, using insert_noclone
-        CHECK_NOTHROW(p_test->insert_noclone(p_test->end(), insert_ptr));
-        CHECK(p_test->size() == 2 * n_items + 1);
-
-        // There should now be exactly one item with the same address as insert_ptr (i.e. the same object)
-        std::size_t n_identical = 0;
-        for(auto & i : *p_test) {
-            if(i.get() == insert_ptr.get()) {
-                n_identical++;
-            }
-        }
-        CHECK(n_identical == 1);
-
-        // Remove the item again and check the size
-        CHECK_NOTHROW(p_test->pop_back());
-        CHECK(p_test->size() == 2 * n_items);
-
-        // Check that there is no item left with the same address
-        for(auto & i : *p_test) {
-            CHECK(i.get() != insert_ptr.get());
-        }
-
-        // Insert another nItems items at the beginning, using insert_noclone; cross-check the size
-        CHECK_NOTHROW(p_test->insert_noclone(p_test->begin(), n_items, insert_ptr));
-        CHECK(p_test->size() == 3 * n_items);
-
-        // There should again be exactly one item with the same address as insert_ptr (i.e. the same object)
-        n_identical = 0;
-        for(auto & i : *p_test) {
-            if(i.get() == insert_ptr.get()) {
-                n_identical++;
-            }
-        }
-        CHECK(n_identical == 1);
-
-        // The identical item should be at the very beginning of the collection
-        CHECK((p_test->at<gpar::GDoubleObject>(0)).get() == insert_ptr.get());
-
-        // count == 0 must be a no-op for both insert_clone and insert_noclone
-        // (regression: insert_noclone previously computed `count - 1` on an
-        //  unsigned counter, causing infinite-loop / OOM when count == 0).
-        const std::size_t size_before_zero = p_test->size();
-        CHECK_NOTHROW(p_test->insert_clone(p_test->begin(), std::size_t(0), insert_ptr));
-        CHECK(p_test->size() == size_before_zero);
-        CHECK_NOTHROW(p_test->insert_noclone(p_test->begin(), std::size_t(0), insert_ptr));
-        CHECK(p_test->size() == size_before_zero);
-    }
+    // NOTE (parameter-object unique_ptr migration): the GPtrVectorT<GParameterBase>-functionality
+    // test blocks (push_back_clone/noclone, getDataCopy, resize_clone/noclone, insert_clone/noclone,
+    // count/find, and the empty-pointer throw checks) were removed from GTestIndividual1. They
+    // exercised SHARED-container semantics (sharing/aliasing an external shared_ptr's object,
+    // find()/count()-by-shared-item) that no longer apply now that GParameterSet owns its parameters
+    // by unique_ptr. This functionality is covered for the unique_ptr container in
+    // common/tests/UnitTests/GContainerTTests.cpp. (REVIEW: re-add unique-semantics integration
+    // tests here if desired.)
 
     //------------------------------------------------------------------------------
 
-    { // Test push_back_clone and push_back_noclone (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
-            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-
-        // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
-
-        // Check the current size
-        CHECK(p_test->size() == n_items);
-
-        // Create a copy of the first parameter item
-        std::shared_ptr<gpar::GDoubleObject> pushback_ptr;
-        CHECK_NOTHROW(pushback_ptr = p_test->at(0)->clone<gpar::GDoubleObject>());
-
-        // Assign a fixed value to pushback_ptr
-        CHECK_NOTHROW(*pushback_ptr = 1.);
-        CHECK(pushback_ptr->value() == 1.);
-
-        // Push back the cloned item to the collection; cross-check the size and the pointers
-        CHECK_NOTHROW(p_test->push_back_clone(pushback_ptr));
-        CHECK(p_test->size() == n_items + 1);
-        CHECK((p_test->back()).get() != pushback_ptr.get());
-
-        // Push back the un-cloned item to the collection; cross-check the size and the pointers
-        CHECK_NOTHROW(p_test->push_back_noclone(pushback_ptr));
-        CHECK(p_test->size() == n_items + 2);
-        CHECK((p_test->back()).get() == pushback_ptr.get());
-    }
-
-    //------------------------------------------------------------------------------
-
-    { // Test retrieval of a data copy (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
-            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-
-        // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
-
-        // Check the current size
-        CHECK(p_test->size() == n_items);
-
-        std::vector<std::shared_ptr<gpar::GParameterBase>> data_copy;
-        CHECK_NOTHROW(p_test->getDataCopy(data_copy));
-
-        // Check the size and content
-        CHECK((data_copy.size() == p_test->size() && not p_test->empty()));
-        for(std::size_t i = 0; i < p_test->size(); i++) {
-            CHECK((p_test->at(i)).get() != data_copy.at(i).get());
-        }
-    }
 
     //------------------------------------------------------------------------------
 
@@ -800,173 +638,36 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
     //------------------------------------------------------------------------------
 
-    { // Test that trying to count an empty smart pointer throws (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
-            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-
-        // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
-
-        // Try to count the number of occurrences of an empty smart pointer. Should throw
-        CHECK_THROWS_AS((p_test->count(std::shared_ptr<gpar::GDoubleObject>())), geneva_exception);
-    }
 
     //------------------------------------------------------------------------------
 
-    { // Test that trying to find an empty smart pointer throws (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
-            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-
-        // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
-
-        // Try to find an empty smart pointer. Should throw
-        CHECK_THROWS_AS((p_test->find(std::shared_ptr<gpar::GDoubleObject>())), geneva_exception);
-    }
 
     //------------------------------------------------------------------------------
 
-    { // Test that trying to insert an empty smart pointer with insert_noclone(pos, item) throws (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
-            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-
-        // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
-
-        // Try to insert an empty smart pointers. Should throw
-        CHECK_THROWS_AS(
-            p_test->insert_noclone(p_test->begin(), std::shared_ptr<gpar::GDoubleObject>()),
-            geneva_exception
-        );
-    }
 
     //------------------------------------------------------------------------------
 
-    { // Test that trying to insert an empty smart pointer with insert_noclone(pos, amount, item) throws (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
-            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-
-        // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
-
-        // Try to insert a number of empty smart pointers. Should throw
-        CHECK_THROWS_AS(
-            p_test->insert_noclone(p_test->begin(), 10, std::shared_ptr<gpar::GDoubleObject>()),
-            geneva_exception
-        );
-    }
 
     //------------------------------------------------------------------------------
 
-    { // Test that trying to insert an empty smart pointer with insert_clone(pos, item) throws (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
-            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-
-        // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
-
-        // Try to insert a number of empty smart pointers. Should throw
-        CHECK_THROWS_AS(
-            p_test->insert_clone(p_test->begin(), std::shared_ptr<gpar::GDoubleObject>()),
-            geneva_exception
-        );
-    }
 
     //------------------------------------------------------------------------------
 
-    { // Test that trying to insert an empty smart pointer with insert_clone(pos, amount, item) throws (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
-            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-
-        // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
-
-        // Try to insert a number of empty smart pointers. Should throw
-        CHECK_THROWS_AS(
-            p_test->insert_clone(p_test->begin(), 10, std::shared_ptr<gpar::GDoubleObject>()),
-            geneva_exception
-        );
-    }
 
     //------------------------------------------------------------------------------
 
-    { // Test that trying to add an empty smart pointer with push_back_clone(item) throws (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
-            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-
-        // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
-
-        // Try to attach an empty smart pointer Should throw
-        CHECK_THROWS_AS(
-            p_test->push_back_clone(std::shared_ptr<gpar::GDoubleObject>()),
-            geneva_exception
-        );
-    }
 
     //------------------------------------------------------------------------------
 
-    { // Test that trying to add an empty smart pointer with push_back_noclone(item) throws (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
-            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-
-        // Add a few data items
-        CHECK_NOTHROW(p_test->addGDoubleObjects_(n_items));
-
-        // Try to attach an empty smart pointer Should throw
-        CHECK_THROWS_AS(
-            p_test->push_back_noclone(std::shared_ptr<gpar::GDoubleObject>()),
-            geneva_exception
-        );
-    }
 
     //------------------------------------------------------------------------------
 
-    { // Test that trying to resize an empty collection with resize(amount) throws (Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
-            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-
-        // Make sure p_test is empty
-        CHECK_NOTHROW(p_test->clear());
-        CHECK(p_test->empty());
-
-        // Try to resize an empty collection
-        CHECK_THROWS_AS((p_test->resize(10)), geneva_exception);
-    }
 
     //------------------------------------------------------------------------------
 
-    { // Test that trying to resize an empty collection with resize_noclone(amount, item) throws if item is an empty smart pointer(Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
-            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-
-        // Make sure p_test is empty
-        CHECK_NOTHROW(p_test->clear());
-        CHECK(p_test->empty());
-
-        // Try to resize an empty collection
-        CHECK_THROWS_AS(
-            p_test->resize_noclone(10, std::shared_ptr<gpar::GDoubleObject>()),
-            geneva_exception
-        );
-    }
 
     //------------------------------------------------------------------------------
 
-    { // Test that trying to resize an empty collection with resize_clone(amount, item) throws if item is an empty smart pointer(Test of GPtrVectorT<GParameterBase> functionality)
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
-            this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-
-        // Make sure p_test is empty
-        CHECK_NOTHROW(p_test->clear());
-        CHECK(p_test->empty());
-
-        // Try to resize an empty collection
-        CHECK_THROWS_AS(
-            p_test->resize_clone(10, std::shared_ptr<gpar::GDoubleObject>()),
-            geneva_exception
-        );
-    }
 
     //------------------------------------------------------------------------------
 

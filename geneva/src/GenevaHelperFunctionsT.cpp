@@ -46,8 +46,8 @@ namespace Gem::Geneva {
  * @return The default adaptor for the base type "double"
  */
 template <>
-std::shared_ptr<gpar::GAdaptorT<double>> getDefaultAdaptor<double>() {
-    return std::make_shared<gpar::GDoubleGaussAdaptor>();
+std::unique_ptr<gpar::GAdaptorT<double>> getDefaultAdaptor<double>() {
+    return std::make_unique<gpar::GDoubleGaussAdaptor>();
 }
 
 /******************************************************************************/
@@ -57,8 +57,8 @@ std::shared_ptr<gpar::GAdaptorT<double>> getDefaultAdaptor<double>() {
  * @return The default adaptor for the base type "float"
  */
 template <>
-std::shared_ptr<gpar::GAdaptorT<float, float>> getDefaultAdaptor<float>() {
-    return std::make_shared<gpar::GFloatGaussAdaptor>();
+std::unique_ptr<gpar::GAdaptorT<float, float>> getDefaultAdaptor<float>() {
+    return std::make_unique<gpar::GFloatGaussAdaptor>();
 }
 
 /******************************************************************************/
@@ -68,8 +68,8 @@ std::shared_ptr<gpar::GAdaptorT<float, float>> getDefaultAdaptor<float>() {
  * @return The default adaptor for the base type "std::int32_t"
  */
 template <>
-std::shared_ptr<gpar::GAdaptorT<std::int32_t>> getDefaultAdaptor<std::int32_t>() {
-    return std::make_shared<gpar::GInt32FlipAdaptor>();
+std::unique_ptr<gpar::GAdaptorT<std::int32_t>> getDefaultAdaptor<std::int32_t>() {
+    return std::make_unique<gpar::GInt32FlipAdaptor>();
 }
 
 /******************************************************************************/
@@ -79,8 +79,8 @@ std::shared_ptr<gpar::GAdaptorT<std::int32_t>> getDefaultAdaptor<std::int32_t>()
  * @return The default adaptor for the base type "bool"
  */
 template <>
-std::shared_ptr<gpar::GAdaptorT<bool>> getDefaultAdaptor<bool>() {
-    return std::make_shared<gpar::GBooleanAdaptor>();
+std::unique_ptr<gpar::GAdaptorT<bool>> getDefaultAdaptor<bool>() {
+    return std::make_unique<gpar::GBooleanAdaptor>();
 }
 
 /******************************************************************************/
