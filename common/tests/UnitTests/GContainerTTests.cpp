@@ -202,6 +202,19 @@ public:
     ~ConcretePtrVec() override = default;
 };
 
+// Concrete GUniquePtrContainerT subclass for the Phase-1 unique-container tests. The explicit
+// (defaulted) special members keep the container movable -- declaring the destructor would
+// otherwise suppress the implicit move operations.
+class ConcreteUniquePtrVec : public Gem::Common::GUniquePtrContainerT<TestBase> {
+public:
+    ConcreteUniquePtrVec() = default;
+    ConcreteUniquePtrVec(const ConcreteUniquePtrVec &) = default;
+    ConcreteUniquePtrVec(ConcreteUniquePtrVec &&) noexcept = default;
+    ConcreteUniquePtrVec &operator=(const ConcreteUniquePtrVec &) = default;
+    ConcreteUniquePtrVec &operator=(ConcreteUniquePtrVec &&) noexcept = default;
+    ~ConcreteUniquePtrVec() override = default;
+};
+
 // Subclass that exercises the protected test-hook virtuals
 class InstrumentedPodVec : public Gem::Common::GPodContainerT<int> {
 public:
@@ -1943,5 +1956,88 @@ TEST_CASE("GContainerT: UniquePtrStorage + unique_ptr deep-copy helpers", "[GCon
         CHECK(d->derivedVal == 8);
         dst[0]->val = 100; // mutating the copy must not touch the source
         CHECK(src[0]->val == 4);
+    }
+}
+
+/******************************************************************************/
+// A populated GUniquePtrContainerT (Phase 1, sub-step a): the pointer API now works for unique_ptr
+// storage -- clone-based ops clone via clone_unique(), move-based ops move the sole-owned handle.
+
+TEST_CASE("GContainerT: GUniquePtrContainerT populated container", "[GContainerT][ptr][unique]") {
+    SECTION("push (move-in and clone-in), size, element access") {
+        ConcreteUniquePtrVec v;
+        v.push_back_noclone(std::make_unique<TestBase>(1)); // move-in (sole ownership)
+        auto proto = std::make_unique<TestBase>(2);
+        v.push_back_clone(proto);                           // clone-in via clone_unique()
+        v.push_back(std::make_unique<TestBase>(3));         // push_back(StoredType&&)
+        REQUIRE(v.size() == 3);
+        CHECK(v[0]->val == 1);
+        CHECK(v.at(1)->val == 2);
+        CHECK(v[2]->val == 3);
+        CHECK(proto->val == 2);            // clone-in did not consume the prototype
+        CHECK(v[1].get() != proto.get());  // it is an independent clone
+    }
+
+    SECTION("clone-in keeps the dynamic type (no slicing)") {
+        ConcreteUniquePtrVec v;
+        std::unique_ptr<TestBase> base_handle = std::make_unique<TestDerived>(5, 6);
+        v.push_back_clone(base_handle);
+        REQUIRE(v.size() == 1);
+        auto *dv = dynamic_cast<TestDerived *>(v[0].get());
+        REQUIRE(dv != nullptr);
+        CHECK(dv->val == 5);
+        CHECK(dv->derivedVal == 6);
+    }
+
+    SECTION("deep copy construction is independent") {
+        ConcreteUniquePtrVec a;
+        a.push_back_noclone(std::make_unique<TestBase>(10));
+        a.push_back_noclone(std::make_unique<TestBase>(20));
+        ConcreteUniquePtrVec b = a; // copy-ctor -> StoragePolicy::deepCopy
+        REQUIRE(b.size() == 2);
+        CHECK(b[0]->val == 10);
+        CHECK(b[0].get() != a[0].get()); // distinct objects
+        b[0]->val = 99;                  // mutating the copy ...
+        CHECK(a[0]->val == 10);          // ... does not touch the original
+    }
+
+    SECTION("deep copy assignment resizes and stays independent") {
+        ConcreteUniquePtrVec a;
+        a.push_back_noclone(std::make_unique<TestBase>(7));
+        ConcreteUniquePtrVec b;
+        b.push_back_noclone(std::make_unique<TestBase>(0));
+        b.push_back_noclone(std::make_unique<TestBase>(0));
+        b = a; // operator= -> deepCopy (shrinks 2 -> 1)
+        REQUIRE(b.size() == 1);
+        CHECK(b[0]->val == 7);
+        CHECK(b[0].get() != a[0].get());
+    }
+
+    SECTION("move construction transfers ownership without cloning") {
+        ConcreteUniquePtrVec a;
+        a.push_back_noclone(std::make_unique<TestBase>(42));
+        TestBase *raw = a[0].get();
+        ConcreteUniquePtrVec b = std::move(a);
+        REQUIRE(b.size() == 1);
+        CHECK(b[0].get() == raw); // the very same object, moved, not cloned
+    }
+
+    SECTION("getDataCopy produces a deep, independent copy") {
+        ConcreteUniquePtrVec a;
+        a.push_back_noclone(std::make_unique<TestDerived>(1, 2));
+        std::vector<std::unique_ptr<TestBase>> out;
+        a.getDataCopy(out);
+        REQUIRE(out.size() == 1);
+        CHECK(dynamic_cast<TestDerived *>(out[0].get()) != nullptr);
+        CHECK(out[0].get() != a[0].get());
+    }
+
+    SECTION("clear / empty") {
+        ConcreteUniquePtrVec v;
+        v.push_back_noclone(std::make_unique<TestBase>(1));
+        CHECK(!v.empty());
+        v.clear();
+        CHECK(v.empty());
+        CHECK(v.size() == 0);
     }
 }

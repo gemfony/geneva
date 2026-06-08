@@ -61,6 +61,7 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/tracking.hpp>
+#include <boost/serialization/unique_ptr.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/vector.hpp>
 
@@ -1095,8 +1096,26 @@ public:
     }
 
     // ------------------------------------------------------------------
-    // SharedPtrStorage-specific: push_back variants
+    // Pointer-storage operations (SharedPtrStorage or UniquePtrStorage)
     // ------------------------------------------------------------------
+
+    /**
+     * @brief Clones the pointee of a stored handle into a fresh StoredType.
+     *
+     * Policy-aware deep clone used by the clone-based pointer operations: shared_ptr storage clones
+     * via clone() (an independent, separately-owned copy), unique_ptr storage via clone_unique()
+     * (sole ownership). Caller must ensure @p p is non-null.
+     */
+    static StoredType clone_into_stored(const StoredType &p)
+        requires (!std::same_as<StoredType, ValueType>)
+    {
+        if constexpr(std::same_as<StoredType, std::unique_ptr<ValueType>>) {
+            return p->clone_unique();
+        }
+        else {
+            return p->template clone<ValueType>();
+        }
+    }
 
     /**
      * @brief Appends a cloned copy of @p item_ptr to the container.
@@ -1117,7 +1136,7 @@ public:
                 << "Tried to clone an empty smart pointer." << '\n'
             );
         }
-        data_cnt_.push_back(item_ptr->template clone<ValueType>());
+        data_cnt_.push_back(clone_into_stored(item_ptr));
     }
 
     /**
@@ -1166,7 +1185,7 @@ public:
                 << "Tried to clone an empty smart pointer." << '\n'
             );
         }
-        return data_cnt_.insert(pos, item_ptr->template clone<ValueType>());
+        return data_cnt_.insert(pos, clone_into_stored(item_ptr));
     }
 
     /**
@@ -1197,7 +1216,7 @@ public:
         std::vector<StoredType> clones;
         clones.reserve(count);
         for(std::size_t i = 0; i < count; ++i) {
-            clones.push_back(item_ptr->template clone<ValueType>());
+            clones.push_back(clone_into_stored(item_ptr));
         }
         data_cnt_.insert(
             pos,
@@ -1262,7 +1281,7 @@ public:
         to_insert.reserve(count);
         to_insert.push_back(std::move(item_ptr));
         for(std::size_t i = 0; i < count - 1; ++i) {
-            to_insert.push_back(to_insert.front()->template clone<ValueType>());
+            to_insert.push_back(clone_into_stored(to_insert.front()));
         }
         data_cnt_.insert(
             pos,
@@ -1303,7 +1322,7 @@ public:
             }
             data_cnt_.reserve(amount);
             for(std::size_t i = data_size; i < amount; ++i) {
-                data_cnt_.push_back(item_ptr->template clone<ValueType>());
+                data_cnt_.push_back(clone_into_stored(item_ptr));
             }
         }
     }
@@ -1334,7 +1353,7 @@ public:
             }
             data_cnt_.reserve(amount);
             for(std::size_t i = data_size; i < amount - 1; ++i) {
-                data_cnt_.push_back(item_ptr->template clone<ValueType>());
+                data_cnt_.push_back(clone_into_stored(item_ptr));
             }
             data_cnt_.push_back(std::move(item_ptr));
         }
@@ -1480,7 +1499,7 @@ public:
     {
         cp.clear();
         for(const auto &item : data_cnt_) {
-            cp.push_back(item->template clone<ValueType>());
+            cp.push_back(clone_into_stored(item));
         }
     }
 
