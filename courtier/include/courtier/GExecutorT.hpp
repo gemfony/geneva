@@ -56,7 +56,7 @@ namespace Gem::Courtier {
 template <typename processable_type>
 class GExecutorT {
 public:
-    using item_ptr = std::shared_ptr<processable_type>;
+    using item_ptr = std::unique_ptr<processable_type>;
 
     /***************************************************************************/
     /** @brief Initialization with the broker the executor submits through. */

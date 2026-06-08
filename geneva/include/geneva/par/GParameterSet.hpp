@@ -306,7 +306,7 @@ public:
 
     /** @brief Perform a cross-over operation between this object and another */
     virtual std::shared_ptr<GParameterSet>
-    crossOverWith(std::shared_ptr<GParameterSet> const &) const;
+    crossOverWith(GParameterSet const &) const;
 
     /** @brief Triggers updates of adaptors contained in this object */
     void updateAdaptorsOnStall(std::uint32_t);

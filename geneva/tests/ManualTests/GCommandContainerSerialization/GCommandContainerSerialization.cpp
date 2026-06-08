@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
         Gem::Courtier::GCommandContainerT<
             gpar::GParameterSet,
             Gem::Courtier::networked_consumer_payload_command>
-            gcc1(Gem::Courtier::networked_consumer_payload_command::COMPUTE, fi_ptr);
+            gcc1(Gem::Courtier::networked_consumer_payload_command::COMPUTE, fi_ptr->clone_unique());
 
         // Prepare a command container for de-serialization
         Gem::Courtier::GCommandContainerT<

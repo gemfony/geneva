@@ -64,10 +64,10 @@ int main(int argc, char **argv) {
         broker->registerConsumer(consumer);
         consumer->startServer();
 
-        std::vector<std::shared_ptr<GFaultyContainer>> items;
+        std::vector<std::unique_ptr<GFaultyContainer>> items;
         items.reserve(N);
         for(std::size_t i = 0; i < N; ++i) {
-            items.push_back(std::make_shared<GFaultyContainer>(i, fault_mode::NONE));
+            items.push_back(std::make_unique<GFaultyContainer>(i, fault_mode::NONE));
         }
 
         c2::GExecutorT<GFaultyContainer> executor(broker);

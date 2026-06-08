@@ -61,13 +61,13 @@ using Gem::Courtier::GFaultyContainer;
 
 namespace {
 
-using item_ptr = std::shared_ptr<GFaultyContainer>;
+using item_ptr = std::unique_ptr<GFaultyContainer>;
 
 std::vector<item_ptr> make_batch(std::size_t n, fault_mode fm_for_all = fault_mode::NONE) {
     std::vector<item_ptr> v;
     v.reserve(n);
     for(std::size_t i = 0; i < n; ++i) {
-        v.push_back(std::make_shared<GFaultyContainer>(i, fm_for_all));
+        v.push_back(std::make_unique<GFaultyContainer>(i, fm_for_all));
     }
     return v;
 }
@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
     if(scenario == "fatal-unfixable") {
         // One deterministically-throwing slot, no retry budget -> unresolved -> FATAL.
         auto batch = make_batch(8, fault_mode::NONE);
-        batch[3] = std::make_shared<GFaultyContainer>(3, fault_mode::THROW_PROCESSING);
+        batch[3] = std::make_unique<GFaultyContainer>(3, fault_mode::THROW_PROCESSING);
         executor.workOn(batch, GSubmissionPolicy::full_success_or_fatal());
         std::cout << "fatal-unfixable: ERROR -- returned without terminating\n";
         return 0; // should be unreachable

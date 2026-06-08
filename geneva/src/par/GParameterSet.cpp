@@ -684,7 +684,7 @@ std::size_t GParameterSet::getCrossOverPos(const std::size_t lower, const std::s
      * Perform a fusion operation between this object and another.
      */
 std::shared_ptr<GParameterSet>
-GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const {
+GParameterSet::crossOverWith(GParameterSet const &cp) const {
     // Create a copy of this object
     std::shared_ptr<GParameterSet> this_cp = this->clone<GParameterSet>();
 
@@ -703,10 +703,10 @@ GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const &cp) const {
     this_cp->streamline(this_bool_cnt);
     this_cp->streamline(this_int_cnt);
 
-    cp->streamline(cp_double_cnt);
-    cp->streamline(cp_float_cnt);
-    cp->streamline(cp_bool_cnt);
-    cp->streamline(cp_int_cnt);
+    cp.streamline(cp_double_cnt);
+    cp.streamline(cp_float_cnt);
+    cp.streamline(cp_bool_cnt);
+    cp.streamline(cp_int_cnt);
 
 #ifdef DEBUG
     // Do some error checking

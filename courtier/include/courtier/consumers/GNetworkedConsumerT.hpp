@@ -39,6 +39,7 @@
 #include <cstddef>
 #include <functional>
 #include <map>
+#include <set>
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -130,20 +131,23 @@ protected:
      */
     struct CheckoutLease {
         std::mutex mtx;
-        std::map<Gem::Courtier::BUFFERPORT_ID_TYPE, item_ptr> in_flight;
-        std::function<void(const item_ptr &)> on_abandon;
+        // Items travel by unique_ptr, so the lease cannot co-own them: it tracks only the in-flight
+        // correlation ids (a borrow). The owning copy stays in the consumer's batch; on abandon the
+        // lease asks the consumer to requeue those ids.
+        std::set<Gem::Courtier::BUFFERPORT_ID_TYPE> in_flight;
+        std::function<void(Gem::Courtier::BUFFERPORT_ID_TYPE)> on_abandon;
 
         CheckoutLease() = default;
         CheckoutLease(const CheckoutLease &) = delete;
         CheckoutLease &operator=(const CheckoutLease &) = delete;
 
-        /** @brief Records an item just handed to the session. */
+        /** @brief Records the id of an item just handed to the session. */
         void add(const item_ptr &p) {
             if(not p) {
                 return;
             }
             std::lock_guard<std::mutex> lk(mtx);
-            in_flight[p->getCorrelationId()] = p;
+            in_flight.insert(p->getCorrelationId());
         }
         /** @brief Drops an item the session returned normally (nothing left for the lease to reclaim). */
         void remove(const item_ptr &p) {
@@ -154,16 +158,14 @@ protected:
             in_flight.erase(p->getCorrelationId());
         }
         ~CheckoutLease() {
-            std::map<Gem::Courtier::BUFFERPORT_ID_TYPE, item_ptr> remaining;
+            std::set<Gem::Courtier::BUFFERPORT_ID_TYPE> remaining;
             {
                 std::lock_guard<std::mutex> lk(mtx);
                 remaining.swap(in_flight);
             }
             if(on_abandon) {
-                for(auto &kv : remaining) {
-                    if(kv.second) {
-                        on_abandon(kv.second);
-                    }
+                for(auto id : remaining) {
+                    on_abandon(id);
                 }
             }
         }
@@ -217,7 +219,7 @@ protected:
         b.last_progress = now;
 
         p->setDispatchState(Gem::Courtier::dispatchState::DONE);
-        (*b.items)[slot] = p; // swap the processed copy into the slot in place
+        (*b.items)[slot] = std::move(p); // move the processed result into the slot in place
         ++b.done;
         if(b.done == b.target) {
             cv_done_.notify_all(); // each waiting dispatch_ re-checks its own batch
@@ -229,12 +231,8 @@ protected:
      *  immediately (the RAII put-back on a client disconnect). Caller passes the item it checked out;
      *  the batch+slot are located via its correlation id. A no-op if the batch moved on or the slot is
      *  no longer in flight. */
-    void requeue(const item_ptr &p) {
-        if(not p) {
-            return;
-        }
+    void requeue(Gem::Courtier::BUFFERPORT_ID_TYPE id) {
         std::lock_guard<std::mutex> lk(mtx_);
-        const Gem::Courtier::BUFFERPORT_ID_TYPE id = p->getCorrelationId();
         auto it = batches_.find(decodeBatch(id));
         if(it == batches_.end()) {
             return;
@@ -394,7 +392,10 @@ private:
                 --b.pending;
                 --total_pending_;
                 last_served_batch_ = it->first;
-                return (*b.items)[k];
+                // Hand the session a clone to serialize and ship; the owning copy stays in the slot,
+                // marked IN_FLIGHT. Its correlation id rides the clone, so checkin() finds the slot again.
+                // Clone via the consumer's type-generic helper (polymorphic functor or copy-construct).
+                return this->clone_item_((*b.items)[k]);
             }
             ++it;
         }

@@ -304,7 +304,7 @@ std::tuple<double, double> GNelderMead::cycleLogic_() {
     auto m = this->at(0)->getMaxMode();
     for(std::size_t s = 0; s < n_simplices_; s++) {
         for(std::size_t v = 0; v <= n_fp_parms_first_; v++) {
-            auto ind = this->at(vertexPos(s, v));
+            auto &ind = this->at(vertexPos(s, v));
             std::get<G_RAW_FITNESS>(fitness_candidate) = ind->raw_fitness(0);
             std::get<G_TRANSFORMED_FITNESS>(fitness_candidate) = ind->transformed_fitness(0);
 
@@ -336,7 +336,7 @@ void GNelderMead::proposeTrials() {
         std::vector<std::vector<double>> vparm(n_vert);
         std::vector<double> vfit(n_vert);
         for(std::size_t v = 0; v < n_vert; v++) {
-            auto ind = this->at(vertexPos(s, v));
+            auto &ind = this->at(vertexPos(s, v));
             ind->streamline<double>(vparm[v], activityMode::ACTIVEONLY);
             // A vertex modified by a shrink in applyNelderMeadDecision() during
             // this same iteration has not been re-evaluated yet (its stored
@@ -348,7 +348,7 @@ void GNelderMead::proposeTrials() {
                 vfit[v] = std::numeric_limits<double>::max();
             }
             else {
-                vfit[v] = minOnly_transformed_fitness(ind);
+                vfit[v] = minOnly_transformed_fitness(*ind);
             }
         }
 
@@ -413,7 +413,7 @@ void GNelderMead::applyNelderMeadDecision() {
 
         std::vector<double> vfit(n_vert);
         for(std::size_t v = 0; v < n_vert; v++) {
-            vfit[v] = minOnly_transformed_fitness(this->at(vertexPos(s, v)));
+            vfit[v] = minOnly_transformed_fitness(*this->at(vertexPos(s, v)));
         }
 
         // Best, worst and second-worst vertices (minimization fitness)
@@ -441,9 +441,9 @@ void GNelderMead::applyNelderMeadDecision() {
         const double f_worst = vfit[w];
         const double f_second = vfit[sw];
 
-        const double f_r = minOnly_transformed_fitness(this->at(trialPos(s, NM_REFLECT)));
-        const double f_e = minOnly_transformed_fitness(this->at(trialPos(s, NM_EXPAND)));
-        const double f_c = minOnly_transformed_fitness(this->at(trialPos(s, NM_CONTRACT)));
+        const double f_r = minOnly_transformed_fitness(*this->at(trialPos(s, NM_REFLECT)));
+        const double f_e = minOnly_transformed_fitness(*this->at(trialPos(s, NM_EXPAND)));
+        const double f_c = minOnly_transformed_fitness(*this->at(trialPos(s, NM_CONTRACT)));
 
         auto accept_trial_into_worst = [&](std::size_t trial_slot) {
             this->at(vertexPos(s, w))->load(this->at(trialPos(s, trial_slot)));
@@ -707,7 +707,7 @@ void GNelderMead::adjustPopulation_() {
     // Make sure we have one (randomized) seed individual per simplex first.
     if(n_start < n_simplices_) {
         for(std::size_t i = 0; i < (n_simplices_ - n_start); i++) {
-            this->push_back(this->at(0)->clone<gpar::GParameterSet>());
+            this->push_back(this->at(0)->clone_unique());
             this->back()->randomInit(activityMode::ACTIVEONLY);
         }
     }
@@ -726,9 +726,9 @@ void GNelderMead::adjustPopulation_() {
 
     this->clear();
     for(std::size_t s = 0; s < n_simplices_; s++) {
-        this->push_back(seeds[s]); // vertex 0 of simplex s
+        this->push_back(seeds[s]->clone_unique()); // vertex 0 of simplex s
         for(std::size_t r = 1; r < block_size; r++) {
-            this->push_back(seeds[s]->clone<gpar::GParameterSet>());
+            this->push_back(seeds[s]->clone_unique());
         }
     }
 

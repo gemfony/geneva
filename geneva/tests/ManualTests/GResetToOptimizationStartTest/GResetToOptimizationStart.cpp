@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
 
     for(auto const &alg_ptr : algorithms_cnt) {
         for(std::size_t resetCounter = 0; resetCounter < NRESETS; resetCounter++) {
-            alg_ptr->push_back(gfif_ptr->get());
+            alg_ptr->push_back(gfif_ptr->get()->clone_unique());
             alg_ptr->optimize();
 
             if(resetCounter < NRESETS) {

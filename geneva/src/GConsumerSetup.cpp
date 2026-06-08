@@ -54,9 +54,9 @@ namespace Gem::Geneva {
 namespace {
 
 /** @brief The polymorphic clone for GParameterSet (copy-construction would slice the held individual). */
-std::function<std::shared_ptr<gpar::GParameterSet>(const std::shared_ptr<gpar::GParameterSet> &)>
+std::function<std::unique_ptr<gpar::GParameterSet>(const std::unique_ptr<gpar::GParameterSet> &)>
 parameterSetCloneFunction() {
-    return [](const std::shared_ptr<gpar::GParameterSet> &p) { return p->clone<gpar::GParameterSet>(); };
+    return [](const std::unique_ptr<gpar::GParameterSet> &p) { return p->clone_unique(); };
 }
 
 /** @brief Wraps a ready consumer (clone function already set) in a fresh single-consumer broker. */

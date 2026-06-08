@@ -102,7 +102,7 @@ void startReferenceMeasurement(
             auto ea_alg = ea_alg_master->clone<oa::GEvolutionaryAlgorithm>();
 
             // Make the individual known to the optimizer
-            ea_alg->push_back(gdi_ptr);
+            ea_alg->push_back(gdi_ptr->clone_unique());
 
             // Do the actual optimization and measure the time
             std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();

@@ -74,7 +74,7 @@ public:
             return;
         }
         // All items in a benchmark run share the same function and dimension.
-        auto first = std::dynamic_pointer_cast<gind::GFunctionIndividual>(items.front());
+        auto *first = dynamic_cast<gind::GFunctionIndividual *>(items.front().get());
         funcId_ = static_cast<int>(first->getDemoFunction());
 
         std::vector<double> pv;
@@ -82,7 +82,7 @@ public:
         const std::size_t dim = pv.size();
         params_out.resize(items.size() * dim);
         for(std::size_t i = 0; i < items.size(); ++i) {
-            auto fi = std::dynamic_pointer_cast<gind::GFunctionIndividual>(items[i]);
+            auto *fi = dynamic_cast<gind::GFunctionIndividual *>(items[i].get());
             fi->streamline(pv);
             std::copy(pv.begin(), pv.end(),
                       params_out.begin() + static_cast<std::ptrdiff_t>(i * dim));

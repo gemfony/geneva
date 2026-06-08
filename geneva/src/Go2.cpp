@@ -164,7 +164,7 @@ void Go2::registerDefaultAlgorithm(const std::shared_ptr<GOABase> &default_algor
     // that the user wants us to use them and copy them over. Note that these are not cloned.
     if(not default_algorithm->empty()) { // Have individuals been registered ?
         for(const auto &ind_ptr : *default_algorithm) {
-            this->push_back(ind_ptr);
+            this->push_back(ind_ptr->clone_unique());
         }
         // Remove the individuals from the old algorithm
         default_algorithm->clear();
@@ -320,7 +320,7 @@ void Go2::addAlgorithm(const std::shared_ptr<GOABase> &alg) {
     // Note that these are not cloned, as we will clear its vector anyway.
     if(not alg->empty()) { // Have individuals been registered?
         for(const auto &ind_ptr : *alg) {
-            this->push_back(ind_ptr);
+            this->push_back(ind_ptr->clone_unique());
         }
         // Remove the individuals from the old algorithm
         alg->clear();
@@ -556,7 +556,7 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
 
         // Add the individuals to the algorithm
         for(const auto &ind_ptr : *this) {
-            alg_ptr->push_back(ind_ptr);
+            alg_ptr->push_back(ind_ptr->clone_unique());
         }
 
         // Remove our local copies
@@ -583,7 +583,7 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
         }
         else { // copy all individuals
             for(const auto &ind_ptr : *alg_ptr) {
-                this->push_back(ind_ptr);
+                this->push_back(ind_ptr->clone_unique());
             }
         }
 
@@ -601,8 +601,8 @@ void Go2::sortIndividualsByFitness() {
     std::ranges::sort(
         this->begin(),
         this->end(),
-        [](const std::shared_ptr<gpar::GParameterSet> &x_ptr, const std::shared_ptr<gpar::GParameterSet> &y_ptr) -> bool {
-            return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
+        [](const auto &x_ptr, const auto &y_ptr) -> bool {
+            return minOnly_transformed_fitness(*x_ptr) < minOnly_transformed_fitness(*y_ptr);
         }
     );
 

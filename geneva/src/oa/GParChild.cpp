@@ -428,7 +428,7 @@ void GParChild::doRecombine() {
             const std::size_t child_idx = n_parents_ + c;
             const std::size_t pp = parent_pos[c];
             futures_cnt.push_back(tp->async_schedule([this, child_idx, pp]() {
-                std::shared_ptr<gpar::GParameterSet> &child = GOptimizationAlgorithmBase::data_cnt_[child_idx];
+                std::unique_ptr<gpar::GParameterSet> &child = GOptimizationAlgorithmBase::data_cnt_[child_idx];
                 child->load(GOptimizationAlgorithmBase::data_cnt_[pp]);
                 child->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
                     ->setParentId(pp);
@@ -462,7 +462,7 @@ void GParChild::doRecombine() {
 
     // ------------------------------------------------------------------------
     // Serial path (original behaviour; also covers the cross-over / amalgamation case).
-    std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator it;
+    std::vector<std::unique_ptr<gpar::GParameterSet>>::iterator it;
     for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         it != GOptimizationAlgorithmBase::data_cnt_.end();
         ++it) {
@@ -470,19 +470,19 @@ void GParChild::doRecombine() {
         // If we do perform cross-over, we always cross the best individual with another random parent
         if(n_parents_ > 1 &&
            amalgamation_wanted(this->gr_)) { // Create individuals using a cross-over scheme
-            std::shared_ptr<gpar::GParameterSet> best_parent = this->front();
-            std::shared_ptr<gpar::GParameterSet> combiner =
+            const gpar::GParameterSet &best_parent = *this->front();
+            const gpar::GParameterSet &combiner =
                 (n_parents_ > 2)
-                    ? (*(this->begin() + this->uniform_int_distribution_(
+                    ? *(*(this->begin() + this->uniform_int_distribution_(
                                              this->gr_,
                                              std::uniform_int_distribution<std::size_t>::param_type(
                                                  1,
                                                  n_parents_ - 1
                                              )
                                          )))
-                    : (*(this->begin() + 1));
+                    : *(*(this->begin() + 1));
 
-            (*it)->load(best_parent->crossOverWith(combiner));
+            (*it)->load(best_parent.crossOverWith(combiner));
         }
         else { // Just perform duplication
             switch(recombination_method_) {
@@ -610,7 +610,7 @@ std::tuple<std::size_t, std::size_t> GParChild::getAdaptionRange() const {
  * This helper function marks parents as parents and children as children.
  */
 void GParChild::markParents() {
-    typename std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator it;
+    typename std::vector<std::unique_ptr<gpar::GParameterSet>>::iterator it;
     for(it = GOptimizationAlgorithmBase::data_cnt_.begin();
         it != GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         ++it) {
@@ -625,7 +625,7 @@ void GParChild::markParents() {
  * This helper function marks children as children
  */
 void GParChild::markChildren() {
-    typename std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator it;
+    typename std::vector<std::unique_ptr<gpar::GParameterSet>>::iterator it;
     for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         it != GOptimizationAlgorithmBase::data_cnt_.end();
         ++it) {
@@ -755,7 +755,7 @@ void GParChild::adjustPopulation_() {
     }
 
     // Do the smart pointers actually point to any objects ?
-    typename std::vector<std::shared_ptr<gpar::GParameterSet>>::iterator it;
+    typename std::vector<std::unique_ptr<gpar::GParameterSet>>::iterator it;
     for(const auto &individual : GOptimizationAlgorithmBase::data_cnt_) {
         if(not individual) { // shared_ptr can be implicitly converted to bool
             throw geneva_exception(
@@ -812,7 +812,7 @@ void GParChild::performScheduledPopulationGrowth() {
  *
  * @param child The individual for which a new value should be chosen
  */
-void GParChild::randomRecombine(std::shared_ptr<gpar::GParameterSet> &child) {
+void GParChild::randomRecombine(std::unique_ptr<gpar::GParameterSet> &child) {
     std::size_t parent_pos = 0;
 
     if(n_parents_ == 1) {
@@ -850,7 +850,7 @@ void GParChild::randomRecombine(std::shared_ptr<gpar::GParameterSet> &child) {
  * @param threshold A std::vector<double> holding the recombination likelihoods for each parent
  */
 void GParChild::valueRecombine(
-    std::shared_ptr<gpar::GParameterSet> &p,
+    std::unique_ptr<gpar::GParameterSet> &p,
     const std::vector<double> &threshold
 ) {
     bool done = false;

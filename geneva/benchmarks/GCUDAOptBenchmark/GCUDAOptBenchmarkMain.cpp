@@ -168,8 +168,8 @@ int main(int argc, char **argv) {
     auto marshaller = std::make_shared<GBenchmarkGPUMarshaller>();
     auto consumer = std::make_shared<Gem::Courtier::GPU::GGPUConsumerT<gpar::GParameterSet>>(
         "./config/GGPUConsumer.json", marshaller);
-    consumer->setCloneFunction([](const std::shared_ptr<gpar::GParameterSet> &p) {
-        return p->clone<gpar::GParameterSet>();
+    consumer->setCloneFunction([](const std::unique_ptr<gpar::GParameterSet> &p) {
+        return p->clone_unique();
     });
     auto cudaBroker = std::make_shared<Gem::Courtier::GBrokerT<gpar::GParameterSet>>();
     cudaBroker->registerConsumer(consumer);

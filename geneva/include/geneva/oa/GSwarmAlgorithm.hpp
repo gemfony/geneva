@@ -277,7 +277,7 @@ protected:
     /** @brief Triggers an update of an individual's positions */
     void updateIndividualPositions(
         const std::size_t &,
-        std::shared_ptr<gpar::GParameterSet>,
+        const std::unique_ptr<gpar::GParameterSet> &, // the population individual being moved (borrowed)
         std::shared_ptr<gpar::GParameterSet>,
         std::shared_ptr<gpar::GParameterSet>,
         std::shared_ptr<gpar::GParameterSet>,
@@ -288,9 +288,9 @@ protected:
     void pruneVelocity(std::vector<double> &);
 
     /** Updates the personal best of an individual */
-    void updatePersonalBest(std::shared_ptr<gpar::GParameterSet>);
+    void updatePersonalBest(const std::unique_ptr<gpar::GParameterSet> &);
     /** Updates the personal best of an individual, if a better solution was found */
-    void updatePersonalBestIfBetter(std::shared_ptr<gpar::GParameterSet>);
+    void updatePersonalBestIfBetter(const std::unique_ptr<gpar::GParameterSet> &);
 
     std::size_t n_neighborhoods_ =
         (DEFAULTNNEIGHBORHOODS ? DEFAULTNNEIGHBORHOODS

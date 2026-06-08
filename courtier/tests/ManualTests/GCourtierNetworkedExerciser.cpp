@@ -96,11 +96,11 @@ int run_server(const std::string &consumer, unsigned short port, std::size_t n, 
               << "; submitting " << n << " items (faultEvery=" << fault_every << ")\n"
               << std::flush;
 
-    std::vector<std::shared_ptr<GFaultyContainer>> items;
+    std::vector<std::unique_ptr<GFaultyContainer>> items;
     items.reserve(n);
     for(std::size_t i = 0; i < n; ++i) {
         const bool faulty = fault_every > 0 && (i % fault_every == 0);
-        items.push_back(std::make_shared<GFaultyContainer>(
+        items.push_back(std::make_unique<GFaultyContainer>(
             i, faulty ? fault_mode::THROW_PROCESSING : fault_mode::NONE
         ));
     }

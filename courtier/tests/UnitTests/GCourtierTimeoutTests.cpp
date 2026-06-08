@@ -62,7 +62,7 @@ using namespace std::chrono_literals;
 
 namespace {
 
-using item_ptr = std::shared_ptr<GFaultyContainer>;
+using item_ptr = std::unique_ptr<GFaultyContainer>;
 
 std::vector<item_ptr> make_batch(std::size_t n, const std::vector<std::size_t> &faulty = {},
                                  fault_mode fm = fault_mode::THROW_PROCESSING) {
@@ -70,7 +70,7 @@ std::vector<item_ptr> make_batch(std::size_t n, const std::vector<std::size_t> &
     v.reserve(n);
     for(std::size_t i = 0; i < n; ++i) {
         const bool f = std::find(faulty.begin(), faulty.end(), i) != faulty.end();
-        v.push_back(std::make_shared<GFaultyContainer>(i, f ? fm : fault_mode::NONE));
+        v.push_back(std::make_unique<GFaultyContainer>(i, f ? fm : fault_mode::NONE));
     }
     return v;
 }
@@ -129,13 +129,13 @@ void run_with_misbehaviour(std::vector<item_ptr> &batch, misbehave mode, VictimP
         const std::size_t id = p->get_stored_number();
         if(victim(id) && mistreated_once.insert(id).second) {
             if(mode == misbehave::requeue_it) {
-                consumer.requeue(p); // immediate put-back (as a websocket session-death would do)
+                consumer.requeue(p->getCorrelationId()); // immediate put-back (as a websocket session-death would do)
             }
             // mode == abandon: simply drop it -- never check it in; the reclaim lease must recover it
             continue;
         }
         p->process();
-        consumer.checkin(p);
+        consumer.checkin(std::move(p));
     }
     worker.join();
 }
@@ -171,7 +171,7 @@ TEST_CASE("courtier(clone): unresolved slots are refilled from the supplied temp
           "[courtier][clone]") {
     // A representative, already-evaluated template the algorithm hands down.
     constexpr std::size_t TEMPLATE_ID = 9999;
-    auto tmpl = std::make_shared<GFaultyContainer>(TEMPLATE_ID, fault_mode::NONE);
+    auto tmpl = std::make_unique<GFaultyContainer>(TEMPLATE_ID, fault_mode::NONE);
     tmpl->set_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);
     tmpl->process(); // a valid, evaluated template
 
@@ -182,7 +182,7 @@ TEST_CASE("courtier(clone): unresolved slots are refilled from the supplied temp
     const std::vector<std::size_t> faulty{2, 5, 9};
     auto batch = make_batch(12, faulty, fault_mode::THROW_PROCESSING);
 
-    executor.workOn(batch, c2::GSubmissionPolicy::clone_on_partial_return(), tmpl);
+    executor.workOn(batch, c2::GSubmissionPolicy::clone_on_partial_return(), std::move(tmpl));
 
     CHECK(count_processed(batch) == 12); // no slot left unevaluated
     // The throwing slots must hold clones of the TEMPLATE (not of a surviving sibling).

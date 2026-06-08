@@ -190,7 +190,7 @@ bool GParameterSetFixedSizePriorityQueue::isValid(
 double GParameterSetFixedSizePriorityQueue::evaluation(
     const std::shared_ptr<GParameterSet> &item_ptr
 ) const {
-    return minOnly_transformed_fitness(item_ptr);
+    return minOnly_transformed_fitness(*item_ptr);
 }
 
 /******************************************************************************/
@@ -277,6 +277,62 @@ void GParameterSetFixedSizePriorityQueue::add(
 ) {
     if(item_ptr && item_ptr->is_processed()) {
         Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::add(item_ptr, do_clone);
+    }
+}
+
+/******************************************************************************/
+/**
+	 * Boundary overload: adds the individuals of a unique_ptr-owned population. The population owns its
+	 * individuals by unique_ptr, while this archive keeps its own shared_ptr clones, so we clone each
+	 * individual across the ownership boundary and hand the (already-cloned) shared_ptrs to the
+	 * shared_ptr overload with do_clone == false -- the archive co-owns the clones directly, no second
+	 * copy. (do_clone is intentionally ignored: cloning at the boundary is exactly what do_clone asks for.)
+	 */
+void GParameterSetFixedSizePriorityQueue::add(
+    std::vector<std::unique_ptr<GParameterSet>> const &items_cnt,
+    const bool /* do_clone */,
+    const bool do_replace
+) {
+    std::vector<std::shared_ptr<GParameterSet>> bridge;
+    bridge.reserve(items_cnt.size());
+    for(auto const &item_ptr : items_cnt) {
+        if(item_ptr) {
+            bridge.push_back(item_ptr->clone<GParameterSet>());
+        }
+    }
+    this->add(bridge, false, do_replace);
+}
+
+/******************************************************************************/
+/**
+	 * Boundary overload: adds a unique_ptr population sub-range [begin, end). See the vector overload above.
+	 */
+void GParameterSetFixedSizePriorityQueue::add(
+    std::vector<std::unique_ptr<GParameterSet>>::const_iterator begin,
+    std::vector<std::unique_ptr<GParameterSet>>::const_iterator end,
+    const bool /* do_clone */,
+    const bool do_replace
+) {
+    std::vector<std::shared_ptr<GParameterSet>> bridge;
+    bridge.reserve(static_cast<std::size_t>(std::distance(begin, end)));
+    for(auto it = begin; it != end; ++it) {
+        if(*it) {
+            bridge.push_back((*it)->clone<GParameterSet>());
+        }
+    }
+    this->add(bridge, false, do_replace);
+}
+
+/******************************************************************************/
+/**
+	 * Boundary overload: adds a single unique_ptr-owned individual. See the vector overload above.
+	 */
+void GParameterSetFixedSizePriorityQueue::add(
+    std::unique_ptr<GParameterSet> const &item_ptr,
+    const bool /* do_clone */
+) {
+    if(item_ptr && item_ptr->is_processed()) {
+        this->add(item_ptr->clone<GParameterSet>(), false);
     }
 }
 

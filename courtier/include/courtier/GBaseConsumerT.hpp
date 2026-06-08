@@ -67,7 +67,7 @@ namespace Gem::Courtier {
 template <typename processable_type>
 class GBaseConsumerT {
 public:
-    using item_ptr = std::shared_ptr<processable_type>;
+    using item_ptr = std::unique_ptr<processable_type>;
 
     GBaseConsumerT() = default;
     virtual ~GBaseConsumerT() = default;
@@ -116,7 +116,10 @@ public:
             for(std::size_t i = 0; i < n; ++i) {
                 if(state[i] == slot::pending &&
                    items[i]->getProcessingStatus() == processingStatus::DO_PROCESS) {
-                    to_eval.push_back(items[i]);
+                    // Items are uniquely owned: move each into the working set for this round and
+                    // move the (possibly replaced) result straight back below. The batch slot is
+                    // transiently null only for the duration of the synchronous dispatch_ call.
+                    to_eval.push_back(std::move(items[i]));
                     idx.push_back(i);
                 }
             }
@@ -130,7 +133,7 @@ public:
             // batch. A local consumer mutates each item in place, so the write-back is a no-op.
             this->dispatch_(to_eval);
             for(std::size_t k = 0; k < idx.size(); ++k) {
-                items[idx[k]] = to_eval[k];
+                items[idx[k]] = std::move(to_eval[k]);
             }
 
             for(std::size_t k = 0; k < idx.size(); ++k) {
@@ -216,6 +219,27 @@ protected:
                 << LOGEXIT(EXIT_FAILURE);
     }
 
+    /***************************************************************************/
+    /** @brief Deep-clones one (uniquely owned) work item into a fresh owning item. Uses the polymorphic
+     *  clone functor when set (required for polymorphic item types such as GParameterSet, to avoid
+     *  slicing), otherwise copy-construction (correct for leaf/concrete item types). Used both by the
+     *  refill path and by the networked consumers when handing a session a copy to ship. */
+    item_ptr clone_item_(const item_ptr &src) const {
+        if(clone_fn_) {
+            return clone_fn_(src);
+        }
+        if constexpr(std::is_copy_constructible_v<processable_type>) {
+            return std::make_unique<processable_type>(*src);
+        }
+        else {
+            this->fatal_(
+                "cloning a work item needs a clone function (setCloneFunction) or a "
+                "copy-constructible work item."
+            );
+        }
+        return {};
+    }
+
 public:
     /***************************************************************************/
     /** @brief Sets a polymorphic clone function for clone-on-partial-return. REQUIRED when the work
@@ -233,35 +257,25 @@ private:
      *  polymorphic clone functor when set (required for polymorphic item types to avoid slicing),
      *  otherwise copy-construction (leaf types). */
     item_ptr clone_for_refill_(std::span<item_ptr> items, const item_ptr &clone_template) const {
-        item_ptr src = clone_template;
-        if(not src) {
+        // Items are uniquely owned, so the source is only borrowed (a pointer to the chosen owner),
+        // never copied; we clone from it to produce the fresh owning item.
+        const item_ptr *src = &clone_template;
+        if(not *src) {
             for(auto &it : items) {
                 if(it && it->is_processed()) {
-                    src = it;
+                    src = &it;
                     break;
                 }
             }
         }
-        if(not src) {
+        if(not *src) {
             this->fatal_(
                 "clone-on-partial-return: no clone template was supplied and no successfully "
                 "evaluated item is available to clone from."
             );
             return {};
         }
-        if(clone_fn_) {
-            return clone_fn_(src);
-        }
-        if constexpr(std::is_copy_constructible_v<processable_type>) {
-            return std::make_shared<processable_type>(*src);
-        }
-        else {
-            this->fatal_(
-                "clone-on-partial-return needs a clone function (setCloneFunction) or a "
-                "copy-constructible work item."
-            );
-        }
-        return {};
+        return this->clone_item_(*src);
     }
 
     /***************************************************************************/

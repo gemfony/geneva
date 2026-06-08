@@ -221,23 +221,23 @@ private:
         // liveness-driven put-back, no time lease needed (see usesTimeLease()). A prefetching client may
         // hold several items at once, so the lease tracks the whole in-flight set, not just the latest.
         auto lease = std::make_shared<typename GNetworkedConsumerT<processable_type>::CheckoutLease>();
-        lease->on_abandon = [w = this->weak_from_this()](const std::shared_ptr<processable_type> &p) {
+        lease->on_abandon = [w = this->weak_from_this()](Gem::Courtier::BUFFERPORT_ID_TYPE id) {
             if(auto s = w.lock()) {
-                s->requeue(p);
+                s->requeue(id);
             }
         };
 
         std::make_shared<session_type>(
             io_context_,
             std::move(socket),
-            [self = this->shared_from_this(), lease]() -> std::shared_ptr<processable_type> {
+            [self = this->shared_from_this(), lease]() -> std::unique_ptr<processable_type> {
                 auto p = self->checkout();
-                lease->add(p); // no-op for a null item
+                lease->add(p); // no-op for a null item; records p's correlation id
                 return p;
             },
-            [self = this->shared_from_this(), lease](std::shared_ptr<processable_type> p) {
+            [self = this->shared_from_this(), lease](std::unique_ptr<processable_type> p) {
                 lease->remove(p); // returned normally -> nothing for the lease to reclaim
-                self->checkin(p);
+                self->checkin(std::move(p));
             },
             [self = this->shared_from_this()]() -> bool { return self->stopped(); },
             [self = this->shared_from_this()](bool sign_on) {

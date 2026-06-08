@@ -87,10 +87,10 @@ public:
             master_ = std::make_shared<master_node_type>(comm_size_, config_);
             // Drive the master node from the courtier per-batch queue instead of the broker.
             master_->setPayloadFunctors(
-                [this]() -> std::shared_ptr<processable_type> {
+                [this]() -> std::unique_ptr<processable_type> {
                     return this->checkoutWait(checkout_wait_);
                 },
-                [this](std::shared_ptr<processable_type> p) { this->checkin(p); }
+                [this](std::unique_ptr<processable_type> p) { this->checkin(std::move(p)); }
             );
         }
         else {

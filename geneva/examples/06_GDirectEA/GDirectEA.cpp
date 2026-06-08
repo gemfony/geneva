@@ -343,7 +343,7 @@ int main(int argc, char **argv) {
 
     // Add individuals to the population.
     for(auto ind : parentIndividuals) {
-        pop_ptr->push_back(ind);
+        pop_ptr->push_back(ind->clone_unique());
     }
 
     // Route submission through courtier, depending on the parallelisation mode.

@@ -1305,7 +1305,7 @@ public:
      * @throws geneva_exception when growing and @p item_ptr is null.
      * @note Only available for SharedPtrStorage.
      */
-    void resize_clone(size_type amount, StoredType item_ptr)
+    void resize_clone(size_type amount, const StoredType &item_ptr)
         requires (!std::same_as<StoredType, ValueType>)
     {
         std::size_t data_size = data_cnt_.size();
@@ -1320,9 +1320,15 @@ public:
                     << "Tried to clone an empty smart pointer." << '\n'
                 );
             }
+            // Clone the prototype into an independent local FIRST: item_ptr frequently aliases an element
+            // of this very container (e.g. resize_clone(n, data_cnt_[0])), and the reserve()/push_back()
+            // below may reallocate the container, which would leave that reference dangling. The local
+            // owning copy is immune to the reallocation. (The by-value parameter used to provide this
+            // safety implicitly; a unique_ptr cannot be passed by value, hence the explicit local.)
+            StoredType prototype = clone_into_stored(item_ptr);
             data_cnt_.reserve(amount);
             for(std::size_t i = data_size; i < amount; ++i) {
-                data_cnt_.push_back(clone_into_stored(item_ptr));
+                data_cnt_.push_back(clone_into_stored(prototype));
             }
         }
     }

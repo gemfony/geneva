@@ -58,7 +58,7 @@ namespace ccons = Gem::Courtier::Consumers;
 
 namespace {
 
-using item_ptr = std::shared_ptr<GFaultyContainer>;
+using item_ptr = std::unique_ptr<GFaultyContainer>;
 constexpr auto BIN = Gem::Common::serializationMode::BINARY;
 
 std::vector<item_ptr> make_batch(
@@ -70,7 +70,7 @@ std::vector<item_ptr> make_batch(
     v.reserve(n);
     for(std::size_t i = 0; i < n; ++i) {
         const bool f = std::find(faulty.begin(), faulty.end(), i) != faulty.end();
-        v.push_back(std::make_shared<GFaultyContainer>(i, f ? fm : fault_mode::NONE));
+        v.push_back(std::make_unique<GFaultyContainer>(i, f ? fm : fault_mode::NONE));
     }
     return v;
 }

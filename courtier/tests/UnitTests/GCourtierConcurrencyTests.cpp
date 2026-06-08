@@ -66,7 +66,7 @@ using namespace std::chrono_literals;
 
 namespace {
 
-using item_ptr = std::shared_ptr<GFaultyContainer>;
+using item_ptr = std::unique_ptr<GFaultyContainer>;
 
 // A unique, decodable stored number per (batch, slot), so we can verify each result came home to its
 // own batch's slot and was not mis-routed to another concurrent batch.
@@ -79,7 +79,7 @@ std::vector<item_ptr> make_tagged_batch(std::size_t batch, std::size_t n,
     v.reserve(n);
     for(std::size_t i = 0; i < n; ++i) {
         const bool f = std::find(faulty.begin(), faulty.end(), i) != faulty.end();
-        v.push_back(std::make_shared<GFaultyContainer>(
+        v.push_back(std::make_unique<GFaultyContainer>(
             tag(batch, i), f ? fault_mode::THROW_PROCESSING : fault_mode::NONE));
     }
     return v;
@@ -142,7 +142,7 @@ TEST_CASE("courtier(fanin): concurrent submitters to one networked consumer, res
                     // process() sets the item's status (here always PROCESSED) before any re-throw;
                     // a real client swallows the re-throw and ships the item back. Mirror that.
                 }
-                consumer.checkin(p);
+                consumer.checkin(std::move(p));
             }
         });
     }
@@ -211,7 +211,7 @@ TEST_CASE("courtier(fanin): concurrent submitters with failures stay size-preser
                     // Swallow the re-throw (as a real client does); the EXCEPTION_CAUGHT status
                     // is already on the item, so checkin reports it as FAILED for the policy loop.
                 }
-                consumer.checkin(p);
+                consumer.checkin(std::move(p));
             }
         });
     }

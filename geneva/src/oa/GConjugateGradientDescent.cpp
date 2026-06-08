@@ -392,13 +392,13 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         }
 #endif /* DEBUG */
 
-        const double parent_fitness = minOnly_transformed_fitness(this->at(i));
+        const double parent_fitness = minOnly_transformed_fitness(*this->at(i));
 
         // 1) Assemble the forward-difference gradient proxy g_j
         std::vector<double> gradient(n_fp_parms_first_, 0.);
         for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
             std::size_t child_pos = n_starting_points_ + i * n_fp_parms_first_ + j;
-            gradient[j] = minOnly_transformed_fitness(this->at(child_pos)) - parent_fitness;
+            gradient[j] = minOnly_transformed_fitness(*this->at(child_pos)) - parent_fitness;
         }
 
         // 2) Compute the Polak-Ribière+ beta and the conjugate direction
@@ -721,7 +721,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
     // Create the requested number of (randomized) starting points
     if(n_start < n_starting_points_) {
         for(std::size_t i = 0; i < (n_starting_points_ - n_start); i++) {
-            this->push_back(this->at(0)->clone<gpar::GParameterSet>());
+            this->push_back(this->at(0)->clone_unique());
             this->back()->randomInit(activityMode::ACTIVEONLY);
         }
     }
@@ -732,7 +732,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
     // Add the difference-quotient children for every starting point
     for(std::size_t i = 0; i < n_starting_points_; i++) {
         for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
-            this->push_back(this->at(i)->clone<gpar::GParameterSet>());
+            this->push_back(this->at(i)->clone_unique());
         }
     }
 

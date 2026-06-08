@@ -441,6 +441,21 @@ public:
 
     /***************************************************************************/
     /**
+     * Loads the data of another g_class_type(-derivative), wrapped in a unique pointer. Symmetric with
+     * the shared_ptr overload above; lets owning unique_ptr containers load element-from-element without
+     * an explicit dereference. Note that this function is only accessible to the compiler if load_type
+     * is a derivative of g_class_type.
+     *
+     * @param cp A copy of another g_class_type-derivative, wrapped into a std::unique_ptr<>
+     */
+    template <typename load_type>
+        requires std::derived_from<load_type, g_class_type>
+    void load(const std::unique_ptr<load_type> &cp) {
+        load_(cp.get());
+    }
+
+    /***************************************************************************/
+    /**
      * Loads the data of another g_class_type(-derivative), presented as a constant reference. Note that this
      * function is only accessible to the compiler if load_type is a derivative of g_class_type.
      *

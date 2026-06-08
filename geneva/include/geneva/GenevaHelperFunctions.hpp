@@ -50,7 +50,7 @@ namespace Gem::Geneva {
 /******************************************************************************/
 /** @brief Transforms the individual fitness so that the optimization algorithm always "sees" a minimization problem */
 double
-minOnly_transformed_fitness(const std::shared_ptr<gpar::GParameterSet> &, std::size_t = 0);
+minOnly_transformed_fitness(const gpar::GParameterSet &, std::size_t = 0);
 
 /******************************************************************************/
 /** @brief Checks whether the first individual is better than the second */

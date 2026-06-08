@@ -205,8 +205,8 @@ private:
     void sortMuCommaNuParetoMode();
     /** @brief Determines whether the first individual dominates the second */
     bool aDominatesB(
-        const std::shared_ptr<gpar::GParameterSet> &a,
-        const std::shared_ptr<gpar::GParameterSet> &b
+        const std::unique_ptr<gpar::GParameterSet> &a,
+        const std::unique_ptr<gpar::GParameterSet> &b
     ) const;
 
     /** @brief Fills the collection with individuals */

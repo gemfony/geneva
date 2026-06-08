@@ -281,7 +281,7 @@ int main(int argc, char **argv) {
 
     // Add individuals to the population.
     for(const auto &i : parentIndividuals) {
-        pop_ptr->push_back(i);
+        pop_ptr->push_back(i->clone_unique());
     }
 
     // Submit through the courtier MPI master broker built above.

@@ -58,7 +58,7 @@ using Gem::Courtier::GFaultyContainer;
 
 namespace {
 
-using item_ptr = std::shared_ptr<GFaultyContainer>;
+using item_ptr = std::unique_ptr<GFaultyContainer>;
 
 /** @brief Wires a broker + a local consumer of type @p ConsumerT + executor for a test. */
 template <typename ConsumerT>
@@ -86,7 +86,7 @@ std::vector<item_ptr> make_batch(
     for(std::size_t i = 0; i < n; ++i) {
         const bool faulty =
             std::find(faulty_indices.begin(), faulty_indices.end(), i) != faulty_indices.end();
-        v.push_back(std::make_shared<GFaultyContainer>(i, faulty ? fm : fault_mode::NONE));
+        v.push_back(std::make_unique<GFaultyContainer>(i, faulty ? fm : fault_mode::NONE));
     }
     return v;
 }

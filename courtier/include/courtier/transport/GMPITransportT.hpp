@@ -610,8 +610,8 @@ public:
     GMPIConsumerSessionT(
         MPI_Status status,
         std::string requestMessage,
-        std::function<std::shared_ptr<processable_type>()> getPayloadItem,
-        std::function<void(std::shared_ptr<processable_type>)> putPayloadItem,
+        std::function<std::unique_ptr<processable_type>()> getPayloadItem,
+        std::function<void(std::unique_ptr<processable_type>)> putPayloadItem,
         Gem::Common::serializationMode serializationMode,
         bool stopRequested
     )
@@ -736,11 +736,11 @@ private:
 
     void putWorkItem() {
         // Retrieve the payload from the command container
-        auto payloadPtr = commandContainer_.get_payload();
+        auto payloadPtr = commandContainer_.release_payload();
 
         // Submit the payload to the server (which will send it to the broker)
         if(payloadPtr) {
-            putPayloadItem_(payloadPtr);
+            putPayloadItem_(std::move(payloadPtr));
             return;
         }
 
@@ -760,7 +760,7 @@ private:
         auto payloadPtr = this->getPayloadItem_();
 
         if(payloadPtr) {
-            commandContainer_.reset(networked_consumer_payload_command::COMPUTE, payloadPtr);
+            commandContainer_.reset(networked_consumer_payload_command::COMPUTE, std::move(payloadPtr));
         }
         else {
             commandContainer_.reset(networked_consumer_payload_command::NODATA);
@@ -844,11 +844,11 @@ private:
     /**
          * function to retrieve a work item from the broker
          */
-    std::function<std::shared_ptr<processable_type>()> getPayloadItem_;
+    std::function<std::unique_ptr<processable_type>()> getPayloadItem_;
     /**
          * function to deliver a processed work item to the broker
          */
-    std::function<void(std::shared_ptr<processable_type>)> putPayloadItem_;
+    std::function<void(std::unique_ptr<processable_type>)> putPayloadItem_;
     /**
          * Command and payload received/processed (depends on current state of session)
          */
@@ -1055,8 +1055,8 @@ private:
         auto session = std::make_shared<GMPIConsumerSessionT<processable_type>>(
             status,
             std::string{buffer.get(), static_cast<size_t>(mpiGetCount(status))},
-            [this]() -> std::shared_ptr<processable_type> { return getPayloadItem(); },
-            [this](std::shared_ptr<processable_type> p) { putPayloadItem(p); },
+            [this]() -> std::unique_ptr<processable_type> { return getPayloadItem(); },
+            [this](std::unique_ptr<processable_type> p) { putPayloadItem(std::move(p)); },
             config_.serializationMode,
             stopRequested
         );
@@ -1154,7 +1154,7 @@ private:
          *
          * @return A work item (possibly empty)
          */
-    std::shared_ptr<processable_type> getPayloadItem() {
+    std::unique_ptr<processable_type> getPayloadItem() {
         // If an external source has been injected (e.g. the courtier reconcile-the-span path),
         // use it instead of the broker. Default (no functor set) is the original broker behaviour.
         // The courtier consumer always injects a source via setPayloadFunctors(); the former broker
@@ -1169,7 +1169,7 @@ private:
     /**
          * Submits a work item to the server, observing a timeout
          */
-    void putPayloadItem(std::shared_ptr<processable_type> p) {
+    void putPayloadItem(std::unique_ptr<processable_type> p) {
         if(not p) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -1181,7 +1181,7 @@ private:
         // The courtier consumer always injects a sink via setPayloadFunctors(); the former broker
         // fallback was removed together with the legacy broker.
         if(putPayloadItemFn_) {
-            putPayloadItemFn_(p);
+            putPayloadItemFn_(std::move(p));
         }
     }
 
@@ -1194,8 +1194,8 @@ public:
          * as before (broker-backed), so this is behaviour-neutral for existing callers.
          */
     void setPayloadFunctors(
-        std::function<std::shared_ptr<processable_type>()> getPayloadItemFn,
-        std::function<void(std::shared_ptr<processable_type>)> putPayloadItemFn
+        std::function<std::unique_ptr<processable_type>()> getPayloadItemFn,
+        std::function<void(std::unique_ptr<processable_type>)> putPayloadItemFn
     ) {
         getPayloadItemFn_ = std::move(getPayloadItemFn);
         putPayloadItemFn_ = std::move(putPayloadItemFn);
@@ -1230,8 +1230,8 @@ private:
     std::atomic_bool isToldToStop_;
     // whether the stop request has been sent to all clients
     /// External source/sink injected by the courtier consumer via setPayloadFunctors().
-    std::function<std::shared_ptr<processable_type>()> getPayloadItemFn_;
-    std::function<void(std::shared_ptr<processable_type>)> putPayloadItemFn_;
+    std::function<std::unique_ptr<processable_type>()> getPayloadItemFn_;
+    std::function<void(std::unique_ptr<processable_type>)> putPayloadItemFn_;
 };
 
 

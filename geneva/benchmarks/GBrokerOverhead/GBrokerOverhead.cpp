@@ -411,7 +411,7 @@ int main(int argc, char **argv) {
 
     // Add individuals to the population
     for(std::size_t p = 0; p < nParents; p++) {
-        pop_ptr->push_back(parentIndividuals[p]);
+        pop_ptr->push_back(parentIndividuals[p]->clone_unique());
     }
 
     // Specify some general population settings

@@ -405,7 +405,7 @@ void GGradientDescent::updateParentIndividuals() {
 #endif /* DEBUG */
 
         // Retrieve the fitness of the individual again
-        double parent_fitness = minOnly_transformed_fitness(this->at(i));
+        double parent_fitness = minOnly_transformed_fitness(*this->at(i));
 
         // Calculate the adaption of each parameter
         // double gradient = 0.;
@@ -418,7 +418,7 @@ void GGradientDescent::updateParentIndividuals() {
             try {
                 parm_vec[j] -= Gem::Common::narrow<double>(
                     step_ratio_ * (Gem::Common::narrow<long double>(
-                                     minOnly_transformed_fitness(this->at(child_pos)) -
+                                     minOnly_transformed_fitness(*this->at(child_pos)) -
                                      Gem::Common::narrow<long double>(parent_fitness)
                                  ))
                 );
@@ -722,7 +722,7 @@ void GGradientDescent::adjustPopulation_() {
     if(n_start < n_starting_points_) {
         for(std::size_t i = 0; i < (n_starting_points_ - n_start); i++) {
             // Create a copy of the first individual
-            this->push_back(this->at(0)->clone<gpar::GParameterSet>());
+            this->push_back(this->at(0)->clone_unique());
             // Make sure our start values differ
             this->back()->randomInit(activityMode::ACTIVEONLY);
         }
@@ -736,7 +736,7 @@ void GGradientDescent::adjustPopulation_() {
     // used for the calculation of the difference quotient for each parameter
     for(std::size_t i = 0; i < n_starting_points_; i++) {
         for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
-            this->push_back(this->at(i)->clone<gpar::GParameterSet>());
+            this->push_back(this->at(i)->clone_unique());
         }
     }
 

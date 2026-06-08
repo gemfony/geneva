@@ -207,7 +207,7 @@ private:
  */
 class GOptimizationAlgorithmBase // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>
-  , public Gem::Common::GPtrContainerT<gpar::GParameterSet>
+  , public Gem::Common::GUniquePtrContainerT<gpar::GParameterSet>
   , public Interface::GOptimizerIT<GOptimizationAlgorithmBase> {
 private:
     ///////////////////////////////////////////////////////////////////////
@@ -312,7 +312,7 @@ private:
         // a base-object rather than a local member, is serialized here.
         ar &make_nvp(
                 "GStdPtrVectorInterfaceT_T",
-                boost::serialization::base_object<Gem::Common::GPtrContainerT<gpar::GParameterSet>>(*this)
+                boost::serialization::base_object<Gem::Common::GUniquePtrContainerT<gpar::GParameterSet>>(*this)
             );
 
         // All members are derived from the single localMembers() declaration: plain
@@ -517,8 +517,12 @@ public:
         }
 #endif /* DEBUG */
 
-        // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<gpar::GParameterSet, target_type>(this->at(pos));
+        // The population owns each individual by unique_ptr. Callers (pluggable monitors) only read the
+        // individual transiently, so hand back a NON-OWNING shared_ptr view (no-op deleter) of the live
+        // element rather than co-owning or cloning it -- the element outlives the call (the population
+        // owns it). Does error checks on the conversion internally.
+        std::shared_ptr<gpar::GParameterSet> view(this->at(pos).get(), [](gpar::GParameterSet *) {});
+        return Gem::Common::convertSmartPointer<gpar::GParameterSet, target_type>(view);
     }
 
     /***************************************************************************/
@@ -600,12 +604,12 @@ protected:
      *  courtier. The algorithm passes the range it wants evaluated explicitly (no per-item DO_PROCESS
      *  flagging needed); the consumer marks and reconciles exactly that span in place. */
     Gem::Courtier::executor_status_t workOn(
-        std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items,
+        std::vector<std::unique_ptr<gpar::GParameterSet>> &work_items,
         std::size_t start,
         std::size_t end
     );
     /** @brief Retrieves a vector of old work items after job submission */
-    std::vector<std::shared_ptr<gpar::GParameterSet>> getOldWorkItems();
+    std::vector<std::unique_ptr<gpar::GParameterSet>> getOldWorkItems();
 
     /** @brief Saves the state of the class to disc */
     void saveCheckpoint(std::filesystem::path const &output_file) const;
@@ -823,7 +827,7 @@ private:
     std::shared_ptr<Gem::Courtier::GExecutorT<gpar::GParameterSet>> executor_;
     /** @brief Submits the contiguous sub-range [start, end) of @p work_items through courtier. */
     Gem::Courtier::executor_status_t workOnViaConsumer_(
-        std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items,
+        std::vector<std::unique_ptr<gpar::GParameterSet>> &work_items,
         std::size_t start,
         std::size_t end
     );

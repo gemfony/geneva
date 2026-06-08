@@ -241,10 +241,10 @@ protected:
     void performScheduledPopulationGrowth();
 
     /** @brief This function implements the RANDOMDUPLICATIONSCHEME scheme */
-    void randomRecombine(std::shared_ptr<gpar::GParameterSet> &child);
+    void randomRecombine(std::unique_ptr<gpar::GParameterSet> &child);
     /** @brief  This function implements the VALUEDUPLICATIONSCHEME scheme */
     void
-    valueRecombine(std::shared_ptr<gpar::GParameterSet> &p, const std::vector<double> &threshold);
+    valueRecombine(std::unique_ptr<gpar::GParameterSet> &p, const std::vector<double> &threshold);
 
     /***************************************************************************/
 

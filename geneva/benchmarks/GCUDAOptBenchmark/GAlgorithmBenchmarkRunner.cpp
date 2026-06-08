@@ -166,7 +166,7 @@ GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(
     // an unrecognised name is a fatal config error, not a silent fallback.
     auto ind = indFactory->get_as<gind::GFunctionIndividual>();
     ind->setDemoFunction(parseBenchmarkFunction(cfg_.functionName));
-    alg->push_back(ind);
+    alg->push_back(ind->clone_unique());
 
     // Time the optimization
     const auto t0 = std::chrono::steady_clock::now();

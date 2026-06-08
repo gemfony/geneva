@@ -252,8 +252,9 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gpar::GParameterSet &p
             ? oa::local_consumer_kind::serial
             : oa::local_consumer_kind::multithreaded);
 
-    // Add our individual to the algorithm
-    ea_ptr->push_back(p_unopt_ptr);
+    // Add our individual to the algorithm (the population owns its individuals by unique_ptr; this
+    // shared_ptr is bridged across the boundary with a clone -- the optimized result is read back below).
+    ea_ptr->push_back(p_unopt_ptr->clone_unique());
 
     // Perform the actual (sub-)optimization
     ea_ptr->optimize();

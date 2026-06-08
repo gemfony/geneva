@@ -680,8 +680,8 @@ public:
     GAsioConsumerSessionT(
         boost::asio::io_context &io_context,
         boost::asio::ip::tcp::socket socket,
-        std::function<std::shared_ptr<processable_type>()> get_payload_item,
-        std::function<void(std::shared_ptr<processable_type>)> put_payload_item,
+        std::function<std::unique_ptr<processable_type>()> get_payload_item,
+        std::function<void(std::unique_ptr<processable_type>)> put_payload_item,
         std::function<bool()> check_server_stopped,
         Gem::Common::serializationMode serialization_mode,
         std::function<void(bool)> sign_on
@@ -916,11 +916,11 @@ private:
 
             case RESULT: {
                 // Retrieve the payload from the command container
-                auto payload_ptr = command_container_.get_payload();
+                auto payload_ptr = command_container_.release_payload();
 
                 // Submit the payload to the server (which will send it to the broker)
                 if(payload_ptr) {
-                    this->put_payload_item_(payload_ptr);
+                    this->put_payload_item_(std::move(payload_ptr));
                 }
                 else {
                     glogger << "GAsioConsumerSessionT<processable_type>::process_request():"
@@ -966,7 +966,7 @@ private:
         auto payload_ptr = this->get_payload_item_();
 
         if(payload_ptr) { // Did we get a valid item ?
-            command_container_.reset(networked_consumer_payload_command::COMPUTE, payload_ptr);
+            command_container_.reset(networked_consumer_payload_command::COMPUTE, std::move(payload_ptr));
         }
         else {
             // Let the remote side know whe don't have work
@@ -994,8 +994,8 @@ private:
     boost::asio::steady_timer deadline_timer_;
     const std::chrono::seconds session_timeout_{300};
 
-    std::function<std::shared_ptr<processable_type>()> get_payload_item_;
-    std::function<void(std::shared_ptr<processable_type>)> put_payload_item_;
+    std::function<std::unique_ptr<processable_type>()> get_payload_item_;
+    std::function<void(std::unique_ptr<processable_type>)> put_payload_item_;
     std::function<bool()> check_server_stopped_;
     std::function<void(bool)> f_sign_on_; ///< Signs the session on (true) / off (false) with the consumer
 

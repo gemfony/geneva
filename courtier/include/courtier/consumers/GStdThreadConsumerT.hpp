@@ -88,9 +88,12 @@ protected:
         std::mutex m;
         std::condition_variable cv;
         for(auto &it : items) {
-            pool_.post([it, remaining, &m, &cv]() {
+            // Items travel by unique_ptr; the task borrows a raw pointer rather than copying the owner.
+            // The batch (items) outlives every task because dispatch_ blocks until cv fires below.
+            processable_type *raw = it.get();
+            pool_.post([raw, remaining, &m, &cv]() {
                 try {
-                    it->process();
+                    raw->process();
                 }
                 catch(...) {
                     // The item's status already reflects the failure (EXCEPTION_CAUGHT); the

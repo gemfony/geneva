@@ -50,6 +50,7 @@
 #include <boost/beast/websocket.hpp>
 #include <boost/beast/websocket/rfc6455.hpp>
 #include <boost/serialization/nvp.hpp>
+#include <boost/serialization/unique_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 
 // Geneva headers go here
@@ -108,9 +109,9 @@ public:
 	  * @param command The command to be executed
 	  * @param payload_ptr The payload transported by this object
 	  */
-    GCommandContainerT(command_type command, std::shared_ptr<processable_type> payload_ptr)
+    GCommandContainerT(command_type command, std::unique_ptr<processable_type> payload_ptr)
       : command_(command)
-      , payload_ptr_(payload_ptr) { /* nothing */
+      , payload_ptr_(std::move(payload_ptr)) { /* nothing */
     }
 
     //-------------------------------------------------------------------------
@@ -136,10 +137,10 @@ public:
 	  */
     const GCommandContainerT &reset(
         command_type command = command_type(0),
-        std::shared_ptr<processable_type> payload_ptr = std::shared_ptr<processable_type>()
+        std::unique_ptr<processable_type> payload_ptr = std::unique_ptr<processable_type>()
     ) {
         command_ = command;
-        payload_ptr_ = payload_ptr;
+        payload_ptr_ = std::move(payload_ptr);
         return *this;
     }
 
@@ -163,10 +164,20 @@ public:
 
     //-------------------------------------------------------------------------
     /**
-	  * Retrieves the payload
+	  * Retrieves the payload by const reference (a non-destructive borrow). Use release_payload() to
+	  * take ownership of it.
 	  */
-    std::shared_ptr<processable_type> get_payload() const {
+    const std::unique_ptr<processable_type> &get_payload() const {
         return payload_ptr_;
+    }
+
+    //-------------------------------------------------------------------------
+    /**
+	  * Extracts (moves out) the payload, transferring sole ownership to the caller. The container's
+	  * payload is empty afterwards. Used by the transports to hand a received result on to the OA.
+	  */
+    std::unique_ptr<processable_type> release_payload() {
+        return std::move(payload_ptr_);
     }
 
     //-------------------------------------------------------------------------
@@ -193,7 +204,7 @@ private:
     // Data
 
     command_type command_{command_type(0)};         ///< The command to be exeecuted
-    std::shared_ptr<processable_type> payload_ptr_; ///< The actual payload, if any
+    std::unique_ptr<processable_type> payload_ptr_; ///< The actual payload, if any (sole ownership)
 
     //-------------------------------------------------------------------------
 };

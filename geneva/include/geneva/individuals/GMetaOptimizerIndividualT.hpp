@@ -1020,7 +1020,7 @@ protected:
                 // Retrieve an individual
                 std::shared_ptr<gpar::GParameterSet> gi_ptr = ind_factory_->get();
 
-                ea_ptr->push_back(gi_ptr);
+                ea_ptr->push_back(gi_ptr->clone_unique());
             }
 
             // Set the likelihood for work items to be produced through cross-over rather than mutation alone

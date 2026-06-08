@@ -206,7 +206,7 @@ void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_() {
  */
 GOptimizationAlgorithmBase::GOptimizationAlgorithmBase(const GOptimizationAlgorithmBase &cp)
   : Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>(cp)
-  , Gem::Common::GPtrContainerT<gpar::GParameterSet>(cp)
+  , Gem::Common::GUniquePtrContainerT<gpar::GParameterSet>(cp)
   , iteration_(cp.iteration_)
   , offset_(DEFAULTOFFSET)
   , min_iteration_(cp.min_iteration_)
@@ -1451,7 +1451,7 @@ void GOptimizationAlgorithmBase::load_(const GOptimizationAlgorithmBase *cp) {
 
     // This is the category root; there is no GObject parent class to load.
     // Load the stateful base classes' data
-    Gem::Common::GPtrContainerT<gpar::GParameterSet>::operator=(*p_load);
+    Gem::Common::GUniquePtrContainerT<gpar::GParameterSet>::operator=(*p_load);
 
     // All local data, derived from the single localMembers() declaration: plain members
     // are assigned, the cloneable container pluggable_monitors_cnt_ is deep-cloned, and
@@ -1476,7 +1476,7 @@ void GOptimizationAlgorithmBase::load_(const GOptimizationAlgorithmBase *cp) {
 	 * @return A struct which indicates whether all items have returned ("is_complete") and whether there were errors ("has_errors")
 	 */
 Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOn(
-    std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items,
+    std::vector<std::unique_ptr<gpar::GParameterSet>> &work_items,
     std::size_t start,
     std::size_t end
 ) {
@@ -1496,7 +1496,7 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOn(
  * or-fatal for the need-all OAs.
  */
 Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
-    std::vector<std::shared_ptr<gpar::GParameterSet>> &work_items,
+    std::vector<std::unique_ptr<gpar::GParameterSet>> &work_items,
     std::size_t start,
     std::size_t end
 ) {
@@ -1516,8 +1516,8 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
                 );
             }
             // Polymorphic clone (GParameterSet holds a concrete individual; copy-construction slices).
-            consumer->setCloneFunction([](const std::shared_ptr<gpar::GParameterSet> &p) {
-                return p->clone<gpar::GParameterSet>();
+            consumer->setCloneFunction([](const std::unique_ptr<gpar::GParameterSet> &p) {
+                return p->clone_unique();
             });
             broker_->registerConsumer(consumer);
         }
@@ -1533,7 +1533,7 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
 
     // Submit a span over exactly [start, end); it aliases the population sub-range, so results + any
     // cloned refills are written straight into work_items[start..end).
-    std::span<std::shared_ptr<gpar::GParameterSet>> sp(work_items.data() + start, count);
+    std::span<std::unique_ptr<gpar::GParameterSet>> sp(work_items.data() + start, count);
     executor_->workOn(sp, this->getSubmissionPolicy_());
 
     // The consumer guarantees a full, valid set on return (or terminates fatally per the policy), so
@@ -1552,7 +1552,7 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
 /**
  * Retrieves a vector of old work items after job submission
  */
-std::vector<std::shared_ptr<gpar::GParameterSet>> GOptimizationAlgorithmBase::getOldWorkItems() {
+std::vector<std::unique_ptr<gpar::GParameterSet>> GOptimizationAlgorithmBase::getOldWorkItems() {
     // courtier reconciles every slot in place, so there are never any "old" (late-returned) items to
     // retrieve. (Capturing late returns for their quality is a planned future improvement.)
     return {};
@@ -2187,7 +2187,7 @@ bool GOptimizationAlgorithmBase::modify_GUnitTests_() {
 
     // This is the category root; there is no modifiable GObject parent class.
     // Call the stateful base class'es function
-    if(Gem::Common::GPtrContainerT<gpar::GParameterSet>::modify_GUnitTests_()) {
+    if(Gem::Common::GUniquePtrContainerT<gpar::GParameterSet>::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -2218,7 +2218,7 @@ void GOptimizationAlgorithmBase::specificTestsNoFailureExpected_GUnitTests_() {
 
     // This is the category root; there is no GObject parent class to delegate to.
     // Call the stateful base class'es function
-    Gem::Common::GPtrContainerT<gpar::GParameterSet>::specificTestsNoFailureExpected_GUnitTests_();
+    Gem::Common::GUniquePtrContainerT<gpar::GParameterSet>::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
@@ -2237,7 +2237,7 @@ void GOptimizationAlgorithmBase::specificTestsFailuresExpected_GUnitTests_() {
 
     // This is the category root; there is no GObject parent class to delegate to.
     // Call the stateful base class'es function
-    Gem::Common::GPtrContainerT<gpar::GParameterSet>::specificTestsFailuresExpected_GUnitTests_();
+    Gem::Common::GUniquePtrContainerT<gpar::GParameterSet>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(

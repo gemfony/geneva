@@ -472,7 +472,7 @@ std::size_t GSwarmAlgorithm::getLastNIPos(const std::size_t &neighborhood) const
  *
  * @param ind_ptr A pointer to the GParameterSet object to be updated
  */
-void GSwarmAlgorithm::updatePersonalBest(std::shared_ptr<gpar::GParameterSet> ind_ptr) {
+void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gpar::GParameterSet> &ind_ptr) {
 #ifdef DEBUG
     if(not ind_ptr) {
         throw geneva_exception(
@@ -494,8 +494,10 @@ void GSwarmAlgorithm::updatePersonalBest(std::shared_ptr<gpar::GParameterSet> in
 #endif /* DEBUG */
 
     // TODO: Is this correct ? Updates the personal best of itself ?!??
+    // The archive (personal_best_) keeps its own shared_ptr copy; the population owns the live
+    // individual by unique_ptr, so we hand registerPersonalBest a clone across the ownership boundary.
     ind_ptr->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->registerPersonalBest(
-        ind_ptr
+        ind_ptr->clone<gpar::GParameterSet>()
     );
 }
 
@@ -505,7 +507,7 @@ void GSwarmAlgorithm::updatePersonalBest(std::shared_ptr<gpar::GParameterSet> in
  *
  * @param ind_ptr A pointer to the GParameterSet object to be updated
  */
-void GSwarmAlgorithm::updatePersonalBestIfBetter(std::shared_ptr<gpar::GParameterSet> ind_ptr) {
+void GSwarmAlgorithm::updatePersonalBestIfBetter(const std::unique_ptr<gpar::GParameterSet> &ind_ptr) {
 #ifdef DEBUG
     if(not ind_ptr) {
         throw geneva_exception(
@@ -536,7 +538,7 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(std::shared_ptr<gpar::GParamete
            m
        )) {
         ind_ptr->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->registerPersonalBest(
-            ind_ptr
+            ind_ptr->clone<gpar::GParameterSet>()
         );
     }
 }
@@ -878,7 +880,8 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
                 for(std::size_t i = 0; i < n_missing; i++) {
                     data_cnt_.insert(
                         data_cnt_.begin() + first_ni_pos,
-                        *(last_iteration_individuals_cnt_.begin() + first_ni_pos + i)
+                        (*(last_iteration_individuals_cnt_.begin() + first_ni_pos + i))
+                            ->clone_unique()
                     );
                 }
             }
@@ -899,7 +902,7 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
                     // Insert a clone of the first individual of the collection
                     data_cnt_.insert(
                         data_cnt_.begin() + first_ni_pos,
-                        (this->front())->clone<gpar::GParameterSet>()
+                        (this->front())->clone_unique()
                     );
 
                     // Randomly initialize the item and prevent position updates
@@ -1089,7 +1092,7 @@ void GSwarmAlgorithm::updatePositions() {
 void GSwarmAlgorithm::updateIndividualPositions(
     [[maybe_unused]] const std::size_t & neighborhood
     ,
-    std::shared_ptr<gpar::GParameterSet> ind,
+    const std::unique_ptr<gpar::GParameterSet> &ind,
     std::shared_ptr<gpar::GParameterSet> neighborhood_best,
     std::shared_ptr<gpar::GParameterSet> global_best,
     std::shared_ptr<gpar::GParameterSet> velocity,
@@ -1332,9 +1335,9 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
 
     // Update the iteration of older individuals (they will keep their old neighborhood id)
     // and attach them to the data vector
-    for(const auto &item_ptr : old_work_items) {
+    for(auto &item_ptr : old_work_items) {
         item_ptr->setAssignedIteration(this->getIteration());
-        this->push_back(item_ptr);
+        this->push_back(std::move(item_ptr));
     }
     old_work_items.clear();
 
@@ -1342,7 +1345,7 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     // Take care of unprocessed items, if these exist
     if(not status.is_complete) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](std::shared_ptr<gpar::GParameterSet> p) -> bool {
+            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GParameterSet> &p) -> bool {
                 return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
@@ -1357,7 +1360,7 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     // Remove items for which an error has occurred during processing
     if(status.has_errors) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](std::shared_ptr<gpar::GParameterSet> p) -> bool {
+            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GParameterSet> &p) -> bool {
                 return p->has_errors();
             });
 
@@ -1374,9 +1377,9 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     sort(
         data_cnt_.begin(),
         data_cnt_.end(),
-        [](std::shared_ptr<gpar::GParameterSet> x, std::shared_ptr<gpar::GParameterSet> y) -> bool {
-            return x->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getNeighborhood() <
-                   y->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getNeighborhood();
+        [](const auto &x, const auto &y) -> bool {
+            return x->template getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getNeighborhood() <
+                   y->template getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getNeighborhood();
         }
     );
 
@@ -1452,8 +1455,8 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
         std::sort(
             this->begin() + first_counter,
             this->begin() + last_counter,
-            [](std::shared_ptr<gpar::GParameterSet> x_ptr, std::shared_ptr<gpar::GParameterSet> y_ptr) -> bool {
-                return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
+            [](const auto &x_ptr, const auto &y_ptr) -> bool {
+                return minOnly_transformed_fitness(*x_ptr) < minOnly_transformed_fitness(*y_ptr);
             }
         );
 
@@ -1537,7 +1540,7 @@ void GSwarmAlgorithm::adjustPopulation_() {
     if(current_size == 1) {
         // Fill up with random items to the number of neighborhoods
         for(std::size_t i = 1; i < n_neighborhoods_; i++) {
-            this->push_back(this->front()->clone<gpar::GParameterSet>());
+            this->push_back(this->front()->clone_unique());
             this->back()->randomInit(activityMode::ACTIVEONLY);
         }
 
@@ -1560,7 +1563,7 @@ void GSwarmAlgorithm::adjustPopulation_() {
         if(current_size < n_neighborhoods_) {
             // First fill up the neighborhoods, if required
             for(std::size_t m = 0; m < (n_neighborhoods_ - current_size); m++) {
-                this->push_back(this->front()->clone<gpar::GParameterSet>());
+                this->push_back(this->front()->clone_unique());
                 this->back()->randomInit(activityMode::ACTIVEONLY);
             }
 
@@ -1649,7 +1652,7 @@ void GSwarmAlgorithm::fillUpNeighborhood1() {
         for(std::size_t m = 1; m < default_n_neighborhood_members_;
             m++) { // m stands for "missing"
             // Add a clone of the first individual in the neighborhood to the next position
-            this->insert(this->begin() + n, (*(this->begin() + n))->clone<gpar::GParameterSet>());
+            this->insert(this->begin() + n, (*(this->begin() + n))->clone_unique());
             // Make sure it has a unique value, if requested
             if(random_fill_up_) {
 #ifdef DEBUG

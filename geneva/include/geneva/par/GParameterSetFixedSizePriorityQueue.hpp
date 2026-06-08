@@ -115,6 +115,21 @@ public:
     /** @brief Adds a single item to the queue */
     void add(std::shared_ptr<GParameterSet> const &item, const bool do_clone) override;
 
+    /***************************************************************************/
+    // Boundary overloads for the unique_ptr population. The OA population now owns its individuals
+    // by unique_ptr; this archive keeps its own (shared_ptr) clones, so these adapters clone each
+    // individual across the ownership boundary and delegate to the shared_ptr implementations above.
+    /** @brief Adds a unique_ptr population sub-range to the queue (cloning across the boundary) */
+    void
+    add(std::vector<std::unique_ptr<GParameterSet>>::const_iterator begin,
+        std::vector<std::unique_ptr<GParameterSet>>::const_iterator end,
+        bool do_clone,
+        bool replace);
+    /** @brief Adds the individuals of a unique_ptr population to the queue (cloning across the boundary) */
+    void add(std::vector<std::unique_ptr<GParameterSet>> const &items_cnt, bool do_clone, bool replace);
+    /** @brief Adds a single unique_ptr-owned individual to the queue (cloning across the boundary) */
+    void add(std::unique_ptr<GParameterSet> const &item, bool do_clone);
+
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another population */

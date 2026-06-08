@@ -225,11 +225,11 @@ private:
         std::make_shared<session_type>(
             io_context_,
             std::move(socket),
-            [self = this->shared_from_this()]() -> std::shared_ptr<processable_type> {
+            [self = this->shared_from_this()]() -> std::unique_ptr<processable_type> {
                 return self->checkout();
             },
-            [self = this->shared_from_this()](std::shared_ptr<processable_type> p) {
-                self->checkin(p);
+            [self = this->shared_from_this()](std::unique_ptr<processable_type> p) {
+                self->checkin(std::move(p));
             },
             [self = this->shared_from_this()]() -> bool { return self->stopped(); },
             serialization_mode_,

@@ -79,7 +79,7 @@ public:
 template <typename processable_type, typename scalar_type = double>
 class GGPUEvaluableI : public GGPUHostEvalI<scalar_type> {
 public:
-    using item_ptr = std::shared_ptr<processable_type>;
+    using item_ptr = std::unique_ptr<processable_type>;
 
     /** @brief Flattens every item's parameters into a row-major buffer of n_items * dim scalar_type.
      *  The dimension is inferred by the consumer as params_out.size() / items.size(). */

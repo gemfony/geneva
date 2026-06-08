@@ -121,8 +121,8 @@ int main(int argc, char **argv) {
     auto consumer =
         std::make_shared<gpu::GGPUConsumerT<gpar::GParameterSet, gimage_fp_t>>(consumerConfig, marshaller);
     // The clone-on-partial-return policy used by the evolutionary algorithm needs a polymorphic clone.
-    consumer->setCloneFunction([](const std::shared_ptr<gpar::GParameterSet> &p) {
-        return p->clone<gpar::GParameterSet>();
+    consumer->setCloneFunction([](const std::unique_ptr<gpar::GParameterSet> &p) {
+        return p->clone_unique();
     });
     auto broker = std::make_shared<Gem::Courtier::GBrokerT<gpar::GParameterSet>>();
     broker->registerConsumer(consumer);

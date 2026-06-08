@@ -51,21 +51,11 @@ namespace Gem::Geneva {
  * @param id The id of the fitness criterion (individuals may have more than one)
  */
 double minOnly_transformed_fitness(
-    const std::shared_ptr<gpar::GParameterSet> &item_ptr,
+    const gpar::GParameterSet &item,
     const std::size_t id // NOLINT(misc-unused-parameters)
 ) {
-    const double f = item_ptr->transformed_fitness(id); // NOLINT(cppcoreguidelines-init-variables)
-    const maxMode m = item_ptr->getMaxMode();           // NOLINT(cppcoreguidelines-init-variables)
-
-#ifdef DEBUG
-    if(not item_ptr) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In minOnly_transformed_fitness():" << '\n'
-            << "Got empty work item" << '\n'
-        );
-    }
-#endif
+    const double f = item.transformed_fitness(id); // NOLINT(cppcoreguidelines-init-variables)
+    const maxMode m = item.getMaxMode();           // NOLINT(cppcoreguidelines-init-variables)
 
     if(maxMode::MINIMIZE == m) {
         return f;
@@ -108,7 +98,7 @@ bool isBetter(
 #endif
 
     // We assume that both items have the same maxMode and simply compare the "minOnly-Fitness"
-    if(minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr)) {
+    if(minOnly_transformed_fitness(*x_ptr) < minOnly_transformed_fitness(*y_ptr)) {
         return true;
     }
             return false;
