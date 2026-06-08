@@ -29,14 +29,100 @@
 
 #include "geneva/par/GFlatParameters.hpp"
 
+#include <algorithm>
 #include <random>
 
 #include "common/GExpectationChecksT.hpp"
+#include "geneva/par/GConstrainedNumCollectionT.hpp"
+#include "geneva/par/GConstrainedNumT.hpp"
+#include "geneva/par/GParameterBaseWithAdaptorsT.hpp"
 #include "geneva/par/GParameterSet.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GFlatParameters) // NOLINT
 
 namespace Gem::Geneva::Parameters {
+
+/******************************************************************************/
+// Anonymous-namespace helpers for capturing, cloning and applying adaptor groups.
+namespace {
+
+/** @brief Deep-clones a vector of adaptor groups (independent per-individual adaptor state). */
+template <typename T>
+std::vector<GFlatAdaptGroup<T>> cloneGroups(const std::vector<GFlatAdaptGroup<T>> &src) {
+    std::vector<GFlatAdaptGroup<T>> out;
+    out.reserve(src.size());
+    for(const GFlatAdaptGroup<T> &g : src) {
+        GFlatAdaptGroup<T> c;
+        c.start = g.start;
+        c.count = g.count;
+        c.adaptor = g.adaptor ? g.adaptor->clone_unique() : nullptr;
+        out.push_back(std::move(c));
+    }
+    return out;
+}
+
+/**
+ * @brief Captures the adaptor of a single source parameter as a group, if the parameter
+ *        contributes slots of type T, is plain (unconstrained) and carries an adaptor.
+ *
+ * The offset is always advanced by the parameter's T-slot count so the value arrays and
+ * groups stay aligned with streamline() order, even for parameters whose adaptor is not
+ * captured (constrained or nested object-collections).
+ */
+template <typename T>
+void captureGroup(
+    const GParameterBase *p,
+    std::vector<GFlatAdaptGroup<T>> &groups,
+    std::size_t &offset
+) {
+    const std::size_t n = p->countParameters<T>(activityMode::DEFAULTACTIVITYMODE);
+    if(n == 0) {
+        return;
+    }
+
+    bool constrained = false;
+    if constexpr(not std::is_same_v<T, bool>) {
+        constrained = (dynamic_cast<const GConstrainedNumT<T> *>(p) != nullptr) ||
+                      (dynamic_cast<const GConstrainedNumCollectionT<T> *>(p) != nullptr);
+    }
+
+    const auto *with_ad = dynamic_cast<const GParameterBaseWithAdaptorsT<T> *>(p);
+    if(with_ad != nullptr && not constrained) {
+        GFlatAdaptGroup<T> g;
+        g.start = offset;
+        g.count = n;
+        g.adaptor = with_ad->getAdaptor().clone_unique();
+        groups.push_back(std::move(g));
+    }
+
+    offset += n;
+}
+
+/** @brief Applies the adaptors of all numeric (double / float / int32) groups to a value array. */
+template <typename T>
+std::size_t adaptNumericGroups(
+    std::vector<GFlatAdaptGroup<T>> &groups,
+    std::vector<T> &vals,
+    const ChannelLayout<T> &layout,
+    Gem::Hap::GRandomBase &gr
+) {
+    std::size_t n_adapted = 0;
+    for(GFlatAdaptGroup<T> &g : groups) {
+        if(not g.adaptor || g.count == 0) {
+            continue;
+        }
+        // range = upper - lower (the same "comparative range" the tree's range() returns).
+        const T range = (layout.upper.size() > g.start) ? (layout.upper[g.start] - layout.lower[g.start])
+                                                        : static_cast<T>(1);
+        std::vector<T> slice(vals.begin() + static_cast<std::ptrdiff_t>(g.start),
+                             vals.begin() + static_cast<std::ptrdiff_t>(g.start + g.count));
+        n_adapted += g.adaptor->adapt(slice, range, gr);
+        std::copy(slice.begin(), slice.end(), vals.begin() + static_cast<std::ptrdiff_t>(g.start));
+    }
+    return n_adapted;
+}
+
+} /* anonymous namespace */
 
 /******************************************************************************/
 /**
@@ -65,7 +151,57 @@ std::unique_ptr<GFlatParameters> GFlatParameters::compileFrom(const GParameterSe
     src.boundaries<bool>(L.b.lower, L.b.upper);
     L.b.kind.assign(flat->bv_.size(), SlotKind::Plain);
 
+    // Capture one adaptor group per source parameter object (EA/SA mutation). A standalone
+    // parameter yields a count-1 group with its own adaptor; a collection yields a count-N group
+    // sharing one adaptor -- so individual parameters keep individual adaptor settings. Constrained
+    // parameters and nested object-collections are skipped (transported but not yet mutated); the
+    // offsets still advance so everything stays aligned with streamline() order.
+    std::size_t d_off = 0;
+    std::size_t f_off = 0;
+    std::size_t i_off = 0;
+    std::size_t b_off = 0;
+    for(const auto &p_ptr : src) {
+        const GParameterBase *p = p_ptr.get();
+        captureGroup<double>(p, flat->d_groups_, d_off);
+        captureGroup<float>(p, flat->f_groups_, f_off);
+        captureGroup<std::int32_t>(p, flat->i_groups_, i_off);
+        captureGroup<bool>(p, flat->b_groups_, b_off);
+    }
+
     return flat;
+}
+
+/******************************************************************************/
+// Copy semantics: share the immutable layout, deep-copy the values, and DEEP-CLONE the
+// per-group adaptors (their mutation state is per-individual and must not be shared).
+
+GFlatParameters::GFlatParameters(const GFlatParameters &cp)
+  : GParameterBase(cp)
+  , layout_(cp.layout_)
+  , dv_(cp.dv_)
+  , fv_(cp.fv_)
+  , iv_(cp.iv_)
+  , bv_(cp.bv_)
+  , d_groups_(cloneGroups(cp.d_groups_))
+  , f_groups_(cloneGroups(cp.f_groups_))
+  , i_groups_(cloneGroups(cp.i_groups_))
+  , b_groups_(cloneGroups(cp.b_groups_)) { /* nothing */
+}
+
+GFlatParameters &GFlatParameters::operator=(const GFlatParameters &cp) {
+    if(this != &cp) {
+        GParameterBase::operator=(cp);
+        layout_ = cp.layout_;
+        dv_ = cp.dv_;
+        fv_ = cp.fv_;
+        iv_ = cp.iv_;
+        bv_ = cp.bv_;
+        d_groups_ = cloneGroups(cp.d_groups_);
+        f_groups_ = cloneGroups(cp.f_groups_);
+        i_groups_ = cloneGroups(cp.i_groups_);
+        b_groups_ = cloneGroups(cp.b_groups_);
+    }
+    return *this;
 }
 
 /******************************************************************************/
@@ -221,11 +357,34 @@ bool GFlatParameters::randomInit_(const activityMode &, Gem::Hap::GRandomBase &g
 }
 
 /******************************************************************************/
-// Adaption is not yet implemented for the flat node (Phase 0). It will be added
-// as a flat, AdaptorKind-dispatched free operation in a later phase.
+// Adaption (EA/SA mutation): apply each group's adaptor to its slice of the value
+// arrays, reusing the existing, validated adaptor math. Constrained parameters are
+// not captured as groups yet, so they are left unchanged here (a later phase adds
+// the internal-value + transfer handling needed to mutate them correctly).
 
-std::size_t GFlatParameters::adapt_(Gem::Hap::GRandomBase &) {
-    return 0;
+std::size_t GFlatParameters::adapt_(Gem::Hap::GRandomBase &gr) {
+    std::size_t n_adapted = 0;
+    n_adapted += adaptNumericGroups(d_groups_, dv_, layout_->d, gr);
+    n_adapted += adaptNumericGroups(f_groups_, fv_, layout_->f, gr);
+    n_adapted += adaptNumericGroups(i_groups_, iv_, layout_->i, gr);
+
+    // Booleans are stored as bytes; bridge to the adaptor's std::vector<bool> interface.
+    for(GFlatAdaptGroup<bool> &g : b_groups_) {
+        if(not g.adaptor || g.count == 0) {
+            continue;
+        }
+        std::vector<bool> slice;
+        slice.reserve(g.count);
+        for(std::size_t k = 0; k < g.count; ++k) {
+            slice.push_back(bv_[g.start + k] != 0);
+        }
+        n_adapted += g.adaptor->adapt(slice, true, gr);
+        for(std::size_t k = 0; k < g.count; ++k) {
+            bv_[g.start + k] = slice[k] ? 1 : 0;
+        }
+    }
+
+    return n_adapted;
 }
 
 bool GFlatParameters::updateAdaptorsOnStall_(std::size_t) {
@@ -273,12 +432,17 @@ void GFlatParameters::load_(const GParameterBase *cp) {
     GParameterBase::load_(cp);
 
     // ... and then our local data. The layout is immutable and shared, so we
-    // share the pointer rather than deep-copying it.
+    // share the pointer rather than deep-copying it; the adaptors, however, carry
+    // per-individual mutation state and are deep-cloned.
     layout_ = p_load->layout_;
     dv_ = p_load->dv_;
     fv_ = p_load->fv_;
     iv_ = p_load->iv_;
     bv_ = p_load->bv_;
+    d_groups_ = cloneGroups(p_load->d_groups_);
+    f_groups_ = cloneGroups(p_load->f_groups_);
+    i_groups_ = cloneGroups(p_load->i_groups_);
+    b_groups_ = cloneGroups(p_load->b_groups_);
 }
 
 void GFlatParameters::compare_(

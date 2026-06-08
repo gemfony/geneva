@@ -45,12 +45,38 @@
 #include <boost/serialization/vector.hpp>
 
 // Geneva headers go here
+#include "geneva/par/GAdaptorT.hpp"
 #include "geneva/par/GParameterBase.hpp"
 #include "geneva/par/GParameterLayout.hpp"
 
 namespace Gem::Geneva::Parameters {
 
 class GParameterSet; // forward declaration (compileFrom source)
+
+/******************************************************************************/
+/**
+ * A contiguous run of same-type flat slots that share a single adaptor (an EA/SA
+ * mutation construct). A plain GDoubleObject contributes a group of count 1; a
+ * GDoubleCollection of N contributes a group of count N sharing one adaptor --
+ * exactly mirroring how the tree assigns adaptors. The cloned adaptor carries the
+ * per-individual mutation state (sigma, ad_prob, ...), so it must be deep-cloned
+ * (not shared) when an individual is copied.
+ */
+template <typename T>
+struct GFlatAdaptGroup {
+    std::shared_ptr<GAdaptorT<T, adaption_fp_type_t<T>>> adaptor;
+    std::size_t start = 0; ///< offset into the type's value array
+    std::size_t count = 0; ///< number of slots covered
+
+private:
+    friend class boost::serialization::access;
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        ar &boost::serialization::make_nvp("adaptor", adaptor) &
+            boost::serialization::make_nvp("start", start) &
+            boost::serialization::make_nvp("count", count);
+    }
+};
 
 /******************************************************************************/
 /**
@@ -86,20 +112,23 @@ class GFlatParameters // NOLINT(cppcoreguidelines-special-member-functions)
 
         ar &make_nvp("GParameterBase", boost::serialization::base_object<GParameterBase>(*this)) &
             make_nvp("layout_", layout_) & make_nvp("dv_", dv_) & make_nvp("fv_", fv_) &
-            make_nvp("iv_", iv_) & make_nvp("bv_", bv_);
+            make_nvp("iv_", iv_) & make_nvp("bv_", bv_) & make_nvp("d_groups_", d_groups_) &
+            make_nvp("f_groups_", f_groups_) & make_nvp("i_groups_", i_groups_) &
+            make_nvp("b_groups_", b_groups_);
     }
     ///////////////////////////////////////////////////////////////////////
 
 public:
     /** @brief The default constructor */
     GFlatParameters() = default;
-    /** @brief The copy constructor (shares the immutable layout, deep-copies the values) */
-    GFlatParameters(const GFlatParameters &) = default;
+    /** @brief The copy constructor. Shares the immutable layout, deep-copies the values AND
+     *         deep-clones the per-group adaptors (their mutation state is per-individual). */
+    GFlatParameters(const GFlatParameters &);
     /** @brief The destructor */
     ~GFlatParameters() override = default;
 
-    /** @brief Copy-assignment (shares the immutable layout, deep-copies the values) */
-    GFlatParameters &operator=(const GFlatParameters &) = default;
+    /** @brief Copy-assignment (see the copy constructor for the cloning semantics) */
+    GFlatParameters &operator=(const GFlatParameters &);
 
     /***************************************************************************/
     /**
@@ -216,6 +245,16 @@ private:
     std::vector<float> fv_;
     std::vector<std::int32_t> iv_;
     std::vector<std::uint8_t> bv_;
+
+    // Per-group adaptors (EA/SA mutation). One group per source parameter object, so each
+    // standalone parameter keeps its own adaptor settings (step width, mutation probability, ...)
+    // while a collection shares one adaptor across its slots -- exactly as in the tree. Constrained
+    // parameters are not captured here yet (their transfer/fold is a later phase), so they are
+    // currently transported but not mutated.
+    std::vector<GFlatAdaptGroup<double>> d_groups_;
+    std::vector<GFlatAdaptGroup<float>> f_groups_;
+    std::vector<GFlatAdaptGroup<std::int32_t>> i_groups_;
+    std::vector<GFlatAdaptGroup<bool>> b_groups_;
 };
 
 /******************************************************************************/

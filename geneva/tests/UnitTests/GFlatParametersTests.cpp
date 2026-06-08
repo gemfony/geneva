@@ -40,6 +40,7 @@
 #include "geneva/par/GFlatParameters.hpp"
 #include "geneva/par/GInt32Object.hpp"
 #include "geneva/par/GParameterSet.hpp"
+#include "hap/GRandomT.hpp"
 
 namespace gpar = Gem::Geneva::Parameters;
 
@@ -197,6 +198,61 @@ TEST_CASE("GFlatParameters assignValueVector writes values back", "[flat]") {
     std::vector<double> d_back;
     host.streamline<double>(d_back);
     CHECK(d_back == d);
+}
+
+/******************************************************************************/
+
+TEST_CASE("GFlatParameters adapt mutates plain parameters only", "[flat]") {
+    Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
+    MixedIndividual src;
+    auto flat = gpar::GFlatParameters::compileFrom(src);
+
+    // Streamline order mirrors the container: [constrained, constrained, plain double,
+    // collection(4)]. So dv_[0] and dv_[1] are the (currently non-adaptable) constrained
+    // doubles, dv_[2..] are plain doubles.
+    const std::vector<double> before = flat->doubleValues();
+    REQUIRE(before.size() >= 3);
+
+    for(int i = 0; i < 50; ++i) {
+        flat->adapt(gr);
+    }
+    const std::vector<double> after = flat->doubleValues();
+
+    SECTION("plain doubles change") {
+        bool plain_changed = false;
+        for(std::size_t k = 2; k < after.size(); ++k) {
+            if(after[k] != before[k]) {
+                plain_changed = true;
+            }
+        }
+        CHECK(plain_changed);
+    }
+
+    SECTION("constrained doubles are left untouched (deferred to a later phase)") {
+        CHECK(after[0] == before[0]);
+        CHECK(after[1] == before[1]);
+    }
+}
+
+/******************************************************************************/
+
+TEST_CASE("GFlatParameters adapt does not affect an independent clone", "[flat]") {
+    Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
+    MixedIndividual src;
+    auto flat = gpar::GFlatParameters::compileFrom(src);
+    const std::vector<double> snapshot = flat->doubleValues();
+
+    std::unique_ptr<gpar::GFlatParameters> clone = flat->clone_unique<gpar::GFlatParameters>();
+
+    for(int i = 0; i < 50; ++i) {
+        flat->adapt(gr);
+    }
+
+    // The clone has its own value arrays and its own (deep-cloned) adaptors, so adapting
+    // the original must not touch it.
+    CHECK(clone->doubleValues() == snapshot);
 }
 
 /******************************************************************************/
