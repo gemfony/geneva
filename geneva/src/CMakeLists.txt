@@ -66,6 +66,7 @@ SET ( OPTIMIZATIONSOURCES
 	Go2.cpp
     oa/GOptimizationAlgorithmBase.cpp
     oa/GLineSearch.cpp
+    oa/GHesseError.cpp
     oa/GEvolutionaryAlgorithm.cpp
     oa/GEvolutionaryAlgorithmFactory.cpp
     oa/GEvolutionaryAlgorithm_PersonalityTraits.cpp

@@ -46,6 +46,7 @@
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/par/GParameterSet.hpp"
+#include "geneva/oa/GHesseError.hpp"
 #include "geneva/oa/GLineSearch.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GConjugateGradientDescent_PersonalityTraits.hpp"
@@ -72,6 +73,21 @@ enum class gradientMethod : std::uint8_t {
 std::ostream &operator<<(std::ostream &, gradientMethod);
 /** @brief Reads a gradientMethod from a stream. */
 std::istream &operator>>(std::istream &, gradientMethod &);
+
+/**
+ * Selects whether (and how thoroughly) a MINUIT-style parameter-error estimate is computed at the
+ * minimum once the descent has converged. Opt-in (off by default).
+ */
+enum class errorEstimationMode : std::uint8_t {
+    NONE = 0,     ///< No error estimate (the default)
+    DIAGONAL = 1, ///< Cheap, always-affordable parameter-fixed (parabolic) errors from the Hessian diagonal
+    FULL = 2      ///< Full Hessian -> covariance -> correlation-aware errors (small dimension only)
+};
+
+/** @brief Streams an errorEstimationMode (as its underlying integer); required by the comparison framework. */
+std::ostream &operator<<(std::ostream &, errorEstimationMode);
+/** @brief Reads an errorEstimationMode from a stream. */
+std::istream &operator>>(std::istream &, errorEstimationMode &);
 
 /**
  * Default values for the conjugate gradient descent. They mirror the plain
@@ -115,7 +131,9 @@ class GConjugateGradientDescent // NOLINT(cppcoreguidelines-special-member-funct
             Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
             Gem::Common::make_member("finite_step_", finite_step_),
             Gem::Common::make_member("step_size_", step_size_),
-            Gem::Common::make_member("gradient_method_", gradient_method_)
+            Gem::Common::make_member("gradient_method_", gradient_method_),
+            Gem::Common::make_member("error_estimation_", error_estimation_),
+            Gem::Common::make_member("error_up_", error_up_)
         );
     }
     auto localMembers() const {
@@ -124,7 +142,9 @@ class GConjugateGradientDescent // NOLINT(cppcoreguidelines-special-member-funct
             Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
             Gem::Common::make_member("finite_step_", finite_step_),
             Gem::Common::make_member("step_size_", step_size_),
-            Gem::Common::make_member("gradient_method_", gradient_method_)
+            Gem::Common::make_member("gradient_method_", gradient_method_),
+            Gem::Common::make_member("error_estimation_", error_estimation_),
+            Gem::Common::make_member("error_up_", error_up_)
         );
     }
 
@@ -169,6 +189,17 @@ public:
     void setGradientMethod(gradientMethod);
     /** @brief Retrieves the search-direction rule currently in use */
     gradientMethod getGradientMethod() const;
+
+    /** @brief Selects whether/how a MINUIT-style parameter-error estimate is computed at convergence */
+    void setErrorEstimation(errorEstimationMode);
+    /** @brief Retrieves the error-estimation mode currently in use */
+    errorEstimationMode getErrorEstimation() const;
+    /** @brief Sets the error definition UP (1 for chi^2-like, 0.5 for -logL); see MINUIT */
+    void setErrorDefinition(double);
+    /** @brief Retrieves the error definition UP */
+    double getErrorDefinition() const;
+    /** @brief Retrieves the most recent convergence error estimate (valid only if one was requested) */
+    GHesseErrorResult getLastErrorEstimate() const;
 
 protected:
     /***************************************************************************/
@@ -283,6 +314,12 @@ private:
 
     gradientMethod gradient_method_ =
         gradientMethod::CONJUGATE_PR_PLUS; ///< Conjugate (PR+) by default; STEEPEST_DESCENT == the former GD
+
+    errorEstimationMode error_estimation_ =
+        errorEstimationMode::NONE; ///< Whether to estimate parameter errors at convergence (opt-in)
+    double error_up_ = 1.;         ///< The MINUIT error definition UP (1 = chi^2, 0.5 = -logL)
+
+    GHesseErrorResult last_error_estimate_; ///< The most recent error estimate (transient; not serialized)
 
     std::vector<double>
         dbl_lower_parameter_boundaries_; ///< Lower boundaries of double parameters; extracted in init() (transient)

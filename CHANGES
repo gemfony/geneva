@@ -44,6 +44,17 @@ Recommended Versions:
   through the same consumer the algorithm uses, so they run on the GPU when the
   GPU consumer is active. The "step_size" configuration option is now the INITIAL
   trial step (the line search refines it) rather than a fixed multiplier.
+- ADDITIVE (opt-in, off by default): conjugate gradient descent can now report a
+  MINUIT-style parameter-error estimate at the converged minimum, configured via
+  the new "error_estimation" option (0 none, 1 diagonal/parabolic, 2 full
+  Hessian -> covariance) and "error_definition" (the error-definition UP: 1 for
+  chi^2, 0.5 for -logL). It is computed by the reusable
+  Gem::Geneva::OptimizationAlgorithms::GHesseError helper -- a finite-difference
+  Hessian inverted (Gauss-Jordan) to a covariance matrix, giving per-parameter
+  one-sigma errors and a curvature condition number; the curvature probes are
+  evaluated through the active consumer like the line search. This is an
+  original, clean-room implementation of the published HESSE method (James &
+  Roos, Comp. Phys. Comm. 10, 1975); it uses no MINUIT/Minuit2 code.
 
 - Static linking support (BUILDSTATIC / GENEVA_STATIC / GENEVA_STATIC=TRUE) has
   been removed. Geneva now builds exclusively as shared libraries. Any build scripts

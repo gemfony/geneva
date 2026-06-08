@@ -29,9 +29,11 @@
 
 #include "geneva/oa/GConjugateGradientDescent.hpp"
 
+#include <algorithm>
 #include <istream>
 #include <limits>
 #include <ostream>
+#include <sstream>
 
 #include "common/GLogger.hpp"
 #include "common/GCommonInterfaceT.hpp"
@@ -75,6 +77,22 @@ std::istream &operator>>(std::istream &i, gradientMethod &gm) {
     int tmp = 0;
     i >> tmp;
     gm = static_cast<gradientMethod>(tmp);
+    return i;
+}
+
+/******************************************************************************/
+/** @brief Streams an errorEstimationMode as its underlying integer. */
+std::ostream &operator<<(std::ostream &o, errorEstimationMode em) {
+    o << static_cast<int>(em);
+    return o;
+}
+
+/******************************************************************************/
+/** @brief Reads an errorEstimationMode from a stream. */
+std::istream &operator>>(std::istream &i, errorEstimationMode &em) {
+    int tmp = 0;
+    i >> tmp;
+    em = static_cast<errorEstimationMode>(tmp);
     return i;
 }
 
@@ -202,6 +220,43 @@ void GConjugateGradientDescent::setGradientMethod(gradientMethod gm) {
  */
 gradientMethod GConjugateGradientDescent::getGradientMethod() const {
     return gradient_method_;
+}
+
+/******************************************************************************/
+/** @brief Selects whether/how a MINUIT-style parameter-error estimate is computed at convergence. */
+void GConjugateGradientDescent::setErrorEstimation(errorEstimationMode em) {
+    error_estimation_ = em;
+}
+
+/******************************************************************************/
+/** @brief Retrieves the error-estimation mode currently in use. */
+errorEstimationMode GConjugateGradientDescent::getErrorEstimation() const {
+    return error_estimation_;
+}
+
+/******************************************************************************/
+/** @brief Sets the error definition UP (the objective increase defining one standard deviation). */
+void GConjugateGradientDescent::setErrorDefinition(double up) {
+    if(up <= 0.) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GConjugateGradientDescent::setErrorDefinition(double): Error!" << '\n'
+            << "UP must be positive, got " << up << '\n'
+        );
+    }
+    error_up_ = up;
+}
+
+/******************************************************************************/
+/** @brief Retrieves the error definition UP. */
+double GConjugateGradientDescent::getErrorDefinition() const {
+    return error_up_;
+}
+
+/******************************************************************************/
+/** @brief Retrieves the most recent convergence error estimate. */
+GHesseErrorResult GConjugateGradientDescent::getLastErrorEstimate() const {
+    return last_error_estimate_;
 }
 
 /******************************************************************************/
@@ -627,6 +682,21 @@ void GConjugateGradientDescent::addConfigurationOptions_(Gem::Common::GParserBui
         [this](int gm) { this->setGradientMethod(static_cast<gradientMethod>(gm)); }
     ) << "The search-direction rule: 0 = Polak-Ribiere+ conjugate gradient" << '\n'
       << "(the default), 1 = plain steepest descent (the former \"gd\")";
+
+    gpb.registerFileParameter<int>(
+        "error_estimation",
+        static_cast<int>(errorEstimationMode::NONE),
+        [this](int em) { this->setErrorEstimation(static_cast<errorEstimationMode>(em)); }
+    ) << "MINUIT-style parameter-error estimate at convergence:" << '\n'
+      << "0 = none (default), 1 = diagonal (parabolic) errors," << '\n'
+      << "2 = full Hessian -> covariance (small dimension only)";
+
+    gpb.registerFileParameter<double>(
+        "error_definition",
+        1.,
+        [this](double up) { this->setErrorDefinition(up); }
+    ) << "The MINUIT error definition UP: the objective increase" << '\n'
+      << "defining one standard deviation (1 = chi^2, 0.5 = -logL)";
 }
 
 /******************************************************************************/
@@ -758,6 +828,66 @@ void GConjugateGradientDescent::resetCGState() {
  * Does any necessary finalization work
  */
 void GConjugateGradientDescent::finalize() {
+    // Optional MINUIT-style parameter-error estimate at the converged minimum (opt-in). The curvature
+    // probes are evaluated through the same consumer the algorithm uses, exactly like the line search.
+    if(error_estimation_ != errorEstimationMode::NONE && n_fp_parms_first_ > 0 && not this->empty()) {
+        // Pick the best starting point (the lowest min-only fitness).
+        std::size_t best = 0;
+        double best_fitness = minOnly_transformed_fitness(*this->at(0));
+        for(std::size_t i = 1; i < n_starting_points_ && i < this->size(); ++i) {
+            const double f = minOnly_transformed_fitness(*this->at(i));
+            if(f < best_fitness) {
+                best_fitness = f;
+                best = i;
+            }
+        }
+
+        std::vector<double> x_min;
+        this->at(best)->streamlineFP(x_min, activityMode::ACTIVEONLY);
+
+        GHesseErrorOptions opts;
+        opts.up = error_up_;
+        opts.full_covariance = (error_estimation_ == errorEstimationMode::FULL);
+
+        const std::size_t best_point = best;
+        GHesseError estimator;
+        last_error_estimate_ = estimator.estimate(
+            [this, best_point](std::vector<std::vector<double>> const &points) {
+                return this->evaluateProbes(best_point, points);
+            },
+            x_min,
+            best_fitness,
+            adjusted_finite_step_,
+            opts
+        );
+
+        if(last_error_estimate_.valid) {
+            std::ostringstream oss;
+            oss << "GConjugateGradientDescent: parameter-error estimate at the minimum (UP = "
+                << error_up_ << ", "
+                << (last_error_estimate_.covariance_valid ? "profiled" : "parameter-fixed") << "):\n";
+            const std::size_t shown =
+                std::min<std::size_t>(last_error_estimate_.parameter_errors.size(), 20u);
+            for(std::size_t j = 0; j < shown; ++j) {
+                oss << "  parameter[" << j << "] +/- " << last_error_estimate_.parameter_errors[j]
+                    << '\n';
+            }
+            if(last_error_estimate_.parameter_errors.size() > shown) {
+                oss << "  ... (" << (last_error_estimate_.parameter_errors.size() - shown)
+                    << " more parameters)\n";
+            }
+            oss << "  curvature condition number = " << last_error_estimate_.condition_number
+                << " (a large value flags a flat / ill-conditioned minimum)";
+            glogger << oss.str() << '\n' << GLOGGING;
+        }
+        else {
+            glogger << "GConjugateGradientDescent: no usable error estimate "
+                       "(no positive curvature at the stopping point)."
+                    << '\n'
+                    << GLOGGING;
+        }
+    }
+
     GOptimizationAlgorithmBase::finalize();
 }
 
