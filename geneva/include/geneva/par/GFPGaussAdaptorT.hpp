@@ -41,6 +41,7 @@
 
 // Geneva headers go here
 #include "geneva/par/GNumGaussAdaptorT.hpp"
+#include "hap/GRandomDistributionsT.hpp"
 
 namespace Gem::Geneva::Parameters {
 
@@ -227,7 +228,7 @@ protected:
         const adaption_fp_type delta =
             range * GAdaptorT<adaption_fp_type, adaption_fp_type>::normal_distribution_(
                         gr,
-                        typename std::normal_distribution<adaption_fp_type>::param_type(
+                        typename Gem::Hap::g_normal_distribution<adaption_fp_type>::param_type(
                             0.,
                             GNumGaussAdaptorT<adaption_fp_type, adaption_fp_type>::sigma_
                         )

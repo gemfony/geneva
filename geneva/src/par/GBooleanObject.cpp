@@ -76,7 +76,7 @@ GBooleanObject::GBooleanObject(const bool &val)
  */
 GBooleanObject::GBooleanObject(const double &probability) {
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
-    std::bernoulli_distribution bernoulli_distribution(probability);
+    Gem::Hap::g_bernoulli_distribution bernoulli_distribution(probability);
 
     this->setValue(bernoulli_distribution(gr));
 }
@@ -157,7 +157,7 @@ bool GBooleanObject::randomInit_(
     ,
     Gem::Hap::GRandomBase &gr
 ) {
-    std::bernoulli_distribution bernoulli_distribution; // defaults to 0.5
+    Gem::Hap::g_bernoulli_distribution bernoulli_distribution; // defaults to 0.5
     this->setValue(bernoulli_distribution(gr));
     return true;
 }
@@ -194,7 +194,7 @@ bool GBooleanObject::randomInit_(
         );
     }
 
-    std::bernoulli_distribution bernoulli_distribution(probability);
+    Gem::Hap::g_bernoulli_distribution bernoulli_distribution(probability);
     this->setValue(bernoulli_distribution(gr));
     return true;
 }

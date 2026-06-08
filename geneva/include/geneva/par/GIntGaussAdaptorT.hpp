@@ -39,6 +39,7 @@
 // Geneva headers go here
 
 #include "geneva/par/GNumGaussAdaptorT.hpp"
+#include "hap/GRandomDistributionsT.hpp"
 
 namespace Gem::Geneva::Parameters {
 
@@ -237,14 +238,14 @@ protected:
             static_cast<double>(range) *
             GAdaptorT<int_type, double>::normal_distribution_(
                 gr,
-                std::normal_distribution<double>::param_type(0., this->getSigma())
+                Gem::Hap::g_normal_distribution<double>::param_type(0., this->getSigma())
             )
         );
 
         if(addition == 0) { // Enforce a minimal change of 1.
             bool flip_direction = GAdaptorT<int_type, double>::weighted_bool_(
                 gr,
-                std::bernoulli_distribution::param_type(0.5)
+                Gem::Hap::g_bernoulli_distribution::param_type(0.5)
             );
             addition = flip_direction ? 1 : -1;
         }

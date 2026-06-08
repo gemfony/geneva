@@ -61,7 +61,7 @@ std::size_t GAdaptorT<bool, double>::adapt(
     if(adapt_ad_prob_ > (0.)) {
         ad_prob_ *= std::exp(normal_distribution_(
             gr,
-            typename std::normal_distribution<double>::param_type(0., adapt_ad_prob_)
+            typename Gem::Hap::g_normal_distribution<double>::param_type(0., adapt_ad_prob_)
         ));
         Gem::Common::enforceRangeConstraint<double>(
             ad_prob_,
@@ -77,7 +77,7 @@ std::size_t GAdaptorT<bool, double>::adapt(
        adaption_mode_) { // The most likely case is indeterminate (means: "depends")
         for(auto &&val : val_vec) {
             // A likelihood of adProb_ for adaption
-            if(weighted_bool_(gr, std::bernoulli_distribution::param_type(std::abs(ad_prob_)))) {
+            if(weighted_bool_(gr, Gem::Hap::g_bernoulli_distribution::param_type(std::abs(ad_prob_)))) {
                 dummy_val = val;
                 adaptAdaption(range, gr);
                 customAdaptions(

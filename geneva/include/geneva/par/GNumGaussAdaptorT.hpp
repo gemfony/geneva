@@ -43,6 +43,7 @@
 
 // Geneva headers go here
 #include "geneva/par/GAdaptorT.hpp"
+#include "hap/GRandomDistributionsT.hpp"
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
@@ -539,7 +540,7 @@ protected:
         const adaption_fp_type sigma_mult = std::exp(
             GAdaptorT<parameter_type, adaption_fp_type>::normal_distribution_(
                 gr,
-                typename std::normal_distribution<adaption_fp_type>::param_type(0., std::abs(sigma_sigma_))
+                typename Gem::Hap::g_normal_distribution<adaption_fp_type>::param_type(0., std::abs(sigma_sigma_))
             )
         );
         sigma_ *= sigma_mult;

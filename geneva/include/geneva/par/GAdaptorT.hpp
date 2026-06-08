@@ -46,6 +46,7 @@
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "hap/GRandomT.hpp"
+#include "hap/GRandomDistributionsT.hpp"
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
@@ -536,7 +537,7 @@ public:
         if(adapt_ad_prob_ > adaption_fp_type(0.)) {
             ad_prob_ *= std::exp(normal_distribution_(
                 gr,
-                typename std::normal_distribution<adaption_fp_type>::param_type(0., adapt_ad_prob_)
+                typename Gem::Hap::g_normal_distribution<adaption_fp_type>::param_type(0., adapt_ad_prob_)
             ));
             Gem::Common::enforceRangeConstraint<adaption_fp_type>(
                 ad_prob_,
@@ -550,7 +551,7 @@ public:
            adaption_mode_) { // The most likely case is indeterminate (means: "sometimes" here)
             if(weighted_bool_(
                    gr,
-                   std::bernoulli_distribution::param_type(std::abs(ad_prob_))
+                   Gem::Hap::g_bernoulli_distribution::param_type(std::abs(ad_prob_))
                )) { // Likelihood of adProb_ for the adaption
                 adaptAdaption(range, gr);
                 customAdaptions(val, range, gr);
@@ -607,7 +608,7 @@ public:
         if(adapt_ad_prob_ > adaption_fp_type(0.)) {
             ad_prob_ *= std::exp(normal_distribution_(
                 gr,
-                typename std::normal_distribution<adaption_fp_type>::param_type(0., adapt_ad_prob_)
+                typename Gem::Hap::g_normal_distribution<adaption_fp_type>::param_type(0., adapt_ad_prob_)
             ));
             Gem::Common::enforceRangeConstraint<adaption_fp_type>(
                 ad_prob_,
@@ -622,7 +623,7 @@ public:
                 // A likelihood of adProb_ for adaption
                 if(weighted_bool_(
                        gr,
-                       std::bernoulli_distribution::param_type(std::abs(ad_prob_))
+                       Gem::Hap::g_bernoulli_distribution::param_type(std::abs(ad_prob_))
                    )) {
                     adaptAdaption(range, gr);
                     customAdaptions(val, range, gr);
@@ -849,7 +850,7 @@ protected:
             // Likelihood of adapt_adaption_probability_ for the adaption
             if(weighted_bool_(
                    gr,
-                   std::bernoulli_distribution::param_type(std::abs(adapt_adaption_probability_))
+                   Gem::Hap::g_bernoulli_distribution::param_type(std::abs(adapt_adaption_probability_))
                )) {
                 customAdaptAdaption(range, gr);
             }
@@ -1307,10 +1308,10 @@ protected:
     /***************************************************************************/
     // Protected data
 
-    std::normal_distribution<adaption_fp_type> normal_distribution_; ///< Helps with gauss-type mutation
+    Gem::Hap::g_normal_distribution<adaption_fp_type> normal_distribution_; ///< Helps with gauss-type mutation
     std::uniform_real_distribution<adaption_fp_type>
         uniform_real_distribution_; ///< Access to uniformly distributed floating point random numbers
-    std::bernoulli_distribution
+    Gem::Hap::g_bernoulli_distribution
         weighted_bool_; ///< Access to boolean random numbers with a given probability structure
 
 private:

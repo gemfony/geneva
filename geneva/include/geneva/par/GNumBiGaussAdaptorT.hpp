@@ -708,19 +708,19 @@ protected:
         sigma1_ *= std::exp(
             GAdaptorT<parameter_type, adaption_fp_type>::normal_distribution_(
                 gr,
-                typename std::normal_distribution<adaption_fp_type>::param_type(0., std::abs(sigma_sigma1_))
+                typename Gem::Hap::g_normal_distribution<adaption_fp_type>::param_type(0., std::abs(sigma_sigma1_))
             )
         );
         sigma2_ *= std::exp(
             GAdaptorT<parameter_type, adaption_fp_type>::normal_distribution_(
                 gr,
-                typename std::normal_distribution<adaption_fp_type>::param_type(0., std::abs(sigma_sigma2_))
+                typename Gem::Hap::g_normal_distribution<adaption_fp_type>::param_type(0., std::abs(sigma_sigma2_))
             )
         );
         delta_ *= std::exp(
             GAdaptorT<parameter_type, adaption_fp_type>::normal_distribution_(
                 gr,
-                typename std::normal_distribution<adaption_fp_type>::param_type(0., std::abs(sigma_delta_))
+                typename Gem::Hap::g_normal_distribution<adaption_fp_type>::param_type(0., std::abs(sigma_delta_))
             )
         );
 
