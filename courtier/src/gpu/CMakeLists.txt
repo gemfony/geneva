@@ -46,6 +46,24 @@ IF ( CMAKE_CUDA_COMPILER )
 ENDIF ()
 
 # --- optional OpenCL backend ------------------------------------------------------------------
+# A CUDA toolkit ships its own libOpenCL.so in its library directory, and that directory is on the
+# runtime search path (RPATH) because nvrtc and the CUDA driver library live there. If
+# find_package(OpenCL) instead resolves to a *different* OpenCL ICD loader (e.g. the system ocl-icd
+# loader, which lives in an implicit linker directory), the two same-named libraries collide: CMake
+# cannot order them safely and emits "Cannot generate a safe runtime search path", and at run time the
+# toolkit's copy shadows the linked one. Pin OpenCL to the *selected* toolkit's loader so link-time and
+# run-time resolve to the same file. This is derived from the toolkit (CUDA_nvrtc_LIBRARY's directory),
+# never a hardcoded version; it only affects machines that have BOTH a CUDA toolkit and a separate
+# system OpenCL, and only when the user has not pinned OpenCL_LIBRARY themselves. Both NVIDIA's bundled
+# loader and ocl-icd are ICD loaders that dispatch to the same vendor drivers, so behaviour is unchanged.
+IF ( COURTIER_GPU_HAVE_CUDA AND NOT DEFINED OpenCL_LIBRARY AND CUDA_nvrtc_LIBRARY )
+	GET_FILENAME_COMPONENT ( _gpu_cuda_libdir "${CUDA_nvrtc_LIBRARY}" DIRECTORY )
+	IF ( EXISTS "${_gpu_cuda_libdir}/libOpenCL.so.1" )
+		SET ( OpenCL_LIBRARY "${_gpu_cuda_libdir}/libOpenCL.so.1" CACHE FILEPATH
+			"OpenCL ICD loader, pinned to the CUDA toolkit's copy so link-time and run-time agree (its dir is already on the RPATH via nvrtc)" )
+	ENDIF ()
+	UNSET ( _gpu_cuda_libdir )
+ENDIF ()
 FIND_PACKAGE ( OpenCL QUIET )
 SET ( COURTIER_GPU_HAVE_OPENCL FALSE )
 IF ( OpenCL_FOUND )
