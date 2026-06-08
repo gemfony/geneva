@@ -166,29 +166,6 @@ void GInt32Object::int32Streamline(
 }
 
 /******************************************************************************/
-/**
- * Attach our local value to the map.
- */
-void GInt32Object::int32Streamline(
-    std::map<std::string, std::vector<std::int32_t>> &par_vec,
-    [[maybe_unused]] const activityMode & am
-) const {
-#ifdef DEBUG
-    if((this->getParameterName()).empty()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GInt32Object::int32Streamline(std::map<std::string, std::vector<std::int32_t>>& "
-               "par_vec) const: Error!"
-            << '\n'
-            << "No name was assigned to the object" << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    std::vector<std::int32_t> parameters;
-    parameters.push_back(this->value());
-    par_vec[this->getParameterName()] = parameters;
-}
 
 /******************************************************************************/
 /**
@@ -244,15 +221,6 @@ void GInt32Object::assignInt32ValueVector(
 }
 
 /******************************************************************************/
-/**
- * Assigns part of a value map to the parameter
- */
-void GInt32Object::assignInt32ValueVectors(
-    const std::map<std::string, std::vector<std::int32_t>> &par_map,
-    [[maybe_unused]] const activityMode & am
-) {
-    this->setValue((Gem::Common::getMapItem(par_map, this->getParameterName())).at(0));
-}
 
 /******************************************************************************/
 /**

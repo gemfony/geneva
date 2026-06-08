@@ -208,7 +208,6 @@ public:
 	  * @param base_name The name assigned to the object
 	  */
     void toPropertyTree(pt::ptree &ptr, const std::string &base_name) const override {
-        ptr.put(base_name + ".name", this->getParameterName());
         ptr.put(base_name + ".type", this->name());
         ptr.put(base_name + ".baseType", Gem::Common::GTypeToStringT<num_type>::value());
         ptr.put(base_name + ".isLeaf", this->isLeaf());

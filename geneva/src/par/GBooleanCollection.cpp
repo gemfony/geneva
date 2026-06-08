@@ -300,30 +300,6 @@ void GBooleanCollection::booleanStreamline(std::vector<bool> &par_vec, const act
 }
 
 /******************************************************************************/
-/**
- * Attach our local values to the map. Names are built from the object name and the
- * position in the array.
- */
-void GBooleanCollection::booleanStreamline(
-    std::map<std::string, std::vector<bool>> &par_vec,
-    const activityMode &am
-) const {
-#ifdef DEBUG
-    if((this->getParameterName()).empty()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBooleanCollection::booleanStreamline(std::map<std::string, std::vector<bool>>& "
-               "par_vec) const: Error!"
-            << '\n'
-            << "No name was assigned to the object" << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    std::vector<bool> parameters;
-    this->booleanStreamline(parameters, am);
-    par_vec[this->getParameterName()] = parameters;
-}
 
 /******************************************************************************/
 /**
@@ -384,20 +360,6 @@ void GBooleanCollection::assignBooleanValueVector(
 }
 
 /******************************************************************************/
-/**
- * Assigns part of a value map to the parameter
- */
-void GBooleanCollection::assignBooleanValueVectors(
-    const std::map<std::string, std::vector<bool>> &par_map,
-    [[maybe_unused]] const activityMode & am
-) {
-    GBooleanCollection::iterator it;
-    std::size_t cnt = 0;
-    for(it = this->begin(); it != this->end(); ++it) {
-        *it = (Gem::Common::getMapItem<std::vector<bool>>(par_map, this->getParameterName()))
-                  .at(cnt++);
-    }
-}
 
 /******************************************************************************/
 /**

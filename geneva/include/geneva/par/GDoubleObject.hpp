@@ -119,16 +119,6 @@ protected:
         std::size_t &,
         const activityMode &am
     ) override;
-    /** @brief Attach our local value to the map. */
-    void doubleStreamline(
-        std::map<std::string, std::vector<double>> &,
-        const activityMode &am
-    ) const override;
-    /** @brief Assigns part of a value map to the parameter */
-    void assignDoubleValueVectors(
-        const std::map<std::string, std::vector<double>> &,
-        const activityMode &am
-    ) override;
 
     /** @brief Multiplication with a random value in a given range */
     void doubleMultiplyByRandom(

@@ -139,7 +139,6 @@ public:
             );
         }
 
-        ptr.put(base_name + ".name", this->getParameterName());
         ptr.put(base_name + ".type", this->name());
         ptr.put(base_name + ".isLeaf", this->isLeaf());
         ptr.put(base_name + ".n_vals", this->size());
@@ -297,18 +296,6 @@ protected:
      */
 
     /***************************************************************************/
-    /**
-     * Attach parameters of type float to the map. This function distributes this task to
-     * objects contained in the container.
-     */
-    void floatStreamline(
-        std::map<std::string, std::vector<float>> &par_vec,
-        const activityMode &am
-    ) const override {
-        for(const auto &parameter : *this) {
-            parameter->template streamline<float>(par_vec, am);
-        }
-    }
 
     /* ----------------------------------------------------------------------------------
      * So far untested
@@ -316,18 +303,6 @@ protected:
      */
 
     /***************************************************************************/
-    /**
-     * Attach parameters of type double to the map. This function distributes this task to
-     * objects contained in the container.
-     */
-    void doubleStreamline(
-        std::map<std::string, std::vector<double>> &par_vec,
-        const activityMode &am
-    ) const override {
-        for(const auto &parameter : *this) {
-            parameter->template streamline<double>(par_vec, am);
-        }
-    }
 
     /* ----------------------------------------------------------------------------------
      * So far untested
@@ -335,18 +310,6 @@ protected:
      */
 
     /***************************************************************************/
-    /**
-     * Attach parameters of type std::int32_t to the map. This function distributes this task
-     * to objects contained in the container.
-     */
-    void int32Streamline(
-        std::map<std::string, std::vector<std::int32_t>> &par_vec,
-        const activityMode &am
-    ) const override {
-        for(const auto &parameter : *this) {
-            parameter->template streamline<std::int32_t>(par_vec, am);
-        }
-    }
 
     /* ----------------------------------------------------------------------------------
      * So far untested
@@ -354,18 +317,6 @@ protected:
      */
 
     /***************************************************************************/
-    /**
-     * Attach parameters of type bool to the map.  This function distributes this task
-     * to objects contained in the container.
-     */
-    void booleanStreamline(
-        std::map<std::string, std::vector<bool>> &par_vec,
-        const activityMode &am
-    ) const override {
-        for(const auto &parameter : *this) {
-            parameter->template streamline<bool>(par_vec, am);
-        }
-    }
 
     /* ----------------------------------------------------------------------------------
      * So far untested
@@ -580,17 +531,6 @@ protected:
      */
 
     /***************************************************************************/
-    /**
-     * Assigns part of a value vector to the parameter
-     */
-    void assignFloatValueVectors(
-        const std::map<std::string, std::vector<float>> &par_map,
-        const activityMode &am
-    ) override {
-        for(const auto &parameter : *this) {
-            parameter->template assignValueVectors<float>(par_map, am);
-        }
-    }
 
     /* ----------------------------------------------------------------------------------
      * So far untested
@@ -598,17 +538,6 @@ protected:
      */
 
     /***************************************************************************/
-    /**
-     * Assigns part of a value vector to the parameter
-     */
-    void assignDoubleValueVectors(
-        const std::map<std::string, std::vector<double>> &par_map,
-        const activityMode &am
-    ) override {
-        for(const auto &parameter : *this) {
-            parameter->template assignValueVectors<double>(par_map, am);
-        }
-    }
 
     /* ----------------------------------------------------------------------------------
      * So far untested
@@ -616,17 +545,6 @@ protected:
      */
 
     /***************************************************************************/
-    /**
-     * Assigns part of a value vector to the parameter
-     */
-    void assignInt32ValueVectors(
-        const std::map<std::string, std::vector<std::int32_t>> &par_map,
-        const activityMode &am
-    ) override {
-        for(const auto &parameter : *this) {
-            parameter->template assignValueVectors<std::int32_t>(par_map, am);
-        }
-    }
 
     /* ----------------------------------------------------------------------------------
      * So far untested
@@ -634,17 +552,6 @@ protected:
      */
 
     /***************************************************************************/
-    /**
-     * Assigns part of a value vector to the parameter
-     */
-    void assignBooleanValueVectors(
-        const std::map<std::string, std::vector<bool>> &par_map,
-        const activityMode &am
-    ) override {
-        for(const auto &parameter : *this) {
-            parameter->template assignValueVectors<bool>(par_map, am);
-        }
-    }
 
     /* ----------------------------------------------------------------------------------
      * So far untested

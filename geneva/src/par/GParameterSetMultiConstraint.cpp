@@ -164,9 +164,19 @@ void GParameterSetFormulaConstraint::addConfigurationOptions_(Gem::Common::GPars
  * TODO: Make this work for all parameter types
  */
 double GParameterSetFormulaConstraint::check_(const GParameterSet *p) const {
-    std::map<std::string, std::vector<double>> parameter_values;
+    // Parameters carry no intrinsic name anymore, so we bind the formula variables positionally:
+    // the i-th double parameter (in streamline order) is exposed to the formula as "var<i>".
+    // A formula such as "fabs({{var0}}) + fabs({{var1}})" therefore references the first two
+    // double parameters, matching the historical "var0", "var1", ... naming convention.
+    std::vector<double> d_values;
+    p->streamline<double>(d_values);
 
-    p->streamline(parameter_values); // Extract the parameter values including names
+    std::map<std::string, std::vector<double>> parameter_values;
+    for(std::size_t i = 0; i < d_values.size(); ++i) {
+        parameter_values[std::string("var") + Gem::Common::to_string(i)] =
+            std::vector<double>{d_values[i]};
+    }
+
     Gem::Common::GFormulaParserT<double> f(raw_formula_); // Create the parser
 
     try {

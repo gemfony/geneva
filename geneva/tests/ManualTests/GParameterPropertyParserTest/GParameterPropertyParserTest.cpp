@@ -43,9 +43,11 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
+    // Parameters are addressed positionally now (by index). The optional trailing token is a
+    // free-form display label (used e.g. for plot axes), not a parameter name.
     std::string raw =
-        "d(MY_DPAR_01,-10.3,12.8,100), d(0,-10.3,12.8,100), i(SOME_IPAR_17, 0,5, 20), b(SOME_BPAR, "
-        "false, true, 10), d(MY_DPAR_02[3], -5, 7, 20), f(MY_FPAR_03, -2, 10), b(MY_BPAR2)";
+        "d(0,-10.3,12.8,100), d(1,-10.3,12.8,100, MyDoubleLabel), i(0, 0,5, 20), b(0, "
+        "false, true, 10), d(2, -5, 7, 20), f(0, -2, 10), b(1)";
     gpar::GParameterPropertyParser p(raw);
 
     // Retrieve double parameters

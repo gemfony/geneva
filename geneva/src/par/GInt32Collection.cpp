@@ -147,30 +147,6 @@ void GInt32Collection::int32Streamline(
 }
 
 /******************************************************************************/
-/**
- * Attach our local values to the map. Names are built from the object name and the
- * position in the array.
- */
-void GInt32Collection::int32Streamline(
-    std::map<std::string, std::vector<std::int32_t>> &par_vec,
-    const activityMode &am
-) const {
-#ifdef DEBUG
-    if((this->getParameterName()).empty()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GInt32Collection::int32Streamline(std::map<std::string, "
-               "std::vector<std::int32_t>>& par_vec) const: Error!"
-            << '\n'
-            << "No name was assigned to the object" << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    std::vector<std::int32_t> parameters;
-    this->int32Streamline(parameters, am);
-    par_vec[this->getParameterName()] = parameters;
-}
 
 /******************************************************************************/
 /**
@@ -234,18 +210,6 @@ void GInt32Collection::assignInt32ValueVector(
 }
 
 /******************************************************************************/
-/**
- * Assigns part of a value map to the parameter
- */
-void GInt32Collection::assignInt32ValueVectors(
-    const std::map<std::string, std::vector<std::int32_t>> &par_map,
-    [[maybe_unused]] const activityMode & am
-) {
-    std::size_t cnt = 0;
-    for(auto &val : *this) {
-        val = (Gem::Common::getMapItem(par_map, this->getParameterName())).at(cnt++);
-    }
-}
 
 /******************************************************************************/
 /**

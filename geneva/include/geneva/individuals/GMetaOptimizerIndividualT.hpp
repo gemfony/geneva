@@ -470,7 +470,6 @@ public:
             Gem::Common::narrow<std::int32_t>(n_parents_ub)
         ));
         npar_ptr->addAdaptor(gifa_ptr);
-        npar_ptr->setParameterName("n_parents");
 
         // Add to the individual
         p->at(MOT_NPARENTS) = npar_ptr->clone_unique();
@@ -499,7 +498,6 @@ public:
             Gem::Common::narrow<std::int32_t>(n_children_ub)
         ));
         nch_ptr->addAdaptor(giga_ptr);
-        nch_ptr->setParameterName("n_children");
 
         // Add to the individual
         p->at(MOT_NCHILDREN) = nch_ptr->clone_unique();
@@ -530,7 +528,6 @@ public:
         );
         // Add the gauss adaptor to the parameter
         amalgamation_lklh_ptr->addAdaptor(gdga_ptr);
-        amalgamation_lklh_ptr->setParameterName("amalgamation_likelihood");
 
         // Add to the individual
         p->at(MOT_AMALGAMATION) = amalgamation_lklh_ptr->clone_unique();
@@ -547,7 +544,6 @@ public:
         ));
         // Add the gauss adaptor to the parameter
         min_ad_prob_ptr->addAdaptor(gdga_ptr);
-        min_ad_prob_ptr->setParameterName("min_ad_prob");
 
         // Add to the individual
         p->at(MOT_MINADPROB) = min_ad_prob_ptr->clone_unique();
@@ -564,7 +560,6 @@ public:
         ));
         // Add the gauss adaptor to the parameter
         ad_prob_range_ptr->addAdaptor(gdga_ptr);
-        ad_prob_range_ptr->setParameterName("ad_prob_range");
 
         // Add to the individual
         p->at(MOT_ADPROBRANGE) = ad_prob_range_ptr->clone_unique();
@@ -583,7 +578,6 @@ public:
         );
         // Add the gauss adaptor to the parameter
         ad_prob_start_percentage_ptr->addAdaptor(gdga_ptr);
-        ad_prob_start_percentage_ptr->setParameterName("ad_prob_start_percentage");
 
         // Add to the individual
         p->at(MOT_ADPROBSTARTPERCENTAGE) = ad_prob_start_percentage_ptr->clone_unique();
@@ -599,7 +593,6 @@ public:
             adapt_ad_prob_ub // upper boundary
         ));
         adapt_ad_prob_ptr->addAdaptor(gdga_ptr);
-        adapt_ad_prob_ptr->setParameterName("adapt_ad_prob");
 
         // Add to the individual
         p->at(MOT_ADAPTADPROB) = adapt_ad_prob_ptr->clone_unique();
@@ -615,7 +608,6 @@ public:
             min_sigma_ub // upper boundary
         ));
         minsigma_ptr->addAdaptor(gdga_ptr);
-        minsigma_ptr->setParameterName("min_sigma");
 
         // Add to the individual
         p->at(MOT_MINSIGMA) = minsigma_ptr->clone_unique();
@@ -631,7 +623,6 @@ public:
             sigma_range_ub // upper boundary
         ));
         sigmarange_ptr->addAdaptor(gdga_ptr);
-        sigmarange_ptr->setParameterName("sigma_range");
 
         // Add to the individual
         p->at(MOT_SIGMARANGE) = sigmarange_ptr->clone_unique();
@@ -650,7 +641,6 @@ public:
         );
         // Add the gauss adaptor to the parameter
         sigma_range_percentage_ptr->addAdaptor(gdga_ptr);
-        sigma_range_percentage_ptr->setParameterName("sigma_range_percentage");
 
         // Add to the individual
         p->at(MOT_SIGMARANGEPERCENTAGE) = sigma_range_percentage_ptr->clone_unique();
@@ -667,7 +657,6 @@ public:
             sigma_sigma_ub // upper boundary
         ));
         sigmasigma_ptr->addAdaptor(gdga_ptr);
-        sigmasigma_ptr->setParameterName("sigma_sigma");
 
         // Add to the individual
         p->at(MOT_SIGMASIGMA) = sigmasigma_ptr->clone_unique();

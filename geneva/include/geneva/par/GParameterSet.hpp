@@ -520,62 +520,18 @@ public:
      * ----------------------------------------------------------------------------------
      */
 
-    /******************************************************************************/
-    /**
-     * Allows to retrieve a list of all variable names registered with the parameter set
-     */
-    template <typename par_type>
-    std::vector<std::string> getVariableNames() const {
-        std::vector<std::string> var_names;
-        std::map<std::string, std::vector<par_type>> p_map;
-        this->streamline<par_type>(p_map);
-
-        for(const auto &name : p_map) {
-            var_names.push_back(name.first);
-        }
-
-        return var_names;
-    }
-
     /***************************************************************************/
     /**
-     * Retrieves an item according to a description provided by the target tuple
+     * Retrieves an item according to a description provided by the target tuple. Parameters are
+     * addressed positionally: std::get<2>(target) is the index into the flat parameter vector of
+     * type par_type. The string field (std::get<0> mode / std::get<1> name) is retained only as a
+     * display label for monitors (e.g. GProgressPlotter) -- it no longer identifies a parameter.
      */
     template <typename par_type>
     std::any getVarItem(std::tuple<std::size_t, std::string, std::size_t> const &target) {
-        std::any result;
-
-        switch(std::get<0>(target)) {
-        //---------------------------------------------------------------------
-        case 0: {
-            std::vector<par_type> vars;
-            this->streamline<par_type>(vars);
-            result = vars.at(std::get<2>(target));
-        } break;
-
-            //---------------------------------------------------------------------
-        case 1: // var[3]
-        case 2: // var    --> treated as var[0]
-        {
-            std::map<std::string, std::vector<par_type>> var_map;
-            this->streamline<par_type>(var_map);
-            result = (Gem::Common::getMapItem<std::vector<par_type>>(var_map, std::get<1>(target)))
-                         .at(std::get<2>(target));
-        } break;
-
-            //---------------------------------------------------------------------
-        default: {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParameterSet::getVarVal(): Error!" << '\n'
-                << "Got invalid mode setting: " << std::get<0>(target) << '\n'
-            );
-        } break;
-
-            //---------------------------------------------------------------------
-        }
-
-        return result;
+        std::vector<par_type> vars;
+        this->streamline<par_type>(vars);
+        return std::any(vars.at(std::get<2>(target)));
     }
 
     /***************************************************************************/
@@ -635,34 +591,6 @@ public:
 
     /***************************************************************************/
     /**
-     * Loops over all GParameterBase objects. Each object will add its name
-     * and the values of its parameters to the map, if they comply with the
-     * type of the parameters to be stored in the vector.
-     *
-     * @param par_vec The map to which the parameters will be added
-     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
-     */
-    template <typename par_type>
-    void streamline(
-        std::map<std::string, std::vector<par_type>> &par_vec,
-        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
-    ) const {
-        // Make sure the vector is clean
-        par_vec.clear();
-
-        // Loop over all GParameterBase objects.
-        for(const auto &parm_ptr : *this) {
-            parm_ptr->streamline<par_type>(par_vec, am);
-        }
-    }
-
-    /* ----------------------------------------------------------------------------------
-     * So far untested.
-     * ----------------------------------------------------------------------------------
-     */
-
-    /***************************************************************************/
-    /**
      * Assigns values from a std::vector to the parameters in the collection
      *
      * @param par_vec A vector of values, to be assigned to be added to GParameterBase derivatives
@@ -691,27 +619,6 @@ public:
         // parameters and increment the position counter as required.
         for(const auto &parm_ptr : *this) {
             parm_ptr->assignValueVector<par_type>(par_vec, pos, am);
-        }
-
-        // As we have modified our internal data sets, make sure the item is reprocessed
-        this->mark_as_due_for_processing();
-    }
-
-    /***************************************************************************/
-    /**
-     * Assigns values from a std::map<std::string, std::vector<par_type>> to the parameters in the collection
-     *
-     * @param par_map A map of values, to be assigned to be added to GParameterBase derivatives
-     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be assigned
-     */
-    template <typename par_type>
-    void assignValueVectors(
-        std::map<std::string, std::vector<par_type>> const &par_map,
-        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
-    ) {
-        // Loop over all GParameterBase objects. Each object will extract the relevant parameters
-        for(const auto &parm_ptr : *this) {
-            parm_ptr->assignValueVectors<par_type>(par_map, am);
         }
 
         // As we have modified our internal data sets, make sure the item is reprocessed

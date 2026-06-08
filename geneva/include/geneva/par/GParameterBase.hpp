@@ -71,15 +71,13 @@ class GParameterBase
     auto localMembers() {
         return std::make_tuple(
             Gem::Common::make_member("adaptions_active_", adaptions_active_),
-            Gem::Common::make_member("random_initialization_blocked_", random_initialization_blocked_),
-            Gem::Common::make_member("parameter_name_", parameter_name_)
+            Gem::Common::make_member("random_initialization_blocked_", random_initialization_blocked_)
         );
     }
     auto localMembers() const {
         return std::make_tuple(
             Gem::Common::make_member("adaptions_active_", adaptions_active_),
-            Gem::Common::make_member("random_initialization_blocked_", random_initialization_blocked_),
-            Gem::Common::make_member("parameter_name_", parameter_name_)
+            Gem::Common::make_member("random_initialization_blocked_", random_initialization_blocked_)
         );
     }
 
@@ -139,11 +137,6 @@ public:
     bool isIndividualParameter() const;
     /** @brief Allows identifying whether we are dealing with a collection or an individual parameter */
     bool isParameterCollection() const;
-
-    /** @brief Allows assigning a name to this parameter */
-    void setParameterName(const std::string &);
-    /** @brief Allows retrieving the name of this parameter */
-    std::string getParameterName() const;
 
     /** @brief Checks whether this object matches a given activity mode */
     bool amMatch(const activityMode &) const;
@@ -219,27 +212,6 @@ public:
 
     /***************************************************************************/
     /**
-     * Allows to add all parameters of a specific type to the map. This function is a
-     * trap, needed to catch streamlining attempts with unsupported types. Use the supplied
-     * specializations instead.
-     *
-     * @param par_vec The vector to which the items should be added
-     */
-    template <typename par_type>
-    void streamline(
-        std::map<std::string, std::vector<par_type>> &par_vec,
-        [[maybe_unused]] activityMode am
-    ) const {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterBase::streamline(std::map<std::string, std::vec<par_type>>)"
-            << '\n'
-            << "Function called for unsupported type!" << '\n'
-        );
-    }
-
-    /***************************************************************************/
-    /**
      * Allows to assign the parameters inside of a vector the corresponding parameter objects.
      * This function is a trap, needed to catch attempts to use this function with unsupported
      * types. Use the supplied specializations instead.
@@ -256,24 +228,6 @@ public:
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParameterBase::assignValueVector()" << '\n'
-            << "Function called for unsupported type!" << '\n'
-        );
-    }
-
-    /***************************************************************************/
-    /**
-     * Assigns values from a std::map<std::string, std::vector<par_type>> to the parameter
-     *
-     * @param par_map The map with the parameters to be assigned to the object
-     */
-    template <typename par_type>
-    void assignValueVectors(
-        const std::map<std::string, std::vector<par_type>> &par_map,
-        [[maybe_unused]] activityMode am
-    ) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterBase::assignValueVectors()" << '\n'
             << "Function called for unsupported type!" << '\n'
         );
     }
@@ -476,22 +430,6 @@ protected:
     /** @brief Attach parameters of type bool to the vector */
     virtual void booleanStreamline(std::vector<bool> &, const activityMode &) const;
 
-    /** @brief Attach parameters of type float to the map */
-    virtual void
-    floatStreamline(std::map<std::string, std::vector<float>> &, const activityMode &) const;
-
-    /** @brief Attach parameters of type double to the map */
-    virtual void
-    doubleStreamline(std::map<std::string, std::vector<double>> &, const activityMode &) const;
-
-    /** @brief Attach parameters of type std::int32_t to the map */
-    virtual void
-    int32Streamline(std::map<std::string, std::vector<std::int32_t>> &, const activityMode &) const;
-
-    /** @brief Attach parameters of type bool to the map */
-    virtual void
-    booleanStreamline(std::map<std::string, std::vector<bool>> &, const activityMode &) const;
-
     /** @brief Assigns part of a value vector to the parameter */
     virtual void
     assignFloatValueVector(const std::vector<float> &, std::size_t &, const activityMode &);
@@ -507,30 +445,6 @@ protected:
     /** @brief Assigns part of a value vector to the parameter */
     virtual void
     assignBooleanValueVector(const std::vector<bool> &, std::size_t &, const activityMode &);
-
-    /** @brief Assigns part of a value vector to the parameter */
-    virtual void assignFloatValueVectors(
-        const std::map<std::string, std::vector<float>> &,
-        const activityMode &
-    );
-
-    /** @brief Assigns part of a value vector to the parameter */
-    virtual void assignDoubleValueVectors(
-        const std::map<std::string, std::vector<double>> &,
-        const activityMode &
-    );
-
-    /** @brief Assigns part of a value vector to the parameter */
-    virtual void assignInt32ValueVectors(
-        const std::map<std::string, std::vector<std::int32_t>> &,
-        const activityMode &
-    );
-
-    /** @brief Assigns part of a value vector to the parameter */
-    virtual void assignBooleanValueVectors(
-        const std::map<std::string, std::vector<bool>> &,
-        const activityMode &
-    );
 
     /** @brief Multiplication with a random value in a given range */
     virtual void floatMultiplyByRandom(
@@ -690,7 +604,6 @@ private:
         true; ///< Specifies whether adaptions of this object should be carried out
     bool random_initialization_blocked_ =
         false; ///< Specifies that this object should not be initialized again
-    std::string parameter_name_ = Gem::Common::generate_uuid_v4(); ///< A name assigned to this parameter object
 };
 
 /******************************************************************************/
@@ -743,64 +656,6 @@ inline void GParameterBase::streamline<std::int32_t>(
  */
 template <>
 inline void GParameterBase::streamline<bool>(std::vector<bool> &par_vec, activityMode am) const {
-    if(this->modifiableAmMatchOrHandover(am)) {
-        this->booleanStreamline(par_vec, am);
-    }
-}
-
-/******************************************************************************/
-/**
- * Allows to add all parameters of type float to the map.
- */
-template <>
-inline void GParameterBase::streamline<float>(
-    std::map<std::string, std::vector<float>> &par_vec,
-    activityMode am
-) const {
-    if(this->modifiableAmMatchOrHandover(am)) {
-        this->floatStreamline(par_vec, am);
-    }
-}
-
-/******************************************************************************/
-/**
- * Allows to add all parameters of type double to the map.
- */
-template <>
-inline void GParameterBase::streamline<double>(
-    std::map<std::string, std::vector<double>> &par_vec,
-    activityMode am
-) const {
-    if(this->modifiableAmMatchOrHandover(am)) {
-        this->doubleStreamline(par_vec, am);
-    }
-}
-
-/******************************************************************************/
-/**
- * Allows to add all parameters of type std::int32_t to the map.
- *
- * @param par_vec The vector to which the items should be added
- */
-template <>
-inline void GParameterBase::streamline<std::int32_t>(
-    std::map<std::string, std::vector<std::int32_t>> &par_vec,
-    activityMode am
-) const {
-    if(this->modifiableAmMatchOrHandover(am)) {
-        this->int32Streamline(par_vec, am);
-    }
-}
-
-/******************************************************************************/
-/**
- * Allows to add all parameters of type bool to the map.
- */
-template <>
-inline void GParameterBase::streamline<bool>(
-    std::map<std::string, std::vector<bool>> &par_vec,
-    activityMode am
-) const {
     if(this->modifiableAmMatchOrHandover(am)) {
         this->booleanStreamline(par_vec, am);
     }
@@ -990,64 +845,6 @@ inline void GParameterBase::assignValueVector<bool>(
     activityMode am
 ) {
     this->assignBooleanValueVector(par_vec, pos, am);
-}
-
-/******************************************************************************/
-/**
- * Allows to assign the parameters inside of a map to the corresponding parameter objects.
- */
-template <>
-inline void GParameterBase::assignValueVectors<float>(
-    const std::map<std::string, std::vector<float>> &par_map,
-    activityMode am
-) {
-    if(this->modifiableAmMatchOrHandover(am)) {
-        this->assignFloatValueVectors(par_map, am);
-    }
-}
-
-/******************************************************************************/
-/**
- * Allows to assign the parameters inside of a map to the corresponding parameter objects.
- */
-template <>
-inline void GParameterBase::assignValueVectors<double>(
-    const std::map<std::string, std::vector<double>> &par_map,
-    activityMode am
-) {
-    if(this->modifiableAmMatchOrHandover(am)) {
-        this->assignDoubleValueVectors(par_map, am);
-    }
-}
-
-/******************************************************************************/
-/**
- * Allows to assign the parameters inside of a map to the corresponding parameter objects.
- *
- * @param par_map The vector with the parameters to be assigned to the object
- */
-template <>
-inline void GParameterBase::assignValueVectors<std::int32_t>(
-    const std::map<std::string, std::vector<std::int32_t>> &par_map,
-    activityMode am
-) {
-    if(this->modifiableAmMatchOrHandover(am)) {
-        this->assignInt32ValueVectors(par_map, am);
-    }
-}
-
-/******************************************************************************/
-/**
- * Allows to assign the parameters inside of a map to the corresponding parameter objects.
- */
-template <>
-inline void GParameterBase::assignValueVectors<bool>(
-    const std::map<std::string, std::vector<bool>> &par_map,
-    activityMode am
-) {
-    if(this->modifiableAmMatchOrHandover(am)) {
-        this->assignBooleanValueVectors(par_map, am);
-    }
 }
 
 /******************************************************************************/

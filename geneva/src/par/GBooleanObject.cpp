@@ -264,29 +264,6 @@ void GBooleanObject::booleanStreamline(
 }
 
 /******************************************************************************/
-/**
- * Attach our local value to the map.
- */
-void GBooleanObject::booleanStreamline(
-    std::map<std::string, std::vector<bool>> &par_vec,
-    [[maybe_unused]] const activityMode & am
-) const {
-#ifdef DEBUG
-    if((this->getParameterName()).empty()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBooleanObject::booleanStreamline(std::map<std::string, std::vector<bool>>& "
-               "par_vec) const: Error!"
-            << '\n'
-            << "No name was assigned to the object" << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    std::vector<bool> parameters;
-    parameters.push_back(this->value());
-    par_vec[this->getParameterName()] = parameters;
-}
 
 /******************************************************************************/
 /**
@@ -342,17 +319,6 @@ void GBooleanObject::assignBooleanValueVector(
 }
 
 /******************************************************************************/
-/**
- * Assigns part of a value map to the parameter
- */
-void GBooleanObject::assignBooleanValueVectors(
-    const std::map<std::string, std::vector<bool>> &par_map,
-    [[maybe_unused]] const activityMode & am
-) {
-    this->setValue(
-        (Gem::Common::getMapItem<std::vector<bool>>(par_map, this->getParameterName())).at(0)
-    );
-}
 
 /******************************************************************************/
 /**

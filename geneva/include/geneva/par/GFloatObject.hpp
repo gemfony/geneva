@@ -119,16 +119,6 @@ protected:
         std::size_t &,
         const activityMode &am
     ) override;
-    /** @brief Attach our local value to the map. */
-    void floatStreamline(
-        std::map<std::string, std::vector<float>> &,
-        const activityMode &am
-    ) const override;
-    /** @brief Assigns part of a value map to the parameter */
-    void assignFloatValueVectors(
-        const std::map<std::string, std::vector<float>> &,
-        const activityMode &am
-    ) override;
 
     /** @brief Multiplication with a random value in a given range */
     void floatMultiplyByRandom(

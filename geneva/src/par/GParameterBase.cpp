@@ -197,20 +197,6 @@ std::string GParameterBase::name_() const {
 
 /***********************************************************************************/
 /**
- * Allows to assign a name to this parameter
- */
-void GParameterBase::setParameterName(const std::string &pn) {
-    parameter_name_ = pn;
-}
-
-/***********************************************************************************/
-/** @brief Allows to retrieve the name of this parameter */
-std::string GParameterBase::getParameterName() const {
-    return parameter_name_;
-}
-
-/***********************************************************************************/
-/**
  * Checks whether this object matches a given activity mode. This helper function
  * saves us from having to repeat this switch statement in all GParmaterBase-derivatives.
  *
@@ -397,17 +383,6 @@ void GParameterBase::booleanStreamline(std::vector<bool> &par_vec, const activit
  */
 
 /******************************************************************************/
-/**
- * Attach parameters of type double to the map. This function does nothing by
- * default. Parameter types based on doubles need to overload this function and do
- * the actual work.
- */
-void GParameterBase::floatStreamline(
-    std::map<std::string, std::vector<float>> &par_vec,
-    const activityMode &
-) const {
-    /* do nothing by default */
-}
 
 /* -----------------------------------------------------------------------------
  * So far untested
@@ -415,17 +390,6 @@ void GParameterBase::floatStreamline(
  */
 
 /******************************************************************************/
-/**
- * Attach parameters of type double to the map. This function does nothing by
- * default. Parameter types based on doubles need to overload this function and do
- * the actual work.
- */
-void GParameterBase::doubleStreamline(
-    std::map<std::string, std::vector<double>> &par_vec,
-    const activityMode &
-) const {
-    /* do nothing by default */
-}
 
 /* -----------------------------------------------------------------------------
  * So far untested
@@ -433,17 +397,6 @@ void GParameterBase::doubleStreamline(
  */
 
 /******************************************************************************/
-/**
- * Attach parameters of type std::int32_t to the map. This function does nothing by
- * default. Parameter types based on std::int32_t need to overload this function and do
- * the actual work.
- */
-void GParameterBase::int32Streamline(
-    std::map<std::string, std::vector<std::int32_t>> &par_vec,
-    const activityMode &
-) const {
-    /* do nothing by default */
-}
 
 /* -----------------------------------------------------------------------------
  * So far untested
@@ -451,17 +404,6 @@ void GParameterBase::int32Streamline(
  */
 
 /******************************************************************************/
-/**
- * Attach parameters of type bool to the map. This function does nothing by
- * default. Parameter types based on bool need to overload this function and do
- * the actual work.
- */
-void GParameterBase::booleanStreamline(
-    std::map<std::string, std::vector<bool>> &par_vec,
-    const activityMode &
-) const {
-    /* do nothing by default */
-}
 
 /* -----------------------------------------------------------------------------
  * So far untested
@@ -672,15 +614,6 @@ void GParameterBase::assignBooleanValueVector(
  */
 
 /******************************************************************************/
-/**
- * Assigns part of a value vector to the parameter
- */
-void GParameterBase::assignFloatValueVectors(
-    const std::map<std::string, std::vector<float>> &par_map,
-    const activityMode &
-) {
-    /* Do nothing by default */
-}
 
 /* -----------------------------------------------------------------------------
  * So far untested
@@ -688,15 +621,6 @@ void GParameterBase::assignFloatValueVectors(
  */
 
 /******************************************************************************/
-/**
- * Assigns part of a value vector to the parameter
- */
-void GParameterBase::assignDoubleValueVectors(
-    const std::map<std::string, std::vector<double>> &par_map,
-    const activityMode &
-) {
-    /* Do nothing by default */
-}
 
 /* -----------------------------------------------------------------------------
  * So far untested
@@ -704,15 +628,6 @@ void GParameterBase::assignDoubleValueVectors(
  */
 
 /******************************************************************************/
-/**
- * Assigns part of a value vector to the parameter
- */
-void GParameterBase::assignInt32ValueVectors(
-    const std::map<std::string, std::vector<std::int32_t>> &par_map,
-    const activityMode &
-) {
-    /* Do nothing by default */
-}
 
 /* -----------------------------------------------------------------------------
  * So far untested
@@ -720,15 +635,6 @@ void GParameterBase::assignInt32ValueVectors(
  */
 
 /******************************************************************************/
-/**
- * Assigns part of a value vector to the parameter
- */
-void GParameterBase::assignBooleanValueVectors(
-    const std::map<std::string, std::vector<bool>> &par_map,
-    const activityMode &
-) {
-    /* Do nothing by default */
-}
 
 /* -----------------------------------------------------------------------------
  * So far untested

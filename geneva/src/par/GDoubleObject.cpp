@@ -163,29 +163,6 @@ void GDoubleObject::doubleStreamline(
 }
 
 /******************************************************************************/
-/**
- * Attach our local value to the map.
- */
-void GDoubleObject::doubleStreamline(
-    std::map<std::string, std::vector<double>> &par_vec,
-    [[maybe_unused]] const activityMode & am
-) const {
-#ifdef DEBUG
-    if((this->getParameterName()).empty()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GDoubleObject::doubleStreamline(std::map<std::string, std::vector<double>>& "
-               "par_vec) const: Error!"
-            << '\n'
-            << "No name was assigned to the object" << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    std::vector<double> parameters;
-    parameters.push_back(this->value());
-    par_vec[this->getParameterName()] = parameters;
-}
 
 /******************************************************************************/
 /**
@@ -242,15 +219,6 @@ void GDoubleObject::assignDoubleValueVector(
 }
 
 /******************************************************************************/
-/**
- * Assigns part of a value map to the parameter
- */
-void GDoubleObject::assignDoubleValueVectors(
-    const std::map<std::string, std::vector<double>> &par_map,
-    [[maybe_unused]] const activityMode & am
-) {
-    this->setValue((Gem::Common::getMapItem(par_map, this->getParameterName())).at(0));
-}
 
 /******************************************************************************/
 /**

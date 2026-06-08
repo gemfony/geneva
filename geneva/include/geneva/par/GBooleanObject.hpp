@@ -133,16 +133,6 @@ protected:
         std::size_t &,
         const activityMode &am
     ) override;
-    /** @brief Attach our local value to the map. */
-    void booleanStreamline(
-        std::map<std::string, std::vector<bool>> &,
-        const activityMode &am
-    ) const override;
-    /** @brief Assigns part of a value map to the parameter */
-    void assignBooleanValueVectors(
-        const std::map<std::string, std::vector<bool>> &,
-        const activityMode &am
-    ) override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     bool modify_GUnitTests_() override;

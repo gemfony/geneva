@@ -168,18 +168,6 @@ void GConstrainedDoubleObject::doubleStreamline(
 }
 
 /******************************************************************************/
-/**
- * Attach our local value to the map.
- */
-void GConstrainedDoubleObject::doubleStreamline(
-    std::map<std::string, std::vector<double>> &par_vec,
-    [[maybe_unused]] const activityMode & am
-) const {
-    std::vector<double> parameters;
-    // Note: application of the transfer function happens in GConstrainedNumT inside value()
-    parameters.push_back(this->value());
-    par_vec[this->getParameterName()] = parameters;
-}
 
 /******************************************************************************/
 /**
@@ -236,17 +224,6 @@ void GConstrainedDoubleObject::assignDoubleValueVector(
 }
 
 /******************************************************************************/
-/**
- * Assigns part of a value map to the parameter
- */
-void GConstrainedDoubleObject::assignDoubleValueVectors(
-    const std::map<std::string, std::vector<double>> &par_map,
-    [[maybe_unused]] const activityMode & am
-) {
-    this->setValue(
-        this->transfer(Gem::Common::getMapItem(par_map, this->getParameterName()).at(0))
-    );
-}
 
 /******************************************************************************/
 /**

@@ -612,58 +612,13 @@ void GParameterScan::updateSelectedParameters() {
         } break;
 
         //---------------------------------------------------------------------
-        // Mode 1 and 2 are treated alike
-        case 1: // Parameters are referenced as var[n]
-        case 2: // Parameters are references as var --> equivalent to var[0]
-        {
-            std::map<std::string, std::vector<bool>> b_data;
-            std::map<std::string, std::vector<std::int32_t>> i_data;
-            std::map<std::string, std::vector<float>> f_data;
-            std::map<std::string, std::vector<double>> d_data;
-
-            // Retrieve the parameter maos
-            this->at(ind_pos)->streamline<bool>(b_data);
-            this->at(ind_pos)->streamline<std::int32_t>(i_data);
-            this->at(ind_pos)->streamline<float>(f_data);
-            this->at(ind_pos)->streamline<double>(d_data);
-
-            // Add the data items from the parSet object to the maos
-
-            // 1) For boolean data
-            for(const auto &b_par : p_s->bParVec) {
-                this->addDataPoint<bool>(b_par, b_data);
-            }
-
-            // 2) For std::int32_t data
-            for(const auto &i_par : p_s->iParVec) {
-                this->addDataPoint<std::int32_t>(i_par, i_data);
-            }
-
-            // 3) For float values
-            for(const auto &f_par : p_s->fParVec) {
-                this->addDataPoint<float>(f_par, f_data);
-            }
-
-            // 4) For double values
-            for(const auto &d_par : p_s->dParVec) {
-                this->addDataPoint<double>(d_par, d_data);
-            }
-
-            // Copy the data back into the individual
-            this->at(ind_pos)->assignValueVectors<bool>(b_data);
-            this->at(ind_pos)->assignValueVectors<std::int32_t>(i_data);
-            this->at(ind_pos)->assignValueVectors<float>(f_data);
-            this->at(ind_pos)->assignValueVectors<double>(d_data);
-        }
-
-        break;
-
-        //---------------------------------------------------------------------
         default: {
+            // By-name parameter addressing (modes 1/2) has been removed; the parameter-property
+            // parser only ever emits positional (mode-0) specifications now.
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterScan::updateSelectedParameters(): Error!" << '\n'
-                << "Encountered invalid mode " << mode << '\n'
+                << "Encountered unsupported (non-positional) mode " << mode << '\n'
             );
         } break;
         }

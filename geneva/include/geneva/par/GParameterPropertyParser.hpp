@@ -38,27 +38,6 @@
 #include <tuple>
 #include <vector>
 
-// Boost headers go here
-#include <boost/fusion/adapted/boost_tuple.hpp>
-#include <boost/fusion/adapted/std_tuple.hpp>
-#include <boost/fusion/include/adapt_struct.hpp>
-#include <boost/fusion/include/boost_tuple.hpp>
-#include <boost/fusion/include/io.hpp>
-#include <boost/fusion/include/tuple.hpp>
-#include <boost/phoenix/core.hpp>
-#include <boost/phoenix/operator.hpp>
-#include <boost/phoenix/stl.hpp>
-#include <boost/spirit/include/qi_action.hpp>
-#include <boost/spirit/include/qi_auxiliary.hpp>
-#include <boost/spirit/include/qi_char.hpp>
-#include <boost/spirit/include/qi_hold.hpp>
-#include <boost/spirit/include/qi_lit.hpp>
-#include <boost/spirit/include/qi_nonterminal.hpp>
-#include <boost/spirit/include/qi_numeric.hpp>
-#include <boost/spirit/include/qi_operator.hpp>
-#include <boost/spirit/include/qi_raw.hpp>
-#include <boost/spirit/include/qi_string.hpp>
-
 // Geneva headers go here
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GErrorStreamer.hpp"
@@ -315,40 +294,6 @@ std::ostream &operator<<(std::ostream &o, const parPropSpec<par_type> &s) {
 } /* namespace Gem::Geneva::Parameters */
 
 /******************************************************************************/
-// Make our structs accessible to boost.fusion. These macros must be
-// called in the global namespace
-
-/** @brief Makes the struct boost.fusion-compatible */
-BOOST_FUSION_ADAPT_STRUCT(
-    Gem::Geneva::Parameters::parPropSpec<double>,
-    (Gem::Geneva::Parameters::NAMEANDIDTYPE,
-     var)(double, lowerBoundary)(double, upperBoundary)(std::size_t, nSteps)
-)
-
-/** @brief Makes the struct boost.fusion-compatible */
-BOOST_FUSION_ADAPT_STRUCT(
-    Gem::Geneva::Parameters::parPropSpec<float>,
-    (Gem::Geneva::Parameters::NAMEANDIDTYPE,
-     var)(float, lowerBoundary)(float, upperBoundary)(std::size_t, nSteps)
-)
-
-/** @brief Makes the struct boost.fusion-compatible */
-BOOST_FUSION_ADAPT_STRUCT(
-    Gem::Geneva::Parameters::parPropSpec<std::int32_t>,
-    (Gem::Geneva::Parameters::NAMEANDIDTYPE,
-     var)(std::int32_t, lowerBoundary)(std::int32_t, upperBoundary)(std::size_t, nSteps)
-)
-
-/** @brief Makes the struct boost.fusion-compatible */
-BOOST_FUSION_ADAPT_STRUCT(
-    Gem::Geneva::Parameters::parPropSpec<bool>,
-    (Gem::Geneva::Parameters::NAMEANDIDTYPE, var)(bool, lowerBoundary)(bool, upperBoundary)(std::size_t, nSteps)
-)
-
-/** @brief Makes the struct boost.fusion-compatible */
-BOOST_FUSION_ADAPT_STRUCT(Gem::Geneva::Parameters::simpleScanSpec, (std::size_t, nItems))
-
-/******************************************************************************/
 
 namespace Gem::Geneva::Parameters {
 
@@ -422,40 +367,6 @@ public:
 
 private:
     /***************************************************************************/
-
-    boost::spirit::qi::
-        rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type>
-            var_spec_;
-    boost::spirit::qi::rule<
-        std::string::const_iterator,
-        std::tuple<char, std::string>(),
-        boost::spirit::ascii::space_type>
-        var_string_;
-
-    boost::spirit::qi::
-        rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type>
-            identifier_;
-    boost::spirit::qi::
-        rule<std::string::const_iterator, NAMEANDIDTYPE(), boost::spirit::ascii::space_type>
-            var_reference_;
-
-    boost::spirit::qi::
-        rule<std::string::const_iterator, simpleScanSpec(), boost::spirit::ascii::space_type>
-            simple_scan_parser_;
-    boost::spirit::qi::
-        rule<std::string::const_iterator, parPropSpec<double>(), boost::spirit::ascii::space_type>
-            double_string_parser_;
-    boost::spirit::qi::
-        rule<std::string::const_iterator, parPropSpec<float>(), boost::spirit::ascii::space_type>
-            float_string_parser_;
-    boost::spirit::qi::rule<
-        std::string::const_iterator,
-        parPropSpec<std::int32_t>(),
-        boost::spirit::ascii::space_type>
-        int_string_parser_;
-    boost::spirit::qi::
-        rule<std::string::const_iterator, parPropSpec<bool>(), boost::spirit::ascii::space_type>
-            bool_string_parser_;
 
     std::string raw_; ///< Holds the "raw" parameter description
     bool parsed_;     ///< Indicates whether the raw_ string has already been parsed
@@ -615,16 +526,3 @@ GParameterPropertyParser::getIterators<bool>() const {
 /******************************************************************************/
 
 } /* namespace Gem::Geneva::Parameters */
-
-// Needed for rules to work. Follows http://boost.2283326.n4.nabble.com/hold-multi-pass-backtracking-swap-compliant-ast-td4664679.html
-namespace boost::spirit {
-
-void
-swap(Gem::Geneva::Parameters::parPropSpec<double> &, Gem::Geneva::Parameters::parPropSpec<double> &) noexcept;
-void
-swap(Gem::Geneva::Parameters::parPropSpec<float> &, Gem::Geneva::Parameters::parPropSpec<float> &) noexcept;
-void
-swap(Gem::Geneva::Parameters::parPropSpec<std::int32_t> &, Gem::Geneva::Parameters::parPropSpec<std::int32_t> &) noexcept;
-void swap(Gem::Geneva::Parameters::parPropSpec<bool> &, Gem::Geneva::Parameters::parPropSpec<bool> &) noexcept;
-
-} /* namespace boost::spirit */

@@ -30,102 +30,133 @@
 #include "geneva/par/GParameterPropertyParser.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+
 #include <cstddef>
 #include <cstdint>
-#include <cstdlib>
 #include <string>
-#include <tuple>
 #include <vector>
-
-// Needed for rules to work. Follows http://boost.2283326.n4.nabble.com/hold-multi-pass-backtracking-swap-compliant-ast-td4664679.html
-namespace boost::spirit {
-
-void swap(Gem::Geneva::Parameters::parPropSpec<double> &a, Gem::Geneva::Parameters::parPropSpec<double> &b) noexcept {
-    a.swap(b);
-}
-
-void swap(Gem::Geneva::Parameters::parPropSpec<float> &a, Gem::Geneva::Parameters::parPropSpec<float> &b) noexcept {
-    a.swap(b);
-}
-
-void swap(
-    Gem::Geneva::Parameters::parPropSpec<std::int32_t> &a,
-    Gem::Geneva::Parameters::parPropSpec<std::int32_t> &b
-) noexcept {
-    a.swap(b);
-}
-
-void swap(Gem::Geneva::Parameters::parPropSpec<bool> &a, Gem::Geneva::Parameters::parPropSpec<bool> &b) noexcept {
-    a.swap(b);
-}
-
-} /* namespace boost::spirit */
 
 namespace Gem::Geneva::Parameters {
 
 constexpr std::size_t GPP_DEF_NSTEPS = 100; // The default number of steps for a given parameter
 
 /******************************************************************************/
+// Small hand-written parsing helpers. They replace the former Boost.Spirit grammar:
+// the parameter-property syntax is now strictly positional, so a tiny tokenizer is
+// both sufficient and far simpler.
+//
+// Grammar (whitespace is ignored):
+//   spec-list := spec ( ',' spec )*
+//   spec      := type '(' args ')'
+//   type      := 'd' | 'f' | 'i' | 'b' | 's'
+//   args (d/f/i) := index ',' lower ',' upper [ ',' nSteps ] [ ',' label ]
+//   args (b)     := index [ ',' lower ',' upper [ ',' nSteps ] ] [ ',' label ]
+//   args (s)     := nItems
+// Parameters are addressed by 'index' (their position in the flat parameter vector of
+// the corresponding type). The optional 'label' is a free-form display name used by
+// monitors (e.g. GProgressPlotter axis labels); it does NOT identify a parameter.
+namespace {
+
+std::string trim(const std::string &s) {
+    std::size_t b = s.find_first_not_of(" \t\n\r");
+    if(b == std::string::npos) {
+        return std::string{};
+    }
+    std::size_t e = s.find_last_not_of(" \t\n\r");
+    return s.substr(b, e - b + 1);
+}
+
+std::vector<std::string> splitOnComma(const std::string &s) {
+    std::vector<std::string> out;
+    std::string cur;
+    for(char c : s) {
+        if(c == ',') {
+            out.push_back(trim(cur));
+            cur.clear();
+        }
+        else {
+            cur.push_back(c);
+        }
+    }
+    out.push_back(trim(cur));
+    return out;
+}
+
+bool isUnsigned(const std::string &s) {
+    if(s.empty()) {
+        return false;
+    }
+    for(char c : s) {
+        if(c < '0' || c > '9') {
+            return false;
+        }
+    }
+    return true;
+}
+
+[[noreturn]] void fail(const std::string &raw) {
+    throw geneva_exception(
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+        << "In GParameterPropertyParser::parse(): Error!" << '\n'
+        << "Could not parse parameter-property fragment: " << raw << '\n'
+    );
+}
+
+std::size_t toUnsigned(const std::string &s, const std::string &raw) {
+    if(not isUnsigned(s)) {
+        fail(raw);
+    }
+    return static_cast<std::size_t>(std::stoul(s));
+}
+
+bool toBool(const std::string &s, const std::string &raw) {
+    if(s == "true" || s == "1") {
+        return true;
+    }
+    if(s == "false" || s == "0") {
+        return false;
+    }
+    fail(raw);
+}
+
+// Fills the var/bounds/nSteps/label of a numeric (d/f/i) spec from its argument tokens.
+template <typename par_type, typename ConvFun>
+parPropSpec<par_type> makeNumericSpec(
+    const std::vector<std::string> &tok,
+    ConvFun convertBound,
+    const std::string &raw
+) {
+    if(tok.size() < 3) {
+        fail(raw);
+    }
+    parPropSpec<par_type> spec;
+    const std::size_t index = toUnsigned(tok[0], raw);
+    spec.lowerBoundary = convertBound(tok[1], raw);
+    spec.upperBoundary = convertBound(tok[2], raw);
+    spec.nSteps = GPP_DEF_NSTEPS;
+    std::string label;
+    for(std::size_t k = 3; k < tok.size(); ++k) {
+        if(isUnsigned(tok[k])) {
+            spec.nSteps = static_cast<std::size_t>(std::stoul(tok[k]));
+        }
+        else {
+            label = tok[k];
+        }
+    }
+    spec.var = NAMEANDIDTYPE(label.empty() ? 0 : 2, label, index);
+    return spec;
+}
+
+} /* anonymous namespace */
+
+/******************************************************************************/
 /**
- * The standard constructor -- assignment of the "raw" paramter property string
+ * The standard constructor -- assignment of the "raw" parameter property string
  */
 GParameterPropertyParser::GParameterPropertyParser(const std::string &rw)
   : raw_(rw)
   , parsed_(false) {
-    using boost::spirit::lexeme;
-    using boost::spirit::ascii::space;
-    using boost::spirit::ascii::string;
-    using boost::spirit::qi::attr;
-    using boost::spirit::qi::bool_;
-    using boost::spirit::qi::char_;
-    using boost::spirit::qi::double_;
-    using boost::spirit::qi::float_;
-    using boost::spirit::qi::int_;
-    using boost::spirit::qi::lit;
-    using boost::spirit::qi::phrase_parse;
-    using boost::spirit::qi::uint_;
-
-    using boost::spirit::qi::alnum;
-    using boost::spirit::qi::alpha;
-    using boost::spirit::qi::hold;
-    using boost::spirit::qi::raw;
-
-    var_spec_ = +char_("0-9a-zA-Z_,.+-[]");
-    var_string_ = char_("dfibs") > '(' > var_spec_ > ')';
-
-    identifier_ = raw[(alpha | '_') >> *(alnum | '_')];
-
-    var_reference_ =
-        (hold[attr(0) >> attr("empty") >> uint_] |
-         hold[attr(1) >> identifier_ >> '[' >> uint_ >> ']'] | (attr(2) >> identifier_ >> attr(0)));
-
-    simple_scan_parser_ = uint_;
-    double_string_parser_ =
-        (hold[var_reference_ >> ',' >> double_ >> ',' >> double_ >> ',' >> uint_] |
-         (var_reference_ >> ',' >> double_ >> ',' >> double_ >> attr(GPP_DEF_NSTEPS)));
-    float_string_parser_ =
-        (hold[var_reference_ >> ',' >> float_ >> ',' >> float_ >> ',' >> uint_] |
-         (var_reference_ >> ',' >> float_ >> ',' >> float_ >> attr(GPP_DEF_NSTEPS)));
-    int_string_parser_ =
-        (hold[var_reference_ >> ',' >> int_ >> ',' >> int_ >> ',' >> uint_] |
-         (var_reference_ >> ',' >> int_ >> ',' >> int_ >> attr(GPP_DEF_NSTEPS)));
-    bool_string_parser_ =
-        (hold[var_reference_ >> ',' >> bool_ >> ',' >> bool_ >> ',' >> uint_] |
-         (var_reference_ >> attr(false) >> attr(true) >> attr(GPP_DEF_NSTEPS)));
-
-    try {
-        this->parse();
-    }
-    catch(
-        const geneva_exception &e
-    ) { // NOLINT(bugprone-empty-catch) — logs and exits cleanly via LOGEXIT
-        glogger << "In GParameterPropertyParser::GParameterPropertyParser(const std::string& raw): "
-                   "Error!"
-                << '\n'
-                << "Caught Geneva exception while parsing the parameter-property string:" << '\n'
-                << e.what() << '\n'
-                << LOGEXIT(EXIT_FAILURE);
-    }
+    this->parse();
 }
 
 /******************************************************************************/
@@ -165,163 +196,143 @@ void GParameterPropertyParser::setNewParameterDescription(std::string raw) {
 
 /******************************************************************************/
 /**
- * Initiates parsing of the raw_ string
+ * Initiates parsing of the raw_ string. The grammar is documented at the top of this file.
  */
 void GParameterPropertyParser::parse() {
-    using boost::spirit::lexeme;
-    using boost::spirit::ascii::space;
-    using boost::spirit::qi::attr;
-    using boost::spirit::qi::bool_;
-    using boost::spirit::qi::char_;
-    using boost::spirit::qi::double_;
-    using boost::spirit::qi::float_;
-    using boost::spirit::qi::int_;
-    using boost::spirit::qi::lit;
-    using boost::spirit::qi::phrase_parse;
-    using boost::spirit::qi::uint_;
-
-    using boost::phoenix::push_back;
-    using boost::spirit::qi::_1;
-
     // Do nothing if the string has already been parsed
     if(parsed_) {
         return;
     }
 
-    bool success = false;
-
-    std::string::const_iterator from = raw_.begin();
-    std::string::const_iterator to = raw_.end();
-
-    std::vector<std::tuple<char, std::string>> variable_descriptions;
-
-    // Dissect the raw string into sub-strings responsible for individual parameters
-    success = phrase_parse(from, to, (var_string_ % ','), space, variable_descriptions);
-
-    if(not success || from != to) {
-        std::string rest(from, to);
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterPropertyParser::parse(): Error[1]!" << '\n'
-            << "Parsing of variable descriptions failed. Unparsed fragement: " << rest << '\n'
-        );
+    // Tokenize the raw string into (type, content) fragments of the form type'('content')'.
+    std::vector<std::pair<char, std::string>> fragments;
+    {
+        const std::string &s = raw_;
+        std::size_t i = 0;
+        const std::size_t n = s.size();
+        auto skipSep = [&]() {
+            while(i < n && (s[i] == ' ' || s[i] == '\t' || s[i] == '\n' || s[i] == '\r' || s[i] == ',')) {
+                ++i;
+            }
+        };
+        skipSep();
+        while(i < n) {
+            const char type = s[i];
+            if(type != 'd' && type != 'f' && type != 'i' && type != 'b' && type != 's') {
+                fail(s.substr(i));
+            }
+            ++i;
+            if(i >= n || s[i] != '(') {
+                fail(s.substr(i));
+            }
+            ++i; // consume '('
+            std::string content;
+            while(i < n && s[i] != ')') {
+                content.push_back(s[i]);
+                ++i;
+            }
+            if(i >= n) { // no closing ')'
+                fail(s);
+            }
+            ++i; // consume ')'
+            fragments.emplace_back(type, content);
+            skipSep();
+        }
     }
 
-    // Process each individual string
-    for(const auto &variable_description : variable_descriptions) {
-        std::string var_descr = std::get<1>(variable_description);
+    // Process each fragment.
+    for(const auto &fragment : fragments) {
+        const char type = fragment.first;
+        const std::vector<std::string> tok = splitOnComma(fragment.second);
 
-        from = var_descr.begin();
-        to = var_descr.end();
-
-        if('d' == std::get<0>(variable_description)) {
-            success = phrase_parse(
-                from,
-                to,
-                double_string_parser_[push_back(boost::phoenix::ref(d_spec_vec_), _1)],
-                space
-            );
+        if(type == 'd') {
+            d_spec_vec_.push_back(makeNumericSpec<double>(
+                tok,
+                [](const std::string &t, const std::string &raw) { return t.empty() ? (fail(raw), 0.0) : std::stod(t); },
+                fragment.second
+            ));
         }
-        else if('f' == std::get<0>(variable_description)) {
-            success = phrase_parse(
-                from,
-                to,
-                float_string_parser_[push_back(boost::phoenix::ref(f_spec_vec_), _1)],
-                space
-            );
+        else if(type == 'f') {
+            f_spec_vec_.push_back(makeNumericSpec<float>(
+                tok,
+                [](const std::string &t, const std::string &raw) { return t.empty() ? (fail(raw), 0.0f) : std::stof(t); },
+                fragment.second
+            ));
         }
-        else if('i' == std::get<0>(variable_description)) {
-            success = phrase_parse(
-                from,
-                to,
-                int_string_parser_[push_back(boost::phoenix::ref(i_spec_vec_), _1)],
-                space
-            );
+        else if(type == 'i') {
+            i_spec_vec_.push_back(makeNumericSpec<std::int32_t>(
+                tok,
+                [](const std::string &t, const std::string &raw) { return t.empty() ? (fail(raw), std::int32_t(0)) : static_cast<std::int32_t>(std::stoi(t)); },
+                fragment.second
+            ));
         }
-        else if('b' == std::get<0>(variable_description)) {
-            success = phrase_parse(
-                from,
-                to,
-                bool_string_parser_[push_back(boost::phoenix::ref(b_spec_vec_), _1)],
-                space
-            );
+        else if(type == 'b') {
+            if(tok.empty() || tok[0].empty()) {
+                fail(fragment.second);
+            }
+            parPropSpec<bool> spec;
+            const std::size_t index = toUnsigned(tok[0], fragment.second);
+            spec.lowerBoundary = false;
+            spec.upperBoundary = true;
+            spec.nSteps = GPP_DEF_NSTEPS;
+            std::string label;
+            if(tok.size() >= 3) {
+                spec.lowerBoundary = toBool(tok[1], fragment.second);
+                spec.upperBoundary = toBool(tok[2], fragment.second);
+                for(std::size_t k = 3; k < tok.size(); ++k) {
+                    if(isUnsigned(tok[k])) {
+                        spec.nSteps = static_cast<std::size_t>(std::stoul(tok[k]));
+                    }
+                    else {
+                        label = tok[k];
+                    }
+                }
+            }
+            else if(tok.size() == 2) {
+                if(isUnsigned(tok[1])) {
+                    spec.nSteps = static_cast<std::size_t>(std::stoul(tok[1]));
+                }
+                else {
+                    label = tok[1];
+                }
+            }
+            spec.var = NAMEANDIDTYPE(label.empty() ? 0 : 2, label, index);
+            b_spec_vec_.push_back(spec);
         }
-        else if('s' == std::get<0>(variable_description)) {
-            success = phrase_parse(
-                from,
-                to,
-                simple_scan_parser_[push_back(boost::phoenix::ref(s_spec_vec_), _1)],
-                space
-            );
+        else if(type == 's') {
+            if(tok.empty()) {
+                fail(fragment.second);
+            }
+            simpleScanSpec spec{};
+            spec.nItems = toUnsigned(tok[0], fragment.second);
+            s_spec_vec_.push_back(spec);
         }
         else {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParameterPropertyParser::parse(): Error!" << '\n'
-                << "Invalid type specifier: " << std::get<0>(variable_description) << '\n'
-            );
+            fail(fragment.second);
         }
+    }
 
-        if(not success || from != to) {
-            std::string rest(from, to);
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParameterPropertyParser::parse(): Error[2]!" << '\n'
-                << "Parsing of variable descriptions failed. Unparsed fragment: " << rest
-                << '\n'
-            );
-        }
+    // We only accept a single "simple-scan" entry. Complain, if more than one was found.
+    if(s_spec_vec_.size() > 1) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GParameterPropertyParser::parse(): Error!" << '\n'
+            << "Found " << s_spec_vec_.size() << " simple scan entries where a" << '\n'
+            << "maximum of 1 is allowed" << '\n'
+        );
+    }
+    if(s_spec_vec_.size() == 1) { // If we did find a "simple scan" entry, we will discard the other entries.
+        if(not d_spec_vec_.empty() || not f_spec_vec_.empty() || not i_spec_vec_.empty() ||
+                not b_spec_vec_.empty()) {
+            glogger << "In GParameterPropertyParser::parse(): Warning!" << '\n'
+                    << "You have specified both a simple-scan component and explicit" << '\n'
+                    << "scan-components. The explicit components will be discarded." << '\n'
+                    << GWARNING;
 
-        // We only accept a single "simple-scan" entry. Complain, if more than one was found
-        if(s_spec_vec_.size() > 1) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParameterPropertyParser::parse(): Error!" << '\n'
-                << "Found " << s_spec_vec_.size() << "simple scan entries where a" << '\n'
-                << "maximum of 1 is allowed" << '\n'
-            );
-        }
-        if(s_spec_vec_.size() ==
-                1) { // If we did find a "simple scan" entry, we will discard the other entries.
-            if(not d_spec_vec_.empty()) {
-                glogger << "In GParameterPropertyParser::parse(): Warning!" << '\n'
-                        << "You have specified both a simple-scan component and " << '\n'
-                        << "scan-components for double variables. These entries" << '\n'
-                        << "will be discarded" << '\n'
-                        << GWARNING;
-
-                d_spec_vec_.clear();
-            }
-
-            if(not f_spec_vec_.empty()) {
-                glogger << "In GParameterPropertyParser::parse(): Warning!" << '\n'
-                        << "You have specified both a simple-scan component and " << '\n'
-                        << "scan-components for float variables. These entries" << '\n'
-                        << "will be discarded" << '\n'
-                        << GWARNING;
-
-                f_spec_vec_.clear();
-            }
-
-            if(not i_spec_vec_.empty()) {
-                glogger << "In GParameterPropertyParser::parse(): Warning!" << '\n'
-                        << "You have specified both a simple-scan component and " << '\n'
-                        << "scan-components for integer variables. These entries" << '\n'
-                        << "will be discarded" << '\n'
-                        << GWARNING;
-
-                i_spec_vec_.clear();
-            }
-
-            if(not b_spec_vec_.empty()) {
-                glogger << "In GParameterPropertyParser::parse(): Warning!" << '\n'
-                        << "You have specified both a simple-scan component and " << '\n'
-                        << "scan-components for boolean variables. These entries" << '\n'
-                        << "will be discarded" << '\n'
-                        << GWARNING;
-
-                b_spec_vec_.clear();
-            }
+            d_spec_vec_.clear();
+            f_spec_vec_.clear();
+            i_spec_vec_.clear();
+            b_spec_vec_.clear();
         }
     }
 
@@ -339,18 +350,17 @@ std::size_t GParameterPropertyParser::getNSimpleScanItems() const {
     }
     // Return the data of the first item
 #ifdef DEBUG
-        if(s_spec_vec_.size() > 1) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParameterPropertyParser::getNSimpleScanItems() const: Error!" << '\n'
-                << "Found " << s_spec_vec_.size() << "simple scan entries where a" << '\n'
-                << "maximum of 1 is allowed" << '\n'
-            );
-        }
+    if(s_spec_vec_.size() > 1) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GParameterPropertyParser::getNSimpleScanItems() const: Error!" << '\n'
+            << "Found " << s_spec_vec_.size() << " simple scan entries where a" << '\n'
+            << "maximum of 1 is allowed" << '\n'
+        );
+    }
 #endif
 
-        return (s_spec_vec_.front()).nItems;
-   
+    return (s_spec_vec_.front()).nItems;
 }
 
 /******************************************************************************/

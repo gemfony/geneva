@@ -124,16 +124,6 @@ protected:
         std::size_t &,
         const activityMode &am
     ) override;
-    /** @brief Attach our local value to the map. */
-    void int32Streamline(
-        std::map<std::string, std::vector<std::int32_t>> &,
-        const activityMode &am
-    ) const override;
-    /** @brief Assigns part of a value vector to the parameter */
-    void assignInt32ValueVectors(
-        const std::map<std::string, std::vector<std::int32_t>> &,
-        const activityMode &am
-    ) override;
 
     /** @brief Multiplication with a random value in a given range */
     void int32MultiplyByRandom(

@@ -1721,7 +1721,6 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSe
         }
 
         gdc_ptr->addAdaptor(gat_ptr);
-        gdc_ptr->setParameterName("var0");
 
         p->push_back(gdc_ptr);
     } break;
@@ -1747,7 +1746,6 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSe
         }
 
         gcdc_ptr->addAdaptor(gat_ptr);
-        gcdc_ptr->setParameterName("var0");
 
         p->push_back(gcdc_ptr);
     } break;
@@ -1767,7 +1765,6 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSe
             }
 
             gdo_ptr->addAdaptor(gat_ptr);
-            gdo_ptr->setParameterName(std::string("var") + Gem::Common::to_string(i));
 
             gdoc_ptr->push_back(gdo_ptr);
         }
@@ -1792,7 +1789,6 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSe
             }
 
             gcdo_ptr->addAdaptor(gat_ptr);
-            gcdo_ptr->setParameterName(std::string("var") + Gem::Common::to_string(i));
 
             gcdoc_ptr->push_back(gcdo_ptr);
         }
@@ -1812,7 +1808,6 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSe
             }
 
             gcdo_ptr->addAdaptor(gat_ptr);
-            gcdo_ptr->setParameterName(std::string("var") + Gem::Common::to_string(i));
 
             p->push_back(gcdo_ptr);
         }

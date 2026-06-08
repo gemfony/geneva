@@ -1654,7 +1654,6 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
                     // Just treat GConstrainedDoubleObject objects for now
                     if("GConstrainedDoubleObject" == var_subtree.get<std::string>("type")) {
                         // Extract the boundaries and initial values
-                        std::string p_name = var_subtree.get<std::string>("name");
                         double min_var = var_subtree.get<double>("lowerBoundary");
                         double max_var = var_subtree.get<double>("upperBoundary");
                         double init_value = var_subtree.get<double>("values.value0");
@@ -1688,7 +1687,6 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
                             // Create the parameter object
                             gcdo_ptr = std::make_shared<gpar::GConstrainedDoubleObject>(min_var, max_var);
                         }
-                        gcdo_ptr->setParameterName(p_name);
 
                         // Add the adaptor to the parameter object
                         gcdo_ptr->addAdaptor(gat_ptr);

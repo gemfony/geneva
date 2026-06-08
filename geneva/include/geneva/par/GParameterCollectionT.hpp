@@ -152,7 +152,6 @@ public:
         }
 #endif /* DEBUG */
 
-        ptr.put(base_name + ".name", this->getParameterName());
         ptr.put(base_name + ".type", this->name());
         ptr.put(base_name + ".baseType", Gem::Common::GTypeToStringT<num_type>::value());
         ptr.put(base_name + ".isLeaf", this->isLeaf());

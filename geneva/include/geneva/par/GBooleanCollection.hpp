@@ -130,20 +130,10 @@ protected:
     ) const override;
     /** @brief Attach our local values to the vector. */
     void booleanStreamline(std::vector<bool> &, const activityMode &am) const override;
-    /** @brief Attach our local values to the map */
-    void booleanStreamline(
-        std::map<std::string, std::vector<bool>> &,
-        const activityMode &am
-    ) const override;
     /** @brief Assigns part of a value vector to the parameter */
     void assignBooleanValueVector(
         const std::vector<bool> &,
         std::size_t &,
-        const activityMode &am
-    ) override;
-    /** @brief Assigns part of a value map to the parameter */
-    void assignBooleanValueVectors(
-        const std::map<std::string, std::vector<bool>> &,
         const activityMode &am
     ) override;
 

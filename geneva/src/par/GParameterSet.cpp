@@ -445,12 +445,12 @@ std::string GParameterSet::toCSV(
     bool use_raw_fitness,
     bool show_validity
 ) const {
-    std::map<std::string, std::vector<double>> d_data;
-    std::map<std::string, std::vector<float>> f_data;
-    std::map<std::string, std::vector<std::int32_t>> i_data;
-    std::map<std::string, std::vector<bool>> b_data;
+    std::vector<double> d_data;
+    std::vector<float> f_data;
+    std::vector<std::int32_t> i_data;
+    std::vector<bool> b_data;
 
-    // Retrieve the parameter maps
+    // Retrieve the parameter vectors (positional ordering -- parameters are no longer named)
     this->streamline<double>(d_data);
     this->streamline<float>(f_data);
     this->streamline<std::int32_t>(i_data);
@@ -460,46 +460,23 @@ std::string GParameterSet::toCSV(
     std::vector<std::string> var_types;
     std::vector<std::string> var_values;
 
-    // Extract the data
-    for(auto const &item : d_data) {
-        for(std::size_t pos = 0; pos < (item.second).size(); pos++) {
+    // Extract the data. Names are synthesised positionally as "var<i>" (the same convention the
+    // formula-constraint parser uses), since parameters carry no intrinsic name anymore.
+    std::size_t var_index = 0;
+    auto emit = [&](auto const &vec, const char *type_name) {
+        for(std::size_t pos = 0; pos < vec.size(); ++pos) {
             if(with_name_and_type) {
-                var_names.push_back(item.first + "_" + Gem::Common::to_string(pos));
-                var_types.emplace_back("double");
+                var_names.push_back(std::string("var") + Gem::Common::to_string(var_index));
+                var_types.emplace_back(type_name);
             }
-            var_values.push_back(Gem::Common::to_string((item.second).at(pos)));
+            var_values.push_back(Gem::Common::to_string(vec.at(pos)));
+            ++var_index;
         }
-    }
-
-    for(auto const &item : f_data) {
-        for(std::size_t pos = 0; pos < (item.second).size(); pos++) {
-            if(with_name_and_type) {
-                var_names.push_back(item.first + "_" + Gem::Common::to_string(pos));
-                var_types.emplace_back("float");
-            }
-            var_values.push_back(Gem::Common::to_string((item.second).at(pos)));
-        }
-    }
-
-    for(auto const &item : i_data) {
-        for(std::size_t pos = 0; pos < (item.second).size(); pos++) {
-            if(with_name_and_type) {
-                var_names.push_back(item.first + "_" + Gem::Common::to_string(pos));
-                var_types.emplace_back("int32");
-            }
-            var_values.push_back(Gem::Common::to_string((item.second).at(pos)));
-        }
-    }
-
-    for(auto const &item : b_data) {
-        for(std::size_t pos = 0; pos < (item.second).size(); pos++) {
-            if(with_name_and_type) {
-                var_names.push_back(item.first + "_" + Gem::Common::to_string(pos));
-                var_types.emplace_back("bool");
-            }
-            var_values.push_back(Gem::Common::to_string((item.second).at(pos)));
-        }
-    }
+    };
+    emit(d_data, "double");
+    emit(f_data, "float");
+    emit(i_data, "int32");
+    emit(b_data, "bool");
 
     // Note: The following will output the string "dirty" if the individual is in a "dirty" state
     for(std::size_t i = 0; i < this->getNStoredResults(); i++) {

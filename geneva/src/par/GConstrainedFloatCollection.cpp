@@ -146,30 +146,6 @@ void GConstrainedFloatCollection::floatStreamline(
 }
 
 /******************************************************************************/
-/**
- * Attach our local values to the map. Names are built from the object name and the
- * position in the array.
- */
-void GConstrainedFloatCollection::floatStreamline(
-    std::map<std::string, std::vector<float>> &par_vec,
-    const activityMode &am
-) const {
-#ifdef DEBUG
-    if((this->getParameterName()).empty()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GConstrainedFloatCollection::floatStreamline(std::map<std::string, "
-               "std::vector<float>>& par_vec) const: Error!"
-            << '\n'
-            << "No name was assigned to the object" << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    std::vector<float> parameters;
-    this->floatStreamline(parameters, am);
-    par_vec[this->getParameterName()] = parameters;
-}
 
 /******************************************************************************/
 /**
@@ -232,20 +208,6 @@ void GConstrainedFloatCollection::assignFloatValueVector(
 }
 
 /******************************************************************************/
-/**
- * Assigns part of a value map to the parameter
- */
-void GConstrainedFloatCollection::assignFloatValueVectors(
-    const std::map<std::string, std::vector<float>> &par_map,
-    [[maybe_unused]] const activityMode & am
-) {
-    for(std::size_t i = 0; i < this->size(); i++) {
-        this->setValue(
-            i,
-            this->transfer((Gem::Common::getMapItem(par_map, this->getParameterName())).at(i))
-        );
-    }
-}
 
 /******************************************************************************/
 /**

@@ -164,18 +164,6 @@ void GConstrainedInt32Object::int32Streamline(
 }
 
 /******************************************************************************/
-/**
- * Attach our local value to the vector. This is used to collect all parameters of this type
- * in the sequence in which they were registered.
- */
-void GConstrainedInt32Object::int32Streamline(
-    std::map<std::string, std::vector<std::int32_t>> &par_vec,
-    [[maybe_unused]] const activityMode & am
-) const {
-    std::vector<std::int32_t> parameters;
-    parameters.push_back(this->value());
-    par_vec[this->getParameterName()] = parameters;
-}
 
 /******************************************************************************/
 /**
@@ -231,17 +219,6 @@ void GConstrainedInt32Object::assignInt32ValueVector(
 }
 
 /******************************************************************************/
-/**
- * Assigns part of a value map to the parameter
- */
-void GConstrainedInt32Object::assignInt32ValueVectors(
-    const std::map<std::string, std::vector<std::int32_t>> &par_map,
-    [[maybe_unused]] const activityMode & am
-) {
-    this->setValue(
-        this->transfer(Gem::Common::getMapItem(par_map, this->getParameterName()).at(0))
-    );
-}
 
 /******************************************************************************/
 /**

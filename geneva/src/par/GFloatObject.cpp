@@ -163,29 +163,6 @@ void GFloatObject::floatStreamline(
 }
 
 /******************************************************************************/
-/**
- * Attach our local value to the map.
- */
-void GFloatObject::floatStreamline(
-    std::map<std::string, std::vector<float>> &par_vec,
-    [[maybe_unused]] const activityMode & am
-) const {
-#ifdef DEBUG
-    if((this->getParameterName()).empty()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GFloatObject::floatStreamline(std::map<std::string, std::vector<float>>& "
-               "par_vec) const: Error!"
-            << '\n'
-            << "No name was assigned to the object" << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    std::vector<float> parameters;
-    parameters.push_back(this->value());
-    par_vec[this->getParameterName()] = parameters;
-}
 
 /******************************************************************************/
 /**
@@ -242,15 +219,6 @@ void GFloatObject::assignFloatValueVector(
 }
 
 /******************************************************************************/
-/**
- * Assigns part of a value map to the parameter
- */
-void GFloatObject::assignFloatValueVectors(
-    const std::map<std::string, std::vector<float>> &par_map,
-    [[maybe_unused]] const activityMode & am
-) {
-    this->setValue((Gem::Common::getMapItem(par_map, this->getParameterName())).at(0));
-}
 
 /******************************************************************************/
 /**
