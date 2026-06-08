@@ -659,7 +659,7 @@ void GSwarmAlgorithm::init() {
     GOptimizationAlgorithmBase::init();
 
     // Extract the boundaries of all parameters
-    this->at(0)->boundaries(
+    this->at(0)->boundariesFP(
         dbl_lower_parameter_boundaries_cnt_,
         dbl_upper_parameter_boundaries_cnt_,
         activityMode::ACTIVEONLY
@@ -710,7 +710,7 @@ void GSwarmAlgorithm::init() {
 
         // Extract the parameter vector
         std::vector<double> vel_vec;
-        p->streamline(vel_vec, activityMode::ACTIVEONLY);
+        p->streamlineFP(vel_vec, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
         // Check that the number of parameters equals those in the velocity boundaries
@@ -736,7 +736,7 @@ void GSwarmAlgorithm::init() {
         }
 
         // Load the array into the velocity object
-        p->assignValueVector<double>(vel_vec, activityMode::ACTIVEONLY);
+        p->assignFPValueVector(vel_vec, activityMode::ACTIVEONLY);
         p->mark_as_due_for_processing(); // Catch cases where a value is calculated for the velocity individual
 
         // Add the initialized velocity to the array.
@@ -1162,11 +1162,11 @@ void GSwarmAlgorithm::updateIndividualPositions(
     std::vector<double> nbh_best_vec;
     std::vector<double> glb_best_vec;
     std::vector<double> vel_vec;
-    ind->streamline(ind_vec, activityMode::ACTIVEONLY);
-    personal_best->streamline(personal_best_vec, activityMode::ACTIVEONLY);
-    neighborhood_best->streamline(nbh_best_vec, activityMode::ACTIVEONLY);
-    global_best->streamline(glb_best_vec, activityMode::ACTIVEONLY);
-    velocity->streamline(vel_vec, activityMode::ACTIVEONLY);
+    ind->streamlineFP(ind_vec, activityMode::ACTIVEONLY);
+    personal_best->streamlineFP(personal_best_vec, activityMode::ACTIVEONLY);
+    neighborhood_best->streamlineFP(nbh_best_vec, activityMode::ACTIVEONLY);
+    global_best->streamlineFP(glb_best_vec, activityMode::ACTIVEONLY);
+    velocity->streamlineFP(vel_vec, activityMode::ACTIVEONLY);
 
     // Subtract the individual vector from the personal, neighborhood and global bests
     Gem::Common::subtractVec<double>(personal_best_vec, ind_vec);
@@ -1255,10 +1255,10 @@ void GSwarmAlgorithm::updateIndividualPositions(
     }
 
     // Update the velocity individual
-    velocity->assignValueVector<double>(vel_vec, activityMode::ACTIVEONLY);
+    velocity->assignFPValueVector(vel_vec, activityMode::ACTIVEONLY);
 
     // Update the candidate solution
-    ind->assignValueVector<double>(ind_vec, activityMode::ACTIVEONLY);
+    ind->assignFPValueVector(ind_vec, activityMode::ACTIVEONLY);
 }
 
 /******************************************************************************/

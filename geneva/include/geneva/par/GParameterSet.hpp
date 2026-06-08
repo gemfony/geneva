@@ -717,6 +717,89 @@ public:
 
     /***************************************************************************/
     /**
+     * A precision-agnostic view of "the floating point parameters", i.e. the double-typed and the
+     * float-typed parameters together. Algorithms that operate geometrically on the floating point
+     * parameters -- (conjugate) gradient descent, Nelder-Mead, swarm -- should not care whether the
+     * individual was built from double- or float-precision parameter objects; countFPParameters() /
+     * streamlineFP() / assignFPValueVector() give them one double-typed working view that spans both.
+     * Float parameters are widened to double on read and narrowed back on write, so the optimization
+     * math always runs in double regardless of the genome's storage precision.
+     *
+     * @return The combined number of double-typed and float-typed parameters
+     */
+    std::size_t
+    countFPParameters(activityMode const &am = activityMode::DEFAULTACTIVITYMODE) const {
+        return countParameters<double>(am) + countParameters<float>(am);
+    }
+
+    /***************************************************************************/
+    /**
+     * Streamlines all floating point parameters into a single double vector: the double-typed
+     * parameters first, then the (widened) float-typed parameters. This fixed ordering is the contract
+     * assignFPValueVector() relies on to scatter the values back. See countFPParameters().
+     *
+     * @param par_vec The vector the floating point parameters are written to (cleared first)
+     * @param am An enum indicating whether only active, inactive or all parameters should be extracted
+     */
+    void streamlineFP(
+        std::vector<double> &par_vec,
+        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
+    ) const {
+        par_vec.clear();
+        this->streamline<double>(par_vec, am);
+
+        std::vector<float> float_vec;
+        this->streamline<float>(float_vec, am);
+        par_vec.reserve(par_vec.size() + float_vec.size());
+        for(float f : float_vec) {
+            par_vec.push_back(static_cast<double>(f));
+        }
+    }
+
+    /***************************************************************************/
+    /**
+     * Scatters a double vector produced by streamlineFP() back onto the floating point parameters: the
+     * first countParameters<double>() values are assigned to the double-typed parameters, the remaining
+     * countParameters<float>() values are narrowed to float and assigned to the float-typed parameters.
+     *
+     * @param par_vec A combined value vector ordered as streamlineFP() produces it
+     * @param am An enum indicating whether only active, inactive or all parameters should be assigned
+     */
+    void assignFPValueVector(
+        std::vector<double> const &par_vec,
+        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
+    ) {
+        const std::size_t n_double = countParameters<double>(am);
+        const std::size_t n_float = countParameters<float>(am);
+
+#ifdef DEBUG
+        if(n_double + n_float != par_vec.size()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GParameterSet::assignFPValueVector():" << '\n'
+                << "Sizes don't match: " << (n_double + n_float) << " / " << par_vec.size() << '\n'
+            );
+        }
+#endif /* DEBUG */
+
+        if(n_double > 0) {
+            std::vector<double> double_vec(
+                par_vec.begin(),
+                par_vec.begin() + static_cast<std::ptrdiff_t>(n_double)
+            );
+            this->assignValueVector<double>(double_vec, am);
+        }
+        if(n_float > 0) {
+            std::vector<float> float_vec(n_float);
+            for(std::size_t i = 0; i < n_float; ++i) {
+                float_vec[i] = static_cast<float>(par_vec[n_double + i]);
+            }
+            this->assignValueVector<float>(float_vec, am);
+        }
+    }
+
+    /***************************************************************************/
+    /**
      * Loops over all GParameterBase objects. Each object will add the
      * lower and upper boundaries of its parameters to the vector, if
      * they comply with the type of the parameters to be stored in the
@@ -746,6 +829,45 @@ public:
      * So far untested.
      * ----------------------------------------------------------------------------------
      */
+
+    /***************************************************************************/
+    /**
+     * The precision-agnostic counterpart of boundaries() for all floating point parameters: the lower
+     * and upper boundaries of the double-typed parameters first, then those of the (widened) float-typed
+     * parameters. The ordering matches streamlineFP()/assignFPValueVector(), so a per-parameter quantity
+     * derived from these boundaries (e.g. a gradient method's per-parameter step) lines up with the
+     * working vector index-for-index. See countFPParameters().
+     *
+     * @param l_bnd_vec The vector the lower boundaries are written to (cleared first)
+     * @param u_bnd_vec The vector the upper boundaries are written to (cleared first)
+     * @param am An enum indicating whether only active, inactive or all parameters should be extracted
+     */
+    void boundariesFP(
+        std::vector<double> &l_bnd_vec,
+        std::vector<double> &u_bnd_vec,
+        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
+    ) const {
+        std::vector<double> l_double;
+        std::vector<double> u_double;
+        this->boundaries<double>(l_double, u_double, am);
+
+        std::vector<float> l_float;
+        std::vector<float> u_float;
+        this->boundaries<float>(l_float, u_float, am);
+
+        l_bnd_vec.clear();
+        u_bnd_vec.clear();
+        l_bnd_vec.reserve(l_double.size() + l_float.size());
+        u_bnd_vec.reserve(u_double.size() + u_float.size());
+        l_bnd_vec.insert(l_bnd_vec.end(), l_double.begin(), l_double.end());
+        u_bnd_vec.insert(u_bnd_vec.end(), u_double.begin(), u_double.end());
+        for(float v : l_float) {
+            l_bnd_vec.push_back(static_cast<double>(v));
+        }
+        for(float v : u_float) {
+            u_bnd_vec.push_back(static_cast<double>(v));
+        }
+    }
 
     /***************************************************************************/
     /**

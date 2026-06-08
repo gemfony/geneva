@@ -328,7 +328,7 @@ std::tuple<double, double> GConjugateGradientDescent::cycleLogic_() {
 void GConjugateGradientDescent::updateChildParameters() {
     for(std::size_t i = 0; i < n_starting_points_; i++) {
         std::vector<double> parm_vec;
-        this->at(i)->streamline<double>(parm_vec, activityMode::ACTIVEONLY);
+        this->at(i)->streamlineFP(parm_vec, activityMode::ACTIVEONLY);
 
         for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
             std::size_t child_pos = n_starting_points_ + i * n_fp_parms_first_ + j;
@@ -345,7 +345,7 @@ void GConjugateGradientDescent::updateChildParameters() {
 
             // Add the finite step to the feature vector's current parameter
             parm_vec[j] += adjusted_finite_step_[j];
-            this->at(child_pos)->assignValueVector<double>(parm_vec, activityMode::ACTIVEONLY);
+            this->at(child_pos)->assignFPValueVector(parm_vec, activityMode::ACTIVEONLY);
 
             // Restore the original value for the next direction
             parm_vec[j] = orig_parm_val;
@@ -379,7 +379,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
 
     for(std::size_t i = 0; i < n_starting_points_; i++) {
         std::vector<double> parm_vec;
-        this->at(i)->streamline<double>(parm_vec, activityMode::ACTIVEONLY);
+        this->at(i)->streamlineFP(parm_vec, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
         if(this->at(i)->is_due_for_processing() || (this->at(i)->has_errors())) {
@@ -464,7 +464,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         cg_history_valid_[i] = true;
 
         // Write the stepped parameter vector back into the parent
-        this->at(i)->assignValueVector<double>(parm_vec, activityMode::ACTIVEONLY);
+        this->at(i)->assignFPValueVector(parm_vec, activityMode::ACTIVEONLY);
     }
 }
 
@@ -545,7 +545,7 @@ void GConjugateGradientDescent::init() {
     GOptimizationAlgorithmBase::init();
 
     // Extract the boundaries of all active parameters
-    this->at(0)->boundaries(
+    this->at(0)->boundariesFP(
         dbl_lower_parameter_boundaries_,
         dbl_upper_parameter_boundaries_,
         activityMode::ACTIVEONLY
@@ -668,7 +668,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
         );
     }
 
-    n_fp_parms_first_ = this->at(0)->countParameters<double>(activityMode::ACTIVEONLY);
+    n_fp_parms_first_ = this->at(0)->countFPParameters(activityMode::ACTIVEONLY);
 
     if(n_fp_parms_first_ == 0) {
         throw geneva_exception(
@@ -701,13 +701,13 @@ void GConjugateGradientDescent::adjustPopulation_() {
 
 #ifdef DEBUG
     for(std::size_t i = 1; i < this->size(); i++) {
-        if(this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) != n_fp_parms_first_) {
+        if(this->at(i)->countFPParameters(activityMode::ACTIVEONLY) != n_fp_parms_first_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConjugateGradientDescent::adjustPopulation():" << '\n'
                 << "Found individual in position " << i << " with different" << '\n'
                 << "number of floating point parameters than the first one: "
-                << this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) << "/"
+                << this->at(i)->countFPParameters(activityMode::ACTIVEONLY) << "/"
                 << n_fp_parms_first_ << '\n'
             );
         }

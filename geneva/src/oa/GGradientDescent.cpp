@@ -348,7 +348,7 @@ void GGradientDescent::updateChildParameters() {
     for(std::size_t i = 0; i < n_starting_points_; i++) {
         // Extract the fp vector
         std::vector<double> parm_vec;
-        this->at(i)->streamline<double>(
+        this->at(i)->streamlineFP(
             parm_vec,
             activityMode::ACTIVEONLY
         ); // Only extract active parameters
@@ -373,7 +373,7 @@ void GGradientDescent::updateChildParameters() {
             parm_vec[j] += adjusted_finite_step_[j];
 
             // Attach the feature vector to the child individual
-            this->at(child_pos)->assignValueVector<double>(parm_vec, activityMode::ACTIVEONLY);
+            this->at(child_pos)->assignFPValueVector(parm_vec, activityMode::ACTIVEONLY);
 
             // Restore the original value in the feature vector
             parm_vec[j] = orig_parm_val;
@@ -390,7 +390,7 @@ void GGradientDescent::updateParentIndividuals() {
     for(std::size_t i = 0; i < n_starting_points_; i++) {
         // Extract the fp vector
         std::vector<double> parm_vec;
-        this->at(i)->streamline<double>(parm_vec, activityMode::ACTIVEONLY);
+        this->at(i)->streamlineFP(parm_vec, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
         // Make sure the parents are clean
@@ -433,7 +433,7 @@ void GGradientDescent::updateParentIndividuals() {
         }
 
         // Load the parameter vector back into the parent
-        this->at(i)->assignValueVector<double>(parm_vec, activityMode::ACTIVEONLY);
+        this->at(i)->assignFPValueVector(parm_vec, activityMode::ACTIVEONLY);
     }
 }
 
@@ -536,7 +536,7 @@ void GGradientDescent::init() {
     GOptimizationAlgorithmBase::init();
 
     // Extract the boundaries of all parameters
-    this->at(0)->boundaries(
+    this->at(0)->boundariesFP(
         dbl_lower_parameter_boundaries_,
         dbl_upper_parameter_boundaries_,
         activityMode::ACTIVEONLY
@@ -668,7 +668,7 @@ void GGradientDescent::adjustPopulation_() {
     }
 
     // Update the number of active floating point parameters in the individuals
-    n_fp_parms_first_ = this->at(0)->countParameters<double>(activityMode::ACTIVEONLY);
+    n_fp_parms_first_ = this->at(0)->countFPParameters(activityMode::ACTIVEONLY);
 
     // Check that the first individual has floating point parameters (double for the moment)
     if(n_fp_parms_first_ == 0) {
@@ -702,13 +702,13 @@ void GGradientDescent::adjustPopulation_() {
     // Check that all individuals currently available have the same amount of parameters
 #ifdef DEBUG
     for(std::size_t i = 1; i < this->size(); i++) {
-        if(this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) != n_fp_parms_first_) {
+        if(this->at(i)->countFPParameters(activityMode::ACTIVEONLY) != n_fp_parms_first_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GGradientDescent::adjustPopulation():" << '\n'
                 << "Found individual in position " << i << " with different" << '\n'
                 << "number of floating point parameters than the first one: "
-                << this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) << "/"
+                << this->at(i)->countFPParameters(activityMode::ACTIVEONLY) << "/"
                 << n_fp_parms_first_ << '\n'
             );
         }
