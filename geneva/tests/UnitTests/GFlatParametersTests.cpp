@@ -1,0 +1,224 @@
+/********************************************************************************
+ *
+ * This file is part of the Geneva library collection. The following license
+ * applies to this file:
+ *
+ * ------------------------------------------------------------------------------
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------
+ *
+ * Note that other files in the Geneva library collection may use a different
+ * license. Please see the licensing information in each file.
+ *
+ ********************************************************************************
+ *
+ * See the NOTICE file in the top-level directory of the Geneva library
+ * collection for a list of contributors and copyright information.
+ *
+ ********************************************************************************/
+
+#include <catch2/catch_test_macros.hpp>
+
+#include <cstdint>
+#include <memory>
+#include <vector>
+
+#include "geneva/par/GBooleanObject.hpp"
+#include "geneva/par/GConstrainedDoubleObject.hpp"
+#include "geneva/par/GDoubleCollection.hpp"
+#include "geneva/par/GDoubleObject.hpp"
+#include "geneva/par/GFlatParameters.hpp"
+#include "geneva/par/GInt32Object.hpp"
+#include "geneva/par/GParameterSet.hpp"
+
+namespace gpar = Gem::Geneva::Parameters;
+
+namespace {
+
+/******************************************************************************/
+/**
+ * A minimal concrete individual with a mix of parameter types (plain + constrained
+ * doubles, an int, two bools, and a double collection). Only fitnessCalculation()
+ * and clone_() are pure on GParameterSet, so this is the whole boilerplate.
+ */
+class MixedIndividual : public gpar::GParameterSet {
+public:
+    MixedIndividual() {
+        this->push_back(std::make_shared<gpar::GConstrainedDoubleObject>(1.5, -10., 10.));
+        this->push_back(std::make_shared<gpar::GConstrainedDoubleObject>(-3.25, -10., 10.));
+        this->push_back(std::make_shared<gpar::GDoubleObject>(2.0));
+        this->push_back(std::make_shared<gpar::GInt32Object>(7));
+        this->push_back(std::make_shared<gpar::GBooleanObject>(true));
+        this->push_back(std::make_shared<gpar::GBooleanObject>(false));
+        this->push_back(std::make_shared<gpar::GDoubleCollection>(4, -5., 5.));
+    }
+    MixedIndividual(const MixedIndividual &) = default;
+
+protected:
+    double fitnessCalculation() override {
+        std::vector<double> v;
+        this->streamline<double>(v);
+        double s = 0.;
+        for(double x : v) {
+            s += x * x;
+        }
+        return s;
+    }
+
+private:
+    gpar::GParameterSet *clone_() const override {
+        return new MixedIndividual(*this);
+    }
+};
+
+/** @brief An empty concrete individual, used as a host for a single flat node. */
+class EmptyIndividual : public gpar::GParameterSet {
+public:
+    EmptyIndividual() = default;
+    EmptyIndividual(const EmptyIndividual &) = default;
+
+protected:
+    double fitnessCalculation() override {
+        return 0.;
+    }
+
+private:
+    gpar::GParameterSet *clone_() const override {
+        return new EmptyIndividual(*this);
+    }
+};
+
+std::vector<std::uint8_t> asBytes(const std::vector<bool> &v) {
+    return {v.begin(), v.end()};
+}
+
+} /* anonymous namespace */
+
+/******************************************************************************/
+
+TEST_CASE("GFlatParameters reproduces a tree individual's values", "[flat]") {
+    MixedIndividual src;
+
+    std::vector<double> src_d;
+    std::vector<float> src_f;
+    std::vector<std::int32_t> src_i;
+    std::vector<bool> src_b;
+    src.streamline<double>(src_d);
+    src.streamline<float>(src_f);
+    src.streamline<std::int32_t>(src_i);
+    src.streamline<bool>(src_b);
+
+    auto flat = gpar::GFlatParameters::compileFrom(src);
+
+    SECTION("flat node holds the same values as the source") {
+        CHECK(flat->doubleValues() == src_d);
+        CHECK(flat->floatValues() == src_f);
+        CHECK(flat->int32Values() == src_i);
+        CHECK(flat->boolValues() == asBytes(src_b));
+    }
+
+    SECTION("streamline through the GParameterSet interface round-trips") {
+        // A host individual holding only the single flat node must streamline
+        // exactly like the original tree individual -- this is what makes the
+        // flat backend transparent to the optimization-algorithm stack.
+        EmptyIndividual host;
+        host.push_back(std::shared_ptr<gpar::GFlatParameters>(std::move(flat)));
+
+        std::vector<double> host_d;
+        std::vector<float> host_f;
+        std::vector<std::int32_t> host_i;
+        std::vector<bool> host_b;
+        host.streamline<double>(host_d);
+        host.streamline<float>(host_f);
+        host.streamline<std::int32_t>(host_i);
+        host.streamline<bool>(host_b);
+
+        CHECK(host_d == src_d);
+        CHECK(host_f == src_f);
+        CHECK(host_i == src_i);
+        CHECK(host_b == src_b);
+    }
+}
+
+/******************************************************************************/
+
+TEST_CASE("GFlatParameters reproduces boundaries and counts", "[flat]") {
+    MixedIndividual src;
+
+    std::vector<double> lo_src;
+    std::vector<double> up_src;
+    src.boundaries<double>(lo_src, up_src);
+
+    auto flat = gpar::GFlatParameters::compileFrom(src);
+
+    EmptyIndividual host;
+    host.push_back(std::shared_ptr<gpar::GFlatParameters>(std::move(flat)));
+
+    std::vector<double> lo_host;
+    std::vector<double> up_host;
+    host.boundaries<double>(lo_host, up_host);
+
+    CHECK(lo_host == lo_src);
+    CHECK(up_host == up_src);
+    CHECK(host.countParameters<double>(Gem::Geneva::activityMode::ALLPARAMETERS) ==
+          src.countParameters<double>(Gem::Geneva::activityMode::ALLPARAMETERS));
+    CHECK(host.countParameters<std::int32_t>(Gem::Geneva::activityMode::ALLPARAMETERS) ==
+          src.countParameters<std::int32_t>(Gem::Geneva::activityMode::ALLPARAMETERS));
+    CHECK(host.countParameters<bool>(Gem::Geneva::activityMode::ALLPARAMETERS) ==
+          src.countParameters<bool>(Gem::Geneva::activityMode::ALLPARAMETERS));
+}
+
+/******************************************************************************/
+
+TEST_CASE("GFlatParameters assignValueVector writes values back", "[flat]") {
+    MixedIndividual src;
+    auto flat = gpar::GFlatParameters::compileFrom(src);
+
+    EmptyIndividual host;
+    host.push_back(std::shared_ptr<gpar::GFlatParameters>(std::move(flat)));
+
+    std::vector<double> d;
+    host.streamline<double>(d);
+    for(double &x : d) {
+        x += 0.5; // perturb
+    }
+    host.assignValueVector<double>(d);
+
+    std::vector<double> d_back;
+    host.streamline<double>(d_back);
+    CHECK(d_back == d);
+}
+
+/******************************************************************************/
+
+TEST_CASE("GFlatParameters clones independently and compares equal", "[flat]") {
+    MixedIndividual src;
+    auto flat = gpar::GFlatParameters::compileFrom(src);
+
+    std::unique_ptr<gpar::GFlatParameters> clone = flat->clone_unique<gpar::GFlatParameters>();
+
+    CHECK(clone->doubleValues() == flat->doubleValues());
+    CHECK(clone->int32Values() == flat->int32Values());
+    CHECK(clone->boolValues() == flat->boolValues());
+
+    // Mutating the clone must not touch the original (independent value storage).
+    std::vector<double> probe = flat->doubleValues();
+    std::size_t pos = 0;
+    std::vector<double> bumped = probe;
+    for(double &x : bumped) {
+        x += 1.0;
+    }
+    clone->assignValueVector<double>(bumped, pos, Gem::Geneva::activityMode::ALLPARAMETERS);
+    CHECK(flat->doubleValues() == probe);
+    CHECK(clone->doubleValues() == bumped);
+}

@@ -33,6 +33,7 @@ SET ( ${EXECUTABLENAME}_SRCS
 	GenevaStandardTests.cpp
 	GLineSearchTests.cpp
 	GHesseErrorTests.cpp
+	GFlatParametersTests.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
