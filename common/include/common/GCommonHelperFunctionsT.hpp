@@ -483,6 +483,26 @@ void copyCloneableSmartPointer(const std::shared_ptr<T> &from, std::shared_ptr<T
 
 /******************************************************************************/
 /**
+ * unique_ptr counterpart of copyCloneableSmartPointer(): deep-copies a single cloneable object held
+ * in a unique_ptr, loading in place when the dynamic types match (no allocation) and deep-cloning
+ * otherwise. No atomic reference counting is involved.
+ */
+template <typename T>
+    requires Gem::Common::gemfony_common_interface<T>
+void copyCloneableSmartPointer(const std::unique_ptr<T> &from, std::unique_ptr<T> &to) {
+    if(not from) {
+        to.reset();
+    }
+    else if(not to or typeid(*to) != typeid(*from)) {
+        to = from->clone_unique();
+    }
+    else {
+        to->T::load(*from);
+    }
+}
+
+/******************************************************************************/
+/**
  * Deep-copies a container of shared_ptrs to cloneable objects using
  * clone()/load(). Resizes the target container as needed.
  */
@@ -513,6 +533,50 @@ void copyCloneableSmartPointerContainer(
         }
         for(const_iter_t it = from.begin() + size_to; it != from.end(); ++it) {
             to.push_back((*it)->T::template clone<T>());
+        }
+    }
+    else { // size_from < size_to
+        const_iter_t it_from = from.begin();
+        for(iter_t it_to = to.begin(); it_from != from.end(); ++it_from, ++it_to) {
+            copyCloneableSmartPointer(*it_from, *it_to);
+        }
+        to.resize(size_from);
+    }
+}
+
+/******************************************************************************/
+/**
+ * unique_ptr counterpart of copyCloneableSmartPointerContainer(): deep-copies a container of
+ * unique_ptrs to cloneable objects via clone_unique()/load(), reusing existing slots when sizes
+ * match (load in place) and resizing the target as needed. No atomic reference counting.
+ */
+template <typename T, template <typename, typename> class c_type>
+    requires Gem::Common::gemfony_common_interface<T>
+void copyCloneableSmartPointerContainer(
+    const c_type<std::unique_ptr<T>, std::allocator<std::unique_ptr<T>>> &from,
+    c_type<std::unique_ptr<T>, std::allocator<std::unique_ptr<T>>> &to
+) {
+    using iter_t =
+        typename c_type<std::unique_ptr<T>, std::allocator<std::unique_ptr<T>>>::iterator;
+    using const_iter_t =
+        typename c_type<std::unique_ptr<T>, std::allocator<std::unique_ptr<T>>>::const_iterator;
+
+    const std::size_t size_from = from.size();
+    const std::size_t size_to = to.size();
+
+    if(size_from == size_to) {
+        const_iter_t it_from = from.begin();
+        for(iter_t it_to = to.begin(); it_to != to.end(); ++it_from, ++it_to) {
+            copyCloneableSmartPointer(*it_from, *it_to);
+        }
+    }
+    else if(size_from > size_to) {
+        const_iter_t it_from = from.begin();
+        for(iter_t it_to = to.begin(); it_to != to.end(); ++it_from, ++it_to) {
+            copyCloneableSmartPointer(*it_from, *it_to);
+        }
+        for(const_iter_t it = from.begin() + size_to; it != from.end(); ++it) {
+            to.push_back((*it)->clone_unique());
         }
     }
     else { // size_from < size_to

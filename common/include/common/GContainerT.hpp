@@ -206,6 +206,39 @@ struct SharedPtrStorage {
 };
 
 /******************************************************************************/
+/**
+ * @brief Storage policy: each element is uniquely owned via std::unique_ptr.
+ *
+ * The unique_ptr counterpart of SharedPtrStorage: same clone()/load() deep-copy protocol, but the
+ * stored handles carry sole ownership, so copying/moving/destroying the container costs no atomic
+ * reference counting. Deep copy goes through the unique_ptr overload of
+ * copyCloneableSmartPointerContainer() (which uses clone_unique()/load()).
+ *
+ * @tparam T         The element type (must expose the Gemfony common interface).
+ * @tparam Container The underlying sequence container; defaults to std::vector<std::unique_ptr<T>>.
+ */
+template <typename T, typename Container = std::vector<std::unique_ptr<T>>>
+    requires Gem::Common::gemfony_common_interface<T>
+struct UniquePtrStorage {
+    /** @brief The logical element type exposed by the container interface. */
+    using ValueType = T;
+    /** @brief The type actually stored in the container (a unique_ptr to T). */
+    using StoredType = std::unique_ptr<T>;
+    /** @brief The underlying sequence container type. */
+    using ContainerType = Container;
+
+    /**
+     * @brief Performs a deep copy of the container using the clone_unique()/load() protocol.
+     *
+     * @param src The source container.
+     * @param dst The destination container; its previous contents are replaced.
+     */
+    static void deepCopy(const ContainerType &src, ContainerType &dst) {
+        Gem::Common::copyCloneableSmartPointerContainer(src, dst);
+    }
+};
+
+/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
@@ -1626,6 +1659,21 @@ using GPodContainerT = GContainerT<T, PodStorage<T, Container>>;
  */
 template <typename T, typename Container = std::vector<std::shared_ptr<T>>>
 using GPtrContainerT = GContainerT<T, SharedPtrStorage<T, Container>>;
+
+/******************************************************************************/
+/**
+ * @brief A container of uniquely-owned (std::unique_ptr) cloneable elements.
+ *
+ * The unique_ptr counterpart of GPtrContainerT: same policy-based interface, but elements are
+ * sole-owned, so copy/move/destroy incur no atomic reference counting. Deep copy clones via
+ * clone_unique()/load(). Boost serialises std::unique_ptr, so serialisation works unchanged.
+ *
+ * @tparam T         The base element type (must expose the Gemfony common interface).
+ * @tparam Container The underlying sequence container.
+ *                   Defaults to std::vector<std::unique_ptr<T>>.
+ */
+template <typename T, typename Container = std::vector<std::unique_ptr<T>>>
+using GUniquePtrContainerT = GContainerT<T, UniquePtrStorage<T, Container>>;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

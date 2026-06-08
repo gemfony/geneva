@@ -415,6 +415,19 @@ public:
 
     /***************************************************************************/
     /**
+     * Creates a deep clone of this object, wrapped into a std::unique_ptr (sole ownership). This is
+     * the unique_ptr counterpart of clone(); it is used by the unique-pointer container storage
+     * policy (UniquePtrStorage) so a container of unique_ptr can be deep-copied without the atomic
+     * reference counting that shared_ptr incurs.
+     *
+     * @return A deep clone of this object, as a std::unique_ptr<g_class_type>
+     */
+    std::unique_ptr<g_class_type> clone_unique() const {
+        return std::unique_ptr<g_class_type>(this->clone_());
+    }
+
+    /***************************************************************************/
+    /**
      * Loads the data of another g_class_type(-derivative), wrapped in a shared pointer. Note that this
      * function is only accessible to the compiler if load_type is a derivative of g_class_type.
      *

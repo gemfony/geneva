@@ -113,8 +113,19 @@ struct TestBase : Gem::Common::gemfony_common_interface_indicator {
         return std::make_shared<TargetType>(*static_cast<const TargetType *>(this));
     }
 
+    // unique_ptr counterpart of clone(), as a real GCommonInterfaceT type provides; virtual so it
+    // clones the dynamic type (used by the UniquePtrStorage deep-copy path).
+    [[nodiscard]] virtual std::unique_ptr<TestBase> clone_unique() const {
+        return std::make_unique<TestBase>(val);
+    }
+
     void load(std::shared_ptr<TestBase> cp) {
         val = cp->val;
+    }
+
+    // load-in-place from a borrow, as GCommonInterfaceT::load(const load_type&) provides.
+    void load(const TestBase &cp) {
+        val = cp.val;
     }
 
     virtual bool operator==(const TestBase &o) const {
@@ -151,6 +162,10 @@ struct TestDerived : TestBase {
     bool operator==(const TestBase &o) const override {
         const auto *od = dynamic_cast<const TestDerived *>(&o);
         return od && TestBase::operator==(o) && derivedVal == od->derivedVal;
+    }
+
+    [[nodiscard]] std::unique_ptr<TestBase> clone_unique() const override {
+        return std::make_unique<TestDerived>(val, derivedVal);
     }
 };
 
@@ -1827,5 +1842,106 @@ TEST_CASE("GContainerT: Boost.Serialization round-trips", "[GContainerT][seriali
             ia >> loaded;
         }
         CHECK(loaded.empty());
+    }
+}
+
+/******************************************************************************/
+// Phase 0 of the shared_ptr -> unique_ptr migration: the UniquePtrStorage policy and the
+// unique_ptr overloads of the deep-copy helpers, exercised in isolation (nothing in geneva uses
+// the unique container yet).
+
+TEST_CASE("GContainerT: UniquePtrStorage + unique_ptr deep-copy helpers", "[GContainerT][ptr][unique]") {
+    using Vec = std::vector<std::unique_ptr<TestBase>>;
+
+    SECTION("clone_unique clones the dynamic type into a unique_ptr") {
+        std::unique_ptr<TestBase> b = std::make_unique<TestBase>(7);
+        std::unique_ptr<TestBase> d = std::make_unique<TestDerived>(3, 9);
+        auto bc = b->clone_unique();
+        auto dc = d->clone_unique();
+        REQUIRE(bc);
+        REQUIRE(dc);
+        CHECK(bc->val == 7);
+        auto *dcd = dynamic_cast<TestDerived *>(dc.get());
+        REQUIRE(dcd != nullptr); // polymorphic clone, not sliced
+        CHECK(dcd->val == 3);
+        CHECK(dcd->derivedVal == 9);
+        CHECK(dc.get() != d.get()); // independent object
+    }
+
+    SECTION("copyCloneableSmartPointer loads in place on a type match, clones otherwise") {
+        std::unique_ptr<TestBase> from = std::make_unique<TestBase>(5);
+        std::unique_ptr<TestBase> to = std::make_unique<TestBase>(0);
+        TestBase *to_raw = to.get();
+        Gem::Common::copyCloneableSmartPointer(from, to);
+        CHECK(to->val == 5);
+        CHECK(to.get() == to_raw); // loaded in place, no reallocation
+
+        std::unique_ptr<TestBase> empty;
+        Gem::Common::copyCloneableSmartPointer(empty, to);
+        CHECK(!to); // null source resets the target
+
+        std::unique_ptr<TestBase> der = std::make_unique<TestDerived>(1, 2);
+        Gem::Common::copyCloneableSmartPointer(der, to);
+        REQUIRE(to);
+        CHECK(dynamic_cast<TestDerived *>(to.get()) != nullptr); // type mismatch -> clone
+    }
+
+    SECTION("copyCloneableSmartPointerContainer: equal size loads in place") {
+        Vec from;
+        from.push_back(std::make_unique<TestBase>(1));
+        from.push_back(std::make_unique<TestBase>(2));
+        Vec to;
+        to.push_back(std::make_unique<TestBase>(0));
+        to.push_back(std::make_unique<TestBase>(0));
+        TestBase *slot0 = to[0].get();
+        Gem::Common::copyCloneableSmartPointerContainer(from, to);
+        REQUIRE(to.size() == 2);
+        CHECK(to[0]->val == 1);
+        CHECK(to[1]->val == 2);
+        CHECK(to[0].get() == slot0);          // reused slot
+        CHECK(to[0].get() != from[0].get());  // but a deep, independent copy
+    }
+
+    SECTION("copyCloneableSmartPointerContainer: growth clones the extra elements") {
+        Vec from;
+        for(int i = 0; i < 3; ++i) {
+            from.push_back(std::make_unique<TestBase>(i + 1));
+        }
+        Vec to;
+        to.push_back(std::make_unique<TestBase>(0));
+        Gem::Common::copyCloneableSmartPointerContainer(from, to);
+        REQUIRE(to.size() == 3);
+        CHECK(to[0]->val == 1);
+        CHECK(to[2]->val == 3);
+        for(std::size_t i = 0; i < 3; ++i) {
+            CHECK(to[i].get() != from[i].get());
+        }
+    }
+
+    SECTION("copyCloneableSmartPointerContainer: shrink drops the extra elements") {
+        Vec from;
+        from.push_back(std::make_unique<TestBase>(9));
+        Vec to;
+        for(int i = 0; i < 4; ++i) {
+            to.push_back(std::make_unique<TestBase>(0));
+        }
+        Gem::Common::copyCloneableSmartPointerContainer(from, to);
+        REQUIRE(to.size() == 1);
+        CHECK(to[0]->val == 9);
+    }
+
+    SECTION("UniquePtrStorage::deepCopy is deep and independent") {
+        using Policy = Gem::Common::UniquePtrStorage<TestBase>;
+        Policy::ContainerType src;
+        src.push_back(std::make_unique<TestDerived>(4, 8));
+        Policy::ContainerType dst;
+        Policy::deepCopy(src, dst);
+        REQUIRE(dst.size() == 1);
+        auto *d = dynamic_cast<TestDerived *>(dst[0].get());
+        REQUIRE(d != nullptr);
+        CHECK(d->val == 4);
+        CHECK(d->derivedVal == 8);
+        dst[0]->val = 100; // mutating the copy must not touch the source
+        CHECK(src[0]->val == 4);
     }
 }
