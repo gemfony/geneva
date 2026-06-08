@@ -56,10 +56,8 @@
 #include <memory>
 #include <string>
 
-// Boost headers
-#include <boost/program_options.hpp>
-
 // Geneva headers
+#include "common/GParserBuilder.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/gpu/GGPUConsumer.hpp"
 #include "geneva/Go2.hpp"
@@ -74,34 +72,40 @@
 #include "GMonaLisaProblem.hpp"
 
 using namespace Gem::Geneva;
-namespace po = boost::program_options;
 namespace gpu = Gem::Courtier::GPU;
 namespace gpar = Gem::Geneva::Parameters;
 
 int main(int argc, char **argv) {
-    // ---- example-specific command-line options -----------------------------------------------
+    // ---- example-specific settings, read from a Geneva config file ----------------------------
+    // These were previously command-line-only; they are now ordinary config-file parameters like
+    // every other Geneva setting, parsed through the standard GParserBuilder (which also writes the
+    // file with documented defaults on first run). Edit config/GImageGeneral.json and re-run -- no
+    // rebuild, no command-line flags needed.
     std::string targetFile;
     std::string consumerConfig;
     bool logImages = false;
     bool emitBestOnly = false;
 
-    po::options_description user_options;
-    user_options.add_options()(
-        "target",
-        po::value<std::string>(&targetFile)->default_value("./pictures/ml-small.png"),
-        "The target image (PNG) the triangle superimposition should resemble")(
-        "gpuConfig",
-        po::value<std::string>(&consumerConfig)->default_value(GIMAGE_DEFAULT_GPUCONFIG),
-        "The courtier GPU consumer configuration (backend + kernel selection)")(
-        "logImages",
-        po::value<bool>(&logImages)->implicit_value(true)->default_value(true),
-        "Write the best candidate image to ./results/ after each iteration")(
-        "emitBestOnly",
-        po::value<bool>(&emitBestOnly)->implicit_value(true)->default_value(true),
+    Gem::Common::GParserBuilder gpb;
+    gpb.registerFileParameter<std::string>(
+        "target_image", targetFile, std::string("./pictures/ml-small.png"),
+        Gem::Common::VAR_IS_ESSENTIAL,
+        "The target image (PNG) the triangle superimposition should resemble;"
+        " also defines the canvas resolution");
+    gpb.registerFileParameter<std::string>(
+        "gpu_config", consumerConfig, std::string(GIMAGE_DEFAULT_GPUCONFIG),
+        Gem::Common::VAR_IS_ESSENTIAL,
+        "The courtier GPU consumer configuration file (backend + kernel selection)");
+    gpb.registerFileParameter<bool>(
+        "log_images", logImages, true, Gem::Common::VAR_IS_SECONDARY,
+        "Whether to write the best candidate image to ./results/ after each iteration");
+    gpb.registerFileParameter<bool>(
+        "emit_best_only", emitBestOnly, true, Gem::Common::VAR_IS_SECONDARY,
         "When logging images, only emit one for iterations that improved the best result");
+    gpb.parseConfigFile("./config/GImageGeneral.json");
 
-    // Go2 parses both its own and the user options from the command line / config file.
-    Go2 go(argc, argv, "./config/Go2.json", user_options);
+    // Go2 parses its own framework options from the command line / its own config file.
+    Go2 go(argc, argv, "./config/Go2.json");
 
     // ---- load the target image (defines the canvas resolution and the fitness reference) -----
     Gem::Geneva::MonaLisa::loadTarget(targetFile);
