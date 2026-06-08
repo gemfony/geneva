@@ -29,7 +29,9 @@
 
 #include "geneva/oa/GConjugateGradientDescent.hpp"
 
+#include <istream>
 #include <limits>
+#include <ostream>
 
 #include "common/GLogger.hpp"
 #include "common/GCommonInterfaceT.hpp"
@@ -54,6 +56,27 @@
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GConjugateGradientDescent) // NOLINT
 
 namespace Gem::Geneva::OptimizationAlgorithms {
+
+/******************************************************************************/
+/**
+ * Streams a gradientMethod as its underlying integer (cast to int so it is written as a number, not a
+ * character). Needed by the comparison / expectation framework and by configuration serialization.
+ */
+std::ostream &operator<<(std::ostream &o, gradientMethod gm) {
+    o << static_cast<int>(gm);
+    return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a gradientMethod from a stream.
+ */
+std::istream &operator>>(std::istream &i, gradientMethod &gm) {
+    int tmp = 0;
+    i >> tmp;
+    gm = static_cast<gradientMethod>(tmp);
+    return i;
+}
 
 /******************************************************************************/
 /**
@@ -162,6 +185,23 @@ void GConjugateGradientDescent::setStepSize(double step_size) {
  */
 double GConjugateGradientDescent::getStepSize() const {
     return step_size_;
+}
+
+/******************************************************************************/
+/**
+ * Selects the search-direction rule. STEEPEST_DESCENT (beta == 0) reproduces the former, separate
+ * gradient-descent algorithm; CONJUGATE_PR_PLUS (the default) is the Polak-Ribiere+ nonlinear CG.
+ */
+void GConjugateGradientDescent::setGradientMethod(gradientMethod gm) {
+    gradient_method_ = gm;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the search-direction rule currently in use.
+ */
+gradientMethod GConjugateGradientDescent::getGradientMethod() const {
+    return gradient_method_;
 }
 
 /******************************************************************************/
@@ -375,7 +415,29 @@ void GConjugateGradientDescent::updateChildParameters() {
  * restart (beta = 0), which keeps the method globally convergent.
  */
 void GConjugateGradientDescent::updateParentIndividuals() {
-    const long double step_ratio = (static_cast<long double>(step_size_)) / (static_cast<long double>(finite_step_));
+    // The line search's first trial step reproduces the former fixed step (step_size_/finite_step_) and
+    // backtracks from there, so the method is never worse than the old fixed step and -- by the Armijo
+    // sufficient-decrease test -- never moves a starting point uphill.
+    const double step_ratio = step_size_ / finite_step_;
+
+    // A representative parameter-space scale for the initial trial step. The gradient below is
+    // normalised (units of 1/parameter), so a bare step_ratio would be mis-scaled; multiplying by the
+    // mean difference-quotient step restores the old fixed step's magnitude as the first trial.
+    double mean_h = 0.;
+    if(not adjusted_finite_step_.empty()) {
+        for(double h : adjusted_finite_step_) {
+            mean_h += h;
+        }
+        mean_h /= static_cast<double>(adjusted_finite_step_.size());
+    }
+
+    // A conjugate direction loses accuracy after about n steps, so restart to steepest descent every
+    // n_fp_parms iterations (the classical periodic restart) to keep the nonlinear CG globally
+    // convergent.
+    const bool periodic_restart =
+        (n_fp_parms_first_ > 0) && (this->getIteration() % n_fp_parms_first_ == 0);
+
+    GLineSearch line_search;
 
     for(std::size_t i = 0; i < n_starting_points_; i++) {
         std::vector<double> parm_vec;
@@ -394,78 +456,138 @@ void GConjugateGradientDescent::updateParentIndividuals() {
 
         const double parent_fitness = minOnly_transformed_fitness(*this->at(i));
 
-        // 1) Assemble the forward-difference gradient proxy g_j
+        // 1) Normalised forward-difference gradient g_j = (f(x + h_j e_j) - f(x)) / h_j. Normalising by
+        //    h_j (instead of folding 1/h into the step as the old fixed-step proxy did) makes g a proper
+        //    gradient, so the line search's Armijo test and the conjugate-gradient beta are correctly
+        //    scaled.
         std::vector<double> gradient(n_fp_parms_first_, 0.);
         for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
-            std::size_t child_pos = n_starting_points_ + i * n_fp_parms_first_ + j;
-            gradient[j] = minOnly_transformed_fitness(*this->at(child_pos)) - parent_fitness;
+            const std::size_t child_pos = n_starting_points_ + i * n_fp_parms_first_ + j;
+            const double h = adjusted_finite_step_[j];
+            if(h > 0.) {
+                gradient[j] =
+                    (minOnly_transformed_fitness(*this->at(child_pos)) - parent_fitness) / h;
+            }
         }
 
-        // 2) Compute the Polak-Ribière+ beta and the conjugate direction
+        // 2) Build the search direction: plain steepest descent, or the Polak-Ribiere+ conjugate
+        //    direction with Powell and periodic restarts.
         std::vector<double> direction(n_fp_parms_first_, 0.);
         double beta = 0.;
-        if(cg_history_valid_[i]) {
-            long double numerator = 0.L;   // g . (g - g_prev)
-            long double denominator = 0.L; // g_prev . g_prev
+        const bool want_conjugate = (gradient_method_ == gradientMethod::CONJUGATE_PR_PLUS) &&
+                                    cg_history_valid_[i] && not periodic_restart;
+        if(want_conjugate) {
+            long double g_dot_g = 0.L;           // g_k . g_k
+            long double g_dot_gprev = 0.L;       // g_k . g_{k-1}
+            long double gprev_dot_gprev = 0.L;   // g_{k-1} . g_{k-1}
+            long double numerator = 0.L;         // g_k . (g_k - g_{k-1})  (Polak-Ribiere)
             for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
-                numerator += static_cast<long double>(gradient[j]) *
-                             (static_cast<long double>(gradient[j]) - static_cast<long double>(prev_gradient_[i][j]));
-                denominator +=
-                    static_cast<long double>(prev_gradient_[i][j]) * static_cast<long double>(prev_gradient_[i][j]);
+                const long double g = gradient[j];
+                const long double gp = prev_gradient_[i][j];
+                g_dot_g += g * g;
+                g_dot_gprev += g * gp;
+                gprev_dot_gprev += gp * gp;
+                numerator += g * (g - gp);
             }
-            // Numerical-stability guard for the division. denominator is
-            // g_{k-1}.g_{k-1}, which becomes vanishingly small near
-            // convergence. Dividing by a tiny (but strictly positive)
-            // denominator would blow beta up and destabilise the search
-            // direction. We therefore restart (beta = 0, i.e. a steepest-
-            // descent step) unless the denominator is (a) above the absolute
-            // representable floor and (b) large enough relative to the
-            // numerator that the quotient stays below a finite conjugate-weight
-            // cap. Condition (b), denominator * beta_max > |numerator|,
-            // guarantees |beta_pr| < beta_max by construction.
+
+            // Powell restart (Powell, "Restart procedures for the conjugate gradient method", Math.
+            // Prog. 12, 1977): restart to steepest descent when successive gradients are insufficiently
+            // orthogonal, i.e. |g_k . g_{k-1}| / ||g_k||^2 >= 0.1.
+            const long double abs_overlap = (g_dot_gprev >= 0.L) ? g_dot_gprev : -g_dot_gprev;
+            const bool powell_restart = (g_dot_g > 0.L) && (abs_overlap / g_dot_g >= 0.1L);
+
+            // Numerical-stability guard: g_{k-1}.g_{k-1} vanishes near convergence, so divide only when
+            // the denominator is above the representable floor and large enough relative to the
+            // numerator that the quotient stays below a finite cap (which guarantees |beta_pr| < cap).
             constexpr long double beta_max = 1.0e4L;
             const long double abs_num = (numerator >= 0.L) ? numerator : -numerator;
-            if(denominator > std::numeric_limits<long double>::min() &&
-               denominator * beta_max > abs_num) {
-                long double beta_pr = numerator / denominator;
-                beta = (beta_pr > 0.L) ? Gem::Common::narrow<double>(beta_pr)
-                                       : 0.; // PR+ clamp == automatic restart
-            }
-            else {
-                // Degenerate / near-zero previous gradient, or a denominator
-                // too small relative to the numerator -> restart.
-                beta = 0.;
+            if(not powell_restart &&
+               gprev_dot_gprev > std::numeric_limits<long double>::min() &&
+               gprev_dot_gprev * beta_max > abs_num) {
+                const long double beta_pr = numerator / gprev_dot_gprev;
+                beta = (beta_pr > 0.L) ? Gem::Common::narrow<double>(beta_pr) : 0.; // PR+ clamp
             }
         }
 
         for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
-            direction[j] = -gradient[j] +
-                           (cg_history_valid_[i] ? beta * prev_direction_[i][j] : 0.);
+            direction[j] =
+                -gradient[j] + (cg_history_valid_[i] ? beta * prev_direction_[i][j] : 0.);
         }
 
-        // 3) Take the step x <- x + step_ratio * d
-        try {
+        // 3) The directional derivative grad f . d must be negative for a descent direction. A stale
+        //    conjugate direction occasionally fails this; fall back to steepest descent so the line
+        //    search has an acceptable direction.
+        double g_dot_d = 0.;
+        for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
+            g_dot_d += gradient[j] * direction[j];
+        }
+        if(not(g_dot_d < 0.)) {
+            g_dot_d = 0.;
             for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
-                parm_vec[j] +=
-                    Gem::Common::narrow<double>(step_ratio * static_cast<long double>(direction[j]));
+                direction[j] = -gradient[j];
+                g_dot_d += gradient[j] * direction[j]; // == -||g||^2 <= 0
             }
         }
-        catch(std::overflow_error &e) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GConjugateGradientDescent::updateParentIndividuals(): Error!" << '\n'
-                << "Bad conversion with message " << e.what() << '\n'
-            );
+
+        // 4) Line search along the direction. The probes are evaluated through the same consumer the
+        //    algorithm uses (so they run on the GPU when the GPU consumer is active).
+        GLineSearchOptions opts;
+        opts.alpha_init = (mean_h > 0.) ? step_ratio * mean_h : step_ratio;
+        const std::size_t starting_point = i;
+        const GLineSearchResult lr = line_search.search(
+            [this, starting_point](std::vector<std::vector<double>> const &points) {
+                return this->evaluateProbes(starting_point, points);
+            },
+            parm_vec,
+            direction,
+            parent_fitness,
+            g_dot_d,
+            opts
+        );
+
+        // 5) Apply the accepted step. A starting point for which no step satisfied Armijo is left in
+        //    place: it has effectively converged (zero gradient) or sits where the current direction
+        //    cannot improve it.
+        if(lr.success) {
+            this->at(i)->assignFPValueVector(lr.x_new, activityMode::ACTIVEONLY);
         }
 
-        // 4) Remember gradient/direction for the next conjugate step
+        // 6) Remember gradient/direction for the next conjugate step.
         prev_gradient_[i] = gradient;
         prev_direction_[i] = direction;
         cg_history_valid_[i] = true;
-
-        // Write the stepped parameter vector back into the parent
-        this->at(i)->assignFPValueVector(parm_vec, activityMode::ACTIVEONLY);
     }
+}
+
+/******************************************************************************/
+/**
+ * Evaluates a batch of trial parameter vectors (the line-search probes) by cloning the given starting
+ * point, assigning each probe's floating point values, and submitting the lot through the same
+ * span+policy consumer path the main algorithm uses (this->workOn). Returns one min-only fitness per
+ * probe, in input order. Because submission goes through the broker/executor, the probes are evaluated
+ * on whatever consumer is active -- serial, multi-threaded, GPU or networked -- so the line search is
+ * fully decoupled from where evaluation happens.
+ */
+std::vector<double> GConjugateGradientDescent::evaluateProbes(
+    std::size_t starting_point,
+    std::vector<std::vector<double>> const &points
+) {
+    std::vector<std::unique_ptr<gpar::GParameterSet>> probes;
+    probes.reserve(points.size());
+    for(auto const &pt : points) {
+        auto probe = this->at(starting_point)->clone_unique();
+        probe->assignFPValueVector(pt, activityMode::ACTIVEONLY);
+        probes.push_back(std::move(probe));
+    }
+
+    this->workOn(probes, 0, probes.size());
+
+    std::vector<double> values;
+    values.reserve(probes.size());
+    for(auto const &probe : probes) {
+        values.push_back(minOnly_transformed_fitness(*probe));
+    }
+    return values;
 }
 
 /******************************************************************************/
@@ -495,10 +617,16 @@ void GConjugateGradientDescent::addConfigurationOptions_(Gem::Common::GParserBui
         "step_size",
         DEFAULTCGDSTEPSIZE,
         [this](double ss) { this->setStepSize(ss); }
-    ) << "The size of each step along the conjugate search"
+    ) << "The size of the INITIAL trial step along the search direction"
       << '\n'
-      << "direction, specified in per mill of the allowed or" << '\n'
-      << "expected value range of a parameter";
+      << "(in per mill of the value range); the line search then refines it";
+
+    gpb.registerFileParameter<int>(
+        "gradient_method",
+        static_cast<int>(gradientMethod::CONJUGATE_PR_PLUS),
+        [this](int gm) { this->setGradientMethod(static_cast<gradientMethod>(gm)); }
+    ) << "The search-direction rule: 0 = Polak-Ribiere+ conjugate gradient" << '\n'
+      << "(the default), 1 = plain steepest descent (the former \"gd\")";
 }
 
 /******************************************************************************/

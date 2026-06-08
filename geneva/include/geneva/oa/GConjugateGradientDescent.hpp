@@ -33,6 +33,8 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <cstdint>
+#include <iosfwd>
 #include <memory>
 #include <tuple>
 #include <vector>
@@ -44,6 +46,7 @@
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/par/GParameterSet.hpp"
+#include "geneva/oa/GLineSearch.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GConjugateGradientDescent_PersonalityTraits.hpp"
 
@@ -54,6 +57,21 @@
 #endif /* GEM_TESTING */
 
 namespace Gem::Geneva::OptimizationAlgorithms {
+
+/******************************************************************************/
+/**
+ * Selects how the search direction is built from the (finite-difference) gradient. Steepest descent is
+ * the former, separate "gd" algorithm folded in as the beta == 0 special case.
+ */
+enum class gradientMethod : std::uint8_t {
+    CONJUGATE_PR_PLUS = 0, ///< Polak-Ribiere+ nonlinear conjugate gradient with restarts (the default)
+    STEEPEST_DESCENT = 1   ///< Plain steepest descent (beta == 0)
+};
+
+/** @brief Streams a gradientMethod (as its underlying integer); required by the comparison framework. */
+std::ostream &operator<<(std::ostream &, gradientMethod);
+/** @brief Reads a gradientMethod from a stream. */
+std::istream &operator>>(std::istream &, gradientMethod &);
 
 /**
  * Default values for the conjugate gradient descent. They mirror the plain
@@ -96,7 +114,8 @@ class GConjugateGradientDescent // NOLINT(cppcoreguidelines-special-member-funct
             Gem::Common::make_member("n_starting_points_", n_starting_points_),
             Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
             Gem::Common::make_member("finite_step_", finite_step_),
-            Gem::Common::make_member("step_size_", step_size_)
+            Gem::Common::make_member("step_size_", step_size_),
+            Gem::Common::make_member("gradient_method_", gradient_method_)
         );
     }
     auto localMembers() const {
@@ -104,7 +123,8 @@ class GConjugateGradientDescent // NOLINT(cppcoreguidelines-special-member-funct
             Gem::Common::make_member("n_starting_points_", n_starting_points_),
             Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
             Gem::Common::make_member("finite_step_", finite_step_),
-            Gem::Common::make_member("step_size_", step_size_)
+            Gem::Common::make_member("step_size_", step_size_),
+            Gem::Common::make_member("gradient_method_", gradient_method_)
         );
     }
 
@@ -140,10 +160,15 @@ public:
     /** @brief Retrieve the size of the finite step of the difference quotient */
     double getFiniteStep() const;
 
-    /** @brief Sets a multiplier for the step along the search direction */
+    /** @brief Sets a multiplier for the initial trial step along the search direction */
     void setStepSize(double);
     /** @brief Retrieves the current step size */
     double getStepSize() const;
+
+    /** @brief Selects the search-direction rule (conjugate PR+ or plain steepest descent) */
+    void setGradientMethod(gradientMethod);
+    /** @brief Retrieves the search-direction rule currently in use */
+    gradientMethod getGradientMethod() const;
 
 protected:
     /***************************************************************************/
@@ -236,6 +261,13 @@ private:
     void updateDerivedQuantities();
     /** @brief (Re-)initialises the per-starting-point conjugate-gradient state */
     void resetCGState();
+    /** @brief Evaluates a batch of trial parameter vectors (line-search probes) as clones of the
+     *  given starting point, submitted through the same consumer the algorithm uses, and returns one
+     *  min-only fitness per probe. */
+    std::vector<double> evaluateProbes(
+        std::size_t starting_point,
+        std::vector<std::vector<double>> const &points
+    );
 
     /***************************************************************************/
     // Data
@@ -247,7 +279,10 @@ private:
     double finite_step_ =
         DEFAULTCGDFINITESTEP; ///< The size of the difference-quotient step (per mill of the range)
     double step_size_ =
-        DEFAULTCGDSTEPSIZE; ///< Multiplicative factor for the step along the search direction
+        DEFAULTCGDSTEPSIZE; ///< Multiplicative factor for the initial trial step (the line search refines it)
+
+    gradientMethod gradient_method_ =
+        gradientMethod::CONJUGATE_PR_PLUS; ///< Conjugate (PR+) by default; STEEPEST_DESCENT == the former GD
 
     std::vector<double>
         dbl_lower_parameter_boundaries_; ///< Lower boundaries of double parameters; extracted in init() (transient)

@@ -31,6 +31,7 @@ SET ( EXECUTABLENAME GenevaStandardTests )
 
 SET ( ${EXECUTABLENAME}_SRCS
 	GenevaStandardTests.cpp
+	GLineSearchTests.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

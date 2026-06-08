@@ -42,7 +42,7 @@
 #include "geneva/par/GParameterSet.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
-#include "geneva/oa/GGradientDescent.hpp"
+#include "geneva/oa/GConjugateGradientDescent.hpp"
 #include "geneva/oa/GInitializerT.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {

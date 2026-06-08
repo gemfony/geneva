@@ -65,6 +65,7 @@ SET ( OPTIMIZATIONSOURCES
 	par/GInt32ObjectCollection.cpp
 	Go2.cpp
     oa/GOptimizationAlgorithmBase.cpp
+    oa/GLineSearch.cpp
     oa/GEvolutionaryAlgorithm.cpp
     oa/GEvolutionaryAlgorithmFactory.cpp
     oa/GEvolutionaryAlgorithm_PersonalityTraits.cpp
@@ -172,10 +173,16 @@ IF(GENEVA_ALGO_SWARM)
 			oa/GSwarmAlgorithm_PersonalityTraits.cpp)
 ENDIF()
 
+# The "gd" (gradient descent) algorithm has been folded into conjugate gradient descent as its
+# steepest-descent mode; the "gd" mnemonic survives as a backward-compatible alias (the factory
+# produces a CGD forced into steepest descent), so this block keeps only the alias factory and the
+# personality-traits marker, and requires the CGD algorithm to be built.
 IF(GENEVA_ALGO_GD)
+	IF(NOT GENEVA_ALGO_CGD)
+		MESSAGE(FATAL_ERROR "GENEVA_ALGO_GD requires GENEVA_ALGO_CGD: 'gd' is now an alias for conjugate gradient descent in steepest-descent mode.")
+	ENDIF()
 	SET(OPTIMIZATIONSOURCES
 			${OPTIMIZATIONSOURCES}
-			oa/GGradientDescent.cpp
 			oa/GGradientDescentFactory.cpp
 			oa/GGradientDescent_PersonalityTraits.cpp)
 ENDIF()

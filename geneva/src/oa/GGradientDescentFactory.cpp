@@ -32,7 +32,7 @@
 #include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
-#include "geneva/oa/GGradientDescent.hpp"
+#include "geneva/oa/GConjugateGradientDescent.hpp"
 #include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
 #include "geneva/par/GParameterSet.hpp"
@@ -88,7 +88,7 @@ std::string GGradientDescentFactory::getMnemonic() const {
  * Gives access to a clear-text description of the algorithm
  */
 std::string GGradientDescentFactory::getAlgorithmName() const {
-    return std::string("Gradient Descent");
+    return std::string("Gradient Descent (steepest-descent mode of conjugate gradient descent)");
 }
 
 /******************************************************************************/
@@ -101,10 +101,13 @@ std::shared_ptr<GOptimizationAlgorithmBase> GGradientDescentFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     [[maybe_unused]] const std::size_t & id
 ) {
-    std::shared_ptr<GGradientDescent> target(new GGradientDescent());
+    // "gd" is retained as a backward-compatible alias: there is no longer a separate gradient-descent
+    // algorithm. It produces a conjugate gradient descent that postProcess_() forces into
+    // steepest-descent mode (beta == 0), which is exactly the former gradient descent.
+    std::shared_ptr<GConjugateGradientDescent> target(new GConjugateGradientDescent());
 
-    // Make the local configuration options known (up to the level of GGradientDescent)
-    target->GGradientDescent::addConfigurationOptions(gpb);
+    // Make the local configuration options known (up to the level of GConjugateGradientDescent)
+    target->GConjugateGradientDescent::addConfigurationOptions(gpb);
 
     return target;
 }
@@ -119,6 +122,12 @@ std::shared_ptr<GOptimizationAlgorithmBase> GGradientDescentFactory::getObject_(
 void GGradientDescentFactory::postProcess_(std::shared_ptr<GOptimizationAlgorithmBase> &p_base) {
     // Call our parent class'es function
     GOAFactoryT<GOptimizationAlgorithmBase>::postProcess_(p_base);
+
+    // Force the produced conjugate gradient descent into steepest-descent mode, which is the former,
+    // separate gradient-descent algorithm. (Overrides whatever gradient_method the config file set.)
+    if(auto p_cgd = std::dynamic_pointer_cast<GConjugateGradientDescent>(p_base)) {
+        p_cgd->setGradientMethod(gradientMethod::STEEPEST_DESCENT);
+    }
 }
 
 /******************************************************************************/

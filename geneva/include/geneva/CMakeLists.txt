@@ -92,7 +92,6 @@ SET ( OA_INCLUDES
     oa/GEvolutionaryAlgorithm.hpp
     oa/GEvolutionaryAlgorithmFactory.hpp
     oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp
-    oa/GGradientDescent.hpp
     oa/GGradientDescentFactory.hpp
     oa/GGradientDescent_PersonalityTraits.hpp
     oa/GNelderMead.hpp

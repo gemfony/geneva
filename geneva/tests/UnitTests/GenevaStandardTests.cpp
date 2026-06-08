@@ -79,7 +79,6 @@
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GSimulatedAnnealing.hpp"
 #include "geneva/oa/GSwarmAlgorithm.hpp"
-#include "geneva/oa/GGradientDescent.hpp"
 #include "geneva/oa/GConjugateGradientDescent.hpp"
 #include "geneva/oa/GParameterScan.hpp"
 #include "geneva/oa/GNelderMead.hpp"
@@ -251,7 +250,6 @@ TEMPLATE_TEST_CASE(
     oa::GEvolutionaryAlgorithm,
     oa::GSimulatedAnnealing,
     oa::GSwarmAlgorithm,
-    oa::GGradientDescent,
     oa::GConjugateGradientDescent,
     oa::GParameterScan,
     oa::GNelderMead
@@ -381,7 +379,6 @@ TEMPLATE_TEST_CASE(
     oa::GEvolutionaryAlgorithm,
     oa::GSimulatedAnnealing,
     oa::GSwarmAlgorithm,
-    oa::GGradientDescent,
     oa::GConjugateGradientDescent,
     oa::GParameterScan,
     oa::GNelderMead

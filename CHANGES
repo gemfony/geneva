@@ -12,6 +12,39 @@ Recommended Versions:
 
 ********************** INCOMPATIBILITIES / PLEASE NOTE *************************
 
+- Individuals (GParameterSet) now travel by std::unique_ptr rather than
+  std::shared_ptr along the hot path: the optimization-algorithm population
+  container, the courtier work item and wire payload, and the transport
+  get/put callbacks all carry sole ownership now. Only genuinely shared
+  objects (the asynchronous network sessions/nodes that use
+  enable_shared_from_this, the broker, GFactoryT factory products and the
+  best-results archives) remain shared_ptr. This is SOURCE-breaking for code
+  that constructed individuals as shared_ptr and handed them to the OA/courtier
+  API: build the population with unique_ptr (e.g. push_back a clone_unique() or
+  a std::make_unique), and note that GCommandContainerT's payload accessor was
+  split into a borrowing get_payload() (const reference) and an ownership-
+  transferring release_payload(). GCommonInterfaceT gained clone_unique() and a
+  load(const std::unique_ptr&) overload to support this.
+- The separate gradient-descent algorithm (GGradientDescent) has been removed:
+  conjugate gradient descent is now the single gradient-based local optimizer,
+  with steepest descent available as its beta == 0 mode (the new gradient_method
+  option / GConjugateGradientDescent::setGradientMethod()). The "gd" mnemonic is
+  RETAINED as a backward-compatible alias that produces a conjugate gradient
+  descent forced into steepest-descent mode, so `-a gd` still works. SOURCE-
+  breaking only for code that named the GGradientDescent class or its header
+  directly (use GConjugateGradientDescent); the GGradientDescent_PersonalityTraits
+  marker and the "gd" mnemonic are unchanged.
+- Gradient descent and conjugate gradient descent are no longer fixed-step. They
+  now take a proper line-searched step (backtracking Armijo sufficient-decrease,
+  via the new reusable Gem::Geneva::OptimizationAlgorithms::GLineSearch helper)
+  along a normalized finite-difference gradient, with Polak-Ribiere+ conjugacy
+  and Powell + periodic restarts. The step length is chosen to guarantee
+  decrease, so a starting point can no longer move uphill, and convergence is
+  markedly better than the old fixed step. The line-search probes are evaluated
+  through the same consumer the algorithm uses, so they run on the GPU when the
+  GPU consumer is active. The "step_size" configuration option is now the INITIAL
+  trial step (the line search refines it) rather than a fixed multiplier.
+
 - Static linking support (BUILDSTATIC / GENEVA_STATIC / GENEVA_STATIC=TRUE) has
   been removed. Geneva now builds exclusively as shared libraries. Any build scripts
   that set BUILDSTATIC="1" or pass -DGENEVA_STATIC=TRUE must be updated to remove
