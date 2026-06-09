@@ -30,7 +30,10 @@
 #include "geneva/par/GFlatParameters.hpp"
 
 #include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <random>
+#include <type_traits>
 
 #include "common/GExpectationChecksT.hpp"
 #include "geneva/par/GConstrainedNumCollectionT.hpp"
@@ -45,6 +48,52 @@ namespace Gem::Geneva::Parameters {
 /******************************************************************************/
 // Anonymous-namespace helpers for capturing, cloning and applying adaptor groups.
 namespace {
+
+/**
+ * @brief Folds an out-of-range floating-point value back into [lower, upper).
+ *
+ * This is the flat-node counterpart of GConstrainedFPT::transfer(): the published reflecting
+ * ("triangle wave") map -- even regions translate, odd regions reflect -- computed in long double
+ * and clamped to the half-open interval. Because the result is stored back after every adaption
+ * (mirroring GConstrainedNumT::value(), which resets its mutable internal value to the folded
+ * result), the stored value never drifts into unbounded "unhealthy" regions.
+ */
+template <typename T>
+    requires std::is_floating_point_v<T>
+T foldIntoRange(T val, T lower, T upper) {
+    if(not(upper > lower)) {
+        return lower; // degenerate range
+    }
+    if(not std::isfinite(val)) {
+        return lower; // defensive: never store NaN/inf
+    }
+    if(val >= lower && val < upper) {
+        return val;
+    }
+
+    const long double lo = static_cast<long double>(lower);
+    const long double hi = static_cast<long double>(upper);
+    const long double v = static_cast<long double>(val);
+    const long double width = hi - lo;
+
+    const std::int64_t region = static_cast<std::int64_t>(std::floor((v - lo) / width));
+    long double mapping = 0.0L;
+    if(region % 2 == 0) { // region 0, ±2, ... : translate
+        mapping = v - static_cast<long double>(region) * width;
+    }
+    else { // region ±1, ±3, ... : reflect
+        mapping = -v + (static_cast<long double>(region - 1) * width + 2.0L * hi);
+    }
+
+    T result = static_cast<T>(mapping);
+    if(result < lower) {
+        result = lower;
+    }
+    else if(result >= upper) {
+        result = std::nextafter(upper, lower); // enforce the half-open [lower, upper)
+    }
+    return result;
+}
 
 /** @brief Deep-clones a vector of adaptor groups (independent per-individual adaptor state). */
 template <typename T>
@@ -73,6 +122,7 @@ template <typename T>
 void captureGroup(
     const GParameterBase *p,
     std::vector<GFlatAdaptGroup<T>> &groups,
+    ChannelLayout<T> &chan,
     std::size_t &offset
 ) {
     const std::size_t n = p->countParameters<T>(activityMode::DEFAULTACTIVITYMODE);
@@ -86,11 +136,21 @@ void captureGroup(
                       (dynamic_cast<const GConstrainedNumCollectionT<T> *>(p) != nullptr);
     }
 
+    if(constrained) {
+        for(std::size_t k = offset; k < offset + n && k < chan.kind.size(); ++k) {
+            chan.kind[k] = SlotKind::Constrained;
+        }
+    }
+
+    // Capture the adaptor for plain parameters of any type, and for constrained FLOATING-POINT
+    // parameters (whose fold we replicate). Constrained integer parameters are not mutated yet.
+    constexpr bool is_fp = std::is_floating_point_v<T>;
     const auto *with_ad = dynamic_cast<const GParameterBaseWithAdaptorsT<T> *>(p);
-    if(with_ad != nullptr && not constrained) {
+    if(with_ad != nullptr && (not constrained || is_fp)) {
         GFlatAdaptGroup<T> g;
         g.start = offset;
         g.count = n;
+        g.constrained = constrained;
         g.adaptor = with_ad->getAdaptor().clone_unique();
         groups.push_back(std::move(g));
     }
@@ -117,6 +177,16 @@ std::size_t adaptNumericGroups(
         std::vector<T> slice(vals.begin() + static_cast<std::ptrdiff_t>(g.start),
                              vals.begin() + static_cast<std::ptrdiff_t>(g.start + g.count));
         n_adapted += g.adaptor->adapt(slice, range, gr);
+        // Constrained slots: fold the post-adaption value back into [lower, upper) and store the
+        // folded result -- mirroring GConstrainedNumT::value(), which resets its internal value to
+        // the transferred result so it never drifts unbounded.
+        if(g.constrained) {
+            if constexpr(std::is_floating_point_v<T>) {
+                for(std::size_t k = 0; k < g.count; ++k) {
+                    slice[k] = foldIntoRange<T>(slice[k], layout.lower[g.start + k], layout.upper[g.start + k]);
+                }
+            }
+        }
         std::copy(slice.begin(), slice.end(), vals.begin() + static_cast<std::ptrdiff_t>(g.start));
     }
     return n_adapted;
@@ -162,10 +232,10 @@ std::unique_ptr<GFlatParameters> GFlatParameters::compileFrom(const GParameterSe
     std::size_t b_off = 0;
     for(const auto &p_ptr : src) {
         const GParameterBase *p = p_ptr.get();
-        captureGroup<double>(p, flat->d_groups_, d_off);
-        captureGroup<float>(p, flat->f_groups_, f_off);
-        captureGroup<std::int32_t>(p, flat->i_groups_, i_off);
-        captureGroup<bool>(p, flat->b_groups_, b_off);
+        captureGroup<double>(p, flat->d_groups_, L.d, d_off);
+        captureGroup<float>(p, flat->f_groups_, L.f, f_off);
+        captureGroup<std::int32_t>(p, flat->i_groups_, L.i, i_off);
+        captureGroup<bool>(p, flat->b_groups_, L.b, b_off);
     }
 
     return flat;
@@ -292,9 +362,13 @@ void GFlatParameters::assignDoubleValueVector(
     std::size_t &pos,
     const activityMode &
 ) {
-    for(double &v : dv_) {
-        v = vec.at(pos);
+    for(std::size_t k = 0; k < dv_.size(); ++k) {
+        double v = vec.at(pos);
         ++pos;
+        if(k < layout_->d.kind.size() && layout_->d.kind[k] == SlotKind::Constrained) {
+            v = foldIntoRange<double>(v, layout_->d.lower[k], layout_->d.upper[k]);
+        }
+        dv_[k] = v;
     }
 }
 
@@ -303,9 +377,13 @@ void GFlatParameters::assignFloatValueVector(
     std::size_t &pos,
     const activityMode &
 ) {
-    for(float &v : fv_) {
-        v = vec.at(pos);
+    for(std::size_t k = 0; k < fv_.size(); ++k) {
+        float v = vec.at(pos);
         ++pos;
+        if(k < layout_->f.kind.size() && layout_->f.kind[k] == SlotKind::Constrained) {
+            v = foldIntoRange<float>(v, layout_->f.lower[k], layout_->f.upper[k]);
+        }
+        fv_[k] = v;
     }
 }
 

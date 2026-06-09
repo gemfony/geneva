@@ -202,15 +202,15 @@ TEST_CASE("GFlatParameters assignValueVector writes values back", "[flat]") {
 
 /******************************************************************************/
 
-TEST_CASE("GFlatParameters adapt mutates plain parameters only", "[flat]") {
+TEST_CASE("GFlatParameters adapt mutates parameters and respects constraints", "[flat]") {
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
     MixedIndividual src;
     auto flat = gpar::GFlatParameters::compileFrom(src);
 
     // Streamline order mirrors the container: [constrained, constrained, plain double,
-    // collection(4)]. So dv_[0] and dv_[1] are the (currently non-adaptable) constrained
-    // doubles, dv_[2..] are plain doubles.
+    // collection(4)]. So dv_[0] and dv_[1] are the constrained doubles (bounds [-10, 10)),
+    // dv_[2..] are plain doubles.
     const std::vector<double> before = flat->doubleValues();
     REQUIRE(before.size() >= 3);
 
@@ -229,9 +229,58 @@ TEST_CASE("GFlatParameters adapt mutates plain parameters only", "[flat]") {
         CHECK(plain_changed);
     }
 
-    SECTION("constrained doubles are left untouched (deferred to a later phase)") {
-        CHECK(after[0] == before[0]);
-        CHECK(after[1] == before[1]);
+    SECTION("constrained doubles are mutated and stay within their bounds") {
+        CHECK(((after[0] != before[0]) || (after[1] != before[1])));
+        CHECK(after[0] >= -10.0);
+        CHECK(after[0] < 10.0);
+        CHECK(after[1] >= -10.0);
+        CHECK(after[1] < 10.0);
+    }
+}
+
+/******************************************************************************/
+
+TEST_CASE("GFlatParameters constrained fold matches GConstrainedFPT::transfer", "[flat]") {
+    // A single constrained double in [-3, 5).
+    class ConstrainedIndividual : public gpar::GParameterSet {
+    public:
+        ConstrainedIndividual() {
+            this->push_back(std::make_shared<gpar::GConstrainedDoubleObject>(0.0, -3., 5.));
+        }
+        ConstrainedIndividual(const ConstrainedIndividual &) = default;
+
+    protected:
+        double fitnessCalculation() override {
+            return 0.;
+        }
+
+    private:
+        gpar::GParameterSet *clone_() const override {
+            return new ConstrainedIndividual(*this);
+        }
+    };
+
+    gpar::GConstrainedDoubleObject reference(0.0, -3., 5.); // its transfer() is the ground truth
+
+    ConstrainedIndividual src;
+    auto flat = gpar::GFlatParameters::compileFrom(src);
+    EmptyIndividual host;
+    host.push_back(std::shared_ptr<gpar::GFlatParameters>(std::move(flat)));
+
+    // For a spread of in- and out-of-range values, the flat node's fold (applied on assignment)
+    // must reproduce the original transfer() bit-for-bit.
+    for(double v : {-3.0, -2.9, 0.0, 4.999, 7.3, 13.2, -8.4, -20.1, 100.5, 1000.25}) {
+        const double expected = reference.transfer(v);
+
+        std::vector<double> in{v};
+        host.assignValueVector<double>(in);
+        std::vector<double> out;
+        host.streamline<double>(out);
+
+        REQUIRE(out.size() == 1);
+        CHECK(out[0] == expected);
+        CHECK(out[0] >= -3.0);
+        CHECK(out[0] < 5.0);
     }
 }
 

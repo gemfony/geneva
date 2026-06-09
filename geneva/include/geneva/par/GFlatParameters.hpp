@@ -65,8 +65,9 @@ class GParameterSet; // forward declaration (compileFrom source)
 template <typename T>
 struct GFlatAdaptGroup {
     std::shared_ptr<GAdaptorT<T, adaption_fp_type_t<T>>> adaptor;
-    std::size_t start = 0; ///< offset into the type's value array
-    std::size_t count = 0; ///< number of slots covered
+    std::size_t start = 0;      ///< offset into the type's value array
+    std::size_t count = 0;      ///< number of slots covered
+    bool constrained = false;   ///< if true, fold each value back into [lower, upper) after adaption
 
 private:
     friend class boost::serialization::access;
@@ -74,7 +75,8 @@ private:
     void serialize(Archive &ar, const unsigned int) {
         ar &boost::serialization::make_nvp("adaptor", adaptor) &
             boost::serialization::make_nvp("start", start) &
-            boost::serialization::make_nvp("count", count);
+            boost::serialization::make_nvp("count", count) &
+            boost::serialization::make_nvp("constrained", constrained);
     }
 };
 
