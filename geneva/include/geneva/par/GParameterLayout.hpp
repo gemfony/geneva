@@ -86,6 +86,57 @@ private:
 
 /******************************************************************************/
 /**
+ * The adaption mode of a group, mirroring Gem::Geneva::adaptionMode.
+ */
+enum class FlatAdaptionMode : std::uint8_t { Never = 0, WithProbability = 1, Always = 2 };
+
+/******************************************************************************/
+/**
+ * Static (shared, immutable) configuration of a Gauss adaptor for one contiguous run of
+ * double slots. This is the "config" half of the data-oriented split: it is identical for
+ * every individual of a problem and therefore lives in the shared layout. The evolving
+ * per-individual state (sigma, ad_prob, adaption counter) lives in GFlatParameters instead.
+ *
+ * present == false means the group's double slots carry no (Gauss) adaptor and are not mutated
+ * by the flat EA/SA adapt kernel (e.g. a non-Gauss adaptor, which is not yet flattened).
+ */
+struct FlatGaussConfig {
+    bool present = false;            ///< whether a Gauss adaptor was captured for this group
+    bool constrained = false;        ///< fold the value back into [lower, upper) after adaption
+    std::size_t start = 0;           ///< offset into the double value array
+    std::size_t count = 0;           ///< number of slots
+    FlatAdaptionMode mode = FlatAdaptionMode::WithProbability;
+    double sigma_sigma = 0.;         ///< meta-step for sigma's log-normal self-adaption
+    double min_sigma = 0.;
+    double max_sigma = 1.;
+    double adapt_ad_prob = 0.;       ///< meta-step for ad_prob's log-normal self-adaption
+    double min_ad_prob = 0.;
+    double max_ad_prob = 1.;
+    double adapt_adaption_probability = 0.;
+    std::uint32_t adaption_threshold = 0;
+
+private:
+    friend class boost::serialization::access;
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        ar &boost::serialization::make_nvp("present", present) &
+            boost::serialization::make_nvp("constrained", constrained) &
+            boost::serialization::make_nvp("start", start) &
+            boost::serialization::make_nvp("count", count) &
+            boost::serialization::make_nvp("mode", mode) &
+            boost::serialization::make_nvp("sigma_sigma", sigma_sigma) &
+            boost::serialization::make_nvp("min_sigma", min_sigma) &
+            boost::serialization::make_nvp("max_sigma", max_sigma) &
+            boost::serialization::make_nvp("adapt_ad_prob", adapt_ad_prob) &
+            boost::serialization::make_nvp("min_ad_prob", min_ad_prob) &
+            boost::serialization::make_nvp("max_ad_prob", max_ad_prob) &
+            boost::serialization::make_nvp("adapt_adaption_probability", adapt_adaption_probability) &
+            boost::serialization::make_nvp("adaption_threshold", adaption_threshold);
+    }
+};
+
+/******************************************************************************/
+/**
  * The flat-genome layout: the shared schema describing the parameter structure
  * of an individual, split per scalar type (double / float / int32 / bool). It
  * carries everything that is the *same* for every individual of a problem
@@ -100,12 +151,17 @@ struct GParameterLayout {
     ChannelLayout<std::int32_t> i;
     ChannelLayout<bool> b;
 
+    /// Static Gauss-adaptor config for the double channel's groups (one per source parameter
+    /// object). The matching per-individual evolving state lives in GFlatParameters.
+    std::vector<FlatGaussConfig> d_adaptor_groups;
+
 private:
     friend class boost::serialization::access;
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         ar &boost::serialization::make_nvp("d", d) & boost::serialization::make_nvp("f", f) &
-            boost::serialization::make_nvp("i", i) & boost::serialization::make_nvp("b", b);
+            boost::serialization::make_nvp("i", i) & boost::serialization::make_nvp("b", b) &
+            boost::serialization::make_nvp("d_adaptor_groups", d_adaptor_groups);
     }
 };
 

@@ -114,7 +114,8 @@ class GFlatParameters // NOLINT(cppcoreguidelines-special-member-functions)
 
         ar &make_nvp("GParameterBase", boost::serialization::base_object<GParameterBase>(*this)) &
             make_nvp("layout_", layout_) & make_nvp("dv_", dv_) & make_nvp("fv_", fv_) &
-            make_nvp("iv_", iv_) & make_nvp("bv_", bv_) & make_nvp("d_groups_", d_groups_) &
+            make_nvp("iv_", iv_) & make_nvp("bv_", bv_) & make_nvp("d_sigma_", d_sigma_) &
+            make_nvp("d_ad_prob_", d_ad_prob_) & make_nvp("d_counter_", d_counter_) &
             make_nvp("f_groups_", f_groups_) & make_nvp("i_groups_", i_groups_) &
             make_nvp("b_groups_", b_groups_);
     }
@@ -248,12 +249,18 @@ private:
     std::vector<std::int32_t> iv_;
     std::vector<std::uint8_t> bv_;
 
-    // Per-group adaptors (EA/SA mutation). One group per source parameter object, so each
-    // standalone parameter keeps its own adaptor settings (step width, mutation probability, ...)
-    // while a collection shares one adaptor across its slots -- exactly as in the tree. Constrained
-    // parameters are not captured here yet (their transfer/fold is a later phase), so they are
-    // currently transported but not mutated.
-    std::vector<GFlatAdaptGroup<double>> d_groups_;
+    // DOUBLE channel (data-oriented / flat): the static Gauss config lives in the shared layout
+    // (layout_->d_adaptor_groups); only the EVOLVING per-individual state lives here, as flat
+    // parallel arrays indexed by group. A stateless adapt kernel (see the .cpp) reads the config +
+    // these arrays + the value slice -- no adaptor objects, so a clone is a plain memcpy of state.
+    std::vector<double> d_sigma_;          ///< per double-group step width
+    std::vector<double> d_ad_prob_;        ///< per double-group adaption probability
+    std::vector<std::uint32_t> d_counter_; ///< per double-group meta-adaption counter
+
+    // FLOAT / INT / BOOL channels still use retained per-group adaptor objects (the flat kernel is
+    // being migrated channel by channel; double went first as the EA workhorse). One group per
+    // source parameter object, so each standalone parameter keeps its own adaptor settings while a
+    // collection shares one adaptor across its slots -- exactly as in the tree.
     std::vector<GFlatAdaptGroup<float>> f_groups_;
     std::vector<GFlatAdaptGroup<std::int32_t>> i_groups_;
     std::vector<GFlatAdaptGroup<bool>> b_groups_;
