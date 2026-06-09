@@ -45,40 +45,12 @@
 #include <boost/serialization/vector.hpp>
 
 // Geneva headers go here
-#include "geneva/par/GAdaptorT.hpp"
 #include "geneva/par/GParameterBase.hpp"
 #include "geneva/par/GParameterLayout.hpp"
 
 namespace Gem::Geneva::Parameters {
 
 class GParameterSet; // forward declaration (compileFrom source)
-
-/******************************************************************************/
-/**
- * A contiguous run of same-type flat slots that share a single adaptor (an EA/SA
- * mutation construct). A plain GDoubleObject contributes a group of count 1; a
- * GDoubleCollection of N contributes a group of count N sharing one adaptor --
- * exactly mirroring how the tree assigns adaptors. The cloned adaptor carries the
- * per-individual mutation state (sigma, ad_prob, ...), so it must be deep-cloned
- * (not shared) when an individual is copied.
- */
-template <typename T>
-struct GFlatAdaptGroup {
-    std::shared_ptr<GAdaptorT<T, adaption_fp_type_t<T>>> adaptor;
-    std::size_t start = 0;      ///< offset into the type's value array
-    std::size_t count = 0;      ///< number of slots covered
-    bool constrained = false;   ///< if true, fold each value back into [lower, upper) after adaption
-
-private:
-    friend class boost::serialization::access;
-    template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
-        ar &boost::serialization::make_nvp("adaptor", adaptor) &
-            boost::serialization::make_nvp("start", start) &
-            boost::serialization::make_nvp("count", count) &
-            boost::serialization::make_nvp("constrained", constrained);
-    }
-};
 
 /******************************************************************************/
 /**
@@ -116,8 +88,10 @@ class GFlatParameters // NOLINT(cppcoreguidelines-special-member-functions)
             make_nvp("layout_", layout_) & make_nvp("dv_", dv_) & make_nvp("fv_", fv_) &
             make_nvp("iv_", iv_) & make_nvp("bv_", bv_) & make_nvp("d_sigma_", d_sigma_) &
             make_nvp("d_ad_prob_", d_ad_prob_) & make_nvp("d_counter_", d_counter_) &
-            make_nvp("f_groups_", f_groups_) & make_nvp("i_groups_", i_groups_) &
-            make_nvp("b_groups_", b_groups_);
+            make_nvp("f_sigma_", f_sigma_) & make_nvp("f_ad_prob_", f_ad_prob_) &
+            make_nvp("f_counter_", f_counter_) & make_nvp("i_ad_prob_", i_ad_prob_) &
+            make_nvp("i_counter_", i_counter_) & make_nvp("b_ad_prob_", b_ad_prob_) &
+            make_nvp("b_counter_", b_counter_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -249,21 +223,26 @@ private:
     std::vector<std::int32_t> iv_;
     std::vector<std::uint8_t> bv_;
 
-    // DOUBLE channel (data-oriented / flat): the static Gauss config lives in the shared layout
-    // (layout_->d_adaptor_groups); only the EVOLVING per-individual state lives here, as flat
-    // parallel arrays indexed by group. A stateless adapt kernel (see the .cpp) reads the config +
-    // these arrays + the value slice -- no adaptor objects, so a clone is a plain memcpy of state.
-    std::vector<double> d_sigma_;          ///< per double-group step width
-    std::vector<double> d_ad_prob_;        ///< per double-group adaption probability
-    std::vector<std::uint32_t> d_counter_; ///< per double-group meta-adaption counter
+    // Data-oriented adaptor state (EA/SA). The static config lives in the shared layout
+    // (layout_->{d,f,i,b}_adaptor_groups); only the EVOLVING per-individual state lives here, as
+    // flat parallel arrays indexed by group. Stateless adapt kernels (see the .cpp) read the config
+    // + these arrays + the value slice -- no adaptor objects, so a clone is a plain memcpy of state.
+    //
+    // double/float channels use Gauss adaptors (sigma + ad_prob + counter); int/bool channels use
+    // flip adaptors (only ad_prob self-adapts -- no step width, so no sigma).
+    std::vector<double> d_sigma_;
+    std::vector<double> d_ad_prob_;
+    std::vector<std::uint32_t> d_counter_;
 
-    // FLOAT / INT / BOOL channels still use retained per-group adaptor objects (the flat kernel is
-    // being migrated channel by channel; double went first as the EA workhorse). One group per
-    // source parameter object, so each standalone parameter keeps its own adaptor settings while a
-    // collection shares one adaptor across its slots -- exactly as in the tree.
-    std::vector<GFlatAdaptGroup<float>> f_groups_;
-    std::vector<GFlatAdaptGroup<std::int32_t>> i_groups_;
-    std::vector<GFlatAdaptGroup<bool>> b_groups_;
+    std::vector<double> f_sigma_;
+    std::vector<double> f_ad_prob_;
+    std::vector<std::uint32_t> f_counter_;
+
+    std::vector<double> i_ad_prob_;
+    std::vector<std::uint32_t> i_counter_;
+
+    std::vector<double> b_ad_prob_;
+    std::vector<std::uint32_t> b_counter_;
 };
 
 /******************************************************************************/

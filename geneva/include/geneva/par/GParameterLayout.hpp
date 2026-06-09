@@ -137,6 +137,38 @@ private:
 
 /******************************************************************************/
 /**
+ * Static (shared, immutable) configuration of a FLIP adaptor for one contiguous run of int/bool
+ * slots. Flip adaptors (GInt32FlipAdaptor, GBooleanAdaptor -- the int/bool defaults) carry no
+ * sigma; only the flip probability (ad_prob) self-adapts between adaptions. The evolving
+ * per-individual state (ad_prob, counter) lives in GFlatParameters.
+ */
+struct FlatFlipConfig {
+    bool present = false;
+    bool constrained = false;   ///< int only (folds after the ±1 flip); bool is never constrained
+    std::size_t start = 0;
+    std::size_t count = 0;
+    FlatAdaptionMode mode = FlatAdaptionMode::WithProbability;
+    double adapt_ad_prob = 0.;
+    double min_ad_prob = 0.;
+    double max_ad_prob = 1.;
+
+private:
+    friend class boost::serialization::access;
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        ar &boost::serialization::make_nvp("present", present) &
+            boost::serialization::make_nvp("constrained", constrained) &
+            boost::serialization::make_nvp("start", start) &
+            boost::serialization::make_nvp("count", count) &
+            boost::serialization::make_nvp("mode", mode) &
+            boost::serialization::make_nvp("adapt_ad_prob", adapt_ad_prob) &
+            boost::serialization::make_nvp("min_ad_prob", min_ad_prob) &
+            boost::serialization::make_nvp("max_ad_prob", max_ad_prob);
+    }
+};
+
+/******************************************************************************/
+/**
  * The flat-genome layout: the shared schema describing the parameter structure
  * of an individual, split per scalar type (double / float / int32 / bool). It
  * carries everything that is the *same* for every individual of a problem
@@ -151,9 +183,12 @@ struct GParameterLayout {
     ChannelLayout<std::int32_t> i;
     ChannelLayout<bool> b;
 
-    /// Static Gauss-adaptor config for the double channel's groups (one per source parameter
-    /// object). The matching per-individual evolving state lives in GFlatParameters.
+    /// Static adaptor config per channel, one entry per source parameter object. The matching
+    /// per-individual evolving state lives in GFlatParameters. double/float use Gauss; int/bool flip.
     std::vector<FlatGaussConfig> d_adaptor_groups;
+    std::vector<FlatGaussConfig> f_adaptor_groups;
+    std::vector<FlatFlipConfig> i_adaptor_groups;
+    std::vector<FlatFlipConfig> b_adaptor_groups;
 
 private:
     friend class boost::serialization::access;
@@ -161,7 +196,10 @@ private:
     void serialize(Archive &ar, const unsigned int) {
         ar &boost::serialization::make_nvp("d", d) & boost::serialization::make_nvp("f", f) &
             boost::serialization::make_nvp("i", i) & boost::serialization::make_nvp("b", b) &
-            boost::serialization::make_nvp("d_adaptor_groups", d_adaptor_groups);
+            boost::serialization::make_nvp("d_adaptor_groups", d_adaptor_groups) &
+            boost::serialization::make_nvp("f_adaptor_groups", f_adaptor_groups) &
+            boost::serialization::make_nvp("i_adaptor_groups", i_adaptor_groups) &
+            boost::serialization::make_nvp("b_adaptor_groups", b_adaptor_groups);
     }
 };
 

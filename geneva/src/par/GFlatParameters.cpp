@@ -136,34 +136,15 @@ T foldIntoRangeInt(T val, T lower, T upper) {
     return mapping;
 }
 
-/** @brief Deep-clones a vector of adaptor groups (independent per-individual adaptor state). */
+/** @brief Extracts static Gauss config + initial per-individual state from one source param (T = double/float). */
 template <typename T>
-std::vector<GFlatAdaptGroup<T>> cloneGroups(const std::vector<GFlatAdaptGroup<T>> &src) {
-    std::vector<GFlatAdaptGroup<T>> out;
-    out.reserve(src.size());
-    for(const GFlatAdaptGroup<T> &g : src) {
-        GFlatAdaptGroup<T> c;
-        c.start = g.start;
-        c.count = g.count;
-        c.adaptor = g.adaptor ? g.adaptor->clone_unique() : nullptr;
-        out.push_back(std::move(c));
-    }
-    return out;
-}
-
-/**
- * @brief Captures the adaptor of a single source parameter as a group, if the parameter
- *        contributes slots of type T, is plain (unconstrained) and carries an adaptor.
- *
- * The offset is always advanced by the parameter's T-slot count so the value arrays and
- * groups stay aligned with streamline() order, even for parameters whose adaptor is not
- * captured (constrained or nested object-collections).
- */
-template <typename T>
-void captureGroup(
+void captureGaussGroup(
     const GParameterBase *p,
-    std::vector<GFlatAdaptGroup<T>> &groups,
     ChannelLayout<T> &chan,
+    std::vector<FlatGaussConfig> &configs,
+    std::vector<double> &sigma,
+    std::vector<double> &ad_prob,
+    std::vector<std::uint32_t> &counter,
     std::size_t &offset
 ) {
     const std::size_t n = p->countParameters<T>(activityMode::DEFAULTACTIVITYMODE);
@@ -171,106 +152,8 @@ void captureGroup(
         return;
     }
 
-    bool constrained = false;
-    if constexpr(not std::is_same_v<T, bool>) {
-        constrained = (dynamic_cast<const GConstrainedNumT<T> *>(p) != nullptr) ||
-                      (dynamic_cast<const GConstrainedNumCollectionT<T> *>(p) != nullptr);
-    }
-
-    if(constrained) {
-        for(std::size_t k = offset; k < offset + n && k < chan.kind.size(); ++k) {
-            chan.kind[k] = SlotKind::Constrained;
-        }
-    }
-
-    // Capture the adaptor for every adaptor-bearing parameter -- plain, or constrained (both the
-    // FP and the integer fold are replicated; see foldIntoRange / foldIntoRangeInt).
-    const auto *with_ad = dynamic_cast<const GParameterBaseWithAdaptorsT<T> *>(p);
-    if(with_ad != nullptr) {
-        GFlatAdaptGroup<T> g;
-        g.start = offset;
-        g.count = n;
-        g.constrained = constrained;
-        g.adaptor = with_ad->getAdaptor().clone_unique();
-        groups.push_back(std::move(g));
-    }
-
-    offset += n;
-}
-
-/** @brief Applies the adaptors of all numeric (double / float / int32) groups to a value array. */
-template <typename T>
-std::size_t adaptNumericGroups(
-    std::vector<GFlatAdaptGroup<T>> &groups,
-    std::vector<T> &vals,
-    const ChannelLayout<T> &layout,
-    Gem::Hap::GRandomBase &gr
-) {
-    auto fold = [&](T &v, std::size_t slot) {
-        if constexpr(std::is_floating_point_v<T>) {
-            v = foldIntoRange<T>(v, layout.lower[slot], layout.upper[slot]);
-        }
-        else if constexpr(std::is_integral_v<T>) {
-            v = foldIntoRangeInt<T>(v, layout.lower[slot], layout.upper[slot]);
-        }
-    };
-
-    std::size_t n_adapted = 0;
-    for(GFlatAdaptGroup<T> &g : groups) {
-        if(not g.adaptor || g.count == 0) {
-            continue;
-        }
-        // range = upper - lower (the same "comparative range" the tree's range() returns).
-        const T range = (layout.upper.size() > g.start) ? (layout.upper[g.start] - layout.lower[g.start])
-                                                        : static_cast<T>(1);
-
-        if(g.count == 1) {
-            // Scalar fast path (a standalone parameter): adapt the value in place, no temp vector.
-            n_adapted += g.adaptor->adapt(vals[g.start], range, gr);
-            if(g.constrained) {
-                fold(vals[g.start], g.start);
-            }
-            continue;
-        }
-
-        std::vector<T> slice(vals.begin() + static_cast<std::ptrdiff_t>(g.start),
-                             vals.begin() + static_cast<std::ptrdiff_t>(g.start + g.count));
-        n_adapted += g.adaptor->adapt(slice, range, gr);
-        // Constrained slots: fold the post-adaption value back into [lower, upper) and store the
-        // folded result -- mirroring GConstrainedNumT::value(), which resets its internal value to
-        // the transferred result so it never drifts unbounded.
-        if(g.constrained) {
-            for(std::size_t k = 0; k < g.count; ++k) {
-                fold(slice[k], g.start + k);
-            }
-        }
-        std::copy(slice.begin(), slice.end(), vals.begin() + static_cast<std::ptrdiff_t>(g.start));
-    }
-    return n_adapted;
-}
-
-/******************************************************************************/
-// Data-oriented DOUBLE channel: stateless EA/SA adapt kernel + config/state extraction.
-// No adaptor objects: the static config lives in the shared layout, the evolving state
-// (sigma, ad_prob, counter) in the individual. Thread-safe -- touches only its arguments.
-
-/** @brief Extracts the static Gauss config + initial per-individual state from one source param. */
-void captureDoubleGroup(
-    const GParameterBase *p,
-    ChannelLayout<double> &chan,
-    std::vector<FlatGaussConfig> &configs,
-    std::vector<double> &sigma,
-    std::vector<double> &ad_prob,
-    std::vector<std::uint32_t> &counter,
-    std::size_t &offset
-) {
-    const std::size_t n = p->countParameters<double>(activityMode::DEFAULTACTIVITYMODE);
-    if(n == 0) {
-        return;
-    }
-
-    const bool constrained = (dynamic_cast<const GConstrainedNumT<double> *>(p) != nullptr) ||
-                             (dynamic_cast<const GConstrainedNumCollectionT<double> *>(p) != nullptr);
+    const bool constrained = (dynamic_cast<const GConstrainedNumT<T> *>(p) != nullptr) ||
+                             (dynamic_cast<const GConstrainedNumCollectionT<T> *>(p) != nullptr);
     if(constrained) {
         for(std::size_t k = offset; k < offset + n && k < chan.kind.size(); ++k) {
             chan.kind[k] = SlotKind::Constrained;
@@ -286,21 +169,21 @@ void captureDoubleGroup(
     double a0 = 0.;
     std::uint32_t c0 = 0;
 
-    const auto *with_ad = dynamic_cast<const GParameterBaseWithAdaptorsT<double> *>(p);
+    const auto *with_ad = dynamic_cast<const GParameterBaseWithAdaptorsT<T> *>(p);
     if(with_ad != nullptr) {
-        const GAdaptorT<double, double> &base_ad = with_ad->getAdaptor();
-        const auto *gauss = dynamic_cast<const GNumGaussAdaptorT<double, double> *>(&base_ad);
-        if(gauss != nullptr) { // only Gauss adaptors are flattened (the default for doubles)
+        const GAdaptorT<T, adaption_fp_type_t<T>> &base_ad = with_ad->getAdaptor();
+        const auto *gauss = dynamic_cast<const GNumGaussAdaptorT<T, adaption_fp_type_t<T>> *>(&base_ad);
+        if(gauss != nullptr) {
             cfg.present = true;
-            cfg.sigma_sigma = gauss->getSigmaAdaptionRate();
+            cfg.sigma_sigma = static_cast<double>(gauss->getSigmaAdaptionRate());
             const auto sr = gauss->getSigmaRange();
-            cfg.min_sigma = std::get<0>(sr);
-            cfg.max_sigma = std::get<1>(sr);
-            cfg.adapt_ad_prob = base_ad.getAdaptAdProb();
+            cfg.min_sigma = static_cast<double>(std::get<0>(sr));
+            cfg.max_sigma = static_cast<double>(std::get<1>(sr));
+            cfg.adapt_ad_prob = static_cast<double>(base_ad.getAdaptAdProb());
             const auto ar = base_ad.getAdProbRange();
-            cfg.min_ad_prob = std::get<0>(ar);
-            cfg.max_ad_prob = std::get<1>(ar);
-            cfg.adapt_adaption_probability = base_ad.getAdaptAdaptionProbability();
+            cfg.min_ad_prob = static_cast<double>(std::get<0>(ar));
+            cfg.max_ad_prob = static_cast<double>(std::get<1>(ar));
+            cfg.adapt_adaption_probability = static_cast<double>(base_ad.getAdaptAdaptionProbability());
             cfg.adaption_threshold = base_ad.getAdaptionThreshold();
             switch(base_ad.getAdaptionMode()) {
             case adaptionMode::WITHPROBABILITY:
@@ -313,44 +196,119 @@ void captureDoubleGroup(
                 cfg.mode = FlatAdaptionMode::Never;
                 break;
             }
-            s0 = gauss->getSigma();
-            a0 = base_ad.getAdaptionProbability();
+            s0 = static_cast<double>(gauss->getSigma());
+            a0 = static_cast<double>(base_ad.getAdaptionProbability());
             c0 = base_ad.getAdaptionCounter();
         }
     }
 
     configs.push_back(cfg);
-    sigma.push_back(s0); // one state slot per group, kept aligned with configs (even if !present)
+    sigma.push_back(s0);
     ad_prob.push_back(a0);
     counter.push_back(c0);
-
     offset += n;
 }
 
-/** @brief Stateless EA/SA adapt kernel for one double Gauss group (replicates GAdaptorT::adapt). */
-std::size_t adaptDoubleGroup(
+/** @brief Extracts static flip config + initial state from one source param (T = int32/bool). */
+template <typename T>
+void captureFlipGroup(
+    const GParameterBase *p,
+    ChannelLayout<T> &chan,
+    std::vector<FlatFlipConfig> &configs,
+    std::vector<double> &ad_prob,
+    std::vector<std::uint32_t> &counter,
+    std::size_t &offset
+) {
+    const std::size_t n = p->countParameters<T>(activityMode::DEFAULTACTIVITYMODE);
+    if(n == 0) {
+        return;
+    }
+
+    bool constrained = false;
+    if constexpr(not std::is_same_v<T, bool>) {
+        constrained = (dynamic_cast<const GConstrainedNumT<T> *>(p) != nullptr) ||
+                      (dynamic_cast<const GConstrainedNumCollectionT<T> *>(p) != nullptr);
+        if(constrained) {
+            for(std::size_t k = offset; k < offset + n && k < chan.kind.size(); ++k) {
+                chan.kind[k] = SlotKind::Constrained;
+            }
+        }
+    }
+
+    FlatFlipConfig cfg;
+    cfg.start = offset;
+    cfg.count = n;
+    cfg.constrained = constrained;
+
+    double a0 = 0.;
+    std::uint32_t c0 = 0;
+
+    // The int/bool defaults are flip adaptors (no sigma); any adaptor exposes the ad_prob config.
+    const auto *with_ad = dynamic_cast<const GParameterBaseWithAdaptorsT<T> *>(p);
+    if(with_ad != nullptr) {
+        const GAdaptorT<T, adaption_fp_type_t<T>> &base_ad = with_ad->getAdaptor();
+        cfg.present = true;
+        cfg.adapt_ad_prob = static_cast<double>(base_ad.getAdaptAdProb());
+        const auto ar = base_ad.getAdProbRange();
+        cfg.min_ad_prob = static_cast<double>(std::get<0>(ar));
+        cfg.max_ad_prob = static_cast<double>(std::get<1>(ar));
+        switch(base_ad.getAdaptionMode()) {
+        case adaptionMode::WITHPROBABILITY:
+            cfg.mode = FlatAdaptionMode::WithProbability;
+            break;
+        case adaptionMode::ALWAYS:
+            cfg.mode = FlatAdaptionMode::Always;
+            break;
+        default:
+            cfg.mode = FlatAdaptionMode::Never;
+            break;
+        }
+        a0 = static_cast<double>(base_ad.getAdaptionProbability());
+        c0 = base_ad.getAdaptionCounter();
+    }
+
+    configs.push_back(cfg);
+    ad_prob.push_back(a0);
+    counter.push_back(c0);
+    offset += n;
+}
+
+/** @brief ad_prob log-normal self-adaption (once per group), shared by the Gauss + flip kernels. */
+inline void selfAdaptAdProb(
+    double &ad_prob,
+    double adapt_ad_prob,
+    double min_ad_prob,
+    double max_ad_prob,
+    Gem::Hap::g_normal_distribution<double> &nd,
+    Gem::Hap::GRandomBase &gr
+) {
+    if(adapt_ad_prob > 0.) {
+        ad_prob *= std::exp(nd(gr, Gem::Hap::g_normal_distribution<double>::param_type(0., adapt_ad_prob)));
+        Gem::Common::enforceRangeConstraint<double>(ad_prob, min_ad_prob, max_ad_prob, "GFlatParameters ad_prob");
+    }
+}
+
+/** @brief Stateless Gauss adapt kernel for one group (T = double/float). Mirrors GAdaptorT::adapt +
+ *         GNumGaussAdaptorT self-adaption: ad_prob self-adaption, per-element bernoulli gate, sigma
+ *         log-normal self-adaption (+ULP), range*N(0,sigma) value step (+ULP), constrained fold. */
+template <typename T>
+std::size_t adaptGaussGroup(
     const FlatGaussConfig &cfg,
-    double *vals,
+    T *vals,
     double &sigma,
     double &ad_prob,
     std::uint32_t &counter,
-    const ChannelLayout<double> &dlayout,
+    const ChannelLayout<T> &chan,
     Gem::Hap::g_normal_distribution<double> &nd,
     Gem::Hap::g_bernoulli_distribution &bd,
     Gem::Hap::GRandomBase &gr
 ) {
-    // The "comparative range" the tree's range() returns (upper - lower), uniform across the group.
-    const double range = (dlayout.upper.size() > cfg.start)
-                             ? (dlayout.upper[cfg.start] - dlayout.lower[cfg.start])
+    const double range = (chan.upper.size() > cfg.start)
+                             ? (static_cast<double>(chan.upper[cfg.start]) - static_cast<double>(chan.lower[cfg.start]))
                              : 1.0;
 
-    // ad_prob self-adaption (once per group), mirroring GAdaptorT::adapt().
-    if(cfg.adapt_ad_prob > 0.) {
-        ad_prob *= std::exp(nd(gr, Gem::Hap::g_normal_distribution<double>::param_type(0., cfg.adapt_ad_prob)));
-        Gem::Common::enforceRangeConstraint<double>(ad_prob, cfg.min_ad_prob, cfg.max_ad_prob, "GFlatParameters adapt ad_prob");
-    }
+    selfAdaptAdProb(ad_prob, cfg.adapt_ad_prob, cfg.min_ad_prob, cfg.max_ad_prob, nd, gr);
 
-    // sigma self-adaption (GAdaptorT::adaptAdaption + GNumGaussAdaptorT::customAdaptAdaption).
     auto adaptSigma = [&]() {
         bool do_sigma = false;
         if(cfg.adaption_threshold > 0) {
@@ -368,23 +326,20 @@ std::size_t adaptDoubleGroup(
             const double sb = sigma;
             const double mult = std::exp(nd(gr, Gem::Hap::g_normal_distribution<double>::param_type(0., std::abs(cfg.sigma_sigma))));
             sigma *= mult;
-            if(sigma == sb) { // ULP guarantee (matches the tree)
-                const double dir = (mult < 1.) ? std::numeric_limits<double>::lowest()
-                                               : std::numeric_limits<double>::max();
+            if(sigma == sb) {
+                const double dir = (mult < 1.) ? std::numeric_limits<double>::lowest() : std::numeric_limits<double>::max();
                 sigma = std::nextafter(sb, dir);
             }
-            Gem::Common::enforceRangeConstraint<double>(sigma, cfg.min_sigma, cfg.max_sigma, "GFlatParameters adapt sigma");
+            Gem::Common::enforceRangeConstraint<double>(sigma, cfg.min_sigma, cfg.max_sigma, "GFlatParameters sigma");
         }
     };
 
-    // value mutation (GFPGaussAdaptorT::customAdaptions).
-    auto mutateValue = [&](double &v) {
-        const double before = v;
-        const double delta = range * nd(gr, Gem::Hap::g_normal_distribution<double>::param_type(0., sigma));
-        v = before + delta;
-        if(v == before) { // ULP guarantee
-            const double dir = (delta < 0.) ? std::numeric_limits<double>::lowest()
-                                            : std::numeric_limits<double>::max();
+    auto mutateValue = [&](T &v) {
+        const T before = v;
+        const T candidate = static_cast<T>(static_cast<double>(before) + range * nd(gr, Gem::Hap::g_normal_distribution<double>::param_type(0., sigma)));
+        v = candidate;
+        if(v == before) {
+            const T dir = (candidate < before) ? std::numeric_limits<T>::lowest() : std::numeric_limits<T>::max();
             v = std::nextafter(before, dir);
         }
     };
@@ -407,10 +362,80 @@ std::size_t adaptDoubleGroup(
         }
     }
 
-    // Constrained slots: fold each post-adaption value back into [lower, upper).
     if(cfg.constrained) {
         for(std::size_t k = 0; k < cfg.count; ++k) {
-            vals[k] = foldIntoRange<double>(vals[k], dlayout.lower[cfg.start + k], dlayout.upper[cfg.start + k]);
+            vals[k] = foldIntoRange<T>(vals[k], chan.lower[cfg.start + k], chan.upper[cfg.start + k]);
+        }
+    }
+    return n_adapted;
+}
+
+/** @brief Stateless flip adapt kernel for one integer group. Mirrors GNumFlipAdaptorT::customAdaptions
+ *         (value +-1 with 50/50 direction); only ad_prob self-adapts (no sigma). */
+std::size_t adaptFlipIntGroup(
+    const FlatFlipConfig &cfg,
+    std::int32_t *vals,
+    double &ad_prob,
+    const ChannelLayout<std::int32_t> &chan,
+    Gem::Hap::g_normal_distribution<double> &nd,
+    Gem::Hap::g_bernoulli_distribution &bd,
+    Gem::Hap::GRandomBase &gr
+) {
+    selfAdaptAdProb(ad_prob, cfg.adapt_ad_prob, cfg.min_ad_prob, cfg.max_ad_prob, nd, gr);
+
+    auto flip = [&](std::int32_t &v) {
+        v += bd(gr, Gem::Hap::g_bernoulli_distribution::param_type(0.5)) ? 1 : -1;
+    };
+
+    std::size_t n_adapted = 0;
+    if(cfg.mode == FlatAdaptionMode::WithProbability) {
+        for(std::size_t k = 0; k < cfg.count; ++k) {
+            if(bd(gr, Gem::Hap::g_bernoulli_distribution::param_type(std::abs(ad_prob)))) {
+                flip(vals[k]);
+                ++n_adapted;
+            }
+        }
+    }
+    else if(cfg.mode == FlatAdaptionMode::Always) {
+        for(std::size_t k = 0; k < cfg.count; ++k) {
+            flip(vals[k]);
+            ++n_adapted;
+        }
+    }
+
+    if(cfg.constrained) {
+        for(std::size_t k = 0; k < cfg.count; ++k) {
+            vals[k] = foldIntoRangeInt<std::int32_t>(vals[k], chan.lower[cfg.start + k], chan.upper[cfg.start + k]);
+        }
+    }
+    return n_adapted;
+}
+
+/** @brief Stateless flip adapt kernel for one boolean group. Mirrors GBooleanAdaptor::customAdaptions
+ *         (negate the bit); only ad_prob self-adapts (no sigma). Bools are stored as bytes. */
+std::size_t adaptFlipBoolGroup(
+    const FlatFlipConfig &cfg,
+    std::uint8_t *vals,
+    double &ad_prob,
+    Gem::Hap::g_normal_distribution<double> &nd,
+    Gem::Hap::g_bernoulli_distribution &bd,
+    Gem::Hap::GRandomBase &gr
+) {
+    selfAdaptAdProb(ad_prob, cfg.adapt_ad_prob, cfg.min_ad_prob, cfg.max_ad_prob, nd, gr);
+
+    std::size_t n_adapted = 0;
+    if(cfg.mode == FlatAdaptionMode::WithProbability) {
+        for(std::size_t k = 0; k < cfg.count; ++k) {
+            if(bd(gr, Gem::Hap::g_bernoulli_distribution::param_type(std::abs(ad_prob)))) {
+                vals[k] = (vals[k] != 0) ? 0 : 1;
+                ++n_adapted;
+            }
+        }
+    }
+    else if(cfg.mode == FlatAdaptionMode::Always) {
+        for(std::size_t k = 0; k < cfg.count; ++k) {
+            vals[k] = (vals[k] != 0) ? 0 : 1;
+            ++n_adapted;
         }
     }
     return n_adapted;
@@ -456,10 +481,10 @@ std::unique_ptr<GFlatParameters> GFlatParameters::compileFrom(const GParameterSe
     std::size_t b_off = 0;
     for(const auto &p_ptr : src) {
         const GParameterBase *p = p_ptr.get();
-        captureDoubleGroup(p, L.d, L.d_adaptor_groups, flat->d_sigma_, flat->d_ad_prob_, flat->d_counter_, d_off);
-        captureGroup<float>(p, flat->f_groups_, L.f, f_off);
-        captureGroup<std::int32_t>(p, flat->i_groups_, L.i, i_off);
-        captureGroup<bool>(p, flat->b_groups_, L.b, b_off);
+        captureGaussGroup<double>(p, L.d, L.d_adaptor_groups, flat->d_sigma_, flat->d_ad_prob_, flat->d_counter_, d_off);
+        captureGaussGroup<float>(p, L.f, L.f_adaptor_groups, flat->f_sigma_, flat->f_ad_prob_, flat->f_counter_, f_off);
+        captureFlipGroup<std::int32_t>(p, L.i, L.i_adaptor_groups, flat->i_ad_prob_, flat->i_counter_, i_off);
+        captureFlipGroup<bool>(p, L.b, L.b_adaptor_groups, flat->b_ad_prob_, flat->b_counter_, b_off);
     }
 
     return flat;
@@ -476,12 +501,17 @@ GFlatParameters::GFlatParameters(const GFlatParameters &cp)
   , fv_(cp.fv_)
   , iv_(cp.iv_)
   , bv_(cp.bv_)
-  , d_sigma_(cp.d_sigma_)   // double channel state is flat -> a plain copy (the clone win)
+  // All adaptor state is flat now -> a clone is a plain copy of these arrays (the clone win).
+  , d_sigma_(cp.d_sigma_)
   , d_ad_prob_(cp.d_ad_prob_)
   , d_counter_(cp.d_counter_)
-  , f_groups_(cloneGroups(cp.f_groups_))
-  , i_groups_(cloneGroups(cp.i_groups_))
-  , b_groups_(cloneGroups(cp.b_groups_)) { /* nothing */
+  , f_sigma_(cp.f_sigma_)
+  , f_ad_prob_(cp.f_ad_prob_)
+  , f_counter_(cp.f_counter_)
+  , i_ad_prob_(cp.i_ad_prob_)
+  , i_counter_(cp.i_counter_)
+  , b_ad_prob_(cp.b_ad_prob_)
+  , b_counter_(cp.b_counter_) { /* nothing */
 }
 
 GFlatParameters &GFlatParameters::operator=(const GFlatParameters &cp) {
@@ -495,9 +525,13 @@ GFlatParameters &GFlatParameters::operator=(const GFlatParameters &cp) {
         d_sigma_ = cp.d_sigma_;
         d_ad_prob_ = cp.d_ad_prob_;
         d_counter_ = cp.d_counter_;
-        f_groups_ = cloneGroups(cp.f_groups_);
-        i_groups_ = cloneGroups(cp.i_groups_);
-        b_groups_ = cloneGroups(cp.b_groups_);
+        f_sigma_ = cp.f_sigma_;
+        f_ad_prob_ = cp.f_ad_prob_;
+        f_counter_ = cp.f_counter_;
+        i_ad_prob_ = cp.i_ad_prob_;
+        i_counter_ = cp.i_counter_;
+        b_ad_prob_ = cp.b_ad_prob_;
+        b_counter_ = cp.b_counter_;
     }
     return *this;
 }
@@ -667,52 +701,48 @@ bool GFlatParameters::randomInit_(const activityMode &, Gem::Hap::GRandomBase &g
 }
 
 /******************************************************************************/
-// Adaption (EA/SA mutation): apply each group's adaptor to its slice of the value
-// arrays, reusing the existing, validated adaptor math. Constrained parameters are
-// not captured as groups yet, so they are left unchanged here (a later phase adds
-// the internal-value + transfer handling needed to mutate them correctly).
+// Adaption (EA/SA mutation): stateless data-oriented kernels over the shared config
+// (layout_->{d,f,i,b}_adaptor_groups) + this individual's flat per-group state arrays. No
+// adaptor objects. Thread-safe: the kernels touch only this individual's data + the local
+// distribution objects, so they compose with the EA's parallel adaptChildren_ pool.
 
 std::size_t GFlatParameters::adapt_(Gem::Hap::GRandomBase &gr) {
     std::size_t n_adapted = 0;
-    // Double channel: data-oriented stateless kernel over the shared config + this individual's
-    // flat per-group state arrays (no adaptor objects).
-    const std::vector<FlatGaussConfig> &d_cfgs = layout_->d_adaptor_groups;
-    // Distribution objects are constructed once and reused across all groups (cheap + matches the
-    // tree's member-distribution reuse); each adapt() runs on its own thread, so these locals are
-    // private to this call -- the kernel stays stateless w.r.t. anything shared.
+
+    // Distribution objects are constructed once and reused across all groups (each adapt() runs on
+    // its own thread, so these locals are private to this call).
     Gem::Hap::g_normal_distribution<double> nd;
     Gem::Hap::g_bernoulli_distribution bd;
+
+    // double / float: Gauss kernel
+    const std::vector<FlatGaussConfig> &d_cfgs = layout_->d_adaptor_groups;
     for(std::size_t g = 0; g < d_cfgs.size(); ++g) {
         const FlatGaussConfig &cfg = d_cfgs[g];
-        if(not cfg.present || cfg.count == 0) {
-            continue;
+        if(cfg.present && cfg.count > 0) {
+            n_adapted += adaptGaussGroup<double>(cfg, dv_.data() + cfg.start, d_sigma_[g], d_ad_prob_[g], d_counter_[g], layout_->d, nd, bd, gr);
         }
-        n_adapted += adaptDoubleGroup(cfg, dv_.data() + cfg.start, d_sigma_[g], d_ad_prob_[g], d_counter_[g], layout_->d, nd, bd, gr);
+    }
+    const std::vector<FlatGaussConfig> &f_cfgs = layout_->f_adaptor_groups;
+    for(std::size_t g = 0; g < f_cfgs.size(); ++g) {
+        const FlatGaussConfig &cfg = f_cfgs[g];
+        if(cfg.present && cfg.count > 0) {
+            n_adapted += adaptGaussGroup<float>(cfg, fv_.data() + cfg.start, f_sigma_[g], f_ad_prob_[g], f_counter_[g], layout_->f, nd, bd, gr);
+        }
     }
 
-    n_adapted += adaptNumericGroups(f_groups_, fv_, layout_->f, gr);
-    n_adapted += adaptNumericGroups(i_groups_, iv_, layout_->i, gr);
-
-    // Booleans are stored as bytes; bridge to the adaptor's std::vector<bool> interface.
-    for(GFlatAdaptGroup<bool> &g : b_groups_) {
-        if(not g.adaptor || g.count == 0) {
-            continue;
+    // int / bool: flip kernel (only ad_prob self-adapts -- flip adaptors have no step width)
+    const std::vector<FlatFlipConfig> &i_cfgs = layout_->i_adaptor_groups;
+    for(std::size_t g = 0; g < i_cfgs.size(); ++g) {
+        const FlatFlipConfig &cfg = i_cfgs[g];
+        if(cfg.present && cfg.count > 0) {
+            n_adapted += adaptFlipIntGroup(cfg, iv_.data() + cfg.start, i_ad_prob_[g], layout_->i, nd, bd, gr);
         }
-        if(g.count == 1) {
-            // Scalar fast path (a standalone boolean parameter).
-            bool b = (bv_[g.start] != 0);
-            n_adapted += g.adaptor->adapt(b, true, gr);
-            bv_[g.start] = b ? 1 : 0;
-            continue;
-        }
-        std::vector<bool> slice;
-        slice.reserve(g.count);
-        for(std::size_t k = 0; k < g.count; ++k) {
-            slice.push_back(bv_[g.start + k] != 0);
-        }
-        n_adapted += g.adaptor->adapt(slice, true, gr);
-        for(std::size_t k = 0; k < g.count; ++k) {
-            bv_[g.start + k] = slice[k] ? 1 : 0;
+    }
+    const std::vector<FlatFlipConfig> &b_cfgs = layout_->b_adaptor_groups;
+    for(std::size_t g = 0; g < b_cfgs.size(); ++g) {
+        const FlatFlipConfig &cfg = b_cfgs[g];
+        if(cfg.present && cfg.count > 0) {
+            n_adapted += adaptFlipBoolGroup(cfg, bv_.data() + cfg.start, b_ad_prob_[g], nd, bd, gr);
         }
     }
 
@@ -774,9 +804,13 @@ void GFlatParameters::load_(const GParameterBase *cp) {
     d_sigma_ = p_load->d_sigma_;
     d_ad_prob_ = p_load->d_ad_prob_;
     d_counter_ = p_load->d_counter_;
-    f_groups_ = cloneGroups(p_load->f_groups_);
-    i_groups_ = cloneGroups(p_load->i_groups_);
-    b_groups_ = cloneGroups(p_load->b_groups_);
+    f_sigma_ = p_load->f_sigma_;
+    f_ad_prob_ = p_load->f_ad_prob_;
+    f_counter_ = p_load->f_counter_;
+    i_ad_prob_ = p_load->i_ad_prob_;
+    i_counter_ = p_load->i_counter_;
+    b_ad_prob_ = p_load->b_ad_prob_;
+    b_counter_ = p_load->b_counter_;
 }
 
 void GFlatParameters::compare_(
