@@ -357,6 +357,13 @@ void GImageIndividual::init(
     this->push_back(bg_color_r_ptr);
     this->push_back(bg_color_g_ptr);
     this->push_back(bg_color_b_ptr);
+
+    // Collapse the freshly-built parameter tree into a single flat (struct-of-arrays) node. From
+    // here on the individual clones, transports, adapts and -- crucially for the GPU path -- flattens
+    // via the contiguous value array, with no per-parameter-object tree walk. The per-parameter
+    // adaptor settings (incl. the disabled adaptions on the alpha channel / background) are captured
+    // into the flat layout, so behaviour is preserved.
+    this->compileToFlat();
 }
 
 /** @brief Allows an external entity to set our fitness */
@@ -438,14 +445,19 @@ bool GImageIndividual::getMutateAlphaChannel() const {
 	 * @return An array with the triangle data
 	 */
 std::vector<CircleTriangle> GImageIndividual::getTriangleData() const {
+    // The genome is stored flat; read the values from the contiguous array (streamline order is
+    // [ per triangle: cx, cy, radius, angle1..3, r, g, b, a ] followed by the 3 background colors).
+    std::vector<gimage_fp_t> v;
+    this->streamline(v);
+
 #ifdef DEBUG
-    if(this->size() != 10 * nTriangles_ + 3) {
+    if(v.size() != 10 * nTriangles_ + 3) {
         // including background color
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageIndividual::getTriangleData(): Error!" << '\n'
-            << "Invalid number of entries in this class " << this->size() << " / "
-            << nTriangles_ + 3 << '\n'
+            << "Invalid number of entries in this class " << v.size() << " / "
+            << 10 * nTriangles_ + 3 << '\n'
         );
     }
 #endif /* DEBUG */
@@ -455,28 +467,18 @@ std::vector<CircleTriangle> GImageIndividual::getTriangleData() const {
     for(std::size_t i = 0; i < nTriangles_; i++) {
         offset = i * 10;
 
-        circle_cnt[i].cx =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 0)->value());
-        circle_cnt[i].cy =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 1)->value());
-        circle_cnt[i].radius =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 2)->value());
+        circle_cnt[i].cx = static_cast<float>(v[offset + 0]);
+        circle_cnt[i].cy = static_cast<float>(v[offset + 1]);
+        circle_cnt[i].radius = static_cast<float>(v[offset + 2]);
 
-        circle_cnt[i].angle1 =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 3)->value());
-        circle_cnt[i].angle2 =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 4)->value());
-        circle_cnt[i].angle3 =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 5)->value());
+        circle_cnt[i].angle1 = static_cast<float>(v[offset + 3]);
+        circle_cnt[i].angle2 = static_cast<float>(v[offset + 4]);
+        circle_cnt[i].angle3 = static_cast<float>(v[offset + 5]);
 
-        circle_cnt[i].r =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 6)->value());
-        circle_cnt[i].g =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 7)->value());
-        circle_cnt[i].b =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 8)->value());
-        circle_cnt[i].a =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 9)->value());
+        circle_cnt[i].r = static_cast<float>(v[offset + 6]);
+        circle_cnt[i].g = static_cast<float>(v[offset + 7]);
+        circle_cnt[i].b = static_cast<float>(v[offset + 8]);
+        circle_cnt[i].a = static_cast<float>(v[offset + 9]);
     }
 
     if(alphaSort_) {
