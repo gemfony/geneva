@@ -33,7 +33,10 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <algorithm>
+#include <cstddef>
 #include <cstdint>
+#include <type_traits>
 #include <vector>
 
 // Boost headers go here
@@ -94,6 +97,62 @@ protected:
     [[nodiscard]] GFlatParameters &flatNode();
     [[nodiscard]] const GFlatParameters &flatNode() const;
 };
+
+/******************************************************************************/
+/**
+ * Builds a row-major [ items.size() x dim ] buffer of the floating-point genome
+ * values of @p items, ready to be handed to a batched (e.g. GPU) evaluator. This
+ * is the "zero-copy flatten": for a flat individual (GFlatParameterSet) each row
+ * is a straight copy out of the contiguous genome array -- no per-item tree walk
+ * and no intermediate scratch vector. Tree-based individuals are still supported
+ * and fall back transparently to streamline(), so a marshaller can call this
+ * unconditionally and simply gets the fast path whenever the genome is flat.
+ *
+ * @tparam scalar_type Either double or float -- the element type of the batch buffer.
+ * @tparam ItemPtr     Any pointer-like handle to a GParameterSet (raw / shared / unique).
+ * @param items   The work items, all of which must expose the same parameter count.
+ * @param out     Receives the flattened buffer (resized to items.size() * dim).
+ */
+template <typename scalar_type, typename ItemPtr>
+void flattenGenomesRowMajor(const std::vector<ItemPtr> &items, std::vector<scalar_type> &out) {
+    static_assert(
+        std::is_same_v<scalar_type, double> || std::is_same_v<scalar_type, float>,
+        "flattenGenomesRowMajor: scalar_type must be double or float"
+    );
+
+    if(items.empty()) {
+        out.clear();
+        return;
+    }
+
+    std::vector<scalar_type> scratch;
+    items.front()->template streamline<scalar_type>(scratch); // establishes the per-item dimension
+    const std::size_t dim = scratch.size();
+    out.resize(items.size() * dim);
+
+    for(std::size_t i = 0; i < items.size(); ++i) {
+        scalar_type *dst = out.data() + (i * dim);
+
+        // Fast path: a flat individual hands out its contiguous value array directly.
+        const auto *flat = dynamic_cast<const GFlatParameterSet *>(&*items[i]);
+        if(flat != nullptr) {
+            const std::vector<scalar_type> *vals = nullptr;
+            if constexpr(std::is_same_v<scalar_type, double>) {
+                vals = &flat->flatDoubleValues();
+            } else {
+                vals = &flat->flatFloatValues();
+            }
+            if(vals->size() == dim) {
+                std::copy(vals->begin(), vals->end(), dst);
+                continue;
+            }
+        }
+
+        // Fallback: walk the tree into the scratch buffer, then copy the row out.
+        items[i]->template streamline<scalar_type>(scratch);
+        std::copy(scratch.begin(), scratch.end(), dst);
+    }
+}
 
 /******************************************************************************/
 

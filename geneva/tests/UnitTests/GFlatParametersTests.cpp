@@ -472,3 +472,70 @@ TEST_CASE("GFlatParameterSet drives an end-to-end evolutionary algorithm", "[fla
     // The population starts at f = 5 * 3^2 = 45; a working EA drives it far below that.
     CHECK(sphere < 10.0); // robust end-to-end check (start = 45); not a convergence benchmark
 }
+
+/******************************************************************************/
+
+TEST_CASE("flattenGenomesRowMajor zero-copies a flat-genome batch", "[flat]") {
+    // A batch of flat individuals, each given a distinct in-range value vector so the rows differ.
+    std::vector<std::shared_ptr<gpar::GParameterSet>> items;
+    for(int k = 0; k < 6; ++k) {
+        auto ind = std::make_shared<FlatSphereIndividual>();
+        std::vector<double> vals(5);
+        for(std::size_t j = 0; j < vals.size(); ++j) {
+            vals[j] = -4.0 + static_cast<double>(k) * 0.5 + static_cast<double>(j) * 0.1;
+        }
+        ind->assignValueVector<double>(vals, Gem::Geneva::activityMode::ALLPARAMETERS);
+        items.push_back(ind);
+    }
+
+    std::vector<double> flat;
+    gpar::flattenGenomesRowMajor<double>(items, flat);
+
+    REQUIRE(flat.size() == items.size() * 5);
+
+    // The row-major buffer must equal each item's own streamline() output, row by row.
+    for(std::size_t i = 0; i < items.size(); ++i) {
+        std::vector<double> expected;
+        items[i]->streamline<double>(expected);
+        REQUIRE(expected.size() == 5);
+        for(std::size_t j = 0; j < expected.size(); ++j) {
+            CHECK(flat[(i * 5) + j] == expected[j]);
+        }
+    }
+}
+
+/******************************************************************************/
+
+TEST_CASE("flattenGenomesRowMajor falls back to streamline for tree individuals", "[flat]") {
+    // The same helper must transparently handle tree-based individuals (no flat node) via streamline.
+    std::vector<std::shared_ptr<gpar::GParameterSet>> items;
+    for(int k = 0; k < 4; ++k) {
+        items.push_back(std::make_shared<MixedIndividual>());
+    }
+
+    std::vector<double> ref;
+    items.front()->streamline<double>(ref);
+    const std::size_t dim = ref.size();
+
+    std::vector<double> flat;
+    gpar::flattenGenomesRowMajor<double>(items, flat);
+
+    REQUIRE(flat.size() == items.size() * dim);
+    for(std::size_t i = 0; i < items.size(); ++i) {
+        std::vector<double> expected;
+        items[i]->streamline<double>(expected);
+        REQUIRE(expected.size() == dim);
+        for(std::size_t j = 0; j < dim; ++j) {
+            CHECK(flat[(i * dim) + j] == expected[j]);
+        }
+    }
+}
+
+/******************************************************************************/
+
+TEST_CASE("flattenGenomesRowMajor handles an empty batch", "[flat]") {
+    std::vector<std::shared_ptr<gpar::GParameterSet>> items;
+    std::vector<double> flat{1.0, 2.0, 3.0}; // pre-filled to prove it is cleared
+    gpar::flattenGenomesRowMajor<double>(items, flat);
+    CHECK(flat.empty());
+}
