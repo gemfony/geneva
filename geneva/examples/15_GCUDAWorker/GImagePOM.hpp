@@ -37,8 +37,13 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <chrono>
 #include <filesystem>
+#include <future>
+#include <memory>
+#include <mutex>
 #include <string>
+#include <utility>
 #include <vector>
 
 // Geneva headers go here
@@ -52,6 +57,63 @@
 namespace Gem::Geneva {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * A small off-thread task sink for image output. The candidate rasterise (renderToRGB) and the PNG
+ * encode/write are CPU-bound and, in example 15, cost ~40% of an iteration -- yet they only need a
+ * by-value copy of the best genome, so they need not block the optimization loop. submit() launches
+ * each task on a background thread (std::async) and keeps the loop running; a small in-flight cap
+ * applies back-pressure if writing ever falls behind, and waitAll()/the destructor drain outstanding
+ * writes so nothing is lost at shutdown. The host has spare cores here (the GPU path leaves it ~60%
+ * idle). The mechanism is task-generic and could be lifted into a reusable sink for other
+ * file-writing pluggable monitors.
+ */
+class AsyncImageWriter {
+public:
+    AsyncImageWriter() = default;
+    AsyncImageWriter(const AsyncImageWriter &) = delete;
+    AsyncImageWriter &operator=(const AsyncImageWriter &) = delete;
+    ~AsyncImageWriter() {
+        waitAll();
+    }
+
+    /** @brief Launches @p task on a background thread; reaps finished ones and caps the in-flight set. */
+    template <typename Fn>
+    void submit(Fn &&task) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        reapDone();
+        if(pending_.size() >= MAX_IN_FLIGHT) {
+            // Back-pressure: writing has fallen behind the optimizer -- wait for the oldest to finish.
+            pending_.front().wait();
+            pending_.erase(pending_.begin());
+        }
+        pending_.push_back(std::async(std::launch::async, std::forward<Fn>(task)));
+    }
+
+    /** @brief Blocks until every outstanding write has completed (called at finalization). */
+    void waitAll() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        for(auto &f : pending_) {
+            if(f.valid()) {
+                f.wait();
+            }
+        }
+        pending_.clear();
+    }
+
+private:
+    void reapDone() {
+        std::erase_if(pending_, [](const std::future<void> &f) {
+            return f.valid() &&
+                   f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+        });
+    }
+
+    std::mutex mutex_;
+    std::vector<std::future<void>> pending_;
+    static constexpr std::size_t MAX_IN_FLIGHT = 4;
+};
+
 /******************************************************************************/
 /**
  * A pluggable optimization monitor that saves the iteration's best candidate image to disk. The best
@@ -92,8 +154,15 @@ public:
     }
 
     /***************************************************************************/
-    /** @brief The copy constructor */
-    GImagePOM(const GImagePOM &cp) = default;
+    /** @brief The copy constructor. Copies the configuration but NOT the async writer: the
+     *  in-flight output queue is per-instance runtime state, so a clone starts with its own
+     *  (lazily created) writer rather than sharing the original's queue. */
+    GImagePOM(const GImagePOM &cp)
+      : oa::GBasePluggableOM(cp)
+      , resultImageDirectory_(cp.resultImageDirectory_)
+      , emitBestOnly_(cp.emitBestOnly_) {
+        /* writer_ intentionally left null */
+    }
 
     /***************************************************************************/
     /** @brief The destructor */
@@ -244,26 +313,42 @@ private:
             auto best_ptr =
                 goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestIterationIndividual<GImageIndividual>();
 
-            // Rasterise the candidate genome at the target resolution and write it out. The
-            // genome scalar type is selected at compile time (gimage_fp_t), so streamline into
-            // a matching buffer -- streamline<float> on a double genome collects nothing.
+            // Snapshot everything the output needs into by-value data (cheap), so the actual work --
+            // the CPU rasterise (renderToRGB) and the PNG encode/write -- can run off the optimization
+            // thread. The genome scalar type is selected at compile time (gimage_fp_t), so streamline
+            // into a matching buffer -- streamline<float> on a double genome collects nothing.
             std::vector<gimage_fp_t> parVec;
             best_ptr->streamline(parVec);
             const MonaLisa::Target &tgt = MonaLisa::target();
-            std::vector<unsigned char> rgb;
-            MonaLisa::renderToRGB(parVec.data(), static_cast<int>(parVec.size()), tgt.width,
-                                  tgt.height, rgb);
-
+            const int width = tgt.width;
+            const int height = tgt.height;
             const std::uint32_t iteration =
                 goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getIteration();
             const double fitness = best_ptr->raw_fitness(0);
             const std::string resultFileName = resultImageDirectory_ + std::to_string(iteration) +
                                                "_" + std::to_string(fitness) + "_bestIndividual.png";
-            Gem::Common::writeRGBtoPNG(resultFileName, rgb, tgt.width, tgt.height);
+
+            if(not writer_) {
+                writer_ = std::make_shared<AsyncImageWriter>();
+            }
+            // Hand the rasterise + PNG write to a background thread; the optimizer continues at once.
+            // The task is self-contained: parVec is moved in, the rest are copied by value, and it
+            // writes to a unique per-iteration filename, so concurrent writes never collide.
+            writer_->submit(
+                [parVec = std::move(parVec), width, height, resultFileName]() {
+                    std::vector<unsigned char> rgb;
+                    MonaLisa::renderToRGB(parVec.data(), static_cast<int>(parVec.size()), width,
+                                          height, rgb);
+                    Gem::Common::writeRGBtoPNG(resultFileName, rgb, width, height);
+                }
+            );
         } break;
 
         case Gem::Geneva::infoMode::INFOEND: {
-            /* nothing */
+            // Make sure every queued image has been written before the run returns.
+            if(writer_) {
+                writer_->waitAll();
+            }
         } break;
         };
     }
@@ -282,6 +367,12 @@ private:
 
     std::string resultImageDirectory_ = "./results/"; ///< The target directory for results
     bool emitBestOnly_{true}; ///< Whether images are written only for improved iterations
+
+    /// Off-thread writer for the rasterise + PNG output. Transient runtime state: it is created
+    /// lazily on first use and deliberately excluded from serialize/load_/compare_ (a std::future
+    /// is neither copyable nor comparable, and there is nothing meaningful to persist). Held by
+    /// shared_ptr so the monitor stays copyable/cloneable for the standard tests.
+    std::shared_ptr<AsyncImageWriter> writer_; // NOLINT(misc-non-private-member-variables-in-classes)
 };
 
 /******************************************************************************/
