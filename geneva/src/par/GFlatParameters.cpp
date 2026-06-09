@@ -202,6 +202,12 @@ void captureGaussGroup(
         }
     }
 
+    // A parameter whose adaptions were switched off (setAdaptionsInactive) must never mutate,
+    // regardless of the adaptor's own mode -- mirror the tree's per-parameter adaptionsActive() gate.
+    if(not p->adaptionsActive()) {
+        cfg.mode = FlatAdaptionMode::Never;
+    }
+
     configs.push_back(cfg);
     sigma.push_back(s0);
     ad_prob.push_back(a0);
@@ -267,6 +273,12 @@ void captureFlipGroup(
         c0 = base_ad.getAdaptionCounter();
     }
 
+    // A parameter whose adaptions were switched off (setAdaptionsInactive) must never mutate,
+    // regardless of the adaptor's own mode -- mirror the tree's per-parameter adaptionsActive() gate.
+    if(not p->adaptionsActive()) {
+        cfg.mode = FlatAdaptionMode::Never;
+    }
+
     configs.push_back(cfg);
     ad_prob.push_back(a0);
     counter.push_back(c0);
@@ -303,6 +315,10 @@ std::size_t adaptGaussGroup(
     Gem::Hap::g_bernoulli_distribution &bd,
     Gem::Hap::GRandomBase &gr
 ) {
+    if(cfg.mode == FlatAdaptionMode::Never) {
+        return 0; // adaptions switched off: a complete no-op, exactly like the tree's NEVER path
+    }
+
     const double range = (chan.upper.size() > cfg.start)
                              ? (static_cast<double>(chan.upper[cfg.start]) - static_cast<double>(chan.lower[cfg.start]))
                              : 1.0;
@@ -381,6 +397,10 @@ std::size_t adaptFlipIntGroup(
     Gem::Hap::g_bernoulli_distribution &bd,
     Gem::Hap::GRandomBase &gr
 ) {
+    if(cfg.mode == FlatAdaptionMode::Never) {
+        return 0; // adaptions switched off: a complete no-op, exactly like the tree's NEVER path
+    }
+
     selfAdaptAdProb(ad_prob, cfg.adapt_ad_prob, cfg.min_ad_prob, cfg.max_ad_prob, nd, gr);
 
     auto flip = [&](std::int32_t &v) {
@@ -421,6 +441,10 @@ std::size_t adaptFlipBoolGroup(
     Gem::Hap::g_bernoulli_distribution &bd,
     Gem::Hap::GRandomBase &gr
 ) {
+    if(cfg.mode == FlatAdaptionMode::Never) {
+        return 0; // adaptions switched off: a complete no-op, exactly like the tree's NEVER path
+    }
+
     selfAdaptAdProb(ad_prob, cfg.adapt_ad_prob, cfg.min_ad_prob, cfg.max_ad_prob, nd, gr);
 
     std::size_t n_adapted = 0;
