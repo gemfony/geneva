@@ -35,6 +35,7 @@
 
 #include "geneva/par/GBooleanObject.hpp"
 #include "geneva/par/GConstrainedDoubleObject.hpp"
+#include "geneva/par/GConstrainedInt32Object.hpp"
 #include "geneva/par/GDoubleCollection.hpp"
 #include "geneva/par/GDoubleObject.hpp"
 #include "geneva/par/GFlatParameters.hpp"
@@ -281,6 +282,50 @@ TEST_CASE("GFlatParameters constrained fold matches GConstrainedFPT::transfer", 
         CHECK(out[0] == expected);
         CHECK(out[0] >= -3.0);
         CHECK(out[0] < 5.0);
+    }
+}
+
+/******************************************************************************/
+
+TEST_CASE("GFlatParameters constrained integer fold matches GConstrainedIntT::transfer", "[flat]") {
+    // A single constrained int in [-3, 5] (inclusive).
+    class ConstrainedIntIndividual : public gpar::GParameterSet {
+    public:
+        ConstrainedIntIndividual() {
+            this->push_back(std::make_shared<gpar::GConstrainedInt32Object>(0, -3, 5));
+        }
+        ConstrainedIntIndividual(const ConstrainedIntIndividual &) = default;
+
+    protected:
+        double fitnessCalculation() override {
+            return 0.;
+        }
+
+    private:
+        gpar::GParameterSet *clone_() const override {
+            return new ConstrainedIntIndividual(*this);
+        }
+    };
+
+    gpar::GConstrainedInt32Object reference(0, -3, 5); // ground-truth transfer()
+
+    ConstrainedIntIndividual src;
+    auto flat = gpar::GFlatParameters::compileFrom(src);
+    EmptyIndividual host;
+    host.push_back(std::shared_ptr<gpar::GFlatParameters>(std::move(flat)));
+
+    for(std::int32_t v : {-3, 0, 5, 6, 13, -8, -20, 100, 47, -47}) {
+        const std::int32_t expected = reference.transfer(v);
+
+        std::vector<std::int32_t> in{v};
+        host.assignValueVector<std::int32_t>(in);
+        std::vector<std::int32_t> out;
+        host.streamline<std::int32_t>(out);
+
+        REQUIRE(out.size() == 1);
+        CHECK(out[0] == expected);
+        CHECK(out[0] >= -3);
+        CHECK(out[0] <= 5);
     }
 }
 

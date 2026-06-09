@@ -95,6 +95,43 @@ T foldIntoRange(T val, T lower, T upper) {
     return result;
 }
 
+/**
+ * @brief Integer counterpart of foldIntoRange: the flat-node reimplementation of
+ *        GConstrainedIntT::transfer().
+ *
+ * The integer fold differs from the FP one: the range is INCLUSIVE [lower, upper] (so the period is
+ * value_range = upper - lower + 1), region counting uses integer division, and the reflection is
+ * revert(x) = upper + lower - x. Clean-room from the same published reflecting map.
+ */
+template <typename T>
+    requires std::is_integral_v<T>
+T foldIntoRangeInt(T val, T lower, T upper) {
+    if(not(upper >= lower)) {
+        return lower; // degenerate range
+    }
+    if(val >= lower && val <= upper) {
+        return val;
+    }
+
+    const T value_range = static_cast<T>(upper - lower + 1);
+    T mapping = 0;
+    if(val < lower) {
+        const T n = static_cast<T>((lower - (val + 1)) / value_range);
+        mapping = static_cast<T>(val + value_range * (n + 1));
+        if(n % 2 == 0) {
+            mapping = static_cast<T>(upper + lower - mapping); // revert (descending region)
+        }
+    }
+    else { // val > upper
+        const T n = static_cast<T>((val - upper - 1) / value_range);
+        mapping = static_cast<T>(val - value_range * (n + 1));
+        if(n % 2 == 0) {
+            mapping = static_cast<T>(upper + lower - mapping); // revert (descending region)
+        }
+    }
+    return mapping;
+}
+
 /** @brief Deep-clones a vector of adaptor groups (independent per-individual adaptor state). */
 template <typename T>
 std::vector<GFlatAdaptGroup<T>> cloneGroups(const std::vector<GFlatAdaptGroup<T>> &src) {
@@ -142,11 +179,10 @@ void captureGroup(
         }
     }
 
-    // Capture the adaptor for plain parameters of any type, and for constrained FLOATING-POINT
-    // parameters (whose fold we replicate). Constrained integer parameters are not mutated yet.
-    constexpr bool is_fp = std::is_floating_point_v<T>;
+    // Capture the adaptor for every adaptor-bearing parameter -- plain, or constrained (both the
+    // FP and the integer fold are replicated; see foldIntoRange / foldIntoRangeInt).
     const auto *with_ad = dynamic_cast<const GParameterBaseWithAdaptorsT<T> *>(p);
-    if(with_ad != nullptr && (not constrained || is_fp)) {
+    if(with_ad != nullptr) {
         GFlatAdaptGroup<T> g;
         g.start = offset;
         g.count = n;
@@ -181,9 +217,12 @@ std::size_t adaptNumericGroups(
         // folded result -- mirroring GConstrainedNumT::value(), which resets its internal value to
         // the transferred result so it never drifts unbounded.
         if(g.constrained) {
-            if constexpr(std::is_floating_point_v<T>) {
-                for(std::size_t k = 0; k < g.count; ++k) {
+            for(std::size_t k = 0; k < g.count; ++k) {
+                if constexpr(std::is_floating_point_v<T>) {
                     slice[k] = foldIntoRange<T>(slice[k], layout.lower[g.start + k], layout.upper[g.start + k]);
+                }
+                else if constexpr(std::is_integral_v<T>) {
+                    slice[k] = foldIntoRangeInt<T>(slice[k], layout.lower[g.start + k], layout.upper[g.start + k]);
                 }
             }
         }
@@ -392,9 +431,13 @@ void GFlatParameters::assignInt32ValueVector(
     std::size_t &pos,
     const activityMode &
 ) {
-    for(std::int32_t &v : iv_) {
-        v = vec.at(pos);
+    for(std::size_t k = 0; k < iv_.size(); ++k) {
+        std::int32_t v = vec.at(pos);
         ++pos;
+        if(k < layout_->i.kind.size() && layout_->i.kind[k] == SlotKind::Constrained) {
+            v = foldIntoRangeInt<std::int32_t>(v, layout_->i.lower[k], layout_->i.upper[k]);
+        }
+        iv_[k] = v;
     }
 }
 
