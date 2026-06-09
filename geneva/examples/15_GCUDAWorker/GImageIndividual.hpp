@@ -65,7 +65,6 @@
 #include "geneva/par/GConstrainedDoubleObject.hpp"
 #include "geneva/par/GConstrainedFloatObject.hpp"
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/par/GFlatParameterSet.hpp"
 #include "geneva/par/GFloatGaussAdaptor.hpp"
 #include "geneva/par/GParameterSet.hpp"
 
@@ -135,7 +134,7 @@ std::ostream &operator<<(std::ostream &, const CircleTriangle &);
      * that most closely resembles a given picture. It was developed
      * for evaluation using CUDA on a GPU.
      */
-class GImageIndividual final : public gpar::GFlatParameterSet {
+class GImageIndividual final : public gpar::GParameterSet {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -143,7 +142,7 @@ class GImageIndividual final : public gpar::GFlatParameterSet {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatParameterSet) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet) &
             BOOST_SERIALIZATION_NVP(nTriangles_) & BOOST_SERIALIZATION_NVP(alphaSort_);
     }
 
@@ -216,17 +215,32 @@ public:
             "or double"
         );
 
-        // The genome is stored flat; read the three background-color values (at the end of the
-        // streamline order) straight out of the contiguous value array.
-        std::vector<gimage_fp_t> v;
-        this->streamline(v);
+        // Background colors are located at the end of the array
         const std::size_t offset = 10 * nTriangles_;
 
-        return {
-            std::clamp(static_cast<fp_type>(v[offset + 0]), fp_type(0), fp_type(1)), // r
-            std::clamp(static_cast<fp_type>(v[offset + 1]), fp_type(0), fp_type(1)), // g
-            std::clamp(static_cast<fp_type>(v[offset + 2]), fp_type(0), fp_type(1))  // b
-        };
+        if constexpr(std::is_same_v<fp_type, float>) {
+            // We want colors to be specified as floats
+            return {
+                std::clamp(static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 0)->value()), 0.f, 1.f), // r
+                std::clamp(static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 1)->value()), 0.f, 1.f), // g
+                std::clamp(static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 2)->value()), 0.f, 1.f)  // b
+            };
+        }
+        else if constexpr(std::is_same_v<fp_type, double>) {
+            return {
+                std::clamp(static_cast<double>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 0)->value()), 0., 1.), // r
+                std::clamp(static_cast<double>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 1)->value()), 0., 1.), // g
+                std::clamp(static_cast<double>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 2)->value()), 0., 1.)  // b
+            };
+        }
+        else {
+            // This should not happen
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GImageIndividual::getBackGroundColor(): Error!" << '\n'
+                << "Invalid type requested" << '\n'
+            );
+        }
     }
 
 protected:

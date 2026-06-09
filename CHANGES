@@ -299,27 +299,6 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
-- ADDITIVE (opt-in): a flat ("data-oriented") individual representation that
-  stores an entire genome as contiguous per-type arrays instead of a tree of
-  per-parameter objects. New GParameterLayout (the shared, immutable per-problem
-  schema: slot kinds, boundaries and adaptor config), GFlatParameters (a single
-  GParameterBase node holding the flat value arrays plus per-variable adaptor
-  state), and the GFlatParameterSet convenience base (subclass it, add the
-  parameter objects in the constructor as usual, then call compileToFlat()). It
-  plugs into the existing optimization-algorithm and courtier stack unchanged --
-  every algorithm (EA, SA, swarm, CGD, Nelder-Mead, parameter scan) drives it
-  through the storage-agnostic channel interface -- while the object hierarchy
-  remains the authoring/setup and export path. Adaption is a stateless,
-  thread-safe kernel over the shared config plus per-variable state (Gaussian
-  self-adaption for double/float, flip for int/bool), mirroring the tree's
-  algorithms exactly (adaption-probability and step-width self-adaption, ULP
-  guarantees, and the constrained fold -- verified bit-for-bit against the
-  original transfer functions). A benchmark on a many-parameter genome
-  (GFlatGenomeBenchmark) shows roughly 60x faster clone and 100x+ faster
-  streamline than the object tree, with trivial serialization and near-zero-copy
-  GPU flattening as the motivation. The tree representation remains the default;
-  the flat path is entirely opt-in via GFlatParameterSet.
-
 - Preliminary support for two new local optimization algorithms:
   Nelder-Mead (the downhill-simplex method; class GNelderMead,
   mnemonic "nm") and Conjugate Gradient Descent (Polak-Ribiere+;

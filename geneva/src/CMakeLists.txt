@@ -47,8 +47,6 @@ SET ( OPTIMIZATIONSOURCES
 	par/GDoubleGaussAdaptor.cpp
 	par/GDoubleObject.cpp
 	par/GDoubleObjectCollection.cpp
-	par/GFlatParameters.cpp
-	par/GFlatParameterSet.cpp
 	par/GFloatBiGaussAdaptor.cpp
 	par/GFloatGaussAdaptor.cpp
 	par/GFloatObject.cpp

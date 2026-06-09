@@ -35,7 +35,6 @@
 #include <vector>
 
 // Geneva headers
-#include "geneva/par/GFlatParameterSet.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "courtier/gpu/GGPUEvaluableI.hpp"
 #include "GImageScalar.hpp"
@@ -70,10 +69,19 @@ class GMonaLisaGPUMarshaller final
   : public Gem::Courtier::GPU::GGPUEvaluableI<gpar::GParameterSet, gimage_fp_t> {
 public:
     void flatten(const std::vector<item_ptr> &items, std::vector<gimage_fp_t> &params_out) const override {
-        // Zero-copy flatten: for a flat genome each row is copied straight out of the contiguous
-        // value array (no per-item tree walk); tree-based individuals fall back to streamline().
-        // Either way the streamline order is the canonical render order the kernel expects.
-        gpar::flattenGenomesRowMajor<gimage_fp_t>(items, params_out);
+        if(items.empty()) {
+            params_out.clear();
+            return;
+        }
+        std::vector<gimage_fp_t> pv;
+        items.front()->streamline(pv);
+        const std::size_t dim = pv.size();
+        params_out.resize(items.size() * dim);
+        for(std::size_t i = 0; i < items.size(); ++i) {
+            items[i]->streamline(pv);
+            std::copy(pv.begin(), pv.end(),
+                      params_out.begin() + static_cast<std::ptrdiff_t>(i * dim));
+        }
     }
 
     [[nodiscard]] std::vector<std::byte> problemConstants() const override {
