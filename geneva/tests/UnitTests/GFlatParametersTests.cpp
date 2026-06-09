@@ -38,12 +38,15 @@
 #include "geneva/par/GConstrainedInt32Object.hpp"
 #include "geneva/par/GDoubleCollection.hpp"
 #include "geneva/par/GDoubleObject.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm.hpp"
+#include "geneva/par/GFlatParameterSet.hpp"
 #include "geneva/par/GFlatParameters.hpp"
 #include "geneva/par/GInt32Object.hpp"
 #include "geneva/par/GParameterSet.hpp"
 #include "hap/GRandomT.hpp"
 
 namespace gpar = Gem::Geneva::Parameters;
+namespace oa = Gem::Geneva::OptimizationAlgorithms;
 
 namespace {
 
@@ -103,6 +106,34 @@ private:
 std::vector<std::uint8_t> asBytes(const std::vector<bool> &v) {
     return {v.begin(), v.end()};
 }
+
+/** @brief A flat-genome individual: 5 constrained doubles in [-5, 5), sphere objective. */
+class FlatSphereIndividual : public gpar::GFlatParameterSet {
+public:
+    FlatSphereIndividual() {
+        for(int i = 0; i < 5; ++i) {
+            this->push_back(std::make_shared<gpar::GConstrainedDoubleObject>(3.0, -5., 5.));
+        }
+        this->compileToFlat(); // collapse the tree into a single flat node
+    }
+    FlatSphereIndividual(const FlatSphereIndividual &) = default;
+
+protected:
+    double fitnessCalculation() override {
+        std::vector<double> v;
+        this->streamline<double>(v);
+        double s = 0.;
+        for(double x : v) {
+            s += x * x;
+        }
+        return s;
+    }
+
+private:
+    gpar::GParameterSet *clone_() const override {
+        return new FlatSphereIndividual(*this);
+    }
+};
 
 } /* anonymous namespace */
 
@@ -371,4 +402,42 @@ TEST_CASE("GFlatParameters clones independently and compares equal", "[flat]") {
     clone->assignValueVector<double>(bumped, pos, Gem::Geneva::activityMode::ALLPARAMETERS);
     CHECK(flat->doubleValues() == probe);
     CHECK(clone->doubleValues() == bumped);
+}
+
+/******************************************************************************/
+
+TEST_CASE("GFlatParameterSet drives an end-to-end evolutionary algorithm", "[flat][ea]") {
+    // A small serial EA over a flat-genome individual. This exercises the whole stack on the flat
+    // node: population cloning, adaption, evaluation, selection -- and verifies it converges while
+    // respecting the parameter constraints.
+    auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    pop->setPopulationSizes(18, 6);
+    pop->setMaxIteration(60);
+    pop->setReportIteration(1000); // suppress per-iteration console reporting
+
+    for(std::size_t i = 0; i < 18; ++i) {
+        FlatSphereIndividual seed;
+        pop->push_back(seed.clone_unique());
+    }
+
+    pop->setLocalConsumer(oa::local_consumer_kind::serial);
+    pop->optimize();
+
+    auto best = pop->getBestGlobalIndividual<FlatSphereIndividual>();
+    REQUIRE(best);
+
+    std::vector<double> v;
+    best->streamline<double>(v);
+    REQUIRE(v.size() == 5);
+
+    double sphere = 0.;
+    for(double x : v) {
+        sphere += x * x;
+        // constraints must hold end-to-end
+        CHECK(x >= -5.0);
+        CHECK(x < 5.0);
+    }
+
+    // The population starts at f = 5 * 3^2 = 45; a working EA drives it far below that.
+    CHECK(sphere < 5.0);
 }
