@@ -1636,11 +1636,6 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
             "batch.individuals.individual0.n_results"
         ); // NOLINT(cppcoreguidelines-init-variables)
 
-        // Extract the number of boundaries to be expected for the first individual
-        std::size_t n_bounds = ptr_.get<std::size_t>(
-            "batch.individuals.individual0.n_bounds"
-        ); // NOLINT(cppcoreguidelines-init-variables)
-
         // If variables have been specified, extract them
         boost::optional<ptree &> var_set_node_opt =
             ptr_.get_child_optional("batch.individuals.individual0.vars");
@@ -1721,51 +1716,6 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GPa
                 << "No variables were specified" << '\n'
             );
         }
-
-        // If boundaries have been specified, add the required boundary objects to the individual.
-        boost::optional<ptree &> bounds_node_opt =
-            ptr_.get_child_optional("batch.individuals.individual0.bounds");
-        if(bounds_node_opt) {
-            // Create a check combiner -- it will hold the boundary conditions we find here
-            std::shared_ptr<GCheckCombinerT<gpar::GParameterSet>> combiner_ptr(
-                new GCheckCombinerT<gpar::GParameterSet>()
-            );
-
-            // Loop over all children of the bounds tree
-            // Note that for now we only query GConstrainedDoubleObject objects
-            std::size_t bounds_counter = 0;
-            std::string bound_string = "bound0";
-            for(const auto &[bound_name, bound_subtree] : *bounds_node_opt) {
-                if(bound_name == bound_string) {
-                    std::string expression = bound_subtree.get<std::string>("expression");
-                    bool allow_negative = bound_subtree.get<bool>("allow_negative");
-
-                    // The actual "function-constraint"
-                    std::shared_ptr<gpar::GParameterSetFormulaConstraint> formula_constraint(
-                        new gpar::GParameterSetFormulaConstraint(expression)
-                    );
-
-                    formula_constraint->setAllowNegative(allow_negative);
-
-                    // Add the constraint to the check-combiner
-                    combiner_ptr->addCheck(formula_constraint);
-
-                    if(++bounds_counter >= n_bounds) {
-                        break; // Terminate the loop if we have identified all expected boundaries
-                    }
-                                            bound_string =
-                            std::string("bound") + Gem::Common::to_string(bounds_counter);
-                   
-                }
-            }
-
-#ifdef DEBUG
-            glogger << "Found " << bounds_counter << " bounds" << '\n' << GLOGGING;
-#endif /* DEBUG */
-
-            // Add the check combiner to the individual
-            p->registerConstraint(combiner_ptr);
-        } // It isn't an error if no boundaries were specified
 
         // Add the program name and base name for parameter transfers to the object
         p->setExchangeBaseName(parameter_file_base_name_);

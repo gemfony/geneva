@@ -50,7 +50,6 @@ SET ( GENEVACOMMONINCLUDES
 	GExpectationChecksT.hpp
 	GFactoryT.hpp
 	GFixedSizePriorityQueueT.hpp
-	GFormulaParserT.hpp
 	GGlobalDefines.hpp
 	GGlobalOptionsT.hpp
 	GLogger.hpp

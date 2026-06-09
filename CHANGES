@@ -20,10 +20,8 @@ Recommended Versions:
   getVarVal(). Parameters are addressed strictly by position (index) now. The
   parameter-scan and GProgressPlotter variable specifications therefore use the
   positional form (e.g. "d(0, -10, 10, 100)"); a name token in a spec is now a
-  free-form display label, not a parameter lookup key. Constraint formulas keep
-  working -- GParameterSetFormulaConstraint binds the i-th double parameter
-  positionally as "var<i>", so "fabs({{var0}}) + fabs({{var1}})" is unchanged in
-  meaning. This is SOURCE-breaking for code calling get/setParameterName or the
+  free-form display label, not a parameter lookup key. This is SOURCE-breaking
+  for code calling get/setParameterName or the
   by-name streamline API, and it changes the serialization format (the
   parameter_name_ field is gone, so older archives no longer load). As a side
   effect GParameterPropertyParser was reimplemented as a small hand-written
@@ -31,6 +29,20 @@ Recommended Versions:
   default name was a generated UUID -- an ostringstream per parameter at
   construction plus a heap-string copy on every clone -- pure overhead that is
   now gone.)
+
+- The runtime formula-expression facility has been removed: the Boost.Spirit
+  grammar GFormulaParserT (and its math_logic_error exception family) and the
+  GParameterSetFormulaConstraint that was its sole consumer are gone. Constraints
+  are now expressed exclusively as C++ constraint objects -- subclasses of
+  GParameterSetConstraint (e.g. GDoubleSumConstraint, GSphereConstraint,
+  GDoubleSumGapConstraint) -- which are strictly more versatile than a formula
+  string: they see every parameter type (not just doubles), are type-safe and can
+  branch/loop arbitrarily. The GExternalEvaluatorIndividual "bounds/expression"
+  config option (which built formula constraints at run time) is likewise removed;
+  it was a latent feature exercised by no shipped example, test or evaluator.
+  SOURCE/CONFIG-breaking only for code that referenced GFormulaParserT or
+  GParameterSetFormulaConstraint, or that fed a "bounds" section to the external
+  evaluator. This removes Geneva's single largest remaining Boost.Spirit user.
 
 - Individuals (GParameterSet) now travel by std::unique_ptr rather than
   std::shared_ptr along the hot path: the optimization-algorithm population

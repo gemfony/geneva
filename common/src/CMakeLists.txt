@@ -32,7 +32,6 @@ SET ( COMMONSOURCES
     GCommonHelperFunctions.cpp
     GExceptions.cpp
 	GExpectationChecksT.cpp
-	GFormulaParserT.cpp
 	GLogger.cpp
 	GParserBuilder.cpp
 	GPlotDesigner.cpp

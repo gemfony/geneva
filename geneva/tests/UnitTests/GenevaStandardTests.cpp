@@ -223,12 +223,6 @@ TEMPLATE_TEST_CASE(
     Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
 }
 
-// NOTE: gpar::GParameterSetFormulaConstraint is the only concrete constraint type
-// (GParameterSetConstraint is abstract). It is EXCLUDED here because its standard test
-// fails on the XML (de-)serialization round-trip with "Invalid XML tag name" (TEXT and
-// BINARY round-trip fine; the failure is independent of the formula content). This is a
-// suspected real defect in its XML serialization path. See report.
-
 // The concrete GParameterSetConstraint subclasses defined in GFunctionIndividual.hpp.
 // They have public default + copy ctors and are tie-converted (they declare
 // localMembers()), so clone/copy/load/compare are exercised. They do not override
@@ -361,8 +355,6 @@ TEMPLATE_TEST_CASE(
     Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
 }
 
-// NOTE: gpar::GParameterSetFormulaConstraint is excluded here (see no-failure-expected block).
-
 TEMPLATE_TEST_CASE(
     "StandardTests_failures_expected — constraint types",
     "[geneva][standard][failures-expected]",
@@ -401,43 +393,6 @@ TEMPLATE_TEST_CASE(
     gind::GOptOptMonitorT<gind::GFunctionIndividual>
 ) {
     Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
-}
-
-// ============================================================================
-// Targeted regression test: (de)serialization of GParameterSetFormulaConstraint
-// ============================================================================
-//
-// GParameterSetConstraint::serialize() used BOOST_SERIALIZATION_BASE_OBJECT_NVP on
-// the templated base GPreEvaluationValidityCheckT<GParameterSet>, producing an XML
-// tag name containing '<' and '>' -> XML (de)serialization threw "Invalid XML tag
-// name" (TEXT and BINARY were unaffected, as they ignore the NVP names). This type
-// is not run through the templated standard test (it has no modify_GUnitTests_, so
-// that test's round-trip block would be skipped), hence this explicit check that all
-// three serialization modes round-trip without throwing.
-TEST_CASE(
-    "GParameterSetFormulaConstraint round-trips in TEXT, XML and BINARY",
-    "[geneva][serialization]"
-) {
-    using Gem::Common::serializationMode;
-
-    for (auto mode :
-         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
-        gpar::GParameterSetFormulaConstraint original("1 + 2");
-        // The default ctor is private (serialization-only); construct the target
-        // through the public ctor with a different formula, then load into it.
-        gpar::GParameterSetFormulaConstraint restored("0");
-
-        REQUIRE_NOTHROW(
-            restored.fromString(original.toString(mode), mode)
-        );
-
-        GEqualityPrinter gep(
-            "GParameterSetFormulaConstraint-roundtrip",
-            pow(10, -7),
-            Gem::Common::CE_WITH_MESSAGES
-        );
-        CHECK(gep.isSimilar(restored, original));
-    }
 }
 
 // ============================================================================

@@ -28,7 +28,6 @@
 ################################################################################
 
 ADD_SUBDIRECTORY ( GHelperFunctionsTest )
-ADD_SUBDIRECTORY ( GFormulaParserTest )
 ADD_SUBDIRECTORY ( GLoggerTest )
 ADD_SUBDIRECTORY ( GPlotDesignerTest )
 ADD_SUBDIRECTORY ( GThreadPoolTest )

@@ -120,14 +120,13 @@ int main(int argc, char **argv) {
             new gind::GDoubleSumConstraint(1.)
         );
         std::shared_ptr<gind::GSphereConstraint> sphere_constraint_ptr(new gind::GSphereConstraint(3.));
-        std::shared_ptr<gpar::GParameterSetFormulaConstraint> formula_constraint(
-            new gpar::GParameterSetFormulaConstraint("fabs(sin({{var0}})/max(fabs({{var1}}), 0.000001))")
-        ); // sin(x) < y
         std::shared_ptr<gind::GDoubleSumGapConstraint> gap_constraint(
             new gind::GDoubleSumGapConstraint(1., 0.05)
         ); // The sum of all variables must be 1 +/- 0.05
 
-        // Create a check combiner and add the constraint objects to it
+        // Create a check combiner and add the constraint objects to it. Constraints are
+        // expressed directly as C++ constraint objects (subclasses of GParameterSetConstraint),
+        // which is the general, type-safe way to formulate arbitrary dependent constraints.
         std::shared_ptr<GCheckCombinerT<gpar::GParameterSet>> combiner_ptr(
             new GCheckCombinerT<gpar::GParameterSet>()
         );
@@ -135,8 +134,7 @@ int main(int argc, char **argv) {
 
         combiner_ptr->addCheck(doublesum_constraint_ptr);
         combiner_ptr->addCheck(sphere_constraint_ptr);
-        combiner_ptr->addCheck(formula_constraint);
-        // combiner_ptr->addCheck(gap_constraint);
+        combiner_ptr->addCheck(gap_constraint);
 
         // Register the combiner with the individual (note: we could also have registered
         // one of the "single" constraints here (see below for commented-out examples)
@@ -144,7 +142,6 @@ int main(int argc, char **argv) {
 
         // p->registerConstraint(doublesum_constraint_ptr);
         // p->registerConstraint(sphere_constraint_ptr);
-        // p->registerConstraint(formula_constraint);
         // p->registerConstraint(gap_constraint);
 
         go.push_back(p);
