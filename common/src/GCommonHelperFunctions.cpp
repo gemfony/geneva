@@ -31,6 +31,8 @@
 
 // Standard library headers used directly in this translation unit
 #include <atomic>
+#include <cctype>
+#include <charconv>
 #include <chrono>
 #include <cstdlib>
 #include <ctime>
@@ -41,6 +43,8 @@
 #include <mutex>
 #include <sstream>
 #include <string>
+#include <string_view>
+#include <system_error>
 #include <thread>
 #include <tuple>
 #include <utility>
@@ -53,24 +57,8 @@
 #include "common/GLogger.hpp"
 
 // Boost headers needed for implementation only.
-// NOTE: the Spirit `qi_*` sub-headers and the Fusion `std_tuple`/`tuple`
-// adapters provide the grammar terminals (`qi::uint_`, `qi::double_`,
-// `qi::space`, the `% ','` separator, std::tuple output) used in the
-// `qi::phrase_parse(...)` calls below. misc-include-cleaner cannot
-// resolve those symbols back to these umbrella headers, so it would
-// drop them as "unused"; do NOT remove them.
-#include <boost/fusion/adapted/std_tuple.hpp> // needed by Spirit qi for std::tuple output
-#include <boost/fusion/include/boost_tuple.hpp>
-#include <boost/fusion/include/tuple.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree_fwd.hpp>
-#include <boost/spirit/include/qi_action.hpp>
-#include <boost/spirit/include/qi_auxiliary.hpp>
-#include <boost/spirit/include/qi_char.hpp>
-#include <boost/spirit/include/qi_nonterminal.hpp>
-#include <boost/spirit/include/qi_numeric.hpp>
-#include <boost/spirit/include/qi_operator.hpp>
-#include <boost/spirit/include/qi_string.hpp>
 
 namespace {
 std::mutex g_hwt_read_mutex;         // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
@@ -78,6 +66,59 @@ std::atomic<bool> g_hwt_read{false}; // NOLINT(cppcoreguidelines-avoid-non-const
 std::atomic<unsigned int> g_nHardwareThreads{
     Gem::Common::DEFAULTNHARDWARETHREADS
 }; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+
+/******************************************************************************/
+/**
+ * Parses a non-empty, separator-delimited list of numbers, tolerating arbitrary
+ * surrounding whitespace -- a hand-written replacement for the former
+ * `qi::phrase_parse(from, to, (num % sep), qi::space, result)`. Returns true on a
+ * full parse; on failure it returns false and reports the unconsumed remainder in
+ * @p rest (so the caller can reproduce the original "Stopped at ..." diagnostic).
+ */
+template <typename num_type>
+bool parseSeparatedNumbers(
+    std::string_view s, char sep, std::vector<num_type> &out, std::string &rest
+) {
+    std::size_t i = 0;
+    const std::size_t n = s.size();
+    auto skipws = [&]() {
+        while(i < n && std::isspace(static_cast<unsigned char>(s[i])) != 0) {
+            ++i;
+        }
+    };
+
+    skipws();
+    if(i >= n) { // the grammar `num % sep` requires at least one element
+        rest.assign(s.substr(i));
+        return false;
+    }
+
+    while(true) {
+        skipws();
+        num_type value{};
+        const char *first = s.data() + i;
+        const char *last = s.data() + n;
+        auto [ptr, ec] = std::from_chars(first, last, value);
+        if(ec != std::errc() || ptr == first) {
+            rest.assign(s.substr(i));
+            return false;
+        }
+        i = static_cast<std::size_t>(ptr - s.data());
+        out.push_back(value);
+
+        skipws();
+        if(i >= n) {
+            break; // list fully consumed
+        }
+        if(s[i] != sep) { // trailing garbage -> the original would leave `from != to`
+            rest.assign(s.substr(i));
+            return false;
+        }
+        ++i; // consume the separator and parse the next element
+    }
+
+    return true;
+}
 } /* anonymous namespace */
 
 namespace Gem::Common {
@@ -352,18 +393,10 @@ std::vector<std::string> splitString(std::string const &str, const char *sep) {
  * comma-separated.
  */
 std::vector<unsigned int> stringToUIntVec(std::string const &raw, char sep) {
-    using namespace boost::spirit;
-
     std::vector<unsigned int> result;
+    std::string rest;
 
-    std::string::const_iterator from = raw.begin();
-    std::string::const_iterator to = raw.end();
-
-    // Do the actual parsing
-    bool success = qi::phrase_parse(from, to, (uint_ % sep), qi::space, result);
-
-    if(from != to || not success) {
-        std::string rest(from, to);
+    if(not parseSeparatedNumbers(std::string_view(raw), sep, result, rest)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In stringToUIntVec(const std::string& raw): Error!" << '\n'
@@ -382,18 +415,10 @@ std::vector<unsigned int> stringToUIntVec(std::string const &raw, char sep) {
  * comma-separated.
  */
 std::vector<double> stringToDoubleVec(std::string const &raw) {
-    using namespace boost::spirit;
-
     std::vector<double> result;
+    std::string rest;
 
-    std::string::const_iterator from = raw.begin();
-    std::string::const_iterator to = raw.end();
-
-    // Do the actual parsing
-    bool success = qi::phrase_parse(from, to, (double_ % ','), qi::space, result);
-
-    if(from != to || not success) {
-        std::string rest(from, to);
+    if(not parseSeparatedNumbers(std::string_view(raw), ',', result, rest)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In stringToDoubleVec(const std::string& raw): Error!" << '\n'
@@ -411,33 +436,68 @@ std::vector<double> stringToDoubleVec(std::string const &raw) {
  * throws an exception. The string should have the form "(1,2), (3,4)" etc.
  */
 std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(std::string const &raw) {
-    using namespace boost::spirit;
-
-    using cit_type = std::string::const_iterator;
-    using res_type = std::vector<std::tuple<unsigned int, unsigned int>>;
-
+    // Hand-written replacement for the former Spirit grammar
+    // (('(' >> uint_ >> ',' >> uint_ >> ')') % ','), qi::space skipper: a non-empty,
+    // comma-separated list of "(a,b)" unsigned-int pairs with arbitrary whitespace.
     std::vector<std::tuple<unsigned int, unsigned int>> result;
 
-    std::string::const_iterator from = raw.begin();
-    std::string::const_iterator to = raw.end();
+    const std::string_view s(raw);
+    std::size_t i = 0;
+    const std::size_t n = s.size();
 
-    // Do the actual parsing
-    bool success = qi::phrase_parse(
-        from,
-        to,
-        (('(' >> uint_ >> ',' >> uint_ >> ')') % ','),
-        qi::space,
-        result
-    );
-
-    if(from != to || not success) {
-        std::string rest(from, to);
+    auto skipws = [&]() {
+        while(i < n && std::isspace(static_cast<unsigned char>(s[i])) != 0) {
+            ++i;
+        }
+    };
+    auto throwFail = [&]() {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In stringToUIntTupleVec(const std::string& raw): Error!" << '\n'
             << "Parsing failed." << '\n'
-            << "Stopped at: \"" << rest << "\"" << '\n'
+            << "Stopped at: \"" << std::string(s.substr(i)) << "\"" << '\n'
         );
+    };
+    auto expect = [&](char c) {
+        skipws();
+        if(i >= n || s[i] != c) {
+            throwFail();
+        }
+        ++i;
+    };
+    auto parseUInt = [&]() -> unsigned int {
+        skipws();
+        unsigned int value = 0;
+        const char *first = s.data() + i;
+        auto [ptr, ec] = std::from_chars(first, s.data() + n, value);
+        if(ec != std::errc() || ptr == first) {
+            throwFail();
+        }
+        i = static_cast<std::size_t>(ptr - s.data());
+        return value;
+    };
+
+    skipws();
+    if(i >= n) { // the grammar requires at least one tuple
+        throwFail();
+    }
+
+    while(true) {
+        expect('(');
+        unsigned int a = parseUInt();
+        expect(',');
+        unsigned int b = parseUInt();
+        expect(')');
+        result.emplace_back(a, b);
+
+        skipws();
+        if(i >= n) {
+            break; // list fully consumed
+        }
+        if(s[i] != ',') { // trailing garbage
+            throwFail();
+        }
+        ++i; // consume the tuple separator and parse the next pair
     }
 
     return result;

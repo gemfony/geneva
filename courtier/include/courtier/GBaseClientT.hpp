@@ -35,12 +35,17 @@
 // Standard headers go here
 
 #include <atomic>
+#include <cctype>
+#include <charconv>
 #include <chrono>
+#include <cstdint>
 #include <functional>
 #include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
+#include <string_view>
+#include <system_error>
 #include <type_traits>
 #include <vector>
 
@@ -50,25 +55,7 @@
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/asio.hpp>
-#include <boost/fusion/adapted/boost_tuple.hpp>
-#include <boost/fusion/include/adapt_struct.hpp>
-#include <boost/fusion/include/boost_tuple.hpp>
-#include <boost/fusion/include/io.hpp>
-#include <boost/fusion/include/tuple.hpp>
-#include <boost/phoenix/core.hpp>
-#include <boost/phoenix/operator.hpp>
-#include <boost/phoenix/stl.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/spirit/include/qi_action.hpp>
-#include <boost/spirit/include/qi_auxiliary.hpp>
-#include <boost/spirit/include/qi_char.hpp>
-#include <boost/spirit/include/qi_hold.hpp>
-#include <boost/spirit/include/qi_lit.hpp>
-#include <boost/spirit/include/qi_nonterminal.hpp>
-#include <boost/spirit/include/qi_numeric.hpp>
-#include <boost/spirit/include/qi_operator.hpp>
-#include <boost/spirit/include/qi_raw.hpp>
-#include <boost/spirit/include/qi_string.hpp>
 
 // Geneva headers go here
 #include "common/GErrorStreamer.hpp"
@@ -353,34 +340,58 @@ protected:
 	  * milliseconds the client should wait before reconnecting.
 	  */
     bool parseIdleCommand(std::uint32_t &idleTime, const std::string &idleCommand) {
-        using boost::spirit::lexeme;
-        using boost::spirit::ascii::space;
-        using boost::spirit::ascii::string;
-        using boost::spirit::qi::attr;
-        using boost::spirit::qi::lit;
-        using boost::spirit::qi::phrase_parse;
-        using boost::spirit::qi::uint_;
+        // Hand-written replacement for the former Spirit grammar
+        // (lit("idle") >> '(' >> uint_ >> ')') with an ascii::space skipper: matches
+        // "idle(<ms>)" tolerating arbitrary surrounding/interspersed whitespace.
+        const std::string_view s(idleCommand);
+        std::size_t i = 0;
+        const std::size_t n = s.size();
 
-        using boost::spirit::qi::alnum;
-        using boost::spirit::qi::alpha;
-        using boost::spirit::qi::hold;
-        using boost::spirit::qi::raw;
+        auto skipws = [&]() {
+            while(i < n && std::isspace(static_cast<unsigned char>(s[i])) != 0) {
+                ++i;
+            }
+        };
+        auto match = [&](char c) {
+            skipws();
+            if(i < n && s[i] == c) {
+                ++i;
+                return true;
+            }
+            return false;
+        };
 
-        using boost::spirit::qi::_1;
+        skipws();
+        constexpr std::string_view keyword("idle");
+        if(s.substr(i, keyword.size()) != keyword) {
+            return false;
+        }
+        i += keyword.size();
 
-        bool success = false;
+        if(not match('(')) {
+            return false;
+        }
 
-        std::string::const_iterator from = idleCommand.begin();
-        std::string::const_iterator to = idleCommand.end();
+        skipws();
+        std::uint32_t value = 0;
+        const char *first = s.data() + i;
+        auto [ptr, ec] = std::from_chars(first, s.data() + n, value);
+        if(ec != std::errc() || ptr == first) {
+            return false;
+        }
+        i = static_cast<std::size_t>(ptr - s.data());
 
-        success = phrase_parse(
-            from,
-            to,
-            (lit("idle") >> '(' >> uint_ >> ')')[boost::phoenix::ref(idleTime) = _1],
-            space
-        );
+        if(not match(')')) {
+            return false;
+        }
 
-        return (success && (from == to));
+        skipws();
+        if(i != n) { // trailing garbage -> the original required from == to
+            return false;
+        }
+
+        idleTime = value;
+        return true;
     }
 
 private:

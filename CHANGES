@@ -44,6 +44,18 @@ Recommended Versions:
   GParameterSetFormulaConstraint, or that fed a "bounds" section to the external
   evaluator. This removes Geneva's single largest remaining Boost.Spirit user.
 
+- Boost.Spirit / Phoenix / Fusion are no longer used anywhere in Geneva. The
+  last remaining qi::phrase_parse call sites -- the comma-separated number / tuple
+  list parsers in GCommonHelperFunctions (stringToUIntVec / stringToDoubleVec /
+  stringToUIntTupleVec) and the "idle(<ms>)" command parser in GBaseClientT --
+  were rewritten as small hand-written scanners over std::from_chars, and a
+  vestigial Fusion include was dropped from GPlotDesigner. Behaviour (including
+  whitespace tolerance and rejection of malformed input) is preserved. These
+  libraries were header-only and never find_package COMPONENTS, so no CMake change
+  is needed; the heavy Spirit/Phoenix/Fusion template machinery simply no longer
+  enters Geneva's translation units (a compile-time win). This is internal only --
+  not source-breaking.
+
 - Individuals (GParameterSet) now travel by std::unique_ptr rather than
   std::shared_ptr along the hot path: the optimization-algorithm population
   container, the courtier work item and wire payload, and the transport
