@@ -202,6 +202,15 @@ std::size_t adaptNumericGroups(
     const ChannelLayout<T> &layout,
     Gem::Hap::GRandomBase &gr
 ) {
+    auto fold = [&](T &v, std::size_t slot) {
+        if constexpr(std::is_floating_point_v<T>) {
+            v = foldIntoRange<T>(v, layout.lower[slot], layout.upper[slot]);
+        }
+        else if constexpr(std::is_integral_v<T>) {
+            v = foldIntoRangeInt<T>(v, layout.lower[slot], layout.upper[slot]);
+        }
+    };
+
     std::size_t n_adapted = 0;
     for(GFlatAdaptGroup<T> &g : groups) {
         if(not g.adaptor || g.count == 0) {
@@ -210,6 +219,16 @@ std::size_t adaptNumericGroups(
         // range = upper - lower (the same "comparative range" the tree's range() returns).
         const T range = (layout.upper.size() > g.start) ? (layout.upper[g.start] - layout.lower[g.start])
                                                         : static_cast<T>(1);
+
+        if(g.count == 1) {
+            // Scalar fast path (a standalone parameter): adapt the value in place, no temp vector.
+            n_adapted += g.adaptor->adapt(vals[g.start], range, gr);
+            if(g.constrained) {
+                fold(vals[g.start], g.start);
+            }
+            continue;
+        }
+
         std::vector<T> slice(vals.begin() + static_cast<std::ptrdiff_t>(g.start),
                              vals.begin() + static_cast<std::ptrdiff_t>(g.start + g.count));
         n_adapted += g.adaptor->adapt(slice, range, gr);
@@ -218,12 +237,7 @@ std::size_t adaptNumericGroups(
         // the transferred result so it never drifts unbounded.
         if(g.constrained) {
             for(std::size_t k = 0; k < g.count; ++k) {
-                if constexpr(std::is_floating_point_v<T>) {
-                    slice[k] = foldIntoRange<T>(slice[k], layout.lower[g.start + k], layout.upper[g.start + k]);
-                }
-                else if constexpr(std::is_integral_v<T>) {
-                    slice[k] = foldIntoRangeInt<T>(slice[k], layout.lower[g.start + k], layout.upper[g.start + k]);
-                }
+                fold(slice[k], g.start + k);
             }
         }
         std::copy(slice.begin(), slice.end(), vals.begin() + static_cast<std::ptrdiff_t>(g.start));
@@ -492,6 +506,13 @@ std::size_t GFlatParameters::adapt_(Gem::Hap::GRandomBase &gr) {
     // Booleans are stored as bytes; bridge to the adaptor's std::vector<bool> interface.
     for(GFlatAdaptGroup<bool> &g : b_groups_) {
         if(not g.adaptor || g.count == 0) {
+            continue;
+        }
+        if(g.count == 1) {
+            // Scalar fast path (a standalone boolean parameter).
+            bool b = (bv_[g.start] != 0);
+            n_adapted += g.adaptor->adapt(b, true, gr);
+            bv_[g.start] = b ? 1 : 0;
             continue;
         }
         std::vector<bool> slice;

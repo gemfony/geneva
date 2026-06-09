@@ -27,16 +27,33 @@
 #
 ################################################################################
 
-ADD_SUBDIRECTORY ( GBrokerOverhead )
-ADD_SUBDIRECTORY ( GBrokerSanityChecks )
-ADD_SUBDIRECTORY ( GFlatGenomeBenchmark )
-ADD_SUBDIRECTORY ( GOptimizationBenchmark )
-ADD_SUBDIRECTORY ( GParallelisationOverhead )
-ADD_SUBDIRECTORY ( GSerializationOverhead )
+SET ( EXECUTABLENAME GFlatGenomeBenchmark )
 
-# The GPU optimisation benchmark drives the unified courtier GPU consumer. Like example 15 its kernel
-# is runtime-compiled (NVRTC/OpenCL), so it no longer needs the CUDA language enabled at build time --
-# it builds with an ordinary C++ toolchain and selects CPU/CUDA/OpenCL at run time.
-ADD_SUBDIRECTORY ( GCUDAOptBenchmark )
+SET ( ${EXECUTABLENAME}_SRCS
+	GFlatGenomeBenchmark.cpp
+)
 
-GENEVA_AGGREGATE_TARGET( "benchmarks-geneva" )
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
+)
+
+SET(LIBRARIES_TO_LINK
+		${GENEVA_LIBRARIES}
+		${Boost_LIBRARIES})
+
+# Add MPI Libraries in case building with MPI-consumer
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(LIBRARIES_TO_LINK
+			${LIBRARIES_TO_LINK}
+			${MPI_LIBRARIES})
+ENDIF()
+
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+		${LIBRARIES_TO_LINK})
+
+#ADD_SUBDIRECTORY (config)
+
+ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME} 200 50)
+SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "geneva")
+
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/geneva/PerformanceTests/${EXECUTABLENAME} )
