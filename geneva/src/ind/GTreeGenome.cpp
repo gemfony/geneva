@@ -71,19 +71,19 @@
 #endif /* GEM_TESTING */
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GTreeGenome)                  // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::parameterset_processing_result) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::individual_processing_result) // NOLINT
 namespace Gem::Geneva::Parameters {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This constructor initializes the `parameterset_processing_result` object with
+ * This constructor initializes the `individual_processing_result` object with
  * a raw fitness value. The transformed fitness is set to the same value as the raw fitness,
  * and the flag indicating that the transformed fitness has been set is set to false.
  *
  * @param raw_fitness The raw fitness value.
  */
-parameterset_processing_result::parameterset_processing_result(const double raw_fitness)
+individual_processing_result::individual_processing_result(const double raw_fitness)
   : raw_fitness_(raw_fitness)
   , transformed_fitness_(raw_fitness_)
   , transformed_fitness_set_(false) {
@@ -92,14 +92,14 @@ parameterset_processing_result::parameterset_processing_result(const double raw_
 
 /******************************************************************************/
 /**
- * This constructor initializes the `parameterset_processing_result` object with
+ * This constructor initializes the `individual_processing_result` object with
  * both raw and transformed fitness values. It also sets the flag indicating that
  * the transformed fitness has been set.
  *
  * @param raw_fitness The raw fitness value.
  * @param transformed_fitness The transformed fitness value.
  */
-parameterset_processing_result::parameterset_processing_result(
+individual_processing_result::individual_processing_result(
     const double raw_fitness,
     const double transformed_fitness
 )
@@ -110,14 +110,14 @@ parameterset_processing_result::parameterset_processing_result(
 }
 /******************************************************************************/
 /**
- * This constructor initializes the `parameterset_processing_result` object with
+ * This constructor initializes the `individual_processing_result` object with
  * a raw fitness value and a function to transform the fitness. The transformed fitness
  * is calculated using the provided function. If the function is empty, an error is logged.
  *
  * @param raw_fitness The raw fitness value.
  * @param f A function to transform the raw fitness value.
  */
-parameterset_processing_result::parameterset_processing_result(
+individual_processing_result::individual_processing_result(
     const double raw_fitness,
     std::function<double(double)> f
 )
@@ -127,7 +127,7 @@ parameterset_processing_result::parameterset_processing_result(
         transformed_fitness_set_ = true;
     }
     else {
-        glogger << "In parameterset_processing_result(double, std::function<double(double)>)"
+        glogger << "In individual_processing_result(double, std::function<double(double)>)"
                 << '\n'
                 << GTERMINATION;
     }
@@ -137,7 +137,7 @@ parameterset_processing_result::parameterset_processing_result(
 /**
  * Access to the raw fitness
  */
-double parameterset_processing_result::rawFitness() const {
+double individual_processing_result::rawFitness() const {
     return raw_fitness_;
 }
 
@@ -145,7 +145,7 @@ double parameterset_processing_result::rawFitness() const {
 /**
  * Access to the transformed fitness
  */
-double parameterset_processing_result::transformedFitness() const {
+double individual_processing_result::transformedFitness() const {
     return transformed_fitness_;
 }
 
@@ -153,7 +153,7 @@ double parameterset_processing_result::transformedFitness() const {
 /**
      * Updates the transformed fitness using an external function
      */
-void parameterset_processing_result::setTransformedFitnessWith(std::function<double(double)> f) {
+void individual_processing_result::setTransformedFitnessWith(std::function<double(double)> f) {
     if(f) {
         transformed_fitness_ = f(raw_fitness_);
         transformed_fitness_set_ = true;
@@ -161,7 +161,7 @@ void parameterset_processing_result::setTransformedFitnessWith(std::function<dou
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In parameterset_processing_result::setTransformedFitnessWith():" << '\n'
+            << "In individual_processing_result::setTransformedFitnessWith():" << '\n'
             << "Function object f is empty." << '\n'
         );
     }
@@ -171,7 +171,7 @@ void parameterset_processing_result::setTransformedFitnessWith(std::function<dou
 /**
      * Sets the transformed fitness to a user-defined value
      */
-void parameterset_processing_result::setTransformedFitnessTo(const double transformed_fitness) {
+void individual_processing_result::setTransformedFitnessTo(const double transformed_fitness) {
     transformed_fitness_ = transformed_fitness;
     transformed_fitness_set_ = true;
 }
@@ -180,7 +180,7 @@ void parameterset_processing_result::setTransformedFitnessTo(const double transf
 /**
      * Sets the transformed fitness to the same value as the raw fitness
      */
-void parameterset_processing_result::setTransformedFitnessToRaw() {
+void individual_processing_result::setTransformedFitnessToRaw() {
     transformed_fitness_ = raw_fitness_;
     transformed_fitness_set_ = true;
 }
@@ -189,7 +189,7 @@ void parameterset_processing_result::setTransformedFitnessToRaw() {
 /**
      * Checks whether the transformed fitness was set
      */
-bool parameterset_processing_result::transformedFitnessSet() const {
+bool individual_processing_result::transformedFitnessSet() const {
     return transformed_fitness_set_;
 }
 
@@ -197,7 +197,7 @@ bool parameterset_processing_result::transformedFitnessSet() const {
 /**
      * Resets the object and stores a new raw value in the class
      */
-void parameterset_processing_result::reset(const double raw_fitness) {
+void individual_processing_result::reset(const double raw_fitness) {
     raw_fitness_ = raw_fitness;
     transformed_fitness_ = raw_fitness_;
     transformed_fitness_set_ = false;
@@ -207,7 +207,7 @@ void parameterset_processing_result::reset(const double raw_fitness) {
 /**
  * Resets the object and stores a new raw and transformed value in the class
  */
-void parameterset_processing_result::reset(
+void individual_processing_result::reset(
     const double raw_fitness,
     const double transformed_fitness
 ) {
@@ -220,7 +220,7 @@ void parameterset_processing_result::reset(
 /**
  * Resets the object and stores a new raw value in the class and triggers recalculation of the transformed value
  */
-void parameterset_processing_result::reset(
+void individual_processing_result::reset(
     const double raw_fitness,
     std::function<double(double)> f
 ) {
@@ -232,7 +232,7 @@ void parameterset_processing_result::reset(
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In parameterset_processing_result::reset():" << '\n'
+            << "In individual_processing_result::reset():" << '\n'
             << "Function object f is empty." << '\n'
         );
     }
@@ -246,7 +246,7 @@ void parameterset_processing_result::reset(
      * fitness criterion.
      */
 GTreeGenome::GTreeGenome()
-  : Gem::Courtier::GProcessingContainerT<GTreeGenome, parameterset_processing_result>(1) {
+  : Gem::Courtier::GProcessingContainerT<GTreeGenome, individual_processing_result>(1) {
     /* nothing */
 }
 
@@ -255,7 +255,7 @@ GTreeGenome::GTreeGenome()
      * Initialization with the number of fitness criteria
      */
 GTreeGenome::GTreeGenome(const std::size_t n_fitness_criteria)
-  : Gem::Courtier::GProcessingContainerT<GTreeGenome, parameterset_processing_result>(
+  : Gem::Courtier::GProcessingContainerT<GTreeGenome, individual_processing_result>(
         n_fitness_criteria
     ) {
     /* nothing */
@@ -272,7 +272,7 @@ GTreeGenome::GTreeGenome(GTreeGenome const &cp)
   , Interface::GMutableI(cp)
   , Interface::GRateableI(cp)
   , Gem::Common::GUniquePtrContainerT<GParameterBase>(cp)
-  , Gem::Courtier::GProcessingContainerT<GTreeGenome, parameterset_processing_result>(cp)
+  , Gem::Courtier::GProcessingContainerT<GTreeGenome, individual_processing_result>(cp)
   , best_past_primary_fitness_(cp.best_past_primary_fitness_)
   , n_stalls_(cp.n_stalls_)
   , maxmode_(cp.maxmode_)
@@ -1542,7 +1542,7 @@ std::tuple<double, double> GTreeGenome::getBestKnownPrimaryFitness() const {
 /**
      * Performs all necessary (remote-)processing steps for this object.
      */
-void GTreeGenome::process_(const std::vector<parameterset_processing_result> &res_vec) {
+void GTreeGenome::process_(const std::vector<individual_processing_result> &res_vec) {
 #ifdef DEBUG
     //---------------------------------------------
     // Crash if we have been asked to (only active in DEBUG mode)
@@ -1691,7 +1691,7 @@ void GTreeGenome::load_(const GTreeGenome *cp) {
     // This is the category root; there is no GObject parent class to load.
     // Load the stateful base classes' data
     Gem::Common::GUniquePtrContainerT<GParameterBase>::operator=(*p_load);
-    Gem::Courtier::GProcessingContainerT<GTreeGenome, parameterset_processing_result>::load_pc(
+    Gem::Courtier::GProcessingContainerT<GTreeGenome, individual_processing_result>::load_pc(
         p_load
     );
 
@@ -1774,10 +1774,10 @@ void GTreeGenome::setFitness_(std::vector<double> const &f_cnt) {
     if(this->parameterSetFulfillsConstraints(validity_level_)
        // Needs to be called first, or else the validity_level_ will not be filled
        || evaluationPolicy::USESIMPLEEVALUATION == eval_policy_) {
-        // Create a vector of parameterset_processing_result objects
-        std::vector<parameterset_processing_result> processing_results(
+        // Create a vector of individual_processing_result objects
+        std::vector<individual_processing_result> processing_results(
             f_cnt.size(),
-            parameterset_processing_result()
+            individual_processing_result()
         );
 
         // Take care of the transformed fitness

@@ -105,8 +105,8 @@ public:
 
     void scatter(const std::vector<item_ptr> &items, const std::vector<gimage_fp_t> &fitness) const override {
         for(std::size_t i = 0; i < items.size(); ++i) {
-            items[i]->process(std::vector<gpar::parameterset_processing_result>(
-                1, gpar::parameterset_processing_result(fitness[i])));
+            items[i]->process(std::vector<gpar::individual_processing_result>(
+                1, gpar::individual_processing_result(fitness[i])));
         }
     }
 

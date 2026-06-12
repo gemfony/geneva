@@ -92,7 +92,7 @@ namespace Gem::Geneva::Parameters {
  * Container for fitness and transformed fitness values, as produced by the
  * GTreeGenome class.
  */
-class parameterset_processing_result {
+class individual_processing_result {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -107,31 +107,31 @@ class parameterset_processing_result {
 
 public:
     /** @brief The default constuctor */
-    parameterset_processing_result() = default;
+    individual_processing_result() = default;
 
     /** @brief Initialization with a raw fitness */
-    explicit parameterset_processing_result(double);
+    explicit individual_processing_result(double);
 
     /** @brief Initialization with a raw and transformed fitness */
-    parameterset_processing_result(double, double);
+    individual_processing_result(double, double);
 
     /** @brief Initialization with a raw fitness and recalculation of the transformed fitness */
-    parameterset_processing_result(double, std::function<double(double)>);
+    individual_processing_result(double, std::function<double(double)>);
 
     /** @brief Copy construction */
-    parameterset_processing_result(parameterset_processing_result const &) = default;
+    individual_processing_result(individual_processing_result const &) = default;
 
     /** @brief Move construction */
-    parameterset_processing_result(parameterset_processing_result &&) = default;
+    individual_processing_result(individual_processing_result &&) = default;
 
     /** @brief Destructor */
-    ~parameterset_processing_result() = default;
+    ~individual_processing_result() = default;
 
     /** @brief Assignment */
-    parameterset_processing_result &operator=(parameterset_processing_result const &) = default;
+    individual_processing_result &operator=(individual_processing_result const &) = default;
 
     /** @brief Move assignment */
-    parameterset_processing_result &operator=(parameterset_processing_result &&) = default;
+    individual_processing_result &operator=(individual_processing_result &&) = default;
 
     /** @brief Access to the raw fitness */
     double rawFitness() const;
@@ -183,7 +183,7 @@ class GTreeGenome // NOLINT(cppcoreguidelines-special-member-functions)
   , public Interface::GMutableI
   , public Interface::GRateableI
   , public Gem::Common::GUniquePtrContainerT<GParameterBase>
-  , public Gem::Courtier::GProcessingContainerT<GTreeGenome, parameterset_processing_result> {
+  , public Gem::Courtier::GProcessingContainerT<GTreeGenome, individual_processing_result> {
     friend class Gem::Geneva::Individuals::GTestIndividual1; ///< Needed for testing purposes
 
     ///////////////////////////////////////////////////////////////////////
@@ -258,7 +258,7 @@ class GTreeGenome // NOLINT(cppcoreguidelines-special-member-functions)
                 "GProcessingContainerT_ParameterSet_double",
                 boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<
                     GTreeGenome,
-                    parameterset_processing_result>>(*this)
+                    individual_processing_result>>(*this)
             );
 
         // All members (plain and cloneable alike) are derived from the single
@@ -896,8 +896,8 @@ protected:
     /***************************************************************************/
     /** @brief Do the required processing for this object */
     void process_(
-        const std::vector<parameterset_processing_result> &res_vec =
-            std::vector<parameterset_processing_result>()
+        const std::vector<individual_processing_result> &res_vec =
+            std::vector<individual_processing_result>()
     ) final;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
@@ -1035,5 +1035,5 @@ private:
  * @brief Needed for Boost.Serialization
  */
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Parameters::GTreeGenome)                  // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Parameters::parameterset_processing_result) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Parameters::individual_processing_result) // NOLINT
 /******************************************************************************/
