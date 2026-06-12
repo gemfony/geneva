@@ -3,7 +3,7 @@ SET ( OPTIMIZATIONINCLUDES
     GenevaHelperFunctions.hpp
 	GenevaInitializer.hpp
 	GIndividualMultiConstraint.hpp
-	GParameterSetCommandContainerExport.hpp
+	GOptimizableEntityCommandContainerExport.hpp
     GMultiConstraintT.hpp
 	Go2.hpp
     GOptimizationEnums.hpp
@@ -71,9 +71,9 @@ SET ( PARAM_INCLUDES
     par/GParameterPropertyParser.hpp
     ind/GOptimizableEntity.hpp
     ind/GTreeGenome.hpp
-    par/GParameterSetFactory.hpp
-    par/GParameterSetFixedSizePriorityQueue.hpp
-    par/GParameterSetMultiConstraint.hpp
+    par/GOptimizableEntityFactory.hpp
+    par/GOptimizableEntityFixedSizePriorityQueue.hpp
+    par/GOptimizableEntityMultiConstraint.hpp
     par/GParameterT.hpp
     par/GParameterTCollectionT.hpp
 )

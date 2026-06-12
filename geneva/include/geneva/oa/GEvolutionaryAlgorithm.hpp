@@ -173,9 +173,9 @@ private:
     std::string getAlgorithmName_() const override;
 
     /** @brief Adds the individuals of this iteration to a priority queue */
-    void updateGlobalBestsPQ_(gpar::GParameterSetFixedSizePriorityQueue &best_individuals) override;
+    void updateGlobalBestsPQ_(gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals) override;
     /** @brief Adds the individuals of this iteration to a priority queue */
-    void updateIterationBestsPQ_(gpar::GParameterSetFixedSizePriorityQueue &best_individuals) override;
+    void updateIterationBestsPQ_(gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals) override;
 
     /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;

@@ -42,7 +42,7 @@
 #include "geneva/par/GDoubleBiGaussAdaptor.hpp"
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/ind/GTreeGenome.hpp"
-#include "geneva/par/GParameterSetMultiConstraint.hpp"
+#include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 #include <algorithm>
 #include <chrono>

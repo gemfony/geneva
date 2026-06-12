@@ -57,7 +57,7 @@ SET ( OPTIMIZATIONSOURCES
 	GConsumerSetup.cpp
 	GenevaInitializer.cpp
 	GIndividualMultiConstraint.cpp
-	GParameterSetCommandContainerExport.cpp
+	GOptimizableEntityCommandContainerExport.cpp
 	par/GInt32Collection.cpp
 	par/GInt32FlipAdaptor.cpp
 	par/GInt32GaussAdaptor.cpp
@@ -79,8 +79,8 @@ SET ( OPTIMIZATIONSOURCES
 	par/GParameterPropertyParser.cpp
 	ind/GOptimizableEntity.cpp
 	ind/GTreeGenome.cpp
-	par/GParameterSetFixedSizePriorityQueue.cpp
-	par/GParameterSetMultiConstraint.cpp
+	par/GOptimizableEntityFixedSizePriorityQueue.cpp
+	par/GOptimizableEntityMultiConstraint.cpp
 	GPersonalityTraits.cpp
     GPluggableOptimizationMonitors.cpp
     GPostProcessorT.cpp

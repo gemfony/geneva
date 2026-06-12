@@ -52,9 +52,9 @@ namespace Gem::Geneva::Parameters {
  * This class implements constraint definitions based on GOptimizableEntity-derivatives.
  * It is meant to be added to a constraint collection. The main purpose of this
  * class is to "translate" GOptimizableEntity-based constraints into constraints
- * based on GParameterSets
+ * based on GOptimizableEntity
  */
-class GParameterSetConstraint // NOLINT(cppcoreguidelines-special-member-functions)
+class GOptimizableEntityConstraint // NOLINT(cppcoreguidelines-special-member-functions)
   : public GPreEvaluationValidityCheckT<GOptimizableEntity> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -63,18 +63,18 @@ class GParameterSetConstraint // NOLINT(cppcoreguidelines-special-member-functio
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         ar &boost::serialization::make_nvp(
-            "GPreEvaluationValidityCheckT_GParameterSet",
+            "GPreEvaluationValidityCheckT_GOptimizableEntity",
             boost::serialization::base_object<GPreEvaluationValidityCheckT<GOptimizableEntity>>(*this)
         );
     }
     ///////////////////////////////////////////////////////////////////////
 public:
     /** @brief The default constructor */
-    GParameterSetConstraint() = default;
+    GOptimizableEntityConstraint() = default;
     /** @brief The copy constructor */
-    GParameterSetConstraint(const GParameterSetConstraint &) = default;
+    GOptimizableEntityConstraint(const GOptimizableEntityConstraint &) = default;
     /** @brief The destructor */
-    ~GParameterSetConstraint() override = default;
+    ~GOptimizableEntityConstraint() override = default;
 
 protected:
     /** @brief Checks whether a given individual is valid */
@@ -82,13 +82,13 @@ protected:
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
-    /** @brief Loads the data of another GParameterSetConstraint */
+    /** @brief Loads the data of another GOptimizableEntityConstraint */
     void load_(const GPreEvaluationValidityCheckT<GOptimizableEntity> *) override;
 
     /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GParameterSetConstraint>(
-        GParameterSetConstraint const &,
-        GParameterSetConstraint const &,
+    friend void Gem::Common::compare_base_t<GOptimizableEntityConstraint>(
+        GOptimizableEntityConstraint const &,
+        GOptimizableEntityConstraint const &,
         Gem::Common::GToken &
     );
 
@@ -112,4 +112,4 @@ private:
 
 } /* namespace Gem::Geneva::Parameters */
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::Parameters::GParameterSetConstraint) // NOLINT
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::Parameters::GOptimizableEntityConstraint) // NOLINT

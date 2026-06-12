@@ -125,7 +125,7 @@ int main(int argc, char **argv) {
         ); // The sum of all variables must be 1 +/- 0.05
 
         // Create a check combiner and add the constraint objects to it. Constraints are
-        // expressed directly as C++ constraint objects (subclasses of GParameterSetConstraint),
+        // expressed directly as C++ constraint objects (subclasses of GOptimizableEntityConstraint),
         // which is the general, type-safe way to formulate arbitrary dependent constraints.
         std::shared_ptr<GCheckCombinerT<gpar::GOptimizableEntity>> combiner_ptr(
             new GCheckCombinerT<gpar::GOptimizableEntity>()

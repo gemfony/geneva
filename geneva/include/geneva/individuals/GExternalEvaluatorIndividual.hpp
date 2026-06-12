@@ -61,7 +61,7 @@
 #include "geneva/par/GDoubleObjectCollection.hpp"
 #include "geneva/par/GInt32FlipAdaptor.hpp"
 #include "geneva/ind/GTreeGenome.hpp"
-#include "geneva/par/GParameterSetMultiConstraint.hpp"
+#include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 
 namespace Gem::Geneva::Individuals {
@@ -270,7 +270,7 @@ class GExternalEvaluatorIndividualFactory // NOLINT(cppcoreguidelines-special-me
         using namespace Gem::Common;
 
         ar &boost::serialization::make_nvp(
-            "GFactoryT_gpar_GParameterSet",
+            "GFactoryT_gpar_GOptimizableEntity",
             boost::serialization::base_object<GFactoryT<gpar::GOptimizableEntity>>(*this)
         ) &
             BOOST_SERIALIZATION_NVP(ad_prob_) & BOOST_SERIALIZATION_NVP(adapt_ad_prob_) &

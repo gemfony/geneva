@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/par/GParameterSetFixedSizePriorityQueue.hpp"
+#include "geneva/par/GOptimizableEntityFixedSizePriorityQueue.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
@@ -43,17 +43,17 @@
 #include <string>
 #include <vector>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GParameterSetFixedSizePriorityQueue) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GOptimizableEntityFixedSizePriorityQueue) // NOLINT
 
 namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 /**
-	 * Initialization with the maximum size. The GParameterSetFixedSizePriorityQueue is
+	 * Initialization with the maximum size. The GOptimizableEntityFixedSizePriorityQueue is
 	 * targetted at optimization algorithms, which only understand "minimization". Hence
 	 * "lower is better" is the only allowed mode of operation of this priority queue.
 	 */
-GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(
+GOptimizableEntityFixedSizePriorityQueue::GOptimizableEntityFixedSizePriorityQueue(
     const std::size_t &max_size
 )
   : Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity>(
@@ -66,8 +66,8 @@ GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(
 /**
 	 * Emits a name for this class / object
 	 */
-std::string GParameterSetFixedSizePriorityQueue::name_() const {
-    return std::string("GParameterSetFixedSizePriorityQueue");
+std::string GOptimizableEntityFixedSizePriorityQueue::name_() const {
+    return std::string("GOptimizableEntityFixedSizePriorityQueue");
 }
 
 /******************************************************************************/
@@ -75,10 +75,10 @@ std::string GParameterSetFixedSizePriorityQueue::name_() const {
 	 * Searches for compliance with expectations with respect to another object
 	 * of the same type
 	 *
-	 * @param cp A constant reference to another GParameterSetFixedSizePriorityQueue object
+	 * @param cp A constant reference to another GOptimizableEntityFixedSizePriorityQueue object
 	 * @param e The expected outcome of the comparison
 	 */
-void GParameterSetFixedSizePriorityQueue::compare_(
+void GOptimizableEntityFixedSizePriorityQueue::compare_(
     const Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity> &cp // the other object
     ,
     const Gem::Common::expectation &e // the expectation for this object, e.g. equality
@@ -87,11 +87,11 @@ void GParameterSetFixedSizePriorityQueue::compare_(
 ) const {
     using namespace Gem::Common;
 
-    // Check that we are dealing with a GParameterSetFixedSizePriorityQueue reference independent of this object and convert the pointer
-    const GParameterSetFixedSizePriorityQueue *p_load =
+    // Check that we are dealing with a GOptimizableEntityFixedSizePriorityQueue reference independent of this object and convert the pointer
+    const GOptimizableEntityFixedSizePriorityQueue *p_load =
         Gem::Common::g_convert_and_compare(cp, this);
 
-    GToken token("GParameterSetFixedSizePriorityQueue", e);
+    GToken token("GOptimizableEntityFixedSizePriorityQueue", e);
 
     // Compare our parent data ...
     Gem::Common::compare_base_t<Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity>>(
@@ -108,14 +108,14 @@ void GParameterSetFixedSizePriorityQueue::compare_(
 
 /******************************************************************************/
 /**
-	 * Loads the data of another GParameterSetFixedSizePriorityQueue object, camouflaged as a GFixedSizePriorityQueueT<GOptimizableEntity>
+	 * Loads the data of another GOptimizableEntityFixedSizePriorityQueue object, camouflaged as a GFixedSizePriorityQueueT<GOptimizableEntity>
 	 */
-void GParameterSetFixedSizePriorityQueue::load_(
+void GOptimizableEntityFixedSizePriorityQueue::load_(
     const Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity> *cp
 ) { // NOLINT(misc-unused-parameters)
     // Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
     // *** currently not needed ***
-    // const GParameterSetFixedSizePriorityQueue *p_load = Gem::Common::g_convert_and_compare(cp, this);
+    // const GOptimizableEntityFixedSizePriorityQueue *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
     // Load our parent class'es data ...
     Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity>::load_(cp);
@@ -128,15 +128,15 @@ void GParameterSetFixedSizePriorityQueue::load_(
 	 * Creates a deep clone of this object
 	 */
 Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity> *
-GParameterSetFixedSizePriorityQueue::clone_() const {
-    return new GParameterSetFixedSizePriorityQueue(*this);
+GOptimizableEntityFixedSizePriorityQueue::clone_() const {
+    return new GOptimizableEntityFixedSizePriorityQueue(*this);
 }
 
 /******************************************************************************/
 /**
 	 * Checks whether no item has the dirty flag set
 	 */
-bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t &pos) const {
+bool GOptimizableEntityFixedSizePriorityQueue::allClean(std::size_t &pos) const {
     pos = 0;
     for(const auto &item_ptr : data_deq_) {
         if(not item_ptr->is_processed()) {
@@ -152,7 +152,7 @@ bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t &pos) const {
 /**
 	 * Emits information about the "dirty flag" of all items
 	 */
-std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
+std::string GOptimizableEntityFixedSizePriorityQueue::getCleanStatus() const {
     std::size_t pos = 0;
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
     for(const auto &item_ptr : data_deq_) {
@@ -167,7 +167,7 @@ std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
 	 * Checks whether an Item is valid, i.e. holds a GOptimizableEntity item and has
 	 * already been evaluated.
 	 */
-bool GParameterSetFixedSizePriorityQueue::isValid(
+bool GOptimizableEntityFixedSizePriorityQueue::isValid(
     const std::shared_ptr<GOptimizableEntity> &item_ptr
 ) const {
     if(not item_ptr) {
@@ -187,7 +187,7 @@ bool GParameterSetFixedSizePriorityQueue::isValid(
 	 * will throw in DEBUG mode, if the dirty flag of item is set. Note that the function
 	 * uses the primary evaluation criterion only.
 	 */
-double GParameterSetFixedSizePriorityQueue::evaluation(
+double GOptimizableEntityFixedSizePriorityQueue::evaluation(
     const std::shared_ptr<GOptimizableEntity> &item_ptr
 ) const {
     return minOnly_transformed_fitness(*item_ptr);
@@ -197,7 +197,7 @@ double GParameterSetFixedSizePriorityQueue::evaluation(
 /**
 	 * Adds items in a range to the priority queue
 	 */
-void GParameterSetFixedSizePriorityQueue::add(
+void GOptimizableEntityFixedSizePriorityQueue::add(
     std::vector<std::shared_ptr<GOptimizableEntity>>::const_iterator begin,
     std::vector<std::shared_ptr<GOptimizableEntity>>::const_iterator end,
     bool do_clone,
@@ -218,7 +218,7 @@ void GParameterSetFixedSizePriorityQueue::add(
     if(processed_cnt.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSetFixedSizePriorityQueue::add(range): Error!" << '\n'
+            << "In GOptimizableEntityFixedSizePriorityQueue::add(range): Error!" << '\n'
             << "Container is empty when it should not be!" << '\n'
         );
     }
@@ -237,7 +237,7 @@ void GParameterSetFixedSizePriorityQueue::add(
 	 * that only processed items (i.e. without errors and with the PROCESSED flag) are
 	 * entered into the priority queue.
 	 */
-void GParameterSetFixedSizePriorityQueue::add(
+void GOptimizableEntityFixedSizePriorityQueue::add(
     std::vector<std::shared_ptr<GOptimizableEntity>> const &items_cnt,
     const bool do_clone,
     const bool do_replace
@@ -257,7 +257,7 @@ void GParameterSetFixedSizePriorityQueue::add(
     if(processed_cnt.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSetFixedSizePriorityQueue::add(vec): Error!" << '\n'
+            << "In GOptimizableEntityFixedSizePriorityQueue::add(vec): Error!" << '\n'
             << "Container is empty when it should not be!" << '\n'
         );
     }
@@ -271,7 +271,7 @@ void GParameterSetFixedSizePriorityQueue::add(
 	 * that only processed items (i.e. without errors and with the PROCESSED flag) are
 	 * entered into the priority queue.
 	 */
-void GParameterSetFixedSizePriorityQueue::add(
+void GOptimizableEntityFixedSizePriorityQueue::add(
     std::shared_ptr<GOptimizableEntity> const &item_ptr,
     const bool do_clone
 ) {
@@ -288,7 +288,7 @@ void GParameterSetFixedSizePriorityQueue::add(
 	 * shared_ptr overload with do_clone == false -- the archive co-owns the clones directly, no second
 	 * copy. (do_clone is intentionally ignored: cloning at the boundary is exactly what do_clone asks for.)
 	 */
-void GParameterSetFixedSizePriorityQueue::add(
+void GOptimizableEntityFixedSizePriorityQueue::add(
     std::vector<std::unique_ptr<GOptimizableEntity>> const &items_cnt,
     const bool /* do_clone */,
     const bool do_replace
@@ -307,7 +307,7 @@ void GParameterSetFixedSizePriorityQueue::add(
 /**
 	 * Boundary overload: adds a unique_ptr population sub-range [begin, end). See the vector overload above.
 	 */
-void GParameterSetFixedSizePriorityQueue::add(
+void GOptimizableEntityFixedSizePriorityQueue::add(
     std::vector<std::unique_ptr<GOptimizableEntity>>::const_iterator begin,
     std::vector<std::unique_ptr<GOptimizableEntity>>::const_iterator end,
     const bool /* do_clone */,
@@ -327,7 +327,7 @@ void GParameterSetFixedSizePriorityQueue::add(
 /**
 	 * Boundary overload: adds a single unique_ptr-owned individual. See the vector overload above.
 	 */
-void GParameterSetFixedSizePriorityQueue::add(
+void GOptimizableEntityFixedSizePriorityQueue::add(
     std::unique_ptr<GOptimizableEntity> const &item_ptr,
     const bool /* do_clone */
 ) {
@@ -338,7 +338,7 @@ void GParameterSetFixedSizePriorityQueue::add(
 
 /******************************************************************************/
 /** @brief Applies modifications to this object. This is needed for testing purposes */
-bool GParameterSetFixedSizePriorityQueue::modify_GUnitTests_() {
+bool GOptimizableEntityFixedSizePriorityQueue::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 
     bool result = false;
@@ -352,7 +352,7 @@ bool GParameterSetFixedSizePriorityQueue::modify_GUnitTests_() {
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
-        "GParameterSetFixedSizePriorityQueueT<GOptimizableEntity>::modify_GUnitTests",
+        "GOptimizableEntityFixedSizePriorityQueue<GOptimizableEntity>::modify_GUnitTests",
         "GEM_TESTING"
     );
     return false;
@@ -361,7 +361,7 @@ bool GParameterSetFixedSizePriorityQueue::modify_GUnitTests_() {
 
 /******************************************************************************/
 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-void GParameterSetFixedSizePriorityQueue::specificTestsNoFailureExpected_GUnitTests_() {
+void GOptimizableEntityFixedSizePriorityQueue::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
@@ -372,7 +372,7 @@ void GParameterSetFixedSizePriorityQueue::specificTestsNoFailureExpected_GUnitTe
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
-        "GParameterSetFixedSizePriorityQueueT<GOptimizableEntity>::specificTestsNoFailureExpected_"
+        "GOptimizableEntityFixedSizePriorityQueue<GOptimizableEntity>::specificTestsNoFailureExpected_"
         "GUnitTests",
         "GEM_TESTING"
     );
@@ -381,7 +381,7 @@ void GParameterSetFixedSizePriorityQueue::specificTestsNoFailureExpected_GUnitTe
 
 /******************************************************************************/
 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-void GParameterSetFixedSizePriorityQueue::specificTestsFailuresExpected_GUnitTests_() {
+void GOptimizableEntityFixedSizePriorityQueue::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
@@ -392,7 +392,7 @@ void GParameterSetFixedSizePriorityQueue::specificTestsFailuresExpected_GUnitTes
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
-        "GParameterSetFixedSizePriorityQueueT<GOptimizableEntity>::specificTestsFailuresExpected_"
+        "GOptimizableEntityFixedSizePriorityQueue<GOptimizableEntity>::specificTestsFailuresExpected_"
         "GUnitTests_",
         "GEM_TESTING"
     );

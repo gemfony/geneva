@@ -61,7 +61,7 @@
 #include "courtier/consumers/GSerialConsumerT.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/par/GParameterSetFixedSizePriorityQueue.hpp"
+#include "geneva/par/GOptimizableEntityFixedSizePriorityQueue.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/Interface/GOptimizerIT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
@@ -531,7 +531,7 @@ public:
     std::size_t getNProcessableItems() const;
 
     /** @brief If individuals have been stored in this population, they are added to the priority queue. */
-    void addCleanStoredBests(gpar::GParameterSetFixedSizePriorityQueue &best_individuals);
+    void addCleanStoredBests(gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals);
 
     /** @brief Helper function that determines whether we are currently inside of the first iteration */
     bool inFirstIteration() const;
@@ -627,9 +627,9 @@ protected:
 
     // NB: protected, as a derived function may fall back to this function, cmp EA in non-pareto mode
     /** @brief Adds the individuals of this iteration to a priority queue. */
-    virtual void updateGlobalBestsPQ_(gpar::GParameterSetFixedSizePriorityQueue &best_individuals);
+    virtual void updateGlobalBestsPQ_(gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals);
     /** @brief Adds the individuals of this iteration to a priority queue. */
-    virtual void updateIterationBestsPQ_(gpar::GParameterSetFixedSizePriorityQueue &best_individuals);
+    virtual void updateIterationBestsPQ_(gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals);
 
     /** @brief Set the number of "best" individuals to be recorded in each iteration */
     void setNRecordBestIndividuals(std::size_t n_record_best_individuals);
@@ -762,10 +762,10 @@ private:
 
     std::size_t n_recordbest_global_individuals_ =
         DEFNRECORDBESTINDIVIDUALS; ///< Indicates the number of best individuals to be recorded/updated in each iteration
-    gpar::GParameterSetFixedSizePriorityQueue best_global_individuals_pq_{
+    gpar::GOptimizableEntityFixedSizePriorityQueue best_global_individuals_pq_{
         n_recordbest_global_individuals_
     }; ///< A priority queue with the best individuals found so far
-    gpar::GParameterSetFixedSizePriorityQueue best_iteration_individuals_pq_{
+    gpar::GOptimizableEntityFixedSizePriorityQueue best_iteration_individuals_pq_{
         n_recordbest_global_individuals_
     }; ///< A priority queue with the best individuals of a given iteration; unlimited size so all individuals of an iteration fit in
 

@@ -53,8 +53,8 @@
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GDoubleObjectCollection.hpp"
 #include "geneva/ind/GTreeGenome.hpp"
-#include "geneva/par/GParameterSetFactory.hpp"
-#include "geneva/par/GParameterSetMultiConstraint.hpp"
+#include "geneva/par/GOptimizableEntityFactory.hpp"
+#include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 
 namespace Gem::Geneva::Individuals {
@@ -739,13 +739,13 @@ operator<<(std::ostream &, std::shared_ptr<Gem::Geneva::Individuals::GFunctionIn
  * A factory for GFunctionIndividual objects
  */
 class GFunctionIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gpar::GParameterSetFactory {
+  : public gpar::GOptimizableEntityFactory {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSetFactory) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GOptimizableEntityFactory) &
             BOOST_SERIALIZATION_NVP(ad_prob_) & BOOST_SERIALIZATION_NVP(adapt_ad_prob_) &
             BOOST_SERIALIZATION_NVP(min_ad_prob_) & BOOST_SERIALIZATION_NVP(max_ad_prob_) &
             BOOST_SERIALIZATION_NVP(adaption_threshold_) & BOOST_SERIALIZATION_NVP(use_bi_gaussian_) &
@@ -959,7 +959,7 @@ private:
  * than a given constant.
  */
 class GDoubleSumConstraint
-  : public gpar::GParameterSetConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gpar::GOptimizableEntityConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -974,7 +974,7 @@ class GDoubleSumConstraint
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSetConstraint);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GOptimizableEntityConstraint);
         Gem::Common::serialize_members(ar, localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
@@ -995,7 +995,7 @@ protected:
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
-    /** @brief Loads the data of another GParameterSetMultiConstraint */
+    /** @brief Loads the data of another GOptimizableEntityMultiConstraint */
     void load_(const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -1029,7 +1029,7 @@ private:
  * sign!) for double variables
  */
 class GDoubleSumGapConstraint
-  : public gpar::GParameterSetConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gpar::GOptimizableEntityConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -1048,7 +1048,7 @@ class GDoubleSumGapConstraint
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSetConstraint);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GOptimizableEntityConstraint);
         Gem::Common::serialize_members(ar, localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
@@ -1069,7 +1069,7 @@ protected:
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
-    /** @brief Loads the data of another GParameterSetMultiConstraint */
+    /** @brief Loads the data of another GOptimizableEntityMultiConstraint */
     void load_(const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -1104,7 +1104,7 @@ private:
  * a given constraint. Here, valid solutions lie in a sphere around 0
  */
 class GSphereConstraint
-  : public gpar::GParameterSetConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gpar::GOptimizableEntityConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -1119,7 +1119,7 @@ class GSphereConstraint
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSetConstraint);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GOptimizableEntityConstraint);
         // diameter_ was previously not serialized at all -- it was silently lost on
         // (de)serialization. Derive it from the single localMembers() declaration.
         Gem::Common::serialize_members(ar, this->localMembers());
@@ -1142,7 +1142,7 @@ protected:
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
-    /** @brief Loads the data of another GParameterSetMultiConstraint */
+    /** @brief Loads the data of another GOptimizableEntityMultiConstraint */
     void load_(const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *) override;
 
     /** @brief Allow access to this classes compare_ function */

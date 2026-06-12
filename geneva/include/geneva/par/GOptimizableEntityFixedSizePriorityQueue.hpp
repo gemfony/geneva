@@ -64,7 +64,7 @@ namespace Gem::Geneva::Parameters {
  * based on the maximization/minimization property and the current fitness of
  * the objects.
  */
-class GParameterSetFixedSizePriorityQueue // NOLINT(cppcoreguidelines-special-member-functions)
+class GOptimizableEntityFixedSizePriorityQueue // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -84,15 +84,15 @@ class GParameterSetFixedSizePriorityQueue // NOLINT(cppcoreguidelines-special-me
 
 public:
     /** @brief The default constructor */
-    GParameterSetFixedSizePriorityQueue() = default;
+    GOptimizableEntityFixedSizePriorityQueue() = default;
 
     /** @brief Initialization with the maximum size */
-    explicit GParameterSetFixedSizePriorityQueue(const std::size_t &);
+    explicit GOptimizableEntityFixedSizePriorityQueue(const std::size_t &);
     /** @brief The copy constructor */
     
-    GParameterSetFixedSizePriorityQueue(const GParameterSetFixedSizePriorityQueue &cp) = default;
+    GOptimizableEntityFixedSizePriorityQueue(const GOptimizableEntityFixedSizePriorityQueue &cp) = default;
     /** @brief The destructor */
-    ~GParameterSetFixedSizePriorityQueue() override = default;
+    ~GOptimizableEntityFixedSizePriorityQueue() override = default;
 
     /** @brief Checks whether no item has the dirty flag set */
     bool allClean(std::size_t &) const;
@@ -136,9 +136,9 @@ protected:
     void load_(const Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity> *) override;
 
     /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GParameterSetFixedSizePriorityQueue>(
-        GParameterSetFixedSizePriorityQueue const &,
-        GParameterSetFixedSizePriorityQueue const &,
+    friend void Gem::Common::compare_base_t<GOptimizableEntityFixedSizePriorityQueue>(
+        GOptimizableEntityFixedSizePriorityQueue const &,
+        GOptimizableEntityFixedSizePriorityQueue const &,
         Gem::Common::GToken &
     );
 
@@ -174,4 +174,4 @@ private:
 
 } /* namespace Gem::Geneva::Parameters */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Parameters::GParameterSetFixedSizePriorityQueue) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Parameters::GOptimizableEntityFixedSizePriorityQueue) // NOLINT

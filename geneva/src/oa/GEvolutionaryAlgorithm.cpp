@@ -45,7 +45,7 @@
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GParChild.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/par/GParameterSetFixedSizePriorityQueue.hpp"
+#include "geneva/par/GOptimizableEntityFixedSizePriorityQueue.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -199,7 +199,7 @@ void GEvolutionaryAlgorithm::extractCurrentParetoIndividuals(
   * want the individuals on the current pareto front to be added.
   */
 void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
-    gpar::GParameterSetFixedSizePriorityQueue &best_individuals
+    gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool replace = true;
     constexpr bool donotreplace = false;
@@ -255,7 +255,7 @@ void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
  * the best individuals of the current iteration.
  */
 void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
-    gpar::GParameterSetFixedSizePriorityQueue &best_individuals
+    gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool clone = true;
     constexpr bool donotreplace = false;

@@ -52,7 +52,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This is a specialization of the GParameterSetParChild class. The class adds
+ * This is a specialization of the GParChild class. The class adds
  * an infrastructure for simulated annealing (Geneva-style, i.e. with larger populations).
  */
 class GSimulatedAnnealing // NOLINT(cppcoreguidelines-special-member-functions)

@@ -1331,7 +1331,7 @@ void GOptimizationAlgorithmBase::addConfigurationOptions_(Gem::Common::GParserBu
 	 * and may either have a limited or unlimited size, depending on user-settings
 	 */
 void GOptimizationAlgorithmBase::updateGlobalBestsPQ_(
-    gpar::GParameterSetFixedSizePriorityQueue &best_individuals
+    gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool clone = true;
     constexpr bool donotreplace = false;
@@ -1361,7 +1361,7 @@ void GOptimizationAlgorithmBase::updateGlobalBestsPQ_(
 	 * settings
 	 */
 void GOptimizationAlgorithmBase::updateIterationBestsPQ_(
-    gpar::GParameterSetFixedSizePriorityQueue &best_individuals
+    gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool clone = true;
     constexpr bool replace = true;
@@ -1390,7 +1390,7 @@ void GOptimizationAlgorithmBase::updateIterationBestsPQ_(
 	 * "dirty flag" set.
 	 */
 void GOptimizationAlgorithmBase::addCleanStoredBests(
-    gpar::GParameterSetFixedSizePriorityQueue &best_individuals
+    gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool clone = true;
 

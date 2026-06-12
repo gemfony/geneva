@@ -435,7 +435,7 @@ std::size_t GOptimizableEntity::adapt() {
             }
         }
 
-        if(this->parameterSetFulfillsConstraints(validity) ||
+        if(this->individualFulfillsConstraints(validity) ||
            ++n_invalid_adaptions > max_retries_until_valid_) {
             break;
         }
@@ -1060,7 +1060,7 @@ void GOptimizableEntity::process_(const std::vector<individual_processing_result
 #endif
 
     // Find out, whether this is a valid solution
-    if(this->parameterSetFulfillsConstraints(validity_level_)
+    if(this->individualFulfillsConstraints(validity_level_)
        // Needs to be called first, or else the validity_level_ will not be filled
        || evaluationPolicy::USESIMPLEEVALUATION == eval_policy_) {
         // Trigger actual fitness calculation using the user-supplied function. This will
@@ -1222,7 +1222,7 @@ void GOptimizableEntity::setFitness_(std::vector<double> const &f_cnt) {
 #endif /* DEBUG */
 
     // Find out, whether this is a valid solution
-    if(this->parameterSetFulfillsConstraints(validity_level_)
+    if(this->individualFulfillsConstraints(validity_level_)
        // Needs to be called first, or else the validity_level_ will not be filled
        || evaluationPolicy::USESIMPLEEVALUATION == eval_policy_) {
         // Create a vector of individual_processing_result objects
@@ -1373,7 +1373,7 @@ double GOptimizableEntity::weighedSquaredSumCombiner(std::vector<double> const &
      * Checks whether this solution fulfills the set of constraints. Note that this
      * function may be called prior to evaluation in order to check
      */
-bool GOptimizableEntity::parameterSetFulfillsConstraints(double &validity_level) const {
+bool GOptimizableEntity::individualFulfillsConstraints(double &validity_level) const {
     if(individual_constraint_ptr_) {
         return individual_constraint_ptr_->isValid(this, validity_level);
     }

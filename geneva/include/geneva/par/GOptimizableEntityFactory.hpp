@@ -47,7 +47,7 @@ namespace Gem::Geneva::Parameters {
  * This class facilitates handling of factories for GOptimizableEntity-derivatives.
  * In particular it allows to register pre- and post-procesing objects
  */
-class GParameterSetFactory // NOLINT(cppcoreguidelines-special-member-functions)
+class GOptimizableEntityFactory // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GFactoryT<GOptimizableEntity> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -57,7 +57,7 @@ class GParameterSetFactory // NOLINT(cppcoreguidelines-special-member-functions)
         using boost::serialization::make_nvp;
 
         ar &boost::serialization::make_nvp(
-            "GFactoryT_GParameterSet",
+            "GFactoryT_GOptimizableEntity",
             boost::serialization::base_object<Gem::Common::GFactoryT<GOptimizableEntity>>(*this)
         ) &
             BOOST_SERIALIZATION_NVP(pre_processor_) & BOOST_SERIALIZATION_NVP(post_processor_);
@@ -71,7 +71,7 @@ public:
 	  *
 	  * @param configFile path object of a configuration file holding information about objects of type T
 	  */
-    explicit GParameterSetFactory(std::filesystem::path const &configFile)
+    explicit GOptimizableEntityFactory(std::filesystem::path const &configFile)
       : Gem::Common::GFactoryT<GOptimizableEntity>(configFile) { /* nothing */
     }
 
@@ -79,7 +79,7 @@ public:
     /**
 	  * The copy constructor
 	  */
-    GParameterSetFactory(const GParameterSetFactory &cp)
+    GOptimizableEntityFactory(const GOptimizableEntityFactory &cp)
       : Gem::Common::GFactoryT<GOptimizableEntity>(cp) {
         Gem::Common::copyCloneableSmartPointer(cp.post_processor_, post_processor_);
         Gem::Common::copyCloneableSmartPointer(cp.post_processor_, post_processor_);
@@ -87,7 +87,7 @@ public:
 
     /***************************************************************************/
     // Defaulted and deleted functions
-    ~GParameterSetFactory() override = default;
+    ~GOptimizableEntityFactory() override = default;
 
     /***************************************************************************/
     /**
@@ -102,7 +102,7 @@ public:
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParameterSetFactory::registerPreProcessor(): Error!" << '\n'
+                << "In GOptimizableEntityFactory::registerPreProcessor(): Error!" << '\n'
                 << "Got empty pre-processor" << '\n'
             );
         }
@@ -121,7 +121,7 @@ public:
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParameterSetFactory::registerPostProcessor(): Error!" << '\n'
+                << "In GOptimizableEntityFactory::registerPostProcessor(): Error!" << '\n'
                 << "Got empty post-processor" << '\n'
             );
         }
@@ -154,7 +154,7 @@ protected:
 
 private:
     // Only needed for (de-)serialization purposes, hence private
-    GParameterSetFactory() = default;
+    GOptimizableEntityFactory() = default;
 };
 
 /******************************************************************************/

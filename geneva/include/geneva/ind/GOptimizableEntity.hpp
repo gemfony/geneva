@@ -566,7 +566,7 @@ protected:
     double weighedSquaredSumCombiner(std::vector<double> const &) const;
 
     /** @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only */
-    bool parameterSetFulfillsConstraints(double &) const;
+    bool individualFulfillsConstraints(double &) const;
 
 private:
     /***************************************************************************/

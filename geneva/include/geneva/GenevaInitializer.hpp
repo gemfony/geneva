@@ -38,7 +38,7 @@
 // Boost header files go here
 
 // Geneva headers go here
-#include "geneva/GParameterSetCommandContainerExport.hpp"
+#include "geneva/GOptimizableEntityCommandContainerExport.hpp"
 #include "geneva/ind/GTreeGenome.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
 #include "geneva/oa/GInitializerT.hpp"

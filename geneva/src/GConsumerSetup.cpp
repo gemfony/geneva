@@ -55,7 +55,7 @@ namespace {
 
 /** @brief The polymorphic clone for GOptimizableEntity (copy-construction would slice the held individual). */
 std::function<std::unique_ptr<gpar::GOptimizableEntity>(const std::unique_ptr<gpar::GOptimizableEntity> &)>
-parameterSetCloneFunction() {
+individualCloneFunction() {
     return [](const std::unique_ptr<gpar::GOptimizableEntity> &p) { return p->clone_unique(); };
 }
 
@@ -77,25 +77,25 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
 
     if(spec.mnemonic == "sc") {
         auto consumer = std::make_shared<c2::GSerialConsumerT<gpar::GOptimizableEntity>>();
-        consumer->setCloneFunction(parameterSetCloneFunction());
+        consumer->setCloneFunction(individualCloneFunction());
         setup.broker = brokerFor(consumer);
     }
     else if(spec.mnemonic == "stc") {
         auto consumer = std::make_shared<c2::GStdThreadConsumerT<gpar::GOptimizableEntity>>(spec.n_threads);
-        consumer->setCloneFunction(parameterSetCloneFunction());
+        consumer->setCloneFunction(individualCloneFunction());
         setup.broker = brokerFor(consumer);
     }
     else if(spec.mnemonic == "asio") {
         auto consumer = std::make_shared<c2::GAsioConsumerT<gpar::GOptimizableEntity>>(
             spec.port, spec.n_threads, spec.serialization_mode);
-        consumer->setCloneFunction(parameterSetCloneFunction());
+        consumer->setCloneFunction(individualCloneFunction());
         consumer->startServer();
         setup.broker = brokerFor(consumer);
     }
     else if(spec.mnemonic == "beast") {
         auto consumer = std::make_shared<c2::GWebsocketConsumerT<gpar::GOptimizableEntity>>(
             spec.port, spec.n_threads, spec.serialization_mode);
-        consumer->setCloneFunction(parameterSetCloneFunction());
+        consumer->setCloneFunction(individualCloneFunction());
         consumer->startServer();
         setup.broker = brokerFor(consumer);
     }
@@ -104,7 +104,7 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
         // MPI fixes the master/worker split by rank; the consumer is built on every rank and branches.
         auto consumer = std::make_shared<c2::GMPIConsumerT<gpar::GOptimizableEntity>>();
         if(consumer->isMasterNode()) {
-            consumer->setCloneFunction(parameterSetCloneFunction());
+            consumer->setCloneFunction(individualCloneFunction());
             consumer->startServer();
             setup.broker = brokerFor(consumer);
         }

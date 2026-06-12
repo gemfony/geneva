@@ -83,7 +83,7 @@
 #include "geneva/oa/GParameterScan.hpp"
 #include "geneva/oa/GNelderMead.hpp"
 // Constraints
-#include "geneva/par/GParameterSetMultiConstraint.hpp"
+#include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
 // Pluggable optimization monitors
 #include "geneva/GPluggableOptimizationMonitors.hpp"
 
@@ -223,7 +223,7 @@ TEMPLATE_TEST_CASE(
     Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
 }
 
-// The concrete GParameterSetConstraint subclasses defined in GFunctionIndividual.hpp.
+// The concrete GOptimizableEntityConstraint subclasses defined in GFunctionIndividual.hpp.
 // They have public default + copy ctors and are tie-converted (they declare
 // localMembers()), so clone/copy/load/compare are exercised. They do not override
 // modify_GUnitTests_, so the standard test's (de)serialization round-trip block is
@@ -396,7 +396,7 @@ TEMPLATE_TEST_CASE(
 }
 
 // ============================================================================
-// Targeted (de)serialization round-trips for the concrete GParameterSetConstraint
+// Targeted (de)serialization round-trips for the concrete GOptimizableEntityConstraint
 // subclasses in GFunctionIndividual.hpp. These types are run through the templated
 // standard test for clone/copy/load/compare, but that test skips the round-trip block
 // (they do not override modify_GUnitTests_), so the serialize path is validated here.

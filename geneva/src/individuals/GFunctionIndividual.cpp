@@ -49,8 +49,8 @@
 #include "geneva/par/GDoubleObject.hpp"
 #include "geneva/par/GDoubleObjectCollection.hpp"
 #include "geneva/ind/GTreeGenome.hpp"
-#include "geneva/par/GParameterSetFactory.hpp"
-#include "geneva/par/GParameterSetMultiConstraint.hpp"
+#include "geneva/par/GOptimizableEntityFactory.hpp"
+#include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 #include <cmath>
 #include <cstddef>
@@ -106,7 +106,7 @@ void GDoubleSumConstraint::compare_(
     Gem::Common::GToken token("GDoubleSumConstraint", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GParameterSetConstraint>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GOptimizableEntityConstraint>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -121,7 +121,7 @@ void GDoubleSumConstraint::compare_(
  */
 void GDoubleSumConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    gpar::GParameterSetConstraint::addConfigurationOptions_(gpb);
+    gpar::GOptimizableEntityConstraint::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -156,7 +156,7 @@ void GDoubleSumConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GOptim
             GDoubleSumConstraint>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GParameterSetConstraint::load_(cp);
+    gpar::GOptimizableEntityConstraint::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -205,7 +205,7 @@ void GDoubleSumGapConstraint::compare_(
     Gem::Common::GToken token("GDoubleSumGapConstraint", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GParameterSetConstraint>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GOptimizableEntityConstraint>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -220,7 +220,7 @@ void GDoubleSumGapConstraint::compare_(
  */
 void GDoubleSumGapConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    gpar::GParameterSetConstraint::addConfigurationOptions_(gpb);
+    gpar::GOptimizableEntityConstraint::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -256,7 +256,7 @@ void GDoubleSumGapConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GOp
             GDoubleSumGapConstraint>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GParameterSetConstraint::load_(cp);
+    gpar::GOptimizableEntityConstraint::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -303,7 +303,7 @@ void GSphereConstraint::compare_(
     Gem::Common::GToken token("GSphereConstraint", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GParameterSetConstraint>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GOptimizableEntityConstraint>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -318,7 +318,7 @@ void GSphereConstraint::compare_(
  */
 void GSphereConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    gpar::GParameterSetConstraint::addConfigurationOptions_(gpb);
+    gpar::GOptimizableEntityConstraint::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -354,7 +354,7 @@ void GSphereConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GOptimiza
             GSphereConstraint>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GParameterSetConstraint::load_(cp);
+    gpar::GOptimizableEntityConstraint::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -780,7 +780,7 @@ std::ostream &operator<<(std::ostream &s, std::shared_ptr<Gem::Geneva::Individua
  * @param config_file The name of the configuration file
  */
 GFunctionIndividualFactory::GFunctionIndividualFactory(std::filesystem::path const &config_file)
-  : gpar::GParameterSetFactory(config_file) { /* nothing */
+  : gpar::GOptimizableEntityFactory(config_file) { /* nothing */
 }
 
 /******************************************************************************/
@@ -788,7 +788,7 @@ GFunctionIndividualFactory::GFunctionIndividualFactory(std::filesystem::path con
  * The default constructor. Only needed for (de-)serialization purposes, hence empty.
  */
 GFunctionIndividualFactory::GFunctionIndividualFactory()
-  : gpar::GParameterSetFactory("empty") { /* nothing */
+  : gpar::GOptimizableEntityFactory("empty") { /* nothing */
 }
 
 /******************************************************************************/
@@ -799,7 +799,7 @@ void GFunctionIndividualFactory::load(
     std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>> cp_raw_ptr
 ) {
     // Load our parent class'es data
-    gpar::GParameterSetFactory::load(cp_raw_ptr);
+    gpar::GOptimizableEntityFactory::load(cp_raw_ptr);
 
     // Convert the base pointer
     std::shared_ptr<GFunctionIndividualFactory> cp_ptr = Gem::Common::convertSmartPointer<
@@ -1640,7 +1640,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
     );
 
     // Allow our parent class to describe its options
-    gpar::GParameterSetFactory::describeLocalOptions_(gpb);
+    gpar::GOptimizableEntityFactory::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/

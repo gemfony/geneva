@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/par/GParameterSetMultiConstraint.hpp"
+#include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GParserBuilder.hpp"
@@ -46,20 +46,20 @@ namespace Gem::Geneva::Parameters {
  * @param cp A constant reference to another GPreEvaluationValidityCheckT object
  * @param e The expected outcome of the comparison
  */
-void GParameterSetConstraint::compare_(
+void GOptimizableEntityConstraint::compare_(
     const GPreEvaluationValidityCheckT<GOptimizableEntity> &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
 
-    // Check that we are dealing with a GParameterSetConstraint reference independent of this object and convert the pointer
-    const GParameterSetConstraint *p_load =
+    // Check that we are dealing with a GOptimizableEntityConstraint reference independent of this object and convert the pointer
+    const GOptimizableEntityConstraint *p_load =
         Gem::Common::g_convert_and_compare<
             GPreEvaluationValidityCheckT<GOptimizableEntity>,
-            GParameterSetConstraint>(cp, this);
+            GOptimizableEntityConstraint>(cp, this);
 
-    GToken token("GParameterSetConstraint", e);
+    GToken token("GOptimizableEntityConstraint", e);
 
     // Compare our parent data ...
     Gem::Common::compare_base_t<GPreEvaluationValidityCheckT<GOptimizableEntity>>(*this, *p_load, token);
@@ -74,21 +74,21 @@ void GParameterSetConstraint::compare_(
 /**
  * Adds local configuration options to a GParserBuilder object
  */
-void GParameterSetConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
+void GOptimizableEntityConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
     GPreEvaluationValidityCheckT<GOptimizableEntity>::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
 /**
- * Loads the data of another GParameterSetConstraint
+ * Loads the data of another GOptimizableEntityConstraint
  */
-void GParameterSetConstraint::load_(const GPreEvaluationValidityCheckT<GOptimizableEntity> *cp) {
-    // Check that we are dealing with a GParameterSetConstraint reference independent of this object and convert the pointer
-    const GParameterSetConstraint *p_load =
+void GOptimizableEntityConstraint::load_(const GPreEvaluationValidityCheckT<GOptimizableEntity> *cp) {
+    // Check that we are dealing with a GOptimizableEntityConstraint reference independent of this object and convert the pointer
+    const GOptimizableEntityConstraint *p_load =
         Gem::Common::g_convert_and_compare<
             GPreEvaluationValidityCheckT<GOptimizableEntity>,
-            GParameterSetConstraint>(cp, this);
+            GOptimizableEntityConstraint>(cp, this);
 
     // Load our parent class'es data ...
     GPreEvaluationValidityCheckT<GOptimizableEntity>::load_(cp);

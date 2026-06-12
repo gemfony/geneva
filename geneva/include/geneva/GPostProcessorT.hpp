@@ -296,7 +296,7 @@ class GEvolutionaryAlgorithmPostOptimizer // NOLINT(cppcoreguidelines-special-me
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
-            "GPostProcessorBaseT_GParameterSet",
+            "GPostProcessorBaseT_GOptimizableEntity",
             boost::serialization::base_object<GPostProcessorBaseT<gpar::GOptimizableEntity>>(*this)
         ) & BOOST_SERIALIZATION_NVP(oa_config_file_) &
             BOOST_SERIALIZATION_NVP(executor_config_file_) &
