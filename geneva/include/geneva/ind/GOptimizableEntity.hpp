@@ -34,12 +34,14 @@
 
 // Standard header files go here
 #include <any>
+#include <cstdint>
 #include <functional>
 #include <limits>
 #include <memory>
 #include <random>
 #include <string>
 #include <tuple>
+#include <type_traits>
 #include <typeinfo>
 #include <vector>
 
@@ -302,29 +304,160 @@ public:
     virtual void cannibalize(GOptimizableEntity &) = 0;
 
     /***************************************************************************/
-    // The precision-agnostic floating point view of the genome. These take/return plain
-    // double vectors (no GParameterBase), so the geometric algorithms -- (conjugate) gradient
-    // descent, Nelder-Mead, swarm -- operate on any genome layout polymorphically.
+    // Genome value channels (genome-agnostic). The public per-type templates are the ergonomic
+    // surface the optimization algorithms use; each dispatches to a non-template virtual that the
+    // concrete genome (GTreeGenome / a future GFlatGenome) implements. The algorithms therefore
+    // read and write parameter values without knowing the storage layout -- no downcast.
+
+    /** @brief Streamlines all parameters of type par_type into a vector (cleared first) */
+    template <typename par_type>
+    void streamline(
+        std::vector<par_type> &par_vec,
+        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
+    ) const {
+        this->streamline_(par_vec, am);
+    }
+
+    /** @brief Assigns values from a vector to the parameters of type par_type */
+    template <typename par_type>
+    void assignValueVector(
+        std::vector<par_type> const &par_vec,
+        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
+    ) {
+#ifdef DEBUG
+        if(countParameters<par_type>() != par_vec.size()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GOptimizableEntity::assignValueVector():" << '\n'
+                << "Sizes don't match: " << countParameters<par_type>() << " / " << par_vec.size()
+                << '\n'
+            );
+        }
+#endif /* DEBUG */
+        this->assignValueVector_(par_vec, am);
+        // As we have modified our internal data sets, make sure the item is reprocessed
+        this->mark_as_due_for_processing();
+    }
+
+    /** @brief The number of parameters of type par_type */
+    template <typename par_type>
+    std::size_t countParameters(activityMode const &am = activityMode::DEFAULTACTIVITYMODE) const {
+        if constexpr(std::is_same_v<par_type, double>) {
+            return countParametersDouble_(am);
+        }
+        else if constexpr(std::is_same_v<par_type, float>) {
+            return countParametersFloat_(am);
+        }
+        else if constexpr(std::is_same_v<par_type, std::int32_t>) {
+            return countParametersInt32_(am);
+        }
+        else if constexpr(std::is_same_v<par_type, bool>) {
+            return countParametersBool_(am);
+        }
+        else {
+            static_assert(sizeof(par_type) == 0, "countParameters: unsupported parameter type");
+            return 0;
+        }
+    }
+
+    /** @brief Lower/upper boundaries of all parameters of type par_type (cleared first) */
+    template <typename par_type>
+    void boundaries(
+        std::vector<par_type> &l_bnd_vec,
+        std::vector<par_type> &u_bnd_vec,
+        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
+    ) const {
+        this->boundaries_(l_bnd_vec, u_bnd_vec, am);
+    }
+
+    /***************************************************************************/
+    // The precision-agnostic floating point view (double + float widened to double). Implemented
+    // once here on top of the per-type channels above, so every genome layout gets it for free.
+    // Geometric algorithms -- (conjugate) gradient descent, Nelder-Mead, swarm -- use this view.
 
     /** @brief The combined number of double- and float-typed parameters */
-    virtual std::size_t
-    countFPParameters(activityMode const & = activityMode::DEFAULTACTIVITYMODE) const = 0;
-    /** @brief Streamlines all floating point parameters into a single double vector */
-    virtual void streamlineFP(
-        std::vector<double> &,
-        activityMode const & = activityMode::DEFAULTACTIVITYMODE
-    ) const = 0;
+    std::size_t
+    countFPParameters(activityMode const &am = activityMode::DEFAULTACTIVITYMODE) const {
+        return countParameters<double>(am) + countParameters<float>(am);
+    }
+
+    /** @brief Streamlines all floating point parameters into a single double vector (double-typed first, then widened float-typed) */
+    void streamlineFP(
+        std::vector<double> &par_vec,
+        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
+    ) const {
+        par_vec.clear();
+        this->streamline<double>(par_vec, am);
+
+        std::vector<float> float_vec;
+        this->streamline<float>(float_vec, am);
+        par_vec.reserve(par_vec.size() + float_vec.size());
+        for(float f : float_vec) {
+            par_vec.push_back(static_cast<double>(f));
+        }
+    }
+
     /** @brief Scatters a double vector produced by streamlineFP() back onto the floating point parameters */
-    virtual void assignFPValueVector(
-        std::vector<double> const &,
-        activityMode const & = activityMode::DEFAULTACTIVITYMODE
-    ) = 0;
-    /** @brief Lower/upper boundaries of all floating point parameters */
-    virtual void boundariesFP(
-        std::vector<double> &,
-        std::vector<double> &,
-        activityMode const & = activityMode::DEFAULTACTIVITYMODE
-    ) const = 0;
+    void assignFPValueVector(
+        std::vector<double> const &par_vec,
+        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
+    ) {
+        const std::size_t n_double = countParameters<double>(am);
+        const std::size_t n_float = countParameters<float>(am);
+
+#ifdef DEBUG
+        if(n_double + n_float != par_vec.size()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GOptimizableEntity::assignFPValueVector():" << '\n'
+                << "Sizes don't match: " << (n_double + n_float) << " / " << par_vec.size() << '\n'
+            );
+        }
+#endif /* DEBUG */
+
+        if(n_double > 0) {
+            std::vector<double> double_vec(
+                par_vec.begin(),
+                par_vec.begin() + static_cast<std::ptrdiff_t>(n_double)
+            );
+            this->assignValueVector<double>(double_vec, am);
+        }
+        if(n_float > 0) {
+            std::vector<float> float_vec(n_float);
+            for(std::size_t i = 0; i < n_float; ++i) {
+                float_vec[i] = static_cast<float>(par_vec[n_double + i]);
+            }
+            this->assignValueVector<float>(float_vec, am);
+        }
+    }
+
+    /** @brief Lower/upper boundaries of all floating point parameters (matching streamlineFP() ordering) */
+    void boundariesFP(
+        std::vector<double> &l_bnd_vec,
+        std::vector<double> &u_bnd_vec,
+        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
+    ) const {
+        std::vector<double> l_double;
+        std::vector<double> u_double;
+        this->boundaries<double>(l_double, u_double, am);
+
+        std::vector<float> l_float;
+        std::vector<float> u_float;
+        this->boundaries<float>(l_float, u_float, am);
+
+        l_bnd_vec.clear();
+        u_bnd_vec.clear();
+        l_bnd_vec.reserve(l_double.size() + l_float.size());
+        u_bnd_vec.reserve(u_double.size() + u_float.size());
+        l_bnd_vec.insert(l_bnd_vec.end(), l_double.begin(), l_double.end());
+        u_bnd_vec.insert(u_bnd_vec.end(), u_double.begin(), u_double.end());
+        for(float v : l_float) {
+            l_bnd_vec.push_back(static_cast<double>(v));
+        }
+        for(float v : u_float) {
+            u_bnd_vec.push_back(static_cast<double>(v));
+        }
+    }
 
     /** @brief The adaption interface */
     std::size_t adapt() override;
@@ -592,6 +725,31 @@ private:
     /** @brief Retrieves a parameter of a given type at the specified position (genome-specific dispatch) */
     virtual std::any
     getVarValImpl(const std::string &, const std::tuple<std::size_t, std::string, std::size_t> &target) = 0;
+
+    /***************************************************************************/
+    // Per-type genome value channels -- the non-template dispatch targets of the public
+    // streamline<T>/assignValueVector<T>/countParameters<T>/boundaries<T> templates. Implemented by
+    // the concrete genome (the tree iterates its parameter objects; a flat genome copies a channel
+    // array). These are the entire seam that makes value access genome-agnostic.
+    virtual void streamline_(std::vector<double> &, activityMode const &) const = 0;
+    virtual void streamline_(std::vector<float> &, activityMode const &) const = 0;
+    virtual void streamline_(std::vector<std::int32_t> &, activityMode const &) const = 0;
+    virtual void streamline_(std::vector<bool> &, activityMode const &) const = 0;
+
+    virtual void assignValueVector_(std::vector<double> const &, activityMode const &) = 0;
+    virtual void assignValueVector_(std::vector<float> const &, activityMode const &) = 0;
+    virtual void assignValueVector_(std::vector<std::int32_t> const &, activityMode const &) = 0;
+    virtual void assignValueVector_(std::vector<bool> const &, activityMode const &) = 0;
+
+    virtual std::size_t countParametersDouble_(activityMode const &) const = 0;
+    virtual std::size_t countParametersFloat_(activityMode const &) const = 0;
+    virtual std::size_t countParametersInt32_(activityMode const &) const = 0;
+    virtual std::size_t countParametersBool_(activityMode const &) const = 0;
+
+    virtual void boundaries_(std::vector<double> &, std::vector<double> &, activityMode const &) const = 0;
+    virtual void boundaries_(std::vector<float> &, std::vector<float> &, activityMode const &) const = 0;
+    virtual void boundaries_(std::vector<std::int32_t> &, std::vector<std::int32_t> &, activityMode const &) const = 0;
+    virtual void boundaries_(std::vector<bool> &, std::vector<bool> &, activityMode const &) const = 0;
 
     /** @brief  Allows to set all fitnesses to the same value (both raw and transformed values) */
     void setAllFitnessTo(double);

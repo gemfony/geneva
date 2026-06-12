@@ -43,7 +43,7 @@
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GNelderMead_PersonalityTraits.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -683,8 +683,8 @@ void GNelderMead::adjustPopulation_() {
     // parameters are left unchanged -- this is normal, user-expected
     // behaviour, so it is merely logged (not warned about).
     {
-        // countParameters<T> is a tree-template method; obtain a tree view of the (homogeneous) population.
-        auto const &ind0 = dynamic_cast<gpar::GTreeGenome const &>(*this->at(0));
+        // countParameters<T> is part of the genome-agnostic value-channel interface.
+        auto const &ind0 = *this->at(0);
         const std::size_t n_int_parms =
             ind0.countParameters<std::int32_t>(activityMode::ACTIVEONLY);
         const std::size_t n_bool_parms =

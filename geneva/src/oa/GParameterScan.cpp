@@ -39,7 +39,7 @@
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
 #include "geneva/par/GParameterPropertyParser.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
@@ -575,8 +575,8 @@ void GParameterScan::updateSelectedParameters() {
             std::vector<double> d_data;
 
             // Fill the parameter set data into the current individual.
-            // streamline<T>/assignValueVector<T> are tree-template methods; obtain a tree view.
-            auto &ind = dynamic_cast<gpar::GTreeGenome &>(*this->at(ind_pos));
+            // Read/write the parameter values through the genome-agnostic value channels.
+            auto &ind = *this->at(ind_pos);
 
             // Retrieve the parameter vectors
             ind.streamline<bool>(b_data);

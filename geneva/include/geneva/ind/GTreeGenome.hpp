@@ -198,249 +198,11 @@ public:
     }
 
     /***************************************************************************/
-    /**
-     * Retrieve information about the total number of parameters of type
-     * par_type in the individual. Note that the GParameterBase-template
-     * function will throw if this function is called for an unsupported type.
-     *
-     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
-     */
-    template <typename par_type>
-    std::size_t countParameters(activityMode const &am = activityMode::DEFAULTACTIVITYMODE) const {
-        std::size_t result = 0;
-
-        // Loop over all GParameterBase objects. Each object
-        // will contribute the amount of its parameters of this type
-        // to the result.
-        for(const auto &parm_ptr : *this) {
-            result += parm_ptr->countParameters<par_type>(am);
-        }
-
-        return result;
-    }
-
-    /* ----------------------------------------------------------------------------------
-     * So far untested.
-     * ----------------------------------------------------------------------------------
-     */
-
-    /***************************************************************************/
-    /**
-     * Loops over all GParameterBase objects. Each object will add the
-     * values of its parameters to the vector, if they comply with the
-     * type of the parameters to be stored in the vector.
-     *
-     * @param par_vec The vector to which the parameters will be added
-     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
-     */
-    template <typename par_type>
-    void streamline(
-        std::vector<par_type> &par_vec,
-        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
-    ) const {
-        // Make sure the vector is clean
-        par_vec.clear();
-
-        // Loop over all GParameterBase objects.
-        for(const auto &parm_ptr : *this) {
-            parm_ptr->streamline<par_type>(par_vec, am);
-        }
-    }
-
-    /* ----------------------------------------------------------------------------------
-     * So far untested.
-     * ----------------------------------------------------------------------------------
-     */
-
-    /***************************************************************************/
-    /**
-     * Assigns values from a std::vector to the parameters in the collection
-     *
-     * @param par_vec A vector of values, to be assigned to be added to GParameterBase derivatives
-     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be assigned
-     */
-    template <typename par_type>
-    void assignValueVector(
-        std::vector<par_type> const &par_vec,
-        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
-    ) {
-#ifdef DEBUG
-        if(countParameters<par_type>() != par_vec.size()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GTreeGenome::assignValueVector(const std::vector<pat_type>&):" << '\n'
-                << "Sizes don't match: " << countParameters<par_type>() << " / " << par_vec.size()
-                << '\n'
-            );
-        }
-#endif /* DEBUG */
-
-        // Start assignment at the beginning of par_vec
-        std::size_t pos = 0;
-
-        // Loop over all GParameterBase objects. Each object will extract the relevant
-        // parameters and increment the position counter as required.
-        for(const auto &parm_ptr : *this) {
-            parm_ptr->assignValueVector<par_type>(par_vec, pos, am);
-        }
-
-        // As we have modified our internal data sets, make sure the item is reprocessed
-        this->mark_as_due_for_processing();
-    }
-
-    /***************************************************************************/
-    /**
-     * A precision-agnostic view of "the floating point parameters", i.e. the double-typed and the
-     * float-typed parameters together. Algorithms that operate geometrically on the floating point
-     * parameters -- (conjugate) gradient descent, Nelder-Mead, swarm -- should not care whether the
-     * individual was built from double- or float-precision parameter objects; countFPParameters() /
-     * streamlineFP() / assignFPValueVector() give them one double-typed working view that spans both.
-     * Float parameters are widened to double on read and narrowed back on write, so the optimization
-     * math always runs in double regardless of the genome's storage precision.
-     *
-     * @return The combined number of double-typed and float-typed parameters
-     */
-    std::size_t
-    countFPParameters(activityMode const &am) const override {
-        return countParameters<double>(am) + countParameters<float>(am);
-    }
-
-    /***************************************************************************/
-    /**
-     * Streamlines all floating point parameters into a single double vector: the double-typed
-     * parameters first, then the (widened) float-typed parameters. This fixed ordering is the contract
-     * assignFPValueVector() relies on to scatter the values back. See countFPParameters().
-     *
-     * @param par_vec The vector the floating point parameters are written to (cleared first)
-     * @param am An enum indicating whether only active, inactive or all parameters should be extracted
-     */
-    void streamlineFP(
-        std::vector<double> &par_vec,
-        activityMode const &am
-    ) const override {
-        par_vec.clear();
-        this->streamline<double>(par_vec, am);
-
-        std::vector<float> float_vec;
-        this->streamline<float>(float_vec, am);
-        par_vec.reserve(par_vec.size() + float_vec.size());
-        for(float f : float_vec) {
-            par_vec.push_back(static_cast<double>(f));
-        }
-    }
-
-    /***************************************************************************/
-    /**
-     * Scatters a double vector produced by streamlineFP() back onto the floating point parameters: the
-     * first countParameters<double>() values are assigned to the double-typed parameters, the remaining
-     * countParameters<float>() values are narrowed to float and assigned to the float-typed parameters.
-     *
-     * @param par_vec A combined value vector ordered as streamlineFP() produces it
-     * @param am An enum indicating whether only active, inactive or all parameters should be assigned
-     */
-    void assignFPValueVector(
-        std::vector<double> const &par_vec,
-        activityMode const &am
-    ) override {
-        const std::size_t n_double = countParameters<double>(am);
-        const std::size_t n_float = countParameters<float>(am);
-
-#ifdef DEBUG
-        if(n_double + n_float != par_vec.size()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GTreeGenome::assignFPValueVector():" << '\n'
-                << "Sizes don't match: " << (n_double + n_float) << " / " << par_vec.size() << '\n'
-            );
-        }
-#endif /* DEBUG */
-
-        if(n_double > 0) {
-            std::vector<double> double_vec(
-                par_vec.begin(),
-                par_vec.begin() + static_cast<std::ptrdiff_t>(n_double)
-            );
-            this->assignValueVector<double>(double_vec, am);
-        }
-        if(n_float > 0) {
-            std::vector<float> float_vec(n_float);
-            for(std::size_t i = 0; i < n_float; ++i) {
-                float_vec[i] = static_cast<float>(par_vec[n_double + i]);
-            }
-            this->assignValueVector<float>(float_vec, am);
-        }
-    }
-
-    /***************************************************************************/
-    /**
-     * Loops over all GParameterBase objects. Each object will add the
-     * lower and upper boundaries of its parameters to the vector, if
-     * they comply with the type of the parameters to be stored in the
-     * vector.
-     *
-     * @param l_bnd_vec The vector to which the lower boundaries will be added
-     * @param u_bnd_vec The vector to which the upper boundaries will be added
-     * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
-     */
-    template <typename par_type>
-    void boundaries(
-        std::vector<par_type> &l_bnd_vec,
-        std::vector<par_type> &u_bnd_vec,
-        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
-    ) const {
-        // Make sure the vectors are clean
-        l_bnd_vec.clear();
-        u_bnd_vec.clear();
-
-        // Loop over all GParameterBase objects.
-        for(const auto &parm_ptr : *this) {
-            parm_ptr->boundaries<par_type>(l_bnd_vec, u_bnd_vec, am);
-        }
-    }
-
-    /* ----------------------------------------------------------------------------------
-     * So far untested.
-     * ----------------------------------------------------------------------------------
-     */
-
-    /***************************************************************************/
-    /**
-     * The precision-agnostic counterpart of boundaries() for all floating point parameters: the lower
-     * and upper boundaries of the double-typed parameters first, then those of the (widened) float-typed
-     * parameters. The ordering matches streamlineFP()/assignFPValueVector(), so a per-parameter quantity
-     * derived from these boundaries (e.g. a gradient method's per-parameter step) lines up with the
-     * working vector index-for-index. See countFPParameters().
-     *
-     * @param l_bnd_vec The vector the lower boundaries are written to (cleared first)
-     * @param u_bnd_vec The vector the upper boundaries are written to (cleared first)
-     * @param am An enum indicating whether only active, inactive or all parameters should be extracted
-     */
-    void boundariesFP(
-        std::vector<double> &l_bnd_vec,
-        std::vector<double> &u_bnd_vec,
-        activityMode const &am
-    ) const override {
-        std::vector<double> l_double;
-        std::vector<double> u_double;
-        this->boundaries<double>(l_double, u_double, am);
-
-        std::vector<float> l_float;
-        std::vector<float> u_float;
-        this->boundaries<float>(l_float, u_float, am);
-
-        l_bnd_vec.clear();
-        u_bnd_vec.clear();
-        l_bnd_vec.reserve(l_double.size() + l_float.size());
-        u_bnd_vec.reserve(u_double.size() + u_float.size());
-        l_bnd_vec.insert(l_bnd_vec.end(), l_double.begin(), l_double.end());
-        u_bnd_vec.insert(u_bnd_vec.end(), u_double.begin(), u_double.end());
-        for(float v : l_float) {
-            l_bnd_vec.push_back(static_cast<double>(v));
-        }
-        for(float v : u_float) {
-            u_bnd_vec.push_back(static_cast<double>(v));
-        }
-    }
+    // The per-type value channels (streamline<T> / assignValueVector<T> / countParameters<T> /
+    // boundaries<T>) and the precision-agnostic FP view (streamlineFP / assignFPValueVector /
+    // countFPParameters / boundariesFP) now live on GOptimizableEntity; GTreeGenome only supplies
+    // the per-type virtual implementations (see the private streamline_/assignValueVector_/
+    // countParameters*_/boundaries_ overrides below, which iterate the GParameterBase objects).
 
     /***************************************************************************/
     /**
@@ -597,6 +359,66 @@ private:
 
     /** @brief Retrieval of a suitable position for cross over inside of a vector */
     std::size_t getCrossOverPos(std::size_t, std::size_t);
+
+    /***************************************************************************/
+    // The per-type genome value channels declared on GOptimizableEntity, implemented by iterating
+    // the GParameterBase objects. One private template carries the logic per operation; the typed
+    // virtual overrides are thin forwarders the base templates dispatch to.
+
+    template <typename par_type>
+    void streamlineTree_(std::vector<par_type> &v, activityMode const &am) const {
+        v.clear();
+        for(const auto &parm_ptr : *this) {
+            parm_ptr->streamline<par_type>(v, am);
+        }
+    }
+    template <typename par_type>
+    std::size_t countParametersTree_(activityMode const &am) const {
+        std::size_t result = 0;
+        for(const auto &parm_ptr : *this) {
+            result += parm_ptr->countParameters<par_type>(am);
+        }
+        return result;
+    }
+    template <typename par_type>
+    void assignValueVectorTree_(std::vector<par_type> const &v, activityMode const &am) {
+        std::size_t pos = 0;
+        for(const auto &parm_ptr : *this) {
+            parm_ptr->assignValueVector<par_type>(v, pos, am);
+        }
+    }
+    template <typename par_type>
+    void boundariesTree_(
+        std::vector<par_type> &l,
+        std::vector<par_type> &u,
+        activityMode const &am
+    ) const {
+        l.clear();
+        u.clear();
+        for(const auto &parm_ptr : *this) {
+            parm_ptr->boundaries<par_type>(l, u, am);
+        }
+    }
+
+    void streamline_(std::vector<double> &v, activityMode const &am) const override { streamlineTree_(v, am); }
+    void streamline_(std::vector<float> &v, activityMode const &am) const override { streamlineTree_(v, am); }
+    void streamline_(std::vector<std::int32_t> &v, activityMode const &am) const override { streamlineTree_(v, am); }
+    void streamline_(std::vector<bool> &v, activityMode const &am) const override { streamlineTree_(v, am); }
+
+    void assignValueVector_(std::vector<double> const &v, activityMode const &am) override { assignValueVectorTree_(v, am); }
+    void assignValueVector_(std::vector<float> const &v, activityMode const &am) override { assignValueVectorTree_(v, am); }
+    void assignValueVector_(std::vector<std::int32_t> const &v, activityMode const &am) override { assignValueVectorTree_(v, am); }
+    void assignValueVector_(std::vector<bool> const &v, activityMode const &am) override { assignValueVectorTree_(v, am); }
+
+    std::size_t countParametersDouble_(activityMode const &am) const override { return countParametersTree_<double>(am); }
+    std::size_t countParametersFloat_(activityMode const &am) const override { return countParametersTree_<float>(am); }
+    std::size_t countParametersInt32_(activityMode const &am) const override { return countParametersTree_<std::int32_t>(am); }
+    std::size_t countParametersBool_(activityMode const &am) const override { return countParametersTree_<bool>(am); }
+
+    void boundaries_(std::vector<double> &l, std::vector<double> &u, activityMode const &am) const override { boundariesTree_(l, u, am); }
+    void boundaries_(std::vector<float> &l, std::vector<float> &u, activityMode const &am) const override { boundariesTree_(l, u, am); }
+    void boundaries_(std::vector<std::int32_t> &l, std::vector<std::int32_t> &u, activityMode const &am) const override { boundariesTree_(l, u, am); }
+    void boundaries_(std::vector<bool> &l, std::vector<bool> &u, activityMode const &am) const override { boundariesTree_(l, u, am); }
 };
 
 } /* namespace Gem::Geneva::Parameters */
