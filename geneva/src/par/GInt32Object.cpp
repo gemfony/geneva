@@ -477,7 +477,7 @@ void GInt32Object::specificTestsFailuresExpected_GUnitTests_() {
         REQUIRE(p_test->hasAdaptor() == true);
 
         // Make sure the local adaptor has the type we expect
-        CHECK(p_test->getAdaptor()->getAdaptorId() == adaptorId::GINT32GAUSSADAPTOR);
+        CHECK(p_test->getAdaptor().getAdaptorId() == adaptorId::GINT32GAUSSADAPTOR);
 
         // Attempted conversion to an invalid target type should throw
         CHECK_THROWS_AS((p_test->getAdaptor<GInt32FlipAdaptor>()), geneva_exception);
