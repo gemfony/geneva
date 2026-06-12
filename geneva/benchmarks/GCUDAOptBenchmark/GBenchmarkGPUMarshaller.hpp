@@ -43,7 +43,7 @@
 #include "courtier/gpu/GGPUEvaluableI.hpp"
 #include "geneva/individuals/GBenchmarkFunctions.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 
 namespace gind = Gem::Geneva::Individuals;
 namespace gpar = Gem::Geneva::Parameters;
@@ -66,7 +66,7 @@ namespace Gem::Geneva::Benchmarks {
  * GPU can be cross-checked.
  */
 class GBenchmarkGPUMarshaller final
-  : public Gem::Courtier::GPU::GGPUEvaluableI<gpar::GParameterSet> {
+  : public Gem::Courtier::GPU::GGPUEvaluableI<gpar::GParameterTree> {
 public:
     void flatten(const std::vector<item_ptr> &items, std::vector<double> &params_out) const override {
         if(items.empty()) {

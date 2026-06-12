@@ -46,7 +46,7 @@ namespace Gem::Geneva::Parameters {
 /******************************************************************************/
 /**
  * A collection of GInt32Object objects, ready for use in a
- * GParameterSet derivative.
+ * GParameterTree derivative.
  */
 class GInt32ObjectCollection // NOLINT(cppcoreguidelines-special-member-functions)
   : public GParameterTCollectionT<GInt32Object> {

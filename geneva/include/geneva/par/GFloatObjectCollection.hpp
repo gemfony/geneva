@@ -46,7 +46,7 @@ namespace Gem::Geneva::Parameters {
 /******************************************************************************/
 /**
  * A collection of GFloatObject objects, ready for use in a
- * GParameterSet derivative. It is the single-precision sibling of
+ * GParameterTree derivative. It is the single-precision sibling of
  * GDoubleObjectCollection.
  */
 class GFloatObjectCollection // NOLINT(cppcoreguidelines-special-member-functions)

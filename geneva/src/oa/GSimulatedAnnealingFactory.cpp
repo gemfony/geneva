@@ -35,7 +35,7 @@
 #include "geneva/oa/GOAFactoryT.hpp"
 #include "geneva/oa/GSimulatedAnnealing.hpp"
 #include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -69,7 +69,7 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(std::filesystem::path con
  */
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
     std::filesystem::path const &config_file,
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> content_creator_ptr
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterTree>> content_creator_ptr
 )
   : GOAFactoryT<GOptimizationAlgorithmBase>(
         config_file,

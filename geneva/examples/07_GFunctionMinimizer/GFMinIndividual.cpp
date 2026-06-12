@@ -85,7 +85,7 @@ GFMinIndividual::GFMinIndividual() { /* nothing */
  * @param cp A copy of another GFunctionIndidivual
  */
 GFMinIndividual::GFMinIndividual(const GFMinIndividual &cp)
-  : gpar::GParameterSet(cp)
+  : gpar::GParameterTree(cp)
   , targetFunction_(cp.targetFunction_) { /* nothing */
 }
 
@@ -104,7 +104,7 @@ GFMinIndividual::~GFMinIndividual() { /* nothing */
  */
 void GFMinIndividual::addConfigurationOptions(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    gpar::GParameterSet::addConfigurationOptions(gpb);
+    gpar::GParameterTree::addConfigurationOptions(gpb);
 
     // Add local data
     gpb.registerFileParameter<targetFunction>(
@@ -162,17 +162,17 @@ double GFMinIndividual::getAverageSigma() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GFMinIndividual, camouflaged as a GParameterSet
+ * Loads the data of another GFMinIndividual, camouflaged as a GParameterTree
  *
- * @param cp A copy of another GFMinIndividual, camouflaged as a GParameterSet
+ * @param cp A copy of another GFMinIndividual, camouflaged as a GParameterTree
  */
-void GFMinIndividual::load_(const gpar::GParameterSet *cp) {
+void GFMinIndividual::load_(const gpar::GParameterTree *cp) {
     // Check that we are dealing with a GFMinIndividual reference independent of this object and convert the pointer
     const GFMinIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GFMinIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GFMinIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GParameterSet::load_(cp);
+    gpar::GParameterTree::load_(cp);
 
     // ... and then our local data
     targetFunction_ = p_load->targetFunction_;
@@ -182,9 +182,9 @@ void GFMinIndividual::load_(const gpar::GParameterSet *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GParameterSet
+ * @return A deep clone of this object, camouflaged as a GParameterTree
  */
-gpar::GParameterSet *GFMinIndividual::clone_() const {
+gpar::GParameterTree *GFMinIndividual::clone_() const {
     return new GFMinIndividual(*this);
 }
 
@@ -285,7 +285,7 @@ std::ostream &operator<<(std::ostream &s, std::shared_ptr<Gem::Geneva::GFMinIndi
  * @param configFile The name of the configuration file
  */
 GFMinIndividualFactory::GFMinIndividualFactory(std::filesystem::path const &configFile)
-  : Gem::Common::GFactoryT<gpar::GParameterSet>(configFile)
+  : Gem::Common::GFactoryT<gpar::GParameterTree>(configFile)
   , adProb_(GFI_DEF_ADPROB)
   , sigma_(GFI_DEF_SIGMA)
   , sigmaSigma_(GFI_DEF_SIGMASIGMA)
@@ -309,7 +309,7 @@ GFMinIndividualFactory::~GFMinIndividualFactory() { /* nothing */
  *
  * @return Items of the desired type
  */
-std::shared_ptr<gpar::GParameterSet>
+std::shared_ptr<gpar::GParameterTree>
 GFMinIndividualFactory::getObject_(Gem::Common::GParserBuilder &gpb, const std::size_t &id) {
     // Will hold the result
     std::shared_ptr<GFMinIndividual> target(new GFMinIndividual());
@@ -411,7 +411,7 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &
     );
 
     // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<gpar::GParameterSet>::describeLocalOptions_(gpb);
+    Gem::Common::GFactoryT<gpar::GParameterTree>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -422,7 +422,7 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GFMinIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet> &p) {
+void GFMinIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterTree> &p) {
     // Set up a collection with parDim_ values
     std::shared_ptr<gpar::GConstrainedDoubleCollection> gcdc_ptr(
         new gpar::GConstrainedDoubleCollection(parDim_, minVar_, maxVar_)

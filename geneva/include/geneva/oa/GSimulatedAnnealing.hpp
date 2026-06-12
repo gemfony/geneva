@@ -42,7 +42,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 #include "geneva/oa/GParChild.hpp"
 #include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
 

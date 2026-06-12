@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 
 #include <any>
 #include <memory>
@@ -70,7 +70,7 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GParameterSet)                  // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GParameterTree)                  // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::parameterset_processing_result) // NOLINT
 namespace Gem::Geneva::Parameters {
 /******************************************************************************/
@@ -245,8 +245,8 @@ void parameterset_processing_result::reset(
      * The default constructor. Using this constructor will result in a single
      * fitness criterion.
      */
-GParameterSet::GParameterSet()
-  : Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>(1) {
+GParameterTree::GParameterTree()
+  : Gem::Courtier::GProcessingContainerT<GParameterTree, parameterset_processing_result>(1) {
     /* nothing */
 }
 
@@ -254,8 +254,8 @@ GParameterSet::GParameterSet()
 /**
      * Initialization with the number of fitness criteria
      */
-GParameterSet::GParameterSet(const std::size_t n_fitness_criteria)
-  : Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>(
+GParameterTree::GParameterTree(const std::size_t n_fitness_criteria)
+  : Gem::Courtier::GProcessingContainerT<GParameterTree, parameterset_processing_result>(
         n_fitness_criteria
     ) {
     /* nothing */
@@ -265,14 +265,14 @@ GParameterSet::GParameterSet(const std::size_t n_fitness_criteria)
 /**
      * The copy constructor.
      *
-     * @param cp A copy of another GParameterSet object
+     * @param cp A copy of another GParameterTree object
      */
-GParameterSet::GParameterSet(GParameterSet const &cp)
-  : Gem::Common::GCommonInterfaceT<GParameterSet>(cp)
+GParameterTree::GParameterTree(GParameterTree const &cp)
+  : Gem::Common::GCommonInterfaceT<GParameterTree>(cp)
   , Interface::GMutableI(cp)
   , Interface::GRateableI(cp)
   , Gem::Common::GUniquePtrContainerT<GParameterBase>(cp)
-  , Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>(cp)
+  , Gem::Courtier::GProcessingContainerT<GParameterTree, parameterset_processing_result>(cp)
   , best_past_primary_fitness_(cp.best_past_primary_fitness_)
   , n_stalls_(cp.n_stalls_)
   , maxmode_(cp.maxmode_)
@@ -298,24 +298,24 @@ GParameterSet::GParameterSet(GParameterSet const &cp)
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GParameterSet object
+     * @param cp A constant reference to another GParameterTree object
      * @param e The expected outcome of the comparison
      */
-void GParameterSet::compare_(
-    GParameterSet const &cp,
+void GParameterTree::compare_(
+    GParameterTree const &cp,
     Gem::Common::expectation const &e,
     [[maybe_unused]] double const & limit
 ) const {
     using namespace Gem::Common;
 
-    // Check that we are dealing with a GParameterSet reference independent of this object and convert the pointer
-    const GParameterSet *p_load =
-        Gem::Common::g_convert_and_compare<GParameterSet, GParameterSet>(cp, this);
+    // Check that we are dealing with a GParameterTree reference independent of this object and convert the pointer
+    const GParameterTree *p_load =
+        Gem::Common::g_convert_and_compare<GParameterTree, GParameterTree>(cp, this);
 
-    GToken token("GParameterSet", e);
+    GToken token("GParameterTree", e);
 
     // Compare our CRTP base data (the category root has no GObject parent) ...
-    Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GParameterSet>>(*this, *p_load, token);
+    Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GParameterTree>>(*this, *p_load, token);
 
     // The container base'es data -- compared explicitly, as it is a base-object
     // rather than a local member (the data is actually contained in a parent class).
@@ -338,7 +338,7 @@ void GParameterSet::compare_(
      *
      * @return A boolean indicating whether modifications where made
      */
-bool GParameterSet::randomInit(activityMode const &am) {
+bool GParameterTree::randomInit(activityMode const &am) {
     bool modifications_made = this->randomInit_(am);
 
     if(modifications_made) {
@@ -351,13 +351,13 @@ bool GParameterSet::randomInit(activityMode const &am) {
 /******************************************************************************/
 /**
      * Allows to specify whether we want to work in maximization (maxMode::MAXIMIZE) or minimization
-     * (maxMode::MINIMIZE) mode (the default). The idea is that GParameterSet, depending on the maxMode,
+     * (maxMode::MINIMIZE) mode (the default). The idea is that GParameterTree, depending on the maxMode,
      * changes its evaluation in such a way that the optimization algorithm always sees a
      * minimization problem.
      *
      * @param mode An enum class which indicates whether we want to work in maximization or minimization mode
      */
-void GParameterSet::setMaxMode(maxMode const &mode) {
+void GParameterTree::setMaxMode(maxMode const &mode) {
     maxmode_ = mode;
 }
 
@@ -367,13 +367,13 @@ void GParameterSet::setMaxMode(maxMode const &mode) {
      * This is e.g. used in GExternalEvaluatorIndividual for the communication with external
      * evaluation programs.
      */
-void GParameterSet::toPropertyTree(pt::ptree &ptr, std::string const &base_name) const {
+void GParameterTree::toPropertyTree(pt::ptree &ptr, std::string const &base_name) const {
 #ifdef DEBUG
     // Check if the object is empty. If so, complain
     if(this->empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::toPropertyTree(): Error!" << '\n'
+            << "In GParameterTree::toPropertyTree(): Error!" << '\n'
             << "Object is empty." << '\n'
         );
     }
@@ -389,7 +389,7 @@ void GParameterSet::toPropertyTree(pt::ptree &ptr, std::string const &base_name)
     ptr.put(base_name + ".is_dirty", dirty_flag);
     ptr.put(base_name + ".has_errors", has_errors);
     ptr.put(base_name + ".isValid", has_errors || dirty_flag ? false : this->isValid());
-    ptr.put(base_name + ".type", std::string("GParameterSet"));
+    ptr.put(base_name + ".type", std::string("GParameterTree"));
 
     // Loop over all parameter objects and ask them to add their data to our ptree object
     ptr.put(base_name + ".nVars", this->size());
@@ -439,7 +439,7 @@ void GParameterSet::toPropertyTree(pt::ptree &ptr, std::string const &base_name)
      *
      * @return A string holding the parameter values and possibly the types
      */
-std::string GParameterSet::toCSV(
+std::string GParameterTree::toCSV(
     bool with_name_and_type,
     bool with_commas,
     bool use_raw_fitness,
@@ -561,7 +561,7 @@ std::string GParameterSet::toCSV(
      * @return The item we aim to retrieve from the std::vector<GParameterBase>
      */
 Gem::Common::GUniquePtrContainerT<GParameterBase>::reference
-GParameterSet::at(std::size_t const &pos) {
+GParameterTree::at(std::size_t const &pos) {
     return Gem::Common::GUniquePtrContainerT<GParameterBase>::at(pos);
 }
 
@@ -576,13 +576,13 @@ GParameterSet::at(std::size_t const &pos) {
      * function compares "real" boundaries with evaluations, hence we use "raw"
      * measurements here instead of transformed measurements.
      */
-bool GParameterSet::isGoodEnough(std::vector<double> const &boundaries) {
+bool GParameterTree::isGoodEnough(std::vector<double> const &boundaries) {
 #ifdef DEBUG
     // Does the number of fitness criteria match the number of boundaries ?
     if(boundaries.size() != this->getNStoredResults()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::isGoodEnough(): Error!" << '\n'
+            << "In GParameterTree::isGoodEnough(): Error!" << '\n'
             << "Number of boundaries does not match number of fitness criteria" << '\n'
         );
     }
@@ -591,7 +591,7 @@ bool GParameterSet::isGoodEnough(std::vector<double> const &boundaries) {
     if(not this->is_processed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::isGoodEnough(): Error!" << '\n'
+            << "In GParameterTree::isGoodEnough(): Error!" << '\n'
             << "Trying to compare fitness values although the individual isn't processed"
             << '\n'
         );
@@ -630,7 +630,7 @@ bool GParameterSet::isGoodEnough(std::vector<double> const &boundaries) {
      * @param upper The upper (exclusive) boundary for retrieval of a cross-over position
      * @return A suitable cross-over position in the range [lower, upper[
      */
-std::size_t GParameterSet::getCrossOverPos(const std::size_t lower, const std::size_t upper) {
+std::size_t GParameterTree::getCrossOverPos(const std::size_t lower, const std::size_t upper) {
     // Make sure the boundaries are suitable. These were DEBUG-only asserts;
     // under NDEBUG an invalid range (e.g. upper == lower for a single-element
     // collection) produced an inverted std::uniform_int_distribution range,
@@ -638,14 +638,14 @@ std::size_t GParameterSet::getCrossOverPos(const std::size_t lower, const std::s
     if(lower == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::getCrossOverPos(): Error!" << '\n'
+            << "In GParameterTree::getCrossOverPos(): Error!" << '\n'
             << "lower boundary is 0, but must be > 0" << '\n'
         );
     }
     if(upper <= lower) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::getCrossOverPos(): Error!" << '\n'
+            << "In GParameterTree::getCrossOverPos(): Error!" << '\n'
             << "Invalid range: upper (" << upper << ") must be > lower (" << lower << ")" << '\n'
         );
     }
@@ -660,10 +660,10 @@ std::size_t GParameterSet::getCrossOverPos(const std::size_t lower, const std::s
 /**
      * Perform a fusion operation between this object and another.
      */
-std::shared_ptr<GParameterSet>
-GParameterSet::crossOverWith(GParameterSet const &cp) const {
+std::shared_ptr<GParameterTree>
+GParameterTree::crossOverWith(GParameterTree const &cp) const {
     // Create a copy of this object
-    std::shared_ptr<GParameterSet> this_cp = this->clone<GParameterSet>();
+    std::shared_ptr<GParameterTree> this_cp = this->clone<GParameterTree>();
 
     // Extract all data items
     std::vector<double> this_double_cnt;
@@ -690,7 +690,7 @@ GParameterSet::crossOverWith(GParameterSet const &cp) const {
     if(this_double_cnt.size() != cp_double_cnt.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::perItemCrossOver(): Error!" << '\n'
+            << "In GParameterTree::perItemCrossOver(): Error!" << '\n'
             << "Got invalid sizes (double): " << this_double_cnt.size() << " / "
             << cp_double_cnt.size() << '\n'
         );
@@ -698,7 +698,7 @@ GParameterSet::crossOverWith(GParameterSet const &cp) const {
     if(this_float_cnt.size() != cp_float_cnt.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::perItemCrossOver(): Error!" << '\n'
+            << "In GParameterTree::perItemCrossOver(): Error!" << '\n'
             << "Got invalid sizes (float): " << this_float_cnt.size() << " / "
             << cp_float_cnt.size() << '\n'
         );
@@ -706,7 +706,7 @@ GParameterSet::crossOverWith(GParameterSet const &cp) const {
     if(this_bool_cnt.size() != cp_bool_cnt.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::perItemCrossOver(): Error!" << '\n'
+            << "In GParameterTree::perItemCrossOver(): Error!" << '\n'
             << "Got invalid sizes (bool): " << this_bool_cnt.size() << " / " << cp_bool_cnt.size()
             << '\n'
         );
@@ -714,7 +714,7 @@ GParameterSet::crossOverWith(GParameterSet const &cp) const {
     if(this_int_cnt.size() != cp_int_cnt.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::perItemCrossOver(): Error!" << '\n'
+            << "In GParameterTree::perItemCrossOver(): Error!" << '\n'
             << "Got invalid sizes (std::int32_t): " << this_int_cnt.size() << " / "
             << cp_int_cnt.size() << '\n'
         );
@@ -776,7 +776,7 @@ GParameterSet::crossOverWith(GParameterSet const &cp) const {
 /**
      * Triggers updates of adaptors contained in this object.
      */
-void GParameterSet::updateAdaptorsOnStall(const std::uint32_t n_stalls) {
+void GParameterTree::updateAdaptorsOnStall(const std::uint32_t n_stalls) {
     for(auto const &item_ptr : *this) {
         item_ptr->updateAdaptorsOnStall(n_stalls);
     }
@@ -790,7 +790,7 @@ void GParameterSet::updateAdaptorsOnStall(const std::uint32_t n_stalls) {
      * @param property The property for which information is sought
      * @param data A vector, to which the properties should be added
      */
-void GParameterSet::queryAdaptor(
+void GParameterTree::queryAdaptor(
     std::string const &adaptor_name,
     std::string const &property,
     std::vector<std::any> &data
@@ -802,16 +802,16 @@ void GParameterSet::queryAdaptor(
 
 /******************************************************************************/
 /**
-     * Retrieves parameters relevant for the evaluation from another GParameterSet.
+     * Retrieves parameters relevant for the evaluation from another GParameterTree.
      * NOTE: The other parameter set will be an empty shell afterwards. The function may
      * only be called for "clean" foreign parameter sets
      */
-void GParameterSet::cannibalize(GParameterSet &cp) {
+void GParameterTree::cannibalize(GParameterTree &cp) {
     // Check whether the "foreign" entity is processed
     if(cp.is_due_for_processing() || cp.has_errors()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::cannibalize(const GParameterSet& cp)" << '\n'
+            << "In GParameterTree::cannibalize(const GParameterTree& cp)" << '\n'
             << "cp isn't processed or has errors" << '\n'
         );
     }
@@ -841,7 +841,7 @@ void GParameterSet::cannibalize(GParameterSet &cp) {
      * PSO and Gradient Descents, may choose to change parameters directly. Adaptions will be performed
      * until actual changes were done to the object AND a valid parameter set was found.
      */
-std::size_t GParameterSet::adapt() {
+std::size_t GParameterTree::adapt() {
     std::size_t n_adaption_attempts = 0;
     std::size_t n_adaptions = 0;
     // This is a measure of the "effective" adaption probability
@@ -898,7 +898,7 @@ std::size_t GParameterSet::adapt() {
 /**
      * Retrieves the stored raw fitness with a given id
      */
-double GParameterSet::raw_fitness_(const std::size_t id) const {
+double GParameterTree::raw_fitness_(const std::size_t id) const {
     return this->getStoredResult(id).rawFitness();
 }
 
@@ -906,7 +906,7 @@ double GParameterSet::raw_fitness_(const std::size_t id) const {
 /**
      * Retrieves the stored transformed fitness with a given id
      */
-double GParameterSet::transformed_fitness_(const std::size_t id) const {
+double GParameterTree::transformed_fitness_(const std::size_t id) const {
     return this->getStoredResult(id).transformedFitness();
 }
 
@@ -914,7 +914,7 @@ double GParameterSet::transformed_fitness_(const std::size_t id) const {
 /**
      * Returns all raw fitness results in a std::vector
      */
-std::vector<double> GParameterSet::raw_fitness_vec_() const {
+std::vector<double> GParameterTree::raw_fitness_vec_() const {
     std::size_t n_fitness_criteria = this->getNStoredResults();
     std::vector<double> result_vec;
 
@@ -929,7 +929,7 @@ std::vector<double> GParameterSet::raw_fitness_vec_() const {
 /**
      * Returns all transformed fitness results in a std::vector
      */
-std::vector<double> GParameterSet::transformed_fitness_vec_() const {
+std::vector<double> GParameterTree::transformed_fitness_vec_() const {
     std::size_t n_fitness_criteria = this->getNStoredResults();
     std::vector<double> result_vec;
 
@@ -954,12 +954,12 @@ std::vector<double> GParameterSet::transformed_fitness_vec_() const {
      * @param id The position of the fitness criterion (must be >= 0 !)
      * @param value The fitness value to be registered
      */
-void GParameterSet::setResult(const std::size_t id, const double value) {
+void GParameterTree::setResult(const std::size_t id, const double value) {
 #ifdef DEBUG
     if(id >= this->getNStoredResults()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::setResult(...): Error!" << '\n'
+            << "In GParameterTree::setResult(...): Error!" << '\n'
             << "Invalid position in vector: " << id << " (expected min 0 and max "
             << this->getNStoredResults() - 1 << ")" << '\n'
         );
@@ -975,7 +975,7 @@ void GParameterSet::setResult(const std::size_t id, const double value) {
      *
      * @return A boolean indicating whether more than one target function is present
      */
-bool GParameterSet::hasMultipleFitnessCriteria() const {
+bool GParameterTree::hasMultipleFitnessCriteria() const {
     return this->getNStoredResults() > 1;
 }
 
@@ -983,7 +983,7 @@ bool GParameterSet::hasMultipleFitnessCriteria() const {
 /**
      * Retrieve the fitness tuple at a given evaluation position.
      */
-std::tuple<double, double> GParameterSet::getFitnessTuple(const std::uint32_t id) const {
+std::tuple<double, double> GParameterTree::getFitnessTuple(const std::uint32_t id) const {
     return std::make_tuple<double, double>(this->raw_fitness(id), this->transformed_fitness(id));
 }
 
@@ -993,12 +993,12 @@ std::tuple<double, double> GParameterSet::getFitnessTuple(const std::uint32_t id
      *
      * @return The current value of the maxmode_ parameter
      */
-maxMode GParameterSet::getMaxMode() const {
+maxMode GParameterTree::getMaxMode() const {
     return maxmode_;
 }
 
 /* ----------------------------------------------------------------------------------
-     * Retrieval is tested in GParameterSet::specificTestsNoFailureExpected_GUnitTests()
+     * Retrieval is tested in GParameterTree::specificTestsNoFailureExpected_GUnitTests()
      * ----------------------------------------------------------------------------------
      */
 
@@ -1009,7 +1009,7 @@ maxMode GParameterSet::getMaxMode() const {
      *
      * @return The worst case value, depending on maximization or minimization
      */
-double GParameterSet::getWorstCase() const {
+double GParameterTree::getWorstCase() const {
     return (
         (maxMode::MAXIMIZE == this->getMaxMode()) ? std::numeric_limits<double>::lowest()
                                                   : std::numeric_limits<double>::max()
@@ -1021,7 +1021,7 @@ double GParameterSet::getWorstCase() const {
      * Retrieves the best possible evaluation result, depending on whether we are in
      * maximization or minimization mode
      */
-double GParameterSet::getBestCase() const {
+double GParameterTree::getBestCase() const {
     return (
         (maxMode::MAXIMIZE == this->getMaxMode()) ? std::numeric_limits<double>::max()
                                                   : std::numeric_limits<double>::lowest()
@@ -1032,7 +1032,7 @@ double GParameterSet::getBestCase() const {
 /**
      * Retrieves the steepness_ variable (used for the sigmoid transformation)
      */
-double GParameterSet::getSteepness() const {
+double GParameterTree::getSteepness() const {
     return sigmoid_steepness_;
 }
 
@@ -1040,11 +1040,11 @@ double GParameterSet::getSteepness() const {
 /**
      * Sets the steepness variable (used for the sigmoid transformation)
      */
-void GParameterSet::setSteepness(const double steepness) {
+void GParameterTree::setSteepness(const double steepness) {
     if(steepness <= 0.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::setSteepness(double steepness): Error!" << '\n'
+            << "In GParameterTree::setSteepness(double steepness): Error!" << '\n'
             << "Invalid value of steepness parameter: " << steepness << '\n'
         );
     }
@@ -1056,7 +1056,7 @@ void GParameterSet::setSteepness(const double steepness) {
 /**
      * Retrieves the barrier_ variable (used for the sigmoid transformation)
      */
-double GParameterSet::getBarrier() const {
+double GParameterTree::getBarrier() const {
     return sigmoid_extremes_;
 }
 
@@ -1064,11 +1064,11 @@ double GParameterSet::getBarrier() const {
 /**
      * Sets the barrier variable (used for the sigmoid transformation)
      */
-void GParameterSet::setBarrier(const double barrier) {
+void GParameterTree::setBarrier(const double barrier) {
     if(barrier <= 0.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::setBarrier(double barrier): Error!" << '\n'
+            << "In GParameterTree::setBarrier(double barrier): Error!" << '\n'
             << "Invalid value of barrier parameter: " << barrier << '\n'
         );
     }
@@ -1083,7 +1083,7 @@ void GParameterSet::setBarrier(const double barrier) {
      * do this if you are sure that an adaption will eventually happen. Otherwise
      * you would get an endless loop.
      */
-void GParameterSet::setMaxUnsuccessfulAdaptions(const std::size_t max_unsuccessful_adaptions) {
+void GParameterTree::setMaxUnsuccessfulAdaptions(const std::size_t max_unsuccessful_adaptions) {
     max_unsuccessful_adaptions_ = max_unsuccessful_adaptions;
 }
 
@@ -1092,7 +1092,7 @@ void GParameterSet::setMaxUnsuccessfulAdaptions(const std::size_t max_unsuccessf
      * Retrieves the maximum number of adaption attempts that may pass without
      * actual modifications
      */
-std::size_t GParameterSet::getMaxUnsuccessfulAdaptions() const {
+std::size_t GParameterTree::getMaxUnsuccessfulAdaptions() const {
     return max_unsuccessful_adaptions_;
 }
 
@@ -1101,7 +1101,7 @@ std::size_t GParameterSet::getMaxUnsuccessfulAdaptions() const {
      * Allows to set the maximum number of retries during the adaption of individuals
      * until a valid individual was found. Setting this value to 0 will disable retries.
      */
-void GParameterSet::setMaxRetriesUntilValid(const std::size_t max_retries_until_valid) {
+void GParameterTree::setMaxRetriesUntilValid(const std::size_t max_retries_until_valid) {
     max_retries_until_valid_ = max_retries_until_valid;
 }
 
@@ -1110,7 +1110,7 @@ void GParameterSet::setMaxRetriesUntilValid(const std::size_t max_retries_until_
      * Allows to retrieve the current maximum number of retries during the adaption of
      * individuals until a valid individual was found.
      */
-std::size_t GParameterSet::getMaxRetriesUntilValid() const {
+std::size_t GParameterTree::getMaxRetriesUntilValid() const {
     return max_retries_until_valid_;
 }
 
@@ -1119,7 +1119,7 @@ std::size_t GParameterSet::getMaxRetriesUntilValid() const {
      * Retrieves the number of adaptions performed during the last call to adapt()
      * (or 0, if no adaptions were performed so far).
      */
-std::size_t GParameterSet::getNAdaptions() const {
+std::size_t GParameterTree::getNAdaptions() const {
     return n_adaptions_;
 }
 
@@ -1129,12 +1129,12 @@ std::size_t GParameterSet::getNAdaptions() const {
      *
      * @param parent_alg_iteration The current iteration of the optimization algorithm
      */
-void GParameterSet::setAssignedIteration(std::uint32_t const &parent_alg_iteration) {
+void GParameterTree::setAssignedIteration(std::uint32_t const &parent_alg_iteration) {
     assigned_iteration_ = parent_alg_iteration;
 }
 
 /* ----------------------------------------------------------------------------------
-     * Tested in GParameterSet::specificTestsNoFailureExpected_GUnitTests()
+     * Tested in GParameterTree::specificTestsNoFailureExpected_GUnitTests()
      * ----------------------------------------------------------------------------------
      */
 
@@ -1144,12 +1144,12 @@ void GParameterSet::setAssignedIteration(std::uint32_t const &parent_alg_iterati
      *
      * @return The parent optimization algorithm's current iteration
      */
-std::uint32_t GParameterSet::getAssignedIteration() const {
+std::uint32_t GParameterTree::getAssignedIteration() const {
     return assigned_iteration_;
 }
 
 /* ----------------------------------------------------------------------------------
-     * Tested in GParameterSet::specificTestsNoFailureExpected_GUnitTests()
+     * Tested in GParameterTree::specificTestsNoFailureExpected_GUnitTests()
      * ----------------------------------------------------------------------------------
      */
 
@@ -1159,12 +1159,12 @@ std::uint32_t GParameterSet::getAssignedIteration() const {
      *
      * @param n_stalls The number of optimization cycles without improvement in the parent algorithm
      */
-void GParameterSet::setNStalls(std::uint32_t const &n_stalls) {
+void GParameterTree::setNStalls(std::uint32_t const &n_stalls) {
     n_stalls_ = n_stalls;
 }
 
 /* ----------------------------------------------------------------------------------
-     * Tested in GParameterSet::specificTestsNoFailureExpected_GUnitTests()
+     * Tested in GParameterTree::specificTestsNoFailureExpected_GUnitTests()
      * ----------------------------------------------------------------------------------
      */
 
@@ -1174,12 +1174,12 @@ void GParameterSet::setNStalls(std::uint32_t const &n_stalls) {
      *
      * @return The number of optimization cycles without improvement in the parent algorithm
      */
-std::uint32_t GParameterSet::getNStalls() const {
+std::uint32_t GParameterTree::getNStalls() const {
     return n_stalls_;
 }
 
 /* ----------------------------------------------------------------------------------
-     * Tested in GParameterSet::specificTestsNoFailureExpected_GUnitTests()
+     * Tested in GParameterTree::specificTestsNoFailureExpected_GUnitTests()
      * ----------------------------------------------------------------------------------
      */
 
@@ -1189,7 +1189,7 @@ std::uint32_t GParameterSet::getNStalls() const {
      *
      * @return An identifier for the current personality of this object
      */
-std::string GParameterSet::getPersonality() const {
+std::string GParameterTree::getPersonality() const {
     if(pt_ptr_) {
         return pt_ptr_->name();
     }
@@ -1198,7 +1198,7 @@ std::string GParameterSet::getPersonality() const {
 }
 
 /* ----------------------------------------------------------------------------------
-     * Tested in GParameterSet::specificTestsNoFailureExpected_GUnitTests()
+     * Tested in GParameterTree::specificTestsNoFailureExpected_GUnitTests()
      * ----------------------------------------------------------------------------------
      */
 
@@ -1206,7 +1206,7 @@ std::string GParameterSet::getPersonality() const {
 /**
      * Allows to check whether random crashs of individuals are enabled
      */
-std::tuple<bool, double> GParameterSet::getRandomCrash() const {
+std::tuple<bool, double> GParameterTree::getRandomCrash() const {
     return std::tuple<bool, double>{use_random_crash_, random_crash_prob_};
 };
 
@@ -1214,9 +1214,9 @@ std::tuple<bool, double> GParameterSet::getRandomCrash() const {
 /**
      * Allows to enable random crashs of individuals for testing purposes
      */
-void GParameterSet::setRandomCrash(const bool use_random_crash, const double crash_prob) {
+void GParameterTree::setRandomCrash(const bool use_random_crash, const double crash_prob) {
     // Check that the crash probability is in the allowed value range
-    Gem::Common::checkRangeCompliance(crash_prob, 0., 1., "GParameterSet::setRandomCrash()");
+    Gem::Common::checkRangeCompliance(crash_prob, 0., 1., "GParameterTree::setRandomCrash()");
 
     // Set the value as demanded
     use_random_crash_ = use_random_crash;
@@ -1231,13 +1231,13 @@ void GParameterSet::setRandomCrash(const bool use_random_crash, const double cra
      *
      * @return A shared pointer to the personality traits base class
      */
-std::shared_ptr<GPersonalityTraits> GParameterSet::getPersonalityTraits() {
+std::shared_ptr<GPersonalityTraits> GParameterTree::getPersonalityTraits() {
 #ifdef DEBUG
     // Do some error checking
     if(not pt_ptr_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::getPersonalityTraits():" << '\n'
+            << "In GParameterTree::getPersonalityTraits():" << '\n'
             << "Pointer to personality traits object is empty." << '\n'
         );
     }
@@ -1247,8 +1247,8 @@ std::shared_ptr<GPersonalityTraits> GParameterSet::getPersonalityTraits() {
 }
 
 /* ----------------------------------------------------------------------------------
-     * Tested in GParameterSet::specificTestsNoFailureExpected_GUnitTests()
-     * Tested in GParameterSet::specificTestsFailuresExpected_GUnitTests()
+     * Tested in GParameterTree::specificTestsNoFailureExpected_GUnitTests()
+     * Tested in GParameterTree::specificTestsFailuresExpected_GUnitTests()
      * ----------------------------------------------------------------------------------
      */
 
@@ -1258,12 +1258,12 @@ std::shared_ptr<GPersonalityTraits> GParameterSet::getPersonalityTraits() {
      *
      * @param gpt A pointer to an object representing the new personality of this object
      */
-void GParameterSet::setPersonality(std::shared_ptr<GPersonalityTraits> gpt) {
+void GParameterTree::setPersonality(std::shared_ptr<GPersonalityTraits> gpt) {
     // Make sure we haven't been given an empty pointer
     if(not gpt) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::setPersonality(): Error!" << '\n'
+            << "In GParameterTree::setPersonality(): Error!" << '\n'
             << "Received empty personality traits pointer" << '\n'
         );
     }
@@ -1273,7 +1273,7 @@ void GParameterSet::setPersonality(std::shared_ptr<GPersonalityTraits> gpt) {
 }
 
 /* ----------------------------------------------------------------------------------
-     * Tested in GParameterSet::specificTestsNoFailureExpected_GUnitTests()
+     * Tested in GParameterTree::specificTestsNoFailureExpected_GUnitTests()
      * ----------------------------------------------------------------------------------
      */
 
@@ -1281,12 +1281,12 @@ void GParameterSet::setPersonality(std::shared_ptr<GPersonalityTraits> gpt) {
 /**
      * Resets the current personality to PERSONALITY_NONE
      */
-void GParameterSet::resetPersonality() {
+void GParameterTree::resetPersonality() {
     pt_ptr_.reset();
 }
 
 /* ----------------------------------------------------------------------------------
-     * Tested in GParameterSet::specificTestsNoFailureExpected_GUnitTests()
+     * Tested in GParameterTree::specificTestsNoFailureExpected_GUnitTests()
      * ----------------------------------------------------------------------------------
      */
 
@@ -1294,13 +1294,13 @@ void GParameterSet::resetPersonality() {
 /**
      * Retrieves the mnemonic used for the optimization of this object
      */
-std::string GParameterSet::getMnemonic() const {
+std::string GParameterTree::getMnemonic() const {
     if(pt_ptr_) {
         return pt_ptr_->getMnemonic();
     }
             throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::getMnemonic():" << '\n'
+            << "In GParameterTree::getMnemonic():" << '\n'
             << "Pointer to personality traits object is empty." << '\n'
         );
    
@@ -1315,9 +1315,9 @@ std::string GParameterSet::getMnemonic() const {
      *
      * @param gpb The GParserBuilder object to which configuration options should be added
      */
-void GParameterSet::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
+void GParameterTree::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our CRTP base class'es function (the category root has no GObject parent)
-    Gem::Common::GCommonInterfaceT<GParameterSet>::addConfigurationOptions_(gpb);
+    Gem::Common::GCommonInterfaceT<GParameterTree>::addConfigurationOptions_(gpb);
 
     // Add local data
     gpb.registerFileParameter<evaluationPolicy>(
@@ -1413,8 +1413,8 @@ void GParameterSet::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
      *
      * @return The name of this class / object
      */
-std::string GParameterSet::name_() const {
-    return std::string("GParameterSet");
+std::string GParameterTree::name_() const {
+    return std::string("GParameterTree");
 }
 
 /******************************************************************************/
@@ -1423,7 +1423,7 @@ std::string GParameterSet::name_() const {
      *
      * @return The validity level of this solution
      */
-double GParameterSet::getValidityLevel() const {
+double GParameterTree::getValidityLevel() const {
     return validity_level_;
 }
 
@@ -1431,7 +1431,7 @@ double GParameterSet::getValidityLevel() const {
 /**
      * @return A boolean indicating, whether all constraints were fulfilled
      */
-bool GParameterSet::constraintsFulfilled() const {
+bool GParameterTree::constraintsFulfilled() const {
     if(validity_level_ <= 1.) {
         return true;
     }
@@ -1444,27 +1444,27 @@ bool GParameterSet::constraintsFulfilled() const {
      * Allows to register a constraint with this individual. Note that the constraint
      * object will be cloned.
      */
-void GParameterSet::registerConstraint(
-    std::shared_ptr<GPreEvaluationValidityCheckT<GParameterSet>> c_ptr
+void GParameterTree::registerConstraint(
+    std::shared_ptr<GPreEvaluationValidityCheckT<GParameterTree>> c_ptr
 ) {
     if(not c_ptr) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::registerConstraint(): Error!" << '\n'
+            << "In GParameterTree::registerConstraint(): Error!" << '\n'
             << "Tried to register empty constraint object" << '\n'
         );
     }
 
     // We store clones, so individual objects do not share the same object
     individual_constraint_ptr_ =
-        c_ptr->clone<GPreEvaluationValidityCheckT<GParameterSet>>();
+        c_ptr->clone<GPreEvaluationValidityCheckT<GParameterTree>>();
 }
 
 /******************************************************************************/
 /**
      * Allows to set the policy to use in case this individual represents an invalid solution
      */
-void GParameterSet::setEvaluationPolicy(const evaluationPolicy eval_policy) {
+void GParameterTree::setEvaluationPolicy(const evaluationPolicy eval_policy) {
     eval_policy_ = eval_policy;
 }
 
@@ -1472,7 +1472,7 @@ void GParameterSet::setEvaluationPolicy(const evaluationPolicy eval_policy) {
 /**
      * Allows to retrieve the current policy in case this individual represents an invalid solution
      */
-evaluationPolicy GParameterSet::getEvaluationPolicy() const {
+evaluationPolicy GParameterTree::getEvaluationPolicy() const {
     return eval_policy_;
 }
 
@@ -1482,12 +1482,12 @@ evaluationPolicy GParameterSet::getEvaluationPolicy() const {
      * for "clean" individuals only and will throw when called for unprocessed or
      * erroneous individuals.
      */
-bool GParameterSet::isValid() const {
+bool GParameterTree::isValid() const {
 #ifdef DEBUG
     if(this->is_due_for_processing() || this->has_errors()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::isValid():" << '\n'
+            << "In GParameterTree::isValid():" << '\n'
             << "Function was called for unprocessed or erroneous individual" << '\n'
         );
     }
@@ -1504,7 +1504,7 @@ bool GParameterSet::isValid() const {
 /**
      * Checks whether this solution is invalid
      */
-bool GParameterSet::isInValid() const {
+bool GParameterTree::isInValid() const {
     return not this->isValid();
 }
 
@@ -1514,12 +1514,12 @@ bool GParameterSet::isInValid() const {
      *
      * @param bnf The best known primary fitness so far
      */
-void GParameterSet::setBestKnownPrimaryFitness(const std::tuple<double, double> &bnf) {
+void GParameterTree::setBestKnownPrimaryFitness(const std::tuple<double, double> &bnf) {
     best_past_primary_fitness_ = bnf;
 }
 
 /* ----------------------------------------------------------------------------------
-     * Tested in GParameterSet::specificTestsNoFailureExpected_GUnitTests()
+     * Tested in GParameterTree::specificTestsNoFailureExpected_GUnitTests()
      * ----------------------------------------------------------------------------------
      */
 
@@ -1529,12 +1529,12 @@ void GParameterSet::setBestKnownPrimaryFitness(const std::tuple<double, double> 
      *
      * @return The best known primary fitness so far
      */
-std::tuple<double, double> GParameterSet::getBestKnownPrimaryFitness() const {
+std::tuple<double, double> GParameterTree::getBestKnownPrimaryFitness() const {
     return best_past_primary_fitness_;
 }
 
 /* ----------------------------------------------------------------------------------
-     * Tested in GParameterSet::specificTestsNoFailureExpected_GUnitTests()
+     * Tested in GParameterTree::specificTestsNoFailureExpected_GUnitTests()
      * ----------------------------------------------------------------------------------
      */
 
@@ -1542,14 +1542,14 @@ std::tuple<double, double> GParameterSet::getBestKnownPrimaryFitness() const {
 /**
      * Performs all necessary (remote-)processing steps for this object.
      */
-void GParameterSet::process_(const std::vector<parameterset_processing_result> &res_vec) {
+void GParameterTree::process_(const std::vector<parameterset_processing_result> &res_vec) {
 #ifdef DEBUG
     //---------------------------------------------
     // Crash if we have been asked to (only active in DEBUG mode)
     if(use_random_crash_) {
         std::uniform_real_distribution<double> dist01{0., 1.};
         if(dist01(this->gr_) <= random_crash_prob_) {
-            glogger << "GParameterSet is performing random crash for debugging purposes"
+            glogger << "GParameterTree is performing random crash for debugging purposes"
                     << '\n'
                     << '\n'
                     << GLOGGING;
@@ -1574,7 +1574,7 @@ void GParameterSet::process_(const std::vector<parameterset_processing_result> &
                 if(res_vec.size() != this->getNStoredResults()) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                        << "In GParameterSet::process_ : Error!" << '\n'
+                        << "In GParameterTree::process_ : Error!" << '\n'
                         << "res_vec has invalid size. Got " << res_vec.size() << '\n'
                         << "Expected " << this->getNStoredResults() << '\n'
                     );
@@ -1679,19 +1679,19 @@ void GParameterSet::process_(const std::vector<parameterset_processing_result> &
 
 /******************************************************************************/
 /**
-     * Loads the data of another GParameterSet object.
+     * Loads the data of another GParameterTree object.
      *
-     * @param cp A copy of another GParameterSet object
+     * @param cp A copy of another GParameterTree object
      */
-void GParameterSet::load_(const GParameterSet *cp) {
-    // Check that we are dealing with a GParameterSet reference independent of this object and convert the pointer
-    const GParameterSet *p_load =
-        Gem::Common::g_convert_and_compare<GParameterSet, GParameterSet>(cp, this);
+void GParameterTree::load_(const GParameterTree *cp) {
+    // Check that we are dealing with a GParameterTree reference independent of this object and convert the pointer
+    const GParameterTree *p_load =
+        Gem::Common::g_convert_and_compare<GParameterTree, GParameterTree>(cp, this);
 
     // This is the category root; there is no GObject parent class to load.
     // Load the stateful base classes' data
     Gem::Common::GUniquePtrContainerT<GParameterBase>::operator=(*p_load);
-    Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>::load_pc(
+    Gem::Courtier::GProcessingContainerT<GParameterTree, parameterset_processing_result>::load_pc(
         p_load
     );
 
@@ -1709,7 +1709,7 @@ void GParameterSet::load_(const GParameterSet *cp) {
      *
      * @return A boolean indicating whether modifications where made
      */
-bool GParameterSet::randomInit_(activityMode const &am) {
+bool GParameterTree::randomInit_(activityMode const &am) {
     bool modifications_made = false;
 
     // Trigger random initialization of all our parameter objects
@@ -1725,7 +1725,7 @@ bool GParameterSet::randomInit_(activityMode const &am) {
 }
 
 /* ----------------------------------------------------------------------------------
-     * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
+     * Tested in GParameterTree::specificTestsNoFailuresExpected_GUnitTests()
      * ----------------------------------------------------------------------------------
      */
 
@@ -1735,7 +1735,7 @@ bool GParameterSet::randomInit_(activityMode const &am) {
      * in this collection must implement the adapt() function, as they are
      * derived from the GMutableI class / interface.
      */
-std::size_t GParameterSet::customAdaptions() {
+std::size_t GParameterTree::customAdaptions() {
     std::size_t n_adaptions = 0;
     for(const auto &par_ptr : *this) {
         n_adaptions += par_ptr->adapt(gr_);
@@ -1758,12 +1758,12 @@ std::size_t GParameterSet::customAdaptions() {
      *
      * @param f_cnt A vector of raw fitness values
      */
-void GParameterSet::setFitness_(std::vector<double> const &f_cnt) {
+void GParameterTree::setFitness_(std::vector<double> const &f_cnt) {
 #ifdef DEBUG
     if(f_cnt.size() != this->getNStoredResults()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::setFitness_(...): Error!" << '\n'
+            << "In GParameterTree::setFitness_(...): Error!" << '\n'
             << "Invalid size of fitness vector: " << '\n'
             << f_cnt.size() << ", expected: " << this->getNStoredResults() << '\n'
         );
@@ -1844,7 +1844,7 @@ void GParameterSet::setFitness_(std::vector<double> const &f_cnt) {
      *
      *  @return The result of the combination
      */
-double GParameterSet::sumCombiner() const {
+double GParameterTree::sumCombiner() const {
     double result = 0.;
 
     for(std::size_t id = 0; id < this->getNStoredResults(); id++) {
@@ -1860,7 +1860,7 @@ double GParameterSet::sumCombiner() const {
      *
      *  @return The result of the combination
      */
-double GParameterSet::fabsSumCombiner() const {
+double GParameterTree::fabsSumCombiner() const {
     double result = 0.;
 
     for(std::size_t id = 0; id < this->getNStoredResults(); id++) {
@@ -1878,7 +1878,7 @@ double GParameterSet::fabsSumCombiner() const {
      *
      * @return The result of the combination
      */
-double GParameterSet::squaredSumCombiner() const {
+double GParameterTree::squaredSumCombiner() const {
     double result = 0.;
 
     for(std::size_t id = 0; id < this->getNStoredResults(); id++) {
@@ -1897,11 +1897,11 @@ double GParameterSet::squaredSumCombiner() const {
      * @param weights The weights to be multiplied with the cached results
      * @return The result of the combination
      */
-double GParameterSet::weighedSquaredSumCombiner(std::vector<double> const &weights) const {
+double GParameterTree::weighedSquaredSumCombiner(std::vector<double> const &weights) const {
     if(this->getNStoredResults() != weights.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::weighedSquaredSumCombine(): Error!" << '\n'
+            << "In GParameterTree::weighedSquaredSumCombine(): Error!" << '\n'
             << "Sizes of transformedCurrentFitnessVec_ and the weights vector don't match: "
             << this->getNStoredResults() << " / " << weights.size() << '\n'
         );
@@ -1922,7 +1922,7 @@ double GParameterSet::weighedSquaredSumCombiner(std::vector<double> const &weigh
      * Checks whether this solution fulfills the set of constraints. Note that this
      * function may be called prior to evaluation in order to check
      */
-bool GParameterSet::parameterSetFulfillsConstraints(double &validity_level) const {
+bool GParameterTree::parameterSetFulfillsConstraints(double &validity_level) const {
     if(individual_constraint_ptr_) {
         return individual_constraint_ptr_->isValid(this, validity_level);
     }
@@ -1939,28 +1939,28 @@ bool GParameterSet::parameterSetFulfillsConstraints(double &validity_level) cons
 /**
      * Retrieves a parameter of a given type at the specified position
      */
-std::any GParameterSet::getVarVal(
+std::any GParameterTree::getVarVal(
     std::string const &descr,
     std::tuple<std::size_t, std::string, std::size_t> const &target
 ) {
     std::any result;
 
     if(descr == "d") {
-        result = GParameterSet::getVarItem<double>(target);
+        result = GParameterTree::getVarItem<double>(target);
     }
     else if(descr == "f") {
-        result = GParameterSet::getVarItem<float>(target);
+        result = GParameterTree::getVarItem<float>(target);
     }
     else if(descr == "i") {
-        result = GParameterSet::getVarItem<std::int32_t>(target);
+        result = GParameterTree::getVarItem<std::int32_t>(target);
     }
     else if(descr == "b") {
-        result = GParameterSet::getVarItem<bool>(target);
+        result = GParameterTree::getVarItem<bool>(target);
     }
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterSet::getVarVal(): Error!" << '\n'
+            << "In GParameterTree::getVarVal(): Error!" << '\n'
             << "Received invalid type description" << '\n'
         );
     }
@@ -1972,7 +1972,7 @@ std::any GParameterSet::getVarVal(
 /**
      * Allows to set all fitnesses to the same value (raw and transformed values seperately)
      */
-void GParameterSet::setAllFitnessTo(const double raw_value, const double transformed_value) {
+void GParameterTree::setAllFitnessTo(const double raw_value, const double transformed_value) {
     for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
         this->modifyStoredResult(i).reset(raw_value);
         this->modifyStoredResult(i).setTransformedFitnessTo(transformed_value);
@@ -1983,7 +1983,7 @@ void GParameterSet::setAllFitnessTo(const double raw_value, const double transfo
 /**
      * Allows to set all fitnesses to the same value (both raw and transformed values)
      */
-void GParameterSet::setAllFitnessTo(const double val) {
+void GParameterTree::setAllFitnessTo(const double val) {
     this->setAllFitnessTo(val, val);
 }
 
@@ -1993,7 +1993,7 @@ void GParameterSet::setAllFitnessTo(const double val) {
      *
      * @return A boolean which indicates whether modifications were made
      */
-bool GParameterSet::modify_GUnitTests_() {
+bool GParameterTree::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 
     bool result = false;
@@ -2022,7 +2022,7 @@ bool GParameterSet::modify_GUnitTests_() {
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 
-    Gem::Common::condnotset("GParameterSet::modify_GUnitTests", "GEM_TESTING");
+    Gem::Common::condnotset("GParameterTree::modify_GUnitTests", "GEM_TESTING");
     return false;
 #endif                  /* GEM_TESTING */
 }
@@ -2031,7 +2031,7 @@ bool GParameterSet::modify_GUnitTests_() {
 /**
      * Performs self tests that are expected to succeed. This is needed for testing purposes
      */
-void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
+void GParameterTree::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Access to uniformly distributed double random numbers
@@ -2045,7 +2045,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
     {
         // Test setting and retrieval of the maximization mode flag
-        std::shared_ptr<GParameterSet> p_test = this->clone<GParameterSet>();
+        std::shared_ptr<GParameterTree> p_test = this->clone<GParameterTree>();
 
         CHECK_NOTHROW(p_test->setMaxMode(maxMode::MAXIMIZE));
         CHECK(p_test->getMaxMode() == maxMode::MAXIMIZE);
@@ -2057,7 +2057,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
     {
         // Test setting and retrieval of the surrounding optimization algorithm's current iteration
-        std::shared_ptr<GParameterSet> p_test = this->clone<GParameterSet>();
+        std::shared_ptr<GParameterTree> p_test = this->clone<GParameterTree>();
 
         for(std::uint32_t i = 1; i < 10; i++) {
             CHECK_NOTHROW(p_test->setAssignedIteration(i));
@@ -2074,7 +2074,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
     {
         // Test setting and retrieval of the best known fitness so far
-        std::shared_ptr<GParameterSet> p_test = this->clone<GParameterSet>();
+        std::shared_ptr<GParameterTree> p_test = this->clone<GParameterTree>();
 
         double d = 0.;
         while(true) {
@@ -2097,7 +2097,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
     {
         // Test setting and retrieval of the number of consecutive stalls
-        std::shared_ptr<GParameterSet> p_test = this->clone<GParameterSet>();
+        std::shared_ptr<GParameterTree> p_test = this->clone<GParameterTree>();
 
         for(std::uint32_t i = 1; i < 10; i++) {
             CHECK_NOTHROW(p_test->setNStalls(i));
@@ -2129,8 +2129,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
         constexpr double fpmultiplybyrandmax = 5.;
         constexpr double fpadd = 2.;
 
-        // Create a GParameterSet object as a clone of this object for further usage
-        std::shared_ptr<GParameterSet> p_test_0 = this->clone<GParameterSet>();
+        // Create a GParameterTree object as a clone of this object for further usage
+        std::shared_ptr<GParameterTree> p_test_0 = this->clone<GParameterTree>();
         // Clear the collection
         p_test_0->clear();
         // Make sure it is really empty
@@ -2169,8 +2169,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
         {
             // Test random initialization
-            // Create a GParameterSet object as a clone of p_test_0 for further usage
-            std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+            // Create a GParameterTree object as a clone of p_test_0 for further usage
+            std::shared_ptr<GParameterTree> p_test = p_test_0->clone<GParameterTree>();
 
             CHECK_NOTHROW(p_test->randomInit(activityMode::ALLPARAMETERS));
 
@@ -2194,8 +2194,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
             // Test initialization of all fp parameters with a fixed value
             double d = fpfixedvalinitmin;
             while(true) {
-                // Create a GParameterSet object as a clone of p_test_0 for further usage
-                std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+                // Create a GParameterTree object as a clone of p_test_0 for further usage
+                std::shared_ptr<GParameterTree> p_test = p_test_0->clone<GParameterTree>();
 
                 // Initialize all fp-values with 0.
                 p_test->fixedValueInit<double>(d, activityMode::ALLPARAMETERS);
@@ -2252,8 +2252,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
             // Test multiplication of all fp parameters with a fixed value
             double d = -3.;
             while(true) {
-                // Create a GParameterSet object as a clone of p_test_0 for further usage
-                std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+                // Create a GParameterTree object as a clone of p_test_0 for further usage
+                std::shared_ptr<GParameterTree> p_test = p_test_0->clone<GParameterTree>();
 
                 // Initialize all fp-values with FPFIXEDVALINITMAX
                 CHECK_NOTHROW(
@@ -2320,8 +2320,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
         {
             // Test that fpMultiplyByRandom(min,max) changes every single parameter
-            // Create a GParameterSet object as a clone of p_test_0 for further usage
-            std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+            // Create a GParameterTree object as a clone of p_test_0 for further usage
+            std::shared_ptr<GParameterTree> p_test = p_test_0->clone<GParameterTree>();
 
             // Multiply each floating point value with a constrained random value
             CHECK_NOTHROW(p_test->multiplyByRandom<double>(
@@ -2383,8 +2383,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
         {
             // Test that fpMultiplyByRandom() changes every single parameter
-            // Create a GParameterSet object as a clone of p_test_0 for further usage
-            std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+            // Create a GParameterTree object as a clone of p_test_0 for further usage
+            std::shared_ptr<GParameterTree> p_test = p_test_0->clone<GParameterTree>();
 
             // Multiply each floating point value with a constrained random value
             CHECK_NOTHROW(p_test->multiplyByRandom<double>(activityMode::ALLPARAMETERS));
@@ -2442,9 +2442,9 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
         {
             // Check adding of individuals
-            // Create two GParameterSet objects as a clone of p_test_0 for further usage
-            std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
-            std::shared_ptr<GParameterSet> p_test_fixed = p_test_0->clone<GParameterSet>();
+            // Create two GParameterTree objects as a clone of p_test_0 for further usage
+            std::shared_ptr<GParameterTree> p_test = p_test_0->clone<GParameterTree>();
+            std::shared_ptr<GParameterTree> p_test_fixed = p_test_0->clone<GParameterTree>();
 
             // Initialize all fp-values of the "add" individual with a fixed value
             CHECK_NOTHROW(p_test_fixed->fixedValueInit<double>(fpadd, activityMode::ALLPARAMETERS));
@@ -2506,9 +2506,9 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
             constexpr double fpsubtract = 2.;
 
             // Check subtraction of individuals
-            // Create two GParameterSet objects as a clone of p_test_0 for further usage
-            std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
-            std::shared_ptr<GParameterSet> p_test_fixed = p_test_0->clone<GParameterSet>();
+            // Create two GParameterTree objects as a clone of p_test_0 for further usage
+            std::shared_ptr<GParameterTree> p_test = p_test_0->clone<GParameterTree>();
+            std::shared_ptr<GParameterTree> p_test_fixed = p_test_0->clone<GParameterTree>();
 
             // Initialize all fp-values of the "add" individual with a fixed valie
             CHECK_NOTHROW(
@@ -2593,8 +2593,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
         constexpr double fpadd = 2.;
         constexpr double fpsubtract = 2.;
 
-        // Create a GParameterSet object as a clone of this object for further usage
-        std::shared_ptr<GParameterSet> p_test_0 = this->clone<GParameterSet>();
+        // Create a GParameterTree object as a clone of this object for further usage
+        std::shared_ptr<GParameterTree> p_test_0 = this->clone<GParameterTree>();
         // Clear the collection
         p_test_0->clear();
         // Make sure it is really empty
@@ -2706,8 +2706,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
         {
             // Test counting of parameters
-            // Create a GParameterSet object as a clone of p_test_0 for further usage
-            std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+            // Create a GParameterTree object as a clone of p_test_0 for further usage
+            std::shared_ptr<GParameterTree> p_test = p_test_0->clone<GParameterTree>();
 
             // Count the number of parameters and compare with the expected number
             CHECK(p_test->countParameters<double>(activityMode::ACTIVEONLY) == ndoubleactive);
@@ -2727,9 +2727,9 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
         {
             // Check that streamline(activityMode::INACTIVEONLY) yields unchanged results before and after randomInit(activityMode::ACTIVEONLY)
-            // Create two GParameterSet objects as clones of p_test_0 for further usage
-            std::shared_ptr<GParameterSet> p_test_orig = p_test_0->clone<GParameterSet>();
-            std::shared_ptr<GParameterSet> p_test_rand = p_test_0->clone<GParameterSet>();
+            // Create two GParameterTree objects as clones of p_test_0 for further usage
+            std::shared_ptr<GParameterTree> p_test_orig = p_test_0->clone<GParameterTree>();
+            std::shared_ptr<GParameterTree> p_test_rand = p_test_0->clone<GParameterTree>();
 
             // Randomly initialize active components of p_test2
             CHECK_NOTHROW(p_test_rand->randomInit(activityMode::ACTIVEONLY));
@@ -2776,10 +2776,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 
         {
             // Check that streamline(activityMode::ACTIVEONLY) yields changed results after randomInit(activityMode::ACTIVEONLY)
-            // Create a GParameterSet object as a clone of p_test_0 for further usage
-            // Create two GParameterSet objects as clones of p_test_0 for further usage
-            std::shared_ptr<GParameterSet> p_test_orig = p_test_0->clone<GParameterSet>();
-            std::shared_ptr<GParameterSet> p_test_rand = p_test_0->clone<GParameterSet>();
+            // Create a GParameterTree object as a clone of p_test_0 for further usage
+            // Create two GParameterTree objects as clones of p_test_0 for further usage
+            std::shared_ptr<GParameterTree> p_test_orig = p_test_0->clone<GParameterTree>();
+            std::shared_ptr<GParameterTree> p_test_rand = p_test_0->clone<GParameterTree>();
 
             // Randomly initialize active components of p_test2
             CHECK_NOTHROW(p_test_rand->randomInit(activityMode::ACTIVEONLY));
@@ -2834,7 +2834,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 
     Gem::Common::condnotset(
-        "GParameterSet::specificTestsNoFailureExpected_GUnitTests",
+        "GParameterTree::specificTestsNoFailureExpected_GUnitTests",
         "GEM_TESTING"
     );
 #endif                  /* GEM_TESTING */
@@ -2844,7 +2844,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 /**
      * Performs self tests that are expected to fail. This is needed for testing purposes
      */
-void GParameterSet::specificTestsFailuresExpected_GUnitTests_() {
+void GParameterTree::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // This is the category root; there is no GObject parent class to delegate to.
@@ -2856,7 +2856,7 @@ void GParameterSet::specificTestsFailuresExpected_GUnitTests_() {
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 
     Gem::Common::condnotset(
-        "GParameterSet::specificTestsFailuresExpected_GUnitTests",
+        "GParameterTree::specificTestsFailuresExpected_GUnitTests",
         "GEM_TESTING"
     );
 #endif                  /* GEM_TESTING */

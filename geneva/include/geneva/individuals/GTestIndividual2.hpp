@@ -53,7 +53,7 @@
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GDoubleObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 #include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
 
@@ -87,7 +87,7 @@ std::istream &operator>>(std::istream &, Gem::Geneva::Individuals::PERFOBJECTTYP
  * weakening data protection.
  */
 class GTestIndividual2
-  : public gpar::GParameterSet { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gpar::GParameterTree { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -95,7 +95,7 @@ class GTestIndividual2
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterTree);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -110,7 +110,7 @@ public:
 
 protected:
     /** @brief Loads the data of another GTestIndividual2 */
-    void load_(const gpar::GParameterSet *) final;
+    void load_(const gpar::GParameterTree *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GTestIndividual2>(
@@ -121,7 +121,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GParameterSet & // the other object
+        const gpar::GParameterTree & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -140,7 +140,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    gpar::GParameterSet *clone_() const final;
+    gpar::GParameterTree *clone_() const final;
 
     /** @brief The default constructor -- protected, as it is only needed for (de-)serialization purposes */
     GTestIndividual2();

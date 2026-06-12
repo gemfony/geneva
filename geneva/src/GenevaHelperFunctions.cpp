@@ -32,7 +32,7 @@
 #include "common/GLogger.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 #include <cstddef>
 #include <limits>
 #include <memory>
@@ -51,7 +51,7 @@ namespace Gem::Geneva {
  * @param id The id of the fitness criterion (individuals may have more than one)
  */
 double minOnly_transformed_fitness(
-    const gpar::GParameterSet &item,
+    const gpar::GParameterTree &item,
     const std::size_t id // NOLINT(misc-unused-parameters)
 ) {
     const double f = item.transformed_fitness(id); // NOLINT(cppcoreguidelines-init-variables)
@@ -80,8 +80,8 @@ double minOnly_transformed_fitness(
  * is done with the first (main) fitness criterion.
  */
 bool isBetter(
-    const std::shared_ptr<gpar::GParameterSet> &x_ptr,
-    const std::shared_ptr<gpar::GParameterSet> &y_ptr
+    const std::shared_ptr<gpar::GParameterTree> &x_ptr,
+    const std::shared_ptr<gpar::GParameterTree> &y_ptr
 ) {
 #ifdef DEBUG
     const auto x_mode = x_ptr->getMaxMode();
@@ -111,8 +111,8 @@ bool isBetter(
  * is done with the first (main) fitness criterion.
  */
 bool isWorse(
-    const std::shared_ptr<gpar::GParameterSet> &x_ptr,
-    const std::shared_ptr<gpar::GParameterSet> &y_ptr
+    const std::shared_ptr<gpar::GParameterTree> &x_ptr,
+    const std::shared_ptr<gpar::GParameterTree> &y_ptr
 ) {
     return not isBetter(x_ptr, y_ptr);
 }

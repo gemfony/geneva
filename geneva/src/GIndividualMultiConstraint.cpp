@@ -29,5 +29,5 @@
 
 #include "geneva/GIndividualMultiConstraint.hpp"
 
-// Make sure the instantiation with GParameterSet as template argument can be serialized
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GCheckCombinerT<gpar::GParameterSet>) // NOLINT
+// Make sure the instantiation with GParameterTree as template argument can be serialized
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GCheckCombinerT<gpar::GParameterTree>) // NOLINT

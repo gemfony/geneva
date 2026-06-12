@@ -39,7 +39,7 @@
 
 // Geneva headers go here
 #include "geneva/GParameterSetCommandContainerExport.hpp"
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
 #include "geneva/oa/GInitializerT.hpp"
 #include "hap/GRandomFactory.hpp"

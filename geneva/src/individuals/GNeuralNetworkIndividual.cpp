@@ -42,7 +42,7 @@
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GDoubleObject.hpp"
 #include "geneva/par/GDoubleObjectCollection.hpp"
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 #include <cmath>
 #include <cstddef>
 #include <filesystem>
@@ -139,7 +139,7 @@ trainingSet &trainingSet::operator=(const trainingSet &cp) {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GParameterSet object
+ * @param cp A constant reference to another GParameterTree object
  * @param e The expected outcome of the comparison
  */
 void trainingSet::compare(
@@ -661,7 +661,7 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual(
  * @param cp A copy of another GNeuralNetworkIndividual object
  */
 GNeuralNetworkIndividual::GNeuralNetworkIndividual(const GNeuralNetworkIndividual &cp)
-  : gpar::GParameterSet(cp)
+  : gpar::GParameterTree(cp)
   , t_f_(cp.t_f_)
   , n_d_(nnTrainingDataStore()) // We want a single source for the training data
 {                             /* nothing */
@@ -679,11 +679,11 @@ GNeuralNetworkIndividual::~GNeuralNetworkIndividual() { /* nothing */
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GParameterSet object
+ * @param cp A constant reference to another GParameterTree object
  * @param e The expected outcome of the comparison
  */
 void GNeuralNetworkIndividual::compare_(
-    const gpar::GParameterSet &cp,
+    const gpar::GParameterTree &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -691,12 +691,12 @@ void GNeuralNetworkIndividual::compare_(
 
     // Check that we are dealing with a GNeuralNetworkIndividual reference independent of this object and convert the pointer
     const GNeuralNetworkIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GNeuralNetworkIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GNeuralNetworkIndividual>(cp, this);
 
     GToken token("GNeuralNetworkIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GParameterTree>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -1387,17 +1387,17 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
 
 /******************************************************************************/
 /**
- * Loads the data of another GNeuralNetworkIndividual, camouflaged as a GParameterSet
+ * Loads the data of another GNeuralNetworkIndividual, camouflaged as a GParameterTree
  *
- * @param cp A copy of another GNeuralNetworkIndividual, camouflaged as a GParameterSet
+ * @param cp A copy of another GNeuralNetworkIndividual, camouflaged as a GParameterTree
  */
-void GNeuralNetworkIndividual::load_(const gpar::GParameterSet *cp) {
+void GNeuralNetworkIndividual::load_(const gpar::GParameterTree *cp) {
     // Check that we are dealing with a GNeuralNetworkIndividual reference independent of this object and convert the pointer
     const GNeuralNetworkIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GNeuralNetworkIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GNeuralNetworkIndividual>(cp, this);
 
     // Load the parent class'es data
-    gpar::GParameterSet::load_(cp);
+    gpar::GParameterTree::load_(cp);
 
     // Load our local data, derived from the single localMembers() declaration.
     // We do not copy the network data, as it is always initialized through
@@ -1409,9 +1409,9 @@ void GNeuralNetworkIndividual::load_(const gpar::GParameterSet *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GParameterSet
+ * @return A deep clone of this object, camouflaged as a GParameterTree
  */
-gpar::GParameterSet *GNeuralNetworkIndividual::clone_() const {
+gpar::GParameterTree *GNeuralNetworkIndividual::clone_() const {
     return new GNeuralNetworkIndividual(*this);
 }
 
@@ -1547,7 +1547,7 @@ double GNeuralNetworkIndividual::transfer(const double &value) const {
 GNeuralNetworkIndividualFactory::GNeuralNetworkIndividualFactory(
     std::filesystem::path const &config_file
 )
-  : Gem::Common::GFactoryT<gpar::GParameterSet>(config_file)
+  : Gem::Common::GFactoryT<gpar::GParameterTree>(config_file)
   , ad_prob_(GNN_DEF_ADPROB)
   , adapt_ad_prob_(GNN_DEF_ADAPTADPROB)
   , min_ad_prob_(GNN_DEF_MINADPROB)
@@ -1590,7 +1590,7 @@ transferFunction GNeuralNetworkIndividualFactory::getTransferFunction() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<gpar::GParameterSet> GNeuralNetworkIndividualFactory::getObject_(
+std::shared_ptr<gpar::GParameterTree> GNeuralNetworkIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     [[maybe_unused]] const std::size_t & id
 ) {
@@ -1725,7 +1725,7 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
     );
 
     // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<gpar::GParameterSet>::describeLocalOptions_(gpb);
+    Gem::Common::GFactoryT<gpar::GParameterTree>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -1736,10 +1736,10 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
  *
  * @param p_raw A smart-pointer to be acted on during post-processing
  */
-void GNeuralNetworkIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet> &p_raw) {
+void GNeuralNetworkIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterTree> &p_raw) {
     // Convert the base pointer to the target type
     std::shared_ptr<GNeuralNetworkIndividual> p =
-        Gem::Common::convertSmartPointer<gpar::GParameterSet, GNeuralNetworkIndividual>(p_raw);
+        Gem::Common::convertSmartPointer<gpar::GParameterTree, GNeuralNetworkIndividual>(p_raw);
 
     // Call the initialization function with our parsed data
     p->init(

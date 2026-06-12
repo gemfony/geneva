@@ -52,7 +52,7 @@
 #include "geneva/par/GDoubleCollection.hpp"
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GDoubleObjectCollection.hpp"
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 #include "geneva/par/GParameterSetFactory.hpp"
 #include "geneva/par/GParameterSetMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
@@ -151,7 +151,7 @@ enum class solverFunction : Gem::Common::ENUMBASETYPE {
 	 * Negative parabola: f(x) = -Σxᵢ².
 	 * Global maximum: f=0 at x=(0,...,0). Recommended domain: any.
 	 * Used exclusively for maximisation tests to verify that Geneva's internal
-	 * maximisation mode (Go2/GParameterSet maxMode) functions correctly. The
+	 * maximisation mode (Go2/GParameterTree maxMode) functions correctly. The
 	 * landscape is identical to PARABOLA but sign-inverted.
 	 */
     NEGPARABOLA = 7,
@@ -339,14 +339,14 @@ class GFunctionIndividualFactory;
  *       explicitly; the factory default of [-10, 10] is not suitable for that function.
  */
 class GFunctionIndividual
-  : public gpar::GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gpar::GParameterTree // NOLINT(cppcoreguidelines-special-member-functions)
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterTree) &
             BOOST_SERIALIZATION_NVP(demo_function_);
     }
 
@@ -680,7 +680,7 @@ protected:
     }
 
     /** @brief Loads the data of another GFunctionIndividual */
-    void load_(const gpar::GParameterSet *) final;
+    void load_(const gpar::GParameterTree *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GFunctionIndividual>(
@@ -691,7 +691,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GParameterSet & // the other object
+        const gpar::GParameterTree & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -713,7 +713,7 @@ protected:
 private:
     //---------------------------------------------------------------------------
     /** @brief Creates a deep clone of this object */
-    gpar::GParameterSet *clone_() const final;
+    gpar::GParameterTree *clone_() const final;
 
     //---------------------------------------------------------------------------
     // Data
@@ -883,19 +883,19 @@ public:
     //--------------------------------------------------------------------------
 
     /** @brief Loads the data of another GFunctionIndividualFactory object */
-    void load(std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>>) override;
+    void load(std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterTree>>) override;
     /** @brief Creates a deep clone of this object */
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> clone() const override;
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterTree>> clone() const override;
 
 protected:
     /** @brief Allows to describe local configuration options in derived classes */
     void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
     /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<gpar::GParameterSet> &) override;
+    void postProcess_(std::shared_ptr<gpar::GParameterTree> &) override;
 
 private:
     /** @brief Creates individuals of this type */
-    std::shared_ptr<gpar::GParameterSet>
+    std::shared_ptr<gpar::GParameterTree>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     /** @brief Set the value of the minVar_ variable */
@@ -990,13 +990,13 @@ public:
     ~GDoubleSumConstraint() override = default;
 
 protected:
-    double check_(const gpar::GParameterSet *) const override;
+    double check_(const gpar::GParameterTree *) const override;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Loads the data of another GParameterSetMultiConstraint */
-    void load_(const GPreEvaluationValidityCheckT<gpar::GParameterSet> *) override;
+    void load_(const GPreEvaluationValidityCheckT<gpar::GParameterTree> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GDoubleSumConstraint>(
@@ -1007,7 +1007,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GPreEvaluationValidityCheckT<gpar::GParameterSet> & // the other object
+        const GPreEvaluationValidityCheckT<gpar::GParameterTree> & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -1016,7 +1016,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    GPreEvaluationValidityCheckT<gpar::GParameterSet> *clone_() const override;
+    GPreEvaluationValidityCheckT<gpar::GParameterTree> *clone_() const override;
 
     double c_ = 1.; ///< The constant that should not be exceeded by the sum of parameters
 };
@@ -1064,13 +1064,13 @@ public:
     ~GDoubleSumGapConstraint() override = default;
 
 protected:
-    double check_(const gpar::GParameterSet *) const override;
+    double check_(const gpar::GParameterTree *) const override;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Loads the data of another GParameterSetMultiConstraint */
-    void load_(const GPreEvaluationValidityCheckT<gpar::GParameterSet> *) override;
+    void load_(const GPreEvaluationValidityCheckT<gpar::GParameterTree> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GDoubleSumGapConstraint>(
@@ -1081,7 +1081,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GPreEvaluationValidityCheckT<gpar::GParameterSet> & // the other object
+        const GPreEvaluationValidityCheckT<gpar::GParameterTree> & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -1090,7 +1090,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    GPreEvaluationValidityCheckT<gpar::GParameterSet> *clone_() const override;
+    GPreEvaluationValidityCheckT<gpar::GParameterTree> *clone_() const override;
 
     double c_ = 1.;    ///< The constant that should not be exceeded by the sum of parameters
     double gap_ = 0.5; ///< A tolerance around C_ that is still considered to be valid
@@ -1137,13 +1137,13 @@ public:
     ~GSphereConstraint() override = default;
 
 protected:
-    double check_(const gpar::GParameterSet *) const override;
+    double check_(const gpar::GParameterTree *) const override;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Loads the data of another GParameterSetMultiConstraint */
-    void load_(const GPreEvaluationValidityCheckT<gpar::GParameterSet> *) override;
+    void load_(const GPreEvaluationValidityCheckT<gpar::GParameterTree> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GSphereConstraint>(
@@ -1154,7 +1154,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GPreEvaluationValidityCheckT<gpar::GParameterSet> & // the other object
+        const GPreEvaluationValidityCheckT<gpar::GParameterTree> & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -1163,7 +1163,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    GPreEvaluationValidityCheckT<gpar::GParameterSet> *clone_() const override;
+    GPreEvaluationValidityCheckT<gpar::GParameterTree> *clone_() const override;
 
     /** @brief The diameter of the sphere */
     double diameter_ = 1.;

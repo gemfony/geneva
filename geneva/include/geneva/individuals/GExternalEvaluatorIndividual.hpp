@@ -60,7 +60,7 @@
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GDoubleObjectCollection.hpp"
 #include "geneva/par/GInt32FlipAdaptor.hpp"
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 #include "geneva/par/GParameterSetMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 
@@ -125,7 +125,7 @@ class GExternalEvaluatorIndividualFactory;
  * utility. Hence the external program needs to understand the XML format.
  */
 class GExternalEvaluatorIndividual
-  : public gpar::GParameterSet { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gpar::GParameterTree { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
     friend class boost::serialization::access;
@@ -158,7 +158,7 @@ class GExternalEvaluatorIndividual
         // run_id_ was previously omitted here and silently lost on
         // (de)serialization; derive the member list from the single
         // localMembers() declaration so it stays in sync.
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterTree);
         Gem::Common::serialize_members(ar, this->localMembers());
     }
 
@@ -216,7 +216,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Loads the data of another GExternalEvaluatorIndividual */
-    void load_(const gpar::GParameterSet *) final;
+    void load_(const gpar::GParameterTree *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GExternalEvaluatorIndividual>(
@@ -227,7 +227,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GParameterSet & // the other object
+        const gpar::GParameterTree & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -241,7 +241,7 @@ private:
     /***************************************************************************/
 
     /** @brief Creates a deep clone of this object */
-    gpar::GParameterSet *clone_() const final;
+    gpar::GParameterTree *clone_() const final;
 
     /***************************************************************************/
 
@@ -261,7 +261,7 @@ private:
  * A factory for GExternalEvaluatorIndividual objects
  */
 class GExternalEvaluatorIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<gpar::GParameterSet> {
+  : public Gem::Common::GFactoryT<gpar::GParameterTree> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -271,7 +271,7 @@ class GExternalEvaluatorIndividualFactory // NOLINT(cppcoreguidelines-special-me
 
         ar &boost::serialization::make_nvp(
             "GFactoryT_gpar_GParameterSet",
-            boost::serialization::base_object<GFactoryT<gpar::GParameterSet>>(*this)
+            boost::serialization::base_object<GFactoryT<gpar::GParameterTree>>(*this)
         ) &
             BOOST_SERIALIZATION_NVP(ad_prob_) & BOOST_SERIALIZATION_NVP(adapt_ad_prob_) &
             BOOST_SERIALIZATION_NVP(min_ad_prob_) & BOOST_SERIALIZATION_NVP(max_ad_prob_) &
@@ -422,21 +422,21 @@ public:
     ) const;
 
     /** @brief Loads the data of another GFunctionIndividualFactory object */
-    void load(std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>>) override;
+    void load(std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterTree>>) override;
 
     /** @brief Creates a deep clone of this object */
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> clone() const override;
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterTree>> clone() const override;
 
 protected:
     /** @brief Allows to describe local configuration options in derived classes */
     void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<gpar::GParameterSet> &) override;
+    void postProcess_(std::shared_ptr<gpar::GParameterTree> &) override;
 
 private:
     /** @brief Creates individuals of this type */
-    std::shared_ptr<gpar::GParameterSet>
+    std::shared_ptr<gpar::GParameterTree>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     /** @brief Sets up the boost property object holding information about the individual structure */

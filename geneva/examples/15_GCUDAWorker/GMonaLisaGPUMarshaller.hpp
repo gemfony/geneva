@@ -35,7 +35,7 @@
 #include <vector>
 
 // Geneva headers
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 #include "courtier/gpu/GGPUEvaluableI.hpp"
 #include "GImageScalar.hpp"
 #include "GMonaLisaProblem.hpp"
@@ -61,12 +61,12 @@ namespace Gem::Geneva::MonaLisa {
  *
  * The scalar type (gimage_fp_t, see GImageScalar.hpp) is selected at COMPILE TIME: DOUBLE by default,
  * or FLOAT when the example is built with GIMAGE_USE_FLOAT. The marshaller is that scalar end-to-end:
- * GGPUEvaluableI<gpar::GParameterSet, gimage_fp_t>, so the genome and fitness flat buffers, the device
+ * GGPUEvaluableI<gpar::GParameterTree, gimage_fp_t>, so the genome and fitness flat buffers, the device
  * ABI and the CUDA kernel all use it -- no widening/narrowing. The matching device kernel is selected
  * through the default GPU-consumer config.
  */
 class GMonaLisaGPUMarshaller final
-  : public Gem::Courtier::GPU::GGPUEvaluableI<gpar::GParameterSet, gimage_fp_t> {
+  : public Gem::Courtier::GPU::GGPUEvaluableI<gpar::GParameterTree, gimage_fp_t> {
 public:
     void flatten(const std::vector<item_ptr> &items, std::vector<gimage_fp_t> &params_out) const override {
         if(items.empty()) {

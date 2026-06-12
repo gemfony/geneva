@@ -61,7 +61,7 @@ GParaboloidIndividual2D::GParaboloidIndividual2D()
  * @param cp A copy of another GParaboloidIndividual2D
  */
 GParaboloidIndividual2D::GParaboloidIndividual2D(const GParaboloidIndividual2D &cp)
-  : gpar::GParameterSet(cp)
+  : gpar::GParameterTree(cp)
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10) { /* nothing */
 }
@@ -77,17 +77,17 @@ GParaboloidIndividual2D::~GParaboloidIndividual2D() { /* nothing */
 
 /********************************************************************************************/
 /**
- * Loads the data of another GParaboloidIndividual2D, camouflaged as a GParameterSet.
+ * Loads the data of another GParaboloidIndividual2D, camouflaged as a GParameterTree.
  *
- * @param cp A copy of another GParaboloidIndividual2D, camouflaged as a GParameterSet
+ * @param cp A copy of another GParaboloidIndividual2D, camouflaged as a GParameterTree
  */
-void GParaboloidIndividual2D::load_(const gpar::GParameterSet *cp) {
+void GParaboloidIndividual2D::load_(const gpar::GParameterTree *cp) {
     // Check that we are dealing with a GParaboloidIndividual2D reference independent of this object and convert the pointer
     const GParaboloidIndividual2D *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GParaboloidIndividual2D>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GParaboloidIndividual2D>(cp, this);
 
     // Load our parent's data
-    gpar::GParameterSet::load_(cp);
+    gpar::GParameterTree::load_(cp);
 
     // No local data
     // sampleVariable = p_load->sampleVariable;
@@ -97,9 +97,9 @@ void GParaboloidIndividual2D::load_(const gpar::GParameterSet *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GParameterSet
+ * @return A deep clone of this object, camouflaged as a GParameterTree
  */
-gpar::GParameterSet *GParaboloidIndividual2D::clone_() const {
+gpar::GParameterTree *GParaboloidIndividual2D::clone_() const {
     return new GParaboloidIndividual2D(*this);
 }
 

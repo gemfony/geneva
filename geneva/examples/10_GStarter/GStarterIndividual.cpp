@@ -134,7 +134,7 @@ GStarterIndividual::GStarterIndividual(
  * @param cp A copy of another GFunctionIndidivual
  */
 GStarterIndividual::GStarterIndividual(const GStarterIndividual &cp)
-  : gpar::GParameterSet(cp)
+  : gpar::GParameterTree(cp)
   , targetFunction_(cp.targetFunction_) { /* nothing */
 }
 
@@ -150,12 +150,12 @@ GStarterIndividual::~GStarterIndividual() { /* nothing */
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GParameterSet object
+ * @param cp A constant reference to another GParameterTree object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GStarterIndividual::compare_(
-    const gpar::GParameterSet &cp,
+    const gpar::GParameterTree &cp,
     const Gem::Common::expectation &e,
     const double &limit
 ) const {
@@ -163,12 +163,12 @@ void GStarterIndividual::compare_(
 
     // Check that we are dealing with a GStarterIndividual reference independent of this object and convert the pointer
     const GStarterIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GStarterIndividual>(&cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GStarterIndividual>(&cp, this);
 
     Gem::Common::GToken token("GStarterIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GParameterTree>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::compare_t(IDENTITY(targetFunction_, p_load->targetFunction_), token);
@@ -185,7 +185,7 @@ void GStarterIndividual::compare_(
  */
 void GStarterIndividual::addConfigurationOptions(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    gpar::GParameterSet::addConfigurationOptions(gpb);
+    gpar::GParameterTree::addConfigurationOptions(gpb);
 
     // Add local data. We use C++11 lambda expressions to
     // specify the function to be called for setting the
@@ -276,17 +276,17 @@ std::string GStarterIndividual::print() {
 
 /******************************************************************************/
 /**
- * Loads the data of another GStarterIndividual, camouflaged as a GParameterSet
+ * Loads the data of another GStarterIndividual, camouflaged as a GParameterTree
  *
- * @param cp A copy of another GStarterIndividual, camouflaged as a GParameterSet
+ * @param cp A copy of another GStarterIndividual, camouflaged as a GParameterTree
  */
-void GStarterIndividual::load_(const gpar::GParameterSet *cp) {
+void GStarterIndividual::load_(const gpar::GParameterTree *cp) {
     // Check that we are dealing with a GStarterIndividual reference independent of this object and convert the pointer
     const GStarterIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GStarterIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GStarterIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GParameterSet::load_(cp);
+    gpar::GParameterTree::load_(cp);
 
     // ... and then our local data
     targetFunction_ = p_load->targetFunction_;
@@ -296,9 +296,9 @@ void GStarterIndividual::load_(const gpar::GParameterSet *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GParameterSet
+ * @return A deep clone of this object, camouflaged as a GParameterTree
  */
-gpar::GParameterSet *GStarterIndividual::clone_() const {
+gpar::GParameterTree *GStarterIndividual::clone_() const {
     return new GStarterIndividual(*this);
 }
 
@@ -377,7 +377,7 @@ bool GStarterIndividual::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gpar::GParameterSet::modify_GUnitTests_()) {
+    if(gpar::GParameterTree::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -406,7 +406,7 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
+    gpar::GParameterTree::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
@@ -479,7 +479,7 @@ void GStarterIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
+    gpar::GParameterTree::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
@@ -523,7 +523,7 @@ std::ostream &operator<<(std::ostream &stream, std::shared_ptr<GStarterIndividua
  * @param configFile The name of the configuration file
  */
 GStarterIndividualFactory::GStarterIndividualFactory(std::filesystem::path const &configFile)
-  : Gem::Common::GFactoryT<gpar::GParameterSet>(configFile) { /* nothing */
+  : Gem::Common::GFactoryT<gpar::GParameterTree>(configFile) { /* nothing */
 }
 
 /******************************************************************************/
@@ -532,7 +532,7 @@ GStarterIndividualFactory::GStarterIndividualFactory(std::filesystem::path const
  *
  * @return Items of the desired type
  */
-std::shared_ptr<gpar::GParameterSet>
+std::shared_ptr<gpar::GParameterTree>
 GStarterIndividualFactory::getObject_(Gem::Common::GParserBuilder &gpb, std::size_t const &id) {
     // Will hold the result
     std::shared_ptr<GStarterIndividual> target(new GStarterIndividual());
@@ -552,7 +552,7 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
     using namespace Gem::Courtier;
 
     // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<gpar::GParameterSet>::describeLocalOptions_(gpb);
+    Gem::Common::GFactoryT<gpar::GParameterTree>::describeLocalOptions_(gpb);
 
     // Local data
     gpb.registerFileParameter<double>("ad_prob", adProb_, GSI_DEF_ADPROB)
@@ -609,10 +609,10 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GStarterIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet> &p_base) {
+void GStarterIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterTree> &p_base) {
     // Convert the base pointer to our local type
     std::shared_ptr<GStarterIndividual> p =
-        Gem::Common::convertSmartPointer<gpar::GParameterSet, GStarterIndividual>(p_base);
+        Gem::Common::convertSmartPointer<gpar::GParameterTree, GStarterIndividual>(p_base);
 
     // We simply use a static function defined in the GStartIndividual header
     // to set up all parameter objects. It is used both here in the factory and

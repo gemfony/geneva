@@ -36,7 +36,7 @@
 #include "geneva/oa/GOAFactoryT.hpp"
 #include "geneva/oa/GParameterScan.hpp"
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 #include <boost/program_options.hpp>
 #include <cstddef>
 #include <memory>
@@ -69,7 +69,7 @@ GParameterScanFactory::GParameterScanFactory(std::filesystem::path const &config
  */
 GParameterScanFactory::GParameterScanFactory(
     std::filesystem::path const &config_file,
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> content_creator_ptr
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterTree>> content_creator_ptr
 )
   : GOAFactoryT<GOptimizationAlgorithmBase>(
         config_file,

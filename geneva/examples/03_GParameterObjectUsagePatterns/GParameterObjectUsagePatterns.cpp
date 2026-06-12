@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
 
         // Note: This object already contains a parameter object, in
         // addition to those added below.
-        std::shared_ptr<gpar::GParameterSet> gfi_test = gfi_ptr->get();
+        std::shared_ptr<gpar::GParameterTree> gfi_test = gfi_ptr->get();
 
         gfi_test->push_back(
             std::shared_ptr<gpar::GConstrainedDoubleObject>(new gpar::GConstrainedDoubleObject(-7, 17))

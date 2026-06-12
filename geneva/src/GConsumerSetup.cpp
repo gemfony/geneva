@@ -53,16 +53,16 @@ namespace Gem::Geneva {
 
 namespace {
 
-/** @brief The polymorphic clone for GParameterSet (copy-construction would slice the held individual). */
-std::function<std::unique_ptr<gpar::GParameterSet>(const std::unique_ptr<gpar::GParameterSet> &)>
+/** @brief The polymorphic clone for GParameterTree (copy-construction would slice the held individual). */
+std::function<std::unique_ptr<gpar::GParameterTree>(const std::unique_ptr<gpar::GParameterTree> &)>
 parameterSetCloneFunction() {
-    return [](const std::unique_ptr<gpar::GParameterSet> &p) { return p->clone_unique(); };
+    return [](const std::unique_ptr<gpar::GParameterTree> &p) { return p->clone_unique(); };
 }
 
 /** @brief Wraps a ready consumer (clone function already set) in a fresh single-consumer broker. */
-std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>>
-brokerFor(std::shared_ptr<Gem::Courtier::GBaseConsumerT<gpar::GParameterSet>> consumer) {
-    auto broker = std::make_shared<Gem::Courtier::GBrokerT<gpar::GParameterSet>>();
+std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterTree>>
+brokerFor(std::shared_ptr<Gem::Courtier::GBaseConsumerT<gpar::GParameterTree>> consumer) {
+    auto broker = std::make_shared<Gem::Courtier::GBrokerT<gpar::GParameterTree>>();
     broker->registerConsumer(std::move(consumer));
     return broker;
 }
@@ -76,24 +76,24 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
     ConsumerSetup setup;
 
     if(spec.mnemonic == "sc") {
-        auto consumer = std::make_shared<c2::GSerialConsumerT<gpar::GParameterSet>>();
+        auto consumer = std::make_shared<c2::GSerialConsumerT<gpar::GParameterTree>>();
         consumer->setCloneFunction(parameterSetCloneFunction());
         setup.broker = brokerFor(consumer);
     }
     else if(spec.mnemonic == "stc") {
-        auto consumer = std::make_shared<c2::GStdThreadConsumerT<gpar::GParameterSet>>(spec.n_threads);
+        auto consumer = std::make_shared<c2::GStdThreadConsumerT<gpar::GParameterTree>>(spec.n_threads);
         consumer->setCloneFunction(parameterSetCloneFunction());
         setup.broker = brokerFor(consumer);
     }
     else if(spec.mnemonic == "asio") {
-        auto consumer = std::make_shared<c2::GAsioConsumerT<gpar::GParameterSet>>(
+        auto consumer = std::make_shared<c2::GAsioConsumerT<gpar::GParameterTree>>(
             spec.port, spec.n_threads, spec.serialization_mode);
         consumer->setCloneFunction(parameterSetCloneFunction());
         consumer->startServer();
         setup.broker = brokerFor(consumer);
     }
     else if(spec.mnemonic == "beast") {
-        auto consumer = std::make_shared<c2::GWebsocketConsumerT<gpar::GParameterSet>>(
+        auto consumer = std::make_shared<c2::GWebsocketConsumerT<gpar::GParameterTree>>(
             spec.port, spec.n_threads, spec.serialization_mode);
         consumer->setCloneFunction(parameterSetCloneFunction());
         consumer->startServer();
@@ -102,7 +102,7 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
     else if(spec.mnemonic == "mpi") {
         // MPI fixes the master/worker split by rank; the consumer is built on every rank and branches.
-        auto consumer = std::make_shared<c2::GMPIConsumerT<gpar::GParameterSet>>();
+        auto consumer = std::make_shared<c2::GMPIConsumerT<gpar::GParameterTree>>();
         if(consumer->isMasterNode()) {
             consumer->setCloneFunction(parameterSetCloneFunction());
             consumer->startServer();
@@ -180,17 +180,17 @@ ConsumerSpec specFromCommandLine(
 
 /******************************************************************************/
 
-std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GParameterSet>>
+std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GParameterTree>>
 buildConsumerClient(const ConsumerSpec &spec) {
     namespace cons = Gem::Courtier::Consumers;
 
     if(spec.mnemonic == "asio") {
-        return std::make_shared<cons::GAsioConsumerClientT<gpar::GParameterSet>>(
+        return std::make_shared<cons::GAsioConsumerClientT<gpar::GParameterTree>>(
             spec.ip, spec.port, spec.serialization_mode, spec.max_reconnects,
             spec.client_prefetch_depth);
     }
     if(spec.mnemonic == "beast") {
-        return std::make_shared<cons::GWebsocketClientT<gpar::GParameterSet>>(
+        return std::make_shared<cons::GWebsocketClientT<gpar::GParameterTree>>(
             spec.ip, spec.port, spec.serialization_mode, spec.verbose_control_frames,
             spec.client_prefetch_depth);
     }

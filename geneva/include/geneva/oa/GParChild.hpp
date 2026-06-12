@@ -43,7 +43,7 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GBaseParChildPersonalityTraits.hpp"
 
@@ -63,11 +63,11 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * algorithms acting on parameter objects.
  *
  * Populations are collections of individuals, which themselves are objects
- * exhibiting at least the GParameterSet class' API, most notably the GParameterSet::fitness()
- * and GParameterSet::adapt() functions.
+ * exhibiting at least the GParameterTree class' API, most notably the GParameterTree::fitness()
+ * and GParameterTree::adapt() functions.
  *
  * In order to add parents to an instance of this class use the default constructor,
- * then add at least one GParameterSet-derivative to it, and call setPopulationSizes().
+ * then add at least one GParameterTree-derivative to it, and call setPopulationSizes().
  * The population will then be "filled up" with missing individuals as required, before the
  * optimization starts.
  */
@@ -150,14 +150,14 @@ public:
     /***************************************************************************/
     /**
      * Retrieves a specific parent individual and casts it to the desired type. Note that this
-     * function will only be accessible to the compiler if individual_type is a derivative of GParameterSet,
+     * function will only be accessible to the compiler if individual_type is a derivative of GParameterTree,
      * thanks to the magic of the std::enable_if and type_traits.
      *
      * @param parent_id The id of the parent that should be returned
      * @return A converted shared_ptr to the parent
      */
     template <typename parent_type>
-        requires std::derived_from<parent_type, gpar::GParameterSet>
+        requires std::derived_from<parent_type, gpar::GParameterTree>
     std::shared_ptr<parent_type> getParentIndividual(std::size_t parent_id) {
 #ifdef DEBUG
         // Check that the parent id is in a valid range
@@ -175,7 +175,7 @@ public:
 #endif /* DEBUG */
 
         // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<gpar::GParameterSet, parent_type>(
+        return Gem::Common::convertSmartPointer<gpar::GParameterTree, parent_type>(
             *(this->begin() + parent_id)
         );
     }
@@ -241,10 +241,10 @@ protected:
     void performScheduledPopulationGrowth();
 
     /** @brief This function implements the RANDOMDUPLICATIONSCHEME scheme */
-    void randomRecombine(std::unique_ptr<gpar::GParameterSet> &child);
+    void randomRecombine(std::unique_ptr<gpar::GParameterTree> &child);
     /** @brief  This function implements the VALUEDUPLICATIONSCHEME scheme */
     void
-    valueRecombine(std::unique_ptr<gpar::GParameterSet> &p, const std::vector<double> &threshold);
+    valueRecombine(std::unique_ptr<gpar::GParameterTree> &p, const std::vector<double> &threshold);
 
     /***************************************************************************/
 

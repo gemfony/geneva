@@ -127,8 +127,8 @@ int main(int argc, char **argv) {
         // Create a check combiner and add the constraint objects to it. Constraints are
         // expressed directly as C++ constraint objects (subclasses of GParameterSetConstraint),
         // which is the general, type-safe way to formulate arbitrary dependent constraints.
-        std::shared_ptr<GCheckCombinerT<gpar::GParameterSet>> combiner_ptr(
-            new GCheckCombinerT<gpar::GParameterSet>()
+        std::shared_ptr<GCheckCombinerT<gpar::GParameterTree>> combiner_ptr(
+            new GCheckCombinerT<gpar::GParameterTree>()
         );
         combiner_ptr->setCombinerPolicy(Gem::Geneva::validityCheckCombinerPolicy::MULTIPLYINVALID);
 

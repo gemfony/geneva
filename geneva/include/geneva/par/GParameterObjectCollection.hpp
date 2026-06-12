@@ -52,7 +52,7 @@ namespace Gem::Geneva::Parameters {
 /******************************************************************************/
 /**
  * A collection of GParameterBase objects, ready for use in a
- * GParameterSet derivative.
+ * GParameterTree derivative.
  */
 class GParameterObjectCollection // NOLINT(cppcoreguidelines-special-member-functions)
   : public GParameterTCollectionT<GParameterBase> {

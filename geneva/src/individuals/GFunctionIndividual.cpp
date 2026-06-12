@@ -48,7 +48,7 @@
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GDoubleObject.hpp"
 #include "geneva/par/GDoubleObjectCollection.hpp"
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 #include "geneva/par/GParameterSetFactory.hpp"
 #include "geneva/par/GParameterSetMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
@@ -91,7 +91,7 @@ GDoubleSumConstraint::GDoubleSumConstraint(const double &c)
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GDoubleSumConstraint::compare_(
-    const GPreEvaluationValidityCheckT<gpar::GParameterSet> &cp,
+    const GPreEvaluationValidityCheckT<gpar::GParameterTree> &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -100,7 +100,7 @@ void GDoubleSumConstraint::compare_(
     // Check that we are dealing with a GDoubleSumConstraint reference independent of this object and convert the pointer
     const GDoubleSumConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<gpar::GParameterSet>,
+            GPreEvaluationValidityCheckT<gpar::GParameterTree>,
             GDoubleSumConstraint>(cp, this);
 
     Gem::Common::GToken token("GDoubleSumConstraint", e);
@@ -128,7 +128,7 @@ void GDoubleSumConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder 
 /**
  * Checks whether a given individual is valid
  */
-double GDoubleSumConstraint::check_(const gpar::GParameterSet *p) const {
+double GDoubleSumConstraint::check_(const gpar::GParameterTree *p) const {
     std::vector<double> par_vec;
     p->streamline(par_vec);
 
@@ -148,11 +148,11 @@ double GDoubleSumConstraint::check_(const gpar::GParameterSet *p) const {
 /**
  * Loads the data of another GDoubleSumConstraint
  */
-void GDoubleSumConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GParameterSet> *cp) {
+void GDoubleSumConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GParameterTree> *cp) {
     // Check that we are dealing with a GDoubleSumConstraint reference independent of this object and convert the pointer
     const GDoubleSumConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<gpar::GParameterSet>,
+            GPreEvaluationValidityCheckT<gpar::GParameterTree>,
             GDoubleSumConstraint>(cp, this);
 
     // Load our parent class'es data ...
@@ -166,7 +166,7 @@ void GDoubleSumConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GParam
 /**
  * Creates a deep clone of this object
  */
-GPreEvaluationValidityCheckT<gpar::GParameterSet> *GDoubleSumConstraint::clone_() const {
+GPreEvaluationValidityCheckT<gpar::GParameterTree> *GDoubleSumConstraint::clone_() const {
     return new GDoubleSumConstraint(*this);
 }
 
@@ -190,7 +190,7 @@ GDoubleSumGapConstraint::GDoubleSumGapConstraint(const double &c, const double &
  * @param e The expected outcome of the comparison
  */
 void GDoubleSumGapConstraint::compare_(
-    const GPreEvaluationValidityCheckT<gpar::GParameterSet> &cp,
+    const GPreEvaluationValidityCheckT<gpar::GParameterTree> &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -199,7 +199,7 @@ void GDoubleSumGapConstraint::compare_(
     // Check that we are dealing with a GDoubleSumGapConstraint reference independent of this object and convert the pointer
     const GDoubleSumGapConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<gpar::GParameterSet>,
+            GPreEvaluationValidityCheckT<gpar::GParameterTree>,
             GDoubleSumGapConstraint>(cp, this);
 
     Gem::Common::GToken token("GDoubleSumGapConstraint", e);
@@ -227,7 +227,7 @@ void GDoubleSumGapConstraint::addConfigurationOptions_(Gem::Common::GParserBuild
 /**
  * Checks whether a given individual is valid
  */
-double GDoubleSumGapConstraint::check_(const gpar::GParameterSet *p) const {
+double GDoubleSumGapConstraint::check_(const gpar::GParameterTree *p) const {
     std::vector<double> par_vec;
     p->streamline(par_vec);
 
@@ -248,11 +248,11 @@ double GDoubleSumGapConstraint::check_(const gpar::GParameterSet *p) const {
 /**
  * Loads the data of another GDoubleSumGapConstraint
  */
-void GDoubleSumGapConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GParameterSet> *cp) {
+void GDoubleSumGapConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GParameterTree> *cp) {
     // Check that we are dealing with a GDoubleSumGapConstraint reference independent of this object and convert the pointer
     const GDoubleSumGapConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<gpar::GParameterSet>,
+            GPreEvaluationValidityCheckT<gpar::GParameterTree>,
             GDoubleSumGapConstraint>(cp, this);
 
     // Load our parent class'es data ...
@@ -266,7 +266,7 @@ void GDoubleSumGapConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GPa
 /**
  * Creates a deep clone of this object
  */
-GPreEvaluationValidityCheckT<gpar::GParameterSet> *GDoubleSumGapConstraint::clone_() const {
+GPreEvaluationValidityCheckT<gpar::GParameterTree> *GDoubleSumGapConstraint::clone_() const {
     return new GDoubleSumGapConstraint(*this);
 }
 
@@ -290,14 +290,14 @@ GSphereConstraint::GSphereConstraint(const double &diameter)
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GSphereConstraint::compare_(
-    const GPreEvaluationValidityCheckT<gpar::GParameterSet> &cp,
+    const GPreEvaluationValidityCheckT<gpar::GParameterTree> &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GSphereConstraint reference independent of this object and convert the pointer
     const GSphereConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<gpar::GParameterSet>,
+            GPreEvaluationValidityCheckT<gpar::GParameterTree>,
             GSphereConstraint>(cp, this);
 
     Gem::Common::GToken token("GSphereConstraint", e);
@@ -325,7 +325,7 @@ void GSphereConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gp
 /**
  * Checks whether a given individual is valid
  */
-double GSphereConstraint::check_(const gpar::GParameterSet *p) const {
+double GSphereConstraint::check_(const gpar::GParameterTree *p) const {
     std::vector<double> par_vec;
     p->streamline(par_vec);
 
@@ -346,11 +346,11 @@ double GSphereConstraint::check_(const gpar::GParameterSet *p) const {
 /**
  * Loads the data of another GSphereConstraint
  */
-void GSphereConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GParameterSet> *cp) {
+void GSphereConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GParameterTree> *cp) {
     // Check that we are dealing with a GSphereConstraint reference independent of this object and convert the pointer
     const GSphereConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<gpar::GParameterSet>,
+            GPreEvaluationValidityCheckT<gpar::GParameterTree>,
             GSphereConstraint>(cp, this);
 
     // Load our parent class'es data ...
@@ -364,7 +364,7 @@ void GSphereConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GParamete
 /**
  * Creates a deep clone of this object
  */
-GPreEvaluationValidityCheckT<gpar::GParameterSet> *GSphereConstraint::clone_() const {
+GPreEvaluationValidityCheckT<gpar::GParameterTree> *GSphereConstraint::clone_() const {
     return new GSphereConstraint(*this);
 }
 
@@ -505,18 +505,18 @@ void GFunctionIndividual::setFitness(std::vector<double> const &result_vec) {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GFunctionIndividual::compare_(
-    const gpar::GParameterSet &cp,
+    const gpar::GParameterTree &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GFunctionIndividual reference independent of this object and convert the pointer
     const GFunctionIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GFunctionIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GFunctionIndividual>(cp, this);
 
     Gem::Common::GToken token("GFunctionIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GParameterTree>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -533,7 +533,7 @@ void GFunctionIndividual::compare_(
  */
 void GFunctionIndividual::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    gpar::GParameterSet::addConfigurationOptions_(gpb);
+    gpar::GParameterTree::addConfigurationOptions_(gpb);
 
     // Local data
     gpb.registerFileParameter<solverFunction>(
@@ -611,17 +611,17 @@ std::size_t GFunctionIndividual::getParameterSize() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GFunctionIndividual, camouflaged as a GParameterSet
+ * Loads the data of another GFunctionIndividual, camouflaged as a GParameterTree
  *
- * @param cp A copy of another GFunctionIndividual, camouflaged as a GParameterSet
+ * @param cp A copy of another GFunctionIndividual, camouflaged as a GParameterTree
  */
-void GFunctionIndividual::load_(const gpar::GParameterSet *cp) {
+void GFunctionIndividual::load_(const gpar::GParameterTree *cp) {
     // Check that we are dealing with a GFunctionIndividual reference independent of this object and convert the pointer
     const GFunctionIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GFunctionIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GFunctionIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GParameterSet::load_(cp);
+    gpar::GParameterTree::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -631,9 +631,9 @@ void GFunctionIndividual::load_(const gpar::GParameterSet *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GParameterSet
+ * @return A deep clone of this object, camouflaged as a GParameterTree
  */
-gpar::GParameterSet *GFunctionIndividual::clone_() const {
+gpar::GParameterTree *GFunctionIndividual::clone_() const {
     return new GFunctionIndividual(*this);
 }
 
@@ -649,7 +649,7 @@ bool GFunctionIndividual::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gpar::GParameterSet::modify_GUnitTests_()) {
+    if(gpar::GParameterTree::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -673,7 +673,7 @@ void GFunctionIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
+    gpar::GParameterTree::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -695,7 +695,7 @@ void GFunctionIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
+    gpar::GParameterTree::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -796,14 +796,14 @@ GFunctionIndividualFactory::GFunctionIndividualFactory()
  * Loads the data of another GFunctionIndividualFactory object
  */
 void GFunctionIndividualFactory::load(
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> cp_raw_ptr
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterTree>> cp_raw_ptr
 ) {
     // Load our parent class'es data
     gpar::GParameterSetFactory::load(cp_raw_ptr);
 
     // Convert the base pointer
     std::shared_ptr<GFunctionIndividualFactory> cp_ptr = Gem::Common::convertSmartPointer<
-        Gem::Common::GFactoryT<gpar::GParameterSet>,
+        Gem::Common::GFactoryT<gpar::GParameterTree>,
         GFunctionIndividualFactory>(cp_raw_ptr);
 
     // And then our own
@@ -836,7 +836,7 @@ void GFunctionIndividualFactory::load(
 /**
  * Creates a deep clone of this object
  */
-std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> GFunctionIndividualFactory::clone() const {
+std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterTree>> GFunctionIndividualFactory::clone() const {
     return std::make_shared<GFunctionIndividualFactory>(*this);
 }
 
@@ -1379,7 +1379,7 @@ void GFunctionIndividualFactory::setAdProbRange(double min_ad_prob, double max_a
  *
  * @return Items of the desired type
  */
-std::shared_ptr<gpar::GParameterSet> GFunctionIndividualFactory::getObject_(
+std::shared_ptr<gpar::GParameterTree> GFunctionIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     [[maybe_unused]] const std::size_t & id
 ) {
@@ -1651,7 +1651,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet> &p) {
+void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterTree> &p) {
     // Set up a random number generator
     Gem::Hap::GRandom gr;
 

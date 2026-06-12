@@ -46,7 +46,7 @@
 #include <common/GFactoryT.hpp>
 #include <common/GParserBuilder.hpp>
 #include <geneva/par/GConstrainedDoubleObject.hpp>
-#include <geneva/par/GParameterSet.hpp>
+#include <geneva/ind/GParameterTree.hpp>
 
 namespace Gem::Geneva {
 
@@ -58,7 +58,7 @@ constexpr std::size_t NPAR_MC = 3;
  * This individual implements several, possibly conflicting evaluation
  * criteria, each implemented as a parabola with its own minimum
  */
-class GMultiCriterionParabolaIndividual : public gpar::GParameterSet {
+class GMultiCriterionParabolaIndividual : public gpar::GParameterTree {
     friend class GMultiCriterionParabolaIndividualFactory;
 
     /***************************************************************************/
@@ -69,7 +69,7 @@ class GMultiCriterionParabolaIndividual : public gpar::GParameterSet {
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterTree);
     }
 
     /** @brief Make the class accessible to Boost.Serialization */
@@ -89,14 +89,14 @@ public:
 
 protected:
     /** @brief Loads the data of another GMultiCriterionParabolaIndividual */
-    void load_(const gpar::GParameterSet *) final;
+    void load_(const gpar::GParameterTree *) final;
 
     /** @brief The actual fitness calculation takes place here. */
     double fitnessCalculation() final;
 
 private:
     /** @brief Creates a deep clone of this object */
-    gpar::GParameterSet *clone_() const final;
+    gpar::GParameterTree *clone_() const final;
 
     /** @brief The default constructor -- intentionally private*/
     GMultiCriterionParabolaIndividual() = default;
@@ -111,7 +111,7 @@ private:
 /**
  * A factory for GMultiCriterionParabolaIndividual objects
  */
-class GMultiCriterionParabolaIndividualFactory : public Gem::Common::GFactoryT<gpar::GParameterSet> {
+class GMultiCriterionParabolaIndividualFactory : public Gem::Common::GFactoryT<gpar::GParameterTree> {
 public:
     /** @brief The standard constructor for this class */
     GMultiCriterionParabolaIndividualFactory(std::filesystem::path const &);
@@ -120,12 +120,12 @@ public:
 
 protected:
     /** @brief Creates individuals of this type */
-    virtual std::shared_ptr<gpar::GParameterSet>
+    virtual std::shared_ptr<gpar::GParameterTree>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &);
     /** @brief Allows to describe local configuration options in derived classes */
     virtual void describeLocalOptions_(Gem::Common::GParserBuilder &);
     /** @brief Allows to act on the configuration options received from the configuration file */
-    virtual void postProcess_(std::shared_ptr<gpar::GParameterSet> &);
+    virtual void postProcess_(std::shared_ptr<gpar::GParameterTree> &);
 
 private:
     /** @brief The default constructor. Only needed for (de-)serialization purposes */

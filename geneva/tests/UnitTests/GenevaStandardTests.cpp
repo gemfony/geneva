@@ -565,16 +565,16 @@ TEST_CASE(
     }
 }
 
-// Safety net for the gpar::GParameterSet serialize()/load_()/compare_() unification
-// onto a single localMembers() declaration. GParameterSet is the central serialised
+// Safety net for the gpar::GParameterTree serialize()/load_()/compare_() unification
+// onto a single localMembers() declaration. GParameterTree is the central serialised
 // base for all individuals. This test sets several of its members to non-default
 // values -- in particular use_random_crash_ / random_crash_prob_, which serialize()
 // stored but the old load_()/compare_() silently ignored (a real member-drop bug,
 // fixed by deriving all three from localMembers()) -- and checks they survive both a
 // wire round-trip AND an in-memory load() (clone path). Exercised on the concrete
-// GTestIndividual1 (a GParameterSet subclass).
+// GTestIndividual1 (a GParameterTree subclass).
 TEST_CASE(
-    "gpar::GParameterSet (via GTestIndividual1) round-trips its members incl. the random-crash settings",
+    "gpar::GParameterTree (via GTestIndividual1) round-trips its members incl. the random-crash settings",
     "[geneva][serialization]"
 ) {
     using Gem::Common::serializationMode;
@@ -598,7 +598,7 @@ TEST_CASE(
         CHECK(restored.getMaxMode() == maxMode::MAXIMIZE);
 
         GEqualityPrinter gep(
-            "GParameterSet-load-roundtrip",
+            "GParameterTree-load-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
         );
@@ -628,7 +628,7 @@ TEST_CASE(
         CHECK(restored.getMaxMode() == maxMode::MAXIMIZE);
 
         GEqualityPrinter gep(
-            "GParameterSet-roundtrip",
+            "GParameterTree-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
         );

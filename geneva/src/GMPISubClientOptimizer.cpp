@@ -38,7 +38,7 @@
 #include "common/GParserBuilder.hpp"
 #include "geneva/GMPISubClientIndividual.hpp"
 #include "geneva/Go2.hpp"
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 #include <boost/program_options.hpp>
 #include <cstdint>
 #include <functional>

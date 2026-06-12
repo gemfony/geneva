@@ -107,7 +107,7 @@ enum class activityMode : Gem::Common::ENUMBASETYPE {
 
 /******************************************************************************/
 /**
- * The number of calls to the GParameterSet::customAdaption() function
+ * The number of calls to the GParameterTree::customAdaption() function
  * without actual modifications
  */
 constexpr std::size_t DEFMAXUNSUCCESSFULADAPTIONS = 1000;
@@ -184,7 +184,7 @@ constexpr std::size_t DEFAULTEANPARENTS = 2;
 constexpr double DEFAULTAMALGAMATIONLIKELIHOOD = 0.;
 
 /**
- * The default likelihood for two items of a GParameterSet to be exchanged
+ * The default likelihood for two items of a GParameterTree to be exchanged
  */
 constexpr double DEFAULTPERITEMEXCHANGELIKELIHOOD = 0.5;
 

@@ -46,7 +46,7 @@ namespace Gem::Geneva::Parameters {
 /******************************************************************************/
 /**
  * A collection of GConstrainedFloatObject objects, ready for use in a
- * GParameterSet derivative.
+ * GParameterTree derivative.
  */
 class GConstrainedFloatObjectCollection // NOLINT(cppcoreguidelines-special-member-functions)
   : public GParameterTCollectionT<GConstrainedFloatObject> {

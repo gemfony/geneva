@@ -53,7 +53,7 @@
 #include "geneva/par/GDoubleBiGaussAdaptor.hpp"
 #include "geneva/par/GDoubleCollection.hpp"
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -91,13 +91,13 @@ const targetFunction GO_DEF_TARGETFUNCTION = targetFunction::GFM_PARABOLA;
  * This individual searches for a minimum of a number of predefined functions, each capable
  * of processing their input in multiple dimensions.
  */
-class GFMinIndividual : public gpar::GParameterSet {
+class GFMinIndividual : public gpar::GParameterTree {
     /////////////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterSet) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterTree) &
             BOOST_SERIALIZATION_NVP(targetFunction_);
     }
 
@@ -125,7 +125,7 @@ public:
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another GFMinIndividual */
-    virtual void load_(const gpar::GParameterSet *) final;
+    virtual void load_(const gpar::GParameterTree *) final;
 
     /** @brief The actual value calculation takes place here */
     virtual double fitnessCalculation() final;
@@ -135,7 +135,7 @@ protected:
 private:
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    virtual gpar::GParameterSet *clone_() const final;
+    virtual gpar::GParameterTree *clone_() const final;
 
     /***************************************************************************/
     targetFunction targetFunction_ =
@@ -163,7 +163,7 @@ std::ostream &operator<<(std::ostream &, std::shared_ptr<Gem::Geneva::GFMinIndiv
 /**
  * A factory for GFMinIndividual objects
  */
-class GFMinIndividualFactory : public Gem::Common::GFactoryT<gpar::GParameterSet> {
+class GFMinIndividualFactory : public Gem::Common::GFactoryT<gpar::GParameterTree> {
 public:
     /** @brief The standard constructor */
     explicit GFMinIndividualFactory(std::filesystem::path const &);
@@ -172,12 +172,12 @@ public:
 
 protected:
     /** @brief Creates individuals of this type */
-    virtual std::shared_ptr<gpar::GParameterSet>
+    virtual std::shared_ptr<gpar::GParameterTree>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &);
     /** @brief Allows to describe local configuration options in derived classes */
     virtual void describeLocalOptions_(Gem::Common::GParserBuilder &);
     /** @brief Allows to act on the configuration options received from the configuration file */
-    virtual void postProcess_(std::shared_ptr<gpar::GParameterSet> &);
+    virtual void postProcess_(std::shared_ptr<gpar::GParameterTree> &);
 
 private:
     /** @brief The default constructor. Only needed for (de-)serialization purposes */

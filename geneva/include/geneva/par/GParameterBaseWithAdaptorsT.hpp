@@ -60,7 +60,7 @@ namespace Gem::Geneva::Parameters {
  * this class was implemented as a template. Storing the adaptors in
  * the GParameterBase class would not have been possible, as it cannot be
  * template-ized - it serves as a base class for the objects stored in the
- * GParameterSet collections.
+ * GParameterTree collections.
  */
 template <typename T>
 class GParameterBaseWithAdaptorsT // NOLINT(cppcoreguidelines-special-member-functions)

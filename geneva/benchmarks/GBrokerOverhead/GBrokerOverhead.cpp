@@ -360,9 +360,9 @@ int main(int argc, char **argv) {
     gind::GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
     // Create the first set of parent individuals. Initialization of parameters is done randomly.
-    std::vector<std::shared_ptr<gpar::GParameterSet>> parentIndividuals;
+    std::vector<std::shared_ptr<gpar::GParameterTree>> parentIndividuals;
     for(std::size_t p = 0; p < nParents; p++) {
-        std::shared_ptr<gpar::GParameterSet> functionIndividual_ptr = gfi();
+        std::shared_ptr<gpar::GParameterTree> functionIndividual_ptr = gfi();
 
         // Set up a GDoubleCollection with dimension values, each initialized
         // with a random number in the range [min,max[

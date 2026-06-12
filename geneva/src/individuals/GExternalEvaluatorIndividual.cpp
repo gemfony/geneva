@@ -41,7 +41,7 @@
 #include "geneva/par/GConstrainedDoubleObject.hpp"
 #include "geneva/par/GDoubleBiGaussAdaptor.hpp"
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 #include "geneva/par/GParameterSetMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 #include <algorithm>
@@ -80,7 +80,7 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
  * A standard copy constructor.
  */
 GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual &cp)
-  : gpar::GParameterSet(cp) // copies all local collections
+  : gpar::GParameterTree(cp) // copies all local collections
   , program_name_(cp.program_name_)
   , custom_options_(cp.custom_options_)
   , parameter_file_base_name_(cp.parameter_file_base_name_)
@@ -101,22 +101,22 @@ GExternalEvaluatorIndividual::~GExternalEvaluatorIndividual() { /* nothing */
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GParameterSet object
+ * @param cp A constant reference to another GParameterTree object
  * @param e The expected outcome of the comparison
  */
 void GExternalEvaluatorIndividual::compare_(
-    const gpar::GParameterSet &cp,
+    const gpar::GParameterTree &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GExternalEvaluatorIndividual reference independent of this object and convert the pointer
     const GExternalEvaluatorIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GExternalEvaluatorIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GExternalEvaluatorIndividual>(cp, this);
 
     Gem::Common::GToken token("GExternalEvaluatorIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GParameterSet>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GParameterTree>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -212,17 +212,17 @@ std::size_t GExternalEvaluatorIndividual::getNExpectedResults() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GExternalEvaluatorIndividual, camouflaged as a GParameterSet
+ * Loads the data of another GExternalEvaluatorIndividual, camouflaged as a GParameterTree
  *
- * @param cp A copy of another GExternalEvaluatorIndividual, camouflaged as a GParameterSet
+ * @param cp A copy of another GExternalEvaluatorIndividual, camouflaged as a GParameterTree
  */
-void GExternalEvaluatorIndividual::load_(const gpar::GParameterSet *cp) {
+void GExternalEvaluatorIndividual::load_(const gpar::GParameterTree *cp) {
     // Check that we are dealing with a GExternalEvaluatorIndividual reference independent of this object and convert the pointer
     const GExternalEvaluatorIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterSet, GExternalEvaluatorIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GExternalEvaluatorIndividual>(cp, this);
 
     // First load the data of our parent class ...
-    gpar::GParameterSet::load_(cp);
+    gpar::GParameterTree::load_(cp);
 
     // ... and then our own, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -232,9 +232,9 @@ void GExternalEvaluatorIndividual::load_(const gpar::GParameterSet *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GParameterSet
+ * @return A deep clone of this object, camouflaged as a GParameterTree
  */
-gpar::GParameterSet *GExternalEvaluatorIndividual::clone_() const {
+gpar::GParameterTree *GExternalEvaluatorIndividual::clone_() const {
     return new GExternalEvaluatorIndividual(*this);
 }
 
@@ -494,7 +494,7 @@ bool GExternalEvaluatorIndividual::getRemoveExecTemporaries() const {
 GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
     std::filesystem::path const &config_file
 )
-  : Gem::Common::GFactoryT<gpar::GParameterSet>(config_file)
+  : Gem::Common::GFactoryT<gpar::GParameterTree>(config_file)
   , ad_prob_(GEEI_DEF_ADPROB)
   , adapt_ad_prob_(GEEI_DEF_ADAPTADPROB)
   , min_ad_prob_(GEEI_DEF_MINADPROB)
@@ -528,7 +528,7 @@ GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
 GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
     const GExternalEvaluatorIndividualFactory &cp
 )
-  : Gem::Common::GFactoryT<gpar::GParameterSet>(cp)
+  : Gem::Common::GFactoryT<gpar::GParameterTree>(cp)
   , ad_prob_(cp.ad_prob_)
   , adapt_ad_prob_(cp.adapt_ad_prob_)
   , min_ad_prob_(cp.min_ad_prob_)
@@ -561,7 +561,7 @@ GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
  * The default constructor. Only needed for (de-)serialization purposes, hence empty.
  */
 GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory()
-  : Gem::Common::GFactoryT<gpar::GParameterSet>("empty")
+  : Gem::Common::GFactoryT<gpar::GParameterTree>("empty")
   , ad_prob_(GEEI_DEF_ADPROB)
   , adapt_ad_prob_(GEEI_DEF_ADAPTADPROB)
   , min_ad_prob_(GEEI_DEF_MINADPROB)
@@ -648,14 +648,14 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
  * Loads the data of another GFunctionIndividualFactory object
  */
 void GExternalEvaluatorIndividualFactory::load(
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>> cp_raw_ptr
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterTree>> cp_raw_ptr
 ) {
     // Load our parent class'es data
-    Gem::Common::GFactoryT<gpar::GParameterSet>::load(cp_raw_ptr);
+    Gem::Common::GFactoryT<gpar::GParameterTree>::load(cp_raw_ptr);
 
     // Convert the base pointer
     std::shared_ptr<GExternalEvaluatorIndividualFactory> cp_ptr = Gem::Common::convertSmartPointer<
-        Gem::Common::GFactoryT<gpar::GParameterSet>,
+        Gem::Common::GFactoryT<gpar::GParameterTree>,
         GExternalEvaluatorIndividualFactory>(cp_raw_ptr);
 
     // And then our own
@@ -690,7 +690,7 @@ void GExternalEvaluatorIndividualFactory::load(
 /**
  * Creates a deep clone of this object
  */
-std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterSet>>
+std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterTree>>
 GExternalEvaluatorIndividualFactory::clone() const {
     return std::make_shared<GExternalEvaluatorIndividualFactory>(*this);
 }
@@ -1320,7 +1320,7 @@ void GExternalEvaluatorIndividualFactory::archive(
  *
  * @return Items of the desired type
  */
-std::shared_ptr<gpar::GParameterSet> GExternalEvaluatorIndividualFactory::getObject_(
+std::shared_ptr<gpar::GParameterTree> GExternalEvaluatorIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     [[maybe_unused]] const std::size_t & id
 ) {
@@ -1342,7 +1342,7 @@ void GExternalEvaluatorIndividualFactory::describeLocalOptions_(Gem::Common::GPa
     using namespace Gem::Courtier;
 
     // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<gpar::GParameterSet>::describeLocalOptions_(gpb);
+    Gem::Common::GFactoryT<gpar::GParameterTree>::describeLocalOptions_(gpb);
 
     // Then add our local options
     gpb.registerFileParameter<double>("ad_prob", ad_prob_.reference(), GEEI_DEF_ADPROB)
@@ -1564,12 +1564,12 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
  *
  * @param p_raw A smart-pointer to be acted on during post-processing
  */
-void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterSet> &p_raw) {
+void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterTree> &p_raw) {
     using boost::property_tree::ptree;
 
     // Convert the base pointer to the target type
     std::shared_ptr<GExternalEvaluatorIndividual> p =
-        Gem::Common::convertSmartPointer<gpar::GParameterSet, GExternalEvaluatorIndividual>(p_raw);
+        Gem::Common::convertSmartPointer<gpar::GParameterTree, GExternalEvaluatorIndividual>(p_raw);
 
     // Set up a random number generator
     Gem::Hap::GRandom gr;

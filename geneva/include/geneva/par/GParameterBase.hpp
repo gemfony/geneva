@@ -58,7 +58,7 @@ namespace Gem::Geneva::Parameters {
 /******************************************************************************/
 /**
  * The purpose of this class is to provide a common base for all parameter classes so
- * that a GParameterSet can be built from different parameter types. The class also
+ * that a GParameterTree can be built from different parameter types. The class also
  * defines the interface that needs to be implemented by parameter classes.
  */
 class GParameterBase
@@ -306,7 +306,7 @@ public:
 
     /***************************************************************************/
     /**
-     * Adds the parameters of another GParameterSet object to this one
+     * Adds the parameters of another GParameterTree object to this one
      */
     template <typename par_type>
     void add(
@@ -323,7 +323,7 @@ public:
 
     /***************************************************************************/
     /**
-     * Subtracts the parameters of another GParameterSet object from this one
+     * Subtracts the parameters of another GParameterTree object from this one
      */
     template <typename par_type>
     void subtract(

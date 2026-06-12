@@ -32,7 +32,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GMultiConstraintT.hpp"
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 
 namespace Gem::Geneva::Parameters {
 
@@ -47,7 +47,7 @@ namespace Gem::Geneva::Parameters {
  * @param e The expected outcome of the comparison
  */
 void GParameterSetConstraint::compare_(
-    const GPreEvaluationValidityCheckT<GParameterSet> &cp,
+    const GPreEvaluationValidityCheckT<GParameterTree> &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -56,13 +56,13 @@ void GParameterSetConstraint::compare_(
     // Check that we are dealing with a GParameterSetConstraint reference independent of this object and convert the pointer
     const GParameterSetConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<GParameterSet>,
+            GPreEvaluationValidityCheckT<GParameterTree>,
             GParameterSetConstraint>(cp, this);
 
     GToken token("GParameterSetConstraint", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GPreEvaluationValidityCheckT<GParameterSet>>(*this, *p_load, token);
+    Gem::Common::compare_base_t<GPreEvaluationValidityCheckT<GParameterTree>>(*this, *p_load, token);
 
     // ... no local data
 
@@ -76,22 +76,22 @@ void GParameterSetConstraint::compare_(
  */
 void GParameterSetConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    GPreEvaluationValidityCheckT<GParameterSet>::addConfigurationOptions_(gpb);
+    GPreEvaluationValidityCheckT<GParameterTree>::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
 /**
  * Loads the data of another GParameterSetConstraint
  */
-void GParameterSetConstraint::load_(const GPreEvaluationValidityCheckT<GParameterSet> *cp) {
+void GParameterSetConstraint::load_(const GPreEvaluationValidityCheckT<GParameterTree> *cp) {
     // Check that we are dealing with a GParameterSetConstraint reference independent of this object and convert the pointer
     const GParameterSetConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<GParameterSet>,
+            GPreEvaluationValidityCheckT<GParameterTree>,
             GParameterSetConstraint>(cp, this);
 
     // Load our parent class'es data ...
-    GPreEvaluationValidityCheckT<GParameterSet>::load_(cp);
+    GPreEvaluationValidityCheckT<GParameterTree>::load_(cp);
 
     // no local data
 }

@@ -44,7 +44,7 @@
 // Geneva headers
 #include "common/GCommonEnums.hpp" // serializationMode
 #include "courtier/GBrokerT.hpp"
-#include "geneva/par/GParameterSet.hpp"
+#include "geneva/ind/GParameterTree.hpp"
 
 namespace Gem::Courtier {
 template <typename processable_type>
@@ -81,7 +81,7 @@ struct ConsumerSetup {
     /** @brief A ready broker (consumer registered, clone function set, server started for networked
      *  consumers) to inject into the algorithms via GOptimizationAlgorithmBase::setBroker(). Null when this
      *  process is not a submitter -- e.g. an MPI worker rank. */
-    std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterSet>> broker;
+    std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterTree>> broker;
     /** @brief When this process must serve as a worker (an MPI worker rank), the loop to run; null
      *  otherwise. The caller invokes it instead of submitting. */
     std::function<void()> run_worker;
@@ -90,7 +90,7 @@ struct ConsumerSetup {
 /******************************************************************************/
 /**
  * Builds a courtier setup from @p spec: constructs the matching courtier consumer, sets the
- * polymorphic GParameterSet clone function (required by clone-on-partial-return), registers it with a
+ * polymorphic GParameterTree clone function (required by clone-on-partial-return), registers it with a
  * fresh single-consumer broker, and -- for networked consumers -- starts the server (for MPI only on
  * the master rank; a worker rank yields a run_worker loop and a null broker instead).
  *
@@ -122,7 +122,7 @@ ConsumerSpec specFromCommandLine(
  * Returns null for mnemonics that have no socket client (sc/stc are local; the mpi worker loop is
  * obtained from buildConsumerSetup().run_worker instead).
  */
-std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GParameterSet>>
+std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GParameterTree>>
 buildConsumerClient(const ConsumerSpec &spec);
 
 /******************************************************************************/

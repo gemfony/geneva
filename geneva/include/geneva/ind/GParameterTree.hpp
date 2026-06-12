@@ -90,7 +90,7 @@ namespace Gem::Geneva::Parameters {
 /******************************************************************************/
 /**
  * Container for fitness and transformed fitness values, as produced by the
- * GParameterSet class.
+ * GParameterTree class.
  */
 class parameterset_processing_result {
     ///////////////////////////////////////////////////////////////////////
@@ -178,12 +178,12 @@ private:
  * This class implements a collection of GParameterBase objects. It
  * will form the basis of many user-defined individuals.
  */
-class GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GCommonInterfaceT<GParameterSet>
+class GParameterTree // NOLINT(cppcoreguidelines-special-member-functions)
+  : public Gem::Common::GCommonInterfaceT<GParameterTree>
   , public Interface::GMutableI
   , public Interface::GRateableI
   , public Gem::Common::GUniquePtrContainerT<GParameterBase>
-  , public Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result> {
+  , public Gem::Courtier::GProcessingContainerT<GParameterTree, parameterset_processing_result> {
     friend class Gem::Geneva::Individuals::GTestIndividual1; ///< Needed for testing purposes
 
     ///////////////////////////////////////////////////////////////////////
@@ -245,7 +245,7 @@ class GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
         using boost::serialization::make_nvp;
 
         // This is the CRTP category root. Its CRTP base
-        // (Gem::Common::GCommonInterfaceT<GParameterSet>) carries no state and is
+        // (Gem::Common::GCommonInterfaceT<GParameterTree>) carries no state and is
         // therefore not serialized as a base_object -- mirroring GObject, whose
         // serialize() is likewise empty. The two stateful base classes (the
         // GParameterBase container and the processing base) ARE serialized as
@@ -257,7 +257,7 @@ class GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
             make_nvp(
                 "GProcessingContainerT_ParameterSet_double",
                 boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<
-                    GParameterSet,
+                    GParameterTree,
                     parameterset_processing_result>>(*this)
             );
 
@@ -269,13 +269,13 @@ class GParameterSet // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief The default constructor */
-    GParameterSet();
+    GParameterTree();
     /** @brief Initialization with the number of fitness criteria */
-    explicit GParameterSet(std::size_t);
+    explicit GParameterTree(std::size_t);
     /** @brief The copy constructor */
-    GParameterSet(GParameterSet const &);
+    GParameterTree(GParameterTree const &);
     /** @brief The destructor */
-    ~GParameterSet() override = default;
+    ~GParameterTree() override = default;
 
     /** @brief Allows to randomly initialize parameter members */
     bool randomInit(activityMode const &);
@@ -305,8 +305,8 @@ public:
     bool isGoodEnough(std::vector<double> const &);
 
     /** @brief Perform a cross-over operation between this object and another */
-    virtual std::shared_ptr<GParameterSet>
-    crossOverWith(GParameterSet const &) const;
+    virtual std::shared_ptr<GParameterTree>
+    crossOverWith(GParameterTree const &) const;
 
     /** @brief Triggers updates of adaptors contained in this object */
     void updateAdaptorsOnStall(std::uint32_t);
@@ -318,8 +318,8 @@ public:
         std::vector<std::any> &data
     ) const;
 
-    /** @brief Retrieves parameters relevant for the evaluation from another GParameterSet */
-    virtual void cannibalize(GParameterSet &);
+    /** @brief Retrieves parameters relevant for the evaluation from another GParameterTree */
+    virtual void cannibalize(GParameterTree &);
 
     /** @brief The adaption interface */
     std::size_t adapt() override;
@@ -412,7 +412,7 @@ public:
         }
                     throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParameterSet::getVarVal<>(): Error!" << '\n'
+                << "In GParameterTree::getVarVal<>(): Error!" << '\n'
                 << "Received invalid type descriptor " << '\n'
             );
        
@@ -424,7 +424,7 @@ public:
     /**
      * The function converts the local personality base pointer to the desired type
      * and returns it for modification by the corresponding optimization algorithm.
-     * The base algorithms have been declared "friend" of GParameterSet and
+     * The base algorithms have been declared "friend" of GParameterTree and
      * can thus access this function. External entities have no need to do so. Note
      * that this function will only be accessible to the compiler if personality_type
      * is a derivative of GPersonalityTraits, thanks to the magic of std::enable_if
@@ -440,7 +440,7 @@ public:
         if(not pt_ptr_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParameterSet::getPersonalityTraits<personality_type>() : Empty personality "
+                << "In GParameterTree::getPersonalityTraits<personality_type>() : Empty personality "
                    "pointer found"
                 << '\n'
                 << "This should not happen." << '\n'
@@ -456,8 +456,8 @@ public:
     }
 
     /* ----------------------------------------------------------------------------------
-     * Tested in GParameterSet::specificTestsNoFailureExpected_GUnitTests()
-     * Tested in GParameterSet::specificTestsFailureExpected_GUnitTests()
+     * Tested in GParameterTree::specificTestsNoFailureExpected_GUnitTests()
+     * Tested in GParameterTree::specificTestsFailureExpected_GUnitTests()
      * ----------------------------------------------------------------------------------
      */
 
@@ -478,7 +478,7 @@ public:
     bool constraintsFulfilled() const;
     /** @brief Allows to register a constraint with this individual */
     void
-        registerConstraint(std::shared_ptr<GPreEvaluationValidityCheckT<GParameterSet>>);
+        registerConstraint(std::shared_ptr<GPreEvaluationValidityCheckT<GParameterTree>>);
 
     /** @brief Allows to set the policy to use in case this individual represents an invalid solution */
     void setEvaluationPolicy(evaluationPolicy eval_policy);
@@ -605,7 +605,7 @@ public:
         if(countParameters<par_type>() != par_vec.size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParameterSet::assignValueVector(const std::vector<pat_type>&):" << '\n'
+                << "In GParameterTree::assignValueVector(const std::vector<pat_type>&):" << '\n'
                 << "Sizes don't match: " << countParameters<par_type>() << " / " << par_vec.size()
                 << '\n'
             );
@@ -686,7 +686,7 @@ public:
         if(n_double + n_float != par_vec.size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParameterSet::assignFPValueVector():" << '\n'
+                << "In GParameterTree::assignFPValueVector():" << '\n'
                 << "Sizes don't match: " << (n_double + n_float) << " / " << par_vec.size() << '\n'
             );
         }
@@ -841,12 +841,12 @@ public:
 
     /***************************************************************************/
     /**
-     * Adds the parameters of another GParameterSet object to this one
+     * Adds the parameters of another GParameterTree object to this one
      */
     template <typename par_type>
-    void add(std::shared_ptr<GParameterSet> const &p, activityMode const &am) {
-        GParameterSet::iterator it;
-        GParameterSet::const_iterator cit;
+    void add(std::shared_ptr<GParameterTree> const &p, activityMode const &am) {
+        GParameterTree::iterator it;
+        GParameterTree::const_iterator cit;
 
         // Note that the GParameterBase objects need to accept a
         // std::shared_ptr<GParameterBase>, contrary to the calling conventions
@@ -861,12 +861,12 @@ public:
 
     /***************************************************************************/
     /**
-     * Subtracts the parameters of another GParameterSet object from this one
+     * Subtracts the parameters of another GParameterTree object from this one
      */
     template <typename par_type>
-    void subtract(std::shared_ptr<GParameterSet> const &p, activityMode const &am) {
-        GParameterSet::iterator it;
-        GParameterSet::const_iterator cit;
+    void subtract(std::shared_ptr<GParameterTree> const &p, activityMode const &am) {
+        GParameterTree::iterator it;
+        GParameterTree::const_iterator cit;
 
         // Note that the GParameterBase objects need to accept a
         // std::shared_ptr<GParameterBase>, contrary to the calling conventions
@@ -882,8 +882,8 @@ public:
     /***************************************************************************/
     // Deleted functions
 
-    explicit GParameterSet(float const &) = delete;  ///< Intentionally undefined
-    explicit GParameterSet(double const &) = delete; ///< Intentionally undefined
+    explicit GParameterTree(float const &) = delete;  ///< Intentionally undefined
+    explicit GParameterTree(double const &) = delete; ///< Intentionally undefined
 
 protected:
     /***************************************************************************/
@@ -902,19 +902,19 @@ protected:
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
-    /** @brief Loads the data of another GParameterSet */
-    void load_(const GParameterSet *) override;
+    /** @brief Loads the data of another GParameterTree */
+    void load_(const GParameterTree *) override;
 
     /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GParameterSet>(
-        GParameterSet const &,
-        GParameterSet const &,
+    friend void Gem::Common::compare_base_t<GParameterTree>(
+        GParameterTree const &,
+        GParameterTree const &,
         Gem::Common::GToken &
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        GParameterSet const & // the other object
+        GParameterTree const & // the other object
         ,
         Gem::Common::expectation const & // the expectation for this object, e.g. equality
         ,
@@ -958,7 +958,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    GParameterSet *clone_() const override = 0;
+    GParameterTree *clone_() const override = 0;
 
     /** @brief Retrieves the stored raw fitness with a given id */
     double raw_fitness_(std::size_t) const final;
@@ -1012,7 +1012,7 @@ private:
     double sigmoid_extremes_ = Gem::Geneva::WORSTALLOWEDVALIDFITNESS;
 
     /** @brief A constraint-check to be applied to one or more components of this individual */
-    std::shared_ptr<GPreEvaluationValidityCheckT<GParameterSet>> individual_constraint_ptr_;
+    std::shared_ptr<GPreEvaluationValidityCheckT<GParameterTree>> individual_constraint_ptr_;
 
     std::size_t max_unsuccessful_adaptions_ = Gem::Geneva::
         DEFMAXUNSUCCESSFULADAPTIONS; ///< The maximum number of calls to customAdaptions() in a row without actual modifications
@@ -1034,6 +1034,6 @@ private:
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Parameters::GParameterSet)                  // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Parameters::GParameterTree)                  // NOLINT
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Parameters::parameterset_processing_result) // NOLINT
 /******************************************************************************/
