@@ -186,15 +186,15 @@ public:
     /***************************************************************************/
     /**
 	  * Retrieves the best individual of a neighborhood and casts it to the desired type. Note that this
-	  * function will only be accessible to the compiler if parameterset_type is a derivative of GOptimizableEntity,
+	  * function will only be accessible to the compiler if individual_type is a derivative of GOptimizableEntity,
 	  * thanks to the magic of std::enable_if and type_traits
 	  *
 	  * @param neighborhood The neighborhood, whose best individual should be returned
 	  * @return A converted shared_ptr to the best individual of a given neighborhood
 	  */
-    template <typename parameterset_type>
-        requires std::derived_from<parameterset_type, gpar::GOptimizableEntity>
-    std::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(std::size_t neighborhood) {
+    template <typename individual_type>
+        requires std::derived_from<individual_type, gpar::GOptimizableEntity>
+    std::shared_ptr<individual_type> getBestNeighborhoodIndividual(std::size_t neighborhood) {
 #ifdef DEBUG
         // Check that the neighborhood is in a valid range
         if(neighborhood >= n_neighborhoods_) {
@@ -208,7 +208,7 @@ public:
 #endif /* DEBUG */
 
         // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, parameterset_type>(
+        return Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, individual_type>(
             neighborhood_bests_cnt_[neighborhood]
         );
     }
