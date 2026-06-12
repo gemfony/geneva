@@ -38,7 +38,7 @@
 
 // Geneva header files go here
 #include "geneva/GMultiConstraintT.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 
-// Make sure the instantiation with GParameterTree as template argument can be serialized
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCheckCombinerT<gpar::GParameterTree>) // NOLINT
+// Make sure the instantiation with GTreeGenome as template argument can be serialized
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCheckCombinerT<gpar::GTreeGenome>) // NOLINT

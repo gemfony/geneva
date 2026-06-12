@@ -73,7 +73,7 @@ using adaption_fp_type_t =
  * In Geneva, two mechanisms exist that let the user specify the
  * type of adaption he wants to have executed on collections of
  * items (basic types or any other types).  The most basic
- * possibility is for the user to overload the GParameterTree::customAdaptions()
+ * possibility is for the user to overload the GTreeGenome::customAdaptions()
  * function and manually specify the types of adaptions (s)he
  * wants. This allows great flexibility, but is not very practicable
  * for standard adaptions.

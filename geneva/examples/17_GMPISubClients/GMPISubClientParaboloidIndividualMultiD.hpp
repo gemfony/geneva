@@ -69,7 +69,7 @@ class GMPISubClientParaboloidIndividualMultiD : public GMPISubClientIndividual {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         // Serialize the base class
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterTree);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome);
         // Add other variables here like this:
         // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
     }
@@ -85,7 +85,7 @@ public:
 
 protected:
     /** @brief Loads the data of another GMPISubClientParaboloidIndividualMultiD */
-    void load_(const gpar::GParameterTree *) final;
+    void load_(const gpar::GTreeGenome *) final;
 
     /** @brief The actual fitness calculation takes place here. */
     double fitnessCalculation() final;
@@ -100,7 +100,7 @@ private:
     );
 
     /** @brief Creates a deep clone of this object */
-    [[nodiscard]] gpar::GParameterTree *clone_() const final;
+    [[nodiscard]] gpar::GTreeGenome *clone_() const final;
 
     const double M_PAR_MIN;
     const double M_PAR_MAX;

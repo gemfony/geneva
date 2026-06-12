@@ -34,7 +34,7 @@
 #include "common/GFixedSizePriorityQueueT.hpp"
 #include "common/GLogger.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <iterator>
@@ -56,7 +56,7 @@ namespace Gem::Geneva::Parameters {
 GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(
     const std::size_t &max_size
 )
-  : Gem::Common::GFixedSizePriorityQueueT<GParameterTree>(
+  : Gem::Common::GFixedSizePriorityQueueT<GTreeGenome>(
         max_size,
         Gem::Common::sortOrder::LOWERISBETTER
     ) { /* nothing */
@@ -79,7 +79,7 @@ std::string GParameterSetFixedSizePriorityQueue::name_() const {
 	 * @param e The expected outcome of the comparison
 	 */
 void GParameterSetFixedSizePriorityQueue::compare_(
-    const Gem::Common::GFixedSizePriorityQueueT<GParameterTree> &cp // the other object
+    const Gem::Common::GFixedSizePriorityQueueT<GTreeGenome> &cp // the other object
     ,
     const Gem::Common::expectation &e // the expectation for this object, e.g. equality
     ,
@@ -94,7 +94,7 @@ void GParameterSetFixedSizePriorityQueue::compare_(
     GToken token("GParameterSetFixedSizePriorityQueue", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<Gem::Common::GFixedSizePriorityQueueT<GParameterTree>>(
+    Gem::Common::compare_base_t<Gem::Common::GFixedSizePriorityQueueT<GTreeGenome>>(
         *this,
         *p_load,
         token
@@ -108,17 +108,17 @@ void GParameterSetFixedSizePriorityQueue::compare_(
 
 /******************************************************************************/
 /**
-	 * Loads the data of another GParameterSetFixedSizePriorityQueue object, camouflaged as a GFixedSizePriorityQueueT<GParameterTree>
+	 * Loads the data of another GParameterSetFixedSizePriorityQueue object, camouflaged as a GFixedSizePriorityQueueT<GTreeGenome>
 	 */
 void GParameterSetFixedSizePriorityQueue::load_(
-    const Gem::Common::GFixedSizePriorityQueueT<GParameterTree> *cp
+    const Gem::Common::GFixedSizePriorityQueueT<GTreeGenome> *cp
 ) { // NOLINT(misc-unused-parameters)
     // Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
     // *** currently not needed ***
     // const GParameterSetFixedSizePriorityQueue *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
     // Load our parent class'es data ...
-    Gem::Common::GFixedSizePriorityQueueT<GParameterTree>::load_(cp);
+    Gem::Common::GFixedSizePriorityQueueT<GTreeGenome>::load_(cp);
 
     // ... no local data
 }
@@ -127,7 +127,7 @@ void GParameterSetFixedSizePriorityQueue::load_(
 /**
 	 * Creates a deep clone of this object
 	 */
-Gem::Common::GFixedSizePriorityQueueT<GParameterTree> *
+Gem::Common::GFixedSizePriorityQueueT<GTreeGenome> *
 GParameterSetFixedSizePriorityQueue::clone_() const {
     return new GParameterSetFixedSizePriorityQueue(*this);
 }
@@ -164,11 +164,11 @@ std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
 
 /******************************************************************************/
 /**
-	 * Checks whether an Item is valid, i.e. holds a GParameterTree item and has
+	 * Checks whether an Item is valid, i.e. holds a GTreeGenome item and has
 	 * already been evaluated.
 	 */
 bool GParameterSetFixedSizePriorityQueue::isValid(
-    const std::shared_ptr<GParameterTree> &item_ptr
+    const std::shared_ptr<GTreeGenome> &item_ptr
 ) const {
     if(not item_ptr) {
         return false; // Empty
@@ -188,7 +188,7 @@ bool GParameterSetFixedSizePriorityQueue::isValid(
 	 * uses the primary evaluation criterion only.
 	 */
 double GParameterSetFixedSizePriorityQueue::evaluation(
-    const std::shared_ptr<GParameterTree> &item_ptr
+    const std::shared_ptr<GTreeGenome> &item_ptr
 ) const {
     return minOnly_transformed_fitness(*item_ptr);
 }
@@ -198,19 +198,19 @@ double GParameterSetFixedSizePriorityQueue::evaluation(
 	 * Adds items in a range to the priority queue
 	 */
 void GParameterSetFixedSizePriorityQueue::add(
-    std::vector<std::shared_ptr<GParameterTree>>::const_iterator begin,
-    std::vector<std::shared_ptr<GParameterTree>>::const_iterator end,
+    std::vector<std::shared_ptr<GTreeGenome>>::const_iterator begin,
+    std::vector<std::shared_ptr<GTreeGenome>>::const_iterator end,
     bool do_clone,
     bool do_replace
 ) {
     // Create a std::vector containing only processed items. We only want
     // to add "clean" (i.e. processed) individuals to the queue.
-    std::vector<std::shared_ptr<GParameterTree>> processed_cnt(std::distance(begin, end));
+    std::vector<std::shared_ptr<GTreeGenome>> processed_cnt(std::distance(begin, end));
     auto it = std::copy_if(
         begin,
         end,
         processed_cnt.begin(),
-        [](const std::shared_ptr<GParameterTree> &item_ptr) { return item_ptr->is_processed(); }
+        [](const std::shared_ptr<GTreeGenome> &item_ptr) { return item_ptr->is_processed(); }
     );
     processed_cnt.resize(std::distance(processed_cnt.begin(), it));
 
@@ -223,7 +223,7 @@ void GParameterSetFixedSizePriorityQueue::add(
         );
     }
 
-    Gem::Common::GFixedSizePriorityQueueT<GParameterTree>::add(
+    Gem::Common::GFixedSizePriorityQueueT<GTreeGenome>::add(
         processed_cnt.begin(),
         processed_cnt.end(),
         do_clone,
@@ -238,18 +238,18 @@ void GParameterSetFixedSizePriorityQueue::add(
 	 * entered into the priority queue.
 	 */
 void GParameterSetFixedSizePriorityQueue::add(
-    std::vector<std::shared_ptr<GParameterTree>> const &items_cnt,
+    std::vector<std::shared_ptr<GTreeGenome>> const &items_cnt,
     const bool do_clone,
     const bool do_replace
 ) {
     // Create a std::vector containing only processed items. We only want
     // to add "clean" (i.e. processed) individuals to the queue.
-    std::vector<std::shared_ptr<GParameterTree>> processed_cnt(items_cnt.size());
+    std::vector<std::shared_ptr<GTreeGenome>> processed_cnt(items_cnt.size());
     auto it = std::copy_if(
         items_cnt.begin(),
         items_cnt.end(),
         processed_cnt.begin(),
-        [](const std::shared_ptr<GParameterTree> &item_ptr) { return item_ptr->is_processed(); }
+        [](const std::shared_ptr<GTreeGenome> &item_ptr) { return item_ptr->is_processed(); }
     );
     processed_cnt.resize(std::distance(processed_cnt.begin(), it));
 
@@ -262,7 +262,7 @@ void GParameterSetFixedSizePriorityQueue::add(
         );
     }
 
-    Gem::Common::GFixedSizePriorityQueueT<GParameterTree>::add(processed_cnt, do_clone, do_replace);
+    Gem::Common::GFixedSizePriorityQueueT<GTreeGenome>::add(processed_cnt, do_clone, do_replace);
 }
 
 /******************************************************************************/
@@ -272,11 +272,11 @@ void GParameterSetFixedSizePriorityQueue::add(
 	 * entered into the priority queue.
 	 */
 void GParameterSetFixedSizePriorityQueue::add(
-    std::shared_ptr<GParameterTree> const &item_ptr,
+    std::shared_ptr<GTreeGenome> const &item_ptr,
     const bool do_clone
 ) {
     if(item_ptr && item_ptr->is_processed()) {
-        Gem::Common::GFixedSizePriorityQueueT<GParameterTree>::add(item_ptr, do_clone);
+        Gem::Common::GFixedSizePriorityQueueT<GTreeGenome>::add(item_ptr, do_clone);
     }
 }
 
@@ -289,15 +289,15 @@ void GParameterSetFixedSizePriorityQueue::add(
 	 * copy. (do_clone is intentionally ignored: cloning at the boundary is exactly what do_clone asks for.)
 	 */
 void GParameterSetFixedSizePriorityQueue::add(
-    std::vector<std::unique_ptr<GParameterTree>> const &items_cnt,
+    std::vector<std::unique_ptr<GTreeGenome>> const &items_cnt,
     const bool /* do_clone */,
     const bool do_replace
 ) {
-    std::vector<std::shared_ptr<GParameterTree>> bridge;
+    std::vector<std::shared_ptr<GTreeGenome>> bridge;
     bridge.reserve(items_cnt.size());
     for(auto const &item_ptr : items_cnt) {
         if(item_ptr) {
-            bridge.push_back(item_ptr->clone<GParameterTree>());
+            bridge.push_back(item_ptr->clone<GTreeGenome>());
         }
     }
     this->add(bridge, false, do_replace);
@@ -308,16 +308,16 @@ void GParameterSetFixedSizePriorityQueue::add(
 	 * Boundary overload: adds a unique_ptr population sub-range [begin, end). See the vector overload above.
 	 */
 void GParameterSetFixedSizePriorityQueue::add(
-    std::vector<std::unique_ptr<GParameterTree>>::const_iterator begin,
-    std::vector<std::unique_ptr<GParameterTree>>::const_iterator end,
+    std::vector<std::unique_ptr<GTreeGenome>>::const_iterator begin,
+    std::vector<std::unique_ptr<GTreeGenome>>::const_iterator end,
     const bool /* do_clone */,
     const bool do_replace
 ) {
-    std::vector<std::shared_ptr<GParameterTree>> bridge;
+    std::vector<std::shared_ptr<GTreeGenome>> bridge;
     bridge.reserve(static_cast<std::size_t>(std::distance(begin, end)));
     for(auto it = begin; it != end; ++it) {
         if(*it) {
-            bridge.push_back((*it)->clone<GParameterTree>());
+            bridge.push_back((*it)->clone<GTreeGenome>());
         }
     }
     this->add(bridge, false, do_replace);
@@ -328,11 +328,11 @@ void GParameterSetFixedSizePriorityQueue::add(
 	 * Boundary overload: adds a single unique_ptr-owned individual. See the vector overload above.
 	 */
 void GParameterSetFixedSizePriorityQueue::add(
-    std::unique_ptr<GParameterTree> const &item_ptr,
+    std::unique_ptr<GTreeGenome> const &item_ptr,
     const bool /* do_clone */
 ) {
     if(item_ptr && item_ptr->is_processed()) {
-        this->add(item_ptr->clone<GParameterTree>(), false);
+        this->add(item_ptr->clone<GTreeGenome>(), false);
     }
 }
 
@@ -344,7 +344,7 @@ bool GParameterSetFixedSizePriorityQueue::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(Gem::Common::GFixedSizePriorityQueueT<GParameterTree>::modify_GUnitTests_()) {
+    if(Gem::Common::GFixedSizePriorityQueueT<GTreeGenome>::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -352,7 +352,7 @@ bool GParameterSetFixedSizePriorityQueue::modify_GUnitTests_() {
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
-        "GParameterSetFixedSizePriorityQueueT<GParameterTree>::modify_GUnitTests",
+        "GParameterSetFixedSizePriorityQueueT<GTreeGenome>::modify_GUnitTests",
         "GEM_TESTING"
     );
     return false;
@@ -366,13 +366,13 @@ void GParameterSetFixedSizePriorityQueue::specificTestsNoFailureExpected_GUnitTe
 
     // Call the parent classes' functions
     Gem::Common::GFixedSizePriorityQueueT<
-        GParameterTree>::specificTestsNoFailureExpected_GUnitTests_();
+        GTreeGenome>::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
-        "GParameterSetFixedSizePriorityQueueT<GParameterTree>::specificTestsNoFailureExpected_"
+        "GParameterSetFixedSizePriorityQueueT<GTreeGenome>::specificTestsNoFailureExpected_"
         "GUnitTests",
         "GEM_TESTING"
     );
@@ -386,13 +386,13 @@ void GParameterSetFixedSizePriorityQueue::specificTestsFailuresExpected_GUnitTes
 
     // Call the parent classes' functions
     Gem::Common::GFixedSizePriorityQueueT<
-        GParameterTree>::specificTestsFailuresExpected_GUnitTests_();
+        GTreeGenome>::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
-        "GParameterSetFixedSizePriorityQueueT<GParameterTree>::specificTestsFailuresExpected_"
+        "GParameterSetFixedSizePriorityQueueT<GTreeGenome>::specificTestsFailuresExpected_"
         "GUnitTests_",
         "GEM_TESTING"
     );

@@ -46,7 +46,7 @@ namespace Gem::Geneva::Parameters {
 /******************************************************************************/
 /**
  * A collection of GDoubleObject objects, ready for use in a
- * GParameterTree derivative.
+ * GTreeGenome derivative.
  */
 class GDoubleObjectCollection // NOLINT(cppcoreguidelines-special-member-functions)
   : public GParameterTCollectionT<GDoubleObject> {

@@ -90,7 +90,7 @@ gind::solverFunction parseBenchmarkFunction(const std::string &name) {
 
 GAlgorithmBenchmarkRunner::GAlgorithmBenchmarkRunner(
     BenchmarkConfig cfg,
-    std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterTree>> cudaBroker)
+    std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GTreeGenome>> cudaBroker)
     : cfg_(std::move(cfg))
     , cudaBroker_(std::move(cudaBroker))
 {}
@@ -100,7 +100,7 @@ GAlgorithmBenchmarkRunner::GAlgorithmBenchmarkRunner(
  * @brief Runs the full benchmark over all algorithm entries.
  *
  * Assumes GenevaInitializer has been created and a consumer has been enrolled
- * with broker<GParameterTree>() by the caller before this is invoked.
+ * with broker<GTreeGenome>() by the caller before this is invoked.
  */
 std::vector<GAlgorithmBenchmarkResult> GAlgorithmBenchmarkRunner::run() {
     glogger << "GAlgorithmBenchmarkRunner: starting benchmark." << std::endl

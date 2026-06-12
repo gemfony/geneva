@@ -73,13 +73,13 @@ std::ostream &operator<<(
 /******************************************************************************/
 /**
      * The standard constructor. Initialization with the number of fitness
-     * criteria, so GParameterTree can set up its internal data structures.
+     * criteria, so GTreeGenome can set up its internal data structures.
      * This is the only "real" constructor, apart from the copy constructor.
      */
 GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual(
     const std::size_t &nFitnessCriteria
 )
-  : gpar::GParameterTree(nFitnessCriteria)
+  : gpar::GTreeGenome(nFitnessCriteria)
   , minima_(nFitnessCriteria) {
     /* nothing */
 }
@@ -105,17 +105,17 @@ void GMultiCriterionParabolaIndividual::setMinima(const std::vector<double> &min
 
 /******************************************************************************/
 /**
-     * Loads the data of another GMultiCriterionParabolaIndividual, camouflaged as a GParameterTree.
+     * Loads the data of another GMultiCriterionParabolaIndividual, camouflaged as a GTreeGenome.
      *
-     * @param cp A copy of another GMultiCriterionParabolaIndividual, camouflaged as a GParameterTree
+     * @param cp A copy of another GMultiCriterionParabolaIndividual, camouflaged as a GTreeGenome
      */
-void GMultiCriterionParabolaIndividual::load_(const gpar::GParameterTree *cp) {
+void GMultiCriterionParabolaIndividual::load_(const gpar::GTreeGenome *cp) {
     // Check that we are dealing with a GMultiCriterionParabolaIndividual reference independent of this object and convert the pointer
     const GMultiCriterionParabolaIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GMultiCriterionParabolaIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GMultiCriterionParabolaIndividual>(cp, this);
 
     // Load our parent's data ...
-    gpar::GParameterTree::load_(cp);
+    gpar::GTreeGenome::load_(cp);
 
 #ifdef DEBUG
     if((p_load->minima_).size() != minima_.size() ||
@@ -138,9 +138,9 @@ void GMultiCriterionParabolaIndividual::load_(const gpar::GParameterTree *cp) {
 /**
      * Creates a deep clone of this object
      *
-     * @return A deep clone of this object, camouflaged as a GParameterTree
+     * @return A deep clone of this object, camouflaged as a GTreeGenome
      */
-gpar::GParameterTree *GMultiCriterionParabolaIndividual::clone_() const {
+gpar::GTreeGenome *GMultiCriterionParabolaIndividual::clone_() const {
     return new GMultiCriterionParabolaIndividual(*this);
 }
 
@@ -178,7 +178,7 @@ double GMultiCriterionParabolaIndividual::fitnessCalculation() {
 GMultiCriterionParabolaIndividualFactory::GMultiCriterionParabolaIndividualFactory(
     std::filesystem::path const &cF
 )
-  : Gem::Common::GFactoryT<gpar::GParameterTree>(cF)
+  : Gem::Common::GFactoryT<gpar::GTreeGenome>(cF)
   , par_min_(-10.)
   , par_max_(10.)
   , minima_string_("-1., 0., 1.")
@@ -244,7 +244,7 @@ void GMultiCriterionParabolaIndividualFactory::describeLocalOptions_(
      * @param id The id of the individual to be created
      * @return An individual of the desired type
      */
-std::shared_ptr<gpar::GParameterTree> GMultiCriterionParabolaIndividualFactory::getObject_(
+std::shared_ptr<gpar::GTreeGenome> GMultiCriterionParabolaIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     const std::size_t &id
 ) {
@@ -262,10 +262,10 @@ std::shared_ptr<gpar::GParameterTree> GMultiCriterionParabolaIndividualFactory::
 /******************************************************************************/
 
 void GMultiCriterionParabolaIndividualFactory::postProcess_(
-    std::shared_ptr<gpar::GParameterTree> &p_base
+    std::shared_ptr<gpar::GTreeGenome> &p_base
 ) {
     std::shared_ptr<GMultiCriterionParabolaIndividual> p =
-        Gem::Common::convertSmartPointer<gpar::GParameterTree, GMultiCriterionParabolaIndividual>(p_base);
+        Gem::Common::convertSmartPointer<gpar::GTreeGenome, GMultiCriterionParabolaIndividual>(p_base);
 
     if(firstParsed_) {
         minima_ = Gem::Common::stringToDoubleVec(minima_string_);

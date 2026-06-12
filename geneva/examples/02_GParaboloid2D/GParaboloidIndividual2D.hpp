@@ -43,7 +43,7 @@
 
 // Geneva header files go here
 #include <geneva/par/GConstrainedDoubleObject.hpp>
-#include <geneva/ind/GParameterTree.hpp>
+#include <geneva/ind/GTreeGenome.hpp>
 
 namespace Gem {
 namespace Geneva {
@@ -53,7 +53,7 @@ namespace Geneva {
  * This individual searches for the minimum of a 2-dimensional parabola.
  * It is part of an introductory example, used in the Geneva manual.
  */
-class GParaboloidIndividual2D : public gpar::GParameterTree {
+class GParaboloidIndividual2D : public gpar::GTreeGenome {
     /** @brief Make the class accessible to Boost.Serialization */
     friend class boost::serialization::access;
 
@@ -66,7 +66,7 @@ class GParaboloidIndividual2D : public gpar::GParameterTree {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         // Serialize the base class
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterTree);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome);
         // Add other variables here like this:
         // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
     }
@@ -81,14 +81,14 @@ public:
 
 protected:
     /** @brief Loads the data of another GParaboloidIndividual2D */
-    virtual void load_(const gpar::GParameterTree *) final;
+    virtual void load_(const gpar::GTreeGenome *) final;
 
     /** @brief The actual fitness calculation takes place here. */
     virtual double fitnessCalculation() final;
 
 private:
     /** @brief Creates a deep clone of this object */
-    virtual gpar::GParameterTree *clone_() const final;
+    virtual gpar::GTreeGenome *clone_() const final;
 
     const double M_PAR_MIN;
     const double M_PAR_MAX;

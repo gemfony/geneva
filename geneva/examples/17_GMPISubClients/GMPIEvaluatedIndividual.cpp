@@ -43,7 +43,7 @@ MPI_Comm GMPIEvaluatedIndividual::communicator{MPI_COMM_NULL};
  * each of which has a constrained value range [-10:10].
  */
 GMPIEvaluatedIndividual::GMPIEvaluatedIndividual()
-  : gpar::GParameterTree()
+  : gpar::GTreeGenome()
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10.) {
     for(std::size_t npar = 0; npar < 2; npar++) {
@@ -63,7 +63,7 @@ GMPIEvaluatedIndividual::GMPIEvaluatedIndividual()
  * @param cp A copy of another GMPIEvaluatedIndividual
  */
 GMPIEvaluatedIndividual::GMPIEvaluatedIndividual(const GMPIEvaluatedIndividual &cp)
-  : gpar::GParameterTree(cp)
+  : gpar::GTreeGenome(cp)
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10) { /* nothing */
 }
@@ -87,17 +87,17 @@ void GMPIEvaluatedIndividual::setCommunicator(MPI_Comm c) {
 
 /********************************************************************************************/
 /**
- * Loads the data of another GMPIEvaluatedIndividual, camouflaged as a GParameterTree.
+ * Loads the data of another GMPIEvaluatedIndividual, camouflaged as a GTreeGenome.
  *
- * @param cp A copy of another GMPIEvaluatedIndividual, camouflaged as a GParameterTree
+ * @param cp A copy of another GMPIEvaluatedIndividual, camouflaged as a GTreeGenome
  */
-void GMPIEvaluatedIndividual::load_(const gpar::GParameterTree *cp) {
+void GMPIEvaluatedIndividual::load_(const gpar::GTreeGenome *cp) {
     // Check that we are dealing with a GMPIEvaluatedIndividual reference independent of this object and convert the pointer
     const GMPIEvaluatedIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GMPIEvaluatedIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GMPIEvaluatedIndividual>(cp, this);
 
     // Load our parent's data
-    gpar::GParameterTree::load_(cp);
+    gpar::GTreeGenome::load_(cp);
 
     // No local data
     // sampleVariable = p_load->sampleVariable;
@@ -107,9 +107,9 @@ void GMPIEvaluatedIndividual::load_(const gpar::GParameterTree *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GParameterTree
+ * @return A deep clone of this object, camouflaged as a GTreeGenome
  */
-gpar::GParameterTree *GMPIEvaluatedIndividual::clone_() const {
+gpar::GTreeGenome *GMPIEvaluatedIndividual::clone_() const {
     return new GMPIEvaluatedIndividual(*this);
 }
 

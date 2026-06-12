@@ -46,7 +46,7 @@ namespace Gem::Geneva::Parameters {
 /******************************************************************************/
 /**
  * A collection of GConstrainedInt32Object objects, ready for use in a
- * GParameterTree derivative.
+ * GTreeGenome derivative.
  */
 class GConstrainedInt32ObjectCollection // NOLINT(cppcoreguidelines-special-member-functions)
   : public GParameterTCollectionT<GConstrainedInt32Object> {

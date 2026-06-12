@@ -60,7 +60,7 @@
 #include "courtier/GSubmissionPolicy.hpp"
 #include "courtier/consumers/GSerialConsumerT.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include "geneva/par/GParameterSetFixedSizePriorityQueue.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/Interface/GOptimizerIT.hpp"
@@ -207,7 +207,7 @@ private:
  */
 class GOptimizationAlgorithmBase // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>
-  , public Gem::Common::GUniquePtrContainerT<gpar::GParameterTree>
+  , public Gem::Common::GUniquePtrContainerT<gpar::GTreeGenome>
   , public Interface::GOptimizerIT<GOptimizationAlgorithmBase> {
 private:
     ///////////////////////////////////////////////////////////////////////
@@ -223,7 +223,7 @@ private:
      * std::atomic<bool> free serialization).
      *
      * Deliberately NOT in this tuple, and handled manually in load_()/compare_() instead:
-     *  - the container base GPtrContainerT<GParameterTree> (a base-object, deep-copied
+     *  - the container base GPtrContainerT<GTreeGenome> (a base-object, deep-copied
      *    on load via operator=);
      *  - best_iteration_individuals_pq_ (intentionally NOT persisted -- transient per
      *    iteration; copied in memory by load_() and compared by compare_()).
@@ -312,7 +312,7 @@ private:
         // a base-object rather than a local member, is serialized here.
         ar &make_nvp(
                 "GStdPtrVectorInterfaceT_T",
-                boost::serialization::base_object<Gem::Common::GUniquePtrContainerT<gpar::GParameterTree>>(*this)
+                boost::serialization::base_object<Gem::Common::GUniquePtrContainerT<gpar::GTreeGenome>>(*this)
             );
 
         // All members are derived from the single localMembers() declaration: plain
@@ -404,7 +404,7 @@ public:
      * consumer is shared across the whole run rather than created per algorithm. Transient runtime
      * state, neither serialized nor cloned; takes precedence over setLocalConsumer().
      */
-    void setBroker(std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterTree>> broker) {
+    void setBroker(std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GTreeGenome>> broker) {
         broker_          = std::move(broker);
         external_broker_ = true;
     }
@@ -502,7 +502,7 @@ public:
      * requested position exists.
      *
      * @param pos The position in our data array that shall be converted
-     * @return A converted version of the GParameterTree object, as required by the user
+     * @return A converted version of the GTreeGenome object, as required by the user
      */
     template <typename target_type>
     std::shared_ptr<target_type> individual_cast(std::size_t pos) const {
@@ -521,8 +521,8 @@ public:
         // individual transiently, so hand back a NON-OWNING shared_ptr view (no-op deleter) of the live
         // element rather than co-owning or cloning it -- the element outlives the call (the population
         // owns it). Does error checks on the conversion internally.
-        std::shared_ptr<gpar::GParameterTree> view(this->at(pos).get(), [](gpar::GParameterTree *) {});
-        return Gem::Common::convertSmartPointer<gpar::GParameterTree, target_type>(view);
+        std::shared_ptr<gpar::GTreeGenome> view(this->at(pos).get(), [](gpar::GTreeGenome *) {});
+        return Gem::Common::convertSmartPointer<gpar::GTreeGenome, target_type>(view);
     }
 
     /***************************************************************************/
@@ -604,12 +604,12 @@ protected:
      *  courtier. The algorithm passes the range it wants evaluated explicitly (no per-item DO_PROCESS
      *  flagging needed); the consumer marks and reconciles exactly that span in place. */
     Gem::Courtier::executor_status_t workOn(
-        std::vector<std::unique_ptr<gpar::GParameterTree>> &work_items,
+        std::vector<std::unique_ptr<gpar::GTreeGenome>> &work_items,
         std::size_t start,
         std::size_t end
     );
     /** @brief Retrieves a vector of old work items after job submission */
-    std::vector<std::unique_ptr<gpar::GParameterTree>> getOldWorkItems();
+    std::vector<std::unique_ptr<gpar::GTreeGenome>> getOldWorkItems();
 
     /** @brief Saves the state of the class to disc */
     void saveCheckpoint(std::filesystem::path const &output_file) const;
@@ -665,15 +665,15 @@ private:
     std::uint32_t getIteration_() const override;
 
     /** @brief Retrieves the best individual found up to now */
-    std::shared_ptr<gpar::GParameterTree> getBestGlobalIndividual_() const final;
+    std::shared_ptr<gpar::GTreeGenome> getBestGlobalIndividual_() const final;
     /** @brief Retrieves a list of the best individuals found */
-    std::vector<std::shared_ptr<gpar::GParameterTree>>
+    std::vector<std::shared_ptr<gpar::GTreeGenome>>
     getBestGlobalIndividuals_() const final;
 
     /** @brief Retrieves the best individual found in the iteration */
-    std::shared_ptr<gpar::GParameterTree> getBestIterationIndividual_() const final;
+    std::shared_ptr<gpar::GTreeGenome> getBestIterationIndividual_() const final;
     /** @brief Retrieves a list of the best individuals found in the */
-    std::vector<std::shared_ptr<gpar::GParameterTree>>
+    std::vector<std::shared_ptr<gpar::GTreeGenome>>
     getBestIterationIndividuals_() const final;
 
     /** @brief Retrieve the number of processable items in the current iteration. */
@@ -823,11 +823,11 @@ private:
     local_consumer_kind local_kind_ = local_consumer_kind::none; ///< Which local consumer (none == legacy path)
     unsigned int local_threads_ = 0; ///< Thread-pool size for the multithreaded kind (0 == hardware concurrency)
     bool external_broker_ = false; ///< True when Go2 injected a ready broker (networked) via setBroker()
-    std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GParameterTree>> broker_;
-    std::shared_ptr<Gem::Courtier::GExecutorT<gpar::GParameterTree>> executor_;
+    std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GTreeGenome>> broker_;
+    std::shared_ptr<Gem::Courtier::GExecutorT<gpar::GTreeGenome>> executor_;
     /** @brief Submits the contiguous sub-range [start, end) of @p work_items through courtier. */
     Gem::Courtier::executor_status_t workOnViaConsumer_(
-        std::vector<std::unique_ptr<gpar::GParameterTree>> &work_items,
+        std::vector<std::unique_ptr<gpar::GTreeGenome>> &work_items,
         std::size_t start,
         std::size_t end
     );

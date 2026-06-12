@@ -77,7 +77,7 @@ SET ( OPTIMIZATIONSOURCES
 	par/GParameterBase.cpp
 	par/GParameterObjectCollection.cpp
 	par/GParameterPropertyParser.cpp
-	ind/GParameterTree.cpp
+	ind/GTreeGenome.cpp
 	par/GParameterSetFixedSizePriorityQueue.cpp
 	par/GParameterSetMultiConstraint.cpp
 	GPersonalityTraits.cpp

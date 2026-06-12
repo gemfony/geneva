@@ -40,7 +40,7 @@ namespace Gem::Courtier::GPU {
 /**
  * The GPU consumer framework. Logically a Gem::Courtier consumer (it derives from
  * GBaseConsumerT), so it lives in Gem::Courtier::GPU and is generic in the processable type, with NO
- * dependency on the Gem::Geneva layer (which sits above courtier). The concrete, GParameterTree-aware
+ * dependency on the Gem::Geneva layer (which sits above courtier). The concrete, GTreeGenome-aware
  * marshallers live with the problems (the demos), not here.
  *
  * GGPUHostEvalI is the processable-type-free host-reference part of a marshaller: it evaluates a batch

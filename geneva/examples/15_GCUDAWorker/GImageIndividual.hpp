@@ -66,7 +66,7 @@
 #include "geneva/par/GConstrainedFloatObject.hpp"
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GFloatGaussAdaptor.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 
 // Example-local headers
 #include "GImageScalar.hpp"
@@ -134,7 +134,7 @@ std::ostream &operator<<(std::ostream &, const CircleTriangle &);
      * that most closely resembles a given picture. It was developed
      * for evaluation using CUDA on a GPU.
      */
-class GImageIndividual final : public gpar::GParameterTree {
+class GImageIndividual final : public gpar::GTreeGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -142,7 +142,7 @@ class GImageIndividual final : public gpar::GParameterTree {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterTree) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome) &
             BOOST_SERIALIZATION_NVP(nTriangles_) & BOOST_SERIALIZATION_NVP(alphaSort_);
     }
 
@@ -253,10 +253,10 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    void compare_(const gpar::GParameterTree &, const Gem::Common::expectation &, const double &) const override;
+    void compare_(const gpar::GTreeGenome &, const Gem::Common::expectation &, const double &) const override;
 
     /** @brief Loads the data of another GImageIndividual */
-    void load_(const gpar::GParameterTree *) override;
+    void load_(const gpar::GTreeGenome *) override;
 
     /** @brief The actual fitness calculation takes place here. */
     double fitnessCalculation() override;
@@ -264,7 +264,7 @@ protected:
 private:
     /******************************************************************************/
     /** @brief Creates a deep clone of this object */
-    gpar::GParameterTree *clone_() const override;
+    gpar::GTreeGenome *clone_() const override;
 
     /******************************************************************************/
     // Local parameters

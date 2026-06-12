@@ -37,7 +37,7 @@
 // Boost headers go here
 
 // Geneva headers go here
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 
@@ -59,7 +59,7 @@ class GSwarmAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-memb
      * members. This drives serialize(), load_() and compare_() from one place.
      *
      * Handled manually (NOT in this tuple): personal_best_, a
-     * std::shared_ptr<gpar::GParameterTree>. It is deep-cloned on load, but the
+     * std::shared_ptr<gpar::GTreeGenome>. It is deep-cloned on load, but the
      * load (and the copy constructor) additionally call resetPersonality() on
      * the clone to avoid building a "chain" of individuals. That extra
      * post-clone step is asymmetric to a plain make_cloneable_member() deep
@@ -120,9 +120,9 @@ public:
     bool checkNoPositionUpdateAndReset();
 
     /** @brief Allows to add a new personal best to the individual */
-    void registerPersonalBest(std::shared_ptr<gpar::GParameterTree>);
+    void registerPersonalBest(std::shared_ptr<gpar::GTreeGenome>);
     /** @brief Allows to retrieve the personal best individual */
-    std::shared_ptr<gpar::GParameterTree> getPersonalBest() const;
+    std::shared_ptr<gpar::GTreeGenome> getPersonalBest() const;
     /** @brief Resets the personal best individual */
     void resetPersonalBest();
     /** @brief Retrieve quality of personally best individual */
@@ -175,8 +175,8 @@ private:
     /** @brief Determines whether the individual has been randomly initialized */
     bool no_position_update_ = false;
 
-    /** @brief Holds the personally best GParameterTree */
-    std::shared_ptr<gpar::GParameterTree> personal_best_;
+    /** @brief Holds the personally best GTreeGenome */
+    std::shared_ptr<gpar::GTreeGenome> personal_best_;
     /** @brief The quality of the personally best individual */
     std::tuple<double, double> personal_best_quality_{0., 0.};
 };

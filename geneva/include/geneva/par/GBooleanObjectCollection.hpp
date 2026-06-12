@@ -46,7 +46,7 @@ namespace Gem::Geneva::Parameters {
 /******************************************************************************/
 /**
  * A collection of GBooleanObject objects, ready for use in a
- * GParameterTree derivative.
+ * GTreeGenome derivative.
  */
 class GBooleanObjectCollection // NOLINT(cppcoreguidelines-special-member-functions)
   : public GParameterTCollectionT<GBooleanObject> {

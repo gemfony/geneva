@@ -53,19 +53,19 @@
 
 // Geneva header files go here
 #include "common/GFixedSizePriorityQueueT.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 
 namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 /**
- * This class implements a fixed size priority queue for GParameterTree objects,
+ * This class implements a fixed size priority queue for GTreeGenome objects,
  * based on the maximization/minimization property and the current fitness of
  * the objects.
  */
 class GParameterSetFixedSizePriorityQueue // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFixedSizePriorityQueueT<GParameterTree> {
+  : public Gem::Common::GFixedSizePriorityQueueT<GTreeGenome> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -75,7 +75,7 @@ class GParameterSetFixedSizePriorityQueue // NOLINT(cppcoreguidelines-special-me
 
         ar &make_nvp(
             "GFSPQ",
-            boost::serialization::base_object<Gem::Common::GFixedSizePriorityQueueT<GParameterTree>>(
+            boost::serialization::base_object<Gem::Common::GFixedSizePriorityQueueT<GTreeGenome>>(
                 *this
             )
         );
@@ -101,19 +101,19 @@ public:
 
     /** @brief Adds items in a range to the priority queue */
     void
-    add(std::vector<std::shared_ptr<GParameterTree>>::const_iterator begin,
-        std::vector<std::shared_ptr<GParameterTree>>::const_iterator end,
+    add(std::vector<std::shared_ptr<GTreeGenome>>::const_iterator begin,
+        std::vector<std::shared_ptr<GTreeGenome>>::const_iterator end,
         bool do_clone,
         bool replace) override;
 
     /** @brief Adds the items in the items_cnt container to the queue */
     void
-    add(std::vector<std::shared_ptr<GParameterTree>> const &items_cnt,
+    add(std::vector<std::shared_ptr<GTreeGenome>> const &items_cnt,
         const bool do_clone,
         const bool replace) override;
 
     /** @brief Adds a single item to the queue */
-    void add(std::shared_ptr<GParameterTree> const &item, const bool do_clone) override;
+    void add(std::shared_ptr<GTreeGenome> const &item, const bool do_clone) override;
 
     /***************************************************************************/
     // Boundary overloads for the unique_ptr population. The OA population now owns its individuals
@@ -121,19 +121,19 @@ public:
     // individual across the ownership boundary and delegate to the shared_ptr implementations above.
     /** @brief Adds a unique_ptr population sub-range to the queue (cloning across the boundary) */
     void
-    add(std::vector<std::unique_ptr<GParameterTree>>::const_iterator begin,
-        std::vector<std::unique_ptr<GParameterTree>>::const_iterator end,
+    add(std::vector<std::unique_ptr<GTreeGenome>>::const_iterator begin,
+        std::vector<std::unique_ptr<GTreeGenome>>::const_iterator end,
         bool do_clone,
         bool replace);
     /** @brief Adds the individuals of a unique_ptr population to the queue (cloning across the boundary) */
-    void add(std::vector<std::unique_ptr<GParameterTree>> const &items_cnt, bool do_clone, bool replace);
+    void add(std::vector<std::unique_ptr<GTreeGenome>> const &items_cnt, bool do_clone, bool replace);
     /** @brief Adds a single unique_ptr-owned individual to the queue (cloning across the boundary) */
-    void add(std::unique_ptr<GParameterTree> const &item, bool do_clone);
+    void add(std::unique_ptr<GTreeGenome> const &item, bool do_clone);
 
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another population */
-    void load_(const Gem::Common::GFixedSizePriorityQueueT<GParameterTree> *) override;
+    void load_(const Gem::Common::GFixedSizePriorityQueueT<GTreeGenome> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterSetFixedSizePriorityQueue>(
@@ -144,7 +144,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const Gem::Common::GFixedSizePriorityQueueT<GParameterTree> & // the other object
+        const Gem::Common::GFixedSizePriorityQueueT<GTreeGenome> & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -152,9 +152,9 @@ protected:
     ) const override;
 
     /** @brief Checks whether an Item is valid */
-    bool isValid(const std::shared_ptr<GParameterTree> &) const override;
+    bool isValid(const std::shared_ptr<GTreeGenome> &) const override;
     /** @brief Evaluates a single work item, so that it can be sorted */
-    double evaluation(const std::shared_ptr<GParameterTree> &) const override;
+    double evaluation(const std::shared_ptr<GTreeGenome> &) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     bool modify_GUnitTests_() override;
@@ -167,7 +167,7 @@ private:
     /** @brief Emits a name for this class / object */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    Gem::Common::GFixedSizePriorityQueueT<GParameterTree> *clone_() const override;
+    Gem::Common::GFixedSizePriorityQueueT<GTreeGenome> *clone_() const override;
 };
 
 /******************************************************************************/

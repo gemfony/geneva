@@ -39,7 +39,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/Interface/GOptimizerIT.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
@@ -361,9 +361,9 @@ void GFitnessMonitor::informationFunction_(
     case Gem::Geneva::infoMode::INFOPROCESSING: {
         // Retrieve the list of globally- and iteration bests individuals
         auto global_bests =
-            goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividuals<gpar::GParameterTree>();
+            goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividuals<gpar::GTreeGenome>();
         auto iter_bests =
-            goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestIterationIndividuals<gpar::GParameterTree>();
+            goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestIterationIndividuals<gpar::GTreeGenome>();
 
         // Retrieve the current iteration in the population
         std::uint32_t iteration = goa->getIteration();
@@ -455,8 +455,8 @@ void GFitnessMonitor::informationFunction_(
 
         std::vector<std::shared_ptr<Gem::Common::GGraph2D>>::iterator global_it;
         std::vector<std::shared_ptr<Gem::Common::GGraph2D>>::iterator iter_it;
-        std::vector<std::shared_ptr<gpar::GParameterTree>>::iterator global_ind_it;
-        std::vector<std::shared_ptr<gpar::GParameterTree>>::iterator iter_ind_it;
+        std::vector<std::shared_ptr<gpar::GTreeGenome>>::iterator global_ind_it;
+        std::vector<std::shared_ptr<gpar::GTreeGenome>>::iterator iter_ind_it;
 
         std::size_t m_ind = 0;
         for(global_it = global_fitness_graph_vec_.begin(),
@@ -1094,7 +1094,7 @@ void GAllSolutionFileLogger::printPopulation(
 
     // Loop over all individuals of the algorithm.
     for(std::size_t pos = 0; pos < goa->size(); pos++) {
-        std::shared_ptr<gpar::GParameterTree> ind = goa->template individual_cast<gpar::GParameterTree>(pos);
+        std::shared_ptr<gpar::GTreeGenome> ind = goa->template individual_cast<gpar::GTreeGenome>(pos);
 
         // Note that isGoodEnough may throw if loop acts on a "dirty" individual
         if(not boundaries_active_ || ind->isGoodEnough(boundaries_)) {
@@ -1318,7 +1318,7 @@ void GIterationResultsFileLogger::informationFunction_(
         // Loop over all individuals of the algorithm.
         std::size_t n_individuals = goa->size();
         for(std::size_t pos = 0; pos < n_individuals; pos++) {
-            std::shared_ptr<gpar::GParameterTree> ind = goa->template individual_cast<gpar::GParameterTree>(pos);
+            std::shared_ptr<gpar::GTreeGenome> ind = goa->template individual_cast<gpar::GTreeGenome>(pos);
             fitness_cnt = goa->at(pos)->raw_fitness_vec();
 
             std::size_t n_fitness_criteria = goa->at(0)->getNStoredResults();
@@ -1608,8 +1608,8 @@ void GNAdpationsLogger::informationFunction_(
         std::uint32_t iteration = goa->getIteration();
 
         // Record the current fitness
-        std::shared_ptr<gpar::GParameterTree> p =
-            goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividual<gpar::GParameterTree>();
+        std::shared_ptr<gpar::GTreeGenome> p =
+            goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividual<gpar::GTreeGenome>();
         (*fitness_graph2_d_oa_) & std::tuple<double, double>(static_cast<double>(iteration), p->raw_fitness(0));
 
         // Update the largest known iteration and the number of recorded iterations
@@ -1618,15 +1618,15 @@ void GNAdpationsLogger::informationFunction_(
 
         // Do the actual logging
         if(monitor_best_only_) {
-            std::shared_ptr<gpar::GParameterTree> best =
-                goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividual<gpar::GParameterTree>();
+            std::shared_ptr<gpar::GTreeGenome> best =
+                goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividual<gpar::GTreeGenome>();
             n_adaptions_store_.emplace_back(static_cast<double>(iteration), static_cast<double>(best->getNAdaptions()));
         }
         else { // Monitor all individuals
             // Loop over all individuals of the algorithm.
             for(std::size_t pos = 0; pos < goa->size(); pos++) {
-                std::shared_ptr<gpar::GParameterTree> ind =
-                    goa->template individual_cast<gpar::GParameterTree>(pos);
+                std::shared_ptr<gpar::GTreeGenome> ind =
+                    goa->template individual_cast<gpar::GTreeGenome>(pos);
                 n_adaptions_store_.emplace_back(static_cast<double>(iteration), static_cast<double>(ind->getNAdaptions()));
             }
         }
@@ -2161,7 +2161,7 @@ void GProcessingTimesLogger::informationFunction_(
         // Loop over all individuals of the algorithm.
         for(std::size_t pos = 0; pos < goa->size(); pos++) {
             // Get access to each individual in sequence
-            std::shared_ptr<gpar::GParameterTree> ind = goa->template individual_cast<gpar::GParameterTree>(pos);
+            std::shared_ptr<gpar::GTreeGenome> ind = goa->template individual_cast<gpar::GTreeGenome>(pos);
 
             // Retrieve the processing timings
             std::tuple<double, double, double> processing_times = ind->getProcessingTimes();

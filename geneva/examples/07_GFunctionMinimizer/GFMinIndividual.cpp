@@ -85,7 +85,7 @@ GFMinIndividual::GFMinIndividual() { /* nothing */
  * @param cp A copy of another GFunctionIndidivual
  */
 GFMinIndividual::GFMinIndividual(const GFMinIndividual &cp)
-  : gpar::GParameterTree(cp)
+  : gpar::GTreeGenome(cp)
   , targetFunction_(cp.targetFunction_) { /* nothing */
 }
 
@@ -104,7 +104,7 @@ GFMinIndividual::~GFMinIndividual() { /* nothing */
  */
 void GFMinIndividual::addConfigurationOptions(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    gpar::GParameterTree::addConfigurationOptions(gpb);
+    gpar::GTreeGenome::addConfigurationOptions(gpb);
 
     // Add local data
     gpb.registerFileParameter<targetFunction>(
@@ -162,17 +162,17 @@ double GFMinIndividual::getAverageSigma() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GFMinIndividual, camouflaged as a GParameterTree
+ * Loads the data of another GFMinIndividual, camouflaged as a GTreeGenome
  *
- * @param cp A copy of another GFMinIndividual, camouflaged as a GParameterTree
+ * @param cp A copy of another GFMinIndividual, camouflaged as a GTreeGenome
  */
-void GFMinIndividual::load_(const gpar::GParameterTree *cp) {
+void GFMinIndividual::load_(const gpar::GTreeGenome *cp) {
     // Check that we are dealing with a GFMinIndividual reference independent of this object and convert the pointer
     const GFMinIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GFMinIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GFMinIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GParameterTree::load_(cp);
+    gpar::GTreeGenome::load_(cp);
 
     // ... and then our local data
     targetFunction_ = p_load->targetFunction_;
@@ -182,9 +182,9 @@ void GFMinIndividual::load_(const gpar::GParameterTree *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GParameterTree
+ * @return A deep clone of this object, camouflaged as a GTreeGenome
  */
-gpar::GParameterTree *GFMinIndividual::clone_() const {
+gpar::GTreeGenome *GFMinIndividual::clone_() const {
     return new GFMinIndividual(*this);
 }
 
@@ -285,7 +285,7 @@ std::ostream &operator<<(std::ostream &s, std::shared_ptr<Gem::Geneva::GFMinIndi
  * @param configFile The name of the configuration file
  */
 GFMinIndividualFactory::GFMinIndividualFactory(std::filesystem::path const &configFile)
-  : Gem::Common::GFactoryT<gpar::GParameterTree>(configFile)
+  : Gem::Common::GFactoryT<gpar::GTreeGenome>(configFile)
   , adProb_(GFI_DEF_ADPROB)
   , sigma_(GFI_DEF_SIGMA)
   , sigmaSigma_(GFI_DEF_SIGMASIGMA)
@@ -309,7 +309,7 @@ GFMinIndividualFactory::~GFMinIndividualFactory() { /* nothing */
  *
  * @return Items of the desired type
  */
-std::shared_ptr<gpar::GParameterTree>
+std::shared_ptr<gpar::GTreeGenome>
 GFMinIndividualFactory::getObject_(Gem::Common::GParserBuilder &gpb, const std::size_t &id) {
     // Will hold the result
     std::shared_ptr<GFMinIndividual> target(new GFMinIndividual());
@@ -411,7 +411,7 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &
     );
 
     // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<gpar::GParameterTree>::describeLocalOptions_(gpb);
+    Gem::Common::GFactoryT<gpar::GTreeGenome>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -422,7 +422,7 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GFMinIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterTree> &p) {
+void GFMinIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome> &p) {
     // Set up a collection with parDim_ values
     std::shared_ptr<gpar::GConstrainedDoubleCollection> gcdc_ptr(
         new gpar::GConstrainedDoubleCollection(parDim_, minVar_, maxVar_)

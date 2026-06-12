@@ -69,7 +69,7 @@ SET ( PARAM_INCLUDES
     par/GParameterCollectionT.hpp
     par/GParameterObjectCollection.hpp
     par/GParameterPropertyParser.hpp
-    ind/GParameterTree.hpp
+    ind/GTreeGenome.hpp
     par/GParameterSetFactory.hpp
     par/GParameterSetFixedSizePriorityQueue.hpp
     par/GParameterSetMultiConstraint.hpp

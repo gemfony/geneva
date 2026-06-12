@@ -45,7 +45,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include "geneva/oa/GHesseError.hpp"
 #include "geneva/oa/GLineSearch.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"

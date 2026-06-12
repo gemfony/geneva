@@ -40,7 +40,7 @@
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GDoubleObject.hpp"
 #include "geneva/par/GDoubleObjectCollection.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -70,7 +70,7 @@ GDelayIndividual::GDelayIndividual()
  * @param cp A copy of another GDelayIndividual
  */
 GDelayIndividual::GDelayIndividual(const GDelayIndividual &cp)
-  : gpar::GParameterTree(cp)
+  : gpar::GTreeGenome(cp)
   , fixed_sleep_time_(cp.fixed_sleep_time_)
   , may_crash_(cp.may_crash_)
   , throw_likelihood_(cp.throw_likelihood_)
@@ -90,11 +90,11 @@ GDelayIndividual::~GDelayIndividual() { /* nothing */
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GParameterTree object
+ * @param cp A constant reference to another GTreeGenome object
  * @param e The expected outcome of the comparison
  */
 void GDelayIndividual::compare_(
-    const gpar::GParameterTree &cp,
+    const gpar::GTreeGenome &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -102,12 +102,12 @@ void GDelayIndividual::compare_(
 
     // Check that we are dealing with a GDelayIndividual reference independent of this object and convert the pointer
     const GDelayIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GDelayIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GDelayIndividual>(cp, this);
 
     Gem::Common::GToken token("GDelayIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GParameterTree>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GTreeGenome>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -118,17 +118,17 @@ void GDelayIndividual::compare_(
 
 /******************************************************************************/
 /**
- * Loads the data of another GDelayIndividual, camouflaged as a GParameterTree
+ * Loads the data of another GDelayIndividual, camouflaged as a GTreeGenome
  *
- * @param cp A copy of another GDelayIndividual, camouflaged as a GParameterTree
+ * @param cp A copy of another GDelayIndividual, camouflaged as a GTreeGenome
  */
-void GDelayIndividual::load_(const gpar::GParameterTree *cp) {
+void GDelayIndividual::load_(const gpar::GTreeGenome *cp) {
     // Check that we are dealing with a GDelayIndividual reference independent of this object and convert the pointer
     const GDelayIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GDelayIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GDelayIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GParameterTree::load_(cp);
+    gpar::GTreeGenome::load_(cp);
 
     // ... and then our own, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -138,9 +138,9 @@ void GDelayIndividual::load_(const gpar::GParameterTree *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GParameterTree
+ * @return A deep clone of this object, camouflaged as a GTreeGenome
  */
-gpar::GParameterTree *GDelayIndividual::clone_() const {
+gpar::GTreeGenome *GDelayIndividual::clone_() const {
     return new GDelayIndividual(*this);
 }
 
@@ -301,7 +301,7 @@ std::tuple<double, double> GDelayIndividual::getSleepWindow() const {
  * The standard constructor for this class
  */
 GDelayIndividualFactory::GDelayIndividualFactory(std::filesystem::path const &c_f)
-  : Gem::Common::GFactoryT<gpar::GParameterTree>(c_f) { /* nothing */
+  : Gem::Common::GFactoryT<gpar::GTreeGenome>(c_f) { /* nothing */
 }
 
 /******************************************************************************/
@@ -375,7 +375,7 @@ std::vector<std::tuple<unsigned int, unsigned int>> GDelayIndividualFactory::get
  *
  * @return Items of the desired type
  */
-std::shared_ptr<gpar::GParameterTree> GDelayIndividualFactory::getObject_(
+std::shared_ptr<gpar::GTreeGenome> GDelayIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     [[maybe_unused]] const std::size_t & id
 ) {
@@ -483,7 +483,7 @@ void GDelayIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
  *
  * @param p_raw A smart-pointer to be acted on during post-processing
  */
-void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterTree> &p_raw) {
+void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome> &p_raw) {
     // Retrieve information about our id
     std::size_t id = this->getId();
 
@@ -492,7 +492,7 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterTree>
 
     // Convert the base pointer to the target type
     std::shared_ptr<GDelayIndividual> p =
-        Gem::Common::convertSmartPointer<gpar::GParameterTree, GDelayIndividual>(p_raw);
+        Gem::Common::convertSmartPointer<gpar::GTreeGenome, GDelayIndividual>(p_raw);
 
     if(Gem::Common::GFACTORYWRITEID == id) {
         // Calculate the current sleep time

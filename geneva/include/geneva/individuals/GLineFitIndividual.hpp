@@ -56,7 +56,7 @@
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GDoubleObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
 
@@ -68,7 +68,7 @@ namespace Gem::Geneva::Individuals {
  * root-square deviation from the line defined by its two parameters
  */
 class GLineFitIndividual // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gpar::GParameterTree {
+  : public gpar::GTreeGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -76,7 +76,7 @@ class GLineFitIndividual // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterTree) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome) &
             BOOST_SERIALIZATION_NVP(data_points_);
     }
     ///////////////////////////////////////////////////////////////////////
@@ -103,7 +103,7 @@ protected:
     }
 
     /** @brief Loads the data of another GLineFitIndividual */
-    void load_(const gpar::GParameterTree *) final;
+    void load_(const gpar::GTreeGenome *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GLineFitIndividual>(
@@ -114,7 +114,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GParameterTree & // the other object
+        const gpar::GTreeGenome & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -133,7 +133,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    gpar::GParameterTree *clone_() const final;
+    gpar::GTreeGenome *clone_() const final;
 
     /** @brief The default constructor -- private, as it is only needed for (de-)serialization purposes */
     GLineFitIndividual();
@@ -149,7 +149,7 @@ private:
  * A factory for GLineFitIndividual objects
  */
 class GLineFitIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<gpar::GParameterTree> {
+  : public Gem::Common::GFactoryT<gpar::GTreeGenome> {
 public:
     /** @brief The standard constructor */
     GLineFitIndividualFactory(
@@ -165,14 +165,14 @@ protected:
     void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<gpar::GParameterTree> &) override;
+    void postProcess_(std::shared_ptr<gpar::GTreeGenome> &) override;
 
 private:
     /** @brief The default constructor. Only needed for (de-)serialization purposes */
     GLineFitIndividualFactory() = default;
 
     /** @brief Creates individuals of this type */
-    std::shared_ptr<gpar::GParameterTree>
+    std::shared_ptr<gpar::GTreeGenome>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     std::vector<std::tuple<double, double>> data_points_; ///< Holds data points for the fit

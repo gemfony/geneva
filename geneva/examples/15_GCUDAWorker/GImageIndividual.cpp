@@ -369,12 +369,12 @@ void GImageIndividual::setFitness(std::vector<double> const &result_vec) {
 	 * Searches for compliance with expectations with respect to another object
 	 * of the same type
 	 *
-	 * @param cp A constant reference to another GParameterTree object
+	 * @param cp A constant reference to another GTreeGenome object
 	 * @param e The expected outcome of the comparison
 	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 */
 void GImageIndividual::compare_(
-    const gpar::GParameterTree &cp,
+    const gpar::GTreeGenome &cp,
     const Gem::Common::expectation &e,
     const double &limit
 ) const {
@@ -382,12 +382,12 @@ void GImageIndividual::compare_(
 
     // Check that we are dealing with a GImageIndividual reference independent of this object and convert the pointer
     const GImageIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GImageIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GImageIndividual>(cp, this);
 
     GToken token("GImageIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GParameterTree>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GTreeGenome>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::compare_t(IDENTITY(width_, p_load->width_), token);
@@ -492,17 +492,17 @@ std::vector<CircleTriangle> GImageIndividual::getTriangleData() const {
 
 /******************************************************************************/
 /**
-	 * Loads the data of another GImageIndividual, camouflaged as a GParameterTree.
+	 * Loads the data of another GImageIndividual, camouflaged as a GTreeGenome.
 	 *
-	 * @param cp A copy of another GImageIndividual, camouflaged as a GParameterTree
+	 * @param cp A copy of another GImageIndividual, camouflaged as a GTreeGenome
 	 */
-void GImageIndividual::load_(const gpar::GParameterTree *cp) {
+void GImageIndividual::load_(const gpar::GTreeGenome *cp) {
     // Check that we are indeed dealing with a GImageIndividual reference
     const GImageIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GImageIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GImageIndividual>(cp, this);
 
     // Load our parent's data
-    gpar::GParameterTree::load_(cp);
+    gpar::GTreeGenome::load_(cp);
 
     // Load local data
     nTriangles_ = p_load->nTriangles_;
@@ -517,9 +517,9 @@ void GImageIndividual::load_(const gpar::GParameterTree *cp) {
 /**
 	 * Creates a deep clone of this object
 	 *
-	 * @return A deep clone of this object, camouflaged as a GParameterTree
+	 * @return A deep clone of this object, camouflaged as a GTreeGenome
 	 */
-gpar::GParameterTree *GImageIndividual::clone_() const {
+gpar::GTreeGenome *GImageIndividual::clone_() const {
     return new GImageIndividual(*this);
 }
 
@@ -552,7 +552,7 @@ bool GImageIndividual::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
-    gpar::GParameterTree::modify_GUnitTests();
+    gpar::GTreeGenome::modify_GUnitTests();
 
     // Change the parameter settings
     this->adapt();
@@ -573,7 +573,7 @@ void GImageIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GParameterTree::specificTestsNoFailureExpected_GUnitTests();
+    gpar::GTreeGenome::specificTestsNoFailureExpected_GUnitTests();
 
     const std::size_t NTESTS = 100;
 
@@ -606,7 +606,7 @@ void GImageIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GParameterTree::specificTestsFailuresExpected_GUnitTests();
+    gpar::GTreeGenome::specificTestsFailuresExpected_GUnitTests();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------

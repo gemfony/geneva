@@ -36,7 +36,7 @@
 #include "common/GParserBuilder.hpp"
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GDoubleObject.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include <cmath>
 #include <cstddef>
 #include <filesystem>
@@ -81,7 +81,7 @@ GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, doub
  * @param cp A constant reference to another GLineFitIndividual object
  */
 GLineFitIndividual::GLineFitIndividual(const GLineFitIndividual &cp)
-  : gpar::GParameterTree(cp)
+  : gpar::GTreeGenome(cp)
   , data_points_(cp.data_points_) { /* nothing */
 }
 
@@ -97,11 +97,11 @@ GLineFitIndividual::~GLineFitIndividual() { /* nothing */
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GParameterTree object
+ * @param cp A constant reference to another GTreeGenome object
  * @param e The expected outcome of the comparison
  */
 void GLineFitIndividual::compare_(
-    const gpar::GParameterTree &cp,
+    const gpar::GTreeGenome &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -109,12 +109,12 @@ void GLineFitIndividual::compare_(
 
     // Check that we are dealing with a GLineFitIndividual reference independent of this object and convert the pointer
     const GLineFitIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GLineFitIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GLineFitIndividual>(cp, this);
 
     GToken token("GLineFitIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GParameterTree>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GTreeGenome>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -135,20 +135,20 @@ std::tuple<double, double> GLineFitIndividual::getLine() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GLineFitIndividual, camouflaged as a GParameterTree.
+ * Loads the data of another GLineFitIndividual, camouflaged as a GTreeGenome.
  *
- * @param cp A copy of another GLineFitIndividual, camouflaged as a GParameterTree
+ * @param cp A copy of another GLineFitIndividual, camouflaged as a GTreeGenome
  */
-void GLineFitIndividual::load_(const gpar::GParameterTree *cp) {
+void GLineFitIndividual::load_(const gpar::GTreeGenome *cp) {
     using namespace Gem::Common;
     using namespace Gem::Geneva;
 
     // Check that we are dealing with a GLineFitIndividual reference independent of this object and convert the pointer
     const GLineFitIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GLineFitIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GLineFitIndividual>(cp, this);
 
     // Load our parent's data
-    gpar::GParameterTree::load_(cp);
+    gpar::GTreeGenome::load_(cp);
 
     // and then our local data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -158,9 +158,9 @@ void GLineFitIndividual::load_(const gpar::GParameterTree *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GParameterTree
+ * @return A deep clone of this object, camouflaged as a GTreeGenome
  */
-gpar::GParameterTree *GLineFitIndividual::clone_() const {
+gpar::GTreeGenome *GLineFitIndividual::clone_() const {
     return new GLineFitIndividual(*this);
 }
 
@@ -202,7 +202,7 @@ bool GLineFitIndividual::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gpar::GParameterTree::modify_GUnitTests_()) {
+    if(gpar::GTreeGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -225,7 +225,7 @@ void GLineFitIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GParameterTree::specificTestsNoFailureExpected_GUnitTests_();
+    gpar::GTreeGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -246,7 +246,7 @@ void GLineFitIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GParameterTree::specificTestsFailuresExpected_GUnitTests_();
+    gpar::GTreeGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -268,7 +268,7 @@ GLineFitIndividualFactory::GLineFitIndividualFactory(
     const std::vector<std::tuple<double, double>> &data_points,
     std::filesystem::path const &config_file
 )
-  : Gem::Common::GFactoryT<gpar::GParameterTree>(config_file)
+  : Gem::Common::GFactoryT<gpar::GTreeGenome>(config_file)
   , data_points_(data_points) { /* nothing */
 }
 
@@ -285,7 +285,7 @@ GLineFitIndividualFactory::~GLineFitIndividualFactory() { /* nothing */
  *
  * @return Items of the desired type
  */
-std::shared_ptr<gpar::GParameterTree> GLineFitIndividualFactory::getObject_(
+std::shared_ptr<gpar::GTreeGenome> GLineFitIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     [[maybe_unused]] const std::size_t & id
 ) {
@@ -313,7 +313,7 @@ void GLineFitIndividualFactory::describeLocalOptions_(
     // No local options
 
     // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<gpar::GParameterTree>::describeLocalOptions_(gpb);
+    Gem::Common::GFactoryT<gpar::GTreeGenome>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -325,10 +325,10 @@ void GLineFitIndividualFactory::describeLocalOptions_(
  *
  * @param p_base A smart-pointer to be acted on during post-processing
  */
-void GLineFitIndividualFactory::postProcess_(std::shared_ptr<gpar::GParameterTree> &p_base) {
+void GLineFitIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome> &p_base) {
     // Convert the base pointer to our local type
     std::shared_ptr<GLineFitIndividual> p =
-        Gem::Common::convertSmartPointer<gpar::GParameterTree, GLineFitIndividual>(p_base);
+        Gem::Common::convertSmartPointer<gpar::GTreeGenome, GLineFitIndividual>(p_base);
 
     // Nothing to be done here
 }

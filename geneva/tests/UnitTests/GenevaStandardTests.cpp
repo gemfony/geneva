@@ -565,16 +565,16 @@ TEST_CASE(
     }
 }
 
-// Safety net for the gpar::GParameterTree serialize()/load_()/compare_() unification
-// onto a single localMembers() declaration. GParameterTree is the central serialised
+// Safety net for the gpar::GTreeGenome serialize()/load_()/compare_() unification
+// onto a single localMembers() declaration. GTreeGenome is the central serialised
 // base for all individuals. This test sets several of its members to non-default
 // values -- in particular use_random_crash_ / random_crash_prob_, which serialize()
 // stored but the old load_()/compare_() silently ignored (a real member-drop bug,
 // fixed by deriving all three from localMembers()) -- and checks they survive both a
 // wire round-trip AND an in-memory load() (clone path). Exercised on the concrete
-// GTestIndividual1 (a GParameterTree subclass).
+// GTestIndividual1 (a GTreeGenome subclass).
 TEST_CASE(
-    "gpar::GParameterTree (via GTestIndividual1) round-trips its members incl. the random-crash settings",
+    "gpar::GTreeGenome (via GTestIndividual1) round-trips its members incl. the random-crash settings",
     "[geneva][serialization]"
 ) {
     using Gem::Common::serializationMode;
@@ -598,7 +598,7 @@ TEST_CASE(
         CHECK(restored.getMaxMode() == maxMode::MAXIMIZE);
 
         GEqualityPrinter gep(
-            "GParameterTree-load-roundtrip",
+            "GTreeGenome-load-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
         );
@@ -628,7 +628,7 @@ TEST_CASE(
         CHECK(restored.getMaxMode() == maxMode::MAXIMIZE);
 
         GEqualityPrinter gep(
-            "GParameterTree-roundtrip",
+            "GTreeGenome-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
         );

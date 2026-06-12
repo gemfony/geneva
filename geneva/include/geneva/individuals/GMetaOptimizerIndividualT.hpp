@@ -56,7 +56,7 @@
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GInt32FlipAdaptor.hpp"
 #include "geneva/par/GInt32GaussAdaptor.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 
@@ -188,13 +188,13 @@ constexpr std::size_t MOT_NVAR = 11;
  */
 template <typename ind_type = Gem::Geneva::Individuals::GFunctionIndividual>
 class GMetaOptimizerIndividualT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gpar::GParameterTree {
+  : public gpar::GTreeGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterTree) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome) &
             BOOST_SERIALIZATION_NVP(n_runs_per_optimization_) &
             BOOST_SERIALIZATION_NVP(fitness_target_) & BOOST_SERIALIZATION_NVP(iteration_threshold_) &
             BOOST_SERIALIZATION_NVP(mo_target_) & BOOST_SERIALIZATION_NVP(sub_ea_config_) &
@@ -209,7 +209,7 @@ public:
      * The default constructor.
      */
     GMetaOptimizerIndividualT()
-      : gpar::GParameterTree()
+      : gpar::GTreeGenome()
       , n_runs_per_optimization_(GMETAOPT_DEF_NRUNSPEROPT)
       , fitness_target_(GMETAOPT_DEF_FITNESSTARGET)
       , iteration_threshold_(GMETAOPT_DEF_ITERATIONTHRESHOLD)
@@ -225,7 +225,7 @@ public:
      * @param cp A copy of another GFunctionIndidivual
      */
     GMetaOptimizerIndividualT(const GMetaOptimizerIndividualT<ind_type> &cp)
-      : gpar::GParameterTree(cp)
+      : gpar::GTreeGenome(cp)
       , n_runs_per_optimization_(cp.n_runs_per_optimization_)
       , fitness_target_(cp.fitness_target_)
       , iteration_threshold_(cp.iteration_threshold_)
@@ -238,7 +238,7 @@ public:
             // pointer when copying/cloning a default-constructed object.
             cp.ind_factory_
                 ? Gem::Common::convertSmartPointer<
-                      Gem::Common::GFactoryT<gpar::GParameterTree>,
+                      Gem::Common::GFactoryT<gpar::GTreeGenome>,
                       typename ind_type::FACTORYTYPE>((cp.ind_factory_)->clone())
                 : std::shared_ptr<typename ind_type::FACTORYTYPE>()
         ) { /* nothing */
@@ -761,7 +761,7 @@ public:
         }
 
         ind_factory_ = Gem::Common::convertSmartPointer<
-            Gem::Common::GFactoryT<gpar::GParameterTree>,
+            Gem::Common::GFactoryT<gpar::GTreeGenome>,
             typename ind_type::FACTORYTYPE>(factory->clone());
     }
 
@@ -774,7 +774,7 @@ protected:
      */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override {
         // Call our parent class'es function
-        gpar::GParameterTree::addConfigurationOptions_(gpb);
+        gpar::GTreeGenome::addConfigurationOptions_(gpb);
 
         // Add local data
         gpb.registerFileParameter<std::size_t>(
@@ -855,16 +855,16 @@ protected:
      *
      * @param cp A copy of another GMetaOptimizerIndividualT<ind_type>
      */
-    void load_(const gpar::GParameterTree *cp) override {
+    void load_(const gpar::GTreeGenome *cp) override {
         // Check that we are dealing with a GMetaOptimizerIndividualT<ind_type> reference independent of this object and convert the pointer
         const GMetaOptimizerIndividualT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<gpar::GParameterTree, GMetaOptimizerIndividualT<ind_type>>(
+            Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GMetaOptimizerIndividualT<ind_type>>(
                 cp,
                 this
             );
 
         // Load our parent class'es data ...
-        gpar::GParameterTree::load_(cp);
+        gpar::GTreeGenome::load_(cp);
 
         // ... and then our local data, derived from the single localMembers() declaration
         Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -885,17 +885,17 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GParameterTree object
+     * @param cp A constant reference to another GTreeGenome object
      * @param e The expected outcome of the comparison
      */
     void compare_(
-        const gpar::GParameterTree &cp,
+        const gpar::GTreeGenome &cp,
         const Gem::Common::expectation &e,
         [[maybe_unused]] const double & limit
     ) const final {
         // Check that we are dealing with a GMetaOptimizerIndividualT<ind_type> reference independent of this object and convert the pointer
         const GMetaOptimizerIndividualT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<gpar::GParameterTree, GMetaOptimizerIndividualT<ind_type>>(
+            Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GMetaOptimizerIndividualT<ind_type>>(
                 cp,
                 this
             );
@@ -903,7 +903,7 @@ protected:
         Gem::Common::GToken token("GMetaOptimizerIndividualT<ind_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<gpar::GParameterTree>(*this, *p_load, token);
+        Gem::Common::compare_base_t<gpar::GTreeGenome>(*this, *p_load, token);
 
         // ... and then the local data, derived from the single localMembers() declaration
         Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -1007,7 +1007,7 @@ protected:
             // Add the required number of individuals
             for(std::size_t ind = 0; ind < pop_size; ind++) {
                 // Retrieve an individual
-                std::shared_ptr<gpar::GParameterTree> gi_ptr = ind_factory_->get();
+                std::shared_ptr<gpar::GTreeGenome> gi_ptr = ind_factory_->get();
 
                 ea_ptr->push_back(gi_ptr->clone_unique());
             }
@@ -1044,8 +1044,8 @@ protected:
             ea_ptr->optimize();
 
             // Retrieve the best individual
-            std::shared_ptr<gpar::GParameterTree> best_individual =
-                ea_ptr->getBestGlobalIndividual<gpar::GParameterTree>();
+            std::shared_ptr<gpar::GTreeGenome> best_individual =
+                ea_ptr->getBestGlobalIndividual<gpar::GTreeGenome>();
 
             // Retrieve the number of iterations
             iterations_consumed = ea_ptr->getIteration();
@@ -1130,7 +1130,7 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(gpar::GParameterTree::modify_GUnitTests_()) {
+        if(gpar::GTreeGenome::modify_GUnitTests_()) {
             result = true;
         }
 
@@ -1161,7 +1161,7 @@ protected:
         using namespace Gem::Geneva;
 
         // Call the parent classes' functions
-        gpar::GParameterTree::specificTestsNoFailureExpected_GUnitTests_();
+        gpar::GTreeGenome::specificTestsNoFailureExpected_GUnitTests_();
 
         //------------------------------------------------------------------------------
 
@@ -1186,7 +1186,7 @@ protected:
         using namespace Gem::Geneva;
 
         // Call the parent classes' functions
-        gpar::GParameterTree::specificTestsFailuresExpected_GUnitTests_();
+        gpar::GTreeGenome::specificTestsFailuresExpected_GUnitTests_();
 
         //------------------------------------------------------------------------------
 
@@ -1213,9 +1213,9 @@ private:
     /**
      * Creates a deep clone of this object
      *
-     * @return A deep clone of this object, camouflaged as a GParameterTree
+     * @return A deep clone of this object, camouflaged as a GTreeGenome
      */
-    gpar::GParameterTree *clone_() const final {
+    gpar::GTreeGenome *clone_() const final {
         return new GMetaOptimizerIndividualT<ind_type>(*this);
     }
 
@@ -1254,7 +1254,7 @@ std::ostream &operator<<(std::ostream &stream, const GMetaOptimizerIndividualT<i
  * A factory for GMetaOptimizerIndividualT<ind_type> objects
  */
 template <typename ind_type>
-class GMetaOptimizerIndividualFactoryT : public Gem::Common::GFactoryT<gpar::GParameterTree> {
+class GMetaOptimizerIndividualFactoryT : public Gem::Common::GFactoryT<gpar::GTreeGenome> {
 public:
     /***************************************************************************/
     /**
@@ -1264,7 +1264,7 @@ public:
      * @param config_file The name of the configuration file
      */
     GMetaOptimizerIndividualFactoryT(std::filesystem::path const &config_file)
-      : Gem::Common::GFactoryT<gpar::GParameterTree>(config_file) { /* nothing */
+      : Gem::Common::GFactoryT<gpar::GTreeGenome>(config_file) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1289,7 +1289,7 @@ public:
         }
 
         ind_factory_ = Gem::Common::convertSmartPointer<
-            Gem::Common::GFactoryT<gpar::GParameterTree>,
+            Gem::Common::GFactoryT<gpar::GTreeGenome>,
             typename ind_type::FACTORYTYPE>(factory->clone());
     }
 
@@ -1595,7 +1595,7 @@ protected:
         );
 
         // Allow our parent class to describe its options
-        Gem::Common::GFactoryT<gpar::GParameterTree>::describeLocalOptions_(gpb);
+        Gem::Common::GFactoryT<gpar::GTreeGenome>::describeLocalOptions_(gpb);
     }
 
     /***************************************************************************/
@@ -1607,10 +1607,10 @@ protected:
      *
      * @param p_base A smart-pointer to be acted on during post-processing
      */
-    void postProcess_(std::shared_ptr<gpar::GParameterTree> &p_base) override {
+    void postProcess_(std::shared_ptr<gpar::GTreeGenome> &p_base) override {
         // Convert the base pointer to our local type
         std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> p =
-            Gem::Common::convertSmartPointer<gpar::GParameterTree, GMetaOptimizerIndividualT<ind_type>>(
+            Gem::Common::convertSmartPointer<gpar::GTreeGenome, GMetaOptimizerIndividualT<ind_type>>(
                 p_base
             );
 
@@ -1663,7 +1663,7 @@ private:
      *
      * @return Items of the desired type
      */
-    std::shared_ptr<gpar::GParameterTree> getObject_(
+    std::shared_ptr<gpar::GTreeGenome> getObject_(
         Gem::Common::GParserBuilder &gpb,
         [[maybe_unused]] const std::size_t & id
     ) override {
@@ -1767,10 +1767,10 @@ constexpr std::size_t P_YDIM = 1400;
 template <typename ind_type>
 class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
   : public oa::GBasePluggableOM {
-    // Make sure this class can only be instantiated if individual_type is a derivative of GParameterTree
+    // Make sure this class can only be instantiated if individual_type is a derivative of GTreeGenome
     static_assert(
-        std::is_base_of_v<gpar::GParameterTree, ind_type>,
-        "GParameterTree is no base class of ind_type"
+        std::is_base_of_v<gpar::GTreeGenome, ind_type>,
+        "GTreeGenome is no base class of ind_type"
     );
 
     ///////////////////////////////////////////////////////////////////////

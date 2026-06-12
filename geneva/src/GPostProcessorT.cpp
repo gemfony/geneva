@@ -36,7 +36,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include <memory>
 #include <string>
 
@@ -99,7 +99,7 @@ std::string GEvolutionaryAlgorithmPostOptimizer::name_() const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GEvolutionaryAlgorithmPostOptimizer::compare_(
-    const Gem::Common::GSerializableFunctionObjectT<gpar::GParameterTree> &cp,
+    const Gem::Common::GSerializableFunctionObjectT<gpar::GTreeGenome> &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -107,13 +107,13 @@ void GEvolutionaryAlgorithmPostOptimizer::compare_(
 
     // Check that we are dealing with a Gem::Common::GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
     const GEvolutionaryAlgorithmPostOptimizer *p_load = Gem::Common::g_convert_and_compare<
-        Gem::Common::GSerializableFunctionObjectT<gpar::GParameterTree>,
+        Gem::Common::GSerializableFunctionObjectT<gpar::GTreeGenome>,
         GEvolutionaryAlgorithmPostOptimizer>(cp, this);
 
     GToken token("GEvolutionaryAlgorithmPostOptimizer", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GPostProcessorBaseT<gpar::GParameterTree>>(*this, *p_load, token);
+    Gem::Common::compare_base_t<GPostProcessorBaseT<gpar::GTreeGenome>>(*this, *p_load, token);
 
     // ... and then our local data
     g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -190,15 +190,15 @@ std::string GEvolutionaryAlgorithmPostOptimizer::getExecutorConfigFile() const {
  * Loads the data of another GEvolutionaryAlgorithmPostOptimizer object
  */
 void GEvolutionaryAlgorithmPostOptimizer::load_(
-    const Gem::Common::GSerializableFunctionObjectT<gpar::GParameterTree> *cp
+    const Gem::Common::GSerializableFunctionObjectT<gpar::GTreeGenome> *cp
 ) {
     // Check that we are dealing with a GEvolutionaryAlgorithmPostOptimizer reference independent of this object and convert the pointer
     const GEvolutionaryAlgorithmPostOptimizer *p_load = Gem::Common::g_convert_and_compare<
-        Gem::Common::GSerializableFunctionObjectT<gpar::GParameterTree>,
+        Gem::Common::GSerializableFunctionObjectT<gpar::GTreeGenome>,
         GEvolutionaryAlgorithmPostOptimizer>(cp, this);
 
     // Load our parent class'es data ...
-    GPostProcessorBaseT<gpar::GParameterTree>::load_(cp);
+    GPostProcessorBaseT<gpar::GTreeGenome>::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -208,7 +208,7 @@ void GEvolutionaryAlgorithmPostOptimizer::load_(
 /**
  * Creates a deep clone of this object
  */
-Gem::Common::GSerializableFunctionObjectT<gpar::GParameterTree> *
+Gem::Common::GSerializableFunctionObjectT<gpar::GTreeGenome> *
 GEvolutionaryAlgorithmPostOptimizer::clone_() const {
     return new GEvolutionaryAlgorithmPostOptimizer(*this);
 }
@@ -217,7 +217,7 @@ GEvolutionaryAlgorithmPostOptimizer::clone_() const {
 /**
  * The actual post-processing takes place here (no further checks)
  */
-bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gpar::GParameterTree &p) {
+bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gpar::GTreeGenome &p) {
     // Make sure p is processed
     if(not p.is_processed()) {
         throw geneva_exception(
@@ -236,7 +236,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gpar::GParameterTree &
     }
 
     // Clone the individual for post-processing
-    std::shared_ptr<gpar::GParameterTree> p_unopt_ptr = p.template clone<gpar::GParameterTree>();
+    std::shared_ptr<gpar::GTreeGenome> p_unopt_ptr = p.template clone<gpar::GTreeGenome>();
 
     // Make sure the post-optimization does not trigger post-optimization recursively ...
     p_unopt_ptr->vetoPostProcessing(true);
@@ -260,7 +260,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gpar::GParameterTree &
     ea_ptr->optimize();
 
     // Retrieve the best individual
-    std::shared_ptr<gpar::GParameterTree> p_opt_ptr = ea_ptr->getBestGlobalIndividual<gpar::GParameterTree>();
+    std::shared_ptr<gpar::GTreeGenome> p_opt_ptr = ea_ptr->getBestGlobalIndividual<gpar::GTreeGenome>();
 
     // Make sure subsequent optimization cycles may generally perform post-optimization again.
     // This needs to be done on the optimized individual, as it will be loaded into the
@@ -290,7 +290,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GPostProcessorBaseT<gpar::GParameterTree>::modify_GUnitTests_()) {
+    if(GPostProcessorBaseT<gpar::GTreeGenome>::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -312,7 +312,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::modify_GUnitTests_() {
 void GEvolutionaryAlgorithmPostOptimizer::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Call the parent class'es function
-    GPostProcessorBaseT<gpar::GParameterTree>::specificTestsNoFailureExpected_GUnitTests_();
+    GPostProcessorBaseT<gpar::GTreeGenome>::specificTestsNoFailureExpected_GUnitTests_();
 
     //---------------------------------------------------------------------------
 
@@ -331,7 +331,7 @@ void GEvolutionaryAlgorithmPostOptimizer::specificTestsNoFailureExpected_GUnitTe
 void GEvolutionaryAlgorithmPostOptimizer::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Call the parent class'es function
-    GPostProcessorBaseT<gpar::GParameterTree>::specificTestsFailuresExpected_GUnitTests_();
+    GPostProcessorBaseT<gpar::GTreeGenome>::specificTestsFailuresExpected_GUnitTests_();
 
     //---------------------------------------------------------------------------
 

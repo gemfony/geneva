@@ -59,7 +59,7 @@
 #include "geneva/par/GInt32GaussAdaptor.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/par/GParameterObjectCollection.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 
 namespace Gem::Geneva::Individuals {
 
@@ -69,7 +69,7 @@ namespace Gem::Geneva::Individuals {
  * of the individual.
  */
 class GTestIndividual3 // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gpar::GParameterTree {
+  : public gpar::GTreeGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -78,7 +78,7 @@ class GTestIndividual3 // NOLINT(cppcoreguidelines-special-member-functions)
         using boost::serialization::make_nvp;
         using namespace Gem::Geneva;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterTree);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -96,7 +96,7 @@ public:
 
 protected:
     /** @brief Loads the data of another GTestIndividual3 */
-    void load_(const gpar::GParameterTree *) final;
+    void load_(const gpar::GTreeGenome *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GTestIndividual3>(
@@ -107,7 +107,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GParameterTree & // the other object
+        const gpar::GTreeGenome & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -126,7 +126,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    gpar::GParameterTree *clone_() const final;
+    gpar::GTreeGenome *clone_() const final;
 };
 
 /******************************************************************************/

@@ -35,7 +35,7 @@
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -71,7 +71,7 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
  */
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
     const std::string &config_file,
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterTree>> content_creator_ptr
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GTreeGenome>> content_creator_ptr
 )
   : GOAFactoryT<GOptimizationAlgorithmBase>(
         config_file,

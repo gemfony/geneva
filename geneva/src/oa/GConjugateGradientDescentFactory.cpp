@@ -35,7 +35,7 @@
 #include "geneva/oa/GConjugateGradientDescent.hpp"
 #include "geneva/oa/GConjugateGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -69,7 +69,7 @@ GConjugateGradientDescentFactory::GConjugateGradientDescentFactory(
  */
 GConjugateGradientDescentFactory::GConjugateGradientDescentFactory(
     const std::string &config_file,
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterTree>> content_creator_ptr
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GTreeGenome>> content_creator_ptr
 )
   : GOAFactoryT<GOptimizationAlgorithmBase>(
         config_file,

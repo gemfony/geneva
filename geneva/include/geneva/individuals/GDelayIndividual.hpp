@@ -54,7 +54,7 @@
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GDoubleObject.hpp"
 #include "geneva/par/GDoubleObjectCollection.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include "hap/GRandomDistributionsT.hpp"
 
 namespace Gem::Geneva::Individuals {
@@ -79,14 +79,14 @@ public:
  * clients and server.
  */
 class GDelayIndividual
-  : public gpar::GParameterTree // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gpar::GTreeGenome // NOLINT(cppcoreguidelines-special-member-functions)
 {
     /////////////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterTree) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome) &
             BOOST_SERIALIZATION_NVP(fixed_sleep_time_) & BOOST_SERIALIZATION_NVP(may_crash_) &
             BOOST_SERIALIZATION_NVP(throw_likelihood_) & BOOST_SERIALIZATION_NVP(sleep_randomly_) &
             BOOST_SERIALIZATION_NVP(rand_sleep_boundaries_);
@@ -142,8 +142,8 @@ protected:
         );
     }
 
-    /** @brief Loads the data of another GDelayIndividual, camouflaged as a GParameterTree */
-    void load_(const gpar::GParameterTree *) final;
+    /** @brief Loads the data of another GDelayIndividual, camouflaged as a GTreeGenome */
+    void load_(const gpar::GTreeGenome *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GDelayIndividual>(
@@ -154,7 +154,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GParameterTree & // the other object
+        const gpar::GTreeGenome & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -168,7 +168,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    gpar::GParameterTree *clone_() const final;
+    gpar::GTreeGenome *clone_() const final;
 
     double
         fixed_sleep_time_; ///< The amount of time the evaluation function should sleep before continuing (seconds)
@@ -193,7 +193,7 @@ private:
  * A factory for GFMinIndividual objects
  */
 class GDelayIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<gpar::GParameterTree> {
+  : public Gem::Common::GFactoryT<gpar::GTreeGenome> {
 public:
     /** @brief The standard constructor */
     GDelayIndividualFactory(std::filesystem::path const &);
@@ -217,14 +217,14 @@ protected:
     /** @brief Allows to describe local configuration options in derived classes */
     void describeLocalOptions_(Gem::Common::GParserBuilder &) final;
     /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<gpar::GParameterTree> &) final;
+    void postProcess_(std::shared_ptr<gpar::GTreeGenome> &) final;
 
 private:
     /** @brief The default constructor. Only needed for (de-)serialization purposes */
     GDelayIndividualFactory() = default;
 
     /** @brief Creates individuals of this type */
-    std::shared_ptr<gpar::GParameterTree>
+    std::shared_ptr<gpar::GTreeGenome>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) final;
 
     /** @brief Converts a tuple to a time format */

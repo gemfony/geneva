@@ -76,7 +76,7 @@
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GDoubleObject.hpp"
 #include "geneva/par/GDoubleObjectCollection.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include "hap/GRandomT.hpp"
 
 namespace Gem::Geneva::Individuals {
@@ -367,7 +367,7 @@ const transferFunction GNN_DEF_TRANSFER = transferFunction::SIGMOID;
  * standard back-propagation algorithm to train feed-forward neural networks.
  */
 class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gpar::GParameterTree {
+  : public gpar::GTreeGenome {
     /////////////////////////////////////////////////////////////////////////////
 
     friend class boost::serialization::access;
@@ -386,7 +386,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
     void load(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterTree);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome);
         // t_f_ was previously never (de)serialised and silently reset to its
         // default; read it back via the single localMembers() declaration. In a
         // split save()/load(), the same serialize_members() drives both -- the
@@ -401,7 +401,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
     void save(Archive &ar, const unsigned int) const {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterTree);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome);
         // The const localMembers() overload yields const refs, which the output
         // archive writes -- the symmetric counterpart to load() above.
         Gem::Common::serialize_members(ar, this->localMembers());
@@ -1050,7 +1050,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Loads the data of another GNeuralNetworkIndividual */
-    void load_(const gpar::GParameterTree *cp) final;
+    void load_(const gpar::GTreeGenome *cp) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GNeuralNetworkIndividual>(
@@ -1061,7 +1061,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GParameterTree & // the other object
+        const gpar::GTreeGenome & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -1074,7 +1074,7 @@ protected:
 private:
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    gpar::GParameterTree *clone_() const final;
+    gpar::GTreeGenome *clone_() const final;
 
     /** @brief The transfer function */
     double transfer(const double &value) const;
@@ -1092,7 +1092,7 @@ private:
  * A factory for GNeuralNetworkIndividual objects
  */
 class GNeuralNetworkIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<gpar::GParameterTree> {
+  : public Gem::Common::GFactoryT<gpar::GTreeGenome> {
 public:
     /** @brief The standard constructor */
     explicit GNeuralNetworkIndividualFactory(std::filesystem::path const &);
@@ -1109,14 +1109,14 @@ protected:
     /** @brief Allows to describe local configuration options in derived classes */
     void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
     /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<gpar::GParameterTree> &) override;
+    void postProcess_(std::shared_ptr<gpar::GTreeGenome> &) override;
 
 private:
     /** @brief The default constructor. Only needed for (de-)serialization purposes */
     GNeuralNetworkIndividualFactory() = default;
 
     /** @brief Creates individuals of this type */
-    std::shared_ptr<gpar::GParameterTree>
+    std::shared_ptr<gpar::GTreeGenome>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     double ad_prob_ = 0.;

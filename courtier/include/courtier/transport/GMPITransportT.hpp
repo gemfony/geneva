@@ -869,7 +869,7 @@ private:
      * GMPIConsumerMasterNodeT will constantly wait for incoming work items requests, process them and answer them
      * by opening a new GMPIConsumerSessionT for each request.
      *
-     * @tparam processable_type a type that is processable like GParameterTree
+     * @tparam processable_type a type that is processable like GTreeGenome
      *
      *
      * The simplified workflow of the GMPIConsumerMasterNodeT can be described as follows:

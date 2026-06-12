@@ -60,7 +60,7 @@
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GDoubleObjectCollection.hpp"
 #include "geneva/par/GInt32FlipAdaptor.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include "geneva/par/GParameterSetMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 
@@ -125,7 +125,7 @@ class GExternalEvaluatorIndividualFactory;
  * utility. Hence the external program needs to understand the XML format.
  */
 class GExternalEvaluatorIndividual
-  : public gpar::GParameterTree { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gpar::GTreeGenome { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
     friend class boost::serialization::access;
@@ -158,7 +158,7 @@ class GExternalEvaluatorIndividual
         // run_id_ was previously omitted here and silently lost on
         // (de)serialization; derive the member list from the single
         // localMembers() declaration so it stays in sync.
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterTree);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome);
         Gem::Common::serialize_members(ar, this->localMembers());
     }
 
@@ -216,7 +216,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Loads the data of another GExternalEvaluatorIndividual */
-    void load_(const gpar::GParameterTree *) final;
+    void load_(const gpar::GTreeGenome *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GExternalEvaluatorIndividual>(
@@ -227,7 +227,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GParameterTree & // the other object
+        const gpar::GTreeGenome & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -241,7 +241,7 @@ private:
     /***************************************************************************/
 
     /** @brief Creates a deep clone of this object */
-    gpar::GParameterTree *clone_() const final;
+    gpar::GTreeGenome *clone_() const final;
 
     /***************************************************************************/
 
@@ -261,7 +261,7 @@ private:
  * A factory for GExternalEvaluatorIndividual objects
  */
 class GExternalEvaluatorIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<gpar::GParameterTree> {
+  : public Gem::Common::GFactoryT<gpar::GTreeGenome> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -271,7 +271,7 @@ class GExternalEvaluatorIndividualFactory // NOLINT(cppcoreguidelines-special-me
 
         ar &boost::serialization::make_nvp(
             "GFactoryT_gpar_GParameterSet",
-            boost::serialization::base_object<GFactoryT<gpar::GParameterTree>>(*this)
+            boost::serialization::base_object<GFactoryT<gpar::GTreeGenome>>(*this)
         ) &
             BOOST_SERIALIZATION_NVP(ad_prob_) & BOOST_SERIALIZATION_NVP(adapt_ad_prob_) &
             BOOST_SERIALIZATION_NVP(min_ad_prob_) & BOOST_SERIALIZATION_NVP(max_ad_prob_) &
@@ -422,21 +422,21 @@ public:
     ) const;
 
     /** @brief Loads the data of another GFunctionIndividualFactory object */
-    void load(std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterTree>>) override;
+    void load(std::shared_ptr<Gem::Common::GFactoryT<gpar::GTreeGenome>>) override;
 
     /** @brief Creates a deep clone of this object */
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GParameterTree>> clone() const override;
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GTreeGenome>> clone() const override;
 
 protected:
     /** @brief Allows to describe local configuration options in derived classes */
     void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<gpar::GParameterTree> &) override;
+    void postProcess_(std::shared_ptr<gpar::GTreeGenome> &) override;
 
 private:
     /** @brief Creates individuals of this type */
-    std::shared_ptr<gpar::GParameterTree>
+    std::shared_ptr<gpar::GTreeGenome>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     /** @brief Sets up the boost property object holding information about the individual structure */

@@ -46,7 +46,7 @@
 namespace Gem::Geneva {
 
 // Forward declaration
-namespace Parameters { class GParameterTree; }
+namespace Parameters { class GTreeGenome; }
 
 /******************************************************************************/
 /**
@@ -74,10 +74,10 @@ class GPreEvaluationValidityCheckT // NOLINT(cppcoreguidelines-special-member-fu
     }
     ///////////////////////////////////////////////////////////////////////
 
-    // We only accept validity checks for types derived directly or indirectly from GParameterTree
+    // We only accept validity checks for types derived directly or indirectly from GTreeGenome
     static_assert(
-        std::is_base_of_v<gpar::GParameterTree, ind_type>,
-        "GParameterTree is no base of ind_type"
+        std::is_base_of_v<gpar::GTreeGenome, ind_type>,
+        "GTreeGenome is no base of ind_type"
     );
 
 public:

@@ -52,7 +52,7 @@
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GDoubleObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
@@ -68,7 +68,7 @@ namespace Gem::Geneva::Individuals {
  * weakening data protection.
  */
 class GTestIndividual1 // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gpar::GParameterTree {
+  : public gpar::GTreeGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -76,7 +76,7 @@ class GTestIndividual1 // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterTree);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -90,7 +90,7 @@ public:
 
 protected:
     /** @brief Loads the data of another GTestIndividual1 */
-    void load_(const gpar::GParameterTree *) final;
+    void load_(const gpar::GTreeGenome *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GTestIndividual1>(
@@ -101,7 +101,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GParameterTree & // the other object
+        const gpar::GTreeGenome & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -123,7 +123,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    gpar::GParameterTree *clone_() const final;
+    gpar::GTreeGenome *clone_() const final;
 
     /** @brief Adds a number of GDoubleObject objects to the individual */
     void addGDoubleObjects_(const std::size_t &);

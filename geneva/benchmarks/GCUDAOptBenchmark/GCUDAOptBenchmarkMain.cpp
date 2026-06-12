@@ -164,14 +164,14 @@ int main(int argc, char **argv) {
     // Build the courtier broker holding the unified GPU consumer (the SAME GGPUConsumerT example 15
     // uses). The whole population is scored in one bulk, runtime-compiled kernel launch; the backend
     // (cpu/cuda/opencl) and kernel are selected in config/GGPUConsumer.json. The clone function is the
-    // polymorphic GParameterTree clone needed by the clone-on-partial-return policy.
+    // polymorphic GTreeGenome clone needed by the clone-on-partial-return policy.
     auto marshaller = std::make_shared<GBenchmarkGPUMarshaller>();
-    auto consumer = std::make_shared<Gem::Courtier::GPU::GGPUConsumerT<gpar::GParameterTree>>(
+    auto consumer = std::make_shared<Gem::Courtier::GPU::GGPUConsumerT<gpar::GTreeGenome>>(
         "./config/GGPUConsumer.json", marshaller);
-    consumer->setCloneFunction([](const std::unique_ptr<gpar::GParameterTree> &p) {
+    consumer->setCloneFunction([](const std::unique_ptr<gpar::GTreeGenome> &p) {
         return p->clone_unique();
     });
-    auto cudaBroker = std::make_shared<Gem::Courtier::GBrokerT<gpar::GParameterTree>>();
+    auto cudaBroker = std::make_shared<Gem::Courtier::GBrokerT<gpar::GTreeGenome>>();
     cudaBroker->registerConsumer(consumer);
 
     GAlgorithmBenchmarkRunner runner(cfg, cudaBroker);

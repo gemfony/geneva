@@ -43,24 +43,24 @@
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 
 namespace Gem::Geneva {
 
 /******************************************************************************/
 /** @brief Transforms the individual fitness so that the optimization algorithm always "sees" a minimization problem */
 double
-minOnly_transformed_fitness(const gpar::GParameterTree &, std::size_t = 0);
+minOnly_transformed_fitness(const gpar::GTreeGenome &, std::size_t = 0);
 
 /******************************************************************************/
 /** @brief Checks whether the first individual is better than the second */
 bool
-isBetter(const std::shared_ptr<gpar::GParameterTree> &x_ptr, const std::shared_ptr<gpar::GParameterTree> &y_ptr);
+isBetter(const std::shared_ptr<gpar::GTreeGenome> &x_ptr, const std::shared_ptr<gpar::GTreeGenome> &y_ptr);
 
 /******************************************************************************/
 /** @brief Checks whether the first individual is worse than the second */
 bool
-isWorse(const std::shared_ptr<gpar::GParameterTree> &x_ptr, const std::shared_ptr<gpar::GParameterTree> &y_ptr);
+isWorse(const std::shared_ptr<gpar::GTreeGenome> &x_ptr, const std::shared_ptr<gpar::GTreeGenome> &y_ptr);
 
 /******************************************************************************/
 /** @brief Checks whether the first value is better than the second */

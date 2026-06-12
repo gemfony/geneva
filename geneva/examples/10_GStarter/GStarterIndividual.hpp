@@ -54,7 +54,7 @@
 #include "geneva/par/GDoubleBiGaussAdaptor.hpp"
 #include "geneva/par/GDoubleCollection.hpp"
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -89,13 +89,13 @@ const targetFunction GO_DEF_TARGETFUNCTION = targetFunction::PARABOLA;
  * This individual searches for a minimum of a number of predefined functions, each capable
  * of processing their input in multiple dimensions.
  */
-class GStarterIndividual : public gpar::GParameterTree {
+class GStarterIndividual : public gpar::GTreeGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GParameterTree) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome) &
             BOOST_SERIALIZATION_NVP(targetFunction_);
     }
 
@@ -214,7 +214,7 @@ public:
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another GStarterIndividual */
-    virtual void load_(const gpar::GParameterTree *) final;
+    virtual void load_(const gpar::GTreeGenome *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GStarterIndividual>(
@@ -225,7 +225,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     virtual void compare_(
-        const gpar::GParameterTree & // the other object
+        const gpar::GTreeGenome & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -250,7 +250,7 @@ private:
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    virtual gpar::GParameterTree *clone_() const final;
+    virtual gpar::GTreeGenome *clone_() const final;
 
     /***************************************************************************/
     /** @brief A simple n-dimensional parabola */
@@ -270,7 +270,7 @@ std::ostream &operator<<(std::ostream &, std::shared_ptr<GStarterIndividual>);
 /**
  * A factory for GStarterIndividual objects
  */
-class GStarterIndividualFactory : public Gem::Common::GFactoryT<gpar::GParameterTree> {
+class GStarterIndividualFactory : public Gem::Common::GFactoryT<gpar::GTreeGenome> {
 public:
     /** @brief The standard constructor */
     explicit GStarterIndividualFactory(std::filesystem::path const &);
@@ -281,13 +281,13 @@ protected:
     /** @brief Allows to describe local configuration options in derived classes */
     void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
     /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<gpar::GParameterTree> &) override;
+    void postProcess_(std::shared_ptr<gpar::GTreeGenome> &) override;
 
 private:
     /** @brief The default constructor. Only needed for (de-)serialization purposes */
     GStarterIndividualFactory() = default;
     /** @brief Creates individuals of this type */
-    std::shared_ptr<gpar::GParameterTree>
+    std::shared_ptr<gpar::GTreeGenome>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     double adProb_ = GSI_DEF_ADPROB;         ///< Probability for a parameter to be mutated

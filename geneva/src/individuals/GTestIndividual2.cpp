@@ -38,7 +38,7 @@
 #include "geneva/par/GDoubleCollection.hpp"
 #include "geneva/par/GDoubleGaussAdaptor.hpp"
 #include "geneva/par/GDoubleObject.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include <cstddef>
 #include <istream>
 #include <memory>
@@ -172,7 +172,7 @@ GTestIndividual2::GTestIndividual2(const std::size_t &n_objects, const PERFOBJEC
  * @param cp A constant reference to another GTestIndividual2 object
  */
 GTestIndividual2::GTestIndividual2(const GTestIndividual2 &cp)
-  : gpar::GParameterTree(cp) { /* nothing */
+  : gpar::GTreeGenome(cp) { /* nothing */
 }
 
 /******************************************************************************/
@@ -187,11 +187,11 @@ GTestIndividual2::~GTestIndividual2() { /* nothing */
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GParameterTree object
+ * @param cp A constant reference to another GTreeGenome object
  * @param e The expected outcome of the comparison
  */
 void GTestIndividual2::compare_(
-    const gpar::GParameterTree &cp,
+    const gpar::GTreeGenome &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -200,12 +200,12 @@ void GTestIndividual2::compare_(
 
     // Check that we are dealing with a GTestIndividual2 reference independent of this object and convert the pointer
     const GTestIndividual2 *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GTestIndividual2>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GTestIndividual2>(cp, this);
 
     Gem::Common::GToken token("GTestIndividual2", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GParameterTree>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GTreeGenome>(*this, *p_load, token);
 
     // ...no local data
 
@@ -215,20 +215,20 @@ void GTestIndividual2::compare_(
 
 /******************************************************************************/
 /**
- * Loads the data of another GTestIndividual2, camouflaged as a GParameterTree.
+ * Loads the data of another GTestIndividual2, camouflaged as a GTreeGenome.
  *
- * @param cp A copy of another GTestIndividual2, camouflaged as a GParameterTree
+ * @param cp A copy of another GTestIndividual2, camouflaged as a GTreeGenome
  */
-void GTestIndividual2::load_(const gpar::GParameterTree *cp) {
+void GTestIndividual2::load_(const gpar::GTreeGenome *cp) {
     using namespace Gem::Common;
     using namespace Gem::Geneva;
 
     // Check that we are dealing with a GTestIndividual2 reference independent of this object and convert the pointer
     const GTestIndividual2 *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GParameterTree, GTestIndividual2>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GTestIndividual2>(cp, this);
 
     // Load our parent's data
-    gpar::GParameterTree::load_(cp);
+    gpar::GTreeGenome::load_(cp);
 
     // no local data
 }
@@ -237,9 +237,9 @@ void GTestIndividual2::load_(const gpar::GParameterTree *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GParameterTree
+ * @return A deep clone of this object, camouflaged as a GTreeGenome
  */
-gpar::GParameterTree *GTestIndividual2::clone_() const {
+gpar::GTreeGenome *GTestIndividual2::clone_() const {
     return new GTestIndividual2(*this);
 }
 
@@ -276,7 +276,7 @@ bool GTestIndividual2::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gpar::GParameterTree::modify_GUnitTests_()) {
+    if(gpar::GTreeGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -300,7 +300,7 @@ void GTestIndividual2::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GParameterTree::specificTestsNoFailureExpected_GUnitTests_();
+    gpar::GTreeGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -322,7 +322,7 @@ void GTestIndividual2::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GParameterTree::specificTestsFailuresExpected_GUnitTests_();
+    gpar::GTreeGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------

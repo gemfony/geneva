@@ -37,7 +37,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GBaseParChildPersonalityTraits.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <memory>
@@ -428,9 +428,9 @@ void GParChild::doRecombine() {
             const std::size_t child_idx = n_parents_ + c;
             const std::size_t pp = parent_pos[c];
             futures_cnt.push_back(tp->async_schedule([this, child_idx, pp]() {
-                std::unique_ptr<gpar::GParameterTree> &child = GOptimizationAlgorithmBase::data_cnt_[child_idx];
+                std::unique_ptr<gpar::GTreeGenome> &child = GOptimizationAlgorithmBase::data_cnt_[child_idx];
                 child->load(GOptimizationAlgorithmBase::data_cnt_[pp]);
-                child->GParameterTree::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
+                child->GTreeGenome::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
                     ->setParentId(pp);
             }));
         }
@@ -462,7 +462,7 @@ void GParChild::doRecombine() {
 
     // ------------------------------------------------------------------------
     // Serial path (original behaviour; also covers the cross-over / amalgamation case).
-    std::vector<std::unique_ptr<gpar::GParameterTree>>::iterator it;
+    std::vector<std::unique_ptr<gpar::GTreeGenome>>::iterator it;
     for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         it != GOptimizationAlgorithmBase::data_cnt_.end();
         ++it) {
@@ -470,8 +470,8 @@ void GParChild::doRecombine() {
         // If we do perform cross-over, we always cross the best individual with another random parent
         if(n_parents_ > 1 &&
            amalgamation_wanted(this->gr_)) { // Create individuals using a cross-over scheme
-            const gpar::GParameterTree &best_parent = *this->front();
-            const gpar::GParameterTree &combiner =
+            const gpar::GTreeGenome &best_parent = *this->front();
+            const gpar::GTreeGenome &combiner =
                 (n_parents_ > 2)
                     ? *(*(this->begin() + this->uniform_int_distribution_(
                                              this->gr_,
@@ -496,7 +496,7 @@ void GParChild::doRecombine() {
                 if(n_parents_ == 1) {
                     (*it)->load(*(GOptimizationAlgorithmBase::data_cnt_.begin()));
                     (*it)
-                        ->GParameterTree::getPersonalityTraits<GBaseParChildPersonalityTraits>()
+                        ->GTreeGenome::getPersonalityTraits<GBaseParChildPersonalityTraits>()
                         ->setParentId(0);
                 }
                 else {
@@ -610,12 +610,12 @@ std::tuple<std::size_t, std::size_t> GParChild::getAdaptionRange() const {
  * This helper function marks parents as parents and children as children.
  */
 void GParChild::markParents() {
-    typename std::vector<std::unique_ptr<gpar::GParameterTree>>::iterator it;
+    typename std::vector<std::unique_ptr<gpar::GTreeGenome>>::iterator it;
     for(it = GOptimizationAlgorithmBase::data_cnt_.begin();
         it != GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         ++it) {
         (*it)
-            ->GParameterTree::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
+            ->GTreeGenome::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
             ->setIsParent();
     }
 }
@@ -625,12 +625,12 @@ void GParChild::markParents() {
  * This helper function marks children as children
  */
 void GParChild::markChildren() {
-    typename std::vector<std::unique_ptr<gpar::GParameterTree>>::iterator it;
+    typename std::vector<std::unique_ptr<gpar::GTreeGenome>>::iterator it;
     for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         it != GOptimizationAlgorithmBase::data_cnt_.end();
         ++it) {
         (*it)
-            ->GParameterTree::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
+            ->GTreeGenome::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
             ->setIsChild();
     }
 }
@@ -644,7 +644,7 @@ void GParChild::markIndividualPositions() {
     std::size_t pos = 0;
     for(const auto &individual : GOptimizationAlgorithmBase::data_cnt_) {
         individual
-            ->GParameterTree::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
+            ->GTreeGenome::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
             ->setPopulationPosition(pos++);
     }
 }
@@ -755,7 +755,7 @@ void GParChild::adjustPopulation_() {
     }
 
     // Do the smart pointers actually point to any objects ?
-    typename std::vector<std::unique_ptr<gpar::GParameterTree>>::iterator it;
+    typename std::vector<std::unique_ptr<gpar::GTreeGenome>>::iterator it;
     for(const auto &individual : GOptimizationAlgorithmBase::data_cnt_) {
         if(not individual) { // shared_ptr can be implicitly converted to bool
             throw geneva_exception(
@@ -812,7 +812,7 @@ void GParChild::performScheduledPopulationGrowth() {
  *
  * @param child The individual for which a new value should be chosen
  */
-void GParChild::randomRecombine(std::unique_ptr<gpar::GParameterTree> &child) {
+void GParChild::randomRecombine(std::unique_ptr<gpar::GTreeGenome> &child) {
     std::size_t parent_pos = 0;
 
     if(n_parents_ == 1) {
@@ -834,7 +834,7 @@ void GParChild::randomRecombine(std::unique_ptr<gpar::GParameterTree> &child) {
     child->load(*(GOptimizationAlgorithmBase::data_cnt_.begin() + parent_pos));
 
     // Let the individual know the id of the parent
-    child->GParameterTree::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
+    child->GTreeGenome::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
         ->setParentId(parent_pos);
 }
 
@@ -850,7 +850,7 @@ void GParChild::randomRecombine(std::unique_ptr<gpar::GParameterTree> &child) {
  * @param threshold A std::vector<double> holding the recombination likelihoods for each parent
  */
 void GParChild::valueRecombine(
-    std::unique_ptr<gpar::GParameterTree> &p,
+    std::unique_ptr<gpar::GTreeGenome> &p,
     const std::vector<double> &threshold
 ) {
     bool done = false;
@@ -862,7 +862,7 @@ void GParChild::valueRecombine(
             // Load the parent's data
             p->load(*(GOptimizationAlgorithmBase::data_cnt_.begin() + par));
             // Let the individual know the parent's id
-            p->GParameterTree::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
+            p->GTreeGenome::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
                 ->setParentId(par);
             done = true;
 

@@ -41,7 +41,7 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "geneva/GIndividualMultiConstraint.hpp"
 #include "geneva/GMultiConstraintT.hpp"
-#include "geneva/ind/GParameterTree.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 
 namespace Gem::Geneva::Parameters {
 
@@ -49,13 +49,13 @@ namespace Gem::Geneva::Parameters {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class implements constraint definitions based on GParameterTree-derivatives.
+ * This class implements constraint definitions based on GTreeGenome-derivatives.
  * It is meant to be added to a constraint collection. The main purpose of this
- * class is to "translate" GParameterTree-based constraints into constraints
+ * class is to "translate" GTreeGenome-based constraints into constraints
  * based on GParameterSets
  */
 class GParameterSetConstraint // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GPreEvaluationValidityCheckT<GParameterTree> {
+  : public GPreEvaluationValidityCheckT<GTreeGenome> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -64,7 +64,7 @@ class GParameterSetConstraint // NOLINT(cppcoreguidelines-special-member-functio
         using boost::serialization::make_nvp;
         ar &boost::serialization::make_nvp(
             "GPreEvaluationValidityCheckT_GParameterSet",
-            boost::serialization::base_object<GPreEvaluationValidityCheckT<GParameterTree>>(*this)
+            boost::serialization::base_object<GPreEvaluationValidityCheckT<GTreeGenome>>(*this)
         );
     }
     ///////////////////////////////////////////////////////////////////////
@@ -78,12 +78,12 @@ public:
 
 protected:
     /** @brief Checks whether a given individual is valid */
-    double check_(const GParameterTree *) const override = 0;
+    double check_(const GTreeGenome *) const override = 0;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
     /** @brief Loads the data of another GParameterSetConstraint */
-    void load_(const GPreEvaluationValidityCheckT<GParameterTree> *) override;
+    void load_(const GPreEvaluationValidityCheckT<GTreeGenome> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterSetConstraint>(
@@ -94,7 +94,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GPreEvaluationValidityCheckT<GParameterTree> & // the other object
+        const GPreEvaluationValidityCheckT<GTreeGenome> & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -103,7 +103,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    GPreEvaluationValidityCheckT<GParameterTree> *clone_() const override = 0;
+    GPreEvaluationValidityCheckT<GTreeGenome> *clone_() const override = 0;
 };
 
 /******************************************************************************/
