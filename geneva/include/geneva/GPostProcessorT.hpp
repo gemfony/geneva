@@ -43,7 +43,7 @@
 
 // Geneva headers go here
 #include "common/GSerializableFunctionObjectT.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 
 namespace Gem::Geneva {
@@ -287,7 +287,7 @@ private:
  * quality of a given individual.
  */
 class GEvolutionaryAlgorithmPostOptimizer // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GPostProcessorBaseT<gpar::GTreeGenome> {
+  : public GPostProcessorBaseT<gpar::GOptimizableEntity> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -297,7 +297,7 @@ class GEvolutionaryAlgorithmPostOptimizer // NOLINT(cppcoreguidelines-special-me
 
         ar &make_nvp(
             "GPostProcessorBaseT_GParameterSet",
-            boost::serialization::base_object<GPostProcessorBaseT<gpar::GTreeGenome>>(*this)
+            boost::serialization::base_object<GPostProcessorBaseT<gpar::GOptimizableEntity>>(*this)
         ) & BOOST_SERIALIZATION_NVP(oa_config_file_) &
             BOOST_SERIALIZATION_NVP(executor_config_file_) &
             BOOST_SERIALIZATION_NVP(execution_mode_);
@@ -356,7 +356,7 @@ protected:
 
     /** @brief Loads the data of another GEvolutionaryAlgorithmPostOptimizer object */
     void
-    load_(const Gem::Common::GSerializableFunctionObjectT<gpar::GTreeGenome> *cp) override;
+    load_(const Gem::Common::GSerializableFunctionObjectT<gpar::GOptimizableEntity> *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GEvolutionaryAlgorithmPostOptimizer>(
@@ -367,13 +367,13 @@ protected:
 
     /** @brief Checks for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const Gem::Common::GSerializableFunctionObjectT<gpar::GTreeGenome> &cp,
+        const Gem::Common::GSerializableFunctionObjectT<gpar::GOptimizableEntity> &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
 
     /** @brief The actual post-processing takes place here (no further checks) */
-    bool raw_processing_(gpar::GTreeGenome &p) override;
+    bool raw_processing_(gpar::GOptimizableEntity &p) override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     bool modify_GUnitTests_() override;
@@ -386,7 +386,7 @@ private:
     /** @brief Returns the name of this class */
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    Gem::Common::GSerializableFunctionObjectT<gpar::GTreeGenome> *clone_() const override;
+    Gem::Common::GSerializableFunctionObjectT<gpar::GOptimizableEntity> *clone_() const override;
 
     /** @brief The standard constructor */
     GEvolutionaryAlgorithmPostOptimizer();
@@ -410,7 +410,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 // Mark this class as abstract.
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GPostProcessorBaseT<gpar::GTreeGenome>) // NOLINT
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GPostProcessorBaseT<gpar::GOptimizableEntity>) // NOLINT
 // Export of GEvolutionaryAlgorithmPostOptimizer
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEvolutionaryAlgorithmPostOptimizer) // NOLINT
 /******************************************************************************/

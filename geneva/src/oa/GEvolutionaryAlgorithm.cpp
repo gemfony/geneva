@@ -44,7 +44,7 @@
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GParChild.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/par/GParameterSetFixedSizePriorityQueue.hpp"
 #include <algorithm>
 #include <cstddef>
@@ -177,7 +177,7 @@ sortingMode GEvolutionaryAlgorithm::getSortingScheme() const {
   * Extracts all individuals on the pareto front
   */
 void GEvolutionaryAlgorithm::extractCurrentParetoIndividuals(
-    std::vector<std::shared_ptr<gpar::GTreeGenome>> &pareto_inds
+    std::vector<std::shared_ptr<gpar::GOptimizableEntity>> &pareto_inds
 ) {
     // Make sure the vector is empty
     pareto_inds.clear();
@@ -185,7 +185,7 @@ void GEvolutionaryAlgorithm::extractCurrentParetoIndividuals(
     for(const auto &ind_ptr : *this) {
         if(ind_ptr->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
                ->isOnParetoFront()) {
-            pareto_inds.push_back(ind_ptr->clone<gpar::GTreeGenome>());
+            pareto_inds.push_back(ind_ptr->clone<gpar::GOptimizableEntity>());
         }
     }
 }
@@ -234,7 +234,7 @@ void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
     case sortingMode::MUPLUSNU_PARETO:
     case sortingMode::MUCOMMANU_PARETO: {
         // Retrieve all individuals on the pareto front
-        std::vector<std::shared_ptr<gpar::GTreeGenome>> pareto_inds;
+        std::vector<std::shared_ptr<gpar::GOptimizableEntity>> pareto_inds;
         this->extractCurrentParetoIndividuals(pareto_inds);
 
         // We simply add all parent individuals to the queue. As we only want
@@ -290,7 +290,7 @@ void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
     case sortingMode::MUPLUSNU_PARETO:
     case sortingMode::MUCOMMANU_PARETO: {
         // Retrieve all individuals on the pareto front
-        std::vector<std::shared_ptr<gpar::GTreeGenome>> pareto_inds;
+        std::vector<std::shared_ptr<gpar::GOptimizableEntity>> pareto_inds;
         this->extractCurrentParetoIndividuals(pareto_inds);
 
         // We simply add all parent individuals to the queue. As we only want
@@ -519,7 +519,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
     // Take care of unprocessed items, if these exist
     if(not status.is_complete) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GTreeGenome> &p) -> bool {
+            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GOptimizableEntity> &p) -> bool {
                 return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
@@ -637,13 +637,13 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
     // We want to have a sane population.
     for(auto it = this->begin(); it != this->begin() + np; ++it) {
         (*it)
-            ->GTreeGenome::template getPersonalityTraits<
+            ->GOptimizableEntity::template getPersonalityTraits<
                 GEvolutionaryAlgorithm_PersonalityTraits>()
             ->setIsParent();
     }
     for(auto it = this->begin() + np; it != this->end(); ++it) {
         (*it)
-            ->GTreeGenome::template getPersonalityTraits<
+            ->GOptimizableEntity::template getPersonalityTraits<
                 GEvolutionaryAlgorithm_PersonalityTraits>()
             ->setIsChild();
     }
@@ -1170,8 +1170,8 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
   * @return A boolean indicating whether the first individual dominates the second
   */
 bool GEvolutionaryAlgorithm::aDominatesB(
-    const std::unique_ptr<gpar::GTreeGenome> &x_ptr,
-    const std::unique_ptr<gpar::GTreeGenome> &y_ptr
+    const std::unique_ptr<gpar::GOptimizableEntity> &x_ptr,
+    const std::unique_ptr<gpar::GOptimizableEntity> &y_ptr
 ) const {
     std::size_t n_criteria_x =
         x_ptr->getNStoredResults(); // NOLINT(cppcoreguidelines-init-variables)

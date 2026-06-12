@@ -103,7 +103,7 @@ protected:
     }
 
     /** @brief Loads the data of another GLineFitIndividual */
-    void load_(const gpar::GTreeGenome *) final;
+    void load_(const gpar::GOptimizableEntity *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GLineFitIndividual>(
@@ -114,7 +114,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GTreeGenome & // the other object
+        const gpar::GOptimizableEntity & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -149,7 +149,7 @@ private:
  * A factory for GLineFitIndividual objects
  */
 class GLineFitIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<gpar::GTreeGenome> {
+  : public Gem::Common::GFactoryT<gpar::GOptimizableEntity> {
 public:
     /** @brief The standard constructor */
     GLineFitIndividualFactory(
@@ -165,14 +165,14 @@ protected:
     void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<gpar::GTreeGenome> &) override;
+    void postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &) override;
 
 private:
     /** @brief The default constructor. Only needed for (de-)serialization purposes */
     GLineFitIndividualFactory() = default;
 
     /** @brief Creates individuals of this type */
-    std::shared_ptr<gpar::GTreeGenome>
+    std::shared_ptr<gpar::GOptimizableEntity>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     std::vector<std::tuple<double, double>> data_points_; ///< Holds data points for the fit

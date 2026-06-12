@@ -216,7 +216,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Loads the data of another GExternalEvaluatorIndividual */
-    void load_(const gpar::GTreeGenome *) final;
+    void load_(const gpar::GOptimizableEntity *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GExternalEvaluatorIndividual>(
@@ -227,7 +227,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GTreeGenome & // the other object
+        const gpar::GOptimizableEntity & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -261,7 +261,7 @@ private:
  * A factory for GExternalEvaluatorIndividual objects
  */
 class GExternalEvaluatorIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<gpar::GTreeGenome> {
+  : public Gem::Common::GFactoryT<gpar::GOptimizableEntity> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -271,7 +271,7 @@ class GExternalEvaluatorIndividualFactory // NOLINT(cppcoreguidelines-special-me
 
         ar &boost::serialization::make_nvp(
             "GFactoryT_gpar_GParameterSet",
-            boost::serialization::base_object<GFactoryT<gpar::GTreeGenome>>(*this)
+            boost::serialization::base_object<GFactoryT<gpar::GOptimizableEntity>>(*this)
         ) &
             BOOST_SERIALIZATION_NVP(ad_prob_) & BOOST_SERIALIZATION_NVP(adapt_ad_prob_) &
             BOOST_SERIALIZATION_NVP(min_ad_prob_) & BOOST_SERIALIZATION_NVP(max_ad_prob_) &
@@ -422,21 +422,21 @@ public:
     ) const;
 
     /** @brief Loads the data of another GFunctionIndividualFactory object */
-    void load(std::shared_ptr<Gem::Common::GFactoryT<gpar::GTreeGenome>>) override;
+    void load(std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>>) override;
 
     /** @brief Creates a deep clone of this object */
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GTreeGenome>> clone() const override;
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>> clone() const override;
 
 protected:
     /** @brief Allows to describe local configuration options in derived classes */
     void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<gpar::GTreeGenome> &) override;
+    void postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &) override;
 
 private:
     /** @brief Creates individuals of this type */
-    std::shared_ptr<gpar::GTreeGenome>
+    std::shared_ptr<gpar::GOptimizableEntity>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     /** @brief Sets up the boost property object holding information about the individual structure */

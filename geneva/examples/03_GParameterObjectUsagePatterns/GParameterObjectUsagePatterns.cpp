@@ -59,6 +59,7 @@
 #include "geneva/par/GInt32Object.hpp"
 #include "geneva/par/GInt32ObjectCollection.hpp"
 #include "geneva/Go2.hpp" // Includes all of the parameter object types
+#include "geneva/ind/GTreeGenome.hpp"
 
 using namespace Gem::Geneva;
 
@@ -79,23 +80,23 @@ int main(int argc, char **argv) {
 
         // Note: This object already contains a parameter object, in
         // addition to those added below.
-        std::shared_ptr<gpar::GTreeGenome> gfi_test = gfi_ptr->get();
+        std::shared_ptr<gpar::GOptimizableEntity> gfi_test = gfi_ptr->get();
 
-        gfi_test->push_back(
+        dynamic_cast<gpar::GTreeGenome &>(*gfi_test).push_back(
             std::shared_ptr<gpar::GConstrainedDoubleObject>(new gpar::GConstrainedDoubleObject(-7, 17))
         );
-        gfi_test->push_back(
+        dynamic_cast<gpar::GTreeGenome &>(*gfi_test).push_back(
             std::shared_ptr<gpar::GConstrainedDoubleObject>(new gpar::GConstrainedDoubleObject(-5, 5))
         );
 
         // Add some more data
-        gfi_test->push_back(std::shared_ptr<gpar::GBooleanObject>(new gpar::GBooleanObject()));
-        gfi_test->push_back(std::shared_ptr<gpar::GDoubleObject>(new gpar::GDoubleObject()));
-        gfi_test->push_back(
+        dynamic_cast<gpar::GTreeGenome &>(*gfi_test).push_back(std::shared_ptr<gpar::GBooleanObject>(new gpar::GBooleanObject()));
+        dynamic_cast<gpar::GTreeGenome &>(*gfi_test).push_back(std::shared_ptr<gpar::GDoubleObject>(new gpar::GDoubleObject()));
+        dynamic_cast<gpar::GTreeGenome &>(*gfi_test).push_back(
             std::shared_ptr<gpar::GConstrainedDoubleObject>(new gpar::GConstrainedDoubleObject())
         );
-        gfi_test->push_back(std::shared_ptr<gpar::GInt32Object>(new gpar::GInt32Object()));
-        gfi_test->push_back(
+        dynamic_cast<gpar::GTreeGenome &>(*gfi_test).push_back(std::shared_ptr<gpar::GInt32Object>(new gpar::GInt32Object()));
+        dynamic_cast<gpar::GTreeGenome &>(*gfi_test).push_back(
             std::shared_ptr<gpar::GConstrainedInt32Object>(new gpar::GConstrainedInt32Object())
         );
 
@@ -109,7 +110,7 @@ int main(int argc, char **argv) {
             )
         );
 
-        gfi_test->push_back(gpoc_ptr);
+        dynamic_cast<gpar::GTreeGenome &>(*gfi_test).push_back(gpoc_ptr);
 
         // Make sure the individual is "clean", i.e. the processed flag is set
         gfi_test->set_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);

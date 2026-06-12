@@ -683,10 +683,12 @@ void GNelderMead::adjustPopulation_() {
     // parameters are left unchanged -- this is normal, user-expected
     // behaviour, so it is merely logged (not warned about).
     {
+        // countParameters<T> is a tree-template method; obtain a tree view of the (homogeneous) population.
+        auto const &ind0 = dynamic_cast<gpar::GTreeGenome const &>(*this->at(0));
         const std::size_t n_int_parms =
-            this->at(0)->countParameters<std::int32_t>(activityMode::ACTIVEONLY);
+            ind0.countParameters<std::int32_t>(activityMode::ACTIVEONLY);
         const std::size_t n_bool_parms =
-            this->at(0)->countParameters<bool>(activityMode::ACTIVEONLY);
+            ind0.countParameters<bool>(activityMode::ACTIVEONLY);
         if(n_int_parms + n_bool_parms > 0) {
             glogger
                 << "In GNelderMead::adjustPopulation_(): Note:" << '\n'
@@ -718,10 +720,10 @@ void GNelderMead::adjustPopulation_() {
     // The seeds currently sit at positions 0 .. n_simplices_-1. Re-order them so
     // that seed s ends up at vertexPos(s,0) and fill the rest of every block
     // with clones (the real initial simplex is constructed in init()).
-    std::vector<std::shared_ptr<gpar::GTreeGenome>> seeds;
+    std::vector<std::shared_ptr<gpar::GOptimizableEntity>> seeds;
     seeds.reserve(n_simplices_);
     for(std::size_t s = 0; s < n_simplices_; s++) {
-        seeds.push_back(this->at(s)->clone<gpar::GTreeGenome>());
+        seeds.push_back(this->at(s)->clone<gpar::GOptimizableEntity>());
     }
 
     this->clear();

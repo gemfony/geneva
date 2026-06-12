@@ -35,7 +35,7 @@
 #include "geneva/oa/GOAFactoryT.hpp"
 #include "geneva/oa/GSwarmAlgorithm.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -67,7 +67,7 @@ GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(std::filesystem::path const &conf
  */
 GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
     std::filesystem::path const &config_file,
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GTreeGenome>> content_creator_ptr
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>> content_creator_ptr
 )
   : GOAFactoryT<GOptimizationAlgorithmBase>(
         config_file,

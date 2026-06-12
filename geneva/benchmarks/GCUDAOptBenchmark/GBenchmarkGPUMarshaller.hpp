@@ -66,7 +66,7 @@ namespace Gem::Geneva::Benchmarks {
  * GPU can be cross-checked.
  */
 class GBenchmarkGPUMarshaller final
-  : public Gem::Courtier::GPU::GGPUEvaluableI<gpar::GTreeGenome> {
+  : public Gem::Courtier::GPU::GGPUEvaluableI<gpar::GOptimizableEntity> {
 public:
     void flatten(const std::vector<item_ptr> &items, std::vector<double> &params_out) const override {
         if(items.empty()) {

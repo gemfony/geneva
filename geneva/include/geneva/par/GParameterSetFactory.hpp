@@ -37,18 +37,18 @@
 #include "common/GExceptions.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GLogger.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/GPostProcessorT.hpp"
 
 namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
 /**
- * This class facilitates handling of factories for GTreeGenome-derivatives.
+ * This class facilitates handling of factories for GOptimizableEntity-derivatives.
  * In particular it allows to register pre- and post-procesing objects
  */
 class GParameterSetFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<GTreeGenome> {
+  : public Gem::Common::GFactoryT<GOptimizableEntity> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -58,7 +58,7 @@ class GParameterSetFactory // NOLINT(cppcoreguidelines-special-member-functions)
 
         ar &boost::serialization::make_nvp(
             "GFactoryT_GParameterSet",
-            boost::serialization::base_object<Gem::Common::GFactoryT<GTreeGenome>>(*this)
+            boost::serialization::base_object<Gem::Common::GFactoryT<GOptimizableEntity>>(*this)
         ) &
             BOOST_SERIALIZATION_NVP(pre_processor_) & BOOST_SERIALIZATION_NVP(post_processor_);
     }
@@ -72,7 +72,7 @@ public:
 	  * @param configFile path object of a configuration file holding information about objects of type T
 	  */
     explicit GParameterSetFactory(std::filesystem::path const &configFile)
-      : Gem::Common::GFactoryT<GTreeGenome>(configFile) { /* nothing */
+      : Gem::Common::GFactoryT<GOptimizableEntity>(configFile) { /* nothing */
     }
 
     /***************************************************************************/
@@ -80,7 +80,7 @@ public:
 	  * The copy constructor
 	  */
     GParameterSetFactory(const GParameterSetFactory &cp)
-      : Gem::Common::GFactoryT<GTreeGenome>(cp) {
+      : Gem::Common::GFactoryT<GOptimizableEntity>(cp) {
         Gem::Common::copyCloneableSmartPointer(cp.post_processor_, post_processor_);
         Gem::Common::copyCloneableSmartPointer(cp.post_processor_, post_processor_);
     }
@@ -94,7 +94,7 @@ public:
 	  * Registration of pre-processor function objects
 	  */
     void registerPreProcessor(
-        std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GTreeGenome>> p
+        std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> p
     ) {
         if(p) {
             pre_processor_ = p;
@@ -113,7 +113,7 @@ public:
 	  * Registration of post-processor function objects
 	  */
     void registerPostProcessor(
-        std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GTreeGenome>> p
+        std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> p
     ) {
         if(p) {
             post_processor_ = p;
@@ -128,18 +128,18 @@ public:
     }
 
 protected:
-    /** @brief A pre-processor for GTreeGenome-derivatives */
-    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GTreeGenome>> pre_processor_;
+    /** @brief A pre-processor for GOptimizableEntity-derivatives */
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> pre_processor_;
 
-    /** @brief A post-processor for GTreeGenome-derivatives */
-    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GTreeGenome>> post_processor_;
+    /** @brief A post-processor for GOptimizableEntity-derivatives */
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> post_processor_;
 
     /***************************************************************************/
     /**
-     * Production of GTreeGenome-derivatives
+     * Production of GOptimizableEntity-derivatives
      */
-    std::shared_ptr<GTreeGenome> get_() override {
-        std::shared_ptr<GTreeGenome> p = GFactoryT<GTreeGenome>::get_();
+    std::shared_ptr<GOptimizableEntity> get_() override {
+        std::shared_ptr<GOptimizableEntity> p = GFactoryT<GOptimizableEntity>::get_();
 
         if(pre_processor_) {
             p->registerPreProcessor(pre_processor_->clone());

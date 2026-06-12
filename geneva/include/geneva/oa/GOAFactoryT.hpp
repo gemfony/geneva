@@ -87,7 +87,7 @@ public:
 	  */
     GOAFactoryT(
         std::filesystem::path const &config_file,
-        std::shared_ptr<Gem::Common::GFactoryT<gpar::GTreeGenome>> content_creator_ptr
+        std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>> content_creator_ptr
     )
       : Gem::Common::GFactoryT<oa_type>(config_file)
       , content_creator_ptr_(content_creator_ptr) { /* nothing */
@@ -183,7 +183,7 @@ public:
     /**
 	  * Allows to register a content creator
 	  */
-    void registerContentCreator(std::shared_ptr<Gem::Common::GFactoryT<gpar::GTreeGenome>> cc_ptr) {
+    void registerContentCreator(std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>> cc_ptr) {
         if(not cc_ptr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -369,7 +369,7 @@ protected:
         // If we have been given a factory function for individuals, fill the object with data
         if(content_creator_ptr_) { // Has a content creation object been registered ? If so, add individuals to the population
             for(std::size_t ind = 0; ind < p_alg->getDefaultPopulationSize(); ind++) {
-                std::shared_ptr<gpar::GTreeGenome> p_ind = (*content_creator_ptr_)();
+                std::shared_ptr<gpar::GOptimizableEntity> p_ind = (*content_creator_ptr_)();
                 if(not p_ind) { // No valid item received, the factory has run empty
                     break;
                 }
@@ -423,7 +423,7 @@ protected:
 
     /***************************************************************************/
 
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GTreeGenome>>
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>>
         content_creator_ptr_; ///< Holds an object capable of producing objects of the desired type
     std::shared_ptr<GBasePluggableOM>
         pluggable_om_; // A user-defined means for information retrieval

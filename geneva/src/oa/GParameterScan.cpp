@@ -574,13 +574,15 @@ void GParameterScan::updateSelectedParameters() {
             std::vector<float> f_data;
             std::vector<double> d_data;
 
-            // Fill the parameter set data into the current individual
+            // Fill the parameter set data into the current individual.
+            // streamline<T>/assignValueVector<T> are tree-template methods; obtain a tree view.
+            auto &ind = dynamic_cast<gpar::GTreeGenome &>(*this->at(ind_pos));
 
             // Retrieve the parameter vectors
-            this->at(ind_pos)->streamline<bool>(b_data);
-            this->at(ind_pos)->streamline<std::int32_t>(i_data);
-            this->at(ind_pos)->streamline<float>(f_data);
-            this->at(ind_pos)->streamline<double>(d_data);
+            ind.streamline<bool>(b_data);
+            ind.streamline<std::int32_t>(i_data);
+            ind.streamline<float>(f_data);
+            ind.streamline<double>(d_data);
 
             // Add the data items from the parSet object to the vectors
 
@@ -605,10 +607,10 @@ void GParameterScan::updateSelectedParameters() {
             }
 
             // Copy the data back into the individual
-            this->at(ind_pos)->assignValueVector<bool>(b_data);
-            this->at(ind_pos)->assignValueVector<std::int32_t>(i_data);
-            this->at(ind_pos)->assignValueVector<float>(f_data);
-            this->at(ind_pos)->assignValueVector<double>(d_data);
+            ind.assignValueVector<bool>(b_data);
+            ind.assignValueVector<std::int32_t>(i_data);
+            ind.assignValueVector<float>(f_data);
+            ind.assignValueVector<double>(d_data);
         } break;
 
         //---------------------------------------------------------------------

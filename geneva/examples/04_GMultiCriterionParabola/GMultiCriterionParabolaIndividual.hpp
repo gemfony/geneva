@@ -89,7 +89,7 @@ public:
 
 protected:
     /** @brief Loads the data of another GMultiCriterionParabolaIndividual */
-    void load_(const gpar::GTreeGenome *) final;
+    void load_(const gpar::GOptimizableEntity *) final;
 
     /** @brief The actual fitness calculation takes place here. */
     double fitnessCalculation() final;
@@ -111,7 +111,7 @@ private:
 /**
  * A factory for GMultiCriterionParabolaIndividual objects
  */
-class GMultiCriterionParabolaIndividualFactory : public Gem::Common::GFactoryT<gpar::GTreeGenome> {
+class GMultiCriterionParabolaIndividualFactory : public Gem::Common::GFactoryT<gpar::GOptimizableEntity> {
 public:
     /** @brief The standard constructor for this class */
     GMultiCriterionParabolaIndividualFactory(std::filesystem::path const &);
@@ -120,12 +120,12 @@ public:
 
 protected:
     /** @brief Creates individuals of this type */
-    virtual std::shared_ptr<gpar::GTreeGenome>
+    virtual std::shared_ptr<gpar::GOptimizableEntity>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &);
     /** @brief Allows to describe local configuration options in derived classes */
     virtual void describeLocalOptions_(Gem::Common::GParserBuilder &);
     /** @brief Allows to act on the configuration options received from the configuration file */
-    virtual void postProcess_(std::shared_ptr<gpar::GTreeGenome> &);
+    virtual void postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &);
 
 private:
     /** @brief The default constructor. Only needed for (de-)serialization purposes */

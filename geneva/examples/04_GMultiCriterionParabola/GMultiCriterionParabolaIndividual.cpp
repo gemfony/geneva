@@ -109,10 +109,10 @@ void GMultiCriterionParabolaIndividual::setMinima(const std::vector<double> &min
      *
      * @param cp A copy of another GMultiCriterionParabolaIndividual, camouflaged as a GTreeGenome
      */
-void GMultiCriterionParabolaIndividual::load_(const gpar::GTreeGenome *cp) {
+void GMultiCriterionParabolaIndividual::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GMultiCriterionParabolaIndividual reference independent of this object and convert the pointer
     const GMultiCriterionParabolaIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GMultiCriterionParabolaIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GMultiCriterionParabolaIndividual>(cp, this);
 
     // Load our parent's data ...
     gpar::GTreeGenome::load_(cp);
@@ -178,7 +178,7 @@ double GMultiCriterionParabolaIndividual::fitnessCalculation() {
 GMultiCriterionParabolaIndividualFactory::GMultiCriterionParabolaIndividualFactory(
     std::filesystem::path const &cF
 )
-  : Gem::Common::GFactoryT<gpar::GTreeGenome>(cF)
+  : Gem::Common::GFactoryT<gpar::GOptimizableEntity>(cF)
   , par_min_(-10.)
   , par_max_(10.)
   , minima_string_("-1., 0., 1.")
@@ -244,7 +244,7 @@ void GMultiCriterionParabolaIndividualFactory::describeLocalOptions_(
      * @param id The id of the individual to be created
      * @return An individual of the desired type
      */
-std::shared_ptr<gpar::GTreeGenome> GMultiCriterionParabolaIndividualFactory::getObject_(
+std::shared_ptr<gpar::GOptimizableEntity> GMultiCriterionParabolaIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     const std::size_t &id
 ) {
@@ -262,10 +262,10 @@ std::shared_ptr<gpar::GTreeGenome> GMultiCriterionParabolaIndividualFactory::get
 /******************************************************************************/
 
 void GMultiCriterionParabolaIndividualFactory::postProcess_(
-    std::shared_ptr<gpar::GTreeGenome> &p_base
+    std::shared_ptr<gpar::GOptimizableEntity> &p_base
 ) {
     std::shared_ptr<GMultiCriterionParabolaIndividual> p =
-        Gem::Common::convertSmartPointer<gpar::GTreeGenome, GMultiCriterionParabolaIndividual>(p_base);
+        Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, GMultiCriterionParabolaIndividual>(p_base);
 
     if(firstParsed_) {
         minima_ = Gem::Common::stringToDoubleVec(minima_string_);
@@ -282,7 +282,7 @@ void GMultiCriterionParabolaIndividualFactory::postProcess_(
             new gpar::GConstrainedDoubleObject(par_min_.value(), par_max_.value())
         );
         // Add the parameters to this individual
-        p->push_back(gcdo_ptr);
+        dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gcdo_ptr);
     }
 
     p->setMinima(minima_);

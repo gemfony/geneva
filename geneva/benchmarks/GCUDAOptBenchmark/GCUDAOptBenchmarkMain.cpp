@@ -166,12 +166,12 @@ int main(int argc, char **argv) {
     // (cpu/cuda/opencl) and kernel are selected in config/GGPUConsumer.json. The clone function is the
     // polymorphic GTreeGenome clone needed by the clone-on-partial-return policy.
     auto marshaller = std::make_shared<GBenchmarkGPUMarshaller>();
-    auto consumer = std::make_shared<Gem::Courtier::GPU::GGPUConsumerT<gpar::GTreeGenome>>(
+    auto consumer = std::make_shared<Gem::Courtier::GPU::GGPUConsumerT<gpar::GOptimizableEntity>>(
         "./config/GGPUConsumer.json", marshaller);
-    consumer->setCloneFunction([](const std::unique_ptr<gpar::GTreeGenome> &p) {
+    consumer->setCloneFunction([](const std::unique_ptr<gpar::GOptimizableEntity> &p) {
         return p->clone_unique();
     });
-    auto cudaBroker = std::make_shared<Gem::Courtier::GBrokerT<gpar::GTreeGenome>>();
+    auto cudaBroker = std::make_shared<Gem::Courtier::GBrokerT<gpar::GOptimizableEntity>>();
     cudaBroker->registerConsumer(consumer);
 
     GAlgorithmBenchmarkRunner runner(cfg, cudaBroker);

@@ -627,7 +627,7 @@ std::vector<double> GConjugateGradientDescent::evaluateProbes(
     std::size_t starting_point,
     std::vector<std::vector<double>> const &points
 ) {
-    std::vector<std::unique_ptr<gpar::GTreeGenome>> probes;
+    std::vector<std::unique_ptr<gpar::GOptimizableEntity>> probes;
     probes.reserve(points.size());
     for(auto const &pt : points) {
         auto probe = this->at(starting_point)->clone_unique();
@@ -940,10 +940,12 @@ void GConjugateGradientDescent::adjustPopulation_() {
     // only. Any integer / boolean parameters are left unchanged -- this is
     // normal, user-expected behaviour, so it is merely logged (not warned about).
     {
+        // countParameters<T> is a tree-template method; obtain a tree view of the (homogeneous) population.
+        auto const &ind0 = dynamic_cast<gpar::GTreeGenome const &>(*this->at(0));
         const std::size_t n_int_parms =
-            this->at(0)->countParameters<std::int32_t>(activityMode::ACTIVEONLY);
+            ind0.countParameters<std::int32_t>(activityMode::ACTIVEONLY);
         const std::size_t n_bool_parms =
-            this->at(0)->countParameters<bool>(activityMode::ACTIVEONLY);
+            ind0.countParameters<bool>(activityMode::ACTIVEONLY);
         if(n_int_parms + n_bool_parms > 0) {
             glogger
                 << "In GConjugateGradientDescent::adjustPopulation_(): Note:" << '\n'

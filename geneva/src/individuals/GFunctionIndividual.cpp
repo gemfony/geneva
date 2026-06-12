@@ -91,7 +91,7 @@ GDoubleSumConstraint::GDoubleSumConstraint(const double &c)
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GDoubleSumConstraint::compare_(
-    const GPreEvaluationValidityCheckT<gpar::GTreeGenome> &cp,
+    const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -100,7 +100,7 @@ void GDoubleSumConstraint::compare_(
     // Check that we are dealing with a GDoubleSumConstraint reference independent of this object and convert the pointer
     const GDoubleSumConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<gpar::GTreeGenome>,
+            GPreEvaluationValidityCheckT<gpar::GOptimizableEntity>,
             GDoubleSumConstraint>(cp, this);
 
     Gem::Common::GToken token("GDoubleSumConstraint", e);
@@ -128,9 +128,9 @@ void GDoubleSumConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder 
 /**
  * Checks whether a given individual is valid
  */
-double GDoubleSumConstraint::check_(const gpar::GTreeGenome *p) const {
+double GDoubleSumConstraint::check_(const gpar::GOptimizableEntity *p) const {
     std::vector<double> par_vec;
-    p->streamline(par_vec);
+    dynamic_cast<const gpar::GTreeGenome *>(p)->streamline(par_vec);
 
     double sum = 0.;
     for(const auto &val : par_vec) {
@@ -148,11 +148,11 @@ double GDoubleSumConstraint::check_(const gpar::GTreeGenome *p) const {
 /**
  * Loads the data of another GDoubleSumConstraint
  */
-void GDoubleSumConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GTreeGenome> *cp) {
+void GDoubleSumConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *cp) {
     // Check that we are dealing with a GDoubleSumConstraint reference independent of this object and convert the pointer
     const GDoubleSumConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<gpar::GTreeGenome>,
+            GPreEvaluationValidityCheckT<gpar::GOptimizableEntity>,
             GDoubleSumConstraint>(cp, this);
 
     // Load our parent class'es data ...
@@ -166,7 +166,7 @@ void GDoubleSumConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GTreeG
 /**
  * Creates a deep clone of this object
  */
-GPreEvaluationValidityCheckT<gpar::GTreeGenome> *GDoubleSumConstraint::clone_() const {
+GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *GDoubleSumConstraint::clone_() const {
     return new GDoubleSumConstraint(*this);
 }
 
@@ -190,7 +190,7 @@ GDoubleSumGapConstraint::GDoubleSumGapConstraint(const double &c, const double &
  * @param e The expected outcome of the comparison
  */
 void GDoubleSumGapConstraint::compare_(
-    const GPreEvaluationValidityCheckT<gpar::GTreeGenome> &cp,
+    const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -199,7 +199,7 @@ void GDoubleSumGapConstraint::compare_(
     // Check that we are dealing with a GDoubleSumGapConstraint reference independent of this object and convert the pointer
     const GDoubleSumGapConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<gpar::GTreeGenome>,
+            GPreEvaluationValidityCheckT<gpar::GOptimizableEntity>,
             GDoubleSumGapConstraint>(cp, this);
 
     Gem::Common::GToken token("GDoubleSumGapConstraint", e);
@@ -227,9 +227,9 @@ void GDoubleSumGapConstraint::addConfigurationOptions_(Gem::Common::GParserBuild
 /**
  * Checks whether a given individual is valid
  */
-double GDoubleSumGapConstraint::check_(const gpar::GTreeGenome *p) const {
+double GDoubleSumGapConstraint::check_(const gpar::GOptimizableEntity *p) const {
     std::vector<double> par_vec;
-    p->streamline(par_vec);
+    dynamic_cast<const gpar::GTreeGenome *>(p)->streamline(par_vec);
 
     double sum = 0.;
     for(const auto &val : par_vec) {
@@ -248,11 +248,11 @@ double GDoubleSumGapConstraint::check_(const gpar::GTreeGenome *p) const {
 /**
  * Loads the data of another GDoubleSumGapConstraint
  */
-void GDoubleSumGapConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GTreeGenome> *cp) {
+void GDoubleSumGapConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *cp) {
     // Check that we are dealing with a GDoubleSumGapConstraint reference independent of this object and convert the pointer
     const GDoubleSumGapConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<gpar::GTreeGenome>,
+            GPreEvaluationValidityCheckT<gpar::GOptimizableEntity>,
             GDoubleSumGapConstraint>(cp, this);
 
     // Load our parent class'es data ...
@@ -266,7 +266,7 @@ void GDoubleSumGapConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GTr
 /**
  * Creates a deep clone of this object
  */
-GPreEvaluationValidityCheckT<gpar::GTreeGenome> *GDoubleSumGapConstraint::clone_() const {
+GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *GDoubleSumGapConstraint::clone_() const {
     return new GDoubleSumGapConstraint(*this);
 }
 
@@ -290,14 +290,14 @@ GSphereConstraint::GSphereConstraint(const double &diameter)
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GSphereConstraint::compare_(
-    const GPreEvaluationValidityCheckT<gpar::GTreeGenome> &cp,
+    const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GSphereConstraint reference independent of this object and convert the pointer
     const GSphereConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<gpar::GTreeGenome>,
+            GPreEvaluationValidityCheckT<gpar::GOptimizableEntity>,
             GSphereConstraint>(cp, this);
 
     Gem::Common::GToken token("GSphereConstraint", e);
@@ -325,9 +325,9 @@ void GSphereConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gp
 /**
  * Checks whether a given individual is valid
  */
-double GSphereConstraint::check_(const gpar::GTreeGenome *p) const {
+double GSphereConstraint::check_(const gpar::GOptimizableEntity *p) const {
     std::vector<double> par_vec;
-    p->streamline(par_vec);
+    dynamic_cast<const gpar::GTreeGenome *>(p)->streamline(par_vec);
 
     double sum = 0.;
     for(const auto &val : par_vec) {
@@ -346,11 +346,11 @@ double GSphereConstraint::check_(const gpar::GTreeGenome *p) const {
 /**
  * Loads the data of another GSphereConstraint
  */
-void GSphereConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GTreeGenome> *cp) {
+void GSphereConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *cp) {
     // Check that we are dealing with a GSphereConstraint reference independent of this object and convert the pointer
     const GSphereConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<gpar::GTreeGenome>,
+            GPreEvaluationValidityCheckT<gpar::GOptimizableEntity>,
             GSphereConstraint>(cp, this);
 
     // Load our parent class'es data ...
@@ -364,7 +364,7 @@ void GSphereConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GTreeGeno
 /**
  * Creates a deep clone of this object
  */
-GPreEvaluationValidityCheckT<gpar::GTreeGenome> *GSphereConstraint::clone_() const {
+GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *GSphereConstraint::clone_() const {
     return new GSphereConstraint(*this);
 }
 
@@ -505,13 +505,13 @@ void GFunctionIndividual::setFitness(std::vector<double> const &result_vec) {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GFunctionIndividual::compare_(
-    const gpar::GTreeGenome &cp,
+    const gpar::GOptimizableEntity &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GFunctionIndividual reference independent of this object and convert the pointer
     const GFunctionIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GFunctionIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GFunctionIndividual>(cp, this);
 
     Gem::Common::GToken token("GFunctionIndividual", e);
 
@@ -615,10 +615,10 @@ std::size_t GFunctionIndividual::getParameterSize() const {
  *
  * @param cp A copy of another GFunctionIndividual, camouflaged as a GTreeGenome
  */
-void GFunctionIndividual::load_(const gpar::GTreeGenome *cp) {
+void GFunctionIndividual::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GFunctionIndividual reference independent of this object and convert the pointer
     const GFunctionIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GFunctionIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GFunctionIndividual>(cp, this);
 
     // Load our parent class'es data ...
     gpar::GTreeGenome::load_(cp);
@@ -796,14 +796,14 @@ GFunctionIndividualFactory::GFunctionIndividualFactory()
  * Loads the data of another GFunctionIndividualFactory object
  */
 void GFunctionIndividualFactory::load(
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GTreeGenome>> cp_raw_ptr
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>> cp_raw_ptr
 ) {
     // Load our parent class'es data
     gpar::GParameterSetFactory::load(cp_raw_ptr);
 
     // Convert the base pointer
     std::shared_ptr<GFunctionIndividualFactory> cp_ptr = Gem::Common::convertSmartPointer<
-        Gem::Common::GFactoryT<gpar::GTreeGenome>,
+        Gem::Common::GFactoryT<gpar::GOptimizableEntity>,
         GFunctionIndividualFactory>(cp_raw_ptr);
 
     // And then our own
@@ -836,7 +836,7 @@ void GFunctionIndividualFactory::load(
 /**
  * Creates a deep clone of this object
  */
-std::shared_ptr<Gem::Common::GFactoryT<gpar::GTreeGenome>> GFunctionIndividualFactory::clone() const {
+std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>> GFunctionIndividualFactory::clone() const {
     return std::make_shared<GFunctionIndividualFactory>(*this);
 }
 
@@ -1379,7 +1379,7 @@ void GFunctionIndividualFactory::setAdProbRange(double min_ad_prob, double max_a
  *
  * @return Items of the desired type
  */
-std::shared_ptr<gpar::GTreeGenome> GFunctionIndividualFactory::getObject_(
+std::shared_ptr<gpar::GOptimizableEntity> GFunctionIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     [[maybe_unused]] const std::size_t & id
 ) {
@@ -1651,7 +1651,7 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome> &p) {
+void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &p) {
     // Set up a random number generator
     Gem::Hap::GRandom gr;
 
@@ -1722,7 +1722,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome>
 
         gdc_ptr->addAdaptor(gat_ptr);
 
-        p->push_back(gdc_ptr);
+        dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gdc_ptr);
     } break;
 
     case parameterType::USEGCONSTRAINEDOUBLECOLLECTION: {
@@ -1747,7 +1747,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome>
 
         gcdc_ptr->addAdaptor(gat_ptr);
 
-        p->push_back(gcdc_ptr);
+        dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gcdc_ptr);
     } break;
 
     case parameterType::USEGDOUBLEOBJECTCOLLECTION: {
@@ -1769,7 +1769,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome>
             gdoc_ptr->push_back(gdo_ptr);
         }
 
-        p->push_back(gdoc_ptr);
+        dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gdoc_ptr);
     } break;
 
     case parameterType::USEGCONSTRAINEDDOUBLEOBJECTCOLLECTION: {
@@ -1793,7 +1793,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome>
             gcdoc_ptr->push_back(gcdo_ptr);
         }
 
-        p->push_back(gcdoc_ptr);
+        dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gcdoc_ptr);
     } break;
 
     case parameterType::USEGCONSTRAINEDDOUBLEOBJECT: {
@@ -1809,7 +1809,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome>
 
             gcdo_ptr->addAdaptor(gat_ptr);
 
-            p->push_back(gcdo_ptr);
+            dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gcdo_ptr);
         }
     } break;
 

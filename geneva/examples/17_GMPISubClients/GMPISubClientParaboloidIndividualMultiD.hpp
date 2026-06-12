@@ -85,7 +85,7 @@ public:
 
 protected:
     /** @brief Loads the data of another GMPISubClientParaboloidIndividualMultiD */
-    void load_(const gpar::GTreeGenome *) final;
+    void load_(const gpar::GOptimizableEntity *) final;
 
     /** @brief The actual fitness calculation takes place here. */
     double fitnessCalculation() final;

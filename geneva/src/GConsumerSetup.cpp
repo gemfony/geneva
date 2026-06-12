@@ -53,16 +53,16 @@ namespace Gem::Geneva {
 
 namespace {
 
-/** @brief The polymorphic clone for GTreeGenome (copy-construction would slice the held individual). */
-std::function<std::unique_ptr<gpar::GTreeGenome>(const std::unique_ptr<gpar::GTreeGenome> &)>
+/** @brief The polymorphic clone for GOptimizableEntity (copy-construction would slice the held individual). */
+std::function<std::unique_ptr<gpar::GOptimizableEntity>(const std::unique_ptr<gpar::GOptimizableEntity> &)>
 parameterSetCloneFunction() {
-    return [](const std::unique_ptr<gpar::GTreeGenome> &p) { return p->clone_unique(); };
+    return [](const std::unique_ptr<gpar::GOptimizableEntity> &p) { return p->clone_unique(); };
 }
 
 /** @brief Wraps a ready consumer (clone function already set) in a fresh single-consumer broker. */
-std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GTreeGenome>>
-brokerFor(std::shared_ptr<Gem::Courtier::GBaseConsumerT<gpar::GTreeGenome>> consumer) {
-    auto broker = std::make_shared<Gem::Courtier::GBrokerT<gpar::GTreeGenome>>();
+std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GOptimizableEntity>>
+brokerFor(std::shared_ptr<Gem::Courtier::GBaseConsumerT<gpar::GOptimizableEntity>> consumer) {
+    auto broker = std::make_shared<Gem::Courtier::GBrokerT<gpar::GOptimizableEntity>>();
     broker->registerConsumer(std::move(consumer));
     return broker;
 }
@@ -76,24 +76,24 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
     ConsumerSetup setup;
 
     if(spec.mnemonic == "sc") {
-        auto consumer = std::make_shared<c2::GSerialConsumerT<gpar::GTreeGenome>>();
+        auto consumer = std::make_shared<c2::GSerialConsumerT<gpar::GOptimizableEntity>>();
         consumer->setCloneFunction(parameterSetCloneFunction());
         setup.broker = brokerFor(consumer);
     }
     else if(spec.mnemonic == "stc") {
-        auto consumer = std::make_shared<c2::GStdThreadConsumerT<gpar::GTreeGenome>>(spec.n_threads);
+        auto consumer = std::make_shared<c2::GStdThreadConsumerT<gpar::GOptimizableEntity>>(spec.n_threads);
         consumer->setCloneFunction(parameterSetCloneFunction());
         setup.broker = brokerFor(consumer);
     }
     else if(spec.mnemonic == "asio") {
-        auto consumer = std::make_shared<c2::GAsioConsumerT<gpar::GTreeGenome>>(
+        auto consumer = std::make_shared<c2::GAsioConsumerT<gpar::GOptimizableEntity>>(
             spec.port, spec.n_threads, spec.serialization_mode);
         consumer->setCloneFunction(parameterSetCloneFunction());
         consumer->startServer();
         setup.broker = brokerFor(consumer);
     }
     else if(spec.mnemonic == "beast") {
-        auto consumer = std::make_shared<c2::GWebsocketConsumerT<gpar::GTreeGenome>>(
+        auto consumer = std::make_shared<c2::GWebsocketConsumerT<gpar::GOptimizableEntity>>(
             spec.port, spec.n_threads, spec.serialization_mode);
         consumer->setCloneFunction(parameterSetCloneFunction());
         consumer->startServer();
@@ -102,7 +102,7 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
     else if(spec.mnemonic == "mpi") {
         // MPI fixes the master/worker split by rank; the consumer is built on every rank and branches.
-        auto consumer = std::make_shared<c2::GMPIConsumerT<gpar::GTreeGenome>>();
+        auto consumer = std::make_shared<c2::GMPIConsumerT<gpar::GOptimizableEntity>>();
         if(consumer->isMasterNode()) {
             consumer->setCloneFunction(parameterSetCloneFunction());
             consumer->startServer();
@@ -180,17 +180,17 @@ ConsumerSpec specFromCommandLine(
 
 /******************************************************************************/
 
-std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GTreeGenome>>
+std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GOptimizableEntity>>
 buildConsumerClient(const ConsumerSpec &spec) {
     namespace cons = Gem::Courtier::Consumers;
 
     if(spec.mnemonic == "asio") {
-        return std::make_shared<cons::GAsioConsumerClientT<gpar::GTreeGenome>>(
+        return std::make_shared<cons::GAsioConsumerClientT<gpar::GOptimizableEntity>>(
             spec.ip, spec.port, spec.serialization_mode, spec.max_reconnects,
             spec.client_prefetch_depth);
     }
     if(spec.mnemonic == "beast") {
-        return std::make_shared<cons::GWebsocketClientT<gpar::GTreeGenome>>(
+        return std::make_shared<cons::GWebsocketClientT<gpar::GOptimizableEntity>>(
             spec.ip, spec.port, spec.serialization_mode, spec.verbose_control_frames,
             spec.client_prefetch_depth);
     }

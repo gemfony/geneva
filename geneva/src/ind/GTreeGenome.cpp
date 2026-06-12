@@ -38,13 +38,9 @@
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
-#include "common/GParserBuilder.hpp"
 #include "courtier/GProcessingContainerT.hpp"
-#include "geneva/GMultiConstraintT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/GPersonalityTraits.hpp"
-#include "geneva/Interface/GMutableI.hpp"
-#include "geneva/Interface/GRateableI.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/par/GBooleanObject.hpp"
 #include "geneva/par/GConstrainedDoubleObject.hpp"
 #include "geneva/par/GConstrainedInt32Object.hpp"
@@ -54,15 +50,10 @@
 #include "geneva/par/GParameterBase.hpp"
 #include "geneva/par/GParameterObjectCollection.hpp"
 #include <algorithm>
-#include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <cstdlib>
-#include <functional>
-#include <limits>
-#include <map>
-#include <random>
 #include <sstream>
+#include <string>
 #include <tuple>
 #include <vector>
 
@@ -70,174 +61,7 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GTreeGenome)                  // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::individual_processing_result) // NOLINT
 namespace Gem::Geneva::Parameters {
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * This constructor initializes the `individual_processing_result` object with
- * a raw fitness value. The transformed fitness is set to the same value as the raw fitness,
- * and the flag indicating that the transformed fitness has been set is set to false.
- *
- * @param raw_fitness The raw fitness value.
- */
-individual_processing_result::individual_processing_result(const double raw_fitness)
-  : raw_fitness_(raw_fitness)
-  , transformed_fitness_(raw_fitness_)
-  , transformed_fitness_set_(false) {
-    /* nothing */
-}
-
-/******************************************************************************/
-/**
- * This constructor initializes the `individual_processing_result` object with
- * both raw and transformed fitness values. It also sets the flag indicating that
- * the transformed fitness has been set.
- *
- * @param raw_fitness The raw fitness value.
- * @param transformed_fitness The transformed fitness value.
- */
-individual_processing_result::individual_processing_result(
-    const double raw_fitness,
-    const double transformed_fitness
-)
-  : raw_fitness_(raw_fitness)
-  , transformed_fitness_(transformed_fitness)
-  , transformed_fitness_set_(true) {
-    /* nothing */
-}
-/******************************************************************************/
-/**
- * This constructor initializes the `individual_processing_result` object with
- * a raw fitness value and a function to transform the fitness. The transformed fitness
- * is calculated using the provided function. If the function is empty, an error is logged.
- *
- * @param raw_fitness The raw fitness value.
- * @param f A function to transform the raw fitness value.
- */
-individual_processing_result::individual_processing_result(
-    const double raw_fitness,
-    std::function<double(double)> f
-)
-  : raw_fitness_(raw_fitness) {
-    if(f) {
-        transformed_fitness_ = f(raw_fitness_);
-        transformed_fitness_set_ = true;
-    }
-    else {
-        glogger << "In individual_processing_result(double, std::function<double(double)>)"
-                << '\n'
-                << GTERMINATION;
-    }
-}
-
-/******************************************************************************/
-/**
- * Access to the raw fitness
- */
-double individual_processing_result::rawFitness() const {
-    return raw_fitness_;
-}
-
-/******************************************************************************/
-/**
- * Access to the transformed fitness
- */
-double individual_processing_result::transformedFitness() const {
-    return transformed_fitness_;
-}
-
-/******************************************************************************/
-/**
-     * Updates the transformed fitness using an external function
-     */
-void individual_processing_result::setTransformedFitnessWith(std::function<double(double)> f) {
-    if(f) {
-        transformed_fitness_ = f(raw_fitness_);
-        transformed_fitness_set_ = true;
-    }
-    else {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In individual_processing_result::setTransformedFitnessWith():" << '\n'
-            << "Function object f is empty." << '\n'
-        );
-    }
-}
-
-/******************************************************************************/
-/**
-     * Sets the transformed fitness to a user-defined value
-     */
-void individual_processing_result::setTransformedFitnessTo(const double transformed_fitness) {
-    transformed_fitness_ = transformed_fitness;
-    transformed_fitness_set_ = true;
-}
-
-/******************************************************************************/
-/**
-     * Sets the transformed fitness to the same value as the raw fitness
-     */
-void individual_processing_result::setTransformedFitnessToRaw() {
-    transformed_fitness_ = raw_fitness_;
-    transformed_fitness_set_ = true;
-}
-
-/******************************************************************************/
-/**
-     * Checks whether the transformed fitness was set
-     */
-bool individual_processing_result::transformedFitnessSet() const {
-    return transformed_fitness_set_;
-}
-
-/******************************************************************************/
-/**
-     * Resets the object and stores a new raw value in the class
-     */
-void individual_processing_result::reset(const double raw_fitness) {
-    raw_fitness_ = raw_fitness;
-    transformed_fitness_ = raw_fitness_;
-    transformed_fitness_set_ = false;
-}
-
-/******************************************************************************/
-/**
- * Resets the object and stores a new raw and transformed value in the class
- */
-void individual_processing_result::reset(
-    const double raw_fitness,
-    const double transformed_fitness
-) {
-    raw_fitness_ = raw_fitness;
-    transformed_fitness_ = transformed_fitness;
-    transformed_fitness_set_ = true;
-}
-
-/******************************************************************************/
-/**
- * Resets the object and stores a new raw value in the class and triggers recalculation of the transformed value
- */
-void individual_processing_result::reset(
-    const double raw_fitness,
-    std::function<double(double)> f
-) {
-    if(f) {
-        raw_fitness_ = raw_fitness;
-        transformed_fitness_ = f(raw_fitness_);
-        transformed_fitness_set_ = true;
-    }
-    else {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In individual_processing_result::reset():" << '\n'
-            << "Function object f is empty." << '\n'
-        );
-    }
-}
-
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -246,7 +70,7 @@ void individual_processing_result::reset(
      * fitness criterion.
      */
 GTreeGenome::GTreeGenome()
-  : Gem::Courtier::GProcessingContainerT<GTreeGenome, individual_processing_result>(1) {
+  : GOptimizableEntity() {
     /* nothing */
 }
 
@@ -255,9 +79,7 @@ GTreeGenome::GTreeGenome()
      * Initialization with the number of fitness criteria
      */
 GTreeGenome::GTreeGenome(const std::size_t n_fitness_criteria)
-  : Gem::Courtier::GProcessingContainerT<GTreeGenome, individual_processing_result>(
-        n_fitness_criteria
-    ) {
+  : GOptimizableEntity(n_fitness_criteria) {
     /* nothing */
 }
 
@@ -268,29 +90,9 @@ GTreeGenome::GTreeGenome(const std::size_t n_fitness_criteria)
      * @param cp A copy of another GTreeGenome object
      */
 GTreeGenome::GTreeGenome(GTreeGenome const &cp)
-  : Gem::Common::GCommonInterfaceT<GTreeGenome>(cp)
-  , Interface::GMutableI(cp)
-  , Interface::GRateableI(cp)
-  , Gem::Common::GUniquePtrContainerT<GParameterBase>(cp)
-  , Gem::Courtier::GProcessingContainerT<GTreeGenome, individual_processing_result>(cp)
-  , best_past_primary_fitness_(cp.best_past_primary_fitness_)
-  , n_stalls_(cp.n_stalls_)
-  , maxmode_(cp.maxmode_)
-  , assigned_iteration_(cp.assigned_iteration_)
-  , validity_level_(cp.validity_level_)
-  , eval_policy_(cp.eval_policy_)
-  , sigmoid_steepness_(cp.sigmoid_steepness_)
-  , sigmoid_extremes_(cp.sigmoid_extremes_)
-  , max_unsuccessful_adaptions_(cp.max_unsuccessful_adaptions_)
-  , max_retries_until_valid_(cp.max_retries_until_valid_)
-  , n_adaptions_(cp.n_adaptions_) {
-    // Copy the personality pointer over
-    Gem::Common::copyCloneableSmartPointer(cp.pt_ptr_, pt_ptr_);
-    // Make sure any constraints are copied over
-    Gem::Common::copyCloneableSmartPointer(
-        cp.individual_constraint_ptr_,
-        individual_constraint_ptr_
-    );
+  : GOptimizableEntity(cp)
+  , Gem::Common::GUniquePtrContainerT<GParameterBase>(cp) {
+    /* nothing */
 }
 
 /******************************************************************************/
@@ -298,11 +100,11 @@ GTreeGenome::GTreeGenome(GTreeGenome const &cp)
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GTreeGenome object
+     * @param cp A constant reference to another GTreeGenome object, camouflaged as a GOptimizableEntity
      * @param e The expected outcome of the comparison
      */
 void GTreeGenome::compare_(
-    GTreeGenome const &cp,
+    GOptimizableEntity const &cp,
     Gem::Common::expectation const &e,
     [[maybe_unused]] double const & limit
 ) const {
@@ -310,55 +112,19 @@ void GTreeGenome::compare_(
 
     // Check that we are dealing with a GTreeGenome reference independent of this object and convert the pointer
     const GTreeGenome *p_load =
-        Gem::Common::g_convert_and_compare<GTreeGenome, GTreeGenome>(cp, this);
+        Gem::Common::g_convert_and_compare<GOptimizableEntity, GTreeGenome>(cp, this);
 
     GToken token("GTreeGenome", e);
 
-    // Compare our CRTP base data (the category root has no GObject parent) ...
-    Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GTreeGenome>>(*this, *p_load, token);
+    // Compare our individual-level base data ...
+    Gem::Common::compare_base_t<GOptimizableEntity>(*this, *p_load, token);
 
     // The container base'es data -- compared explicitly, as it is a base-object
     // rather than a local member (the data is actually contained in a parent class).
     compare_t(IDENTITY(this->data_cnt_, p_load->data_cnt_), token);
 
-    // ... and all the local data (plain + cloneable pointers), derived from the
-    // single localMembers() declaration.
-    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
-
     // React on deviations from the expectation
     token.evaluate();
-}
-
-/******************************************************************************/
-/**
-     * Allows to randomly initialize parameter members. This function is responsible
-     * for setting the dirty flag, so overloaded randomInit_ functions do not need
-     * to take care of this. Note though that overloads of randomInit_() need to take
-     * care to indicate whether modifications were made.
-     *
-     * @return A boolean indicating whether modifications where made
-     */
-bool GTreeGenome::randomInit(activityMode const &am) {
-    bool modifications_made = this->randomInit_(am);
-
-    if(modifications_made) {
-        this->mark_as_due_for_processing();
-    }
-
-    return modifications_made;
-}
-
-/******************************************************************************/
-/**
-     * Allows to specify whether we want to work in maximization (maxMode::MAXIMIZE) or minimization
-     * (maxMode::MINIMIZE) mode (the default). The idea is that GTreeGenome, depending on the maxMode,
-     * changes its evaluation in such a way that the optimization algorithm always sees a
-     * minimization problem.
-     *
-     * @param mode An enum class which indicates whether we want to work in maximization or minimization mode
-     */
-void GTreeGenome::setMaxMode(maxMode const &mode) {
-    maxmode_ = mode;
 }
 
 /******************************************************************************/
@@ -565,63 +331,6 @@ GTreeGenome::at(std::size_t const &pos) {
     return Gem::Common::GUniquePtrContainerT<GParameterBase>::at(pos);
 }
 
-/* ----------------------------------------------------------------------------------
-     * So far untested
-     * ----------------------------------------------------------------------------------
-     */
-
-/******************************************************************************/
-/**
-     * Checks whether this object is better than a given set of evaluations. This
-     * function compares "real" boundaries with evaluations, hence we use "raw"
-     * measurements here instead of transformed measurements.
-     */
-bool GTreeGenome::isGoodEnough(std::vector<double> const &boundaries) {
-#ifdef DEBUG
-    // Does the number of fitness criteria match the number of boundaries ?
-    if(boundaries.size() != this->getNStoredResults()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GTreeGenome::isGoodEnough(): Error!" << '\n'
-            << "Number of boundaries does not match number of fitness criteria" << '\n'
-        );
-    }
-
-    // Has the individual been processed
-    if(not this->is_processed()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GTreeGenome::isGoodEnough(): Error!" << '\n'
-            << "Trying to compare fitness values although the individual isn't processed"
-            << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    // Check the fitness values. If we find at least one
-    // which is worse than the one supplied by the boundaries
-    // vector, then this individual fails the test
-    if(maxMode::MAXIMIZE == this->getMaxMode()) {
-        // Maximization
-        for(std::size_t i = 0; i < boundaries.size(); i++) {
-            if(this->raw_fitness(i) < boundaries.at(i)) {
-                return false;
-            }
-        }
-    }
-    else {
-        // maxMode::MINIMIZE
-        for(std::size_t i = 0; i < boundaries.size(); i++) {
-            if(this->raw_fitness(i) > boundaries.at(i)) {
-                return false;
-            }
-        }
-    }
-
-    // All fitness values are better than those supplied by boundaries
-    return true;
-}
-
 /******************************************************************************/
 /**
      * Retrieval of a suitable position for cross over inside of a vector
@@ -660,8 +369,11 @@ std::size_t GTreeGenome::getCrossOverPos(const std::size_t lower, const std::siz
 /**
      * Perform a fusion operation between this object and another.
      */
-std::shared_ptr<GTreeGenome>
-GTreeGenome::crossOverWith(GTreeGenome const &cp) const {
+std::shared_ptr<GOptimizableEntity>
+GTreeGenome::crossOverWith(GOptimizableEntity const &cp_base) const {
+    // The cross-over operates on the parameter tree, so the partner must be a GTreeGenome
+    const auto &cp = dynamic_cast<GTreeGenome const &>(cp_base);
+
     // Create a copy of this object
     std::shared_ptr<GTreeGenome> this_cp = this->clone<GTreeGenome>();
 
@@ -806,12 +518,15 @@ void GTreeGenome::queryAdaptor(
      * NOTE: The other parameter set will be an empty shell afterwards. The function may
      * only be called for "clean" foreign parameter sets
      */
-void GTreeGenome::cannibalize(GTreeGenome &cp) {
+void GTreeGenome::cannibalize(GOptimizableEntity &cp_base) {
+    // The cannibalisation moves the parameter tree over, so the partner must be a GTreeGenome
+    auto &cp = dynamic_cast<GTreeGenome &>(cp_base);
+
     // Check whether the "foreign" entity is processed
     if(cp.is_due_for_processing() || cp.has_errors()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GTreeGenome::cannibalize(const GTreeGenome& cp)" << '\n'
+            << "In GTreeGenome::cannibalize(GOptimizableEntity& cp)" << '\n'
             << "cp isn't processed or has errors" << '\n'
         );
     }
@@ -835,870 +550,20 @@ void GTreeGenome::cannibalize(GTreeGenome &cp) {
 
 /******************************************************************************/
 /**
-     * The adaption interface. Triggers adaption of the individual, using each parameter object's
-     * adaptor. Sets the dirty flag, as the parameters have been changed. This facility is mostly
-     * used in Evolutionary Algorithms and Simulated Annealing. Other algorithms, such as
-     * PSO and Gradient Descents, may choose to change parameters directly. Adaptions will be performed
-     * until actual changes were done to the object AND a valid parameter set was found.
-     */
-std::size_t GTreeGenome::adapt() {
-    std::size_t n_adaption_attempts = 0;
-    std::size_t n_adaptions = 0;
-    // This is a measure of the "effective" adaption probability
-    std::size_t n_invalid_adaptions = 0;
-    double validity = 0;
-
-    // Perform adaptions until a valid solution was find. In the context
-    // of evolutionary algorithms, this process is indeed equivalent to
-    // a larger population, if invalid solutions were produced. The downside
-    // may be, that the algorithm moves closer to MUPLUSNU. Thus, if you find
-    // yourself stuck in local optima too often, consider setting max_retries_until_valid_
-    // to 0, using the appropriate function.
-    while(true) {
-        // Make sure at least one modification is performed. E.g., for low
-        // adaption probabilities combined with few parameters, it may happen
-        // otherwise that individuals remain unchanged after a call to adapt()
-        while(true) {
-            // Try again if no adaption has taken place
-            // Perform the actual adaption; Terminate, if at least one adaption was performed
-            if((n_adaptions = this->customAdaptions()) >
-               0) // NOLINT(bugprone-assignment-in-if-condition)
-            {
-                break;
-            }
-
-            // Terminate, if the maximum number of adaptions has been exceeded
-            if(max_unsuccessful_adaptions_ > 0 &&
-               ++n_adaption_attempts > max_unsuccessful_adaptions_) {
-                break;
-            }
-        }
-
-        if(this->parameterSetFulfillsConstraints(validity) ||
-           ++n_invalid_adaptions > max_retries_until_valid_) {
-            break;
-        }
-    }
-
-    // Make sure the individual is re-evaluated when fitness(...) is called next time
-    if(n_adaptions > 0) {
-        this->mark_as_due_for_processing();
-    }
-
-    // Store the number of adaptions for later use and let the audience know
-    return (n_adaptions_ = n_adaptions);
-}
-
-/* ----------------------------------------------------------------------------------
-     * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
-/******************************************************************************/
-/**
-     * Retrieves the stored raw fitness with a given id
-     */
-double GTreeGenome::raw_fitness_(const std::size_t id) const {
-    return this->getStoredResult(id).rawFitness();
-}
-
-/******************************************************************************/
-/**
-     * Retrieves the stored transformed fitness with a given id
-     */
-double GTreeGenome::transformed_fitness_(const std::size_t id) const {
-    return this->getStoredResult(id).transformedFitness();
-}
-
-/******************************************************************************/
-/**
-     * Returns all raw fitness results in a std::vector
-     */
-std::vector<double> GTreeGenome::raw_fitness_vec_() const {
-    std::size_t n_fitness_criteria = this->getNStoredResults();
-    std::vector<double> result_vec;
-
-    for(std::size_t i = 0; i < n_fitness_criteria; i++) {
-        result_vec.push_back(this->raw_fitness(i));
-    }
-
-    return result_vec;
-}
-
-/******************************************************************************/
-/**
-     * Returns all transformed fitness results in a std::vector
-     */
-std::vector<double> GTreeGenome::transformed_fitness_vec_() const {
-    std::size_t n_fitness_criteria = this->getNStoredResults();
-    std::vector<double> result_vec;
-
-    for(std::size_t i = 0; i < n_fitness_criteria; i++) {
-        result_vec.push_back(this->transformed_fitness(i));
-    }
-
-    return result_vec;
-}
-
-/******************************************************************************/
-/**
-     * Register another result value of the fitness calculation. Multiple fitness
-     * criteria are used in multi-criterion optimization. fitnessCalculation() returns
-     * the main fitness value, but may also add further, secondary results. Note that,
-     * whether these are actually used, depends on the optimization algorithm being
-     * used. Transformation for the second fitness value will be done in the process_()
-     * function. You may store the primary fitness value with this function as well.
-     * As the primary (raw) value is however also returned by fitnessCalculation() and
-     * integrated into the list of results, this is redundant.
+     * Loads the data of another GTreeGenome object, camouflaged as a GOptimizableEntity.
      *
-     * @param id The position of the fitness criterion (must be >= 0 !)
-     * @param value The fitness value to be registered
+     * @param cp A copy of another GTreeGenome object, camouflaged as a GOptimizableEntity
      */
-void GTreeGenome::setResult(const std::size_t id, const double value) {
-#ifdef DEBUG
-    if(id >= this->getNStoredResults()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GTreeGenome::setResult(...): Error!" << '\n'
-            << "Invalid position in vector: " << id << " (expected min 0 and max "
-            << this->getNStoredResults() - 1 << ")" << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    this->modifyStoredResult(id).reset(value);
-}
-
-/******************************************************************************/
-/**
-     * Determines whether more than one fitness criterion is present for this individual
-     *
-     * @return A boolean indicating whether more than one target function is present
-     */
-bool GTreeGenome::hasMultipleFitnessCriteria() const {
-    return this->getNStoredResults() > 1;
-}
-
-/******************************************************************************/
-/**
-     * Retrieve the fitness tuple at a given evaluation position.
-     */
-std::tuple<double, double> GTreeGenome::getFitnessTuple(const std::uint32_t id) const {
-    return std::make_tuple<double, double>(this->raw_fitness(id), this->transformed_fitness(id));
-}
-
-/******************************************************************************/
-/**
-     * Allows to retrieve the maxmode_ parameter
-     *
-     * @return The current value of the maxmode_ parameter
-     */
-maxMode GTreeGenome::getMaxMode() const {
-    return maxmode_;
-}
-
-/* ----------------------------------------------------------------------------------
-     * Retrieval is tested in GTreeGenome::specificTestsNoFailureExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
-/***************************************************************************/
-/**
-     * Helper function that emits the worst case value depending on whether maximization
-     * or minimization is performed.
-     *
-     * @return The worst case value, depending on maximization or minimization
-     */
-double GTreeGenome::getWorstCase() const {
-    return (
-        (maxMode::MAXIMIZE == this->getMaxMode()) ? std::numeric_limits<double>::lowest()
-                                                  : std::numeric_limits<double>::max()
-    );
-}
-
-/******************************************************************************/
-/**
-     * Retrieves the best possible evaluation result, depending on whether we are in
-     * maximization or minimization mode
-     */
-double GTreeGenome::getBestCase() const {
-    return (
-        (maxMode::MAXIMIZE == this->getMaxMode()) ? std::numeric_limits<double>::max()
-                                                  : std::numeric_limits<double>::lowest()
-    );
-}
-
-/******************************************************************************/
-/**
-     * Retrieves the steepness_ variable (used for the sigmoid transformation)
-     */
-double GTreeGenome::getSteepness() const {
-    return sigmoid_steepness_;
-}
-
-/******************************************************************************/
-/**
-     * Sets the steepness variable (used for the sigmoid transformation)
-     */
-void GTreeGenome::setSteepness(const double steepness) {
-    if(steepness <= 0.) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GTreeGenome::setSteepness(double steepness): Error!" << '\n'
-            << "Invalid value of steepness parameter: " << steepness << '\n'
-        );
-    }
-
-    sigmoid_steepness_ = steepness;
-}
-
-/******************************************************************************/
-/**
-     * Retrieves the barrier_ variable (used for the sigmoid transformation)
-     */
-double GTreeGenome::getBarrier() const {
-    return sigmoid_extremes_;
-}
-
-/******************************************************************************/
-/**
-     * Sets the barrier variable (used for the sigmoid transformation)
-     */
-void GTreeGenome::setBarrier(const double barrier) {
-    if(barrier <= 0.) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GTreeGenome::setBarrier(double barrier): Error!" << '\n'
-            << "Invalid value of barrier parameter: " << barrier << '\n'
-        );
-    }
-
-    sigmoid_extremes_ = barrier;
-}
-
-/******************************************************************************/
-/**
-     * Sets the maximum number of adaption attempts that may pass without
-     * actual modifications. Setting this to 0 disables this check. You should only
-     * do this if you are sure that an adaption will eventually happen. Otherwise
-     * you would get an endless loop.
-     */
-void GTreeGenome::setMaxUnsuccessfulAdaptions(const std::size_t max_unsuccessful_adaptions) {
-    max_unsuccessful_adaptions_ = max_unsuccessful_adaptions;
-}
-
-/******************************************************************************/
-/**
-     * Retrieves the maximum number of adaption attempts that may pass without
-     * actual modifications
-     */
-std::size_t GTreeGenome::getMaxUnsuccessfulAdaptions() const {
-    return max_unsuccessful_adaptions_;
-}
-
-/******************************************************************************/
-/**
-     * Allows to set the maximum number of retries during the adaption of individuals
-     * until a valid individual was found. Setting this value to 0 will disable retries.
-     */
-void GTreeGenome::setMaxRetriesUntilValid(const std::size_t max_retries_until_valid) {
-    max_retries_until_valid_ = max_retries_until_valid;
-}
-
-/******************************************************************************/
-/**
-     * Allows to retrieve the current maximum number of retries during the adaption of
-     * individuals until a valid individual was found.
-     */
-std::size_t GTreeGenome::getMaxRetriesUntilValid() const {
-    return max_retries_until_valid_;
-}
-
-/******************************************************************************/
-/**
-     * Retrieves the number of adaptions performed during the last call to adapt()
-     * (or 0, if no adaptions were performed so far).
-     */
-std::size_t GTreeGenome::getNAdaptions() const {
-    return n_adaptions_;
-}
-
-/******************************************************************************/
-/**
-     * Allows to set the current iteration of the parent optimization algorithm.
-     *
-     * @param parent_alg_iteration The current iteration of the optimization algorithm
-     */
-void GTreeGenome::setAssignedIteration(std::uint32_t const &parent_alg_iteration) {
-    assigned_iteration_ = parent_alg_iteration;
-}
-
-/* ----------------------------------------------------------------------------------
-     * Tested in GTreeGenome::specificTestsNoFailureExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
-/******************************************************************************/
-/**
-     * Gives access to the parent optimization algorithm's iteration
-     *
-     * @return The parent optimization algorithm's current iteration
-     */
-std::uint32_t GTreeGenome::getAssignedIteration() const {
-    return assigned_iteration_;
-}
-
-/* ----------------------------------------------------------------------------------
-     * Tested in GTreeGenome::specificTestsNoFailureExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
-/******************************************************************************/
-/**
-     * Allows to specify the number of optimization cycles without improvement of the primary fitness criterion
-     *
-     * @param n_stalls The number of optimization cycles without improvement in the parent algorithm
-     */
-void GTreeGenome::setNStalls(std::uint32_t const &n_stalls) {
-    n_stalls_ = n_stalls;
-}
-
-/* ----------------------------------------------------------------------------------
-     * Tested in GTreeGenome::specificTestsNoFailureExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
-/******************************************************************************/
-/**
-     * Allows to retrieve the number of optimization cycles without improvement of the primary fitness criterion
-     *
-     * @return The number of optimization cycles without improvement in the parent algorithm
-     */
-std::uint32_t GTreeGenome::getNStalls() const {
-    return n_stalls_;
-}
-
-/* ----------------------------------------------------------------------------------
-     * Tested in GTreeGenome::specificTestsNoFailureExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
-/******************************************************************************/
-/**
-     * Retrieves the current personality of this individual
-     *
-     * @return An identifier for the current personality of this object
-     */
-std::string GTreeGenome::getPersonality() const {
-    if(pt_ptr_) {
-        return pt_ptr_->name();
-    }
-            return std::string("PERSONALITY_NONE");
-   
-}
-
-/* ----------------------------------------------------------------------------------
-     * Tested in GTreeGenome::specificTestsNoFailureExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
-/******************************************************************************/
-/**
-     * Allows to check whether random crashs of individuals are enabled
-     */
-std::tuple<bool, double> GTreeGenome::getRandomCrash() const {
-    return std::tuple<bool, double>{use_random_crash_, random_crash_prob_};
-};
-
-/******************************************************************************/
-/**
-     * Allows to enable random crashs of individuals for testing purposes
-     */
-void GTreeGenome::setRandomCrash(const bool use_random_crash, const double crash_prob) {
-    // Check that the crash probability is in the allowed value range
-    Gem::Common::checkRangeCompliance(crash_prob, 0., 1., "GTreeGenome::setRandomCrash()");
-
-    // Set the value as demanded
-    use_random_crash_ = use_random_crash;
-    random_crash_prob_ = crash_prob;
-}
-
-/******************************************************************************/
-/**
-     * This function returns the current personality traits base pointer. Note that there
-     * is another version of the same command that does on-the-fly conversion of the
-     * personality traits to the derived class.
-     *
-     * @return A shared pointer to the personality traits base class
-     */
-std::shared_ptr<GPersonalityTraits> GTreeGenome::getPersonalityTraits() {
-#ifdef DEBUG
-    // Do some error checking
-    if(not pt_ptr_) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GTreeGenome::getPersonalityTraits():" << '\n'
-            << "Pointer to personality traits object is empty." << '\n'
-        );
-    }
-#endif
-
-    return pt_ptr_;
-}
-
-/* ----------------------------------------------------------------------------------
-     * Tested in GTreeGenome::specificTestsNoFailureExpected_GUnitTests()
-     * Tested in GTreeGenome::specificTestsFailuresExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
-/******************************************************************************/
-/**
-     * Sets the current personality of this individual
-     *
-     * @param gpt A pointer to an object representing the new personality of this object
-     */
-void GTreeGenome::setPersonality(std::shared_ptr<GPersonalityTraits> gpt) {
-    // Make sure we haven't been given an empty pointer
-    if(not gpt) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GTreeGenome::setPersonality(): Error!" << '\n'
-            << "Received empty personality traits pointer" << '\n'
-        );
-    }
-
-    // Add the personality traits object to our local pointer
-    pt_ptr_ = gpt;
-}
-
-/* ----------------------------------------------------------------------------------
-     * Tested in GTreeGenome::specificTestsNoFailureExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
-/******************************************************************************/
-/**
-     * Resets the current personality to PERSONALITY_NONE
-     */
-void GTreeGenome::resetPersonality() {
-    pt_ptr_.reset();
-}
-
-/* ----------------------------------------------------------------------------------
-     * Tested in GTreeGenome::specificTestsNoFailureExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
-/******************************************************************************/
-/**
-     * Retrieves the mnemonic used for the optimization of this object
-     */
-std::string GTreeGenome::getMnemonic() const {
-    if(pt_ptr_) {
-        return pt_ptr_->getMnemonic();
-    }
-            throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GTreeGenome::getMnemonic():" << '\n'
-            << "Pointer to personality traits object is empty." << '\n'
-        );
-   
-
-    // Make the compiler happy
-    return {};
-}
-
-/******************************************************************************/
-/**
-     * Adds local configuration options to a GParserBuilder object
-     *
-     * @param gpb The GParserBuilder object to which configuration options should be added
-     */
-void GTreeGenome::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
-    // Call our CRTP base class'es function (the category root has no GObject parent)
-    Gem::Common::GCommonInterfaceT<GTreeGenome>::addConfigurationOptions_(gpb);
-
-    // Add local data
-    gpb.registerFileParameter<evaluationPolicy>(
-        "eval_policy" // The name of the variable
-        ,
-        Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION
-        // The default value
-        ,
-        [this](const evaluationPolicy ep) { this->setEvaluationPolicy(ep); }
-    ) << "Specifies which strategy should be used to calculate the evaluation:"
-      << '\n'
-      << "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid "
-         "solutions"
-      << '\n'
-      << "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and "
-         "evaluate only valid solutions"
-      << '\n'
-      << "2 (a.k.a. USESIGMOID): Assign a multiple of validity_level_ and sigmoid barrier to "
-         "invalid solutions, apply a sigmoid function to valid evaluations"
-      << '\n';
-
-    gpb.registerFileParameter<double>(
-        "steepness" // The name of the variable
-        ,
-        Gem::Geneva::FITNESSSIGMOIDSTEEPNESS // The default value
-        ,
-        [this](const double ss) { this->setSteepness(ss); }
-    ) << "When using a sigmoid function to transform the individual's fitness,"
-      << '\n'
-      << "this parameter influences the steepness of the function at the center of the sigmoid."
-      << '\n'
-      << "The parameter must have a value > 0.";
-
-    gpb.registerFileParameter<double>(
-        "barrier" // The name of the variable
-        ,
-        Gem::Geneva::WORSTALLOWEDVALIDFITNESS // The default value
-        ,
-        [this](const double barrier) { this->setBarrier(barrier); }
-    ) << "When using a sigmoid function to transform the individual's fitness,"
-      << '\n'
-      << "this parameter sets the upper/lower boundary of the sigmoid." << '\n'
-      << "The parameter must have a value > 0.;";
-
-    gpb.registerFileParameter<std::size_t>(
-        "max_unsuccessful_adaptions" // The name of the variable
-        ,
-        DEFMAXUNSUCCESSFULADAPTIONS // The default value
-        ,
-        [this](const std::size_t mua) { this->setMaxUnsuccessfulAdaptions(mua); }
-    ) << "The maximum number of unsuccessful adaptions in a row for one call to adapt()";
-
-    gpb.registerFileParameter<std::size_t>(
-        "max_retries_until_valid" // The name of the variable
-        ,
-        DEFMAXRETRIESUNTILVALID // The default value
-        ,
-        [this](const std::size_t mruv) { this->setMaxRetriesUntilValid(mruv); }
-    ) << "The maximum allowed number of retries during the"
-      << '\n'
-      << "adaption of individuals until a valid solution was found" << '\n'
-      << "A parameter set is considered to be \"valid\" if" << '\n'
-      << "it passes all validity checks;";
-
-    // Add local data
-    gpb.registerFileParameter<maxMode>(
-        "maxmode" // The name of the variable
-        ,
-        maxMode::MINIMIZE // The default value
-        ,
-        [this](const maxMode mm) { this->setMaxMode(mm); }
-    ) << "Specifies whether the individual should be maximized (1) or minimized (0)"
-      << '\n'
-      << "Note that minimization is the by far most common option.";
-
-    gpb.registerFileParameter<bool, double>(
-        "use_random_crash" // The name of the variable
-        ,
-        "random_crash_prob",
-        GPS_DEF_USE_RANDOMCRASH // The default value
-        ,
-        GPS_DEF_RANDOMCRASHPROB,
-        [this](const bool use_rc, const double rc_prob) { this->setRandomCrash(use_rc, rc_prob); },
-        "random_crash_parameters"
-    ) << "Indicates whether random crashes should occur for debugging purposes"
-      << '\n'
-      << Gem::Common::nextComment() << "The probability of a random crash to occur";
-}
-
-/******************************************************************************/
-/**
-     * Emits a name for this class / object
-     *
-     * @return The name of this class / object
-     */
-std::string GTreeGenome::name_() const {
-    return std::string("GTreeGenome");
-}
-
-/******************************************************************************/
-/**
-     * Check how valid a given solution is
-     *
-     * @return The validity level of this solution
-     */
-double GTreeGenome::getValidityLevel() const {
-    return validity_level_;
-}
-
-/******************************************************************************/
-/**
-     * @return A boolean indicating, whether all constraints were fulfilled
-     */
-bool GTreeGenome::constraintsFulfilled() const {
-    if(validity_level_ <= 1.) {
-        return true;
-    }
-            return false;
-   
-}
-
-/******************************************************************************/
-/**
-     * Allows to register a constraint with this individual. Note that the constraint
-     * object will be cloned.
-     */
-void GTreeGenome::registerConstraint(
-    std::shared_ptr<GPreEvaluationValidityCheckT<GTreeGenome>> c_ptr
-) {
-    if(not c_ptr) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GTreeGenome::registerConstraint(): Error!" << '\n'
-            << "Tried to register empty constraint object" << '\n'
-        );
-    }
-
-    // We store clones, so individual objects do not share the same object
-    individual_constraint_ptr_ =
-        c_ptr->clone<GPreEvaluationValidityCheckT<GTreeGenome>>();
-}
-
-/******************************************************************************/
-/**
-     * Allows to set the policy to use in case this individual represents an invalid solution
-     */
-void GTreeGenome::setEvaluationPolicy(const evaluationPolicy eval_policy) {
-    eval_policy_ = eval_policy;
-}
-
-/******************************************************************************/
-/**
-     * Allows to retrieve the current policy in case this individual represents an invalid solution
-     */
-evaluationPolicy GTreeGenome::getEvaluationPolicy() const {
-    return eval_policy_;
-}
-
-/******************************************************************************/
-/**
-     * Checks whether this solution is valid. This function is meant to be called
-     * for "clean" individuals only and will throw when called for unprocessed or
-     * erroneous individuals.
-     */
-bool GTreeGenome::isValid() const {
-#ifdef DEBUG
-    if(this->is_due_for_processing() || this->has_errors()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GTreeGenome::isValid():" << '\n'
-            << "Function was called for unprocessed or erroneous individual" << '\n'
-        );
-    }
-#endif
-
-    if(validity_level_ <= 1.) {
-        return true;
-    }
-            return false;
-   
-}
-
-/******************************************************************************/
-/**
-     * Checks whether this solution is invalid
-     */
-bool GTreeGenome::isInValid() const {
-    return not this->isValid();
-}
-
-/******************************************************************************/
-/**
-     * Allows to set the globally best known primary fitness so far
-     *
-     * @param bnf The best known primary fitness so far
-     */
-void GTreeGenome::setBestKnownPrimaryFitness(const std::tuple<double, double> &bnf) {
-    best_past_primary_fitness_ = bnf;
-}
-
-/* ----------------------------------------------------------------------------------
-     * Tested in GTreeGenome::specificTestsNoFailureExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
-/******************************************************************************/
-/**
-     * Retrieves the value of the globally best known primary fitness so far
-     *
-     * @return The best known primary fitness so far
-     */
-std::tuple<double, double> GTreeGenome::getBestKnownPrimaryFitness() const {
-    return best_past_primary_fitness_;
-}
-
-/* ----------------------------------------------------------------------------------
-     * Tested in GTreeGenome::specificTestsNoFailureExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
-/******************************************************************************/
-/**
-     * Performs all necessary (remote-)processing steps for this object.
-     */
-void GTreeGenome::process_(const std::vector<individual_processing_result> &res_vec) {
-#ifdef DEBUG
-    //---------------------------------------------
-    // Crash if we have been asked to (only active in DEBUG mode)
-    if(use_random_crash_) {
-        std::uniform_real_distribution<double> dist01{0., 1.};
-        if(dist01(this->gr_) <= random_crash_prob_) {
-            glogger << "GTreeGenome is performing random crash for debugging purposes"
-                    << '\n'
-                    << '\n'
-                    << GLOGGING;
-
-            throw;
-        }
-    }
-#endif
-
-    // Find out, whether this is a valid solution
-    if(this->parameterSetFulfillsConstraints(validity_level_)
-       // Needs to be called first, or else the validity_level_ will not be filled
-       || evaluationPolicy::USESIMPLEEVALUATION == eval_policy_) {
-        // Trigger actual fitness calculation using the user-supplied function. This will
-        // also register any secondary "raw" fitness values used in multi-criterion optimization.
-        // Transformation of values is taken care of below.
-        double main_raw_result = 0.;
-
-        try {
-            if(not res_vec.empty()) {
-                // Check that sizes match
-                if(res_vec.size() != this->getNStoredResults()) {
-                    throw geneva_exception(
-                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                        << "In GTreeGenome::process_ : Error!" << '\n'
-                        << "res_vec has invalid size. Got " << res_vec.size() << '\n'
-                        << "Expected " << this->getNStoredResults() << '\n'
-                    );
-                }
-
-                // Just assign the main *raw* result
-                main_raw_result = res_vec.begin()->rawFitness();
-
-                // Extract all additional *raw* results. Then we are on par with fitnessCalculation()
-                std::size_t pos = 0;
-                for(const auto &res : res_vec) {
-                    if(pos == 0) {
-                        continue; // Skip the main raw result
-                    }
-
-                    this->setResult(pos, res_vec.at(pos).rawFitness());
-
-                    pos++;
-                }
-            }
-            else {
-                // If we are dealing with multiple fitness criteria,
-                // then fitnessCalculation() will set additional raw values
-                main_raw_result = this->fitnessCalculation();
-            }
-        }
-        catch(...) {
-            // Make sure we invalidate all fitness values, if an exception was thrown
-            this->setAllFitnessTo(this->getWorstCase());
-
-            // Rethrow the exception
-            throw;
-        }
-
-        // Make sure the main result is stored
-        // TODO: result setting should be done in the parent class'es process()-function, not in process_()
-        this->setResult(0, main_raw_result);
-        // TODO: When using multiple criteria: Are we setting the other transformed results also to raw?
-        this->modifyStoredResult(0).setTransformedFitnessToRaw();
-
-        // Take care of erroneous calculations, flagged by the user. It is assumed here that marking
-        // entire solutions as invalid after the evaluation happens relatively rarely so that a flat
-        // "worst" quality surface for such solutions does not hinder progress of the optimization
-        // procedure too much
-        if(this->error_flagged_by_user()) {
-            // has the user indicated a problem without throwing an error ?
-            // Fill the raw and transformed vectors with the worst case scenario.
-            this->setAllFitnessTo(this->getWorstCase());
-        }
-        else {
-            // So this is a valid solution!
-            for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
-                if(evaluationPolicy::USESIGMOID == eval_policy_) {
-                    // Update the fitness value to use sigmoidal values
-                    this->modifyStoredResult(i).setTransformedFitnessWith(
-                        [this](const double raw_value) {
-                            return Gem::Common::grational_sigmoid(
-                                raw_value,
-                                this->sigmoid_extremes_,
-                                this->sigmoid_steepness_
-                            );
-                        }
-                    );
-                }
-                else {
-                    // All other transformation policies use the same value for the transformed fitness as a (valid) raw fitness
-                    this->modifyStoredResult(i).setTransformedFitnessToRaw();
-                }
-            }
-        }
-    }
-    else {
-        // Some constraints were violated. Act on the chosen policy
-        if(evaluationPolicy::USEWORSTCASEFORINVALID == eval_policy_) {
-            this->setAllFitnessTo(this->getWorstCase());
-        }
-        else if(evaluationPolicy::USESIGMOID == eval_policy_) {
-            double uniform_fitness_value = 0.;
-            if(maxMode::MAXIMIZE == this->getMaxMode()) {
-                // maximize
-                if(std::numeric_limits<double>::max() == validity_level_) {
-                    uniform_fitness_value = this->getWorstCase();
-                }
-                else {
-                    uniform_fitness_value = -validity_level_ * sigmoid_extremes_;
-                }
-            }
-            else {
-                // minimize
-                if(std::numeric_limits<double>::max() == validity_level_) {
-                    uniform_fitness_value = this->getWorstCase();
-                }
-                else {
-                    uniform_fitness_value = validity_level_ * sigmoid_extremes_;
-                }
-            }
-
-            this->setAllFitnessTo(this->getWorstCase(), uniform_fitness_value);
-        }
-    }
-}
-
-/******************************************************************************/
-/**
-     * Loads the data of another GTreeGenome object.
-     *
-     * @param cp A copy of another GTreeGenome object
-     */
-void GTreeGenome::load_(const GTreeGenome *cp) {
+void GTreeGenome::load_(const GOptimizableEntity *cp) {
     // Check that we are dealing with a GTreeGenome reference independent of this object and convert the pointer
     const GTreeGenome *p_load =
-        Gem::Common::g_convert_and_compare<GTreeGenome, GTreeGenome>(cp, this);
+        Gem::Common::g_convert_and_compare<GOptimizableEntity, GTreeGenome>(cp, this);
 
-    // This is the category root; there is no GObject parent class to load.
-    // Load the stateful base classes' data
+    // Load the individual-level base class' data
+    GOptimizableEntity::load_(cp);
+
+    // Load the container base class' data
     Gem::Common::GUniquePtrContainerT<GParameterBase>::operator=(*p_load);
-    Gem::Courtier::GProcessingContainerT<GTreeGenome, individual_processing_result>::load_pc(
-        p_load
-    );
-
-    // All local data, derived from the single localMembers() declaration: plain
-    // members are assigned, the cloneable smart pointers are deep-cloned (the tie
-    // dispatches on the member kind).
-    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/
@@ -1724,11 +589,6 @@ bool GTreeGenome::randomInit_(activityMode const &am) {
     return modifications_made;
 }
 
-/* ----------------------------------------------------------------------------------
-     * Tested in GTreeGenome::specificTestsNoFailuresExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
 /**********************************************************************************/
 /**
      * The actual adaption operations. Easy, as we know that all objects
@@ -1744,202 +604,11 @@ std::size_t GTreeGenome::customAdaptions() {
     return n_adaptions;
 }
 
-/* ----------------------------------------------------------------------------------
-     * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
-/******************************************************************************/
-/**
-     * Sets the fitness to a given set of values and clears the dirty flag. This is meant
-     * to be used by external methods of performing the actual evaluation, such as the
-     * OpenCL-Consumer. The fitness vector is interpreted as raw fitness values, and
-     * transformed fitness values are calculated as needed.
-     *
-     * @param f_cnt A vector of raw fitness values
-     */
-void GTreeGenome::setFitness_(std::vector<double> const &f_cnt) {
-#ifdef DEBUG
-    if(f_cnt.size() != this->getNStoredResults()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GTreeGenome::setFitness_(...): Error!" << '\n'
-            << "Invalid size of fitness vector: " << '\n'
-            << f_cnt.size() << ", expected: " << this->getNStoredResults() << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    // Find out, whether this is a valid solution
-    if(this->parameterSetFulfillsConstraints(validity_level_)
-       // Needs to be called first, or else the validity_level_ will not be filled
-       || evaluationPolicy::USESIMPLEEVALUATION == eval_policy_) {
-        // Create a vector of individual_processing_result objects
-        std::vector<individual_processing_result> processing_results(
-            f_cnt.size(),
-            individual_processing_result()
-        );
-
-        // Take care of the transformed fitness
-        std::size_t pos = 0;
-        for(auto &p : processing_results) {
-            // Set the raw fitness
-            p.reset(f_cnt.at(pos));
-
-            if(evaluationPolicy::USESIGMOID == eval_policy_) {
-                // Update the fitness value to use sigmoidal values
-                p.setTransformedFitnessWith([this](const double raw_value) {
-                    return Gem::Common::grational_sigmoid(
-                        raw_value,
-                        this->sigmoid_extremes_,
-                        this->sigmoid_steepness_
-                    );
-                });
-            }
-            else {
-                // All other transformation policies use the same value for the transformed fitness as a (valid) raw fitness
-                p.setTransformedFitnessToRaw();
-            }
-
-            pos++;
-        }
-
-        // Transfer the data into the individual
-        this->markAsProcessedWith(processing_results);
-    }
-    else {
-        // Some constraints were violated. Act on the chosen policy
-        if(evaluationPolicy::USEWORSTCASEFORINVALID == eval_policy_) {
-            this->setAllFitnessTo(this->getWorstCase());
-        }
-        else if(evaluationPolicy::USESIGMOID == eval_policy_) {
-            double uniform_fitness_value = 0.;
-            if(maxMode::MAXIMIZE == this->getMaxMode()) {
-                // maximize
-                if(std::numeric_limits<double>::max() == validity_level_) {
-                    uniform_fitness_value = this->getWorstCase();
-                }
-                else {
-                    uniform_fitness_value = -validity_level_ * sigmoid_extremes_;
-                }
-            }
-            else {
-                // minimize
-                if(std::numeric_limits<double>::max() == validity_level_) {
-                    uniform_fitness_value = this->getWorstCase();
-                }
-                else {
-                    uniform_fitness_value = validity_level_ * sigmoid_extremes_;
-                }
-            }
-
-            this->setAllFitnessTo(this->getWorstCase(), uniform_fitness_value);
-        }
-    }
-}
-
-/******************************************************************************/
-/**
-     * Combines evaluation results by adding the individual results
-     *
-     *  @return The result of the combination
-     */
-double GTreeGenome::sumCombiner() const {
-    double result = 0.;
-
-    for(std::size_t id = 0; id < this->getNStoredResults(); id++) {
-        result += this->transformed_fitness(id);
-    }
-
-    return result;
-}
-
-/******************************************************************************/
-/**
-     * Combines evaluation results by adding the absolute values of individual results
-     *
-     *  @return The result of the combination
-     */
-double GTreeGenome::fabsSumCombiner() const {
-    double result = 0.;
-
-    for(std::size_t id = 0; id < this->getNStoredResults(); id++) {
-        result += std::abs(this->transformed_fitness(id));
-    }
-
-    return result;
-}
-
-/******************************************************************************/
-/**
-     * Combines evaluation results by calculating the square root of the squared sum.
-     * It is assumed that the result of this function is returned as
-     * the main result of the fitnessCalculation() function.
-     *
-     * @return The result of the combination
-     */
-double GTreeGenome::squaredSumCombiner() const {
-    double result = 0.;
-
-    for(std::size_t id = 0; id < this->getNStoredResults(); id++) {
-        result += Gem::Common::gsquared(this->transformed_fitness(id));
-    }
-
-    return sqrt(result);
-}
-
-/******************************************************************************/
-/**
-     * Combines evaluation results by calculating the square root of the weighed squared sum. Note that we
-     * only evaluate the secondary results here. It is assumed that the result of this function is returned as
-     * the main result of the fitnessCalculation() function.
-     *
-     * @param weights The weights to be multiplied with the cached results
-     * @return The result of the combination
-     */
-double GTreeGenome::weighedSquaredSumCombiner(std::vector<double> const &weights) const {
-    if(this->getNStoredResults() != weights.size()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GTreeGenome::weighedSquaredSumCombine(): Error!" << '\n'
-            << "Sizes of transformedCurrentFitnessVec_ and the weights vector don't match: "
-            << this->getNStoredResults() << " / " << weights.size() << '\n'
-        );
-    }
-
-    double result = 0.;
-    auto cit_weights = weights.begin();
-
-    for(std::size_t id = 0; id < this->getNStoredResults(); id++, ++cit_weights) {
-        result += Gem::Common::gsquared((*cit_weights) * this->transformed_fitness(id));
-    }
-
-    return sqrt(result);
-}
-
-/******************************************************************************/
-/**
-     * Checks whether this solution fulfills the set of constraints. Note that this
-     * function may be called prior to evaluation in order to check
-     */
-bool GTreeGenome::parameterSetFulfillsConstraints(double &validity_level) const {
-    if(individual_constraint_ptr_) {
-        return individual_constraint_ptr_->isValid(this, validity_level);
-    }
-            // Always valid, if no constraint object has been registered
-        validity_level = 0.;
-        return true;
-   
-
-    // Make the compiler happy
-    return false;
-}
-
 /******************************************************************************/
 /**
      * Retrieves a parameter of a given type at the specified position
      */
-std::any GTreeGenome::getVarVal(
+std::any GTreeGenome::getVarValImpl(
     std::string const &descr,
     std::tuple<std::size_t, std::string, std::size_t> const &target
 ) {
@@ -1960,7 +629,7 @@ std::any GTreeGenome::getVarVal(
     else {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GTreeGenome::getVarVal(): Error!" << '\n'
+            << "In GTreeGenome::getVarValImpl(): Error!" << '\n'
             << "Received invalid type description" << '\n'
         );
     }
@@ -1968,23 +637,14 @@ std::any GTreeGenome::getVarVal(
     return result;
 }
 
-/***************************************************************************/
+/******************************************************************************/
 /**
-     * Allows to set all fitnesses to the same value (raw and transformed values seperately)
+     * Emits a name for this class / object
+     *
+     * @return The name of this class / object
      */
-void GTreeGenome::setAllFitnessTo(const double raw_value, const double transformed_value) {
-    for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
-        this->modifyStoredResult(i).reset(raw_value);
-        this->modifyStoredResult(i).setTransformedFitnessTo(transformed_value);
-    }
-}
-
-/***************************************************************************/
-/**
-     * Allows to set all fitnesses to the same value (both raw and transformed values)
-     */
-void GTreeGenome::setAllFitnessTo(const double val) {
-    this->setAllFitnessTo(val, val);
+std::string GTreeGenome::name_() const {
+    return std::string("GTreeGenome");
 }
 
 /******************************************************************************/
@@ -1998,7 +658,6 @@ bool GTreeGenome::modify_GUnitTests_() {
 
     bool result = false;
 
-    // This is the category root; there is no modifiable GObject parent class.
     // Call the stateful base class'es function
     if(Gem::Common::GUniquePtrContainerT<GParameterBase>::modify_GUnitTests_()) {
         result = true;
@@ -2015,7 +674,7 @@ bool GTreeGenome::modify_GUnitTests_() {
     }
 
     // A relatively harmless change
-    n_stalls_++;
+    this->setNStalls(this->getNStalls() + 1);
     result = true;
 
     return result;
@@ -2037,7 +696,6 @@ void GTreeGenome::specificTestsNoFailureExpected_GUnitTests_() {
     // Access to uniformly distributed double random numbers
     std::uniform_real_distribution<double> uniform_real_distribution;
 
-    // This is the category root; there is no GObject parent class to delegate to.
     // Call the stateful base class'es function
     Gem::Common::GUniquePtrContainerT<GParameterBase>::specificTestsNoFailureExpected_GUnitTests_();
 
@@ -2586,12 +1244,6 @@ void GTreeGenome::specificTestsNoFailureExpected_GUnitTests_() {
         constexpr std::int32_t mingint = -100;
         constexpr std::int32_t maxgint = 100;
         constexpr std::size_t fploopcount = 5;
-        constexpr double fpfixedvalinitmin = -3.;
-        constexpr double fpfixedvalinitmax = 3.;
-        constexpr double fpmultiplybyrandmin = -5.;
-        constexpr double fpmultiplybyrandmax = 5.;
-        constexpr double fpadd = 2.;
-        constexpr double fpsubtract = 2.;
 
         // Create a GTreeGenome object as a clone of this object for further usage
         std::shared_ptr<GTreeGenome> p_test_0 = this->clone<GTreeGenome>();
@@ -2847,7 +1499,6 @@ void GTreeGenome::specificTestsNoFailureExpected_GUnitTests_() {
 void GTreeGenome::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
-    // This is the category root; there is no GObject parent class to delegate to.
     // Call the stateful base class'es function
     Gem::Common::GUniquePtrContainerT<GParameterBase>::specificTestsFailuresExpected_GUnitTests_();
 

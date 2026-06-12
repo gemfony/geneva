@@ -191,7 +191,7 @@ GTestIndividual2::~GTestIndividual2() { /* nothing */
  * @param e The expected outcome of the comparison
  */
 void GTestIndividual2::compare_(
-    const gpar::GTreeGenome &cp,
+    const gpar::GOptimizableEntity &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -200,7 +200,7 @@ void GTestIndividual2::compare_(
 
     // Check that we are dealing with a GTestIndividual2 reference independent of this object and convert the pointer
     const GTestIndividual2 *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GTestIndividual2>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GTestIndividual2>(cp, this);
 
     Gem::Common::GToken token("GTestIndividual2", e);
 
@@ -219,13 +219,13 @@ void GTestIndividual2::compare_(
  *
  * @param cp A copy of another GTestIndividual2, camouflaged as a GTreeGenome
  */
-void GTestIndividual2::load_(const gpar::GTreeGenome *cp) {
+void GTestIndividual2::load_(const gpar::GOptimizableEntity *cp) {
     using namespace Gem::Common;
     using namespace Gem::Geneva;
 
     // Check that we are dealing with a GTestIndividual2 reference independent of this object and convert the pointer
     const GTestIndividual2 *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GTestIndividual2>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GTestIndividual2>(cp, this);
 
     // Load our parent's data
     gpar::GTreeGenome::load_(cp);

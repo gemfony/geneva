@@ -33,6 +33,6 @@
 // export keyed in GParameterSetCommandContainerExport.hpp.
 BOOST_CLASS_EXPORT_IMPLEMENT(
     BOOST_IDENTITY_TYPE((Gem::Courtier::GCommandContainerT<
-                         gpar::GTreeGenome,
+                         gpar::GOptimizableEntity,
                          Gem::Courtier::networked_consumer_payload_command>))
 ) // NOLINT

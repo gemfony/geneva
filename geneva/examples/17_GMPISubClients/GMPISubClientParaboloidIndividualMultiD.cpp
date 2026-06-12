@@ -75,10 +75,10 @@ GMPISubClientParaboloidIndividualMultiD::GMPISubClientParaboloidIndividualMultiD
  *
  * @param cp A copy of another GMPISubClientParaboloidIndividualMultiD, camouflaged as a GTreeGenome
  */
-void GMPISubClientParaboloidIndividualMultiD::load_(const gpar::GTreeGenome *cp) {
+void GMPISubClientParaboloidIndividualMultiD::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GMPISubClientParaboloidIndividualMultiD reference independent of this object and convert the pointer
     const GMPISubClientParaboloidIndividualMultiD *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GMPISubClientParaboloidIndividualMultiD>(
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GMPISubClientParaboloidIndividualMultiD>(
             cp,
             this
         );

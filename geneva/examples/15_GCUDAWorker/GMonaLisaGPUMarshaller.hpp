@@ -61,12 +61,12 @@ namespace Gem::Geneva::MonaLisa {
  *
  * The scalar type (gimage_fp_t, see GImageScalar.hpp) is selected at COMPILE TIME: DOUBLE by default,
  * or FLOAT when the example is built with GIMAGE_USE_FLOAT. The marshaller is that scalar end-to-end:
- * GGPUEvaluableI<gpar::GTreeGenome, gimage_fp_t>, so the genome and fitness flat buffers, the device
+ * GGPUEvaluableI<gpar::GOptimizableEntity, gimage_fp_t>, so the genome and fitness flat buffers, the device
  * ABI and the CUDA kernel all use it -- no widening/narrowing. The matching device kernel is selected
  * through the default GPU-consumer config.
  */
 class GMonaLisaGPUMarshaller final
-  : public Gem::Courtier::GPU::GGPUEvaluableI<gpar::GTreeGenome, gimage_fp_t> {
+  : public Gem::Courtier::GPU::GGPUEvaluableI<gpar::GOptimizableEntity, gimage_fp_t> {
 public:
     void flatten(const std::vector<item_ptr> &items, std::vector<gimage_fp_t> &params_out) const override {
         if(items.empty()) {
@@ -74,11 +74,12 @@ public:
             return;
         }
         std::vector<gimage_fp_t> pv;
-        items.front()->streamline(pv);
+        // streamline<T> is a tree-template method; the work items are GImageIndividual (a GTreeGenome).
+        dynamic_cast<gpar::GTreeGenome const &>(*items.front()).streamline(pv);
         const std::size_t dim = pv.size();
         params_out.resize(items.size() * dim);
         for(std::size_t i = 0; i < items.size(); ++i) {
-            items[i]->streamline(pv);
+            dynamic_cast<gpar::GTreeGenome const &>(*items[i]).streamline(pv);
             std::copy(pv.begin(), pv.end(),
                       params_out.begin() + static_cast<std::ptrdiff_t>(i * dim));
         }

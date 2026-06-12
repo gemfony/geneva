@@ -94,7 +94,7 @@ GDelayIndividual::~GDelayIndividual() { /* nothing */
  * @param e The expected outcome of the comparison
  */
 void GDelayIndividual::compare_(
-    const gpar::GTreeGenome &cp,
+    const gpar::GOptimizableEntity &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -102,7 +102,7 @@ void GDelayIndividual::compare_(
 
     // Check that we are dealing with a GDelayIndividual reference independent of this object and convert the pointer
     const GDelayIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GDelayIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GDelayIndividual>(cp, this);
 
     Gem::Common::GToken token("GDelayIndividual", e);
 
@@ -122,10 +122,10 @@ void GDelayIndividual::compare_(
  *
  * @param cp A copy of another GDelayIndividual, camouflaged as a GTreeGenome
  */
-void GDelayIndividual::load_(const gpar::GTreeGenome *cp) {
+void GDelayIndividual::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GDelayIndividual reference independent of this object and convert the pointer
     const GDelayIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GDelayIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GDelayIndividual>(cp, this);
 
     // Load our parent class'es data ...
     gpar::GTreeGenome::load_(cp);
@@ -301,7 +301,7 @@ std::tuple<double, double> GDelayIndividual::getSleepWindow() const {
  * The standard constructor for this class
  */
 GDelayIndividualFactory::GDelayIndividualFactory(std::filesystem::path const &c_f)
-  : Gem::Common::GFactoryT<gpar::GTreeGenome>(c_f) { /* nothing */
+  : Gem::Common::GFactoryT<gpar::GOptimizableEntity>(c_f) { /* nothing */
 }
 
 /******************************************************************************/
@@ -375,7 +375,7 @@ std::vector<std::tuple<unsigned int, unsigned int>> GDelayIndividualFactory::get
  *
  * @return Items of the desired type
  */
-std::shared_ptr<gpar::GTreeGenome> GDelayIndividualFactory::getObject_(
+std::shared_ptr<gpar::GOptimizableEntity> GDelayIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     [[maybe_unused]] const std::size_t & id
 ) {
@@ -483,7 +483,7 @@ void GDelayIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
  *
  * @param p_raw A smart-pointer to be acted on during post-processing
  */
-void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome> &p_raw) {
+void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &p_raw) {
     // Retrieve information about our id
     std::size_t id = this->getId();
 
@@ -492,7 +492,7 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome> &p
 
     // Convert the base pointer to the target type
     std::shared_ptr<GDelayIndividual> p =
-        Gem::Common::convertSmartPointer<gpar::GTreeGenome, GDelayIndividual>(p_raw);
+        Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, GDelayIndividual>(p_raw);
 
     if(Gem::Common::GFACTORYWRITEID == id) {
         // Calculate the current sleep time
@@ -531,7 +531,7 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome> &p
         }
 
         // Make the GDoubleObjectCollection known to the individual
-        p->push_back(gbdc_ptr);
+        dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gbdc_ptr);
     }
     else if((id - Gem::Common::GFACTTORYFIRSTID) < sleep_times_.size()) {
         // Calculate the current sleep time
@@ -571,7 +571,7 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome> &p
         }
 
         // Make the GDoubleObjectCollection known to the individual
-        p->push_back(gbdc_ptr);
+        dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gbdc_ptr);
     }
     else {
         // Return an empty pointer

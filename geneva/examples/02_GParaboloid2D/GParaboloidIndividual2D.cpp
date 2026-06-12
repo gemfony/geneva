@@ -81,10 +81,10 @@ GParaboloidIndividual2D::~GParaboloidIndividual2D() { /* nothing */
  *
  * @param cp A copy of another GParaboloidIndividual2D, camouflaged as a GTreeGenome
  */
-void GParaboloidIndividual2D::load_(const gpar::GTreeGenome *cp) {
+void GParaboloidIndividual2D::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GParaboloidIndividual2D reference independent of this object and convert the pointer
     const GParaboloidIndividual2D *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GParaboloidIndividual2D>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GParaboloidIndividual2D>(cp, this);
 
     // Load our parent's data
     gpar::GTreeGenome::load_(cp);

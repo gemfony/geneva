@@ -41,7 +41,7 @@
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GParChild.hpp"
 #include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -391,7 +391,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     // Take care of unprocessed items, if these exist. We simply remove them and continue.
     if(not status.is_complete) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GTreeGenome> &p) -> bool {
+            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GOptimizableEntity> &p) -> bool {
                 return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
@@ -407,7 +407,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     // We simply remove them and continue.
     if(status.has_errors) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GTreeGenome> &p) -> bool {
+            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GOptimizableEntity> &p) -> bool {
                 return p->has_errors();
             });
 
@@ -508,12 +508,12 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
     typename GOptimizationAlgorithmBase::iterator it;
     for(it = this->begin(); it != this->begin() + np; ++it) {
         (*it)
-            ->GTreeGenome::template getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()
+            ->GOptimizableEntity::template getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()
             ->setIsParent();
     }
     for(it = this->begin() + np; it != this->end(); ++it) {
         (*it)
-            ->GTreeGenome::template getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()
+            ->GOptimizableEntity::template getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()
             ->setIsChild();
     }
 
@@ -634,7 +634,7 @@ void GSimulatedAnnealing::sortSAMode() {
 /**
   * Calculates the simulated annealing probability for a child to replace a parent.
   * Note that this function only sees minimization problems, as maximization problems
-  * are transformed to minimization problems inside of GTreeGenome.
+  * are transformed to minimization problems inside of GOptimizableEntity.
   *
   * @param f_min_only_parent The "min only" fitness of the parent
   * @param f_min_only_child The "min only" fitness of the child

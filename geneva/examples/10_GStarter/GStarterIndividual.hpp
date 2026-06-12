@@ -214,7 +214,7 @@ public:
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another GStarterIndividual */
-    virtual void load_(const gpar::GTreeGenome *) final;
+    virtual void load_(const gpar::GOptimizableEntity *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GStarterIndividual>(
@@ -225,7 +225,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     virtual void compare_(
-        const gpar::GTreeGenome & // the other object
+        const gpar::GOptimizableEntity & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -270,7 +270,7 @@ std::ostream &operator<<(std::ostream &, std::shared_ptr<GStarterIndividual>);
 /**
  * A factory for GStarterIndividual objects
  */
-class GStarterIndividualFactory : public Gem::Common::GFactoryT<gpar::GTreeGenome> {
+class GStarterIndividualFactory : public Gem::Common::GFactoryT<gpar::GOptimizableEntity> {
 public:
     /** @brief The standard constructor */
     explicit GStarterIndividualFactory(std::filesystem::path const &);
@@ -281,13 +281,13 @@ protected:
     /** @brief Allows to describe local configuration options in derived classes */
     void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
     /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<gpar::GTreeGenome> &) override;
+    void postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &) override;
 
 private:
     /** @brief The default constructor. Only needed for (de-)serialization purposes */
     GStarterIndividualFactory() = default;
     /** @brief Creates individuals of this type */
-    std::shared_ptr<gpar::GTreeGenome>
+    std::shared_ptr<gpar::GOptimizableEntity>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     double adProb_ = GSI_DEF_ADPROB;         ///< Probability for a parameter to be mutated

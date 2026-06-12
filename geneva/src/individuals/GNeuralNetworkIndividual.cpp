@@ -683,7 +683,7 @@ GNeuralNetworkIndividual::~GNeuralNetworkIndividual() { /* nothing */
  * @param e The expected outcome of the comparison
  */
 void GNeuralNetworkIndividual::compare_(
-    const gpar::GTreeGenome &cp,
+    const gpar::GOptimizableEntity &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -691,7 +691,7 @@ void GNeuralNetworkIndividual::compare_(
 
     // Check that we are dealing with a GNeuralNetworkIndividual reference independent of this object and convert the pointer
     const GNeuralNetworkIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GNeuralNetworkIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GNeuralNetworkIndividual>(cp, this);
 
     GToken token("GNeuralNetworkIndividual", e);
 
@@ -1391,10 +1391,10 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
  *
  * @param cp A copy of another GNeuralNetworkIndividual, camouflaged as a GTreeGenome
  */
-void GNeuralNetworkIndividual::load_(const gpar::GTreeGenome *cp) {
+void GNeuralNetworkIndividual::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GNeuralNetworkIndividual reference independent of this object and convert the pointer
     const GNeuralNetworkIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GNeuralNetworkIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GNeuralNetworkIndividual>(cp, this);
 
     // Load the parent class'es data
     gpar::GTreeGenome::load_(cp);
@@ -1547,7 +1547,7 @@ double GNeuralNetworkIndividual::transfer(const double &value) const {
 GNeuralNetworkIndividualFactory::GNeuralNetworkIndividualFactory(
     std::filesystem::path const &config_file
 )
-  : Gem::Common::GFactoryT<gpar::GTreeGenome>(config_file)
+  : Gem::Common::GFactoryT<gpar::GOptimizableEntity>(config_file)
   , ad_prob_(GNN_DEF_ADPROB)
   , adapt_ad_prob_(GNN_DEF_ADAPTADPROB)
   , min_ad_prob_(GNN_DEF_MINADPROB)
@@ -1590,7 +1590,7 @@ transferFunction GNeuralNetworkIndividualFactory::getTransferFunction() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<gpar::GTreeGenome> GNeuralNetworkIndividualFactory::getObject_(
+std::shared_ptr<gpar::GOptimizableEntity> GNeuralNetworkIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     [[maybe_unused]] const std::size_t & id
 ) {
@@ -1725,7 +1725,7 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
     );
 
     // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<gpar::GTreeGenome>::describeLocalOptions_(gpb);
+    Gem::Common::GFactoryT<gpar::GOptimizableEntity>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -1736,10 +1736,10 @@ void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParser
  *
  * @param p_raw A smart-pointer to be acted on during post-processing
  */
-void GNeuralNetworkIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome> &p_raw) {
+void GNeuralNetworkIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &p_raw) {
     // Convert the base pointer to the target type
     std::shared_ptr<GNeuralNetworkIndividual> p =
-        Gem::Common::convertSmartPointer<gpar::GTreeGenome, GNeuralNetworkIndividual>(p_raw);
+        Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, GNeuralNetworkIndividual>(p_raw);
 
     // Call the initialization function with our parsed data
     p->init(

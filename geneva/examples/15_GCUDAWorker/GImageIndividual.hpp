@@ -253,10 +253,10 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    void compare_(const gpar::GTreeGenome &, const Gem::Common::expectation &, const double &) const override;
+    void compare_(const gpar::GOptimizableEntity &, const Gem::Common::expectation &, const double &) const override;
 
     /** @brief Loads the data of another GImageIndividual */
-    void load_(const gpar::GTreeGenome *) override;
+    void load_(const gpar::GOptimizableEntity *) override;
 
     /** @brief The actual fitness calculation takes place here. */
     double fitnessCalculation() override;

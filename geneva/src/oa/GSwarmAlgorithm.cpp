@@ -39,7 +39,7 @@
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -95,8 +95,8 @@ GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
   , default_n_neighborhood_members_(cp.default_n_neighborhood_members_)
   , n_neighborhood_members_cnt_(cp.n_neighborhood_members_cnt_)
   , global_best_ptr_(
-        (cp.afterFirstIteration()) ? (cp.global_best_ptr_)->clone<gpar::GTreeGenome>()
-                                   : std::shared_ptr<gpar::GTreeGenome>()
+        (cp.afterFirstIteration()) ? (cp.global_best_ptr_)->clone<gpar::GOptimizableEntity>()
+                                   : std::shared_ptr<gpar::GOptimizableEntity>()
     )
   , neighborhood_bests_cnt_(n_neighborhoods_) // We copy the smart pointers over later
   , c_personal_(cp.c_personal_)
@@ -122,7 +122,7 @@ GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
     // Clone cp's best individuals in each neighborhood
     if(cp.afterFirstIteration()) {
         for(std::size_t i = 0; i < n_neighborhoods_; i++) {
-            neighborhood_bests_cnt_[i] = cp.neighborhood_bests_cnt_[i]->clone<gpar::GTreeGenome>();
+            neighborhood_bests_cnt_[i] = cp.neighborhood_bests_cnt_[i]->clone<gpar::GOptimizableEntity>();
         }
     }
 
@@ -183,7 +183,7 @@ void GSwarmAlgorithm::load_(const GOptimizationAlgorithmBase *cp) {
             // already been copied.
             if(afterFirstIteration()) {
                 neighborhood_bests_cnt_[i] =
-                    p_load->neighborhood_bests_cnt_[i]->clone<gpar::GTreeGenome>();
+                    p_load->neighborhood_bests_cnt_[i]->clone<gpar::GOptimizableEntity>();
             }
             // we do not need to reset the neighborhood_bests_cnt_, as that array has just been created
         }
@@ -201,7 +201,7 @@ void GSwarmAlgorithm::load_(const GOptimizationAlgorithmBase *cp) {
                 }
                 else {
                     neighborhood_bests_cnt_[i] =
-                        p_load->neighborhood_bests_cnt_[i]->clone<gpar::GTreeGenome>();
+                        p_load->neighborhood_bests_cnt_[i]->clone<gpar::GOptimizableEntity>();
                 }
             }
         }
@@ -218,7 +218,7 @@ void GSwarmAlgorithm::load_(const GOptimizationAlgorithmBase *cp) {
             global_best_ptr_->load(p_load->global_best_ptr_);
         }
         else {
-            global_best_ptr_ = p_load->global_best_ptr_->clone<gpar::GTreeGenome>();
+            global_best_ptr_ = p_load->global_best_ptr_->clone<gpar::GOptimizableEntity>();
         }
     }
     else if(p_load->inFirstIteration()) { // cp does not have a global best
@@ -297,11 +297,11 @@ void GSwarmAlgorithm::resetToOptimizationStart_() {
 
     global_best_ptr_.reset(); // The globally best individual
 
-    neighborhood_bests_cnt_ = std::vector<std::shared_ptr<gpar::GTreeGenome>>(
+    neighborhood_bests_cnt_ = std::vector<std::shared_ptr<gpar::GOptimizableEntity>>(
         n_neighborhoods_
     ); // The collection of best individuals from each neighborhood
     velocities_cnt_ = std::vector<std::shared_ptr<
-        gpar::GTreeGenome>>(); // Holds velocities, as calculated in the previous iteration
+        gpar::GOptimizableEntity>>(); // Holds velocities, as calculated in the previous iteration
 
     dbl_lower_parameter_boundaries_cnt_.clear(); // Holds lower boundaries of double parameters
     dbl_upper_parameter_boundaries_cnt_.clear(); // Holds upper boundaries of double parameters
@@ -470,9 +470,9 @@ std::size_t GSwarmAlgorithm::getLastNIPos(const std::size_t &neighborhood) const
 /**
  * Updates the personal best of an individual
  *
- * @param ind_ptr A pointer to the GTreeGenome object to be updated
+ * @param ind_ptr A pointer to the GOptimizableEntity object to be updated
  */
-void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gpar::GTreeGenome> &ind_ptr) {
+void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gpar::GOptimizableEntity> &ind_ptr) {
 #ifdef DEBUG
     if(not ind_ptr) {
         throw geneva_exception(
@@ -497,7 +497,7 @@ void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gpar::GTreeGenome
     // The archive (personal_best_) keeps its own shared_ptr copy; the population owns the live
     // individual by unique_ptr, so we hand registerPersonalBest a clone across the ownership boundary.
     ind_ptr->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->registerPersonalBest(
-        ind_ptr->clone<gpar::GTreeGenome>()
+        ind_ptr->clone<gpar::GOptimizableEntity>()
     );
 }
 
@@ -505,9 +505,9 @@ void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gpar::GTreeGenome
 /**
  * Updates the personal best of an individual, if a better solution was found
  *
- * @param ind_ptr A pointer to the GTreeGenome object to be updated
+ * @param ind_ptr A pointer to the GOptimizableEntity object to be updated
  */
-void GSwarmAlgorithm::updatePersonalBestIfBetter(const std::unique_ptr<gpar::GTreeGenome> &ind_ptr) {
+void GSwarmAlgorithm::updatePersonalBestIfBetter(const std::unique_ptr<gpar::GOptimizableEntity> &ind_ptr) {
 #ifdef DEBUG
     if(not ind_ptr) {
         throw geneva_exception(
@@ -538,7 +538,7 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(const std::unique_ptr<gpar::GTr
            m
        )) {
         ind_ptr->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->registerPersonalBest(
-            ind_ptr->clone<gpar::GTreeGenome>()
+            ind_ptr->clone<gpar::GOptimizableEntity>()
         );
     }
 }
@@ -703,10 +703,10 @@ void GSwarmAlgorithm::init() {
 #endif /* DEBUG */
 
         // Create a copy of the current individual. Note that, if you happen
-        // to have assigned anything else than a GTreeGenome derivative to
+        // to have assigned anything else than a GOptimizableEntity derivative to
         // the swarm, then the following line will throw in DEBUG mode or return
         // undefined results in RELEASE mode
-        std::shared_ptr<gpar::GTreeGenome> p(ind_ptr->clone<gpar::GTreeGenome>());
+        std::shared_ptr<gpar::GOptimizableEntity> p(ind_ptr->clone<gpar::GOptimizableEntity>());
 
         // Extract the parameter vector
         std::vector<double> vel_vec;
@@ -759,8 +759,8 @@ void GSwarmAlgorithm::init() {
  * Does any necessary finalization work
  */
 void GSwarmAlgorithm::finalize() {
-    // Remove remaining velocity individuals. The std::shared_ptr<GTreeGenome>s
-    // will take care of deleting the GTreeGenome objects.
+    // Remove remaining velocity individuals. The std::shared_ptr<GOptimizableEntity>s
+    // will take care of deleting the GOptimizableEntity objects.
     velocities_cnt_.clear();
 
     // Last action
@@ -995,7 +995,7 @@ void GSwarmAlgorithm::updatePositions() {
     if(afterFirstIteration()) {
         // Clone the individuals and copy them over
         for(const auto &ind_ptr : *this) {
-            last_iteration_individuals_cnt_.push_back(ind_ptr->clone<gpar::GTreeGenome>());
+            last_iteration_individuals_cnt_.push_back(ind_ptr->clone<gpar::GOptimizableEntity>());
         }
     }
 
@@ -1092,10 +1092,10 @@ void GSwarmAlgorithm::updatePositions() {
 void GSwarmAlgorithm::updateIndividualPositions(
     [[maybe_unused]] const std::size_t & neighborhood
     ,
-    const std::unique_ptr<gpar::GTreeGenome> &ind,
-    std::shared_ptr<gpar::GTreeGenome> neighborhood_best,
-    std::shared_ptr<gpar::GTreeGenome> global_best,
-    std::shared_ptr<gpar::GTreeGenome> velocity,
+    const std::unique_ptr<gpar::GOptimizableEntity> &ind,
+    std::shared_ptr<gpar::GOptimizableEntity> neighborhood_best,
+    std::shared_ptr<gpar::GOptimizableEntity> global_best,
+    std::shared_ptr<gpar::GOptimizableEntity> velocity,
     std::tuple<double, double, double, double> constants
 ) {
     // Extract the constants from the tuple
@@ -1116,7 +1116,7 @@ void GSwarmAlgorithm::updateIndividualPositions(
 #endif /* DEBUG */
 
     // Extract the personal best
-    std::shared_ptr<gpar::GTreeGenome> personal_best =
+    std::shared_ptr<gpar::GOptimizableEntity> personal_best =
         ind->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getPersonalBest();
 
     // Further error checks
@@ -1345,7 +1345,7 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     // Take care of unprocessed items, if these exist
     if(not status.is_complete) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GTreeGenome> &p) -> bool {
+            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GOptimizableEntity> &p) -> bool {
                 return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
@@ -1360,7 +1360,7 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     // Remove items for which an error has occurred during processing
     if(status.has_errors) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GTreeGenome> &p) -> bool {
+            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GOptimizableEntity> &p) -> bool {
                 return p->has_errors();
             });
 
@@ -1464,7 +1464,7 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
         // the best individual found so far in this neighborhood
         if(inFirstIteration()) {
             neighborhood_bests_cnt_.at(n) =
-                (*(this->begin() + first_counter))->clone<gpar::GTreeGenome>();
+                (*(this->begin() + first_counter))->clone<gpar::GOptimizableEntity>();
         }
         else {
             if(isBetter(
@@ -1492,7 +1492,7 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
     // Compare the best neighborhood individual with the globally best individual and
     // update it, if necessary. Initialize it in the first generation.
     if(inFirstIteration()) {
-        global_best_ptr_ = (neighborhood_bests_cnt_.at(best_local_id))->clone<gpar::GTreeGenome>();
+        global_best_ptr_ = (neighborhood_bests_cnt_.at(best_local_id))->clone<gpar::GOptimizableEntity>();
     }
     else {
         if(isBetter(

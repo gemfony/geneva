@@ -39,7 +39,7 @@
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
 #include "geneva/oa/GConjugateGradientDescent.hpp"
@@ -64,7 +64,7 @@ public:
     /** @brief Initialization with the name of the config file and a content creator */
     GGradientDescentFactory(
         const std::string &,
-        std::shared_ptr<Gem::Common::GFactoryT<gpar::GTreeGenome>>
+        std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>>
     );
     /** @brief The copy constructor */
     GGradientDescentFactory(const GGradientDescentFactory &) = default;

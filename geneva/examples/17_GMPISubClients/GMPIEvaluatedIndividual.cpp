@@ -91,10 +91,10 @@ void GMPIEvaluatedIndividual::setCommunicator(MPI_Comm c) {
  *
  * @param cp A copy of another GMPIEvaluatedIndividual, camouflaged as a GTreeGenome
  */
-void GMPIEvaluatedIndividual::load_(const gpar::GTreeGenome *cp) {
+void GMPIEvaluatedIndividual::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GMPIEvaluatedIndividual reference independent of this object and convert the pointer
     const GMPIEvaluatedIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GMPIEvaluatedIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GMPIEvaluatedIndividual>(cp, this);
 
     // Load our parent's data
     gpar::GTreeGenome::load_(cp);

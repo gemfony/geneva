@@ -374,7 +374,7 @@ void GImageIndividual::setFitness(std::vector<double> const &result_vec) {
 	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 */
 void GImageIndividual::compare_(
-    const gpar::GTreeGenome &cp,
+    const gpar::GOptimizableEntity &cp,
     const Gem::Common::expectation &e,
     const double &limit
 ) const {
@@ -382,7 +382,7 @@ void GImageIndividual::compare_(
 
     // Check that we are dealing with a GImageIndividual reference independent of this object and convert the pointer
     const GImageIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GImageIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GImageIndividual>(cp, this);
 
     GToken token("GImageIndividual", e);
 
@@ -496,10 +496,10 @@ std::vector<CircleTriangle> GImageIndividual::getTriangleData() const {
 	 *
 	 * @param cp A copy of another GImageIndividual, camouflaged as a GTreeGenome
 	 */
-void GImageIndividual::load_(const gpar::GTreeGenome *cp) {
+void GImageIndividual::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are indeed dealing with a GImageIndividual reference
     const GImageIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GImageIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GImageIndividual>(cp, this);
 
     // Load our parent's data
     gpar::GTreeGenome::load_(cp);

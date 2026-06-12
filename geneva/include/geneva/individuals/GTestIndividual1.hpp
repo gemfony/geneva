@@ -90,7 +90,7 @@ public:
 
 protected:
     /** @brief Loads the data of another GTestIndividual1 */
-    void load_(const gpar::GTreeGenome *) final;
+    void load_(const gpar::GOptimizableEntity *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GTestIndividual1>(
@@ -101,7 +101,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GTreeGenome & // the other object
+        const gpar::GOptimizableEntity & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,

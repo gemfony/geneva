@@ -46,6 +46,7 @@
 #include "courtier/GCourtierHelperFunctions.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/Go2.hpp"
+#include "geneva/ind/GTreeGenome.hpp"
 
 // The individual that should be optimized
 #include "geneva/individuals/GFunctionIndividual.hpp"
@@ -360,9 +361,9 @@ int main(int argc, char **argv) {
     gind::GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
     // Create the first set of parent individuals. Initialization of parameters is done randomly.
-    std::vector<std::shared_ptr<gpar::GTreeGenome>> parentIndividuals;
+    std::vector<std::shared_ptr<gpar::GOptimizableEntity>> parentIndividuals;
     for(std::size_t p = 0; p < nParents; p++) {
-        std::shared_ptr<gpar::GTreeGenome> functionIndividual_ptr = gfi();
+        std::shared_ptr<gpar::GOptimizableEntity> functionIndividual_ptr = gfi();
 
         // Set up a GDoubleCollection with dimension values, each initialized
         // with a random number in the range [min,max[
@@ -378,7 +379,7 @@ int main(int argc, char **argv) {
         gdc_ptr->addAdaptor(gdga_ptr);
 
         // Make the parameter collection known to this individual
-        functionIndividual_ptr->push_back(gdc_ptr);
+        dynamic_cast<gpar::GTreeGenome &>(*functionIndividual_ptr).push_back(gdc_ptr);
 
         parentIndividuals.push_back(functionIndividual_ptr);
     }

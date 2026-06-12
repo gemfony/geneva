@@ -166,10 +166,10 @@ double GFMinIndividual::getAverageSigma() const {
  *
  * @param cp A copy of another GFMinIndividual, camouflaged as a GTreeGenome
  */
-void GFMinIndividual::load_(const gpar::GTreeGenome *cp) {
+void GFMinIndividual::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GFMinIndividual reference independent of this object and convert the pointer
     const GFMinIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GFMinIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GFMinIndividual>(cp, this);
 
     // Load our parent class'es data ...
     gpar::GTreeGenome::load_(cp);
@@ -285,7 +285,7 @@ std::ostream &operator<<(std::ostream &s, std::shared_ptr<Gem::Geneva::GFMinIndi
  * @param configFile The name of the configuration file
  */
 GFMinIndividualFactory::GFMinIndividualFactory(std::filesystem::path const &configFile)
-  : Gem::Common::GFactoryT<gpar::GTreeGenome>(configFile)
+  : Gem::Common::GFactoryT<gpar::GOptimizableEntity>(configFile)
   , adProb_(GFI_DEF_ADPROB)
   , sigma_(GFI_DEF_SIGMA)
   , sigmaSigma_(GFI_DEF_SIGMASIGMA)
@@ -309,7 +309,7 @@ GFMinIndividualFactory::~GFMinIndividualFactory() { /* nothing */
  *
  * @return Items of the desired type
  */
-std::shared_ptr<gpar::GTreeGenome>
+std::shared_ptr<gpar::GOptimizableEntity>
 GFMinIndividualFactory::getObject_(Gem::Common::GParserBuilder &gpb, const std::size_t &id) {
     // Will hold the result
     std::shared_ptr<GFMinIndividual> target(new GFMinIndividual());
@@ -411,7 +411,7 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &
     );
 
     // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<gpar::GTreeGenome>::describeLocalOptions_(gpb);
+    Gem::Common::GFactoryT<gpar::GOptimizableEntity>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -422,7 +422,7 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GFMinIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome> &p) {
+void GFMinIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &p) {
     // Set up a collection with parDim_ values
     std::shared_ptr<gpar::GConstrainedDoubleCollection> gcdc_ptr(
         new gpar::GConstrainedDoubleCollection(parDim_, minVar_, maxVar_)
@@ -435,7 +435,7 @@ void GFMinIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome> &p)
     gcdc_ptr->addAdaptor(gdga_ptr);
 
     // Make the parameter collection known to this individual
-    p->push_back(gcdc_ptr);
+    dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gcdc_ptr);
 
     // Randomly initialize
     p->randomInit(activityMode::ACTIVEONLY);

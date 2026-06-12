@@ -101,7 +101,7 @@ GLineFitIndividual::~GLineFitIndividual() { /* nothing */
  * @param e The expected outcome of the comparison
  */
 void GLineFitIndividual::compare_(
-    const gpar::GTreeGenome &cp,
+    const gpar::GOptimizableEntity &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -109,7 +109,7 @@ void GLineFitIndividual::compare_(
 
     // Check that we are dealing with a GLineFitIndividual reference independent of this object and convert the pointer
     const GLineFitIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GLineFitIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GLineFitIndividual>(cp, this);
 
     GToken token("GLineFitIndividual", e);
 
@@ -139,13 +139,13 @@ std::tuple<double, double> GLineFitIndividual::getLine() const {
  *
  * @param cp A copy of another GLineFitIndividual, camouflaged as a GTreeGenome
  */
-void GLineFitIndividual::load_(const gpar::GTreeGenome *cp) {
+void GLineFitIndividual::load_(const gpar::GOptimizableEntity *cp) {
     using namespace Gem::Common;
     using namespace Gem::Geneva;
 
     // Check that we are dealing with a GLineFitIndividual reference independent of this object and convert the pointer
     const GLineFitIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GLineFitIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GLineFitIndividual>(cp, this);
 
     // Load our parent's data
     gpar::GTreeGenome::load_(cp);
@@ -268,7 +268,7 @@ GLineFitIndividualFactory::GLineFitIndividualFactory(
     const std::vector<std::tuple<double, double>> &data_points,
     std::filesystem::path const &config_file
 )
-  : Gem::Common::GFactoryT<gpar::GTreeGenome>(config_file)
+  : Gem::Common::GFactoryT<gpar::GOptimizableEntity>(config_file)
   , data_points_(data_points) { /* nothing */
 }
 
@@ -285,7 +285,7 @@ GLineFitIndividualFactory::~GLineFitIndividualFactory() { /* nothing */
  *
  * @return Items of the desired type
  */
-std::shared_ptr<gpar::GTreeGenome> GLineFitIndividualFactory::getObject_(
+std::shared_ptr<gpar::GOptimizableEntity> GLineFitIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     [[maybe_unused]] const std::size_t & id
 ) {
@@ -313,7 +313,7 @@ void GLineFitIndividualFactory::describeLocalOptions_(
     // No local options
 
     // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<gpar::GTreeGenome>::describeLocalOptions_(gpb);
+    Gem::Common::GFactoryT<gpar::GOptimizableEntity>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -325,10 +325,10 @@ void GLineFitIndividualFactory::describeLocalOptions_(
  *
  * @param p_base A smart-pointer to be acted on during post-processing
  */
-void GLineFitIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome> &p_base) {
+void GLineFitIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &p_base) {
     // Convert the base pointer to our local type
     std::shared_ptr<GLineFitIndividual> p =
-        Gem::Common::convertSmartPointer<gpar::GTreeGenome, GLineFitIndividual>(p_base);
+        Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, GLineFitIndividual>(p_base);
 
     // Nothing to be done here
 }

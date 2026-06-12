@@ -238,7 +238,7 @@ public:
             // pointer when copying/cloning a default-constructed object.
             cp.ind_factory_
                 ? Gem::Common::convertSmartPointer<
-                      Gem::Common::GFactoryT<gpar::GTreeGenome>,
+                      Gem::Common::GFactoryT<gpar::GOptimizableEntity>,
                       typename ind_type::FACTORYTYPE>((cp.ind_factory_)->clone())
                 : std::shared_ptr<typename ind_type::FACTORYTYPE>()
         ) { /* nothing */
@@ -761,7 +761,7 @@ public:
         }
 
         ind_factory_ = Gem::Common::convertSmartPointer<
-            Gem::Common::GFactoryT<gpar::GTreeGenome>,
+            Gem::Common::GFactoryT<gpar::GOptimizableEntity>,
             typename ind_type::FACTORYTYPE>(factory->clone());
     }
 
@@ -855,10 +855,10 @@ protected:
      *
      * @param cp A copy of another GMetaOptimizerIndividualT<ind_type>
      */
-    void load_(const gpar::GTreeGenome *cp) override {
+    void load_(const gpar::GOptimizableEntity *cp) override {
         // Check that we are dealing with a GMetaOptimizerIndividualT<ind_type> reference independent of this object and convert the pointer
         const GMetaOptimizerIndividualT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GMetaOptimizerIndividualT<ind_type>>(
+            Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GMetaOptimizerIndividualT<ind_type>>(
                 cp,
                 this
             );
@@ -889,13 +889,13 @@ protected:
      * @param e The expected outcome of the comparison
      */
     void compare_(
-        const gpar::GTreeGenome &cp,
+        const gpar::GOptimizableEntity &cp,
         const Gem::Common::expectation &e,
         [[maybe_unused]] const double & limit
     ) const final {
         // Check that we are dealing with a GMetaOptimizerIndividualT<ind_type> reference independent of this object and convert the pointer
         const GMetaOptimizerIndividualT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GMetaOptimizerIndividualT<ind_type>>(
+            Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GMetaOptimizerIndividualT<ind_type>>(
                 cp,
                 this
             );
@@ -1007,7 +1007,7 @@ protected:
             // Add the required number of individuals
             for(std::size_t ind = 0; ind < pop_size; ind++) {
                 // Retrieve an individual
-                std::shared_ptr<gpar::GTreeGenome> gi_ptr = ind_factory_->get();
+                std::shared_ptr<gpar::GOptimizableEntity> gi_ptr = ind_factory_->get();
 
                 ea_ptr->push_back(gi_ptr->clone_unique());
             }
@@ -1044,8 +1044,8 @@ protected:
             ea_ptr->optimize();
 
             // Retrieve the best individual
-            std::shared_ptr<gpar::GTreeGenome> best_individual =
-                ea_ptr->getBestGlobalIndividual<gpar::GTreeGenome>();
+            std::shared_ptr<gpar::GOptimizableEntity> best_individual =
+                ea_ptr->getBestGlobalIndividual<gpar::GOptimizableEntity>();
 
             // Retrieve the number of iterations
             iterations_consumed = ea_ptr->getIteration();
@@ -1254,7 +1254,7 @@ std::ostream &operator<<(std::ostream &stream, const GMetaOptimizerIndividualT<i
  * A factory for GMetaOptimizerIndividualT<ind_type> objects
  */
 template <typename ind_type>
-class GMetaOptimizerIndividualFactoryT : public Gem::Common::GFactoryT<gpar::GTreeGenome> {
+class GMetaOptimizerIndividualFactoryT : public Gem::Common::GFactoryT<gpar::GOptimizableEntity> {
 public:
     /***************************************************************************/
     /**
@@ -1264,7 +1264,7 @@ public:
      * @param config_file The name of the configuration file
      */
     GMetaOptimizerIndividualFactoryT(std::filesystem::path const &config_file)
-      : Gem::Common::GFactoryT<gpar::GTreeGenome>(config_file) { /* nothing */
+      : Gem::Common::GFactoryT<gpar::GOptimizableEntity>(config_file) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1289,7 +1289,7 @@ public:
         }
 
         ind_factory_ = Gem::Common::convertSmartPointer<
-            Gem::Common::GFactoryT<gpar::GTreeGenome>,
+            Gem::Common::GFactoryT<gpar::GOptimizableEntity>,
             typename ind_type::FACTORYTYPE>(factory->clone());
     }
 
@@ -1595,7 +1595,7 @@ protected:
         );
 
         // Allow our parent class to describe its options
-        Gem::Common::GFactoryT<gpar::GTreeGenome>::describeLocalOptions_(gpb);
+        Gem::Common::GFactoryT<gpar::GOptimizableEntity>::describeLocalOptions_(gpb);
     }
 
     /***************************************************************************/
@@ -1607,10 +1607,10 @@ protected:
      *
      * @param p_base A smart-pointer to be acted on during post-processing
      */
-    void postProcess_(std::shared_ptr<gpar::GTreeGenome> &p_base) override {
+    void postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &p_base) override {
         // Convert the base pointer to our local type
         std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> p =
-            Gem::Common::convertSmartPointer<gpar::GTreeGenome, GMetaOptimizerIndividualT<ind_type>>(
+            Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, GMetaOptimizerIndividualT<ind_type>>(
                 p_base
             );
 
@@ -1663,7 +1663,7 @@ private:
      *
      * @return Items of the desired type
      */
-    std::shared_ptr<gpar::GTreeGenome> getObject_(
+    std::shared_ptr<gpar::GOptimizableEntity> getObject_(
         Gem::Common::GParserBuilder &gpb,
         [[maybe_unused]] const std::size_t & id
     ) override {

@@ -81,7 +81,7 @@ public:
 
 protected:
     /** @brief Loads the data of another GParaboloidIndividual2D */
-    virtual void load_(const gpar::GTreeGenome *) final;
+    virtual void load_(const gpar::GOptimizableEntity *) final;
 
     /** @brief The actual fitness calculation takes place here. */
     virtual double fitnessCalculation() final;

@@ -41,7 +41,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
 
@@ -186,14 +186,14 @@ public:
     /***************************************************************************/
     /**
 	  * Retrieves the best individual of a neighborhood and casts it to the desired type. Note that this
-	  * function will only be accessible to the compiler if parameterset_type is a derivative of GTreeGenome,
+	  * function will only be accessible to the compiler if parameterset_type is a derivative of GOptimizableEntity,
 	  * thanks to the magic of std::enable_if and type_traits
 	  *
 	  * @param neighborhood The neighborhood, whose best individual should be returned
 	  * @return A converted shared_ptr to the best individual of a given neighborhood
 	  */
     template <typename parameterset_type>
-        requires std::derived_from<parameterset_type, gpar::GTreeGenome>
+        requires std::derived_from<parameterset_type, gpar::GOptimizableEntity>
     std::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(std::size_t neighborhood) {
 #ifdef DEBUG
         // Check that the neighborhood is in a valid range
@@ -208,7 +208,7 @@ public:
 #endif /* DEBUG */
 
         // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<gpar::GTreeGenome, parameterset_type>(
+        return Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, parameterset_type>(
             neighborhood_bests_cnt_[neighborhood]
         );
     }
@@ -277,10 +277,10 @@ protected:
     /** @brief Triggers an update of an individual's positions */
     void updateIndividualPositions(
         const std::size_t &,
-        const std::unique_ptr<gpar::GTreeGenome> &, // the population individual being moved (borrowed)
-        std::shared_ptr<gpar::GTreeGenome>,
-        std::shared_ptr<gpar::GTreeGenome>,
-        std::shared_ptr<gpar::GTreeGenome>,
+        const std::unique_ptr<gpar::GOptimizableEntity> &, // the population individual being moved (borrowed)
+        std::shared_ptr<gpar::GOptimizableEntity>,
+        std::shared_ptr<gpar::GOptimizableEntity>,
+        std::shared_ptr<gpar::GOptimizableEntity>,
         std::tuple<double, double, double, double>
     );
 
@@ -288,9 +288,9 @@ protected:
     void pruneVelocity(std::vector<double> &);
 
     /** Updates the personal best of an individual */
-    void updatePersonalBest(const std::unique_ptr<gpar::GTreeGenome> &);
+    void updatePersonalBest(const std::unique_ptr<gpar::GOptimizableEntity> &);
     /** Updates the personal best of an individual, if a better solution was found */
-    void updatePersonalBestIfBetter(const std::unique_ptr<gpar::GTreeGenome> &);
+    void updatePersonalBestIfBetter(const std::unique_ptr<gpar::GOptimizableEntity> &);
 
     std::size_t n_neighborhoods_ =
         (DEFAULTNNEIGHBORHOODS ? DEFAULTNNEIGHBORHOODS
@@ -304,13 +304,13 @@ protected:
         0
     ); ///< The current number of individuals belonging to each neighborhood
 
-    std::shared_ptr<gpar::GTreeGenome> global_best_ptr_; ///< The globally best individual
+    std::shared_ptr<gpar::GOptimizableEntity> global_best_ptr_; ///< The globally best individual
 
-    std::vector<std::shared_ptr<gpar::GTreeGenome>> neighborhood_bests_cnt_ =
-        std::vector<std::shared_ptr<gpar::GTreeGenome>>(
+    std::vector<std::shared_ptr<gpar::GOptimizableEntity>> neighborhood_bests_cnt_ =
+        std::vector<std::shared_ptr<gpar::GOptimizableEntity>>(
             n_neighborhoods_
         ); ///< The collection of best individuals from each neighborhood
-    std::vector<std::shared_ptr<gpar::GTreeGenome>>
+    std::vector<std::shared_ptr<gpar::GOptimizableEntity>>
         velocities_cnt_; ///< Holds velocities, as calculated in the previous iteration
 
     double c_personal_ =
@@ -337,7 +337,7 @@ protected:
     double velocity_range_percentage_ =
         DEFAULTVELOCITYRANGEPERCENTAGE; ///< Indicates the percentage of a value range used for the initialization of the velocity
 
-    std::vector<std::shared_ptr<gpar::GTreeGenome>>
+    std::vector<std::shared_ptr<gpar::GOptimizableEntity>>
         last_iteration_individuals_cnt_; ///< A temporary copy of the last iteration's individuals
 
 private:

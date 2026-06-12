@@ -105,13 +105,13 @@ GExternalEvaluatorIndividual::~GExternalEvaluatorIndividual() { /* nothing */
  * @param e The expected outcome of the comparison
  */
 void GExternalEvaluatorIndividual::compare_(
-    const gpar::GTreeGenome &cp,
+    const gpar::GOptimizableEntity &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GExternalEvaluatorIndividual reference independent of this object and convert the pointer
     const GExternalEvaluatorIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GExternalEvaluatorIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GExternalEvaluatorIndividual>(cp, this);
 
     Gem::Common::GToken token("GExternalEvaluatorIndividual", e);
 
@@ -216,10 +216,10 @@ std::size_t GExternalEvaluatorIndividual::getNExpectedResults() const {
  *
  * @param cp A copy of another GExternalEvaluatorIndividual, camouflaged as a GTreeGenome
  */
-void GExternalEvaluatorIndividual::load_(const gpar::GTreeGenome *cp) {
+void GExternalEvaluatorIndividual::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GExternalEvaluatorIndividual reference independent of this object and convert the pointer
     const GExternalEvaluatorIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GExternalEvaluatorIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GExternalEvaluatorIndividual>(cp, this);
 
     // First load the data of our parent class ...
     gpar::GTreeGenome::load_(cp);
@@ -494,7 +494,7 @@ bool GExternalEvaluatorIndividual::getRemoveExecTemporaries() const {
 GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
     std::filesystem::path const &config_file
 )
-  : Gem::Common::GFactoryT<gpar::GTreeGenome>(config_file)
+  : Gem::Common::GFactoryT<gpar::GOptimizableEntity>(config_file)
   , ad_prob_(GEEI_DEF_ADPROB)
   , adapt_ad_prob_(GEEI_DEF_ADAPTADPROB)
   , min_ad_prob_(GEEI_DEF_MINADPROB)
@@ -528,7 +528,7 @@ GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
 GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
     const GExternalEvaluatorIndividualFactory &cp
 )
-  : Gem::Common::GFactoryT<gpar::GTreeGenome>(cp)
+  : Gem::Common::GFactoryT<gpar::GOptimizableEntity>(cp)
   , ad_prob_(cp.ad_prob_)
   , adapt_ad_prob_(cp.adapt_ad_prob_)
   , min_ad_prob_(cp.min_ad_prob_)
@@ -561,7 +561,7 @@ GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
  * The default constructor. Only needed for (de-)serialization purposes, hence empty.
  */
 GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory()
-  : Gem::Common::GFactoryT<gpar::GTreeGenome>("empty")
+  : Gem::Common::GFactoryT<gpar::GOptimizableEntity>("empty")
   , ad_prob_(GEEI_DEF_ADPROB)
   , adapt_ad_prob_(GEEI_DEF_ADAPTADPROB)
   , min_ad_prob_(GEEI_DEF_MINADPROB)
@@ -648,14 +648,14 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
  * Loads the data of another GFunctionIndividualFactory object
  */
 void GExternalEvaluatorIndividualFactory::load(
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GTreeGenome>> cp_raw_ptr
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>> cp_raw_ptr
 ) {
     // Load our parent class'es data
-    Gem::Common::GFactoryT<gpar::GTreeGenome>::load(cp_raw_ptr);
+    Gem::Common::GFactoryT<gpar::GOptimizableEntity>::load(cp_raw_ptr);
 
     // Convert the base pointer
     std::shared_ptr<GExternalEvaluatorIndividualFactory> cp_ptr = Gem::Common::convertSmartPointer<
-        Gem::Common::GFactoryT<gpar::GTreeGenome>,
+        Gem::Common::GFactoryT<gpar::GOptimizableEntity>,
         GExternalEvaluatorIndividualFactory>(cp_raw_ptr);
 
     // And then our own
@@ -690,7 +690,7 @@ void GExternalEvaluatorIndividualFactory::load(
 /**
  * Creates a deep clone of this object
  */
-std::shared_ptr<Gem::Common::GFactoryT<gpar::GTreeGenome>>
+std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>>
 GExternalEvaluatorIndividualFactory::clone() const {
     return std::make_shared<GExternalEvaluatorIndividualFactory>(*this);
 }
@@ -1320,7 +1320,7 @@ void GExternalEvaluatorIndividualFactory::archive(
  *
  * @return Items of the desired type
  */
-std::shared_ptr<gpar::GTreeGenome> GExternalEvaluatorIndividualFactory::getObject_(
+std::shared_ptr<gpar::GOptimizableEntity> GExternalEvaluatorIndividualFactory::getObject_(
     Gem::Common::GParserBuilder &gpb,
     [[maybe_unused]] const std::size_t & id
 ) {
@@ -1342,7 +1342,7 @@ void GExternalEvaluatorIndividualFactory::describeLocalOptions_(Gem::Common::GPa
     using namespace Gem::Courtier;
 
     // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<gpar::GTreeGenome>::describeLocalOptions_(gpb);
+    Gem::Common::GFactoryT<gpar::GOptimizableEntity>::describeLocalOptions_(gpb);
 
     // Then add our local options
     gpb.registerFileParameter<double>("ad_prob", ad_prob_.reference(), GEEI_DEF_ADPROB)
@@ -1564,12 +1564,12 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
  *
  * @param p_raw A smart-pointer to be acted on during post-processing
  */
-void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome> &p_raw) {
+void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &p_raw) {
     using boost::property_tree::ptree;
 
     // Convert the base pointer to the target type
     std::shared_ptr<GExternalEvaluatorIndividual> p =
-        Gem::Common::convertSmartPointer<gpar::GTreeGenome, GExternalEvaluatorIndividual>(p_raw);
+        Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, GExternalEvaluatorIndividual>(p_raw);
 
     // Set up a random number generator
     Gem::Hap::GRandom gr;
@@ -1687,7 +1687,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GTr
                         gcdo_ptr->addAdaptor(gat_ptr);
 
                         // Add the object to the individual
-                        p->push_back(gcdo_ptr);
+                        dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gcdo_ptr);
                     }
                     else {
                         throw geneva_exception(

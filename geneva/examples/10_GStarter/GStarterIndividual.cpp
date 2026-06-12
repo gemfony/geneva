@@ -155,7 +155,7 @@ GStarterIndividual::~GStarterIndividual() { /* nothing */
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GStarterIndividual::compare_(
-    const gpar::GTreeGenome &cp,
+    const gpar::GOptimizableEntity &cp,
     const Gem::Common::expectation &e,
     const double &limit
 ) const {
@@ -163,7 +163,7 @@ void GStarterIndividual::compare_(
 
     // Check that we are dealing with a GStarterIndividual reference independent of this object and convert the pointer
     const GStarterIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GStarterIndividual>(&cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GStarterIndividual>(&cp, this);
 
     Gem::Common::GToken token("GStarterIndividual", e);
 
@@ -280,10 +280,10 @@ std::string GStarterIndividual::print() {
  *
  * @param cp A copy of another GStarterIndividual, camouflaged as a GTreeGenome
  */
-void GStarterIndividual::load_(const gpar::GTreeGenome *cp) {
+void GStarterIndividual::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GStarterIndividual reference independent of this object and convert the pointer
     const GStarterIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GTreeGenome, GStarterIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GStarterIndividual>(cp, this);
 
     // Load our parent class'es data ...
     gpar::GTreeGenome::load_(cp);
@@ -523,7 +523,7 @@ std::ostream &operator<<(std::ostream &stream, std::shared_ptr<GStarterIndividua
  * @param configFile The name of the configuration file
  */
 GStarterIndividualFactory::GStarterIndividualFactory(std::filesystem::path const &configFile)
-  : Gem::Common::GFactoryT<gpar::GTreeGenome>(configFile) { /* nothing */
+  : Gem::Common::GFactoryT<gpar::GOptimizableEntity>(configFile) { /* nothing */
 }
 
 /******************************************************************************/
@@ -532,7 +532,7 @@ GStarterIndividualFactory::GStarterIndividualFactory(std::filesystem::path const
  *
  * @return Items of the desired type
  */
-std::shared_ptr<gpar::GTreeGenome>
+std::shared_ptr<gpar::GOptimizableEntity>
 GStarterIndividualFactory::getObject_(Gem::Common::GParserBuilder &gpb, std::size_t const &id) {
     // Will hold the result
     std::shared_ptr<GStarterIndividual> target(new GStarterIndividual());
@@ -552,7 +552,7 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
     using namespace Gem::Courtier;
 
     // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<gpar::GTreeGenome>::describeLocalOptions_(gpb);
+    Gem::Common::GFactoryT<gpar::GOptimizableEntity>::describeLocalOptions_(gpb);
 
     // Local data
     gpb.registerFileParameter<double>("ad_prob", adProb_, GSI_DEF_ADPROB)
@@ -609,10 +609,10 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GStarterIndividualFactory::postProcess_(std::shared_ptr<gpar::GTreeGenome> &p_base) {
+void GStarterIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &p_base) {
     // Convert the base pointer to our local type
     std::shared_ptr<GStarterIndividual> p =
-        Gem::Common::convertSmartPointer<gpar::GTreeGenome, GStarterIndividual>(p_base);
+        Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, GStarterIndividual>(p_base);
 
     // We simply use a static function defined in the GStartIndividual header
     // to set up all parameter objects. It is used both here in the factory and

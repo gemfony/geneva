@@ -206,7 +206,7 @@ void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_() {
  */
 GOptimizationAlgorithmBase::GOptimizationAlgorithmBase(const GOptimizationAlgorithmBase &cp)
   : Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>(cp)
-  , Gem::Common::GUniquePtrContainerT<gpar::GTreeGenome>(cp)
+  , Gem::Common::GUniquePtrContainerT<gpar::GOptimizableEntity>(cp)
   , iteration_(cp.iteration_)
   , offset_(DEFAULTOFFSET)
   , min_iteration_(cp.min_iteration_)
@@ -1451,7 +1451,7 @@ void GOptimizationAlgorithmBase::load_(const GOptimizationAlgorithmBase *cp) {
 
     // This is the category root; there is no GObject parent class to load.
     // Load the stateful base classes' data
-    Gem::Common::GUniquePtrContainerT<gpar::GTreeGenome>::operator=(*p_load);
+    Gem::Common::GUniquePtrContainerT<gpar::GOptimizableEntity>::operator=(*p_load);
 
     // All local data, derived from the single localMembers() declaration: plain members
     // are assigned, the cloneable container pluggable_monitors_cnt_ is deep-cloned, and
@@ -1476,7 +1476,7 @@ void GOptimizationAlgorithmBase::load_(const GOptimizationAlgorithmBase *cp) {
 	 * @return A struct which indicates whether all items have returned ("is_complete") and whether there were errors ("has_errors")
 	 */
 Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOn(
-    std::vector<std::unique_ptr<gpar::GTreeGenome>> &work_items,
+    std::vector<std::unique_ptr<gpar::GOptimizableEntity>> &work_items,
     std::size_t start,
     std::size_t end
 ) {
@@ -1496,7 +1496,7 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOn(
  * or-fatal for the need-all OAs.
  */
 Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
-    std::vector<std::unique_ptr<gpar::GTreeGenome>> &work_items,
+    std::vector<std::unique_ptr<gpar::GOptimizableEntity>> &work_items,
     std::size_t start,
     std::size_t end
 ) {
@@ -1504,24 +1504,24 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
         // A networked broker injected by Go2 (increment 2) arrives ready: consumer registered, clone
         // function set, server started. Only the LOCAL path (increment 1) builds its own consumer here.
         if(not broker_) {
-            broker_ = std::make_shared<Gem::Courtier::GBrokerT<gpar::GTreeGenome>>();
+            broker_ = std::make_shared<Gem::Courtier::GBrokerT<gpar::GOptimizableEntity>>();
             // Build the local consumer Go2 selected: inline (serial) or thread-pool (multithreaded).
-            std::shared_ptr<Gem::Courtier::GBaseConsumerT<gpar::GTreeGenome>> consumer;
+            std::shared_ptr<Gem::Courtier::GBaseConsumerT<gpar::GOptimizableEntity>> consumer;
             if(local_kind_ == local_consumer_kind::serial) {
-                consumer = std::make_shared<Gem::Courtier::GSerialConsumerT<gpar::GTreeGenome>>();
+                consumer = std::make_shared<Gem::Courtier::GSerialConsumerT<gpar::GOptimizableEntity>>();
             }
             else {
-                consumer = std::make_shared<Gem::Courtier::GStdThreadConsumerT<gpar::GTreeGenome>>(
+                consumer = std::make_shared<Gem::Courtier::GStdThreadConsumerT<gpar::GOptimizableEntity>>(
                     local_threads_
                 );
             }
-            // Polymorphic clone (GTreeGenome holds a concrete individual; copy-construction slices).
-            consumer->setCloneFunction([](const std::unique_ptr<gpar::GTreeGenome> &p) {
+            // Polymorphic clone (GOptimizableEntity holds a concrete individual; copy-construction slices).
+            consumer->setCloneFunction([](const std::unique_ptr<gpar::GOptimizableEntity> &p) {
                 return p->clone_unique();
             });
             broker_->registerConsumer(consumer);
         }
-        executor_ = std::make_shared<Gem::Courtier::GExecutorT<gpar::GTreeGenome>>(broker_);
+        executor_ = std::make_shared<Gem::Courtier::GExecutorT<gpar::GOptimizableEntity>>(broker_);
     }
 
     // Clamp the requested range to the population and bail out if it is empty.
@@ -1533,7 +1533,7 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
 
     // Submit a span over exactly [start, end); it aliases the population sub-range, so results + any
     // cloned refills are written straight into work_items[start..end).
-    std::span<std::unique_ptr<gpar::GTreeGenome>> sp(work_items.data() + start, count);
+    std::span<std::unique_ptr<gpar::GOptimizableEntity>> sp(work_items.data() + start, count);
     executor_->workOn(sp, this->getSubmissionPolicy_());
 
     // The consumer guarantees a full, valid set on return (or terminates fatally per the policy), so
@@ -1552,7 +1552,7 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
 /**
  * Retrieves a vector of old work items after job submission
  */
-std::vector<std::unique_ptr<gpar::GTreeGenome>> GOptimizationAlgorithmBase::getOldWorkItems() {
+std::vector<std::unique_ptr<gpar::GOptimizableEntity>> GOptimizationAlgorithmBase::getOldWorkItems() {
     // courtier reconciles every slot in place, so there are never any "old" (late-returned) items to
     // retrieve. (Capturing late returns for their quality is a planned future improvement.)
     return {};
@@ -1600,8 +1600,8 @@ GOptimizationAlgorithmBase::extractOptAlgFromPath(const std::filesystem::path &p
  * Retrieves the best individual found up to now (which is usually the best individual
  * in the priority queue).
  */
-std::shared_ptr<gpar::GTreeGenome> GOptimizationAlgorithmBase::getBestGlobalIndividual_() const {
-    std::shared_ptr<gpar::GTreeGenome> p = best_global_individuals_pq_.best();
+std::shared_ptr<gpar::GOptimizableEntity> GOptimizationAlgorithmBase::getBestGlobalIndividual_() const {
+    std::shared_ptr<gpar::GOptimizableEntity> p = best_global_individuals_pq_.best();
 #ifdef DEBUG
     if(!p) {
         throw geneva_exception(
@@ -1612,7 +1612,7 @@ std::shared_ptr<gpar::GTreeGenome> GOptimizationAlgorithmBase::getBestGlobalIndi
     }
 #endif
     // Always clone: callers must not alias the internal priority-queue entry.
-    return p->clone<gpar::GTreeGenome>();
+    return p->clone<gpar::GOptimizableEntity>();
 }
 
 /******************************************************************************/
@@ -1620,12 +1620,12 @@ std::shared_ptr<gpar::GTreeGenome> GOptimizationAlgorithmBase::getBestGlobalIndi
  * Retrieves a list of the best individuals found (equal to the content of
  * the priority queue)
  */
-std::vector<std::shared_ptr<gpar::GTreeGenome>>
+std::vector<std::shared_ptr<gpar::GOptimizableEntity>>
 GOptimizationAlgorithmBase::getBestGlobalIndividuals_() const {
-    std::vector<std::shared_ptr<gpar::GTreeGenome>> best_individuals_vec;
+    std::vector<std::shared_ptr<gpar::GOptimizableEntity>> best_individuals_vec;
 
     for(const auto &ind_ptr : best_global_individuals_pq_.toVector()) {
-        best_individuals_vec.push_back(ind_ptr->clone<gpar::GTreeGenome>());
+        best_individuals_vec.push_back(ind_ptr->clone<gpar::GOptimizableEntity>());
     }
 
     return best_individuals_vec;
@@ -1636,8 +1636,8 @@ GOptimizationAlgorithmBase::getBestGlobalIndividuals_() const {
  * Retrieves the best individual found in the iteration (which is the best individual
  * in the priority queue).
  */
-std::shared_ptr<gpar::GTreeGenome> GOptimizationAlgorithmBase::getBestIterationIndividual_() const {
-    std::shared_ptr<gpar::GTreeGenome> p = best_iteration_individuals_pq_.best();
+std::shared_ptr<gpar::GOptimizableEntity> GOptimizationAlgorithmBase::getBestIterationIndividual_() const {
+    std::shared_ptr<gpar::GOptimizableEntity> p = best_iteration_individuals_pq_.best();
 #ifdef DEBUG
     if(!p) {
         throw geneva_exception(
@@ -1649,7 +1649,7 @@ std::shared_ptr<gpar::GTreeGenome> GOptimizationAlgorithmBase::getBestIterationI
     }
 #endif
     // Always clone: callers must not alias the internal priority-queue entry.
-    return p->clone<gpar::GTreeGenome>();
+    return p->clone<gpar::GOptimizableEntity>();
 }
 
 /******************************************************************************/
@@ -1657,7 +1657,7 @@ std::shared_ptr<gpar::GTreeGenome> GOptimizationAlgorithmBase::getBestIterationI
  * Retrieves a list of the best individuals found in the iteration (equal to the content of
  * the priority queue)
  */
-std::vector<std::shared_ptr<gpar::GTreeGenome>>
+std::vector<std::shared_ptr<gpar::GOptimizableEntity>>
 GOptimizationAlgorithmBase::getBestIterationIndividuals_() const {
     return best_iteration_individuals_pq_.toVector();
 }
@@ -1834,7 +1834,7 @@ void GOptimizationAlgorithmBase::updateStallCounter(const std::tuple<double, dou
 /******************************************************************************/
 /**
  * This function returns true once a given time (set with
- * GOptimizationAlgorithm<GTreeGenome>::setMaxTime()) has passed.
+ * GOptimizationAlgorithm<GOptimizableEntity>::setMaxTime()) has passed.
  * It is used in the GOptimizationAlgorithmBase::halt() function.
  *
  * @return A boolean indicating whether a given amount of time has passed
@@ -2187,7 +2187,7 @@ bool GOptimizationAlgorithmBase::modify_GUnitTests_() {
 
     // This is the category root; there is no modifiable GObject parent class.
     // Call the stateful base class'es function
-    if(Gem::Common::GUniquePtrContainerT<gpar::GTreeGenome>::modify_GUnitTests_()) {
+    if(Gem::Common::GUniquePtrContainerT<gpar::GOptimizableEntity>::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -2218,7 +2218,7 @@ void GOptimizationAlgorithmBase::specificTestsNoFailureExpected_GUnitTests_() {
 
     // This is the category root; there is no GObject parent class to delegate to.
     // Call the stateful base class'es function
-    Gem::Common::GUniquePtrContainerT<gpar::GTreeGenome>::specificTestsNoFailureExpected_GUnitTests_();
+    Gem::Common::GUniquePtrContainerT<gpar::GOptimizableEntity>::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
@@ -2237,7 +2237,7 @@ void GOptimizationAlgorithmBase::specificTestsFailuresExpected_GUnitTests_() {
 
     // This is the category root; there is no GObject parent class to delegate to.
     // Call the stateful base class'es function
-    Gem::Common::GUniquePtrContainerT<gpar::GTreeGenome>::specificTestsFailuresExpected_GUnitTests_();
+    Gem::Common::GUniquePtrContainerT<gpar::GOptimizableEntity>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(

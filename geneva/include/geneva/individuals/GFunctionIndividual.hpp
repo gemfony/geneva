@@ -680,7 +680,7 @@ protected:
     }
 
     /** @brief Loads the data of another GFunctionIndividual */
-    void load_(const gpar::GTreeGenome *) final;
+    void load_(const gpar::GOptimizableEntity *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GFunctionIndividual>(
@@ -691,7 +691,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GTreeGenome & // the other object
+        const gpar::GOptimizableEntity & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -883,19 +883,19 @@ public:
     //--------------------------------------------------------------------------
 
     /** @brief Loads the data of another GFunctionIndividualFactory object */
-    void load(std::shared_ptr<Gem::Common::GFactoryT<gpar::GTreeGenome>>) override;
+    void load(std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>>) override;
     /** @brief Creates a deep clone of this object */
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GTreeGenome>> clone() const override;
+    std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>> clone() const override;
 
 protected:
     /** @brief Allows to describe local configuration options in derived classes */
     void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
     /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<gpar::GTreeGenome> &) override;
+    void postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &) override;
 
 private:
     /** @brief Creates individuals of this type */
-    std::shared_ptr<gpar::GTreeGenome>
+    std::shared_ptr<gpar::GOptimizableEntity>
     getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 
     /** @brief Set the value of the minVar_ variable */
@@ -990,13 +990,13 @@ public:
     ~GDoubleSumConstraint() override = default;
 
 protected:
-    double check_(const gpar::GTreeGenome *) const override;
+    double check_(const gpar::GOptimizableEntity *) const override;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Loads the data of another GParameterSetMultiConstraint */
-    void load_(const GPreEvaluationValidityCheckT<gpar::GTreeGenome> *) override;
+    void load_(const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GDoubleSumConstraint>(
@@ -1007,7 +1007,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GPreEvaluationValidityCheckT<gpar::GTreeGenome> & // the other object
+        const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -1016,7 +1016,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    GPreEvaluationValidityCheckT<gpar::GTreeGenome> *clone_() const override;
+    GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *clone_() const override;
 
     double c_ = 1.; ///< The constant that should not be exceeded by the sum of parameters
 };
@@ -1064,13 +1064,13 @@ public:
     ~GDoubleSumGapConstraint() override = default;
 
 protected:
-    double check_(const gpar::GTreeGenome *) const override;
+    double check_(const gpar::GOptimizableEntity *) const override;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Loads the data of another GParameterSetMultiConstraint */
-    void load_(const GPreEvaluationValidityCheckT<gpar::GTreeGenome> *) override;
+    void load_(const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GDoubleSumGapConstraint>(
@@ -1081,7 +1081,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GPreEvaluationValidityCheckT<gpar::GTreeGenome> & // the other object
+        const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -1090,7 +1090,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    GPreEvaluationValidityCheckT<gpar::GTreeGenome> *clone_() const override;
+    GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *clone_() const override;
 
     double c_ = 1.;    ///< The constant that should not be exceeded by the sum of parameters
     double gap_ = 0.5; ///< A tolerance around C_ that is still considered to be valid
@@ -1137,13 +1137,13 @@ public:
     ~GSphereConstraint() override = default;
 
 protected:
-    double check_(const gpar::GTreeGenome *) const override;
+    double check_(const gpar::GOptimizableEntity *) const override;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Loads the data of another GParameterSetMultiConstraint */
-    void load_(const GPreEvaluationValidityCheckT<gpar::GTreeGenome> *) override;
+    void load_(const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GSphereConstraint>(
@@ -1154,7 +1154,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GPreEvaluationValidityCheckT<gpar::GTreeGenome> & // the other object
+        const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -1163,7 +1163,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    GPreEvaluationValidityCheckT<gpar::GTreeGenome> *clone_() const override;
+    GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *clone_() const override;
 
     /** @brief The diameter of the sphere */
     double diameter_ = 1.;

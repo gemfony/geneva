@@ -119,12 +119,12 @@ int main(int argc, char **argv) {
     // GImageIndividuals into flat device buffers and how to write the results back.
     auto marshaller = std::make_shared<MonaLisa::GMonaLisaGPUMarshaller>();
     auto consumer =
-        std::make_shared<gpu::GGPUConsumerT<gpar::GTreeGenome, gimage_fp_t>>(consumerConfig, marshaller);
+        std::make_shared<gpu::GGPUConsumerT<gpar::GOptimizableEntity, gimage_fp_t>>(consumerConfig, marshaller);
     // The clone-on-partial-return policy used by the evolutionary algorithm needs a polymorphic clone.
-    consumer->setCloneFunction([](const std::unique_ptr<gpar::GTreeGenome> &p) {
+    consumer->setCloneFunction([](const std::unique_ptr<gpar::GOptimizableEntity> &p) {
         return p->clone_unique();
     });
-    auto broker = std::make_shared<Gem::Courtier::GBrokerT<gpar::GTreeGenome>>();
+    auto broker = std::make_shared<Gem::Courtier::GBrokerT<gpar::GOptimizableEntity>>();
     broker->registerConsumer(consumer);
     go.registerBroker(broker);
 

@@ -43,7 +43,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GParChild.hpp"
 
@@ -111,7 +111,7 @@ public:
 
     /** @brief Extracts all individuals on the pareto front */
     void extractCurrentParetoIndividuals(
-        std::vector<std::shared_ptr<gpar::GTreeGenome>> &pareto_inds
+        std::vector<std::shared_ptr<gpar::GOptimizableEntity>> &pareto_inds
     );
 
 protected:
@@ -205,8 +205,8 @@ private:
     void sortMuCommaNuParetoMode();
     /** @brief Determines whether the first individual dominates the second */
     bool aDominatesB(
-        const std::unique_ptr<gpar::GTreeGenome> &a,
-        const std::unique_ptr<gpar::GTreeGenome> &b
+        const std::unique_ptr<gpar::GOptimizableEntity> &a,
+        const std::unique_ptr<gpar::GOptimizableEntity> &b
     ) const;
 
     /** @brief Fills the collection with individuals */
