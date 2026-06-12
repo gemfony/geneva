@@ -130,7 +130,7 @@ void GDoubleSumConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder 
  */
 double GDoubleSumConstraint::check_(const gpar::GOptimizableEntity *p) const {
     std::vector<double> par_vec;
-    dynamic_cast<const gpar::GTreeGenome *>(p)->streamline(par_vec);
+    p->streamlineFP(par_vec);
 
     double sum = 0.;
     for(const auto &val : par_vec) {
@@ -229,7 +229,7 @@ void GDoubleSumGapConstraint::addConfigurationOptions_(Gem::Common::GParserBuild
  */
 double GDoubleSumGapConstraint::check_(const gpar::GOptimizableEntity *p) const {
     std::vector<double> par_vec;
-    dynamic_cast<const gpar::GTreeGenome *>(p)->streamline(par_vec);
+    p->streamlineFP(par_vec);
 
     double sum = 0.;
     for(const auto &val : par_vec) {
@@ -327,7 +327,7 @@ void GSphereConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gp
  */
 double GSphereConstraint::check_(const gpar::GOptimizableEntity *p) const {
     std::vector<double> par_vec;
-    dynamic_cast<const gpar::GTreeGenome *>(p)->streamline(par_vec);
+    p->streamlineFP(par_vec);
 
     double sum = 0.;
     for(const auto &val : par_vec) {
