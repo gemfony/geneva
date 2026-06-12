@@ -40,7 +40,9 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
+#ifdef GEM_TESTING
 #include "geneva/individuals/GTestIndividual1.hpp"
+#endif /* GEM_TESTING */
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GParChild.hpp"
