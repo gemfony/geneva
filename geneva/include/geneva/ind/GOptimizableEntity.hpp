@@ -39,6 +39,7 @@
 #include <limits>
 #include <memory>
 #include <random>
+#include <span>
 #include <string>
 #include <tuple>
 #include <type_traits>
@@ -608,8 +609,38 @@ public:
     void setPersonality(std::shared_ptr<GPersonalityTraits>);
     /** @brief Resets the current personality to PERSONALITY_NONE */
     void resetPersonality();
-    /** @brief Clears all algorithm-scoped auxiliary scratch (the personality traits today). Meant to be called at optimization-algorithm boundaries. */
+    /** @brief Clears all algorithm-scoped auxiliary scratch (personality + POD metadata blocks). Meant to be called at optimization-algorithm boundaries. */
     void clearOAScratch();
+
+    /***************************************************************************/
+    // Generic per-parameter / per-group OA metadata (DM §3c): an opaque, keyed store of POD blocks.
+    // The optimization algorithm supplies the POD type; the individual treats the bytes as opaque, so
+    // it needs no knowledge of what (e.g. EA Gauss state) is stored. See GAuxiliaryStore.
+
+    /** @brief Installs (or replaces) a zero-initialised POD metadata block of record_count records under key */
+    template <typename POD>
+    void installAuxBlock(AuxKey key, std::size_t record_count, AuxScope scope = AuxScope::PerGroup) {
+        aux_.installAuxBlock<POD>(key, record_count, scope);
+    }
+    /** @brief A typed view over the records of the POD metadata block under key */
+    template <typename POD>
+    std::span<POD> metaRecords(AuxKey key) {
+        return aux_.metaRecords<POD>(key);
+    }
+    template <typename POD>
+    std::span<const POD> metaRecords(AuxKey key) const {
+        return aux_.metaRecords<POD>(key);
+    }
+    /** @brief Typed access to a per-individual (single-record) POD metadata block */
+    template <typename POD>
+    POD &metaScalar(AuxKey key) {
+        return aux_.metaScalar<POD>(key);
+    }
+    /** @brief Whether a POD metadata block is installed under key */
+    bool hasAux(AuxKey key) const {
+        return aux_.hasAux(key);
+    }
+
     /** @brief Retrieves the mnemonic used for the optimization of this object */
     std::string getMnemonic() const;
 

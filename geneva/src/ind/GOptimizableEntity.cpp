@@ -269,8 +269,8 @@ GOptimizableEntity::GOptimizableEntity(GOptimizableEntity const &cp)
   , max_unsuccessful_adaptions_(cp.max_unsuccessful_adaptions_)
   , max_retries_until_valid_(cp.max_retries_until_valid_)
   , n_adaptions_(cp.n_adaptions_) {
-    // Copy the personality pointer (held by the auxiliary store) over
-    Gem::Common::copyCloneableSmartPointer(cp.aux_.personalityRef(), aux_.personalityRef());
+    // Copy the auxiliary store over (deep-clones the personality, copies the POD scratch blocks)
+    aux_ = cp.aux_;
     // Make sure any constraints are copied over
     Gem::Common::copyCloneableSmartPointer(
         cp.individual_constraint_ptr_,
@@ -1207,8 +1207,10 @@ void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
 
     // All local data, derived from the single localMembers() declaration: plain
     // members are assigned, the cloneable smart pointers are deep-cloned (the tie
-    // dispatches on the member kind).
+    // dispatches on the member kind). The aux store's personality is handled here (it is a
+    // cloneable member); its transient POD scratch blocks are copied separately.
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+    aux_.copyPodsFrom(p_load->aux_);
 }
 
 /******************************************************************************/
