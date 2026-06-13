@@ -269,8 +269,8 @@ GOptimizableEntity::GOptimizableEntity(GOptimizableEntity const &cp)
   , max_unsuccessful_adaptions_(cp.max_unsuccessful_adaptions_)
   , max_retries_until_valid_(cp.max_retries_until_valid_)
   , n_adaptions_(cp.n_adaptions_) {
-    // Copy the personality pointer over
-    Gem::Common::copyCloneableSmartPointer(cp.pt_ptr_, pt_ptr_);
+    // Copy the personality pointer (held by the auxiliary store) over
+    Gem::Common::copyCloneableSmartPointer(cp.aux_.personalityRef(), aux_.personalityRef());
     // Make sure any constraints are copied over
     Gem::Common::copyCloneableSmartPointer(
         cp.individual_constraint_ptr_,
@@ -721,8 +721,8 @@ std::uint32_t GOptimizableEntity::getNStalls() const {
      * @return An identifier for the current personality of this object
      */
 std::string GOptimizableEntity::getPersonality() const {
-    if(pt_ptr_) {
-        return pt_ptr_->name();
+    if(aux_.personalityRef()) {
+        return aux_.personalityRef()->name();
     }
             return std::string("PERSONALITY_NONE");
 
@@ -760,7 +760,7 @@ void GOptimizableEntity::setRandomCrash(const bool use_random_crash, const doubl
 std::shared_ptr<GPersonalityTraits> GOptimizableEntity::getPersonalityTraits() {
 #ifdef DEBUG
     // Do some error checking
-    if(not pt_ptr_) {
+    if(not aux_.personalityRef()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GOptimizableEntity::getPersonalityTraits():" << '\n'
@@ -769,7 +769,7 @@ std::shared_ptr<GPersonalityTraits> GOptimizableEntity::getPersonalityTraits() {
     }
 #endif
 
-    return pt_ptr_;
+    return aux_.personalityRef();
 }
 
 /******************************************************************************/
@@ -788,8 +788,8 @@ void GOptimizableEntity::setPersonality(std::shared_ptr<GPersonalityTraits> gpt)
         );
     }
 
-    // Add the personality traits object to our local pointer
-    pt_ptr_ = gpt;
+    // Add the personality traits object to the auxiliary store
+    aux_.personalityRef() = gpt;
 }
 
 /******************************************************************************/
@@ -797,7 +797,18 @@ void GOptimizableEntity::setPersonality(std::shared_ptr<GPersonalityTraits> gpt)
      * Resets the current personality to PERSONALITY_NONE
      */
 void GOptimizableEntity::resetPersonality() {
-    pt_ptr_.reset();
+    aux_.clearScratch();
+}
+
+/******************************************************************************/
+/**
+     * Clears all algorithm-scoped auxiliary scratch held by this individual. Today that is the
+     * personality traits (the analogue of resetPersonality()); when per-group POD adaptor scratch
+     * is added to the auxiliary store, the scratch-scoped blocks are dropped here as well. Meant to
+     * be called by Go2 at the boundary between optimization algorithms in a chain.
+     */
+void GOptimizableEntity::clearOAScratch() {
+    aux_.clearScratch();
 }
 
 /******************************************************************************/
@@ -805,8 +816,8 @@ void GOptimizableEntity::resetPersonality() {
      * Retrieves the mnemonic used for the optimization of this object
      */
 std::string GOptimizableEntity::getMnemonic() const {
-    if(pt_ptr_) {
-        return pt_ptr_->getMnemonic();
+    if(aux_.personalityRef()) {
+        return aux_.personalityRef()->getMnemonic();
     }
             throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())

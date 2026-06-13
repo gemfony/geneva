@@ -58,6 +58,7 @@
 #include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GMultiConstraintT.hpp"
 #include "geneva/GPersonalityTraits.hpp"
+#include "geneva/ind/GAuxiliaryStore.hpp"
 #include "geneva/Interface/GMutableI.hpp"
 #include "geneva/Interface/GRateableI.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
@@ -185,7 +186,7 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
     /**
      * Single declaration of this class'es local data members. This drives serialize(),
      * load_() and compare_() from one place. Plain members use make_member(); the
-     * cloneable smart pointers pt_ptr_ / individual_constraint_ptr_ use
+     * cloneable smart pointers (the aux store's personality traits + individual_constraint_ptr_) use
      * make_cloneable_member(), so g_load_members() deep-clones them while serialize()
      * and compare_() treat them like any other member.
      *
@@ -207,7 +208,7 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_member("n_adaptions_", n_adaptions_),
             Gem::Common::make_member("use_random_crash_", use_random_crash_),
             Gem::Common::make_member("random_crash_prob_", random_crash_prob_),
-            Gem::Common::make_cloneable_member("pt_ptr_", pt_ptr_),
+            Gem::Common::make_cloneable_member("pt_ptr_", aux_.personalityRef()),
             Gem::Common::make_cloneable_member("individual_constraint_ptr_", individual_constraint_ptr_)
         );
     }
@@ -226,7 +227,7 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_member("n_adaptions_", n_adaptions_),
             Gem::Common::make_member("use_random_crash_", use_random_crash_),
             Gem::Common::make_member("random_crash_prob_", random_crash_prob_),
-            Gem::Common::make_cloneable_member("pt_ptr_", pt_ptr_),
+            Gem::Common::make_cloneable_member("pt_ptr_", aux_.personalityRef()),
             Gem::Common::make_cloneable_member("individual_constraint_ptr_", individual_constraint_ptr_)
         );
     }
@@ -574,8 +575,8 @@ public:
         requires std::derived_from<personality_type, GPersonalityTraits>
     std::shared_ptr<personality_type> getPersonalityTraits() {
 #ifdef DEBUG
-        // Check that pt_ptr_ actually points somewhere
-        if(not pt_ptr_) {
+        // Check that the personality pointer actually points somewhere
+        if(not aux_.personalityRef()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GOptimizableEntity::getPersonalityTraits<personality_type>() : Empty personality "
@@ -590,7 +591,7 @@ public:
 #endif /* DEBUG */
 
         // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<GPersonalityTraits, personality_type>(pt_ptr_);
+        return Gem::Common::convertSmartPointer<GPersonalityTraits, personality_type>(aux_.personalityRef());
     }
 
     /* ----------------------------------------------------------------------------------
@@ -607,6 +608,8 @@ public:
     void setPersonality(std::shared_ptr<GPersonalityTraits>);
     /** @brief Resets the current personality to PERSONALITY_NONE */
     void resetPersonality();
+    /** @brief Clears all algorithm-scoped auxiliary scratch (the personality traits today). Meant to be called at optimization-algorithm boundaries. */
+    void clearOAScratch();
     /** @brief Retrieves the mnemonic used for the optimization of this object */
     std::string getMnemonic() const;
 
@@ -770,8 +773,8 @@ private:
     std::uint32_t assigned_iteration_ = 0;
     /** @brief Indicates how valid a given solution is */
     double validity_level_ = 0.;
-    /** @brief Holds the actual personality information */
-    std::shared_ptr<GPersonalityTraits> pt_ptr_;
+    /** @brief The per-individual auxiliary store -- holds the personality traits (and, later, the per-group POD adaptor scratch) */
+    GAuxiliaryStore aux_;
 
     /** @brief Specifies what to do when the individual is marked as invalid */
     evaluationPolicy eval_policy_ = Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION;
