@@ -43,7 +43,7 @@
 #include "courtier/gpu/GGPUEvaluableI.hpp"
 #include "geneva/individuals/GBenchmarkFunctions.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
 
 namespace gind = Gem::Geneva::Individuals;
 namespace gpar = Gem::Geneva::Parameters;

@@ -100,7 +100,7 @@ GAlgorithmBenchmarkRunner::GAlgorithmBenchmarkRunner(
  * @brief Runs the full benchmark over all algorithm entries.
  *
  * Assumes GenevaInitializer has been created and a consumer has been enrolled
- * with broker<GTreeGenome>() by the caller before this is invoked.
+ * with broker<GOptimizableEntity>() by the caller before this is invoked.
  */
 std::vector<GAlgorithmBenchmarkResult> GAlgorithmBenchmarkRunner::run() {
     glogger << "GAlgorithmBenchmarkRunner: starting benchmark." << std::endl

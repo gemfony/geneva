@@ -45,7 +45,7 @@
 #include "common/GLogger.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "geneva/GenevaInitializer.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/oa/GGradientDescentFactory.hpp"
@@ -162,7 +162,7 @@ private:
  *
  * The caller is responsible for:
  *   1. Creating a GenevaInitializer (must outlive this runner).
- *   2. Enrolling a consumer with broker<GTreeGenome>() before calling run().
+ *   2. Enrolling a consumer with broker<GOptimizableEntity>() before calling run().
  *
  * The GPU consumer (Gem::Courtier::GPU::GGPUConsumerT, the same one example 15 uses) is created by
  * the caller and passed to the runner via the broker; the runner itself is pure C++ and free of any

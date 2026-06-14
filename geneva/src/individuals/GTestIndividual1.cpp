@@ -58,12 +58,16 @@ namespace Gem::Geneva::Individuals {
 GTestIndividual1::GTestIndividual1() {
     using namespace Gem::Geneva;
 
-    // 100 unbounded doubles (init perimeter [-10, 10]) sharing one Gauss adaptor
-    // (the flat equivalent of a GDoubleCollection(100, -10, 10) with one
-    // GDoubleGaussAdaptor(0.025, 0.1, 0., 1.)). The builder's default adapt_ad_prob == 0
-    // reproduces the old setAdaptAdProb(0.) ("prevent changes to adProb_").
+    // 100 unbounded doubles (init perimeter [-10, 10]) sharing one Gauss adaptor (the flat
+    // equivalent of a GDoubleCollection(100, -10, 10) with a single GDoubleGaussAdaptor). The
+    // builder's default adapt_ad_prob == 0 reproduces the old setAdaptAdProb(0.) ("prevent
+    // changes to adProb_"). A small positive min_sigma (1e-3, vs the tree adaptor's 0) floors
+    // the self-adapting sigma so every adaption step stays well above ULP magnitude; this keeps
+    // the "fitness changes after every customAdaptions()" unit test below reliable. With
+    // min_sigma == 0 the shared sigma can collapse toward zero, the value steps fall back to a
+    // one-ULP nudge, and 100 such nudges can round away in the sum-of-squares fitness.
     gpar::GGenomeBuilder b;
-    b.addDoublePlainGroup(100, -10., 10.).gaussAdaptor(0.025, 0.1, 0., 1., 1.);
+    b.addDoublePlainGroup(100, -10., 10.).gaussAdaptor(0.025, 0.1, 1e-3, 1., 1.);
     this->setGenome(b.build());
 
     // Random per-parameter initialisation, mirroring the tree's randomInit.
