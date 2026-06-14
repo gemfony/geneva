@@ -68,7 +68,9 @@ namespace Gem::Geneva::Parameters {
  *   private:
  *       friend class boost::serialization::access;
  *       template <typename Archive> void serialize(Archive& ar, const unsigned int) {
- *           ar & boost::serialization::base_object<GFlatIndividualT<MyIndividual>>(*this);
+ *           ar & boost::serialization::make_nvp(
+ *               "GFlatIndividualT",
+ *               boost::serialization::base_object<GFlatIndividualT<MyIndividual>>(*this));
  *       }
  *   };
  *   BOOST_CLASS_EXPORT(MyIndividual)
