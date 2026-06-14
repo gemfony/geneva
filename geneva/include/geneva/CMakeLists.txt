@@ -31,6 +31,7 @@ SET ( PARAM_INCLUDES
 SET ( IND_INCLUDES
     ind/GAuxiliaryStore.hpp
     ind/GOptimizableEntity.hpp
+    ind/GAdaptionAuxKeys.hpp
     ind/GAdaptionKernels.hpp
     ind/GGenomeLayout.hpp
     ind/GGenomeLayoutSerialization.hpp
@@ -46,6 +47,8 @@ SET ( IND_INCLUDES
 SET ( OA_INCLUDES
     oa/GOptimizationAlgorithmBase.hpp
     oa/GParChild.hpp
+    oa/GAdaptionConfig.hpp
+    oa/GAdaption.hpp
     oa/GInitializerT.hpp
     oa/GOAFactoryT.hpp
     oa/GFactoryStore.hpp

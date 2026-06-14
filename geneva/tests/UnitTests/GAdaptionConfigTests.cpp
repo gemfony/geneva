@@ -1,0 +1,242 @@
+/********************************************************************************
+ *
+ * This file is part of the Geneva library collection. The following license
+ * applies to this file:
+ *
+ * ------------------------------------------------------------------------------
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------
+ *
+ * Note that other files in the Geneva library collection may use a different
+ * license. Please see the licensing information in each file.
+ *
+ ********************************************************************************
+ *
+ * See the NOTICE file in the top-level directory of the Geneva library
+ * collection for a list of contributors and copyright information.
+ *
+ ********************************************************************************/
+
+#include <catch2/catch_test_macros.hpp>
+
+#include <cstdint>
+#include <vector>
+
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/nvp.hpp>
+
+#include "common/GExceptions.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GFlatIndividualT.hpp"
+#include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/oa/GAdaption.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
+#include "hap/GRandomT.hpp"
+
+using namespace Gem::Geneva;
+using namespace Gem::Geneva::Parameters;
+namespace oa = Gem::Geneva::OptimizationAlgorithms;
+
+namespace Gem::Tests {
+
+/******************************************************************************/
+/**
+ * A mixed flat individual used to exercise the OA-owned adaption config + free functions: two FP groups
+ * sharing the interned label "position", one unlabelled FP group, an int32 group with an integer Gauss
+ * adaptor labelled "count", and a bool group with a flip adaptor.
+ */
+class AdaptCfgIndividual : public GFlatIndividualT<AdaptCfgIndividual> {
+public:
+    AdaptCfgIndividual() { buildGenome(); }
+    AdaptCfgIndividual(const AdaptCfgIndividual &) = default;
+
+protected:
+    double fitnessCalculation() override {
+        std::vector<double> v;
+        this->streamline<double>(v);
+        double sum = 0.;
+        for(double x : v) {
+            sum += x * x;
+        }
+        return sum;
+    }
+
+private:
+    void buildGenome() {
+        GGenomeBuilder b;
+        b.addDoubleGroup(3, -5., 5.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.).label("position"); // d group 0
+        b.addDoubleGroup(2, -5., 5.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.).label("position"); // d group 1
+        b.addDouble(0., -5., 5.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.);                        // d group 2 (unlabelled)
+        b.addInt32Group(2, -10, 10).intGaussAdaptor(0.5, 0.8, 1e-3, 2., 1.).label("count");  // i group 0
+        b.addBoolGroup(2).flipAdaptor(1.0);                                                    // b group 0
+        this->setGenome(b.build());
+    }
+
+    friend class boost::serialization::access;
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        ar &boost::serialization::make_nvp(
+            "GFlatIndividualT",
+            boost::serialization::base_object<GFlatIndividualT<AdaptCfgIndividual>>(*this)
+        );
+    }
+};
+
+} // namespace Gem::Tests
+
+BOOST_CLASS_EXPORT(Gem::Tests::AdaptCfgIndividual) // NOLINT
+
+using Gem::Tests::AdaptCfgIndividual;
+
+/******************************************************************************/
+TEST_CASE("GAdaptionConfig: built from a genome, addresses existing groups", "[flat][adaptcfg]") {
+    AdaptCfgIndividual ind;
+    oa::GEAAdaptionConfig cfg(ind);
+
+    // Mirrors the genome's group structure.
+    CHECK(cfg.doubleGroups().size() == 3);
+    CHECK(cfg.int32Groups().size() == 1);
+    CHECK(cfg.boolGroups().size() == 1);
+
+    // Authoring a group that exists is fine; an out-of-range index throws.
+    CHECK_NOTHROW(cfg.groupDouble(0).gauss(0.4, 0.8, 1e-3, 2., 1.));
+    CHECK_THROWS_AS(cfg.groupDouble(3), geneva_exception);
+    CHECK_THROWS_AS(cfg.groupInt32(5), geneva_exception);
+}
+
+/******************************************************************************/
+TEST_CASE("GAdaptionConfig: label resolution is one-to-many", "[flat][adaptcfg]") {
+    AdaptCfgIndividual ind;
+    oa::GEAAdaptionConfig cfg(ind);
+
+    // "position" tags the two FP groups; "count" the one int group; an absent label resolves to none.
+    CHECK(cfg.groupsForLabel("position").size() == 2);
+    CHECK(cfg.groupsForLabel("count").size() == 1);
+    CHECK(cfg.groupsForLabel("absent").empty());
+
+    // Authoring by an absent label throws; by a present one spans every tagged group.
+    CHECK_THROWS_AS(cfg.forLabel("absent"), geneva_exception);
+    CHECK_NOTHROW(cfg.forLabel("position").gauss(0.3, 0.8, 1e-3, 2., 1.));
+
+    // The setting reached BOTH "position" groups (group 0 and group 1), not just the first.
+    CHECK(cfg.doubleGroups()[0].start_sigma == 0.3);
+    CHECK(cfg.doubleGroups()[1].start_sigma == 0.3);
+    CHECK(cfg.doubleGroups()[2].start_sigma == 0.5); // the unlabelled group is untouched
+}
+
+/******************************************************************************/
+TEST_CASE("GAdaptionConfig: checkConsistency accepts the authoring genome, rejects a different one", "[flat][adaptcfg]") {
+    AdaptCfgIndividual ind;
+    oa::GEAAdaptionConfig cfg(ind);
+
+    // Same structure -> ok.
+    CHECK_NOTHROW(cfg.checkConsistency(ind));
+
+    // A structurally different genome (1 double, no other channels) -> throws.
+    GGenomeBuilder other;
+    other.addDouble(0., -1., 1.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.);
+    std::shared_ptr<const GGenomeLayout> other_layout = other.buildLayout();
+    CHECK_THROWS_AS(cfg.checkConsistency(*other_layout), geneva_exception);
+}
+
+/******************************************************************************/
+TEST_CASE("GAdaption: runAdaptionKernels mutates within bounds (config-driven)", "[flat][adaptcfg]") {
+    Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
+    // Robust over repeats -- stochastic adaption must keep producing in-bounds changes.
+    for(int rep = 0; rep < 20; ++rep) {
+        AdaptCfgIndividual ind;
+        oa::GEAAdaptionConfig cfg(ind);
+
+        std::vector<double> before;
+        ind.streamline<double>(before);
+
+        std::size_t total = 0;
+        for(int it = 0; it < 5; ++it) {
+            total += oa::runAdaptionKernels(ind, cfg, gr);
+        }
+        CHECK(total > 0); // ad_prob == 1 over several iterations -> something adapts
+
+        // The folded (external) double values stay strictly within [-5, 5).
+        std::vector<double> after;
+        ind.streamline<double>(after);
+        REQUIRE(after.size() == before.size());
+        for(double x : after) {
+            CHECK(x >= -5.);
+            CHECK(x < 5.);
+        }
+        // Integer values fold into the closed range [-10, 10].
+        std::vector<std::int32_t> iv;
+        ind.streamline<std::int32_t>(iv);
+        for(std::int32_t x : iv) {
+            CHECK(x >= -10);
+            CHECK(x <= 10);
+        }
+        CHECK(before != after); // values actually moved
+    }
+}
+
+/******************************************************************************/
+TEST_CASE("GAdaption: readAdaptionSigmas + resetAdaptionState round-trip", "[flat][adaptcfg]") {
+    Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
+    AdaptCfgIndividual ind;
+    oa::GEAAdaptionConfig cfg(ind);
+
+    // One sigma per Gauss group (3 FP groups here); all start at the seed 0.5.
+    std::vector<double> sig0 = oa::readAdaptionSigmas(ind, cfg, "GDoubleGaussAdaptor");
+    REQUIRE(sig0.size() == 3);
+    for(double s : sig0) {
+        CHECK(s == 0.5);
+    }
+    // The integer Gauss adaptor reports its single group's sigma too.
+    CHECK(oa::readAdaptionSigmas(ind, cfg, "GInt32GaussAdaptor").size() == 1);
+
+    // Drive sigma away from its seed, then reset it back.
+    bool moved = false;
+    for(int it = 0; it < 50 && not moved; ++it) {
+        oa::runAdaptionKernels(ind, cfg, gr);
+        std::vector<double> s = oa::readAdaptionSigmas(ind, cfg, "GDoubleGaussAdaptor");
+        for(double v : s) {
+            if(v != 0.5) {
+                moved = true;
+            }
+        }
+    }
+    CHECK(moved); // sigma self-adapted away from the seed
+
+    oa::resetAdaptionState(ind, cfg);
+    std::vector<double> sig_reset = oa::readAdaptionSigmas(ind, cfg, "GDoubleGaussAdaptor");
+    REQUIRE(sig_reset.size() == 3);
+    for(double s : sig_reset) {
+        CHECK(s == 0.5); // back to the configured seed
+    }
+}
+
+/******************************************************************************/
+TEST_CASE("GAdaptionConfig: installInto seeds the per-group state", "[flat][adaptcfg]") {
+    AdaptCfgIndividual ind;
+    oa::GEAAdaptionConfig cfg(ind);
+
+    // Author a distinct seed, install it, and read it back through the sigma reader.
+    cfg.groupDouble(0).gauss(1.25, 0.8, 1e-3, 2., 1.);
+    cfg.installInto(ind);
+
+    std::vector<double> sig = oa::readAdaptionSigmas(ind, cfg, "GDoubleGaussAdaptor");
+    REQUIRE(sig.size() == 3);
+    CHECK(sig[0] == 1.25); // the re-seeded group
+    CHECK(sig[1] == 0.5);  // the others keep their original seed
+    CHECK(sig[2] == 0.5);
+}

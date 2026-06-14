@@ -1,0 +1,296 @@
+/********************************************************************************
+ *
+ * This file is part of the Geneva library collection. The following license
+ * applies to this file:
+ *
+ * ------------------------------------------------------------------------------
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------
+ *
+ * Note that other files in the Geneva library collection may use a different
+ * license. Please see the licensing information in each file.
+ *
+ ********************************************************************************
+ *
+ * See the NOTICE file in the top-level directory of the Geneva library
+ * collection for a list of contributors and copyright information.
+ *
+ ********************************************************************************/
+
+#pragma once
+
+// Global checks, defines and includes needed for all of Geneva
+#include "common/GGlobalDefines.hpp"
+
+// Standard header files go here
+#include <cstdint>
+#include <span>
+#include <string>
+#include <vector>
+
+// Geneva headers go here
+#include "geneva/ind/GAdaptionAuxKeys.hpp"
+#include "geneva/ind/GAdaptionKernels.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
+#include "hap/GRandomBase.hpp"
+
+namespace Gem::Geneva::OptimizationAlgorithms {
+
+/******************************************************************************/
+/**
+ * The OA-side adaption logic, expressed as stateless free functions over (individual, config, RNG). It
+ * is the data-oriented twin of the individual's GFlatGenome::customAdaptions() / updateAdaptorsOnStall()
+ * / queryAdaptor(), but driven by an OA-OWNED GAdaptionConfig rather than by the (soon structure-only)
+ * genome layout. The config supplies each group's adaptor kind + parameters; the genome supplies the
+ * mutable internal value spans and the per-group evolving state (in its auxiliary store); the RNG is the
+ * individual's own per-individual stream. Each call touches only this individual's values + state + RNG
+ * and reads the shared config read-only, so the functions compose with the EA's parallel adaptChildren_.
+ *
+ * In Phase 8 step 2 these are NEW, not yet wired into any OA; step 3 routes EA / SA / GParChild through
+ * them and deletes the equivalent methods from the individual.
+ */
+
+namespace detail {
+
+using Gem::Geneva::Parameters::AuxKey;
+using Gem::Geneva::Parameters::BiGaussState;
+using Gem::Geneva::Parameters::FlipState;
+using Gem::Geneva::Parameters::GaussState;
+using Gem::Geneva::Parameters::GFlatGenome;
+using Gem::Geneva::Parameters::GroupSpec;
+
+/** @brief Runs the Gauss kernel over one FP channel using the GaussState block under key. */
+template <typename T>
+std::size_t adaptGaussChannel(
+    GFlatGenome &ind,
+    const std::vector<GroupSpec<T>> &groups,
+    std::span<T> values,
+    AuxKey key,
+    Gem::Hap::GRandomBase &gr
+) {
+    if(not ind.hasAux(key)) {
+        return 0;
+    }
+    std::span<GaussState<T>> states = ind.metaRecords<GaussState<T>>(key);
+    std::size_t n = 0;
+    for(std::size_t gi = 0; gi < groups.size(); ++gi) {
+        const GroupSpec<T> &g = groups[gi];
+        if(not g.has_gauss || not g.active) {
+            continue;
+        }
+        n += Gem::Geneva::Parameters::adaptGaussGroup<T>(
+            g.gauss, states[gi], values.subspan(g.start, g.len), g.range, gr
+        );
+    }
+    return n;
+}
+
+/** @brief Runs the bi-gaussian kernel over one FP channel using the BiGaussState block under key. */
+template <typename T>
+std::size_t adaptBiGaussChannel(
+    GFlatGenome &ind,
+    const std::vector<GroupSpec<T>> &groups,
+    std::span<T> values,
+    AuxKey key,
+    Gem::Hap::GRandomBase &gr
+) {
+    if(not ind.hasAux(key)) {
+        return 0;
+    }
+    std::span<BiGaussState<T>> states = ind.metaRecords<BiGaussState<T>>(key);
+    std::size_t n = 0;
+    for(std::size_t gi = 0; gi < groups.size(); ++gi) {
+        const GroupSpec<T> &g = groups[gi];
+        if(not g.has_bigauss || not g.active) {
+            continue;
+        }
+        n += Gem::Geneva::Parameters::adaptBiGaussGroup<T>(
+            g.bigauss, states[gi], values.subspan(g.start, g.len), g.range, gr
+        );
+    }
+    return n;
+}
+
+} // namespace detail
+
+/******************************************************************************/
+/**
+ * @brief Runs the data-oriented adaption kernels over an individual once, driven by the config (the
+ * "customAdaptions" half of adapt(), config-injected). Mirrors GFlatGenome::customAdaptions()'s channel
+ * order exactly. Returns the number of values actually adapted.
+ */
+inline std::size_t
+runAdaptionKernels(detail::GFlatGenome &ind, const GAdaptionConfigBase &cfg, Gem::Hap::GRandomBase &gr) {
+    using namespace Gem::Geneva::Parameters;
+
+    std::size_t n = 0;
+    n += detail::adaptGaussChannel<double>(ind, cfg.doubleGroups(), ind.internalDoubleValues(), AUXKEY_GAUSS_DOUBLE, gr);
+    n += detail::adaptGaussChannel<float>(ind, cfg.floatGroups(), ind.internalFloatValues(), AUXKEY_GAUSS_FLOAT, gr);
+    n += detail::adaptBiGaussChannel<double>(ind, cfg.doubleGroups(), ind.internalDoubleValues(), AUXKEY_BIGAUSS_DOUBLE, gr);
+    n += detail::adaptBiGaussChannel<float>(ind, cfg.floatGroups(), ind.internalFloatValues(), AUXKEY_BIGAUSS_FLOAT, gr);
+
+    // Integer Gauss (state is GaussState<double>, range is int32).
+    if(ind.hasAux(AUXKEY_GAUSS_INT)) {
+        std::span<GaussState<double>> states = ind.metaRecords<GaussState<double>>(AUXKEY_GAUSS_INT);
+        std::span<std::int32_t> values = ind.internalInt32Values();
+        const auto &groups = cfg.int32Groups();
+        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
+            const GroupSpec<std::int32_t> &g = groups[gi];
+            if(not g.has_gauss || not g.active) {
+                continue;
+            }
+            n += adaptGaussIntGroup(g.gauss, states[gi], values.subspan(g.start, g.len), g.range, gr);
+        }
+    }
+
+    // Flip over the int32 channel.
+    if(ind.hasAux(AUXKEY_FLIP_INT)) {
+        std::span<FlipState> states = ind.metaRecords<FlipState>(AUXKEY_FLIP_INT);
+        std::span<std::int32_t> values = ind.internalInt32Values();
+        const auto &groups = cfg.int32Groups();
+        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
+            const GroupSpec<std::int32_t> &g = groups[gi];
+            if(not g.has_flip || not g.active) {
+                continue;
+            }
+            n += adaptFlipIntGroup(g.flip, states[gi], values.subspan(g.start, g.len), gr);
+        }
+    }
+
+    // Flip over the bool channel.
+    if(ind.hasAux(AUXKEY_FLIP_BOOL)) {
+        std::span<FlipState> states = ind.metaRecords<FlipState>(AUXKEY_FLIP_BOOL);
+        std::span<std::uint8_t> values = ind.internalBoolValues();
+        const auto &groups = cfg.boolGroups();
+        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
+            const GroupSpec<bool> &g = groups[gi];
+            if(not g.has_flip || not g.active) {
+                continue;
+            }
+            n += adaptFlipBoolGroup(g.flip, states[gi], values.subspan(g.start, g.len), gr);
+        }
+    }
+
+    return n;
+}
+
+/******************************************************************************/
+/**
+ * @brief Resets an individual's per-group adaption state to the config's seed values (the stall-reset).
+ * Mirrors GFlatGenome::updateAdaptorsOnStall(), but driven by the OA-owned config.
+ */
+inline void resetAdaptionState(detail::GFlatGenome &ind, const GAdaptionConfigBase &cfg) {
+    using namespace Gem::Geneva::Parameters;
+
+    auto resetGauss = [&]<typename T>(const std::vector<GroupSpec<T>> &groups, AuxKey key) {
+        if(not ind.hasAux(key)) {
+            return;
+        }
+        std::span<GaussState<adaption_fp_t<T>>> states = ind.metaRecords<GaussState<adaption_fp_t<T>>>(key);
+        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
+            if(not groups[gi].has_gauss) {
+                continue;
+            }
+            states[gi].sigma = groups[gi].start_sigma;
+            states[gi].ad_prob = groups[gi].start_ad_prob;
+            states[gi].counter = 0;
+        }
+    };
+    auto resetBiGauss = [&]<typename T>(const std::vector<GroupSpec<T>> &groups, AuxKey key) {
+        if(not ind.hasAux(key)) {
+            return;
+        }
+        std::span<BiGaussState<adaption_fp_t<T>>> states = ind.metaRecords<BiGaussState<adaption_fp_t<T>>>(key);
+        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
+            if(not groups[gi].has_bigauss) {
+                continue;
+            }
+            states[gi].sigma1 = groups[gi].start_sigma1;
+            states[gi].sigma2 = groups[gi].start_sigma2;
+            states[gi].delta = groups[gi].start_delta;
+            states[gi].ad_prob = groups[gi].start_ad_prob;
+            states[gi].counter = 0;
+        }
+    };
+    auto resetFlip = [&]<typename T>(const std::vector<GroupSpec<T>> &groups, AuxKey key) {
+        if(not ind.hasAux(key)) {
+            return;
+        }
+        std::span<FlipState> states = ind.metaRecords<FlipState>(key);
+        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
+            if(not groups[gi].has_flip) {
+                continue;
+            }
+            states[gi].ad_prob = groups[gi].start_ad_prob;
+        }
+    };
+
+    resetGauss(cfg.doubleGroups(), AUXKEY_GAUSS_DOUBLE);
+    resetGauss(cfg.floatGroups(), AUXKEY_GAUSS_FLOAT);
+    resetGauss(cfg.int32Groups(), AUXKEY_GAUSS_INT); // GaussState<adaption_fp_t<int32>> = GaussState<double>
+    resetBiGauss(cfg.doubleGroups(), AUXKEY_BIGAUSS_DOUBLE);
+    resetBiGauss(cfg.floatGroups(), AUXKEY_BIGAUSS_FLOAT);
+    resetFlip(cfg.int32Groups(), AUXKEY_FLIP_INT);
+    resetFlip(cfg.boolGroups(), AUXKEY_FLIP_BOOL);
+}
+
+/******************************************************************************/
+/**
+ * @brief Reads the current per-group sigma of a named Gauss adaptor from an individual's adaption state
+ * (one entry per Gauss group), replacing GFlatGenome::queryAdaptor() for the pluggable monitors and the
+ * in-fitness sigma logging. Recognised names: "GDoubleGaussAdaptor", "GFloatGaussAdaptor",
+ * "GInt32GaussAdaptor". Sigmas are returned as double (the float sigma widened).
+ */
+inline std::vector<double> readAdaptionSigmas(
+    const detail::GFlatGenome &ind,
+    const GAdaptionConfigBase &cfg,
+    const std::string &adaptor_name
+) {
+    using namespace Gem::Geneva::Parameters;
+    std::vector<double> out;
+
+    if(adaptor_name == "GDoubleGaussAdaptor" && ind.hasAux(AUXKEY_GAUSS_DOUBLE)) {
+        std::span<const GaussState<double>> states = ind.metaRecords<GaussState<double>>(AUXKEY_GAUSS_DOUBLE);
+        const auto &groups = cfg.doubleGroups();
+        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
+            if(groups[gi].has_gauss) {
+                out.push_back(states[gi].sigma);
+            }
+        }
+    }
+    else if(adaptor_name == "GFloatGaussAdaptor" && ind.hasAux(AUXKEY_GAUSS_FLOAT)) {
+        std::span<const GaussState<float>> states = ind.metaRecords<GaussState<float>>(AUXKEY_GAUSS_FLOAT);
+        const auto &groups = cfg.floatGroups();
+        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
+            if(groups[gi].has_gauss) {
+                out.push_back(static_cast<double>(states[gi].sigma));
+            }
+        }
+    }
+    else if(adaptor_name == "GInt32GaussAdaptor" && ind.hasAux(AUXKEY_GAUSS_INT)) {
+        std::span<const GaussState<double>> states = ind.metaRecords<GaussState<double>>(AUXKEY_GAUSS_INT);
+        const auto &groups = cfg.int32Groups();
+        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
+            if(groups[gi].has_gauss) {
+                out.push_back(states[gi].sigma);
+            }
+        }
+    }
+
+    return out;
+}
+
+/******************************************************************************/
+
+} /* namespace Gem::Geneva::OptimizationAlgorithms */

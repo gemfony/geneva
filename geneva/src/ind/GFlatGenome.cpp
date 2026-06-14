@@ -48,6 +48,7 @@
 #include "common/GLogger.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
+#include "geneva/ind/GAdaptionAuxKeys.hpp"
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
@@ -55,16 +56,8 @@
 
 namespace Gem::Geneva::Parameters {
 
-namespace {
-/** @brief Auxiliary-store keys under which the per-group adaption state is kept (one per kind+channel). */
-constexpr AuxKey AUXKEY_GAUSS_DOUBLE = 1;
-constexpr AuxKey AUXKEY_GAUSS_FLOAT = 2;
-constexpr AuxKey AUXKEY_BIGAUSS_DOUBLE = 3;
-constexpr AuxKey AUXKEY_BIGAUSS_FLOAT = 4;
-constexpr AuxKey AUXKEY_FLIP_INT = 5;
-constexpr AuxKey AUXKEY_FLIP_BOOL = 6;
-constexpr AuxKey AUXKEY_GAUSS_INT = 7;
-} // namespace
+// The per-group adaption-state auxiliary-store keys (AUXKEY_*) are defined in GAdaptionAuxKeys.hpp,
+// shared with the OA-side adaption logic so both address the very same state blocks.
 
 /******************************************************************************/
 /**

@@ -37,6 +37,7 @@ SET ( ${EXECUTABLENAME}_SRCS
 	GAdaptionKernelTests.cpp
 	GFlatGenomeTests.cpp
 	GFlatOptimizationAlgorithmsTests.cpp
+	GAdaptionConfigTests.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
