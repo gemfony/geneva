@@ -50,17 +50,8 @@
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/par/GBooleanAdaptor.hpp"
-#include "geneva/par/GBooleanCollection.hpp"
-#include "geneva/par/GConstrainedDoubleCollection.hpp"
-#include "geneva/par/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/par/GConstrainedInt32ObjectCollection.hpp"
-#include "geneva/par/GDoubleBiGaussAdaptor.hpp"
-#include "geneva/par/GDoubleCollection.hpp"
-#include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/par/GDoubleObjectCollection.hpp"
-#include "geneva/par/GInt32FlipAdaptor.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 
@@ -125,7 +116,7 @@ class GExternalEvaluatorIndividualFactory;
  * utility. Hence the external program needs to understand the XML format.
  */
 class GExternalEvaluatorIndividual
-  : public gpar::GTreeGenome { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gpar::GFlatGenome { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
     friend class boost::serialization::access;
@@ -158,7 +149,7 @@ class GExternalEvaluatorIndividual
         // run_id_ was previously omitted here and silently lost on
         // (de)serialization; derive the member list from the single
         // localMembers() declaration so it stays in sync.
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome);
         Gem::Common::serialize_members(ar, this->localMembers());
     }
 
@@ -241,7 +232,7 @@ private:
     /***************************************************************************/
 
     /** @brief Creates a deep clone of this object */
-    gpar::GTreeGenome *clone_() const final;
+    gpar::GFlatGenome *clone_() const final;
 
     /***************************************************************************/
 

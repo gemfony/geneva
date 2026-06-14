@@ -74,10 +74,16 @@ class ParamHandle {
 public:
     using adfp = adaption_fp_t<T>;
 
-    ParamHandle(ChannelLayout<T> *ch, std::vector<T> *values, std::size_t group_index)
+    ParamHandle(
+        ChannelLayout<T> *ch,
+        std::vector<T> *values,
+        std::size_t group_index,
+        std::size_t group_count = 1
+    )
       : ch_(ch)
       , values_(values)
-      , gi_(group_index) {
+      , gi_(group_index)
+      , count_(group_count) {
         /* nothing */
     }
 
@@ -98,18 +104,19 @@ public:
             std::is_floating_point_v<T>,
             "gaussAdaptor() is only available for floating point parameters"
         );
-        GroupSpec<T> &g = ch_->groups.at(gi_);
-        g.has_gauss = true;
-        g.start_sigma = sigma;
-        g.start_ad_prob = ad_prob;
-        g.gauss.sigma_sigma = sigma_sigma;
-        g.gauss.min_sigma = min_sigma;
-        g.gauss.max_sigma = max_sigma;
-        g.gauss.min_ad_prob = min_ad_prob;
-        g.gauss.max_ad_prob = max_ad_prob;
-        g.gauss.adapt_ad_prob = adapt_ad_prob;
-        g.gauss.adaption_threshold = adaption_threshold;
-        g.gauss.mode = mode;
+        this->forEachGroup([&](GroupSpec<T> &g) {
+            g.has_gauss = true;
+            g.start_sigma = sigma;
+            g.start_ad_prob = ad_prob;
+            g.gauss.sigma_sigma = sigma_sigma;
+            g.gauss.min_sigma = min_sigma;
+            g.gauss.max_sigma = max_sigma;
+            g.gauss.min_ad_prob = min_ad_prob;
+            g.gauss.max_ad_prob = max_ad_prob;
+            g.gauss.adapt_ad_prob = adapt_ad_prob;
+            g.gauss.adaption_threshold = adaption_threshold;
+            g.gauss.mode = mode;
+        });
         return *this;
     }
 
@@ -137,27 +144,28 @@ public:
             std::is_floating_point_v<T>,
             "biGaussAdaptor() is only available for floating point parameters"
         );
-        GroupSpec<T> &g = ch_->groups.at(gi_);
-        g.has_bigauss = true;
-        g.start_sigma1 = sigma1;
-        g.start_sigma2 = sigma2;
-        g.start_delta = delta;
-        g.start_ad_prob = ad_prob;
-        g.bigauss.sigma_sigma1 = sigma_sigma1;
-        g.bigauss.sigma_sigma2 = sigma_sigma2;
-        g.bigauss.sigma_delta = sigma_delta;
-        g.bigauss.min_sigma1 = min_sigma1;
-        g.bigauss.max_sigma1 = max_sigma1;
-        g.bigauss.min_sigma2 = min_sigma2;
-        g.bigauss.max_sigma2 = max_sigma2;
-        g.bigauss.min_delta = min_delta;
-        g.bigauss.max_delta = max_delta;
-        g.bigauss.min_ad_prob = adfp(0);
-        g.bigauss.max_ad_prob = adfp(1);
-        g.bigauss.adapt_ad_prob = adapt_ad_prob;
-        g.bigauss.adaption_threshold = adaption_threshold;
-        g.bigauss.use_symmetric_sigmas = use_symmetric_sigmas;
-        g.bigauss.mode = mode;
+        this->forEachGroup([&](GroupSpec<T> &g) {
+            g.has_bigauss = true;
+            g.start_sigma1 = sigma1;
+            g.start_sigma2 = sigma2;
+            g.start_delta = delta;
+            g.start_ad_prob = ad_prob;
+            g.bigauss.sigma_sigma1 = sigma_sigma1;
+            g.bigauss.sigma_sigma2 = sigma_sigma2;
+            g.bigauss.sigma_delta = sigma_delta;
+            g.bigauss.min_sigma1 = min_sigma1;
+            g.bigauss.max_sigma1 = max_sigma1;
+            g.bigauss.min_sigma2 = min_sigma2;
+            g.bigauss.max_sigma2 = max_sigma2;
+            g.bigauss.min_delta = min_delta;
+            g.bigauss.max_delta = max_delta;
+            g.bigauss.min_ad_prob = adfp(0);
+            g.bigauss.max_ad_prob = adfp(1);
+            g.bigauss.adapt_ad_prob = adapt_ad_prob;
+            g.bigauss.adaption_threshold = adaption_threshold;
+            g.bigauss.use_symmetric_sigmas = use_symmetric_sigmas;
+            g.bigauss.mode = mode;
+        });
         return *this;
     }
 
@@ -173,52 +181,65 @@ public:
             std::is_integral_v<T>,
             "flipAdaptor() is only available for integer and boolean parameters"
         );
-        GroupSpec<T> &g = ch_->groups.at(gi_);
-        g.has_flip = true;
-        g.start_ad_prob = ad_prob;
-        g.flip.min_ad_prob = min_ad_prob;
-        g.flip.max_ad_prob = max_ad_prob;
-        g.flip.adapt_ad_prob = adapt_ad_prob;
-        g.flip.mode = mode;
+        this->forEachGroup([&](GroupSpec<T> &g) {
+            g.has_flip = true;
+            g.start_ad_prob = ad_prob;
+            g.flip.min_ad_prob = min_ad_prob;
+            g.flip.max_ad_prob = max_ad_prob;
+            g.flip.adapt_ad_prob = adapt_ad_prob;
+            g.flip.mode = mode;
+        });
         return *this;
     }
 
     /** @brief Sets the adaption mode for this group (NEVER ⇒ the group is inactive). */
     ParamHandle &adaptionMode(Gem::Geneva::adaptionMode mode) {
-        GroupSpec<T> &g = ch_->groups.at(gi_);
-        g.gauss.mode = mode;
-        g.bigauss.mode = mode;
-        g.flip.mode = mode;
-        g.active = (mode != adaptionMode::NEVER);
-        for(std::uint32_t k = 0; k < g.len; ++k) {
-            ch_->active.at(g.start + k) = g.active ? 1 : 0;
-        }
+        this->forEachGroup([&](GroupSpec<T> &g) {
+            g.gauss.mode = mode;
+            g.bigauss.mode = mode;
+            g.flip.mode = mode;
+            g.active = (mode != adaptionMode::NEVER);
+            for(std::uint32_t k = 0; k < g.len; ++k) {
+                ch_->active.at(g.start + k) = g.active ? 1 : 0;
+            }
+        });
         return *this;
     }
 
-    /** @brief Sets a fixed start value for every parameter of this group. */
+    /** @brief Sets a fixed start value for every parameter of this handle's group(s). */
     ParamHandle &init(T v) {
-        const GroupSpec<T> &g = ch_->groups.at(gi_);
-        for(std::uint32_t k = 0; k < g.len; ++k) {
-            values_->at(g.start + k) = v;
-        }
+        this->forEachGroup([&](GroupSpec<T> &g) {
+            for(std::uint32_t k = 0; k < g.len; ++k) {
+                values_->at(g.start + k) = v;
+            }
+        });
         return *this;
     }
 
-    /** @brief Sets the random-initialization perimeter for this group. */
+    /** @brief Sets the random-initialization perimeter for this handle's group(s). */
     ParamHandle &perimeter(T lo, T hi) {
-        const GroupSpec<T> &g = ch_->groups.at(gi_);
-        for(std::uint32_t k = 0; k < g.len; ++k) {
-            ch_->init_lower.at(g.start + k) = lo;
-            ch_->init_upper.at(g.start + k) = hi;
-        }
+        this->forEachGroup([&](GroupSpec<T> &g) {
+            for(std::uint32_t k = 0; k < g.len; ++k) {
+                ch_->init_lower.at(g.start + k) = lo;
+                ch_->init_upper.at(g.start + k) = hi;
+            }
+        });
         return *this;
     }
 
 private:
+    /** @brief Applies fn to every group this handle spans (1 for a single/group add, n for an array). */
+    template <typename F>
+    void forEachGroup(F fn) {
+        for(std::size_t gi = gi_; gi < gi_ + count_; ++gi) {
+            fn(ch_->groups.at(gi));
+        }
+    }
+
     ChannelLayout<T> *ch_;     ///< the channel this group lives in (owned by the builder)
     std::vector<T> *values_;   ///< the builder's start-value array for this channel
-    std::size_t gi_;           ///< the index of this group within the channel
+    std::size_t gi_;           ///< the index of the first group within the channel
+    std::size_t count_;        ///< number of consecutive groups this handle spans
 };
 
 /******************************************************************************/
@@ -249,6 +270,14 @@ public:
     }
     ParamHandle<double> addDoubleArray(std::size_t n, double min, double max) {
         return addArray(layout_.d, dv_, n, min, max, ParamKind::Constrained);
+    }
+    // Unbounded (plain) collections -- like GDoubleCollection / GDoubleObjectCollection: min/max are
+    // not constraints (no fold), they only set the random-init perimeter + the Gauss step range.
+    ParamHandle<double> addDoublePlainGroup(std::size_t n, double initMin, double initMax) {
+        return addGrouped(layout_.d, dv_, n, initMin, initMax, ParamKind::Plain, /*plain_init_from_bounds=*/true);
+    }
+    ParamHandle<double> addDoublePlainArray(std::size_t n, double initMin, double initMax) {
+        return addArray(layout_.d, dv_, n, initMin, initMax, ParamKind::Plain, /*plain_init_from_bounds=*/true);
     }
 
     /***************************************************************************/
@@ -333,9 +362,10 @@ private:
         T init,
         T min,
         T max,
-        ParamKind kind
+        ParamKind kind,
+        bool plain_init_from_bounds = false
     ) {
-        return addGroupImpl(ch, values, 1, init, min, max, kind, /* grouped = */ true);
+        return addGroupImpl(ch, values, 1, init, min, max, kind, plain_init_from_bounds);
     }
 
     // n parameters sharing one group.
@@ -346,9 +376,10 @@ private:
         std::size_t n,
         T min,
         T max,
-        ParamKind kind
+        ParamKind kind,
+        bool plain_init_from_bounds = false
     ) {
-        return addGroupImpl(ch, values, n, min, min, max, kind, /* grouped = */ true);
+        return addGroupImpl(ch, values, n, min, min, max, kind, plain_init_from_bounds);
     }
 
     // n parameters, each its own group of size 1. Returns a handle to the first group.
@@ -359,20 +390,26 @@ private:
         std::size_t n,
         T min,
         T max,
-        ParamKind kind
+        ParamKind kind,
+        bool plain_init_from_bounds = false
     ) {
         const std::size_t first_group = ch.groups.size();
         for(std::size_t k = 0; k < n; ++k) {
-            addGroupImpl(ch, values, 1, min, min, max, kind, /* grouped = */ true);
+            addGroupImpl(ch, values, 1, min, min, max, kind, plain_init_from_bounds);
         }
-        return ParamHandle<T>(&ch, &values, first_group);
+        // The handle spans all n freshly-created groups, so an adaptor / init / perimeter applied to it
+        // configures every one of them (not just the first).
+        return ParamHandle<T>(&ch, &values, first_group, n);
     }
 
     /***************************************************************************/
     /**
      * Appends one group of `len` values to a channel, extending all per-value vectors and registering
      * the group. `init` seeds the start value of every member; the init perimeter defaults to the
-     * bounds (Constrained) or [0,1] (Plain), and can be overridden via the returned handle.
+     * bounds (Constrained) or [0,1] (Plain), and can be overridden via the returned handle. For an
+     * unbounded (Plain) *collection* the caller passes plain_init_from_bounds = true so the random-init
+     * perimeter and the comparative Gauss step range follow [min, max] (like GDoubleCollection) rather
+     * than the conservative [0, 1] default used for a bare unbounded scalar.
      */
     template <typename T>
     ParamHandle<T> addGroupImpl(
@@ -383,12 +420,13 @@ private:
         T min,
         T max,
         ParamKind kind,
-        bool /* grouped */
+        bool plain_init_from_bounds
     ) {
         const auto start = static_cast<std::uint32_t>(ch.size());
 
-        const T init_lo = (kind == ParamKind::Constrained) ? min : T(0);
-        const T init_hi = (kind == ParamKind::Constrained) ? max : T(1);
+        const bool from_bounds = (kind == ParamKind::Constrained) || plain_init_from_bounds;
+        const T init_lo = from_bounds ? min : T(0);
+        const T init_hi = from_bounds ? max : T(1);
 
         for(std::size_t k = 0; k < len; ++k) {
             ch.lower.push_back(min);

@@ -32,13 +32,8 @@
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
-#include "geneva/par/GConstrainedDoubleCollection.hpp"
-#include "geneva/par/GConstrainedDoubleObject.hpp"
-#include "geneva/par/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/par/GDoubleCollection.hpp"
-#include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/par/GDoubleObject.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenomeBuilder.hpp"
 #include <cstddef>
 #include <istream>
 #include <memory>
@@ -97,64 +92,38 @@ GTestIndividual2::GTestIndividual2() { /* nothing */
 GTestIndividual2::GTestIndividual2(const std::size_t &n_objects, const PERFOBJECTTYPE &otype) {
     using namespace Gem::Geneva;
 
+    gpar::GGenomeBuilder b;
+
     // Fill with the requested amount of data of the requested type
     switch(otype) {
     case PERFOBJECTTYPE::PERFGDOUBLEOBJECT: {
+        // n unbounded double scalars, each with its own Gauss adaptor (GDoubleObject + adaptor).
         for(std::size_t i = 0; i < n_objects; i++) {
-            std::shared_ptr<gpar::GDoubleObject> gdo_ptr(new gpar::GDoubleObject(0.));
-            std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
-                new gpar::GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.)
-            );
-            gdo_ptr->addAdaptor(gdga_ptr);
-            this->push_back(gdo_ptr);
+            b.addDouble(0.).gaussAdaptor(0.025, 0.1, 0., 1., 1.);
         }
     } break;
 
     case PERFOBJECTTYPE::PERFGCONSTRDOUBLEOBJECT: {
+        // n constrained double scalars [-10, 10], each with its own Gauss adaptor.
         for(std::size_t i = 0; i < n_objects; i++) {
-            std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr(
-                new gpar::GConstrainedDoubleObject(0., -10., 10.)
-            );
-            std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
-                new gpar::GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.)
-            );
-            gcdo_ptr->addAdaptor(gdga_ptr);
-            this->push_back(gcdo_ptr);
+            b.addDouble(0., -10., 10.).gaussAdaptor(0.025, 0.1, 0., 1., 1.);
         }
     } break;
 
     case PERFOBJECTTYPE::PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION: {
-        std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr(
-            new gpar::GConstrainedDoubleObject(0., -10., 10.)
-        );
-        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
-            new gpar::GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.)
-        );
-        gcdo_ptr->addAdaptor(gdga_ptr);
-        std::shared_ptr<gpar::GConstrainedDoubleObjectCollection> gcdc_ptr(
-            new gpar::GConstrainedDoubleObjectCollection(n_objects, gcdo_ptr)
-        );
-        this->push_back(gcdc_ptr);
+        // n constrained double parameters [-10, 10], each its own adaption group
+        // (GConstrainedDoubleObjectCollection of GConstrainedDoubleObject, each with own adaptor).
+        b.addDoubleArray(n_objects, -10., 10.).gaussAdaptor(0.025, 0.1, 0., 1., 1.);
     } break;
 
     case PERFOBJECTTYPE::PERFGDOUBLECOLLECTION: {
-        std::shared_ptr<gpar::GDoubleCollection> gdc_ptr(new gpar::GDoubleCollection(n_objects, 0., -10., 10.));
-        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
-            new gpar::GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.)
-        );
-        gdc_ptr->addAdaptor(gdga_ptr);
-        this->push_back(gdc_ptr);
+        // n unbounded double parameters sharing one adaptor (GDoubleCollection).
+        b.addDoublePlainGroup(n_objects, -10., 10.).gaussAdaptor(0.025, 0.1, 0., 1., 1.);
     } break;
 
     case PERFOBJECTTYPE::PERFGCONSTRAINEDDOUBLECOLLECTION: {
-        std::shared_ptr<gpar::GConstrainedDoubleCollection> gcdc_ptr(
-            new gpar::GConstrainedDoubleCollection(n_objects, 0., -10., 10.)
-        );
-        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
-            new gpar::GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.)
-        );
-        gcdc_ptr->addAdaptor(gdga_ptr);
-        this->push_back(gcdc_ptr);
+        // n constrained double parameters [-10, 10] sharing one adaptor (GConstrainedDoubleCollection).
+        b.addDoubleGroup(n_objects, -10., 10.).gaussAdaptor(0.025, 0.1, 0., 1., 1.);
     } break;
 
     default: {
@@ -163,6 +132,8 @@ GTestIndividual2::GTestIndividual2(const std::size_t &n_objects, const PERFOBJEC
                 << GTERMINATION;
     } break;
     }
+
+    this->setGenome(b.build());
 }
 
 /******************************************************************************/
@@ -172,7 +143,7 @@ GTestIndividual2::GTestIndividual2(const std::size_t &n_objects, const PERFOBJEC
  * @param cp A constant reference to another GTestIndividual2 object
  */
 GTestIndividual2::GTestIndividual2(const GTestIndividual2 &cp)
-  : gpar::GTreeGenome(cp) { /* nothing */
+  : gpar::GFlatGenome(cp) { /* nothing */
 }
 
 /******************************************************************************/
@@ -187,7 +158,7 @@ GTestIndividual2::~GTestIndividual2() { /* nothing */
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GTreeGenome object
+ * @param cp A constant reference to another GFlatGenome object
  * @param e The expected outcome of the comparison
  */
 void GTestIndividual2::compare_(
@@ -205,7 +176,7 @@ void GTestIndividual2::compare_(
     Gem::Common::GToken token("GTestIndividual2", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GTreeGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
 
     // ...no local data
 
@@ -215,9 +186,9 @@ void GTestIndividual2::compare_(
 
 /******************************************************************************/
 /**
- * Loads the data of another GTestIndividual2, camouflaged as a GTreeGenome.
+ * Loads the data of another GTestIndividual2, camouflaged as a GFlatGenome.
  *
- * @param cp A copy of another GTestIndividual2, camouflaged as a GTreeGenome
+ * @param cp A copy of another GTestIndividual2, camouflaged as a GFlatGenome
  */
 void GTestIndividual2::load_(const gpar::GOptimizableEntity *cp) {
     using namespace Gem::Common;
@@ -228,7 +199,7 @@ void GTestIndividual2::load_(const gpar::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GTestIndividual2>(cp, this);
 
     // Load our parent's data
-    gpar::GTreeGenome::load_(cp);
+    gpar::GFlatGenome::load_(cp);
 
     // no local data
 }
@@ -237,9 +208,9 @@ void GTestIndividual2::load_(const gpar::GOptimizableEntity *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GTreeGenome
+ * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GTreeGenome *GTestIndividual2::clone_() const {
+gpar::GFlatGenome *GTestIndividual2::clone_() const {
     return new GTestIndividual2(*this);
 }
 
@@ -276,7 +247,7 @@ bool GTestIndividual2::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gpar::GTreeGenome::modify_GUnitTests_()) {
+    if(gpar::GFlatGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -300,7 +271,7 @@ void GTestIndividual2::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GTreeGenome::specificTestsNoFailureExpected_GUnitTests_();
+    gpar::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -322,7 +293,7 @@ void GTestIndividual2::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GTreeGenome::specificTestsFailuresExpected_GUnitTests_();
+    gpar::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------

@@ -78,39 +78,11 @@ int main(int argc, char **argv) {
             new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
         );
 
-        // Note: This object already contains a parameter object, in
-        // addition to those added below.
+        // The factory already produces an individual with a full (flat) genome from its config; we
+        // dump that to a property tree below. (Historically this block augmented the individual with
+        // hand-built tree parameter objects via push_back; that is not possible on the flat genome --
+        // parameters are authored once via GGenomeBuilder -- so the produced genome is used as-is.)
         std::shared_ptr<gpar::GOptimizableEntity> gfi_test = gfi_ptr->get();
-
-        dynamic_cast<gpar::GTreeGenome &>(*gfi_test).push_back(
-            std::shared_ptr<gpar::GConstrainedDoubleObject>(new gpar::GConstrainedDoubleObject(-7, 17))
-        );
-        dynamic_cast<gpar::GTreeGenome &>(*gfi_test).push_back(
-            std::shared_ptr<gpar::GConstrainedDoubleObject>(new gpar::GConstrainedDoubleObject(-5, 5))
-        );
-
-        // Add some more data
-        dynamic_cast<gpar::GTreeGenome &>(*gfi_test).push_back(std::shared_ptr<gpar::GBooleanObject>(new gpar::GBooleanObject()));
-        dynamic_cast<gpar::GTreeGenome &>(*gfi_test).push_back(std::shared_ptr<gpar::GDoubleObject>(new gpar::GDoubleObject()));
-        dynamic_cast<gpar::GTreeGenome &>(*gfi_test).push_back(
-            std::shared_ptr<gpar::GConstrainedDoubleObject>(new gpar::GConstrainedDoubleObject())
-        );
-        dynamic_cast<gpar::GTreeGenome &>(*gfi_test).push_back(std::shared_ptr<gpar::GInt32Object>(new gpar::GInt32Object()));
-        dynamic_cast<gpar::GTreeGenome &>(*gfi_test).push_back(
-            std::shared_ptr<gpar::GConstrainedInt32Object>(new gpar::GConstrainedInt32Object())
-        );
-
-        std::shared_ptr<gpar::GParameterObjectCollection> gpoc_ptr(new gpar::GParameterObjectCollection());
-        gpoc_ptr->push_back(std::shared_ptr<gpar::GDoubleObject>(new gpar::GDoubleObject()));
-        gpoc_ptr->push_back(std::shared_ptr<gpar::GDoubleObject>(new gpar::GDoubleObject()));
-        gpoc_ptr->push_back(std::shared_ptr<gpar::GDoubleObject>(new gpar::GDoubleObject()));
-        gpoc_ptr->push_back(
-            std::shared_ptr<gpar::GConstrainedDoubleCollection>(
-                new gpar::GConstrainedDoubleCollection(5, -10., 10.)
-            )
-        );
-
-        dynamic_cast<gpar::GTreeGenome &>(*gfi_test).push_back(gpoc_ptr);
 
         // Make sure the individual is "clean", i.e. the processed flag is set
         gfi_test->set_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);

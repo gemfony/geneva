@@ -46,7 +46,8 @@
 #include "courtier/GCourtierHelperFunctions.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/Go2.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenomeBuilder.hpp"
 
 // The individual that should be optimized
 #include "geneva/individuals/GFunctionIndividual.hpp"
@@ -365,21 +366,13 @@ int main(int argc, char **argv) {
     for(std::size_t p = 0; p < nParents; p++) {
         std::shared_ptr<gpar::GOptimizableEntity> functionIndividual_ptr = gfi();
 
-        // Set up a GDoubleCollection with dimension values, each initialized
-        // with a random number in the range [min,max[
-        std::shared_ptr<gpar::GDoubleCollection> gdc_ptr(new gpar::GDoubleCollection(parDim, minVar, maxVar));
-
-        // Set up and register an adaptor for the collection, so it
-        // knows how to be adapted.
-        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
-            new gpar::GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma)
-        );
-        gdga_ptr->setAdaptionThreshold(adaptionThreshold);
-        gdga_ptr->setAdaptionProbability(adProb);
-        gdc_ptr->addAdaptor(gdga_ptr);
-
-        // Make the parameter collection known to this individual
-        dynamic_cast<gpar::GTreeGenome &>(*functionIndividual_ptr).push_back(gdc_ptr);
+        // Give the individual a genome of `parDim` unbounded doubles in [minVar, maxVar[, sharing one
+        // Gauss adaptor (the flat-genome equivalent of a GDoubleCollection). This replaces the
+        // factory-produced genome with the benchmark's command-line geometry.
+        gpar::GGenomeBuilder b;
+        b.addDoublePlainGroup(parDim, minVar, maxVar)
+            .gaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma, adProb, 0., adaptionThreshold);
+        dynamic_cast<gpar::GFlatGenome &>(*functionIndividual_ptr).setGenome(b.build());
 
         parentIndividuals.push_back(functionIndividual_ptr);
     }

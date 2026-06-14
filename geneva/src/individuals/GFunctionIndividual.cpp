@@ -39,16 +39,8 @@
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GMultiConstraintT.hpp"
-#include "geneva/par/GAdaptorT.hpp"
-#include "geneva/par/GConstrainedDoubleCollection.hpp"
-#include "geneva/par/GConstrainedDoubleObject.hpp"
-#include "geneva/par/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/par/GDoubleBiGaussAdaptor.hpp"
-#include "geneva/par/GDoubleCollection.hpp"
-#include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/par/GDoubleObject.hpp"
-#include "geneva/par/GDoubleObjectCollection.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/par/GOptimizableEntityFactory.hpp"
 #include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
@@ -516,7 +508,7 @@ void GFunctionIndividual::compare_(
     Gem::Common::GToken token("GFunctionIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GTreeGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -533,7 +525,7 @@ void GFunctionIndividual::compare_(
  */
 void GFunctionIndividual::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    gpar::GTreeGenome::addConfigurationOptions_(gpb);
+    gpar::GFlatGenome::addConfigurationOptions_(gpb);
 
     // Local data
     gpb.registerFileParameter<solverFunction>(
@@ -611,9 +603,9 @@ std::size_t GFunctionIndividual::getParameterSize() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GFunctionIndividual, camouflaged as a GTreeGenome
+ * Loads the data of another GFunctionIndividual, camouflaged as a GFlatGenome
  *
- * @param cp A copy of another GFunctionIndividual, camouflaged as a GTreeGenome
+ * @param cp A copy of another GFunctionIndividual, camouflaged as a GFlatGenome
  */
 void GFunctionIndividual::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GFunctionIndividual reference independent of this object and convert the pointer
@@ -621,7 +613,7 @@ void GFunctionIndividual::load_(const gpar::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GFunctionIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GTreeGenome::load_(cp);
+    gpar::GFlatGenome::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -631,9 +623,9 @@ void GFunctionIndividual::load_(const gpar::GOptimizableEntity *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GTreeGenome
+ * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GTreeGenome *GFunctionIndividual::clone_() const {
+gpar::GFlatGenome *GFunctionIndividual::clone_() const {
     return new GFunctionIndividual(*this);
 }
 
@@ -649,7 +641,7 @@ bool GFunctionIndividual::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gpar::GTreeGenome::modify_GUnitTests_()) {
+    if(gpar::GFlatGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -673,7 +665,7 @@ void GFunctionIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GTreeGenome::specificTestsNoFailureExpected_GUnitTests_();
+    gpar::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -695,7 +687,7 @@ void GFunctionIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GTreeGenome::specificTestsFailuresExpected_GUnitTests_();
+    gpar::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -1652,164 +1644,60 @@ void GFunctionIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuild
  * @param p A smart-pointer to be acted on during post-processing
  */
 void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &p) {
-    // Set up a random number generator
-    Gem::Hap::GRandom gr;
+    const std::size_t n_data = par_dim_.value();
+    const double min_v = min_var_.value();
+    const double max_v = max_var_.value();
 
-    // Set up an adaptor for the collections, so they know how to be adapted
-    std::shared_ptr<gpar::GAdaptorT<double>> gat_ptr;
-    if(use_bi_gaussian_.value()) {
-        std::shared_ptr<gpar::GDoubleBiGaussAdaptor> gdbga_ptr(new gpar::GDoubleBiGaussAdaptor());
-        gdbga_ptr->setAllSigma1(
-            sigma1_.value(),
-            sigma_sigma1_.value(),
-            min_sigma1_.value(),
-            max_sigma1_.value()
-        );
-        gdbga_ptr->setAllSigma1(
-            sigma2_.value(),
-            sigma_sigma2_.value(),
-            min_sigma2_.value(),
-            max_sigma2_.value()
-        );
-        gdbga_ptr->setAllSigma1(
-            delta_.value(),
-            sigma_delta_.value(),
-            min_delta_.value(),
-            max_delta_.value()
-        );
-        gdbga_ptr->setAdaptionThreshold(adaption_threshold_.value());
-        gdbga_ptr->setAdaptionProbability(ad_prob_.value());
-        gat_ptr = gdbga_ptr;
-    }
-    else {
-        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(new gpar::GDoubleGaussAdaptor(
-            sigma1_.value(),
-            sigma_sigma1_.value(),
-            min_sigma1_.value(),
-            max_sigma1_.value()
-        ));
-        gdga_ptr->setAdaptionThreshold(adaption_threshold_.value());
-        gdga_ptr->setAdaptionProbability(ad_prob_.value());
-        gat_ptr = gdga_ptr;
-    }
+    // Attaches the configured adaptor (single Gauss or bi-Gauss) to one parameter / group handle,
+    // replacing the tree's "build a GDoubleGaussAdaptor / GDoubleBiGaussAdaptor and addAdaptor()" idiom.
+    auto applyAdaptor = [&](gpar::ParamHandle<double> &h) {
+        if(use_bi_gaussian_.value()) {
+            h.biGaussAdaptor(
+                sigma1_.value(), sigma_sigma1_.value(), min_sigma1_.value(), max_sigma1_.value(),
+                sigma2_.value(), sigma_sigma2_.value(), min_sigma2_.value(), max_sigma2_.value(),
+                delta_.value(), sigma_delta_.value(), min_delta_.value(), max_delta_.value(),
+                ad_prob_.value(), /* use_symmetric_sigmas = */ false, adapt_ad_prob_.value(),
+                adaption_threshold_.value()
+            );
+        }
+        else {
+            h.gaussAdaptor(
+                sigma1_.value(), sigma_sigma1_.value(), min_sigma1_.value(), max_sigma1_.value(),
+                ad_prob_.value(), adapt_ad_prob_.value(), adaption_threshold_.value(),
+                Gem::Geneva::adaptionMode::WITHPROBABILITY, min_ad_prob_.value(), max_ad_prob_.value()
+            );
+        }
+    };
 
-    // Store parameters pertaining to the adaption probability in the adaptor
-    gat_ptr->setAdaptAdProb(adapt_ad_prob_.value());
-    gat_ptr->setAdProbRange(min_ad_prob_.value(), max_ad_prob_.value());
-
-    // Find out about the amount of data items to be added
-    // std::size_t n_data = parDimLocal_?parDimLocal_:parDim_;
-    std::size_t n_data = par_dim_.value(); // NOLINT(cppcoreguidelines-init-variables)
-
-    // Set up the data collections
+    // Build the flat genome. The five legacy modes differ only in constrained-vs-unbounded and
+    // whether the parameters share one adaptor (a *collection*) or each carry their own (a collection
+    // of *objects* / individual objects). The start value is the lower perimeter; the optimization
+    // algorithm random-initialises within [min, max] regardless of init mode.
+    gpar::GGenomeBuilder b;
     switch(p_t_.value()) {
-    case parameterType::USEGDOUBLECOLLECTION: {
-        // Set up a collection, each initialized with a random number in the range [min,max[
-        // Random initialization happens in the constructor.
-        std::shared_ptr<gpar::GDoubleCollection> gdc_ptr;
-
-        if(initMode::INITRANDOM == i_m_.value()) {
-            gdc_ptr = std::make_shared<gpar::GDoubleCollection>(n_data, min_var_.value(), max_var_.value());
-        }
-        else { // initMode::INITPERIMETER
-            gdc_ptr = std::make_shared<gpar::GDoubleCollection>(
-                n_data,
-                min_var_.value(),
-                min_var_.value(),
-                max_var_.value()
-            );
-        }
-
-        gdc_ptr->addAdaptor(gat_ptr);
-
-        dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gdc_ptr);
+    case parameterType::USEGDOUBLECOLLECTION: { // unbounded, one shared adaptor
+        gpar::ParamHandle<double> h = b.addDoublePlainGroup(n_data, min_v, max_v);
+        applyAdaptor(h);
     } break;
 
-    case parameterType::USEGCONSTRAINEDOUBLECOLLECTION: {
-        // Set up a collection
-        std::shared_ptr<gpar::GConstrainedDoubleCollection> gcdc_ptr;
-
-        if(initMode::INITRANDOM == i_m_) {
-            gcdc_ptr = std::make_shared<gpar::GConstrainedDoubleCollection>(
-                n_data,
-                min_var_.value(),
-                max_var_.value()
-            );
-        }
-        else { // initMode::INITPERIMETER
-            gcdc_ptr = std::make_shared<gpar::GConstrainedDoubleCollection>(
-                n_data,
-                min_var_.value(),
-                min_var_.value(),
-                max_var_.value()
-            );
-        }
-
-        gcdc_ptr->addAdaptor(gat_ptr);
-
-        dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gcdc_ptr);
+    case parameterType::USEGCONSTRAINEDOUBLECOLLECTION: { // constrained, one shared adaptor
+        gpar::ParamHandle<double> h = b.addDoubleGroup(n_data, min_v, max_v);
+        applyAdaptor(h);
     } break;
 
-    case parameterType::USEGDOUBLEOBJECTCOLLECTION: {
-        // Set up a collection of GDoubleObject objects
-        std::shared_ptr<gpar::GDoubleObjectCollection> gdoc_ptr(new gpar::GDoubleObjectCollection());
-
-        // Fill the collection with GDoubleObject objects, each equipped with a copy of our adaptor
-        // Note that addAdaptor() itself will take care of cloning the adaptor
+    case parameterType::USEGDOUBLEOBJECTCOLLECTION: { // unbounded, an adaptor per parameter
         for(std::size_t i = 0; i < n_data; i++) {
-            std::shared_ptr<gpar::GDoubleObject> gdo_ptr(
-                new gpar::GDoubleObject(min_var_.value(), max_var_.value())
-            );
-            if(initMode::INITPERIMETER == i_m_.value()) {
-                *gdo_ptr = min_var_.value();
-            }
-
-            gdo_ptr->addAdaptor(gat_ptr);
-
-            gdoc_ptr->push_back(gdo_ptr);
+            gpar::ParamHandle<double> h = b.addDouble(min_v);
+            h.perimeter(min_v, max_v);
+            applyAdaptor(h);
         }
-
-        dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gdoc_ptr);
     } break;
 
-    case parameterType::USEGCONSTRAINEDDOUBLEOBJECTCOLLECTION: {
-        // Set up a collection of GConstrainedDoubleObject objects
-        std::shared_ptr<gpar::GConstrainedDoubleObjectCollection> gcdoc_ptr(
-            new gpar::GConstrainedDoubleObjectCollection()
-        );
-
-        // Fill the collection with GConstrainedDoubleObject objects, each equipped with a copy of our adaptor
-        // Note that addAdaptor() itself will take care of cloning the adaptor
+    case parameterType::USEGCONSTRAINEDDOUBLEOBJECTCOLLECTION:
+    case parameterType::USEGCONSTRAINEDDOUBLEOBJECT: { // constrained, an adaptor per parameter
         for(std::size_t i = 0; i < n_data; i++) {
-            std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr(
-                new gpar::GConstrainedDoubleObject(min_var_.value(), max_var_.value())
-            );
-            if(initMode::INITPERIMETER == i_m_.value()) {
-                *gcdo_ptr = min_var_.value();
-            }
-
-            gcdo_ptr->addAdaptor(gat_ptr);
-
-            gcdoc_ptr->push_back(gcdo_ptr);
-        }
-
-        dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gcdoc_ptr);
-    } break;
-
-    case parameterType::USEGCONSTRAINEDDOUBLEOBJECT: {
-        // Fill the individual with GConstrainedDoubleObject objects, each equipped with a copy of our adaptor
-        // Note that addAdaptor() itself will take care of cloning the adaptor
-        for(std::size_t i = 0; i < n_data; i++) {
-            std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr(
-                new gpar::GConstrainedDoubleObject(min_var_.value(), max_var_.value())
-            );
-            if(initMode::INITPERIMETER == i_m_.value()) {
-                *gcdo_ptr = min_var_.value();
-            }
-
-            gcdo_ptr->addAdaptor(gat_ptr);
-
-            dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gcdo_ptr);
+            gpar::ParamHandle<double> h = b.addDouble(min_v, min_v, max_v);
+            applyAdaptor(h);
         }
     } break;
 
@@ -1821,6 +1709,8 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizable
         );
     }
     }
+
+    dynamic_cast<gpar::GFlatGenome &>(*p).setGenome(b.build());
 }
 
 /******************************************************************************/

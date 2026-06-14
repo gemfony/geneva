@@ -1767,10 +1767,12 @@ constexpr std::size_t P_YDIM = 1400;
 template <typename ind_type>
 class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
   : public oa::GBasePluggableOM {
-    // Make sure this class can only be instantiated if individual_type is a derivative of GTreeGenome
+    // Make sure this class can only be instantiated if individual_type is an optimizable entity
+    // (the monitor reads individuals only through the genome-agnostic interface, so any genome model
+    // -- tree or flat -- qualifies).
     static_assert(
-        std::is_base_of_v<gpar::GTreeGenome, ind_type>,
-        "GTreeGenome is no base class of ind_type"
+        std::is_base_of_v<gpar::GOptimizableEntity, ind_type>,
+        "GOptimizableEntity is no base class of ind_type"
     );
 
     ///////////////////////////////////////////////////////////////////////

@@ -45,14 +45,8 @@
 
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
-#include "geneva/par/GConstrainedDoubleCollection.hpp"
-#include "geneva/par/GConstrainedDoubleObject.hpp"
-#include "geneva/par/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/par/GDoubleBiGaussAdaptor.hpp"
-#include "geneva/par/GDoubleCollection.hpp"
-#include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/par/GDoubleObjectCollection.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/par/GOptimizableEntityFactory.hpp"
 #include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
@@ -151,7 +145,7 @@ enum class solverFunction : Gem::Common::ENUMBASETYPE {
 	 * Negative parabola: f(x) = -Σxᵢ².
 	 * Global maximum: f=0 at x=(0,...,0). Recommended domain: any.
 	 * Used exclusively for maximisation tests to verify that Geneva's internal
-	 * maximisation mode (Go2/GTreeGenome maxMode) functions correctly. The
+	 * maximisation mode (Go2 maxMode) functions correctly. The
 	 * landscape is identical to PARABOLA but sign-inverted.
 	 */
     NEGPARABOLA = 7,
@@ -339,14 +333,14 @@ class GFunctionIndividualFactory;
  *       explicitly; the factory default of [-10, 10] is not suitable for that function.
  */
 class GFunctionIndividual
-  : public gpar::GTreeGenome // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gpar::GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome) &
             BOOST_SERIALIZATION_NVP(demo_function_);
     }
 
@@ -713,7 +707,7 @@ protected:
 private:
     //---------------------------------------------------------------------------
     /** @brief Creates a deep clone of this object */
-    gpar::GTreeGenome *clone_() const final;
+    gpar::GFlatGenome *clone_() const final;
 
     //---------------------------------------------------------------------------
     // Data

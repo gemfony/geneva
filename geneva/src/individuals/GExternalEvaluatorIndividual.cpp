@@ -37,11 +37,8 @@
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GMultiConstraintT.hpp"
-#include "geneva/par/GAdaptorT.hpp"
-#include "geneva/par/GConstrainedDoubleObject.hpp"
-#include "geneva/par/GDoubleBiGaussAdaptor.hpp"
-#include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 #include <algorithm>
@@ -80,7 +77,7 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
  * A standard copy constructor.
  */
 GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual &cp)
-  : gpar::GTreeGenome(cp) // copies all local collections
+  : gpar::GFlatGenome(cp) // copies all local collections
   , program_name_(cp.program_name_)
   , custom_options_(cp.custom_options_)
   , parameter_file_base_name_(cp.parameter_file_base_name_)
@@ -101,7 +98,7 @@ GExternalEvaluatorIndividual::~GExternalEvaluatorIndividual() { /* nothing */
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GTreeGenome object
+ * @param cp A constant reference to another GFlatGenome object
  * @param e The expected outcome of the comparison
  */
 void GExternalEvaluatorIndividual::compare_(
@@ -116,7 +113,7 @@ void GExternalEvaluatorIndividual::compare_(
     Gem::Common::GToken token("GExternalEvaluatorIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GTreeGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -212,9 +209,9 @@ std::size_t GExternalEvaluatorIndividual::getNExpectedResults() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GExternalEvaluatorIndividual, camouflaged as a GTreeGenome
+ * Loads the data of another GExternalEvaluatorIndividual, camouflaged as a GFlatGenome
  *
- * @param cp A copy of another GExternalEvaluatorIndividual, camouflaged as a GTreeGenome
+ * @param cp A copy of another GExternalEvaluatorIndividual, camouflaged as a GFlatGenome
  */
 void GExternalEvaluatorIndividual::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GExternalEvaluatorIndividual reference independent of this object and convert the pointer
@@ -222,7 +219,7 @@ void GExternalEvaluatorIndividual::load_(const gpar::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GExternalEvaluatorIndividual>(cp, this);
 
     // First load the data of our parent class ...
-    gpar::GTreeGenome::load_(cp);
+    gpar::GFlatGenome::load_(cp);
 
     // ... and then our own, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -232,9 +229,9 @@ void GExternalEvaluatorIndividual::load_(const gpar::GOptimizableEntity *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GTreeGenome
+ * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GTreeGenome *GExternalEvaluatorIndividual::clone_() const {
+gpar::GFlatGenome *GExternalEvaluatorIndividual::clone_() const {
     return new GExternalEvaluatorIndividual(*this);
 }
 
@@ -1587,29 +1584,11 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GOp
         );
     }
 
-    // Set up an adaptor for the collection, so they know how to be adapted
-    std::shared_ptr<gpar::GAdaptorT<double>> gat_ptr;
-    if(use_bi_gaussian_) {
-        std::shared_ptr<gpar::GDoubleBiGaussAdaptor> gdbga_ptr(new gpar::GDoubleBiGaussAdaptor());
-        gdbga_ptr->setAllSigma1(sigma1_, sigma_sigma1_, min_sigma1_, max_sigma1_);
-        gdbga_ptr->setAllSigma2(sigma2_, sigma_sigma2_, min_sigma2_, max_sigma2_);
-        gdbga_ptr->setAllDelta(delta_, sigma_delta_, min_delta_, max_delta_);
-        gdbga_ptr->setAdaptionThreshold(adaption_threshold_);
-        gdbga_ptr->setAdaptionProbability(ad_prob_);
-        gat_ptr = gdbga_ptr;
-    }
-    else {
-        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
-            new gpar::GDoubleGaussAdaptor(sigma1_, sigma_sigma1_, min_sigma1_, max_sigma1_)
-        );
-        gdga_ptr->setAdaptionThreshold(adaption_threshold_);
-        gdga_ptr->setAdaptionProbability(ad_prob_);
-        gat_ptr = gdga_ptr;
-    }
-
-    // Store parameters pertaining to the adaption probability in the adaptor
-    gat_ptr->setAdaptAdProb(adapt_ad_prob_);
-    gat_ptr->setAdProbRange(min_ad_prob_, max_ad_prob_);
+    // The flat genome is authored through a GGenomeBuilder: each discovered variable becomes one
+    // constrained double group, with a Gauss (or bi-Gauss) adaptor attached per the factory's
+    // configuration. The accumulated genome is installed on the individual after the loop via
+    // setGenome().
+    gpar::GGenomeBuilder gb;
 
     try {
         // Extract the number of individuals
@@ -1653,41 +1632,61 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GOp
                         double max_var = var_subtree.get<double>("upperBoundary");
                         double init_value = var_subtree.get<double>("values.value0");
 
-                        // Create an initial (empty) pointer to a GConstrainedDoubleObject
-                        std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr;
-
                         // Act on the information, depending on whether random initialization has been requested
                         if(
                             min_var == max_var
                         ) { // We take this as a sign that the parameter should not be modified
-                            // Create the parameter object
-                            gcdo_ptr = std::make_shared<gpar::GConstrainedDoubleObject>(
-                                init_value,
-                                init_value,
-                                std::max(1.0001 * init_value, init_value + 0.0001)
-                            );
-                            // Disable mutations
-                            gcdo_ptr->setAdaptionsInactive();
+                            // Create the parameter group and disable mutations for it. No adaptor is
+                            // attached; adaptionMode::NEVER mirrors the tree's setAdaptionsInactive().
+                            gb.addDouble(
+                                  init_value,
+                                  init_value,
+                                  std::max(1.0001 * init_value, init_value + 0.0001)
+                              )
+                                .adaptionMode(Gem::Geneva::adaptionMode::NEVER);
                         }
-                        else if(0 == var_subtree.count("initRandom") ||
-                                false == var_subtree.get<bool>("initRandom")) {
-                            // Create the parameter object
-                            gcdo_ptr = std::make_shared<gpar::GConstrainedDoubleObject>(
-                                init_value,
-                                min_var,
-                                max_var
-                            );
-                        }
-                        else { // Random initialization has been requested
-                            // Create the parameter object
-                            gcdo_ptr = std::make_shared<gpar::GConstrainedDoubleObject>(min_var, max_var);
-                        }
+                        else {
+                            // A constrained double over [min_var, max_var]. For the non-random case we
+                            // seed the start value with init_value; the random case lets randomInit()
+                            // overwrite it later (the init perimeter defaults to the bounds either way).
+                            auto h = gb.addDouble(init_value, min_var, max_var);
 
-                        // Add the adaptor to the parameter object
-                        gcdo_ptr->addAdaptor(gat_ptr);
-
-                        // Add the object to the individual
-                        dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gcdo_ptr);
+                            // Attach the configured adaptor to this group
+                            if(use_bi_gaussian_) {
+                                h.biGaussAdaptor(
+                                    sigma1_,
+                                    sigma_sigma1_,
+                                    min_sigma1_,
+                                    max_sigma1_,
+                                    sigma2_,
+                                    sigma_sigma2_,
+                                    min_sigma2_,
+                                    max_sigma2_,
+                                    delta_,
+                                    sigma_delta_,
+                                    min_delta_,
+                                    max_delta_,
+                                    ad_prob_,
+                                    /*use_symmetric_sigmas=*/false,
+                                    adapt_ad_prob_,
+                                    adaption_threshold_
+                                );
+                            }
+                            else {
+                                h.gaussAdaptor(
+                                    sigma1_,
+                                    sigma_sigma1_,
+                                    min_sigma1_,
+                                    max_sigma1_,
+                                    ad_prob_,
+                                    adapt_ad_prob_,
+                                    adaption_threshold_,
+                                    Gem::Geneva::adaptionMode::WITHPROBABILITY,
+                                    min_ad_prob_,
+                                    max_ad_prob_
+                                );
+                            }
+                        }
                     }
                     else {
                         throw geneva_exception(
@@ -1716,6 +1715,9 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GOp
                 << "No variables were specified" << '\n'
             );
         }
+
+        // Install the accumulated genome (value arrays + shared adaption layout) on the individual
+        p->setGenome(gb.build());
 
         // Add the program name and base name for parameter transfers to the object
         p->setExchangeBaseName(parameter_file_base_name_);
