@@ -174,16 +174,6 @@ public:
     /** @brief Perform a cross-over operation between this object and another */
     std::shared_ptr<GOptimizableEntity> crossOverWith(GOptimizableEntity const &) const override;
 
-    /** @brief Triggers updates of the adaption state on a stall (resets sigma / ad_prob to seeds) */
-    void updateAdaptorsOnStall(std::uint32_t) override;
-
-    /** @brief Retrieves information from the adaption state with a given property */
-    void queryAdaptor(
-        std::string const &adaptor_name,
-        std::string const &property,
-        std::vector<std::any> &data
-    ) const override;
-
     /** @brief Retrieves parameters relevant for the evaluation from another GFlatGenome */
     void cannibalize(GOptimizableEntity &) override;
 
@@ -380,21 +370,6 @@ private:
     std::size_t adaptFlipIntChannel();
     /** @brief Runs the flip kernel over the bool channel using the FlipState block under AUXKEY_FLIP_BOOL */
     std::size_t adaptFlipBoolChannel();
-
-    /** @brief Resets the Gauss state of one FP channel to its seeds (stall handling) */
-    template <typename T>
-    void resetFPChannel(ChannelLayout<T> const &ch, AuxKey key);
-
-    /** @brief Resets the bi-gaussian state of one FP channel to its seeds (stall handling) */
-    template <typename T>
-    void resetBiGaussChannel(ChannelLayout<T> const &ch, AuxKey key);
-
-    /** @brief Resets the integer Gauss state of the int32 channel to its seeds (stall handling) */
-    void resetGaussIntChannel();
-
-    /** @brief Resets the flip ad_prob of one int32 / bool channel to its seed (stall handling) */
-    template <typename T>
-    void resetFlipChannel(ChannelLayout<T> const &ch, AuxKey key);
 
     template <typename T>
     bool randomInitFP(std::vector<T> &store, ChannelLayout<T> const &ch, activityMode const &am);

@@ -50,6 +50,8 @@
 #include "geneva/ind/GFlatIndividualT.hpp"
 #include "geneva/ind/GGenomeArchitecture.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/oa/GAdaption.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/individuals/GNeuralNetworkIndividual.hpp"
 
 using namespace Gem::Geneva;
@@ -393,8 +395,13 @@ TEST_CASE("GFlatGenome: randomInit stays within bounds and changes values", "[fl
 }
 
 /******************************************************************************/
-TEST_CASE("GFlatGenome: updateAdaptorsOnStall resets sigma to its seed", "[flat]") {
+TEST_CASE("GFlatGenome: OA stall-reset restores sigma to its seed", "[flat][oa]") {
+    namespace oa = Gem::Geneva::OptimizationAlgorithms;
     FlatSphere ind(3);
+
+    // The OA-owned config drives both the sigma readout and the stall-reset (Phase 8). It is built from
+    // the individual's own shared layout and reads / resets the individual's per-group adaption state.
+    oa::GAdaptionConfigBase cfg(ind);
 
     // Drive the sigma self-adaption (adaption_threshold defaults to 1 -> sigma adapts every step).
     for(int i = 0; i < 30; ++i) {
@@ -402,16 +409,15 @@ TEST_CASE("GFlatGenome: updateAdaptorsOnStall resets sigma to its seed", "[flat]
     }
 
     auto sigmaNow = [&]() {
-        std::vector<std::any> data;
-        ind.queryAdaptor("GDoubleGaussAdaptor", "sigma", data);
-        REQUIRE(data.size() == 1);
-        return std::any_cast<double>(data[0]);
+        std::vector<double> s = oa::readAdaptionSigmas(ind, cfg, "GDoubleGaussAdaptor");
+        REQUIRE(s.size() == 1);
+        return s[0];
     };
 
     const double drifted = sigmaNow();
     CHECK(drifted != 0.5); // sigma has evolved away from its seed
 
-    ind.updateAdaptorsOnStall(3);
+    oa::resetAdaptionState(ind, cfg);
     CHECK(sigmaNow() == 0.5); // reset to the configured seed
 }
 

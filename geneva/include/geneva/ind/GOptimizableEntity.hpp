@@ -291,16 +291,6 @@ public:
     virtual std::shared_ptr<GOptimizableEntity>
     crossOverWith(GOptimizableEntity const &) const = 0;
 
-    /** @brief Triggers updates of adaptors contained in this object */
-    virtual void updateAdaptorsOnStall(std::uint32_t) = 0;
-
-    /** @brief Retrieves information from adaptors with a given property */
-    virtual void queryAdaptor(
-        std::string const &adaptor_name,
-        std::string const &property,
-        std::vector<std::any> &data
-    ) const = 0;
-
     /** @brief Retrieves parameters relevant for the evaluation from another GOptimizableEntity */
     virtual void cannibalize(GOptimizableEntity &) = 0;
 
