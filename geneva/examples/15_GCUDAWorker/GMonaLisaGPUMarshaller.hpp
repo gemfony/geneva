@@ -35,7 +35,7 @@
 #include <vector>
 
 // Geneva headers
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include "courtier/gpu/GGPUEvaluableI.hpp"
 #include "GImageScalar.hpp"
 #include "GMonaLisaProblem.hpp"
@@ -74,12 +74,13 @@ public:
             return;
         }
         std::vector<gimage_fp_t> pv;
-        // streamline<T> is a tree-template method; the work items are GImageIndividual (a GTreeGenome).
-        dynamic_cast<gpar::GTreeGenome const &>(*items.front()).streamline(pv);
+        // streamline<T> is a storage-agnostic method on GOptimizableEntity, so the flat GImageIndividual
+        // genome streamlines through the base pointer directly (no genome-model downcast).
+        items.front()->streamline(pv);
         const std::size_t dim = pv.size();
         params_out.resize(items.size() * dim);
         for(std::size_t i = 0; i < items.size(); ++i) {
-            dynamic_cast<gpar::GTreeGenome const &>(*items[i]).streamline(pv);
+            items[i]->streamline(pv);
             std::copy(pv.begin(), pv.end(),
                       params_out.begin() + static_cast<std::ptrdiff_t>(i * dim));
         }

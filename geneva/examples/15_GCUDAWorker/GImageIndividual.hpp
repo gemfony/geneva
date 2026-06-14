@@ -62,11 +62,9 @@
 #include "common/GGlobalOptionsT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GSingletonT.hpp"
-#include "geneva/par/GConstrainedDoubleObject.hpp"
-#include "geneva/par/GConstrainedFloatObject.hpp"
-#include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/par/GFloatGaussAdaptor.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "common/GUnitTestFrameworkT.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenomeBuilder.hpp"
 
 // Example-local headers
 #include "GImageScalar.hpp"
@@ -134,7 +132,7 @@ std::ostream &operator<<(std::ostream &, const CircleTriangle &);
      * that most closely resembles a given picture. It was developed
      * for evaluation using CUDA on a GPU.
      */
-class GImageIndividual final : public gpar::GTreeGenome {
+class GImageIndividual final : public gpar::GFlatGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -142,7 +140,7 @@ class GImageIndividual final : public gpar::GTreeGenome {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome) &
             BOOST_SERIALIZATION_NVP(nTriangles_) & BOOST_SERIALIZATION_NVP(alphaSort_);
     }
 
@@ -215,32 +213,16 @@ public:
             "or double"
         );
 
-        // Background colors are located at the end of the array
+        // Background colors are the last three values of the flat genome (10 per triangle + 3 bg).
         const std::size_t offset = 10 * nTriangles_;
 
-        if constexpr(std::is_same_v<fp_type, float>) {
-            // We want colors to be specified as floats
-            return {
-                std::clamp(static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 0)->value()), 0.f, 1.f), // r
-                std::clamp(static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 1)->value()), 0.f, 1.f), // g
-                std::clamp(static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 2)->value()), 0.f, 1.f)  // b
-            };
-        }
-        else if constexpr(std::is_same_v<fp_type, double>) {
-            return {
-                std::clamp(static_cast<double>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 0)->value()), 0., 1.), // r
-                std::clamp(static_cast<double>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 1)->value()), 0., 1.), // g
-                std::clamp(static_cast<double>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 2)->value()), 0., 1.)  // b
-            };
-        }
-        else {
-            // This should not happen
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GImageIndividual::getBackGroundColor(): Error!" << '\n'
-                << "Invalid type requested" << '\n'
-            );
-        }
+        std::vector<gimage_fp_t> parVec;
+        this->streamline(parVec);
+
+        const fp_type r = std::clamp(static_cast<fp_type>(parVec.at(offset + 0)), fp_type(0), fp_type(1));
+        const fp_type g = std::clamp(static_cast<fp_type>(parVec.at(offset + 1)), fp_type(0), fp_type(1));
+        const fp_type b = std::clamp(static_cast<fp_type>(parVec.at(offset + 2)), fp_type(0), fp_type(1));
+        return {r, g, b};
     }
 
 protected:
@@ -264,7 +246,7 @@ protected:
 private:
     /******************************************************************************/
     /** @brief Creates a deep clone of this object */
-    gpar::GTreeGenome *clone_() const override;
+    gpar::GFlatGenome *clone_() const override;
 
     /******************************************************************************/
     // Local parameters

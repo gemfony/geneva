@@ -196,167 +196,112 @@ void GImageIndividual::init(
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Create suitable adaptors
 
-    // Gaussian distributed random numbers
-    std::shared_ptr<gpar::GIMAGE_GAUSS_ADAPTOR> gdga_ptr_tmpl(
-        new gpar::GIMAGE_GAUSS_ADAPTOR(
+    // Build the flat genome via GGenomeBuilder. The streamline order matches the historical tree's
+    // push_back order exactly -- per triangle: cx, cy, radius, angle1..3, r, g, b, a (10 values), then
+    // the 3 background colours -- so getTriangleData() / getBackGroundColor() / the GPU marshaller read
+    // it positionally and the rasteriser is unchanged. Every value is a constrained gimage_fp_t with
+    // its own Gauss group (the tree gave each parameter its own cloned adaptor); the location params
+    // (cx, cy) use the "loc" adaptor config, everything else the main one.
+    changeBGColor_ = changeBGColor;
+
+    gpar::GGenomeBuilder bld;
+
+    // Adds one constrained gimage_fp_t parameter, dispatching to the matching builder channel.
+    auto addParam = [&bld](gimage_fp_t init, gimage_fp_t lo, gimage_fp_t hi) {
+        if constexpr(std::is_same_v<gimage_fp_t, float>) {
+            return bld.addFloat(init, lo, hi);
+        }
+        else {
+            return bld.addDouble(init, lo, hi);
+        }
+    };
+    auto mainGauss = [&](gpar::ParamHandle<gimage_fp_t> &h) {
+        h.gaussAdaptor(
             static_cast<gimage_fp_t>(sigma), static_cast<gimage_fp_t>(sigmaSigma),
-            static_cast<gimage_fp_t>(minSigma), static_cast<gimage_fp_t>(maxSigma)
-        )
-    );
-    gdga_ptr_tmpl->setAdaptionProbability(adProb);
-    gdga_ptr_tmpl->setAdaptAdProb(adaptAdProb);
-    gdga_ptr_tmpl->setAdProbRange(minAdProb, maxAdProb);
-
-    // Gaussian distributed random numbers for location parameters
-    std::shared_ptr<gpar::GIMAGE_GAUSS_ADAPTOR> loc_gdga_ptr_tmpl(
-        new gpar::GIMAGE_GAUSS_ADAPTOR(
+            static_cast<gimage_fp_t>(minSigma), static_cast<gimage_fp_t>(maxSigma),
+            static_cast<gimage_fp_t>(adProb), static_cast<gimage_fp_t>(adaptAdProb), 1,
+            adaptionMode::WITHPROBABILITY,
+            static_cast<gimage_fp_t>(minAdProb), static_cast<gimage_fp_t>(maxAdProb)
+        );
+    };
+    auto locGauss = [&](gpar::ParamHandle<gimage_fp_t> &h) {
+        h.gaussAdaptor(
             static_cast<gimage_fp_t>(loc_sigma), static_cast<gimage_fp_t>(loc_sigmaSigma),
-            static_cast<gimage_fp_t>(loc_minSigma), static_cast<gimage_fp_t>(loc_maxSigma)
-        )
-    );
-    loc_gdga_ptr_tmpl->setAdaptionProbability(loc_adProb);
-    loc_gdga_ptr_tmpl->setAdaptAdProb(loc_adaptAdProb);
-    loc_gdga_ptr_tmpl->setAdProbRange(loc_minAdProb, loc_maxAdProb);
+            static_cast<gimage_fp_t>(loc_minSigma), static_cast<gimage_fp_t>(loc_maxSigma),
+            static_cast<gimage_fp_t>(loc_adProb), static_cast<gimage_fp_t>(loc_adaptAdProb), 1,
+            adaptionMode::WITHPROBABILITY,
+            static_cast<gimage_fp_t>(loc_minAdProb), static_cast<gimage_fp_t>(loc_maxAdProb)
+        );
+    };
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Set up a hierarchical data structure holding the triangle information (compare the description of this function)
-
-    // Create one set of GConstrainedDoubleObjects for each triangle
     for(std::size_t t_cnt = 0; t_cnt < nTriangles_; t_cnt++) {
-        //--------------------------------------------------------------------------------------------
-        // Add objects for the middle-x and -y
-        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> middle_x_ptr(
-            new gpar::GIMAGE_CONSTRAINED_OBJECT(gimage_fp_t(0), gimage_fp_t(1))
+        // middle-x and -y: the location adaptor.
+        auto cx = addParam(gimage_fp_t(0), gimage_fp_t(0), gimage_fp_t(1));
+        locGauss(cx);
+        auto cy = addParam(gimage_fp_t(0), gimage_fp_t(0), gimage_fp_t(1));
+        locGauss(cy);
+
+        // radius: startSize >= 0 seeds it (else random init below); the main adaptor.
+        const gimage_fp_t radius_init =
+            static_cast<gimage_fp_t>(startSize >= 0. ? startSize : minSize);
+        auto rad = addParam(
+            radius_init, static_cast<gimage_fp_t>(minSize), static_cast<gimage_fp_t>(maxSize)
         );
-        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> middle_y_ptr(
-            new gpar::GIMAGE_CONSTRAINED_OBJECT(gimage_fp_t(0), gimage_fp_t(1))
+        mainGauss(rad);
+
+        // three angles.
+        auto a1 = addParam(gimage_fp_t(0), gimage_fp_t(0), gimage_fp_t(1));
+        mainGauss(a1);
+        auto a2 = addParam(gimage_fp_t(0), gimage_fp_t(0), gimage_fp_t(1));
+        mainGauss(a2);
+        auto a3 = addParam(gimage_fp_t(0), gimage_fp_t(0), gimage_fp_t(1));
+        mainGauss(a3);
+
+        // three colours.
+        auto cr = addParam(gimage_fp_t(0), gimage_fp_t(0), gimage_fp_t(1));
+        mainGauss(cr);
+        auto cg = addParam(gimage_fp_t(0), gimage_fp_t(0), gimage_fp_t(1));
+        mainGauss(cg);
+        auto cb = addParam(gimage_fp_t(0), gimage_fp_t(0), gimage_fp_t(1));
+        mainGauss(cb);
+
+        // alpha channel: frozen at maxOpaqueness unless alpha mutation is enabled.
+        auto ca = addParam(
+            static_cast<gimage_fp_t>(maxOpaqueness),
+            static_cast<gimage_fp_t>(minOpaqueness),
+            static_cast<gimage_fp_t>(maxOpaqueness)
         );
-        // ... and equip them with an adaptor. This will clone the adaptor ...
-        middle_x_ptr->addAdaptor(loc_gdga_ptr_tmpl);
-        middle_y_ptr->addAdaptor(loc_gdga_ptr_tmpl);
-        // ... finally add them to the GParameterObjectCollection representing the triangle
-        this->push_back(middle_x_ptr);
-        this->push_back(middle_y_ptr);
-
-        //--------------------------------------------------------------------------------------------
-        // Add an object for the radius ...
-        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> radius_ptr;
-
-        if(startSize < 0.) {
-            // Random initialization of radius
-            radius_ptr = std::make_shared<gpar::GIMAGE_CONSTRAINED_OBJECT>(
-                static_cast<gimage_fp_t>(minSize), static_cast<gimage_fp_t>(maxSize)
-            );
-        }
-        else {
-            // Radius will be set to startSize
-            radius_ptr = std::make_shared<gpar::GIMAGE_CONSTRAINED_OBJECT>(
-                static_cast<gimage_fp_t>(startSize), static_cast<gimage_fp_t>(minSize), static_cast<gimage_fp_t>(maxSize)
-            );
-        }
-
-        // ... equip it with an adaptor ...
-        radius_ptr->addAdaptor(gdga_ptr_tmpl);
-        // ... and add it to the GParameterObjectCollection representing the triangle
-        this->push_back(radius_ptr);
-
-        //--------------------------------------------------------------------------------------------
-        // Create GConstrainedDoubleObjects holding three angles ...
-        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> angle1_ptr(new gpar::GIMAGE_CONSTRAINED_OBJECT(gimage_fp_t(0), gimage_fp_t(1)));
-        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> angle2_ptr(new gpar::GIMAGE_CONSTRAINED_OBJECT(gimage_fp_t(0), gimage_fp_t(1)));
-        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> angle3_ptr(new gpar::GIMAGE_CONSTRAINED_OBJECT(gimage_fp_t(0), gimage_fp_t(1)));
-
-        // ... equip them with an adaptor
-        angle1_ptr->addAdaptor(gdga_ptr_tmpl);
-        angle2_ptr->addAdaptor(gdga_ptr_tmpl);
-        angle3_ptr->addAdaptor(gdga_ptr_tmpl);
-
-        // ... and add them to the GParameterObjectCollection representing the triangle
-        this->push_back(angle1_ptr);
-        this->push_back(angle2_ptr);
-        this->push_back(angle3_ptr);
-
-        //--------------------------------------------------------------------------------------------
-        // Create GConstrainedDoubleObjects for the three colors and the alpha channel
-        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> color_r_ptr(new gpar::GIMAGE_CONSTRAINED_OBJECT(gimage_fp_t(0), gimage_fp_t(1)));
-        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> color_g_ptr(new gpar::GIMAGE_CONSTRAINED_OBJECT(gimage_fp_t(0), gimage_fp_t(1)));
-        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> color_b_ptr(new gpar::GIMAGE_CONSTRAINED_OBJECT(gimage_fp_t(0), gimage_fp_t(1)));
-        std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> color_a_ptr(
-            new gpar::GIMAGE_CONSTRAINED_OBJECT(static_cast<gimage_fp_t>(minOpaqueness), static_cast<gimage_fp_t>(maxOpaqueness))
-        );
-
-        // Disable changes to the alpha channel if requested
+        mainGauss(ca);
         if(not mutateAlphaChannel) {
-            color_a_ptr->setAdaptionsInactive();
+            ca.adaptionMode(adaptionMode::NEVER);
         }
-        else {
-            color_a_ptr->setAdaptionsActive();
-        }
-
-        // ... equip them with an adaptor
-        color_r_ptr->addAdaptor(gdga_ptr_tmpl);
-        color_g_ptr->addAdaptor(gdga_ptr_tmpl);
-        color_b_ptr->addAdaptor(gdga_ptr_tmpl);
-        color_a_ptr->addAdaptor(gdga_ptr_tmpl);
-
-        // ... and add them to the individual
-        this->push_back(color_r_ptr);
-        this->push_back(color_g_ptr);
-        this->push_back(color_b_ptr);
-        this->push_back(color_a_ptr);
     }
 
     //---------------------------------------------------------------------------
-    // Add three parameters for the background color, ...
-    std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> bg_color_r_ptr;
-    std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> bg_color_g_ptr;
-    std::shared_ptr<gpar::GIMAGE_CONSTRAINED_OBJECT> bg_color_b_ptr;
+    // Add the three background colours (the last three values of the genome). A negative bg* means
+    // random init; otherwise it seeds the value. When background colours are not adapted, the groups
+    // are inactive (NEVER) and keep their seed across the whole population (randomInit skips them).
+    auto addBg = [&](double bgVal) {
+        const gimage_fp_t init = static_cast<gimage_fp_t>(bgVal >= 0. ? bgVal : 0.);
+        auto h = addParam(init, gimage_fp_t(0), gimage_fp_t(1));
+        mainGauss(h);
+        if(not changeBGColor) {
+            h.adaptionMode(adaptionMode::NEVER);
+        }
+    };
+    addBg(bgRed);
+    addBg(bgGreen);
+    addBg(bgBlue);
 
-    if(bgRed < 0) {
-        bg_color_r_ptr = std::make_shared<gpar::GIMAGE_CONSTRAINED_OBJECT>(gimage_fp_t(0), gimage_fp_t(1));
-    }
-    else {
-        bg_color_r_ptr = std::make_shared<gpar::GIMAGE_CONSTRAINED_OBJECT>(static_cast<gimage_fp_t>(bgRed), gimage_fp_t(0), gimage_fp_t(1));
-    }
+    std::cout << (changeBGColor ? "Background colors will be adapted"
+                                : "Background colors will not be adapted")
+              << '\n';
 
-    if(bgGreen < 0) {
-        bg_color_g_ptr = std::make_shared<gpar::GIMAGE_CONSTRAINED_OBJECT>(gimage_fp_t(0), gimage_fp_t(1));
-    }
-    else {
-        bg_color_g_ptr = std::make_shared<gpar::GIMAGE_CONSTRAINED_OBJECT>(static_cast<gimage_fp_t>(bgGreen), gimage_fp_t(0), gimage_fp_t(1));
-    }
-
-    if(bgBlue < 0) {
-        bg_color_b_ptr = std::make_shared<gpar::GIMAGE_CONSTRAINED_OBJECT>(gimage_fp_t(0), gimage_fp_t(1));
-    }
-    else {
-        bg_color_b_ptr = std::make_shared<gpar::GIMAGE_CONSTRAINED_OBJECT>(static_cast<gimage_fp_t>(bgBlue), gimage_fp_t(0), gimage_fp_t(1));
-    }
-
-    // ... equip them with an adaptor,
-    bg_color_r_ptr->addAdaptor(gdga_ptr_tmpl);
-    bg_color_g_ptr->addAdaptor(gdga_ptr_tmpl);
-    bg_color_b_ptr->addAdaptor(gdga_ptr_tmpl);
-
-    // ... check whether they shall be modifiable
-    changeBGColor_ = changeBGColor;
-    if(not changeBGColor) {
-        bg_color_r_ptr->setAdaptionsInactive();
-        bg_color_g_ptr->setAdaptionsInactive();
-        bg_color_b_ptr->setAdaptionsInactive();
-        std::cout << "Background colors will not be adapted" << '\n';
-    }
-    else {
-        bg_color_r_ptr->setAdaptionsActive();
-        bg_color_g_ptr->setAdaptionsActive();
-        bg_color_b_ptr->setAdaptionsActive();
-        std::cout << "Background colors will be adapted" << '\n';
-    }
-
-    // ... and add them to the object
-    this->push_back(bg_color_r_ptr);
-    this->push_back(bg_color_g_ptr);
-    this->push_back(bg_color_b_ptr);
+    // Install the value arrays + shared layout, then randomly initialise the ACTIVE parameters within
+    // their bounds (mirroring the tree's random-init constructors). Inactive groups (frozen alpha /
+    // frozen background) keep their seeds.
+    this->setGenome(bld.build());
+    this->randomInit(activityMode::ACTIVEONLY);
 }
 
 /** @brief Allows an external entity to set our fitness */
@@ -387,7 +332,7 @@ void GImageIndividual::compare_(
     GToken token("GImageIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GTreeGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::compare_t(IDENTITY(width_, p_load->width_), token);
@@ -438,14 +383,19 @@ bool GImageIndividual::getMutateAlphaChannel() const {
 	 * @return An array with the triangle data
 	 */
 std::vector<CircleTriangle> GImageIndividual::getTriangleData() const {
+    // The flat genome stores 10 contiguous values per triangle in the canonical render order, so each
+    // triangle's fields are read positionally from the streamlined value array (10*nTriangles + 3 bg).
+    std::vector<gimage_fp_t> parVec;
+    this->streamline(parVec);
+
 #ifdef DEBUG
-    if(this->size() != 10 * nTriangles_ + 3) {
+    if(parVec.size() != 10 * nTriangles_ + 3) {
         // including background color
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GImageIndividual::getTriangleData(): Error!" << '\n'
-            << "Invalid number of entries in this class " << this->size() << " / "
-            << nTriangles_ + 3 << '\n'
+            << "Invalid number of parameters in this class " << parVec.size() << " / "
+            << (10 * nTriangles_ + 3) << '\n'
         );
     }
 #endif /* DEBUG */
@@ -455,28 +405,18 @@ std::vector<CircleTriangle> GImageIndividual::getTriangleData() const {
     for(std::size_t i = 0; i < nTriangles_; i++) {
         offset = i * 10;
 
-        circle_cnt[i].cx =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 0)->value());
-        circle_cnt[i].cy =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 1)->value());
-        circle_cnt[i].radius =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 2)->value());
+        circle_cnt[i].cx = parVec[offset + 0];
+        circle_cnt[i].cy = parVec[offset + 1];
+        circle_cnt[i].radius = parVec[offset + 2];
 
-        circle_cnt[i].angle1 =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 3)->value());
-        circle_cnt[i].angle2 =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 4)->value());
-        circle_cnt[i].angle3 =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 5)->value());
+        circle_cnt[i].angle1 = parVec[offset + 3];
+        circle_cnt[i].angle2 = parVec[offset + 4];
+        circle_cnt[i].angle3 = parVec[offset + 5];
 
-        circle_cnt[i].r =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 6)->value());
-        circle_cnt[i].g =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 7)->value());
-        circle_cnt[i].b =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 8)->value());
-        circle_cnt[i].a =
-            static_cast<float>(this->at<gpar::GIMAGE_CONSTRAINED_OBJECT>(offset + 9)->value());
+        circle_cnt[i].r = parVec[offset + 6];
+        circle_cnt[i].g = parVec[offset + 7];
+        circle_cnt[i].b = parVec[offset + 8];
+        circle_cnt[i].a = parVec[offset + 9];
     }
 
     if(alphaSort_) {
@@ -492,9 +432,9 @@ std::vector<CircleTriangle> GImageIndividual::getTriangleData() const {
 
 /******************************************************************************/
 /**
-	 * Loads the data of another GImageIndividual, camouflaged as a GTreeGenome.
+	 * Loads the data of another GImageIndividual, camouflaged as a GFlatGenome.
 	 *
-	 * @param cp A copy of another GImageIndividual, camouflaged as a GTreeGenome
+	 * @param cp A copy of another GImageIndividual, camouflaged as a GFlatGenome
 	 */
 void GImageIndividual::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are indeed dealing with a GImageIndividual reference
@@ -502,7 +442,7 @@ void GImageIndividual::load_(const gpar::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GImageIndividual>(cp, this);
 
     // Load our parent's data
-    gpar::GTreeGenome::load_(cp);
+    gpar::GFlatGenome::load_(cp);
 
     // Load local data
     nTriangles_ = p_load->nTriangles_;
@@ -517,9 +457,9 @@ void GImageIndividual::load_(const gpar::GOptimizableEntity *cp) {
 /**
 	 * Creates a deep clone of this object
 	 *
-	 * @return A deep clone of this object, camouflaged as a GTreeGenome
+	 * @return A deep clone of this object, camouflaged as a GFlatGenome
 	 */
-gpar::GTreeGenome *GImageIndividual::clone_() const {
+gpar::GFlatGenome *GImageIndividual::clone_() const {
     return new GImageIndividual(*this);
 }
 
@@ -552,7 +492,7 @@ bool GImageIndividual::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
-    gpar::GTreeGenome::modify_GUnitTests();
+    gpar::GFlatGenome::modify_GUnitTests();
 
     // Change the parameter settings
     this->adapt();
@@ -573,7 +513,7 @@ void GImageIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GTreeGenome::specificTestsNoFailureExpected_GUnitTests();
+    gpar::GFlatGenome::specificTestsNoFailureExpected_GUnitTests();
 
     const std::size_t NTESTS = 100;
 
@@ -606,7 +546,7 @@ void GImageIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GTreeGenome::specificTestsFailuresExpected_GUnitTests();
+    gpar::GFlatGenome::specificTestsFailuresExpected_GUnitTests();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
