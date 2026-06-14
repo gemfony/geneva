@@ -42,13 +42,16 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <cmath>
 #include <cstddef>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GFlatIndividualT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/individuals/GLineFitIndividual.hpp"
 #include "geneva/oa/GConjugateGradientDescent.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GNelderMead.hpp"
@@ -410,4 +413,32 @@ TEST_CASE("EA optimizes a flat BOOLEAN OneMax with a FLIP adaptor", "[flat][oa][
     // OneMax converges from the all-false start toward all-true; the last few bits are a heavy
     // (coupon-collector) tail, so allow a small residue rather than demanding a perfect sweep.
     CHECK(false_count <= 3);
+}
+
+/******************************************************************************/
+// Migrated library individual (Phase 6): GLineFitIndividual is now a flat genome. Beyond the standard
+// machinery test, prove it still fits a line end-to-end under an EA.
+/******************************************************************************/
+
+TEST_CASE("EA fits a line with the migrated (flat) GLineFitIndividual", "[flat][oa][linefit]") {
+    namespace gind = Gem::Geneva::Individuals;
+
+    // Sample points on the line y = x -> the optimum is offset a = 0, slope b = 1, residual 0.
+    const std::vector<std::tuple<double, double>> data_points{
+        {0., 0.}, {1., 1.}, {2., 2.}, {3., 3.}, {4., 4.}};
+
+    auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    pop->setPopulationSizes(18, 6);
+    pop->setMaxIteration(400);
+    pop->setReportIteration(100000);
+    pop->push_back(gind::GLineFitIndividual(data_points).clone_unique());
+    pop->setLocalConsumer(oa::local_consumer_kind::serial);
+    pop->optimize();
+
+    auto best = pop->getBestGlobalIndividual<gind::GLineFitIndividual>();
+    REQUIRE(best);
+
+    const auto [a, b] = best->getLine();
+    CHECK(std::abs(a - 0.) < 0.5); // offset near 0
+    CHECK(std::abs(b - 1.) < 0.3); // slope near 1
 }

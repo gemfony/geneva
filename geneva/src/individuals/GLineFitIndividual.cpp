@@ -34,9 +34,8 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/par/GDoubleObject.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenomeBuilder.hpp"
 #include <cmath>
 #include <cstddef>
 #include <filesystem>
@@ -64,14 +63,14 @@ GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, doub
   : data_points_(data_points) {
     using namespace Gem::Geneva;
 
+    // Two unbounded double parameters (the line's offset a and slope b), each with its own Gauss
+    // adaptor. The default unbounded init range [0, 1] matches the former GDoubleObject() default.
+    gpar::GGenomeBuilder b;
     for(std::size_t i = 0; i < 2; i++) {
-        std::shared_ptr<gpar::GDoubleObject> gdo_ptr(new gpar::GDoubleObject());
-        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
-            new gpar::GDoubleGaussAdaptor(0.025, 0.1, 0.0001, 0.4, 1.)
-        ); // sigma, sigma_sigma, min_sigma, max_sigma, ad_prob
-        gdo_ptr->addAdaptor(gdga_ptr);
-        this->push_back(gdo_ptr);
+        // sigma, sigma_sigma, min_sigma, max_sigma, ad_prob
+        b.addDouble(0.).gaussAdaptor(0.025, 0.1, 0.0001, 0.4, 1.);
     }
+    this->setGenome(b.build());
 }
 
 /******************************************************************************/
@@ -81,7 +80,7 @@ GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, doub
  * @param cp A constant reference to another GLineFitIndividual object
  */
 GLineFitIndividual::GLineFitIndividual(const GLineFitIndividual &cp)
-  : gpar::GTreeGenome(cp)
+  : gpar::GFlatGenome(cp)
   , data_points_(cp.data_points_) { /* nothing */
 }
 
@@ -97,7 +96,7 @@ GLineFitIndividual::~GLineFitIndividual() { /* nothing */
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GTreeGenome object
+ * @param cp A constant reference to another GFlatGenome object
  * @param e The expected outcome of the comparison
  */
 void GLineFitIndividual::compare_(
@@ -114,7 +113,7 @@ void GLineFitIndividual::compare_(
     GToken token("GLineFitIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GTreeGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -135,9 +134,9 @@ std::tuple<double, double> GLineFitIndividual::getLine() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GLineFitIndividual, camouflaged as a GTreeGenome.
+ * Loads the data of another GLineFitIndividual, camouflaged as a GFlatGenome.
  *
- * @param cp A copy of another GLineFitIndividual, camouflaged as a GTreeGenome
+ * @param cp A copy of another GLineFitIndividual, camouflaged as a GFlatGenome
  */
 void GLineFitIndividual::load_(const gpar::GOptimizableEntity *cp) {
     using namespace Gem::Common;
@@ -148,7 +147,7 @@ void GLineFitIndividual::load_(const gpar::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GLineFitIndividual>(cp, this);
 
     // Load our parent's data
-    gpar::GTreeGenome::load_(cp);
+    gpar::GFlatGenome::load_(cp);
 
     // and then our local data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -158,9 +157,9 @@ void GLineFitIndividual::load_(const gpar::GOptimizableEntity *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GTreeGenome
+ * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GTreeGenome *GLineFitIndividual::clone_() const {
+gpar::GFlatGenome *GLineFitIndividual::clone_() const {
     return new GLineFitIndividual(*this);
 }
 
@@ -202,7 +201,7 @@ bool GLineFitIndividual::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gpar::GTreeGenome::modify_GUnitTests_()) {
+    if(gpar::GFlatGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -225,7 +224,7 @@ void GLineFitIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GTreeGenome::specificTestsNoFailureExpected_GUnitTests_();
+    gpar::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -246,7 +245,7 @@ void GLineFitIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GTreeGenome::specificTestsFailuresExpected_GUnitTests_();
+    gpar::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------

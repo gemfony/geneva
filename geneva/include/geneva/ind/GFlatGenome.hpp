@@ -130,6 +130,10 @@ public:
     /** @brief The destructor */
     ~GFlatGenome() override = default;
 
+    /** @brief Un-hide the inherited public load(shared_ptr/unique_ptr/ref) overloads, which the
+     *  boost split-member load(Archive&, unsigned) below would otherwise hide by name. */
+    using GOptimizableEntity::load;
+
     /** @brief Installs the value arrays + shared layout produced by a GGenomeBuilder */
     void setGenome(Genome const &);
 
