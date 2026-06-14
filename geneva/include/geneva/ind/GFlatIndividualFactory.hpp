@@ -1,0 +1,224 @@
+/********************************************************************************
+ *
+ * This file is part of the Geneva library collection. The following license
+ * applies to this file:
+ *
+ * ------------------------------------------------------------------------------
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------
+ *
+ * Note that other files in the Geneva library collection may use a different
+ * license. Please see the licensing information in each file.
+ *
+ ********************************************************************************
+ *
+ * See the NOTICE file in the top-level directory of the Geneva library
+ * collection for a list of contributors and copyright information.
+ *
+ ********************************************************************************/
+
+#pragma once
+
+// Global checks, defines and includes needed for all of Geneva
+#include "common/GGlobalDefines.hpp"
+
+// Standard header files go here
+#include <filesystem>
+#include <memory>
+#include <mutex>
+
+// Boost header files go here
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/nvp.hpp>
+
+// Geneva headers go here
+#include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
+#include "common/GParserBuilder.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/par/GOptimizableEntityFactory.hpp"
+
+namespace Gem::Geneva::Parameters {
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * A generic, config-driven factory for flat individuals. Because GFlatGenome holds all genome state
+ * generically and the shared GAdaptionLayout is built once and reused by every produced individual,
+ * the factory machinery -- read the config, build the structure once, spawn, attach pre/post
+ * processors -- is identical for every concrete flat individual. So instead of hand-writing a factory
+ * class per individual (as the tree required), a Tier-2 (config-driven) flat individual only supplies
+ * two static hooks, and uses this template directly.
+ *
+ * The Derived individual must provide:
+ *  - a nested @c Config type (a plain, copyable struct holding the configurable values, e.g. par_dim,
+ *    bounds, sigma);
+ *  - @c static void describeConfig(Gem::Common::GParserBuilder&, Config&) -- registers the config-file
+ *    options, binding them to the passed Config (called once per produced object on a fresh parser);
+ *  - @c static Genome buildGenome(const Config&) -- builds the value arrays + the shared, immutable
+ *    GAdaptionLayout from the parsed config (typically via a GGenomeBuilder).
+ *
+ * The shared layout is built exactly once (a structural guarantee, not a hand-managed optimisation):
+ * the first produced individual triggers Derived::buildGenome(config_), the result is cached, and every
+ * subsequent individual is just a cheap value-array copy plus a bind to the same shared layout handle.
+ * The user's JSON config files are unchanged; pre/post-processor registration is inherited from
+ * GOptimizableEntityFactory and is genome-agnostic.
+ *
+ * Usage (Tier 2):
+ * @code
+ *   class MyIndividual : public GFlatIndividualT<MyIndividual> {
+ *   public:
+ *       MyIndividual() = default;   // genome is installed by the factory
+ *       double fitnessCalculation() override { ... }
+ *
+ *       struct Config { std::size_t par_dim = 5; double min = -10., max = 10., sigma = 0.5; };
+ *       static void describeConfig(Gem::Common::GParserBuilder& gpb, Config& c) {
+ *           gpb.registerFileParameter<std::size_t>("par_dim", c.par_dim, 5);
+ *           // ...
+ *       }
+ *       static Genome buildGenome(const Config& c) {
+ *           GGenomeBuilder b;
+ *           b.addDoubleGroup(c.par_dim, c.min, c.max).gaussAdaptor(c.sigma, 0.8, 1e-3, 2., 1.);
+ *           return b.build();
+ *       }
+ *   };
+ *   BOOST_CLASS_EXPORT(MyIndividual)
+ *
+ *   GFlatIndividualFactory<MyIndividual> f("config/MyIndividual.json");
+ *   auto ind = f.get_as<MyIndividual>();
+ * @endcode
+ */
+template <class Derived>
+class GFlatIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GOptimizableEntityFactory {
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
+
+    template <class Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        // Only the base is serialised. The Config is transient -- re-read from the (still known)
+        // config file on the first get_() after deserialisation -- and the built-genome cache is a
+        // transient optimisation that is rebuilt lazily.
+        ar &boost::serialization::make_nvp(
+            "GOptimizableEntityFactory",
+            boost::serialization::base_object<GOptimizableEntityFactory>(*this)
+        );
+    }
+    ///////////////////////////////////////////////////////////////////////
+
+public:
+    /***************************************************************************/
+    /**
+     * The standard constructor
+     *
+     * @param configFile The path of the configuration file holding the genome parameters
+     */
+    explicit GFlatIndividualFactory(std::filesystem::path const &configFile)
+      : GOptimizableEntityFactory(configFile) { /* nothing */
+    }
+
+    /***************************************************************************/
+    /**
+     * The copy constructor. The built-genome cache and its guard are deliberately *not* copied: a
+     * copied factory rebuilds its own shared genome lazily (the mutex is also non-copyable).
+     */
+    GFlatIndividualFactory(const GFlatIndividualFactory<Derived> &cp)
+      : GOptimizableEntityFactory(cp)
+      , config_(cp.config_) { /* nothing */
+    }
+
+    /***************************************************************************/
+    // Defaulted and deleted functions
+    ~GFlatIndividualFactory() override = default;
+
+    /***************************************************************************/
+    /**
+     * Creates a deep clone of this object
+     */
+    std::shared_ptr<Gem::Common::GFactoryT<GOptimizableEntity>> clone() const override {
+        return std::make_shared<GFlatIndividualFactory<Derived>>(*this);
+    }
+
+protected:
+    /***************************************************************************/
+    /**
+     * Describes the local configuration options -- delegated to the Derived static hook, which binds
+     * the options to this factory's Config instance.
+     */
+    void describeLocalOptions_(Gem::Common::GParserBuilder &gpb) override {
+        Derived::describeConfig(gpb, config_);
+    }
+
+    /***************************************************************************/
+    /**
+     * Acts on the parsed configuration: builds the shared genome (value arrays + shared immutable
+     * layout) exactly once, then installs it on the freshly produced individual (a cheap value-array
+     * copy plus a bind to the shared layout handle).
+     */
+    void postProcess_(std::shared_ptr<GOptimizableEntity> &p) override {
+        {
+            std::scoped_lock lk(genome_mutex_);
+            if(not genome_built_) {
+                shared_genome_ = Derived::buildGenome(config_);
+                genome_built_ = true;
+            }
+        }
+
+        auto *fg = dynamic_cast<GFlatGenome *>(p.get());
+        if(fg == nullptr) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GFlatIndividualFactory::postProcess_(): Error!" << '\n'
+                << "The produced object is not a GFlatGenome derivative" << '\n'
+            );
+        }
+        fg->setGenome(shared_genome_);
+    }
+
+private:
+    /***************************************************************************/
+    /**
+     * Creates an (empty-genome) individual of the desired type; the genome is installed in
+     * postProcess_ once the configuration has been parsed.
+     */
+    std::shared_ptr<GOptimizableEntity>
+    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override {
+        return std::make_shared<Derived>();
+    }
+
+    /***************************************************************************/
+    /** @brief The default constructor; only needed for (de-)serialization, hence private */
+    GFlatIndividualFactory() = default;
+
+    /***************************************************************************/
+    // Data
+
+    /** @brief Holds the configurable values, populated from the config file on each get_() */
+    typename Derived::Config config_{};
+
+    /** @brief The genome (value arrays + shared layout) built once and reused by every individual */
+    Genome shared_genome_{};
+    /** @brief Whether shared_genome_ has been built (transient cache guard) */
+    bool genome_built_ = false;
+    /** @brief Serialises the build-once of shared_genome_ */
+    mutable std::mutex genome_mutex_;
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+
+} /* namespace Gem::Geneva::Parameters */

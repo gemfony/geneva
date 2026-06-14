@@ -31,6 +31,7 @@
 
 #include <any>
 #include <cstdint>
+#include <filesystem>
 #include <memory>
 #include <vector>
 
@@ -41,9 +42,11 @@
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
+#include "common/GParserBuilder.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GAdaptionLayout.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GFlatIndividualFactory.hpp"
 #include "geneva/ind/GFlatIndividualT.hpp"
 #include "geneva/ind/GGenomeArchitecture.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
@@ -95,10 +98,76 @@ private:
     }
 };
 
+/******************************************************************************/
+/**
+ * A config-driven (Tier-2) flat individual: the same sphere, but its genome is built by the generic
+ * GFlatIndividualFactory from a Config that the factory reads from a configuration file. The default
+ * constructor leaves the genome empty -- the factory installs it via setGenome() in postProcess_.
+ */
+class FactorySphere : public GFlatIndividualT<FactorySphere> {
+public:
+    FactorySphere() = default; // the factory installs the genome
+    FactorySphere(const FactorySphere &) = default;
+
+    /** @brief The configurable values read from the config file */
+    struct Config {
+        std::size_t par_dim = 5;
+        double min = -10.;
+        double max = 10.;
+        double sigma = 0.5;
+    };
+
+    /** @brief Registers the config-file options, binding them to the passed Config */
+    static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
+        gpb.registerFileParameter<std::size_t>(
+            "par_dim", c.par_dim, c.par_dim, Gem::Common::VAR_IS_ESSENTIAL, "Number of parameters"
+        );
+        gpb.registerFileParameter<double>(
+            "min", c.min, c.min, Gem::Common::VAR_IS_ESSENTIAL, "Lower bound"
+        );
+        gpb.registerFileParameter<double>(
+            "max", c.max, c.max, Gem::Common::VAR_IS_ESSENTIAL, "Upper bound"
+        );
+        gpb.registerFileParameter<double>(
+            "sigma", c.sigma, c.sigma, Gem::Common::VAR_IS_ESSENTIAL, "Gauss sigma"
+        );
+    }
+
+    /** @brief Builds the value arrays + the shared, immutable layout from the parsed config */
+    static Genome buildGenome(const Config &c) {
+        GGenomeBuilder b;
+        b.addDoubleGroup(c.par_dim, c.min, c.max).gaussAdaptor(c.sigma, 0.8, 1e-3, 2., 1.);
+        return b.build();
+    }
+
+protected:
+    double fitnessCalculation() override {
+        std::vector<double> v;
+        this->streamline<double>(v);
+        double sum = 0.;
+        for(double x : v) {
+            sum += x * x;
+        }
+        return sum;
+    }
+
+private:
+    friend class boost::serialization::access;
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        ar &boost::serialization::make_nvp(
+            "GFlatIndividualT",
+            boost::serialization::base_object<GFlatIndividualT<FactorySphere>>(*this)
+        );
+    }
+};
+
 } // namespace Gem::Tests
 
-BOOST_CLASS_EXPORT(Gem::Tests::FlatSphere) // NOLINT
+BOOST_CLASS_EXPORT(Gem::Tests::FlatSphere)    // NOLINT
+BOOST_CLASS_EXPORT(Gem::Tests::FactorySphere) // NOLINT
 
+using Gem::Tests::FactorySphere;
 using Gem::Tests::FlatSphere;
 
 /******************************************************************************/
@@ -316,6 +385,56 @@ TEST_CASE("GGridArchitecture reads any genome through the §2 seam (flat)", "[fl
             CHECK(row[c] == flat[r * grid.cols() + c]);
         }
     }
+}
+
+/******************************************************************************/
+TEST_CASE("GFlatIndividualFactory: one shared layout across N produced individuals", "[flat][factory]") {
+    // A temporary config file. writeConfigFile() generates it from the individual's describeConfig()
+    // defaults; get_as<>() then reads it back and produces individuals.
+    namespace fs = std::filesystem;
+    const fs::path base = fs::temp_directory_path() / "geneva_flat_factory_tests";
+    fs::create_directories(base);
+    const fs::path cfg = base / "FactorySphere.json";
+
+    GFlatIndividualFactory<FactorySphere> f(cfg);
+    f.writeConfigFile("FactorySphere test configuration");
+
+    constexpr std::size_t N = 4;
+    std::vector<std::shared_ptr<FactorySphere>> inds;
+    for(std::size_t i = 0; i < N; ++i) {
+        auto ind = f.get_as<FactorySphere>();
+        REQUIRE(ind);
+        inds.push_back(ind);
+    }
+
+    // Every produced individual binds to the SAME shared layout instance (built once).
+    std::shared_ptr<const GAdaptionLayout> layout0 = inds[0]->getLayout();
+    REQUIRE(layout0);
+    for(const auto &ind : inds) {
+        CHECK(ind->getLayout().get() == layout0.get()); // pointer identity: one shared layout
+    }
+
+    // The layout reflects the config defaults (par_dim == 5 constrained doubles).
+    CHECK(layout0->d.size() == 5);
+    CHECK(inds[0]->countParameters<double>() == 5);
+
+    // The value arrays are per-individual (independent): mutating one leaves the others untouched.
+    std::vector<double> v0_before;
+    std::vector<double> v1_before;
+    inds[0]->streamline<double>(v0_before);
+    inds[1]->streamline<double>(v1_before);
+    CHECK(v0_before == v1_before); // same start values out of the shared genome
+
+    inds[0]->randomInit(activityMode::ALLPARAMETERS);
+
+    std::vector<double> v0_after;
+    std::vector<double> v1_after;
+    inds[0]->streamline<double>(v0_after);
+    inds[1]->streamline<double>(v1_after);
+    CHECK(v0_after != v0_before);  // inds[0] changed
+    CHECK(v1_after == v1_before);  // inds[1] untouched -> independent value storage
+
+    fs::remove(cfg);
 }
 
 /******************************************************************************/
