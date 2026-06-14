@@ -186,6 +186,111 @@ std::size_t adaptGaussGroup(
 
 /******************************************************************************/
 /**
+ * The integer Gauss kernel: the mutation mathematics of GIntGaussAdaptorT (used e.g. by
+ * GInt32GaussAdaptor), re-expressed in the same stateless (config, state, values) style as the FP
+ * Gauss kernel. The self-adaption wrapper is IDENTICAL to the FP Gauss kernel -- the adaption
+ * probability self-adapts log-normally, the per-value bernoulli gate is the same, and sigma
+ * self-adapts log-normally on the threshold / probability trigger (sigma is a double, so it reuses the
+ * GaussConfig<double> / GaussState<double> POD). Only the value step differs: instead of an FP delta it
+ * adds a rounded gaussian integer step, with a guaranteed minimal change of +/-1 when the rounded step
+ * is zero (mirroring GIntGaussAdaptorT::customAdaptions). There is NO fold in the kernel -- a
+ * constrained integer folds into its range on read (GFlatGenome / foldConstrainedInt), exactly as the
+ * tree applies it via GConstrainedIntT.
+ */
+inline std::size_t adaptGaussIntGroup(
+    const GaussConfig<double> &cfg,
+    GaussState<double> &st,
+    std::span<std::int32_t> values,
+    std::int32_t range,
+    Gem::Hap::GRandomBase &gr
+) {
+    Gem::Hap::g_normal_distribution<double> normal;
+    Gem::Hap::g_bernoulli_distribution bernoulli;
+    using n_param = Gem::Hap::g_normal_distribution<double>::param_type;
+    using b_param = Gem::Hap::g_bernoulli_distribution::param_type;
+
+    // 1) Self-adapt the adaption probability once for the whole group (if requested).
+    if(cfg.adapt_ad_prob > 0.) {
+        st.ad_prob *= std::exp(normal(gr, n_param(0., cfg.adapt_ad_prob)));
+        Gem::Common::enforceRangeConstraint<double>(
+            st.ad_prob,
+            cfg.min_ad_prob,
+            cfg.max_ad_prob,
+            "adaptGaussIntGroup() / ad_prob"
+        );
+    }
+
+    // Self-adapts sigma (log-normal step + one-ULP guarantee + range clamp), identical to the FP
+    // Gauss kernel's self_adapt_sigma (sigma is a double here too).
+    auto self_adapt_sigma = [&]() {
+        const double sigma_before = st.sigma;
+        const double sigma_mult = std::exp(normal(gr, n_param(0., std::abs(cfg.sigma_sigma))));
+        st.sigma *= sigma_mult;
+        if(st.sigma == sigma_before) {
+            const double dir = (sigma_mult < 1.) ? std::numeric_limits<double>::lowest()
+                                                 : std::numeric_limits<double>::max();
+            st.sigma = std::nextafter(sigma_before, dir);
+        }
+        Gem::Common::enforceRangeConstraint<double>(
+            st.sigma,
+            cfg.min_sigma,
+            cfg.max_sigma,
+            "adaptGaussIntGroup() / sigma",
+            false
+        );
+    };
+
+    // The sigma self-adaption trigger, mirroring GAdaptorT::adaptAdaption.
+    auto adapt_adaption = [&]() {
+        if(cfg.adaption_threshold > 0) {
+            if(++st.counter >= cfg.adaption_threshold) {
+                st.counter = 0;
+                self_adapt_sigma();
+            }
+        }
+        else if(cfg.adapt_sigma_prob != 0.) {
+            if(bernoulli(gr, b_param(std::abs(cfg.adapt_sigma_prob)))) {
+                self_adapt_sigma();
+            }
+        }
+    };
+
+    // The value step (round(range * N(0, sigma)) with a guaranteed +/-1 minimal change), mirroring
+    // GIntGaussAdaptorT::customAdaptions.
+    auto gauss_int_step = [&](std::int32_t &v) {
+        auto addition = static_cast<std::int32_t>(
+            static_cast<double>(range) * normal(gr, n_param(0., st.sigma))
+        );
+        if(addition == 0) { // Enforce a minimal change of 1.
+            addition = bernoulli(gr, b_param(0.5)) ? 1 : -1;
+        }
+        v += addition;
+    };
+
+    std::size_t n_adapted = 0;
+    if(adaptionMode::WITHPROBABILITY == cfg.mode) {
+        for(std::int32_t &v : values) {
+            if(bernoulli(gr, b_param(std::abs(st.ad_prob)))) {
+                adapt_adaption();
+                gauss_int_step(v);
+                ++n_adapted;
+            }
+        }
+    }
+    else if(adaptionMode::ALWAYS == cfg.mode) {
+        for(std::int32_t &v : values) {
+            adapt_adaption();
+            gauss_int_step(v);
+            ++n_adapted;
+        }
+    }
+    // adaptionMode::NEVER: nothing to do.
+
+    return n_adapted;
+}
+
+/******************************************************************************/
+/**
  * The flip kernels: the mutation mathematics of the integer / boolean flip adaptors
  * (GNumFlipAdaptorT, GInt32FlipAdaptor, GBooleanAdaptor), re-expressed in the same stateless
  * (config, state, values) style as the Gauss kernel. A flip adaptor has NO sigma -- its only evolving

@@ -344,3 +344,76 @@ TEST_CASE("adaptBiGaussGroup: works in float precision", "[kernel]") {
         CHECK(v[i] != before[i]);
     }
 }
+
+/******************************************************************************/
+// Integer Gauss kernel
+/******************************************************************************/
+
+TEST_CASE("adaptGaussIntGroup: mode NEVER leaves values and state untouched", "[kernel]") {
+    GaussConfig<double> cfg;
+    cfg.mode = adaptionMode::NEVER;
+    GaussState<double> st;
+    std::vector<std::int32_t> v{1, 2, 3};
+    const auto before = v;
+
+    const auto n = adaptGaussIntGroup(cfg, st, std::span<std::int32_t>(v), 100, gr);
+    CHECK(n == 0);
+    CHECK(v == before);
+}
+
+/******************************************************************************/
+TEST_CASE("adaptGaussIntGroup: mode ALWAYS changes every value (minimal +/-1 guarantee)", "[kernel]") {
+    GaussConfig<double> cfg;
+    cfg.mode = adaptionMode::ALWAYS;
+    GaussState<double> st;
+    st.sigma = 0.5;
+
+    std::vector<std::int32_t> v(64, 1000);
+    const auto before = v;
+    const auto n = adaptGaussIntGroup(cfg, st, std::span<std::int32_t>(v), 100, gr);
+    CHECK(n == v.size());
+    for(std::size_t i = 0; i < v.size(); ++i) {
+        CHECK(v[i] != before[i]); // the zero-addition case is nudged to +/-1
+    }
+}
+
+/******************************************************************************/
+TEST_CASE("adaptGaussIntGroup: WITHPROBABILITY honours the ad_prob extremes", "[kernel]") {
+    GaussConfig<double> cfg;
+    cfg.mode = adaptionMode::WITHPROBABILITY;
+
+    { // ad_prob == 1 => every value adapts
+        GaussState<double> st;
+        st.ad_prob = 1.;
+        st.sigma = 0.5;
+        std::vector<std::int32_t> v(40, 0);
+        CHECK(adaptGaussIntGroup(cfg, st, std::span<std::int32_t>(v), 100, gr) == v.size());
+    }
+    { // ad_prob == 0 => nothing adapts
+        GaussState<double> st;
+        st.ad_prob = 0.;
+        std::vector<std::int32_t> v(40, 0);
+        const auto before = v;
+        CHECK(adaptGaussIntGroup(cfg, st, std::span<std::int32_t>(v), 100, gr) == 0);
+        CHECK(v == before);
+    }
+}
+
+/******************************************************************************/
+TEST_CASE("adaptGaussIntGroup: sigma self-adapts and stays within [min,max]", "[kernel]") {
+    GaussConfig<double> cfg;
+    cfg.mode = adaptionMode::ALWAYS;
+    cfg.sigma_sigma = 0.3;
+    cfg.min_sigma = 0.01;
+    cfg.max_sigma = 3.0;
+    cfg.adaption_threshold = 1;
+    GaussState<double> st;
+    st.sigma = 0.5;
+
+    std::vector<std::int32_t> v(1, 0);
+    for(int i = 0; i < 200; ++i) {
+        adaptGaussIntGroup(cfg, st, std::span<std::int32_t>(v), 100, gr);
+        CHECK(st.sigma >= cfg.min_sigma);
+        CHECK(st.sigma <= cfg.max_sigma);
+    }
+}

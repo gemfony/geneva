@@ -169,6 +169,39 @@ public:
         return *this;
     }
 
+    /** @brief Attaches an integer Gauss adaptor to this group (int32 groups). */
+    ParamHandle &intGaussAdaptor(
+        double sigma,
+        double sigma_sigma,
+        double min_sigma,
+        double max_sigma,
+        double ad_prob,
+        double adapt_ad_prob = 0.,
+        std::uint32_t adaption_threshold = 1,
+        Gem::Geneva::adaptionMode mode = adaptionMode::WITHPROBABILITY,
+        double min_ad_prob = 0.,
+        double max_ad_prob = 1.
+    ) {
+        static_assert(
+            std::is_same_v<T, std::int32_t>,
+            "intGaussAdaptor() is only available for int32 parameters"
+        );
+        this->forEachGroup([&](GroupSpec<T> &g) {
+            g.has_gauss = true;
+            g.start_sigma = sigma;
+            g.start_ad_prob = ad_prob;
+            g.gauss.sigma_sigma = sigma_sigma;
+            g.gauss.min_sigma = min_sigma;
+            g.gauss.max_sigma = max_sigma;
+            g.gauss.min_ad_prob = min_ad_prob;
+            g.gauss.max_ad_prob = max_ad_prob;
+            g.gauss.adapt_ad_prob = adapt_ad_prob;
+            g.gauss.adaption_threshold = adaption_threshold;
+            g.gauss.mode = mode;
+        });
+        return *this;
+    }
+
     /** @brief Attaches a flip adaptor to this group (int32 / bool groups). */
     ParamHandle &flipAdaptor(
         double ad_prob,
@@ -444,10 +477,12 @@ private:
         g.active = true;
         g.has_gauss = false;
         // The comparative range mirrors the tree: (upper-lower) for constrained, the init range
-        // otherwise. Used to scale the Gauss step independently of a parameter's value range. Only
-        // meaningful for the FP channels (the only ones with a Gauss adaptor); left at 1 elsewhere.
-        if constexpr(std::is_floating_point_v<T>) {
-            g.range = (kind == ParamKind::Constrained) ? (max - min) : (init_hi - init_lo);
+        // otherwise. Used to scale the Gauss step independently of a parameter's value range. Relevant
+        // for the FP channels (Gauss / bi-Gauss) and the int32 channel (integer Gauss adaptor); left at
+        // 1 for bool (flip only, no range).
+        if constexpr(std::is_floating_point_v<T> || (std::is_integral_v<T> && !std::is_same_v<T, bool>)) {
+            g.range = (kind == ParamKind::Constrained) ? static_cast<T>(max - min)
+                                                       : static_cast<T>(init_hi - init_lo);
         }
         else {
             g.range = T(1);

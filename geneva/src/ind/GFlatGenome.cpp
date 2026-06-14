@@ -63,6 +63,7 @@ constexpr AuxKey AUXKEY_BIGAUSS_DOUBLE = 3;
 constexpr AuxKey AUXKEY_BIGAUSS_FLOAT = 4;
 constexpr AuxKey AUXKEY_FLIP_INT = 5;
 constexpr AuxKey AUXKEY_FLIP_BOOL = 6;
+constexpr AuxKey AUXKEY_GAUSS_INT = 7;
 } // namespace
 
 /******************************************************************************/
@@ -166,6 +167,7 @@ void GFlatGenome::installAdaptionStates() {
 
     seed_gauss(layout_->d, AUXKEY_GAUSS_DOUBLE);
     seed_gauss(layout_->f, AUXKEY_GAUSS_FLOAT);
+    seed_gauss(layout_->i, AUXKEY_GAUSS_INT); // GaussState<adaption_fp_t<int32>> = GaussState<double>
     seed_bigauss(layout_->d, AUXKEY_BIGAUSS_DOUBLE);
     seed_bigauss(layout_->f, AUXKEY_BIGAUSS_FLOAT);
     seed_flip(layout_->i, AUXKEY_FLIP_INT);
@@ -306,6 +308,7 @@ std::size_t GFlatGenome::customAdaptions() {
     n += adaptFPChannel<float>(fv_, layout_->f, AUXKEY_GAUSS_FLOAT);
     n += adaptBiGaussChannel<double>(dv_, layout_->d, AUXKEY_BIGAUSS_DOUBLE);
     n += adaptBiGaussChannel<float>(fv_, layout_->f, AUXKEY_BIGAUSS_FLOAT);
+    n += adaptGaussIntChannel();
     n += adaptFlipIntChannel();
     n += adaptFlipBoolChannel();
     return n;
@@ -345,6 +348,26 @@ std::size_t GFlatGenome::adaptBiGaussChannel(std::vector<T> &store, ChannelLayou
         }
         std::span<T> vals(store.data() + g.start, g.len);
         n += adaptBiGaussGroup<T>(g.bigauss, states[gi], vals, g.range, gr_);
+    }
+    return n;
+}
+
+std::size_t GFlatGenome::adaptGaussIntChannel() {
+    if(not this->hasAux(AUXKEY_GAUSS_INT)) {
+        return 0;
+    }
+    const ChannelLayout<std::int32_t> &ch = layout_->i;
+    // The int32 channel's adaption-fp type is double, so its Gauss state is GaussState<double>.
+    std::span<GaussState<double>> states = this->metaRecords<GaussState<double>>(AUXKEY_GAUSS_INT);
+
+    std::size_t n = 0;
+    for(std::size_t gi = 0; gi < ch.groups.size(); ++gi) {
+        const GroupSpec<std::int32_t> &g = ch.groups[gi];
+        if(not g.has_gauss || not g.active) {
+            continue;
+        }
+        std::span<std::int32_t> vals(iv_.data() + g.start, g.len);
+        n += adaptGaussIntGroup(g.gauss, states[gi], vals, g.range, gr_);
     }
     return n;
 }
@@ -398,6 +421,7 @@ void GFlatGenome::updateAdaptorsOnStall([[maybe_unused]] std::uint32_t n_stalls)
     resetFPChannel<float>(layout_->f, AUXKEY_GAUSS_FLOAT);
     resetBiGaussChannel<double>(layout_->d, AUXKEY_BIGAUSS_DOUBLE);
     resetBiGaussChannel<float>(layout_->f, AUXKEY_BIGAUSS_FLOAT);
+    resetGaussIntChannel();
     resetFlipChannel<std::int32_t>(layout_->i, AUXKEY_FLIP_INT);
     resetFlipChannel<bool>(layout_->b, AUXKEY_FLIP_BOOL);
 }
@@ -431,6 +455,22 @@ void GFlatGenome::resetBiGaussChannel(ChannelLayout<T> const &ch, AuxKey key) {
         states[gi].sigma1 = ch.groups[gi].start_sigma1;
         states[gi].sigma2 = ch.groups[gi].start_sigma2;
         states[gi].delta = ch.groups[gi].start_delta;
+        states[gi].ad_prob = ch.groups[gi].start_ad_prob;
+        states[gi].counter = 0;
+    }
+}
+
+void GFlatGenome::resetGaussIntChannel() {
+    if(not this->hasAux(AUXKEY_GAUSS_INT)) {
+        return;
+    }
+    const ChannelLayout<std::int32_t> &ch = layout_->i;
+    std::span<GaussState<double>> states = this->metaRecords<GaussState<double>>(AUXKEY_GAUSS_INT);
+    for(std::size_t gi = 0; gi < ch.groups.size(); ++gi) {
+        if(not ch.groups[gi].has_gauss) {
+            continue;
+        }
+        states[gi].sigma = ch.groups[gi].start_sigma;
         states[gi].ad_prob = ch.groups[gi].start_ad_prob;
         states[gi].counter = 0;
     }
@@ -478,6 +518,16 @@ void GFlatGenome::queryAdaptor(
         };
     collect(layout_->d, AUXKEY_GAUSS_DOUBLE, "GDoubleGaussAdaptor");
     collect(layout_->f, AUXKEY_GAUSS_FLOAT, "GFloatGaussAdaptor");
+    // The int32 Gauss state is GaussState<double> (adaption_fp_t<int32> = double), so it cannot go
+    // through the templated collect above (which would deduce GaussState<int32>); handle it directly.
+    if(adaptor_name == "GInt32GaussAdaptor" && this->hasAux(AUXKEY_GAUSS_INT)) {
+        std::span<const GaussState<double>> states = this->metaRecords<GaussState<double>>(AUXKEY_GAUSS_INT);
+        for(std::size_t gi = 0; gi < layout_->i.groups.size(); ++gi) {
+            if(layout_->i.groups[gi].has_gauss) {
+                data.emplace_back(states[gi].sigma);
+            }
+        }
+    }
 }
 
 /******************************************************************************/

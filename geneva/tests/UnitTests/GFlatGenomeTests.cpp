@@ -400,9 +400,42 @@ private:
     }
 };
 
+/**
+ * A flat individual carrying an integer Gauss adaptor (the prerequisite for GMetaOptimizerIndividualT,
+ * which mutates n_children with GInt32GaussAdaptor while n_parents uses a flip adaptor). Two int32
+ * groups: a constrained one driven by the integer Gauss kernel and another by the flip kernel, so the
+ * test confirms both int adaptor kinds coexist on the same channel.
+ */
+class FlatIntGauss : public GFlatIndividualT<FlatIntGauss> {
+public:
+    FlatIntGauss() {
+        GGenomeBuilder b;
+        // Gauss-adapted constrained ints in [-50, 50], own state each.
+        b.addInt32Array(3, -50, 50).intGaussAdaptor(0.2, 0.8, 1e-3, 2., 1.).init(0);
+        // Flip-adapted constrained ints in [-10, 10], shared state.
+        b.addInt32Group(2, -10, 10).flipAdaptor(1.0).init(5);
+        this->setGenome(b.build());
+    }
+    FlatIntGauss(const FlatIntGauss &) = default;
+
+protected:
+    double fitnessCalculation() override { return 0.; }
+
+private:
+    friend class boost::serialization::access;
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        ar &boost::serialization::make_nvp(
+            "GFlatIndividualT",
+            boost::serialization::base_object<GFlatIndividualT<FlatIntGauss>>(*this)
+        );
+    }
+};
+
 } // namespace Gem::Tests
 
-BOOST_CLASS_EXPORT(Gem::Tests::FlatMixed) // NOLINT
+BOOST_CLASS_EXPORT(Gem::Tests::FlatMixed)    // NOLINT
+BOOST_CLASS_EXPORT(Gem::Tests::FlatIntGauss) // NOLINT
 
 using Gem::Tests::FlatMixed;
 
@@ -471,6 +504,55 @@ TEST_CASE("GFlatGenome: mixed flip/bigauss genome serialises round-trip", "[flat
 
     const std::string xml = ind.toString(Gem::Common::serializationMode::XML);
     FlatMixed restored;
+    restored.fromString(xml, Gem::Common::serializationMode::XML);
+
+    CHECK_NOTHROW(restored.compare(
+        ind,
+        Gem::Common::expectation::EQUALITY,
+        Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
+    ));
+}
+
+using Gem::Tests::FlatIntGauss;
+
+/******************************************************************************/
+TEST_CASE("GFlatGenome: integer Gauss adaptor mutates int32 within bounds", "[flat][intgauss]") {
+    FlatIntGauss ind;
+
+    std::vector<std::int32_t> before;
+    ind.streamline<std::int32_t>(before);
+    REQUIRE(before.size() == 5); // 3 Gauss + 2 flip
+
+    bool changed = false;
+    for(int round = 0; round < 30; ++round) {
+        ind.adapt();
+        std::vector<std::int32_t> now;
+        ind.streamline<std::int32_t>(now);
+        REQUIRE(now.size() == 5);
+        for(std::size_t k = 0; k < 3; ++k) { // Gauss group bounds
+            CHECK(now[k] >= -50);
+            CHECK(now[k] <= 50);
+        }
+        for(std::size_t k = 3; k < 5; ++k) { // flip group bounds
+            CHECK(now[k] >= -10);
+            CHECK(now[k] <= 10);
+        }
+        if(now != before) {
+            changed = true;
+        }
+    }
+    CHECK(changed);
+}
+
+/******************************************************************************/
+TEST_CASE("GFlatGenome: integer Gauss genome serialises round-trip", "[flat][intgauss]") {
+    FlatIntGauss ind;
+    for(int i = 0; i < 5; ++i) {
+        ind.adapt();
+    }
+
+    const std::string xml = ind.toString(Gem::Common::serializationMode::XML);
+    FlatIntGauss restored;
     restored.fromString(xml, Gem::Common::serializationMode::XML);
 
     CHECK_NOTHROW(restored.compare(

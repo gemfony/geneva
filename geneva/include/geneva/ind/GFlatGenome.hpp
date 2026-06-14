@@ -357,6 +357,8 @@ private:
     template <typename T>
     std::size_t adaptBiGaussChannel(std::vector<T> &store, ChannelLayout<T> const &ch, AuxKey key);
 
+    /** @brief Runs the integer Gauss kernel over the int32 channel using the GaussState block under AUXKEY_GAUSS_INT */
+    std::size_t adaptGaussIntChannel();
     /** @brief Runs the flip kernel over the int32 channel using the FlipState block under AUXKEY_FLIP_INT */
     std::size_t adaptFlipIntChannel();
     /** @brief Runs the flip kernel over the bool channel using the FlipState block under AUXKEY_FLIP_BOOL */
@@ -369,6 +371,9 @@ private:
     /** @brief Resets the bi-gaussian state of one FP channel to its seeds (stall handling) */
     template <typename T>
     void resetBiGaussChannel(ChannelLayout<T> const &ch, AuxKey key);
+
+    /** @brief Resets the integer Gauss state of the int32 channel to its seeds (stall handling) */
+    void resetGaussIntChannel();
 
     /** @brief Resets the flip ad_prob of one int32 / bool channel to its seed (stall handling) */
     template <typename T>
