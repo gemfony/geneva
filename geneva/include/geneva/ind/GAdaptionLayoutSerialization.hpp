@@ -58,11 +58,34 @@ void serialize(Archive &ar, Gem::Geneva::Parameters::GaussConfig<T> &g, const un
 }
 
 template <class Archive, typename T>
+void serialize(Archive &ar, Gem::Geneva::Parameters::BiGaussConfig<T> &g, const unsigned int) {
+    ar &make_nvp("sigma_sigma1", g.sigma_sigma1) &make_nvp("sigma_sigma2", g.sigma_sigma2) &
+        make_nvp("sigma_delta", g.sigma_delta) &make_nvp("min_sigma1", g.min_sigma1) &
+        make_nvp("max_sigma1", g.max_sigma1) &make_nvp("min_sigma2", g.min_sigma2) &
+        make_nvp("max_sigma2", g.max_sigma2) &make_nvp("min_delta", g.min_delta) &
+        make_nvp("max_delta", g.max_delta) &make_nvp("min_ad_prob", g.min_ad_prob) &
+        make_nvp("max_ad_prob", g.max_ad_prob) &make_nvp("adapt_ad_prob", g.adapt_ad_prob) &
+        make_nvp("adapt_sigma_prob", g.adapt_sigma_prob) &
+        make_nvp("adaption_threshold", g.adaption_threshold) &
+        make_nvp("use_symmetric_sigmas", g.use_symmetric_sigmas) &make_nvp("mode", g.mode);
+}
+
+template <class Archive>
+inline void
+serialize(Archive &ar, Gem::Geneva::Parameters::FlipConfig &g, const unsigned int) {
+    ar &make_nvp("min_ad_prob", g.min_ad_prob) &make_nvp("max_ad_prob", g.max_ad_prob) &
+        make_nvp("adapt_ad_prob", g.adapt_ad_prob) &make_nvp("mode", g.mode);
+}
+
+template <class Archive, typename T>
 void serialize(Archive &ar, Gem::Geneva::Parameters::GroupSpec<T> &g, const unsigned int) {
     ar &make_nvp("start", g.start) &make_nvp("len", g.len) &make_nvp("active", g.active) &
         make_nvp("has_gauss", g.has_gauss) &make_nvp("gauss", g.gauss) &
         make_nvp("start_sigma", g.start_sigma) &make_nvp("start_ad_prob", g.start_ad_prob) &
-        make_nvp("range", g.range);
+        make_nvp("range", g.range) &make_nvp("has_bigauss", g.has_bigauss) &
+        make_nvp("bigauss", g.bigauss) &make_nvp("start_sigma1", g.start_sigma1) &
+        make_nvp("start_sigma2", g.start_sigma2) &make_nvp("start_delta", g.start_delta) &
+        make_nvp("has_flip", g.has_flip) &make_nvp("flip", g.flip);
 }
 
 template <class Archive, typename T>

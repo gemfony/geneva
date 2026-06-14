@@ -185,5 +185,268 @@ std::size_t adaptGaussGroup(
 }
 
 /******************************************************************************/
+/**
+ * The flip kernels: the mutation mathematics of the integer / boolean flip adaptors
+ * (GNumFlipAdaptorT, GInt32FlipAdaptor, GBooleanAdaptor), re-expressed in the same stateless
+ * (config, state, values) style as the Gauss kernel. A flip adaptor has NO sigma -- its only evolving
+ * state is the adaption probability ad_prob (which self-adapts log-normally like the Gauss one). There
+ * is no sigma self-adaption, so GAdaptorT::adaptAdaption() makes no RNG draw for a flip adaptor and is
+ * therefore not modelled here (the tree's adaption counter has no effect for flip). The value step is a
+ * deterministic ±1 (integers) or a toggle (booleans); the integer fold into a constrained range is
+ * applied by the genome on read (GFlatGenome / foldConstrainedInt), exactly as the tree applies it via
+ * GConstrainedIntT.
+ *
+ * The adaption-fp type for the integer and boolean channels is double (their adaption_fp_type), so the
+ * flip config / state are plain double POD.
+ */
+
+/** @brief Static, shared flip-adaption configuration for one group of int32 / bool parameters. */
+struct FlipConfig {
+    double min_ad_prob = 0.;                  ///< the lower bound of the adaption probability
+    double max_ad_prob = 1.;                  ///< the upper bound of the adaption probability
+    double adapt_ad_prob = 0.;                ///< the self-adaption rate of the adaption probability (0 disables)
+    adaptionMode mode = adaptionMode::WITHPROBABILITY; ///< always / with-probability / never
+};
+
+/** @brief Per-individual, per-group evolving flip state. POD: standard-layout, trivially copyable. */
+struct FlipState {
+    double ad_prob = 1.;                       ///< the current adaption probability
+};
+
+/**
+ * @brief Self-adapts the flip adaption probability once for a group (mirrors GAdaptorT::adapt()'s
+ * ad-prob step), shared by the int and bool flip kernels.
+ */
+inline void selfAdaptFlipAdProb(const FlipConfig &cfg, FlipState &st, Gem::Hap::GRandomBase &gr) {
+    if(cfg.adapt_ad_prob > 0.) {
+        Gem::Hap::g_normal_distribution<double> normal;
+        st.ad_prob *= std::exp(
+            normal(gr, Gem::Hap::g_normal_distribution<double>::param_type(0., cfg.adapt_ad_prob))
+        );
+        Gem::Common::enforceRangeConstraint<double>(
+            st.ad_prob,
+            cfg.min_ad_prob,
+            cfg.max_ad_prob,
+            "selfAdaptFlipAdProb() / ad_prob"
+        );
+    }
+}
+
+/**
+ * @brief Adapts one group of int32 values sharing a FlipState by flipping each ±1 (50/50), mirroring
+ * GNumFlipAdaptorT::customAdaptions wrapped by GAdaptorT::adapt(vector). Returns the number flipped.
+ */
+inline std::size_t adaptFlipIntGroup(
+    const FlipConfig &cfg,
+    FlipState &st,
+    std::span<std::int32_t> values,
+    Gem::Hap::GRandomBase &gr
+) {
+    Gem::Hap::g_bernoulli_distribution bernoulli;
+    using b_param = Gem::Hap::g_bernoulli_distribution::param_type;
+
+    selfAdaptFlipAdProb(cfg, st, gr);
+
+    // The value step: +1 / -1 chosen 50/50 (matches GNumFlipAdaptorT::customAdaptions).
+    auto flip_step = [&](std::int32_t &v) {
+        if(bernoulli(gr, b_param(0.5))) {
+            v += 1;
+        }
+        else {
+            v -= 1;
+        }
+    };
+
+    std::size_t n_adapted = 0;
+    if(adaptionMode::WITHPROBABILITY == cfg.mode) {
+        for(std::int32_t &v : values) {
+            if(bernoulli(gr, b_param(std::abs(st.ad_prob)))) {
+                flip_step(v);
+                ++n_adapted;
+            }
+        }
+    }
+    else if(adaptionMode::ALWAYS == cfg.mode) {
+        for(std::int32_t &v : values) {
+            flip_step(v);
+            ++n_adapted;
+        }
+    }
+    // adaptionMode::NEVER: nothing to do.
+
+    return n_adapted;
+}
+
+/**
+ * @brief Adapts one group of boolean values (stored as bytes) sharing a FlipState by toggling each,
+ * mirroring GBooleanAdaptor::customAdaptions (value = !value) wrapped by GAdaptorT::adapt(vector).
+ * Returns the number toggled.
+ */
+inline std::size_t adaptFlipBoolGroup(
+    const FlipConfig &cfg,
+    FlipState &st,
+    std::span<std::uint8_t> values,
+    Gem::Hap::GRandomBase &gr
+) {
+    Gem::Hap::g_bernoulli_distribution bernoulli;
+    using b_param = Gem::Hap::g_bernoulli_distribution::param_type;
+
+    selfAdaptFlipAdProb(cfg, st, gr);
+
+    // The value step: a plain toggle (matches GBooleanAdaptor::customAdaptions); no RNG draw.
+    auto toggle = [](std::uint8_t &v) { v = v ? std::uint8_t(0) : std::uint8_t(1); };
+
+    std::size_t n_adapted = 0;
+    if(adaptionMode::WITHPROBABILITY == cfg.mode) {
+        for(std::uint8_t &v : values) {
+            if(bernoulli(gr, b_param(std::abs(st.ad_prob)))) {
+                toggle(v);
+                ++n_adapted;
+            }
+        }
+    }
+    else if(adaptionMode::ALWAYS == cfg.mode) {
+        for(std::uint8_t &v : values) {
+            toggle(v);
+            ++n_adapted;
+        }
+    }
+    // adaptionMode::NEVER: nothing to do.
+
+    return n_adapted;
+}
+
+/******************************************************************************/
+/**
+ * The bi-gaussian kernel: the mutation mathematics of GFPBiGaussAdaptorT / GNumBiGaussAdaptorT,
+ * re-expressed in the same (config, state, values) style as the Gauss kernel. Instead of a single
+ * gaussian it samples from a bi-modal distribution of two gaussians separated by a distance "delta";
+ * sigma1, sigma2 and delta each self-adapt log-normally (sigma2 == sigma1 in the symmetric case for
+ * the value step, but all three still self-adapt, mirroring the tree). The value step adds
+ * range * bi_normal(0, sigma1, sigma2, delta), with the same one-ULP "an adaption that fires always
+ * changes the value" guarantee as the Gauss kernel.
+ */
+
+/** @brief Static, shared bi-gaussian configuration for one group of FP parameters. */
+template <typename T>
+struct BiGaussConfig {
+    T sigma_sigma1 = T(0.8);                   ///< the log-normal self-adaption rate of sigma1
+    T sigma_sigma2 = T(0.8);                   ///< the log-normal self-adaption rate of sigma2
+    T sigma_delta = T(0.8);                    ///< the log-normal self-adaption rate of delta
+    T min_sigma1 = T(0.001);                   ///< the lower bound of sigma1
+    T max_sigma1 = T(2.);                      ///< the upper bound of sigma1
+    T min_sigma2 = T(0.001);                   ///< the lower bound of sigma2
+    T max_sigma2 = T(2.);                      ///< the upper bound of sigma2
+    T min_delta = T(0.);                       ///< the lower bound of delta
+    T max_delta = T(2.);                       ///< the upper bound of delta
+    T min_ad_prob = T(0.);                     ///< the lower bound of the adaption probability
+    T max_ad_prob = T(1.);                     ///< the upper bound of the adaption probability
+    T adapt_ad_prob = T(0.);                   ///< the self-adaption rate of the adaption probability (0 disables)
+    T adapt_sigma_prob = T(0.);                ///< probability of a sigma self-adaption when adaption_threshold == 0
+    std::uint32_t adaption_threshold = 1;      ///< sigmas/delta self-adapt every Nth adaption (0 ⇒ use adapt_sigma_prob)
+    bool use_symmetric_sigmas = true;          ///< whether the value step uses sigma1 for both gaussians
+    adaptionMode mode = adaptionMode::WITHPROBABILITY; ///< always / with-probability / never
+};
+
+/** @brief Per-individual, per-group evolving bi-gaussian state. POD: trivially copyable. */
+template <typename T>
+struct BiGaussState {
+    T sigma1 = T(1.);                          ///< the current width of the first gaussian
+    T sigma2 = T(1.);                          ///< the current width of the second gaussian
+    T delta = T(0.5);                          ///< the current distance between the two gaussians
+    T ad_prob = T(1.);                         ///< the current adaption probability
+    std::uint32_t counter = 0;                 ///< adaptions since the last sigma self-adaption
+};
+
+/**
+ * @brief Adapts one group of values sharing a single BiGaussState, mirroring the tree bi-gaussian
+ * adaptor's vector path. Returns the number of values that were actually adapted.
+ */
+template <typename T>
+std::size_t adaptBiGaussGroup(
+    const BiGaussConfig<T> &cfg,
+    BiGaussState<T> &st,
+    std::span<T> values,
+    const T &range,
+    Gem::Hap::GRandomBase &gr
+) {
+    Gem::Hap::g_normal_distribution<T> normal;
+    Gem::Hap::g_bernoulli_distribution bernoulli;
+    Gem::Hap::bi_normal_distribution<T> bi_normal;
+    using n_param = typename Gem::Hap::g_normal_distribution<T>::param_type;
+    using b_param = Gem::Hap::g_bernoulli_distribution::param_type;
+    using bn_param = typename Gem::Hap::bi_normal_distribution<T>::param_type;
+
+    // 1) Self-adapt the adaption probability once for the whole group (if requested).
+    if(cfg.adapt_ad_prob > T(0.)) {
+        st.ad_prob *= std::exp(normal(gr, n_param(T(0.), cfg.adapt_ad_prob)));
+        Gem::Common::enforceRangeConstraint<T>(
+            st.ad_prob,
+            cfg.min_ad_prob,
+            cfg.max_ad_prob,
+            "adaptBiGaussGroup() / ad_prob"
+        );
+    }
+
+    // Self-adapts sigma1 / sigma2 / delta (log-normal step + range clamp), mirroring
+    // GNumBiGaussAdaptorT::customAdaptAdaption (no ULP nudge there, unlike the single gauss).
+    auto self_adapt = [&]() {
+        st.sigma1 *= std::exp(normal(gr, n_param(T(0.), std::abs(cfg.sigma_sigma1))));
+        st.sigma2 *= std::exp(normal(gr, n_param(T(0.), std::abs(cfg.sigma_sigma2))));
+        st.delta *= std::exp(normal(gr, n_param(T(0.), std::abs(cfg.sigma_delta))));
+        Gem::Common::enforceRangeConstraint<T>(st.sigma1, cfg.min_sigma1, cfg.max_sigma1, "adaptBiGaussGroup() / sigma1");
+        Gem::Common::enforceRangeConstraint<T>(st.sigma2, cfg.min_sigma2, cfg.max_sigma2, "adaptBiGaussGroup() / sigma2");
+        Gem::Common::enforceRangeConstraint<T>(st.delta, cfg.min_delta, cfg.max_delta, "adaptBiGaussGroup() / delta");
+    };
+
+    // The sigma self-adaption trigger, mirroring GAdaptorT::adaptAdaption.
+    auto adapt_adaption = [&]() {
+        if(cfg.adaption_threshold > 0) {
+            if(++st.counter >= cfg.adaption_threshold) {
+                st.counter = 0;
+                self_adapt();
+            }
+        }
+        else if(cfg.adapt_sigma_prob != T(0.)) {
+            if(bernoulli(gr, b_param(std::abs(cfg.adapt_sigma_prob)))) {
+                self_adapt();
+            }
+        }
+    };
+
+    // The value step (range * bi_normal(0, sigma1, sigma2|sigma1, delta) + one-ULP guarantee),
+    // mirroring GFPBiGaussAdaptorT::customAdaptions.
+    auto bigauss_step = [&](T &v) {
+        const T before = v;
+        const T s2 = cfg.use_symmetric_sigmas ? st.sigma1 : st.sigma2;
+        v += range * bi_normal(gr, bn_param(T(0.), st.sigma1, s2, st.delta));
+        if(v == before) {
+            v = std::nextafter(before, std::numeric_limits<T>::max());
+        }
+    };
+
+    std::size_t n_adapted = 0;
+    if(adaptionMode::WITHPROBABILITY == cfg.mode) {
+        for(T &v : values) {
+            if(bernoulli(gr, b_param(std::abs(st.ad_prob)))) {
+                adapt_adaption();
+                bigauss_step(v);
+                ++n_adapted;
+            }
+        }
+    }
+    else if(adaptionMode::ALWAYS == cfg.mode) {
+        for(T &v : values) {
+            adapt_adaption();
+            bigauss_step(v);
+            ++n_adapted;
+        }
+    }
+    // adaptionMode::NEVER: nothing to do.
+
+    return n_adapted;
+}
+
+/******************************************************************************/
 
 } /* namespace Gem::Geneva::Parameters */

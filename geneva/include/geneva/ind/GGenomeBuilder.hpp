@@ -111,10 +111,82 @@ public:
         return *this;
     }
 
+    /** @brief Attaches a bi-gaussian adaptor to this group (FP groups). */
+    ParamHandle &biGaussAdaptor(
+        adfp sigma1,
+        adfp sigma_sigma1,
+        adfp min_sigma1,
+        adfp max_sigma1,
+        adfp sigma2,
+        adfp sigma_sigma2,
+        adfp min_sigma2,
+        adfp max_sigma2,
+        adfp delta,
+        adfp sigma_delta,
+        adfp min_delta,
+        adfp max_delta,
+        adfp ad_prob,
+        bool use_symmetric_sigmas = false,
+        adfp adapt_ad_prob = adfp(0),
+        std::uint32_t adaption_threshold = 1,
+        adaptionMode mode = adaptionMode::WITHPROBABILITY
+    ) {
+        static_assert(
+            std::is_floating_point_v<T>,
+            "biGaussAdaptor() is only available for floating point parameters"
+        );
+        GroupSpec<T> &g = ch_->groups.at(gi_);
+        g.has_bigauss = true;
+        g.start_sigma1 = sigma1;
+        g.start_sigma2 = sigma2;
+        g.start_delta = delta;
+        g.start_ad_prob = ad_prob;
+        g.bigauss.sigma_sigma1 = sigma_sigma1;
+        g.bigauss.sigma_sigma2 = sigma_sigma2;
+        g.bigauss.sigma_delta = sigma_delta;
+        g.bigauss.min_sigma1 = min_sigma1;
+        g.bigauss.max_sigma1 = max_sigma1;
+        g.bigauss.min_sigma2 = min_sigma2;
+        g.bigauss.max_sigma2 = max_sigma2;
+        g.bigauss.min_delta = min_delta;
+        g.bigauss.max_delta = max_delta;
+        g.bigauss.min_ad_prob = adfp(0);
+        g.bigauss.max_ad_prob = adfp(1);
+        g.bigauss.adapt_ad_prob = adapt_ad_prob;
+        g.bigauss.adaption_threshold = adaption_threshold;
+        g.bigauss.use_symmetric_sigmas = use_symmetric_sigmas;
+        g.bigauss.mode = mode;
+        return *this;
+    }
+
+    /** @brief Attaches a flip adaptor to this group (int32 / bool groups). */
+    ParamHandle &flipAdaptor(
+        double ad_prob,
+        double adapt_ad_prob = 0.,
+        double min_ad_prob = 0.,
+        double max_ad_prob = 1.,
+        adaptionMode mode = adaptionMode::WITHPROBABILITY
+    ) {
+        static_assert(
+            std::is_integral_v<T>,
+            "flipAdaptor() is only available for integer and boolean parameters"
+        );
+        GroupSpec<T> &g = ch_->groups.at(gi_);
+        g.has_flip = true;
+        g.start_ad_prob = ad_prob;
+        g.flip.min_ad_prob = min_ad_prob;
+        g.flip.max_ad_prob = max_ad_prob;
+        g.flip.adapt_ad_prob = adapt_ad_prob;
+        g.flip.mode = mode;
+        return *this;
+    }
+
     /** @brief Sets the adaption mode for this group (NEVER ⇒ the group is inactive). */
     ParamHandle &adaptionMode(Gem::Geneva::adaptionMode mode) {
         GroupSpec<T> &g = ch_->groups.at(gi_);
         g.gauss.mode = mode;
+        g.bigauss.mode = mode;
+        g.flip.mode = mode;
         g.active = (mode != adaptionMode::NEVER);
         for(std::uint32_t k = 0; k < g.len; ++k) {
             ch_->active.at(g.start + k) = g.active ? 1 : 0;
@@ -209,12 +281,24 @@ public:
             ParamKind::Plain
         );
     }
+    ParamHandle<std::int32_t> addInt32Group(std::size_t n, std::int32_t min, std::int32_t max) {
+        return addGrouped(layout_.i, iv_, n, min, max, ParamKind::Constrained);
+    }
+    ParamHandle<std::int32_t> addInt32Array(std::size_t n, std::int32_t min, std::int32_t max) {
+        return addArray(layout_.i, iv_, n, min, max, ParamKind::Constrained);
+    }
 
     /***************************************************************************/
-    // Bool channel (flip adaptor added later)
+    // Bool channel
 
     ParamHandle<bool> addBool(bool init) {
         return addOne(layout_.b, bvBool_, init, false, true, ParamKind::Plain);
+    }
+    ParamHandle<bool> addBoolGroup(std::size_t n) {
+        return addGrouped(layout_.b, bvBool_, n, false, true, ParamKind::Plain);
+    }
+    ParamHandle<bool> addBoolArray(std::size_t n) {
+        return addArray(layout_.b, bvBool_, n, false, true, ParamKind::Plain);
     }
 
     /***************************************************************************/

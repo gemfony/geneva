@@ -366,6 +366,120 @@ TEST_CASE("GFlatGenome: updateAdaptorsOnStall resets sigma to its seed", "[flat]
 }
 
 /******************************************************************************/
+/**
+ * A flat individual mixing a bi-gaussian FP group, an int32 flip group and a bool flip group, used to
+ * exercise the flip / bi-gauss adaption paths and their serialisation.
+ */
+namespace Gem::Tests {
+
+class FlatMixed : public GFlatIndividualT<FlatMixed> {
+public:
+    FlatMixed() {
+        GGenomeBuilder b;
+        b.addDoubleGroup(3, -5., 5.)
+            .biGaussAdaptor(0.5, 0.8, 1e-3, 2., 0.5, 0.8, 1e-3, 2., 0.5, 0.8, 0., 2., 1.)
+            .init(2.0);
+        b.addInt32Group(4, -10, 10).flipAdaptor(1.0).init(3);
+        b.addBoolGroup(5).flipAdaptor(1.0).init(false);
+        this->setGenome(b.build());
+    }
+    FlatMixed(const FlatMixed &) = default;
+
+protected:
+    double fitnessCalculation() override { return 0.; }
+
+private:
+    friend class boost::serialization::access;
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        ar &boost::serialization::make_nvp(
+            "GFlatIndividualT",
+            boost::serialization::base_object<GFlatIndividualT<FlatMixed>>(*this)
+        );
+    }
+};
+
+} // namespace Gem::Tests
+
+BOOST_CLASS_EXPORT(Gem::Tests::FlatMixed) // NOLINT
+
+using Gem::Tests::FlatMixed;
+
+/******************************************************************************/
+TEST_CASE("GFlatGenome: flip adaptor mutates int32 and bool channels", "[flat][flip]") {
+    FlatMixed ind;
+
+    std::vector<std::int32_t> i_before;
+    std::vector<bool> b_before;
+    ind.streamline<std::int32_t>(i_before);
+    ind.streamline<bool>(b_before);
+    REQUIRE(i_before.size() == 4);
+    REQUIRE(b_before.size() == 5);
+
+    bool int_changed = false;
+    bool bool_changed = false;
+    for(int round = 0; round < 20; ++round) {
+        ind.adapt();
+
+        std::vector<std::int32_t> i_now;
+        std::vector<bool> b_now;
+        ind.streamline<std::int32_t>(i_now);
+        ind.streamline<bool>(b_now);
+        for(std::int32_t x : i_now) {
+            CHECK(x >= -10);
+            CHECK(x <= 10);
+        }
+        if(i_now != i_before) {
+            int_changed = true;
+        }
+        if(b_now != b_before) {
+            bool_changed = true;
+        }
+    }
+    CHECK(int_changed);
+    CHECK(bool_changed);
+}
+
+/******************************************************************************/
+TEST_CASE("GFlatGenome: bi-gaussian adaptor mutates the FP channel within bounds", "[flat][bigauss]") {
+    FlatMixed ind;
+
+    std::vector<double> before;
+    ind.streamline<double>(before);
+    REQUIRE(before.size() == 3);
+
+    std::size_t total = 0;
+    for(int round = 0; round < 20; ++round) {
+        total += ind.adapt();
+        std::vector<double> v;
+        ind.streamline<double>(v);
+        for(double x : v) {
+            CHECK(x >= -5.);
+            CHECK(x < 5.);
+        }
+    }
+    CHECK(total > 0);
+}
+
+/******************************************************************************/
+TEST_CASE("GFlatGenome: mixed flip/bigauss genome serialises round-trip", "[flat][flip][bigauss]") {
+    FlatMixed ind;
+    for(int i = 0; i < 5; ++i) {
+        ind.adapt();
+    }
+
+    const std::string xml = ind.toString(Gem::Common::serializationMode::XML);
+    FlatMixed restored;
+    restored.fromString(xml, Gem::Common::serializationMode::XML);
+
+    CHECK_NOTHROW(restored.compare(
+        ind,
+        Gem::Common::expectation::EQUALITY,
+        Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
+    ));
+}
+
+/******************************************************************************/
 TEST_CASE("GGridArchitecture reads any genome through the §2 seam (flat)", "[flat][architecture]") {
     FlatSphere ind(12); // 12 FP values -> a 3x4 grid
     GGridArchitecture grid(3, 4);

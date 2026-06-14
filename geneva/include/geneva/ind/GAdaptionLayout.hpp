@@ -162,8 +162,19 @@ struct GroupSpec {
     bool has_gauss = false;        ///< whether a Gauss adaptor is configured (FP groups only)
     GaussConfig<adaption_fp_t<T>> gauss{};        ///< the static Gauss configuration (valid iff has_gauss)
     adaption_fp_t<T> start_sigma = adaption_fp_t<T>(1);   ///< GaussState sigma seed + updateOnStall reset target
-    adaption_fp_t<T> start_ad_prob = adaption_fp_t<T>(1); ///< GaussState ad_prob seed + updateOnStall reset target
+    adaption_fp_t<T> start_ad_prob = adaption_fp_t<T>(1); ///< Gauss/BiGauss/Flip ad_prob seed + reset target
     T range = T(1);                ///< comparative range for the Gauss step (upper-lower, or the init range)
+
+    // Bi-gaussian alternative (FP groups only): mutually exclusive with has_gauss for the same group.
+    bool has_bigauss = false;      ///< whether a bi-gaussian adaptor is configured (FP groups only)
+    BiGaussConfig<adaption_fp_t<T>> bigauss{};            ///< the static bi-gaussian configuration (valid iff has_bigauss)
+    adaption_fp_t<T> start_sigma1 = adaption_fp_t<T>(1);  ///< BiGaussState sigma1 seed + reset target
+    adaption_fp_t<T> start_sigma2 = adaption_fp_t<T>(1);  ///< BiGaussState sigma2 seed + reset target
+    adaption_fp_t<T> start_delta = adaption_fp_t<T>(0.5); ///< BiGaussState delta seed + reset target
+
+    // Flip adaptor (int32 / bool groups only).
+    bool has_flip = false;         ///< whether a flip adaptor is configured (int / bool groups only)
+    FlipConfig flip{};             ///< the static flip configuration (valid iff has_flip)
 };
 
 /******************************************************************************/

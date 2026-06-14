@@ -114,7 +114,7 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp("layout_", *fresh);
         layout_ = fresh;
         // Re-seed the per-group adaption scratch from the (just loaded) layout config.
-        installGaussStates();
+        installAdaptionStates();
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -221,8 +221,8 @@ private:
     /** @brief Retrieval of a suitable position for cross over inside of a vector */
     std::size_t getCrossOverPos(std::size_t, std::size_t);
 
-    /** @brief Seeds the per-group Gauss adaption state in the auxiliary store from the layout config */
-    void installGaussStates();
+    /** @brief Seeds the per-group adaption state (Gauss / BiGauss / Flip) in the aux store from the layout */
+    void installAdaptionStates();
 
     /***************************************************************************/
     // Activity / fold helpers (genome-agnostic value mapping).
@@ -349,9 +349,26 @@ private:
     template <typename T>
     std::size_t adaptFPChannel(std::vector<T> &store, ChannelLayout<T> const &ch, AuxKey key);
 
+    /** @brief Runs the bi-gaussian kernel over one FP channel using the BiGaussState block under key */
+    template <typename T>
+    std::size_t adaptBiGaussChannel(std::vector<T> &store, ChannelLayout<T> const &ch, AuxKey key);
+
+    /** @brief Runs the flip kernel over the int32 channel using the FlipState block under AUXKEY_FLIP_INT */
+    std::size_t adaptFlipIntChannel();
+    /** @brief Runs the flip kernel over the bool channel using the FlipState block under AUXKEY_FLIP_BOOL */
+    std::size_t adaptFlipBoolChannel();
+
     /** @brief Resets the Gauss state of one FP channel to its seeds (stall handling) */
     template <typename T>
     void resetFPChannel(ChannelLayout<T> const &ch, AuxKey key);
+
+    /** @brief Resets the bi-gaussian state of one FP channel to its seeds (stall handling) */
+    template <typename T>
+    void resetBiGaussChannel(ChannelLayout<T> const &ch, AuxKey key);
+
+    /** @brief Resets the flip ad_prob of one int32 / bool channel to its seed (stall handling) */
+    template <typename T>
+    void resetFlipChannel(ChannelLayout<T> const &ch, AuxKey key);
 
     template <typename T>
     bool randomInitFP(std::vector<T> &store, ChannelLayout<T> const &ch, activityMode const &am);

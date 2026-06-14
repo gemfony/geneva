@@ -123,6 +123,94 @@ protected:
     }
 };
 
+/******************************************************************************/
+/**
+ * A continuous flat sphere driven by a BI-GAUSSIAN adaptor (instead of the single gaussian): N_DIM
+ * constrained doubles in [-5, 5), started at 3.0. Demonstrates the bi-gauss kernel end-to-end.
+ */
+class FlatBiGaussSphereOA : public gpar::GFlatIndividualT<FlatBiGaussSphereOA> {
+public:
+    FlatBiGaussSphereOA() {
+        gpar::GGenomeBuilder b;
+        // sigma1, sigmaSigma1, minSigma1, maxSigma1, sigma2, sigmaSigma2, minSigma2, maxSigma2,
+        // delta, sigmaDelta, minDelta, maxDelta, adProb
+        b.addDoubleGroup(N_DIM, -5., 5.)
+            .biGaussAdaptor(0.5, 0.8, 1e-3, 2., 0.5, 0.8, 1e-3, 2., 0.5, 0.8, 0., 2., 1.)
+            .init(3.0);
+        this->setGenome(b.build());
+    }
+    FlatBiGaussSphereOA(const FlatBiGaussSphereOA &) = default;
+
+protected:
+    double fitnessCalculation() override {
+        std::vector<double> v;
+        this->streamline<double>(v);
+        double s = 0.;
+        for(double x : v) {
+            s += x * x;
+        }
+        return s;
+    }
+};
+
+/******************************************************************************/
+/**
+ * A combinatorial INTEGER problem driven by a FLIP adaptor: N_INT constrained int32 in [-10, 10],
+ * started at 7, minimising the sum of squares (optimum: all zero). Demonstrates the int flip kernel.
+ */
+constexpr std::size_t N_INT = 5;
+
+class FlatIntSphereOA : public gpar::GFlatIndividualT<FlatIntSphereOA> {
+public:
+    FlatIntSphereOA() {
+        gpar::GGenomeBuilder b;
+        b.addInt32Group(N_INT, -10, 10).flipAdaptor(1.0).init(7);
+        this->setGenome(b.build());
+    }
+    FlatIntSphereOA(const FlatIntSphereOA &) = default;
+
+protected:
+    double fitnessCalculation() override {
+        std::vector<std::int32_t> v;
+        this->streamline<std::int32_t>(v);
+        double s = 0.;
+        for(std::int32_t x : v) {
+            s += static_cast<double>(x) * static_cast<double>(x);
+        }
+        return s;
+    }
+};
+
+/******************************************************************************/
+/**
+ * A combinatorial BOOLEAN problem (OneMax) driven by a FLIP adaptor: N_BOOL booleans, minimising the
+ * count of false bits (optimum: all true). Demonstrates the bool flip kernel end-to-end.
+ */
+constexpr std::size_t N_BOOL = 16;
+
+class FlatOneMaxOA : public gpar::GFlatIndividualT<FlatOneMaxOA> {
+public:
+    FlatOneMaxOA() {
+        gpar::GGenomeBuilder b;
+        b.addBoolGroup(N_BOOL).flipAdaptor(0.25).init(false);
+        this->setGenome(b.build());
+    }
+    FlatOneMaxOA(const FlatOneMaxOA &) = default;
+
+protected:
+    double fitnessCalculation() override {
+        std::vector<bool> v;
+        this->streamline<bool>(v);
+        double false_count = 0.;
+        for(bool x : v) {
+            if(not x) {
+                false_count += 1.;
+            }
+        }
+        return false_count; // minimised -> all true
+    }
+};
+
 /** @brief Sphere value of the best individual, also asserting the constraints held. */
 double bestSphere(const std::shared_ptr<FlatSphereOA> &best) {
     std::vector<double> v;
@@ -246,4 +334,80 @@ TEST_CASE("Parameter scan sweeps a flat individual", "[flat][oa]") {
     // The scan swept the grid and returned the best grid point (near the origin); the grid's
     // resolution -- not the optimum -- bounds how close it gets.
     CHECK(bestSphere(best) < 5.0);
+}
+
+/******************************************************************************/
+// Worked examples for the bi-gaussian + flip kernels (Phase 6), driven end-to-end by an EA.
+/******************************************************************************/
+
+TEST_CASE("EA optimizes a flat individual with a BI-GAUSSIAN adaptor", "[flat][oa][bigauss]") {
+    auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    pop->setPopulationSizes(18, 6);
+    pop->setMaxIteration(150);
+    pop->setReportIteration(100000);
+    pop->push_back(FlatBiGaussSphereOA().clone_unique());
+    pop->setLocalConsumer(oa::local_consumer_kind::serial);
+    pop->optimize();
+
+    auto best = pop->getBestGlobalIndividual<FlatBiGaussSphereOA>();
+    REQUIRE(best);
+    std::vector<double> v;
+    best->streamline<double>(v);
+    double sphere = 0.;
+    for(double x : v) {
+        sphere += x * x;
+        CHECK(x >= -5.0);
+        CHECK(x < 5.0);
+    }
+    CHECK(sphere < 20.0); // far below the f=45 start
+}
+
+/******************************************************************************/
+
+TEST_CASE("EA optimizes a flat INTEGER individual with a FLIP adaptor", "[flat][oa][flip]") {
+    auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    pop->setPopulationSizes(18, 6);
+    pop->setMaxIteration(200);
+    pop->setReportIteration(100000);
+    pop->push_back(FlatIntSphereOA().clone_unique());
+    pop->setLocalConsumer(oa::local_consumer_kind::serial);
+    pop->optimize();
+
+    auto best = pop->getBestGlobalIndividual<FlatIntSphereOA>();
+    REQUIRE(best);
+    std::vector<std::int32_t> v;
+    best->streamline<std::int32_t>(v);
+    double sphere = 0.;
+    for(std::int32_t x : v) {
+        sphere += static_cast<double>(x) * static_cast<double>(x);
+        CHECK(x >= -10);
+        CHECK(x <= 10);
+    }
+    CHECK(sphere < 15.0); // far below the N_INT * 49 = 245 start; flips march toward 0
+}
+
+/******************************************************************************/
+
+TEST_CASE("EA optimizes a flat BOOLEAN OneMax with a FLIP adaptor", "[flat][oa][flip]") {
+    auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    pop->setPopulationSizes(18, 6);
+    pop->setMaxIteration(400);
+    pop->setReportIteration(100000);
+    pop->push_back(FlatOneMaxOA().clone_unique());
+    pop->setLocalConsumer(oa::local_consumer_kind::serial);
+    pop->optimize();
+
+    auto best = pop->getBestGlobalIndividual<FlatOneMaxOA>();
+    REQUIRE(best);
+    std::vector<bool> v;
+    best->streamline<bool>(v);
+    std::size_t false_count = 0;
+    for(bool x : v) {
+        if(not x) {
+            ++false_count;
+        }
+    }
+    // OneMax converges from the all-false start toward all-true; the last few bits are a heavy
+    // (coupon-collector) tail, so allow a small residue rather than demanding a perfect sweep.
+    CHECK(false_count <= 3);
 }
