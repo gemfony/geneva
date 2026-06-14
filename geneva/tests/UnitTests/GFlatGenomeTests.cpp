@@ -50,6 +50,7 @@
 #include "geneva/ind/GFlatIndividualT.hpp"
 #include "geneva/ind/GGenomeArchitecture.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/individuals/GNeuralNetworkIndividual.hpp"
 #include "geneva/individuals/GTestIndividual1.hpp"
 
 using namespace Gem::Geneva;
@@ -549,6 +550,34 @@ TEST_CASE("GFlatIndividualFactory: one shared layout across N produced individua
     CHECK(v1_after == v1_before);  // inds[1] untouched -> independent value storage
 
     fs::remove(cfg);
+}
+
+/******************************************************************************/
+TEST_CASE("GNeuralNetworkArchitecture computes per-layer weight offsets", "[architecture][flat]") {
+    // A 2-4-4-1 feed-forward network (the example-09 default geometry).
+    Gem::Geneva::Individuals::GNeuralNetworkArchitecture arch(
+        std::vector<std::size_t>{2, 4, 4, 1}
+    );
+
+    CHECK(arch.name() == "GNeuralNetworkArchitecture");
+    CHECK(arch.nLayers() == 4);
+
+    // Weight counts: layer 0 = 2*2 = 4; layer 1 = 4*(2+1) = 12; layer 2 = 4*(4+1) = 20;
+    // layer 3 = 1*(4+1) = 5. Total = 41.
+    CHECK(arch.weightCount(0) == 4);
+    CHECK(arch.weightCount(1) == 12);
+    CHECK(arch.weightCount(2) == 20);
+    CHECK(arch.weightCount(3) == 5);
+    CHECK(arch.expectedFPSize() == 41);
+
+    // Offsets are the running sum of the preceding layers' weight counts.
+    CHECK(arch.layerOffset(0) == 0);
+    CHECK(arch.layerOffset(1) == 4);
+    CHECK(arch.layerOffset(2) == 16);
+    CHECK(arch.layerOffset(3) == 36);
+
+    CHECK(arch.layerSize(0) == 2);
+    CHECK(arch.layerSize(3) == 1);
 }
 
 /******************************************************************************/

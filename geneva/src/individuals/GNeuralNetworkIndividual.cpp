@@ -39,10 +39,8 @@
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GSingletonT.hpp"
-#include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/par/GDoubleObject.hpp"
-#include "geneva/par/GDoubleObjectCollection.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenomeBuilder.hpp"
 #include <cmath>
 #include <cstddef>
 #include <filesystem>
@@ -139,7 +137,7 @@ trainingSet &trainingSet::operator=(const trainingSet &cp) {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GTreeGenome object
+ * @param cp A constant reference to another GFlatGenome object
  * @param e The expected outcome of the comparison
  */
 void trainingSet::compare(
@@ -661,7 +659,7 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual(
  * @param cp A copy of another GNeuralNetworkIndividual object
  */
 GNeuralNetworkIndividual::GNeuralNetworkIndividual(const GNeuralNetworkIndividual &cp)
-  : gpar::GTreeGenome(cp)
+  : gpar::GFlatGenome(cp)
   , t_f_(cp.t_f_)
   , n_d_(nnTrainingDataStore()) // We want a single source for the training data
 {                             /* nothing */
@@ -679,7 +677,7 @@ GNeuralNetworkIndividual::~GNeuralNetworkIndividual() { /* nothing */
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GTreeGenome object
+ * @param cp A constant reference to another GFlatGenome object
  * @param e The expected outcome of the comparison
  */
 void GNeuralNetworkIndividual::compare_(
@@ -696,7 +694,7 @@ void GNeuralNetworkIndividual::compare_(
     GToken token("GNeuralNetworkIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GTreeGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -722,9 +720,6 @@ void GNeuralNetworkIndividual::init(
     const double &min_ad_prob,
     const double &max_ad_prob
 ) {
-    // Make sure the individual is empty
-    this->clear();
-
 #ifdef DEBUG
     if(not n_d_) {
         throw geneva_exception(
@@ -753,44 +748,39 @@ void GNeuralNetworkIndividual::init(
     std::size_t n_nodes = 0;
     std::size_t n_nodes_previous = 0;
 
-    // Access to uniformly distributed doubke random values
+    // Access to uniformly distributed double random values
     std::uniform_real_distribution<double> uniform_real_distribution(min, max);
 
-    // Set up the architecture
+    // Build a single flat genome holding all of the network's weights, layer by layer (the same
+    // ordering the semantic architecture decodes). Each weight is an unbounded double with its own
+    // Gauss adaptor; values are random-initialised in [min, max). The per-layer / per-weight meaning
+    // is provided by GNeuralNetworkArchitecture, not by the genome layout.
+    gpar::GGenomeBuilder gb;
     for(const auto &layer_n_nodes : *n_d_) {
-        if(layer_n_nodes) { // Add the next network layer to this class, if possible
+        if(layer_n_nodes) { // Add the next network layer, if possible
             n_nodes = layer_n_nodes;
 
-            // Set up a GDoubleObjectCollection
-            std::shared_ptr<gpar::GDoubleObjectCollection> gdoc(new gpar::GDoubleObjectCollection());
+            const std::size_t n_weights =
+                (layer_number == 0) ? (2 * n_nodes) : (n_nodes * (n_nodes_previous + 1));
 
-            // Add GDoubleObject objects
-            for(std::size_t i = 0;
-                i < (layer_number == 0 ? 2 * n_nodes : n_nodes * (n_nodes_previous + 1));
-                i++) {
-                // Set up a GDoubleObject object, initializing it with random data
-                std::shared_ptr<gpar::GDoubleObject> gd_ptr(
-                    new gpar::GDoubleObject(uniform_real_distribution(gr_))
-                );
-
-                // Set up an adaptor
-                std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga(
-                    new gpar::GDoubleGaussAdaptor(sigma, sigma_sigma, min_sigma, max_sigma)
-                );
-                gdga->setAdaptionProbability(ad_prob);
-                gdga->setAdaptAdProb(adapt_ad_prob);
-                gdga->setAdProbRange(min_ad_prob, max_ad_prob);
-
-                // Register it with the GDoubleObject object
-                gd_ptr->addAdaptor(gdga);
-
-                // Register the GDoubleObject object with the collection
-                gdoc->push_back(gd_ptr);
+            for(std::size_t i = 0; i < n_weights; i++) {
+                // sigma, sigma_sigma, min_sigma, max_sigma, ad_prob, adapt_ad_prob, threshold, mode,
+                // min_ad_prob, max_ad_prob
+                gb.addDouble(uniform_real_distribution(gr_))
+                    .gaussAdaptor(
+                        sigma,
+                        sigma_sigma,
+                        min_sigma,
+                        max_sigma,
+                        ad_prob,
+                        adapt_ad_prob,
+                        1,
+                        adaptionMode::WITHPROBABILITY,
+                        min_ad_prob,
+                        max_ad_prob
+                    )
+                    .perimeter(min, max);
             }
-
-            // Make the parameter collection known to this individual (cloned into the unique_ptr
-            // container via the container's shared_ptr-accepting push_back overload).
-            this->push_back(gdoc);
 
             n_nodes_previous = n_nodes;
             layer_number++;
@@ -804,6 +794,11 @@ void GNeuralNetworkIndividual::init(
             );
         }
     }
+
+    this->setGenome(gb.build());
+
+    // (Re)build the cached semantic architecture for this geometry.
+    nn_arch_ = makeArchitecture(*n_d_);
 }
 
 /******************************************************************************/
@@ -1261,7 +1256,7 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
            << "      register std::size_t node_counter = 0;" << '\n'
            << "      register std::size_t prev_node_counter = 0;" << '\n'
            << '\n'
-           << "      const std::size_t n_layers = " << this->data_cnt_.size() << ";" << '\n'
+           << "      const std::size_t n_layers = " << n_d_->size() << ";" << '\n'
            << "      const std::size_t architecture[n_layers] = {" << '\n';
 
     for(std::size_t i = 0; i < n_d_->size(); i++) {
@@ -1305,18 +1300,18 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
     header << "      const std::size_t n_weights = " << n_weights << ";" << '\n'
            << "      const double weights[n_weights] = {" << '\n';
 
-    for(std::size_t i = 0; i < n_d_->size(); i++) {
-        std::shared_ptr<gpar::GDoubleObjectCollection> current_layer = at<gpar::GDoubleObjectCollection>(i);
+    // The flat genome already stores the weights in layer-concatenated order (the same order the
+    // architecture decodes), so dump them straight from the genome-agnostic §2 view.
+    std::vector<double> all_weights;
+    this->streamlineFP(all_weights);
+    for(std::size_t i = 0; i < all_weights.size(); i++) {
+        header << "        " << all_weights[i];
 
-        for(std::size_t j = 0; j < current_layer->size(); j++) {
-            header << "        " << current_layer->at(j)->value();
-
-            if(i == (n_d_->size() - 1) && j == (current_layer->size() - 1)) {
-                header << '\n';
-            }
-            else {
-                header << "," << '\n';
-            }
+        if(i == (all_weights.size() - 1)) {
+            header << '\n';
+        }
+        else {
+            header << "," << '\n';
         }
     }
 
@@ -1387,9 +1382,9 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
 
 /******************************************************************************/
 /**
- * Loads the data of another GNeuralNetworkIndividual, camouflaged as a GTreeGenome
+ * Loads the data of another GNeuralNetworkIndividual, camouflaged as a GFlatGenome
  *
- * @param cp A copy of another GNeuralNetworkIndividual, camouflaged as a GTreeGenome
+ * @param cp A copy of another GNeuralNetworkIndividual, camouflaged as a GFlatGenome
  */
 void GNeuralNetworkIndividual::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GNeuralNetworkIndividual reference independent of this object and convert the pointer
@@ -1397,7 +1392,7 @@ void GNeuralNetworkIndividual::load_(const gpar::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GNeuralNetworkIndividual>(cp, this);
 
     // Load the parent class'es data
-    gpar::GTreeGenome::load_(cp);
+    gpar::GFlatGenome::load_(cp);
 
     // Load our local data, derived from the single localMembers() declaration.
     // We do not copy the network data, as it is always initialized through
@@ -1409,10 +1404,39 @@ void GNeuralNetworkIndividual::load_(const gpar::GOptimizableEntity *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GTreeGenome
+ * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GTreeGenome *GNeuralNetworkIndividual::clone_() const {
+gpar::GFlatGenome *GNeuralNetworkIndividual::clone_() const {
     return new GNeuralNetworkIndividual(*this);
+}
+
+/******************************************************************************/
+/**
+ * Builds the shared, immutable semantic architecture for a given network geometry (DM §4). The layer
+ * sizes are read from the networkData; the architecture then exposes per-layer weight offsets into the
+ * flat genome, layout-agnostically.
+ */
+std::shared_ptr<const GNeuralNetworkArchitecture>
+GNeuralNetworkIndividual::makeArchitecture(const networkData &n_d) {
+    std::vector<std::size_t> layers;
+    layers.reserve(n_d.size());
+    for(std::size_t i = 0; i < n_d.size(); ++i) {
+        layers.push_back(n_d.at(i));
+    }
+    return std::make_shared<const GNeuralNetworkArchitecture>(std::move(layers));
+}
+
+/******************************************************************************/
+/**
+ * Lazily (re)builds and returns the cached semantic architecture. The cache is transient (not
+ * serialised, not copied), so it is rebuilt on first use after construction, copy or deserialisation;
+ * the network geometry always comes from the (singleton-backed) networkData.
+ */
+const GNeuralNetworkArchitecture &GNeuralNetworkIndividual::architecture() const {
+    if(not nn_arch_) {
+        nn_arch_ = makeArchitecture(*n_d_);
+    }
+    return *nn_arch_;
 }
 
 /******************************************************************************/
@@ -1445,6 +1469,12 @@ gpar::GTreeGenome *GNeuralNetworkIndividual::clone_() const {
 double GNeuralNetworkIndividual::fitnessCalculation() {
     double result = 0;
 
+    // Read all weights out of the flat genome once (genome-agnostic §2 access), then decode their
+    // per-layer meaning through the semantic architecture.
+    std::vector<double> w;
+    this->streamlineFP(w);
+    const GNeuralNetworkArchitecture &arch = this->architecture();
+
     // Now loop over all data sets
     std::size_t current_pos = 0;
     std::optional<std::shared_ptr<trainingSet>> o;
@@ -1452,27 +1482,25 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
         // Retrieve a constant reference to the training data set for faster access
         const trainingSet &t_s = **o;
 
-        // The input layer
+        // The input layer (layer 0): two weights per input node (multiplier + bias).
         std::vector<double> prev_results;
-        std::size_t n_layer_nodes = (*n_d_)[0]; // NOLINT(cppcoreguidelines-init-variables)
+        std::size_t n_layer_nodes = arch.layerSize(0);
         double node_result = 0;
-        const gpar::GDoubleObjectCollection &input_layer = *(at<gpar::GDoubleObjectCollection>(0));
+        const std::size_t input_offset = arch.layerOffset(0);
         for(std::size_t node_counter = 0; node_counter < n_layer_nodes; node_counter++) {
-            node_result = t_s.Input[node_counter] * input_layer[2 * node_counter]->value() -
-                          input_layer[2 * node_counter + 1]->value();
+            node_result = t_s.Input[node_counter] * w[input_offset + 2 * node_counter] -
+                          w[input_offset + 2 * node_counter + 1];
             node_result = transfer(node_result);
             prev_results.push_back(node_result);
         }
 
-        // All other layers
-        std::size_t n_layers = this->data_cnt_.size();
+        // All other layers: one weight per previous-layer node plus a bias, per node.
+        std::size_t n_layers = arch.nLayers();
         for(std::size_t layer_counter = 1; layer_counter < n_layers; layer_counter++) {
             std::vector<double> current_results;
-            n_layer_nodes = (*n_d_)[layer_counter];
-            std::size_t n_prev_layer_nodes =
-                (*n_d_)[layer_counter - 1]; // NOLINT(cppcoreguidelines-init-variables)
-            const gpar::GDoubleObjectCollection &current_layer =
-                *(at<gpar::GDoubleObjectCollection>(layer_counter));
+            n_layer_nodes = arch.layerSize(layer_counter);
+            std::size_t n_prev_layer_nodes = arch.layerSize(layer_counter - 1);
+            const std::size_t layer_offset = arch.layerOffset(layer_counter);
 
             for(std::size_t node_counter = 0; node_counter < n_layer_nodes; node_counter++) {
                 // Loop over all nodes of the previous layer
@@ -1481,12 +1509,10 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
                     prev_node_counter++) {
                     node_result +=
                         prev_results.at(prev_node_counter) *
-                        (current_layer[node_counter * (n_prev_layer_nodes + 1) + prev_node_counter])
-                            ->value();
+                        w[layer_offset + node_counter * (n_prev_layer_nodes + 1) + prev_node_counter];
                 }
                 node_result -=
-                    (current_layer[node_counter * (n_prev_layer_nodes + 1) + n_prev_layer_nodes])
-                        ->value();
+                    w[layer_offset + node_counter * (n_prev_layer_nodes + 1) + n_prev_layer_nodes];
                 node_result = transfer(node_result);
                 current_results.push_back(node_result);
             }

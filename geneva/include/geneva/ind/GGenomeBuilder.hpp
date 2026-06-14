@@ -90,7 +90,9 @@ public:
         adfp ad_prob,
         adfp adapt_ad_prob = adfp(0),
         std::uint32_t adaption_threshold = 1,
-        adaptionMode mode = adaptionMode::WITHPROBABILITY
+        adaptionMode mode = adaptionMode::WITHPROBABILITY,
+        adfp min_ad_prob = adfp(0),
+        adfp max_ad_prob = adfp(1)
     ) {
         static_assert(
             std::is_floating_point_v<T>,
@@ -103,8 +105,8 @@ public:
         g.gauss.sigma_sigma = sigma_sigma;
         g.gauss.min_sigma = min_sigma;
         g.gauss.max_sigma = max_sigma;
-        g.gauss.min_ad_prob = adfp(0);
-        g.gauss.max_ad_prob = adfp(1);
+        g.gauss.min_ad_prob = min_ad_prob;
+        g.gauss.max_ad_prob = max_ad_prob;
         g.gauss.adapt_ad_prob = adapt_ad_prob;
         g.gauss.adaption_threshold = adaption_threshold;
         g.gauss.mode = mode;

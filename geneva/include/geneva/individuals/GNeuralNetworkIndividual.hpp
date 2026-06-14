@@ -73,10 +73,9 @@
 #include "common/GContainerT.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GUnitTestFrameworkT.hpp"
-#include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/par/GDoubleObject.hpp"
-#include "geneva/par/GDoubleObjectCollection.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenomeArchitecture.hpp"
+#include "geneva/ind/GGenomeBuilder.hpp"
 #include "hap/GRandomT.hpp"
 
 namespace Gem::Geneva::Individuals {
@@ -363,11 +362,58 @@ const transferFunction GNN_DEF_TRANSFER = transferFunction::SIGMOID;
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * The semantic architecture (DM §4) of a feed-forward neural network: a layout-agnostic decoder that
+ * maps the individual's flat floating-point genome (the concatenated layer weight vectors) to the
+ * network's per-layer weight offsets. It is the first real GGenomeArchitecture user. The weight layout
+ * (matching the historical tree genome's GDoubleObjectCollection-per-layer ordering) is:
+ *  - input layer (layer 0): 2 * nodes[0] weights (per input node: one multiplier + one bias);
+ *  - layer L > 0: nodes[L] * (nodes[L-1] + 1) weights (per node: one weight per previous node + bias).
+ * The architecture computes only the structure (offsets / sizes); the forward pass + transfer function
+ * live in GNeuralNetworkIndividual::fitnessCalculation(), which reads the weights through this view.
+ */
+class GNeuralNetworkArchitecture : public gpar::GGenomeArchitecture {
+public:
+    /** @brief Initialization from the per-layer node counts (input ... output) */
+    explicit GNeuralNetworkArchitecture(std::vector<std::size_t> layer_sizes)
+      : layer_sizes_(std::move(layer_sizes)) {
+        offsets_.resize(layer_sizes_.size());
+        std::size_t off = 0;
+        for(std::size_t l = 0; l < layer_sizes_.size(); ++l) {
+            offsets_[l] = off;
+            off += weightCount(l);
+        }
+        total_weights_ = off;
+    }
+
+    std::string name() const override { return "GNeuralNetworkArchitecture"; }
+    std::size_t expectedFPSize() const override { return total_weights_; }
+
+    /** @brief The number of layers (input + hidden + output) */
+    std::size_t nLayers() const { return layer_sizes_.size(); }
+    /** @brief The number of nodes in layer l */
+    std::size_t layerSize(std::size_t l) const { return layer_sizes_.at(l); }
+    /** @brief The offset of layer l's weights into the flat genome */
+    std::size_t layerOffset(std::size_t l) const { return offsets_.at(l); }
+    /** @brief The number of weights owned by layer l */
+    std::size_t weightCount(std::size_t l) const {
+        return (l == 0) ? (2 * layer_sizes_[0]) : (layer_sizes_[l] * (layer_sizes_[l - 1] + 1));
+    }
+
+private:
+    std::vector<std::size_t> layer_sizes_; ///< nodes per layer
+    std::vector<std::size_t> offsets_;     ///< per-layer weight offset into the flat genome
+    std::size_t total_weights_ = 0;        ///< total number of weights
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * With this individual you can use Genevas optimization algorithms instead of the
  * standard back-propagation algorithm to train feed-forward neural networks.
  */
 class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gpar::GTreeGenome {
+  : public gpar::GFlatGenome {
     /////////////////////////////////////////////////////////////////////////////
 
     friend class boost::serialization::access;
@@ -386,7 +432,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
     void load(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome);
         // t_f_ was previously never (de)serialised and silently reset to its
         // default; read it back via the single localMembers() declaration. In a
         // split save()/load(), the same serialize_members() drives both -- the
@@ -401,7 +447,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
     void save(Archive &ar, const unsigned int) const {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome);
         // The const localMembers() overload yields const refs, which the output
         // archive writes -- the symmetric counterpart to load() above.
         Gem::Common::serialize_members(ar, this->localMembers());
@@ -1071,18 +1117,28 @@ protected:
     /** @brief The actual fitness calculation */
     double fitnessCalculation() final;
 
+public:
+    /** @brief Builds the (shared, immutable) semantic architecture for a given network geometry */
+    static std::shared_ptr<const GNeuralNetworkArchitecture>
+    makeArchitecture(const networkData &n_d);
+
 private:
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    gpar::GTreeGenome *clone_() const final;
+    gpar::GFlatGenome *clone_() const final;
 
     /** @brief The transfer function */
     double transfer(const double &value) const;
+
+    /** @brief The semantic architecture (lazily built from n_d_; not serialised -- recoverable) */
+    const GNeuralNetworkArchitecture &architecture() const;
 
     /***************************************************************************/
     // Local variables
     transferFunction t_f_;             ///< The transfer function to be used for the training
     std::shared_ptr<networkData> n_d_; ///< Holds the training data
+    mutable std::shared_ptr<const GNeuralNetworkArchitecture>
+        nn_arch_; ///< Cached semantic architecture (transient; rebuilt from n_d_ on demand)
 };
 
 /******************************************************************************/
