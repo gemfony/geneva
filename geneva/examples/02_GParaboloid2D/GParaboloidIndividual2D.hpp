@@ -42,8 +42,8 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <geneva/par/GConstrainedDoubleObject.hpp>
-#include <geneva/ind/GTreeGenome.hpp>
+#include <geneva/ind/GFlatGenome.hpp>
+#include <geneva/ind/GGenomeBuilder.hpp>
 
 namespace Gem {
 namespace Geneva {
@@ -53,7 +53,7 @@ namespace Geneva {
  * This individual searches for the minimum of a 2-dimensional parabola.
  * It is part of an introductory example, used in the Geneva manual.
  */
-class GParaboloidIndividual2D : public gpar::GTreeGenome {
+class GParaboloidIndividual2D : public gpar::GFlatGenome {
     /** @brief Make the class accessible to Boost.Serialization */
     friend class boost::serialization::access;
 
@@ -66,7 +66,7 @@ class GParaboloidIndividual2D : public gpar::GTreeGenome {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         // Serialize the base class
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome);
         // Add other variables here like this:
         // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
     }
@@ -88,7 +88,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    virtual gpar::GTreeGenome *clone_() const final;
+    virtual gpar::GFlatGenome *clone_() const final;
 
     const double M_PAR_MIN;
     const double M_PAR_MAX;

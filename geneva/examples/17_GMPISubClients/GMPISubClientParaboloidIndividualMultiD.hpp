@@ -44,7 +44,7 @@
 
 // Geneva header files go here
 #include <courtier/GMPIHelperFunctions.hpp>
-#include <geneva/par/GConstrainedDoubleObject.hpp>
+#include <geneva/ind/GGenomeBuilder.hpp>
 #include <geneva/GMPISubClientIndividual.hpp>
 
 namespace Gem::Geneva {
@@ -69,7 +69,7 @@ class GMPISubClientParaboloidIndividualMultiD : public GMPISubClientIndividual {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         // Serialize the base class
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome);
         // Add other variables here like this:
         // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
     }
@@ -100,7 +100,7 @@ private:
     );
 
     /** @brief Creates a deep clone of this object */
-    [[nodiscard]] gpar::GTreeGenome *clone_() const final;
+    [[nodiscard]] gpar::GFlatGenome *clone_() const final;
 
     const double M_PAR_MIN;
     const double M_PAR_MAX;

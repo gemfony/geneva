@@ -45,8 +45,7 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <geneva/par/GConstrainedDoubleObject.hpp>
-#include <geneva/ind/GTreeGenome.hpp>
+#include <geneva/ind/GFlatGenome.hpp>
 
 namespace Gem::Geneva {
 
@@ -69,7 +68,7 @@ enum ClientMode {
      * conjunction with the GMPISubClientOptimizer.
      */
 class GMPISubClientIndividual // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gpar::GTreeGenome {
+  : public gpar::GFlatGenome {
     /** @brief Make the class accessible to Boost.Serialization */
     friend class boost::serialization::access;
 
@@ -88,7 +87,7 @@ class GMPISubClientIndividual // NOLINT(cppcoreguidelines-special-member-functio
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         // Serialize the base class
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome);
         // Add other variables here like this:
         // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
     }

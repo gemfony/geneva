@@ -45,14 +45,18 @@ GMPISubClientParaboloidIndividualMultiD::GMPISubClientParaboloidIndividualMultiD
   : GMPISubClientIndividual()
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10.) {
+    // Build a flat genome of nParameters_ constrained doubles in [M_PAR_MIN, M_PAR_MAX[, each its own
+    // Gauss group with the default GDoubleGaussAdaptor configuration (the tree relied on the lazily
+    // installed default adaptor).
+    gpar::GGenomeBuilder b;
     for(std::size_t npar = 0; npar < nParameters_; npar++) {
-        // GConstrainedDoubleObject is constrained to [M_PAR_MIN:M_PAR_MAX[
-        std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr(
-            new gpar::GConstrainedDoubleObject(M_PAR_MIN, M_PAR_MAX)
-        );
-        // Add the parameters to this individual
-        this->push_back(gcdo_ptr);
+        b.addDouble(M_PAR_MIN, M_PAR_MIN, M_PAR_MAX)
+            .gaussAdaptor(DEFAULTSIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, DEFAULTADPROB);
     }
+    this->setGenome(b.build());
+
+    // Mirror the tree's per-parameter random initialization within bounds.
+    this->randomInit(activityMode::ALLPARAMETERS);
 }
 
 /********************************************************************************************/
@@ -71,9 +75,9 @@ GMPISubClientParaboloidIndividualMultiD::GMPISubClientParaboloidIndividualMultiD
 
 /********************************************************************************************/
 /**
- * Loads the data of another GMPISubClientParaboloidIndividualMultiD, camouflaged as a GTreeGenome.
+ * Loads the data of another GMPISubClientParaboloidIndividualMultiD, camouflaged as a GFlatGenome.
  *
- * @param cp A copy of another GMPISubClientParaboloidIndividualMultiD, camouflaged as a GTreeGenome
+ * @param cp A copy of another GMPISubClientParaboloidIndividualMultiD, camouflaged as a GFlatGenome
  */
 void GMPISubClientParaboloidIndividualMultiD::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GMPISubClientParaboloidIndividualMultiD reference independent of this object and convert the pointer
@@ -94,9 +98,9 @@ void GMPISubClientParaboloidIndividualMultiD::load_(const gpar::GOptimizableEnti
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GTreeGenome
+ * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GTreeGenome *GMPISubClientParaboloidIndividualMultiD::clone_() const {
+gpar::GFlatGenome *GMPISubClientParaboloidIndividualMultiD::clone_() const {
     return new GMPISubClientParaboloidIndividualMultiD(*this);
 }
 

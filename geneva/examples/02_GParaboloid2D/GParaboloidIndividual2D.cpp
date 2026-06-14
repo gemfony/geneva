@@ -44,14 +44,18 @@ namespace Gem::Geneva {
 GParaboloidIndividual2D::GParaboloidIndividual2D()
   : M_PAR_MIN(-10.)
   , M_PAR_MAX(10.) {
+    // Build a flat genome of two constrained doubles in [M_PAR_MIN, M_PAR_MAX[, each its own Gauss
+    // group with the default GDoubleGaussAdaptor configuration (the tree relied on the lazily
+    // installed default adaptor).
+    gpar::GGenomeBuilder b;
     for(std::size_t npar = 0; npar < 2; npar++) {
-        // GConstrainedDoubleObject is constrained to [M_PAR_MIN:M_PAR_MAX[
-        std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr(
-            new gpar::GConstrainedDoubleObject(M_PAR_MIN, M_PAR_MAX)
-        );
-        // Add the parameters to this individual
-        this->push_back(gcdo_ptr);
+        b.addDouble(M_PAR_MIN, M_PAR_MIN, M_PAR_MAX)
+            .gaussAdaptor(DEFAULTSIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, DEFAULTADPROB);
     }
+    this->setGenome(b.build());
+
+    // Mirror the tree's per-parameter random initialization within bounds.
+    this->randomInit(activityMode::ALLPARAMETERS);
 }
 
 /********************************************************************************************/
@@ -61,7 +65,7 @@ GParaboloidIndividual2D::GParaboloidIndividual2D()
  * @param cp A copy of another GParaboloidIndividual2D
  */
 GParaboloidIndividual2D::GParaboloidIndividual2D(const GParaboloidIndividual2D &cp)
-  : gpar::GTreeGenome(cp)
+  : gpar::GFlatGenome(cp)
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10) { /* nothing */
 }
@@ -77,9 +81,9 @@ GParaboloidIndividual2D::~GParaboloidIndividual2D() { /* nothing */
 
 /********************************************************************************************/
 /**
- * Loads the data of another GParaboloidIndividual2D, camouflaged as a GTreeGenome.
+ * Loads the data of another GParaboloidIndividual2D, camouflaged as a GFlatGenome.
  *
- * @param cp A copy of another GParaboloidIndividual2D, camouflaged as a GTreeGenome
+ * @param cp A copy of another GParaboloidIndividual2D, camouflaged as a GFlatGenome
  */
 void GParaboloidIndividual2D::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GParaboloidIndividual2D reference independent of this object and convert the pointer
@@ -87,7 +91,7 @@ void GParaboloidIndividual2D::load_(const gpar::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GParaboloidIndividual2D>(cp, this);
 
     // Load our parent's data
-    gpar::GTreeGenome::load_(cp);
+    gpar::GFlatGenome::load_(cp);
 
     // No local data
     // sampleVariable = p_load->sampleVariable;
@@ -97,9 +101,9 @@ void GParaboloidIndividual2D::load_(const gpar::GOptimizableEntity *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GTreeGenome
+ * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GTreeGenome *GParaboloidIndividual2D::clone_() const {
+gpar::GFlatGenome *GParaboloidIndividual2D::clone_() const {
     return new GParaboloidIndividual2D(*this);
 }
 
