@@ -50,11 +50,8 @@
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GFactoryT.hpp"
-#include "geneva/par/GDoubleCollection.hpp"
-#include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/par/GDoubleObject.hpp"
-#include "geneva/par/GDoubleObjectCollection.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenomeBuilder.hpp"
 #include "hap/GRandomDistributionsT.hpp"
 
 namespace Gem::Geneva::Individuals {
@@ -79,14 +76,14 @@ public:
  * clients and server.
  */
 class GDelayIndividual
-  : public gpar::GTreeGenome // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gpar::GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
 {
     /////////////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome) &
             BOOST_SERIALIZATION_NVP(fixed_sleep_time_) & BOOST_SERIALIZATION_NVP(may_crash_) &
             BOOST_SERIALIZATION_NVP(throw_likelihood_) & BOOST_SERIALIZATION_NVP(sleep_randomly_) &
             BOOST_SERIALIZATION_NVP(rand_sleep_boundaries_);
@@ -142,7 +139,7 @@ protected:
         );
     }
 
-    /** @brief Loads the data of another GDelayIndividual, camouflaged as a GTreeGenome */
+    /** @brief Loads the data of another GDelayIndividual, camouflaged as a GFlatGenome */
     void load_(const gpar::GOptimizableEntity *) final;
 
     /** @brief Allow access to this classes compare_ function */
@@ -168,7 +165,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    gpar::GTreeGenome *clone_() const final;
+    gpar::GFlatGenome *clone_() const final;
 
     double
         fixed_sleep_time_; ///< The amount of time the evaluation function should sleep before continuing (seconds)

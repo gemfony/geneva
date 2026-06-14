@@ -37,10 +37,8 @@
 #include "common/GFactoryT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/par/GDoubleObject.hpp"
-#include "geneva/par/GDoubleObjectCollection.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenomeBuilder.hpp"
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -70,7 +68,7 @@ GDelayIndividual::GDelayIndividual()
  * @param cp A copy of another GDelayIndividual
  */
 GDelayIndividual::GDelayIndividual(const GDelayIndividual &cp)
-  : gpar::GTreeGenome(cp)
+  : gpar::GFlatGenome(cp)
   , fixed_sleep_time_(cp.fixed_sleep_time_)
   , may_crash_(cp.may_crash_)
   , throw_likelihood_(cp.throw_likelihood_)
@@ -90,7 +88,7 @@ GDelayIndividual::~GDelayIndividual() { /* nothing */
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GTreeGenome object
+ * @param cp A constant reference to another GFlatGenome object
  * @param e The expected outcome of the comparison
  */
 void GDelayIndividual::compare_(
@@ -107,7 +105,7 @@ void GDelayIndividual::compare_(
     Gem::Common::GToken token("GDelayIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GTreeGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -118,9 +116,9 @@ void GDelayIndividual::compare_(
 
 /******************************************************************************/
 /**
- * Loads the data of another GDelayIndividual, camouflaged as a GTreeGenome
+ * Loads the data of another GDelayIndividual, camouflaged as a GFlatGenome
  *
- * @param cp A copy of another GDelayIndividual, camouflaged as a GTreeGenome
+ * @param cp A copy of another GDelayIndividual, camouflaged as a GFlatGenome
  */
 void GDelayIndividual::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GDelayIndividual reference independent of this object and convert the pointer
@@ -128,7 +126,7 @@ void GDelayIndividual::load_(const gpar::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GDelayIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GTreeGenome::load_(cp);
+    gpar::GFlatGenome::load_(cp);
 
     // ... and then our own, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -138,9 +136,9 @@ void GDelayIndividual::load_(const gpar::GOptimizableEntity *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GTreeGenome
+ * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GTreeGenome *GDelayIndividual::clone_() const {
+gpar::GFlatGenome *GDelayIndividual::clone_() const {
     return new GDelayIndividual(*this);
 }
 
@@ -509,29 +507,15 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEnt
             std::tuple<double, double>(lower_rand_sleep_boundary_, upper_rand_sleep_boundary_)
         );
 
-        // Set up a GDoubleObjectCollection
-        std::shared_ptr<gpar::GDoubleObjectCollection> gbdc_ptr(
-            new gpar::GDoubleObjectCollection()
-        );
-
-        // Set up nVariables GConstrainedDoubleObject objects in the desired value range,
-        // and register them with the collection. The configuration parameters don't matter for this use case
+        // Set up nVariables unbounded double parameters, each with its own Gauss adaptor. The
+        // configuration does not matter for this use case (customAdaptions() is a no-op here); the
+        // genome only provides realistic transport ballast for the overhead measurement.
+        gpar::GGenomeBuilder gb;
         for(std::size_t var = 0; var < n_variables_; var++) {
-            std::shared_ptr<gpar::GDoubleObject> gbd_ptr(
-                new gpar::GDoubleObject(0.5)
-            );
-            std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
-                new gpar::GDoubleGaussAdaptor(0.025, 0.1, 0., 1.)
-            );
-            gdga_ptr->setAdaptionThreshold(1);
-            gbd_ptr->addAdaptor(gdga_ptr);
-
-            // Make the GDoubleObject known to the collection
-            gbdc_ptr->push_back(gbd_ptr);
+            // sigma, sigma_sigma, min_sigma, max_sigma, ad_prob
+            gb.addDouble(0.5).gaussAdaptor(0.025, 0.1, 0., 1., 1.);
         }
-
-        // Make the GDoubleObjectCollection known to the individual
-        dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gbdc_ptr);
+        p->setGenome(gb.build());
     }
     else if((id - Gem::Common::GFACTTORYFIRSTID) < sleep_times_.size()) {
         // Calculate the current sleep time
@@ -549,29 +533,15 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEnt
             std::tuple<double, double>(lower_rand_sleep_boundary_, upper_rand_sleep_boundary_)
         );
 
-        // Set up a GDoubleObjectCollection
-        std::shared_ptr<gpar::GDoubleObjectCollection> gbdc_ptr(
-            new gpar::GDoubleObjectCollection()
-        );
-
-        // Set up nVariables GConstrainedDoubleObject objects in the desired value range,
-        // and register them with the collection. The configuration parameters don't matter for this use case
+        // Set up nVariables unbounded double parameters, each with its own Gauss adaptor. The
+        // configuration does not matter for this use case (customAdaptions() is a no-op here); the
+        // genome only provides realistic transport ballast for the overhead measurement.
+        gpar::GGenomeBuilder gb;
         for(std::size_t var = 0; var < n_variables_; var++) {
-            std::shared_ptr<gpar::GDoubleObject> gbd_ptr(
-                new gpar::GDoubleObject(0.5)
-            );
-            std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
-                new gpar::GDoubleGaussAdaptor(0.025, 0.1, 0., 1.)
-            );
-            gdga_ptr->setAdaptionThreshold(1);
-            gbd_ptr->addAdaptor(gdga_ptr);
-
-            // Make the GDoubleObject known to the collection
-            gbdc_ptr->push_back(gbd_ptr);
+            // sigma, sigma_sigma, min_sigma, max_sigma, ad_prob
+            gb.addDouble(0.5).gaussAdaptor(0.025, 0.1, 0., 1., 1.);
         }
-
-        // Make the GDoubleObjectCollection known to the individual
-        dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gbdc_ptr);
+        p->setGenome(gb.build());
     }
     else {
         // Return an empty pointer
