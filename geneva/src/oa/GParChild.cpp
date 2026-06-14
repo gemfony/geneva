@@ -37,7 +37,10 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GBaseParChildPersonalityTraits.hpp"
+#include "geneva/oa/GAdaption.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <memory>
@@ -712,6 +715,25 @@ void GParChild::init() {
     // network environment, some individuals might not return and some individuals return
     // late. The factual size of the population then changes and we need to take action.
     default_n_children_ = GOptimizationAlgorithmBase::getDefaultPopulationSize() - n_parents_;
+
+    // Build the OA-owned adaption configuration from a representative genome (all individuals share the
+    // same genome layout). It drives the data-oriented adaption free functions (Phase 8), replacing the
+    // individual's own adapt(). It is transient run scratch, rebuilt on every optimize().
+    adaption_config_.reset();
+    if(not this->empty()) {
+        if(const auto *flat = dynamic_cast<const gpar::GFlatGenome *>(this->at(0).get())) {
+            adaption_config_ = makeAdaptionConfig_(*flat);
+        }
+    }
+}
+
+/******************************************************************************/
+/**
+ * Builds the OA-owned adaption configuration from a representative genome. The base produces a plain
+ * GAdaptionConfigBase; EA and SA override this to return their respective derived config types.
+ */
+std::shared_ptr<GAdaptionConfigBase> GParChild::makeAdaptionConfig_(const gpar::GFlatGenome &genome) const {
+    return std::make_shared<GAdaptionConfigBase>(genome);
 }
 
 /******************************************************************************/

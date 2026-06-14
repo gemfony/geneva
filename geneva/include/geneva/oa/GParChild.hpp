@@ -34,6 +34,7 @@
 
 // Standard headers go here
 #include <concepts>
+#include <memory>
 #include <tuple>
 #include <type_traits>
 
@@ -47,7 +48,14 @@
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GBaseParChildPersonalityTraits.hpp"
 
+namespace Gem::Geneva::Parameters {
+class GFlatGenome;
+} // namespace Gem::Geneva::Parameters
+
 namespace Gem::Geneva::OptimizationAlgorithms {
+
+// The OA-owned adaption configuration, built from the population's shared genome layout (Phase 8).
+class GAdaptionConfigBase;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -257,6 +265,22 @@ protected:
         0; ///< Specifies the maximum amount of individuals in the population if growth is enabled
     double amalgamation_likelihood_ =
         DEFAULTAMALGAMATIONLIKELIHOOD; ///< Likelihood for children to be created by cross-over rather than "just" duplication (note that they may nevertheless be mutated)
+
+    /***************************************************************************/
+    /**
+     * @brief Builds the OA-owned adaption configuration from a representative genome (all individuals in
+     * the population share the same genome layout). EA and SA override this to return their respective
+     * GEAAdaptionConfig / GSAAdaptionConfig; the base produces a plain GAdaptionConfigBase. Phase 8: the
+     * config drives the data-oriented adaption free functions instead of the individual's adapt().
+     */
+    virtual std::shared_ptr<GAdaptionConfigBase> makeAdaptionConfig_(const gpar::GFlatGenome &genome) const;
+
+    /**
+     * @brief The OA-owned adaption configuration, rebuilt at init() from the population's shared genome
+     * layout. Transient run scratch: NOT serialized, NOT compared, NOT part of localMembers(); a clone
+     * rebuilds it at its own init(). Read-only during the parallel adaptChildren_, so it is shared safely.
+     */
+    std::shared_ptr<GAdaptionConfigBase> adaption_config_;
 
 private:
     /***************************************************************************/

@@ -46,7 +46,10 @@
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GParChild.hpp"
+#include "geneva/oa/GAdaption.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/par/GOptimizableEntityFixedSizePriorityQueue.hpp"
 #include <algorithm>
 #include <cstddef>
@@ -430,6 +433,18 @@ void GEvolutionaryAlgorithm::populationSanityChecks_() const {
 /**
   * Adapt all children in parallel. Evaluation is done in a separate function (runFitnessCalculation).
   */
+/**
+ * Builds the EA-specific adaption configuration from a representative genome.
+ */
+std::shared_ptr<GAdaptionConfigBase>
+GEvolutionaryAlgorithm::makeAdaptionConfig_(const gpar::GFlatGenome &genome) const {
+    return std::make_shared<GEAAdaptionConfig>(genome);
+}
+
+/******************************************************************************/
+/**
+ * Adapt all children in parallel, driven by the OA-owned adaption config.
+ */
 void GEvolutionaryAlgorithm::adaptChildren_() {
     // Retrieve the range of individuals to be adapted
     std::tuple<std::size_t, std::size_t> range = this->getAdaptionRange();
@@ -443,7 +458,13 @@ void GEvolutionaryAlgorithm::adaptChildren_() {
         futures_cnt.push_back(tp_ptr_->async_schedule(
             // Note: may not pass it as a reference, as it is a local variable in the loop and might
             // vanish or have been altered once the thread has started and adaption is requested.
-            [it]() { return (*it)->adapt(); } // Returns the number of adaptions
+            // Phase 8: drive the data-oriented adaption from the OA-owned config (built at init())
+            // instead of the individual's own adapt(). The config is read-only here, so the parallel
+            // schedule stays lock-free.
+            [it, cfg = adaption_config_.get()]() {
+                auto &flat = dynamic_cast<gpar::GFlatGenome &>(**it);
+                return adaptIndividual(flat, *cfg);
+            } // Returns the number of adaptions
         ));
     }
 

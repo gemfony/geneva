@@ -187,6 +187,53 @@ runAdaptionKernels(detail::GFlatGenome &ind, const GAdaptionConfigBase &cfg, Gem
 
 /******************************************************************************/
 /**
+ * @brief The OA-side replacement for GOptimizableEntity::adapt(): runs the data-oriented adaption
+ * kernels over an individual inside the same "guarantee a change, then a valid solution" retry loop the
+ * individual's adapt() used, but driven by the OA-owned config and the individual's own RNG stream.
+ *
+ * Mirrors GOptimizableEntity::adapt() exactly: the inner loop retries customAdaptions (here:
+ * runAdaptionKernels) until at least one value changed or max_unsuccessful_adaptions is exceeded; the
+ * outer loop retries until the individual fulfils its constraints or max_retries_until_valid is
+ * exceeded. Marks the individual due for processing iff at least one adaption happened, records the
+ * adaption count on the individual, and returns it. Touches only this individual's values + aux state +
+ * RNG, so it composes with the EA's parallel adaptChildren_.
+ */
+inline std::size_t adaptIndividual(detail::GFlatGenome &ind, const GAdaptionConfigBase &cfg) {
+    Gem::Hap::GRandomBase &gr = ind.getRandomEngine();
+
+    const std::size_t max_unsuccessful = ind.getMaxUnsuccessfulAdaptions();
+    const std::size_t max_retries = ind.getMaxRetriesUntilValid();
+
+    std::size_t n_adaption_attempts = 0;
+    std::size_t n_adaptions = 0;
+    std::size_t n_invalid_adaptions = 0;
+    double validity = 0;
+
+    while(true) {
+        // Make sure at least one modification is performed.
+        while(true) {
+            if((n_adaptions = runAdaptionKernels(ind, cfg, gr)) > 0) {
+                break;
+            }
+            if(max_unsuccessful > 0 && ++n_adaption_attempts > max_unsuccessful) {
+                break;
+            }
+        }
+
+        if(ind.fulfillsConstraints(validity) || ++n_invalid_adaptions > max_retries) {
+            break;
+        }
+    }
+
+    if(n_adaptions > 0) {
+        ind.mark_as_due_for_processing();
+    }
+    ind.setNAdaptions(n_adaptions);
+    return n_adaptions;
+}
+
+/******************************************************************************/
+/**
  * @brief Resets an individual's per-group adaption state to the config's seed values (the stall-reset).
  * Mirrors GFlatGenome::updateAdaptorsOnStall(), but driven by the OA-owned config.
  */

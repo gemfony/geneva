@@ -502,6 +502,24 @@ public:
 
     /** @brief Retrieves the number of adaptions performed during the last call to adapt() */
     std::size_t getNAdaptions() const;
+    /** @brief Records the number of adaptions performed (used by the OA-owned adaption free functions) */
+    void setNAdaptions(std::size_t n) { n_adaptions_ = n; }
+
+    /**
+     * @brief Public, non-folding access to this individual's per-individual RNG stream. The OA-owned
+     * adaption free functions (Phase 8) draw from it; each individual owns its own stream, so parallel
+     * adaption of distinct individuals is lock-free.
+     */
+    Gem::Hap::GRandomBase &getRandomEngine() { return gr_; }
+
+    /**
+     * @brief Public constraint check used by the OA-owned adaption retry loop. Forwards to the protected
+     * individualFulfillsConstraints(); returns true if the individual satisfies its constraints and writes
+     * the validity level to the out-parameter.
+     */
+    bool fulfillsConstraints(double &validity_level) const {
+        return this->individualFulfillsConstraints(validity_level);
+    }
 
     /** @brief Allows to set the current iteration of the parent optimization algorithm. */
     void setAssignedIteration(std::uint32_t const &);
