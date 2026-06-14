@@ -57,7 +57,7 @@ namespace Gem::Geneva::Parameters {
 /******************************************************************************/
 /**
  * A generic, config-driven factory for flat individuals. Because GFlatGenome holds all genome state
- * generically and the shared GAdaptionLayout is built once and reused by every produced individual,
+ * generically and the shared GGenomeLayout is built once and reused by every produced individual,
  * the factory machinery -- read the config, build the structure once, spawn, attach pre/post
  * processors -- is identical for every concrete flat individual. So instead of hand-writing a factory
  * class per individual (as the tree required), a Tier-2 (config-driven) flat individual only supplies
@@ -69,7 +69,7 @@ namespace Gem::Geneva::Parameters {
  *  - @c static void describeConfig(Gem::Common::GParserBuilder&, Config&) -- registers the config-file
  *    options, binding them to the passed Config (called once per produced object on a fresh parser);
  *  - @c static Genome buildGenome(const Config&) -- builds the value arrays + the shared, immutable
- *    GAdaptionLayout from the parsed config (typically via a GGenomeBuilder).
+ *    GGenomeLayout from the parsed config (typically via a GGenomeBuilder).
  *
  * The shared layout is built exactly once (a structural guarantee, not a hand-managed optimisation):
  * the first produced individual triggers Derived::buildGenome(config_), the result is cached, and every

@@ -34,11 +34,12 @@
 
 // Boost header files go here
 #include <boost/serialization/nvp.hpp>
+#include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
 
 // Geneva headers go here
 #include "geneva/ind/GAdaptionKernels.hpp"
-#include "geneva/ind/GAdaptionLayout.hpp"
+#include "geneva/ind/GGenomeLayout.hpp"
 
 /******************************************************************************/
 /**
@@ -79,7 +80,8 @@ serialize(Archive &ar, Gem::Geneva::Parameters::FlipConfig &g, const unsigned in
 
 template <class Archive, typename T>
 void serialize(Archive &ar, Gem::Geneva::Parameters::GroupSpec<T> &g, const unsigned int) {
-    ar &make_nvp("start", g.start) &make_nvp("len", g.len) &make_nvp("active", g.active) &
+    ar &make_nvp("start", g.start) &make_nvp("len", g.len) &make_nvp("label_id", g.label_id) &
+        make_nvp("active", g.active) &
         make_nvp("has_gauss", g.has_gauss) &make_nvp("gauss", g.gauss) &
         make_nvp("start_sigma", g.start_sigma) &make_nvp("start_ad_prob", g.start_ad_prob) &
         make_nvp("range", g.range) &make_nvp("has_bigauss", g.has_bigauss) &
@@ -96,8 +98,9 @@ void serialize(Archive &ar, Gem::Geneva::Parameters::ChannelLayout<T> &c, const 
 }
 
 template <class Archive>
-void serialize(Archive &ar, Gem::Geneva::Parameters::GAdaptionLayout &l, const unsigned int) {
-    ar &make_nvp("d", l.d) &make_nvp("f", l.f) &make_nvp("i", l.i) &make_nvp("b", l.b);
+void serialize(Archive &ar, Gem::Geneva::Parameters::GGenomeLayout &l, const unsigned int) {
+    ar &make_nvp("d", l.d) &make_nvp("f", l.f) &make_nvp("i", l.i) &make_nvp("b", l.b) &
+        make_nvp("labels", l.labels);
 }
 
 } /* namespace boost::serialization */

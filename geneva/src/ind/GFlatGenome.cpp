@@ -110,7 +110,7 @@ void GFlatGenome::setGenome(Genome const &g) {
     fv_ = g.fv;
     iv_ = g.iv;
     bv_ = g.bv;
-    layout_ = g.layout ? g.layout : std::make_shared<const GAdaptionLayout>();
+    layout_ = g.layout ? g.layout : std::make_shared<const GGenomeLayout>();
 
     installAdaptionStates();
     this->mark_as_due_for_processing();

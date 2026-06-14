@@ -36,12 +36,13 @@
 #include <cstdint>
 #include <limits>
 #include <memory>
+#include <string>
 #include <type_traits>
 #include <vector>
 
 // Geneva headers go here
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GAdaptionLayout.hpp"
+#include "geneva/ind/GGenomeLayout.hpp"
 
 namespace Gem::Geneva::Parameters {
 
@@ -58,7 +59,7 @@ struct Genome {
     std::vector<float> fv;         ///< the float channel start values
     std::vector<std::int32_t> iv;  ///< the int32 channel start values
     std::vector<std::uint8_t> bv;  ///< the bool channel start values (1/0)
-    std::shared_ptr<const GAdaptionLayout> layout; ///< the shared structural descriptor
+    std::shared_ptr<const GGenomeLayout> layout; ///< the shared structural descriptor
 };
 
 /******************************************************************************/
@@ -78,12 +79,14 @@ public:
         ChannelLayout<T> *ch,
         std::vector<T> *values,
         std::size_t group_index,
-        std::size_t group_count = 1
+        std::size_t group_count = 1,
+        GGenomeLayout *owner = nullptr
     )
       : ch_(ch)
       , values_(values)
       , gi_(group_index)
-      , count_(group_count) {
+      , count_(group_count)
+      , owner_(owner) {
         /* nothing */
     }
 
@@ -260,6 +263,19 @@ public:
         return *this;
     }
 
+    /**
+     * @brief Stamps an interned label onto every group this handle spans. The label string is
+     * deduplicated into the shared layout's label table; many handles may share one label (one-to-many).
+     * A later, OA-owned adaption config can then address these groups by name rather than by index.
+     */
+    ParamHandle &label(const std::string &name) {
+        if(owner_ != nullptr) {
+            const std::int32_t id = owner_->internLabel(name);
+            this->forEachGroup([&](GroupSpec<T> &g) { g.label_id = id; });
+        }
+        return *this;
+    }
+
 private:
     /** @brief Applies fn to every group this handle spans (1 for a single/group add, n for an array). */
     template <typename F>
@@ -273,6 +289,7 @@ private:
     std::vector<T> *values_;   ///< the builder's start-value array for this channel
     std::size_t gi_;           ///< the index of the first group within the channel
     std::size_t count_;        ///< number of consecutive groups this handle spans
+    GGenomeLayout *owner_;     ///< the owning layout (for interning labels); may be null
 };
 
 /******************************************************************************/
@@ -376,13 +393,13 @@ public:
         for(bool v : bvBool_) {
             g.bv.push_back(v ? std::uint8_t(1) : std::uint8_t(0));
         }
-        g.layout = std::make_shared<const GAdaptionLayout>(layout_);
+        g.layout = std::make_shared<const GGenomeLayout>(layout_);
         return g;
     }
 
     /** @brief Produces the shared layout only (for factories that bind value arrays separately). */
-    std::shared_ptr<const GAdaptionLayout> buildLayout() const {
-        return std::make_shared<const GAdaptionLayout>(layout_);
+    std::shared_ptr<const GGenomeLayout> buildLayout() const {
+        return std::make_shared<const GGenomeLayout>(layout_);
     }
 
 private:
@@ -432,7 +449,7 @@ private:
         }
         // The handle spans all n freshly-created groups, so an adaptor / init / perimeter applied to it
         // configures every one of them (not just the first).
-        return ParamHandle<T>(&ch, &values, first_group, n);
+        return ParamHandle<T>(&ch, &values, first_group, n, &layout_);
     }
 
     /***************************************************************************/
@@ -490,12 +507,12 @@ private:
 
         const std::size_t gi = ch.groups.size();
         ch.groups.push_back(g);
-        return ParamHandle<T>(&ch, &values, gi);
+        return ParamHandle<T>(&ch, &values, gi, 1, &layout_);
     }
 
     /***************************************************************************/
     // The layout under construction and the matching start-value arrays.
-    GAdaptionLayout layout_;
+    GGenomeLayout layout_;
     std::vector<double> dv_;
     std::vector<float> fv_;
     std::vector<std::int32_t> iv_;

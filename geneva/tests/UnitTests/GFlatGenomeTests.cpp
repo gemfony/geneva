@@ -44,7 +44,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GAdaptionLayout.hpp"
+#include "geneva/ind/GGenomeLayout.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GFlatIndividualFactory.hpp"
 #include "geneva/ind/GFlatIndividualT.hpp"
@@ -211,6 +211,56 @@ TEST_CASE("GGenomeBuilder: groups vs arrays vs single parameters", "[flat]") {
     const ChannelLayout<double> &ch = g.layout->d;
     CHECK(ch.size() == 1 + 4 + 3);
     CHECK(ch.groups.size() == 1 + 1 + 3); // single + grouped + array
+}
+
+/******************************************************************************/
+TEST_CASE("GGenomeBuilder: interned group labels", "[flat]") {
+    GGenomeBuilder b;
+    b.addDoubleGroup(3, -1., 1.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.).label("position"); // group 0
+    b.addDoubleGroup(2, -1., 1.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.).label("position"); // group 1
+    b.addDouble(0., -1., 1.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.).label("scale");        // group 2
+    b.addDouble(0., -1., 1.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.);                        // group 3 (unlabeled)
+    Genome g = b.build();
+
+    std::shared_ptr<const GGenomeLayout> L = g.layout;
+    REQUIRE(L);
+    REQUIRE(L->d.groups.size() == 4);
+
+    // Interning: two distinct strings -> a two-entry table; "position" used twice reuses one id.
+    REQUIRE(L->labels.size() == 2);
+    CHECK(L->d.groups[0].label_id >= 0);
+    CHECK(L->d.groups[0].label_id == L->d.groups[1].label_id);  // same string -> same id
+    CHECK(L->d.groups[2].label_id != L->d.groups[0].label_id);  // different string -> different id
+    CHECK(L->d.groups[3].label_id == -1);                       // unlabeled default
+
+    // id <-> name resolution.
+    CHECK(L->labelName(L->d.groups[0].label_id) == "position");
+    CHECK(L->labelName(L->d.groups[2].label_id) == "scale");
+    CHECK(L->labelName(-1).empty());
+
+    // One-to-many resolution: "position" tags two groups, "scale" one, an absent label none.
+    std::vector<GroupRef> pos = L->groupsForLabel("position");
+    REQUIRE(pos.size() == 2);
+    CHECK(pos[0].channel == ChannelTag::Double);
+    CHECK(pos[0].index == 0);
+    CHECK(pos[1].index == 1);
+    CHECK(L->groupsForLabel("scale").size() == 1);
+    CHECK(L->groupsForLabel("absent").empty());
+
+    // Serialize round-trip (through a GFlatGenome) preserves the labels + their resolution.
+    FlatSphere ind;
+    ind.setGenome(g);
+    const std::string xml = ind.toString(Gem::Common::serializationMode::XML);
+
+    FlatSphere restored;
+    restored.fromString(xml, Gem::Common::serializationMode::XML);
+
+    std::shared_ptr<const GGenomeLayout> RL = restored.getLayout();
+    REQUIRE(RL);
+    CHECK(RL->labels == L->labels);
+    CHECK(RL->groupsForLabel("position").size() == 2);
+    CHECK(RL->labelName(RL->d.groups[2].label_id) == "scale");
+    CHECK(RL->d.groups[3].label_id == -1);
 }
 
 /******************************************************************************/
@@ -604,7 +654,7 @@ TEST_CASE("GFlatIndividualFactory: one shared layout across N produced individua
     }
 
     // Every produced individual binds to the SAME shared layout instance (built once).
-    std::shared_ptr<const GAdaptionLayout> layout0 = inds[0]->getLayout();
+    std::shared_ptr<const GGenomeLayout> layout0 = inds[0]->getLayout();
     REQUIRE(layout0);
     for(const auto &ind : inds) {
         CHECK(ind->getLayout().get() == layout0.get()); // pointer identity: one shared layout

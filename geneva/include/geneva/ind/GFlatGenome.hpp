@@ -54,8 +54,8 @@
 #include "common/GLogger.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GAdaptionKernels.hpp"
-#include "geneva/ind/GAdaptionLayout.hpp"
-#include "geneva/ind/GAdaptionLayoutSerialization.hpp"
+#include "geneva/ind/GGenomeLayout.hpp"
+#include "geneva/ind/GGenomeLayoutSerialization.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 
@@ -70,7 +70,7 @@ namespace Gem::Geneva::Parameters {
 /**
  * The flat-genome implementation of GOptimizableEntity. Where GTreeGenome stores a tree of
  * GParameterBase objects, GFlatGenome stores the parameters as four contiguous, type-homogeneous
- * value arrays (double / float / int32 / bool) plus a handle to a shared, immutable GAdaptionLayout
+ * value arrays (double / float / int32 / bool) plus a handle to a shared, immutable GGenomeLayout
  * that describes their bounds, grouping and adaption configuration. The per-individual, per-group
  * adaption state (Gauss sigma, ...) lives in the inherited GAuxiliaryStore, not in the genome.
  *
@@ -100,7 +100,7 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         // value (a deserialised genome legitimately owns its own layout copy -- sharing is only an
         // in-process optimisation). The transient per-group adaption state is NOT serialised here
         // (it is re-seeded on load); full-state checkpointing is a separate, later concern.
-        GAdaptionLayout layout_copy = layout_ ? *layout_ : GAdaptionLayout{};
+        GGenomeLayout layout_copy = layout_ ? *layout_ : GGenomeLayout{};
         ar &make_nvp("layout_", layout_copy);
     }
 
@@ -110,7 +110,7 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp("GOptimizableEntity", boost::serialization::base_object<GOptimizableEntity>(*this));
         ar &BOOST_SERIALIZATION_NVP(dv_) &BOOST_SERIALIZATION_NVP(fv_) &
             BOOST_SERIALIZATION_NVP(iv_) &BOOST_SERIALIZATION_NVP(bv_);
-        auto fresh = std::make_shared<GAdaptionLayout>();
+        auto fresh = std::make_shared<GGenomeLayout>();
         ar &make_nvp("layout_", *fresh);
         layout_ = fresh;
         // Re-seed the per-group adaption scratch from the (just loaded) layout config.
@@ -138,7 +138,7 @@ public:
     void setGenome(Genome const &);
 
     /** @brief Direct, shared access to the structural layout (problem metadata) */
-    std::shared_ptr<const GAdaptionLayout> getLayout() const { return layout_; }
+    std::shared_ptr<const GGenomeLayout> getLayout() const { return layout_; }
 
     /** @brief Transformation of the individual's parameters into a boost::property_tree object */
     void toPropertyTree(pt::ptree &, std::string const & = "parameterset") const override;
@@ -416,7 +416,7 @@ private:
     std::vector<std::uint8_t> bv_;  ///< the bool channel values (1/0)
 
     /** @brief The shared, immutable structural descriptor (bounds / grouping / adaption config) */
-    std::shared_ptr<const GAdaptionLayout> layout_ = std::make_shared<const GAdaptionLayout>();
+    std::shared_ptr<const GGenomeLayout> layout_ = std::make_shared<const GGenomeLayout>();
 };
 
 /******************************************************************************/

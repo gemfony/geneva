@@ -36,6 +36,7 @@
 #include <cmath>
 #include <cstdint>
 #include <limits>
+#include <string>
 #include <vector>
 
 // Geneva headers go here
@@ -158,6 +159,7 @@ template <typename T>
 struct GroupSpec {
     std::uint32_t start = 0;       ///< index of the first value of this group within the channel
     std::uint32_t len = 1;         ///< number of values in this group
+    std::int32_t label_id = -1;    ///< interned label index into GGenomeLayout::labels (-1 = unlabeled)
     bool active = true;            ///< false ⇔ adaptionMode::NEVER (the group is never adapted)
     bool has_gauss = false;        ///< whether a Gauss adaptor is configured (FP groups only)
     GaussConfig<adaption_fp_t<T>> gauss{};        ///< the static Gauss configuration (valid iff has_gauss)
@@ -181,7 +183,7 @@ struct GroupSpec {
 /**
  * The structural description of one value channel (all parameters of a single type). Per-value:
  * bounds, kind, init range (for randomInit) and an active flag; plus the list of adaption groups
- * tiling the channel. Held by the shared GAdaptionLayout; the per-individual GFlatGenome only stores
+ * tiling the channel. Held by the shared GGenomeLayout; the per-individual GFlatGenome only stores
  * the value array and a handle to this.
  */
 template <typename T>
@@ -198,19 +200,93 @@ struct ChannelLayout {
 };
 
 /******************************************************************************/
+/** @brief Identifies one of the four value channels (used to address a group across channels). */
+enum class ChannelTag : std::uint8_t { Double, Float, Int32, Bool };
+
+/******************************************************************************/
+/** @brief A reference to one adaption group: which channel it lives in + its index within that channel. */
+struct GroupRef {
+    ChannelTag channel;     ///< the value channel the group belongs to
+    std::size_t index;      ///< the group's index within that channel's `groups`
+};
+
+/******************************************************************************/
 /**
  * The shared, immutable per-type structural descriptor of a flat genome (DM §2 metadata). It holds
  * one ChannelLayout per supported value type. A single layout is built once (by GGenomeBuilder, and
  * in turn by a factory) and shared by every individual of a problem via std::shared_ptr<const ...>,
  * so per-individual state is just the value arrays. The layout carries no evolving state; the
  * per-individual, per-group adaption state (sigma, ...) lives in each genome's GAuxiliaryStore.
+ *
+ * Optionally, groups carry an interned LABEL: `labels` holds each distinct label string once, and a
+ * GroupSpec stores a small integer index into it (GroupSpec::label_id, -1 = unlabeled). Labels are
+ * per-GROUP (never per-value) and one-to-many -- a single label can tag many groups (e.g. "position"
+ * tags every cx/cy group in an image problem), so a per-label adaption setting applies to all of them
+ * while each group keeps its own evolving state. Labels let a (later, OA-owned) adaption config address
+ * groups by name; structureless problems carry no labels and address by index.
  */
-class GAdaptionLayout {
+class GGenomeLayout {
 public:
     ChannelLayout<double> d;        ///< the double channel
     ChannelLayout<float> f;         ///< the float channel
     ChannelLayout<std::int32_t> i;  ///< the int32 channel
     ChannelLayout<bool> b;          ///< the bool channel
+
+    std::vector<std::string> labels;///< the interned, distinct group-label strings (label_id indexes this)
+
+    /** @brief Interns a label string, returning its id; an already-present string returns its existing id. */
+    std::int32_t internLabel(const std::string &name) {
+        const std::int32_t existing = labelId(name);
+        if(existing >= 0) {
+            return existing;
+        }
+        labels.push_back(name);
+        return static_cast<std::int32_t>(labels.size() - 1);
+    }
+
+    /** @brief Resolves a label string to its id, or -1 if it is not interned. */
+    std::int32_t labelId(const std::string &name) const {
+        for(std::size_t k = 0; k < labels.size(); ++k) {
+            if(labels[k] == name) {
+                return static_cast<std::int32_t>(k);
+            }
+        }
+        return -1;
+    }
+
+    /** @brief Resolves a label id to its string; returns "" for -1 / out-of-range. */
+    const std::string &labelName(std::int32_t id) const {
+        static const std::string empty;
+        if(id < 0 || static_cast<std::size_t>(id) >= labels.size()) {
+            return empty;
+        }
+        return labels[static_cast<std::size_t>(id)];
+    }
+
+    /** @brief Resolves a label string to every group it tags, across all channels (one-to-many). */
+    std::vector<GroupRef> groupsForLabel(const std::string &name) const {
+        std::vector<GroupRef> out;
+        const std::int32_t id = labelId(name);
+        if(id < 0) {
+            return out;
+        }
+        collectGroups(d, ChannelTag::Double, id, out);
+        collectGroups(f, ChannelTag::Float, id, out);
+        collectGroups(i, ChannelTag::Int32, id, out);
+        collectGroups(b, ChannelTag::Bool, id, out);
+        return out;
+    }
+
+private:
+    template <typename T>
+    static void
+    collectGroups(const ChannelLayout<T> &ch, ChannelTag tag, std::int32_t id, std::vector<GroupRef> &out) {
+        for(std::size_t gi = 0; gi < ch.groups.size(); ++gi) {
+            if(ch.groups[gi].label_id == id) {
+                out.push_back(GroupRef{tag, gi});
+            }
+        }
+    }
 };
 
 /******************************************************************************/
