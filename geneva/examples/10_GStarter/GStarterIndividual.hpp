@@ -49,12 +49,8 @@
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/par/GConstrainedDoubleCollection.hpp"
-#include "geneva/par/GConstrainedDoubleObject.hpp"
-#include "geneva/par/GDoubleBiGaussAdaptor.hpp"
-#include "geneva/par/GDoubleCollection.hpp"
-#include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenomeBuilder.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -89,13 +85,13 @@ const targetFunction GO_DEF_TARGETFUNCTION = targetFunction::PARABOLA;
  * This individual searches for a minimum of a number of predefined functions, each capable
  * of processing their input in multiple dimensions.
  */
-class GStarterIndividual : public gpar::GTreeGenome {
+class GStarterIndividual : public gpar::GFlatGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome) &
             BOOST_SERIALIZATION_NVP(targetFunction_);
     }
 
@@ -183,31 +179,17 @@ public:
 
 #endif /* DEBUG */
 
-        // Add the required number of GConstrainedDoubleObject objects to the individual
+        // Build the flat genome: one constrained double per parameter, each with its own Gauss adaptor.
+        gpar::GGenomeBuilder b;
         for(std::size_t i = 0; i < startValues.size(); i++) {
-            std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr;
-            if(Gem::Common::GFACTTORYFIRSTID ==
-               prod_id) { // First individual, initialization with standard values
-                gcdo_ptr = std::shared_ptr<gpar::GConstrainedDoubleObject>(new gpar::GConstrainedDoubleObject(
-                    startValues.at(i),
-                    lowerBoundaries.at(i),
-                    upperBoundaries.at(i)
-                ));
-            }
-            else { // Random initialization for all other individuals
-                gcdo_ptr = std::shared_ptr<gpar::GConstrainedDoubleObject>(
-                    new gpar::GConstrainedDoubleObject(lowerBoundaries.at(i), upperBoundaries.at(i))
-                );
-            }
+            b.addDouble(startValues.at(i), lowerBoundaries.at(i), upperBoundaries.at(i))
+                .gaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma, adProb);
+        }
+        p.setGenome(b.build());
 
-            std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
-                new gpar::GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma)
-            );
-
-            gdga_ptr->setAdaptionProbability(adProb);
-            gcdo_ptr->addAdaptor(gdga_ptr);
-
-            p.push_back(gcdo_ptr);
+        // The first individual keeps the supplied start values; all others start randomly within bounds.
+        if(Gem::Common::GFACTTORYFIRSTID != prod_id) {
+            p.randomInit(Gem::Geneva::activityMode::ALLPARAMETERS);
         }
     }
 
@@ -250,7 +232,7 @@ private:
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    virtual gpar::GTreeGenome *clone_() const final;
+    virtual gpar::GFlatGenome *clone_() const final;
 
     /***************************************************************************/
     /** @brief A simple n-dimensional parabola */

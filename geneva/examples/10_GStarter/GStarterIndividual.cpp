@@ -33,6 +33,8 @@
 
 #include "GStarterIndividual.hpp"
 
+#include <any>
+
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
@@ -134,7 +136,7 @@ GStarterIndividual::GStarterIndividual(
  * @param cp A copy of another GFunctionIndidivual
  */
 GStarterIndividual::GStarterIndividual(const GStarterIndividual &cp)
-  : gpar::GTreeGenome(cp)
+  : gpar::GFlatGenome(cp)
   , targetFunction_(cp.targetFunction_) { /* nothing */
 }
 
@@ -150,7 +152,7 @@ GStarterIndividual::~GStarterIndividual() { /* nothing */
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GTreeGenome object
+ * @param cp A constant reference to another GStarterIndividual object
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
@@ -168,7 +170,7 @@ void GStarterIndividual::compare_(
     Gem::Common::GToken token("GStarterIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GTreeGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::compare_t(IDENTITY(targetFunction_, p_load->targetFunction_), token);
@@ -185,7 +187,7 @@ void GStarterIndividual::compare_(
  */
 void GStarterIndividual::addConfigurationOptions(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    gpar::GTreeGenome::addConfigurationOptions(gpb);
+    gpar::GFlatGenome::addConfigurationOptions(gpb);
 
     // Add local data. We use C++11 lambda expressions to
     // specify the function to be called for setting the
@@ -229,20 +231,15 @@ targetFunction GStarterIndividual::getTargetFunction() const {
  * @return The average value of sigma used in Gauss adaptors
  */
 double GStarterIndividual::getAverageSigma() const {
+    // The flat genome exposes the per-group Gauss sigmas through the storage-agnostic queryAdaptor()
+    // seam (one entry per Gauss group; here one group per parameter).
+    std::vector<std::any> data;
+    this->queryAdaptor("GDoubleGaussAdaptor", "sigma", data);
+
     std::vector<double> sigmas;
-
-    // Loop over all parameter objects
-    // NOLINTNEXTLINE(modernize-loop-convert) -- the index drives the typed at<T>() down-conversion; a range-for would lose it
-    for(std::size_t i = 0; i < this->size(); i++) {
-        // Extract the parameter object
-        std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr = this->at<gpar::GConstrainedDoubleObject>(i);
-
-        // Extract the adaptor
-        std::shared_ptr<gpar::GDoubleGaussAdaptor> adaptor_ptr =
-            gcdo_ptr->getAdaptor<gpar::GDoubleGaussAdaptor>();
-
-        // Extract the sigma value
-        sigmas.push_back(adaptor_ptr->getSigma());
+    sigmas.reserve(data.size());
+    for(const std::any &a : data) {
+        sigmas.push_back(std::any_cast<double>(a));
     }
 
     // Return the average
@@ -276,9 +273,9 @@ std::string GStarterIndividual::print() {
 
 /******************************************************************************/
 /**
- * Loads the data of another GStarterIndividual, camouflaged as a GTreeGenome
+ * Loads the data of another GStarterIndividual, camouflaged as a GFlatGenome
  *
- * @param cp A copy of another GStarterIndividual, camouflaged as a GTreeGenome
+ * @param cp A copy of another GStarterIndividual, camouflaged as a GFlatGenome
  */
 void GStarterIndividual::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GStarterIndividual reference independent of this object and convert the pointer
@@ -286,7 +283,7 @@ void GStarterIndividual::load_(const gpar::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GStarterIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GTreeGenome::load_(cp);
+    gpar::GFlatGenome::load_(cp);
 
     // ... and then our local data
     targetFunction_ = p_load->targetFunction_;
@@ -296,9 +293,9 @@ void GStarterIndividual::load_(const gpar::GOptimizableEntity *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GTreeGenome
+ * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GTreeGenome *GStarterIndividual::clone_() const {
+gpar::GFlatGenome *GStarterIndividual::clone_() const {
     return new GStarterIndividual(*this);
 }
 
@@ -377,12 +374,12 @@ bool GStarterIndividual::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gpar::GTreeGenome::modify_GUnitTests_()) {
+    if(gpar::GFlatGenome::modify_GUnitTests_()) {
         result = true;
     }
 
-    // Change the parameter settings
-    if(!this->empty()) {
+    // Change the parameter settings (only when the genome has actually been built)
+    if(this->countParameters<double>() > 0) {
         this->adapt();
         result = true;
     }
@@ -406,7 +403,7 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GTreeGenome::specificTestsNoFailureExpected_GUnitTests_();
+    gpar::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
@@ -479,7 +476,7 @@ void GStarterIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GTreeGenome::specificTestsFailuresExpected_GUnitTests_();
+    gpar::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 

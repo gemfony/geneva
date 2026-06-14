@@ -73,13 +73,13 @@ std::ostream &operator<<(
 /******************************************************************************/
 /**
      * The standard constructor. Initialization with the number of fitness
-     * criteria, so GTreeGenome can set up its internal data structures.
+     * criteria, so GFlatGenome can set up its internal data structures.
      * This is the only "real" constructor, apart from the copy constructor.
      */
 GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual(
     const std::size_t &nFitnessCriteria
 )
-  : gpar::GTreeGenome(nFitnessCriteria)
+  : gpar::GFlatGenome(nFitnessCriteria)
   , minima_(nFitnessCriteria) {
     /* nothing */
 }
@@ -105,9 +105,9 @@ void GMultiCriterionParabolaIndividual::setMinima(const std::vector<double> &min
 
 /******************************************************************************/
 /**
-     * Loads the data of another GMultiCriterionParabolaIndividual, camouflaged as a GTreeGenome.
+     * Loads the data of another GMultiCriterionParabolaIndividual, camouflaged as a GFlatGenome.
      *
-     * @param cp A copy of another GMultiCriterionParabolaIndividual, camouflaged as a GTreeGenome
+     * @param cp A copy of another GMultiCriterionParabolaIndividual, camouflaged as a GFlatGenome
      */
 void GMultiCriterionParabolaIndividual::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GMultiCriterionParabolaIndividual reference independent of this object and convert the pointer
@@ -115,7 +115,7 @@ void GMultiCriterionParabolaIndividual::load_(const gpar::GOptimizableEntity *cp
         Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GMultiCriterionParabolaIndividual>(cp, this);
 
     // Load our parent's data ...
-    gpar::GTreeGenome::load_(cp);
+    gpar::GFlatGenome::load_(cp);
 
 #ifdef DEBUG
     if((p_load->minima_).size() != minima_.size() ||
@@ -138,9 +138,9 @@ void GMultiCriterionParabolaIndividual::load_(const gpar::GOptimizableEntity *cp
 /**
      * Creates a deep clone of this object
      *
-     * @return A deep clone of this object, camouflaged as a GTreeGenome
+     * @return A deep clone of this object, camouflaged as a GFlatGenome
      */
-gpar::GTreeGenome *GMultiCriterionParabolaIndividual::clone_() const {
+gpar::GFlatGenome *GMultiCriterionParabolaIndividual::clone_() const {
     return new GMultiCriterionParabolaIndividual(*this);
 }
 
@@ -276,14 +276,18 @@ void GMultiCriterionParabolaIndividualFactory::postProcess_(
 
     p->setNStoredResults(nPar_);
 
+    // Build a flat genome of nPar_ constrained doubles in [par_min_, par_max_], each its own Gauss
+    // group with the default GDoubleGaussAdaptor configuration (the tree relied on the lazily installed
+    // default adaptor: sigma 0.025 / sigma_sigma 0.2 / [0.001, 1] / ad_prob 1).
+    gpar::GGenomeBuilder b;
     for(std::size_t npar = 0; npar < nPar_; npar++) {
-        // GConstrainedDoubleObject cannot assume value below or above par_min_/max_
-        std::shared_ptr<gpar::GConstrainedDoubleObject> gcdo_ptr(
-            new gpar::GConstrainedDoubleObject(par_min_.value(), par_max_.value())
-        );
-        // Add the parameters to this individual
-        dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gcdo_ptr);
+        b.addDouble(par_min_.value(), par_min_.value(), par_max_.value())
+            .gaussAdaptor(DEFAULTSIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, DEFAULTADPROB);
     }
+    dynamic_cast<gpar::GFlatGenome &>(*p).setGenome(b.build());
+
+    // Mirror the tree's per-parameter random initialization within bounds.
+    p->randomInit(activityMode::ALLPARAMETERS);
 
     p->setMinima(minima_);
 }

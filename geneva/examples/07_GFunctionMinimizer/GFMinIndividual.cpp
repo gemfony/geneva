@@ -33,6 +33,8 @@
 
 #include "GFMinIndividual.hpp"
 
+#include <any>
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFMinIndividual) // NOLINT
 namespace Gem::Geneva {
 
@@ -85,7 +87,7 @@ GFMinIndividual::GFMinIndividual() { /* nothing */
  * @param cp A copy of another GFunctionIndidivual
  */
 GFMinIndividual::GFMinIndividual(const GFMinIndividual &cp)
-  : gpar::GTreeGenome(cp)
+  : gpar::GFlatGenome(cp)
   , targetFunction_(cp.targetFunction_) { /* nothing */
 }
 
@@ -104,7 +106,7 @@ GFMinIndividual::~GFMinIndividual() { /* nothing */
  */
 void GFMinIndividual::addConfigurationOptions(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    gpar::GTreeGenome::addConfigurationOptions(gpb);
+    gpar::GFlatGenome::addConfigurationOptions(gpb);
 
     // Add local data
     gpb.registerFileParameter<targetFunction>(
@@ -149,22 +151,20 @@ targetFunction GFMinIndividual::getTargetFunction() const {
  * @return The average value of sigma used in Gauss adaptors
  */
 double GFMinIndividual::getAverageSigma() const {
-    // Extract the parameter object
-    std::shared_ptr<gpar::GConstrainedDoubleCollection> ind = this->at<gpar::GConstrainedDoubleCollection>(0);
+    // The flat genome holds a single Gauss group (the parameter collection), whose sigma is exposed
+    // through the storage-agnostic queryAdaptor() seam.
+    std::vector<std::any> data;
+    this->queryAdaptor("GDoubleGaussAdaptor", "sigma", data);
 
-    // Extract the adaptor (getAdaptor<>() hands back a reference to the uniquely-owned adaptor)
-    const gpar::GDoubleGaussAdaptor &adaptor = ind->getAdaptor<gpar::GDoubleGaussAdaptor>();
-
-    // Extract and return the sigma value. Only a single parameter object
-    // has been registered, so we do not need to calculate any averages.
-    return adaptor.getSigma();
+    // Only a single group has been registered, so we do not need to calculate any averages.
+    return data.empty() ? 0. : std::any_cast<double>(data.front());
 }
 
 /******************************************************************************/
 /**
- * Loads the data of another GFMinIndividual, camouflaged as a GTreeGenome
+ * Loads the data of another GFMinIndividual, camouflaged as a GFlatGenome
  *
- * @param cp A copy of another GFMinIndividual, camouflaged as a GTreeGenome
+ * @param cp A copy of another GFMinIndividual, camouflaged as a GFlatGenome
  */
 void GFMinIndividual::load_(const gpar::GOptimizableEntity *cp) {
     // Check that we are dealing with a GFMinIndividual reference independent of this object and convert the pointer
@@ -172,7 +172,7 @@ void GFMinIndividual::load_(const gpar::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GFMinIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GTreeGenome::load_(cp);
+    gpar::GFlatGenome::load_(cp);
 
     // ... and then our local data
     targetFunction_ = p_load->targetFunction_;
@@ -182,9 +182,9 @@ void GFMinIndividual::load_(const gpar::GOptimizableEntity *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GTreeGenome
+ * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GTreeGenome *GFMinIndividual::clone_() const {
+gpar::GFlatGenome *GFMinIndividual::clone_() const {
     return new GFMinIndividual(*this);
 }
 
@@ -423,19 +423,12 @@ void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &
  * @param p A smart-pointer to be acted on during post-processing
  */
 void GFMinIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &p) {
-    // Set up a collection with parDim_ values
-    std::shared_ptr<gpar::GConstrainedDoubleCollection> gcdc_ptr(
-        new gpar::GConstrainedDoubleCollection(parDim_, minVar_, maxVar_)
-    );
-
-    std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr(
-        new gpar::GDoubleGaussAdaptor(sigma_, sigmaSigma_, minSigma_, maxSigma_)
-    );
-    gdga_ptr->setAdaptionProbability(adProb_);
-    gcdc_ptr->addAdaptor(gdga_ptr);
-
-    // Make the parameter collection known to this individual
-    dynamic_cast<gpar::GTreeGenome &>(*p).push_back(gcdc_ptr);
+    // Build a flat genome holding one constrained-double group of parDim_ values (shared sigma),
+    // mirroring the historical single GConstrainedDoubleCollection + one GDoubleGaussAdaptor.
+    gpar::GGenomeBuilder b;
+    b.addDoubleGroup(parDim_, minVar_, maxVar_)
+        .gaussAdaptor(sigma_, sigmaSigma_, minSigma_, maxSigma_, adProb_);
+    dynamic_cast<gpar::GFlatGenome &>(*p).setGenome(b.build());
 
     // Randomly initialize
     p->randomInit(activityMode::ACTIVEONLY);

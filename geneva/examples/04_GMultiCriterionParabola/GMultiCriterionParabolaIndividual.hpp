@@ -45,8 +45,8 @@
 #include <common/GCommonHelperFunctions.hpp>
 #include <common/GFactoryT.hpp>
 #include <common/GParserBuilder.hpp>
-#include <geneva/par/GConstrainedDoubleObject.hpp>
-#include <geneva/ind/GTreeGenome.hpp>
+#include <geneva/ind/GFlatGenome.hpp>
+#include <geneva/ind/GGenomeBuilder.hpp>
 
 namespace Gem::Geneva {
 
@@ -58,7 +58,7 @@ constexpr std::size_t NPAR_MC = 3;
  * This individual implements several, possibly conflicting evaluation
  * criteria, each implemented as a parabola with its own minimum
  */
-class GMultiCriterionParabolaIndividual : public gpar::GTreeGenome {
+class GMultiCriterionParabolaIndividual : public gpar::GFlatGenome {
     friend class GMultiCriterionParabolaIndividualFactory;
 
     /***************************************************************************/
@@ -69,7 +69,7 @@ class GMultiCriterionParabolaIndividual : public gpar::GTreeGenome {
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome);
     }
 
     /** @brief Make the class accessible to Boost.Serialization */
@@ -96,7 +96,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    gpar::GTreeGenome *clone_() const final;
+    gpar::GFlatGenome *clone_() const final;
 
     /** @brief The default constructor -- intentionally private*/
     GMultiCriterionParabolaIndividual() = default;
