@@ -54,6 +54,7 @@ SET ( GENEVACOMMONINCLUDES
 	GGlobalOptionsT.hpp
 	GLogger.hpp
 	GMPMCQueueT.hpp
+	GMemberReflectionT.hpp
 	GParserBuilder.hpp
 	GPlotDesigner.hpp
 	GPreallocatedMPMCQueueT.hpp
