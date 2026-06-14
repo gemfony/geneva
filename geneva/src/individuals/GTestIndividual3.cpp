@@ -32,11 +32,8 @@
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
-#include "geneva/par/GConstrainedDoubleCollection.hpp"
-#include "geneva/par/GConstrainedDoubleObject.hpp"
-#include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/par/GParameterObjectCollection.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenomeBuilder.hpp"
 #include <cstddef>
 #include <memory>
 #include <vector>
@@ -62,61 +59,35 @@ constexpr double GTI_DEF_ADPROB = 0.05;
 GTestIndividual3::GTestIndividual3() {
     using namespace Gem::Geneva;
 
-    /////////////////////////////////////////////////////////////////////////////
-    // Create suitable adaptors
+    // Build a flat genome that reproduces the historical nested structure: GTI_DEF_NITEMS records,
+    // each holding 10 constrained doubles in the order a[2], b, c[3], d[3], e (the order the tree's
+    // GParameterObjectCollection streamlined them), all sharing the same Gauss adaptor config. A
+    // collection becomes one shared-sigma group; a standalone object its own group. The flat
+    // streamline order is therefore identical to the tree's, so getPlainData() reads it positionally.
+    gpar::GGenomeBuilder bld;
 
-    // Gaussian distributed random numbers
-    std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr_tmpl(new gpar::GDoubleGaussAdaptor(
-        GTI_DEF_SIGMA,
-        GTI_DEF_SIGMASIGMA,
-        GTI_DEF_MINSIGMA,
-        GTI_DEF_MAXSIGMA
-    ));
-    gdga_ptr_tmpl->setAdaptionProbability(GTI_DEF_ADPROB);
+    auto gauss = [](gpar::ParamHandle<double> h) {
+        return h.gaussAdaptor(
+            GTI_DEF_SIGMA,
+            GTI_DEF_SIGMASIGMA,
+            GTI_DEF_MINSIGMA,
+            GTI_DEF_MAXSIGMA,
+            GTI_DEF_ADPROB
+        );
+    };
 
-    /////////////////////////////////////////////////////////////////////////////
-    // Set up a hierarchical data structure
-
-    // Create one GParameterObjectCollection for each data item
     for(std::size_t i_cnt = 0; i_cnt < GTI_DEF_NITEMS; i_cnt++) {
-        std::shared_ptr<gpar::GParameterObjectCollection> gpoc_ptr(new gpar::GParameterObjectCollection());
-
-        //--------------------------------------------------------------------------------------------
-        std::shared_ptr<gpar::GConstrainedDoubleCollection> a_ptr(
-            new gpar::GConstrainedDoubleCollection(2, 0., 1.)
-        );
-        a_ptr->addAdaptor(gdga_ptr_tmpl);
-        gpoc_ptr->push_back(a_ptr);
-
-        //--------------------------------------------------------------------------------------------
-        std::shared_ptr<gpar::GConstrainedDoubleObject> b_ptr(new gpar::GConstrainedDoubleObject(0., 0.3));
-        b_ptr->addAdaptor(gdga_ptr_tmpl);
-        gpoc_ptr->push_back(b_ptr);
-
-        //--------------------------------------------------------------------------------------------
-        std::shared_ptr<gpar::GConstrainedDoubleCollection> c_ptr(
-            new gpar::GConstrainedDoubleCollection(3, 0., 1.)
-        );
-        c_ptr->addAdaptor(gdga_ptr_tmpl);
-        gpoc_ptr->push_back(c_ptr);
-
-        //--------------------------------------------------------------------------------------------
-        std::shared_ptr<gpar::GConstrainedDoubleCollection> d_ptr(
-            new gpar::GConstrainedDoubleCollection(3, 0., 1.)
-        );
-        d_ptr->addAdaptor(gdga_ptr_tmpl);
-        gpoc_ptr->push_back(d_ptr);
-
-        //--------------------------------------------------------------------------------------------
-        std::shared_ptr<gpar::GConstrainedDoubleObject> e_ptr(new gpar::GConstrainedDoubleObject(0.3, 0.6));
-        e_ptr->addAdaptor(gdga_ptr_tmpl);
-        gpoc_ptr->push_back(e_ptr);
-
-        //--------------------------------------------------------------------------------------------
-
-        // Finally add the collection to the individual
-        this->push_back(gpoc_ptr);
+        gauss(bld.addDoubleGroup(2, 0., 1.)); // a: middle of the circle
+        gauss(bld.addDouble(0., 0., 0.3));    // b
+        gauss(bld.addDoubleGroup(3, 0., 1.)); // c: three angles
+        gauss(bld.addDoubleGroup(3, 0., 1.)); // d: three colors
+        gauss(bld.addDouble(0.3, 0.3, 0.6));  // e: alpha channel
     }
+
+    this->setGenome(bld.build());
+
+    // Mirror the tree's per-parameter random initialization within bounds.
+    this->randomInit(activityMode::ALLPARAMETERS);
 }
 
 /******************************************************************************/
@@ -126,7 +97,7 @@ GTestIndividual3::GTestIndividual3() {
  * @param cp A constant reference to another GTestIndividual3 object
  */
 GTestIndividual3::GTestIndividual3(const GTestIndividual3 &cp)
-  : gpar::GTreeGenome(cp) { /* nothing */
+  : gpar::GFlatGenome(cp) { /* nothing */
 }
 
 /******************************************************************************/
@@ -141,7 +112,7 @@ GTestIndividual3::~GTestIndividual3() { /* nothing */
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GTreeGenome object
+ * @param cp A constant reference to another GTestIndividual3 object
  * @param e The expected outcome of the comparison
  */
 void GTestIndividual3::compare_(
@@ -159,7 +130,7 @@ void GTestIndividual3::compare_(
     Gem::Common::GToken token("GTestIndividual3", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GTreeGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
 
     // ...no local data
 
@@ -169,9 +140,9 @@ void GTestIndividual3::compare_(
 
 /******************************************************************************/
 /**
- * Loads the data of another GTestIndividual3, camouflaged as a GTreeGenome.
+ * Loads the data of another GTestIndividual3, camouflaged as a GFlatGenome.
  *
- * @param cp A copy of another GTestIndividual3, camouflaged as a GTreeGenome
+ * @param cp A copy of another GTestIndividual3, camouflaged as a GFlatGenome
  */
 void GTestIndividual3::load_(const gpar::GOptimizableEntity *cp) {
     using namespace Gem::Common;
@@ -182,7 +153,7 @@ void GTestIndividual3::load_(const gpar::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GTestIndividual3>(cp, this);
 
     // Load our parent's data
-    gpar::GTreeGenome::load_(cp);
+    gpar::GFlatGenome::load_(cp);
 
     // no local data
 }
@@ -191,9 +162,9 @@ void GTestIndividual3::load_(const gpar::GOptimizableEntity *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GTreeGenome
+ * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GTreeGenome *GTestIndividual3::clone_() const {
+gpar::GFlatGenome *GTestIndividual3::clone_() const {
     return new GTestIndividual3(*this);
 }
 
@@ -225,12 +196,18 @@ double GTestIndividual3::fitnessCalculation() {
 std::shared_ptr<float> GTestIndividual3::getPlainData() const {
     using namespace Gem::Geneva;
 
+    // The flat genome stores the 10 doubles of each record contiguously, in the same order the tree's
+    // nested GParameterObjectCollection streamlined them (a[0], a[1], b, c[0..2], d[0..2], e). So record
+    // i's field k sits at flat position i*10 + k -- a straight positional copy, no per-field decoding.
+    std::vector<double> par_vec;
+    this->streamline<double>(par_vec);
+
 #ifdef DEBUG
-    if(this->size() != GTI_DEF_NITEMS) {
+    if(par_vec.size() != 10 * GTI_DEF_NITEMS) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GTestIndividual3::getPlainData(): Error!" << '\n'
-            << "Invalid number of entries in this class " << this->size() << " / " << GTI_DEF_NITEMS
+            << "Invalid number of double parameters " << par_vec.size() << " / " << (10 * GTI_DEF_NITEMS)
             << '\n'
         );
     }
@@ -238,45 +215,8 @@ std::shared_ptr<float> GTestIndividual3::getPlainData() const {
 
     // Note that we need to provide a deleter as we are dealing with an array. See e.g. http://stackoverflow.com/questions/13061979/shared-ptr-to-an-array-should-it-be-used
     std::shared_ptr<float> result(new float[10 * GTI_DEF_NITEMS], [](float *p) { delete[] p; });
-    for(std::size_t i = 0; i < GTI_DEF_NITEMS; i++) {
-        std::shared_ptr<gpar::GParameterObjectCollection> gpoc_ptr =
-            this->at<gpar::GParameterObjectCollection>(i);
-
-        //---------------------------------------------------------
-        // Extract the data of the middle of the circle
-        std::shared_ptr<gpar::GConstrainedDoubleCollection> a_ptr =
-            gpoc_ptr->at<gpar::GConstrainedDoubleCollection>(0);
-        (result.get())[i * 10 + 0] = Gem::Common::narrow<float>(
-            a_ptr->at(0)
-        ); // std::shared_ptr doesn't support subscripting, contrary to boost:shared_array
-        (result.get())[i * 10 + 1] = Gem::Common::narrow<float>(a_ptr->at(1));
-
-        //---------------------------------------------------------
-        std::shared_ptr<gpar::GConstrainedDoubleObject> b_ptr = gpoc_ptr->at<gpar::GConstrainedDoubleObject>(1);
-        (result.get())[i * 10 + 2] = Gem::Common::narrow<float>(b_ptr->value());
-
-        //---------------------------------------------------------
-        // Extract the three angles
-        std::shared_ptr<gpar::GConstrainedDoubleCollection> c_ptr =
-            gpoc_ptr->at<gpar::GConstrainedDoubleCollection>(2);
-        (result.get())[i * 10 + 3] = Gem::Common::narrow<float>(c_ptr->at(0));
-        (result.get())[i * 10 + 4] = Gem::Common::narrow<float>(c_ptr->at(1));
-        (result.get())[i * 10 + 5] = Gem::Common::narrow<float>(c_ptr->at(2));
-
-        //---------------------------------------------------------
-        // Extract the three colors
-        std::shared_ptr<gpar::GConstrainedDoubleCollection> d_ptr =
-            gpoc_ptr->at<gpar::GConstrainedDoubleCollection>(3);
-        (result.get())[i * 10 + 6] = Gem::Common::narrow<float>(d_ptr->at(0));
-        (result.get())[i * 10 + 7] = Gem::Common::narrow<float>(d_ptr->at(1));
-        (result.get())[i * 10 + 8] = Gem::Common::narrow<float>(d_ptr->at(2));
-
-        //---------------------------------------------------------
-        // Extract the alpha channel
-        std::shared_ptr<gpar::GConstrainedDoubleObject> e_ptr = gpoc_ptr->at<gpar::GConstrainedDoubleObject>(4);
-        (result.get())[i * 10 + 9] = Gem::Common::narrow<float>(e_ptr->value());
-
-        //---------------------------------------------------------
+    for(std::size_t m = 0; m < 10 * GTI_DEF_NITEMS; m++) {
+        (result.get())[m] = Gem::Common::narrow<float>(par_vec[m]);
     }
 
     // Let the audience know
@@ -295,7 +235,7 @@ bool GTestIndividual3::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gpar::GTreeGenome::modify_GUnitTests_()) {
+    if(gpar::GFlatGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -319,7 +259,7 @@ void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GTreeGenome::specificTestsNoFailureExpected_GUnitTests_();
+    gpar::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     constexpr std::size_t ntests = 100;
 
@@ -360,7 +300,7 @@ void GTestIndividual3::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GTreeGenome::specificTestsFailuresExpected_GUnitTests_();
+    gpar::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------

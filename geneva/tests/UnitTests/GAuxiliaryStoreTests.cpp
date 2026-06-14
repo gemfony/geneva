@@ -41,7 +41,7 @@ using namespace Gem::Geneva::Parameters;
 namespace {
 
 /** @brief A representative per-group EA-Gauss metadata record (POD). */
-struct GaussState {
+struct AuxGaussRecord {
     float sigma = 0.f;
     float adProb = 0.f;
     std::uint32_t counter = 0;
@@ -56,25 +56,25 @@ TEST_CASE("GAuxiliaryStore POD blocks: install / typed access / copy-independenc
     GAuxiliaryStore s;
 
     CHECK_FALSE(s.hasAux(KEY));
-    s.installAuxBlock<GaussState>(KEY, 3);
+    s.installAuxBlock<AuxGaussRecord>(KEY, 3);
     REQUIRE(s.hasAux(KEY));
 
-    auto recs = s.metaRecords<GaussState>(KEY);
+    auto recs = s.metaRecords<AuxGaussRecord>(KEY);
     REQUIRE(recs.size() == 3);
     CHECK(recs[0].sigma == 0.f); // zero-initialised
     CHECK(recs[0].counter == 0u);
 
     recs[1].sigma = 0.7f;
     recs[1].counter = 5;
-    CHECK(s.metaRecords<GaussState>(KEY)[1].sigma == 0.7f);
-    CHECK(s.metaRecords<GaussState>(KEY)[1].counter == 5u);
+    CHECK(s.metaRecords<AuxGaussRecord>(KEY)[1].sigma == 0.7f);
+    CHECK(s.metaRecords<AuxGaussRecord>(KEY)[1].counter == 5u);
 
     // A copy is independent (deep byte copy)
     GAuxiliaryStore t(s);
     REQUIRE(t.hasAux(KEY));
-    CHECK(t.metaRecords<GaussState>(KEY)[1].sigma == 0.7f);
-    t.metaRecords<GaussState>(KEY)[1].sigma = 0.1f;
-    CHECK(s.metaRecords<GaussState>(KEY)[1].sigma == 0.7f); // s unaffected
+    CHECK(t.metaRecords<AuxGaussRecord>(KEY)[1].sigma == 0.7f);
+    t.metaRecords<AuxGaussRecord>(KEY)[1].sigma = 0.1f;
+    CHECK(s.metaRecords<AuxGaussRecord>(KEY)[1].sigma == 0.7f); // s unaffected
 
     // clearScratch drops the blocks
     s.clearScratch();
@@ -92,16 +92,16 @@ TEST_CASE("GOptimizableEntity POD metadata: clone copies scratch; compare ignore
     REQUIRE_FALSE(bare->hasAux(KEY));
 
     // Install per-parameter metadata on ind only.
-    ind.installAuxBlock<GaussState>(KEY, 2);
-    ind.metaRecords<GaussState>(KEY)[0].sigma = 1.5f;
+    ind.installAuxBlock<AuxGaussRecord>(KEY, 2);
+    ind.metaRecords<AuxGaussRecord>(KEY)[0].sigma = 1.5f;
     REQUIRE(ind.hasAux(KEY));
 
     // A clone taken AFTER installing copies the scratch, independently.
     auto twin = ind.clone<GTestIndividual3>();
     REQUIRE(twin->hasAux(KEY));
-    CHECK(twin->metaRecords<GaussState>(KEY)[0].sigma == 1.5f);
-    twin->metaRecords<GaussState>(KEY)[0].sigma = 9.f;
-    CHECK(ind.metaRecords<GaussState>(KEY)[0].sigma == 1.5f); // independent
+    CHECK(twin->metaRecords<AuxGaussRecord>(KEY)[0].sigma == 1.5f);
+    twin->metaRecords<AuxGaussRecord>(KEY)[0].sigma = 9.f;
+    CHECK(ind.metaRecords<AuxGaussRecord>(KEY)[0].sigma == 1.5f); // independent
 
     // compare() ignores the POD scratch: ind (with scratch) equals bare (without).
     CHECK_NOTHROW(ind.compare(
