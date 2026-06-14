@@ -221,6 +221,8 @@ std::string container_to_string(
     Gem::Common::serializationMode serMode
 ) {
     try {
+        // Over-the-wire transport: omit per-item scratch the receiver re-establishes (e.g. personality).
+        Gem::Courtier::WireSerializationScope wire_scope;
         switch(serMode) {
             using enum Gem::Common::serializationMode;
         case TEXT: {
@@ -289,6 +291,9 @@ void container_from_string(
     container.reset();
 
     try {
+        // Over-the-wire transport: the payload was written without the omitted scratch, so read it
+        // back the same way (the receiving slot keeps its own).
+        Gem::Courtier::WireSerializationScope wire_scope;
         switch(serMode) {
             using enum Gem::Common::serializationMode;
         case TEXT: {

@@ -252,12 +252,15 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
 
         // The personality traits are OA-installed scratch held in the auxiliary store. They are
         // deliberately OUT of localMembers() -- so they are NOT part of the compared identity (two
-        // individuals differing only in which OA last touched them compare equal) -- but they ARE
-        // serialized here explicitly, because a checkpoint/resume needs them in place. (A later
-        // transport/checkpoint split will omit them from the over-the-wire form, where they are not
-        // needed: the receiving slot keeps its own OA-installed personality.) The NVP tag matches the
-        // former make_cloneable_member("pt_ptr_", ...) so the personality wire shape is unchanged.
-        ar &make_nvp("pt_ptr_", aux_.personalityRef());
+        // individuals differing only in which OA last touched them compare equal). They are emitted
+        // here for a CHECKPOINT / general serialization (a resumed algorithm needs them in place), but
+        // OMITTED for over-the-wire transport: a returned work item is merged into the live population
+        // slot, which keeps its own OA-installed personality (see GNetworkedConsumerT::checkin /
+        // GOptimizableEntity::adoptProcessedResult), so shipping the personality would be wasted bytes.
+        // The NVP tag matches the former make_cloneable_member("pt_ptr_", ...).
+        if(not Gem::Courtier::wireSerializationActive()) {
+            ar &make_nvp("pt_ptr_", aux_.personalityRef());
+        }
     }
     ///////////////////////////////////////////////////////////////////////
 
