@@ -52,6 +52,8 @@
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
+#include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
 #include "geneva/individuals/GNeuralNetworkIndividual.hpp"
 
 using namespace Gem::Geneva;
@@ -263,6 +265,31 @@ TEST_CASE("GGenomeBuilder: interned group labels", "[flat]") {
     CHECK(RL->groupsForLabel("position").size() == 2);
     CHECK(RL->labelName(RL->d.groups[2].label_id) == "scale");
     CHECK(RL->d.groups[3].label_id == -1);
+}
+
+/******************************************************************************/
+TEST_CASE("GFlatGenome: personality is OA scratch -- serialized for checkpoint, not compared", "[flat]") {
+    namespace oa = Gem::Geneva::OptimizationAlgorithms;
+
+    // Two individuals with identical genomes but DIFFERENT personalities (as if last touched by
+    // different optimization algorithms) must compare EQUAL: the personality is no longer part of the
+    // compared identity (it left localMembers()).
+    FlatSphere a(3);
+    FlatSphere b(a); // copy ctor -> identical genome
+    a.setPersonality(std::make_shared<oa::GEvolutionaryAlgorithm_PersonalityTraits>());
+    b.setPersonality(std::make_shared<oa::GSimulatedAnnealing_PersonalityTraits>());
+    CHECK_NOTHROW(a.compare(b, Gem::Common::expectation::EQUALITY, 0.));
+
+    // ... but the personality IS still serialized, so a checkpoint / resume keeps it in place.
+    const std::string xml = a.toString(Gem::Common::serializationMode::XML);
+    FlatSphere restored;
+    restored.fromString(xml, Gem::Common::serializationMode::XML);
+    REQUIRE(restored.getPersonalityTraits());
+    CHECK(
+        std::dynamic_pointer_cast<oa::GEvolutionaryAlgorithm_PersonalityTraits>(
+            restored.getPersonalityTraits()
+        ) != nullptr
+    );
 }
 
 /******************************************************************************/

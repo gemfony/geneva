@@ -99,14 +99,17 @@ inline std::uint32_t auxTypeTag() {
  * meaningless to a chained CGD and must not ride along. clearScratch() implements that boundary
  * reset for *both* channels; it is therefore called on hand-over, not per iteration.
  *
- * The two channels differ only in SERIALIZATION, not in scope:
- *  - The personality is part of the individual's serialized/compared identity → driven by the
- *    individual's localMembers() (make_cloneable_member on personalityRef()).
- *  - The POD blocks are transient scratch (DM §5): they are deep-copied on CLONE (so a clone
- *    mid-optimization keeps the live scratch) and dropped by clearScratch(), but they are NOT part
- *    of the genome-mode serialization / the standard compare (a full-checkpoint mode that serialises
- *    them will be added with the transport work). The genome carries the optimization forward; the
- *    per-algorithm scratch restarts when a new OA takes over.
+ * Both channels are OA-installed scratch and are kept OUT of the individual's COMPARED identity (they
+ * are not in localMembers()): two individuals differing only in which OA last touched them compare
+ * equal. They are deep-copied on CLONE (a clone mid-optimization keeps the live scratch) and dropped
+ * by clearScratch(). They differ only in SERIALIZATION:
+ *  - The personality is serialized explicitly by the individual's serialize() (NOT via localMembers,
+ *    so it is serialized but not compared), because a checkpoint/resume needs it in place. A later
+ *    transport/checkpoint split will omit it from the over-the-wire form (the receiving slot keeps its
+ *    own OA-installed personality), while the checkpoint form keeps it.
+ *  - The POD blocks are not serialized at all today (a full-checkpoint mode that serialises them will
+ *    be added with the transport work); the genome re-seeds them on load. The genome carries the
+ *    optimization forward; the per-algorithm scratch restarts when a new OA takes over.
  */
 class GAuxiliaryStore {
 public:

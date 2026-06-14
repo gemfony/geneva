@@ -208,7 +208,6 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_member("n_adaptions_", n_adaptions_),
             Gem::Common::make_member("use_random_crash_", use_random_crash_),
             Gem::Common::make_member("random_crash_prob_", random_crash_prob_),
-            Gem::Common::make_cloneable_member("pt_ptr_", aux_.personalityRef()),
             Gem::Common::make_cloneable_member("individual_constraint_ptr_", individual_constraint_ptr_)
         );
     }
@@ -227,7 +226,6 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_member("n_adaptions_", n_adaptions_),
             Gem::Common::make_member("use_random_crash_", use_random_crash_),
             Gem::Common::make_member("random_crash_prob_", random_crash_prob_),
-            Gem::Common::make_cloneable_member("pt_ptr_", aux_.personalityRef()),
             Gem::Common::make_cloneable_member("individual_constraint_ptr_", individual_constraint_ptr_)
         );
     }
@@ -251,6 +249,15 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
         // All members (plain and cloneable alike) are derived from the single
         // localMembers() declaration.
         Gem::Common::serialize_members(ar, this->localMembers());
+
+        // The personality traits are OA-installed scratch held in the auxiliary store. They are
+        // deliberately OUT of localMembers() -- so they are NOT part of the compared identity (two
+        // individuals differing only in which OA last touched them compare equal) -- but they ARE
+        // serialized here explicitly, because a checkpoint/resume needs them in place. (A later
+        // transport/checkpoint split will omit them from the over-the-wire form, where they are not
+        // needed: the receiving slot keeps its own OA-installed personality.) The NVP tag matches the
+        // former make_cloneable_member("pt_ptr_", ...) so the personality wire shape is unchanged.
+        ar &make_nvp("pt_ptr_", aux_.personalityRef());
     }
     ///////////////////////////////////////////////////////////////////////
 

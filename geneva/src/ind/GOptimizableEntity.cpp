@@ -1207,9 +1207,13 @@ void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
 
     // All local data, derived from the single localMembers() declaration: plain
     // members are assigned, the cloneable smart pointers are deep-cloned (the tie
-    // dispatches on the member kind). The aux store's personality is handled here (it is a
-    // cloneable member); its transient POD scratch blocks are copied separately.
+    // dispatches on the member kind).
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+
+    // The auxiliary store is OA-installed scratch, kept OUT of localMembers() (and thus out of the
+    // compared identity). It is still carried by load_ so a deep copy / checkpoint-resume keeps it in
+    // place: the personality is deep-cloned and the transient POD scratch blocks are copied.
+    Gem::Common::copyCloneableSmartPointer(p_load->aux_.personalityRef(), aux_.personalityRef());
     aux_.copyPodsFrom(p_load->aux_);
 }
 
