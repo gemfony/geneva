@@ -896,6 +896,20 @@ public:
         Gem::Common::copyCloneableSmartPointer(p_load->post_processor_ptr_, post_processor_ptr_);
     }
 
+    /***************************************************************************/
+    /**
+     * Adopts the processed outcome of @p src into THIS item, in place. Used by the networked
+     * reconciliation (GNetworkedConsumerT::checkin) so a returned result updates the live work-item
+     * slot instead of replacing it -- which lets the slot keep any scratch that is NOT carried over
+     * the wire (e.g. an optimization algorithm's installed personality traits). The base default
+     * copies the processing-container state (fitness / status / timings); processable types that hold
+     * such non-transported scratch override this to adopt everything EXCEPT that scratch. The
+     * per-batch dispatch state is set by the caller, not here.
+     */
+    virtual void adoptProcessedResult(processable_type &src) {
+        this->load_pc(static_cast<const GProcessingContainerT<processable_type, processing_result_type> *>(&src));
+    }
+
 protected:
     /***************************************************************************/
     /**

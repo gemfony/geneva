@@ -518,6 +518,15 @@ public:
         return this->individualFulfillsConstraints(validity_level);
     }
 
+    /**
+     * @brief Adopts the processed outcome of a returned result into this individual in place,
+     * preserving this individual's OA-installed personality (which is OA scratch, not carried over the
+     * wire). Everything that DID travel -- the genome, fitness and processing state -- is deep-loaded
+     * from the result. Used by the networked reconciliation so a returned work item updates the live
+     * population slot without discarding the optimization algorithm's personality.
+     */
+    void adoptProcessedResult(GOptimizableEntity &src) override;
+
     /** @brief Allows to set the current iteration of the parent optimization algorithm. */
     void setAssignedIteration(std::uint32_t const &);
     /** @brief Gives access to the parent optimization algorithm's iteration */

@@ -218,8 +218,12 @@ protected:
         recordReturnTime_(now - b.checked_out_at[slot]);
         b.last_progress = now;
 
-        p->setDispatchState(Gem::Courtier::dispatchState::DONE);
-        (*b.items)[slot] = std::move(p); // move the processed result into the slot in place
+        // Adopt the processed outcome into the LIVE slot in place rather than replacing the slot
+        // pointer. This lets the slot keep scratch that is not carried over the wire (e.g. an
+        // optimization algorithm's installed personality traits): the genome, fitness and processing
+        // state are taken from the returned result, the OA scratch on the slot is preserved.
+        (*b.items)[slot]->adoptProcessedResult(*p);
+        (*b.items)[slot]->setDispatchState(Gem::Courtier::dispatchState::DONE);
         ++b.done;
         if(b.done == b.target) {
             cv_done_.notify_all(); // each waiting dispatch_ re-checks its own batch

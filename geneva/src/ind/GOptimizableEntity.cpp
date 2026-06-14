@@ -1219,6 +1219,20 @@ void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
 
 /******************************************************************************/
 /**
+ * Adopts the processed outcome of a returned result into this individual in place, preserving this
+ * individual's OA-installed personality. The personality is OA scratch that need not travel over the
+ * wire, so the networked reconciliation must not discard it when a returned work item updates the live
+ * population slot. Everything that did travel -- the genome, fitness and processing state -- is adopted
+ * from the result via the standard deep load.
+ */
+void GOptimizableEntity::adoptProcessedResult(GOptimizableEntity &src) {
+    std::shared_ptr<GPersonalityTraits> saved_personality = aux_.personalityRef();
+    this->load_(&src);
+    aux_.personalityRef() = std::move(saved_personality);
+}
+
+/******************************************************************************/
+/**
      * Sets the fitness to a given set of values and clears the dirty flag. This is meant
      * to be used by external methods of performing the actual evaluation, such as the
      * OpenCL-Consumer. The fitness vector is interpreted as raw fitness values, and
