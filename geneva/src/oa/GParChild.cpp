@@ -529,10 +529,12 @@ void GParChild::doRecombine() {
  * untouched, so that otherwise successful adaptor settings may survive.
  */
 void GParChild::actOnStalls_() {
-    if(this->getNParents() > 1) {
-        // Update parent individuals. We leave the best parent untouched
+    if(adaption_config_ && this->getNParents() > 1) {
+        // Update parent individuals. We leave the best parent untouched. Phase 8: reset the per-group
+        // adaption state to its seeds via the OA-owned config (the data-oriented twin of the individual's
+        // updateAdaptorsOnStall()), so otherwise-successful adaptor settings are not carried into a stall.
         for(auto it = this->begin() + 1; it != this->begin() + this->getNParents(); ++it) {
-            (*it)->updateAdaptorsOnStall(this->getStallCounter());
+            resetAdaptionState(dynamic_cast<gpar::GFlatGenome &>(**it), *adaption_config_);
         }
     }
 }
