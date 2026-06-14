@@ -1,0 +1,271 @@
+/********************************************************************************
+ *
+ * This file is part of the Geneva library collection. The following license
+ * applies to this file:
+ *
+ * ------------------------------------------------------------------------------
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------
+ *
+ * Note that other files in the Geneva library collection may use a different
+ * license. Please see the licensing information in each file.
+ *
+ ********************************************************************************
+ *
+ * See the NOTICE file in the top-level directory of the Geneva library
+ * collection for a list of contributors and copyright information.
+ *
+ ********************************************************************************/
+
+#pragma once
+
+// Global checks, defines and includes needed for all of Geneva
+#include "common/GGlobalDefines.hpp"
+
+// Standard header files go here
+#include <memory>
+#include <string>
+#include <tuple>
+
+// Boost header files go here
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/unique_ptr.hpp>
+
+// Geneva headers go here
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GCommonInterfaceT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GMemberReflectionT.hpp"
+#include "geneva/ind/GAuxiliaryStore.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
+
+namespace Gem::Geneva::Parameters {
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * A population element: the pairing of an individual ("the part that travels") with the
+ * optimization-algorithm-owned scratch it accumulates while a given algorithm holds it.
+ *
+ * Rationale (Phase 10 — struct-based population): the optimization algorithms previously carried
+ * their per-individual scratch (the personality traits + the per-group adaption POD state, and later
+ * swarm velocity / pbest, gradient, ...) INSIDE the individual. That made the individual not-quite
+ * pure data and forced a serialization-purpose split (transport vs. checkpoint) on the genome itself.
+ * GIndividualSlot lifts that scratch OUT of the individual and onto the population element:
+ *  - individual_ — the genome + parameter bounds (shared GGenomeLayout) + fitness + multi-constraint +
+ *    the courtier processing container (correlation id / status). This is exactly the object that is
+ *    shipped to a remote worker and back; it is, by itself, pure data.
+ *  - scratch_    — the GAuxiliaryStore (personality object + opaque per-group POD blocks), owned by
+ *    whichever algorithm currently holds the slot, dropped at the algorithm boundary.
+ *
+ * Bundling scratch WITH the individual in one struct keeps the two coherent through every EA
+ * sort / select / swap; a parallel vector<Scratch> would have to be permuted in lockstep.
+ *
+ * Courtier stays individual-based: the optimization algorithm swaps individual_ out into a submission
+ * span for workOn() and back afterwards (see individualPtr() / releaseIndividual() / resetIndividual()),
+ * so the broker still deals in individuals — no courtier change.
+ *
+ * Serialization vs. comparison (the two open questions decided for Phase 10.0):
+ *  - compare_() compares the wrapped individual ONLY. The scratch is OA-installed and is deliberately
+ *    kept out of the compared identity, so two slots holding equal individuals but touched by different
+ *    algorithms compare equal (mirrors how the personality was already excluded from the individual's
+ *    compared identity).
+ *  - serialize() is FULL: the individual plus the scratch personality. A checkpoint / general
+ *    serialization needs the personality back in place (e.g. a resumed swarm's personal-best lives in
+ *    it). The transient POD adaption blocks are re-seeded from the genome on load and are not
+ *    serialized. Because scratch now lives on the slot rather than the individual, the individual's own
+ *    serialize() can become unconditionally pure (the transport/checkpoint flag is retired in 10.1).
+ *
+ * Access is via the explicit .individual() accessor (there is intentionally NO operator-> forwarding to
+ * the individual): it maximises compiler-guided migration — an individual-method call left on a slot is
+ * a hard compile error until rebound — and avoids the silent-meaning trap that clone_unique()/clone()/
+ * load() (present on BOTH the slot and the individual via the common interface) would otherwise create.
+ */
+class GIndividualSlot // NOLINT(cppcoreguidelines-special-member-functions)
+  : public Gem::Common::GCommonInterfaceT<GIndividualSlot> {
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
+
+    /***************************************************************************/
+    /**
+     * The single declaration of this class'es compared/serialized members. Only the wrapped individual
+     * is listed: it is the slot's compared identity. The scratch personality is serialized separately
+     * (see serialize()) so it rides along for a checkpoint without being part of the comparison.
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_cloneable_member("individual_", individual_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_cloneable_member("individual_", individual_)
+        );
+    }
+
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        using boost::serialization::make_nvp;
+
+        // The CRTP base (Gem::Common::GCommonInterfaceT<GIndividualSlot>) carries no state and is
+        // therefore not serialized as a base_object (mirroring GObject's empty serialize()).
+
+        // The wrapped individual -- the part that travels -- derived from the single localMembers()
+        // declaration so serialize()/load_()/compare_() stay in lock-step.
+        Gem::Common::serialize_members(ar, this->localMembers());
+
+        // The scratch personality rides along for a CHECKPOINT / general serialization (a resumed
+        // algorithm needs it in place; e.g. a swarm's personal-best lives in the personality). It is
+        // OUT of localMembers() so it is serialized but NOT part of the compared identity. The transient
+        // POD adaption blocks are re-seeded from the genome on load and are not serialized.
+        ar &make_nvp("personality_", scratch_.personalityRef());
+    }
+    ///////////////////////////////////////////////////////////////////////
+
+public:
+    /** @brief The default constructor creates an empty slot (no individual) */
+    GIndividualSlot() = default;
+
+    /** @brief Wraps an existing individual into a fresh slot (the scratch starts empty) */
+    explicit GIndividualSlot(std::unique_ptr<GOptimizableEntity> ind)
+      : individual_(std::move(ind)) {
+    }
+
+    /** @brief The copy constructor deep-clones the individual and deep-copies the scratch */
+    GIndividualSlot(const GIndividualSlot &cp)
+      : Gem::Common::GCommonInterfaceT<GIndividualSlot>(cp)
+      , scratch_(cp.scratch_) {
+        Gem::Common::copyCloneableSmartPointer(cp.individual_, individual_);
+    }
+
+    /** @brief The move constructor */
+    GIndividualSlot(GIndividualSlot &&) noexcept = default;
+
+    /** @brief The destructor */
+    ~GIndividualSlot() override = default;
+
+    /** @brief Copy assignment via the load_() deep-copy protocol */
+    GIndividualSlot &operator=(const GIndividualSlot &cp) {
+        if(this != &cp) {
+            this->load_(&cp);
+        }
+        return *this;
+    }
+
+    /** @brief Move assignment */
+    GIndividualSlot &operator=(GIndividualSlot &&) noexcept = default;
+
+    /***************************************************************************/
+    // Access. Explicit -- no operator-> forwarding to the individual (see the class note).
+
+    /** @brief Whether this slot currently holds an individual */
+    bool hasIndividual() const {
+        return static_cast<bool>(individual_);
+    }
+
+    /** @brief The wrapped individual */
+    GOptimizableEntity &individual() {
+        return *individual_;
+    }
+    const GOptimizableEntity &individual() const {
+        return *individual_;
+    }
+
+    /**
+     * @brief The owning pointer to the wrapped individual. Used by the optimization algorithm to swap
+     * the individual out into a courtier submission span for workOn() and back afterwards, so the broker
+     * keeps dealing in individuals.
+     */
+    std::unique_ptr<GOptimizableEntity> &individualPtr() {
+        return individual_;
+    }
+    const std::unique_ptr<GOptimizableEntity> &individualPtr() const {
+        return individual_;
+    }
+
+    /** @brief Moves the individual out of the slot, leaving it empty */
+    std::unique_ptr<GOptimizableEntity> releaseIndividual() {
+        return std::move(individual_);
+    }
+
+    /** @brief Moves an individual into the slot, replacing any previous one */
+    void resetIndividual(std::unique_ptr<GOptimizableEntity> ind) {
+        individual_ = std::move(ind);
+    }
+
+    /** @brief The optimization-algorithm-owned scratch (personality + POD adaption state) */
+    GAuxiliaryStore &scratch() {
+        return scratch_;
+    }
+    const GAuxiliaryStore &scratch() const {
+        return scratch_;
+    }
+
+protected:
+    /***************************************************************************/
+    /** @brief Loads the data of another GIndividualSlot */
+    void load_(const GIndividualSlot *) override;
+
+    /** @brief Allow access to this classes compare_ function */
+    friend void Gem::Common::compare_base_t<GIndividualSlot>(
+        GIndividualSlot const &,
+        GIndividualSlot const &,
+        Gem::Common::GToken &
+    );
+
+    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    void compare_(
+        GIndividualSlot const & // the other object
+        ,
+        Gem::Common::expectation const & // the expectation for this object, e.g. equality
+        ,
+        double const & // the limit for allowed deviations of floating point types
+    ) const override;
+
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    bool modify_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    void specificTestsNoFailureExpected_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    void specificTestsFailuresExpected_GUnitTests_() override;
+
+private:
+    /***************************************************************************/
+    /** @brief Emits a name for this class / object */
+    std::string name_() const override;
+    /** @brief Creates a deep clone of this object */
+    GIndividualSlot *clone_() const override;
+
+    /***************************************************************************/
+    // Data
+
+    /** @brief The wrapped individual -- the part that travels (genome + bounds + fitness + constraint) */
+    std::unique_ptr<GOptimizableEntity> individual_;
+
+    /** @brief The optimization-algorithm-owned scratch (personality object + per-group POD blocks) */
+    GAuxiliaryStore scratch_;
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+
+} /* namespace Gem::Geneva::Parameters */
+
+/******************************************************************************/
+/** @brief Needed for Boost.Serialization of the slot through a (polymorphic) pointer */
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Parameters::GIndividualSlot) // NOLINT
+/******************************************************************************/
