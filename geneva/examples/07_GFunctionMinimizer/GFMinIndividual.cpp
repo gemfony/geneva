@@ -33,6 +33,9 @@
 
 #include "GFMinIndividual.hpp"
 
+#include "geneva/oa/GAdaption.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
+
 #include <any>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFMinIndividual) // NOLINT
@@ -151,13 +154,14 @@ targetFunction GFMinIndividual::getTargetFunction() const {
  * @return The average value of sigma used in Gauss adaptors
  */
 double GFMinIndividual::getAverageSigma() const {
-    // The flat genome holds a single Gauss group (the parameter collection), whose sigma is exposed
-    // through the storage-agnostic queryAdaptor() seam.
-    std::vector<std::any> data;
-    this->queryAdaptor("GDoubleGaussAdaptor", "sigma", data);
+    // The flat genome holds a single Gauss group (the parameter collection). Phase 8: its sigma is read
+    // through the OA-side readAdaptionSigmas() free function (the data-oriented replacement for the
+    // individual's queryAdaptor()), driven by a config built from this individual's own shared layout.
+    oa::GAdaptionConfigBase cfg(*this);
+    std::vector<double> sigmas = oa::readAdaptionSigmas(*this, cfg, "GDoubleGaussAdaptor");
 
     // Only a single group has been registered, so we do not need to calculate any averages.
-    return data.empty() ? 0. : std::any_cast<double>(data.front());
+    return sigmas.empty() ? 0. : sigmas.front();
 }
 
 /******************************************************************************/

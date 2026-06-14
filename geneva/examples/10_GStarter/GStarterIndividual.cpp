@@ -33,6 +33,9 @@
 
 #include "GStarterIndividual.hpp"
 
+#include "geneva/oa/GAdaption.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
+
 #include <any>
 
 #ifdef GEM_TESTING
@@ -231,16 +234,11 @@ targetFunction GStarterIndividual::getTargetFunction() const {
  * @return The average value of sigma used in Gauss adaptors
  */
 double GStarterIndividual::getAverageSigma() const {
-    // The flat genome exposes the per-group Gauss sigmas through the storage-agnostic queryAdaptor()
-    // seam (one entry per Gauss group; here one group per parameter).
-    std::vector<std::any> data;
-    this->queryAdaptor("GDoubleGaussAdaptor", "sigma", data);
-
-    std::vector<double> sigmas;
-    sigmas.reserve(data.size());
-    for(const std::any &a : data) {
-        sigmas.push_back(std::any_cast<double>(a));
-    }
+    // Phase 8: the per-group Gauss sigmas (one per parameter) are read through the OA-side
+    // readAdaptionSigmas() free function (the data-oriented replacement for the individual's
+    // queryAdaptor()), driven by a config built from this individual's own shared layout.
+    oa::GAdaptionConfigBase cfg(*this);
+    std::vector<double> sigmas = oa::readAdaptionSigmas(*this, cfg, "GDoubleGaussAdaptor");
 
     // Return the average
     return Gem::Common::GMean(sigmas);

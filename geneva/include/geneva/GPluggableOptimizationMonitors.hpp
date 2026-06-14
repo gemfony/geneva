@@ -50,6 +50,8 @@
 #include "geneva/par/GParameterPropertyParser.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
+#include "geneva/oa/GAdaption.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
 
 namespace Gem::Geneva {
 
@@ -2069,24 +2071,20 @@ private:
             max_iteration_ = iteration;
             n_iterations_recorded_++;
 
-            // Will hold the adaptor properties
-            std::vector<std::any> data;
-
-            // Do the actual logging
+            // Do the actual logging. Phase 8: the per-group Gauss sigmas are read through the
+            // OA-side readAdaptionSigmas() free function (the data-oriented replacement for the
+            // individual's queryAdaptor()), driven by a config built from the individual's own
+            // shared layout. Only the "sigma" property is exposed by the flat genome.
             if(monitor_best_only_) {
                 std::shared_ptr<gpar::GOptimizableEntity> best =
                     goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividual<gpar::GOptimizableEntity>();
 
-                // Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
-                best->queryAdaptor(adaptor_name_, property_, data);
-
-                // Attach the data to adaptor_property_store_
-                for(const auto &property : data) {
-                    adaptor_property_store_.emplace_back(
-                        static_cast<double>(iteration),
-                        double(std::any_cast<num_type>(property))
-
-                    );
+                if(property_ == "sigma") {
+                    const auto &flat = dynamic_cast<const gpar::GFlatGenome &>(*best);
+                    oa::GAdaptionConfigBase cfg(flat);
+                    for(double sigma : oa::readAdaptionSigmas(flat, cfg, adaptor_name_)) {
+                        adaptor_property_store_.emplace_back(static_cast<double>(iteration), sigma);
+                    }
                 }
             }
             else { // Monitor all individuals
@@ -2095,16 +2093,12 @@ private:
                     std::shared_ptr<gpar::GOptimizableEntity> ind =
                         goa->template individual_cast<gpar::GOptimizableEntity>(pos);
 
-                    // Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
-                    ind->queryAdaptor(adaptor_name_, property_, data);
-
-                    // Attach the data to adaptor_property_store_
-                    for(const auto &property : data) {
-                        adaptor_property_store_.emplace_back(
-                            static_cast<double>(iteration),
-                            double(std::any_cast<num_type>(property))
-
-                        );
+                    if(property_ == "sigma") {
+                        const auto &flat = dynamic_cast<const gpar::GFlatGenome &>(*ind);
+                        oa::GAdaptionConfigBase cfg(flat);
+                        for(double sigma : oa::readAdaptionSigmas(flat, cfg, adaptor_name_)) {
+                            adaptor_property_store_.emplace_back(static_cast<double>(iteration), sigma);
+                        }
                     }
                 }
             }
