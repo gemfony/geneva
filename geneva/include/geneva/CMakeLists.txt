@@ -5,6 +5,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GOptimizableEntityCommandContainerExport.hpp
     GMultiConstraintT.hpp
 	Go2.hpp
+	GConsumerSetup.hpp
     GOptimizationEnums.hpp
     GSigHupHandler.hpp
 	GPersonalityTraits.hpp
@@ -16,11 +17,28 @@ SET ( OPTIMIZATIONINCLUDES
 # installed under geneva/par to mirror the `gpar` alias.
 SET ( PARAM_INCLUDES
     par/GParameterPropertyParser.hpp
-    ind/GAuxiliaryStore.hpp
-    ind/GOptimizableEntity.hpp
     par/GOptimizableEntityFactory.hpp
     par/GOptimizableEntityFixedSizePriorityQueue.hpp
     par/GOptimizableEntityMultiConstraint.hpp
+)
+
+# Individual / genome headers (namespace Gem::Geneva::Parameters), installed
+# under geneva/ind. This is the public flat-genome authoring + storage API:
+# the abstract individual base, the sole flat genome, the genome builder /
+# layout / architecture / factory, the auxiliary store and the adaption
+# kernels. All are pulled in transitively by the installed individuals/*.hpp,
+# so every one must ship.
+SET ( IND_INCLUDES
+    ind/GAuxiliaryStore.hpp
+    ind/GOptimizableEntity.hpp
+    ind/GAdaptionKernels.hpp
+    ind/GGenomeLayout.hpp
+    ind/GGenomeLayoutSerialization.hpp
+    ind/GGenomeBuilder.hpp
+    ind/GGenomeArchitecture.hpp
+    ind/GFlatGenome.hpp
+    ind/GFlatIndividualT.hpp
+    ind/GFlatIndividualFactory.hpp
 )
 
 # Optimization-algorithm headers (namespace Gem::Geneva::OptimizationAlgorithms),
@@ -35,6 +53,8 @@ SET ( OA_INCLUDES
     oa/GConjugateGradientDescent.hpp
     oa/GConjugateGradientDescentFactory.hpp
     oa/GConjugateGradientDescent_PersonalityTraits.hpp
+    oa/GHesseError.hpp
+    oa/GLineSearch.hpp
     oa/GEvolutionaryAlgorithm.hpp
     oa/GEvolutionaryAlgorithmFactory.hpp
     oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp
@@ -88,7 +108,7 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 ENDIF()
 
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
-ADD_CUSTOM_TARGET(CLION_ALL_GENEVA_HEADERS SOURCES ${OPTIMIZATIONINCLUDES} ${OA_INCLUDES} ${IFACE_INCLUDES} ${PARAM_INCLUDES} ${INDIVIDUALS_INCLUDES})
+ADD_CUSTOM_TARGET(CLION_ALL_GENEVA_HEADERS SOURCES ${OPTIMIZATIONINCLUDES} ${OA_INCLUDES} ${IFACE_INCLUDES} ${PARAM_INCLUDES} ${IND_INCLUDES} ${INDIVIDUALS_INCLUDES})
 
 SET_TARGET_PROPERTIES(
     CLION_ALL_GENEVA_HEADERS
@@ -102,6 +122,7 @@ INSTALL ( FILES ${OPTIMIZATIONINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/g
 INSTALL ( FILES ${OA_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/oa )
 INSTALL ( FILES ${IFACE_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/Interface )
 INSTALL ( FILES ${PARAM_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/par )
+INSTALL ( FILES ${IND_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/ind )
 INSTALL ( FILES ${INDIVIDUALS_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/individuals )
 
 # GEqualityPrinter.hpp (the only former include/geneva/tests/ header) is

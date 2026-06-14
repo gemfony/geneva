@@ -53,6 +53,7 @@ SET ( HAPINCLUDES
 	GRandomDefines.hpp
 	GRandomFactory.hpp
 	GRandomT.hpp
+	GXoshiro256pp.hpp
 )
 
 IF(GENEVA_USE_CUDA_RNG)
