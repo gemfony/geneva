@@ -79,6 +79,7 @@ SET ( OPTIMIZATIONSOURCES
 	par/GParameterPropertyParser.cpp
 	ind/GOptimizableEntity.cpp
 	ind/GTreeGenome.cpp
+	ind/GFlatGenome.cpp
 	par/GOptimizableEntityFixedSizePriorityQueue.cpp
 	par/GOptimizableEntityMultiConstraint.cpp
 	GPersonalityTraits.cpp
