@@ -41,7 +41,6 @@
 // Geneva header files go here
 #include "common/GCommonInterfaceT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/GenevaHelperFunctionsT.hpp"
 
 namespace Gem::Geneva {
 

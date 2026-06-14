@@ -39,7 +39,6 @@
 // Geneva headers go here
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/GPersonalityTraits.hpp"
-#include "geneva/GenevaHelperFunctionsT.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 

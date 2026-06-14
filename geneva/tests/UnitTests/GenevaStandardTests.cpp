@@ -41,34 +41,6 @@
 #include "geneva/individuals/GMetaOptimizerIndividualT.hpp"
 #include "geneva/individuals/GTestIndividual2.hpp"
 #include "geneva/individuals/GTestIndividual3.hpp"
-#include "geneva/par/GBooleanAdaptor.hpp"
-#include "geneva/par/GBooleanCollection.hpp"
-#include "geneva/par/GBooleanObject.hpp"
-#include "geneva/par/GBooleanObjectCollection.hpp"
-#include "geneva/par/GConstrainedDoubleCollection.hpp"
-#include "geneva/par/GConstrainedDoubleObject.hpp"
-#include "geneva/par/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/par/GConstrainedInt32Object.hpp"
-#include "geneva/par/GConstrainedInt32ObjectCollection.hpp"
-#include "geneva/par/GDoubleBiGaussAdaptor.hpp"
-#include "geneva/par/GDoubleCollection.hpp"
-#include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/par/GDoubleObject.hpp"
-#include "geneva/par/GDoubleObjectCollection.hpp"
-#include "geneva/par/GConstrainedFloatCollection.hpp"
-#include "geneva/par/GConstrainedFloatObject.hpp"
-#include "geneva/par/GConstrainedFloatObjectCollection.hpp"
-#include "geneva/par/GFloatBiGaussAdaptor.hpp"
-#include "geneva/par/GFloatCollection.hpp"
-#include "geneva/par/GFloatGaussAdaptor.hpp"
-#include "geneva/par/GFloatObject.hpp"
-#include "geneva/par/GFloatObjectCollection.hpp"
-#include "geneva/par/GInt32Collection.hpp"
-#include "geneva/par/GInt32FlipAdaptor.hpp"
-#include "geneva/par/GInt32GaussAdaptor.hpp"
-#include "geneva/par/GInt32Object.hpp"
-#include "geneva/par/GInt32ObjectCollection.hpp"
-#include "geneva/par/GParameterObjectCollection.hpp"
 #include "geneva/individuals/GTestIndividual1.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
@@ -139,62 +111,6 @@ TFactory_GUnitTests<gind::GOptOptMonitorT<gind::GFunctionIndividual>>() {
 // ============================================================================
 // Standard tests — no failure expected
 // ============================================================================
-
-TEMPLATE_TEST_CASE(
-    "StandardTests_no_failure_expected — adaptor types",
-    "[geneva][standard]",
-    gpar::GInt32FlipAdaptor,
-    gpar::GBooleanAdaptor,
-    gpar::GInt32GaussAdaptor,
-    gpar::GDoubleBiGaussAdaptor,
-    gpar::GFloatBiGaussAdaptor,
-    gpar::GFloatGaussAdaptor,
-    gpar::GDoubleGaussAdaptor
-) {
-    Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
-}
-
-TEMPLATE_TEST_CASE(
-    "StandardTests_no_failure_expected — data types",
-    "[geneva][standard]",
-    gpar::GBooleanObject,
-    gpar::GInt32Object,
-    gpar::GDoubleObject,
-    gpar::GFloatObject,
-    gpar::GConstrainedInt32Object,
-    gpar::GConstrainedDoubleObject,
-    gpar::GConstrainedFloatObject
-) {
-    Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
-}
-
-TEMPLATE_TEST_CASE(
-    "StandardTests_no_failure_expected — object collection types",
-    "[geneva][standard]",
-    gpar::GParameterObjectCollection,
-    gpar::GBooleanObjectCollection,
-    gpar::GInt32ObjectCollection,
-    gpar::GConstrainedInt32ObjectCollection,
-    gpar::GDoubleObjectCollection,
-    gpar::GFloatObjectCollection,
-    gpar::GConstrainedDoubleObjectCollection,
-    gpar::GConstrainedFloatObjectCollection
-) {
-    Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
-}
-
-TEMPLATE_TEST_CASE(
-    "StandardTests_no_failure_expected — pod collection types",
-    "[geneva][standard]",
-    gpar::GInt32Collection,
-    gpar::GDoubleCollection,
-    gpar::GFloatCollection,
-    gpar::GBooleanCollection,
-    gpar::GConstrainedDoubleCollection,
-    gpar::GConstrainedFloatCollection
-) {
-    Gem::Geneva::Tests::StandardTests_no_failure_expected<TestType>();
-}
 
 TEMPLATE_TEST_CASE(
     "StandardTests_no_failure_expected — trait types",
@@ -271,62 +187,6 @@ TEMPLATE_TEST_CASE(
 // ============================================================================
 // Standard tests — failures expected
 // ============================================================================
-
-TEMPLATE_TEST_CASE(
-    "StandardTests_failures_expected — adaptor types",
-    "[geneva][standard][failures-expected]",
-    gpar::GInt32FlipAdaptor,
-    gpar::GBooleanAdaptor,
-    gpar::GInt32GaussAdaptor,
-    gpar::GDoubleBiGaussAdaptor,
-    gpar::GFloatBiGaussAdaptor,
-    gpar::GFloatGaussAdaptor,
-    gpar::GDoubleGaussAdaptor
-) {
-    Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
-}
-
-TEMPLATE_TEST_CASE(
-    "StandardTests_failures_expected — data types",
-    "[geneva][standard][failures-expected]",
-    gpar::GBooleanObject,
-    gpar::GInt32Object,
-    gpar::GDoubleObject,
-    gpar::GFloatObject,
-    gpar::GConstrainedInt32Object,
-    gpar::GConstrainedDoubleObject,
-    gpar::GConstrainedFloatObject
-) {
-    Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
-}
-
-TEMPLATE_TEST_CASE(
-    "StandardTests_failures_expected — object collection types",
-    "[geneva][standard][failures-expected]",
-    gpar::GParameterObjectCollection,
-    gpar::GBooleanObjectCollection,
-    gpar::GInt32ObjectCollection,
-    gpar::GConstrainedInt32ObjectCollection,
-    gpar::GDoubleObjectCollection,
-    gpar::GFloatObjectCollection,
-    gpar::GConstrainedDoubleObjectCollection,
-    gpar::GConstrainedFloatObjectCollection
-) {
-    Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
-}
-
-TEMPLATE_TEST_CASE(
-    "StandardTests_failures_expected — pod collection types",
-    "[geneva][standard][failures-expected]",
-    gpar::GInt32Collection,
-    gpar::GDoubleCollection,
-    gpar::GFloatCollection,
-    gpar::GBooleanCollection,
-    gpar::GConstrainedDoubleCollection,
-    gpar::GConstrainedFloatCollection
-) {
-    Gem::Geneva::Tests::StandardTests_failures_expected<TestType>();
-}
 
 TEMPLATE_TEST_CASE(
     "StandardTests_failures_expected — trait types",
@@ -565,8 +425,8 @@ TEST_CASE(
     }
 }
 
-// Safety net for the gpar::GTreeGenome serialize()/load_()/compare_() unification
-// onto a single localMembers() declaration. GTreeGenome is the central serialised
+// Safety net for the GOptimizableEntity serialize()/load_()/compare_() unification
+// onto a single localMembers() declaration. GOptimizableEntity is the central serialised
 // base for all individuals. This test sets several of its members to non-default
 // values -- in particular use_random_crash_ / random_crash_prob_, which serialize()
 // stored but the old load_()/compare_() silently ignored (a real member-drop bug,

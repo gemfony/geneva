@@ -27,12 +27,7 @@
 #
 ################################################################################
 
-ADD_SUBDIRECTORY ( GBooleanProbabilityTest )
 ADD_SUBDIRECTORY ( GCommandContainerSerialization )
-ADD_SUBDIRECTORY ( GConstrainedFPTTest )
-ADD_SUBDIRECTORY ( GConstrainedIntegerTTest )
-ADD_SUBDIRECTORY ( GDoubleBiGaussAdaptorTest )
-ADD_SUBDIRECTORY ( GDoubleGaussAdaptorTest )
 ADD_SUBDIRECTORY ( GParameterPropertyParserTest )
 ADD_SUBDIRECTORY ( GRandomWalk )
 ADD_SUBDIRECTORY ( GResetToOptimizationStartTest )

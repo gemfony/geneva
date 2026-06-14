@@ -62,7 +62,6 @@
 #include "geneva/ind/GAuxiliaryStore.hpp"
 #include "geneva/Interface/GMutableI.hpp"
 #include "geneva/Interface/GRateableI.hpp"
-#include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "hap/GRandomT.hpp"
 

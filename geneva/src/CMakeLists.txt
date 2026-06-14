@@ -29,40 +29,11 @@
 
 SET ( OPTIMIZATIONSOURCES
 	Interface/GRateableI.cpp
-	par/GAdaptorT.cpp
-	par/GBooleanAdaptor.cpp
-	par/GBooleanCollection.cpp
-	par/GBooleanObject.cpp
-	par/GBooleanObjectCollection.cpp
-	par/GConstrainedDoubleCollection.cpp
-	par/GConstrainedDoubleObject.cpp
-	par/GConstrainedDoubleObjectCollection.cpp
-	par/GConstrainedFloatObject.cpp
-	par/GConstrainedFloatObjectCollection.cpp
-	par/GConstrainedFloatCollection.cpp
-	par/GConstrainedInt32Object.cpp
-	par/GConstrainedInt32ObjectCollection.cpp
-	par/GDoubleBiGaussAdaptor.cpp
-	par/GDoubleCollection.cpp
-	par/GDoubleGaussAdaptor.cpp
-	par/GDoubleObject.cpp
-	par/GDoubleObjectCollection.cpp
-	par/GFloatBiGaussAdaptor.cpp
-	par/GFloatGaussAdaptor.cpp
-	par/GFloatObject.cpp
-	par/GFloatObjectCollection.cpp
-	par/GFloatCollection.cpp
-	GenevaHelperFunctionsT.cpp
 	GenevaHelperFunctions.cpp
 	GConsumerSetup.cpp
 	GenevaInitializer.cpp
 	GIndividualMultiConstraint.cpp
 	GOptimizableEntityCommandContainerExport.cpp
-	par/GInt32Collection.cpp
-	par/GInt32FlipAdaptor.cpp
-	par/GInt32GaussAdaptor.cpp
-	par/GInt32Object.cpp
-	par/GInt32ObjectCollection.cpp
 	Go2.cpp
     oa/GOptimizationAlgorithmBase.cpp
     oa/GLineSearch.cpp
@@ -74,11 +45,8 @@ SET ( OPTIMIZATIONSOURCES
     oa/GBaseParChildPersonalityTraits.cpp
 	GOptimizationEnums.cpp
 	GSigHupHandler.cpp
-	par/GParameterBase.cpp
-	par/GParameterObjectCollection.cpp
 	par/GParameterPropertyParser.cpp
 	ind/GOptimizableEntity.cpp
-	ind/GTreeGenome.cpp
 	ind/GFlatGenome.cpp
 	par/GOptimizableEntityFixedSizePriorityQueue.cpp
 	par/GOptimizableEntityMultiConstraint.cpp

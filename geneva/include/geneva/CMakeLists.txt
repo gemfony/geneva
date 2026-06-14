@@ -1,5 +1,4 @@
 SET ( OPTIMIZATIONINCLUDES
-	GenevaHelperFunctionsT.hpp
     GenevaHelperFunctions.hpp
 	GenevaInitializer.hpp
 	GIndividualMultiConstraint.hpp
@@ -16,67 +15,12 @@ SET ( OPTIMIZATIONINCLUDES
 # Parameter / adaptor object hierarchy (namespace Gem::Geneva::Parameters),
 # installed under geneva/par to mirror the `gpar` alias.
 SET ( PARAM_INCLUDES
-    par/GAdaptorT.hpp
-    par/GBooleanAdaptor.hpp
-    par/GBooleanCollection.hpp
-    par/GBooleanObject.hpp
-    par/GBooleanObjectCollection.hpp
-    par/GConstrainedDoubleCollection.hpp
-    par/GConstrainedDoubleObject.hpp
-    par/GConstrainedDoubleObjectCollection.hpp
-    par/GConstrainedFPNumCollectionT.hpp
-    par/GConstrainedFPT.hpp
-    par/GConstrainedFloatObject.hpp
-    par/GConstrainedFloatObjectCollection.hpp
-    par/GConstrainedFloatCollection.hpp
-    par/GConstrainedInt32Object.hpp
-    par/GConstrainedInt32ObjectCollection.hpp
-    par/GConstrainedIntT.hpp
-    par/GConstrainedNumCollectionT.hpp
-    par/GConstrainedNumT.hpp
-    par/GConstrainedValueLimitT.hpp
-    par/GDoubleBiGaussAdaptor.hpp
-    par/GDoubleCollection.hpp
-    par/GDoubleGaussAdaptor.hpp
-    par/GDoubleObject.hpp
-    par/GDoubleObjectCollection.hpp
-    par/GFloatBiGaussAdaptor.hpp
-    par/GFloatGaussAdaptor.hpp
-    par/GFloatObject.hpp
-    par/GFloatObjectCollection.hpp
-    par/GFloatCollection.hpp
-    par/GFPBiGaussAdaptorT.hpp
-    par/GFPGaussAdaptorT.hpp
-    par/GFPNumCollectionT.hpp
-    par/GInt32Collection.hpp
-    par/GInt32FlipAdaptor.hpp
-    par/GInt32GaussAdaptor.hpp
-    par/GInt32Object.hpp
-    par/GInt32ObjectCollection.hpp
-    par/GIntFlipAdaptorT.hpp
-    par/GIntGaussAdaptorT.hpp
-    par/GIntNumCollectionT.hpp
-    par/GMutableParameterI.hpp
-    par/GNumBiGaussAdaptorT.hpp
-    par/GNumCollectionT.hpp
-    par/GNumFlipAdaptorT.hpp
-    par/GNumFPT.hpp
-    par/GNumGaussAdaptorT.hpp
-    par/GNumIntT.hpp
-    par/GNumT.hpp
-    par/GParameterBase.hpp
-    par/GParameterBaseWithAdaptorsT.hpp
-    par/GParameterCollectionT.hpp
-    par/GParameterObjectCollection.hpp
     par/GParameterPropertyParser.hpp
     ind/GAuxiliaryStore.hpp
     ind/GOptimizableEntity.hpp
-    ind/GTreeGenome.hpp
     par/GOptimizableEntityFactory.hpp
     par/GOptimizableEntityFixedSizePriorityQueue.hpp
     par/GOptimizableEntityMultiConstraint.hpp
-    par/GParameterT.hpp
-    par/GParameterTCollectionT.hpp
 )
 
 # Optimization-algorithm headers (namespace Gem::Geneva::OptimizationAlgorithms),
