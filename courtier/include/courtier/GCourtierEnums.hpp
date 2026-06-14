@@ -274,11 +274,11 @@ constexpr std::size_t DEFAULTMAXRESUBMISSIONS = 5;
 using ITERATION_COUNTER_TYPE = std::uint64_t;
 using RESUBMISSION_COUNTER_TYPE = std::size_t;
 using COLLECTION_POSITION_TYPE = std::size_t;
-using BUFFERPORT_ID_TYPE = std::uint32_t;
+using CORRELATION_ID_TYPE = std::uint32_t;
 
 /******************************************************************************/
 
-const BUFFERPORT_ID_TYPE MAXREGISTEREDBUFFERPORTS =
+const CORRELATION_ID_TYPE MAXREGISTEREDBUFFERPORTS =
     1000; ///< The maximum number of registered buffer ports in the broker
 
 /******************************************************************************/

@@ -221,7 +221,7 @@ private:
         // liveness-driven put-back, no time lease needed (see usesTimeLease()). A prefetching client may
         // hold several items at once, so the lease tracks the whole in-flight set, not just the latest.
         auto lease = std::make_shared<typename GNetworkedConsumerT<processable_type>::CheckoutLease>();
-        lease->on_abandon = [w = this->weak_from_this()](Gem::Courtier::BUFFERPORT_ID_TYPE id) {
+        lease->on_abandon = [w = this->weak_from_this()](Gem::Courtier::CORRELATION_ID_TYPE id) {
             if(auto s = w.lock()) {
                 s->requeue(id);
             }

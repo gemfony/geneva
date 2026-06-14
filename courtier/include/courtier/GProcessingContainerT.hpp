@@ -108,10 +108,10 @@ class GProcessingContainerT {
             BOOST_SERIALIZATION_NVP(pre_processing_time_) &
             BOOST_SERIALIZATION_NVP(processing_time_) &
             BOOST_SERIALIZATION_NVP(post_processing_time_) &
-            BOOST_SERIALIZATION_NVP(bufferport_raw_retrieval_time_) &
-            BOOST_SERIALIZATION_NVP(bufferport_raw_submission_time_) &
-            BOOST_SERIALIZATION_NVP(bufferport_proc_retrieval_time_) &
-            BOOST_SERIALIZATION_NVP(bufferport_proc_submission_time_) &
+            BOOST_SERIALIZATION_NVP(broker_raw_retrieval_time_) &
+            BOOST_SERIALIZATION_NVP(broker_raw_submission_time_) &
+            BOOST_SERIALIZATION_NVP(broker_proc_retrieval_time_) &
+            BOOST_SERIALIZATION_NVP(broker_proc_submission_time_) &
             BOOST_SERIALIZATION_NVP(stored_results_cnt_) &
             BOOST_SERIALIZATION_NVP(stored_error_descriptions_) &
             BOOST_SERIALIZATION_NVP(processing_status_);
@@ -150,10 +150,10 @@ public:
       , pre_processing_time_(cp.pre_processing_time_)
       , processing_time_(cp.processing_time_)
       , post_processing_time_(cp.post_processing_time_)
-      , bufferport_raw_retrieval_time_(cp.bufferport_raw_retrieval_time_)
-      , bufferport_raw_submission_time_(cp.bufferport_raw_submission_time_)
-      , bufferport_proc_retrieval_time_(cp.bufferport_proc_retrieval_time_)
-      , bufferport_proc_submission_time_(cp.bufferport_proc_submission_time_)
+      , broker_raw_retrieval_time_(cp.broker_raw_retrieval_time_)
+      , broker_raw_submission_time_(cp.broker_raw_submission_time_)
+      , broker_proc_retrieval_time_(cp.broker_proc_retrieval_time_)
+      , broker_proc_submission_time_(cp.broker_proc_submission_time_)
       , stored_results_cnt_(
             cp.stored_results_cnt_
         ) // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
@@ -180,10 +180,10 @@ public:
         pre_processing_time_ = cp.pre_processing_time_;
         processing_time_ = cp.processing_time_;
         post_processing_time_ = cp.post_processing_time_;
-        bufferport_raw_retrieval_time_ = cp.bufferport_raw_retrieval_time_;
-        bufferport_raw_submission_time_ = cp.bufferport_raw_submission_time_;
-        bufferport_proc_retrieval_time_ = cp.bufferport_proc_retrieval_time_;
-        bufferport_proc_submission_time_ = cp.bufferport_proc_submission_time_;
+        broker_raw_retrieval_time_ = cp.broker_raw_retrieval_time_;
+        broker_raw_submission_time_ = cp.broker_raw_submission_time_;
+        broker_proc_retrieval_time_ = cp.broker_proc_retrieval_time_;
+        broker_proc_submission_time_ = cp.broker_proc_submission_time_;
         stored_results_cnt_ =
             cp.stored_results_cnt_; // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
         stored_error_descriptions_ = cp.stored_error_descriptions_;
@@ -663,7 +663,7 @@ public:
 	  * transport layer (the originating buffer-port index in the courtier broker; a (generation,
 	  * slot) token in the courtier networked consumers).
 	  */
-    void setCorrelationId(const BUFFERPORT_ID_TYPE &id) noexcept {
+    void setCorrelationId(const CORRELATION_ID_TYPE &id) noexcept {
         correlation_id_ = id;
     }
 
@@ -671,7 +671,7 @@ public:
     /**
 	  * Retrieves the transport correlation id (see setCorrelationId()).
 	  */
-    BUFFERPORT_ID_TYPE getCorrelationId() const noexcept {
+    CORRELATION_ID_TYPE getCorrelationId() const noexcept {
         return correlation_id_;
     }
 
@@ -698,7 +698,7 @@ public:
 	  * Allows to retrieve the timepoint when a work item was retrieved from the raw queue
 	  */
     std::chrono::high_resolution_clock::time_point getRawRetrievalTime() const {
-        return bufferport_raw_retrieval_time_;
+        return broker_raw_retrieval_time_;
     }
 
     /***************************************************************************/
@@ -706,7 +706,7 @@ public:
 	  * Allows to retrieve the timepoint when a work item was submitted to the raw queue
 	  */
     std::chrono::high_resolution_clock::time_point getRawSubmissionTime() const {
-        return bufferport_raw_submission_time_;
+        return broker_raw_submission_time_;
     }
 
     /***************************************************************************/
@@ -714,7 +714,7 @@ public:
 	  * Allows to retrieve the timepoint when a work item was retrieved from the processed queue
 	  */
     std::chrono::high_resolution_clock::time_point getProcRetrievalTime() const {
-        return bufferport_proc_retrieval_time_;
+        return broker_proc_retrieval_time_;
     }
 
     /***************************************************************************/
@@ -722,7 +722,7 @@ public:
 	  * Allows to retrieve the timepoint when a work item was submitted to the processed queue
 	  */
     std::chrono::high_resolution_clock::time_point getProcSubmissionTime() const {
-        return bufferport_proc_submission_time_;
+        return broker_proc_submission_time_;
     }
 
     /***************************************************************************/
@@ -825,7 +825,7 @@ public:
  	  * Marks the time when the item was added to a GBuffferPortT raw queue
  	  */
     void markRawSubmissionTime() {
-        bufferport_raw_submission_time_ = std::chrono::high_resolution_clock::now();
+        broker_raw_submission_time_ = std::chrono::high_resolution_clock::now();
     }
 
     /***************************************************************************/
@@ -833,7 +833,7 @@ public:
  	  * Marks the time when the item was retrieved from a GBuffferPortT raw queue
  	  */
     void markRawRetrievalTime() {
-        bufferport_raw_retrieval_time_ = std::chrono::high_resolution_clock::now();
+        broker_raw_retrieval_time_ = std::chrono::high_resolution_clock::now();
     }
 
     /***************************************************************************/
@@ -841,7 +841,7 @@ public:
 	  * Marks the time when the item was submitted to a GBuffferPortT processed queue
 	  */
     void markProcSubmissionTime() {
-        bufferport_proc_submission_time_ = std::chrono::high_resolution_clock::now();
+        broker_proc_submission_time_ = std::chrono::high_resolution_clock::now();
     }
 
     /***************************************************************************/
@@ -849,7 +849,7 @@ public:
 	  * Marks the time when the item was retrieved from a GBuffferPortT processed queue
 	  */
     void markProcRetrievalTime() {
-        bufferport_proc_retrieval_time_ = std::chrono::high_resolution_clock::now();
+        broker_proc_retrieval_time_ = std::chrono::high_resolution_clock::now();
     }
 
     /***************************************************************************/
@@ -881,10 +881,10 @@ public:
         pre_processing_time_ = p_load->pre_processing_time_;
         processing_time_ = p_load->processing_time_;
         post_processing_time_ = p_load->post_processing_time_;
-        bufferport_raw_submission_time_ = p_load->bufferport_raw_submission_time_;
-        bufferport_raw_retrieval_time_ = p_load->bufferport_raw_retrieval_time_;
-        bufferport_proc_submission_time_ = p_load->bufferport_proc_submission_time_;
-        bufferport_proc_retrieval_time_ = p_load->bufferport_proc_retrieval_time_;
+        broker_raw_submission_time_ = p_load->broker_raw_submission_time_;
+        broker_raw_retrieval_time_ = p_load->broker_raw_retrieval_time_;
+        broker_proc_submission_time_ = p_load->broker_proc_submission_time_;
+        broker_proc_retrieval_time_ = p_load->broker_proc_retrieval_time_;
         stored_results_cnt_ =
             p_load
                 ->stored_results_cnt_; // note that this implies that processing_result_type is copyable --> e.g. it should not contain pointers
@@ -1049,7 +1049,7 @@ private:
     ITERATION_COUNTER_TYPE iteration_counter_ = static_cast<ITERATION_COUNTER_TYPE>(0);
     RESUBMISSION_COUNTER_TYPE resubmission_counter_ = static_cast<RESUBMISSION_COUNTER_TYPE>(0);
     COLLECTION_POSITION_TYPE collection_position_ = static_cast<COLLECTION_POSITION_TYPE>(0);
-    BUFFERPORT_ID_TYPE correlation_id_ = BUFFERPORT_ID_TYPE();
+    CORRELATION_ID_TYPE correlation_id_ = CORRELATION_ID_TYPE();
 
     /// Transient, server-side-only per-batch scheduling state for the courtier networked consumers.
     /// Deliberately NOT part of serialize()/load_ (the wire/clone never needs it; see dispatchState).
@@ -1072,13 +1072,13 @@ private:
         0.; ///< The amount of time needed for post-processing (in seconds)
 
     std::chrono::high_resolution_clock::time_point
-        bufferport_raw_retrieval_time_; ///< Time when the item was retrieved from the raw queue
+        broker_raw_retrieval_time_; ///< Time when the item was retrieved from the raw queue
     std::chrono::high_resolution_clock::time_point
-        bufferport_raw_submission_time_; ///< Time when the item was submitted to the raw queue
+        broker_raw_submission_time_; ///< Time when the item was submitted to the raw queue
     std::chrono::high_resolution_clock::time_point
-        bufferport_proc_retrieval_time_; ///< Time when the item was retrieved from the processed queue
+        broker_proc_retrieval_time_; ///< Time when the item was retrieved from the processed queue
     std::chrono::high_resolution_clock::time_point
-        bufferport_proc_submission_time_; ///< Time when the item was submitted to the processed queue
+        broker_proc_submission_time_; ///< Time when the item was submitted to the processed queue
 
     std::vector<processing_result_type> stored_results_cnt_ = std::vector<processing_result_type>(
         1,

@@ -45,7 +45,7 @@
 #include <vector>
 
 // Geneva headers
-#include "courtier/GCourtierEnums.hpp" // BUFFERPORT_ID_TYPE, dispatchState
+#include "courtier/GCourtierEnums.hpp" // CORRELATION_ID_TYPE, dispatchState
 #include "courtier/GBaseConsumerT.hpp"
 
 namespace Gem::Courtier {
@@ -134,8 +134,8 @@ protected:
         // Items travel by unique_ptr, so the lease cannot co-own them: it tracks only the in-flight
         // correlation ids (a borrow). The owning copy stays in the consumer's batch; on abandon the
         // lease asks the consumer to requeue those ids.
-        std::set<Gem::Courtier::BUFFERPORT_ID_TYPE> in_flight;
-        std::function<void(Gem::Courtier::BUFFERPORT_ID_TYPE)> on_abandon;
+        std::set<Gem::Courtier::CORRELATION_ID_TYPE> in_flight;
+        std::function<void(Gem::Courtier::CORRELATION_ID_TYPE)> on_abandon;
 
         CheckoutLease() = default;
         CheckoutLease(const CheckoutLease &) = delete;
@@ -158,7 +158,7 @@ protected:
             in_flight.erase(p->getCorrelationId());
         }
         ~CheckoutLease() {
-            std::set<Gem::Courtier::BUFFERPORT_ID_TYPE> remaining;
+            std::set<Gem::Courtier::CORRELATION_ID_TYPE> remaining;
             {
                 std::lock_guard<std::mutex> lk(mtx);
                 remaining.swap(in_flight);
@@ -202,7 +202,7 @@ protected:
             return;
         }
         std::lock_guard<std::mutex> lk(mtx_);
-        const Gem::Courtier::BUFFERPORT_ID_TYPE id = p->getCorrelationId();
+        const Gem::Courtier::CORRELATION_ID_TYPE id = p->getCorrelationId();
         auto it = batches_.find(decodeBatch(id));
         if(it == batches_.end()) {
             return; // batch no longer active: a late arrival from a timed-out/finished batch
@@ -235,7 +235,7 @@ protected:
      *  immediately (the RAII put-back on a client disconnect). Caller passes the item it checked out;
      *  the batch+slot are located via its correlation id. A no-op if the batch moved on or the slot is
      *  no longer in flight. */
-    void requeue(Gem::Courtier::BUFFERPORT_ID_TYPE id) {
+    void requeue(Gem::Courtier::CORRELATION_ID_TYPE id) {
         std::lock_guard<std::mutex> lk(mtx_);
         auto it = batches_.find(decodeBatch(id));
         if(it == batches_.end()) {
@@ -342,19 +342,19 @@ private:
     // this bounds a single batch to 2^16 items (ample for any Geneva population) and the batch_id
     // wraps every 2^16 dispatch rounds -- a harmless, astronomically unlikely aliasing, since a stale
     // return only matters within a timeout window of its dispatch.
-    using batch_key_t = Gem::Courtier::BUFFERPORT_ID_TYPE;
-    static constexpr Gem::Courtier::BUFFERPORT_ID_TYPE SLOT_BITS = 16;
-    static constexpr Gem::Courtier::BUFFERPORT_ID_TYPE SLOT_MASK = (1u << SLOT_BITS) - 1u;
-    static constexpr Gem::Courtier::BUFFERPORT_ID_TYPE BATCH_MASK = 0xFFFFu;
+    using batch_key_t = Gem::Courtier::CORRELATION_ID_TYPE;
+    static constexpr Gem::Courtier::CORRELATION_ID_TYPE SLOT_BITS = 16;
+    static constexpr Gem::Courtier::CORRELATION_ID_TYPE SLOT_MASK = (1u << SLOT_BITS) - 1u;
+    static constexpr Gem::Courtier::CORRELATION_ID_TYPE BATCH_MASK = 0xFFFFu;
 
-    static Gem::Courtier::BUFFERPORT_ID_TYPE encodeId(batch_key_t batch, std::size_t slot) {
+    static Gem::Courtier::CORRELATION_ID_TYPE encodeId(batch_key_t batch, std::size_t slot) {
         return ((batch & BATCH_MASK) << SLOT_BITS)
-               | (static_cast<Gem::Courtier::BUFFERPORT_ID_TYPE>(slot) & SLOT_MASK);
+               | (static_cast<Gem::Courtier::CORRELATION_ID_TYPE>(slot) & SLOT_MASK);
     }
-    static batch_key_t decodeBatch(Gem::Courtier::BUFFERPORT_ID_TYPE id) {
+    static batch_key_t decodeBatch(Gem::Courtier::CORRELATION_ID_TYPE id) {
         return (id >> SLOT_BITS) & BATCH_MASK;
     }
-    static std::size_t decodeSlot(Gem::Courtier::BUFFERPORT_ID_TYPE id) {
+    static std::size_t decodeSlot(Gem::Courtier::CORRELATION_ID_TYPE id) {
         return static_cast<std::size_t>(id & SLOT_MASK);
     }
 
