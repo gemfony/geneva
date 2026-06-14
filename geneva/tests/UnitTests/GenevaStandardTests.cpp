@@ -572,9 +572,9 @@ TEST_CASE(
 // stored but the old load_()/compare_() silently ignored (a real member-drop bug,
 // fixed by deriving all three from localMembers()) -- and checks they survive both a
 // wire round-trip AND an in-memory load() (clone path). Exercised on the concrete
-// GTestIndividual1 (a GTreeGenome subclass).
+// GTestIndividual1 (a GFlatGenome subclass).
 TEST_CASE(
-    "gpar::GTreeGenome (via GTestIndividual1) round-trips its members incl. the random-crash settings",
+    "GOptimizableEntity (via GTestIndividual1) round-trips its members incl. the random-crash settings",
     "[geneva][serialization]"
 ) {
     using Gem::Common::serializationMode;
@@ -598,7 +598,7 @@ TEST_CASE(
         CHECK(restored.getMaxMode() == maxMode::MAXIMIZE);
 
         GEqualityPrinter gep(
-            "GTreeGenome-load-roundtrip",
+            "GFlatGenome-load-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
         );

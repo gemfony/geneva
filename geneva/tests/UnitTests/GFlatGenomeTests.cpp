@@ -51,7 +51,6 @@
 #include "geneva/ind/GGenomeArchitecture.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/individuals/GNeuralNetworkIndividual.hpp"
-#include "geneva/individuals/GTestIndividual1.hpp"
 
 using namespace Gem::Geneva;
 using namespace Gem::Geneva::Parameters;
@@ -663,19 +662,6 @@ TEST_CASE("GNeuralNetworkArchitecture computes per-layer weight offsets", "[arch
 }
 
 /******************************************************************************/
-TEST_CASE("GGridArchitecture reads a TREE genome identically (layout-agnostic)", "[architecture]") {
-    // The same semantic architecture, applied to a TREE individual, proves it never learns the
-    // concrete genome implementation -- it only uses the genome-agnostic streamlineFP() seam.
-    Gem::Geneva::Individuals::GTestIndividual1 tree_ind;
-
-    std::vector<double> flat;
-    tree_ind.streamlineFP(flat);
-    REQUIRE(flat.size() >= 100);
-
-    GGridArchitecture grid(10, 10); // a 10x10 view over the first 100 FP values
-    for(std::size_t r = 0; r < grid.rows(); ++r) {
-        for(std::size_t c = 0; c < grid.cols(); ++c) {
-            CHECK(grid.at(tree_ind, r, c) == flat[r * grid.cols() + c]);
-        }
-    }
-}
+// NOTE: the former "GGridArchitecture reads a TREE genome identically" case was removed when the
+// tree hierarchy was deleted (Phase 7). The "[flat][architecture]" case above already proves the
+// architecture is layout-agnostic by reading the genome purely through the §2 streamlineFP() seam.

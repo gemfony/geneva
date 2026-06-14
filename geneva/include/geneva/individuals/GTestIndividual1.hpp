@@ -46,13 +46,9 @@
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
-#include "geneva/par/GConstrainedDoubleObject.hpp"
-#include "geneva/par/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/par/GDoubleCollection.hpp"
-#include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/par/GDoubleObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
@@ -68,7 +64,7 @@ namespace Gem::Geneva::Individuals {
  * weakening data protection.
  */
 class GTestIndividual1 // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gpar::GTreeGenome {
+  : public gpar::GFlatGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -76,7 +72,7 @@ class GTestIndividual1 // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GTreeGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -123,10 +119,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    gpar::GTreeGenome *clone_() const final;
-
-    /** @brief Adds a number of GDoubleObject objects to the individual */
-    void addGDoubleObjects_(const std::size_t &);
+    gpar::GFlatGenome *clone_() const final;
 };
 
 /******************************************************************************/

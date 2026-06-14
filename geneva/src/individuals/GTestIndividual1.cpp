@@ -37,11 +37,8 @@
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
-#include "geneva/par/GDoubleCollection.hpp"
-#include "geneva/par/GDoubleGaussAdaptor.hpp"
-#include "geneva/par/GDoubleObject.hpp"
-#include "geneva/par/GParameterBase.hpp"
-#include "geneva/ind/GTreeGenome.hpp"
+#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenomeBuilder.hpp"
 #include <cstddef>
 #include <memory>
 #include <vector>
@@ -59,20 +56,18 @@ namespace Gem::Geneva::Individuals {
  * The default constructor.
  */
 GTestIndividual1::GTestIndividual1() {
-    // Fill with some data
-    std::shared_ptr<gpar::GDoubleCollection> gdc_ptr(
-        new gpar::GDoubleCollection(100, -10., 10.)
-    );
-    std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga1(
-        new gpar::GDoubleGaussAdaptor(0.025, 0.1, 0., 1.)
-    );
+    using namespace Gem::Geneva;
 
-    // Prevent changes to adProb_
-    gdga1->setAdaptAdProb(0.);
+    // 100 unbounded doubles (init perimeter [-10, 10]) sharing one Gauss adaptor
+    // (the flat equivalent of a GDoubleCollection(100, -10, 10) with one
+    // GDoubleGaussAdaptor(0.025, 0.1, 0., 1.)). The builder's default adapt_ad_prob == 0
+    // reproduces the old setAdaptAdProb(0.) ("prevent changes to adProb_").
+    gpar::GGenomeBuilder b;
+    b.addDoublePlainGroup(100, -10., 10.).gaussAdaptor(0.025, 0.1, 0., 1., 1.);
+    this->setGenome(b.build());
 
-    gdc_ptr->addAdaptor(gdga1);
-    gdc_ptr->randomInit(Gem::Geneva::activityMode::ACTIVEONLY, gr_);
-    this->push_back(gdc_ptr);
+    // Random per-parameter initialisation, mirroring the tree's randomInit.
+    this->randomInit(activityMode::ACTIVEONLY);
 }
 
 /******************************************************************************/
@@ -80,7 +75,7 @@ GTestIndividual1::GTestIndividual1() {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GTreeGenome object
+ * @param cp A constant reference to another GFlatGenome object
  * @param e The expected outcome of the comparison
  */
 void GTestIndividual1::compare_(
@@ -98,7 +93,7 @@ void GTestIndividual1::compare_(
     GToken token("GTestIndividual1", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GTreeGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
 
     // ... no local data
 
@@ -108,9 +103,9 @@ void GTestIndividual1::compare_(
 
 /******************************************************************************/
 /**
- * Loads the data of another GTestIndividual1, camouflaged as a GTreeGenome.
+ * Loads the data of another GTestIndividual1, camouflaged as a GFlatGenome.
  *
- * @param cp A copy of another GTestIndividual1, camouflaged as a GTreeGenome
+ * @param cp A copy of another GTestIndividual1, camouflaged as a GFlatGenome
  */
 void GTestIndividual1::load_(const gpar::GOptimizableEntity *cp) {
     using namespace Gem::Common;
@@ -121,7 +116,7 @@ void GTestIndividual1::load_(const gpar::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GTestIndividual1>(cp, this);
 
     // Load our parent's data
-    gpar::GTreeGenome::load_(cp);
+    gpar::GFlatGenome::load_(cp);
 
     // No local data
 }
@@ -130,9 +125,9 @@ void GTestIndividual1::load_(const gpar::GOptimizableEntity *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GTreeGenome
+ * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GTreeGenome *GTestIndividual1::clone_() const {
+gpar::GFlatGenome *GTestIndividual1::clone_() const {
     return new GTestIndividual1(*this);
 }
 
@@ -145,12 +140,11 @@ gpar::GTreeGenome *GTestIndividual1::clone_() const {
 double GTestIndividual1::fitnessCalculation() {
     double result = 0.;
 
-    // Extract the first Gem::Geneva::Parameters::GDoubleCollection object. In a realistic scenario, you might want
-    // to add error checks here upon first invocation.
-    std::shared_ptr<gpar::GDoubleCollection> v_c = at<gpar::GDoubleCollection>(0);
+    // Read the flat double values and calculate the value of the parabola.
+    std::vector<double> par_vec;
+    this->streamline(par_vec);
 
-    // Calculate the value of the parabola
-    for(double i : *v_c) {
+    for(double i : par_vec) {
         result += i * i;
     }
 
@@ -172,7 +166,7 @@ bool GTestIndividual1::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gpar::GTreeGenome::modify_GUnitTests_()) {
+    if(gpar::GFlatGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -188,62 +182,14 @@ bool GTestIndividual1::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Adds a number of GDoubleObject objects to the individual
- *
- * @param n_items The number of items to be added
- */
-void GTestIndividual1::addGDoubleObjects_(const std::size_t &n_items) {
-#ifdef GEM_TESTING
-    using namespace Gem::Geneva;
-
-    // Clear the collection, so we can start fresh
-    CHECK_NOTHROW(this->clear());
-
-    // Add GDoubleObject items with adaptors to p_test1
-    for(std::size_t i = 0; i < n_items; i++) {
-        // Create a suitable adaptor
-        std::shared_ptr<gpar::GDoubleGaussAdaptor> gdga_ptr;
-
-        CHECK_NOTHROW(
-            gdga_ptr = std::make_shared<gpar::GDoubleGaussAdaptor>(0.025, 0.1, 0., 1., 1.0)
-        );
-        CHECK_NOTHROW(
-            gdga_ptr->setAdaptionThreshold(0)
-        ); // Make sure the adaptor's internal parameters don't change through the adaption
-        CHECK_NOTHROW(gdga_ptr->setAdaptionMode(adaptionMode::ALWAYS)); // Always adapt
-
-        // Create a suitable GDoubleObject object
-        std::shared_ptr<gpar::GDoubleObject> gdo_ptr;
-
-        CHECK_NOTHROW(
-            gdo_ptr = std::make_shared<gpar::GDoubleObject>(-100., 100.)
-        ); // Initialization in the range -100, 100
-
-        // Add the adaptor
-        CHECK_NOTHROW(gdo_ptr->addAdaptor(gdga_ptr));
-
-        // Randomly initialize the GDoubleObject object, so it is unique
-        CHECK_NOTHROW(gdo_ptr->randomInit(Gem::Geneva::activityMode::ACTIVEONLY, gr_));
-
-        // Add the object to the collection
-        CHECK_NOTHROW(this->push_back(gdo_ptr));
-    }
-#endif /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     using namespace Gem::Geneva;
 
-    // A few settings
-    constexpr std::size_t n_items = 100;
-
     // Call the parent classes' functions
-    gpar::GTreeGenome::specificTestsNoFailureExpected_GUnitTests_();
+    gpar::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
@@ -431,7 +377,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
     //------------------------------------------------------------------------------
 
-    { // Check of the GTreeGenome::customAdaptions() function
+    { // Check of the GFlatGenome::customAdaptions() function
         std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test1 =
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
         std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test2 =
@@ -454,9 +400,9 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK_NOTHROW(fitness1_old = p_test1->transformed_fitness(0));
         CHECK_NOTHROW(fitness2_old = p_test2->transformed_fitness(0));
 
-        // Extract and clone the first individual's GDoubleCollection object for later comparisons
-        std::shared_ptr<gpar::GDoubleCollection> gdc_ptr_old =
-            p_test1->at(static_cast<std::size_t>(0))->clone<gpar::GDoubleCollection>();
+        // Snapshot the first individual's flat double values for later comparison
+        std::vector<double> values_old;
+        CHECK_NOTHROW(p_test1->streamline(values_old));
 
         // Adapt and evaluate the first individual
         CHECK_NOTHROW(p_test1->customAdaptions());
@@ -472,12 +418,12 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         // The individuals should now differ
         CHECK(*p_test1 != *p_test2);
 
-        // Extract and clone the first individual's GDoubleCollection object for comparison
-        std::shared_ptr<gpar::GDoubleCollection> gdc_ptr_new =
-            p_test1->at(0)->clone<gpar::GDoubleCollection>();
+        // Snapshot the first individual's flat double values again for comparison
+        std::vector<double> values_new;
+        CHECK_NOTHROW(p_test1->streamline(values_new));
 
-        // Check that both GDoubleCollection objects differ
-        CHECK(*gdc_ptr_old != *gdc_ptr_new);
+        // Check that the value vectors differ
+        CHECK(values_old != values_new);
     }
 
     //------------------------------------------------------------------------------
@@ -618,11 +564,8 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     using namespace Gem::Geneva;
 
-    // A few settings
-    constexpr std::size_t n_items = 100;
-
     // Call the parent classes' functions
-    gpar::GTreeGenome::specificTestsFailuresExpected_GUnitTests_();
+    gpar::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
