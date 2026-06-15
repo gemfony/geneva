@@ -75,6 +75,15 @@ public:
     explicit FlatSphere(std::size_t n) { buildGenome(n); }
     FlatSphere(const FlatSphere &) = default;
 
+    /** @brief The OA-owned Gauss adaption config for this genome's double group(s). */
+    std::shared_ptr<oa::GAdaptionConfigBase> getAdaptionConfig() const {
+        auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
+        for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
+            cfg->groupDouble(i).gauss(0.5, 0.8, 1e-3, 2., 1.);
+        }
+        return cfg;
+    }
+
 protected:
     double fitnessCalculation() override {
         std::vector<double> v;
@@ -89,7 +98,7 @@ protected:
 private:
     void buildGenome(std::size_t n) {
         GGenomeBuilder b;
-        b.addDoubleGroup(n, -10., 10.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.).init(1.0);
+        b.addDoubleGroup(n, -10., 10.).init(1.0); // structure only; the adaptor lives on the OA config
         this->setGenome(b.build());
     }
 
@@ -141,7 +150,7 @@ public:
     /** @brief Builds the value arrays + the shared, immutable layout from the parsed config */
     static Genome buildGenome(const Config &c) {
         GGenomeBuilder b;
-        b.addDoubleGroup(c.par_dim, c.min, c.max).gaussAdaptor(c.sigma, 0.8, 1e-3, 2., 1.);
+        b.addDoubleGroup(c.par_dim, c.min, c.max); // structure only; the adaptor lives on the OA config
         return b.build();
     }
 
@@ -178,7 +187,7 @@ using Gem::Tests::FlatSphere;
 /******************************************************************************/
 TEST_CASE("GGenomeBuilder produces the expected shared layout", "[flat]") {
     GGenomeBuilder b;
-    b.addDoubleGroup(5, -10., 10.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.).init(1.0);
+    b.addDoubleGroup(5, -10., 10.).init(1.0); // structure only -- adaptors are authored on the OA config
     Genome g = b.build();
 
     REQUIRE(g.layout);
@@ -186,16 +195,27 @@ TEST_CASE("GGenomeBuilder produces the expected shared layout", "[flat]") {
     REQUIRE(ch.size() == 5);
     REQUIRE(ch.groups.size() == 1);
 
-    const GroupSpec<double> &grp = ch.groups[0];
+    // The layout's group is STRUCTURE only: start / len / active / range (no adaptor fields).
+    const GroupStructure<double> &grp = ch.groups[0];
     CHECK(grp.start == 0u);
     CHECK(grp.len == 5u);
     CHECK(grp.active);
-    CHECK(grp.has_gauss);
-    CHECK(grp.start_sigma == 0.5);
-    CHECK(grp.gauss.sigma_sigma == 0.8);
-    CHECK(grp.gauss.min_sigma == 1e-3);
-    CHECK(grp.gauss.max_sigma == 2.);
+    CHECK(grp.label_id == -1);
     CHECK(grp.range == 20.); // upper - lower
+
+    // The adaptor itself is authored on the OA-owned config (built from the genome's structure). It
+    // mirrors the builder's old gaussAdaptor(...) one-to-one.
+    FlatSphere ind;
+    ind.setGenome(g);
+    auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(ind);
+    cfg->groupDouble(0).gauss(0.5, 0.8, 1e-3, 2., 1.);
+    const GroupSpec<double> &cgrp = cfg->doubleGroups()[0];
+    CHECK(cgrp.has_gauss);
+    CHECK(cgrp.start_sigma == 0.5);
+    CHECK(cgrp.gauss.sigma_sigma == 0.8);
+    CHECK(cgrp.gauss.min_sigma == 1e-3);
+    CHECK(cgrp.gauss.max_sigma == 2.);
+    CHECK(cgrp.range == 20.); // the structural range is snapshotted into the config too
 
     for(std::size_t k = 0; k < 5; ++k) {
         CHECK(ch.lower[k] == -10.);
@@ -221,10 +241,10 @@ TEST_CASE("GGenomeBuilder: groups vs arrays vs single parameters", "[flat]") {
 /******************************************************************************/
 TEST_CASE("GGenomeBuilder: interned group labels", "[flat]") {
     GGenomeBuilder b;
-    b.addDoubleGroup(3, -1., 1.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.).label("position"); // group 0
-    b.addDoubleGroup(2, -1., 1.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.).label("position"); // group 1
-    b.addDouble(0., -1., 1.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.).label("scale");        // group 2
-    b.addDouble(0., -1., 1.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.);                        // group 3 (unlabeled)
+    b.addDoubleGroup(3, -1., 1.).label("position"); // structural label
+    b.addDoubleGroup(2, -1., 1.).label("position"); // group 1
+    b.addDouble(0., -1., 1.).label("scale");        // group 2
+    b.addDouble(0., -1., 1.);                        // group 3 (unlabeled)
     Genome g = b.build();
 
     std::shared_ptr<const GGenomeLayout> L = g.layout;
@@ -370,7 +390,7 @@ TEST_CASE("GFlatGenome: serialization round-trip", "[flat]") {
 TEST_CASE("GFlatGenome: adapt() mutates within bounds", "[flat]") {
     FlatSphere ind(8);
 
-    oa::StandaloneAdapter adapter(ind);
+    oa::StandaloneAdapter adapter(ind, ind.getAdaptionConfig());
     std::size_t total = 0;
     for(int round = 0; round < 20; ++round) {
         total += adapter.adapt(ind);
@@ -408,12 +428,13 @@ TEST_CASE("GFlatGenome: randomInit stays within bounds and changes values", "[fl
 TEST_CASE("GFlatGenome: OA stall-reset restores sigma to its seed", "[flat][oa]") {
     FlatSphere ind(3);
 
-    // The OA-owned config drives both the sigma readout and the stall-reset (Phase 8 / 10). It is built
-    // from the individual's own shared layout; the per-group adaption STATE is OA-owned scratch (held on
-    // the GIndividualSlot in a live run) -- here a standalone GAuxiliaryStore, seeded from the config.
-    oa::GAdaptionConfigBase cfg(ind);
+    // The OA-owned config drives both the sigma readout and the stall-reset (Phase 8 / 10). It is the
+    // config the individual authors; the per-group adaption STATE is OA-owned scratch (held on the
+    // GIndividualSlot in a live run) -- here a standalone GAuxiliaryStore, seeded from the config.
+    auto cfg_ptr = ind.getAdaptionConfig();
+    auto &cfg = *cfg_ptr;
     GAuxiliaryStore scratch;
-    oa::seedAdaptionStates(ind, scratch);
+    cfg.installInto(scratch);
 
     // Drive the sigma self-adaption (adaption_threshold defaults to 1 -> sigma adapts every step).
     for(int i = 0; i < 30; ++i) {
@@ -444,14 +465,21 @@ class FlatMixed : public GFlatIndividualT<FlatMixed> {
 public:
     FlatMixed() {
         GGenomeBuilder b;
-        b.addDoubleGroup(3, -5., 5.)
-            .biGaussAdaptor(0.5, 0.8, 1e-3, 2., 0.5, 0.8, 1e-3, 2., 0.5, 0.8, 0., 2., 1.)
-            .init(2.0);
-        b.addInt32Group(4, -10, 10).flipAdaptor(1.0).init(3);
-        b.addBoolGroup(5).flipAdaptor(1.0).init(false);
+        b.addDoubleGroup(3, -5., 5.).init(2.0); // structure only; the adaptors live on the OA config
+        b.addInt32Group(4, -10, 10).init(3);
+        b.addBoolGroup(5).init(false);
         this->setGenome(b.build());
     }
     FlatMixed(const FlatMixed &) = default;
+
+    /** @brief The OA-owned config: a bi-Gauss adaptor on the FP group, flip adaptors on the int + bool groups. */
+    std::shared_ptr<oa::GAdaptionConfigBase> getAdaptionConfig() const {
+        auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
+        cfg->groupDouble(0).biGauss(0.5, 0.8, 1e-3, 2., 0.5, 0.8, 1e-3, 2., 0.5, 0.8, 0., 2., 1.);
+        cfg->groupInt32(0).flip(1.0);
+        cfg->groupBool(0).flip(1.0);
+        return cfg;
+    }
 
 protected:
     double fitnessCalculation() override { return 0.; }
@@ -477,13 +505,23 @@ class FlatIntGauss : public GFlatIndividualT<FlatIntGauss> {
 public:
     FlatIntGauss() {
         GGenomeBuilder b;
-        // Gauss-adapted constrained ints in [-50, 50], own state each.
-        b.addInt32Array(3, -50, 50).intGaussAdaptor(0.2, 0.8, 1e-3, 2., 1.).init(0);
-        // Flip-adapted constrained ints in [-10, 10], shared state.
-        b.addInt32Group(2, -10, 10).flipAdaptor(1.0).init(5);
+        // Gauss-adapted constrained ints in [-50, 50], own state each (groups 0..2).
+        b.addInt32Array(3, -50, 50).init(0);
+        // Flip-adapted constrained ints in [-10, 10], shared state (group 3).
+        b.addInt32Group(2, -10, 10).init(5);
         this->setGenome(b.build());
     }
     FlatIntGauss(const FlatIntGauss &) = default;
+
+    /** @brief The OA-owned config: an integer Gauss adaptor on groups 0..2, a flip adaptor on group 3. */
+    std::shared_ptr<oa::GAdaptionConfigBase> getAdaptionConfig() const {
+        auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
+        cfg->groupInt32(0).intGauss(0.2, 0.8, 1e-3, 2., 1.);
+        cfg->groupInt32(1).intGauss(0.2, 0.8, 1e-3, 2., 1.);
+        cfg->groupInt32(2).intGauss(0.2, 0.8, 1e-3, 2., 1.);
+        cfg->groupInt32(3).flip(1.0);
+        return cfg;
+    }
 
 protected:
     double fitnessCalculation() override { return 0.; }
@@ -519,7 +557,7 @@ TEST_CASE("GFlatGenome: flip adaptor mutates int32 and bool channels", "[flat][f
 
     bool int_changed = false;
     bool bool_changed = false;
-    oa::StandaloneAdapter adapter(ind);
+    oa::StandaloneAdapter adapter(ind, ind.getAdaptionConfig());
     for(int round = 0; round < 20; ++round) {
         adapter.adapt(ind);
 
@@ -551,7 +589,7 @@ TEST_CASE("GFlatGenome: bi-gaussian adaptor mutates the FP channel within bounds
     REQUIRE(before.size() == 3);
 
     std::size_t total = 0;
-    oa::StandaloneAdapter adapter(ind);
+    oa::StandaloneAdapter adapter(ind, ind.getAdaptionConfig());
     for(int round = 0; round < 20; ++round) {
         total += adapter.adapt(ind);
         std::vector<double> v;
@@ -567,7 +605,7 @@ TEST_CASE("GFlatGenome: bi-gaussian adaptor mutates the FP channel within bounds
 /******************************************************************************/
 TEST_CASE("GFlatGenome: mixed flip/bigauss genome serialises round-trip", "[flat][flip][bigauss]") {
     FlatMixed ind;
-    oa::StandaloneAdapter adapter(ind);
+    oa::StandaloneAdapter adapter(ind, ind.getAdaptionConfig());
     for(int i = 0; i < 5; ++i) {
         adapter.adapt(ind);
     }
@@ -594,7 +632,7 @@ TEST_CASE("GFlatGenome: integer Gauss adaptor mutates int32 within bounds", "[fl
     REQUIRE(before.size() == 5); // 3 Gauss + 2 flip
 
     bool changed = false;
-    oa::StandaloneAdapter adapter(ind);
+    oa::StandaloneAdapter adapter(ind, ind.getAdaptionConfig());
     for(int round = 0; round < 30; ++round) {
         adapter.adapt(ind);
         std::vector<std::int32_t> now;
@@ -618,7 +656,7 @@ TEST_CASE("GFlatGenome: integer Gauss adaptor mutates int32 within bounds", "[fl
 /******************************************************************************/
 TEST_CASE("GFlatGenome: integer Gauss genome serialises round-trip", "[flat][intgauss]") {
     FlatIntGauss ind;
-    oa::StandaloneAdapter adapter(ind);
+    oa::StandaloneAdapter adapter(ind, ind.getAdaptionConfig());
     for(int i = 0; i < 5; ++i) {
         adapter.adapt(ind);
     }

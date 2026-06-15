@@ -90,150 +90,16 @@ public:
         /* nothing */
     }
 
-    /** @brief Attaches a Gauss adaptor to this group (FP groups). */
-    ParamHandle &gaussAdaptor(
-        adfp sigma,
-        adfp sigma_sigma,
-        adfp min_sigma,
-        adfp max_sigma,
-        adfp ad_prob,
-        adfp adapt_ad_prob = adfp(0),
-        std::uint32_t adaption_threshold = 1,
-        adaptionMode mode = adaptionMode::WITHPROBABILITY,
-        adfp min_ad_prob = adfp(0),
-        adfp max_ad_prob = adfp(1)
-    ) {
-        static_assert(
-            std::is_floating_point_v<T>,
-            "gaussAdaptor() is only available for floating point parameters"
-        );
-        this->forEachGroup([&](GroupSpec<T> &g) {
-            g.has_gauss = true;
-            g.start_sigma = sigma;
-            g.start_ad_prob = ad_prob;
-            g.gauss.sigma_sigma = sigma_sigma;
-            g.gauss.min_sigma = min_sigma;
-            g.gauss.max_sigma = max_sigma;
-            g.gauss.min_ad_prob = min_ad_prob;
-            g.gauss.max_ad_prob = max_ad_prob;
-            g.gauss.adapt_ad_prob = adapt_ad_prob;
-            g.gauss.adaption_threshold = adaption_threshold;
-            g.gauss.mode = mode;
-        });
-        return *this;
-    }
+    // NOTE: the adaptor-attaching methods (gaussAdaptor / biGaussAdaptor / intGaussAdaptor / flipAdaptor)
+    // have been removed: the genome layout carries only STRUCTURE now. Adaptors are authored on the
+    // OA-owned GAdaptionConfig via its fluent API (groupDouble(i).gauss(...) / groupInt32(i).intGauss(...) /
+    // groupBool(i).flip(...) / forLabel(...)), built from the finished genome. Only the structural tuning
+    // (init / perimeter / adaptionMode / label) remains on the builder handle.
 
-    /** @brief Attaches a bi-gaussian adaptor to this group (FP groups). */
-    ParamHandle &biGaussAdaptor(
-        adfp sigma1,
-        adfp sigma_sigma1,
-        adfp min_sigma1,
-        adfp max_sigma1,
-        adfp sigma2,
-        adfp sigma_sigma2,
-        adfp min_sigma2,
-        adfp max_sigma2,
-        adfp delta,
-        adfp sigma_delta,
-        adfp min_delta,
-        adfp max_delta,
-        adfp ad_prob,
-        bool use_symmetric_sigmas = false,
-        adfp adapt_ad_prob = adfp(0),
-        std::uint32_t adaption_threshold = 1,
-        adaptionMode mode = adaptionMode::WITHPROBABILITY
-    ) {
-        static_assert(
-            std::is_floating_point_v<T>,
-            "biGaussAdaptor() is only available for floating point parameters"
-        );
-        this->forEachGroup([&](GroupSpec<T> &g) {
-            g.has_bigauss = true;
-            g.start_sigma1 = sigma1;
-            g.start_sigma2 = sigma2;
-            g.start_delta = delta;
-            g.start_ad_prob = ad_prob;
-            g.bigauss.sigma_sigma1 = sigma_sigma1;
-            g.bigauss.sigma_sigma2 = sigma_sigma2;
-            g.bigauss.sigma_delta = sigma_delta;
-            g.bigauss.min_sigma1 = min_sigma1;
-            g.bigauss.max_sigma1 = max_sigma1;
-            g.bigauss.min_sigma2 = min_sigma2;
-            g.bigauss.max_sigma2 = max_sigma2;
-            g.bigauss.min_delta = min_delta;
-            g.bigauss.max_delta = max_delta;
-            g.bigauss.min_ad_prob = adfp(0);
-            g.bigauss.max_ad_prob = adfp(1);
-            g.bigauss.adapt_ad_prob = adapt_ad_prob;
-            g.bigauss.adaption_threshold = adaption_threshold;
-            g.bigauss.use_symmetric_sigmas = use_symmetric_sigmas;
-            g.bigauss.mode = mode;
-        });
-        return *this;
-    }
-
-    /** @brief Attaches an integer Gauss adaptor to this group (int32 groups). */
-    ParamHandle &intGaussAdaptor(
-        double sigma,
-        double sigma_sigma,
-        double min_sigma,
-        double max_sigma,
-        double ad_prob,
-        double adapt_ad_prob = 0.,
-        std::uint32_t adaption_threshold = 1,
-        Gem::Geneva::adaptionMode mode = adaptionMode::WITHPROBABILITY,
-        double min_ad_prob = 0.,
-        double max_ad_prob = 1.
-    ) {
-        static_assert(
-            std::is_same_v<T, std::int32_t>,
-            "intGaussAdaptor() is only available for int32 parameters"
-        );
-        this->forEachGroup([&](GroupSpec<T> &g) {
-            g.has_gauss = true;
-            g.start_sigma = sigma;
-            g.start_ad_prob = ad_prob;
-            g.gauss.sigma_sigma = sigma_sigma;
-            g.gauss.min_sigma = min_sigma;
-            g.gauss.max_sigma = max_sigma;
-            g.gauss.min_ad_prob = min_ad_prob;
-            g.gauss.max_ad_prob = max_ad_prob;
-            g.gauss.adapt_ad_prob = adapt_ad_prob;
-            g.gauss.adaption_threshold = adaption_threshold;
-            g.gauss.mode = mode;
-        });
-        return *this;
-    }
-
-    /** @brief Attaches a flip adaptor to this group (int32 / bool groups). */
-    ParamHandle &flipAdaptor(
-        double ad_prob,
-        double adapt_ad_prob = 0.,
-        double min_ad_prob = 0.,
-        double max_ad_prob = 1.,
-        adaptionMode mode = adaptionMode::WITHPROBABILITY
-    ) {
-        static_assert(
-            std::is_integral_v<T>,
-            "flipAdaptor() is only available for integer and boolean parameters"
-        );
-        this->forEachGroup([&](GroupSpec<T> &g) {
-            g.has_flip = true;
-            g.start_ad_prob = ad_prob;
-            g.flip.min_ad_prob = min_ad_prob;
-            g.flip.max_ad_prob = max_ad_prob;
-            g.flip.adapt_ad_prob = adapt_ad_prob;
-            g.flip.mode = mode;
-        });
-        return *this;
-    }
-
-    /** @brief Sets the adaption mode for this group (NEVER ⇒ the group is inactive). */
+    /** @brief Sets the adaption mode for this group; NEVER marks it inactive (never mutated). Structural --
+     *  the adaptor mode itself is set on the OA config. */
     ParamHandle &adaptionMode(Gem::Geneva::adaptionMode mode) {
-        this->forEachGroup([&](GroupSpec<T> &g) {
-            g.gauss.mode = mode;
-            g.bigauss.mode = mode;
-            g.flip.mode = mode;
+        this->forEachGroup([&](GroupStructure<T> &g) {
             g.active = (mode != adaptionMode::NEVER);
             for(std::uint32_t k = 0; k < g.len; ++k) {
                 ch_->active.at(g.start + k) = g.active ? 1 : 0;
@@ -244,7 +110,7 @@ public:
 
     /** @brief Sets a fixed start value for every parameter of this handle's group(s). */
     ParamHandle &init(T v) {
-        this->forEachGroup([&](GroupSpec<T> &g) {
+        this->forEachGroup([&](GroupStructure<T> &g) {
             for(std::uint32_t k = 0; k < g.len; ++k) {
                 values_->at(g.start + k) = v;
             }
@@ -254,7 +120,7 @@ public:
 
     /** @brief Sets the random-initialization perimeter for this handle's group(s). */
     ParamHandle &perimeter(T lo, T hi) {
-        this->forEachGroup([&](GroupSpec<T> &g) {
+        this->forEachGroup([&](GroupStructure<T> &g) {
             for(std::uint32_t k = 0; k < g.len; ++k) {
                 ch_->init_lower.at(g.start + k) = lo;
                 ch_->init_upper.at(g.start + k) = hi;
@@ -266,12 +132,12 @@ public:
     /**
      * @brief Stamps an interned label onto every group this handle spans. The label string is
      * deduplicated into the shared layout's label table; many handles may share one label (one-to-many).
-     * A later, OA-owned adaption config can then address these groups by name rather than by index.
+     * The OA-owned adaption config can then address these groups by name (forLabel) rather than by index.
      */
     ParamHandle &label(const std::string &name) {
         if(owner_ != nullptr) {
             const std::int32_t id = owner_->internLabel(name);
-            this->forEachGroup([&](GroupSpec<T> &g) { g.label_id = id; });
+            this->forEachGroup([&](GroupStructure<T> &g) { g.label_id = id; });
         }
         return *this;
     }
@@ -488,11 +354,10 @@ private:
             values.push_back(init);
         }
 
-        GroupSpec<T> g;
+        GroupStructure<T> g;
         g.start = start;
         g.len = static_cast<std::uint32_t>(len);
         g.active = true;
-        g.has_gauss = false;
         // The comparative range mirrors the tree: (upper-lower) for constrained, the init range
         // otherwise. Used to scale the Gauss step independently of a parameter's value range. Relevant
         // for the FP channels (Gauss / bi-Gauss) and the int32 channel (integer Gauss adaptor); left at

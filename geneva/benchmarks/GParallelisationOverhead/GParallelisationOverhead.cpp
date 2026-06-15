@@ -44,6 +44,7 @@
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "common/GThreadPool.hpp"
+#include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/Go2.hpp"
 
@@ -103,6 +104,17 @@ void startReferenceMeasurement(
 
             // Make the individual known to the optimizer
             ea_alg->push_back(gdi_ptr->clone_unique());
+
+            // GDelay's genome is transport ballast (its values are irrelevant to the timing benchmark),
+            // but the EA still mutates + re-evaluates it every generation -- that cycle IS the measured
+            // workload. Author a real Gauss adaptor on its OA-owned config and hand it to the EA.
+            {
+                auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*gdi_ptr);
+                for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
+                    cfg->groupDouble(i).gauss(0.025, 0.1, 0., 1., 1.);
+                }
+                ea_alg->setAdaptionConfig(cfg);
+            }
 
             // Do the actual optimization and measure the time
             std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();

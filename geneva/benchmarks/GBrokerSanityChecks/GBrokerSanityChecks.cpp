@@ -45,8 +45,10 @@
 
 // The individual that should be optimized
 #include "geneva/individuals/GDelayIndividual.hpp"
+#include "geneva/oa/GAdaption.hpp"
 
 using namespace Gem::Geneva;
+namespace oa = Gem::Geneva::OptimizationAlgorithms;
 namespace po = boost::program_options;
 
 /******************************************************************************/
@@ -105,7 +107,19 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
 
     // Add a content creator so Go2 can generate its own individuals, if necessary
-    go.push_back(gfi_ptr->get());
+    auto firstInd = gfi_ptr->get_as<gind::GDelayIndividual>();
+    go.push_back(firstInd);
+
+    // GDelay's genome is transport ballast (its VALUES are irrelevant to the timing benchmark), but the EA
+    // still mutates + re-evaluates it every generation -- that mutate/evaluate cycle IS the workload being
+    // measured. So author a real Gauss adaptor on its OA-owned config and register it for the EA.
+    {
+        auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*firstInd);
+        for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
+            cfg->groupDouble(i).gauss(0.025, 0.1, 0., 1., 1.);
+        }
+        go.registerAdaptionConfig("PERSONALITY_EA", cfg);
+    }
 
     // Add a default optimization algorithm to the Go2 object. This is optional.
     // Indeed "ea" is the default setting anyway. However, if you do not like it, you

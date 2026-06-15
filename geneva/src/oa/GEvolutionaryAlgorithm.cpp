@@ -434,15 +434,6 @@ void GEvolutionaryAlgorithm::populationSanityChecks_() const {
   * Adapt all children in parallel. Evaluation is done in a separate function (runFitnessCalculation).
   */
 /**
- * Builds the EA-specific adaption configuration from a representative genome.
- */
-std::shared_ptr<GAdaptionConfigBase>
-GEvolutionaryAlgorithm::makeAdaptionConfig_(const gpar::GFlatGenome &genome) const {
-    return std::make_shared<GEAAdaptionConfig>(genome);
-}
-
-/******************************************************************************/
-/**
  * Adapt all children in parallel, driven by the OA-owned adaption config.
  */
 void GEvolutionaryAlgorithm::adaptChildren_() {

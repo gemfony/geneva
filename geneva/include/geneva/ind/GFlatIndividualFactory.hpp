@@ -91,7 +91,7 @@ namespace Gem::Geneva::Parameters {
  *       }
  *       static Genome buildGenome(const Config& c) {
  *           GGenomeBuilder b;
- *           b.addDoubleGroup(c.par_dim, c.min, c.max).gaussAdaptor(c.sigma, 0.8, 1e-3, 2., 1.);
+ *           b.addDoubleGroup(c.par_dim, c.min, c.max); // structure only; adaptors on the OA config
  *           return b.build();
  *       }
  *   };

@@ -727,16 +727,25 @@ void GParChild::init() {
     adaption_config_.reset();
     if(not this->empty()) {
         if(const auto *flat = dynamic_cast<const gpar::GFlatGenome *>(&this->at(0)->individual())) {
-            // Phase 8 step 4: prefer an externally-supplied, OA-owned config (Go2 installs the one it
-            // holds for this algorithm's type) over the layout-derived default. It is validated against
-            // the population's genome so a config authored for a different genome is rejected early.
-            if(provided_adaption_config_) {
-                provided_adaption_config_->checkConsistency(*flat);
-                adaption_config_ = provided_adaption_config_;
+            // The genome carries only structure -- the adaptors live on an OA-owned GAdaptionConfig that
+            // MUST be provided explicitly (via setAdaptionConfig(), e.g. Go2::registerAdaptionConfig() for
+            // this algorithm's personality type). Adaption intent is never inferred from the genome, so an
+            // adapting algorithm with no config is a hard error. The provided config is validated against
+            // the population's genome, rejecting a config authored for a different genome early.
+            if(not provided_adaption_config_) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GParChild::init(): Error!" << '\n'
+                    << "This adapting algorithm has no adaption config. The genome carries only structure;"
+                    << '\n'
+                    << "author an OA-owned GAdaptionConfig and provide it via setAdaptionConfig() (or, with"
+                    << '\n'
+                    << "Go2, register it via go.registerAdaptionConfig(\"" << getAlgorithmPersonalityType()
+                    << "\", cfg))." << '\n'
+                );
             }
-            else {
-                adaption_config_ = makeAdaptionConfig_(*flat);
-            }
+            provided_adaption_config_->checkConsistency(*flat);
+            adaption_config_ = provided_adaption_config_;
 
             // Seed each slot's OA-owned scratch with the per-group adaption state from the shared
             // config. The state (sigma / ad_prob / counter, …) formerly lived on the individual's
@@ -756,18 +765,10 @@ void GParChild::init() {
 
 /******************************************************************************/
 /**
- * Builds the OA-owned adaption configuration from a representative genome. The base produces a plain
- * GAdaptionConfigBase; EA and SA override this to return their respective derived config types.
- */
-std::shared_ptr<GAdaptionConfigBase> GParChild::makeAdaptionConfig_(const gpar::GFlatGenome &genome) const {
-    return std::make_shared<GAdaptionConfigBase>(genome);
-}
-
-/******************************************************************************/
-/**
- * Stores an externally-supplied adaption configuration (Phase 8 step 4). init() adopts it -- after a
- * checkConsistency() against the population's genome -- in place of the layout-derived default. Passing a
- * null pointer clears it (falling back to the default).
+ * Stores the externally-supplied OA-owned adaption configuration. init() adopts it -- after a
+ * checkConsistency() against the population's genome -- as the algorithm's run config; an adapting
+ * algorithm with no config provided is a hard error (the genome carries no adaption intent). Passing a
+ * null pointer clears it.
  */
 void GParChild::setAdaptionConfig(std::shared_ptr<GAdaptionConfigBase> config) {
     provided_adaption_config_ = std::move(config);

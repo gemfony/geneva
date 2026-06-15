@@ -75,12 +75,13 @@ protected:
 
 private:
     void buildGenome() {
+        // Structure + labels only; the adaptors are authored on the OA config (see authoredConfig()).
         GGenomeBuilder b;
-        b.addDoubleGroup(3, -5., 5.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.).label("position"); // d group 0
-        b.addDoubleGroup(2, -5., 5.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.).label("position"); // d group 1
-        b.addDouble(0., -5., 5.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.);                        // d group 2 (unlabelled)
-        b.addInt32Group(2, -10, 10).intGaussAdaptor(0.5, 0.8, 1e-3, 2., 1.).label("count");  // i group 0
-        b.addBoolGroup(2).flipAdaptor(1.0);                                                    // b group 0
+        b.addDoubleGroup(3, -5., 5.).label("position"); // d group 0
+        b.addDoubleGroup(2, -5., 5.).label("position"); // d group 1
+        b.addDouble(0., -5., 5.);                       // d group 2 (unlabelled)
+        b.addInt32Group(2, -10, 10).label("count");     // i group 0
+        b.addBoolGroup(2);                              // b group 0
         this->setGenome(b.build());
     }
 
@@ -101,9 +102,25 @@ BOOST_CLASS_EXPORT(Gem::Tests::AdaptCfgIndividual) // NOLINT
 using Gem::Tests::AdaptCfgIndividual;
 
 /******************************************************************************/
+/**
+ * Builds the OA config for AdaptCfgIndividual: a Gauss adaptor (seed 0.5) on each of the three FP groups,
+ * an integer Gauss adaptor on the int group and a flip adaptor on the bool group -- the settings the
+ * genome formerly baked into its layout, now authored on the (structure-derived) config.
+ */
+static oa::GEAAdaptionConfig authoredConfig(const AdaptCfgIndividual &ind) {
+    oa::GEAAdaptionConfig cfg(ind); // structure skeleton from the genome
+    cfg.groupDouble(0).gauss(0.5, 0.8, 1e-3, 2., 1.);
+    cfg.groupDouble(1).gauss(0.5, 0.8, 1e-3, 2., 1.);
+    cfg.groupDouble(2).gauss(0.5, 0.8, 1e-3, 2., 1.);
+    cfg.groupInt32(0).intGauss(0.5, 0.8, 1e-3, 2., 1.);
+    cfg.groupBool(0).flip(1.0);
+    return cfg;
+}
+
+/******************************************************************************/
 TEST_CASE("GAdaptionConfig: built from a genome, addresses existing groups", "[flat][adaptcfg]") {
     AdaptCfgIndividual ind;
-    oa::GEAAdaptionConfig cfg(ind);
+    auto cfg = authoredConfig(ind);
 
     // Mirrors the genome's group structure.
     CHECK(cfg.doubleGroups().size() == 3);
@@ -119,7 +136,7 @@ TEST_CASE("GAdaptionConfig: built from a genome, addresses existing groups", "[f
 /******************************************************************************/
 TEST_CASE("GAdaptionConfig: label resolution is one-to-many", "[flat][adaptcfg]") {
     AdaptCfgIndividual ind;
-    oa::GEAAdaptionConfig cfg(ind);
+    auto cfg = authoredConfig(ind);
 
     // "position" tags the two FP groups; "count" the one int group; an absent label resolves to none.
     CHECK(cfg.groupsForLabel("position").size() == 2);
@@ -139,14 +156,14 @@ TEST_CASE("GAdaptionConfig: label resolution is one-to-many", "[flat][adaptcfg]"
 /******************************************************************************/
 TEST_CASE("GAdaptionConfig: checkConsistency accepts the authoring genome, rejects a different one", "[flat][adaptcfg]") {
     AdaptCfgIndividual ind;
-    oa::GEAAdaptionConfig cfg(ind);
+    auto cfg = authoredConfig(ind);
 
     // Same structure -> ok.
     CHECK_NOTHROW(cfg.checkConsistency(ind));
 
     // A structurally different genome (1 double, no other channels) -> throws.
     GGenomeBuilder other;
-    other.addDouble(0., -1., 1.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.);
+    other.addDouble(0., -1., 1.); // structure only
     std::shared_ptr<const GGenomeLayout> other_layout = other.buildLayout();
     CHECK_THROWS_AS(cfg.checkConsistency(*other_layout), geneva_exception);
 }
@@ -158,7 +175,7 @@ TEST_CASE("GAdaption: runAdaptionKernels mutates within bounds (config-driven)",
     // Robust over repeats -- stochastic adaption must keep producing in-bounds changes.
     for(int rep = 0; rep < 20; ++rep) {
         AdaptCfgIndividual ind;
-        oa::GEAAdaptionConfig cfg(ind);
+        auto cfg = authoredConfig(ind);
 
         // The per-group adaption STATE is OA-owned scratch (on the slot in a live run); here a standalone
         // store, seeded from the config.
@@ -198,7 +215,7 @@ TEST_CASE("GAdaption: readAdaptionSigmas + resetAdaptionState round-trip", "[fla
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
     AdaptCfgIndividual ind;
-    oa::GEAAdaptionConfig cfg(ind);
+    auto cfg = authoredConfig(ind);
 
     // The per-group adaption STATE is OA-owned scratch (on the slot in a live run); here a standalone
     // store, seeded from the config.
@@ -238,7 +255,7 @@ TEST_CASE("GAdaption: readAdaptionSigmas + resetAdaptionState round-trip", "[fla
 /******************************************************************************/
 TEST_CASE("GAdaptionConfig: installInto seeds the per-group state", "[flat][adaptcfg]") {
     AdaptCfgIndividual ind;
-    oa::GEAAdaptionConfig cfg(ind);
+    auto cfg = authoredConfig(ind);
 
     // Author a distinct seed, install it into a scratch store, and read it back through the sigma reader.
     cfg.groupDouble(0).gauss(1.25, 0.8, 1e-3, 2., 1.);

@@ -78,16 +78,12 @@ serialize(Archive &ar, Gem::Geneva::Parameters::FlipConfig &g, const unsigned in
         make_nvp("adapt_ad_prob", g.adapt_ad_prob) &make_nvp("mode", g.mode);
 }
 
+// The genome layout holds structure-only groups. The adaptor configuration lives on the (transient,
+// non-serialized) OA-owned GAdaptionConfig, so only the structure is serialized here.
 template <class Archive, typename T>
-void serialize(Archive &ar, Gem::Geneva::Parameters::GroupSpec<T> &g, const unsigned int) {
+void serialize(Archive &ar, Gem::Geneva::Parameters::GroupStructure<T> &g, const unsigned int) {
     ar &make_nvp("start", g.start) &make_nvp("len", g.len) &make_nvp("label_id", g.label_id) &
-        make_nvp("active", g.active) &
-        make_nvp("has_gauss", g.has_gauss) &make_nvp("gauss", g.gauss) &
-        make_nvp("start_sigma", g.start_sigma) &make_nvp("start_ad_prob", g.start_ad_prob) &
-        make_nvp("range", g.range) &make_nvp("has_bigauss", g.has_bigauss) &
-        make_nvp("bigauss", g.bigauss) &make_nvp("start_sigma1", g.start_sigma1) &
-        make_nvp("start_sigma2", g.start_sigma2) &make_nvp("start_delta", g.start_delta) &
-        make_nvp("has_flip", g.has_flip) &make_nvp("flip", g.flip);
+        make_nvp("active", g.active) &make_nvp("range", g.range);
 }
 
 template <class Archive, typename T>

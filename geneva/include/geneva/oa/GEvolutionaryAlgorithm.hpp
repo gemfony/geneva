@@ -152,9 +152,6 @@ protected:
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
     void specificTestsFailuresExpected_GUnitTests_() override;
 
-    /** @brief Builds the EA-specific adaption configuration (GEAAdaptionConfig) from a genome */
-    std::shared_ptr<GAdaptionConfigBase> makeAdaptionConfig_(const gpar::GFlatGenome &genome) const override;
-
     /***************************************************************************/
 
     /** @brief Fixes the population after a job submission */

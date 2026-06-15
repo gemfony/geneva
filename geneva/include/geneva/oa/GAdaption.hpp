@@ -308,7 +308,8 @@ inline void resetAdaptionState(detail::GAuxiliaryStore &scratch, const GAdaption
  * for the pluggable monitors and the in-fitness sigma logging. Recognised names: "GDoubleGaussAdaptor",
  * "GFloatGaussAdaptor", "GInt32GaussAdaptor". Sigmas are returned as double (the float sigma widened).
  * For an individual that is detached from its slot (an archived best, a transport copy, or a standalone
- * individual), pass a scratch freshly seeded via seedAdaptionStates() to obtain the configured seed sigma.
+ * individual), pass a scratch freshly seeded from the OA config (cfg.installInto(scratch)) to obtain the
+ * configured seed sigma.
  */
 inline std::vector<double> readAdaptionSigmas(
     const detail::GAuxiliaryStore &scratch,
@@ -351,26 +352,12 @@ inline std::vector<double> readAdaptionSigmas(
 
 /******************************************************************************/
 /**
- * @brief Seeds the per-group adaption state blocks for an individual's genome into a (typically empty,
- * OA-owned) auxiliary store — the convenience one-shot used by self-driven adaption sites, by the
- * off-slot sigma readers, and by tests. The OA's per-iteration setup instead seeds each slot from the
- * single shared config it already holds (config.installInto(slot.scratch())); this helper is for callers
- * that do not keep a config around.
- */
-inline void seedAdaptionStates(const detail::GFlatGenome &ind, detail::GAuxiliaryStore &scratch) {
-    GAdaptionConfigBase(ind).installInto(scratch);
-}
-
-/******************************************************************************/
-/**
  * @brief The convenience factory for an OA-owned adaption config, built from a representative genome so it
  * describes exactly the groups that exist. ConfigT selects the per-OA type (GEAAdaptionConfig /
- * GSAAdaptionConfig / the plain base). Today the genome's layout still carries the adaptor settings, so the
- * built config snapshots them directly; after the GGenomeLayout config-strip the genome supplies only the
- * group SKELETON and the caller authors the adaptors onto the returned config via its fluent API
- * (cfg->groupDouble(i).gauss(...) / cfg->forLabel(...).gauss(...)). This is the single seam every call site
- * routes through, so the strip stays invisible to them. It is an oa-side factory because GAdaptionConfig
- * lives in geneva/oa/ while GGenomeBuilder lives in geneva/ind/ (oa depends on ind, not the reverse).
+ * GSAAdaptionConfig / the plain base). The genome (structure-only) supplies the group SKELETON, and the
+ * caller authors the adaptors onto the returned config via its fluent API (cfg->groupDouble(i).gauss(...) /
+ * cfg->forLabel(...).gauss(...)). It is an oa-side factory because GAdaptionConfig lives in geneva/oa/ while
+ * GGenomeBuilder lives in geneva/ind/ (oa depends on ind, not the reverse).
  */
 template <typename ConfigT = GAdaptionConfigBase>
 std::shared_ptr<ConfigT> makeAdaptionConfig(const detail::GFlatGenome &genome) {
@@ -381,22 +368,14 @@ std::shared_ptr<ConfigT> makeAdaptionConfig(const detail::GFlatGenome &genome) {
 /**
  * @brief A small RAII helper that gives a single, slot-less individual its own adaption scratch + config
  * so the data-oriented adaption can be driven outside an optimization algorithm (test individuals'
- * modify hooks, standalone perturbation loops, serialization benchmarks). Construct once and call
- * adapt() repeatedly to preserve sigma self-adaptation across iterations, exactly as the individual's
- * former adapt() did via its own per-individual aux state.
- *
- * Two construction modes: the genome-only form derives the config from the genome (used while the layout
- * still carries the adaptor settings); the explicit-config form takes an OA-owned config the caller
- * authored (the post-strip form — the config is validated against the genome's structure). Both copy the
- * config's base data, which is all the data-oriented adaption needs.
+ * modify hooks, standalone perturbation loops, serialization benchmarks). Construct once with the
+ * individual's authored OA-owned config and call adapt() repeatedly to preserve sigma self-adaptation
+ * across iterations, exactly as the individual's former adapt() did via its own per-individual aux state.
+ * The config is validated against the genome's structure and copied (its base data is all the
+ * data-oriented adaption needs).
  */
 class StandaloneAdapter {
 public:
-    explicit StandaloneAdapter(const detail::GFlatGenome &ind)
-      : cfg_(ind) {
-        cfg_.installInto(scratch_);
-    }
-
     StandaloneAdapter(const detail::GFlatGenome &ind, const std::shared_ptr<GAdaptionConfigBase> &cfg)
       : cfg_(*cfg) {
         cfg_.checkConsistency(ind);

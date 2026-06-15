@@ -276,17 +276,10 @@ protected:
 
     /***************************************************************************/
     /**
-     * @brief Builds the OA-owned adaption configuration from a representative genome (all individuals in
-     * the population share the same genome layout). EA and SA override this to return their respective
-     * GEAAdaptionConfig / GSAAdaptionConfig; the base produces a plain GAdaptionConfigBase. Phase 8: the
-     * config drives the data-oriented adaption free functions instead of the individual's adapt().
-     */
-    virtual std::shared_ptr<GAdaptionConfigBase> makeAdaptionConfig_(const gpar::GFlatGenome &genome) const;
-
-    /**
-     * @brief The OA-owned adaption configuration, rebuilt at init() from the population's shared genome
-     * layout. Transient run scratch: NOT serialized, NOT compared, NOT part of localMembers(); a clone
-     * rebuilds it at its own init(). Read-only during the parallel adaptChildren_, so it is shared safely.
+     * @brief The OA-owned adaption configuration in effect for this run: the externally-provided config
+     * (validated and adopted at init()). Transient run scratch: NOT serialized, NOT compared, NOT part of
+     * localMembers(); a clone re-adopts it at its own init(). Read-only during the parallel adaptChildren_,
+     * so it is shared safely.
      */
     std::shared_ptr<GAdaptionConfigBase> adaption_config_;
 

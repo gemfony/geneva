@@ -62,6 +62,7 @@ using Gem::Geneva::Parameters::GFlatGenome;
 using Gem::Geneva::Parameters::GGenomeLayout;
 using Gem::Geneva::Parameters::GroupRef;
 using Gem::Geneva::Parameters::GroupSpec;
+using Gem::Geneva::Parameters::GroupStructure;
 
 /******************************************************************************/
 /**
@@ -459,15 +460,34 @@ public:
 
 protected:
     /***************************************************************************/
+    // Snapshots the group STRUCTURE from a (structure-only) genome layout into this config's group specs;
+    // the adaptor fields stay default-off until the caller authors them via the fluent API.
     void initFrom(const GGenomeLayout &layout) {
-        d_ = layout.d.groups;
-        f_ = layout.f.groups;
-        i_ = layout.i.groups;
-        b_ = layout.b.groups;
+        copyStructure(layout.d.groups, d_);
+        copyStructure(layout.f.groups, f_);
+        copyStructure(layout.i.groups, i_);
+        copyStructure(layout.b.groups, b_);
         labels_ = layout.labels;
     }
 
 private:
+    /***************************************************************************/
+    template <typename T>
+    static void
+    copyStructure(const std::vector<GroupStructure<T>> &src, std::vector<GroupSpec<T>> &dst) {
+        dst.clear();
+        dst.reserve(src.size());
+        for(const GroupStructure<T> &s : src) {
+            GroupSpec<T> g;
+            g.start = s.start;
+            g.len = s.len;
+            g.label_id = s.label_id;
+            g.active = s.active;
+            g.range = s.range;
+            dst.push_back(g);
+        }
+    }
+
     /***************************************************************************/
     template <typename T>
     static GroupConfigHandle<T>
@@ -505,7 +525,7 @@ private:
 
     template <typename T>
     static void
-    checkChannel(const std::vector<GroupSpec<T>> &cfg, const std::vector<GroupSpec<T>> &layout, const char *channel) {
+    checkChannel(const std::vector<GroupSpec<T>> &cfg, const std::vector<GroupStructure<T>> &layout, const char *channel) {
         if(cfg.size() != layout.size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())

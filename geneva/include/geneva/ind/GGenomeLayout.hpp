@@ -148,12 +148,32 @@ T foldConstrainedInt(const T &val, const T &lo, const T &hi) {
 
 /******************************************************************************/
 /**
- * One adaption group: a contiguous run of values within a single channel that share one evolving
- * adaption state (one Gauss sigma, in the FP case). A group of length 1 mirrors a standalone
- * parameter object; a longer group mirrors a collection. The group owns the *static* adaption config
- * (rates / bounds / mode) and the *seed* values for the per-individual GaussState (which the genome
- * installs into its auxiliary store at construction); the evolving state itself lives in the store,
- * not here, so the layout stays shared and immutable.
+ * The STRUCTURE of one adaption group, as held by the shared genome layout: a contiguous run of values
+ * within a single channel that form one group (a group of length 1 mirrors a standalone parameter object;
+ * a longer group a collection). This is structure ONLY -- the adaptor configuration (Gauss / bi-Gauss /
+ * flip rates and seeds) is NOT here; it lives on the OA-owned GAdaptionConfig (a GroupSpec, below). The
+ * layout therefore carries no adaption intent at all, staying a pure, shared, immutable structural
+ * descriptor. `range` and `active` are structural (the parameter's natural scale, derived from its bounds,
+ * and whether it is mutable at all -- adaptionMode::NEVER), so they stay here and are copied into the
+ * config when one is built from the genome.
+ */
+template <typename T>
+struct GroupStructure {
+    std::uint32_t start = 0;    ///< index of the first value of this group within the channel
+    std::uint32_t len = 1;      ///< number of values in this group
+    std::int32_t label_id = -1; ///< interned label index into GGenomeLayout::labels (-1 = unlabeled)
+    bool active = true;         ///< false ⇔ adaptionMode::NEVER (the group is never adapted / mutated)
+    T range = T(1);             ///< comparative range for an adaptor step (upper-lower, or the init range)
+};
+
+/******************************************************************************/
+/**
+ * One adaption group's full configuration, owned by the OA's GAdaptionConfig (NOT by the genome layout).
+ * It carries the group's STRUCTURE (mirrored from the layout's GroupStructure: start / len / label_id /
+ * active / range) plus the *static* adaption config (rates / bounds / mode) and the *seed* values for the
+ * per-individual adaption state (which the OA installs into a slot's auxiliary store). The evolving state
+ * itself lives in the store, not here. A GAdaptionConfig is built from a genome (snapshotting the
+ * structure) and then authored via its fluent API; the adaptor settings never touch the shared layout.
  */
 template <typename T>
 struct GroupSpec {
@@ -194,7 +214,7 @@ struct ChannelLayout {
     std::vector<T> init_upper;       ///< per value: upper random-init boundary
     std::vector<ParamKind> kind;     ///< per value: Plain or Constrained
     std::vector<std::uint8_t> active;///< per value: mirrors the owning group's active flag (1/0)
-    std::vector<GroupSpec<T>> groups;///< contiguous groups tiling [0, size())
+    std::vector<GroupStructure<T>> groups;///< contiguous groups tiling [0, size()) -- STRUCTURE only
 
     std::size_t size() const { return lower.size(); }
 };

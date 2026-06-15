@@ -61,7 +61,7 @@ namespace Gem::Geneva::Parameters {
  *   public:
  *       MyIndividual() {
  *           GGenomeBuilder b;
- *           b.addDouble(0., -10., 10.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.);
+ *           b.addDouble(0., -10., 10.); // structure only; the adaptor lives on the OA-owned config
  *           this->setGenome(b.build());
  *       }
  *       double fitnessCalculation() override { ... }

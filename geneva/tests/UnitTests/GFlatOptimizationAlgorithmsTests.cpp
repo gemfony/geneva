@@ -402,6 +402,20 @@ TEST_CASE("EA rejects an adaption config built for a different genome", "[flat][
 
 /******************************************************************************/
 
+TEST_CASE("EA with no adaption config is a hard error", "[flat][oa]") {
+    // The genome carries only structure; adaption intent is never inferred from it. An adapting algorithm
+    // that is given no OA-owned config must fail loudly at setup rather than silently not adapting.
+    auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    pop->setPopulationSizes(6, 2);
+    pop->setMaxIteration(2);
+    pop->setReportIteration(100000);
+    pop->push_back(FlatSphereOA().clone_unique());
+    pop->setLocalConsumer(oa::local_consumer_kind::serial);
+    CHECK_THROWS(pop->optimize()); // no setAdaptionConfig() -> init() hard-errors
+}
+
+/******************************************************************************/
+
 TEST_CASE("Simulated annealing optimizes a flat individual", "[flat][oa]") {
     auto pop = std::make_shared<oa::GSimulatedAnnealing>();
     pop->setPopulationSizes(18, 6);
