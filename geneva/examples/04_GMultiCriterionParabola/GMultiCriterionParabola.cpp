@@ -68,6 +68,14 @@ int main(int argc, char **argv) {
     // Add a content creator so Go2 can generate its own individuals, if necessary
     go.registerContentCreator(gpi_ptr);
 
+    // The genome carries only structure; its Gauss adaptors live on an OA-owned config. Produce one
+    // sample individual from the factory to author the config (all produced individuals share the same
+    // genome geometry) and register it for the evolutionary algorithm.
+    {
+        auto sample = std::dynamic_pointer_cast<GMultiCriterionParabolaIndividual>(gpi_ptr->get());
+        go.registerAdaptionConfig("PERSONALITY_EA", sample->getAdaptionConfig());
+    }
+
     // Add a default optimization algorithm to the Go2 object.
     // Note that this is the only algorithm that currently can handle multi-criterion optimization
     go.registerDefaultAlgorithm("ea");

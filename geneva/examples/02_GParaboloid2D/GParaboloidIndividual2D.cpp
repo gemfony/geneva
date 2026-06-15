@@ -33,6 +33,9 @@
 
 #include "GParaboloidIndividual2D.hpp"
 
+#include "geneva/oa/GAdaption.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParaboloidIndividual2D) // NOLINT
 namespace Gem::Geneva {
 
@@ -49,13 +52,29 @@ GParaboloidIndividual2D::GParaboloidIndividual2D()
     // installed default adaptor).
     gpar::GGenomeBuilder b;
     for(std::size_t npar = 0; npar < 2; npar++) {
-        b.addDouble(M_PAR_MIN, M_PAR_MIN, M_PAR_MAX)
-            .gaussAdaptor(DEFAULTSIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, DEFAULTADPROB);
+        b.addDouble(M_PAR_MIN, M_PAR_MIN, M_PAR_MAX); // structure only; the adaptor lives on the OA config
     }
     this->setGenome(b.build());
 
     // Mirror the tree's per-parameter random initialization within bounds.
     this->randomInit(activityMode::ALLPARAMETERS);
+}
+
+/********************************************************************************************/
+/**
+ * Builds the OA-owned adaption configuration for this genome: each of the two double parameters is its
+ * own Gauss group, configured with the default GDoubleGaussAdaptor settings the tree relied upon. The
+ * adaptor settings live here (on the OA-owned config), not in the shared, structure-only genome layout.
+ */
+std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+GParaboloidIndividual2D::getAdaptionConfig() const {
+    auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(*this);
+    for(std::size_t npar = 0; npar < 2; npar++) {
+        cfg->groupDouble(npar).gauss(
+            DEFAULTSIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, DEFAULTADPROB
+        );
+    }
+    return cfg;
 }
 
 /********************************************************************************************/

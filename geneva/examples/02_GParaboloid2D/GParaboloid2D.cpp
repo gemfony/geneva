@@ -60,6 +60,10 @@ int main(int argc, char **argv) {
     std::shared_ptr<GParaboloidIndividual2D> p(new GParaboloidIndividual2D());
     go.push_back(p);
 
+    // The genome carries only structure; its Gauss adaptors live on an OA-owned config. Register it for
+    // the evolutionary algorithm so Go2 hands it over before the EA runs.
+    go.registerAdaptionConfig("PERSONALITY_EA", p->getAdaptionConfig());
+
     // Add an evolutionary algorithm to the Go2 class.
     go & "ea";
 

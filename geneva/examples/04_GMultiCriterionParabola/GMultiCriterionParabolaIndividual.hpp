@@ -45,10 +45,16 @@
 #include <common/GCommonHelperFunctions.hpp>
 #include <common/GFactoryT.hpp>
 #include <common/GParserBuilder.hpp>
+#include <memory>
+
 #include <geneva/ind/GFlatGenome.hpp>
 #include <geneva/ind/GGenomeBuilder.hpp>
 
 namespace Gem::Geneva {
+
+namespace OptimizationAlgorithms {
+class GAdaptionConfigBase;
+} // namespace OptimizationAlgorithms
 
 // The number of parameters
 constexpr std::size_t NPAR_MC = 3;
@@ -86,6 +92,9 @@ public:
 
     /** @brief Assigns a number of minima to this object */
     void setMinima(const std::vector<double> &);
+
+    /** @brief The OA-owned adaption config authoring this genome's per-parameter Gauss groups. */
+    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const;
 
 protected:
     /** @brief Loads the data of another GMultiCriterionParabolaIndividual */

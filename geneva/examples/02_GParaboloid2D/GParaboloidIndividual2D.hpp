@@ -42,11 +42,17 @@
 // Boost header files go here
 
 // Geneva header files go here
+#include <memory>
+
 #include <geneva/ind/GFlatGenome.hpp>
 #include <geneva/ind/GGenomeBuilder.hpp>
 
 namespace Gem {
 namespace Geneva {
+
+namespace OptimizationAlgorithms {
+class GAdaptionConfigBase;
+} // namespace OptimizationAlgorithms
 
 /******************************************************************/
 /**
@@ -78,6 +84,9 @@ public:
     GParaboloidIndividual2D(const GParaboloidIndividual2D &);
     /** @brief The standard destructor */
     virtual ~GParaboloidIndividual2D();
+
+    /** @brief The OA-owned adaption config authoring this genome's two Gauss groups. */
+    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const;
 
 protected:
     /** @brief Loads the data of another GParaboloidIndividual2D */

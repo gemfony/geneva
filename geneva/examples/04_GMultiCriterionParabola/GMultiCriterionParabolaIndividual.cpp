@@ -33,6 +33,9 @@
 
 #include "GMultiCriterionParabolaIndividual.hpp"
 
+#include "geneva/oa/GAdaption.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMultiCriterionParabolaIndividual) // NOLINT
 namespace Gem::Geneva {
 /******************************************************************************/
@@ -281,8 +284,8 @@ void GMultiCriterionParabolaIndividualFactory::postProcess_(
     // default adaptor: sigma 0.025 / sigma_sigma 0.2 / [0.001, 1] / ad_prob 1).
     gpar::GGenomeBuilder b;
     for(std::size_t npar = 0; npar < nPar_; npar++) {
-        b.addDouble(par_min_.value(), par_min_.value(), par_max_.value())
-            .gaussAdaptor(DEFAULTSIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, DEFAULTADPROB);
+        // structure only; the adaptor lives on the OA config (see getAdaptionConfig())
+        b.addDouble(par_min_.value(), par_min_.value(), par_max_.value());
     }
     dynamic_cast<gpar::GFlatGenome &>(*p).setGenome(b.build());
 
@@ -290,6 +293,23 @@ void GMultiCriterionParabolaIndividualFactory::postProcess_(
     p->randomInit(activityMode::ALLPARAMETERS);
 
     p->setMinima(minima_);
+}
+
+/******************************************************************************/
+/**
+ * Builds the OA-owned adaption configuration for this genome: each of the nPar_ double parameters is its
+ * own Gauss group, configured with the default GDoubleGaussAdaptor settings the tree relied upon. The
+ * adaptor settings live on the OA-owned config, not in the shared, structure-only genome layout.
+ */
+std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+GMultiCriterionParabolaIndividual::getAdaptionConfig() const {
+    auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(*this);
+    for(std::size_t npar = 0; npar < cfg->doubleGroups().size(); npar++) {
+        cfg->groupDouble(npar).gauss(
+            DEFAULTSIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, DEFAULTADPROB
+        );
+    }
+    return cfg;
 }
 
 /******************************************************************************/
