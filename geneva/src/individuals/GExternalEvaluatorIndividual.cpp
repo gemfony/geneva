@@ -39,6 +39,8 @@
 #include "geneva/GMultiConstraintT.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/oa/GAdaption.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 #include <algorithm>
@@ -1646,46 +1648,12 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GOp
                                 .adaptionMode(Gem::Geneva::adaptionMode::NEVER);
                         }
                         else {
-                            // A constrained double over [min_var, max_var]. For the non-random case we
-                            // seed the start value with init_value; the random case lets randomInit()
-                            // overwrite it later (the init perimeter defaults to the bounds either way).
-                            auto h = gb.addDouble(init_value, min_var, max_var);
-
-                            // Attach the configured adaptor to this group
-                            if(use_bi_gaussian_) {
-                                h.biGaussAdaptor(
-                                    sigma1_,
-                                    sigma_sigma1_,
-                                    min_sigma1_,
-                                    max_sigma1_,
-                                    sigma2_,
-                                    sigma_sigma2_,
-                                    min_sigma2_,
-                                    max_sigma2_,
-                                    delta_,
-                                    sigma_delta_,
-                                    min_delta_,
-                                    max_delta_,
-                                    ad_prob_,
-                                    /*use_symmetric_sigmas=*/false,
-                                    adapt_ad_prob_,
-                                    adaption_threshold_
-                                );
-                            }
-                            else {
-                                h.gaussAdaptor(
-                                    sigma1_,
-                                    sigma_sigma1_,
-                                    min_sigma1_,
-                                    max_sigma1_,
-                                    ad_prob_,
-                                    adapt_ad_prob_,
-                                    adaption_threshold_,
-                                    Gem::Geneva::adaptionMode::WITHPROBABILITY,
-                                    min_ad_prob_,
-                                    max_ad_prob_
-                                );
-                            }
+                            // A constrained double over [min_var, max_var] (structure only). For the
+                            // non-random case we seed the start value with init_value; the random case lets
+                            // randomInit() overwrite it later (the init perimeter defaults to the bounds
+                            // either way). The configured Gauss / bi-Gauss adaptor for this active group
+                            // lives on the OA-owned config (getAdaptionConfig()), not the genome layout.
+                            gb.addDouble(init_value, min_var, max_var);
                         }
                     }
                     else {
@@ -1745,6 +1713,38 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GOp
             << '\n'
         );
     }
+}
+
+/******************************************************************************/
+/**
+ * Builds the OA-owned adaption configuration for a genome produced by this factory. Every ACTIVE double
+ * group (the constrained variables) receives the configured single-Gauss or bi-Gauss adaptor; fixed
+ * groups (built with adaptionMode::NEVER) are left un-authored, exactly mirroring the former builder.
+ */
+std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+GExternalEvaluatorIndividualFactory::getAdaptionConfig(const gpar::GFlatGenome &sample) const {
+    namespace oa = Gem::Geneva::OptimizationAlgorithms;
+    auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
+    const auto &groups = cfg->doubleGroups();
+    for(std::size_t i = 0; i < groups.size(); i++) {
+        if(not groups[i].active) {
+            continue; // a fixed (adaptionMode::NEVER) parameter -- never adapted, no adaptor
+        }
+        if(use_bi_gaussian_) {
+            cfg->groupDouble(i).biGauss(
+                sigma1_, sigma_sigma1_, min_sigma1_, max_sigma1_, sigma2_, sigma_sigma2_, min_sigma2_,
+                max_sigma2_, delta_, sigma_delta_, min_delta_, max_delta_, ad_prob_,
+                /*use_symmetric_sigmas=*/false, adapt_ad_prob_, adaption_threshold_
+            );
+        }
+        else {
+            cfg->groupDouble(i).gauss(
+                sigma1_, sigma_sigma1_, min_sigma1_, max_sigma1_, ad_prob_, adapt_ad_prob_,
+                adaption_threshold_, Gem::Geneva::adaptionMode::WITHPROBABILITY, min_ad_prob_, max_ad_prob_
+            );
+        }
+    }
+    return cfg;
 }
 
 /******************************************************************************/

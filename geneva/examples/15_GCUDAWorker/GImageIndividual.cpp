@@ -217,24 +217,11 @@ void GImageIndividual::init(
             return bld.addDouble(init, lo, hi);
         }
     };
-    auto mainGauss = [&](gpar::ParamHandle<gimage_fp_t> &h) {
-        h.gaussAdaptor(
-            static_cast<gimage_fp_t>(sigma), static_cast<gimage_fp_t>(sigmaSigma),
-            static_cast<gimage_fp_t>(minSigma), static_cast<gimage_fp_t>(maxSigma),
-            static_cast<gimage_fp_t>(adProb), static_cast<gimage_fp_t>(adaptAdProb), 1,
-            adaptionMode::WITHPROBABILITY,
-            static_cast<gimage_fp_t>(minAdProb), static_cast<gimage_fp_t>(maxAdProb)
-        );
-    };
-    auto locGauss = [&](gpar::ParamHandle<gimage_fp_t> &h) {
-        h.gaussAdaptor(
-            static_cast<gimage_fp_t>(loc_sigma), static_cast<gimage_fp_t>(loc_sigmaSigma),
-            static_cast<gimage_fp_t>(loc_minSigma), static_cast<gimage_fp_t>(loc_maxSigma),
-            static_cast<gimage_fp_t>(loc_adProb), static_cast<gimage_fp_t>(loc_adaptAdProb), 1,
-            adaptionMode::WITHPROBABILITY,
-            static_cast<gimage_fp_t>(loc_minAdProb), static_cast<gimage_fp_t>(loc_maxAdProb)
-        );
-    };
+    // The Gauss adaptors live on the OA-owned config (built below), not the genome layout. Tag each group
+    // with its adaptor class -- "main" (size / angles / colours / alpha / background) or "loc" (centre x/y)
+    // -- so the config can author the matching adaptor onto them by label.
+    auto mainGauss = [](gpar::ParamHandle<gimage_fp_t> &h) { h.label("main"); };
+    auto locGauss = [](gpar::ParamHandle<gimage_fp_t> &h) { h.label("loc"); };
 
     for(std::size_t t_cnt = 0; t_cnt < nTriangles_; t_cnt++) {
         // middle-x and -y: the location adaptor.
@@ -304,6 +291,21 @@ void GImageIndividual::init(
     // frozen background) keep their seeds.
     this->setGenome(bld.build());
     this->randomInit(activityMode::ACTIVEONLY);
+
+    // Author the OA-owned adaption config from the labelled genome: the location adaptor on the "loc"
+    // (centre) groups and the main adaptor on every "main" group. The frozen alpha / background groups are
+    // labelled "main" too but were built adaptionMode::NEVER (inactive), so the adaption kernel skips them
+    // -- exactly as the former per-group gaussAdaptor + NEVER did.
+    namespace oa = Gem::Geneva::OptimizationAlgorithms;
+    adaption_config_ = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
+    adaption_config_->forLabel("loc").gauss(
+        loc_sigma, loc_sigmaSigma, loc_minSigma, loc_maxSigma, loc_adProb, loc_adaptAdProb, 1,
+        adaptionMode::WITHPROBABILITY, loc_minAdProb, loc_maxAdProb
+    );
+    adaption_config_->forLabel("main").gauss(
+        sigma, sigmaSigma, minSigma, maxSigma, adProb, adaptAdProb, 1, adaptionMode::WITHPROBABILITY,
+        minAdProb, maxAdProb
+    );
 }
 
 /** @brief Allows an external entity to set our fitness */
@@ -453,6 +455,7 @@ void GImageIndividual::load_(const gpar::GOptimizableEntity *cp) {
     mutateAlphaChannel_ = p_load->mutateAlphaChannel_;
     width_ = p_load->width_;
     height_ = p_load->height_;
+    adaption_config_ = p_load->adaption_config_; // share the OA-owned config (transient, read-only)
 }
 
 /******************************************************************************/
@@ -497,8 +500,10 @@ bool GImageIndividual::modify_GUnitTests_() {
     gpar::GFlatGenome::modify_GUnitTests();
 
     // Change the parameter settings. The adaption state + logic are OA-owned (Phase 10); a standalone
-    // individual drives them via a self-owned scratch + config (StandaloneAdapter).
-    Gem::Geneva::OptimizationAlgorithms::StandaloneAdapter(*this).adapt(*this);
+    // individual drives them via a self-owned scratch + the config it authored in init() (StandaloneAdapter).
+    if(adaption_config_) {
+        Gem::Geneva::OptimizationAlgorithms::StandaloneAdapter(*this, adaption_config_).adapt(*this);
+    }
 
     return true;
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

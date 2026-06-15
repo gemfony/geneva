@@ -70,6 +70,11 @@
 #include "GImageScalar.hpp"
 
 namespace Gem::Geneva {
+
+namespace OptimizationAlgorithms {
+class GAdaptionConfigBase;
+} // namespace OptimizationAlgorithms
+
 constexpr std::size_t GII_DEF_NTRIANGLES = static_cast<std::size_t>(300);
 constexpr double GII_DEF_STARTSIZE = 0.;
 constexpr double GII_DEF_MINSIZE = 0.;
@@ -257,6 +262,17 @@ private:
     bool changeBGColor_{GII_DEF_CHBGCOLOR}; ///< Whether the background color should be mutated
     ///< Indicates whether the alpha-channel of triangle colors shall be mutated
     bool mutateAlphaChannel_{GII_DEF_MUTATE_ALPHA_CHANNEL};
+
+    /** @brief The OA-owned adaption config (the main + location Gauss adaptors), authored in init() onto
+     *  the labelled genome groups. Transient run/authoring data: not serialized, not compared; shared
+     *  through copy/clone so a standalone individual can drive its own adaption. */
+    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> adaption_config_;
+
+public:
+    /** @brief The OA-owned Gauss adaption config for this image's genome (location + main adaptors). */
+    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const {
+        return adaption_config_;
+    }
 
 protected:
     /** @brief Applies modifications to this object. */

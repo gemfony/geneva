@@ -48,7 +48,13 @@
 #include <geneva/ind/GFlatGenome.hpp>
 #include <geneva/ind/GGenomeBuilder.hpp>
 
+#include <memory>
+
 namespace Gem::Geneva {
+
+namespace OptimizationAlgorithms {
+class GAdaptionConfigBase;
+} // namespace OptimizationAlgorithms
 
 /******************************************************************/
 /**
@@ -80,6 +86,9 @@ public:
     GMPIEvaluatedIndividual(const GMPIEvaluatedIndividual &);
     /** @brief The standard destructor */
     ~GMPIEvaluatedIndividual() override;
+
+    /** @brief The OA-owned adaption config authoring this genome's two Gauss groups. */
+    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const;
 
     static void setCommunicator(MPI_Comm);
 

@@ -140,7 +140,12 @@ GStarterIndividual::GStarterIndividual(
  */
 GStarterIndividual::GStarterIndividual(const GStarterIndividual &cp)
   : gpar::GFlatGenome(cp)
-  , targetFunction_(cp.targetFunction_) { /* nothing */
+  , targetFunction_(cp.targetFunction_)
+  , seed_sigma_(cp.seed_sigma_)
+  , seed_sigma_sigma_(cp.seed_sigma_sigma_)
+  , seed_min_sigma_(cp.seed_min_sigma_)
+  , seed_max_sigma_(cp.seed_max_sigma_)
+  , seed_ad_prob_(cp.seed_ad_prob_) { /* nothing */
 }
 
 /******************************************************************************/
@@ -177,6 +182,11 @@ void GStarterIndividual::compare_(
 
     // ... and then the local data
     Gem::Common::compare_t(IDENTITY(targetFunction_, p_load->targetFunction_), token);
+    Gem::Common::compare_t(IDENTITY(seed_sigma_, p_load->seed_sigma_), token);
+    Gem::Common::compare_t(IDENTITY(seed_sigma_sigma_, p_load->seed_sigma_sigma_), token);
+    Gem::Common::compare_t(IDENTITY(seed_min_sigma_, p_load->seed_min_sigma_), token);
+    Gem::Common::compare_t(IDENTITY(seed_max_sigma_, p_load->seed_max_sigma_), token);
+    Gem::Common::compare_t(IDENTITY(seed_ad_prob_, p_load->seed_ad_prob_), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -234,17 +244,24 @@ targetFunction GStarterIndividual::getTargetFunction() const {
  * @return The average value of sigma used in Gauss adaptors
  */
 double GStarterIndividual::getAverageSigma() const {
-    // Phase 10: the live evolving per-group Gauss sigmas are OA-owned scratch and live on the
-    // GIndividualSlot, not on the individual; an individual queried in isolation (as here) is detached
-    // from its slot, so this reports the configured SEED sigmas read from a freshly seeded scratch via
-    // the OA-side readAdaptionSigmas() free function.
-    oa::GAdaptionConfigBase cfg(*this);
-    gpar::GAuxiliaryStore seed_scratch;
-    oa::seedAdaptionStates(*this, seed_scratch);
-    std::vector<double> sigmas = oa::readAdaptionSigmas(seed_scratch, cfg, "GDoubleGaussAdaptor");
+    // The Gauss adaptor configuration now lives on the OA-owned config (the genome is structure-only), and
+    // the live evolving per-group sigmas are OA-owned scratch on the GIndividualSlot, not on the
+    // individual. An individual queried in isolation (as here) is detached from its slot, so this reports
+    // the configured SEED sigma stamped at construction (every parameter group shares one configuration).
+    return seed_sigma_;
+}
 
-    // Return the average
-    return Gem::Common::GMean(sigmas);
+/******************************************************************************/
+/**
+ * Builds the OA-owned adaption configuration: every parameter group receives a Gauss adaptor with this
+ * individual's stamped (configured) parameters.
+ */
+std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> GStarterIndividual::getAdaptionConfig() const {
+    auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
+    for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
+        cfg->groupDouble(i).gauss(seed_sigma_, seed_sigma_sigma_, seed_min_sigma_, seed_max_sigma_, seed_ad_prob_);
+    }
+    return cfg;
 }
 
 /******************************************************************************/
@@ -288,6 +305,11 @@ void GStarterIndividual::load_(const gpar::GOptimizableEntity *cp) {
 
     // ... and then our local data
     targetFunction_ = p_load->targetFunction_;
+    seed_sigma_ = p_load->seed_sigma_;
+    seed_sigma_sigma_ = p_load->seed_sigma_sigma_;
+    seed_min_sigma_ = p_load->seed_min_sigma_;
+    seed_max_sigma_ = p_load->seed_max_sigma_;
+    seed_ad_prob_ = p_load->seed_ad_prob_;
 }
 
 /******************************************************************************/
@@ -383,7 +405,8 @@ bool GStarterIndividual::modify_GUnitTests_() {
     // logic are OA-owned (Phase 10); a standalone individual drives them via a self-owned scratch +
     // config (StandaloneAdapter).
     if(this->countParameters<double>() > 0) {
-        oa::StandaloneAdapter(*this).adapt(*this);
+        // The genome is structure-only; drive the self-owned adaption via the individual's authored config.
+        oa::StandaloneAdapter(*this, getAdaptionConfig()).adapt(*this);
         result = true;
     }
 

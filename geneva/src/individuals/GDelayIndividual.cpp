@@ -497,13 +497,12 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEnt
             std::tuple<double, double>(lower_rand_sleep_boundary_, upper_rand_sleep_boundary_)
         );
 
-        // Set up nVariables unbounded double parameters, each with its own Gauss adaptor. The exact
-        // adaptor configuration does not matter for this use case; the genome only provides realistic
-        // transport ballast for the overhead measurement (its adaption cost is negligible vs the sleep).
+        // Set up nVariables unbounded double parameters (structure only). This genome is pure transport
+        // ballast for the overhead measurement -- the benchmark never adapts it, so no OA adaption config
+        // is authored for it (it carries no adaptor, and customAdaptions() is a no-op).
         gpar::GGenomeBuilder gb;
         for(std::size_t var = 0; var < n_variables_; var++) {
-            // sigma, sigma_sigma, min_sigma, max_sigma, ad_prob
-            gb.addDouble(0.5).gaussAdaptor(0.025, 0.1, 0., 1., 1.);
+            gb.addDouble(0.5);
         }
         p->setGenome(gb.build());
     }
@@ -523,13 +522,12 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEnt
             std::tuple<double, double>(lower_rand_sleep_boundary_, upper_rand_sleep_boundary_)
         );
 
-        // Set up nVariables unbounded double parameters, each with its own Gauss adaptor. The exact
-        // adaptor configuration does not matter for this use case; the genome only provides realistic
-        // transport ballast for the overhead measurement (its adaption cost is negligible vs the sleep).
+        // Set up nVariables unbounded double parameters (structure only). This genome is pure transport
+        // ballast for the overhead measurement -- the benchmark never adapts it, so no OA adaption config
+        // is authored for it (it carries no adaptor, and customAdaptions() is a no-op).
         gpar::GGenomeBuilder gb;
         for(std::size_t var = 0; var < n_variables_; var++) {
-            // sigma, sigma_sigma, min_sigma, max_sigma, ad_prob
-            gb.addDouble(0.5).gaussAdaptor(0.025, 0.1, 0., 1., 1.);
+            gb.addDouble(0.5);
         }
         p->setGenome(gb.build());
     }

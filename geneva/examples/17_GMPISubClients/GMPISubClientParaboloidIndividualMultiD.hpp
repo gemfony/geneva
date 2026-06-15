@@ -47,7 +47,13 @@
 #include <geneva/ind/GGenomeBuilder.hpp>
 #include <geneva/GMPISubClientIndividual.hpp>
 
+#include <memory>
+
 namespace Gem::Geneva {
+
+namespace OptimizationAlgorithms {
+class GAdaptionConfigBase;
+} // namespace OptimizationAlgorithms
 
 /******************************************************************/
 /**
@@ -82,6 +88,9 @@ public:
     GMPISubClientParaboloidIndividualMultiD(const GMPISubClientParaboloidIndividualMultiD &);
 
     static int subClientJob(MPI_Comm comm);
+
+    /** @brief The OA-owned adaption config authoring this genome's per-parameter Gauss groups. */
+    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const;
 
 protected:
     /** @brief Loads the data of another GMPISubClientParaboloidIndividualMultiD */

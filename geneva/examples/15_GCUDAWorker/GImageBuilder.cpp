@@ -138,7 +138,12 @@ int main(int argc, char **argv) {
 
     // ---- create the initial individual from its factory and add it to Go2 ---------------------
     GImageIndividualFactory f("config/GImageIndividual.json");
-    go.push_back(f());
+    auto initial = f();
+    go.push_back(initial);
+
+    // The genome carries only structure; its main + location Gauss adaptors live on an OA-owned config the
+    // individual authored in init(). Register it for the evolutionary algorithm.
+    go.registerAdaptionConfig("PERSONALITY_EA", initial->getAdaptionConfig());
 
     // ---- create an evolutionary algorithm (broker mode) and run it ----------------------------
     oa::GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json");

@@ -78,6 +78,10 @@
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "hap/GRandomT.hpp"
 
+namespace Gem::Geneva::OptimizationAlgorithms {
+class GAdaptionConfigBase;
+} // namespace Gem::Geneva::OptimizationAlgorithms
+
 namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
@@ -1160,6 +1164,11 @@ public:
     void setTransferFunction(transferFunction t_f);
     /** @brief Retrieves the type of the transfer function */
     transferFunction getTransferFunction() const;
+
+    /** @brief Builds the OA-owned Gauss adaption config for a genome produced by this factory: every
+     *  weight (one double group each) gets the factory's configured Gauss adaptor. */
+    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+    getAdaptionConfig(const gpar::GFlatGenome &sample) const;
 
 protected:
     /** @brief Allows to describe local configuration options in derived classes */

@@ -33,6 +33,9 @@
 
 #include "GMPIEvaluatedIndividual.hpp"
 
+#include "geneva/oa/GAdaption.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPIEvaluatedIndividual) // NOLINT
 namespace Gem::Geneva {
 
@@ -51,8 +54,7 @@ GMPIEvaluatedIndividual::GMPIEvaluatedIndividual()
     // installed default adaptor).
     gpar::GGenomeBuilder b;
     for(std::size_t npar = 0; npar < 2; npar++) {
-        b.addDouble(M_PAR_MIN, M_PAR_MIN, M_PAR_MAX)
-            .gaussAdaptor(DEFAULTSIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, DEFAULTADPROB);
+        b.addDouble(M_PAR_MIN, M_PAR_MIN, M_PAR_MAX); // structure only; the adaptor lives on the OA config
     }
     this->setGenome(b.build());
 
@@ -115,6 +117,19 @@ void GMPIEvaluatedIndividual::load_(const gpar::GOptimizableEntity *cp) {
  */
 gpar::GFlatGenome *GMPIEvaluatedIndividual::clone_() const {
     return new GMPIEvaluatedIndividual(*this);
+}
+
+/********************************************************************************************/
+/**
+ * Builds the OA-owned adaption configuration: each of the two double parameters is its own Gauss group,
+ * configured with the default GDoubleGaussAdaptor settings the genome formerly baked into its layout.
+ */
+std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> GMPIEvaluatedIndividual::getAdaptionConfig() const {
+    auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(*this);
+    for(std::size_t npar = 0; npar < cfg->doubleGroups().size(); npar++) {
+        cfg->groupDouble(npar).gauss(DEFAULTSIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, DEFAULTADPROB);
+    }
+    return cfg;
 }
 
 /********************************************************************************************/

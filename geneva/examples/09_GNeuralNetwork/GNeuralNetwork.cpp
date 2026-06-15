@@ -125,6 +125,15 @@ int main(int argc, char **argv) {
     // Add a content creator so Go2 can generate its own individuals, if necessary
     go.registerContentCreator(gnn_ptr);
 
+    // The network genome carries only structure; the per-weight Gauss adaptor lives on an OA-owned config
+    // the factory authors. Register it for the adapting algorithms (EA / SA) so Go2 hands it over.
+    {
+        auto sample = gnn_ptr->get_as<gind::GNeuralNetworkIndividual>();
+        auto cfg = gnn_ptr->getAdaptionConfig(*sample);
+        go.registerAdaptionConfig("PERSONALITY_EA", cfg);
+        go.registerAdaptionConfig("PERSONALITY_SA", cfg);
+    }
+
     // Perform the actual optimization and retrieve the best individual
     std::shared_ptr<gind::GNeuralNetworkIndividual> p =
         go.optimize()->getBestGlobalIndividual<gind::GNeuralNetworkIndividual>();

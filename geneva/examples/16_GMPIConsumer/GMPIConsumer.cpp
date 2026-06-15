@@ -284,6 +284,10 @@ int main(int argc, char **argv) {
         pop_ptr->push_back(i->clone_unique());
     }
 
+    // The genome carries only structure; the configured Gauss / bi-Gauss adaptor lives on an OA-owned
+    // config the factory authors. Hand it to the EA directly.
+    pop_ptr->setAdaptionConfig(gfi.getAdaptionConfig(*parentIndividuals[0]));
+
     // Submit through the courtier MPI master broker built above.
     pop_ptr->setBroker(mpiSetup.broker);
 

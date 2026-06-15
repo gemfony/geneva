@@ -55,6 +55,10 @@
 namespace Gem {
 namespace Geneva {
 
+namespace OptimizationAlgorithms {
+class GAdaptionConfigBase;
+} // namespace OptimizationAlgorithms
+
 /******************************************************************************/
 /**
  * This enum denotes the possible demo function types
@@ -92,7 +96,9 @@ class GStarterIndividual : public gpar::GFlatGenome {
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome) &
-            BOOST_SERIALIZATION_NVP(targetFunction_);
+            BOOST_SERIALIZATION_NVP(targetFunction_) & BOOST_SERIALIZATION_NVP(seed_sigma_) &
+            BOOST_SERIALIZATION_NVP(seed_sigma_sigma_) & BOOST_SERIALIZATION_NVP(seed_min_sigma_) &
+            BOOST_SERIALIZATION_NVP(seed_max_sigma_) & BOOST_SERIALIZATION_NVP(seed_ad_prob_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -127,6 +133,10 @@ public:
 
     /** @brief Retrieves the average value of the sigma used in local Gauss adaptors */
     double getAverageSigma() const;
+
+    /** @brief The OA-owned Gauss adaption config authoring every parameter group with this individual's
+     *  configured (stamped) adaptor parameters. */
+    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const;
 
     /** @brief Emit information about this individual */
     std::string print();
@@ -179,13 +189,19 @@ public:
 
 #endif /* DEBUG */
 
-        // Build the flat genome: one constrained double per parameter, each with its own Gauss adaptor.
+        // Build the flat genome's STRUCTURE: one constrained double per parameter. The Gauss adaptor lives
+        // on the OA-owned config (getAdaptionConfig()); stamp its parameters here so the individual can
+        // author that config and report its configured seed sigma.
         gpar::GGenomeBuilder b;
         for(std::size_t i = 0; i < startValues.size(); i++) {
-            b.addDouble(startValues.at(i), lowerBoundaries.at(i), upperBoundaries.at(i))
-                .gaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma, adProb);
+            b.addDouble(startValues.at(i), lowerBoundaries.at(i), upperBoundaries.at(i));
         }
         p.setGenome(b.build());
+        p.seed_sigma_ = sigma;
+        p.seed_sigma_sigma_ = sigmaSigma;
+        p.seed_min_sigma_ = minSigma;
+        p.seed_max_sigma_ = maxSigma;
+        p.seed_ad_prob_ = adProb;
 
         // The first individual keeps the supplied start values; all others start randomly within bounds.
         if(Gem::Common::GFACTTORYFIRSTID != prod_id) {
@@ -229,6 +245,16 @@ private:
 
     targetFunction targetFunction_ =
         GO_DEF_TARGETFUNCTION; ///< Specifies which demo function should be used
+
+    /***************************************************************************/
+    // The configured Gauss adaptor parameters, stamped by addContent(). They live here (not in the
+    // structure-only genome layout) so the individual can author its OA-owned adaption config and report
+    // its configured seed sigma. All parameter groups share one configuration.
+    double seed_sigma_ = 0.025;
+    double seed_sigma_sigma_ = 0.6;
+    double seed_min_sigma_ = 0.001;
+    double seed_max_sigma_ = 2.;
+    double seed_ad_prob_ = 0.05;
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */

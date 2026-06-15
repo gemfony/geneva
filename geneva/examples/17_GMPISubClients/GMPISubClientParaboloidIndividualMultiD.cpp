@@ -33,6 +33,9 @@
 
 #include "GMPISubClientParaboloidIndividualMultiD.hpp"
 
+#include "geneva/oa/GAdaption.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPISubClientParaboloidIndividualMultiD) // NOLINT
 namespace Gem::Geneva {
 
@@ -50,8 +53,7 @@ GMPISubClientParaboloidIndividualMultiD::GMPISubClientParaboloidIndividualMultiD
     // installed default adaptor).
     gpar::GGenomeBuilder b;
     for(std::size_t npar = 0; npar < nParameters_; npar++) {
-        b.addDouble(M_PAR_MIN, M_PAR_MIN, M_PAR_MAX)
-            .gaussAdaptor(DEFAULTSIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, DEFAULTADPROB);
+        b.addDouble(M_PAR_MIN, M_PAR_MIN, M_PAR_MAX); // structure only; the adaptor lives on the OA config
     }
     this->setGenome(b.build());
 
@@ -102,6 +104,20 @@ void GMPISubClientParaboloidIndividualMultiD::load_(const gpar::GOptimizableEnti
  */
 gpar::GFlatGenome *GMPISubClientParaboloidIndividualMultiD::clone_() const {
     return new GMPISubClientParaboloidIndividualMultiD(*this);
+}
+
+/********************************************************************************************/
+/**
+ * Builds the OA-owned adaption configuration: every parameter is its own Gauss group, configured with the
+ * default GDoubleGaussAdaptor settings the genome formerly baked into its layout.
+ */
+std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+GMPISubClientParaboloidIndividualMultiD::getAdaptionConfig() const {
+    auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(*this);
+    for(std::size_t npar = 0; npar < cfg->doubleGroups().size(); npar++) {
+        cfg->groupDouble(npar).gauss(DEFAULTSIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, DEFAULTADPROB);
+    }
+    return cfg;
 }
 
 /********************************************************************************************/

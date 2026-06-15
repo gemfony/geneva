@@ -64,6 +64,16 @@ int main(int argc, char **argv) {
     // Add a content creator so Go2 can generate its own individuals, if necessary^
     go.registerContentCreator(geei_ptr);
 
+    // The genome carries only structure; the configured Gauss / bi-Gauss adaptor for the active variables
+    // lives on an OA-owned config the factory authors (fixed variables stay un-adapted). Register it for
+    // the adapting algorithms (EA / SA) so Go2 hands it over before they run.
+    {
+        auto sample = geei_ptr->get_as<gind::GExternalEvaluatorIndividual>();
+        auto cfg = geei_ptr->getAdaptionConfig(*sample);
+        go.registerAdaptionConfig("PERSONALITY_EA", cfg);
+        go.registerAdaptionConfig("PERSONALITY_SA", cfg);
+    }
+
     // Add a default optimization algorithm to the Go2 object
     go.registerDefaultAlgorithm("ea");
 

@@ -69,6 +69,10 @@ int main(int argc, char **argv) {
     );
     optimizer.push_back(p);
 
+    // The genome carries only structure; its Gauss adaptors live on an OA-owned config. Register it for
+    // the evolutionary algorithm so it is handed over before the EA runs.
+    optimizer.registerAdaptionConfig("PERSONALITY_EA", p->getAdaptionConfig());
+
     // Add an evolutionary algorithm to the Go2 class.
     optimizer & "ea";
 

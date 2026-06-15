@@ -41,6 +41,8 @@
 #include "common/GSingletonT.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/oa/GAdaption.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
 #include <cmath>
 #include <cstddef>
 #include <filesystem>
@@ -783,22 +785,10 @@ void GNeuralNetworkIndividual::init(
                 (layer_number == 0) ? (2 * n_nodes) : (n_nodes * (n_nodes_previous + 1));
 
             for(std::size_t i = 0; i < n_weights; i++) {
-                // sigma, sigma_sigma, min_sigma, max_sigma, ad_prob, adapt_ad_prob, threshold, mode,
-                // min_ad_prob, max_ad_prob
-                gb.addDouble(uniform_real_distribution(gr_))
-                    .gaussAdaptor(
-                        sigma,
-                        sigma_sigma,
-                        min_sigma,
-                        max_sigma,
-                        ad_prob,
-                        adapt_ad_prob,
-                        1,
-                        adaptionMode::WITHPROBABILITY,
-                        min_ad_prob,
-                        max_ad_prob
-                    )
-                    .perimeter(min, max);
+                // Structure only: an unbounded double per weight, random-initialised in [min, max). The
+                // Gauss adaptor lives on the OA-owned config (GNeuralNetworkIndividualFactory::
+                // getAdaptionConfig()), authored from the same sigma / ad_prob parameters.
+                gb.addDouble(uniform_real_distribution(gr_)).perimeter(min, max);
             }
 
             n_nodes_previous = n_nodes;
@@ -1802,6 +1792,25 @@ void GNeuralNetworkIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimi
 
     // Set the transfer function
     p->setTransferFunction(t_f_);
+}
+
+/******************************************************************************/
+/**
+ * Builds the OA-owned adaption configuration for a network genome produced by this factory: every weight
+ * (one double group each) gets a Gauss adaptor with this factory's configured parameters -- exactly the
+ * settings init() formerly baked into the genome layout.
+ */
+std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+GNeuralNetworkIndividualFactory::getAdaptionConfig(const gpar::GFlatGenome &sample) const {
+    namespace oa = Gem::Geneva::OptimizationAlgorithms;
+    auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
+    for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
+        cfg->groupDouble(i).gauss(
+            sigma_, sigma_sigma_, min_sigma_, max_sigma_, ad_prob_, adapt_ad_prob_, 1,
+            Gem::Geneva::adaptionMode::WITHPROBABILITY, min_ad_prob_, max_ad_prob_
+        );
+    }
+    return cfg;
 }
 
 /******************************************************************************/

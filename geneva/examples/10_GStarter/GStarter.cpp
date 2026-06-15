@@ -77,6 +77,15 @@ int main(int argc, char **argv) {
     // Add a content creator so Go2 can generate its own individuals, if necessary
     go.registerContentCreator(gsif_ptr);
 
+    // The genome carries only structure; its Gauss adaptor lives on an OA-owned config the individual
+    // authors from its stamped parameters. Register it for the adapting algorithms (EA / SA).
+    {
+        auto sample = gsif_ptr->get_as<GStarterIndividual>();
+        auto cfg = sample->getAdaptionConfig();
+        go.registerAdaptionConfig("PERSONALITY_EA", cfg);
+        go.registerAdaptionConfig("PERSONALITY_SA", cfg);
+    }
+
     // Perform the actual optimization
     std::shared_ptr<GStarterIndividual> bestIndividual_ptr =
         go.optimize()->getBestGlobalIndividual<GStarterIndividual>();
