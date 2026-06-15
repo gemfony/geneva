@@ -160,12 +160,17 @@ TEST_CASE("GAdaption: runAdaptionKernels mutates within bounds (config-driven)",
         AdaptCfgIndividual ind;
         oa::GEAAdaptionConfig cfg(ind);
 
+        // The per-group adaption STATE is OA-owned scratch (on the slot in a live run); here a standalone
+        // store, seeded from the config.
+        GAuxiliaryStore scratch;
+        cfg.installInto(scratch);
+
         std::vector<double> before;
         ind.streamline<double>(before);
 
         std::size_t total = 0;
         for(int it = 0; it < 5; ++it) {
-            total += oa::runAdaptionKernels(ind, cfg, gr);
+            total += oa::runAdaptionKernels(ind, scratch, cfg, gr);
         }
         CHECK(total > 0); // ad_prob == 1 over several iterations -> something adapts
 
@@ -195,20 +200,25 @@ TEST_CASE("GAdaption: readAdaptionSigmas + resetAdaptionState round-trip", "[fla
     AdaptCfgIndividual ind;
     oa::GEAAdaptionConfig cfg(ind);
 
+    // The per-group adaption STATE is OA-owned scratch (on the slot in a live run); here a standalone
+    // store, seeded from the config.
+    GAuxiliaryStore scratch;
+    cfg.installInto(scratch);
+
     // One sigma per Gauss group (3 FP groups here); all start at the seed 0.5.
-    std::vector<double> sig0 = oa::readAdaptionSigmas(ind, cfg, "GDoubleGaussAdaptor");
+    std::vector<double> sig0 = oa::readAdaptionSigmas(scratch, cfg, "GDoubleGaussAdaptor");
     REQUIRE(sig0.size() == 3);
     for(double s : sig0) {
         CHECK(s == 0.5);
     }
     // The integer Gauss adaptor reports its single group's sigma too.
-    CHECK(oa::readAdaptionSigmas(ind, cfg, "GInt32GaussAdaptor").size() == 1);
+    CHECK(oa::readAdaptionSigmas(scratch, cfg, "GInt32GaussAdaptor").size() == 1);
 
     // Drive sigma away from its seed, then reset it back.
     bool moved = false;
     for(int it = 0; it < 50 && not moved; ++it) {
-        oa::runAdaptionKernels(ind, cfg, gr);
-        std::vector<double> s = oa::readAdaptionSigmas(ind, cfg, "GDoubleGaussAdaptor");
+        oa::runAdaptionKernels(ind, scratch, cfg, gr);
+        std::vector<double> s = oa::readAdaptionSigmas(scratch, cfg, "GDoubleGaussAdaptor");
         for(double v : s) {
             if(v != 0.5) {
                 moved = true;
@@ -217,8 +227,8 @@ TEST_CASE("GAdaption: readAdaptionSigmas + resetAdaptionState round-trip", "[fla
     }
     CHECK(moved); // sigma self-adapted away from the seed
 
-    oa::resetAdaptionState(ind, cfg);
-    std::vector<double> sig_reset = oa::readAdaptionSigmas(ind, cfg, "GDoubleGaussAdaptor");
+    oa::resetAdaptionState(scratch, cfg);
+    std::vector<double> sig_reset = oa::readAdaptionSigmas(scratch, cfg, "GDoubleGaussAdaptor");
     REQUIRE(sig_reset.size() == 3);
     for(double s : sig_reset) {
         CHECK(s == 0.5); // back to the configured seed
@@ -230,11 +240,12 @@ TEST_CASE("GAdaptionConfig: installInto seeds the per-group state", "[flat][adap
     AdaptCfgIndividual ind;
     oa::GEAAdaptionConfig cfg(ind);
 
-    // Author a distinct seed, install it, and read it back through the sigma reader.
+    // Author a distinct seed, install it into a scratch store, and read it back through the sigma reader.
     cfg.groupDouble(0).gauss(1.25, 0.8, 1e-3, 2., 1.);
-    cfg.installInto(ind);
+    GAuxiliaryStore scratch;
+    cfg.installInto(scratch);
 
-    std::vector<double> sig = oa::readAdaptionSigmas(ind, cfg, "GDoubleGaussAdaptor");
+    std::vector<double> sig = oa::readAdaptionSigmas(scratch, cfg, "GDoubleGaussAdaptor");
     REQUIRE(sig.size() == 3);
     CHECK(sig[0] == 1.25); // the re-seeded group
     CHECK(sig[1] == 0.5);  // the others keep their original seed

@@ -95,8 +95,9 @@ GFlatGenome::GFlatGenome(GFlatGenome const &cp)
 
 /******************************************************************************/
 /**
- * Installs the value arrays + shared layout produced by a GGenomeBuilder and seeds the per-group
- * adaption state in the auxiliary store from the layout configuration.
+ * Installs the value arrays + shared layout produced by a GGenomeBuilder. The per-group adaption state
+ * is OA-owned scratch (it lives on the GIndividualSlot, not on the individual) and is no longer seeded
+ * here -- an optimization algorithm seeds each slot's scratch from its adaption config at setup.
  */
 void GFlatGenome::setGenome(Genome const &g) {
     dv_ = g.dv;
@@ -105,66 +106,7 @@ void GFlatGenome::setGenome(Genome const &g) {
     bv_ = g.bv;
     layout_ = g.layout ? g.layout : std::make_shared<const GGenomeLayout>();
 
-    installAdaptionStates();
     this->mark_as_due_for_processing();
-}
-
-/******************************************************************************/
-/**
- * Seeds the per-group adaption state in the auxiliary store from the (shared) layout config. Each
- * adaptor kind (Gauss / BiGauss / Flip) gets its own state block per channel; only channels that
- * actually carry an adaptor of that kind get a block. The seeds (sigma / sigma1 / sigma2 / delta /
- * ad_prob) also serve as the reset targets for updateAdaptorsOnStall(). State blocks are sized to the
- * full group count and indexed by group position, with entries for foreign-kind groups left at their
- * defaults (unused).
- */
-void GFlatGenome::installAdaptionStates() {
-    auto seed_gauss = [this]<typename T>(ChannelLayout<T> const &ch, AuxKey key) {
-        if(std::none_of(ch.groups.begin(), ch.groups.end(), [](const auto &g) { return g.has_gauss; })) {
-            return;
-        }
-        this->installAuxBlock<GaussState<adaption_fp_t<T>>>(key, ch.groups.size(), AuxScope::PerIndividual);
-        std::span<GaussState<adaption_fp_t<T>>> states = this->metaRecords<GaussState<adaption_fp_t<T>>>(key);
-        for(std::size_t gi = 0; gi < ch.groups.size(); ++gi) {
-            states[gi].sigma = ch.groups[gi].start_sigma;
-            states[gi].ad_prob = ch.groups[gi].start_ad_prob;
-            states[gi].counter = 0;
-        }
-    };
-
-    auto seed_bigauss = [this]<typename T>(ChannelLayout<T> const &ch, AuxKey key) {
-        if(std::none_of(ch.groups.begin(), ch.groups.end(), [](const auto &g) { return g.has_bigauss; })) {
-            return;
-        }
-        this->installAuxBlock<BiGaussState<adaption_fp_t<T>>>(key, ch.groups.size(), AuxScope::PerIndividual);
-        std::span<BiGaussState<adaption_fp_t<T>>> states = this->metaRecords<BiGaussState<adaption_fp_t<T>>>(key);
-        for(std::size_t gi = 0; gi < ch.groups.size(); ++gi) {
-            states[gi].sigma1 = ch.groups[gi].start_sigma1;
-            states[gi].sigma2 = ch.groups[gi].start_sigma2;
-            states[gi].delta = ch.groups[gi].start_delta;
-            states[gi].ad_prob = ch.groups[gi].start_ad_prob;
-            states[gi].counter = 0;
-        }
-    };
-
-    auto seed_flip = [this]<typename T>(ChannelLayout<T> const &ch, AuxKey key) {
-        if(std::none_of(ch.groups.begin(), ch.groups.end(), [](const auto &g) { return g.has_flip; })) {
-            return;
-        }
-        this->installAuxBlock<FlipState>(key, ch.groups.size(), AuxScope::PerIndividual);
-        std::span<FlipState> states = this->metaRecords<FlipState>(key);
-        for(std::size_t gi = 0; gi < ch.groups.size(); ++gi) {
-            states[gi].ad_prob = ch.groups[gi].start_ad_prob;
-        }
-    };
-
-    seed_gauss(layout_->d, AUXKEY_GAUSS_DOUBLE);
-    seed_gauss(layout_->f, AUXKEY_GAUSS_FLOAT);
-    seed_gauss(layout_->i, AUXKEY_GAUSS_INT); // GaussState<adaption_fp_t<int32>> = GaussState<double>
-    seed_bigauss(layout_->d, AUXKEY_BIGAUSS_DOUBLE);
-    seed_bigauss(layout_->f, AUXKEY_BIGAUSS_FLOAT);
-    seed_flip(layout_->i, AUXKEY_FLIP_INT);
-    seed_flip(layout_->b, AUXKEY_FLIP_BOOL);
 }
 
 /******************************************************************************/
@@ -286,121 +228,6 @@ bool GFlatGenome::randomInitBool(activityMode const &am) {
         modified = true;
     }
     return modified;
-}
-
-/******************************************************************************/
-/**
- * The actual adaption operations: runs the data-oriented kernels over each channel, mutating the
- * stored (internal) values in place. FP channels run the Gauss and/or BiGauss kernels (per group); the
- * int and bool channels run the Flip kernel. Constrained values are folded into their external range
- * on read (streamline), exactly like the tree.
- */
-std::size_t GFlatGenome::customAdaptions() {
-    std::size_t n = 0;
-    n += adaptFPChannel<double>(dv_, layout_->d, AUXKEY_GAUSS_DOUBLE);
-    n += adaptFPChannel<float>(fv_, layout_->f, AUXKEY_GAUSS_FLOAT);
-    n += adaptBiGaussChannel<double>(dv_, layout_->d, AUXKEY_BIGAUSS_DOUBLE);
-    n += adaptBiGaussChannel<float>(fv_, layout_->f, AUXKEY_BIGAUSS_FLOAT);
-    n += adaptGaussIntChannel();
-    n += adaptFlipIntChannel();
-    n += adaptFlipBoolChannel();
-    return n;
-}
-
-template <typename T>
-std::size_t GFlatGenome::adaptFPChannel(std::vector<T> &store, ChannelLayout<T> const &ch, AuxKey key) {
-    if(not this->hasAux(key)) {
-        return 0;
-    }
-    std::span<GaussState<T>> states = this->metaRecords<GaussState<T>>(key);
-
-    std::size_t n = 0;
-    for(std::size_t gi = 0; gi < ch.groups.size(); ++gi) {
-        const GroupSpec<T> &g = ch.groups[gi];
-        if(not g.has_gauss || not g.active) {
-            continue;
-        }
-        std::span<T> vals(store.data() + g.start, g.len);
-        n += adaptGaussGroup<T>(g.gauss, states[gi], vals, g.range, gr_);
-    }
-    return n;
-}
-
-template <typename T>
-std::size_t GFlatGenome::adaptBiGaussChannel(std::vector<T> &store, ChannelLayout<T> const &ch, AuxKey key) {
-    if(not this->hasAux(key)) {
-        return 0;
-    }
-    std::span<BiGaussState<T>> states = this->metaRecords<BiGaussState<T>>(key);
-
-    std::size_t n = 0;
-    for(std::size_t gi = 0; gi < ch.groups.size(); ++gi) {
-        const GroupSpec<T> &g = ch.groups[gi];
-        if(not g.has_bigauss || not g.active) {
-            continue;
-        }
-        std::span<T> vals(store.data() + g.start, g.len);
-        n += adaptBiGaussGroup<T>(g.bigauss, states[gi], vals, g.range, gr_);
-    }
-    return n;
-}
-
-std::size_t GFlatGenome::adaptGaussIntChannel() {
-    if(not this->hasAux(AUXKEY_GAUSS_INT)) {
-        return 0;
-    }
-    const ChannelLayout<std::int32_t> &ch = layout_->i;
-    // The int32 channel's adaption-fp type is double, so its Gauss state is GaussState<double>.
-    std::span<GaussState<double>> states = this->metaRecords<GaussState<double>>(AUXKEY_GAUSS_INT);
-
-    std::size_t n = 0;
-    for(std::size_t gi = 0; gi < ch.groups.size(); ++gi) {
-        const GroupSpec<std::int32_t> &g = ch.groups[gi];
-        if(not g.has_gauss || not g.active) {
-            continue;
-        }
-        std::span<std::int32_t> vals(iv_.data() + g.start, g.len);
-        n += adaptGaussIntGroup(g.gauss, states[gi], vals, g.range, gr_);
-    }
-    return n;
-}
-
-std::size_t GFlatGenome::adaptFlipIntChannel() {
-    if(not this->hasAux(AUXKEY_FLIP_INT)) {
-        return 0;
-    }
-    const ChannelLayout<std::int32_t> &ch = layout_->i;
-    std::span<FlipState> states = this->metaRecords<FlipState>(AUXKEY_FLIP_INT);
-
-    std::size_t n = 0;
-    for(std::size_t gi = 0; gi < ch.groups.size(); ++gi) {
-        const GroupSpec<std::int32_t> &g = ch.groups[gi];
-        if(not g.has_flip || not g.active) {
-            continue;
-        }
-        std::span<std::int32_t> vals(iv_.data() + g.start, g.len);
-        n += adaptFlipIntGroup(g.flip, states[gi], vals, gr_);
-    }
-    return n;
-}
-
-std::size_t GFlatGenome::adaptFlipBoolChannel() {
-    if(not this->hasAux(AUXKEY_FLIP_BOOL)) {
-        return 0;
-    }
-    const ChannelLayout<bool> &ch = layout_->b;
-    std::span<FlipState> states = this->metaRecords<FlipState>(AUXKEY_FLIP_BOOL);
-
-    std::size_t n = 0;
-    for(std::size_t gi = 0; gi < ch.groups.size(); ++gi) {
-        const GroupSpec<bool> &g = ch.groups[gi];
-        if(not g.has_flip || not g.active) {
-            continue;
-        }
-        std::span<std::uint8_t> vals(bv_.data() + g.start, g.len);
-        n += adaptFlipBoolGroup(g.flip, states[gi], vals, gr_);
-    }
-    return n;
 }
 
 /******************************************************************************/

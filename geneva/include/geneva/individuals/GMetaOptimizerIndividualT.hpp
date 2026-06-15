@@ -52,6 +52,7 @@
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
+#include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 
 namespace Gem::Geneva::Individuals {
@@ -920,9 +921,11 @@ protected:
             result = true;
         }
 
-        // Change the parameter settings (only when the genome has actually been built)
+        // Change the parameter settings (only when the genome has actually been built). The adaption
+        // state + logic are OA-owned (Phase 10); a standalone individual drives them via a self-owned
+        // scratch + config (StandaloneAdapter).
         if(this->template countParameters<std::int32_t>() + this->template countParameters<double>() > 0) {
-            this->adapt();
+            Gem::Geneva::OptimizationAlgorithms::StandaloneAdapter(*this).adapt(*this);
             result = true;
         }
 

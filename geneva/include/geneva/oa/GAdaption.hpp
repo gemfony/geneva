@@ -41,6 +41,7 @@
 // Geneva headers go here
 #include "geneva/ind/GAdaptionAuxKeys.hpp"
 #include "geneva/ind/GAdaptionKernels.hpp"
+#include "geneva/ind/GAuxiliaryStore.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "hap/GRandomBase.hpp"
@@ -49,16 +50,15 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /**
- * The OA-side adaption logic, expressed as stateless free functions over (individual, config, RNG). It
- * is the data-oriented twin of the individual's GFlatGenome::customAdaptions() / updateAdaptorsOnStall()
- * / queryAdaptor(), but driven by an OA-OWNED GAdaptionConfig rather than by the (soon structure-only)
- * genome layout. The config supplies each group's adaptor kind + parameters; the genome supplies the
- * mutable internal value spans and the per-group evolving state (in its auxiliary store); the RNG is the
- * individual's own per-individual stream. Each call touches only this individual's values + state + RNG
- * and reads the shared config read-only, so the functions compose with the EA's parallel adaptChildren_.
- *
- * In Phase 8 step 2 these are NEW, not yet wired into any OA; step 3 routes EA / SA / GParChild through
- * them and deletes the equivalent methods from the individual.
+ * The OA-side adaption logic, expressed as stateless free functions over (individual, scratch, config,
+ * RNG). It is the data-oriented twin of the individual's former GFlatGenome::customAdaptions() /
+ * updateAdaptorsOnStall() / queryAdaptor(), but driven by an OA-OWNED GAdaptionConfig rather than by the
+ * (soon structure-only) genome layout. The config supplies each group's adaptor kind + parameters; the
+ * genome supplies the mutable internal value spans; the per-group evolving state lives in an OA-owned
+ * GAuxiliaryStore (the GIndividualSlot's scratch_) passed in explicitly — it is no longer carried by the
+ * individual, which is now pure data. The RNG is the individual's own per-individual stream. Each call
+ * touches only this individual's values + its slot's scratch + its RNG and reads the shared config
+ * read-only, so the functions compose with the EA's parallel adaptChildren_.
  */
 
 namespace detail {
@@ -67,22 +67,23 @@ using Gem::Geneva::Parameters::AuxKey;
 using Gem::Geneva::Parameters::BiGaussState;
 using Gem::Geneva::Parameters::FlipState;
 using Gem::Geneva::Parameters::GaussState;
+using Gem::Geneva::Parameters::GAuxiliaryStore;
 using Gem::Geneva::Parameters::GFlatGenome;
 using Gem::Geneva::Parameters::GroupSpec;
 
-/** @brief Runs the Gauss kernel over one FP channel using the GaussState block under key. */
+/** @brief Runs the Gauss kernel over one FP channel using the GaussState block (in scratch) under key. */
 template <typename T>
 std::size_t adaptGaussChannel(
-    GFlatGenome &ind,
+    GAuxiliaryStore &scratch,
     const std::vector<GroupSpec<T>> &groups,
     std::span<T> values,
     AuxKey key,
     Gem::Hap::GRandomBase &gr
 ) {
-    if(not ind.hasAux(key)) {
+    if(not scratch.hasAux(key)) {
         return 0;
     }
-    std::span<GaussState<T>> states = ind.metaRecords<GaussState<T>>(key);
+    std::span<GaussState<T>> states = scratch.metaRecords<GaussState<T>>(key);
     std::size_t n = 0;
     for(std::size_t gi = 0; gi < groups.size(); ++gi) {
         const GroupSpec<T> &g = groups[gi];
@@ -96,19 +97,19 @@ std::size_t adaptGaussChannel(
     return n;
 }
 
-/** @brief Runs the bi-gaussian kernel over one FP channel using the BiGaussState block under key. */
+/** @brief Runs the bi-gaussian kernel over one FP channel using the BiGaussState block (in scratch) under key. */
 template <typename T>
 std::size_t adaptBiGaussChannel(
-    GFlatGenome &ind,
+    GAuxiliaryStore &scratch,
     const std::vector<GroupSpec<T>> &groups,
     std::span<T> values,
     AuxKey key,
     Gem::Hap::GRandomBase &gr
 ) {
-    if(not ind.hasAux(key)) {
+    if(not scratch.hasAux(key)) {
         return 0;
     }
-    std::span<BiGaussState<T>> states = ind.metaRecords<BiGaussState<T>>(key);
+    std::span<BiGaussState<T>> states = scratch.metaRecords<BiGaussState<T>>(key);
     std::size_t n = 0;
     for(std::size_t gi = 0; gi < groups.size(); ++gi) {
         const GroupSpec<T> &g = groups[gi];
@@ -130,19 +131,23 @@ std::size_t adaptBiGaussChannel(
  * "customAdaptions" half of adapt(), config-injected). Mirrors GFlatGenome::customAdaptions()'s channel
  * order exactly. Returns the number of values actually adapted.
  */
-inline std::size_t
-runAdaptionKernels(detail::GFlatGenome &ind, const GAdaptionConfigBase &cfg, Gem::Hap::GRandomBase &gr) {
+inline std::size_t runAdaptionKernels(
+    detail::GFlatGenome &ind,
+    detail::GAuxiliaryStore &scratch,
+    const GAdaptionConfigBase &cfg,
+    Gem::Hap::GRandomBase &gr
+) {
     using namespace Gem::Geneva::Parameters;
 
     std::size_t n = 0;
-    n += detail::adaptGaussChannel<double>(ind, cfg.doubleGroups(), ind.internalDoubleValues(), AUXKEY_GAUSS_DOUBLE, gr);
-    n += detail::adaptGaussChannel<float>(ind, cfg.floatGroups(), ind.internalFloatValues(), AUXKEY_GAUSS_FLOAT, gr);
-    n += detail::adaptBiGaussChannel<double>(ind, cfg.doubleGroups(), ind.internalDoubleValues(), AUXKEY_BIGAUSS_DOUBLE, gr);
-    n += detail::adaptBiGaussChannel<float>(ind, cfg.floatGroups(), ind.internalFloatValues(), AUXKEY_BIGAUSS_FLOAT, gr);
+    n += detail::adaptGaussChannel<double>(scratch, cfg.doubleGroups(), ind.internalDoubleValues(), AUXKEY_GAUSS_DOUBLE, gr);
+    n += detail::adaptGaussChannel<float>(scratch, cfg.floatGroups(), ind.internalFloatValues(), AUXKEY_GAUSS_FLOAT, gr);
+    n += detail::adaptBiGaussChannel<double>(scratch, cfg.doubleGroups(), ind.internalDoubleValues(), AUXKEY_BIGAUSS_DOUBLE, gr);
+    n += detail::adaptBiGaussChannel<float>(scratch, cfg.floatGroups(), ind.internalFloatValues(), AUXKEY_BIGAUSS_FLOAT, gr);
 
     // Integer Gauss (state is GaussState<double>, range is int32).
-    if(ind.hasAux(AUXKEY_GAUSS_INT)) {
-        std::span<GaussState<double>> states = ind.metaRecords<GaussState<double>>(AUXKEY_GAUSS_INT);
+    if(scratch.hasAux(AUXKEY_GAUSS_INT)) {
+        std::span<GaussState<double>> states = scratch.metaRecords<GaussState<double>>(AUXKEY_GAUSS_INT);
         std::span<std::int32_t> values = ind.internalInt32Values();
         const auto &groups = cfg.int32Groups();
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
@@ -155,8 +160,8 @@ runAdaptionKernels(detail::GFlatGenome &ind, const GAdaptionConfigBase &cfg, Gem
     }
 
     // Flip over the int32 channel.
-    if(ind.hasAux(AUXKEY_FLIP_INT)) {
-        std::span<FlipState> states = ind.metaRecords<FlipState>(AUXKEY_FLIP_INT);
+    if(scratch.hasAux(AUXKEY_FLIP_INT)) {
+        std::span<FlipState> states = scratch.metaRecords<FlipState>(AUXKEY_FLIP_INT);
         std::span<std::int32_t> values = ind.internalInt32Values();
         const auto &groups = cfg.int32Groups();
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
@@ -169,8 +174,8 @@ runAdaptionKernels(detail::GFlatGenome &ind, const GAdaptionConfigBase &cfg, Gem
     }
 
     // Flip over the bool channel.
-    if(ind.hasAux(AUXKEY_FLIP_BOOL)) {
-        std::span<FlipState> states = ind.metaRecords<FlipState>(AUXKEY_FLIP_BOOL);
+    if(scratch.hasAux(AUXKEY_FLIP_BOOL)) {
+        std::span<FlipState> states = scratch.metaRecords<FlipState>(AUXKEY_FLIP_BOOL);
         std::span<std::uint8_t> values = ind.internalBoolValues();
         const auto &groups = cfg.boolGroups();
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
@@ -198,7 +203,11 @@ runAdaptionKernels(detail::GFlatGenome &ind, const GAdaptionConfigBase &cfg, Gem
  * adaption count on the individual, and returns it. Touches only this individual's values + aux state +
  * RNG, so it composes with the EA's parallel adaptChildren_.
  */
-inline std::size_t adaptIndividual(detail::GFlatGenome &ind, const GAdaptionConfigBase &cfg) {
+inline std::size_t adaptIndividual(
+    detail::GFlatGenome &ind,
+    detail::GAuxiliaryStore &scratch,
+    const GAdaptionConfigBase &cfg
+) {
     Gem::Hap::GRandomBase &gr = ind.getRandomEngine();
 
     const std::size_t max_unsuccessful = ind.getMaxUnsuccessfulAdaptions();
@@ -212,7 +221,7 @@ inline std::size_t adaptIndividual(detail::GFlatGenome &ind, const GAdaptionConf
     while(true) {
         // Make sure at least one modification is performed.
         while(true) {
-            if((n_adaptions = runAdaptionKernels(ind, cfg, gr)) > 0) {
+            if((n_adaptions = runAdaptionKernels(ind, scratch, cfg, gr)) > 0) {
                 break;
             }
             if(max_unsuccessful > 0 && ++n_adaption_attempts > max_unsuccessful) {
@@ -237,14 +246,14 @@ inline std::size_t adaptIndividual(detail::GFlatGenome &ind, const GAdaptionConf
  * @brief Resets an individual's per-group adaption state to the config's seed values (the stall-reset).
  * Mirrors GFlatGenome::updateAdaptorsOnStall(), but driven by the OA-owned config.
  */
-inline void resetAdaptionState(detail::GFlatGenome &ind, const GAdaptionConfigBase &cfg) {
+inline void resetAdaptionState(detail::GAuxiliaryStore &scratch, const GAdaptionConfigBase &cfg) {
     using namespace Gem::Geneva::Parameters;
 
     auto resetGauss = [&]<typename T>(const std::vector<GroupSpec<T>> &groups, AuxKey key) {
-        if(not ind.hasAux(key)) {
+        if(not scratch.hasAux(key)) {
             return;
         }
-        std::span<GaussState<adaption_fp_t<T>>> states = ind.metaRecords<GaussState<adaption_fp_t<T>>>(key);
+        std::span<GaussState<adaption_fp_t<T>>> states = scratch.metaRecords<GaussState<adaption_fp_t<T>>>(key);
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             if(not groups[gi].has_gauss) {
                 continue;
@@ -255,10 +264,10 @@ inline void resetAdaptionState(detail::GFlatGenome &ind, const GAdaptionConfigBa
         }
     };
     auto resetBiGauss = [&]<typename T>(const std::vector<GroupSpec<T>> &groups, AuxKey key) {
-        if(not ind.hasAux(key)) {
+        if(not scratch.hasAux(key)) {
             return;
         }
-        std::span<BiGaussState<adaption_fp_t<T>>> states = ind.metaRecords<BiGaussState<adaption_fp_t<T>>>(key);
+        std::span<BiGaussState<adaption_fp_t<T>>> states = scratch.metaRecords<BiGaussState<adaption_fp_t<T>>>(key);
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             if(not groups[gi].has_bigauss) {
                 continue;
@@ -271,10 +280,10 @@ inline void resetAdaptionState(detail::GFlatGenome &ind, const GAdaptionConfigBa
         }
     };
     auto resetFlip = [&]<typename T>(const std::vector<GroupSpec<T>> &groups, AuxKey key) {
-        if(not ind.hasAux(key)) {
+        if(not scratch.hasAux(key)) {
             return;
         }
-        std::span<FlipState> states = ind.metaRecords<FlipState>(key);
+        std::span<FlipState> states = scratch.metaRecords<FlipState>(key);
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             if(not groups[gi].has_flip) {
                 continue;
@@ -294,21 +303,23 @@ inline void resetAdaptionState(detail::GFlatGenome &ind, const GAdaptionConfigBa
 
 /******************************************************************************/
 /**
- * @brief Reads the current per-group sigma of a named Gauss adaptor from an individual's adaption state
- * (one entry per Gauss group), replacing GFlatGenome::queryAdaptor() for the pluggable monitors and the
- * in-fitness sigma logging. Recognised names: "GDoubleGaussAdaptor", "GFloatGaussAdaptor",
- * "GInt32GaussAdaptor". Sigmas are returned as double (the float sigma widened).
+ * @brief Reads the current per-group sigma of a named Gauss adaptor from an OA-owned adaption-state
+ * store (the slot's scratch — one entry per Gauss group), replacing the former GFlatGenome::queryAdaptor()
+ * for the pluggable monitors and the in-fitness sigma logging. Recognised names: "GDoubleGaussAdaptor",
+ * "GFloatGaussAdaptor", "GInt32GaussAdaptor". Sigmas are returned as double (the float sigma widened).
+ * For an individual that is detached from its slot (an archived best, a transport copy, or a standalone
+ * individual), pass a scratch freshly seeded via seedAdaptionStates() to obtain the configured seed sigma.
  */
 inline std::vector<double> readAdaptionSigmas(
-    const detail::GFlatGenome &ind,
+    const detail::GAuxiliaryStore &scratch,
     const GAdaptionConfigBase &cfg,
     const std::string &adaptor_name
 ) {
     using namespace Gem::Geneva::Parameters;
     std::vector<double> out;
 
-    if(adaptor_name == "GDoubleGaussAdaptor" && ind.hasAux(AUXKEY_GAUSS_DOUBLE)) {
-        std::span<const GaussState<double>> states = ind.metaRecords<GaussState<double>>(AUXKEY_GAUSS_DOUBLE);
+    if(adaptor_name == "GDoubleGaussAdaptor" && scratch.hasAux(AUXKEY_GAUSS_DOUBLE)) {
+        std::span<const GaussState<double>> states = scratch.metaRecords<GaussState<double>>(AUXKEY_GAUSS_DOUBLE);
         const auto &groups = cfg.doubleGroups();
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             if(groups[gi].has_gauss) {
@@ -316,8 +327,8 @@ inline std::vector<double> readAdaptionSigmas(
             }
         }
     }
-    else if(adaptor_name == "GFloatGaussAdaptor" && ind.hasAux(AUXKEY_GAUSS_FLOAT)) {
-        std::span<const GaussState<float>> states = ind.metaRecords<GaussState<float>>(AUXKEY_GAUSS_FLOAT);
+    else if(adaptor_name == "GFloatGaussAdaptor" && scratch.hasAux(AUXKEY_GAUSS_FLOAT)) {
+        std::span<const GaussState<float>> states = scratch.metaRecords<GaussState<float>>(AUXKEY_GAUSS_FLOAT);
         const auto &groups = cfg.floatGroups();
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             if(groups[gi].has_gauss) {
@@ -325,8 +336,8 @@ inline std::vector<double> readAdaptionSigmas(
             }
         }
     }
-    else if(adaptor_name == "GInt32GaussAdaptor" && ind.hasAux(AUXKEY_GAUSS_INT)) {
-        std::span<const GaussState<double>> states = ind.metaRecords<GaussState<double>>(AUXKEY_GAUSS_INT);
+    else if(adaptor_name == "GInt32GaussAdaptor" && scratch.hasAux(AUXKEY_GAUSS_INT)) {
+        std::span<const GaussState<double>> states = scratch.metaRecords<GaussState<double>>(AUXKEY_GAUSS_INT);
         const auto &groups = cfg.int32Groups();
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             if(groups[gi].has_gauss) {
@@ -337,6 +348,40 @@ inline std::vector<double> readAdaptionSigmas(
 
     return out;
 }
+
+/******************************************************************************/
+/**
+ * @brief Seeds the per-group adaption state blocks for an individual's genome into a (typically empty,
+ * OA-owned) auxiliary store — the convenience one-shot used by self-driven adaption sites, by the
+ * off-slot sigma readers, and by tests. The OA's per-iteration setup instead seeds each slot from the
+ * single shared config it already holds (config.installInto(slot.scratch())); this helper is for callers
+ * that do not keep a config around.
+ */
+inline void seedAdaptionStates(const detail::GFlatGenome &ind, detail::GAuxiliaryStore &scratch) {
+    GAdaptionConfigBase(ind).installInto(scratch);
+}
+
+/******************************************************************************/
+/**
+ * @brief A small RAII helper that gives a single, slot-less individual its own adaption scratch + config
+ * so the data-oriented adaption can be driven outside an optimization algorithm (test individuals'
+ * modify hooks, standalone perturbation loops, serialization benchmarks). Construct once and call
+ * adapt() repeatedly to preserve sigma self-adaptation across iterations, exactly as the individual's
+ * former adapt() did via its own per-individual aux state.
+ */
+class StandaloneAdapter {
+public:
+    explicit StandaloneAdapter(const detail::GFlatGenome &ind)
+      : cfg_(ind) {
+        cfg_.installInto(scratch_);
+    }
+
+    std::size_t adapt(detail::GFlatGenome &ind) { return adaptIndividual(ind, scratch_, cfg_); }
+
+private:
+    detail::GAuxiliaryStore scratch_;
+    GAdaptionConfigBase cfg_;
+};
 
 /******************************************************************************/
 

@@ -234,11 +234,14 @@ targetFunction GStarterIndividual::getTargetFunction() const {
  * @return The average value of sigma used in Gauss adaptors
  */
 double GStarterIndividual::getAverageSigma() const {
-    // Phase 8: the per-group Gauss sigmas (one per parameter) are read through the OA-side
-    // readAdaptionSigmas() free function (the data-oriented replacement for the individual's
-    // queryAdaptor()), driven by a config built from this individual's own shared layout.
+    // Phase 10: the live evolving per-group Gauss sigmas are OA-owned scratch and live on the
+    // GIndividualSlot, not on the individual; an individual queried in isolation (as here) is detached
+    // from its slot, so this reports the configured SEED sigmas read from a freshly seeded scratch via
+    // the OA-side readAdaptionSigmas() free function.
     oa::GAdaptionConfigBase cfg(*this);
-    std::vector<double> sigmas = oa::readAdaptionSigmas(*this, cfg, "GDoubleGaussAdaptor");
+    gpar::GAuxiliaryStore seed_scratch;
+    oa::seedAdaptionStates(*this, seed_scratch);
+    std::vector<double> sigmas = oa::readAdaptionSigmas(seed_scratch, cfg, "GDoubleGaussAdaptor");
 
     // Return the average
     return Gem::Common::GMean(sigmas);
@@ -376,9 +379,11 @@ bool GStarterIndividual::modify_GUnitTests_() {
         result = true;
     }
 
-    // Change the parameter settings (only when the genome has actually been built)
+    // Change the parameter settings (only when the genome has actually been built). The adaption state +
+    // logic are OA-owned (Phase 10); a standalone individual drives them via a self-owned scratch +
+    // config (StandaloneAdapter).
     if(this->countParameters<double>() > 0) {
-        this->adapt();
+        oa::StandaloneAdapter(*this).adapt(*this);
         result = true;
     }
 

@@ -451,9 +451,6 @@ public:
         }
     }
 
-    /** @brief The adaption interface */
-    std::size_t adapt() override;
-
     /** @brief Register another result value of the fitness calculation */
     void setResult(std::size_t, double);
     /** @brief Determines whether more than one fitness criterion is present for this individual */
@@ -566,42 +563,10 @@ public:
     }
 
     /***************************************************************************/
-    // The personality OBJECT (GPersonalityTraits) is OA-owned scratch and lives on the GIndividualSlot,
-    // NOT on the individual. The individual carries only the lightweight OA-identity mnemonic
-    // (oa_mnemonic_, set by the optimization algorithm at setup) so a per-individual processing action
-    // can read it at evaluation time on a clone / wire copy detached from its slot.
-
-    /** @brief Clears all algorithm-scoped auxiliary POD scratch. Meant to be called at optimization-algorithm boundaries. */
-    void clearOAScratch();
-
-    /***************************************************************************/
-    // Generic per-parameter / per-group OA metadata (DM §3c): an opaque, keyed store of POD blocks.
-    // The optimization algorithm supplies the POD type; the individual treats the bytes as opaque, so
-    // it needs no knowledge of what (e.g. EA Gauss state) is stored. See GAuxiliaryStore.
-
-    /** @brief Installs (or replaces) a zero-initialised POD metadata block of record_count records under key */
-    template <typename POD>
-    void installAuxBlock(AuxKey key, std::size_t record_count, AuxScope scope = AuxScope::PerGroup) {
-        aux_.installAuxBlock<POD>(key, record_count, scope);
-    }
-    /** @brief A typed view over the records of the POD metadata block under key */
-    template <typename POD>
-    std::span<POD> metaRecords(AuxKey key) {
-        return aux_.metaRecords<POD>(key);
-    }
-    template <typename POD>
-    std::span<const POD> metaRecords(AuxKey key) const {
-        return aux_.metaRecords<POD>(key);
-    }
-    /** @brief Typed access to a per-individual (single-record) POD metadata block */
-    template <typename POD>
-    POD &metaScalar(AuxKey key) {
-        return aux_.metaScalar<POD>(key);
-    }
-    /** @brief Whether a POD metadata block is installed under key */
-    bool hasAux(AuxKey key) const {
-        return aux_.hasAux(key);
-    }
+    // OA-owned scratch — the personality OBJECT (GPersonalityTraits) AND the per-group adaption POD
+    // state (sigma / ad_prob / counter, …) — lives on the GIndividualSlot, NOT on the individual. The
+    // individual is pure data: genome + bounds + fitness + constraints + the courtier processing
+    // container. The adaption logic is OA-owned (geneva/oa/GAdaption.hpp), driven by the slot's scratch.
 
     /** @brief Check how valid a given solution is */
     double getValidityLevel() const;
@@ -673,9 +638,6 @@ protected:
 
     /** @brief Random initialization */
     virtual bool randomInit_(activityMode const &) = 0;
-
-    /* @brief The actual adaption operations. */
-    virtual std::size_t customAdaptions() = 0;
 
     /** @brief The fitness calculation for the main quality criterion takes place here */
     double fitnessCalculation() override = 0;
@@ -763,8 +725,6 @@ private:
     std::uint32_t assigned_iteration_ = 0;
     /** @brief Indicates how valid a given solution is */
     double validity_level_ = 0.;
-    /** @brief The per-individual auxiliary store -- holds the per-group POD adaptor scratch (the personality OBJECT lives on the GIndividualSlot) */
-    GAuxiliaryStore aux_;
 
     /** @brief Specifies what to do when the individual is marked as invalid */
     evaluationPolicy eval_policy_ = Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION;

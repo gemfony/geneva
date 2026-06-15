@@ -158,8 +158,6 @@ protected:
         const double & // the limit for allowed deviations of floating point types
     ) const final;
 
-    /** @brief The actual adaption operations */
-    std::size_t customAdaptions() final;
     /** @brief The actual fitness calculation takes place here */
     double fitnessCalculation() final;
 

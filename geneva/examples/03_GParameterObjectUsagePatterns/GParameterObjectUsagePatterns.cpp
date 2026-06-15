@@ -47,6 +47,7 @@
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GFlatIndividualT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/oa/GAdaption.hpp"
 
 using namespace Gem::Geneva;
 
@@ -257,8 +258,9 @@ int main() {
         }
         std::cout << '\n';
 
-        // adapt() mutates the parameters through their adaptors. We expect changes.
-        ind.adapt();
+        // Mutate the parameters. The adaption state + logic are OA-owned (Phase 10); a standalone
+        // individual drives them via a self-owned scratch + config (StandaloneAdapter). We expect changes.
+        Gem::Geneva::OptimizationAlgorithms::StandaloneAdapter(ind).adapt(ind);
         std::vector<double> after;
         ind.streamline(after);
         std::cout << "GDemoIndividual double values after adapt(): ";

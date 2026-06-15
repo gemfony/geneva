@@ -34,6 +34,8 @@
 #include "GImageIndividual.hpp"
 #include "GMonaLisaProblem.hpp"
 
+#include "geneva/oa/GAdaption.hpp"
+
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
@@ -494,8 +496,9 @@ bool GImageIndividual::modify_GUnitTests_() {
     // Call the parent classes' functions
     gpar::GFlatGenome::modify_GUnitTests();
 
-    // Change the parameter settings
-    this->adapt();
+    // Change the parameter settings. The adaption state + logic are OA-owned (Phase 10); a standalone
+    // individual drives them via a self-owned scratch + config (StandaloneAdapter).
+    Gem::Geneva::OptimizationAlgorithms::StandaloneAdapter(*this).adapt(*this);
 
     return true;
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

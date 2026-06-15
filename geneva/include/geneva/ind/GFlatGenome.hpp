@@ -113,8 +113,8 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         auto fresh = std::make_shared<GGenomeLayout>();
         ar &make_nvp("layout_", *fresh);
         layout_ = fresh;
-        // Re-seed the per-group adaption scratch from the (just loaded) layout config.
-        installAdaptionStates();
+        // The per-group adaption state is OA-owned scratch (on the GIndividualSlot), no longer seeded
+        // here: an optimization algorithm seeds each slot's scratch from its config at setup.
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -204,9 +204,6 @@ protected:
     /** @brief Random initialization */
     bool randomInit_(activityMode const &) override;
 
-    /** @brief The actual adaption operations (runs the data-oriented Gauss kernel over the FP channels) */
-    std::size_t customAdaptions() override;
-
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
@@ -231,9 +228,6 @@ private:
 
     /** @brief Retrieval of a suitable position for cross over inside of a vector */
     std::size_t getCrossOverPos(std::size_t, std::size_t);
-
-    /** @brief Seeds the per-group adaption state (Gauss / BiGauss / Flip) in the aux store from the layout */
-    void installAdaptionStates();
 
     /***************************************************************************/
     // Activity / fold helpers (genome-agnostic value mapping).
@@ -354,22 +348,9 @@ private:
     }
 
     /***************************************************************************/
-    // Adaption + random-init channel helpers.
-
-    /** @brief Runs the Gauss kernel over one FP channel using the GaussState block under key */
-    template <typename T>
-    std::size_t adaptFPChannel(std::vector<T> &store, ChannelLayout<T> const &ch, AuxKey key);
-
-    /** @brief Runs the bi-gaussian kernel over one FP channel using the BiGaussState block under key */
-    template <typename T>
-    std::size_t adaptBiGaussChannel(std::vector<T> &store, ChannelLayout<T> const &ch, AuxKey key);
-
-    /** @brief Runs the integer Gauss kernel over the int32 channel using the GaussState block under AUXKEY_GAUSS_INT */
-    std::size_t adaptGaussIntChannel();
-    /** @brief Runs the flip kernel over the int32 channel using the FlipState block under AUXKEY_FLIP_INT */
-    std::size_t adaptFlipIntChannel();
-    /** @brief Runs the flip kernel over the bool channel using the FlipState block under AUXKEY_FLIP_BOOL */
-    std::size_t adaptFlipBoolChannel();
+    // Random-init channel helpers. (The per-channel ADAPTION kernels are no longer driven from the
+    // individual: the adaption state and logic are OA-owned -- see geneva/oa/GAdaption.hpp, fed by the
+    // GIndividualSlot's scratch.)
 
     template <typename T>
     bool randomInitFP(std::vector<T> &store, ChannelLayout<T> const &ch, activityMode const &am);

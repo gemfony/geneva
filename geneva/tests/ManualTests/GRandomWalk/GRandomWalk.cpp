@@ -43,6 +43,7 @@
 // Geneva header files go here
 #include "common/GPlotDesigner.hpp"
 #include "geneva/individuals/GTestIndividual2.hpp"
+#include "geneva/oa/GAdaption.hpp"
 
 using namespace Gem::Common;
 using namespace Gem::Geneva;
@@ -93,6 +94,11 @@ int main(int argc, char **argv) {
         // Create a GTestIndividual2 object of size 2
         std::shared_ptr<GTestIndividual2> gti_ptr(new GTestIndividual2(2, PERFOBJECTTYPE(o)));
 
+        // One adapter held across the walk, so the self-adapting sigma persists between steps (the
+        // adaption state + logic are OA-owned in Phase 10; a standalone individual drives them via a
+        // self-owned scratch + config).
+        Gem::Geneva::OptimizationAlgorithms::StandaloneAdapter adapter(*gti_ptr);
+
         std::vector<double> par;
         for(std::size_t i = 0; i < NPOINTS; i++) {
             gti_ptr->streamline(par);
@@ -126,7 +132,7 @@ int main(int argc, char **argv) {
                 break;
             }
 
-            gti_ptr->adapt();
+            adapter.adapt(*gti_ptr);
         }
     }
 

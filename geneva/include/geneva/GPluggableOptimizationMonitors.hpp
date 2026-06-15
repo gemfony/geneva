@@ -2071,10 +2071,16 @@ private:
             max_iteration_ = iteration;
             n_iterations_recorded_++;
 
-            // Do the actual logging. Phase 8: the per-group Gauss sigmas are read through the
-            // OA-side readAdaptionSigmas() free function (the data-oriented replacement for the
-            // individual's queryAdaptor()), driven by a config built from the individual's own
-            // shared layout. Only the "sigma" property is exposed by the flat genome.
+            // Do the actual logging. Phase 10: the per-group adaption state (sigma, …) is OA-owned
+            // scratch and lives on the GIndividualSlot, not on the individual. The live evolving sigma
+            // is therefore read from each population slot's scratch via readAdaptionSigmas(). Only the
+            // "sigma" property is exposed by the flat genome.
+            //
+            // NOTE: the "best only" path reads the globally best individual from the OA's archive, which
+            // holds pure individual clones detached from any slot, so the live sigma is not available
+            // there; it falls back to the configured SEED sigma (a freshly seeded scratch). The "all
+            // individuals" path (the data-oriented monitor demo, e.g. example 13) reads the live evolved
+            // sigma straight from the population slots.
             if(monitor_best_only_) {
                 std::shared_ptr<gpar::GOptimizableEntity> best =
                     goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividual<gpar::GOptimizableEntity>();
@@ -2082,21 +2088,23 @@ private:
                 if(property_ == "sigma") {
                     const auto &flat = dynamic_cast<const gpar::GFlatGenome &>(*best);
                     oa::GAdaptionConfigBase cfg(flat);
-                    for(double sigma : oa::readAdaptionSigmas(flat, cfg, adaptor_name_)) {
+                    gpar::GAuxiliaryStore seed_scratch;
+                    oa::seedAdaptionStates(flat, seed_scratch);
+                    for(double sigma : oa::readAdaptionSigmas(seed_scratch, cfg, adaptor_name_)) {
                         adaptor_property_store_.emplace_back(static_cast<double>(iteration), sigma);
                     }
                 }
             }
             else { // Monitor all individuals
-                // Loop over all individuals of the algorithm.
+                // Loop over all individuals of the algorithm, reading the live adaption state off each
+                // slot's OA-owned scratch.
                 for(std::size_t pos = 0; pos < goa->size(); pos++) {
-                    std::shared_ptr<gpar::GOptimizableEntity> ind =
-                        goa->template individual_cast<gpar::GOptimizableEntity>(pos);
+                    const auto &slot = goa->at(pos);
 
                     if(property_ == "sigma") {
-                        const auto &flat = dynamic_cast<const gpar::GFlatGenome &>(*ind);
+                        const auto &flat = dynamic_cast<const gpar::GFlatGenome &>(slot->individual());
                         oa::GAdaptionConfigBase cfg(flat);
-                        for(double sigma : oa::readAdaptionSigmas(flat, cfg, adaptor_name_)) {
+                        for(double sigma : oa::readAdaptionSigmas(slot->scratch(), cfg, adaptor_name_)) {
                             adaptor_property_store_.emplace_back(static_cast<double>(iteration), sigma);
                         }
                     }

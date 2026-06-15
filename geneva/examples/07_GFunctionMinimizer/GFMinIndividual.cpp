@@ -154,11 +154,14 @@ targetFunction GFMinIndividual::getTargetFunction() const {
  * @return The average value of sigma used in Gauss adaptors
  */
 double GFMinIndividual::getAverageSigma() const {
-    // The flat genome holds a single Gauss group (the parameter collection). Phase 8: its sigma is read
-    // through the OA-side readAdaptionSigmas() free function (the data-oriented replacement for the
-    // individual's queryAdaptor()), driven by a config built from this individual's own shared layout.
+    // The flat genome holds a single Gauss group (the parameter collection). Phase 10: the live evolving
+    // sigma is OA-owned scratch and lives on the GIndividualSlot, not on the individual; an individual
+    // queried in isolation (as here) is detached from its slot, so this reports the configured SEED
+    // sigma read from a freshly seeded scratch via the OA-side readAdaptionSigmas() free function.
     oa::GAdaptionConfigBase cfg(*this);
-    std::vector<double> sigmas = oa::readAdaptionSigmas(*this, cfg, "GDoubleGaussAdaptor");
+    gpar::GAuxiliaryStore seed_scratch;
+    oa::seedAdaptionStates(*this, seed_scratch);
+    std::vector<double> sigmas = oa::readAdaptionSigmas(seed_scratch, cfg, "GDoubleGaussAdaptor");
 
     // Only a single group has been registered, so we do not need to calculate any averages.
     return sigmas.empty() ? 0. : sigmas.front();

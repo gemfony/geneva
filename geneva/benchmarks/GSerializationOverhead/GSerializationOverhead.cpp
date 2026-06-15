@@ -43,6 +43,7 @@
 // Geneva header files go here
 #include "common/GPlotDesigner.hpp"
 #include "geneva/individuals/GTestIndividual2.hpp"
+#include "geneva/oa/GAdaption.hpp"
 
 // The number of consecutive measurements
 const std::size_t NMEASUREMENTS = 100;
@@ -135,11 +136,15 @@ int main(int argc, char **argv) {
             // Create a GTestIndividual2 object of the desired size
             std::shared_ptr<GTestIndividual2> gti_ptr(new GTestIndividual2(s, PERFOBJECTTYPE(o)));
 
+            // One adapter held across the measurement loop (the adaption state + logic are OA-owned in
+            // Phase 10; a standalone individual drives them via a self-owned scratch + config).
+            OptimizationAlgorithms::StandaloneAdapter adapter(*gti_ptr);
+
             // First test the time needed for NMEASUREMENTS
             // consecutive adaptions
             std::chrono::system_clock::time_point pre_adapt = std::chrono::system_clock::now();
             for(std::size_t i = 1; i <= NMEASUREMENTS; i++) {
-                gti_ptr->adapt();
+                adapter.adapt(*gti_ptr);
             }
             std::chrono::system_clock::time_point post_adapt = std::chrono::system_clock::now();
 

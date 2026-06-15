@@ -44,6 +44,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GAdaptionAuxKeys.hpp"
 #include "geneva/ind/GAdaptionKernels.hpp"
+#include "geneva/ind/GAuxiliaryStore.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GGenomeLayout.hpp"
 
@@ -56,6 +57,7 @@ using Gem::Geneva::Parameters::BiGaussConfig;
 using Gem::Geneva::Parameters::ChannelTag;
 using Gem::Geneva::Parameters::FlipConfig;
 using Gem::Geneva::Parameters::GaussConfig;
+using Gem::Geneva::Parameters::GAuxiliaryStore;
 using Gem::Geneva::Parameters::GFlatGenome;
 using Gem::Geneva::Parameters::GGenomeLayout;
 using Gem::Geneva::Parameters::GroupRef;
@@ -429,20 +431,21 @@ public:
     // State install.
 
     /**
-     * @brief Seeds the per-group adaption state blocks in an individual's auxiliary store from this
-     * config (one block per adaptor kind + channel that is actually used). Mirrors the genome's own
-     * installAdaptionStates(), but driven by the OA-owned config rather than the layout. The seeds also
-     * serve as the reset targets used by the stall-reset free function.
+     * @brief Seeds the per-group adaption state blocks into an OA-owned auxiliary store (the slot's
+     * scratch) from this config (one block per adaptor kind + channel that is actually used). The
+     * per-group adaption state is OA scratch and lives on the GIndividualSlot, NOT on the individual,
+     * so the seeding targets a GAuxiliaryStore directly. The seeds also serve as the reset targets used
+     * by the stall-reset free function.
      */
-    void installInto(GFlatGenome &ind) const {
+    void installInto(GAuxiliaryStore &scratch) const {
         using namespace Gem::Geneva::Parameters;
-        seedGauss(ind, d_, AUXKEY_GAUSS_DOUBLE);
-        seedGauss(ind, f_, AUXKEY_GAUSS_FLOAT);
-        seedGauss(ind, i_, AUXKEY_GAUSS_INT); // GaussState<adaption_fp_t<int32>> = GaussState<double>
-        seedBiGauss(ind, d_, AUXKEY_BIGAUSS_DOUBLE);
-        seedBiGauss(ind, f_, AUXKEY_BIGAUSS_FLOAT);
-        seedFlip(ind, i_, AUXKEY_FLIP_INT);
-        seedFlip(ind, b_, AUXKEY_FLIP_BOOL);
+        seedGauss(scratch, d_, AUXKEY_GAUSS_DOUBLE);
+        seedGauss(scratch, f_, AUXKEY_GAUSS_FLOAT);
+        seedGauss(scratch, i_, AUXKEY_GAUSS_INT); // GaussState<adaption_fp_t<int32>> = GaussState<double>
+        seedBiGauss(scratch, d_, AUXKEY_BIGAUSS_DOUBLE);
+        seedBiGauss(scratch, f_, AUXKEY_BIGAUSS_FLOAT);
+        seedFlip(scratch, i_, AUXKEY_FLIP_INT);
+        seedFlip(scratch, b_, AUXKEY_FLIP_BOOL);
     }
 
     /***************************************************************************/
@@ -542,7 +545,7 @@ private:
     // State seeding helpers (mirror GFlatGenome::installAdaptionStates).
 
     template <typename T>
-    static void seedGauss(GFlatGenome &ind, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Parameters::AuxKey key) {
+    static void seedGauss(GAuxiliaryStore &scratch, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Parameters::AuxKey key) {
         using Gem::Geneva::Parameters::GaussState;
         using Gem::Geneva::Parameters::AuxScope;
         bool any = false;
@@ -552,8 +555,8 @@ private:
         if(not any) {
             return;
         }
-        ind.installAuxBlock<GaussState<adaption_fp_t<T>>>(key, groups.size(), AuxScope::PerIndividual);
-        std::span<GaussState<adaption_fp_t<T>>> states = ind.metaRecords<GaussState<adaption_fp_t<T>>>(key);
+        scratch.installAuxBlock<GaussState<adaption_fp_t<T>>>(key, groups.size(), AuxScope::PerIndividual);
+        std::span<GaussState<adaption_fp_t<T>>> states = scratch.metaRecords<GaussState<adaption_fp_t<T>>>(key);
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             states[gi].sigma = groups[gi].start_sigma;
             states[gi].ad_prob = groups[gi].start_ad_prob;
@@ -562,7 +565,7 @@ private:
     }
 
     template <typename T>
-    static void seedBiGauss(GFlatGenome &ind, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Parameters::AuxKey key) {
+    static void seedBiGauss(GAuxiliaryStore &scratch, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Parameters::AuxKey key) {
         using Gem::Geneva::Parameters::BiGaussState;
         using Gem::Geneva::Parameters::AuxScope;
         bool any = false;
@@ -572,8 +575,8 @@ private:
         if(not any) {
             return;
         }
-        ind.installAuxBlock<BiGaussState<adaption_fp_t<T>>>(key, groups.size(), AuxScope::PerIndividual);
-        std::span<BiGaussState<adaption_fp_t<T>>> states = ind.metaRecords<BiGaussState<adaption_fp_t<T>>>(key);
+        scratch.installAuxBlock<BiGaussState<adaption_fp_t<T>>>(key, groups.size(), AuxScope::PerIndividual);
+        std::span<BiGaussState<adaption_fp_t<T>>> states = scratch.metaRecords<BiGaussState<adaption_fp_t<T>>>(key);
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             states[gi].sigma1 = groups[gi].start_sigma1;
             states[gi].sigma2 = groups[gi].start_sigma2;
@@ -584,7 +587,7 @@ private:
     }
 
     template <typename T>
-    static void seedFlip(GFlatGenome &ind, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Parameters::AuxKey key) {
+    static void seedFlip(GAuxiliaryStore &scratch, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Parameters::AuxKey key) {
         using Gem::Geneva::Parameters::FlipState;
         using Gem::Geneva::Parameters::AuxScope;
         bool any = false;
@@ -594,8 +597,8 @@ private:
         if(not any) {
             return;
         }
-        ind.installAuxBlock<FlipState>(key, groups.size(), AuxScope::PerIndividual);
-        std::span<FlipState> states = ind.metaRecords<FlipState>(key);
+        scratch.installAuxBlock<FlipState>(key, groups.size(), AuxScope::PerIndividual);
+        std::span<FlipState> states = scratch.metaRecords<FlipState>(key);
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             states[gi].ad_prob = groups[gi].start_ad_prob;
         }

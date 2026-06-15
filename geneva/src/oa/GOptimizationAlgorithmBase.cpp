@@ -1720,11 +1720,11 @@ void GOptimizationAlgorithmBase::setIndividualPersonalities() {
  */
 void GOptimizationAlgorithmBase::resetIndividualPersonalities() {
     for(auto const &slot : *this) {
-        // Drop the slot's OA scratch (the personality) and the individual's per-group POD adaption
-        // scratch -- the algorithm-boundary teardown (an EA's sigma / personality is meaningless to a
+        // Drop the slot's OA-owned scratch -- BOTH the personality OBJECT and the per-group adaption
+        // POD state now live on the slot, so resetPersonality() (which clears the whole GAuxiliaryStore)
+        // performs the algorithm-boundary teardown (an EA's sigma / personality is meaningless to a
         // chained CGD).
         slot->resetPersonality();
-        slot->individual().clearOAScratch();
     }
 }
 

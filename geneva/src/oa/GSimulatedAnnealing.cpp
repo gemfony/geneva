@@ -342,7 +342,7 @@ void GSimulatedAnnealing::adaptChildren_() {
             // schedule stays lock-free.
             [it, cfg = adaption_config_.get()]() {
                 auto &flat = dynamic_cast<gpar::GFlatGenome &>((*it)->individual());
-                return adaptIndividual(flat, *cfg);
+                return adaptIndividual(flat, (*it)->scratch(), *cfg);
             } // Returns the number of adaptions
         ));
     }

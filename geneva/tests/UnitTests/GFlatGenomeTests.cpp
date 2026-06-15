@@ -58,6 +58,7 @@
 
 using namespace Gem::Geneva;
 using namespace Gem::Geneva::Parameters;
+namespace oa = Gem::Geneva::OptimizationAlgorithms;
 
 namespace Gem::Tests {
 
@@ -369,9 +370,10 @@ TEST_CASE("GFlatGenome: serialization round-trip", "[flat]") {
 TEST_CASE("GFlatGenome: adapt() mutates within bounds", "[flat]") {
     FlatSphere ind(8);
 
+    oa::StandaloneAdapter adapter(ind);
     std::size_t total = 0;
     for(int round = 0; round < 20; ++round) {
-        total += ind.adapt();
+        total += adapter.adapt(ind);
 
         std::vector<double> v;
         ind.streamline<double>(v);
@@ -404,20 +406,22 @@ TEST_CASE("GFlatGenome: randomInit stays within bounds and changes values", "[fl
 
 /******************************************************************************/
 TEST_CASE("GFlatGenome: OA stall-reset restores sigma to its seed", "[flat][oa]") {
-    namespace oa = Gem::Geneva::OptimizationAlgorithms;
     FlatSphere ind(3);
 
-    // The OA-owned config drives both the sigma readout and the stall-reset (Phase 8). It is built from
-    // the individual's own shared layout and reads / resets the individual's per-group adaption state.
+    // The OA-owned config drives both the sigma readout and the stall-reset (Phase 8 / 10). It is built
+    // from the individual's own shared layout; the per-group adaption STATE is OA-owned scratch (held on
+    // the GIndividualSlot in a live run) -- here a standalone GAuxiliaryStore, seeded from the config.
     oa::GAdaptionConfigBase cfg(ind);
+    GAuxiliaryStore scratch;
+    oa::seedAdaptionStates(ind, scratch);
 
     // Drive the sigma self-adaption (adaption_threshold defaults to 1 -> sigma adapts every step).
     for(int i = 0; i < 30; ++i) {
-        ind.adapt();
+        oa::adaptIndividual(ind, scratch, cfg);
     }
 
     auto sigmaNow = [&]() {
-        std::vector<double> s = oa::readAdaptionSigmas(ind, cfg, "GDoubleGaussAdaptor");
+        std::vector<double> s = oa::readAdaptionSigmas(scratch, cfg, "GDoubleGaussAdaptor");
         REQUIRE(s.size() == 1);
         return s[0];
     };
@@ -425,7 +429,7 @@ TEST_CASE("GFlatGenome: OA stall-reset restores sigma to its seed", "[flat][oa]"
     const double drifted = sigmaNow();
     CHECK(drifted != 0.5); // sigma has evolved away from its seed
 
-    oa::resetAdaptionState(ind, cfg);
+    oa::resetAdaptionState(scratch, cfg);
     CHECK(sigmaNow() == 0.5); // reset to the configured seed
 }
 
@@ -515,8 +519,9 @@ TEST_CASE("GFlatGenome: flip adaptor mutates int32 and bool channels", "[flat][f
 
     bool int_changed = false;
     bool bool_changed = false;
+    oa::StandaloneAdapter adapter(ind);
     for(int round = 0; round < 20; ++round) {
-        ind.adapt();
+        adapter.adapt(ind);
 
         std::vector<std::int32_t> i_now;
         std::vector<bool> b_now;
@@ -546,8 +551,9 @@ TEST_CASE("GFlatGenome: bi-gaussian adaptor mutates the FP channel within bounds
     REQUIRE(before.size() == 3);
 
     std::size_t total = 0;
+    oa::StandaloneAdapter adapter(ind);
     for(int round = 0; round < 20; ++round) {
-        total += ind.adapt();
+        total += adapter.adapt(ind);
         std::vector<double> v;
         ind.streamline<double>(v);
         for(double x : v) {
@@ -561,8 +567,9 @@ TEST_CASE("GFlatGenome: bi-gaussian adaptor mutates the FP channel within bounds
 /******************************************************************************/
 TEST_CASE("GFlatGenome: mixed flip/bigauss genome serialises round-trip", "[flat][flip][bigauss]") {
     FlatMixed ind;
+    oa::StandaloneAdapter adapter(ind);
     for(int i = 0; i < 5; ++i) {
-        ind.adapt();
+        adapter.adapt(ind);
     }
 
     const std::string xml = ind.toString(Gem::Common::serializationMode::XML);
@@ -587,8 +594,9 @@ TEST_CASE("GFlatGenome: integer Gauss adaptor mutates int32 within bounds", "[fl
     REQUIRE(before.size() == 5); // 3 Gauss + 2 flip
 
     bool changed = false;
+    oa::StandaloneAdapter adapter(ind);
     for(int round = 0; round < 30; ++round) {
-        ind.adapt();
+        adapter.adapt(ind);
         std::vector<std::int32_t> now;
         ind.streamline<std::int32_t>(now);
         REQUIRE(now.size() == 5);
@@ -610,8 +618,9 @@ TEST_CASE("GFlatGenome: integer Gauss adaptor mutates int32 within bounds", "[fl
 /******************************************************************************/
 TEST_CASE("GFlatGenome: integer Gauss genome serialises round-trip", "[flat][intgauss]") {
     FlatIntGauss ind;
+    oa::StandaloneAdapter adapter(ind);
     for(int i = 0; i < 5; ++i) {
-        ind.adapt();
+        adapter.adapt(ind);
     }
 
     const std::string xml = ind.toString(Gem::Common::serializationMode::XML);

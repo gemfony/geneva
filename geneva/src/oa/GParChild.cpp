@@ -499,8 +499,8 @@ void GParChild::doRecombine() {
 
             case duplicationScheme::VALUEDUPLICATIONSCHEME: {
                 if(n_parents_ == 1) {
-                    (*it)->individual().load(
-                        (*(GOptimizationAlgorithmBase::data_cnt_.begin()))->individualPtr());
+                    // Whole slot (individual + OA adaption scratch) -- see randomRecombine().
+                    (*it)->load(*(GOptimizationAlgorithmBase::data_cnt_.begin()));
                     (*it)
                         ->template getPersonalityTraits<GBaseParChildPersonalityTraits>()
                         ->setParentId(0);
@@ -537,7 +537,7 @@ void GParChild::actOnStalls_() {
         // adaption state to its seeds via the OA-owned config (the data-oriented twin of the individual's
         // updateAdaptorsOnStall()), so otherwise-successful adaptor settings are not carried into a stall.
         for(auto it = this->begin() + 1; it != this->begin() + this->getNParents(); ++it) {
-            resetAdaptionState(dynamic_cast<gpar::GFlatGenome &>((*it)->individual()), *adaption_config_);
+            resetAdaptionState((*it)->scratch(), *adaption_config_);
         }
     }
 }
@@ -728,6 +728,15 @@ void GParChild::init() {
     if(not this->empty()) {
         if(const auto *flat = dynamic_cast<const gpar::GFlatGenome *>(&this->at(0)->individual())) {
             adaption_config_ = makeAdaptionConfig_(*flat);
+
+            // Seed each slot's OA-owned scratch with the per-group adaption state from the shared
+            // config. The state (sigma / ad_prob / counter, …) formerly lived on the individual's
+            // auxiliary store; it now lives on the GIndividualSlot, OA-owned. Children created by
+            // recombination copy their chosen parent's whole slot (scratch included), so the evolved
+            // state propagates exactly as it did when it rode on the individual.
+            for(auto const &slot : *this) {
+                adaption_config_->installInto(slot->scratch());
+            }
         }
     }
 }
@@ -857,9 +866,12 @@ void GParChild::randomRecombine(const std::unique_ptr<gpar::GIndividualSlot> &ch
         );
     }
 
-    // Load the parent's individual data into the child's individual, and record the chosen parent on
-    // the child slot's personality.
-    child->individual().load((*(GOptimizationAlgorithmBase::data_cnt_.begin() + parent_pos))->individualPtr());
+    // Load the chosen parent's WHOLE slot into the child slot -- the individual plus the OA-owned
+    // scratch (the per-group adaption state, e.g. the evolved sigma). The scratch must ride along so a
+    // child inherits its parent's adapted state, exactly as it did when that state lived on the
+    // individual's auxiliary store; markChildren() (called after recombine) resets the child flag, and
+    // setParentId records the chosen parent below. This mirrors the parallel path in doRecombine().
+    child->load(*(GOptimizationAlgorithmBase::data_cnt_.begin() + parent_pos));
     child->template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(parent_pos);
 }
 
@@ -884,9 +896,10 @@ void GParChild::valueRecombine(
 
     for(std::size_t par = 0; par < n_parents_; par++) {
         if(rand_test < threshold[par]) {
-            // Load the parent's individual data into the child's individual, and record the chosen
-            // parent on the child slot's personality.
-            child->individual().load((*(GOptimizationAlgorithmBase::data_cnt_.begin() + par))->individualPtr());
+            // Load the chosen parent's WHOLE slot (individual + OA-owned adaption scratch) into the
+            // child slot, so the child inherits the parent's evolved adaption state; setParentId records
+            // the chosen parent. See randomRecombine() for the rationale.
+            child->load(*(GOptimizationAlgorithmBase::data_cnt_.begin() + par));
             child->template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(par);
             done = true;
 

@@ -269,8 +269,6 @@ GOptimizableEntity::GOptimizableEntity(GOptimizableEntity const &cp)
   , max_unsuccessful_adaptions_(cp.max_unsuccessful_adaptions_)
   , max_retries_until_valid_(cp.max_retries_until_valid_)
   , n_adaptions_(cp.n_adaptions_) {
-    // Copy the auxiliary store over (deep-clones the personality, copies the POD scratch blocks)
-    aux_ = cp.aux_;
     // Make sure any constraints are copied over
     Gem::Common::copyCloneableSmartPointer(
         cp.individual_constraint_ptr_,
@@ -392,62 +390,6 @@ bool GOptimizableEntity::isGoodEnough(std::vector<double> const &boundaries) {
 
     // All fitness values are better than those supplied by boundaries
     return true;
-}
-
-/******************************************************************************/
-/**
-     * The adaption interface. Triggers adaption of the individual, using each parameter object's
-     * adaptor. Sets the dirty flag, as the parameters have been changed. This facility is mostly
-     * used in Evolutionary Algorithms and Simulated Annealing. Other algorithms, such as
-     * PSO and Gradient Descents, may choose to change parameters directly. Adaptions will be performed
-     * until actual changes were done to the object AND a valid parameter set was found.
-     */
-std::size_t GOptimizableEntity::adapt() {
-    std::size_t n_adaption_attempts = 0;
-    std::size_t n_adaptions = 0;
-    // This is a measure of the "effective" adaption probability
-    std::size_t n_invalid_adaptions = 0;
-    double validity = 0;
-
-    // Perform adaptions until a valid solution was find. In the context
-    // of evolutionary algorithms, this process is indeed equivalent to
-    // a larger population, if invalid solutions were produced. The downside
-    // may be, that the algorithm moves closer to MUPLUSNU. Thus, if you find
-    // yourself stuck in local optima too often, consider setting max_retries_until_valid_
-    // to 0, using the appropriate function.
-    while(true) {
-        // Make sure at least one modification is performed. E.g., for low
-        // adaption probabilities combined with few parameters, it may happen
-        // otherwise that individuals remain unchanged after a call to adapt()
-        while(true) {
-            // Try again if no adaption has taken place
-            // Perform the actual adaption; Terminate, if at least one adaption was performed
-            if((n_adaptions = this->customAdaptions()) >
-               0) // NOLINT(bugprone-assignment-in-if-condition)
-            {
-                break;
-            }
-
-            // Terminate, if the maximum number of adaptions has been exceeded
-            if(max_unsuccessful_adaptions_ > 0 &&
-               ++n_adaption_attempts > max_unsuccessful_adaptions_) {
-                break;
-            }
-        }
-
-        if(this->individualFulfillsConstraints(validity) ||
-           ++n_invalid_adaptions > max_retries_until_valid_) {
-            break;
-        }
-    }
-
-    // Make sure the individual is re-evaluated when fitness(...) is called next time
-    if(n_adaptions > 0) {
-        this->mark_as_due_for_processing();
-    }
-
-    // Store the number of adaptions for later use and let the audience know
-    return (n_adaptions_ = n_adaptions);
 }
 
 /******************************************************************************/
@@ -734,17 +676,6 @@ void GOptimizableEntity::setRandomCrash(const bool use_random_crash, const doubl
     use_random_crash_ = use_random_crash;
     random_crash_prob_ = crash_prob;
 }
-
-/******************************************************************************/
-/**
-     * Clears all algorithm-scoped auxiliary POD scratch held by this individual (the per-group adaptor
-     * state). The personality OBJECT lives on the GIndividualSlot, not here. Meant to be called at the
-     * boundary between optimization algorithms in a chain.
-     */
-void GOptimizableEntity::clearOAScratch() {
-    aux_.clearScratch();
-}
-
 
 /******************************************************************************/
 /**
@@ -1123,13 +1054,9 @@ void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
 
     // All local data, derived from the single localMembers() declaration: plain
     // members are assigned, the cloneable smart pointers are deep-cloned (the tie
-    // dispatches on the member kind).
+    // dispatches on the member kind). The OA-owned scratch (personality + the per-group adaption POD
+    // state) is not held here — it lives on the GIndividualSlot and is copied by GIndividualSlot::load_.
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
-
-    // The auxiliary store holds the transient per-group POD adaptor scratch (the personality OBJECT
-    // lives on the GIndividualSlot, not here). The POD blocks are copied so a deep copy / checkpoint-
-    // resume keeps them in place; the genome re-seeds them on setGenome/load in any case.
-    aux_.copyPodsFrom(p_load->aux_);
 }
 
 /******************************************************************************/

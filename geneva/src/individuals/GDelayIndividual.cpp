@@ -144,16 +144,6 @@ gpar::GFlatGenome *GDelayIndividual::clone_() const {
 
 /******************************************************************************/
 /**
- * The actual adaption operations. We want to avoid spending time on adaptions, as
- * all we want to do is measure the overhead of the parallelization. We thus simply
- * provide an empty replacement for the default behavior and "fake" an adaption.
- */
-std::size_t GDelayIndividual::customAdaptions() {
-    return static_cast<std::size_t>(1);
-}
-
-/******************************************************************************/
-/**
  * The actual fitness calculation takes place here.
  *
  * @return The value of this object
@@ -507,9 +497,9 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEnt
             std::tuple<double, double>(lower_rand_sleep_boundary_, upper_rand_sleep_boundary_)
         );
 
-        // Set up nVariables unbounded double parameters, each with its own Gauss adaptor. The
-        // configuration does not matter for this use case (customAdaptions() is a no-op here); the
-        // genome only provides realistic transport ballast for the overhead measurement.
+        // Set up nVariables unbounded double parameters, each with its own Gauss adaptor. The exact
+        // adaptor configuration does not matter for this use case; the genome only provides realistic
+        // transport ballast for the overhead measurement (its adaption cost is negligible vs the sleep).
         gpar::GGenomeBuilder gb;
         for(std::size_t var = 0; var < n_variables_; var++) {
             // sigma, sigma_sigma, min_sigma, max_sigma, ad_prob
@@ -533,9 +523,9 @@ void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEnt
             std::tuple<double, double>(lower_rand_sleep_boundary_, upper_rand_sleep_boundary_)
         );
 
-        // Set up nVariables unbounded double parameters, each with its own Gauss adaptor. The
-        // configuration does not matter for this use case (customAdaptions() is a no-op here); the
-        // genome only provides realistic transport ballast for the overhead measurement.
+        // Set up nVariables unbounded double parameters, each with its own Gauss adaptor. The exact
+        // adaptor configuration does not matter for this use case; the genome only provides realistic
+        // transport ballast for the overhead measurement (its adaption cost is negligible vs the sleep).
         gpar::GGenomeBuilder gb;
         for(std::size_t var = 0; var < n_variables_; var++) {
             // sigma, sigma_sigma, min_sigma, max_sigma, ad_prob
