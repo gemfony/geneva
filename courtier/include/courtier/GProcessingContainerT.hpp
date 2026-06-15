@@ -297,6 +297,14 @@ public:
             // Do the actual processing
             this->process_(res_vec);
 
+            // The fitness has now been computed, so the work item is processed. Mark it PROCESSED
+            // BEFORE post-processing: a post-processor refines an ALREADY-EVALUATED item (e.g. by running
+            // a short sub-optimization) and rejects a dirty one. If processing flagged an error, the
+            // error status is left intact.
+            if(not this->has_errors()) {
+                processing_status_ = processingStatus::PROCESSED;
+            }
+
             const auto after_processing = std::chrono::high_resolution_clock::now();
             this->postProcess_();
             const auto after_post_processing = std::chrono::high_resolution_clock::now();
