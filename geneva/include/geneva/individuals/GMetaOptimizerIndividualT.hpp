@@ -440,28 +440,26 @@ public:
         //------------------------------------------------------------
         // int channel
 
-        // n_parents: a small number of possible values -> flip adaptor (ad_prob = 1).
-        b.addInt32(
-             Gem::Common::narrow<std::int32_t>(init_n_parents),
-             Gem::Common::narrow<std::int32_t>(n_parents_lb),
-             Gem::Common::narrow<std::int32_t>(n_parents_ub)
-        )
-            .flipAdaptor(1.);
+        // Structure only -- the adaptors (n_parents flip, n_children integer-Gauss, doubles Gauss) live on
+        // the OA-owned config authored by getAdaptionConfig(), not the genome layout.
 
-        // n_children: integer Gauss adaptor (mirrors GInt32GaussAdaptor(0.025, 0.2, 0.001, 0.5, 1.)).
+        // n_parents (int channel group 0).
         b.addInt32(
-             Gem::Common::narrow<std::int32_t>(init_n_children),
-             Gem::Common::narrow<std::int32_t>(n_children_lb),
-             Gem::Common::narrow<std::int32_t>(n_children_ub)
-        )
-            .intGaussAdaptor(0.025, 0.2, 0.001, 0.5, 1.);
+            Gem::Common::narrow<std::int32_t>(init_n_parents),
+            Gem::Common::narrow<std::int32_t>(n_parents_lb),
+            Gem::Common::narrow<std::int32_t>(n_parents_ub)
+        );
+
+        // n_children (int channel group 1).
+        b.addInt32(
+            Gem::Common::narrow<std::int32_t>(init_n_children),
+            Gem::Common::narrow<std::int32_t>(n_children_lb),
+            Gem::Common::narrow<std::int32_t>(n_children_ub)
+        );
 
         //------------------------------------------------------------
-        // double channel: every double shares the same Gauss config as the tree's single
-        // GDoubleGaussAdaptor(0.025, 0.2, 0.001, 0.5, 1.).
-        auto addGaussDouble = [&b](double init, double lo, double hi) {
-            b.addDouble(init, lo, hi).gaussAdaptor(0.025, 0.2, 0.001, 0.5, 1.);
-        };
+        // double channel.
+        auto addGaussDouble = [&b](double init, double lo, double hi) { b.addDouble(init, lo, hi); };
 
         addGaussDouble(init_amalgamation_lklh, amalgamation_lklh_lb, amalgamation_lklh_ub); // MOT_AMALGAMATION
         addGaussDouble(init_min_ad_prob, min_ad_prob_lb, min_ad_prob_ub);                   // MOT_MINADPROB
@@ -475,6 +473,23 @@ public:
 
         //------------------------------------------------------------
         p->setGenome(b.build());
+    }
+
+    /***************************************************************************/
+    /**
+     * @brief Builds the OA-owned adaption configuration for the meta genome: n_parents gets a flip adaptor,
+     * n_children an integer-Gauss adaptor, and every meta double a Gauss adaptor -- the exact settings
+     * addContent() formerly baked into the genome layout. Used by the outer EA (via Go2 / setAdaptionConfig)
+     * and by the self-driven modify hook.
+     */
+    std::shared_ptr<oa::GAdaptionConfigBase> getAdaptionConfig() const {
+        auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
+        cfg->groupInt32(0).flip(1.);                            // n_parents
+        cfg->groupInt32(1).intGauss(0.025, 0.2, 0.001, 0.5, 1.); // n_children
+        for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
+            cfg->groupDouble(i).gauss(0.025, 0.2, 0.001, 0.5, 1.);
+        }
+        return cfg;
     }
 
     /***************************************************************************/
@@ -935,7 +950,8 @@ protected:
         // state + logic are OA-owned (Phase 10); a standalone individual drives them via a self-owned
         // scratch + config (StandaloneAdapter).
         if(this->template countParameters<std::int32_t>() + this->template countParameters<double>() > 0) {
-            Gem::Geneva::OptimizationAlgorithms::StandaloneAdapter(*this).adapt(*this);
+            // The genome is structure-only; drive the self-owned adaption via the authored meta config.
+            Gem::Geneva::OptimizationAlgorithms::StandaloneAdapter(*this, getAdaptionConfig()).adapt(*this);
             result = true;
         }
 

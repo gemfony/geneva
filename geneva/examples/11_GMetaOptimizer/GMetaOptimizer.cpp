@@ -88,6 +88,13 @@ int main(int argc, char **argv) {
     // Add a content creator so Go2 can generate its own individuals, if necessary
     go.registerContentCreator(gmoi_ptr);
 
+    // The meta genome carries only structure; its adaptors (n_parents flip, n_children integer-Gauss,
+    // doubles Gauss) live on an OA-owned config the meta individual authors. Register it for the outer EA.
+    {
+        auto sample = gmoi_ptr->get_as<gind::GMetaOptimizerIndividualT<gind::GFunctionIndividual>>();
+        go.registerAdaptionConfig("PERSONALITY_EA", sample->getAdaptionConfig());
+    }
+
     // Add a default optimization algorithm to the Go2 object
     go.registerDefaultAlgorithm("ea");
 
