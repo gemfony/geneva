@@ -318,11 +318,30 @@ void networkData::loadFromDisk(const std::string &network_data_file) {
         );
     }
 
-    // Load the data into raw, using the Boost.Serialization library
-    {
+    // Load the data into raw, using the Boost.Serialization library. A deserialization failure (a
+    // truncated file, or -- most commonly -- a training-data file written by an incompatible Geneva /
+    // Boost.Serialization version, e.g. an older archive version) otherwise escapes as an uncaught
+    // boost::archive exception and aborts the program with a cryptic "XML start/end tag mismatch"
+    // message. Catch it and bail out with an actionable diagnostic instead.
+    try {
         boost::archive::xml_iarchive ia(tr_dat);
         ia >> boost::serialization::make_nvp("networkData", raw);
     } // Explicit scope at this point is essential so that ia's destructor is called
+    catch(const std::exception &e) {
+        delete raw; // may be a partially-loaded object the archive does not own (delete nullptr is safe)
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In networkData::loadFromDisk(const std::string&):" << '\n'
+            << "Failed to deserialise the training-data file" << '\n'
+            << "  " << network_data_file << '\n'
+            << "as a Boost.Serialization XML archive. Reason:" << '\n'
+            << "  " << e.what() << '\n'
+            << "The file is most likely stale or was written by an incompatible version" << '\n'
+            << "(for example an older Boost.Serialization archive version). Regenerate it with:" << '\n'
+            << "  GNeuralNetwork --trainingDataFile " << network_data_file
+            << " --traininDataType <1-4> --nDataSets <N>" << '\n'
+        );
+    }
 
     std::unique_ptr<networkData> n_d(raw);
 
