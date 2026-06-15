@@ -55,6 +55,10 @@
 namespace Gem {
 namespace Geneva {
 
+namespace OptimizationAlgorithms {
+class GAdaptionConfigBase;
+} // namespace OptimizationAlgorithms
+
 /******************************************************************************/
 /**
  * This enum denotes the possible demo function types
@@ -95,10 +99,13 @@ class GFMinIndividual : public gpar::GFlatGenome {
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome) &
-            BOOST_SERIALIZATION_NVP(targetFunction_);
+            BOOST_SERIALIZATION_NVP(targetFunction_) & BOOST_SERIALIZATION_NVP(seed_sigma_);
     }
 
     /////////////////////////////////////////////////////////////////////////////
+
+    // The factory stamps the configured seed sigma for the getAverageSigma() telemetry hook.
+    friend class GFMinIndividualFactory;
 
 public:
     /** @brief The default constructor */
@@ -138,6 +145,8 @@ private:
     targetFunction targetFunction_ =
         GO_DEF_TARGETFUNCTION; ///< Specifies which demo function should be used
 
+    double seed_sigma_ = GFI_DEF_SIGMA; ///< The configured seed sigma, stamped by the factory for getAverageSigma()
+
     /***************************************************************************/
     /** @brief A simple n-dimensional parabola */
     double parabola(const std::vector<double> &parVec) const;
@@ -166,6 +175,11 @@ public:
     explicit GFMinIndividualFactory(std::filesystem::path const &);
     /** @brief The destructor */
     virtual ~GFMinIndividualFactory();
+
+    /** @brief Builds the OA-owned Gauss adaption config for a genome produced by this factory (the
+     *  single shared double group), using this factory's configured adaptor parameters. */
+    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+    getAdaptionConfig(const gpar::GFlatGenome &sample) const;
 
 protected:
     /** @brief Creates individuals of this type */

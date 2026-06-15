@@ -77,6 +77,13 @@ int main(int argc, char **argv) {
     // Retrieve an individual from the factory and make it known to the optimizer
     go.push_back(gfi());
 
+    // The genome carries only structure; its Gauss adaptor lives on an OA-owned config the factory
+    // authors. Register it for the evolutionary algorithm so Go2 hands it over before the EA runs.
+    {
+        auto sample = gfi.get_as<GFMinIndividual>();
+        go.registerAdaptionConfig("PERSONALITY_EA", gfi.getAdaptionConfig(*sample));
+    }
+
     // Create an evolutionary algorithm in multi-threaded mode
     oa::GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json");
     std::shared_ptr<oa::GEvolutionaryAlgorithm> ea_ptr = ea.get<oa::GEvolutionaryAlgorithm>();

@@ -91,7 +91,8 @@ GFMinIndividual::GFMinIndividual() { /* nothing */
  */
 GFMinIndividual::GFMinIndividual(const GFMinIndividual &cp)
   : gpar::GFlatGenome(cp)
-  , targetFunction_(cp.targetFunction_) { /* nothing */
+  , targetFunction_(cp.targetFunction_)
+  , seed_sigma_(cp.seed_sigma_) { /* nothing */
 }
 
 /******************************************************************************/
@@ -154,17 +155,11 @@ targetFunction GFMinIndividual::getTargetFunction() const {
  * @return The average value of sigma used in Gauss adaptors
  */
 double GFMinIndividual::getAverageSigma() const {
-    // The flat genome holds a single Gauss group (the parameter collection). Phase 10: the live evolving
-    // sigma is OA-owned scratch and lives on the GIndividualSlot, not on the individual; an individual
-    // queried in isolation (as here) is detached from its slot, so this reports the configured SEED
-    // sigma read from a freshly seeded scratch via the OA-side readAdaptionSigmas() free function.
-    oa::GAdaptionConfigBase cfg(*this);
-    gpar::GAuxiliaryStore seed_scratch;
-    oa::seedAdaptionStates(*this, seed_scratch);
-    std::vector<double> sigmas = oa::readAdaptionSigmas(seed_scratch, cfg, "GDoubleGaussAdaptor");
-
-    // Only a single group has been registered, so we do not need to calculate any averages.
-    return sigmas.empty() ? 0. : sigmas.front();
+    // The Gauss adaptor configuration now lives on the OA-owned config (the genome is structure-only), and
+    // the live evolving sigma is OA-owned scratch on the GIndividualSlot, not on the individual. An
+    // individual queried in isolation (as here) is detached from its slot, so this reports the configured
+    // SEED sigma the factory stamped at construction.
+    return seed_sigma_;
 }
 
 /******************************************************************************/
@@ -183,6 +178,7 @@ void GFMinIndividual::load_(const gpar::GOptimizableEntity *cp) {
 
     // ... and then our local data
     targetFunction_ = p_load->targetFunction_;
+    seed_sigma_ = p_load->seed_sigma_;
 }
 
 /******************************************************************************/
@@ -433,12 +429,28 @@ void GFMinIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEnti
     // Build a flat genome holding one constrained-double group of parDim_ values (shared sigma),
     // mirroring the historical single GConstrainedDoubleCollection + one GDoubleGaussAdaptor.
     gpar::GGenomeBuilder b;
-    b.addDoubleGroup(parDim_, minVar_, maxVar_)
-        .gaussAdaptor(sigma_, sigmaSigma_, minSigma_, maxSigma_, adProb_);
+    b.addDoubleGroup(parDim_, minVar_, maxVar_); // structure only; the adaptor lives on the OA config
     dynamic_cast<gpar::GFlatGenome &>(*p).setGenome(b.build());
+
+    // Stamp the configured seed sigma for the getAverageSigma() telemetry hook.
+    dynamic_cast<GFMinIndividual &>(*p).seed_sigma_ = sigma_;
 
     // Randomly initialize
     p->randomInit(activityMode::ACTIVEONLY);
+}
+
+/******************************************************************************/
+/**
+ * Builds the OA-owned adaption configuration for a genome produced by this factory: the single shared
+ * double group gets a Gauss adaptor with this factory's configured parameters.
+ */
+std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+GFMinIndividualFactory::getAdaptionConfig(const gpar::GFlatGenome &sample) const {
+    auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(sample);
+    for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
+        cfg->groupDouble(i).gauss(sigma_, sigmaSigma_, minSigma_, maxSigma_, adProb_);
+    }
+    return cfg;
 }
 
 /******************************************************************************/
