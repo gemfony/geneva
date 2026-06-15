@@ -59,6 +59,11 @@
 namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
+// Forward declaration: the OA population is a vector of slots; the slot-population add() overload below
+// clones each slot's individual across the ownership boundary into this (shared_ptr) archive.
+class GIndividualSlot;
+
+/******************************************************************************/
 /**
  * This class implements a fixed size priority queue for GOptimizableEntity objects,
  * based on the maximization/minimization property and the current fitness of
@@ -129,6 +134,14 @@ public:
     void add(std::vector<std::unique_ptr<GOptimizableEntity>> const &items_cnt, bool do_clone, bool replace);
     /** @brief Adds a single unique_ptr-owned individual to the queue (cloning across the boundary) */
     void add(std::unique_ptr<GOptimizableEntity> const &item, bool do_clone);
+    /** @brief Adds the individuals held by a SLOT population to the queue (cloning each slot's individual across the boundary) */
+    void add(std::vector<std::unique_ptr<GIndividualSlot>> const &items_cnt, bool do_clone, bool replace);
+    /** @brief Adds the individuals held by a SLOT population sub-range [begin, end) to the queue (cloning each slot's individual across the boundary) */
+    void
+    add(std::vector<std::unique_ptr<GIndividualSlot>>::const_iterator begin,
+        std::vector<std::unique_ptr<GIndividualSlot>>::const_iterator end,
+        bool do_clone,
+        bool replace);
 
 protected:
     /***************************************************************************/

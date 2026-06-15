@@ -716,20 +716,6 @@ std::uint32_t GOptimizableEntity::getNStalls() const {
 
 /******************************************************************************/
 /**
-     * Retrieves the current personality of this individual
-     *
-     * @return An identifier for the current personality of this object
-     */
-std::string GOptimizableEntity::getPersonality() const {
-    if(aux_.personalityRef()) {
-        return aux_.personalityRef()->name();
-    }
-            return std::string("PERSONALITY_NONE");
-
-}
-
-/******************************************************************************/
-/**
      * Allows to check whether random crashs of individuals are enabled
      */
 std::tuple<bool, double> GOptimizableEntity::getRandomCrash() const {
@@ -751,61 +737,9 @@ void GOptimizableEntity::setRandomCrash(const bool use_random_crash, const doubl
 
 /******************************************************************************/
 /**
-     * This function returns the current personality traits base pointer. Note that there
-     * is another version of the same command that does on-the-fly conversion of the
-     * personality traits to the derived class.
-     *
-     * @return A shared pointer to the personality traits base class
-     */
-std::shared_ptr<GPersonalityTraits> GOptimizableEntity::getPersonalityTraits() {
-#ifdef DEBUG
-    // Do some error checking
-    if(not aux_.personalityRef()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GOptimizableEntity::getPersonalityTraits():" << '\n'
-            << "Pointer to personality traits object is empty." << '\n'
-        );
-    }
-#endif
-
-    return aux_.personalityRef();
-}
-
-/******************************************************************************/
-/**
-     * Sets the current personality of this individual
-     *
-     * @param gpt A pointer to an object representing the new personality of this object
-     */
-void GOptimizableEntity::setPersonality(std::shared_ptr<GPersonalityTraits> gpt) {
-    // Make sure we haven't been given an empty pointer
-    if(not gpt) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GOptimizableEntity::setPersonality(): Error!" << '\n'
-            << "Received empty personality traits pointer" << '\n'
-        );
-    }
-
-    // Add the personality traits object to the auxiliary store
-    aux_.personalityRef() = gpt;
-}
-
-/******************************************************************************/
-/**
-     * Resets the current personality to PERSONALITY_NONE
-     */
-void GOptimizableEntity::resetPersonality() {
-    aux_.clearScratch();
-}
-
-/******************************************************************************/
-/**
-     * Clears all algorithm-scoped auxiliary scratch held by this individual. Today that is the
-     * personality traits (the analogue of resetPersonality()); when per-group POD adaptor scratch
-     * is added to the auxiliary store, the scratch-scoped blocks are dropped here as well. Meant to
-     * be called by Go2 at the boundary between optimization algorithms in a chain.
+     * Clears all algorithm-scoped auxiliary POD scratch held by this individual (the per-group adaptor
+     * state). The personality OBJECT lives on the GIndividualSlot, not here. Meant to be called at the
+     * boundary between optimization algorithms in a chain.
      */
 void GOptimizableEntity::clearOAScratch() {
     aux_.clearScratch();
@@ -813,21 +747,13 @@ void GOptimizableEntity::clearOAScratch() {
 
 /******************************************************************************/
 /**
-     * Retrieves the mnemonic used for the optimization of this object
+     * Retrieves the OA-identity mnemonic stamped on this individual by the optimization algorithm at
+     * setup. It travels with the individual (clone + wire) so a per-individual processing action (the
+     * post-processor) can read it at evaluation time, detached from the population slot. Defaults to
+     * "PERSONALITY_NONE" when no algorithm has stamped it.
      */
 std::string GOptimizableEntity::getMnemonic() const {
-    if(aux_.personalityRef()) {
-        return aux_.personalityRef()->getMnemonic();
-    }
-            throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GOptimizableEntity::getMnemonic():" << '\n'
-            << "Pointer to personality traits object is empty." << '\n'
-        );
-
-
-    // Make the compiler happy
-    return {};
+    return oa_mnemonic_;
 }
 
 /******************************************************************************/
@@ -1210,25 +1136,13 @@ void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
     // dispatches on the member kind).
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 
-    // The auxiliary store is OA-installed scratch, kept OUT of localMembers() (and thus out of the
-    // compared identity). It is still carried by load_ so a deep copy / checkpoint-resume keeps it in
-    // place: the personality is deep-cloned and the transient POD scratch blocks are copied.
-    Gem::Common::copyCloneableSmartPointer(p_load->aux_.personalityRef(), aux_.personalityRef());
+    // The auxiliary store holds the transient per-group POD adaptor scratch (the personality OBJECT
+    // lives on the GIndividualSlot, not here). The POD blocks are copied so a deep copy / checkpoint-
+    // resume keeps them in place; the genome re-seeds them on setGenome/load in any case.
     aux_.copyPodsFrom(p_load->aux_);
-}
 
-/******************************************************************************/
-/**
- * Adopts the processed outcome of a returned result into this individual in place, preserving this
- * individual's OA-installed personality. The personality is OA scratch that need not travel over the
- * wire, so the networked reconciliation must not discard it when a returned work item updates the live
- * population slot. Everything that did travel -- the genome, fitness and processing state -- is adopted
- * from the result via the standard deep load.
- */
-void GOptimizableEntity::adoptProcessedResult(GOptimizableEntity &src) {
-    std::shared_ptr<GPersonalityTraits> saved_personality = aux_.personalityRef();
-    this->load_(&src);
-    aux_.personalityRef() = std::move(saved_personality);
+    // The lightweight OA-identity mnemonic travels with the individual.
+    oa_mnemonic_ = p_load->oa_mnemonic_;
 }
 
 /******************************************************************************/

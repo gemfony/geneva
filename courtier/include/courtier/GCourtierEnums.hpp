@@ -277,35 +277,6 @@ using COLLECTION_POSITION_TYPE = std::size_t;
 using CORRELATION_ID_TYPE = std::uint32_t;
 
 /******************************************************************************/
-/**
- * A thread-local toggle distinguishing the TWO purposes a Geneva object may be serialized for:
- *  - over-the-wire TRANSPORT (the broker shipping a work item to a remote client and back), where
- *    per-item scratch that the receiving side already holds or re-establishes -- e.g. an optimization
- *    algorithm's installed personality traits -- is OMITTED to shrink the payload; and
- *  - a full CHECKPOINT / general serialization, which emits everything (a resumed algorithm needs that
- *    scratch back in place).
- *
- * It defaults to the checkpoint sense (emit everything); the transport (de)serialization paths
- * (container_to_string / container_from_string) raise a WireSerializationScope for the duration of one
- * archive operation. A class's serialize() consults wireSerializationActive() to drop the omittable
- * members. Thread-local so concurrent broker threads and a checkpointing main thread do not interfere.
- */
-inline thread_local bool g_wire_serialization_active = false;
-
-/** @brief Whether the current (de)serialization is for over-the-wire transport (vs. checkpoint/general). */
-inline bool wireSerializationActive() { return g_wire_serialization_active; }
-
-/** @brief RAII guard that marks the enclosed (de)serialization as over-the-wire transport. */
-struct WireSerializationScope {
-    bool prev_;
-    WireSerializationScope()
-      : prev_(g_wire_serialization_active) { g_wire_serialization_active = true; }
-    ~WireSerializationScope() { g_wire_serialization_active = prev_; }
-    WireSerializationScope(const WireSerializationScope &) = delete;
-    WireSerializationScope &operator=(const WireSerializationScope &) = delete;
-};
-
-/******************************************************************************/
 
 /** @brief Puts a Gem::Courtier::beast_payload_command into a stream. Needed also for boost::lexical_cast<> */
 std::ostream &

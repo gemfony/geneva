@@ -190,7 +190,7 @@ void GEvolutionaryAlgorithm::extractCurrentParetoIndividuals(
     for(const auto &ind_ptr : *this) {
         if(ind_ptr->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
                ->isOnParetoFront()) {
-            pareto_inds.push_back(ind_ptr->clone<gpar::GOptimizableEntity>());
+            pareto_inds.push_back(ind_ptr->individual().clone<gpar::GOptimizableEntity>());
         }
     }
 }
@@ -462,7 +462,7 @@ void GEvolutionaryAlgorithm::adaptChildren_() {
             // instead of the individual's own adapt(). The config is read-only here, so the parallel
             // schedule stays lock-free.
             [it, cfg = adaption_config_.get()]() {
-                auto &flat = dynamic_cast<gpar::GFlatGenome &>(**it);
+                auto &flat = dynamic_cast<gpar::GFlatGenome &>((*it)->individual());
                 return adaptIndividual(flat, *cfg);
             } // Returns the number of adaptions
         ));
@@ -512,7 +512,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
     // through this function. There MAY be situations, where in the first iteration
     // parents are clean, e.g. when they were extracted from another optimization.
     for(std::size_t i = this->getNParents(); i < this->size(); i++) {
-        if(not this->at(i)->is_due_for_processing()) {
+        if(not this->at(i)->individual().is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << '\n'
@@ -536,14 +536,14 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
     //--------------------------------------------------------------------------------
     // Submit the [start, end) evaluation range and wait for results. courtier marks the span
     // DO_PROCESS and reconciles it in place -- no per-item flagging needed.
-    auto status = this->workOn(this->data_cnt_, std::get<0>(range), std::get<1>(range));
+    auto status = this->workOnPopulation(std::get<0>(range), std::get<1>(range));
 
     //--------------------------------------------------------------------------------
     // Take care of unprocessed items, if these exist
     if(not status.is_complete) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GOptimizableEntity> &p) -> bool {
-                return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
+            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GIndividualSlot> &p) -> bool {
+                return (p->individual().getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
 #ifdef DEBUG
@@ -558,7 +558,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
     if(status.has_errors) {
         std::size_t n_erased = std::erase_if(
             this->data_cnt_,
-            [this](const auto &p) -> bool { return p->has_errors(); }
+            [this](const auto &p) -> bool { return p->individual().has_errors(); }
         );
 
 #ifdef DEBUG
@@ -582,13 +582,17 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
     std::size_t np = this->getNParents();
     std::uint32_t iteration = this->getIteration();
 
-    // Retrieve a vector of old work items
+    // Retrieve a vector of old work items (bare individuals). NB: getOldWorkItems() currently returns
+    // an empty list -- courtier reconciles every slot in place -- so this handling is effectively a
+    // no-op today. The old per-item parent-vs-child filter relied on the individual's personality, which
+    // now lives on the population slot and does not travel with a returned work item; restoring a
+    // quality-aware reconciliation of late returns is a deferred end-of-transition task (see the
+    // "late returns" note in the migration plan). We keep only the iteration-based pruning here.
     auto old_work_items = this->getOldWorkItems();
 
-    // Remove parents from older iterations from old work items -- we do not want them.
+    // Remove items from older iterations from old work items -- we do not want them.
     std::erase_if(old_work_items, [iteration](const auto &x) -> bool {
-        return x->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isParent() &&
-               x->getAssignedIteration() != iteration;
+        return x->getAssignedIteration() != iteration;
     });
 
     // Make it known to remaining old individuals that they are now part of a new iteration
@@ -613,7 +617,7 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
 
     // Attach all old work items to the end of the current population and clear the array of old items
     for(auto &item_ptr : old_work_items) {
-        this->push_back(std::move(item_ptr));
+        this->push_back(std::make_unique<gpar::GIndividualSlot>(std::move(item_ptr)));
     }
     old_work_items.clear();
 
@@ -638,7 +642,7 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
    
 
     // Check that the last individual is not unprocessed. This is a severe error.
-    if(this->back()->is_due_for_processing()) {
+    if(this->back()->individual().is_due_for_processing()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Error!" << '\n'
@@ -660,13 +664,13 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
     // We want to have a sane population.
     for(auto it = this->begin(); it != this->begin() + np; ++it) {
         (*it)
-            ->GOptimizableEntity::template getPersonalityTraits<
+            ->template getPersonalityTraits<
                 GEvolutionaryAlgorithm_PersonalityTraits>()
             ->setIsParent();
     }
     for(auto it = this->begin() + np; it != this->end(); ++it) {
         (*it)
-            ->GOptimizableEntity::template getPersonalityTraits<
+            ->template getPersonalityTraits<
                 GEvolutionaryAlgorithm_PersonalityTraits>()
             ->setIsChild();
     }
@@ -801,7 +805,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
     // Check that we do not accidently trigger value calculation
     std::size_t pos = 0;
     for(auto const &ind_ptr : *this) {
-        if(ind_ptr->is_due_for_processing()) {
+        if(ind_ptr->individual().is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GEvolutionaryAlgorithm::sortMuplusnuMode(): Error!" << '\n'
@@ -820,7 +824,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
         GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_,
         GOptimizationAlgorithmBase::data_cnt_.end(),
         [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(*x_ptr) < minOnly_transformed_fitness(*y_ptr);
+            return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
         }
     );
 }
@@ -837,7 +841,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
         // Check that we do not accidentally trigger value calculation -- check the whole range
         typename GEvolutionaryAlgorithm::iterator it;
         for(it = this->begin(); it != this->end(); ++it) {
-            if((*it)->is_due_for_processing()) {
+            if((*it)->individual().is_due_for_processing()) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GEvolutionaryAlgorithm::sortMucommanuMode(): Error!" << '\n'
@@ -853,7 +857,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
         // Check that we do not accidentally trigger value calculation -- check children only
         typename GEvolutionaryAlgorithm::iterator it;
         for(it = this->begin() + n_parents_; it != this->end(); ++it) {
-            if((*it)->is_due_for_processing()) {
+            if((*it)->individual().is_due_for_processing()) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GEvolutionaryAlgorithm::sortMucommanuMode(): Error!" << '\n'
@@ -873,7 +877,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
         GOptimizationAlgorithmBase::data_cnt_.begin() + 2 * n_parents_,
         GOptimizationAlgorithmBase::data_cnt_.end(),
         [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(*x_ptr) < minOnly_transformed_fitness(*y_ptr);
+            return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
         }
     );
 
@@ -899,7 +903,7 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
     // Check that we do not accidentally trigger value calculation
     typename GEvolutionaryAlgorithm::iterator it;
     for(it = this->begin() + n_parents_; it != this->end(); ++it) {
-        if((*it)->is_due_for_processing()) {
+        if((*it)->individual().is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GEvolutionaryAlgorithm::sortMunu1pretainMode(): Error!" << '\n'
@@ -918,16 +922,16 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
         GOptimizationAlgorithmBase::data_cnt_.begin() + 2 * n_parents_,
         GOptimizationAlgorithmBase::data_cnt_.end(),
         [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(*x_ptr) < minOnly_transformed_fitness(*y_ptr);
+            return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
         }
     );
 
     // Retrieve the best child's and the last generation's best parent's fitness
     double best_tranformed_child_fitness_min_only = minOnly_transformed_fitness(
-        **(GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_)
+        (*(GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_))->individual()
     );
     double best_tranformed_parent_fitness_min_only =
-        minOnly_transformed_fitness(**(GOptimizationAlgorithmBase::data_cnt_.begin()));
+        minOnly_transformed_fitness((*(GOptimizationAlgorithmBase::data_cnt_.begin()))->individual());
 
     // Leave the best parent in place, if no better child was found
     if(best_tranformed_child_fitness_min_only < best_tranformed_parent_fitness_min_only) {
@@ -959,7 +963,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
 
     // We fall back to the single-eval MUPLUSNU mode if there is just one evaluation criterion
     it = this->begin();
-    if(not(*it)->hasMultipleFitnessCriteria()) {
+    if(not(*it)->individual().hasMultipleFitnessCriteria()) {
         this->sortMuPlusNuMode();
         return;
     }
@@ -983,14 +987,14 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
             }
 
             // Check if it dominates it_cmp. If so, mark it accordingly
-            if(aDominatesB(*it, *it_cmp)) {
+            if(aDominatesB((*it)->individualPtr(), (*it_cmp)->individualPtr())) {
                 (*it_cmp)
                     ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
                     ->setIsNotOnParetoFront();
             }
 
             // If a it dominated by it_cmp, we mark it accordingly and break the loop
-            if(aDominatesB(*it_cmp, *it)) {
+            if(aDominatesB((*it_cmp)->individualPtr(), (*it)->individualPtr())) {
                 (*it)
                     ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
                     ->setIsNotOnParetoFront();
@@ -1043,7 +1047,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
             this->end(),
             [](const auto &x_ptr,
                const auto &y_ptr) -> bool {
-                return minOnly_transformed_fitness(*x_ptr) < minOnly_transformed_fitness(*y_ptr);
+                return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
             }
         );
     }
@@ -1055,7 +1059,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
         this->begin(),
         this->begin() + this->n_parents_,
         [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(*x_ptr) < minOnly_transformed_fitness(*y_ptr);
+            return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
         }
     );
 }
@@ -1072,7 +1076,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
 
     // We fall back to the single-eval MUCOMMANU mode if there is just one evaluation criterion
     it = this->begin();
-    if(not(*it)->hasMultipleFitnessCriteria()) {
+    if(not(*it)->individual().hasMultipleFitnessCriteria()) {
         this->sortMuCommaNuMode();
         return;
     }
@@ -1103,14 +1107,14 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
             }
 
             // Check if it dominates it_cmp. If so, mark it accordingly
-            if(aDominatesB(*it, *it_cmp)) {
+            if(aDominatesB((*it)->individualPtr(), (*it_cmp)->individualPtr())) {
                 (*it_cmp)
                     ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
                     ->setIsNotOnParetoFront();
             }
 
             // If a it dominated by it_cmp, we mark it accordingly and break the loop
-            if(aDominatesB(*it_cmp, *it)) {
+            if(aDominatesB((*it_cmp)->individualPtr(), (*it)->individualPtr())) {
                 (*it)
                     ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
                     ->setIsNotOnParetoFront();
@@ -1167,7 +1171,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
             this->end(),
             [](const auto &x_ptr,
                const auto &y_ptr) -> bool {
-                return minOnly_transformed_fitness(*x_ptr) < minOnly_transformed_fitness(*y_ptr);
+                return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
             }
         );
     }
@@ -1179,7 +1183,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
         this->begin(),
         this->begin() + this->n_parents_,
         [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(*x_ptr) < minOnly_transformed_fitness(*y_ptr);
+            return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
         }
     );
 }
@@ -1268,12 +1272,13 @@ void GEvolutionaryAlgorithm::fillWithObjects(const std::size_t &n_individuals) {
 
     // Add some some
     for(std::size_t i = 0; i < n_individuals; i++) {
-        this->push_back(std::make_unique<Gem::Geneva::Individuals::GTestIndividual1>());
+        this->push_back(std::make_unique<gpar::GIndividualSlot>(
+            std::make_unique<Gem::Geneva::Individuals::GTestIndividual1>()));
     }
 
     // Make sure we have unique data items
     for(const auto &ind_ptr : *this) {
-        ind_ptr->randomInit(activityMode::ALLPARAMETERS);
+        ind_ptr->individual().randomInit(activityMode::ALLPARAMETERS);
     }
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
@@ -1373,7 +1378,7 @@ void GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests_() {
 std::ostream &operator<<(std::ostream &os, const GEvolutionaryAlgorithm &pop) {
     os << '\n' << '\n';
     for(auto it = pop.begin(); it != pop.begin() + pop.getNParents(); ++it) {
-        os << (*it)->raw_fitness() << " " << (*it)->transformed_fitness() << '\n';
+        os << (*it)->individual().raw_fitness() << " " << (*it)->individual().transformed_fitness() << '\n';
     }
     os << "***************************************" << '\n';
 

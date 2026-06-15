@@ -1025,16 +1025,16 @@ private:
             else { // Monitor all individuals
                 for(const auto &ind_ptr : *goa) {
                     if(oa::GBasePluggableOM::use_raw_evaluation_) {
-                        primary_fitness = ind_ptr->raw_fitness(0);
+                        primary_fitness = ind_ptr->individual().raw_fitness(0);
                     }
                     else {
-                        primary_fitness = ind_ptr->transformed_fitness(0);
+                        primary_fitness = ind_ptr->individual().transformed_fitness(0);
                     }
 
-                    if(not monitor_valid_only_ || ind_ptr->isValid()) {
+                    if(not monitor_valid_only_ || ind_ptr->individual().isValid()) {
                         switch(this->nProfileVars()) {
                         case 1: {
-                            fp_type val0 = ind_ptr->GOptimizableEntity::template getVarVal<fp_type>(
+                            fp_type val0 = ind_ptr->individual().template getVarVal<fp_type>(
                                 fp_prof_var_vec_[0].var
                             );
 
@@ -1050,10 +1050,10 @@ private:
                         } break;
 
                         case 2: {
-                            fp_type val0 = ind_ptr->GOptimizableEntity::template getVarVal<fp_type>(
+                            fp_type val0 = ind_ptr->individual().template getVarVal<fp_type>(
                                 fp_prof_var_vec_[0].var
                             );
-                            fp_type val1 = ind_ptr->GOptimizableEntity::template getVarVal<fp_type>(
+                            fp_type val1 = ind_ptr->individual().template getVarVal<fp_type>(
                                 fp_prof_var_vec_[1].var
                             );
 
@@ -1083,13 +1083,13 @@ private:
                         } break;
 
                         case 3: {
-                            fp_type val0 = ind_ptr->GOptimizableEntity::template getVarVal<fp_type>(
+                            fp_type val0 = ind_ptr->individual().template getVarVal<fp_type>(
                                 fp_prof_var_vec_[0].var
                             );
-                            fp_type val1 = ind_ptr->GOptimizableEntity::template getVarVal<fp_type>(
+                            fp_type val1 = ind_ptr->individual().template getVarVal<fp_type>(
                                 fp_prof_var_vec_[1].var
                             );
-                            fp_type val2 = ind_ptr->GOptimizableEntity::template getVarVal<fp_type>(
+                            fp_type val2 = ind_ptr->individual().template getVarVal<fp_type>(
                                 fp_prof_var_vec_[2].var
                             );
 

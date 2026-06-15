@@ -61,6 +61,7 @@
 #include "courtier/consumers/GSerialConsumerT.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/par/GOptimizableEntityFixedSizePriorityQueue.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/Interface/GOptimizerIT.hpp"
@@ -207,7 +208,7 @@ private:
  */
 class GOptimizationAlgorithmBase // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>
-  , public Gem::Common::GUniquePtrContainerT<gpar::GOptimizableEntity>
+  , public Gem::Common::GUniquePtrContainerT<gpar::GIndividualSlot>
   , public Interface::GOptimizerIT<GOptimizationAlgorithmBase> {
 private:
     ///////////////////////////////////////////////////////////////////////
@@ -312,7 +313,7 @@ private:
         // a base-object rather than a local member, is serialized here.
         ar &make_nvp(
                 "GStdPtrVectorInterfaceT_T",
-                boost::serialization::base_object<Gem::Common::GUniquePtrContainerT<gpar::GOptimizableEntity>>(*this)
+                boost::serialization::base_object<Gem::Common::GUniquePtrContainerT<gpar::GIndividualSlot>>(*this)
             );
 
         // All members are derived from the single localMembers() declaration: plain
@@ -330,6 +331,21 @@ public:
     // Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>. Re-expose them so callers (and
     // the standard unit tests) can load one GOptimizationAlgorithmBase from another.
     using Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>::load;
+
+    /***************************************************************************/
+    // The population element is a GIndividualSlot (the individual + its OA scratch). Keep the
+    // user-facing API individual-based: a user adds bare individuals and the algorithm wraps each in a
+    // slot. The inherited slot push_back overloads remain available (re-exposed via the using-declaration
+    // so the individual overload below does not name-hide them) for population-growth code that already
+    // holds slots.
+    using Gem::Common::GUniquePtrContainerT<gpar::GIndividualSlot>::push_back;
+
+    /** @brief Adds an individual to the population, wrapping it in a fresh GIndividualSlot */
+    void push_back(std::unique_ptr<gpar::GOptimizableEntity> ind) {
+        Gem::Common::GUniquePtrContainerT<gpar::GIndividualSlot>::push_back(
+            std::make_unique<gpar::GIndividualSlot>(std::move(ind))
+        );
+    }
 
     /** @brief The copy constructor */
     GOptimizationAlgorithmBase(GOptimizationAlgorithmBase const &cp);
@@ -517,11 +533,11 @@ public:
         }
 #endif /* DEBUG */
 
-        // The population owns each individual by unique_ptr. Callers (pluggable monitors) only read the
-        // individual transiently, so hand back a NON-OWNING shared_ptr view (no-op deleter) of the live
-        // element rather than co-owning or cloning it -- the element outlives the call (the population
-        // owns it). Does error checks on the conversion internally.
-        std::shared_ptr<gpar::GOptimizableEntity> view(this->at(pos).get(), [](gpar::GOptimizableEntity *) {});
+        // The population owns each slot by unique_ptr, and each slot owns its individual. Callers
+        // (pluggable monitors) only read the individual transiently, so hand back a NON-OWNING shared_ptr
+        // view (no-op deleter) of the live individual rather than co-owning or cloning it -- the slot
+        // outlives the call (the population owns it). Does error checks on the conversion internally.
+        std::shared_ptr<gpar::GOptimizableEntity> view(&this->at(pos)->individual(), [](gpar::GOptimizableEntity *) {});
         return Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, target_type>(view);
     }
 
@@ -608,6 +624,15 @@ protected:
         std::size_t start,
         std::size_t end
     );
+
+    /**
+     * @brief Submits the population's [start, end) range for evaluation. The population holds slots, but
+     * the courtier deals in individuals: this moves each slot's individual out into a submission vector
+     * (positions preserved), runs workOn() on it, then moves the (possibly reconciled) individuals back
+     * into their slots. The slots -- and the OA scratch they carry -- stay put. workOn() is in-place
+     * (the work-item vector keeps its size), so the move-back by index is exact.
+     */
+    Gem::Courtier::executor_status_t workOnPopulation(std::size_t start, std::size_t end);
     /** @brief Retrieves a vector of old work items after job submission */
     std::vector<std::unique_ptr<gpar::GOptimizableEntity>> getOldWorkItems();
 

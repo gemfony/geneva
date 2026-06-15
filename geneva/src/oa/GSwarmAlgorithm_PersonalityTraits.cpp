@@ -64,12 +64,9 @@ GSwarmAlgorithm_PersonalityTraits::GSwarmAlgorithm_PersonalityTraits(
   , neighborhood_(cp.neighborhood_)
   , no_position_update_(cp.no_position_update_)
   , personal_best_quality_(cp.personal_best_quality_) {
-    // Copy the personal_best_ vector over
+    // Copy the personal_best_ vector over. The stored best is a bare individual carrying no personality
+    // (the personality lives on the population slot), so there is no "chain" of individuals to break.
     Gem::Common::copyCloneableSmartPointer(cp.personal_best_, personal_best_);
-    // Make sure we do not get a "chain" of individuals
-    if(personal_best_) {
-        personal_best_->resetPersonality();
-    }
 }
 
 /******************************************************************************/
@@ -200,11 +197,9 @@ void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr<gpa
     }
 #endif
 
-    // Copy the personal_best_ vector over and make sure we do not get a "chain" of individuals
+    // Copy the personal_best_ vector over. The stored best is a bare individual carrying no personality
+    // (it lives on the population slot), so there is no "chain" of individuals to break.
     Gem::Common::copyCloneableSmartPointer(p, personal_best_);
-    if(personal_best_) {
-        personal_best_->resetPersonality();
-    }
 
     personal_best_quality_ = p->getFitnessTuple();
 }
@@ -297,12 +292,9 @@ void GSwarmAlgorithm_PersonalityTraits::load_(const GPersonalityTraits *cp) {
     // localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 
-    // Manual tail: copy the personal_best_ over and make sure we do not get a
-    // "chain" of individuals (asymmetric post-clone step; see localMembers() docs).
+    // Manual tail: copy the personal_best_ over (see localMembers() docs). The stored best is a bare
+    // individual carrying no personality (it lives on the population slot), so there is no "chain".
     Gem::Common::copyCloneableSmartPointer(p_load->personal_best_, personal_best_);
-    if(personal_best_) {
-        personal_best_->resetPersonality();
-    }
 }
 
 /******************************************************************************/

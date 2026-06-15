@@ -341,7 +341,7 @@ void GSimulatedAnnealing::adaptChildren_() {
             // instead of the individual's own adapt(). The config is read-only here, so the parallel
             // schedule stays lock-free.
             [it, cfg = adaption_config_.get()]() {
-                auto &flat = dynamic_cast<gpar::GFlatGenome &>(**it);
+                auto &flat = dynamic_cast<gpar::GFlatGenome &>((*it)->individual());
                 return adaptIndividual(flat, *cfg);
             } // Returns the number of adaptions
         ));
@@ -391,7 +391,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     // through this function. There MAY be situations, where in the first iteration
     // parents are clean, e.g. when they were extracted from another optimization.
     for(std::size_t i = this->getNParents(); i < this->size(); i++) {
-        if(not this->at(i)->is_due_for_processing()) {
+        if(not this->at(i)->individual().is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GSimulatedAnnealing::runFitnessCalculation(): Error!" << '\n'
@@ -406,14 +406,14 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     //--------------------------------------------------------------------------------
     // Submit the [start, end) evaluation range and wait for results. courtier marks the span
     // DO_PROCESS and reconciles it in place -- no per-item flagging needed.
-    auto status = this->workOn(this->data_cnt_, std::get<0>(range), std::get<1>(range));
+    auto status = this->workOnPopulation(std::get<0>(range), std::get<1>(range));
 
     //--------------------------------------------------------------------------------
     // Take care of unprocessed items, if these exist. We simply remove them and continue.
     if(not status.is_complete) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GOptimizableEntity> &p) -> bool {
-                return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
+            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GIndividualSlot> &p) -> bool {
+                return (p->individual().getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
 #ifdef DEBUG
@@ -428,8 +428,8 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     // We simply remove them and continue.
     if(status.has_errors) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GOptimizableEntity> &p) -> bool {
-                return p->has_errors();
+            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GIndividualSlot> &p) -> bool {
+                return p->individual().has_errors();
             });
 
 #ifdef DEBUG
@@ -456,10 +456,11 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
     // Retrieve a vector of old work items
     auto old_work_items = this->getOldWorkItems();
 
-    // Remove parents from older iterations from old work items -- we do not want them.
+    // Remove old work items from older iterations -- we do not want them. Note: old work items are
+    // bare individuals (not slots), so they no longer carry the OA personality; we can only test the
+    // assigned iteration here. (getOldWorkItems() currently always returns an empty set anyway.)
     std::erase_if(old_work_items, [iteration](const auto &x) -> bool {
-        return x->template getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()->isParent() &&
-               x->getAssignedIteration() != iteration;
+        return x->getAssignedIteration() != iteration;
     });
 
     // Make it known to remaining old individuals that they are now part of a new iteration
@@ -483,7 +484,7 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
 
     // Attach all old work items to the end of the current population and clear the array of old items
     for(auto &item_ptr : old_work_items) {
-        this->push_back(std::move(item_ptr));
+        this->push_back(std::make_unique<gpar::GIndividualSlot>(std::move(item_ptr)));
     }
     old_work_items.clear();
 
@@ -506,7 +507,7 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
    
 
     // Check that the last individual is not unprocessed. This is a severe error.
-    if(this->back()->is_due_for_processing()) {
+    if(this->back()->individual().is_due_for_processing()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSimulatedAnnealing::fixAfterJobSubmission():" << '\n'
@@ -529,12 +530,12 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
     typename GOptimizationAlgorithmBase::iterator it;
     for(it = this->begin(); it != this->begin() + np; ++it) {
         (*it)
-            ->GOptimizableEntity::template getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()
+            ->template getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()
             ->setIsParent();
     }
     for(it = this->begin() + np; it != this->end(); ++it) {
         (*it)
-            ->GOptimizableEntity::template getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()
+            ->template getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()
             ->setIsChild();
     }
 
@@ -614,15 +615,16 @@ void GSimulatedAnnealing::sortSAMode() {
         this->begin() + 2 * this->n_parents_,
         this->end(),
         [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(*x_ptr) < minOnly_transformed_fitness(*y_ptr);
+            return minOnly_transformed_fitness(x_ptr->individual()) <
+                   minOnly_transformed_fitness(y_ptr->individual());
         }
     );
 
     // Check for each parent whether it should be replaced by the corresponding child
     for(std::size_t np = 0; np < this->n_parents_; np++) {
         double p_pass = saProb(
-            minOnly_transformed_fitness(*this->at(np)),
-            minOnly_transformed_fitness(*this->at(this->n_parents_ + np))
+            minOnly_transformed_fitness(this->at(np)->individual()),
+            minOnly_transformed_fitness(this->at(this->n_parents_ + np)->individual())
         );
         if(p_pass >= 1.) {
             this->at(np)->load(this->at(this->n_parents_ + np));
@@ -643,7 +645,8 @@ void GSimulatedAnnealing::sortSAMode() {
         this->begin(),
         this->begin() + this->n_parents_,
         [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(*x_ptr) < minOnly_transformed_fitness(*y_ptr);
+            return minOnly_transformed_fitness(x_ptr->individual()) <
+                   minOnly_transformed_fitness(y_ptr->individual());
         }
     );
 

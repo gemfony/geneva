@@ -268,28 +268,23 @@ TEST_CASE("GGenomeBuilder: interned group labels", "[flat]") {
 }
 
 /******************************************************************************/
-TEST_CASE("GFlatGenome: personality is OA scratch -- serialized for checkpoint, not compared", "[flat]") {
-    namespace oa = Gem::Geneva::OptimizationAlgorithms;
-
-    // Two individuals with identical genomes but DIFFERENT personalities (as if last touched by
-    // different optimization algorithms) must compare EQUAL: the personality is no longer part of the
-    // compared identity (it left localMembers()).
+TEST_CASE("GFlatGenome: OA-identity mnemonic -- serialized for transport, not compared", "[flat]") {
+    // The rich personality OBJECT is OA scratch and lives on the population slot (see [slot] tests). The
+    // individual carries only the lightweight OA-identity mnemonic so a per-individual processing action
+    // can read it at evaluation time (on a clone / wire copy). Two individuals with identical genomes but
+    // DIFFERENT mnemonics (as if last touched by different optimization algorithms) must compare EQUAL:
+    // the mnemonic is not part of the compared identity.
     FlatSphere a(3);
     FlatSphere b(a); // copy ctor -> identical genome
-    a.setPersonality(std::make_shared<oa::GEvolutionaryAlgorithm_PersonalityTraits>());
-    b.setPersonality(std::make_shared<oa::GSimulatedAnnealing_PersonalityTraits>());
+    a.setMnemonic("PERSONALITY_EA");
+    b.setMnemonic("PERSONALITY_SA");
     CHECK_NOTHROW(a.compare(b, Gem::Common::expectation::EQUALITY, 0.));
 
-    // ... but the personality IS still serialized, so a checkpoint / resume keeps it in place.
+    // ... but the mnemonic IS serialized, so it travels with a clone / wire copy.
     const std::string xml = a.toString(Gem::Common::serializationMode::XML);
     FlatSphere restored;
     restored.fromString(xml, Gem::Common::serializationMode::XML);
-    REQUIRE(restored.getPersonalityTraits());
-    CHECK(
-        std::dynamic_pointer_cast<oa::GEvolutionaryAlgorithm_PersonalityTraits>(
-            restored.getPersonalityTraits()
-        ) != nullptr
-    );
+    CHECK(restored.getMnemonic() == "PERSONALITY_EA");
 }
 
 /******************************************************************************/

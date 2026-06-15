@@ -387,15 +387,15 @@ std::tuple<double, double> GConjugateGradientDescent::cycleLogic_() {
     runFitnessCalculation_();
 
     std::tuple<double, double> best_fitness =
-        std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
+        std::make_tuple(this->at(0)->individual().getWorstCase(), this->at(0)->individual().getWorstCase());
     std::tuple<double, double> fitness_candidate =
-        std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
+        std::make_tuple(this->at(0)->individual().getWorstCase(), this->at(0)->individual().getWorstCase());
 
     GConjugateGradientDescent::iterator it;
-    auto m = this->at(0)->getMaxMode(); // All individuals share the same max mode
+    auto m = this->at(0)->individual().getMaxMode(); // All individuals share the same max mode
     for(it = this->begin(); it != this->begin() + this->getNStartingPoints(); ++it) {
-        std::get<G_RAW_FITNESS>(fitness_candidate) = (*it)->raw_fitness(0);
-        std::get<G_TRANSFORMED_FITNESS>(fitness_candidate) = (*it)->transformed_fitness(0);
+        std::get<G_RAW_FITNESS>(fitness_candidate) = (*it)->individual().raw_fitness(0);
+        std::get<G_TRANSFORMED_FITNESS>(fitness_candidate) = (*it)->individual().transformed_fitness(0);
 
         if(isBetter(
                std::get<G_TRANSFORMED_FITNESS>(fitness_candidate),
@@ -423,7 +423,7 @@ std::tuple<double, double> GConjugateGradientDescent::cycleLogic_() {
 void GConjugateGradientDescent::updateChildParameters() {
     for(std::size_t i = 0; i < n_starting_points_; i++) {
         std::vector<double> parm_vec;
-        this->at(i)->streamlineFP(parm_vec, activityMode::ACTIVEONLY);
+        this->at(i)->individual().streamlineFP(parm_vec, activityMode::ACTIVEONLY);
 
         for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
             std::size_t child_pos = n_starting_points_ + i * n_fp_parms_first_ + j;
@@ -440,7 +440,7 @@ void GConjugateGradientDescent::updateChildParameters() {
 
             // Add the finite step to the feature vector's current parameter
             parm_vec[j] += adjusted_finite_step_[j];
-            this->at(child_pos)->assignFPValueVector(parm_vec, activityMode::ACTIVEONLY);
+            this->at(child_pos)->individual().assignFPValueVector(parm_vec, activityMode::ACTIVEONLY);
 
             // Restore the original value for the next direction
             parm_vec[j] = orig_parm_val;
@@ -496,10 +496,10 @@ void GConjugateGradientDescent::updateParentIndividuals() {
 
     for(std::size_t i = 0; i < n_starting_points_; i++) {
         std::vector<double> parm_vec;
-        this->at(i)->streamlineFP(parm_vec, activityMode::ACTIVEONLY);
+        this->at(i)->individual().streamlineFP(parm_vec, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
-        if(this->at(i)->is_due_for_processing() || (this->at(i)->has_errors())) {
+        if(this->at(i)->individual().is_due_for_processing() || (this->at(i)->individual().has_errors())) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConjugateGradientDescent::updateParentIndividuals():" << '\n'
@@ -509,7 +509,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         }
 #endif /* DEBUG */
 
-        const double parent_fitness = minOnly_transformed_fitness(*this->at(i));
+        const double parent_fitness = minOnly_transformed_fitness(this->at(i)->individual());
 
         // 1) Normalised forward-difference gradient g_j = (f(x + h_j e_j) - f(x)) / h_j. Normalising by
         //    h_j (instead of folding 1/h into the step as the old fixed-step proxy did) makes g a proper
@@ -521,7 +521,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
             const double h = adjusted_finite_step_[j];
             if(h > 0.) {
                 gradient[j] =
-                    (minOnly_transformed_fitness(*this->at(child_pos)) - parent_fitness) / h;
+                    (minOnly_transformed_fitness(this->at(child_pos)->individual()) - parent_fitness) / h;
             }
         }
 
@@ -604,7 +604,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         //    place: it has effectively converged (zero gradient) or sits where the current direction
         //    cannot improve it.
         if(lr.success) {
-            this->at(i)->assignFPValueVector(lr.x_new, activityMode::ACTIVEONLY);
+            this->at(i)->individual().assignFPValueVector(lr.x_new, activityMode::ACTIVEONLY);
         }
 
         // 6) Remember gradient/direction for the next conjugate step.
@@ -630,7 +630,7 @@ std::vector<double> GConjugateGradientDescent::evaluateProbes(
     std::vector<std::unique_ptr<gpar::GOptimizableEntity>> probes;
     probes.reserve(points.size());
     for(auto const &pt : points) {
-        auto probe = this->at(starting_point)->clone_unique();
+        auto probe = this->at(starting_point)->individual().clone_unique();
         probe->assignFPValueVector(pt, activityMode::ACTIVEONLY);
         probes.push_back(std::move(probe));
     }
@@ -709,7 +709,7 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
 #ifdef DEBUG
     std::size_t pos = 0;
     for(const auto &item_ptr : *this) {
-        if(this->afterFirstIteration() && !item_ptr->is_due_for_processing()) {
+        if(this->afterFirstIteration() && !item_ptr->individual().is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConjugateGradientDescent::runFitnessCalculation():" << '\n'
@@ -721,7 +721,7 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
     }
 #endif /* DEBUG */
 
-    auto status = this->workOn(this->data_cnt_, 0, this->data_cnt_.size());
+    auto status = this->workOnPopulation(0, this->data_cnt_.size());
 
     // A conjugate-gradient method needs a complete set of evaluated solutions.
     if(not status.is_complete || status.has_errors) {
@@ -743,7 +743,7 @@ void GConjugateGradientDescent::init() {
     GOptimizationAlgorithmBase::init();
 
     // Extract the boundaries of all active parameters
-    this->at(0)->boundariesFP(
+    this->at(0)->individual().boundariesFP(
         dbl_lower_parameter_boundaries_,
         dbl_upper_parameter_boundaries_,
         activityMode::ACTIVEONLY
@@ -833,9 +833,9 @@ void GConjugateGradientDescent::finalize() {
     if(error_estimation_ != errorEstimationMode::NONE && n_fp_parms_first_ > 0 && not this->empty()) {
         // Pick the best starting point (the lowest min-only fitness).
         std::size_t best = 0;
-        double best_fitness = minOnly_transformed_fitness(*this->at(0));
+        double best_fitness = minOnly_transformed_fitness(this->at(0)->individual());
         for(std::size_t i = 1; i < n_starting_points_ && i < this->size(); ++i) {
-            const double f = minOnly_transformed_fitness(*this->at(i));
+            const double f = minOnly_transformed_fitness(this->at(i)->individual());
             if(f < best_fitness) {
                 best_fitness = f;
                 best = i;
@@ -843,7 +843,7 @@ void GConjugateGradientDescent::finalize() {
         }
 
         std::vector<double> x_min;
-        this->at(best)->streamlineFP(x_min, activityMode::ACTIVEONLY);
+        this->at(best)->individual().streamlineFP(x_min, activityMode::ACTIVEONLY);
 
         GHesseErrorOptions opts;
         opts.up = error_up_;
@@ -926,7 +926,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
         );
     }
 
-    n_fp_parms_first_ = this->at(0)->countFPParameters(activityMode::ACTIVEONLY);
+    n_fp_parms_first_ = this->at(0)->individual().countFPParameters(activityMode::ACTIVEONLY);
 
     if(n_fp_parms_first_ == 0) {
         throw geneva_exception(
@@ -941,7 +941,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
     // normal, user-expected behaviour, so it is merely logged (not warned about).
     {
         // countParameters<T> is part of the genome-agnostic value-channel interface.
-        auto const &ind0 = *this->at(0);
+        auto const &ind0 = this->at(0)->individual();
         const std::size_t n_int_parms =
             ind0.countParameters<std::int32_t>(activityMode::ACTIVEONLY);
         const std::size_t n_bool_parms =
@@ -961,13 +961,13 @@ void GConjugateGradientDescent::adjustPopulation_() {
 
 #ifdef DEBUG
     for(std::size_t i = 1; i < this->size(); i++) {
-        if(this->at(i)->countFPParameters(activityMode::ACTIVEONLY) != n_fp_parms_first_) {
+        if(this->at(i)->individual().countFPParameters(activityMode::ACTIVEONLY) != n_fp_parms_first_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConjugateGradientDescent::adjustPopulation():" << '\n'
                 << "Found individual in position " << i << " with different" << '\n'
                 << "number of floating point parameters than the first one: "
-                << this->at(i)->countFPParameters(activityMode::ACTIVEONLY) << "/"
+                << this->at(i)->individual().countFPParameters(activityMode::ACTIVEONLY) << "/"
                 << n_fp_parms_first_ << '\n'
             );
         }
@@ -982,7 +982,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
     if(n_start < n_starting_points_) {
         for(std::size_t i = 0; i < (n_starting_points_ - n_start); i++) {
             this->push_back(this->at(0)->clone_unique());
-            this->back()->randomInit(activityMode::ACTIVEONLY);
+            this->back()->individual().randomInit(activityMode::ACTIVEONLY);
         }
     }
     else {

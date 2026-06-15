@@ -249,10 +249,10 @@ protected:
     void performScheduledPopulationGrowth();
 
     /** @brief This function implements the RANDOMDUPLICATIONSCHEME scheme */
-    void randomRecombine(std::unique_ptr<gpar::GOptimizableEntity> &child);
+    void randomRecombine(const std::unique_ptr<gpar::GIndividualSlot> &child);
     /** @brief  This function implements the VALUEDUPLICATIONSCHEME scheme */
     void
-    valueRecombine(std::unique_ptr<gpar::GOptimizableEntity> &p, const std::vector<double> &threshold);
+    valueRecombine(const std::unique_ptr<gpar::GIndividualSlot> &child, const std::vector<double> &threshold);
 
     /***************************************************************************/
 

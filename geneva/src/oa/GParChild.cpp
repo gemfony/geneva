@@ -431,9 +431,9 @@ void GParChild::doRecombine() {
             const std::size_t child_idx = n_parents_ + c;
             const std::size_t pp = parent_pos[c];
             futures_cnt.push_back(tp->async_schedule([this, child_idx, pp]() {
-                std::unique_ptr<gpar::GOptimizableEntity> &child = GOptimizationAlgorithmBase::data_cnt_[child_idx];
+                std::unique_ptr<gpar::GIndividualSlot> &child = GOptimizationAlgorithmBase::data_cnt_[child_idx];
                 child->load(GOptimizationAlgorithmBase::data_cnt_[pp]);
-                child->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
+                child->template getPersonalityTraits<GBaseParChildPersonalityTraits>()
                     ->setParentId(pp);
             }));
         }
@@ -465,7 +465,7 @@ void GParChild::doRecombine() {
 
     // ------------------------------------------------------------------------
     // Serial path (original behaviour; also covers the cross-over / amalgamation case).
-    std::vector<std::unique_ptr<gpar::GOptimizableEntity>>::iterator it;
+    std::vector<std::unique_ptr<gpar::GIndividualSlot>>::iterator it;
     for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         it != GOptimizationAlgorithmBase::data_cnt_.end();
         ++it) {
@@ -473,33 +473,36 @@ void GParChild::doRecombine() {
         // If we do perform cross-over, we always cross the best individual with another random parent
         if(n_parents_ > 1 &&
            amalgamation_wanted(this->gr_)) { // Create individuals using a cross-over scheme
-            const gpar::GOptimizableEntity &best_parent = *this->front();
+            const gpar::GOptimizableEntity &best_parent = this->front()->individual();
             const gpar::GOptimizableEntity &combiner =
                 (n_parents_ > 2)
-                    ? *(*(this->begin() + this->uniform_int_distribution_(
+                    ? (*(this->begin() + this->uniform_int_distribution_(
                                              this->gr_,
                                              std::uniform_int_distribution<std::size_t>::param_type(
                                                  1,
                                                  n_parents_ - 1
                                              )
-                                         )))
-                    : *(*(this->begin() + 1));
+                                         )))->individual()
+                    : (*(this->begin() + 1))->individual();
 
-            (*it)->load(best_parent.crossOverWith(combiner));
+            (*it)->individual().load(best_parent.crossOverWith(combiner));
         }
         else { // Just perform duplication
             switch(recombination_method_) {
             case duplicationScheme::
                 DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior
             case duplicationScheme::RANDOMDUPLICATIONSCHEME: {
+                // The recombine helpers copy the chosen parent's individual into the child slot's
+                // individual and record the parent id on the child slot's personality.
                 randomRecombine(*it);
             } break;
 
             case duplicationScheme::VALUEDUPLICATIONSCHEME: {
                 if(n_parents_ == 1) {
-                    (*it)->load(*(GOptimizationAlgorithmBase::data_cnt_.begin()));
+                    (*it)->individual().load(
+                        (*(GOptimizationAlgorithmBase::data_cnt_.begin()))->individualPtr());
                     (*it)
-                        ->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits>()
+                        ->template getPersonalityTraits<GBaseParChildPersonalityTraits>()
                         ->setParentId(0);
                 }
                 else {
@@ -534,7 +537,7 @@ void GParChild::actOnStalls_() {
         // adaption state to its seeds via the OA-owned config (the data-oriented twin of the individual's
         // updateAdaptorsOnStall()), so otherwise-successful adaptor settings are not carried into a stall.
         for(auto it = this->begin() + 1; it != this->begin() + this->getNParents(); ++it) {
-            resetAdaptionState(dynamic_cast<gpar::GFlatGenome &>(**it), *adaption_config_);
+            resetAdaptionState(dynamic_cast<gpar::GFlatGenome &>((*it)->individual()), *adaption_config_);
         }
     }
 }
@@ -615,12 +618,12 @@ std::tuple<std::size_t, std::size_t> GParChild::getAdaptionRange() const {
  * This helper function marks parents as parents and children as children.
  */
 void GParChild::markParents() {
-    typename std::vector<std::unique_ptr<gpar::GOptimizableEntity>>::iterator it;
+    typename std::vector<std::unique_ptr<gpar::GIndividualSlot>>::iterator it;
     for(it = GOptimizationAlgorithmBase::data_cnt_.begin();
         it != GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         ++it) {
         (*it)
-            ->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
+            ->template getPersonalityTraits<GBaseParChildPersonalityTraits>()
             ->setIsParent();
     }
 }
@@ -630,12 +633,12 @@ void GParChild::markParents() {
  * This helper function marks children as children
  */
 void GParChild::markChildren() {
-    typename std::vector<std::unique_ptr<gpar::GOptimizableEntity>>::iterator it;
+    typename std::vector<std::unique_ptr<gpar::GIndividualSlot>>::iterator it;
     for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         it != GOptimizationAlgorithmBase::data_cnt_.end();
         ++it) {
         (*it)
-            ->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
+            ->template getPersonalityTraits<GBaseParChildPersonalityTraits>()
             ->setIsChild();
     }
 }
@@ -649,7 +652,7 @@ void GParChild::markIndividualPositions() {
     std::size_t pos = 0;
     for(const auto &individual : GOptimizationAlgorithmBase::data_cnt_) {
         individual
-            ->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
+            ->template getPersonalityTraits<GBaseParChildPersonalityTraits>()
             ->setPopulationPosition(pos++);
     }
 }
@@ -681,7 +684,7 @@ std::tuple<double, double> GParChild::cycleLogic_() {
 
 #ifdef DEBUG
     // The dirty flag of this individual shouldn't be set
-    if(not this->at(0)->is_processed()) {
+    if(not this->at(0)->individual().is_processed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParChild::cycleLogic(): Error!" << '\n'
@@ -692,7 +695,7 @@ std::tuple<double, double> GParChild::cycleLogic_() {
 #endif /* DEBUG */
 
     // Return the primary fitness of the best individual in the collection
-    return this->at(0)->getFitnessTuple();
+    return this->at(0)->individual().getFitnessTuple();
 }
 
 /******************************************************************************/
@@ -723,7 +726,7 @@ void GParChild::init() {
     // individual's own adapt(). It is transient run scratch, rebuilt on every optimize().
     adaption_config_.reset();
     if(not this->empty()) {
-        if(const auto *flat = dynamic_cast<const gpar::GFlatGenome *>(this->at(0).get())) {
+        if(const auto *flat = dynamic_cast<const gpar::GFlatGenome *>(&this->at(0)->individual())) {
             adaption_config_ = makeAdaptionConfig_(*flat);
         }
     }
@@ -779,7 +782,7 @@ void GParChild::adjustPopulation_() {
     }
 
     // Do the smart pointers actually point to any objects ?
-    typename std::vector<std::unique_ptr<gpar::GOptimizableEntity>>::iterator it;
+    typename std::vector<std::unique_ptr<gpar::GIndividualSlot>>::iterator it;
     for(const auto &individual : GOptimizationAlgorithmBase::data_cnt_) {
         if(not individual) { // shared_ptr can be implicitly converted to bool
             throw geneva_exception(
@@ -801,7 +804,7 @@ void GParChild::adjustPopulation_() {
         for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + this_sz;
             it != GOptimizationAlgorithmBase::data_cnt_.end();
             ++it) {
-            (*it)->randomInit(activityMode::ACTIVEONLY);
+            (*it)->individual().randomInit(activityMode::ACTIVEONLY);
         }
     }
 }
@@ -836,7 +839,7 @@ void GParChild::performScheduledPopulationGrowth() {
  *
  * @param child The individual for which a new value should be chosen
  */
-void GParChild::randomRecombine(std::unique_ptr<gpar::GOptimizableEntity> &child) {
+void GParChild::randomRecombine(const std::unique_ptr<gpar::GIndividualSlot> &child) {
     std::size_t parent_pos = 0;
 
     if(n_parents_ == 1) {
@@ -854,12 +857,10 @@ void GParChild::randomRecombine(std::unique_ptr<gpar::GOptimizableEntity> &child
         );
     }
 
-    // Load the parent data into the individual
-    child->load(*(GOptimizationAlgorithmBase::data_cnt_.begin() + parent_pos));
-
-    // Let the individual know the id of the parent
-    child->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
-        ->setParentId(parent_pos);
+    // Load the parent's individual data into the child's individual, and record the chosen parent on
+    // the child slot's personality.
+    child->individual().load((*(GOptimizationAlgorithmBase::data_cnt_.begin() + parent_pos))->individualPtr());
+    child->template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(parent_pos);
 }
 
 /******************************************************************************/
@@ -874,7 +875,7 @@ void GParChild::randomRecombine(std::unique_ptr<gpar::GOptimizableEntity> &child
  * @param threshold A std::vector<double> holding the recombination likelihoods for each parent
  */
 void GParChild::valueRecombine(
-    std::unique_ptr<gpar::GOptimizableEntity> &p,
+    const std::unique_ptr<gpar::GIndividualSlot> &child,
     const std::vector<double> &threshold
 ) {
     bool done = false;
@@ -883,11 +884,10 @@ void GParChild::valueRecombine(
 
     for(std::size_t par = 0; par < n_parents_; par++) {
         if(rand_test < threshold[par]) {
-            // Load the parent's data
-            p->load(*(GOptimizationAlgorithmBase::data_cnt_.begin() + par));
-            // Let the individual know the parent's id
-            p->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()
-                ->setParentId(par);
+            // Load the parent's individual data into the child's individual, and record the chosen
+            // parent on the child slot's personality.
+            child->individual().load((*(GOptimizationAlgorithmBase::data_cnt_.begin() + par))->individualPtr());
+            child->template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(par);
             done = true;
 
             break;

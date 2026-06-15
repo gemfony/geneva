@@ -472,7 +472,7 @@ std::size_t GSwarmAlgorithm::getLastNIPos(const std::size_t &neighborhood) const
  *
  * @param ind_ptr A pointer to the GOptimizableEntity object to be updated
  */
-void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gpar::GOptimizableEntity> &ind_ptr) {
+void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gpar::GIndividualSlot> &ind_ptr) {
 #ifdef DEBUG
     if(not ind_ptr) {
         throw geneva_exception(
@@ -482,13 +482,13 @@ void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gpar::GOptimizabl
         );
     }
 
-    if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
+    if(ind_ptr->individual().is_due_for_processing() || ind_ptr->individual().has_errors()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSwarmAlgorithm::updatePersonalBest():" << '\n'
             << "ind_ptr is unprocessed or has errors: " << '\n'
-            << "is_due_for_processing() == " << ind_ptr->is_due_for_processing()
-            << ", has_errors() == " << ind_ptr->has_errors() << '\n'
+            << "is_due_for_processing() == " << ind_ptr->individual().is_due_for_processing()
+            << ", has_errors() == " << ind_ptr->individual().has_errors() << '\n'
         );
     }
 #endif /* DEBUG */
@@ -497,7 +497,7 @@ void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gpar::GOptimizabl
     // The archive (personal_best_) keeps its own shared_ptr copy; the population owns the live
     // individual by unique_ptr, so we hand registerPersonalBest a clone across the ownership boundary.
     ind_ptr->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->registerPersonalBest(
-        ind_ptr->clone<gpar::GOptimizableEntity>()
+        ind_ptr->individual().clone<gpar::GOptimizableEntity>()
     );
 }
 
@@ -507,7 +507,7 @@ void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gpar::GOptimizabl
  *
  * @param ind_ptr A pointer to the GOptimizableEntity object to be updated
  */
-void GSwarmAlgorithm::updatePersonalBestIfBetter(const std::unique_ptr<gpar::GOptimizableEntity> &ind_ptr) {
+void GSwarmAlgorithm::updatePersonalBestIfBetter(const std::unique_ptr<gpar::GIndividualSlot> &ind_ptr) {
 #ifdef DEBUG
     if(not ind_ptr) {
         throw geneva_exception(
@@ -517,7 +517,7 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(const std::unique_ptr<gpar::GOp
         );
     }
 
-    if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
+    if(ind_ptr->individual().is_due_for_processing() || ind_ptr->individual().has_errors()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSwarmAlgorithm::updatePersonalBestIfBetter(): Error!" << '\n'
@@ -527,10 +527,10 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(const std::unique_ptr<gpar::GOp
 #endif /* DEBUG */
 
     auto m =
-        this->at(0)->getMaxMode(); // We assume that the maxMode is the same for all individuals
+        this->at(0)->individual().getMaxMode(); // We assume that the maxMode is the same for all individuals
     // Update personal best only when the current position is better than the stored best.
     if(isBetter(
-           ind_ptr->transformed_fitness(0),
+           ind_ptr->individual().transformed_fitness(0),
            std::get<G_TRANSFORMED_FITNESS>(
                ind_ptr->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()
                    ->getPersonalBestQuality()
@@ -538,7 +538,7 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(const std::unique_ptr<gpar::GOp
            m
        )) {
         ind_ptr->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->registerPersonalBest(
-            ind_ptr->clone<gpar::GOptimizableEntity>()
+            ind_ptr->individual().clone<gpar::GOptimizableEntity>()
         );
     }
 }
@@ -659,7 +659,7 @@ void GSwarmAlgorithm::init() {
     GOptimizationAlgorithmBase::init();
 
     // Extract the boundaries of all parameters
-    this->at(0)->boundariesFP(
+    this->at(0)->individual().boundariesFP(
         dbl_lower_parameter_boundaries_cnt_,
         dbl_upper_parameter_boundaries_cnt_,
         activityMode::ACTIVEONLY
@@ -706,7 +706,7 @@ void GSwarmAlgorithm::init() {
         // to have assigned anything else than a GOptimizableEntity derivative to
         // the swarm, then the following line will throw in DEBUG mode or return
         // undefined results in RELEASE mode
-        std::shared_ptr<gpar::GOptimizableEntity> p(ind_ptr->clone<gpar::GOptimizableEntity>());
+        std::shared_ptr<gpar::GOptimizableEntity> p(ind_ptr->individual().clone<gpar::GOptimizableEntity>());
 
         // Extract the parameter vector
         std::vector<double> vel_vec;
@@ -880,8 +880,10 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
                 for(std::size_t i = 0; i < n_missing; i++) {
                     data_cnt_.insert(
                         data_cnt_.begin() + first_ni_pos,
-                        (*(last_iteration_individuals_cnt_.begin() + first_ni_pos + i))
-                            ->clone_unique()
+                        std::make_unique<gpar::GIndividualSlot>(
+                            (*(last_iteration_individuals_cnt_.begin() + first_ni_pos + i))
+                                ->clone_unique()
+                        )
                     );
                 }
             }
@@ -906,7 +908,7 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
                     );
 
                     // Randomly initialize the item and prevent position updates
-                    (*(data_cnt_.begin() + first_ni_pos))->randomInit(activityMode::ACTIVEONLY);
+                    (*(data_cnt_.begin() + first_ni_pos))->individual().randomInit(activityMode::ACTIVEONLY);
                     (*(data_cnt_.begin() + first_ni_pos))
                         ->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()
                         ->setNoPositionUpdate();
@@ -995,7 +997,7 @@ void GSwarmAlgorithm::updatePositions() {
     if(afterFirstIteration()) {
         // Clone the individuals and copy them over
         for(const auto &ind_ptr : *this) {
-            last_iteration_individuals_cnt_.push_back(ind_ptr->clone<gpar::GOptimizableEntity>());
+            last_iteration_individuals_cnt_.push_back(ind_ptr->individual().clone<gpar::GOptimizableEntity>());
         }
     }
 
@@ -1092,7 +1094,7 @@ void GSwarmAlgorithm::updatePositions() {
 void GSwarmAlgorithm::updateIndividualPositions(
     [[maybe_unused]] const std::size_t & neighborhood
     ,
-    const std::unique_ptr<gpar::GOptimizableEntity> &ind,
+    const std::unique_ptr<gpar::GIndividualSlot> &ind,
     std::shared_ptr<gpar::GOptimizableEntity> neighborhood_best,
     std::shared_ptr<gpar::GOptimizableEntity> global_best,
     std::shared_ptr<gpar::GOptimizableEntity> velocity,
@@ -1162,7 +1164,7 @@ void GSwarmAlgorithm::updateIndividualPositions(
     std::vector<double> nbh_best_vec;
     std::vector<double> glb_best_vec;
     std::vector<double> vel_vec;
-    ind->streamlineFP(ind_vec, activityMode::ACTIVEONLY);
+    ind->individual().streamlineFP(ind_vec, activityMode::ACTIVEONLY);
     personal_best->streamlineFP(personal_best_vec, activityMode::ACTIVEONLY);
     neighborhood_best->streamlineFP(nbh_best_vec, activityMode::ACTIVEONLY);
     global_best->streamlineFP(glb_best_vec, activityMode::ACTIVEONLY);
@@ -1258,7 +1260,7 @@ void GSwarmAlgorithm::updateIndividualPositions(
     velocity->assignFPValueVector(vel_vec, activityMode::ACTIVEONLY);
 
     // Update the candidate solution
-    ind->assignFPValueVector(ind_vec, activityMode::ACTIVEONLY);
+    ind->individual().assignFPValueVector(ind_vec, activityMode::ACTIVEONLY);
 }
 
 /******************************************************************************/
@@ -1328,7 +1330,7 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
 
     //--------------------------------------------------------------------------------
     // Submit work items and wait for results (courtier marks + reconciles the whole population).
-    auto status = this->workOn(this->data_cnt_, 0, this->data_cnt_.size());
+    auto status = this->workOnPopulation(0, this->data_cnt_.size());
 
     // Retrieve a vector of old work items
     auto old_work_items = this->getOldWorkItems();
@@ -1337,7 +1339,7 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     // and attach them to the data vector
     for(auto &item_ptr : old_work_items) {
         item_ptr->setAssignedIteration(this->getIteration());
-        this->push_back(std::move(item_ptr));
+        this->push_back(std::make_unique<gpar::GIndividualSlot>(std::move(item_ptr)));
     }
     old_work_items.clear();
 
@@ -1345,8 +1347,8 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     // Take care of unprocessed items, if these exist
     if(not status.is_complete) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GOptimizableEntity> &p) -> bool {
-                return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
+            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GIndividualSlot> &p) -> bool {
+                return (p->individual().getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
 #ifdef DEBUG
@@ -1360,8 +1362,8 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     // Remove items for which an error has occurred during processing
     if(status.has_errors) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GOptimizableEntity> &p) -> bool {
-                return p->has_errors();
+            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GIndividualSlot> &p) -> bool {
+                return p->individual().has_errors();
             });
 
 #ifdef DEBUG
@@ -1406,26 +1408,26 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
  */
 std::tuple<double, double> GSwarmAlgorithm::findBests() {
     auto m =
-        this->at(0)->getMaxMode(); // We assume that the maxMode is the same for all individuals
+        this->at(0)->individual().getMaxMode(); // We assume that the maxMode is the same for all individuals
 
     std::size_t best_local_id = 0;
     std::tuple<double, double> best_local_fitness =
-        std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
+        std::make_tuple(this->at(0)->individual().getWorstCase(), this->at(0)->individual().getWorstCase());
     std::tuple<double, double> best_iteration_fitness =
-        std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
+        std::make_tuple(this->at(0)->individual().getWorstCase(), this->at(0)->individual().getWorstCase());
 
 #ifdef DEBUG
     std::size_t pos = 0;
     for(const auto &ind_ptr : *this) {
-        if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
+        if(ind_ptr->individual().is_due_for_processing() || ind_ptr->individual().has_errors()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GSwarmAlgorithm::findBests(): Error!" << '\n'
                 << "Found individual in position " << pos << " in iteration "
                 << this->getIteration() << '\n'
                 << "which is unprocessed or has errors" << '\n'
-                << "is_due_for_processing() == " << ind_ptr->is_due_for_processing()
-                << ", has_errors() == " << ind_ptr->has_errors() << '\n'
+                << "is_due_for_processing() == " << ind_ptr->individual().is_due_for_processing()
+                << ", has_errors() == " << ind_ptr->individual().has_errors() << '\n'
             );
         }
 
@@ -1456,7 +1458,7 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
             this->begin() + first_counter,
             this->begin() + last_counter,
             [](const auto &x_ptr, const auto &y_ptr) -> bool {
-                return minOnly_transformed_fitness(*x_ptr) < minOnly_transformed_fitness(*y_ptr);
+                return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
             }
         );
 
@@ -1464,15 +1466,15 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
         // the best individual found so far in this neighborhood
         if(inFirstIteration()) {
             neighborhood_bests_cnt_.at(n) =
-                (*(this->begin() + first_counter))->clone<gpar::GOptimizableEntity>();
+                (*(this->begin() + first_counter))->individual().clone<gpar::GOptimizableEntity>();
         }
         else {
             if(isBetter(
-                   (*(this->begin() + first_counter))->transformed_fitness(0),
+                   (*(this->begin() + first_counter))->individual().transformed_fitness(0),
                    neighborhood_bests_cnt_.at(n)->transformed_fitness(0),
                    m
                )) {
-                (neighborhood_bests_cnt_.at(n))->load(*(this->begin() + first_counter));
+                (neighborhood_bests_cnt_.at(n))->load((*(this->begin() + first_counter))->individualPtr());
             }
         }
     }
@@ -1507,11 +1509,11 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
     // Identify the best fitness in the current iteration
     for(auto & i : *this) {
         if(isBetter(
-               std::get<G_TRANSFORMED_FITNESS>(i->getFitnessTuple()),
+               std::get<G_TRANSFORMED_FITNESS>(i->individual().getFitnessTuple()),
                std::get<G_TRANSFORMED_FITNESS>(best_iteration_fitness),
                m
            )) {
-            best_iteration_fitness = i->getFitnessTuple();
+            best_iteration_fitness = i->individual().getFitnessTuple();
         }
     }
 
@@ -1541,7 +1543,7 @@ void GSwarmAlgorithm::adjustPopulation_() {
         // Fill up with random items to the number of neighborhoods
         for(std::size_t i = 1; i < n_neighborhoods_; i++) {
             this->push_back(this->front()->clone_unique());
-            this->back()->randomInit(activityMode::ACTIVEONLY);
+            this->back()->individual().randomInit(activityMode::ACTIVEONLY);
         }
 
         // Fill in remaining items in each neighborhood. This will
@@ -1564,7 +1566,7 @@ void GSwarmAlgorithm::adjustPopulation_() {
             // First fill up the neighborhoods, if required
             for(std::size_t m = 0; m < (n_neighborhoods_ - current_size); m++) {
                 this->push_back(this->front()->clone_unique());
-                this->back()->randomInit(activityMode::ACTIVEONLY);
+                this->back()->individual().randomInit(activityMode::ACTIVEONLY);
             }
 
             // Now follow the procedure used for the "n_neighborhoods_" case
@@ -1665,7 +1667,7 @@ void GSwarmAlgorithm::fillUpNeighborhood1() {
                 }
 #endif /* DEBUG */
 
-                (*(this->begin() + n + 1))->randomInit(activityMode::ACTIVEONLY);
+                (*(this->begin() + n + 1))->individual().randomInit(activityMode::ACTIVEONLY);
             }
         }
 

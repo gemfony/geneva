@@ -47,6 +47,7 @@
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
 #include "common/GMemberReflectionT.hpp"
 #include "geneva/ind/GAuxiliaryStore.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
@@ -212,6 +213,68 @@ public:
     }
     const GAuxiliaryStore &scratch() const {
         return scratch_;
+    }
+
+    /***************************************************************************/
+    // Personality (the per-individual OA object). It used to live on the individual; in the struct-based
+    // population it belongs to the slot (OA-owned scratch). These accessors mirror the former
+    // GOptimizableEntity surface so the optimization algorithms' personality call sites barely change.
+
+    /**
+     * @brief Converts the personality base pointer to the desired type. Only accessible when
+     * personality_type derives from GPersonalityTraits (mirrors the former GOptimizableEntity template).
+     */
+    template <typename personality_type>
+        requires std::derived_from<personality_type, GPersonalityTraits>
+    std::shared_ptr<personality_type> getPersonalityTraits() {
+#ifdef DEBUG
+        if(not scratch_.personalityRef()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GIndividualSlot::getPersonalityTraits<personality_type>() : Empty personality "
+                   "pointer found"
+                << '\n'
+            );
+        }
+#endif /* DEBUG */
+        return Gem::Common::convertSmartPointer<GPersonalityTraits, personality_type>(scratch_.personalityRef());
+    }
+
+    /** @brief The personality-traits base pointer */
+    std::shared_ptr<GPersonalityTraits> getPersonalityTraits() {
+#ifdef DEBUG
+        if(not scratch_.personalityRef()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GIndividualSlot::getPersonalityTraits() : Empty personality pointer found" << '\n'
+            );
+        }
+#endif /* DEBUG */
+        return scratch_.personalityRef();
+    }
+
+    /** @brief Sets the personality of this slot */
+    void setPersonality(std::shared_ptr<GPersonalityTraits> gpt) {
+        if(not gpt) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GIndividualSlot::setPersonality() : Empty personality pointer passed" << '\n'
+            );
+        }
+        scratch_.personalityRef() = std::move(gpt);
+    }
+
+    /** @brief Resets the OA-owned scratch (personality + any POD blocks held on the slot) */
+    void resetPersonality() {
+        scratch_.clearScratch();
+    }
+
+    /** @brief A string identifier for the current personality, or "PERSONALITY_NONE" */
+    std::string getPersonality() const {
+        if(scratch_.personalityRef()) {
+            return scratch_.personalityRef()->name();
+        }
+        return std::string("PERSONALITY_NONE");
     }
 
 protected:

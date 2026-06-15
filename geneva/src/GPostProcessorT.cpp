@@ -36,6 +36,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
+#include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include <memory>
 #include <string>
@@ -254,7 +255,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gpar::GOptimizableEnti
 
     // Add our individual to the algorithm (the population owns its individuals by unique_ptr; this
     // shared_ptr is bridged across the boundary with a clone -- the optimized result is read back below).
-    ea_ptr->push_back(p_unopt_ptr->clone_unique());
+    ea_ptr->push_back(std::make_unique<gpar::GIndividualSlot>(p_unopt_ptr->clone_unique()));
 
     // Perform the actual (sub-)optimization
     ea_ptr->optimize();

@@ -50,6 +50,7 @@
 #include "geneva/individuals/GFunctionIndividual.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 
@@ -794,7 +795,7 @@ protected:
                 // Retrieve an individual
                 std::shared_ptr<gpar::GOptimizableEntity> gi_ptr = ind_factory_->get();
 
-                ea_ptr->push_back(gi_ptr->clone_unique());
+                ea_ptr->push_back(std::make_unique<gpar::GIndividualSlot>(gi_ptr->clone_unique()));
             }
 
             // Set the likelihood for work items to be produced through cross-over rather than mutation alone
@@ -1905,7 +1906,7 @@ private:
             // Extract the requested data. First retrieve the best individual.
             // It can always be found in the first position with evolutionary algorithms
             std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> p =
-                ea->clone_at<GMetaOptimizerIndividualT<ind_type>>(0);
+                ea->at(0)->individual().clone<GMetaOptimizerIndividualT<ind_type>>();
 
             // Retrieve the best fitness and average sigma value and add it to our local storage
             (*progress_plotter_) &

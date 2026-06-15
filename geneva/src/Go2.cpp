@@ -44,6 +44,7 @@
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
+#include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "hap/GRandomFactory.hpp"
 #include <boost/program_options.hpp>
@@ -164,7 +165,7 @@ void Go2::registerDefaultAlgorithm(const std::shared_ptr<GOABase> &default_algor
     // that the user wants us to use them and copy them over. Note that these are not cloned.
     if(not default_algorithm->empty()) { // Have individuals been registered ?
         for(const auto &ind_ptr : *default_algorithm) {
-            this->push_back(ind_ptr->clone_unique());
+            this->push_back(ind_ptr->individual().clone_unique());
         }
         // Remove the individuals from the old algorithm
         default_algorithm->clear();
@@ -320,7 +321,7 @@ void Go2::addAlgorithm(const std::shared_ptr<GOABase> &alg) {
     // Note that these are not cloned, as we will clear its vector anyway.
     if(not alg->empty()) { // Have individuals been registered?
         for(const auto &ind_ptr : *alg) {
-            this->push_back(ind_ptr->clone_unique());
+            this->push_back(ind_ptr->individual().clone_unique());
         }
         // Remove the individuals from the old algorithm
         alg->clear();
@@ -556,7 +557,7 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
 
         // Add the individuals to the algorithm
         for(const auto &ind_ptr : *this) {
-            alg_ptr->push_back(ind_ptr->clone_unique());
+            alg_ptr->push_back(std::make_unique<gpar::GIndividualSlot>(ind_ptr->clone_unique()));
         }
 
         // Remove our local copies
@@ -583,7 +584,7 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
         }
         else { // copy all individuals
             for(const auto &ind_ptr : *alg_ptr) {
-                this->push_back(ind_ptr->clone_unique());
+                this->push_back(ind_ptr->individual().clone_unique());
             }
         }
 

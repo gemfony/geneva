@@ -250,17 +250,14 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
         // localMembers() declaration.
         Gem::Common::serialize_members(ar, this->localMembers());
 
-        // The personality traits are OA-installed scratch held in the auxiliary store. They are
-        // deliberately OUT of localMembers() -- so they are NOT part of the compared identity (two
-        // individuals differing only in which OA last touched them compare equal). They are emitted
-        // here for a CHECKPOINT / general serialization (a resumed algorithm needs them in place), but
-        // OMITTED for over-the-wire transport: a returned work item is merged into the live population
-        // slot, which keeps its own OA-installed personality (see GNetworkedConsumerT::checkin /
-        // GOptimizableEntity::adoptProcessedResult), so shipping the personality would be wasted bytes.
-        // The NVP tag matches the former make_cloneable_member("pt_ptr_", ...).
-        if(not Gem::Courtier::wireSerializationActive()) {
-            ar &make_nvp("pt_ptr_", aux_.personalityRef());
-        }
+        // The lightweight OA-identity mnemonic (e.g. "PERSONALITY_EA") rides along with the individual so
+        // a per-individual processing action (the post-processor) can read it at evaluation time, on a
+        // clone or a wire copy detached from its population slot. It is OUT of localMembers() -- so it is
+        // serialized but NOT part of the compared identity (two individuals differing only in which OA
+        // last touched them compare equal). The rich personality OBJECT itself is OA scratch and lives on
+        // the GIndividualSlot, NOT here, so serialize() is unconditionally pure (no transport/checkpoint
+        // split needed).
+        ar &make_nvp("oa_mnemonic_", oa_mnemonic_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -521,15 +518,6 @@ public:
         return this->individualFulfillsConstraints(validity_level);
     }
 
-    /**
-     * @brief Adopts the processed outcome of a returned result into this individual in place,
-     * preserving this individual's OA-installed personality (which is OA scratch, not carried over the
-     * wire). Everything that DID travel -- the genome, fitness and processing state -- is deep-loaded
-     * from the result. Used by the networked reconciliation so a returned work item updates the live
-     * population slot without discarding the optimization algorithm's personality.
-     */
-    void adoptProcessedResult(GOptimizableEntity &src) override;
-
     /** @brief Allows to set the current iteration of the parent optimization algorithm. */
     void setAssignedIteration(std::uint32_t const &);
     /** @brief Gives access to the parent optimization algorithm's iteration */
@@ -539,9 +527,6 @@ public:
     void setNStalls(std::uint32_t const &);
     /** @brief Allows to retrieve the number of optimization cycles without improvement of the primary fitness criterion */
     std::uint32_t getNStalls() const;
-
-    /** @brief Retrieves an identifier for the current personality of this object */
-    std::string getPersonality() const;
 
     /** @brief Allows to activate random crashes for debugging purposes */
     void setRandomCrash(bool, double);
@@ -587,55 +572,12 @@ public:
     }
 
     /***************************************************************************/
-    /**
-     * The function converts the local personality base pointer to the desired type
-     * and returns it for modification by the corresponding optimization algorithm.
-     * The base algorithms have been declared "friend" of GOptimizableEntity and
-     * can thus access this function. External entities have no need to do so. Note
-     * that this function will only be accessible to the compiler if personality_type
-     * is a derivative of GPersonalityTraits, thanks to the magic of std::enable_if
-     * and type_traits.
-     *
-     * @return A std::shared_ptr converted to the desired target type
-     */
-    template <typename personality_type>
-        requires std::derived_from<personality_type, GPersonalityTraits>
-    std::shared_ptr<personality_type> getPersonalityTraits() {
-#ifdef DEBUG
-        // Check that the personality pointer actually points somewhere
-        if(not aux_.personalityRef()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GOptimizableEntity::getPersonalityTraits<personality_type>() : Empty personality "
-                   "pointer found"
-                << '\n'
-                << "This should not happen." << '\n'
-            );
+    // The personality OBJECT (GPersonalityTraits) is OA-owned scratch and lives on the GIndividualSlot,
+    // NOT on the individual. The individual carries only the lightweight OA-identity mnemonic
+    // (oa_mnemonic_, set by the optimization algorithm at setup) so a per-individual processing action
+    // can read it at evaluation time on a clone / wire copy detached from its slot.
 
-            // Make the compiler happy
-            return std::shared_ptr<personality_type>();
-        }
-#endif /* DEBUG */
-
-        // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<GPersonalityTraits, personality_type>(aux_.personalityRef());
-    }
-
-    /* ----------------------------------------------------------------------------------
-     * Tested in GTreeGenome::specificTestsNoFailureExpected_GUnitTests()
-     * Tested in GTreeGenome::specificTestsFailureExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
-    /***************************************************************************/
-    /** @brief This function returns the current personality traits base pointer */
-    std::shared_ptr<GPersonalityTraits> getPersonalityTraits();
-
-    /** @brief Sets the current personality of this individual */
-    void setPersonality(std::shared_ptr<GPersonalityTraits>);
-    /** @brief Resets the current personality to PERSONALITY_NONE */
-    void resetPersonality();
-    /** @brief Clears all algorithm-scoped auxiliary scratch (personality + POD metadata blocks). Meant to be called at optimization-algorithm boundaries. */
+    /** @brief Clears all algorithm-scoped auxiliary POD scratch. Meant to be called at optimization-algorithm boundaries. */
     void clearOAScratch();
 
     /***************************************************************************/
@@ -667,8 +609,10 @@ public:
         return aux_.hasAux(key);
     }
 
-    /** @brief Retrieves the mnemonic used for the optimization of this object */
+    /** @brief Retrieves the OA-identity mnemonic stamped on this individual (e.g. "PERSONALITY_EA"), or "PERSONALITY_NONE" */
     std::string getMnemonic() const;
+    /** @brief Stamps the OA-identity mnemonic onto this individual (called by the optimization algorithm at setup) */
+    void setMnemonic(std::string mnemonic) { oa_mnemonic_ = std::move(mnemonic); }
 
     /** @brief Check how valid a given solution is */
     double getValidityLevel() const;
@@ -830,8 +774,11 @@ private:
     std::uint32_t assigned_iteration_ = 0;
     /** @brief Indicates how valid a given solution is */
     double validity_level_ = 0.;
-    /** @brief The per-individual auxiliary store -- holds the personality traits (and, later, the per-group POD adaptor scratch) */
+    /** @brief The per-individual auxiliary store -- holds the per-group POD adaptor scratch (the personality OBJECT lives on the GIndividualSlot) */
     GAuxiliaryStore aux_;
+
+    /** @brief The lightweight OA-identity mnemonic (e.g. "PERSONALITY_EA"); travels with the individual so a per-individual processing action can read it at evaluation time. "PERSONALITY_NONE" when unstamped. */
+    std::string oa_mnemonic_{"PERSONALITY_NONE"};
 
     /** @brief Specifies what to do when the individual is marked as invalid */
     evaluationPolicy eval_policy_ = Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION;

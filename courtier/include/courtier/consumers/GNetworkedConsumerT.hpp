@@ -218,12 +218,13 @@ protected:
         recordReturnTime_(now - b.checked_out_at[slot]);
         b.last_progress = now;
 
-        // Adopt the processed outcome into the LIVE slot in place rather than replacing the slot
-        // pointer. This lets the slot keep scratch that is not carried over the wire (e.g. an
-        // optimization algorithm's installed personality traits): the genome, fitness and processing
-        // state are taken from the returned result, the OA scratch on the slot is preserved.
-        (*b.items)[slot]->adoptProcessedResult(*p);
-        (*b.items)[slot]->setDispatchState(Gem::Courtier::dispatchState::DONE);
+        // Replace the work item in this broker slot with the returned result. The broker deals in bare
+        // individuals; all OA scratch (the personality object) now lives on the population's
+        // GIndividualSlot, NOT on the individual, so replacing the individual is lossless -- the
+        // optimization algorithm swaps the reconciled individual back into its slot, which still holds
+        // its own personality.
+        p->setDispatchState(Gem::Courtier::dispatchState::DONE);
+        (*b.items)[slot] = std::move(p);
         ++b.done;
         if(b.done == b.target) {
             cv_done_.notify_all(); // each waiting dispatch_ re-checks its own batch

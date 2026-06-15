@@ -1319,9 +1319,9 @@ void GIterationResultsFileLogger::informationFunction_(
         std::size_t n_individuals = goa->size();
         for(std::size_t pos = 0; pos < n_individuals; pos++) {
             std::shared_ptr<gpar::GOptimizableEntity> ind = goa->template individual_cast<gpar::GOptimizableEntity>(pos);
-            fitness_cnt = goa->at(pos)->raw_fitness_vec();
+            fitness_cnt = goa->at(pos)->individual().raw_fitness_vec();
 
-            std::size_t n_fitness_criteria = goa->at(0)->getNStoredResults();
+            std::size_t n_fitness_criteria = goa->at(0)->individual().getNStoredResults();
             for(std::size_t i = 0; i < n_fitness_criteria; i++) {
                 data << fitness_cnt.at(i)
                      << ((with_commas_ && (n_fitness_criteria * n_individuals > (i + 1) * (pos + 1)))

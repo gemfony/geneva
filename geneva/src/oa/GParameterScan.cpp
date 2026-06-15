@@ -504,7 +504,7 @@ GOptimizationAlgorithmBase *GParameterScan::clone_() const {
  */
 std::tuple<double, double> GParameterScan::cycleLogic_() {
     std::tuple<double, double> best_fitness =
-        std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
+        std::make_tuple(this->at(0)->individual().getWorstCase(), this->at(0)->individual().getWorstCase());
 
     // Apply all necessary modifications to individuals
     if(0 == simple_scan_items_) { // We have been asked to deal with specific parameters
@@ -523,10 +523,10 @@ std::tuple<double, double> GParameterScan::cycleLogic_() {
     GParameterScan::iterator it;
     std::tuple<double, double> new_eval = std::make_tuple(0., 0.);
     auto m =
-        this->at(0)->getMaxMode(); // We assume that the maxMode is the same for all individuals
+        this->at(0)->individual().getMaxMode(); // We assume that the maxMode is the same for all individuals
     for(it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
-        if(not(*it)->is_processed()) {
+        if(not(*it)->individual().is_processed()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterScan::cycleLogic(): Error!" << '\n'
@@ -536,7 +536,7 @@ std::tuple<double, double> GParameterScan::cycleLogic_() {
         }
 #endif
 
-        new_eval = (*it)->getFitnessTuple();
+        new_eval = (*it)->individual().getFitnessTuple();
         if(isBetter(
                std::get<G_TRANSFORMED_FITNESS>(new_eval),
                std::get<G_TRANSFORMED_FITNESS>(best_fitness),
@@ -576,7 +576,7 @@ void GParameterScan::updateSelectedParameters() {
 
             // Fill the parameter set data into the current individual.
             // Read/write the parameter values through the genome-agnostic value channels.
-            auto &ind = *this->at(ind_pos);
+            auto &ind = this->at(ind_pos)->individual();
 
             // Retrieve the parameter vectors
             ind.streamline<bool>(b_data);
@@ -628,7 +628,7 @@ void GParameterScan::updateSelectedParameters() {
         //------------------------------------------------------------------------
         // Mark the individual as "dirty", so it gets re-evaluated the
         // next time the fitness() function is called
-        this->at(ind_pos)->mark_as_due_for_processing();
+        this->at(ind_pos)->individual().mark_as_due_for_processing();
 
         // We were successful
         cycle_logic_halt_ = false;
@@ -666,10 +666,10 @@ void GParameterScan::randomShuffle() {
 
     while(true) {
         // Update the individual and mark it as "dirty"
-        this->at(ind_pos)->randomInit(activityMode::ACTIVEONLY);
+        this->at(ind_pos)->individual().randomInit(activityMode::ACTIVEONLY);
         // Mark the individual as "dirty", so it gets re-evaluated the
         // next time the fitness() function is called
-        this->at(ind_pos)->mark_as_due_for_processing();
+        this->at(ind_pos)->individual().mark_as_due_for_processing();
 
         // We were successful
         cycle_logic_halt_ = false;
@@ -963,7 +963,7 @@ void GParameterScan::runFitnessCalculation_() {
     GParameterScan::iterator it;
     for(it = this->begin(); it != this->end(); ++it) {
         // Make sure the evaluated individuals have the dirty flag set
-        if(not(*it)->is_due_for_processing()) {
+        if(not(*it)->individual().is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterScan::runFitnessCalculation():" << '\n'
@@ -977,7 +977,7 @@ void GParameterScan::runFitnessCalculation_() {
     //--------------------------------------------------------------------------------
     // Submit all work items and wait for their return
 
-    auto status = this->workOn(this->data_cnt_, 0, this->data_cnt_.size());
+    auto status = this->workOnPopulation(0, this->data_cnt_.size());
 
     //--------------------------------------------------------------------------------
     // Some error checks

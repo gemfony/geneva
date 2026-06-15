@@ -277,7 +277,7 @@ protected:
     /** @brief Triggers an update of an individual's positions */
     void updateIndividualPositions(
         const std::size_t &,
-        const std::unique_ptr<gpar::GOptimizableEntity> &, // the population individual being moved (borrowed)
+        const std::unique_ptr<gpar::GIndividualSlot> &, // the population slot being moved (borrowed)
         std::shared_ptr<gpar::GOptimizableEntity>,
         std::shared_ptr<gpar::GOptimizableEntity>,
         std::shared_ptr<gpar::GOptimizableEntity>,
@@ -288,9 +288,9 @@ protected:
     void pruneVelocity(std::vector<double> &);
 
     /** Updates the personal best of an individual */
-    void updatePersonalBest(const std::unique_ptr<gpar::GOptimizableEntity> &);
+    void updatePersonalBest(const std::unique_ptr<gpar::GIndividualSlot> &);
     /** Updates the personal best of an individual, if a better solution was found */
-    void updatePersonalBestIfBetter(const std::unique_ptr<gpar::GOptimizableEntity> &);
+    void updatePersonalBestIfBetter(const std::unique_ptr<gpar::GIndividualSlot> &);
 
     std::size_t n_neighborhoods_ =
         (DEFAULTNNEIGHBORHOODS ? DEFAULTNNEIGHBORHOODS
