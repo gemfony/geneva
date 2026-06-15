@@ -57,6 +57,7 @@
 #include "geneva/ind/GFlatIndividualT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/individuals/GLineFitIndividual.hpp"
+#include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/oa/GConjugateGradientDescent.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
@@ -84,10 +85,17 @@ class FlatSphereOA : public gpar::GFlatIndividualT<FlatSphereOA> {
 public:
     FlatSphereOA() {
         gpar::GGenomeBuilder b;
-        b.addDoubleGroup(N_DIM, -5., 5.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.).init(3.0);
+        b.addDoubleGroup(N_DIM, -5., 5.).init(3.0); // structure only; the adaptor lives on the OA config
         this->setGenome(b.build());
     }
     FlatSphereOA(const FlatSphereOA &) = default;
+
+    /** @brief The OA-owned Gauss adaption config for this genome's single double group. */
+    std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
+        auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
+        cfg->groupDouble(0).gauss(0.5, 0.8, 1e-3, 2., 1.);
+        return cfg;
+    }
 
 protected:
     double fitnessCalculation() override {
@@ -143,12 +151,19 @@ public:
         gpar::GGenomeBuilder b;
         // sigma1, sigmaSigma1, minSigma1, maxSigma1, sigma2, sigmaSigma2, minSigma2, maxSigma2,
         // delta, sigmaDelta, minDelta, maxDelta, adProb
-        b.addDoubleGroup(N_DIM, -5., 5.)
-            .biGaussAdaptor(0.5, 0.8, 1e-3, 2., 0.5, 0.8, 1e-3, 2., 0.5, 0.8, 0., 2., 1.)
-            .init(3.0);
+        b.addDoubleGroup(N_DIM, -5., 5.).init(3.0); // structure only; the adaptor lives on the OA config
         this->setGenome(b.build());
     }
     FlatBiGaussSphereOA(const FlatBiGaussSphereOA &) = default;
+
+    /** @brief The OA-owned bi-gaussian adaption config for this genome's single double group. */
+    std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
+        auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
+        // sigma1, sigmaSigma1, minSigma1, maxSigma1, sigma2, sigmaSigma2, minSigma2, maxSigma2,
+        // delta, sigmaDelta, minDelta, maxDelta, adProb
+        cfg->groupDouble(0).biGauss(0.5, 0.8, 1e-3, 2., 0.5, 0.8, 1e-3, 2., 0.5, 0.8, 0., 2., 1.);
+        return cfg;
+    }
 
 protected:
     double fitnessCalculation() override {
@@ -173,10 +188,17 @@ class FlatIntSphereOA : public gpar::GFlatIndividualT<FlatIntSphereOA> {
 public:
     FlatIntSphereOA() {
         gpar::GGenomeBuilder b;
-        b.addInt32Group(N_INT, -10, 10).flipAdaptor(1.0).init(7);
+        b.addInt32Group(N_INT, -10, 10).init(7); // structure only; the adaptor lives on the OA config
         this->setGenome(b.build());
     }
     FlatIntSphereOA(const FlatIntSphereOA &) = default;
+
+    /** @brief The OA-owned flip adaption config for this genome's single int32 group. */
+    std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
+        auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
+        cfg->groupInt32(0).flip(1.0);
+        return cfg;
+    }
 
 protected:
     double fitnessCalculation() override {
@@ -201,10 +223,17 @@ class FlatOneMaxOA : public gpar::GFlatIndividualT<FlatOneMaxOA> {
 public:
     FlatOneMaxOA() {
         gpar::GGenomeBuilder b;
-        b.addBoolGroup(N_BOOL).flipAdaptor(0.25).init(false);
+        b.addBoolGroup(N_BOOL).init(false); // structure only; the adaptor lives on the OA config
         this->setGenome(b.build());
     }
     FlatOneMaxOA(const FlatOneMaxOA &) = default;
+
+    /** @brief The OA-owned flip adaption config for this genome's single bool group. */
+    std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
+        auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
+        cfg->groupBool(0).flip(0.25);
+        return cfg;
+    }
 
 protected:
     double fitnessCalculation() override {
@@ -242,7 +271,9 @@ TEST_CASE("Evolutionary algorithm optimizes a flat individual", "[flat][oa]") {
     pop->setPopulationSizes(18, 6);
     pop->setMaxIteration(120);
     pop->setReportIteration(100000);
-    pop->push_back(FlatSphereOA().clone_unique());
+    FlatSphereOA src;
+    pop->push_back(src.clone_unique());
+    pop->setAdaptionConfig(src.buildAdaptionConfig());
     pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 
@@ -372,7 +403,9 @@ TEST_CASE("Simulated annealing optimizes a flat individual", "[flat][oa]") {
     pop->setPopulationSizes(18, 6);
     pop->setMaxIteration(120);
     pop->setReportIteration(100000);
-    pop->push_back(FlatSphereOA().clone_unique());
+    FlatSphereOA src;
+    pop->push_back(src.clone_unique());
+    pop->setAdaptionConfig(src.buildAdaptionConfig());
     pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 
@@ -468,7 +501,9 @@ TEST_CASE("EA optimizes a flat individual with a BI-GAUSSIAN adaptor", "[flat][o
     pop->setPopulationSizes(18, 6);
     pop->setMaxIteration(150);
     pop->setReportIteration(100000);
-    pop->push_back(FlatBiGaussSphereOA().clone_unique());
+    FlatBiGaussSphereOA src;
+    pop->push_back(src.clone_unique());
+    pop->setAdaptionConfig(src.buildAdaptionConfig());
     pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 
@@ -492,7 +527,9 @@ TEST_CASE("EA optimizes a flat INTEGER individual with a FLIP adaptor", "[flat][
     pop->setPopulationSizes(18, 6);
     pop->setMaxIteration(200);
     pop->setReportIteration(100000);
-    pop->push_back(FlatIntSphereOA().clone_unique());
+    FlatIntSphereOA src;
+    pop->push_back(src.clone_unique());
+    pop->setAdaptionConfig(src.buildAdaptionConfig());
     pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 
@@ -516,7 +553,9 @@ TEST_CASE("EA optimizes a flat BOOLEAN OneMax with a FLIP adaptor", "[flat][oa][
     pop->setPopulationSizes(18, 6);
     pop->setMaxIteration(400);
     pop->setReportIteration(100000);
-    pop->push_back(FlatOneMaxOA().clone_unique());
+    FlatOneMaxOA src;
+    pop->push_back(src.clone_unique());
+    pop->setAdaptionConfig(src.buildAdaptionConfig());
     pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 

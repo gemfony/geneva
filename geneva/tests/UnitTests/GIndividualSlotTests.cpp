@@ -76,7 +76,7 @@ protected:
 private:
     void buildGenome(std::size_t n) {
         GGenomeBuilder b;
-        b.addDoubleGroup(n, -10., 10.).gaussAdaptor(0.5, 0.8, 1e-3, 2., 1.).init(1.0);
+        b.addDoubleGroup(n, -10., 10.).init(1.0); // structure only; slot tests drive scratch directly
         this->setGenome(b.build());
     }
 
