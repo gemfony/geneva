@@ -316,6 +316,57 @@ TEST_CASE("EA checkpoint round-trip preserves the per-slot adaption scratch", "[
 
 /******************************************************************************/
 
+TEST_CASE("EA adopts an externally-provided adaption config", "[flat][oa]") {
+    // Phase 8 step 4: an algorithm uses an externally-supplied OA-owned config (Go2 hands it the one it
+    // holds for the algorithm's type) instead of deriving a default from the genome layout. Here we author
+    // a config explicitly from the genome and confirm the EA drives a converging adaption with it. (That
+    // the provided config -- not just any default -- is actually consumed is proven by the companion
+    // "rejects an adaption config built for a different genome" test, where a mismatched provided config
+    // is validated against the genome and rejected.)
+    auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    pop->setPopulationSizes(18, 6);
+    pop->setMaxIteration(120);
+    pop->setReportIteration(100000);
+
+    auto ind = FlatSphereOA().clone_unique();
+    auto &flat = dynamic_cast<gpar::GFlatGenome &>(*ind);
+    auto cfg = std::make_shared<oa::GEAAdaptionConfig>(flat);
+    cfg->groupDouble(0).gauss(0.5, 0.8, 1e-3, 2., 1.); // author the Gauss settings explicitly
+
+    pop->push_back(std::move(ind));
+    pop->setAdaptionConfig(cfg);
+    pop->setLocalConsumer(oa::local_consumer_kind::serial);
+    pop->optimize();
+
+    auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+    REQUIRE(best);
+    CHECK(bestSphere(best) < 20.0); // the provided config drives a converging adaption (far below the f=45 start)
+}
+
+/******************************************************************************/
+
+TEST_CASE("EA rejects an adaption config built for a different genome", "[flat][oa]") {
+    namespace gind = Gem::Geneva::Individuals;
+
+    auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    pop->setPopulationSizes(6, 2);
+    pop->setMaxIteration(2);
+    pop->setReportIteration(100000);
+    pop->push_back(FlatSphereOA().clone_unique()); // genome: a 5-double group
+
+    // A config built from a structurally DIFFERENT genome (a line fit: 2 doubles) must be rejected when
+    // the algorithm validates it against its population's genome at setup.
+    gind::GLineFitIndividual other(std::vector<std::tuple<double, double>>{{0., 0.}, {1., 1.}});
+    auto &oflat = dynamic_cast<gpar::GFlatGenome &>(other);
+    auto cfg = std::make_shared<oa::GEAAdaptionConfig>(oflat);
+
+    pop->setAdaptionConfig(cfg);
+    pop->setLocalConsumer(oa::local_consumer_kind::serial);
+    CHECK_THROWS(pop->optimize()); // checkConsistency rejects the mismatched config at init()
+}
+
+/******************************************************************************/
+
 TEST_CASE("Simulated annealing optimizes a flat individual", "[flat][oa]") {
     auto pop = std::make_shared<oa::GSimulatedAnnealing>();
     pop->setPopulationSizes(18, 6);

@@ -92,6 +92,7 @@ enum class local_consumer_kind {
 
 // Forward declaration
 class GOptimizationAlgorithmBase;
+class GAdaptionConfigBase;
 
 /*******************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////
@@ -363,6 +364,15 @@ public:
 
     /** @brief Loads the state of the class from disc */
     void loadCheckpoint(std::filesystem::path const &cp_file);
+
+    /**
+     * @brief Hands this algorithm an OA-owned adaption configuration to use for the run (Phase 8 step 4).
+     * Go2 installs the config it holds for this algorithm's type before the algorithm runs in a chain; an
+     * adapting algorithm (EA / SA) adopts it (validating that it matches the population's genome) instead
+     * of deriving a default from the genome layout. The base does nothing -- non-adapting algorithms
+     * (swarm, gradient descent, scan) have no adaption config.
+     */
+    virtual void setAdaptionConfig(std::shared_ptr<GAdaptionConfigBase> /* config */) { /* no-op */ }
 
     /** @brief Checks whether the optimization process has been halted */
     bool halted() const;

@@ -563,6 +563,14 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
         // Remove our local copies
         this->clear();
 
+        // Phase 8 step 4: if an OA-owned adaption config was registered for this algorithm's type, hand
+        // it over now (before it runs). The algorithm adopts it -- validating it against the population's
+        // genome -- in place of deriving a default from the genome layout.
+        if(const auto it = adaption_config_registry_.find(alg_ptr->getAlgorithmPersonalityType());
+           it != adaption_config_registry_.end()) {
+            alg_ptr->setAdaptionConfig(it->second);
+        }
+
         // Do the actual optimization (see first_algorithm_offset above)
         if(is_first_algorithm) {
             alg_ptr->optimize(first_algorithm_offset);
@@ -590,6 +598,24 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
 
         alg_ptr->clear();            // Get rid of local individuals in the algorithm
         alg_ptr->resetPluggableOM(); // Get rid of the algorithm's pluggable optimization monitors
+    }
+}
+
+/******************************************************************************/
+/**
+ * Registers an OA-owned adaption configuration for an algorithm type (Phase 8 step 4). Stored keyed by
+ * the algorithm's personality type and handed to the matching algorithm in runAlgorithmChain() before it
+ * runs. A null config removes any existing entry.
+ */
+void Go2::registerAdaptionConfig(
+    const std::string &oa_personality_type,
+    std::shared_ptr<oa::GAdaptionConfigBase> config
+) {
+    if(config) {
+        adaption_config_registry_[oa_personality_type] = std::move(config);
+    }
+    else {
+        adaption_config_registry_.erase(oa_personality_type);
     }
 }
 

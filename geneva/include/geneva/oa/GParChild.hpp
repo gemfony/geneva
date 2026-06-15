@@ -188,6 +188,11 @@ public:
         );
     }
 
+    /** @brief Hands this mu/lambda algorithm an OA-owned adaption config to use (Phase 8 step 4). When
+     *  set, init() adopts it (after validating it matches the population's genome) instead of deriving a
+     *  default from the genome layout. Transient run scratch -- NOT serialized. */
+    void setAdaptionConfig(std::shared_ptr<GAdaptionConfigBase> config) override;
+
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
@@ -281,6 +286,14 @@ protected:
      * rebuilds it at its own init(). Read-only during the parallel adaptChildren_, so it is shared safely.
      */
     std::shared_ptr<GAdaptionConfigBase> adaption_config_;
+
+    /**
+     * @brief An optionally externally-supplied adaption configuration (Phase 8 step 4, set via
+     * setAdaptionConfig() -- Go2 installs the one it holds for this algorithm's type). When present, init()
+     * uses it (validating it against the population's genome) in place of the layout-derived default.
+     * Transient run scratch: NOT serialized, NOT compared, NOT part of localMembers().
+     */
+    std::shared_ptr<GAdaptionConfigBase> provided_adaption_config_;
 
 private:
     /***************************************************************************/
