@@ -278,11 +278,10 @@ protected:
     void updateIndividualPositions(
         const std::size_t &,
         const std::unique_ptr<gpar::GIndividualSlot> &, // the population slot being moved (borrowed)
-        std::shared_ptr<gpar::GOptimizableEntity>,
-        std::shared_ptr<gpar::GOptimizableEntity>,
-        std::shared_ptr<gpar::GOptimizableEntity>,
-        std::tuple<double, double, double, double>
-    );
+        std::shared_ptr<gpar::GOptimizableEntity>,      // neighborhood best
+        std::shared_ptr<gpar::GOptimizableEntity>,      // global best
+        std::tuple<double, double, double, double>      // c_personal / c_neighborhood / c_global / c_velocity
+    );                                                  // (velocity now lives on the slot's OA scratch)
 
     /** @brief Adjusts the velocity vector so that its values don't exceed the allowed value range */
     void pruneVelocity(std::vector<double> &);
@@ -310,8 +309,8 @@ protected:
         std::vector<std::shared_ptr<gpar::GOptimizableEntity>>(
             n_neighborhoods_
         ); ///< The collection of best individuals from each neighborhood
-    std::vector<std::shared_ptr<gpar::GOptimizableEntity>>
-        velocities_cnt_; ///< Holds velocities, as calculated in the previous iteration
+    // (Per-particle velocities now live on each GIndividualSlot's OA scratch as a POD double block --
+    //  key AUXKEY_SWARM_VELOCITY in GSwarmAlgorithm.cpp -- not in a parallel vector here.)
 
     double c_personal_ =
         DEFAULTCPERSONAL; ///< A factor for multiplication of personal best distances

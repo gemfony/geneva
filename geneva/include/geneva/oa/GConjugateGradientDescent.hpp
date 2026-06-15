@@ -330,13 +330,10 @@ private:
     std::vector<double>
         adjusted_finite_step_; ///< Per-parameter difference-quotient step; recomputed in init() (transient)
 
-    // Per-starting-point conjugate-gradient memory. All transient: recomputed
-    // during optimization and therefore neither serialized nor restored in
-    // load_() (mirrors the treatment of adjusted_finite_step_ in GGradientDescent).
-    std::vector<std::vector<double>> prev_gradient_;  ///< g_{k-1} for every starting point
-    std::vector<std::vector<double>> prev_direction_; ///< d_{k-1} for every starting point
-    std::vector<bool>
-        cg_history_valid_; ///< Whether a previous gradient/direction exists per starting point
+    // The per-starting-point conjugate-gradient memory (g_{k-1} / d_{k-1} / history-valid flag) now
+    // lives on the OA scratch of each starting point's central individual slot, as POD blocks keyed
+    // AUXKEY_CGD_PREV_GRADIENT / _PREV_DIRECTION / _HISTORY_VALID (see GConjugateGradientDescent.cpp).
+    // It remains transient (recomputed during optimization, neither serialized nor restored).
 };
 
 /******************************************************************************/

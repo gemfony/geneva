@@ -47,12 +47,24 @@
 #include <memory>
 #include <random>
 #include <string>
+#include <span>
 #include <tuple>
 #include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GSwarmAlgorithm) // NOLINT
 
 namespace Gem::Geneva::OptimizationAlgorithms {
+
+/******************************************************************************/
+/**
+ * The auxiliary-store key under which each particle keeps its velocity vector (one double per active
+ * floating-point parameter) on its GIndividualSlot's OA scratch. Phase 10.3 optional tail: the velocity
+ * is per-particle OA scratch and now rides on the slot rather than in a parallel vector on the algorithm,
+ * so it stays coherent with its particle (and is a plain POD double block, GPU-upload-friendly). The
+ * value is distinct from the adaption AuxKeys 1-7 (a swarm never installs adaption state and vice versa,
+ * but distinct keys keep the scratch self-describing).
+ */
+constexpr Gem::Geneva::Parameters::AuxKey AUXKEY_SWARM_VELOCITY = 8;
 
 /******************************************************************************/
 /**
@@ -300,8 +312,6 @@ void GSwarmAlgorithm::resetToOptimizationStart_() {
     neighborhood_bests_cnt_ = std::vector<std::shared_ptr<gpar::GOptimizableEntity>>(
         n_neighborhoods_
     ); // The collection of best individuals from each neighborhood
-    velocities_cnt_ = std::vector<std::shared_ptr<
-        gpar::GOptimizableEntity>>(); // Holds velocities, as calculated in the previous iteration
 
     dbl_lower_parameter_boundaries_cnt_.clear(); // Holds lower boundaries of double parameters
     dbl_upper_parameter_boundaries_cnt_.clear(); // Holds upper boundaries of double parameters
@@ -686,64 +696,11 @@ void GSwarmAlgorithm::init() {
         );
     }
 
-    // Make sure the velocities_cnt_ vector is really empty
-    velocities_cnt_.clear();
-
-    // Create copies of our individuals in the velocities_cnt_ vector.
-    std::size_t pos = 0;
-    for(const auto &ind_ptr : *this) {
-#ifdef DEBUG
-        if(not ind_ptr) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GSwarmAlgorithm::init(): Error!" << '\n'
-                << "Found empty std::shared_ptr in position " << pos << '\n'
-            );
-        }
-#endif /* DEBUG */
-
-        // Create a copy of the current individual. Note that, if you happen
-        // to have assigned anything else than a GOptimizableEntity derivative to
-        // the swarm, then the following line will throw in DEBUG mode or return
-        // undefined results in RELEASE mode
-        std::shared_ptr<gpar::GOptimizableEntity> p(ind_ptr->individual().clone<gpar::GOptimizableEntity>());
-
-        // Extract the parameter vector
-        std::vector<double> vel_vec;
-        p->streamlineFP(vel_vec, activityMode::ACTIVEONLY);
-
-#ifdef DEBUG
-        // Check that the number of parameters equals those in the velocity boundaries
-        if(vel_vec.size() != dbl_lower_parameter_boundaries_cnt_.size() ||
-           vel_vec.size() != dbl_vel_max_cnt_.size()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GSwarmAlgorithm::init(): Error! (2)" << '\n'
-                << "Found invalid sizes: " << vel_vec.size() << " / "
-                << dbl_lower_parameter_boundaries_cnt_.size() << '\n'
-                << " / " << dbl_vel_max_cnt_.size() << '\n'
-            );
-        }
-#endif /* DEBUG */
-
-        // Randomly initialize the velocities
-        for(std::size_t i = 0; i < vel_vec.size(); i++) {
-            double range = dbl_vel_max_cnt_[i];
-            vel_vec[i] = GOptimizationAlgorithmBase::uniform_real_distribution_(
-                gr_,
-                std::uniform_real_distribution<double>::param_type(-range, range)
-            );
-        }
-
-        // Load the array into the velocity object
-        p->assignFPValueVector(vel_vec, activityMode::ACTIVEONLY);
-        p->mark_as_due_for_processing(); // Catch cases where a value is calculated for the velocity individual
-
-        // Add the initialized velocity to the array.
-        velocities_cnt_.push_back(p);
-
-        pos++;
-    }
+    // Each particle's velocity is a per-slot POD double block (one double per active floating-point
+    // parameter) installed + randomised lazily by updatePositions() (which guarantees every slot --
+    // including any spliced in by adjustNeighborhoods() -- carries one before it is read). The velocity
+    // thus lives on the GIndividualSlot's OA scratch and travels coherently with its particle, rather
+    // than in a parallel vector on the algorithm.
 
     // Make sure neighborhood_bests_cnt_ has the correct size
     // It will only hold empty smart pointers. However, new ones
@@ -759,9 +716,8 @@ void GSwarmAlgorithm::init() {
  * Does any necessary finalization work
  */
 void GSwarmAlgorithm::finalize() {
-    // Remove remaining velocity individuals. The std::shared_ptr<GOptimizableEntity>s
-    // will take care of deleting the GOptimizableEntity objects.
-    velocities_cnt_.clear();
+    // The per-particle velocity blocks live on the slots' OA scratch and are dropped at the
+    // optimization-algorithm boundary (resetIndividualPersonalities -> clearScratch); nothing to do here.
 
     // Last action
     GOptimizationAlgorithmBase::finalize();
@@ -969,6 +925,27 @@ void GSwarmAlgorithm::updatePositions() {
     std::size_t neighborhood_offset = 0;
     auto start = this->begin();
 
+    // Make sure every slot carries a velocity block before any position update reads it. init() seeds
+    // the original population, but adjustNeighborhoods() may have spliced in fresh slots (cloned
+    // individuals wrapped in empty slots) to fill short neighborhoods after lost returns -- give those a
+    // freshly randomised velocity here so the velocity always travels with its particle.
+    const std::size_t n_vel = dbl_vel_max_cnt_.size();
+    for(const auto &slot : *this) {
+        if(not slot->scratch().hasAux(AUXKEY_SWARM_VELOCITY)) {
+            slot->scratch().installAuxBlock<double>(
+                AUXKEY_SWARM_VELOCITY, n_vel, gpar::AuxScope::PerIndividual
+            );
+            std::span<double> vel = slot->scratch().metaRecords<double>(AUXKEY_SWARM_VELOCITY);
+            for(std::size_t i = 0; i < n_vel; i++) {
+                const double range = dbl_vel_max_cnt_[i];
+                vel[i] = GOptimizationAlgorithmBase::uniform_real_distribution_(
+                    gr_,
+                    std::uniform_real_distribution<double>::param_type(-range, range)
+                );
+            }
+        }
+    }
+
 #ifdef DEBUG
     // Check that all neighborhoods have the default size
     for(std::size_t n = 0; n < n_neighborhoods_; n++) {
@@ -1065,7 +1042,6 @@ void GSwarmAlgorithm::updatePositions() {
                     (*current),
                     neighborhood_bests_cnt_[n],
                     global_best_ptr_,
-                    velocities_cnt_[neighborhood_offset],
                     std::make_tuple(
                         getCPersonal(),
                         getCNeighborhood(),
@@ -1097,7 +1073,6 @@ void GSwarmAlgorithm::updateIndividualPositions(
     const std::unique_ptr<gpar::GIndividualSlot> &ind,
     std::shared_ptr<gpar::GOptimizableEntity> neighborhood_best,
     std::shared_ptr<gpar::GOptimizableEntity> global_best,
-    std::shared_ptr<gpar::GOptimizableEntity> velocity,
     std::tuple<double, double, double, double> constants
 ) {
     // Extract the constants from the tuple
@@ -1147,15 +1122,10 @@ void GSwarmAlgorithm::updateIndividualPositions(
         );
     }
 
-    if(not velocity) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GSwarmAlgorithm::updateIndividualPositions():" << '\n'
-            << "Found empty individual \"velocity\"" << '\n'
-        );
-    }
-
 #endif /* DEBUG */
+
+    // The particle's velocity is a per-slot POD double block in its OA scratch (installed in init()).
+    std::span<double> velocity = ind->scratch().metaRecords<double>(AUXKEY_SWARM_VELOCITY);
 
     // Extract the vectors for the individual, the personal, neighborhood and global bests,
     // as well as the velocity
@@ -1163,12 +1133,11 @@ void GSwarmAlgorithm::updateIndividualPositions(
     std::vector<double> personal_best_vec;
     std::vector<double> nbh_best_vec;
     std::vector<double> glb_best_vec;
-    std::vector<double> vel_vec;
     ind->individual().streamlineFP(ind_vec, activityMode::ACTIVEONLY);
     personal_best->streamlineFP(personal_best_vec, activityMode::ACTIVEONLY);
     neighborhood_best->streamlineFP(nbh_best_vec, activityMode::ACTIVEONLY);
     global_best->streamlineFP(glb_best_vec, activityMode::ACTIVEONLY);
-    velocity->streamlineFP(vel_vec, activityMode::ACTIVEONLY);
+    std::vector<double> vel_vec(velocity.begin(), velocity.end());
 
     // Subtract the individual vector from the personal, neighborhood and global bests
     Gem::Common::subtractVec<double>(personal_best_vec, ind_vec);
@@ -1256,8 +1225,8 @@ void GSwarmAlgorithm::updateIndividualPositions(
         ); // attraction - walk towards best known individuals
     }
 
-    // Update the velocity individual
-    velocity->assignFPValueVector(vel_vec, activityMode::ACTIVEONLY);
+    // Write the updated velocity back into the slot's POD block
+    std::copy(vel_vec.begin(), vel_vec.end(), velocity.begin());
 
     // Update the candidate solution
     ind->individual().assignFPValueVector(ind_vec, activityMode::ACTIVEONLY);

@@ -53,11 +53,25 @@
 #include <stdexcept>
 #include <string>
 #include <tuple>
+#include <span>
 #include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GConjugateGradientDescent) // NOLINT
 
 namespace Gem::Geneva::OptimizationAlgorithms {
+
+/******************************************************************************/
+/**
+ * The auxiliary-store keys under which each starting point keeps its conjugate-gradient memory on the
+ * OA scratch of its CENTRAL individual's GIndividualSlot (the slot at population position == starting
+ * point). Phase 10.3 optional tail: this per-starting-point scratch (previously parallel vectors on the
+ * algorithm) now rides on the slot as plain POD blocks. The two double blocks hold g_{k-1} / d_{k-1}
+ * (n_fp_parms entries each); the one-byte block flags whether a previous gradient/direction exists. The
+ * values are distinct from the adaption AuxKeys 1-7 and the swarm velocity key 8.
+ */
+constexpr Gem::Geneva::Parameters::AuxKey AUXKEY_CGD_PREV_GRADIENT = 9;
+constexpr Gem::Geneva::Parameters::AuxKey AUXKEY_CGD_PREV_DIRECTION = 10;
+constexpr Gem::Geneva::Parameters::AuxKey AUXKEY_CGD_HISTORY_VALID = 11;
 
 /******************************************************************************/
 /**
@@ -304,10 +318,10 @@ void GConjugateGradientDescent::compare_(
     Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration.
-    // dbl_lower_parameter_boundaries_, dbl_upper_parameter_boundaries_, adjusted_finite_step_,
-    // prev_gradient_, prev_direction_ and cg_history_valid_ are transient: recomputed in
-    // init() from the serialized fields above and not restored in load_(). Comparing
-    // them would cause round-trip equality tests to fail spuriously.
+    // dbl_lower_parameter_boundaries_, dbl_upper_parameter_boundaries_ and adjusted_finite_step_ are
+    // transient: recomputed in init() from the serialized fields above and not restored in load_().
+    // Comparing them would cause round-trip equality tests to fail spuriously. (The conjugate-gradient
+    // memory likewise transient now lives on the central slots' OA scratch, outside this object.)
     g_compare_members(localMembers(), p_load->localMembers(), token);
 
     token.evaluate();
@@ -322,9 +336,8 @@ void GConjugateGradientDescent::resetToOptimizationStart_() {
     dbl_lower_parameter_boundaries_.clear();
     dbl_upper_parameter_boundaries_.clear();
     adjusted_finite_step_.clear();
-    prev_gradient_.clear();
-    prev_direction_.clear();
-    cg_history_valid_.clear();
+    // The per-starting-point conjugate-gradient memory now lives on the central slots' OA scratch and is
+    // dropped at the optimization-algorithm boundary (resetIndividualPersonalities -> clearScratch).
 
     GOptimizationAlgorithmBase::resetToOptimizationStart_();
 }
@@ -349,8 +362,8 @@ void GConjugateGradientDescent::load_(const GOptimizationAlgorithmBase *cp) {
     GOptimizationAlgorithmBase::load_(cp);
 
     // ... and then our own (serialized) data, derived from the single localMembers() declaration.
-    // adjusted_finite_step_, dbl*ParameterBoundaries_, prev_gradient_, prev_direction_,
-    // cg_history_valid_ are transient and recomputed in init().
+    // adjusted_finite_step_ and dbl*ParameterBoundaries_ are transient and recomputed in init(); the
+    // conjugate-gradient memory is transient too and lives on the central slots' OA scratch.
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
@@ -511,6 +524,19 @@ void GConjugateGradientDescent::updateParentIndividuals() {
 
         const double parent_fitness = minOnly_transformed_fitness(this->at(i)->individual());
 
+        // The conjugate-gradient memory for this starting point lives on its central individual's slot
+        // scratch (position i). Robustness: a central slot spliced in after a lost return has no CG
+        // block -- install it (history invalid) so it restarts cleanly with steepest descent.
+        auto &cg_scratch = this->at(i)->scratch();
+        if(not cg_scratch.hasAux(AUXKEY_CGD_HISTORY_VALID)) {
+            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_PREV_GRADIENT, n_fp_parms_first_, gpar::AuxScope::PerIndividual);
+            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_PREV_DIRECTION, n_fp_parms_first_, gpar::AuxScope::PerIndividual);
+            cg_scratch.installAuxBlock<std::uint8_t>(AUXKEY_CGD_HISTORY_VALID, 1, gpar::AuxScope::PerIndividual);
+        }
+        std::span<double> prev_gradient = cg_scratch.metaRecords<double>(AUXKEY_CGD_PREV_GRADIENT);
+        std::span<double> prev_direction = cg_scratch.metaRecords<double>(AUXKEY_CGD_PREV_DIRECTION);
+        std::uint8_t &cg_valid = cg_scratch.metaScalar<std::uint8_t>(AUXKEY_CGD_HISTORY_VALID);
+
         // 1) Normalised forward-difference gradient g_j = (f(x + h_j e_j) - f(x)) / h_j. Normalising by
         //    h_j (instead of folding 1/h into the step as the old fixed-step proxy did) makes g a proper
         //    gradient, so the line search's Armijo test and the conjugate-gradient beta are correctly
@@ -530,7 +556,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         std::vector<double> direction(n_fp_parms_first_, 0.);
         double beta = 0.;
         const bool want_conjugate = (gradient_method_ == gradientMethod::CONJUGATE_PR_PLUS) &&
-                                    cg_history_valid_[i] && not periodic_restart;
+                                    cg_valid && not periodic_restart;
         if(want_conjugate) {
             long double g_dot_g = 0.L;           // g_k . g_k
             long double g_dot_gprev = 0.L;       // g_k . g_{k-1}
@@ -538,7 +564,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
             long double numerator = 0.L;         // g_k . (g_k - g_{k-1})  (Polak-Ribiere)
             for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
                 const long double g = gradient[j];
-                const long double gp = prev_gradient_[i][j];
+                const long double gp = prev_gradient[j];
                 g_dot_g += g * g;
                 g_dot_gprev += g * gp;
                 gprev_dot_gprev += gp * gp;
@@ -566,7 +592,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
 
         for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
             direction[j] =
-                -gradient[j] + (cg_history_valid_[i] ? beta * prev_direction_[i][j] : 0.);
+                -gradient[j] + (cg_valid ? beta * prev_direction[j] : 0.);
         }
 
         // 3) The directional derivative grad f . d must be negative for a descent direction. A stale
@@ -607,10 +633,10 @@ void GConjugateGradientDescent::updateParentIndividuals() {
             this->at(i)->individual().assignFPValueVector(lr.x_new, activityMode::ACTIVEONLY);
         }
 
-        // 6) Remember gradient/direction for the next conjugate step.
-        prev_gradient_[i] = gradient;
-        prev_direction_[i] = direction;
-        cg_history_valid_[i] = true;
+        // 6) Remember gradient/direction for the next conjugate step (on the slot's scratch).
+        std::copy(gradient.begin(), gradient.end(), prev_gradient.begin());
+        std::copy(direction.begin(), direction.end(), prev_direction.begin());
+        cg_valid = 1;
     }
 }
 
@@ -818,9 +844,16 @@ void GConjugateGradientDescent::updateDerivedQuantities() {
  * which runs before init()).
  */
 void GConjugateGradientDescent::resetCGState() {
-    prev_gradient_.assign(n_starting_points_, std::vector<double>(n_fp_parms_first_, 0.));
-    prev_direction_.assign(n_starting_points_, std::vector<double>(n_fp_parms_first_, 0.));
-    cg_history_valid_.assign(n_starting_points_, false);
+    // The per-starting-point conjugate-gradient memory lives on the OA scratch of each starting point's
+    // central individual slot (position == starting point). Install a zeroed g_{k-1} / d_{k-1} double
+    // block and a "history invalid" flag on each, so the first cgStep falls back to steepest descent.
+    for(std::size_t i = 0; i < n_starting_points_ && i < this->size(); ++i) {
+        auto &scratch = this->at(i)->scratch();
+        scratch.installAuxBlock<double>(AUXKEY_CGD_PREV_GRADIENT, n_fp_parms_first_, gpar::AuxScope::PerIndividual);
+        scratch.installAuxBlock<double>(AUXKEY_CGD_PREV_DIRECTION, n_fp_parms_first_, gpar::AuxScope::PerIndividual);
+        scratch.installAuxBlock<std::uint8_t>(AUXKEY_CGD_HISTORY_VALID, 1, gpar::AuxScope::PerIndividual);
+        // installAuxBlock zero-initialises, so the gradient/direction are 0 and the flag is false.
+    }
 }
 
 /******************************************************************************/
