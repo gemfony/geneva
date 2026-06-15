@@ -767,6 +767,13 @@ protected:
         // Set up a population factory for serial execution
         oa::GEvolutionaryAlgorithmFactory ea(sub_ea_config_);
 
+        // The sub-individuals' adaptors live on an OA-owned config (their genome is structure-only). Build
+        // it once from a sample -- it reflects the meta-chosen adaptor settings just pushed into
+        // ind_factory_ above -- and hand it to each inner EA so it adapts the sub-individuals.
+        auto sub_adaption_config = ind_factory_->getAdaptionConfig(
+            dynamic_cast<const gpar::GFlatGenome &>(*ind_factory_->get())
+        );
+
         // Run the required number of optimizations
         std::shared_ptr<oa::GEvolutionaryAlgorithm> ea_ptr;
 
@@ -798,6 +805,9 @@ protected:
 
                 ea_ptr->push_back(std::make_unique<gpar::GIndividualSlot>(gi_ptr->clone_unique()));
             }
+
+            // Drive the sub-individuals' adaption through the OA-owned config built above.
+            ea_ptr->setAdaptionConfig(sub_adaption_config);
 
             // Set the likelihood for work items to be produced through cross-over rather than mutation alone
             ea_ptr->setAmalgamationLikelihood(amalgamation_likelihood);

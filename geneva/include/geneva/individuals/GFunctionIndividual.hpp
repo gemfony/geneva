@@ -51,6 +51,10 @@
 #include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 
+namespace Gem::Geneva::OptimizationAlgorithms {
+class GAdaptionConfigBase;
+} // namespace Gem::Geneva::OptimizationAlgorithms
+
 namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
@@ -764,6 +768,12 @@ public:
 
     /** @brief The destructor */
     ~GFunctionIndividualFactory() override = default;
+
+    /** @brief Builds the OA-owned adaption config for a genome produced by this factory: every double
+     *  group gets the configured single-Gauss or bi-Gauss adaptor. The adaptor settings live on the
+     *  OA-owned config (this factory's parameters), not in the structure-only genome layout. */
+    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+    getAdaptionConfig(const gpar::GFlatGenome &sample) const;
 
     //---------------------------------------------------------------------------
     // Getters and setters

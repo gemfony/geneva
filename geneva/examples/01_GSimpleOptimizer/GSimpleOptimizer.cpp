@@ -68,6 +68,15 @@ int main(int argc, char **argv) {
     // Add a content creator so Go2 can generate its own individuals, if necessary
     go.registerContentCreator(gfi_ptr);
 
+    // The genome carries only structure; the configured adaptor lives on an OA-owned config the factory
+    // authors. Register it for the adapting algorithms (EA / SA) so Go2 hands it over before they run.
+    {
+        auto sample = gfi_ptr->get_as<gind::GFunctionIndividual>();
+        auto cfg = gfi_ptr->getAdaptionConfig(*sample);
+        go.registerAdaptionConfig("PERSONALITY_EA", cfg);
+        go.registerAdaptionConfig("PERSONALITY_SA", cfg);
+    }
+
     // Add a default optimization algorithm to the Go2 object. This is optional.
     // Indeed "ea" is the default setting anyway. However, if you do not like it, you
     // can register another default algorithm here, which will then be used, unless

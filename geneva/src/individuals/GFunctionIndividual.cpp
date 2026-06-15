@@ -41,6 +41,8 @@
 #include "geneva/GMultiConstraintT.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/oa/GAdaption.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/par/GOptimizableEntityFactory.hpp"
 #include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
@@ -1648,56 +1650,31 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizable
     const double min_v = min_var_.value();
     const double max_v = max_var_.value();
 
-    // Attaches the configured adaptor (single Gauss or bi-Gauss) to one parameter / group handle,
-    // replacing the tree's "build a GDoubleGaussAdaptor / GDoubleBiGaussAdaptor and addAdaptor()" idiom.
-    auto applyAdaptor = [&](gpar::ParamHandle<double> &h) {
-        if(use_bi_gaussian_.value()) {
-            h.biGaussAdaptor(
-                sigma1_.value(), sigma_sigma1_.value(), min_sigma1_.value(), max_sigma1_.value(),
-                sigma2_.value(), sigma_sigma2_.value(), min_sigma2_.value(), max_sigma2_.value(),
-                delta_.value(), sigma_delta_.value(), min_delta_.value(), max_delta_.value(),
-                ad_prob_.value(), /* use_symmetric_sigmas = */ false, adapt_ad_prob_.value(),
-                adaption_threshold_.value()
-            );
-        }
-        else {
-            h.gaussAdaptor(
-                sigma1_.value(), sigma_sigma1_.value(), min_sigma1_.value(), max_sigma1_.value(),
-                ad_prob_.value(), adapt_ad_prob_.value(), adaption_threshold_.value(),
-                Gem::Geneva::adaptionMode::WITHPROBABILITY, min_ad_prob_.value(), max_ad_prob_.value()
-            );
-        }
-    };
-
-    // Build the flat genome. The five legacy modes differ only in constrained-vs-unbounded and
-    // whether the parameters share one adaptor (a *collection*) or each carry their own (a collection
-    // of *objects* / individual objects). The start value is the lower perimeter; the optimization
-    // algorithm random-initialises within [min, max] regardless of init mode.
+    // Build the flat genome's STRUCTURE only. The five legacy modes differ in constrained-vs-unbounded
+    // and whether the parameters share one adaption group (a *collection*) or each carry their own (a
+    // collection of *objects* / individual objects). The configured Gauss / bi-Gauss adaptor settings
+    // now live on the OA-owned config (see getAdaptionConfig()), not in the genome layout. The start
+    // value is the lower perimeter; the optimization algorithm random-initialises within [min, max].
     gpar::GGenomeBuilder b;
     switch(p_t_.value()) {
-    case parameterType::USEGDOUBLECOLLECTION: { // unbounded, one shared adaptor
-        gpar::ParamHandle<double> h = b.addDoublePlainGroup(n_data, min_v, max_v);
-        applyAdaptor(h);
+    case parameterType::USEGDOUBLECOLLECTION: { // unbounded, one shared group
+        b.addDoublePlainGroup(n_data, min_v, max_v);
     } break;
 
-    case parameterType::USEGCONSTRAINEDOUBLECOLLECTION: { // constrained, one shared adaptor
-        gpar::ParamHandle<double> h = b.addDoubleGroup(n_data, min_v, max_v);
-        applyAdaptor(h);
+    case parameterType::USEGCONSTRAINEDOUBLECOLLECTION: { // constrained, one shared group
+        b.addDoubleGroup(n_data, min_v, max_v);
     } break;
 
-    case parameterType::USEGDOUBLEOBJECTCOLLECTION: { // unbounded, an adaptor per parameter
+    case parameterType::USEGDOUBLEOBJECTCOLLECTION: { // unbounded, a group per parameter
         for(std::size_t i = 0; i < n_data; i++) {
-            gpar::ParamHandle<double> h = b.addDouble(min_v);
-            h.perimeter(min_v, max_v);
-            applyAdaptor(h);
+            b.addDouble(min_v).perimeter(min_v, max_v);
         }
     } break;
 
     case parameterType::USEGCONSTRAINEDDOUBLEOBJECTCOLLECTION:
-    case parameterType::USEGCONSTRAINEDDOUBLEOBJECT: { // constrained, an adaptor per parameter
+    case parameterType::USEGCONSTRAINEDDOUBLEOBJECT: { // constrained, a group per parameter
         for(std::size_t i = 0; i < n_data; i++) {
-            gpar::ParamHandle<double> h = b.addDouble(min_v, min_v, max_v);
-            applyAdaptor(h);
+            b.addDouble(min_v, min_v, max_v);
         }
     } break;
 
@@ -1711,6 +1688,38 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizable
     }
 
     dynamic_cast<gpar::GFlatGenome &>(*p).setGenome(b.build());
+}
+
+/******************************************************************************/
+/**
+ * Builds the OA-owned adaption configuration for a genome produced by this factory. Every double group
+ * (one shared group for the collection modes, one per parameter for the object modes) receives the
+ * configured single-Gauss or bi-Gauss adaptor -- the exact settings the factory formerly baked into the
+ * genome layout via applyAdaptor().
+ */
+std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+GFunctionIndividualFactory::getAdaptionConfig(const gpar::GFlatGenome &sample) const {
+    namespace oa = Gem::Geneva::OptimizationAlgorithms;
+    auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
+    for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
+        if(use_bi_gaussian_.value()) {
+            cfg->groupDouble(i).biGauss(
+                sigma1_.value(), sigma_sigma1_.value(), min_sigma1_.value(), max_sigma1_.value(),
+                sigma2_.value(), sigma_sigma2_.value(), min_sigma2_.value(), max_sigma2_.value(),
+                delta_.value(), sigma_delta_.value(), min_delta_.value(), max_delta_.value(),
+                ad_prob_.value(), /* use_symmetric_sigmas = */ false, adapt_ad_prob_.value(),
+                adaption_threshold_.value()
+            );
+        }
+        else {
+            cfg->groupDouble(i).gauss(
+                sigma1_.value(), sigma_sigma1_.value(), min_sigma1_.value(), max_sigma1_.value(),
+                ad_prob_.value(), adapt_ad_prob_.value(), adaption_threshold_.value(),
+                Gem::Geneva::adaptionMode::WITHPROBABILITY, min_ad_prob_.value(), max_ad_prob_.value()
+            );
+        }
+    }
+    return cfg;
 }
 
 /******************************************************************************/

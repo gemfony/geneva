@@ -69,6 +69,13 @@ int main(int argc, char **argv) {
     );
     go.registerContentCreator(gfi_ptr);
 
+    // The genome carries only structure; the configured Gauss adaptor lives on an OA-owned config the
+    // factory authors. Register it for the evolutionary algorithm (gradient descent does not adapt).
+    {
+        auto sample = gfi_ptr->get_as<gind::GFunctionIndividual>();
+        go.registerAdaptionConfig("PERSONALITY_EA", gfi_ptr->getAdaptionConfig(*sample));
+    }
+
     //---------------------------------------------------------------------------
     // Chain two optimization algorithms with the &-operator: the evolutionary
     // algorithm runs first (global exploration), then gradient descent refines
