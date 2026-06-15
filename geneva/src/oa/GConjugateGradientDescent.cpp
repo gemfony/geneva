@@ -844,6 +844,12 @@ void GConjugateGradientDescent::updateDerivedQuantities() {
  * which runs before init()).
  */
 void GConjugateGradientDescent::resetCGState() {
+    // On a checkpoint resume the central slots already carry their restored conjugate-gradient memory --
+    // preserve it (skip the zero-reset) so a resumed run continues the conjugate sequence.
+    if(this->resumedFromCheckpoint()) {
+        return;
+    }
+
     // The per-starting-point conjugate-gradient memory lives on the OA scratch of each starting point's
     // central individual slot (position == starting point). Install a zeroed g_{k-1} / d_{k-1} double
     // block and a "history invalid" flag on each, so the first cgStep falls back to steepest descent.

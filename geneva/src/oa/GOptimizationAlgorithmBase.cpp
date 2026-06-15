@@ -315,6 +315,13 @@ void GOptimizationAlgorithmBase::loadCheckpoint(std::filesystem::path const &cp_
     }
 
     this->fromFile(cp_file, this->getCheckpointSerializationMode());
+
+    // The population (with its OA-owned scratch: personality + adaption / swarm / CG POD blocks) has
+    // just been restored. Mark the run as resumed so the upcoming setup PRESERVES that scratch instead
+    // of re-seeding it (the flag is set AFTER fromFile, so it is unaffected by deserialization, and is
+    // cleared once setup has consumed it). The genome carries the optimization forward; this keeps the
+    // evolved tuning state in place across the resume.
+    resumed_from_checkpoint_ = true;
 }
 
 /******************************************************************************/
@@ -621,6 +628,11 @@ GOptimizationAlgorithmBase const *GOptimizationAlgorithmBase::optimize_(std::uin
 
     // Give derived classes the opportunity to perform any other necessary preparatory work.
     init();
+
+    // The resume marker has now been consumed by setIndividualPersonalities() + init() (which preserved
+    // the restored scratch). Clear it so the remainder of the run -- and any subsequent algorithm in a
+    // Go2 chain -- treats the scratch as ordinary OA-owned state (seeded / reset normally).
+    resumed_from_checkpoint_ = false;
 
     // Let the algorithm know that the optimization process hasn't been halted yet.
     halted_ = false; // general halt criterion
@@ -1696,8 +1708,12 @@ void GOptimizationAlgorithmBase::setIndividualPersonalities() {
     const std::string oa_mnemonic = this->getPersonalityTraits_()->getMnemonic();
     for(auto const &slot : *this) {
         // The rich personality OBJECT is OA scratch -- it lives on the slot. Each slot gets its own
-        // (getPersonalityTraits_() returns a fresh instance per call).
-        slot->setPersonality(this->getPersonalityTraits_());
+        // (getPersonalityTraits_() returns a fresh instance per call). On a checkpoint resume, however,
+        // the slot already carries its restored personality (e.g. a swarm's personal-best lives there);
+        // preserve it rather than overwriting it with a fresh, empty one.
+        if(not(resumed_from_checkpoint_ && slot->scratch().personalityRef())) {
+            slot->setPersonality(this->getPersonalityTraits_());
+        }
 
         // Decide post-processing eligibility HERE (the algorithm knows its own mnemonic) and veto it on
         // the work items this algorithm is not allowed to post-process -- so the individual carries no

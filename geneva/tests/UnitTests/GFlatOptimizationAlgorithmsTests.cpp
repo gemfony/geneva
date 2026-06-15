@@ -44,14 +44,20 @@
 
 #include <cmath>
 #include <cstddef>
+#include <filesystem>
 #include <memory>
 #include <tuple>
 #include <vector>
 
+#include <boost/serialization/export.hpp>
+
+#include "geneva/ind/GAdaptionAuxKeys.hpp"
+#include "geneva/ind/GAdaptionKernels.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GFlatIndividualT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/individuals/GLineFitIndividual.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/oa/GConjugateGradientDescent.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GNelderMead.hpp"
@@ -243,6 +249,69 @@ TEST_CASE("Evolutionary algorithm optimizes a flat individual", "[flat][oa]") {
     auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
     REQUIRE(best);
     CHECK(bestSphere(best) < 20.0); // far below the f=45 start
+}
+
+/******************************************************************************/
+
+TEST_CASE("EA checkpoint round-trip preserves the per-slot adaption scratch", "[flat][oa]") {
+    using gpar::GFlatGenome;
+    using Gem::Geneva::Parameters::AUXKEY_GAUSS_DOUBLE;
+    using Gem::Geneva::Parameters::GaussState;
+
+    // Phase 10.4: the per-individual OA scratch (adaption sigma/state) lives on the GIndividualSlot and is
+    // serialized for check-pointing, so a resumed algorithm keeps its evolved state. Here we seed a slot's
+    // scratch (as the EA does at setup), drive its sigma to a known value, round-trip the whole algorithm
+    // through the exact checkpoint path (toFile -> loadCheckpoint) and confirm the scratch survives. A
+    // fully serialization-registered individual (GLineFitIndividual) is used so the algorithm can be
+    // serialized to a file.
+    namespace gind = Gem::Geneva::Individuals;
+    const std::vector<std::tuple<double, double>> data_points{{0., 0.}, {1., 1.}, {2., 2.}};
+
+    auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    pop->push_back(gind::GLineFitIndividual(data_points).clone_unique());
+
+    auto &slot0 = pop->at(0);
+    auto &flat0 = dynamic_cast<GFlatGenome &>(slot0->individual());
+    oa::GAdaptionConfigBase cfg(flat0);
+    cfg.installInto(slot0->scratch());
+    auto states = slot0->scratch().metaRecords<GaussState<double>>(AUXKEY_GAUSS_DOUBLE);
+    REQUIRE(not states.empty());
+    states[0].sigma = 0.123456;
+    states[0].counter = 17;
+
+    // Serialize through the checkpoint mechanism (filename must encode the EA personality so
+    // loadCheckpoint's cross-check passes), then resume into a fresh algorithm.
+    const std::filesystem::path cp =
+        std::filesystem::temp_directory_path() / "checkpoint-PERSONALITY_EA-scratchtest.cp";
+    pop->toFile(cp, pop->getCheckpointSerializationMode());
+
+    auto resumed = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    resumed->loadCheckpoint(cp);
+
+    REQUIRE(resumed->size() == pop->size());
+    auto &rslot0 = resumed->at(0);
+    REQUIRE(rslot0->scratch().hasAux(AUXKEY_GAUSS_DOUBLE)); // the POD scratch block rode along
+    auto rstates = rslot0->scratch().metaRecords<GaussState<double>>(AUXKEY_GAUSS_DOUBLE);
+    REQUIRE(not rstates.empty());
+    CHECK(rstates[0].sigma == 0.123456); // the evolved sigma survived the checkpoint intact
+    CHECK(rstates[0].counter == 17u);
+
+    // And the resumed algorithm continues optimizing through the scratch-PRESERVING setup path
+    // (loadCheckpoint set the resume marker, so setIndividualPersonalities + init() preserve the restored
+    // scratch instead of re-seeding it). Exercise it end-to-end and confirm it still converges.
+    resumed->setPopulationSizes(18, 6);
+    resumed->setMaxIteration(300);
+    resumed->setReportIteration(100000);
+    resumed->setLocalConsumer(oa::local_consumer_kind::serial);
+    resumed->optimize();
+
+    auto best = resumed->getBestGlobalIndividual<gind::GLineFitIndividual>();
+    REQUIRE(best);
+    const auto [a, b] = best->getLine();
+    CHECK(std::abs(a - 0.) < 0.5); // resumed run reaches the y = x fit (offset ~0, slope ~1)
+    CHECK(std::abs(b - 1.) < 0.3);
+
+    std::filesystem::remove(cp);
 }
 
 /******************************************************************************/

@@ -670,6 +670,17 @@ protected:
     /** @brief Let individuals know the number of stalls encountered so far */
     void markNStalls();
 
+    /**
+     * @brief Whether this optimization run was just resumed from a checkpoint. Set by loadCheckpoint()
+     * (after the population -- with its OA-owned scratch -- has been deserialised) and cleared once the
+     * run's setup has consumed it (in optimize_(), right after init()). While true, the setup steps
+     * PRESERVE the restored per-individual scratch (personality + adaption / swarm / CG POD blocks)
+     * instead of re-seeding it, so a resumed algorithm keeps its evolved state. It is deliberately NOT
+     * serialized (it is a transient resume marker, and loadCheckpoint sets it AFTER fromFile anyway).
+     */
+    bool resumedFromCheckpoint() const { return resumed_from_checkpoint_; }
+    bool resumed_from_checkpoint_ = false;
+
 private:
     /***************************************************************************/
     // Overloaded or virtual base functions

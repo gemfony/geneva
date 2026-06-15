@@ -29,6 +29,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <cstdint>
 #include <memory>
 #include <sstream>
 #include <vector>
@@ -184,6 +185,46 @@ TEST_CASE("GIndividualSlot: serialization round-trip keeps individual and person
 
     // The personality rode along (full / checkpoint serialization).
     CHECK(static_cast<bool>(restored.scratch().personalityRef()));
+}
+
+/******************************************************************************/
+TEST_CASE("GIndividualSlot: serialization round-trip keeps the POD scratch blocks", "[slot]") {
+    // A POD record mirroring the per-group adaption state the OA stashes on a slot's scratch.
+    struct StateRec {
+        double sigma = 0.;
+        double ad_prob = 0.;
+        std::uint32_t counter = 0;
+    };
+    constexpr AuxKey KEY = 0x5151u;
+
+    GIndividualSlot slot(makeIndividual(4));
+    slot.scratch().installAuxBlock<StateRec>(KEY, 3, AuxScope::PerIndividual);
+    auto recs = slot.scratch().metaRecords<StateRec>(KEY);
+    recs[0] = StateRec{0.42, 0.9, 7};
+    recs[1] = StateRec{1.25, 0.5, 0};
+    recs[2] = StateRec{0.01, 0.1, 99};
+
+    std::stringstream ss;
+    {
+        boost::archive::xml_oarchive oa(ss);
+        oa << boost::serialization::make_nvp("slot", slot);
+    }
+
+    GIndividualSlot restored;
+    {
+        boost::archive::xml_iarchive ia(ss);
+        ia >> boost::serialization::make_nvp("slot", restored);
+    }
+
+    // The POD scratch block survived the round-trip with its values intact (checkpoint fidelity), and
+    // is still typed-readable (the deserialised block's tag is "unchecked", but the stride matches).
+    REQUIRE(restored.scratch().hasAux(KEY));
+    auto rr = restored.scratch().metaRecords<StateRec>(KEY);
+    REQUIRE(rr.size() == 3);
+    CHECK(rr[0].sigma == 0.42);
+    CHECK(rr[0].counter == 7u);
+    CHECK(rr[1].sigma == 1.25);
+    CHECK(rr[2].counter == 99u);
 }
 
 /******************************************************************************/

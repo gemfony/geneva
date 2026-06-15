@@ -128,11 +128,14 @@ class GIndividualSlot // NOLINT(cppcoreguidelines-special-member-functions)
         // declaration so serialize()/load_()/compare_() stay in lock-step.
         Gem::Common::serialize_members(ar, this->localMembers());
 
-        // The scratch personality rides along for a CHECKPOINT / general serialization (a resumed
-        // algorithm needs it in place; e.g. a swarm's personal-best lives in the personality). It is
-        // OUT of localMembers() so it is serialized but NOT part of the compared identity. The transient
-        // POD adaption blocks are re-seeded from the genome on load and are not serialized.
-        ar &make_nvp("personality_", scratch_.personalityRef());
+        // The OA-owned scratch (the personality OBJECT *and* the per-group POD blocks -- adaption sigma,
+        // swarm velocity, conjugate-gradient memory) rides along for a CHECKPOINT / general
+        // serialization, so a resumed algorithm keeps its evolved state in place. It is OUT of
+        // localMembers() so it is serialized but NOT part of the compared identity. The slot is never
+        // sent over the wire (transport submits bare individuals), so this always runs in checkpoint
+        // form. On resume the optimization algorithm preserves this restored scratch instead of
+        // re-seeding it (see GOptimizationAlgorithmBase::resumed_from_checkpoint_).
+        ar &make_nvp("scratch_", scratch_);
     }
     ///////////////////////////////////////////////////////////////////////
 

@@ -734,8 +734,12 @@ void GParChild::init() {
             // auxiliary store; it now lives on the GIndividualSlot, OA-owned. Children created by
             // recombination copy their chosen parent's whole slot (scratch included), so the evolved
             // state propagates exactly as it did when it rode on the individual.
-            for(auto const &slot : *this) {
-                adaption_config_->installInto(slot->scratch());
+            // On a checkpoint resume the slots already carry their restored, evolved adaption state --
+            // preserve it (skip the re-seed) so a resumed run keeps its sigma rather than restarting.
+            if(not this->resumedFromCheckpoint()) {
+                for(auto const &slot : *this) {
+                    adaption_config_->installInto(slot->scratch());
+                }
             }
         }
     }

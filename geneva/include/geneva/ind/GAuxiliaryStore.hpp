@@ -42,6 +42,13 @@
 #include <typeinfo>
 #include <vector>
 
+// Boost headers go here
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/binary_object.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+
 // Geneva headers go here
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
@@ -69,6 +76,35 @@ struct AuxBlock {
     std::uint32_t          stride = 0;                 ///< bytes per record (== sizeof(POD))
     std::uint32_t          tag = 0;                    ///< hash of the POD type, for a debug sanity check
     std::vector<std::byte> bytes;                      ///< stride * record_count bytes
+
+    /**
+     * @brief Boost serialization of one opaque POD block (used for full-state checkpointing of the
+     * per-individual OA scratch). The raw bytes are written as a binary blob (base64 in the XML / text
+     * archives). The type tag is DELIBERATELY NOT serialized: it is a typeid().hash_code() that is only
+     * stable within a single process, so a checkpoint written by one run would never match the reader's
+     * tag. It therefore stays at its default 0 on load, which metaRecords()'s debug check treats as
+     * "type-unchecked" (the stride / size check, which IS stable, still applies).
+     */
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        auto scope_u = static_cast<std::uint8_t>(scope);
+        ar &boost::serialization::make_nvp("scope", scope_u);
+        scope = static_cast<AuxScope>(scope_u);
+
+        ar &boost::serialization::make_nvp("stride", stride);
+
+        std::size_t n_bytes = bytes.size();
+        ar &boost::serialization::make_nvp("n_bytes", n_bytes);
+        if(n_bytes != bytes.size()) {
+            bytes.resize(n_bytes); // on load
+        }
+        if(n_bytes > 0) {
+            ar &boost::serialization::make_nvp(
+                "bytes",
+                boost::serialization::make_binary_object(bytes.data(), n_bytes)
+            );
+        }
+    }
 };
 
 /******************************************************************************/
@@ -224,6 +260,20 @@ public:
 
 private:
     /***************************************************************************/
+    // Full-state serialization (personality OBJECT + the opaque POD blocks). Used ONLY for
+    // check-pointing -- the slot that owns this store is never sent over the wire (transport submits
+    // bare individuals), so this always runs in the "checkpoint" form. The genome carries the
+    // optimization forward; this lets a resumed algorithm keep its evolved scratch (sigma, swarm
+    // velocity / personal-best, conjugate-gradient memory, personality) instead of restarting it.
+    friend class boost::serialization::access;
+
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        ar &boost::serialization::make_nvp("personality_", personality_);
+        ar &boost::serialization::make_nvp("pods_", pods_);
+    }
+
+    /***************************************************************************/
     /** @brief Looks up a POD block, sanity-checking its stride and type tag in DEBUG mode */
     AuxBlock &fetch(AuxKey key, std::size_t pod_size, std::uint32_t pod_tag) {
         auto it = pods_.find(key);
@@ -248,7 +298,10 @@ private:
                 << "In GAuxiliaryStore::metaRecords(): no aux block under key " << key << '\n'
             );
         }
-        if(it->second.stride != pod_size || it->second.tag != pod_tag) {
+        // The stride (== sizeof(POD)) is always checked; the type tag is only checked when present (a
+        // deserialised block has tag 0, see AuxBlock::serialize -- the per-process typeid hash cannot be
+        // compared across a checkpoint, so it is treated as "type-unchecked").
+        if(it->second.stride != pod_size || (it->second.tag != 0 && it->second.tag != pod_tag)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GAuxiliaryStore::metaRecords(): POD type mismatch for key " << key << '\n'
