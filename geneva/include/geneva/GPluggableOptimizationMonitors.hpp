@@ -2081,16 +2081,17 @@ private:
             // there; it falls back to the configured SEED sigma (a freshly seeded scratch). The "all
             // individuals" path (the data-oriented monitor demo, e.g. example 13) reads the live evolved
             // sigma straight from the population slots.
-            if(monitor_best_only_) {
-                std::shared_ptr<gpar::GOptimizableEntity> best =
-                    goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividual<gpar::GOptimizableEntity>();
+            // The adaptor settings live on the OA-owned config now (the genome is structure-only), so read
+            // it from the algorithm. A non-adapting algorithm returns null and no sigma is logged.
+            std::shared_ptr<const oa::GAdaptionConfigBase> cfg_ptr = goa->getAdaptionConfig();
 
-                if(property_ == "sigma") {
-                    const auto &flat = dynamic_cast<const gpar::GFlatGenome &>(*best);
-                    oa::GAdaptionConfigBase cfg(flat);
+            if(monitor_best_only_) {
+                if(property_ == "sigma" && cfg_ptr) {
+                    // The best individual is an off-slot archive clone with no live scratch, so report the
+                    // configured SEED sigma read from a freshly seeded scratch.
                     gpar::GAuxiliaryStore seed_scratch;
-                    oa::seedAdaptionStates(flat, seed_scratch);
-                    for(double sigma : oa::readAdaptionSigmas(seed_scratch, cfg, adaptor_name_)) {
+                    cfg_ptr->installInto(seed_scratch);
+                    for(double sigma : oa::readAdaptionSigmas(seed_scratch, *cfg_ptr, adaptor_name_)) {
                         adaptor_property_store_.emplace_back(static_cast<double>(iteration), sigma);
                     }
                 }
@@ -2101,10 +2102,8 @@ private:
                 for(std::size_t pos = 0; pos < goa->size(); pos++) {
                     const auto &slot = goa->at(pos);
 
-                    if(property_ == "sigma") {
-                        const auto &flat = dynamic_cast<const gpar::GFlatGenome &>(slot->individual());
-                        oa::GAdaptionConfigBase cfg(flat);
-                        for(double sigma : oa::readAdaptionSigmas(slot->scratch(), cfg, adaptor_name_)) {
+                    if(property_ == "sigma" && cfg_ptr) {
+                        for(double sigma : oa::readAdaptionSigmas(slot->scratch(), *cfg_ptr, adaptor_name_)) {
                             adaptor_property_store_.emplace_back(static_cast<double>(iteration), sigma);
                         }
                     }

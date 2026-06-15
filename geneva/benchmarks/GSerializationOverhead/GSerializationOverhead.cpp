@@ -137,8 +137,9 @@ int main(int argc, char **argv) {
             std::shared_ptr<GTestIndividual2> gti_ptr(new GTestIndividual2(s, PERFOBJECTTYPE(o)));
 
             // One adapter held across the measurement loop (the adaption state + logic are OA-owned in
-            // Phase 10; a standalone individual drives them via a self-owned scratch + config).
-            OptimizationAlgorithms::StandaloneAdapter adapter(*gti_ptr);
+            // Phase 10; a standalone individual drives them via a self-owned scratch + the config the
+            // individual authors -- its genome carries only structure).
+            OptimizationAlgorithms::StandaloneAdapter adapter(*gti_ptr, gti_ptr->getAdaptionConfig());
 
             // First test the time needed for NMEASUREMENTS
             // consecutive adaptions

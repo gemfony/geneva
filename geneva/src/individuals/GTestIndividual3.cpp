@@ -64,24 +64,16 @@ GTestIndividual3::GTestIndividual3() {
     // GParameterObjectCollection streamlined them), all sharing the same Gauss adaptor config. A
     // collection becomes one shared-sigma group; a standalone object its own group. The flat
     // streamline order is therefore identical to the tree's, so getPlainData() reads it positionally.
+    // Structure only -- this individual is never adapted (it is a genome / slot-scratch test fixture), so
+    // no adaptor is attached and no OA adaption config is authored for it.
     gpar::GGenomeBuilder bld;
 
-    auto gauss = [](gpar::ParamHandle<double> h) {
-        return h.gaussAdaptor(
-            GTI_DEF_SIGMA,
-            GTI_DEF_SIGMASIGMA,
-            GTI_DEF_MINSIGMA,
-            GTI_DEF_MAXSIGMA,
-            GTI_DEF_ADPROB
-        );
-    };
-
     for(std::size_t i_cnt = 0; i_cnt < GTI_DEF_NITEMS; i_cnt++) {
-        gauss(bld.addDoubleGroup(2, 0., 1.)); // a: middle of the circle
-        gauss(bld.addDouble(0., 0., 0.3));    // b
-        gauss(bld.addDoubleGroup(3, 0., 1.)); // c: three angles
-        gauss(bld.addDoubleGroup(3, 0., 1.)); // d: three colors
-        gauss(bld.addDouble(0.3, 0.3, 0.6));  // e: alpha channel
+        bld.addDoubleGroup(2, 0., 1.); // a: middle of the circle
+        bld.addDouble(0., 0., 0.3);    // b
+        bld.addDoubleGroup(3, 0., 1.); // c: three angles
+        bld.addDoubleGroup(3, 0., 1.); // d: three colors
+        bld.addDouble(0.3, 0.3, 0.6);  // e: alpha channel
     }
 
     this->setGenome(bld.build());

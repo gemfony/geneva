@@ -374,6 +374,14 @@ public:
      */
     virtual void setAdaptionConfig(std::shared_ptr<GAdaptionConfigBase> /* config */) { /* no-op */ }
 
+    /**
+     * @brief The OA-owned adaption configuration in effect for this run, or null. Adapting algorithms
+     * (EA / SA) build it at init() and return it here so telemetry (e.g. the adaptor-property monitor) can
+     * read each group's adaptor settings without snapshotting the structure-only genome layout. The base
+     * (non-adapting algorithms) returns null.
+     */
+    virtual std::shared_ptr<const GAdaptionConfigBase> getAdaptionConfig() const { return {}; }
+
     /** @brief Checks whether the optimization process has been halted */
     bool halted() const;
 

@@ -34,6 +34,8 @@
 #include "common/GLogger.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/oa/GAdaption.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
 #include <cstddef>
 #include <istream>
 #include <memory>
@@ -99,31 +101,31 @@ GTestIndividual2::GTestIndividual2(const std::size_t &n_objects, const PERFOBJEC
     case PERFOBJECTTYPE::PERFGDOUBLEOBJECT: {
         // n unbounded double scalars, each with its own Gauss adaptor (GDoubleObject + adaptor).
         for(std::size_t i = 0; i < n_objects; i++) {
-            b.addDouble(0.).gaussAdaptor(0.025, 0.1, 0., 1., 1.);
+            b.addDouble(0.);
         }
     } break;
 
     case PERFOBJECTTYPE::PERFGCONSTRDOUBLEOBJECT: {
         // n constrained double scalars [-10, 10], each with its own Gauss adaptor.
         for(std::size_t i = 0; i < n_objects; i++) {
-            b.addDouble(0., -10., 10.).gaussAdaptor(0.025, 0.1, 0., 1., 1.);
+            b.addDouble(0., -10., 10.);
         }
     } break;
 
     case PERFOBJECTTYPE::PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION: {
         // n constrained double parameters [-10, 10], each its own adaption group
         // (GConstrainedDoubleObjectCollection of GConstrainedDoubleObject, each with own adaptor).
-        b.addDoubleArray(n_objects, -10., 10.).gaussAdaptor(0.025, 0.1, 0., 1., 1.);
+        b.addDoubleArray(n_objects, -10., 10.);
     } break;
 
     case PERFOBJECTTYPE::PERFGDOUBLECOLLECTION: {
         // n unbounded double parameters sharing one adaptor (GDoubleCollection).
-        b.addDoublePlainGroup(n_objects, -10., 10.).gaussAdaptor(0.025, 0.1, 0., 1., 1.);
+        b.addDoublePlainGroup(n_objects, -10., 10.);
     } break;
 
     case PERFOBJECTTYPE::PERFGCONSTRAINEDDOUBLECOLLECTION: {
         // n constrained double parameters [-10, 10] sharing one adaptor (GConstrainedDoubleCollection).
-        b.addDoubleGroup(n_objects, -10., 10.).gaussAdaptor(0.025, 0.1, 0., 1., 1.);
+        b.addDoubleGroup(n_objects, -10., 10.);
     } break;
 
     default: {
@@ -151,6 +153,20 @@ GTestIndividual2::GTestIndividual2(const GTestIndividual2 &cp)
  * The standard destructor
  */
 GTestIndividual2::~GTestIndividual2() { /* nothing */
+}
+
+/******************************************************************************/
+/**
+ * Builds the OA-owned adaption configuration: every double group of this genome gets the Gauss adaptor the
+ * constructor formerly baked into the layout (sigma 0.025 / sigma_sigma 0.1 / [0, 1] / ad_prob 1).
+ */
+std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> GTestIndividual2::getAdaptionConfig() const {
+    namespace oa = Gem::Geneva::OptimizationAlgorithms;
+    auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
+    for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
+        cfg->groupDouble(i).gauss(0.025, 0.1, 0., 1., 1.);
+    }
+    return cfg;
 }
 
 /******************************************************************************/

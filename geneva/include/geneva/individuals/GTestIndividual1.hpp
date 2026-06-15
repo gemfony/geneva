@@ -55,6 +55,10 @@
 #include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
 
+namespace Gem::Geneva::OptimizationAlgorithms {
+class GAdaptionConfigBase;
+} // namespace Gem::Geneva::OptimizationAlgorithms
+
 namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
@@ -83,6 +87,10 @@ public:
     GTestIndividual1(const GTestIndividual1 &) = default;
     /** @brief The standard destructor */
     ~GTestIndividual1() override = default;
+
+    /** @brief The OA-owned Gauss adaption config authoring this genome's single shared group (used by the
+     *  self-driven modify hook + the data-oriented adaption unit tests). */
+    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const;
 
 protected:
     /** @brief Loads the data of another GTestIndividual1 */

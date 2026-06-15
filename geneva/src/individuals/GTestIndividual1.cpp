@@ -69,11 +69,25 @@ GTestIndividual1::GTestIndividual1() {
     // min_sigma == 0 the shared sigma can collapse toward zero, the value steps fall back to a
     // one-ULP nudge, and 100 such nudges can round away in the sum-of-squares fitness.
     gpar::GGenomeBuilder b;
-    b.addDoublePlainGroup(100, -10., 10.).gaussAdaptor(0.025, 0.1, 1e-3, 1., 1.);
+    b.addDoublePlainGroup(100, -10., 10.); // structure only; the adaptor lives on the OA config
     this->setGenome(b.build());
 
     // Random per-parameter initialisation, mirroring the tree's randomInit.
     this->randomInit(activityMode::ACTIVEONLY);
+}
+
+/******************************************************************************/
+/**
+ * Builds the OA-owned adaption configuration: the single shared double group gets the Gauss adaptor the
+ * constructor formerly baked into the layout (sigma 0.025 / sigma_sigma 0.1 / [1e-3, 1] / ad_prob 1).
+ */
+std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> GTestIndividual1::getAdaptionConfig() const {
+    namespace oa = Gem::Geneva::OptimizationAlgorithms;
+    auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
+    for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
+        cfg->groupDouble(i).gauss(0.025, 0.1, 1e-3, 1., 1.);
+    }
+    return cfg;
 }
 
 /******************************************************************************/
@@ -178,7 +192,7 @@ bool GTestIndividual1::modify_GUnitTests_() {
 
     // Change the parameter settings. The adaption state + logic are OA-owned (Phase 10); a standalone
     // individual drives them via a self-owned scratch + config (StandaloneAdapter).
-    Gem::Geneva::OptimizationAlgorithms::StandaloneAdapter(*this).adapt(*this);
+    Gem::Geneva::OptimizationAlgorithms::StandaloneAdapter(*this, getAdaptionConfig()).adapt(*this);
     result = true;
 
     return result;
@@ -210,7 +224,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // One adapter held across the loop, so the self-adapting sigma persists between iterations
         // exactly as it did when the adaption state lived on the individual.
-        OptimizationAlgorithms::StandaloneAdapter adapter(*p_test);
+        OptimizationAlgorithms::StandaloneAdapter adapter(*p_test, p_test->getAdaptionConfig());
         for(std::size_t i = 0; i < n_tests; i++) {
             CHECK_NOTHROW(adapter.adapt(*p_test));
             CHECK(*p_test != *p_test_old);
@@ -239,13 +253,13 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         // The per-group adaption state + the bare "mutate values without marking dirty" kernel run are
         // OA-owned (Phase 10). runAdaptionKernels() is the data-oriented twin of the former
         // customAdaptions(): it drifts the values but does NOT touch the processing status.
-        OptimizationAlgorithms::GAdaptionConfigBase cfg(*p_test);
+        auto cfg = p_test->getAdaptionConfig();
         gpar::GAuxiliaryStore scratch;
-        OptimizationAlgorithms::seedAdaptionStates(*p_test, scratch);
+        cfg->installInto(scratch);
 
         for(std::size_t i = 0; i < n_tests; i++) {
             // Change the parameters without instantly triggering fitness calculation
-            CHECK_NOTHROW(OptimizationAlgorithms::runAdaptionKernels(*p_test, scratch, cfg, p_test->getRandomEngine()));
+            CHECK_NOTHROW(OptimizationAlgorithms::runAdaptionKernels(*p_test, scratch, *cfg, p_test->getRandomEngine()));
             // The dirty flag should not have been set yet (done in adapt() )
             INFO("Processing status = " << p_test->getProcessingStatusAsStr() << ", i = " << i);
             CHECK((p_test->is_processed() || p_test->is_unprocessed()));
@@ -296,7 +310,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
         // Modify p_test2
         std::size_t n_adaptions = 0;
-        CHECK_NOTHROW(n_adaptions = OptimizationAlgorithms::StandaloneAdapter(*p_test2).adapt(*p_test2));
+        CHECK_NOTHROW(n_adaptions = OptimizationAlgorithms::StandaloneAdapter(*p_test2, p_test2->getAdaptionConfig()).adapt(*p_test2));
         // Make sure adaptions were indeed performed
         CHECK(n_adaptions > 0);
         // Check that it is dirty
@@ -410,10 +424,10 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         // Adapt (drift values without marking dirty -- the data-oriented twin of the former
         // customAdaptions()) and evaluate the first individual.
         {
-            OptimizationAlgorithms::GAdaptionConfigBase cfg(*p_test1);
+            auto cfg = p_test1->getAdaptionConfig();
             gpar::GAuxiliaryStore scratch;
-            OptimizationAlgorithms::seedAdaptionStates(*p_test1, scratch);
-            CHECK_NOTHROW(OptimizationAlgorithms::runAdaptionKernels(*p_test1, scratch, cfg, p_test1->getRandomEngine()));
+            cfg->installInto(scratch);
+            CHECK_NOTHROW(OptimizationAlgorithms::runAdaptionKernels(*p_test1, scratch, *cfg, p_test1->getRandomEngine()));
         }
         // We need to manually mark the individual as dirty
         CHECK_NOTHROW(p_test1->mark_as_due_for_processing());

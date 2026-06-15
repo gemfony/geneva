@@ -193,6 +193,9 @@ public:
      *  default from the genome layout. Transient run scratch -- NOT serialized. */
     void setAdaptionConfig(std::shared_ptr<GAdaptionConfigBase> config) override;
 
+    /** @brief The OA-owned adaption config built at init() (or the externally-provided one), for telemetry. */
+    std::shared_ptr<const GAdaptionConfigBase> getAdaptionConfig() const override { return adaption_config_; }
+
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions

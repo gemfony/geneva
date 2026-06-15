@@ -52,6 +52,10 @@
 #include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
 
+namespace Gem::Geneva::OptimizationAlgorithms {
+class GAdaptionConfigBase;
+} // namespace Gem::Geneva::OptimizationAlgorithms
+
 namespace Gem::Geneva::Individuals {
 
 /**
@@ -102,6 +106,10 @@ public:
 
     /** @brief The standard destructor */
     ~GTestIndividual2() override;
+
+    /** @brief The OA-owned Gauss adaption config authoring every double group of this genome (used by the
+     *  self-driven StandaloneAdapter benchmark / manual-test sites). */
+    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const;
 
 protected:
     /** @brief Loads the data of another GTestIndividual2 */
