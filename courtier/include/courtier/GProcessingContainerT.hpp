@@ -793,6 +793,26 @@ public:
 
     /***************************************************************************/
     /**
+	  * Retrieves the registered post-processor (or an empty pointer). The optimization algorithm uses this
+	  * at setup to decide -- from the post-processor's allowed mnemonics and its own mnemonic -- whether to
+	  * veto post-processing on this work item, so the work item needs no knowledge of the algorithm.
+	  */
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>> postProcessor() const {
+        return post_processor_ptr_;
+    }
+
+    /***************************************************************************/
+    /**
+	  * Removes any registered post-processor. Used by a post-processing algorithm on the clone it
+	  * optimizes, so that the sub-optimization's own population carries no post-processor and cannot
+	  * recurse into further post-processing.
+	  */
+    void clearPostProcessor() {
+        post_processor_ptr_.reset();
+    }
+
+    /***************************************************************************/
+    /**
 	  * Allows to retrieve the processing time needed for the work item
 	  */
     std::tuple<double, double, double> getProcessingTimes() const {

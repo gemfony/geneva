@@ -745,16 +745,6 @@ void GOptimizableEntity::clearOAScratch() {
     aux_.clearScratch();
 }
 
-/******************************************************************************/
-/**
-     * Retrieves the OA-identity mnemonic stamped on this individual by the optimization algorithm at
-     * setup. It travels with the individual (clone + wire) so a per-individual processing action (the
-     * post-processor) can read it at evaluation time, detached from the population slot. Defaults to
-     * "PERSONALITY_NONE" when no algorithm has stamped it.
-     */
-std::string GOptimizableEntity::getMnemonic() const {
-    return oa_mnemonic_;
-}
 
 /******************************************************************************/
 /**
@@ -1140,9 +1130,6 @@ void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
     // lives on the GIndividualSlot, not here). The POD blocks are copied so a deep copy / checkpoint-
     // resume keeps them in place; the genome re-seeds them on setGenome/load in any case.
     aux_.copyPodsFrom(p_load->aux_);
-
-    // The lightweight OA-identity mnemonic travels with the individual.
-    oa_mnemonic_ = p_load->oa_mnemonic_;
 }
 
 /******************************************************************************/

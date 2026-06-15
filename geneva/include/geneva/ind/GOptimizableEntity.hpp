@@ -247,17 +247,11 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
         );
 
         // All members (plain and cloneable alike) are derived from the single
-        // localMembers() declaration.
+        // localMembers() declaration. The individual carries NO optimization-algorithm scratch or
+        // identity (the personality object lives on the GIndividualSlot, and post-processing eligibility
+        // is decided by the algorithm and vetoed on the work item's processing metadata), so serialize()
+        // is unconditionally pure.
         Gem::Common::serialize_members(ar, this->localMembers());
-
-        // The lightweight OA-identity mnemonic (e.g. "PERSONALITY_EA") rides along with the individual so
-        // a per-individual processing action (the post-processor) can read it at evaluation time, on a
-        // clone or a wire copy detached from its population slot. It is OUT of localMembers() -- so it is
-        // serialized but NOT part of the compared identity (two individuals differing only in which OA
-        // last touched them compare equal). The rich personality OBJECT itself is OA scratch and lives on
-        // the GIndividualSlot, NOT here, so serialize() is unconditionally pure (no transport/checkpoint
-        // split needed).
-        ar &make_nvp("oa_mnemonic_", oa_mnemonic_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -609,11 +603,6 @@ public:
         return aux_.hasAux(key);
     }
 
-    /** @brief Retrieves the OA-identity mnemonic stamped on this individual (e.g. "PERSONALITY_EA"), or "PERSONALITY_NONE" */
-    std::string getMnemonic() const;
-    /** @brief Stamps the OA-identity mnemonic onto this individual (called by the optimization algorithm at setup) */
-    void setMnemonic(std::string mnemonic) { oa_mnemonic_ = std::move(mnemonic); }
-
     /** @brief Check how valid a given solution is */
     double getValidityLevel() const;
     /** @brief Checks whether all constraints were fulfilled */
@@ -776,9 +765,6 @@ private:
     double validity_level_ = 0.;
     /** @brief The per-individual auxiliary store -- holds the per-group POD adaptor scratch (the personality OBJECT lives on the GIndividualSlot) */
     GAuxiliaryStore aux_;
-
-    /** @brief The lightweight OA-identity mnemonic (e.g. "PERSONALITY_EA"); travels with the individual so a per-individual processing action can read it at evaluation time. "PERSONALITY_NONE" when unstamped. */
-    std::string oa_mnemonic_{"PERSONALITY_NONE"};
 
     /** @brief Specifies what to do when the individual is marked as invalid */
     evaluationPolicy eval_policy_ = Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION;

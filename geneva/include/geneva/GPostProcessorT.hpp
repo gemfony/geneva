@@ -110,15 +110,18 @@ public:
 
     /**************************************************************************/
     /**
-	  * Allows to check whether post-processing is allowed for a given base_type
+	  * Allows to check whether this post-processor is allowed to run under an optimization algorithm with
+	  * the given mnemonic. The optimization algorithm queries this at setup (it knows its own mnemonic) and
+	  * vetoes post-processing on the work items where it returns false; the individual itself carries no
+	  * knowledge of which algorithm owns it.
 	  */
-    bool postProcessingAllowedFor(const base_type &ind) const {
+    bool postProcessingAllowedFor(const std::string &oa_mnemonic) const {
         if(allowed_mnemonics_.contains("all")) {
             return true;
         }
 
         // Check whether the given mnemonic was registered with this class
-        return allowed_mnemonics_.count(ind.getMnemonic()) != 0;
+        return allowed_mnemonics_.count(oa_mnemonic) != 0;
     }
 
 protected:
@@ -128,13 +131,11 @@ protected:
 
     /**************************************************************************/
     /**
-	  * Post-processing is triggered here
+	  * Post-processing is triggered here. Eligibility (the mnemonic gate) is decided by the optimization
+	  * algorithm at setup, which vetoes post-processing on ineligible work items (see
+	  * GProcessingContainerT::vetoPostProcessing); by the time we are invoked the veto has already gated us.
 	  */
     bool process_(base_type &p) override {
-        if(not this->postProcessingAllowedFor(p)) {
-            return true;
-        }
-
         return raw_processing_(p);
     }
 

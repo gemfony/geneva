@@ -45,6 +45,7 @@
 #include "courtier/GExecutorStatusT.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
+#include "geneva/GPostProcessorT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 #include <chrono>
 #include <cstddef>
@@ -1692,14 +1693,24 @@ GOptimizationAlgorithmBase::getBestIterationIndividuals_() const {
  * Allows to set the personality type of the individuals
  */
 void GOptimizationAlgorithmBase::setIndividualPersonalities() {
+    const std::string oa_mnemonic = this->getPersonalityTraits_()->getMnemonic();
     for(auto const &slot : *this) {
         // The rich personality OBJECT is OA scratch -- it lives on the slot. Each slot gets its own
         // (getPersonalityTraits_() returns a fresh instance per call).
-        auto pt = this->getPersonalityTraits_();
-        // Stamp the lightweight OA-identity mnemonic onto the individual so it travels with it (clone +
-        // wire) for any per-individual processing action that reads it at evaluation time.
-        slot->individual().setMnemonic(pt->getMnemonic());
-        slot->setPersonality(pt);
+        slot->setPersonality(this->getPersonalityTraits_());
+
+        // Decide post-processing eligibility HERE (the algorithm knows its own mnemonic) and veto it on
+        // the work items this algorithm is not allowed to post-process -- so the individual carries no
+        // knowledge of which algorithm owns it. The veto rides on the work item's processing metadata
+        // (where the post-processor already lives) and is consulted by GProcessingContainerT::postProcess_().
+        auto pp = slot->individual().postProcessor();
+        if(pp) {
+            auto post_processor =
+                std::dynamic_pointer_cast<GPostProcessorBaseT<gpar::GOptimizableEntity>>(pp);
+            const bool eligible =
+                post_processor and post_processor->postProcessingAllowedFor(oa_mnemonic);
+            slot->individual().vetoPostProcessing(not eligible);
+        }
     }
 }
 

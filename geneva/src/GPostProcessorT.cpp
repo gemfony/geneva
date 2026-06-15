@@ -239,7 +239,12 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gpar::GOptimizableEnti
     // Clone the individual for post-processing
     std::shared_ptr<gpar::GOptimizableEntity> p_unopt_ptr = p.template clone<gpar::GOptimizableEntity>();
 
-    // Make sure the post-optimization does not trigger post-optimization recursively ...
+    // Make sure the post-optimization does not trigger post-optimization recursively: the sub-EA's
+    // population must carry NO post-processor (the optimization algorithm decides post-processing
+    // eligibility at setup from the post-processor + its own mnemonic; with no post-processor there is
+    // nothing to recurse into). The veto flag alone is not enough -- the sub-EA's setIndividualPersonalities
+    // recomputes eligibility and would clear it.
+    p_unopt_ptr->clearPostProcessor();
     p_unopt_ptr->vetoPostProcessing(true);
 
     // Retrieve an evolutionary algorithm
