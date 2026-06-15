@@ -363,16 +363,43 @@ inline void seedAdaptionStates(const detail::GFlatGenome &ind, detail::GAuxiliar
 
 /******************************************************************************/
 /**
+ * @brief The convenience factory for an OA-owned adaption config, built from a representative genome so it
+ * describes exactly the groups that exist. ConfigT selects the per-OA type (GEAAdaptionConfig /
+ * GSAAdaptionConfig / the plain base). Today the genome's layout still carries the adaptor settings, so the
+ * built config snapshots them directly; after the GGenomeLayout config-strip the genome supplies only the
+ * group SKELETON and the caller authors the adaptors onto the returned config via its fluent API
+ * (cfg->groupDouble(i).gauss(...) / cfg->forLabel(...).gauss(...)). This is the single seam every call site
+ * routes through, so the strip stays invisible to them. It is an oa-side factory because GAdaptionConfig
+ * lives in geneva/oa/ while GGenomeBuilder lives in geneva/ind/ (oa depends on ind, not the reverse).
+ */
+template <typename ConfigT = GAdaptionConfigBase>
+std::shared_ptr<ConfigT> makeAdaptionConfig(const detail::GFlatGenome &genome) {
+    return std::make_shared<ConfigT>(genome);
+}
+
+/******************************************************************************/
+/**
  * @brief A small RAII helper that gives a single, slot-less individual its own adaption scratch + config
  * so the data-oriented adaption can be driven outside an optimization algorithm (test individuals'
  * modify hooks, standalone perturbation loops, serialization benchmarks). Construct once and call
  * adapt() repeatedly to preserve sigma self-adaptation across iterations, exactly as the individual's
  * former adapt() did via its own per-individual aux state.
+ *
+ * Two construction modes: the genome-only form derives the config from the genome (used while the layout
+ * still carries the adaptor settings); the explicit-config form takes an OA-owned config the caller
+ * authored (the post-strip form — the config is validated against the genome's structure). Both copy the
+ * config's base data, which is all the data-oriented adaption needs.
  */
 class StandaloneAdapter {
 public:
     explicit StandaloneAdapter(const detail::GFlatGenome &ind)
       : cfg_(ind) {
+        cfg_.installInto(scratch_);
+    }
+
+    StandaloneAdapter(const detail::GFlatGenome &ind, const std::shared_ptr<GAdaptionConfigBase> &cfg)
+      : cfg_(*cfg) {
+        cfg_.checkConsistency(ind);
         cfg_.installInto(scratch_);
     }
 
