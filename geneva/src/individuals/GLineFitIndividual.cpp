@@ -36,6 +36,8 @@
 #include "common/GParserBuilder.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/oa/GAdaption.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
 #include <cmath>
 #include <cstddef>
 #include <filesystem>
@@ -63,14 +65,28 @@ GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, doub
   : data_points_(data_points) {
     using namespace Gem::Geneva;
 
-    // Two unbounded double parameters (the line's offset a and slope b), each with its own Gauss
-    // adaptor. The default unbounded init range [0, 1] matches the former GDoubleObject() default.
+    // Two unbounded double parameters (the line's offset a and slope b), each its own Gauss group.
+    // The default unbounded init range [0, 1] matches the former GDoubleObject() default. The Gauss
+    // adaptor settings now live on the OA-owned config (see getAdaptionConfig()), not the genome layout.
     gpar::GGenomeBuilder b;
     for(std::size_t i = 0; i < 2; i++) {
-        // sigma, sigma_sigma, min_sigma, max_sigma, ad_prob
-        b.addDouble(0.).gaussAdaptor(0.025, 0.1, 0.0001, 0.4, 1.);
+        b.addDouble(0.);
     }
     this->setGenome(b.build());
+}
+
+/******************************************************************************/
+/**
+ * Builds the OA-owned adaption configuration: the line's offset a and slope b are each their own Gauss
+ * group, configured with the settings the genome formerly baked into its layout.
+ */
+std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> GLineFitIndividual::getAdaptionConfig() const {
+    auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(*this);
+    for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
+        // sigma, sigma_sigma, min_sigma, max_sigma, ad_prob
+        cfg->groupDouble(i).gauss(0.025, 0.1, 0.0001, 0.4, 1.);
+    }
+    return cfg;
 }
 
 /******************************************************************************/

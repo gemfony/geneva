@@ -53,6 +53,10 @@
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 
+namespace Gem::Geneva::OptimizationAlgorithms {
+class GAdaptionConfigBase;
+} // namespace Gem::Geneva::OptimizationAlgorithms
+
 namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
@@ -85,6 +89,9 @@ public:
 
     /** @brief Retrieves the tuple (a,b) of the line represented by this object */
     std::tuple<double, double> getLine() const;
+
+    /** @brief The OA-owned adaption config authoring this genome's two Gauss groups (offset + slope). */
+    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const;
 
 protected:
     /** @brief Single declaration of this class'es local data members */

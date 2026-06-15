@@ -302,9 +302,9 @@ TEST_CASE("EA checkpoint round-trip preserves the per-slot adaption scratch", "[
     pop->push_back(gind::GLineFitIndividual(data_points).clone_unique());
 
     auto &slot0 = pop->at(0);
-    auto &flat0 = dynamic_cast<GFlatGenome &>(slot0->individual());
-    oa::GAdaptionConfigBase cfg(flat0);
-    cfg.installInto(slot0->scratch());
+    // The Gauss adaptor lives on the OA-owned config the individual authors (the genome is structure-only).
+    auto cfg = dynamic_cast<gind::GLineFitIndividual &>(slot0->individual()).getAdaptionConfig();
+    cfg->installInto(slot0->scratch());
     auto states = slot0->scratch().metaRecords<GaussState<double>>(AUXKEY_GAUSS_DOUBLE);
     REQUIRE(not states.empty());
     states[0].sigma = 0.123456;
@@ -333,6 +333,10 @@ TEST_CASE("EA checkpoint round-trip preserves the per-slot adaption scratch", "[
     resumed->setPopulationSizes(18, 6);
     resumed->setMaxIteration(300);
     resumed->setReportIteration(100000);
+    // The resumed algorithm adapts through the OA-owned config (the genome is structure-only); the
+    // restored per-slot scratch is preserved, not re-seeded, by the resume path.
+    resumed->setAdaptionConfig(
+        dynamic_cast<gind::GLineFitIndividual &>(resumed->at(0)->individual()).getAdaptionConfig());
     resumed->setLocalConsumer(oa::local_consumer_kind::serial);
     resumed->optimize();
 
@@ -590,7 +594,9 @@ TEST_CASE("EA fits a line with the migrated (flat) GLineFitIndividual", "[flat][
     pop->setPopulationSizes(18, 6);
     pop->setMaxIteration(400);
     pop->setReportIteration(100000);
-    pop->push_back(gind::GLineFitIndividual(data_points).clone_unique());
+    gind::GLineFitIndividual src(data_points);
+    pop->push_back(src.clone_unique());
+    pop->setAdaptionConfig(src.getAdaptionConfig());
     pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 
