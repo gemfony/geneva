@@ -176,15 +176,15 @@ public:
     // Access. Explicit -- no operator-> forwarding to the individual (see the class note).
 
     /** @brief Whether this slot currently holds an individual */
-    bool hasIndividual() const {
+    bool hasIndividual() const noexcept {
         return static_cast<bool>(individual_);
     }
 
     /** @brief The wrapped individual */
-    GOptimizableEntity &individual() {
+    GOptimizableEntity &individual() noexcept {
         return *individual_;
     }
-    const GOptimizableEntity &individual() const {
+    const GOptimizableEntity &individual() const noexcept {
         return *individual_;
     }
 
@@ -193,10 +193,10 @@ public:
      * the individual out into a courtier submission span for workOn() and back afterwards, so the broker
      * keeps dealing in individuals.
      */
-    std::unique_ptr<GOptimizableEntity> &individualPtr() {
+    std::unique_ptr<GOptimizableEntity> &individualPtr() noexcept {
         return individual_;
     }
-    const std::unique_ptr<GOptimizableEntity> &individualPtr() const {
+    const std::unique_ptr<GOptimizableEntity> &individualPtr() const noexcept {
         return individual_;
     }
 
@@ -211,10 +211,10 @@ public:
     }
 
     /** @brief The optimization-algorithm-owned scratch (personality + POD adaption state) */
-    GAuxiliaryStore &scratch() {
+    GAuxiliaryStore &scratch() noexcept {
         return scratch_;
     }
-    const GAuxiliaryStore &scratch() const {
+    const GAuxiliaryStore &scratch() const noexcept {
         return scratch_;
     }
 

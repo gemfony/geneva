@@ -152,7 +152,7 @@ public:
     void setGenome(Genome const &);
 
     /** @brief Direct, shared access to the structural layout (problem metadata) */
-    std::shared_ptr<const GGenomeLayout> getLayout() const { return layout_; }
+    std::shared_ptr<const GGenomeLayout> getLayout() const noexcept { return layout_; }
 
     /***************************************************************************/
     // Mutable access to the raw INTERNAL value arrays. Adaption drifts the unbounded internal
@@ -161,15 +161,15 @@ public:
     // These are the seam the Phase-8 free-function adaption uses; ordinary value access still goes
     // through streamline()/assignValueVector().
 
-    std::span<double> internalDoubleValues() { return {dv_.data(), dv_.size()}; }
-    std::span<float> internalFloatValues() { return {fv_.data(), fv_.size()}; }
-    std::span<std::int32_t> internalInt32Values() { return {iv_.data(), iv_.size()}; }
-    std::span<std::uint8_t> internalBoolValues() { return {bv_.data(), bv_.size()}; }
+    std::span<double> internalDoubleValues() noexcept { return {dv_.data(), dv_.size()}; }
+    std::span<float> internalFloatValues() noexcept { return {fv_.data(), fv_.size()}; }
+    std::span<std::int32_t> internalInt32Values() noexcept { return {iv_.data(), iv_.size()}; }
+    std::span<std::uint8_t> internalBoolValues() noexcept { return {bv_.data(), bv_.size()}; }
 
-    std::span<const double> internalDoubleValues() const { return {dv_.data(), dv_.size()}; }
-    std::span<const float> internalFloatValues() const { return {fv_.data(), fv_.size()}; }
-    std::span<const std::int32_t> internalInt32Values() const { return {iv_.data(), iv_.size()}; }
-    std::span<const std::uint8_t> internalBoolValues() const { return {bv_.data(), bv_.size()}; }
+    std::span<const double> internalDoubleValues() const noexcept { return {dv_.data(), dv_.size()}; }
+    std::span<const float> internalFloatValues() const noexcept { return {fv_.data(), fv_.size()}; }
+    std::span<const std::int32_t> internalInt32Values() const noexcept { return {iv_.data(), iv_.size()}; }
+    std::span<const std::uint8_t> internalBoolValues() const noexcept { return {bv_.data(), bv_.size()}; }
 
     /** @brief Transformation of the individual's parameters into a boost::property_tree object */
     void toPropertyTree(pt::ptree &, std::string const & = "parameterset") const override;
