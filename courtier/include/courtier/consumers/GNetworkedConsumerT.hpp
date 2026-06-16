@@ -149,6 +149,24 @@ public:
         return late_dropped_count_;
     }
 
+    /** @brief GBaseConsumerT hook: enable/size the late-return buffer (delegates to setLateReturnBuffer). */
+    void enableLateReturns(std::size_t cap, std::uint64_t ttl_rounds) override {
+        setLateReturnBuffer(cap, ttl_rounds);
+    }
+
+    /** @brief GBaseConsumerT hook: drain the late-return buffer, transferring the held items to the
+     *  caller (the optimization algorithm reaps them in fixAfterJobSubmission). FIFO / arrival order. */
+    std::vector<item_ptr> getLateReturns() override {
+        std::lock_guard<std::mutex> lk(mtx_);
+        std::vector<item_ptr> out;
+        out.reserve(late_returns_.size());
+        for(auto &entry : late_returns_) {
+            out.push_back(std::move(entry.second));
+        }
+        late_returns_.clear();
+        return out;
+    }
+
 protected:
     /***************************************************************************/
     /**

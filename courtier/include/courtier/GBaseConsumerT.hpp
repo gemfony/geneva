@@ -33,6 +33,7 @@
 
 // Standard headers
 #include <cstddef>
+#include <cstdint>
 #include <cstdlib>
 #include <functional>
 #include <memory>
@@ -76,6 +77,17 @@ public:
     GBaseConsumerT(GBaseConsumerT &&) = delete;
     GBaseConsumerT &operator=(const GBaseConsumerT &) = delete;
     GBaseConsumerT &operator=(GBaseConsumerT &&) = delete;
+
+    /***************************************************************************/
+    /** @brief Enables/sizes the consumer's late-return buffer: results that come back AFTER their
+     *  batch was already reconciled are retained (instead of dropped) for the optimization algorithm to
+     *  reap. @p cap == 0 disables it. Default: a no-op -- local (serial / thread-pool) consumers never
+     *  produce late returns. Networked consumers override this. */
+    virtual void enableLateReturns(std::size_t /*cap*/, std::uint64_t /*ttl_rounds*/) {}
+
+    /** @brief Hands back (transfers ownership of) the work items the consumer buffered as late returns,
+     *  emptying the buffer. Default: none. Networked consumers override this to drain their buffer. */
+    virtual std::vector<item_ptr> getLateReturns() { return {}; }
 
     /***************************************************************************/
     /**

@@ -1560,6 +1560,15 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
             broker_->registerConsumer(consumer);
         }
         executor_ = std::make_shared<Gem::Courtier::GExecutorT<gpar::GOptimizableEntity>>(broker_);
+
+        // Enable the consumer's late-return buffer (#13b): a result that comes back AFTER its batch was
+        // already reconciled is retained instead of dropped, so fixAfterJobSubmission can reap it. A
+        // no-op on local consumers (they never produce late returns). Sized to ~one generation's worth
+        // of items and aged out after a couple of dispatch rounds (the OA's iteration filter only admits
+        // returns from the current or immediately-preceding generation anyway).
+        if(broker_ && broker_->hasConsumer()) {
+            broker_->consumer().enableLateReturns(this->size(), /*ttl_rounds*/ 3);
+        }
     }
 
     // Clamp the requested range to the population and bail out if it is empty.
@@ -1591,8 +1600,13 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
  * Retrieves a vector of old work items after job submission
  */
 std::vector<std::unique_ptr<gpar::GOptimizableEntity>> GOptimizationAlgorithmBase::getOldWorkItems() {
-    // courtier reconciles every slot in place, so there are never any "old" (late-returned) items to
-    // retrieve. (Capturing late returns for their quality is a planned future improvement.)
+    // Reap any LATE returns the consumer buffered -- results that came back after their batch had
+    // already been reconciled in place. Local consumers never produce these (getLateReturns() defaults
+    // to empty); a networked consumer hands back its bounded late-return buffer. The OA folds the
+    // returned (bare) individuals into the next selection via fixAfterJobSubmission().
+    if(broker_ && broker_->hasConsumer()) {
+        return broker_->consumer().getLateReturns();
+    }
     return {};
 }
 

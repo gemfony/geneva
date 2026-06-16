@@ -252,6 +252,23 @@ TEST_CASE("courtier(late): a late return for a finished batch is buffered, not s
     CHECK(consumer.lateReturnDroppedCount() == 0);  // nothing dropped
 }
 
+TEST_CASE("courtier(late): getLateReturns() drains the buffer and transfers the items",
+          "[courtier][latereturn]") {
+    LateNetConsumer consumer;
+    consumer.setLateReturnBuffer(/*cap*/ 8, /*ttl_rounds*/ 8);
+
+    deliver_late(consumer, 100, 0);
+    deliver_late(consumer, 101, 1);
+    REQUIRE(consumer.lateReturnBufferSize() == 2);
+
+    auto reaped = consumer.getLateReturns(); // the OA-side getOldWorkItems() drains via this hook
+    REQUIRE(reaped.size() == 2);
+    CHECK(consumer.lateReturnBufferSize() == 0);             // buffer emptied
+    CHECK(reaped[0]->get_stored_number() == 100);            // FIFO / arrival order preserved
+    CHECK(reaped[1]->get_stored_number() == 101);
+    CHECK(consumer.getLateReturns().empty());                // a second drain yields nothing
+}
+
 TEST_CASE("courtier(late): buffering disabled (default) counts the drop but holds nothing",
           "[courtier][latereturn]") {
     LateNetConsumer consumer; // default cap == 0 -> buffering disabled

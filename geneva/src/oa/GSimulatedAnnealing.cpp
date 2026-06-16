@@ -445,14 +445,18 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
     std::size_t np = this->getNParents();
     std::uint32_t iteration = this->getIteration();
 
-    // Retrieve a vector of old work items
+    // Retrieve any LATE returns the consumer buffered (bare individuals that came back after their
+    // batch was already reconciled; only networked consumers produce these). They no longer carry the
+    // OA personality (it lives on the population slot), so we reconcile by assigned iteration only:
+    // each is appended below as a fresh candidate and the subsequent selection keeps it if competitive.
     auto old_work_items = this->getOldWorkItems();
 
-    // Remove old work items from older iterations -- we do not want them. Note: old work items are
-    // bare individuals (not slots), so they no longer carry the OA personality; we can only test the
-    // assigned iteration here. (getOldWorkItems() currently always returns an empty set anyway.)
+    // Admit late returns from the current OR the immediately-preceding iteration (a child evaluated in
+    // iteration N typically returns during N+1); a strict "== current iteration" test would discard
+    // exactly the late returns we want. Items staler than one generation are dropped. iteration >=
+    // getAssignedIteration() always, so the subtraction cannot underflow.
     std::erase_if(old_work_items, [iteration](const auto &x) -> bool {
-        return x->getAssignedIteration() != iteration;
+        return (iteration - x->getAssignedIteration()) > 1;
     });
 
     // Make it known to remaining old individuals that they are now part of a new iteration
@@ -474,9 +478,14 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
         }
     );
 
-    // Attach all old work items to the end of the current population and clear the array of old items
+    // Attach all old work items to the end of the current population and clear the array of old items.
+    // A late return is a BARE individual -- the personality lives on the slot, not the individual -- so
+    // the freshly-wrapped slot needs a personality installed (the parent/child marking loop below, and
+    // selection, dereference it). It is tagged as a child by that marking loop.
     for(auto &item_ptr : old_work_items) {
-        this->push_back(std::make_unique<gpar::GIndividualSlot>(std::move(item_ptr)));
+        auto slot = std::make_unique<gpar::GIndividualSlot>(std::move(item_ptr));
+        slot->setPersonality(std::make_shared<GSimulatedAnnealing_PersonalityTraits>());
+        this->push_back(std::move(slot));
     }
     old_work_items.clear();
 

@@ -574,17 +574,21 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
     std::size_t np = this->getNParents();
     std::uint32_t iteration = this->getIteration();
 
-    // Retrieve a vector of old work items (bare individuals). NB: getOldWorkItems() currently returns
-    // an empty list -- courtier reconciles every slot in place -- so this handling is effectively a
-    // no-op today. The old per-item parent-vs-child filter relied on the individual's personality, which
-    // now lives on the population slot and does not travel with a returned work item; restoring a
-    // quality-aware reconciliation of late returns is a deferred end-of-transition task (see the
-    // "late returns" note in the migration plan). We keep only the iteration-based pruning here.
+    // Retrieve any LATE returns the consumer buffered -- bare individuals that came back after their
+    // batch had already been reconciled (only networked consumers produce these; local consumers return
+    // an empty list). They no longer carry the OA personality (that lives on the population slot), so we
+    // reconcile purely by assigned iteration: each is appended below as a fresh child candidate and the
+    // subsequent selection (sortChildren / the MO ranking) keeps it only if it is competitive -- which
+    // makes this MO-safe without any bespoke "fitness >" comparison.
     auto old_work_items = this->getOldWorkItems();
 
-    // Remove items from older iterations from old work items -- we do not want them.
+    // Admit late returns from the current OR the immediately-preceding iteration: a child evaluated in
+    // iteration N typically returns during N+1 (standard asynchronous-EA semantics), so a strict
+    // "== current iteration" test would discard exactly the late returns we want to reap. Items staler
+    // than one generation are dropped. iteration >= getAssignedIteration() always (no items from the
+    // future), so the subtraction cannot underflow.
     std::erase_if(old_work_items, [iteration](const auto &x) -> bool {
-        return x->getAssignedIteration() != iteration;
+        return (iteration - x->getAssignedIteration()) > 1;
     });
 
     // Make it known to remaining old individuals that they are now part of a new iteration
@@ -607,9 +611,15 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
         }
     );
 
-    // Attach all old work items to the end of the current population and clear the array of old items
+    // Attach all old work items to the end of the current population and clear the array of old items.
+    // A late return is a BARE individual -- the personality object lives on the population slot, not on
+    // the individual, so the freshly-wrapped slot starts with an empty personality. Install one (the
+    // parent/child marking loop below, and selection, dereference it), matching how setIndividualPersonalities()
+    // seeds a slot. It is tagged as a child by that marking loop.
     for(auto &item_ptr : old_work_items) {
-        this->push_back(std::make_unique<gpar::GIndividualSlot>(std::move(item_ptr)));
+        auto slot = std::make_unique<gpar::GIndividualSlot>(std::move(item_ptr));
+        slot->setPersonality(std::make_shared<GEvolutionaryAlgorithm_PersonalityTraits>());
+        this->push_back(std::move(slot));
     }
     old_work_items.clear();
 
