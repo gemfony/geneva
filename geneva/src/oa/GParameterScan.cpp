@@ -318,7 +318,7 @@ std::ostream &operator<<(std::ostream &os, const parSet &p_s) {
  * @param cp A copy of another GradientDescent object
  */
 GParameterScan::GParameterScan(const GParameterScan &cp)
-  : GOptimizationAlgorithmBase(cp)
+  : GOptimizationAlgorithmT<GParameterScan>(cp)
   , cycle_logic_halt_(cp.cycle_logic_halt_)
   , scan_randomly_(cp.scan_randomly_)
   , n_monitor_inds_(cp.n_monitor_inds_)
@@ -332,27 +332,6 @@ GParameterScan::GParameterScan(const GParameterScan &cp)
     for(const auto &p : cp.int32_cnt_) int32_cnt_.push_back(p->clone());
     for(const auto &p : cp.d_cnt_)     d_cnt_.push_back(p->clone());
     for(const auto &p : cp.f_cnt_)     f_cnt_.push_back(p->clone());
-}
-
-/******************************************************************************/
-/**
- * Returns information about the type of optimization algorithm. This function needs
- * to be overloaded by the actual algorithms to return the correct type.
- *
- * @return The type of optimization algorithm
- */
-std::string GParameterScan::getAlgorithmPersonalityType_() const {
-    return "PERSONALITY_PS";
-}
-
-/******************************************************************************/
-/**
- * Returns the name of this optimization algorithm
- *
- * @return The name assigned to this optimization algorithm
- */
-std::string GParameterScan::getAlgorithmName_() const {
-    return std::string("Parameter Scan");
 }
 
 /******************************************************************************/
@@ -425,14 +404,6 @@ void GParameterScan::resetToOptimizationStart_() {
 
 /******************************************************************************/
 /**
- * Emits a name for this class / object
- */
-std::string GParameterScan::name_() const {
-    return std::string("GParameterScan");
-}
-
-/******************************************************************************/
-/**
  * Allows to set the number of "best" individuals to be monitored
  * over the course of the algorithm run
  */
@@ -484,16 +455,6 @@ void GParameterScan::load_(const GOptimizationAlgorithmBase *cp) {
 
     f_cnt_.clear();
     for(const auto &p : p_load->f_cnt_)     f_cnt_.push_back(p->clone());
-}
-
-/******************************************************************************/
-/**
- * Creates a deep clone of this object
- *
- * @return A deep copy of this object
- */
-GOptimizationAlgorithmBase *GParameterScan::clone_() const {
-    return new GParameterScan(*this);
 }
 
 /******************************************************************************/
@@ -1214,58 +1175,6 @@ void GParameterScan::adjustPopulation_() {
     for(std::size_t ind = 1; ind < this->getDefaultPopulationSize(); ind++) {
         this->push_back(this->at(0)->clone_unique());
     }
-}
-
-/******************************************************************************/
-/**
- * Applies modifications to this object. This is needed for testing purposes
- */
-bool GParameterScan::modify_GUnitTests_() {
-#ifdef GEM_TESTING
-    bool result = false;
-
-    // Call the parent class'es function
-    if(GOptimizationAlgorithmBase::modify_GUnitTests_()) {
-        result = true;
-    }
-
-    return result;
-#else  /* GEM_TESTING */
-    Gem::Common::condnotset("GParameterScan::modify_GUnitTests", "GEM_TESTING");
-    return false;
-#endif /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
- */
-void GParameterScan::specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    // Call the parent class'es function
-    GOptimizationAlgorithmBase::specificTestsNoFailureExpected_GUnitTests_();
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GParameterScan::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * Performs self tests that are expected to fail. This is needed for testing purposes
- */
-void GParameterScan::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    // Call the parent class'es function
-    GOptimizationAlgorithmBase::specificTestsFailuresExpected_GUnitTests_();
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GParameterScan::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
 }
 
 /******************************************************************************/

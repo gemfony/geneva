@@ -47,6 +47,7 @@ SET ( IND_INCLUDES
 # installed under geneva/oa to mirror the `oa` alias.
 SET ( OA_INCLUDES
     oa/GOptimizationAlgorithmBase.hpp
+    oa/GOptimizationAlgorithmT.hpp
     oa/GParChild.hpp
     oa/GAdaptionConfig.hpp
     oa/GAdaption.hpp
