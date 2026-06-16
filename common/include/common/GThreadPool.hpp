@@ -111,6 +111,16 @@ public:
 
     /***************************************************************************/
     /**
+     * @brief True iff the calling thread is currently executing a task on SOME GThreadPool worker.
+     *
+     * Lets nested work avoid spawning a second pool on a thread that is already a pool worker (which
+     * multiplies threads without adding parallelism -- the outer pool already parallelises across the
+     * outer work items). The flag is thread-local, so it reflects only the current thread's state.
+     */
+    [[nodiscard]] static bool inWorkerThread() noexcept;
+
+    /***************************************************************************/
+    /**
      * Submits a task to the pool and returns immediately, before the task runs.
      * One overload (selected via if constexpr) handles both void and non-void
      * return types. The returned std::future carries the task's result and any

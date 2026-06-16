@@ -113,6 +113,17 @@ bool GThreadPool::enqueue(std::function<void()> task) {
  * tasks after close(), and returns std::nullopt once the queue is closed and
  * empty -- which is how a worker leaves the loop and terminates.
  */
+namespace {
+// True while THIS thread is executing a task inside a GThreadPool worker loop. Thread-local, so it
+// reflects only the current thread. Set around each task so nested work (e.g. a sub-optimizer started
+// from within a task) can detect that it is already running on a pool worker.
+thread_local bool t_in_worker_thread = false;
+} // namespace
+
+bool GThreadPool::inWorkerThread() noexcept {
+    return t_in_worker_thread;
+}
+
 void GThreadPool::worker_loop(std::stop_token st) {
     // A stop request (e.g. from GThreadGroup::join_all()) closes the task queue. The drain loop
     // below then finishes the remaining tasks and exits once the queue is closed and empty, so
@@ -120,6 +131,8 @@ void GThreadPool::worker_loop(std::stop_token st) {
     // stop", not an abrupt abandon. (A stop_token cannot by itself wake a blocked pop(); closing
     // the queue can, which is why we route the stop through close().)
     const std::stop_callback stop_cb(st, [this]() { task_queue_->close(); });
+
+    t_in_worker_thread = true; // this thread spends its life running pool tasks
 
     while(auto task = task_queue_->pop()) {
         // The task wrapper fulfils its own promise and never lets an exception
