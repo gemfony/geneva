@@ -32,8 +32,6 @@
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExpectationChecksT.hpp"
-#include "common/GFactoryT.hpp"
-#include "common/GParserBuilder.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
@@ -271,81 +269,6 @@ void GLineFitIndividual::specificTestsFailuresExpected_GUnitTests_() {
         "GEM_TESTING"
     );
 #endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * Initialization through a config file
- */
-GLineFitIndividualFactory::GLineFitIndividualFactory(
-    const std::vector<std::tuple<double, double>> &data_points,
-    std::filesystem::path const &config_file
-)
-  : Gem::Common::GFactoryT<gpar::GOptimizableEntity>(config_file)
-  , data_points_(data_points) { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GLineFitIndividualFactory::~GLineFitIndividualFactory() { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * Creates items of this type
- *
- * @return Items of the desired type
- */
-std::shared_ptr<gpar::GOptimizableEntity> GLineFitIndividualFactory::getObject_(
-    Gem::Common::GParserBuilder &gpb,
-    [[maybe_unused]] const std::size_t & id
-) {
-    // Will hold the result
-    std::shared_ptr<GLineFitIndividual> target(new GLineFitIndividual(this->data_points_));
-
-    // Make the object's local configuration options known
-    target->addConfigurationOptions(gpb);
-
-    return target;
-}
-
-/******************************************************************************/
-/**
- * Allows to describe local configuration options for gradient descents
- */
-void GLineFitIndividualFactory::describeLocalOptions_(
-    Gem::Common::GParserBuilder &gpb
-) { // NOLINT(misc-unused-parameters)
-    // Describe our own options
-    using namespace Gem::Courtier;
-
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-
-    // No local options
-
-    // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<gpar::GOptimizableEntity>::describeLocalOptions_(gpb);
-}
-
-/******************************************************************************/
-/**
- * Allows to act on the configuration options received from the configuration file. Here
- * we can add the options described in describeLocalOptions to the object. In practice,
- * we will usually add the parameter objects here. Note that a very similar constructor
- * exists for GLineFitIndividual, so it may be used independently of the factory.
- *
- * @param p_base A smart-pointer to be acted on during post-processing
- */
-void GLineFitIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &p_base) {
-    // Convert the base pointer to our local type
-    std::shared_ptr<GLineFitIndividual> p =
-        Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, GLineFitIndividual>(p_base);
-
-    // Nothing to be done here
 }
 
 /******************************************************************************/

@@ -48,7 +48,6 @@
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
-#include "common/GFactoryT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
@@ -140,42 +139,6 @@ private:
 
     std::vector<std::tuple<double, double>>
         data_points_; ///< Holds the data points used for the fit procedure
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * A factory for GLineFitIndividual objects
- */
-class GLineFitIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<gpar::GOptimizableEntity> {
-public:
-    /** @brief The standard constructor */
-    GLineFitIndividualFactory(
-        const std::vector<std::tuple<double, double>> &,
-        std::filesystem::path const &
-    );
-
-    /** @brief The destructor */
-    ~GLineFitIndividualFactory() override;
-
-protected:
-    /** @brief Allows to describe local configuration options in derived classes */
-    void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
-
-    /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &) override;
-
-private:
-    /** @brief The default constructor. Only needed for (de-)serialization purposes */
-    GLineFitIndividualFactory() = default;
-
-    /** @brief Creates individuals of this type */
-    std::shared_ptr<gpar::GOptimizableEntity>
-    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
-
-    std::vector<std::tuple<double, double>> data_points_; ///< Holds data points for the fit
 };
 
 /******************************************************************************/
