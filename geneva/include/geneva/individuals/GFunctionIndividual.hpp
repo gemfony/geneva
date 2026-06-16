@@ -46,6 +46,7 @@
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GFlatIndividualFactory.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/par/GOptimizableEntityFactory.hpp"
 #include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
@@ -664,6 +665,54 @@ public:
 
         return result;
     }
+
+    //---------------------------------------------------------------------------
+    // GFlatIndividualFactory<GFunctionIndividual> hooks. GFunctionIndividual is a Tier-2
+    // (config-driven) flat individual: instead of a bespoke factory it supplies the static hooks the
+    // generic factory needs -- describeConfig (the configurable values), buildGenome (the genome
+    // structure for the five legacy parameter-type modes), buildAdaptionConfig (the OA-owned Gauss /
+    // bi-Gauss adaption config) and applyConfig (the demo function, a per-object non-genome setting).
+
+    /** @brief All values formerly parsed by the bespoke GFunctionIndividualFactory. */
+    struct Config {
+        double ad_prob = GFI_DEF_ADPROB;
+        double adapt_ad_prob = GFI_DEF_ADAPTADPROB;
+        double min_ad_prob = GFI_DEF_MINADPROB;
+        double max_ad_prob = GFI_DEF_MAXADPROB;
+        std::uint32_t adaption_threshold = GFI_DEF_ADAPTIONTHRESHOLD;
+        bool use_bi_gaussian = GFI_DEF_USEBIGAUSSIAN;
+        double sigma1 = GFI_DEF_SIGMA1;
+        double sigma_sigma1 = GFI_DEF_SIGMASIGMA1;
+        double min_sigma1 = GFI_DEF_MINSIGMA1;
+        double max_sigma1 = GFI_DEF_MAXSIGMA1;
+        double sigma2 = GFI_DEF_SIGMA2;
+        double sigma_sigma2 = GFI_DEF_SIGMASIGMA2;
+        double min_sigma2 = GFI_DEF_MINSIGMA2;
+        double max_sigma2 = GFI_DEF_MAXSIGMA2;
+        double delta = GFI_DEF_DELTA;
+        double sigma_delta = GFI_DEF_SIGMADELTA;
+        double min_delta = GFI_DEF_MINDELTA;
+        double max_delta = GFI_DEF_MAXDELTA;
+        std::size_t par_dim = GFI_DEF_PARDIM;
+        double min_var = GFI_DEF_MINVAR;
+        double max_var = GFI_DEF_MAXVAR;
+        parameterType p_t = GFI_DEF_PARAMETERTYPE;
+        initMode i_m = GFI_DEF_INITMODE;
+        solverFunction demo_function = GO_DEF_EVALFUNCTION;
+    };
+
+    /** @brief Registers the config-file options, binding them to the passed Config */
+    static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
+    /** @brief Builds the flat genome's structure for the configured parameter-type mode */
+    static gpar::Genome buildGenome(const Config &c);
+    /** @brief The OA-owned adaption config: every double group gets the configured Gauss / bi-Gauss adaptor */
+    static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+    buildAdaptionConfig(const gpar::GFlatGenome &sample, const Config &c);
+    /** @brief Per-object post-config hook: applies the (non-genome) demo function to a produced individual */
+    static void applyConfig(GFunctionIndividual &ind, const Config &c);
+    /** @brief Reads a GFunctionIndividual config file into a Config (for callers that build directly,
+     *  e.g. the dimension-sweeping benchmarks) */
+    static Config readConfig(std::filesystem::path const &configFile);
 
 protected:
     //---------------------------------------------------------------------------

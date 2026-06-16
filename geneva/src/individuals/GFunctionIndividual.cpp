@@ -739,6 +739,285 @@ double GFunctionIndividual::fitnessCalculation() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * Registers the config-file options, binding them to the passed Config. This is the body of the
+ * former GFunctionIndividualFactory::describeLocalOptions_ (now binding plain Config fields instead of
+ * GOneTimeRefParameterT references) plus the demo_function option the individual formerly registered in
+ * its own addConfigurationOptions_.
+ */
+void GFunctionIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
+    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
+
+    comment = "";
+    comment += "The probability for random adaption of values in evolutionary algorithms;";
+    gpb.registerFileParameter<double>(
+        "ad_prob", c.ad_prob, GFI_DEF_ADPROB, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment +=
+        "Determines the rate of adaption of ad_prob. Set to 0, if you do not need this feature;";
+    gpb.registerFileParameter<double>(
+        "adapt_ad_prob", c.adapt_ad_prob, GFI_DEF_ADAPTADPROB, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "The lower allowed boundary for ad_prob-variation;";
+    gpb.registerFileParameter<double>(
+        "min_ad_prob", c.min_ad_prob, GFI_DEF_MINADPROB, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "The upper allowed boundary for ad_prob-variation;";
+    gpb.registerFileParameter<double>(
+        "max_ad_prob", c.max_ad_prob, GFI_DEF_MAXADPROB, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "The number of successful calls to an adaptor after which adaption;";
+    comment += "of mutation parameters takes place (e.g sigma-variation in gauss mutation);";
+    gpb.registerFileParameter<std::uint32_t>(
+        "adaption_threshold", c.adaption_threshold, GFI_DEF_ADAPTIONTHRESHOLD,
+        Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "Whether to use a double gaussion for the adaption of parmeters in ES;";
+    gpb.registerFileParameter<bool>(
+        "use_bi_gaussian", c.use_bi_gaussian, GFI_DEF_USEBIGAUSSIAN, Gem::Common::VAR_IS_ESSENTIAL,
+        comment
+    );
+
+    comment = "";
+    comment +=
+        "The sigma for gauss-adaption in ES;(or the sigma of the left peak of a double gaussian);";
+    gpb.registerFileParameter<double>(
+        "sigma1", c.sigma1, GFI_DEF_SIGMA1, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "Influences the self-adaption of gauss-mutation in ES;";
+    gpb.registerFileParameter<double>(
+        "sigma_sigma1", c.sigma_sigma1, GFI_DEF_SIGMASIGMA1, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "The minimum value of sigma1;";
+    gpb.registerFileParameter<double>(
+        "min_sigma1", c.min_sigma1, GFI_DEF_MINSIGMA1, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "The maximum value of sigma1;";
+    gpb.registerFileParameter<double>(
+        "max_sigma1", c.max_sigma1, GFI_DEF_MAXSIGMA1, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "The sigma of the right peak of a double gaussian (if any);";
+    gpb.registerFileParameter<double>(
+        "sigma2", c.sigma2, GFI_DEF_SIGMA2, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "Influences the self-adaption of gauss-mutation in ES;";
+    gpb.registerFileParameter<double>(
+        "sigma_sigma2", c.sigma_sigma2, GFI_DEF_SIGMASIGMA2, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "The minimum value of sigma2;";
+    gpb.registerFileParameter<double>(
+        "min_sigma2", c.min_sigma2, GFI_DEF_MINSIGMA2, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "The maximum value of sigma2;";
+    gpb.registerFileParameter<double>(
+        "max_sigma2", c.max_sigma2, GFI_DEF_MAXSIGMA2, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "The start distance between both peaks used for bi-gaussian mutations in ES;";
+    gpb.registerFileParameter<double>(
+        "delta", c.delta, GFI_DEF_DELTA, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "The width of the gaussian used for mutations of the delta parameter;";
+    gpb.registerFileParameter<double>(
+        "sigma_delta", c.sigma_delta, GFI_DEF_SIGMADELTA, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "The minimum allowed value of delta;";
+    gpb.registerFileParameter<double>(
+        "min_delta", c.min_delta, GFI_DEF_MINDELTA, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "The maximum allowed value of delta;";
+    gpb.registerFileParameter<double>(
+        "max_delta", c.max_delta, GFI_DEF_MAXDELTA, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "The number of dimensions used for the demo function;";
+    gpb.registerFileParameter<std::size_t>(
+        "par_dim", c.par_dim, GFI_DEF_PARDIM, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "The lower boundary of the initialization range for parameters;";
+    gpb.registerFileParameter<double>(
+        "min_var", c.min_var, GFI_DEF_MINVAR, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "The upper boundary of the initialization range for parameters;";
+    gpb.registerFileParameter<double>(
+        "max_var", c.max_var, GFI_DEF_MAXVAR, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment +=
+        "Indicates what type of parameter object should be used;(0) GDoubleCollection;(1) "
+        "GConstrainedDoubleCollection;(2) GDoubleObjectCollection; (3) "
+        "GConstrainedDoubleObjectCollection; (4) GConstrainedDoubleObjects on the root level;";
+    gpb.registerFileParameter<parameterType>(
+        "parameter_type", c.p_t, GFI_DEF_PARAMETERTYPE, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "Indicates how the parameters are initialized;(0) randomly;(1) with a value on the "
+               "perimeter of the allowed or recommended value range";
+    gpb.registerFileParameter<initMode>(
+        "init_mode", c.i_m, GFI_DEF_INITMODE, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+
+    comment = "";
+    comment += "Specifies which benchmark function to minimise (maximise for NEGPARABOLA), by integer ID;";
+    gpb.registerFileParameter<solverFunction>(
+        "demo_function", c.demo_function, GO_DEF_EVALFUNCTION, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
+}
+
+/******************************************************************************/
+/**
+ * Builds the flat genome's STRUCTURE only (the body of the former
+ * GFunctionIndividualFactory::postProcess_). The five legacy modes differ in constrained-vs-unbounded and
+ * whether the parameters share one adaption group (a *collection*) or each carry their own (a collection
+ * of *objects* / individual objects). The configured Gauss / bi-Gauss adaptor settings live on the
+ * OA-owned config (see buildAdaptionConfig()), not in the genome layout. The start value is the lower
+ * perimeter; the optimization algorithm random-initialises within [min, max].
+ */
+gpar::Genome GFunctionIndividual::buildGenome(const Config &c) {
+    const std::size_t n_data = c.par_dim;
+    const double min_v = c.min_var;
+    const double max_v = c.max_var;
+
+    gpar::GGenomeBuilder b;
+    switch(c.p_t) {
+    case parameterType::USEGDOUBLECOLLECTION: { // unbounded, one shared group
+        b.addDoublePlainGroup(n_data, min_v, max_v);
+    } break;
+
+    case parameterType::USEGCONSTRAINEDOUBLECOLLECTION: { // constrained, one shared group
+        b.addDoubleGroup(n_data, min_v, max_v);
+    } break;
+
+    case parameterType::USEGDOUBLEOBJECTCOLLECTION: { // unbounded, a group per parameter
+        for(std::size_t i = 0; i < n_data; i++) {
+            b.addDouble(min_v).perimeter(min_v, max_v);
+        }
+    } break;
+
+    case parameterType::USEGCONSTRAINEDDOUBLEOBJECTCOLLECTION:
+    case parameterType::USEGCONSTRAINEDDOUBLEOBJECT: { // constrained, a group per parameter
+        for(std::size_t i = 0; i < n_data; i++) {
+            b.addDouble(min_v, min_v, max_v);
+        }
+    } break;
+
+    default: {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GFunctionIndividual::buildGenome(): Error!"
+            << "Found invalid parameter_type: " << c.p_t << '\n'
+        );
+    }
+    }
+
+    return b.build();
+}
+
+/******************************************************************************/
+/**
+ * Builds the OA-owned adaption configuration for a genome produced by this factory (the body of the
+ * former GFunctionIndividualFactory::getAdaptionConfig). Every double group (one shared group for the
+ * collection modes, one per parameter for the object modes) receives the configured single-Gauss or
+ * bi-Gauss adaptor.
+ */
+std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+GFunctionIndividual::buildAdaptionConfig(const gpar::GFlatGenome &sample, const Config &c) {
+    namespace oa = Gem::Geneva::OptimizationAlgorithms;
+    auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
+    for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
+        if(c.use_bi_gaussian) {
+            cfg->groupDouble(i).biGauss(
+                c.sigma1, c.sigma_sigma1, c.min_sigma1, c.max_sigma1,
+                c.sigma2, c.sigma_sigma2, c.min_sigma2, c.max_sigma2,
+                c.delta, c.sigma_delta, c.min_delta, c.max_delta,
+                c.ad_prob, /* use_symmetric_sigmas = */ false, c.adapt_ad_prob,
+                c.adaption_threshold
+            );
+        }
+        else {
+            cfg->groupDouble(i).gauss(
+                c.sigma1, c.sigma_sigma1, c.min_sigma1, c.max_sigma1,
+                c.ad_prob, c.adapt_ad_prob, c.adaption_threshold,
+                Gem::Geneva::adaptionMode::WITHPROBABILITY, c.min_ad_prob, c.max_ad_prob
+            );
+        }
+    }
+    return cfg;
+}
+
+/******************************************************************************/
+/**
+ * Per-object post-config hook: applies the (non-genome) demo function to a produced individual. The demo
+ * function was formerly registered + applied by the individual's own addConfigurationOptions_; it now
+ * lives in the Config and is applied here, the symmetric companion to buildAdaptionConfig().
+ */
+void GFunctionIndividual::applyConfig(GFunctionIndividual &ind, const Config &c) {
+    ind.setDemoFunction(c.demo_function);
+}
+
+/******************************************************************************/
+/**
+ * Reads a GFunctionIndividual config file into a Config. Used by callers that build individuals directly
+ * rather than through the factory (e.g. the dimension-sweeping GOptimizationBenchmark / CUDA benchmark,
+ * which need a different genome dimension per measurement row).
+ */
+GFunctionIndividual::Config GFunctionIndividual::readConfig(std::filesystem::path const &configFile) {
+    Config c;
+    Gem::Common::GParserBuilder gpb;
+    describeConfig(gpb, c);
+
+    if(not gpb.parseConfigFile(configFile)) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GFunctionIndividual::readConfig(): Error!" << '\n'
+            << "Could not parse configuration file " << configFile.string() << '\n'
+        );
+    }
+
+    return c;
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * Provide an easy way to print the individual's content
  */
 std::ostream &operator<<(std::ostream &s, const Gem::Geneva::Individuals::GFunctionIndividual &f) {
