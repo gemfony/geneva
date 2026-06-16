@@ -218,9 +218,9 @@ protected:
     void finalize() override;
 
     /** @brief Applies the Nelder-Mead acceptance rules using the trials of the previous iteration */
-    virtual void applyNelderMeadDecision();
+    void applyNelderMeadDecision();
     /** @brief Proposes the reflection / expansion / contraction trial points */
-    virtual void proposeTrials();
+    void proposeTrials();
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     bool modify_GUnitTests_() override;

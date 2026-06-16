@@ -244,10 +244,10 @@ protected:
     void finalize() override;
 
     /** @brief Updates the difference-quotient children of every starting point */
-    virtual void updateChildParameters();
+    void updateChildParameters();
 
     /** @brief Performs a conjugate-gradient step for every starting point */
-    virtual void updateParentIndividuals();
+    void updateParentIndividuals();
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     bool modify_GUnitTests_() override;
