@@ -43,11 +43,14 @@
 
 // Geneva header files go here
 #include <common/GCommonHelperFunctions.hpp>
-#include <common/GFactoryT.hpp>
 #include <common/GParserBuilder.hpp>
+#include <filesystem>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include <geneva/ind/GFlatGenome.hpp>
+#include <geneva/ind/GFlatIndividualFactory.hpp>
 #include <geneva/ind/GGenomeBuilder.hpp>
 
 namespace Gem::Geneva {
@@ -65,8 +68,6 @@ constexpr std::size_t NPAR_MC = 3;
  * criteria, each implemented as a parabola with its own minimum
  */
 class GMultiCriterionParabolaIndividual : public gpar::GFlatGenome {
-    friend class GMultiCriterionParabolaIndividualFactory;
-
     /***************************************************************************/
     /**
 	  * This function triggers serialization of this class and its
@@ -83,8 +84,8 @@ class GMultiCriterionParabolaIndividual : public gpar::GFlatGenome {
     /***************************************************************************/
 
 public:
-    /** @brief The standard constructor */
-    GMultiCriterionParabolaIndividual(const std::size_t &);
+    /** @brief The default constructor -- the genome is installed by the factory */
+    GMultiCriterionParabolaIndividual() = default;
     /** @brief A standard copy constructor */
     GMultiCriterionParabolaIndividual(const GMultiCriterionParabolaIndividual &) = default;
     /** @brief The destructor */
@@ -95,6 +96,26 @@ public:
 
     /** @brief The OA-owned adaption config authoring this genome's per-parameter Gauss groups. */
     std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const;
+
+    //---------------------------------------------------------------------------
+    // GFlatIndividualFactory<GMultiCriterionParabolaIndividual> hooks. Instead of a bespoke factory the
+    // individual supplies the static hooks the generic factory needs: describeConfig (the configurable
+    // values), buildGenome (one constrained-double Gauss group per minimum) and applyConfig (the number
+    // of evaluation criteria and the per-criterion minima -- per-object, non-genome settings).
+
+    /** @brief All values formerly parsed by the bespoke GMultiCriterionParabolaIndividualFactory. */
+    struct Config {
+        double par_min = -10.;              ///< The lower boundary of the parabola
+        double par_max = 10.;               ///< The upper boundary of the parabola
+        std::string minima = "-1., 0., 1."; ///< A list of optima, encoded as a string
+    };
+
+    /** @brief Registers the config-file options, binding them to the passed Config */
+    static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
+    /** @brief Builds the flat genome's structure: one constrained double per minimum, in [par_min, par_max] */
+    static gpar::Genome buildGenome(const Config &c);
+    /** @brief Per-object post-config hook: sets the number of evaluation criteria and the minima */
+    static void applyConfig(GMultiCriterionParabolaIndividual &ind, const Config &c);
 
 protected:
     /** @brief Loads the data of another GMultiCriterionParabolaIndividual */
@@ -107,9 +128,6 @@ private:
     /** @brief Creates a deep clone of this object */
     gpar::GFlatGenome *clone_() const final;
 
-    /** @brief The default constructor -- intentionally private*/
-    GMultiCriterionParabolaIndividual() = default;
-
     /** @brief Holds the minima needed for multi-criterion optimization */
     std::vector<double> minima_{};
 };
@@ -118,39 +136,13 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A factory for GMultiCriterionParabolaIndividual objects
+ * A factory for GMultiCriterionParabolaIndividual objects. The bespoke factory has been replaced by the
+ * generic, config-driven GFlatIndividualFactory; GMultiCriterionParabolaIndividual supplies the static
+ * describeConfig / buildGenome / applyConfig hooks. The alias keeps existing call sites (ctor(path),
+ * get(), registerContentCreator()) compiling unchanged.
  */
-class GMultiCriterionParabolaIndividualFactory : public Gem::Common::GFactoryT<gpar::GOptimizableEntity> {
-public:
-    /** @brief The standard constructor for this class */
-    GMultiCriterionParabolaIndividualFactory(std::filesystem::path const &);
-    /** @brief The destructor */
-    virtual ~GMultiCriterionParabolaIndividualFactory();
-
-protected:
-    /** @brief Creates individuals of this type */
-    virtual std::shared_ptr<gpar::GOptimizableEntity>
-    getObject_(Gem::Common::GParserBuilder &, const std::size_t &);
-    /** @brief Allows to describe local configuration options in derived classes */
-    virtual void describeLocalOptions_(Gem::Common::GParserBuilder &);
-    /** @brief Allows to act on the configuration options received from the configuration file */
-    virtual void postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &);
-
-private:
-    /** @brief The default constructor. Only needed for (de-)serialization purposes */
-    GMultiCriterionParabolaIndividualFactory() = default;
-
-    Gem::Common::GOneTimeRefParameterT<double>
-        par_min_; ///< The lower boundary of the initialization range
-    Gem::Common::GOneTimeRefParameterT<double>
-        par_max_; ///< The upper boundary of the initialization range
-    Gem::Common::GOneTimeRefParameterT<std::string>
-        minima_string_; ///< The minima encoded as a string
-
-    std::vector<double> minima_; ///< The desired minima of the parabolas
-    std::size_t nPar_;           ///< The number of parameters to be added to the individual
-    bool firstParsed_; ///< Set to false when the configuration files were parsed for the first time
-};
+using GMultiCriterionParabolaIndividualFactory =
+    Gem::Geneva::Parameters::GFlatIndividualFactory<GMultiCriterionParabolaIndividual>;
 
 /******************************************************************************/
 /**

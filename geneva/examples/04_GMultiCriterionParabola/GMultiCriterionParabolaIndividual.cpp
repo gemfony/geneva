@@ -72,22 +72,6 @@ std::ostream &operator<<(
 }
 
 /******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
-     * The standard constructor. Initialization with the number of fitness
-     * criteria, so GFlatGenome can set up its internal data structures.
-     * This is the only "real" constructor, apart from the copy constructor.
-     */
-GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual(
-    const std::size_t &nFitnessCriteria
-)
-  : gpar::GFlatGenome(nFitnessCriteria)
-  , minima_(nFitnessCriteria) {
-    /* nothing */
-}
-
-/******************************************************************************/
 /**
      * Assigns a number of minima to this object
      */
@@ -174,125 +158,64 @@ double GMultiCriterionParabolaIndividual::fitnessCalculation() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
-     * The standard constructor for this class
-     *
-     * @param cF The name of the configuration file
-     */
-GMultiCriterionParabolaIndividualFactory::GMultiCriterionParabolaIndividualFactory(
-    std::filesystem::path const &cF
-)
-  : Gem::Common::GFactoryT<gpar::GOptimizableEntity>(cF)
-  , par_min_(-10.)
-  , par_max_(10.)
-  , minima_string_("-1., 0., 1.")
-  , nPar_(NPAR_MC) // The actual number will be determined by the external configuration file
-  , firstParsed_(true) {
-    /* nothing */
-}
-
-/******************************************************************************/
-/**
-     * The destructor
-     */
-GMultiCriterionParabolaIndividualFactory::~GMultiCriterionParabolaIndividualFactory() {
-    /* nothing */
-}
-
-/******************************************************************************/
-/**
-     * Allows to describe configuration options in derived classes
-     */
-void GMultiCriterionParabolaIndividualFactory::describeLocalOptions_(
-    Gem::Common::GParserBuilder &gpb
-) {
+ * Registers the config-file options, binding them to the passed Config. This is the body of the former
+ * GMultiCriterionParabolaIndividualFactory::describeLocalOptions_ (now binding plain Config fields instead
+ * of GOneTimeRefParameterT references).
+ */
+void GMultiCriterionParabolaIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
     std::string comment;
 
     comment = "";
     comment += "The lower boundary of the parabola;";
-    gpb.registerFileParameter(
-        "par_min",
-        par_min_.reference(),
-        par_min_.value(),
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+    gpb.registerFileParameter<double>(
+        "par_min", c.par_min, c.par_min, Gem::Common::VAR_IS_ESSENTIAL, comment
     );
 
     comment = "";
     comment += "The upper boundary of the parabola;";
-    gpb.registerFileParameter(
-        "par_max",
-        par_max_.reference(),
-        par_max_.value(),
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+    gpb.registerFileParameter<double>(
+        "par_max", c.par_max, c.par_max, Gem::Common::VAR_IS_ESSENTIAL, comment
     );
 
     comment = "";
     comment += "A list of optima, encoded as a string;";
-    gpb.registerFileParameter(
-        "minima",
-        minima_string_.reference(),
-        minima_string_.value(),
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+    gpb.registerFileParameter<std::string>(
+        "minima", c.minima, c.minima, Gem::Common::VAR_IS_ESSENTIAL, comment
     );
 }
 
 /******************************************************************************/
 /**
-     * Creates individuals of the desired type. The argument "id" gives the function a means
-     * of detecting how often it has been called before. The id will be incremented for each call.
-     * This can e.g. be used to act differently for the first call to this function.
-     *
-     * @param id The id of the individual to be created
-     * @return An individual of the desired type
-     */
-std::shared_ptr<gpar::GOptimizableEntity> GMultiCriterionParabolaIndividualFactory::getObject_(
-    Gem::Common::GParserBuilder &gpb,
-    const std::size_t &id
-) {
-    // Will hold the result
-    std::shared_ptr<GMultiCriterionParabolaIndividual> target(
-        new GMultiCriterionParabolaIndividual()
-    );
+ * Builds the flat genome's STRUCTURE only (the genome-building body of the former
+ * GMultiCriterionParabolaIndividualFactory::postProcess_): one constrained double per minimum, in
+ * [par_min, par_max]. The start value is the lower perimeter; the optimization algorithm
+ * random-initialises within bounds. The Gauss adaptor settings live on the OA-owned config (see
+ * getAdaptionConfig()), not in the structure-only genome layout.
+ */
+gpar::Genome GMultiCriterionParabolaIndividual::buildGenome(const Config &c) {
+    const std::vector<double> minima = Gem::Common::stringToDoubleVec(c.minima);
 
-    // Make the object's local configuration options known
-    target->addConfigurationOptions(gpb);
-
-    return target;
+    gpar::GGenomeBuilder b;
+    for(std::size_t npar = 0; npar < minima.size(); npar++) {
+        // structure only; the adaptor lives on the OA config (see getAdaptionConfig())
+        b.addDouble(c.par_min, c.par_min, c.par_max);
+    }
+    return b.build();
 }
 
 /******************************************************************************/
-
-void GMultiCriterionParabolaIndividualFactory::postProcess_(
-    std::shared_ptr<gpar::GOptimizableEntity> &p_base
+/**
+ * Per-object post-config hook (the per-object body of the former postProcess_): the number of evaluation
+ * criteria equals the number of parabolas (= the number of minima), and the per-criterion minima are
+ * stored on the individual for fitnessCalculation().
+ */
+void GMultiCriterionParabolaIndividual::applyConfig(
+    GMultiCriterionParabolaIndividual &ind,
+    const Config &c
 ) {
-    std::shared_ptr<GMultiCriterionParabolaIndividual> p =
-        Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, GMultiCriterionParabolaIndividual>(p_base);
-
-    if(firstParsed_) {
-        minima_ = Gem::Common::stringToDoubleVec(minima_string_);
-        nPar_ = minima_.size();
-
-        firstParsed_ = false;
-    }
-
-    p->setNStoredResults(nPar_);
-
-    // Build a flat genome of nPar_ constrained doubles in [par_min_, par_max_], each its own Gauss
-    // group with the default GDoubleGaussAdaptor configuration (the tree relied on the lazily installed
-    // default adaptor: sigma 0.025 / sigma_sigma 0.2 / [0.001, 1] / ad_prob 1).
-    gpar::GGenomeBuilder b;
-    for(std::size_t npar = 0; npar < nPar_; npar++) {
-        // structure only; the adaptor lives on the OA config (see getAdaptionConfig())
-        b.addDouble(par_min_.value(), par_min_.value(), par_max_.value());
-    }
-    dynamic_cast<gpar::GFlatGenome &>(*p).setGenome(b.build());
-
-    // Mirror the tree's per-parameter random initialization within bounds.
-    p->randomInit(activityMode::ALLPARAMETERS);
-
-    p->setMinima(minima_);
+    const std::vector<double> minima = Gem::Common::stringToDoubleVec(c.minima);
+    ind.setNStoredResults(minima.size());
+    ind.setMinima(minima);
 }
 
 /******************************************************************************/
