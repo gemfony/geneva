@@ -569,7 +569,7 @@ void GStarterIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config
  * optimization algorithm random-initialises within bounds. The Gauss adaptor settings live on the
  * OA-owned config (see getAdaptionConfig()), stamped onto the individual by applyConfig().
  */
-gen::Genome GStarterIndividual::buildGenome(const Config &c) {
+gen::GenomeData GStarterIndividual::buildGenome(const Config &c) {
 #ifdef DEBUG
     if(c.start_values.empty() || c.start_values.size() != c.lower_boundaries.size() ||
        c.start_values.size() != c.upper_boundaries.size()) {

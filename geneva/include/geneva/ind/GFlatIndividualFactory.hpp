@@ -75,7 +75,7 @@ namespace Gem::Geneva::Genome {
  *    bounds, sigma);
  *  - @c static void describeConfig(Gem::Common::GParserBuilder&, Config&) -- registers the config-file
  *    options, binding them to the passed Config (called once per produced object on a fresh parser);
- *  - @c static Genome buildGenome(const Config&) -- builds the value arrays + the shared, immutable
+ *  - @c static GenomeData buildGenome(const Config&) -- builds the value arrays + the shared, immutable
  *    GGenomeLayout from the parsed config (typically via a GGenomeBuilder).
  *
  * The shared layout is built exactly once (a structural guarantee, not a hand-managed optimisation):
@@ -96,7 +96,7 @@ namespace Gem::Geneva::Genome {
  *           gpb.registerFileParameter<std::size_t>("par_dim", c.par_dim, 5);
  *           // ...
  *       }
- *       static Genome buildGenome(const Config& c) {
+ *       static GenomeData buildGenome(const Config& c) {
  *           GGenomeBuilder b;
  *           b.addDoubleGroup(c.par_dim, c.min, c.max); // structure only; adaptors on the OA config
  *           return b.build();
@@ -277,7 +277,7 @@ private:
     typename Derived::Config config_{};
 
     /** @brief The genome (value arrays + shared layout) built once and reused by every individual */
-    Genome shared_genome_{};
+    GenomeData shared_genome_{};
     /** @brief Whether shared_genome_ has been built (transient cache guard) */
     bool genome_built_ = false;
     /** @brief Serialises the build-once of shared_genome_ */

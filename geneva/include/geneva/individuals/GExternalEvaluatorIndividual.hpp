@@ -244,7 +244,7 @@ public:
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
     /** @brief Queries the external evaluator for the individual structure and builds the flat genome;
      *  also records the discovered run_id / n_results_expected back into @p c. */
-    static gen::Genome buildGenome(Config &c);
+    static gen::GenomeData buildGenome(Config &c);
     /** @brief The OA-owned adaption config: the configured Gauss/bi-Gauss adaptor on every ACTIVE group */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
     buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);

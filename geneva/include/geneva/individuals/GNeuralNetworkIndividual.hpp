@@ -1118,7 +1118,7 @@ public:
     /** @brief Registers the config-file options, binding them to the passed Config */
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
     /** @brief Builds the flat weight genome (structure only) for the geometry in the global data store */
-    static gen::Genome buildGenome(const Config &c);
+    static gen::GenomeData buildGenome(const Config &c);
     /** @brief The OA-owned Gauss adaption config: every weight group gets the configured Gauss adaptor */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
     buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);

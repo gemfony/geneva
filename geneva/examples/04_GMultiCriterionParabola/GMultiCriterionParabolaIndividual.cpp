@@ -192,7 +192,7 @@ void GMultiCriterionParabolaIndividual::describeConfig(Gem::Common::GParserBuild
  * random-initialises within bounds. The Gauss adaptor settings live on the OA-owned config (see
  * getAdaptionConfig()), not in the structure-only genome layout.
  */
-gen::Genome GMultiCriterionParabolaIndividual::buildGenome(const Config &c) {
+gen::GenomeData GMultiCriterionParabolaIndividual::buildGenome(const Config &c) {
     const std::vector<double> minima = Gem::Common::stringToDoubleVec(c.minima);
 
     gen::GGenomeBuilder b;

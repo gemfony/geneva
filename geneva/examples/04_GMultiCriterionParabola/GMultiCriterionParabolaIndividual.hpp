@@ -113,7 +113,7 @@ public:
     /** @brief Registers the config-file options, binding them to the passed Config */
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
     /** @brief Builds the flat genome's structure: one constrained double per minimum, in [par_min, par_max] */
-    static gen::Genome buildGenome(const Config &c);
+    static gen::GenomeData buildGenome(const Config &c);
     /** @brief Per-object post-config hook: sets the number of evaluation criteria and the minima */
     static void applyConfig(GMultiCriterionParabolaIndividual &ind, const Config &c);
 

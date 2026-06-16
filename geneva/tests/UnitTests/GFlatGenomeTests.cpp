@@ -153,7 +153,7 @@ public:
     }
 
     /** @brief Builds the value arrays + the shared, immutable layout from the parsed config */
-    static gen::Genome buildGenome(const Config &c) {
+    static gen::GenomeData buildGenome(const Config &c) {
         GGenomeBuilder b;
         b.addDoubleGroup(c.par_dim, c.min, c.max); // structure only; the adaptor lives on the OA config
         return b.build();
@@ -204,7 +204,7 @@ using Gem::Tests::FlatSphere;
 TEST_CASE("GGenomeBuilder produces the expected shared layout", "[flat]") {
     GGenomeBuilder b;
     b.addDoubleGroup(5, -10., 10.).init(1.0); // structure only -- adaptors are authored on the OA config
-    gen::Genome g = b.build();
+    gen::GenomeData g = b.build();
 
     REQUIRE(g.layout);
     const ChannelLayout<double> &ch = g.layout->d;
@@ -268,7 +268,7 @@ TEST_CASE("GGenomeBuilder: groups vs arrays vs single parameters", "[flat]") {
     b.addDouble(0., -1., 1.);          // group of 1
     b.addDoubleGroup(4, -2., 2.);      // ONE group of 4 (shared sigma)
     b.addDoubleArray(3, -3., 3.);      // 3 groups of 1
-    gen::Genome g = b.build();
+    gen::GenomeData g = b.build();
 
     const ChannelLayout<double> &ch = g.layout->d;
     CHECK(ch.size() == 1 + 4 + 3);
@@ -282,7 +282,7 @@ TEST_CASE("GGenomeBuilder: interned group labels", "[flat]") {
     b.addDoubleGroup(2, -1., 1.).label("position"); // group 1
     b.addDouble(0., -1., 1.).label("scale");        // group 2
     b.addDouble(0., -1., 1.);                        // group 3 (unlabeled)
-    gen::Genome g = b.build();
+    gen::GenomeData g = b.build();
 
     std::shared_ptr<const GGenomeLayout> L = g.layout;
     REQUIRE(L);

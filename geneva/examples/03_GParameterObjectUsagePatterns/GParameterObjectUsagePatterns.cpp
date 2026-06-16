@@ -108,7 +108,7 @@ BOOST_CLASS_EXPORT(GDemoIndividual) // NOLINT
  * Prints the shape of a freshly built genome: the per-channel value arrays and
  * the number of adaption groups registered for each channel.
  */
-void printGenome(const std::string &title, const gen::Genome &g) {
+void printGenome(const std::string &title, const gen::GenomeData &g) {
     std::cout << title << '\n';
     std::cout << "  double values (" << g.dv.size() << "): ";
     for(double v : g.dv) {

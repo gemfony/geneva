@@ -99,7 +99,7 @@ GFlatGenome::GFlatGenome(GFlatGenome const &cp)
  * is OA-owned scratch (it lives on the GIndividualSlot, not on the individual) and is no longer seeded
  * here -- an optimization algorithm seeds each slot's scratch from its adaption config at setup.
  */
-void GFlatGenome::setGenome(Genome const &g) {
+void GFlatGenome::setGenome(GenomeData const &g) {
     dv_ = g.dv;
     fv_ = g.fv;
     iv_ = g.iv;

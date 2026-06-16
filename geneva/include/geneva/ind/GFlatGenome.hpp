@@ -149,7 +149,7 @@ public:
     using GOptimizableEntity::load;
 
     /** @brief Installs the value arrays + shared layout produced by a GGenomeBuilder */
-    void setGenome(Genome const &);
+    void setGenome(GenomeData const &);
 
     /** @brief Direct, shared access to the structural layout (problem metadata) */
     std::shared_ptr<const GGenomeLayout> getLayout() const noexcept { return layout_; }

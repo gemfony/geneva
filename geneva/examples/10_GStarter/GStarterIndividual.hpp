@@ -165,7 +165,7 @@ public:
     /** @brief Registers the config-file options, binding them to the passed Config */
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
     /** @brief Builds the flat genome's structure: one constrained double per start value */
-    static gen::Genome buildGenome(const Config &c);
+    static gen::GenomeData buildGenome(const Config &c);
     /** @brief Per-object post-config hook: stamps the target function and the Gauss adaptor parameters */
     static void applyConfig(GStarterIndividual &ind, const Config &c);
 

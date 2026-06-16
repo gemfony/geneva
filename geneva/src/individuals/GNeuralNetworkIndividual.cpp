@@ -1594,7 +1594,7 @@ void GNeuralNetworkIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, 
  * is provided by GNeuralNetworkArchitecture, not by the genome layout; the Gauss adaptor lives on the
  * OA-owned config (buildAdaptionConfig), authored from the same sigma / ad_prob parameters.
  */
-gen::Genome GNeuralNetworkIndividual::buildGenome(const Config &c) {
+gen::GenomeData GNeuralNetworkIndividual::buildGenome(const Config &c) {
     using namespace Gem::Hap;
 
     auto n_d = nnTrainingDataStore();

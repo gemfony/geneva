@@ -700,7 +700,7 @@ public:
     /** @brief Registers the config-file options, binding them to the passed Config */
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
     /** @brief Builds the flat genome's structure for the configured parameter-type mode */
-    static gen::Genome buildGenome(const Config &c);
+    static gen::GenomeData buildGenome(const Config &c);
     /** @brief The OA-owned adaption config: every double group gets the configured Gauss / bi-Gauss adaptor */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
     buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);

@@ -873,7 +873,7 @@ void GFunctionIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Confi
  * OA-owned config (see buildAdaptionConfig()), not in the genome layout. The start value is the lower
  * perimeter; the optimization algorithm random-initialises within [min, max].
  */
-gen::Genome GFunctionIndividual::buildGenome(const Config &c) {
+gen::GenomeData GFunctionIndividual::buildGenome(const Config &c) {
     const std::size_t n_data = c.par_dim;
     const double min_v = c.min_var;
     const double max_v = c.max_var;

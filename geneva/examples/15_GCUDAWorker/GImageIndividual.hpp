@@ -205,7 +205,7 @@ public:
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
     /** @brief Builds the flat genome's labelled structure (per triangle: cx,cy,radius,3 angles,r,g,b,a,
      *  then 3 background colours), validating the configured ranges */
-    static gen::Genome buildGenome(const Config &c);
+    static gen::GenomeData buildGenome(const Config &c);
     /** @brief Per-object post-config hook: sets the local members, random-inits the active parameters and
      *  authors the OA-owned main/location Gauss adaption config from the labelled genome */
     static void applyConfig(GImageIndividual &ind, const Config &c);

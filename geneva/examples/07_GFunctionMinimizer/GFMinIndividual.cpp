@@ -328,7 +328,7 @@ void GFMinIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c
  * mirroring the historical single GConstrainedDoubleCollection + one GDoubleGaussAdaptor. The adaptor
  * settings live on the OA-owned config (see buildAdaptionConfig()), not in the structure-only genome.
  */
-gen::Genome GFMinIndividual::buildGenome(const Config &c) {
+gen::GenomeData GFMinIndividual::buildGenome(const Config &c) {
     gen::GGenomeBuilder b;
     b.addDoubleGroup(c.par_dim, c.min_var, c.max_var); // structure only; the adaptor lives on the OA config
     return b.build();

@@ -54,7 +54,7 @@ namespace Gem::Geneva::Genome {
  * once and every produced individual binds to the same instance, so per-individual cost is only the
  * value-array copy.
  */
-struct Genome {
+struct GenomeData {
     std::vector<double> dv;        ///< the double channel start values
     std::vector<float> fv;         ///< the float channel start values
     std::vector<std::int32_t> iv;  ///< the int32 channel start values
@@ -161,7 +161,7 @@ private:
 /******************************************************************************/
 /**
  * The imperative authoring API for a flat genome: the user declares each parameter (or group / array
- * of parameters) once, optionally attaching an adaptor, and calls build() to obtain a Genome (value
+ * of parameters) once, optionally attaching an adaptor, and calls build() to obtain a GenomeData (value
  * arrays + shared layout). This replaces the tree's "push_back parameter objects + adaptors" idiom
  * without losing fine-grained control (see the migration plan's mapping table).
  *
@@ -250,8 +250,8 @@ public:
 
     /***************************************************************************/
     /** @brief Produces the value arrays + an interned, shared adaption layout. */
-    Genome build() const {
-        Genome g;
+    GenomeData build() const {
+        GenomeData g;
         g.dv = dv_;
         g.fv = fv_;
         g.iv = iv_;

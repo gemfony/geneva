@@ -81,7 +81,7 @@ std::ostream &operator<<(std::ostream &os, const CircleTriangle &ct) {
 	 * and everything else "main", so applyConfig() can author the matching OA-owned Gauss adaptor by label.
 	 * The configured ranges are validated up front (formerly at the top of init()).
 	 */
-gen::Genome GImageIndividual::buildGenome(const Config &c) {
+gen::GenomeData GImageIndividual::buildGenome(const Config &c) {
     if(c.min_size < 0. || c.max_size > 1. || c.min_size >= c.max_size) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())

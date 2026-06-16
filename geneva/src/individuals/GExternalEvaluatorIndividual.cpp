@@ -540,7 +540,7 @@ void GExternalEvaluatorIndividual::describeConfig(Gem::Common::GParserBuilder &g
  * The discovered run-id and result count are recorded back into @p c so applyConfig() can hand them to
  * each produced individual.
  */
-gen::Genome GExternalEvaluatorIndividual::buildGenome(Config &c) {
+gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
     namespace pt = boost::property_tree;
 
     if(c.program_name.empty()) {
