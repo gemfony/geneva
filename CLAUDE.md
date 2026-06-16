@@ -75,7 +75,7 @@ common  <--  hap  <--  courtier  <--  geneva  <--  geneva-individuals
 | `common` | Utilities: logging (`GLogger`), thread pool (`GThreadPool`), Boost.Serialization helpers, formula parser, plot designer, bounded buffers, exception types |
 | `hap` | Random number generation (`GRandomT`, `GRandomFactory`). Optional CUDA GPU-based RNG via `GCUDARng` |
 | `courtier` | Broker/consumer parallelization framework. Consumers: `GSerialConsumerT`, `GStdThreadConsumerT`, `GAsioConsumerT`, `GWebsocketConsumerT`, `GMPIConsumerT`. The broker (`GBrokerT`) dispatches work items to registered consumers |
-| `geneva` | Core optimization: per-category CRTP roots (each deriving from `Gem::Common::GCommonInterfaceT<Root>`), `GParameterSet` (user subclass this to define a problem), `G_OptimizationAlgorithm_*` (EA, SA, Swarm, GD, ParameterScan), `Go2` (top-level orchestrator) |
+| `geneva` | Core optimization: per-category CRTP roots (each deriving from `Gem::Common::GCommonInterfaceT<Root>`), `GFlatIndividualT<Derived>` (user subclass this to define a problem; flat genome built via `GGenomeBuilder`), `G_OptimizationAlgorithm_*` (EA, SA, Swarm, GD, ParameterScan), `Go2` (top-level orchestrator) |
 | `geneva-individuals` | Reusable problem definitions (individuals) for examples and tests |
 
 Headers are in `include/<library>/`, sources in `src/<library>/`. All code is in the `Gem::` namespace (e.g., `Gem::Geneva`, `Gem::Courtier`, `Gem::Common`, `Gem::Hap`).
@@ -84,11 +84,15 @@ Headers are in `include/<library>/`, sources in `src/<library>/`. All code is in
 
 ### Writing an optimization problem
 
-1. Subclass `GParameterSet` (in `include/geneva/par/GParameterSet.hpp`) and override `fitnessCalculation()`.
-2. Add parameter objects (`GDoubleObject`, `GConstrainedDoubleObject`, `GInt32Object`, `GBooleanObject`, etc.) in the constructor.
-3. Use `Go2` (in `include/geneva/Go2.hpp`) as the top-level driver — it reads configuration from a JSON file and handles client/server mode automatically.
+The genome is a **flat** list of parameters with a fixed structure; adaptors (mutation strategy) are
+**owned by the optimization algorithm**, not the genome (the "config-strip" model).
 
-See `examples/geneva/10_GStarter/` for the canonical minimal example.
+1. Subclass `GFlatIndividualT<YourProblem>` (CRTP, in `include/geneva/ind/GFlatIndividualT.hpp`) and override `fitnessCalculation()`.
+2. Build the genome **structure** in the constructor with `GGenomeBuilder` (`addDoubleGroup`, `addDouble`, `addInt32Group`, `addBoolArray`, …) and `setGenome(b.build())` — structure only, no adaptors. Read values in `fitnessCalculation()` via `streamline<T>()` / `streamlineFP()`.
+3. Author adaptors on an **OA-owned `GAdaptionConfig`** via `oa::makeAdaptionConfig<...>(genome)` + the fluent API (`cfg->groupDouble(i).gauss(...)`, `cfg->forLabel(...)`), and distribute it with `oa_ptr->setAdaptionConfig(cfg)`, `Go2::registerAdaptionConfig(personality, cfg)`, or `oa::StandaloneAdapter(genome, cfg)`. An adapting algorithm with **no** config is a hard error (no auto-derivation).
+4. Use `Go2` (in `include/geneva/Go2.hpp`) as the top-level driver — it reads configuration from a JSON file and handles client/server mode automatically.
+
+See `docs/writing-optimization-problems.md` for the full guide, and `examples/geneva/10_GStarter/` (minimal) / `examples/geneva/03_GParameterObjectUsagePatterns/` for canonical examples. (The former `GParameterSet` tree-of-parameter-objects model has been removed.)
 
 ### Parallelization
 

@@ -100,6 +100,17 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         // value (a deserialised genome legitimately owns its own layout copy -- sharing is only an
         // in-process optimisation). The transient per-group adaption state is NOT serialised here
         // (it is re-seeded on load); full-state checkpointing is a separate, later concern.
+        //
+        // TRANSPORT-SIZE OPTIMISATION OPPORTUNITY (Phase 9 #10, deferred): the layout is IDENTICAL for
+        // every individual in a population and never changes during a run, yet it is re-serialised with
+        // EVERY work item -- for a large genome (~2 bounds + kind/active per parameter) this roughly
+        // doubles the per-item wire payload and reconstructs the whole structure on every round-trip.
+        // Interning it (send the layout ONCE per batch / cache it by id on the client+server and have
+        // items reference it) would cut transport ~2x for large genomes. NOT a correctness issue, and
+        // higher-value than the originally-noted zero-construction allocation (flat construction is
+        // already cheap: a shared layout ptr + four contiguous value vectors). Cross-item caching is
+        // needed because each item is serialised in its own archive, so Boost's intra-archive object
+        // tracking does not span items.
         GGenomeLayout layout_copy = layout_ ? *layout_ : GGenomeLayout{};
         ar &make_nvp("layout_", layout_copy);
     }
