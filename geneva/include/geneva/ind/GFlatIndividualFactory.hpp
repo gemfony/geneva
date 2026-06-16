@@ -50,6 +50,13 @@
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/par/GOptimizableEntityFactory.hpp"
 
+namespace Gem::Geneva::OptimizationAlgorithms {
+// The OA-owned adaption configuration produced (optionally) by a flat individual's
+// buildAdaptionConfig() hook. Forward-declared so this header stays free of an OA dependency; the
+// full type is only needed in the individual's own translation unit that implements the hook.
+class GAdaptionConfigBase;
+} // namespace Gem::Geneva::OptimizationAlgorithms
+
 namespace Gem::Geneva::Parameters {
 
 /******************************************************************************/
@@ -150,6 +157,27 @@ public:
      */
     std::shared_ptr<Gem::Common::GFactoryT<GOptimizableEntity>> clone() const override {
         return std::make_shared<GFlatIndividualFactory<Derived>>(*this);
+    }
+
+    /***************************************************************************/
+    /**
+     * Builds the OA-owned adaption configuration for a genome produced by this factory, for the
+     * adapting algorithms (typically passed to Go2::registerAdaptionConfig). Optional: it delegates to
+     * the individual's @c static buildAdaptionConfig(const GFlatGenome&, const Config&) hook if it
+     * provides one, and otherwise returns a null pointer (the individual has no default adaption config,
+     * e.g. a derivative-free or test individual). The configuration must have been parsed first (call
+     * after a get_()/get() so config_ is populated).
+     */
+    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+    getAdaptionConfig(const GFlatGenome &sample) const {
+        if constexpr (requires(const GFlatGenome &g, const typename Derived::Config &c) {
+                          Derived::buildAdaptionConfig(g, c);
+                      }) {
+            return Derived::buildAdaptionConfig(sample, config_);
+        }
+        else {
+            return {};
+        }
     }
 
 protected:

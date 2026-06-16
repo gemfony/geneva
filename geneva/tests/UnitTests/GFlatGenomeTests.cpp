@@ -159,6 +159,17 @@ public:
         return b.build();
     }
 
+    /** @brief Optional hook: the OA-owned Gauss adaption config for a genome this individual produces.
+     *  Exercised through GFlatIndividualFactory::getAdaptionConfig(). */
+    static std::shared_ptr<oa::GAdaptionConfigBase>
+    buildAdaptionConfig(const Gem::Geneva::Parameters::GFlatGenome &sample, const Config &c) {
+        auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
+        for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
+            cfg->groupDouble(i).gauss(c.sigma, 0.8, 1e-3, 2., 1.);
+        }
+        return cfg;
+    }
+
 protected:
     double fitnessCalculation() override {
         std::vector<double> v;
@@ -834,6 +845,28 @@ TEST_CASE("GFlatIndividualFactory: one shared layout across N produced individua
     inds[1]->streamline<double>(v1_after);
     CHECK(v0_after != v0_before);  // inds[0] changed
     CHECK(v1_after == v1_before);  // inds[1] untouched -> independent value storage
+
+    fs::remove(cfg);
+}
+
+/******************************************************************************/
+TEST_CASE("GFlatIndividualFactory::getAdaptionConfig delegates to buildAdaptionConfig", "[flat][factory]") {
+    // The factory's getAdaptionConfig() forwards to the individual's optional buildAdaptionConfig hook
+    // and returns the OA-owned config matching the produced genome (used with registerAdaptionConfig).
+    namespace fs = std::filesystem;
+    const fs::path base = fs::temp_directory_path() / "geneva_flat_factory_tests";
+    fs::create_directories(base);
+    const fs::path cfg = base / "FactorySphereAdaption.json";
+
+    GFlatIndividualFactory<FactorySphere> f(cfg);
+    f.writeConfigFile("FactorySphere adaption-config test");
+
+    auto sample = f.get_as<FactorySphere>();
+    REQUIRE(sample);
+
+    auto ac = f.getAdaptionConfig(*sample);
+    REQUIRE(ac);                              // the hook is present -> a real config (not null)
+    CHECK(ac->doubleGroups().size() == 1);    // one double group, matching the par_dim==5 genome
 
     fs::remove(cfg);
 }
