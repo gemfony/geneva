@@ -49,10 +49,10 @@
 #include <tuple>
 #include <vector>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::bScanPar)     // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::int32ScanPar) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::dScanPar)     // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::fScanPar)     // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GBScanPar)     // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GInt32ScanPar) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GDScanPar)     // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GFScanPar)     // NOLINT
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GParameterScan) // NOLINT
 
@@ -150,23 +150,23 @@ std::vector<double> fillWithData<double>(std::size_t n_steps, double lower, doub
 /**
  * The default constructor. Only needed for de-serialization.
  */
-bScanPar::bScanPar() { /* nothing */
+GBScanPar::GBScanPar() { /* nothing */
 }
 
 /******************************************************************************/
 /**
  * Construction from local variables
  */
-bScanPar::bScanPar(gpar::parPropSpec<bool> pps, bool random_scan)
-  : baseScanParT<bool>(pps, random_scan, "b") { /* nothing */
+GBScanPar::GBScanPar(gpar::parPropSpec<bool> pps, bool random_scan)
+  : GBaseScanParT<bool>(pps, random_scan, "b") { /* nothing */
 }
 
 /******************************************************************************/
 /**
  * Cloning of this object
  */
-std::shared_ptr<bScanPar> bScanPar::clone() const {
-    return std::make_shared<bScanPar>(*this);
+std::shared_ptr<GBScanPar> GBScanPar::clone() const {
+    return std::make_shared<GBScanPar>(*this);
 }
 
 /******************************************************************************/
@@ -175,23 +175,23 @@ std::shared_ptr<bScanPar> bScanPar::clone() const {
 /**
  * The default constructor. Only needed for de-serialization.
  */
-int32ScanPar::int32ScanPar() { /* nothing */
+GInt32ScanPar::GInt32ScanPar() { /* nothing */
 }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-int32ScanPar::int32ScanPar(gpar::parPropSpec<std::int32_t> pps, bool random_scan)
-  : baseScanParT<std::int32_t>(pps, random_scan, "i") { /* nothing */
+GInt32ScanPar::GInt32ScanPar(gpar::parPropSpec<std::int32_t> pps, bool random_scan)
+  : GBaseScanParT<std::int32_t>(pps, random_scan, "i") { /* nothing */
 }
 
 /******************************************************************************/
 /**
  * Cloning
  */
-std::shared_ptr<int32ScanPar> int32ScanPar::clone() const {
-    return std::make_shared<int32ScanPar>(*this);
+std::shared_ptr<GInt32ScanPar> GInt32ScanPar::clone() const {
+    return std::make_shared<GInt32ScanPar>(*this);
 }
 
 /******************************************************************************/
@@ -200,23 +200,23 @@ std::shared_ptr<int32ScanPar> int32ScanPar::clone() const {
 /**
  * The default constructor. Only needed for de-serialization.
  */
-dScanPar::dScanPar() { /* nothing */
+GDScanPar::GDScanPar() { /* nothing */
 }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-dScanPar::dScanPar(gpar::parPropSpec<double> pps, bool random_scan)
-  : baseScanParT<double>(pps, random_scan, "d") { /* nothing */
+GDScanPar::GDScanPar(gpar::parPropSpec<double> pps, bool random_scan)
+  : GBaseScanParT<double>(pps, random_scan, "d") { /* nothing */
 }
 
 /******************************************************************************/
 /**
  * Cloning
  */
-std::shared_ptr<dScanPar> dScanPar::clone() const {
-    return std::make_shared<dScanPar>(*this);
+std::shared_ptr<GDScanPar> GDScanPar::clone() const {
+    return std::make_shared<GDScanPar>(*this);
 }
 
 /******************************************************************************/
@@ -225,23 +225,23 @@ std::shared_ptr<dScanPar> dScanPar::clone() const {
 /**
  * The default constructor. Only needed for de-serialization.
  */
-fScanPar::fScanPar() { /* nothing */
+GFScanPar::GFScanPar() { /* nothing */
 }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-fScanPar::fScanPar(gpar::parPropSpec<float> pps, bool random_scan)
-  : baseScanParT<float>(pps, random_scan, "f") { /* nothing */
+GFScanPar::GFScanPar(gpar::parPropSpec<float> pps, bool random_scan)
+  : GBaseScanParT<float>(pps, random_scan, "f") { /* nothing */
 }
 
 /******************************************************************************/
 /**
  * Cloning
  */
-std::shared_ptr<fScanPar> fScanPar::clone() const {
-    return std::make_shared<fScanPar>(*this);
+std::shared_ptr<GFScanPar> GFScanPar::clone() const {
+    return std::make_shared<GFScanPar>(*this);
 }
 
 /******************************************************************************/
@@ -998,7 +998,7 @@ void GParameterScan::setParameterSpecs(std::string par_str) {
         auto d_end = std::get<1>(t_d);
         for(; d_cit != d_end;
             ++d_cit) { // Note: d_cit is already set to the begin of the double parameter arrays
-            d_cnt_.push_back(std::make_shared<dScanPar>(*d_cit, scan_randomly_));
+            d_cnt_.push_back(std::make_shared<GDScanPar>(*d_cit, scan_randomly_));
         }
 
         // Retrieve float parameters
@@ -1011,7 +1011,7 @@ void GParameterScan::setParameterSpecs(std::string par_str) {
         auto f_end = std::get<1>(t_f);
         for(; f_cit != f_end;
             ++f_cit) { // Note: f_cit is already set to the begin of the double parameter arrays
-            f_cnt_.push_back(std::make_shared<fScanPar>(*f_cit, scan_randomly_));
+            f_cnt_.push_back(std::make_shared<GFScanPar>(*f_cit, scan_randomly_));
         }
 
         // Retrieve integer parameters
@@ -1025,7 +1025,7 @@ void GParameterScan::setParameterSpecs(std::string par_str) {
         for(; i_cit != i_end;
             ++i_cit) { // Note: i_cit is already set to the begin of the double parameter arrays
             int32_cnt_.push_back(
-                std::make_shared<int32ScanPar>(*i_cit, scan_randomly_)
+                std::make_shared<GInt32ScanPar>(*i_cit, scan_randomly_)
             );
         }
 
@@ -1039,7 +1039,7 @@ void GParameterScan::setParameterSpecs(std::string par_str) {
         auto b_end = std::get<1>(t_b);
         for(; b_cit != b_end;
             ++b_cit) { // Note: b_cit is already set to the begin of the double parameter arrays
-            b_cnt_.push_back(std::make_shared<bScanPar>(*b_cit, scan_randomly_));
+            b_cnt_.push_back(std::make_shared<GBScanPar>(*b_cit, scan_randomly_));
         }
     }
 

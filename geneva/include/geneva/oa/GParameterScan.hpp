@@ -58,7 +58,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /** Indicates that all possible parameter values have been explored */
-class g_end_of_par : public std::exception {
+class GEndOfPar : public std::exception {
 public:
     using std::exception::exception;
 };
@@ -113,9 +113,9 @@ std::vector<double> fillWithData<double>(std::size_t n_steps, double lower, doub
 /**
  * An interface class for parameter scan objects
  */
-class scanParInterface {
+class GScanParInterface {
 public:
-    virtual ~scanParInterface() = default;
+    virtual ~GScanParInterface() = default;
     virtual gpar::NAMEANDIDTYPE getVarAddress() const = 0;
     virtual bool goToNextItem() = 0;
     virtual bool isAtTerminalPosition() const = 0;
@@ -131,9 +131,9 @@ public:
  * Basic parameter functionality
  */
 template <typename T>
-class baseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
+class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GPodContainerT<T>
-  , public scanParInterface {
+  , public GScanParInterface {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -158,7 +158,7 @@ public:
     /**
      * The standard constructor
      */
-    baseScanParT(
+    GBaseScanParT(
         gpar::parPropSpec<T> pps,
         bool random_scan,
         const std::string &t // type_description_
@@ -182,7 +182,7 @@ public:
      * Copy constructor. Not defaulted, so we can avoid copying of the
      * random number generator.
      */
-    baseScanParT(const baseScanParT<T> &cp)
+    GBaseScanParT(const GBaseScanParT<T> &cp)
       : var_(cp.var_)
       , step_(cp.step_)
       , n_steps_(cp.n_steps_)
@@ -196,7 +196,7 @@ public:
     /**
      * The destructor
      */
-    ~baseScanParT() override = default;
+    ~GBaseScanParT() override = default;
 
     /***************************************************************************/
     /**
@@ -288,7 +288,7 @@ protected:
 
     /***************************************************************************/
     /** @brief The default constructor -- only needed for de-serialization, hence protected */
-    baseScanParT()
+    GBaseScanParT()
       : var_(gpar::NAMEANDIDTYPE(0, "empty", 0))
       , step_(0)
       , n_steps_(2)
@@ -307,7 +307,7 @@ protected:
         // A trap. This function needs to be re-implemented for each supported type
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In baseScanParT::getRandomItem(): Error!" << '\n'
+            << "In GBaseScanParT::getRandomItem(): Error!" << '\n'
             << "Function called for unsupported type" << '\n'
         );
 
@@ -333,7 +333,7 @@ private:
  * Retrieval of a random value for type bool
  */
 template <>
-inline bool baseScanParT<bool>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
+inline bool GBaseScanParT<bool>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
     return uniform_bool_(gr);
 }
 
@@ -342,7 +342,7 @@ inline bool baseScanParT<bool>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
  * Retrieval of a random value for type float
  */
 template <>
-inline float baseScanParT<float>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
+inline float GBaseScanParT<float>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
     return uniform_float_distribution_(
         gr,
         std::uniform_real_distribution<float>::param_type(lower_, upper_)
@@ -354,7 +354,7 @@ inline float baseScanParT<float>::getRandomItem(Gem::Hap::GRandomBase &gr) const
  * Retrieval of a random value for type double
  */
 template <>
-inline double baseScanParT<double>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
+inline double GBaseScanParT<double>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
     return uniform_double_distribution_(
         gr,
         std::uniform_real_distribution<double>::param_type(lower_, upper_)
@@ -366,7 +366,7 @@ inline double baseScanParT<double>::getRandomItem(Gem::Hap::GRandomBase &gr) con
  * Retrieval of a random value for type std::int32_t
  */
 template <>
-inline std::int32_t baseScanParT<std::int32_t>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
+inline std::int32_t GBaseScanParT<std::int32_t>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
     return uniform_int_distribution_(
         gr,
         std::uniform_int_distribution<std::int32_t>::param_type(lower_, upper_ + 1)
@@ -379,8 +379,8 @@ inline std::int32_t baseScanParT<std::int32_t>::getRandomItem(Gem::Hap::GRandomB
 /**
  * This class holds boolean parameters
  */
-class bScanPar // NOLINT(cppcoreguidelines-special-member-functions)
-  : public baseScanParT<bool> {
+class GBScanPar // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GBaseScanParT<bool> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -389,7 +389,7 @@ class bScanPar // NOLINT(cppcoreguidelines-special-member-functions)
         using boost::serialization::make_nvp;
 
         ar &boost::serialization::make_nvp(
-            "baseScanParT_bool", boost::serialization::base_object<baseScanParT<bool>>(*this)
+            "baseScanParT_bool", boost::serialization::base_object<GBaseScanParT<bool>>(*this)
         );
     }
 
@@ -397,28 +397,28 @@ class bScanPar // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief Construction from local variables */
-    bScanPar(gpar::parPropSpec<bool>, bool);
+    GBScanPar(gpar::parPropSpec<bool>, bool);
     /** @brief Copy constructor */
-    bScanPar(const bScanPar &) = default;
+    GBScanPar(const GBScanPar &) = default;
     /** @brief The destructor */
-    ~bScanPar() override = default;
+    ~GBScanPar() override = default;
 
     /** @brief Cloning of this object */
-    std::shared_ptr<bScanPar> clone() const;
+    std::shared_ptr<GBScanPar> clone() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization, hence private */
-    bScanPar();
+    GBScanPar();
 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A derivative of baseScanParT for std::int32_t values
+ * A derivative of GBaseScanParT for std::int32_t values
  */
-class int32ScanPar // NOLINT(cppcoreguidelines-special-member-functions)
-  : public baseScanParT<std::int32_t> {
+class GInt32ScanPar // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GBaseScanParT<std::int32_t> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -427,7 +427,7 @@ class int32ScanPar // NOLINT(cppcoreguidelines-special-member-functions)
         using boost::serialization::make_nvp;
 
         ar &boost::serialization::make_nvp(
-            "baseScanParT_int32", boost::serialization::base_object<baseScanParT<std::int32_t>>(*this)
+            "baseScanParT_int32", boost::serialization::base_object<GBaseScanParT<std::int32_t>>(*this)
         );
     }
 
@@ -435,18 +435,18 @@ class int32ScanPar // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief The standard destructor */
-    int32ScanPar(gpar::parPropSpec<std::int32_t>, bool);
+    GInt32ScanPar(gpar::parPropSpec<std::int32_t>, bool);
     /** @brief Copy constructor */
-    int32ScanPar(const int32ScanPar &) = default;
+    GInt32ScanPar(const GInt32ScanPar &) = default;
     /** @brief The destructor */
-    ~int32ScanPar() override = default;
+    ~GInt32ScanPar() override = default;
 
     /** @brief Cloning of this object */
-    std::shared_ptr<int32ScanPar> clone() const;
+    std::shared_ptr<GInt32ScanPar> clone() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization, hence private */
-    int32ScanPar();
+    GInt32ScanPar();
 };
 
 /******************************************************************************/
@@ -455,8 +455,8 @@ private:
 /**
  * A derivative of fpScanParT for double values
  */
-class dScanPar // NOLINT(cppcoreguidelines-special-member-functions)
-  : public baseScanParT<double> {
+class GDScanPar // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GBaseScanParT<double> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -465,7 +465,7 @@ class dScanPar // NOLINT(cppcoreguidelines-special-member-functions)
         using boost::serialization::make_nvp;
 
         ar &boost::serialization::make_nvp(
-            "baseScanParT_double", boost::serialization::base_object<baseScanParT<double>>(*this)
+            "baseScanParT_double", boost::serialization::base_object<GBaseScanParT<double>>(*this)
         );
     }
 
@@ -473,18 +473,18 @@ class dScanPar // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief The standard destructor */
-    dScanPar(gpar::parPropSpec<double>, bool);
+    GDScanPar(gpar::parPropSpec<double>, bool);
     /** @brief The copy constructor */
-    dScanPar(const dScanPar &) = default;
+    GDScanPar(const GDScanPar &) = default;
     /** @brief The destructor */
-    ~dScanPar() override = default;
+    ~GDScanPar() override = default;
 
     /** @brief Cloning of this object */
-    std::shared_ptr<dScanPar> clone() const;
+    std::shared_ptr<GDScanPar> clone() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization, hence private */
-    dScanPar();
+    GDScanPar();
 };
 
 /******************************************************************************/
@@ -493,8 +493,8 @@ private:
 /**
  * A derivative of fpScanParT for float values
  */
-class fScanPar // NOLINT(cppcoreguidelines-special-member-functions)
-  : public baseScanParT<float> {
+class GFScanPar // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GBaseScanParT<float> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -503,7 +503,7 @@ class fScanPar // NOLINT(cppcoreguidelines-special-member-functions)
         using boost::serialization::make_nvp;
 
         ar &boost::serialization::make_nvp(
-            "baseScanParT_float", boost::serialization::base_object<baseScanParT<float>>(*this)
+            "baseScanParT_float", boost::serialization::base_object<GBaseScanParT<float>>(*this)
         );
     }
 
@@ -511,18 +511,18 @@ class fScanPar // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief The standard destructor */
-    fScanPar(gpar::parPropSpec<float>, bool);
+    GFScanPar(gpar::parPropSpec<float>, bool);
     /** @brief The copy constructor */
-    fScanPar(const fScanPar &) = default;
+    GFScanPar(const GFScanPar &) = default;
     /** @brief The destructor */
-    ~fScanPar() override = default;
+    ~GFScanPar() override = default;
 
     /** @brief Cloning of this object */
-    std::shared_ptr<fScanPar> clone() const;
+    std::shared_ptr<GFScanPar> clone() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization, hence private */
-    fScanPar();
+    GFScanPar();
 };
 
 /******************************************************************************/
@@ -599,7 +599,7 @@ private:
      *  - cycle_logic_halt_: a LOAD-ONLY transient (assigned in load_(), compared, but NOT
      *    serialized), kept manual in load_()/compare_() and out of serialize().
      *  - b_cnt_ / int32_cnt_ / d_cnt_ / f_cnt_: vectors of std::shared_ptr<...ScanPar>.
-     *    Their element type (bScanPar etc., via GContainerT/GPodContainerT) does NOT carry
+     *    Their element type (GBScanPar etc., via GContainerT/GPodContainerT) does NOT carry
      *    the Gemfony common interface, so they cannot use make_cloneable_container_member
      *    (which needs clone<T>()/load()/compare()); load_() deep-copies them with the
      *    scan classes' own clone(), and compare_() does not compare them at all. Hence
@@ -810,13 +810,13 @@ private:
     std::size_t n_monitor_inds_ =
         DEFAULTNMONITORINDS; ///< The number of best individuals of the entire run to be kept
 
-    std::vector<std::shared_ptr<bScanPar>> b_cnt_; ///< Holds boolean parameters to be scanned
-    std::vector<std::shared_ptr<int32ScanPar>>
+    std::vector<std::shared_ptr<GBScanPar>> b_cnt_; ///< Holds boolean parameters to be scanned
+    std::vector<std::shared_ptr<GInt32ScanPar>>
         int32_cnt_; ///< Holds 32 bit integer parameters to be scanned
-    std::vector<std::shared_ptr<dScanPar>> d_cnt_; ///< Holds double values to be scanned
-    std::vector<std::shared_ptr<fScanPar>> f_cnt_; ///< Holds float values to be scanned
+    std::vector<std::shared_ptr<GDScanPar>> d_cnt_; ///< Holds double values to be scanned
+    std::vector<std::shared_ptr<GFScanPar>> f_cnt_; ///< Holds float values to be scanned
 
-    std::vector<std::shared_ptr<scanParInterface>>
+    std::vector<std::shared_ptr<GScanParInterface>>
         all_par_cnt_; /// Holds pointers to all parameter objects
 
     std::size_t simple_scan_items_ =
@@ -829,9 +829,9 @@ private:
 
 } /* namespace Gem::Geneva::OptimizationAlgorithms */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::bScanPar)       // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::int32ScanPar)   // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::dScanPar)       // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::fScanPar)       // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GBScanPar)       // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GInt32ScanPar)   // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GDScanPar)       // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GFScanPar)       // NOLINT
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GParameterScan) // NOLINT
 
