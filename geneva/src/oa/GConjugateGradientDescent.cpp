@@ -72,6 +72,12 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 constexpr Gem::Geneva::Parameters::AuxKey AUXKEY_CGD_PREV_GRADIENT = 9;
 constexpr Gem::Geneva::Parameters::AuxKey AUXKEY_CGD_PREV_DIRECTION = 10;
 constexpr Gem::Geneva::Parameters::AuxKey AUXKEY_CGD_HISTORY_VALID = 11;
+// L-BFGS quasi-Newton state (only installed in LBFGS mode): the last m (s, y) curvature pairs, the
+// previous parameter vector, and the live pair count.
+constexpr Gem::Geneva::Parameters::AuxKey AUXKEY_CGD_LBFGS_S = 12;     // m*n doubles (s = x_k - x_{k-1})
+constexpr Gem::Geneva::Parameters::AuxKey AUXKEY_CGD_LBFGS_Y = 13;     // m*n doubles (y = g_k - g_{k-1})
+constexpr Gem::Geneva::Parameters::AuxKey AUXKEY_CGD_LBFGS_PREV_X = 14; // n doubles (x_{k-1})
+constexpr Gem::Geneva::Parameters::AuxKey AUXKEY_CGD_LBFGS_COUNT = 15;  // 1 (number of stored pairs, 0..m)
 
 /******************************************************************************/
 /**
@@ -246,6 +252,18 @@ void GConjugateGradientDescent::setCentralDifferences(bool central) {
 /** @brief Whether the central-difference gradient is in use. */
 bool GConjugateGradientDescent::getCentralDifferences() const {
     return central_differences_;
+}
+
+/******************************************************************************/
+/** @brief Sets the L-BFGS history size m (clamped to >= 1). */
+void GConjugateGradientDescent::setLBFGSMemory(std::size_t m) {
+    lbfgs_memory_ = (m == 0) ? 1 : m;
+}
+
+/******************************************************************************/
+/** @brief Retrieves the L-BFGS history size m. */
+std::size_t GConjugateGradientDescent::getLBFGSMemory() const {
+    return lbfgs_memory_;
 }
 
 /******************************************************************************/
@@ -551,6 +569,15 @@ void GConjugateGradientDescent::updateParentIndividuals() {
             cg_scratch.installAuxBlock<double>(AUXKEY_CGD_PREV_DIRECTION, n_fp_parms_first_, gpar::AuxScope::PerIndividual);
             cg_scratch.installAuxBlock<std::uint8_t>(AUXKEY_CGD_HISTORY_VALID, 1, gpar::AuxScope::PerIndividual);
         }
+        // In L-BFGS mode each starting point also keeps the last m (s, y) curvature pairs, the previous
+        // parameter vector and a live pair count. Installed lazily here as well, so a slot spliced in
+        // after a lost return picks up a clean (empty) history and restarts with steepest descent.
+        if(gradient_method_ == gradientMethod::LBFGS && not cg_scratch.hasAux(AUXKEY_CGD_LBFGS_COUNT)) {
+            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_S, lbfgs_memory_ * n_fp_parms_first_, gpar::AuxScope::PerIndividual);
+            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_Y, lbfgs_memory_ * n_fp_parms_first_, gpar::AuxScope::PerIndividual);
+            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_PREV_X, n_fp_parms_first_, gpar::AuxScope::PerIndividual);
+            cg_scratch.installAuxBlock<std::uint32_t>(AUXKEY_CGD_LBFGS_COUNT, 1, gpar::AuxScope::PerIndividual);
+        }
         std::span<double> prev_gradient = cg_scratch.metaRecords<double>(AUXKEY_CGD_PREV_GRADIENT);
         std::span<double> prev_direction = cg_scratch.metaRecords<double>(AUXKEY_CGD_PREV_DIRECTION);
         std::uint8_t &cg_valid = cg_scratch.metaScalar<std::uint8_t>(AUXKEY_CGD_HISTORY_VALID);
@@ -578,9 +605,100 @@ void GConjugateGradientDescent::updateParentIndividuals() {
             }
         }
 
-        // 2) Build the search direction: plain steepest descent, or the Polak-Ribiere+ conjugate
-        //    direction with Powell and periodic restarts.
+        // 2) Build the search direction: plain steepest descent, the Polak-Ribiere+ (or FR/HS/DY)
+        //    conjugate direction, or the L-BFGS quasi-Newton direction.
         std::vector<double> direction(n_fp_parms_first_, 0.);
+        if(gradient_method_ == gradientMethod::LBFGS) {
+            // L-BFGS (Nocedal & Wright, "Numerical Optimization", 2nd ed., Algorithm 7.4/7.5). The last
+            // m (s, y) pairs implicitly define an inverse-Hessian approximation H_k; the direction is
+            // -H_k g_k, recovered by the two-loop recursion without ever forming H_k.
+            std::span<double> s_hist = cg_scratch.metaRecords<double>(AUXKEY_CGD_LBFGS_S);
+            std::span<double> y_hist = cg_scratch.metaRecords<double>(AUXKEY_CGD_LBFGS_Y);
+            std::span<double> prev_x = cg_scratch.metaRecords<double>(AUXKEY_CGD_LBFGS_PREV_X);
+            std::uint32_t &count = cg_scratch.metaScalar<std::uint32_t>(AUXKEY_CGD_LBFGS_COUNT);
+            const std::size_t n = n_fp_parms_first_;
+
+            // 2a) Curvature update from the previous step (skipped on the first iteration / after a
+            //     restart, where there is no valid previous gradient or x). s = x_k - x_{k-1},
+            //     y = g_k - g_{k-1}; accept the pair only when s.y > 0 (the curvature condition that keeps
+            //     H_k positive definite), otherwise drop it. Newest pair is stored at slot count-1.
+            if(cg_valid && not periodic_restart) {
+                long double s_dot_y = 0.L;
+                for(std::size_t j = 0; j < n; j++) {
+                    s_dot_y += static_cast<long double>(parm_vec[j] - prev_x[j]) *
+                               static_cast<long double>(gradient[j] - prev_gradient[j]);
+                }
+                if(s_dot_y > std::numeric_limits<long double>::min()) {
+                    if(count == lbfgs_memory_) { // ring is full: drop the oldest pair (shift down by one)
+                        std::copy(s_hist.begin() + n, s_hist.end(), s_hist.begin());
+                        std::copy(y_hist.begin() + n, y_hist.end(), y_hist.begin());
+                        count = static_cast<std::uint32_t>(lbfgs_memory_ - 1);
+                    }
+                    const std::size_t slot = count * n;
+                    for(std::size_t j = 0; j < n; j++) {
+                        s_hist[slot + j] = parm_vec[j] - prev_x[j];
+                        y_hist[slot + j] = gradient[j] - prev_gradient[j];
+                    }
+                    count++;
+                }
+            }
+            else {
+                count = 0; // a (re)start clears the curvature history
+            }
+
+            // 2b) Two-loop recursion. With no pairs yet this yields plain steepest descent.
+            std::vector<double> q(gradient.begin(), gradient.end());
+            std::vector<double> rho(count, 0.);
+            std::vector<double> alpha(count, 0.);
+            for(std::size_t k = count; k-- > 0;) {
+                const std::size_t slot = k * n;
+                long double y_dot_s = 0.L, s_dot_q = 0.L;
+                for(std::size_t j = 0; j < n; j++) {
+                    y_dot_s += static_cast<long double>(y_hist[slot + j]) * s_hist[slot + j];
+                    s_dot_q += static_cast<long double>(s_hist[slot + j]) * q[j];
+                }
+                rho[k] = (y_dot_s > std::numeric_limits<long double>::min()) ? Gem::Common::narrow<double>(1.L / y_dot_s) : 0.;
+                alpha[k] = Gem::Common::narrow<double>(rho[k] * s_dot_q);
+                for(std::size_t j = 0; j < n; j++) {
+                    q[j] -= alpha[k] * y_hist[slot + j];
+                }
+            }
+            // Initial inverse-Hessian scaling gamma = (s_newest . y_newest) / (y_newest . y_newest);
+            // 1 when no pair is available, which makes the direction plain steepest descent.
+            double gamma = 1.;
+            if(count > 0) {
+                const std::size_t slot = (count - 1) * n;
+                long double s_dot_y = 0.L, y_dot_y = 0.L;
+                for(std::size_t j = 0; j < n; j++) {
+                    s_dot_y += static_cast<long double>(s_hist[slot + j]) * y_hist[slot + j];
+                    y_dot_y += static_cast<long double>(y_hist[slot + j]) * y_hist[slot + j];
+                }
+                if(y_dot_y > std::numeric_limits<long double>::min()) {
+                    gamma = Gem::Common::narrow<double>(s_dot_y / y_dot_y);
+                }
+            }
+            std::vector<double> r(n, 0.);
+            for(std::size_t j = 0; j < n; j++) {
+                r[j] = gamma * q[j];
+            }
+            for(std::size_t k = 0; k < count; k++) {
+                const std::size_t slot = k * n;
+                long double y_dot_r = 0.L;
+                for(std::size_t j = 0; j < n; j++) {
+                    y_dot_r += static_cast<long double>(y_hist[slot + j]) * r[j];
+                }
+                const double beta_k = Gem::Common::narrow<double>(rho[k] * y_dot_r);
+                for(std::size_t j = 0; j < n; j++) {
+                    r[j] += (alpha[k] - beta_k) * s_hist[slot + j];
+                }
+            }
+            for(std::size_t j = 0; j < n; j++) {
+                direction[j] = -r[j]; // -H_k g_k
+            }
+            // Remember x_k for the next curvature pair (prev_gradient is stored in step 6 as for CG).
+            std::copy(parm_vec.begin(), parm_vec.end(), prev_x.begin());
+        }
+        else {
         double beta = 0.;
         const bool want_conjugate = (gradient_method_ != gradientMethod::STEEPEST_DESCENT) &&
                                     cg_valid && not periodic_restart;
@@ -651,6 +769,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
             direction[j] =
                 -gradient[j] + (cg_valid ? beta * prev_direction[j] : 0.);
         }
+        } // end of the non-L-BFGS (steepest / conjugate-gradient) direction branch
 
         // 3) The directional derivative grad f . d must be negative for a descent direction. A stale
         //    conjugate direction occasionally fails this; fall back to steepest descent so the line
@@ -765,7 +884,15 @@ void GConjugateGradientDescent::addConfigurationOptions_(Gem::Common::GParserBui
         [this](int gm) { this->setGradientMethod(static_cast<gradientMethod>(gm)); }
     ) << "The search-direction rule: 0 = Polak-Ribiere+ conjugate gradient (the default)," << '\n'
       << "1 = plain steepest descent (the former \"gd\"), 2 = Fletcher-Reeves," << '\n'
-      << "3 = Hestenes-Stiefel+, 4 = Dai-Yuan";
+      << "3 = Hestenes-Stiefel+, 4 = Dai-Yuan, 5 = L-BFGS (limited-memory quasi-Newton)";
+
+    gpb.registerFileParameter<std::size_t>(
+        "lbfgs_memory",
+        DEFAULTCGDLBFGSMEMORY,
+        [this](std::size_t m) { this->setLBFGSMemory(m); }
+    ) << "The L-BFGS history size m (number of (s, y) curvature pairs kept per starting" << '\n'
+      << "point); only used when gradient_method = 5. Larger m approximates the inverse" << '\n'
+      << "Hessian better at the cost of m*n storage and O(m*n) work per iteration";
 
     gpb.registerFileParameter<bool>(
         "central_differences",
@@ -926,6 +1053,13 @@ void GConjugateGradientDescent::resetCGState() {
         scratch.installAuxBlock<double>(AUXKEY_CGD_PREV_DIRECTION, n_fp_parms_first_, gpar::AuxScope::PerIndividual);
         scratch.installAuxBlock<std::uint8_t>(AUXKEY_CGD_HISTORY_VALID, 1, gpar::AuxScope::PerIndividual);
         // installAuxBlock zero-initialises, so the gradient/direction are 0 and the flag is false.
+        if(gradient_method_ == gradientMethod::LBFGS) {
+            // The L-BFGS curvature history (last m (s, y) pairs, previous x, live pair count) starts empty.
+            scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_S, lbfgs_memory_ * n_fp_parms_first_, gpar::AuxScope::PerIndividual);
+            scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_Y, lbfgs_memory_ * n_fp_parms_first_, gpar::AuxScope::PerIndividual);
+            scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_PREV_X, n_fp_parms_first_, gpar::AuxScope::PerIndividual);
+            scratch.installAuxBlock<std::uint32_t>(AUXKEY_CGD_LBFGS_COUNT, 1, gpar::AuxScope::PerIndividual);
+        }
     }
 }
 

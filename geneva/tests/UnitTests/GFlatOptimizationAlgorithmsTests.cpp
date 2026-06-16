@@ -641,6 +641,33 @@ TEST_CASE("Conjugate gradient descent: central-difference gradient converges", "
 
 /******************************************************************************/
 
+TEST_CASE("Conjugate gradient descent: L-BFGS converges", "[flat][oa]") {
+    for(std::size_t m : {std::size_t(3), std::size_t(10)}) { // small and default history sizes
+        auto pop = std::make_shared<oa::GConjugateGradientDescent>();
+        pop->setNStartingPoints(1);
+        pop->setGradientMethod(oa::gradientMethod::LBFGS);
+        pop->setLBFGSMemory(m);
+        pop->setMaxIteration(500);
+        pop->setReportIteration(100000);
+        pop->push_back(FlatSphereWideOA().clone_unique());
+        pop->setLocalConsumer(oa::local_consumer_kind::serial);
+        pop->optimize();
+
+        CHECK(pop->getLBFGSMemory() == m);
+        auto best = pop->getBestGlobalIndividual<FlatSphereWideOA>();
+        REQUIRE(best);
+        std::vector<double> v;
+        best->streamline<double>(v);
+        double sphere = 0.;
+        for(double x : v) {
+            sphere += x * x;
+        }
+        CHECK(sphere < 10.0); // the quasi-Newton direction descends from f=45 like the CG variants
+    }
+}
+
+/******************************************************************************/
+
 TEST_CASE("Nelder-Mead optimizes a flat individual", "[flat][oa]") {
     auto pop = std::make_shared<oa::GNelderMead>();
     pop->setMaxIteration(200);

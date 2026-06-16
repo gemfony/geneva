@@ -71,7 +71,8 @@ enum class gradientMethod : std::uint8_t {
     STEEPEST_DESCENT = 1,  ///< Plain steepest descent (beta == 0)
     CONJUGATE_FR = 2,      ///< Fletcher-Reeves (beta = g.g / g_prev.g_prev)
     CONJUGATE_HS = 3,      ///< Hestenes-Stiefel+ (beta = g.(g-g_prev) / d_prev.(g-g_prev))
-    CONJUGATE_DY = 4       ///< Dai-Yuan (beta = g.g / d_prev.(g-g_prev))
+    CONJUGATE_DY = 4,      ///< Dai-Yuan (beta = g.g / d_prev.(g-g_prev))
+    LBFGS = 5              ///< Limited-memory BFGS quasi-Newton (two-loop recursion over the last m (s,y) pairs)
 };
 
 /** @brief Streams a gradientMethod (as its underlying integer); required by the comparison framework. */
@@ -102,6 +103,7 @@ std::istream &operator>>(std::istream &, errorEstimationMode &);
 constexpr std::size_t DEFAULTCGDSTARTINGPOINTS = 1;
 constexpr double DEFAULTCGDFINITESTEP = 0.001;
 constexpr double DEFAULTCGDSTEPSIZE = 0.1;
+constexpr std::size_t DEFAULTCGDLBFGSMEMORY = 10; ///< Default L-BFGS history size m (gradient_method = 5 only)
 
 /******************************************************************************/
 /**
@@ -140,7 +142,8 @@ class GConjugateGradientDescent // NOLINT(cppcoreguidelines-special-member-funct
             Gem::Common::make_member("gradient_method_", gradient_method_),
             Gem::Common::make_member("error_estimation_", error_estimation_),
             Gem::Common::make_member("error_up_", error_up_),
-            Gem::Common::make_member("central_differences_", central_differences_)
+            Gem::Common::make_member("central_differences_", central_differences_),
+            Gem::Common::make_member("lbfgs_memory_", lbfgs_memory_)
         );
     }
     auto localMembers() const {
@@ -152,7 +155,8 @@ class GConjugateGradientDescent // NOLINT(cppcoreguidelines-special-member-funct
             Gem::Common::make_member("gradient_method_", gradient_method_),
             Gem::Common::make_member("error_estimation_", error_estimation_),
             Gem::Common::make_member("error_up_", error_up_),
-            Gem::Common::make_member("central_differences_", central_differences_)
+            Gem::Common::make_member("central_differences_", central_differences_),
+            Gem::Common::make_member("lbfgs_memory_", lbfgs_memory_)
         );
     }
 
@@ -204,6 +208,13 @@ public:
     void setCentralDifferences(bool);
     /** @brief Whether the central-difference gradient is in use. */
     [[nodiscard]] bool getCentralDifferences() const;
+
+    /** @brief Sets the L-BFGS history size m (the number of (s, y) curvature pairs kept per starting
+     *  point). Only used when gradientMethod::LBFGS is selected. Larger m -> a better inverse-Hessian
+     *  approximation at the cost of m*n storage and O(m*n) work per step. Clamped to >= 1. */
+    void setLBFGSMemory(std::size_t);
+    /** @brief Retrieves the L-BFGS history size m. */
+    [[nodiscard]] std::size_t getLBFGSMemory() const;
 
     /** @brief Selects whether/how a MINUIT-style parameter-error estimate is computed at convergence */
     void setErrorEstimation(errorEstimationMode);
@@ -331,6 +342,8 @@ private:
         gradientMethod::CONJUGATE_PR_PLUS; ///< Conjugate (PR+) by default; STEEPEST_DESCENT == the former GD
 
     bool central_differences_ = false; ///< O(h^2) central gradient (two probes/direction) vs O(h) forward (one)
+
+    std::size_t lbfgs_memory_ = DEFAULTCGDLBFGSMEMORY; ///< L-BFGS history size m ((s,y) pairs kept); LBFGS mode only
 
     errorEstimationMode error_estimation_ =
         errorEstimationMode::NONE; ///< Whether to estimate parameter errors at convergence (opt-in)
