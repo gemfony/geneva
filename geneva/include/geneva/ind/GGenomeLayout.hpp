@@ -81,6 +81,13 @@ T foldConstrainedFP(const T &val, const T &lo, const T &hi) {
         );
     }
 
+    // A FROZEN parameter has lo == hi (a user may fix a parameter by setting equal bounds). The fold
+    // interval [lo, hi) is then empty and the region computation below would divide by (upper - lower) == 0.
+    // The only meaningful value of a collapsed range is that single point, so return it directly.
+    if(hi <= lo) {
+        return lo;
+    }
+
     const long double local_val = Gem::Common::narrow<long double>(val);
     const long double lower = Gem::Common::narrow<long double>(lo);
     const long double upper = Gem::Common::narrow<long double>(hi);

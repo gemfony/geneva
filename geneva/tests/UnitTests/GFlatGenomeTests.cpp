@@ -327,6 +327,12 @@ TEST_CASE("Constrained fold helpers map into range", "[flat]") {
         CHECK(f >= -10);
         CHECK(f <= 10);
     }
+
+    // FROZEN parameter: lo == hi is a degenerate/empty range; any value folds to that single point
+    // (no division by a zero range). Mirrors a user freezing a parameter by equal bounds.
+    CHECK(foldConstrainedFP<double>(4., 4., 4.) == 4.);
+    CHECK(foldConstrainedFP<double>(-7.3, 4., 4.) == 4.);
+    CHECK(foldConstrainedFP<double>(100., 4., 4.) == 4.);
 }
 
 /******************************************************************************/

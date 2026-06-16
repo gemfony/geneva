@@ -1257,11 +1257,12 @@ void GSwarmAlgorithm::pruneVelocity(std::vector<double> &vel_vec) {
     bool overflow_found = false;
     for(std::size_t i = 0; i < vel_vec.size(); i++) {
         if(dbl_vel_max_cnt_[i] <= 0.) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GSwarmAlgorithm::pruneVelocity(): Error!" << '\n'
-                << "Found invalid max value: " << dbl_vel_max_cnt_[i] << '\n'
-            );
+            // A frozen parameter (upper == lower, so the allowed velocity range l*(upper-lower) is 0)
+            // cannot move: clamp its velocity to zero and skip it. It can never exceed its zero
+            // allowance, and it must NOT contribute to max_percentage below (dividing by its zero max
+            // would be undefined). Freezing a parameter by equal bounds is a normal, supported use case.
+            vel_vec[i] = 0.;
+            continue;
         }
 
         if(std::abs(vel_vec[i]) > dbl_vel_max_cnt_[i]) {

@@ -249,6 +249,34 @@ protected:
     }
 };
 
+/**
+ * A flat individual with a FROZEN (equal-bound) parameter: two free constrained doubles in [-5, 5) plus
+ * one parameter fixed at 4 by equal bounds [4, 4]. Used to confirm an algorithm (here swarm, whose
+ * per-dimension velocity range is l*(upper-lower) == 0 for the frozen dim) tolerates a fixed parameter
+ * rather than crashing.
+ */
+class FlatFrozenOA : public gpar::GFlatIndividualT<FlatFrozenOA> {
+public:
+    FlatFrozenOA() {
+        gpar::GGenomeBuilder b;
+        b.addDoubleGroup(2, -5., 5.).init(3.0);
+        b.addDouble(4., 4., 4.); // a parameter frozen at 4 (lower == upper)
+        this->setGenome(b.build());
+    }
+    FlatFrozenOA(const FlatFrozenOA &) = default;
+
+protected:
+    double fitnessCalculation() override {
+        std::vector<double> v;
+        this->streamline<double>(v);
+        double s = 0.;
+        for(double x : v) {
+            s += x * x;
+        }
+        return s;
+    }
+};
+
 /** @brief Sphere value of the best individual, also asserting the constraints held. */
 double bestSphere(const std::shared_ptr<FlatSphereOA> &best) {
     std::vector<double> v;
@@ -446,6 +474,28 @@ TEST_CASE("Swarm optimization optimizes a flat individual", "[flat][oa]") {
     auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
     REQUIRE(best);
     CHECK(bestSphere(best) < 20.0);
+}
+
+/******************************************************************************/
+
+TEST_CASE("Swarm tolerates a frozen (equal-bound) parameter", "[flat][oa]") {
+    // Regression for the PSO crash on a fixed parameter: a dimension with upper == lower has a velocity
+    // range of l*(upper-lower) == 0; pruneVelocity() must clamp it to zero instead of throwing, and the
+    // constrained fold must map the frozen value to its single point instead of dividing by a zero range.
+    auto pop = std::make_shared<oa::GSwarmAlgorithm>();
+    pop->setSwarmSizes(3, 6);
+    pop->setMaxIteration(60);
+    pop->setReportIteration(100000);
+    pop->push_back(FlatFrozenOA().clone_unique());
+    pop->setLocalConsumer(oa::local_consumer_kind::serial);
+    CHECK_NOTHROW(pop->optimize()); // must NOT crash on the frozen dimension
+
+    auto best = pop->getBestGlobalIndividual<FlatFrozenOA>();
+    REQUIRE(best);
+    std::vector<double> v;
+    best->streamline<double>(v);
+    REQUIRE(v.size() == 3);
+    CHECK(v[2] == 4.); // the frozen parameter stayed exactly at its fixed value
 }
 
 /******************************************************************************/
