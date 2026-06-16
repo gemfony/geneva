@@ -66,21 +66,13 @@
 #include "geneva/Interface/GOptimizerIT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/oa/GBasePluggableOM.hpp" // the pluggable-monitor CRTP root (extracted from this header)
+#include "geneva/oa/GOptimizerExecutionPolicy.hpp" // local_consumer_kind + the courtier submission mechanism (D-3)
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
-/******************************************************************************/
-/**
- * Identifies which courtier LOCAL consumer an algorithm should submit through when courtier
- * routing is active (Phase-7 increment 1). Go2 maps the chosen parallelisation mnemonic onto one of
- * these and plumbs it into the algorithm via GOptimizationAlgorithmBase::setLocalConsumer(). "none" (the
- * default) means "do not route through courtier" -- the legacy executor path is used instead.
- */
-enum class local_consumer_kind {
-    none,         ///< Not routed through courtier (legacy executor path).
-    serial,       ///< Inline, single-threaded courtier consumer (mnemonic "sc").
-    multithreaded ///< Thread-pool courtier consumer (mnemonic "stc").
-};
+// local_consumer_kind and the courtier submission mechanism (broker / executor / local consumer +
+// late-return wiring) live in GOptimizerExecutionPolicy (D-3): the algorithm owns one and delegates
+// submission to it, rather than managing courtier plumbing itself.
 
 /******************************************************************************/
 // GBasePluggableOM -- the CRTP category root of all pluggable optimization monitors -- now lives in
@@ -312,8 +304,7 @@ public:
      * to a multithreaded local consumer.
      */
     void setLocalConsumer(local_consumer_kind kind, unsigned int n_threads = 0) {
-        local_kind_    = kind;
-        local_threads_ = n_threads;
+        exec_policy_.setLocalConsumer(kind, n_threads);
     }
 
     /** @brief Sets the number of threads used for parallel organizational work (adaption,
@@ -332,8 +323,7 @@ public:
      * state, neither serialized nor cloned; takes precedence over setLocalConsumer().
      */
     void setBroker(std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GOptimizableEntity>> broker) {
-        broker_          = std::move(broker);
-        external_broker_ = true;
+        exec_policy_.setBroker(std::move(broker));
     }
 
     /******************************************************************************/
@@ -762,16 +752,11 @@ private:
     std::vector<std::shared_ptr<GBasePluggableOM>>
         pluggable_monitors_cnt_; ///< A collection of monitors
 
-    // --- courtier submission (TRANSIENT, not serialized/cloned). The algorithm submits through
-    // courtier's span+policy executor; the broker/executor/consumer are lazily created on first use.
-    // For a LOCAL consumer the kind/thread-count are plumbed in via setLocalConsumer()
-    // (selecting GSerialConsumerT vs GStdThreadConsumerT); a ready networked broker is injected via
-    // setBroker(). init() defaults the kind to multithreaded when neither is set. ---
-    local_consumer_kind local_kind_ = local_consumer_kind::none; ///< Which local consumer (none == legacy path)
-    unsigned int local_threads_ = 0; ///< Thread-pool size for the multithreaded kind (0 == hardware concurrency)
-    bool external_broker_ = false; ///< True when Go2 injected a ready broker (networked) via setBroker()
-    std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GOptimizableEntity>> broker_;
-    std::shared_ptr<Gem::Courtier::GExecutorT<gpar::GOptimizableEntity>> executor_;
+    // --- courtier submission (TRANSIENT run state, not serialized/cloned -- a clone gets a fresh,
+    // unconfigured policy and re-establishes routing at setup). The algorithm delegates all courtier
+    // plumbing (broker / executor / local consumer lifecycle + late-return wiring) to this policy;
+    // configured via setLocalConsumer() / setBroker(), defaulted in init() via applyInitDefault(). ---
+    GOptimizerExecutionPolicy exec_policy_;
     /** @brief Submits the contiguous sub-range [start, end) of @p work_items through courtier. */
     Gem::Courtier::executor_status_t workOnViaConsumer_(
         std::vector<std::unique_ptr<gpar::GOptimizableEntity>> &work_items,
