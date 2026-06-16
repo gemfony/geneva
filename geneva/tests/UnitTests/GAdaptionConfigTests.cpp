@@ -207,6 +207,23 @@ TEST_CASE("GAdaption: runAdaptionKernels mutates within bounds (config-driven)",
             CHECK(x <= 10);
         }
         CHECK(before != after); // values actually moved
+
+        // ADAPTION-TIME FOLD invariant: the kernels fold each constrained value back into range at
+        // adaption time, so the STORED internal representation now equals the external one (it no longer
+        // drifts unbounded with the fold applied only on read). Verify the raw store == the streamlined
+        // external values, and is itself in range.
+        std::span<const double> store_d = ind.internalDoubleValues();
+        REQUIRE(store_d.size() == after.size());
+        for(std::size_t k = 0; k < after.size(); ++k) {
+            CHECK(store_d[k] == after[k]); // internal == external (folded at adaption time)
+            CHECK(store_d[k] >= -5.);
+            CHECK(store_d[k] < 5.);
+        }
+        std::span<const std::int32_t> store_i = ind.internalInt32Values();
+        REQUIRE(store_i.size() == iv.size());
+        for(std::size_t k = 0; k < iv.size(); ++k) {
+            CHECK(store_i[k] == iv[k]); // internal == external for ints too
+        }
     }
 }
 

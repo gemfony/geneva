@@ -82,8 +82,11 @@ namespace Gem::Geneva::Parameters {
  * Value access is genome-agnostic: GFlatGenome implements the DM §2 per-type channel virtuals
  * declared on GOptimizableEntity (streamline_/assignValueVector_/countParameters*_/boundaries_), so
  * the optimization algorithms read and write parameter values identically to the tree, without a
- * downcast. Constrained values are stored in their unbounded *internal* representation and folded
- * into their external range on read (mirroring GConstrainedFPT / GConstrainedIntT exactly).
+ * downcast. Constrained values are folded into their external range at ADAPTION time (the adaption
+ * kernels add to the value, then foldConstrainedValuesInPlace() folds it back into [lo, hi) before it
+ * is stored), so the stored representation stays in range and equals the external value. Read access
+ * (streamline) still folds defensively -- a no-op fast path for an in-range value -- so a value that
+ * arrives out of range by some other path (e.g. a legacy deserialised genome) is still corrected.
  */
 class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizableEntity {
@@ -205,6 +208,17 @@ public:
         return streamlineIntoImpl<std::int32_t>(dst, layout_->i, iv_, am);
     }
 
+    /** @brief Adaption-time fold: rewrites every CONSTRAINED stored value to its external (range-folded)
+     *  representation, so the stored internal == external. Called by the OA adaption driver right after
+     *  the adaption kernels run, so a constrained value never drifts unboundedly outside [lo, hi) between
+     *  generations (unbounded "plain" parameters are left untouched). The bool channel is always valid
+     *  (0/1), so it is not folded. */
+    void foldConstrainedValuesInPlace() {
+        foldChannelInPlace<double>(layout_->d, dv_);
+        foldChannelInPlace<float>(layout_->f, fv_);
+        foldChannelInPlace<std::int32_t>(layout_->i, iv_);
+    }
+
     /***************************************************************************/
     // Deleted functions
 
@@ -324,6 +338,16 @@ private:
             }
         }
         return n;
+    }
+
+    /** @brief Normalises every value of a channel to its external (range-folded) representation IN THE
+     *  STORE -- the adaption-time fold. externalValue() is identity for unbounded parameters, so only
+     *  constrained values are folded back into [lo, hi). After this the stored internal == external. */
+    template <typename T>
+    static void foldChannelInPlace(ChannelLayout<T> const &ch, std::vector<T> &store) {
+        for(std::size_t k = 0; k < store.size(); ++k) {
+            store[k] = externalValue<T>(ch, store[k], k);
+        }
     }
 
     template <typename T>
