@@ -75,136 +75,86 @@ std::ostream &operator<<(std::ostream &os, const CircleTriangle &ct) {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
-	 * Fills the individual with parameters. Our parameter set consists of nTriangles GParameterObjectCollection
-	 * objects. Each holds 10 parameters:
-	 * - a GConstrainedDoubleCollection holding the middle of a circle
-	 * - a single GConstrainedDoubleObject for the radius
-	 * - a GConstrainedDoubleCollection holding three angles which point to the corners of the triangle (on the circles edge).
-	 * - a GConstrainedDoubleCollection for the three colors
-	 * - a single GConstrainedDoubleObject for the alpha channel
-	 *
-	 * @param startSize The initial size of triangles
-	 * @param minSize The minimum size of triangles
-	 * @param maxSize The maximum size of triangles
-	 * @param sigma The step-width used for Gauss-Adaptions
-	 * @param sigmaSigma Indicates the level of adaption of sigma
-	 * @param minSigma The minimum allowed value for sigma
-	 * @param maxSigma The maximum allowed value for sigma
-	 * @param minOpaqueness The minimum opaqueness allowed for objects
-	 * @param maxOpaqueness The maximum opaqueness allowed for objects
-	 * @param adProb Specifies the adaption probability for adaptors
-	 * @param nTriangles The number of triangles constituting a candidate image
-	 * @param alphaSort Whether triangles should be sorted according to their alpha channel
+	 * Builds the flat genome's STRUCTURE for one candidate image. The genome holds 10 contiguous values
+	 * per triangle -- cx, cy, radius, angle1..3, r, g, b, a -- followed by the 3 background colours, all
+	 * constrained gimage_fp_t in their own Gauss group; the centre (cx, cy) groups carry the "loc" label
+	 * and everything else "main", so applyConfig() can author the matching OA-owned Gauss adaptor by label.
+	 * The configured ranges are validated up front (formerly at the top of init()).
 	 */
-void GImageIndividual::init(
-    const std::size_t &nTriangles,
-    const double &bgRed,
-    const double &bgGreen,
-    const double &bgBlue,
-    const double &startSize,
-    const double &minSize,
-    const double &maxSize,
-    const double &minOpaqueness,
-    const double &maxOpaqueness,
-    const bool &alphaSort,
-    const bool &changeBGColor,
-    const bool &mutateAlphaChannel,
-    const double &sigma,
-    const double &sigmaSigma,
-    const double &minSigma,
-    const double &maxSigma,
-    const double &adProb,
-    const double &adaptAdProb,
-    const double &minAdProb,
-    const double &maxAdProb,
-    const double &loc_sigma,
-    const double &loc_sigmaSigma,
-    const double &loc_minSigma,
-    const double &loc_maxSigma,
-    const double &loc_adProb,
-    const double &loc_adaptAdProb,
-    const double &loc_minAdProb,
-    const double &loc_maxAdProb
-) {
-    if(minSize < 0. || maxSize > 1. || minSize >= maxSize) {
+gpar::Genome GImageIndividual::buildGenome(const Config &c) {
+    if(c.min_size < 0. || c.max_size > 1. || c.min_size >= c.max_size) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GImageIndividual::init() : Error!" << '\n'
-            << "Invalid values for minSize and maxSize provided: " << minSize << " / " << maxSize
-            << '\n'
+            << "In GImageIndividual::buildGenome() : Error!" << '\n'
+            << "Invalid values for minSize and maxSize provided: " << c.min_size << " / "
+            << c.max_size << '\n'
         );
     }
 
     // A startSize < 0 means random initialization in the range [minSize, maxSize]
-    if(startSize >= 0. && startSize < minSize) {
+    if(c.start_size >= 0. && c.start_size < c.min_size) {
         // Cannot be < 0 as minSize may not be <= 0
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GImageIndividual::init() : Error!" << '\n'
-            << "Invalid values for minSize and startSize provided: " << minSize << " / "
-            << startSize << '\n'
+            << "In GImageIndividual::buildGenome() : Error!" << '\n'
+            << "Invalid values for minSize and startSize provided: " << c.min_size << " / "
+            << c.start_size << '\n'
         );
     }
 
-    if(startSize > maxSize) {
+    if(c.start_size > c.max_size) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GImageIndividual::init() : Error!" << '\n'
-            << "Invalid values for maxSize and startSize provided: " << maxSize << " / "
-            << startSize << '\n'
+            << "In GImageIndividual::buildGenome() : Error!" << '\n'
+            << "Invalid values for maxSize and startSize provided: " << c.max_size << " / "
+            << c.start_size << '\n'
         );
     }
 
-    if(adaptAdProb < 0. || adaptAdProb > 1.) {
+    if(c.adapt_ad_prob < 0. || c.adapt_ad_prob > 1.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GImageIndividual::init() : Error!" << '\n'
-            << "Invalid value for adaptAdProb provided: " << adaptAdProb << '\n'
+            << "In GImageIndividual::buildGenome() : Error!" << '\n'
+            << "Invalid value for adaptAdProb provided: " << c.adapt_ad_prob << '\n'
         );
     }
 
-    if(loc_adaptAdProb < 0. || loc_adaptAdProb > 1.) {
+    if(c.loc_adapt_ad_prob < 0. || c.loc_adapt_ad_prob > 1.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GImageIndividual::init() : Error!" << '\n'
-            << "Invalid value for loc_adaptAdProb provided: " << loc_adaptAdProb << '\n'
+            << "In GImageIndividual::buildGenome() : Error!" << '\n'
+            << "Invalid value for loc_adaptAdProb provided: " << c.loc_adapt_ad_prob << '\n'
         );
     }
 
-    if(minAdProb >= maxAdProb || minAdProb < 0. || maxAdProb > 1. || adProb < minAdProb ||
-       adProb > maxAdProb) {
+    if(c.min_ad_prob >= c.max_ad_prob || c.min_ad_prob < 0. || c.max_ad_prob > 1. ||
+       c.ad_prob < c.min_ad_prob || c.ad_prob > c.max_ad_prob) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GImageIndividual::init() : Error!" << '\n'
-            << "Invalid values for minAdprob, maxAdProb or adProb provided: " << minAdProb << " / "
-            << maxAdProb << " / " << adProb << '\n'
+            << "In GImageIndividual::buildGenome() : Error!" << '\n'
+            << "Invalid values for minAdprob, maxAdProb or adProb provided: " << c.min_ad_prob
+            << " / " << c.max_ad_prob << " / " << c.ad_prob << '\n'
         );
     }
 
-    if(loc_minAdProb >= loc_maxAdProb || loc_minAdProb < 0. || loc_maxAdProb > 1. ||
-       loc_adProb < loc_minAdProb || loc_adProb > loc_maxAdProb) {
+    if(c.loc_min_ad_prob >= c.loc_max_ad_prob || c.loc_min_ad_prob < 0. || c.loc_max_ad_prob > 1. ||
+       c.loc_ad_prob < c.loc_min_ad_prob || c.loc_ad_prob > c.loc_max_ad_prob) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GImageIndividual::init() : Error!" << '\n'
+            << "In GImageIndividual::buildGenome() : Error!" << '\n'
             << "Invalid values for loc_minAdprob, loc_maxAdProb or loc_adProb provided: "
-            << loc_minAdProb << " / " << loc_maxAdProb << " / " << loc_adProb << '\n'
+            << c.loc_min_ad_prob << " / " << c.loc_max_ad_prob << " / " << c.loc_ad_prob << '\n'
         );
     }
-
-    nTriangles_ = nTriangles;
-    alphaSort_ = alphaSort;
-    mutateAlphaChannel_ = mutateAlphaChannel;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Create suitable adaptors
-
     // Build the flat genome via GGenomeBuilder. The streamline order matches the historical tree's
     // push_back order exactly -- per triangle: cx, cy, radius, angle1..3, r, g, b, a (10 values), then
     // the 3 background colours -- so getTriangleData() / getBackGroundColor() / the GPU marshaller read
     // it positionally and the rasteriser is unchanged. Every value is a constrained gimage_fp_t with
     // its own Gauss group (the tree gave each parameter its own cloned adaptor); the location params
     // (cx, cy) use the "loc" adaptor config, everything else the main one.
-    changeBGColor_ = changeBGColor;
+    const std::size_t nTriangles = c.n_triangles;
 
     gpar::GGenomeBuilder bld;
 
@@ -217,13 +167,13 @@ void GImageIndividual::init(
             return bld.addDouble(init, lo, hi);
         }
     };
-    // The Gauss adaptors live on the OA-owned config (built below), not the genome layout. Tag each group
-    // with its adaptor class -- "main" (size / angles / colours / alpha / background) or "loc" (centre x/y)
-    // -- so the config can author the matching adaptor onto them by label.
+    // The Gauss adaptors live on the OA-owned config (authored in applyConfig()), not the genome layout.
+    // Tag each group with its adaptor class -- "main" (size / angles / colours / alpha / background) or
+    // "loc" (centre x/y) -- so the config can author the matching adaptor onto them by label.
     auto mainGauss = [](gpar::ParamHandle<gimage_fp_t> &h) { h.label("main"); };
     auto locGauss = [](gpar::ParamHandle<gimage_fp_t> &h) { h.label("loc"); };
 
-    for(std::size_t t_cnt = 0; t_cnt < nTriangles_; t_cnt++) {
+    for(std::size_t t_cnt = 0; t_cnt < nTriangles; t_cnt++) {
         // middle-x and -y: the location adaptor.
         auto cx = addParam(gimage_fp_t(0), gimage_fp_t(0), gimage_fp_t(1));
         locGauss(cx);
@@ -232,9 +182,9 @@ void GImageIndividual::init(
 
         // radius: startSize >= 0 seeds it (else random init below); the main adaptor.
         const gimage_fp_t radius_init =
-            static_cast<gimage_fp_t>(startSize >= 0. ? startSize : minSize);
+            static_cast<gimage_fp_t>(c.start_size >= 0. ? c.start_size : c.min_size);
         auto rad = addParam(
-            radius_init, static_cast<gimage_fp_t>(minSize), static_cast<gimage_fp_t>(maxSize)
+            radius_init, static_cast<gimage_fp_t>(c.min_size), static_cast<gimage_fp_t>(c.max_size)
         );
         mainGauss(rad);
 
@@ -256,12 +206,12 @@ void GImageIndividual::init(
 
         // alpha channel: frozen at maxOpaqueness unless alpha mutation is enabled.
         auto ca = addParam(
-            static_cast<gimage_fp_t>(maxOpaqueness),
-            static_cast<gimage_fp_t>(minOpaqueness),
-            static_cast<gimage_fp_t>(maxOpaqueness)
+            static_cast<gimage_fp_t>(c.max_opaqueness),
+            static_cast<gimage_fp_t>(c.min_opaqueness),
+            static_cast<gimage_fp_t>(c.max_opaqueness)
         );
         mainGauss(ca);
-        if(not mutateAlphaChannel) {
+        if(not c.mutate_alpha_channel) {
             ca.adaptionMode(adaptionMode::NEVER);
         }
     }
@@ -274,37 +224,47 @@ void GImageIndividual::init(
         const gimage_fp_t init = static_cast<gimage_fp_t>(bgVal >= 0. ? bgVal : 0.);
         auto h = addParam(init, gimage_fp_t(0), gimage_fp_t(1));
         mainGauss(h);
-        if(not changeBGColor) {
+        if(not c.change_bg_color) {
             h.adaptionMode(adaptionMode::NEVER);
         }
     };
-    addBg(bgRed);
-    addBg(bgGreen);
-    addBg(bgBlue);
+    addBg(c.bg_red);
+    addBg(c.bg_green);
+    addBg(c.bg_blue);
 
-    std::cout << (changeBGColor ? "Background colors will be adapted"
-                                : "Background colors will not be adapted")
+    std::cout << (c.change_bg_color ? "Background colors will be adapted"
+                                    : "Background colors will not be adapted")
               << '\n';
 
-    // Install the value arrays + shared layout, then randomly initialise the ACTIVE parameters within
-    // their bounds (mirroring the tree's random-init constructors). Inactive groups (frozen alpha /
-    // frozen background) keep their seeds.
-    this->setGenome(bld.build());
-    this->randomInit(activityMode::ACTIVEONLY);
+    return bld.build();
+}
 
-    // Author the OA-owned adaption config from the labelled genome: the location adaptor on the "loc"
-    // (centre) groups and the main adaptor on every "main" group. The frozen alpha / background groups are
-    // labelled "main" too but were built adaptionMode::NEVER (inactive), so the adaption kernel skips them
-    // -- exactly as the former per-group gaussAdaptor + NEVER did.
+/******************************************************************************/
+/**
+	 * Per-object post-config hook. The factory installs the shared, structure-only genome (above) on the
+	 * produced individual; this then sets the individual's local members, randomly initialises the ACTIVE
+	 * parameters within their bounds (inactive frozen-alpha / frozen-background groups keep their seeds),
+	 * and authors the OA-owned adaption config from the labelled genome: the location adaptor on the "loc"
+	 * (centre) groups and the main adaptor on every "main" group. The frozen alpha / background groups are
+	 * labelled "main" too but were built adaptionMode::NEVER (inactive), so the adaption kernel skips them.
+	 */
+void GImageIndividual::applyConfig(GImageIndividual &ind, const Config &c) {
+    ind.nTriangles_ = c.n_triangles;
+    ind.alphaSort_ = c.alpha_sort;
+    ind.mutateAlphaChannel_ = c.mutate_alpha_channel;
+    ind.changeBGColor_ = c.change_bg_color;
+
+    ind.randomInit(activityMode::ACTIVEONLY);
+
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
-    adaption_config_ = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
-    adaption_config_->forLabel("loc").gauss(
-        loc_sigma, loc_sigmaSigma, loc_minSigma, loc_maxSigma, loc_adProb, loc_adaptAdProb, 1,
-        adaptionMode::WITHPROBABILITY, loc_minAdProb, loc_maxAdProb
+    ind.adaption_config_ = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(ind);
+    ind.adaption_config_->forLabel("loc").gauss(
+        c.loc_sigma, c.loc_sigma_sigma, c.loc_min_sigma, c.loc_max_sigma, c.loc_ad_prob,
+        c.loc_adapt_ad_prob, 1, adaptionMode::WITHPROBABILITY, c.loc_min_ad_prob, c.loc_max_ad_prob
     );
-    adaption_config_->forLabel("main").gauss(
-        sigma, sigmaSigma, minSigma, maxSigma, adProb, adaptAdProb, 1, adaptionMode::WITHPROBABILITY,
-        minAdProb, maxAdProb
+    ind.adaption_config_->forLabel("main").gauss(
+        c.sigma, c.sigma_sigma, c.min_sigma, c.max_sigma, c.ad_prob, c.adapt_ad_prob, 1,
+        adaptionMode::WITHPROBABILITY, c.min_ad_prob, c.max_ad_prob
     );
 }
 
@@ -568,38 +528,14 @@ void GImageIndividual::specificTestsFailuresExpected_GUnitTests_() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
-	 * A constructor with the ability to switch the parallelization mode. It initializes a
-	 * target item as needed.
-	 *
-	 * @param configFile The name of the configuration file
-	 */
-GImageIndividualFactory::GImageIndividualFactory(const std::string &configFile)
-  : Gem::Common::GFactoryT<GImageIndividual>(configFile) {
-    /* nothing */
-}
+ * Registers the config-file options, binding them to the passed Config. This is the body of the former
+ * GImageIndividualFactory::describeLocalOptions_, now binding plain Config fields instead of
+ * GOneTimeRefParameterT references. The checkValueRange() guards (which validate the defaults at
+ * registration time) are preserved verbatim.
+ */
+void GImageIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
+    using namespace Gem::Common;
 
-/******************************************************************************/
-/**
-	 * Creates items of this type
-	 *
-	 * @return Items of the desired type
-	 */
-std::shared_ptr<GImageIndividual>
-GImageIndividualFactory::getObject_(Gem::Common::GParserBuilder &gpb, const std::size_t &id) {
-    // Will hold the result
-    std::shared_ptr<GImageIndividual> target(new GImageIndividual());
-
-    // Make the object's local configuration options known
-    target->addConfigurationOptions(gpb);
-
-    return target;
-}
-
-/******************************************************************************/
-/**
-	 * Allows to describe local configuration options for the image individual
-	 */
-void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &gpb) {
     // Describe our own options
     using namespace Gem::Courtier;
     using namespace Gem::Common;
@@ -611,26 +547,26 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "The allowed value range is [0,maxSize[;";
     gpb.registerFileParameter<double>(
         "min_size",
-        minSize_.reference(),
+        c.min_size,
         GII_DEF_MINSIZE,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
-    checkValueRange(minSize_.value(), 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "min_size");
+    checkValueRange(c.min_size, 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "min_size");
 
     comment = "";
     comment += "The maximum size of the triangle in percent of the canvas;";
     comment += "The allowed value range is ]minSize,1];";
     gpb.registerFileParameter<double>(
         "max_size",
-        maxSize_.reference(),
+        c.max_size,
         GII_DEF_MAXSIZE,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
     checkValueRange(
-        maxSize_.value(),
-        minSize_.value(),
+        c.max_size,
+        c.min_size,
         1.,
         GFPLOWEROPEN,
         GFPUPPEROPEN,
@@ -644,18 +580,18 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "A value < 0 means random in the range [minSize,maxSize];";
     gpb.registerFileParameter<double>(
         "start_size",
-        startSize_.reference(),
+        c.start_size,
         GII_DEF_MINSIZE,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
 
     // A value < 0 means random in the range [minSize,maxSize]
-    if(startSize_.value() >= 0.) {
+    if(c.start_size >= 0.) {
         checkValueRange(
-            startSize_.value(),
-            minSize_.value(),
-            maxSize_.value(),
+            c.start_size,
+            c.min_size,
+            c.max_size,
             GFPLOWERCLOSED,
             GFPUPPEROPEN,
             GFNOWARNING,
@@ -668,13 +604,13 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "The allowed value range is [0,maxOpaqueness];";
     gpb.registerFileParameter<double>(
         "min_opaqueness",
-        minOpaqueness_.reference(),
+        c.min_opaqueness,
         GII_DEF_MINOPAQUENESS,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
     checkValueRange(
-        minOpaqueness_.value(),
+        c.min_opaqueness,
         0.,
         1.,
         GFPLOWERCLOSED,
@@ -688,14 +624,14 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "The allowed value range is [minOpaqueness,1];";
     gpb.registerFileParameter<double>(
         "max_opaqueness",
-        maxOpaqueness_.reference(),
+        c.max_opaqueness,
         GII_DEF_MAXOPAQUENESS,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
     checkValueRange(
-        maxOpaqueness_.value(),
-        minOpaqueness_.value(),
+        c.max_opaqueness,
+        c.min_opaqueness,
         1.,
         GFPLOWEROPEN,
         GFPUPPEROPEN,
@@ -708,7 +644,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
         "Determines the rate of adaption of adProb. Set to 0, if you do not need this feature;";
     gpb.registerFileParameter<double>(
         "adapt_ad_prob",
-        adaptAdProb_.reference(),
+        c.adapt_ad_prob,
         GII_DEF_ADAPTADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -719,7 +655,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
                "this feature;";
     gpb.registerFileParameter<double>(
         "loc_adapt_ad_prob",
-        loc_adaptAdProb_.reference(),
+        c.loc_adapt_ad_prob,
         GII_DEF_LOC_ADAPTADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -729,13 +665,13 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "The lower allowed boundary for adProb-variation;";
     gpb.registerFileParameter<double>(
         "min_ad_prob",
-        minAdProb_.reference(),
+        c.min_ad_prob,
         GII_DEF_MINADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
     checkValueRange(
-        minAdProb_.value(),
+        c.min_ad_prob,
         0.,
         1.,
         GFPLOWERCLOSED,
@@ -748,14 +684,14 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "The upper allowed boundary for adProb-variation;";
     gpb.registerFileParameter<double>(
         "max_ad_prob",
-        maxAdProb_.reference(),
+        c.max_ad_prob,
         GII_DEF_MAXADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
     checkValueRange(
-        maxAdProb_.value(),
-        minAdProb_.value(),
+        c.max_ad_prob,
+        c.min_ad_prob,
         1.,
         GFPLOWERCLOSED,
         GFPUPPERCLOSED,
@@ -767,13 +703,13 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "The lower allowed boundary for loc_adProb-variation;";
     gpb.registerFileParameter<double>(
         "loc_min_ad_prob",
-        loc_minAdProb_.reference(),
+        c.loc_min_ad_prob,
         GII_DEF_LOC_MINADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
     checkValueRange(
-        loc_minAdProb_.value(),
+        c.loc_min_ad_prob,
         0.,
         1.,
         GFPLOWERCLOSED,
@@ -786,14 +722,14 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "The upper allowed boundary for loc_adProb-variation;";
     gpb.registerFileParameter<double>(
         "loc_max_ad_prob",
-        loc_maxAdProb_.reference(),
+        c.loc_max_ad_prob,
         GII_DEF_LOC_MAXADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
     checkValueRange(
-        loc_maxAdProb_.value(),
-        loc_minAdProb_.value(),
+        c.loc_max_ad_prob,
+        c.loc_min_ad_prob,
         1.,
         GFPLOWERCLOSED,
         GFPUPPERCLOSED,
@@ -806,15 +742,15 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "The allowed value range is [0,1];";
     gpb.registerFileParameter<double>(
         "ad_prob",
-        adProb_.reference(),
+        c.ad_prob,
         GII_DEF_ADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
     checkValueRange(
-        adProb_.value(),
-        minAdProb_.value(),
-        maxAdProb_.value(),
+        c.ad_prob,
+        c.min_ad_prob,
+        c.max_ad_prob,
         GFPLOWERCLOSED,
         GFPUPPERCLOSED,
         GFNOWARNING,
@@ -827,15 +763,15 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "The allowed value range is [0,1];";
     gpb.registerFileParameter<double>(
         "loc_ad_prob",
-        loc_adProb_.reference(),
+        c.loc_ad_prob,
         GII_DEF_LOC_ADPROB,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
     checkValueRange(
-        loc_adProb_.value(),
-        loc_minAdProb_.value(),
-        loc_maxAdProb_.value(),
+        c.loc_ad_prob,
+        c.loc_min_ad_prob,
+        c.loc_max_ad_prob,
         GFPLOWERCLOSED,
         GFPUPPERCLOSED,
         GFNOWARNING,
@@ -848,25 +784,25 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "Recommended value range [0,1];";
     gpb.registerFileParameter<double>(
         "sigma",
-        sigma_.reference(),
+        c.sigma,
         GII_DEF_SIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
-    checkValueRange(sigma_.value(), 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "sigma");
+    checkValueRange(c.sigma, 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "sigma");
 
     comment = "";
     comment += "The minimum value of sigma;";
     comment += "minSigma must be positive and smaller than maxSigma;";
     gpb.registerFileParameter<double>(
         "min_sigma",
-        minSigma_.reference(),
+        c.min_sigma,
         GII_DEF_MINSIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
     checkValueRange(
-        minSigma_.value(),
+        c.min_sigma,
         0.,
         1.,
         GFPLOWERCLOSED,
@@ -880,14 +816,14 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "maxSigma must be positive and larger than minSigma;";
     gpb.registerFileParameter<double>(
         "max_sigma",
-        maxSigma_.reference(),
+        c.max_sigma,
         GII_DEF_MAXSIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
     checkValueRange(
-        maxSigma_.value(),
-        minSigma_.value(),
+        c.max_sigma,
+        c.min_sigma,
         1.,
         GFPLOWEROPEN,
         GFPUPPEROPEN,
@@ -901,13 +837,13 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "The allowed value range is [0,1];";
     gpb.registerFileParameter<double>(
         "sigma_sigma",
-        sigmaSigma_.reference(),
+        c.sigma_sigma,
         GII_DEF_SIGMASIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
     checkValueRange(
-        sigmaSigma_.value(),
+        c.sigma_sigma,
         0.,
         1.,
         GFPLOWERCLOSED,
@@ -922,13 +858,13 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "Recommended value range [0,1];";
     gpb.registerFileParameter<double>(
         "loc_sigma",
-        loc_sigma_.reference(),
+        c.loc_sigma,
         GII_DEF_LOC_SIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
     checkValueRange(
-        loc_sigma_.value(),
+        c.loc_sigma,
         0.,
         1.,
         GFPLOWERCLOSED,
@@ -942,13 +878,13 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "loc_minSigma must be positive and smaller than loc_maxSigma;";
     gpb.registerFileParameter<double>(
         "loc_min_sigma",
-        loc_minSigma_.reference(),
+        c.loc_min_sigma,
         GII_DEF_LOC_MINSIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
     checkValueRange(
-        loc_minSigma_.value(),
+        c.loc_min_sigma,
         0.,
         1.,
         GFPLOWERCLOSED,
@@ -962,14 +898,14 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "loc_maxSigma must be positive and larger than loc_minSigma;";
     gpb.registerFileParameter<double>(
         "loc_max_sigma",
-        loc_maxSigma_.reference(),
+        c.loc_max_sigma,
         GII_DEF_LOC_MAXSIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
     checkValueRange(
-        loc_maxSigma_.value(),
-        loc_minSigma_.value(),
+        c.loc_max_sigma,
+        c.loc_min_sigma,
         1.,
         GFPLOWEROPEN,
         GFPUPPEROPEN,
@@ -983,13 +919,13 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "The allowed value range is [0,1];";
     gpb.registerFileParameter<double>(
         "loc_sigma_sigma",
-        loc_sigmaSigma_.reference(),
+        c.loc_sigma_sigma,
         GII_DEF_LOC_SIGMASIGMA,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
     checkValueRange(
-        loc_sigmaSigma_.value(),
+        c.loc_sigma_sigma,
         0.,
         1.,
         GFPLOWERCLOSED,
@@ -1004,12 +940,12 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "Otherwise the allowed value range is [0.,1.];";
     gpb.registerFileParameter<double>(
         "bg_red",
-        bgRed_.reference(),
+        c.bg_red,
         GII_DEF_BGRED,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
-    checkValueRange(bgRed_.value(), 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "bg_red");
+    checkValueRange(c.bg_red, 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "bg_red");
 
     comment = "";
     comment += "The initial background color (green channel);";
@@ -1017,12 +953,12 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "Otherwise the allowed value range is [0.,1.];";
     gpb.registerFileParameter<double>(
         "bg_green",
-        bgGreen_.reference(),
+        c.bg_green,
         GII_DEF_BGGREEN,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
-    checkValueRange(bgGreen_.value(), 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "bg_green");
+    checkValueRange(c.bg_green, 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "bg_green");
 
     comment = "";
     comment += "The initial background color (blue channel);";
@@ -1030,12 +966,12 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "Otherwise the allowed value range is [0.,1.];";
     gpb.registerFileParameter<double>(
         "bg_blue",
-        bgBlue_.reference(),
+        c.bg_blue,
         GII_DEF_BGBLUE,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
-    checkValueRange(bgBlue_.value(), 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "bg_blue");
+    checkValueRange(c.bg_blue, 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "bg_blue");
 
     comment = "";
     comment += "The number of triangles that will constitute;";
@@ -1043,19 +979,19 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "Allowed value range [1,1000]";
     gpb.registerFileParameter<std::size_t>(
         "n_triangles",
-        nTriangles_.reference(),
+        c.n_triangles,
         GII_DEF_NTRIANGLES,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
-    // checkValueRange<std::size_t>(std::size_t(nTriangles_.value()), std::size_t(1), std::size_t(1000), GINTLOWERCLOSED, GINTUPPERCLOSED, GFNOWARNING, "n_triangles");
+    // checkValueRange<std::size_t>(std::size_t(c.n_triangles), std::size_t(1), std::size_t(1000), GINTLOWERCLOSED, GINTUPPERCLOSED, GFNOWARNING, "n_triangles");
 
     comment = "";
     comment += "Whether triangles should be sorted according;";
     comment += "to their alpha channel;";
     gpb.registerFileParameter<bool>(
         "alpha_sort",
-        alphaSort_.reference(),
+        c.alpha_sort,
         GII_DEF_ALPHASORT,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1065,7 +1001,7 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "Whether the alpha channel shall be mutated;";
     gpb.registerFileParameter<bool>(
         "mutate_alpha_channel",
-        mutateAlphaChannel_.reference(),
+        c.mutate_alpha_channel,
         GII_DEF_MUTATE_ALPHA_CHANNEL,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
@@ -1075,357 +1011,11 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
     comment += "Whether the background color shall be mutated;";
     gpb.registerFileParameter<bool>(
         "change_bg_color",
-        changeBGColor_.reference(),
+        c.change_bg_color,
         GII_DEF_CHBGCOLOR,
         Gem::Common::VAR_IS_ESSENTIAL,
         comment
     );
-
-    // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<GImageIndividual>::describeLocalOptions_(gpb);
-}
-
-/******************************************************************************/
-/**
-	 * Allows to act on the configuration options received from the configuration file. Here
-	 * we can add the options described in describeLocalOptions to the object.
-	 *
-	 * @param p A smart-pointer to be acted on during post-processing
-	 */
-void GImageIndividualFactory::postProcess_(std::shared_ptr<GImageIndividual> &p) {
-    // The image must already have been loaded for this function to work properly
-    p->init(
-        nTriangles_,
-        bgRed_,
-        bgGreen_,
-        bgBlue_,
-        startSize_,
-        minSize_,
-        maxSize_,
-        minOpaqueness_,
-        maxOpaqueness_,
-        alphaSort_,
-        changeBGColor_,
-        mutateAlphaChannel_,
-        sigma_,
-        sigmaSigma_,
-        minSigma_,
-        maxSigma_,
-        adProb_,
-        adaptAdProb_,
-        minAdProb_,
-        maxAdProb_,
-        loc_sigma_,
-        loc_sigmaSigma_,
-        loc_minSigma_,
-        loc_maxSigma_,
-        loc_adProb_,
-        loc_adaptAdProb_,
-        loc_minAdProb_,
-        loc_maxAdProb_
-    );
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the startSize_ variable
-	 */
-double GImageIndividualFactory::getStartSize() const {
-    return startSize_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the adProb_ variable
-	 */
-double GImageIndividualFactory::getAdProb() const {
-    return adProb_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the loc_adaptAdProb_ variable
-	 */
-double GImageIndividualFactory::getLocAdaptAdProb() const {
-    return loc_adaptAdProb_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the adaptAdProb variable
-	 */
-double GImageIndividualFactory::getAdaptAdProb() const {
-    return adaptAdProb_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the loc_adProb variable
-	 */
-double GImageIndividualFactory::getLocAdProb() const {
-    return loc_adProb_;
-}
-
-/******************************************************************************/
-/**
-	 * Allows to specify an adaption factor for adProb_ (or 0, if you do not want this feature)
-	 */
-void GImageIndividualFactory::setAdaptAdProb(double adaptAdProb) {
-#ifdef DEBUG
-    if(adaptAdProb < 0. || adaptAdProb > 1.) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GImageIndividualFactory::setAdaptAdProb(): Error!" << '\n'
-            << "Invalid value for adaptAdProb given: " << adaptAdProb << '\n'
-            << "Expected range of [0:1]" << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    adaptAdProb_ = adaptAdProb;
-}
-
-/******************************************************************************/
-/**
-	 * Allows to specify an adaption factor for loc_adProb_ (or 0, if you do not want this feature)
-	 */
-void GImageIndividualFactory::setLocAdaptAdProb(double loc_adaptAdProb) {
-#ifdef DEBUG
-    if(loc_adaptAdProb < 0. || loc_adaptAdProb > 1.) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GImageIndividualFactory::setLocAdaptAdProb(): Error!" << '\n'
-            << "Invalid value for loc_adaptAdProb given: " << loc_adaptAdProb << '\n'
-            << "Expected range of [0:1]" << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    loc_adaptAdProb_ = loc_adaptAdProb;
-}
-
-/******************************************************************************/
-/**
-	 * Allows to retrieve the allowed range for adProb_ variation
-	 */
-auto GImageIndividualFactory::getAdProbRange() const {
-    return std::tuple<double, double>{minAdProb_.value(), maxAdProb_.value()};
-}
-
-/******************************************************************************/
-/**
-	 * Allows to retrieve the allowed range for loc_adProb_ variation
-	 */
-auto GImageIndividualFactory::getLocAdProbRange() const {
-    return std::tuple<double, double>{loc_minAdProb_.value(), loc_maxAdProb_.value()};
-}
-
-/******************************************************************************/
-/**
-	 * Allows to set the allowed range for adaption probability variation
-	 */
-void GImageIndividualFactory::setAdProbRange(double minAdProb, double maxAdProb) {
-#ifdef DEBUG
-    if(minAdProb < 0.) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GImageIndividualFactory::setAdProbRange(): Error!" << '\n'
-            << "minAdProb < 0: " << minAdProb << '\n'
-        );
-    }
-
-    if(minAdProb > maxAdProb) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GImageIndividualFactory::setAdProbRange(): Error!" << '\n'
-            << "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb
-            << '\n'
-        );
-    }
-
-    if(maxAdProb > 1.) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GImageIndividualFactory::setAdProbRange(): Error!" << '\n'
-            << "maxAdProb > 1: " << maxAdProb << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    minAdProb_ = minAdProb;
-    maxAdProb_ = maxAdProb;
-}
-
-/******************************************************************************/
-/**
-	 * Allows to set the allowed range for location adaption probability variation
-	 */
-void GImageIndividualFactory::setLocAdProbRange(double minLocAdProb, double maxLocAdProb) {
-#ifdef DEBUG
-    if(minLocAdProb < 0.) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GImageIndividualFactory::setLocAdProbRange(): Error!" << '\n'
-            << "minLocAdProb < 0: " << minLocAdProb << '\n'
-        );
-    }
-
-    if(minLocAdProb > maxLocAdProb) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GImageIndividualFactory::setLocAdProbRange(): Error!" << '\n'
-            << "Invalid minLocAdProb and/or maxLocAdProb: " << minLocAdProb << " / " << maxLocAdProb
-            << '\n'
-        );
-    }
-
-    if(maxLocAdProb > 1.) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GImageIndividualFactory::setLocAdProbRange(): Error!" << '\n'
-            << "maxLocAdProb > 1: " << maxLocAdProb << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    loc_minAdProb_ = minLocAdProb;
-    loc_maxAdProb_ = maxLocAdProb;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the maxOpaqueness variable
-	 */
-double GImageIndividualFactory::getMaxOpaqueness() const {
-    return maxOpaqueness_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the maxSigma variable
-	 */
-double GImageIndividualFactory::getMaxSigma() const {
-    return maxSigma_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the loc_maxSigma variable
-	 */
-double GImageIndividualFactory::getLocMaxSigma() const {
-    return loc_maxSigma_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the maxSize_ variable
-	 */
-double GImageIndividualFactory::getMaxSize() const {
-    return maxSize_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the minOpaqueness variable
-	 */
-double GImageIndividualFactory::getMinOpaqueness() const {
-    return minOpaqueness_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the minSigma variable
-	 */
-double GImageIndividualFactory::getMinSigma() const {
-    return minSigma_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the loc_minSigma variable
-	 */
-double GImageIndividualFactory::getLocMinSigma() const {
-    return loc_minSigma_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the minSize_ variable
-	 */
-double GImageIndividualFactory::getMinSize() const {
-    return minSize_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the sigma variable
-	 */
-double GImageIndividualFactory::getSigma() const {
-    return sigma_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the loc_sigma variable
-	 */
-double GImageIndividualFactory::getLocSigma() const {
-    return loc_sigma_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the loc_sigmaSigma_ variable
-	 */
-double GImageIndividualFactory::getLocSigmaSigma() const {
-    return loc_sigmaSigma_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the sigmaSigma variable
-	 */
-double GImageIndividualFactory::getSigmaSigma() const {
-    return sigmaSigma_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the bgRed variable
-	 */
-double GImageIndividualFactory::getBGRed() const {
-    return bgRed_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the bgGreen variable
-	 */
-double GImageIndividualFactory::getBGGreen() const {
-    return bgGreen_;
-}
-
-/*******************************************************************************/
-/**
-	 * Returns the value of the bgBlue variable
-	 */
-double GImageIndividualFactory::getBGBlue() const {
-    return bgBlue_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the nTriangles variable
-	 */
-std::size_t GImageIndividualFactory::getNTriangles() const {
-    return nTriangles_;
-}
-
-/******************************************************************************/
-/**
-	 * Returns the value of the alphaSort variable
-	 */
-bool GImageIndividualFactory::getAlphaSort() const {
-    return alphaSort_;
 }
 
 /******************************************************************************/
@@ -1442,7 +1032,7 @@ std::shared_ptr<Gem::Geneva::GImageIndividual>
 TFactory_GUnitTests<Gem::Geneva::GImageIndividual>() {
     // Create an image individual factory and create the first individual
     Gem::Geneva::GImageIndividualFactory f("../../config/GImageIndividual.json");
-    return f();
+    return f.get_as<Gem::Geneva::GImageIndividual>();
 }
 
 #endif /* GEM_TESTING */

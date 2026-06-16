@@ -58,12 +58,12 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
-#include "common/GFactoryT.hpp"
 #include "common/GGlobalOptionsT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GUnitTestFrameworkT.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GFlatIndividualFactory.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 
 // Example-local headers
@@ -160,40 +160,55 @@ public:
     /** @brief The standard destructor */
     ~GImageIndividual() override = default;
 
-    /** @brief Fills the object with parameters */
-    void init(
-        const std::size_t &nTriangles,
-        const double &bgRed,
-        const double &bgGreen,
-        const double &bgBlue,
-        const double &startSize,
-        const double &minSize,
-        const double &maxSize,
-        const double &minOpaqueness,
-        const double &maxOpaqueness,
-        const bool &alphaSort,
-        const bool &changeBGColor,
-        const bool &mutateAlphaChannel,
-        const double &sigma,
-        const double &sigmaSigma,
-        const double &minSigma,
-        const double &maxSigma,
-        const double &adProb,
-        const double &adaptAdProb,
-        const double &minAdProb,
-        const double &maxAdProb,
-        const double &loc_sigma,
-        const double &loc_sigmaSigma,
-        const double &loc_minSigma,
-        const double &loc_maxSigma,
-        const double &loc_adProb,
-        const double &loc_adaptAdProb,
-        const double &loc_minAdProb,
-        const double &loc_maxAdProb
-    );
-
     /** @brief Allows an external entity to set our fitness */
     void setFitness(std::vector<double> const &);
+
+    //---------------------------------------------------------------------------
+    // GFlatIndividualFactory<GImageIndividual> hooks. Instead of a bespoke factory the individual supplies
+    // the static hooks the generic factory needs: describeConfig (the configurable values), buildGenome
+    // (the labelled triangle + background genome structure) and applyConfig (the per-object members + the
+    // random init + the OA-owned main/location Gauss adaption config authored from the labelled genome).
+
+    /** @brief All values formerly parsed by the bespoke GImageIndividualFactory. */
+    struct Config {
+        std::size_t n_triangles = GII_DEF_NTRIANGLES;
+        double bg_red = GII_DEF_BGRED;
+        double bg_green = GII_DEF_BGGREEN;
+        double bg_blue = GII_DEF_BGBLUE;
+        double start_size = GII_DEF_STARTSIZE;
+        double min_size = GII_DEF_MINSIZE;
+        double max_size = GII_DEF_MAXSIZE;
+        double min_opaqueness = GII_DEF_MINOPAQUENESS;
+        double max_opaqueness = GII_DEF_MAXOPAQUENESS;
+        bool alpha_sort = GII_DEF_ALPHASORT;
+        bool change_bg_color = GII_DEF_CHBGCOLOR;
+        bool mutate_alpha_channel = GII_DEF_MUTATE_ALPHA_CHANNEL;
+        double sigma = GII_DEF_SIGMA;
+        double sigma_sigma = GII_DEF_SIGMASIGMA;
+        double min_sigma = GII_DEF_MINSIGMA;
+        double max_sigma = GII_DEF_MAXSIGMA;
+        double ad_prob = GII_DEF_ADPROB;
+        double adapt_ad_prob = GII_DEF_ADAPTADPROB;
+        double min_ad_prob = GII_DEF_MINADPROB;
+        double max_ad_prob = GII_DEF_MAXADPROB;
+        double loc_sigma = GII_DEF_LOC_SIGMA;
+        double loc_sigma_sigma = GII_DEF_LOC_SIGMASIGMA;
+        double loc_min_sigma = GII_DEF_LOC_MINSIGMA;
+        double loc_max_sigma = GII_DEF_LOC_MAXSIGMA;
+        double loc_ad_prob = GII_DEF_LOC_ADPROB;
+        double loc_adapt_ad_prob = GII_DEF_LOC_ADAPTADPROB;
+        double loc_min_ad_prob = GII_DEF_LOC_MINADPROB;
+        double loc_max_ad_prob = GII_DEF_LOC_MAXADPROB;
+    };
+
+    /** @brief Registers the config-file options, binding them to the passed Config */
+    static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
+    /** @brief Builds the flat genome's labelled structure (per triangle: cx,cy,radius,3 angles,r,g,b,a,
+     *  then 3 background colours), validating the configured ranges */
+    static gpar::Genome buildGenome(const Config &c);
+    /** @brief Per-object post-config hook: sets the local members, random-inits the active parameters and
+     *  authors the OA-owned main/location Gauss adaption config from the labelled genome */
+    static void applyConfig(GImageIndividual &ind, const Config &c);
 
     /** @brief Retrieves the number of triangles */
     std::size_t getNTriangles() const;
@@ -287,105 +302,13 @@ protected:
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
-     * A factory for GImageIndividual objects
+     * A factory for GImageIndividual objects. The bespoke factory has been replaced by the generic,
+     * config-driven GFlatIndividualFactory; GImageIndividual supplies the static describeConfig /
+     * buildGenome / applyConfig hooks. The alias keeps existing call sites (ctor(path), get_as<>(),
+     * getAdaptionConfig() on the produced individual) compiling unchanged. The factory's former getters
+     * and adaptor-range setters were dead code (no external caller) and have been dropped.
      */
-class GImageIndividualFactory final : public Gem::Common::GFactoryT<GImageIndividual> {
-public:
-    /** @brief The standard constructor */
-    GImageIndividualFactory(const std::string &);
-    /** @brief The destructor */
-    ~GImageIndividualFactory() override = default;
-
-    //------------------------------------------------------------------
-    // Render this class non-copyable
-
-    /** @brief Disabled default constructor */
-    GImageIndividualFactory() = delete;
-    /** @brief Disabled copy constructor */
-    GImageIndividualFactory(const GImageIndividualFactory &) = delete;
-    /** @brief Disabled move constructor */
-    GImageIndividualFactory(GImageIndividualFactory &&) = delete;
-    /** @brief Disabled assignment operator */
-    GImageIndividualFactory &operator=(const GImageIndividualFactory &) = delete;
-    /** @brief Disabled move-assignment operator */
-    GImageIndividualFactory &operator=(GImageIndividualFactory &&) = delete;
-
-    //------------------------------------------------------------------
-
-    // Some getters for parsed variables
-    double getStartSize() const;
-
-    double getAdProb() const;
-    double getAdaptAdProb() const;
-    void setAdaptAdProb(double adaptAdProb);
-    auto getAdProbRange() const;
-    void setAdProbRange(double minAdProb, double maxAdProb);
-    double getMaxSigma() const;
-    double getMinSigma() const;
-    double getSigma() const;
-    double getSigmaSigma() const;
-
-    double getLocAdProb() const;
-    double getLocAdaptAdProb() const;
-    void setLocAdaptAdProb(double loc_adaptAdProb);
-    auto getLocAdProbRange() const;
-    void setLocAdProbRange(double minLocAdProb, double maxLocAdProb);
-    double getLocMinSigma() const;
-    double getLocMaxSigma() const;
-    double getLocSigma() const;
-    double getLocSigmaSigma() const;
-
-    double getMaxOpaqueness() const;
-    double getMinSize() const;
-    double getMaxSize() const;
-    double getMinOpaqueness() const;
-    double getBGRed() const;
-    double getBGGreen() const;
-    double getBGBlue() const;
-    std::size_t getNTriangles() const;
-    bool getAlphaSort() const;
-    bool getChangeBGColor() const;
-
-protected:
-    /** @brief Creates individuals of this type */
-    std::shared_ptr<GImageIndividual>
-    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
-    /** @brief Allows to describe local configuration options in derived classes */
-    void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
-    /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<GImageIndividual> &) override;
-    /** @brief Transfers the target image either to the GPU or only to a local data structure */
-
-private:
-    Gem::Common::GOneTimeRefParameterT<double> adProb_{GII_DEF_ADPROB};
-    Gem::Common::GOneTimeRefParameterT<double> adaptAdProb_{GII_DEF_ADAPTADPROB};
-    Gem::Common::GOneTimeRefParameterT<double> minAdProb_{GII_DEF_MINADPROB};
-    Gem::Common::GOneTimeRefParameterT<double> maxAdProb_{GII_DEF_MAXADPROB};
-    Gem::Common::GOneTimeRefParameterT<double> sigma_{GII_DEF_SIGMA};
-    Gem::Common::GOneTimeRefParameterT<double> sigmaSigma_{GII_DEF_SIGMASIGMA};
-    Gem::Common::GOneTimeRefParameterT<double> minSigma_{GII_DEF_MINSIGMA};
-    Gem::Common::GOneTimeRefParameterT<double> maxSigma_{GII_DEF_MAXSIGMA};
-    Gem::Common::GOneTimeRefParameterT<double> loc_adProb_{GII_DEF_LOC_ADPROB};
-    Gem::Common::GOneTimeRefParameterT<double> loc_adaptAdProb_{GII_DEF_LOC_ADAPTADPROB};
-    Gem::Common::GOneTimeRefParameterT<double> loc_minAdProb_{GII_DEF_LOC_MINADPROB};
-    Gem::Common::GOneTimeRefParameterT<double> loc_maxAdProb_{GII_DEF_LOC_MAXADPROB};
-    Gem::Common::GOneTimeRefParameterT<double> loc_sigma_{GII_DEF_LOC_SIGMA};
-    Gem::Common::GOneTimeRefParameterT<double> loc_sigmaSigma_{GII_DEF_LOC_SIGMASIGMA};
-    Gem::Common::GOneTimeRefParameterT<double> loc_minSigma_{GII_DEF_LOC_MINSIGMA};
-    Gem::Common::GOneTimeRefParameterT<double> loc_maxSigma_{GII_DEF_LOC_MAXSIGMA};
-    Gem::Common::GOneTimeRefParameterT<double> minOpaqueness_{GII_DEF_MINOPAQUENESS};
-    Gem::Common::GOneTimeRefParameterT<double> maxOpaqueness_{GII_DEF_MAXOPAQUENESS};
-    Gem::Common::GOneTimeRefParameterT<bool> alphaSort_{GII_DEF_ALPHASORT};
-    Gem::Common::GOneTimeRefParameterT<bool> changeBGColor_{GII_DEF_CHBGCOLOR};
-    Gem::Common::GOneTimeRefParameterT<bool> mutateAlphaChannel_{GII_DEF_MUTATE_ALPHA_CHANNEL};
-    Gem::Common::GOneTimeRefParameterT<double> startSize_{GII_DEF_STARTSIZE};
-    Gem::Common::GOneTimeRefParameterT<double> minSize_{GII_DEF_MINSIZE};
-    Gem::Common::GOneTimeRefParameterT<double> maxSize_{GII_DEF_MAXSIZE};
-    Gem::Common::GOneTimeRefParameterT<double> bgRed_{GII_DEF_BGRED};
-    Gem::Common::GOneTimeRefParameterT<double> bgGreen_{GII_DEF_BGGREEN};
-    Gem::Common::GOneTimeRefParameterT<double> bgBlue_{GII_DEF_BGBLUE};
-    Gem::Common::GOneTimeRefParameterT<std::size_t> nTriangles_{GII_DEF_NTRIANGLES};
-};
+using GImageIndividualFactory = Gem::Geneva::Parameters::GFlatIndividualFactory<GImageIndividual>;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
