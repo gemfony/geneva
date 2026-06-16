@@ -68,7 +68,10 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  */
 enum class gradientMethod : std::uint8_t {
     CONJUGATE_PR_PLUS = 0, ///< Polak-Ribiere+ nonlinear conjugate gradient with restarts (the default)
-    STEEPEST_DESCENT = 1   ///< Plain steepest descent (beta == 0)
+    STEEPEST_DESCENT = 1,  ///< Plain steepest descent (beta == 0)
+    CONJUGATE_FR = 2,      ///< Fletcher-Reeves (beta = g.g / g_prev.g_prev)
+    CONJUGATE_HS = 3,      ///< Hestenes-Stiefel+ (beta = g.(g-g_prev) / d_prev.(g-g_prev))
+    CONJUGATE_DY = 4       ///< Dai-Yuan (beta = g.g / d_prev.(g-g_prev))
 };
 
 /** @brief Streams a gradientMethod (as its underlying integer); required by the comparison framework. */

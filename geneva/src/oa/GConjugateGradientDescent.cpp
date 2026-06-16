@@ -555,20 +555,23 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         //    direction with Powell and periodic restarts.
         std::vector<double> direction(n_fp_parms_first_, 0.);
         double beta = 0.;
-        const bool want_conjugate = (gradient_method_ == gradientMethod::CONJUGATE_PR_PLUS) &&
+        const bool want_conjugate = (gradient_method_ != gradientMethod::STEEPEST_DESCENT) &&
                                     cg_valid && not periodic_restart;
         if(want_conjugate) {
-            long double g_dot_g = 0.L;           // g_k . g_k
-            long double g_dot_gprev = 0.L;       // g_k . g_{k-1}
-            long double gprev_dot_gprev = 0.L;   // g_{k-1} . g_{k-1}
-            long double numerator = 0.L;         // g_k . (g_k - g_{k-1})  (Polak-Ribiere)
+            long double g_dot_g = 0.L;         // g_k . g_k
+            long double g_dot_gprev = 0.L;     // g_k . g_{k-1}
+            long double gprev_dot_gprev = 0.L; // g_{k-1} . g_{k-1}
+            long double g_dot_y = 0.L;         // g_k . (g_k - g_{k-1})   (Polak-Ribiere / Hestenes-Stiefel num)
+            long double d_dot_y = 0.L;         // d_{k-1} . (g_k - g_{k-1}) (Hestenes-Stiefel / Dai-Yuan den)
             for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
                 const long double g = gradient[j];
                 const long double gp = prev_gradient[j];
+                const long double y = g - gp;
                 g_dot_g += g * g;
                 g_dot_gprev += g * gp;
                 gprev_dot_gprev += gp * gp;
-                numerator += g * (g - gp);
+                g_dot_y += g * y;
+                d_dot_y += static_cast<long double>(prev_direction[j]) * y;
             }
 
             // Powell restart (Powell, "Restart procedures for the conjugate gradient method", Math.
@@ -577,16 +580,43 @@ void GConjugateGradientDescent::updateParentIndividuals() {
             const long double abs_overlap = (g_dot_gprev >= 0.L) ? g_dot_gprev : -g_dot_gprev;
             const bool powell_restart = (g_dot_g > 0.L) && (abs_overlap / g_dot_g >= 0.1L);
 
-            // Numerical-stability guard: g_{k-1}.g_{k-1} vanishes near convergence, so divide only when
-            // the denominator is above the representable floor and large enough relative to the
-            // numerator that the quotient stays below a finite cap (which guarantees |beta_pr| < cap).
+            // Per-formula numerator / denominator (the conjugate-gradient family differs only here):
+            //   PR+ : g.(g-g_prev) / g_prev.g_prev    FR : g.g / g_prev.g_prev
+            //   HS+ : g.(g-g_prev) / d_prev.(g-g_prev) DY : g.g / d_prev.(g-g_prev)
+            long double num = 0.L;
+            long double den = 0.L;
+            switch(gradient_method_) {
+            case gradientMethod::CONJUGATE_FR:
+                num = g_dot_g;
+                den = gprev_dot_gprev;
+                break;
+            case gradientMethod::CONJUGATE_HS:
+                num = g_dot_y;
+                den = d_dot_y;
+                break;
+            case gradientMethod::CONJUGATE_DY:
+                num = g_dot_g;
+                den = d_dot_y;
+                break;
+            case gradientMethod::CONJUGATE_PR_PLUS:
+            default:
+                num = g_dot_y;
+                den = gprev_dot_gprev;
+                break;
+            }
+
+            // Numerical-stability guard: the denominator vanishes near convergence (and d.(g-g_prev) can
+            // change sign), so divide only when |den| is above the representable floor and large enough
+            // relative to the numerator that |beta| stays below a finite cap. The "+" clamp (beta >= 0,
+            // i.e. an automatic restart when beta would be negative) keeps every variant globally
+            // convergent and matches PR+/HS+.
             constexpr long double beta_max = 1.0e4L;
-            const long double abs_num = (numerator >= 0.L) ? numerator : -numerator;
-            if(not powell_restart &&
-               gprev_dot_gprev > std::numeric_limits<long double>::min() &&
-               gprev_dot_gprev * beta_max > abs_num) {
-                const long double beta_pr = numerator / gprev_dot_gprev;
-                beta = (beta_pr > 0.L) ? Gem::Common::narrow<double>(beta_pr) : 0.; // PR+ clamp
+            const long double abs_num = (num >= 0.L) ? num : -num;
+            const long double abs_den = (den >= 0.L) ? den : -den;
+            if(not powell_restart && abs_den > std::numeric_limits<long double>::min() &&
+               abs_den * beta_max > abs_num) {
+                const long double beta_cg = num / den;
+                beta = (beta_cg > 0.L) ? Gem::Common::narrow<double>(beta_cg) : 0.;
             }
         }
 
@@ -706,8 +736,9 @@ void GConjugateGradientDescent::addConfigurationOptions_(Gem::Common::GParserBui
         "gradient_method",
         static_cast<int>(gradientMethod::CONJUGATE_PR_PLUS),
         [this](int gm) { this->setGradientMethod(static_cast<gradientMethod>(gm)); }
-    ) << "The search-direction rule: 0 = Polak-Ribiere+ conjugate gradient" << '\n'
-      << "(the default), 1 = plain steepest descent (the former \"gd\")";
+    ) << "The search-direction rule: 0 = Polak-Ribiere+ conjugate gradient (the default)," << '\n'
+      << "1 = plain steepest descent (the former \"gd\"), 2 = Fletcher-Reeves," << '\n'
+      << "3 = Hestenes-Stiefel+, 4 = Dai-Yuan";
 
     gpb.registerFileParameter<int>(
         "error_estimation",
