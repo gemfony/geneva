@@ -484,6 +484,78 @@ TEST_CASE("Simulated annealing optimizes a flat individual", "[flat][oa]") {
 
 /******************************************************************************/
 
+TEST_CASE("Simulated annealing parameter validation and round-trip", "[flat][oa][sa]") {
+    auto sa = std::make_shared<oa::GSimulatedAnnealing>();
+
+    // Valid values round-trip
+    sa->setT0(5.0);
+    CHECK(sa->getT0() == 5.0);
+    sa->setTDegradationStrength(0.7);
+    CHECK(sa->getTDegradationStrength() == 0.7);
+
+    // The start temperature must be strictly positive
+    CHECK_THROWS(sa->setT0(0.0));
+    CHECK_THROWS(sa->setT0(-1.0));
+
+    // The cooling factor alpha must lie strictly inside (0, 1): alpha >= 1 would never cool,
+    // alpha <= 0 is meaningless.
+    CHECK_THROWS(sa->setTDegradationStrength(0.0));
+    CHECK_THROWS(sa->setTDegradationStrength(1.0));
+    CHECK_THROWS(sa->setTDegradationStrength(1.5));
+    CHECK_THROWS(sa->setTDegradationStrength(-0.1));
+}
+
+/******************************************************************************/
+
+TEST_CASE("Simulated annealing cools geometrically and floors above zero", "[flat][oa][sa]") {
+    // Geometric cooling: with t0 and alpha fixed, the temperature after the run is t0 * alpha^N,
+    // strictly decreasing and still positive. A strictly-positive floor matters because saProb()
+    // divides by the temperature -- a temperature of exactly 0 would yield a 0/0 NaN.
+    {
+        auto pop = std::make_shared<oa::GSimulatedAnnealing>();
+        pop->setPopulationSizes(18, 6);
+        pop->setT0(10.0);
+        pop->setTDegradationStrength(0.5);
+        pop->setMaxIteration(40);
+        pop->setMaxStallIteration(0); // run all 40 iterations, so the cooling is fully exercised
+        pop->setReportIteration(100000);
+        FlatSphereOA src;
+        pop->push_back(src.clone_unique());
+        pop->setAdaptionConfig(src.buildAdaptionConfig());
+        pop->setLocalConsumer(oa::local_consumer_kind::serial);
+        pop->optimize();
+
+        const double t = pop->getT();
+        CHECK(std::isfinite(t));
+        CHECK(t > 0.0);              // floor: never reaches 0 (would NaN saProb)
+        CHECK(t < pop->getT0());     // the temperature cooled down
+        CHECK(t < 1.0e-3);           // 10 * 0.5^40 is tiny -> substantial cooling after 40 iterations
+    }
+
+    // Drive the temperature hard into the subnormal range: it must clamp to a positive floor and
+    // never become 0 or non-finite.
+    {
+        auto pop = std::make_shared<oa::GSimulatedAnnealing>();
+        pop->setPopulationSizes(18, 6);
+        pop->setT0(1.0e-305);
+        pop->setTDegradationStrength(0.1);
+        pop->setMaxIteration(50);
+        pop->setMaxStallIteration(0);
+        pop->setReportIteration(100000);
+        FlatSphereOA src;
+        pop->push_back(src.clone_unique());
+        pop->setAdaptionConfig(src.buildAdaptionConfig());
+        pop->setLocalConsumer(oa::local_consumer_kind::serial);
+        pop->optimize();
+
+        const double t = pop->getT();
+        CHECK(std::isfinite(t));
+        CHECK(t > 0.0); // clamped to the smallest normalised double, not 0
+    }
+}
+
+/******************************************************************************/
+
 TEST_CASE("Swarm optimization optimizes a flat individual", "[flat][oa]") {
     auto pop = std::make_shared<oa::GSwarmAlgorithm>();
     pop->setSwarmSizes(3, 6); // 3 neighborhoods x 6 members
