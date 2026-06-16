@@ -1315,18 +1315,18 @@ void GIterationResultsFileLogger::informationFunction_(
         ); // NOLINT(cppcoreguidelines-init-variables)
         std::vector<double> fitness_cnt;
 
-        // Loop over all individuals of the algorithm.
-        std::size_t n_individuals = goa->size();
+        // Write a flat line of every individual's fitness values, a comma (or space) after each value
+        // except the LAST, via an explicit emitted-vs-total counter. The previous PRODUCT test
+        // (n_fitness_criteria*n_individuals > (i+1)*(pos+1)) was obscure and fragile: it happened to be
+        // correct only because the product reaches the total exactly at the final cell.
+        const std::size_t n_individuals = goa->size();
+        const std::size_t n_fitness_criteria = goa->at(0)->individual().getNStoredResults();
+        const std::size_t total = n_fitness_criteria * n_individuals;
+        std::size_t emitted = 0;
         for(std::size_t pos = 0; pos < n_individuals; pos++) {
-            std::shared_ptr<gpar::GOptimizableEntity> ind = goa->template individual_cast<gpar::GOptimizableEntity>(pos);
             fitness_cnt = goa->at(pos)->individual().raw_fitness_vec();
-
-            std::size_t n_fitness_criteria = goa->at(0)->individual().getNStoredResults();
             for(std::size_t i = 0; i < n_fitness_criteria; i++) {
-                data << fitness_cnt.at(i)
-                     << ((with_commas_ && (n_fitness_criteria * n_individuals > (i + 1) * (pos + 1)))
-                             ? ", "
-                             : " ");
+                data << fitness_cnt.at(i) << ((with_commas_ && (++emitted < total)) ? ", " : " ");
             }
         }
         data << '\n';
