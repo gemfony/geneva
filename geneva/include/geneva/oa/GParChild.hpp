@@ -157,9 +157,9 @@ public:
 
     /***************************************************************************/
     /**
-     * Retrieves a specific parent individual and casts it to the desired type. Note that this
-     * function will only be accessible to the compiler if individual_type is a derivative of GOptimizableEntity,
-     * thanks to the magic of the std::enable_if and type_traits.
+     * Retrieves a specific parent individual and casts it to the desired type. The C++20
+     * `requires std::derived_from` constraint below makes this overload visible to the compiler only when
+     * parent_type is a derivative of GOptimizableEntity.
      *
      * @param parent_id The id of the parent that should be returned
      * @return A converted shared_ptr to the parent

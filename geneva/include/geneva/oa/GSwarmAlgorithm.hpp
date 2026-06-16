@@ -185,9 +185,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the best individual of a neighborhood and casts it to the desired type. Note that this
-	  * function will only be accessible to the compiler if individual_type is a derivative of GOptimizableEntity,
-	  * thanks to the magic of std::enable_if and type_traits
+	  * Retrieves the best individual of a neighborhood and casts it to the desired type. The C++20
+	  * `requires std::derived_from` constraint below makes this overload visible to the compiler only when
+	  * individual_type is a derivative of GOptimizableEntity.
 	  *
 	  * @param neighborhood The neighborhood, whose best individual should be returned
 	  * @return A converted shared_ptr to the best individual of a given neighborhood
