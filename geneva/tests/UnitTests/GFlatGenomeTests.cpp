@@ -35,6 +35,10 @@
 #include <memory>
 #include <vector>
 
+#include <sstream>
+
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/nvp.hpp>
@@ -45,6 +49,7 @@
 #include "common/GParserBuilder.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GGenomeLayout.hpp"
+#include "geneva/ind/GGenomeLayoutSerialization.hpp" // ChannelLayout (de)serialisation (layout interning)
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GFlatIndividualFactory.hpp"
 #include "geneva/ind/GFlatIndividualT.hpp"
@@ -314,6 +319,68 @@ TEST_CASE("GGenomeBuilder: interned group labels", "[flat]") {
 // individual is now fully OA-agnostic -- it carries neither the personality object (which lives on the
 // GIndividualSlot, see the [slot] tests) nor any OA-identity mnemonic (post-processing eligibility is
 // decided by the algorithm and vetoed on the work item's processing metadata).)
+
+/******************************************************************************/
+TEST_CASE("GFlatGenome: layout interning round-trips losslessly (compact + escape route)", "[flat]") {
+    // COMPACT PATH: a genome whose channels are all group-uniform (the normal case) must round-trip with
+    // its per-value layout arrays reconstructed EXACTLY from the compact per-group wire form.
+    GGenomeBuilder b;
+    b.addDoubleGroup(4, -10., 10.); // one uniform double group of 4
+    b.addDoubleArray(3, -2., 2.);   // 3 single-value double groups
+    b.addInt32Group(2, -5, 5);      // one int group
+    b.addBoolGroup(2);              // one bool group
+    FlatSphere ind;
+    ind.setGenome(b.build());
+    auto L = ind.getLayout();
+    REQUIRE(L);
+
+    FlatSphere restored;
+    restored.fromString(ind.toString(Gem::Common::serializationMode::BINARY),
+                        Gem::Common::serializationMode::BINARY);
+    auto RL = restored.getLayout();
+    REQUIRE(RL);
+    // The reconstructed per-value arrays must be identical to the original.
+    CHECK(RL->d.lower == L->d.lower);
+    CHECK(RL->d.upper == L->d.upper);
+    CHECK(RL->d.init_lower == L->d.init_lower);
+    CHECK(RL->d.init_upper == L->d.init_upper);
+    CHECK(RL->d.kind == L->d.kind);
+    CHECK(RL->d.active == L->d.active);
+    CHECK(RL->i.lower == L->i.lower);
+    CHECK(RL->i.upper == L->i.upper);
+    CHECK(RL->i.kind == L->i.kind);
+    CHECK(RL->b.active == L->b.active);
+
+    // ESCAPE ROUTE: a channel with per-value variation WITHIN a group (not producible by the builder, but
+    // representable by the data structure) must fall back to full per-value serialisation and round-trip
+    // exactly. Build one by hand and round-trip the ChannelLayout directly.
+    ChannelLayout<double> ch;
+    ch.groups.push_back(GroupStructure<double>{0u, 3u, -1, true, 1.0}); // one group of 3, NON-uniform below
+    ch.lower = {-1., -5., -9.};
+    ch.upper = {1., 5., 9.};
+    ch.init_lower = {-1., -5., -9.};
+    ch.init_upper = {1., 5., 9.};
+    ch.kind = {ParamKind::Constrained, ParamKind::Constrained, ParamKind::Plain};
+    ch.active = {1, 1, 1};
+
+    std::ostringstream oss;
+    {
+        boost::archive::binary_oarchive oa(oss);
+        oa << ch;
+    }
+    ChannelLayout<double> ch2;
+    {
+        std::istringstream iss(oss.str());
+        boost::archive::binary_iarchive ia(iss);
+        ia >> ch2;
+    }
+    CHECK(ch2.lower == ch.lower);
+    CHECK(ch2.upper == ch.upper);
+    CHECK(ch2.init_lower == ch.init_lower);
+    CHECK(ch2.init_upper == ch.init_upper);
+    CHECK(ch2.kind == ch.kind); // including the per-value Plain/Constrained variation
+    CHECK(ch2.active == ch.active);
+}
 
 /******************************************************************************/
 TEST_CASE("GFlatGenome: value round-trip (streamline / assignValueVector)", "[flat]") {
