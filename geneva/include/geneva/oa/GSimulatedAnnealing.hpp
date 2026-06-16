@@ -146,9 +146,6 @@ protected:
 
     /***************************************************************************/
 
-    /** @brief Fixes the population after a job submission */
-    void fixAfterJobSubmission();
-
 private:
     /***************************************************************************/
     // Virtual or overridden private functions
@@ -169,8 +166,6 @@ private:
     /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
 
-    /** @brief Adapt all children in parallel */
-    void adaptChildren_() override;
     /** @brief Choose new parents, based on the SA selection scheme. */
     void selectBest_() override;
 

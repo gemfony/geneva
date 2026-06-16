@@ -253,6 +253,12 @@ protected:
     /** @brief This helper function lets all individuals know about their position in the population. */
     void markIndividualPositions();
 
+    /** @brief Reconciles the population after a job submission: admits late (asynchronous) returns,
+     *  re-orders parents to the front, refills to the nominal size with clones, and re-marks
+     *  parents/children. Shared by all mu/lambda algorithms (EA, SA); the per-algorithm selection
+     *  scheme runs afterwards in selectBest_(). */
+    void fixAfterJobSubmission();
+
     /** @brief Increases the population size if requested by the user */
     void performScheduledPopulationGrowth();
 
@@ -316,8 +322,10 @@ private:
     /** @brief Gives individuals an opportunity to update their internal structures */
     void actOnStalls_() override;
 
-    /** @brief Adapts all children of this population */
-    virtual void adaptChildren_() = 0;
+    /** @brief Adapts all children of this population in parallel, driven by the OA-owned adaption
+     *  config. Uniform across all mu/lambda algorithms, so it is concrete here (was duplicated
+     *  verbatim in EA and SA). */
+    virtual void adaptChildren_();
     /** @brief Choose new parents, based on the selection scheme set by the user */
     virtual void selectBest_() = 0;
 

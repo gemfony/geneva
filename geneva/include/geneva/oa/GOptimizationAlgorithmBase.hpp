@@ -537,6 +537,11 @@ protected:
     /** @brief Retrieves a vector of old work items after job submission */
     std::vector<std::unique_ptr<gpar::GOptimizableEntity>> getOldWorkItems();
 
+    /** @brief Returns a fresh personality-traits object for this algorithm. Protected, non-virtual
+     *  wrapper around the private getPersonalityTraits_() factory so intermediate base classes (e.g.
+     *  GParChild) can mint the correct concrete personality for slots they build themselves. */
+    std::shared_ptr<GPersonalityTraits> makePersonalityTraits() const { return getPersonalityTraits_(); }
+
     /** @brief Saves the state of the class to disc */
     void saveCheckpoint(std::filesystem::path const &output_file) const;
 
