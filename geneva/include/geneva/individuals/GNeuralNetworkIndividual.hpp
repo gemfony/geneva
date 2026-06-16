@@ -375,7 +375,7 @@ const transferFunction GNN_DEF_TRANSFER = transferFunction::SIGMOID;
  * The architecture computes only the structure (offsets / sizes); the forward pass + transfer function
  * live in GNeuralNetworkIndividual::fitnessCalculation(), which reads the weights through this view.
  */
-class GNeuralNetworkArchitecture : public gpar::GGenomeArchitecture {
+class GNeuralNetworkArchitecture : public gen::GGenomeArchitecture {
 public:
     /** @brief Initialization from the per-layer node counts (input ... output) */
     explicit GNeuralNetworkArchitecture(std::vector<std::size_t> layer_sizes)
@@ -417,7 +417,7 @@ private:
  * standard back-propagation algorithm to train feed-forward neural networks.
  */
 class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gpar::GFlatGenome {
+  : public gen::GFlatGenome {
     /////////////////////////////////////////////////////////////////////////////
 
     friend class boost::serialization::access;
@@ -436,7 +436,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
     void load(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
         // t_f_ was previously never (de)serialised and silently reset to its
         // default; read it back via the single localMembers() declaration. In a
         // split save()/load(), the same serialize_members() drives both -- the
@@ -451,7 +451,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
     void save(Archive &ar, const unsigned int) const {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
         // The const localMembers() overload yields const refs, which the output
         // archive writes -- the symmetric counterpart to load() above.
         Gem::Common::serialize_members(ar, this->localMembers());
@@ -1118,10 +1118,10 @@ public:
     /** @brief Registers the config-file options, binding them to the passed Config */
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
     /** @brief Builds the flat weight genome (structure only) for the geometry in the global data store */
-    static gpar::Genome buildGenome(const Config &c);
+    static gen::Genome buildGenome(const Config &c);
     /** @brief The OA-owned Gauss adaption config: every weight group gets the configured Gauss adaptor */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const gpar::GFlatGenome &sample, const Config &c);
+    buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
     /** @brief Per-object post-config hook: applies the (non-genome) transfer function to a produced individual */
     static void applyConfig(GNeuralNetworkIndividual &ind, const Config &c);
 
@@ -1130,7 +1130,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Loads the data of another GNeuralNetworkIndividual */
-    void load_(const gpar::GOptimizableEntity *cp) final;
+    void load_(const gen::GOptimizableEntity *cp) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GNeuralNetworkIndividual>(
@@ -1141,7 +1141,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GOptimizableEntity & // the other object
+        const gen::GOptimizableEntity & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -1159,7 +1159,7 @@ public:
 private:
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    gpar::GFlatGenome *clone_() const final;
+    gen::GFlatGenome *clone_() const final;
 
     /** @brief The transfer function */
     double transfer(const double &value) const;
@@ -1185,7 +1185,7 @@ private:
  * get_as<>(), getAdaptionConfig(), registerContentCreator()) compiling unchanged.
  */
 using GNeuralNetworkIndividualFactory =
-    Gem::Geneva::Parameters::GFlatIndividualFactory<GNeuralNetworkIndividual>;
+    Gem::Geneva::Genome::GFlatIndividualFactory<GNeuralNetworkIndividual>;
 
 /******************************************************************************/
 

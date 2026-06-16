@@ -54,7 +54,7 @@
 #include "common/GExceptions.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 /** @brief Stable key identifying an auxiliary block (e.g. an FNV hash of "ea.gauss.state") */
@@ -325,4 +325,4 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */

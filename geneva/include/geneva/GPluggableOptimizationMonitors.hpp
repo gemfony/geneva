@@ -525,18 +525,18 @@ public:
         fp_prof_var_vec_.clear();
 
         // Parse the parameter string
-        gpar::GParameterPropertyParser ppp(par_str);
+        gen::GParameterPropertyParser ppp(par_str);
 
         //---------------------------------------------------------------------------
         // Retrieve the parameters
 
         std::tuple<
-            typename std::vector<gpar::parPropSpec<fp_type>>::const_iterator,
-            typename std::vector<gpar::parPropSpec<fp_type>>::const_iterator>
+            typename std::vector<gen::parPropSpec<fp_type>>::const_iterator,
+            typename std::vector<gen::parPropSpec<fp_type>>::const_iterator>
             t_d = ppp.getIterators<fp_type>();
 
-        typename std::vector<gpar::parPropSpec<fp_type>>::const_iterator fp_cit = std::get<0>(t_d);
-        typename std::vector<gpar::parPropSpec<fp_type>>::const_iterator d_end = std::get<1>(t_d);
+        typename std::vector<gen::parPropSpec<fp_type>>::const_iterator fp_cit = std::get<0>(t_d);
+        typename std::vector<gen::parPropSpec<fp_type>>::const_iterator d_end = std::get<1>(t_d);
         for(; fp_cit != d_end;
             ++fp_cit) { // Note: fp_cit is already set to the begin of the double parameter arrays
             fp_prof_var_vec_.push_back(*fp_cit);
@@ -685,7 +685,7 @@ public:
     /**
 	  * Determines a suitable label for a given parPropSpec value
 	  */
-    std::string getLabel(const gpar::parPropSpec<fp_type> &s) const {
+    std::string getLabel(const gen::parPropSpec<fp_type> &s) const {
         std::string result; // NOLINT(cppcoreguidelines-init-variables)
 
         std::size_t var_mode = std::get<0>(s.var);
@@ -929,8 +929,8 @@ private:
             double primary_fitness = 0.;
 
             if(monitor_best_only_) { // Monitor the best individuals only
-                std::shared_ptr<gpar::GOptimizableEntity> p =
-                    goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividual<gpar::GOptimizableEntity>();
+                std::shared_ptr<gen::GOptimizableEntity> p =
+                    goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividual<gen::GOptimizableEntity>();
                 if(oa::GBasePluggableOM::use_raw_evaluation_) {
                     primary_fitness = p->raw_fitness(0);
                 }
@@ -1153,7 +1153,7 @@ private:
 
     /************************************************************************/
 
-    std::vector<gpar::parPropSpec<fp_type>>
+    std::vector<gen::parPropSpec<fp_type>>
         fp_prof_var_vec_; ///< Holds information about variables to be profiled
 
     Gem::Common::GPlotDesigner gpd_{"Progress information", 1, 1}; ///< A wrapper for the plots
@@ -2062,8 +2062,8 @@ private:
             std::uint32_t iteration = goa->getIteration();
 
             // Record the current fitness
-            std::shared_ptr<gpar::GOptimizableEntity> p =
-                goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividual<gpar::GOptimizableEntity>();
+            std::shared_ptr<gen::GOptimizableEntity> p =
+                goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividual<gen::GOptimizableEntity>();
             (*fitness_graph2_d_oa_) &
                 std::tuple<double, double>(static_cast<double>(iteration), p->raw_fitness(0));
 
@@ -2089,7 +2089,7 @@ private:
                 if(property_ == "sigma" && cfg_ptr) {
                     // The best individual is an off-slot archive clone with no live scratch, so report the
                     // configured SEED sigma read from a freshly seeded scratch.
-                    gpar::GAuxiliaryStore seed_scratch;
+                    gen::GAuxiliaryStore seed_scratch;
                     cfg_ptr->installInto(seed_scratch);
                     for(double sigma : oa::readAdaptionSigmas(seed_scratch, *cfg_ptr, adaptor_name_)) {
                         adaptor_property_store_.emplace_back(static_cast<double>(iteration), sigma);

@@ -61,7 +61,7 @@ class GAdaptionConfigBase;
  * This individual searches for the minimum of a 2-dimensional parabola.
  * It is part of an introductory example, used in the Geneva manual.
  */
-class GMPIEvaluatedIndividual : public gpar::GFlatGenome {
+class GMPIEvaluatedIndividual : public gen::GFlatGenome {
     /** @brief Make the class accessible to Boost.Serialization */
     friend class boost::serialization::access;
 
@@ -74,7 +74,7 @@ class GMPIEvaluatedIndividual : public gpar::GFlatGenome {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         // Serialize the base class
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
         // Add other variables here like this:
         // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
     }
@@ -94,14 +94,14 @@ public:
 
 protected:
     /** @brief Loads the data of another GMPIEvaluatedIndividual */
-    void load_(const gpar::GOptimizableEntity *) final;
+    void load_(const gen::GOptimizableEntity *) final;
 
     /** @brief The actual fitness calculation takes place here. */
     double fitnessCalculation() final;
 
 private:
     /** @brief Creates a deep clone of this object */
-    gpar::GFlatGenome *clone_() const final;
+    gen::GFlatGenome *clone_() const final;
 
     const double M_PAR_MIN;
     const double M_PAR_MAX;

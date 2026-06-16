@@ -43,7 +43,7 @@
 #include "geneva/GMultiConstraintT.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -110,6 +110,6 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::Parameters::GOptimizableEntityConstraint) // NOLINT
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::Genome::GOptimizableEntityConstraint) // NOLINT

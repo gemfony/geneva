@@ -94,13 +94,13 @@ const targetFunction GO_DEF_TARGETFUNCTION = targetFunction::GFM_PARABOLA;
  * This individual searches for a minimum of a number of predefined functions, each capable
  * of processing their input in multiple dimensions.
  */
-class GFMinIndividual : public gpar::GFlatGenome {
+class GFMinIndividual : public gen::GFlatGenome {
     /////////////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
             BOOST_SERIALIZATION_NVP(targetFunction_) & BOOST_SERIALIZATION_NVP(seed_sigma_);
     }
 
@@ -145,17 +145,17 @@ public:
     /** @brief Registers the config-file options, binding them to the passed Config */
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
     /** @brief Builds the flat genome's structure: one shared constrained-double group of par_dim values */
-    static gpar::Genome buildGenome(const Config &c);
+    static gen::Genome buildGenome(const Config &c);
     /** @brief The OA-owned adaption config: the shared double group gets the configured Gauss adaptor */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const gpar::GFlatGenome &sample, const Config &c);
+    buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
     /** @brief Per-object post-config hook: the target function and the seed sigma for getAverageSigma() */
     static void applyConfig(GFMinIndividual &ind, const Config &c);
 
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another GFMinIndividual */
-    virtual void load_(const gpar::GOptimizableEntity *) final;
+    virtual void load_(const gen::GOptimizableEntity *) final;
 
     /** @brief The actual value calculation takes place here */
     virtual double fitnessCalculation() final;
@@ -165,7 +165,7 @@ protected:
 private:
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    virtual gpar::GFlatGenome *clone_() const final;
+    virtual gen::GFlatGenome *clone_() const final;
 
     /***************************************************************************/
     targetFunction targetFunction_ =
@@ -198,7 +198,7 @@ std::ostream &operator<<(std::ostream &, std::shared_ptr<Gem::Geneva::GFMinIndiv
  * buildAdaptionConfig / applyConfig hooks. The alias keeps existing call sites (ctor(path), operator(),
  * get_as<>(), getAdaptionConfig()) compiling unchanged.
  */
-using GFMinIndividualFactory = Gem::Geneva::Parameters::GFlatIndividualFactory<GFMinIndividual>;
+using GFMinIndividualFactory = Gem::Geneva::Genome::GFlatIndividualFactory<GFMinIndividual>;
 
 /******************************************************************************/
 

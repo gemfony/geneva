@@ -434,7 +434,7 @@ void GParChild::doRecombine() {
             const std::size_t child_idx = n_parents_ + c;
             const std::size_t pp = parent_pos[c];
             futures_cnt.push_back(tp->async_schedule([this, child_idx, pp]() {
-                std::unique_ptr<gpar::GIndividualSlot> &child = GOptimizationAlgorithmBase::data_cnt_[child_idx];
+                std::unique_ptr<gen::GIndividualSlot> &child = GOptimizationAlgorithmBase::data_cnt_[child_idx];
                 child->load(GOptimizationAlgorithmBase::data_cnt_[pp]);
                 child->template getPersonalityTraits<GBaseParChildPersonalityTraits>()
                     ->setParentId(pp);
@@ -468,7 +468,7 @@ void GParChild::doRecombine() {
 
     // ------------------------------------------------------------------------
     // Serial path (original behaviour; also covers the cross-over / amalgamation case).
-    std::vector<std::unique_ptr<gpar::GIndividualSlot>>::iterator it;
+    std::vector<std::unique_ptr<gen::GIndividualSlot>>::iterator it;
     for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         it != GOptimizationAlgorithmBase::data_cnt_.end();
         ++it) {
@@ -476,8 +476,8 @@ void GParChild::doRecombine() {
         // If we do perform cross-over, we always cross the best individual with another random parent
         if(n_parents_ > 1 &&
            amalgamation_wanted(this->gr_)) { // Create individuals using a cross-over scheme
-            const gpar::GOptimizableEntity &best_parent = this->front()->individual();
-            const gpar::GOptimizableEntity &combiner =
+            const gen::GOptimizableEntity &best_parent = this->front()->individual();
+            const gen::GOptimizableEntity &combiner =
                 (n_parents_ > 2)
                     ? (*(this->begin() + this->uniform_int_distribution_(
                                              this->gr_,
@@ -567,7 +567,7 @@ void GParChild::adaptChildren_() {
             // Phase 8: drive the data-oriented adaption from the OA-owned config instead of the
             // individual's own adapt(). The config is read-only here, so the schedule stays lock-free.
             [it, cfg = adaption_config_.get()]() {
-                auto &flat = dynamic_cast<gpar::GFlatGenome &>((*it)->individual());
+                auto &flat = dynamic_cast<gen::GFlatGenome &>((*it)->individual());
                 return adaptIndividual(flat, (*it)->scratch(), *cfg);
             } // Returns the number of adaptions
         ));
@@ -654,7 +654,7 @@ void GParChild::fixAfterJobSubmission() {
     // concrete one (the marking loop below, and selection, dereference it). It is tagged as a child by
     // that marking loop.
     for(auto &item_ptr : old_work_items) {
-        auto slot = std::make_unique<gpar::GIndividualSlot>(std::move(item_ptr));
+        auto slot = std::make_unique<gen::GIndividualSlot>(std::move(item_ptr));
         slot->setPersonality(this->makePersonalityTraits());
         this->push_back(std::move(slot));
     }
@@ -785,7 +785,7 @@ std::tuple<std::size_t, std::size_t> GParChild::getAdaptionRange() const {
  * This helper function marks parents as parents and children as children.
  */
 void GParChild::markParents() {
-    typename std::vector<std::unique_ptr<gpar::GIndividualSlot>>::iterator it;
+    typename std::vector<std::unique_ptr<gen::GIndividualSlot>>::iterator it;
     for(it = GOptimizationAlgorithmBase::data_cnt_.begin();
         it != GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         ++it) {
@@ -800,7 +800,7 @@ void GParChild::markParents() {
  * This helper function marks children as children
  */
 void GParChild::markChildren() {
-    typename std::vector<std::unique_ptr<gpar::GIndividualSlot>>::iterator it;
+    typename std::vector<std::unique_ptr<gen::GIndividualSlot>>::iterator it;
     for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         it != GOptimizationAlgorithmBase::data_cnt_.end();
         ++it) {
@@ -893,7 +893,7 @@ void GParChild::init() {
     // individual's own adapt(). It is transient run scratch, rebuilt on every optimize().
     adaption_config_.reset();
     if(not this->empty()) {
-        if(const auto *flat = dynamic_cast<const gpar::GFlatGenome *>(&this->at(0)->individual())) {
+        if(const auto *flat = dynamic_cast<const gen::GFlatGenome *>(&this->at(0)->individual())) {
             // The genome carries only structure -- the adaptors live on an OA-owned GAdaptionConfig that
             // MUST be provided explicitly (via setAdaptionConfig(), e.g. Go2::registerAdaptionConfig() for
             // this algorithm's personality type). Adaption intent is never inferred from the genome, so an
@@ -982,7 +982,7 @@ void GParChild::adjustPopulation_() {
     }
 
     // Do the smart pointers actually point to any objects ?
-    typename std::vector<std::unique_ptr<gpar::GIndividualSlot>>::iterator it;
+    typename std::vector<std::unique_ptr<gen::GIndividualSlot>>::iterator it;
     for(const auto &individual : GOptimizationAlgorithmBase::data_cnt_) {
         if(not individual) { // shared_ptr can be implicitly converted to bool
             throw geneva_exception(
@@ -1039,7 +1039,7 @@ void GParChild::performScheduledPopulationGrowth() {
  *
  * @param child The individual for which a new value should be chosen
  */
-void GParChild::randomRecombine(const std::unique_ptr<gpar::GIndividualSlot> &child) {
+void GParChild::randomRecombine(const std::unique_ptr<gen::GIndividualSlot> &child) {
     std::size_t parent_pos = 0;
 
     if(n_parents_ == 1) {
@@ -1078,7 +1078,7 @@ void GParChild::randomRecombine(const std::unique_ptr<gpar::GIndividualSlot> &ch
  * @param threshold A std::vector<double> holding the recombination likelihoods for each parent
  */
 void GParChild::valueRecombine(
-    const std::unique_ptr<gpar::GIndividualSlot> &child,
+    const std::unique_ptr<gen::GIndividualSlot> &child,
     const std::vector<double> &threshold
 ) {
     bool done = false;

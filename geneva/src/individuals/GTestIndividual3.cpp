@@ -66,7 +66,7 @@ GTestIndividual3::GTestIndividual3() {
     // streamline order is therefore identical to the tree's, so getPlainData() reads it positionally.
     // Structure only -- this individual is never adapted (it is a genome / slot-scratch test fixture), so
     // no adaptor is attached and no OA adaption config is authored for it.
-    gpar::GGenomeBuilder bld;
+    gen::GGenomeBuilder bld;
 
     for(std::size_t i_cnt = 0; i_cnt < GTI_DEF_NITEMS; i_cnt++) {
         bld.addDoubleGroup(2, 0., 1.); // a: middle of the circle
@@ -89,7 +89,7 @@ GTestIndividual3::GTestIndividual3() {
  * @param cp A constant reference to another GTestIndividual3 object
  */
 GTestIndividual3::GTestIndividual3(const GTestIndividual3 &cp)
-  : gpar::GFlatGenome(cp) { /* nothing */
+  : gen::GFlatGenome(cp) { /* nothing */
 }
 
 /******************************************************************************/
@@ -108,7 +108,7 @@ GTestIndividual3::~GTestIndividual3() { /* nothing */
  * @param e The expected outcome of the comparison
  */
 void GTestIndividual3::compare_(
-    const gpar::GOptimizableEntity &cp,
+    const gen::GOptimizableEntity &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -117,12 +117,12 @@ void GTestIndividual3::compare_(
 
     // Check that we are dealing with a GTestIndividual3 reference independent of this object and convert the pointer
     const GTestIndividual3 *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GTestIndividual3>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GTestIndividual3>(cp, this);
 
     Gem::Common::GToken token("GTestIndividual3", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
 
     // ...no local data
 
@@ -136,16 +136,16 @@ void GTestIndividual3::compare_(
  *
  * @param cp A copy of another GTestIndividual3, camouflaged as a GFlatGenome
  */
-void GTestIndividual3::load_(const gpar::GOptimizableEntity *cp) {
+void GTestIndividual3::load_(const gen::GOptimizableEntity *cp) {
     using namespace Gem::Common;
     using namespace Gem::Geneva;
 
     // Check that we are dealing with a GTestIndividual3 reference independent of this object and convert the pointer
     const GTestIndividual3 *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GTestIndividual3>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GTestIndividual3>(cp, this);
 
     // Load our parent's data
-    gpar::GFlatGenome::load_(cp);
+    gen::GFlatGenome::load_(cp);
 
     // no local data
 }
@@ -156,7 +156,7 @@ void GTestIndividual3::load_(const gpar::GOptimizableEntity *cp) {
  *
  * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GFlatGenome *GTestIndividual3::clone_() const {
+gen::GFlatGenome *GTestIndividual3::clone_() const {
     return new GTestIndividual3(*this);
 }
 
@@ -227,7 +227,7 @@ bool GTestIndividual3::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gpar::GFlatGenome::modify_GUnitTests_()) {
+    if(gen::GFlatGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -251,7 +251,7 @@ void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
+    gen::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     constexpr std::size_t ntests = 100;
 
@@ -292,7 +292,7 @@ void GTestIndividual3::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
+    gen::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------

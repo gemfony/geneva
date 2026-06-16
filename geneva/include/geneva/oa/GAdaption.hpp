@@ -63,13 +63,13 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 
 namespace detail {
 
-using Gem::Geneva::Parameters::AuxKey;
-using Gem::Geneva::Parameters::BiGaussState;
-using Gem::Geneva::Parameters::FlipState;
-using Gem::Geneva::Parameters::GaussState;
-using Gem::Geneva::Parameters::GAuxiliaryStore;
-using Gem::Geneva::Parameters::GFlatGenome;
-using Gem::Geneva::Parameters::GroupSpec;
+using Gem::Geneva::Genome::AuxKey;
+using Gem::Geneva::Genome::BiGaussState;
+using Gem::Geneva::Genome::FlipState;
+using Gem::Geneva::Genome::GaussState;
+using Gem::Geneva::Genome::GAuxiliaryStore;
+using Gem::Geneva::Genome::GFlatGenome;
+using Gem::Geneva::Genome::GroupSpec;
 
 /** @brief Runs the Gauss kernel over one FP channel using the GaussState block (in scratch) under key. */
 template <typename T>
@@ -90,7 +90,7 @@ std::size_t adaptGaussChannel(
         if(not g.has_gauss || not g.active) {
             continue;
         }
-        n += Gem::Geneva::Parameters::adaptGaussGroup<T>(
+        n += Gem::Geneva::Genome::adaptGaussGroup<T>(
             g.gauss, states[gi], values.subspan(g.start, g.len), g.range, gr
         );
     }
@@ -116,7 +116,7 @@ std::size_t adaptBiGaussChannel(
         if(not g.has_bigauss || not g.active) {
             continue;
         }
-        n += Gem::Geneva::Parameters::adaptBiGaussGroup<T>(
+        n += Gem::Geneva::Genome::adaptBiGaussGroup<T>(
             g.bigauss, states[gi], values.subspan(g.start, g.len), g.range, gr
         );
     }
@@ -137,7 +137,7 @@ inline std::size_t runAdaptionKernels(
     const GAdaptionConfigBase &cfg,
     Gem::Hap::GRandomBase &gr
 ) {
-    using namespace Gem::Geneva::Parameters;
+    using namespace Gem::Geneva::Genome;
 
     std::size_t n = 0;
     n += detail::adaptGaussChannel<double>(scratch, cfg.doubleGroups(), ind.internalDoubleValues(), AUXKEY_GAUSS_DOUBLE, gr);
@@ -257,7 +257,7 @@ inline std::size_t adaptIndividual(
  * Mirrors GFlatGenome::updateAdaptorsOnStall(), but driven by the OA-owned config.
  */
 inline void resetAdaptionState(detail::GAuxiliaryStore &scratch, const GAdaptionConfigBase &cfg) {
-    using namespace Gem::Geneva::Parameters;
+    using namespace Gem::Geneva::Genome;
 
     auto resetGauss = [&]<typename T>(const std::vector<GroupSpec<T>> &groups, AuxKey key) {
         if(not scratch.hasAux(key)) {
@@ -326,7 +326,7 @@ inline std::vector<double> readAdaptionSigmas(
     const GAdaptionConfigBase &cfg,
     const std::string &adaptor_name
 ) {
-    using namespace Gem::Geneva::Parameters;
+    using namespace Gem::Geneva::Genome;
     std::vector<double> out;
 
     if(adaptor_name == "GDoubleGaussAdaptor" && scratch.hasAux(AUXKEY_GAUSS_DOUBLE)) {

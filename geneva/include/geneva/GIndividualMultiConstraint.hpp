@@ -41,4 +41,4 @@
 #include "geneva/ind/GOptimizableEntity.hpp"
 
 // Make sure the instantiation with GOptimizableEntity as template argument can be serialized
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCheckCombinerT<gpar::GOptimizableEntity>) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCheckCombinerT<gen::GOptimizableEntity>) // NOLINT

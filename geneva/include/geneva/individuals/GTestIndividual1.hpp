@@ -68,7 +68,7 @@ namespace Gem::Geneva::Individuals {
  * weakening data protection.
  */
 class GTestIndividual1 // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gpar::GFlatGenome {
+  : public gen::GFlatGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -76,7 +76,7 @@ class GTestIndividual1 // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -94,7 +94,7 @@ public:
 
 protected:
     /** @brief Loads the data of another GTestIndividual1 */
-    void load_(const gpar::GOptimizableEntity *) final;
+    void load_(const gen::GOptimizableEntity *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GTestIndividual1>(
@@ -105,7 +105,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GOptimizableEntity & // the other object
+        const gen::GOptimizableEntity & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -127,7 +127,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    gpar::GFlatGenome *clone_() const final;
+    gen::GFlatGenome *clone_() const final;
 };
 
 /******************************************************************************/

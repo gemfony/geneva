@@ -66,7 +66,7 @@
 #include "geneva/oa/GSimulatedAnnealing.hpp"
 #include "geneva/oa/GSwarmAlgorithm.hpp"
 
-namespace gpar = Gem::Geneva::Parameters;
+namespace gen = Gem::Geneva::Genome;
 namespace oa = Gem::Geneva::OptimizationAlgorithms;
 
 using Gem::Geneva::activityMode;
@@ -81,10 +81,10 @@ constexpr std::size_t N_DIM = 5;
  * started at 3.0 (so the initial fitness is N_DIM * 9 = 45). Authored entirely through the builder;
  * clone/load/compare come from the CRTP base + GFlatGenome.
  */
-class FlatSphereOA : public gpar::GFlatIndividualT<FlatSphereOA> {
+class FlatSphereOA : public gen::GFlatIndividualT<FlatSphereOA> {
 public:
     FlatSphereOA() {
-        gpar::GGenomeBuilder b;
+        gen::GGenomeBuilder b;
         b.addDoubleGroup(N_DIM, -5., 5.).init(3.0); // structure only; the adaptor lives on the OA config
         this->setGenome(b.build());
     }
@@ -119,10 +119,10 @@ protected:
  * constrained fold never distorts a line-search probe (the same setup real CGD usage employs, e.g. the
  * GFunctionMinimizer example over GConstrainedDoubleObject).
  */
-class FlatSphereWideOA : public gpar::GFlatIndividualT<FlatSphereWideOA> {
+class FlatSphereWideOA : public gen::GFlatIndividualT<FlatSphereWideOA> {
 public:
     FlatSphereWideOA() {
-        gpar::GGenomeBuilder b;
+        gen::GGenomeBuilder b;
         b.addDoubleGroup(N_DIM, -25., 25.).init(3.0);
         this->setGenome(b.build());
     }
@@ -145,10 +145,10 @@ protected:
  * A continuous flat sphere driven by a BI-GAUSSIAN adaptor (instead of the single gaussian): N_DIM
  * constrained doubles in [-5, 5), started at 3.0. Demonstrates the bi-gauss kernel end-to-end.
  */
-class FlatBiGaussSphereOA : public gpar::GFlatIndividualT<FlatBiGaussSphereOA> {
+class FlatBiGaussSphereOA : public gen::GFlatIndividualT<FlatBiGaussSphereOA> {
 public:
     FlatBiGaussSphereOA() {
-        gpar::GGenomeBuilder b;
+        gen::GGenomeBuilder b;
         // sigma1, sigmaSigma1, minSigma1, maxSigma1, sigma2, sigmaSigma2, minSigma2, maxSigma2,
         // delta, sigmaDelta, minDelta, maxDelta, adProb
         b.addDoubleGroup(N_DIM, -5., 5.).init(3.0); // structure only; the adaptor lives on the OA config
@@ -184,10 +184,10 @@ protected:
  */
 constexpr std::size_t N_INT = 5;
 
-class FlatIntSphereOA : public gpar::GFlatIndividualT<FlatIntSphereOA> {
+class FlatIntSphereOA : public gen::GFlatIndividualT<FlatIntSphereOA> {
 public:
     FlatIntSphereOA() {
-        gpar::GGenomeBuilder b;
+        gen::GGenomeBuilder b;
         b.addInt32Group(N_INT, -10, 10).init(7); // structure only; the adaptor lives on the OA config
         this->setGenome(b.build());
     }
@@ -219,10 +219,10 @@ protected:
  */
 constexpr std::size_t N_BOOL = 16;
 
-class FlatOneMaxOA : public gpar::GFlatIndividualT<FlatOneMaxOA> {
+class FlatOneMaxOA : public gen::GFlatIndividualT<FlatOneMaxOA> {
 public:
     FlatOneMaxOA() {
-        gpar::GGenomeBuilder b;
+        gen::GGenomeBuilder b;
         b.addBoolGroup(N_BOOL).init(false); // structure only; the adaptor lives on the OA config
         this->setGenome(b.build());
     }
@@ -255,10 +255,10 @@ protected:
  * per-dimension velocity range is l*(upper-lower) == 0 for the frozen dim) tolerates a fixed parameter
  * rather than crashing.
  */
-class FlatFrozenOA : public gpar::GFlatIndividualT<FlatFrozenOA> {
+class FlatFrozenOA : public gen::GFlatIndividualT<FlatFrozenOA> {
 public:
     FlatFrozenOA() {
-        gpar::GGenomeBuilder b;
+        gen::GGenomeBuilder b;
         b.addDoubleGroup(2, -5., 5.).init(3.0);
         b.addDouble(4., 4., 4.); // a parameter frozen at 4 (lower == upper)
         this->setGenome(b.build());
@@ -335,9 +335,9 @@ TEST_CASE("EA in a PARETO mode degenerates safely on a single-objective individu
 /******************************************************************************/
 
 TEST_CASE("EA checkpoint round-trip preserves the per-slot adaption scratch", "[flat][oa]") {
-    using gpar::GFlatGenome;
-    using Gem::Geneva::Parameters::AUXKEY_GAUSS_DOUBLE;
-    using Gem::Geneva::Parameters::GaussState;
+    using gen::GFlatGenome;
+    using Gem::Geneva::Genome::AUXKEY_GAUSS_DOUBLE;
+    using Gem::Geneva::Genome::GaussState;
 
     // Phase 10.4: the per-individual OA scratch (adaption sigma/state) lives on the GIndividualSlot and is
     // serialized for check-pointing, so a resumed algorithm keeps its evolved state. Here we seed a slot's
@@ -414,7 +414,7 @@ TEST_CASE("EA adopts an externally-provided adaption config", "[flat][oa]") {
     pop->setReportIteration(100000);
 
     auto ind = FlatSphereOA().clone_unique();
-    auto &flat = dynamic_cast<gpar::GFlatGenome &>(*ind);
+    auto &flat = dynamic_cast<gen::GFlatGenome &>(*ind);
     auto cfg = std::make_shared<oa::GEAAdaptionConfig>(flat);
     cfg->groupDouble(0).gauss(0.5, 0.8, 1e-3, 2., 1.); // author the Gauss settings explicitly
 
@@ -442,7 +442,7 @@ TEST_CASE("EA rejects an adaption config built for a different genome", "[flat][
     // A config built from a structurally DIFFERENT genome (a line fit: 2 doubles) must be rejected when
     // the algorithm validates it against its population's genome at setup.
     gind::GLineFitIndividual other(std::vector<std::tuple<double, double>>{{0., 0.}, {1., 1.}});
-    auto &oflat = dynamic_cast<gpar::GFlatGenome &>(other);
+    auto &oflat = dynamic_cast<gen::GFlatGenome &>(other);
     auto cfg = std::make_shared<oa::GEAAdaptionConfig>(oflat);
 
     pop->setAdaptionConfig(cfg);

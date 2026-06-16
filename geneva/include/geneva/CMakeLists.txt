@@ -13,8 +13,8 @@ SET ( OPTIMIZATIONINCLUDES
     GPostProcessorT.hpp
 )
 
-# Parameter / adaptor object hierarchy (namespace Gem::Geneva::Parameters),
-# installed under geneva/par to mirror the `gpar` alias.
+# Parameter / adaptor object hierarchy (namespace Gem::Geneva::Genome),
+# installed under geneva/par to mirror the `gen` alias.
 SET ( PARAM_INCLUDES
     par/GParameterPropertyParser.hpp
     par/GOptimizableEntityFactory.hpp
@@ -22,7 +22,7 @@ SET ( PARAM_INCLUDES
     par/GOptimizableEntityMultiConstraint.hpp
 )
 
-# Individual / genome headers (namespace Gem::Geneva::Parameters), installed
+# Individual / genome headers (namespace Gem::Geneva::Genome), installed
 # under geneva/ind. This is the public flat-genome authoring + storage API:
 # the abstract individual base, the sole flat genome, the genome builder /
 # layout / architecture / factory, the auxiliary store and the adaption

@@ -45,7 +45,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 /** @brief Storage of variable-related properties */
@@ -291,11 +291,11 @@ std::ostream &operator<<(std::ostream &o, const parPropSpec<par_type> &s) {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */
 
 /******************************************************************************/
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 /**
@@ -525,4 +525,4 @@ GParameterPropertyParser::getIterators<bool>() const {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */

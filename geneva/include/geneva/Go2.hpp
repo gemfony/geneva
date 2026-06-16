@@ -88,7 +88,7 @@ using GOABase = oa::GOptimizationAlgorithmBase;
  */
 class Go2 // NOLINT(cppcoreguidelines-special-member-functions)
   : public Interface::GOptimizerIT<Go2>
-  , public Gem::Common::GPtrContainerT<gpar::GOptimizableEntity> {
+  , public Gem::Common::GPtrContainerT<gen::GOptimizableEntity> {
 public:
     /** @brief The default constructor */
     Go2() = delete;
@@ -131,7 +131,7 @@ public:
      *  Go2 does not know how to build itself; the broker is injected into every algorithm. Call after
      *  construction and before optimize(). */
     void registerBroker(
-        std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GOptimizableEntity>> broker) {
+        std::shared_ptr<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>> broker) {
         broker_ = std::move(broker);
     }
 
@@ -140,7 +140,7 @@ public:
 
     /** @brief Allows to register a content creator */
     void
-        registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>> &);
+        registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> &);
 
     /***************************************************************************/
     // The following is a trivial list of getters and setters
@@ -211,14 +211,14 @@ private:
     // GOptimizerIT NVI hooks: keep these overrides private (do not
     // widen access -- matches oa::GOptimizationAlgorithmBase and the base's NVI contract).
     /** @brief Retrieves the best individual found */
-    std::shared_ptr<gpar::GOptimizableEntity> getBestGlobalIndividual_() const final;
+    std::shared_ptr<gen::GOptimizableEntity> getBestGlobalIndividual_() const final;
     /** @brief Retrieves a list of the best individuals found */
-    std::vector<std::shared_ptr<gpar::GOptimizableEntity>>
+    std::vector<std::shared_ptr<gen::GOptimizableEntity>>
     getBestGlobalIndividuals_() const final;
     /** @brief Retrieves the best individual found */
-    std::shared_ptr<gpar::GOptimizableEntity> getBestIterationIndividual_() const final;
+    std::shared_ptr<gen::GOptimizableEntity> getBestIterationIndividual_() const final;
     /** @brief Retrieves a list of the best individuals found */
-    std::vector<std::shared_ptr<gpar::GOptimizableEntity>>
+    std::vector<std::shared_ptr<gen::GOptimizableEntity>>
     getBestIterationIndividuals_() const final;
 
     /** @brief Returns one-word information about the type of optimization algorithm. */
@@ -289,7 +289,7 @@ private:
     /** @brief The single server-backed/local courtier broker, shared across all algorithms. Held here
      *  so its consumer (and any listening server) outlives the run and is torn down by RAII at Go2
      *  destruction. Null when no courtier routing was built (legacy fallback, or an MPI worker rank). */
-    std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GOptimizableEntity>> broker_;
+    std::shared_ptr<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>> broker_;
     /** @brief Set on a courtier MPI WORKER rank: runs the courtier worker loop (clientRun_ invokes
      *  it instead of the legacy client). Type-erased so Go2.hpp needs no MPI headers; the captured
      *  consumer shared_ptr keeps the worker node alive. Empty on master / non-MPI / legacy paths. */
@@ -334,7 +334,7 @@ private:
     // A string representation of the default algorithm
     const std::string default_algorithm_str_ = DEFAULTOPTALG; ///< This is the last fall-back
     // Holds an object capable of producing objects of the desired type
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>> content_creator_ptr_;
+    std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr_;
     // A user-defined means for information retrieval
     std::vector<std::shared_ptr<oa::GBasePluggableOM>> pluggable_monitors_cnt_;
 };

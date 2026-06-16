@@ -47,7 +47,7 @@
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 
 using namespace Gem::Geneva;
-using namespace Gem::Geneva::Parameters;
+using namespace Gem::Geneva::Genome;
 
 namespace Gem::Tests {
 
@@ -56,7 +56,7 @@ namespace Gem::Tests {
  * A minimal flat individual used as the slot's payload: a sphere over n constrained doubles sharing
  * one Gauss adaptor.
  */
-class SlotSphere : public Gem::Geneva::Parameters::GFlatIndividualT<SlotSphere> {
+class SlotSphere : public Gem::Geneva::Genome::GFlatIndividualT<SlotSphere> {
 public:
     SlotSphere() { buildGenome(5); }
     explicit SlotSphere(std::size_t n) { buildGenome(n); }
@@ -90,7 +90,7 @@ private:
     }
 };
 
-std::unique_ptr<Gem::Geneva::Parameters::GOptimizableEntity> makeIndividual(std::size_t n = 5) {
+std::unique_ptr<Gem::Geneva::Genome::GOptimizableEntity> makeIndividual(std::size_t n = 5) {
     return std::make_unique<SlotSphere>(n);
 }
 

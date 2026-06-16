@@ -69,7 +69,7 @@ public:
     /** @brief Initialization with the name of the config file and a content creator */
     GSimulatedAnnealingFactory(
         const std::string &config_file,
-        std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>> content_creator_ptr
+        std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr
     )
       : Base(config_file, content_creator_ptr) { /* nothing */ }
     /** @brief The copy constructor */

@@ -129,8 +129,8 @@ int main(int argc, char **argv) {
         // Create a check combiner and add the constraint objects to it. Constraints are
         // expressed directly as C++ constraint objects (subclasses of GOptimizableEntityConstraint),
         // which is the general, type-safe way to formulate arbitrary dependent constraints.
-        std::shared_ptr<GCheckCombinerT<gpar::GOptimizableEntity>> combiner_ptr(
-            new GCheckCombinerT<gpar::GOptimizableEntity>()
+        std::shared_ptr<GCheckCombinerT<gen::GOptimizableEntity>> combiner_ptr(
+            new GCheckCombinerT<gen::GOptimizableEntity>()
         );
         combiner_ptr->setCombinerPolicy(Gem::Geneva::validityCheckCombinerPolicy::MULTIPLYINVALID);
 

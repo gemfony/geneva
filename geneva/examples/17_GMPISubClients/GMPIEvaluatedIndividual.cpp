@@ -46,13 +46,13 @@ MPI_Comm GMPIEvaluatedIndividual::communicator{MPI_COMM_NULL};
  * each of which has a constrained value range [-10:10].
  */
 GMPIEvaluatedIndividual::GMPIEvaluatedIndividual()
-  : gpar::GFlatGenome()
+  : gen::GFlatGenome()
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10.) {
     // Build a flat genome of two constrained doubles in [M_PAR_MIN, M_PAR_MAX[, each its own Gauss
     // group with the default GDoubleGaussAdaptor configuration (the tree relied on the lazily
     // installed default adaptor).
-    gpar::GGenomeBuilder b;
+    gen::GGenomeBuilder b;
     for(std::size_t npar = 0; npar < 2; npar++) {
         b.addDouble(M_PAR_MIN, M_PAR_MIN, M_PAR_MAX); // structure only; the adaptor lives on the OA config
     }
@@ -69,7 +69,7 @@ GMPIEvaluatedIndividual::GMPIEvaluatedIndividual()
  * @param cp A copy of another GMPIEvaluatedIndividual
  */
 GMPIEvaluatedIndividual::GMPIEvaluatedIndividual(const GMPIEvaluatedIndividual &cp)
-  : gpar::GFlatGenome(cp)
+  : gen::GFlatGenome(cp)
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10) { /* nothing */
 }
@@ -97,13 +97,13 @@ void GMPIEvaluatedIndividual::setCommunicator(MPI_Comm c) {
  *
  * @param cp A copy of another GMPIEvaluatedIndividual, camouflaged as a GFlatGenome
  */
-void GMPIEvaluatedIndividual::load_(const gpar::GOptimizableEntity *cp) {
+void GMPIEvaluatedIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GMPIEvaluatedIndividual reference independent of this object and convert the pointer
     const GMPIEvaluatedIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GMPIEvaluatedIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GMPIEvaluatedIndividual>(cp, this);
 
     // Load our parent's data
-    gpar::GFlatGenome::load_(cp);
+    gen::GFlatGenome::load_(cp);
 
     // No local data
     // sampleVariable = p_load->sampleVariable;
@@ -115,7 +115,7 @@ void GMPIEvaluatedIndividual::load_(const gpar::GOptimizableEntity *cp) {
  *
  * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GFlatGenome *GMPIEvaluatedIndividual::clone_() const {
+gen::GFlatGenome *GMPIEvaluatedIndividual::clone_() const {
     return new GMPIEvaluatedIndividual(*this);
 }
 

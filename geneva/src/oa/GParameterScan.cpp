@@ -157,7 +157,7 @@ GBScanPar::GBScanPar() { /* nothing */
 /**
  * Construction from local variables
  */
-GBScanPar::GBScanPar(gpar::parPropSpec<bool> pps, bool random_scan)
+GBScanPar::GBScanPar(gen::parPropSpec<bool> pps, bool random_scan)
   : GBaseScanParT<bool>(pps, random_scan, "b") { /* nothing */
 }
 
@@ -182,7 +182,7 @@ GInt32ScanPar::GInt32ScanPar() { /* nothing */
 /**
  * The standard destructor
  */
-GInt32ScanPar::GInt32ScanPar(gpar::parPropSpec<std::int32_t> pps, bool random_scan)
+GInt32ScanPar::GInt32ScanPar(gen::parPropSpec<std::int32_t> pps, bool random_scan)
   : GBaseScanParT<std::int32_t>(pps, random_scan, "i") { /* nothing */
 }
 
@@ -207,7 +207,7 @@ GDScanPar::GDScanPar() { /* nothing */
 /**
  * The standard destructor
  */
-GDScanPar::GDScanPar(gpar::parPropSpec<double> pps, bool random_scan)
+GDScanPar::GDScanPar(gen::parPropSpec<double> pps, bool random_scan)
   : GBaseScanParT<double>(pps, random_scan, "d") { /* nothing */
 }
 
@@ -232,7 +232,7 @@ GFScanPar::GFScanPar() { /* nothing */
 /**
  * The standard destructor
  */
-GFScanPar::GFScanPar(gpar::parPropSpec<float> pps, bool random_scan)
+GFScanPar::GFScanPar(gen::parPropSpec<float> pps, bool random_scan)
   : GBaseScanParT<float>(pps, random_scan, "f") { /* nothing */
 }
 
@@ -690,7 +690,7 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
     // Extract the relevant data and store it in a parSet object
     // 1) For boolean objects
     for(const auto &b_scan_par : b_cnt_) {
-        gpar::NAMEANDIDTYPE var = b_scan_par->getVarAddress();
+        gen::NAMEANDIDTYPE var = b_scan_par->getVarAddress();
 
         if(mode_set) {
             if(std::get<0>(var) != mode) {
@@ -716,7 +716,7 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
     }
     // 2) For std::int32_t objects
     for(const auto &i_scan_par : int32_cnt_) {
-        gpar::NAMEANDIDTYPE var = i_scan_par->getVarAddress();
+        gen::NAMEANDIDTYPE var = i_scan_par->getVarAddress();
 
         if(mode_set) {
             if(std::get<0>(var) != mode) {
@@ -742,7 +742,7 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
     }
     // 3) For float objects
     for(const auto &f_scan_par : f_cnt_) {
-        gpar::NAMEANDIDTYPE var = f_scan_par->getVarAddress();
+        gen::NAMEANDIDTYPE var = f_scan_par->getVarAddress();
 
         if(mode_set) {
             if(std::get<0>(var) != mode) {
@@ -768,7 +768,7 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
     }
     // 4) For double objects
     for(const auto &d_scan_par : d_cnt_) {
-        gpar::NAMEANDIDTYPE var = d_scan_par->getVarAddress();
+        gen::NAMEANDIDTYPE var = d_scan_par->getVarAddress();
 
         if(mode_set) {
             if(std::get<0>(var) != mode) {
@@ -980,7 +980,7 @@ void GParameterScan::setParameterSpecs(std::string par_str) {
     b_cnt_.clear();
 
     // Parse the parameter string
-    gpar::GParameterPropertyParser ppp(par_str);
+    gen::GParameterPropertyParser ppp(par_str);
 
     //---------------------------------------------------------------------------
     // Assign the parameter definitions to our internal parameter vectors.
@@ -990,8 +990,8 @@ void GParameterScan::setParameterSpecs(std::string par_str) {
     if(0 == simple_scan_items_) { // Only act if no "simple scan" was requested
         // Retrieve double parameters
         std::tuple<
-            std::vector<gpar::parPropSpec<double>>::const_iterator,
-            std::vector<gpar::parPropSpec<double>>::const_iterator>
+            std::vector<gen::parPropSpec<double>>::const_iterator,
+            std::vector<gen::parPropSpec<double>>::const_iterator>
             t_d = ppp.getIterators<double>();
 
         auto d_cit = std::get<0>(t_d);
@@ -1003,8 +1003,8 @@ void GParameterScan::setParameterSpecs(std::string par_str) {
 
         // Retrieve float parameters
         std::tuple<
-            std::vector<gpar::parPropSpec<float>>::const_iterator,
-            std::vector<gpar::parPropSpec<float>>::const_iterator>
+            std::vector<gen::parPropSpec<float>>::const_iterator,
+            std::vector<gen::parPropSpec<float>>::const_iterator>
             t_f = ppp.getIterators<float>();
 
         auto f_cit = std::get<0>(t_f);
@@ -1016,8 +1016,8 @@ void GParameterScan::setParameterSpecs(std::string par_str) {
 
         // Retrieve integer parameters
         std::tuple<
-            std::vector<gpar::parPropSpec<std::int32_t>>::const_iterator,
-            std::vector<gpar::parPropSpec<std::int32_t>>::const_iterator>
+            std::vector<gen::parPropSpec<std::int32_t>>::const_iterator,
+            std::vector<gen::parPropSpec<std::int32_t>>::const_iterator>
             t_i = ppp.getIterators<std::int32_t>();
 
         auto i_cit = std::get<0>(t_i);
@@ -1031,8 +1031,8 @@ void GParameterScan::setParameterSpecs(std::string par_str) {
 
         // Retrieve boolean parameters
         std::tuple<
-            std::vector<gpar::parPropSpec<bool>>::const_iterator,
-            std::vector<gpar::parPropSpec<bool>>::const_iterator>
+            std::vector<gen::parPropSpec<bool>>::const_iterator,
+            std::vector<gen::parPropSpec<bool>>::const_iterator>
             t_b = ppp.getIterators<bool>();
 
         auto b_cit = std::get<0>(t_b);

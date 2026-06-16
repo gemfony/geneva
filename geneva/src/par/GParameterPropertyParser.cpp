@@ -36,7 +36,7 @@
 #include <string>
 #include <vector>
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 
 constexpr std::size_t GPP_DEF_NSTEPS = 100; // The default number of steps for a given parameter
 
@@ -365,4 +365,4 @@ std::size_t GParameterPropertyParser::getNSimpleScanItems() const {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */

@@ -307,7 +307,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     // Take care of unprocessed items, if these exist. We simply remove them and continue.
     if(not status.is_complete) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GIndividualSlot> &p) -> bool {
+            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
                 return (p->individual().getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
@@ -323,7 +323,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     // We simply remove them and continue.
     if(status.has_errors) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GIndividualSlot> &p) -> bool {
+            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
                 return p->individual().has_errors();
             });
 

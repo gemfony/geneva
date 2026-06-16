@@ -69,15 +69,15 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * (n_fp_parms entries each); the one-byte block flags whether a previous gradient/direction exists. The
  * values are distinct from the adaption AuxKeys 1-7 and the swarm velocity key 8.
  */
-constexpr Gem::Geneva::Parameters::AuxKey AUXKEY_CGD_PREV_GRADIENT = 9;
-constexpr Gem::Geneva::Parameters::AuxKey AUXKEY_CGD_PREV_DIRECTION = 10;
-constexpr Gem::Geneva::Parameters::AuxKey AUXKEY_CGD_HISTORY_VALID = 11;
+constexpr Gem::Geneva::Genome::AuxKey AUXKEY_CGD_PREV_GRADIENT = 9;
+constexpr Gem::Geneva::Genome::AuxKey AUXKEY_CGD_PREV_DIRECTION = 10;
+constexpr Gem::Geneva::Genome::AuxKey AUXKEY_CGD_HISTORY_VALID = 11;
 // L-BFGS quasi-Newton state (only installed in LBFGS mode): the last m (s, y) curvature pairs, the
 // previous parameter vector, and the live pair count.
-constexpr Gem::Geneva::Parameters::AuxKey AUXKEY_CGD_LBFGS_S = 12;     // m*n doubles (s = x_k - x_{k-1})
-constexpr Gem::Geneva::Parameters::AuxKey AUXKEY_CGD_LBFGS_Y = 13;     // m*n doubles (y = g_k - g_{k-1})
-constexpr Gem::Geneva::Parameters::AuxKey AUXKEY_CGD_LBFGS_PREV_X = 14; // n doubles (x_{k-1})
-constexpr Gem::Geneva::Parameters::AuxKey AUXKEY_CGD_LBFGS_COUNT = 15;  // 1 (number of stored pairs, 0..m)
+constexpr Gem::Geneva::Genome::AuxKey AUXKEY_CGD_LBFGS_S = 12;     // m*n doubles (s = x_k - x_{k-1})
+constexpr Gem::Geneva::Genome::AuxKey AUXKEY_CGD_LBFGS_Y = 13;     // m*n doubles (y = g_k - g_{k-1})
+constexpr Gem::Geneva::Genome::AuxKey AUXKEY_CGD_LBFGS_PREV_X = 14; // n doubles (x_{k-1})
+constexpr Gem::Geneva::Genome::AuxKey AUXKEY_CGD_LBFGS_COUNT = 15;  // 1 (number of stored pairs, 0..m)
 
 /******************************************************************************/
 /**
@@ -533,18 +533,18 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         // block -- install it (history invalid) so it restarts cleanly with steepest descent.
         auto &cg_scratch = this->at(i)->scratch();
         if(not cg_scratch.hasAux(AUXKEY_CGD_HISTORY_VALID)) {
-            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_PREV_GRADIENT, n_fp_parms_first_, gpar::AuxScope::PerIndividual);
-            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_PREV_DIRECTION, n_fp_parms_first_, gpar::AuxScope::PerIndividual);
-            cg_scratch.installAuxBlock<std::uint8_t>(AUXKEY_CGD_HISTORY_VALID, 1, gpar::AuxScope::PerIndividual);
+            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_PREV_GRADIENT, n_fp_parms_first_, gen::AuxScope::PerIndividual);
+            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_PREV_DIRECTION, n_fp_parms_first_, gen::AuxScope::PerIndividual);
+            cg_scratch.installAuxBlock<std::uint8_t>(AUXKEY_CGD_HISTORY_VALID, 1, gen::AuxScope::PerIndividual);
         }
         // In L-BFGS mode each starting point also keeps the last m (s, y) curvature pairs, the previous
         // parameter vector and a live pair count. Installed lazily here as well, so a slot spliced in
         // after a lost return picks up a clean (empty) history and restarts with steepest descent.
         if(gradient_method_ == gradientMethod::LBFGS && not cg_scratch.hasAux(AUXKEY_CGD_LBFGS_COUNT)) {
-            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_S, lbfgs_memory_ * n_fp_parms_first_, gpar::AuxScope::PerIndividual);
-            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_Y, lbfgs_memory_ * n_fp_parms_first_, gpar::AuxScope::PerIndividual);
-            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_PREV_X, n_fp_parms_first_, gpar::AuxScope::PerIndividual);
-            cg_scratch.installAuxBlock<std::uint32_t>(AUXKEY_CGD_LBFGS_COUNT, 1, gpar::AuxScope::PerIndividual);
+            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_S, lbfgs_memory_ * n_fp_parms_first_, gen::AuxScope::PerIndividual);
+            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_Y, lbfgs_memory_ * n_fp_parms_first_, gen::AuxScope::PerIndividual);
+            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_PREV_X, n_fp_parms_first_, gen::AuxScope::PerIndividual);
+            cg_scratch.installAuxBlock<std::uint32_t>(AUXKEY_CGD_LBFGS_COUNT, 1, gen::AuxScope::PerIndividual);
         }
         std::span<double> prev_gradient = cg_scratch.metaRecords<double>(AUXKEY_CGD_PREV_GRADIENT);
         std::span<double> prev_direction = cg_scratch.metaRecords<double>(AUXKEY_CGD_PREV_DIRECTION);
@@ -797,7 +797,7 @@ std::vector<double> GConjugateGradientDescent::evaluateProbes(
     std::size_t starting_point,
     std::vector<std::vector<double>> const &points
 ) {
-    std::vector<std::unique_ptr<gpar::GOptimizableEntity>> probes;
+    std::vector<std::unique_ptr<gen::GOptimizableEntity>> probes;
     probes.reserve(points.size());
     for(auto const &pt : points) {
         auto probe = this->at(starting_point)->individual().clone_unique();
@@ -1017,16 +1017,16 @@ void GConjugateGradientDescent::resetCGState() {
     // block and a "history invalid" flag on each, so the first cgStep falls back to steepest descent.
     for(std::size_t i = 0; i < n_starting_points_ && i < this->size(); ++i) {
         auto &scratch = this->at(i)->scratch();
-        scratch.installAuxBlock<double>(AUXKEY_CGD_PREV_GRADIENT, n_fp_parms_first_, gpar::AuxScope::PerIndividual);
-        scratch.installAuxBlock<double>(AUXKEY_CGD_PREV_DIRECTION, n_fp_parms_first_, gpar::AuxScope::PerIndividual);
-        scratch.installAuxBlock<std::uint8_t>(AUXKEY_CGD_HISTORY_VALID, 1, gpar::AuxScope::PerIndividual);
+        scratch.installAuxBlock<double>(AUXKEY_CGD_PREV_GRADIENT, n_fp_parms_first_, gen::AuxScope::PerIndividual);
+        scratch.installAuxBlock<double>(AUXKEY_CGD_PREV_DIRECTION, n_fp_parms_first_, gen::AuxScope::PerIndividual);
+        scratch.installAuxBlock<std::uint8_t>(AUXKEY_CGD_HISTORY_VALID, 1, gen::AuxScope::PerIndividual);
         // installAuxBlock zero-initialises, so the gradient/direction are 0 and the flag is false.
         if(gradient_method_ == gradientMethod::LBFGS) {
             // The L-BFGS curvature history (last m (s, y) pairs, previous x, live pair count) starts empty.
-            scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_S, lbfgs_memory_ * n_fp_parms_first_, gpar::AuxScope::PerIndividual);
-            scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_Y, lbfgs_memory_ * n_fp_parms_first_, gpar::AuxScope::PerIndividual);
-            scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_PREV_X, n_fp_parms_first_, gpar::AuxScope::PerIndividual);
-            scratch.installAuxBlock<std::uint32_t>(AUXKEY_CGD_LBFGS_COUNT, 1, gpar::AuxScope::PerIndividual);
+            scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_S, lbfgs_memory_ * n_fp_parms_first_, gen::AuxScope::PerIndividual);
+            scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_Y, lbfgs_memory_ * n_fp_parms_first_, gen::AuxScope::PerIndividual);
+            scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_PREV_X, n_fp_parms_first_, gen::AuxScope::PerIndividual);
+            scratch.installAuxBlock<std::uint32_t>(AUXKEY_CGD_LBFGS_COUNT, 1, gen::AuxScope::PerIndividual);
         }
     }
 }

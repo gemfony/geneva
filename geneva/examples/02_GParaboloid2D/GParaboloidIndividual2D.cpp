@@ -50,7 +50,7 @@ GParaboloidIndividual2D::GParaboloidIndividual2D()
     // Build a flat genome of two constrained doubles in [M_PAR_MIN, M_PAR_MAX[, each its own Gauss
     // group with the default GDoubleGaussAdaptor configuration (the tree relied on the lazily
     // installed default adaptor).
-    gpar::GGenomeBuilder b;
+    gen::GGenomeBuilder b;
     for(std::size_t npar = 0; npar < 2; npar++) {
         b.addDouble(M_PAR_MIN, M_PAR_MIN, M_PAR_MAX); // structure only; the adaptor lives on the OA config
     }
@@ -84,7 +84,7 @@ GParaboloidIndividual2D::getAdaptionConfig() const {
  * @param cp A copy of another GParaboloidIndividual2D
  */
 GParaboloidIndividual2D::GParaboloidIndividual2D(const GParaboloidIndividual2D &cp)
-  : gpar::GFlatGenome(cp)
+  : gen::GFlatGenome(cp)
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10) { /* nothing */
 }
@@ -104,13 +104,13 @@ GParaboloidIndividual2D::~GParaboloidIndividual2D() { /* nothing */
  *
  * @param cp A copy of another GParaboloidIndividual2D, camouflaged as a GFlatGenome
  */
-void GParaboloidIndividual2D::load_(const gpar::GOptimizableEntity *cp) {
+void GParaboloidIndividual2D::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GParaboloidIndividual2D reference independent of this object and convert the pointer
     const GParaboloidIndividual2D *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GParaboloidIndividual2D>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GParaboloidIndividual2D>(cp, this);
 
     // Load our parent's data
-    gpar::GFlatGenome::load_(cp);
+    gen::GFlatGenome::load_(cp);
 
     // No local data
     // sampleVariable = p_load->sampleVariable;
@@ -122,7 +122,7 @@ void GParaboloidIndividual2D::load_(const gpar::GOptimizableEntity *cp) {
  *
  * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GFlatGenome *GParaboloidIndividual2D::clone_() const {
+gen::GFlatGenome *GParaboloidIndividual2D::clone_() const {
     return new GParaboloidIndividual2D(*this);
 }
 

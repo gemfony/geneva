@@ -62,7 +62,7 @@
 // aliases for ease of use
 namespace pt = boost::property_tree;
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -475,11 +475,11 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */
 
 /******************************************************************************/
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::Parameters::GFlatGenome) // NOLINT
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::Genome::GFlatGenome) // NOLINT
 /******************************************************************************/

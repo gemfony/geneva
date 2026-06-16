@@ -42,7 +42,7 @@
 #include "common/GLogger.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -139,4 +139,4 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */

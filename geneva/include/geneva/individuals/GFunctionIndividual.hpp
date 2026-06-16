@@ -334,21 +334,21 @@ constexpr double GFI_DEF_CROSSOVERPROB = 0.5;
  *       explicitly; the factory default of [-10, 10] is not suitable for that function.
  */
 class GFunctionIndividual
-  : public gpar::GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gen::GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
             BOOST_SERIALIZATION_NVP(demo_function_);
     }
 
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    using FACTORYTYPE = Gem::Geneva::Parameters::GFlatIndividualFactory<GFunctionIndividual>;
+    using FACTORYTYPE = Gem::Geneva::Genome::GFlatIndividualFactory<GFunctionIndividual>;
 
     /** @brief The default constructor */
     GFunctionIndividual() = default;
@@ -700,10 +700,10 @@ public:
     /** @brief Registers the config-file options, binding them to the passed Config */
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
     /** @brief Builds the flat genome's structure for the configured parameter-type mode */
-    static gpar::Genome buildGenome(const Config &c);
+    static gen::Genome buildGenome(const Config &c);
     /** @brief The OA-owned adaption config: every double group gets the configured Gauss / bi-Gauss adaptor */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const gpar::GFlatGenome &sample, const Config &c);
+    buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
     /** @brief Per-object post-config hook: applies the (non-genome) demo function to a produced individual */
     static void applyConfig(GFunctionIndividual &ind, const Config &c);
     /** @brief Reads a GFunctionIndividual config file into a Config (for callers that build directly,
@@ -730,7 +730,7 @@ protected:
     }
 
     /** @brief Loads the data of another GFunctionIndividual */
-    void load_(const gpar::GOptimizableEntity *) final;
+    void load_(const gen::GOptimizableEntity *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GFunctionIndividual>(
@@ -741,7 +741,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GOptimizableEntity & // the other object
+        const gen::GOptimizableEntity & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -763,7 +763,7 @@ protected:
 private:
     //---------------------------------------------------------------------------
     /** @brief Creates a deep clone of this object */
-    gpar::GFlatGenome *clone_() const final;
+    gen::GFlatGenome *clone_() const final;
 
     //---------------------------------------------------------------------------
     // Data
@@ -793,7 +793,7 @@ operator<<(std::ostream &, std::shared_ptr<Gem::Geneva::Individuals::GFunctionIn
  * GMetaOptimizer) compiling unchanged.
  */
 using GFunctionIndividualFactory =
-    Gem::Geneva::Parameters::GFlatIndividualFactory<GFunctionIndividual>;
+    Gem::Geneva::Genome::GFlatIndividualFactory<GFunctionIndividual>;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -804,7 +804,7 @@ using GFunctionIndividualFactory =
  * than a given constant.
  */
 class GDoubleSumConstraint
-  : public gpar::GOptimizableEntityConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gen::GOptimizableEntityConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -819,7 +819,7 @@ class GDoubleSumConstraint
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GOptimizableEntityConstraint);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GOptimizableEntityConstraint);
         Gem::Common::serialize_members(ar, localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
@@ -835,13 +835,13 @@ public:
     ~GDoubleSumConstraint() override = default;
 
 protected:
-    double check_(const gpar::GOptimizableEntity *) const override;
+    double check_(const gen::GOptimizableEntity *) const override;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Loads the data of another GOptimizableEntityMultiConstraint */
-    void load_(const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *) override;
+    void load_(const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GDoubleSumConstraint>(
@@ -852,7 +852,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> & // the other object
+        const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -861,7 +861,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *clone_() const override;
+    GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *clone_() const override;
 
     double c_ = 1.; ///< The constant that should not be exceeded by the sum of parameters
 };
@@ -874,7 +874,7 @@ private:
  * sign!) for double variables
  */
 class GDoubleSumGapConstraint
-  : public gpar::GOptimizableEntityConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gen::GOptimizableEntityConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -893,7 +893,7 @@ class GDoubleSumGapConstraint
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GOptimizableEntityConstraint);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GOptimizableEntityConstraint);
         Gem::Common::serialize_members(ar, localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
@@ -909,13 +909,13 @@ public:
     ~GDoubleSumGapConstraint() override = default;
 
 protected:
-    double check_(const gpar::GOptimizableEntity *) const override;
+    double check_(const gen::GOptimizableEntity *) const override;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Loads the data of another GOptimizableEntityMultiConstraint */
-    void load_(const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *) override;
+    void load_(const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GDoubleSumGapConstraint>(
@@ -926,7 +926,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> & // the other object
+        const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -935,7 +935,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *clone_() const override;
+    GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *clone_() const override;
 
     double c_ = 1.;    ///< The constant that should not be exceeded by the sum of parameters
     double gap_ = 0.5; ///< A tolerance around C_ that is still considered to be valid
@@ -949,7 +949,7 @@ private:
  * a given constraint. Here, valid solutions lie in a sphere around 0
  */
 class GSphereConstraint
-  : public gpar::GOptimizableEntityConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gen::GOptimizableEntityConstraint { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -964,7 +964,7 @@ class GSphereConstraint
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GOptimizableEntityConstraint);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GOptimizableEntityConstraint);
         // diameter_ was previously not serialized at all -- it was silently lost on
         // (de)serialization. Derive it from the single localMembers() declaration.
         Gem::Common::serialize_members(ar, this->localMembers());
@@ -982,13 +982,13 @@ public:
     ~GSphereConstraint() override = default;
 
 protected:
-    double check_(const gpar::GOptimizableEntity *) const override;
+    double check_(const gen::GOptimizableEntity *) const override;
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
     /** @brief Loads the data of another GOptimizableEntityMultiConstraint */
-    void load_(const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *) override;
+    void load_(const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GSphereConstraint>(
@@ -999,7 +999,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> & // the other object
+        const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -1008,7 +1008,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *clone_() const override;
+    GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *clone_() const override;
 
     /** @brief The diameter of the sphere */
     double diameter_ = 1.;

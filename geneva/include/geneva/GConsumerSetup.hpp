@@ -81,7 +81,7 @@ struct ConsumerSetup {
     /** @brief A ready broker (consumer registered, clone function set, server started for networked
      *  consumers) to inject into the algorithms via GOptimizationAlgorithmBase::setBroker(). Null when this
      *  process is not a submitter -- e.g. an MPI worker rank. */
-    std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GOptimizableEntity>> broker;
+    std::shared_ptr<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>> broker;
     /** @brief When this process must serve as a worker (an MPI worker rank), the loop to run; null
      *  otherwise. The caller invokes it instead of submitting. */
     std::function<void()> run_worker;
@@ -122,7 +122,7 @@ ConsumerSpec specFromCommandLine(
  * Returns null for mnemonics that have no socket client (sc/stc are local; the mpi worker loop is
  * obtained from buildConsumerSetup().run_worker instead).
  */
-std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GOptimizableEntity>>
+std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GOptimizableEntity>>
 buildConsumerClient(const ConsumerSpec &spec);
 
 /******************************************************************************/

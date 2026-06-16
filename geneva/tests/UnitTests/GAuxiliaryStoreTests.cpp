@@ -37,7 +37,7 @@
 #include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/individuals/GTestIndividual3.hpp"
 
-using namespace Gem::Geneva::Parameters;
+using namespace Gem::Geneva::Genome;
 
 namespace {
 

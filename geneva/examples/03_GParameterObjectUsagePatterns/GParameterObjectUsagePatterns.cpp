@@ -59,14 +59,14 @@ namespace oa = Gem::Geneva::OptimizationAlgorithms;
  * supplies clone_(); only a constructor (which authors the genome) and a trivial
  * fitnessCalculation() remain.
  */
-class GDemoIndividual : public gpar::GFlatIndividualT<GDemoIndividual> {
+class GDemoIndividual : public gen::GFlatIndividualT<GDemoIndividual> {
     friend class boost::serialization::access;
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         ar &boost::serialization::make_nvp(
             "GFlatIndividualT",
-            boost::serialization::base_object<gpar::GFlatIndividualT<GDemoIndividual>>(*this)
+            boost::serialization::base_object<gen::GFlatIndividualT<GDemoIndividual>>(*this)
         );
     }
 
@@ -74,7 +74,7 @@ public:
     GDemoIndividual() {
         // The builder declares only the genome's STRUCTURE; the adaptors live on an OA-owned config
         // (getAdaptionConfig()), authored from the same parameters.
-        gpar::GGenomeBuilder b;
+        gen::GGenomeBuilder b;
         b.addDoubleGroup(2, -10., 10.); // two constrained doubles sharing one adaption group
         b.addInt32(0, 0, 5);            // one constrained int32
         this->setGenome(b.build());
@@ -108,7 +108,7 @@ BOOST_CLASS_EXPORT(GDemoIndividual) // NOLINT
  * Prints the shape of a freshly built genome: the per-channel value arrays and
  * the number of adaption groups registered for each channel.
  */
-void printGenome(const std::string &title, const gpar::Genome &g) {
+void printGenome(const std::string &title, const gen::Genome &g) {
     std::cout << title << '\n';
     std::cout << "  double values (" << g.dv.size() << "): ";
     for(double v : g.dv) {
@@ -150,7 +150,7 @@ int main() {
             new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
         );
 
-        std::shared_ptr<gpar::GOptimizableEntity> gfi_test = gfi_ptr->get();
+        std::shared_ptr<gen::GOptimizableEntity> gfi_test = gfi_ptr->get();
 
         // Make sure the individual is "clean", i.e. the processed flag is set
         gfi_test->set_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);
@@ -184,7 +184,7 @@ int main() {
     //   addXArray(n[,min,max])    -- n parameters, each its own adaption group
 
     { // Constrained doubles: a single scalar (group 0), a shared-sigma group (1), and an array (2 & 3).
-        gpar::GGenomeBuilder b;
+        gen::GGenomeBuilder b;
         b.addDouble(1., -10., 10.);
         b.addDoubleGroup(3, -5., 5.);
         b.addDoubleArray(2, -1., 1.);
@@ -198,7 +198,7 @@ int main() {
 
     { // Unbounded ("plain") double collection: min/max set the random-init perimeter and the Gauss step
       // range, but are NOT constraints (no folding takes place).
-        gpar::GGenomeBuilder b;
+        gen::GGenomeBuilder b;
         b.addDouble(0.5); // a bare unbounded scalar (init perimeter [0,1]) -- left un-adapted here
         b.addDoublePlainGroup(4, -10., 10.);
         auto genome = b.build();
@@ -208,7 +208,7 @@ int main() {
     }
 
     { // Floats behave exactly like doubles, on their own value channel.
-        gpar::GGenomeBuilder b;
+        gen::GGenomeBuilder b;
         b.addFloat(0.f, -2.f, 2.f);
         auto genome = b.build();
         auto cfg = std::make_shared<oa::GAdaptionConfigBase>(*genome.layout);
@@ -217,7 +217,7 @@ int main() {
     }
 
     { // A bi-gaussian adaptor (two superimposed gaussians) on a constrained double.
-        gpar::GGenomeBuilder b;
+        gen::GGenomeBuilder b;
         b.addDouble(0., -10., 10.);
         auto genome = b.build();
         auto cfg = std::make_shared<oa::GAdaptionConfigBase>(*genome.layout);
@@ -231,7 +231,7 @@ int main() {
     }
 
     { // Integer parameters: an integer Gauss adaptor and a flip adaptor.
-        gpar::GGenomeBuilder b;
+        gen::GGenomeBuilder b;
         b.addInt32(0, -100, 100);
         b.addInt32Group(3, 0, 9);
         auto genome = b.build();
@@ -242,7 +242,7 @@ int main() {
     }
 
     { // Boolean parameters: a single switch and a group, both flip-adapted.
-        gpar::GGenomeBuilder b;
+        gen::GGenomeBuilder b;
         b.addBool(true);
         b.addBoolGroup(4);
         auto genome = b.build();
@@ -254,7 +254,7 @@ int main() {
 
     { // Per-group tuning: the structural policy (.init / .perimeter / adaptionMode(NEVER) -- a frozen,
       // "inactive" group) stays on the builder; the adaptor is authored on the config for the active groups.
-        gpar::GGenomeBuilder b;
+        gen::GGenomeBuilder b;
         b.addDoubleGroup(2, -10., 10.).init(3.);
         b.addDoubleGroup(2, -10., 10.).perimeter(-1., 1.);
         b.addDoubleGroup(2, -10., 10.).adaptionMode(adaptionMode::NEVER); // frozen parameters

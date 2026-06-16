@@ -35,7 +35,7 @@
 // Geneva headers go here
 #include "geneva/ind/GAuxiliaryStore.hpp"
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 /**
@@ -57,4 +57,4 @@ constexpr AuxKey AUXKEY_GAUSS_INT = 7;      ///< GaussState<double>  over the in
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */

@@ -52,7 +52,7 @@
 #include "geneva/ind/GAuxiliaryStore.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -329,9 +329,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */
 
 /******************************************************************************/
 /** @brief Needed for Boost.Serialization of the slot through a (polymorphic) pointer */
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Parameters::GIndividualSlot) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Genome::GIndividualSlot) // NOLINT
 /******************************************************************************/

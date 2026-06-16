@@ -52,7 +52,7 @@
  */
 BOOST_CLASS_EXPORT_KEY(
     BOOST_IDENTITY_TYPE((Gem::Courtier::GCommandContainerT<
-                         gpar::GOptimizableEntity,
+                         gen::GOptimizableEntity,
                          Gem::Courtier::networked_consumer_payload_command>))
 ) // NOLINT
 

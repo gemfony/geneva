@@ -82,14 +82,14 @@ public:
  * clients and server.
  */
 class GDelayIndividual
-  : public gpar::GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gen::GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
 {
     /////////////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
             BOOST_SERIALIZATION_NVP(fixed_sleep_time_) & BOOST_SERIALIZATION_NVP(may_crash_) &
             BOOST_SERIALIZATION_NVP(throw_likelihood_) & BOOST_SERIALIZATION_NVP(sleep_randomly_) &
             BOOST_SERIALIZATION_NVP(rand_sleep_boundaries_);
@@ -180,7 +180,7 @@ protected:
     }
 
     /** @brief Loads the data of another GDelayIndividual, camouflaged as a GFlatGenome */
-    void load_(const gpar::GOptimizableEntity *) final;
+    void load_(const gen::GOptimizableEntity *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GDelayIndividual>(
@@ -191,7 +191,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GOptimizableEntity & // the other object
+        const gen::GOptimizableEntity & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -203,7 +203,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    gpar::GFlatGenome *clone_() const final;
+    gen::GFlatGenome *clone_() const final;
 
     double
         fixed_sleep_time_; ///< The amount of time the evaluation function should sleep before continuing (seconds)

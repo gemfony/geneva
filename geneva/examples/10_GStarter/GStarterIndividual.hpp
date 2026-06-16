@@ -92,13 +92,13 @@ const targetFunction GO_DEF_TARGETFUNCTION = targetFunction::PARABOLA;
  * This individual searches for a minimum of a number of predefined functions, each capable
  * of processing their input in multiple dimensions.
  */
-class GStarterIndividual : public gpar::GFlatGenome {
+class GStarterIndividual : public gen::GFlatGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
             BOOST_SERIALIZATION_NVP(targetFunction_) & BOOST_SERIALIZATION_NVP(seed_sigma_) &
             BOOST_SERIALIZATION_NVP(seed_sigma_sigma_) & BOOST_SERIALIZATION_NVP(seed_min_sigma_) &
             BOOST_SERIALIZATION_NVP(seed_max_sigma_) & BOOST_SERIALIZATION_NVP(seed_ad_prob_);
@@ -165,7 +165,7 @@ public:
     /** @brief Registers the config-file options, binding them to the passed Config */
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
     /** @brief Builds the flat genome's structure: one constrained double per start value */
-    static gpar::Genome buildGenome(const Config &c);
+    static gen::Genome buildGenome(const Config &c);
     /** @brief Per-object post-config hook: stamps the target function and the Gauss adaptor parameters */
     static void applyConfig(GStarterIndividual &ind, const Config &c);
 
@@ -224,7 +224,7 @@ public:
         // Build the flat genome's STRUCTURE: one constrained double per parameter. The Gauss adaptor lives
         // on the OA-owned config (getAdaptionConfig()); stamp its parameters here so the individual can
         // author that config and report its configured seed sigma.
-        gpar::GGenomeBuilder b;
+        gen::GGenomeBuilder b;
         for(std::size_t i = 0; i < startValues.size(); i++) {
             b.addDouble(startValues.at(i), lowerBoundaries.at(i), upperBoundaries.at(i));
         }
@@ -244,7 +244,7 @@ public:
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another GStarterIndividual */
-    virtual void load_(const gpar::GOptimizableEntity *) final;
+    virtual void load_(const gen::GOptimizableEntity *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GStarterIndividual>(
@@ -255,7 +255,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     virtual void compare_(
-        const gpar::GOptimizableEntity & // the other object
+        const gen::GOptimizableEntity & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -290,7 +290,7 @@ private:
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    virtual gpar::GFlatGenome *clone_() const final;
+    virtual gen::GFlatGenome *clone_() const final;
 
     /***************************************************************************/
     /** @brief A simple n-dimensional parabola */
@@ -313,7 +313,7 @@ std::ostream &operator<<(std::ostream &, std::shared_ptr<GStarterIndividual>);
  * buildGenome / applyConfig hooks. The alias keeps existing call sites (ctor(path), get_as<>(),
  * registerContentCreator(), getAdaptionConfig() on the produced individual) compiling unchanged.
  */
-using GStarterIndividualFactory = Gem::Geneva::Parameters::GFlatIndividualFactory<GStarterIndividual>;
+using GStarterIndividualFactory = Gem::Geneva::Genome::GFlatIndividualFactory<GStarterIndividual>;
 
 /******************************************************************************/
 

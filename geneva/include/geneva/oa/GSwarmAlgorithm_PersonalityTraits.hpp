@@ -58,7 +58,7 @@ class GSwarmAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-memb
      * members. This drives serialize(), load_() and compare_() from one place.
      *
      * Handled manually (NOT in this tuple): personal_best_, a
-     * std::shared_ptr<gpar::GOptimizableEntity>. It is deep-cloned on load, but the
+     * std::shared_ptr<gen::GOptimizableEntity>. It is deep-cloned on load, but the
      * load (and the copy constructor) additionally call resetPersonality() on
      * the clone to avoid building a "chain" of individuals. That extra
      * post-clone step is asymmetric to a plain make_cloneable_member() deep
@@ -119,9 +119,9 @@ public:
     bool checkNoPositionUpdateAndReset();
 
     /** @brief Allows to add a new personal best to the individual */
-    void registerPersonalBest(std::shared_ptr<gpar::GOptimizableEntity>);
+    void registerPersonalBest(std::shared_ptr<gen::GOptimizableEntity>);
     /** @brief Allows to retrieve the personal best individual */
-    std::shared_ptr<gpar::GOptimizableEntity> getPersonalBest() const;
+    std::shared_ptr<gen::GOptimizableEntity> getPersonalBest() const;
     /** @brief Resets the personal best individual */
     void resetPersonalBest();
     /** @brief Retrieve quality of personally best individual */
@@ -175,7 +175,7 @@ private:
     bool no_position_update_ = false;
 
     /** @brief Holds the personally best GOptimizableEntity */
-    std::shared_ptr<gpar::GOptimizableEntity> personal_best_;
+    std::shared_ptr<gen::GOptimizableEntity> personal_best_;
     /** @brief The quality of the personally best individual */
     std::tuple<double, double> personal_best_quality_{0., 0.};
 };

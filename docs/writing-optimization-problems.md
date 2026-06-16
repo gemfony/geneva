@@ -14,9 +14,9 @@ Canonical examples: `examples/10_GStarter` (minimal), `examples/03_GParameterObj
 #include "geneva/ind/GFlatIndividualT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 
-namespace gpar = Gem::Geneva::Parameters;
+namespace gen = Gem::Geneva::Genome;
 
-class MyProblem : public gpar::GFlatIndividualT<MyProblem> {       // CRTP: pass yourself
+class MyProblem : public gen::GFlatIndividualT<MyProblem> {       // CRTP: pass yourself
 public:
     MyProblem() { buildGenome(); }                                 // build the STRUCTURE in the ctor
     MyProblem(const MyProblem &) = default;
@@ -32,7 +32,7 @@ protected:
 
 private:
     void buildGenome() {
-        gpar::GGenomeBuilder b;
+        gen::GGenomeBuilder b;
         b.addDoubleGroup(5, -10., 10.).init(1.0);                  // STRUCTURE only -- no adaptor here
         this->setGenome(b.build());
     }
@@ -49,7 +49,7 @@ The builder defines parameters and their **structure only** (count, init value, 
 optional label). It does **not** attach adaptors.
 
 ```cpp
-gpar::GGenomeBuilder b;
+gen::GGenomeBuilder b;
 b.addDouble(0., -1., 1.);              // one constrained double in [-1, 1)
 b.addDoubleGroup(4, -2., 2.);          // ONE group of 4 constrained doubles (shared adaptor later)
 b.addDoubleArray(3, -3., 3.);          // 3 independent groups of 1

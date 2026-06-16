@@ -51,7 +51,7 @@ namespace Gem::Geneva {
  * @param id The id of the fitness criterion (individuals may have more than one)
  */
 double minOnly_transformed_fitness(
-    const gpar::GOptimizableEntity &item,
+    const gen::GOptimizableEntity &item,
     const std::size_t id // NOLINT(misc-unused-parameters)
 ) {
     const double f = item.transformed_fitness(id); // NOLINT(cppcoreguidelines-init-variables)
@@ -80,8 +80,8 @@ double minOnly_transformed_fitness(
  * is done with the first (main) fitness criterion.
  */
 bool isBetter(
-    const std::shared_ptr<gpar::GOptimizableEntity> &x_ptr,
-    const std::shared_ptr<gpar::GOptimizableEntity> &y_ptr
+    const std::shared_ptr<gen::GOptimizableEntity> &x_ptr,
+    const std::shared_ptr<gen::GOptimizableEntity> &y_ptr
 ) {
 #ifdef DEBUG
     const auto x_mode = x_ptr->getMaxMode();
@@ -111,8 +111,8 @@ bool isBetter(
  * is done with the first (main) fitness criterion.
  */
 bool isWorse(
-    const std::shared_ptr<gpar::GOptimizableEntity> &x_ptr,
-    const std::shared_ptr<gpar::GOptimizableEntity> &y_ptr
+    const std::shared_ptr<gen::GOptimizableEntity> &x_ptr,
+    const std::shared_ptr<gen::GOptimizableEntity> &y_ptr
 ) {
     return not isBetter(x_ptr, y_ptr);
 }

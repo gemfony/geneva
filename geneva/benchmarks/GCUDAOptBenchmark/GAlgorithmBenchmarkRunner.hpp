@@ -178,7 +178,7 @@ public:
      *  via setBroker() so each optimization submits its population to the GPU. */
     GAlgorithmBenchmarkRunner(
         BenchmarkConfig cfg,
-        std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GOptimizableEntity>> cudaBroker);
+        std::shared_ptr<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>> cudaBroker);
 
     /**
      * @brief Runs the full benchmark and returns aggregated results per tag.
@@ -204,7 +204,7 @@ private:
     );
 
     BenchmarkConfig cfg_;
-    std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GOptimizableEntity>> cudaBroker_;
+    std::shared_ptr<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>> cudaBroker_;
 };
 
 /******************************************************************************/

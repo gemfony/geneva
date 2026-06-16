@@ -52,17 +52,17 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 // Names imported from the genome / kernel layer (the Parameters namespace).
-using Gem::Geneva::Parameters::adaption_fp_t;
-using Gem::Geneva::Parameters::BiGaussConfig;
-using Gem::Geneva::Parameters::ChannelTag;
-using Gem::Geneva::Parameters::FlipConfig;
-using Gem::Geneva::Parameters::GaussConfig;
-using Gem::Geneva::Parameters::GAuxiliaryStore;
-using Gem::Geneva::Parameters::GFlatGenome;
-using Gem::Geneva::Parameters::GGenomeLayout;
-using Gem::Geneva::Parameters::GroupRef;
-using Gem::Geneva::Parameters::GroupSpec;
-using Gem::Geneva::Parameters::GroupStructure;
+using Gem::Geneva::Genome::adaption_fp_t;
+using Gem::Geneva::Genome::BiGaussConfig;
+using Gem::Geneva::Genome::ChannelTag;
+using Gem::Geneva::Genome::FlipConfig;
+using Gem::Geneva::Genome::GaussConfig;
+using Gem::Geneva::Genome::GAuxiliaryStore;
+using Gem::Geneva::Genome::GFlatGenome;
+using Gem::Geneva::Genome::GGenomeLayout;
+using Gem::Geneva::Genome::GroupRef;
+using Gem::Geneva::Genome::GroupSpec;
+using Gem::Geneva::Genome::GroupStructure;
 
 /******************************************************************************/
 /**
@@ -439,7 +439,7 @@ public:
      * by the stall-reset free function.
      */
     void installInto(GAuxiliaryStore &scratch) const {
-        using namespace Gem::Geneva::Parameters;
+        using namespace Gem::Geneva::Genome;
         seedGauss(scratch, d_, AUXKEY_GAUSS_DOUBLE);
         seedGauss(scratch, f_, AUXKEY_GAUSS_FLOAT);
         seedGauss(scratch, i_, AUXKEY_GAUSS_INT); // GaussState<adaption_fp_t<int32>> = GaussState<double>
@@ -565,9 +565,9 @@ private:
     // State seeding helpers (mirror GFlatGenome::installAdaptionStates).
 
     template <typename T>
-    static void seedGauss(GAuxiliaryStore &scratch, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Parameters::AuxKey key) {
-        using Gem::Geneva::Parameters::GaussState;
-        using Gem::Geneva::Parameters::AuxScope;
+    static void seedGauss(GAuxiliaryStore &scratch, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Genome::AuxKey key) {
+        using Gem::Geneva::Genome::GaussState;
+        using Gem::Geneva::Genome::AuxScope;
         bool any = false;
         for(const GroupSpec<T> &g : groups) {
             if(g.has_gauss) { any = true; break; }
@@ -585,9 +585,9 @@ private:
     }
 
     template <typename T>
-    static void seedBiGauss(GAuxiliaryStore &scratch, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Parameters::AuxKey key) {
-        using Gem::Geneva::Parameters::BiGaussState;
-        using Gem::Geneva::Parameters::AuxScope;
+    static void seedBiGauss(GAuxiliaryStore &scratch, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Genome::AuxKey key) {
+        using Gem::Geneva::Genome::BiGaussState;
+        using Gem::Geneva::Genome::AuxScope;
         bool any = false;
         for(const GroupSpec<T> &g : groups) {
             if(g.has_bigauss) { any = true; break; }
@@ -607,9 +607,9 @@ private:
     }
 
     template <typename T>
-    static void seedFlip(GAuxiliaryStore &scratch, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Parameters::AuxKey key) {
-        using Gem::Geneva::Parameters::FlipState;
-        using Gem::Geneva::Parameters::AuxScope;
+    static void seedFlip(GAuxiliaryStore &scratch, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Genome::AuxKey key) {
+        using Gem::Geneva::Genome::FlipState;
+        using Gem::Geneva::Genome::AuxScope;
         bool any = false;
         for(const GroupSpec<T> &g : groups) {
             if(g.has_flip) { any = true; break; }

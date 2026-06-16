@@ -49,7 +49,7 @@
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
-namespace gpar = Gem::Geneva::Parameters;
+namespace gen = Gem::Geneva::Genome;
 
 /******************************************************************************/
 /**
@@ -78,8 +78,8 @@ enum class local_consumer_kind {
  */
 class GOptimizerExecutionPolicy {
 public:
-    using item_ptr = std::unique_ptr<gpar::GOptimizableEntity>;
-    using broker_ptr = std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GOptimizableEntity>>;
+    using item_ptr = std::unique_ptr<gen::GOptimizableEntity>;
+    using broker_ptr = std::shared_ptr<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>>;
 
     /***************************************************************************/
     /** @brief Selects a LOCAL consumer (serial / multithreaded) to submit through. n_threads == 0 means
@@ -154,23 +154,23 @@ private:
         // A networked broker injected via setBroker() arrives ready (consumer registered, clone function
         // set, server started). Only the LOCAL path builds its own consumer here.
         if(not broker_) {
-            broker_ = std::make_shared<Gem::Courtier::GBrokerT<gpar::GOptimizableEntity>>();
-            std::shared_ptr<Gem::Courtier::GBaseConsumerT<gpar::GOptimizableEntity>> consumer;
+            broker_ = std::make_shared<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>>();
+            std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer;
             if(local_kind_ == local_consumer_kind::serial) {
-                consumer = std::make_shared<Gem::Courtier::GSerialConsumerT<gpar::GOptimizableEntity>>();
+                consumer = std::make_shared<Gem::Courtier::GSerialConsumerT<gen::GOptimizableEntity>>();
             }
             else {
-                consumer = std::make_shared<Gem::Courtier::GStdThreadConsumerT<gpar::GOptimizableEntity>>(
+                consumer = std::make_shared<Gem::Courtier::GStdThreadConsumerT<gen::GOptimizableEntity>>(
                     local_threads_
                 );
             }
             // Polymorphic clone (GOptimizableEntity holds a concrete individual; copy-construction slices).
-            consumer->setCloneFunction([](const std::unique_ptr<gpar::GOptimizableEntity> &p) {
+            consumer->setCloneFunction([](const std::unique_ptr<gen::GOptimizableEntity> &p) {
                 return p->clone_unique();
             });
             broker_->registerConsumer(consumer);
         }
-        executor_ = std::make_shared<Gem::Courtier::GExecutorT<gpar::GOptimizableEntity>>(broker_);
+        executor_ = std::make_shared<Gem::Courtier::GExecutorT<gen::GOptimizableEntity>>(broker_);
 
         // Enable the consumer's late-return buffer (#13b): a result that comes back AFTER its batch was
         // reconciled is retained for the OA to reap, instead of dropped. A no-op on local consumers.
@@ -183,7 +183,7 @@ private:
     unsigned int local_threads_ = 0;  ///< Thread-pool size for the multithreaded kind (0 == hardware concurrency)
     bool external_broker_ = false;    ///< True when a ready broker was injected via setBroker()
     broker_ptr broker_;               ///< The courtier broker (transient run state)
-    std::shared_ptr<Gem::Courtier::GExecutorT<gpar::GOptimizableEntity>> executor_; ///< The span+policy executor
+    std::shared_ptr<Gem::Courtier::GExecutorT<gen::GOptimizableEntity>> executor_; ///< The span+policy executor
 };
 
 /******************************************************************************/

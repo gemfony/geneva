@@ -56,9 +56,9 @@
 #include "geneva/Interface/GMutableI.hpp"
 #include "geneva/Interface/GRateableI.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::individual_processing_result) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Genome::individual_processing_result) // NOLINT
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -1269,4 +1269,4 @@ void GOptimizableEntity::setAllFitnessTo(const double val) {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */

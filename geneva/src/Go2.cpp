@@ -244,7 +244,7 @@ int Go2::clientRun_() {
     // Build the networked client for the chosen consumer through the courtier setup layer, from the
     // spec assembled in setupChosenConsumer(). The client is wire-compatible with the courtier socket
     // server. Go2 thus stays free of the concrete consumer/client types and the consumer store.
-    std::shared_ptr<Gem::Courtier::GBaseClientT<gpar::GOptimizableEntity>> p =
+    std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GOptimizableEntity>> p =
         Gem::Geneva::buildConsumerClient(consumer_spec_);
 
     if(not p) {
@@ -402,7 +402,7 @@ Go2 &Go2::operator&(std::string const &mn) {
  * Allows to register a content creator. A content creator creates individuals
  * to be added to the population.
  */
-void Go2::registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>> &cc_ptr) {
+void Go2::registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> &cc_ptr) {
     if(not cc_ptr) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -498,7 +498,7 @@ std::uint32_t Go2::prepareInitialPopulation(std::uint32_t offset) {
             if(content_creator_ptr_) {
                 for(std::size_t ind = 0; ind < algorithms_cnt_.at(0)->getDefaultPopulationSize();
                     ind++) {
-                    std::shared_ptr<gpar::GOptimizableEntity> p_ind = (*content_creator_ptr_)();
+                    std::shared_ptr<gen::GOptimizableEntity> p_ind = (*content_creator_ptr_)();
                     if(p_ind) {
                         this->push_back(p_ind);
                     }
@@ -557,7 +557,7 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
 
         // Add the individuals to the algorithm
         for(const auto &ind_ptr : *this) {
-            alg_ptr->push_back(std::make_unique<gpar::GIndividualSlot>(ind_ptr->clone_unique()));
+            alg_ptr->push_back(std::make_unique<gen::GIndividualSlot>(ind_ptr->clone_unique()));
         }
 
         // Remove our local copies
@@ -586,7 +586,7 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
 
         // Unload the individuals from the last algorithm and store them again in this object
         if(copy_best_individuals_only_) {
-            for(const auto &best_ind_ptr : alg_ptr->getBestGlobalIndividuals<gpar::GOptimizableEntity>()) {
+            for(const auto &best_ind_ptr : alg_ptr->getBestGlobalIndividuals<gen::GOptimizableEntity>()) {
                 this->push_back(best_ind_ptr);
             }
         }
@@ -643,7 +643,7 @@ void Go2::sortIndividualsByFitness() {
  *
  * @return The best individual found
  */
-std::shared_ptr<gpar::GOptimizableEntity> Go2::getBestGlobalIndividual_() const {
+std::shared_ptr<gen::GOptimizableEntity> Go2::getBestGlobalIndividual_() const {
     // Do some error checking
     if(this->empty()) {
         throw geneva_exception(
@@ -672,7 +672,7 @@ std::shared_ptr<gpar::GOptimizableEntity> Go2::getBestGlobalIndividual_() const 
     }
 
     // Simply return the best individual. This will result in an implicit downcast
-    return this->front()->clone<gpar::GOptimizableEntity>();
+    return this->front()->clone<gen::GOptimizableEntity>();
 }
 
 /******************************************************************************/
@@ -682,7 +682,7 @@ std::shared_ptr<gpar::GOptimizableEntity> Go2::getBestGlobalIndividual_() const 
  *
  * @return The best individual found
  */
-std::vector<std::shared_ptr<gpar::GOptimizableEntity>> Go2::getBestGlobalIndividuals_() const {
+std::vector<std::shared_ptr<gen::GOptimizableEntity>> Go2::getBestGlobalIndividuals_() const {
     // Do some error checking
     if(this->empty()) {
         throw geneva_exception(
@@ -693,7 +693,7 @@ std::vector<std::shared_ptr<gpar::GOptimizableEntity>> Go2::getBestGlobalIndivid
     }
 
     std::size_t pos = 0;
-    std::vector<std::shared_ptr<gpar::GOptimizableEntity>> best_individuals;
+    std::vector<std::shared_ptr<gen::GOptimizableEntity>> best_individuals;
     for(const auto &ind_ptr : *this) {
         if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
             throw geneva_exception(
@@ -705,7 +705,7 @@ std::vector<std::shared_ptr<gpar::GOptimizableEntity>> Go2::getBestGlobalIndivid
         }
 
         // This will result in an implicit downcast
-        best_individuals.push_back(ind_ptr->clone<gpar::GOptimizableEntity>());
+        best_individuals.push_back(ind_ptr->clone<gen::GOptimizableEntity>());
 
         pos++;
     }
@@ -720,7 +720,7 @@ std::vector<std::shared_ptr<gpar::GOptimizableEntity>> Go2::getBestGlobalIndivid
  *
  * @return The best individual found
  */
-std::shared_ptr<gpar::GOptimizableEntity> Go2::getBestIterationIndividual_() const {
+std::shared_ptr<gen::GOptimizableEntity> Go2::getBestIterationIndividual_() const {
     throw geneva_exception(
         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In Go2::getBestIterationIndividual_(): Error!" << '\n'
@@ -735,7 +735,7 @@ std::shared_ptr<gpar::GOptimizableEntity> Go2::getBestIterationIndividual_() con
  *
  * @return The best individual found
  */
-std::vector<std::shared_ptr<gpar::GOptimizableEntity>> Go2::getBestIterationIndividuals_() const {
+std::vector<std::shared_ptr<gen::GOptimizableEntity>> Go2::getBestIterationIndividuals_() const {
     throw geneva_exception(
         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In Go2::getBestIterationIndividuals_(): Error!" << '\n'

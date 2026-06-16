@@ -207,7 +207,7 @@ void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_() {
  */
 GOptimizationAlgorithmBase::GOptimizationAlgorithmBase(const GOptimizationAlgorithmBase &cp)
   : Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>(cp)
-  , Gem::Common::GUniquePtrContainerT<gpar::GIndividualSlot>(cp)
+  , Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>(cp)
   , iteration_(cp.iteration_)
   , offset_(DEFAULTOFFSET)
   , min_iteration_(cp.min_iteration_)
@@ -1344,7 +1344,7 @@ void GOptimizationAlgorithmBase::addConfigurationOptions_(Gem::Common::GParserBu
 	 * and may either have a limited or unlimited size, depending on user-settings
 	 */
 void GOptimizationAlgorithmBase::updateGlobalBestsPQ_(
-    gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals
+    gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool clone = true;
     constexpr bool donotreplace = false;
@@ -1374,7 +1374,7 @@ void GOptimizationAlgorithmBase::updateGlobalBestsPQ_(
 	 * settings
 	 */
 void GOptimizationAlgorithmBase::updateIterationBestsPQ_(
-    gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals
+    gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool clone = true;
     constexpr bool replace = true;
@@ -1403,7 +1403,7 @@ void GOptimizationAlgorithmBase::updateIterationBestsPQ_(
 	 * "dirty flag" set.
 	 */
 void GOptimizationAlgorithmBase::addCleanStoredBests(
-    gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals
+    gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool clone = true;
 
@@ -1464,7 +1464,7 @@ void GOptimizationAlgorithmBase::load_(const GOptimizationAlgorithmBase *cp) {
 
     // This is the category root; there is no GObject parent class to load.
     // Load the stateful base classes' data
-    Gem::Common::GUniquePtrContainerT<gpar::GIndividualSlot>::operator=(*p_load);
+    Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>::operator=(*p_load);
 
     // All local data, derived from the single localMembers() declaration: plain members
     // are assigned, the cloneable container pluggable_monitors_cnt_ is deep-cloned, and
@@ -1489,7 +1489,7 @@ void GOptimizationAlgorithmBase::load_(const GOptimizationAlgorithmBase *cp) {
 	 * @return A struct which indicates whether all items have returned ("is_complete") and whether there were errors ("has_errors")
 	 */
 Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOn(
-    std::vector<std::unique_ptr<gpar::GOptimizableEntity>> &work_items,
+    std::vector<std::unique_ptr<gen::GOptimizableEntity>> &work_items,
     std::size_t start,
     std::size_t end
 ) {
@@ -1509,7 +1509,7 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOn(
  */
 Gem::Courtier::executor_status_t
 GOptimizationAlgorithmBase::workOnPopulation(std::size_t start, std::size_t end) {
-    std::vector<std::unique_ptr<gpar::GOptimizableEntity>> work_items;
+    std::vector<std::unique_ptr<gen::GOptimizableEntity>> work_items;
     work_items.reserve(this->size());
     for(auto &slot : this->data_cnt_) {
         work_items.push_back(slot->releaseIndividual());
@@ -1534,7 +1534,7 @@ GOptimizationAlgorithmBase::workOnPopulation(std::size_t start, std::size_t end)
  * or-fatal for the need-all OAs.
  */
 Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
-    std::vector<std::unique_ptr<gpar::GOptimizableEntity>> &work_items,
+    std::vector<std::unique_ptr<gen::GOptimizableEntity>> &work_items,
     std::size_t start,
     std::size_t end
 ) {
@@ -1548,7 +1548,7 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
     // cloned refills are written straight into work_items[start..end). The execution policy owns the
     // broker / executor / consumer lifecycle and the late-return buffer (sized to ~one generation); the
     // submission policy is the algorithm's choice (clone-on-partial-return vs full-success-or-fatal).
-    std::span<std::unique_ptr<gpar::GOptimizableEntity>> sp(work_items.data() + start, end - start);
+    std::span<std::unique_ptr<gen::GOptimizableEntity>> sp(work_items.data() + start, end - start);
     return exec_policy_.workOn(sp, this->getSubmissionPolicy_(), this->size());
 }
 
@@ -1556,7 +1556,7 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
 /**
  * Retrieves a vector of old work items after job submission
  */
-std::vector<std::unique_ptr<gpar::GOptimizableEntity>> GOptimizationAlgorithmBase::getOldWorkItems() {
+std::vector<std::unique_ptr<gen::GOptimizableEntity>> GOptimizationAlgorithmBase::getOldWorkItems() {
     // Reap any LATE returns the consumer buffered -- results that came back after their batch had
     // already been reconciled in place. Delegated to the execution policy (empty for a local consumer;
     // a networked consumer hands back its bounded late-return buffer). The OA folds the returned (bare)
@@ -1606,8 +1606,8 @@ GOptimizationAlgorithmBase::extractOptAlgFromPath(const std::filesystem::path &p
  * Retrieves the best individual found up to now (which is usually the best individual
  * in the priority queue).
  */
-std::shared_ptr<gpar::GOptimizableEntity> GOptimizationAlgorithmBase::getBestGlobalIndividual_() const {
-    std::shared_ptr<gpar::GOptimizableEntity> p = best_global_individuals_pq_.best();
+std::shared_ptr<gen::GOptimizableEntity> GOptimizationAlgorithmBase::getBestGlobalIndividual_() const {
+    std::shared_ptr<gen::GOptimizableEntity> p = best_global_individuals_pq_.best();
 #ifdef DEBUG
     if(!p) {
         throw geneva_exception(
@@ -1618,7 +1618,7 @@ std::shared_ptr<gpar::GOptimizableEntity> GOptimizationAlgorithmBase::getBestGlo
     }
 #endif
     // Always clone: callers must not alias the internal priority-queue entry.
-    return p->clone<gpar::GOptimizableEntity>();
+    return p->clone<gen::GOptimizableEntity>();
 }
 
 /******************************************************************************/
@@ -1626,12 +1626,12 @@ std::shared_ptr<gpar::GOptimizableEntity> GOptimizationAlgorithmBase::getBestGlo
  * Retrieves a list of the best individuals found (equal to the content of
  * the priority queue)
  */
-std::vector<std::shared_ptr<gpar::GOptimizableEntity>>
+std::vector<std::shared_ptr<gen::GOptimizableEntity>>
 GOptimizationAlgorithmBase::getBestGlobalIndividuals_() const {
-    std::vector<std::shared_ptr<gpar::GOptimizableEntity>> best_individuals_vec;
+    std::vector<std::shared_ptr<gen::GOptimizableEntity>> best_individuals_vec;
 
     for(const auto &ind_ptr : best_global_individuals_pq_.toVector()) {
-        best_individuals_vec.push_back(ind_ptr->clone<gpar::GOptimizableEntity>());
+        best_individuals_vec.push_back(ind_ptr->clone<gen::GOptimizableEntity>());
     }
 
     return best_individuals_vec;
@@ -1642,8 +1642,8 @@ GOptimizationAlgorithmBase::getBestGlobalIndividuals_() const {
  * Retrieves the best individual found in the iteration (which is the best individual
  * in the priority queue).
  */
-std::shared_ptr<gpar::GOptimizableEntity> GOptimizationAlgorithmBase::getBestIterationIndividual_() const {
-    std::shared_ptr<gpar::GOptimizableEntity> p = best_iteration_individuals_pq_.best();
+std::shared_ptr<gen::GOptimizableEntity> GOptimizationAlgorithmBase::getBestIterationIndividual_() const {
+    std::shared_ptr<gen::GOptimizableEntity> p = best_iteration_individuals_pq_.best();
 #ifdef DEBUG
     if(!p) {
         throw geneva_exception(
@@ -1655,7 +1655,7 @@ std::shared_ptr<gpar::GOptimizableEntity> GOptimizationAlgorithmBase::getBestIte
     }
 #endif
     // Always clone: callers must not alias the internal priority-queue entry.
-    return p->clone<gpar::GOptimizableEntity>();
+    return p->clone<gen::GOptimizableEntity>();
 }
 
 /******************************************************************************/
@@ -1663,7 +1663,7 @@ std::shared_ptr<gpar::GOptimizableEntity> GOptimizationAlgorithmBase::getBestIte
  * Retrieves a list of the best individuals found in the iteration (equal to the content of
  * the priority queue)
  */
-std::vector<std::shared_ptr<gpar::GOptimizableEntity>>
+std::vector<std::shared_ptr<gen::GOptimizableEntity>>
 GOptimizationAlgorithmBase::getBestIterationIndividuals_() const {
     return best_iteration_individuals_pq_.toVector();
 }
@@ -1690,7 +1690,7 @@ void GOptimizationAlgorithmBase::setIndividualPersonalities() {
         auto pp = slot->individual().postProcessor();
         if(pp) {
             auto post_processor =
-                std::dynamic_pointer_cast<GPostProcessorBaseT<gpar::GOptimizableEntity>>(pp);
+                std::dynamic_pointer_cast<GPostProcessorBaseT<gen::GOptimizableEntity>>(pp);
             const bool eligible =
                 post_processor and post_processor->postProcessingAllowedFor(oa_mnemonic);
             slot->individual().vetoPostProcessing(not eligible);
@@ -2215,7 +2215,7 @@ bool GOptimizationAlgorithmBase::modify_GUnitTests_() {
 
     // This is the category root; there is no modifiable GObject parent class.
     // Call the stateful base class'es function
-    if(Gem::Common::GUniquePtrContainerT<gpar::GIndividualSlot>::modify_GUnitTests_()) {
+    if(Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -2246,7 +2246,7 @@ void GOptimizationAlgorithmBase::specificTestsNoFailureExpected_GUnitTests_() {
 
     // This is the category root; there is no GObject parent class to delegate to.
     // Call the stateful base class'es function
-    Gem::Common::GUniquePtrContainerT<gpar::GIndividualSlot>::specificTestsNoFailureExpected_GUnitTests_();
+    Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
@@ -2265,7 +2265,7 @@ void GOptimizationAlgorithmBase::specificTestsFailuresExpected_GUnitTests_() {
 
     // This is the category root; there is no GObject parent class to delegate to.
     // Call the stateful base class'es function
-    Gem::Common::GUniquePtrContainerT<gpar::GIndividualSlot>::specificTestsFailuresExpected_GUnitTests_();
+    Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(

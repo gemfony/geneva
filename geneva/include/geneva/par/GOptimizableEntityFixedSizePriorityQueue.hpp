@@ -56,7 +56,7 @@
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 // Forward declaration: the OA population is a vector of slots; the slot-population add() overload below
@@ -185,6 +185,6 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Parameters::GOptimizableEntityFixedSizePriorityQueue) // NOLINT
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Genome::GOptimizableEntityFixedSizePriorityQueue) // NOLINT

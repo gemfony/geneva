@@ -44,9 +44,9 @@
 #include <string>
 #include <vector>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GOptimizableEntityFixedSizePriorityQueue) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Genome::GOptimizableEntityFixedSizePriorityQueue) // NOLINT
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 /**
@@ -446,4 +446,4 @@ void GOptimizableEntityFixedSizePriorityQueue::specificTestsFailuresExpected_GUn
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */

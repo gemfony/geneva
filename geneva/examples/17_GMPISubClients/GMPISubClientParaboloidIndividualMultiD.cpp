@@ -51,7 +51,7 @@ GMPISubClientParaboloidIndividualMultiD::GMPISubClientParaboloidIndividualMultiD
     // Build a flat genome of nParameters_ constrained doubles in [M_PAR_MIN, M_PAR_MAX[, each its own
     // Gauss group with the default GDoubleGaussAdaptor configuration (the tree relied on the lazily
     // installed default adaptor).
-    gpar::GGenomeBuilder b;
+    gen::GGenomeBuilder b;
     for(std::size_t npar = 0; npar < nParameters_; npar++) {
         b.addDouble(M_PAR_MIN, M_PAR_MIN, M_PAR_MAX); // structure only; the adaptor lives on the OA config
     }
@@ -81,10 +81,10 @@ GMPISubClientParaboloidIndividualMultiD::GMPISubClientParaboloidIndividualMultiD
  *
  * @param cp A copy of another GMPISubClientParaboloidIndividualMultiD, camouflaged as a GFlatGenome
  */
-void GMPISubClientParaboloidIndividualMultiD::load_(const gpar::GOptimizableEntity *cp) {
+void GMPISubClientParaboloidIndividualMultiD::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GMPISubClientParaboloidIndividualMultiD reference independent of this object and convert the pointer
     const GMPISubClientParaboloidIndividualMultiD *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GMPISubClientParaboloidIndividualMultiD>(
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GMPISubClientParaboloidIndividualMultiD>(
             cp,
             this
         );
@@ -102,7 +102,7 @@ void GMPISubClientParaboloidIndividualMultiD::load_(const gpar::GOptimizableEnti
  *
  * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GFlatGenome *GMPISubClientParaboloidIndividualMultiD::clone_() const {
+gen::GFlatGenome *GMPISubClientParaboloidIndividualMultiD::clone_() const {
     return new GMPISubClientParaboloidIndividualMultiD(*this);
 }
 

@@ -77,7 +77,7 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
  * A standard copy constructor.
  */
 GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual &cp)
-  : gpar::GFlatGenome(cp) // copies all local collections
+  : gen::GFlatGenome(cp) // copies all local collections
   , program_name_(cp.program_name_)
   , custom_options_(cp.custom_options_)
   , parameter_file_base_name_(cp.parameter_file_base_name_)
@@ -102,18 +102,18 @@ GExternalEvaluatorIndividual::~GExternalEvaluatorIndividual() { /* nothing */
  * @param e The expected outcome of the comparison
  */
 void GExternalEvaluatorIndividual::compare_(
-    const gpar::GOptimizableEntity &cp,
+    const gen::GOptimizableEntity &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GExternalEvaluatorIndividual reference independent of this object and convert the pointer
     const GExternalEvaluatorIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GExternalEvaluatorIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GExternalEvaluatorIndividual>(cp, this);
 
     Gem::Common::GToken token("GExternalEvaluatorIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -213,13 +213,13 @@ std::size_t GExternalEvaluatorIndividual::getNExpectedResults() const {
  *
  * @param cp A copy of another GExternalEvaluatorIndividual, camouflaged as a GFlatGenome
  */
-void GExternalEvaluatorIndividual::load_(const gpar::GOptimizableEntity *cp) {
+void GExternalEvaluatorIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GExternalEvaluatorIndividual reference independent of this object and convert the pointer
     const GExternalEvaluatorIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GExternalEvaluatorIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GExternalEvaluatorIndividual>(cp, this);
 
     // First load the data of our parent class ...
-    gpar::GFlatGenome::load_(cp);
+    gen::GFlatGenome::load_(cp);
 
     // ... and then our own, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -231,7 +231,7 @@ void GExternalEvaluatorIndividual::load_(const gpar::GOptimizableEntity *cp) {
  *
  * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GFlatGenome *GExternalEvaluatorIndividual::clone_() const {
+gen::GFlatGenome *GExternalEvaluatorIndividual::clone_() const {
     return new GExternalEvaluatorIndividual(*this);
 }
 
@@ -540,7 +540,7 @@ void GExternalEvaluatorIndividual::describeConfig(Gem::Common::GParserBuilder &g
  * The discovered run-id and result count are recorded back into @p c so applyConfig() can hand them to
  * each produced individual.
  */
-gpar::Genome GExternalEvaluatorIndividual::buildGenome(Config &c) {
+gen::Genome GExternalEvaluatorIndividual::buildGenome(Config &c) {
     namespace pt = boost::property_tree;
 
     if(c.program_name.empty()) {
@@ -619,7 +619,7 @@ gpar::Genome GExternalEvaluatorIndividual::buildGenome(Config &c) {
     // Author the flat genome: each discovered variable becomes one constrained double group. Fixed
     // variables (min == max) are built with adaptionMode::NEVER; active ones get their Gauss/bi-Gauss
     // adaptor from the OA-owned config (buildAdaptionConfig), not the layout.
-    gpar::GGenomeBuilder gb;
+    gen::GGenomeBuilder gb;
 
     try {
         std::size_t n_individuals = ptr.get<std::size_t>("batch.n_individuals");
@@ -709,7 +709,7 @@ gpar::Genome GExternalEvaluatorIndividual::buildGenome(Config &c) {
  * un-authored. Formerly GExternalEvaluatorIndividualFactory::getAdaptionConfig.
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GExternalEvaluatorIndividual::buildAdaptionConfig(const gpar::GFlatGenome &sample, const Config &c) {
+GExternalEvaluatorIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
     auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
     const auto &groups = cfg->doubleGroups();

@@ -94,7 +94,7 @@ class GAdaptionConfigBase;
  */
 class GOptimizationAlgorithmBase // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>
-  , public Gem::Common::GUniquePtrContainerT<gpar::GIndividualSlot>
+  , public Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>
   , public Interface::GOptimizerIT<GOptimizationAlgorithmBase> {
 private:
     ///////////////////////////////////////////////////////////////////////
@@ -199,7 +199,7 @@ private:
         // a base-object rather than a local member, is serialized here.
         ar &make_nvp(
                 "GStdPtrVectorInterfaceT_T",
-                boost::serialization::base_object<Gem::Common::GUniquePtrContainerT<gpar::GIndividualSlot>>(*this)
+                boost::serialization::base_object<Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>>(*this)
             );
 
         // All members are derived from the single localMembers() declaration: plain
@@ -224,12 +224,12 @@ public:
     // slot. The inherited slot push_back overloads remain available (re-exposed via the using-declaration
     // so the individual overload below does not name-hide them) for population-growth code that already
     // holds slots.
-    using Gem::Common::GUniquePtrContainerT<gpar::GIndividualSlot>::push_back;
+    using Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>::push_back;
 
     /** @brief Adds an individual to the population, wrapping it in a fresh GIndividualSlot */
-    void push_back(std::unique_ptr<gpar::GOptimizableEntity> ind) {
-        Gem::Common::GUniquePtrContainerT<gpar::GIndividualSlot>::push_back(
-            std::make_unique<gpar::GIndividualSlot>(std::move(ind))
+    void push_back(std::unique_ptr<gen::GOptimizableEntity> ind) {
+        Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>::push_back(
+            std::make_unique<gen::GIndividualSlot>(std::move(ind))
         );
     }
 
@@ -322,7 +322,7 @@ public:
      * consumer is shared across the whole run rather than created per algorithm. Transient runtime
      * state, neither serialized nor cloned; takes precedence over setLocalConsumer().
      */
-    void setBroker(std::shared_ptr<Gem::Courtier::GBrokerT<gpar::GOptimizableEntity>> broker) {
+    void setBroker(std::shared_ptr<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>> broker) {
         exec_policy_.setBroker(std::move(broker));
     }
 
@@ -438,8 +438,8 @@ public:
         // (pluggable monitors) only read the individual transiently, so hand back a NON-OWNING shared_ptr
         // view (no-op deleter) of the live individual rather than co-owning or cloning it -- the slot
         // outlives the call (the population owns it). Does error checks on the conversion internally.
-        std::shared_ptr<gpar::GOptimizableEntity> view(&this->at(pos)->individual(), [](gpar::GOptimizableEntity *) {});
-        return Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, target_type>(view);
+        std::shared_ptr<gen::GOptimizableEntity> view(&this->at(pos)->individual(), [](gen::GOptimizableEntity *) {});
+        return Gem::Common::convertSmartPointer<gen::GOptimizableEntity, target_type>(view);
     }
 
     /***************************************************************************/
@@ -448,7 +448,7 @@ public:
     std::size_t getNProcessableItems() const;
 
     /** @brief If individuals have been stored in this population, they are added to the priority queue. */
-    void addCleanStoredBests(gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals);
+    void addCleanStoredBests(gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals);
 
     /** @brief Helper function that determines whether we are currently inside of the first iteration */
     bool inFirstIteration() const;
@@ -521,7 +521,7 @@ protected:
      *  courtier. The algorithm passes the range it wants evaluated explicitly (no per-item DO_PROCESS
      *  flagging needed); the consumer marks and reconciles exactly that span in place. */
     Gem::Courtier::executor_status_t workOn(
-        std::vector<std::unique_ptr<gpar::GOptimizableEntity>> &work_items,
+        std::vector<std::unique_ptr<gen::GOptimizableEntity>> &work_items,
         std::size_t start,
         std::size_t end
     );
@@ -535,7 +535,7 @@ protected:
      */
     Gem::Courtier::executor_status_t workOnPopulation(std::size_t start, std::size_t end);
     /** @brief Retrieves a vector of old work items after job submission */
-    std::vector<std::unique_ptr<gpar::GOptimizableEntity>> getOldWorkItems();
+    std::vector<std::unique_ptr<gen::GOptimizableEntity>> getOldWorkItems();
 
     /** @brief Returns a fresh personality-traits object for this algorithm. Protected, non-virtual
      *  wrapper around the private getPersonalityTraits_() factory so intermediate base classes (e.g.
@@ -558,9 +558,9 @@ protected:
 
     // NB: protected, as a derived function may fall back to this function, cmp EA in non-pareto mode
     /** @brief Adds the individuals of this iteration to a priority queue. */
-    virtual void updateGlobalBestsPQ_(gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals);
+    virtual void updateGlobalBestsPQ_(gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals);
     /** @brief Adds the individuals of this iteration to a priority queue. */
-    virtual void updateIterationBestsPQ_(gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals);
+    virtual void updateIterationBestsPQ_(gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals);
 
     /** @brief Set the number of "best" individuals to be recorded in each iteration */
     void setNRecordBestIndividuals(std::size_t n_record_best_individuals);
@@ -607,15 +607,15 @@ private:
     std::uint32_t getIteration_() const override;
 
     /** @brief Retrieves the best individual found up to now */
-    std::shared_ptr<gpar::GOptimizableEntity> getBestGlobalIndividual_() const final;
+    std::shared_ptr<gen::GOptimizableEntity> getBestGlobalIndividual_() const final;
     /** @brief Retrieves a list of the best individuals found */
-    std::vector<std::shared_ptr<gpar::GOptimizableEntity>>
+    std::vector<std::shared_ptr<gen::GOptimizableEntity>>
     getBestGlobalIndividuals_() const final;
 
     /** @brief Retrieves the best individual found in the iteration */
-    std::shared_ptr<gpar::GOptimizableEntity> getBestIterationIndividual_() const final;
+    std::shared_ptr<gen::GOptimizableEntity> getBestIterationIndividual_() const final;
     /** @brief Retrieves a list of the best individuals found in the */
-    std::vector<std::shared_ptr<gpar::GOptimizableEntity>>
+    std::vector<std::shared_ptr<gen::GOptimizableEntity>>
     getBestIterationIndividuals_() const final;
 
     /** @brief Retrieve the number of processable items in the current iteration. */
@@ -704,10 +704,10 @@ private:
 
     std::size_t n_recordbest_global_individuals_ =
         DEFNRECORDBESTINDIVIDUALS; ///< Indicates the number of best individuals to be recorded/updated in each iteration
-    gpar::GOptimizableEntityFixedSizePriorityQueue best_global_individuals_pq_{
+    gen::GOptimizableEntityFixedSizePriorityQueue best_global_individuals_pq_{
         n_recordbest_global_individuals_
     }; ///< A priority queue with the best individuals found so far
-    gpar::GOptimizableEntityFixedSizePriorityQueue best_iteration_individuals_pq_{
+    gen::GOptimizableEntityFixedSizePriorityQueue best_iteration_individuals_pq_{
         n_recordbest_global_individuals_
     }; ///< A priority queue with the best individuals of a given iteration; unlimited size so all individuals of an iteration fit in
 
@@ -764,7 +764,7 @@ private:
     GOptimizerExecutionPolicy exec_policy_;
     /** @brief Submits the contiguous sub-range [start, end) of @p work_items through courtier. */
     Gem::Courtier::executor_status_t workOnViaConsumer_(
-        std::vector<std::unique_ptr<gpar::GOptimizableEntity>> &work_items,
+        std::vector<std::unique_ptr<gen::GOptimizableEntity>> &work_items,
         std::size_t start,
         std::size_t end
     );

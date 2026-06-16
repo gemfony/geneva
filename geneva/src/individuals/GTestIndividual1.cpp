@@ -68,7 +68,7 @@ GTestIndividual1::GTestIndividual1() {
     // the "fitness changes after every customAdaptions()" unit test below reliable. With
     // min_sigma == 0 the shared sigma can collapse toward zero, the value steps fall back to a
     // one-ULP nudge, and 100 such nudges can round away in the sum-of-squares fitness.
-    gpar::GGenomeBuilder b;
+    gen::GGenomeBuilder b;
     b.addDoublePlainGroup(100, -10., 10.); // structure only; the adaptor lives on the OA config
     this->setGenome(b.build());
 
@@ -99,7 +99,7 @@ std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> GTestIndividual1::g
  * @param e The expected outcome of the comparison
  */
 void GTestIndividual1::compare_(
-    const gpar::GOptimizableEntity &cp,
+    const gen::GOptimizableEntity &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -108,12 +108,12 @@ void GTestIndividual1::compare_(
 
     // Check that we are dealing with a GTestIndividual1 reference independent of this object and convert the pointer
     const GTestIndividual1 *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GTestIndividual1>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GTestIndividual1>(cp, this);
 
     GToken token("GTestIndividual1", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
 
     // ... no local data
 
@@ -127,16 +127,16 @@ void GTestIndividual1::compare_(
  *
  * @param cp A copy of another GTestIndividual1, camouflaged as a GFlatGenome
  */
-void GTestIndividual1::load_(const gpar::GOptimizableEntity *cp) {
+void GTestIndividual1::load_(const gen::GOptimizableEntity *cp) {
     using namespace Gem::Common;
     using namespace Gem::Geneva;
 
     // Check that we are dealing with a GTestIndividual1 reference independent of this object and convert the pointer
     const GTestIndividual1 *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GTestIndividual1>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GTestIndividual1>(cp, this);
 
     // Load our parent's data
-    gpar::GFlatGenome::load_(cp);
+    gen::GFlatGenome::load_(cp);
 
     // No local data
 }
@@ -147,7 +147,7 @@ void GTestIndividual1::load_(const gpar::GOptimizableEntity *cp) {
  *
  * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GFlatGenome *GTestIndividual1::clone_() const {
+gen::GFlatGenome *GTestIndividual1::clone_() const {
     return new GTestIndividual1(*this);
 }
 
@@ -186,7 +186,7 @@ bool GTestIndividual1::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gpar::GFlatGenome::modify_GUnitTests_()) {
+    if(gen::GFlatGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -210,7 +210,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
+    gen::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
@@ -254,7 +254,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         // OA-owned (Phase 10). runAdaptionKernels() is the data-oriented twin of the former
         // customAdaptions(): it drifts the values but does NOT touch the processing status.
         auto cfg = p_test->getAdaptionConfig();
-        gpar::GAuxiliaryStore scratch;
+        gen::GAuxiliaryStore scratch;
         cfg->installInto(scratch);
 
         for(std::size_t i = 0; i < n_tests; i++) {
@@ -425,7 +425,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         // customAdaptions()) and evaluate the first individual.
         {
             auto cfg = p_test1->getAdaptionConfig();
-            gpar::GAuxiliaryStore scratch;
+            gen::GAuxiliaryStore scratch;
             cfg->installInto(scratch);
             CHECK_NOTHROW(OptimizationAlgorithms::runAdaptionKernels(*p_test1, scratch, *cfg, p_test1->getRandomEngine()));
         }
@@ -479,7 +479,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     { // Check setting and retrieval of the current personality status and whether the personalities
       // themselves can be accessed. The personality is OA scratch and now lives on the population SLOT
       // (GIndividualSlot), not on the individual, so this exercise runs on a slot wrapping the individual.
-        gpar::GIndividualSlot slot(this->clone_unique());
+        gen::GIndividualSlot slot(this->clone_unique());
         std::shared_ptr<GPersonalityTraits> p_pt;
 
         // Reset the personality type
@@ -589,7 +589,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
+    gen::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
@@ -640,7 +640,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
 #ifdef DEBUG
     { // Test that retrieval of an EA personality traits object from an uninitialized slot throws in DEBUG mode
-        gpar::GIndividualSlot slot(this->clone_unique());
+        gen::GIndividualSlot slot(this->clone_unique());
 
         // Make sure the personality type is set to PERSONALITY_NONE
         CHECK_NOTHROW(slot.resetPersonality());
@@ -658,7 +658,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
 #ifdef DEBUG
     { // Test that retrieval of an EA personality traits object from a slot with SWARM personality throws
-        gpar::GIndividualSlot slot(this->clone_unique());
+        gen::GIndividualSlot slot(this->clone_unique());
 
         // Make sure the personality type is set to SWARM
         CHECK_NOTHROW(slot.setPersonality(
@@ -677,7 +677,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
 #ifdef DEBUG
     { // Test that retrieval of a personality traits base object from a slot without personality throws
-        gpar::GIndividualSlot slot(this->clone_unique());
+        gen::GIndividualSlot slot(this->clone_unique());
 
         // Make sure the personality type is set to PERSONALITY_NONE
         CHECK_NOTHROW(slot.resetPersonality());

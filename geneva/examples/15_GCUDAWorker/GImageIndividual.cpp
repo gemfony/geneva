@@ -81,7 +81,7 @@ std::ostream &operator<<(std::ostream &os, const CircleTriangle &ct) {
 	 * and everything else "main", so applyConfig() can author the matching OA-owned Gauss adaptor by label.
 	 * The configured ranges are validated up front (formerly at the top of init()).
 	 */
-gpar::Genome GImageIndividual::buildGenome(const Config &c) {
+gen::Genome GImageIndividual::buildGenome(const Config &c) {
     if(c.min_size < 0. || c.max_size > 1. || c.min_size >= c.max_size) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -156,7 +156,7 @@ gpar::Genome GImageIndividual::buildGenome(const Config &c) {
     // (cx, cy) use the "loc" adaptor config, everything else the main one.
     const std::size_t nTriangles = c.n_triangles;
 
-    gpar::GGenomeBuilder bld;
+    gen::GGenomeBuilder bld;
 
     // Adds one constrained gimage_fp_t parameter, dispatching to the matching builder channel.
     auto addParam = [&bld](gimage_fp_t init, gimage_fp_t lo, gimage_fp_t hi) {
@@ -170,8 +170,8 @@ gpar::Genome GImageIndividual::buildGenome(const Config &c) {
     // The Gauss adaptors live on the OA-owned config (authored in applyConfig()), not the genome layout.
     // Tag each group with its adaptor class -- "main" (size / angles / colours / alpha / background) or
     // "loc" (centre x/y) -- so the config can author the matching adaptor onto them by label.
-    auto mainGauss = [](gpar::ParamHandle<gimage_fp_t> &h) { h.label("main"); };
-    auto locGauss = [](gpar::ParamHandle<gimage_fp_t> &h) { h.label("loc"); };
+    auto mainGauss = [](gen::ParamHandle<gimage_fp_t> &h) { h.label("main"); };
+    auto locGauss = [](gen::ParamHandle<gimage_fp_t> &h) { h.label("loc"); };
 
     for(std::size_t t_cnt = 0; t_cnt < nTriangles; t_cnt++) {
         // middle-x and -y: the location adaptor.
@@ -283,7 +283,7 @@ void GImageIndividual::setFitness(std::vector<double> const &result_vec) {
 	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 */
 void GImageIndividual::compare_(
-    const gpar::GOptimizableEntity &cp,
+    const gen::GOptimizableEntity &cp,
     const Gem::Common::expectation &e,
     const double &limit
 ) const {
@@ -291,12 +291,12 @@ void GImageIndividual::compare_(
 
     // Check that we are dealing with a GImageIndividual reference independent of this object and convert the pointer
     const GImageIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GImageIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GImageIndividual>(cp, this);
 
     GToken token("GImageIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::compare_t(IDENTITY(width_, p_load->width_), token);
@@ -400,13 +400,13 @@ std::vector<CircleTriangle> GImageIndividual::getTriangleData() const {
 	 *
 	 * @param cp A copy of another GImageIndividual, camouflaged as a GFlatGenome
 	 */
-void GImageIndividual::load_(const gpar::GOptimizableEntity *cp) {
+void GImageIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are indeed dealing with a GImageIndividual reference
     const GImageIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GImageIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GImageIndividual>(cp, this);
 
     // Load our parent's data
-    gpar::GFlatGenome::load_(cp);
+    gen::GFlatGenome::load_(cp);
 
     // Load local data
     nTriangles_ = p_load->nTriangles_;
@@ -424,7 +424,7 @@ void GImageIndividual::load_(const gpar::GOptimizableEntity *cp) {
 	 *
 	 * @return A deep clone of this object, camouflaged as a GFlatGenome
 	 */
-gpar::GFlatGenome *GImageIndividual::clone_() const {
+gen::GFlatGenome *GImageIndividual::clone_() const {
     return new GImageIndividual(*this);
 }
 
@@ -457,7 +457,7 @@ bool GImageIndividual::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
-    gpar::GFlatGenome::modify_GUnitTests();
+    gen::GFlatGenome::modify_GUnitTests();
 
     // Change the parameter settings. The adaption state + logic are OA-owned (Phase 10); a standalone
     // individual drives them via a self-owned scratch + the config it authored in init() (StandaloneAdapter).
@@ -481,7 +481,7 @@ void GImageIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GFlatGenome::specificTestsNoFailureExpected_GUnitTests();
+    gen::GFlatGenome::specificTestsNoFailureExpected_GUnitTests();
 
     const std::size_t NTESTS = 100;
 
@@ -514,7 +514,7 @@ void GImageIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GFlatGenome::specificTestsFailuresExpected_GUnitTests();
+    gen::GFlatGenome::specificTestsFailuresExpected_GUnitTests();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------

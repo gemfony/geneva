@@ -66,7 +66,7 @@ GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, doub
     // Two unbounded double parameters (the line's offset a and slope b), each its own Gauss group.
     // The default unbounded init range [0, 1] matches the former GDoubleObject() default. The Gauss
     // adaptor settings now live on the OA-owned config (see getAdaptionConfig()), not the genome layout.
-    gpar::GGenomeBuilder b;
+    gen::GGenomeBuilder b;
     for(std::size_t i = 0; i < 2; i++) {
         b.addDouble(0.);
     }
@@ -94,7 +94,7 @@ std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> GLineFitIndividual:
  * @param cp A constant reference to another GLineFitIndividual object
  */
 GLineFitIndividual::GLineFitIndividual(const GLineFitIndividual &cp)
-  : gpar::GFlatGenome(cp)
+  : gen::GFlatGenome(cp)
   , data_points_(cp.data_points_) { /* nothing */
 }
 
@@ -114,7 +114,7 @@ GLineFitIndividual::~GLineFitIndividual() { /* nothing */
  * @param e The expected outcome of the comparison
  */
 void GLineFitIndividual::compare_(
-    const gpar::GOptimizableEntity &cp,
+    const gen::GOptimizableEntity &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -122,12 +122,12 @@ void GLineFitIndividual::compare_(
 
     // Check that we are dealing with a GLineFitIndividual reference independent of this object and convert the pointer
     const GLineFitIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GLineFitIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GLineFitIndividual>(cp, this);
 
     GToken token("GLineFitIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -152,16 +152,16 @@ std::tuple<double, double> GLineFitIndividual::getLine() const {
  *
  * @param cp A copy of another GLineFitIndividual, camouflaged as a GFlatGenome
  */
-void GLineFitIndividual::load_(const gpar::GOptimizableEntity *cp) {
+void GLineFitIndividual::load_(const gen::GOptimizableEntity *cp) {
     using namespace Gem::Common;
     using namespace Gem::Geneva;
 
     // Check that we are dealing with a GLineFitIndividual reference independent of this object and convert the pointer
     const GLineFitIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GLineFitIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GLineFitIndividual>(cp, this);
 
     // Load our parent's data
-    gpar::GFlatGenome::load_(cp);
+    gen::GFlatGenome::load_(cp);
 
     // and then our local data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -173,7 +173,7 @@ void GLineFitIndividual::load_(const gpar::GOptimizableEntity *cp) {
  *
  * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GFlatGenome *GLineFitIndividual::clone_() const {
+gen::GFlatGenome *GLineFitIndividual::clone_() const {
     return new GLineFitIndividual(*this);
 }
 
@@ -215,7 +215,7 @@ bool GLineFitIndividual::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gpar::GFlatGenome::modify_GUnitTests_()) {
+    if(gen::GFlatGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -238,7 +238,7 @@ void GLineFitIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
+    gen::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -259,7 +259,7 @@ void GLineFitIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
+    gen::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------

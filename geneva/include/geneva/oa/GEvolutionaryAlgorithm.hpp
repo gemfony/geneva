@@ -120,7 +120,7 @@ public:
 
     /** @brief Extracts all individuals on the pareto front */
     void extractCurrentParetoIndividuals(
-        std::vector<std::shared_ptr<gpar::GOptimizableEntity>> &pareto_inds
+        std::vector<std::shared_ptr<gen::GOptimizableEntity>> &pareto_inds
     );
 
 protected:
@@ -173,9 +173,9 @@ private:
     void runFitnessCalculation_() override;
 
     /** @brief Adds the individuals of this iteration to a priority queue */
-    void updateGlobalBestsPQ_(gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals) override;
+    void updateGlobalBestsPQ_(gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals) override;
     /** @brief Adds the individuals of this iteration to a priority queue */
-    void updateIterationBestsPQ_(gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals) override;
+    void updateIterationBestsPQ_(gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals) override;
 
     /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
@@ -203,8 +203,8 @@ private:
     void sortMuCommaNuParetoMode();
     /** @brief Determines whether the first individual dominates the second */
     bool aDominatesB(
-        const std::unique_ptr<gpar::GOptimizableEntity> &a,
-        const std::unique_ptr<gpar::GOptimizableEntity> &b
+        const std::unique_ptr<gen::GOptimizableEntity> &a,
+        const std::unique_ptr<gen::GOptimizableEntity> &b
     ) const;
 
     /** @brief Fills the collection with individuals */

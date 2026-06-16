@@ -116,7 +116,7 @@ const bool GEEI_DEF_REMOVETEMPORARIES = "true";
  * utility. Hence the external program needs to understand the XML format.
  */
 class GExternalEvaluatorIndividual
-  : public gpar::GFlatGenome { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gen::GFlatGenome { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
     friend class boost::serialization::access;
@@ -149,7 +149,7 @@ class GExternalEvaluatorIndividual
         // run_id_ was previously omitted here and silently lost on
         // (de)serialization; derive the member list from the single
         // localMembers() declaration so it stays in sync.
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
         Gem::Common::serialize_members(ar, this->localMembers());
     }
 
@@ -158,7 +158,7 @@ class GExternalEvaluatorIndividual
 public:
     /***************************************************************************/
     using FACTORYTYPE =
-        Gem::Geneva::Parameters::GFlatIndividualFactory<GExternalEvaluatorIndividual>;
+        Gem::Geneva::Genome::GFlatIndividualFactory<GExternalEvaluatorIndividual>;
 
     /** @brief The default constructor */
     GExternalEvaluatorIndividual();
@@ -244,10 +244,10 @@ public:
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
     /** @brief Queries the external evaluator for the individual structure and builds the flat genome;
      *  also records the discovered run_id / n_results_expected back into @p c. */
-    static gpar::Genome buildGenome(Config &c);
+    static gen::Genome buildGenome(Config &c);
     /** @brief The OA-owned adaption config: the configured Gauss/bi-Gauss adaptor on every ACTIVE group */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const gpar::GFlatGenome &sample, const Config &c);
+    buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
     /** @brief Per-object post-config hook: applies the external-program parameters + discovered metadata */
     static void applyConfig(GExternalEvaluatorIndividual &ind, const Config &c);
     /** @brief Teardown hook (called when the factory is destroyed): runs the external program --finalize */
@@ -261,7 +261,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Loads the data of another GExternalEvaluatorIndividual */
-    void load_(const gpar::GOptimizableEntity *) final;
+    void load_(const gen::GOptimizableEntity *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GExternalEvaluatorIndividual>(
@@ -272,7 +272,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GOptimizableEntity & // the other object
+        const gen::GOptimizableEntity & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -286,7 +286,7 @@ private:
     /***************************************************************************/
 
     /** @brief Creates a deep clone of this object */
-    gpar::GFlatGenome *clone_() const final;
+    gen::GFlatGenome *clone_() const final;
 
     /***************************************************************************/
 
@@ -310,7 +310,7 @@ private:
  * registerContentCreator()) compiling unchanged.
  */
 using GExternalEvaluatorIndividualFactory =
-    Gem::Geneva::Parameters::GFlatIndividualFactory<GExternalEvaluatorIndividual>;
+    Gem::Geneva::Genome::GFlatIndividualFactory<GExternalEvaluatorIndividual>;
 
 /******************************************************************************/
 

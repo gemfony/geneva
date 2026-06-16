@@ -44,7 +44,7 @@
 #include "hap/GRandomDistributionsT.hpp"
 #include "hap/GRandomT.hpp"
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 /**
@@ -554,4 +554,4 @@ std::size_t adaptBiGaussGroup(
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */

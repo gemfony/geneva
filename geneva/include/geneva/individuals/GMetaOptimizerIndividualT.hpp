@@ -183,13 +183,13 @@ constexpr std::size_t MOT_NVAR = 11;
  */
 template <typename ind_type = Gem::Geneva::Individuals::GFunctionIndividual>
 class GMetaOptimizerIndividualT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gpar::GFlatGenome {
+  : public gen::GFlatGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
             BOOST_SERIALIZATION_NVP(n_runs_per_optimization_) &
             BOOST_SERIALIZATION_NVP(fitness_target_) & BOOST_SERIALIZATION_NVP(iteration_threshold_) &
             BOOST_SERIALIZATION_NVP(mo_target_) & BOOST_SERIALIZATION_NVP(sub_ea_config_) &
@@ -204,7 +204,7 @@ public:
      * The default constructor.
      */
     GMetaOptimizerIndividualT()
-      : gpar::GFlatGenome()
+      : gen::GFlatGenome()
       , n_runs_per_optimization_(GMETAOPT_DEF_NRUNSPEROPT)
       , fitness_target_(GMETAOPT_DEF_FITNESSTARGET)
       , iteration_threshold_(GMETAOPT_DEF_ITERATIONTHRESHOLD)
@@ -220,7 +220,7 @@ public:
      * @param cp A copy of another GFunctionIndidivual
      */
     GMetaOptimizerIndividualT(const GMetaOptimizerIndividualT<ind_type> &cp)
-      : gpar::GFlatGenome(cp)
+      : gen::GFlatGenome(cp)
       , n_runs_per_optimization_(cp.n_runs_per_optimization_)
       , fitness_target_(cp.fitness_target_)
       , iteration_threshold_(cp.iteration_threshold_)
@@ -233,7 +233,7 @@ public:
             // pointer when copying/cloning a default-constructed object.
             cp.ind_factory_
                 ? Gem::Common::convertSmartPointer<
-                      Gem::Common::GFactoryT<gpar::GOptimizableEntity>,
+                      Gem::Common::GFactoryT<gen::GOptimizableEntity>,
                       typename ind_type::FACTORYTYPE>((cp.ind_factory_)->clone())
                 : std::shared_ptr<typename ind_type::FACTORYTYPE>()
         ) { /* nothing */
@@ -435,7 +435,7 @@ public:
         // The int and double channels are independent value arrays, so each has its own positional
         // index: n_parents = 0, n_children = 1 in the int channel; amalgamation = 0 ... sigma_sigma = 8
         // in the double channel (i.e. double index = MOT_* - MOT_AMALGAMATION, see dblIndex()).
-        gpar::GGenomeBuilder b;
+        gen::GGenomeBuilder b;
 
         //------------------------------------------------------------
         // int channel
@@ -581,7 +581,7 @@ public:
         }
 
         ind_factory_ = Gem::Common::convertSmartPointer<
-            Gem::Common::GFactoryT<gpar::GOptimizableEntity>,
+            Gem::Common::GFactoryT<gen::GOptimizableEntity>,
             typename ind_type::FACTORYTYPE>(factory->clone());
     }
 
@@ -594,7 +594,7 @@ protected:
      */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override {
         // Call our parent class'es function
-        gpar::GFlatGenome::addConfigurationOptions_(gpb);
+        gen::GFlatGenome::addConfigurationOptions_(gpb);
 
         // Add local data
         gpb.registerFileParameter<std::size_t>(
@@ -675,16 +675,16 @@ protected:
      *
      * @param cp A copy of another GMetaOptimizerIndividualT<ind_type>
      */
-    void load_(const gpar::GOptimizableEntity *cp) override {
+    void load_(const gen::GOptimizableEntity *cp) override {
         // Check that we are dealing with a GMetaOptimizerIndividualT<ind_type> reference independent of this object and convert the pointer
         const GMetaOptimizerIndividualT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GMetaOptimizerIndividualT<ind_type>>(
+            Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GMetaOptimizerIndividualT<ind_type>>(
                 cp,
                 this
             );
 
         // Load our parent class'es data ...
-        gpar::GFlatGenome::load_(cp);
+        gen::GFlatGenome::load_(cp);
 
         // ... and then our local data, derived from the single localMembers() declaration
         Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -709,13 +709,13 @@ protected:
      * @param e The expected outcome of the comparison
      */
     void compare_(
-        const gpar::GOptimizableEntity &cp,
+        const gen::GOptimizableEntity &cp,
         const Gem::Common::expectation &e,
         [[maybe_unused]] const double & limit
     ) const final {
         // Check that we are dealing with a GMetaOptimizerIndividualT<ind_type> reference independent of this object and convert the pointer
         const GMetaOptimizerIndividualT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GMetaOptimizerIndividualT<ind_type>>(
+            Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GMetaOptimizerIndividualT<ind_type>>(
                 cp,
                 this
             );
@@ -723,7 +723,7 @@ protected:
         Gem::Common::GToken token("GMetaOptimizerIndividualT<ind_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
+        Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
 
         // ... and then the local data, derived from the single localMembers() declaration
         Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -783,7 +783,7 @@ protected:
         // not stick -- hence the factory now only produces structure-only genomes and the config is built
         // here from a sample genome.
         auto sub_adaption_config = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(
-            dynamic_cast<const gpar::GFlatGenome &>(*ind_factory_->get())
+            dynamic_cast<const gen::GFlatGenome &>(*ind_factory_->get())
         );
         for(std::size_t i = 0; i < sub_adaption_config->doubleGroups().size(); i++) {
             sub_adaption_config->groupDouble(i).gauss(
@@ -819,9 +819,9 @@ protected:
             // Add the required number of individuals
             for(std::size_t ind = 0; ind < pop_size; ind++) {
                 // Retrieve an individual
-                std::shared_ptr<gpar::GOptimizableEntity> gi_ptr = ind_factory_->get();
+                std::shared_ptr<gen::GOptimizableEntity> gi_ptr = ind_factory_->get();
 
-                ea_ptr->push_back(std::make_unique<gpar::GIndividualSlot>(gi_ptr->clone_unique()));
+                ea_ptr->push_back(std::make_unique<gen::GIndividualSlot>(gi_ptr->clone_unique()));
             }
 
             // Drive the sub-individuals' adaption through the OA-owned config built above.
@@ -859,8 +859,8 @@ protected:
             ea_ptr->optimize();
 
             // Retrieve the best individual
-            std::shared_ptr<gpar::GOptimizableEntity> best_individual =
-                ea_ptr->getBestGlobalIndividual<gpar::GOptimizableEntity>();
+            std::shared_ptr<gen::GOptimizableEntity> best_individual =
+                ea_ptr->getBestGlobalIndividual<gen::GOptimizableEntity>();
 
             // Retrieve the number of iterations
             iterations_consumed = ea_ptr->getIteration();
@@ -945,7 +945,7 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(gpar::GFlatGenome::modify_GUnitTests_()) {
+        if(gen::GFlatGenome::modify_GUnitTests_()) {
             result = true;
         }
 
@@ -979,7 +979,7 @@ protected:
         using namespace Gem::Geneva;
 
         // Call the parent classes' functions
-        gpar::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
+        gen::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
 
         //------------------------------------------------------------------------------
 
@@ -1004,7 +1004,7 @@ protected:
         using namespace Gem::Geneva;
 
         // Call the parent classes' functions
-        gpar::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
+        gen::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
 
         //------------------------------------------------------------------------------
 
@@ -1057,7 +1057,7 @@ private:
      *
      * @return A deep clone of this object, camouflaged as a GFlatGenome
      */
-    gpar::GFlatGenome *clone_() const final {
+    gen::GFlatGenome *clone_() const final {
         return new GMetaOptimizerIndividualT<ind_type>(*this);
     }
 
@@ -1096,7 +1096,7 @@ std::ostream &operator<<(std::ostream &stream, const GMetaOptimizerIndividualT<i
  * A factory for GMetaOptimizerIndividualT<ind_type> objects
  */
 template <typename ind_type>
-class GMetaOptimizerIndividualFactoryT : public Gem::Common::GFactoryT<gpar::GOptimizableEntity> {
+class GMetaOptimizerIndividualFactoryT : public Gem::Common::GFactoryT<gen::GOptimizableEntity> {
 public:
     /***************************************************************************/
     /**
@@ -1106,7 +1106,7 @@ public:
      * @param config_file The name of the configuration file
      */
     GMetaOptimizerIndividualFactoryT(std::filesystem::path const &config_file)
-      : Gem::Common::GFactoryT<gpar::GOptimizableEntity>(config_file) { /* nothing */
+      : Gem::Common::GFactoryT<gen::GOptimizableEntity>(config_file) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1131,7 +1131,7 @@ public:
         }
 
         ind_factory_ = Gem::Common::convertSmartPointer<
-            Gem::Common::GFactoryT<gpar::GOptimizableEntity>,
+            Gem::Common::GFactoryT<gen::GOptimizableEntity>,
             typename ind_type::FACTORYTYPE>(factory->clone());
     }
 
@@ -1437,7 +1437,7 @@ protected:
         );
 
         // Allow our parent class to describe its options
-        Gem::Common::GFactoryT<gpar::GOptimizableEntity>::describeLocalOptions_(gpb);
+        Gem::Common::GFactoryT<gen::GOptimizableEntity>::describeLocalOptions_(gpb);
     }
 
     /***************************************************************************/
@@ -1449,10 +1449,10 @@ protected:
      *
      * @param p_base A smart-pointer to be acted on during post-processing
      */
-    void postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &p_base) override {
+    void postProcess_(std::shared_ptr<gen::GOptimizableEntity> &p_base) override {
         // Convert the base pointer to our local type
         std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> p =
-            Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, GMetaOptimizerIndividualT<ind_type>>(
+            Gem::Common::convertSmartPointer<gen::GOptimizableEntity, GMetaOptimizerIndividualT<ind_type>>(
                 p_base
             );
 
@@ -1505,7 +1505,7 @@ private:
      *
      * @return Items of the desired type
      */
-    std::shared_ptr<gpar::GOptimizableEntity> getObject_(
+    std::shared_ptr<gen::GOptimizableEntity> getObject_(
         Gem::Common::GParserBuilder &gpb,
         [[maybe_unused]] const std::size_t & id
     ) override {
@@ -1613,7 +1613,7 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
     // (the monitor reads individuals only through the genome-agnostic interface, so any genome model
     // -- tree or flat -- qualifies).
     static_assert(
-        std::is_base_of_v<gpar::GOptimizableEntity, ind_type>,
+        std::is_base_of_v<gen::GOptimizableEntity, ind_type>,
         "GOptimizableEntity is no base class of ind_type"
     );
 

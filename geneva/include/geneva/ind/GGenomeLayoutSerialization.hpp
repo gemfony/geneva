@@ -54,7 +54,7 @@
 namespace boost::serialization {
 
 template <class Archive, typename T>
-void serialize(Archive &ar, Gem::Geneva::Parameters::GaussConfig<T> &g, const unsigned int) {
+void serialize(Archive &ar, Gem::Geneva::Genome::GaussConfig<T> &g, const unsigned int) {
     ar &make_nvp("sigma_sigma", g.sigma_sigma) &make_nvp("min_sigma", g.min_sigma) &
         make_nvp("max_sigma", g.max_sigma) &make_nvp("min_ad_prob", g.min_ad_prob) &
         make_nvp("max_ad_prob", g.max_ad_prob) &make_nvp("adapt_ad_prob", g.adapt_ad_prob) &
@@ -63,7 +63,7 @@ void serialize(Archive &ar, Gem::Geneva::Parameters::GaussConfig<T> &g, const un
 }
 
 template <class Archive, typename T>
-void serialize(Archive &ar, Gem::Geneva::Parameters::BiGaussConfig<T> &g, const unsigned int) {
+void serialize(Archive &ar, Gem::Geneva::Genome::BiGaussConfig<T> &g, const unsigned int) {
     ar &make_nvp("sigma_sigma1", g.sigma_sigma1) &make_nvp("sigma_sigma2", g.sigma_sigma2) &
         make_nvp("sigma_delta", g.sigma_delta) &make_nvp("min_sigma1", g.min_sigma1) &
         make_nvp("max_sigma1", g.max_sigma1) &make_nvp("min_sigma2", g.min_sigma2) &
@@ -77,7 +77,7 @@ void serialize(Archive &ar, Gem::Geneva::Parameters::BiGaussConfig<T> &g, const 
 
 template <class Archive>
 inline void
-serialize(Archive &ar, Gem::Geneva::Parameters::FlipConfig &g, const unsigned int) {
+serialize(Archive &ar, Gem::Geneva::Genome::FlipConfig &g, const unsigned int) {
     ar &make_nvp("min_ad_prob", g.min_ad_prob) &make_nvp("max_ad_prob", g.max_ad_prob) &
         make_nvp("adapt_ad_prob", g.adapt_ad_prob) &make_nvp("mode", g.mode);
 }
@@ -85,7 +85,7 @@ serialize(Archive &ar, Gem::Geneva::Parameters::FlipConfig &g, const unsigned in
 // The genome layout holds structure-only groups. The adaptor configuration lives on the (transient,
 // non-serialized) OA-owned GAdaptionConfig, so only the structure is serialized here.
 template <class Archive, typename T>
-void serialize(Archive &ar, Gem::Geneva::Parameters::GroupStructure<T> &g, const unsigned int) {
+void serialize(Archive &ar, Gem::Geneva::Genome::GroupStructure<T> &g, const unsigned int) {
     ar &make_nvp("start", g.start) &make_nvp("len", g.len) &make_nvp("label_id", g.label_id) &
         make_nvp("active", g.active) &make_nvp("range", g.range);
 }
@@ -104,7 +104,7 @@ void serialize(Archive &ar, Gem::Geneva::Parameters::GroupStructure<T> &g, const
 
 /** @brief True iff every group's per-value layout data is constant across the group (the normal case). */
 template <typename T>
-bool channelGroupsUniform(const Gem::Geneva::Parameters::ChannelLayout<T> &c) {
+bool channelGroupsUniform(const Gem::Geneva::Genome::ChannelLayout<T> &c) {
     for(const auto &g : c.groups) {
         for(std::uint32_t k = g.start + 1; k < g.start + g.len; ++k) {
             if(c.lower[k] != c.lower[g.start] || c.upper[k] != c.upper[g.start] ||
@@ -118,8 +118,8 @@ bool channelGroupsUniform(const Gem::Geneva::Parameters::ChannelLayout<T> &c) {
 }
 
 template <class Archive, typename T>
-void save(Archive &ar, const Gem::Geneva::Parameters::ChannelLayout<T> &c, const unsigned int) {
-    using Gem::Geneva::Parameters::ParamKind;
+void save(Archive &ar, const Gem::Geneva::Genome::ChannelLayout<T> &c, const unsigned int) {
+    using Gem::Geneva::Genome::ParamKind;
     bool compact = channelGroupsUniform<T>(c);
     ar &make_nvp("compact", compact);
     ar &make_nvp("groups", c.groups);
@@ -152,8 +152,8 @@ void save(Archive &ar, const Gem::Geneva::Parameters::ChannelLayout<T> &c, const
 }
 
 template <class Archive, typename T>
-void load(Archive &ar, Gem::Geneva::Parameters::ChannelLayout<T> &c, const unsigned int) {
-    using Gem::Geneva::Parameters::ParamKind;
+void load(Archive &ar, Gem::Geneva::Genome::ChannelLayout<T> &c, const unsigned int) {
+    using Gem::Geneva::Genome::ParamKind;
     bool compact = false;
     ar &make_nvp("compact", compact);
     ar &make_nvp("groups", c.groups);
@@ -193,12 +193,12 @@ void load(Archive &ar, Gem::Geneva::Parameters::ChannelLayout<T> &c, const unsig
 }
 
 template <class Archive, typename T>
-void serialize(Archive &ar, Gem::Geneva::Parameters::ChannelLayout<T> &c, const unsigned int version) {
+void serialize(Archive &ar, Gem::Geneva::Genome::ChannelLayout<T> &c, const unsigned int version) {
     boost::serialization::split_free(ar, c, version);
 }
 
 template <class Archive>
-void serialize(Archive &ar, Gem::Geneva::Parameters::GGenomeLayout &l, const unsigned int) {
+void serialize(Archive &ar, Gem::Geneva::Genome::GGenomeLayout &l, const unsigned int) {
     ar &make_nvp("d", l.d) &make_nvp("f", l.f) &make_nvp("i", l.i) &make_nvp("b", l.b) &
         make_nvp("labels", l.labels);
 }

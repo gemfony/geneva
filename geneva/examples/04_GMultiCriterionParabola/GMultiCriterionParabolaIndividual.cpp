@@ -96,13 +96,13 @@ void GMultiCriterionParabolaIndividual::setMinima(const std::vector<double> &min
      *
      * @param cp A copy of another GMultiCriterionParabolaIndividual, camouflaged as a GFlatGenome
      */
-void GMultiCriterionParabolaIndividual::load_(const gpar::GOptimizableEntity *cp) {
+void GMultiCriterionParabolaIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GMultiCriterionParabolaIndividual reference independent of this object and convert the pointer
     const GMultiCriterionParabolaIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GMultiCriterionParabolaIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GMultiCriterionParabolaIndividual>(cp, this);
 
     // Load our parent's data ...
-    gpar::GFlatGenome::load_(cp);
+    gen::GFlatGenome::load_(cp);
 
 #ifdef DEBUG
     if((p_load->minima_).size() != minima_.size() ||
@@ -127,7 +127,7 @@ void GMultiCriterionParabolaIndividual::load_(const gpar::GOptimizableEntity *cp
      *
      * @return A deep clone of this object, camouflaged as a GFlatGenome
      */
-gpar::GFlatGenome *GMultiCriterionParabolaIndividual::clone_() const {
+gen::GFlatGenome *GMultiCriterionParabolaIndividual::clone_() const {
     return new GMultiCriterionParabolaIndividual(*this);
 }
 
@@ -192,10 +192,10 @@ void GMultiCriterionParabolaIndividual::describeConfig(Gem::Common::GParserBuild
  * random-initialises within bounds. The Gauss adaptor settings live on the OA-owned config (see
  * getAdaptionConfig()), not in the structure-only genome layout.
  */
-gpar::Genome GMultiCriterionParabolaIndividual::buildGenome(const Config &c) {
+gen::Genome GMultiCriterionParabolaIndividual::buildGenome(const Config &c) {
     const std::vector<double> minima = Gem::Common::stringToDoubleVec(c.minima);
 
-    gpar::GGenomeBuilder b;
+    gen::GGenomeBuilder b;
     for(std::size_t npar = 0; npar < minima.size(); npar++) {
         // structure only; the adaptor lives on the OA config (see getAdaptionConfig())
         b.addDouble(c.par_min, c.par_min, c.par_max);

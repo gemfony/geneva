@@ -48,9 +48,9 @@
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GBaseParChildPersonalityTraits.hpp"
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 class GFlatGenome;
-} // namespace Gem::Geneva::Parameters
+} // namespace Gem::Geneva::Genome
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
@@ -165,7 +165,7 @@ public:
      * @return A converted shared_ptr to the parent
      */
     template <typename parent_type>
-        requires std::derived_from<parent_type, gpar::GOptimizableEntity>
+        requires std::derived_from<parent_type, gen::GOptimizableEntity>
     std::shared_ptr<parent_type> getParentIndividual(std::size_t parent_id) {
 #ifdef DEBUG
         // Check that the parent id is in a valid range
@@ -183,7 +183,7 @@ public:
 #endif /* DEBUG */
 
         // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, parent_type>(
+        return Gem::Common::convertSmartPointer<gen::GOptimizableEntity, parent_type>(
             *(this->begin() + parent_id)
         );
     }
@@ -263,10 +263,10 @@ protected:
     void performScheduledPopulationGrowth();
 
     /** @brief This function implements the RANDOMDUPLICATIONSCHEME scheme */
-    void randomRecombine(const std::unique_ptr<gpar::GIndividualSlot> &child);
+    void randomRecombine(const std::unique_ptr<gen::GIndividualSlot> &child);
     /** @brief  This function implements the VALUEDUPLICATIONSCHEME scheme */
     void
-    valueRecombine(const std::unique_ptr<gpar::GIndividualSlot> &child, const std::vector<double> &threshold);
+    valueRecombine(const std::unique_ptr<gen::GIndividualSlot> &child, const std::vector<double> &threshold);
 
     /***************************************************************************/
 

@@ -40,7 +40,7 @@
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/GPostProcessorT.hpp"
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 /**
@@ -159,4 +159,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */

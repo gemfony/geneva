@@ -201,7 +201,7 @@ public:
 	  * @return A converted shared_ptr to the best individual of a given neighborhood
 	  */
     template <typename individual_type>
-        requires std::derived_from<individual_type, gpar::GOptimizableEntity>
+        requires std::derived_from<individual_type, gen::GOptimizableEntity>
     std::shared_ptr<individual_type> getBestNeighborhoodIndividual(std::size_t neighborhood) {
 #ifdef DEBUG
         // Check that the neighborhood is in a valid range
@@ -216,7 +216,7 @@ public:
 #endif /* DEBUG */
 
         // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, individual_type>(
+        return Gem::Common::convertSmartPointer<gen::GOptimizableEntity, individual_type>(
             neighborhood_bests_cnt_[neighborhood]
         );
     }
@@ -281,9 +281,9 @@ protected:
     /** @brief Triggers an update of an individual's positions */
     void updateIndividualPositions(
         const std::size_t &,
-        const std::unique_ptr<gpar::GIndividualSlot> &, // the population slot being moved (borrowed)
-        std::shared_ptr<gpar::GOptimizableEntity>,      // neighborhood best
-        std::shared_ptr<gpar::GOptimizableEntity>,      // global best
+        const std::unique_ptr<gen::GIndividualSlot> &, // the population slot being moved (borrowed)
+        std::shared_ptr<gen::GOptimizableEntity>,      // neighborhood best
+        std::shared_ptr<gen::GOptimizableEntity>,      // global best
         std::tuple<double, double, double, double>      // c_personal / c_neighborhood / c_global / c_velocity
     );                                                  // (velocity now lives on the slot's OA scratch)
 
@@ -291,9 +291,9 @@ protected:
     void pruneVelocity(std::vector<double> &);
 
     /** Updates the personal best of an individual */
-    void updatePersonalBest(const std::unique_ptr<gpar::GIndividualSlot> &);
+    void updatePersonalBest(const std::unique_ptr<gen::GIndividualSlot> &);
     /** Updates the personal best of an individual, if a better solution was found */
-    void updatePersonalBestIfBetter(const std::unique_ptr<gpar::GIndividualSlot> &);
+    void updatePersonalBestIfBetter(const std::unique_ptr<gen::GIndividualSlot> &);
 
     std::size_t n_neighborhoods_ =
         (DEFAULTNNEIGHBORHOODS ? DEFAULTNNEIGHBORHOODS
@@ -307,10 +307,10 @@ protected:
         0
     ); ///< The current number of individuals belonging to each neighborhood
 
-    std::shared_ptr<gpar::GOptimizableEntity> global_best_ptr_; ///< The globally best individual
+    std::shared_ptr<gen::GOptimizableEntity> global_best_ptr_; ///< The globally best individual
 
-    std::vector<std::shared_ptr<gpar::GOptimizableEntity>> neighborhood_bests_cnt_ =
-        std::vector<std::shared_ptr<gpar::GOptimizableEntity>>(
+    std::vector<std::shared_ptr<gen::GOptimizableEntity>> neighborhood_bests_cnt_ =
+        std::vector<std::shared_ptr<gen::GOptimizableEntity>>(
             n_neighborhoods_
         ); ///< The collection of best individuals from each neighborhood
     // (Per-particle velocities now live on each GIndividualSlot's OA scratch as a POD double block --
@@ -340,7 +340,7 @@ protected:
     double velocity_range_percentage_ =
         DEFAULTVELOCITYRANGEPERCENTAGE; ///< Indicates the percentage of a value range used for the initialization of the velocity
 
-    std::vector<std::shared_ptr<gpar::GOptimizableEntity>>
+    std::vector<std::shared_ptr<gen::GOptimizableEntity>>
         last_iteration_individuals_cnt_; ///< A temporary copy of the last iteration's individuals
 
 private:

@@ -139,7 +139,7 @@ GStarterIndividual::GStarterIndividual(
  * @param cp A copy of another GFunctionIndidivual
  */
 GStarterIndividual::GStarterIndividual(const GStarterIndividual &cp)
-  : gpar::GFlatGenome(cp)
+  : gen::GFlatGenome(cp)
   , targetFunction_(cp.targetFunction_)
   , seed_sigma_(cp.seed_sigma_)
   , seed_sigma_sigma_(cp.seed_sigma_sigma_)
@@ -165,7 +165,7 @@ GStarterIndividual::~GStarterIndividual() { /* nothing */
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GStarterIndividual::compare_(
-    const gpar::GOptimizableEntity &cp,
+    const gen::GOptimizableEntity &cp,
     const Gem::Common::expectation &e,
     const double &limit
 ) const {
@@ -173,12 +173,12 @@ void GStarterIndividual::compare_(
 
     // Check that we are dealing with a GStarterIndividual reference independent of this object and convert the pointer
     const GStarterIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GStarterIndividual>(&cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GStarterIndividual>(&cp, this);
 
     Gem::Common::GToken token("GStarterIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::compare_t(IDENTITY(targetFunction_, p_load->targetFunction_), token);
@@ -270,13 +270,13 @@ std::string GStarterIndividual::print() {
  *
  * @param cp A copy of another GStarterIndividual, camouflaged as a GFlatGenome
  */
-void GStarterIndividual::load_(const gpar::GOptimizableEntity *cp) {
+void GStarterIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GStarterIndividual reference independent of this object and convert the pointer
     const GStarterIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GStarterIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GStarterIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GFlatGenome::load_(cp);
+    gen::GFlatGenome::load_(cp);
 
     // ... and then our local data
     targetFunction_ = p_load->targetFunction_;
@@ -293,7 +293,7 @@ void GStarterIndividual::load_(const gpar::GOptimizableEntity *cp) {
  *
  * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GFlatGenome *GStarterIndividual::clone_() const {
+gen::GFlatGenome *GStarterIndividual::clone_() const {
     return new GStarterIndividual(*this);
 }
 
@@ -372,7 +372,7 @@ bool GStarterIndividual::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gpar::GFlatGenome::modify_GUnitTests_()) {
+    if(gen::GFlatGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -404,7 +404,7 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
+    gen::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
@@ -477,7 +477,7 @@ void GStarterIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
+    gen::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
@@ -569,7 +569,7 @@ void GStarterIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config
  * optimization algorithm random-initialises within bounds. The Gauss adaptor settings live on the
  * OA-owned config (see getAdaptionConfig()), stamped onto the individual by applyConfig().
  */
-gpar::Genome GStarterIndividual::buildGenome(const Config &c) {
+gen::Genome GStarterIndividual::buildGenome(const Config &c) {
 #ifdef DEBUG
     if(c.start_values.empty() || c.start_values.size() != c.lower_boundaries.size() ||
        c.start_values.size() != c.upper_boundaries.size()) {
@@ -582,7 +582,7 @@ gpar::Genome GStarterIndividual::buildGenome(const Config &c) {
     }
 #endif /* DEBUG */
 
-    gpar::GGenomeBuilder b;
+    gen::GGenomeBuilder b;
     for(std::size_t i = 0; i < c.start_values.size(); i++) {
         b.addDouble(c.start_values.at(i), c.lower_boundaries.at(i), c.upper_boundaries.at(i));
     }

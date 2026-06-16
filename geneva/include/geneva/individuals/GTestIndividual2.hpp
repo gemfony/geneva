@@ -86,7 +86,7 @@ std::istream &operator>>(std::istream &, Gem::Geneva::Individuals::PERFOBJECTTYP
  * weakening data protection.
  */
 class GTestIndividual2
-  : public gpar::GFlatGenome { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gen::GFlatGenome { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -94,7 +94,7 @@ class GTestIndividual2
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -113,7 +113,7 @@ public:
 
 protected:
     /** @brief Loads the data of another GTestIndividual2 */
-    void load_(const gpar::GOptimizableEntity *) final;
+    void load_(const gen::GOptimizableEntity *) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GTestIndividual2>(
@@ -124,7 +124,7 @@ protected:
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     void compare_(
-        const gpar::GOptimizableEntity & // the other object
+        const gen::GOptimizableEntity & // the other object
         ,
         const Gem::Common::expectation & // the expectation for this object, e.g. equality
         ,
@@ -143,7 +143,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    gpar::GFlatGenome *clone_() const final;
+    gen::GFlatGenome *clone_() const final;
 
     /** @brief The default constructor -- protected, as it is only needed for (de-)serialization purposes */
     GTestIndividual2();

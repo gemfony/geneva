@@ -679,7 +679,7 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual(
  * @param cp A copy of another GNeuralNetworkIndividual object
  */
 GNeuralNetworkIndividual::GNeuralNetworkIndividual(const GNeuralNetworkIndividual &cp)
-  : gpar::GFlatGenome(cp)
+  : gen::GFlatGenome(cp)
   , t_f_(cp.t_f_)
   , n_d_(nnTrainingDataStore()) // We want a single source for the training data
 {                             /* nothing */
@@ -701,7 +701,7 @@ GNeuralNetworkIndividual::~GNeuralNetworkIndividual() { /* nothing */
  * @param e The expected outcome of the comparison
  */
 void GNeuralNetworkIndividual::compare_(
-    const gpar::GOptimizableEntity &cp,
+    const gen::GOptimizableEntity &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -709,12 +709,12 @@ void GNeuralNetworkIndividual::compare_(
 
     // Check that we are dealing with a GNeuralNetworkIndividual reference independent of this object and convert the pointer
     const GNeuralNetworkIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GNeuralNetworkIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GNeuralNetworkIndividual>(cp, this);
 
     GToken token("GNeuralNetworkIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -1356,13 +1356,13 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
  *
  * @param cp A copy of another GNeuralNetworkIndividual, camouflaged as a GFlatGenome
  */
-void GNeuralNetworkIndividual::load_(const gpar::GOptimizableEntity *cp) {
+void GNeuralNetworkIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GNeuralNetworkIndividual reference independent of this object and convert the pointer
     const GNeuralNetworkIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GNeuralNetworkIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GNeuralNetworkIndividual>(cp, this);
 
     // Load the parent class'es data
-    gpar::GFlatGenome::load_(cp);
+    gen::GFlatGenome::load_(cp);
 
     // Load our local data, derived from the single localMembers() declaration.
     // We do not copy the network data, as it is always initialized through
@@ -1376,7 +1376,7 @@ void GNeuralNetworkIndividual::load_(const gpar::GOptimizableEntity *cp) {
  *
  * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GFlatGenome *GNeuralNetworkIndividual::clone_() const {
+gen::GFlatGenome *GNeuralNetworkIndividual::clone_() const {
     return new GNeuralNetworkIndividual(*this);
 }
 
@@ -1594,7 +1594,7 @@ void GNeuralNetworkIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, 
  * is provided by GNeuralNetworkArchitecture, not by the genome layout; the Gauss adaptor lives on the
  * OA-owned config (buildAdaptionConfig), authored from the same sigma / ad_prob parameters.
  */
-gpar::Genome GNeuralNetworkIndividual::buildGenome(const Config &c) {
+gen::Genome GNeuralNetworkIndividual::buildGenome(const Config &c) {
     using namespace Gem::Hap;
 
     auto n_d = nnTrainingDataStore();
@@ -1611,7 +1611,7 @@ gpar::Genome GNeuralNetworkIndividual::buildGenome(const Config &c) {
     GRandomT<RANDFLAVOURS::RANDOMPROXY> gr_l;
     std::uniform_real_distribution<double> uniform_real_distribution(c.min_var, c.max_var);
 
-    gpar::GGenomeBuilder gb;
+    gen::GGenomeBuilder gb;
     std::size_t layer_number = 0;
     std::size_t n_nodes_previous = 0;
     for(const auto &layer_n_nodes : *n_d) {
@@ -1646,7 +1646,7 @@ gpar::Genome GNeuralNetworkIndividual::buildGenome(const Config &c) {
  * the genome layout.
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GNeuralNetworkIndividual::buildAdaptionConfig(const gpar::GFlatGenome &sample, const Config &c) {
+GNeuralNetworkIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
     auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
     for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {

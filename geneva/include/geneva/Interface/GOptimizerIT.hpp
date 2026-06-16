@@ -82,7 +82,7 @@ public:
 	  * @return A copy of the best individual found in the optimization run
 	  */
     template <typename individual_type>
-        requires std::derived_from<individual_type, gpar::GOptimizableEntity>
+        requires std::derived_from<individual_type, gen::GOptimizableEntity>
     std::shared_ptr<individual_type> getBestGlobalIndividual() const {
         std::scoped_lock<std::mutex> iteration_best_lock(get_best_mutex_);
         auto result = std::dynamic_pointer_cast<individual_type>(this->getBestGlobalIndividual_());
@@ -105,12 +105,12 @@ public:
 	  * @return A list of copies of the best individuals found in the optimization run
 	  */
     template <typename individual_type>
-        requires std::derived_from<individual_type, gpar::GOptimizableEntity>
+        requires std::derived_from<individual_type, gen::GOptimizableEntity>
     std::vector<std::shared_ptr<individual_type>> getBestGlobalIndividuals() const {
         std::scoped_lock<std::mutex> iteration_best_lock(get_best_mutex_);
 
         std::vector<std::shared_ptr<individual_type>> best_individuals;
-        std::vector<std::shared_ptr<gpar::GOptimizableEntity>> best_base_individuals =
+        std::vector<std::shared_ptr<gen::GOptimizableEntity>> best_base_individuals =
             this->getBestGlobalIndividuals_();
 
         // Cross check that we indeed got a valid set of individuals
@@ -149,7 +149,7 @@ public:
 	  * @return A copy of the best individual found in the iteration
 	  */
     template <typename individual_type>
-        requires std::derived_from<individual_type, gpar::GOptimizableEntity>
+        requires std::derived_from<individual_type, gen::GOptimizableEntity>
     std::shared_ptr<individual_type> getBestIterationIndividual() const {
         std::scoped_lock<std::mutex> iteration_best_lock(get_best_mutex_);
         auto result = std::dynamic_pointer_cast<individual_type>(getBestIterationIndividual_());
@@ -172,12 +172,12 @@ public:
 	  * @return A list of copies of the best individuals found in the iteration
 	  */
     template <typename individual_type>
-        requires std::derived_from<individual_type, gpar::GOptimizableEntity>
+        requires std::derived_from<individual_type, gen::GOptimizableEntity>
     std::vector<std::shared_ptr<individual_type>> getBestIterationIndividuals() const {
         std::scoped_lock<std::mutex> iteration_best_lock(get_best_mutex_);
 
         std::vector<std::shared_ptr<individual_type>> best_individuals;
-        std::vector<std::shared_ptr<gpar::GOptimizableEntity>> best_base_individuals =
+        std::vector<std::shared_ptr<gen::GOptimizableEntity>> best_base_individuals =
             this->getBestIterationIndividuals_();
 
         // Cross check that we indeed got a valid set of individuals
@@ -256,14 +256,14 @@ private:
     virtual void runFitnessCalculation_() = 0;
 
     /** @brief Retrieves the best individual found globally */
-    virtual std::shared_ptr<gpar::GOptimizableEntity> getBestGlobalIndividual_() const = 0;
+    virtual std::shared_ptr<gen::GOptimizableEntity> getBestGlobalIndividual_() const = 0;
     /** @brief Retrieves a list of the best individuals found globally*/
-    virtual std::vector<std::shared_ptr<gpar::GOptimizableEntity>>
+    virtual std::vector<std::shared_ptr<gen::GOptimizableEntity>>
     getBestGlobalIndividuals_() const = 0;
     /** @brief Retrieves the best individual found in the current iteration*/
-    virtual std::shared_ptr<gpar::GOptimizableEntity> getBestIterationIndividual_() const = 0;
+    virtual std::shared_ptr<gen::GOptimizableEntity> getBestIterationIndividual_() const = 0;
     /** @brief Retrieves a list of the best individuals found in the current iteration */
-    virtual std::vector<std::shared_ptr<gpar::GOptimizableEntity>>
+    virtual std::vector<std::shared_ptr<gen::GOptimizableEntity>>
     getBestIterationIndividuals_() const = 0;
 
     /** @brief Returns one-word information about the type of optimization algorithm. */

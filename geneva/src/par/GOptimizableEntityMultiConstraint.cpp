@@ -34,7 +34,7 @@
 #include "geneva/GMultiConstraintT.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,4 +100,4 @@ void GOptimizableEntityConstraint::load_(const GPreEvaluationValidityCheckT<GOpt
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */

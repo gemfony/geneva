@@ -163,7 +163,7 @@ sortingMode GEvolutionaryAlgorithm::getSortingScheme() const {
   * Extracts all individuals on the pareto front
   */
 void GEvolutionaryAlgorithm::extractCurrentParetoIndividuals(
-    std::vector<std::shared_ptr<gpar::GOptimizableEntity>> &pareto_inds
+    std::vector<std::shared_ptr<gen::GOptimizableEntity>> &pareto_inds
 ) {
     // Make sure the vector is empty
     pareto_inds.clear();
@@ -171,7 +171,7 @@ void GEvolutionaryAlgorithm::extractCurrentParetoIndividuals(
     for(const auto &ind_ptr : *this) {
         if(ind_ptr->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
                ->isOnParetoFront()) {
-            pareto_inds.push_back(ind_ptr->individual().clone<gpar::GOptimizableEntity>());
+            pareto_inds.push_back(ind_ptr->individual().clone<gen::GOptimizableEntity>());
         }
     }
 }
@@ -185,7 +185,7 @@ void GEvolutionaryAlgorithm::extractCurrentParetoIndividuals(
   * want the individuals on the current pareto front to be added.
   */
 void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
-    gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals
+    gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool replace = true;
     constexpr bool donotreplace = false;
@@ -220,7 +220,7 @@ void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
     case sortingMode::MUPLUSNU_PARETO:
     case sortingMode::MUCOMMANU_PARETO: {
         // Retrieve all individuals on the pareto front
-        std::vector<std::shared_ptr<gpar::GOptimizableEntity>> pareto_inds;
+        std::vector<std::shared_ptr<gen::GOptimizableEntity>> pareto_inds;
         this->extractCurrentParetoIndividuals(pareto_inds);
 
         // We simply add all parent individuals to the queue. As we only want
@@ -241,7 +241,7 @@ void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
  * the best individuals of the current iteration.
  */
 void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
-    gpar::GOptimizableEntityFixedSizePriorityQueue &best_individuals
+    gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool clone = true;
     constexpr bool donotreplace = false;
@@ -276,7 +276,7 @@ void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
     case sortingMode::MUPLUSNU_PARETO:
     case sortingMode::MUCOMMANU_PARETO: {
         // Retrieve all individuals on the pareto front
-        std::vector<std::shared_ptr<gpar::GOptimizableEntity>> pareto_inds;
+        std::vector<std::shared_ptr<gen::GOptimizableEntity>> pareto_inds;
         this->extractCurrentParetoIndividuals(pareto_inds);
 
         // We simply add all parent individuals to the queue. As we only want
@@ -439,7 +439,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
     // Take care of unprocessed items, if these exist
     if(not status.is_complete) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gpar::GIndividualSlot> &p) -> bool {
+            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
                 return (p->individual().getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
@@ -1016,8 +1016,8 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
   * @return A boolean indicating whether the first individual dominates the second
   */
 bool GEvolutionaryAlgorithm::aDominatesB(
-    const std::unique_ptr<gpar::GOptimizableEntity> &x_ptr,
-    const std::unique_ptr<gpar::GOptimizableEntity> &y_ptr
+    const std::unique_ptr<gen::GOptimizableEntity> &x_ptr,
+    const std::unique_ptr<gen::GOptimizableEntity> &y_ptr
 ) const {
     std::size_t n_criteria_x =
         x_ptr->getNStoredResults(); // NOLINT(cppcoreguidelines-init-variables)
@@ -1091,7 +1091,7 @@ void GEvolutionaryAlgorithm::fillWithObjects(const std::size_t &n_individuals) {
 
     // Add some some
     for(std::size_t i = 0; i < n_individuals; i++) {
-        this->push_back(std::make_unique<gpar::GIndividualSlot>(
+        this->push_back(std::make_unique<gen::GIndividualSlot>(
             std::make_unique<Gem::Geneva::Individuals::GTestIndividual1>()));
     }
 

@@ -54,7 +54,7 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 
 // The per-group adaption-state auxiliary-store keys (AUXKEY_*) are defined in GAdaptionAuxKeys.hpp,
 // shared with the OA-side adaption logic so both address the very same state blocks.
@@ -637,4 +637,4 @@ void GFlatGenome::specificTestsFailuresExpected_GUnitTests_() {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */

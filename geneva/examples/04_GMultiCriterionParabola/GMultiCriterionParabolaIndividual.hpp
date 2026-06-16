@@ -67,7 +67,7 @@ constexpr std::size_t NPAR_MC = 3;
  * This individual implements several, possibly conflicting evaluation
  * criteria, each implemented as a parabola with its own minimum
  */
-class GMultiCriterionParabolaIndividual : public gpar::GFlatGenome {
+class GMultiCriterionParabolaIndividual : public gen::GFlatGenome {
     /***************************************************************************/
     /**
 	  * This function triggers serialization of this class and its
@@ -76,7 +76,7 @@ class GMultiCriterionParabolaIndividual : public gpar::GFlatGenome {
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
     }
 
     /** @brief Make the class accessible to Boost.Serialization */
@@ -113,20 +113,20 @@ public:
     /** @brief Registers the config-file options, binding them to the passed Config */
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
     /** @brief Builds the flat genome's structure: one constrained double per minimum, in [par_min, par_max] */
-    static gpar::Genome buildGenome(const Config &c);
+    static gen::Genome buildGenome(const Config &c);
     /** @brief Per-object post-config hook: sets the number of evaluation criteria and the minima */
     static void applyConfig(GMultiCriterionParabolaIndividual &ind, const Config &c);
 
 protected:
     /** @brief Loads the data of another GMultiCriterionParabolaIndividual */
-    void load_(const gpar::GOptimizableEntity *) final;
+    void load_(const gen::GOptimizableEntity *) final;
 
     /** @brief The actual fitness calculation takes place here. */
     double fitnessCalculation() final;
 
 private:
     /** @brief Creates a deep clone of this object */
-    gpar::GFlatGenome *clone_() const final;
+    gen::GFlatGenome *clone_() const final;
 
     /** @brief Holds the minima needed for multi-criterion optimization */
     std::vector<double> minima_{};
@@ -142,7 +142,7 @@ private:
  * get(), registerContentCreator()) compiling unchanged.
  */
 using GMultiCriterionParabolaIndividualFactory =
-    Gem::Geneva::Parameters::GFlatIndividualFactory<GMultiCriterionParabolaIndividual>;
+    Gem::Geneva::Genome::GFlatIndividualFactory<GMultiCriterionParabolaIndividual>;
 
 /******************************************************************************/
 /**

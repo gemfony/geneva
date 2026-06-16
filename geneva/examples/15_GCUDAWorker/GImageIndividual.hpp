@@ -137,7 +137,7 @@ std::ostream &operator<<(std::ostream &, const CircleTriangle &);
      * that most closely resembles a given picture. It was developed
      * for evaluation using CUDA on a GPU.
      */
-class GImageIndividual final : public gpar::GFlatGenome {
+class GImageIndividual final : public gen::GFlatGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -145,7 +145,7 @@ class GImageIndividual final : public gpar::GFlatGenome {
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GFlatGenome) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
             BOOST_SERIALIZATION_NVP(nTriangles_) & BOOST_SERIALIZATION_NVP(alphaSort_);
     }
 
@@ -205,7 +205,7 @@ public:
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
     /** @brief Builds the flat genome's labelled structure (per triangle: cx,cy,radius,3 angles,r,g,b,a,
      *  then 3 background colours), validating the configured ranges */
-    static gpar::Genome buildGenome(const Config &c);
+    static gen::Genome buildGenome(const Config &c);
     /** @brief Per-object post-config hook: sets the local members, random-inits the active parameters and
      *  authors the OA-owned main/location Gauss adaption config from the labelled genome */
     static void applyConfig(GImageIndividual &ind, const Config &c);
@@ -255,10 +255,10 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    void compare_(const gpar::GOptimizableEntity &, const Gem::Common::expectation &, const double &) const override;
+    void compare_(const gen::GOptimizableEntity &, const Gem::Common::expectation &, const double &) const override;
 
     /** @brief Loads the data of another GImageIndividual */
-    void load_(const gpar::GOptimizableEntity *) override;
+    void load_(const gen::GOptimizableEntity *) override;
 
     /** @brief The actual fitness calculation takes place here. */
     double fitnessCalculation() override;
@@ -266,7 +266,7 @@ protected:
 private:
     /******************************************************************************/
     /** @brief Creates a deep clone of this object */
-    gpar::GFlatGenome *clone_() const override;
+    gen::GFlatGenome *clone_() const override;
 
     /******************************************************************************/
     // Local parameters
@@ -308,7 +308,7 @@ protected:
      * getAdaptionConfig() on the produced individual) compiling unchanged. The factory's former getters
      * and adaptor-range setters were dead code (no external caller) and have been dropped.
      */
-using GImageIndividualFactory = Gem::Geneva::Parameters::GFlatIndividualFactory<GImageIndividual>;
+using GImageIndividualFactory = Gem::Geneva::Genome::GFlatIndividualFactory<GImageIndividual>;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

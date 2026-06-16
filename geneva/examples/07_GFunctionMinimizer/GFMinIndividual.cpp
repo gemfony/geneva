@@ -90,7 +90,7 @@ GFMinIndividual::GFMinIndividual() { /* nothing */
  * @param cp A copy of another GFunctionIndidivual
  */
 GFMinIndividual::GFMinIndividual(const GFMinIndividual &cp)
-  : gpar::GFlatGenome(cp)
+  : gen::GFlatGenome(cp)
   , targetFunction_(cp.targetFunction_)
   , seed_sigma_(cp.seed_sigma_) { /* nothing */
 }
@@ -145,13 +145,13 @@ double GFMinIndividual::getAverageSigma() const {
  *
  * @param cp A copy of another GFMinIndividual, camouflaged as a GFlatGenome
  */
-void GFMinIndividual::load_(const gpar::GOptimizableEntity *cp) {
+void GFMinIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GFMinIndividual reference independent of this object and convert the pointer
     const GFMinIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GFMinIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GFMinIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GFlatGenome::load_(cp);
+    gen::GFlatGenome::load_(cp);
 
     // ... and then our local data
     targetFunction_ = p_load->targetFunction_;
@@ -164,7 +164,7 @@ void GFMinIndividual::load_(const gpar::GOptimizableEntity *cp) {
  *
  * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GFlatGenome *GFMinIndividual::clone_() const {
+gen::GFlatGenome *GFMinIndividual::clone_() const {
     return new GFMinIndividual(*this);
 }
 
@@ -328,8 +328,8 @@ void GFMinIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c
  * mirroring the historical single GConstrainedDoubleCollection + one GDoubleGaussAdaptor. The adaptor
  * settings live on the OA-owned config (see buildAdaptionConfig()), not in the structure-only genome.
  */
-gpar::Genome GFMinIndividual::buildGenome(const Config &c) {
-    gpar::GGenomeBuilder b;
+gen::Genome GFMinIndividual::buildGenome(const Config &c) {
+    gen::GGenomeBuilder b;
     b.addDoubleGroup(c.par_dim, c.min_var, c.max_var); // structure only; the adaptor lives on the OA config
     return b.build();
 }
@@ -341,7 +341,7 @@ gpar::Genome GFMinIndividual::buildGenome(const Config &c) {
  * configured parameters.
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GFMinIndividual::buildAdaptionConfig(const gpar::GFlatGenome &sample, const Config &c) {
+GFMinIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
     auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
     for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {

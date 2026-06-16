@@ -29,9 +29,9 @@
 
 #include "geneva/ind/GIndividualSlot.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Parameters::GIndividualSlot) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Genome::GIndividualSlot) // NOLINT
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 /**
@@ -162,4 +162,4 @@ void GIndividualSlot::specificTestsFailuresExpected_GUnitTests_() {
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */

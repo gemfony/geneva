@@ -57,7 +57,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 class GAdaptionConfigBase;
 } // namespace Gem::Geneva::OptimizationAlgorithms
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -288,4 +288,4 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */

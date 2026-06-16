@@ -44,7 +44,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GAdaptionKernels.hpp"
 
-namespace Gem::Geneva::Parameters {
+namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 /**
@@ -318,4 +318,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::Parameters */
+} /* namespace Gem::Geneva::Genome */

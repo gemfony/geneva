@@ -46,7 +46,7 @@
 #include "hap/GRandomT.hpp"
 
 using namespace Gem::Geneva;
-using namespace Gem::Geneva::Parameters;
+using namespace Gem::Geneva::Genome;
 namespace oa = Gem::Geneva::OptimizationAlgorithms;
 
 namespace Gem::Tests {

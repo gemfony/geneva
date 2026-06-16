@@ -67,7 +67,7 @@ GDelayIndividual::GDelayIndividual()
  * @param cp A copy of another GDelayIndividual
  */
 GDelayIndividual::GDelayIndividual(const GDelayIndividual &cp)
-  : gpar::GFlatGenome(cp)
+  : gen::GFlatGenome(cp)
   , fixed_sleep_time_(cp.fixed_sleep_time_)
   , may_crash_(cp.may_crash_)
   , throw_likelihood_(cp.throw_likelihood_)
@@ -91,7 +91,7 @@ GDelayIndividual::~GDelayIndividual() { /* nothing */
  * @param e The expected outcome of the comparison
  */
 void GDelayIndividual::compare_(
-    const gpar::GOptimizableEntity &cp,
+    const gen::GOptimizableEntity &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -99,12 +99,12 @@ void GDelayIndividual::compare_(
 
     // Check that we are dealing with a GDelayIndividual reference independent of this object and convert the pointer
     const GDelayIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GDelayIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GDelayIndividual>(cp, this);
 
     Gem::Common::GToken token("GDelayIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -119,13 +119,13 @@ void GDelayIndividual::compare_(
  *
  * @param cp A copy of another GDelayIndividual, camouflaged as a GFlatGenome
  */
-void GDelayIndividual::load_(const gpar::GOptimizableEntity *cp) {
+void GDelayIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GDelayIndividual reference independent of this object and convert the pointer
     const GDelayIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GDelayIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GDelayIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GFlatGenome::load_(cp);
+    gen::GFlatGenome::load_(cp);
 
     // ... and then our own, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -137,7 +137,7 @@ void GDelayIndividual::load_(const gpar::GOptimizableEntity *cp) {
  *
  * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GFlatGenome *GDelayIndividual::clone_() const {
+gen::GFlatGenome *GDelayIndividual::clone_() const {
     return new GDelayIndividual(*this);
 }
 
@@ -406,7 +406,7 @@ GDelayIndividual::create(const Config &c, const std::chrono::duration<double> &s
         std::tuple<double, double>(c.lower_rand_sleep_boundary, c.upper_rand_sleep_boundary)
     );
 
-    gpar::GGenomeBuilder gb;
+    gen::GGenomeBuilder gb;
     for(std::size_t var = 0; var < c.n_variables; var++) {
         gb.addDouble(0.5);
     }

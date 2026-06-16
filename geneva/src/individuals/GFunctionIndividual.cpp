@@ -85,7 +85,7 @@ GDoubleSumConstraint::GDoubleSumConstraint(const double &c)
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GDoubleSumConstraint::compare_(
-    const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> &cp,
+    const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -94,13 +94,13 @@ void GDoubleSumConstraint::compare_(
     // Check that we are dealing with a GDoubleSumConstraint reference independent of this object and convert the pointer
     const GDoubleSumConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<gpar::GOptimizableEntity>,
+            GPreEvaluationValidityCheckT<gen::GOptimizableEntity>,
             GDoubleSumConstraint>(cp, this);
 
     Gem::Common::GToken token("GDoubleSumConstraint", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GOptimizableEntityConstraint>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GOptimizableEntityConstraint>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -115,14 +115,14 @@ void GDoubleSumConstraint::compare_(
  */
 void GDoubleSumConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    gpar::GOptimizableEntityConstraint::addConfigurationOptions_(gpb);
+    gen::GOptimizableEntityConstraint::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
 /**
  * Checks whether a given individual is valid
  */
-double GDoubleSumConstraint::check_(const gpar::GOptimizableEntity *p) const {
+double GDoubleSumConstraint::check_(const gen::GOptimizableEntity *p) const {
     std::vector<double> par_vec;
     p->streamlineFP(par_vec);
 
@@ -142,15 +142,15 @@ double GDoubleSumConstraint::check_(const gpar::GOptimizableEntity *p) const {
 /**
  * Loads the data of another GDoubleSumConstraint
  */
-void GDoubleSumConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *cp) {
+void GDoubleSumConstraint::load_(const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *cp) {
     // Check that we are dealing with a GDoubleSumConstraint reference independent of this object and convert the pointer
     const GDoubleSumConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<gpar::GOptimizableEntity>,
+            GPreEvaluationValidityCheckT<gen::GOptimizableEntity>,
             GDoubleSumConstraint>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GOptimizableEntityConstraint::load_(cp);
+    gen::GOptimizableEntityConstraint::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -160,7 +160,7 @@ void GDoubleSumConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GOptim
 /**
  * Creates a deep clone of this object
  */
-GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *GDoubleSumConstraint::clone_() const {
+GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *GDoubleSumConstraint::clone_() const {
     return new GDoubleSumConstraint(*this);
 }
 
@@ -184,7 +184,7 @@ GDoubleSumGapConstraint::GDoubleSumGapConstraint(const double &c, const double &
  * @param e The expected outcome of the comparison
  */
 void GDoubleSumGapConstraint::compare_(
-    const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> &cp,
+    const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
@@ -193,13 +193,13 @@ void GDoubleSumGapConstraint::compare_(
     // Check that we are dealing with a GDoubleSumGapConstraint reference independent of this object and convert the pointer
     const GDoubleSumGapConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<gpar::GOptimizableEntity>,
+            GPreEvaluationValidityCheckT<gen::GOptimizableEntity>,
             GDoubleSumGapConstraint>(cp, this);
 
     Gem::Common::GToken token("GDoubleSumGapConstraint", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GOptimizableEntityConstraint>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GOptimizableEntityConstraint>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -214,14 +214,14 @@ void GDoubleSumGapConstraint::compare_(
  */
 void GDoubleSumGapConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    gpar::GOptimizableEntityConstraint::addConfigurationOptions_(gpb);
+    gen::GOptimizableEntityConstraint::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
 /**
  * Checks whether a given individual is valid
  */
-double GDoubleSumGapConstraint::check_(const gpar::GOptimizableEntity *p) const {
+double GDoubleSumGapConstraint::check_(const gen::GOptimizableEntity *p) const {
     std::vector<double> par_vec;
     p->streamlineFP(par_vec);
 
@@ -242,15 +242,15 @@ double GDoubleSumGapConstraint::check_(const gpar::GOptimizableEntity *p) const 
 /**
  * Loads the data of another GDoubleSumGapConstraint
  */
-void GDoubleSumGapConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *cp) {
+void GDoubleSumGapConstraint::load_(const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *cp) {
     // Check that we are dealing with a GDoubleSumGapConstraint reference independent of this object and convert the pointer
     const GDoubleSumGapConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<gpar::GOptimizableEntity>,
+            GPreEvaluationValidityCheckT<gen::GOptimizableEntity>,
             GDoubleSumGapConstraint>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GOptimizableEntityConstraint::load_(cp);
+    gen::GOptimizableEntityConstraint::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -260,7 +260,7 @@ void GDoubleSumGapConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GOp
 /**
  * Creates a deep clone of this object
  */
-GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *GDoubleSumGapConstraint::clone_() const {
+GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *GDoubleSumGapConstraint::clone_() const {
     return new GDoubleSumGapConstraint(*this);
 }
 
@@ -284,20 +284,20 @@ GSphereConstraint::GSphereConstraint(const double &diameter)
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GSphereConstraint::compare_(
-    const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> &cp,
+    const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GSphereConstraint reference independent of this object and convert the pointer
     const GSphereConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<gpar::GOptimizableEntity>,
+            GPreEvaluationValidityCheckT<gen::GOptimizableEntity>,
             GSphereConstraint>(cp, this);
 
     Gem::Common::GToken token("GSphereConstraint", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GOptimizableEntityConstraint>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GOptimizableEntityConstraint>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -312,14 +312,14 @@ void GSphereConstraint::compare_(
  */
 void GSphereConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    gpar::GOptimizableEntityConstraint::addConfigurationOptions_(gpb);
+    gen::GOptimizableEntityConstraint::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
 /**
  * Checks whether a given individual is valid
  */
-double GSphereConstraint::check_(const gpar::GOptimizableEntity *p) const {
+double GSphereConstraint::check_(const gen::GOptimizableEntity *p) const {
     std::vector<double> par_vec;
     p->streamlineFP(par_vec);
 
@@ -340,15 +340,15 @@ double GSphereConstraint::check_(const gpar::GOptimizableEntity *p) const {
 /**
  * Loads the data of another GSphereConstraint
  */
-void GSphereConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *cp) {
+void GSphereConstraint::load_(const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *cp) {
     // Check that we are dealing with a GSphereConstraint reference independent of this object and convert the pointer
     const GSphereConstraint *p_load =
         Gem::Common::g_convert_and_compare<
-            GPreEvaluationValidityCheckT<gpar::GOptimizableEntity>,
+            GPreEvaluationValidityCheckT<gen::GOptimizableEntity>,
             GSphereConstraint>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GOptimizableEntityConstraint::load_(cp);
+    gen::GOptimizableEntityConstraint::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -358,7 +358,7 @@ void GSphereConstraint::load_(const GPreEvaluationValidityCheckT<gpar::GOptimiza
 /**
  * Creates a deep clone of this object
  */
-GPreEvaluationValidityCheckT<gpar::GOptimizableEntity> *GSphereConstraint::clone_() const {
+GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *GSphereConstraint::clone_() const {
     return new GSphereConstraint(*this);
 }
 
@@ -499,18 +499,18 @@ void GFunctionIndividual::setFitness(std::vector<double> const &result_vec) {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GFunctionIndividual::compare_(
-    const gpar::GOptimizableEntity &cp,
+    const gen::GOptimizableEntity &cp,
     const Gem::Common::expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
     // Check that we are dealing with a GFunctionIndividual reference independent of this object and convert the pointer
     const GFunctionIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GFunctionIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GFunctionIndividual>(cp, this);
 
     Gem::Common::GToken token("GFunctionIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gpar::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
@@ -530,7 +530,7 @@ void GFunctionIndividual::addConfigurationOptions_(Gem::Common::GParserBuilder &
     // is now registered by the static describeConfig() hook and applied via applyConfig(), so that the
     // generic GFlatIndividualFactory<GFunctionIndividual> is a complete replacement for the former
     // bespoke factory.
-    gpar::GFlatGenome::addConfigurationOptions_(gpb);
+    gen::GFlatGenome::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -572,13 +572,13 @@ std::size_t GFunctionIndividual::getParameterSize() const {
  *
  * @param cp A copy of another GFunctionIndividual, camouflaged as a GFlatGenome
  */
-void GFunctionIndividual::load_(const gpar::GOptimizableEntity *cp) {
+void GFunctionIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GFunctionIndividual reference independent of this object and convert the pointer
     const GFunctionIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gpar::GOptimizableEntity, GFunctionIndividual>(cp, this);
+        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GFunctionIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gpar::GFlatGenome::load_(cp);
+    gen::GFlatGenome::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
@@ -590,7 +590,7 @@ void GFunctionIndividual::load_(const gpar::GOptimizableEntity *cp) {
  *
  * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
-gpar::GFlatGenome *GFunctionIndividual::clone_() const {
+gen::GFlatGenome *GFunctionIndividual::clone_() const {
     return new GFunctionIndividual(*this);
 }
 
@@ -606,7 +606,7 @@ bool GFunctionIndividual::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gpar::GFlatGenome::modify_GUnitTests_()) {
+    if(gen::GFlatGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -630,7 +630,7 @@ void GFunctionIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
+    gen::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -652,7 +652,7 @@ void GFunctionIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gpar::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
+    gen::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -873,12 +873,12 @@ void GFunctionIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Confi
  * OA-owned config (see buildAdaptionConfig()), not in the genome layout. The start value is the lower
  * perimeter; the optimization algorithm random-initialises within [min, max].
  */
-gpar::Genome GFunctionIndividual::buildGenome(const Config &c) {
+gen::Genome GFunctionIndividual::buildGenome(const Config &c) {
     const std::size_t n_data = c.par_dim;
     const double min_v = c.min_var;
     const double max_v = c.max_var;
 
-    gpar::GGenomeBuilder b;
+    gen::GGenomeBuilder b;
     switch(c.p_t) {
     case parameterType::USEGDOUBLECOLLECTION: { // unbounded, one shared group
         b.addDoublePlainGroup(n_data, min_v, max_v);
@@ -921,7 +921,7 @@ gpar::Genome GFunctionIndividual::buildGenome(const Config &c) {
  * bi-Gauss adaptor.
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GFunctionIndividual::buildAdaptionConfig(const gpar::GFlatGenome &sample, const Config &c) {
+GFunctionIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
     auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
     for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
