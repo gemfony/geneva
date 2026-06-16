@@ -42,8 +42,10 @@
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
+#include "geneva/oa/GOptimizationAlgorithmFactoryT.hpp"
 #include "geneva/oa/GInitializerT.hpp"
 #include "geneva/oa/GParameterScan.hpp"
+#include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
@@ -55,26 +57,29 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * It will only return objects which perform all evaluation through the broker.
  */
 class GParameterScanFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GOAFactoryT<GOptimizationAlgorithmBase> {
+  : public GOptimizationAlgorithmFactoryT<GParameterScan, GParameterScan_PersonalityTraits> {
+    using Base = GOptimizationAlgorithmFactoryT<GParameterScan, GParameterScan_PersonalityTraits>;
+
 public:
     /** @brief The default constructor */
-    GParameterScanFactory();
+    GParameterScanFactory() = default;
     /** @brief Initialization with the name of the config file */
-    explicit GParameterScanFactory(std::filesystem::path const &);
+    explicit GParameterScanFactory(std::filesystem::path const &config_file)
+      : Base(config_file) { /* nothing */ }
     /** @brief Initialization with the name of the config file and a content creator */
     GParameterScanFactory(
-        std::filesystem::path const &,
-        std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>>
-    );
+        std::filesystem::path const &config_file,
+        std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>> content_creator_ptr
+    )
+      : Base(config_file, content_creator_ptr) { /* nothing */ }
     /** @brief The copy constructor */
     GParameterScanFactory(const GParameterScanFactory &) = default;
     /** @brief The destructor */
     ~GParameterScanFactory() override = default;
 
-    /** @brief Gives access to the mnemonics / nickname describing an algorithm */
-    std::string getMnemonic() const override;
-    /** @brief Gives access to a clear-text description of the algorithm */
-    std::string getAlgorithmName() const override;
+    // The constructors' config path, getMnemonic(), getAlgorithmName() and getObject_() are generated
+    // by the GOptimizationAlgorithmFactoryT scaffold. Parameter Scan adds a command-line parameter
+    // spec (the variables to scan), so it also overrides addCLOptions()/postProcess_() below.
 
     /** @brief Adds local command line options to boost::program_options::options_description objects */
     void addCLOptions(
@@ -94,10 +99,6 @@ protected:
     void postProcess_(std::shared_ptr<GOptimizationAlgorithmBase> &) override;
 
 private:
-    /** @brief Creates individuals of this type */
-    std::shared_ptr<GOptimizationAlgorithmBase>
-    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
-
     /** @brief Holds information on the variables to be optimized -- set through the corresponding member function or on the command line */
     std::string parameter_spec_cl_ = "empty";
 };

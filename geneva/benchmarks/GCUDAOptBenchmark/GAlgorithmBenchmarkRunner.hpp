@@ -48,7 +48,7 @@
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
-#include "geneva/oa/GGradientDescentFactory.hpp"
+#include "geneva/oa/GConjugateGradientDescentFactory.hpp"
 #include "geneva/oa/GSimulatedAnnealingFactory.hpp"
 #include "geneva/oa/GSwarmAlgorithmFactory.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"

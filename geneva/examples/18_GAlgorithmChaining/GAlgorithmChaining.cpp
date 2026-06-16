@@ -78,10 +78,10 @@ int main(int argc, char **argv) {
 
     //---------------------------------------------------------------------------
     // Chain two optimization algorithms with the &-operator: the evolutionary
-    // algorithm runs first (global exploration), then gradient descent refines
-    // its best result (local exploitation). Each algorithm runs its own full
+    // algorithm runs first (global exploration), then a conjugate gradient descent
+    // refines its best result (local exploitation). Each algorithm runs its own full
     // iteration budget; the best individuals are passed from one to the next.
-    go & "ea" & "gd";
+    go & "ea" & "cgd";
 
     //---------------------------------------------------------------------------
     // Perform the actual (chained) optimization

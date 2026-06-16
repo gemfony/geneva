@@ -213,9 +213,17 @@ GAlgorithmBenchmarkRunner::makeAlgorithm(const AlgorithmEntry &entry) const {
         return oa::GSwarmAlgorithmFactory(entry.configFile)
             .get<oa::GOptimizationAlgorithmBase>();
     }
-    if (entry.mnemonic == "gd") {
-        return oa::GGradientDescentFactory(entry.configFile)
-            .get<oa::GOptimizationAlgorithmBase>();
+    if (entry.mnemonic == "gd" || entry.mnemonic == "cgd") {
+        // "gd" was retired as a separate algorithm; it is the steepest-descent mode of the conjugate
+        // gradient descent. Produce a CGD and, for the legacy "gd" tag, force steepest descent.
+        auto p = oa::GConjugateGradientDescentFactory(entry.configFile)
+                     .get<oa::GOptimizationAlgorithmBase>();
+        if (entry.mnemonic == "gd") {
+            if (auto cgd = std::dynamic_pointer_cast<oa::GConjugateGradientDescent>(p)) {
+                cgd->setGradientMethod(oa::gradientMethod::STEEPEST_DESCENT);
+            }
+        }
+        return p;
     }
     throw std::invalid_argument(
         "GAlgorithmBenchmarkRunner::makeAlgorithm: unknown mnemonic '" + entry.mnemonic + "'");

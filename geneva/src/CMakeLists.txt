@@ -155,7 +155,6 @@ IF(GENEVA_ALGO_GD)
 	ENDIF()
 	SET(OPTIMIZATIONSOURCES
 			${OPTIMIZATIONSOURCES}
-			oa/GGradientDescentFactory.cpp
 			oa/GGradientDescent_PersonalityTraits.cpp)
 ENDIF()
 

@@ -44,55 +44,6 @@
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
-/******************************************************************************/
-/**
- * The default constructor
- */
-GParameterScanFactory::GParameterScanFactory()
-  : GOAFactoryT<GOptimizationAlgorithmBase>(
-        "./config/GParameterScan.json"
-    ) { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * Initialization with the name of the config file
- */
-GParameterScanFactory::GParameterScanFactory(std::filesystem::path const &config_file)
-  : GOAFactoryT<GOptimizationAlgorithmBase>(config_file) { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * A constructor with the ability to switch the parallelization mode and
- * to add a content creator. It initializes a target item as needed.
- */
-GParameterScanFactory::GParameterScanFactory(
-    std::filesystem::path const &config_file,
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>> content_creator_ptr
-)
-  : GOAFactoryT<GOptimizationAlgorithmBase>(
-        config_file,
-        content_creator_ptr
-    ) { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * Gives access to the mnemonics / nickname describing an algorithm
- */
-std::string GParameterScanFactory::getMnemonic() const {
-    return GParameterScan_PersonalityTraits::nickname;
-}
-
-/******************************************************************************/
-/**
- * Gives access to a clear-text description of the algorithm
- */
-std::string GParameterScanFactory::getAlgorithmName() const {
-    return std::string("Parameter Scan");
-}
-
 /***************************************************************************/
 /**
  * Adds local command line options to a boost::program_options::options_description object.
@@ -141,24 +92,6 @@ std::string GParameterScanFactory::getCLParameterSpecs() const {
  */
 void GParameterScanFactory::resetCLParameterSpecs() {
     parameter_spec_cl_ = "empty";
-}
-
-/******************************************************************************/
-/**
- * Creates items of this type
- *
- * @return Items of the desired type
- */
-std::shared_ptr<GOptimizationAlgorithmBase> GParameterScanFactory::getObject_(
-    Gem::Common::GParserBuilder &gpb,
-    [[maybe_unused]] const std::size_t & id
-) {
-    std::shared_ptr<GParameterScan> target(new GParameterScan());
-
-    // Make the local configuration options known (up to the level of GParameterScan)
-    target->GParameterScan::addConfigurationOptions(gpb);
-
-    return target;
 }
 
 /******************************************************************************/

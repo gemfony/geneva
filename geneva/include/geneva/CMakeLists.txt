@@ -48,6 +48,7 @@ SET ( IND_INCLUDES
 SET ( OA_INCLUDES
     oa/GOptimizationAlgorithmBase.hpp
     oa/GOptimizationAlgorithmT.hpp
+    oa/GOptimizationAlgorithmFactoryT.hpp
     oa/GParChild.hpp
     oa/GAdaptionConfig.hpp
     oa/GAdaption.hpp
@@ -63,7 +64,6 @@ SET ( OA_INCLUDES
     oa/GEvolutionaryAlgorithm.hpp
     oa/GEvolutionaryAlgorithmFactory.hpp
     oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp
-    oa/GGradientDescentFactory.hpp
     oa/GGradientDescent_PersonalityTraits.hpp
     oa/GNelderMead.hpp
     oa/GNelderMeadFactory.hpp
