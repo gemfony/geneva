@@ -77,21 +77,28 @@ protected:
      * Waits on a PER-BATCH counter rather than GThreadPool::wait() (a global drain barrier): the pool
      * is shared, so several algorithms can submit concurrently (the fan-in case -- e.g. a
      * meta-optimization over a population of inner algorithms), and each must wait for ONLY its own
-     * items, not the whole pool. The captured @c remaining (shared, kept alive by the tasks) and the
-     * stack @c m / @c cv are valid throughout because dispatch_ blocks until every task has run.
+     * items, not the whole pool.
+     *
+     * The synchronisation state (@c remaining, @c m, @c cv) is heap-allocated and captured by the tasks
+     * AS WELL AS held by the waiter, so it lives until the last party drops its reference. It must NOT be
+     * stack-allocated: the waiter's predicate (remaining == 0) is satisfied by the atomic decrement, which
+     * happens BEFORE the last worker takes @c m to notify. So the waiter can wake and return -- destroying
+     * stack-allocated m/cv -- while that worker is still about to lock m, locking freed memory (a
+     * use-after-scope: glibc aborts with "mutex->__data.__owner == 0"). Keeping m/cv alive via shared_ptr
+     * makes the at-most-redundant late notify harmless instead of fatal.
      */
     void dispatch_(std::vector<item_ptr> &items) override {
         if(items.empty()) {
             return;
         }
         auto remaining = std::make_shared<std::atomic<std::size_t>>(items.size());
-        std::mutex m;
-        std::condition_variable cv;
+        auto m = std::make_shared<std::mutex>();
+        auto cv = std::make_shared<std::condition_variable>();
         for(auto &it : items) {
             // Items travel by unique_ptr; the task borrows a raw pointer rather than copying the owner.
             // The batch (items) outlives every task because dispatch_ blocks until cv fires below.
             processable_type *raw = it.get();
-            pool_.post([raw, remaining, &m, &cv]() {
+            pool_.post([raw, remaining, m, cv]() {
                 try {
                     raw->process();
                 }
@@ -101,13 +108,13 @@ protected:
                     // worker thread. Reconciliation reads the status, not an exception.
                 }
                 if(remaining->fetch_sub(1) == 1) { // this was the last item of THIS batch
-                    std::lock_guard<std::mutex> lk(m);
-                    cv.notify_one();
+                    std::lock_guard<std::mutex> lk(*m);
+                    cv->notify_one();
                 }
             });
         }
-        std::unique_lock<std::mutex> lk(m);
-        cv.wait(lk, [&] { return remaining->load() == 0; });
+        std::unique_lock<std::mutex> lk(*m);
+        cv->wait(lk, [&] { return remaining->load() == 0; });
     }
 
 private:
