@@ -34,6 +34,8 @@
 #include "common/GLogger.hpp"
 #include "common/GSerializableFunctionObjectT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
+#include "geneva/oa/GAdaption.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/ind/GIndividualSlot.hpp"
@@ -261,6 +263,29 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gpar::GOptimizableEnti
     // Add our individual to the algorithm (the population owns its individuals by unique_ptr; this
     // shared_ptr is bridged across the boundary with a clone -- the optimized result is read back below).
     ea_ptr->push_back(std::make_unique<gpar::GIndividualSlot>(p_unopt_ptr->clone_unique()));
+
+    // The genome carries only structure -- the adaptors live on an OA-owned config. The post-optimizer is
+    // a GENERIC local refiner with no knowledge of the problem's specific adaptor configuration, so it
+    // authors a default adaption config from the genome's own structure: a Gauss adaptor on every FP
+    // group, an integer-Gauss adaptor on every int32 group and a flip adaptor on every bool group. Each
+    // Gauss step is scaled by the group's comparative range, so a single relative sigma suits any
+    // parameter bounds. Without this the sub-EA has no adaption config and would hard-error at init().
+    if(const auto *flat = dynamic_cast<const gpar::GFlatGenome *>(p_unopt_ptr.get())) {
+        auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*flat);
+        for(std::size_t i = 0; i < cfg->doubleGroups().size(); ++i) {
+            cfg->groupDouble(i).gauss(0.5, 0.8, 1e-3, 2., 1.);
+        }
+        for(std::size_t i = 0; i < cfg->floatGroups().size(); ++i) {
+            cfg->groupFloat(i).gauss(0.5f, 0.8f, 1e-3f, 2.f, 1.f);
+        }
+        for(std::size_t i = 0; i < cfg->int32Groups().size(); ++i) {
+            cfg->groupInt32(i).intGauss(0.5, 0.8, 1e-3, 2., 1.);
+        }
+        for(std::size_t i = 0; i < cfg->boolGroups().size(); ++i) {
+            cfg->groupBool(i).flip(1.);
+        }
+        ea_ptr->setAdaptionConfig(cfg);
+    }
 
     // Perform the actual (sub-)optimization
     ea_ptr->optimize();

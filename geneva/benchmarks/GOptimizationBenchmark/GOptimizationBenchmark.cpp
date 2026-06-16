@@ -126,6 +126,12 @@ int main(int argc, char **argv) {
             // Make an individual known to the optimizer
             go_loop.push_back(g);
 
+            // The genome carries only structure; the adaptor lives on an OA-owned config the factory
+            // authors (rebuilt here from g, whose dimension varies per measurement). Register it for the
+            // adapting algorithms (EA / SA).
+            go_loop.registerAdaptionConfig("PERSONALITY_EA", gfi.getAdaptionConfig(*g));
+            go_loop.registerAdaptionConfig("PERSONALITY_SA", gfi.getAdaptionConfig(*g));
+
             // Start recording of time
             startTime = std::chrono::system_clock::now();
 

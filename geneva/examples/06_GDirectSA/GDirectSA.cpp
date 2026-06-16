@@ -333,6 +333,10 @@ int main(int argc, char **argv) {
         pop_ptr->push_back(ind->clone_unique());
     }
 
+    // The genome carries only structure; the configured Gauss / bi-Gauss adaptor lives on an OA-owned
+    // config the factory authors. Hand it to the simulated-annealing population directly.
+    pop_ptr->setAdaptionConfig(gfi.getAdaptionConfig(*parentIndividuals[0]));
+
     // Route submission through courtier, depending on the parallelisation mode.
     switch(parallelizationMode) {
     //----------------------------------------------------------------------------

@@ -149,6 +149,15 @@ int main(int argc, char **argv) {
 
     //---------------------------------------------------------------------------
 
+    // The genome carries only structure; the configured adaptor lives on an OA-owned config the factory
+    // authors. Register it for the adapting algorithms (EA / SA) so Go2 hands it over before they run.
+    {
+        auto sample = gfi_ptr->get_as<gind::GFunctionIndividual>();
+        auto cfg = gfi_ptr->getAdaptionConfig(*sample);
+        go.registerAdaptionConfig("PERSONALITY_EA", cfg);
+        go.registerAdaptionConfig("PERSONALITY_SA", cfg);
+    }
+
     // Perform the actual optimization
     std::shared_ptr<gind::GFunctionIndividual> p =
         go.optimize()->getBestGlobalIndividual<gind::GFunctionIndividual>();

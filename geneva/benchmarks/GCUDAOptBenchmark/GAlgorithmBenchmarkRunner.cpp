@@ -168,6 +168,11 @@ GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(
     ind->setDemoFunction(parseBenchmarkFunction(cfg_.functionName));
     alg->push_back(ind->clone_unique());
 
+    // The genome carries only structure; its Gauss / bi-Gauss adaptor lives on an OA-owned config the
+    // factory authors. Hand it to the algorithm (a no-op for non-adapting algorithms like swarm / CGD;
+    // adopted by EA / SA, which otherwise hard-error at init() for want of an explicit config).
+    alg->setAdaptionConfig(indFactory->getAdaptionConfig(*ind));
+
     // Time the optimization
     const auto t0 = std::chrono::steady_clock::now();
     alg->optimize();
