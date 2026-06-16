@@ -36,6 +36,7 @@
 
 // Geneva headers
 #include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/ind/GFlatGenome.hpp" // streamlineInto fast path (downcast target)
 #include "courtier/gpu/GGPUEvaluableI.hpp"
 #include "GImageScalar.hpp"
 #include "GMonaLisaProblem.hpp"
@@ -80,16 +81,15 @@ public:
             params_out.clear();
             return;
         }
-        std::vector<gimage_fp_t> pv;
-        // streamline<T> is a storage-agnostic method on GOptimizableEntity, so the flat GImageIndividual
-        // genome streamlines through the base pointer directly (no genome-model downcast).
-        items.front()->streamline(pv);
-        const std::size_t dim = pv.size();
+        // Bulk flatten: GFlatGenome::streamlineInto() writes each item's external (range-folded) values
+        // STRAIGHT into the output buffer -- no per-item temporary vector and no second copy (which adds
+        // up over a large population). NB a raw memcpy of the channel storage would be wrong: constrained
+        // values are kept unbounded and folded to their external range only on read.
+        const std::size_t dim = this->itemDimension(items.front());
         params_out.resize(items.size() * dim);
         for(std::size_t i = 0; i < items.size(); ++i) {
-            items[i]->streamline(pv);
-            std::copy(pv.begin(), pv.end(),
-                      params_out.begin() + static_cast<std::ptrdiff_t>(i * dim));
+            const auto *flat = dynamic_cast<const gpar::GFlatGenome *>(items[i].get());
+            flat->streamlineInto(params_out.data() + i * dim);
         }
     }
 

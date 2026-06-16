@@ -83,15 +83,13 @@ public:
         auto *first = dynamic_cast<gind::GFunctionIndividual *>(items.front().get());
         funcId_ = static_cast<int>(first->getDemoFunction());
 
-        std::vector<double> pv;
-        first->streamline(pv);
-        const std::size_t dim = pv.size();
+        // Bulk flatten via GFlatGenome::streamlineInto(): each item's external (range-folded) values are
+        // written straight into the output buffer -- no per-item temporary vector and no second copy.
+        const std::size_t dim = this->itemDimension(items.front());
         params_out.resize(items.size() * dim);
         for(std::size_t i = 0; i < items.size(); ++i) {
-            auto *fi = dynamic_cast<gind::GFunctionIndividual *>(items[i].get());
-            fi->streamline(pv);
-            std::copy(pv.begin(), pv.end(),
-                      params_out.begin() + static_cast<std::ptrdiff_t>(i * dim));
+            const auto *flat = dynamic_cast<const gpar::GFlatGenome *>(items[i].get());
+            flat->streamlineInto(params_out.data() + i * dim);
         }
     }
 

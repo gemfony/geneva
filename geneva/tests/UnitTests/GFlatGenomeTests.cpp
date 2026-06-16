@@ -226,6 +226,27 @@ TEST_CASE("GGenomeBuilder produces the expected shared layout", "[flat]") {
 }
 
 /******************************************************************************/
+TEST_CASE("GFlatGenome::streamlineInto matches streamline (bulk-flatten fast path)", "[flat]") {
+    // streamlineInto() is the GPU marshallers' bulk-flatten fast path: it must produce EXACTLY the same
+    // external (range-folded) values as streamline<T>(), just written straight into a caller buffer with
+    // no temporary vector. FlatSphere's group is Constrained, so the per-element fold is exercised.
+    FlatSphere ind(7);
+    ind.randomInit(activityMode::ACTIVEONLY); // vary the stored values so the fold actually does work
+
+    std::vector<double> via_streamline;
+    ind.streamline<double>(via_streamline);
+
+    std::vector<double> via_into(via_streamline.size() + 1, -987.0); // +1 sentinel to catch any overrun
+    const std::size_t n = ind.streamlineInto(via_into.data());
+
+    REQUIRE(n == via_streamline.size());
+    for(std::size_t i = 0; i < n; ++i) {
+        CHECK(via_into[i] == via_streamline[i]); // identical folded values, identical order
+    }
+    CHECK(via_into[n] == -987.0); // wrote exactly n values, nothing past the end
+}
+
+/******************************************************************************/
 TEST_CASE("GGenomeBuilder: groups vs arrays vs single parameters", "[flat]") {
     GGenomeBuilder b;
     b.addDouble(0., -1., 1.);          // group of 1

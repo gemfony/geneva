@@ -178,6 +178,23 @@ public:
     void cannibalize(GOptimizableEntity &) override;
 
     /***************************************************************************/
+    /** @brief Bulk-flatten fast path: streamlines an FP/int32 channel DIRECTLY into a caller-provided
+     *  buffer (no temporary vector, no second copy), returning the number of values written. Produces
+     *  exactly the same external (range-folded) values as streamline<T>() with the same activityMode --
+     *  use it to flatten a whole population into one contiguous device buffer (the GPU marshallers).
+     *  NB: a raw memcpy of the channel storage is NOT a valid substitute -- constrained values are kept
+     *  in their unbounded internal form and only folded to range here. */
+    std::size_t streamlineInto(double *dst, activityMode const &am = activityMode::DEFAULTACTIVITYMODE) const {
+        return streamlineIntoImpl<double>(dst, layout_->d, dv_, am);
+    }
+    std::size_t streamlineInto(float *dst, activityMode const &am = activityMode::DEFAULTACTIVITYMODE) const {
+        return streamlineIntoImpl<float>(dst, layout_->f, fv_, am);
+    }
+    std::size_t streamlineInto(std::int32_t *dst, activityMode const &am = activityMode::DEFAULTACTIVITYMODE) const {
+        return streamlineIntoImpl<std::int32_t>(dst, layout_->i, iv_, am);
+    }
+
+    /***************************************************************************/
     // Deleted functions
 
     explicit GFlatGenome(float const &) = delete;  ///< Intentionally undefined
@@ -275,6 +292,27 @@ private:
                 out.push_back(externalValue<T>(ch, store[k], k));
             }
         }
+    }
+
+    /** @brief Writes the active channel's external (range-folded) values DIRECTLY into a caller buffer,
+     *  returning the count written. Identical per-element fold to streamlineImpl(), but no temporary
+     *  vector and no second copy -- the bulk-flatten fast path behind the public streamlineInto(). NB a
+     *  raw memcpy of `store` would be WRONG: constrained values are stored unbounded and only folded to
+     *  their external range here, so the device must receive the folded values, not the raw storage. */
+    template <typename T>
+    std::size_t streamlineIntoImpl(
+        T *dst,
+        ChannelLayout<T> const &ch,
+        std::vector<T> const &store,
+        activityMode const &am
+    ) const {
+        std::size_t n = 0;
+        for(std::size_t k = 0; k < store.size(); ++k) {
+            if(amMatch(ch.active[k], am)) {
+                dst[n++] = externalValue<T>(ch, store[k], k);
+            }
+        }
+        return n;
     }
 
     template <typename T>
