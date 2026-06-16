@@ -81,8 +81,15 @@ class GGPUEvaluableI : public GGPUHostEvalI<scalar_type> {
 public:
     using item_ptr = std::unique_ptr<processable_type>;
 
-    /** @brief Flattens every item's parameters into a row-major buffer of n_items * dim scalar_type.
-     *  The dimension is inferred by the consumer as params_out.size() / items.size(). */
+    /** @brief The number of scalar_type values one item flattens to -- i.e. its genome geometry. The GPU
+     *  consumer evaluates a batch as a uniform row-major [n_items * dim] grid, so every item in a batch
+     *  MUST report the same dimension; the consumer validates this before flatten() and rejects a
+     *  non-uniform batch. (The GPU consumer keeps its bulk-batch capability and simply enforces a uniform
+     *  geometry rather than coping with mixed geometries in one launch.) */
+    [[nodiscard]] virtual std::size_t itemDimension(const item_ptr &item) const = 0;
+
+    /** @brief Flattens every item's parameters into a row-major buffer of n_items * dim scalar_type, where
+     *  dim == itemDimension(item) is the same for every item (the consumer has already validated this). */
     virtual void flatten(const std::vector<item_ptr> &items, std::vector<scalar_type> &params_out) const = 0;
 
     /** @brief Optional opaque constants the kernel needs. Default: none. */

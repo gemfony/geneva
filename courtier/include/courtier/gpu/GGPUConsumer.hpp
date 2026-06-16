@@ -103,8 +103,30 @@ protected:
         ensureBackend_();
 
         const int n = static_cast<int>(items.size());
+
+        // Enforce a UNIFORM genome geometry across the batch. The GPU evaluates the batch as a single
+        // [n_items * dim] grid in one launch, so every individual must contribute the same number of
+        // parameters. This keeps the bulk-batch capability while making the (previously implicit)
+        // uniform-geometry assumption an explicit, checked contract: a batch mixing individuals of
+        // different geometries (e.g. different problems sharing one GPU consumer) is rejected loudly
+        // instead of silently corrupting the flattened buffer.
+        const std::size_t dim_sz = marshaller_->itemDimension(items.front());
+        for(std::size_t i = 1; i < items.size(); ++i) {
+            if(marshaller_->itemDimension(items[i]) != dim_sz) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GGPUConsumerT::dispatch_(): Error!" << '\n'
+                    << "The GPU consumer requires a UNIFORM genome geometry across a batch, but item "
+                    << i << " has " << marshaller_->itemDimension(items[i]) << " parameters while item 0"
+                    << " has " << dim_sz << "." << '\n'
+                    << "Submit individuals of a single geometry to the GPU consumer (one problem /"
+                    << " genome layout per consumer)." << '\n'
+                );
+            }
+        }
+
         marshaller_->flatten(items, params_);
-        const int dim = (n > 0) ? static_cast<int>(params_.size() / static_cast<std::size_t>(n)) : 0;
+        const int dim = static_cast<int>(dim_sz);
 
         // Build the problem-constant blob ONCE when it is static (e.g. a fixed target image), rather
         // than rebuilding it every generation. The backend likewise skips re-uploading an unchanged

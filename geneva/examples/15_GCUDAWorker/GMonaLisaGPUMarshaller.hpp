@@ -68,6 +68,13 @@ namespace Gem::Geneva::MonaLisa {
 class GMonaLisaGPUMarshaller final
   : public Gem::Courtier::GPU::GGPUEvaluableI<gpar::GOptimizableEntity, gimage_fp_t> {
 public:
+    /** @brief The flattened dimension of one image genome: every value is a gimage_fp_t, so the count of
+     *  gimage_fp_t parameters is exactly what flatten() streams per item. The consumer uses this to
+     *  enforce a uniform geometry across the batch. */
+    [[nodiscard]] std::size_t itemDimension(const item_ptr &item) const override {
+        return item->countParameters<gimage_fp_t>();
+    }
+
     void flatten(const std::vector<item_ptr> &items, std::vector<gimage_fp_t> &params_out) const override {
         if(items.empty()) {
             params_out.clear();

@@ -68,6 +68,12 @@ namespace Gem::Geneva::Benchmarks {
 class GBenchmarkGPUMarshaller final
   : public Gem::Courtier::GPU::GGPUEvaluableI<gpar::GOptimizableEntity> {
 public:
+    /** @brief The flattened dimension of one benchmark genome (its count of double parameters), used by
+     *  the consumer to enforce a uniform geometry across the batch. */
+    [[nodiscard]] std::size_t itemDimension(const item_ptr &item) const override {
+        return item->countParameters<double>();
+    }
+
     void flatten(const std::vector<item_ptr> &items, std::vector<double> &params_out) const override {
         if(items.empty()) {
             params_out.clear();
