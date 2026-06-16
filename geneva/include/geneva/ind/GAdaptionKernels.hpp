@@ -87,8 +87,20 @@ struct GaussState {
 
 /******************************************************************************/
 /**
- * Adapts one group of values sharing a single GaussState, mirroring the tree adaptor's vector
- * path. Returns the number of values that were actually adapted.
+ * @brief Adapts one group of values sharing a single GaussState, mirroring the tree adaptor's vector path.
+ *
+ * For each value the per-group adaption probability gates whether it mutates; a mutating value receives a
+ * `range * N(0, sigma)` step (with a one-ULP guarantee that a firing adaption always changes the value),
+ * and sigma self-adapts log-normally on the threshold / probability trigger. The adaption probability
+ * itself self-adapts once for the whole group up front. @p st is updated in place.
+ *
+ * @tparam T The adaption floating-point type (double for double parameters, float for float).
+ * @param cfg The static, shared Gauss configuration for this group (sigma bounds, self-adaption rates, mode).
+ * @param st The per-individual evolving Gauss state (current sigma / adaption probability / counter); updated in place.
+ * @param values The group's parameter values to adapt, in their unbounded internal representation.
+ * @param range The value range scaling the gaussian step (typically the constrained span, 1 for unbounded).
+ * @param gr The per-individual random engine the mutation draws from.
+ * @return The number of values that were actually adapted.
  */
 template <typename T>
 std::size_t adaptGaussGroup(
@@ -196,6 +208,13 @@ std::size_t adaptGaussGroup(
  * is zero (mirroring GIntGaussAdaptorT::customAdaptions). There is NO fold in the kernel -- a
  * constrained integer folds into its range on read (GFlatGenome / foldConstrainedInt), exactly as the
  * tree applies it via GConstrainedIntT.
+ *
+ * @param cfg The static, shared Gauss configuration for this group (sigma is a double; bounds, rates, mode).
+ * @param st The per-individual evolving Gauss state (current sigma / adaption probability / counter); updated in place.
+ * @param values The group's int32 parameter values to adapt (unbounded internal representation; folded on read).
+ * @param range The integer value range scaling the rounded gaussian step.
+ * @param gr The per-individual random engine the mutation draws from.
+ * @return The number of values that were actually adapted.
  */
 inline std::size_t adaptGaussIntGroup(
     const GaussConfig<double> &cfg,
@@ -321,6 +340,10 @@ struct FlipState {
 /**
  * @brief Self-adapts the flip adaption probability once for a group (mirrors GAdaptorT::adapt()'s
  * ad-prob step), shared by the int and bool flip kernels.
+ *
+ * @param cfg The static, shared flip configuration (adaption-probability bounds and self-adaption rate).
+ * @param st The per-individual evolving flip state (current adaption probability); updated in place.
+ * @param gr The per-individual random engine the log-normal step draws from.
  */
 inline void selfAdaptFlipAdProb(const FlipConfig &cfg, FlipState &st, Gem::Hap::GRandomBase &gr) {
     if(cfg.adapt_ad_prob > 0.) {
@@ -339,7 +362,13 @@ inline void selfAdaptFlipAdProb(const FlipConfig &cfg, FlipState &st, Gem::Hap::
 
 /**
  * @brief Adapts one group of int32 values sharing a FlipState by flipping each ±1 (50/50), mirroring
- * GNumFlipAdaptorT::customAdaptions wrapped by GAdaptorT::adapt(vector). Returns the number flipped.
+ * GNumFlipAdaptorT::customAdaptions wrapped by GAdaptorT::adapt(vector).
+ *
+ * @param cfg The static, shared flip configuration (adaption-probability bounds, self-adaption rate, mode).
+ * @param st The per-individual evolving flip state (current adaption probability); updated in place.
+ * @param values The group's int32 parameter values to adapt (unbounded internal representation; folded on read).
+ * @param gr The per-individual random engine the gating and ±1 choice draw from.
+ * @return The number of values that were actually flipped.
  */
 inline std::size_t adaptFlipIntGroup(
     const FlipConfig &cfg,
@@ -385,7 +414,12 @@ inline std::size_t adaptFlipIntGroup(
 /**
  * @brief Adapts one group of boolean values (stored as bytes) sharing a FlipState by toggling each,
  * mirroring GBooleanAdaptor::customAdaptions (value = !value) wrapped by GAdaptorT::adapt(vector).
- * Returns the number toggled.
+ *
+ * @param cfg The static, shared flip configuration (adaption-probability bounds, self-adaption rate, mode).
+ * @param st The per-individual evolving flip state (current adaption probability); updated in place.
+ * @param values The group's boolean parameter values to adapt, stored one per byte (0 / 1).
+ * @param gr The per-individual random engine the per-value gating draws from (the toggle itself is deterministic).
+ * @return The number of values that were actually toggled.
  */
 inline std::size_t adaptFlipBoolGroup(
     const FlipConfig &cfg,
@@ -465,7 +499,19 @@ struct BiGaussState {
 
 /**
  * @brief Adapts one group of values sharing a single BiGaussState, mirroring the tree bi-gaussian
- * adaptor's vector path. Returns the number of values that were actually adapted.
+ * adaptor's vector path.
+ *
+ * Like adaptGaussGroup(), but the value step samples from a bi-modal distribution of two gaussians
+ * separated by @c delta; sigma1, sigma2 and delta each self-adapt log-normally on the trigger. @p st is
+ * updated in place.
+ *
+ * @tparam T The adaption floating-point type (double for double parameters, float for float).
+ * @param cfg The static, shared bi-gaussian configuration (the three sigma/delta families, bounds, mode).
+ * @param st The per-individual evolving bi-gaussian state (sigma1 / sigma2 / delta / adaption probability / counter); updated in place.
+ * @param values The group's parameter values to adapt, in their unbounded internal representation.
+ * @param range The value range scaling the bi-gaussian step (typically the constrained span, 1 for unbounded).
+ * @param gr The per-individual random engine the mutation draws from.
+ * @return The number of values that were actually adapted.
  */
 template <typename T>
 std::size_t adaptBiGaussGroup(

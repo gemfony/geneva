@@ -71,7 +71,20 @@ using Gem::Geneva::Genome::GAuxiliaryStore;
 using Gem::Geneva::Genome::GFlatGenome;
 using Gem::Geneva::Genome::GroupSpec;
 
-/** @brief Runs the Gauss kernel over one FP channel using the GaussState block (in scratch) under key. */
+/**
+ * @brief Runs the Gauss kernel over one FP channel using the GaussState block (in scratch) under @p key.
+ *
+ * Iterates the channel's groups, adapting each active Gauss group's value slice with its own state record.
+ * A no-op (returns 0) if no GaussState block was installed for @p key.
+ *
+ * @tparam T The channel's floating-point type (double or float).
+ * @param scratch The per-individual auxiliary store holding the GaussState block under @p key (updated in place).
+ * @param groups The channel's group specifications (bounds / grouping / adaptor config) from the shared config.
+ * @param values The channel's full value array (each group adapts its [start, start+len) sub-span) in internal representation.
+ * @param key The auxiliary-store key identifying this channel's GaussState block.
+ * @param gr The per-individual random engine the mutation draws from.
+ * @return The number of values actually adapted across the channel.
+ */
 template <typename T>
 std::size_t adaptGaussChannel(
     GAuxiliaryStore &scratch,
@@ -97,7 +110,21 @@ std::size_t adaptGaussChannel(
     return n;
 }
 
-/** @brief Runs the bi-gaussian kernel over one FP channel using the BiGaussState block (in scratch) under key. */
+/**
+ * @brief Runs the bi-gaussian kernel over one FP channel using the BiGaussState block (in scratch) under @p key.
+ *
+ * The bi-gaussian counterpart of adaptGaussChannel(): iterates the channel's groups, adapting each active
+ * bi-gaussian group's value slice with its own state record. A no-op (returns 0) if no BiGaussState block
+ * was installed for @p key.
+ *
+ * @tparam T The channel's floating-point type (double or float).
+ * @param scratch The per-individual auxiliary store holding the BiGaussState block under @p key (updated in place).
+ * @param groups The channel's group specifications (bounds / grouping / adaptor config) from the shared config.
+ * @param values The channel's full value array (each group adapts its [start, start+len) sub-span) in internal representation.
+ * @param key The auxiliary-store key identifying this channel's BiGaussState block.
+ * @param gr The per-individual random engine the mutation draws from.
+ * @return The number of values actually adapted across the channel.
+ */
 template <typename T>
 std::size_t adaptBiGaussChannel(
     GAuxiliaryStore &scratch,
@@ -129,7 +156,14 @@ std::size_t adaptBiGaussChannel(
 /**
  * @brief Runs the data-oriented adaption kernels over an individual once, driven by the config (the
  * "customAdaptions" half of adapt(), config-injected). Mirrors GFlatGenome::customAdaptions()'s channel
- * order exactly. Returns the number of values actually adapted.
+ * order exactly (Gauss double/float, bi-Gauss double/float, int Gauss, int flip, bool flip), then folds
+ * constrained values back into range.
+ *
+ * @param ind The individual whose internal value channels are mutated in place.
+ * @param scratch The individual's auxiliary store holding the per-channel adaption-state blocks (updated in place).
+ * @param cfg The shared, read-only adaption config supplying each channel's group specifications.
+ * @param gr The per-individual random engine all kernels draw from.
+ * @return The total number of values actually adapted across all channels.
  */
 inline std::size_t runAdaptionKernels(
     detail::GFlatGenome &ind,
