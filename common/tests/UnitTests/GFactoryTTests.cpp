@@ -49,7 +49,6 @@ using namespace Gem::Common;
 namespace {
 
 struct Product {
-    int id{0};
     int payload{0};
 };
 
@@ -79,11 +78,9 @@ protected:
     }
 
     std::shared_ptr<Product>
-    getObject_([[maybe_unused]] GParserBuilder & gpb, std::size_t const &id) override {
+    getObject_([[maybe_unused]] GParserBuilder & gpb) override {
         ++get_object_calls;
-        auto p     = std::make_shared<Product>();
-        p->id      = static_cast<int>(id);
-        return p;
+        return std::make_shared<Product>();
     }
 };
 
@@ -99,7 +96,7 @@ public:
 };
 
 // Creates and returns a path to a config file with the given content. The
-// content does not need to be parseable for tests of write/path/id behaviour.
+// content does not need to be parseable for tests of write/path behaviour.
 std::filesystem::path make_config(std::string const &tag,
                                   std::string const &content = "{}") {
     auto base = std::filesystem::temp_directory_path() / "geneva_factory_tests";
@@ -139,7 +136,7 @@ TEST_CASE("GFactoryT::setConfigFile updates the stored path",
 // exists and is empty, which is enough because the factory's `describeLocalOptions_`
 // is a no-op.
 
-TEST_CASE("GFactoryT::get() runs init→describe→getObject→postProcess and increments id",
+TEST_CASE("GFactoryT::get() runs init→describe→getObject→postProcess",
           "[common][factory]") {
     auto p = make_config("pipeline");
     TestFactory f(p);
@@ -147,7 +144,6 @@ TEST_CASE("GFactoryT::get() runs init→describe→getObject→postProcess and i
     auto prod = f.get();
     REQUIRE(prod);
     CHECK(prod->payload == 42);              // postProcess_ wrote the marker
-    CHECK(prod->id == GFACTTORYFIRSTID);    // first id
 
     CHECK(f.init_calls         == 1);
     CHECK(f.describe_calls     == 1);
@@ -156,7 +152,6 @@ TEST_CASE("GFactoryT::get() runs init→describe→getObject→postProcess and i
 
     auto prod2 = f.get();
     REQUIRE(prod2);
-    CHECK(prod2->id == GFACTTORYFIRSTID + 1); // id advanced on the second call
     CHECK(f.init_calls         == 1);          // init only happens once
     CHECK(f.describe_calls     == 2);
     CHECK(f.get_object_calls   == 2);
@@ -169,7 +164,7 @@ TEST_CASE("GFactoryT::operator() forwards to get()",
     TestFactory f(p);
     auto prod = f();
     REQUIRE(prod);
-    CHECK(prod->id == GFACTTORYFIRSTID);
+    CHECK(prod->payload == 42);
 }
 
 TEST_CASE("GFactoryT::get() throws when the config path cannot be opened",
@@ -185,7 +180,6 @@ TEST_CASE("GFactoryT::get() throws when the config path cannot be opened",
 
 struct PolyProduct {
     virtual ~PolyProduct() = default;
-    int id{0};
     int payload{0};
 };
 struct DerivedProduct : PolyProduct { int extra = 7; };
@@ -195,8 +189,7 @@ public:
     explicit DerivedFactory(std::filesystem::path const &p) : GFactoryT<PolyProduct>(p) {}
 protected:
     void postProcess_(std::shared_ptr<PolyProduct> &) override {}
-    std::shared_ptr<PolyProduct>
-    getObject_([[maybe_unused]] GParserBuilder & gpb, [[maybe_unused]] std::size_t const & id) override {
+    std::shared_ptr<PolyProduct> getObject_([[maybe_unused]] GParserBuilder & gpb) override {
         return std::make_shared<DerivedProduct>();
     }
 };
@@ -230,15 +223,15 @@ TEST_CASE("GFactoryT::clone() in a subclass that overrides it returns a copy",
 }
 
 // ---------------------------------------------------------------------------
-// load(): copies path / id / initialized flags from another factory.
+// load(): copies path / initialized flags from another factory.
 
-TEST_CASE("GFactoryT::load() copies path/id/initialized from a sibling factory",
+TEST_CASE("GFactoryT::load() copies path/initialized from a sibling factory",
           "[common][factory]") {
     auto p1 = make_config("load_src");
     auto p2 = make_config("load_dst");
 
     auto src = std::make_shared<TestFactory>(p1);
-    src->get();   // trigger initialized_ = true and id_++
+    src->get();   // trigger initialized_ = true
 
     TestFactory dst(p2);
     dst.load(src);
@@ -302,8 +295,7 @@ public:
 protected:
     void init_() override { ++init_count; }
     void postProcess_(std::shared_ptr<Product> &) override {}
-    std::shared_ptr<Product>
-    getObject_([[maybe_unused]] GParserBuilder & gpb, [[maybe_unused]] std::size_t const & id) override {
+    std::shared_ptr<Product> getObject_([[maybe_unused]] GParserBuilder & gpb) override {
         return std::make_shared<Product>();
     }
 };

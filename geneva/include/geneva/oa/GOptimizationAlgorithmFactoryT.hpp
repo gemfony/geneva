@@ -97,7 +97,7 @@ public:
 protected:
     /** @brief Creates the algorithm and registers its configuration options. */
     std::shared_ptr<GOptimizationAlgorithmBase>
-    getObject_(Gem::Common::GParserBuilder &gpb, const std::size_t & /* id */) override {
+    getObject_(Gem::Common::GParserBuilder &gpb) override {
         std::shared_ptr<oa_type> target(new oa_type());
         target->addConfigurationOptions(gpb);
         return target;

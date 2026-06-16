@@ -235,8 +235,9 @@ public:
         p.seed_max_sigma_ = maxSigma;
         p.seed_ad_prob_ = adProb;
 
-        // The first individual keeps the supplied start values; all others start randomly within bounds.
-        if(Gem::Common::GFACTTORYFIRSTID != prod_id) {
+        // The first individual (prod_id == 0) keeps the supplied start values; all others start
+        // randomly within bounds.
+        if(prod_id != 0) {
             p.randomInit(Gem::Geneva::activityMode::ALLPARAMETERS);
         }
     }

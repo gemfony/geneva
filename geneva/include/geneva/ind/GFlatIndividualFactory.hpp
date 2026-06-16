@@ -251,8 +251,7 @@ private:
      * re-applies the cached) configuration. Derived-specific options are registered separately by
      * describeConfig(); the genome itself is installed in postProcess_ once the config has been parsed.
      */
-    std::shared_ptr<GOptimizableEntity>
-    getObject_(Gem::Common::GParserBuilder &gpb, const std::size_t &) override {
+    std::shared_ptr<GOptimizableEntity> getObject_(Gem::Common::GParserBuilder &gpb) override {
         auto p = std::make_shared<Derived>();
         p->addConfigurationOptions(gpb);
         return p;

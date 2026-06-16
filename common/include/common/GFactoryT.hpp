@@ -67,11 +67,6 @@
 namespace Gem::Common {
 
 /******************************************************************************/
-
-const std::size_t GFACTTORYFIRSTID = std::size_t(1);
-const std::size_t GFACTORYWRITEID = std::size_t(0);
-
-/******************************************************************************/
 /**
  * A factory class that returns objects of type prod_type . The class comprises a framework
  * for reading additional configuration options from a configuration file. The actual setup
@@ -89,8 +84,7 @@ class GFactoryT {
 
         std::string configFile{};
 
-        ar &BOOST_SERIALIZATION_NVP(configFile) & BOOST_SERIALIZATION_NVP(id_) &
-            BOOST_SERIALIZATION_NVP(initialized_);
+        ar &BOOST_SERIALIZATION_NVP(configFile) & BOOST_SERIALIZATION_NVP(initialized_);
 
         // Transfer the string to the path
         config_path_ = std::filesystem::path(configFile);
@@ -103,8 +97,7 @@ class GFactoryT {
         // Transfer the path to the string
         std::string configFile = config_path_.string(); // NOLINT(cppcoreguidelines-init-variables)
 
-        ar &BOOST_SERIALIZATION_NVP(configFile) & BOOST_SERIALIZATION_NVP(id_) &
-            BOOST_SERIALIZATION_NVP(initialized_);
+        ar &BOOST_SERIALIZATION_NVP(configFile) & BOOST_SERIALIZATION_NVP(initialized_);
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -132,13 +125,11 @@ public:
 
     GFactoryT(const GFactoryT<prod_type> &cp)
       : config_path_(cp.config_path_)
-      , id_(cp.id_.load())
       , initialized_(cp.initialized_) {
     }
 
     GFactoryT(GFactoryT<prod_type> &&cp) noexcept
       : config_path_(std::move(cp.config_path_))
-      , id_(cp.id_.load())
       , initialized_(cp.initialized_) {
     }
 
@@ -147,7 +138,6 @@ public:
     GFactoryT<prod_type> &operator=(GFactoryT<prod_type> const &cp) {
         if(this != &cp) {
             config_path_ = cp.config_path_;
-            id_.store(cp.id_.load());
             initialized_ = cp.initialized_;
             // init_mutex_ deliberately not copied: synchronisation primitives
             // do not carry over with the logical value of the object.
@@ -161,7 +151,6 @@ public:
     GFactoryT<prod_type> &operator=(GFactoryT<prod_type> &&cp) noexcept {
         if(this != &cp) {
             config_path_ = std::move(cp.config_path_);
-            id_.store(cp.id_.load());
             initialized_ = cp.initialized_;
             // Invalidate the parse cache: config_path_ may have changed.
             config_ptree_.clear();
@@ -245,7 +234,7 @@ public:
 
         // Retrieve an object (will be discarded at the end of this function)
         // Here, further options may be added to the parser builder.
-        std::shared_ptr<prod_type> p = this->getObject_(gpb, GFACTORYWRITEID);
+        std::shared_ptr<prod_type> p = this->getObject_(gpb);
 
         // Allow the factory to act on configuration options received
         // in the parsing process.
@@ -269,7 +258,6 @@ public:
 	  */
     virtual void load(std::shared_ptr<GFactoryT<prod_type>> cp) {
         config_path_ = cp->config_path_;
-        id_.store(cp->id_.load());
         initialized_ = cp->initialized_;
     }
 
@@ -314,14 +302,6 @@ protected:
 
     /***************************************************************************/
     /**
-	  * Retrieve the current value of the id_ variable
-	  */
-    std::size_t getId() const {
-        return id_.load();
-    }
-
-    /***************************************************************************/
-    /**
      * Allows the creation of objects of the desired type.
      */
     virtual std::shared_ptr<prod_type> get_() {
@@ -341,7 +321,7 @@ protected:
         // Retrieve the actual object. It may, in the process of its
         // creation, add further configuration options and call-backs to
         // the parser
-        std::shared_ptr<prod_type> p = this->getObject_(gpb, id_.load());
+        std::shared_ptr<prod_type> p = this->getObject_(gpb);
 
         // Read + parse the configuration file only ONCE: the first call captures the
         // parsed ptree, every subsequent call re-applies the cached ptree to the
@@ -370,9 +350,6 @@ protected:
         // Allow the factory to act on configuration options received
         // in the parsing process.
         this->postProcess_(p);
-
-        // Update the id (atomic: get_() may run concurrently on one factory)
-        id_.fetch_add(1, std::memory_order_relaxed);
 
         // Let the audience know
         return p;
@@ -403,15 +380,11 @@ private:
 
     /***************************************************************************/
     /** @brief Creates individuals of the desired type */
-    virtual std::shared_ptr<prod_type>
-    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) = 0;
+    virtual std::shared_ptr<prod_type> getObject_(Gem::Common::GParserBuilder &) = 0;
 
     /***************************************************************************/
 
     std::filesystem::path config_path_; ///< The name and path of the configuration file
-    std::atomic<std::size_t> id_{
-        GFACTTORYFIRSTID};      ///< The id/number of the individual currently being created
-                                ///< (atomic: get_() may run concurrently on one factory)
     bool initialized_ = false; ///< Indicates whether the initialization work has already been done
     mutable std::mutex init_mutex_; ///< Serialises concurrent first calls to globalInit() and the config-parse cache
 

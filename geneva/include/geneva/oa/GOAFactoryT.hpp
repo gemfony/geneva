@@ -432,8 +432,7 @@ protected:
 private:
     /***************************************************************************/
     /** @brief Creates individuals of this type */
-    std::shared_ptr<oa_type>
-    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override = 0;
+    std::shared_ptr<oa_type> getObject_(Gem::Common::GParserBuilder &) override = 0;
 
     /***************************************************************************/
 

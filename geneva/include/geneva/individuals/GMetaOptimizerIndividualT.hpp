@@ -1505,10 +1505,8 @@ private:
      *
      * @return Items of the desired type
      */
-    std::shared_ptr<gen::GOptimizableEntity> getObject_(
-        Gem::Common::GParserBuilder &gpb,
-        [[maybe_unused]] const std::size_t & id
-    ) override {
+    std::shared_ptr<gen::GOptimizableEntity>
+    getObject_(Gem::Common::GParserBuilder &gpb) override {
         // Will hold the result
         std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> target(
             new GMetaOptimizerIndividualT<ind_type>()
