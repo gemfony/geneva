@@ -46,11 +46,13 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GFlatIndividualFactory.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
+#include <filesystem>
+#include <memory>
 
 namespace Gem {
 namespace Geneva {
@@ -104,9 +106,6 @@ class GFMinIndividual : public gpar::GFlatGenome {
 
     /////////////////////////////////////////////////////////////////////////////
 
-    // The factory stamps the configured seed sigma for the getAverageSigma() telemetry hook.
-    friend class GFMinIndividualFactory;
-
 public:
     /** @brief The default constructor */
     GFMinIndividual();
@@ -115,9 +114,6 @@ public:
     /** @brief The standard destructor */
     virtual ~GFMinIndividual();
 
-    /** @brief Adds local configuration options to a GParserBuilder object */
-    virtual void addConfigurationOptions(Gem::Common::GParserBuilder &) final;
-
     /** @brief Allows to set the demo function */
     void setTargetFunction(targetFunction);
     /** @brief Allows to retrieve the current demo function */
@@ -125,6 +121,36 @@ public:
 
     /** @brief Retrieves the average value of the sigma used in Gauss adaptors */
     double getAverageSigma() const;
+
+    //---------------------------------------------------------------------------
+    // GFlatIndividualFactory<GFMinIndividual> hooks. Instead of a bespoke factory the individual supplies
+    // the static hooks the generic factory needs: describeConfig (the configurable values, including the
+    // target function), buildGenome (one shared constrained-double group), buildAdaptionConfig (the
+    // OA-owned Gauss adaptor for that group) and applyConfig (the target function + the seed sigma stamped
+    // for the getAverageSigma() telemetry hook -- per-object, non-genome settings).
+
+    /** @brief All values formerly parsed by the bespoke GFMinIndividualFactory. */
+    struct Config {
+        double ad_prob = GFI_DEF_ADPROB;
+        double sigma = GFI_DEF_SIGMA;
+        double sigma_sigma = GFI_DEF_SIGMASIGMA;
+        double min_sigma = GFI_DEF_MINSIGMA;
+        double max_sigma = GFI_DEF_MAXSIGMA;
+        std::size_t par_dim = GFI_DEF_PARDIM;
+        double min_var = GFI_DEF_MINVAR;
+        double max_var = GFI_DEF_MAXVAR;
+        targetFunction target_function = GO_DEF_TARGETFUNCTION;
+    };
+
+    /** @brief Registers the config-file options, binding them to the passed Config */
+    static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
+    /** @brief Builds the flat genome's structure: one shared constrained-double group of par_dim values */
+    static gpar::Genome buildGenome(const Config &c);
+    /** @brief The OA-owned adaption config: the shared double group gets the configured Gauss adaptor */
+    static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+    buildAdaptionConfig(const gpar::GFlatGenome &sample, const Config &c);
+    /** @brief Per-object post-config hook: the target function and the seed sigma for getAverageSigma() */
+    static void applyConfig(GFMinIndividual &ind, const Config &c);
 
 protected:
     /***************************************************************************/
@@ -167,42 +193,12 @@ std::ostream &operator<<(std::ostream &, std::shared_ptr<Gem::Geneva::GFMinIndiv
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A factory for GFMinIndividual objects
+ * A factory for GFMinIndividual objects. The bespoke factory has been replaced by the generic,
+ * config-driven GFlatIndividualFactory; GFMinIndividual supplies the static describeConfig / buildGenome /
+ * buildAdaptionConfig / applyConfig hooks. The alias keeps existing call sites (ctor(path), operator(),
+ * get_as<>(), getAdaptionConfig()) compiling unchanged.
  */
-class GFMinIndividualFactory : public Gem::Common::GFactoryT<gpar::GOptimizableEntity> {
-public:
-    /** @brief The standard constructor */
-    explicit GFMinIndividualFactory(std::filesystem::path const &);
-    /** @brief The destructor */
-    virtual ~GFMinIndividualFactory();
-
-    /** @brief Builds the OA-owned Gauss adaption config for a genome produced by this factory (the
-     *  single shared double group), using this factory's configured adaptor parameters. */
-    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    getAdaptionConfig(const gpar::GFlatGenome &sample) const;
-
-protected:
-    /** @brief Creates individuals of this type */
-    virtual std::shared_ptr<gpar::GOptimizableEntity>
-    getObject_(Gem::Common::GParserBuilder &, const std::size_t &);
-    /** @brief Allows to describe local configuration options in derived classes */
-    virtual void describeLocalOptions_(Gem::Common::GParserBuilder &);
-    /** @brief Allows to act on the configuration options received from the configuration file */
-    virtual void postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &);
-
-private:
-    /** @brief The default constructor. Only needed for (de-)serialization purposes */
-    GFMinIndividualFactory() = default;
-
-    double adProb_;
-    double sigma_;
-    double sigmaSigma_;
-    double minSigma_;
-    double maxSigma_;
-    std::size_t parDim_;
-    double minVar_;
-    double maxVar_;
-};
+using GFMinIndividualFactory = Gem::Geneva::Parameters::GFlatIndividualFactory<GFMinIndividual>;
 
 /******************************************************************************/
 

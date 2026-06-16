@@ -104,29 +104,6 @@ GFMinIndividual::~GFMinIndividual() { /* nothing */
 
 /*******************************************************************************************/
 /**
- * Adds local configuration options to a GParserBuilder object
- *
- * @param gpb The GParserBuilder object to which configuration options should be added
- */
-void GFMinIndividual::addConfigurationOptions(Gem::Common::GParserBuilder &gpb) {
-    // Call our parent class'es function
-    gpar::GFlatGenome::addConfigurationOptions(gpb);
-
-    // Add local data
-    gpb.registerFileParameter<targetFunction>(
-        "target_function" // The name of the variable
-        ,
-        GO_DEF_TARGETFUNCTION // The default value
-        ,
-        [this](targetFunction tF) { this->setTargetFunction(tF); }
-    ) << "Specifies which target function should be used:"
-      << '\n'
-      << "0: Parabola" << '\n'
-      << "1: Berlich";
-}
-
-/*******************************************************************************************/
-/**
  * Allows to set the demo function
  *
  * @param tF The id if the demo function
@@ -282,175 +259,105 @@ std::ostream &operator<<(std::ostream &s, std::shared_ptr<Gem::Geneva::GFMinIndi
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A constructor with the ability to switch the parallelization mode. It initializes a
- * target item as needed.
- *
- * @param configFile The name of the configuration file
+ * Registers the config-file options, binding them to the passed Config. This is the body of the former
+ * GFMinIndividualFactory::describeLocalOptions_ (now binding plain Config fields) plus the target_function
+ * option the individual formerly registered in its own addConfigurationOptions.
  */
-GFMinIndividualFactory::GFMinIndividualFactory(std::filesystem::path const &configFile)
-  : Gem::Common::GFactoryT<gpar::GOptimizableEntity>(configFile)
-  , adProb_(GFI_DEF_ADPROB)
-  , sigma_(GFI_DEF_SIGMA)
-  , sigmaSigma_(GFI_DEF_SIGMASIGMA)
-  , minSigma_(GFI_DEF_MINSIGMA)
-  , maxSigma_(GFI_DEF_MAXSIGMA)
-  , parDim_(GFI_DEF_PARDIM)
-  , minVar_(GFI_DEF_MINVAR)
-  , maxVar_(GFI_DEF_MAXVAR) { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GFMinIndividualFactory::~GFMinIndividualFactory() { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * Creates items of this type
- *
- * @return Items of the desired type
- */
-std::shared_ptr<gpar::GOptimizableEntity>
-GFMinIndividualFactory::getObject_(Gem::Common::GParserBuilder &gpb, const std::size_t &id) {
-    // Will hold the result
-    std::shared_ptr<GFMinIndividual> target(new GFMinIndividual());
-
-    // Make the object's local configuration options known
-    target->addConfigurationOptions(gpb);
-
-    return target;
-}
-
-/******************************************************************************/
-/**
- * Allows to describe local configuration options for gradient descents
- */
-void GFMinIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &gpb) {
-    // Describe our own options
-    using namespace Gem::Courtier;
-
+void GFMinIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
     std::string comment;
 
     comment = "";
     comment += "The probability for random adaptions of values in evolutionary algorithms;";
     gpb.registerFileParameter<double>(
-        "ad_prob",
-        adProb_,
-        GFI_DEF_ADPROB,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "ad_prob", c.ad_prob, GFI_DEF_ADPROB, Gem::Common::VAR_IS_ESSENTIAL, comment
     );
 
     comment = "";
     comment += "The sigma for gauss-adaption in ES;";
     gpb.registerFileParameter<double>(
-        "sigma",
-        sigma_,
-        GFI_DEF_SIGMA,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "sigma", c.sigma, GFI_DEF_SIGMA, Gem::Common::VAR_IS_ESSENTIAL, comment
     );
 
     comment = "";
     comment += "Influences the self-adaption of gauss-mutation in ES;";
     gpb.registerFileParameter<double>(
-        "sigma_sigma",
-        sigmaSigma_,
-        GFI_DEF_SIGMASIGMA,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "sigma_sigma", c.sigma_sigma, GFI_DEF_SIGMASIGMA, Gem::Common::VAR_IS_ESSENTIAL, comment
     );
 
     comment = "";
     comment += "The minimum amount value of sigma;";
     gpb.registerFileParameter<double>(
-        "min_sigma",
-        minSigma_,
-        GFI_DEF_MINSIGMA,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "min_sigma", c.min_sigma, GFI_DEF_MINSIGMA, Gem::Common::VAR_IS_ESSENTIAL, comment
     );
 
     comment = "";
     comment += "The maximum amount value of sigma;";
     gpb.registerFileParameter<double>(
-        "max_sigma",
-        maxSigma_,
-        GFI_DEF_MAXSIGMA,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "max_sigma", c.max_sigma, GFI_DEF_MAXSIGMA, Gem::Common::VAR_IS_ESSENTIAL, comment
     );
 
     comment = "";
     comment += "The number of dimensions used for the demo function;";
     gpb.registerFileParameter<std::size_t>(
-        "par_dim",
-        parDim_,
-        GFI_DEF_PARDIM,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "par_dim", c.par_dim, GFI_DEF_PARDIM, Gem::Common::VAR_IS_ESSENTIAL, comment
     );
 
     comment = "";
     comment += "The lower boundary of the initialization range for parameters;";
     gpb.registerFileParameter<double>(
-        "min_var",
-        minVar_,
-        GFI_DEF_MINVAR,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "min_var", c.min_var, GFI_DEF_MINVAR, Gem::Common::VAR_IS_ESSENTIAL, comment
     );
 
     comment = "";
     comment += "The upper boundary of the initialization range for parameters;";
     gpb.registerFileParameter<double>(
-        "max_var",
-        maxVar_,
-        GFI_DEF_MAXVAR,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "max_var", c.max_var, GFI_DEF_MAXVAR, Gem::Common::VAR_IS_ESSENTIAL, comment
     );
 
-    // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<gpar::GOptimizableEntity>::describeLocalOptions_(gpb);
+    comment = "";
+    comment += "Specifies which target function should be used:;0: Parabola;1: Berlich;";
+    gpb.registerFileParameter<targetFunction>(
+        "target_function", c.target_function, GO_DEF_TARGETFUNCTION, Gem::Common::VAR_IS_ESSENTIAL, comment
+    );
 }
 
 /******************************************************************************/
 /**
- * Allows to act on the configuration options received from the configuration file. Here
- * we can add the options described in describeLocalOptions to the object. In practice,
- * we add the parameter objects here
- *
- * @param p A smart-pointer to be acted on during post-processing
+ * Builds the flat genome's STRUCTURE only (the genome-building body of the former
+ * GFMinIndividualFactory::postProcess_): one constrained-double group of par_dim values (shared sigma),
+ * mirroring the historical single GConstrainedDoubleCollection + one GDoubleGaussAdaptor. The adaptor
+ * settings live on the OA-owned config (see buildAdaptionConfig()), not in the structure-only genome.
  */
-void GFMinIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &p) {
-    // Build a flat genome holding one constrained-double group of parDim_ values (shared sigma),
-    // mirroring the historical single GConstrainedDoubleCollection + one GDoubleGaussAdaptor.
+gpar::Genome GFMinIndividual::buildGenome(const Config &c) {
     gpar::GGenomeBuilder b;
-    b.addDoubleGroup(parDim_, minVar_, maxVar_); // structure only; the adaptor lives on the OA config
-    dynamic_cast<gpar::GFlatGenome &>(*p).setGenome(b.build());
-
-    // Stamp the configured seed sigma for the getAverageSigma() telemetry hook.
-    dynamic_cast<GFMinIndividual &>(*p).seed_sigma_ = sigma_;
-
-    // Randomly initialize
-    p->randomInit(activityMode::ACTIVEONLY);
+    b.addDoubleGroup(c.par_dim, c.min_var, c.max_var); // structure only; the adaptor lives on the OA config
+    return b.build();
 }
 
 /******************************************************************************/
 /**
- * Builds the OA-owned adaption configuration for a genome produced by this factory: the single shared
- * double group gets a Gauss adaptor with this factory's configured parameters.
+ * Builds the OA-owned adaption configuration for a genome produced by this factory (the body of the former
+ * GFMinIndividualFactory::getAdaptionConfig): the single shared double group gets a Gauss adaptor with the
+ * configured parameters.
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GFMinIndividualFactory::getAdaptionConfig(const gpar::GFlatGenome &sample) const {
-    auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(sample);
+GFMinIndividual::buildAdaptionConfig(const gpar::GFlatGenome &sample, const Config &c) {
+    namespace oa = Gem::Geneva::OptimizationAlgorithms;
+    auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
     for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
-        cfg->groupDouble(i).gauss(sigma_, sigmaSigma_, minSigma_, maxSigma_, adProb_);
+        cfg->groupDouble(i).gauss(c.sigma, c.sigma_sigma, c.min_sigma, c.max_sigma, c.ad_prob);
     }
     return cfg;
+}
+
+/******************************************************************************/
+/**
+ * Per-object post-config hook (the per-object tail of the former postProcess_): the target function and
+ * the seed sigma stamped for the getAverageSigma() telemetry hook.
+ */
+void GFMinIndividual::applyConfig(GFMinIndividual &ind, const Config &c) {
+    ind.setTargetFunction(c.target_function);
+    ind.seed_sigma_ = c.sigma;
 }
 
 /******************************************************************************/
