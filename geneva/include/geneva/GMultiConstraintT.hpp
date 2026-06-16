@@ -769,16 +769,16 @@ private:
 namespace boost::serialization {
 template <typename ind_type>
 struct is_abstract<Gem::Geneva::GPreEvaluationValidityCheckT<ind_type>>
-  : public boost::true_type {};
+  : public std::true_type {};
 template <typename ind_type>
 struct is_abstract<const Gem::Geneva::GPreEvaluationValidityCheckT<ind_type>>
-  : public boost::true_type {};
+  : public std::true_type {};
 } /* namespace boost::serialization */
 namespace boost::serialization {
 template <typename ind_type>
-struct is_abstract<Gem::Geneva::GValidityCheckContainerT<ind_type>> : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GValidityCheckContainerT<ind_type>> : public std::true_type {};
 template <typename ind_type>
 struct is_abstract<const Gem::Geneva::GValidityCheckContainerT<ind_type>>
-  : public boost::true_type {};
+  : public std::true_type {};
 } /* namespace boost::serialization */
 /******************************************************************************/

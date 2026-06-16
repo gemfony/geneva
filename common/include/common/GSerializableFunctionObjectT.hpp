@@ -198,10 +198,10 @@ private:
 namespace boost::serialization {
 template <typename processable_type>
 struct is_abstract<Gem::Common::GSerializableFunctionObjectT<processable_type>>
-  : public boost::true_type {};
+  : public std::true_type {};
 template <typename processable_type>
 struct is_abstract<const Gem::Common::GSerializableFunctionObjectT<processable_type>>
-  : public boost::true_type {};
+  : public std::true_type {};
 } /* namespace boost::serialization */
 
 /******************************************************************************/

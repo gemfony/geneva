@@ -1754,10 +1754,10 @@ using GUniquePtrContainerT = GContainerT<T, UniquePtrStorage<T, Container>>;
 namespace boost::serialization {
 
 template <typename T, typename StoragePolicy>
-struct is_abstract<Gem::Common::GContainerT<T, StoragePolicy>> : public boost::true_type {};
+struct is_abstract<Gem::Common::GContainerT<T, StoragePolicy>> : public std::true_type {};
 
 template <typename T, typename StoragePolicy>
-struct is_abstract<const Gem::Common::GContainerT<T, StoragePolicy>> : public boost::true_type {};
+struct is_abstract<const Gem::Common::GContainerT<T, StoragePolicy>> : public std::true_type {};
 
 } /* namespace boost::serialization */
 

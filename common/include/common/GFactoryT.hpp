@@ -432,9 +432,9 @@ private:
 
 namespace boost::serialization {
 template <typename T>
-struct is_abstract<Gem::Common::GFactoryT<T>> : public boost::true_type {};
+struct is_abstract<Gem::Common::GFactoryT<T>> : public std::true_type {};
 template <typename T>
-struct is_abstract<const Gem::Common::GFactoryT<T>> : public boost::true_type {};
+struct is_abstract<const Gem::Common::GFactoryT<T>> : public std::true_type {};
 } /* namespace boost::serialization */
 
 /******************************************************************************/

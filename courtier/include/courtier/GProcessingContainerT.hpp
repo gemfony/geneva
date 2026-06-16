@@ -1117,11 +1117,11 @@ private:
 namespace boost::serialization {
 template <typename processable_type, typename processing_result_type>
 struct is_abstract<Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>>
-  : public boost::true_type {};
+  : public std::true_type {};
 template <typename processable_type, typename processing_result_type>
 struct is_abstract<
     const Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>>
-  : public boost::true_type {};
+  : public std::true_type {};
 } /* namespace boost::serialization */
 
 /******************************************************************************/

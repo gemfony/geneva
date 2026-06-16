@@ -4321,84 +4321,84 @@ namespace boost::serialization {
 
 template <typename coordinate_type>
 struct is_abstract<Gem::Common::GDecorator<Gem::Common::dimensions::Dim2, coordinate_type>>
-  : public boost::true_type { /* nothing */
+  : public std::true_type { /* nothing */
 };
 template <typename coordinate_type>
 struct is_abstract<const Gem::Common::GDecorator<Gem::Common::dimensions::Dim2, coordinate_type>>
-  : public boost::true_type { /* nothing */
+  : public std::true_type { /* nothing */
 };
 
 template <typename coordinate_type>
 struct is_abstract<Gem::Common::GDecorator<Gem::Common::dimensions::Dim3, coordinate_type>>
-  : public boost::true_type { /* nothing */
+  : public std::true_type { /* nothing */
 };
 template <typename coordinate_type>
 struct is_abstract<const Gem::Common::GDecorator<Gem::Common::dimensions::Dim3, coordinate_type>>
-  : public boost::true_type { /* nothing */
+  : public std::true_type { /* nothing */
 };
 
 template <typename coordinate_type>
 struct is_abstract<Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim2, coordinate_type>>
-  : public boost::true_type { /* nothing */
+  : public std::true_type { /* nothing */
 };
 template <typename coordinate_type>
 struct is_abstract<
     const Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim2, coordinate_type>>
-  : public boost::true_type { /* nothing */
+  : public std::true_type { /* nothing */
 };
 
 template <typename coordinate_type>
 struct is_abstract<Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim3, coordinate_type>>
-  : public boost::true_type { /* nothing */
+  : public std::true_type { /* nothing */
 };
 template <typename coordinate_type>
 struct is_abstract<
     const Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim3, coordinate_type>>
-  : public boost::true_type { /* nothing */
+  : public std::true_type { /* nothing */
 };
 
 template <typename x_type>
-struct is_abstract<Gem::Common::GDataCollector1T<x_type>> : public boost::true_type { /* nothing */
+struct is_abstract<Gem::Common::GDataCollector1T<x_type>> : public std::true_type { /* nothing */
 };
 template <typename x_type>
 struct is_abstract<const Gem::Common::GDataCollector1T<x_type>>
-  : public boost::true_type { /* nothing */
+  : public std::true_type { /* nothing */
 };
 
 template <typename x_type, typename y_type>
 struct is_abstract<Gem::Common::GDataCollector2T<x_type, y_type>>
-  : public boost::true_type { /* nothing */
+  : public std::true_type { /* nothing */
 };
 template <typename x_type, typename y_type>
 struct is_abstract<const Gem::Common::GDataCollector2T<x_type, y_type>>
-  : public boost::true_type { /* nothing */
+  : public std::true_type { /* nothing */
 };
 
 template <typename x_type, typename y_type>
 struct is_abstract<Gem::Common::GDataCollector2ET<x_type, y_type>>
-  : public boost::true_type { /* nothing */
+  : public std::true_type { /* nothing */
 };
 template <typename x_type, typename y_type>
 struct is_abstract<const Gem::Common::GDataCollector2ET<x_type, y_type>>
-  : public boost::true_type { /* nothing */
+  : public std::true_type { /* nothing */
 };
 
 template <typename x_type, typename y_type, typename z_type>
 struct is_abstract<Gem::Common::GDataCollector3T<x_type, y_type, z_type>>
-  : public boost::true_type { /* nothing */
+  : public std::true_type { /* nothing */
 };
 template <typename x_type, typename y_type, typename z_type>
 struct is_abstract<const Gem::Common::GDataCollector3T<x_type, y_type, z_type>>
-  : public boost::true_type { /* nothing */
+  : public std::true_type { /* nothing */
 };
 
 template <typename x_type, typename y_type, typename z_type, typename w_type>
 struct is_abstract<Gem::Common::GDataCollector4T<x_type, y_type, z_type, w_type>>
-  : public boost::true_type { /* nothing */
+  : public std::true_type { /* nothing */
 };
 template <typename x_type, typename y_type, typename z_type, typename w_type>
 struct is_abstract<const Gem::Common::GDataCollector4T<x_type, y_type, z_type, w_type>>
-  : public boost::true_type { /* nothing */
+  : public std::true_type { /* nothing */
 };
 
 } /* namespace boost::serialization */
