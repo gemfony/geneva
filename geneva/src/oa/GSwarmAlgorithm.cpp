@@ -1542,38 +1542,37 @@ void GSwarmAlgorithm::adjustPopulation_() {
             // Now follow the procedure used for the "n_neighborhoods_" case
             fillUpNeighborhood1();
         }
-        else if(current_size > n_neighborhoods_ && current_size < default_pop_size) {
-            // New procedure:
-            // - Find out how many individuals exist in each neighborhood (Check: Has the neighborhood-id already been assigned here ?)
-            // - For each neighborhood: add missing items to the end of vector
-            // - Sort the vector according to neighborhoods
-            // - Remove surplus items in each neighborhood
-            // - In DEBUG mode: make sure each neighborhood is at the correct size
-
-            // TODO: For now we simply resize the population to the number of neighborhoods,
-            // then fill up again. This means that we loose some predefined values, which
-            // is ugly and needs to be changed in later versions.
-            this->resize(n_neighborhoods_);
-            fillUpNeighborhood1();
-
-            // TODO: This is catastrophic if work items didn't return in GSwarmAlgorithm,
-            // as it uses adjustPopulation to fix the population.
-            // MUST FIX
-        }
-        else { // currentSize > defaultPopsize
-            // Update the number of individuals in each neighborhood
-            for(std::size_t n = 0; n < n_neighborhoods_ - 1; n++) {
-                n_neighborhood_members_cnt_[n] = default_n_neighborhood_members_;
+        else { // current_size > n_neighborhoods_ and != default_pop_size
+            // The user supplied more than n_neighborhoods_ start individuals but not exactly the default
+            // population size. Normalise to EXACTLY default_pop_size without discarding usable individuals
+            // or corrupting the neighborhood topology. (The old code either resized down to n_neighborhoods_
+            // -- silently dropping the user's extra individuals -- or dumped ALL surplus into the last
+            // neighborhood, leaving the others short. Both were marked "MUST FIX".)
+            //
+            // adjustPopulation_() runs ONCE at setup; neighborhoods are assigned POSITIONALLY by the
+            // subsequent setIndividualPersonalities(), so here we only need the correct overall size with
+            // every neighborhood at its default member count.
+            if(current_size > default_pop_size) {
+                // Keep as many of the user's individuals as the swarm can hold (the first default_pop_size,
+                // one full set of neighborhoods); drop only the genuine surplus over capacity.
+                this->resize(default_pop_size);
+            }
+            else {
+                // n_neighborhoods_ < current_size < default_pop_size: clone-fill up to capacity, cycling
+                // round-robin over the user's individuals so their diversity is spread rather than a single
+                // one being duplicated.
+                for(std::size_t k = current_size; k < default_pop_size; k++) {
+                    this->push_back((*(this->begin() + (k % current_size)))->clone_unique());
+                    if(random_fill_up_) {
+                        this->back()->individual().randomInit(activityMode::ACTIVEONLY);
+                    }
+                }
             }
 
-            // Adjust the n_neighborhood_members_cnt_ array. The surplus items will
-            // be assumed to belong to the last neighborhood, all other neighborhoods
-            // have the default size.
-            // TODO: This is bad, as adjustPopulation is used to adjust sizes also during an optimization run
-            // Must remove worst items for each neighborhood individually. Also: Must make sure that. while some
-            // neighborhoods might have too many, others might have too few entries. MUST FIX.
-            n_neighborhood_members_cnt_[n_neighborhoods_ - 1] =
-                default_n_neighborhood_members_ + (current_size - default_pop_size);
+            // Every neighborhood now holds exactly its default member count.
+            for(std::size_t n = 0; n < n_neighborhoods_; n++) {
+                n_neighborhood_members_cnt_[n] = default_n_neighborhood_members_;
+            }
         }
     }
 
@@ -1593,9 +1592,14 @@ void GSwarmAlgorithm::adjustPopulation_() {
     // We do not initialize the neighborhood and global bests here, as this requires the value of
     // all individuals to be calculated.
 
-    // TODO: Split into a fix-population function and a adjustPopulation function
-    // Move adjustPopulation funcionality into the init() function (?)
-    // Make sure neighborhood ids are set for new individuals (both in fixed populations and initially)
+    // Division of responsibility (the "split" an older TODO here asked for already exists):
+    //   - adjustPopulation_()    runs ONCE at setup and only SIZES the initial population to
+    //                            default_pop_size; neighborhood ids are then assigned by
+    //                            setIndividualPersonalities().
+    //   - adjustNeighborhoods()  runs per-iteration and REPAIRS the topology mid-run (splices fresh
+    //                            slots into short neighborhoods after partial returns, re-tags ids).
+    // adjustPopulation_() therefore never touches the population mid-run and cannot discard evolved
+    // state.
 }
 
 /******************************************************************************/

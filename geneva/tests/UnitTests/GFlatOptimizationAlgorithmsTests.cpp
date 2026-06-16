@@ -500,6 +500,51 @@ TEST_CASE("Swarm tolerates a frozen (equal-bound) parameter", "[flat][oa]") {
 
 /******************************************************************************/
 
+TEST_CASE("Swarm normalizes a non-canonical user population at setup", "[flat][oa]") {
+    // Regression for the two self-admitted adjustPopulation_() bugs: when the user pushed more than
+    // n_neighborhoods but not exactly default_pop_size, the population was either resized down to
+    // n_neighborhoods (silently discarding the user's extra start individuals) or had ALL surplus dumped
+    // into the last neighborhood (corrupting the topology). The setup must instead normalize to exactly
+    // default_pop_size, every neighborhood at its default member count, without throwing.
+    constexpr std::size_t n_neighborhoods = 3;
+    constexpr std::size_t n_members = 6;
+    constexpr std::size_t default_pop_size = n_neighborhoods * n_members; // 18
+
+    SECTION("between n_neighborhoods and default_pop_size -> clone-fill up") {
+        auto pop = std::make_shared<oa::GSwarmAlgorithm>();
+        pop->setSwarmSizes(n_neighborhoods, n_members);
+        pop->setMaxIteration(40);
+        pop->setReportIteration(100000);
+        for(std::size_t i = 0; i < 10; i++) { // 3 < 10 < 18
+            pop->push_back(FlatSphereOA().clone_unique());
+        }
+        pop->setLocalConsumer(oa::local_consumer_kind::serial);
+        CHECK_NOTHROW(pop->optimize());
+        CHECK(pop->size() == default_pop_size); // filled to capacity, nothing discarded mid-setup
+        auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+        REQUIRE(best);
+        CHECK(bestSphere(best) < 20.0);
+    }
+
+    SECTION("above default_pop_size -> trim surplus to capacity") {
+        auto pop = std::make_shared<oa::GSwarmAlgorithm>();
+        pop->setSwarmSizes(n_neighborhoods, n_members);
+        pop->setMaxIteration(40);
+        pop->setReportIteration(100000);
+        for(std::size_t i = 0; i < 25; i++) { // 25 > 18
+            pop->push_back(FlatSphereOA().clone_unique());
+        }
+        pop->setLocalConsumer(oa::local_consumer_kind::serial);
+        CHECK_NOTHROW(pop->optimize());
+        CHECK(pop->size() == default_pop_size); // surplus trimmed, topology intact (no last-neighborhood dump)
+        auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+        REQUIRE(best);
+        CHECK(bestSphere(best) < 20.0);
+    }
+}
+
+/******************************************************************************/
+
 TEST_CASE("Conjugate gradient descent optimizes a flat individual", "[flat][oa]") {
     auto pop = std::make_shared<oa::GConjugateGradientDescent>();
     pop->setNStartingPoints(1);
