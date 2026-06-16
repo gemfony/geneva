@@ -139,7 +139,8 @@ class GConjugateGradientDescent // NOLINT(cppcoreguidelines-special-member-funct
             Gem::Common::make_member("step_size_", step_size_),
             Gem::Common::make_member("gradient_method_", gradient_method_),
             Gem::Common::make_member("error_estimation_", error_estimation_),
-            Gem::Common::make_member("error_up_", error_up_)
+            Gem::Common::make_member("error_up_", error_up_),
+            Gem::Common::make_member("central_differences_", central_differences_)
         );
     }
     auto localMembers() const {
@@ -150,7 +151,8 @@ class GConjugateGradientDescent // NOLINT(cppcoreguidelines-special-member-funct
             Gem::Common::make_member("step_size_", step_size_),
             Gem::Common::make_member("gradient_method_", gradient_method_),
             Gem::Common::make_member("error_estimation_", error_estimation_),
-            Gem::Common::make_member("error_up_", error_up_)
+            Gem::Common::make_member("error_up_", error_up_),
+            Gem::Common::make_member("central_differences_", central_differences_)
         );
     }
 
@@ -195,6 +197,13 @@ public:
     void setGradientMethod(gradientMethod);
     /** @brief Retrieves the search-direction rule currently in use */
     gradientMethod getGradientMethod() const;
+
+    /** @brief Enables the O(h^2) CENTRAL-difference gradient (g_j = (f(x+h)-f(x-h))/2h) instead of the
+     *  default O(h) forward difference. More accurate, but doubles the number of probe evaluations per
+     *  iteration (two perturbed children per direction instead of one). */
+    void setCentralDifferences(bool);
+    /** @brief Whether the central-difference gradient is in use. */
+    [[nodiscard]] bool getCentralDifferences() const;
 
     /** @brief Selects whether/how a MINUIT-style parameter-error estimate is computed at convergence */
     void setErrorEstimation(errorEstimationMode);
@@ -320,6 +329,8 @@ private:
 
     gradientMethod gradient_method_ =
         gradientMethod::CONJUGATE_PR_PLUS; ///< Conjugate (PR+) by default; STEEPEST_DESCENT == the former GD
+
+    bool central_differences_ = false; ///< O(h^2) central gradient (two probes/direction) vs O(h) forward (one)
 
     errorEstimationMode error_estimation_ =
         errorEstimationMode::NONE; ///< Whether to estimate parameter errors at convergence (opt-in)

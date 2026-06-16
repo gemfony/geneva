@@ -237,6 +237,18 @@ gradientMethod GConjugateGradientDescent::getGradientMethod() const {
 }
 
 /******************************************************************************/
+/** @brief Enables/disables the O(h^2) central-difference gradient (doubles the probes per direction). */
+void GConjugateGradientDescent::setCentralDifferences(bool central) {
+    central_differences_ = central;
+}
+
+/******************************************************************************/
+/** @brief Whether the central-difference gradient is in use. */
+bool GConjugateGradientDescent::getCentralDifferences() const {
+    return central_differences_;
+}
+
+/******************************************************************************/
 /** @brief Selects whether/how a MINUIT-style parameter-error estimate is computed at convergence. */
 void GConjugateGradientDescent::setErrorEstimation(errorEstimationMode em) {
     error_estimation_ = em;
@@ -424,37 +436,43 @@ std::tuple<double, double> GConjugateGradientDescent::cycleLogic_() {
 
 /******************************************************************************/
 /**
- * Rebuilds the difference-quotient children of every starting point. Identical
- * in spirit to GGradientDescent::updateChildParameters(): for starting point i
- * and direction j the child at position
+ * Rebuilds the difference-quotient children of every starting point. For starting point i and
+ * direction j the child(ren) at
  *
- *   n_starting_points_ + i * n_fp_parms_first_ + j
+ *   n_starting_points_ + i * children_per_sp + j * n_probes + probe   (children_per_sp = n_fp * n_probes)
  *
- * is a copy of parent i with its j-th active parameter incremented by the
- * (range-scaled) finite step. This produces a forward difference quotient.
+ * are copies of parent i with the j-th active parameter stepped by +h (probe 0, forward) and, for the
+ * central-difference gradient, also -h (probe 1, backward). n_probes is 1 (forward) or 2 (central).
  */
 void GConjugateGradientDescent::updateChildParameters() {
+    // One probe per direction (forward) by default, two (forward + backward) for central differences.
+    // child_pos = n_starting_points_ + i*children_per_sp + j*n_probes + probe; with n_probes == 1 this
+    // collapses to the historical layout n_starting_points_ + i*n_fp + j (the default path is unchanged).
+    const std::size_t n_probes = central_differences_ ? 2 : 1;
+    const std::size_t children_per_sp = n_fp_parms_first_ * n_probes;
     for(std::size_t i = 0; i < n_starting_points_; i++) {
         std::vector<double> parm_vec;
         this->at(i)->individual().streamlineFP(parm_vec, activityMode::ACTIVEONLY);
 
         for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
-            std::size_t child_pos = n_starting_points_ + i * n_fp_parms_first_ + j;
+            const double orig_parm_val = parm_vec[j];
+            for(std::size_t probe = 0; probe < n_probes; probe++) {
+                const std::size_t child_pos =
+                    n_starting_points_ + i * children_per_sp + j * n_probes + probe;
 
-            // Load the current "parent" into the "child"
-            this->at(child_pos)->load(this->at(i));
+                // Load the current "parent" into the "child"
+                this->at(child_pos)->load(this->at(i));
 
-            // Update the child's position in the population
-            this->at(child_pos)
-                ->getPersonalityTraits<GConjugateGradientDescent_PersonalityTraits>()
-                ->setPopulationPosition(child_pos);
+                // Update the child's position in the population
+                this->at(child_pos)
+                    ->getPersonalityTraits<GConjugateGradientDescent_PersonalityTraits>()
+                    ->setPopulationPosition(child_pos);
 
-            double orig_parm_val = parm_vec[j];
-
-            // Add the finite step to the feature vector's current parameter
-            parm_vec[j] += adjusted_finite_step_[j];
-            this->at(child_pos)->individual().assignFPValueVector(parm_vec, activityMode::ACTIVEONLY);
-
+                // probe 0 = forward (+h); probe 1 (central only) = backward (-h)
+                const double sign = (probe == 0) ? 1. : -1.;
+                parm_vec[j] = orig_parm_val + sign * adjusted_finite_step_[j];
+                this->at(child_pos)->individual().assignFPValueVector(parm_vec, activityMode::ACTIVEONLY);
+            }
             // Restore the original value for the next direction
             parm_vec[j] = orig_parm_val;
         }
@@ -537,17 +555,26 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         std::span<double> prev_direction = cg_scratch.metaRecords<double>(AUXKEY_CGD_PREV_DIRECTION);
         std::uint8_t &cg_valid = cg_scratch.metaScalar<std::uint8_t>(AUXKEY_CGD_HISTORY_VALID);
 
-        // 1) Normalised forward-difference gradient g_j = (f(x + h_j e_j) - f(x)) / h_j. Normalising by
-        //    h_j (instead of folding 1/h into the step as the old fixed-step proxy did) makes g a proper
-        //    gradient, so the line search's Armijo test and the conjugate-gradient beta are correctly
-        //    scaled.
+        // 1) Normalised finite-difference gradient. FORWARD: g_j = (f(x+h_j e_j) - f(x)) / h_j (O(h), one
+        //    probe). CENTRAL: g_j = (f(x+h_j e_j) - f(x-h_j e_j)) / (2 h_j) (O(h^2), two probes). Both are
+        //    proper gradients (normalised by the step), so the line search's Armijo test and the
+        //    conjugate-gradient beta are correctly scaled either way.
+        const std::size_t n_probes = central_differences_ ? 2 : 1;
+        const std::size_t children_per_sp = n_fp_parms_first_ * n_probes;
         std::vector<double> gradient(n_fp_parms_first_, 0.);
         for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
-            const std::size_t child_pos = n_starting_points_ + i * n_fp_parms_first_ + j;
             const double h = adjusted_finite_step_[j];
-            if(h > 0.) {
-                gradient[j] =
-                    (minOnly_transformed_fitness(this->at(child_pos)->individual()) - parent_fitness) / h;
+            if(h <= 0.) {
+                continue;
+            }
+            const std::size_t fwd = n_starting_points_ + i * children_per_sp + j * n_probes;
+            const double f_fwd = minOnly_transformed_fitness(this->at(fwd)->individual());
+            if(central_differences_) {
+                const double f_bwd = minOnly_transformed_fitness(this->at(fwd + 1)->individual());
+                gradient[j] = (f_fwd - f_bwd) / (2. * h);
+            }
+            else {
+                gradient[j] = (f_fwd - parent_fitness) / h;
             }
         }
 
@@ -739,6 +766,14 @@ void GConjugateGradientDescent::addConfigurationOptions_(Gem::Common::GParserBui
     ) << "The search-direction rule: 0 = Polak-Ribiere+ conjugate gradient (the default)," << '\n'
       << "1 = plain steepest descent (the former \"gd\"), 2 = Fletcher-Reeves," << '\n'
       << "3 = Hestenes-Stiefel+, 4 = Dai-Yuan";
+
+    gpb.registerFileParameter<bool>(
+        "central_differences",
+        false,
+        [this](bool cd) { this->setCentralDifferences(cd); }
+    ) << "Use the O(h^2) central-difference gradient (two probe evaluations per direction)" << '\n'
+      << "instead of the default O(h) forward difference (one probe). More accurate," << '\n'
+      << "but doubles the per-iteration evaluation cost";
 
     gpb.registerFileParameter<int>(
         "error_estimation",
@@ -985,9 +1020,10 @@ void GConjugateGradientDescent::actOnStalls_() {
 
 /******************************************************************************/
 /**
- * Resizes the population to the desired level and does some error checks.
- * The layout is identical to GGradientDescent:
- * n_starting_points_ * (n_fp_parms_first_ + 1) individuals.
+ * Resizes the population to the desired level and does some error checks. The population is
+ * n_starting_points_ * (n_fp_parms_first_ * n_probes + 1) individuals, where n_probes is 1 (forward
+ * difference) or 2 (central difference): each starting point plus its perturbed difference-quotient
+ * children.
  */
 void GConjugateGradientDescent::adjustPopulation_() {
     std::size_t n_start = this->size();
@@ -1049,8 +1085,11 @@ void GConjugateGradientDescent::adjustPopulation_() {
     }
 #endif
 
+    // Each starting point needs one perturbed child per probe per direction: 1 (forward difference) or
+    // 2 (central difference, forward + backward) probes. Population = starting points + their children.
+    const std::size_t children_per_sp = n_fp_parms_first_ * (central_differences_ ? 2 : 1);
     GOptimizationAlgorithmBase::setDefaultPopulationSize(
-        n_starting_points_ * (n_fp_parms_first_ + 1)
+        n_starting_points_ * (children_per_sp + 1)
     );
 
     // Create the requested number of (randomized) starting points
@@ -1066,18 +1105,18 @@ void GConjugateGradientDescent::adjustPopulation_() {
 
     // Add the difference-quotient children for every starting point
     for(std::size_t i = 0; i < n_starting_points_; i++) {
-        for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
+        for(std::size_t k = 0; k < children_per_sp; k++) {
             this->push_back(this->at(i)->clone_unique());
         }
     }
 
 #ifdef DEBUG
-    if(this->size() != n_starting_points_ * (n_fp_parms_first_ + 1)) {
+    if(this->size() != n_starting_points_ * (children_per_sp + 1)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GConjugateGradientDescent::adjustPopulation():" << '\n'
             << "Population size is " << this->size() << '\n'
-            << "but expected " << n_starting_points_ * (n_fp_parms_first_ + 1) << '\n'
+            << "but expected " << n_starting_points_ * (children_per_sp + 1) << '\n'
         );
     }
 #endif /* DEBUG */
