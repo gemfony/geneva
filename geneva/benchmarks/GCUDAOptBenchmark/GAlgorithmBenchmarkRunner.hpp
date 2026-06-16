@@ -190,7 +190,7 @@ private:
     GBenchmarkRunResult runOne(
         const AlgorithmEntry &entry,
         std::uint32_t runIdx,
-        const std::shared_ptr<gind::GFunctionIndividualFactory> &indFactory
+        const gind::GFunctionIndividual::Config &indCfg
     );
 
     std::shared_ptr<oa::GOptimizationAlgorithmBase>

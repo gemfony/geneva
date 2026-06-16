@@ -140,12 +140,13 @@ int main(int argc, char **argv) {
         new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
     );
 
-    if(initPerimeter) {
-        gfi_ptr->setIM(gind::initMode::INITPERIMETER);
-    }
-    else {
-        gfi_ptr->setIM(gind::initMode::INITRANDOM);
-    }
+    // The initialization mode is a config-file option ("init_mode") of GFunctionIndividual; it is no
+    // longer set programmatically through the factory (the generic GFlatIndividualFactory re-applies its
+    // config file on every produced object, so a setter would not stick). Note that init_mode is vestigial
+    // in the flat-genome model -- the genome carries structure only and the optimization algorithm performs
+    // the random initialization within [min_var, max_var]. The --initPerimeter switch is retained for
+    // command-line compatibility but no longer alters behaviour.
+    (void)initPerimeter;
 
     //---------------------------------------------------------------------------
     // Register pluggable optimization monitors, if requested by the user

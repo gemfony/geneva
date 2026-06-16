@@ -81,8 +81,12 @@ int main(int argc, char **argv) {
     std::string functionCode;
     std::tuple<double, double> varBoundaries;
 
-    // Create a factory for GFunctionIndividual objects
-    gind::GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
+    // Read the GFunctionIndividual configuration once. GFunctionIndividual is a flat individual driven by
+    // the generic GFlatIndividualFactory; this benchmark needs a different genome DIMENSION per row, so it
+    // builds individuals directly through the static hooks (buildGenome / applyConfig / buildAdaptionConfig)
+    // rather than through the factory (whose par_dim comes fixed from the config file).
+    gind::GFunctionIndividual::Config gfiCfg =
+        gind::GFunctionIndividual::readConfig("./config/GFunctionIndividual.json");
 
     for(it = dimVec.begin(); it != dimVec.end(); ++it) {
         // Individual test results go here
@@ -95,15 +99,17 @@ int main(int argc, char **argv) {
         std::cout << "Starting new measurement with dimension " << *it << std::endl;
 
         // Set the appropriate dimension of the function individuals
-        gfi.setParDim(*it);
+        gfiCfg.par_dim = *it;
 
         // Run the desired number of tests
         for(std::size_t test = 0; test < nTests; test++) {
             // Create a Go2-object for the loop
             Go2 go_loop(argc, argv, "./config/Go2.json");
 
-            // Retrieve an individual from the factory
-            std::shared_ptr<gind::GFunctionIndividual> g = gfi.get_as<gind::GFunctionIndividual>();
+            // Build a fresh individual for this dimension, fully configured the way the factory's get_as<>()
+            // would be (base options + demo function from the config file), but with the swept par_dim.
+            std::shared_ptr<gind::GFunctionIndividual> g =
+                gind::GFunctionIndividual::buildConfigured(gfiCfg, "./config/GFunctionIndividual.json");
 
 #ifdef DEBUG
             if(g->getParameterSize() != *it) {
@@ -126,11 +132,15 @@ int main(int argc, char **argv) {
             // Make an individual known to the optimizer
             go_loop.push_back(g);
 
-            // The genome carries only structure; the adaptor lives on an OA-owned config the factory
-            // authors (rebuilt here from g, whose dimension varies per measurement). Register it for the
-            // adapting algorithms (EA / SA).
-            go_loop.registerAdaptionConfig("PERSONALITY_EA", gfi.getAdaptionConfig(*g));
-            go_loop.registerAdaptionConfig("PERSONALITY_SA", gfi.getAdaptionConfig(*g));
+            // The genome carries only structure; the adaptor lives on an OA-owned config built from the
+            // same parameters (rebuilt here from g, whose dimension varies per measurement). Register it
+            // for the adapting algorithms (EA / SA).
+            go_loop.registerAdaptionConfig(
+                "PERSONALITY_EA", gind::GFunctionIndividual::buildAdaptionConfig(*g, gfiCfg)
+            );
+            go_loop.registerAdaptionConfig(
+                "PERSONALITY_SA", gind::GFunctionIndividual::buildAdaptionConfig(*g, gfiCfg)
+            );
 
             // Start recording of time
             startTime = std::chrono::system_clock::now();
@@ -145,7 +155,7 @@ int main(int argc, char **argv) {
             if(it == dimVec.begin() && test == 0) {
                 functionName = gind::GFunctionIndividual::getStringRepresentation(p->getDemoFunction());
                 functionCode = gind::GFunctionIndividual::get2DROOTFunction(p->getDemoFunction());
-                varBoundaries = gfi.getVarBoundaries();
+                varBoundaries = std::tuple<double, double>{gfiCfg.min_var, gfiCfg.max_var};
             }
 
             // Add the fitness to the result vector

@@ -317,10 +317,6 @@ const solverFunction GO_DEF_EVALFUNCTION = solverFunction::PARABOLA;
 constexpr double GFI_DEF_CROSSOVERPROB = 0.5;
 
 /******************************************************************************/
-// Forward declaration
-class GFunctionIndividualFactory;
-
-/******************************************************************************/
 /**
  * @brief An individual that evaluates one of several standard benchmark test functions.
  *
@@ -352,7 +348,7 @@ class GFunctionIndividual
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    using FACTORYTYPE = GFunctionIndividualFactory;
+    using FACTORYTYPE = Gem::Geneva::Parameters::GFlatIndividualFactory<GFunctionIndividual>;
 
     /** @brief The default constructor */
     GFunctionIndividual() = default;
@@ -713,6 +709,13 @@ public:
     /** @brief Reads a GFunctionIndividual config file into a Config (for callers that build directly,
      *  e.g. the dimension-sweeping benchmarks) */
     static Config readConfig(std::filesystem::path const &configFile);
+    /** @brief Builds an individual fully configured the way the factory would: installs the genome from
+     *  @p c (whose par_dim the caller may have overridden) and the demo function, AND applies the base
+     *  GOptimizableEntity options (eval_policy / maxmode / validity thresholds) from @p configFile -- a
+     *  faithful drop-in for factory get_as<>() for callers that need a genome dimension differing from the
+     *  config file (the dimension-sweeping benchmarks). */
+    static std::shared_ptr<GFunctionIndividual>
+    buildConfigured(const Config &c, std::filesystem::path const &configFile);
 
 protected:
     //---------------------------------------------------------------------------
@@ -783,225 +786,14 @@ operator<<(std::ostream &, std::shared_ptr<Gem::Geneva::Individuals::GFunctionIn
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A factory for GFunctionIndividual objects
+ * A factory for GFunctionIndividual objects. The bespoke factory has been replaced by the generic,
+ * config-driven GFlatIndividualFactory; GFunctionIndividual supplies the static describeConfig /
+ * buildGenome / buildAdaptionConfig / applyConfig hooks. The alias keeps existing call sites
+ * (ctor(path), get()/get_as<>(), getAdaptionConfig(), registerContentCreator(), serialization via
+ * GMetaOptimizer) compiling unchanged.
  */
-class GFunctionIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gpar::GOptimizableEntityFactory {
-    ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
-
-    template <class Archive>
-    void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gpar::GOptimizableEntityFactory) &
-            BOOST_SERIALIZATION_NVP(ad_prob_) & BOOST_SERIALIZATION_NVP(adapt_ad_prob_) &
-            BOOST_SERIALIZATION_NVP(min_ad_prob_) & BOOST_SERIALIZATION_NVP(max_ad_prob_) &
-            BOOST_SERIALIZATION_NVP(adaption_threshold_) & BOOST_SERIALIZATION_NVP(use_bi_gaussian_) &
-            BOOST_SERIALIZATION_NVP(sigma1_) & BOOST_SERIALIZATION_NVP(sigma_sigma1_) &
-            BOOST_SERIALIZATION_NVP(min_sigma1_) & BOOST_SERIALIZATION_NVP(max_sigma1_) &
-            BOOST_SERIALIZATION_NVP(sigma2_) & BOOST_SERIALIZATION_NVP(sigma_sigma2_) &
-            BOOST_SERIALIZATION_NVP(min_sigma2_) & BOOST_SERIALIZATION_NVP(max_sigma2_) &
-            BOOST_SERIALIZATION_NVP(delta_) & BOOST_SERIALIZATION_NVP(sigma_delta_) &
-            BOOST_SERIALIZATION_NVP(min_delta_) & BOOST_SERIALIZATION_NVP(max_delta_) &
-            BOOST_SERIALIZATION_NVP(par_dim_) & BOOST_SERIALIZATION_NVP(min_var_) &
-            BOOST_SERIALIZATION_NVP(max_var_) & BOOST_SERIALIZATION_NVP(p_t_) &
-            BOOST_SERIALIZATION_NVP(i_m_);
-    }
-
-    ///////////////////////////////////////////////////////////////////////
-
-public:
-    /** @brief The standard constructor */
-    explicit GFunctionIndividualFactory(std::filesystem::path const &);
-    /** @brief The copy constructor */
-    GFunctionIndividualFactory(const GFunctionIndividualFactory &cp) = default;
-
-    /** @brief The destructor */
-    ~GFunctionIndividualFactory() override = default;
-
-    /** @brief Builds the OA-owned adaption config for a genome produced by this factory: every double
-     *  group gets the configured single-Gauss or bi-Gauss adaptor. The adaptor settings live on the
-     *  OA-owned config (this factory's parameters), not in the structure-only genome layout. */
-    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    getAdaptionConfig(const gpar::GFlatGenome &sample) const;
-
-    //---------------------------------------------------------------------------
-    // Getters and setters
-
-    /** @brief Allows to retrieve the adaption_threshold_ variable */
-    std::uint32_t getAdaptionThreshold() const;
-    /** @brief Set the value of the adaption_threshold_ variable */
-    void setAdaptionThreshold(std::uint32_t adaption_threshold);
-
-    /** @brief Allows to retrieve the adProb_ variable */
-    double getAdProb() const;
-    /** @brief Set the value of the adProb_ variable */
-    void setAdProb(double ad_prob);
-
-    /** @brief Allows to retrieve the iM_ variable */
-    initMode getIM() const;
-    /** @brief Set the value of the iM_ variable */
-    void setIM(initMode im);
-
-    /** @brief Allows to retrieve the parDim_ variable */
-    std::size_t getParDim() const;
-    /** @brief (Re-)Set the dimension of the function */
-    void setParDim(std::size_t);
-
-    /** @brief Allows to retrieve the pT_ variable */
-    parameterType getPT() const;
-    /** @brief Set the value of the pT_ variable */
-    void setPT(parameterType pt);
-
-    /** @brief Allows to retrieve the use_bi_gaussian_ variable */
-    bool getUseBiGaussian() const;
-    /** @brief Set the value of the use_bi_gaussian_ variable */
-    void setUseBiGaussian(bool use_bi_gaussian);
-
-    /** @brief Allows to retrieve the minVar_ variable */
-    double getMinVar() const;
-    /** @brief Allows to retrieve the maxVar_ variable */
-    double getMaxVar() const;
-    /** @brief Extract the minimum and maximum boundaries of the variables */
-    std::tuple<double, double> getVarBoundaries() const;
-    /** @brief Set the minimum and maximum boundaries of the variables */
-    void setVarBoundaries(std::tuple<double, double>);
-
-    /** @brief Allows to retrieve the delta_ variable */
-    double getDelta() const;
-    /** @brief Set the value of the delta_ variable */
-    void setDelta(double delta);
-    /** @brief Allows to retrieve the min_delta_ variable */
-    double getMinDelta() const;
-    /** @brief Allows to retrieve the max_delta_ variable */
-    double getMaxDelta() const;
-    /** @brief Allows to retrieve the allowed value range of delta */
-    std::tuple<double, double> getDeltaRange() const;
-    /** @brief Allows to set the allowed value range of delta */
-    void setDeltaRange(std::tuple<double, double>);
-
-    /** @brief Allows to retrieve the min_sigma1_ variable */
-    double getMinSigma1() const;
-    /** @brief Allows to retrieve the max_sigma1_ variable */
-    double getMaxSigma1() const;
-    /** @brief Allows to retrieve the allowed value range of sigma1_ */
-    std::tuple<double, double> getSigma1Range() const;
-    /** @brief Allows to set the allowed value range of sigma1_ */
-    void setSigma1Range(std::tuple<double, double>);
-
-    /** @brief Allows to retrieve the min_sigma2_ variable */
-    double getMinSigma2() const;
-    /** @brief Allows to retrieve the max_sigma2_ variable */
-    double getMaxSigma2() const;
-    /** @brief Allows to retrieve the allowed value range of sigma2_ */
-    std::tuple<double, double> getSigma2Range() const;
-    /** @brief Allows to set the allowed value range of sigma2_ */
-    void setSigma2Range(std::tuple<double, double>);
-
-    /** @brief Allows to retrieve the sigma1_ variable */
-    double getSigma1() const;
-    /** @brief Set the value of the sigma1_ variable */
-    void setSigma1(double sigma1);
-
-    /** @brief Allows to retrieve the sigma2_ variable */
-    double getSigma2() const;
-    /** @brief Set the value of the sigma2_ variable */
-    void setSigma2(double sigma2);
-
-    /** @brief Allows to retrieve the sigma_delta_ variable */
-    double getSigmaDelta() const;
-    /** @brief Set the value of the sigma_delta_ variable */
-    void setSigmaDelta(double sigma_delta);
-
-    /** @brief Allows to retrieve the sigma_sigma1_ variable */
-    double getSigmaSigma1() const;
-    /** @brief Set the value of the sigma_sigma1_ variable */
-    void setSigmaSigma1(double sigma_sigma1);
-
-    /** @brief Allows to retrieve the sigma_sigma2_ variable */
-    double getSigmaSigma2() const;
-    /** @brief Set the value of the sigma_sigma2_ variable */
-    void setSigmaSigma2(double sigma_sigma2);
-
-    /** @brief Allows to retrieve the rate of evolutionary adaption of adProb_ */
-    double getAdaptAdProb() const;
-    /** @brief Allows to specify an adaption factor for adProb_ (or 0, if you do not want this feature) */
-    void setAdaptAdProb(double adapt_ad_prob);
-
-    /** @brief Allows to retrieve the allowed range for adProb_ variation */
-    std::tuple<double, double> getAdProbRange() const;
-    /** @brief Allows to set the allowed range for adaption probability variation */
-    void setAdProbRange(double min_ad_prob, double max_ad_prob);
-
-    // End of public getters and setters
-    //--------------------------------------------------------------------------
-
-    /** @brief Loads the data of another GFunctionIndividualFactory object */
-    void load(std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>>) override;
-    /** @brief Creates a deep clone of this object */
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>> clone() const override;
-
-protected:
-    /** @brief Allows to describe local configuration options in derived classes */
-    void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
-    /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &) override;
-
-private:
-    /** @brief Creates individuals of this type */
-    std::shared_ptr<gpar::GOptimizableEntity>
-    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
-
-    /** @brief Set the value of the minVar_ variable */
-    void setMinVar(double min_var);
-
-    /** @brief Set the value of the maxVar_ variable */
-    void setMaxVar(double max_var);
-
-    /** @brief Set the value of the min_delta_ variable */
-    void setMinDelta(double min_delta);
-
-    /** @brief Set the value of the max_delta_ variable */
-    void setMaxDelta(double max_delta);
-
-    /** @brief Set the value of the min_sigma1_ variable */
-    void setMinSigma1(double min_sigma1);
-
-    /** @brief Set the value of the max_sigma1_ variable */
-    void setMaxSigma1(double max_sigma1);
-
-    /** @brief Set the value of the min_sigma2_ variable */
-    void setMinSigma2(double min_sigma2);
-
-    /** @brief Set the value of the max_sigma2_ variable */
-    void setMaxSigma2(double max_sigma2);
-
-    /** @brief The default constructor; Only needed for (de-)serialization purposes. */
-    GFunctionIndividualFactory();
-
-    Gem::Common::GOneTimeRefParameterT<double> ad_prob_{GFI_DEF_ADPROB};
-    Gem::Common::GOneTimeRefParameterT<double> adapt_ad_prob_{GFI_DEF_ADAPTADPROB};
-    Gem::Common::GOneTimeRefParameterT<double> min_ad_prob_{GFI_DEF_MINADPROB};
-    Gem::Common::GOneTimeRefParameterT<double> max_ad_prob_{GFI_DEF_MAXADPROB};
-    Gem::Common::GOneTimeRefParameterT<std::uint32_t> adaption_threshold_{GFI_DEF_ADAPTIONTHRESHOLD};
-    Gem::Common::GOneTimeRefParameterT<bool> use_bi_gaussian_{GFI_DEF_USEBIGAUSSIAN};
-    Gem::Common::GOneTimeRefParameterT<double> sigma1_{GFI_DEF_SIGMA1};
-    Gem::Common::GOneTimeRefParameterT<double> sigma_sigma1_{GFI_DEF_SIGMASIGMA1};
-    Gem::Common::GOneTimeRefParameterT<double> min_sigma1_{GFI_DEF_MINSIGMA1};
-    Gem::Common::GOneTimeRefParameterT<double> max_sigma1_{GFI_DEF_MAXSIGMA1};
-    Gem::Common::GOneTimeRefParameterT<double> sigma2_{GFI_DEF_SIGMA2};
-    Gem::Common::GOneTimeRefParameterT<double> sigma_sigma2_{GFI_DEF_SIGMASIGMA2};
-    Gem::Common::GOneTimeRefParameterT<double> min_sigma2_{GFI_DEF_MINSIGMA2};
-    Gem::Common::GOneTimeRefParameterT<double> max_sigma2_{GFI_DEF_MAXSIGMA2};
-    Gem::Common::GOneTimeRefParameterT<double> delta_{GFI_DEF_DELTA};
-    Gem::Common::GOneTimeRefParameterT<double> sigma_delta_{GFI_DEF_SIGMADELTA};
-    Gem::Common::GOneTimeRefParameterT<double> min_delta_{GFI_DEF_MINDELTA};
-    Gem::Common::GOneTimeRefParameterT<double> max_delta_{GFI_DEF_MAXDELTA};
-    Gem::Common::GOneTimeRefParameterT<std::size_t> par_dim_{GFI_DEF_PARDIM};
-    Gem::Common::GOneTimeRefParameterT<double> min_var_{GFI_DEF_MINVAR};
-    Gem::Common::GOneTimeRefParameterT<double> max_var_{GFI_DEF_MAXVAR};
-    Gem::Common::GOneTimeRefParameterT<parameterType> p_t_{GFI_DEF_PARAMETERTYPE};
-    Gem::Common::GOneTimeRefParameterT<initMode> i_m_{GFI_DEF_INITMODE};
-};
+using GFunctionIndividualFactory =
+    Gem::Geneva::Parameters::GFlatIndividualFactory<GFunctionIndividual>;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

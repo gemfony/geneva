@@ -259,8 +259,16 @@ private:
     }
 
     /***************************************************************************/
-    /** @brief The default constructor; only needed for (de-)serialization, hence private */
-    GFlatIndividualFactory() = default;
+    /**
+     * The default constructor; only needed for (de-)serialization, hence private. It hands a placeholder
+     * path to the base (whose own default constructor is private); the real configFile is restored from
+     * the archive by serialize() immediately afterwards. This mirrors the legacy bespoke factories'
+     * default constructors and lets an exported alias (e.g. GFunctionIndividualFactory, serialized as part
+     * of a network-transported GMetaOptimizerIndividualT) be reconstructed.
+     */
+    GFlatIndividualFactory()
+      : GOptimizableEntityFactory("empty") { /* nothing */
+    }
 
     /***************************************************************************/
     // Data

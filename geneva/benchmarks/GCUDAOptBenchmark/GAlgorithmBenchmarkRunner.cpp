@@ -109,9 +109,13 @@ std::vector<GAlgorithmBenchmarkResult> GAlgorithmBenchmarkRunner::run() {
             << "  nRuns=" << cfg_.nRuns
             << std::endl << GLOGGING;
 
-    // Individual factory (shared across all runs)
-    auto indFactory = std::make_shared<gind::GFunctionIndividualFactory>(cfg_.individualConfigFile);
-    indFactory->setParDim(cfg_.nDimensions);
+    // Individual configuration (shared across all runs). GFunctionIndividual is a flat individual driven
+    // by the generic GFlatIndividualFactory; this benchmark needs a specific genome DIMENSION, so it builds
+    // individuals directly through the static hooks rather than through the factory (whose par_dim is fixed
+    // by the config file).
+    gind::GFunctionIndividual::Config indCfg =
+        gind::GFunctionIndividual::readConfig(cfg_.individualConfigFile);
+    indCfg.par_dim = cfg_.nDimensions;
 
     std::vector<GAlgorithmBenchmarkResult> allResults;
     allResults.reserve(cfg_.algorithms.size());
@@ -125,7 +129,7 @@ std::vector<GAlgorithmBenchmarkResult> GAlgorithmBenchmarkRunner::run() {
                 << GLOGGING;
 
         for (std::uint32_t r = 0; r < static_cast<std::uint32_t>(cfg_.nRuns); ++r) {
-            auto result = runOne(entry, r, indFactory);
+            auto result = runOne(entry, r, indCfg);
             std::cout << "  run " << r
                       << "  fitness=" << result.finalFitness
                       << "  iter=" << result.iterationsConsumed
@@ -148,7 +152,7 @@ std::vector<GAlgorithmBenchmarkResult> GAlgorithmBenchmarkRunner::run() {
 GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(
     const AlgorithmEntry &entry,
     std::uint32_t runIdx,
-    const std::shared_ptr<gind::GFunctionIndividualFactory> &indFactory
+    const gind::GFunctionIndividual::Config &indCfg
 ) {
     // Create algorithm from factory + config file
     auto alg = makeAlgorithm(entry);
@@ -161,17 +165,18 @@ GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(
     auto monitor = std::make_shared<GBenchmarkTerminationMonitor>();
     alg->registerPluggableOM(monitor);
 
-    // Create individual and set demo function.
+    // Build a fresh individual fully configured the way the factory's get_as<>() would be (base options
+    // from the config file), with the benchmark's genome dimension, then set its demo function.
     // benchmarkFunction overrides whatever GFunctionIndividual.json specifies;
     // an unrecognised name is a fatal config error, not a silent fallback.
-    auto ind = indFactory->get_as<gind::GFunctionIndividual>();
+    auto ind = gind::GFunctionIndividual::buildConfigured(indCfg, cfg_.individualConfigFile);
     ind->setDemoFunction(parseBenchmarkFunction(cfg_.functionName));
     alg->push_back(ind->clone_unique());
 
-    // The genome carries only structure; its Gauss / bi-Gauss adaptor lives on an OA-owned config the
-    // factory authors. Hand it to the algorithm (a no-op for non-adapting algorithms like swarm / CGD;
-    // adopted by EA / SA, which otherwise hard-error at init() for want of an explicit config).
-    alg->setAdaptionConfig(indFactory->getAdaptionConfig(*ind));
+    // The genome carries only structure; its Gauss / bi-Gauss adaptor lives on an OA-owned config built
+    // from the same parameters. Hand it to the algorithm (a no-op for non-adapting algorithms like swarm /
+    // CGD; adopted by EA / SA, which otherwise hard-error at init() for want of an explicit config).
+    alg->setAdaptionConfig(gind::GFunctionIndividual::buildAdaptionConfig(*ind, indCfg));
 
     // Time the optimization
     const auto t0 = std::chrono::steady_clock::now();

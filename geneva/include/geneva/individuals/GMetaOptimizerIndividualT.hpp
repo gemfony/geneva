@@ -756,16 +756,13 @@ protected:
         }
 #endif
 
-        // Set the parameters
+        // Derive the sub-individuals' adaptor settings from the meta-optimised parameters.
         double min_sigma = dv.at(dblIndex(MOT_MINSIGMA));
         double sigma_range = dv.at(dblIndex(MOT_SIGMARANGE));
         double max_sigma = min_sigma + sigma_range;
         double sigma_range_percentage = dv.at(dblIndex(MOT_SIGMARANGEPERCENTAGE));
         double start_sigma = min_sigma + sigma_range_percentage * sigma_range;
-
-        ind_factory_->setSigma1Range(std::tuple<double, double>(min_sigma, max_sigma));
-        ind_factory_->setSigma1(start_sigma);
-        ind_factory_->setSigmaSigma1(dv.at(dblIndex(MOT_SIGMASIGMA)));
+        double sigma_sigma = dv.at(dblIndex(MOT_SIGMASIGMA));
 
         double min_ad_prob = dv.at(dblIndex(MOT_MINADPROB));
         double ad_prob_range = dv.at(dblIndex(MOT_ADPROBRANGE));
@@ -775,19 +772,25 @@ protected:
 
         double adapt_ad_prob = dv.at(dblIndex(MOT_ADAPTADPROB));
 
-        ind_factory_->setAdProbRange(min_ad_prob, max_ad_prob);
-        ind_factory_->setAdProb(start_ad_prob);
-        ind_factory_->setAdaptAdProb(adapt_ad_prob);
-
         // Set up a population factory for serial execution
         oa::GEvolutionaryAlgorithmFactory ea(sub_ea_config_);
 
-        // The sub-individuals' adaptors live on an OA-owned config (their genome is structure-only). Build
-        // it once from a sample -- it reflects the meta-chosen adaptor settings just pushed into
-        // ind_factory_ above -- and hand it to each inner EA so it adapts the sub-individuals.
-        auto sub_adaption_config = ind_factory_->getAdaptionConfig(
+        // The sub-individuals' adaptors live on an OA-owned config (their genome is structure-only). The
+        // meta individual OWNS the adaptor parameters it optimises, so it authors that config INLINE here
+        // (the inner individuals are single-Gauss). This used to be done by pushing the values into
+        // ind_factory_ via setters and calling ind_factory_->getAdaptionConfig(); but the generic
+        // GFlatIndividualFactory re-applies its config file on every get_(), so programmatic setters would
+        // not stick -- hence the factory now only produces structure-only genomes and the config is built
+        // here from a sample genome.
+        auto sub_adaption_config = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(
             dynamic_cast<const gpar::GFlatGenome &>(*ind_factory_->get())
         );
+        for(std::size_t i = 0; i < sub_adaption_config->doubleGroups().size(); i++) {
+            sub_adaption_config->groupDouble(i).gauss(
+                start_sigma, sigma_sigma, min_sigma, max_sigma, start_ad_prob, adapt_ad_prob, 1,
+                Gem::Geneva::adaptionMode::WITHPROBABILITY, min_ad_prob, max_ad_prob
+            );
+        }
 
         // Run the required number of optimizations
         std::shared_ptr<oa::GEvolutionaryAlgorithm> ea_ptr;
