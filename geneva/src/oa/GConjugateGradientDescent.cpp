@@ -715,7 +715,8 @@ void GConjugateGradientDescent::addConfigurationOptions_(Gem::Common::GParserBui
         [this](int em) { this->setErrorEstimation(static_cast<errorEstimationMode>(em)); }
     ) << "MINUIT-style parameter-error estimate at convergence:" << '\n'
       << "0 = none (default), 1 = diagonal (parabolic) errors," << '\n'
-      << "2 = full Hessian -> covariance (small dimension only)";
+      << "2 = full Hessian -> covariance (small dimension only)," << '\n'
+      << "3 = MINOS asymmetric (profiled) errors (small dimension only)";
 
     gpb.registerFileParameter<double>(
         "error_definition",
@@ -886,7 +887,11 @@ void GConjugateGradientDescent::finalize() {
 
         GHesseErrorOptions opts;
         opts.up = error_up_;
-        opts.full_covariance = (error_estimation_ == errorEstimationMode::FULL);
+        // FULL and MINOS both build the covariance (MINOS seeds its profile brackets from the
+        // correlation-aware sigma); MINOS additionally computes the asymmetric profiled bounds.
+        opts.full_covariance = (error_estimation_ == errorEstimationMode::FULL ||
+                                error_estimation_ == errorEstimationMode::MINOS);
+        opts.minos = (error_estimation_ == errorEstimationMode::MINOS);
 
         const std::size_t best_point = best;
         GHesseError estimator;

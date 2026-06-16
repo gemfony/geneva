@@ -83,7 +83,8 @@ std::istream &operator>>(std::istream &, gradientMethod &);
 enum class errorEstimationMode : std::uint8_t {
     NONE = 0,     ///< No error estimate (the default)
     DIAGONAL = 1, ///< Cheap, always-affordable parameter-fixed (parabolic) errors from the Hessian diagonal
-    FULL = 2      ///< Full Hessian -> covariance -> correlation-aware errors (small dimension only)
+    FULL = 2,     ///< Full Hessian -> covariance -> correlation-aware errors (small dimension only)
+    MINOS = 3     ///< MINOS asymmetric errors: profiled (re-minimised) UP-contour bounds, low dimension only
 };
 
 /** @brief Streams an errorEstimationMode (as its underlying integer); required by the comparison framework. */

@@ -29,7 +29,11 @@
 
 #include "geneva/oa/GHesseError.hpp"
 
+#include "geneva/oa/GLineSearch.hpp" // reused as the 1D step of the MINOS inner re-minimiser
+
+#include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <utility>
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -48,6 +52,106 @@ std::vector<double> perturb2(std::vector<double> x, std::size_t i, double di, st
     x[i] += di;
     x[j] += dj;
     return x;
+}
+
+/**
+ * @brief The PROFILED objective g(x_j) for MINOS: the minimum of F over all parameters EXCEPT @p jfix
+ * (held at @p xjval). Implemented as finite-difference steepest descent whose 1D step REUSES GLineSearch
+ * (the same line minimiser the CGD algorithm uses). The search direction always has a zero @p jfix
+ * component, so the fixed parameter never moves. Starts from @p x_min. Accumulates evaluations into
+ * @p n_evals.
+ */
+double profileMin(
+    GHesseError::eval_fn_t const &eval_fn,
+    std::vector<double> x,
+    std::size_t jfix,
+    double xjval,
+    std::vector<double> const &step_sizes,
+    std::size_t &n_evals
+) {
+    const std::size_t n = x.size();
+    x[jfix] = xjval;
+    double f = eval_fn({x})[0];
+    ++n_evals;
+    if(n <= 1) {
+        return f; // single parameter: nothing to minimise over
+    }
+
+    const GLineSearch line_search;
+    const GLineSearchOptions ls_opts;
+    constexpr std::size_t max_inner = 100;
+    for(std::size_t it = 0; it < max_inner; ++it) {
+        // Central finite-difference gradient over the FREE parameters (the jfix component stays 0).
+        std::vector<std::vector<double>> pts;
+        std::vector<std::size_t> idx;
+        pts.reserve(2 * (n - 1));
+        for(std::size_t k = 0; k < n; ++k) {
+            if(k == jfix) {
+                continue;
+            }
+            const double h = (step_sizes[k] > 0.) ? step_sizes[k] : 1.e-6;
+            pts.push_back(perturb1(x, k, h));
+            pts.push_back(perturb1(x, k, -h));
+            idx.push_back(k);
+        }
+        const std::vector<double> gv = eval_fn(pts);
+        n_evals += pts.size();
+
+        std::vector<double> dir(n, 0.);
+        double gnorm2 = 0.;
+        for(std::size_t a = 0; a < idx.size(); ++a) {
+            const std::size_t k = idx[a];
+            const double h = (step_sizes[k] > 0.) ? step_sizes[k] : 1.e-6;
+            const double gk = (gv[2 * a] - gv[2 * a + 1]) / (2. * h);
+            dir[k] = -gk;
+            gnorm2 += gk * gk;
+        }
+        if(gnorm2 <= 1.e-18) {
+            break; // already at the free minimum
+        }
+        const GLineSearchResult r = line_search.search(eval_fn, x, dir, f, -gnorm2, ls_opts);
+        n_evals += r.n_evaluations;
+        if(not r.success || r.f_new >= f) {
+            break; // no further progress
+        }
+        x = r.x_new; // dir[jfix] == 0, so x[jfix] stays == xjval
+        f = r.f_new;
+    }
+    return f;
+}
+
+/**
+ * @brief Brackets and bisects the MINOS bound on one side: given @p g(x_j) = profiled_objective - target
+ * (so g(x0) < 0 at the minimum), find the distance from @p x0 to where g crosses 0, expanding from an
+ * initial @p sigma_step (signed; the symmetric HESSE error on that side). Returns the positive magnitude.
+ */
+template <typename G>
+double minosBound(G &&g, double x0, double sigma_step) {
+    double a = x0; // g(a) < 0 (the minimum lies below target)
+    double b = x0 + sigma_step;
+    double gb = g(b);
+    std::size_t expand = 0;
+    while(gb < 0. && expand < 25) {
+        b = x0 + (b - x0) * 1.6;
+        gb = g(b);
+        ++expand;
+    }
+    if(gb < 0.) {
+        return std::abs(b - x0); // could not bracket within budget -> best effort
+    }
+    for(std::size_t it = 0; it < 50; ++it) {
+        const double mid = 0.5 * (a + b);
+        if(g(mid) > 0.) {
+            b = mid;
+        }
+        else {
+            a = mid;
+        }
+        if(std::abs(b - a) <= 1.e-9 * (std::abs(x0) + 1.e-9)) {
+            break;
+        }
+    }
+    return std::abs(0.5 * (a + b) - x0);
 }
 
 /**
@@ -232,6 +336,30 @@ GHesseErrorResult GHesseError::estimate(
             }
             result.covariance_valid = all_positive;
         }
+    }
+
+    // --- optional MINOS asymmetric errors (profiled, low dimension only) ----------------------------
+    // For each parameter j and each side, find the distance from x_min[j] to where the PROFILE of the
+    // objective (re-minimised over all other parameters) rises by UP. Seeded from the symmetric error
+    // parameter_errors[j]. Opt-in and expensive (each bound runs repeated re-minimisations).
+    if(opts.minos && result.valid && n <= opts.max_full_dim) {
+        result.minos_low.assign(n, 0.);
+        result.minos_high.assign(n, 0.);
+        const double target = f_min + opts.up;
+        bool any = false;
+        for(std::size_t j = 0; j < n; ++j) {
+            const double sigma = result.parameter_errors[j];
+            if(sigma <= 0.) {
+                continue; // no curvature / flat direction -> cannot bracket
+            }
+            auto gdev = [&](double xj) {
+                return profileMin(eval_fn, x_min, j, xj, step_sizes, result.n_evaluations) - target;
+            };
+            result.minos_high[j] = minosBound(gdev, x_min[j], sigma);
+            result.minos_low[j] = minosBound(gdev, x_min[j], -sigma);
+            any = true;
+        }
+        result.minos_valid = any;
     }
 
     return result;

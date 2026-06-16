@@ -59,6 +59,11 @@ struct GHesseErrorOptions {
     /** @brief The dimension above which a full Hessian is never attempted (it costs O(n^2)
      *  evaluations), regardless of full_covariance. */
     std::size_t max_full_dim = 64;
+    /** @brief When true (and dimension <= max_full_dim), compute MINUIT-style MINOS asymmetric errors:
+     *  per parameter, the points where the PROFILE of the objective (re-minimised over all other
+     *  parameters) rises by UP above the minimum. Captures non-parabolic / correlated minima. Opt-in
+     *  and expensive -- each bound costs repeated re-minimisations. */
+    bool minos = false;
 };
 
 /******************************************************************************/
@@ -81,6 +86,14 @@ struct GHesseErrorResult {
     /** @brief A conditioning proxy: the ratio of the largest to the smallest diagonal Hessian entry.
      *  A large value flags an ill-conditioned (flat-direction) minimum. */
     double condition_number = 0.;
+    /** @brief MINOS asymmetric errors (filled only when opts.minos succeeded). minos_low[j] / minos_high[j]
+     *  are the POSITIVE distances from x_min[j] to where the profiled objective rises by UP on the low /
+     *  high side. For a parabolic, uncorrelated minimum they both approach the symmetric parameter_errors[j].
+     *  An entry is 0 for a parameter that could not be bracketed (e.g. non-positive curvature). */
+    std::vector<double> minos_low;
+    std::vector<double> minos_high;
+    /** @brief Whether MINOS asymmetric errors were produced. */
+    bool minos_valid = false;
     /** @brief The number of objective evaluations consumed. */
     std::size_t n_evaluations = 0;
 };
