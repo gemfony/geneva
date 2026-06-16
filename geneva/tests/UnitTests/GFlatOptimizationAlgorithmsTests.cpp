@@ -683,6 +683,25 @@ TEST_CASE("Nelder-Mead optimizes a flat individual", "[flat][oa]") {
 
 /******************************************************************************/
 
+TEST_CASE("Nelder-Mead with oriented restart still converges", "[flat][oa]") {
+    // Enabling the oriented restart must not break convergence: on a unimodal sphere a
+    // restart re-explores around the best vertex and re-converges to the same optimum.
+    auto pop = std::make_shared<oa::GNelderMead>();
+    pop->setMaxIteration(300);
+    pop->setReportIteration(100000);
+    pop->setRestartThreshold(5); // restart every 5 stalled iterations
+    pop->push_back(FlatSphereOA().clone_unique());
+    pop->setLocalConsumer(oa::local_consumer_kind::serial);
+    pop->optimize();
+
+    CHECK(pop->getRestartThreshold() == 5);
+    auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+    REQUIRE(best);
+    CHECK(bestSphere(best) < 5.0);
+}
+
+/******************************************************************************/
+
 TEST_CASE("Parameter scan sweeps a flat individual", "[flat][oa]") {
     auto pop = std::make_shared<oa::GParameterScan>();
     // A 5-step grid per dimension over [-5, 5] includes 0, so the sphere optimum is on the grid.

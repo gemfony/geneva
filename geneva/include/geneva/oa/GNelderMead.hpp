@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <cstdint>
 #include <memory>
 #include <tuple>
 #include <vector>
@@ -66,13 +67,16 @@ constexpr double DEFAULTNMGAMMA = 2.0;   ///< Expansion coefficient
 constexpr double DEFAULTNMRHO = 0.5;     ///< Contraction coefficient
 constexpr double DEFAULTNMSIGMA = 0.5;   ///< Shrink coefficient
 constexpr double DEFAULTNMINITIALEDGE = 0.1; ///< Initial simplex edge (fraction of range)
+constexpr std::uint32_t DEFAULTNMRESTARTTHRESHOLD = 0; ///< Stall count triggering an oriented restart (0 = disabled)
 
-/** @brief Number of speculative trial points evaluated per simplex and iteration */
-constexpr std::size_t NM_NTRIALS = 3;
+/** @brief Number of speculative trial points evaluated per simplex and iteration
+ *  (reflection, expansion, inside contraction, outside contraction). */
+constexpr std::size_t NM_NTRIALS = 4;
 /** @brief Trial slot offsets within a simplex block */
 constexpr std::size_t NM_REFLECT = 0;
 constexpr std::size_t NM_EXPAND = 1;
-constexpr std::size_t NM_CONTRACT = 2;
+constexpr std::size_t NM_CONTRACT = 2;  ///< inside contraction
+constexpr std::size_t NM_OCONTRACT = 3; ///< outside contraction
 
 /******************************************************************************/
 /**
@@ -84,21 +88,26 @@ constexpr std::size_t NM_CONTRACT = 2;
  * A simplex in an n-dimensional parameter space has n+1 vertices. The
  * population layout per simplex is
  *
- *   [ v_0 ... v_n | reflect | expand | contract ]
+ *   [ v_0 ... v_n | reflect | expand | inside-contract | outside-contract ]
  *
- * i.e. n+1 vertices plus 3 speculative trial slots, giving a block size of
- * nFPParms + 4. n_simplices_ such blocks are run simultaneously (analogous to
+ * i.e. n+1 vertices plus 4 speculative trial slots, giving a block size of
+ * nFPParms + 5. n_simplices_ such blocks are run simultaneously (analogous to
  * the multiple starting points of the gradient descents).
  *
  * Because Geneva evaluates a fixed population per iteration through the
  * broker, the classical *sequential* simplex moves are mapped onto a batch
- * scheme: in every iteration the reflection, expansion and inside-contraction
- * candidates are proposed and submitted together with the vertices, and the
- * standard Nelder-Mead acceptance rules are applied in the next iteration once
- * their fitnesses are known. This introduces a one-iteration evaluation lag
- * (the same approximation style used by GGradientDescent's difference
- * quotients) and converges to a local optimum without any gradient
- * information.
+ * scheme: in every iteration the reflection, expansion and both (inside and
+ * outside) contraction candidates are proposed and submitted together with the
+ * vertices, and the standard Nelder-Mead acceptance rules are applied in the
+ * next iteration once their fitnesses are known. This introduces a
+ * one-iteration evaluation lag (the same approximation style used by
+ * GGradientDescent's difference quotients) and converges to a local optimum
+ * without any gradient information.
+ *
+ * An optional oriented restart (setRestartThreshold(), config "restart_threshold")
+ * rebuilds every simplex around its best vertex, oriented down the local descent
+ * direction, after the run has stalled for that many iterations. It escapes a
+ * degenerate simplex collapse; at a genuine optimum it simply re-converges.
  */
 class GNelderMead // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmBase {
@@ -114,7 +123,8 @@ class GNelderMead // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_member("gamma_", gamma_),
             Gem::Common::make_member("rho_", rho_),
             Gem::Common::make_member("sigma_", sigma_),
-            Gem::Common::make_member("initial_edge_", initial_edge_)
+            Gem::Common::make_member("initial_edge_", initial_edge_),
+            Gem::Common::make_member("restart_threshold_", restart_threshold_)
         );
     }
     auto localMembers() const {
@@ -125,7 +135,8 @@ class GNelderMead // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_member("gamma_", gamma_),
             Gem::Common::make_member("rho_", rho_),
             Gem::Common::make_member("sigma_", sigma_),
-            Gem::Common::make_member("initial_edge_", initial_edge_)
+            Gem::Common::make_member("initial_edge_", initial_edge_),
+            Gem::Common::make_member("restart_threshold_", restart_threshold_)
         );
     }
 
@@ -176,6 +187,10 @@ public:
     void setInitialEdge(double);
     /** @brief Retrieves the relative size of the initial simplex */
     double getInitialEdge() const;
+    /** @brief Sets the stall count after which an oriented restart is performed (0 = disabled) */
+    void setRestartThreshold(std::uint32_t);
+    /** @brief Retrieves the oriented-restart stall threshold */
+    std::uint32_t getRestartThreshold() const;
 
 protected:
     /***************************************************************************/
@@ -265,6 +280,12 @@ private:
     void markIndividualPositions();
     /** @brief Builds the initial (non-degenerate) simplices around the seed vertices */
     void buildInitialSimplices();
+    /** @brief Rebuilds every simplex around its best vertex, oriented down the local descent
+     *  direction. Used to escape a degenerate collapse once the run has stalled. Returns true
+     *  if at least one simplex was restarted (its vertices then need re-evaluation). */
+    bool restartSimplices();
+    /** @brief Shrinks simplex s by moving every non-best vertex towards the best vertex b */
+    void shrinkTowardsBest(std::size_t s, std::size_t b);
 
     /** @brief Convenience: population index of vertex v in simplex s */
     std::size_t vertexPos(std::size_t s, std::size_t v) const;
@@ -285,6 +306,8 @@ private:
     double rho_ = DEFAULTNMRHO;                 ///< Contraction coefficient
     double sigma_ = DEFAULTNMSIGMA;             ///< Shrink coefficient
     double initial_edge_ = DEFAULTNMINITIALEDGE; ///< Initial simplex edge (fraction of range)
+    std::uint32_t restart_threshold_ =
+        DEFAULTNMRESTARTTHRESHOLD; ///< Stall count triggering an oriented restart (0 = disabled)
 
     std::vector<double>
         dbl_lower_parameter_boundaries_; ///< Lower boundaries of double parameters; extracted in init() (transient)

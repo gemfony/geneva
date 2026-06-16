@@ -181,6 +181,17 @@ double GNelderMead::getInitialEdge() const {
 }
 
 /******************************************************************************/
+/** Sets the stall count after which an oriented restart is performed (0 = disabled) */
+void GNelderMead::setRestartThreshold(std::uint32_t restart_threshold) {
+    restart_threshold_ = restart_threshold;
+}
+
+/******************************************************************************/
+std::uint32_t GNelderMead::getRestartThreshold() const {
+    return restart_threshold_;
+}
+
+/******************************************************************************/
 /** Number of population slots used per simplex (vertices + trial slots) */
 std::size_t GNelderMead::simplexBlockSize() const {
     return n_fp_parms_first_ + 1 + NM_NTRIALS;
@@ -285,6 +296,19 @@ GOptimizationAlgorithmBase *GNelderMead::clone_() const {
  * @return The value of the best vertex found in this iteration
  */
 std::tuple<double, double> GNelderMead::cycleLogic_() {
+    // Oriented restart on stagnation (opt-in). Fires once every restart_threshold_
+    // stalled iterations: rebuild each simplex around its best vertex so a degenerate
+    // collapse can be escaped. The restarted vertices invalidate any pending trials, so
+    // the decision is skipped and fresh trials are proposed below. Done here (not in
+    // actOnStalls_, which must not dirty individuals) because the whole population is
+    // re-evaluated this iteration anyway.
+    if(restart_threshold_ != 0 && afterFirstIteration() &&
+       getStallCounter() >= restart_threshold_ && (getStallCounter() % restart_threshold_ == 0)) {
+        if(this->restartSimplices()) {
+            trials_pending_ = false;
+        }
+    }
+
     if(afterFirstIteration() && trials_pending_) {
         this->applyNelderMeadDecision();
     }
@@ -323,10 +347,11 @@ std::tuple<double, double> GNelderMead::cycleLogic_() {
 
 /******************************************************************************/
 /**
- * Proposes the reflection, expansion and inside-contraction trial points for
- * every simplex. The worst vertex and the centroid of the remaining vertices
- * are determined from the most recent evaluation; the three candidates are
- * written into the trial slots so they are evaluated in this iteration.
+ * Proposes the reflection, expansion, inside-contraction and outside-contraction
+ * trial points for every simplex. The worst vertex and the centroid of the
+ * remaining vertices are determined from the most recent evaluation; the four
+ * candidates are written into the trial slots so they are evaluated in this
+ * iteration. The acceptance rules (next iteration) then pick at most one of them.
  */
 void GNelderMead::proposeTrials() {
     for(std::size_t s = 0; s < n_simplices_; s++) {
@@ -380,10 +405,12 @@ void GNelderMead::proposeTrials() {
         std::vector<double> reflect(n_fp_parms_first_);
         std::vector<double> expand(n_fp_parms_first_);
         std::vector<double> contract(n_fp_parms_first_);
+        std::vector<double> ocontract(n_fp_parms_first_);
         for(std::size_t k = 0; k < n_fp_parms_first_; k++) {
             reflect[k] = centroid[k] + alpha_ * (centroid[k] - xw[k]);
             expand[k] = centroid[k] + gamma_ * (centroid[k] - xw[k]);
-            contract[k] = centroid[k] + rho_ * (xw[k] - centroid[k]); // inside contraction
+            contract[k] = centroid[k] + rho_ * (xw[k] - centroid[k]);   // inside  contraction
+            ocontract[k] = centroid[k] + rho_ * (reflect[k] - centroid[k]); // outside contraction
         }
 
         this->at(trialPos(s, NM_REFLECT))
@@ -392,6 +419,8 @@ void GNelderMead::proposeTrials() {
             ->individual().assignFPValueVector(expand, activityMode::ACTIVEONLY);
         this->at(trialPos(s, NM_CONTRACT))
             ->individual().assignFPValueVector(contract, activityMode::ACTIVEONLY);
+        this->at(trialPos(s, NM_OCONTRACT))
+            ->individual().assignFPValueVector(ocontract, activityMode::ACTIVEONLY);
     }
 }
 
@@ -444,6 +473,7 @@ void GNelderMead::applyNelderMeadDecision() {
         const double f_r = minOnly_transformed_fitness(this->at(trialPos(s, NM_REFLECT))->individual());
         const double f_e = minOnly_transformed_fitness(this->at(trialPos(s, NM_EXPAND))->individual());
         const double f_c = minOnly_transformed_fitness(this->at(trialPos(s, NM_CONTRACT))->individual());
+        const double f_oc = minOnly_transformed_fitness(this->at(trialPos(s, NM_OCONTRACT))->individual());
 
         auto accept_trial_into_worst = [&](std::size_t trial_slot) {
             this->at(vertexPos(s, w))->individual().load(this->at(trialPos(s, trial_slot))->individualPtr());
@@ -465,35 +495,52 @@ void GNelderMead::applyNelderMeadDecision() {
             // Reflection is an improvement (but not the best) -> accept it
             accept_trial_into_worst(NM_REFLECT);
         }
+        else if(f_r < f_worst) {
+            // f_second <= f_r < f_worst: try the OUTSIDE contraction (between the
+            // centroid and the reflected point). Accept it if it is no worse than
+            // the reflection, otherwise shrink.
+            if(f_oc <= f_r) {
+                accept_trial_into_worst(NM_OCONTRACT);
+            }
+            else {
+                shrinkTowardsBest(s, b);
+            }
+        }
         else {
-            // Contraction. Only the inside contraction is evaluated here; it is
-            // accepted if it improves on both the worst vertex and the
-            // reflection, otherwise the simplex is shrunk towards the best
-            // vertex. (Outside contraction is intentionally approximated by the
-            // reflection/inside-contraction pair -- see the accompanying docs.)
-            const double accept_threshold = std::min(f_worst, f_r);
-            if(f_c < accept_threshold) {
+            // f_r >= f_worst: try the INSIDE contraction (between the centroid and
+            // the worst vertex). Accept it if it improves on the worst vertex,
+            // otherwise shrink the simplex towards the best vertex.
+            if(f_c < f_worst) {
                 accept_trial_into_worst(NM_CONTRACT);
             }
             else {
-                // Shrink: move every non-best vertex towards the best vertex
-                std::vector<double> xb;
-                this->at(vertexPos(s, b))->individual().streamlineFP(xb, activityMode::ACTIVEONLY);
-                for(std::size_t v = 0; v < n_vert; v++) {
-                    if(v == b) {
-                        continue;
-                    }
-                    std::vector<double> xv;
-                    this->at(vertexPos(s, v))
-                        ->individual().streamlineFP(xv, activityMode::ACTIVEONLY);
-                    for(std::size_t k = 0; k < n_fp_parms_first_; k++) {
-                        xv[k] = xb[k] + sigma_ * (xv[k] - xb[k]);
-                    }
-                    this->at(vertexPos(s, v))
-                        ->individual().assignFPValueVector(xv, activityMode::ACTIVEONLY);
-                }
+                shrinkTowardsBest(s, b);
             }
         }
+    }
+}
+
+/******************************************************************************/
+/**
+ * Shrinks simplex s by moving every non-best vertex a fraction sigma_ of the way
+ * towards the best vertex b. The shrunk vertices are left unevaluated (their
+ * stored fitness is now stale); they are re-evaluated by runFitnessCalculation_()
+ * later in the same iteration.
+ */
+void GNelderMead::shrinkTowardsBest(std::size_t s, std::size_t b) {
+    const std::size_t n_vert = n_fp_parms_first_ + 1;
+    std::vector<double> xb;
+    this->at(vertexPos(s, b))->individual().streamlineFP(xb, activityMode::ACTIVEONLY);
+    for(std::size_t v = 0; v < n_vert; v++) {
+        if(v == b) {
+            continue;
+        }
+        std::vector<double> xv;
+        this->at(vertexPos(s, v))->individual().streamlineFP(xv, activityMode::ACTIVEONLY);
+        for(std::size_t k = 0; k < n_fp_parms_first_; k++) {
+            xv[k] = xb[k] + sigma_ * (xv[k] - xb[k]);
+        }
+        this->at(vertexPos(s, v))->individual().assignFPValueVector(xv, activityMode::ACTIVEONLY);
     }
 }
 
@@ -541,6 +588,13 @@ void GNelderMead::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     ) << "Relative size of the initial simplex,"
       << '\n'
       << "as a fraction of each parameter's value range";
+
+    gpb.registerFileParameter<std::uint32_t>(
+        "restart_threshold",
+        DEFAULTNMRESTARTTHRESHOLD,
+        [this](std::uint32_t rt) { this->setRestartThreshold(rt); }
+    ) << "Stall count after which the simplices are restarted (oriented, around" << '\n'
+      << "the best vertex) to escape a degenerate collapse. 0 disables restarts";
 }
 
 /******************************************************************************/
@@ -629,6 +683,90 @@ void GNelderMead::buildInitialSimplices() {
             this->at(trialPos(s, t))->individual().assignFPValueVector(p0, activityMode::ACTIVEONLY);
         }
     }
+}
+
+/******************************************************************************/
+/**
+ * Rebuilds every simplex around its current best vertex to escape a degenerate
+ * collapse (vertices that have become near-coplanar so the simplex can no longer
+ * explore some directions). Called from cycleLogic_() once the run has stalled
+ * for restart_threshold_ iterations.
+ *
+ * The restart is *oriented*: each of the n new vertices perturbs one coordinate
+ * of the best vertex, and the sign of the perturbation follows the local descent
+ * estimate -- the direction from the centroid of the other vertices towards the
+ * best vertex (which, the best being the lowest, is the downhill direction). This
+ * biases the fresh simplex down the slope instead of re-exploring symmetrically,
+ * so it is far less likely to immediately re-collapse. The edge length is the same
+ * fraction (initial_edge_) of the parameter range used by buildInitialSimplices().
+ *
+ * Only the n non-best vertices are moved (and thereby invalidated); the best
+ * vertex -- and hence the best-so-far recorded globally -- is preserved, so a
+ * restart can never worsen the reported result.
+ */
+bool GNelderMead::restartSimplices() {
+    const std::size_t n_vert = n_fp_parms_first_ + 1;
+    for(std::size_t s = 0; s < n_simplices_; s++) {
+        // Best vertex and the centroid of the remaining vertices (for the descent orientation).
+        std::vector<std::vector<double>> vparm(n_vert);
+        std::vector<double> vfit(n_vert);
+        for(std::size_t v = 0; v < n_vert; v++) {
+            auto &ind = this->at(vertexPos(s, v));
+            ind->individual().streamlineFP(vparm[v], activityMode::ACTIVEONLY);
+            vfit[v] = minOnly_transformed_fitness(ind->individual());
+        }
+        std::size_t b = 0;
+        for(std::size_t v = 1; v < n_vert; v++) {
+            if(vfit[v] < vfit[b]) {
+                b = v;
+            }
+        }
+
+        std::vector<double> centroid(n_fp_parms_first_, 0.);
+        for(std::size_t v = 0; v < n_vert; v++) {
+            if(v == b) {
+                continue;
+            }
+            for(std::size_t k = 0; k < n_fp_parms_first_; k++) {
+                centroid[k] += vparm[v][k];
+            }
+        }
+        const double denom = static_cast<double>(n_vert - 1);
+        for(std::size_t k = 0; k < n_fp_parms_first_; k++) {
+            centroid[k] /= denom;
+        }
+
+        const std::vector<double> &xb = vparm[b];
+
+        // Rebuild the n non-best vertices around xb, one perturbed coordinate each.
+        std::size_t k = 0; // coordinate assigned to the current non-best vertex
+        for(std::size_t v = 0; v < n_vert; v++) {
+            if(v == b) {
+                continue; // keep the best vertex in place
+            }
+            std::vector<double> p = xb;
+
+            double edge;
+            const double range =
+                dbl_upper_parameter_boundaries_[k] - dbl_lower_parameter_boundaries_[k];
+            if(std::isfinite(range) && range > 0.) {
+                edge = initial_edge_ * range;
+            }
+            else {
+                edge = (std::fabs(xb[k]) > 1e-12) ? initial_edge_ * std::fabs(xb[k]) : initial_edge_;
+            }
+
+            // Orient the perturbation downhill: step in the direction leading from the
+            // (worse) centroid towards the best vertex. Fall back to + when they coincide.
+            const double descent = xb[k] - centroid[k];
+            const double sign = (descent >= 0.) ? 1. : -1.;
+            p[k] += sign * edge;
+
+            this->at(vertexPos(s, v))->individual().assignFPValueVector(p, activityMode::ACTIVEONLY);
+            k++;
+        }
+    }
+    return n_simplices_ > 0;
 }
 
 /******************************************************************************/
