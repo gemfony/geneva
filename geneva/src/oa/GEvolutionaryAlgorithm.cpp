@@ -29,6 +29,7 @@
 
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 
+#include <atomic>
 #include <memory>
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExceptions.hpp"
@@ -952,9 +953,23 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
     typename GEvolutionaryAlgorithm::iterator it;
     typename GEvolutionaryAlgorithm::iterator it_cmp;
 
-    // We fall back to the single-eval MUPLUSNU mode if there is just one evaluation criterion
+    // A PARETO sorting mode was requested. With only a single evaluation criterion Pareto
+    // selection is degenerate (the front collapses to the single best individual), so we fall back
+    // to the single-eval MUPLUSNU sort. That fallback is mathematically correct, but a user who
+    // selected a PARETO mode almost certainly intended multi-objective optimization -- warn once so
+    // a misconfigured individual (returning only one fitness) is not silently treated as single-eval.
     it = this->begin();
     if(not(*it)->individual().hasMultipleFitnessCriteria()) {
+        static std::atomic<bool> warned{false};
+        if(not warned.exchange(true)) {
+            glogger << "In GEvolutionaryAlgorithm::sortMuPlusNuParetoMode(): Warning!" << '\n'
+                    << "A PARETO sorting mode was selected, but the individuals expose only a single" << '\n'
+                    << "fitness criterion. Pareto selection therefore degenerates to single-objective" << '\n'
+                    << "MUPLUSNU selection. If you intended multi-objective optimization, make your" << '\n'
+                    << "individual return multiple fitness criteria; otherwise select a single-evaluation" << '\n'
+                    << "sorting mode to silence this warning." << '\n'
+                    << GWARNING;
+        }
         this->sortMuPlusNuMode();
         return;
     }
@@ -1065,9 +1080,21 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
     typename GEvolutionaryAlgorithm::iterator it;
     typename GEvolutionaryAlgorithm::iterator it_cmp;
 
-    // We fall back to the single-eval MUCOMMANU mode if there is just one evaluation criterion
+    // See sortMuPlusNuParetoMode() for the rationale: a single evaluation criterion makes Pareto
+    // selection degenerate, so we fall back to the single-eval MUCOMMANU sort -- correct, but warn
+    // once so a misconfigured single-fitness individual is not silently treated as single-eval.
     it = this->begin();
     if(not(*it)->individual().hasMultipleFitnessCriteria()) {
+        static std::atomic<bool> warned{false};
+        if(not warned.exchange(true)) {
+            glogger << "In GEvolutionaryAlgorithm::sortMuCommaNuParetoMode(): Warning!" << '\n'
+                    << "A PARETO sorting mode was selected, but the individuals expose only a single" << '\n'
+                    << "fitness criterion. Pareto selection therefore degenerates to single-objective" << '\n'
+                    << "MUCOMMANU selection. If you intended multi-objective optimization, make your" << '\n'
+                    << "individual return multiple fitness criteria; otherwise select a single-evaluation" << '\n'
+                    << "sorting mode to silence this warning." << '\n'
+                    << GWARNING;
+        }
         this->sortMuCommaNuMode();
         return;
     }

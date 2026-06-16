@@ -44,6 +44,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <atomic>
 #include <memory>
 #include <random>
 #include <string>
@@ -538,7 +539,9 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(const std::unique_ptr<gpar::GIn
 
     auto m =
         this->at(0)->individual().getMaxMode(); // We assume that the maxMode is the same for all individuals
-    // Update personal best only when the current position is better than the stored best.
+    // Update personal best only when the current position is better than the stored best. By design
+    // this swarm is single-objective: it compares on transformed_fitness(0) (the master criterion).
+    // init() warns once if the individuals expose multiple criteria; the others are not considered here.
     if(isBetter(
            ind_ptr->individual().transformed_fitness(0),
            std::get<G_TRANSFORMED_FITNESS>(
@@ -709,6 +712,24 @@ void GSwarmAlgorithm::init() {
 
     // Make sure the n_neighborhood_members_cnt_ vector has the correct size
     n_neighborhood_members_cnt_.resize(n_neighborhoods_, default_n_neighborhood_members_);
+
+    // This swarm is a SINGLE-objective optimizer: personal-, neighborhood- and global-best are all
+    // compared on transformed_fitness(0) (the master criterion). Multi-objective PSO (Pareto archive /
+    // dominance) is not implemented. If the individuals expose more than one fitness criterion, only the
+    // first is optimized and the others are silently ignored -- warn once so this is not mistaken for a
+    // multi-objective run.
+    if(this->at(0)->individual().hasMultipleFitnessCriteria()) {
+        static std::atomic<bool> warned{false};
+        if(not warned.exchange(true)) {
+            glogger << "In GSwarmAlgorithm::init(): Warning!" << '\n'
+                    << "The individuals expose more than one fitness criterion, but the swarm" << '\n'
+                    << "algorithm is single-objective: it optimizes only the first criterion" << '\n'
+                    << "(transformed_fitness(0)) and ignores the rest. Multi-objective PSO is not" << '\n'
+                    << "implemented. Use an evolutionary algorithm in a PARETO sorting mode for true" << '\n'
+                    << "multi-objective optimization." << '\n'
+                    << GWARNING;
+        }
+    }
 }
 
 /******************************************************************************/

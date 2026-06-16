@@ -312,6 +312,28 @@ TEST_CASE("Evolutionary algorithm optimizes a flat individual", "[flat][oa]") {
 
 /******************************************************************************/
 
+TEST_CASE("EA in a PARETO mode degenerates safely on a single-objective individual", "[flat][oa]") {
+    // B-4: selecting a PARETO sorting mode with a single-criterion individual makes Pareto selection
+    // degenerate. The EA must fall back to the corresponding single-eval sort (it warns once) and still
+    // optimize correctly rather than mis-selecting or crashing.
+    auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    pop->setPopulationSizes(18, 6);
+    pop->setMaxIteration(120);
+    pop->setReportIteration(100000);
+    pop->setSortingScheme(Gem::Geneva::sortingMode::MUPLUSNU_PARETO); // multi-objective mode, single-objective problem
+    FlatSphereOA src;
+    pop->push_back(src.clone_unique());
+    pop->setAdaptionConfig(src.buildAdaptionConfig());
+    pop->setLocalConsumer(oa::local_consumer_kind::serial);
+    CHECK_NOTHROW(pop->optimize());
+
+    auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+    REQUIRE(best);
+    CHECK(bestSphere(best) < 20.0); // still converges via the single-eval fallback
+}
+
+/******************************************************************************/
+
 TEST_CASE("EA checkpoint round-trip preserves the per-slot adaption scratch", "[flat][oa]") {
     using gpar::GFlatGenome;
     using Gem::Geneva::Parameters::AUXKEY_GAUSS_DOUBLE;
