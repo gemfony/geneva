@@ -35,7 +35,6 @@
 #include "common/GContainerT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
-#include "common/GFactoryT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GSingletonT.hpp"
@@ -751,60 +750,22 @@ void GNeuralNetworkIndividual::init(
     }
 #endif /* DEBUG */
 
-    // Set up our local data structures
+    // Build the flat weight genome for the network geometry held in the global data store, with the
+    // supplied init range / Gauss settings. The genome construction is shared with the factory path
+    // through the static buildGenome() hook; here we additionally (re)build the cached architecture.
+    Config c;
+    c.min_var = min;
+    c.max_var = max;
+    c.sigma = sigma;
+    c.sigma_sigma = sigma_sigma;
+    c.min_sigma = min_sigma;
+    c.max_sigma = max_sigma;
+    c.ad_prob = ad_prob;
+    c.adapt_ad_prob = adapt_ad_prob;
+    c.min_ad_prob = min_ad_prob;
+    c.max_ad_prob = max_ad_prob;
 
-    // Check the architecture we've been given and create the layers
-    std::size_t n_layers = n_d_->size(); // NOLINT(cppcoreguidelines-init-variables)
-
-    if(n_layers < 2) { // Two layers are required at the minimum (3 and 4 layers are useful)
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GNeuralNetworkIndividual::init([...]): Error!" << '\n'
-            << "Invalid number of layers supplied (" << n_layers << ")." << '\n'
-            << "Did you set up the network architecture ?" << '\n'
-        );
-    }
-
-    std::size_t layer_number = 0;
-    std::size_t n_nodes = 0;
-    std::size_t n_nodes_previous = 0;
-
-    // Access to uniformly distributed double random values
-    std::uniform_real_distribution<double> uniform_real_distribution(min, max);
-
-    // Build a single flat genome holding all of the network's weights, layer by layer (the same
-    // ordering the semantic architecture decodes). Each weight is an unbounded double with its own
-    // Gauss adaptor; values are random-initialised in [min, max). The per-layer / per-weight meaning
-    // is provided by GNeuralNetworkArchitecture, not by the genome layout.
-    gpar::GGenomeBuilder gb;
-    for(const auto &layer_n_nodes : *n_d_) {
-        if(layer_n_nodes) { // Add the next network layer, if possible
-            n_nodes = layer_n_nodes;
-
-            const std::size_t n_weights =
-                (layer_number == 0) ? (2 * n_nodes) : (n_nodes * (n_nodes_previous + 1));
-
-            for(std::size_t i = 0; i < n_weights; i++) {
-                // Structure only: an unbounded double per weight, random-initialised in [min, max). The
-                // Gauss adaptor lives on the OA-owned config (GNeuralNetworkIndividualFactory::
-                // getAdaptionConfig()), authored from the same sigma / ad_prob parameters.
-                gb.addDouble(uniform_real_distribution(gr_)).perimeter(min, max);
-            }
-
-            n_nodes_previous = n_nodes;
-            layer_number++;
-        }
-        else {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GNeuralNetworkIndividual::init([...]): Error!" << '\n'
-                << "Found invalid number of nodes in layer: " << layer_n_nodes << '\n'
-                << "Did you set up the network architecture ?" << '\n'
-            );
-        }
-    }
-
-    this->setGenome(gb.build());
+    this->setGenome(buildGenome(c));
 
     // (Re)build the cached semantic architecture for this geometry.
     nn_arch_ = makeArchitecture(*n_d_);
@@ -1574,243 +1535,136 @@ double GNeuralNetworkIndividual::transfer(const double &value) const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A constructor with the ability to switch the parallelization mode. It initializes a
- * target item as needed.
- *
- * @param config_file The name of the configuration file
+ * Registers the config-file options, binding them to the passed Config. This is the body of the former
+ * GNeuralNetworkIndividualFactory::describeLocalOptions_; the base GOptimizableEntity options are now
+ * registered separately by GFlatIndividualFactory::getObject_ (via addConfigurationOptions).
  */
-GNeuralNetworkIndividualFactory::GNeuralNetworkIndividualFactory(
-    std::filesystem::path const &config_file
-)
-  : Gem::Common::GFactoryT<gpar::GOptimizableEntity>(config_file)
-  , ad_prob_(GNN_DEF_ADPROB)
-  , adapt_ad_prob_(GNN_DEF_ADAPTADPROB)
-  , min_ad_prob_(GNN_DEF_MINADPROB)
-  , max_ad_prob_(GNN_DEF_MAXADPROB)
-  , sigma_(GNN_DEF_SIGMA)
-  , sigma_sigma_(GNN_DEF_SIGMASIGMA)
-  , min_sigma_(GNN_DEF_MINSIGMA)
-  , max_sigma_(GNN_DEF_MAXSIGMA)
-  , min_var_(GNN_DEF_MINVAR)
-  , max_var_(GNN_DEF_MAXVAR)
-  , t_f_(GNN_DEF_TRANSFER) { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GNeuralNetworkIndividualFactory::~GNeuralNetworkIndividualFactory() { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * Sets the type of the transfer function
- */
-void GNeuralNetworkIndividualFactory::setTransferFunction(transferFunction t_f) {
-    t_f_ = t_f;
-}
-
-/******************************************************************************/
-/**
- * Retrieves the type of the transfer function
- */
-transferFunction GNeuralNetworkIndividualFactory::getTransferFunction() const {
-    return t_f_;
-}
-
-/******************************************************************************/
-/**
- * Creates items of this type
- *
- * @return Items of the desired type
- */
-std::shared_ptr<gpar::GOptimizableEntity> GNeuralNetworkIndividualFactory::getObject_(
-    Gem::Common::GParserBuilder &gpb,
-    [[maybe_unused]] const std::size_t & id
-) {
-    // Will hold the result
-    std::shared_ptr<GNeuralNetworkIndividual> target(new GNeuralNetworkIndividual());
-
-    // Make the object's local configuration options known
-    target->addConfigurationOptions(gpb);
-
-    return target;
-}
-
-/******************************************************************************/
-/**
- * Allows to describe local configuration options for gradient descents
- */
-void GNeuralNetworkIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &gpb) {
-    // Describe our own options
-    using namespace Gem::Courtier;
-
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-
-    comment = "";
-    comment += "The probability for random adaptions of values in evolutionary algorithms;";
+void GNeuralNetworkIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
     gpb.registerFileParameter<double>(
-        "ad_prob",
-        ad_prob_,
-        GNN_DEF_ADPROB,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "ad_prob", c.ad_prob, GNN_DEF_ADPROB, Gem::Common::VAR_IS_ESSENTIAL,
+        "The probability for random adaptions of values in evolutionary algorithms;"
     );
-
-    comment = "";
-    comment +=
-        "Determines the rate of adaption of ad_prob. Set to 0, if you do not need this feature;";
     gpb.registerFileParameter<double>(
-        "adapt_ad_prob",
-        adapt_ad_prob_,
-        GNN_DEF_ADAPTADPROB,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "adapt_ad_prob", c.adapt_ad_prob, GNN_DEF_ADAPTADPROB, Gem::Common::VAR_IS_ESSENTIAL,
+        "Determines the rate of adaption of ad_prob. Set to 0, if you do not need this feature;"
     );
-
-    comment = "";
-    comment += "The lower allowed boundary for ad_prob-variation;";
     gpb.registerFileParameter<double>(
-        "min_ad_prob",
-        min_ad_prob_,
-        GNN_DEF_MINADPROB,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "min_ad_prob", c.min_ad_prob, GNN_DEF_MINADPROB, Gem::Common::VAR_IS_ESSENTIAL,
+        "The lower allowed boundary for ad_prob-variation;"
     );
-
-    comment = "";
-    comment += "The upper allowed boundary for ad_prob-variation;";
     gpb.registerFileParameter<double>(
-        "max_ad_prob",
-        max_ad_prob_,
-        GNN_DEF_MAXADPROB,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "max_ad_prob", c.max_ad_prob, GNN_DEF_MAXADPROB, Gem::Common::VAR_IS_ESSENTIAL,
+        "The upper allowed boundary for ad_prob-variation;"
     );
-
-    comment = "";
-    comment += "The sigma for gauss-adaption in ES;";
     gpb.registerFileParameter<double>(
-        "sigma",
-        sigma_,
-        GNN_DEF_SIGMA,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "sigma", c.sigma, GNN_DEF_SIGMA, Gem::Common::VAR_IS_ESSENTIAL,
+        "The sigma for gauss-adaption in ES;"
     );
-
-    comment = "";
-    comment += "Influences the self-adaption of gauss-mutation in ES;";
     gpb.registerFileParameter<double>(
-        "sigma_sigma",
-        sigma_sigma_,
-        GNN_DEF_SIGMASIGMA,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "sigma_sigma", c.sigma_sigma, GNN_DEF_SIGMASIGMA, Gem::Common::VAR_IS_ESSENTIAL,
+        "Influences the self-adaption of gauss-mutation in ES;"
     );
-
-    comment = "";
-    comment += "The minimum amount value of sigma;";
     gpb.registerFileParameter<double>(
-        "min_sigma",
-        min_sigma_,
-        GNN_DEF_MINSIGMA,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "min_sigma", c.min_sigma, GNN_DEF_MINSIGMA, Gem::Common::VAR_IS_ESSENTIAL,
+        "The minimum amount value of sigma;"
     );
-
-    comment = "";
-    comment += "The maximum amount value of sigma;";
     gpb.registerFileParameter<double>(
-        "max_sigma",
-        max_sigma_,
-        GNN_DEF_MAXSIGMA,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "max_sigma", c.max_sigma, GNN_DEF_MAXSIGMA, Gem::Common::VAR_IS_ESSENTIAL,
+        "The maximum amount value of sigma;"
     );
-
-    comment = "";
-    comment += "The lower boundary of the initialization range for parameters;";
     gpb.registerFileParameter<double>(
-        "min_var",
-        min_var_,
-        GNN_DEF_MINVAR,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "min_var", c.min_var, GNN_DEF_MINVAR, Gem::Common::VAR_IS_ESSENTIAL,
+        "The lower boundary of the initialization range for parameters;"
     );
-
-    comment = "";
-    comment += "The upper boundary of the initialization range for parameters;";
     gpb.registerFileParameter<double>(
-        "max_var",
-        max_var_,
-        GNN_DEF_MAXVAR,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "max_var", c.max_var, GNN_DEF_MAXVAR, Gem::Common::VAR_IS_ESSENTIAL,
+        "The upper boundary of the initialization range for parameters;"
     );
-
-    comment = "";
-    comment += "The transferFunction: SIGMOID (0) or RBF/Radial Basis (1);";
     gpb.registerFileParameter<transferFunction>(
-        "transfer_function",
-        t_f_,
-        GNN_DEF_TRANSFER,
-        Gem::Common::VAR_IS_ESSENTIAL,
-        comment
+        "transfer_function", c.t_f, GNN_DEF_TRANSFER, Gem::Common::VAR_IS_ESSENTIAL,
+        "The transferFunction: SIGMOID (0) or RBF/Radial Basis (1);"
     );
-
-    // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<gpar::GOptimizableEntity>::describeLocalOptions_(gpb);
 }
 
 /******************************************************************************/
 /**
- * Allows to act on the configuration options received from the configuration file. Here
- * we can add the options described in describeLocalOptions to the object. In practice,
- * we add the parameter objects here
- *
- * @param p_raw A smart-pointer to be acted on during post-processing
+ * Builds the flat weight genome (structure only) for the network geometry held in the global training-
+ * data store. Each weight is an unbounded double, random-initialised in [min_var, max_var) with that
+ * perimeter (the OA re-randomises every population member within it). The per-layer / per-weight meaning
+ * is provided by GNeuralNetworkArchitecture, not by the genome layout; the Gauss adaptor lives on the
+ * OA-owned config (buildAdaptionConfig), authored from the same sigma / ad_prob parameters.
  */
-void GNeuralNetworkIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &p_raw) {
-    // Convert the base pointer to the target type
-    std::shared_ptr<GNeuralNetworkIndividual> p =
-        Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, GNeuralNetworkIndividual>(p_raw);
+gpar::Genome GNeuralNetworkIndividual::buildGenome(const Config &c) {
+    using namespace Gem::Hap;
 
-    // Call the initialization function with our parsed data
-    p->init(
-        min_var_,
-        max_var_,
-        sigma_,
-        sigma_sigma_,
-        min_sigma_,
-        max_sigma_,
-        ad_prob_,
-        adapt_ad_prob_,
-        min_ad_prob_,
-        max_ad_prob_
-    );
+    auto n_d = nnTrainingDataStore();
+    const std::size_t n_layers = n_d->size();
+    if(n_layers < 2) { // Two layers are required at the minimum (3 and 4 layers are useful)
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GNeuralNetworkIndividual::buildGenome(): Error!" << '\n'
+            << "Invalid number of layers supplied (" << n_layers << ")." << '\n'
+            << "Did you set up the network architecture ?" << '\n'
+        );
+    }
 
-    // Set the transfer function
-    p->setTransferFunction(t_f_);
+    GRandomT<RANDFLAVOURS::RANDOMPROXY> gr_l;
+    std::uniform_real_distribution<double> uniform_real_distribution(c.min_var, c.max_var);
+
+    gpar::GGenomeBuilder gb;
+    std::size_t layer_number = 0;
+    std::size_t n_nodes_previous = 0;
+    for(const auto &layer_n_nodes : *n_d) {
+        if(layer_n_nodes == 0) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GNeuralNetworkIndividual::buildGenome(): Error!" << '\n'
+                << "Found invalid number of nodes in layer: " << layer_n_nodes << '\n'
+                << "Did you set up the network architecture ?" << '\n'
+            );
+        }
+
+        const std::size_t n_nodes = layer_n_nodes;
+        const std::size_t n_weights =
+            (layer_number == 0) ? (2 * n_nodes) : (n_nodes * (n_nodes_previous + 1));
+
+        for(std::size_t i = 0; i < n_weights; i++) {
+            gb.addDouble(uniform_real_distribution(gr_l)).perimeter(c.min_var, c.max_var);
+        }
+
+        n_nodes_previous = n_nodes;
+        layer_number++;
+    }
+
+    return gb.build();
 }
 
 /******************************************************************************/
 /**
- * Builds the OA-owned adaption configuration for a network genome produced by this factory: every weight
- * (one double group each) gets a Gauss adaptor with this factory's configured parameters -- exactly the
- * settings init() formerly baked into the genome layout.
+ * Builds the OA-owned adaption configuration for a network genome: every weight (one double group each)
+ * gets a Gauss adaptor with the configured parameters -- exactly the settings init() formerly baked into
+ * the genome layout.
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GNeuralNetworkIndividualFactory::getAdaptionConfig(const gpar::GFlatGenome &sample) const {
+GNeuralNetworkIndividual::buildAdaptionConfig(const gpar::GFlatGenome &sample, const Config &c) {
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
     auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
     for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
         cfg->groupDouble(i).gauss(
-            sigma_, sigma_sigma_, min_sigma_, max_sigma_, ad_prob_, adapt_ad_prob_, 1,
-            Gem::Geneva::adaptionMode::WITHPROBABILITY, min_ad_prob_, max_ad_prob_
+            c.sigma, c.sigma_sigma, c.min_sigma, c.max_sigma, c.ad_prob, c.adapt_ad_prob, 1,
+            Gem::Geneva::adaptionMode::WITHPROBABILITY, c.min_ad_prob, c.max_ad_prob
         );
     }
     return cfg;
+}
+
+/******************************************************************************/
+/**
+ * Per-object post-config hook (called by GFlatIndividualFactory::postProcess_ after the genome is
+ * installed): applies the non-genome transfer function to a produced individual.
+ */
+void GNeuralNetworkIndividual::applyConfig(GNeuralNetworkIndividual &ind, const Config &c) {
+    ind.setTransferFunction(c.t_f);
 }
 
 /******************************************************************************/

@@ -214,17 +214,33 @@ protected:
             );
         }
         fg->setGenome(shared_genome_);
+
+        // Optional per-object configuration hook: lets a Derived individual apply its own non-genome
+        // settings parsed into config_ (e.g. a transfer function) -- the counterpart to whatever the
+        // legacy bespoke factory did in postProcess_ beyond building the genome. It is the symmetric
+        // companion to buildAdaptionConfig(): an individual without the hook is simply left unconfigured.
+        if constexpr (requires(Derived &d, const typename Derived::Config &c) {
+                          Derived::applyConfig(d, c);
+                      }) {
+            Derived::applyConfig(*static_cast<Derived *>(fg), config_);
+        }
     }
 
 private:
     /***************************************************************************/
     /**
-     * Creates an (empty-genome) individual of the desired type; the genome is installed in
-     * postProcess_ once the configuration has been parsed.
+     * Creates an (empty-genome) individual of the desired type and registers its own base
+     * GOptimizableEntity configuration options (eval policy, validity thresholds, maxmode, ...) on the
+     * parser, exactly as the legacy bespoke factories did via target->addConfigurationOptions(gpb).
+     * Bound to this freshly produced object, those options are applied to it when GFactoryT parses (or
+     * re-applies the cached) configuration. Derived-specific options are registered separately by
+     * describeConfig(); the genome itself is installed in postProcess_ once the config has been parsed.
      */
     std::shared_ptr<GOptimizableEntity>
-    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override {
-        return std::make_shared<Derived>();
+    getObject_(Gem::Common::GParserBuilder &gpb, const std::size_t &) override {
+        auto p = std::make_shared<Derived>();
+        p->addConfigurationOptions(gpb);
+        return p;
     }
 
     /***************************************************************************/

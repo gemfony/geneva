@@ -67,13 +67,13 @@
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
-#include "common/GFactoryT.hpp"
 #include "common/GGlobalOptionsT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GContainerT.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GUnitTestFrameworkT.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GFlatIndividualFactory.hpp"
 #include "geneva/ind/GGenomeArchitecture.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "hap/GRandomT.hpp"
@@ -1095,6 +1095,36 @@ public:
     /** @brief Creates a C++ output file for the trained network */
     void writeTrainedNetwork(const std::string &header_file);
 
+    /***************************************************************************/
+    /**
+     * The configuration read from the config file by GFlatIndividualFactory<GNeuralNetworkIndividual>.
+     * The genome geometry itself comes from the global training-data store (see buildGenome); these are
+     * the per-weight Gauss-adaptor settings plus the parameter init range and transfer function.
+     */
+    struct Config {
+        double ad_prob = GNN_DEF_ADPROB;
+        double adapt_ad_prob = GNN_DEF_ADAPTADPROB;
+        double min_ad_prob = GNN_DEF_MINADPROB;
+        double max_ad_prob = GNN_DEF_MAXADPROB;
+        double sigma = GNN_DEF_SIGMA;
+        double sigma_sigma = GNN_DEF_SIGMASIGMA;
+        double min_sigma = GNN_DEF_MINSIGMA;
+        double max_sigma = GNN_DEF_MAXSIGMA;
+        double min_var = GNN_DEF_MINVAR;
+        double max_var = GNN_DEF_MAXVAR;
+        transferFunction t_f = GNN_DEF_TRANSFER;
+    };
+
+    /** @brief Registers the config-file options, binding them to the passed Config */
+    static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
+    /** @brief Builds the flat weight genome (structure only) for the geometry in the global data store */
+    static gpar::Genome buildGenome(const Config &c);
+    /** @brief The OA-owned Gauss adaption config: every weight group gets the configured Gauss adaptor */
+    static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+    buildAdaptionConfig(const gpar::GFlatGenome &sample, const Config &c);
+    /** @brief Per-object post-config hook: applies the (non-genome) transfer function to a produced individual */
+    static void applyConfig(GNeuralNetworkIndividual &ind, const Config &c);
+
 protected:
     /***************************************************************************/
 
@@ -1149,54 +1179,13 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A factory for GNeuralNetworkIndividual objects
+ * A factory for GNeuralNetworkIndividual objects. The bespoke factory has been replaced by the generic,
+ * config-driven GFlatIndividualFactory; GNeuralNetworkIndividual supplies the static describeConfig /
+ * buildGenome / buildAdaptionConfig / applyConfig hooks. The alias keeps existing call sites (ctor(path),
+ * get_as<>(), getAdaptionConfig(), registerContentCreator()) compiling unchanged.
  */
-class GNeuralNetworkIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<gpar::GOptimizableEntity> {
-public:
-    /** @brief The standard constructor */
-    explicit GNeuralNetworkIndividualFactory(std::filesystem::path const &);
-
-    /** @brief The destructor */
-    ~GNeuralNetworkIndividualFactory() override;
-
-    /** @brief Sets the type of the transfer function */
-    void setTransferFunction(transferFunction t_f);
-    /** @brief Retrieves the type of the transfer function */
-    transferFunction getTransferFunction() const;
-
-    /** @brief Builds the OA-owned Gauss adaption config for a genome produced by this factory: every
-     *  weight (one double group each) gets the factory's configured Gauss adaptor. */
-    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    getAdaptionConfig(const gpar::GFlatGenome &sample) const;
-
-protected:
-    /** @brief Allows to describe local configuration options in derived classes */
-    void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
-    /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &) override;
-
-private:
-    /** @brief The default constructor. Only needed for (de-)serialization purposes */
-    GNeuralNetworkIndividualFactory() = default;
-
-    /** @brief Creates individuals of this type */
-    std::shared_ptr<gpar::GOptimizableEntity>
-    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
-
-    double ad_prob_ = 0.;
-    double adapt_ad_prob_ = 0.;
-    double min_ad_prob_ = 0.;
-    double max_ad_prob_ = 0.;
-    double sigma_ = 0.;
-    double sigma_sigma_ = 0.;
-    double min_sigma_ = 0.;
-    double max_sigma_ = 0.;
-    double min_var_ = 0.;
-    double max_var_ = 0.;
-
-    transferFunction t_f_;
-};
+using GNeuralNetworkIndividualFactory =
+    Gem::Geneva::Parameters::GFlatIndividualFactory<GNeuralNetworkIndividual>;
 
 /******************************************************************************/
 
