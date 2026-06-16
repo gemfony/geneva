@@ -220,11 +220,11 @@ private:
     /** @brief Creates a deep clone of this object (supplied by the concrete individual) */
     GFlatGenome *clone_() const override = 0;
 
-    /** @brief Retrieves a parameter of a given type at the specified position (positional) */
-    std::any getVarValImpl(
-        const std::string &,
-        const std::tuple<std::size_t, std::string, std::size_t> &target
-    ) override;
+    /** @brief Retrieve the active parameter at the given index, per type (positional) */
+    double getVarVal_d_(std::size_t idx) override;
+    float getVarVal_f_(std::size_t idx) override;
+    std::int32_t getVarVal_i_(std::size_t idx) override;
+    bool getVarVal_b_(std::size_t idx) override;
 
     /** @brief Retrieval of a suitable position for cross over inside of a vector */
     std::size_t getCrossOverPos(std::size_t, std::size_t);

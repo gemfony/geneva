@@ -530,36 +530,25 @@ public:
      */
     template <typename val_type>
     val_type getVarVal(std::tuple<std::size_t, std::string, std::size_t> const &target) {
-        val_type result = val_type(0);
+        static_assert(
+            std::is_same_v<val_type, double> || std::is_same_v<val_type, float> ||
+                std::is_same_v<val_type, std::int32_t> || std::is_same_v<val_type, bool>,
+            "GOptimizableEntity::getVarVal<>(): unsupported value type (use double, float, std::int32_t or bool)"
+        );
 
-        if(typeid(val_type) == typeid(double)) {
-            return Gem::Common::narrow<val_type>(
-                std::any_cast<double>(this->getVarValImpl("d", target))
-            );
-        }
-        if(typeid(val_type) == typeid(float)) {
-            return Gem::Common::narrow<val_type>(
-                std::any_cast<float>(this->getVarValImpl("f", target))
-            );
-        }
-        if(typeid(val_type) == typeid(std::int32_t)) {
-            return Gem::Common::narrow<val_type>(
-                std::any_cast<std::int32_t>(this->getVarValImpl("i", target))
-            );
-        }
-        if(typeid(val_type) == typeid(bool)) {
-            return Gem::Common::narrow<val_type>(
-                std::any_cast<bool>(this->getVarValImpl("b", target))
-            );
-        }
-                    throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GOptimizableEntity::getVarVal<>(): Error!" << '\n'
-                << "Received invalid type descriptor " << '\n'
-            );
+        const std::size_t idx = std::get<2>(target);
 
-
-        return result;
+        // Compile-time dispatch to the matching typed virtual -- no std::any boxing, no runtime typeid
+        // branch, on what is a per-iteration monitor hot path.
+        if constexpr (std::is_same_v<val_type, double>) {
+            return this->getVarVal_d_(idx);
+        } else if constexpr (std::is_same_v<val_type, float>) {
+            return this->getVarVal_f_(idx);
+        } else if constexpr (std::is_same_v<val_type, std::int32_t>) {
+            return this->getVarVal_i_(idx);
+        } else { // bool, by the static_assert above
+            return this->getVarVal_b_(idx);
+        }
     }
 
     /***************************************************************************/
@@ -677,9 +666,13 @@ private:
 
     /***************************************************************************/
 
-    /** @brief Retrieves a parameter of a given type at the specified position (genome-specific dispatch) */
-    virtual std::any
-    getVarValImpl(const std::string &, const std::tuple<std::size_t, std::string, std::size_t> &target) = 0;
+    /** @brief Retrieve the value of the active parameter at the given index, per type (genome-specific
+     *  dispatch). The non-template targets of the public getVarVal<T>() template -- typed virtuals rather
+     *  than a std::any-returning impl, so there is no boxing/typeid on the (hot) monitor path. */
+    virtual double getVarVal_d_(std::size_t idx) = 0;
+    virtual float getVarVal_f_(std::size_t idx) = 0;
+    virtual std::int32_t getVarVal_i_(std::size_t idx) = 0;
+    virtual bool getVarVal_b_(std::size_t idx) = 0;
 
     /***************************************************************************/
     // Per-type genome value channels -- the non-template dispatch targets of the public

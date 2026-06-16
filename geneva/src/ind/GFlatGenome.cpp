@@ -363,40 +363,32 @@ void GFlatGenome::cannibalize(GOptimizableEntity &cp_base) {
 
 /******************************************************************************/
 /**
- * Retrieves a parameter of a given type at the specified (positional) target.
+ * Retrieve the active parameter at the given (positional) index, per type. These are the typed
+ * dispatch targets of GOptimizableEntity::getVarVal<T>() -- one streamline of the relevant channel,
+ * then the indexed element (no std::any boxing).
  */
-std::any GFlatGenome::getVarValImpl(
-    std::string const &descr,
-    std::tuple<std::size_t, std::string, std::size_t> const &target
-) {
-    const std::size_t idx = std::get<2>(target);
+double GFlatGenome::getVarVal_d_(std::size_t idx) {
+    std::vector<double> v;
+    this->streamline<double>(v);
+    return v.at(idx);
+}
 
-    if(descr == "d") {
-        std::vector<double> v;
-        this->streamline<double>(v);
-        return std::any(v.at(idx));
-    }
-    if(descr == "f") {
-        std::vector<float> v;
-        this->streamline<float>(v);
-        return std::any(v.at(idx));
-    }
-    if(descr == "i") {
-        std::vector<std::int32_t> v;
-        this->streamline<std::int32_t>(v);
-        return std::any(v.at(idx));
-    }
-    if(descr == "b") {
-        std::vector<bool> v;
-        this->streamline<bool>(v);
-        return std::any(static_cast<bool>(v.at(idx)));
-    }
+float GFlatGenome::getVarVal_f_(std::size_t idx) {
+    std::vector<float> v;
+    this->streamline<float>(v);
+    return v.at(idx);
+}
 
-    throw geneva_exception(
-        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-        << "In GFlatGenome::getVarValImpl(): Error!" << '\n'
-        << "Received invalid type description" << '\n'
-    );
+std::int32_t GFlatGenome::getVarVal_i_(std::size_t idx) {
+    std::vector<std::int32_t> v;
+    this->streamline<std::int32_t>(v);
+    return v.at(idx);
+}
+
+bool GFlatGenome::getVarVal_b_(std::size_t idx) {
+    std::vector<bool> v;
+    this->streamline<bool>(v);
+    return static_cast<bool>(v.at(idx));
 }
 
 /******************************************************************************/
