@@ -86,3 +86,15 @@ SET_TARGET_PROPERTIES(
 
 
 INSTALL ( FILES ${GENEVACOMMONINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/common )
+
+# The plotting subsystem (formerly the monolithic GPlotDesigner.hpp) lives in focused headers under
+# common/plotting/; common/GPlotDesigner.hpp remains as an umbrella that includes them.
+SET ( GENEVACOMMONPLOTTINGINCLUDES
+	plotting/GPlotEnums.hpp
+	plotting/GDecorators.hpp
+	plotting/GBasePlotter.hpp
+	plotting/GPlots.hpp
+	plotting/GPlotDesigner.hpp
+)
+
+INSTALL ( FILES ${GENEVACOMMONPLOTTINGINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/common/plotting )
