@@ -37,14 +37,18 @@
 #include <chrono>
 #include <condition_variable>
 #include <cstddef>
+#include <cstdint>
+#include <deque>
 #include <functional>
 #include <map>
 #include <set>
 #include <memory>
 #include <mutex>
+#include <utility>
 #include <vector>
 
 // Geneva headers
+#include "common/GLogger.hpp" // glogger << ... << GWARNING (late-return drop warning)
 #include "courtier/GCourtierEnums.hpp" // CORRELATION_ID_TYPE, dispatchState
 #include "courtier/GBaseConsumerT.hpp"
 
@@ -111,6 +115,39 @@ public:
     }
     /** @brief Sets the poll interval at which dispatch_ re-evaluates the lease/stall while waiting. */
     void setSweepTick(std::chrono::milliseconds w) { sweep_tick_ = w; }
+
+    /***************************************************************************/
+    /**
+     * @brief Configures the LATE-RETURN buffer (the #13 mechanism).
+     *
+     * A result that arrives after its batch already finished/timed out is normally dropped (its
+     * batch_id is no longer active). With this buffer enabled, such a late arrival -- a genuinely
+     * distinct evaluation that simply came back too late to be used this round -- is parked instead
+     * of discarded, so an optimization algorithm can reap it via getOldWorkItems() (wired in a later
+     * step). The buffer is bounded two ways: @p cap (max items held; 0 DISABLES buffering, the
+     * default) and @p ttl_rounds (a held item is evicted after this many dispatch rounds). Each entry
+     * carries the dispatch-round "epoch" at which it was buffered; with ttl_rounds kept well below the
+     * batch_id wraparound (2^16) a buffered, retired batch_id cannot be re-minted while the entry is
+     * still alive, so the 16-bit on-wire batch_id needs no widening for the single-OA case. Evictions
+     * (cap or TTL) are counted (lateReturnDroppedCount()) and warned once -- never silently lost.
+     */
+    void setLateReturnBuffer(std::size_t cap, std::uint64_t ttl_rounds) {
+        std::lock_guard<std::mutex> lk(mtx_);
+        late_buffer_cap_ = cap;
+        // Keep the TTL well under the batch_id wraparound so a live buffered id cannot alias a fresh one.
+        late_buffer_ttl_rounds_ = std::min<std::uint64_t>(ttl_rounds, (BATCH_MASK >> 2));
+    }
+    /** @brief Number of late returns currently held in the buffer (reaped by the OA in a later step). */
+    [[nodiscard]] std::size_t lateReturnBufferSize() const {
+        std::lock_guard<std::mutex> lk(mtx_);
+        return late_returns_.size();
+    }
+    /** @brief Total late returns dropped (cap/TTL eviction, or arrivals while buffering is disabled)
+     *  since construction -- an observable, non-silent drop count. */
+    [[nodiscard]] std::uint64_t lateReturnDroppedCount() const {
+        std::lock_guard<std::mutex> lk(mtx_);
+        return late_dropped_count_;
+    }
 
 protected:
     /***************************************************************************/
@@ -205,7 +242,12 @@ protected:
         const Gem::Courtier::CORRELATION_ID_TYPE id = p->getCorrelationId();
         auto it = batches_.find(decodeBatch(id));
         if(it == batches_.end()) {
-            return; // batch no longer active: a late arrival from a timed-out/finished batch
+            // Batch no longer active: a late arrival from a timed-out/finished batch. Instead of
+            // dropping it silently, park it in the bounded late-return buffer (the #13 mechanism) for a
+            // later getOldWorkItems() to reap. With buffering disabled (the default) this still counts
+            // the drop rather than losing it without trace.
+            bufferLateReturn_locked(std::move(p));
+            return;
         }
         BatchState &b = it->second;
         const std::size_t slot = decodeSlot(id);
@@ -333,6 +375,10 @@ protected:
             // dispatch_'s scope), so any very late checkin() for it becomes a no-op.
             total_pending_ -= b.pending;
             batches_.erase(my_it);
+            // A dispatch round completed: advance the late-buffer epoch and age out any TTL-expired
+            // entries (so stale late returns are evicted even when no new late arrival comes in).
+            ++buffer_epoch_;
+            evictLateReturns_locked();
         }
     }
 
@@ -357,6 +403,53 @@ private:
     }
     static std::size_t decodeSlot(Gem::Courtier::CORRELATION_ID_TYPE id) {
         return static_cast<std::size_t>(id & SLOT_MASK);
+    }
+
+    /***************************************************************************/
+    /** @brief Parks a late arrival (a result for a batch that already finished/timed out) instead of
+     *  dropping it silently. With buffering disabled (cap == 0, the default) the drop is merely COUNTED
+     *  (no behaviour change until a getOldWorkItems() reaper exists). Caller holds mtx_. */
+    void bufferLateReturn_locked(item_ptr p) {
+        if(late_buffer_cap_ == 0) {
+            recordLateDrop_locked(1); // buffering off: count the drop, do not hold the item
+            return;
+        }
+        late_returns_.emplace_back(buffer_epoch_, std::move(p));
+        evictLateReturns_locked();
+    }
+
+    /** @brief Enforces the TTL and capacity bounds on the late-return buffer (FIFO eviction of the
+     *  oldest), counting + warning on what is dropped. Entries are stamped in arrival order, so their
+     *  epochs are non-decreasing and the front is always the oldest. Caller holds mtx_. */
+    void evictLateReturns_locked() {
+        std::uint64_t evicted = 0;
+        while(not late_returns_.empty() &&
+              (buffer_epoch_ - late_returns_.front().first) >= late_buffer_ttl_rounds_) {
+            late_returns_.pop_front();
+            ++evicted;
+        }
+        while(late_returns_.size() > late_buffer_cap_) {
+            late_returns_.pop_front();
+            ++evicted;
+        }
+        if(evicted > 0) {
+            recordLateDrop_locked(evicted);
+        }
+    }
+
+    /** @brief Records that @p n late returns were dropped (disabled-buffer arrival, or cap/TTL
+     *  eviction) and warns ONCE so the loss is observable without log spam. Caller holds mtx_. */
+    void recordLateDrop_locked(std::uint64_t n) {
+        late_dropped_count_ += n;
+        if(not late_drop_warned_) {
+            late_drop_warned_ = true;
+            glogger << "In GNetworkedConsumerT: a late work-item return (a result for a batch that had" << '\n'
+                    << "already finished or timed out) was dropped. These are genuinely-distinct" << '\n'
+                    << "evaluations that arrived too late to be used this round. Enable/enlarge the" << '\n'
+                    << "late-return buffer (setLateReturnBuffer) to retain them for the optimization" << '\n'
+                    << "algorithm to reap; the running drop total is available via lateReturnDroppedCount()." << '\n'
+                    << GWARNING;
+        }
     }
 
     /***************************************************************************/
@@ -483,6 +576,20 @@ private:
     batch_key_t next_batch_id_ = 0;             ///< Monotonic batch_id source (masked to 16 bits)
     batch_key_t last_served_batch_ = 0;         ///< Round-robin cursor across batches (for fairness)
     std::size_t total_pending_ = 0;             ///< Slots PENDING across ALL batches (cv predicate)
+
+    // --- late-return buffer (#13 mechanism): a result that arrives after its batch finished/timed out
+    //     is parked here instead of dropped, for a later getOldWorkItems() to reap. Bounded by cap +
+    //     TTL rounds. The per-entry epoch is the generation tag that, with ttl_rounds << the batch_id
+    //     wraparound (2^16), guarantees a buffered batch_id cannot alias a freshly-minted one before it
+    //     is evicted -- so the 16-bit on-wire batch_id needs no widening for the single-OA case.
+    //     Disabled by default (cap == 0): the mechanism exists + is tested but stays dormant until its
+    //     reaper (the OA-side getOldWorkItems integration) lands. All access is under mtx_. ---
+    std::deque<std::pair<std::uint64_t, item_ptr>> late_returns_; ///< (epoch, item) FIFO of late arrivals
+    std::uint64_t buffer_epoch_ = 0;            ///< Monotonic round counter (advances per retired batch)
+    std::size_t late_buffer_cap_ = 0;           ///< Max buffered late items (0 = buffering disabled)
+    std::uint64_t late_buffer_ttl_rounds_ = 8;  ///< Evict a late entry this many rounds after buffering
+    std::uint64_t late_dropped_count_ = 0;      ///< Total late items dropped (disabled/cap/TTL) -- observable
+    bool late_drop_warned_ = false;             ///< One-shot warning guard for the first dropped late item
 
     double mean_return_ms_ = 0.0;       ///< Running (EMA) mean checkout->return time (consumer-wide)
     std::size_t n_return_samples_ = 0;  ///< Returns observed so far (across all batches)

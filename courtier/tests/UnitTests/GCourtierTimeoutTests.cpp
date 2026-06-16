@@ -140,6 +140,48 @@ void run_with_misbehaviour(std::vector<item_ptr> &batch, misbehave mode, VictimP
     worker.join();
 }
 
+/** @brief A SimNetConsumer that also exposes the late-return buffer knobs/observers (the #13a
+ *  mechanism), so a test can enable the buffer and inspect what it holds / has dropped. */
+class LateNetConsumer : public SimNetConsumer {
+public:
+    using c2::GNetworkedConsumerT<GFaultyContainer>::setLateReturnBuffer;
+    using c2::GNetworkedConsumerT<GFaultyContainer>::lateReturnBufferSize;
+    using c2::GNetworkedConsumerT<GFaultyContainer>::lateReturnDroppedCount;
+};
+
+/** @brief Runs a fresh n-item batch fully to completion on @p consumer (every slot processed and
+ *  checked in), which advances the consumer's dispatch-round epoch by one. Used to age late-buffer
+ *  entries past their TTL. */
+void run_full_batch(LateNetConsumer &consumer, std::size_t n) {
+    auto batch = make_batch(n);
+    std::atomic<bool> finished{false};
+    std::jthread worker([&] {
+        consumer.processBatch(std::span<item_ptr>(batch.data(), batch.size()),
+                              c2::GSubmissionPolicy::full_success_or_fatal());
+        finished.store(true);
+    });
+    while(not finished.load()) {
+        auto p = consumer.checkout();
+        if(not p) {
+            std::this_thread::sleep_for(1ms);
+            continue;
+        }
+        p->process();
+        consumer.checkin(std::move(p));
+    }
+    worker.join();
+}
+
+/** @brief Delivers a single LATE return (a result whose batch is not currently active) to @p consumer.
+ *  With no batch active, any correlation id is "inactive", so this exercises the late-return path. */
+void deliver_late(LateNetConsumer &consumer, std::size_t stored, c2::CORRELATION_ID_TYPE corr) {
+    // The late-return path (checkin -> inactive batch_id -> buffer) does not inspect processing state,
+    // so a bare item with the chosen correlation id is enough to exercise it.
+    auto p = std::make_unique<GFaultyContainer>(stored, fault_mode::NONE);
+    p->setCorrelationId(corr);
+    consumer.checkin(std::move(p));
+}
+
 } /* anonymous namespace */
 
 /******************************************************************************/
@@ -192,6 +234,62 @@ TEST_CASE("courtier(clone): unresolved slots are refilled from the supplied temp
     }
     // A non-faulty slot keeps its own identity.
     CHECK(batch[0]->get_stored_number() == 0);
+}
+
+/******************************************************************************/
+// Late-return buffer mechanism (#13a): a result that arrives after its batch finished/timed out is
+// no longer silently dropped -- with the buffer enabled it is parked (bounded + TTL'd), and every
+// drop (disabled buffer, capacity overflow, TTL expiry) is counted observably.
+
+TEST_CASE("courtier(late): a late return for a finished batch is buffered, not silently dropped",
+          "[courtier][latereturn]") {
+    LateNetConsumer consumer;
+    consumer.setLateReturnBuffer(/*cap*/ 8, /*ttl_rounds*/ 8);
+
+    deliver_late(consumer, 42, /*corr*/ 0); // no batch active -> a late arrival
+
+    CHECK(consumer.lateReturnBufferSize() == 1);   // held for a later getOldWorkItems() to reap
+    CHECK(consumer.lateReturnDroppedCount() == 0);  // nothing dropped
+}
+
+TEST_CASE("courtier(late): buffering disabled (default) counts the drop but holds nothing",
+          "[courtier][latereturn]") {
+    LateNetConsumer consumer; // default cap == 0 -> buffering disabled
+
+    deliver_late(consumer, 1, 0);
+    deliver_late(consumer, 2, 1);
+
+    CHECK(consumer.lateReturnBufferSize() == 0);    // nothing retained
+    CHECK(consumer.lateReturnDroppedCount() == 2);  // but the drops are observable, not silent
+}
+
+TEST_CASE("courtier(late): the buffer is capacity-bounded, evicting and counting the oldest",
+          "[courtier][latereturn]") {
+    LateNetConsumer consumer;
+    consumer.setLateReturnBuffer(/*cap*/ 2, /*ttl_rounds*/ 1000); // large TTL: only capacity evicts here
+
+    deliver_late(consumer, 10, 0);
+    deliver_late(consumer, 11, 1);
+    deliver_late(consumer, 12, 2); // exceeds the cap of 2 -> oldest evicted
+
+    CHECK(consumer.lateReturnBufferSize() == 2);
+    CHECK(consumer.lateReturnDroppedCount() == 1);
+}
+
+TEST_CASE("courtier(late): a buffered entry is evicted once it ages past its TTL in rounds",
+          "[courtier][latereturn]") {
+    LateNetConsumer consumer;
+    consumer.setLateReturnBuffer(/*cap*/ 100, /*ttl_rounds*/ 2); // TTL of 2 dispatch rounds
+
+    deliver_late(consumer, 7, 0);                 // buffered at epoch 0
+    REQUIRE(consumer.lateReturnBufferSize() == 1);
+
+    run_full_batch(consumer, 1);                  // epoch -> 1: age 1 < 2, still held
+    CHECK(consumer.lateReturnBufferSize() == 1);
+
+    run_full_batch(consumer, 1);                  // epoch -> 2: age 2 >= 2, evicted on the retire sweep
+    CHECK(consumer.lateReturnBufferSize() == 0);
+    CHECK(consumer.lateReturnDroppedCount() == 1);
 }
 
 /******************************************************************************/
