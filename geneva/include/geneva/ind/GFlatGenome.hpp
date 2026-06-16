@@ -287,7 +287,12 @@ private:
         }
     }
 
-    /** @brief The external (range-folded) value of a stored FP/int value */
+    /** @brief THE single source of truth for the per-element constrained-value fold: maps a stored value
+     *  to its external (range-folded) representation -- identity for an unbounded parameter,
+     *  foldConstrainedFP / foldConstrainedInt for a constrained one. BOTH the read-time fold
+     *  (streamlineImpl / streamlineIntoImpl) AND the adaption-time fold (foldChannelInPlace) go through
+     *  this one function, so the two paths can never diverge -- any change to the fold belongs here (or,
+     *  for the maths, in foldConstrainedFP / foldConstrainedInt). */
     template <typename T>
     static T externalValue(ChannelLayout<T> const &ch, T stored, std::size_t k) {
         if(ch.kind[k] != ParamKind::Constrained) {
@@ -320,10 +325,10 @@ private:
     }
 
     /** @brief Writes the active channel's external (range-folded) values DIRECTLY into a caller buffer,
-     *  returning the count written. Identical per-element fold to streamlineImpl(), but no temporary
-     *  vector and no second copy -- the bulk-flatten fast path behind the public streamlineInto(). NB a
-     *  raw memcpy of `store` would be WRONG: constrained values are stored unbounded and only folded to
-     *  their external range here, so the device must receive the folded values, not the raw storage. */
+     *  returning the count written. Same per-element fold as streamlineImpl() (both via externalValue()),
+     *  but no temporary vector and no second copy -- the bulk-flatten fast path behind streamlineInto().
+     *  Since values are folded at adaption time the fold here is the in-range fast path (~a copy), but it
+     *  is retained defensively, so a raw memcpy of `store` is not a guaranteed-correct substitute. */
     template <typename T>
     std::size_t streamlineIntoImpl(
         T *dst,
@@ -340,9 +345,10 @@ private:
         return n;
     }
 
-    /** @brief Normalises every value of a channel to its external (range-folded) representation IN THE
-     *  STORE -- the adaption-time fold. externalValue() is identity for unbounded parameters, so only
-     *  constrained values are folded back into [lo, hi). After this the stored internal == external. */
+    /** @brief Adaption-time fold: normalises every value of a channel to its external (range-folded)
+     *  representation IN THE STORE, via the SAME externalValue() the read path uses (identity for
+     *  unbounded parameters, so only constrained values move back into [lo, hi)). After this the stored
+     *  internal == external. Sharing externalValue() is what keeps this in lock-step with read-time folds. */
     template <typename T>
     static void foldChannelInPlace(ChannelLayout<T> const &ch, std::vector<T> &store) {
         for(std::size_t k = 0; k < store.size(); ++k) {
