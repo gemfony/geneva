@@ -113,9 +113,11 @@ individual_processing_result::individual_processing_result(
         transformed_fitness_set_ = true;
     }
     else {
-        glogger << "In individual_processing_result(double, std::function<double(double)>)"
-                << '\n'
-                << GTERMINATION;
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In individual_processing_result(double, std::function<double(double)>): Error!" << '\n'
+            << "Received an empty transformation function." << '\n'
+        );
     }
 }
 

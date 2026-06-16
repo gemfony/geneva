@@ -162,18 +162,22 @@ public:
 #ifdef DEBUG
         // Check whether values have been provided
         if(startValues.empty()) {
-            glogger << "In GStarterIndividual::addContent(): Error!" << '\n'
-                    << "No parameters given" << '\n'
-                    << GTERMINATION;
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GStarterIndividual::addContent(): Error!" << '\n'
+                << "No parameters given" << '\n'
+            );
         }
 
         // Check whether all sizes match
         if(startValues.size() != lowerBoundaries.size() ||
            startValues.size() != upperBoundaries.size()) {
-            glogger << "In GStarterIndividual::addContent(): Error!" << '\n'
-                    << "Invalid sizes" << startValues.size() << " / " << lowerBoundaries.size()
-                    << " / " << upperBoundaries.size() << '\n'
-                    << GTERMINATION;
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GStarterIndividual::addContent(): Error!" << '\n'
+                << "Invalid sizes" << startValues.size() << " / " << lowerBoundaries.size()
+                << " / " << upperBoundaries.size() << '\n'
+            );
         }
 
         // Check that start values and boundaries have valid values

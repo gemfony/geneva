@@ -523,12 +523,14 @@ private:
         );
 
         if(commandContainer_.get_command() != networked_consumer_payload_command::STOP) {
-            glogger
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GMPIConsumerWorkerNodeT<processable_type>::processLastResponse() with rank="
                 << commRank_ << ":" << '\n'
                 << "Expected to receive the last stop request but instead received message with "
                    "command "
-                << commandContainer_.get_command() << GTERMINATION;
+                << commandContainer_.get_command() << '\n'
+            );
         }
     }
 

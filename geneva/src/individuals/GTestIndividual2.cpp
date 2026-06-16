@@ -129,10 +129,12 @@ GTestIndividual2::GTestIndividual2(const std::size_t &n_objects, const PERFOBJEC
     } break;
 
     default: {
-        glogger << "In GTestIndividual2::GTestIndividual2(): Error!" << '\n'
-                << "Invalid object type requested: " << otype << '\n'
-                << GTERMINATION;
-    } break;
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GTestIndividual2::GTestIndividual2(): Error!" << '\n'
+            << "Invalid object type requested: " << otype << '\n'
+        );
+    }
     }
 
     this->setGenome(b.build());

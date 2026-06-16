@@ -83,10 +83,12 @@ GRandomFactory::GRandomFactory() {
 	*/
 
     if(multiple_call_trap_) {
-        glogger << "Error in GRandomFactory::GRandomFactory():" << '\n'
-                << "Class has been instantiated before." << '\n'
-                << "and may be instantiated only once" << '\n'
-                << GTERMINATION;
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "Error in GRandomFactory::GRandomFactory():" << '\n'
+            << "Class has been instantiated before." << '\n'
+            << "and may be instantiated only once" << '\n'
+        );
     }
     else {
         multiple_call_trap_.store(true);
