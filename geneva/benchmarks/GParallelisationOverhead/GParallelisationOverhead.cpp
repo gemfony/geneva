@@ -61,11 +61,11 @@ using namespace Gem::Common;
  * is however determined by the caller.
  *
  * @param go A reference to the optimization wrapper
- * @param gdif A factory for delay-individual objects
+ * @param delay_config The parsed delay-individual configuration
  * @param ab The parameters a and b of the line best describing all measurements, so that f(x)=a+b*x
  */
 void startReferenceMeasurement(
-    gind::GDelayIndividualFactory &gdif,
+    const gind::GDelayIndividual::Config &delay_config,
     std::tuple<double, double, double, double> &ab
 ) {
     std::cout << "Starting reference measurement" << std::endl;
@@ -82,19 +82,16 @@ void startReferenceMeasurement(
     ea_alg_master->setLocalConsumer(oa::local_consumer_kind::serial);
 
     //---------------------------------------------------------------------
-    // Loop until no valid individuals can be retrieved anymore
-    std::uint32_t interMeasurementDelay = 1;
-    std::uint32_t nMeasurementsPerIteration = 5;
+    // Cycle through the configured delays, building a fresh delay individual for each one.
+    const std::uint32_t interMeasurementDelay = delay_config.inter_measurement_delay;
+    const std::uint32_t nMeasurementsPerIteration = delay_config.n_measurements;
+    const auto sleep_times = gind::GDelayIndividual::parseSleepTimes(delay_config);
     std::size_t iter = 0;
-    std::shared_ptr<gind::GDelayIndividual> gdi_ptr;
-    while((gdi_ptr = gdif.get_as<gind::GDelayIndividual>())) {
-        if(0 ==
-           iter) { // The first individual must already have been produced in order to access parsed data
-            // Determine the amount of seconds the process should sleep in between two measurements
-            interMeasurementDelay = gdif.getInterMeasurementDelay();
-            // Determine the number of measurements to be made for each delay
-            nMeasurementsPerIteration = gdif.getNMeasurements();
-        }
+    for(const auto &sleep_time_tuple : sleep_times) {
+        auto gdi_ptr = gind::GDelayIndividual::create(
+            delay_config,
+            gind::GDelayIndividual::tupleToTime(sleep_time_tuple)
+        );
 
         for(std::uint32_t i = 0; i < nMeasurementsPerIteration; i++) {
             std::cout << "Serial measurement " << i << " in iteration " << iter << std::endl;
@@ -150,12 +147,12 @@ void startReferenceMeasurement(
  * - The sigma / error of the mean value
  *
  * @param go A reference to the optimization wrapper
- * @param gdif A factory for delay-individual objects
+ * @param delay_config The parsed delay-individual configuration
  * @param parallelExecutionTimes A vector of parallel execution times, together with errors
  */
 void startParallelMeasurement(
     Go2 &go,
-    gind::GDelayIndividualFactory &gdif,
+    const gind::GDelayIndividual::Config &delay_config,
     std::vector<std::tuple<double, double, double, double>> &parallelExecutionTimes
 ) {
     std::cout << "Starting parallel measurement" << std::endl;
@@ -165,19 +162,16 @@ void startParallelMeasurement(
     parallelExecutionTimes.clear();
 
     //---------------------------------------------------------------------
-    // Loop until no valid individuals can be retrieved anymore
-    std::uint32_t interMeasurementDelay = 1;
-    std::uint32_t nMeasurementsPerIteration = 5;
+    // Cycle through the configured delays, building a fresh delay individual for each one.
+    const std::uint32_t interMeasurementDelay = delay_config.inter_measurement_delay;
+    const std::uint32_t nMeasurementsPerIteration = delay_config.n_measurements;
+    const auto sleep_times = gind::GDelayIndividual::parseSleepTimes(delay_config);
     std::size_t iter = 0;
-    std::shared_ptr<gind::GDelayIndividual> gdi_ptr;
-    while((gdi_ptr = gdif.get_as<gind::GDelayIndividual>())) {
-        if(0 ==
-           iter) { // The first individual must already have been produced in order to access parsed data
-            // Determine the amount of seconds the process should sleep in between two measurements
-            interMeasurementDelay = gdif.getInterMeasurementDelay();
-            // Determine the number of measurements to be made for each delay
-            nMeasurementsPerIteration = gdif.getNMeasurements();
-        }
+    for(const auto &sleep_time_tuple : sleep_times) {
+        auto gdi_ptr = gind::GDelayIndividual::create(
+            delay_config,
+            gind::GDelayIndividual::tupleToTime(sleep_time_tuple)
+        );
 
         std::vector<double> delaySummary;
         for(std::uint32_t i = 0; i < nMeasurementsPerIteration; i++) {
@@ -273,10 +267,11 @@ int main(int argc, char **argv) {
     }
 
     //---------------------------------------------------------------------
-    // Create a factory for GDelayIndividualFactory objects for reference measurements
-    gind::GDelayIndividualFactory gdif_ref("./config/GDelayIndividual-reference.json");
+    // Read the delay-individual configuration for reference measurements ...
+    auto delay_config_ref =
+        gind::GDelayIndividual::readConfig("./config/GDelayIndividual-reference.json");
     // ... and for parallel measurements
-    gind::GDelayIndividualFactory gdif_par("./config/GDelayIndividual.json");
+    auto delay_config_par = gind::GDelayIndividual::readConfig("./config/GDelayIndividual.json");
 
     // Add default optimization algorithms to the parallel Go2 object
     go_parallel.registerDefaultAlgorithm("ea");
@@ -285,9 +280,9 @@ int main(int argc, char **argv) {
     Gem::Common::GThreadPool tp(2);
 
     // Start the reference and parallel threads
-    tp.async_schedule([&]() { startReferenceMeasurement(gdif_ref, ab); });
+    tp.async_schedule([&]() { startReferenceMeasurement(delay_config_ref, ab); });
     tp.async_schedule([&]() {
-        startParallelMeasurement(go_parallel, gdif_par, parallelExecutionTimes);
+        startParallelMeasurement(go_parallel, delay_config_par, parallelExecutionTimes);
     });
     std::cout << "Waiting for threads to return" << std::endl;
     // And wait for their return
@@ -322,7 +317,7 @@ int main(int argc, char **argv) {
     gpd.registerPlotter(gratio_ptr);
 
     gpd.setCanvasDimensions(800, 1200);
-    gpd.writeToFile(gdif_par.getResultFileName());
+    gpd.writeToFile(delay_config_par.result_file);
 
     return 0;
 }

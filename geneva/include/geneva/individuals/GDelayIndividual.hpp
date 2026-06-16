@@ -35,9 +35,12 @@
 // Standard header files go here
 #include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <sstream>
+#include <string>
 #include <thread>
 #include <tuple>
 #include <vector>
@@ -49,10 +52,13 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
-#include "common/GFactoryT.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "hap/GRandomDistributionsT.hpp"
+
+namespace Gem::Common {
+class GParserBuilder;
+} // namespace Gem::Common
 
 namespace Gem::Geneva::Individuals {
 
@@ -118,6 +124,40 @@ public:
     /** @brief Retrieves the time window for random sleeps */
     std::tuple<double, double> getSleepWindow() const;
 
+    /***************************************************************************/
+    /**
+     * The configuration the delay benchmarks read for a series of delay individuals. This individual
+     * is only ever used by benchmarks/tests (it performs no real optimisation), so -- rather than a
+     * bespoke factory -- it owns its own config parsing and construction through the static helpers
+     * below: the benchmark reads a Config, then drives the delay sequence itself.
+     */
+    struct Config {
+        std::size_t n_variables = 100; ///< Number of (transport-ballast) double parameters in the genome
+        std::string delays =
+            "(0,1), (0,10), (0,100), (0,500), (1,0)"; ///< The list of (s,ms) delays to cycle through
+        bool sleep_randomly = false;                  ///< Sleep for a random time rather than a fixed one
+        double lower_rand_sleep_boundary = 0.;        ///< Lower boundary for random sleeps (seconds)
+        double upper_rand_sleep_boundary = 1.;        ///< Upper boundary for random sleeps (seconds)
+        std::string result_file = "fullResults.C";    ///< File for the full results
+        std::string short_result_file = "shortDelayResults.txt"; ///< File for the short results
+        std::uint32_t n_measurements = 10;            ///< Number of measurements per delay
+        std::uint32_t inter_measurement_delay = 1;    ///< Seconds to wait between two measurements
+        bool may_crash = false;                       ///< Whether the fitness function may throw
+        double throw_likelihood = 0.001;              ///< Likelihood of a throw from the fitness function
+    };
+
+    /** @brief Registers the delay configuration options, binding them to the passed Config */
+    static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
+    /** @brief Reads a delay configuration file (creating it with defaults if it does not exist) */
+    static Config readConfig(std::filesystem::path const &configFile);
+    /** @brief Parses the textual "delays" list of a Config into (seconds, milliseconds) tuples */
+    static std::vector<std::tuple<unsigned int, unsigned int>> parseSleepTimes(const Config &c);
+    /** @brief Converts a (seconds, milliseconds) tuple to a duration */
+    static std::chrono::duration<double> tupleToTime(const std::tuple<unsigned int, unsigned int> &);
+    /** @brief Builds a configured delay individual (genome = n_variables doubles) for one fixed sleep time */
+    static std::shared_ptr<GDelayIndividual>
+    create(const Config &c, const std::chrono::duration<double> &sleepTime);
+
 protected:
     /** @brief Single declaration of this class'es local data members */
     auto localMembers() {
@@ -179,67 +219,6 @@ private:
         0.,
         1.
     ); ///< Boundaries in seconds for random sleep (min/max amount of delay)
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * A factory for GFMinIndividual objects
- */
-class GDelayIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<gpar::GOptimizableEntity> {
-public:
-    /** @brief The standard constructor */
-    GDelayIndividualFactory(std::filesystem::path const &);
-    /** @brief The destructor */
-    ~GDelayIndividualFactory() override;
-
-    /** @brief Allows to retrieve the name of the result file */
-    std::string getResultFileName() const;
-    /** @brief Allows to retrieve the name of the file holding the short measurement results */
-    std::string getShortResultFileName() const;
-    /** @brief Allows to retrieve the number of delays requested by the user */
-    std::size_t getNDelays() const;
-    /** @brief Allows to retrieve the number of measurements to be made for each delay */
-    std::uint32_t getNMeasurements() const;
-    /** @brief Retrieves the amount of seconds main() should wait between two measurements */
-    std::uint32_t getInterMeasurementDelay() const;
-    /** @brief Retrieves the sleep times */
-    std::vector<std::tuple<unsigned int, unsigned int>> getSleepTimes() const;
-
-protected:
-    /** @brief Allows to describe local configuration options in derived classes */
-    void describeLocalOptions_(Gem::Common::GParserBuilder &) final;
-    /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &) final;
-
-private:
-    /** @brief The default constructor. Only needed for (de-)serialization purposes */
-    GDelayIndividualFactory() = default;
-
-    /** @brief Creates individuals of this type */
-    std::shared_ptr<gpar::GOptimizableEntity>
-    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) final;
-
-    /** @brief Converts a tuple to a time format */
-    std::chrono::duration<double> tupleToTime(const std::tuple<unsigned int, unsigned int> &);
-
-    std::size_t n_variables_ = 100;
-    std::string delays_ = "(0,1), (0,10), (0,100), (0,500), (1,0)";
-    std::vector<std::tuple<unsigned int, unsigned int>> sleep_times_;
-    std::string result_file_ = "fullResults.C";
-    std::string short_result_file_ = "shortDelayResults.txt";
-    std::uint32_t n_measurements_ = 10;        ///< The number of measurements for each delay
-    std::uint32_t inter_measurement_delay_ = 1; ///< The delay between two measurements
-    bool may_crash_ =
-        false; ///< Indicates whether the fitness function may throw at the end of the sleep time
-    double throw_likelihood_ =
-        0.001; ///< The likelihood for an exception to be thrown from the fitness function
-    bool sleep_randomly_ =
-        false; /// Whether to sleep for a random amount of time instead of fixed amounts
-    double lower_rand_sleep_boundary_ = 0.; ///< The lower boundary for random sleeps
-    double upper_rand_sleep_boundary_ = 1.; ///< The upper boundary for random sleeps
 };
 
 /******************************************************************************/

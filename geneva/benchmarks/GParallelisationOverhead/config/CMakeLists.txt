@@ -27,9 +27,10 @@
 #
 ################################################################################
 
+# Note: the GDelayIndividual config files are auto-generated with default values by
+# GDelayIndividual::readConfig() on first run (the individual owns its own config), so
+# they are not shipped here.
 SET ( CONFIGFILES
-	GDelayIndividual.json
-	GDelayIndividual-reference.json
 	GEvolutionaryAlgorithm.json
 	Go2.json
 )

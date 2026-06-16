@@ -80,11 +80,10 @@ int main(int argc, char **argv) {
     } // Execution will end here in client mode
 
     //---------------------------------------------------------------------------
-    // Create a factory for GFunctionIndividual objects and perform
-    // any necessary initial work.
-    std::shared_ptr<gind::GDelayIndividualFactory> gfi_ptr(
-        new gind::GDelayIndividualFactory("./config/GDelayIndividual.json")
-    );
+    // Read the delay-individual configuration (the individual owns its own config
+    // parsing and construction; there is no bespoke factory anymore).
+    auto delay_config = gind::GDelayIndividual::readConfig("./config/GDelayIndividual.json");
+    auto sleep_times = gind::GDelayIndividual::parseSleepTimes(delay_config);
 
     //---------------------------------------------------------------------------
     // Register pluggable optimization monitors, if requested by the user
@@ -107,7 +106,10 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
 
     // Add a content creator so Go2 can generate its own individuals, if necessary
-    auto firstInd = gfi_ptr->get_as<gind::GDelayIndividual>();
+    auto firstInd = gind::GDelayIndividual::create(
+        delay_config,
+        gind::GDelayIndividual::tupleToTime(sleep_times.at(0))
+    );
     go.push_back(firstInd);
 
     // GDelay's genome is transport ballast (its VALUES are irrelevant to the timing benchmark), but the EA

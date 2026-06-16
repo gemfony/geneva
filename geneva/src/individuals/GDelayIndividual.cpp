@@ -34,7 +34,6 @@
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
-#include "common/GFactoryT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
@@ -286,176 +285,59 @@ std::tuple<double, double> GDelayIndividual::getSleepWindow() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The standard constructor for this class
+ * Registers the delay configuration options, binding them to the passed Config. This is the body of the
+ * former GDelayIndividualFactory::describeLocalOptions_, now owned by the individual itself.
  */
-GDelayIndividualFactory::GDelayIndividualFactory(std::filesystem::path const &c_f)
-  : Gem::Common::GFactoryT<gpar::GOptimizableEntity>(c_f) { /* nothing */
-}
+void GDelayIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
+    gpb.registerFileParameter("n_variables", c.n_variables, c.n_variables)
+        << "The number of variables to act on";
 
-/******************************************************************************/
-/**
- * The destructor
- */
-GDelayIndividualFactory::~GDelayIndividualFactory() { /* nothing */
-}
+    gpb.registerFileParameter("delays", c.delays, c.delays)
+        << "A list of delays through which the benchmark should cycle. Format: seconds:milliseconds";
 
-/******************************************************************************/
-/**
- * Allows to retrieve the name of the result file
- *
- * @return The Name of the result file
- */
-std::string GDelayIndividualFactory::getResultFileName() const {
-    return result_file_;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the name of the file holding the short measurement results
- *
- * @return The file name holding short measurement results
- */
-std::string GDelayIndividualFactory::getShortResultFileName() const {
-    return short_result_file_;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the number of delays provided by the user
- *
- * @return The number of delays provided by the user
- */
-std::size_t GDelayIndividualFactory::getNDelays() const {
-    return sleep_times_.size();
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the number of measurements to be made for each delay
- *
- * @return The number of measurements to be made for each delay
- */
-std::uint32_t GDelayIndividualFactory::getNMeasurements() const {
-    return n_measurements_;
-}
-
-/******************************************************************************/
-/**
- * Retrieves the amount of seconds main() should wait between two measurements
- */
-std::uint32_t GDelayIndividualFactory::getInterMeasurementDelay() const {
-    return inter_measurement_delay_;
-}
-
-/******************************************************************************/
-/**
- * Retrieves the sleep times
- *
- * @return The sleep times, as determined by this object
- */
-std::vector<std::tuple<unsigned int, unsigned int>> GDelayIndividualFactory::getSleepTimes() const {
-    return sleep_times_;
-}
-
-/******************************************************************************/
-/**
- * Creates items of this type
- *
- * @return Items of the desired type
- */
-std::shared_ptr<gpar::GOptimizableEntity> GDelayIndividualFactory::getObject_(
-    Gem::Common::GParserBuilder &gpb,
-    [[maybe_unused]] const std::size_t & id
-) {
-    // Will hold the result
-    std::shared_ptr<GDelayIndividual> target(new GDelayIndividual());
-
-    // Make the object's local configuration options known
-    target->addConfigurationOptions(gpb);
-
-    return target;
-}
-
-/******************************************************************************/
-/**
- * Allows to describe configuration options of GDelayIndividual objects
- */
-void GDelayIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &gpb) {
-    gpb.registerFileParameter(
-        "n_variables",
-        n_variables_,
-        n_variables_ // The default value
-    ) << "The number of variables to act on";
-
-    gpb.registerFileParameter(
-        "delays",
-        delays_,
-        delays_ // The default value
-    ) << "A list of delays through which main() should cycle. Format: seconds:milliseconds";
-
-    gpb.registerFileParameter(
-        "sleep_randomly",
-        sleep_randomly_,
-        sleep_randomly_ // The default value
-    ) << "Indicates whether the individual should sleep for a random amount of time"
-      << '\n'
-      << "rather than a fixed amount of time";
+    gpb.registerFileParameter("sleep_randomly", c.sleep_randomly, c.sleep_randomly)
+        << "Indicates whether the individual should sleep for a random amount of time" << '\n'
+        << "rather than a fixed amount of time";
 
     gpb.registerFileParameter(
         "lower_rand_sleep_boundary",
-        lower_rand_sleep_boundary_,
-        lower_rand_sleep_boundary_ // The default value
-    ) << "The lower boundary for random sleep times in the"
-      << '\n'
+        c.lower_rand_sleep_boundary,
+        c.lower_rand_sleep_boundary
+    ) << "The lower boundary for random sleep times in the" << '\n'
       << "fitness function (seconds, double value)";
 
     gpb.registerFileParameter(
         "upper_rand_sleep_boundary",
-        upper_rand_sleep_boundary_,
-        upper_rand_sleep_boundary_ // The default value
-    ) << "The upper boundary for random sleep times in the"
-      << '\n'
+        c.upper_rand_sleep_boundary,
+        c.upper_rand_sleep_boundary
+    ) << "The upper boundary for random sleep times in the" << '\n'
       << "fitness function (seconds, double value)";
 
-    gpb.registerFileParameter(
-        "result_file",
-        result_file_,
-        result_file_ // The default value
-    ) << "The name of a file to which results should be stored";
+    gpb.registerFileParameter("result_file", c.result_file, c.result_file)
+        << "The name of a file to which results should be stored";
 
-    gpb.registerFileParameter(
-        "short_result_file",
-        short_result_file_,
-        short_result_file_ // The default value
-    ) << "The name of a file to which short results should be stored";
+    gpb.registerFileParameter("short_result_file", c.short_result_file, c.short_result_file)
+        << "The name of a file to which short results should be stored";
 
-    gpb.registerFileParameter(
-        "n_measurements",
-        n_measurements_,
-        n_measurements_ // The default value
-    ) << "The number of measurements for each delay";
+    gpb.registerFileParameter("n_measurements", c.n_measurements, c.n_measurements)
+        << "The number of measurements for each delay";
 
-    gpb.registerFileParameter(
-        "inter_measurement_delay",
-        inter_measurement_delay_,
-        inter_measurement_delay_ // The default value
-    ) << "The amount of seconds to wait between two measurements";
+    gpb.registerFileParameter("inter_measurement_delay", c.inter_measurement_delay, c.inter_measurement_delay)
+        << "The amount of seconds to wait between two measurements";
 
     gpb.registerFileParameter<bool, double>(
-        "may_throw" // The name of the variable
-        ,
+        "may_throw",
         "throw_likelihood",
-        may_crash_ // The default value
-        ,
-        throw_likelihood_,
-        [this](bool may_crash, double throw_likelihood) {
-            may_crash_ = may_crash;
+        c.may_crash,
+        c.throw_likelihood,
+        [&c](bool may_crash, double throw_likelihood) {
+            c.may_crash = may_crash;
             // Enforce a throw_likelihood in the allowed value range
-            throw_likelihood_ = Gem::Common::enforceRangeConstraint(
+            c.throw_likelihood = Gem::Common::enforceRangeConstraint(
                 throw_likelihood,
                 0.,
                 1.,
-                "GDelayIndividual::describeLocalOptions_()"
+                "GDelayIndividual::describeConfig()"
             );
         },
         "throw_behaviour"
@@ -465,91 +347,72 @@ void GDelayIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
 
 /******************************************************************************/
 /**
- * Allows to act on the configuration options received from the configuration file. Here
- * we can add the options described in describeLocalOptions to the object. In practice,
- * we add the parameter objects here
- *
- * @param p_raw A smart-pointer to be acted on during post-processing
+ * Reads a delay configuration file, creating it with default values if it does not yet exist. Replaces
+ * the legacy factory's config parsing; the benchmark calls this once and then drives the delay sequence.
  */
-void GDelayIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &p_raw) {
-    // Retrieve information about our id
-    std::size_t id = this->getId();
+GDelayIndividual::Config GDelayIndividual::readConfig(std::filesystem::path const &configFile) {
+    Config c;
+    Gem::Common::GParserBuilder gpb;
+    describeConfig(gpb, c);
 
-    // Make sure the textual delays are converted to time measurements
-    sleep_times_ = Gem::Common::stringToUIntTupleVec(delays_);
-
-    // Convert the base pointer to the target type
-    std::shared_ptr<GDelayIndividual> p =
-        Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, GDelayIndividual>(p_raw);
-
-    if(Gem::Common::GFACTORYWRITEID == id) {
-        // Calculate the current sleep time
-        std::chrono::duration<double> sleep_time = this->tupleToTime(sleep_times_.at(0));
-
-        std::cout << "Producing individual in write mode with sleep time = " << sleep_time.count()
-                  << " s" << '\n';
-
-        p->setFixedSleepTime(sleep_time);
-
-        p->setMayCrash(may_crash_, throw_likelihood_);
-        p->setRandomSleep(
-            sleep_randomly_,
-            std::tuple<double, double>(lower_rand_sleep_boundary_, upper_rand_sleep_boundary_)
+    if(not gpb.parseConfigFile(configFile)) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GDelayIndividual::readConfig(): Error!" << '\n'
+            << "Could not parse configuration file " << configFile.string() << '\n'
         );
-
-        // Set up nVariables unbounded double parameters (structure only). This genome is pure transport
-        // ballast for the overhead measurement -- the benchmark never adapts it, so no OA adaption config
-        // is authored for it (it carries no adaptor, and customAdaptions() is a no-op).
-        gpar::GGenomeBuilder gb;
-        for(std::size_t var = 0; var < n_variables_; var++) {
-            gb.addDouble(0.5);
-        }
-        p->setGenome(gb.build());
     }
-    else if((id - Gem::Common::GFACTTORYFIRSTID) < sleep_times_.size()) {
-        // Calculate the current sleep time
-        std::chrono::duration<double> sleep_time =
-            this->tupleToTime(sleep_times_.at(id - Gem::Common::GFACTTORYFIRSTID));
 
-        std::cout << "Producing individual " << (id - Gem::Common::GFACTTORYFIRSTID)
-                  << " with sleep time = " << sleep_time.count() << " s" << '\n';
+    return c;
+}
 
-        p->setFixedSleepTime(sleep_time);
-
-        p->setMayCrash(may_crash_, throw_likelihood_);
-        p->setRandomSleep(
-            sleep_randomly_,
-            std::tuple<double, double>(lower_rand_sleep_boundary_, upper_rand_sleep_boundary_)
-        );
-
-        // Set up nVariables unbounded double parameters (structure only). This genome is pure transport
-        // ballast for the overhead measurement -- the benchmark never adapts it, so no OA adaption config
-        // is authored for it (it carries no adaptor, and customAdaptions() is a no-op).
-        gpar::GGenomeBuilder gb;
-        for(std::size_t var = 0; var < n_variables_; var++) {
-            gb.addDouble(0.5);
-        }
-        p->setGenome(gb.build());
-    }
-    else {
-        // Return an empty pointer
-        p_raw.reset();
-    }
+/******************************************************************************/
+/**
+ * Parses the textual "delays" list of a Config into (seconds, milliseconds) tuples
+ */
+std::vector<std::tuple<unsigned int, unsigned int>> GDelayIndividual::parseSleepTimes(const Config &c) {
+    return Gem::Common::stringToUIntTupleVec(c.delays);
 }
 
 /******************************************************************************/
 /**
  * Converts a tuple to a time format
  *
- * @param time_tuple A tuple of seconds and milliseconds in unsigned int format, to be converted to a time_duration object
+ * @param time_tuple A tuple of seconds and milliseconds in unsigned int format
  */
 std::chrono::duration<double>
-GDelayIndividualFactory::tupleToTime(const std::tuple<unsigned int, unsigned int> &time_tuple) {
+GDelayIndividual::tupleToTime(const std::tuple<unsigned int, unsigned int> &time_tuple) {
     std::chrono::duration<double> t =
         std::chrono::seconds(Gem::Common::narrow<long>(std::get<0>(time_tuple))) +
         std::chrono::milliseconds(Gem::Common::narrow<long>(std::get<1>(time_tuple)));
 
     return t;
+}
+
+/******************************************************************************/
+/**
+ * Builds a configured delay individual for one fixed sleep time. Replaces the legacy factory's
+ * postProcess_: the genome is n_variables unbounded double parameters (structure only) -- pure transport
+ * ballast for the overhead measurement, carrying no adaptor (customAdaptions() is a no-op).
+ */
+std::shared_ptr<GDelayIndividual>
+GDelayIndividual::create(const Config &c, const std::chrono::duration<double> &sleepTime) {
+    std::shared_ptr<GDelayIndividual> p(new GDelayIndividual());
+
+    p->setFixedSleepTime(sleepTime);
+    p->setMayCrash(c.may_crash, c.throw_likelihood);
+    p->setRandomSleep(
+        c.sleep_randomly,
+        std::tuple<double, double>(c.lower_rand_sleep_boundary, c.upper_rand_sleep_boundary)
+    );
+
+    gpar::GGenomeBuilder gb;
+    for(std::size_t var = 0; var < c.n_variables; var++) {
+        gb.addDouble(0.5);
+    }
+    p->setGenome(gb.build());
+
+    return p;
 }
 
 /******************************************************************************/
