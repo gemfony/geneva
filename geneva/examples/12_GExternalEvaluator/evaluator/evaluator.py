@@ -65,8 +65,8 @@ def setup(setup_file, initial_values):
     -->
     <batch>
       <dataType>setup_data</dataType>
-      <runID>0</runID>
-      <nIndividuals>1</nIndividuals>
+      <run_id>0</run_id>
+      <n_individuals>1</n_individuals>
       <individuals>
         <individual0>
           <type>GParameterSet</type>
@@ -107,7 +107,7 @@ def setup(setup_file, initial_values):
     content += """\
           </vars>
           <nBounds>0</nBounds>
-          <nResults>1</nResults>
+          <n_results>1</n_results>
         </individual0>
       </individuals>
     </batch>
@@ -156,15 +156,15 @@ def write_output(out_file, iteration, it_id, result):
     -->
     <batch>
       <dataType>run_results</dataType>
-      <runID>0</runID>
-      <nIndividuals>1</nIndividuals>
+      <run_id>0</run_id>
+      <n_individuals>1</n_individuals>
       <individuals>
         <individual0>
           <iteration>""" + str(iteration) + """</iteration>
           <id>""" + str(it_id) + """</id>
           <isValid>true</isValid>
           <isDirty>false</isDirty>
-          <nResults>1</nResults>
+          <n_results>1</n_results>
           <results>
             <rawResult0>""" + str(result) + """</rawResult0>
           </results>
@@ -212,23 +212,21 @@ def read_input(in_file):
     except:
         it_id = "UNKNOWN_ID"
 
-    # nr_results = int(root.find("./nResults").text)
     nr_params = int(ind.find("./nVars").text)
 
-    # if nr_results != 1:
-    #    sys.exit("\nERROR: unexpected parameter: nResults=" + str(nr_results) + " (expected 1)!")
     if nr_params != 4:
         sys.exit("\nERROR: unexpected parameter: nVars=" + str(nr_params) + " (expected 4)!")
 
-    params = ind.findall(".//*[isLeaf]")
+    # The flat genome (GFlatGenome::toPropertyTree) writes one scalar <value> per <varN>.
+    params = ind.findall("./vars/*")
     if len(params) != nr_params:
         sys.exit("\nERROR: inconsistent data in input file: nVars=" + str(nr_params)
                  + ", but found " + str(len(params)) + " parameters!")
 
-    x = float(ind.find("./vars/var0").find("values/value0").text)
-    y = float(ind.find("./vars/var1").find("values/value0").text)
-    z = float(ind.find("./vars/var2").find("values/value0").text)
-    w = float(ind.find("./vars/var3").find("values/value0").text)
+    x = float(ind.find("./vars/var0/value").text)
+    y = float(ind.find("./vars/var1/value").text)
+    z = float(ind.find("./vars/var2/value").text)
+    w = float(ind.find("./vars/var3/value").text)
 
     return (iteration, it_id, x, y, z, w)
 

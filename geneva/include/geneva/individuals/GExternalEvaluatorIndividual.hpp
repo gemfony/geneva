@@ -48,9 +48,9 @@
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
 #include "common/GCommonHelperFunctions.hpp"
-#include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GFlatIndividualFactory.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
@@ -95,10 +95,6 @@ const std::string GEEI_DEF_DATATYPE = "setup_data";
 const std::string GEEI_DEF_RUNID = "empty";
 const bool GEEI_DEF_REMOVETEMPORARIES = "true";
 
-/******************************************************************************/
-// Forward declaration so we can expose the factory type to the public
-// from within the GExternalEvaluatorIndividual
-class GExternalEvaluatorIndividualFactory;
 
 /******************************************************************************/
 /**
@@ -161,7 +157,8 @@ class GExternalEvaluatorIndividual
 
 public:
     /***************************************************************************/
-    using FACTORYTYPE = GExternalEvaluatorIndividualFactory;
+    using FACTORYTYPE =
+        Gem::Geneva::Parameters::GFlatIndividualFactory<GExternalEvaluatorIndividual>;
 
     /** @brief The default constructor */
     GExternalEvaluatorIndividual();
@@ -205,6 +202,59 @@ public:
     void setRemoveExecTemporaries(bool);
     /** @brief Allows to check whether temporaries should be removed */
     bool getRemoveExecTemporaries() const;
+
+    /***************************************************************************/
+    /**
+     * The configuration read from the config file by GFlatIndividualFactory<GExternalEvaluatorIndividual>.
+     * Besides the Gauss / bi-Gauss adaptor settings and the external-program parameters, two fields
+     * (run_id, n_results_expected) are not parsed from the file but DISCOVERED by buildGenome() when it
+     * queries the external evaluator; buildGenome writes them back so applyConfig() can hand them to each
+     * produced individual.
+     */
+    struct Config {
+        double ad_prob = GEEI_DEF_ADPROB;
+        double adapt_ad_prob = GEEI_DEF_ADAPTADPROB;
+        double min_ad_prob = GEEI_DEF_MINADPROB;
+        double max_ad_prob = GEEI_DEF_MAXADPROB;
+        std::uint32_t adaption_threshold = GEEI_DEF_ADAPTIONTHRESHOLD;
+        bool use_bi_gaussian = GEEI_DEF_USEBIGAUSSIAN;
+        double sigma1 = GEEI_DEF_SIGMA1;
+        double sigma_sigma1 = GEEI_DEF_SIGMASIGMA1;
+        double min_sigma1 = GEEI_DEF_MINSIGMA1;
+        double max_sigma1 = GEEI_DEF_MAXSIGMA1;
+        double sigma2 = GEEI_DEF_SIGMA2;
+        double sigma_sigma2 = GEEI_DEF_SIGMASIGMA2;
+        double min_sigma2 = GEEI_DEF_MINSIGMA2;
+        double max_sigma2 = GEEI_DEF_MAXSIGMA2;
+        double delta = GEEI_DEF_DELTA;
+        double sigma_delta = GEEI_DEF_SIGMADELTA;
+        double min_delta = GEEI_DEF_MINDELTA;
+        double max_delta = GEEI_DEF_MAXDELTA;
+        std::string program_name = GEEI_DEF_PROGNAME;
+        std::string custom_options = GEEI_DEF_CUSTOMOPTIONS;
+        std::string parameter_file_base_name = GEEI_DEF_PARFILEBASENAME;
+        std::string init_values = GEEI_DEF_STARTMODE;
+        bool remove_exec_temporaries = GEEI_DEF_REMOVETEMPORARIES;
+        // Discovered by buildGenome() from the external evaluator's setup output (not parsed from file):
+        std::string run_id = GEEI_DEF_RUNID;
+        std::size_t n_results_expected = GEEI_DEF_NRESULTS;
+    };
+
+    /** @brief Registers the config-file options, binding them to the passed Config */
+    static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
+    /** @brief Queries the external evaluator for the individual structure and builds the flat genome;
+     *  also records the discovered run_id / n_results_expected back into @p c. */
+    static gpar::Genome buildGenome(Config &c);
+    /** @brief The OA-owned adaption config: the configured Gauss/bi-Gauss adaptor on every ACTIVE group */
+    static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+    buildAdaptionConfig(const gpar::GFlatGenome &sample, const Config &c);
+    /** @brief Per-object post-config hook: applies the external-program parameters + discovered metadata */
+    static void applyConfig(GExternalEvaluatorIndividual &ind, const Config &c);
+    /** @brief Teardown hook (called when the factory is destroyed): runs the external program --finalize */
+    static void finalize(const Config &c);
+    /** @brief Submits a batch of best individuals to the external program for archiving (--archive).
+     *  Reads the program name / custom options / exchange base name / run-id from the individuals. */
+    static void archive(const std::vector<std::shared_ptr<GExternalEvaluatorIndividual>> &arch);
 
 protected:
     /***************************************************************************/
@@ -253,253 +303,20 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A factory for GExternalEvaluatorIndividual objects
+ * A factory for GExternalEvaluatorIndividual objects. The bespoke factory has been replaced by the
+ * generic, config-driven GFlatIndividualFactory; GExternalEvaluatorIndividual supplies the static
+ * describeConfig / buildGenome / buildAdaptionConfig / applyConfig / finalize hooks (plus the static
+ * archive() helper). The alias keeps existing call sites (ctor(path), get_as<>(), getAdaptionConfig(),
+ * registerContentCreator()) compiling unchanged.
  */
-class GExternalEvaluatorIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<gpar::GOptimizableEntity> {
-    ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
+using GExternalEvaluatorIndividualFactory =
+    Gem::Geneva::Parameters::GFlatIndividualFactory<GExternalEvaluatorIndividual>;
 
-    template <class Archive>
-    void serialize(Archive &ar, const unsigned int) {
-        using namespace Gem::Common;
-
-        ar &boost::serialization::make_nvp(
-            "GFactoryT_gpar_GOptimizableEntity",
-            boost::serialization::base_object<GFactoryT<gpar::GOptimizableEntity>>(*this)
-        ) &
-            BOOST_SERIALIZATION_NVP(ad_prob_) & BOOST_SERIALIZATION_NVP(adapt_ad_prob_) &
-            BOOST_SERIALIZATION_NVP(min_ad_prob_) & BOOST_SERIALIZATION_NVP(max_ad_prob_) &
-            BOOST_SERIALIZATION_NVP(adaption_threshold_) &
-            BOOST_SERIALIZATION_NVP(use_bi_gaussian_) & BOOST_SERIALIZATION_NVP(sigma1_) &
-            BOOST_SERIALIZATION_NVP(sigma_sigma1_) & BOOST_SERIALIZATION_NVP(min_sigma1_) &
-            BOOST_SERIALIZATION_NVP(max_sigma1_) & BOOST_SERIALIZATION_NVP(sigma2_) &
-            BOOST_SERIALIZATION_NVP(sigma_sigma2_) & BOOST_SERIALIZATION_NVP(min_sigma2_) &
-            BOOST_SERIALIZATION_NVP(max_sigma2_) & BOOST_SERIALIZATION_NVP(delta_) &
-            BOOST_SERIALIZATION_NVP(sigma_delta_) & BOOST_SERIALIZATION_NVP(min_delta_) &
-            BOOST_SERIALIZATION_NVP(max_delta_) & BOOST_SERIALIZATION_NVP(program_name_) &
-            BOOST_SERIALIZATION_NVP(custom_options_) &
-            BOOST_SERIALIZATION_NVP(parameter_file_base_name_) &
-            BOOST_SERIALIZATION_NVP(init_values_) &
-            BOOST_SERIALIZATION_NVP(remove_exec_temporaries_) &
-            BOOST_SERIALIZATION_NVP(external_evaluator_queried_) & BOOST_SERIALIZATION_NVP(ptr_);
-    }
-
-    ///////////////////////////////////////////////////////////////////////
-
-public:
-    /** @brief The standard constructor */
-    explicit GExternalEvaluatorIndividualFactory(std::filesystem::path const &);
-    /** @brief The copy constructor */
-    
-    GExternalEvaluatorIndividualFactory(const GExternalEvaluatorIndividualFactory &);
-
-    /** @brief The destructor */
-    ~GExternalEvaluatorIndividualFactory() override;
-
-    /** @brief Builds the OA-owned adaption config for a genome produced by this factory: the configured
-     *  Gauss / bi-Gauss adaptor is authored onto every ACTIVE double group (fixed, adaptionMode::NEVER
-     *  groups are left alone). The adaptor settings live on the OA-owned config, not the genome layout. */
-    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    getAdaptionConfig(const gpar::GFlatGenome &sample) const;
-
-    /**************************************************************************/
-    // Getters and setters
-
-    /** @brief Allows to retrieve the adaption_threshold_ variable */
-    std::uint32_t getAdaptionThreshold() const;
-    /** @brief Set the value of the adaption_threshold_ variable */
-    void setAdaptionThreshold(std::uint32_t adaption_threshold);
-
-    /** @brief Allows to retrieve the adProb_ variable */
-    double getAdProb() const;
-    /** @brief Set the value of the adProb_ variable */
-    void setAdProb(double ad_prob);
-
-    /** @brief Allows to retrieve the rate of evolutionary adaption of adProb_ */
-    double getAdaptAdProb() const;
-    /** @brief Allows to specify an adaption factor for adProb_ (or 0, if you do not want this feature) */
-    void setAdaptAdProb(double adapt_ad_prob);
-
-    /** @brief Allows to retrieve the allowed range for adProb_ variation */
-    std::tuple<double, double> getAdProbRange() const;
-    /** @brief Allows to set the allowed range for adaption probability variation */
-    void setAdProbRange(double min_ad_prob, double max_ad_prob);
-
-    /** @brief Allows to retrieve the use_bi_gaussian_ variable */
-    bool getUseBiGaussian() const;
-    /** @brief Set the value of the use_bi_gaussian_ variable */
-    void setUseBiGaussian(bool use_bi_gaussian);
-
-    /** @brief Allows to retrieve the delta_ variable */
-    double getDelta() const;
-    /** @brief Set the value of the delta_ variable */
-    void setDelta(double delta);
-    /** @brief Allows to retrieve the min_delta_ variable */
-    double getMinDelta() const;
-    /** @brief Allows to retrieve the max_delta_ variable */
-    double getMaxDelta() const;
-    /** @brief Allows to retrieve the allowed value range of delta */
-    std::tuple<double, double> getDeltaRange() const;
-    /** @brief Allows to set the allowed value range of delta */
-    void setDeltaRange(std::tuple<double, double>);
-
-    /** @brief Allows to retrieve the min_sigma1_ variable */
-    double getMinSigma1() const;
-    /** @brief Allows to retrieve the max_sigma1_ variable */
-    double getMaxSigma1() const;
-    /** @brief Allows to retrieve the allowed value range of sigma1_ */
-    std::tuple<double, double> getSigma1Range() const;
-    /** @brief Allows to set the allowed value range of sigma1_ */
-    void setSigma1Range(std::tuple<double, double>);
-
-    /** @brief Allows to retrieve the min_sigma2_ variable */
-    double getMinSigma2() const;
-    /** @brief Allows to retrieve the max_sigma2_ variable */
-    double getMaxSigma2() const;
-    /** @brief Allows to retrieve the allowed value range of sigma2_ */
-    std::tuple<double, double> getSigma2Range() const;
-    /** @brief Allows to set the allowed value range of sigma2_ */
-    void setSigma2Range(std::tuple<double, double>);
-
-    /** @brief Allows to retrieve the sigma1_ variable */
-    double getSigma1() const;
-    /** @brief Set the value of the sigma1_ variable */
-    void setSigma1(double sigma1);
-
-    /** @brief Allows to retrieve the sigma2_ variable */
-    double getSigma2() const;
-    /** @brief Set the value of the sigma2_ variable */
-    void setSigma2(double sigma2);
-
-    /** @brief Allows to retrieve the sigma_delta_ variable */
-    double getSigmaDelta() const;
-    /** @brief Set the value of the sigma_delta_ variable */
-    void setSigmaDelta(double sigma_delta);
-
-    /** @brief Allows to retrieve the sigma_sigma1_ variable */
-    double getSigmaSigma1() const;
-    /** @brief Set the value of the sigma_sigma1_ variable */
-    void setSigmaSigma1(double sigma_sigma1);
-
-    /** @brief Allows to retrieve the sigma_sigma2_ variable */
-    double getSigmaSigma2() const;
-    /** @brief Set the value of the sigma_sigma2_ variable */
-    void setSigmaSigma2(double sigma_sigma2);
-
-    /** @brief Allows to set the name and path of the external program */
-    void setProgramName(std::string);
-    /** @brief Allows to retrieve the name of the external program */
-    std::string getProgramName() const;
-
-    /** @brief Sets any custom options that need to be passed to the external evaluation program */
-    void setCustomOptions(const std::string);
-    /** @brief Retrieves any custom options that need to be passed to the external evaluation program */
-    std::string getCustomOptions() const;
-
-    /** @brief Allows to set the base name of the parameter file */
-    void setParameterFileBaseName(std::string);
-    /** @brief Allows to retrieve the base name of the parameter file */
-    std::string getParameterFileBaseName() const;
-
-    /** @brief Indicates the initialization mode */
-    void setInitValues(std::string);
-    /** @brief Allows to retrieve the initialization mode */
-    std::string getInitValues() const;
-
-    /** @brief Allows to specify whether temporary files should be removed */
-    void setRemoveExecTemporaries(bool);
-    /** @brief Allows to check whether temporaries should be removed */
-    bool getRemoveExecTemporaries() const;
-
-    // End of public getters and setters
-    /**************************************************************************/
-
-    /** @brief Submit work items to the external executable for archiving */
-    void archive(
-        const std::vector<std::shared_ptr<GExternalEvaluatorIndividual>
-
-                          > &arch
-    ) const;
-
-    /** @brief Loads the data of another GFunctionIndividualFactory object */
-    void load(std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>>) override;
-
-    /** @brief Creates a deep clone of this object */
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>> clone() const override;
-
-protected:
-    /** @brief Allows to describe local configuration options in derived classes */
-    void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
-
-    /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &) override;
-
-private:
-    /** @brief Creates individuals of this type */
-    std::shared_ptr<gpar::GOptimizableEntity>
-    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
-
-    /** @brief Sets up the boost property object holding information about the individual structure */
-    void setUpPropertyTree();
-
-    /** @brief Set the value of the min_delta_ variable */
-    void setMinDelta(double min_delta);
-
-    /** @brief Set the value of the max_delta_ variable */
-    void setMaxDelta(double max_delta);
-
-    /** @brief Set the value of the min_sigma1_ variable */
-    void setMinSigma1(double min_sigma1);
-
-    /** @brief Set the value of the max_sigma1_ variable */
-    void setMaxSigma1(double max_sigma1);
-
-    /** @brief Set the value of the min_sigma2_ variable */
-    void setMinSigma2(double min_sigma2);
-
-    /** @brief Set the value of the max_sigma2_ variable */
-    void setMaxSigma2(double max_sigma2);
-
-    /** @brief The default constructor; Only needed for (de-)serialization purposes, hence empty. */
-    GExternalEvaluatorIndividualFactory();
-
-    Gem::Common::GOneTimeRefParameterT<double> ad_prob_;
-    Gem::Common::GOneTimeRefParameterT<double> adapt_ad_prob_;
-    Gem::Common::GOneTimeRefParameterT<double> min_ad_prob_;
-    Gem::Common::GOneTimeRefParameterT<double> max_ad_prob_;
-    Gem::Common::GOneTimeRefParameterT<std::uint32_t> adaption_threshold_;
-    Gem::Common::GOneTimeRefParameterT<bool> use_bi_gaussian_;
-    Gem::Common::GOneTimeRefParameterT<double> sigma1_;
-    Gem::Common::GOneTimeRefParameterT<double> sigma_sigma1_;
-    Gem::Common::GOneTimeRefParameterT<double> min_sigma1_;
-    Gem::Common::GOneTimeRefParameterT<double> max_sigma1_;
-    Gem::Common::GOneTimeRefParameterT<double> sigma2_;
-    Gem::Common::GOneTimeRefParameterT<double> sigma_sigma2_;
-    Gem::Common::GOneTimeRefParameterT<double> min_sigma2_;
-    Gem::Common::GOneTimeRefParameterT<double> max_sigma2_;
-    Gem::Common::GOneTimeRefParameterT<double> delta_;
-    Gem::Common::GOneTimeRefParameterT<double> sigma_delta_;
-    Gem::Common::GOneTimeRefParameterT<double> min_delta_;
-    Gem::Common::GOneTimeRefParameterT<double> max_delta_;
-
-    Gem::Common::GOneTimeRefParameterT<std::string> program_name_;
-    Gem::Common::GOneTimeRefParameterT<std::string> custom_options_;
-    Gem::Common::GOneTimeRefParameterT<std::string> parameter_file_base_name_;
-    Gem::Common::GOneTimeRefParameterT<std::string> init_values_;
-
-    Gem::Common::GOneTimeRefParameterT<bool> remove_exec_temporaries_;
-
-    bool
-        external_evaluator_queried_; ///< Specifies whether the external evaluator program has already been queried for setup information
-    pt::ptree
-        ptr_; ///< Holds setup information for individuals, as provided by the external evaluator program
-};
+/******************************************************************************/
 
 } /* namespace Gem::Geneva::Individuals */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GExternalEvaluatorIndividual)        // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GExternalEvaluatorIndividualFactory) // NOLINT
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/

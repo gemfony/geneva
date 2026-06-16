@@ -33,7 +33,6 @@
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
-#include "common/GFactoryT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GMultiConstraintT.hpp"
@@ -56,7 +55,6 @@
 #include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GExternalEvaluatorIndividual)        // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GExternalEvaluatorIndividualFactory) // NOLINT
 namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
@@ -483,1030 +481,99 @@ bool GExternalEvaluatorIndividual::getRemoveExecTemporaries() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Creates GExternalEvaluatorIndividual objects, based on an XML template
- * provided by an external program. See the description of the
- * GExternalEvaluatorIndividual class for the options this program needs
- * to understand.
- *
- * @param config_file The name of the configuration file
+ * Registers the config-file options, binding them to the passed Config. This is the body of the former
+ * GExternalEvaluatorIndividualFactory::describeLocalOptions_; the base GOptimizableEntity options are
+ * registered separately by GFlatIndividualFactory::getObject_ (via addConfigurationOptions).
  */
-GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
-    std::filesystem::path const &config_file
-)
-  : Gem::Common::GFactoryT<gpar::GOptimizableEntity>(config_file)
-  , ad_prob_(GEEI_DEF_ADPROB)
-  , adapt_ad_prob_(GEEI_DEF_ADAPTADPROB)
-  , min_ad_prob_(GEEI_DEF_MINADPROB)
-  , max_ad_prob_(GEEI_DEF_MAXADPROB)
-  , adaption_threshold_(GEEI_DEF_ADAPTIONTHRESHOLD)
-  , use_bi_gaussian_(GEEI_DEF_USEBIGAUSSIAN)
-  , sigma1_(GEEI_DEF_SIGMA1)
-  , sigma_sigma1_(GEEI_DEF_SIGMASIGMA1)
-  , min_sigma1_(GEEI_DEF_MINSIGMA1)
-  , max_sigma1_(GEEI_DEF_MAXSIGMA1)
-  , sigma2_(GEEI_DEF_SIGMA2)
-  , sigma_sigma2_(GEEI_DEF_SIGMASIGMA2)
-  , min_sigma2_(GEEI_DEF_MINSIGMA2)
-  , max_sigma2_(GEEI_DEF_MAXSIGMA2)
-  , delta_(GEEI_DEF_DELTA)
-  , sigma_delta_(GEEI_DEF_SIGMADELTA)
-  , min_delta_(GEEI_DEF_MINDELTA)
-  , max_delta_(GEEI_DEF_MAXDELTA)
-  , program_name_(GEEI_DEF_PROGNAME)
-  , custom_options_(GEEI_DEF_CUSTOMOPTIONS)
-  , parameter_file_base_name_(GEEI_DEF_PARFILEBASENAME)
-  , init_values_(GEEI_DEF_STARTMODE)
-  , remove_exec_temporaries_(GEEI_DEF_REMOVETEMPORARIES)
-  , external_evaluator_queried_(false) { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
-    const GExternalEvaluatorIndividualFactory &cp
-)
-  : Gem::Common::GFactoryT<gpar::GOptimizableEntity>(cp)
-  , ad_prob_(cp.ad_prob_)
-  , adapt_ad_prob_(cp.adapt_ad_prob_)
-  , min_ad_prob_(cp.min_ad_prob_)
-  , max_ad_prob_(cp.max_ad_prob_)
-  , adaption_threshold_(cp.adaption_threshold_)
-  , use_bi_gaussian_(cp.use_bi_gaussian_)
-  , sigma1_(cp.sigma1_)
-  , sigma_sigma1_(cp.sigma_sigma1_)
-  , min_sigma1_(cp.min_sigma1_)
-  , max_sigma1_(cp.max_sigma1_)
-  , sigma2_(cp.sigma2_)
-  , sigma_sigma2_(cp.sigma_sigma2_)
-  , min_sigma2_(cp.min_sigma2_)
-  , max_sigma2_(cp.max_sigma2_)
-  , delta_(cp.delta_)
-  , sigma_delta_(cp.sigma_delta_)
-  , min_delta_(cp.min_delta_)
-  , max_delta_(cp.max_delta_)
-  , program_name_(cp.program_name_)
-  , custom_options_(cp.custom_options_)
-  , parameter_file_base_name_(cp.parameter_file_base_name_)
-  , init_values_(cp.init_values_)
-  , remove_exec_temporaries_(cp.remove_exec_temporaries_)
-  , external_evaluator_queried_(cp.external_evaluator_queried_)
-  , ptr_(cp.ptr_) { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * The default constructor. Only needed for (de-)serialization purposes, hence empty.
- */
-GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory()
-  : Gem::Common::GFactoryT<gpar::GOptimizableEntity>("empty")
-  , ad_prob_(GEEI_DEF_ADPROB)
-  , adapt_ad_prob_(GEEI_DEF_ADAPTADPROB)
-  , min_ad_prob_(GEEI_DEF_MINADPROB)
-  , max_ad_prob_(GEEI_DEF_MAXADPROB)
-  , adaption_threshold_(GEEI_DEF_ADAPTIONTHRESHOLD)
-  , use_bi_gaussian_(GEEI_DEF_USEBIGAUSSIAN)
-  , sigma1_(GEEI_DEF_SIGMA1)
-  , sigma_sigma1_(GEEI_DEF_SIGMASIGMA1)
-  , min_sigma1_(GEEI_DEF_MINSIGMA1)
-  , max_sigma1_(GEEI_DEF_MAXSIGMA1)
-  , sigma2_(GEEI_DEF_SIGMA2)
-  , sigma_sigma2_(GEEI_DEF_SIGMASIGMA2)
-  , min_sigma2_(GEEI_DEF_MINSIGMA2)
-  , max_sigma2_(GEEI_DEF_MAXSIGMA2)
-  , delta_(GEEI_DEF_DELTA)
-  , sigma_delta_(GEEI_DEF_SIGMADELTA)
-  , min_delta_(GEEI_DEF_MINDELTA)
-  , max_delta_(GEEI_DEF_MAXDELTA)
-  , program_name_(GEEI_DEF_PROGNAME)
-  , custom_options_(GEEI_DEF_CUSTOMOPTIONS)
-  , parameter_file_base_name_(GEEI_DEF_PARFILEBASENAME)
-  , init_values_(GEEI_DEF_STARTMODE)
-  , remove_exec_temporaries_(GEEI_DEF_REMOVETEMPORARIES)
-  , external_evaluator_queried_(false) { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * The destructor. Note that, if the external evaluator, when called with the
- * --finalize switch, does anything making optimization impossible, the factory
- * should not be destroyed before the end of the optimization run.
- */
-GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
-    // Check that the file name isn't empty
-    if(program_name_.value().empty()) {
-        glogger
-            << "In GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory(): "
-               "Error!"
-            << '\n'
-            << "Program name was empty" << '\n'
-            << LOGEXIT(EXIT_FAILURE);
-    }
-
-    // Check that the file exists
-    if(not std::filesystem::exists(program_name_.value())) {
-        glogger
-            << "In GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory(): "
-               "Error!"
-            << '\n'
-            << "External program " << program_name_.value() << " does not seem to exist"
-            << '\n'
-            << LOGEXIT(EXIT_FAILURE);
-    }
-
-    // Collect all command-line arguments
-    std::vector<std::string> arguments;
-    if(custom_options_.value() != "empty" && not custom_options_.value().empty()) {
-        arguments.push_back(custom_options_.value());
-    }
-    arguments.emplace_back("--finalize");
-
-    // Ask the external evaluation program to perform any final work
-    std::string command;
-    int error_code = Gem::Common::runExternalCommand(
-        std::filesystem::path(program_name_.value()),
-        arguments,
-        std::filesystem::path(),
-        command
-    );
-
-    // Let the audience know
-    if(error_code) {
-        glogger << "In GExternalEvaluatorIndividual::~GExternalEvaluatorIndividualFactory(): Error"
-                << '\n'
-                << "Execution of external command failed." << '\n'
-                << "Command: " << command << '\n'
-                << "Error code: " << error_code << '\n'
-                << LOGEXIT(EXIT_FAILURE);
-    }
-}
-
-/******************************************************************************/
-/**
- * Loads the data of another GFunctionIndividualFactory object
- */
-void GExternalEvaluatorIndividualFactory::load(
-    std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>> cp_raw_ptr
-) {
-    // Load our parent class'es data
-    Gem::Common::GFactoryT<gpar::GOptimizableEntity>::load(cp_raw_ptr);
-
-    // Convert the base pointer
-    std::shared_ptr<GExternalEvaluatorIndividualFactory> cp_ptr = Gem::Common::convertSmartPointer<
-        Gem::Common::GFactoryT<gpar::GOptimizableEntity>,
-        GExternalEvaluatorIndividualFactory>(cp_raw_ptr);
-
-    // And then our own
-    ad_prob_ = cp_ptr->ad_prob_;
-    adapt_ad_prob_ = cp_ptr->adapt_ad_prob_;
-    min_ad_prob_ = cp_ptr->min_ad_prob_;
-    max_ad_prob_ = cp_ptr->max_ad_prob_;
-    adaption_threshold_ = cp_ptr->adaption_threshold_;
-    use_bi_gaussian_ = cp_ptr->use_bi_gaussian_;
-    sigma1_ = cp_ptr->sigma1_;
-    sigma_sigma1_ = cp_ptr->sigma_sigma1_;
-    min_sigma1_ = cp_ptr->min_sigma1_;
-    max_sigma1_ = cp_ptr->max_sigma1_;
-    sigma2_ = cp_ptr->sigma2_;
-    sigma_sigma2_ = cp_ptr->sigma_sigma2_;
-    min_sigma2_ = cp_ptr->min_sigma2_;
-    max_sigma2_ = cp_ptr->max_sigma2_;
-    delta_ = cp_ptr->delta_;
-    sigma_delta_ = cp_ptr->sigma_delta_;
-    min_delta_ = cp_ptr->min_delta_;
-    max_delta_ = cp_ptr->max_delta_;
-    program_name_ = cp_ptr->program_name_;
-    custom_options_ = cp_ptr->custom_options_;
-    parameter_file_base_name_ = cp_ptr->parameter_file_base_name_;
-    init_values_ = cp_ptr->init_values_;
-    remove_exec_temporaries_ = cp_ptr->remove_exec_temporaries_;
-    external_evaluator_queried_ = cp_ptr->external_evaluator_queried_;
-    ptr_ = cp_ptr->ptr_;
-}
-
-/******************************************************************************/
-/**
- * Creates a deep clone of this object
- */
-std::shared_ptr<Gem::Common::GFactoryT<gpar::GOptimizableEntity>>
-GExternalEvaluatorIndividualFactory::clone() const {
-    return std::make_shared<GExternalEvaluatorIndividualFactory>(*this);
-}
-
-/******************************************************************************/
-/**
- * Get the value of the adaption_threshold_ variable
- */
-std::uint32_t GExternalEvaluatorIndividualFactory::getAdaptionThreshold() const {
-    return adaption_threshold_;
-}
-
-/******************************************************************************/
-/**
- * Set the value of the adaption_threshold_ variable
- */
-void GExternalEvaluatorIndividualFactory::setAdaptionThreshold(std::uint32_t adaption_threshold) {
-    adaption_threshold_ = adaption_threshold;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the adProb_ variable
- */
-double GExternalEvaluatorIndividualFactory::getAdProb() const {
-    return ad_prob_;
-}
-
-/******************************************************************************/
-/**
- * Set the value of the adProb_ variable
- */
-void GExternalEvaluatorIndividualFactory::setAdProb(double ad_prob) {
-    ad_prob_ = ad_prob;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the rate of evolutionary adaption of adProb_
- */
-double GExternalEvaluatorIndividualFactory::getAdaptAdProb() const {
-    return adapt_ad_prob_;
-}
-
-/******************************************************************************/
-/**
- * Allows to specify an adaption factor for adProb_ (or 0, if you do not want this feature)
- */
-void GExternalEvaluatorIndividualFactory::setAdaptAdProb(double adapt_ad_prob) {
-#ifdef DEBUG
-    if(adapt_ad_prob < 0.) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::setAdaptAdProb(): Error!" << '\n'
-            << "Invalid value for adapt_ad_prob given: " << adapt_ad_prob << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    adapt_ad_prob_ = adapt_ad_prob;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the allowed range for adProb_ variation
- */
-std::tuple<double, double> GExternalEvaluatorIndividualFactory::getAdProbRange() const {
-    return std::tuple<double, double>{min_ad_prob_.value(), max_ad_prob_.value()};
-}
-
-/******************************************************************************/
-/**
- * Allows to set the allowed range for adaption probability variation
- */
-void GExternalEvaluatorIndividualFactory::setAdProbRange(double min_ad_prob, double max_ad_prob) {
-#ifdef DEBUG
-    if(min_ad_prob < 0.) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::setAdProbRange(): Error!" << '\n'
-            << "min_ad_prob < 0: " << min_ad_prob << '\n'
-        );
-    }
-
-    if(min_ad_prob > max_ad_prob) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::setAdProbRange(): Error!" << '\n'
-            << "Invalid min_ad_prob and/or max_ad_prob: " << min_ad_prob << " / " << max_ad_prob << '\n'
-        );
-    }
-
-    if(max_ad_prob > 1.) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::setAdProbRange(): Error!" << '\n'
-            << "max_ad_prob > 1: " << max_ad_prob << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    min_ad_prob_ = min_ad_prob;
-    max_ad_prob_ = max_ad_prob;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the delta_ variable
- */
-double GExternalEvaluatorIndividualFactory::getDelta() const {
-    return delta_;
-}
-
-/******************************************************************************/
-/**
- * Set the value of the delta_ variable
- */
-void GExternalEvaluatorIndividualFactory::setDelta(double delta) {
-    delta_ = delta;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the max_delta_ variable
- */
-double GExternalEvaluatorIndividualFactory::getMaxDelta() const {
-    return max_delta_;
-}
-
-/******************************************************************************/
-/**
- * Set the value of the max_delta_ variable
- */
-void GExternalEvaluatorIndividualFactory::setMaxDelta(double max_delta) {
-    max_delta_ = max_delta;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the max_sigma1_ variable
- */
-double GExternalEvaluatorIndividualFactory::getMaxSigma1() const {
-    return max_sigma1_;
-}
-
-/******************************************************************************/
-/**
- * Set the value of the max_sigma1_ variable
- */
-void GExternalEvaluatorIndividualFactory::setMaxSigma1(double max_sigma1) {
-    max_sigma1_ = max_sigma1;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the max_sigma2_ variable
- */
-double GExternalEvaluatorIndividualFactory::getMaxSigma2() const {
-    return max_sigma2_;
-}
-
-/******************************************************************************/
-/**
- * Set the value of the max_sigma2_ variable
- */
-void GExternalEvaluatorIndividualFactory::setMaxSigma2(double max_sigma2) {
-    max_sigma2_ = max_sigma2;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the min_delta_ variable
- */
-double GExternalEvaluatorIndividualFactory::getMinDelta() const {
-    return min_delta_;
-}
-
-/******************************************************************************/
-/**
- * Set the value of the min_delta_ variable
- */
-void GExternalEvaluatorIndividualFactory::setMinDelta(double min_delta) {
-    min_delta_ = min_delta;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the allowed value range of delta
- */
-std::tuple<double, double> GExternalEvaluatorIndividualFactory::getDeltaRange() const {
-    return std::tuple<double, double>{min_delta_, max_delta_};
-}
-
-/******************************************************************************/
-/**
- * Allows to set the allowed value range of delta
- */
-void GExternalEvaluatorIndividualFactory::setDeltaRange(std::tuple<double, double> range) {
-    double min = std::get<0>(range);
-    double max = std::get<1>(range);
-
-    if(min < 0) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::setDeltaRange(): Error" << '\n'
-            << "min must be >= 0. Got : " << min << '\n'
-        );
-    }
-
-    if(min >= max) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::setDeltaRange(): Error" << '\n'
-            << "Invalid range specified: " << min << " / " << max << '\n'
-        );
-    }
-
-    min_delta_ = min;
-    max_delta_ = max;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the min_sigma1_ variable
- */
-double GExternalEvaluatorIndividualFactory::getMinSigma1() const {
-    return min_sigma1_;
-}
-
-/******************************************************************************/
-/**
- * Set the value of the min_sigma1_ variable
- */
-void GExternalEvaluatorIndividualFactory::setMinSigma1(double min_sigma1) {
-    min_sigma1_ = min_sigma1;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the allowed value range of sigma1_
- */
-std::tuple<double, double> GExternalEvaluatorIndividualFactory::getSigma1Range() const {
-    return std::tuple<double, double>{min_sigma1_, max_sigma1_};
-}
-
-/******************************************************************************/
-/**
- * Allows to set the allowed value range of sigma1_
- */
-void GExternalEvaluatorIndividualFactory::setSigma1Range(std::tuple<double, double> range) {
-    double min = std::get<0>(range);
-    double max = std::get<1>(range);
-
-    if(min < 0) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::setSigma1Range(): Error" << '\n'
-            << "min must be >= 0. Got : " << min << '\n'
-        );
-    }
-
-    if(min >= max) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::setSigma1Range(): Error" << '\n'
-            << "Invalid range specified: " << min << " / " << max << '\n'
-        );
-    }
-
-    min_sigma1_ = min;
-    max_sigma1_ = max;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the min_sigma2_ variable
- */
-double GExternalEvaluatorIndividualFactory::getMinSigma2() const {
-    return min_sigma2_;
-}
-
-/******************************************************************************/
-/**
- * Set the value of the min_sigma2_ variable
- */
-void GExternalEvaluatorIndividualFactory::setMinSigma2(double min_sigma2) {
-    min_sigma2_ = min_sigma2;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the allowed value range of sigma2_
- */
-std::tuple<double, double> GExternalEvaluatorIndividualFactory::getSigma2Range() const {
-    return std::tuple<double, double>{min_sigma2_, max_sigma2_};
-}
-
-/******************************************************************************/
-/**
- * Allows to set the allowed value range of sigma2_
- */
-void GExternalEvaluatorIndividualFactory::setSigma2Range(std::tuple<double, double> range) {
-    double min = std::get<0>(range);
-    double max = std::get<1>(range);
-
-    if(min < 0) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::setSigma2Range(): Error" << '\n'
-            << "min must be >= 0. Got : " << min << '\n'
-        );
-    }
-
-    if(min >= max) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::setSigma2Range(): Error" << '\n'
-            << "Invalid range specified: " << min << " / " << max << '\n'
-        );
-    }
-
-    min_sigma2_ = min;
-    max_sigma2_ = max;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the sigma1_ variable
- */
-double GExternalEvaluatorIndividualFactory::getSigma1() const {
-    return sigma1_;
-}
-
-/******************************************************************************/
-/**
- * Set the value of the sigma1_ variable
- */
-void GExternalEvaluatorIndividualFactory::setSigma1(double sigma1) {
-    sigma1_ = sigma1;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the sigma2_ variable
- */
-double GExternalEvaluatorIndividualFactory::getSigma2() const {
-    return sigma2_;
-}
-
-/******************************************************************************/
-/**
- * Set the value of the sigma2_ variable
- */
-void GExternalEvaluatorIndividualFactory::setSigma2(double sigma2) {
-    sigma2_ = sigma2;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the sigma_delta_ variable
- */
-double GExternalEvaluatorIndividualFactory::getSigmaDelta() const {
-    return sigma_delta_;
-}
-
-/******************************************************************************/
-/**
- * Set the value of the sigma_delta_ variable
- */
-void GExternalEvaluatorIndividualFactory::setSigmaDelta(double sigma_delta) {
-    sigma_delta_ = sigma_delta;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the sigma_sigma1_ variable
- */
-double GExternalEvaluatorIndividualFactory::getSigmaSigma1() const {
-    return sigma_sigma1_;
-}
-
-/******************************************************************************/
-/**
- * Set the value of the sigma_sigma1_ variable
- */
-void GExternalEvaluatorIndividualFactory::setSigmaSigma1(double sigma_sigma1) {
-    sigma_sigma1_ = sigma_sigma1;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the sigma_sigma2_ variable
- */
-double GExternalEvaluatorIndividualFactory::getSigmaSigma2() const {
-    return sigma_sigma2_;
-}
-
-/******************************************************************************/
-/**
- * Set the value of the sigma_sigma2_ variable
- */
-void GExternalEvaluatorIndividualFactory::setSigmaSigma2(double sigma_sigma2) {
-    sigma_sigma2_ = sigma_sigma2;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the use_bi_gaussian_ variable
- */
-bool GExternalEvaluatorIndividualFactory::getUseBiGaussian() const {
-    return use_bi_gaussian_;
-}
-
-/******************************************************************************/
-/**
- * Set the value of the use_bi_gaussian_ variable
- */
-void GExternalEvaluatorIndividualFactory::setUseBiGaussian(bool use_bi_gaussian) {
-    use_bi_gaussian_ = use_bi_gaussian;
-}
-
-/******************************************************************************/
-/**
- * Allows to set the name and path of the external program. Note that this will have a
- * lasting effect even if the external configuration file is parsed repeatedly,
- * as we use a "one-time-reference" parameter. Using the "setValue" option woll in
- * contrast reset the internal value of that object.
- */
-void GExternalEvaluatorIndividualFactory::setProgramName(std::string program_name) {
-    // Check that the file name isn't empty
-    if(program_name.empty()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::setProgramName(): Error!" << '\n'
-            << "File name was empty" << '\n'
-        );
-    }
-
-    // Check that the file exists
-    if(not std::filesystem::exists(program_name)) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::setProgramName(): Error!" << '\n'
-            << "External program " << program_name << " does not seem to exist" << '\n'
-        );
-    }
-
-    program_name_.setValue(program_name);
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the name of the external program
- */
-std::string GExternalEvaluatorIndividualFactory::getProgramName() const {
-    return program_name_;
-}
-
-/******************************************************************************/
-/**
- * Sets the name of the external evaluation program. Note that this will have a
- * lasting effect even if the external configuration file is parsed repeatedly,
- * as we use a "one-time-reference" parameter. Using the "setValue" option woll in
- * contrast reset the internal value of that object.
- */
-void GExternalEvaluatorIndividualFactory::setCustomOptions(std::string custom_options) {
-    custom_options_.setValue(custom_options);
-}
-
-/******************************************************************************/
-/**
- * Retrieves the name of the external evaluation program
- */
-std::string GExternalEvaluatorIndividualFactory::getCustomOptions() const {
-    return custom_options_;
-}
-
-/******************************************************************************/
-/**
- * Allows to set the base name of the parameter file
- */
-void GExternalEvaluatorIndividualFactory::setParameterFileBaseName(
-    std::string parameter_file_base_name
-) {
-    // Check that the name isn't empty
-    if(parameter_file_base_name.empty()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::setParameterFileBaseName(): Error!"
-            << '\n'
-            << "Name was empty" << '\n'
-        );
-    }
-
-    parameter_file_base_name_ = parameter_file_base_name;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the base name of the parameter file
- */
-std::string GExternalEvaluatorIndividualFactory::getParameterFileBaseName() const {
-    return parameter_file_base_name_;
-}
-
-/******************************************************************************/
-/**
- * Indicates the initialization mode
- *
- * TODO: Allow "none" in case parameters should be solely supplied by the external evaluator
- */
-void GExternalEvaluatorIndividualFactory::setInitValues(std::string init_values) {
-    if(init_values != "random" && init_values != "min" && init_values != "max") {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::setInitValues(): Error!" << '\n'
-            << "Invalid argument: " << init_values << '\n'
-            << "Expected \"min\", \"max\", or \"random\"." << '\n'
-        );
-    }
-
-    init_values_.setValue(init_values);
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the initialization mode
- */
-std::string GExternalEvaluatorIndividualFactory::getInitValues() const {
-    return init_values_;
-}
-
-/******************************************************************************/
-/**
- * Allows to specify whether temporary files should be removed
- */
-void GExternalEvaluatorIndividualFactory::setRemoveExecTemporaries(bool remove_exec_temporaries) {
-    remove_exec_temporaries_.setValue(remove_exec_temporaries);
-}
-
-/******************************************************************************/
-/**
- * Allows to check whether temporaries should be removed
- */
-bool GExternalEvaluatorIndividualFactory::getRemoveExecTemporaries() const {
-    return remove_exec_temporaries_;
-}
-
-/******************************************************************************/
-/**
- * Submit work items to the external executable for archiving
- */
-void GExternalEvaluatorIndividualFactory::archive(
-    const std::vector<std::shared_ptr<GExternalEvaluatorIndividual>> &arch
-) const {
-    // Check that there are individuals contained in the archive
-    if(arch.empty()) {
-        return; // Do nothing
-    }
-
-    // Transform the objects into a batch of boost property tree
-    boost::property_tree::ptree ptr_out; // NOLINT(cppcoreguidelines-init-variables)
-    std::string batch = "batch";
-
-    // Output the header data
-    ptr_out.put(batch + ".dataType", std::string("archive_data"));
-    ptr_out.put(batch + ".run_id", arch.front()->getRunId());
-    ptr_out.put(batch + ".n_individuals", arch.size());
-
-    // Output the individuals in turn
-    std::size_t pos = 0;
-    std::string basename;
-    for(const auto &individual : arch) {
-        basename = batch + ".individuals.individual" + Gem::Common::to_string(pos++);
-        individual->toPropertyTree(ptr_out, basename);
-    }
-
-    // Create a suitable extension and exchange file names for this object
-    std::chrono::time_point<std::chrono::high_resolution_clock> p1;
-    std::chrono::time_point<std::chrono::high_resolution_clock> p2 =
-        std::chrono::high_resolution_clock::now();
-    std::chrono::milliseconds ms_since_1970 =
-        std::chrono::duration_cast<std::chrono::milliseconds>(p2 - p1);
-    std::string extension = "-since1970-" + Gem::Common::to_string(ms_since_1970.count()) +
-                            Gem::Common::generate_uuid_v4() + ".xml";
-    std::string parameterfile_name = parameter_file_base_name_.value() + extension;
-
-    // Save the parameters to a file for the external evaluation
-    boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
-    boost::property_tree::write_xml(parameterfile_name, ptr_out, std::locale(), settings);
-
-    // Collect all command-line arguments
-    std::vector<std::string> arguments;
-    if(custom_options_.value() != "empty" && not custom_options_.value().empty()) {
-        arguments.push_back(custom_options_.value());
-    }
-    arguments.emplace_back("--archive");
-    arguments.push_back(std::string("--input=\"" + parameterfile_name + "\""));
-
-    // Ask the external evaluation program to perform any final work
-    std::string command;
-    int error_code = Gem::Common::runExternalCommand(
-        std::filesystem::path(program_name_.value()),
-        arguments,
-        std::filesystem::path(),
-        command
-    );
-
-    // Let the audience know
-    if(error_code) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::archive(): Error" << '\n'
-            << "Execution of external command failed." << '\n'
-            << "Command: " << command << '\n'
-            << "Error code: " << error_code << '\n'
-        );
-    }
-
-    // Clean up (remove) the parameter file. This will only be done if no error occurred
-    std::filesystem::remove(parameterfile_name);
-}
-
-/******************************************************************************/
-/**
- * Creates items of this type
- *
- * @return Items of the desired type
- */
-std::shared_ptr<gpar::GOptimizableEntity> GExternalEvaluatorIndividualFactory::getObject_(
-    Gem::Common::GParserBuilder &gpb,
-    [[maybe_unused]] const std::size_t & id
-) {
-    // Will hold the result
-    std::shared_ptr<GExternalEvaluatorIndividual> target(new GExternalEvaluatorIndividual());
-
-    // Make the object's local configuration options known
-    target->addConfigurationOptions(gpb);
-
-    return target;
-}
-
-/******************************************************************************/
-/**
- * Allows to describe local configuration options for gradient descents
- */
-void GExternalEvaluatorIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &gpb) {
-    // Describe our own options
-    using namespace Gem::Courtier;
-
-    // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<gpar::GOptimizableEntity>::describeLocalOptions_(gpb);
-
-    // Then add our local options
-    gpb.registerFileParameter<double>("ad_prob", ad_prob_.reference(), GEEI_DEF_ADPROB)
+void GExternalEvaluatorIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
+    gpb.registerFileParameter<double>("ad_prob", c.ad_prob, GEEI_DEF_ADPROB)
         << "The probability for random adaption of values in evolutionary algorithms";
-
-    gpb.registerFileParameter<double>(
-        "adapt_ad_prob",
-        adapt_ad_prob_.reference(),
-        GEEI_DEF_ADAPTADPROB
-    ) << "Determines the rate of adaption of ad_prob. Set to 0, if you do not need this feature";
-
-    gpb.registerFileParameter<double>("min_ad_prob", min_ad_prob_.reference(), GEEI_DEF_MINADPROB)
+    gpb.registerFileParameter<double>("adapt_ad_prob", c.adapt_ad_prob, GEEI_DEF_ADAPTADPROB)
+        << "Determines the rate of adaption of ad_prob. Set to 0, if you do not need this feature";
+    gpb.registerFileParameter<double>("min_ad_prob", c.min_ad_prob, GEEI_DEF_MINADPROB)
         << "The lower allowed boundary for ad_prob-variation";
-
-    gpb.registerFileParameter<double>("max_ad_prob", max_ad_prob_.reference(), GEEI_DEF_MAXADPROB)
+    gpb.registerFileParameter<double>("max_ad_prob", c.max_ad_prob, GEEI_DEF_MAXADPROB)
         << "The upper allowed boundary for ad_prob-variation";
-
-    gpb.registerFileParameter<std::uint32_t>(
-        "adaption_threshold",
-        adaption_threshold_.reference(),
-        GEEI_DEF_ADAPTIONTHRESHOLD
-    ) << "The number of calls to an adaptor after which adaption takes place";
-
-    gpb.registerFileParameter<bool>(
-        "use_bi_gaussian",
-        use_bi_gaussian_.reference(),
-        GEEI_DEF_USEBIGAUSSIAN
-    ) << "Whether to use a double gaussion for the adaption of parmeters in ES";
-
-    gpb.registerFileParameter<double>("sigma1", sigma1_.reference(), GEEI_DEF_SIGMA1)
+    gpb.registerFileParameter<std::uint32_t>("adaption_threshold", c.adaption_threshold, GEEI_DEF_ADAPTIONTHRESHOLD)
+        << "The number of calls to an adaptor after which adaption takes place";
+    gpb.registerFileParameter<bool>("use_bi_gaussian", c.use_bi_gaussian, GEEI_DEF_USEBIGAUSSIAN)
+        << "Whether to use a double gaussion for the adaption of parmeters in ES";
+    gpb.registerFileParameter<double>("sigma1", c.sigma1, GEEI_DEF_SIGMA1)
         << "The sigma for gauss-adaption in ES" << '\n'
         << "(or the sigma of the left peak of a double gaussian)";
-
-    gpb.registerFileParameter<double>(
-        "sigma_sigma1",
-        sigma_sigma1_.reference(),
-        GEEI_DEF_SIGMASIGMA1
-    ) << "Influences the self-adaption of gauss-mutation in ES";
-
-    gpb.registerFileParameter<double>("min_sigma1", min_sigma1_.reference(), GEEI_DEF_MINSIGMA1)
-        << "The minimum value of sigma1";
-
-    gpb.registerFileParameter<double>("max_sigma1", max_sigma1_.reference(), GEEI_DEF_MAXSIGMA1)
-        << "The maximum value of sigma1";
-
-    gpb.registerFileParameter<double>("sigma2", sigma2_.reference(), GEEI_DEF_SIGMA2)
+    gpb.registerFileParameter<double>("sigma_sigma1", c.sigma_sigma1, GEEI_DEF_SIGMASIGMA1)
+        << "Influences the self-adaption of gauss-mutation in ES";
+    gpb.registerFileParameter<double>("min_sigma1", c.min_sigma1, GEEI_DEF_MINSIGMA1) << "The minimum value of sigma1";
+    gpb.registerFileParameter<double>("max_sigma1", c.max_sigma1, GEEI_DEF_MAXSIGMA1) << "The maximum value of sigma1";
+    gpb.registerFileParameter<double>("sigma2", c.sigma2, GEEI_DEF_SIGMA2)
         << "The sigma of the right peak of a double gaussian (if any)";
-
-    gpb.registerFileParameter<double>(
-        "sigma_sigma2",
-        sigma_sigma2_.reference(),
-        GEEI_DEF_SIGMASIGMA2
-    ) << "Influences the self-adaption of gauss-mutation in ES";
-
-    gpb.registerFileParameter<double>("min_sigma2", min_sigma2_.reference(), GEEI_DEF_MINSIGMA2)
-        << "The minimum value of sigma2";
-
-    gpb.registerFileParameter<double>("max_sigma2", max_sigma2_.reference(), GEEI_DEF_MAXSIGMA2)
-        << "The maximum value of sigma2";
-
-    gpb.registerFileParameter<double>("delta", delta_.reference(), GEEI_DEF_DELTA)
+    gpb.registerFileParameter<double>("sigma_sigma2", c.sigma_sigma2, GEEI_DEF_SIGMASIGMA2)
+        << "Influences the self-adaption of gauss-mutation in ES";
+    gpb.registerFileParameter<double>("min_sigma2", c.min_sigma2, GEEI_DEF_MINSIGMA2) << "The minimum value of sigma2";
+    gpb.registerFileParameter<double>("max_sigma2", c.max_sigma2, GEEI_DEF_MAXSIGMA2) << "The maximum value of sigma2";
+    gpb.registerFileParameter<double>("delta", c.delta, GEEI_DEF_DELTA)
         << "The start distance between both peaks used for bi-gaussian mutations in ES";
-
-    gpb.registerFileParameter<double>("sigma_delta", sigma_delta_.reference(), GEEI_DEF_SIGMADELTA)
+    gpb.registerFileParameter<double>("sigma_delta", c.sigma_delta, GEEI_DEF_SIGMADELTA)
         << "The width of the gaussian used for mutations of the delta parameter";
-
-    gpb.registerFileParameter<double>("min_delta", min_delta_.reference(), GEEI_DEF_MINDELTA)
-        << "The minimum allowed value of delta";
-
-    gpb.registerFileParameter<double>("max_delta", max_delta_.reference(), GEEI_DEF_MAXDELTA)
-        << "The maximum allowed value of delta";
-
-    gpb.registerFileParameter<std::string>(
-        "program_name",
-        program_name_.reference() // Upon repeated filling this option will do nothing
-        ,
-        GEEI_DEF_PROGNAME
-    ) << "The name of the external evaluation program";
-
-    gpb.registerFileParameter<std::string>(
-        "custom_options",
-        custom_options_.reference(),
-        GEEI_DEF_CUSTOMOPTIONS
-    ) << "Any custom options you wish to pass to the external evaluator";
-
-    gpb.registerFileParameter<std::string>(
-        "parameter_file",
-        parameter_file_base_name_.reference(),
-        GEEI_DEF_PARFILEBASENAME
-    ) << "The base name assigned to parameter files"
-      << '\n'
-      << "in addition to data identifying this specific evaluation";
-
-    gpb.registerFileParameter<std::string>(
-        "init_values",
-        init_values_.reference(),
-        GEEI_DEF_STARTMODE
-    ) << "Indicates, whether individuals should be initialized randomly (random),"
-      << '\n'
-      << "with the lower (min) or upper (max) boundary of their value ranges";
-
-    gpb.registerFileParameter<bool>(
-        "remove_exec_temporaries",
-        remove_exec_temporaries_.reference(),
-        GEEI_DEF_REMOVETEMPORARIES
-    ) << "Indicates, whether files created during external execution should be removed";
+    gpb.registerFileParameter<double>("min_delta", c.min_delta, GEEI_DEF_MINDELTA) << "The minimum allowed value of delta";
+    gpb.registerFileParameter<double>("max_delta", c.max_delta, GEEI_DEF_MAXDELTA) << "The maximum allowed value of delta";
+    gpb.registerFileParameter<std::string>("program_name", c.program_name, GEEI_DEF_PROGNAME)
+        << "The name of the external evaluation program";
+    gpb.registerFileParameter<std::string>("custom_options", c.custom_options, GEEI_DEF_CUSTOMOPTIONS)
+        << "Any custom options you wish to pass to the external evaluator";
+    gpb.registerFileParameter<std::string>("parameter_file", c.parameter_file_base_name, GEEI_DEF_PARFILEBASENAME)
+        << "The base name assigned to parameter files" << '\n'
+        << "in addition to data identifying this specific evaluation";
+    gpb.registerFileParameter<std::string>("init_values", c.init_values, GEEI_DEF_STARTMODE)
+        << "Indicates, whether individuals should be initialized randomly (random)," << '\n'
+        << "with the lower (min) or upper (max) boundary of their value ranges";
+    gpb.registerFileParameter<bool>("remove_exec_temporaries", c.remove_exec_temporaries, GEEI_DEF_REMOVETEMPORARIES)
+        << "Indicates, whether files created during external execution should be removed";
 }
 
 /******************************************************************************/
 /**
- * This function asks the external evaluation program to perform any necessary
- * setup work and then queries it for setup-information, storing the data in
- * a boost::property_tree object. Note that this function will do nothing when
- * called more than once.
+ * Queries the external evaluator program for the desired structure of the individuals and builds the
+ * flat genome from it. This combines the former factory's setUpPropertyTree() (run the program with
+ * --init then --setup, parse the returned XML) and postProcess_()'s genome construction. Because the
+ * generic factory builds the shared genome exactly once, the (expensive) external query happens once too.
+ * The discovered run-id and result count are recorded back into @p c so applyConfig() can hand them to
+ * each produced individual.
  */
-void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
-    if(external_evaluator_queried_) {
-        return;
-    }
-            external_evaluator_queried_ = true;
-   
+gpar::Genome GExternalEvaluatorIndividual::buildGenome(Config &c) {
+    namespace pt = boost::property_tree;
 
-    // Check that the file name isn't empty
-    if(program_name_.value().empty()) {
+    if(c.program_name.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::setUpPropertyTree(): Error!" << '\n'
-            << "File name was empty" << '\n'
+            << "In GExternalEvaluatorIndividual::buildGenome(): Error!" << '\n'
+            << "Program name was empty" << '\n'
+        );
+    }
+    if(not std::filesystem::exists(c.program_name)) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GExternalEvaluatorIndividual::buildGenome(): Error!" << '\n'
+            << "External program " << c.program_name << " does not seem to exist" << '\n'
         );
     }
 
-    // Check that the file exists
-    if(not std::filesystem::exists(program_name_.value())) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::setUpPropertyTree(): Error!" << '\n'
-            << "External program " << program_name_.value() << " does not seem to exist"
-            << '\n'
-        );
-    }
+    pt::ptree ptr;
 
-    // Make sure the property tree is empty
-    ptr_.clear();
-
-    { // First we give the external program the opportunity to perform an initial work
-        // Collect all command-line arguments
+    { // Give the external program the opportunity to perform initial work
         std::vector<std::string> arguments;
-        if(custom_options_.value() != "empty" && not custom_options_.value().empty()) {
-            arguments.push_back(custom_options_.value());
+        if(c.custom_options != "empty" && not c.custom_options.empty()) {
+            arguments.push_back(c.custom_options);
         }
         arguments.emplace_back("--init");
-
-        // Ask the external evaluation program to perform any initial work
         std::string command;
         int error_code = Gem::Common::runExternalCommand(
-            std::filesystem::path(program_name_.value()),
-            arguments,
-            std::filesystem::path(),
-            command
+            std::filesystem::path(c.program_name), arguments, std::filesystem::path(), command
         );
-
         if(error_code) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GExternalEvaluatorIndividual::setUpPropertyTree(//1//): Error" << '\n'
+                << "In GExternalEvaluatorIndividual::buildGenome(//1//): Error" << '\n'
                 << "Execution of external command failed." << '\n'
                 << "Command: " << command << '\n'
                 << "Error code: " << error_code << '\n'
@@ -1514,191 +581,110 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
         }
     }
 
-    { // Now we ask the external program for setup-iformation
-        // Collect all command-line arguments
+    { // Now ask the external program for setup information
         std::vector<std::string> arguments;
-        if(custom_options_.value() != "empty" && not custom_options_.value().empty()) {
-            arguments.push_back(custom_options_.value());
+        if(c.custom_options != "empty" && not c.custom_options.empty()) {
+            arguments.push_back(c.custom_options);
         }
-
-        // "/" will be converted to "\" in runExternalCommand, if necessary
         std::string setup_file_name =
-            std::string("./setup-") + Gem::Common::to_string(this) + std::string(".xml");
+            std::string("./setup-") + Gem::Common::generate_uuid_v4() + std::string(".xml");
         arguments.push_back("--setup");
         arguments.push_back("--output=\"" + setup_file_name + "\"");
-        arguments.push_back("--initvalues=\"" + init_values_.value() + "\"");
-
-        // Ask the external evaluation program tfor setup information
+        arguments.push_back("--initvalues=\"" + c.init_values + "\"");
         std::string command;
         int error_code = Gem::Common::runExternalCommand(
-            std::filesystem::path(program_name_.value()),
-            arguments,
-            std::filesystem::path(),
-            command
+            std::filesystem::path(c.program_name), arguments, std::filesystem::path(), command
         );
-
         if(error_code) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GExternalEvaluatorIndividual::setUpPropertyTree(//2//): Error" << '\n'
+                << "In GExternalEvaluatorIndividual::buildGenome(//2//): Error" << '\n'
                 << "Execution of external command failed." << '\n'
                 << "Command: " << command << '\n'
                 << "Error code: " << error_code << '\n'
             );
         }
-
-        // Parse the setup file
-        pt::read_xml(setup_file_name, ptr_);
-
-        // Clean up
+        pt::read_xml(setup_file_name, ptr);
         std::filesystem::remove(std::filesystem::path(setup_file_name));
     }
-}
 
-/******************************************************************************/
-/**
- * Allows to act on the configuration options received from the configuration file. Here
- * we can add the options described in describeLocalOptions to the object. In practice,
- * we add the parameter objects here
- *
- * @param p_raw A smart-pointer to be acted on during post-processing
- */
-void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &p_raw) {
-    using boost::property_tree::ptree;
-
-    // Convert the base pointer to the target type
-    std::shared_ptr<GExternalEvaluatorIndividual> p =
-        Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, GExternalEvaluatorIndividual>(p_raw);
-
-    // Set up a random number generator
-    Gem::Hap::GRandom gr;
-
-    // Here we ask the external evaluator to perform any necessary setup work
-    // and query it for the desired structure of our individuals. The work is done
-    // but once, and the results are stored in a private object inside of this class.
-    this->setUpPropertyTree();
-
-    if(ptr_.empty()) {
+    if(ptr.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << '\n'
+            << "In GExternalEvaluatorIndividual::buildGenome(): Error!" << '\n'
             << "Property tree is empty." << '\n'
         );
     }
 
-    // The flat genome is authored through a GGenomeBuilder: each discovered variable becomes one
-    // constrained double group, with a Gauss (or bi-Gauss) adaptor attached per the factory's
-    // configuration. The accumulated genome is installed on the individual after the loop via
-    // setGenome().
+    // Author the flat genome: each discovered variable becomes one constrained double group. Fixed
+    // variables (min == max) are built with adaptionMode::NEVER; active ones get their Gauss/bi-Gauss
+    // adaptor from the OA-owned config (buildAdaptionConfig), not the layout.
     gpar::GGenomeBuilder gb;
 
     try {
-        // Extract the number of individuals
-        std::size_t n_individuals =
-            ptr_.get<std::size_t>("batch.n_individuals"); // NOLINT(cppcoreguidelines-init-variables)
+        std::size_t n_individuals = ptr.get<std::size_t>("batch.n_individuals");
         if(1 != n_individuals) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << '\n'
+                << "In GExternalEvaluatorIndividual::buildGenome(): Error!" << '\n'
                 << "Received invalid number of setup-individuals: " << n_individuals << '\n'
             );
         }
 
-        // Get the run-id
-        std::string run_id = ptr_.get<std::string>("batch.run_id");
+        c.run_id = ptr.get<std::string>("batch.run_id");
+        std::size_t n_var = ptr.get<std::size_t>("batch.individuals.individual0.nVars");
+        c.n_results_expected = ptr.get<std::size_t>("batch.individuals.individual0.n_results");
 
-        // Extract the number of variables for the first individual
-        std::size_t n_var = ptr_.get<std::size_t>(
-            "batch.individuals.individual0.nVars"
-        ); // NOLINT(cppcoreguidelines-init-variables)
-
-        // Extract the number of results to be expected from the external evaluation function for the first individual
-        std::size_t n_results_expected = ptr_.get<std::size_t>(
-            "batch.individuals.individual0.n_results"
-        ); // NOLINT(cppcoreguidelines-init-variables)
-
-        // If variables have been specified, extract them
-        boost::optional<ptree &> var_set_node_opt =
-            ptr_.get_child_optional("batch.individuals.individual0.vars");
+        boost::optional<pt::ptree &> var_set_node_opt =
+            ptr.get_child_optional("batch.individuals.individual0.vars");
         if(var_set_node_opt) {
-            // Loop over all children of the variables tree
-            // Note that for now we only query GConstrainedDoubleObject objects
             std::size_t var_counter = 0;
             std::string var_string = "var0";
             for(const auto &[var_name, var_subtree] : *var_set_node_opt) {
-                if(var_string == var_name) { // O.k., we found a varX string
-                    // Just treat GConstrainedDoubleObject objects for now
+                if(var_string == var_name) {
                     if("GConstrainedDoubleObject" == var_subtree.get<std::string>("type")) {
-                        // Extract the boundaries and initial values
                         double min_var = var_subtree.get<double>("lowerBoundary");
                         double max_var = var_subtree.get<double>("upperBoundary");
                         double init_value = var_subtree.get<double>("values.value0");
-
-                        // Act on the information, depending on whether random initialization has been requested
-                        if(
-                            min_var == max_var
-                        ) { // We take this as a sign that the parameter should not be modified
-                            // Create the parameter group and disable mutations for it. No adaptor is
-                            // attached; adaptionMode::NEVER mirrors the tree's setAdaptionsInactive().
+                        if(min_var == max_var) {
+                            // Take this as a sign that the parameter should not be modified.
                             gb.addDouble(
-                                  init_value,
-                                  init_value,
-                                  std::max(1.0001 * init_value, init_value + 0.0001)
+                                  init_value, init_value, std::max(1.0001 * init_value, init_value + 0.0001)
                               )
                                 .adaptionMode(Gem::Geneva::adaptionMode::NEVER);
                         }
                         else {
-                            // A constrained double over [min_var, max_var] (structure only). For the
-                            // non-random case we seed the start value with init_value; the random case lets
-                            // randomInit() overwrite it later (the init perimeter defaults to the bounds
-                            // either way). The configured Gauss / bi-Gauss adaptor for this active group
-                            // lives on the OA-owned config (getAdaptionConfig()), not the genome layout.
                             gb.addDouble(init_value, min_var, max_var);
                         }
                     }
                     else {
                         throw geneva_exception(
                             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                            << "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!"
-                            << '\n'
-                            << var_subtree.get<std::string>("type") << " provided as type name."
-                            << '\n'
+                            << "In GExternalEvaluatorIndividual::buildGenome(): Error!" << '\n'
+                            << var_subtree.get<std::string>("type") << " provided as type name." << '\n'
                             << "Currently only GConstrainedDoubleObject is supported." << '\n'
                         );
                     }
 
                     if(++var_counter >= n_var) {
-                        break; // Terminate the loop if we have identified all expected parameter objects
+                        break;
                     }
-                                            var_string = std::string("var") +
-                                     Gem::Common::to_string(var_counter); // Create a new var string
-                   
+                    var_string = std::string("var") + Gem::Common::to_string(var_counter);
                 }
             }
         }
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << '\n'
+                << "In GExternalEvaluatorIndividual::buildGenome(): Error!" << '\n'
                 << "No variables were specified" << '\n'
             );
         }
-
-        // Install the accumulated genome (value arrays + shared adaption layout) on the individual
-        p->setGenome(gb.build());
-
-        // Add the program name and base name for parameter transfers to the object
-        p->setExchangeBaseName(parameter_file_base_name_);
-        p->setProgramName(program_name_);
-        p->setCustomOptions(custom_options_);
-        p->setNExpectedResults(n_results_expected);
-        p->setRemoveExecTemporaries(remove_exec_temporaries_);
-        p->setRunId(run_id);
     }
     catch(const pt::ptree_bad_path &e) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << '\n'
+            << "In GExternalEvaluatorIndividual::buildGenome(): Error!" << '\n'
             << "Caught ptree_bad_path exception with message " << '\n'
             << e.what() << '\n'
         );
@@ -1709,20 +695,21 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr<gpar::GOp
     catch(...) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividualFactory::postProcess_(): Caught unknown exception!"
-            << '\n'
+            << "In GExternalEvaluatorIndividual::buildGenome(): Caught unknown exception!" << '\n'
         );
     }
+
+    return gb.build();
 }
 
 /******************************************************************************/
 /**
- * Builds the OA-owned adaption configuration for a genome produced by this factory. Every ACTIVE double
- * group (the constrained variables) receives the configured single-Gauss or bi-Gauss adaptor; fixed
- * groups (built with adaptionMode::NEVER) are left un-authored, exactly mirroring the former builder.
+ * Builds the OA-owned adaption configuration: every ACTIVE double group (the constrained variables)
+ * receives the configured single-Gauss or bi-Gauss adaptor; fixed groups (adaptionMode::NEVER) are left
+ * un-authored. Formerly GExternalEvaluatorIndividualFactory::getAdaptionConfig.
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GExternalEvaluatorIndividualFactory::getAdaptionConfig(const gpar::GFlatGenome &sample) const {
+GExternalEvaluatorIndividual::buildAdaptionConfig(const gpar::GFlatGenome &sample, const Config &c) {
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
     auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
     const auto &groups = cfg->doubleGroups();
@@ -1730,21 +717,133 @@ GExternalEvaluatorIndividualFactory::getAdaptionConfig(const gpar::GFlatGenome &
         if(not groups[i].active) {
             continue; // a fixed (adaptionMode::NEVER) parameter -- never adapted, no adaptor
         }
-        if(use_bi_gaussian_) {
+        if(c.use_bi_gaussian) {
             cfg->groupDouble(i).biGauss(
-                sigma1_, sigma_sigma1_, min_sigma1_, max_sigma1_, sigma2_, sigma_sigma2_, min_sigma2_,
-                max_sigma2_, delta_, sigma_delta_, min_delta_, max_delta_, ad_prob_,
-                /*use_symmetric_sigmas=*/false, adapt_ad_prob_, adaption_threshold_
+                c.sigma1, c.sigma_sigma1, c.min_sigma1, c.max_sigma1, c.sigma2, c.sigma_sigma2,
+                c.min_sigma2, c.max_sigma2, c.delta, c.sigma_delta, c.min_delta, c.max_delta, c.ad_prob,
+                /*use_symmetric_sigmas=*/false, c.adapt_ad_prob, c.adaption_threshold
             );
         }
         else {
             cfg->groupDouble(i).gauss(
-                sigma1_, sigma_sigma1_, min_sigma1_, max_sigma1_, ad_prob_, adapt_ad_prob_,
-                adaption_threshold_, Gem::Geneva::adaptionMode::WITHPROBABILITY, min_ad_prob_, max_ad_prob_
+                c.sigma1, c.sigma_sigma1, c.min_sigma1, c.max_sigma1, c.ad_prob, c.adapt_ad_prob,
+                c.adaption_threshold, Gem::Geneva::adaptionMode::WITHPROBABILITY, c.min_ad_prob, c.max_ad_prob
             );
         }
     }
     return cfg;
+}
+
+/******************************************************************************/
+/**
+ * Per-object post-config hook (called by GFlatIndividualFactory::postProcess_ after the genome is
+ * installed): applies the external-program parameters and the metadata discovered by buildGenome
+ * (run-id, expected result count). Formerly the tail of the factory's postProcess_.
+ */
+void GExternalEvaluatorIndividual::applyConfig(GExternalEvaluatorIndividual &ind, const Config &c) {
+    ind.setExchangeBaseName(c.parameter_file_base_name);
+    ind.setProgramName(c.program_name);
+    ind.setCustomOptions(c.custom_options);
+    ind.setNExpectedResults(c.n_results_expected);
+    ind.setRemoveExecTemporaries(c.remove_exec_temporaries);
+    ind.setRunId(c.run_id);
+}
+
+/******************************************************************************/
+/**
+ * Teardown hook, called by GFlatIndividualFactory's destructor once a genome has been produced: gives
+ * the external evaluator program a chance to perform final work (--finalize). Formerly the body of the
+ * factory destructor. Errors here are fatal, as in the legacy code.
+ */
+void GExternalEvaluatorIndividual::finalize(const Config &c) {
+    if(c.program_name.empty()) {
+        glogger << "In GExternalEvaluatorIndividual::finalize(): Error!" << '\n'
+                << "Program name was empty" << '\n'
+                << LOGEXIT(EXIT_FAILURE);
+    }
+    if(not std::filesystem::exists(c.program_name)) {
+        glogger << "In GExternalEvaluatorIndividual::finalize(): Error!" << '\n'
+                << "External program " << c.program_name << " does not seem to exist" << '\n'
+                << LOGEXIT(EXIT_FAILURE);
+    }
+
+    std::vector<std::string> arguments;
+    if(c.custom_options != "empty" && not c.custom_options.empty()) {
+        arguments.push_back(c.custom_options);
+    }
+    arguments.emplace_back("--finalize");
+
+    std::string command;
+    int error_code = Gem::Common::runExternalCommand(
+        std::filesystem::path(c.program_name), arguments, std::filesystem::path(), command
+    );
+    if(error_code) {
+        glogger << "In GExternalEvaluatorIndividual::finalize(): Error" << '\n'
+                << "Execution of external command failed." << '\n'
+                << "Command: " << command << '\n'
+                << "Error code: " << error_code << '\n'
+                << LOGEXIT(EXIT_FAILURE);
+    }
+}
+
+/******************************************************************************/
+/**
+ * Submits a batch of best individuals to the external program for archiving (--archive). Formerly
+ * GExternalEvaluatorIndividualFactory::archive; it now reads the program name / custom options /
+ * exchange base name / run-id from the archived individuals themselves (every produced individual
+ * carries them, courtesy of applyConfig).
+ */
+void GExternalEvaluatorIndividual::archive(
+    const std::vector<std::shared_ptr<GExternalEvaluatorIndividual>> &arch
+) {
+    namespace pt = boost::property_tree;
+
+    if(arch.empty()) {
+        return;
+    }
+
+    pt::ptree ptr_out;
+    std::string batch = "batch";
+    ptr_out.put(batch + ".dataType", std::string("archive_data"));
+    ptr_out.put(batch + ".run_id", arch.front()->getRunId());
+    ptr_out.put(batch + ".n_individuals", arch.size());
+
+    std::size_t pos = 0;
+    std::string basename;
+    for(const auto &individual : arch) {
+        basename = batch + ".individuals.individual" + Gem::Common::to_string(pos++);
+        individual->toPropertyTree(ptr_out, basename);
+    }
+
+    std::string parameterfile_name =
+        arch.front()->getExchangeBaseName() + "-" + Gem::Common::generate_uuid_v4() + ".xml";
+
+    pt::xml_writer_settings<std::string> settings('\t', 1);
+    pt::write_xml(parameterfile_name, ptr_out, std::locale(), settings);
+
+    std::vector<std::string> arguments;
+    const std::string custom_options = arch.front()->getCustomOptions();
+    if(custom_options != "empty" && not custom_options.empty()) {
+        arguments.push_back(custom_options);
+    }
+    arguments.emplace_back("--archive");
+    arguments.push_back(std::string("--input=\"" + parameterfile_name + "\""));
+
+    std::string command;
+    int error_code = Gem::Common::runExternalCommand(
+        std::filesystem::path(arch.front()->getProgramName()), arguments, std::filesystem::path(), command
+    );
+    if(error_code) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GExternalEvaluatorIndividual::archive(): Error" << '\n'
+            << "Execution of external command failed." << '\n'
+            << "Command: " << command << '\n'
+            << "Error code: " << error_code << '\n'
+        );
+    }
+
+    std::filesystem::remove(parameterfile_name);
 }
 
 /******************************************************************************/

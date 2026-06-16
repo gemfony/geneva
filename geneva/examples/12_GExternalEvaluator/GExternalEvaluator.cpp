@@ -85,11 +85,12 @@ int main(int argc, char **argv) {
     std::vector<std::shared_ptr<gind::GExternalEvaluatorIndividual>> bestInds =
         go.getBestGlobalIndividuals<gind::GExternalEvaluatorIndividual>();
 
-    // Note that the "archive" call is specific to the GExternalEvaluatorIndividual
-    geei_ptr->archive(bestInds);
+    // Note that the "archive" call is specific to the GExternalEvaluatorIndividual (it is now a static
+    // helper on the individual, reading the program/run-id off the archived individuals themselves)
+    gind::GExternalEvaluatorIndividual::archive(bestInds);
 
-    // The GTaoExternalEvaluatorIndividualFactory will, upon its deletion at the end
-    // of this function, call the external evaluator with the --finalize switch
+    // The factory will, upon its deletion at the end of this function, call the external evaluator with
+    // the --finalize switch (via GExternalEvaluatorIndividual::finalize, the factory's teardown hook)
 
     //---------------------------------------------------------------------------
 }

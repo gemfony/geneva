@@ -148,8 +148,23 @@ public:
     }
 
     /***************************************************************************/
-    // Defaulted and deleted functions
-    ~GFlatIndividualFactory() override = default;
+    /**
+     * The destructor. Invokes an optional Derived::finalize(const Config&) teardown hook when a genome
+     * was actually produced -- the lifetime-bound counterpart to the legacy factories' destructors (e.g.
+     * telling an external evaluator program to finalise). An individual without the hook gets the default
+     * (trivial) teardown. A destructor must never propagate an exception, so the hook is shielded.
+     */
+    ~GFlatIndividualFactory() override {
+        if constexpr (requires(const typename Derived::Config &c) { Derived::finalize(c); }) {
+            if(genome_built_) {
+                try {
+                    Derived::finalize(config_);
+                }
+                catch(...) { /* a destructor must not propagate exceptions */
+                }
+            }
+        }
+    }
 
     /***************************************************************************/
     /**
