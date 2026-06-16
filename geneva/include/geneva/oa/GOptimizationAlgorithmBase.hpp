@@ -48,7 +48,6 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GThreadPool.hpp"
-#include "common/GPlotDesigner.hpp"
 #include "common/GContainerT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GStdFilesystemPathSerialization.hpp"
