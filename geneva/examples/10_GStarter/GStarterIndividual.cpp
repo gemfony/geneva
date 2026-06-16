@@ -192,31 +192,6 @@ void GStarterIndividual::compare_(
     token.evaluate();
 }
 
-/******************************************************************************/
-/**
- * Adds local configuration options to a GParserBuilder object
- *
- * @param gpb The GParserBuilder object to which configuration options should be added
- */
-void GStarterIndividual::addConfigurationOptions(Gem::Common::GParserBuilder &gpb) {
-    // Call our parent class'es function
-    gpar::GFlatGenome::addConfigurationOptions(gpb);
-
-    // Add local data. We use C++11 lambda expressions to
-    // specify the function to be called for setting the
-    // target functions. An alternative would be bind expressions.
-    gpb.registerFileParameter<targetFunction>(
-        "target_function" // The name of the variable
-        ,
-        GO_DEF_TARGETFUNCTION // The default value
-        ,
-        [this](targetFunction tF) { this->setTargetFunction(tF); }
-    ) << "Specifies which target function should be used:"
-      << '\n'
-      << "0: Parabola" << '\n'
-      << "1: Berlich";
-}
-
 /*******************************************************************************************/
 /**
  * Allows to set the demo function
@@ -540,118 +515,93 @@ std::ostream &operator<<(std::ostream &stream, std::shared_ptr<GStarterIndividua
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A constructor with the ability to switch the parallelization mode. It initializes a
- * target item as needed.
- *
- * @param configFile The name of the configuration file
+ * Registers the config-file options, binding them to the passed Config. This is the body of the former
+ * GStarterIndividualFactory::describeLocalOptions_ (now binding plain Config fields) plus the
+ * target_function option the individual formerly registered in its own addConfigurationOptions.
  */
-GStarterIndividualFactory::GStarterIndividualFactory(std::filesystem::path const &configFile)
-  : Gem::Common::GFactoryT<gpar::GOptimizableEntity>(configFile) { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * Creates items of this type
- *
- * @return Items of the desired type
- */
-std::shared_ptr<gpar::GOptimizableEntity>
-GStarterIndividualFactory::getObject_(Gem::Common::GParserBuilder &gpb, std::size_t const &id) {
-    // Will hold the result
-    std::shared_ptr<GStarterIndividual> target(new GStarterIndividual());
-
-    // Make the object's local configuration options known
-    target->addConfigurationOptions(gpb);
-
-    return target;
-}
-
-/******************************************************************************/
-/**
- * Allows to describe local configuration options for gradient descents
- */
-void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder &gpb) {
-    // Describe our own options
-    using namespace Gem::Courtier;
-
-    // Allow our parent class to describe its options
-    Gem::Common::GFactoryT<gpar::GOptimizableEntity>::describeLocalOptions_(gpb);
-
-    // Local data
-    gpb.registerFileParameter<double>("ad_prob", adProb_, GSI_DEF_ADPROB)
+void GStarterIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
+    gpb.registerFileParameter<double>("ad_prob", c.ad_prob, GSI_DEF_ADPROB)
         << "The probability for random adaptions of values in evolutionary algorithms";
 
-    gpb.registerFileParameter<double>("sigma", sigma_, GSI_DEF_SIGMA)
+    gpb.registerFileParameter<double>("sigma", c.sigma, GSI_DEF_SIGMA)
         << "The sigma for gauss-adaption in ES";
 
-    gpb.registerFileParameter<double>("sigma_sigma", sigmaSigma_, GSI_DEF_SIGMASIGMA)
+    gpb.registerFileParameter<double>("sigma_sigma", c.sigma_sigma, GSI_DEF_SIGMASIGMA)
         << "Influences the self-adaption of gauss-mutation in ES";
 
-    gpb.registerFileParameter<double>("min_sigma", minSigma_, GSI_DEF_MINSIGMA)
+    gpb.registerFileParameter<double>("min_sigma", c.min_sigma, GSI_DEF_MINSIGMA)
         << "The minimum amount value of sigma";
 
-    gpb.registerFileParameter<double>("max_sigma", maxSigma_, GSI_DEF_MAXSIGMA)
+    gpb.registerFileParameter<double>("max_sigma", c.max_sigma, GSI_DEF_MAXSIGMA)
         << "The maximum amount value of sigma";
 
-    std::vector<double> defStartValues;
-    defStartValues.push_back(1.);
-    defStartValues.push_back(1.);
-    defStartValues.push_back(1.);
-    gpb.registerFileParameter<double>("start_values", startValues_, defStartValues)
+    std::vector<double> defStartValues{1., 1., 1.};
+    gpb.registerFileParameter<double>("start_values", c.start_values, defStartValues)
         << "The start values for all parameters" << '\n'
         << "Note that the number of entries also determines" << '\n'
         << "The number of parameter used in the optimization" << '\n'
         << "The number of entries in the vector may be changed" << '\n'
         << "in the configuration file.";
 
-    std::vector<double> defLowerBoundaries;
-    defLowerBoundaries.push_back(0.);
-    defLowerBoundaries.push_back(0.);
-    defLowerBoundaries.push_back(0.);
-    gpb.registerFileParameter<double>("lower_boundaries", lowerBoundaries_, defLowerBoundaries)
+    std::vector<double> defLowerBoundaries{0., 0., 0.};
+    gpb.registerFileParameter<double>("lower_boundaries", c.lower_boundaries, defLowerBoundaries)
         << "The lower boundaries for all parameters" << '\n'
         << "Note that as many entries are needed as" << '\n'
         << "There are entries in the startValues vector";
 
-    std::vector<double> defUpperBoundaries;
-    defUpperBoundaries.push_back(2.);
-    defUpperBoundaries.push_back(2.);
-    defUpperBoundaries.push_back(2.);
-    gpb.registerFileParameter<double>("upper_boundaries", upperBoundaries_, defUpperBoundaries)
+    std::vector<double> defUpperBoundaries{2., 2., 2.};
+    gpb.registerFileParameter<double>("upper_boundaries", c.upper_boundaries, defUpperBoundaries)
         << "The upper boundaries for all parameters" << '\n'
         << "Note that as many entries are needed as" << '\n'
         << "There are entries in the startValues vector";
+
+    gpb.registerFileParameter<targetFunction>(
+        "target_function", c.target_function, GO_DEF_TARGETFUNCTION
+    ) << "Specifies which target function should be used:" << '\n'
+      << "0: Parabola" << '\n'
+      << "1: Berlich";
 }
 
 /******************************************************************************/
 /**
- * Allows to act on the configuration options received from the configuration file. Here
- * we can add the options described in describeLocalOptions to the object. In practice,
- * we will usually add the parameter objects here. Note that a very similar constructor
- * exists for GStarterIndividual, so it may be used independently of the factory.
- *
- * @param p A smart-pointer to be acted on during post-processing
+ * Builds the flat genome's STRUCTURE only (the structure-building part of addContent()): one constrained
+ * double per start value, in [lower, upper). The start value is the genome's initial value; the
+ * optimization algorithm random-initialises within bounds. The Gauss adaptor settings live on the
+ * OA-owned config (see getAdaptionConfig()), stamped onto the individual by applyConfig().
  */
-void GStarterIndividualFactory::postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &p_base) {
-    // Convert the base pointer to our local type
-    std::shared_ptr<GStarterIndividual> p =
-        Gem::Common::convertSmartPointer<gpar::GOptimizableEntity, GStarterIndividual>(p_base);
+gpar::Genome GStarterIndividual::buildGenome(const Config &c) {
+#ifdef DEBUG
+    if(c.start_values.empty() || c.start_values.size() != c.lower_boundaries.size() ||
+       c.start_values.size() != c.upper_boundaries.size()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GStarterIndividual::buildGenome(): Error!" << '\n'
+            << "Invalid sizes " << c.start_values.size() << " / " << c.lower_boundaries.size()
+            << " / " << c.upper_boundaries.size() << '\n'
+        );
+    }
+#endif /* DEBUG */
 
-    // We simply use a static function defined in the GStartIndividual header
-    // to set up all parameter objects. It is used both here in the factory and
-    // in one of the constructors.
-    GStarterIndividual::addContent(
-        *p,
-        this->getId(),
-        startValues_,
-        lowerBoundaries_,
-        upperBoundaries_,
-        sigma_,
-        sigmaSigma_,
-        minSigma_,
-        maxSigma_,
-        adProb_
-    );
+    gpar::GGenomeBuilder b;
+    for(std::size_t i = 0; i < c.start_values.size(); i++) {
+        b.addDouble(c.start_values.at(i), c.lower_boundaries.at(i), c.upper_boundaries.at(i));
+    }
+    return b.build();
+}
+
+/******************************************************************************/
+/**
+ * Per-object post-config hook (the per-object tail of addContent()): the target function and the Gauss
+ * adaptor parameters the individual stamps so its getAdaptionConfig() can author the OA-owned config and
+ * report its configured seed sigma.
+ */
+void GStarterIndividual::applyConfig(GStarterIndividual &ind, const Config &c) {
+    ind.setTargetFunction(c.target_function);
+    ind.seed_sigma_ = c.sigma;
+    ind.seed_sigma_sigma_ = c.sigma_sigma;
+    ind.seed_min_sigma_ = c.min_sigma;
+    ind.seed_max_sigma_ = c.max_sigma;
+    ind.seed_ad_prob_ = c.ad_prob;
 }
 
 /******************************************************************************/

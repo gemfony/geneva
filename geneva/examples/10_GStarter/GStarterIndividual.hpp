@@ -47,10 +47,13 @@
 
 // Geneva header files go here
 #include "common/GCommonMathHelperFunctionsT.hpp"
-#include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GFlatIndividualFactory.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
+#include <filesystem>
+#include <memory>
+#include <string>
 
 namespace Gem {
 namespace Geneva {
@@ -123,9 +126,6 @@ public:
     /** @brief The standard destructor */
     virtual ~GStarterIndividual();
 
-    /** @brief Adds local configuration options to a GParserBuilder object */
-    virtual void addConfigurationOptions(Gem::Common::GParserBuilder &) final;
-
     /** @brief Allows to set the demo function */
     void setTargetFunction(targetFunction);
     /** @brief Allows to retrieve the current demo function */
@@ -140,6 +140,34 @@ public:
 
     /** @brief Emit information about this individual */
     std::string print();
+
+    //---------------------------------------------------------------------------
+    // GFlatIndividualFactory<GStarterIndividual> hooks. Instead of a bespoke factory the individual
+    // supplies the static hooks the generic factory needs: describeConfig (the configurable values,
+    // including the target function), buildGenome (one constrained double per start value) and applyConfig
+    // (the target function + the stamped Gauss adaptor parameters the individual's getAdaptionConfig()
+    // authors -- per-object, non-genome settings). The full ctor + addContent() below remain as a
+    // standalone (factory-less) construction path, used by the unit tests.
+
+    /** @brief All values formerly parsed by the bespoke GStarterIndividualFactory. */
+    struct Config {
+        double ad_prob = GSI_DEF_ADPROB;
+        double sigma = GSI_DEF_SIGMA;
+        double sigma_sigma = GSI_DEF_SIGMASIGMA;
+        double min_sigma = GSI_DEF_MINSIGMA;
+        double max_sigma = GSI_DEF_MAXSIGMA;
+        std::vector<double> start_values{1., 1., 1.};
+        std::vector<double> lower_boundaries{0., 0., 0.};
+        std::vector<double> upper_boundaries{2., 2., 2.};
+        targetFunction target_function = GO_DEF_TARGETFUNCTION;
+    };
+
+    /** @brief Registers the config-file options, binding them to the passed Config */
+    static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
+    /** @brief Builds the flat genome's structure: one constrained double per start value */
+    static gpar::Genome buildGenome(const Config &c);
+    /** @brief Per-object post-config hook: stamps the target function and the Gauss adaptor parameters */
+    static void applyConfig(GStarterIndividual &ind, const Config &c);
 
     /***************************************************************************/
     /**
@@ -280,38 +308,12 @@ std::ostream &operator<<(std::ostream &, std::shared_ptr<GStarterIndividual>);
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A factory for GStarterIndividual objects
+ * A factory for GStarterIndividual objects. The bespoke factory has been replaced by the generic,
+ * config-driven GFlatIndividualFactory; GStarterIndividual supplies the static describeConfig /
+ * buildGenome / applyConfig hooks. The alias keeps existing call sites (ctor(path), get_as<>(),
+ * registerContentCreator(), getAdaptionConfig() on the produced individual) compiling unchanged.
  */
-class GStarterIndividualFactory : public Gem::Common::GFactoryT<gpar::GOptimizableEntity> {
-public:
-    /** @brief The standard constructor */
-    explicit GStarterIndividualFactory(std::filesystem::path const &);
-    /** @brief The destructor */
-    ~GStarterIndividualFactory() override = default;
-
-protected:
-    /** @brief Allows to describe local configuration options in derived classes */
-    void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
-    /** @brief Allows to act on the configuration options received from the configuration file */
-    void postProcess_(std::shared_ptr<gpar::GOptimizableEntity> &) override;
-
-private:
-    /** @brief The default constructor. Only needed for (de-)serialization purposes */
-    GStarterIndividualFactory() = default;
-    /** @brief Creates individuals of this type */
-    std::shared_ptr<gpar::GOptimizableEntity>
-    getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
-
-    double adProb_ = GSI_DEF_ADPROB;         ///< Probability for a parameter to be mutated
-    double sigma_ = GSI_DEF_SIGMA;           ///< Step-width
-    double sigmaSigma_ = GSI_DEF_SIGMASIGMA; ///< Speed of sigma_-adaption
-    double minSigma_ = GSI_DEF_MINSIGMA;     ///< Minimum allowed sigma value
-    double maxSigma_ = GSI_DEF_MAXSIGMA;     ///< Maximum allowed sigma value
-
-    std::vector<double> startValues_;     ///< Start values for all parameters
-    std::vector<double> lowerBoundaries_; ///< Lower boundaries for all parameters
-    std::vector<double> upperBoundaries_; ///< Upper boundaroes for all parameters
-};
+using GStarterIndividualFactory = Gem::Geneva::Parameters::GFlatIndividualFactory<GStarterIndividual>;
 
 /******************************************************************************/
 
