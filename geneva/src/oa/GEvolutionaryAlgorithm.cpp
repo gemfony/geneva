@@ -135,26 +135,6 @@ void GEvolutionaryAlgorithm::resetToOptimizationStart_() {
 
 /******************************************************************************/
 /**
- * Returns information about the type of optimization algorithm.
- *
- * @return The type of optimization algorithm
- */
-std::string GEvolutionaryAlgorithm::getAlgorithmPersonalityType_() const {
-    return {"PERSONALITY_EA"};
-}
-
-/******************************************************************************/
-/**
-  * Returns the name of this optimization algorithm
-  *
-  * @return The name assigned to this optimization algorithm
-  */
-std::string GEvolutionaryAlgorithm::getAlgorithmName_() const {
-    return {"Evolutionary Algorithm"};
-}
-
-/******************************************************************************/
-/**
   * Sets the sorting scheme. In MUPLUSNU_SINGLEEVAL, new parents will be selected from the entire
   * population, including the old parents. In MUCOMMANU_SINGLEEVAL new parents will be selected
   * from children only. MUNU1PRETAIN_SINGLEEVAL means that the best parent of the last generation
@@ -339,14 +319,6 @@ void GEvolutionaryAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilde
 
 /******************************************************************************/
 /**
-  * Emits a name for this class / object
-  */
-std::string GEvolutionaryAlgorithm::name_() const {
-    return {"GEvolutionaryAlgorithm"};
-}
-
-/******************************************************************************/
-/**
   * Loads the data of another GEvolutionaryAlgorithm object.
  *
   * @param cp A pointer to another GEvolutionaryAlgorithm object
@@ -362,16 +334,6 @@ void GEvolutionaryAlgorithm::load_(const GOptimizationAlgorithmBase *cp) {
 
     // ... and then our own data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
-}
-
-/******************************************************************************/
-/**
-  * Creates a deep copy of this object
-  *
-  * @return A deep copy of this object
-  */
-GOptimizationAlgorithmBase *GEvolutionaryAlgorithm::clone_() const {
-    return new GEvolutionaryAlgorithm(*this);
 }
 
 /******************************************************************************/

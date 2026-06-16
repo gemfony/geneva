@@ -313,22 +313,6 @@ std::size_t GConjugateGradientDescent::getNProcessableItems_() const {
 
 /******************************************************************************/
 /**
- * Returns information about the type of optimization algorithm
- */
-std::string GConjugateGradientDescent::getAlgorithmPersonalityType_() const {
-    return "PERSONALITY_CGD";
-}
-
-/******************************************************************************/
-/**
- * Returns the name of this optimization algorithm
- */
-std::string GConjugateGradientDescent::getAlgorithmName_() const {
-    return std::string("Conjugate Gradient Descent");
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  */
@@ -374,14 +358,6 @@ void GConjugateGradientDescent::resetToOptimizationStart_() {
 
 /******************************************************************************/
 /**
- * Emits a name for this class / object
- */
-std::string GConjugateGradientDescent::name_() const {
-    return std::string("GConjugateGradientDescent");
-}
-
-/******************************************************************************/
-/**
  * Loads the data of another population
  */
 void GConjugateGradientDescent::load_(const GOptimizationAlgorithmBase *cp) {
@@ -395,14 +371,6 @@ void GConjugateGradientDescent::load_(const GOptimizationAlgorithmBase *cp) {
     // adjusted_finite_step_ and dbl*ParameterBoundaries_ are transient and recomputed in init(); the
     // conjugate-gradient memory is transient too and lives on the central slots' OA scratch.
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
-}
-
-/******************************************************************************/
-/**
- * Creates a deep clone of this object
- */
-GOptimizationAlgorithmBase *GConjugateGradientDescent::clone_() const {
-    return new GConjugateGradientDescent(*this);
 }
 
 /******************************************************************************/
@@ -1266,55 +1234,6 @@ void GConjugateGradientDescent::markIndividualPositions() {
             ->getPersonalityTraits<GConjugateGradientDescent_PersonalityTraits>()
             ->setPopulationPosition(pos);
     }
-}
-
-/******************************************************************************/
-/**
- * Applies modifications to this object. This is needed for testing purposes
- */
-bool GConjugateGradientDescent::modify_GUnitTests_() {
-#ifdef GEM_TESTING
-    bool result = false;
-
-    if(GOptimizationAlgorithmBase::modify_GUnitTests_()) {
-        result = true;
-    }
-
-    return result;
-#else  /* GEM_TESTING */
-    Gem::Common::condnotset("GConjugateGradientDescent::modify_GUnitTests", "GEM_TESTING");
-    return false;
-#endif /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
- */
-void GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    GOptimizationAlgorithmBase::specificTestsNoFailureExpected_GUnitTests_();
-#else  /* GEM_TESTING */
-    Gem::Common::condnotset(
-        "GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * Performs self tests that are expected to fail. This is needed for testing purposes
- */
-void GConjugateGradientDescent::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    GOptimizationAlgorithmBase::specificTestsFailuresExpected_GUnitTests_();
-#else  /* GEM_TESTING */
-    Gem::Common::condnotset(
-        "GConjugateGradientDescent::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/

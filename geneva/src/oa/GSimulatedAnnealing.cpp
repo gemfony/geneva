@@ -128,27 +128,6 @@ void GSimulatedAnnealing::resetToOptimizationStart_() {
 
 /******************************************************************************/
 /**
- * Returns information about the type of optimization algorithm. This function needs
- * to be overloaded by the actual algorithms to return the correct type.
- *
- * @return The type of optimization algorithm
- */
-std::string GSimulatedAnnealing::getAlgorithmPersonalityType_() const {
-    return std::string("PERSONALITY_SA");
-}
-
-/******************************************************************************/
-/**
-  * Returns the name of this optimization algorithm
-  *
-  * @return The name assigned to this optimization algorithm
-  */
-std::string GSimulatedAnnealing::getAlgorithmName_() const {
-    return std::string("Simulated Annealing");
-}
-
-/******************************************************************************/
-/**
   * Adds local configuration options to a GParserBuilder object
   *
   * @param gpb The GParserBuilder object to which configuration options should be added
@@ -245,14 +224,6 @@ double GSimulatedAnnealing::getT() const {
 
 /******************************************************************************/
 /**
-  * Emits a name for this class / object
-  */
-std::string GSimulatedAnnealing::name_() const {
-    return std::string("GSimulatedAnnealing");
-}
-
-/******************************************************************************/
-/**
   * Loads the data of another GSimulatedAnnealingT object.
   *
   * @param cp A pointer to another GSimulatedAnnealingT object
@@ -268,16 +239,6 @@ void GSimulatedAnnealing::load_(const GOptimizationAlgorithmBase *cp) {
 
     // ... and then our own data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
-}
-
-/******************************************************************************/
-/**
-  * Creates a deep copy of this object
-  *
-  * @return A deep copy of this object
-  */
-GOptimizationAlgorithmBase *GSimulatedAnnealing::clone_() const {
-    return new GSimulatedAnnealing(*this);
 }
 
 /******************************************************************************/
@@ -517,70 +478,6 @@ void GSimulatedAnnealing::updateTemperature() {
     // (exp(-Δf / min()) ≈ 0 for any positive Δf, so worse candidates are
     // never accepted once the temperature hits the floor).
     t_ = std::max(t_ * alpha_, std::numeric_limits<double>::min());
-}
-
-/******************************************************************************/
-/**
-  * Applies modifications to this object. This is needed for testing purposes
-  *
-  * @return A boolean which indicates whether modifications were made
-  */
-bool GSimulatedAnnealing::modify_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    bool result = false;
-
-    // Call the parent class'es function
-    if(GParChild::modify_GUnitTests_()) {
-        result = true;
-    }
-
-    return result;
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset("GSimulatedAnnealing::modify_GUnitTests", "GEM_TESTING");
-    return false;
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
-  * Performs self tests that are expected to succeed. This is needed for testing purposes
-  */
-void GSimulatedAnnealing::specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    // Call the parent class'es function
-    GParChild::specificTestsNoFailureExpected_GUnitTests_();
-
-    //------------------------------------------------------------------------------
-    //------------------------------------------------------------------------------
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GSimulatedAnnealing::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
-  * Performs self tests that are expected to fail. This is needed for testing purposes
-  */
-void GSimulatedAnnealing::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    // Call the parent class'es function
-    GParChild::specificTestsFailuresExpected_GUnitTests_();
-
-    //------------------------------------------------------------------------------
-    //------------------------------------------------------------------------------
-
-#else  /* GEM_TESTING */
-    Gem::Common::condnotset(
-        "GSimulatedAnnealing::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/

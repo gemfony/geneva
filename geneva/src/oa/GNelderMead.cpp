@@ -216,16 +216,6 @@ std::size_t GNelderMead::getNProcessableItems_() const {
 }
 
 /******************************************************************************/
-std::string GNelderMead::getAlgorithmPersonalityType_() const {
-    return "PERSONALITY_NM";
-}
-
-/******************************************************************************/
-std::string GNelderMead::getAlgorithmName_() const {
-    return std::string("Nelder-Mead Simplex");
-}
-
-/******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object
  * of the same type
@@ -262,11 +252,6 @@ void GNelderMead::resetToOptimizationStart_() {
 }
 
 /******************************************************************************/
-std::string GNelderMead::name_() const {
-    return std::string("GNelderMead");
-}
-
-/******************************************************************************/
 void GNelderMead::load_(const GOptimizationAlgorithmBase *cp) {
     const GNelderMead *p_load = Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GNelderMead>(cp, this);
 
@@ -276,11 +261,6 @@ void GNelderMead::load_(const GOptimizationAlgorithmBase *cp) {
     // ... and then our own (serialized) data, derived from the single localMembers() declaration.
     // dbl*ParameterBoundaries_ and trials_pending_ are transient and re-set in init().
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
-}
-
-/******************************************************************************/
-GOptimizationAlgorithmBase *GNelderMead::clone_() const {
-    return new GNelderMead(*this);
 }
 
 /******************************************************************************/
@@ -894,46 +874,6 @@ void GNelderMead::markIndividualPositions() {
             ->getPersonalityTraits<GNelderMead_PersonalityTraits>()
             ->setPopulationPosition(pos);
     }
-}
-
-/******************************************************************************/
-bool GNelderMead::modify_GUnitTests_() {
-#ifdef GEM_TESTING
-    bool result = false;
-
-    if(GOptimizationAlgorithmBase::modify_GUnitTests_()) {
-        result = true;
-    }
-
-    return result;
-#else  /* GEM_TESTING */
-    Gem::Common::condnotset("GNelderMead::modify_GUnitTests", "GEM_TESTING");
-    return false;
-#endif /* GEM_TESTING */
-}
-
-/******************************************************************************/
-void GNelderMead::specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    GOptimizationAlgorithmBase::specificTestsNoFailureExpected_GUnitTests_();
-#else  /* GEM_TESTING */
-    Gem::Common::condnotset(
-        "GNelderMead::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif /* GEM_TESTING */
-}
-
-/******************************************************************************/
-void GNelderMead::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    GOptimizationAlgorithmBase::specificTestsFailuresExpected_GUnitTests_();
-#else  /* GEM_TESTING */
-    Gem::Common::condnotset(
-        "GNelderMead::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif /* GEM_TESTING */
 }
 
 /******************************************************************************/

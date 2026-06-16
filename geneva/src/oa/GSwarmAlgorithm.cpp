@@ -103,7 +103,7 @@ GSwarmAlgorithm::GSwarmAlgorithm(
  * @param cp Another GSwarmAlgorithm object
  */
 GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
-  : GOptimizationAlgorithmBase(cp)
+  : GOptimizationAlgorithmT<GSwarmAlgorithm>(cp)
   , n_neighborhoods_(cp.n_neighborhoods_)
   , default_n_neighborhood_members_(cp.default_n_neighborhood_members_)
   , n_neighborhood_members_cnt_(cp.n_neighborhood_members_cnt_)
@@ -141,16 +141,6 @@ GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
 
     // Copying / setting of the optimization algorithm id is done by the parent class. The same
     // applies to the copying of the optimization monitor.
-}
-
-/******************************************************************************/
-/**
- * Returns information about the type of optimization algorithm.
- *
- * @return The type of optimization algorithm
- */
-std::string GSwarmAlgorithm::getAlgorithmPersonalityType_() const {
-    return "PERSONALITY_SWARM";
 }
 
 /******************************************************************************/
@@ -242,16 +232,6 @@ void GSwarmAlgorithm::load_(const GOptimizationAlgorithmBase *cp) {
 
 /******************************************************************************/
 /**
- * Creates a deep copy of this object
- *
- * @return A deep copy of this object
- */
-GOptimizationAlgorithmBase *GSwarmAlgorithm::clone_() const {
-    return new GSwarmAlgorithm(*this);
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
@@ -324,14 +304,6 @@ void GSwarmAlgorithm::resetToOptimizationStart_() {
     // There is no more work to be done here, so we simply call the
     // function of the parent class
     GOptimizationAlgorithmBase::resetToOptimizationStart_();
-}
-
-/******************************************************************************/
-/**
- * Emits a name for this class / object
- */
-std::string GSwarmAlgorithm::name_() const {
-    return std::string("GSwarmAlgorithm");
 }
 
 /******************************************************************************/
@@ -650,16 +622,6 @@ void GSwarmAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb)
     ) << "The number of stalls as of which the algorithm switches to repulsive mode"
       << '\n'
       << "Set this to 0 in order to disable this feature";
-}
-
-/******************************************************************************/
-/**
- * Returns the name of this optimization algorithm
- *
- * @return The name assigned to this optimization algorithm
- */
-std::string GSwarmAlgorithm::getAlgorithmName_() const {
-    return std::string("Swarm Algorithm");
 }
 
 /******************************************************************************/
@@ -1887,63 +1849,6 @@ bool GSwarmAlgorithm::neighborhoodsFilledUpRandomly() const {
 std::size_t GSwarmAlgorithm::getNProcessableItems_() const {
     return this
         ->size(); // All items in the population are updated in each iteration and need to be processed
-}
-
-/******************************************************************************/
-/**
- * Applies modifications to this object. This is needed for testing purposes
- *
- * @return A boolean which indicates whether modifications were made
- */
-bool GSwarmAlgorithm::modify_GUnitTests_() {
-#ifdef GEM_TESTING
-    bool result = false;
-
-    // Call the parent class'es function
-    if(GOptimizationAlgorithmBase::modify_GUnitTests_()) {
-        result = true;
-    }
-
-    return result;
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset("GSwarmAlgorithm::modify_GUnitTests", "GEM_TESTING");
-    return false;
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
- */
-void GSwarmAlgorithm::specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    // Call the parent class'es function
-    GOptimizationAlgorithmBase::specificTestsNoFailureExpected_GUnitTests_();
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GSwarmAlgorithm::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * Performs self tests that are expected to fail. This is needed for testing purposes
- */
-void GSwarmAlgorithm::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    // Call the parent class'es function
-    GOptimizationAlgorithmBase::specificTestsFailuresExpected_GUnitTests_();
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GSwarmAlgorithm::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
 }
 
 /******************************************************************************/
