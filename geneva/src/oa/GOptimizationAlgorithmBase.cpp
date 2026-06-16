@@ -1167,7 +1167,7 @@ void GOptimizationAlgorithmBase::addConfigurationOptions_(Gem::Common::GParserBu
     gpb.registerFileParameter<std::uint16_t>(
         "n_adaption_threads" // The name of the variable
         ,
-        DEFAULTNSTDTHREADS // The default value
+        Gem::Courtier::DEFAULTNSTDTHREADS // The default value
         ,
         [this](std::uint16_t nt) { this->setNThreads(nt); }
     ) << "The number of threads used to simultaneously adapt and recombine individuals"
@@ -1833,10 +1833,10 @@ void GOptimizationAlgorithmBase::setNThreads(std::uint16_t n_threads) {
     if(n_threads == 0) {
         glogger << "In GOptimizationAlgorithmBase::setNThreads(n_threads):" << '\n'
                 << "n_threads == 0 was requested. n_threads_ was reset to the default "
-                << DEFAULTNSTDTHREADS << '\n'
+                << Gem::Courtier::DEFAULTNSTDTHREADS << '\n'
                 << GWARNING;
 
-        n_threads_ = DEFAULTNSTDTHREADS;
+        n_threads_ = Gem::Courtier::DEFAULTNSTDTHREADS;
     }
     else {
         n_threads_ = n_threads;

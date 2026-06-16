@@ -129,7 +129,6 @@ constexpr std::uint32_t GMPICONSUMERWORKERNODERETRYINTERVALUPPERBOUNDARYMSEC = 2
 /******************************************************************************/
 /** @brief The default number of threads for parallelization with threads */
 constexpr std::uint16_t DEFAULTNSTDTHREADS = 2;
-// TODO: Unify with Geneva-namespace constant of same name
 
 /******************************************************************************/
 /**

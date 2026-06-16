@@ -159,8 +159,9 @@ constexpr double FITNESSSIGMOIDSTEEPNESS = 1000.;
 const std::string DEFAULTOPTALG = "ea";
 
 /******************************************************************************/
-/** @brief The default number of threads for parallelization with threads */
-constexpr std::uint16_t DEFAULTNSTDTHREADS = 2;
+// The default number of threads for parallelization with threads lives in the courtier layer as
+// Gem::Courtier::DEFAULTNSTDTHREADS (courtier/GCourtierEnums.hpp); the formerly duplicated
+// Gem::Geneva constant of the same name was removed -- qualify the courtier one at the use site.
 
 /******************************************************************************/
 /**
