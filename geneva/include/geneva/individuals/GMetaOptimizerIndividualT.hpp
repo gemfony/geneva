@@ -1185,7 +1185,16 @@ std::ostream &operator<<(std::ostream &stream, const GMetaOptimizerIndividualT<i
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A factory for GMetaOptimizerIndividualT<ind_type> objects
+ * A factory for GMetaOptimizerIndividualT<ind_type> objects.
+ *
+ * This is intentionally a hand-written factory rather than the generic
+ * Gem::Geneva::Genome::GFlatIndividualFactory used by every other individual: a meta-optimizer
+ * COMPOSES a sub-individual's own factory (registerIndividualFactory() clones and stores an
+ * ind_type::FACTORYTYPE, which is then injected into each produced meta-individual so it can spawn the
+ * inner population it optimises). That is per-factory-instance state handed to each product -- a capability
+ * the generic factory, whose hooks are static and whose only per-instance state is a plain Config, does
+ * not (and is not meant to) provide. It is therefore the deliberate exception to the factory unification,
+ * not an un-migrated leftover.
  *
  * @tparam ind_type The type of sub-individual whose optimization is being tuned
  */
