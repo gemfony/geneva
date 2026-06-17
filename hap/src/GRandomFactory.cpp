@@ -64,8 +64,10 @@ std::atomic<bool> GRandomFactory::multiple_call_trap_{false};
 
 /******************************************************************************/
 /**
- * The standard constructor, which seeds the random number generator and checks
- * that this class is instantiated only once.
+ * @brief The standard constructor.
+ *
+ * Enforces the single-instantiation contract via the static
+ * multiple_call_trap_ flag: a second construction throws a geneva_exception.
  */
 GRandomFactory::GRandomFactory() {
     /*
@@ -97,7 +99,7 @@ GRandomFactory::GRandomFactory() {
 
 /******************************************************************************/
 /**
- * The destructor. All work is done in the finalize() function.
+ * @brief The destructor. All work is done in the finalize() function.
  */
 GRandomFactory::~GRandomFactory() {
     // Make sure the finalization code is executed
@@ -108,18 +110,23 @@ GRandomFactory::~GRandomFactory() {
 
 /******************************************************************************/
 /**
- * Initializes the factory. This function does nothing at this time. Its
- * only purpose is to control initialization of the factory in the singleton.
+ * @brief Initializes the factory.
+ *
+ * This function does nothing at this time. Its only purpose is to control
+ * initialization of the factory in the singleton.
  */
 void GRandomFactory::init() { /* nothing */
 }
 
 /******************************************************************************/
 /**
- * Finalization code for the GRandomFactory. All threads are given the
- * interrupt signal. Then we wait for them to join us. This function will
- * only once perform useful work and will return immediately when called a
- * second time. It can thus be called as often as you wish.
+ * @brief Finalization code for the GRandomFactory.
+ *
+ * All producer threads are flagged to stop and the fresh/return buffers are
+ * closed to wake any producer parked in a blocking push(); the function then
+ * waits for the threads to join. This performs useful work only on the first
+ * call and returns immediately on subsequent calls, so it can be called as
+ * often as you wish.
  */
 void GRandomFactory::finalize() {
     // Only allow one finalization action to be carried out
@@ -142,9 +149,9 @@ void GRandomFactory::finalize() {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the size of random number arrays
+ * @brief Allows to retrieve the size of random number arrays.
  *
- * @return The current value of the array_size_ variable
+ * @return The size of a random number array (DEFAULTARRAYSIZE)
  */
 std::size_t GRandomFactory::getCurrentArraySize() const {
     return DEFAULTARRAYSIZE;
@@ -152,10 +159,11 @@ std::size_t GRandomFactory::getCurrentArraySize() const {
 
 /******************************************************************************/
 /**
- * Retrieves the size of the random buffer, i.e. the data structure holding the
- * random number packages.
+ * @brief Retrieves the size of the random buffer.
  *
- * @return The size of the random buffer
+ * The random buffer is the data structure holding the random number packages.
+ *
+ * @return The size of the random buffer (DEFAULTFACTORYBUFFERSIZE)
  */
 std::size_t GRandomFactory::getBufferSize() const {
     return DEFAULTFACTORYBUFFERSIZE;
@@ -163,7 +171,11 @@ std::size_t GRandomFactory::getBufferSize() const {
 
 /******************************************************************************/
 /**
- * This function returns a random number from a pseudo random sequence
+ * @brief Returns a seed from a pseudo-random sequence.
+ *
+ * Access is serialised by seeding_mutex_; the local seed collection is
+ * (re)generated from the seed_seq_ object on first use and once it has been
+ * exhausted.
  *
  * @return A seed taken from a local seed_seq object
  */
@@ -185,11 +197,13 @@ seed_type GRandomFactory::getSeed() {
 
 /******************************************************************************/
 /**
- * Allows recycling of (possibly partially used) packages. This way we avoid
- * the continuous allocation and deletion of new buffers. Note that this function
- * may delete its argument if it cannot be added to the buffer.
+ * @brief Allows recycling of (possibly partially used) packages.
  *
- * @param p A pointer to a partially used work package
+ * This way we avoid the continuous allocation and deletion of new buffers.
+ * Note that this function may delete its argument (via reset) if it cannot be
+ * added to the return buffer.
+ *
+ * @param p An rvalue unique_ptr to a partially used work package; ownership is taken (moved into the return buffer or reset)
  */
 void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container> &&p) {
     // We try to add the item to the p_ret_bfr_ queue.
@@ -200,12 +214,15 @@ void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container> &&p) {
 
 /******************************************************************************/
 /**
- * Sets the number of producer threads for this factory. See also
- * http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/ for
- * the rationale of the double checked locking pattern. Note that only an
- * increase of the number of threads is allowed when threads are already running.
+ * @brief Sets the number of producer threads for this factory.
  *
- * @param n_producer_threads The number of threads simultaneously producing random numbers
+ * See also http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/
+ * for the rationale of the double-checked locking pattern. Note that only an
+ * increase of the number of threads is allowed when threads are already
+ * running; a requested decrease is ignored with a warning, and a request for 0
+ * threads falls back to the default DEFAULT01PRODUCERTHREADS.
+ *
+ * @param n_producer_threads The requested number of threads simultaneously producing random numbers
  */
 void GRandomFactory::setNProducerThreads(const std::uint16_t &n_producer_threads) {
     // Threads might already be running, so we need to regulate access
@@ -294,12 +311,16 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &n_producer_threads
 
 /******************************************************************************/
 /**
- * When objects need a new container of [0,1[ -random numbers with the current
- * default size, they call this function. See also
- * http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/ for
- * the rationale.
+ * @brief Hands out a new container of random numbers.
  *
- * @return A packet of new [0,1[ random numbers
+ * When objects need a new container of [0,1[ random numbers with the current
+ * default size, they call this function. The producer threads are started on
+ * first access (double-checked locking; see
+ * http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/ for
+ * the rationale). A fresh container is popped from the buffer with a bounded
+ * wait.
+ *
+ * @return A packet of new [0,1[ random numbers, or an empty unique_ptr on timeout
  */
 std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
     // Start the producer threads upon first access to this function
@@ -327,15 +348,19 @@ std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
 
 /******************************************************************************/
 /**
- * The production of [0,1[ random numbers takes place here. As this function
- * is the body of a std::thread, no exception may escape it: an exception
- * leaving a thread's top-level function calls std::terminate() and brings the
- * whole process down. We therefore catch everything, log it as a warning, and
- * let this producer thread exit cleanly. The remaining producer threads keep
- * supplying numbers; consumers fall back to the timeout path on an empty
- * buffer.
+ * @brief The production of [0,1[ random numbers takes place here.
  *
- * @param seed A seed for our local random number generator
+ * Runs as the body of a producer std::thread: it (re)fills containers from the
+ * active backend -- the SIMD engine when an AVX2/NEON backend is compiled in,
+ * the GPU (cuRAND) when CUDA support is built and a device is present, else the
+ * scalar CPU engine -- and submits them to the fresh buffer with a blocking
+ * push until shutdown closes the buffer. As this function is the body of a
+ * std::thread, no exception may escape it (that would call std::terminate() and
+ * bring the whole process down); every exception is therefore caught, logged as
+ * a warning, and this producer thread exits cleanly while the remaining
+ * producer threads keep supplying numbers.
+ *
+ * @param seed A seed for this producer thread's local random number generator
  */
 void GRandomFactory::producer(std::uint32_t seed) {
     try {

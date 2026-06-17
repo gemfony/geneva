@@ -33,6 +33,8 @@ namespace Gem::Hap {
 
 /******************************************************************************/
 /**
+ * @brief The standard constructor.
+ *
  * The standard constructor. Note that the seed "val" might just be ignored,
  * if random numbers are obtained from the global factory.
  */
@@ -41,13 +43,15 @@ GRandomBase::GRandomBase() { /* nothing */
 
 /******************************************************************************/
 /**
- * The destructor
+ * @brief The destructor.
  */
 GRandomBase::~GRandomBase() { /* nothing */
 }
 
 /******************************************************************************/
 /**
+ * @brief Retrieves a raw random item.
+ *
  * Retrieves a raw random item. This function, together with the min() and
  * max() functions make it possible to use GRandomBase as a generator for
  * boost's random distributions.

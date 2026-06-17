@@ -73,7 +73,11 @@ namespace Gem::Hap {
 #if defined(HAP_AVX2_BACKEND) || defined(HAP_NEON_BACKEND)
 
 namespace detail {
-// splitmix64 — seed expansion only.
+/**
+ * @brief splitmix64 — seed expansion only.
+ * @param x In/out reference to the splitmix64 running state; advanced on each call
+ * @return The next splitmix64 output value
+ */
 inline std::uint64_t splitmix64(std::uint64_t &x) noexcept {
     std::uint64_t z = (x += 0x9e3779b97f4a7c15ULL);
     z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9ULL;
@@ -97,14 +101,36 @@ public:
     static constexpr int  LANES = 4;
     using result_type           = std::uint64_t;
 
+    /** @brief Default construction uses a fixed non-zero seed (default_seed). */
     xoshiro256pp_simd() noexcept { seed(default_seed); }
+    /**
+     * @brief Construction from a single 64-bit seed (expanded via splitmix64).
+     * @param s The 64-bit seed value used to initialise all LANES streams
+     */
     explicit xoshiro256pp_simd(result_type s) noexcept { seed(s); }
 
+    /**
+     * @brief Smallest value the generator can produce.
+     * @return The minimum result_type value (always 0)
+     */
     static constexpr result_type(min)() noexcept { return 0; }
+    /**
+     * @brief Largest value the generator can produce.
+     * @return The maximum result_type value (2^64 - 1)
+     */
     static constexpr result_type(max)() noexcept {
         return (std::numeric_limits<result_type>::max)();
     }
 
+    /**
+     * @brief (Re-)seed all LANES parallel streams from a single 64-bit value.
+     *
+     * The single seed is expanded via successive splitmix64 calls into the
+     * per-lane, per-word state words, then loaded into the SIMD registers.
+     * The single-value buffer is marked empty.
+     *
+     * @param s The 64-bit seed value used to initialise all LANES streams
+     */
     void seed(result_type s) noexcept {
         std::uint64_t              sm = s;
         alignas(32) std::uint64_t  init[4][LANES]; // init[word][lane]
@@ -115,7 +141,15 @@ public:
         bufpos_ = LANES; // buffer empty
     }
 
-    /** @brief Bulk fill: n values written as LANES interleaved streams. */
+    /**
+     * @brief Bulk fill: n values written as LANES interleaved streams.
+     *
+     * Writes full SIMD blocks directly to the destination and handles a final
+     * partial block (tail smaller than LANES) via a stack buffer.
+     *
+     * @param dst Destination buffer that receives the n generated values; must hold at least n elements
+     * @param n The number of 64-bit values to generate and write
+     */
     void generate(result_type *dst, std::size_t n) noexcept {
         std::size_t i = 0;
         for (; i + LANES <= n; i += LANES)
@@ -127,7 +161,14 @@ public:
         }
     }
 
-    /** @brief Single value (buffered from the 4-wide block). */
+    /**
+     * @brief Produce a single 64-bit value (buffered from the 4-wide SIMD block).
+     *
+     * Refills the internal LANES-wide buffer from a fresh SIMD block when it is
+     * exhausted, then returns the next buffered value.
+     *
+     * @return The next pseudo-random 64-bit value
+     */
     result_type operator()() noexcept {
         if (bufpos_ >= LANES) {
             _mm256_store_si256(reinterpret_cast<__m256i *>(buf_), next_lanes());
@@ -136,15 +177,29 @@ public:
         return buf_[bufpos_++];
     }
 
+    /**
+     * @brief Advance the generator by z single-value steps.
+     * @param z The number of generated values to skip
+     */
     void discard(unsigned long long z) noexcept { while (z-- > 0) (void)(*this)(); }
 
 private:
     static constexpr result_type default_seed = 0x9e3779b97f4a7c15ULL;
 
+    /**
+     * @brief Rotate each 64-bit SIMD lane left by k bits.
+     * @tparam k The compile-time number of bit positions to rotate left by
+     * @param x The SIMD vector whose lanes are rotated
+     * @return The vector with each lane left-rotated by k
+     */
     template <int k> static __m256i rotl(__m256i x) noexcept {
         return _mm256_or_si256(_mm256_slli_epi64(x, k), _mm256_srli_epi64(x, 64 - k));
     }
 
+    /**
+     * @brief Advance all LANES streams once and return their interleaved outputs.
+     * @return A SIMD vector holding the next output of each of the LANES streams
+     */
     __m256i next_lanes() noexcept {
         const __m256i res = _mm256_add_epi64(rotl<23>(_mm256_add_epi64(s_[0], s_[3])), s_[0]);
         const __m256i t   = _mm256_slli_epi64(s_[1], 17);
@@ -172,14 +227,36 @@ public:
     static constexpr int LANES = 2;
     using result_type          = std::uint64_t;
 
+    /** @brief Default construction uses a fixed non-zero seed (default_seed). */
     xoshiro256pp_simd() noexcept { seed(default_seed); }
+    /**
+     * @brief Construction from a single 64-bit seed (expanded via splitmix64).
+     * @param s The 64-bit seed value used to initialise all LANES streams
+     */
     explicit xoshiro256pp_simd(result_type s) noexcept { seed(s); }
 
+    /**
+     * @brief Smallest value the generator can produce.
+     * @return The minimum result_type value (always 0)
+     */
     static constexpr result_type(min)() noexcept { return 0; }
+    /**
+     * @brief Largest value the generator can produce.
+     * @return The maximum result_type value (2^64 - 1)
+     */
     static constexpr result_type(max)() noexcept {
         return (std::numeric_limits<result_type>::max)();
     }
 
+    /**
+     * @brief (Re-)seed all LANES parallel streams from a single 64-bit value.
+     *
+     * The single seed is expanded via successive splitmix64 calls into the
+     * per-lane, per-word state words, then loaded into the NEON registers.
+     * The single-value buffer is marked empty.
+     *
+     * @param s The 64-bit seed value used to initialise all LANES streams
+     */
     void seed(result_type s) noexcept {
         std::uint64_t sm = s;
         std::uint64_t init[4][LANES];
@@ -189,6 +266,15 @@ public:
         bufpos_ = LANES;
     }
 
+    /**
+     * @brief Bulk fill: n values written as LANES interleaved streams.
+     *
+     * Writes full SIMD blocks directly to the destination and handles a final
+     * partial block (tail smaller than LANES) via a stack buffer.
+     *
+     * @param dst Destination buffer that receives the n generated values; must hold at least n elements
+     * @param n The number of 64-bit values to generate and write
+     */
     void generate(result_type *dst, std::size_t n) noexcept {
         std::size_t i = 0;
         for (; i + LANES <= n; i += LANES) vst1q_u64(dst + i, next_lanes());
@@ -199,20 +285,42 @@ public:
         }
     }
 
+    /**
+     * @brief Produce a single 64-bit value (buffered from the LANES-wide block).
+     *
+     * Refills the internal LANES-wide buffer from a fresh SIMD block when it is
+     * exhausted, then returns the next buffered value.
+     *
+     * @return The next pseudo-random 64-bit value
+     */
     result_type operator()() noexcept {
         if (bufpos_ >= LANES) { vst1q_u64(buf_, next_lanes()); bufpos_ = 0; }
         return buf_[bufpos_++];
     }
 
+    /**
+     * @brief Advance the generator by z single-value steps.
+     * @param z The number of generated values to skip
+     */
     void discard(unsigned long long z) noexcept { while (z-- > 0) (void)(*this)(); }
 
 private:
     static constexpr result_type default_seed = 0x9e3779b97f4a7c15ULL;
 
+    /**
+     * @brief Rotate each 64-bit NEON lane left by k bits.
+     * @tparam k The compile-time number of bit positions to rotate left by
+     * @param x The NEON vector whose lanes are rotated
+     * @return The vector with each lane left-rotated by k
+     */
     template <int k> static uint64x2_t rotl(uint64x2_t x) noexcept {
         return vorrq_u64(vshlq_n_u64(x, k), vshrq_n_u64(x, 64 - k));
     }
 
+    /**
+     * @brief Advance all LANES streams once and return their interleaved outputs.
+     * @return A NEON vector holding the next output of each of the LANES streams
+     */
     uint64x2_t next_lanes() noexcept {
         const uint64x2_t res = vaddq_u64(rotl<23>(vaddq_u64(s_[0], s_[3])), s_[0]);
         const uint64x2_t t   = vshlq_n_u64(s_[1], 17);

@@ -74,8 +74,14 @@ namespace Gem::Hap {
 // here; every call site is engine-agnostic.
 using G_CPU_BASE_GENERATOR = xoshiro256pp;
 
-/** @brief Name of the compiled-in public CPU engine (G_CPU_BASE_GENERATOR).
- *  For diagnostics / benchmark labelling; reflects exactly what consumers get. */
+/**
+ * @brief Name of the compiled-in public CPU engine (G_CPU_BASE_GENERATOR).
+ *
+ * For diagnostics / benchmark labelling; reflects exactly what consumers get.
+ *
+ * @return A static string literal naming the engine ("xoshiro256++",
+ *         "mt19937_64", "mt19937" or "unknown")
+ */
 inline const char *cpuEngineName() noexcept {
     if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, std::mt19937_64>) return "mt19937_64";
     else if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, std::mt19937>) return "mt19937";
@@ -118,20 +124,30 @@ public:
     ~random_container() = default;
 
     /***************************************************************************/
-    /** @brief Returns the size of the buffer */
+    /**
+	  * @brief Returns the size of the buffer.
+	  *
+	  * @return The fixed number of random numbers a full container holds (DEFAULTARRAYSIZE)
+	  */
     std::size_t size() const {
         return DEFAULTARRAYSIZE;
     }
 
     /***************************************************************************/
-    /** @brief Returns the current position */
+    /**
+	  * @brief Returns the current read position within the buffer.
+	  *
+	  * @return The index of the next random number to be handed out
+	  */
     std::size_t getCurrentPosition() const {
         return current_pos_;
     }
 
     /***************************************************************************/
     /**
-	  * Allows to check whether the buffer has run empty
+	  * @brief Allows to check whether the buffer has run empty.
+	  *
+	  * @return true if every random number in the container has been consumed, false otherwise
 	  */
     bool empty() const {
         return (current_pos_ >= DEFAULTARRAYSIZE);
@@ -139,7 +155,13 @@ public:
 
     /***************************************************************************/
     /**
-	  * Returns the next random number from the package
+	  * @brief Returns the next random number from the package.
+	  *
+	  * Advances the internal read position. In DEBUG builds an exhausted
+	  * container throws; in release builds the caller must ensure the container
+	  * is not empty() beforehand.
+	  *
+	  * @return The next raw random value, then increments the read position
 	  */
     G_CPU_BASE_GENERATOR::result_type next() {
 #ifdef DEBUG
@@ -165,6 +187,10 @@ private:
 	  * std::uniform_random_bit_generator, e.g. the scalar xoshiro256++ or
 	  * std::mt19937_64) values are drawn one at a time. Selected at compile
 	  * time via a requires-expression; no virtual dispatch.
+	  *
+	  * @tparam RNG A std::uniform_random_bit_generator, or a bulk engine exposing generate(dst, n)
+	  * @param rng The random number generator used to fill the buffer
+	  * @param n The number of entries (from the front of the buffer) to fill
 	  */
     template <typename RNG>
     void fill_from(RNG &rng, std::size_t n) {
@@ -178,9 +204,14 @@ private:
 
     /***************************************************************************/
     /**
-	  * Initialization with the number of entries in the buffer
+	  * @brief Constructs the container and fills it completely from the generator.
 	  *
-	  * @param rng A reference to an external random number generator
+	  * Private (only the friend GRandomFactory may construct containers). Wraps
+	  * the fill in try/catch and rethrows allocation or unknown failures as a
+	  * geneva_exception.
+	  *
+	  * @tparam RNG A std::uniform_random_bit_generator, or a bulk engine exposing generate(dst, n)
+	  * @param rng A reference to an external random number generator used to fill the whole buffer
 	  */
     template <typename RNG>
     explicit random_container(RNG &rng) {
@@ -206,9 +237,14 @@ private:
 
     /***************************************************************************/
     /**
-	  * Replaces "used" random numbers by new numbers and resets the current_pos_
-	  * pointer. RNG is either a std::uniform_random_bit_generator or a bulk
-	  * refill engine exposing generate(dst, n).
+	  * @brief Replaces "used" random numbers by new numbers and resets the read position.
+	  *
+	  * Only the already-consumed leading entries (up to current_pos_) are
+	  * regenerated, then the read position is reset to zero so the container can
+	  * be recycled.
+	  *
+	  * @tparam RNG A std::uniform_random_bit_generator, or a bulk refill engine exposing generate(dst, n)
+	  * @param rng A reference to the random number generator used to refill the consumed entries
 	  */
     template <typename RNG>
     void refresh(RNG &rng) {
@@ -266,30 +302,67 @@ public:
 
     /***************************************************************************/
 
-    /** @brief Initialization code for the GRandomFactory */
+    /** @brief Initialization code for the GRandomFactory (starts producer threads / seeding) */
     void init();
-    /** @brief Finalization code for the GRandomFactory */
+    /** @brief Finalization code for the GRandomFactory (stops producer threads and cleans up) */
     void finalize();
 
-    /** @brief Sets the number of producer threads for this factory. */
+    /**
+     * @brief Sets the number of producer threads for this factory.
+     *
+     * @param n_producer_threads The desired number of threads producing random number packages
+     */
     void setNProducerThreads(const std::uint16_t &);
 
-    /** @brief Allows to retrieve the size of the array */
+    /**
+     * @brief Allows to retrieve the size of the random number array held by each container.
+     *
+     * @return The number of random numbers in a full container
+     */
     std::size_t getCurrentArraySize() const;
 
-    /** @brief Allows to retrieve the size of the buffer */
+    /**
+     * @brief Allows to retrieve the size of the bounded buffer of containers.
+     *
+     * @return The maximum number of containers the factory's buffer can hold
+     */
     std::size_t getBufferSize() const;
 
-    /** @brief Delivers a new [0,1[ random number container with the current standard size to clients */
+    /**
+     * @brief Delivers a new random number container with the current standard size to clients.
+     *
+     * @return A unique_ptr to a filled container, or a null pointer if none became
+     *         available within the internal timeout
+     */
     std::unique_ptr<random_container> getNewRandomContainer();
-    /** @brief Retrieval of a new seed for external or internal random number generators */
+    /**
+     * @brief Retrieval of a new seed for external or internal random number generators.
+     *
+     * Thread-safe; hands out a unique seed from the pre-calculated seed collection.
+     *
+     * @return A fresh seed value
+     */
     seed_type getSeed();
 
-    /** @brief Allows recycling of partially used packages */
+    /**
+     * @brief Allows recycling of partially used packages.
+     *
+     * Returns a (possibly partially consumed) container to the factory so its
+     * used entries can be refilled and the container reused.
+     *
+     * @param r A unique_ptr (moved-from) to the container being returned for recycling
+     */
     void returnUsedPackage(std::unique_ptr<random_container> &&);
 
 private:
-    /** @brief The production of [0,1[ random numbers takes place here */
+    /**
+     * @brief The production of random number packages takes place here.
+     *
+     * Runs in a dedicated producer thread, continuously filling fresh containers
+     * (and refilling recycled ones) until a stop is requested.
+     *
+     * @param seed The seed used to initialize this producer thread's engine
+     */
     void producer(std::uint32_t seed);
 
     std::atomic<bool> finalized_{false};
@@ -350,11 +423,16 @@ private:
  * randomFactory() (and resetRandomFactory() to drop it); both forward to the
  * GSingletonT<GRandomFactory> lifetime manager. These type-safe, namespaced
  * functions replace the former GRANDOMFACTORY / GRANDOMFACTORY_RESET macros.
+ *
+ * @return A shared_ptr to the single, global GRandomFactory instance
  */
 [[nodiscard]] inline std::shared_ptr<GRandomFactory> randomFactory() {
     return Gem::Common::GSingletonT<GRandomFactory>::instance();
 }
 
+/**
+ * @brief Drops the global GRandomFactory singleton, so a fresh one is created on next access.
+ */
 inline void resetRandomFactory() {
     Gem::Common::GSingletonT<GRandomFactory>::reset();
 }

@@ -94,7 +94,9 @@ class GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> : public Gem::Hap::GRandomBa
 public:
     /***************************************************************************/
     /**
-	 * Default constructor. Note that getNewRandomContainer() may throw.
+	 * @brief Default constructor; acquires the factory and a first random number package.
+	 *
+	 * Note that getNewRandomContainer() may throw.
 	 */
     GRandomT() noexcept(false)
       : grf_(randomFactory()) // Make sure we have a local pointer to the factory
@@ -105,7 +107,7 @@ public:
 
     /***************************************************************************/
     /**
-	 * The standard destructor
+	 * @brief The standard destructor; returns the held package to the factory for recycling.
 	 */
     ~GRandomT() override {
         if(p_) {
@@ -116,9 +118,12 @@ public:
 
     /***************************************************************************/
     /**
-	 * Copy construction is identical to default construction, as every class
-	 * should hold a unique set of random numbers. We use a delegating constructor
-	 * to make this happen.
+	 * @brief Copy construction is identical to default construction.
+	 *
+	 * Every instance should hold a unique set of random numbers, so the source
+	 * is ignored and a fresh container is obtained via a delegating constructor.
+	 *
+	 * @param cp The object to be "copied" (unused; present only for interface compatibility)
 	 */
     GRandomT([[maybe_unused]] GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> const & cp) noexcept(false)
       : GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>() { /* nothing */
@@ -126,7 +131,12 @@ public:
 
     /***************************************************************************/
     /**
-	 * Move construction. Note that getNewRandomContainer() may throw.
+	 * @brief Move construction. Note that getNewRandomContainer() may throw.
+	 *
+	 * Steals the source's random number container, then re-supplies the source
+	 * with a fresh container so it remains usable.
+	 *
+	 * @param cp The object whose random number container is moved from (left in a pristine state)
 	 */
     GRandomT(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> &&cp) noexcept(false)
       : p_(std::move(cp.p_))
@@ -138,8 +148,13 @@ public:
 
     /***************************************************************************/
     /**
-	 * Copy assignment -- empty, as every class is meant to hold its own,
-	 * unique set of random numbers (compare copy constructor).
+	 * @brief Copy assignment -- a no-op.
+	 *
+	 * Each instance keeps its own unique set of random numbers, so nothing is
+	 * copied (compare the copy constructor).
+	 *
+	 * @param cp The object to be "assigned" (unused; present only for interface compatibility)
+	 * @return A reference to this object
 	 */
     GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> &
     operator=([[maybe_unused]] GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> const & cp) noexcept(false) {
@@ -148,7 +163,13 @@ public:
 
     /***************************************************************************/
     /**
-	 * Move assignment
+	 * @brief Move assignment.
+	 *
+	 * Takes over the source's random number container (keeping this object's own
+	 * factory pointer) and re-supplies the source with a fresh container.
+	 *
+	 * @param cp The object whose random number container is moved from (re-initialized afterwards)
+	 * @return A reference to this object
 	 */
     GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> &
     operator=(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> &&cp) noexcept(false) {
@@ -164,8 +185,11 @@ public:
 
     /***************************************************************************/
     /**
-	 * Retrieves the id of the currently running thread. This function exists
-	 * mostly for debugging purposes
+	 * @brief Retrieves the id of the currently running thread.
+	 *
+	 * This function exists mostly for debugging purposes.
+	 *
+	 * @return The std::thread::id of the calling thread
 	 */
     std::thread::id getThreadId() const {
         return std::this_thread::get_id();
@@ -180,6 +204,8 @@ private:
 	 * Essentially this class thus acts as a random number proxy -- to the
 	 * caller it appears as if random numbers are created locally. This function
 	 * assumes that a valid container is already available.
+	 *
+	 * @return The next raw random value, transparently refilling from the factory when exhausted
 	 */
     GRandomBase::result_type int_random() override {
         if(p_->empty()) {
@@ -193,8 +219,11 @@ private:
 
     /***************************************************************************/
     /**
-	 * (Re-)Initialization of p_. Checks that a valid GRandomFactory still
-	 * exists, then retrieves a new container.
+	 * @brief (Re-)Initialization of the local random number container p_.
+	 *
+	 * Checks (in DEBUG builds) that a valid GRandomFactory still exists, then
+	 * retries getNewRandomContainer() on the factory until a valid container is
+	 * obtained (each factory call has an internal timeout).
 	 */
     void getNewRandomContainer() {
         // Make sure we get rid of the old container
@@ -255,7 +284,7 @@ class GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> : public Gem::Hap::GRandomBa
 public:
     /***************************************************************************/
     /**
-	 * The standard constructor
+	 * @brief The standard constructor; seeds the local engine from the global seed manager.
 	 */
     GRandomT() noexcept(false)
       : rng_(randomFactory()->getSeed()) { /* nothing */
@@ -263,7 +292,11 @@ public:
 
     /***************************************************************************/
     /**
-	 * Copy construction does nothing, delegates to default constructor
+	 * @brief Copy construction does nothing but delegate to the default constructor.
+	 *
+	 * Each instance gets its own freshly seeded local engine, so the source is ignored.
+	 *
+	 * @param cp The object to be "copied" (unused; present only for interface compatibility)
 	 */
     GRandomT([[maybe_unused]] GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> const & cp) noexcept(false)
       : GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>() { /* nothing */
@@ -271,7 +304,11 @@ public:
 
     /***************************************************************************/
     /**
-	 * Move construction does nothing, delegates to default constructor
+	 * @brief Move construction does nothing but delegate to the default constructor.
+	 *
+	 * Each instance gets its own freshly seeded local engine, so the source is ignored.
+	 *
+	 * @param cp The object to be "moved" from (unused; present only for interface compatibility)
 	 */
     GRandomT([[maybe_unused]] GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> && cp) noexcept(false)
       : GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>() { /* nothing */
@@ -285,7 +322,12 @@ public:
 
     /***************************************************************************/
     /**
-	 * Copy-assignment does nothing
+	 * @brief Copy-assignment does nothing.
+	 *
+	 * Each instance owns its independent, locally seeded engine, so nothing is copied.
+	 *
+	 * @param cp The object to be "assigned" (unused; present only for interface compatibility)
+	 * @return A reference to this object
 	 */
     GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> &
     operator=([[maybe_unused]] GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> const & cp) noexcept(
@@ -297,7 +339,12 @@ public:
 
     /***************************************************************************/
     /**
-	 * Move-assignment does nothing
+	 * @brief Move-assignment does nothing.
+	 *
+	 * Each instance owns its independent, locally seeded engine, so nothing is moved.
+	 *
+	 * @param cp The object to be "moved" from (unused; present only for interface compatibility)
+	 * @return A reference to this object
 	 */
     GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> &
     operator=([[maybe_unused]] GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> && cp) noexcept(false) {
@@ -307,7 +354,9 @@ public:
 private:
     /***************************************************************************/
     /**
-	 * This function produces uniform random numbers locally.
+	 * @brief This function produces uniform random numbers locally.
+	 *
+	 * @return One raw random value drawn directly from the instance-local engine
 	 */
     GRandomBase::result_type int_random() override {
         return rng_();

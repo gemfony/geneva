@@ -67,9 +67,16 @@ public:
     /***************************************************************************/
     /** @brief The standard constructor */
     GRandomBase();
-    /** @brief A standard destructor */
+    /** @brief A standard (virtual) destructor */
     virtual ~GRandomBase();
-    /** @brief Retrieves a "raw" random item item */
+    /**
+     * @brief Retrieves a single "raw" uniformly distributed random item.
+     *
+     * Acts as the call operator required by the C++11 UniformRandomBitGenerator
+     * interface, forwarding to the derived class' int_random() implementation.
+     *
+     * @return One raw random value drawn from the underlying generator
+     */
     GRandomBase::result_type operator()();
 
     /***************************************************************************/
@@ -85,6 +92,8 @@ public:
 	  * engines. It returns the minimum value returned by the generator. Since
 	  * this class acts as a proxy for a wrapped generator or a generator running
 	  * as a factory, we simply return the base generators min()-Value.
+	  *
+	  * @return The minimum value the underlying base generator can produce
 	  */
     static constexpr result_type(min)() {
         return (G_CPU_BASE_GENERATOR::min)();
@@ -96,6 +105,8 @@ public:
 	  * engines. It returns the maximum value returned by the generator. Since
 	  * this class acts as a proxy for a wrapped generator or a generator running
 	  * as a factory, we simply return the base generators max()-Value.
+	  *
+	  * @return The maximum value the underlying base generator can produce
 	  */
     static constexpr result_type(max)() {
         return (G_CPU_BASE_GENERATOR::max)();
@@ -103,7 +114,14 @@ public:
 
 private:
     /***************************************************************************/
-    /** @brief Uniformly distributed integer numbers in the range min/max */
+    /**
+     * @brief Produces a single uniformly distributed integer in the range [min(), max()].
+     *
+     * Pure virtual hook implemented by each derived flavour (proxy or local); it
+     * is the sole source of raw randomness this base class draws upon.
+     *
+     * @return One raw uniformly distributed random value
+     */
     virtual result_type int_random() = 0;
 };
 

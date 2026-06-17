@@ -37,6 +37,8 @@
 namespace Gem::Hap {
 
 /**
+ * @brief GPU-based bulk random-number backend built on the cuRAND host API.
+ *
  * GPU-based bulk random-number backend built on the cuRAND host API. It serves
  * as a refill backend for the random-number containers: a single curandGenerate
  * call fills a device buffer which is copied to the host. It exposes the same
@@ -51,17 +53,20 @@ class GCudaRNG {
 public:
     using result_type = std::uint64_t;
 
-    /** @brief Creates a cuRAND generator seeded from the given value. */
+    /** @brief Creates a cuRAND generator seeded from the given value. @param seed The seed value for the cuRAND generator. */
     explicit GCudaRNG(std::uint64_t seed);
+    /** @brief Destroys the generator, device buffer and CUDA stream. */
     ~GCudaRNG();
 
     GCudaRNG(GCudaRNG const &)            = delete;
     GCudaRNG &operator=(GCudaRNG const &) = delete;
 
-    /** @brief Fills dst[0..n) with n 64-bit values (one device generate + copy). */
+    /** @brief Fills dst[0..n) with n 64-bit values (one device generate + copy).
+     *  @param dst Destination host buffer holding at least n 64-bit values. @param n The number of values to generate. */
     void generate(result_type *dst, std::size_t n);
 
-    /** @brief True iff at least one usable CUDA device is present at runtime. */
+    /** @brief True iff at least one usable CUDA device is present at runtime.
+     *  @return true if a CUDA device is available, false otherwise. */
     static bool deviceAvailable() noexcept;
 
 private:

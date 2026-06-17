@@ -49,6 +49,17 @@ namespace {
 // logger, whose singleton may already be gone during static destruction.
 std::atomic<bool> g_cudaShuttingDown{false};
 
+/**
+ * @brief Reports a failed CUDA runtime call (unless during shutdown) and signals success.
+ *
+ * Treats cudaErrorCudartUnloading as benign process-shutdown noise (setting the
+ * global shutdown flag). Genuine errors are printed once to stderr -- never via the
+ * Geneva logger, whose singleton may already be gone during static destruction.
+ *
+ * @param st The status returned by the CUDA runtime call
+ * @param what A short label identifying the call, for the error message
+ * @return true if the call succeeded, false on any error or during shutdown
+ */
 inline bool checkCuda(cudaError_t st, char const *what) {
     if (st == cudaSuccess) return true;
     if (st == cudaErrorCudartUnloading) { g_cudaShuttingDown.store(true, std::memory_order_relaxed); return false; }
@@ -56,6 +67,13 @@ inline bool checkCuda(cudaError_t st, char const *what) {
     std::fprintf(stderr, "GCudaRNG: CUDA call failed (%s): %s\n", what, cudaGetErrorString(st));
     return false;
 }
+/**
+ * @brief Reports a failed cuRAND call (unless during shutdown) and signals success.
+ *
+ * @param st The status returned by the cuRAND call
+ * @param what A short label identifying the call, for the error message
+ * @return true if the call succeeded, false on any error or during shutdown
+ */
 inline bool checkCurand(curandStatus_t st, char const *what) {
     if (st == CURAND_STATUS_SUCCESS) return true;
     if (g_cudaShuttingDown.load(std::memory_order_relaxed)) return false;
@@ -63,10 +81,23 @@ inline bool checkCurand(curandStatus_t st, char const *what) {
     return false;
 }
 
+/**
+ * @brief Reports whether the CUDA runtime has begun shutting down.
+ *
+ * @return true once any backend has observed a shutdown-related CUDA error
+ */
 bool cudaShuttingDown() noexcept { return g_cudaShuttingDown.load(std::memory_order_relaxed); }
 
 } // namespace
 
+/**
+ * @brief True iff at least one usable CUDA device is present at runtime.
+ *
+ * On a host without a driver or device, cudaGetDeviceCount returns an error,
+ * which correctly yields "not available" and triggers the CPU fallback.
+ *
+ * @return true if a CUDA device is available, false otherwise
+ */
 bool GCudaRNG::deviceAvailable() noexcept {
     int count = 0;
     // On a host without a driver/device cudaGetDeviceCount returns an error,
@@ -74,6 +105,11 @@ bool GCudaRNG::deviceAvailable() noexcept {
     return cudaGetDeviceCount(&count) == cudaSuccess && count > 0;
 }
 
+/**
+ * @brief Creates a CUDA stream and a Philox4-32-10 cuRAND generator seeded from the given value.
+ *
+ * @param seed The seed value passed to the cuRAND pseudo-random generator
+ */
 GCudaRNG::GCudaRNG(std::uint64_t seed) {
     cudaStream_t stream{};
     checkCuda(cudaStreamCreate(&stream), "cudaStreamCreate");
@@ -89,12 +125,25 @@ GCudaRNG::GCudaRNG(std::uint64_t seed) {
     gen_ = gen;
 }
 
+/**
+ * @brief Destroys the cuRAND generator, frees the device buffer and destroys the CUDA stream.
+ */
 GCudaRNG::~GCudaRNG() {
     if (gen_ != nullptr) curandDestroyGenerator(static_cast<curandGenerator_t>(gen_));
     if (d_buf_ != nullptr) cudaFree(d_buf_);
     if (stream_ != nullptr) cudaStreamDestroy(static_cast<cudaStream_t>(stream_));
 }
 
+/**
+ * @brief Fills dst[0..n) with n 64-bit random values via a single device generate plus host copy.
+ *
+ * Requests 2*n 32-bit words from cuRAND (two words form one 64-bit result_type),
+ * growing the device buffer as needed, then copies them to the host. Does nothing
+ * if n is zero or the CUDA runtime is shutting down.
+ *
+ * @param dst Destination host buffer that receives n 64-bit values; must hold at least n entries
+ * @param n The number of 64-bit values to generate
+ */
 void GCudaRNG::generate(result_type *dst, std::size_t n) {
     if (n == 0 || cudaShuttingDown()) return;
 

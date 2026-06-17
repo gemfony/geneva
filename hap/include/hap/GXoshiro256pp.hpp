@@ -64,24 +64,46 @@ class xoshiro256pp {
 public:
     using result_type = std::uint64_t;
 
-    /** @brief Default construction uses a fixed non-zero seed. */
+    /** @brief Default construction uses a fixed non-zero seed (default_seed). */
     xoshiro256pp() noexcept { seed(default_seed); }
 
-    /** @brief Construction from a single 64-bit seed (expanded via splitmix64). */
+    /**
+     * @brief Construction from a single 64-bit seed (expanded via splitmix64).
+     *
+     * @param s The 64-bit seed value used to initialise the 256-bit state
+     */
     explicit xoshiro256pp(result_type s) noexcept { seed(s); }
 
+    /**
+     * @brief Smallest value the generator can produce.
+     * @return The minimum result_type value (always 0)
+     */
     static constexpr result_type(min)() noexcept { return 0; }
+    /**
+     * @brief Largest value the generator can produce.
+     * @return The maximum result_type value (2^64 - 1)
+     */
     static constexpr result_type(max)() noexcept {
         return (std::numeric_limits<result_type>::max)();
     }
 
-    /** @brief (Re-)seed the 256-bit state from a single 64-bit value. */
+    /**
+     * @brief (Re-)seed the 256-bit state from a single 64-bit value.
+     *
+     * The single seed is expanded into the four 64-bit state words via
+     * successive splitmix64 calls.
+     *
+     * @param s The 64-bit seed value used to initialise the 256-bit state
+     */
     void seed(result_type s) noexcept {
         std::uint64_t sm = s;
         for (auto &word : s_) word = splitmix64(sm);
     }
 
-    /** @brief Produce the next 64-bit value. */
+    /**
+     * @brief Produce the next 64-bit value and advance the state.
+     * @return The next pseudo-random 64-bit value in the sequence
+     */
     result_type operator()() noexcept {
         const std::uint64_t result = rotl(s_[0] + s_[3], 23) + s_[0];
         const std::uint64_t t      = s_[1] << 17;
@@ -94,7 +116,11 @@ public:
         return result;
     }
 
-    /** @brief Advance the state by z steps (UniformRandomBitGenerator nicety). */
+    /**
+     * @brief Advance the state by z steps (UniformRandomBitGenerator nicety).
+     *
+     * @param z The number of generated values to skip (state is advanced z times)
+     */
     void discard(unsigned long long z) noexcept {
         while (z-- > 0) (void)(*this)();
     }
@@ -102,11 +128,21 @@ public:
 private:
     static constexpr result_type default_seed = 0x9e3779b97f4a7c15ULL;
 
+    /**
+     * @brief Rotate a 64-bit value left by k bits.
+     * @param x The value to rotate
+     * @param k The number of bit positions to rotate left by
+     * @return The left-rotated value
+     */
     static std::uint64_t rotl(std::uint64_t x, int k) noexcept {
         return std::rotl(x, k);
     }
 
-    // splitmix64 — used only to expand the seed into the 256-bit state.
+    /**
+     * @brief splitmix64 — used only to expand the seed into the 256-bit state.
+     * @param x In/out reference to the splitmix64 running state; advanced on each call
+     * @return The next splitmix64 output value
+     */
     static std::uint64_t splitmix64(std::uint64_t &x) noexcept {
         std::uint64_t z = (x += 0x9e3779b97f4a7c15ULL);
         z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9ULL;

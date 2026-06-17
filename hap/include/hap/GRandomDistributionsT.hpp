@@ -74,6 +74,8 @@ inline fp_type fast_uniform_01(URBG &g) {
 
 /******************************************************************************/
 /**
+ * @brief A fast normal (Gaussian) distribution drawing uniforms via fast_uniform_01().
+ *
  * A normal (Gaussian) distribution that is API-compatible with std::normal_distribution
  * (param_type{mean,stddev}, operator()(g), operator()(g,param), param()/reset()), but draws its
  * uniforms via fast_uniform_01() instead of std::generate_canonical -- so std::log runs only on
@@ -97,9 +99,13 @@ public:
         [[nodiscard]] fp_type mean() const { return mean_; }
         /** @return The configured standard deviation. */
         [[nodiscard]] fp_type stddev() const { return stddev_; }
+        /** @param a The left-hand-side parameters. @param b The right-hand-side parameters.
+         *  @return true if mean and standard deviation are equal. */
         friend bool operator==(const param_type &a, const param_type &b) {
             return a.mean_ == b.mean_ && a.stddev_ == b.stddev_;
         }
+        /** @param a The left-hand-side parameters. @param b The right-hand-side parameters.
+         *  @return true if the parameters differ. */
         friend bool operator!=(const param_type &a, const param_type &b) { return not(a == b); }
     private:
         fp_type mean_{0};
@@ -107,13 +113,20 @@ public:
     };
 
     g_normal_distribution() = default;
+    /** @param mean The mean of the distribution. @param stddev Its standard deviation. */
     explicit g_normal_distribution(fp_type mean, fp_type stddev = fp_type(1)) : params_(mean, stddev) {}
+    /** @param p The distribution parameters to initialize from. */
     explicit g_normal_distribution(const param_type &p) : params_(p) {}
 
+    /** @brief Discards any cached (spare) deviate so the next draw recomputes a fresh pair. */
     void reset() { have_spare_ = false; }
+    /** @return The currently configured distribution parameters. */
     [[nodiscard]] param_type param() const { return params_; }
+    /** @brief Sets the distribution parameters. @param p The new distribution parameters. */
     void param(const param_type &p) { params_ = p; }
+    /** @return The configured mean. */
     [[nodiscard]] fp_type mean() const { return params_.mean(); }
+    /** @return The configured standard deviation. */
     [[nodiscard]] fp_type stddev() const { return params_.stddev(); }
 
     /** @tparam URBG The generator type. @param g The generator. @return A normal deviate using the stored parameters. */
@@ -150,6 +163,8 @@ private:
 
 /******************************************************************************/
 /**
+ * @brief A fast Bernoulli distribution drawing its uniform via fast_uniform_01().
+ *
  * A Bernoulli distribution that is API-compatible with std::bernoulli_distribution
  * (param_type{p}, operator()(g), operator()(g,param), p()/param()/reset()), but draws its
  * uniform via fast_uniform_01() rather than std::generate_canonical. std::bernoulli_distribution
@@ -169,19 +184,29 @@ public:
         explicit param_type(double p) : p_(p) {}
         /** @return The configured probability of drawing true. */
         [[nodiscard]] double p() const { return p_; }
+        /** @param a The left-hand-side parameters. @param b The right-hand-side parameters.
+         *  @return true if both probabilities are equal. */
         friend bool operator==(const param_type &a, const param_type &b) { return a.p_ == b.p_; }
+        /** @param a The left-hand-side parameters. @param b The right-hand-side parameters.
+         *  @return true if the probabilities differ. */
         friend bool operator!=(const param_type &a, const param_type &b) { return not(a == b); }
     private:
         double p_{0.5};
     };
 
     g_bernoulli_distribution() = default;
+    /** @param p The probability of drawing true, in [0,1]. */
     explicit g_bernoulli_distribution(double p) : params_(p) {}
+    /** @param p The distribution parameters to initialize from. */
     explicit g_bernoulli_distribution(const param_type &p) : params_(p) {}
 
+    /** @brief No-op reset; this distribution holds no cached state. */
     void reset() {}
+    /** @return The currently configured distribution parameters. */
     [[nodiscard]] param_type param() const { return params_; }
+    /** @brief Sets the distribution parameters. @param p The new distribution parameters. */
     void param(const param_type &p) { params_ = p; }
+    /** @return The configured probability of drawing true. */
     [[nodiscard]] double p() const { return params_.p(); }
 
     /** @tparam URBG The generator type. @param g The generator. @return true with the stored probability. */
@@ -203,8 +228,12 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * @brief A random distribution consisting of two adjacent normal distributions (peaks).
+ *
  * This class implements a random distribution consisting of two adjacent
  * normal distributions. It models the API common for std C++11 random distributions.
+ *
+ * @tparam fp_type The floating point type of the generated deviates (float or double)
  */
 template <std::floating_point fp_type>
 class bi_normal_distribution {
@@ -214,6 +243,8 @@ public:
 
     /**************************************************************************/
     /**
+	  * @brief Holds the parameters needed for the bi_normal_distribution.
+	  *
 	  * This embedded class identifies parameters needed for the bi_normal_distribution
 	  */
     class param_type { // NOLINT(cppcoreguidelines-special-member-functions)
@@ -227,9 +258,14 @@ public:
         param_type &operator=(param_type &&) = delete;
 
         /**
+ 			* @brief Constructs the parameters of a bi_normal_distribution.
+ 			*
  			* Constructs the parameters of a bi_normal_distribution<fp_type>
  			*
- 			* Requires min <= max
+ 			* @param mean The position midway between the two peaks
+ 			* @param sigma1 The standard deviation (width) of the left peak
+ 			* @param sigma2 The standard deviation (width) of the right peak
+ 			* @param distance The distance between the two peaks
  			*/
         param_type(fp_type mean, fp_type sigma1, fp_type sigma2, fp_type distance)
           : mean_(mean)
@@ -239,7 +275,9 @@ public:
         }
 
         /**
-		   * The copy constructor
+		   * @brief The copy constructor.
+		   *
+		   * @param params The param_type object to copy from
 		   */
         param_type(const param_type &params)
           : mean_(params.mean_)
@@ -249,7 +287,10 @@ public:
         }
 
         /**
-		   * The assignment operator
+		   * @brief The assignment operator.
+		   *
+		   * @param params The param_type object to assign from
+		   * @return A reference to this object
 		   */
         param_type &operator=(param_type const &params) {
             if(this == &params) {
@@ -264,32 +305,43 @@ public:
         }
 
         /**
-		   * Access to the mean() value
+		   * @brief Access to the mean() value.
+		   *
+		   * @return The position midway between the two peaks
 		   */
         fp_type mean() const {
             return mean_;
         }
         /**
-		   * Access to the sigma1 value
+		   * @brief Access to the sigma1 value.
+		   *
+		   * @return The standard deviation (width) of the left peak
 		   */
         fp_type sigma1() const {
             return sigma1_;
         }
         /**
-		   * Access to the sigma2 value
+		   * @brief Access to the sigma2 value.
+		   *
+		   * @return The standard deviation (width) of the right peak
 		   */
         fp_type sigma2() const {
             return sigma2_;
         }
         /**
-		   * Access to the distance value
+		   * @brief Access to the distance value.
+		   *
+		   * @return The distance between the two peaks
 		   */
         fp_type distance() const {
             return distance_;
         }
 
         /**
-		   * Compare for equality with another param_type object
+		   * @brief Compare for equality with another param_type object.
+		   *
+		   * @param p The param_type object to compare against
+		   * @return true if all parameters are equal, false otherwise
 		   */
         bool operator==(const param_type &p) const {
             if(mean_ != p.mean_) {
@@ -322,7 +374,12 @@ public:
     /********************************************************************************************/
 
     /**
-	  * The standard constructor
+	  * @brief The standard constructor.
+	  *
+	  * @param mean The position midway between the two peaks
+	  * @param sigma1 The standard deviation (width) of the left peak
+	  * @param sigma2 The standard deviation (width) of the right peak
+	  * @param distance The distance between the two peaks
 	  */
     bi_normal_distribution(fp_type mean, fp_type sigma1, fp_type sigma2, fp_type distance)
       : params_(mean, sigma1, sigma2, distance)
@@ -330,7 +387,9 @@ public:
     }
 
     /**
-	  * Initialization with a param_type object
+	  * @brief Initialization with a param_type object.
+	  *
+	  * @param params The distribution parameters to use
 	  */
     explicit bi_normal_distribution(param_type const &params)
       : params_(params)
@@ -338,7 +397,9 @@ public:
     }
 
     /**
-	  * The copy constructor
+	  * @brief The copy constructor.
+	  *
+	  * @param cp The bi_normal_distribution object to copy from
 	  */
     bi_normal_distribution(bi_normal_distribution<fp_type> const &cp)
       : params_(cp.params_)
@@ -346,7 +407,10 @@ public:
     }
 
     /**
-	  * Assignment operator
+	  * @brief Assignment operator.
+	  *
+	  * @param cp The bi_normal_distribution object to assign from
+	  * @return A reference to this object
 	  */
     bi_normal_distribution<fp_type> &operator=(bi_normal_distribution<fp_type> const &cp) {
         params_ = cp.params_;
@@ -356,72 +420,99 @@ public:
     }
 
     /**
-* Returns the middle between both peaks
-*/
+     * @brief Returns the middle between both peaks.
+     *
+     * @return The position midway between the two peaks
+     */
     fp_type mean() const {
         return params_.mean();
     }
     /**
-     * Returns the sigma value of the first peak
+     * @brief Returns the sigma value of the first peak.
+     *
+     * @return The standard deviation (width) of the left peak
      */
     fp_type sigma1() const {
         return params_.sigma1();
     }
     /**
-     * Returns the sigma value of the second peak
+     * @brief Returns the sigma value of the second peak.
+     *
+     * @return The standard deviation (width) of the right peak
      */
     fp_type sigma2() const {
         return params_.sigma2();
     }
     /**
-     * Returns the distance between both peaks
+     * @brief Returns the distance between both peaks.
+     *
+     * @return The distance between the two peaks
      */
     fp_type distance() const {
         return params_.distance();
     }
 
     /**
-     * Returns a parameter object holding information on the distribution parameters
+     * @brief Returns a parameter object holding information on the distribution parameters.
+     *
+     * @return A const reference to the internally stored distribution parameters
      */
     const typename bi_normal_distribution<fp_type>::param_type &param() const {
         return params_;
     }
 
     /**
-     * Sets the distribution parameters from another param object
+     * @brief Sets the distribution parameters from another param object.
+     *
+     * @param params The distribution parameters to adopt
      */
     void param(const typename bi_normal_distribution<fp_type>::param_type &params) {
         params_ = params;
     }
 
     /**
+     * @brief Returns the minimum value of the distribution.
+     *
      * Returns the minimum value of the distribution. As we are
      * essentially dealing with gaussian distributions, any floating
      * point value is allowed.
+     *
+     * @return The lowest representable value of fp_type
      */
     fp_type(min)() const {
         return std::numeric_limits<fp_type>::lowest();
     }
 
     /**
-      * Returns the minimum value of the distribution. As we are
+      * @brief Returns the maximum value of the distribution.
+      *
+     * Returns the maximum value of the distribution. As we are
      * essentially dealing with gaussian distributions, any floating
      * point value is allowed.
+      *
+      * @return The largest representable value of fp_type
       */
     fp_type(max)() const {
         return (std::numeric_limits<fp_type>::max)();
     }
 
     /**
-     * Resets the distribution to the values used for its construction
+     * @brief Resets the distribution to the values used for its construction.
      */
     void reset() {
         params_ = params_store_;
     };
 
     /**
+      * @brief Returns the next random number with a bi_normal distribution.
+      *
       * Returns a the next random number with a bi_normal distribution
       * according to the data contained in the param_type object
+      *
+      * @tparam T_Generator The uniform-random-bit-generator type
+      * @param g The generator to draw from
+      * @param params The distribution parameters to use
+      * @return A bi-normally distributed deviate
       */
     template <class T_Generator>
     result_type operator()(T_Generator &g, const param_type &params) {
@@ -437,9 +528,15 @@ public:
     }
 
     /**
+      * @brief Returns the next random number with a bi_normal distribution.
+      *
       * Returns a the next random number with a bi_normal distribution,
       * using the distribution parameters stored internally.
-    */
+      *
+      * @tparam T_Generator The uniform-random-bit-generator type
+      * @param g The generator to draw from
+      * @return A bi-normally distributed deviate using the stored parameters
+      */
     template <class T_Generator>
     result_type operator()(T_Generator &g) {
         return (*this)(g, params_);
@@ -464,7 +561,12 @@ private:
 
 /******************************************************************************/
 /**
- * Checks two bi_normal_distribution distributions for equality
+ * @brief Checks two bi_normal_distribution distributions for equality.
+ *
+ * @tparam fp_type The floating point type of the deviates (float or double)
+ * @param lhs The left-hand-side distribution
+ * @param rhs The right-hand-side distribution
+ * @return true if both distributions share the same parameters, false otherwise
  */
 template <std::floating_point fp_type>
 bool operator==(
