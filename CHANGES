@@ -12,6 +12,80 @@ Recommended Versions:
 
 ********************** INCOMPATIBILITIES / PLEASE NOTE *************************
 
+- THE INDIVIDUAL MODEL HAS CHANGED FUNDAMENTALLY: the former tree of parameter
+  objects (GParameterSet holding GConstrainedDoubleObject / GDoubleCollection /
+  GParameterObjectCollection nodes, each carrying its own adaptor) has been removed
+  entirely and replaced by a single, FLAT genome. A problem is now defined by
+  subclassing GFlatGenome (typically through the CRTP helper
+  GFlatIndividualT<Derived>) and building a flat, fixed-structure array of
+  double / float / int32 / bool values once in the constructor with GGenomeBuilder
+  (addDoubleGroup, addDouble, addInt32Group, addBoolArray, ...) installed via
+  setGenome(); values are read by position in fitnessCalculation() via
+  streamline<T>() / streamlineFP(). The entire GParameterBase / GParameterT /
+  parameter-object and adaptor-object hierarchy and the GParameterSet /
+  GParameterTree / GTreeGenome classes are gone. This is SOURCE-breaking for every
+  problem definition and changes the serialization format (older archives no longer
+  load). See docs/writing-optimization-problems.md and examples/geneva/10_GStarter
+  for the new authoring model.
+
+- CONFIG-STRIP: mutation adaptors no longer live on the genome. The genome's shared
+  layout (GGenomeLayout) is now STRUCTURE-ONLY (type / bounds / grouping / labels);
+  the Gauss / bi-Gauss / flip mutation settings live on a separate, OPTIMIZATION-
+  ALGORITHM-OWNED adaption configuration (GAdaptionConfig), authored at setup via a
+  fluent API (oa::makeAdaptionConfig(genome) + cfg->groupDouble(i).gauss(...) /
+  cfg->forLabel(...)) and distributed via an OA's setAdaptionConfig(),
+  Go2::registerAdaptionConfig(personality, cfg) or oa::StandaloneAdapter(genome,
+  cfg). The adaption logic itself moved off the individual into stateless free
+  functions in geneva/oa/. An adapting algorithm (EA / SA) that is handed NO adaption
+  config is now a HARD ERROR -- there is no automatic derivation from the genome.
+  SOURCE-breaking for all problem code; serialization-affecting.
+
+- The optimizable-entity / genome layer was renamed from the namespace
+  Gem::Geneva::Parameters to Gem::Geneva::Genome (the pervasive short alias gpar::
+  became gen::), and the value-array type formerly named Genome is now GenomeData.
+  Several compound identifiers were renamed to match (GParameterSet* ->
+  GOptimizableEntity*, parameterset_processing_result -> individual_processing_result).
+  SOURCE-breaking for code referencing the old names; changes the
+  BOOST_CLASS_EXPORT GUIDs (serialized class identities differ).
+
+- Individual factories have been unified. Every hand-written GXxxIndividualFactory
+  is replaced by the generic, config-driven
+  Gem::Geneva::Genome::GFlatIndividualFactory<Derived>; a concrete individual now
+  supplies static hooks (a nested Config struct, describeConfig(), buildGenome(),
+  and optionally buildAdaptionConfig() / applyConfig() / finalize()) instead of a
+  bespoke factory class. As part of this the legacy Gem::Common::GFactoryT
+  scaffolding was simplified: the unused GOneTimeRefParameterT helper and the
+  per-production id-sequence / write-mode machinery (GFACTTORYFIRSTID /
+  GFACTORYWRITEID / the atomic id_ counter / getId()) were removed, and the
+  protected getObject_() virtual lost its trailing id parameter. The
+  optimization-algorithm factories were likewise unified behind a
+  GOptimizationAlgorithmT CRTP scaffold. SOURCE-breaking for code that subclassed
+  the individual or algorithm factories.
+
+- The population is now a vector of GIndividualSlot objects (a problem individual
+  plus its per-run, optimization-algorithm-owned scratch) rather than bare
+  individuals. All per-individual OA state -- adaption sigmas, swarm velocity /
+  personal best, conjugate-gradient history, and the algorithm personality traits --
+  now lives on the slot's transient scratch, not on the (serialized) individual
+  identity, and is preserved across a checkpoint resume. The individual is thereby
+  reduced to pure problem data; this changes the checkpoint serialization format.
+
+- ADDITIVE (opt-in) optimizer modes on the conjugate-gradient descent (beyond the
+  GD-retirement / line-search / HESSE / MINOS items below): an L-BFGS quasi-Newton
+  mode, configurable beta formulas (Fletcher-Reeves / Hestenes-Stiefel+ / Dai-Yuan
+  in addition to Polak-Ribiere+), and optional O(h^2) central-difference gradients;
+  plus Nelder-Mead outside-contraction and an opt-in oriented restart. Defaults are
+  unchanged.
+
+- boost::lexical_cast is no longer used anywhere in Geneva: enum <-> string
+  conversion goes through the stream operators / Gem::Common::fromString<T>, and the
+  one remaining (test-only) use was removed. Internal only -- not source-breaking.
+
+- NOTE: several entries below were written for the earlier parameter-object model
+  and still mention GParameterSet / GParameterBase; read them in light of the flat
+  genome described above (e.g. "Individuals (GParameterSet) travel by unique_ptr"
+  now refers to the flat GFlatGenome individuals).
+
 - The per-parameter "name" concept has been removed. GParameterBase no longer
   carries a parameter_name_ member, and GParameterBase::getParameterName() /
   setParameterName() are gone, along with all by-name parameter addressing: the
