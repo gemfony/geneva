@@ -278,7 +278,7 @@ void GImageIndividual::setFitness(std::vector<double> const &result_vec) {
 	 * Searches for compliance with expectations with respect to another object
 	 * of the same type
 	 *
-	 * @param cp A constant reference to another GTreeGenome object
+	 * @param cp A constant reference to another GOptimizableEntity object
 	 * @param e The expected outcome of the comparison
 	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 */

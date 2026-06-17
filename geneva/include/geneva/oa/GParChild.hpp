@@ -369,9 +369,9 @@ private:
      *  @return A tuple holding the [start, end) index range of individuals to be evaluated */
     virtual std::tuple<std::size_t, std::size_t>
     getEvaluationRange_() const = 0; // Depends on selection scheme
-    /** @brief Some error checks related to population sizes */
-    virtual void
-    populationSanityChecks_() const = 0; // TODO: Take code from old init() function
+    /** @brief Some error checks related to population sizes (implemented per algorithm, e.g.
+     *  GEvolutionaryAlgorithm / GSimulatedAnnealing; invoked from GParChild::init). */
+    virtual void populationSanityChecks_() const = 0;
 
     /***************************************************************************/
 

@@ -455,18 +455,17 @@ private:
 
 /******************************************************************************/
 /**
- * The base of the OA-owned adaption configuration. It carries the per-group adaptor settings (Gauss /
- * bi-Gauss / integer-Gauss / flip + their seeds) addressed by channel + index or by interned label, and
- * is built FROM a genome so it can only describe groups that actually exist. Concretely it holds one
- * GroupSpec vector per channel -- the *config half* of the (currently still layout-resident) group
- * specs -- plus the interned label table. Once the adaptor fields are stripped out of the
- * GGenomeLayout, this object becomes their sole home; for now it is a separate,
- * OA-owned copy that nothing is yet wired to.
+ * The base of the OA-owned adaption configuration, and the SOLE home of the per-group adaptor settings
+ * (Gauss / bi-Gauss / integer-Gauss / flip + their seeds): the GGenomeLayout is structure-only, so this
+ * config -- owned by the optimization algorithm, not the genome -- is where adaption intent lives. The
+ * settings are addressed by channel + index or by interned label, and the config is built FROM a genome
+ * so it can only describe groups that actually exist. Concretely it holds one GroupSpec vector per
+ * channel plus the interned label table.
  *
  * The base owns the OA-agnostic machinery: existence-validated authoring, a structural signature +
  * checkConsistency(genome) cross-check (so a genome and a config can be verified as belonging
  * together), label resolution, and the install-state-into-aux hook. Derived classes (GEAAdaptionConfig
- * / GSAAdaptionConfig) are the per-OA types; they may diverge later.
+ * / GSAAdaptionConfig) are the per-OA types.
  */
 class GAdaptionConfigBase {
 public:

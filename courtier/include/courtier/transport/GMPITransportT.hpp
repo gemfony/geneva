@@ -66,7 +66,7 @@
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
-#include "courtier/GWireSerializationContext.hpp" // Phase 9 layout send-once: registry + wire scope
+#include "courtier/GWireSerializationContext.hpp" // layout send-once: registry + wire scope
 
 // TODO: extract double buffering to GBaseConsumerClientT
 
@@ -74,7 +74,7 @@ namespace Gem::Courtier::Consumers {
 // constants that are used by the master and the worker nodes
 constexpr int TAG_REQUEST_WORK_ITEM = 42;
 constexpr int TAG_SEND_WORK_ITEM = 43;
-/// Phase 9 layout send-once cache-miss fetch (worker <-> master). A worker that receives an id-only
+/// layout send-once cache-miss fetch (worker <-> master). A worker that receives an id-only
 /// work item whose layout it does not hold sends a REQUEST_LAYOUT message on TAG_REQUEST_LAYOUT; the
 /// master's receiver loop picks it up (it matches any tag) and answers with the serialized layout on
 /// TAG_SEND_LAYOUT. A distinct send tag keeps the reply from being mistaken for an ordinary work-item
@@ -282,7 +282,7 @@ public:
         // create the buffer for incoming messages
         incomingMessageBuffer_ = std::make_unique<char[]>(GMPICONSUMERMAXMESSAGESIZE);
 
-        // Engage the worker side of the layout send-once wire form (Phase 9). The worker caches every
+        // Engage the worker side of the layout send-once wire form. The worker caches every
         // layout it receives (keyed by content id) so an id-only work item resolves locally; on a miss
         // (a late-joining / restarted rank that never saw the full layout, or master-side eviction) the
         // fetch_blob asks the master for it via a blocking REQUEST_LAYOUT / SEND_LAYOUT round trip. The
@@ -352,7 +352,7 @@ public:
         while(!stopRequestReceived_ && !halt_()) {
             // swap messages: serialize the (processed) container into outgoingMessage_, then deserialize
             // incomingMessage_ into the container. Both run under the layout send-once wire scope
-            // (Phase 9): the outgoing RESULT ships its layout to the master in full only the first time
+            // the outgoing RESULT ships its layout to the master in full only the first time
             // and by id thereafter; the incoming COMPUTE resolves an id-only layout from the local cache
             // or, on a miss, via the fetch round trip. This deserialise is sequenced before the async
             // send/receive below, so a fetch here never overlaps this rank's other MPI traffic.
@@ -612,7 +612,7 @@ private:
     }
 
     /**
-         * @brief Worker-side cache-miss fetch (Phase 9): blocks until the master's layout for @p id is in
+         * @brief Worker-side cache-miss fetch (layout send-once): blocks until the master's layout for @p id is in
          * hand, then returns the serialized blob (empty on failure).
          *
          * Sends a REQUEST_LAYOUT message (carrying the wanted id) to the master on TAG_REQUEST_LAYOUT and
@@ -745,7 +745,7 @@ private:
         networked_consumer_payload_command::GETDATA
     };
 
-    /// Phase 9 layout send-once (worker side): this rank's local cache of received layouts and the wire
+    /// layout send-once (worker side): this rank's local cache of received layouts and the wire
     /// context engaged around (de)serialisation. The context's fetch_blob resolves a cache miss via a
     /// blocking REQUEST_LAYOUT / SEND_LAYOUT MPI round trip (see fetchLayoutBlob_).
     Gem::Courtier::GWireLayoutRegistry wireRegistry_;
@@ -797,7 +797,7 @@ public:
       , putPayloadItem_(std::move(putPayloadItem))
       , mpiRequestHandle_{}
       , wireRegistry_{wireRegistry} {
-        // Engage the master side of the layout send-once wire form (Phase 9), if a registry was supplied.
+        // Engage the master side of the layout send-once wire form, if a registry was supplied.
         // MPI ranks are persistent, so the peer id is simply the requesting worker's rank
         // (mpiStatus_.MPI_SOURCE) -- naturally stable across the whole run. With no registry the scope is
         // never installed and the genome falls back to its self-contained full-layout encoding.
@@ -887,7 +887,7 @@ private:
          */
     bool processRequest() {
         try {
-            // Deserialize the request under the wire scope (Phase 9): a returned RESULT genome may
+            // Deserialize the request under the wire scope (layout send-once): a returned RESULT genome may
             // reference its layout by id, resolved against the master's shared registry (which holds
             // every layout it has sent). The scope's peer is the requesting rank, set in the constructor.
             {
@@ -913,7 +913,7 @@ private:
                 return true; // no data to process
             }
             case REQUEST_LAYOUT: {
-                // Phase 9 cache-miss fetch: remember the requested id; sendResponse() will answer with a
+                // Layout cache-miss fetch: remember the requested id; sendResponse() will answer with a
                 // SEND_LAYOUT carrying the serialized layout from the registry.
                 isLayoutRequest_ = true;
                 requestedLayoutId_ = commandContainer_.get_layout_id();
@@ -997,7 +997,7 @@ private:
          * Throws a geneva_exception if the serialized message exceeds the maximum configured message size.
          */
     void serializeOutgoingMsg() {
-        // Serialize the response under the wire scope (Phase 9): a COMPUTE work item's layout is shipped
+        // Serialize the response under the wire scope (layout send-once): a COMPUTE work item's layout is shipped
         // in full to this peer (rank) only the first time it is seen and by content id thereafter. A
         // NODATA / STOP carries no genome, so the scope is harmless there.
         {
@@ -1029,7 +1029,7 @@ private:
          * The isCompleted()-method can be used to check for the completion of the send operation.
          */
     void sendResponse() {
-        // A layout cache-miss fetch is answered on its own tag, independent of work-item flow (Phase 9):
+        // A layout cache-miss fetch is answered on its own tag, independent of work-item flow:
         // the requesting worker is mid-decode and blocked waiting for exactly this reply, so it is served
         // even while the master is shutting down.
         if(isLayoutRequest_) {
@@ -1064,7 +1064,7 @@ private:
 
     /**
          * @brief Answers a worker's REQUEST_LAYOUT with a SEND_LAYOUT carrying the serialized layout from
-         * the master's registry (Phase 9 cache-miss fetch). Sent on TAG_SEND_LAYOUT so it is not mistaken
+         * the master's registry (layout cache-miss fetch). Sent on TAG_SEND_LAYOUT so it is not mistaken
          * for a work-item response by the worker's ordinary receive. If the id is not (or no longer)
          * cached the blob is left empty and the worker treats the fetch as failed.
          */
@@ -1134,7 +1134,7 @@ private:
          */
     std::string outgoingMessage_;
 
-    /// Phase 9 layout send-once (master side): the consumer-shared registry (not owned) and the wire
+    /// layout send-once (master side): the consumer-shared registry (not owned) and the wire
     /// scope installed around (de)serialisation, with the peer set to the requesting worker's rank. When
     /// the inbound request is a REQUEST_LAYOUT, isLayoutRequest_ is set and requestedLayoutId_ holds the
     /// wanted id so sendResponse() answers with a SEND_LAYOUT instead of a work item.
@@ -1360,7 +1360,7 @@ private:
             [this](std::unique_ptr<processable_type> p) { putPayloadItem(std::move(p)); },
             config_.serializationMode,
             stopRequested,
-            &wireRegistry_ // Phase 9 layout send-once: the registry shared by all sessions of this master
+            &wireRegistry_ // layout send-once: the registry shared by all sessions of this master
         );
 
         // runs the session but does not close it
@@ -1518,7 +1518,7 @@ public:
     }
 
     /**
-         * @brief The number of distinct genome layouts the master has interned for transport (Phase 9
+         * @brief The number of distinct genome layouts the master has interned for transport (layout
          * send-once). One per distinct genome structure across all worker ranks.
          * @return The count of interned layouts.
          */
@@ -1556,7 +1556,7 @@ private:
     std::function<std::unique_ptr<processable_type>()> getPayloadItemFn_;
     std::function<void(std::unique_ptr<processable_type>)> putPayloadItemFn_;
 
-    /// Phase 9 layout send-once registry shared by every session this master opens. MPI ranks are
+    /// layout send-once registry shared by every session this master opens. MPI ranks are
     /// persistent, so each session keys its per-peer ack tracking on the requesting worker's rank
     /// (status.MPI_SOURCE) -- a naturally stable id for the whole run. A late-joining / restarted rank
     /// that misses a layout fetches it back via the REQUEST_LAYOUT / SEND_LAYOUT command pair.

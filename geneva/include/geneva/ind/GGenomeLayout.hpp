@@ -264,7 +264,7 @@ struct GroupRef {
 /**
  * A 128-bit content id for a genome layout: a strong structural hash of the (structure-only) layout.
  * It is the key the transport layer uses to send a layout once and reference it by id thereafter
- * (Phase 9 layout send-once). Being a hash of the CONTENT -- not a process-local pointer or counter --
+ * (the layout send-once wire transport). Being a hash of the CONTENT -- not a process-local pointer or counter --
  * it is stable across processes and safe for evolving structure: a layout whose structure changes
  * (e.g. a NEAT-style architecture amendment) hashes to a different id, so it is treated as a new layout
  * automatically, with no "layout changed" signalling. Hash collisions are guarded against by an exact

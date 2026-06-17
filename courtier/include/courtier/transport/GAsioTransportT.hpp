@@ -64,7 +64,7 @@
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
-#include "courtier/GWireSerializationContext.hpp" // Phase 9 layout send-once: registry + wire scope
+#include "courtier/GWireSerializationContext.hpp" // layout send-once: registry + wire scope
 
 namespace Gem::Courtier::Consumers {
 
@@ -118,7 +118,7 @@ public:
       , max_reconnects_(max_reconnects)
       , prefetch_depth_(prefetch_depth == 0 ? 1 : prefetch_depth)
       , compute_pool_(prefetch_depth_) {
-        // Phase 9 layout send-once. ASIO uses a fresh one-shot connection per exchange, so there is no
+        // layout send-once. ASIO uses a fresh one-shot connection per exchange, so there is no
         // persistent per-connection peer identity for the server to key its per-peer "already holds this
         // layout" tracking on. The client therefore mints ONE stable, process-unique peer id at startup
         // and announces it on every request (set_peer_id); the server uses it as the wire peer. The id
@@ -213,7 +213,7 @@ private:
                 networked_consumer_payload_command::GETDATA
             };
             // Announce this client's stable peer id so the server can key its per-peer send-once
-            // tracking on it across our many short connections (Phase 9).
+            // tracking on it across our many short connections.
             getdata.set_peer_id(peer_id_);
             try {
                 exchange_queue_.push_back(
@@ -472,7 +472,7 @@ private:
     void finish_exchange_() {
         exchanging_ = false;
 
-        // De-serialize the response under the wire scope (Phase 9): a COMPUTE work item referencing a
+        // De-serialize the response under the wire scope (layout send-once): a COMPUTE work item referencing a
         // layout by id resolves it against this client's local cache, or -- on a miss -- via fetch_blob,
         // which performs a synchronous REQUEST_LAYOUT/SEND_LAYOUT round trip on its own socket (see
         // fetch_layout_blob_). A malformed or truncated message makes this throw; that must not escape
@@ -587,11 +587,11 @@ private:
             --computing_;
         }
         container.set_command(networked_consumer_payload_command::RESULT);
-        container.set_peer_id(peer_id_); // announce our stable peer id (Phase 9)
+        container.set_peer_id(peer_id_); // announce our stable peer id (layout send-once)
         ++pending_pulls_; // the RESULT exchange is a pull (the server replies with the next item)
         try {
             // Serialize the returned item under the wire scope so its (unchanged) layout is sent in full
-            // to the server only the first time, by id thereafter (Phase 9).
+            // to the server only the first time, by id thereafter (layout send-once).
             Gem::Courtier::GWireSerializationScope scope(&wire_ctx_);
             exchange_queue_.push_back(
                 Gem::Courtier::container_to_string(container, serialization_mode_)
@@ -655,7 +655,7 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * @brief Worker-side cache-miss fetch (Phase 9): blocks until the server's layout for @p id is in
+	  * @brief Worker-side cache-miss fetch (layout send-once): blocks until the server's layout for @p id is in
 	  * hand, then returns the serialized blob (empty on failure). It opens its OWN short-lived,
 	  * fully-synchronous connection (a separate socket on a throwaway io_context) and performs a
 	  * REQUEST_LAYOUT -> SEND_LAYOUT exchange that mirrors the normal one-shot request/response shape
@@ -807,7 +807,7 @@ private:
         io_context_
     }; ///< Backoff timer for connection retries (async, never blocks the io thread)
 
-    /// Phase 9 layout send-once (worker side): this client's local cache of received layouts, the wire
+    /// layout send-once (worker side): this client's local cache of received layouts, the wire
     /// context engaged around (de)serialisation, and the stable per-client peer id announced on every
     /// request. The context's fetch_blob resolves a cache miss via a synchronous side connection (see
     /// fetch_layout_blob_). Declared before compute_pool_ so the pool (and its threads) are destroyed
@@ -851,7 +851,7 @@ public:
 	  * @param check_server_stopped Functor returning true once the server is shutting down (suppresses new reads/sessions)
 	  * @param serialization_mode The serialization format used on the wire
 	  * @param sign_on Functor called with true on construction and false on destruction to track the active-session count
-	  * @param wire_registry The consumer-shared layout send-once registry, or nullptr to disable the feature (Phase 9)
+	  * @param wire_registry The consumer-shared layout send-once registry, or nullptr to disable the feature
 	  */
     GAsioConsumerSessionT(
         boost::asio::io_context &io_context,
@@ -872,7 +872,7 @@ public:
       , f_sign_on_(std::move(sign_on))
       , serialization_mode_(serialization_mode)
       , wire_registry_(wire_registry) {
-        // Engage the server side of the layout send-once wire form (Phase 9), if a registry was supplied.
+        // Engage the server side of the layout send-once wire form, if a registry was supplied.
         // The peer is the announcing client's stable id, read from each request in process_request()
         // (ASIO has no persistent per-connection identity). With no registry the scope is never installed
         // and the genome falls back to its self-contained full-layout encoding.
@@ -1088,7 +1088,7 @@ private:
 	  */
     std::string process_request() {
         try {
-            // De-serialize the request under the wire scope (Phase 9): a returned RESULT genome may
+            // De-serialize the request under the wire scope (layout send-once): a returned RESULT genome may
             // reference its layout by id, which is resolved against this consumer's shared registry (the
             // server holds every layout it has sent). The scope's peer does not matter for decoding (only
             // for re-encoding), so it is left at its default here and set from the announced id below.
@@ -1106,7 +1106,7 @@ private:
 
             // Learn the announcing client's stable peer id (ASIO has no persistent per-connection
             // identity) and use it as the wire peer for the response, so the send-once tracking keys on
-            // the client across its many short connections (Phase 9).
+            // the client across its many short connections.
             wire_ctx_.peer = command_container_.get_peer_id();
 
             // Extract the command
@@ -1139,7 +1139,7 @@ private:
             } break;
 
             case REQUEST_LAYOUT: {
-                // Phase 9 cache-miss fetch: the client holds an id-only work item whose layout it does
+                // Layout cache-miss fetch: the client holds an id-only work item whose layout it does
                 // not have. Answer with the serialized layout from this consumer's registry (SEND_LAYOUT),
                 // or an empty blob if it is not (or no longer) cached -- the client treats that as a
                 // failed fetch.
@@ -1187,7 +1187,7 @@ private:
             command_container_.reset(networked_consumer_payload_command::NODATA);
         }
 
-        // Serialize the response under the wire scope (Phase 9): a COMPUTE work item's layout is shipped
+        // Serialize the response under the wire scope (layout send-once): a COMPUTE work item's layout is shipped
         // in full to this peer only the first time it is seen and by content id thereafter. wire_ctx_.peer
         // was set from the announced client id in process_request(). A NODATA carries no genome, so the
         // scope is harmless there.
@@ -1197,7 +1197,7 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * @brief Builds a SEND_LAYOUT reply to a worker's REQUEST_LAYOUT (Phase 9 cache-miss fetch). The
+	  * @brief Builds a SEND_LAYOUT reply to a worker's REQUEST_LAYOUT (layout cache-miss fetch). The
 	  * serialized layout is copied out of this consumer's shared registry; if the id is not cached the
 	  * blob is left empty and the client treats the fetch as failed.
 	  *
@@ -1248,7 +1248,7 @@ private:
         networked_consumer_payload_command::NONE
     }; ///< Holds the current command and payload (if any)
 
-    /// Phase 9 layout send-once (server side): the consumer-shared registry (not owned) and the wire
+    /// layout send-once (server side): the consumer-shared registry (not owned) and the wire
     /// scope installed around (de)serialisation. wire_registry_ is null when the feature is disabled, in
     /// which case the scope is never installed and the genome uses its self-contained full encoding. The
     /// scope's peer is set per request from the announcing client's stable id (ASIO one-shot connections

@@ -57,7 +57,7 @@
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GProcessingContainerT.hpp"
-#include "courtier/GWireSerializationContext.hpp" // Phase 9: GWireLayoutId / GWirePeerId for the layout-fetch commands
+#include "courtier/GWireSerializationContext.hpp" // GWireLayoutId / GWirePeerId for the layout-fetch commands
 
 namespace Gem::Courtier {
 
@@ -78,7 +78,7 @@ class GCommandContainerT {
 
     /**
      * @brief Boost.Serialization hook that (de-)serializes the command and the payload pointer, plus the
-     * optional Phase 9 layout-fetch fields (a peer id, a layout id and a serialized layout blob).
+     * optional layout-fetch fields (a peer id, a layout id and a serialized layout blob).
      *
      * The three extra fields are inert for the common COMPUTE / RESULT / GETDATA / NODATA / STOP traffic
      * (the peer id is 0 / unused, the layout id is all-zero and the blob is empty there): they carry data
@@ -165,7 +165,7 @@ public:
     ) {
         command_ = command;
         payload_ptr_ = std::move(payload_ptr);
-        // Also clear the optional Phase 9 layout-fetch fields, so a reused container never carries stale
+        // Also clear the optional layout-fetch fields, so a reused container never carries stale
         // id / blob / peer data into the next message. A caller that needs them (a SEND_LAYOUT reply)
         // sets them explicitly AFTER reset().
         peer_id_ = 0;
@@ -216,7 +216,7 @@ public:
     }
 
     //-------------------------------------------------------------------------
-    // Phase 9 layout send-once: optional fields carried alongside the command/payload. They are unused
+    // layout send-once: optional fields carried alongside the command/payload. They are unused
     // (peer 0, zero id, empty blob) for ordinary COMPUTE/RESULT/GETDATA/NODATA/STOP traffic and only
     // populated for the REQUEST_LAYOUT / SEND_LAYOUT cache-miss-fetch commands and for transports that
     // announce a stable peer id on each request (ASIO).
@@ -271,7 +271,7 @@ private:
     command_type command_{command_type(0)};         ///< The command to be exeecuted
     std::unique_ptr<processable_type> payload_ptr_; ///< The actual payload, if any (sole ownership)
 
-    // Phase 9 layout send-once: optional fields (see the accessors above). Inert/zero for normal traffic.
+    // layout send-once: optional fields (see the accessors above). Inert/zero for normal traffic.
     GWirePeerId peer_id_{0};        ///< stable announcing-peer id (ASIO); 0 == none
     GWireLayoutId layout_id_{0, 0}; ///< layout id for REQUEST_LAYOUT / SEND_LAYOUT (all-zero == none)
     std::string layout_blob_;       ///< serialized layout blob for a SEND_LAYOUT reply (empty == none)

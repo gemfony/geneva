@@ -58,9 +58,9 @@ enum class on_unresolved : Gem::Common::ENUMBASETYPE {
  * Two failure kinds are distinguished per slot:
  *  - MISSING  : the item never came back (network loss, timeout, dead client).
  *  - FAILED   : the item came back flagged (its evaluation threw/crashed).
- * A MISSING item that never returns despite repeated resubmissions (and, where liveness is
- * unknown, takes far longer than the mean return time) is likely a *poison* individual that
- * crashes the client; it is therefore reclassified as FAILED rather than resubmitted forever.
+ * A MISSING item that never returns despite repeated resubmissions (max_resubmissions) is likely a
+ * *poison* individual that crashes the client; once its resubmission budget is exhausted it becomes
+ * unresolved rather than being resubmitted forever (see GBaseConsumerT::processBatch).
  */
 struct GSubmissionPolicy {
     /** @brief What to do with a slot that cannot be successfully evaluated */
@@ -72,14 +72,6 @@ struct GSubmissionPolicy {
     /** @brief Maximum number of times a FAILED item is re-evaluated (to ride out *transient* crashes;
      *  a deterministic crash will keep failing). 0 == a FAILED item is immediately unresolved. */
     std::size_t max_failed_retries = 0;
-
-    /** @brief A MISSING item is reclassified as a (hidden) FAILED after this many empty resubmissions */
-    std::size_t reclassify_missing_after = 3;
-
-    /** @brief When liveness is unknown, a MISSING item whose elapsed wait exceeds this factor times the
-     *  running mean return time of other items is a strong hidden-FAILED signal (used by networked
-     *  consumers; see the timeout phase). */
-    double reclassify_mean_factor = 5.0;
 
     /** @brief Floor under every policy: if NOTHING usable came back at all, terminate fatally */
     bool fatal_on_none_returned = true;

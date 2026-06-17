@@ -53,7 +53,7 @@ namespace Gem::Geneva::Genome {
  * fitnessCalculation(), with one BOOST_CLASS_EXPORT(Derived) for serialisation.
  *
  * An individual that genuinely carries extra (non-genome) members simply does not use this base and
- * overrides clone_ / load_ / compare_ / serialize itself, exactly as against GTreeGenome.
+ * overrides clone_ / load_ / compare_ / serialize itself.
  *
  * Usage:
  * @code

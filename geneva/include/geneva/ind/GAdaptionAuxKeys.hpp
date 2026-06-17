@@ -41,9 +41,9 @@ namespace Gem::Geneva::Genome {
 /**
  * The auxiliary-store keys under which a flat genome keeps its per-group adaption state, one block per
  * adaptor kind and channel. They form the contract between the side that INSTALLS / SEEDS the state
- * (today GFlatGenome::installAdaptionStates(), and ultimately an OA-owned GAdaptionConfig) and the side
- * that READS it (the data-oriented adaption kernels). Defining them here, rather than privately in
- * GFlatGenome.cpp, keeps both sides addressing the very same blocks.
+ * (the OA-owned GAdaptionConfigBase::installInto()) and the side that READS it (the data-oriented
+ * adaption kernels in GAdaption.hpp). Defining them here, rather than privately in one translation
+ * unit, keeps both sides addressing the very same blocks.
  *
  * Note: the int32 channel's adaption-fp type is double, so AUXKEY_GAUSS_INT addresses GaussState<double>.
  */

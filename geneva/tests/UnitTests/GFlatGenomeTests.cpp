@@ -47,7 +47,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GParserBuilder.hpp"
-#include "courtier/GWireSerializationContext.hpp" // Phase 9 layout send-once: wire context + registry
+#include "courtier/GWireSerializationContext.hpp" // layout send-once: wire context + registry
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GExecutorT.hpp"
 #include "courtier/GSubmissionPolicy.hpp"
@@ -1024,7 +1024,7 @@ TEST_CASE("GNeuralNetworkArchitecture computes per-layer weight offsets", "[arch
 }
 
 /******************************************************************************/
-// Phase 9 transport: the layout send-once wire form. These exercise GFlatGenome::save()/load() under an
+// Wire transport: the layout send-once wire form. These exercise GFlatGenome::save()/load() under an
 // active Gem::Courtier::GWireSerializationScope, simulating the server->worker wire path WITHOUT any real
 // transport: a server-side registry interns each distinct layout, the first item to a peer carries the
 // full layout and every later item only its 16-byte id, and a worker resolves an id-only item from its
@@ -1353,7 +1353,7 @@ TEST_CASE("Wire send-once: large-genome wire-size before/after", "[flat][wire]")
         results_only_return = big.toString(mode::BINARY).size();
     }
 
-    WARN("Phase 9 wire size (2000-group genome, binary bytes):"
+    WARN("Wire size (2000-group genome, binary bytes):"
          << "\n  submit  full=" << full_submit << "  first=" << first_submit
          << "  id-only=" << idonly_submit
          << "  (id-only is " << (100 * idonly_submit / full_submit) << "% of full)"

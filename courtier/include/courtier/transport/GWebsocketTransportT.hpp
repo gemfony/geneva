@@ -67,7 +67,7 @@
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
-#include "courtier/GWireSerializationContext.hpp" // Phase 9 layout send-once: wire (de)serialization scope
+#include "courtier/GWireSerializationContext.hpp" // layout send-once: wire (de)serialization scope
 
 namespace Gem::Courtier::Consumers {
 
@@ -172,7 +172,7 @@ public:
         // Set the callback to be executed on every incoming control frame.
         ws_.control_callback(f_when_control_frame_arrived_);
 
-        // Engage the layout send-once wire form (Phase 9). The client caches every layout it receives,
+        // Engage the layout send-once wire form. The client caches every layout it receives,
         // keyed by content id, so an id-only work item resolves locally. No fetch_blob is installed: on
         // websocket the server sends the full layout inline on the first item of each (re)connection and
         // delivery is ordered, so an id-only item is only ever seen after its layout has been received
@@ -776,7 +776,7 @@ private:
     }; ///< The read/parse target; a COMPUTE item is moved out of it onto the compute pool
 
     /// Per-client cache of received layouts (keyed by content id), and the wire scope installed around
-    /// every (de)serialisation so an id-referenced layout resolves locally (Phase 9 send-once).
+    /// every (de)serialisation so an id-referenced layout resolves locally (layout send-once).
     Gem::Courtier::GWireLayoutRegistry wire_registry_;
     Gem::Courtier::GWireSerializationContext wire_ctx_;
 
@@ -859,7 +859,7 @@ public:
       , verbose_control_frames_(verbose_control_frames)
       , wire_registry_(wire_registry)
       , peer_id_(peer_id) {
-        // Engage the layout send-once wire form for this session's peer (Phase 9): each connection is a
+        // Engage the layout send-once wire form for this session's peer: each connection is a
         // distinct peer, so the server sends a given layout in full only on the first work item to this
         // peer and references it by content id thereafter. A reconnecting / late-joining client is a new
         // peer and receives the layout fresh, so no separate fetch is needed on the ordered websocket
@@ -1358,7 +1358,7 @@ private:
         }
 
         // Serialize under the wire scope, so the work item's layout is shipped in full only the first
-        // time this peer sees it and by content id thereafter (Phase 9 send-once).
+        // time this peer sees it and by content id thereafter (layout send-once).
         Gem::Courtier::GWireSerializationScope scope(wire_ctx_.enabled ? &wire_ctx_ : nullptr);
         return Gem::Courtier::container_to_string(command_container_, serialization_mode_);
     }
@@ -1403,7 +1403,7 @@ private:
 
     /// The shared (consumer-owned) layout registry and this session's peer id, plus the wire scope
     /// installed around (de)serialisation so a work item's layout is sent to this peer only once
-    /// (Phase 9 send-once). wire_registry_ is null when the feature is disabled.
+    /// (layout send-once). wire_registry_ is null when the feature is disabled.
     Gem::Courtier::GWireLayoutRegistry *wire_registry_ = nullptr;
     Gem::Courtier::GWirePeerId peer_id_ = 0;
     Gem::Courtier::GWireSerializationContext wire_ctx_;

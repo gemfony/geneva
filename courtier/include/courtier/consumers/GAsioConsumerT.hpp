@@ -48,7 +48,7 @@
 #include "common/GThreadGroup.hpp"
 #include "courtier/transport/GAsioTransportT.hpp" // reuse the existing session + client + wire protocol
 #include "courtier/consumers/GNetworkedConsumerT.hpp"
-#include "courtier/GWireSerializationContext.hpp" // Phase 9 layout send-once: shared registry
+#include "courtier/GWireSerializationContext.hpp" // layout send-once: shared registry
 
 namespace Gem::Courtier {
 
@@ -107,13 +107,13 @@ public:
      *  @return The current count of active sessions. */
     [[nodiscard]] std::size_t getNActiveSessions() const noexcept { return n_active_sessions_.load(); }
 
-    /** @brief The number of distinct genome layouts the server has interned for transport (Phase 9
+    /** @brief The number of distinct genome layouts the server has interned for transport (layout
      *  send-once). One per distinct genome structure across all clients -- so a whole population of one
      *  problem type interns a single layout, however many work items and clients are involved.
      *  @return The count of interned layouts. */
     [[nodiscard]] std::size_t getInternedLayoutCount() const { return wire_registry_.size(); }
 
-    /** @brief Bounds the number of distinct genome layouts the server caches for transport (Phase 9);
+    /** @brief Bounds the number of distinct genome layouts the server caches for transport (layout send-once);
      *  0 (the default) keeps them all. Beyond the bound the least-recently-used layout is evicted and the
      *  next work item that needs it re-sends it in full (or, for a worker that has since dropped it too,
      *  is re-fetched) -- so this only trades a re-send for memory and never affects correctness.
@@ -275,7 +275,7 @@ private:
                     --self->n_active_sessions_;
                 }
             },
-            &wire_registry_ // Phase 9 layout send-once: the registry shared by all of this server's sessions
+            &wire_registry_ // layout send-once: the registry shared by all of this server's sessions
         )
             ->async_start_run();
 
@@ -303,7 +303,7 @@ private:
     std::atomic<std::size_t> n_active_sessions_{0};
     std::atomic<bool> stopped_already_{false};
 
-    /// The layout send-once registry shared by all of this consumer's sessions (Phase 9): a
+    /// The layout send-once registry shared by all of this consumer's sessions: a
     /// content-addressed store of the genome layouts the server has sent, with per-peer ack tracking
     /// keyed on each client's stable, self-announced peer id (ASIO one-shot connections carry no
     /// persistent identity, so the client mints the id and announces it on every request). A given

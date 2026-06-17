@@ -125,13 +125,14 @@ public:
 
     /***************************************************************************/
     /**
-     * @brief Configures the LATE-RETURN buffer (the #13 mechanism).
+     * @brief Configures the bounded late-return buffer.
      *
      * A result that arrives after its batch already finished/timed out is normally dropped (its
      * batch_id is no longer active). With this buffer enabled, such a late arrival -- a genuinely
      * distinct evaluation that simply came back too late to be used this round -- is parked instead
-     * of discarded, so an optimization algorithm can reap it via getOldWorkItems() (wired in a later
-     * step). The buffer is bounded two ways: @p cap (max items held; 0 DISABLES buffering, the
+     * of discarded, so an optimization algorithm can reap it via getOldWorkItems() (the
+     * GOptimizerExecutionPolicy reaper enables it via enableLateReturns() and drains it through
+     * getLateReturns()/getOldWorkItems()). The buffer is bounded two ways: @p cap (max items held; 0 DISABLES buffering, the
      * default) and @p ttl_rounds (a held item is evicted after this many dispatch rounds). Each entry
      * carries the dispatch-round "epoch" at which it was buffered; with ttl_rounds kept well below the
      * batch_id wraparound (2^16) a buffered, retired batch_id cannot be re-minted while the entry is
@@ -157,7 +158,7 @@ public:
         // Keep the TTL well under the batch_id wraparound so a live buffered id cannot alias a fresh one.
         late_buffer_ttl_rounds_ = std::min<std::uint64_t>(ttl_rounds, (BATCH_MASK >> 2));
     }
-    /** @brief Number of late returns currently held in the buffer (reaped by the OA in a later step).
+    /** @brief Number of late returns currently held in the buffer (reaped by the OA via getOldWorkItems()).
      *  @return The count of late items currently buffered */
     [[nodiscard]] std::size_t lateReturnBufferSize() const {
         std::lock_guard<std::mutex> lk(mtx_);
@@ -297,7 +298,7 @@ protected:
         auto it = batches_.find(decodeBatch(id));
         if(it == batches_.end()) {
             // Batch no longer active: a late arrival from a timed-out/finished batch. Instead of
-            // dropping it silently, park it in the bounded late-return buffer (the #13 mechanism) for a
+            // dropping it silently, park it in the bounded late-return buffer for a
             // later getOldWorkItems() to reap. With buffering disabled (the default) this still counts
             // the drop rather than losing it without trace.
             bufferLateReturn_locked(std::move(p));
@@ -482,8 +483,8 @@ private:
 
     /***************************************************************************/
     /** @brief Parks a late arrival (a result for a batch that already finished/timed out) instead of
-     *  dropping it silently. With buffering disabled (cap == 0, the default) the drop is merely COUNTED
-     *  (no behaviour change until a getOldWorkItems() reaper exists). Caller holds mtx_.
+     *  dropping it silently. With buffering disabled (cap == 0, the default) the drop is merely COUNTED;
+     *  when enabled, a parked item is later reaped by the OA via getOldWorkItems(). Caller holds mtx_.
      *  @param p The late-arriving result item (ownership transferred); parked if buffering is enabled, else its drop is counted */
     void bufferLateReturn_locked(item_ptr p) {
         // A results-only return carries no input parameters; they are grafted from the originally-
@@ -677,8 +678,8 @@ private:
     //     TTL rounds. The per-entry epoch is the generation tag that, with ttl_rounds << the batch_id
     //     wraparound (2^16), guarantees a buffered batch_id cannot alias a freshly-minted one before it
     //     is evicted -- so the 16-bit on-wire batch_id needs no widening for the single-OA case.
-    //     Disabled by default (cap == 0): the mechanism exists + is tested but stays dormant until its
-    //     reaper (the OA-side getOldWorkItems integration) lands. All access is under mtx_. ---
+    //     Disabled by default (cap == 0); when enabled, the OA-side reaper (GOptimizerExecutionPolicy,
+    //     via enableLateReturns() / getOldWorkItems()) drains it. All access is under mtx_. ---
     std::deque<std::pair<std::uint64_t, item_ptr>> late_returns_; ///< (epoch, item) FIFO of late arrivals
     std::uint64_t buffer_epoch_ = 0;            ///< Monotonic round counter (advances per retired batch)
     std::size_t late_buffer_cap_ = 0;           ///< Max buffered late items (0 = buffering disabled)

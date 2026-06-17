@@ -147,14 +147,11 @@ inline std::uint32_t auxTypeTag() {
  * Both channels are OA-installed scratch and are kept OUT of the individual's COMPARED identity (they
  * are not in localMembers()): two individuals differing only in which OA last touched them compare
  * equal. They are deep-copied on CLONE (a clone mid-optimization keeps the live scratch) and dropped
- * by clearScratch(). They differ only in SERIALIZATION:
- *  - The personality is serialized explicitly by the individual's serialize() (NOT via localMembers,
- *    so it is serialized but not compared), because a checkpoint/resume needs it in place. A later
- *    transport/checkpoint split will omit it from the over-the-wire form (the receiving slot keeps its
- *    own OA-installed personality), while the checkpoint form keeps it.
- *  - The POD blocks are not serialized at all today (a full-checkpoint mode that serialises them will
- *    be added with the transport work); the genome re-seeds them on load. The genome carries the
- *    optimization forward; the per-algorithm scratch restarts when a new OA takes over.
+ * by clearScratch(). Both are serialized (so a checkpoint/resume restores the evolved per-individual
+ * state in place): the personality is serialized explicitly by the individual's serialize() (NOT via
+ * localMembers, so it is serialized but not compared), and the POD blocks are serialized here (see
+ * serialize() below). The aux type tag is deliberately left out of the wire form (AuxBlock::serialize);
+ * the stride is checked on access instead.
  */
 class GAuxiliaryStore {
 public:

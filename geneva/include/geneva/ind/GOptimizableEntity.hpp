@@ -222,9 +222,9 @@ private:
  * registered constraint object, best-past fitness, iteration, validity, stall
  * counters, eval policy, personality traits, ...) and the algorithm-facing surface
  * that the optimization algorithms operate on. The genome itself -- how the actual
- * parameters are stored -- is left to the derived classes: the flat GFlatGenome
- * stores plain value vectors (GenomeData). The optimization algorithms hold their
- * population as GOptimizableEntity, so genome layouts are interchangeable type-safely.
+ * parameters are stored -- is provided by the derived GFlatGenome, which stores plain
+ * value vectors (GenomeData). The optimization algorithms hold their population as
+ * GOptimizableEntity and reach the genome through this type-safe interface.
  *
  * This class is the CRTP category root (GCommonInterfaceT<GOptimizableEntity>); the
  * genome access points that the algorithms call polymorphically are declared pure
@@ -417,8 +417,8 @@ public:
     /***************************************************************************/
     // Genome value channels (genome-agnostic). The public per-type templates are the ergonomic
     // surface the optimization algorithms use; each dispatches to a non-template virtual that the
-    // concrete genome (GTreeGenome / a future GFlatGenome) implements. The algorithms therefore
-    // read and write parameter values without knowing the storage layout -- no downcast.
+    // flat genome (GFlatGenome) implements. The algorithms therefore read and write parameter
+    // values without knowing the storage layout -- no downcast.
 
     /**
      * @brief Streamlines all parameters of type par_type into a vector (cleared first)

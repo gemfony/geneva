@@ -456,7 +456,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
     // NOTE: the former resize_clone / resize_noclone /
     // find / count and insert_clone / insert_noclone test blocks were removed here. They exercised
-    // SHARED-container semantics that no longer apply now that GTreeGenome owns its parameters by
+    // SHARED-container semantics that no longer apply now that the genome owns its parameters by
     // unique_ptr: in particular insert_noclone's "same physical address as an external shared_ptr"
     // assertions cannot hold for sole ownership, and find()/count()-by-shared-item are shared-only.
     // This container functionality is covered for the unique_ptr container by
@@ -469,7 +469,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     // test blocks (push_back_clone/noclone, getDataCopy, resize_clone/noclone, insert_clone/noclone,
     // count/find, and the empty-pointer throw checks) were removed from GTestIndividual1. They
     // exercised SHARED-container semantics (sharing/aliasing an external shared_ptr's object,
-    // find()/count()-by-shared-item) that no longer apply now that GTreeGenome owns its parameters
+    // find()/count()-by-shared-item) that no longer apply now that the genome owns its parameters
     // by unique_ptr. This functionality is covered for the unique_ptr container in
     // common/tests/UnitTests/GContainerTTests.cpp. (REVIEW: re-add unique-semantics integration
     // tests here if desired.)

@@ -52,9 +52,9 @@ namespace Gem::Geneva::Genome {
  * *layout-agnostic* mapping from the individual's flat parameter values to the external structure a
  * problem cares about -- a 2D field, the layers of a neural network, etc. It reads the individual
  * exclusively through the genome-agnostic DM §2 channel accessors (streamline / streamlineFP), so it
- * never needs to know whether the underlying genome is a tree (GTreeGenome) or flat (GFlatGenome):
- * the very point of the seam is that executors / clients / problem code consume the architecture
- * without learning the concrete genome implementation.
+ * never needs to know the underlying genome's storage layout: the very point of the seam is that
+ * executors / clients / problem code consume the architecture without learning the concrete genome
+ * implementation.
  *
  * A concrete individual exports its architecture (when it has structure -- a plain paraboloid needs
  * none) via a `static makeArchitecture()` factory, so the structure travels with the problem

@@ -52,7 +52,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
-#include "courtier/GWireSerializationContext.hpp" // Phase 9 layout send-once: the wire (de)serialization context
+#include "courtier/GWireSerializationContext.hpp" // layout send-once: the wire (de)serialization context
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GAdaptionKernels.hpp"
 #include "geneva/ind/GGenomeLayout.hpp"
@@ -69,11 +69,11 @@ namespace Gem::Geneva::Genome {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The flat-genome implementation of GOptimizableEntity. Where GTreeGenome stores a tree of
- * GParameterBase objects, GFlatGenome stores the parameters as four contiguous, type-homogeneous
- * value arrays (double / float / int32 / bool) plus a handle to a shared, immutable GGenomeLayout
- * that describes their bounds, grouping and adaption configuration. The per-individual, per-group
- * adaption state (Gauss sigma, ...) lives in the inherited GAuxiliaryStore, not in the genome.
+ * The flat-genome implementation of GOptimizableEntity, and the sole genome implementation.
+ * GFlatGenome stores the parameters as four contiguous, type-homogeneous value arrays
+ * (double / float / int32 / bool) plus a handle to a shared, immutable GGenomeLayout that describes
+ * their bounds, grouping and adaption configuration. The per-individual, per-group adaption state
+ * (Gauss sigma, ...) lives in the inherited GAuxiliaryStore, not in the genome.
  *
  * Because all genome state is generic, a typical concrete individual adds *no* extra members and only
  * supplies a constructor (which builds its genome with GGenomeBuilder and calls setGenome()) and
@@ -82,8 +82,8 @@ namespace Gem::Geneva::Genome {
  *
  * Value access is genome-agnostic: GFlatGenome implements the DM §2 per-type channel virtuals
  * declared on GOptimizableEntity (streamline_/assignValueVector_/countParameters*_/boundaries_), so
- * the optimization algorithms read and write parameter values identically to the tree, without a
- * downcast. Constrained values are folded into their external range at ADAPTION time (the adaption
+ * the optimization algorithms read and write parameter values without a downcast. Constrained values
+ * are folded into their external range at ADAPTION time (the adaption
  * kernels add to the value, then foldConstrainedValuesInPlace() folds it back into [lo, hi) before it
  * is stored), so the stored representation stays in range and equals the external value. Read access
  * (streamline) still folds defensively -- a no-op fast path for an in-range value -- so a value that

@@ -56,7 +56,7 @@ enum class run_state : Gem::Common::ENUMBASETYPE {
 
 /******************************************************************************/
 /** @brief Ids of the allowed commands for the communication of networked consumers.
- *  REQUEST_LAYOUT / SEND_LAYOUT form the Phase 9 layout-send-once cache-miss fetch: a worker that
+ *  REQUEST_LAYOUT / SEND_LAYOUT form the layout-send-once cache-miss fetch: a worker that
  *  receives a work item referencing a layout id it does not hold asks the server for it
  *  (REQUEST_LAYOUT), and the server replies with the serialized layout blob (SEND_LAYOUT). */
 enum class networked_consumer_payload_command : Gem::Common::ENUMBASETYPE {

@@ -51,7 +51,7 @@ namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
- * The transport-side "layout send-once" machinery (Phase 9). A flat genome ships a by-value copy of its
+ * The transport-side "layout send-once" machinery. A flat genome ships a by-value copy of its
  * shared, immutable structural layout with every individual; that layout is identical across an entire
  * population, so re-sending it with every work item dominates the wire size for a large structured
  * genome. This header provides the TRANSPORT-AGNOSTIC plumbing that lets a serializer send each distinct

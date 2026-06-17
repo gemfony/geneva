@@ -141,7 +141,7 @@ public:
     [[nodiscard]] std::int32_t getCommSize() const noexcept { return comm_size_; }
 
     /** @brief (Master only) The number of distinct genome layouts the master has interned for transport
-     *  (Phase 9 send-once). One per distinct genome structure across all worker ranks; 0 on a worker.
+     *  (layout send-once). One per distinct genome structure across all worker ranks; 0 on a worker.
      *  @return The count of interned layouts, or 0 if this is not the master. */
     [[nodiscard]] std::size_t getInternedLayoutCount() const {
         return master_ ? master_->getInternedLayoutCount() : 0;

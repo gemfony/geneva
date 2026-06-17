@@ -488,7 +488,7 @@ TEST_CASE(
         CHECK(restored.getMaxMode() == maxMode::MAXIMIZE);
 
         GEqualityPrinter gep(
-            "GTreeGenome-roundtrip",
+            "GFlatGenome-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
         );

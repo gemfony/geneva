@@ -48,7 +48,7 @@
 #include "common/GThreadGroup.hpp"
 #include "courtier/transport/GWebsocketTransportT.hpp" // reuse the existing session + client + protocol
 #include "courtier/consumers/GNetworkedConsumerT.hpp"
-#include "courtier/GWireSerializationContext.hpp" // Phase 9 layout send-once: shared registry + peer ids
+#include "courtier/GWireSerializationContext.hpp" // layout send-once: shared registry + peer ids
 
 namespace Gem::Courtier {
 
@@ -112,13 +112,13 @@ public:
     [[nodiscard]] std::size_t getNActiveSessions() const noexcept { return n_active_sessions_.load(); }
 
     /***************************************************************************/
-    /** @brief The number of distinct genome layouts the server has interned for transport (Phase 9
+    /** @brief The number of distinct genome layouts the server has interned for transport (layout
      *  send-once). One per distinct genome structure across all sessions -- so a whole population of
      *  one problem type interns a single layout, however many work items and clients are involved.
      *  @return The count of interned layouts. */
     [[nodiscard]] std::size_t getInternedLayoutCount() const { return wire_registry_.size(); }
 
-    /** @brief Bounds the number of distinct genome layouts the server caches for transport (Phase 9);
+    /** @brief Bounds the number of distinct genome layouts the server caches for transport (layout send-once);
      *  0 (the default) keeps them all. Beyond the bound the least-recently-used layout is evicted and the
      *  next work item that needs it re-sends it in full -- so this only trades a re-send for memory and
      *  never affects correctness. Useful for a long run over many evolving genome structures.
