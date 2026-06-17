@@ -86,13 +86,17 @@ struct GHesseErrorResult {
     /** @brief A conditioning proxy: the ratio of the largest to the smallest diagonal Hessian entry.
      *  A large value flags an ill-conditioned (flat-direction) minimum. */
     double condition_number = 0.;
-    /** @brief MINOS asymmetric errors (filled only when opts.minos succeeded). minos_low[j] / minos_high[j]
-     *  are the POSITIVE distances from x_min[j] to where the profiled objective rises by UP on the low /
-     *  high side. For a parabolic, uncorrelated minimum they both approach the symmetric parameter_errors[j].
-     *  An entry is 0 for a parameter that could not be bracketed (e.g. non-positive curvature). */
+    /** @brief MINOS asymmetric errors. Only meaningful when minos_valid is true: minos_low[j] /
+     *  minos_high[j] are then the POSITIVE distances from x_min[j] to where the profiled objective rises
+     *  by UP on the low / high side (both approach the symmetric parameter_errors[j] for a parabolic,
+     *  uncorrelated minimum). When minos_valid is false these are not a reliable confidence interval and
+     *  should be ignored (an entry is left 0 for any side/parameter that could not be bracketed). */
     std::vector<double> minos_low;
     std::vector<double> minos_high;
-    /** @brief Whether MINOS asymmetric errors were produced. */
+    /** @brief Whether usable MINOS asymmetric errors were produced -- true only if EVERY parameter was
+     *  attempted (positive curvature) AND every attempted bound bracketed the UP crossing on both sides.
+     *  A single flat/unbracketable direction sets this false; the symmetric parameter_errors then remain
+     *  the usable fallback. */
     bool minos_valid = false;
     /** @brief The number of objective evaluations consumed. */
     std::size_t n_evaluations = 0;

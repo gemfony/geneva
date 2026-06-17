@@ -174,3 +174,24 @@ TEST_CASE("GHesseError(MINOS): captures an asymmetric (non-parabolic) minimum", 
     CHECK(std::abs(r.minos_high[0] - 1.263) < 2.e-2);
     CHECK(std::abs(r.minos_low[0] - 1.757) < 2.e-2);
 }
+
+TEST_CASE("GHesseError(MINOS): an unbracketable direction is reported invalid, not fabricated",
+          "[geneva][hesse][minos]") {
+    // Regression test for the silent-wrong-result bug: f(x) = c x^2 / (1 + x^2) has POSITIVE curvature at
+    // the minimum (so a symmetric HESSE error exists and the parameter is attempted) but is bounded above
+    // by c. With c < UP (=1) the profiled objective can NEVER rise by UP, so neither MINOS side can bracket
+    // the crossing. Previously minosBound() returned a best-effort distance and the caller marked the
+    // result minos_valid == true (a fabricated confidence interval). It must now be reported INVALID.
+    const double c = 0.3;
+    auto f = [c](std::vector<double> const &x) { return c * x[0] * x[0] / (1. + x[0] * x[0]); };
+
+    GHesseErrorOptions opts;
+    opts.minos = true;
+    const auto r = GHesseError{}.estimate(batchOf(f), {0.}, 0., {1.e-2}, opts);
+
+    REQUIRE(r.valid);                 // positive curvature at the minimum -> a symmetric error exists
+    CHECK(r.parameter_errors[0] > 0.);
+    CHECK_FALSE(r.minos_valid);       // ... but the UP crossing is unbracketable -> MINOS is not usable
+    CHECK(r.minos_low[0] == 0.);      // a failed side is left at the 0 sentinel, not a fabricated bound
+    CHECK(r.minos_high[0] == 0.);
+}

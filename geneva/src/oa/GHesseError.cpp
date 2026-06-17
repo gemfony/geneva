@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <optional>
 #include <utility>
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -152,10 +153,12 @@ double profileMin(
  * @param g The callable g(x_j) = profiled_objective(x_j) - target, negative at the minimum
  * @param x0 The parameter value at the minimum (where g is negative), the origin of the bound
  * @param sigma_step The signed initial step (symmetric HESSE error) defining the search direction
- * @return The positive magnitude of the distance from x0 to the point where g crosses zero
+ * @return The positive magnitude of the distance from x0 to the zero crossing, or std::nullopt if the
+ *  crossing could not be bracketed within the expansion budget (a flat / unbounded direction) -- callers
+ *  must treat nullopt as "no reliable MINOS bound on this side" and must NOT mark the result valid.
  */
 template <typename G>
-double minosBound(G &&g, double x0, double sigma_step) {
+std::optional<double> minosBound(G &&g, double x0, double sigma_step) {
     double a = x0; // g(a) < 0 (the minimum lies below target)
     double b = x0 + sigma_step;
     double gb = g(b);
@@ -166,7 +169,10 @@ double minosBound(G &&g, double x0, double sigma_step) {
         ++expand;
     }
     if(gb < 0.) {
-        return std::abs(b - x0); // could not bracket within budget -> best effort
+        // The profiled objective never rose by UP within the budget: the zero crossing could not be
+        // bracketed (a flat / unbounded direction). Signal failure rather than returning a fabricated
+        // best-effort distance that the caller would otherwise report as a valid confidence bound.
+        return std::nullopt;
     }
     for(std::size_t it = 0; it < 50; ++it) {
         const double mid = 0.5 * (a + b);
@@ -392,20 +398,34 @@ GHesseErrorResult GHesseError::estimate(
         result.minos_low.assign(n, 0.);
         result.minos_high.assign(n, 0.);
         const double target = f_min + opts.up;
-        bool any = false;
+        bool any = false;     // at least one parameter was attempted (had positive curvature)
+        bool all_ok = true;   // every attempted parameter bracketed BOTH sides
         for(std::size_t j = 0; j < n; ++j) {
             const double sigma = result.parameter_errors[j];
             if(sigma <= 0.) {
-                continue; // no curvature / flat direction -> cannot bracket
+                all_ok = false; // a flat direction we could not even attempt -> result not fully valid
+                continue;       // no curvature / flat direction -> cannot bracket
             }
             auto gdev = [&](double xj) {
                 return profileMin(eval_fn, x_min, j, xj, step_sizes, result.n_evaluations) - target;
             };
-            result.minos_high[j] = minosBound(gdev, x_min[j], sigma);
-            result.minos_low[j] = minosBound(gdev, x_min[j], -sigma);
             any = true;
+            const std::optional<double> high = minosBound(gdev, x_min[j], sigma);
+            const std::optional<double> low = minosBound(gdev, x_min[j], -sigma);
+            if(high && low) {
+                result.minos_high[j] = *high;
+                result.minos_low[j] = *low;
+            }
+            else {
+                // One or both sides could not be bracketed for this parameter: leave its bounds at 0
+                // and invalidate the whole MINOS estimate (the symmetric parameter_errors remain the
+                // usable fallback). We do NOT report a fabricated bound as a valid confidence interval.
+                all_ok = false;
+            }
         }
-        result.minos_valid = any;
+        // Valid only if every parameter was attempted AND every attempted bracket succeeded on both
+        // sides. Otherwise the asymmetric errors are incomplete/unreliable and must not be trusted.
+        result.minos_valid = any && all_ok;
     }
 
     return result;
