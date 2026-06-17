@@ -53,6 +53,8 @@
 #include "courtier/GSubmissionPolicy.hpp"
 #include "courtier/consumers/GWebsocketConsumerT.hpp"
 #include "courtier/transport/GWebsocketTransportT.hpp"
+#include "courtier/consumers/GAsioConsumerT.hpp"
+#include "courtier/transport/GAsioTransportT.hpp"
 #include <atomic>
 #include <thread>
 #include "geneva/GOptimizationEnums.hpp"
@@ -1378,6 +1380,78 @@ TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[
     // Send-once: a single layout served the whole population over all clients (had each item carried its
     // own layout copy this would still be 1, since the blob store keys by content id -- but more to the
     // point, the interning path was exercised and is consistent).
+    CHECK(consumer->getInternedLayoutCount() == 1);
+
+    consumer->stopServer();
+    CHECK_FALSE(any_threw.load());
+}
+
+/******************************************************************************/
+TEST_CASE("Wire send-once over a real ASIO loopback interns one layout", "[flat][wire][net]") {
+    // The ASIO twin of the websocket loopback test. ASIO uses a fresh one-shot connection per exchange,
+    // so the server keys its per-peer send-once tracking on a stable id the client announces; with
+    // prefetch + several clients this also exercises the cache-miss REQUEST_LAYOUT/SEND_LAYOUT fetch
+    // path. Every item must still come back processed, and the server must intern exactly one layout.
+    namespace c2 = Gem::Courtier;
+    namespace ccons = Gem::Courtier::Consumers;
+    constexpr auto BIN = Gem::Common::serializationMode::BINARY;
+
+    constexpr std::size_t N = 100;
+    std::vector<std::unique_ptr<GOptimizableEntity>> items;
+    items.reserve(N);
+    for(std::size_t i = 0; i < N; ++i) {
+        auto ind = std::make_unique<FlatManyGroups>(40);
+        ind->randomInit(activityMode::ALLPARAMETERS);
+        items.push_back(std::move(ind));
+    }
+
+    auto broker = std::make_shared<c2::GBrokerT<GOptimizableEntity>>();
+    auto consumer = std::make_shared<c2::GAsioConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/2, BIN);
+    consumer->setCloneFunction(
+        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); }
+    );
+    broker->registerConsumer(consumer);
+    consumer->startServer();
+    const unsigned short port = consumer->getPort();
+
+    constexpr std::size_t n_clients = 3;
+    std::vector<std::shared_ptr<ccons::GAsioConsumerClientT<GOptimizableEntity>>> clients;
+    std::vector<std::thread> client_threads;
+    std::atomic<bool> any_threw{false};
+    for(std::size_t c = 0; c < n_clients; ++c) {
+        auto client = std::make_shared<ccons::GAsioConsumerClientT<GOptimizableEntity>>(
+            "127.0.0.1", port, BIN, /*max_reconnects=*/50, /*prefetch_depth=*/8
+        );
+        clients.push_back(client);
+        client_threads.emplace_back([client, &any_threw] {
+            try {
+                client->run();
+            }
+            catch(...) {
+                any_threw.store(true);
+            }
+        });
+    }
+
+    c2::GExecutorT<GOptimizableEntity> executor(broker);
+    executor.workOn(items, c2::GSubmissionPolicy::full_success_or_fatal());
+
+    for(auto &client : clients) {
+        client->flagCloseRequested();
+    }
+    for(auto &t : client_threads) {
+        if(t.joinable()) {
+            t.join();
+        }
+    }
+
+    std::size_t processed = 0;
+    for(const auto &it : items) {
+        if(it && it->is_processed()) {
+            ++processed;
+        }
+    }
+    CHECK(processed == N);
     CHECK(consumer->getInternedLayoutCount() == 1);
 
     consumer->stopServer();

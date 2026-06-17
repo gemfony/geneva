@@ -293,6 +293,10 @@ public:
         wireCtx_.peer = 0; // worker side: the single upstream master
         wireCtx_.registry = &wireRegistry_;
         wireCtx_.mode = config_.serializationMode;
+        // Return processed items in the lightweight results-only form by default (the master still holds
+        // the originally-submitted item and grafts the parameters back on); a work item can override
+        // per item via setReturnFullIndividual().
+        wireCtx_.returning = true;
         wireCtx_.fetch_blob = [this](const Gem::Courtier::GWireLayoutId &id) -> std::string {
             return this->fetchLayoutBlob_(id);
         };
