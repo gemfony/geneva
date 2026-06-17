@@ -33,6 +33,8 @@
 
 #include <catch2/catch_template_test_macros.hpp>
 
+#include <cmath>
+
 // All classes that will be tested in this file
 #include "geneva/individuals/GDelayIndividual.hpp"
 #include "geneva/individuals/GExternalEvaluatorIndividual.hpp"
@@ -638,4 +640,53 @@ TEST_CASE(
         );
         CHECK(gep.isSimilar(restored, original));
     }
+}
+
+// ============================================================================
+// Meta-optimizer: the search genome is built from the EA tunable manifest and
+// read back by name (no MOT_* index math). This pins that the manifest -> genome
+// -> readTuned() chain reproduces the manifest's values under their names, and
+// that the derived getters (ad_prob etc.) compute correctly.
+// ============================================================================
+
+TEST_CASE("Meta-optimizer genome is built from the tunable manifest and read by name", "[geneva][meta]") {
+    using Meta = gind::GMetaOptimizerIndividualT<gind::GFunctionIndividual>;
+    namespace n = oa::ea_tunable;
+
+    auto p = std::make_shared<Meta>();
+    const auto manifest = oa::GEvolutionaryAlgorithm::tunableManifest();
+    Meta::addContent(p, manifest);
+
+    // The defaults come straight from the manifest, addressed by name.
+    CHECK(p->getNParents() == 1);
+    CHECK(p->getNChildren() == 100);
+    CHECK(std::abs(p->getMinSigma() - 0.001) < 1e-9);
+    CHECK(std::abs(p->getSigmaRange() - 0.2) < 1e-9);
+    CHECK(std::abs(p->getSigmaSigma() - 0.1) < 1e-9);
+    // getAdProb = min_ad_prob + ad_prob_start_pct * ad_prob_range = 0 + 1 * 0.9.
+    CHECK(std::abs(p->getAdProb() - 0.9) < 1e-9);
+
+    // A reordered / re-valued manifest still reads back correctly by name: build with custom values and
+    // confirm the named getters follow the values, not any fixed position.
+    auto custom = manifest;
+    auto setKnob = [&custom](const char *name, double init, double lo, double hi) {
+        for(auto &tp : custom) {
+            if(tp.name == name) {
+                tp.init = init;
+                tp.lower = lo;
+                tp.upper = hi;
+            }
+        }
+    };
+    setKnob(n::n_parents, 3, 1, 6);
+    setKnob(n::n_children, 42, 5, 250);
+    setKnob(n::min_sigma, 0.01, 0.001, 0.1);
+    setKnob(n::sigma_sigma, 0.5, 0., 1.);
+
+    auto q = std::make_shared<Meta>();
+    Meta::addContent(q, custom);
+    CHECK(q->getNParents() == 3);
+    CHECK(q->getNChildren() == 42);
+    CHECK(std::abs(q->getMinSigma() - 0.01) < 1e-9);
+    CHECK(std::abs(q->getSigmaSigma() - 0.5) < 1e-9);
 }

@@ -393,6 +393,16 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- The evolutionary algorithm now publishes a tunable manifest
+  (GEvolutionaryAlgorithm::tunableManifest()) describing the knobs a meta-optimizer
+  may tune -- each with a name, value channel and default search range. The
+  meta-optimizer individual builds its search genome from this manifest (one
+  labelled group per knob, the label being the knob name) and reads the values back
+  by name. This replaces the previous hand-numbered parameter enum and the index
+  arithmetic over the two value channels, so a knob can be added or reordered
+  without silently shifting another. The meta-optimizer's configuration file keys
+  are unchanged.
+
 - Optimization algorithms now share a consumer per kind across the process rather
   than each building its own. When an algorithm is not handed a broker explicitly
   (e.g. by Go2), it resolves a local consumer through a process-global, per-kind

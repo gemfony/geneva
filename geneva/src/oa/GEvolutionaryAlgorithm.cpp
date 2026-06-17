@@ -182,6 +182,27 @@ void GEvolutionaryAlgorithm::extractCurrentParetoIndividuals(
 }
 
 /******************************************************************************/
+
+std::vector<TunableParam> GEvolutionaryAlgorithm::tunableManifest() {
+    namespace n = ea_tunable;
+    // {name, is_integer, init, lower, upper}. The order fixes the genome layout (the integer knobs
+    // populate the int32 channel, the rest the double channel, each in this order) and the read order.
+    return {
+        {n::n_parents, true, 1., 1., 6.},
+        {n::n_children, true, 100., 5., 250.},
+        {n::amalgamation, false, 0., 0., 1.},
+        {n::min_ad_prob, false, 0., 0., 0.1},
+        {n::ad_prob_range, false, 0.9, 0.1, 0.9},
+        {n::ad_prob_start_pct, false, 1., 0., 1.},
+        {n::adapt_ad_prob, false, 0.1, 0., 1.},
+        {n::min_sigma, false, 0.001, 0.001, 0.09999},
+        {n::sigma_range, false, 0.2, 0.1, 0.9},
+        {n::sigma_range_pct, false, 1., 0., 1.},
+        {n::sigma_sigma, false, 0.1, 0., 1.}
+    };
+}
+
+/******************************************************************************/
 /**
   * @brief Adds the individuals of this iteration to a priority queue. The
   * queue will be sorted by the first evaluation criterion of the individuals

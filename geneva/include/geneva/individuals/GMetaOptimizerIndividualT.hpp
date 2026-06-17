@@ -36,7 +36,9 @@
 #include <cmath>
 #include <filesystem>
 #include <iostream>
+#include <map>
 #include <sstream>
+#include <string>
 #include <tuple>
 #include <vector>
 
@@ -53,7 +55,9 @@
 #include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
 #include "geneva/oa/GAdaption.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
+#include "geneva/oa/GTunableManifest.hpp"
 
 namespace Gem::Geneva::Individuals {
 
@@ -159,20 +163,6 @@ const std::string GMETAOPT_DEF_SUBEACONFIG =
 constexpr bool GMETAOPT_SUBEXEC_SERIAL = false;
 constexpr bool GMETAOPT_SUBEXEC_MULTITHREADED = true;
 const bool GMETAOPT_DEF_SUBEXECMODE = GMETAOPT_SUBEXEC_MULTITHREADED;
-
-// Make sure we do not mix parameter items
-constexpr std::size_t MOT_NPARENTS = 0;
-constexpr std::size_t MOT_NCHILDREN = 1;
-constexpr std::size_t MOT_AMALGAMATION = 2;
-constexpr std::size_t MOT_MINADPROB = 3;
-constexpr std::size_t MOT_ADPROBRANGE = 4;
-constexpr std::size_t MOT_ADPROBSTARTPERCENTAGE = 5;
-constexpr std::size_t MOT_ADAPTADPROB = 6;
-constexpr std::size_t MOT_MINSIGMA = 7;
-constexpr std::size_t MOT_SIGMARANGE = 8;
-constexpr std::size_t MOT_SIGMARANGEPERCENTAGE = 9;
-constexpr std::size_t MOT_SIGMASIGMA = 10;
-constexpr std::size_t MOT_NVAR = 11;
 
 /******************************************************************************/
 /**
@@ -372,7 +362,7 @@ public:
      * @return The number of parents currently encoded in the genome
      */
     std::size_t getNParents() const {
-        return Gem::Common::narrow<std::size_t>(motIntValue(MOT_NPARENTS));
+        return static_cast<std::size_t>(readTuned().at(oa::ea_tunable::n_parents));
     }
 
     /***************************************************************************/
@@ -382,7 +372,7 @@ public:
      * @return The number of children currently encoded in the genome
      */
     std::size_t getNChildren() const {
-        return Gem::Common::narrow<std::size_t>(motIntValue(MOT_NCHILDREN));
+        return static_cast<std::size_t>(readTuned().at(oa::ea_tunable::n_children));
     }
 
     /***************************************************************************/
@@ -392,10 +382,9 @@ public:
      * @return The adaption probability derived from min_ad_prob and the ad_prob range/start percentage
      */
     double getAdProb() const {
-        std::vector<double> d;
-        this->template streamline<double>(d);
-        return d.at(dblIndex(MOT_MINADPROB)) +
-               d.at(dblIndex(MOT_ADPROBSTARTPERCENTAGE)) * d.at(dblIndex(MOT_ADPROBRANGE));
+        const auto v = readTuned();
+        return v.at(oa::ea_tunable::min_ad_prob) +
+               v.at(oa::ea_tunable::ad_prob_start_pct) * v.at(oa::ea_tunable::ad_prob_range);
     }
 
     /***************************************************************************/
@@ -405,7 +394,7 @@ public:
      * @return The lower sigma boundary currently encoded in the genome
      */
     double getMinSigma() const {
-        return motDoubleValue(MOT_MINSIGMA);
+        return readTuned().at(oa::ea_tunable::min_sigma);
     }
 
     /***************************************************************************/
@@ -415,7 +404,7 @@ public:
      * @return The sigma range currently encoded in the genome
      */
     double getSigmaRange() const {
-        return motDoubleValue(MOT_SIGMARANGE);
+        return readTuned().at(oa::ea_tunable::sigma_range);
     }
 
     /***************************************************************************/
@@ -425,119 +414,45 @@ public:
      * @return The sigma-sigma (sigma self-adaption strength) currently encoded in the genome
      */
     double getSigmaSigma() const {
-        return motDoubleValue(MOT_SIGMASIGMA);
+        return readTuned().at(oa::ea_tunable::sigma_sigma);
     }
 
     /***************************************************************************/
     /**
-     * This function is used to unify the setup from within the constructor
-     * and factory. It builds the flat meta genome (two int32 slots followed by nine
-     * double slots, in MOT_* order) for the passed individual.
+     * Builds the flat meta genome for the passed individual from a tunable manifest: one labelled group
+     * per knob (the label IS the knob name), integer knobs in the int32 channel and the rest in the double
+     * channel, each in manifest order. Reading then happens by name (readTuned()), so the build and the
+     * readers stay in sync through the single manifest -- there is no positional index to keep aligned.
+     * The genome is structure-only; the adaptors live on the OA-owned config authored by
+     * getAdaptionConfig().
      *
      * @param p The individual whose genome is being built (modified in place)
-     * @param init_n_parents The initial number of parents
-     * @param n_parents_lb The lower boundary for variations of the number of parents
-     * @param n_parents_ub The upper boundary for variations of the number of parents
-     * @param init_n_children The initial number of children
-     * @param n_children_lb The lower boundary for variations of the number of children
-     * @param n_children_ub The upper boundary for variations of the number of children
-     * @param init_amalgamation_lklh The initial cross-over (amalgamation) likelihood
-     * @param amalgamation_lklh_lb The lower boundary for the amalgamation likelihood
-     * @param amalgamation_lklh_ub The upper boundary for the amalgamation likelihood
-     * @param init_min_ad_prob The initial lower boundary for the variation of ad_prob
-     * @param min_ad_prob_lb The lower boundary for min_ad_prob
-     * @param min_ad_prob_ub The upper boundary for min_ad_prob
-     * @param init_ad_prob_range The initial range for the variation of ad_prob
-     * @param ad_prob_range_lb The lower boundary for ad_prob_range
-     * @param ad_prob_range_ub The upper boundary for ad_prob_range
-     * @param init_ad_prob_start_percentage The start value for ad_prob relative to its allowed range
-     * @param init_adapt_ad_prob The initial strength of ad_prob self-adaption
-     * @param adapt_ad_prob_lb The lower boundary for the strength of ad_prob self-adaption
-     * @param adapt_ad_prob_ub The upper boundary for the strength of ad_prob self-adaption
-     * @param init_min_sigma The initial lower boundary for sigma
-     * @param min_sigma_lb The lower boundary for the variation of the lower sigma boundary
-     * @param min_sigma_ub The upper boundary for the variation of the lower sigma boundary
-     * @param init_sigma_range The initial maximum range for sigma
-     * @param sigma_range_lb The lower boundary for the maximum range of sigma
-     * @param sigma_range_ub The upper boundary for the maximum range of sigma
-     * @param init_sigma_range_percentage The initial percentage of the sigma range as start value
-     * @param init_sigma_sigma The initial strength of sigma self-adaption
-     * @param sigma_sigma_lb The lower boundary for the strength of sigma self-adaption
-     * @param sigma_sigma_ub The upper boundary for the strength of sigma self-adaption
+     * @param manifest The tunable parameters to encode (name, channel, init value and search bounds)
      */
     static void addContent(
         std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> p,
-        const std::size_t &init_n_parents,
-        const std::size_t &n_parents_lb,
-        const std::size_t &n_parents_ub,
-        const std::size_t &init_n_children,
-        const std::size_t &n_children_lb,
-        const std::size_t &n_children_ub,
-        const double &init_amalgamation_lklh,
-        const double &amalgamation_lklh_lb,
-        const double &amalgamation_lklh_ub,
-        const double &init_min_ad_prob,
-        const double &min_ad_prob_lb,
-        const double &min_ad_prob_ub,
-        const double &init_ad_prob_range,
-        const double &ad_prob_range_lb,
-        const double &ad_prob_range_ub,
-        const double &init_ad_prob_start_percentage,
-        const double &init_adapt_ad_prob,
-        const double &adapt_ad_prob_lb,
-        const double &adapt_ad_prob_ub,
-        const double &init_min_sigma,
-        const double &min_sigma_lb,
-        const double &min_sigma_ub,
-        const double &init_sigma_range,
-        const double &sigma_range_lb,
-        const double &sigma_range_ub,
-        const double &init_sigma_range_percentage,
-        const double &init_sigma_sigma,
-        const double &sigma_sigma_lb,
-        const double &sigma_sigma_ub
+        const std::vector<oa::TunableParam> &manifest
     ) {
-        // Build the flat genome via the builder, adding parameters in MOT_* order within each channel.
-        // The int and double channels are independent value arrays, so each has its own positional
-        // index: n_parents = 0, n_children = 1 in the int channel; amalgamation = 0 ... sigma_sigma = 8
-        // in the double channel (i.e. double index = MOT_* - MOT_AMALGAMATION, see dblIndex()).
         gen::GGenomeBuilder b;
 
-        //------------------------------------------------------------
-        // int channel
+        // Integer knobs first (int32 channel), then the real knobs (double channel); within each channel
+        // the order is the manifest order, which readTuned() walks identically.
+        for(const auto &tp : manifest) {
+            if(tp.is_integer) {
+                b.addInt32(
+                     static_cast<std::int32_t>(tp.init),
+                     static_cast<std::int32_t>(tp.lower),
+                     static_cast<std::int32_t>(tp.upper)
+                 )
+                    .label(tp.name);
+            }
+        }
+        for(const auto &tp : manifest) {
+            if(not tp.is_integer) {
+                b.addDouble(tp.init, tp.lower, tp.upper).label(tp.name);
+            }
+        }
 
-        // Structure only -- the adaptors (n_parents flip, n_children integer-Gauss, doubles Gauss) live on
-        // the OA-owned config authored by getAdaptionConfig(), not the genome layout.
-
-        // n_parents (int channel group 0).
-        b.addInt32(
-            Gem::Common::narrow<std::int32_t>(init_n_parents),
-            Gem::Common::narrow<std::int32_t>(n_parents_lb),
-            Gem::Common::narrow<std::int32_t>(n_parents_ub)
-        );
-
-        // n_children (int channel group 1).
-        b.addInt32(
-            Gem::Common::narrow<std::int32_t>(init_n_children),
-            Gem::Common::narrow<std::int32_t>(n_children_lb),
-            Gem::Common::narrow<std::int32_t>(n_children_ub)
-        );
-
-        //------------------------------------------------------------
-        // double channel.
-        auto addGaussDouble = [&b](double init, double lo, double hi) { b.addDouble(init, lo, hi); };
-
-        addGaussDouble(init_amalgamation_lklh, amalgamation_lklh_lb, amalgamation_lklh_ub); // MOT_AMALGAMATION
-        addGaussDouble(init_min_ad_prob, min_ad_prob_lb, min_ad_prob_ub);                   // MOT_MINADPROB
-        addGaussDouble(init_ad_prob_range, ad_prob_range_lb, ad_prob_range_ub);             // MOT_ADPROBRANGE
-        addGaussDouble(init_ad_prob_start_percentage, 0., 1.);                              // MOT_ADPROBSTARTPERCENTAGE
-        addGaussDouble(init_adapt_ad_prob, adapt_ad_prob_lb, adapt_ad_prob_ub);             // MOT_ADAPTADPROB
-        addGaussDouble(init_min_sigma, min_sigma_lb, min_sigma_ub);                         // MOT_MINSIGMA
-        addGaussDouble(init_sigma_range, sigma_range_lb, sigma_range_ub);                   // MOT_SIGMARANGE
-        addGaussDouble(init_sigma_range_percentage, 0., 1.);                                // MOT_SIGMARANGEPERCENTAGE
-        addGaussDouble(init_sigma_sigma, sigma_sigma_lb, sigma_sigma_ub);                   // MOT_SIGMASIGMA
-
-        //------------------------------------------------------------
         p->setGenome(b.build());
     }
 
@@ -569,23 +484,20 @@ public:
      */
     std::string print(bool with_fitness = true) const {
         std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
-        // Retrieve the parameters from the flat genome (per-channel positional access).
-        std::vector<std::int32_t> iv;
-        this->template streamline<std::int32_t>(iv);
-        std::vector<double> dv;
-        this->template streamline<double>(dv);
-
-        const std::int32_t npar = iv.at(MOT_NPARENTS);
-        const std::int32_t nch = iv.at(MOT_NCHILDREN);
-        const double amalgamation = dv.at(dblIndex(MOT_AMALGAMATION));
-        const double min_ad_prob = dv.at(dblIndex(MOT_MINADPROB));
-        const double ad_prob_range = dv.at(dblIndex(MOT_ADPROBRANGE));
-        const double ad_prob_start_percentage = dv.at(dblIndex(MOT_ADPROBSTARTPERCENTAGE));
-        const double adapt_adprob = dv.at(dblIndex(MOT_ADAPTADPROB));
-        const double minsigma = dv.at(dblIndex(MOT_MINSIGMA));
-        const double sigmarange = dv.at(dblIndex(MOT_SIGMARANGE));
-        const double sigma_range_percentage = dv.at(dblIndex(MOT_SIGMARANGEPERCENTAGE));
-        const double sigmasigma = dv.at(dblIndex(MOT_SIGMASIGMA));
+        // Retrieve the parameters from the flat genome by name (see readTuned()).
+        namespace n = oa::ea_tunable;
+        const auto v = readTuned();
+        const std::int32_t npar = static_cast<std::int32_t>(v.at(n::n_parents));
+        const std::int32_t nch = static_cast<std::int32_t>(v.at(n::n_children));
+        const double amalgamation = v.at(n::amalgamation);
+        const double min_ad_prob = v.at(n::min_ad_prob);
+        const double ad_prob_range = v.at(n::ad_prob_range);
+        const double ad_prob_start_percentage = v.at(n::ad_prob_start_pct);
+        const double adapt_adprob = v.at(n::adapt_ad_prob);
+        const double minsigma = v.at(n::min_sigma);
+        const double sigmarange = v.at(n::sigma_range);
+        const double sigma_range_percentage = v.at(n::sigma_range_pct);
+        const double sigmasigma = v.at(n::sigma_sigma);
 
         // Stream the results
 
@@ -813,11 +725,9 @@ protected:
      * @return The value of this object, as calculated with the evaluation function
      */
     double fitnessCalculation() override {
-        // Retrieve the parameters from the flat genome (per-channel positional access).
-        std::vector<std::int32_t> iv;
-        this->template streamline<std::int32_t>(iv);
-        std::vector<double> dv;
-        this->template streamline<double>(dv);
+        // Retrieve the parameters from the flat genome by name (see readTuned()).
+        namespace n = oa::ea_tunable;
+        const auto v = readTuned();
 
 #ifdef DEBUG
         // Check that we have been given a factory
@@ -830,21 +740,23 @@ protected:
         }
 #endif
 
-        // Derive the sub-individuals' adaptor settings from the meta-optimised parameters.
-        double min_sigma = dv.at(dblIndex(MOT_MINSIGMA));
-        double sigma_range = dv.at(dblIndex(MOT_SIGMARANGE));
+        // Derive the sub-individuals' adaptor settings from the meta-optimised parameters. The genome
+        // carries RAW knobs (min + range + start percentage) so it always holds valid values; the actual
+        // gauss bounds are derived here (max = min + range; start = min + percentage * range).
+        double min_sigma = v.at(n::min_sigma);
+        double sigma_range = v.at(n::sigma_range);
         double max_sigma = min_sigma + sigma_range;
-        double sigma_range_percentage = dv.at(dblIndex(MOT_SIGMARANGEPERCENTAGE));
+        double sigma_range_percentage = v.at(n::sigma_range_pct);
         double start_sigma = min_sigma + sigma_range_percentage * sigma_range;
-        double sigma_sigma = dv.at(dblIndex(MOT_SIGMASIGMA));
+        double sigma_sigma = v.at(n::sigma_sigma);
 
-        double min_ad_prob = dv.at(dblIndex(MOT_MINADPROB));
-        double ad_prob_range = dv.at(dblIndex(MOT_ADPROBRANGE));
+        double min_ad_prob = v.at(n::min_ad_prob);
+        double ad_prob_range = v.at(n::ad_prob_range);
         double max_ad_prob = min_ad_prob + ad_prob_range;
-        double ad_prob_start_percentage = dv.at(dblIndex(MOT_ADPROBSTARTPERCENTAGE));
+        double ad_prob_start_percentage = v.at(n::ad_prob_start_pct);
         double start_ad_prob = min_ad_prob + ad_prob_start_percentage * ad_prob_range;
 
-        double adapt_ad_prob = dv.at(dblIndex(MOT_ADAPTADPROB));
+        double adapt_ad_prob = v.at(n::adapt_ad_prob);
 
         // Set up a population factory for serial execution
         oa::GEvolutionaryAlgorithmFactory ea(sub_ea_config_);
@@ -869,11 +781,11 @@ protected:
         // Run the required number of optimizations
         std::shared_ptr<oa::GEvolutionaryAlgorithm> ea_ptr;
 
-        std::uint32_t n_children = Gem::Common::narrow<std::uint32_t>(iv.at(MOT_NCHILDREN));
-        std::uint32_t n_parents = Gem::Common::narrow<std::uint32_t>(iv.at(MOT_NPARENTS));
+        std::uint32_t n_children = static_cast<std::uint32_t>(v.at(n::n_children));
+        std::uint32_t n_parents = static_cast<std::uint32_t>(v.at(n::n_parents));
         std::uint32_t pop_size = n_parents + n_children;
         std::uint32_t iterations_consumed = 0;
-        double amalgamation_likelihood = dv.at(dblIndex(MOT_AMALGAMATION));
+        double amalgamation_likelihood = v.at(n::amalgamation);
 
         std::vector<double> solver_calls_per_optimization;
         std::vector<double> iterations_per_optimization;
@@ -1106,37 +1018,31 @@ protected:
 private:
     /***************************************************************************/
     /**
-     * Maps a MOT_* slot to its index within the double value channel. The two int32 slots
-     * (MOT_NPARENTS, MOT_NCHILDREN) precede the doubles in MOT order, so the double channel index is
-     * simply the MOT_* offset from the first double slot (MOT_AMALGAMATION).
+     * @brief Reads the meta-optimised parameters from the flat genome into a name -> value map, keyed by
+     * the tunable-manifest names. The genome is built from oa::GEvolutionaryAlgorithm::tunableManifest()
+     * (one labelled group per knob, integer knobs first), so walking that manifest in the same order
+     * recovers each value by name -- no positional index that could drift if a knob is added or reordered.
      *
-     * @param mot The MOT_* slot to map
-     * @return The index of that slot within the double value channel
+     * @return A map from each manifest knob name to its current value in the genome
      */
-    static constexpr std::size_t dblIndex(std::size_t mot) {
-        return mot - MOT_AMALGAMATION;
-    }
+    std::map<std::string, double> readTuned() const {
+        std::vector<std::int32_t> iv;
+        this->template streamline<std::int32_t>(iv);
+        std::vector<double> dv;
+        this->template streamline<double>(dv);
 
-    /**
-     * @brief Reads one int32 value of the flat genome by its channel index (MOT_NPARENTS/NCHILDREN).
-     * @param channel_index The positional index within the int32 value channel
-     * @return The int32 value stored at that channel index
-     */
-    std::int32_t motIntValue(std::size_t channel_index) const {
-        std::vector<std::int32_t> v;
-        this->template streamline<std::int32_t>(v);
-        return v.at(channel_index);
-    }
-
-    /**
-     * @brief Reads one double value of the flat genome by its MOT_* slot (folded through dblIndex).
-     * @param mot The MOT_* slot to read
-     * @return The double value stored at that slot
-     */
-    double motDoubleValue(std::size_t mot) const {
-        std::vector<double> v;
-        this->template streamline<double>(v);
-        return v.at(dblIndex(mot));
+        std::map<std::string, double> out;
+        std::size_t ii = 0;
+        std::size_t di = 0;
+        for(const auto &tp : oa::GEvolutionaryAlgorithm::tunableManifest()) {
+            if(tp.is_integer) {
+                out[tp.name] = static_cast<double>(iv.at(ii++));
+            }
+            else {
+                out[tp.name] = dv.at(di++);
+            }
+        }
+        return out;
     }
 
     /***************************************************************************/
@@ -1563,39 +1469,35 @@ protected:
                 p_base
             );
 
-        // We simply use a static function defined in GMetaOptimizerIndividualT<ind_type>
-        GMetaOptimizerIndividualT<ind_type>::addContent(
-            p,
-            init_n_parents_,
-            n_parents_lb_,
-            n_parents_ub_,
-            init_n_children_,
-            n_children_lb_,
-            n_children_ub_,
-            init_amalgamation_lklh_,
-            amalgamation_lklh_lb_,
-            amalgamation_lklh_ub_,
-            init_min_ad_prob_,
-            min_ad_prob_lb_,
-            min_ad_prob_ub_,
-            init_ad_prob_range_,
-            ad_prob_range_lb_,
-            ad_prob_range_ub_,
-            init_ad_prob_start_percentage_,
-            init_adapt_ad_prob_,
-            adapt_ad_prob_lb_,
-            adapt_ad_prob_ub_,
-            init_min_sigma_,
-            min_sigma_lb_,
-            min_sigma_ub_,
-            init_sigma_range_,
-            sigma_range_lb_,
-            sigma_range_ub_,
-            init_sigma_range_percentage_,
-            init_sigma_sigma_,
-            sigma_sigma_lb_,
-            sigma_sigma_ub_
-        );
+        // Build the search genome from the EA's tunable manifest, overriding the default search ranges
+        // with this factory's configured values (read from the config file). Addressing each knob by name
+        // keeps the genome build and the readers in sync through the single manifest -- no positional
+        // coupling, so a config option can be added or reordered without silently shifting another knob.
+        namespace n = oa::ea_tunable;
+        std::vector<oa::TunableParam> manifest = oa::GEvolutionaryAlgorithm::tunableManifest();
+        auto override_knob =
+            [&manifest](const char *name, double init, double lower, double upper) {
+                for(auto &tp : manifest) {
+                    if(tp.name == name) {
+                        tp.init = init;
+                        tp.lower = lower;
+                        tp.upper = upper;
+                    }
+                }
+            };
+        override_knob(n::n_parents, double(init_n_parents_), double(n_parents_lb_), double(n_parents_ub_));
+        override_knob(n::n_children, double(init_n_children_), double(n_children_lb_), double(n_children_ub_));
+        override_knob(n::amalgamation, init_amalgamation_lklh_, amalgamation_lklh_lb_, amalgamation_lklh_ub_);
+        override_knob(n::min_ad_prob, init_min_ad_prob_, min_ad_prob_lb_, min_ad_prob_ub_);
+        override_knob(n::ad_prob_range, init_ad_prob_range_, ad_prob_range_lb_, ad_prob_range_ub_);
+        override_knob(n::ad_prob_start_pct, init_ad_prob_start_percentage_, 0., 1.);
+        override_knob(n::adapt_ad_prob, init_adapt_ad_prob_, adapt_ad_prob_lb_, adapt_ad_prob_ub_);
+        override_knob(n::min_sigma, init_min_sigma_, min_sigma_lb_, min_sigma_ub_);
+        override_knob(n::sigma_range, init_sigma_range_, sigma_range_lb_, sigma_range_ub_);
+        override_knob(n::sigma_range_pct, init_sigma_range_percentage_, 0., 1.);
+        override_knob(n::sigma_sigma, init_sigma_sigma_, sigma_sigma_lb_, sigma_sigma_ub_);
+
+        GMetaOptimizerIndividualT<ind_type>::addContent(p, manifest);
 
         // Finally add the individual factory to p
         p->registerIndividualFactory(ind_factory_);

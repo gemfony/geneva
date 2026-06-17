@@ -45,6 +45,7 @@
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GParChild.hpp"
+#include "geneva/oa/GTunableManifest.hpp"
 #include "geneva/oa/GOptimizationAlgorithmT.hpp"
 
 #ifdef GEM_TESTING
@@ -134,6 +135,15 @@ public:
     void extractCurrentParetoIndividuals(
         std::vector<std::shared_ptr<gen::GOptimizableEntity>> &pareto_inds
     );
+
+    /**
+     * @brief The knobs a meta-optimizer may tune on an evolutionary algorithm, with default search
+     * ranges. This is the single source of truth for which parameters exist, which value channel carries
+     * each, and in what order -- a meta-optimizer builds its search genome from it (one labelled group
+     * per descriptor) and reads values back by name, so no hand-maintained index can drift.
+     * @return The ordered list of tunable parameters (population, cross-over, sigma / ad_prob knobs)
+     */
+    static std::vector<TunableParam> tunableManifest();
 
 protected:
     /***************************************************************************/
