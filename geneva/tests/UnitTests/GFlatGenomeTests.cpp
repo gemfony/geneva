@@ -1308,6 +1308,66 @@ TEST_CASE("Wire results-only return: a client may opt into a full return", "[fla
 }
 
 /******************************************************************************/
+TEST_CASE("Wire send-once: large-genome wire-size before/after", "[flat][wire]") {
+    // Quantifies the headline win on a large structured genome (2000 single-value groups -> an O(2000)
+    // layout). Reports and guards the per-item wire size for the submit direction (full layout vs
+    // id-only) and the return direction (full individual vs results-only).
+    using mode = Gem::Common::serializationMode;
+
+    FlatManyGroups big(2000);
+    big.randomInit(activityMode::ALLPARAMETERS);
+
+    // --- submit direction ---
+    // Self-contained full encoding (no scope) -- the size before send-once.
+    const std::size_t full_submit = big.toString(mode::BINARY).size();
+
+    // Send-once: the first item to a peer carries the full layout, every later one only the 16-byte id.
+    GWireLayoutRegistry server_reg;
+    GWireSerializationContext server_ctx;
+    server_ctx.enabled = true;
+    server_ctx.peer = 1;
+    server_ctx.registry = &server_reg;
+    std::size_t first_submit = 0;
+    std::size_t idonly_submit = 0;
+    {
+        GWireSerializationScope scope(&server_ctx);
+        first_submit = big.toString(mode::BINARY).size();   // present=true (carries the layout)
+        idonly_submit = big.toString(mode::BINARY).size();  // id-only
+    }
+
+    // --- return direction ---
+    big.process(); // give it a result to return
+    GWireLayoutRegistry worker_reg;
+    GWireSerializationContext worker_ctx;
+    worker_ctx.enabled = true;
+    worker_ctx.registry = &worker_reg;
+    worker_ctx.returning = true;
+    std::size_t full_return = 0;
+    std::size_t results_only_return = 0;
+    {
+        GWireSerializationScope scope(&worker_ctx);
+        big.setReturnFullIndividual(true);
+        full_return = big.toString(mode::BINARY).size();
+        big.setReturnFullIndividual(false);
+        results_only_return = big.toString(mode::BINARY).size();
+    }
+
+    WARN("Phase 9 wire size (2000-group genome, binary bytes):"
+         << "\n  submit  full=" << full_submit << "  first=" << first_submit
+         << "  id-only=" << idonly_submit
+         << "  (id-only is " << (100 * idonly_submit / full_submit) << "% of full)"
+         << "\n  return  full=" << full_return << "  results-only=" << results_only_return
+         << "  (results-only is " << (100 * results_only_return / full_return) << "% of full)");
+
+    // The id-only submit drops the whole O(2000) layout, keeping only the values + a 16-byte id.
+    CHECK(idonly_submit < full_submit);
+    CHECK(first_submit >= full_submit); // the first send still carries the layout (plus the id framing)
+    // The results-only return drops both the values and the layout, keeping only the computed results.
+    CHECK(results_only_return < full_return);
+    CHECK(results_only_return < idonly_submit); // no parameter values at all on a results-only return
+}
+
+/******************************************************************************/
 TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[flat][wire][net]") {
     // End-to-end proof that the layout send-once form is correctly engaged on the live websocket path:
     // a population of identically-structured flat individuals is evaluated over real sockets, and the

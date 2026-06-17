@@ -96,11 +96,20 @@ See `docs/writing-optimization-problems.md` for the full guide, and `examples/ge
 
 ### Parallelization
 
-Parallelization is configured externally (via `Go2` JSON config or command-line), not in the problem definition. The same individual code runs serially, multi-threaded, over MPI, or via websockets without modification.
+Parallelization is configured externally (via `Go2` JSON config or command-line), not in the problem definition. The same individual code runs serially, multi-threaded, over MPI, or via websockets without modification. On the networked transports the shared genome layout is sent once per client and the individual's parameters are not echoed back with each result — see "Wire transport" under Serialization below.
 
 ### Serialization
 
 The common interface (`Gem::Common::GCommonInterfaceT<T>`) and all subclasses use Boost.Serialization. Every class that adds data members must implement `serialize()` and `load_()` / `save_()` (or the combined `serialize` template). This is required for network transport of individuals.
+
+#### Wire transport: layout send-once + results-only returns
+
+A flat genome's shared structural layout (bounds / grouping / labels — `GGenomeLayout`) is identical across an entire population, so re-sending it with every work item dominates the wire size for a large structured genome. On the network path the layout is therefore **sent once and referenced by a content id** thereafter:
+
+- `GGenomeLayout::layoutId()` is a 128-bit content hash; `GFlatGenome::save()` emits the full layout to a given client only the first time that client sees the id, and the id alone after. Because the id is content-derived, an evolving structure (a different layout) simply hashes to a new id and is sent once more — no "layout changed" signalling.
+- The machinery is transport-agnostic and lives in the **courtier** consumer/session layer (`courtier/include/courtier/GWireSerializationContext.hpp`): a thread-local `GWireSerializationScope` engaged around a work-item (de)serialization, plus a `GWireLayoutRegistry` (a content-addressed, opaque-blob store with per-peer ack tracking and LRU eviction). It knows nothing about the genome — geneva computes the id and (de)serializes the layout. All three networked transports (websocket, Asio, MPI) opt in; **checkpoint / file serialization deliberately stays self-contained** (no scope active → the full layout travels by value, so an archive always loads on its own).
+- A client that receives an id for a layout it does not hold fetches it on demand (`REQUEST_LAYOUT` / `SEND_LAYOUT`); reconnecting / late-joining clients are handled transparently.
+- **Returns** (worker → server): on the websocket and Asio consumers a processed item is returned **results-only** by default — only the computed results (all evaluations of a multi-criterion individual) travel; the server still holds the originally-submitted item and grafts its parameters back on (`GProcessingContainerT::graftInputDataFrom`, applied in `GNetworkedConsumerT::checkin`). A client that has *modified* the individual (e.g. a network-tiered client doing its own nested optimization) opts into a full return via `GOptimizableEntity::setReturnFullIndividual(true)`. The MPI consumer is broker-callback based (it keeps no per-item original to graft onto), so it returns the full individual; only its submit direction is deduplicated.
 
 ### Adaptors
 
