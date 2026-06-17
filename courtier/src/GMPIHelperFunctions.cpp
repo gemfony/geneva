@@ -118,7 +118,17 @@ MPICompletionStatus waitForRequestCompletionWhile(
     return MPICompletionStatus{MPIStatusCode::STOPPED, status};
 }
 /**
- * Performs an async scatter and bocks until the request has completed or a predicate returns false
+ * Performs an async scatter and blocks until the request has completed or a predicate returns false
+ *
+ * @param sendBuf The buffer holding the data to be scattered (only meaningful on the root process)
+ * @param sendCount The number of elements sent to each process
+ * @param recvBuf The buffer into which this process receives its slice of the scattered data
+ * @param type The MPI datatype of the elements being scattered
+ * @param runWhile Predicate polled while waiting; waiting is aborted once it returns false
+ * @param root The rank of the root process performing the scatter
+ * @param comm The MPI communicator over which the scatter is performed
+ * @param pollIntervalMSec The time in milliseconds between completion checks
+ * @return The completion status of the operation when it terminated
  */
 MPICompletionStatus mpiScatterWhile(
     const void *sendBuf,
@@ -148,7 +158,17 @@ MPICompletionStatus mpiScatterWhile(
 }
 
 /**
- * Performs an async gather and bocks until the request has completed or a predicate returns false
+ * Performs an async gather and blocks until the request has completed or a predicate returns false
+ *
+ * @param sendBuf The buffer holding this process's contribution to the gather
+ * @param sendCount The number of elements sent by each process
+ * @param recvBuf The buffer into which the gathered data is collected (only meaningful on the root process)
+ * @param type The MPI datatype of the elements being gathered
+ * @param runWhile Predicate polled while waiting; waiting is aborted once it returns false
+ * @param root The rank of the root process collecting the gathered data
+ * @param comm The MPI communicator over which the gather is performed
+ * @param pollIntervalMSec The time in milliseconds between completion checks
+ * @return The completion status of the operation when it terminated
  */
 MPICompletionStatus mpiGatherWhile(
     const void *sendBuf,

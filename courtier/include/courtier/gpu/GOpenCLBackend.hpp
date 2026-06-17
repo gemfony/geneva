@@ -47,21 +47,40 @@ namespace Gem::Courtier::GPU {
  * pimpl so this header pulls in no OpenCL headers.
  *
  * Compiled only when an OpenCL SDK was found at configure time (see the courtier GPU CMakeLists).
+ *
+ * @tparam scalar_type The genome/fitness flat-buffer element type and device ABI type (default double)
  */
 template <typename scalar_type = double>
 class GOpenCLBackend final : public GGPUDeviceBackendI<scalar_type> {
 public:
+    /** @brief Constructs the backend (allocates the pimpl; no device is selected until initialize()). */
     GOpenCLBackend();
+    /** @brief The destructor. Releases the OpenCL resources held behind the pimpl. */
     ~GOpenCLBackend() override;
 
     GOpenCLBackend(const GOpenCLBackend &) = delete;
     GOpenCLBackend &operator=(const GOpenCLBackend &) = delete;
 
+    /** @brief Selects the OpenCL device and acquires the kernel (compiles a .cl source or loads a
+     *  .spv module). Called once before the first evaluate().
+     *
+     *  @param spec The kernel specification (device id, kernel path/entry, launch geometry) */
     void initialize(const KernelSpec &spec) override;
+    /** @brief Evaluates a whole batch in one clEnqueueNDRangeKernel launch.
+     *
+     *  @param params Pointer to the flattened parameter buffer (n_items * dim, row-major)
+     *  @param n_items Number of work items in the batch
+     *  @param dim Number of parameters per item
+     *  @param pconst Pointer to the opaque problem-constant blob (may be ignored by a kernel)
+     *  @param pconst_size Size in bytes of the problem-constant blob
+     *  @param fitness_out Output buffer receiving n_items fitness values
+     *  @param threads_per_item Requested intra-item parallelism (default 1 == one thread per item) */
     void evaluate(
         const scalar_type *params, int n_items, int dim,
         const std::byte *pconst, std::size_t pconst_size,
         scalar_type *fitness_out, int threads_per_item = 1) override;
+    /** @brief A short human-readable backend name (for logging).
+     *  @return The backend's name (e.g. "opencl") */
     [[nodiscard]] std::string name() const override;
 
 private:

@@ -126,7 +126,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Initialization with the number of stored results
+	  * @brief Initialization with the number of stored results
+	  *
+	  * @param n_stored_results The number of result slots to allocate (each default-initialized)
 	  */
     explicit GProcessingContainerT(std::size_t n_stored_results)
       : stored_results_cnt_(n_stored_results, processing_result_type()) { /* nothing */
@@ -134,9 +136,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * The copy constructor
+	  * @brief The copy constructor
 	  *
-	  * @param cp A copy of another GSubmissionContainer object
+	  * @param cp Another GProcessingContainerT object to be copied
 	  */
     explicit GProcessingContainerT(
         GProcessingContainerT<processable_type, processing_result_type> const &cp
@@ -167,7 +169,10 @@ public:
 
     /***************************************************************************/
     /**
-	  * Assignment operator
+	  * @brief Copy assignment operator
+	  *
+	  * @param cp Another GProcessingContainerT object whose data is copied into this one
+	  * @return A reference to this object
 	  */
     GProcessingContainerT<processable_type, processing_result_type> &
     operator=(GProcessingContainerT<processable_type, processing_result_type> const &cp) {
@@ -218,8 +223,11 @@ public:
 
     /***************************************************************************/
     /**
-	  * Sets the vector of stored results to a given collection and marks
+	  * @brief Sets the vector of stored results to a given collection and marks
 	  * the object as processed
+	  *
+	  * @param result_cnt The new result vector (must match the configured number of stored results)
+	  * @return The first stored result after the assignment
 	  */
     processing_result_type
     markAsProcessedWith(std::vector<processing_result_type> const &result_cnt) {
@@ -394,7 +402,7 @@ public:
 
     /***************************************************************************/
     /**
-	  * Loads user-specified data. This function can be overloaded by derived classes. It
+	  * @brief Loads user-specified data. This function can be overloaded by derived classes. It
 	  * is mainly intended to provide a mechanism to "deposit" an item at a remote site
 	  * that holds otherwise constant data. That data then does not need to be serialized
 	  * but can be loaded whenever a new work item arrives and has been de-serialized. Note
@@ -409,7 +417,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to retrieve the current processing status
+	  * @brief Allows to retrieve the current processing status
+	  *
+	  * @return The current processing status of this work item
 	  */
     processingStatus getProcessingStatus() const noexcept {
         return processing_status_;
@@ -417,8 +427,10 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to retrieve the current processing status as a string (mostly for
+	  * @brief Allows to retrieve the current processing status as a string (mostly for
 	  * debugging purposes).
+	  *
+	  * @return A string representation of the current processing status
 	  */
     std::string getProcessingStatusAsStr() const noexcept {
         return psToStr(processing_status_);
@@ -436,7 +448,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Checks whether the IGNORED flag is set
+	  * @brief Checks whether the UNPROCESSED flag is set
+	  *
+	  * @return A boolean indicating whether the item is currently unprocessed
 	  */
     bool is_unprocessed() const noexcept {
         return (processingStatus::UNPROCESSED == this->getProcessingStatus());
@@ -465,7 +479,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to check whether an error was flagged by the user
+	  * @brief Allows to check whether an error was flagged by the user
+	  *
+	  * @return A boolean indicating whether the user explicitly flagged an error
 	  */
     bool error_flagged_by_user() const noexcept {
         return (processingStatus::ERROR_FLAGGED == processing_status_);
@@ -603,7 +619,7 @@ public:
 
     /***************************************************************************/
     /**
-	  * Marks this item as being due for processing.
+	  * @brief Marks this item as being due for processing.
 	  */
     void mark_as_due_for_processing() {
         processing_status_ = processingStatus::DO_PROCESS;
@@ -611,7 +627,7 @@ public:
 
     /***************************************************************************/
     /**
-	  * Sets the IGNORE flag for this work item so that it will not be processed.
+	  * @brief Sets the UNPROCESSED flag for this work item so that it will not be processed.
 	  */
     void mark_as_ignorable() {
         processing_status_ = processingStatus::UNPROCESSED;
@@ -619,7 +635,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to set the counter of a given iteration
+	  * @brief Allows to set the counter of a given iteration
+	  *
+	  * @param counter The iteration counter value to store on this work item
 	  */
     void setIterationCounter(const ITERATION_COUNTER_TYPE &counter) noexcept {
         iteration_counter_ = counter;
@@ -627,7 +645,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to retrieve the counter of a given iteration
+	  * @brief Allows to retrieve the counter of a given iteration
+	  *
+	  * @return The iteration counter stored on this work item
 	  */
     ITERATION_COUNTER_TYPE getIterationCounter() const noexcept {
         return iteration_counter_;
@@ -635,7 +655,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to set the counter of the current submission inside of an iteration
+	  * @brief Allows to set the counter of the current submission inside of an iteration
+	  *
+	  * @param resubmission_counter The resubmission counter value to store on this work item
 	  */
     void setResubmissionCounter(const RESUBMISSION_COUNTER_TYPE &resubmission_counter) noexcept {
         resubmission_counter_ = resubmission_counter;
@@ -643,7 +665,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to retrieve the counter of the current submission inside of an iteration
+	  * @brief Allows to retrieve the counter of the current submission inside of an iteration
+	  *
+	  * @return The resubmission counter stored on this work item
 	  */
     RESUBMISSION_COUNTER_TYPE getResubmissionCounter() const noexcept {
         return resubmission_counter_;
@@ -651,7 +675,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to set the position inside of a given collection submitted to the broker
+	  * @brief Allows to set the position inside of a given collection submitted to the broker
+	  *
+	  * @param pos The position of this work item within its submitted collection
 	  */
     void setCollectionPosition(const COLLECTION_POSITION_TYPE &pos) noexcept {
         collection_position_ = pos;
@@ -659,7 +685,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to retrieve the position inside of a given collection submitted to the broker
+	  * @brief Allows to retrieve the position inside of a given collection submitted to the broker
+	  *
+	  * @return The position of this work item within its submitted collection
 	  */
     COLLECTION_POSITION_TYPE getCollectionPosition() const noexcept {
         return collection_position_;
@@ -667,9 +695,11 @@ public:
 
     /***************************************************************************/
     /**
-	  * Sets the transport correlation id -- the token used to route/match a work item through the
+	  * @brief Sets the transport correlation id -- the token used to route/match a work item through the
 	  * transport layer (the originating buffer-port index in the courtier broker; a (generation,
 	  * slot) token in the courtier networked consumers).
+	  *
+	  * @param id The transport correlation id to store on this work item
 	  */
     void setCorrelationId(const CORRELATION_ID_TYPE &id) noexcept {
         correlation_id_ = id;
@@ -677,7 +707,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the transport correlation id (see setCorrelationId()).
+	  * @brief Retrieves the transport correlation id (see setCorrelationId()).
+	  *
+	  * @return The transport correlation id stored on this work item
 	  */
     CORRELATION_ID_TYPE getCorrelationId() const noexcept {
         return correlation_id_;
@@ -685,9 +717,11 @@ public:
 
     /***************************************************************************/
     /**
-	  * Sets the courtier per-batch scheduling state. This is transient, server-side-only
+	  * @brief Sets the courtier per-batch scheduling state. This is transient, server-side-only
 	  * bookkeeping (NOT serialized): it lets a networked consumer track, on the item itself,
 	  * whether the slot is awaiting a client / in flight / done within one dispatch round.
+	  *
+	  * @param s The new per-batch dispatch/scheduling state for this work item
 	  */
     void setDispatchState(dispatchState s) noexcept {
         dispatch_state_ = s;
@@ -695,7 +729,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the courtier per-batch scheduling state (see setDispatchState()).
+	  * @brief Retrieves the courtier per-batch scheduling state (see setDispatchState()).
+	  *
+	  * @return The current per-batch dispatch/scheduling state of this work item
 	  */
     dispatchState getDispatchState() const noexcept {
         return dispatch_state_;
@@ -703,7 +739,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to retrieve the timepoint when a work item was retrieved from the raw queue
+	  * @brief Allows to retrieve the timepoint when a work item was retrieved from the raw queue
+	  *
+	  * @return The time point at which this item was retrieved from the raw queue
 	  */
     std::chrono::high_resolution_clock::time_point getRawRetrievalTime() const {
         return broker_raw_retrieval_time_;
@@ -711,7 +749,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to retrieve the timepoint when a work item was submitted to the raw queue
+	  * @brief Allows to retrieve the timepoint when a work item was submitted to the raw queue
+	  *
+	  * @return The time point at which this item was submitted to the raw queue
 	  */
     std::chrono::high_resolution_clock::time_point getRawSubmissionTime() const {
         return broker_raw_submission_time_;
@@ -719,7 +759,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to retrieve the timepoint when a work item was retrieved from the processed queue
+	  * @brief Allows to retrieve the timepoint when a work item was retrieved from the processed queue
+	  *
+	  * @return The time point at which this item was retrieved from the processed queue
 	  */
     std::chrono::high_resolution_clock::time_point getProcRetrievalTime() const {
         return broker_proc_retrieval_time_;
@@ -727,7 +769,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to retrieve the timepoint when a work item was submitted to the processed queue
+	  * @brief Allows to retrieve the timepoint when a work item was submitted to the processed queue
+	  *
+	  * @return The time point at which this item was submitted to the processed queue
 	  */
     std::chrono::high_resolution_clock::time_point getProcSubmissionTime() const {
         return broker_proc_submission_time_;
@@ -735,8 +779,10 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to check whether any user-defined pre-processing before the process()-
+	  * @brief Allows to check whether any user-defined pre-processing before the process()-
 	  * step may occur. This may alter the individual's data.
+	  *
+	  * @return true if pre-processing is currently allowed, false if it has been vetoed
 	  */
     bool mayBePreProcessed() const noexcept {
         return not pre_processing_disabled_;
@@ -744,9 +790,11 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allow or prevent pre-processing (used by pre-processing algorithms to prevent
+	  * @brief Allow or prevent pre-processing (used by pre-processing algorithms to prevent
 	  * recursive pre-processing). See e.g. GEvolutionaryAlgorithmPostOptimizerT. Once a veto
 	  * exists, no pre-processing will occur until the veto is lifted.
+	  *
+	  * @param veto true to disable (veto) pre-processing, false to allow it
 	  */
     void vetoPreProcessing(bool veto) noexcept {
         pre_processing_disabled_ = veto;
@@ -754,7 +802,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to register a pre-processor object
+	  * @brief Allows to register a pre-processor object
+	  *
+	  * @param pre_processor_ptr The pre-processor function object to register (ignored if empty)
 	  */
     void registerPreProcessor(
         std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>>
@@ -767,10 +817,12 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to check whether any user-defined post-processing after the process()-
+	  * @brief Allows to check whether any user-defined post-processing after the process()-
 	  * step may occur. This may be important if e.g. an optimization algorithm wants
 	  * to submit evaluation work items to the broker which may then start an optimization
 	  * run on the individual. This may alter the individual's data.
+	  *
+	  * @return true if post-processing is currently allowed, false if it has been vetoed
 	  */
     bool mayBePostProcessed() const {
         return not post_processing_disabled_;
@@ -778,9 +830,11 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allow or prevent post-processing (used by post-processing algorithms to prevent
+	  * @brief Allow or prevent post-processing (used by post-processing algorithms to prevent
 	  * recursive post-processing). See e.g. GEvolutionaryAlgorithmPostOptimizerT. Once a veto
 	  * exists, no post-processing will occur until the veto is lifted.
+	  *
+	  * @param veto true to disable (veto) post-processing, false to allow it
 	  */
     void vetoPostProcessing(bool veto) {
         post_processing_disabled_ = veto;
@@ -788,7 +842,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to register a post-processor object
+	  * @brief Allows to register a post-processor object
+	  *
+	  * @param post_processor_ptr The post-processor function object to register (ignored if empty)
 	  */
     void registerPostProcessor(
         std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>>
@@ -801,9 +857,11 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the registered post-processor (or an empty pointer). The optimization algorithm uses this
+	  * @brief Retrieves the registered post-processor (or an empty pointer). The optimization algorithm uses this
 	  * at setup to decide -- from the post-processor's allowed mnemonics and its own mnemonic -- whether to
 	  * veto post-processing on this work item, so the work item needs no knowledge of the algorithm.
+	  *
+	  * @return The registered post-processor, or an empty pointer if none is registered
 	  */
     std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>> postProcessor() const {
         return post_processor_ptr_;
@@ -811,7 +869,7 @@ public:
 
     /***************************************************************************/
     /**
-	  * Removes any registered post-processor. Used by a post-processing algorithm on the clone it
+	  * @brief Removes any registered post-processor. Used by a post-processing algorithm on the clone it
 	  * optimizes, so that the sub-optimization's own population carries no post-processor and cannot
 	  * recurse into further post-processing.
 	  */
@@ -821,7 +879,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to retrieve the processing time needed for the work item
+	  * @brief Allows to retrieve the processing time needed for the work item
+	  *
+	  * @return A tuple of (pre-processing, processing, post-processing) times in seconds
 	  */
     std::tuple<double, double, double> getProcessingTimes() const {
         return std::make_tuple(pre_processing_time_, processing_time_, post_processing_time_);
@@ -829,9 +889,10 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves and clears exceptions and the processing status.
+	  * @brief Retrieves and clears exceptions and the processing status.
 	  *
-	  * @param ps The desired new processing status
+	  * @param ps The desired new processing status to set after extracting the stored exceptions
+	  * @return The stored error descriptions that were present before clearing
 	  */
     std::string get_and_clear_exceptions(processingStatus ps = processingStatus::UNPROCESSED) {
         std::string stored_exceptions =
@@ -842,7 +903,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to extract stored error descriptions
+	  * @brief Allows to extract stored error descriptions
+	  *
+	  * @return The accumulated error descriptions stored during processing
 	  */
     std::string getStoredErrorDescriptions() const {
         return stored_error_descriptions_;
@@ -850,7 +913,7 @@ public:
 
     /***************************************************************************/
     /**
- 	  * Marks the time when the item was added to a GBuffferPortT raw queue
+ 	  * @brief Marks the time when the item was added to a GBuffferPortT raw queue
  	  */
     void markRawSubmissionTime() {
         broker_raw_submission_time_ = std::chrono::high_resolution_clock::now();
@@ -858,7 +921,7 @@ public:
 
     /***************************************************************************/
     /**
- 	  * Marks the time when the item was retrieved from a GBuffferPortT raw queue
+ 	  * @brief Marks the time when the item was retrieved from a GBuffferPortT raw queue
  	  */
     void markRawRetrievalTime() {
         broker_raw_retrieval_time_ = std::chrono::high_resolution_clock::now();
@@ -866,7 +929,7 @@ public:
 
     /***************************************************************************/
     /**
-	  * Marks the time when the item was submitted to a GBuffferPortT processed queue
+	  * @brief Marks the time when the item was submitted to a GBuffferPortT processed queue
 	  */
     void markProcSubmissionTime() {
         broker_proc_submission_time_ = std::chrono::high_resolution_clock::now();
@@ -874,7 +937,7 @@ public:
 
     /***************************************************************************/
     /**
-	  * Marks the time when the item was retrieved from a GBuffferPortT processed queue
+	  * @brief Marks the time when the item was retrieved from a GBuffferPortT processed queue
 	  */
     void markProcRetrievalTime() {
         broker_proc_retrieval_time_ = std::chrono::high_resolution_clock::now();
@@ -882,7 +945,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to retrieve the number of stored results
+	  * @brief Allows to retrieve the number of stored results
+	  *
+	  * @return The number of result slots held by this object
 	  */
     std::size_t getNStoredResults() const {
         return stored_results_cnt_.size();
@@ -890,7 +955,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Loads the data of another GProcessingContainerT<processable_type, processing_result_type> object
+	  * @brief Loads the data of another GProcessingContainerT<processable_type, processing_result_type> object
+	  *
+	  * @param cp A pointer to the source object whose data is copied into this one (must differ from this)
 	  */
     void load_pc(const GProcessingContainerT<processable_type, processing_result_type> *cp) {
         // Check that we are dealing with a GProcessingContainerT<processable_type, processing_result_type> reference independent of this object and convert the pointer
@@ -928,11 +995,11 @@ public:
 protected:
     /***************************************************************************/
     /**
-	  * Retrieval of the stored result. This function allows modifications of its
+	  * @brief Retrieval of the stored result. This function allows modifications of its
 	  * return value and is hence protected and only accessible by derived classes.
 	  *
-	  * @param id The id of the stored result to be returned
-	  * @return The stored result at position id in stored_results_vec_
+	  * @param id The id (position) of the stored result to be returned
+	  * @return A modifiable reference to the stored result at position id
 	  */
     processing_result_type &modifyStoredResult(std::size_t id = 0) {
         return stored_results_cnt_.at(id);
@@ -940,7 +1007,7 @@ protected:
 
     /***************************************************************************/
     /**
-	  * Allows derived classes to set the number of stored results. Note that this
+	  * @brief Allows derived classes to set the number of stored results. Note that this
 	  * should happen prior to any operation with this object. Also note that this
 	  * operation may invalidate other results already stored in this object.
 	  *
@@ -953,9 +1020,11 @@ protected:
 
     /***************************************************************************/
     /**
-	  * Allows derived classes to set the number of stored results. Note that this
-	  * should happen prior to any operation with this object. Also note that this
-	  * operation may invalidate other results already stored in this object.
+	  * @brief Allows derived classes to set the number of stored results, default-initializing
+	  * new positions. Note that this should happen prior to any operation with this object. Also
+	  * note that this operation may invalidate other results already stored in this object.
+	  *
+	  * @param n_stored_results The number of stored results in this class
 	  */
     void setNStoredResults(std::size_t n_stored_results) {
         processing_result_type p;
@@ -964,8 +1033,11 @@ protected:
 
     /***************************************************************************/
     /**
-	  * Allows to register a result, using its id (i.e. position in the internal
-	  * result storage. This function should be called from inside of the process_ call.
+	  * @brief Allows to register a result, using its id (i.e. position in the internal
+	  * result storage). This function should be called from inside of the process_ call.
+	  *
+	  * @param id The id (position) at which to store the result
+	  * @param r The result value to store at position id
 	  */
     void registerResult(std::size_t id, const processing_result_type &r) {
         stored_results_cnt_.at(id) = r;
@@ -973,12 +1045,12 @@ protected:
 
     /***************************************************************************/
     /**
-	  * This function allows derived classes to specify custom error conditions by
+	  * @brief This function allows derived classes to specify custom error conditions by
 	  * setting their own error messages. The function will also set the internal
 	  * flags that indicate that an error has occurred and that processing was not
 	  * successful. NOTE That the error description may not be empty.
 	  *
-	  * @param error_info An error description
+	  * @param error_info An error description (must not be empty; appended to any existing descriptions)
 	  */
     void force_set_error(const std::string &error_info) {
         if(error_info.empty()) {
@@ -995,7 +1067,7 @@ protected:
 
     /***************************************************************************/
     /**
-     * The default constructor. It is only needed for (de-)serialization purposes.
+     * @brief The default constructor. It is only needed for (de-)serialization purposes.
      * We want to enforce the specification of the number of evaluation criteria
      * in derived classes. Protected, so that a derived class can have a defaulted
      * default constructor.
@@ -1005,7 +1077,7 @@ protected:
 private:
     /***************************************************************************/
     /**
-	  * Little helper function to (re-)initialize the result storage vector
+	  * @brief Little helper function to (re-)initialize the result storage vector
 	  */
     void clear_stored_results_vec() {
         // "Nullify the result list. We cannot use range-based for here, as stored_results_cnt_ might hold booleans
@@ -1016,27 +1088,29 @@ private:
 
     /***************************************************************************/
     /**
-	  * Loads user-specified data. This function can be overloaded by derived classes. It
+	  * @brief Loads user-specified data. This function can be overloaded by derived classes. It
 	  * is mainly intended to provide a mechanism to "deposit" an item at a remote site
 	  * that holds otherwise constant data. That data then does not need to be serialized
 	  * but can be loaded whenever a new work item arrives and has been de-serialized. Note
 	  * that, if your work items do not serialize important parts of an object, you need
 	  * to make sure that constant data is loaded after reloading a checkpoint.
 	  *
+	  * @param cd_ptr A pointer to the object whose constant data should be loaded (unused in the default no-op)
 	  */
     virtual void loadConstantData_(std::shared_ptr<processable_type>) { /* nothing */
     }
 
     /***************************************************************************/
 
-    /** @brief Allows derived classes to specify the tasks to be performed for this object */
+    /** @brief Allows derived classes to specify the tasks to be performed for this object
+     *  @param res_vec An optional externally injected evaluation result vector available to the implementation */
     virtual void process_(
         const std::vector<processing_result_type> &res_vec = std::vector<processing_result_type>()
     ) = 0;
 
     /***************************************************************************/
     /**
-		  * Specifies tasks to be performed before the process_ call. Note: This function
+		  * @brief Specifies tasks to be performed before the process_ call. Note: This function
 		  * will reset the mayBePreProcessed_-flag.
   		  */
     void preProcess_() {
@@ -1048,7 +1122,7 @@ private:
 
     /***************************************************************************/
     /**
-	  * Specifies tasks to be performed after the process_ call. Note: This function
+	  * @brief Specifies tasks to be performed after the process_ call. Note: This function
 	  * will reset the mayBePostProcessed_-flag.
   	  */
     void postProcess_() {

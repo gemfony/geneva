@@ -63,6 +63,8 @@ namespace Gem::Courtier {
  * work) and every other rank is a worker. So usage differs from the socket consumers -- the program
  * must branch on isMasterNode(): the master registers this consumer, startServer()s and runs the
  * optimization; a worker just runWorker()s until the master broadcasts the stop signal.
+ *
+ * @tparam processable_type The work-item type distributed to the worker ranks and collected back.
  */
 template <typename processable_type>
 class GMPIConsumerT final : public GNetworkedConsumerT<processable_type> {
@@ -73,7 +75,11 @@ public:
 
     /***************************************************************************/
     /** @brief Initializes MPI (if not already done), learns this node's rank, and builds the
-     *  matching node (master on rank 0, worker otherwise). */
+     *  matching node (master on rank 0, worker otherwise).
+     *
+     *  @param argc Pointer to the program's argc, forwarded to MPI_Init (may be nullptr if MPI is already initialized)
+     *  @param argv Pointer to the program's argv, forwarded to MPI_Init (may be nullptr if MPI is already initialized)
+     *  @param config Configuration for the master/worker nodes (timeouts, buffer sizes, etc.) */
     explicit GMPIConsumerT(int *argc = nullptr, char ***argv = nullptr, config_type config = config_type{})
         : config_(config)
     {
@@ -103,6 +109,8 @@ public:
         }
     }
 
+    /** @brief The destructor stops the server (on the master) and finalizes MPI if this object
+     *  initialized it. */
     ~GMPIConsumerT() override {
         if(isMasterNode()) {
             this->stopServer();
@@ -122,8 +130,14 @@ public:
     GMPIConsumerT &operator=(GMPIConsumerT &&) = delete;
 
     /***************************************************************************/
+    /** @brief Whether this node is the master.
+     *  @return true on rank 0 (the master), false on any worker rank. */
     [[nodiscard]] bool isMasterNode() const noexcept { return comm_rank_ == 0; }
+    /** @brief This node's MPI rank.
+     *  @return The rank within MPI_COMM_WORLD. */
     [[nodiscard]] std::int32_t getRank() const noexcept { return comm_rank_; }
+    /** @brief The total number of MPI ranks.
+     *  @return The size of MPI_COMM_WORLD. */
     [[nodiscard]] std::int32_t getCommSize() const noexcept { return comm_size_; }
 
     /***************************************************************************/

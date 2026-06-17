@@ -64,6 +64,8 @@ namespace Gem::Courtier {
  * returned (PROCESSED) or failed (EXCEPTION_CAUGHT/ERROR_FLAGGED) or -- for networked consumers --
  * timed out (left DO_PROCESS == MISSING)". The shared reconciliation loop in processBatch() then
  * applies the policy (resubmit MISSING, retry transient FAILED, clone, or terminate).
+ *
+ * @tparam processable_type The concrete work-item type evaluated by this consumer
  */
 template <typename processable_type>
 class GBaseConsumerT {
@@ -82,11 +84,14 @@ public:
     /** @brief Enables/sizes the consumer's late-return buffer: results that come back AFTER their
      *  batch was already reconciled are retained (instead of dropped) for the optimization algorithm to
      *  reap. @p cap == 0 disables it. Default: a no-op -- local (serial / thread-pool) consumers never
-     *  produce late returns. Networked consumers override this. */
+     *  produce late returns. Networked consumers override this.
+     *  @param cap Maximum number of late-return items to buffer (0 disables late-return buffering)
+     *  @param ttl_rounds Number of dispatch rounds a buffered late return is kept before being discarded */
     virtual void enableLateReturns(std::size_t /*cap*/, std::uint64_t /*ttl_rounds*/) {}
 
     /** @brief Hands back (transfers ownership of) the work items the consumer buffered as late returns,
-     *  emptying the buffer. Default: none. Networked consumers override this to drain their buffer. */
+     *  emptying the buffer. Default: none. Networked consumers override this to drain their buffer.
+     *  @return The buffered late-return items (ownership transferred); empty if the consumer buffers none */
     virtual std::vector<item_ptr> getLateReturns() { return {}; }
 
     /***************************************************************************/
@@ -94,6 +99,11 @@ public:
      * Evaluates and reconciles a batch in place. On return, every slot of the span holds a
      * successfully evaluated item (possibly a clone, for tolerant policies). Terminates the
      * program if the policy cannot be honoured.
+     *
+     * @param items The batch of (uniquely owned) work items to evaluate and reconcile, in place
+     * @param policy The submission policy governing resubmit/retry/clone/terminate decisions
+     * @param clone_template An optional representative item used as the clone source when refilling
+     *        unresolved slots (if null, the first successfully evaluated sibling is used instead)
      */
     void processBatch(std::span<item_ptr> items, const GSubmissionPolicy &policy,
                       item_ptr clone_template = nullptr) {
@@ -218,13 +228,17 @@ protected:
      * A consumer that evaluates a copy elsewhere (e.g. a remote client) may overwrite an entry of
      * @p items with the resulting object; the replacement is written back into the batch by the
      * caller. A consumer that mutates each item in place simply leaves the pointers untouched.
+     *
+     * @param items One round of (uniquely owned) work items to evaluate; entries may be replaced
+     *        with the resulting objects for consumers that evaluate a copy elsewhere
      */
     virtual void dispatch_(std::vector<item_ptr> &items) = 0;
 
     /***************************************************************************/
     /** @brief Clean, fatal exit when the policy cannot be honoured. This is an expected terminal
      *  condition (e.g. a lost evaluation under a need-all policy), not an internal fault, so it
-     *  exits cleanly via LOGEXIT rather than std::terminate()-ing with a core dump. */
+     *  exits cleanly via LOGEXIT rather than std::terminate()-ing with a core dump.
+     *  @param msg The human-readable reason for the fatal exit (logged before exiting) */
     void fatal_(const std::string &msg) const {
         glogger << "In Gem::Courtier consumer:" << '\n'
                 << "FATAL: " << msg << '\n'
@@ -233,9 +247,11 @@ protected:
 
     /***************************************************************************/
     /** @brief Deep-clones one (uniquely owned) work item into a fresh owning item. Uses the polymorphic
-     *  clone functor when set (required for polymorphic item types such as GTreeGenome, to avoid
+     *  clone functor when set (required for polymorphic item types such as GFlatGenome, to avoid
      *  slicing), otherwise copy-construction (correct for leaf/concrete item types). Used both by the
-     *  refill path and by the networked consumers when handing a session a copy to ship. */
+     *  refill path and by the networked consumers when handing a session a copy to ship.
+     *  @param src The (borrowed) uniquely owned work item to clone from
+     *  @return A fresh owning copy of @p src; an empty item_ptr if cloning is impossible (after fatal exit) */
     item_ptr clone_item_(const item_ptr &src) const {
         if(clone_fn_) {
             return clone_fn_(src);
@@ -255,10 +271,11 @@ protected:
 public:
     /***************************************************************************/
     /** @brief Sets a polymorphic clone function for clone-on-partial-return. REQUIRED when the work
-     *  item is a polymorphic base (e.g. GTreeGenome holding a concrete individual): plain
+     *  item is a polymorphic base (e.g. GFlatGenome holding a concrete individual): plain
      *  copy-construction of processable_type would SLICE it. The functor should deep-clone via the
      *  type's own clone mechanism, e.g. `[](const item_ptr& p){ return p->template clone<T>(); }`.
-     *  When unset, refill falls back to copy-construction (correct for leaf/concrete item types). */
+     *  When unset, refill falls back to copy-construction (correct for leaf/concrete item types).
+     *  @param fn The deep-clone functor taking a borrowed source item and returning a fresh owning copy */
     void setCloneFunction(std::function<item_ptr(const item_ptr &)> fn) { clone_fn_ = std::move(fn); }
 
 private:
@@ -267,7 +284,10 @@ private:
      *  Source = a caller-supplied @p clone_template (e.g. a representative individual) if present,
      *  else the first successfully evaluated sibling in the batch. The clone itself uses the
      *  polymorphic clone functor when set (required for polymorphic item types to avoid slicing),
-     *  otherwise copy-construction (leaf types). */
+     *  otherwise copy-construction (leaf types).
+     *  @param items The batch, scanned for a successfully evaluated sibling to clone from when no template is given
+     *  @param clone_template An explicit clone source; if empty, the first processed item of @p items is used
+     *  @return A fresh owning replacement item; an empty item_ptr if no source is available (after fatal exit) */
     item_ptr clone_for_refill_(std::span<item_ptr> items, const item_ptr &clone_template) const {
         // Items are uniquely owned, so the source is only borrowed (a pointer to the chosen owner),
         // never copied; we clone from it to produce the fresh owning item.

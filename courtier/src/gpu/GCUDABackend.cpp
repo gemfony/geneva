@@ -47,7 +47,11 @@ namespace Gem::Courtier::GPU {
 
 namespace {
 
-/** @brief Throws a geneva_exception if a CUDA driver call failed. */
+/**
+ * @brief Throws a geneva_exception if a CUDA driver call failed.
+ * @param r The result code returned by the CUDA driver call
+ * @param what A short label describing the operation, included in the error message
+ */
 void cuCheck(CUresult r, const char *what) {
     if(r != CUDA_SUCCESS) {
         const char *name = nullptr;
@@ -61,7 +65,12 @@ void cuCheck(CUresult r, const char *what) {
     }
 }
 
-/** @brief Throws a geneva_exception if an NVRTC call failed (optionally appending the build log). */
+/**
+ * @brief Throws a geneva_exception if an NVRTC call failed (optionally appending the build log).
+ * @param r The result code returned by the NVRTC call
+ * @param what A short label describing the operation, included in the error message
+ * @param log Optional NVRTC build log to append to the error message
+ */
 void nvrtcCheck(nvrtcResult r, const char *what, const std::string &log = {}) {
     if(r != NVRTC_SUCCESS) {
         throw geneva_exception(
@@ -71,6 +80,11 @@ void nvrtcCheck(nvrtcResult r, const char *what, const std::string &log = {}) {
     }
 }
 
+/**
+ * @brief Reads the entire contents of a file into a string.
+ * @param path Filesystem path of the file to read (binary mode)
+ * @return The full contents of the file as a string
+ */
 std::string readFile(const std::string &path) {
     std::ifstream in(path, std::ios::binary);
     if(not in) {
@@ -83,6 +97,12 @@ std::string readFile(const std::string &path) {
     return ss.str();
 }
 
+/**
+ * @brief Tests whether a string ends with the given suffix.
+ * @param s The string to test
+ * @param suffix The null-terminated suffix to look for
+ * @return true if @p s ends with @p suffix, otherwise false
+ */
 bool endsWith(const std::string &s, const char *suffix) {
     const std::string suf(suffix);
     return s.size() >= suf.size() && s.compare(s.size() - suf.size(), suf.size(), suf) == 0;
@@ -125,6 +145,12 @@ struct GCUDABackend<scalar_type>::Impl {
         }
     }
 
+    /**
+     * @brief Ensures a device buffer is at least @p need bytes, reallocating (growing) if too small.
+     * @param buf The device pointer to the buffer; freed and re-allocated in place if grown
+     * @param cap The current capacity (in bytes) of @p buf; updated to the new capacity on growth
+     * @param need The required minimum size in bytes
+     */
     void ensure(CUdeviceptr &buf, std::size_t &cap, std::size_t need) {
         if(need <= cap) {
             return;
@@ -140,17 +166,40 @@ struct GCUDABackend<scalar_type>::Impl {
 
 /******************************************************************************/
 
+/**
+ * @brief Default constructor. Allocates the private (pimpl) implementation; no device work yet.
+ * @tparam scalar_type The host-side scalar element type (double or float) of the param/fitness buffers
+ */
 template <typename scalar_type>
 GCUDABackend<scalar_type>::GCUDABackend()
     : p_(std::make_unique<Impl>())
 { /* nothing */ }
 
+/**
+ * @brief Destructor. Releases the pimpl, which frees device buffers, the module and the CUDA context.
+ * @tparam scalar_type The host-side scalar element type of the param/fitness buffers
+ */
 template <typename scalar_type>
 GCUDABackend<scalar_type>::~GCUDABackend() = default;
 
+/**
+ * @brief Returns the backend's name.
+ * @tparam scalar_type The host-side scalar element type of the param/fitness buffers
+ * @return The string "cuda"
+ */
 template <typename scalar_type>
 std::string GCUDABackend<scalar_type>::name() const { return "cuda"; }
 
+/**
+ * @brief Initializes the CUDA context and acquires the kernel for the given spec.
+ *
+ * Selects the device, retains its primary context, and obtains the kernel module either by loading a
+ * prebuilt PTX/cubin or by NVRTC-compiling a .cu source for the device's compute capability. Throws a
+ * geneva_exception if no device is found, the device id is out of range, or compilation/loading fails.
+ *
+ * @tparam scalar_type The host-side scalar element type of the param/fitness buffers
+ * @param spec The kernel specification (device id, kernel path, entry-point name, launch config)
+ */
 template <typename scalar_type>
 void GCUDABackend<scalar_type>::initialize(const KernelSpec &spec) {
     p_->spec = spec;
@@ -221,6 +270,22 @@ void GCUDABackend<scalar_type>::initialize(const KernelSpec &spec) {
     cuCheck(cuCtxPopCurrent(&popped), "cuCtxPopCurrent");
 }
 
+/**
+ * @brief Evaluates a batch of work items on the GPU and writes one fitness value per item.
+ *
+ * Uploads the flattened parameters (and, when changed, the cached problem-constant blob), zeroes the
+ * fitness buffer, launches the kernel with n_items * threads_per_item total threads, and copies the
+ * results back to the host. Device buffers grow lazily to fit the largest batch seen.
+ *
+ * @tparam scalar_type The host-side scalar element type of the param/fitness buffers
+ * @param params Host pointer to the flattened parameters, laid out as n_items blocks of @p dim scalars
+ * @param n_items Number of work items in this batch (no-op if <= 0)
+ * @param dim Number of parameters per work item
+ * @param pconst Host pointer to the problem-constant blob (e.g. a target image); may be unchanged across calls
+ * @param pconst_size Size in bytes of @p pconst (0 means no problem constants)
+ * @param fitness_out Host output buffer receiving one fitness value per item (size n_items)
+ * @param threads_per_item Number of GPU threads cooperating per item (clamped to a minimum of 1)
+ */
 template <typename scalar_type>
 void GCUDABackend<scalar_type>::evaluate(
     const scalar_type *params, int n_items, int dim,

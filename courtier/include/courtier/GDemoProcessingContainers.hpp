@@ -85,7 +85,8 @@ class GSimpleContainer
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The standard constructor -- Initialization with an amount of random numbers */
+    /** @brief The standard constructor -- Initialization with a stored pay-load number
+     *  @param snr The number to store as this object's pay-load */
     explicit GSimpleContainer(const std::size_t &);
     /** @brief The copy constructor */
     GSimpleContainer(const GSimpleContainer &) = default;
@@ -98,13 +99,14 @@ public:
     /** @brief The destructor */
     ~GSimpleContainer() override = default;
 
-    /** @brief Prints out this objects random number container */
+    /** @brief Prints out this object's stored pay-load number */
     void print() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization purposes */
     GSimpleContainer() = default;
-    /** @brief Allows to specify the tasks to be performed for this object */
+    /** @brief Allows to specify the tasks to be performed for this object (a no-op for this demo container)
+     *  @param res_vec An optional externally injected evaluation result vector (unused here) */
     void process_(const std::vector<bool> &res_vec = std::vector<bool>()) final;
 
     std::size_t stored_number_ = 0; ///< Holds the pay-load of this object
@@ -132,7 +134,8 @@ class GRandomNumberContainer
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The standard constructor -- Initialization with an amount of random numbers */
+    /** @brief The standard constructor -- Initialization with an amount of random numbers
+     *  @param nrnr The desired count of random numbers to generate and store as the pay-load */
     explicit GRandomNumberContainer(const std::size_t &);
 
     /******************************************************************************************/
@@ -150,13 +153,14 @@ public:
 
     /******************************************************************************************/
 
-    /** @brief Prints out this objects random number container */
+    /** @brief Prints out this object's random number container (index and value per line) */
     void print() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization purposes */
     GRandomNumberContainer() = default;
-    /** @brief Allows to specify the tasks to be performed for this object */
+    /** @brief Performs this object's processing task: sorts the stored random numbers in place
+     *  @param res_vec An optional externally injected evaluation result vector (unused here) */
     void process_(const std::vector<bool> &res_vec = std::vector<bool>()) final;
 
     std::vector<double> random_numbers_; ///< Holds the pay-load of this object
@@ -202,7 +206,10 @@ class GFaultyContainer
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief Standard constructor -- an id, the fault to exhibit, and an optional sleep length */
+    /** @brief Standard constructor -- an id, the fault to exhibit, and an optional sleep length
+     *  @param stored_number An id used by tests to check item conservation
+     *  @param fm The fault mode to exhibit during process_() (defaults to NONE = normal behaviour)
+     *  @param sleep_ms The sleep length in milliseconds used by fault_mode::SLEEP (defaults to 0) */
     explicit GFaultyContainer(
         std::size_t stored_number,
         fault_mode fm = fault_mode::NONE,
@@ -214,15 +221,18 @@ public:
     GFaultyContainer &operator=(GFaultyContainer &&) noexcept = default;
     ~GFaultyContainer() override = default;
 
-    /** @brief Retrieves the configured fault mode */
+    /** @brief Retrieves the configured fault mode
+     *  @return The fault mode this container will exhibit during process_() */
     [[nodiscard]] fault_mode get_fault_mode() const;
-    /** @brief Retrieves the stored id/number */
+    /** @brief Retrieves the stored id/number
+     *  @return The id/number stored in this container */
     [[nodiscard]] std::size_t get_stored_number() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization purposes */
     GFaultyContainer() = default;
-    /** @brief Performs the configured (mis-)behaviour */
+    /** @brief Performs the configured (mis-)behaviour
+     *  @param res_vec An optional externally injected evaluation result vector (unused here) */
     void process_(const std::vector<bool> &res_vec = std::vector<bool>()) final;
 
     std::size_t stored_number_ = 0;              ///< Identifies the item (for conservation checks)

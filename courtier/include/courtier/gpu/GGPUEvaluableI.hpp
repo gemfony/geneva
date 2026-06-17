@@ -40,7 +40,7 @@ namespace Gem::Courtier::GPU {
 /**
  * The GPU consumer framework. Logically a Gem::Courtier consumer (it derives from
  * GBaseConsumerT), so it lives in Gem::Courtier::GPU and is generic in the processable type, with NO
- * dependency on the Gem::Geneva layer (which sits above courtier). The concrete, GTreeGenome-aware
+ * dependency on the Gem::Geneva layer (which sits above courtier). The concrete, genome-aware
  * marshallers live with the problems (the demos), not here.
  *
  * GGPUHostEvalI is the processable-type-free host-reference part of a marshaller: it evaluates a batch
@@ -48,14 +48,24 @@ namespace Gem::Courtier::GPU {
  * backward compatibility) -- not on the processable type -- so the CPU backend and the backend factory
  * depend only on this, staying free of the processable type. scalar_type selects the genome/fitness
  * flat-buffer element type (double for full parity, float for FP32 device speed).
+ *
+ * @tparam scalar_type The flat-buffer element type for parameters and fitness (double for full parity, float for FP32 device speed); defaults to double
  */
 template <typename scalar_type = double>
 class GGPUHostEvalI {
 public:
     virtual ~GGPUHostEvalI() = default;
 
-    /** @brief CPU reference evaluation mirroring the device kernel. params is n_items * dim row-major;
-     *  writes n_items fitness values. Used by the CPU backend and for GPU/CPU parity checks. */
+    /**
+     * @brief CPU reference evaluation mirroring the device kernel (used by the CPU backend and for GPU/CPU parity checks).
+     *
+     * @param params Row-major parameter buffer of n_items * dim scalar_type (params[i*dim + j] = parameter j of item i)
+     * @param n_items Number of items in the batch
+     * @param dim Number of scalar_type parameters per item
+     * @param pconst Opaque problem-constant blob the kernel also receives; may be null when pconst_size is 0
+     * @param pconst_size Size in bytes of the problem-constant blob
+     * @param fitness_out Output buffer receiving n_items fitness scalar_type values
+     */
     virtual void hostEvaluate(
         const scalar_type *params, int n_items, int dim,
         const std::byte *pconst, std::size_t pconst_size,
@@ -75,6 +85,9 @@ public:
  *
  * scalar_type defaults to double, so GGPUEvaluableI<MyProblem> is unchanged from before; pass float as
  * the second argument (GGPUEvaluableI<MyProblem, float>) for an FP32 device path.
+ *
+ * @tparam processable_type The work-item type a batch is composed of
+ * @tparam scalar_type The flat-buffer element type for parameters and fitness (double for parity, float for FP32); defaults to double
  */
 template <typename processable_type, typename scalar_type = double>
 class GGPUEvaluableI : public GGPUHostEvalI<scalar_type> {
@@ -85,24 +98,32 @@ public:
      *  consumer evaluates a batch as a uniform row-major [n_items * dim] grid, so every item in a batch
      *  MUST report the same dimension; the consumer validates this before flatten() and rejects a
      *  non-uniform batch. (The GPU consumer keeps its bulk-batch capability and simply enforces a uniform
-     *  geometry rather than coping with mixed geometries in one launch.) */
+     *  geometry rather than coping with mixed geometries in one launch.)
+     *  @param item The item whose flattened parameter count is queried
+     *  @return The number of scalar_type values this item flattens to */
     [[nodiscard]] virtual std::size_t itemDimension(const item_ptr &item) const = 0;
 
     /** @brief Flattens every item's parameters into a row-major buffer of n_items * dim scalar_type, where
-     *  dim == itemDimension(item) is the same for every item (the consumer has already validated this). */
+     *  dim == itemDimension(item) is the same for every item (the consumer has already validated this).
+     *  @param items The batch of items to flatten
+     *  @param params_out Output buffer filled row-major with n_items * dim scalar_type (parameter j of item i at index i*dim + j) */
     virtual void flatten(const std::vector<item_ptr> &items, std::vector<scalar_type> &params_out) const = 0;
 
-    /** @brief Optional opaque constants the kernel needs. Default: none. */
+    /** @brief Optional opaque constants the kernel needs. Default: none.
+     *  @return The problem-constant byte blob handed to the kernel (empty by default) */
     [[nodiscard]] virtual std::vector<std::byte> problemConstants() const { return {}; }
 
     /** @brief Whether problemConstants() is the same on every call (e.g. a fixed target image). When
      *  true (the default) the consumer builds the blob ONCE and the backend uploads it to the device
      *  ONCE, instead of rebuilding/re-uploading it every generation. Override to false only if the
-     *  constants genuinely change between batches. */
+     *  constants genuinely change between batches.
+     *  @return true if the problem constants are invariant across batches; false to rebuild/re-upload each batch */
     [[nodiscard]] virtual bool problemConstantsStatic() const { return true; }
 
     /** @brief Writes the per-item fitness back into each item (typically via item->process(result),
-     *  which also leaves the item PROCESSED for the courtier reconciliation). */
+     *  which also leaves the item PROCESSED for the courtier reconciliation).
+     *  @param items The batch of items to write results into
+     *  @param fitness The per-item fitness values produced by the device/host evaluation (one per item, in batch order) */
     virtual void scatter(const std::vector<item_ptr> &items, const std::vector<scalar_type> &fitness) const = 0;
 
     /** @brief How many GPU threads should cooperate on ONE item (intra-item / pixel-level parallelism).
@@ -111,7 +132,8 @@ public:
      *  pixel-stripe of an image), which the CUDA backend serves by launching n_items * this threads and
      *  atomic-accumulating each item's fitness -- essential when the population is small but each item
      *  is heavy. The kernel must be written to match (accumulate, not overwrite); see the Mona-Lisa
-     *  demo. Backends without double atomics (OpenCL) clamp this to 1. */
+     *  demo. Backends without double atomics (OpenCL) clamp this to 1.
+     *  @return The number of GPU threads to cooperate on a single item (>= 1) */
     [[nodiscard]] virtual int parallelWorkPerItem() const { return 1; }
 };
 

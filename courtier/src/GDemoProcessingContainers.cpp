@@ -66,15 +66,15 @@ GSimpleContainer::GSimpleContainer(const std::size_t &snr)
 
 /********************************************************************************************/
 /**
-* Allows to specify the tasks to be performed for this object. We simply do nothing,
-* as this class is for debugging and benchmarking purposes only.
+* @brief Performs this object's processing task -- a no-op, as this class exists only for
+* debugging and benchmarking. The (unnamed) input vector is ignored.
 */
 void GSimpleContainer::process_(const std::vector<bool> &) { /* nothing */
 }
 
 /********************************************************************************************/
 /**
-* Prints out this functions stored number
+* @brief Prints this object's stored number to std::cout.
 */
 void GSimpleContainer::print() const {
     std::cout << "storedNumber_ = " << stored_number_ << '\n';
@@ -97,8 +97,8 @@ GRandomNumberContainer::GRandomNumberContainer(const std::size_t &nrnr)
 
 /********************************************************************************************/
 /**
- * Allows to specify the tasks to be performed for this object. We simply sort the array of
- * random numbers.
+ * @brief Performs this object's processing task: sorts the stored array of random numbers in place.
+ * The (unnamed) input vector is ignored.
  */
 void GRandomNumberContainer::process_(const std::vector<bool> &) {
     std::sort(random_numbers_.begin(), random_numbers_.end());
@@ -106,7 +106,7 @@ void GRandomNumberContainer::process_(const std::vector<bool> &) {
 
 /********************************************************************************************/
 /**
- * Prints out this functions random number container
+ * @brief Prints this object's random-number container (index and value per line) to std::cout.
  */
 void GRandomNumberContainer::print() const {
     for(std::size_t i = 0; i < random_numbers_.size(); i++) {
@@ -131,9 +131,11 @@ GFaultyContainer::GFaultyContainer(std::size_t stored_number, fault_mode fm, uns
 
 /********************************************************************************************/
 /**
- * Exhibits the configured (mis-)behaviour. THROW_PROCESSING raises the dedicated
- * g_processing_exception, which the worker is expected to catch and turn into a flagged item;
- * THROW_FATAL raises a plain std::runtime_error, which (pre-T1) escapes the worker thread.
+ * @brief Performs this object's processing task by exhibiting the configured (mis-)behaviour.
+ *
+ * THROW_PROCESSING raises the dedicated g_processing_exception, which the worker is expected to
+ * catch and turn into a flagged item; THROW_FATAL raises a plain std::runtime_error, which (pre-T1)
+ * escapes the worker thread. The (unnamed) input vector is ignored.
  */
 void GFaultyContainer::process_(const std::vector<bool> &) {
     switch(fault_mode_) {
@@ -162,13 +164,21 @@ void GFaultyContainer::process_(const std::vector<bool> &) {
 }
 
 /********************************************************************************************/
-
+/**
+ * @brief Retrieves the configured fault mode.
+ *
+ * @return The fault this container exhibits during process_()
+ */
 fault_mode GFaultyContainer::get_fault_mode() const {
     return fault_mode_;
 }
 
 /********************************************************************************************/
-
+/**
+ * @brief Retrieves the stored id number.
+ *
+ * @return The id used by tests to check item conservation
+ */
 std::size_t GFaultyContainer::get_stored_number() const {
     return stored_number_;
 }

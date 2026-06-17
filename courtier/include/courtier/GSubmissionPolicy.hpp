@@ -86,7 +86,11 @@ struct GSubmissionPolicy {
 
     /***************************************************************************/
     /** @brief GD/CGD and the parameter scan: every slot must be successfully evaluated; resubmit
-     *  MISSING, optionally retry transient FAILED, and terminate if any slot stays unresolved. */
+     *  MISSING, optionally retry transient FAILED, and terminate if any slot stays unresolved.
+     *
+     *  @param max_resub Maximum number of times a MISSING item is resubmitted
+     *  @param max_failed_retries Maximum number of times a FAILED item is re-evaluated (rides out transient crashes)
+     *  @return A fatal-on-unresolved submission policy with the given resubmission/retry budgets */
     static GSubmissionPolicy full_success_or_fatal(
         std::size_t max_resub = 5,
         std::size_t max_failed_retries = 0
@@ -110,7 +114,10 @@ struct GSubmissionPolicy {
      *  algorithms a single clone beats a resubmission: a slot that times out is cloned at once rather
      *  than re-dispatched. (Need-all algorithms have no such option -- see full_success_or_fatal,
      *  where resubmission is mandatory because only a real evaluation will do.) Pass a non-zero
-     *  @p max_resub only if a particular problem genuinely prefers re-evaluation over substitution. */
+     *  @p max_resub only if a particular problem genuinely prefers re-evaluation over substitution.
+     *
+     *  @param max_resub Maximum number of MISSING resubmissions before falling back to cloning (default 0)
+     *  @return A clone-on-unresolved submission policy (never fatal except the zero-usable floor) */
     static GSubmissionPolicy clone_on_partial_return(std::size_t max_resub = 0) {
         GSubmissionPolicy p;
         p.unresolved_action = on_unresolved::clone;
@@ -121,7 +128,8 @@ struct GSubmissionPolicy {
     }
 
     /***************************************************************************/
-    /** @brief Strictest floor: no resubmission, any unresolved slot is fatal. */
+    /** @brief Strictest floor: no resubmission, any unresolved slot is fatal.
+     *  @return A submission policy with zero resubmissions/retries and fatal-on-unresolved */
     static GSubmissionPolicy fail_on_no_return() {
         GSubmissionPolicy p;
         p.unresolved_action = on_unresolved::fatal;

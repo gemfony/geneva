@@ -46,18 +46,39 @@ namespace Gem::Courtier::GPU {
  * (and be unit-tested) on machines with no GPU toolkit, and provides the CPU reference a GPU run can
  * be compared against. It is single-threaded by design (a parallel CPU path is the existing
  * GStdThreadConsumerT's job); here it exists for correctness and parity, not speed.
+ *
+ * @tparam scalar_type The floating-point scalar the backend operates on (defaults to double).
  */
 template <typename scalar_type = double>
 class GCPUBackend final : public GGPUDeviceBackendI<scalar_type> {
 public:
+    /**
+     * @brief Constructs the CPU backend.
+     * @param hostEval The host-evaluation interface to delegate to (non-owning; must outlive the backend)
+     */
     explicit GCPUBackend(const GGPUHostEvalI<scalar_type> *hostEval)
         : hostEval_(hostEval)
     { /* nothing */ }
 
+    /**
+     * @brief Initializes the backend. A no-op for the CPU backend, which needs no kernel.
+     * @param spec The kernel specification (ignored: the CPU backend runs the marshaller's host reference)
+     */
     void initialize(const KernelSpec & /*spec*/) override {
         // The CPU backend needs no kernel: it runs the marshaller's host reference.
     }
 
+    /**
+     * @brief Evaluates a batch of items on the host by delegating to the host-evaluation interface.
+     *
+     * @param params Flat array of parameters for all items (n_items * dim values)
+     * @param n_items The number of items in the batch
+     * @param dim The number of parameters per item
+     * @param pconst Pointer to the per-batch constant data (problem constants), or nullptr if none
+     * @param pconst_size Size in bytes of the constant data pointed to by pconst
+     * @param fitness_out Output array receiving one fitness value per item (n_items values)
+     * @param threads_per_item Requested intra-item parallelism (ignored: the host reference is per-item)
+     */
     void evaluate(
         const scalar_type *params, int n_items, int dim,
         const std::byte *pconst, std::size_t pconst_size,
@@ -66,6 +87,10 @@ public:
         hostEval_->hostEvaluate(params, n_items, dim, pconst, pconst_size, fitness_out);
     }
 
+    /**
+     * @brief The human-readable name of this backend.
+     * @return The string "cpu".
+     */
     [[nodiscard]] std::string name() const override { return "cpu"; }
 
 private:

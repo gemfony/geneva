@@ -62,6 +62,8 @@ namespace Gem::Courtier {
  * Gem::Courtier::Consumers::GAsioConsumerClientT can serve a courtier server (the rework is
  * behaviour-neutral at the protocol level). Only the server lifecycle and the per-batch work
  * queue are new here.
+ *
+ * @tparam processable_type The work-item type served to clients and collected back from them.
  */
 template <typename processable_type>
 class GAsioConsumerT final
@@ -72,7 +74,11 @@ public:
 
     /***************************************************************************/
     /** @brief Initialization with the listen port, the number of io threads and the serialization
-     *  mode used on the wire. */
+     *  mode used on the wire.
+     *
+     *  @param port The TCP port to listen on (0 lets the OS pick an ephemeral port, learned in startServer())
+     *  @param n_threads Number of io threads to run; 0 means use the hardware concurrency
+     *  @param serialization_mode The serialization format used on the wire (defaults to binary) */
     explicit GAsioConsumerT(
         unsigned short port,
         std::size_t n_threads = 0,
@@ -83,6 +89,7 @@ public:
         , serialization_mode_(serialization_mode)
     { /* nothing */ }
 
+    /** @brief The destructor stops the server (idempotent). */
     ~GAsioConsumerT() override { this->stopServer(); }
 
     GAsioConsumerT(const GAsioConsumerT &) = delete;
@@ -91,16 +98,20 @@ public:
     GAsioConsumerT &operator=(GAsioConsumerT &&) = delete;
 
     /***************************************************************************/
-    /** @brief The port the server listens on (useful when 0 was passed to pick an ephemeral port). */
+    /** @brief The port the server listens on (useful when 0 was passed to pick an ephemeral port).
+     *  @return The actual TCP port the acceptor is bound to. */
     [[nodiscard]] unsigned short getPort() const noexcept { return port_; }
 
-    /** @brief Number of clients currently connected and being served. */
+    /** @brief Number of clients currently connected and being served.
+     *  @return The current count of active sessions. */
     [[nodiscard]] std::size_t getNActiveSessions() const noexcept { return n_active_sessions_.load(); }
 
     /***************************************************************************/
     /**
-     * Opens the acceptor and starts the io threads. Must be called once, after the consumer has
-     * been registered with the broker and before any batch is submitted.
+     * @brief Opens the acceptor and starts the io threads. Must be called once, after the consumer
+     * has been registered with the broker and before any batch is submitted.
+     *
+     * @throws geneva_exception if the acceptor cannot be opened, bound or set to listen
      */
     void startServer() {
         boost::system::error_code ec;
@@ -144,7 +155,7 @@ public:
 
     /***************************************************************************/
     /**
-     * Stops accepting connections, lets the io threads drain and joins them. Idempotent.
+     * @brief Stops accepting connections, lets the io threads drain and joins them. Idempotent.
      */
     void stopServer() {
         if(stopped_already_.exchange(true)) {
@@ -169,12 +180,16 @@ public:
 
 private:
     /***************************************************************************/
+    /** @brief Default number of io threads when none was requested.
+     *  @return The hardware concurrency, or 1 if it cannot be determined. */
     static std::size_t default_threads() {
         const unsigned int hc = std::thread::hardware_concurrency();
         return hc == 0 ? 1u : hc;
     }
 
     /***************************************************************************/
+    /** @brief Arms the next asynchronous accept on the accept strand (which serializes all acceptor
+     *  access across the io threads). */
     void async_start_accept() {
         // Use the connectionless async_accept overload: each accept yields its own fresh socket, so
         // there is no shared socket_ member to race on. The handler is bound to accept_strand_, which
@@ -191,6 +206,11 @@ private:
     }
 
     /***************************************************************************/
+    /** @brief Accept-completion handler: on success it spins up a new session for the connection and
+     *  re-arms the accept; on a transient error it backs off and retries; on shutdown it stops.
+     *
+     *  @param ec A possible error code from the accept operation
+     *  @param socket The freshly accepted client socket (ownership taken by move) */
     void when_accepted(boost::system::error_code ec, boost::asio::ip::tcp::socket socket) {
         if(this->stopped()) {
             return; // shutting down: do not start a session and do not re-arm

@@ -43,7 +43,15 @@
 namespace Gem::Courtier::GPU {
 
 /******************************************************************************/
-
+/**
+ * @brief Reports whether a given backend was compiled into this build.
+ *
+ * The CPU backend is always available; CUDA and OpenCL are only available when their toolkit was
+ * found at configure time (guarded by GPUGEN_HAVE_CUDA / GPUGEN_HAVE_OPENCL).
+ *
+ * @param kind The backend to query
+ * @return true if the backend is available in this build, false otherwise
+ */
 bool backendAvailable(BackendKind kind) {
     switch(kind) {
     case BackendKind::CPU:
@@ -65,7 +73,18 @@ bool backendAvailable(BackendKind kind) {
 }
 
 /******************************************************************************/
-
+/**
+ * @brief Constructs the requested device backend for the given scalar type.
+ *
+ * The CPU backend always delegates to the supplied host-evaluation interface; the CUDA and OpenCL
+ * backends are only constructible when their toolkit was compiled in.
+ *
+ * @tparam scalar_type The floating-point scalar the backend operates on (double or float)
+ * @param kind The backend to construct
+ * @param hostEval The host-evaluation interface used by the CPU backend (the CUDA/OpenCL backends ignore it)
+ * @return An owning pointer to the constructed backend
+ * @throws geneva_exception if the requested backend was not compiled into this build
+ */
 template <typename scalar_type>
 std::unique_ptr<GGPUDeviceBackendI<scalar_type>> makeBackend(BackendKind kind,
                                                             const GGPUHostEvalI<scalar_type> *hostEval) {

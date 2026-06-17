@@ -68,6 +68,9 @@ namespace Gem::Courtier::GPU {
  *
  * GPU evaluation is deterministic and all-or-nothing, so a batch should be submitted under
  * GSubmissionPolicy::full_success_or_fatal.
+ *
+ * @tparam processable_type The work-item type evaluated on the device
+ * @tparam scalar_type The genome/fitness flat-buffer element type and device ABI type (default double)
  */
 template <typename processable_type, typename scalar_type = double>
 class GGPUConsumerT final : public Gem::Courtier::GBaseConsumerT<processable_type> {
@@ -76,26 +79,34 @@ public:
 
     /** @brief Builds the consumer from @p configFile (backend + kernel selection) and the
      *  problem-specific @p marshaller. The backend is created and the kernel acquired lazily, on the
-     *  first dispatch_, so construction is cheap and device errors surface at run time. */
+     *  first dispatch_, so construction is cheap and device errors surface at run time.
+     *
+     *  @param configFile Path to the config file selecting the backend and the kernel
+     *  @param marshaller The problem-specific flatten/scatter helper (shared ownership) */
     GGPUConsumerT(const std::string &configFile,
                   std::shared_ptr<GGPUEvaluableI<processable_type, scalar_type>> marshaller)
         : marshaller_(std::move(marshaller)) {
         cfg_.load(configFile);
     }
 
+    /** @brief The destructor. */
     ~GGPUConsumerT() override = default;
 
     GGPUConsumerT(const GGPUConsumerT &) = delete;
     GGPUConsumerT &operator=(const GGPUConsumerT &) = delete;
 
-    /** @brief The backend actually in use (after the first dispatch_), e.g. "cuda" / "cpu". */
+    /** @brief The backend actually in use (after the first dispatch_), e.g. "cuda" / "cpu".
+     *  @return The backend name, or "(uninitialised)" before the first dispatch_ */
     [[nodiscard]] std::string activeBackendName() const {
         return backend_ ? backend_->name() : std::string("(uninitialised)");
     }
 
 protected:
     /***************************************************************************/
-    /** @brief Evaluates the whole round's batch in one bulk launch: flatten -> backend -> scatter. */
+    /** @brief Evaluates the whole round's batch in one bulk launch: flatten -> backend -> scatter.
+     *  Requires a uniform genome geometry across the batch (rejects mixed geometries loudly).
+     *
+     *  @param items The whole round's batch of work items, evaluated in place (fitness written back) */
     void dispatch_(std::vector<item_ptr> &items) override {
         if(items.empty()) {
             return;

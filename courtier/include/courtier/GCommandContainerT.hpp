@@ -63,17 +63,24 @@ namespace Gem::Courtier {
 ////////////////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************************/
 /**
- * This class encapsulate a processable item that may be transmitted to a remote site,
- * equiped with a command.
+ * This class encapsulates a processable item that may be transmitted to a remote site,
+ * equipped with a command.
  *
- * @tparam processable_type The type of the processable type
- * @tparam command_type The command set to be executed on the processable type
+ * @tparam processable_type The type of the processable work item carried as payload
+ * @tparam command_type The enumeration of commands that may accompany the payload
  */
 template <typename processable_type, typename command_type>
 class GCommandContainerT {
     ///////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /**
+     * @brief Boost.Serialization hook that (de-)serializes the command and the payload pointer.
+     *
+     * @tparam Archive The Boost.Serialization archive type
+     * @param ar The archive to read from / write to
+     * @param version The class version (unused)
+     */
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &BOOST_SERIALIZATION_NVP(command_) & BOOST_SERIALIZATION_NVP(payload_ptr_);
@@ -92,8 +99,8 @@ class GCommandContainerT {
 public:
     //-------------------------------------------------------------------------
     /**
-	  * Initialization with a command only, in cases where no payload
-	  * needs to be transported
+	  * @brief Initialization with a command only, in cases where no payload
+	  * needs to be transported.
 	  *
 	  * @param command The command to be executed
 	  */
@@ -103,11 +110,11 @@ public:
 
     //-------------------------------------------------------------------------
     /**
-	  * Initialization with command and payload (in cases where a payload needs
-	  * to be transferred)
+	  * @brief Initialization with command and payload (in cases where a payload needs
+	  * to be transferred).
 	  *
 	  * @param command The command to be executed
-	  * @param payload_ptr The payload transported by this object
+	  * @param payload_ptr The payload transported by this object (sole ownership is taken by move)
 	  */
     GCommandContainerT(command_type command, std::unique_ptr<processable_type> payload_ptr)
       : command_(command)
@@ -131,8 +138,10 @@ public:
 
     //-------------------------------------------------------------------------
     /**
-	  * Reset to a new command and payload or clear the object
+	  * @brief Reset to a new command and payload, or clear the object.
 	  *
+	  * @param command The new command (defaults to command_type(0), i.e. cleared)
+	  * @param payload_ptr The new payload (defaults to an empty pointer; ownership is taken by move)
 	  * @return A reference to this object, so we can serialize it in one go
 	  */
     const GCommandContainerT &reset(
@@ -146,7 +155,7 @@ public:
 
     //-------------------------------------------------------------------------
     /**
-	  * Setting of the command to be executed on the payload (possibly on the remote side)
+	  * @brief Setting of the command to be executed on the payload (possibly on the remote side).
 	  * @param command The command to be executed on the payload
 	  */
     void set_command(command_type command) {
@@ -155,7 +164,7 @@ public:
 
     //-------------------------------------------------------------------------
     /**
-	  * Retrieval of the command to be executed on the payload
+	  * @brief Retrieval of the command to be executed on the payload.
 	  * @return The command to be executed on the payload
 	  */
     command_type get_command() const noexcept {
@@ -164,8 +173,10 @@ public:
 
     //-------------------------------------------------------------------------
     /**
-	  * Retrieves the payload by const reference (a non-destructive borrow). Use release_payload() to
-	  * take ownership of it.
+	  * @brief Retrieves the payload by const reference (a non-destructive borrow). Use
+	  * release_payload() to take ownership of it.
+	  *
+	  * @return A const reference to the owned payload pointer (may be empty if no payload is present)
 	  */
     const std::unique_ptr<processable_type> &get_payload() const {
         return payload_ptr_;
@@ -173,8 +184,11 @@ public:
 
     //-------------------------------------------------------------------------
     /**
-	  * Extracts (moves out) the payload, transferring sole ownership to the caller. The container's
-	  * payload is empty afterwards. Used by the transports to hand a received result on to the OA.
+	  * @brief Extracts (moves out) the payload, transferring sole ownership to the caller. The
+	  * container's payload is empty afterwards. Used by the transports to hand a received result on to
+	  * the OA.
+	  *
+	  * @return The payload pointer; the container retains no ownership afterwards (may be empty)
 	  */
     std::unique_ptr<processable_type> release_payload() {
         return std::move(payload_ptr_);
@@ -182,7 +196,9 @@ public:
 
     //-------------------------------------------------------------------------
     /**
-	  * Processing of the payload (if any)
+	  * @brief Processing of the payload. Delegates to the payload's process() method.
+	  *
+	  * @throws geneva_exception if the container holds no payload
 	  *
 	  * // TODO: Check for errors during processing
 	  */
@@ -213,7 +229,14 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Conversion of a GCommandContainerT to a string
+ * @brief Conversion of a GCommandContainerT to a serialized string.
+ *
+ * @tparam processable_type The payload type of the command container
+ * @tparam command_type The command enumeration of the command container
+ * @param container The command container to be serialized
+ * @param serMode The serialization format to use (text, XML or binary)
+ * @return The serialized representation of the container (empty string only on the unreachable fall-through)
+ * @throws geneva_exception if serialization fails
  */
 template <typename processable_type, typename command_type>
 std::string container_to_string(
@@ -278,7 +301,15 @@ std::string container_to_string(
 
 /******************************************************************************/
 /**
- * Loading of a GCommandContainerT from a string
+ * @brief Loading of a GCommandContainerT from a serialized string. The container is reset before
+ * loading.
+ *
+ * @tparam processable_type The payload type of the command container
+ * @tparam command_type The command enumeration of the command container
+ * @param descr The serialized representation to load from
+ * @param container The command container to be filled (output parameter; reset before loading)
+ * @param serMode The serialization format the string was produced with (text, XML or binary)
+ * @throws geneva_exception if de-serialization fails
  */
 template <typename processable_type, typename command_type>
 void container_from_string(

@@ -51,27 +51,41 @@ namespace Gem::Courtier::GPU {
  *
  * scalar_type (default double, for backward compatibility) is the genome/fitness flat-buffer element
  * type and thus the device ABI element type: float for the FP32 device speedup, double for parity.
+ *
+ * @tparam scalar_type The genome/fitness flat-buffer element type and device ABI type (default double)
  */
 template <typename scalar_type = double>
 class GGPUDeviceBackendI {
 public:
+    /** @brief The virtual destructor. */
     virtual ~GGPUDeviceBackendI() = default;
 
     /** @brief Selects the device and acquires the kernel described by @p spec (runtime-compiles a
-     *  source file, or loads a prebuilt module). Called once before the first evaluate(). */
+     *  source file, or loads a prebuilt module). Called once before the first evaluate().
+     *
+     *  @param spec The kernel specification (device id, kernel path/entry, launch geometry) */
     virtual void initialize(const KernelSpec &spec) = 0;
 
     /** @brief Evaluates a whole batch in one launch. @p params is n_items * dim row-major scalar_type;
      *  @p pconst is an opaque problem-constant blob; writes n_items scalar_type into @p fitness_out.
      *  @p threads_per_item requests intra-item (e.g. pixel-level) parallelism: a backend that supports
      *  it launches n_items * threads_per_item threads and the kernel accumulates each item's fitness
-     *  (the backend zeroes fitness_out first); the default 1 is one thread per item (overwrite). */
+     *  (the backend zeroes fitness_out first); the default 1 is one thread per item (overwrite).
+     *
+     *  @param params Pointer to the flattened parameter buffer (n_items * dim, row-major)
+     *  @param n_items Number of work items in the batch
+     *  @param dim Number of parameters per item
+     *  @param pconst Pointer to the opaque problem-constant blob (may be ignored by a kernel)
+     *  @param pconst_size Size in bytes of the problem-constant blob
+     *  @param fitness_out Output buffer receiving n_items fitness values
+     *  @param threads_per_item Requested intra-item parallelism (default 1 == one thread per item) */
     virtual void evaluate(
         const scalar_type *params, int n_items, int dim,
         const std::byte *pconst, std::size_t pconst_size,
         scalar_type *fitness_out, int threads_per_item = 1) = 0;
 
-    /** @brief A short human-readable backend name (for logging). */
+    /** @brief A short human-readable backend name (for logging).
+     *  @return The backend's name */
     [[nodiscard]] virtual std::string name() const = 0;
 };
 

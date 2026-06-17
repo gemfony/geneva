@@ -91,6 +91,10 @@ static MPI_Comm MPI_COMMUNICATOR =
  * call performed the initialization (so the caller knows whether it owns the matching MPI_Finalize).
  * Relocated from the former GMPIConsumerT consumer class so it survives that class's removal; used by
  * the courtier MPI consumer and the MPI sub-client optimizer.
+ *
+ * @param argc Optional pointer to the program's argc, forwarded to MPI_Init_thread (may be nullptr)
+ * @param argv Optional pointer to the program's argv, forwarded to MPI_Init_thread (may be nullptr)
+ * @return true if this call performed the MPI initialization, false if MPI was already initialized
  */
 inline bool initializeMPI(int *argc = nullptr, char ***argv = nullptr) {
     int isAlreadyInitialized{0};
@@ -119,6 +123,8 @@ inline bool initializeMPI(int *argc = nullptr, char ***argv = nullptr) {
 /**
  * Sets the base communicator used for all master<->worker communication, letting user code use MPI
  * alongside Geneva by splitting communicators. Relocated from the former GMPIConsumerT consumer class.
+ *
+ * @param communicator The MPI communicator to use for all subsequent master<->worker communication
  */
 inline void setMPICommunicator(MPI_Comm communicator) {
     MPI_COMMUNICATOR = communicator;
@@ -128,6 +134,11 @@ inline void setMPICommunicator(MPI_Comm communicator) {
      * Stores configuration options which are used by master node and worker nodes
      */
 struct MPIConsumerConfig {
+    /**
+     * @brief Default constructor. Seeds nHandlerThreads with the hardware recommendation.
+     *
+     * The value may later be overwritten by user-defined command line options.
+     */
     MPIConsumerConfig() {
         // Set the handler threads to the hardware recommendation as a default value
         // This can later be overwritten by user-defined command line options
@@ -151,6 +162,15 @@ struct MPIConsumerConfig {
          */
     std::uint32_t masterCleanSessIntervalMSec{1'000};
 
+    /**
+     * @brief Registers this config's command-line options into the given option descriptions.
+     *
+     * The current member values are used as the option defaults (a default-constructed instance
+     * already holds the intended defaults), avoiding duplicating the default values here.
+     *
+     * @param visible The options_description receiving user-facing options
+     * @param hidden The options_description receiving advanced/hidden options
+     */
     void addCLOptions_(
         boost::program_options::options_description &visible,
         boost::program_options::options_description &hidden
@@ -191,6 +211,10 @@ struct MPIConsumerConfig {
         );
     }
 
+    /**
+     * @brief Recommends a default number of handler threads based on available hardware concurrency.
+     * @return The number of hardware threads, or 8 if the C++ runtime cannot determine it
+     */
     [[nodiscard]] std::uint32_t nHandlerThreadsRecommendation() const {
         // query hint that indicates how many hardware threads are available (might return 0 if unknown)
         const unsigned int hwThreads{std::thread::hardware_concurrency()};
@@ -220,13 +244,15 @@ struct MPIConsumerConfig {
      *
      * All communication between GMPIConsumerWorkerNodeT and GMPIConsumerMasterNodeT works with asynchronous communication
      * using MPI.
+     *
+     * @tparam processable_type the type of work item exchanged with the master node
      */
 template <typename processable_type>
 class GMPIConsumerWorkerNodeT final
   : public std::enable_shared_from_this<GMPIConsumerWorkerNodeT<processable_type>> {
 public:
     /**
-         * Constructor with arguments for all configuration options for this class.
+         * @brief Constructor with arguments for all configuration options for this class.
          *
          * @param commRank this node's rank within this cluster
          * @param halt function that returns true if halt criterion has been reached
@@ -250,7 +276,7 @@ public:
     }
 
     /**
-         * The destructor
+         * @brief The destructor.
          */
     ~GMPIConsumerWorkerNodeT() = default;
 
@@ -272,7 +298,8 @@ public:
     operator=(GMPIConsumerWorkerNodeT<processable_type> &&) = delete;
 
     /**
-         * Advises the worker to start requesting and processing work items.
+         * @brief Advises the worker to start requesting and processing work items.
+         *
          * This call completes when a stop request has been received from the master node, indicating the end of the
          * optimization, or if a fatal error has been encountered.
          */
@@ -331,6 +358,8 @@ public:
 
 private:
     /**
+         * @brief Sends the pending outgoing message and requests/receives the next work item.
+         *
          * Sends the current contents of outgoingMessage_ to the master node and requests a new work item which will
          * be assigned to incomingMessage_. Therefore both members outgoingMessage_ and incomingMessage_ are mutated
          * inside of this function and shall not be mutated from other threads at the same time.
@@ -437,6 +466,8 @@ private:
          * blocking forever in MPI_Wait. On timeout/halt the request is cancelled and reclaimed so it
          * cannot outlive into MPI_Finalize.
          *
+         * @param handle The outstanding MPI request to wait on (cancelled and reclaimed on timeout/halt)
+         * @param status The MPI_Status filled in if the request completes
          * @return true if the request completed (status filled); false on timeout / halt.
          */
     [[nodiscard]] bool waitForRequestOrTimeout(MPI_Request &handle, MPI_Status &status) {
@@ -458,10 +489,12 @@ private:
     }
 
     /**
-         * Processes the work item that is stored in the member commandContainer_.
+         * @brief Processes the work item currently stored in commandContainer_.
+         *
          * After processing has been finished, the result is put into commandContainer_ i.e. it overrides the old item.
          * In case that commandContainer_ did not contain any work items this method will store a new GETDATA request
-         * in commandContainer_ to retrieve new work when sending this message.
+         * in commandContainer_ to retrieve new work when sending this message. A STOP command sets the
+         * stop flag instead.
          */
     void processWorkItem() {
         switch(commandContainer_.get_command()) {
@@ -508,7 +541,9 @@ private:
     }
 
     /**
-         If we have been stopped, we leave the loop here but have sent one more request out
+         * @brief Consumes the final master response after the worker has been told to stop.
+         *
+         * If we have been stopped, we leave the loop here but have sent one more request out
          * because of double buffered requests. The server must await this additional request, because all
          * MPI communication should be completed before shutdown.
          * For this reason, we receive another request that we expect to be a stop request.
@@ -592,13 +627,15 @@ private:
      * a worker node. The opened GMPIConsumerSessionT will then take care of deserializing and processing
      * the request as well as responding to it with a new work item (if there are items available in the brokers queue
      * at that point in time).
+     *
+     * @tparam processable_type the type of work item exchanged with the worker node
      */
 template <typename processable_type>
 class GMPIConsumerSessionT // NOLINT(cppcoreguidelines-special-member-functions)
   : public std::enable_shared_from_this<GMPIConsumerSessionT<processable_type>> {
 public:
     /**
-         * Constructor for GMPIConsumerSessionT.
+         * @brief Constructor for GMPIConsumerSessionT.
          *
          * @param status MPI_Status object that stores information about the received request, most importantly its source
          * i.e. the rank of the worker node sending the request
@@ -647,7 +684,9 @@ public:
     // public functions that are not constructors or operators
 
     /**
-         * Answers the request this session was created for
+         * @brief Answers the request this session was created for.
+         *
+         * Processes the inbound request and, if that succeeded, sends the response.
          */
     void run() {
         // only execute sendResponse if processRequest was successful
@@ -657,7 +696,8 @@ public:
     }
 
     /**
-         * Allows to check whether the sending the response of the request to the worker has been completed
+         * @brief Checks whether sending the response to the worker has completed.
+         *
          * This assumes that the run-method has already been called and finished execution.
          *
          * @return true if sending the response has been completed, otherwise false
@@ -671,7 +711,9 @@ public:
     }
 
     /**
-         * Abandons the outstanding response send if it has not completed, reclaiming its MPI_Request so
+         * @brief Abandons the outstanding response send if it has not completed, reclaiming its MPI_Request.
+         *
+         * Reclaims its MPI_Request so
          * it cannot outlive into MPI_Finalize. Used during shutdown to release sessions whose worker
          * died before receiving the response (so the master does not finalize with pending requests).
          */
@@ -685,6 +727,7 @@ public:
     }
 
     /**
+         * @brief Returns the command this session is sending out to the worker in the response.
          * @return command that the session is sending out to the client in the response
          */
     [[nodiscard]] networked_consumer_payload_command getOutCommand() const {
@@ -692,6 +735,14 @@ public:
     }
 
 private:
+    /**
+         * @brief Deserializes and acts on the inbound request.
+         *
+         * On a RESULT command the payload is delivered to the broker; a GETDATA command carries no
+         * payload. Unknown commands and deserialization failures are logged.
+         *
+         * @return true if the request was a valid RESULT or GETDATA, false otherwise
+         */
     bool processRequest() {
         try {
             // deserialize request string
@@ -736,6 +787,12 @@ private:
         return false;
     }
 
+    /**
+         * @brief Releases the processed payload from the command container and hands it to the broker sink.
+         *
+         * If the container unexpectedly holds no payload, a warning is logged and the request is still
+         * answered normally.
+         */
     void putWorkItem() {
         // Retrieve the payload from the command container
         auto payloadPtr = commandContainer_.release_payload();
@@ -754,7 +811,10 @@ private:
     }
 
     /**
-         * assigns new command and payload (if any) to the commandContainer_ member
+         * @brief Assigns a new command and payload (if any) to the commandContainer_ member.
+         *
+         * Fetches a work item from the broker; on success stores it with a COMPUTE command, otherwise
+         * stores a NODATA command.
          */
     void prepareDataResponse() {
         // Obtain a container_payload object from the queue, serialize it and send it off
@@ -770,7 +830,7 @@ private:
     }
 
     /**
-         * Assigns a stop request to the commandContainer_ member
+         * @brief Assigns a stop request to the commandContainer_ member.
          */
     void prepareStopResponse() {
         // store a stop request in the command container
@@ -778,7 +838,9 @@ private:
     }
 
     /**
-         * serializes the commandContainer_ member and stores it in outgoingMessage_ for subsequent transmission
+         * @brief Serializes the commandContainer_ member into outgoingMessage_ for transmission.
+         *
+         * Throws a geneva_exception if the serialized message exceeds the maximum configured message size.
          */
     void serializeOutgoingMsg() {
         // set the outgoing message to the string representation of the
@@ -802,7 +864,9 @@ private:
     }
 
     /**
-         * Starts an asynchronous send call of the response message.
+         * @brief Starts an asynchronous send of the response message to the worker.
+         *
+         * Prepares either a stop or a data response, serializes it, and issues the asynchronous send.
          * The isCompleted()-method can be used to check for the completion of the send operation.
          */
     void sendResponse() {
@@ -871,7 +935,7 @@ private:
      * GMPIConsumerMasterNodeT will constantly wait for incoming work items requests, process them and answer them
      * by opening a new GMPIConsumerSessionT for each request.
      *
-     * @tparam processable_type a type that is processable like GTreeGenome
+     * @tparam processable_type a type that is processable (e.g. a GFlatGenome-derived individual)
      *
      *
      * The simplified workflow of the GMPIConsumerMasterNodeT can be described as follows:
@@ -903,7 +967,7 @@ class GMPIConsumerMasterNodeT // NOLINT(cppcoreguidelines-special-member-functio
   : public std::enable_shared_from_this<GMPIConsumerMasterNodeT<processable_type>> {
 public:
     /**
-         * Constructor to instantiate the GMPIConsumerMasterNodeT
+         * @brief Constructor to instantiate the GMPIConsumerMasterNodeT.
          * @param commSize number of nodes in the cluster, which is equal to the number of workers + 1
          * @param config configuration for this node specified by the end user
          */
@@ -927,7 +991,7 @@ public:
     GMPIConsumerMasterNodeT &operator=(GMPIConsumerMasterNodeT<processable_type> &&) = delete;
 
     /**
-         * Starts background threads that run the GMPIConsumerMasterNodeT.
+         * @brief Starts the background threads that run the GMPIConsumerMasterNodeT.
          *
          * First a thread-pool will be created. Then another thread will be created which listens for requests and
          * schedules request handlers on the thread-pool. Furthermore a cleanup thread will be created, which closes open
@@ -946,7 +1010,7 @@ public:
     }
 
     /**
-         * Sends a shutdown signal to the GMPIConsumerMasterNodeT and then joins all its background threads.
+         * @brief Sends a shutdown signal to the GMPIConsumerMasterNodeT and joins all its background threads.
          *
          * Once this method has returned this means that all threads have been joined, all asynchronous mpi communication
          * requests have been either completed, and the server is shut down completely.
@@ -966,6 +1030,14 @@ public:
     }
 
 private:
+    /**
+         * @brief Receiver loop: accepts worker requests and schedules a handler for each on the thread pool.
+         *
+         * Runs until the required number of stop responses has been dispatched (two per worker, due to
+         * the workers' double-buffered requests). Once shutdown is requested, live workers get a short
+         * grace window to send their final requests before any outstanding receive is abandoned, so a
+         * worker that died before its final handshake cannot wedge shutdown.
+         */
     void listenForRequests() {
         // number of workers that we have send a stop request to
         uint32_t stopRequestsSendOut{0};
@@ -1037,6 +1109,17 @@ private:
         }
     }
 
+    /**
+         * @brief Handles a single received request by opening, running and tracking a session.
+         *
+         * Runs on a thread-pool thread. If the receive carried an MPI error the request is not
+         * answered. Otherwise a GMPIConsumerSessionT is created, run (which sends the response), and
+         * pushed onto the open-session list for the cleanup thread to reap.
+         *
+         * @param status The MPI_Status of the received request (its source is the requesting worker)
+         * @param buffer The shared buffer holding the received (serialized) request message
+         * @param stopRequested Whether the master is shutting down and should respond with a stop request
+         */
     void handleRequest(
         const MPI_Status &status,
         const std::shared_ptr<char[]> &buffer,
@@ -1073,13 +1156,17 @@ private:
         // This thread of the thread-pool will then be able to be scheduled for further requests by the IO-thread again
     }
 
+    /**
+         * @brief Adds a session to the (mutex-protected) list of open sessions awaiting completion.
+         * @param session The session whose asynchronous response send is still in flight
+         */
     void pushOpenSession(std::shared_ptr<GMPIConsumerSessionT<processable_type>> session) {
         std::scoped_lock guard(openSessionsMutex_);
         openSessions_.push_back(session);
     }
 
     /**
-         * Waits for open sessions to be completed.
+         * @brief Cleanup loop: reaps completed sessions on a single thread until shutdown is done.
          *
          * This is not a job that must be executed super fast. So we can save resources if we do not let this run on the
          * thread-pool but on a single thread. The thread-pool will then be ready for new work as soon as it has handled
@@ -1152,9 +1239,12 @@ private:
     }
 
     /**
-         * Tries to retrieve a work item from the server, observing a timeout. If timeout is reached a nullptr is returned
+         * @brief Retrieves a raw work item from the injected external source (if any).
          *
-         * @return A work item (possibly empty)
+         * Uses the source set via setPayloadFunctors(); with no source set, no item is produced. The
+         * former broker fallback was removed together with the legacy broker.
+         *
+         * @return A work item, or an empty pointer if no source is set or it produced none
          */
     std::unique_ptr<processable_type> getPayloadItem() {
         // If an external source has been injected (e.g. the courtier reconcile-the-span path),
@@ -1169,7 +1259,11 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-         * Submits a work item to the server, observing a timeout
+         * @brief Submits a processed work item to the injected external sink (if any).
+         *
+         * Throws a geneva_exception if @p p is empty. With no sink set the item is silently dropped.
+         *
+         * @param p The processed work item to deliver (must not be empty)
          */
     void putPayloadItem(std::unique_ptr<processable_type> p) {
         if(not p) {
@@ -1194,6 +1288,9 @@ public:
          * courtier networked-consumer path uses to drive the MPI master node from a span+policy
          * batch instead of the broker's buffer ports. With no functors set the node behaves exactly
          * as before (broker-backed), so this is behaviour-neutral for existing callers.
+         *
+         * @param getPayloadItemFn Source callback returning the next raw work item (or empty pointer)
+         * @param putPayloadItemFn Sink callback receiving each processed work item
          */
     void setPayloadFunctors(
         std::function<std::unique_ptr<processable_type>()> getPayloadItemFn,

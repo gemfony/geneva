@@ -50,6 +50,8 @@ namespace Gem::Courtier {
  * consumer's own responsibility (a thread pool locally, many clients networked). This collapses
  * the broker's queueing layer: the executor hands a whole batch straight to the consumer, which
  * reconciles it against the policy.
+ *
+ * @tparam processable_type The concrete work-item type handled by the registered consumer
  */
 template <typename processable_type>
 class GBrokerT {
@@ -65,13 +67,15 @@ public:
     GBrokerT &operator=(GBrokerT &&) = delete;
 
     /***************************************************************************/
-    /** @brief Registers the (single) consumer. Replacing an existing one is allowed. */
+    /** @brief Registers the (single) consumer. Replacing an existing one is allowed.
+     *  @param c The consumer to register (shared ownership; replaces any previously registered consumer) */
     void registerConsumer(std::shared_ptr<consumer_type> c) {
         consumer_ = std::move(c);
     }
 
     /***************************************************************************/
-    /** @brief Access to the registered consumer. Throws if none was registered. */
+    /** @brief Access to the registered consumer. Throws if none was registered.
+     *  @return A reference to the single registered consumer */
     consumer_type &consumer() {
         if(not consumer_) {
             throw geneva_exception(
@@ -84,7 +88,8 @@ public:
     }
 
     /***************************************************************************/
-    /** @brief Whether a consumer has been registered. */
+    /** @brief Whether a consumer has been registered.
+     *  @return true if a consumer is currently registered, false otherwise */
     [[nodiscard]] bool hasConsumer() const noexcept {
         return static_cast<bool>(consumer_);
     }

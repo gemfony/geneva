@@ -75,6 +75,8 @@ namespace Gem::Courtier {
  * corresponding object, to process it and to deliver the results to the server.
  * This class assumes that the template parameter implements the "process()" call.
  *
+ * @tparam processable_type The work-item type the client retrieves, processes and returns (must model GProcessingContainerT)
+ *
  * TODO: Identify this client with a UUID
  */
 template <typename processable_type>
@@ -91,11 +93,12 @@ class GBaseClientT {
 public:
     //---------------------------------------------------------------------------
     /**
-	  * A constructor that accepts a model of the item to be processed. This can be
-	  * used to avoid having to transfer or reload data that doesn't change. Note that
+	  * @brief A constructor that accepts a model of the item to be processed.
+	  *
+	  * This can be used to avoid having to transfer or reload data that doesn't change. Note that
 	  * the model must understand the clone() command.
 	  *
-	  * @param additionalDataTemplate The model of the item to be processed
+	  * @param additionalDataTemplate The model of the item to be processed (shared ownership; its constant data is loaded into each new item)
 	  */
     GBaseClientT(std::shared_ptr<processable_type> additionalDataTemplate)
       : additional_data_template_(additionalDataTemplate) { /* nothing*/
@@ -116,10 +119,11 @@ public:
 
     //---------------------------------------------------------------------------
     /**
-	  * Allows to set a maximum number of processing steps. If set to 0 or left unset,
-	  * processing will be done until process() returns false.
+	  * @brief Allows to set a maximum number of processing steps.
 	  *
-	  * @param processMax Desired value for the process_max_ variable
+	  * If set to 0 or left unset, processing will be done until process() returns false.
+	  *
+	  * @param processMax Desired value for the process_max_ variable (maximum number of items to process; 0 == unlimited)
 	  */
     void setProcessMax(std::uint32_t processMax) {
         process_max_ = processMax;
@@ -127,9 +131,9 @@ public:
 
     //---------------------------------------------------------------------------
     /**
-	  * Retrieves the value of the process_max_ variable.
+	  * @brief Retrieves the value of the process_max_ variable.
 	  *
-	  * @return The value of the process_max_ variable
+	  * @return The maximum number of items to process (0 == unlimited)
 	  */
     std::uint32_t getProcessMax() const {
         return process_max_;
@@ -137,7 +141,9 @@ public:
 
     //---------------------------------------------------------------------------
     /**
-	  * Retrieves the number of items processed so far
+	  * @brief Retrieves the number of items processed so far.
+	  *
+	  * @return The count of items processed since construction
 	  */
     std::uint32_t getNProcessed() const {
         return processed_;
@@ -145,9 +151,9 @@ public:
 
     //---------------------------------------------------------------------------
     /**
-	  * Sets the maximum allowed processing time
+	  * @brief Sets the maximum allowed processing time.
 	  *
-	  * @param maxDuration The maximum allowed processing time
+	  * @param maxDuration The maximum allowed processing time (a duration in seconds; 0 disables the time limit)
 	  */
     void setMaxTime(const std::chrono::duration<double> &maxDuration) {
         max_duration_ = maxDuration;
@@ -155,9 +161,9 @@ public:
 
     //---------------------------------------------------------------------------
     /**
-	  * Retrieves the value of the max_duration_ parameter.
+	  * @brief Retrieves the value of the max_duration_ parameter.
 	  *
-	  * @return The maximum allowed processing time
+	  * @return The maximum allowed processing time (a duration in seconds; 0 means no limit)
 	  */
     std::chrono::duration<double> getMaxTime() {
         return max_duration_;
@@ -165,7 +171,9 @@ public:
 
     //---------------------------------------------------------------------------
     /**
-	  * Checks whether a terminal error was flagged
+	  * @brief Checks whether a terminal error was flagged.
+	  *
+	  * @return true if an unrecoverable error has been flagged
 	  */
     bool terminalErrorFlagged() const {
         return terminal_error_.load();
@@ -173,7 +181,9 @@ public:
 
     //---------------------------------------------------------------------------
     /**
-	  * Checks whether the close-flag was set
+	  * @brief Checks whether the close-flag was set.
+	  *
+	  * @return true if termination has been requested
 	  */
     bool closeRequested() const {
         return close_requested_.load();
@@ -181,7 +191,7 @@ public:
 
     //---------------------------------------------------------------------------
     /**
-	  * The main initialization code
+	  * @brief Runs the client: init -> main loop -> finally, wrapping each stage with exception handling.
 	  */
     void run() {
         run_state r = run_state::INIT;
@@ -239,7 +249,7 @@ public:
 
     //---------------------------------------------------------------------------
     /**
-	  * Allows to set a flag indicating that the application should terminate
+	  * @brief Sets a flag indicating that the application should terminate.
 	  */
     void flagCloseRequested() {
         close_requested_.store(true);
@@ -248,8 +258,9 @@ public:
 protected:
     //---------------------------------------------------------------------------
     /**
-	  * Increment of the processing counter. We do not use atomics, as only
-	  * one processing step is supposed to run at the same time
+	  * @brief Increments the processing counter.
+	  *
+	  * We do not use atomics, as only one processing step is supposed to run at the same time.
 	  */
     void incrementProcessingCounter() {
         processed_++;
@@ -257,7 +268,7 @@ protected:
 
     //---------------------------------------------------------------------------
     /**
-	  * Allows to flag an error that qualifies as a halt condition
+	  * @brief Flags an error that qualifies as a halt condition.
 	  */
     void flagTerminalError() {
         terminal_error_.store(true);
@@ -265,8 +276,12 @@ protected:
 
     //---------------------------------------------------------------------------
     /**
-	  * Loads the additional data template into the processable_type target.
-	  * This function needs to be called for each new item by derived classes.
+	  * @brief Loads the additional data template into the processable_type target.
+	  *
+	  * This function needs to be called for each new item by derived classes. A no-op if no template
+	  * was supplied at construction.
+	  *
+	  * @param target The item (shared ownership) into which the template's constant data is loaded
 	  */
     void loadDataTemplate(std::shared_ptr<processable_type> target) {
         // If we have a model for the item to be parallelized, load its data into the target
@@ -334,10 +349,15 @@ protected:
 
     //---------------------------------------------------------------------------
     /**
-	  * Parses an in-bound "idle" command string, so we know how long the client
-	  * should wait before reconnecting to the server. The idle command will be
-	  * of the type "idle(5000)", where the number specifies the amount of
+	  * @brief Parses an in-bound "idle" command string, so we know how long the client should wait
+	  * before reconnecting to the server.
+	  *
+	  * The idle command will be of the type "idle(5000)", where the number specifies the amount of
 	  * milliseconds the client should wait before reconnecting.
+	  *
+	  * @param idleTime Output: the parsed wait time in milliseconds (written only on a successful parse)
+	  * @param idleCommand The command string to parse, e.g. "idle(5000)" (surrounding whitespace tolerated)
+	  * @return true if @p idleCommand was a well-formed idle command; false otherwise (idleTime left unchanged)
 	  */
     bool parseIdleCommand(std::uint32_t &idleTime, const std::string &idleCommand) {
         // Hand-written replacement for the former Spirit grammar
@@ -396,29 +416,34 @@ protected:
 
 private:
     //---------------------------------------------------------------------------
-    /** @brief Performs initialization work */
+    /** @brief Performs initialization work.
+     *  @return true on successful initialization; false aborts the run */
     virtual bool init() {
         return true;
     }
 
     //---------------------------------------------------------------------------
-    /** @brief This is the main loop of the client, after initialization */
+    /** @brief This is the main loop of the client, after initialization. */
     virtual void run_() = 0;
 
     //---------------------------------------------------------------------------
-    /** @brief Perform necessary finalization activities */
+    /** @brief Perform necessary finalization activities.
+     *  @return true on successful finalization; false signals a finalization failure */
     virtual bool finally() {
         return true;
     }
 
     //---------------------------------------------------------------------------
-    /** @brief Custom halt condition for processing */
+    /** @brief Custom halt condition for processing.
+     *  @return true to request termination (default: never) */
     virtual bool customHalt() {
         return false;
     }
 
     //---------------------------------------------------------------------------
-    /** brief Transformation of run_state to a string */
+    /** @brief Transformation of run_state to a string.
+     *  @param r The run state to convert
+     *  @return A human-readable name for the run state */
     std::string rs_to_str(run_state r) {
         switch(r) {
         case run_state::INIT:

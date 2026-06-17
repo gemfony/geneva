@@ -47,6 +47,12 @@ namespace Gem::Courtier::GPU {
 
 namespace {
 
+/**
+ * @brief Throws a geneva_exception unless an OpenCL call returned CL_SUCCESS.
+ *
+ * @param err The status code returned by an OpenCL API call
+ * @param what A short label naming the call site, included in the exception message
+ */
 void clCheck(cl_int err, const char *what) {
     if(err != CL_SUCCESS) {
         throw geneva_exception(
@@ -55,6 +61,12 @@ void clCheck(cl_int err, const char *what) {
     }
 }
 
+/**
+ * @brief Reads an entire file into a string (used to load the OpenCL kernel source).
+ *
+ * @param path Filesystem path of the file to read
+ * @return The file's full contents as a string
+ */
 std::string readFile(const std::string &path) {
     std::ifstream in(path, std::ios::binary);
     if(not in) {
@@ -101,6 +113,14 @@ struct GOpenCLBackend<scalar_type>::Impl {
         if(context) clReleaseContext(context);
     }
 
+    /**
+     * @brief Ensures a device buffer is at least @p need bytes, (re)allocating only when it must grow.
+     *
+     * @param buf The device buffer handle, updated in place if reallocated
+     * @param cap The buffer's current capacity in bytes, updated to @p need on reallocation
+     * @param need The required size in bytes
+     * @param flags The OpenCL memory flags (e.g. CL_MEM_READ_ONLY) used when (re)creating the buffer
+     */
     void ensure(cl_mem &buf, std::size_t &cap, std::size_t need, cl_mem_flags flags) {
         if(need <= cap && buf) {
             return;
@@ -118,17 +138,30 @@ struct GOpenCLBackend<scalar_type>::Impl {
 
 /******************************************************************************/
 
+/** @brief Default constructor; creates the pimpl. OpenCL context/program are built in initialize().
+ *  @tparam scalar_type The host-side flat-buffer element type (double or float) */
 template <typename scalar_type>
 GOpenCLBackend<scalar_type>::GOpenCLBackend()
     : p_(std::make_unique<Impl>())
 { /* nothing */ }
 
+/** @brief Destructor; the pimpl releases all OpenCL resources (buffers, kernel, program, queue, context).
+ *  @tparam scalar_type The host-side flat-buffer element type (double or float) */
 template <typename scalar_type>
 GOpenCLBackend<scalar_type>::~GOpenCLBackend() = default;
 
+/** @brief A short backend identifier ("opencl"), used for logging and selection.
+ *  @tparam scalar_type The host-side flat-buffer element type (double or float)
+ *  @return The backend name string */
 template <typename scalar_type>
 std::string GOpenCLBackend<scalar_type>::name() const { return "opencl"; }
 
+/**
+ * @brief Selects a device, builds the OpenCL context/queue, compiles the kernel source and creates the kernel.
+ *
+ * @tparam scalar_type The host-side flat-buffer element type (double or float)
+ * @param spec The kernel specification (source path, entry-point name, launch geometry, device id)
+ */
 template <typename scalar_type>
 void GOpenCLBackend<scalar_type>::initialize(const KernelSpec &spec) {
     p_->spec = spec;
@@ -194,6 +227,18 @@ void GOpenCLBackend<scalar_type>::initialize(const KernelSpec &spec) {
     clCheck(err, "clCreateKernel (entry name correct?)");
 }
 
+/**
+ * @brief Uploads the batch, launches the kernel (one work-item per item) and reads the fitness back.
+ *
+ * @tparam scalar_type The host-side flat-buffer element type (double or float)
+ * @param params Row-major parameter buffer of n_items * dim scalar_type (params[i*dim + j] = parameter j of item i)
+ * @param n_items Number of items in the batch; a non-positive value is a no-op
+ * @param dim Number of scalar_type parameters per item
+ * @param pconst Opaque problem-constant blob handed to the kernel; re-uploaded only when its pointer/size changes
+ * @param pconst_size Size in bytes of the problem-constant blob (0 means none)
+ * @param fitness_out Output buffer receiving n_items fitness scalar_type values
+ * @note The trailing threads_per_item argument is unused: this backend always uses one work-item per item, lacking portable double atomics
+ */
 template <typename scalar_type>
 void GOpenCLBackend<scalar_type>::evaluate(
     const scalar_type *params, int n_items, int dim,

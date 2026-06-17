@@ -61,6 +61,8 @@ namespace Gem::Courtier {
  * As with the ASIO consumer it reuses the existing courtier session
  * (Gem::Courtier::Consumers::GWebsocketConsumerSessionT) and GCommandContainerT wire protocol, so an
  * unmodified Gem::Courtier::Consumers::GWebsocketClientT serves a courtier server.
+ *
+ * @tparam processable_type The work-item type handed to clients and reconciled back into the population
  */
 template <typename processable_type>
 class GWebsocketConsumerT final
@@ -70,6 +72,13 @@ public:
     using session_type = Gem::Courtier::Consumers::GWebsocketConsumerSessionT<processable_type>;
 
     /***************************************************************************/
+    /** @brief Constructs the websocket consumer.
+     *
+     *  @param port The TCP port the server listens on (0 lets the OS pick; the chosen port is read back)
+     *  @param n_threads Number of io threads to run; 0 selects the hardware concurrency
+     *  @param serialization_mode Which serialization format (binary/XML/text) the wire protocol uses
+     *  @param ping_interval Time in seconds between keep-alive pings each session sends to its client
+     *  @param verbose_control_frames If true, sessions log a diagnostic message for every control frame */
     explicit GWebsocketConsumerT(
         unsigned short port,
         std::size_t n_threads = 0,
@@ -84,6 +93,7 @@ public:
         , verbose_control_frames_(verbose_control_frames)
     { /* nothing */ }
 
+    /** @brief The destructor. Stops the server (idempotent). */
     ~GWebsocketConsumerT() override { this->stopServer(); }
 
     GWebsocketConsumerT(const GWebsocketConsumerT &) = delete;
@@ -92,10 +102,17 @@ public:
     GWebsocketConsumerT &operator=(GWebsocketConsumerT &&) = delete;
 
     /***************************************************************************/
+    /** @brief Returns the TCP port the server is bound to (the OS-chosen port after startServer()
+     *  when 0 was requested).
+     *  @return The active listening port */
     [[nodiscard]] unsigned short getPort() const noexcept { return port_; }
+    /** @brief Returns the number of currently active client sessions.
+     *  @return The live session count */
     [[nodiscard]] std::size_t getNActiveSessions() const noexcept { return n_active_sessions_.load(); }
 
     /***************************************************************************/
+    /** @brief Opens, binds and listens on the acceptor, then starts accepting connections and spins
+     *  up the io threads. Throws a geneva_exception if the acceptor cannot be opened/bound. */
     void startServer() {
         boost::system::error_code ec;
 
@@ -136,6 +153,8 @@ public:
     }
 
     /***************************************************************************/
+    /** @brief Stops the server (idempotent): requests a stop, closes the acceptor on the accept
+     *  strand, releases the work guard and joins the io threads. */
     void stopServer() {
         if(stopped_already_.exchange(true)) {
             return;
@@ -164,12 +183,16 @@ protected:
 
 private:
     /***************************************************************************/
+    /** @brief Default io-thread count derived from the hardware concurrency (at least 1).
+     *  @return The number of io threads to use when none was requested */
     static std::size_t default_threads() {
         const unsigned int hc = std::thread::hardware_concurrency();
         return hc == 0 ? 1u : hc;
     }
 
     /***************************************************************************/
+    /** @brief Arms one asynchronous accept, bound to the accept strand so all (non-thread-safe)
+     *  acceptor access is serialized across the io threads. */
     void async_start_accept() {
         // Connectionless async_accept overload (a fresh socket per accept -- no shared socket_ to
         // race on), with the handler bound to accept_strand_ so all acceptor access is serialized
@@ -186,6 +209,12 @@ private:
     }
 
     /***************************************************************************/
+    /** @brief Accept handler: starts a new persistent session for the connection (with a CheckoutLease
+     *  that requeues any in-flight items if the client dies), then re-arms the next accept. Backs off
+     *  briefly on a transient accept failure instead of busy-spinning.
+     *
+     *  @param ec The error code of a potential accept failure
+     *  @param socket The freshly accepted TCP socket, moved into the new session */
     void when_accepted(boost::system::error_code ec, boost::asio::ip::tcp::socket socket) {
         if(this->stopped()) {
             return; // shutting down: do not start a session and do not re-arm

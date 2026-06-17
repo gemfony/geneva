@@ -65,7 +65,7 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::run_state &rs) {
 
 /******************************************************************************************/
 /**
- * Puts a Gem::Courtier::beast_payload_command item into a stream
+ * Puts a Gem::Courtier::networked_consumer_payload_command item into a stream
  *
  * @param o The ostream the item should be added to
  * @param ps the item to be added to the stream
@@ -80,7 +80,7 @@ operator<<(std::ostream &o, const Gem::Courtier::networked_consumer_payload_comm
 
 /******************************************************************************************/
 /**
- * Reads a Gem::Courtier::beast_payload_command item from a stream
+ * Reads a Gem::Courtier::networked_consumer_payload_command item from a stream
  *
  * @param i The stream the item should be read from
  * @param ps The item read from the stream
@@ -202,7 +202,11 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::processingStatus &srm) 
 
 /******************************************************************************/
 /**
- * Puts a Gem::Courtier::brokerMode into a stream. Needed also for boost::lexical_cast<>
+ * Puts a Gem::Courtier::consumerType into a stream. Needed also for boost::lexical_cast<>
+ *
+ * @param o The ostream the item should be added to
+ * @param bm The consumerType item to be added to the stream
+ * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Courtier::consumerType &bm) {
     Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(bm);
@@ -212,7 +216,11 @@ std::ostream &operator<<(std::ostream &o, const Gem::Courtier::consumerType &bm)
 
 /******************************************************************************/
 /**
- * Reads a Gem::Courtier::brokerMode item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a Gem::Courtier::consumerType item from a stream. Needed also for boost::lexical_cast<>
+ *
+ * @param i The stream the item should be read from
+ * @param bm The consumerType item read from the stream
+ * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Courtier::consumerType &bm) {
     Gem::Common::ENUMBASETYPE tmp = 0;

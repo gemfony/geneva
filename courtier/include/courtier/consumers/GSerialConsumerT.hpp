@@ -46,6 +46,8 @@ namespace Gem::Courtier {
  * thread-pool consumer a local evaluation never goes MISSING -- it succeeds (PROCESSED) or its
  * thrown processing exception is funnelled into EXCEPTION_CAUGHT (and caught here so it does not
  * escape). Mostly useful for debugging and as the reference implementation of dispatch_().
+ *
+ * @tparam processable_type The concrete work-item type evaluated inline by this consumer
  */
 template <typename processable_type>
 class GSerialConsumerT final : public GBaseConsumerT<processable_type> {
@@ -57,6 +59,9 @@ public:
 
 protected:
     /***************************************************************************/
+    /** @brief Evaluates each item inline on the calling thread, funnelling any thrown processing
+     *  exception into the item's status so it does not escape.
+     *  @param items The round of (uniquely owned) work items to evaluate in place */
     void dispatch_(std::vector<item_ptr> &items) override {
         for(auto &it : items) {
             try {

@@ -50,7 +50,9 @@ enum class BackendKind {
     OpenCL
 };
 
-/** @brief Parse a backend mnemonic ("cpu" | "cuda" | "opencl"); falls back to Cpu on anything else. */
+/** @brief Parse a backend mnemonic ("cpu" | "cuda" | "opencl"); falls back to Cpu on anything else.
+ *  @param s The backend mnemonic string to parse
+ *  @return The matching BackendKind, or BackendKind::CPU for any unrecognized string */
 inline BackendKind backendKindFromString(const std::string &s) {
     if(s == "cuda") {
         return BackendKind::CUDA;
@@ -61,7 +63,9 @@ inline BackendKind backendKindFromString(const std::string &s) {
     return BackendKind::CPU;
 }
 
-/** @brief Human-readable name of a backend kind. */
+/** @brief Human-readable name of a backend kind.
+ *  @param k The backend kind to name
+ *  @return Its mnemonic ("cuda" | "opencl" | "cpu") */
 inline const char *toString(BackendKind k) {
     switch(k) {
     case BackendKind::CUDA:   return "cuda";

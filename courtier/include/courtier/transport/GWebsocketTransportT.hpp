@@ -90,6 +90,8 @@ namespace Gem::Courtier::Consumers {
  * COMPUTE/NODATA, so the server (and its sessions) need no knowledge of the client's prefetch depth.
  * The client treats a late result as an ordinary RESULT -- whether it still matters is entirely the
  * server's concern (it reconciles by correlation id and silently drops results for finished batches).
+ *
+ * @tparam processable_type The work-item type exchanged with the server (must be processable)
  */
 template <typename processable_type>
 class GWebsocketClientT final
@@ -108,7 +110,13 @@ class GWebsocketClientT final
 public:
     //-------------------------------------------------------------------------
     /**
-	  * Initialization with host/ip and port
+	  * @brief Initialization with host/ip and port.
+	  *
+	  * @param address The IP address or host name of the server to connect to
+	  * @param port The TCP port the server is listening on
+	  * @param serialization_mode Which serialization format (binary/XML/text) the wire protocol uses
+	  * @param verbose_control_frames If true, a diagnostic message is logged for every control frame received
+	  * @param prefetch_depth Maximum number of work items kept in flight at once (a value of 0 is treated as 1)
 	  */
     GWebsocketClientT(
         std::string address,
@@ -166,7 +174,7 @@ public:
 
     //-------------------------------------------------------------------------
     /**
-	  * The destructor
+	  * @brief The destructor. Logs a shutdown summary (items processed, NODATA count, prefetch depth).
 	  */
     ~GWebsocketClientT() override {
         glogger << '\n'
@@ -193,7 +201,8 @@ public:
 private:
     //-------------------------------------------------------------------------
     /**
-	  * Starts the main run-loop
+	  * @brief Starts the main run-loop: resolves the server, runs the io_context until no work
+	  * remains, then closes all outstanding connections.
 	  */
     void run_() override {
         // Start looking up the domain name. This call will return immediately,
@@ -221,9 +230,10 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Starts a new write session
+	  * @brief Queues a message for sending and pumps the write queue. Beast permits only one
+	  * outstanding write, so queued messages are drained one after another.
 	  *
-	  * @param message The message to be transferred to the peer
+	  * @param message The serialized message to be transferred to the peer
 	  */
     void async_start_write(std::string message) {
         // Do nothing if we have been asked to stop
@@ -261,7 +271,7 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Starts a new read session
+	  * @brief Starts a new asynchronous read session, leaving one read outstanding on the io thread.
 	  */
     void async_start_read() {
         // Do nothing if we have been asked to stop
@@ -280,10 +290,11 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Code to be executed when the async_resolve-operation has completed
+	  * @brief Code to be executed when the async_resolve-operation has completed; on success it
+	  * initiates the TCP connect to a resolved endpoint.
 	  *
-	  * @param ec Indicates a possible error
-	  * @param results The results of the resolve-operation
+	  * @param ec Indicates a possible error during name resolution
+	  * @param results The resolved endpoints of the resolve-operation
 	  */
     void when_resolved(boost::system::error_code ec, const resolver::results_type &results) {
         if(ec) {
@@ -311,9 +322,10 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Code to be executed when the async_connect call has completed
+	  * @brief Code to be executed when the async_connect call has completed; on success it disables
+	  * Nagle's algorithm and starts the websocket handshake.
 	  *
-	  * @param ec Indicates a possible error
+	  * @param ec Indicates a possible error during the TCP connect
 	  */
     void when_connected(boost::system::error_code ec) {
         if(ec) {
@@ -343,9 +355,10 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Code to be executed when the async_handshake-operation has completed
+	  * @brief Code to be executed when the async_handshake-operation has completed; on success it
+	  * arms the outstanding read, starts the halt timer and primes the prefetch pipeline.
 	  *
-	  * @param ec Indicates a possible error
+	  * @param ec Indicates a possible error during the websocket handshake
 	  */
 
     void when_handshake_complete(boost::system::error_code ec) {
@@ -380,9 +393,11 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Code to be executed when the entire message was sent to the remote side
+	  * @brief Code to be executed when the entire message was sent to the remote side; releases the
+	  * write buffer and pumps the next queued message.
 	  *
-	  * @param ec Indicates a possible error
+	  * @param ec Indicates a possible error during the write
+	  * @param nothing The number of bytes transferred (unused)
 	  */
     void when_written(
         boost::system::error_code ec,
@@ -411,9 +426,11 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Code to be executed when an entire new message was read
+	  * @brief Code to be executed when an entire new message was read; dispatches the message and
+	  * re-arms the read so exactly one read stays outstanding.
 	  *
-	  * @param ec Indicates a possible error
+	  * @param ec Indicates a possible error during the read
+	  * @param nothing The number of bytes transferred (unused)
 	  */
     void when_read(
         boost::system::error_code ec,
@@ -443,7 +460,8 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Processing of incoming messages and creation of responses takes place here
+	  * @brief Processing of incoming messages and creation of responses takes place here. A COMPUTE
+	  * item is moved to the compute pool; NODATA triggers a backoff refill; bad messages shut down.
 	  */
     void handle_message() {
         // Extract the string from the buffer
@@ -542,10 +560,12 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Hands the given work item to the compute pool for evaluation, keeping the io thread free to
+	  * @brief Hands the given work item to the compute pool for evaluation, keeping the io thread free to
 	  * service pings. A work guard pins io_context::run() open from here until finish_compute() has
 	  * run, so the posted result is always delivered -- no premature drain and no leftover-handler
 	  * leak on shutdown.
+	  *
+	  * @param container The command container holding the COMPUTE work item to evaluate (moved into the worker)
 	  */
     void dispatch_compute(
         GCommandContainerT<processable_type, networked_consumer_payload_command> container
@@ -583,7 +603,9 @@ private:
     //-------------------------------------------------------------------------
     /** @brief Runs on the io thread once an evaluation has completed: returns the result to the server
 	 *  (the RESULT is itself a pull the server answers with the next item) and tops the pipeline back
-	 *  up. The work guard captured by the posting lambda is released when this returns. */
+	 *  up. The work guard captured by the posting lambda is released when this returns.
+	 *
+	 *  @param container The command container holding the just-evaluated work item, sent back as a RESULT */
     void finish_compute(
         GCommandContainerT<processable_type, networked_consumer_payload_command> container
     ) {
@@ -600,7 +622,9 @@ private:
 
     //-------------------------------------------------------------------------
     /** @brief Serializes @p container and writes it to the server, guarding against serialization
-	 *  failures (which must not unwind the io thread). */
+	 *  failures (which must not unwind the io thread).
+	 *
+	 *  @param container The command container to serialize and transmit */
     void send_command_(
         const GCommandContainerT<processable_type, networked_consumer_payload_command> &container
     ) {
@@ -621,7 +645,7 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Closes the connection to the peer
+	  * @brief Closes the connection to the peer, cancelling the halt and NODATA timers first.
 	  *
 	  * @param cc The close code to be sent to the peer
 	  */
@@ -653,7 +677,7 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Arms a periodic timer that polls the base-class halt() condition (max runtime / stop request /
+	  * @brief Arms a periodic timer that polls the base-class halt() condition (max runtime / stop request /
 	  * error flag). Because a read is kept outstanding at all times, a halt would otherwise never be
 	  * observed; on halt we do_close(), which aborts the outstanding read/write so io_context::run()
 	  * drains and the client terminates.
@@ -665,7 +689,10 @@ private:
     }
 
     //-------------------------------------------------------------------------
-    /** @brief Timer callback: tears the connection down once a halt condition is reached. */
+    /** @brief Timer callback: tears the connection down once a halt condition is reached, otherwise
+	 *  re-arms the poll.
+	 *
+	 *  @param ec The timer error code (non-zero means the timer was cancelled during teardown) */
     void on_halt_timer(boost::system::error_code ec) {
         if(ec) { // the timer was cancelled (do_close) -- stop polling
             return;
@@ -758,6 +785,8 @@ private:
 /**
  * Consumer-side handling of client-connection. A new session is started for each
  * new connection and will be kept open until a stop condition is reached.
+ *
+ * @tparam processable_type The work-item type exchanged with the connected client (must be processable)
  */
 template <typename processable_type>
 class GWebsocketConsumerSessionT final
@@ -771,7 +800,17 @@ class GWebsocketConsumerSessionT final
 public:
     //-------------------------------------------------------------------------
     /**
-	  * The only allowed constructor for this class
+	  * @brief The only allowed constructor for this class.
+	  *
+	  * @param io_context The io_context whose executor drives this session's async operations
+	  * @param socket The already-accepted TCP socket, moved into the session's websocket stream
+	  * @param get_payload_item Callback that hands out the next work item (or null when none is available)
+	  * @param put_payload_item Callback that returns a completed work item to the server/broker
+	  * @param check_server_stopped Callback returning true when the server has reached a stop condition
+	  * @param server_sign_on Callback notifying the server of session start (true) and termination (false)
+	  * @param serialization_mode Which serialization format (binary/XML/text) the wire protocol uses
+	  * @param ping_interval Time in seconds between keep-alive pings sent to the peer
+	  * @param verbose_control_frames If true, a diagnostic message is logged for every control frame received
 	  */
     GWebsocketConsumerSessionT(
         boost::asio::io_context &io_context,
@@ -861,7 +900,7 @@ public:
     }
 
     //-------------------------------------------------------------------------
-    /** @brief The destructor */
+    /** @brief The destructor. Signs the session off with the server. */
     ~GWebsocketConsumerSessionT() {
         // Make it known to the server that this session has terminated
         this->server_sign_on_(false);
@@ -869,7 +908,8 @@ public:
 
     //-------------------------------------------------------------------------
     /**
-	  * Initiates all communication and processing
+	  * @brief Initiates all communication and processing: disables Nagle's algorithm and begins
+	  * waiting for the websocket handshake. Returns shortly after, all work proceeding asynchronously.
 	  */
     void async_start_run() {
         // ---------------------------------------------------
@@ -902,7 +942,7 @@ public:
 private:
     //-------------------------------------------------------------------------
     /**
-	  * Initiates a new asynchroneous read session
+	  * @brief Initiates a new asynchronous read session, bound to the session strand.
 	  */
     void async_start_read() {
         // Read a message into our buffer
@@ -920,9 +960,9 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Initiates a new asynchroneous write session
+	  * @brief Initiates a new asynchronous write session, persisting the message for the write's duration.
 	  *
-	  * @param message The message to be sent to the peer
+	  * @param message The serialized message to be sent to the peer
 	  */
     void async_start_write(std::string message) {
         // We need to persist the message for asynchronous operations
@@ -943,7 +983,8 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Initiates pinging of the peer, so the connection may be kept alive
+	  * @brief Initiates pinging of the peer, so the connection may be kept alive, and arms the
+	  * ping-interval timer.
 	  */
     void async_start_ping() {
         // Set the timer
@@ -975,8 +1016,7 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Starts waiting for websocket handshakes over an already established
-	  * ASIO connection.
+	  * @brief Starts waiting for websocket handshakes over an already established ASIO connection.
 	  */
     void async_start_accept() {
         // This function initiates an asynchronous chain of callbacks, where each callback is
@@ -992,9 +1032,9 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Reacts on errors when sending a ping
+	  * @brief Reacts on errors when sending a ping; a failure marks the connection as stale.
 	  *
-	  * @param ec The error code of a potential error
+	  * @param ec The error code of a potential error from the ping write
 	  */
     void when_ping_sent(boost::system::error_code ec) {
         if(ec) {
@@ -1010,10 +1050,11 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * A timer is started in regular intervals. This code is executed when
-	  * the timer expires
+	  * @brief A timer is started in regular intervals. This code is executed when the timer expires:
+	  * it checks ping liveness, tolerates a few missed pongs, and tears the connection down if the
+	  * peer is unresponsive over several intervals.
 	  *
-	  * @param ec The error code of a potential error
+	  * @param ec The error code of a potential error (non-zero means the timer was cancelled at teardown)
 	  */
     void when_timer_fired(boost::system::error_code ec) {
         if(ec) {
@@ -1052,9 +1093,10 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Code to be executed when a handshake was accepted
+	  * @brief Code to be executed when a handshake was accepted; on success it starts the read loop
+	  * and the ping cycle.
 	  *
-	  * @param ec The error code of a potential error
+	  * @param ec The error code of a potential error during the accept/handshake
 	  */
     void when_connection_accepted(boost::system::error_code ec) {
         if(ec) {
@@ -1077,9 +1119,10 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Code to be executed when a new message was read
+	  * @brief Code to be executed when a new message was read; processes the request and writes the response.
 	  *
-	  * @param ec The error code of a potential error
+	  * @param ec The error code of a potential error during the read
+	  * @param nothing The number of bytes transferred (unused)
 	  */
     void when_read(
         boost::system::error_code ec,
@@ -1102,9 +1145,11 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Code to be executed when a message was written
+	  * @brief Code to be executed when a message was written; either closes on a stop condition or
+	  * starts another read cycle.
 	  *
-	  * @param ec The error code of a potential error
+	  * @param ec The error code of a potential error during the write
+	  * @param nothing The number of bytes transferred (unused)
 	  */
     void when_written(
         boost::system::error_code ec,
@@ -1141,7 +1186,7 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Shuts down the (websocket and ASIO) connection to the peer
+	  * @brief Shuts down the (websocket and ASIO) connection to the peer, cancelling the ping timer.
 	  *
 	  * @param cc A close-code to be transmitted to the peer
 	  */
@@ -1178,9 +1223,10 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Processing of incoming messages and creation of a response-string
+	  * @brief Processing of incoming messages and creation of a response-string. Handles GETDATA
+	  * (hands out a work item) and RESULT (submits the returned payload, then hands out the next item).
 	  *
-	  * @return The response to be sent to the server in the case of an incoming message
+	  * @return The response to be sent to the peer; an empty string on an unknown command or on error
 	  */
     std::string process_request() {
         try {
@@ -1250,9 +1296,10 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Retrieval of a work item from the server and serialization
+	  * @brief Retrieval of a work item from the server and serialization. A valid item is wrapped in a
+	  * COMPUTE command; when none is available a NODATA command is produced instead.
 	  *
-	  * @return A serialized representation of the work item
+	  * @return A serialized COMPUTE container with the work item, or a serialized NODATA container
 	  */
     std::string getAndSerializeWorkItem() {
         // Obtain a container_payload object from the queue, serialize it and send it off

@@ -93,6 +93,8 @@ namespace Gem::Courtier {
  * they exceed an adaptive LEASE. A transport that detects client death directly (the websocket
  * consumer, via its persistent session + CheckoutLease) reclaims immediately on disconnect and
  * disables the time lease.
+ *
+ * @tparam processable_type The work-item type the consumer schedules to remote clients and reconciles
  */
 template <typename processable_type>
 class GNetworkedConsumerT : public GBaseConsumerT<processable_type> {
@@ -104,16 +106,21 @@ public:
     ~GNetworkedConsumerT() override = default;
 
     /***************************************************************************/
-    /** @brief Sets the lease used to reclaim a stuck in-flight item before the running mean is known. */
+    /** @brief Sets the lease used to reclaim a stuck in-flight item before the running mean is known.
+     *  @param w The bootstrap reclaim lease (used until the first return time is observed) */
     void setLeaseBootstrap(std::chrono::milliseconds w) { lease_bootstrap_ = w; }
-    /** @brief Sets the multiple of the running mean return time used as the reclaim lease. */
+    /** @brief Sets the multiple of the running mean return time used as the reclaim lease.
+     *  @param f The multiplier applied to the running mean return time to form the (clamped) reclaim lease */
     void setLeaseFactor(double f) { lease_factor_ = f; }
-    /** @brief Sets the lower/upper clamp on the adaptive reclaim lease. */
+    /** @brief Sets the lower/upper clamp on the adaptive reclaim lease.
+     *  @param lo The lower clamp on the reclaim lease
+     *  @param hi The upper clamp on the reclaim lease */
     void setLeaseBounds(std::chrono::milliseconds lo, std::chrono::milliseconds hi) {
         min_lease_ = lo;
         max_lease_ = hi;
     }
-    /** @brief Sets the poll interval at which dispatch_ re-evaluates the lease/stall while waiting. */
+    /** @brief Sets the poll interval at which dispatch_ re-evaluates the lease/stall while waiting.
+     *  @param w The re-evaluation poll interval */
     void setSweepTick(std::chrono::milliseconds w) { sweep_tick_ = w; }
 
     /***************************************************************************/
@@ -130,6 +137,9 @@ public:
      * batch_id wraparound (2^16) a buffered, retired batch_id cannot be re-minted while the entry is
      * still alive, so the 16-bit on-wire batch_id needs no widening for the single-OA case. Evictions
      * (cap or TTL) are counted (lateReturnDroppedCount()) and warned once -- never silently lost.
+     *
+     * @param cap Maximum number of late items held; 0 disables buffering (the default)
+     * @param ttl_rounds A held item is evicted after this many dispatch rounds (clamped well below the batch_id wraparound)
      */
     void setLateReturnBuffer(std::size_t cap, std::uint64_t ttl_rounds) {
         std::lock_guard<std::mutex> lk(mtx_);
@@ -137,25 +147,30 @@ public:
         // Keep the TTL well under the batch_id wraparound so a live buffered id cannot alias a fresh one.
         late_buffer_ttl_rounds_ = std::min<std::uint64_t>(ttl_rounds, (BATCH_MASK >> 2));
     }
-    /** @brief Number of late returns currently held in the buffer (reaped by the OA in a later step). */
+    /** @brief Number of late returns currently held in the buffer (reaped by the OA in a later step).
+     *  @return The count of late items currently buffered */
     [[nodiscard]] std::size_t lateReturnBufferSize() const {
         std::lock_guard<std::mutex> lk(mtx_);
         return late_returns_.size();
     }
     /** @brief Total late returns dropped (cap/TTL eviction, or arrivals while buffering is disabled)
-     *  since construction -- an observable, non-silent drop count. */
+     *  since construction -- an observable, non-silent drop count.
+     *  @return The running total of dropped late returns */
     [[nodiscard]] std::uint64_t lateReturnDroppedCount() const {
         std::lock_guard<std::mutex> lk(mtx_);
         return late_dropped_count_;
     }
 
-    /** @brief GBaseConsumerT hook: enable/size the late-return buffer (delegates to setLateReturnBuffer). */
+    /** @brief GBaseConsumerT hook: enable/size the late-return buffer (delegates to setLateReturnBuffer).
+     *  @param cap Maximum number of late items held; 0 disables buffering
+     *  @param ttl_rounds A held item is evicted after this many dispatch rounds */
     void enableLateReturns(std::size_t cap, std::uint64_t ttl_rounds) override {
         setLateReturnBuffer(cap, ttl_rounds);
     }
 
     /** @brief GBaseConsumerT hook: drain the late-return buffer, transferring the held items to the
-     *  caller (the optimization algorithm reaps them in fixAfterJobSubmission). FIFO / arrival order. */
+     *  caller (the optimization algorithm reaps them in fixAfterJobSubmission). FIFO / arrival order.
+     *  @return The buffered late items in arrival order (ownership transferred; the buffer is emptied) */
     std::vector<item_ptr> getLateReturns() override {
         std::lock_guard<std::mutex> lk(mtx_);
         std::vector<item_ptr> out;
@@ -196,7 +211,8 @@ protected:
         CheckoutLease(const CheckoutLease &) = delete;
         CheckoutLease &operator=(const CheckoutLease &) = delete;
 
-        /** @brief Records the id of an item just handed to the session. */
+        /** @brief Records the id of an item just handed to the session.
+         *  @param p The item handed to the session (its correlation id is tracked as in-flight; null is ignored) */
         void add(const item_ptr &p) {
             if(not p) {
                 return;
@@ -204,7 +220,8 @@ protected:
             std::lock_guard<std::mutex> lk(mtx);
             in_flight.insert(p->getCorrelationId());
         }
-        /** @brief Drops an item the session returned normally (nothing left for the lease to reclaim). */
+        /** @brief Drops an item the session returned normally (nothing left for the lease to reclaim).
+         *  @param p The item the session returned (its correlation id is dropped from the in-flight set; null is ignored) */
         void remove(const item_ptr &p) {
             if(not p) {
                 return;
@@ -229,7 +246,8 @@ protected:
     /***************************************************************************/
     /** @brief Hands the next pending slot's item to a calling session, or null if none is pending.
      *  Round-robin across all active batches; the item's dispatch state flips PENDING -> IN_FLIGHT and
-     *  correlation rides its (batch_id, slot) id. */
+     *  correlation rides its (batch_id, slot) id.
+     *  @return A clone of the next pending item to ship, or nullptr if no slot is pending */
     item_ptr checkout() {
         std::lock_guard<std::mutex> lk(mtx_);
         return checkout_locked();
@@ -238,7 +256,9 @@ protected:
     /***************************************************************************/
     /** @brief Like checkout(), but blocks up to @p wait for a slot to become available before
      *  giving up and returning null. Keeps a transport from churning "no data" responses during the
-     *  gaps between batches. */
+     *  gaps between batches.
+     *  @param wait The maximum time to block waiting for a pending slot
+     *  @return A clone of the next pending item, or nullptr if none became available within @p wait */
     item_ptr checkoutWait(std::chrono::milliseconds wait) {
         std::unique_lock<std::mutex> lk(mtx_);
         if(total_pending_ == 0) {
@@ -251,7 +271,8 @@ protected:
     /** @brief Accepts a returned result and writes it into its slot. The result's (batch_id, slot) is
      *  decoded from its correlation id; a result whose batch is no longer active (timed out / finished)
      *  or whose slot is no longer IN_FLIGHT (a duplicate) is dropped, which is what makes resubmission
-     *  safe. */
+     *  safe.
+     *  @param p The deserialized result item (ownership transferred); null is ignored. Its correlation id locates the slot to overwrite */
     void checkin(item_ptr p) {
         if(not p) {
             return;
@@ -293,9 +314,9 @@ protected:
 
     /***************************************************************************/
     /** @brief Returns a slot's still-in-flight item to PENDING so another client picks it up
-     *  immediately (the RAII put-back on a client disconnect). Caller passes the item it checked out;
-     *  the batch+slot are located via its correlation id. A no-op if the batch moved on or the slot is
-     *  no longer in flight. */
+     *  immediately (the RAII put-back on a client disconnect). The batch+slot are located via the
+     *  passed correlation id. A no-op if the batch moved on or the slot is no longer in flight.
+     *  @param id The (batch_id, slot) correlation id of the item to put back */
     void requeue(Gem::Courtier::CORRELATION_ID_TYPE id) {
         std::lock_guard<std::mutex> lk(mtx_);
         auto it = batches_.find(decodeBatch(id));
@@ -308,7 +329,8 @@ protected:
     }
 
     /***************************************************************************/
-    /** @brief Whether the server is being torn down (sessions use this to stop accepting work). */
+    /** @brief Whether the server is being torn down (sessions use this to stop accepting work).
+     *  @return true once teardown has been requested */
     [[nodiscard]] bool stopped() const noexcept { return stop_.load(); }
 
     /** @brief Requests teardown -- subclasses call this from their stop path. Wakes every waiter. */
@@ -323,7 +345,8 @@ protected:
      *  transports with no per-client liveness signal (ASIO, MPI): an item that has been IN_FLIGHT
      *  longer than the adaptive lease is presumed lost and requeued. A transport that detects client
      *  death directly (the websocket consumer, via CheckoutLease on its persistent session) overrides
-     *  this to false, so a live-but-slow client is never wrongly reclaimed. */
+     *  this to false, so a live-but-slow client is never wrongly reclaimed.
+     *  @return true if stuck in-flight items are reclaimed via the time lease (false for liveness-driven transports) */
     virtual bool usesTimeLease() const { return true; }
 
     /***************************************************************************/
@@ -333,6 +356,8 @@ protected:
      * straight into their slots -- simply deregisters and returns. Items that never reached DONE are
      * left DO_PROCESS == MISSING for the reconciliation loop. Safe to call concurrently from many
      * threads: each call owns a distinct batch_id; the shared client pool is served round-robin.
+     *
+     * @param items The round's work items, BORROWED (not owned) for the duration of the call; results are written back into their slots in place
      */
     void dispatch_(std::vector<item_ptr> &items) override {
         const std::size_t n = items.size();
@@ -412,13 +437,23 @@ private:
     static constexpr Gem::Courtier::CORRELATION_ID_TYPE SLOT_MASK = (1u << SLOT_BITS) - 1u;
     static constexpr Gem::Courtier::CORRELATION_ID_TYPE BATCH_MASK = 0xFFFFu;
 
+    /** @brief Packs a batch_id and slot into the on-wire correlation id (batch in the high 16 bits, slot in the low 16).
+     *  @param batch The batch id (masked to 16 bits)
+     *  @param slot The slot index within the batch (masked to 16 bits)
+     *  @return The combined (batch_id, slot) correlation id */
     static Gem::Courtier::CORRELATION_ID_TYPE encodeId(batch_key_t batch, std::size_t slot) {
         return ((batch & BATCH_MASK) << SLOT_BITS)
                | (static_cast<Gem::Courtier::CORRELATION_ID_TYPE>(slot) & SLOT_MASK);
     }
+    /** @brief Extracts the batch id from a correlation id.
+     *  @param id The (batch_id, slot) correlation id
+     *  @return The batch id (high 16 bits) */
     static batch_key_t decodeBatch(Gem::Courtier::CORRELATION_ID_TYPE id) {
         return (id >> SLOT_BITS) & BATCH_MASK;
     }
+    /** @brief Extracts the slot index from a correlation id.
+     *  @param id The (batch_id, slot) correlation id
+     *  @return The slot index (low 16 bits) */
     static std::size_t decodeSlot(Gem::Courtier::CORRELATION_ID_TYPE id) {
         return static_cast<std::size_t>(id & SLOT_MASK);
     }
@@ -426,7 +461,8 @@ private:
     /***************************************************************************/
     /** @brief Parks a late arrival (a result for a batch that already finished/timed out) instead of
      *  dropping it silently. With buffering disabled (cap == 0, the default) the drop is merely COUNTED
-     *  (no behaviour change until a getOldWorkItems() reaper exists). Caller holds mtx_. */
+     *  (no behaviour change until a getOldWorkItems() reaper exists). Caller holds mtx_.
+     *  @param p The late-arriving result item (ownership transferred); parked if buffering is enabled, else its drop is counted */
     void bufferLateReturn_locked(item_ptr p) {
         if(late_buffer_cap_ == 0) {
             recordLateDrop_locked(1); // buffering off: count the drop, do not hold the item
@@ -456,7 +492,8 @@ private:
     }
 
     /** @brief Records that @p n late returns were dropped (disabled-buffer arrival, or cap/TTL
-     *  eviction) and warns ONCE so the loss is observable without log spam. Caller holds mtx_. */
+     *  eviction) and warns ONCE so the loss is observable without log spam. Caller holds mtx_.
+     *  @param n The number of late returns just dropped, added to the running total */
     void recordLateDrop_locked(std::uint64_t n) {
         late_dropped_count_ += n;
         if(not late_drop_warned_) {
@@ -485,7 +522,8 @@ private:
 
     /***************************************************************************/
     /** @brief Serves the next PENDING slot, round-robin across active batches for fairness (so no
-     *  single submitter starves the others). Caller holds mtx_. */
+     *  single submitter starves the others). Caller holds mtx_.
+     *  @return A clone of the next pending item to ship, or nullptr if no slot is pending */
     item_ptr checkout_locked() {
         if(total_pending_ == 0 || batches_.empty()) {
             return nullptr;
@@ -520,7 +558,10 @@ private:
 
     /***************************************************************************/
     /** @brief Flips a slot IN_FLIGHT -> PENDING (a put-back) within batch @p b and rewinds its cursor
-     *  so checkout re-finds it. Returns whether anything was flipped. Caller holds mtx_. */
+     *  so checkout re-finds it. Caller holds mtx_.
+     *  @param b The batch owning the slot
+     *  @param slot The slot index to flip back to PENDING
+     *  @return true if the slot was flipped; false if it was out of range or not currently IN_FLIGHT */
     bool requeueSlot_locked(BatchState &b, std::size_t slot) {
         if(slot >= b.items->size() ||
            (*b.items)[slot]->getDispatchState() != Gem::Courtier::dispatchState::IN_FLIGHT) {
@@ -537,7 +578,9 @@ private:
 
     /***************************************************************************/
     /** @brief Reclaims every slot of batch @p b that has been IN_FLIGHT longer than the adaptive
-     *  lease, returning it to PENDING for re-service. Caller holds mtx_. */
+     *  lease, returning it to PENDING for re-service. Caller holds mtx_.
+     *  @param b The batch to sweep
+     *  @param now The current time, against which each slot's checkout time is compared to the lease */
     void leaseSweep_locked(BatchState &b, clock::time_point now) {
         const auto lease = currentLease();
         bool any = false;
@@ -553,7 +596,8 @@ private:
     }
 
     /***************************************************************************/
-    /** @brief Folds one observed checkout->return duration into the running mean (an EMA). */
+    /** @brief Folds one observed checkout->return duration into the running mean (an EMA).
+     *  @param d The observed checkout-to-return duration of one item */
     void recordReturnTime_(clock::duration d) {
         const double ms = std::chrono::duration<double, std::milli>(d).count();
         if(n_return_samples_ == 0) {
@@ -567,7 +611,8 @@ private:
 
     /***************************************************************************/
     /** @brief The current reclaim lease: a multiple of the running mean return time (clamped), or a
-     *  bootstrap value until the first return has been observed. */
+     *  bootstrap value until the first return has been observed.
+     *  @return The current reclaim lease duration */
     std::chrono::milliseconds currentLease() const {
         if(n_return_samples_ == 0) {
             return lease_bootstrap_;
@@ -580,7 +625,8 @@ private:
     /** @brief The current give-up window: how long a batch's dispatch_ tolerates NO progress before
      *  declaring the rest of that batch MISSING. A generous multiple of the running mean return time,
      *  clamped. Only ever consulted once n_return_samples_ > 0 (dispatch_ waits indefinitely before
-     *  the first return ever arrives), so there is no pre-sample fallback here. */
+     *  the first return ever arrives), so there is no pre-sample fallback here.
+     *  @return The current give-up (stall) window duration */
     std::chrono::milliseconds currentStallWindow() const {
         const auto v = std::chrono::milliseconds(static_cast<long long>(stall_factor_ * mean_return_ms_));
         return std::clamp(v, min_stall_, max_stall_);

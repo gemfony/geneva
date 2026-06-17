@@ -56,7 +56,10 @@ struct GGPUConsumerConfig {
     unsigned int grid_y = 0;
     unsigned int grid_z = 0;
 
-    /** @brief Reads the configuration from @p configFile, writing fresh defaults if it is absent. */
+    /**
+     * @brief Reads the configuration from @p configFile, writing fresh defaults if it is absent.
+     * @param configFile Path to the Geneva-style JSON config file to read (created with defaults if missing)
+     */
     void load(const std::string &configFile) {
         Gem::Common::GParserBuilder gpb;
         gpb.registerFileParameter<std::string>(
@@ -86,7 +89,10 @@ struct GGPUConsumerConfig {
         gpb.parseConfigFile(configFile);
     }
 
-    /** @brief The kernel spec described by this config. */
+    /**
+     * @brief The kernel spec described by this config.
+     * @return A KernelSpec populated from the kernel path, entry point, device id and launch sizes
+     */
     [[nodiscard]] KernelSpec kernelSpec() const {
         KernelSpec s;
         s.path = kernel_path;
@@ -96,7 +102,10 @@ struct GGPUConsumerConfig {
         return s;
     }
 
-    /** @brief The selected backend kind. */
+    /**
+     * @brief The selected backend kind.
+     * @return The BackendKind parsed from the "backend" string ("cpu" | "cuda" | "opencl")
+     */
     [[nodiscard]] BackendKind backendKind() const { return backendKindFromString(backend); }
 };
 

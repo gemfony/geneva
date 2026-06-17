@@ -54,6 +54,8 @@ namespace Gem::Courtier {
  * GProcessingContainerT::process() into the item's EXCEPTION_CAUGHT status (the throw is caught
  * here so it never escapes the worker thread). Reconciliation against the policy is inherited
  * from GBaseConsumerT.
+ *
+ * @tparam processable_type The work-item type evaluated by the worker threads.
  */
 template <typename processable_type>
 class GStdThreadConsumerT final : public GBaseConsumerT<processable_type> {
@@ -61,7 +63,8 @@ public:
     using item_ptr = typename GBaseConsumerT<processable_type>::item_ptr;
 
     /***************************************************************************/
-    /** @brief Initialization with the number of worker threads (0 == hardware concurrency). */
+    /** @brief Initialization with the number of worker threads (0 == hardware concurrency).
+     *  @param n_threads Number of worker threads in the pool; 0 means use the hardware concurrency. */
     explicit GStdThreadConsumerT(unsigned int n_threads = 0)
         : pool_(n_threads == 0 ? default_threads() : n_threads)
     { /* nothing */ }
@@ -71,7 +74,7 @@ public:
 protected:
     /***************************************************************************/
     /**
-     * Evaluates all items of one round concurrently. process() sets PROCESSED on success and
+     * @brief Evaluates all items of one round concurrently. process() sets PROCESSED on success and
      * EXCEPTION_CAUGHT on a caught processing exception (which it also re-throws -- swallowed here).
      *
      * Waits on a PER-BATCH counter rather than GThreadPool::wait() (a global drain barrier): the pool
@@ -86,6 +89,8 @@ protected:
      * stack-allocated m/cv -- while that worker is still about to lock m, locking freed memory (a
      * use-after-scope: glibc aborts with "mutex->__data.__owner == 0"). Keeping m/cv alive via shared_ptr
      * makes the at-most-redundant late notify harmless instead of fatal.
+     *
+     * @param items The work items of one round; each is evaluated on the shared pool and the call blocks until all have finished
      */
     void dispatch_(std::vector<item_ptr> &items) override {
         if(items.empty()) {
@@ -118,6 +123,8 @@ protected:
     }
 
 private:
+    /** @brief Default number of worker threads when none was requested.
+     *  @return The hardware concurrency, or 1 if it cannot be determined. */
     static unsigned int default_threads() {
         const unsigned int hc = std::thread::hardware_concurrency();
         return hc == 0 ? 1u : hc;

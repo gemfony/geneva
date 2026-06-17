@@ -69,8 +69,16 @@ namespace Gem::Courtier::Consumers {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class is responsible for the client side of network communication
- * with Boost::Beast. Connections are kept open permanently.
+ * @brief Client side of the courtier ASIO transport: pulls work items from the server, evaluates
+ * them on a compute pool and returns the results.
+ *
+ * One exchange equals one short-lived connection (resolve, connect, write request, read response,
+ * close). A GETDATA exchange fetches an item; a RESULT exchange returns a finished item and fetches
+ * the next in the same connection. A configurable prefetch depth keeps spare items in flight so the
+ * evaluation of one item overlaps the fetch/return connections of others (a depth of 1 reproduces
+ * the classic strictly-serial behaviour).
+ *
+ * @tparam processable_type The work-item type transported and evaluated by this client.
  */
 template <typename processable_type>
 class GAsioConsumerClientT final
@@ -86,7 +94,13 @@ class GAsioConsumerClientT final
 public:
     //-------------------------------------------------------------------------
     /**
-	  * Initialization with host/ip and port
+	  * @brief Initialization with host/ip and port.
+	  *
+	  * @param address The IP address or host name of the server to connect to
+	  * @param port The TCP port the server listens on
+	  * @param serialization_mode The serialization format used on the wire (text, XML or binary)
+	  * @param max_reconnects Maximum number of consecutive failed connection attempts before the client gives up
+	  * @param prefetch_depth Maximum number of work items kept in flight at once; a value of 0 is clamped to 1 (strictly serial)
 	  */
     GAsioConsumerClientT(
         std::string address,
@@ -105,7 +119,7 @@ public:
 
     //-------------------------------------------------------------------------
     /**
-	  * The destructor
+	  * @brief The destructor. Logs a short summary of the work done by this client.
 	  */
     ~GAsioConsumerClientT() override {
         glogger << '\n'
@@ -135,7 +149,8 @@ public:
 private:
     //-------------------------------------------------------------------------
     /**
-	  * Starts the main run-loop
+	  * @brief Starts the main run-loop. Primes the prefetch pipeline, arms the halt timer and blocks
+	  * in io_context::run() until shutdown releases the work guard.
 	  */
     void run_() override {
         // Prime the pipeline: enqueue up to prefetch_depth_ GETDATA pulls and start the first
@@ -198,7 +213,7 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Opens a fresh connection for the current exchange (outgoing_message_str_, already set by
+	  * @brief Opens a fresh connection for the current exchange (outgoing_message_str_, already set by
 	  * kick_exchange_). One exchange = one connection: resolve -> connect -> write request -> read
 	  * response -> close. Also re-entered by the reconnect backoff with the SAME outgoing message.
 	  */
@@ -220,10 +235,11 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Code to be executed when the async_resolve-operation has completed
+	  * @brief Code to be executed when the async_resolve-operation has completed. On success it
+	  * initiates the connection to the resolved endpoints; on error the client shuts down.
 	  *
 	  * @param ec Indicates a possible error
-	  * @param results The results of the resolve-operation
+	  * @param results The results of the resolve-operation (the candidate endpoints)
 	  */
     void when_resolved(boost::system::error_code ec, const resolver::results_type &results) {
         if(ec) {
@@ -250,7 +266,9 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Code to be executed when the async_connect call has completed
+	  * @brief Code to be executed when the async_connect call has completed. On success it disables
+	  * Nagle's algorithm and writes the request; on error it either retries (after a randomized async
+	  * backoff) or, once max_reconnects_ is exceeded, shuts the client down.
 	  *
 	  * @param ec Indicates a possible error
 	  */
@@ -324,9 +342,11 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Code to be executed when the entire message was sent to the remote side
+	  * @brief Code to be executed when the entire message was sent to the remote side. Shuts the
+	  * socket down in send direction and initiates the read of the server's response.
 	  *
 	  * @param ec Indicates a possible error
+	  * @param nothing The number of bytes transferred (unused)
 	  */
     void when_written(
         boost::system::error_code ec,
@@ -373,7 +393,8 @@ private:
 	  * ec of boost::asio::error::eof which we use as an indication that all
 	  * data was received.
 	  *
-	  * @param ec A possible error code
+	  * @param ec A possible error code (boost::asio::error::eof is the expected end-of-transmission)
+	  * @param nothing The number of bytes transferred (unused)
 	  */
     void when_read(
         boost::system::error_code ec,
@@ -409,9 +430,9 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Completes the current exchange: de-serializes the server's response and acts on it. A COMPUTE
-	  * item is handed to the compute pool (so the io thread stays free to run further exchanges while
-	  * it evaluates); a NODATA is backed off and retried. The connection is now free, so the next
+	  * @brief Completes the current exchange: de-serializes the server's response and acts on it. A
+	  * COMPUTE item is handed to the compute pool (so the io thread stays free to run further exchanges
+	  * while it evaluates); a NODATA is backed off and retried. The connection is now free, so the next
 	  * queued exchange (if any) is started.
 	  */
     void finish_exchange_() {
@@ -479,7 +500,9 @@ private:
     /** @brief Hands a work item to the compute pool, keeping the io thread free to run further
 		 *  exchanges while it evaluates. Each evaluation owns its OWN container (moved into the worker),
 		 *  so several items compute concurrently. A work guard pins io_context::run() open until the
-		 *  result has been posted back, so it is never dropped. */
+		 *  result has been posted back, so it is never dropped.
+		 *
+		 *  @param container The command container holding the work item to be evaluated (moved into the worker) */
     void dispatch_compute_(
         GCommandContainerT<processable_type, networked_consumer_payload_command> container
     ) {
@@ -515,7 +538,9 @@ private:
 
     //-------------------------------------------------------------------------
     /** @brief Runs on the io thread once an evaluation has finished: queues a RESULT exchange that
-		 *  returns the item AND fetches a replacement in one connection, then tops the pipeline up. */
+		 *  returns the item AND fetches a replacement in one connection, then tops the pipeline up.
+		 *
+		 *  @param container The command container holding the evaluated work item to be returned to the server */
     void on_compute_done_(
         GCommandContainerT<processable_type, networked_consumer_payload_command> container
     ) {
@@ -571,7 +596,10 @@ private:
     }
 
     //-------------------------------------------------------------------------
-    /** @brief Timer callback: shuts the client down once a halt condition is reached. */
+    /** @brief Timer callback: shuts the client down once a halt condition is reached, otherwise
+		 *  re-arms the poll.
+		 *
+		 *  @param ec A possible error code; a non-empty code means the timer was cancelled by shutdown() */
     void on_halt_timer(boost::system::error_code ec) {
         if(ec) { // cancelled by shutdown()
             return;
@@ -585,7 +613,8 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Shuts down the client
+	  * @brief Shuts down the client: resets the socket, cancels all timers and releases the work
+	  * guard so io_context::run() returns.
 	  */
     void shutdown() {
         // Clear the socket and cancel the timers
@@ -666,8 +695,14 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Consumer-side handling of client-connection. A new session is started for each
- * new connection and will be shut down when the request was served.
+ * @brief Consumer-side handling of a single client connection. A new session is started for each
+ * new connection and is shut down when the request has been served.
+ *
+ * It reads one request (GETDATA or RESULT), sources/sinks work items through the functors supplied
+ * by the consumer, and writes the response. A per-session deadline timer reclaims the socket of a
+ * stalled or half-open client.
+ *
+ * @tparam processable_type The work-item type exchanged with the client.
  */
 template <typename processable_type>
 class GAsioConsumerSessionT // NOLINT(cppcoreguidelines-special-member-functions)
@@ -675,7 +710,15 @@ class GAsioConsumerSessionT // NOLINT(cppcoreguidelines-special-member-functions
 public:
     //-------------------------------------------------------------------------
     /**
-	  * The main constructor for this class
+	  * @brief The main constructor for this class.
+	  *
+	  * @param io_context The io_context driving the asynchronous operations of this session
+	  * @param socket The accepted client socket (ownership is taken by move)
+	  * @param get_payload_item Functor that returns the next work item to hand to the client (empty pointer if none available)
+	  * @param put_payload_item Functor that receives a finished work item returned by the client
+	  * @param check_server_stopped Functor returning true once the server is shutting down (suppresses new reads/sessions)
+	  * @param serialization_mode The serialization format used on the wire
+	  * @param sign_on Functor called with true on construction and false on destruction to track the active-session count
 	  */
     GAsioConsumerSessionT(
         boost::asio::io_context &io_context,
@@ -703,7 +746,7 @@ public:
 
     //-------------------------------------------------------------------------
     /**
-	  * The destructor signs the session off again, so the active-session count stays accurate
+	  * @brief The destructor signs the session off again, so the active-session count stays accurate
 	  * however the session ends (served request, error or disconnect).
 	  */
     ~GAsioConsumerSessionT() {
@@ -714,7 +757,8 @@ public:
 
     //-------------------------------------------------------------------------
     /**
-	  * Starts the read-write cycle as the main purpose of this class
+	  * @brief Starts the read-write cycle as the main purpose of this class. Disables Nagle's
+	  * algorithm, arms the deadline timer and initiates the first asynchronous read.
 	  */
     void async_start_run() {
         // Disable Nagle's algorithm on the accepted connection: the request/response messages
@@ -754,7 +798,9 @@ private:
     }
 
     //-------------------------------------------------------------------------
-    /** @brief Deadline-timer callback: closes a stalled connection so its socket/fd is reclaimed. */
+    /** @brief Deadline-timer callback: closes a stalled connection so its socket/fd is reclaimed.
+		 *
+		 *  @param ec A possible error code; a non-empty code means the timer was cancelled (the session completed normally) */
     void on_deadline(boost::system::error_code ec) {
         if(ec) { // the timer was cancelled because the session completed normally
             return;
@@ -771,8 +817,8 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Starts an asynchronous read session, whose termination is signalled by
-	  * a call to the when_read()-function
+	  * @brief Starts an asynchronous read session, whose termination is signalled by
+	  * a call to the when_read()-function.
 	  */
     void async_start_read() {
         if(check_server_stopped_()) {
@@ -798,7 +844,8 @@ private:
 	  * This is signalled by an eof, as the sender closes its socket in
 	  * send-direction.
 	  *
-	  * @param ec Indicates possible error conditions
+	  * @param ec Indicates possible error conditions (boost::asio::error::eof is the expected end of the request)
+	  * @param nothing The number of bytes transferred (unused)
 	  */
     void when_read(
         boost::system::error_code ec,
@@ -833,9 +880,9 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Asynchronously sends a response to the client
+	  * @brief Asynchronously sends a response to the client.
 	  *
-	  * @param message The message to be sent to the client
+	  * @param message The serialized message to be sent to the client (stored for the duration of the async write)
 	  */
     void async_start_write(std::string message) {
         // We need to persist the message for asynchronous operations
@@ -861,6 +908,7 @@ private:
 	  * an error has occurred).
 	  *
 	  * @param ec Indicates a possible error condition
+	  * @param nothing The number of bytes transferred (unused)
 	  */
     void when_written(
         boost::system::error_code ec,
@@ -888,9 +936,11 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Steps to be taken when a request was received from the client
+	  * @brief Steps to be taken when a request was received from the client: de-serializes the
+	  * command container, acts on the command (GETDATA serves an item, RESULT sinks the returned item
+	  * and serves the next) and produces the response.
 	  *
-	  * @return Data to be sent to the client as a response to the request
+	  * @return Serialized data to be sent to the client as a response to the request (empty on error or unknown command)
 	  */
     std::string process_request() {
         try {
@@ -957,9 +1007,10 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * Retrieval of a work item from the server and serialization
+	  * @brief Retrieval of a work item from the server and serialization. Produces a COMPUTE command
+	  * container when an item is available, or a NODATA container when the queue is empty.
 	  *
-	  * @return A serialized representation of the work item
+	  * @return A serialized command container holding the work item (COMPUTE) or a NODATA marker
 	  */
     std::string getAndSerializeWorkItem() {
         // Obtain a container_payload object from the queue, serialize it and send it off
