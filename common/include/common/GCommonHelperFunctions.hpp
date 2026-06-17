@@ -64,8 +64,14 @@
 namespace Gem::Common {
 
 /******************************************************************************/
-/** @brief Creates a file in a given path, optionally with content */
-
+/**
+ * @brief Touches a file in a given path, optionally with content, and returns its last-write time.
+ *
+ * @param path The path (including file name) to the file to be touched
+ * @param content An optional content to write into the file (default: empty)
+ * @param remove_if_not_present If true, removes the file afterwards when it did not exist before (default: false)
+ * @return The time of the last write to the file (usable as a filesystem-based time marker)
+ */
 std::filesystem::file_time_type touch_time(
     std::filesystem::path const &path,
     std::string const &content = "",
@@ -73,33 +79,55 @@ std::filesystem::file_time_type touch_time(
 );
 
 /******************************************************************************/
-/** @brief Reads a json-document from a std::filesystem::path. This is a helper-function */
-
+/**
+ * @brief Reads a json-document from a std::filesystem::path. This is a helper-function.
+ *
+ * @param path The path of the JSON file to read
+ * @param pt Output parameter: the property tree that receives the parsed JSON document
+ */
 void read_json(std::filesystem::path const &path, boost::property_tree::ptree &pt);
 
 /******************************************************************************/
-/** @brief Determines a suitable number of threads for the current architecture */
-
+/**
+ * @brief Determines a suitable number of threads for the current architecture.
+ *
+ * @return A guess at a suitable number of hardware threads for this architecture
+ */
 unsigned int getNHardwareThreads();
 
 /******************************************************************************/
-/** @brief This function loads textual (ASCII) data from an external file */
-
-std::string loadTextDataFromFile(std::filesystem::path const &);
+/**
+ * @brief Loads textual (ASCII) data from an external file.
+ *
+ * @param p The path of the file to be loaded
+ * @return The data contained in the file, as a single string
+ */
+std::string loadTextDataFromFile(std::filesystem::path const &p);
 
 /******************************************************************************/
-/** @brief This function loads textual (ASCII) data from an external file, putting it line by line into a std::vector */
-
-std::vector<std::string> loadTextLinesFromFile(std::filesystem::path const &);
+/**
+ * @brief Loads textual (ASCII) data from an external file, putting it line by line into a std::vector.
+ *
+ * @param p The path of the file to be loaded
+ * @return A std::vector holding the non-empty lines of the file
+ */
+std::vector<std::string> loadTextLinesFromFile(std::filesystem::path const &p);
 
 /******************************************************************************/
-/** @brief This function executes an external command on the operating system */
-
+/**
+ * @brief Executes an external command on the operating system.
+ *
+ * @param program The command (program) to be executed
+ * @param arguments The list of arguments to be appended to the command
+ * @param command_output_file_name The name of a file the command's output should be piped to (empty to skip)
+ * @param full_command Output parameter: receives the full command line that was assembled and executed
+ * @return The error code returned by the executed command
+ */
 int runExternalCommand(
-    std::filesystem::path const &,
-    std::vector<std::string> const &,
-    std::filesystem::path const &,
-    std::string &
+    std::filesystem::path const &program,
+    std::vector<std::string> const &arguments,
+    std::filesystem::path const &command_output_file_name,
+    std::string &full_command
 );
 
 /******************************************************************************/
@@ -110,6 +138,9 @@ int runExternalCommand(
  * lookup avoids per-call std::string allocation. Returning string_view
  * lets call sites stream the result directly (it implicitly converts to
  * std::string where one is required).
+ *
+ * @param s The serialization mode to describe
+ * @return A textual label for the given serialization mode (empty for invalid enumerators)
  */
 constexpr std::string_view serializationModeToString(serializationMode s) noexcept {
     switch(s) {
@@ -121,33 +152,58 @@ constexpr std::string_view serializationModeToString(serializationMode s) noexce
 }
 
 /******************************************************************************/
-/** @brief Splits a string into a vector of strings, according to a seperator character */
-
-std::vector<std::string> splitString(std::string const &, const char *);
-
-/******************************************************************************/
-/** @brief Splits a string into a vector of std::uint16_t values, if possible */
-
-std::vector<unsigned int> stringToUIntVec(std::string const &, char = ',');
-
-/******************************************************************************/
-/** @brief Splits a string into a vector of double values, if possible */
-
-std::vector<double> stringToDoubleVec(std::string const &);
+/**
+ * @brief Splits a string into a vector of strings, according to a separator character.
+ *
+ * @param str The string to be split
+ * @param sep A single-character C-string holding the separator character
+ * @return A std::vector holding the (whitespace-trimmed, non-empty) fragments
+ */
+std::vector<std::string> splitString(std::string const &str, const char *sep);
 
 /******************************************************************************/
-/** @brief Splits a string into a vector of unsigned int-tuples, if possible */
-
-std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(std::string const &);
+/**
+ * @brief Splits a string into a vector of unsigned int values, if possible (throws on failure).
+ *
+ * @param raw The string to be parsed (must contain at least one entry)
+ * @param sep The separator character between entries (default: ',')
+ * @return A std::vector holding the parsed unsigned int values
+ */
+std::vector<unsigned int> stringToUIntVec(std::string const &raw, char sep = ',');
 
 /******************************************************************************/
-/** @brief Translates a string of the type "00:10:30" into a std::chrono::duration<double> */
-
-std::chrono::duration<double> duration_from_string(std::string const &);
+/**
+ * @brief Splits a string into a vector of double values, if possible (throws on failure).
+ *
+ * @param raw The comma-separated string to be parsed (must contain at least one entry)
+ * @return A std::vector holding the parsed double values
+ */
+std::vector<double> stringToDoubleVec(std::string const &raw);
 
 /******************************************************************************/
-/** @brief Converts the current time to a string */
+/**
+ * @brief Splits a string of the form "(1,2), (3,4)" into a vector of unsigned int-tuples (throws on failure).
+ *
+ * @param raw The string to be parsed (must contain at least one "(a,b)" tuple)
+ * @return A std::vector holding the parsed (unsigned int, unsigned int) tuples
+ */
+std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(std::string const &raw);
 
+/******************************************************************************/
+/**
+ * @brief Translates a string of the type "00:10:30" into a std::chrono::duration<double>.
+ *
+ * @param duration_string A "hours:minutes:seconds" style string (1, 2 or 3 colon-separated fields)
+ * @return The corresponding duration as a std::chrono::duration<double>
+ */
+std::chrono::duration<double> duration_from_string(std::string const &duration_string);
+
+/******************************************************************************/
+/**
+ * @brief Converts the current time to a string.
+ *
+ * @return The current local time, formatted as a human-readable string
+ */
 std::string currentTimeAsString();
 
 /******************************************************************************/
@@ -156,6 +212,9 @@ std::string currentTimeAsString();
  * string describing the call site via C++20 std::source_location. The function
  * name is now included -- something the old __FILE__/__LINE__ macros could not
  * provide. The defaulted source_location captures the caller.
+ *
+ * @param loc The call-site source location (defaulted to std::source_location::current(), i.e. the caller)
+ * @return A string describing the current time and the call site (file, line, function)
  */
 [[nodiscard]] inline std::string timeAndPlace(
     std::source_location const &loc = std::source_location::current()
@@ -166,26 +225,41 @@ std::string currentTimeAsString();
 }
 
 /******************************************************************************/
-/** @brief Returns the number of milliseconds since 1.1.1970 */
-
+/**
+ * @brief Returns the number of milliseconds since 1.1.1970.
+ *
+ * @return The number of milliseconds elapsed since the Unix epoch, as a string
+ */
 std::string getMSSince1970();
 
 /******************************************************************************/
-/** @brief Converts a std::chrono::high_resolution_clock::time_point into an arithmetic number */
-
+/**
+ * @brief Converts a std::chrono::high_resolution_clock::time_point into an arithmetic number.
+ *
+ * @param val The time point to convert
+ * @return The number of milliseconds since the clock's epoch
+ */
 std::chrono::milliseconds::rep
-time_point_to_milliseconds(std::chrono::high_resolution_clock::time_point const &);
+time_point_to_milliseconds(std::chrono::high_resolution_clock::time_point const &val);
 
 /******************************************************************************/
-/** @brief Converts an arithmetic number into  a std::chrono::high_resolution_clock::time_point */
-
+/**
+ * @brief Converts an arithmetic number into a std::chrono::high_resolution_clock::time_point.
+ *
+ * @param val A number of milliseconds since the clock's epoch
+ * @return The corresponding std::chrono::high_resolution_clock::time_point
+ */
 std::chrono::high_resolution_clock::time_point
-milliseconds_to_time_point(std::chrono::milliseconds::rep const &);
+milliseconds_to_time_point(std::chrono::milliseconds::rep const &val);
 
 /******************************************************************************/
-/** @brief Raise an exception if a given define wasn't set */
-
-void condnotset(std::string const &, std::string const &);
+/**
+ * @brief Raises an exception if a given define wasn't set.
+ *
+ * @param f The name of the function that was called ("function")
+ * @param d The name of the define that was expected to be set ("define")
+ */
+void condnotset(std::string const &f, std::string const &d);
 
 /******************************************************************************/
 

@@ -74,7 +74,9 @@ bool Gem::Common::GParserBuilder::check_unknown_keys_ = true;
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The standard constructor of the comment level
+ * @brief The standard constructor of the comment level.
+ *
+ * @param cl The comment level (index into a parameter's comment vector) this object represents
  */
 commentLevel::commentLevel(std::size_t cl)
   : comment_level_(cl) { /* nothing */
@@ -82,7 +84,9 @@ commentLevel::commentLevel(std::size_t cl)
 
 /******************************************************************************/
 /**
- * Retrieves the current comment level
+ * @brief Retrieves the current comment level.
+ *
+ * @return The comment level held by this object
  */
 std::size_t commentLevel::getCommentLevel() const {
     return comment_level_;
@@ -92,7 +96,10 @@ std::size_t commentLevel::getCommentLevel() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A constructor for individual items
+ * @brief A constructor for individual items.
+ *
+ * @param option_name_var The single option name for this parsable item
+ * @param comment_var The single comment describing this parsable item
  */
 GParsableI::GParsableI(std::string const &option_name_var, std::string const &comment_var)
   : option_name_(GParsableI::makeVector(option_name_var))
@@ -102,7 +109,10 @@ GParsableI::GParsableI(std::string const &option_name_var, std::string const &co
 
 /******************************************************************************/
 /**
- * A constructor for vectors
+ * @brief A constructor for vectors of option names and comments.
+ *
+ * @param option_name_vec The vector of option names for this parsable item
+ * @param comment_vec The vector of comments (one per comment level) describing this parsable item
  */
 GParsableI::GParsableI(
     std::vector<std::string> const &option_name_vec,
@@ -115,7 +125,10 @@ GParsableI::GParsableI(
 
 /******************************************************************************/
 /**
- * Retrieves the option name
+ * @brief Retrieves the option name at the given position.
+ *
+ * @param pos The index into the option-name vector (defaults are defined in the header)
+ * @return The option name stored at position @p pos
  */
 std::string GParsableI::optionName(std::size_t pos) const {
     if(option_name_.size() <= pos) {
@@ -132,7 +145,10 @@ std::string GParsableI::optionName(std::size_t pos) const {
 
 /******************************************************************************/
 /**
- * Retrieves the comment that was assigned to this variable
+ * @brief Retrieves the comment that was assigned to this variable.
+ *
+ * @param pos The index into the comment vector (i.e. the comment level)
+ * @return The comment string stored at position @p pos
  */
 std::string GParsableI::comment(std::size_t pos) const {
     if(comment_.size() <= pos) {
@@ -149,7 +165,9 @@ std::string GParsableI::comment(std::size_t pos) const {
 
 /******************************************************************************/
 /**
- * Checks whether comments have indeed been registered
+ * @brief Checks whether comments have indeed been registered.
+ *
+ * @return true if at least one comment is registered, false otherwise
  */
 bool GParsableI::hasComments() const {
     return not comment_.empty();
@@ -157,7 +175,9 @@ bool GParsableI::hasComments() const {
 
 /******************************************************************************/
 /**
- * Retrieves the number of comments available
+ * @brief Retrieves the number of comments available.
+ *
+ * @return The number of registered comments (comment levels)
  */
 std::size_t GParsableI::numberOfComments() const {
     return comment_.size();
@@ -165,7 +185,9 @@ std::size_t GParsableI::numberOfComments() const {
 
 /******************************************************************************/
 /**
- * Retrieves the number of option names registered for this parameter
+ * @brief Retrieves the number of option names registered for this parameter.
+ *
+ * @return The number of registered option names
  */
 std::size_t GParsableI::numberOfOptionNames() const {
     return option_name_.size();
@@ -173,7 +195,12 @@ std::size_t GParsableI::numberOfOptionNames() const {
 
 /******************************************************************************/
 /**
- * Needed for ostringstream
+ * @brief Appends a std::ostream manipulator to the comment at the current level.
+ *
+ * Needed for ostringstream.
+ *
+ * @param val A std::ostream manipulator function (e.g. std::endl) to be appended to the current comment
+ * @return A reference to this object (to allow chaining)
  */
 GParsableI &GParsableI::operator<<(std::ostream &(*val)(std::ostream &)) {
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
@@ -184,7 +211,12 @@ GParsableI &GParsableI::operator<<(std::ostream &(*val)(std::ostream &)) {
 
 /******************************************************************************/
 /**
- * Needed for ostringstream
+ * @brief Appends a std::ios manipulator to the comment at the current level.
+ *
+ * Needed for ostringstream.
+ *
+ * @param val A std::ios manipulator function to be appended to the current comment
+ * @return A reference to this object (to allow chaining)
  */
 GParsableI &GParsableI::operator<<(std::ios &(*val)(std::ios &)) {
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
@@ -195,7 +227,12 @@ GParsableI &GParsableI::operator<<(std::ios &(*val)(std::ios &)) {
 
 /******************************************************************************/
 /**
- *  Needed for ostringstream
+ * @brief Appends a std::ios_base manipulator to the comment at the current level.
+ *
+ * Needed for ostringstream.
+ *
+ * @param val A std::ios_base manipulator function to be appended to the current comment
+ * @return A reference to this object (to allow chaining)
  */
 GParsableI &GParsableI::operator<<(std::ios_base &(*val)(std::ios_base &)) {
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
@@ -206,7 +243,12 @@ GParsableI &GParsableI::operator<<(std::ios_base &(*val)(std::ios_base &)) {
 
 /******************************************************************************/
 /**
- * Allows to indicate the current comment level
+ * @brief Allows to indicate the current comment level.
+ *
+ * Subsequent streamed text is appended to the comment at the selected level.
+ *
+ * @param cl A commentLevel object carrying the comment level to switch to
+ * @return A reference to this object (to allow chaining)
  */
 GParsableI &GParsableI::operator<<(commentLevel const &cl) {
 #ifdef DEBUG
@@ -234,7 +276,13 @@ GParsableI &GParsableI::operator<<(commentLevel const &cl) {
 
 /******************************************************************************/
 /**
- * Allows to switch to the next comment level
+ * @brief Allows to switch to the next comment level.
+ *
+ * Increments the current comment level by one; subsequent streamed text is
+ * appended to the comment at the new level.
+ *
+ * @param nC A nextComment tag object that triggers the level increment (unused)
+ * @return A reference to this object (to allow chaining)
  */
 GParsableI &GParsableI::operator<<([[maybe_unused]] nextComment const & nC) {
 #ifdef DEBUG
@@ -263,8 +311,12 @@ GParsableI &GParsableI::operator<<([[maybe_unused]] nextComment const & nC) {
 
 /******************************************************************************/
 /**
- * Splits a comment into sub-tokens. The comment will be split in case of newlines
- * and semicolons.
+ * @brief Splits a comment into sub-tokens.
+ *
+ * The comment will be split in case of newlines and semicolons.
+ *
+ * @param comment The comment string to be split (the literal "empty" and an empty string yield no tokens)
+ * @return A vector of the individual sub-tokens obtained from @p comment
  */
 std::vector<std::string> GParsableI::splitComment(std::string const &comment) const {
     std::vector<std::string> results;
@@ -292,7 +344,11 @@ std::vector<std::string> GParsableI::splitComment(std::string const &comment) co
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A constructor for individual items
+ * @brief A constructor for individual items.
+ *
+ * @param option_name_var The single option name for this file-parsable item
+ * @param comment_var The single comment describing this file-parsable item
+ * @param is_essential_var Whether this is an essential parameter (always written to the config file)
  */
 GFileParsableI::GFileParsableI(
     std::string const &option_name_var,
@@ -305,7 +361,11 @@ GFileParsableI::GFileParsableI(
 
 /******************************************************************************/
 /**
- * A constructor for vectors
+ * @brief A constructor for vectors of option names and comments.
+ *
+ * @param option_name_vec The vector of option names for this file-parsable item
+ * @param comment_vec The vector of comments (one per comment level) describing this file-parsable item
+ * @param is_essential_var Whether this is an essential parameter (always written to the config file)
  */
 GFileParsableI::GFileParsableI(
     std::vector<std::string> const &option_name_vec,
@@ -318,7 +378,9 @@ GFileParsableI::GFileParsableI(
 
 /******************************************************************************/
 /**
- * Checks whether this is an essential variable
+ * @brief Checks whether this is an essential variable.
+ *
+ * @return true if this parameter is essential, false otherwise
  */
 bool GFileParsableI::isEssential() const {
     return is_essential_;

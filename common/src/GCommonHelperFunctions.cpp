@@ -74,6 +74,13 @@ std::atomic<unsigned int> g_nHardwareThreads{
  * `qi::phrase_parse(from, to, (num % sep), qi::space, result)`. Returns true on a
  * full parse; on failure it returns false and reports the unconsumed remainder in
  * @p rest (so the caller can reproduce the original "Stopped at ..." diagnostic).
+ *
+ * @tparam num_type The arithmetic type each element is parsed into (via std::from_chars)
+ * @param s The input text to parse
+ * @param sep The separator character expected between elements
+ * @param out Output parameter: receives the successfully parsed values (appended)
+ * @param rest Output parameter: on failure, receives the unconsumed remainder of the input
+ * @return true on a full parse, false otherwise
  */
 template <typename num_type>
 bool parseSeparatedNumbers(
@@ -187,6 +194,9 @@ unsigned int getNHardwareThreads() {
 /**
  * Reads a json-document from a std::filesystem::path. This is a helper-function,
  * as boost::property_tree::read_json does not accept a std::filesystem argument.
+ *
+ * @param path The path of the JSON file to read
+ * @param pt Output parameter: the property tree that receives the parsed JSON document
  */
 void read_json(std::filesystem::path const &path, boost::property_tree::ptree &pt) {
     boost::property_tree::read_json(path.string(), pt);
@@ -277,11 +287,11 @@ std::vector<std::string> loadTextLinesFromFile(std::filesystem::path const &p) {
 /**
  * Execute an external command, reacting to possible errors.
  *
- * @param program The command to be executed (possibly including errors)
- * @param arguments The list of arguments to be added to the command
- * @param command_output_file_name The name of a file to which information should be piped
- * @param full_command Allows the caller to find out about the full command
- * @return The error code
+ * @param program The command (program) to be executed
+ * @param arguments The list of arguments to be appended to the command
+ * @param command_output_file_name The name of a file to which the command's output should be piped (empty to skip)
+ * @param full_command Output parameter: receives the full command line that was assembled and executed
+ * @return The error code returned by the executed command
  */
 int runExternalCommand(
     std::filesystem::path const &program,
@@ -391,6 +401,10 @@ std::vector<std::string> splitString(std::string const &str, const char *sep) {
  * Splits a string into a vector of unsigned int, if possible, or throws
  * an exception. The list must at least contain one entry and must be
  * comma-separated.
+ *
+ * @param raw The string to be parsed (must contain at least one entry)
+ * @param sep The separator character between entries
+ * @return A std::vector holding the parsed unsigned int values
  */
 std::vector<unsigned int> stringToUIntVec(std::string const &raw, char sep) {
     std::vector<unsigned int> result;
@@ -413,6 +427,9 @@ std::vector<unsigned int> stringToUIntVec(std::string const &raw, char sep) {
  * Splits a string into a vector of double values, if possible, or throws
  * an exception. The list must at least contain one entry and must be
  * comma-separated.
+ *
+ * @param raw The comma-separated string to be parsed (must contain at least one entry)
+ * @return A std::vector holding the parsed double values
  */
 std::vector<double> stringToDoubleVec(std::string const &raw) {
     std::vector<double> result;
@@ -434,6 +451,9 @@ std::vector<double> stringToDoubleVec(std::string const &raw) {
 /**
  * Splits a string into a vector of unsigned int-tuples, if possible, or
  * throws an exception. The string should have the form "(1,2), (3,4)" etc.
+ *
+ * @param raw The string to be parsed (must contain at least one "(a,b)" tuple)
+ * @return A std::vector holding the parsed (unsigned int, unsigned int) tuples
  */
 std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(std::string const &raw) {
     // Hand-written replacement for the former Spirit grammar
@@ -507,6 +527,9 @@ std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(std::st
 /**
  * Translates a string of the type "00:10:30" into a std::chrono::duration<double>
  * object denoting hours:minutes:seconds
+ *
+ * @param duration_string A "hours:minutes:seconds" style string (1, 2 or 3 colon-separated fields)
+ * @return The corresponding duration as a std::chrono::duration<double>
  */
 std::chrono::duration<double> duration_from_string(std::string const &duration_string) {
     std::vector<unsigned int> timings = stringToUIntVec(duration_string, ':');
@@ -541,6 +564,8 @@ std::chrono::duration<double> duration_from_string(std::string const &duration_s
 /******************************************************************************/
 /**
  * Converts the current time to a string
+ *
+ * @return The current local time, formatted as a human-readable string
  */
 std::string currentTimeAsString() {
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
@@ -560,6 +585,8 @@ std::string currentTimeAsString() {
 /******************************************************************************/
 /**
  * Returns the number of milliseconds since 1.1.1970
+ *
+ * @return The number of milliseconds elapsed since the Unix epoch, as a string
  */
 std::string getMSSince1970() {
     std::chrono::time_point<std::chrono::system_clock> p1; // 1970
@@ -574,6 +601,9 @@ std::string getMSSince1970() {
 /******************************************************************************/
 /**
  * Converts a std::chrono::high_resolution_clock::time_point into an arithmetic number
+ *
+ * @param val The time point to convert
+ * @return The number of milliseconds since the clock's epoch
  */
 std::chrono::milliseconds::rep
 time_point_to_milliseconds(std::chrono::high_resolution_clock::time_point const &val) {
@@ -583,6 +613,9 @@ time_point_to_milliseconds(std::chrono::high_resolution_clock::time_point const 
 /******************************************************************************/
 /**
  * Converts an arithmetic number into a std::chrono::high_resolution_clock::time_point
+ *
+ * @param val A number of milliseconds since the clock's epoch
+ * @return The corresponding std::chrono::high_resolution_clock::time_point
  */
 std::chrono::high_resolution_clock::time_point
 milliseconds_to_time_point(std::chrono::milliseconds::rep const &val) {
@@ -593,6 +626,9 @@ milliseconds_to_time_point(std::chrono::milliseconds::rep const &val) {
 /**
  * Raise an exception if a given define wasn't set. "F" stands for "function",
  * "D" for "define".
+ *
+ * @param f The name of the function that was called ("function")
+ * @param d The name of the define that was expected to be set ("define")
  */
 void condnotset(std::string const &f, std::string const &d) {
     std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)

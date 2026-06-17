@@ -65,8 +65,13 @@ class g_error_streamer {
 public:
     /**************************************************************************/
     /**
-	  * The default constructor. We may optionally instruct the class to
-	  * also log to the global logger during string conversion.
+	  * @brief Constructs the streamer, optionally enabling duplication to the global logger.
+	  *
+	  * We may optionally instruct the class to also log to the global logger
+	  * during string conversion.
+	  *
+	  * @param do_log If true, the wrapped message is also sent to the global logger when converted to a string (use DO_LOG / NO_LOG)
+	  * @param where_and_when A "where and when" location string (e.g. from timeAndPlace()) prepended to the logged message
 	  */
     explicit g_error_streamer(bool do_log, std::string where_and_when)
       : do_log_(do_log)
@@ -87,12 +92,14 @@ public:
 
     /**************************************************************************/
     /**
+	  * @brief Streams virtually any streamable value into this object.
+	  *
 	  * This function allows us to stream virtually any type of streamable data
 	  * to this class.
 	  *
-	  * @tparam value_type The parameter type of a value streamed into the class
+	  * @tparam value_type The type of the value streamed into the class
 	  * @param val The value streamed into this class
-	  * @return A pointer to this object
+	  * @return A reference to this object (to allow chaining)
 	  */
     template <typename value_type>
     g_error_streamer &operator<<(const value_type &val) {
@@ -102,7 +109,12 @@ public:
 
     /******************************************************************************/
     /**
-	  * Needed for stringstream
+	  * @brief Streams a std::ostream manipulator (e.g. std::endl) into this object.
+	  *
+	  * Needed for stringstream.
+	  *
+	  * @param val A std::ostream manipulator function to be applied to the wrapped stream
+	  * @return A reference to this object (to allow chaining)
 	  */
     g_error_streamer &operator<<(std::ostream &(*val)(std::ostream &)) {
         ostream_ << val;
@@ -111,7 +123,12 @@ public:
 
     /******************************************************************************/
     /**
-	  * Needed for stringstream
+	  * @brief Streams a std::ios manipulator into this object.
+	  *
+	  * Needed for stringstream.
+	  *
+	  * @param val A std::ios manipulator function to be applied to the wrapped stream
+	  * @return A reference to this object (to allow chaining)
 	  */
     g_error_streamer &operator<<(std::ios &(*val)(std::ios &)) {
         ostream_ << val;
@@ -120,7 +137,12 @@ public:
 
     /******************************************************************************/
     /**
-	  *  Needed for stringstream
+	  * @brief Streams a std::ios_base manipulator into this object.
+	  *
+	  * Needed for stringstream.
+	  *
+	  * @param val A std::ios_base manipulator function to be applied to the wrapped stream
+	  * @return A reference to this object (to allow chaining)
 	  */
     g_error_streamer &operator<<(std::ios_base &(*val)(std::ios_base &)) {
         ostream_ << val;
@@ -129,6 +151,8 @@ public:
 
     /**************************************************************************/
     /**
+	  * @brief Converts the accumulated message to a string, optionally logging it.
+	  *
 	  * Automatic conversion to a string. The function will optionally send the
 	  * output to the global logger.
 	  *
@@ -147,9 +171,13 @@ public:
 	  */
     /**************************************************************************/
     /**
+	  * @brief Returns the wrapped message without any I/O or logger re-entry.
+	  *
 	  * Returns the wrapped streamer's contents WITHOUT triggering any I/O
 	  * or logger re-entry. Safe to call from unwinding contexts where the
 	  * implicit @c operator std::string() conversion would be hazardous.
+	  *
+	  * @return A copy of the currently accumulated message string
 	  */
     [[nodiscard]] std::string content() const {
         return ostream_.str();

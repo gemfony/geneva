@@ -180,7 +180,12 @@ namespace boost::serialization {
 
 /******************************************************************************/
 /**
- * Saves a tribool variable to an archive
+ * @brief Saves a tribool variable to an archive.
+ *
+ * @tparam Archive The Boost.Serialization output archive type
+ * @param ar The archive the value is written to
+ * @param val The tribool value to be serialized
+ * @param version The Boost.Serialization class version (unused)
  */
 template <typename Archive>
 void save(
@@ -201,7 +206,12 @@ void save(
 
 /******************************************************************************/
 /**
- * Loads a tribool variable from an archive
+ * @brief Loads a tribool variable from an archive.
+ *
+ * @tparam Archive The Boost.Serialization input archive type
+ * @param ar The archive the value is read from
+ * @param val The tribool reference that receives the deserialized value
+ * @param version The Boost.Serialization class version (unused)
  */
 template <typename Archive>
 void load(
@@ -230,7 +240,12 @@ void load(
 
 /******************************************************************************/
 /**
- * Saves a std::chrono::duration<double> variable to an archive
+ * @brief Saves a std::chrono::duration<double> variable to an archive.
+ *
+ * @tparam Archive The Boost.Serialization output archive type
+ * @param ar The archive the value is written to
+ * @param val The duration value to be serialized (stored as its raw count)
+ * @param version The Boost.Serialization class version (unused)
  */
 template <typename Archive>
 void save(
@@ -244,7 +259,12 @@ void save(
 
 /******************************************************************************/
 /**
- * Loads a tribool variable from an archive
+ * @brief Loads a std::chrono::duration<double> variable from an archive.
+ *
+ * @tparam Archive The Boost.Serialization input archive type
+ * @param ar The archive the value is read from
+ * @param val The duration reference that receives the deserialized value
+ * @param version The Boost.Serialization class version (unused)
  */
 template <typename Archive>
 void load(
@@ -259,7 +279,14 @@ void load(
 
 /******************************************************************************/
 /**
- * Loads a time point from an archive
+ * @brief Saves a high_resolution_clock time point to an archive.
+ *
+ * The time point is stored as a millisecond representation.
+ *
+ * @tparam Archive The Boost.Serialization output archive type
+ * @param ar The archive the value is written to
+ * @param val The time point to be serialized
+ * @param version The Boost.Serialization class version (unused)
  */
 template <typename Archive>
 void save(
@@ -274,7 +301,14 @@ void save(
 
 /******************************************************************************/
 /**
- * Saves a time point to an archive
+ * @brief Loads a high_resolution_clock time point from an archive.
+ *
+ * The time point is reconstructed from its stored millisecond representation.
+ *
+ * @tparam Archive The Boost.Serialization input archive type
+ * @param ar The archive the value is read from
+ * @param val The time point reference that receives the deserialized value
+ * @param version The Boost.Serialization class version (unused)
  */
 template <typename Archive>
 void load(
@@ -289,7 +323,12 @@ void load(
 
 /******************************************************************************/
 /**
- * Serialization of std::atomic<bool>
+ * @brief Serialization of std::atomic<bool>.
+ *
+ * @tparam Archive The Boost.Serialization output archive type
+ * @param ar The archive the value is written to
+ * @param b The atomic boolean whose current value is to be serialized
+ * @param version The Boost.Serialization class version (unused)
  */
 template <typename Archive>
 void save(
@@ -303,7 +342,12 @@ void save(
 
 /******************************************************************************/
 /**
- * Deserialization of std::atomic<bool>
+ * @brief Deserialization of std::atomic<bool>.
+ *
+ * @tparam Archive The Boost.Serialization input archive type
+ * @param ar The archive the value is read from
+ * @param b The atomic boolean that receives the deserialized value
+ * @param version The Boost.Serialization class version (unused)
  */
 template <typename Archive>
 void load(
@@ -318,9 +362,16 @@ void load(
 
 /******************************************************************************/
 /**
- * Serialization of std::atomic<T> for any serializable value type T
- * (e.g. std::size_t). The std::atomic<bool> overloads above are more
+ * @brief Serialization of std::atomic<T> for any serializable value type T.
+ *
+ * Handles e.g. std::size_t. The std::atomic<bool> overloads above are more
  * specialised and keep priority, so their "bool_val" archive tag is preserved.
+ *
+ * @tparam Archive The Boost.Serialization output archive type
+ * @tparam T The serializable value type wrapped by the atomic
+ * @param ar The archive the value is written to
+ * @param a The atomic whose current value is to be serialized
+ * @param version The Boost.Serialization class version (unused)
  */
 template <typename Archive, typename T>
 void save(Archive &ar, const std::atomic<T> &a, [[maybe_unused]] unsigned int version) {
@@ -328,6 +379,15 @@ void save(Archive &ar, const std::atomic<T> &a, [[maybe_unused]] unsigned int ve
     ar &make_nvp("atomic_value", value);
 }
 
+/**
+ * @brief Deserialization of std::atomic<T> for any serializable value type T.
+ *
+ * @tparam Archive The Boost.Serialization input archive type
+ * @tparam T The serializable value type wrapped by the atomic
+ * @param ar The archive the value is read from
+ * @param a The atomic that receives the deserialized value
+ * @param version The Boost.Serialization class version (unused)
+ */
 template <typename Archive, typename T>
 void load(Archive &ar, std::atomic<T> &a, [[maybe_unused]] unsigned int version) {
     T value{};

@@ -100,11 +100,20 @@ public:
 
     /*************************************************************************/
 
-    /** @brief The logging interface */
-    virtual void log(std::string const &) const = 0;
+    /**
+     * @brief The logging interface
+     *
+     * @param message The log message to be emitted by the target
+     */
+    virtual void log(std::string const &message) const = 0;
 
-    /** @brief Adds an extension to the output */
-    virtual void logWithSource(std::string const &, std::string const &) const = 0;
+    /**
+     * @brief Logs a message together with information about its source
+     *
+     * @param message The log message to be emitted by the target
+     * @param extension An identifier of the logging source (e.g. appended to a file name)
+     */
+    virtual void logWithSource(std::string const &message, std::string const &extension) const = 0;
 };
 
 /******************************************************************************/
@@ -129,11 +138,20 @@ public:
 
     /*************************************************************************/
 
-    /** @brief Implements the logging to the console */
-    void log(std::string const &) const override;
+    /**
+     * @brief Implements the logging to the console
+     *
+     * @param message The log message to be written to the console
+     */
+    void log(std::string const &message) const override;
 
-    /** @brief Adds a specifier to the output */
-    void logWithSource(std::string const &, std::string const &) const override;
+    /**
+     * @brief Writes a message to the console, prefixed with its source specifier
+     *
+     * @param message The log message to be written to the console
+     * @param extension An identifier of the logging source, emitted as a textual prefix
+     */
+    void logWithSource(std::string const &message, std::string const &extension) const override;
 };
 
 /******************************************************************************/
@@ -144,8 +162,12 @@ public:
  */
 class GFileLogger : public GBaseLogTarget {
 public:
-    /** @brief This constructor accepts a boost path to a file name as argument */
-    explicit GFileLogger(std::filesystem::path const &);
+    /**
+     * @brief This constructor accepts a path to a log-file name as argument
+     *
+     * @param p The filesystem path of the log file to write to
+     */
+    explicit GFileLogger(std::filesystem::path const &p);
 
     /*************************************************************************/
     // Defaulted or deleted constructors, destructor and assignment operators
@@ -161,11 +183,20 @@ public:
 
     /*************************************************************************/
 
-    /** @brief Implements logging to a file on disk */
-    void log(std::string const &) const override;
+    /**
+     * @brief Implements logging to a file on disk
+     *
+     * @param message The log message to be appended to the file
+     */
+    void log(std::string const &message) const override;
 
-    /** @brief Adds an extension to the output file */
-    void logWithSource(std::string const &, std::string const &) const override;
+    /**
+     * @brief Logs to a file whose name is extended with the source identifier
+     *
+     * @param message The log message to be appended to the file
+     * @param extension An identifier of the logging source, appended (with an underscore) to the file name
+     */
+    void logWithSource(std::string const &message, std::string const &extension) const override;
 
 private:
     std::string fname_ = "Geneva-Library-Collection.log"; ///< The name of the log file
@@ -181,6 +212,8 @@ private:
  * Upon invocation of the streaming operator it produces an object which is supposed
  * to handle the rest of the work, either using the log targets stored in the
  * GLogger object or letting manipulators output the work.
+ *
+ * @tparam S The streamer type ("S") instantiated on each streaming operation (typically GLogStreamer)
  */
 template <class S> // "S" means "streamer"
 class GLogger {
@@ -199,9 +232,15 @@ public:
 
     /***************************************************************************/
     /**
+		 * @brief Forwards a streamed value to a newly created streamer object
+		 *
 		 * This function will forward all arguments to a newly created object
 		 * of type S. Note that the function returns the S object by value. It
 		 * will not survive beyond the end of the stream-chain.
+		 *
+		 * @tparam T The type of the value being streamed
+		 * @param t The value to be streamed into the new S object
+		 * @return A freshly created S object holding the streamed value
 		 */
     template <typename T>
     S operator<<(T const &t) {
@@ -212,7 +251,12 @@ public:
 
     /******************************************************************************/
     /**
+	  * @brief Forwards a std::ostream manipulator (e.g. std::endl) to a new streamer
+	  *
 	  * Needed for ostringstream
+	  *
+	  * @param val A std::ostream manipulator function pointer
+	  * @return A freshly created S object with the manipulator applied
 	  */
     S operator<<(std::ostream &(*val)(std::ostream &)) {
         S s;
@@ -222,7 +266,12 @@ public:
 
     /******************************************************************************/
     /**
+	  * @brief Forwards a std::ios manipulator to a new streamer
+	  *
 	  * Needed for ostringstream
+	  *
+	  * @param val A std::ios manipulator function pointer
+	  * @return A freshly created S object with the manipulator applied
 	  */
     S operator<<(std::ios &(*val)(std::ios &)) {
         S s;
@@ -232,7 +281,12 @@ public:
 
     /******************************************************************************/
     /**
+	  * @brief Forwards a std::ios_base manipulator to a new streamer
+	  *
 	  *  Needed for ostringstream
+	  *
+	  * @param val A std::ios_base manipulator function pointer
+	  * @return A freshly created S object with the manipulator applied
 	  */
     S operator<<(std::ios_base &(*val)(std::ios_base &)) {
         S s;
@@ -242,10 +296,15 @@ public:
 
     /***************************************************************************/
     /**
+      * @brief Creates a streamer carrying a source-extension specifier
+      *
       * This function instructs the logger architecture to emit additional
       * specifications for the data being logged. When writing to the console,
       * a corresponding text will be emitted. When writing to a file, the
       * modifier will be appended with an underscore to the filename.
+      *
+      * @param extension The source-extension specifier to attach to the streamer
+      * @return A freshly created S object carrying the extension
       */
     S operator()(std::string const &extension) {
         S s(extension);
@@ -254,8 +313,13 @@ public:
 
     /***************************************************************************/
     /**
+      * @brief Creates a streamer that logs to a specific one-time log file
+      *
       * This function instructs the logger architecture to emit data to the file
-      * specified by the boost::path object
+      * specified by the std::filesystem::path object
+      *
+      * @param p The path of the one-time log file to write to
+      * @return A freshly created S object bound to the given log file
       */
     S operator()(std::filesystem::path p) {
         S s(p);
@@ -264,7 +328,12 @@ public:
 
     /***************************************************************************/
     /**
-		 * Allows to set the default log target
+		 * @brief Allows to set the default log target
+		 *
+		 * The default log target is used whenever no explicit log targets have been
+		 * registered. Throws if a null pointer is supplied.
+		 *
+		 * @param gblt A shared pointer to the log target to be used as the default (must not be empty)
 		 */
     void setDefaultLogTarget(std::shared_ptr<GBaseLogTarget> gblt) {
         // Serialise with concurrent log() / addLogTarget() etc.
@@ -284,7 +353,11 @@ public:
 
     /***************************************************************************/
     /**
-		 * Adds a log target, such as console or file
+		 * @brief Adds a log target, such as console or file
+		 *
+		 * Throws if a null pointer is supplied.
+		 *
+		 * @param gblt A shared pointer to the log target to be added (must not be empty)
 		 */
     void addLogTarget(std::shared_ptr<GBaseLogTarget> gblt) {
         // Serialise with concurrent log() / log_cnt_ readers.
@@ -304,7 +377,9 @@ public:
 
     /***************************************************************************/
     /**
-		 * Checks whether any log targets are present
+		 * @brief Checks whether any log targets are present
+		 *
+		 * @return true if at least one log target has been registered, false otherwise
 		 */
     bool hasLogTargets() const {
         // Read of log_cnt_ must be ordered against concurrent addLogTarget /
@@ -315,7 +390,7 @@ public:
 
     /***************************************************************************/
     /**
-		 * Clears local log-targets
+		 * @brief Clears all registered local log-targets
 		 */
     void resetLogTargets() {
         // Serialise with concurrent log() / addLogTarget().
@@ -325,9 +400,14 @@ public:
 
     /***************************************************************************/
     /**
-		 * Allows S-objects to submit strings to the log targets. Note that this
-		 * function is thread-safe and thus may be called from different threads.
-		 * Note that this function throws if no logging targets have been registered.
+		 * @brief Allows S-objects to submit strings to the log targets
+		 *
+		 * Forwards the message to every registered log target, or to the default
+		 * target if none are registered. Note that this function is thread-safe and
+		 * thus may be called from different threads. Note that this function throws
+		 * if neither any logging target nor a default target is available.
+		 *
+		 * @param message The message to be forwarded to the log targets
 		 */
     void log(std::string const &message) const {
         // Make sure only one entity outputs data
@@ -354,9 +434,16 @@ public:
 
     /***************************************************************************/
     /**
-		 * Allows S-objects to submit strings to the log targets. Note that this
+		 * @brief Allows S-objects to submit strings, together with a source identifier, to the log targets
+		 *
+		 * Forwards the message and its source identifier to every registered log
+		 * target, or to the default target if none are registered. Note that this
 		 * function is thread-safe and thus may be called from different threads.
-		 * Note that this function throws if no logging targets have been registered.
+		 * Note that this function throws if neither any logging target nor a default
+		 * target is available.
+		 *
+		 * @param message The message to be forwarded to the log targets
+		 * @param extension An identifier of the logging source forwarded alongside the message
 		 */
     void logWithSource(std::string const &message, std::string const &extension) const {
         // Make sure only one entity outputs data
@@ -383,10 +470,14 @@ public:
 
     /***************************************************************************/
     /**
-		 * Throws an exception from a global position. This prevents exceptions thrown
-		 * from within threads from getting lost. The mutex is released *before* the
-		 * throw so that stack-unwinding exception handlers (which may re-enter the
-		 * logger) do not deadlock against the lock we just held.
+		 * @brief Throws an exception from a global position
+		 *
+		 * This prevents exceptions thrown from within threads from getting lost. The
+		 * mutex is released *before* the throw so that stack-unwinding exception
+		 * handlers (which may re-enter the logger) do not deadlock against the lock
+		 * we just held.
+		 *
+		 * @param error The error message carried by the thrown geneva_exception
 		 */
     void throwException(std::string const &error) {
         // The `error` argument has already been built by the caller; we don't
@@ -403,11 +494,15 @@ public:
 
     /***************************************************************************/
     /**
-		 * Initiates the termination sequence. The mutex is released before
-		 * std::terminate() runs so that any std::terminate_handler the user has
-		 * installed sees a consistent global state (terminating while still
-		 * holding a mutex leaves the lock owned by the now-terminating thread
+		 * @brief Initiates the termination sequence
+		 *
+		 * Prints the error to std::cerr and calls std::terminate(). The mutex is
+		 * released before std::terminate() runs so that any std::terminate_handler
+		 * the user has installed sees a consistent global state (terminating while
+		 * still holding a mutex leaves the lock owned by the now-terminating thread
 		 * and is observable by some handlers).
+		 *
+		 * @param error The error message printed to std::cerr before terminating
 		 */
     void terminateApplication(std::string const &error) {
         {
@@ -419,11 +514,15 @@ public:
 
     /***************************************************************************/
     /**
-			 * Performs a deliberate, clean program exit with a chosen return code. Unlike
-			 * terminateApplication() this does NOT std::terminate() (no core dump): it prints
-			 * the message and calls std::exit(), which runs static destructors and atexit
-			 * handlers. The mutex is released before std::exit() for the same reason as in
-			 * terminateApplication().
+			 * @brief Performs a deliberate, clean program exit with a chosen return code
+			 *
+			 * Unlike terminateApplication() this does NOT std::terminate() (no core dump):
+			 * it prints the message and calls std::exit(), which runs static destructors and
+			 * atexit handlers. The mutex is released before std::exit() for the same reason
+			 * as in terminateApplication().
+			 *
+			 * @param message The message printed to std::cerr before exiting
+			 * @param return_code The process return code passed to std::exit()
 			 */
     void exitApplication(std::string const &message, int return_code) {
         {
@@ -435,7 +534,12 @@ public:
 
     /***************************************************************************/
     /**
-		 * Output to stdout
+		 * @brief Output to stdout
+		 *
+		 * Writes the message to std::cout and flushes (the stream is buffered and may
+		 * otherwise lose output on an abnormal exit). Thread-safe.
+		 *
+		 * @param message The message to be written to std::cout
 		 */
     void toStdOut(std::string const &message) {
         // Make sure only one entity outputs data
@@ -448,7 +552,11 @@ public:
 
     /***************************************************************************/
     /**
-		 * Output to stderr
+		 * @brief Output to stderr
+		 *
+		 * Writes the message to std::cerr. Thread-safe.
+		 *
+		 * @param message The message to be written to std::cerr
 		 */
     void toStdErr(std::string const &message) {
         // Make sure only one entity outputs data
@@ -477,12 +585,27 @@ private:
  */
 class GManipulator { // NOLINT(cppcoreguidelines-special-member-functions)
 public:
-    /** @brief A constructor that stores the logging type only */
-    explicit GManipulator(logType);
-    /** @brief A constructor that stores both accompanying information and the logging type */
-    GManipulator(std::string const &, logType);
-    /** @brief A constructor that additionally stores a process return code (for logType::EXIT) */
-    GManipulator(std::string const &, logType, int);
+    /**
+     * @brief A constructor that stores the logging type only
+     *
+     * @param lt The type of logging event this manipulator triggers
+     */
+    explicit GManipulator(logType lt);
+    /**
+     * @brief A constructor that stores both accompanying information and the logging type
+     *
+     * @param accomp_info Accompanying information (e.g. a call-site location string)
+     * @param lt The type of logging event this manipulator triggers
+     */
+    GManipulator(std::string const &accomp_info, logType lt);
+    /**
+     * @brief A constructor that additionally stores a process return code (for logType::EXIT)
+     *
+     * @param accomp_info Accompanying information (e.g. a call-site location string)
+     * @param lt The type of logging event this manipulator triggers
+     * @param return_code The process return code to be used by logType::EXIT
+     */
+    GManipulator(std::string const &accomp_info, logType lt, int return_code);
 
     /*************************************************************************/
     // Deleted and defaulted constructors, destructor and assignment operators.
@@ -497,13 +620,29 @@ public:
 
     /*************************************************************************/
 
-    /** @brief Retrieves the stored logging type */
+    /**
+     * @brief Retrieves the stored logging type
+     *
+     * @return The logging type stored in this manipulator
+     */
     logType getLogType() const;
-    /** @brief Retrieves stored accompanying information (if any) */
+    /**
+     * @brief Retrieves stored accompanying information (if any)
+     *
+     * @return The accompanying information string (empty if none was stored)
+     */
     std::string getAccompInfo() const;
-    /** @brief Checks whether any accompanying information is available */
+    /**
+     * @brief Checks whether any accompanying information is available
+     *
+     * @return true if accompanying information was stored, false otherwise
+     */
     bool hasAccompInfo() const;
-    /** @brief Retrieves the stored process return code (meaningful for logType::EXIT) */
+    /**
+     * @brief Retrieves the stored process return code (meaningful for logType::EXIT)
+     *
+     * @return The stored process return code
+     */
     int getReturnCode() const;
 
 private:
@@ -525,11 +664,19 @@ private:
  */
 class GLogStreamer {
 public:
-    /** @brief A constructor that adds an extension string to the output */
-    explicit GLogStreamer(std::string const &);
+    /**
+     * @brief A constructor that adds an extension string to the output
+     *
+     * @param extension A source-identifier string attached to the streamed output
+     */
+    explicit GLogStreamer(std::string const &extension);
 
-    /** @brief A constructor that logs data to a file specified by a std::filesystem::path object */
-    explicit GLogStreamer(std::filesystem::path);
+    /**
+     * @brief A constructor that logs data to a file specified by a std::filesystem::path object
+     *
+     * @param log_file The path of the one-time log file this streamer writes to
+     */
+    explicit GLogStreamer(std::filesystem::path log_file);
 
     /*************************************************************************/
     // Deleted and defaulted constructors, destructor and assignment operators.
@@ -547,33 +694,84 @@ public:
 
     /*************************************************************************/
 
-    /** @brief Needed for std::ostringstream */
+    /**
+     * @brief Streams a std::ostream manipulator (e.g. std::endl) into the streamer
+     *
+     * Needed for std::ostringstream
+     *
+     * @param val A std::ostream manipulator function pointer
+     * @return A reference to this streamer, to allow chaining
+     */
     GLogStreamer &operator<<(std::ostream &(*val)(std::ostream &));
-    /** @brief Needed for std::ostringstream */
+    /**
+     * @brief Streams a std::ios manipulator into the streamer
+     *
+     * Needed for std::ostringstream
+     *
+     * @param val A std::ios manipulator function pointer
+     * @return A reference to this streamer, to allow chaining
+     */
     GLogStreamer &operator<<(std::ios &(*val)(std::ios &));
-    /** @brief Needed for std::ostringstream */
+    /**
+     * @brief Streams a std::ios_base manipulator into the streamer
+     *
+     * Needed for std::ostringstream
+     *
+     * @param val A std::ios_base manipulator function pointer
+     * @return A reference to this streamer, to allow chaining
+     */
     GLogStreamer &operator<<(std::ios_base &(*val)(std::ios_base &));
 
-    /** @brief A GManipulator object triggers the actual logging procedure */
+    /**
+     * @brief A GManipulator object triggers the actual logging procedure
+     *
+     * Intended to be the last element of a streaming chain; therefore it returns void.
+     *
+     * @param gm The manipulator whose log type dictates how the accumulated content is processed
+     */
     void operator<<(GManipulator const &gm);
 
-    /** @brief Returns the content of the stream */
+    /**
+     * @brief Returns the content of the stream
+     *
+     * @return The accumulated streamed content as a string
+     */
     std::string content() const;
     /** @brief Resets the stream content */
     void reset();
 
-    /** @brief Checks whether an extension string has been registered */
+    /**
+     * @brief Checks whether an extension string has been registered
+     *
+     * @return true if a non-empty source-extension string was registered, false otherwise
+     */
     bool hasExtension() const;
-    /** @brief The content of the extension_ string */
+    /**
+     * @brief The content of the extension_ string
+     *
+     * @return The registered source-extension string (empty if none)
+     */
     std::string getExtension() const;
-    /** @brief Checks whether a log file name has been registered */
+    /**
+     * @brief Checks whether a log file name has been registered
+     *
+     * @return true if a one-time log file path was registered, false otherwise
+     */
     bool hasOneTimeLogFile() const;
-    /** @brief The name of the manually specified file */
+    /**
+     * @brief The name of the manually specified file
+     *
+     * @return The registered one-time log file path (empty if none)
+     */
     std::filesystem::path getOneTimeLogFile() const;
 
     /****************************************************************************/
     /**
-	  * Output of all standard values and types with a predefined operator<<
+	  * @brief Output of all standard values and types with a predefined operator<<
+	  *
+	  * @tparam T The type of the value being streamed
+	  * @param val The value to be appended to the internal stream
+	  * @return A reference to this streamer, to allow chaining
 	  */
     template <typename T>
     GLogStreamer &operator<<(T const &val) {
@@ -645,9 +843,14 @@ using log_singleton = Gem::Common::GSingletonT<Gem::Common::GLogger<Gem::Common:
 
 namespace Gem::Common {
 /**
+ * @brief Returns a string describing the call site
+ *
  * Returns an "in file <file> near line <line> (<function>)" string describing the
  * call site via C++20 std::source_location -- the function name is now included.
  * Used directly by the GEXCEPTION / GTERMINATION / GWARNING / GSTDERR manipulators.
+ *
+ * @param loc The source location to describe (defaults to the caller's location)
+ * @return A human-readable string naming the file, line and function of the call site
  */
 [[nodiscard]] inline std::string locationString(
     std::source_location const &loc = std::source_location::current()

@@ -45,7 +45,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This function allows to output a geneva_exception to a stream
+ * @brief Streams a geneva_exception's message to an output stream.
+ *
+ * @param o The output stream the exception text is written to
+ * @param g The geneva_exception whose what()-message is to be emitted
+ * @return A reference to the output stream @p o (to allow chaining)
  */
 std::ostream &operator<<(std::ostream &o, const geneva_exception &g) {
     o << g.what();

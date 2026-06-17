@@ -56,9 +56,9 @@ namespace Gem::Common {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Logs a message to the console.
+ * @brief Logs a message to the console.
  *
- * @param msg The log message
+ * @param msg The log message to be written to the console
  */
 void GConsoleLogger::log(std::string const &msg) const {
     // std::clog is fully buffered; flush so console diagnostics are not lost
@@ -68,7 +68,10 @@ void GConsoleLogger::log(std::string const &msg) const {
 
 /******************************************************************************/
 /**
- * Logs a message to the console, adding information about the source
+ * @brief Logs a message to the console, adding information about the source
+ *
+ * @param msg The log message to be written to the console
+ * @param extension An identifier of the logging source, emitted as a textual prefix
  */
 void GConsoleLogger::logWithSource(std::string const &msg, std::string const &extension) const {
     this->log(std::string("Message from source \"") + extension + "\":\n" + msg);
@@ -78,7 +81,9 @@ void GConsoleLogger::logWithSource(std::string const &msg, std::string const &ex
 ////////////////////////////////////////////////////////////////////////////////
 /*******************************************************************************/
 /**
- * This constructor accepts a boost path to a file name as argument
+ * @brief This constructor accepts a path to a log-file name as argument
+ *
+ * @param p The filesystem path of the log file to write to
  */
 GFileLogger::GFileLogger(std::filesystem::path const &p)
   : fname_(p.string()) { /* nothing */
@@ -86,8 +91,13 @@ GFileLogger::GFileLogger(std::filesystem::path const &p)
 
 /******************************************************************************/
 /**
+ * @brief Logs a message to a file in append mode
+ *
  * This function logs a message to a file, whose name it takes from the private
- * variable fname_. The file is reopened in append mode for every log message.
+ * variable fname_. The file is reopened in append mode for every log message. On
+ * a failure to open the file, the message is written to std::cerr instead.
+ *
+ * @param msg The log message to be appended to the file
  */
 void GFileLogger::log(std::string const &msg) const {
     std::ofstream ofstr(
@@ -112,10 +122,16 @@ void GFileLogger::log(std::string const &msg) const {
 
 /******************************************************************************/
 /**
+ * @brief Logs a message to a source-specific file in append mode
+ *
  * This function logs a message to a file, whose name it takes from the private
  * variable fname_. The file is reopened in append mode for every log message.
  * In addition to the standard log() function, this function appends the logging
- * source to the file name
+ * source to the file name. On a failure to open the file, the message is written
+ * to std::cerr instead.
+ *
+ * @param msg The log message to be appended to the file
+ * @param extension An identifier of the logging source, appended (with an underscore) to the file name
  */
 void GFileLogger::logWithSource(std::string const &msg, std::string const &extension) const {
     std::ofstream ofstr(
@@ -148,9 +164,13 @@ void GFileLogger::logWithSource(std::string const &msg, std::string const &exten
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A constructor that takes both accompanying information and the
- * desired log type as an argument and stores the information for
- * later perusal.
+ * @brief A constructor that stores both accompanying information and the desired log type
+ *
+ * Takes both accompanying information and the desired log type as an argument and
+ * stores the information for later perusal.
+ *
+ * @param accomp_info Accompanying information (e.g. a call-site location string)
+ * @param lt The type of logging event this manipulator triggers
  */
 GManipulator::GManipulator(std::string const &accomp_info, logType lt)
   : accomp_info_(accomp_info)
@@ -159,7 +179,9 @@ GManipulator::GManipulator(std::string const &accomp_info, logType lt)
 
 /******************************************************************************/
 /**
- * A constructor that stores the logging type only
+ * @brief A constructor that stores the logging type only
+ *
+ * @param lt The type of logging event this manipulator triggers
  */
 GManipulator::GManipulator(logType lt)
   : log_type_(lt) { /* nothing */
@@ -167,7 +189,11 @@ GManipulator::GManipulator(logType lt)
 
 /******************************************************************************/
 /**
- * A constructor that additionally stores a process return code (used by logType::EXIT)
+ * @brief A constructor that additionally stores a process return code (used by logType::EXIT)
+ *
+ * @param accomp_info Accompanying information (e.g. a call-site location string)
+ * @param lt The type of logging event this manipulator triggers
+ * @param return_code The process return code to be used by logType::EXIT
  */
 GManipulator::GManipulator(std::string const &accomp_info, logType lt, int return_code)
   : accomp_info_(accomp_info)
@@ -177,7 +203,9 @@ GManipulator::GManipulator(std::string const &accomp_info, logType lt, int retur
 
 /******************************************************************************/
 /**
- * Retrieves the stored logging type
+ * @brief Retrieves the stored logging type
+ *
+ * @return The logging type stored in this manipulator
  */
 logType GManipulator::getLogType() const {
     return log_type_;
@@ -185,7 +213,9 @@ logType GManipulator::getLogType() const {
 
 /******************************************************************************/
 /**
- * Retrieves the stored process return code (meaningful for logType::EXIT)
+ * @brief Retrieves the stored process return code (meaningful for logType::EXIT)
+ *
+ * @return The stored process return code
  */
 int GManipulator::getReturnCode() const {
     return return_code_;
@@ -193,7 +223,9 @@ int GManipulator::getReturnCode() const {
 
 /******************************************************************************/
 /**
- * Retrieves stored accompanying information (if any)
+ * @brief Retrieves stored accompanying information (if any)
+ *
+ * @return The accompanying information string (empty if none was stored)
  */
 std::string GManipulator::getAccompInfo() const {
     return accomp_info_;
@@ -201,7 +233,9 @@ std::string GManipulator::getAccompInfo() const {
 
 /******************************************************************************/
 /**
- * Checks whether any accompanying information is available
+ * @brief Checks whether any accompanying information is available
+ *
+ * @return true if accompanying information was stored, false otherwise
  */
 bool GManipulator::hasAccompInfo() const {
     return not accomp_info_.empty();
@@ -211,8 +245,12 @@ bool GManipulator::hasAccompInfo() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * @brief Initialization with a string source extension
+ *
  * Initialization with an optional string source extension for log files
  * or as additional information in std-output logs
+ *
+ * @param extension A source-identifier string attached to the streamed output
  */
 GLogStreamer::GLogStreamer(std::string const &extension)
   : extension_(extension) { /* nothing */
@@ -220,8 +258,11 @@ GLogStreamer::GLogStreamer(std::string const &extension)
 
 /******************************************************************************/
 /**
- * Initialization with the name and path of a file used for
- * one-time logging
+ * @brief Initialization with the path of a one-time log file
+ *
+ * Initialization with the name and path of a file used for one-time logging
+ *
+ * @param log_file The path of the one-time log file this streamer writes to
  */
 GLogStreamer::GLogStreamer(std::filesystem::path log_file)
   : log_file_(std::move(log_file)) { /* nothing */
@@ -229,7 +270,12 @@ GLogStreamer::GLogStreamer(std::filesystem::path log_file)
 
 /******************************************************************************/
 /**
+ * @brief Streams a std::ostream manipulator (e.g. std::endl) into the streamer
+ *
  * Needed for ostringstream
+ *
+ * @param val A std::ostream manipulator function pointer
+ * @return A reference to this streamer, to allow chaining
  */
 GLogStreamer &GLogStreamer::operator<<(std::ostream &(*val)(std::ostream &)) {
     oss_ << val;
@@ -238,7 +284,12 @@ GLogStreamer &GLogStreamer::operator<<(std::ostream &(*val)(std::ostream &)) {
 
 /******************************************************************************/
 /**
+ * @brief Streams a std::ios manipulator into the streamer
+ *
  * Needed for ostringstream
+ *
+ * @param val A std::ios manipulator function pointer
+ * @return A reference to this streamer, to allow chaining
  */
 GLogStreamer &GLogStreamer::operator<<(std::ios &(*val)(std::ios &)) {
     oss_ << val;
@@ -247,7 +298,12 @@ GLogStreamer &GLogStreamer::operator<<(std::ios &(*val)(std::ios &)) {
 
 /******************************************************************************/
 /**
+ * @brief Streams a std::ios_base manipulator into the streamer
+ *
  *  Needed for ostringstream
+ *
+ * @param val A std::ios_base manipulator function pointer
+ * @return A reference to this streamer, to allow chaining
  */
 GLogStreamer &GLogStreamer::operator<<(std::ios_base &(*val)(std::ios_base &)) {
     oss_ << val;
@@ -256,11 +312,14 @@ GLogStreamer &GLogStreamer::operator<<(std::ios_base &(*val)(std::ios_base &)) {
 
 /******************************************************************************/
 /**
- * Interface to the actual logging mechanism. Note that this function does
- * not return a reference to self, as it is meant to be called as the last
- * element of a streaming-chain.
+ * @brief Interface to the actual logging mechanism
  *
- * @param gm A GManipulator object, usually emitted by the logLevel() function.
+ * Dispatches the accumulated stream content according to the manipulator's log
+ * type (exception, termination, warning, logging, file, stdout, stderr or exit).
+ * Note that this function does not return a reference to self, as it is meant to
+ * be called as the last element of a streaming-chain.
+ *
+ * @param gm A GManipulator object (e.g. produced by the GEXCEPTION / GWARNING / GLOGGING macros) whose log type selects the action taken
  */
 void GLogStreamer::operator<<(GManipulator const &gm) {
     switch(gm.getLogType()) {
@@ -421,7 +480,7 @@ std::string GLogStreamer::content() const {
 
 /******************************************************************************/
 /**
- * Stores an empty string in the ostringstream object.
+ * @brief Resets the stream content, storing an empty string in the ostringstream object.
  */
 void GLogStreamer::reset() {
     oss_.str("");
@@ -429,7 +488,9 @@ void GLogStreamer::reset() {
 
 /******************************************************************************/
 /**
- * Checks whether an extension string has been registered
+ * @brief Checks whether an extension string has been registered
+ *
+ * @return true if a non-empty source-extension string was registered, false otherwise
  */
 bool GLogStreamer::hasExtension() const {
     return not extension_.empty();

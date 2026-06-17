@@ -73,6 +73,8 @@ namespace Gem::Common {
  * available for the majority of classes in the Gemfony scientific library.
  * As one example, (de-)serialization is simplified by some of the functions
  * in this class, as is the task of conversion to the derived types.
+ *
+ * @tparam g_class_type The most-derived public root of the hierarchy that uses this interface (CRTP self type)
  */
 template <typename g_class_type>
 class GCommonInterfaceT
@@ -364,6 +366,8 @@ public:
     /***************************************************************************/
     /**
      * Emits a name for this class / object. Wrapper to avoid public virtual.
+     *
+     * @return The name of this class / object, as provided by the virtual name_()
      */
     std::string name() const {
         return this->name_();
@@ -392,6 +396,8 @@ public:
     /***************************************************************************/
     /**
      * Creates a clone of this object, storing it in a std::shared_ptr<g_class_type>
+     *
+     * @return A deep clone of this object, wrapped into a std::shared_ptr<g_class_type>
      */
     std::shared_ptr<g_class_type> clone() const {
         return std::shared_ptr<g_class_type>(clone_());
@@ -403,6 +409,7 @@ public:
      * and emits it as a std::shared_ptr<> . Note that this template will only be accessible to the
      * compiler if g_class_type is a base type of clone_type.
      *
+     * @tparam clone_type The derived type the clone should be converted to (must derive from g_class_type)
      * @return A converted clone of this object, wrapped into a std::shared_ptr
      */
     template <typename clone_type>
@@ -432,6 +439,7 @@ public:
      * derived class, and emits it as a std::unique_ptr<clone_type> (sole ownership). The unique_ptr
      * counterpart of clone<clone_type>(); only accessible if g_class_type is a base of clone_type.
      *
+     * @tparam clone_type The derived type the clone should be converted to (must derive from g_class_type)
      * @return A converted deep clone of this object, wrapped into a std::unique_ptr<clone_type>
      */
     template <typename clone_type>
@@ -455,6 +463,7 @@ public:
      * Loads the data of another g_class_type(-derivative), wrapped in a shared pointer. Note that this
      * function is only accessible to the compiler if load_type is a derivative of g_class_type.
      *
+     * @tparam load_type The (derived) type of the object to load from (must derive from g_class_type)
      * @param cp A copy of another g_class_type-derivative, wrapped into a std::shared_ptr<>
      */
     template <typename load_type>
@@ -470,6 +479,7 @@ public:
      * an explicit dereference. Note that this function is only accessible to the compiler if load_type
      * is a derivative of g_class_type.
      *
+     * @tparam load_type The (derived) type of the object to load from (must derive from g_class_type)
      * @param cp A copy of another g_class_type-derivative, wrapped into a std::unique_ptr<>
      */
     template <typename load_type>
@@ -483,7 +493,8 @@ public:
      * Loads the data of another g_class_type(-derivative), presented as a constant reference. Note that this
      * function is only accessible to the compiler if load_type is a derivative of g_class_type.
      *
-     * @param cp A copy of another g_class_type-derivative, wrapped into a std::shared_ptr<>
+     * @tparam load_type The (derived) type of the object to load from (must derive from g_class_type)
+     * @param cp A constant reference to another g_class_type-derivative whose data should be loaded
      */
     template <typename load_type>
         requires std::derived_from<load_type, g_class_type>
@@ -494,6 +505,8 @@ public:
     /***************************************************************************/
     /**
      * Applies modifications to this object. This is needed for testing purposes
+     *
+     * @return A boolean indicating whether modifications were actually made
      */
     bool modify_GUnitTests() {
         return this->modify_GUnitTests_();
@@ -534,7 +547,11 @@ protected:
     GCommonInterfaceT<g_class_type> &operator=(GCommonInterfaceT<g_class_type> &&) = default;
 
     /***************************************************************************/
-    /** @brief Loads the data of another g_class_type */
+    /**
+     * @brief Loads the data of another g_class_type
+     *
+     * @param cp A pointer to another g_class_type-derivative whose data should be loaded into this object
+     */
     virtual void load_(const g_class_type *) = 0;
 
     /***************************************************************************/
@@ -611,7 +628,11 @@ protected:
     }
 
     /***************************************************************************/
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    /**
+     * @brief Applies modifications to this object. This is needed for testing purposes
+     *
+     * @return A boolean indicating whether modifications were actually made
+     */
     virtual bool modify_GUnitTests_() = 0;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
     virtual void specificTestsNoFailureExpected_GUnitTests_() = 0;
@@ -622,13 +643,19 @@ private:
     /***************************************************************************/
     /**
      * Emits a name for this class / object
+     *
+     * @return The name of this class / object
      */
     virtual std::string name_() const {
         return std::string("GCommonInterfaceT<g_class_type>");
     }
 
     /***************************************************************************/
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object
+     *
+     * @return A raw, owning pointer to a deep clone of this object (caller takes ownership)
+     */
     virtual g_class_type *clone_() const = 0;
 };
 
