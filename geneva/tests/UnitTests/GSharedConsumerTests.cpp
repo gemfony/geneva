@@ -31,14 +31,13 @@
  * The single-shared-consumer invariant: at most one consumer of a given KIND per process, shared by
  * every algorithm that needs that kind. This file pins the thread-pool (stc) case: a nested
  * EA-in-EA -- an outer EA whose individuals each run an inner EA through the default (un-injected ->
- * thread-pool) submission path -- must, across the whole process, build exactly ONE thread-pool
- * consumer (and hence one worker pool), not one per inner evaluation.
+ * thread-pool) submission path -- builds, across the whole process, exactly ONE thread-pool consumer
+ * (and hence one worker pool), not one per inner evaluation.
  *
- * TODAY this is violated: GOptimizerExecutionPolicy::ensureExecutor_ builds a fresh per-OA consumer
- * whenever no broker was injected, so every inner EA spawns its own GThreadPool. The test asserts the
- * TARGET (one consumer) and is tagged Catch2 [!shouldfail] so the suite stays green until the
- * process-global broker registry (Workstream A1-A3) makes the assertion pass -- at which point the
- * [!shouldfail] tag is removed.
+ * This holds because GOptimizerExecutionPolicy::ensureExecutor_ resolves an un-injected local consumer
+ * through the process-global per-kind broker registry: the first inner EA builds and registers the
+ * thread-pool consumer; every later one shares it. The test clears the registry first so the count
+ * reflects only the consumers built during this test.
  */
 
 #include <catch2/catch_test_macros.hpp>
@@ -47,6 +46,7 @@
 #include <memory>
 #include <vector>
 
+#include "courtier/GBrokerRegistry.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
 #include "geneva/ind/GFlatIndividualT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
@@ -138,8 +138,12 @@ protected:
 
 TEST_CASE(
     "Nested EA-in-EA shares a single thread-pool consumer",
-    "[consumer][sharing][!shouldfail]") {
+    "[consumer][sharing]") {
     using StcConsumer = Gem::Courtier::GStdThreadConsumerT<gen::GOptimizableEntity>;
+
+    // Start from an empty registry so the count reflects only the consumers built during this test,
+    // and so the shared thread-pool consumer is genuinely built here (not inherited from an earlier test).
+    Gem::Courtier::GBrokerRegistryT<gen::GOptimizableEntity>::instance().clearAll();
 
     // The outer EA is serial so it builds no thread-pool consumer of its own: the count then reflects
     // ONLY the inner (thread-pool) consumers, isolating the invariant under test.
@@ -156,7 +160,6 @@ TEST_CASE(
     outer->optimize();
 
     const std::size_t built = StcConsumer::instances_constructed().load();
-    // Invariant target: every un-injected inner EA converges on ONE shared thread-pool consumer.
-    // Pre-A1 this is the number of inner evaluations (far more than one), so the test fails today.
+    // Every un-injected inner EA converges on ONE shared thread-pool consumer.
     CHECK(built == 1);
 }

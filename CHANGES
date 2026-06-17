@@ -393,6 +393,17 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- Optimization algorithms now share a consumer per kind across the process rather
+  than each building its own. When an algorithm is not handed a broker explicitly
+  (e.g. by Go2), it resolves a local consumer through a process-global, per-kind
+  broker registry: the first algorithm of a given kind (serial or thread-pool)
+  builds and registers the consumer, and every later one -- including the inner
+  algorithms of a meta-optimization, evaluated in parallel -- shares it. The effect
+  is at most one worker pool per kind per process instead of one per algorithm (no
+  thread oversubscription when algorithms are nested). This is the local half of an
+  ongoing consolidation toward a single shared endpoint; behaviour is unchanged for
+  an algorithm that is given a broker explicitly.
+
 - Preliminary support for two new local optimization algorithms:
   Nelder-Mead (the downhill-simplex method; class GNelderMead,
   mnemonic "nm") and Conjugate Gradient Descent (Polak-Ribiere+;
