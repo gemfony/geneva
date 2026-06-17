@@ -242,6 +242,80 @@ TEST_CASE("GGenomeBuilder produces the expected shared layout", "[flat]") {
 }
 
 /******************************************************************************/
+TEST_CASE("GGenomeLayout::layoutId is a stable content hash", "[flat][layoutid]") {
+    auto buildLayout = [](std::size_t n, double lo, double hi) {
+        GGenomeBuilder b;
+        b.addDoubleGroup(n, lo, hi);
+        return b.build().layout;
+    };
+
+    // Identical structure -> identical id, and sameStructure() agrees.
+    auto a = buildLayout(5, -10., 10.);
+    auto a2 = buildLayout(5, -10., 10.);
+    REQUIRE(a);
+    REQUIRE(a2);
+    CHECK(a->layoutId() == a2->layoutId());
+    CHECK(a->sameStructure(*a2));
+
+    // Calling layoutId() twice returns the same cached value (idempotent).
+    CHECK(a->layoutId() == a->layoutId());
+
+    // A different parameter count, different bounds, or different grouping each changes the id.
+    CHECK(a->layoutId() != buildLayout(6, -10., 10.)->layoutId());  // count
+    CHECK(a->layoutId() != buildLayout(5, -1., 1.)->layoutId());    // bounds
+    CHECK_FALSE(a->sameStructure(*buildLayout(6, -10., 10.)));
+
+    {
+        GGenomeBuilder b;
+        b.addDoubleArray(5, -10., 10.); // 5 groups of 1 instead of one group of 5
+        auto grouped_differently = b.build().layout;
+        CHECK(a->layoutId() != grouped_differently->layoutId());
+        CHECK_FALSE(a->sameStructure(*grouped_differently));
+    }
+
+    // Interned labels are part of the structure -> they participate in the id.
+    {
+        GGenomeBuilder lb;
+        lb.addDoubleGroup(5, -10., 10.).label("x");
+        auto labelled = lb.build().layout;
+        CHECK(a->layoutId() != labelled->layoutId());
+    }
+
+    // A copy has a cold cache but must recompute the identical id (copy preserves structure).
+    GGenomeLayout copy(*a);
+    CHECK(copy.layoutId() == a->layoutId());
+    CHECK(copy.sameStructure(*a));
+
+    // A different channel mix (an int group added) changes the id.
+    {
+        GGenomeBuilder mb;
+        mb.addDoubleGroup(5, -10., 10.);
+        mb.addInt32Group(2, -5, 5);
+        CHECK(a->layoutId() != mb.build().layout->layoutId());
+    }
+}
+
+/******************************************************************************/
+TEST_CASE("GGenomeLayout::layoutId survives a serialization round-trip", "[flat][layoutid]") {
+    // The structure round-trips losslessly, so a deserialised genome's layout must carry the same id as
+    // the original -- this is exactly what lets a receiver match a sent layout to a cached one by id.
+    GGenomeBuilder b;
+    b.addDoubleGroup(4, -10., 10.);
+    b.addDoubleArray(3, -2., 2.);
+    b.addInt32Group(2, -5, 5);
+    b.addBoolGroup(2);
+    FlatSphere ind;
+    ind.setGenome(b.build());
+    const LayoutId before = ind.getLayout()->layoutId();
+
+    FlatSphere restored;
+    restored.fromString(ind.toString(Gem::Common::serializationMode::BINARY),
+                        Gem::Common::serializationMode::BINARY);
+    CHECK(restored.getLayout()->layoutId() == before);
+    CHECK(restored.getLayout()->sameStructure(*ind.getLayout()));
+}
+
+/******************************************************************************/
 TEST_CASE("GFlatGenome::streamlineInto matches streamline (bulk-flatten fast path)", "[flat]") {
     // streamlineInto() is the GPU marshallers' bulk-flatten fast path: it must produce EXACTLY the same
     // external (range-folded) values as streamline<T>(), just written straight into a caller buffer with

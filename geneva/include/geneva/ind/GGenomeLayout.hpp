@@ -34,9 +34,13 @@
 
 // Standard header files go here
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <limits>
+#include <mutex>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 // Geneva headers go here
@@ -186,6 +190,9 @@ struct GroupStructure {
     std::int32_t label_id = -1; ///< interned label index into GGenomeLayout::labels (-1 = unlabeled)
     bool active = true;         ///< false ⇔ adaptionMode::NEVER (the group is never adapted / mutated)
     T range = T(1);             ///< comparative range for an adaptor step (upper-lower, or the init range)
+
+    /** @brief Field-wise structural equality (the basis of the layout's collision-safe id compare). */
+    bool operator==(const GroupStructure &) const = default;
 };
 
 /******************************************************************************/
@@ -255,6 +262,29 @@ struct GroupRef {
 
 /******************************************************************************/
 /**
+ * A 128-bit content id for a genome layout: a strong structural hash of the (structure-only) layout.
+ * It is the key the transport layer uses to send a layout once and reference it by id thereafter
+ * (Phase 9 layout send-once). Being a hash of the CONTENT -- not a process-local pointer or counter --
+ * it is stable across processes and safe for evolving structure: a layout whose structure changes
+ * (e.g. a NEAT-style architecture amendment) hashes to a different id, so it is treated as a new layout
+ * automatically, with no "layout changed" signalling. Hash collisions are guarded against by an exact
+ * structural compare (GGenomeLayout::sameStructure) wherever a collision could cause incorrect dedup.
+ */
+struct LayoutId {
+    std::uint64_t hi = 0; ///< the high 64 bits of the content hash
+    std::uint64_t lo = 0; ///< the low 64 bits of the content hash
+
+    /** @brief Bitwise equality of the two id halves. @return true iff both halves match. */
+    bool operator==(const LayoutId &) const = default;
+    /** @brief A total order over the 128-bit id (for use as an ordered-map key).
+     *  @param o The id to compare against. @return true iff this id sorts before o. */
+    bool operator<(const LayoutId &o) const noexcept {
+        return (hi != o.hi) ? (hi < o.hi) : (lo < o.lo);
+    }
+};
+
+/******************************************************************************/
+/**
  * The shared, immutable per-type structural descriptor of a flat genome (DM §2 metadata). It holds
  * one ChannelLayout per supported value type. A single layout is built once (by GGenomeBuilder, and
  * in turn by a factory) and shared by every individual of a problem via std::shared_ptr<const ...>,
@@ -276,6 +306,71 @@ public:
     ChannelLayout<bool> b;          ///< the bool channel
 
     std::vector<std::string> labels;///< the interned, distinct group-label strings (label_id indexes this)
+
+    /***************************************************************************/
+    // Special members. The layout caches its content id lazily (a std::once_flag, which is neither
+    // copyable nor movable), so the value-member copy/move are spelled out and simply leave the copy's
+    // cache cold -- a structural copy recomputes the (identical) id on first use.
+
+    /** @brief The default constructor (empty layout). */
+    GGenomeLayout() = default;
+    /** @brief Copy constructor: copies the structural members; the id cache is left cold. */
+    GGenomeLayout(const GGenomeLayout &cp)
+      : d(cp.d), f(cp.f), i(cp.i), b(cp.b), labels(cp.labels) {}
+    /** @brief Move constructor: moves the structural members; the id cache is left cold. */
+    GGenomeLayout(GGenomeLayout &&cp) noexcept
+      : d(std::move(cp.d)), f(std::move(cp.f)), i(std::move(cp.i)), b(std::move(cp.b)),
+        labels(std::move(cp.labels)) {}
+    /** @brief Copy assignment: copies the structural members; the id cache is left cold.
+     *  @param cp The layout to copy from. @return A reference to this layout. */
+    GGenomeLayout &operator=(const GGenomeLayout &cp) {
+        if(this != &cp) {
+            d = cp.d; f = cp.f; i = cp.i; b = cp.b; labels = cp.labels;
+        }
+        return *this;
+    }
+    /** @brief Move assignment: moves the structural members; the id cache is left cold.
+     *  @param cp The layout to move from. @return A reference to this layout. */
+    GGenomeLayout &operator=(GGenomeLayout &&cp) noexcept {
+        if(this != &cp) {
+            d = std::move(cp.d); f = std::move(cp.f); i = std::move(cp.i); b = std::move(cp.b);
+            labels = std::move(cp.labels);
+        }
+        return *this;
+    }
+    /** @brief The destructor. */
+    ~GGenomeLayout() = default;
+
+    /***************************************************************************/
+    /**
+     * @brief The layout's 128-bit content id: a strong structural hash, computed once and cached.
+     *
+     * Two layouts with identical structure (channels, per-value bounds/kind/active, groups and labels)
+     * produce the same id; any structural difference produces (with overwhelming probability) a
+     * different id. The id is used by the transport layer to send a layout once and reference it by id.
+     * Computed lazily and thread-safely on this (immutable) layout, so concurrent first calls are safe.
+     *
+     * @return A const reference to the cached content id.
+     */
+    const LayoutId &layoutId() const {
+        std::call_once(id_once_, [this] { id_cache_ = computeLayoutId(); });
+        return id_cache_;
+    }
+
+    /**
+     * @brief Exact structural equality -- the collision-safe compare backing the content id.
+     *
+     * Compares every per-value array, group vector and the interned label table. Two layouts compare
+     * equal iff they are byte-for-byte structurally identical; this is what makes a hash collision on
+     * layoutId() safe to detect (and reject) at the point it could cause an incorrect dedup.
+     *
+     * @param o The other layout to compare against.
+     * @return true iff the two layouts have identical structure.
+     */
+    bool sameStructure(const GGenomeLayout &o) const {
+        return sameChannel(d, o.d) && sameChannel(f, o.f) && sameChannel(i, o.i) &&
+               sameChannel(b, o.b) && labels == o.labels;
+    }
 
     /**
      * @brief Interns a label string, returning its id; an already-present string returns its existing id.
@@ -354,8 +449,157 @@ private:
             }
         }
     }
+
+    /***************************************************************************/
+    // Content-id hashing. A two-lane 64-bit FNV-1a (the two lanes use different basis values and an
+    // extra rotation on the second lane, so they decorrelate into an effective 128-bit hash). It is a
+    // fast, non-cryptographic hash; correctness against the rare collision is provided by sameStructure().
+
+    /** @brief The incremental two-lane hasher over the structural bytes of a layout. */
+    struct Hasher128 {
+        std::uint64_t h1 = 1469598103934665603ULL;                   ///< FNV-1a offset basis (lane 1)
+        std::uint64_t h2 = 1469598103934665603ULL ^ 0x9E3779B97F4A7C15ULL; ///< distinct basis (lane 2)
+        static constexpr std::uint64_t prime = 1099511628211ULL;     ///< the 64-bit FNV prime
+
+        /** @brief Folds one byte into both lanes. @param byte The byte to absorb. */
+        void absorb(std::uint8_t byte) {
+            h1 = (h1 ^ byte) * prime;
+            h2 = (h2 ^ byte) * prime;
+            h2 = (h2 << 13) | (h2 >> 51); // rotate lane 2 so the two lanes diverge
+        }
+        /** @brief Folds a trivially-copyable value's object representation into the hash.
+         *  @tparam T The value type. @param v The value whose bytes are absorbed. */
+        template <typename T>
+        void value(T v) {
+            static_assert(std::is_trivially_copyable_v<T>, "value() hashes the object representation");
+            const auto *p = reinterpret_cast<const unsigned char *>(&v);
+            for(std::size_t k = 0; k < sizeof(T); ++k) {
+                absorb(p[k]);
+            }
+        }
+        /** @brief Folds a string (length-prefixed, so "ab"+"c" ≠ "a"+"bc").
+         *  @param s The string to absorb. */
+        void string(const std::string &s) {
+            value<std::uint64_t>(s.size());
+            for(char c : s) {
+                absorb(static_cast<std::uint8_t>(c));
+            }
+        }
+        /** @brief The accumulated 128-bit id. @return The two-lane hash as a LayoutId. */
+        LayoutId id() const { return LayoutId{h1, h2}; }
+    };
+
+    /** @brief Folds one channel's full structural content into the hasher (length-prefixed throughout,
+     *  so array boundaries are unambiguous). @tparam T The channel's value type. @param h The hasher.
+     *  @param c The channel to absorb. */
+    template <typename T>
+    static void hashChannel(Hasher128 &h, const ChannelLayout<T> &c) {
+        auto fp = [&](const std::vector<T> &v) {
+            h.value<std::uint64_t>(v.size());
+            for(const T &x : v) {
+                h.value<T>(x);
+            }
+        };
+        fp(c.lower);
+        fp(c.upper);
+        fp(c.init_lower);
+        fp(c.init_upper);
+        h.value<std::uint64_t>(c.kind.size());
+        for(ParamKind k : c.kind) {
+            h.value<std::uint8_t>(static_cast<std::uint8_t>(k));
+        }
+        h.value<std::uint64_t>(c.active.size());
+        for(std::uint8_t a : c.active) {
+            h.value<std::uint8_t>(a);
+        }
+        h.value<std::uint64_t>(c.groups.size());
+        for(const GroupStructure<T> &g : c.groups) {
+            h.value<std::uint32_t>(g.start);
+            h.value<std::uint32_t>(g.len);
+            h.value<std::int32_t>(g.label_id);
+            h.value<std::uint8_t>(g.active ? std::uint8_t{1} : std::uint8_t{0});
+            h.value<T>(g.range);
+        }
+    }
+
+    /** @brief Hashes the bool channel. vector<bool> is a bit-packed proxy container, so its values must
+     *  be absorbed by value (a plain bool), not by object representation. @param h The hasher.
+     *  @param c The bool channel to absorb. */
+    static void hashChannel(Hasher128 &h, const ChannelLayout<bool> &c) {
+        auto bv = [&](const std::vector<bool> &v) {
+            h.value<std::uint64_t>(v.size());
+            for(bool x : v) {
+                h.value<std::uint8_t>(x ? std::uint8_t{1} : std::uint8_t{0});
+            }
+        };
+        bv(c.lower);
+        bv(c.upper);
+        bv(c.init_lower);
+        bv(c.init_upper);
+        h.value<std::uint64_t>(c.kind.size());
+        for(ParamKind k : c.kind) {
+            h.value<std::uint8_t>(static_cast<std::uint8_t>(k));
+        }
+        h.value<std::uint64_t>(c.active.size());
+        for(std::uint8_t a : c.active) {
+            h.value<std::uint8_t>(a);
+        }
+        h.value<std::uint64_t>(c.groups.size());
+        for(const GroupStructure<bool> &g : c.groups) {
+            h.value<std::uint32_t>(g.start);
+            h.value<std::uint32_t>(g.len);
+            h.value<std::int32_t>(g.label_id);
+            h.value<std::uint8_t>(g.active ? std::uint8_t{1} : std::uint8_t{0});
+            h.value<std::uint8_t>(g.range ? std::uint8_t{1} : std::uint8_t{0});
+        }
+    }
+
+    /** @brief Computes the 128-bit content id over all four channels and the label table.
+     *  @return The freshly computed content id. */
+    LayoutId computeLayoutId() const {
+        Hasher128 h;
+        hashChannel(h, d);
+        hashChannel(h, f);
+        hashChannel(h, i);
+        hashChannel(h, b);
+        h.value<std::uint64_t>(labels.size());
+        for(const std::string &s : labels) {
+            h.string(s);
+        }
+        return h.id();
+    }
+
+    /** @brief Exact structural equality of one channel (every per-value array + the group vector).
+     *  @tparam T The channel's value type. @param a The first channel. @param bb The second channel.
+     *  @return true iff the two channels are structurally identical. */
+    template <typename T>
+    static bool sameChannel(const ChannelLayout<T> &a, const ChannelLayout<T> &bb) {
+        return a.lower == bb.lower && a.upper == bb.upper && a.init_lower == bb.init_lower &&
+               a.init_upper == bb.init_upper && a.kind == bb.kind && a.active == bb.active &&
+               a.groups == bb.groups;
+    }
+
+    /***************************************************************************/
+    // The lazily-computed, cached content id. mutable because layoutId() is logically const on the
+    // immutable layout; std::once_flag makes the first concurrent computation thread-safe.
+    mutable std::once_flag id_once_;       ///< guards the one-time computation of id_cache_
+    mutable LayoutId id_cache_;            ///< the cached content id (valid once id_once_ has fired)
 };
 
 /******************************************************************************/
 
 } /* namespace Gem::Geneva::Genome */
+
+/******************************************************************************/
+/** @brief std::hash specialization so a LayoutId can key an unordered_map (the transport registry). */
+template <>
+struct std::hash<Gem::Geneva::Genome::LayoutId> {
+    /** @brief Hashes a LayoutId by mixing its two halves.
+     *  @param id The id to hash. @return A size_t hash of the id. */
+    std::size_t operator()(const Gem::Geneva::Genome::LayoutId &id) const noexcept {
+        // The id is already a strong hash; xor-with-shift mixes the two halves into a size_t.
+        return static_cast<std::size_t>(id.hi ^ (id.lo + 0x9E3779B97F4A7C15ULL + (id.hi << 6) + (id.hi >> 2)));
+    }
+};
+
+/******************************************************************************/
