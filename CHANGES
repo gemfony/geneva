@@ -150,13 +150,16 @@ Recommended Versions:
   transparently (a fresh connection re-receives the layouts it needs). For a
   large structured genome whose layout is identical
   across the whole population this cuts the per-item wire size substantially.
-  Relatedly, a processed work item is by default returned to the server in a
-  lightweight "results-only" form -- the computed results (including all
-  evaluations of a multi-criterion individual) travel, but the input parameters
-  do not, since the server still holds the originally-submitted item and grafts
-  them back on. A client that has MODIFIED the individual (e.g. a network-tiered
-  client that runs its own optimization and returns the best individual it found)
-  opts into a full return via GOptimizableEntity::setReturnFullIndividual(true).
+  Relatedly, on the websocket and Asio consumers a processed work item is by
+  default returned to the server in a lightweight "results-only" form -- the
+  computed results (including all evaluations of a multi-criterion individual)
+  travel, but the input parameters do not, since the server still holds the
+  originally-submitted item and grafts them back on. A client that has MODIFIED
+  the individual (e.g. a network-tiered client that runs its own optimization and
+  returns the best individual it found) opts into a full return via
+  GOptimizableEntity::setReturnFullIndividual(true). (The MPI consumer is
+  broker-callback based and keeps no per-item original to graft onto, so it
+  returns the full individual; only its submit direction is deduplicated.)
   These added markers change the genome serialization format, so archives written
   by earlier 1.12.0 development builds no longer load.
 - The separate gradient-descent algorithm (GGradientDescent) has been removed:

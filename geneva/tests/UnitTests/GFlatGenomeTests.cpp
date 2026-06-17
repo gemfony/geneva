@@ -1370,12 +1370,17 @@ TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[
     }
 
     std::size_t processed = 0;
+    std::size_t with_genome = 0;
     for(const auto &it : items) {
         if(it && it->is_processed()) {
             ++processed;
         }
+        if(it && it->countParameters<double>() == 40) {
+            ++with_genome;
+        }
     }
     CHECK(processed == N); // correctness: every item came back evaluated
+    CHECK(with_genome == N); // results-only returns must still leave each item with its full genome
 
     // Send-once: a single layout served the whole population over all clients (had each item carried its
     // own layout copy this would still be 1, since the blob store keys by content id -- but more to the
@@ -1446,12 +1451,17 @@ TEST_CASE("Wire send-once over a real ASIO loopback interns one layout", "[flat]
     }
 
     std::size_t processed = 0;
+    std::size_t with_genome = 0;
     for(const auto &it : items) {
         if(it && it->is_processed()) {
             ++processed;
         }
+        if(it && it->countParameters<double>() == 40) {
+            ++with_genome;
+        }
     }
     CHECK(processed == N);
+    CHECK(with_genome == N); // results-only returns must still leave each item with its full genome
     CHECK(consumer->getInternedLayoutCount() == 1);
 
     consumer->stopServer();
@@ -1522,12 +1532,19 @@ TEST_CASE("Wire send-once: many distinct layouts under a bounded registry stay c
     }
 
     std::size_t processed = 0;
-    for(const auto &it : items) {
-        if(it && it->is_processed()) {
+    std::size_t with_genome = 0;
+    for(std::size_t i = 0; i < items.size(); ++i) {
+        if(items[i] && items[i]->is_processed()) {
             ++processed;
+        }
+        // Each item must come back with ITS OWN (correctly-sized) genome, even across eviction + the
+        // varying layouts -- not an empty or a wrong-layout genome.
+        if(items[i] && items[i]->countParameters<double>() == sizes[i % sizes.size()]) {
+            ++with_genome;
         }
     }
     CHECK(processed == N);                              // correct despite eviction + re-inline mid-run
+    CHECK(with_genome == N);                           // each item kept its own full genome
     CHECK(consumer->getInternedLayoutCount() <= 2);    // the capacity bound was honoured
 
     consumer->stopServer();
