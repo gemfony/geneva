@@ -165,6 +165,12 @@ public:
     ) {
         command_ = command;
         payload_ptr_ = std::move(payload_ptr);
+        // Also clear the optional Phase 9 layout-fetch fields, so a reused container never carries stale
+        // id / blob / peer data into the next message. A caller that needs them (a SEND_LAYOUT reply)
+        // sets them explicitly AFTER reset().
+        peer_id_ = 0;
+        layout_id_ = GWireLayoutId{0, 0};
+        layout_blob_.clear();
         return *this;
     }
 
