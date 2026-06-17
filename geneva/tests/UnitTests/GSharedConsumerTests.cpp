@@ -43,11 +43,14 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <vector>
 
 #include "courtier/GBrokerRegistry.hpp"
+#include "courtier/GBrokerT.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
+#include "geneva/GConsumerSetup.hpp"
 #include "geneva/ind/GFlatIndividualT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
@@ -162,4 +165,65 @@ TEST_CASE(
     const std::size_t built = StcConsumer::instances_constructed().load();
     // Every un-injected inner EA converges on ONE shared thread-pool consumer.
     CHECK(built == 1);
+}
+
+/******************************************************************************/
+
+TEST_CASE("Broker registry holds at most one broker per kind", "[consumer][sharing][registry]") {
+    using Registry = Gem::Courtier::GBrokerRegistryT<gen::GOptimizableEntity>;
+    using broker_t = Gem::Courtier::GBrokerT<gen::GOptimizableEntity>;
+    using Gem::Courtier::broker_kind;
+
+    auto &reg = Registry::instance();
+    reg.clearAll();
+
+    CHECK(reg.get(broker_kind::multithreaded) == nullptr);
+
+    // getOrRegister builds exactly once for a kind; later (and concurrent-shaped) calls share it.
+    std::size_t factory_calls = 0;
+    auto factory = [&factory_calls]() {
+        ++factory_calls;
+        return std::make_shared<broker_t>();
+    };
+    auto first = reg.getOrRegister(broker_kind::multithreaded, factory);
+    auto second = reg.getOrRegister(broker_kind::multithreaded, factory);
+    CHECK(factory_calls == 1);     // the second call did NOT build a new broker
+    CHECK(first == second);        // it returned the same shared broker
+    CHECK(reg.get(broker_kind::multithreaded) == first);
+
+    // Different kinds are independent.
+    auto serial = reg.getOrRegister(broker_kind::serial, factory);
+    CHECK(factory_calls == 2);
+    CHECK(serial != first);
+
+    // set() publishes/replaces; clear() drops one kind; clearAll() empties.
+    auto replacement = std::make_shared<broker_t>();
+    reg.set(broker_kind::multithreaded, replacement);
+    CHECK(reg.get(broker_kind::multithreaded) == replacement);
+    reg.clear(broker_kind::multithreaded);
+    CHECK(reg.get(broker_kind::multithreaded) == nullptr);
+    CHECK(reg.get(broker_kind::serial) == serial); // clear is per-kind
+    reg.clearAll();
+    CHECK(reg.get(broker_kind::serial) == nullptr);
+}
+
+/******************************************************************************/
+
+TEST_CASE("buildConsumerSetup publishes the local broker under its kind", "[consumer][sharing][registry]") {
+    using Registry = Gem::Courtier::GBrokerRegistryT<gen::GOptimizableEntity>;
+    using Gem::Courtier::broker_kind;
+
+    auto &reg = Registry::instance();
+    reg.clearAll();
+
+    auto stc = Gem::Geneva::buildConsumerSetup(Gem::Geneva::ConsumerSpec{.mnemonic = "stc"});
+    REQUIRE(stc.broker);
+    CHECK(reg.get(broker_kind::multithreaded) == stc.broker); // published, so un-injected OAs share it
+
+    auto sc = Gem::Geneva::buildConsumerSetup(Gem::Geneva::ConsumerSpec{.mnemonic = "sc"});
+    REQUIRE(sc.broker);
+    CHECK(reg.get(broker_kind::serial) == sc.broker);
+    CHECK(reg.get(broker_kind::multithreaded) == stc.broker); // the serial build left the stc entry intact
+
+    reg.clearAll();
 }

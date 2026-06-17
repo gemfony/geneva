@@ -400,9 +400,11 @@ Recommended Versions:
   builds and registers the consumer, and every later one -- including the inner
   algorithms of a meta-optimization, evaluated in parallel -- shares it. The effect
   is at most one worker pool per kind per process instead of one per algorithm (no
-  thread oversubscription when algorithms are nested). This is the local half of an
-  ongoing consolidation toward a single shared endpoint; behaviour is unchanged for
-  an algorithm that is given a broker explicitly.
+  thread oversubscription when algorithms are nested). The consumer Go2 builds is
+  published the same way, and a second request for a networked socket consumer
+  reuses the existing one rather than binding a second port, so a process exposes a
+  single listening endpoint. Behaviour is unchanged for an algorithm that is given a
+  broker explicitly.
 
 - Preliminary support for two new local optimization algorithms:
   Nelder-Mead (the downhill-simplex method; class GNelderMead,
