@@ -50,12 +50,14 @@
 #include <boost/beast/websocket.hpp>
 #include <boost/beast/websocket/rfc6455.hpp>
 #include <boost/serialization/nvp.hpp>
+#include <boost/serialization/string.hpp>
 #include <boost/serialization/unique_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GProcessingContainerT.hpp"
+#include "courtier/GWireSerializationContext.hpp" // Phase 9: GWireLayoutId / GWirePeerId for the layout-fetch commands
 
 namespace Gem::Courtier {
 
@@ -75,7 +77,16 @@ class GCommandContainerT {
     friend class boost::serialization::access;
 
     /**
-     * @brief Boost.Serialization hook that (de-)serializes the command and the payload pointer.
+     * @brief Boost.Serialization hook that (de-)serializes the command and the payload pointer, plus the
+     * optional Phase 9 layout-fetch fields (a peer id, a layout id and a serialized layout blob).
+     *
+     * The three extra fields are inert for the common COMPUTE / RESULT / GETDATA / NODATA / STOP traffic
+     * (the peer id is 0 / unused, the layout id is all-zero and the blob is empty there): they carry data
+     * only for the REQUEST_LAYOUT (which fills the layout id) and SEND_LAYOUT (which fills the layout id
+     * and the blob) cache-miss-fetch commands, and for transports that announce a stable peer id on every
+     * request (ASIO). They are written/read symmetrically and unconditionally, so this stays a single,
+     * version-free format that round-trips for every command. The layout id's two 64-bit halves are
+     * streamed individually so no std::array archive support is required.
      *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to read from / write to
@@ -84,6 +95,10 @@ class GCommandContainerT {
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &BOOST_SERIALIZATION_NVP(command_) & BOOST_SERIALIZATION_NVP(payload_ptr_);
+        ar &BOOST_SERIALIZATION_NVP(peer_id_);
+        ar &boost::serialization::make_nvp("layout_id_hi", layout_id_[0]);
+        ar &boost::serialization::make_nvp("layout_id_lo", layout_id_[1]);
+        ar &BOOST_SERIALIZATION_NVP(layout_blob_);
     }
     ///////////////////////////////////////////////////////////////
 
@@ -195,6 +210,34 @@ public:
     }
 
     //-------------------------------------------------------------------------
+    // Phase 9 layout send-once: optional fields carried alongside the command/payload. They are unused
+    // (peer 0, zero id, empty blob) for ordinary COMPUTE/RESULT/GETDATA/NODATA/STOP traffic and only
+    // populated for the REQUEST_LAYOUT / SEND_LAYOUT cache-miss-fetch commands and for transports that
+    // announce a stable peer id on each request (ASIO).
+
+    /** @brief Sets the announcing peer's stable id (used by ASIO, whose one-shot connections have no
+     *  persistent per-connection identity, to tell the server which peer a request belongs to).
+     *  @param peer The stable peer id of the announcing client. */
+    void set_peer_id(GWirePeerId peer) noexcept { peer_id_ = peer; }
+
+    /** @brief @return The stable peer id announced on this request (0 if none). */
+    [[nodiscard]] GWirePeerId get_peer_id() const noexcept { return peer_id_; }
+
+    /** @brief Sets the layout id carried by a REQUEST_LAYOUT / SEND_LAYOUT command.
+     *  @param id The 128-bit content id of the layout being requested / returned. */
+    void set_layout_id(const GWireLayoutId &id) noexcept { layout_id_ = id; }
+
+    /** @brief @return The layout id carried by this command (all-zero if none). */
+    [[nodiscard]] const GWireLayoutId &get_layout_id() const noexcept { return layout_id_; }
+
+    /** @brief Sets the serialized layout blob carried by a SEND_LAYOUT reply.
+     *  @param blob The serialized layout (moved in). */
+    void set_layout_blob(std::string blob) { layout_blob_ = std::move(blob); }
+
+    /** @brief @return The serialized layout blob carried by this command (empty if none). */
+    [[nodiscard]] const std::string &get_layout_blob() const noexcept { return layout_blob_; }
+
+    //-------------------------------------------------------------------------
     /**
 	  * @brief Processing of the payload. Delegates to the payload's process() method.
 	  *
@@ -221,6 +264,11 @@ private:
 
     command_type command_{command_type(0)};         ///< The command to be exeecuted
     std::unique_ptr<processable_type> payload_ptr_; ///< The actual payload, if any (sole ownership)
+
+    // Phase 9 layout send-once: optional fields (see the accessors above). Inert/zero for normal traffic.
+    GWirePeerId peer_id_{0};        ///< stable announcing-peer id (ASIO); 0 == none
+    GWireLayoutId layout_id_{0, 0}; ///< layout id for REQUEST_LAYOUT / SEND_LAYOUT (all-zero == none)
+    std::string layout_blob_;       ///< serialized layout blob for a SEND_LAYOUT reply (empty == none)
 
     //-------------------------------------------------------------------------
 };

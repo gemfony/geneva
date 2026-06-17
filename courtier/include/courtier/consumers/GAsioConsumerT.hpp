@@ -48,6 +48,7 @@
 #include "common/GThreadGroup.hpp"
 #include "courtier/transport/GAsioTransportT.hpp" // reuse the existing session + client + wire protocol
 #include "courtier/consumers/GNetworkedConsumerT.hpp"
+#include "courtier/GWireSerializationContext.hpp" // Phase 9 layout send-once: shared registry
 
 namespace Gem::Courtier {
 
@@ -105,6 +106,12 @@ public:
     /** @brief Number of clients currently connected and being served.
      *  @return The current count of active sessions. */
     [[nodiscard]] std::size_t getNActiveSessions() const noexcept { return n_active_sessions_.load(); }
+
+    /** @brief The number of distinct genome layouts the server has interned for transport (Phase 9
+     *  send-once). One per distinct genome structure across all clients -- so a whole population of one
+     *  problem type interns a single layout, however many work items and clients are involved.
+     *  @return The count of interned layouts. */
+    [[nodiscard]] std::size_t getInternedLayoutCount() const { return wire_registry_.size(); }
 
     /***************************************************************************/
     /**
@@ -260,7 +267,8 @@ private:
                 else if(self->n_active_sessions_.load() > 0) {
                     --self->n_active_sessions_;
                 }
-            }
+            },
+            &wire_registry_ // Phase 9 layout send-once: the registry shared by all of this server's sessions
         )
             ->async_start_run();
 
@@ -287,6 +295,14 @@ private:
     Gem::Common::GThreadGroup gtg_;
     std::atomic<std::size_t> n_active_sessions_{0};
     std::atomic<bool> stopped_already_{false};
+
+    /// The layout send-once registry shared by all of this consumer's sessions (Phase 9): a
+    /// content-addressed store of the genome layouts the server has sent, with per-peer ack tracking
+    /// keyed on each client's stable, self-announced peer id (ASIO one-shot connections carry no
+    /// persistent identity, so the client mints the id and announces it on every request). A given
+    /// layout therefore travels to a given client only once, and a worker that misses (id-only item with
+    /// no cached layout) fetches it back via the REQUEST_LAYOUT / SEND_LAYOUT command pair.
+    Gem::Courtier::GWireLayoutRegistry wire_registry_;
 };
 
 /******************************************************************************/
