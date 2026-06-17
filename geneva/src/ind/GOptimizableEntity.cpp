@@ -1074,7 +1074,10 @@ void GOptimizableEntity::process_(const std::vector<individual_processing_result
         // Make sure the main result is stored
         // TODO: result setting should be done in the parent class'es process()-function, not in process_()
         this->setResult(0, main_raw_result);
-        // TODO: When using multiple criteria: Are we setting the other transformed results also to raw?
+        // Provisionally mirror criterion 0's transformed fitness to its raw value. With multiple criteria
+        // this is not the final word: the transformed fitness of EVERY stored criterion (including this
+        // one) is set authoritatively just below -- to its raw value, the sigmoid transform, or the worst
+        // case -- so the additional criteria are handled there, not here.
         this->modifyStoredResult(0).setTransformedFitnessToRaw();
 
         // Take care of erroneous calculations, flagged by the user. It is assumed here that marking
