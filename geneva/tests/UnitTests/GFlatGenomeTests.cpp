@@ -1211,6 +1211,101 @@ TEST_CASE("Wire send-once: default-off encoding is self-contained and interopera
 }
 
 /******************************************************************************/
+TEST_CASE("Wire results-only return: genome omitted, grafted from the original", "[flat][wire]") {
+    using mode = Gem::Common::serializationMode;
+
+    // The originally-submitted item the server still holds (full genome).
+    FlatManyGroups original(24);
+    original.randomInit(activityMode::ALLPARAMETERS);
+    const std::vector<double> original_vals = valuesOf(original);
+
+    // The worker's processed copy: same genome, plus a computed result.
+    auto worker_copy = original.clone<FlatManyGroups>();
+    worker_copy->process(); // evaluates -> PROCESSED with a stored result
+    REQUIRE(worker_copy->is_processed());
+    const double worker_fitness = worker_copy->getStoredResult(0).rawFitness();
+
+    // Worker serializes a RESULT in the default (results-only) return form.
+    GWireLayoutRegistry worker_reg;
+    GWireSerializationContext worker_ctx;
+    worker_ctx.enabled = true;
+    worker_ctx.registry = &worker_reg;
+    worker_ctx.returning = true; // this endpoint returns results to the server
+    std::string s_results_only;
+    {
+        GWireSerializationScope scope(&worker_ctx);
+        s_results_only = worker_copy->toString(mode::BINARY);
+    }
+
+    // A full serialization of the same item is materially larger (it carries the 24-group genome).
+    auto full_copy = original.clone<FlatManyGroups>();
+    full_copy->process();
+    const std::string s_full = full_copy->toString(mode::BINARY); // no scope -> self-contained
+    CHECK(s_results_only.size() < s_full.size());
+
+    // Server deserializes the results-only return: genome omitted, results present.
+    GWireLayoutRegistry server_reg;
+    GWireSerializationContext server_ctx;
+    server_ctx.enabled = true;
+    server_ctx.registry = &server_reg; // returning stays false (the server submits, not returns)
+    FlatManyGroups received;
+    {
+        GWireSerializationScope scope(&server_ctx);
+        received.fromString(s_results_only, mode::BINARY);
+    }
+    CHECK(received.inputDataOmitted());
+    CHECK(received.countParameters<double>() == 0);   // no input parameters arrived
+    CHECK(received.is_processed());                    // but the computed result did
+    CHECK(received.getStoredResult(0).rawFitness() == worker_fitness);
+
+    // Graft the parameters from the originally-submitted item (what checkin() does on the server).
+    received.graftInputDataFrom(original);
+    CHECK_FALSE(received.inputDataOmitted());
+    CHECK(valuesOf(received) == original_vals);         // parameters restored from the original
+    CHECK(received.getStoredResult(0).rawFitness() == worker_fitness); // result preserved
+}
+
+/******************************************************************************/
+TEST_CASE("Wire results-only return: a client may opt into a full return", "[flat][wire]") {
+    using mode = Gem::Common::serializationMode;
+
+    // A network-tiered client modifies the individual (here: re-initialises it) and returns it in full.
+    FlatManyGroups submitted(24);
+    submitted.randomInit(activityMode::ALLPARAMETERS);
+
+    auto worker_copy = submitted.clone<FlatManyGroups>();
+    worker_copy->randomInit(activityMode::ALLPARAMETERS); // a "better" individual the worker found
+    worker_copy->process();
+    worker_copy->setReturnFullIndividual(true); // <-- the opt-in
+    const std::vector<double> worker_vals = valuesOf(*worker_copy);
+
+    GWireLayoutRegistry worker_reg;
+    GWireSerializationContext worker_ctx;
+    worker_ctx.enabled = true;
+    worker_ctx.registry = &worker_reg;
+    worker_ctx.returning = true;
+    std::string s;
+    {
+        GWireSerializationScope scope(&worker_ctx);
+        s = worker_copy->toString(mode::BINARY);
+    }
+
+    GWireLayoutRegistry server_reg;
+    GWireSerializationContext server_ctx;
+    server_ctx.enabled = true;
+    server_ctx.registry = &server_reg;
+    FlatManyGroups received;
+    {
+        GWireSerializationScope scope(&server_ctx);
+        received.fromString(s, mode::BINARY);
+    }
+    // A full return carried the (modified) genome -- no graft needed.
+    CHECK_FALSE(received.inputDataOmitted());
+    CHECK(received.countParameters<double>() == 24);
+    CHECK(valuesOf(received) == worker_vals); // the worker's modified parameters travelled back
+}
+
+/******************************************************************************/
 TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[flat][wire][net]") {
     // End-to-end proof that the layout send-once form is correctly engaged on the live websocket path:
     // a population of identically-structured flat individuals is evaluated over real sockets, and the

@@ -174,6 +174,10 @@ void GFlatGenome::load_(const GOptimizableEntity *cp) {
     iv_ = p_load->iv_;
     bv_ = p_load->bv_;
     layout_ = p_load->layout_;
+    // Propagate the transient results-only marker, so a load_()-based copy (e.g. fromString, which
+    // deserialises into a fresh object then load_()s it) reflects that the input data is still pending
+    // a graft. It is cleared again by graftInputDataFrom_() once the parameters are restored.
+    input_omitted_ = p_load->input_omitted_;
 }
 
 /******************************************************************************/

@@ -107,6 +107,22 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
     void save(Archive &ar, const unsigned int) const {
         using boost::serialization::make_nvp;
         ar &make_nvp("GOptimizableEntity", boost::serialization::base_object<GOptimizableEntity>(*this));
+
+        const auto *ctx = Gem::Courtier::GWireSerializationScope::current();
+
+        // RESULTS-ONLY RETURN: when a worker returns a processed item (ctx->returning) and has not been
+        // asked to return the modified individual in full, omit the (potentially large) input parameters
+        // and layout entirely -- only the computed results, already written via the base above, travel.
+        // The server still holds the originally-submitted item and grafts its parameters back on. A
+        // leading `genome_omitted` marker makes the stream self-describing. (The base carries the full
+        // multi-criterion result set, so multi-evaluation individuals return correctly.)
+        const bool genome_omitted = (ctx != nullptr) && ctx->enabled && ctx->returning &&
+                                    not this->getReturnFullIndividual();
+        ar &make_nvp("genome_omitted", genome_omitted);
+        if(genome_omitted) {
+            return;
+        }
+
         ar &BOOST_SERIALIZATION_NVP(dv_) &BOOST_SERIALIZATION_NVP(fv_) &
             BOOST_SERIALIZATION_NVP(iv_) &BOOST_SERIALIZATION_NVP(bv_);
 
@@ -124,7 +140,6 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         //     whole population, from O(parameters) down to a 16-byte id.
         // A leading `layout_interned` tag makes the stream self-describing, so load() follows the tag
         // regardless of its own scope.
-        const auto *ctx = Gem::Courtier::GWireSerializationScope::current();
         const bool interned =
             (ctx != nullptr) && ctx->enabled && (ctx->registry != nullptr) && (layout_ != nullptr);
         ar &make_nvp("layout_interned", interned);
@@ -167,6 +182,26 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
     void load(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         ar &make_nvp("GOptimizableEntity", boost::serialization::base_object<GOptimizableEntity>(*this));
+
+        // A results-only return (see save()) omits the input parameters + layout: leave the genome empty
+        // and flag it so the server grafts the originally-submitted parameters back on. The base above
+        // already carries the computed results.
+        bool genome_omitted = false;
+        ar &make_nvp("genome_omitted", genome_omitted);
+        if(genome_omitted) {
+            // Leave NO stale input data behind (the object may have been default-constructed with a
+            // genome): an empty, unambiguous genome that the server replaces wholesale when it grafts
+            // the originally-submitted parameters back on (see graftInputDataFrom_).
+            input_omitted_ = true;
+            dv_.clear();
+            fv_.clear();
+            iv_.clear();
+            bv_.clear();
+            layout_ = std::make_shared<const GGenomeLayout>();
+            return;
+        }
+        input_omitted_ = false;
+
         ar &BOOST_SERIALIZATION_NVP(dv_) &BOOST_SERIALIZATION_NVP(fv_) &
             BOOST_SERIALIZATION_NVP(iv_) &BOOST_SERIALIZATION_NVP(bv_);
         // The per-group adaption state is OA-owned scratch (on the GIndividualSlot), no longer seeded
@@ -435,6 +470,23 @@ private:
     /** @brief Creates a deep clone of this object (supplied by the concrete individual)
      *  @return A heap-allocated deep copy of this genome */
     GFlatGenome *clone_() const override = 0;
+
+    /** @brief Whether this genome was deserialised from a results-only return (input data omitted).
+     *  @return true iff the input parameters were omitted on the wire and must be grafted. */
+    bool inputDataOmitted_() const override { return input_omitted_; }
+    /** @brief Grafts the input parameters (value channels + shared layout) of @p original onto this
+     *  results-only genome, which already carries the computed results. After the graft this genome is
+     *  complete and equivalent to a full return.
+     *  @param original The originally-submitted item (a GFlatGenome) that supplies the input data. */
+    void graftInputDataFrom_(const GOptimizableEntity &original) override {
+        const auto &src = dynamic_cast<const GFlatGenome &>(original);
+        dv_ = src.dv_;
+        fv_ = src.fv_;
+        iv_ = src.iv_;
+        bv_ = src.bv_;
+        layout_ = src.layout_;
+        input_omitted_ = false;
+    }
 
     /** @brief Retrieve the active double parameter at the given positional index.
      *  @param idx The position of the parameter among the active double parameters
@@ -734,6 +786,10 @@ private:
 
     /** @brief The shared, immutable structural descriptor (bounds / grouping / adaption config) */
     std::shared_ptr<const GGenomeLayout> layout_ = std::make_shared<const GGenomeLayout>();
+
+    /** @brief Transient (NOT serialized): set by load() when a results-only return arrived without the
+     *  input parameters, so the server knows to graft them from the originally-submitted item. */
+    bool input_omitted_ = false;
 };
 
 /******************************************************************************/

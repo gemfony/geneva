@@ -149,9 +149,16 @@ Recommended Versions:
   alone thereafter. Reconnecting and late-joining clients are handled
   transparently (a fresh connection re-receives the layouts it needs). For a
   large structured genome whose layout is identical
-  across the whole population this cuts the per-item wire size substantially. The
-  added marker changes the genome serialization format, so archives written by
-  earlier 1.12.0 development builds no longer load.
+  across the whole population this cuts the per-item wire size substantially.
+  Relatedly, a processed work item is by default returned to the server in a
+  lightweight "results-only" form -- the computed results (including all
+  evaluations of a multi-criterion individual) travel, but the input parameters
+  do not, since the server still holds the originally-submitted item and grafts
+  them back on. A client that has MODIFIED the individual (e.g. a network-tiered
+  client that runs its own optimization and returns the best individual it found)
+  opts into a full return via GOptimizableEntity::setReturnFullIndividual(true).
+  These added markers change the genome serialization format, so archives written
+  by earlier 1.12.0 development builds no longer load.
 - The separate gradient-descent algorithm (GGradientDescent) has been removed:
   conjugate gradient descent is now the single gradient-based local optimizer,
   with steepest descent available as its beta == 0 mode (the new gradient_method

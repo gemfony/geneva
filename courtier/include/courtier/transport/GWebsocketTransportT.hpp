@@ -181,6 +181,10 @@ public:
         wire_ctx_.peer = 0; // the single upstream server
         wire_ctx_.registry = &wire_registry_;
         wire_ctx_.mode = serialization_mode_;
+        // This endpoint returns processed results to the server, which still holds the originally-
+        // submitted item, so by default a return ships only the computed results (the server grafts the
+        // parameters back). A work item can override per-item via setReturnFullIndividual().
+        wire_ctx_.returning = true;
     }
 
     //-------------------------------------------------------------------------

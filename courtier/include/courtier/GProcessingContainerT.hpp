@@ -417,6 +417,28 @@ public:
 
     /***************************************************************************/
     /**
+	  * @brief Whether this (deserialized) work item arrived WITHOUT its input data -- the lightweight
+	  * "results-only" return form, in which a worker returns the computed results but not the (large)
+	  * input parameters, because the server still holds the originally-submitted item. The server grafts
+	  * the input data back on via graftInputDataFrom() before using the item. Default false; a derived
+	  * type that supports results-only returns overrides the hook below.
+	  *
+	  * @return true iff this item's input data was omitted on the wire and must be grafted from the original
+	  */
+    bool inputDataOmitted() const { return this->inputDataOmitted_(); }
+
+    /***************************************************************************/
+    /**
+	  * @brief Grafts the input data (parameters) of @p original onto this item, which carries valid
+	  * computed results but no input data (a results-only return). After the graft the item is complete
+	  * and equivalent to a full return. Default no-op.
+	  *
+	  * @param original The originally-submitted item, still held by the server, that supplies the input data
+	  */
+    void graftInputDataFrom(const processable_type &original) { this->graftInputDataFrom_(original); }
+
+    /***************************************************************************/
+    /**
 	  * @brief Allows to retrieve the current processing status
 	  *
 	  * @return The current processing status of this work item
@@ -1099,6 +1121,16 @@ private:
 	  */
     virtual void loadConstantData_(std::shared_ptr<processable_type>) { /* nothing */
     }
+
+    /***************************************************************************/
+    /** @brief Hook: whether this item arrived without its input data (a results-only return). Default
+     *  false; overridden by work-item types that support the lightweight return form.
+     *  @return false in the base. */
+    virtual bool inputDataOmitted_() const { return false; }
+
+    /** @brief Hook: graft the input data of @p original onto this (results-only) item. Default no-op.
+     *  @param original The originally-submitted item supplying the input data (unused in the default). */
+    virtual void graftInputDataFrom_(const processable_type &) { /* nothing */ }
 
     /***************************************************************************/
 

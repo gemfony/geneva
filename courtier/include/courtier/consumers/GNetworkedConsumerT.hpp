@@ -304,6 +304,13 @@ protected:
         // GIndividualSlot, NOT on the individual, so replacing the individual is lossless -- the
         // optimization algorithm swaps the reconciled individual back into its slot, which still holds
         // its own personality.
+        //
+        // A lightweight "results-only" return carries the computed results but not the (large) input
+        // parameters; the originally-submitted item -- still occupying this slot until the line below --
+        // supplies them, grafted onto the result before it replaces the original.
+        if(p->inputDataOmitted()) {
+            p->graftInputDataFrom(*(*b.items)[slot]);
+        }
         p->setDispatchState(Gem::Courtier::dispatchState::DONE);
         (*b.items)[slot] = std::move(p);
         ++b.done;

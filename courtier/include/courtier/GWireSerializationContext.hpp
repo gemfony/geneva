@@ -259,6 +259,13 @@ struct GWireSerializationContext {
     GWirePeerId peer = 0;       ///< server: the destination session; worker: 0 (single upstream)
     GWireLayoutRegistry *registry = nullptr; ///< the shared blob store + ack tracker (not owned)
 
+    /// Set on the WORKER side: serialising a work item here means returning a processed RESULT to the
+    /// server, which still holds the originally-submitted item. The default (lightweight) return then
+    /// omits the input parameters/genome and ships only the computed results -- unless the individual
+    /// itself requests a full return (it was modified, e.g. by a nested/tiered optimisation). False on
+    /// the server side, where serialising means SUBMITTING work (the full genome must travel).
+    bool returning = false;
+
     /** @brief Worker-side cache-miss fetch: given a layout id whose blob is absent locally, performs the
      *  blocking round trip to the server (REQUEST_LAYOUT -> SEND_LAYOUT) and returns the serialized blob,
      *  or an empty string on failure. Null on the server side (which never fetches). */
