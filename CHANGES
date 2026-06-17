@@ -139,6 +139,19 @@ Recommended Versions:
   split into a borrowing get_payload() (const reference) and an ownership-
   transferring release_payload(). GCommonInterfaceT gained clone_unique() and a
   load(const std::unique_ptr&) overload to support this.
+- The flat genome's shared structural layout (bounds / grouping / labels) is no
+  longer copied into every work item on the network path. A genome's serialized
+  form now begins with a marker that selects one of two encodings: a self-contained
+  form (used for checkpoints / files and whenever no networked transport is active)
+  that still carries the full layout by value, and a transport "send-once" form in
+  which the layout is referenced by a content id -- the full layout is sent to a
+  given client only the first time that id is seen on its connection, and by id
+  alone thereafter. A client that receives an id it does not yet hold fetches the
+  layout from the server on demand (so reconnecting and late-joining clients are
+  handled transparently). For a large structured genome whose layout is identical
+  across the whole population this cuts the per-item wire size substantially. The
+  added marker changes the genome serialization format, so archives written by
+  earlier 1.12.0 development builds no longer load.
 - The separate gradient-descent algorithm (GGradientDescent) has been removed:
   conjugate gradient descent is now the single gradient-based local optimizer,
   with steepest descent available as its beta == 0 mode (the new gradient_method

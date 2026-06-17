@@ -33,12 +33,17 @@
 #include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
 
 #include <cstdint>
+#include <memory>
+#include <sstream>
+#include <string>
 #include <vector>
 
 // Geneva headers go here
@@ -274,3 +279,43 @@ void serialize(Archive &ar, Gem::Geneva::Genome::GGenomeLayout &l, const unsigne
 }
 
 } /* namespace boost::serialization */
+
+namespace Gem::Geneva::Genome {
+
+/******************************************************************************/
+/**
+ * @brief Serializes a (structure-only) layout into a standalone binary blob (the transport "send-once"
+ * wire form). The blob is always BINARY and self-contained, independent of the surrounding archive's
+ * format: it is carried as the whole body of a SEND_LAYOUT message and cached in the wire registry, so
+ * it is decoded on its own by layoutFromWireBlob(), never embedded in another archive.
+ *
+ * @param layout The layout to serialize.
+ * @return The serialized layout as a binary blob.
+ */
+inline std::string layoutToWireBlob(const GGenomeLayout &layout) {
+    std::ostringstream oss(std::ios_base::binary);
+    {
+        boost::archive::binary_oarchive oa(oss);
+        oa << boost::serialization::make_nvp("layout", layout);
+    }
+    return oss.str();
+}
+
+/******************************************************************************/
+/**
+ * @brief Reconstructs a layout from a binary blob produced by layoutToWireBlob().
+ *
+ * @param blob The binary blob to decode.
+ * @return A freshly-owned, immutable layout reconstructed from the blob.
+ */
+inline std::shared_ptr<const GGenomeLayout> layoutFromWireBlob(const std::string &blob) {
+    auto layout = std::make_shared<GGenomeLayout>();
+    std::istringstream iss(blob, std::ios_base::binary);
+    {
+        boost::archive::binary_iarchive ia(iss);
+        ia >> boost::serialization::make_nvp("layout", *layout);
+    }
+    return layout;
+}
+
+} /* namespace Gem::Geneva::Genome */

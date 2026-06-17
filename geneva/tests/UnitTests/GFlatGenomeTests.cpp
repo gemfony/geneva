@@ -47,6 +47,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GParserBuilder.hpp"
+#include "courtier/GWireSerializationContext.hpp" // Phase 9 layout send-once: wire context + registry
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GGenomeLayout.hpp"
 #include "geneva/ind/GGenomeLayoutSerialization.hpp" // ChannelLayout (de)serialisation (layout interning)
@@ -716,11 +717,50 @@ private:
     }
 };
 
+/**
+ * A flat individual with MANY single-value double groups (an addDoubleArray). Its layout is O(groups),
+ * so it makes the transport layout send-once visible: the full layout is sizeable, but every item after
+ * the first to a peer carries only a 16-byte layout id.
+ */
+class FlatManyGroups : public GFlatIndividualT<FlatManyGroups> {
+public:
+    FlatManyGroups() { build(64); }
+    explicit FlatManyGroups(std::size_t n) { build(n); }
+    FlatManyGroups(const FlatManyGroups &) = default;
+
+protected:
+    double fitnessCalculation() override {
+        std::vector<double> v;
+        this->streamline<double>(v);
+        double s = 0.;
+        for(double x : v) { s += x * x; }
+        return s;
+    }
+
+private:
+    void build(std::size_t n) {
+        GGenomeBuilder b;
+        b.addDoubleArray(n, -10., 10.); // n single-value groups -> an O(n) layout
+        this->setGenome(b.build());
+    }
+
+    friend class boost::serialization::access;
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        ar &boost::serialization::make_nvp(
+            "GFlatIndividualT",
+            boost::serialization::base_object<GFlatIndividualT<FlatManyGroups>>(*this)
+        );
+    }
+};
+
 } // namespace Gem::Tests
 
-BOOST_CLASS_EXPORT(Gem::Tests::FlatMixed)    // NOLINT
-BOOST_CLASS_EXPORT(Gem::Tests::FlatIntGauss) // NOLINT
+BOOST_CLASS_EXPORT(Gem::Tests::FlatMixed)       // NOLINT
+BOOST_CLASS_EXPORT(Gem::Tests::FlatIntGauss)    // NOLINT
+BOOST_CLASS_EXPORT(Gem::Tests::FlatManyGroups)  // NOLINT
 
+using Gem::Tests::FlatManyGroups;
 using Gem::Tests::FlatMixed;
 
 /******************************************************************************/
@@ -971,6 +1011,196 @@ TEST_CASE("GNeuralNetworkArchitecture computes per-layer weight offsets", "[arch
 
     CHECK(arch.layerSize(0) == 2);
     CHECK(arch.layerSize(3) == 1);
+}
+
+/******************************************************************************/
+// Phase 9 transport: the layout send-once wire form. These exercise GFlatGenome::save()/load() under an
+// active Gem::Courtier::GWireSerializationScope, simulating the server->worker wire path WITHOUT any real
+// transport: a server-side registry interns each distinct layout, the first item to a peer carries the
+// full layout and every later item only its 16-byte id, and a worker resolves an id-only item from its
+// local cache or (on a miss) via a fetch callback.
+
+namespace {
+using Gem::Courtier::GWireLayoutId;
+using Gem::Courtier::GWireLayoutRegistry;
+using Gem::Courtier::GWireSerializationContext;
+using Gem::Courtier::GWireSerializationScope;
+
+GWireLayoutId widOf(const FlatManyGroups &ind) {
+    const auto lid = ind.getLayout()->layoutId();
+    return GWireLayoutId{lid.hi, lid.lo};
+}
+std::vector<double> valuesOf(FlatManyGroups &ind) {
+    std::vector<double> v;
+    ind.streamline<double>(v);
+    return v;
+}
+} // namespace
+
+/******************************************************************************/
+TEST_CASE("Wire send-once: first item carries the layout, later items only the id", "[flat][wire]") {
+    using mode = Gem::Common::serializationMode;
+
+    FlatManyGroups a(64);
+    FlatManyGroups c(64);
+    a.randomInit(activityMode::ALLPARAMETERS);
+    c.randomInit(activityMode::ALLPARAMETERS);
+    // Two independently-built genomes of the same shape share one content id.
+    REQUIRE(widOf(a) == widOf(c));
+    const std::vector<double> a_vals = valuesOf(a);
+    const std::vector<double> c_vals = valuesOf(c);
+
+    GWireLayoutRegistry server_reg;
+    GWireSerializationContext server_ctx;
+    server_ctx.enabled = true;
+    server_ctx.peer = 1;
+    server_ctx.registry = &server_reg;
+
+    std::string s_first;
+    std::string s_second;
+    {
+        GWireSerializationScope scope(&server_ctx);
+        s_first = a.toString(mode::BINARY);  // first to peer 1 -> full layout inline
+        s_second = c.toString(mode::BINARY); // same layout id -> id-only
+    }
+    // The layout was interned once and peer 1 is recorded as holding it.
+    CHECK(server_reg.size() == 1);
+    CHECK(server_reg.peerHasLayout(1, widOf(a)));
+    // The id-only item is materially smaller (the whole O(groups) layout dropped to a 16-byte id).
+    CHECK(s_second.size() < s_first.size());
+
+    // Worker side: a fresh cache. The first item installs the layout; the id-only second resolves locally.
+    GWireLayoutRegistry worker_reg;
+    GWireSerializationContext worker_ctx;
+    worker_ctx.enabled = true;
+    worker_ctx.peer = 0;
+    worker_ctx.registry = &worker_reg;
+
+    FlatManyGroups ra;
+    FlatManyGroups rc;
+    {
+        GWireSerializationScope scope(&worker_ctx);
+        ra.fromString(s_first, mode::BINARY);
+        CHECK(worker_reg.size() == 1); // the worker cached the layout it received
+        rc.fromString(s_second, mode::BINARY);
+    }
+    REQUIRE(ra.getLayout());
+    REQUIRE(rc.getLayout());
+    CHECK(ra.getLayout()->sameStructure(*a.getLayout()));
+    CHECK(rc.getLayout()->sameStructure(*c.getLayout()));
+    CHECK(valuesOf(ra) == a_vals);
+    CHECK(valuesOf(rc) == c_vals); // id-only item reconstructed its own values + the shared layout
+}
+
+/******************************************************************************/
+TEST_CASE("Wire send-once: a cache miss is resolved by the fetch fallback", "[flat][wire]") {
+    using mode = Gem::Common::serializationMode;
+
+    FlatManyGroups a(48);
+    a.randomInit(activityMode::ALLPARAMETERS);
+    const std::vector<double> a_vals = valuesOf(a);
+
+    // Server interns the layout and emits an id-only item (peer already "holds" the layout).
+    GWireLayoutRegistry server_reg;
+    GWireSerializationContext server_ctx;
+    server_ctx.enabled = true;
+    server_ctx.peer = 1;
+    server_ctx.registry = &server_reg;
+    std::string s_idonly;
+    {
+        GWireSerializationScope scope(&server_ctx);
+        (void)a.toString(mode::BINARY);          // first send: marks peer 1 as holding the layout
+        s_idonly = a.toString(mode::BINARY);     // second send: id-only
+    }
+
+    // A late-joining / reconnected worker with an EMPTY cache receives the id-only item. Its fetch
+    // callback pulls the blob from the server registry (the REQUEST_LAYOUT/SEND_LAYOUT round trip).
+    GWireLayoutRegistry worker_reg;
+    std::size_t fetch_calls = 0;
+    GWireSerializationContext worker_ctx;
+    worker_ctx.enabled = true;
+    worker_ctx.peer = 0;
+    worker_ctx.registry = &worker_reg;
+    worker_ctx.fetch_blob = [&](const GWireLayoutId &id) -> std::string {
+        ++fetch_calls;
+        std::string blob;
+        server_reg.tryGet(id, blob);
+        return blob;
+    };
+
+    FlatManyGroups r;
+    {
+        GWireSerializationScope scope(&worker_ctx);
+        r.fromString(s_idonly, mode::BINARY); // miss -> fetch -> reconstruct
+    }
+    CHECK(fetch_calls == 1);
+    CHECK(worker_reg.size() == 1); // the fetched blob is now cached
+    REQUIRE(r.getLayout());
+    CHECK(r.getLayout()->sameStructure(*a.getLayout()));
+    CHECK(valuesOf(r) == a_vals);
+}
+
+/******************************************************************************/
+TEST_CASE("Wire send-once: an unresolvable id-only reference throws", "[flat][wire]") {
+    using mode = Gem::Common::serializationMode;
+
+    FlatManyGroups a(16);
+    GWireLayoutRegistry server_reg;
+    GWireSerializationContext server_ctx;
+    server_ctx.enabled = true;
+    server_ctx.peer = 1;
+    server_ctx.registry = &server_reg;
+    std::string s_idonly;
+    {
+        GWireSerializationScope scope(&server_ctx);
+        (void)a.toString(mode::BINARY);
+        s_idonly = a.toString(mode::BINARY);
+    }
+
+    // Empty cache, no fetch callback -> the miss cannot be resolved and load() must throw rather than
+    // silently produce a wrong/empty layout.
+    GWireLayoutRegistry worker_reg;
+    GWireSerializationContext worker_ctx;
+    worker_ctx.enabled = true;
+    worker_ctx.registry = &worker_reg;
+    FlatManyGroups r;
+    {
+        GWireSerializationScope scope(&worker_ctx);
+        CHECK_THROWS(r.fromString(s_idonly, mode::BINARY));
+    }
+}
+
+/******************************************************************************/
+TEST_CASE("Wire send-once: default-off encoding is self-contained and interoperable", "[flat][wire]") {
+    using mode = Gem::Common::serializationMode;
+
+    FlatManyGroups a(32);
+    a.randomInit(activityMode::ALLPARAMETERS);
+    const std::vector<double> a_vals = valuesOf(a);
+
+    // No active scope -> the self-contained full-layout form (the checkpoint / file path).
+    const std::string s_full = a.toString(mode::BINARY);
+
+    FlatManyGroups r;
+    r.fromString(s_full, mode::BINARY); // loads with no scope
+    REQUIRE(r.getLayout());
+    CHECK(r.getLayout()->sameStructure(*a.getLayout()));
+    CHECK(valuesOf(r) == a_vals);
+
+    // A self-contained (interned=false) stream also loads fine UNDER a worker scope (the tag, not the
+    // reader's scope, decides the form).
+    GWireLayoutRegistry worker_reg;
+    GWireSerializationContext worker_ctx;
+    worker_ctx.enabled = true;
+    worker_ctx.registry = &worker_reg;
+    FlatManyGroups r2;
+    {
+        GWireSerializationScope scope(&worker_ctx);
+        r2.fromString(s_full, mode::BINARY);
+    }
+    CHECK(r2.getLayout()->sameStructure(*a.getLayout()));
+    CHECK(valuesOf(r2) == a_vals);
+    CHECK(worker_reg.size() == 0); // a full-form stream does not populate the cache by id
 }
 
 /******************************************************************************/

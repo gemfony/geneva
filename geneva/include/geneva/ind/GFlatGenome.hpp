@@ -52,6 +52,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
+#include "courtier/GWireSerializationContext.hpp" // Phase 9 layout send-once: the wire (de)serialization context
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GAdaptionKernels.hpp"
 #include "geneva/ind/GGenomeLayout.hpp"
@@ -94,7 +95,9 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
     friend class boost::serialization::access;
 
     /**
-     * @brief Serialises the genome (the four value channels plus a by-value copy of the shared layout).
+     * @brief Serialises the genome: the four value channels plus the shared structural layout, the
+     * latter either by value (self-contained form) or by content id (transport send-once form), as
+     * selected by the active wire-serialisation scope. See the body for the two forms.
      *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to write the genome into
@@ -106,27 +109,55 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp("GOptimizableEntity", boost::serialization::base_object<GOptimizableEntity>(*this));
         ar &BOOST_SERIALIZATION_NVP(dv_) &BOOST_SERIALIZATION_NVP(fv_) &
             BOOST_SERIALIZATION_NVP(iv_) &BOOST_SERIALIZATION_NVP(bv_);
-        // The layout is shared & immutable in memory; for transport we serialise its *content* by
-        // value (a deserialised genome legitimately owns its own layout copy -- sharing is only an
-        // in-process optimisation). The transient per-group adaption state is NOT serialised here
-        // (it is re-seeded on load); full-state checkpointing is a separate, later concern.
+
+        // The transient per-group adaption state is NOT serialised here (it is OA-owned slot scratch);
+        // full-state checkpointing is a separate concern.
         //
-        // TRANSPORT-SIZE OPTIMISATION OPPORTUNITY (deferred): the layout is IDENTICAL for
-        // every individual in a population and never changes during a run, yet it is re-serialised with
-        // EVERY work item -- for a large genome (~2 bounds + kind/active per parameter) this roughly
-        // doubles the per-item wire payload and reconstructs the whole structure on every round-trip.
-        // Interning it (send the layout ONCE per batch / cache it by id on the client+server and have
-        // items reference it) would cut transport ~2x for large genomes. NOT a correctness issue, and
-        // higher-value than the originally-noted zero-construction allocation (flat construction is
-        // already cheap: a shared layout ptr + four contiguous value vectors). Cross-item caching is
-        // needed because each item is serialised in its own archive, so Boost's intra-archive object
-        // tracking does not span items.
-        GGenomeLayout layout_copy = layout_ ? *layout_ : GGenomeLayout{};
-        ar &make_nvp("layout_", layout_copy);
+        // The layout is shared & immutable in memory; sharing does not survive serialisation, so a
+        // deserialised genome legitimately owns its own layout copy. There are two wire forms:
+        //   - SELF-CONTAINED (checkpoint / file, or any transport with interning off): the full layout
+        //     travels by value. This is the only form when no wire-serialisation scope is active.
+        //   - SEND-ONCE (transport with an enabled scope): the layout is referenced by its content id;
+        //     the full layout is shipped to a given peer only the FIRST time that id is seen on its
+        //     session, and id-only thereafter (a worker cache miss is resolved by a fetch). This cuts
+        //     the per-item payload for a large structured genome, whose layout is identical across the
+        //     whole population, from O(parameters) down to a 16-byte id.
+        // A leading `layout_interned` tag makes the stream self-describing, so load() follows the tag
+        // regardless of its own scope.
+        const auto *ctx = Gem::Courtier::GWireSerializationScope::current();
+        const bool interned =
+            (ctx != nullptr) && ctx->enabled && (ctx->registry != nullptr) && (layout_ != nullptr);
+        ar &make_nvp("layout_interned", interned);
+        if(not interned) {
+            GGenomeLayout layout_copy = layout_ ? *layout_ : GGenomeLayout{};
+            ar &make_nvp("layout_", layout_copy);
+            return;
+        }
+
+        const LayoutId lid = layout_->layoutId();
+        Gem::Courtier::GWireLayoutId wid{lid.hi, lid.lo};
+        ar &make_nvp("layout_id_hi", wid[0]);
+        ar &make_nvp("layout_id_lo", wid[1]);
+        // Keep a blob in the registry so the server can answer a worker's later cache-miss fetch for
+        // this id (amortised: serialised once per distinct layout, not per item).
+        if(not ctx->registry->has(wid)) {
+            ctx->registry->put(wid, layoutToWireBlob(*layout_));
+        }
+        bool layout_present = not ctx->registry->peerHasLayout(ctx->peer, wid);
+        ar &make_nvp("layout_present", layout_present);
+        if(layout_present) {
+            GGenomeLayout layout_copy = *layout_;
+            ar &make_nvp("layout_", layout_copy);
+            // Optimistic: assume the peer receives it. If the send fails the worker simply cache-misses
+            // and fetches, so marking before the wire write is safe (and keeps subsequent items id-only).
+            ctx->registry->markPeerHasLayout(ctx->peer, wid);
+        }
     }
 
     /**
-     * @brief Restores the genome from an archive (value channels plus a freshly-owned layout copy).
+     * @brief Restores the genome from an archive: the value channels plus a freshly-owned layout, read
+     * either by value or resolved from a content id against the wire registry (with a cache-miss fetch),
+     * following the self-describing tag written by save().
      *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to read the genome from
@@ -138,11 +169,59 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp("GOptimizableEntity", boost::serialization::base_object<GOptimizableEntity>(*this));
         ar &BOOST_SERIALIZATION_NVP(dv_) &BOOST_SERIALIZATION_NVP(fv_) &
             BOOST_SERIALIZATION_NVP(iv_) &BOOST_SERIALIZATION_NVP(bv_);
-        auto fresh = std::make_shared<GGenomeLayout>();
-        ar &make_nvp("layout_", *fresh);
-        layout_ = fresh;
         // The per-group adaption state is OA-owned scratch (on the GIndividualSlot), no longer seeded
         // here: an optimization algorithm seeds each slot's scratch from its config at setup.
+
+        // Follow the self-describing wire form written by save() (see there for the two forms).
+        bool interned = false;
+        ar &make_nvp("layout_interned", interned);
+        if(not interned) {
+            auto fresh = std::make_shared<GGenomeLayout>();
+            ar &make_nvp("layout_", *fresh);
+            layout_ = fresh;
+            return;
+        }
+
+        Gem::Courtier::GWireLayoutId wid{};
+        ar &make_nvp("layout_id_hi", wid[0]);
+        ar &make_nvp("layout_id_lo", wid[1]);
+        bool layout_present = false;
+        ar &make_nvp("layout_present", layout_present);
+
+        const auto *ctx = Gem::Courtier::GWireSerializationScope::current();
+        if(layout_present) {
+            auto fresh = std::make_shared<GGenomeLayout>();
+            ar &make_nvp("layout_", *fresh);
+            layout_ = fresh;
+            // Cache the blob so subsequent id-only items for this layout resolve locally (no fetch).
+            if(ctx != nullptr && ctx->registry != nullptr && not ctx->registry->has(wid)) {
+                ctx->registry->put(wid, layoutToWireBlob(*fresh));
+            }
+            return;
+        }
+
+        // id-only reference: resolve from the local registry, fetching from the server on a miss
+        // (reconnect / late-joining worker / server-side eviction).
+        std::string blob;
+        bool have = (ctx != nullptr) && (ctx->registry != nullptr) && ctx->registry->tryGet(wid, blob);
+        if(not have && ctx != nullptr && ctx->fetch_blob) {
+            blob = ctx->fetch_blob(wid);
+            if(not blob.empty()) {
+                if(ctx->registry != nullptr) {
+                    ctx->registry->put(wid, blob);
+                }
+                have = true;
+            }
+        }
+        if(not have || blob.empty()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GFlatGenome::load(): Error!" << '\n'
+                << "An id-only layout reference could not be resolved (cache miss with no usable fetch)."
+                << '\n'
+            );
+        }
+        layout_ = layoutFromWireBlob(blob);
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
