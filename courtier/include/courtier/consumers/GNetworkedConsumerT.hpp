@@ -138,6 +138,16 @@ public:
      * still alive, so the 16-bit on-wire batch_id needs no widening for the single-OA case. Evictions
      * (cap or TTL) are counted (lateReturnDroppedCount()) and warned once -- never silently lost.
      *
+     * IMPORTANT -- results-only returns are NOT buffered: a work item returned in the lightweight
+     * results-only form (only its computed results travel; its input parameters are grafted back from
+     * the still-held original during checkin -- see GProcessingContainerT::graftInputDataFrom) cannot be
+     * reconstructed once it arrives LATE, because its batch has been reconciled and the original it would
+     * graft from is gone. Such a late arrival is therefore DROPPED (and counted in
+     * lateReturnDroppedCount()) rather than parked, since an input-less individual would corrupt the
+     * population if reaped via getLateReturns(). Only FULL returns (the default-off results-only form, or
+     * an item that opted into a full return) are ever buffered. The buffer is consequently most useful on
+     * transports / configurations that return full individuals.
+     *
      * @param cap Maximum number of late items held; 0 disables buffering (the default)
      * @param ttl_rounds A held item is evicted after this many dispatch rounds (clamped well below the batch_id wraparound)
      */
@@ -153,15 +163,18 @@ public:
         std::lock_guard<std::mutex> lk(mtx_);
         return late_returns_.size();
     }
-    /** @brief Total late returns dropped (cap/TTL eviction, or arrivals while buffering is disabled)
-     *  since construction -- an observable, non-silent drop count.
+    /** @brief Total late returns dropped since construction -- an observable, non-silent drop count.
+     *  Counts cap/TTL evictions, arrivals while buffering is disabled, AND every results-only late
+     *  return (which cannot be buffered because its input parameters are unrecoverable once its batch is
+     *  gone -- see setLateReturnBuffer()).
      *  @return The running total of dropped late returns */
     [[nodiscard]] std::uint64_t lateReturnDroppedCount() const {
         std::lock_guard<std::mutex> lk(mtx_);
         return late_dropped_count_;
     }
 
-    /** @brief GBaseConsumerT hook: enable/size the late-return buffer (delegates to setLateReturnBuffer).
+    /** @brief GBaseConsumerT hook: enable/size the late-return buffer (delegates to setLateReturnBuffer;
+     *  note that results-only late returns are never buffered -- see there).
      *  @param cap Maximum number of late items held; 0 disables buffering
      *  @param ttl_rounds A held item is evicted after this many dispatch rounds */
     void enableLateReturns(std::size_t cap, std::uint64_t ttl_rounds) override {
@@ -170,6 +183,8 @@ public:
 
     /** @brief GBaseConsumerT hook: drain the late-return buffer, transferring the held items to the
      *  caller (the optimization algorithm reaps them in fixAfterJobSubmission). FIFO / arrival order.
+     *  Only FULL late returns are ever present here; results-only late returns were dropped on arrival
+     *  (their input parameters are unrecoverable once their batch is gone -- see setLateReturnBuffer()).
      *  @return The buffered late items in arrival order (ownership transferred; the buffer is emptied) */
     std::vector<item_ptr> getLateReturns() override {
         std::lock_guard<std::mutex> lk(mtx_);
@@ -471,6 +486,15 @@ private:
      *  (no behaviour change until a getOldWorkItems() reaper exists). Caller holds mtx_.
      *  @param p The late-arriving result item (ownership transferred); parked if buffering is enabled, else its drop is counted */
     void bufferLateReturn_locked(item_ptr p) {
+        // A results-only return carries no input parameters; they are grafted from the originally-
+        // submitted item in checkin(). But a LATE return arrives after its batch was deregistered, so
+        // that original is no longer held and the genome cannot be reconstructed. Such an item is
+        // unusable -- buffering it would let the optimization algorithm reap (via getOldWorkItems) an
+        // individual with an empty genome and fold it into the population. Drop it instead.
+        if(p && p->inputDataOmitted()) {
+            recordLateDrop_locked(1);
+            return;
+        }
         if(late_buffer_cap_ == 0) {
             recordLateDrop_locked(1); // buffering off: count the drop, do not hold the item
             return;

@@ -67,6 +67,7 @@
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
 #include "geneva/individuals/GNeuralNetworkIndividual.hpp"
@@ -1608,6 +1609,64 @@ TEST_CASE("Wire send-once: many distinct layouts under a bounded registry stay c
     CHECK(consumer->getInternedLayoutCount() <= 2);    // the capacity bound was honoured
 
     consumer->stopServer();
+    CHECK_FALSE(any_threw.load());
+}
+
+/******************************************************************************/
+TEST_CASE("EA over a websocket consumer with results-only returns keeps full genomes", "[wire][net][ea]") {
+    // Isolation test for the results-only-return path under a REAL optimization (many generations,
+    // selection + adaption), as opposed to the single-batch executor.workOn loopbacks above. Runs an EA
+    // over the websocket consumer for enough generations to pass the point where the MPI path was seen
+    // to collapse, then asserts the best individual still has its full genome (not an empty one that
+    // would evaluate a sphere to a spurious 0).
+    namespace c2 = Gem::Courtier;
+    namespace ccons = Gem::Courtier::Consumers;
+    namespace oa = Gem::Geneva::OptimizationAlgorithms;
+    constexpr auto BIN = Gem::Common::serializationMode::BINARY;
+
+    auto broker = std::make_shared<c2::GBrokerT<GOptimizableEntity>>();
+    auto consumer = std::make_shared<c2::GWebsocketConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/4, BIN);
+    consumer->setCloneFunction(
+        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); }
+    );
+    broker->registerConsumer(consumer);
+    consumer->startServer();
+    const unsigned short port = consumer->getPort();
+
+    std::vector<std::shared_ptr<ccons::GWebsocketClientT<GOptimizableEntity>>> clients;
+    std::vector<std::thread> client_threads;
+    std::atomic<bool> any_threw{false};
+    for(std::size_t c = 0; c < 4; ++c) {
+        auto client = std::make_shared<ccons::GWebsocketClientT<GOptimizableEntity>>(
+            "127.0.0.1", port, BIN, /*verbose=*/false, /*prefetch_depth=*/4
+        );
+        clients.push_back(client);
+        client_threads.emplace_back([client, &any_threw] {
+            try { client->run(); } catch(...) { any_threw.store(true); }
+        });
+    }
+
+    auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    pop->setPopulationSizes(40, 6);
+    pop->setMaxIteration(120);
+    FlatSphere proto(8);
+    for(std::size_t i = 0; i < 40; ++i) {
+        pop->push_back(proto.clone_unique());
+    }
+    pop->setAdaptionConfig(proto.getAdaptionConfig());
+    pop->setBroker(broker);
+
+    pop->optimize();
+    auto best = pop->getBestGlobalIndividual<FlatSphere>();
+
+    for(auto &client : clients) { client->flagCloseRequested(); }
+    for(auto &t : client_threads) { if(t.joinable()) t.join(); }
+    consumer->stopServer();
+
+    REQUIRE(best);
+    std::vector<double> v;
+    best->streamline<double>(v);
+    CHECK(v.size() == 8);          // the best individual must keep its full genome
     CHECK_FALSE(any_threw.load());
 }
 
