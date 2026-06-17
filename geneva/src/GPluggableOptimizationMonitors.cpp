@@ -72,7 +72,13 @@ namespace Gem::Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Aggregates the work of all registered pluggable monitors
+ * @brief Emits standard textual progress information to the logger.
+ *
+ * Depending on the information mode it logs the start of a run, the per-iteration
+ * best current and best known fitness, or the end of the run.
+ *
+ * @param im The stage of the information cycle (INFOINIT, INFOPROCESSING or INFOEND)
+ * @param goa A pointer to the optimization algorithm calling this function; queried for name, iteration and fitness
  */
 void GStandardMonitor::informationFunction_(
     infoMode im,
@@ -103,7 +109,9 @@ void GStandardMonitor::informationFunction_(
 
 /******************************************************************************/
 /**
- * Emits a name for this class / object
+ * @brief Emits a name for this class / object
+ *
+ * @return The name of this class ("GStandardMonitor")
  */
 std::string GStandardMonitor::name_() const {
     return std::string("GStandardMonitor");
@@ -111,7 +119,7 @@ std::string GStandardMonitor::name_() const {
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
  * @param cp A constant reference to another GBasePluggableOM object
@@ -141,9 +149,9 @@ void GStandardMonitor::compare_(
 
 /******************************************************************************/
 /**
- * Loads the data of another object
+ * @brief Loads the data of another object
  *
- * cp A pointer to another GStandardMonitorT object, camouflaged as a GBasePluggableOM
+ * @param cp A pointer to another GStandardMonitor object, camouflaged as a GBasePluggableOM
  */
 void GStandardMonitor::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GStandardMonitor reference independent of this object and convert the pointer
@@ -157,7 +165,9 @@ void GStandardMonitor::load_(const oa::GBasePluggableOM *cp) {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object
+ *
+ * @return A deep clone of this object, returned via the GBasePluggableOM base pointer
  */
 oa::GBasePluggableOM *GStandardMonitor::clone_() const {
     return new GStandardMonitor(*this);
@@ -165,7 +175,7 @@ oa::GBasePluggableOM *GStandardMonitor::clone_() const {
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -191,7 +201,7 @@ bool GStandardMonitor::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GStandardMonitor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -208,7 +218,7 @@ void GStandardMonitor::specificTestsNoFailureExpected_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GStandardMonitor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -229,7 +239,9 @@ void GStandardMonitor::specificTestsFailuresExpected_GUnitTests_() {
 /******************************************************************************/
 
 /**
- * The copy constructor
+ * @brief The copy constructor
+ *
+ * @param cp A constant reference to another GFitnessMonitor object to be copied
  */
 GFitnessMonitor::GFitnessMonitor(const GFitnessMonitor &cp)
   : oa::GBasePluggableOM(cp)
@@ -250,7 +262,7 @@ GFitnessMonitor::GFitnessMonitor(const GFitnessMonitor &cp)
 
 /******************************************************************************/
 /**
- * Allows to specify a different name for the result file
+ * @brief Allows to specify a different name for the result file
  *
  * @param result_file The desired name of the result file
  */
@@ -260,7 +272,7 @@ void GFitnessMonitor::setResultFileName(const std::string &result_file) {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the current value of the result file name
+ * @brief Allows to retrieve the current value of the result file name
  *
  * @return The current name of the result file
  */
@@ -270,7 +282,7 @@ std::string GFitnessMonitor::getResultFileName() const {
 
 /******************************************************************************/
 /**
- * Allows to set the dimensions of the canvas
+ * @brief Allows to set the dimensions of the canvas
  *
  * @param x_dim The desired dimension of the canvas in x-direction
  * @param y_dim The desired dimension of the canvas in y-direction
@@ -282,9 +294,9 @@ void GFitnessMonitor::setDims(const std::uint32_t &x_dim, const std::uint32_t &y
 
 /******************************************************************************/
 /**
- * Retrieve the dimensions as a tuple
+ * @brief Retrieve the dimensions as a tuple
  *
- * @return The dimensions of the canvas as a tuple
+ * @return The dimensions of the canvas as a tuple (x-dimension, y-dimension)
  */
 std::tuple<std::uint32_t, std::uint32_t> GFitnessMonitor::getDims() const {
     return std::tuple<std::uint32_t, std::uint32_t>{x_dim_, y_dim_};
@@ -292,7 +304,7 @@ std::tuple<std::uint32_t, std::uint32_t> GFitnessMonitor::getDims() const {
 
 /******************************************************************************/
 /**
- * Retrieves the dimension of the canvas in x-direction
+ * @brief Retrieves the dimension of the canvas in x-direction
  *
  * @return The dimension of the canvas in x-direction
  */
@@ -302,7 +314,7 @@ std::uint32_t GFitnessMonitor::getXDim() const {
 
 /******************************************************************************/
 /**
- * Retrieves the dimension of the canvas in y-direction
+ * @brief Retrieves the dimension of the canvas in y-direction
  *
  * @return The dimension of the canvas in y-direction
  */
@@ -319,7 +331,8 @@ std::uint32_t GFitnessMonitor::getYDim() const {
  * If n_monitor_inds_ is set to a larger number than there are individuals in the population,
  * the value will be reset to that amount of individuals in informationFunction.
  *
- * @param n_monitor_inds The number of individuals in the population that should be monitored
+ * @brief Sets the number of individuals in the population that should be monitored
+ * @param n_monitor_inds The number of individuals in the population that should be monitored (0 selects the built-in default)
  */
 void GFitnessMonitor::setNMonitorIndividuals(const std::size_t &n_monitor_inds) {
     // A request of 0 means "use the built-in default"; any positive value is
@@ -335,7 +348,7 @@ void GFitnessMonitor::setNMonitorIndividuals(const std::size_t &n_monitor_inds) 
 
 /******************************************************************************/
 /**
- * Retrieves the number of individuals that are being monitored
+ * @brief Retrieves the number of individuals that are being monitored
  *
  * @return The number of individuals in the population being monitored
  */
@@ -345,7 +358,14 @@ std::size_t GFitnessMonitor::getNMonitorIndividuals() const {
 
 /******************************************************************************/
 /**
- * Aggregates the work of all registered pluggable monitors
+ * @brief Records and plots the fitness of the best individuals over the course of a run.
+ *
+ * On INFOINIT it sets a marker (so that chained algorithms accumulate one continuous plot);
+ * on INFOPROCESSING it retrieves the globally- and iteration-best individuals, sets up the
+ * fitness graphs on the first call and appends the current best fitness values; INFOEND does nothing.
+ *
+ * @param im The stage of the information cycle (INFOINIT, INFOPROCESSING or INFOEND)
+ * @param goa A pointer to the optimization algorithm calling this function; queried for best individuals and the iteration
  */
 void GFitnessMonitor::informationFunction_(
     infoMode im,
@@ -481,7 +501,9 @@ void GFitnessMonitor::informationFunction_(
 
 /******************************************************************************/
 /**
- * Emits a name for this class / object
+ * @brief Emits a name for this class / object
+ *
+ * @return The name of this class
  */
 std::string GFitnessMonitor::name_() const {
     return std::string("GFitnessMonitor");
@@ -489,7 +511,7 @@ std::string GFitnessMonitor::name_() const {
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
  * @param cp A constant reference to another GBasePluggableOM object
@@ -520,9 +542,9 @@ void GFitnessMonitor::compare_(
 
 /************************************************************************/
 /**
- * Loads the data of another object
+ * @brief Loads the data of another object
  *
- * cp A pointer to another GFitnessMonitorT object, camouflaged as a GBasePluggableOM
+ * @param cp A pointer to another GFitnessMonitor object, camouflaged as a GBasePluggableOM
  */
 void GFitnessMonitor::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GFitnessMonitor reference independent of this object and convert the pointer
@@ -537,14 +559,16 @@ void GFitnessMonitor::load_(const oa::GBasePluggableOM *cp) {
 
 /************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object
+ *
+ * @return A deep clone of this object, returned via the GBasePluggableOM base pointer
  */
 oa::GBasePluggableOM *GFitnessMonitor::clone_() const {
     return new GFitnessMonitor(*this);
 }
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -570,7 +594,7 @@ bool GFitnessMonitor::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GFitnessMonitor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -587,7 +611,7 @@ void GFitnessMonitor::specificTestsNoFailureExpected_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GFitnessMonitor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -608,7 +632,9 @@ void GFitnessMonitor::specificTestsFailuresExpected_GUnitTests_() {
 /******************************************************************************/
 
 /**
- * The copy constructor
+ * @brief The copy constructor
+ *
+ * @param cp A constant reference to another GCollectiveMonitor object to be copied
  */
 GCollectiveMonitor::GCollectiveMonitor(const GCollectiveMonitor &cp)
   : oa::GBasePluggableOM(cp) {
@@ -617,7 +643,12 @@ GCollectiveMonitor::GCollectiveMonitor(const GCollectiveMonitor &cp)
 
 /******************************************************************************/
 /**
- * Aggregates the work of all registered pluggable monitors
+ * @brief Aggregates the work of all registered pluggable monitors
+ *
+ * Forwards the information call to every pluggable monitor registered with this collective monitor.
+ *
+ * @param im The stage of the information cycle (INFOINIT, INFOPROCESSING or INFOEND), passed on unchanged
+ * @param goa A pointer to the optimization algorithm calling this function, passed on unchanged
  */
 void GCollectiveMonitor::informationFunction_(
     infoMode im,
@@ -630,7 +661,9 @@ void GCollectiveMonitor::informationFunction_(
 
 /******************************************************************************/
 /**
- * Allows to register a new pluggable monitor
+ * @brief Allows to register a new pluggable monitor
+ *
+ * @param om_ptr A shared pointer to the pluggable monitor to be added; must not be empty (an empty pointer triggers an exception)
  */
 void GCollectiveMonitor::registerPluggableOM(
     std::shared_ptr<oa::GBasePluggableOM> om_ptr
@@ -649,7 +682,9 @@ void GCollectiveMonitor::registerPluggableOM(
 
 /******************************************************************************/
 /**
- * Checks if adaptors have been registered in the collective monitor
+ * @brief Checks if pluggable monitors have been registered in the collective monitor
+ *
+ * @return true if at least one pluggable monitor is registered, false otherwise
  */
 bool GCollectiveMonitor::hasOptimizationMonitors() const {
     return not pluggable_monitors_.empty();
@@ -657,7 +692,7 @@ bool GCollectiveMonitor::hasOptimizationMonitors() const {
 
 /******************************************************************************/
 /**
- * Allows to clear all registered monitors
+ * @brief Allows to clear all registered monitors
  */
 void GCollectiveMonitor::resetPluggbleOM() {
     pluggable_monitors_.clear();
@@ -665,7 +700,9 @@ void GCollectiveMonitor::resetPluggbleOM() {
 
 /******************************************************************************/
 /**
- * Emits a name for this class / object
+ * @brief Emits a name for this class / object
+ *
+ * @return The name of this class
  */
 std::string GCollectiveMonitor::name_() const {
     return std::string("GCollectiveMonitor");
@@ -673,7 +710,7 @@ std::string GCollectiveMonitor::name_() const {
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
  * @param cp A constant reference to another GBasePluggableOM object
@@ -704,9 +741,9 @@ void GCollectiveMonitor::compare_(
 
 /************************************************************************/
 /**
- * Loads the data of another object
+ * @brief Loads the data of another object
  *
- * cp A pointer to another GCollectiveMonitorT object, camouflaged as a GBasePluggableOM
+ * @param cp A pointer to another GCollectiveMonitor object, camouflaged as a GBasePluggableOM
  */
 void GCollectiveMonitor::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GCollectiveMonitor reference independent of this object and convert the pointer
@@ -721,7 +758,9 @@ void GCollectiveMonitor::load_(const oa::GBasePluggableOM *cp) {
 
 /************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object
+ *
+ * @return A deep clone of this object, returned via the GBasePluggableOM base pointer
  */
 oa::GBasePluggableOM *GCollectiveMonitor::clone_() const {
     return new GCollectiveMonitor(*this);
@@ -729,7 +768,7 @@ oa::GBasePluggableOM *GCollectiveMonitor::clone_() const {
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -755,7 +794,7 @@ bool GCollectiveMonitor::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GCollectiveMonitor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -772,7 +811,7 @@ void GCollectiveMonitor::specificTestsNoFailureExpected_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GCollectiveMonitor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -793,7 +832,9 @@ void GCollectiveMonitor::specificTestsFailuresExpected_GUnitTests_() {
 /******************************************************************************/
 
 /**
- * Initialization with a file name. Note that some variables may be initialized in the class body.
+ * @brief Initialization with a file name. Note that some variables may be initialized in the class body.
+ *
+ * @param file_name The name of the file the solutions should be written to
  */
 GAllSolutionFileLogger::GAllSolutionFileLogger(const std::string &file_name)
   : file_name_(file_name) { /* nothing */
@@ -801,8 +842,11 @@ GAllSolutionFileLogger::GAllSolutionFileLogger(const std::string &file_name)
 
 /******************************************************************************/
 /**
- * Initialization with a file name and boundaries.
+ * @brief Initialization with a file name and boundaries.
  * Note that some variables may be initialized in the class body.
+ *
+ * @param file_name The name of the file the solutions should be written to
+ * @param boundaries The fitness boundaries used to decide which solutions are good enough to be logged (activates boundary filtering)
  */
 GAllSolutionFileLogger::GAllSolutionFileLogger(
     const std::string &file_name,
@@ -815,7 +859,9 @@ GAllSolutionFileLogger::GAllSolutionFileLogger(
 
 /******************************************************************************/
 /**
- * Emits a name for this class / object
+ * @brief Emits a name for this class / object
+ *
+ * @return The name of this class
  */
 std::string GAllSolutionFileLogger::name_() const {
     return std::string("GAllSolutionFileLogger");
@@ -823,7 +869,7 @@ std::string GAllSolutionFileLogger::name_() const {
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
  * @param cp A constant reference to another GBasePluggableOM object
@@ -855,7 +901,9 @@ void GAllSolutionFileLogger::compare_(
 
 /******************************************************************************/
 /**
- * Sets the file name
+ * @brief Sets the file name
+ *
+ * @param file_name The name of the output file to be used
  */
 void GAllSolutionFileLogger::setFileName(const std::string &file_name) {
     file_name_ = file_name;
@@ -863,7 +911,9 @@ void GAllSolutionFileLogger::setFileName(const std::string &file_name) {
 
 /******************************************************************************/
 /**
- * Retrieves the current file name
+ * @brief Retrieves the current file name
+ *
+ * @return The name of the output file currently configured
  */
 std::string GAllSolutionFileLogger::getFileName() const {
     return file_name_;
@@ -871,7 +921,9 @@ std::string GAllSolutionFileLogger::getFileName() const {
 
 /******************************************************************************/
 /**
- * Sets the boundaries
+ * @brief Sets the boundaries and activates boundary filtering
+ *
+ * @param boundaries The fitness boundaries a solution must satisfy in order to be logged
  */
 void GAllSolutionFileLogger::setBoundaries(const std::vector<double> &boundaries) {
     boundaries_ = boundaries;
@@ -880,7 +932,9 @@ void GAllSolutionFileLogger::setBoundaries(const std::vector<double> &boundaries
 
 /******************************************************************************/
 /**
- * Allows to retrieve the boundaries
+ * @brief Allows to retrieve the boundaries
+ *
+ * @return The currently configured fitness boundaries
  */
 std::vector<double> GAllSolutionFileLogger::getBoundaries() const {
     return boundaries_;
@@ -888,7 +942,9 @@ std::vector<double> GAllSolutionFileLogger::getBoundaries() const {
 
 /******************************************************************************/
 /**
- * Allows to check whether boundaries are active
+ * @brief Allows to check whether boundaries are active
+ *
+ * @return true if boundary filtering is active, false otherwise
  */
 bool GAllSolutionFileLogger::boundariesActive() const {
     return boundaries_active_;
@@ -896,7 +952,7 @@ bool GAllSolutionFileLogger::boundariesActive() const {
 
 /******************************************************************************/
 /**
- * Allows to inactivate boundaries
+ * @brief Allows to inactivate boundaries
  */
 void GAllSolutionFileLogger::setBoundariesInactive() {
     boundaries_active_ = false;
@@ -904,8 +960,10 @@ void GAllSolutionFileLogger::setBoundariesInactive() {
 
 /******************************************************************************/
 /**
- * Allows to specify whether explanations should be printed for parameter-
+ * @brief Allows to specify whether explanations should be printed for parameter-
  * and fitness values.
+ *
+ * @param with_name_and_type If true, a header explaining the name and type of each value is printed
  */
 void GAllSolutionFileLogger::setPrintWithNameAndType(bool with_name_and_type) {
     with_name_and_type_ = with_name_and_type;
@@ -913,8 +971,10 @@ void GAllSolutionFileLogger::setPrintWithNameAndType(bool with_name_and_type) {
 
 /******************************************************************************/
 /**
- * Allows to check whether explanations should be printed for parameter-
+ * @brief Allows to check whether explanations should be printed for parameter-
  * and fitness values
+ *
+ * @return true if a name-and-type header is printed, false otherwise
  */
 bool GAllSolutionFileLogger::getPrintWithNameAndType() const {
     return with_name_and_type_;
@@ -922,7 +982,9 @@ bool GAllSolutionFileLogger::getPrintWithNameAndType() const {
 
 /******************************************************************************/
 /**
- * Allows to specify whether commas should be printed in-between values
+ * @brief Allows to specify whether commas should be printed in-between values
+ *
+ * @param with_commas If true, values are separated by commas, otherwise by spaces
  */
 void GAllSolutionFileLogger::setPrintWithCommas(bool with_commas) {
     with_commas_ = with_commas;
@@ -930,7 +992,9 @@ void GAllSolutionFileLogger::setPrintWithCommas(bool with_commas) {
 
 /******************************************************************************/
 /**
- * Allows to check whether commas should be printed in-between values
+ * @brief Allows to check whether commas should be printed in-between values
+ *
+ * @return true if values are separated by commas, false otherwise
  */
 bool GAllSolutionFileLogger::getPrintWithCommas() const {
     return with_commas_;
@@ -938,7 +1002,9 @@ bool GAllSolutionFileLogger::getPrintWithCommas() const {
 
 /******************************************************************************/
 /**
- * Allows to specify whether the true (instead of the transformed) fitness should be shown
+ * @brief Allows to specify whether the true (instead of the transformed) fitness should be shown
+ *
+ * @param use_raw_fitness If true, the raw (untransformed) fitness is shown instead of the transformed fitness
  */
 void GAllSolutionFileLogger::setUseTrueFitness(bool use_raw_fitness) {
     use_raw_fitness_ = use_raw_fitness;
@@ -946,7 +1012,9 @@ void GAllSolutionFileLogger::setUseTrueFitness(bool use_raw_fitness) {
 
 /******************************************************************************/
 /**
- * Allows to retrieve whether the true (instead of the transformed) fitness should be shown
+ * @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown
+ *
+ * @return true if the raw (untransformed) fitness is shown, false otherwise
  */
 bool GAllSolutionFileLogger::getUseTrueFitness() const {
     return use_raw_fitness_;
@@ -954,7 +1022,9 @@ bool GAllSolutionFileLogger::getUseTrueFitness() const {
 
 /******************************************************************************/
 /**
- * Allows to specify whether the validity of a solution should be shown
+ * @brief Allows to specify whether the validity of a solution should be shown
+ *
+ * @param show_validity If true, the validity of each solution is included in the output
  */
 void GAllSolutionFileLogger::setShowValidity(bool show_validity) {
     show_validity_ = show_validity;
@@ -962,7 +1032,9 @@ void GAllSolutionFileLogger::setShowValidity(bool show_validity) {
 
 /******************************************************************************/
 /**
- * Allows to check whether the validity of a solution will be shown
+ * @brief Allows to check whether the validity of a solution will be shown
+ *
+ * @return true if the validity of each solution is included in the output, false otherwise
  */
 bool GAllSolutionFileLogger::getShowValidity() const {
     return show_validity_;
@@ -970,8 +1042,10 @@ bool GAllSolutionFileLogger::getShowValidity() const {
 
 /******************************************************************************/
 /**
- * Allows to specifiy whether the initial population (prior to any
+ * @brief Allows to specifiy whether the initial population (prior to any
  * optimization work) should be printed.
+ *
+ * @param print_initial If true, the initial population is printed before any optimization work begins
  */
 void GAllSolutionFileLogger::setPrintInitial(bool print_initial) {
     print_initial_ = print_initial;
@@ -979,8 +1053,10 @@ void GAllSolutionFileLogger::setPrintInitial(bool print_initial) {
 
 /******************************************************************************/
 /**
- * Allows to check whether the initial population (prior to any
+ * @brief Allows to check whether the initial population (prior to any
  * optimization work) should be printed.
+ *
+ * @return true if the initial population is printed before any optimization work begins, false otherwise
  */
 bool GAllSolutionFileLogger::getPrintInitial() const {
     return print_initial_;
@@ -988,8 +1064,10 @@ bool GAllSolutionFileLogger::getPrintInitial() const {
 
 /******************************************************************************/
 /**
-* Allows to specifiy whether a comment line should be inserted
+* @brief Allows to specifiy whether a comment line should be inserted
 * between iterations
+*
+* @param show_iteration_boundaries If true, a comment line is inserted between the data of consecutive iterations
 */
 void GAllSolutionFileLogger::setShowIterationBoundaries(bool show_iteration_boundaries) {
     show_iteration_boundaries_ = show_iteration_boundaries;
@@ -997,8 +1075,10 @@ void GAllSolutionFileLogger::setShowIterationBoundaries(bool show_iteration_boun
 
 /******************************************************************************/
 /**
- * Allows to check whether a comment line should be inserted
+ * @brief Allows to check whether a comment line should be inserted
  * between iterations
+ *
+ * @return true if a comment line is inserted between iterations, false otherwise
  */
 bool GAllSolutionFileLogger::getShowIterationBoundaries() const {
     return show_iteration_boundaries_;
@@ -1006,8 +1086,11 @@ bool GAllSolutionFileLogger::getShowIterationBoundaries() const {
 
 /******************************************************************************/
 /**
- * Allows to emit information in different stages of the information cycle
+ * @brief Allows to emit information in different stages of the information cycle
  * (initialization, during each cycle and during finalization)
+ *
+ * @param im The stage of the information cycle (INFOINIT, INFOPROCESSING or INFOEND)
+ * @param goa A pointer to the optimization algorithm calling this function; queried for its individuals and the current iteration
  */
 void GAllSolutionFileLogger::informationFunction_(
     infoMode im,
@@ -1050,9 +1133,9 @@ void GAllSolutionFileLogger::informationFunction_(
 
 /******************************************************************************/
 /**
- * Loads the data of another object
+ * @brief Loads the data of another object
  *
- * cp A pointer to another GAllSolutionFileLoggerT object, camouflaged as a GBasePluggableOM
+ * @param cp A pointer to another GAllSolutionFileLogger object, camouflaged as a GBasePluggableOM
  */
 void GAllSolutionFileLogger::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GAllSolutionFileLogger reference independent of this object and convert the pointer
@@ -1067,7 +1150,9 @@ void GAllSolutionFileLogger::load_(const oa::GBasePluggableOM *cp) {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object
+ *
+ * @return A deep clone of this object, returned via the GBasePluggableOM base pointer
  */
 oa::GBasePluggableOM *GAllSolutionFileLogger::clone_() const {
     return new GAllSolutionFileLogger(*this);
@@ -1075,7 +1160,10 @@ oa::GBasePluggableOM *GAllSolutionFileLogger::clone_() const {
 
 /******************************************************************************/
 /**
- * Does the actual printing
+ * @brief Does the actual printing of the population to the output file
+ *
+ * @param iteration_description A human-readable label for the current iteration, written as a comment when iteration boundaries are shown
+ * @param goa A pointer to the optimization algorithm whose individuals are written to file
  */
 void GAllSolutionFileLogger::printPopulation(
     const std::string &iteration_description,
@@ -1121,7 +1209,7 @@ void GAllSolutionFileLogger::printPopulation(
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -1147,7 +1235,7 @@ bool GAllSolutionFileLogger::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GAllSolutionFileLogger::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -1164,7 +1252,7 @@ void GAllSolutionFileLogger::specificTestsNoFailureExpected_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GAllSolutionFileLogger::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -1185,8 +1273,10 @@ void GAllSolutionFileLogger::specificTestsFailuresExpected_GUnitTests_() {
 /******************************************************************************/
 
 /**
- * Initialization with a file name. Note that some variables may be initialized
+ * @brief Initialization with a file name. Note that some variables may be initialized
  * in the class body.
+ *
+ * @param file_name The name of the file the per-iteration results should be written to
  */
 GIterationResultsFileLogger::GIterationResultsFileLogger(const std::string &file_name)
   : file_name_(file_name) { /* nothing */
@@ -1194,7 +1284,9 @@ GIterationResultsFileLogger::GIterationResultsFileLogger(const std::string &file
 
 /******************************************************************************/
 /**
- * Emits a name for this class / object
+ * @brief Emits a name for this class / object
+ *
+ * @return The name of this class
  */
 std::string GIterationResultsFileLogger::name_() const {
     return std::string("GIterationResultsFileLogger");
@@ -1202,7 +1294,7 @@ std::string GIterationResultsFileLogger::name_() const {
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
  * @param cp A constant reference to another GBasePluggableOM object
@@ -1234,7 +1326,9 @@ void GIterationResultsFileLogger::compare_(
 
 /******************************************************************************/
 /**
- * Sets the file name
+ * @brief Sets the file name
+ *
+ * @param file_name The name of the output file to be used
  */
 void GIterationResultsFileLogger::setFileName(const std::string &file_name) {
     file_name_ = file_name;
@@ -1242,7 +1336,9 @@ void GIterationResultsFileLogger::setFileName(const std::string &file_name) {
 
 /******************************************************************************/
 /**
- * Retrieves the current file name
+ * @brief Retrieves the current file name
+ *
+ * @return The name of the output file currently configured
  */
 std::string GIterationResultsFileLogger::getFileName() const {
     return file_name_;
@@ -1250,7 +1346,9 @@ std::string GIterationResultsFileLogger::getFileName() const {
 
 /******************************************************************************/
 /**
- * Allows to specify whether commas should be printed in-between values
+ * @brief Allows to specify whether commas should be printed in-between values
+ *
+ * @param with_commas If true, values are separated by commas, otherwise by spaces
  */
 void GIterationResultsFileLogger::setPrintWithCommas(bool with_commas) {
     with_commas_ = with_commas;
@@ -1258,7 +1356,9 @@ void GIterationResultsFileLogger::setPrintWithCommas(bool with_commas) {
 
 /******************************************************************************/
 /**
- * Allows to check whether commas should be printed in-between values
+ * @brief Allows to check whether commas should be printed in-between values
+ *
+ * @return true if values are separated by commas, false otherwise
  */
 bool GIterationResultsFileLogger::getPrintWithCommas() const {
     return with_commas_;
@@ -1266,7 +1366,9 @@ bool GIterationResultsFileLogger::getPrintWithCommas() const {
 
 /******************************************************************************/
 /**
- * Allows to specify whether the true (instead of the transformed) fitness should be shown
+ * @brief Allows to specify whether the true (instead of the transformed) fitness should be shown
+ *
+ * @param use_raw_fitness If true, the raw (untransformed) fitness is shown instead of the transformed fitness
  */
 void GIterationResultsFileLogger::setUseTrueFitness(bool use_raw_fitness) {
     use_raw_fitness_ = use_raw_fitness;
@@ -1274,7 +1376,9 @@ void GIterationResultsFileLogger::setUseTrueFitness(bool use_raw_fitness) {
 
 /******************************************************************************/
 /**
- * Allows to retrieve whether the true (instead of the transformed) fitness should be shown
+ * @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown
+ *
+ * @return true if the raw (untransformed) fitness is shown, false otherwise
  */
 bool GIterationResultsFileLogger::getUseTrueFitness() const {
     return use_raw_fitness_;
@@ -1282,8 +1386,11 @@ bool GIterationResultsFileLogger::getUseTrueFitness() const {
 
 /******************************************************************************/
 /**
- * Allows to emit information in different stages of the information cycle
+ * @brief Allows to emit information in different stages of the information cycle
  * (initialization, during each cycle and during finalization)
+ *
+ * @param im The stage of the information cycle (INFOINIT, INFOPROCESSING or INFOEND)
+ * @param goa A pointer to the optimization algorithm calling this function; queried for its individuals and the current iteration
  */
 void GIterationResultsFileLogger::informationFunction_(
     infoMode im,
@@ -1343,9 +1450,9 @@ void GIterationResultsFileLogger::informationFunction_(
 
 /************************************************************************/
 /**
- * Loads the data of another object
+ * @brief Loads the data of another object
  *
- * cp A pointer to another GIterationResultsFileLoggerT object, camouflaged as a GBasePluggableOM
+ * @param cp A pointer to another GIterationResultsFileLogger object, camouflaged as a GBasePluggableOM
  */
 void GIterationResultsFileLogger::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GIterationResultsFileLogger
@@ -1361,7 +1468,9 @@ void GIterationResultsFileLogger::load_(const oa::GBasePluggableOM *cp) {
 
 /************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object
+ *
+ * @return A deep clone of this object, returned via the GBasePluggableOM base pointer
  */
 oa::GBasePluggableOM *GIterationResultsFileLogger::clone_() const {
     return new GIterationResultsFileLogger(*this);
@@ -1369,7 +1478,7 @@ oa::GBasePluggableOM *GIterationResultsFileLogger::clone_() const {
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -1395,7 +1504,7 @@ bool GIterationResultsFileLogger::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GIterationResultsFileLogger::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -1412,7 +1521,7 @@ void GIterationResultsFileLogger::specificTestsNoFailureExpected_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GIterationResultsFileLogger::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -1432,8 +1541,10 @@ void GIterationResultsFileLogger::specificTestsFailuresExpected_GUnitTests_() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Initialization with a file name. Note that some variables may be
+ * @brief Initialization with a file name. Note that some variables may be
  * initialized in the class body.
+ *
+ * @param file_name The name of the file the adaption statistics should be written to
  */
 GNAdpationsLogger::GNAdpationsLogger(const std::string &file_name)
   : file_name_(file_name)
@@ -1443,7 +1554,9 @@ GNAdpationsLogger::GNAdpationsLogger(const std::string &file_name)
 
 /******************************************************************************/
 /**
- * The copy constructor
+ * @brief The copy constructor
+ *
+ * @param cp A constant reference to another GNAdpationsLogger object to be copied
  */
 GNAdpationsLogger::GNAdpationsLogger(const GNAdpationsLogger &cp)
   : oa::GBasePluggableOM(cp)
@@ -1462,7 +1575,7 @@ GNAdpationsLogger::GNAdpationsLogger(const GNAdpationsLogger &cp)
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
  * @param cp A constant reference to another GBasePluggableOM object
@@ -1494,7 +1607,9 @@ void GNAdpationsLogger::compare_(
 
 /******************************************************************************/
 /**
- * Sets the file name
+ * @brief Sets the file name
+ *
+ * @param file_name The name of the output file to be used
  */
 void GNAdpationsLogger::setFileName(const std::string &file_name) {
     file_name_ = file_name;
@@ -1502,7 +1617,9 @@ void GNAdpationsLogger::setFileName(const std::string &file_name) {
 
 /******************************************************************************/
 /**
- * Retrieves the current file name
+ * @brief Retrieves the current file name
+ *
+ * @return The name of the output file currently configured
  */
 std::string GNAdpationsLogger::getFileName() const {
     return file_name_;
@@ -1510,7 +1627,9 @@ std::string GNAdpationsLogger::getFileName() const {
 
 /******************************************************************************/
 /**
- * Allows to specify whether only the best individuals should be monitored.
+ * @brief Allows to specify whether only the best individuals should be monitored.
+ *
+ * @param monitor_best_only If true, only the globally best individual is monitored; otherwise all individuals are
  */
 void GNAdpationsLogger::setMonitorBestOnly(bool monitor_best_only) {
     monitor_best_only_ = monitor_best_only;
@@ -1518,7 +1637,9 @@ void GNAdpationsLogger::setMonitorBestOnly(bool monitor_best_only) {
 
 /******************************************************************************/
 /**
- * Allows to check whether only the best individuals should be monitored.
+ * @brief Allows to check whether only the best individuals should be monitored.
+ *
+ * @return true if only the best individual is monitored, false otherwise
  */
 bool GNAdpationsLogger::getMonitorBestOnly() const {
     return monitor_best_only_;
@@ -1526,7 +1647,9 @@ bool GNAdpationsLogger::getMonitorBestOnly() const {
 
 /******************************************************************************/
 /**
- * Allows to set the canvas dimensions
+ * @brief Allows to set the canvas dimensions
+ *
+ * @param canvas_dimensions The desired canvas dimensions as a tuple (x-dimension, y-dimension)
  */
 void GNAdpationsLogger::setCanvasDimensions(
     std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions
@@ -1536,7 +1659,10 @@ void GNAdpationsLogger::setCanvasDimensions(
 
 /******************************************************************************/
 /**
- * Allows to set the canvas dimensions using separate x and y values
+ * @brief Allows to set the canvas dimensions using separate x and y values
+ *
+ * @param x The desired canvas dimension in x-direction
+ * @param y The desired canvas dimension in y-direction
  */
 void GNAdpationsLogger::setCanvasDimensions(std::uint32_t x, std::uint32_t y) {
     canvas_dimensions_ = std::tuple<std::uint32_t, std::uint32_t>(x, y);
@@ -1544,7 +1670,9 @@ void GNAdpationsLogger::setCanvasDimensions(std::uint32_t x, std::uint32_t y) {
 
 /******************************************************************************/
 /**
- * Gives access to the canvas dimensions
+ * @brief Gives access to the canvas dimensions
+ *
+ * @return The current canvas dimensions as a tuple (x-dimension, y-dimension)
  */
 std::tuple<std::uint32_t, std::uint32_t> GNAdpationsLogger::getCanvasDimensions() const {
     return canvas_dimensions_;
@@ -1552,7 +1680,9 @@ std::tuple<std::uint32_t, std::uint32_t> GNAdpationsLogger::getCanvasDimensions(
 
 /******************************************************************************/
 /**
- * Allows to add a "Print" command to the end of the script so that picture files are created
+ * @brief Allows to add a "Print" command to the end of the script so that picture files are created
+ *
+ * @param add_print_command If true, a print command is appended to the generated ROOT script
  */
 void GNAdpationsLogger::setAddPrintCommand(bool add_print_command) {
     add_print_command_ = add_print_command;
@@ -1560,7 +1690,9 @@ void GNAdpationsLogger::setAddPrintCommand(bool add_print_command) {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the current value of the add_print_command_ variable
+ * @brief Allows to retrieve the current value of the add_print_command_ variable
+ *
+ * @return true if a print command is appended to the generated ROOT script, false otherwise
  */
 bool GNAdpationsLogger::getAddPrintCommand() const {
     return add_print_command_;
@@ -1568,8 +1700,11 @@ bool GNAdpationsLogger::getAddPrintCommand() const {
 
 /******************************************************************************/
 /**
- * Allows to emit information in different stages of the information cycle
+ * @brief Allows to emit information in different stages of the information cycle
  * (initialization, during each cycle and during finalization)
+ *
+ * @param im The stage of the information cycle (INFOINIT, INFOPROCESSING or INFOEND)
+ * @param goa A pointer to the optimization algorithm calling this function; queried for its individuals and the current iteration
  */
 void GNAdpationsLogger::informationFunction_(
     infoMode im,
@@ -1700,9 +1835,9 @@ void GNAdpationsLogger::informationFunction_(
 
 /************************************************************************/
 /**
- * Loads the data of another object
+ * @brief Loads the data of another object
  *
- * cp A pointer to another GNAdpationsLoggerT object, camouflaged as a GBasePluggableOM
+ * @param cp A pointer to another GNAdpationsLogger object, camouflaged as a GBasePluggableOM
  */
 void GNAdpationsLogger::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GNAdpationsLogger reference independent of this object and convert the pointer
@@ -1718,7 +1853,9 @@ void GNAdpationsLogger::load_(const oa::GBasePluggableOM *cp) {
 
 /************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object
+ *
+ * @return A deep clone of this object, returned via the GBasePluggableOM base pointer
  */
 oa::GBasePluggableOM *GNAdpationsLogger::clone_() const {
     return new GNAdpationsLogger(*this);
@@ -1726,7 +1863,7 @@ oa::GBasePluggableOM *GNAdpationsLogger::clone_() const {
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -1752,7 +1889,7 @@ bool GNAdpationsLogger::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GNAdpationsLogger::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -1769,7 +1906,7 @@ void GNAdpationsLogger::specificTestsNoFailureExpected_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GNAdpationsLogger::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -1790,13 +1927,19 @@ void GNAdpationsLogger::specificTestsFailuresExpected_GUnitTests_() {
 /******************************************************************************/
 
 /**
- * The default constructor. Note that some variables may be initialized in the class body.
+ * @brief The default constructor. Note that some variables may be initialized in the class body.
  */
 GProcessingTimesLogger::GProcessingTimesLogger() = default;
 
 /******************************************************************************/
 /**
- * Initialization with a file name. Note that some variables may be initialized in the class body.
+ * @brief Initialization with file names and histogram bin counts. Note that some variables may be initialized in the class body.
+ *
+ * @param file_name_pth The name of the file for the 1D processing-times histograms
+ * @param file_name_pth2 The name of the file for the 2D processing-times histograms (timing vs. iteration)
+ * @param file_name_txt The name of the file for the plain-text processing-times output
+ * @param n_bins_x The number of histogram bins in x-direction
+ * @param n_bins_y The number of histogram bins in y-direction (used for the 2D histograms)
  */
 GProcessingTimesLogger::GProcessingTimesLogger(
     const std::string &file_name_pth,
@@ -1818,7 +1961,9 @@ GProcessingTimesLogger::GProcessingTimesLogger(
 
 /******************************************************************************/
 /**
- * Emits a name for this class / object
+ * @brief Emits a name for this class / object
+ *
+ * @return The name of this class
  */
 std::string GProcessingTimesLogger::name_() const {
     return std::string("GProcessingTimesLogger");
@@ -1826,7 +1971,7 @@ std::string GProcessingTimesLogger::name_() const {
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
  * @param cp A constant reference to another GBasePluggableOM object
@@ -1858,7 +2003,9 @@ void GProcessingTimesLogger::compare_(
 
 /******************************************************************************/
 /**
- * Sets the file name for the processing times histogram
+ * @brief Sets the file name for the processing times histogram
+ *
+ * @param file_name The name of the file for the 1D processing-times histograms
  */
 void GProcessingTimesLogger::setFileName_pth(const std::string &file_name) {
     file_name_pth_ = file_name;
@@ -1866,7 +2013,9 @@ void GProcessingTimesLogger::setFileName_pth(const std::string &file_name) {
 
 /******************************************************************************/
 /**
- * Retrieves the current file name for the processing times histogram
+ * @brief Retrieves the current file name for the processing times histogram
+ *
+ * @return The name of the file for the 1D processing-times histograms
  */
 std::string GProcessingTimesLogger::getFileName_pth() const {
     return file_name_pth_;
@@ -1874,7 +2023,9 @@ std::string GProcessingTimesLogger::getFileName_pth() const {
 
 /******************************************************************************/
 /**
- * Sets the file name for the processing times histograms (2D)
+ * @brief Sets the file name for the processing times histograms (2D)
+ *
+ * @param file_name The name of the file for the 2D processing-times histograms (timing vs. iteration)
  */
 void GProcessingTimesLogger::setFileName_pth2(const std::string &file_name) {
     file_name_pth2_ = file_name;
@@ -1882,7 +2033,9 @@ void GProcessingTimesLogger::setFileName_pth2(const std::string &file_name) {
 
 /******************************************************************************/
 /**
- * Retrieves the current file name for the processing times histograms (2D)
+ * @brief Retrieves the current file name for the processing times histograms (2D)
+ *
+ * @return The name of the file for the 2D processing-times histograms (timing vs. iteration)
  */
 std::string GProcessingTimesLogger::getFileName_pth2() const {
     return file_name_pth2_;
@@ -1890,7 +2043,9 @@ std::string GProcessingTimesLogger::getFileName_pth2() const {
 
 /******************************************************************************/
 /**
- * Sets the file name for the text output
+ * @brief Sets the file name for the text output
+ *
+ * @param file_name The name of the file for the plain-text processing-times output
  */
 void GProcessingTimesLogger::setFileName_txt(const std::string &file_name) {
     file_name_txt_ = file_name;
@@ -1898,7 +2053,9 @@ void GProcessingTimesLogger::setFileName_txt(const std::string &file_name) {
 
 /******************************************************************************/
 /**
- * Retrieves the current file name for the text output
+ * @brief Retrieves the current file name for the text output
+ *
+ * @return The name of the file for the plain-text processing-times output
  */
 std::string GProcessingTimesLogger::getFileName_txt() const {
     return file_name_txt_;
@@ -1906,7 +2063,9 @@ std::string GProcessingTimesLogger::getFileName_txt() const {
 
 /******************************************************************************/
 /**
- * Allows to set the canvas dimensions for the processing times histograms
+ * @brief Allows to set the canvas dimensions for the processing times histograms
+ *
+ * @param canvas_dimensions The desired canvas dimensions as a tuple (x-dimension, y-dimension)
  */
 void GProcessingTimesLogger::setCanvasDimensions_pth(
     std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions
@@ -1916,8 +2075,11 @@ void GProcessingTimesLogger::setCanvasDimensions_pth(
 
 /******************************************************************************/
 /**
- * Allows to set the canvas dimensions using separate x and y values for the
+ * @brief Allows to set the canvas dimensions using separate x and y values for the
  * processing times histograms
+ *
+ * @param x The desired canvas dimension in x-direction
+ * @param y The desired canvas dimension in y-direction
  */
 void GProcessingTimesLogger::setCanvasDimensions_pth(std::uint32_t x, std::uint32_t y) {
     canvas_dimensions_pth_ = std::tuple<std::uint32_t, std::uint32_t>(x, y);
@@ -1925,7 +2087,9 @@ void GProcessingTimesLogger::setCanvasDimensions_pth(std::uint32_t x, std::uint3
 
 /******************************************************************************/
 /**
- * Gives access to the canvas dimensions of the processing times histograms
+ * @brief Gives access to the canvas dimensions of the processing times histograms
+ *
+ * @return The current canvas dimensions as a tuple (x-dimension, y-dimension)
  */
 std::tuple<std::uint32_t, std::uint32_t> GProcessingTimesLogger::getCanvasDimensions_pth() const {
     return canvas_dimensions_pth_;
@@ -1933,7 +2097,9 @@ std::tuple<std::uint32_t, std::uint32_t> GProcessingTimesLogger::getCanvasDimens
 
 /******************************************************************************/
 /**
- * Allows to set the canvas dimensions for the processing times histograms (2D)
+ * @brief Allows to set the canvas dimensions for the processing times histograms (2D)
+ *
+ * @param canvas_dimensions The desired canvas dimensions as a tuple (x-dimension, y-dimension)
  */
 void GProcessingTimesLogger::setCanvasDimensions_pth2(
     std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions
@@ -1943,8 +2109,11 @@ void GProcessingTimesLogger::setCanvasDimensions_pth2(
 
 /******************************************************************************/
 /**
- * Allows to set the canvas dimensions using separate x and y values for the
+ * @brief Allows to set the canvas dimensions using separate x and y values for the
  * processing times histograms (2D)
+ *
+ * @param x The desired canvas dimension in x-direction
+ * @param y The desired canvas dimension in y-direction
  */
 void GProcessingTimesLogger::setCanvasDimensions_pth2(std::uint32_t x, std::uint32_t y) {
     canvas_dimensions_pth2_ = std::tuple<std::uint32_t, std::uint32_t>(x, y);
@@ -1952,7 +2121,9 @@ void GProcessingTimesLogger::setCanvasDimensions_pth2(std::uint32_t x, std::uint
 
 /******************************************************************************/
 /**
- * Gives access to the canvas dimensions of the processing times histograms (2D)
+ * @brief Gives access to the canvas dimensions of the processing times histograms (2D)
+ *
+ * @return The current canvas dimensions as a tuple (x-dimension, y-dimension)
  */
 std::tuple<std::uint32_t, std::uint32_t> GProcessingTimesLogger::getCanvasDimensions_pth2() const {
     return canvas_dimensions_pth2_;
@@ -1960,7 +2131,9 @@ std::tuple<std::uint32_t, std::uint32_t> GProcessingTimesLogger::getCanvasDimens
 
 /******************************************************************************/
 /**
- * Sets the number of bins for the processing times histograms in y-direction
+ * @brief Sets the number of bins for the processing times histograms in x-direction
+ *
+ * @param n_bins_x The number of histogram bins in x-direction; must be greater than 0 (a value of 0 triggers an exception)
  */
 void GProcessingTimesLogger::setNBinsX(std::size_t n_bins_x) {
     if(n_bins_x > 0) {
@@ -1977,8 +2150,10 @@ void GProcessingTimesLogger::setNBinsX(std::size_t n_bins_x) {
 
 /******************************************************************************/
 /**
- * Retrieves the current number of bins for the processing times
+ * @brief Retrieves the current number of bins for the processing times
  * histograms in x-direction
+ *
+ * @return The number of histogram bins in x-direction
  */
 std::size_t GProcessingTimesLogger::getNBinsX() const {
     return n_bins_x_;
@@ -1986,7 +2161,9 @@ std::size_t GProcessingTimesLogger::getNBinsX() const {
 
 /******************************************************************************/
 /**
- * Sets the number of bins for the processing times histograms in y-direction
+ * @brief Sets the number of bins for the processing times histograms in y-direction
+ *
+ * @param n_bins_y The number of histogram bins in y-direction; must be greater than 0 (a value of 0 triggers an exception)
  */
 void GProcessingTimesLogger::setNBinsY(std::size_t n_bins_y) {
     if(n_bins_y > 0) {
@@ -2003,8 +2180,10 @@ void GProcessingTimesLogger::setNBinsY(std::size_t n_bins_y) {
 
 /******************************************************************************/
 /**
- * Retrieves the current number of bins for the processing times
+ * @brief Retrieves the current number of bins for the processing times
  * histograms in y-direction
+ *
+ * @return The number of histogram bins in y-direction
  */
 std::size_t GProcessingTimesLogger::getNBinsY() const {
     return n_bins_y_;
@@ -2012,8 +2191,11 @@ std::size_t GProcessingTimesLogger::getNBinsY() const {
 
 /******************************************************************************/
 /**
- * Allows to emit information in different stages of the information cycle
+ * @brief Allows to emit information in different stages of the information cycle
  * (initialization, during each cycle and during finalization)
+ *
+ * @param im The stage of the information cycle (INFOINIT, INFOPROCESSING or INFOEND)
+ * @param goa A pointer to the optimization algorithm calling this function; queried for its individuals and the current iteration
  */
 void GProcessingTimesLogger::informationFunction_(
     infoMode im,
@@ -2229,9 +2411,9 @@ void GProcessingTimesLogger::informationFunction_(
 
 /************************************************************************/
 /**
- * Loads the data of another object
+ * @brief Loads the data of another object
  *
- * cp A pointer to another GProcessingTimesLoggerT object, camouflaged as a GBasePluggableOM
+ * @param cp A pointer to another GProcessingTimesLogger object, camouflaged as a GBasePluggableOM
  */
 void GProcessingTimesLogger::load_(const oa::GBasePluggableOM *cp) {
     // Check that we are dealing with a GProcessingTimesLogger reference independent of this object and convert the pointer
@@ -2248,7 +2430,9 @@ void GProcessingTimesLogger::load_(const oa::GBasePluggableOM *cp) {
 
 /************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object
+ *
+ * @return A deep clone of this object, returned via the GBasePluggableOM base pointer
  */
 oa::GBasePluggableOM *GProcessingTimesLogger::clone_() const {
     return new GProcessingTimesLogger(*this);
@@ -2256,7 +2440,7 @@ oa::GBasePluggableOM *GProcessingTimesLogger::clone_() const {
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -2282,7 +2466,7 @@ bool GProcessingTimesLogger::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GProcessingTimesLogger::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -2299,7 +2483,7 @@ void GProcessingTimesLogger::specificTestsNoFailureExpected_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GProcessingTimesLogger::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING

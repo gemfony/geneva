@@ -40,11 +40,12 @@ namespace Gem::Geneva::Genome {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GPreEvaluationValidityCheckT object
- * @param e The expected outcome of the comparison
+ * @param cp A constant reference to another GPreEvaluationValidityCheckT<GOptimizableEntity> object to compare against
+ * @param e The expected outcome of the comparison (e.g. equality or inequality)
+ * @param limit The maximum allowed deviation for floating point comparisons (unused here)
  */
 void GOptimizableEntityConstraint::compare_(
     const GPreEvaluationValidityCheckT<GOptimizableEntity> &cp,
@@ -72,7 +73,9 @@ void GOptimizableEntityConstraint::compare_(
 
 /******************************************************************************/
 /**
- * Adds local configuration options to a GParserBuilder object
+ * @brief Adds local configuration options to a GParserBuilder object
+ *
+ * @param gpb The GParserBuilder object to which configuration options are added
  */
 void GOptimizableEntityConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
@@ -81,7 +84,9 @@ void GOptimizableEntityConstraint::addConfigurationOptions_(Gem::Common::GParser
 
 /******************************************************************************/
 /**
- * Loads the data of another GOptimizableEntityConstraint
+ * @brief Loads the data of another GOptimizableEntityConstraint
+ *
+ * @param cp A pointer to another object to load from, camouflaged as a GPreEvaluationValidityCheckT<GOptimizableEntity>
  */
 void GOptimizableEntityConstraint::load_(const GPreEvaluationValidityCheckT<GOptimizableEntity> *cp) {
     // Check that we are dealing with a GOptimizableEntityConstraint reference independent of this object and convert the pointer

@@ -35,7 +35,10 @@ namespace Gem::Geneva::Interface {
 
 /******************************************************************************/
 /**
- * Retrieves the stored raw fitness with a given id
+ * @brief Retrieves the stored raw fitness with a given id
+ *
+ * @param pos The position / id of the raw fitness to be retrieved
+ * @return The stored raw fitness at the requested position
  */
 double GRateableI::raw_fitness(std::size_t pos) const {
     return raw_fitness_(pos);
@@ -43,7 +46,10 @@ double GRateableI::raw_fitness(std::size_t pos) const {
 
 /******************************************************************************/
 /**
- * Retrieves the stored transformed fitness with a given id
+ * @brief Retrieves the stored transformed fitness with a given id
+ *
+ * @param pos The position / id of the transformed fitness to be retrieved
+ * @return The stored transformed fitness at the requested position
  */
 double GRateableI::transformed_fitness(std::size_t pos) const {
     return transformed_fitness_(pos);
@@ -51,7 +57,9 @@ double GRateableI::transformed_fitness(std::size_t pos) const {
 
 /******************************************************************************/
 /**
- * Returns all raw fitness results in a std::vector
+ * @brief Returns all raw fitness results in a std::vector
+ *
+ * @return A std::vector holding all stored raw fitness results
  */
 std::vector<double> GRateableI::raw_fitness_vec() const {
     return raw_fitness_vec_();
@@ -59,7 +67,9 @@ std::vector<double> GRateableI::raw_fitness_vec() const {
 
 /******************************************************************************/
 /**
- * Returns all transformed fitness results in a std::vector
+ * @brief Returns all transformed fitness results in a std::vector
+ *
+ * @return A std::vector holding all stored transformed fitness results
  */
 std::vector<double> GRateableI::transformed_fitness_vec() const {
     return transformed_fitness_vec_();

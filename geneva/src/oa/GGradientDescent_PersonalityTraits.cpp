@@ -42,11 +42,12 @@ const std::string GGradientDescent_PersonalityTraits::nickname = "gd";
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GPersonalityTraits object
- * @param e The expected outcome of the comparison
+ * @param cp A constant reference to another GPersonalityTraits object to compare against
+ * @param e The expected outcome of the comparison (e.g. equality or inequality)
+ * @param limit The maximum allowed deviation for floating-point comparisons (unused here)
  */
 void GGradientDescent_PersonalityTraits::compare_(
     const GPersonalityTraits &cp,
@@ -73,7 +74,9 @@ void GGradientDescent_PersonalityTraits::compare_(
 
 /***********************************************************************************/
 /**
- * Emits a name for this class / object
+ * @brief Emits a name for this class / object
+ *
+ * @return The string "GGradientDescent_PersonalityTraits"
  */
 std::string GGradientDescent_PersonalityTraits::name_() const {
     return std::string("GGradientDescent_PersonalityTraits");
@@ -81,7 +84,9 @@ std::string GGradientDescent_PersonalityTraits::name_() const {
 
 /******************************************************************************/
 /**
- * Retrieves the mnemonic of the optimization algorithm
+ * @brief Retrieves the mnemonic of the optimization algorithm
+ *
+ * @return The short identifier ("gd") for the gradient descent algorithm
  */
 std::string GGradientDescent_PersonalityTraits::getMnemonic() const {
     return GGradientDescent_PersonalityTraits::nickname;
@@ -89,7 +94,7 @@ std::string GGradientDescent_PersonalityTraits::getMnemonic() const {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object
  *
  * @return A clone of this object, camouflaged as a GPersonalityTraits
  */
@@ -99,9 +104,9 @@ GPersonalityTraits *GGradientDescent_PersonalityTraits::clone_() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GGDPersonalityTraits object
+ * @brief Loads the data of another GGradientDescent_PersonalityTraits object
  *
- * @param cp A copy of another GGDPersonalityTraits object, camouflaged as a GPersonalityTraits
+ * @param cp A pointer to another GGradientDescent_PersonalityTraits object, camouflaged as a GPersonalityTraits
  */
 void GGradientDescent_PersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Check that we are dealing with a GGradientDescent_PersonalityTraits reference independent of this object and convert the pointer
@@ -117,7 +122,7 @@ void GGradientDescent_PersonalityTraits::load_(const GPersonalityTraits *cp) {
 
 /******************************************************************************/
 /**
- * Sets the position of the individual in the population
+ * @brief Sets the position of the individual in the population
  *
  * @param pop_pos The new position of this individual in the population
  */
@@ -132,7 +137,7 @@ void GGradientDescent_PersonalityTraits::setPopulationPosition(const std::size_t
 
 /******************************************************************************/
 /**
- * Retrieves the position of the individual in the population
+ * @brief Retrieves the position of the individual in the population
  *
  * @return The current position of this individual in the population
  */
@@ -147,7 +152,7 @@ std::size_t GGradientDescent_PersonalityTraits::getPopulationPosition() const {
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -173,7 +178,7 @@ bool GGradientDescent_PersonalityTraits::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GGradientDescent_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -195,7 +200,7 @@ void GGradientDescent_PersonalityTraits::specificTestsNoFailureExpected_GUnitTes
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GGradientDescent_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING

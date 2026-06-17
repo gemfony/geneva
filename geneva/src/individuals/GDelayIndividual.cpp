@@ -84,11 +84,11 @@ GDelayIndividual::~GDelayIndividual() { /* nothing */
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
- * of the same type
+ * @brief Searches for compliance with expectations with respect to another object of the same type.
  *
- * @param cp A constant reference to another GFlatGenome object
- * @param e The expected outcome of the comparison
+ * @param cp A constant reference to another GDelayIndividual, camouflaged as a GOptimizableEntity
+ * @param e The expected outcome of the comparison (equality / inequality)
+ * @param limit The maximum deviation for floating-point comparisons (unused here, hence [[maybe_unused]])
  */
 void GDelayIndividual::compare_(
     const gen::GOptimizableEntity &cp,
@@ -115,9 +115,9 @@ void GDelayIndividual::compare_(
 
 /******************************************************************************/
 /**
- * Loads the data of another GDelayIndividual, camouflaged as a GFlatGenome
+ * @brief Loads the data of another GDelayIndividual, camouflaged as a GOptimizableEntity.
  *
- * @param cp A copy of another GDelayIndividual, camouflaged as a GFlatGenome
+ * @param cp A pointer to another GDelayIndividual, camouflaged as a GOptimizableEntity; its data is copied into this object
  */
 void GDelayIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GDelayIndividual reference independent of this object and convert the pointer
@@ -133,9 +133,9 @@ void GDelayIndividual::load_(const gen::GOptimizableEntity *cp) {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object.
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome
+ * @return A deep clone of this object, camouflaged as a GFlatGenome pointer
  */
 gen::GFlatGenome *GDelayIndividual::clone_() const {
     return new GDelayIndividual(*this);
@@ -143,9 +143,13 @@ gen::GFlatGenome *GDelayIndividual::clone_() const {
 
 /******************************************************************************/
 /**
- * The actual fitness calculation takes place here.
+ * @brief The actual fitness calculation takes place here.
  *
- * @return The value of this object
+ * Sleeps for either a fixed or a random amount of time (to emulate an expensive evaluation),
+ * optionally throws with a configured likelihood, and returns a random value -- no real
+ * optimization is performed.
+ *
+ * @return A random value in [0, 1); the result is not used for any actual optimization
  */
 double GDelayIndividual::fitnessCalculation() {
     std::uniform_real_distribution<double> uniform_real_distribution;
@@ -189,9 +193,9 @@ double GDelayIndividual::fitnessCalculation() {
 
 /******************************************************************************/
 /**
- * Retrieval of the current value of the fixed_sleep_time_ variable
+ * @brief Retrieval of the current value of the fixed_sleep_time_ variable.
  *
- * @return The current value of the fixed_sleep_time_ variable
+ * @return The current fixed sleep time, expressed as a duration in seconds
  */
 std::chrono::duration<double> GDelayIndividual::getFixedSleepTime() const {
     return std::chrono::duration<double>(fixed_sleep_time_);
@@ -199,7 +203,9 @@ std::chrono::duration<double> GDelayIndividual::getFixedSleepTime() const {
 
 /******************************************************************************/
 /**
- * Sets the sleep-time to a user-defined value
+ * @brief Sets the fixed sleep-time to a user-defined value.
+ *
+ * @param sleep_time The desired fixed sleep time, as a duration in seconds (and fractions thereof)
  */
 void GDelayIndividual::setFixedSleepTime(const std::chrono::duration<double> &sleep_time) {
     fixed_sleep_time_ = sleep_time.count();
@@ -207,9 +213,10 @@ void GDelayIndividual::setFixedSleepTime(const std::chrono::duration<double> &sl
 
 /******************************************************************************/
 /**
- * Indicate that the fitness function may crash at the end of the sleep time,
- * and set the likelihood for such a crash. The likelihood may assume values
- * between (and including) 0 (no crash) and 1 (always crash).
+ * @brief Indicate that the fitness function may crash at the end of the sleep time, and set the likelihood for such a crash.
+ *
+ * @param may_crash If true, the fitness function may throw at the end of the sleep time
+ * @param throw_likelihood The probability of a throw, enforced into the range [0, 1] (0 = never, 1 = always)
  */
 void GDelayIndividual::setMayCrash(bool may_crash, double throw_likelihood) {
     may_crash_ = may_crash;
@@ -225,7 +232,9 @@ void GDelayIndividual::setMayCrash(bool may_crash, double throw_likelihood) {
 
 /******************************************************************************/
 /**
- * Check whether the fitness function may crash at the end of the sleep time
+ * @brief Check whether the fitness function may crash at the end of the sleep time.
+ *
+ * @return true if the fitness function is configured to possibly throw, false otherwise
  */
 bool GDelayIndividual::getMayCrash() const {
     return may_crash_;
@@ -233,7 +242,9 @@ bool GDelayIndividual::getMayCrash() const {
 
 /******************************************************************************/
 /**
- * Check the likelihood for a crash at the end of the sleep time
+ * @brief Check the likelihood for a crash at the end of the sleep time.
+ *
+ * @return The configured throw probability, in the range [0, 1]
  */
 double GDelayIndividual::getCrashLikelihood() const {
     return throw_likelihood_;
@@ -241,9 +252,10 @@ double GDelayIndividual::getCrashLikelihood() const {
 
 /******************************************************************************/
 /**
- * Indicates that the fitness function should sleep for a random time. The lower
- * and upper boundaries for the sleep period are passed as a std::tuple, double
- * values indicate seconds (and fractions thereof).
+ * @brief Indicates that the fitness function should sleep for a random time within a given window.
+ *
+ * @param sleep_randomly If true, the fitness function sleeps a random amount of time; if false, it uses the fixed sleep time
+ * @param rand_sleep_boundaries A (lower, upper) tuple bounding the random sleep period, in seconds; must satisfy 0 <= lower < upper
  */
 void GDelayIndividual::setRandomSleep(
     bool sleep_randomly,
@@ -267,7 +279,9 @@ void GDelayIndividual::setRandomSleep(
 
 /******************************************************************************/
 /**
- * Checks whether the fitness function has a random sleep schedule
+ * @brief Checks whether the fitness function has a random sleep schedule.
+ *
+ * @return true if random sleeping is enabled, false if a fixed sleep time is used
  */
 bool GDelayIndividual::getMaySleepRandomly() const {
     return sleep_randomly_;
@@ -275,7 +289,9 @@ bool GDelayIndividual::getMaySleepRandomly() const {
 
 /******************************************************************************/
 /**
- * Retrieves the time window for random sleeps
+ * @brief Retrieves the time window for random sleeps.
+ *
+ * @return A (lower, upper) tuple bounding the random sleep period, in seconds
  */
 std::tuple<double, double> GDelayIndividual::getSleepWindow() const {
     return rand_sleep_boundaries_;
@@ -285,8 +301,13 @@ std::tuple<double, double> GDelayIndividual::getSleepWindow() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Registers the delay configuration options, binding them to the passed Config. This is the body of the
- * former GDelayIndividualFactory::describeLocalOptions_, now owned by the individual itself.
+ * @brief Registers the delay configuration options, binding them to the passed Config.
+ *
+ * This is the body of the former GDelayIndividualFactory::describeLocalOptions_, now owned by the
+ * individual itself.
+ *
+ * @param gpb The GParserBuilder object with which the configuration file options are registered
+ * @param c The Config struct whose fields are bound to the registered options (filled on parse)
  */
 void GDelayIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
     gpb.registerFileParameter("n_variables", c.n_variables, c.n_variables)
@@ -347,8 +368,13 @@ void GDelayIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &
 
 /******************************************************************************/
 /**
- * Reads a delay configuration file, creating it with default values if it does not yet exist. Replaces
- * the legacy factory's config parsing; the benchmark calls this once and then drives the delay sequence.
+ * @brief Reads a delay configuration file, creating it with default values if it does not yet exist.
+ *
+ * Replaces the legacy factory's config parsing; the benchmark calls this once and then drives the
+ * delay sequence.
+ *
+ * @param configFile The path to the configuration file to read (created with defaults if absent)
+ * @return A Config struct populated from the configuration file
  */
 GDelayIndividual::Config GDelayIndividual::readConfig(std::filesystem::path const &configFile) {
     Config c;
@@ -368,7 +394,10 @@ GDelayIndividual::Config GDelayIndividual::readConfig(std::filesystem::path cons
 
 /******************************************************************************/
 /**
- * Parses the textual "delays" list of a Config into (seconds, milliseconds) tuples
+ * @brief Parses the textual "delays" list of a Config into (seconds, milliseconds) tuples.
+ *
+ * @param c The Config whose "delays" string field is parsed
+ * @return A vector of (seconds, milliseconds) tuples, one per delay in the list
  */
 std::vector<std::tuple<unsigned int, unsigned int>> GDelayIndividual::parseSleepTimes(const Config &c) {
     return Gem::Common::stringToUIntTupleVec(c.delays);
@@ -376,9 +405,10 @@ std::vector<std::tuple<unsigned int, unsigned int>> GDelayIndividual::parseSleep
 
 /******************************************************************************/
 /**
- * Converts a tuple to a time format
+ * @brief Converts a (seconds, milliseconds) tuple to a chrono duration.
  *
- * @param time_tuple A tuple of seconds and milliseconds in unsigned int format
+ * @param time_tuple A tuple of (seconds, milliseconds) in unsigned int format
+ * @return The combined duration, expressed in seconds (as a double-based duration)
  */
 std::chrono::duration<double>
 GDelayIndividual::tupleToTime(const std::tuple<unsigned int, unsigned int> &time_tuple) {
@@ -391,9 +421,15 @@ GDelayIndividual::tupleToTime(const std::tuple<unsigned int, unsigned int> &time
 
 /******************************************************************************/
 /**
- * Builds a configured delay individual for one fixed sleep time. Replaces the legacy factory's
- * postProcess_: the genome is n_variables unbounded double parameters (structure only) -- pure transport
- * ballast for the overhead measurement, carrying no adaptor (customAdaptions() is a no-op).
+ * @brief Builds a configured delay individual for one fixed sleep time.
+ *
+ * Replaces the legacy factory's postProcess_: the genome is n_variables unbounded double parameters
+ * (structure only) -- pure transport ballast for the overhead measurement, carrying no adaptor
+ * (customAdaptions() is a no-op).
+ *
+ * @param c The Config supplying crash, random-sleep and n_variables settings for the new individual
+ * @param sleepTime The fixed sleep time assigned to the new individual, as a duration in seconds
+ * @return A shared pointer to the newly created and configured GDelayIndividual
  */
 std::shared_ptr<GDelayIndividual>
 GDelayIndividual::create(const Config &c, const std::chrono::duration<double> &sleepTime) {

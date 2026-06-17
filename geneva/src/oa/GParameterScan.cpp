@@ -62,7 +62,12 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Returns a set of boolean data items
+ * @brief Returns a set of boolean data items (always both false and true).
+ *
+ * @param nSteps The requested number of grid steps (unused for booleans, which always yield two values)
+ * @param lower The lower scan boundary (unused for booleans)
+ * @param upper The upper scan boundary (unused for booleans)
+ * @return A vector containing the two boolean values {false, true}
  */
 template <>
 std::vector<bool> fillWithData<bool>(
@@ -80,7 +85,12 @@ std::vector<bool> fillWithData<bool>(
 
 /******************************************************************************/
 /**
- * Returns a set of std::int32_t data items
+ * @brief Returns a set of std::int32_t data items, one per integer in the inclusive range.
+ *
+ * @param nSteps The requested number of grid steps (ignored here; only used for random entries)
+ * @param lower The (inclusive) lower scan boundary
+ * @param upper The (inclusive) upper scan boundary
+ * @return A vector with every integer value from lower to upper inclusive
  */
 template <>
 std::vector<std::int32_t> fillWithData<std::int32_t>(
@@ -98,7 +108,12 @@ std::vector<std::int32_t> fillWithData<std::int32_t>(
 
 /******************************************************************************/
 /**
- * Returns a set of float data items
+ * @brief Returns a set of float data items spread evenly over the scan interval.
+ *
+ * @param n_steps The number of grid points to generate (must be at least 2)
+ * @param lower The lower scan boundary (first generated value)
+ * @param upper The upper scan boundary (last generated value)
+ * @return A vector of n_steps float values evenly spaced over [lower, upper]
  */
 template <>
 std::vector<float> fillWithData<float>(std::size_t n_steps, float lower, float upper) {
@@ -122,7 +137,12 @@ std::vector<float> fillWithData<float>(std::size_t n_steps, float lower, float u
 
 /******************************************************************************/
 /**
- * Returns a set of double data items
+ * @brief Returns a set of double data items spread evenly over the scan interval.
+ *
+ * @param n_steps The number of grid points to generate (must be at least 2)
+ * @param lower The lower scan boundary (first generated value)
+ * @param upper The upper scan boundary (last generated value)
+ * @return A vector of n_steps double values evenly spaced over [lower, upper]
  */
 template <>
 std::vector<double> fillWithData<double>(std::size_t n_steps, double lower, double upper) {
@@ -148,14 +168,17 @@ std::vector<double> fillWithData<double>(std::size_t n_steps, double lower, doub
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor. Only needed for de-serialization.
+ * @brief The default constructor. Only needed for de-serialization.
  */
 GBScanPar::GBScanPar() { /* nothing */
 }
 
 /******************************************************************************/
 /**
- * Construction from local variables
+ * @brief Construction from a boolean parameter property specification.
+ *
+ * @param pps The parameter property specification describing the boolean variable to be scanned
+ * @param random_scan Whether the variable should be scanned randomly (true) or on a grid (false)
  */
 GBScanPar::GBScanPar(gen::parPropSpec<bool> pps, bool random_scan)
   : GBaseScanParT<bool>(pps, random_scan, "b") { /* nothing */
@@ -163,7 +186,9 @@ GBScanPar::GBScanPar(gen::parPropSpec<bool> pps, bool random_scan)
 
 /******************************************************************************/
 /**
- * Cloning of this object
+ * @brief Cloning of this object.
+ *
+ * @return A shared pointer to a deep copy of this object
  */
 std::shared_ptr<GBScanPar> GBScanPar::clone() const {
     return std::make_shared<GBScanPar>(*this);
@@ -173,14 +198,17 @@ std::shared_ptr<GBScanPar> GBScanPar::clone() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor. Only needed for de-serialization.
+ * @brief The default constructor. Only needed for de-serialization.
  */
 GInt32ScanPar::GInt32ScanPar() { /* nothing */
 }
 
 /******************************************************************************/
 /**
- * The standard destructor
+ * @brief Construction from a std::int32_t parameter property specification.
+ *
+ * @param pps The parameter property specification describing the integer variable to be scanned
+ * @param random_scan Whether the variable should be scanned randomly (true) or on a grid (false)
  */
 GInt32ScanPar::GInt32ScanPar(gen::parPropSpec<std::int32_t> pps, bool random_scan)
   : GBaseScanParT<std::int32_t>(pps, random_scan, "i") { /* nothing */
@@ -188,7 +216,9 @@ GInt32ScanPar::GInt32ScanPar(gen::parPropSpec<std::int32_t> pps, bool random_sca
 
 /******************************************************************************/
 /**
- * Cloning
+ * @brief Cloning of this object.
+ *
+ * @return A shared pointer to a deep copy of this object
  */
 std::shared_ptr<GInt32ScanPar> GInt32ScanPar::clone() const {
     return std::make_shared<GInt32ScanPar>(*this);
@@ -198,14 +228,17 @@ std::shared_ptr<GInt32ScanPar> GInt32ScanPar::clone() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor. Only needed for de-serialization.
+ * @brief The default constructor. Only needed for de-serialization.
  */
 GDScanPar::GDScanPar() { /* nothing */
 }
 
 /******************************************************************************/
 /**
- * The standard destructor
+ * @brief Construction from a double parameter property specification.
+ *
+ * @param pps The parameter property specification describing the double variable to be scanned
+ * @param random_scan Whether the variable should be scanned randomly (true) or on a grid (false)
  */
 GDScanPar::GDScanPar(gen::parPropSpec<double> pps, bool random_scan)
   : GBaseScanParT<double>(pps, random_scan, "d") { /* nothing */
@@ -213,7 +246,9 @@ GDScanPar::GDScanPar(gen::parPropSpec<double> pps, bool random_scan)
 
 /******************************************************************************/
 /**
- * Cloning
+ * @brief Cloning of this object.
+ *
+ * @return A shared pointer to a deep copy of this object
  */
 std::shared_ptr<GDScanPar> GDScanPar::clone() const {
     return std::make_shared<GDScanPar>(*this);
@@ -223,14 +258,17 @@ std::shared_ptr<GDScanPar> GDScanPar::clone() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor. Only needed for de-serialization.
+ * @brief The default constructor. Only needed for de-serialization.
  */
 GFScanPar::GFScanPar() { /* nothing */
 }
 
 /******************************************************************************/
 /**
- * The standard destructor
+ * @brief Construction from a float parameter property specification.
+ *
+ * @param pps The parameter property specification describing the float variable to be scanned
+ * @param random_scan Whether the variable should be scanned randomly (true) or on a grid (false)
  */
 GFScanPar::GFScanPar(gen::parPropSpec<float> pps, bool random_scan)
   : GBaseScanParT<float>(pps, random_scan, "f") { /* nothing */
@@ -238,7 +276,9 @@ GFScanPar::GFScanPar(gen::parPropSpec<float> pps, bool random_scan)
 
 /******************************************************************************/
 /**
- * Cloning
+ * @brief Cloning of this object.
+ *
+ * @return A shared pointer to a deep copy of this object
  */
 std::shared_ptr<GFScanPar> GFScanPar::clone() const {
     return std::make_shared<GFScanPar>(*this);
@@ -248,7 +288,11 @@ std::shared_ptr<GFScanPar> GFScanPar::clone() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A simple output operator for parSet object, mostly meant for debugging
+ * @brief A simple output operator for parSet objects, mostly meant for debugging.
+ *
+ * @param os The output stream to write the human-readable representation to
+ * @param p_s The parSet object whose boolean, integer, float and double parameters are printed
+ * @return A reference to the output stream os, to allow chaining
  */
 std::ostream &operator<<(std::ostream &os, const parSet &p_s) {
     os << "###########################################################" << '\n'
@@ -313,9 +357,9 @@ std::ostream &operator<<(std::ostream &os, const parSet &p_s) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A standard copy constructor.
+ * @brief A standard copy constructor.
  *
- * @param cp A copy of another GradientDescent object
+ * @param cp A constant reference to another GParameterScan object to be copied
  */
 GParameterScan::GParameterScan(const GParameterScan &cp)
   : GOptimizationAlgorithmT<GParameterScan>(cp)
@@ -336,9 +380,9 @@ GParameterScan::GParameterScan(const GParameterScan &cp)
 
 /******************************************************************************/
 /**
- * Retrieve the number of processable items in the current iteration.
+ * @brief Retrieve the number of processable items in the current iteration.
  *
- * @return The number of processable items in the current iteration
+ * @return The number of processable items in the current iteration (the whole population size)
  */
 std::size_t GParameterScan::getNProcessableItems_() const {
     return this->size(); // Evaluation always needs to be done for the entire population
@@ -346,11 +390,13 @@ std::size_t GParameterScan::getNProcessableItems_() const {
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
- * of the same type
+ * @brief Searches for compliance with expectations with respect to another object
+ * of the same type.
  *
- * @param cp A constant reference to another GParameterScan object
- * @param e The expected outcome of the comparison
+ * @param cp A constant reference to another GOptimizationAlgorithmBase object (must actually be a
+ *           GParameterScan) to compare against
+ * @param e The expected outcome of the comparison (equality, inequality, etc.)
+ * @param limit The maximum acceptable deviation for floating-point comparisons (unused here)
  */
 void GParameterScan::compare_(
     const GOptimizationAlgorithmBase &cp,
@@ -381,8 +427,8 @@ void GParameterScan::compare_(
 
 /******************************************************************************/
 /**
- * Resets the settings of this population to what was configured when
- * the optimize()-call was issued
+ * @brief Resets the settings of this population to what was configured when
+ * the optimize()-call was issued.
  */
 void GParameterScan::resetToOptimizationStart_() {
     // Reset b_cnt_, int32_cnt_, d_cnt_ and f_cnt_
@@ -404,8 +450,10 @@ void GParameterScan::resetToOptimizationStart_() {
 
 /******************************************************************************/
 /**
- * Allows to set the number of "best" individuals to be monitored
- * over the course of the algorithm run
+ * @brief Allows to set the number of "best" individuals to be monitored
+ * over the course of the algorithm run.
+ *
+ * @param n_monitor_inds The number of best individuals to monitor
  */
 void GParameterScan::setNMonitorInds(std::size_t n_monitor_inds) {
     n_monitor_inds_ = n_monitor_inds;
@@ -413,8 +461,10 @@ void GParameterScan::setNMonitorInds(std::size_t n_monitor_inds) {
 
 /******************************************************************************/
 /**
- * Allows to retrieve  the number of "best" individuals to be monitored
- * over the course of the algorithm run
+ * @brief Allows to retrieve the number of "best" individuals to be monitored
+ * over the course of the algorithm run.
+ *
+ * @return The number of best individuals being monitored
  */
 std::size_t GParameterScan::getNMonitorInds() const {
     return n_monitor_inds_;
@@ -422,9 +472,10 @@ std::size_t GParameterScan::getNMonitorInds() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another population
+ * @brief Loads the data of another population.
  *
- * @param cp A pointer to another GParameterScan object
+ * @param cp A pointer to another GOptimizationAlgorithmBase object (must actually be a
+ *           GParameterScan) whose data is copied into this object
  */
 void GParameterScan::load_(const GOptimizationAlgorithmBase *cp) {
     // Check that we are dealing with a GParameterScan reference independent of this object and convert the pointer
@@ -459,9 +510,9 @@ void GParameterScan::load_(const GOptimizationAlgorithmBase *cp) {
 
 /******************************************************************************/
 /**
- * The actual business logic to be performed during each iteration. Returns the best achieved fitness
+ * @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness.
  *
- * @return The value of the best individual found
+ * @return A tuple holding the raw and transformed fitness of the best individual found this iteration
  */
 std::tuple<double, double> GParameterScan::cycleLogic_() {
     std::tuple<double, double> best_fitness =
@@ -513,7 +564,7 @@ std::tuple<double, double> GParameterScan::cycleLogic_() {
 
 /******************************************************************************/
 /**
- * Adds new values to the population's individuals. Note that this function
+ * @brief Adds new values to the population's individuals. Note that this function
  * may resize the population and set the default population size, if there
  * is no sufficient number of data sets to be evaluated left.
  */
@@ -620,7 +671,7 @@ void GParameterScan::updateSelectedParameters() {
 
 /******************************************************************************/
 /**
- * Randomly initialize the individuals a given number of times
+ * @brief Randomly initialize the individuals a given number of times.
  */
 void GParameterScan::randomShuffle() {
     std::size_t ind_pos = 0;
@@ -663,7 +714,7 @@ void GParameterScan::randomShuffle() {
 
 /******************************************************************************/
 /**
- * Resets all parameter objects
+ * @brief Resets all parameter objects (booleans, integers, floats and doubles) to their start position.
  */
 void GParameterScan::resetParameterObjects() {
     for(auto &p : b_cnt_)     p->resetPosition();
@@ -676,10 +727,13 @@ void GParameterScan::resetParameterObjects() {
 
 /******************************************************************************/
 /**
- * Retrieves a parameter set by filling the current parameter combinations
+ * @brief Retrieves a parameter set by filling the current parameter combinations
  * into a parSet object.
  *
- * @param mode Indicates whether parameters are identified by name or by id
+ * @param mode An output reference: on return it holds the addressing mode reported by the scan
+ *             parameters (currently always positional/by-id); it is also cross-checked for
+ *             consistency across all parameter objects
+ * @return A shared pointer to a freshly filled parSet object holding the current parameter values
  */
 std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
     // Create a new parSet object
@@ -798,7 +852,7 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
 
 /******************************************************************************/
 /**
- * Switches to the next parameter set
+ * @brief Switches to the next parameter set.
  *
  * @return A boolean indicating whether there indeed is a following
  * parameter set (true) or whether we have reached the end of the
@@ -827,7 +881,8 @@ bool GParameterScan::switchToNextParameterSet() {
 
 /******************************************************************************/
 /**
- * Fills all parameter objects into the allParVec_ vector
+ * @brief Fills all parameter objects (booleans, integers, floats, doubles) into the central
+ * all_par_cnt_ vector for unified handling.
  */
 void GParameterScan::fillAllParVec() {
     // 1) For boolean objects
@@ -850,7 +905,7 @@ void GParameterScan::fillAllParVec() {
 
 /******************************************************************************/
 /**
- * Clears the allParVec_ vector
+ * @brief Clears the central all_par_cnt_ vector.
  */
 void GParameterScan::clearAllParVec() {
     all_par_cnt_.clear();
@@ -858,8 +913,10 @@ void GParameterScan::clearAllParVec() {
 
 /******************************************************************************/
 /**
- * A custom halt criterion for the optimization, allowing to stop the loop
- * when no items are left to be scanned
+ * @brief A custom halt criterion for the optimization, allowing to stop the loop
+ * when no items are left to be scanned.
+ *
+ * @return true if the scan has exhausted all parameter sets and should terminate, false otherwise
  */
 bool GParameterScan::customHalt_() const {
     if(this->cycle_logic_halt_) {
@@ -874,7 +931,7 @@ bool GParameterScan::customHalt_() const {
 
 /******************************************************************************/
 /**
- * Adds local configuration options to a GParserBuilder object
+ * @brief Adds local configuration options to a GParserBuilder object.
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
@@ -913,9 +970,11 @@ void GParameterScan::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) 
 
 /******************************************************************************/
 /**
- * Triggers fitness calculation of a number of individuals. This function performs the same task as done
- * in GParameterScan, albeit by delegating work to the broker. Items are evaluated up to a maximum position
- * in the vector. Note that we always start the evaluation with the first item in the vector.
+ * @brief Triggers fitness calculation of a number of individuals by delegating work to the broker.
+ *
+ * Items are evaluated up to a maximum position in the vector. Note that we always start the
+ * evaluation with the first item in the vector. Throws if not every work item returned or if
+ * any returned item carried errors.
  */
 void GParameterScan::runFitnessCalculation_() {
     using namespace Gem::Courtier;
@@ -958,9 +1017,12 @@ void GParameterScan::runFitnessCalculation_() {
 
 /******************************************************************************/
 /**
- * Analyzes the parameters to be scanned. Note that this function will clear any
+ * @brief Analyzes the parameters to be scanned. Note that this function will clear any
  * existing parameter definitions, as par_str represents a new set of parameters
  * to be scanned.
+ *
+ * @param par_str A specification string describing the parameters to scan (e.g. "d(0, -10., 10., 100)"),
+ *                or a simple-scan request; must not be empty
  */
 void GParameterScan::setParameterSpecs(std::string par_str) {
     // Check that the parameter string isn't empty
@@ -1048,7 +1110,9 @@ void GParameterScan::setParameterSpecs(std::string par_str) {
 
 /******************************************************************************/
 /**
- * Specified the number of simple scans an puts the class in "simple scan" mode
+ * @brief Specifies the number of simple scans and puts the class in "simple scan" mode.
+ *
+ * @param simple_scan_items The number of randomly-initialized work items to evaluate (0 disables simple-scan mode)
  */
 void GParameterScan::setNSimpleScans(std::size_t simple_scan_items) {
     simple_scan_items_ = simple_scan_items;
@@ -1056,7 +1120,9 @@ void GParameterScan::setNSimpleScans(std::size_t simple_scan_items) {
 
 /******************************************************************************/
 /**
- * Retrieves the number of simple scans (or 0, if disabled)
+ * @brief Retrieves the number of simple scans (or 0, if disabled).
+ *
+ * @return The configured number of simple scans, or 0 if simple-scan mode is disabled
  */
 std::size_t GParameterScan::getNSimpleScans() const {
     return simple_scan_items_;
@@ -1064,7 +1130,9 @@ std::size_t GParameterScan::getNSimpleScans() const {
 
 /******************************************************************************/
 /**
- * Retrieves the number of simple scans performed so far
+ * @brief Retrieves the number of simple scans performed so far.
+ *
+ * @return The count of simple scans completed in the current optimization run
  */
 std::size_t GParameterScan::getNScansPerformed() const {
     return scans_performed_;
@@ -1072,8 +1140,10 @@ std::size_t GParameterScan::getNScansPerformed() const {
 
 /******************************************************************************/
 /**
- * Allows to specify whether the parameter space should be scanned randomly
- * or on a grid
+ * @brief Allows to specify whether the parameter space should be scanned randomly
+ * or on a grid.
+ *
+ * @param scan_randomly true to scan individual variables randomly, false to scan on a grid
  */
 void GParameterScan::setScanRandomly(bool scan_randomly) {
     scan_randomly_ = scan_randomly;
@@ -1081,8 +1151,10 @@ void GParameterScan::setScanRandomly(bool scan_randomly) {
 
 /******************************************************************************/
 /**
- * Allows to check whether the parameter space should be scanned randomly
- * or on a grid
+ * @brief Allows to check whether the parameter space should be scanned randomly
+ * or on a grid.
+ *
+ * @return true if variables are scanned randomly, false if scanned on a grid
  */
 bool GParameterScan::getScanRandomly() const {
     return scan_randomly_;
@@ -1090,7 +1162,7 @@ bool GParameterScan::getScanRandomly() const {
 
 /******************************************************************************/
 /**
- * Does some preparatory work before the optimization starts
+ * @brief Does some preparatory work before the optimization starts.
  */
 void GParameterScan::init() {
     // To be performed before any other action
@@ -1111,7 +1183,7 @@ void GParameterScan::init() {
 
 /******************************************************************************/
 /**
- * Does any necessary finalization work
+ * @brief Does any necessary finalization work.
  */
 void GParameterScan::finalize() {
     // Last action
@@ -1120,7 +1192,9 @@ void GParameterScan::finalize() {
 
 /******************************************************************************/
 /**
- * Retrieve a GPersonalityTraits object belonging to this algorithm
+ * @brief Retrieve a GPersonalityTraits object belonging to this algorithm.
+ *
+ * @return A shared pointer to a new GParameterScan_PersonalityTraits object
  */
 std::shared_ptr<GPersonalityTraits> GParameterScan::getPersonalityTraits_() const {
     return std::make_shared<GParameterScan_PersonalityTraits>();
@@ -1128,7 +1202,7 @@ std::shared_ptr<GPersonalityTraits> GParameterScan::getPersonalityTraits_() cons
 
 /******************************************************************************/
 /**
- * Gives individuals an opportunity to update their internal structures. This
+ * @brief Gives individuals an opportunity to update their internal structures. This
  * function has no deeper meaning for a parameter scan and is hence empty.
  */
 void GParameterScan::actOnStalls_() {
@@ -1137,7 +1211,7 @@ void GParameterScan::actOnStalls_() {
 
 /******************************************************************************/
 /**
- * Resizes the population to the desired level and does some error checks.
+ * @brief Resizes the population to the desired level and does some error checks.
  */
 void GParameterScan::adjustPopulation_() {
     // Check how many individuals we already have

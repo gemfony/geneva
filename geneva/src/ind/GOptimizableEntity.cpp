@@ -63,9 +63,10 @@ namespace Gem::Geneva::Genome {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This constructor initializes the `individual_processing_result` object with
- * a raw fitness value. The transformed fitness is set to the same value as the raw fitness,
- * and the flag indicating that the transformed fitness has been set is set to false.
+ * @brief Initializes the result object with a raw fitness value only.
+ *
+ * The transformed fitness is set to the same value as the raw fitness, and the flag indicating that
+ * the transformed fitness has been set is left false.
  *
  * @param raw_fitness The raw fitness value.
  */
@@ -78,9 +79,9 @@ individual_processing_result::individual_processing_result(const double raw_fitn
 
 /******************************************************************************/
 /**
- * This constructor initializes the `individual_processing_result` object with
- * both raw and transformed fitness values. It also sets the flag indicating that
- * the transformed fitness has been set.
+ * @brief Initializes the result object with both raw and transformed fitness values.
+ *
+ * Also sets the flag indicating that the transformed fitness has been set.
  *
  * @param raw_fitness The raw fitness value.
  * @param transformed_fitness The transformed fitness value.
@@ -96,12 +97,13 @@ individual_processing_result::individual_processing_result(
 }
 /******************************************************************************/
 /**
- * This constructor initializes the `individual_processing_result` object with
- * a raw fitness value and a function to transform the fitness. The transformed fitness
- * is calculated using the provided function. If the function is empty, an error is logged.
+ * @brief Initializes the result object with a raw fitness value and a transformation function.
+ *
+ * The transformed fitness is calculated by applying the provided function to the raw fitness. Throws
+ * if the function object is empty.
  *
  * @param raw_fitness The raw fitness value.
- * @param f A function to transform the raw fitness value.
+ * @param f A function mapping the raw fitness value to a transformed fitness value; must not be empty.
  */
 individual_processing_result::individual_processing_result(
     const double raw_fitness,
@@ -123,7 +125,9 @@ individual_processing_result::individual_processing_result(
 
 /******************************************************************************/
 /**
- * Access to the raw fitness
+ * @brief Access to the raw fitness.
+ *
+ * @return The stored raw fitness value
  */
 double individual_processing_result::rawFitness() const {
     return raw_fitness_;
@@ -131,7 +135,9 @@ double individual_processing_result::rawFitness() const {
 
 /******************************************************************************/
 /**
- * Access to the transformed fitness
+ * @brief Access to the transformed fitness.
+ *
+ * @return The stored transformed fitness value
  */
 double individual_processing_result::transformedFitness() const {
     return transformed_fitness_;
@@ -139,7 +145,11 @@ double individual_processing_result::transformedFitness() const {
 
 /******************************************************************************/
 /**
-     * Updates the transformed fitness using an external function
+     * @brief Updates the transformed fitness using an external function.
+     *
+     * Applies the function to the stored raw fitness and stores the result. Throws if f is empty.
+     *
+     * @param f A function mapping the raw fitness to a transformed fitness; must not be empty.
      */
 void individual_processing_result::setTransformedFitnessWith(std::function<double(double)> f) {
     if(f) {
@@ -157,7 +167,9 @@ void individual_processing_result::setTransformedFitnessWith(std::function<doubl
 
 /******************************************************************************/
 /**
-     * Sets the transformed fitness to a user-defined value
+     * @brief Sets the transformed fitness to a user-defined value.
+     *
+     * @param transformed_fitness The transformed fitness value to store
      */
 void individual_processing_result::setTransformedFitnessTo(const double transformed_fitness) {
     transformed_fitness_ = transformed_fitness;
@@ -166,7 +178,7 @@ void individual_processing_result::setTransformedFitnessTo(const double transfor
 
 /******************************************************************************/
 /**
-     * Sets the transformed fitness to the same value as the raw fitness
+     * @brief Sets the transformed fitness to the same value as the raw fitness.
      */
 void individual_processing_result::setTransformedFitnessToRaw() {
     transformed_fitness_ = raw_fitness_;
@@ -175,7 +187,9 @@ void individual_processing_result::setTransformedFitnessToRaw() {
 
 /******************************************************************************/
 /**
-     * Checks whether the transformed fitness was set
+     * @brief Checks whether the transformed fitness was set.
+     *
+     * @return true if a transformed fitness has been explicitly set, false otherwise
      */
 bool individual_processing_result::transformedFitnessSet() const {
     return transformed_fitness_set_;
@@ -183,7 +197,11 @@ bool individual_processing_result::transformedFitnessSet() const {
 
 /******************************************************************************/
 /**
-     * Resets the object and stores a new raw value in the class
+     * @brief Resets the object and stores a new raw value in the class.
+     *
+     * The transformed fitness is set equal to the raw fitness and the "transformed set" flag is cleared.
+     *
+     * @param raw_fitness The new raw fitness value to store
      */
 void individual_processing_result::reset(const double raw_fitness) {
     raw_fitness_ = raw_fitness;
@@ -193,7 +211,10 @@ void individual_processing_result::reset(const double raw_fitness) {
 
 /******************************************************************************/
 /**
- * Resets the object and stores a new raw and transformed value in the class
+ * @brief Resets the object and stores a new raw and transformed value in the class.
+ *
+ * @param raw_fitness The new raw fitness value to store
+ * @param transformed_fitness The new transformed fitness value to store
  */
 void individual_processing_result::reset(
     const double raw_fitness,
@@ -206,7 +227,12 @@ void individual_processing_result::reset(
 
 /******************************************************************************/
 /**
- * Resets the object and stores a new raw value in the class and triggers recalculation of the transformed value
+ * @brief Resets the object, stores a new raw value and recalculates the transformed value.
+ *
+ * The transformed fitness is recomputed by applying f to the new raw fitness. Throws if f is empty.
+ *
+ * @param raw_fitness The new raw fitness value to store
+ * @param f A function mapping the raw fitness to a transformed fitness; must not be empty.
  */
 void individual_processing_result::reset(
     const double raw_fitness,
@@ -230,8 +256,9 @@ void individual_processing_result::reset(
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
-     * The default constructor. Using this constructor will result in a single
-     * fitness criterion.
+     * @brief The default constructor.
+     *
+     * Using this constructor will result in a single fitness criterion.
      */
 GOptimizableEntity::GOptimizableEntity()
   : Gem::Courtier::GProcessingContainerT<GOptimizableEntity, individual_processing_result>(1) {
@@ -240,7 +267,9 @@ GOptimizableEntity::GOptimizableEntity()
 
 /******************************************************************************/
 /**
-     * Initialization with the number of fitness criteria
+     * @brief Initialization with the number of fitness criteria.
+     *
+     * @param n_fitness_criteria The number of fitness criteria this entity will evaluate to
      */
 GOptimizableEntity::GOptimizableEntity(const std::size_t n_fitness_criteria)
   : Gem::Courtier::GProcessingContainerT<GOptimizableEntity, individual_processing_result>(
@@ -251,9 +280,9 @@ GOptimizableEntity::GOptimizableEntity(const std::size_t n_fitness_criteria)
 
 /******************************************************************************/
 /**
-     * The copy constructor.
+     * @brief The copy constructor.
      *
-     * @param cp A copy of another GOptimizableEntity object
+     * @param cp A constant reference to another GOptimizableEntity object to be copied
      */
 GOptimizableEntity::GOptimizableEntity(GOptimizableEntity const &cp)
   : Gem::Common::GCommonInterfaceT<GOptimizableEntity>(cp)
@@ -280,11 +309,11 @@ GOptimizableEntity::GOptimizableEntity(GOptimizableEntity const &cp)
 
 /******************************************************************************/
 /**
-     * Searches for compliance with expectations with respect to another object
-     * of the same type
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
      *
      * @param cp A constant reference to another GOptimizableEntity object
      * @param e The expected outcome of the comparison
+     * @param limit The maximum deviation tolerated for floating point comparisons (unused here)
      */
 void GOptimizableEntity::compare_(
     GOptimizableEntity const &cp,
@@ -312,11 +341,13 @@ void GOptimizableEntity::compare_(
 
 /******************************************************************************/
 /**
-     * Allows to randomly initialize parameter members. This function is responsible
-     * for setting the dirty flag, so overloaded randomInit_ functions do not need
-     * to take care of this. Note though that overloads of randomInit_() need to take
-     * care to indicate whether modifications were made.
+     * @brief Allows to randomly initialize parameter members.
      *
+     * This function is responsible for setting the dirty flag, so overloaded randomInit_ functions do
+     * not need to take care of this. Note though that overloads of randomInit_() need to take care to
+     * indicate whether modifications were made.
+     *
+     * @param am The activity mode that selects which parameters are (re-)initialized
      * @return A boolean indicating whether modifications where made
      */
 bool GOptimizableEntity::randomInit(activityMode const &am) {
@@ -331,6 +362,8 @@ bool GOptimizableEntity::randomInit(activityMode const &am) {
 
 /******************************************************************************/
 /**
+     * @brief Specifies whether to work in maximization or minimization mode.
+     *
      * Allows to specify whether we want to work in maximization (maxMode::MAXIMIZE) or minimization
      * (maxMode::MINIMIZE) mode (the default). The idea is that GOptimizableEntity, depending on the
      * maxMode, changes its evaluation in such a way that the optimization algorithm always sees a
@@ -344,9 +377,14 @@ void GOptimizableEntity::setMaxMode(maxMode const &mode) {
 
 /******************************************************************************/
 /**
-     * Checks whether this object is better than a given set of evaluations. This
-     * function compares "real" boundaries with evaluations, hence we use "raw"
-     * measurements here instead of transformed measurements.
+     * @brief Checks whether this object is better than a given set of evaluations.
+     *
+     * This function compares "real" boundaries with evaluations, hence we use "raw" measurements here
+     * instead of transformed measurements. In MAXIMIZE mode the individual passes if every raw fitness
+     * is at least the matching boundary; in MINIMIZE mode if every raw fitness is at most the boundary.
+     *
+     * @param boundaries One boundary value per stored fitness criterion (size must match the criteria count)
+     * @return true if this individual is at least as good as every boundary, false otherwise
      */
 bool GOptimizableEntity::isGoodEnough(std::vector<double> const &boundaries) {
 #ifdef DEBUG
@@ -396,7 +434,10 @@ bool GOptimizableEntity::isGoodEnough(std::vector<double> const &boundaries) {
 
 /******************************************************************************/
 /**
-     * Retrieves the stored raw fitness with a given id
+     * @brief Retrieves the stored raw fitness with a given id.
+     *
+     * @param id The position of the fitness criterion to retrieve
+     * @return The raw fitness value stored at the given position
      */
 double GOptimizableEntity::raw_fitness_(const std::size_t id) const {
     return this->getStoredResult(id).rawFitness();
@@ -404,7 +445,10 @@ double GOptimizableEntity::raw_fitness_(const std::size_t id) const {
 
 /******************************************************************************/
 /**
-     * Retrieves the stored transformed fitness with a given id
+     * @brief Retrieves the stored transformed fitness with a given id.
+     *
+     * @param id The position of the fitness criterion to retrieve
+     * @return The transformed fitness value stored at the given position
      */
 double GOptimizableEntity::transformed_fitness_(const std::size_t id) const {
     return this->getStoredResult(id).transformedFitness();
@@ -412,7 +456,9 @@ double GOptimizableEntity::transformed_fitness_(const std::size_t id) const {
 
 /******************************************************************************/
 /**
-     * Returns all raw fitness results in a std::vector
+     * @brief Returns all raw fitness results in a std::vector.
+     *
+     * @return A vector holding the raw fitness value of every stored fitness criterion, in order
      */
 std::vector<double> GOptimizableEntity::raw_fitness_vec_() const {
     std::size_t n_fitness_criteria = this->getNStoredResults();
@@ -427,7 +473,9 @@ std::vector<double> GOptimizableEntity::raw_fitness_vec_() const {
 
 /******************************************************************************/
 /**
-     * Returns all transformed fitness results in a std::vector
+     * @brief Returns all transformed fitness results in a std::vector.
+     *
+     * @return A vector holding the transformed fitness value of every stored fitness criterion, in order
      */
 std::vector<double> GOptimizableEntity::transformed_fitness_vec_() const {
     std::size_t n_fitness_criteria = this->getNStoredResults();
@@ -442,7 +490,9 @@ std::vector<double> GOptimizableEntity::transformed_fitness_vec_() const {
 
 /******************************************************************************/
 /**
-     * Register another result value of the fitness calculation. Multiple fitness
+     * @brief Register another result value of the fitness calculation.
+     *
+     * Multiple fitness
      * criteria are used in multi-criterion optimization. fitnessCalculation() returns
      * the main fitness value, but may also add further, secondary results. Note that,
      * whether these are actually used, depends on the optimization algorithm being
@@ -471,7 +521,7 @@ void GOptimizableEntity::setResult(const std::size_t id, const double value) {
 
 /******************************************************************************/
 /**
-     * Determines whether more than one fitness criterion is present for this individual
+     * @brief Determines whether more than one fitness criterion is present for this individual.
      *
      * @return A boolean indicating whether more than one target function is present
      */
@@ -481,7 +531,10 @@ bool GOptimizableEntity::hasMultipleFitnessCriteria() const {
 
 /******************************************************************************/
 /**
-     * Retrieve the fitness tuple at a given evaluation position.
+     * @brief Retrieve the fitness tuple at a given evaluation position.
+     *
+     * @param id The position of the fitness criterion to retrieve
+     * @return A tuple holding (raw fitness, transformed fitness) for the given position
      */
 std::tuple<double, double> GOptimizableEntity::getFitnessTuple(const std::uint32_t id) const {
     return std::make_tuple<double, double>(this->raw_fitness(id), this->transformed_fitness(id));
@@ -489,7 +542,7 @@ std::tuple<double, double> GOptimizableEntity::getFitnessTuple(const std::uint32
 
 /******************************************************************************/
 /**
-     * Allows to retrieve the maxmode_ parameter
+     * @brief Allows to retrieve the maxmode_ parameter.
      *
      * @return The current value of the maxmode_ parameter
      */
@@ -499,10 +552,9 @@ maxMode GOptimizableEntity::getMaxMode() const {
 
 /***************************************************************************/
 /**
-     * Helper function that emits the worst case value depending on whether maximization
-     * or minimization is performed.
+     * @brief Helper function that emits the worst case value depending on the optimization direction.
      *
-     * @return The worst case value, depending on maximization or minimization
+     * @return The worst case value: lowest representable double in MAXIMIZE mode, highest in MINIMIZE mode
      */
 double GOptimizableEntity::getWorstCase() const {
     return (
@@ -513,8 +565,9 @@ double GOptimizableEntity::getWorstCase() const {
 
 /******************************************************************************/
 /**
-     * Retrieves the best possible evaluation result, depending on whether we are in
-     * maximization or minimization mode
+     * @brief Retrieves the best possible evaluation result, depending on the optimization direction.
+     *
+     * @return The best case value: highest representable double in MAXIMIZE mode, lowest in MINIMIZE mode
      */
 double GOptimizableEntity::getBestCase() const {
     return (
@@ -525,7 +578,9 @@ double GOptimizableEntity::getBestCase() const {
 
 /******************************************************************************/
 /**
-     * Retrieves the steepness_ variable (used for the sigmoid transformation)
+     * @brief Retrieves the steepness_ variable (used for the sigmoid transformation).
+     *
+     * @return The current sigmoid steepness value
      */
 double GOptimizableEntity::getSteepness() const {
     return sigmoid_steepness_;
@@ -533,7 +588,11 @@ double GOptimizableEntity::getSteepness() const {
 
 /******************************************************************************/
 /**
-     * Sets the steepness variable (used for the sigmoid transformation)
+     * @brief Sets the steepness variable (used for the sigmoid transformation).
+     *
+     * Throws if the value is not strictly positive.
+     *
+     * @param steepness The new sigmoid steepness; must be > 0
      */
 void GOptimizableEntity::setSteepness(const double steepness) {
     if(steepness <= 0.) {
@@ -549,7 +608,9 @@ void GOptimizableEntity::setSteepness(const double steepness) {
 
 /******************************************************************************/
 /**
-     * Retrieves the barrier_ variable (used for the sigmoid transformation)
+     * @brief Retrieves the barrier_ variable (used for the sigmoid transformation).
+     *
+     * @return The current sigmoid barrier (extreme) value
      */
 double GOptimizableEntity::getBarrier() const {
     return sigmoid_extremes_;
@@ -557,7 +618,11 @@ double GOptimizableEntity::getBarrier() const {
 
 /******************************************************************************/
 /**
-     * Sets the barrier variable (used for the sigmoid transformation)
+     * @brief Sets the barrier variable (used for the sigmoid transformation).
+     *
+     * Throws if the value is not strictly positive.
+     *
+     * @param barrier The new sigmoid barrier (extreme) value; must be > 0
      */
 void GOptimizableEntity::setBarrier(const double barrier) {
     if(barrier <= 0.) {
@@ -573,10 +638,12 @@ void GOptimizableEntity::setBarrier(const double barrier) {
 
 /******************************************************************************/
 /**
-     * Sets the maximum number of adaption attempts that may pass without
-     * actual modifications. Setting this to 0 disables this check. You should only
-     * do this if you are sure that an adaption will eventually happen. Otherwise
-     * you would get an endless loop.
+     * @brief Sets the maximum number of adaption attempts that may pass without actual modifications.
+     *
+     * Setting this to 0 disables this check. You should only do this if you are sure that an adaption
+     * will eventually happen. Otherwise you would get an endless loop.
+     *
+     * @param max_unsuccessful_adaptions The maximum number of consecutive unsuccessful adaptions (0 disables the check)
      */
 void GOptimizableEntity::setMaxUnsuccessfulAdaptions(const std::size_t max_unsuccessful_adaptions) {
     max_unsuccessful_adaptions_ = max_unsuccessful_adaptions;
@@ -584,8 +651,9 @@ void GOptimizableEntity::setMaxUnsuccessfulAdaptions(const std::size_t max_unsuc
 
 /******************************************************************************/
 /**
-     * Retrieves the maximum number of adaption attempts that may pass without
-     * actual modifications
+     * @brief Retrieves the maximum number of adaption attempts that may pass without actual modifications.
+     *
+     * @return The maximum number of consecutive unsuccessful adaptions (0 means the check is disabled)
      */
 std::size_t GOptimizableEntity::getMaxUnsuccessfulAdaptions() const {
     return max_unsuccessful_adaptions_;
@@ -593,8 +661,11 @@ std::size_t GOptimizableEntity::getMaxUnsuccessfulAdaptions() const {
 
 /******************************************************************************/
 /**
-     * Allows to set the maximum number of retries during the adaption of individuals
-     * until a valid individual was found. Setting this value to 0 will disable retries.
+     * @brief Sets the maximum number of retries during adaption until a valid individual was found.
+     *
+     * Setting this value to 0 will disable retries.
+     *
+     * @param max_retries_until_valid The maximum number of adaption retries until validity (0 disables retries)
      */
 void GOptimizableEntity::setMaxRetriesUntilValid(const std::size_t max_retries_until_valid) {
     max_retries_until_valid_ = max_retries_until_valid;
@@ -602,8 +673,9 @@ void GOptimizableEntity::setMaxRetriesUntilValid(const std::size_t max_retries_u
 
 /******************************************************************************/
 /**
-     * Allows to retrieve the current maximum number of retries during the adaption of
-     * individuals until a valid individual was found.
+     * @brief Retrieves the current maximum number of adaption retries until a valid individual was found.
+     *
+     * @return The maximum number of adaption retries until validity (0 means retries are disabled)
      */
 std::size_t GOptimizableEntity::getMaxRetriesUntilValid() const {
     return max_retries_until_valid_;
@@ -611,8 +683,9 @@ std::size_t GOptimizableEntity::getMaxRetriesUntilValid() const {
 
 /******************************************************************************/
 /**
-     * Retrieves the number of adaptions performed during the last call to adapt()
-     * (or 0, if no adaptions were performed so far).
+     * @brief Retrieves the number of adaptions performed during the last call to adapt().
+     *
+     * @return The number of adaptions performed during the last adapt() call (0 if none so far)
      */
 std::size_t GOptimizableEntity::getNAdaptions() const {
     return n_adaptions_;
@@ -620,7 +693,7 @@ std::size_t GOptimizableEntity::getNAdaptions() const {
 
 /******************************************************************************/
 /**
-     * Allows to set the current iteration of the parent optimization algorithm.
+     * @brief Allows to set the current iteration of the parent optimization algorithm.
      *
      * @param parent_alg_iteration The current iteration of the optimization algorithm
      */
@@ -630,7 +703,7 @@ void GOptimizableEntity::setAssignedIteration(std::uint32_t const &parent_alg_it
 
 /******************************************************************************/
 /**
-     * Gives access to the parent optimization algorithm's iteration
+     * @brief Gives access to the parent optimization algorithm's iteration.
      *
      * @return The parent optimization algorithm's current iteration
      */
@@ -640,7 +713,7 @@ std::uint32_t GOptimizableEntity::getAssignedIteration() const {
 
 /******************************************************************************/
 /**
-     * Allows to specify the number of optimization cycles without improvement of the primary fitness criterion
+     * @brief Specifies the number of optimization cycles without improvement of the primary fitness criterion.
      *
      * @param n_stalls The number of optimization cycles without improvement in the parent algorithm
      */
@@ -650,7 +723,7 @@ void GOptimizableEntity::setNStalls(std::uint32_t const &n_stalls) {
 
 /******************************************************************************/
 /**
-     * Allows to retrieve the number of optimization cycles without improvement of the primary fitness criterion
+     * @brief Retrieves the number of optimization cycles without improvement of the primary fitness criterion.
      *
      * @return The number of optimization cycles without improvement in the parent algorithm
      */
@@ -660,7 +733,9 @@ std::uint32_t GOptimizableEntity::getNStalls() const {
 
 /******************************************************************************/
 /**
-     * Allows to check whether random crashs of individuals are enabled
+     * @brief Allows to check whether random crashs of individuals are enabled.
+     *
+     * @return A tuple holding (random-crash enabled flag, random-crash probability)
      */
 std::tuple<bool, double> GOptimizableEntity::getRandomCrash() const {
     return std::tuple<bool, double>{use_random_crash_, random_crash_prob_};
@@ -668,7 +743,12 @@ std::tuple<bool, double> GOptimizableEntity::getRandomCrash() const {
 
 /******************************************************************************/
 /**
-     * Allows to enable random crashs of individuals for testing purposes
+     * @brief Allows to enable random crashs of individuals for testing purposes.
+     *
+     * The crash probability is range-checked to lie in [0, 1].
+     *
+     * @param use_random_crash Whether random crashes during processing are enabled
+     * @param crash_prob The probability of a random crash to occur; must lie in [0, 1]
      */
 void GOptimizableEntity::setRandomCrash(const bool use_random_crash, const double crash_prob) {
     // Check that the crash probability is in the allowed value range
@@ -681,7 +761,7 @@ void GOptimizableEntity::setRandomCrash(const bool use_random_crash, const doubl
 
 /******************************************************************************/
 /**
-     * Adds local configuration options to a GParserBuilder object
+     * @brief Adds local configuration options to a GParserBuilder object.
      *
      * @param gpb The GParserBuilder object to which configuration options should be added
      */
@@ -779,9 +859,9 @@ void GOptimizableEntity::addConfigurationOptions_(Gem::Common::GParserBuilder &g
 
 /******************************************************************************/
 /**
-     * Emits a name for this class / object
+     * @brief Emits a name for this class / object.
      *
-     * @return The name of this class / object
+     * @return The string "GOptimizableEntity"
      */
 std::string GOptimizableEntity::name_() const {
     return std::string("GOptimizableEntity");
@@ -789,9 +869,9 @@ std::string GOptimizableEntity::name_() const {
 
 /******************************************************************************/
 /**
-     * Check how valid a given solution is
+     * @brief Check how valid a given solution is.
      *
-     * @return The validity level of this solution
+     * @return The validity level of this solution (<= 1 means all constraints are fulfilled)
      */
 double GOptimizableEntity::getValidityLevel() const {
     return validity_level_;
@@ -799,6 +879,8 @@ double GOptimizableEntity::getValidityLevel() const {
 
 /******************************************************************************/
 /**
+     * @brief Checks whether all registered constraints are fulfilled.
+     *
      * @return A boolean indicating, whether all constraints were fulfilled
      */
 bool GOptimizableEntity::constraintsFulfilled() const {
@@ -811,8 +893,12 @@ bool GOptimizableEntity::constraintsFulfilled() const {
 
 /******************************************************************************/
 /**
-     * Allows to register a constraint with this individual. Note that the constraint
-     * object will be cloned.
+     * @brief Allows to register a constraint with this individual.
+     *
+     * Note that the constraint object will be cloned, so individuals do not share the same object.
+     * Throws if an empty constraint pointer is passed.
+     *
+     * @param c_ptr A shared pointer to the validity-check constraint to register; must not be empty
      */
 void GOptimizableEntity::registerConstraint(
     std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>> c_ptr
@@ -832,7 +918,9 @@ void GOptimizableEntity::registerConstraint(
 
 /******************************************************************************/
 /**
-     * Allows to set the policy to use in case this individual represents an invalid solution
+     * @brief Allows to set the policy to use in case this individual represents an invalid solution.
+     *
+     * @param eval_policy The evaluation policy to apply to invalid solutions
      */
 void GOptimizableEntity::setEvaluationPolicy(const evaluationPolicy eval_policy) {
     eval_policy_ = eval_policy;
@@ -840,7 +928,9 @@ void GOptimizableEntity::setEvaluationPolicy(const evaluationPolicy eval_policy)
 
 /******************************************************************************/
 /**
-     * Allows to retrieve the current policy in case this individual represents an invalid solution
+     * @brief Allows to retrieve the current policy in case this individual represents an invalid solution.
+     *
+     * @return The currently configured evaluation policy
      */
 evaluationPolicy GOptimizableEntity::getEvaluationPolicy() const {
     return eval_policy_;
@@ -848,9 +938,12 @@ evaluationPolicy GOptimizableEntity::getEvaluationPolicy() const {
 
 /******************************************************************************/
 /**
-     * Checks whether this solution is valid. This function is meant to be called
-     * for "clean" individuals only and will throw when called for unprocessed or
-     * erroneous individuals.
+     * @brief Checks whether this solution is valid.
+     *
+     * This function is meant to be called for "clean" individuals only and will throw (in DEBUG builds)
+     * when called for unprocessed or erroneous individuals.
+     *
+     * @return true if the validity level is <= 1 (all constraints fulfilled), false otherwise
      */
 bool GOptimizableEntity::isValid() const {
 #ifdef DEBUG
@@ -872,7 +965,9 @@ bool GOptimizableEntity::isValid() const {
 
 /******************************************************************************/
 /**
-     * Checks whether this solution is invalid
+     * @brief Checks whether this solution is invalid.
+     *
+     * @return true if the solution is not valid, false otherwise
      */
 bool GOptimizableEntity::isInValid() const {
     return not this->isValid();
@@ -880,9 +975,9 @@ bool GOptimizableEntity::isInValid() const {
 
 /******************************************************************************/
 /**
-     * Allows to set the globally best known primary fitness so far
+     * @brief Allows to set the globally best known primary fitness so far.
      *
-     * @param bnf The best known primary fitness so far
+     * @param bnf The best known primary fitness so far, as a (raw, transformed) tuple
      */
 void GOptimizableEntity::setBestKnownPrimaryFitness(const std::tuple<double, double> &bnf) {
     best_past_primary_fitness_ = bnf;
@@ -890,9 +985,9 @@ void GOptimizableEntity::setBestKnownPrimaryFitness(const std::tuple<double, dou
 
 /******************************************************************************/
 /**
-     * Retrieves the value of the globally best known primary fitness so far
+     * @brief Retrieves the value of the globally best known primary fitness so far.
      *
-     * @return The best known primary fitness so far
+     * @return The best known primary fitness so far, as a (raw, transformed) tuple
      */
 std::tuple<double, double> GOptimizableEntity::getBestKnownPrimaryFitness() const {
     return best_past_primary_fitness_;
@@ -900,7 +995,14 @@ std::tuple<double, double> GOptimizableEntity::getBestKnownPrimaryFitness() cons
 
 /******************************************************************************/
 /**
-     * Performs all necessary (remote-)processing steps for this object.
+     * @brief Performs all necessary (remote-)processing steps for this object.
+     *
+     * Either adopts pre-computed raw results from res_vec, or (when res_vec is empty) triggers the
+     * user-supplied fitnessCalculation(); then applies the configured evaluation policy (worst-case,
+     * sigmoid or simple) and stores the resulting raw and transformed fitness values.
+     *
+     * @param res_vec Optional pre-computed raw processing results (e.g. from an external/remote evaluator);
+     *                if empty, fitnessCalculation() is invoked instead. Its size must match the criteria count.
      */
 void GOptimizableEntity::process_(const std::vector<individual_processing_result> &res_vec) {
 #ifdef DEBUG
@@ -1039,9 +1141,9 @@ void GOptimizableEntity::process_(const std::vector<individual_processing_result
 
 /******************************************************************************/
 /**
-     * Loads the data of another GOptimizableEntity object.
+     * @brief Loads the data of another GOptimizableEntity object.
      *
-     * @param cp A copy of another GOptimizableEntity object
+     * @param cp A pointer to another GOptimizableEntity object whose data is copied into this one
      */
 void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
     // Check that we are dealing with a GOptimizableEntity reference independent of this object and convert the pointer
@@ -1063,12 +1165,13 @@ void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
 
 /******************************************************************************/
 /**
-     * Sets the fitness to a given set of values and clears the dirty flag. This is meant
-     * to be used by external methods of performing the actual evaluation, such as the
-     * OpenCL-Consumer. The fitness vector is interpreted as raw fitness values, and
-     * transformed fitness values are calculated as needed.
+     * @brief Sets the fitness to a given set of values and clears the dirty flag.
      *
-     * @param f_cnt A vector of raw fitness values
+     * This is meant to be used by external methods of performing the actual evaluation, such as the
+     * OpenCL-Consumer. The fitness vector is interpreted as raw fitness values, and transformed
+     * fitness values are calculated as needed (per the configured evaluation policy).
+     *
+     * @param f_cnt A vector of raw fitness values (size must match the number of fitness criteria)
      */
 void GOptimizableEntity::setFitness_(std::vector<double> const &f_cnt) {
 #ifdef DEBUG
@@ -1152,9 +1255,9 @@ void GOptimizableEntity::setFitness_(std::vector<double> const &f_cnt) {
 
 /******************************************************************************/
 /**
-     * Combines evaluation results by adding the individual results
+     * @brief Combines evaluation results by adding the individual results.
      *
-     *  @return The result of the combination
+     *  @return The sum of all stored transformed fitness values
      */
 double GOptimizableEntity::sumCombiner() const {
     double result = 0.;
@@ -1168,9 +1271,9 @@ double GOptimizableEntity::sumCombiner() const {
 
 /******************************************************************************/
 /**
-     * Combines evaluation results by adding the absolute values of individual results
+     * @brief Combines evaluation results by adding the absolute values of individual results.
      *
-     *  @return The result of the combination
+     *  @return The sum of the absolute values of all stored transformed fitness values
      */
 double GOptimizableEntity::fabsSumCombiner() const {
     double result = 0.;
@@ -1184,11 +1287,12 @@ double GOptimizableEntity::fabsSumCombiner() const {
 
 /******************************************************************************/
 /**
-     * Combines evaluation results by calculating the square root of the squared sum.
-     * It is assumed that the result of this function is returned as
-     * the main result of the fitnessCalculation() function.
+     * @brief Combines evaluation results by calculating the square root of the squared sum.
      *
-     * @return The result of the combination
+     * It is assumed that the result of this function is returned as the main result of the
+     * fitnessCalculation() function.
+     *
+     * @return The square root of the sum of squares of all stored transformed fitness values
      */
 double GOptimizableEntity::squaredSumCombiner() const {
     double result = 0.;
@@ -1202,12 +1306,13 @@ double GOptimizableEntity::squaredSumCombiner() const {
 
 /******************************************************************************/
 /**
-     * Combines evaluation results by calculating the square root of the weighed squared sum. Note that we
-     * only evaluate the secondary results here. It is assumed that the result of this function is returned as
-     * the main result of the fitnessCalculation() function.
+     * @brief Combines evaluation results by calculating the square root of the weighed squared sum.
      *
-     * @param weights The weights to be multiplied with the cached results
-     * @return The result of the combination
+     * It is assumed that the result of this function is returned as the main result of the
+     * fitnessCalculation() function. Throws if the number of weights does not match the criteria count.
+     *
+     * @param weights The weights to be multiplied with the cached results (one per fitness criterion)
+     * @return The square root of the sum of squares of weight-scaled transformed fitness values
      */
 double GOptimizableEntity::weighedSquaredSumCombiner(std::vector<double> const &weights) const {
     if(this->getNStoredResults() != weights.size()) {
@@ -1231,8 +1336,13 @@ double GOptimizableEntity::weighedSquaredSumCombiner(std::vector<double> const &
 
 /******************************************************************************/
 /**
-     * Checks whether this solution fulfills the set of constraints. Note that this
-     * function may be called prior to evaluation in order to check
+     * @brief Checks whether this solution fulfills the set of registered constraints.
+     *
+     * Note that this function may be called prior to evaluation. If no constraint object is registered,
+     * the solution is always valid and validity_level is set to 0.
+     *
+     * @param validity_level Output parameter receiving the computed validity level of this solution
+     * @return true if the constraints are fulfilled (or none are registered), false otherwise
      */
 bool GOptimizableEntity::individualFulfillsConstraints(double &validity_level) const {
     if(individual_constraint_ptr_) {
@@ -1249,7 +1359,10 @@ bool GOptimizableEntity::individualFulfillsConstraints(double &validity_level) c
 
 /***************************************************************************/
 /**
-     * Allows to set all fitnesses to the same value (raw and transformed values seperately)
+     * @brief Allows to set all fitnesses to the same value (raw and transformed values separately).
+     *
+     * @param raw_value The raw fitness value assigned to every fitness criterion
+     * @param transformed_value The transformed fitness value assigned to every fitness criterion
      */
 void GOptimizableEntity::setAllFitnessTo(const double raw_value, const double transformed_value) {
     for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
@@ -1260,7 +1373,9 @@ void GOptimizableEntity::setAllFitnessTo(const double raw_value, const double tr
 
 /***************************************************************************/
 /**
-     * Allows to set all fitnesses to the same value (both raw and transformed values)
+     * @brief Allows to set all fitnesses to the same value (both raw and transformed values).
+     *
+     * @param val The value assigned to both the raw and transformed fitness of every criterion
      */
 void GOptimizableEntity::setAllFitnessTo(const double val) {
     this->setAllFitnessTo(val, val);

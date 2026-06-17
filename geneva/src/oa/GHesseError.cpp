@@ -41,13 +41,29 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /******************************************************************************/
 namespace {
 
-/** @brief Returns x with x[idx] += delta (a single-coordinate perturbation). */
+/**
+ * @brief Returns x with x[idx] += delta (a single-coordinate perturbation).
+ *
+ * @param x The base parameter vector (taken by value and modified in place)
+ * @param idx The index of the coordinate to perturb
+ * @param delta The signed amount added to the selected coordinate
+ * @return A copy of x with the single coordinate idx shifted by delta
+ */
 std::vector<double> perturb1(std::vector<double> x, std::size_t idx, double delta) {
     x[idx] += delta;
     return x;
 }
 
-/** @brief Returns x with x[i] += di and x[j] += dj (a two-coordinate perturbation). */
+/**
+ * @brief Returns x with x[i] += di and x[j] += dj (a two-coordinate perturbation).
+ *
+ * @param x The base parameter vector (taken by value and modified in place)
+ * @param i The index of the first coordinate to perturb
+ * @param di The signed amount added to coordinate i
+ * @param j The index of the second coordinate to perturb
+ * @param dj The signed amount added to coordinate j
+ * @return A copy of x with coordinates i and j shifted by di and dj respectively
+ */
 std::vector<double> perturb2(std::vector<double> x, std::size_t i, double di, std::size_t j, double dj) {
     x[i] += di;
     x[j] += dj;
@@ -58,8 +74,15 @@ std::vector<double> perturb2(std::vector<double> x, std::size_t i, double di, st
  * @brief The PROFILED objective g(x_j) for MINOS: the minimum of F over all parameters EXCEPT @p jfix
  * (held at @p xjval). Implemented as finite-difference steepest descent whose 1D step REUSES GLineSearch
  * (the same line minimiser the CGD algorithm uses). The search direction always has a zero @p jfix
- * component, so the fixed parameter never moves. Starts from @p x_min. Accumulates evaluations into
- * @p n_evals.
+ * component, so the fixed parameter never moves. Accumulates evaluations into @p n_evals.
+ *
+ * @param eval_fn The objective-evaluation callback (maps a batch of points to their fitness values)
+ * @param x The starting parameter vector for the inner minimisation (taken by value)
+ * @param jfix The index of the parameter that is held fixed during profiling
+ * @param xjval The fixed value imposed on parameter jfix
+ * @param step_sizes Per-parameter finite-difference step sizes (a non-positive entry falls back to 1.e-6)
+ * @param n_evals Running counter of objective evaluations, incremented by this call
+ * @return The minimum of F over the free parameters with parameter jfix pinned to xjval
  */
 double profileMin(
     GHesseError::eval_fn_t const &eval_fn,
@@ -123,7 +146,13 @@ double profileMin(
 /**
  * @brief Brackets and bisects the MINOS bound on one side: given @p g(x_j) = profiled_objective - target
  * (so g(x0) < 0 at the minimum), find the distance from @p x0 to where g crosses 0, expanding from an
- * initial @p sigma_step (signed; the symmetric HESSE error on that side). Returns the positive magnitude.
+ * initial @p sigma_step (signed; the symmetric HESSE error on that side).
+ *
+ * @tparam G The callable type taking a double parameter value and returning the shifted profiled objective
+ * @param g The callable g(x_j) = profiled_objective(x_j) - target, negative at the minimum
+ * @param x0 The parameter value at the minimum (where g is negative), the origin of the bound
+ * @param sigma_step The signed initial step (symmetric HESSE error) defining the search direction
+ * @return The positive magnitude of the distance from x0 to the point where g crosses zero
  */
 template <typename G>
 double minosBound(G &&g, double x0, double sigma_step) {
@@ -155,9 +184,12 @@ double minosBound(G &&g, double x0, double sigma_step) {
 }
 
 /**
- * @brief Inverts a symmetric matrix by Gauss-Jordan elimination with partial pivoting. Returns false
- * (leaving @p inv untouched) if the matrix is singular / too ill-conditioned to invert. Original,
+ * @brief Inverts a symmetric matrix by Gauss-Jordan elimination with partial pivoting. Original,
  * self-contained implementation -- no external linear-algebra code.
+ *
+ * @param m The square matrix to invert (n x n)
+ * @param inv Output parameter receiving the inverse; left untouched if m is singular
+ * @return true if the inverse was computed, false if m is singular / too ill-conditioned to invert
  */
 bool invertMatrix(std::vector<std::vector<double>> const &m, std::vector<std::vector<double>> &inv) {
     const std::size_t n = m.size();
@@ -219,7 +251,21 @@ bool invertMatrix(std::vector<std::vector<double>> const &m, std::vector<std::ve
 } /* anonymous namespace */
 
 /******************************************************************************/
-
+/**
+ * @brief Estimates parameter errors at a located minimum via finite-difference curvature.
+ *
+ * Always computes the diagonal of the Hessian (parabolic per-parameter errors). Optionally
+ * forms the full Hessian and the resulting covariance matrix (for small dimensions), and
+ * optionally computes asymmetric MINOS errors by profiling the objective.
+ *
+ * @param eval_fn The objective-evaluation callback (maps a batch of points to their fitness values)
+ * @param x_min The parameter vector at the located minimum
+ * @param f_min The objective value at the minimum
+ * @param step_sizes Per-parameter finite-difference step sizes (must have the same size as x_min)
+ * @param opts Options controlling UP, full-covariance / MINOS computation and dimension limits
+ * @return A GHesseErrorResult holding parameter errors, optional covariance and MINOS bounds,
+ *         validity flags, condition number and the total number of evaluations performed
+ */
 GHesseErrorResult GHesseError::estimate(
     eval_fn_t const &eval_fn,
     std::vector<double> const &x_min,

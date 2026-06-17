@@ -35,7 +35,9 @@ namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 /**
- * Loads the data of another GIndividualSlot. The wrapped individual is deep-copied through the
+ * @brief Loads the data of another GIndividualSlot.
+ *
+ * The wrapped individual is deep-copied through the
  * cloneable-member protocol (clone if the concrete genome type differs, load in place otherwise); the
  * scratch is deep-copied by GAuxiliaryStore's copy assignment (which deep-clones the personality and
  * copies the POD blocks).
@@ -58,8 +60,9 @@ void GIndividualSlot::load_(const GIndividualSlot *cp) {
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object of the same type. Only the
- * wrapped individual is compared: the scratch is OA-installed and deliberately kept out of the compared
+ * @brief Searches for compliance with expectations with respect to another object of the same type.
+ *
+ * Only the wrapped individual is compared: the scratch is OA-installed and deliberately kept out of the compared
  * identity (two slots holding equal individuals but touched by different algorithms compare equal).
  *
  * @param cp A constant reference to another GIndividualSlot object
@@ -91,7 +94,9 @@ void GIndividualSlot::compare_(
 
 /******************************************************************************/
 /**
- * Emits a name for this class / object
+ * @brief Emits a name for this class / object.
+ *
+ * @return The string "GIndividualSlot"
  */
 std::string GIndividualSlot::name_() const {
     return std::string("GIndividualSlot");
@@ -99,7 +104,9 @@ std::string GIndividualSlot::name_() const {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object.
+ *
+ * @return A pointer to a newly allocated deep copy of this GIndividualSlot (caller takes ownership)
  */
 GIndividualSlot *GIndividualSlot::clone_() const {
     return new GIndividualSlot(*this);
@@ -107,7 +114,7 @@ GIndividualSlot *GIndividualSlot::clone_() const {
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes.
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -130,7 +137,7 @@ bool GIndividualSlot::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes.
  */
 void GIndividualSlot::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -146,7 +153,7 @@ void GIndividualSlot::specificTestsNoFailureExpected_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes.
  */
 void GIndividualSlot::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING

@@ -43,12 +43,15 @@ namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
- * Transforms the individual fitness so that the optimization algorithm always
- * "sees" a minimization problem. Optimization algorithms should only use this
- * function to retrieve the fitness of individuals.
+ * @brief Returns a fitness value transformed so the optimizer always "sees" a minimization problem.
  *
- * @param item_ptr The work item for which the fitness should be retrieved
+ * Optimization algorithms should only use this function to retrieve the fitness of individuals.
+ * For minimization the raw transformed fitness is returned unchanged; for maximization it is negated
+ * (with the numeric extremes swapped so the largest/smallest representable doubles remain finite).
+ *
+ * @param item The work item whose fitness should be retrieved
  * @param id The id of the fitness criterion (individuals may have more than one)
+ * @return The fitness expressed as a quantity to be minimized
  */
 double minOnly_transformed_fitness(
     const gen::GOptimizableEntity &item,
@@ -76,8 +79,14 @@ double minOnly_transformed_fitness(
 
 /******************************************************************************/
 /**
- * Checks whether the first individual is better than the second. The comparison
- * is done with the first (main) fitness criterion.
+ * @brief Checks whether the first individual is better than the second.
+ *
+ * The comparison is done with the first (main) fitness criterion via minOnly_transformed_fitness().
+ * In a DEBUG build both items are cross-checked to share the same maxMode.
+ *
+ * @param x_ptr The work item tested for being the better one
+ * @param y_ptr The work item it is compared against
+ * @return true if x_ptr is better than y_ptr, false otherwise
  */
 bool isBetter(
     const std::shared_ptr<gen::GOptimizableEntity> &x_ptr,
@@ -107,8 +116,13 @@ bool isBetter(
 
 /******************************************************************************/
 /**
- * Checks whether the first individual is worse than the second. The comparison
- * is done with the first (main) fitness criterion.
+ * @brief Checks whether the first individual is worse than the second.
+ *
+ * Defined as the negation of isBetter(); the comparison uses the first (main) fitness criterion.
+ *
+ * @param x_ptr The work item tested for being the worse one
+ * @param y_ptr The work item it is compared against
+ * @return true if x_ptr is worse than (or not better than) y_ptr, false otherwise
  */
 bool isWorse(
     const std::shared_ptr<gen::GOptimizableEntity> &x_ptr,
@@ -119,7 +133,12 @@ bool isWorse(
 
 /******************************************************************************/
 /**
- * Checks whether the first value is better than the second
+ * @brief Checks whether the first value is better than the second for a given optimization direction.
+ *
+ * @param x The value tested for being the better one
+ * @param y The value it is compared against
+ * @param m The optimization direction (MAXIMIZE: larger is better; MINIMIZE: smaller is better)
+ * @return true if x is better than y under the given maxMode, false otherwise
  */
 bool isBetter(const double x, const double y, const maxMode m) {
     if(maxMode::MAXIMIZE == m) {
@@ -141,7 +160,14 @@ bool isBetter(const double x, const double y, const maxMode m) {
 
 /******************************************************************************/
 /**
- * Checks whether the first value is worse than the second
+ * @brief Checks whether the first value is worse than the second for a given optimization direction.
+ *
+ * Defined as the negation of isBetter().
+ *
+ * @param x The value tested for being the worse one
+ * @param y The value it is compared against
+ * @param m The optimization direction (MAXIMIZE: larger is better; MINIMIZE: smaller is better)
+ * @return true if x is worse than (or not better than) y under the given maxMode, false otherwise
  */
 bool isWorse(const double x, const double y, const maxMode m) {
     return not isBetter(x, y, m);

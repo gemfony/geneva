@@ -237,6 +237,7 @@ void GSwarmAlgorithm::load_(const GOptimizationAlgorithmBase *cp) {
  *
  * @param cp A constant reference to another GSwarmAlgorithm object
  * @param e The expected outcome of the comparison
+ * @param limit The acceptable deviation for floating-point comparisons (currently unused at this level)
  */
 void GSwarmAlgorithm::compare_(
     const GOptimizationAlgorithmBase &cp,
@@ -386,6 +387,9 @@ std::size_t GSwarmAlgorithm::getFirstNIPos(const std::size_t &neighborhood) cons
  * sizes. "NI" stands for NeighborhoodIndividual. "neighborhood" is assumed to be a counter, starting at 0 and assuming
  * a maximum value of (nNeighborhoods_-1).
  *
+ * @brief Returns the population index of the first individual of a neighborhood, using an explicit size vector
+ * @param neighborhood The id of the neighborhood for which the id of the first individual should be calculated
+ * @param vec A vector holding the number of members of each neighborhood, used to sum up the preceding members
  * @return The position of the first individual of a neighborhood
  */
 std::size_t GSwarmAlgorithm::getFirstNIPosVec(
@@ -453,7 +457,7 @@ std::size_t GSwarmAlgorithm::getLastNIPos(const std::size_t &neighborhood) const
 /**
  * Updates the personal best of an individual
  *
- * @param ind_ptr A pointer to the GOptimizableEntity object to be updated
+ * @param ind_ptr A reference to the unique_ptr-owned GIndividualSlot whose wrapped individual's personal best should be (re)registered
  */
 void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gen::GIndividualSlot> &ind_ptr) {
 #ifdef DEBUG
@@ -488,7 +492,7 @@ void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gen::GIndividualS
 /**
  * Updates the personal best of an individual, if a better solution was found
  *
- * @param ind_ptr A pointer to the GOptimizableEntity object to be updated
+ * @param ind_ptr A reference to the unique_ptr-owned GIndividualSlot whose wrapped individual's personal best should be updated when its current position is better
  */
 void GSwarmAlgorithm::updatePersonalBestIfBetter(const std::unique_ptr<gen::GIndividualSlot> &ind_ptr) {
 #ifdef DEBUG
@@ -730,7 +734,8 @@ void GSwarmAlgorithm::actOnStalls_() {
  * function is called by GOptimizationAlgorithmBase::optimize() for each iteration of
  * the optimization,
  *
- * @return The value of the best individual found
+ * @brief Performs one iteration of the swarm algorithm (position update, evaluation, best-search, topology fix)
+ * @return A tuple holding the raw and transformed fitness of the best individual found
  */
 std::tuple<double, double> GSwarmAlgorithm::cycleLogic_() {
     std::tuple<double, double> best_individual_fitness;
@@ -1042,13 +1047,15 @@ void GSwarmAlgorithm::updatePositions() {
 /******************************************************************************/
 /**
  * Update the individual's positions. Note that we use a std::tuple as an argument,
- * so that we do not have to pass too many parameters.
+ * so that we do not have to pass too many parameters. The particle's velocity is no longer
+ * passed in: it lives as a per-slot POD double block in the slot's OA scratch (AUXKEY_SWARM_VELOCITY)
+ * and is read/written there.
  *
- * @param ind The individual whose position should be updated
+ * @param neighborhood The id of the neighborhood the individual belongs to (currently unused)
+ * @param ind The slot whose wrapped individual's position should be updated
  * @param neighborhood_best The best data set of the individual's neighborhood
  * @param global_best The globally best individual so far
- * @param velocity A velocity vector
- * @param constants A std::tuple holding the various constants needed for the position update
+ * @param constants A std::tuple holding the c_personal, c_neighborhood, c_global and c_velocity constants needed for the position update
  */
 void GSwarmAlgorithm::updateIndividualPositions(
     [[maybe_unused]] const std::size_t & neighborhood
@@ -1766,6 +1773,7 @@ std::size_t GSwarmAlgorithm::getDefaultNNeighborhoodMembers() const {
 /**
  * Retrieves the current number of individuals in a given neighborhood
  *
+ * @param neighborhood The id of the neighborhood whose current member count should be retrieved
  * @return The current number of individuals in a given neighborhood
  */
 std::size_t GSwarmAlgorithm::getCurrentNNeighborhoodMembers(const std::size_t &neighborhood) const {

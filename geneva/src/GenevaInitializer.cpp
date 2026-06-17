@@ -36,7 +36,7 @@ namespace Gem::Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
+ * @brief The default constructor; initializes the Hap random-number factory.
  */
 GenevaInitializer::GenevaInitializer() {
     Gem::Hap::randomFactory()->init();
@@ -44,7 +44,7 @@ GenevaInitializer::GenevaInitializer() {
 
 /******************************************************************************/
 /**
- * The destructor
+ * @brief The destructor; finalizes the Hap random-number factory.
  */
 GenevaInitializer::~GenevaInitializer() {
     Gem::Hap::randomFactory()->finalize();

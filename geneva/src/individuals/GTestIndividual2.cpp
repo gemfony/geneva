@@ -47,7 +47,7 @@ namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Geneva::Individuals::PERFOBJECTTYPE item into a stream
+ * @brief Puts a Gem::Geneva::Individuals::PERFOBJECTTYPE item into a stream
  *
  * @param o The ostream the item should be added to
  * @param lt the item to be added to the stream
@@ -61,7 +61,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::PERFOB
 
 /******************************************************************************/
 /**
- * Reads a Gem::Geneva::Individuals::PERFOBJECTTYPE item from a stream
+ * @brief Reads a Gem::Geneva::Individuals::PERFOBJECTTYPE item from a stream
  *
  * @param i The stream the item should be read from
  * @param lt The item read from the stream
@@ -82,14 +82,20 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::PERFOBJECTTY
 
 /******************************************************************************/
 /**
- * The default constructor -- private, as it is only needed for (de-)serialization purposes
+ * @brief The default constructor -- private, as it is only needed for (de-)serialization purposes
  */
 GTestIndividual2::GTestIndividual2() { /* nothing */
 }
 
 /******************************************************************************/
 /**
- * The standard constructor
+ * @brief The standard constructor
+ *
+ * Builds a flat genome holding n_objects double parameters, laid out according to the requested
+ * parameter-object type so that the various flat-genome group representations can be performance-compared.
+ *
+ * @param n_objects The number of double parameters the genome should hold
+ * @param otype The flavour of double parameter representation to build the genome from
  */
 GTestIndividual2::GTestIndividual2(const std::size_t &n_objects, const PERFOBJECTTYPE &otype) {
     using namespace Gem::Geneva;
@@ -142,7 +148,7 @@ GTestIndividual2::GTestIndividual2(const std::size_t &n_objects, const PERFOBJEC
 
 /******************************************************************************/
 /**
- * The copy constructor
+ * @brief The copy constructor
  *
  * @param cp A constant reference to another GTestIndividual2 object
  */
@@ -152,15 +158,19 @@ GTestIndividual2::GTestIndividual2(const GTestIndividual2 &cp)
 
 /******************************************************************************/
 /**
- * The standard destructor
+ * @brief The standard destructor
  */
 GTestIndividual2::~GTestIndividual2() { /* nothing */
 }
 
 /******************************************************************************/
 /**
- * Builds the OA-owned adaption configuration: every double group of this genome gets the Gauss adaptor the
- * constructor formerly baked into the layout (sigma 0.025 / sigma_sigma 0.1 / [0, 1] / ad_prob 1).
+ * @brief Builds the OA-owned adaption configuration for this individual
+ *
+ * Every double group of this genome gets the Gauss adaptor the constructor formerly baked into the
+ * layout (sigma 0.025 / sigma_sigma 0.1 / [0, 1] / ad_prob 1).
+ *
+ * @return A shared pointer to the freshly built adaption configuration covering all double groups
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> GTestIndividual2::getAdaptionConfig() const {
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
@@ -173,11 +183,12 @@ std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> GTestIndividual2::g
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GFlatGenome object
+ * @param cp A constant reference to another GTestIndividual2 object, camouflaged as a GOptimizableEntity
  * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation tolerated for (floating-point) comparisons (unused here)
  */
 void GTestIndividual2::compare_(
     const gen::GOptimizableEntity &cp,
@@ -204,9 +215,9 @@ void GTestIndividual2::compare_(
 
 /******************************************************************************/
 /**
- * Loads the data of another GTestIndividual2, camouflaged as a GFlatGenome.
+ * @brief Loads the data of another GTestIndividual2, camouflaged as a GOptimizableEntity.
  *
- * @param cp A copy of another GTestIndividual2, camouflaged as a GFlatGenome
+ * @param cp A pointer to another GTestIndividual2, camouflaged as a GOptimizableEntity
  */
 void GTestIndividual2::load_(const gen::GOptimizableEntity *cp) {
     using namespace Gem::Common;
@@ -224,7 +235,7 @@ void GTestIndividual2::load_(const gen::GOptimizableEntity *cp) {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object
  *
  * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
@@ -234,9 +245,11 @@ gen::GFlatGenome *GTestIndividual2::clone_() const {
 
 /******************************************************************************/
 /**
- * The actual fitness calculation takes place here.
+ * @brief The actual fitness calculation takes place here.
  *
- * @return The value of this object
+ * Computes the sum of the squares of all double parameters (a parabola).
+ *
+ * @return The value of this object (the parabola's value for the current parameters)
  */
 double GTestIndividual2::fitnessCalculation() {
     double result = 0.;
@@ -255,7 +268,7 @@ double GTestIndividual2::fitnessCalculation() {
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -282,7 +295,7 @@ bool GTestIndividual2::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GTestIndividual2::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -304,7 +317,7 @@ void GTestIndividual2::specificTestsNoFailureExpected_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GTestIndividual2::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING

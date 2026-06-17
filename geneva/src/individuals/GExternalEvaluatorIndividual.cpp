@@ -74,7 +74,9 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
 
 /******************************************************************************/
 /**
- * A standard copy constructor.
+ * @brief A standard copy constructor.
+ *
+ * @param cp A constant reference to another GExternalEvaluatorIndividual to be copied
  */
 GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual &cp)
   : gen::GFlatGenome(cp) // copies all local collections
@@ -95,11 +97,11 @@ GExternalEvaluatorIndividual::~GExternalEvaluatorIndividual() { /* nothing */
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
- * of the same type
+ * @brief Searches for compliance with expectations with respect to another object of the same type.
  *
- * @param cp A constant reference to another GFlatGenome object
- * @param e The expected outcome of the comparison
+ * @param cp A constant reference to another GExternalEvaluatorIndividual, camouflaged as a GOptimizableEntity
+ * @param e The expected outcome of the comparison (equality / inequality)
+ * @param limit The maximum deviation for floating-point comparisons (unused here, hence [[maybe_unused]])
  */
 void GExternalEvaluatorIndividual::compare_(
     const gen::GOptimizableEntity &cp,
@@ -124,7 +126,9 @@ void GExternalEvaluatorIndividual::compare_(
 
 /******************************************************************************/
 /**
- * Sets the name of the external evaluation program
+ * @brief Sets the name of the external evaluation program.
+ *
+ * @param program_name The path / name of the external evaluation program to invoke
  */
 void GExternalEvaluatorIndividual::setProgramName(const std::string &program_name) {
     program_name_ = program_name;
@@ -132,7 +136,9 @@ void GExternalEvaluatorIndividual::setProgramName(const std::string &program_nam
 
 /******************************************************************************/
 /**
- * Retrieves the name of the external evaluation program
+ * @brief Retrieves the name of the external evaluation program.
+ *
+ * @return The path / name of the external evaluation program
  */
 std::string GExternalEvaluatorIndividual::getProgramName() const {
     return program_name_;
@@ -140,7 +146,9 @@ std::string GExternalEvaluatorIndividual::getProgramName() const {
 
 /******************************************************************************/
 /**
- * Sets the name of the external evaluation program
+ * @brief Sets custom command-line options passed verbatim to the external evaluation program.
+ *
+ * @param custom_options The custom options string forwarded to the external program
  */
 void GExternalEvaluatorIndividual::setCustomOptions(const std::string &custom_options) {
     custom_options_ = custom_options;
@@ -148,7 +156,9 @@ void GExternalEvaluatorIndividual::setCustomOptions(const std::string &custom_op
 
 /******************************************************************************/
 /**
- * Retrieves the name of the external evaluation program
+ * @brief Retrieves the custom command-line options passed to the external evaluation program.
+ *
+ * @return The custom options string forwarded to the external program
  */
 std::string GExternalEvaluatorIndividual::getCustomOptions() const {
     return custom_options_;
@@ -156,10 +166,12 @@ std::string GExternalEvaluatorIndividual::getCustomOptions() const {
 
 /******************************************************************************/
 /**
- * Sets the base name of the data exchange file. Note that the individual might add additional
- * characters in order to distinguish between the exchange files of different individuals.
+ * @brief Sets the base name of the data exchange file.
  *
- * @param parameter_file The desired new base name of the exchange file
+ * Note that the individual might add additional characters in order to distinguish between the
+ * exchange files of different individuals.
+ *
+ * @param parameter_file The desired new base name of the exchange file; must be non-empty and not the literal "empty"
  */
 void GExternalEvaluatorIndividual::setExchangeBaseName(const std::string &parameter_file) {
     if(parameter_file.empty() || parameter_file == "empty") {
@@ -175,7 +187,7 @@ void GExternalEvaluatorIndividual::setExchangeBaseName(const std::string &parame
 
 /******************************************************************************/
 /**
- * Retrieves the current value of the parameter_file_base_name_ variable.
+ * @brief Retrieves the current value of the parameter_file_base_name_ variable.
  *
  * @return The current base name of the exchange file
  */
@@ -185,7 +197,9 @@ std::string GExternalEvaluatorIndividual::getExchangeBaseName() const {
 
 /******************************************************************************/
 /**
- * Sets the number of results to be expected from the external evaluation program
+ * @brief Sets the number of results to be expected from the external evaluation program.
+ *
+ * @param n_results The number of result values the external program is expected to return; must be greater than 0
  */
 void GExternalEvaluatorIndividual::setNExpectedResults(const std::size_t &n_results) {
     if(0 == n_results) {
@@ -201,7 +215,9 @@ void GExternalEvaluatorIndividual::setNExpectedResults(const std::size_t &n_resu
 
 /******************************************************************************/
 /**
- * Retrieves the number of results to be expected from the external evaluation program
+ * @brief Retrieves the number of results to be expected from the external evaluation program.
+ *
+ * @return The number of result values the external program is expected to return
  */
 std::size_t GExternalEvaluatorIndividual::getNExpectedResults() const {
     return n_results_;
@@ -209,9 +225,9 @@ std::size_t GExternalEvaluatorIndividual::getNExpectedResults() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GExternalEvaluatorIndividual, camouflaged as a GFlatGenome
+ * @brief Loads the data of another GExternalEvaluatorIndividual, camouflaged as a GOptimizableEntity.
  *
- * @param cp A copy of another GExternalEvaluatorIndividual, camouflaged as a GFlatGenome
+ * @param cp A pointer to another GExternalEvaluatorIndividual, camouflaged as a GOptimizableEntity; its data is copied into this object
  */
 void GExternalEvaluatorIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GExternalEvaluatorIndividual reference independent of this object and convert the pointer
@@ -227,9 +243,9 @@ void GExternalEvaluatorIndividual::load_(const gen::GOptimizableEntity *cp) {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object.
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome
+ * @return A deep clone of this object, camouflaged as a GFlatGenome pointer
  */
 gen::GFlatGenome *GExternalEvaluatorIndividual::clone_() const {
     return new GExternalEvaluatorIndividual(*this);
@@ -237,10 +253,13 @@ gen::GFlatGenome *GExternalEvaluatorIndividual::clone_() const {
 
 /******************************************************************************/
 /**
- * The actual fitness calculation takes place in an external program. Here we just
- * write a file with the required parameters to disk and execute the program.
+ * @brief The actual fitness calculation takes place in an external program.
  *
- * @return The primary value of this object
+ * Here we just write a file with the required parameters to disk and execute the program, then
+ * parse the result file it produces. On failure the worst-case value is assigned and the individual
+ * is flagged as invalid.
+ *
+ * @return The primary (first) result value returned by the external program
  */
 double GExternalEvaluatorIndividual::fitnessCalculation() {
     // Transform this object into a boost property tree
@@ -438,7 +457,9 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 
 /******************************************************************************/
 /**
- * Allows to assign a run-id to this individual
+ * @brief Allows to assign a run-id to this individual.
+ *
+ * @param run_id The run identifier to assign; must be non-empty and not the literal "empty"
  */
 void GExternalEvaluatorIndividual::setRunId(std::string run_id) {
     if(run_id.empty() || "empty" == run_id) {
@@ -454,7 +475,9 @@ void GExternalEvaluatorIndividual::setRunId(std::string run_id) {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the run-id assigned to this individual
+ * @brief Allows to retrieve the run-id assigned to this individual.
+ *
+ * @return The run identifier assigned to this individual
  */
 std::string GExternalEvaluatorIndividual::getRunId() const {
     return run_id_;
@@ -462,8 +485,9 @@ std::string GExternalEvaluatorIndividual::getRunId() const {
 
 /******************************************************************************/
 /**
- * Allows to specify whether temporary files should be removed. This is mostly
- * needed for debugging purposes.
+ * @brief Allows to specify whether temporary files should be removed. This is mostly needed for debugging purposes.
+ *
+ * @param remove_exec_temporaries If true, the IPC temporary files are removed after each external evaluation
  */
 void GExternalEvaluatorIndividual::setRemoveExecTemporaries(bool remove_exec_temporaries) {
     remove_exec_temporaries_ = remove_exec_temporaries;
@@ -471,7 +495,9 @@ void GExternalEvaluatorIndividual::setRemoveExecTemporaries(bool remove_exec_tem
 
 /******************************************************************************/
 /**
- * Allows to check whether temporaries should be removed
+ * @brief Allows to check whether temporaries should be removed.
+ *
+ * @return true if IPC temporary files are removed after each external evaluation, false otherwise
  */
 bool GExternalEvaluatorIndividual::getRemoveExecTemporaries() const {
     return remove_exec_temporaries_;
@@ -481,9 +507,14 @@ bool GExternalEvaluatorIndividual::getRemoveExecTemporaries() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Registers the config-file options, binding them to the passed Config. This is the body of the former
- * GExternalEvaluatorIndividualFactory::describeLocalOptions_; the base GOptimizableEntity options are
- * registered separately by GFlatIndividualFactory::getObject_ (via addConfigurationOptions).
+ * @brief Registers the config-file options, binding them to the passed Config.
+ *
+ * This is the body of the former GExternalEvaluatorIndividualFactory::describeLocalOptions_; the base
+ * GOptimizableEntity options are registered separately by GFlatIndividualFactory::getObject_ (via
+ * addConfigurationOptions).
+ *
+ * @param gpb The GParserBuilder object with which the configuration file options are registered
+ * @param c The Config struct whose fields are bound to the registered options (filled on parse)
  */
 void GExternalEvaluatorIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
     gpb.registerFileParameter<double>("ad_prob", c.ad_prob, GEEI_DEF_ADPROB)
@@ -533,12 +564,16 @@ void GExternalEvaluatorIndividual::describeConfig(Gem::Common::GParserBuilder &g
 
 /******************************************************************************/
 /**
- * Queries the external evaluator program for the desired structure of the individuals and builds the
- * flat genome from it. This combines the former factory's setUpPropertyTree() (run the program with
- * --init then --setup, parse the returned XML) and postProcess_()'s genome construction. Because the
- * generic factory builds the shared genome exactly once, the (expensive) external query happens once too.
- * The discovered run-id and result count are recorded back into @p c so applyConfig() can hand them to
- * each produced individual.
+ * @brief Queries the external evaluator program for the desired structure of the individuals and builds the flat genome from it.
+ *
+ * This combines the former factory's setUpPropertyTree() (run the program with --init then --setup,
+ * parse the returned XML) and postProcess_()'s genome construction. Because the generic factory builds
+ * the shared genome exactly once, the (expensive) external query happens once too. The discovered
+ * run-id and result count are recorded back into @p c so applyConfig() can hand them to each produced
+ * individual.
+ *
+ * @param c The Config supplying the program name / custom options / init mode; mutated in place with the discovered run-id and expected result count
+ * @return The flat genome structure (GenomeData) describing the discovered variables
  */
 gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
     namespace pt = boost::property_tree;
@@ -704,9 +739,15 @@ gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
 
 /******************************************************************************/
 /**
- * Builds the OA-owned adaption configuration: every ACTIVE double group (the constrained variables)
- * receives the configured single-Gauss or bi-Gauss adaptor; fixed groups (adaptionMode::NEVER) are left
- * un-authored. Formerly GExternalEvaluatorIndividualFactory::getAdaptionConfig.
+ * @brief Builds the OA-owned adaption configuration for a genome produced by this individual.
+ *
+ * Every ACTIVE double group (the constrained variables) receives the configured single-Gauss or
+ * bi-Gauss adaptor; fixed groups (adaptionMode::NEVER) are left un-authored. Formerly
+ * GExternalEvaluatorIndividualFactory::getAdaptionConfig.
+ *
+ * @param sample A sample flat genome whose group structure the adaption config is built against
+ * @param c The Config supplying the adaptor parameters (sigmas, ad_prob, bi-gaussian flag, ...)
+ * @return A shared pointer to the populated OA-owned adaption configuration
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
 GExternalEvaluatorIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
@@ -736,9 +777,14 @@ GExternalEvaluatorIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample
 
 /******************************************************************************/
 /**
- * Per-object post-config hook (called by GFlatIndividualFactory::postProcess_ after the genome is
- * installed): applies the external-program parameters and the metadata discovered by buildGenome
- * (run-id, expected result count). Formerly the tail of the factory's postProcess_.
+ * @brief Per-object post-config hook applying the external-program parameters and discovered metadata.
+ *
+ * Called by GFlatIndividualFactory::postProcess_ after the genome is installed; applies the
+ * external-program parameters and the metadata discovered by buildGenome (run-id, expected result
+ * count). Formerly the tail of the factory's postProcess_.
+ *
+ * @param ind The individual to configure (mutated in place)
+ * @param c The Config supplying the exchange base name, program name, custom options, expected result count, temporary-removal flag and run-id
  */
 void GExternalEvaluatorIndividual::applyConfig(GExternalEvaluatorIndividual &ind, const Config &c) {
     ind.setExchangeBaseName(c.parameter_file_base_name);
@@ -751,9 +797,12 @@ void GExternalEvaluatorIndividual::applyConfig(GExternalEvaluatorIndividual &ind
 
 /******************************************************************************/
 /**
- * Teardown hook, called by GFlatIndividualFactory's destructor once a genome has been produced: gives
- * the external evaluator program a chance to perform final work (--finalize). Formerly the body of the
- * factory destructor. Errors here are fatal, as in the legacy code.
+ * @brief Teardown hook giving the external evaluator program a chance to perform final work (--finalize).
+ *
+ * Called by GFlatIndividualFactory's destructor once a genome has been produced. Formerly the body of
+ * the factory destructor. Errors here are fatal, as in the legacy code.
+ *
+ * @param c The Config supplying the program name and custom options used to invoke the external program with --finalize
  */
 void GExternalEvaluatorIndividual::finalize(const Config &c) {
     if(c.program_name.empty()) {
@@ -788,10 +837,13 @@ void GExternalEvaluatorIndividual::finalize(const Config &c) {
 
 /******************************************************************************/
 /**
- * Submits a batch of best individuals to the external program for archiving (--archive). Formerly
- * GExternalEvaluatorIndividualFactory::archive; it now reads the program name / custom options /
- * exchange base name / run-id from the archived individuals themselves (every produced individual
- * carries them, courtesy of applyConfig).
+ * @brief Submits a batch of best individuals to the external program for archiving (--archive).
+ *
+ * Formerly GExternalEvaluatorIndividualFactory::archive; it now reads the program name / custom
+ * options / exchange base name / run-id from the archived individuals themselves (every produced
+ * individual carries them, courtesy of applyConfig).
+ *
+ * @param arch A vector of best individuals to archive; if empty the call is a no-op, otherwise the first element supplies the run metadata
  */
 void GExternalEvaluatorIndividual::archive(
     const std::vector<std::shared_ptr<GExternalEvaluatorIndividual>> &arch

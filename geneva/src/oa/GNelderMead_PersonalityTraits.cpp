@@ -42,8 +42,13 @@ const std::string GNelderMead_PersonalityTraits::nickname = "nm";
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
- * of the same type
+ * @brief Searches for compliance with expectations with respect to another object
+ * of the same type.
+ *
+ * @param cp A constant reference to another GPersonalityTraits object (must actually be a
+ *           GNelderMead_PersonalityTraits) to compare against
+ * @param e The expected outcome of the comparison (equality, inequality, etc.)
+ * @param limit The maximum acceptable deviation for floating-point comparisons (unused here)
  */
 void GNelderMead_PersonalityTraits::compare_(
     const GPersonalityTraits &cp,
@@ -69,7 +74,9 @@ void GNelderMead_PersonalityTraits::compare_(
 
 /***********************************************************************************/
 /**
- * Emits a name for this class / object
+ * @brief Emits a name for this class / object.
+ *
+ * @return The string "GNelderMead_PersonalityTraits"
  */
 std::string GNelderMead_PersonalityTraits::name_() const {
     return std::string("GNelderMead_PersonalityTraits");
@@ -77,7 +84,9 @@ std::string GNelderMead_PersonalityTraits::name_() const {
 
 /******************************************************************************/
 /**
- * Retrieves the mnemonic of the optimization algorithm
+ * @brief Retrieves the mnemonic of the optimization algorithm.
+ *
+ * @return The short identifier ("nm") of the Nelder-Mead algorithm
  */
 std::string GNelderMead_PersonalityTraits::getMnemonic() const {
     return GNelderMead_PersonalityTraits::nickname;
@@ -85,7 +94,9 @@ std::string GNelderMead_PersonalityTraits::getMnemonic() const {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object.
+ *
+ * @return A pointer to a newly allocated, deep copy of this object (caller takes ownership)
  */
 GPersonalityTraits *GNelderMead_PersonalityTraits::clone_() const {
     return new GNelderMead_PersonalityTraits(*this);
@@ -93,7 +104,10 @@ GPersonalityTraits *GNelderMead_PersonalityTraits::clone_() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GNelderMead_PersonalityTraits object
+ * @brief Loads the data of another GNelderMead_PersonalityTraits object.
+ *
+ * @param cp A pointer to another GPersonalityTraits object (must actually be a
+ *           GNelderMead_PersonalityTraits) whose data is copied into this object
  */
 void GNelderMead_PersonalityTraits::load_(const GPersonalityTraits *cp) {
     const GNelderMead_PersonalityTraits *p_load =
@@ -108,7 +122,9 @@ void GNelderMead_PersonalityTraits::load_(const GPersonalityTraits *cp) {
 
 /******************************************************************************/
 /**
- * Sets the position of the individual in the population
+ * @brief Sets the position of the individual in the population.
+ *
+ * @param pop_pos The index of the individual within the population
  */
 void GNelderMead_PersonalityTraits::setPopulationPosition(const std::size_t &pop_pos) {
     pop_pos_ = pop_pos;
@@ -116,7 +132,9 @@ void GNelderMead_PersonalityTraits::setPopulationPosition(const std::size_t &pop
 
 /******************************************************************************/
 /**
- * Retrieves the position of the individual in the population
+ * @brief Retrieves the position of the individual in the population.
+ *
+ * @return The index of the individual within the population
  */
 std::size_t GNelderMead_PersonalityTraits::getPopulationPosition() const {
     return pop_pos_;
@@ -124,7 +142,9 @@ std::size_t GNelderMead_PersonalityTraits::getPopulationPosition() const {
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes.
+ *
+ * @return true if the object was modified, false otherwise (or when GEM_TESTING is disabled)
  */
 bool GNelderMead_PersonalityTraits::modify_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -147,7 +167,7 @@ bool GNelderMead_PersonalityTraits::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes.
  */
 void GNelderMead_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -164,7 +184,7 @@ void GNelderMead_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_()
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes.
  */
 void GNelderMead_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING

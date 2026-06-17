@@ -57,7 +57,9 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /**
- * The default constructor
+ * @brief The default constructor.
+ *
+ * Delegates to the parameterized constructor using DEFAULTNMSIMPLICES simultaneous simplices.
  */
 GNelderMead::GNelderMead()
   : GNelderMead(DEFAULTNMSIMPLICES) { /* nothing */
@@ -65,20 +67,30 @@ GNelderMead::GNelderMead()
 
 /******************************************************************************/
 /**
- * Initialization with the number of simplices
+ * @brief Initialization with the number of simplices.
+ *
+ * @param n_simplices The number of simultaneous Nelder-Mead simplices to maintain
  */
 GNelderMead::GNelderMead(const std::size_t &n_simplices)
   : n_simplices_(n_simplices) { /* nothing */
 }
 
 /******************************************************************************/
-/** Retrieves the number of simultaneous simplices */
+/**
+ * @brief Retrieves the number of simultaneous simplices.
+ *
+ * @return The currently configured number of simplices
+ */
 std::size_t GNelderMead::getNSimplices() const {
     return n_simplices_;
 }
 
 /******************************************************************************/
-/** Allows to set the number of simultaneous simplices */
+/**
+ * @brief Allows to set the number of simultaneous simplices.
+ *
+ * @param n_simplices The desired number of simplices; must be greater than 0 (a value of 0 throws)
+ */
 void GNelderMead::setNSimplices(std::size_t n_simplices) {
     if(n_simplices == 0) {
         throw geneva_exception(
@@ -91,7 +103,11 @@ void GNelderMead::setNSimplices(std::size_t n_simplices) {
 }
 
 /******************************************************************************/
-/** Sets the reflection coefficient */
+/**
+ * @brief Sets the reflection coefficient.
+ *
+ * @param alpha The Nelder-Mead reflection coefficient; must be strictly greater than 0 (throws otherwise)
+ */
 void GNelderMead::setAlpha(double alpha) {
     if(alpha <= 0.) {
         throw geneva_exception(
@@ -104,12 +120,21 @@ void GNelderMead::setAlpha(double alpha) {
 }
 
 /******************************************************************************/
+/**
+ * @brief Retrieves the reflection coefficient.
+ *
+ * @return The current reflection coefficient alpha
+ */
 double GNelderMead::getAlpha() const {
     return alpha_;
 }
 
 /******************************************************************************/
-/** Sets the expansion coefficient */
+/**
+ * @brief Sets the expansion coefficient.
+ *
+ * @param gamma The Nelder-Mead expansion coefficient; must be strictly greater than 1 (throws otherwise)
+ */
 void GNelderMead::setGamma(double gamma) {
     if(gamma <= 1.) {
         throw geneva_exception(
@@ -122,12 +147,21 @@ void GNelderMead::setGamma(double gamma) {
 }
 
 /******************************************************************************/
+/**
+ * @brief Retrieves the expansion coefficient.
+ *
+ * @return The current expansion coefficient gamma
+ */
 double GNelderMead::getGamma() const {
     return gamma_;
 }
 
 /******************************************************************************/
-/** Sets the contraction coefficient */
+/**
+ * @brief Sets the contraction coefficient.
+ *
+ * @param rho The Nelder-Mead contraction coefficient; must lie strictly in the open interval ]0,1[ (throws otherwise)
+ */
 void GNelderMead::setRho(double rho) {
     if(rho <= 0. || rho >= 1.) {
         throw geneva_exception(
@@ -140,12 +174,21 @@ void GNelderMead::setRho(double rho) {
 }
 
 /******************************************************************************/
+/**
+ * @brief Retrieves the contraction coefficient.
+ *
+ * @return The current contraction coefficient rho
+ */
 double GNelderMead::getRho() const {
     return rho_;
 }
 
 /******************************************************************************/
-/** Sets the shrink coefficient */
+/**
+ * @brief Sets the shrink coefficient.
+ *
+ * @param sigma The Nelder-Mead shrink coefficient; must lie strictly in the open interval ]0,1[ (throws otherwise)
+ */
 void GNelderMead::setSigma(double sigma) {
     if(sigma <= 0. || sigma >= 1.) {
         throw geneva_exception(
@@ -158,12 +201,22 @@ void GNelderMead::setSigma(double sigma) {
 }
 
 /******************************************************************************/
+/**
+ * @brief Retrieves the shrink coefficient.
+ *
+ * @return The current shrink coefficient sigma
+ */
 double GNelderMead::getSigma() const {
     return sigma_;
 }
 
 /******************************************************************************/
-/** Sets the relative size of the initial simplex */
+/**
+ * @brief Sets the relative size of the initial simplex.
+ *
+ * @param initial_edge The initial edge length expressed as a fraction of each parameter's value range;
+ *                     must be strictly greater than 0 (throws otherwise)
+ */
 void GNelderMead::setInitialEdge(double initial_edge) {
     if(initial_edge <= 0.) {
         throw geneva_exception(
@@ -176,49 +229,87 @@ void GNelderMead::setInitialEdge(double initial_edge) {
 }
 
 /******************************************************************************/
+/**
+ * @brief Retrieves the relative size of the initial simplex.
+ *
+ * @return The current initial edge length (as a fraction of each parameter's value range)
+ */
 double GNelderMead::getInitialEdge() const {
     return initial_edge_;
 }
 
 /******************************************************************************/
-/** Sets the stall count after which an oriented restart is performed (0 = disabled) */
+/**
+ * @brief Sets the stall count after which an oriented restart is performed (0 = disabled).
+ *
+ * @param restart_threshold The number of stalled iterations after which the simplices are restarted around
+ *                          their best vertex; 0 disables restarts
+ */
 void GNelderMead::setRestartThreshold(std::uint32_t restart_threshold) {
     restart_threshold_ = restart_threshold;
 }
 
 /******************************************************************************/
+/**
+ * @brief Retrieves the stall count after which an oriented restart is performed.
+ *
+ * @return The current restart threshold (0 means restarts are disabled)
+ */
 std::uint32_t GNelderMead::getRestartThreshold() const {
     return restart_threshold_;
 }
 
 /******************************************************************************/
-/** Number of population slots used per simplex (vertices + trial slots) */
+/**
+ * @brief Number of population slots used per simplex (vertices + trial slots).
+ *
+ * @return The block size, i.e. (n_fp_parms_first_ + 1) vertices plus NM_NTRIALS trial slots
+ */
 std::size_t GNelderMead::simplexBlockSize() const {
     return n_fp_parms_first_ + 1 + NM_NTRIALS;
 }
 
 /******************************************************************************/
-/** Population index of vertex v in simplex s */
+/**
+ * @brief Population index of vertex v in simplex s.
+ *
+ * @param s The simplex index
+ * @param v The vertex index within the simplex
+ * @return The flat population position of the requested vertex
+ */
 std::size_t GNelderMead::vertexPos(std::size_t s, std::size_t v) const {
     return s * simplexBlockSize() + v;
 }
 
 /******************************************************************************/
-/** Population index of trial slot t in simplex s */
+/**
+ * @brief Population index of trial slot t in simplex s.
+ *
+ * @param s The simplex index
+ * @param t The trial-slot index within the simplex (e.g. NM_REFLECT, NM_EXPAND, NM_CONTRACT, NM_OCONTRACT)
+ * @return The flat population position of the requested trial slot
+ */
 std::size_t GNelderMead::trialPos(std::size_t s, std::size_t t) const {
     return s * simplexBlockSize() + (n_fp_parms_first_ + 1) + t;
 }
 
 /******************************************************************************/
-/** Retrieve the number of processable items in the current iteration. */
+/**
+ * @brief Retrieve the number of processable items in the current iteration.
+ *
+ * @return The full population size, since the whole population is (re-)evaluated every iteration
+ */
 std::size_t GNelderMead::getNProcessableItems_() const {
     return this->size(); // The whole population is (re-)evaluated every iteration
 }
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
- * of the same type
+ * @brief Searches for compliance with expectations with respect to another object of the same type.
+ *
+ * @param cp A constant reference to another GOptimizationAlgorithmBase, expected to be a GNelderMead
+ * @param e The expectation to be checked (e.g. equality or inequality)
+ * @param limit The maximum allowed deviation for floating-point comparisons (unused here)
  */
 void GNelderMead::compare_(
     const GOptimizationAlgorithmBase &cp,
@@ -243,6 +334,11 @@ void GNelderMead::compare_(
 }
 
 /******************************************************************************/
+/**
+ * @brief Resets transient state so a fresh optimization run can start.
+ *
+ * Clears the cached parameter boundaries and the pending-trials flag, then delegates to the base class.
+ */
 void GNelderMead::resetToOptimizationStart_() {
     dbl_lower_parameter_boundaries_.clear();
     dbl_upper_parameter_boundaries_.clear();
@@ -252,6 +348,15 @@ void GNelderMead::resetToOptimizationStart_() {
 }
 
 /******************************************************************************/
+/**
+ * @brief Loads the data of another GNelderMead object into this one.
+ *
+ * The parent class'es data (including all individuals) is loaded first, followed by this class's own
+ * serialized members. The transient parameter boundaries and the pending-trials flag are not restored;
+ * they are re-established in init().
+ *
+ * @param cp A constant pointer to another GOptimizationAlgorithmBase, expected to be a GNelderMead
+ */
 void GNelderMead::load_(const GOptimizationAlgorithmBase *cp) {
     const GNelderMead *p_load = Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GNelderMead>(cp, this);
 
@@ -265,7 +370,7 @@ void GNelderMead::load_(const GOptimizationAlgorithmBase *cp) {
 
 /******************************************************************************/
 /**
- * The actual business logic to be performed during each iteration.
+ * @brief The actual business logic to be performed during each iteration.
  *
  * Ordering (mirrors the GGradientDescent decision/propose/evaluate pattern):
  *   1. apply the Nelder-Mead acceptance rules using the trials proposed and
@@ -327,8 +432,9 @@ std::tuple<double, double> GNelderMead::cycleLogic_() {
 
 /******************************************************************************/
 /**
- * Proposes the reflection, expansion, inside-contraction and outside-contraction
- * trial points for every simplex. The worst vertex and the centroid of the
+ * @brief Proposes the reflection, expansion, inside-contraction and outside-contraction trial points for every simplex.
+ *
+ * The worst vertex and the centroid of the
  * remaining vertices are determined from the most recent evaluation; the four
  * candidates are written into the trial slots so they are evaluated in this
  * iteration. The acceptance rules (next iteration) then pick at most one of them.
@@ -406,7 +512,9 @@ void GNelderMead::proposeTrials() {
 
 /******************************************************************************/
 /**
- * Applies the standard Nelder-Mead acceptance rules. The reflection, expansion
+ * @brief Applies the standard Nelder-Mead acceptance rules.
+ *
+ * The reflection, expansion
  * and inside-contraction candidates were proposed in the previous iteration
  * (around the then-worst vertex) and have just been evaluated. Because the
  * vertices were not modified between proposal and this call, the worst vertex
@@ -502,10 +610,13 @@ void GNelderMead::applyNelderMeadDecision() {
 
 /******************************************************************************/
 /**
- * Shrinks simplex s by moving every non-best vertex a fraction sigma_ of the way
- * towards the best vertex b. The shrunk vertices are left unevaluated (their
- * stored fitness is now stale); they are re-evaluated by runFitnessCalculation_()
- * later in the same iteration.
+ * @brief Shrinks simplex s by moving every non-best vertex a fraction sigma_ of the way towards the best vertex.
+ *
+ * The shrunk vertices are left unevaluated (their stored fitness is now stale); they are re-evaluated by
+ * runFitnessCalculation_() later in the same iteration.
+ *
+ * @param s The index of the simplex to shrink
+ * @param b The index (within the simplex) of the best vertex, towards which the others are contracted
  */
 void GNelderMead::shrinkTowardsBest(std::size_t s, std::size_t b) {
     const std::size_t n_vert = n_fp_parms_first_ + 1;
@@ -526,7 +637,9 @@ void GNelderMead::shrinkTowardsBest(std::size_t s, std::size_t b) {
 
 /******************************************************************************/
 /**
- * Adds local configuration options to a GParserBuilder object
+ * @brief Adds local configuration options to a GParserBuilder object.
+ *
+ * @param gpb The GParserBuilder to which the Nelder-Mead file-configuration options are added
  */
 void GNelderMead::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     GOptimizationAlgorithmBase::addConfigurationOptions_(gpb);
@@ -579,7 +692,9 @@ void GNelderMead::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
 
 /******************************************************************************/
 /**
- * Triggers fitness calculation of all individuals via the broker.
+ * @brief Triggers fitness calculation of all individuals via the broker.
+ *
+ * Throws if the broker does not return a complete set of results or reports errors in any individual.
  */
 void GNelderMead::runFitnessCalculation_() {
     using namespace Gem::Courtier;
@@ -598,7 +713,10 @@ void GNelderMead::runFitnessCalculation_() {
 
 /******************************************************************************/
 /**
- * Does some preparatory work before the optimization starts
+ * @brief Does some preparatory work before the optimization starts.
+ *
+ * Caches the floating-point parameter boundaries of the first individual, clears the pending-trials flag,
+ * builds the initial simplices and records each individual's population position.
  */
 void GNelderMead::init() {
     GOptimizationAlgorithmBase::init();
@@ -627,7 +745,9 @@ void GNelderMead::init() {
 
 /******************************************************************************/
 /**
- * Builds a non-degenerate initial simplex around each seed vertex. Vertex 0 of
+ * @brief Builds a non-degenerate initial simplex around each seed vertex.
+ *
+ * Vertex 0 of
  * every simplex is the (user-supplied or randomized) seed; the remaining n
  * vertices are obtained by perturbing one coordinate each. The perturbation is
  * a fraction (initial_edge_) of the parameter range where that range is finite,
@@ -667,8 +787,9 @@ void GNelderMead::buildInitialSimplices() {
 
 /******************************************************************************/
 /**
- * Rebuilds every simplex around its current best vertex to escape a degenerate
- * collapse (vertices that have become near-coplanar so the simplex can no longer
+ * @brief Rebuilds every simplex around its current best vertex to escape a degenerate collapse.
+ *
+ * A degenerate collapse occurs when vertices have become near-coplanar so the simplex can no longer
  * explore some directions). Called from cycleLogic_() once the run has stalled
  * for restart_threshold_ iterations.
  *
@@ -683,6 +804,8 @@ void GNelderMead::buildInitialSimplices() {
  * Only the n non-best vertices are moved (and thereby invalidated); the best
  * vertex -- and hence the best-so-far recorded globally -- is preserved, so a
  * restart can never worsen the reported result.
+ *
+ * @return true if a restart was performed (i.e. there is at least one simplex), false otherwise
  */
 bool GNelderMead::restartSimplices() {
     const std::size_t n_vert = n_fp_parms_first_ + 1;
@@ -750,17 +873,29 @@ bool GNelderMead::restartSimplices() {
 }
 
 /******************************************************************************/
+/**
+ * @brief Performs any necessary finalization work after the optimization has ended.
+ *
+ * Currently just delegates to the base class.
+ */
 void GNelderMead::finalize() {
     GOptimizationAlgorithmBase::finalize();
 }
 
 /******************************************************************************/
+/**
+ * @brief Creates the personality traits object associated with this algorithm.
+ *
+ * @return A shared pointer to a freshly created GNelderMead_PersonalityTraits object
+ */
 std::shared_ptr<GPersonalityTraits> GNelderMead::getPersonalityTraits_() const {
     return std::make_shared<GNelderMead_PersonalityTraits>();
 }
 
 /******************************************************************************/
 /**
+ * @brief Reacts to a stalled optimization run; a no-op for Nelder-Mead.
+ *
  * The Nelder-Mead simplex is derivative free and has no internal structures
  * that need updating on a stall.
  */
@@ -770,9 +905,13 @@ void GNelderMead::actOnStalls_() {
 
 /******************************************************************************/
 /**
- * Resizes the population to the desired level and does some error checks. The
- * layout is n_simplices_ blocks of (n_fp_parms_first_ + 1) vertices plus
- * NM_NTRIALS speculative trial slots each.
+ * @brief Resizes the population to the desired level and does some error checks.
+ *
+ * The layout is n_simplices_ blocks of (n_fp_parms_first_ + 1) vertices plus NM_NTRIALS speculative trial
+ * slots each. The number of floating-point parameters is read from the first individual; any integer or
+ * boolean parameters are left untouched (Nelder-Mead operates only on the continuous parameter space) and
+ * merely logged. One randomized seed individual is created per simplex and the remaining slots are filled
+ * with clones; the real initial simplex geometry is constructed later in init().
  */
 void GNelderMead::adjustPopulation_() {
     std::size_t n_start = this->size();
@@ -866,7 +1005,9 @@ void GNelderMead::adjustPopulation_() {
 
 /******************************************************************************/
 /**
- * Lets all individuals know about their position in the population.
+ * @brief Lets all individuals know about their position in the population.
+ *
+ * Stamps each individual's GNelderMead_PersonalityTraits with its flat population index.
  */
 void GNelderMead::markIndividualPositions() {
     for(std::size_t pos = 0; pos < this->size(); pos++) {

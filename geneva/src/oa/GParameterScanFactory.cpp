@@ -46,7 +46,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 
 /***************************************************************************/
 /**
- * Adds local command line options to a boost::program_options::options_description object.
+ * @brief Adds local command line options to a boost::program_options::options_description object.
  *
  * @param visible Command line options that should always be visible
  * @param hidden Command line options that should only be visible upon request
@@ -72,7 +72,9 @@ void GParameterScanFactory::addCLOptions(
 
 /******************************************************************************/
 /**
- * Allows to specify the command line parameter manually for variables to be scanned
+ * @brief Allows to specify the command line parameter manually for variables to be scanned.
+ *
+ * @param par_str The parameter specification string to store for later use by the created algorithm
  */
 void GParameterScanFactory::setCLParameterSpecs(std::string par_str) {
     parameter_spec_cl_ = par_str;
@@ -80,7 +82,9 @@ void GParameterScanFactory::setCLParameterSpecs(std::string par_str) {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the command line parameter settings for variables to be scanned
+ * @brief Allows to retrieve the command line parameter settings for variables to be scanned.
+ *
+ * @return The currently stored parameter specification string (or "empty" if none was set)
  */
 std::string GParameterScanFactory::getCLParameterSpecs() const {
     return parameter_spec_cl_;
@@ -88,7 +92,7 @@ std::string GParameterScanFactory::getCLParameterSpecs() const {
 
 /******************************************************************************/
 /**
- * Allows to reset the command line parameter specs
+ * @brief Allows to reset the command line parameter specs to the default ("empty").
  */
 void GParameterScanFactory::resetCLParameterSpecs() {
     parameter_spec_cl_ = "empty";
@@ -96,10 +100,12 @@ void GParameterScanFactory::resetCLParameterSpecs() {
 
 /******************************************************************************/
 /**
- * Allows to act on the configuration options received from the configuration file. Here
+ * @brief Allows to act on the configuration options received from the configuration file. Here
  * we can add the options described in describeLocalOptions to the object.
  *
- * @param p_base A smart-pointer to be acted on during post-processing
+ * @param p_base A reference to the smart-pointer holding the optimization algorithm to be
+ *               post-processed (expected to point at a GParameterScan); its parameter specs are
+ *               applied if a non-"empty" command-line specification was set
  */
 void GParameterScanFactory::postProcess_(std::shared_ptr<GOptimizationAlgorithmBase> &p_base) {
     if(parameter_spec_cl_ != "empty") {

@@ -43,11 +43,12 @@ const std::string GParameterScan_PersonalityTraits::nickname = "ps";
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GPersonalityTraits object
- * @param e The expected outcome of the comparison
+ * @param cp A constant reference to another GPersonalityTraits object, expected to be a GParameterScan_PersonalityTraits
+ * @param e The expected outcome of the comparison (e.g. equality or inequality)
+ * @param limit The maximum allowed deviation for floating point values (unused here, no local FP members)
  */
 void GParameterScan_PersonalityTraits::compare_(
     const GPersonalityTraits &cp,
@@ -74,7 +75,9 @@ void GParameterScan_PersonalityTraits::compare_(
 
 /***********************************************************************************/
 /**
- * Emits a name for this class / object
+ * @brief Emits a name for this class / object
+ *
+ * @return The string "GParameterScan_PersonalityTraits"
  */
 std::string GParameterScan_PersonalityTraits::name_() const {
     return std::string("GParameterScan_PersonalityTraits");
@@ -82,7 +85,9 @@ std::string GParameterScan_PersonalityTraits::name_() const {
 
 /******************************************************************************/
 /**
- * Retrieves the mnemonic of the optimization algorithm
+ * @brief Retrieves the mnemonic of the optimization algorithm
+ *
+ * @return The short identifier of the parameter-scan personality ("ps")
  */
 std::string GParameterScan_PersonalityTraits::getMnemonic() const {
     return GParameterScan_PersonalityTraits::nickname;
@@ -90,9 +95,9 @@ std::string GParameterScan_PersonalityTraits::getMnemonic() const {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object
  *
- * @return A clone of this object, camouflaged as a GPersonalityTraits
+ * @return A newly allocated clone of this object, camouflaged as a GPersonalityTraits (ownership passes to the caller)
  */
 GPersonalityTraits *GParameterScan_PersonalityTraits::clone_() const {
     return new GParameterScan_PersonalityTraits(*this);
@@ -100,9 +105,9 @@ GPersonalityTraits *GParameterScan_PersonalityTraits::clone_() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GPSPersonalityTraits object
+ * @brief Loads the data of another GParameterScan_PersonalityTraits object
  *
- * @param cp A copy of another GPSPersonalityTraits object, camouflaged as a GPersonalityTraits
+ * @param cp A pointer to another GParameterScan_PersonalityTraits object, camouflaged as a GPersonalityTraits
  */
 void GParameterScan_PersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Check that we are dealing with a GParameterScan_PersonalityTraits reference independent of this object and convert the pointer
@@ -118,9 +123,9 @@ void GParameterScan_PersonalityTraits::load_(const GPersonalityTraits *cp) {
 
 /******************************************************************************/
 /**
- * Sets the position of the individual in the population
+ * @brief Sets the position of the individual in the population
  *
- * @param pop_pos The new position of this individual in the population
+ * @param pop_pos The new zero-based position of this individual in the population
  */
 void GParameterScan_PersonalityTraits::setPopulationPosition(const std::size_t &pop_pos) {
     pop_pos_ = pop_pos;
@@ -133,9 +138,9 @@ void GParameterScan_PersonalityTraits::setPopulationPosition(const std::size_t &
 
 /******************************************************************************/
 /**
- * Retrieves the position of the individual in the population
+ * @brief Retrieves the position of the individual in the population
  *
- * @return The current position of this individual in the population
+ * @return The current zero-based position of this individual in the population
  */
 std::size_t GParameterScan_PersonalityTraits::getPopulationPosition() const {
     return pop_pos_;
@@ -148,7 +153,7 @@ std::size_t GParameterScan_PersonalityTraits::getPopulationPosition() const {
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -174,7 +179,7 @@ bool GParameterScan_PersonalityTraits::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GParameterScan_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -196,7 +201,7 @@ void GParameterScan_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GParameterScan_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING

@@ -53,9 +53,9 @@ const std::string GSwarmAlgorithm_PersonalityTraits::nickname = "swarm"; // NOLI
 
 /******************************************************************************/
 /**
- * The copy contructor
+ * @brief The copy constructor
  *
- * @param cp A copy of another GSwarmPersonalityTraits object
+ * @param cp A constant reference to another GSwarmAlgorithm_PersonalityTraits object to be copied
  */
 GSwarmAlgorithm_PersonalityTraits::GSwarmAlgorithm_PersonalityTraits(
     const GSwarmAlgorithm_PersonalityTraits &cp
@@ -71,11 +71,12 @@ GSwarmAlgorithm_PersonalityTraits::GSwarmAlgorithm_PersonalityTraits(
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GPersonalityTraits object
- * @param e The expected outcome of the comparison
+ * @param cp A constant reference to another GPersonalityTraits object to compare against
+ * @param e The expected outcome of the comparison (e.g. equality or inequality)
+ * @param limit The maximum allowed deviation for floating point comparisons (unused here)
  */
 void GSwarmAlgorithm_PersonalityTraits::compare_(
     const GPersonalityTraits &cp,
@@ -106,7 +107,9 @@ void GSwarmAlgorithm_PersonalityTraits::compare_(
 
 /******************************************************************************/
 /**
- * Emits a name for this class / object
+ * @brief Emits a name for this class / object
+ *
+ * @return The name of this class ("GSwarmAlgorithm_PersonalityTraits")
  */
 std::string GSwarmAlgorithm_PersonalityTraits::name_() const {
     return std::string("GSwarmAlgorithm_PersonalityTraits");
@@ -114,7 +117,9 @@ std::string GSwarmAlgorithm_PersonalityTraits::name_() const {
 
 /******************************************************************************/
 /**
- * Retrieves the mnemonic of the optimization algorithm
+ * @brief Retrieves the mnemonic of the optimization algorithm
+ *
+ * @return The mnemonic ("swarm") associated with this personality
  */
 std::string GSwarmAlgorithm_PersonalityTraits::getMnemonic() const {
     return GSwarmAlgorithm_PersonalityTraits::nickname;
@@ -122,7 +127,7 @@ std::string GSwarmAlgorithm_PersonalityTraits::getMnemonic() const {
 
 /******************************************************************************/
 /**
- * Sets the no_position_update_ flag
+ * @brief Sets the no_position_update_ flag to true
  */
 void GSwarmAlgorithm_PersonalityTraits::setNoPositionUpdate() {
     no_position_update_ = true;
@@ -135,7 +140,7 @@ void GSwarmAlgorithm_PersonalityTraits::setNoPositionUpdate() {
 
 /******************************************************************************/
 /**
- * Retrieves the current value of the no_position_update_ flag
+ * @brief Retrieves the current value of the no_position_update_ flag
  *
  * @return The current value of the no_position_update_ flag
  */
@@ -150,9 +155,9 @@ bool GSwarmAlgorithm_PersonalityTraits::noPositionUpdate() const {
 
 /******************************************************************************/
 /**
- * Retrieves and resets the current value of the no_position_update_ flag
+ * @brief Retrieves and resets the current value of the no_position_update_ flag
  *
- * @return The value of the no_position_update_ flag when the function was called
+ * @return The value of the no_position_update_ flag at the time the function was called
  */
 bool GSwarmAlgorithm_PersonalityTraits::checkNoPositionUpdateAndReset() {
     bool current = no_position_update_;
@@ -169,11 +174,11 @@ bool GSwarmAlgorithm_PersonalityTraits::checkNoPositionUpdateAndReset() {
 
 /******************************************************************************/
 /**
- * Allows to add a new personal best to the individual. Note that this function
- * will internally clone the argument and extract the GParameterBase objects
- * and p's fitness, as this is all we need.
+ * @brief Allows to add a new personal best to the individual. Note that this function
+ * will internally clone the argument and store it together with p's fitness, as this is
+ * all we need.
  *
- * @param p A pointer to the personally best parameter set
+ * @param p A shared pointer to the personally best individual to be registered
  */
 void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr<gen::GOptimizableEntity> p) {
     // Some error checking
@@ -211,9 +216,9 @@ void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr<gen
 
 /******************************************************************************/
 /**
- * Allows to retrieve the personally best individual
+ * @brief Allows to retrieve the personally best individual
  *
- * @return The personally best individual
+ * @return A shared pointer to the personally best individual
  */
 std::shared_ptr<gen::GOptimizableEntity> GSwarmAlgorithm_PersonalityTraits::getPersonalBest() const {
 #ifdef DEBUG
@@ -236,8 +241,8 @@ std::shared_ptr<gen::GOptimizableEntity> GSwarmAlgorithm_PersonalityTraits::getP
 
 /******************************************************************************/
 /**
- * Resets the personally best individual by assigning a default-constructed
- * parameter set.
+ * @brief Resets the personally best individual by clearing the stored pointer and
+ * resetting the stored quality tuple to (0., 0.).
  */
 void GSwarmAlgorithm_PersonalityTraits::resetPersonalBest() {
     personal_best_ = std::shared_ptr<gen::GOptimizableEntity>(); // empty
@@ -251,9 +256,9 @@ void GSwarmAlgorithm_PersonalityTraits::resetPersonalBest() {
 
 /******************************************************************************/
 /**
- * Retrieve quality of personally best individual
+ * @brief Retrieve quality of personally best individual
  *
- * @return The fitness of the personally best individual
+ * @return A tuple holding the raw and transformed fitness of the personally best individual
  */
 std::tuple<double, double> GSwarmAlgorithm_PersonalityTraits::getPersonalBestQuality() const {
     return personal_best_quality_;
@@ -266,7 +271,7 @@ std::tuple<double, double> GSwarmAlgorithm_PersonalityTraits::getPersonalBestQua
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object
  *
  * @return A clone of this object, camouflaged as a GPersonalityTraits
  */
@@ -276,9 +281,9 @@ GPersonalityTraits *GSwarmAlgorithm_PersonalityTraits::clone_() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GSwarmPersonalityTraits object
+ * @brief Loads the data of another GSwarmAlgorithm_PersonalityTraits object
  *
- * @param cp A copy of another GSwarmPersonalityTraits object, camouflaged as a GPersonalityTraits
+ * @param cp A pointer to another GSwarmAlgorithm_PersonalityTraits object, camouflaged as a GPersonalityTraits
  */
 void GSwarmAlgorithm_PersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Check that we are dealing with a GSwarmAlgorithm_PersonalityTraits reference independent of this object and convert the pointer
@@ -299,9 +304,9 @@ void GSwarmAlgorithm_PersonalityTraits::load_(const GPersonalityTraits *cp) {
 
 /******************************************************************************/
 /**
- * Specifies in which of the populations neighborhood the individual lives
+ * @brief Specifies in which of the population's neighborhoods the individual lives
  *
- * @param neighborhood The current neighborhood of this individual
+ * @param neighborhood The index of the neighborhood this individual is assigned to
  */
 void GSwarmAlgorithm_PersonalityTraits::setNeighborhood(const std::size_t &neighborhood) {
     neighborhood_ = neighborhood;
@@ -309,9 +314,9 @@ void GSwarmAlgorithm_PersonalityTraits::setNeighborhood(const std::size_t &neigh
 
 /******************************************************************************/
 /**
- * Retrieves the position of the individual in the population
+ * @brief Retrieves the neighborhood index of the individual in the population
  *
- * @return The current position of this individual in the population
+ * @return The index of the neighborhood this individual is assigned to
  */
 std::size_t GSwarmAlgorithm_PersonalityTraits::getNeighborhood() const {
     return neighborhood_;
@@ -319,7 +324,7 @@ std::size_t GSwarmAlgorithm_PersonalityTraits::getNeighborhood() const {
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -345,7 +350,7 @@ bool GSwarmAlgorithm_PersonalityTraits::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -401,7 +406,7 @@ void GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTest
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GSwarmAlgorithm_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING

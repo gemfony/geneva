@@ -355,6 +355,10 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::updateRule &ur) {
 /******************************************************************************/
 /**
  * Puts a Gem::Geneva::adaptionMode into a stream. Needed also for boost::lexical_cast<>
+ *
+ * @param o The ostream the item should be added to
+ * @param am The item to be added to the stream
+ * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::adaptionMode &am) {
     Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(am);
@@ -365,6 +369,10 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::adaptionMode &am) {
 /******************************************************************************/
 /**
  * Reads a Gem::Geneva::adaptionMode from a stream. Needed also for boost::lexical_cast<>
+ *
+ * @param i The stream the item should be read from
+ * @param am The item read from the stream
+ * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::adaptionMode &am) {
     Gem::Common::ENUMBASETYPE tmp = 0;

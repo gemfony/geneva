@@ -55,7 +55,11 @@ namespace Gem::Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Initialization with the execution mode and configuration file
+ * @brief Initialization with the execution mode and configuration files
+ *
+ * @param execution_mode The desired execution mode; only SERIAL and MULTITHREADED are accepted (BROKER throws)
+ * @param oa_config_file The path to the JSON configuration file for the inner evolutionary algorithm
+ * @param executor_config_file The path to the configuration file for the executor used by the inner algorithm
  */
 GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
     execMode execution_mode,
@@ -89,7 +93,9 @@ GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
 
 /******************************************************************************/
 /**
- * Returns the name of this class
+ * @brief Returns the name of this class
+ *
+ * @return The string "GEvolutionaryAlgorithmPostOptimizer", identifying this class
  */
 std::string GEvolutionaryAlgorithmPostOptimizer::name_() const {
     return std::string("GEvolutionaryAlgorithmPostOptimizer");
@@ -97,11 +103,11 @@ std::string GEvolutionaryAlgorithmPostOptimizer::name_() const {
 
 /******************************************************************************/
 /**
- * Checks for compliance with expectations with respect to another object
+ * @brief Checks for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GEvolutionaryAlgorithmPostOptimizer object
- * @param e The expected outcome of the comparison
+ * @param cp A constant reference to another object (a GEvolutionaryAlgorithmPostOptimizer, passed via its base type) to compare against
+ * @param e The expected outcome of the comparison (e.g. equality or inequality)
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GEvolutionaryAlgorithmPostOptimizer::compare_(
@@ -130,7 +136,9 @@ void GEvolutionaryAlgorithmPostOptimizer::compare_(
 
 /******************************************************************************/
 /**
- * Allows to set the execution mode for this post-processor (serial vs. multi-threaded)
+ * @brief Allows to set the execution mode for this post-processor (serial vs. multi-threaded)
+ *
+ * @param execution_mode The desired execution mode; only SERIAL and MULTITHREADED are accepted (BROKER throws)
  */
 void GEvolutionaryAlgorithmPostOptimizer::setExecMode(execMode execution_mode) {
     switch(execution_mode) {
@@ -151,7 +159,9 @@ void GEvolutionaryAlgorithmPostOptimizer::setExecMode(execMode execution_mode) {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the current execution mode
+ * @brief Allows to retrieve the current execution mode
+ *
+ * @return The currently configured execution mode (SERIAL or MULTITHREADED)
  */
 execMode GEvolutionaryAlgorithmPostOptimizer::getExecMode() const {
     return execution_mode_;
@@ -159,7 +169,9 @@ execMode GEvolutionaryAlgorithmPostOptimizer::getExecMode() const {
 
 /******************************************************************************/
 /**
- * Allows to specify the name of a configuration file
+ * @brief Allows to specify the name of a configuration file for the inner optimization algorithm
+ *
+ * @param oa_config_file The path to the JSON configuration file for the inner evolutionary algorithm
  */
 void GEvolutionaryAlgorithmPostOptimizer::setOAConfigFile(const std::string &oa_config_file) {
     oa_config_file_ = oa_config_file;
@@ -167,7 +179,9 @@ void GEvolutionaryAlgorithmPostOptimizer::setOAConfigFile(const std::string &oa_
 
 /******************************************************************************/
 /**
- * Allows to retrieve the configuration file
+ * @brief Allows to retrieve the configuration file for the inner optimization algorithm
+ *
+ * @return The path to the JSON configuration file for the inner evolutionary algorithm
  */
 std::string GEvolutionaryAlgorithmPostOptimizer::getOAConfigFile() const {
     return oa_config_file_;
@@ -175,7 +189,9 @@ std::string GEvolutionaryAlgorithmPostOptimizer::getOAConfigFile() const {
 
 /******************************************************************************/
 /**
- * Allows to specify the name of a configuration file for the executor
+ * @brief Allows to specify the name of a configuration file for the executor
+ *
+ * @param executor_config_file The path to the configuration file for the executor used by the inner algorithm
  */
 void GEvolutionaryAlgorithmPostOptimizer::setExecutorConfigFile(
     const std::string &executor_config_file
@@ -185,7 +201,9 @@ void GEvolutionaryAlgorithmPostOptimizer::setExecutorConfigFile(
 
 /******************************************************************************/
 /**
- * Allows to retrieve the configuration file for the executor
+ * @brief Allows to retrieve the configuration file for the executor
+ *
+ * @return The path to the configuration file for the executor used by the inner algorithm
  */
 std::string GEvolutionaryAlgorithmPostOptimizer::getExecutorConfigFile() const {
     return executor_config_file_;
@@ -193,7 +211,9 @@ std::string GEvolutionaryAlgorithmPostOptimizer::getExecutorConfigFile() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GEvolutionaryAlgorithmPostOptimizer object
+ * @brief Loads the data of another GEvolutionaryAlgorithmPostOptimizer object
+ *
+ * @param cp A pointer to another object (a GEvolutionaryAlgorithmPostOptimizer, passed via its base type) whose data is loaded into this one
  */
 void GEvolutionaryAlgorithmPostOptimizer::load_(
     const Gem::Common::GSerializableFunctionObjectT<gen::GOptimizableEntity> *cp
@@ -212,7 +232,9 @@ void GEvolutionaryAlgorithmPostOptimizer::load_(
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object
+ *
+ * @return A pointer to a freshly allocated deep copy of this object (caller takes ownership)
  */
 Gem::Common::GSerializableFunctionObjectT<gen::GOptimizableEntity> *
 GEvolutionaryAlgorithmPostOptimizer::clone_() const {
@@ -221,7 +243,13 @@ GEvolutionaryAlgorithmPostOptimizer::clone_() const {
 
 /******************************************************************************/
 /**
- * The actual post-processing takes place here (no further checks)
+ * @brief The actual post-processing takes place here (no further checks)
+ *
+ * Runs an inner evolutionary algorithm to locally refine the given individual and writes the
+ * optimized parameter data back into it.
+ *
+ * @param p The individual to be post-processed; on return it carries the refined parameter data
+ * @return Always true, indicating that post-processing was performed
  */
 bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GOptimizableEntity &p) {
     // Make sure p is processed
@@ -332,7 +360,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GOptimizableEntit
 
 /******************************************************************************/
 /**
- * The standard constructor. Intentionally private, as it is only needed
+ * @brief The standard constructor. Intentionally private, as it is only needed
  * for de-serialization purposes.
  */
 GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer() { /* nothing */
@@ -340,7 +368,9 @@ GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer() { /* 
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
  */
 bool GEvolutionaryAlgorithmPostOptimizer::modify_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -364,7 +394,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GEvolutionaryAlgorithmPostOptimizer::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -383,7 +413,7 @@ void GEvolutionaryAlgorithmPostOptimizer::specificTestsNoFailureExpected_GUnitTe
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GEvolutionaryAlgorithmPostOptimizer::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING

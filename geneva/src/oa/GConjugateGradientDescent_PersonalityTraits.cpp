@@ -37,16 +37,17 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GConjugateGrad
 namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
-/** A short identifier suitable for storage in a std::map */
+/** @brief A short identifier suitable for storage in a std::map (the algorithm mnemonic "cgd") */
 const std::string GConjugateGradientDescent_PersonalityTraits::nickname = "cgd";
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GPersonalityTraits object
- * @param e The expected outcome of the comparison
+ * @param cp A constant reference to another GPersonalityTraits object to compare against
+ * @param e The expected outcome of the comparison (e.g. equality or inequality)
+ * @param limit The maximum allowed deviation for floating point comparisons (unused here, as this class holds no floating point members)
  */
 void GConjugateGradientDescent_PersonalityTraits::compare_(
     const GPersonalityTraits &cp,
@@ -77,7 +78,9 @@ void GConjugateGradientDescent_PersonalityTraits::compare_(
 
 /***********************************************************************************/
 /**
- * Emits a name for this class / object
+ * @brief Emits a name for this class / object
+ *
+ * @return The string "GConjugateGradientDescent_PersonalityTraits"
  */
 std::string GConjugateGradientDescent_PersonalityTraits::name_() const {
     return std::string("GConjugateGradientDescent_PersonalityTraits");
@@ -85,7 +88,9 @@ std::string GConjugateGradientDescent_PersonalityTraits::name_() const {
 
 /******************************************************************************/
 /**
- * Retrieves the mnemonic of the optimization algorithm
+ * @brief Retrieves the mnemonic of the optimization algorithm
+ *
+ * @return The short identifier of this algorithm (the nickname "cgd")
  */
 std::string GConjugateGradientDescent_PersonalityTraits::getMnemonic() const {
     return GConjugateGradientDescent_PersonalityTraits::nickname;
@@ -93,9 +98,9 @@ std::string GConjugateGradientDescent_PersonalityTraits::getMnemonic() const {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object
  *
- * @return A clone of this object, camouflaged as a GPersonalityTraits
+ * @return A newly allocated deep copy of this object, camouflaged as a GPersonalityTraits pointer
  */
 GPersonalityTraits *GConjugateGradientDescent_PersonalityTraits::clone_() const {
     return new GConjugateGradientDescent_PersonalityTraits(*this);
@@ -103,9 +108,9 @@ GPersonalityTraits *GConjugateGradientDescent_PersonalityTraits::clone_() const 
 
 /******************************************************************************/
 /**
- * Loads the data of another GConjugateGradientDescent_PersonalityTraits object
+ * @brief Loads the data of another GConjugateGradientDescent_PersonalityTraits object
  *
- * @param cp A copy of another GConjugateGradientDescent_PersonalityTraits object, camouflaged as a GPersonalityTraits
+ * @param cp A pointer to another GConjugateGradientDescent_PersonalityTraits object, camouflaged as a GPersonalityTraits
  */
 void GConjugateGradientDescent_PersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Check that we are dealing with a GConjugateGradientDescent_PersonalityTraits
@@ -125,9 +130,9 @@ void GConjugateGradientDescent_PersonalityTraits::load_(const GPersonalityTraits
 
 /******************************************************************************/
 /**
- * Sets the position of the individual in the population
+ * @brief Sets the position of the individual in the population
  *
- * @param pop_pos The new position of this individual in the population
+ * @param pop_pos The new position (index) of this individual in the population
  */
 void GConjugateGradientDescent_PersonalityTraits::setPopulationPosition(
     const std::size_t &pop_pos
@@ -137,9 +142,9 @@ void GConjugateGradientDescent_PersonalityTraits::setPopulationPosition(
 
 /******************************************************************************/
 /**
- * Retrieves the position of the individual in the population
+ * @brief Retrieves the position of the individual in the population
  *
- * @return The current position of this individual in the population
+ * @return The current position (index) of this individual in the population
  */
 std::size_t GConjugateGradientDescent_PersonalityTraits::getPopulationPosition() const {
     return pop_pos_;
@@ -147,7 +152,7 @@ std::size_t GConjugateGradientDescent_PersonalityTraits::getPopulationPosition()
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -176,7 +181,7 @@ bool GConjugateGradientDescent_PersonalityTraits::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GConjugateGradientDescent_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -198,7 +203,7 @@ void GConjugateGradientDescent_PersonalityTraits::specificTestsNoFailureExpected
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GConjugateGradientDescent_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING

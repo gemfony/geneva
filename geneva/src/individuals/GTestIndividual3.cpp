@@ -54,7 +54,10 @@ constexpr double GTI_DEF_ADPROB = 0.05;
 
 /******************************************************************************/
 /**
- * The default constructor
+ * @brief The default constructor
+ *
+ * Builds a flat genome that reproduces the historical nested structure (GTI_DEF_NITEMS records of ten
+ * constrained doubles each) and random-initialises all parameters within their bounds.
  */
 GTestIndividual3::GTestIndividual3() {
     using namespace Gem::Geneva;
@@ -84,7 +87,7 @@ GTestIndividual3::GTestIndividual3() {
 
 /******************************************************************************/
 /**
- * The copy constructor
+ * @brief The copy constructor
  *
  * @param cp A constant reference to another GTestIndividual3 object
  */
@@ -94,18 +97,19 @@ GTestIndividual3::GTestIndividual3(const GTestIndividual3 &cp)
 
 /******************************************************************************/
 /**
- * The standard destructor
+ * @brief The standard destructor
  */
 GTestIndividual3::~GTestIndividual3() { /* nothing */
 }
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GTestIndividual3 object
+ * @param cp A constant reference to another GTestIndividual3 object, camouflaged as a GOptimizableEntity
  * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation tolerated for (floating-point) comparisons (unused here)
  */
 void GTestIndividual3::compare_(
     const gen::GOptimizableEntity &cp,
@@ -132,9 +136,9 @@ void GTestIndividual3::compare_(
 
 /******************************************************************************/
 /**
- * Loads the data of another GTestIndividual3, camouflaged as a GFlatGenome.
+ * @brief Loads the data of another GTestIndividual3, camouflaged as a GOptimizableEntity.
  *
- * @param cp A copy of another GTestIndividual3, camouflaged as a GFlatGenome
+ * @param cp A pointer to another GTestIndividual3, camouflaged as a GOptimizableEntity
  */
 void GTestIndividual3::load_(const gen::GOptimizableEntity *cp) {
     using namespace Gem::Common;
@@ -152,7 +156,7 @@ void GTestIndividual3::load_(const gen::GOptimizableEntity *cp) {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object
  *
  * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
@@ -162,9 +166,11 @@ gen::GFlatGenome *GTestIndividual3::clone_() const {
 
 /******************************************************************************/
 /**
- * The actual fitness calculation takes place here.
+ * @brief The actual fitness calculation takes place here.
  *
- * @return The value of this object
+ * Computes the sum of the squares of all double parameters (a parabola).
+ *
+ * @return The value of this object (the parabola's value for the current parameters)
  */
 double GTestIndividual3::fitnessCalculation() {
     double result = 0.;
@@ -183,7 +189,12 @@ double GTestIndividual3::fitnessCalculation() {
 
 /******************************************************************************/
 /**
- * Get all data members of this class as a plain array
+ * @brief Get all data members of this class as a plain array
+ *
+ * Streamlines the genome's doubles and copies them, narrowed to float, into a freshly allocated array
+ * (with an array deleter) in the same positional order the historical nested structure produced.
+ *
+ * @return A shared pointer to a float array of size 10 * GTI_DEF_NITEMS holding all parameter values
  */
 std::shared_ptr<float> GTestIndividual3::getPlainData() const {
     using namespace Gem::Geneva;
@@ -217,7 +228,7 @@ std::shared_ptr<float> GTestIndividual3::getPlainData() const {
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -244,7 +255,7 @@ bool GTestIndividual3::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -284,7 +295,7 @@ void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GTestIndividual3::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING

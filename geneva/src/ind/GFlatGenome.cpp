@@ -61,8 +61,9 @@ namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 /**
- * The default constructor. Results in a single fitness criterion and an empty genome (to be filled
- * by setGenome()).
+ * @brief The default constructor.
+ *
+ * Results in a single fitness criterion and an empty genome (to be filled by setGenome()).
  */
 GFlatGenome::GFlatGenome()
   : GOptimizableEntity() {
@@ -71,7 +72,9 @@ GFlatGenome::GFlatGenome()
 
 /******************************************************************************/
 /**
- * Initialization with the number of fitness criteria.
+ * @brief Initialization with the number of fitness criteria.
+ *
+ * @param n_fitness_criteria The number of fitness criteria this genome will evaluate to
  */
 GFlatGenome::GFlatGenome(const std::size_t n_fitness_criteria)
   : GOptimizableEntity(n_fitness_criteria) {
@@ -80,8 +83,12 @@ GFlatGenome::GFlatGenome(const std::size_t n_fitness_criteria)
 
 /******************************************************************************/
 /**
- * The copy constructor. The base copy constructor copies the per-individual auxiliary store,
- * including the evolving Gauss adaption state, so a clone inherits the current sigma.
+ * @brief The copy constructor.
+ *
+ * The base copy constructor copies the per-individual auxiliary store, including the evolving Gauss
+ * adaption state, so a clone inherits the current sigma.
+ *
+ * @param cp A constant reference to another GFlatGenome object to be copied
  */
 GFlatGenome::GFlatGenome(GFlatGenome const &cp)
   : GOptimizableEntity(cp)
@@ -95,9 +102,13 @@ GFlatGenome::GFlatGenome(GFlatGenome const &cp)
 
 /******************************************************************************/
 /**
- * Installs the value arrays + shared layout produced by a GGenomeBuilder. The per-group adaption state
- * is OA-owned scratch (it lives on the GIndividualSlot, not on the individual) and is no longer seeded
- * here -- an optimization algorithm seeds each slot's scratch from its adaption config at setup.
+ * @brief Installs the value arrays and shared structural layout produced by a GGenomeBuilder.
+ *
+ * The per-group adaption state is OA-owned scratch (it lives on the GIndividualSlot, not on the
+ * individual) and is no longer seeded here -- an optimization algorithm seeds each slot's scratch
+ * from its adaption config at setup. Marks the genome as due for processing.
+ *
+ * @param g The GenomeData bundle (double/float/int/bool value arrays plus the shared layout) to install
  */
 void GFlatGenome::setGenome(GenomeData const &g) {
     dv_ = g.dv;
@@ -111,9 +122,14 @@ void GFlatGenome::setGenome(GenomeData const &g) {
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object of the same type. The
- * shared structural layout is problem metadata (not per-individual identity), so only the value
+ * @brief Searches for compliance with expectations with respect to another object of the same type.
+ *
+ * The shared structural layout is problem metadata (not per-individual identity), so only the value
  * arrays and the individual-level base data participate in the comparison.
+ *
+ * @param cp A constant reference to another GFlatGenome object, camouflaged as a GOptimizableEntity
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation tolerated for floating point comparisons (unused here)
  */
 void GFlatGenome::compare_(
     GOptimizableEntity const &cp,
@@ -139,9 +155,13 @@ void GFlatGenome::compare_(
 
 /******************************************************************************/
 /**
- * Loads the data of another GFlatGenome object, camouflaged as a GOptimizableEntity. The base load
- * copies the auxiliary store (personality + the per-group Gauss state), so the loaded genome keeps
- * the source's evolved sigma; the value arrays are copied and the (immutable) layout is shared.
+ * @brief Loads the data of another GFlatGenome object, camouflaged as a GOptimizableEntity.
+ *
+ * The base load copies the auxiliary store (personality + the per-group Gauss state), so the loaded
+ * genome keeps the source's evolved sigma; the value arrays are copied and the (immutable) layout is
+ * shared.
+ *
+ * @param cp A pointer to another GFlatGenome object, camouflaged as a GOptimizableEntity
  */
 void GFlatGenome::load_(const GOptimizableEntity *cp) {
     const GFlatGenome *p_load =
@@ -158,8 +178,13 @@ void GFlatGenome::load_(const GOptimizableEntity *cp) {
 
 /******************************************************************************/
 /**
- * Random initialization of the active parameters. Constrained values are drawn within their bounds
- * (and stored as their own internal representation); plain values within their init perimeter.
+ * @brief Random initialization of the active parameters.
+ *
+ * Constrained values are drawn within their bounds (and stored as their own internal representation);
+ * plain values within their init perimeter. All four channels (double/float/int/bool) are processed.
+ *
+ * @param am The activity mode that selects which parameters (active and/or inactive) are initialized
+ * @return true if at least one parameter value was modified, false otherwise
  */
 bool GFlatGenome::randomInit_(activityMode const &am) {
     bool modified = false;
@@ -178,6 +203,19 @@ bool GFlatGenome::randomInit_(activityMode const &am) {
     return modified;
 }
 
+/******************************************************************************/
+/**
+ * @brief Randomly (re-)initializes the active entries of one floating-point value channel.
+ *
+ * Each active entry (per the activity mode) is drawn from a uniform real distribution spanning the
+ * channel's per-element init perimeter [init_lower, init_upper].
+ *
+ * @tparam T The floating-point value type of the channel (double or float)
+ * @param store The value array of this channel, modified in place
+ * @param ch The channel layout providing per-element activity flags and init perimeter bounds
+ * @param am The activity mode that selects which entries are initialized
+ * @return true if at least one entry was modified, false otherwise
+ */
 template <typename T>
 bool GFlatGenome::randomInitFP(std::vector<T> &store, ChannelLayout<T> const &ch, activityMode const &am) {
     bool modified = false;
@@ -195,6 +233,16 @@ bool GFlatGenome::randomInitFP(std::vector<T> &store, ChannelLayout<T> const &ch
     return modified;
 }
 
+/******************************************************************************/
+/**
+ * @brief Randomly (re-)initializes the active entries of the int32 value channel.
+ *
+ * Constrained entries are drawn within their [lower, upper] bounds; plain entries within their
+ * [init_lower, init_upper] perimeter. The bounds are swapped if given in reverse order.
+ *
+ * @param am The activity mode that selects which entries are initialized
+ * @return true if at least one entry was modified, false otherwise
+ */
 bool GFlatGenome::randomInitInt(activityMode const &am) {
     bool modified = false;
     std::uniform_int_distribution<std::int32_t> dist;
@@ -216,6 +264,15 @@ bool GFlatGenome::randomInitInt(activityMode const &am) {
     return modified;
 }
 
+/******************************************************************************/
+/**
+ * @brief Randomly (re-)initializes the active entries of the boolean value channel.
+ *
+ * Each active entry (per the activity mode) is drawn from a fair Bernoulli distribution (p = 0.5).
+ *
+ * @param am The activity mode that selects which entries are initialized
+ * @return true if at least one entry was modified, false otherwise
+ */
 bool GFlatGenome::randomInitBool(activityMode const &am) {
     bool modified = false;
     std::bernoulli_distribution dist(0.5);
@@ -232,7 +289,13 @@ bool GFlatGenome::randomInitBool(activityMode const &am) {
 
 /******************************************************************************/
 /**
- * Retrieves the boundaries of the boolean channel (always [false, true]).
+ * @brief Retrieves the boundaries of the boolean channel (always [false, true]).
+ *
+ * One [false, true] pair is appended per active boolean entry (per the activity mode).
+ *
+ * @param l Output vector receiving the lower boundary (false) of each active boolean entry; cleared first
+ * @param u Output vector receiving the upper boundary (true) of each active boolean entry; cleared first
+ * @param am The activity mode that selects which boolean entries contribute boundaries
  */
 void GFlatGenome::boundaries_(
     std::vector<bool> &l,
@@ -253,7 +316,13 @@ void GFlatGenome::boundaries_(
 
 /******************************************************************************/
 /**
- * Retrieval of a suitable position for cross over inside of a vector, in the range [lower, upper[.
+ * @brief Retrieval of a suitable position for cross over inside of a vector, in the range [lower, upper[.
+ *
+ * Throws if lower is 0 or if upper is not strictly greater than lower.
+ *
+ * @param lower The (inclusive) lower bound of the position range; must be > 0
+ * @param upper The (exclusive) upper bound of the position range; must be > lower
+ * @return A uniformly drawn position in the half-open range [lower, upper)
  */
 std::size_t GFlatGenome::getCrossOverPos(const std::size_t lower, const std::size_t upper) {
     if(lower == 0) {
@@ -278,8 +347,14 @@ std::size_t GFlatGenome::getCrossOverPos(const std::size_t lower, const std::siz
 
 /******************************************************************************/
 /**
- * Perform a cross-over operation between this object and another. Mirrors the tree: streamline both
- * genomes per channel, splice each channel at a random position and assign the result back.
+ * @brief Perform a cross-over operation between this object and another.
+ *
+ * Streamlines both genomes per channel, splices each channel at a random position and assigns the
+ * result back into a clone of this object, which is marked as due for processing.
+ *
+ * @param cp_base A constant reference to the other parent, camouflaged as a GOptimizableEntity
+ *                (must be a GFlatGenome)
+ * @return A newly created GFlatGenome holding the crossed-over genome, upcast to GOptimizableEntity
  */
 std::shared_ptr<GOptimizableEntity>
 GFlatGenome::crossOverWith(GOptimizableEntity const &cp_base) const {
@@ -333,8 +408,14 @@ GFlatGenome::crossOverWith(GOptimizableEntity const &cp_base) const {
 
 /******************************************************************************/
 /**
- * Retrieves parameters relevant for the evaluation from another GFlatGenome. The foreign genome is
- * left empty afterwards. May only be called for a "clean" (processed, error-free) foreign genome.
+ * @brief Retrieves parameters relevant for the evaluation from another GFlatGenome.
+ *
+ * Moves the foreign genome's value arrays into this object, shares its layout, and adopts its raw
+ * fitness vector. The foreign genome is left empty afterwards. Throws if the foreign genome is still
+ * due for processing or carries errors (it may only be called for a "clean" foreign genome).
+ *
+ * @param cp_base A reference to the foreign genome, camouflaged as a GOptimizableEntity (must be a
+ *                GFlatGenome); it is moved-from and cleared by this call
  */
 void GFlatGenome::cannibalize(GOptimizableEntity &cp_base) {
     auto &cp = dynamic_cast<GFlatGenome &>(cp_base);
@@ -363,9 +444,13 @@ void GFlatGenome::cannibalize(GOptimizableEntity &cp_base) {
 
 /******************************************************************************/
 /**
- * Retrieve the active parameter at the given (positional) index, per type. These are the typed
- * dispatch targets of GOptimizableEntity::getVarVal<T>() -- one streamline of the relevant channel,
- * then the indexed element (no std::any boxing).
+ * @brief Retrieve the active double parameter at the given positional index.
+ *
+ * One of the typed dispatch targets of GOptimizableEntity::getVarVal<T>(): streamlines the double
+ * channel and returns the indexed element (no std::any boxing).
+ *
+ * @param idx The positional index into the streamlined double channel
+ * @return The double value at the given index (throws std::out_of_range if idx is out of bounds)
  */
 double GFlatGenome::getVarVal_d_(std::size_t idx) {
     std::vector<double> v;
@@ -373,18 +458,36 @@ double GFlatGenome::getVarVal_d_(std::size_t idx) {
     return v.at(idx);
 }
 
+/**
+ * @brief Retrieve the active float parameter at the given positional index.
+ *
+ * @param idx The positional index into the streamlined float channel
+ * @return The float value at the given index (throws std::out_of_range if idx is out of bounds)
+ */
 float GFlatGenome::getVarVal_f_(std::size_t idx) {
     std::vector<float> v;
     this->streamline<float>(v);
     return v.at(idx);
 }
 
+/**
+ * @brief Retrieve the active int32 parameter at the given positional index.
+ *
+ * @param idx The positional index into the streamlined int32 channel
+ * @return The int32 value at the given index (throws std::out_of_range if idx is out of bounds)
+ */
 std::int32_t GFlatGenome::getVarVal_i_(std::size_t idx) {
     std::vector<std::int32_t> v;
     this->streamline<std::int32_t>(v);
     return v.at(idx);
 }
 
+/**
+ * @brief Retrieve the active boolean parameter at the given positional index.
+ *
+ * @param idx The positional index into the streamlined boolean channel
+ * @return The boolean value at the given index (throws std::out_of_range if idx is out of bounds)
+ */
 bool GFlatGenome::getVarVal_b_(std::size_t idx) {
     std::vector<bool> v;
     this->streamline<bool>(v);
@@ -393,7 +496,13 @@ bool GFlatGenome::getVarVal_b_(std::size_t idx) {
 
 /******************************************************************************/
 /**
- * Transformation of the individual's parameters into a boost::property_tree object.
+ * @brief Transformation of the individual's parameters into a boost::property_tree object.
+ *
+ * Emits iteration, dirty/error/validity flags, the type tag, all streamlined variables (per channel),
+ * the transformation policy and the stored raw and transformed fitness results.
+ *
+ * @param ptr The property tree to populate (output)
+ * @param base_name The dotted key prefix under which all entries for this individual are stored
  */
 void GFlatGenome::toPropertyTree(pt::ptree &ptr, std::string const &base_name) const {
     bool dirty_flag = (Gem::Courtier::processingStatus::DO_PROCESS == this->getProcessingStatus());
@@ -456,9 +565,16 @@ void GFlatGenome::toPropertyTree(pt::ptree &ptr, std::string const &base_name) c
 
 /******************************************************************************/
 /**
- * Transformation of the individual's parameters into a list of comma-separated values plus fitness
- * and validity. Identical in spirit to GTreeGenome::toCSV() (it operates purely on the streamlined
- * value vectors and the fitness bookkeeping).
+ * @brief Transformation of the individual's parameters into a list of comma-separated values.
+ *
+ * Operates purely on the streamlined value vectors and the fitness bookkeeping, optionally prefixing
+ * variable name and type rows.
+ *
+ * @param with_name_and_type If true, prepend a row of variable names and a row of variable types
+ * @param with_commas If true, separate fields with ",\\t"; otherwise with a plain tab
+ * @param use_raw_fitness If true, emit raw fitness values; otherwise emit transformed fitness values
+ * @param show_validity If true, append a trailing validity column
+ * @return A string holding the CSV (tab-separated) representation, terminated with a newline
  */
 std::string GFlatGenome::toCSV(
     bool with_name_and_type,
@@ -563,7 +679,9 @@ std::string GFlatGenome::toCSV(
 
 /******************************************************************************/
 /**
- * Emits a name for this class / object.
+ * @brief Emits a name for this class / object.
+ *
+ * @return The string "GFlatGenome"
  */
 std::string GFlatGenome::name_() const {
     return std::string("GFlatGenome");
@@ -571,7 +689,9 @@ std::string GFlatGenome::name_() const {
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes.
+ * @brief Applies modifications to this object. This is needed for testing purposes.
+ *
+ * @return true if modifications were made, false otherwise
  */
 bool GFlatGenome::modify_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -593,7 +713,7 @@ bool GFlatGenome::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes.
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes.
  */
 void GFlatGenome::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -621,7 +741,7 @@ void GFlatGenome::specificTestsNoFailureExpected_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes.
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes.
  */
 void GFlatGenome::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING

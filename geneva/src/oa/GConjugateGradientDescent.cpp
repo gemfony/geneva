@@ -81,8 +81,12 @@ constexpr Gem::Geneva::Genome::AuxKey AUXKEY_CGD_LBFGS_COUNT = 15;  // 1 (number
 
 /******************************************************************************/
 /**
- * Streams a gradientMethod as its underlying integer (cast to int so it is written as a number, not a
+ * @brief Streams a gradientMethod as its underlying integer (cast to int so it is written as a number, not a
  * character). Needed by the comparison / expectation framework and by configuration serialization.
+ *
+ * @param o The output stream to write to
+ * @param gm The gradientMethod enumerator to be streamed
+ * @return A reference to the output stream, for chaining
  */
 std::ostream &operator<<(std::ostream &o, gradientMethod gm) {
     o << static_cast<int>(gm);
@@ -91,7 +95,11 @@ std::ostream &operator<<(std::ostream &o, gradientMethod gm) {
 
 /******************************************************************************/
 /**
- * Reads a gradientMethod from a stream.
+ * @brief Reads a gradientMethod from a stream.
+ *
+ * @param i The input stream to read from
+ * @param gm The gradientMethod reference to be filled from the stream's integer value
+ * @return A reference to the input stream, for chaining
  */
 std::istream &operator>>(std::istream &i, gradientMethod &gm) {
     int tmp = 0;
@@ -101,14 +109,26 @@ std::istream &operator>>(std::istream &i, gradientMethod &gm) {
 }
 
 /******************************************************************************/
-/** @brief Streams an errorEstimationMode as its underlying integer. */
+/**
+ * @brief Streams an errorEstimationMode as its underlying integer.
+ *
+ * @param o The output stream to write to
+ * @param em The errorEstimationMode enumerator to be streamed
+ * @return A reference to the output stream, for chaining
+ */
 std::ostream &operator<<(std::ostream &o, errorEstimationMode em) {
     o << static_cast<int>(em);
     return o;
 }
 
 /******************************************************************************/
-/** @brief Reads an errorEstimationMode from a stream. */
+/**
+ * @brief Reads an errorEstimationMode from a stream.
+ *
+ * @param i The input stream to read from
+ * @param em The errorEstimationMode reference to be filled from the stream's integer value
+ * @return A reference to the input stream, for chaining
+ */
 std::istream &operator>>(std::istream &i, errorEstimationMode &em) {
     int tmp = 0;
     i >> tmp;
@@ -118,7 +138,10 @@ std::istream &operator>>(std::istream &i, errorEstimationMode &em) {
 
 /******************************************************************************/
 /**
- * The default constructor
+ * @brief The default constructor
+ *
+ * Delegates to the parameterized constructor using the compiled-in default number of starting points,
+ * finite-difference step and step size.
  */
 GConjugateGradientDescent::GConjugateGradientDescent()
   : GConjugateGradientDescent(
@@ -130,11 +153,11 @@ GConjugateGradientDescent::GConjugateGradientDescent()
 
 /******************************************************************************/
 /**
- * Initialization with the number of starting points and step parameters
+ * @brief Initialization with the number of starting points and step parameters
  *
- * @param n_starting_points The number of simultaneous starting points
- * @param finite_step The size of the difference-quotient step
- * @param step_size The multiplicative factor for the step along the search direction
+ * @param n_starting_points The number of simultaneous, independent conjugate gradient descents
+ * @param finite_step The size of the difference-quotient step (in per mill of the parameter value range)
+ * @param step_size The multiplicative factor for the (initial trial) step along the search direction
  */
 GConjugateGradientDescent::GConjugateGradientDescent(
     const std::size_t &n_starting_points,
@@ -148,7 +171,9 @@ GConjugateGradientDescent::GConjugateGradientDescent(
 
 /******************************************************************************/
 /**
- * Retrieves the number of starting points of the algorithm
+ * @brief Retrieves the number of starting points of the algorithm
+ *
+ * @return The number of simultaneous starting points
  */
 std::size_t GConjugateGradientDescent::getNStartingPoints() const {
     return n_starting_points_;
@@ -156,7 +181,9 @@ std::size_t GConjugateGradientDescent::getNStartingPoints() const {
 
 /******************************************************************************/
 /**
- * Allows to set the number of starting points for the conjugate gradient descent
+ * @brief Allows to set the number of starting points for the conjugate gradient descent
+ *
+ * @param n_starting_points The desired number of simultaneous starting points; throws if 0
  */
 void GConjugateGradientDescent::setNStartingPoints(std::size_t n_starting_points) {
     if(n_starting_points == 0) {
@@ -172,7 +199,9 @@ void GConjugateGradientDescent::setNStartingPoints(std::size_t n_starting_points
 
 /******************************************************************************/
 /**
- * Set the size of the finite step of the difference quotient
+ * @brief Set the size of the finite step of the difference quotient
+ *
+ * @param finite_step The finite step size in per mill of the parameter value range; must be in ]0.:1000.] or the call throws
  */
 void GConjugateGradientDescent::setFiniteStep(double finite_step) {
     if(finite_step <= 0. ||
@@ -193,7 +222,9 @@ void GConjugateGradientDescent::setFiniteStep(double finite_step) {
 
 /******************************************************************************/
 /**
- * Retrieve the size of the finite step of the difference quotient
+ * @brief Retrieve the size of the finite step of the difference quotient
+ *
+ * @return The finite step size (in per mill of the parameter value range)
  */
 double GConjugateGradientDescent::getFiniteStep() const {
     return finite_step_;
@@ -201,7 +232,9 @@ double GConjugateGradientDescent::getFiniteStep() const {
 
 /******************************************************************************/
 /**
- * Sets a multiplier for the step along the search direction
+ * @brief Sets a multiplier for the step along the search direction
+ *
+ * @param step_size The (initial trial) step size in per mill of the parameter value range; must be in ]0.:1000.] or the call throws
  */
 void GConjugateGradientDescent::setStepSize(double step_size) {
     if(step_size <= 0. ||
@@ -219,7 +252,9 @@ void GConjugateGradientDescent::setStepSize(double step_size) {
 
 /******************************************************************************/
 /**
- * Retrieves the current step size
+ * @brief Retrieves the current step size
+ *
+ * @return The (initial trial) step size (in per mill of the parameter value range)
  */
 double GConjugateGradientDescent::getStepSize() const {
     return step_size_;
@@ -227,8 +262,10 @@ double GConjugateGradientDescent::getStepSize() const {
 
 /******************************************************************************/
 /**
- * Selects the search-direction rule. STEEPEST_DESCENT (beta == 0) reproduces the former, separate
+ * @brief Selects the search-direction rule. STEEPEST_DESCENT (beta == 0) reproduces the former, separate
  * gradient-descent algorithm; CONJUGATE_PR_PLUS (the default) is the Polak-Ribiere+ nonlinear CG.
+ *
+ * @param gm The search-direction rule to use (steepest descent, a conjugate-gradient variant, or L-BFGS)
  */
 void GConjugateGradientDescent::setGradientMethod(gradientMethod gm) {
     gradient_method_ = gm;
@@ -236,50 +273,80 @@ void GConjugateGradientDescent::setGradientMethod(gradientMethod gm) {
 
 /******************************************************************************/
 /**
- * Retrieves the search-direction rule currently in use.
+ * @brief Retrieves the search-direction rule currently in use.
+ *
+ * @return The currently selected search-direction rule
  */
 gradientMethod GConjugateGradientDescent::getGradientMethod() const {
     return gradient_method_;
 }
 
 /******************************************************************************/
-/** @brief Enables/disables the O(h^2) central-difference gradient (doubles the probes per direction). */
+/**
+ * @brief Enables/disables the O(h^2) central-difference gradient (doubles the probes per direction).
+ *
+ * @param central true to use the central-difference gradient, false for the default forward difference
+ */
 void GConjugateGradientDescent::setCentralDifferences(bool central) {
     central_differences_ = central;
 }
 
 /******************************************************************************/
-/** @brief Whether the central-difference gradient is in use. */
+/**
+ * @brief Whether the central-difference gradient is in use.
+ *
+ * @return true if the central-difference gradient is enabled, false for the forward difference
+ */
 bool GConjugateGradientDescent::getCentralDifferences() const {
     return central_differences_;
 }
 
 /******************************************************************************/
-/** @brief Sets the L-BFGS history size m (clamped to >= 1). */
+/**
+ * @brief Sets the L-BFGS history size m (clamped to >= 1).
+ *
+ * @param m The number of (s, y) curvature pairs to keep per starting point; a value of 0 is clamped to 1
+ */
 void GConjugateGradientDescent::setLBFGSMemory(std::size_t m) {
     lbfgs_memory_ = (m == 0) ? 1 : m;
 }
 
 /******************************************************************************/
-/** @brief Retrieves the L-BFGS history size m. */
+/**
+ * @brief Retrieves the L-BFGS history size m.
+ *
+ * @return The number of (s, y) curvature pairs kept per starting point
+ */
 std::size_t GConjugateGradientDescent::getLBFGSMemory() const {
     return lbfgs_memory_;
 }
 
 /******************************************************************************/
-/** @brief Selects whether/how a MINUIT-style parameter-error estimate is computed at convergence. */
+/**
+ * @brief Selects whether/how a MINUIT-style parameter-error estimate is computed at convergence.
+ *
+ * @param em The error-estimation mode (none, diagonal, full Hessian, or MINOS asymmetric)
+ */
 void GConjugateGradientDescent::setErrorEstimation(errorEstimationMode em) {
     error_estimation_ = em;
 }
 
 /******************************************************************************/
-/** @brief Retrieves the error-estimation mode currently in use. */
+/**
+ * @brief Retrieves the error-estimation mode currently in use.
+ *
+ * @return The currently selected error-estimation mode
+ */
 errorEstimationMode GConjugateGradientDescent::getErrorEstimation() const {
     return error_estimation_;
 }
 
 /******************************************************************************/
-/** @brief Sets the error definition UP (the objective increase defining one standard deviation). */
+/**
+ * @brief Sets the error definition UP (the objective increase defining one standard deviation).
+ *
+ * @param up The MINUIT error definition UP (e.g. 1 for chi^2, 0.5 for -logL); must be positive or the call throws
+ */
 void GConjugateGradientDescent::setErrorDefinition(double up) {
     if(up <= 0.) {
         throw geneva_exception(
@@ -292,20 +359,30 @@ void GConjugateGradientDescent::setErrorDefinition(double up) {
 }
 
 /******************************************************************************/
-/** @brief Retrieves the error definition UP. */
+/**
+ * @brief Retrieves the error definition UP.
+ *
+ * @return The MINUIT error definition UP
+ */
 double GConjugateGradientDescent::getErrorDefinition() const {
     return error_up_;
 }
 
 /******************************************************************************/
-/** @brief Retrieves the most recent convergence error estimate. */
+/**
+ * @brief Retrieves the most recent convergence error estimate.
+ *
+ * @return The error estimate produced by the last finalize() pass (its validity flags indicate whether it is usable)
+ */
 GHesseErrorResult GConjugateGradientDescent::getLastErrorEstimate() const {
     return last_error_estimate_;
 }
 
 /******************************************************************************/
 /**
- * Retrieve the number of processable items in the current iteration.
+ * @brief Retrieve the number of processable items in the current iteration.
+ *
+ * @return The number of items to process, i.e. the full population size (every individual is re-evaluated each iteration)
  */
 std::size_t GConjugateGradientDescent::getNProcessableItems_() const {
     return this->size(); // The entire population is (re-)evaluated every iteration
@@ -313,8 +390,12 @@ std::size_t GConjugateGradientDescent::getNProcessableItems_() const {
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
+ *
+ * @param cp A constant reference to another GOptimizationAlgorithmBase object to compare against
+ * @param e The expected outcome of the comparison (e.g. equality or inequality)
+ * @param limit The maximum acceptable deviation for floating-point comparisons (unused here)
  */
 void GConjugateGradientDescent::compare_(
     const GOptimizationAlgorithmBase &cp,
@@ -343,7 +424,7 @@ void GConjugateGradientDescent::compare_(
 
 /******************************************************************************/
 /**
- * Resets the settings of this population to what was configured when
+ * @brief Resets the settings of this population to what was configured when
  * the optimize()-call was issued
  */
 void GConjugateGradientDescent::resetToOptimizationStart_() {
@@ -358,7 +439,9 @@ void GConjugateGradientDescent::resetToOptimizationStart_() {
 
 /******************************************************************************/
 /**
- * Loads the data of another population
+ * @brief Loads the data of another population
+ *
+ * @param cp A pointer to another GConjugateGradientDescent object, camouflaged as a GOptimizationAlgorithmBase (not taken over)
  */
 void GConjugateGradientDescent::load_(const GOptimizationAlgorithmBase *cp) {
     const GConjugateGradientDescent *p_load =
@@ -422,7 +505,7 @@ std::tuple<double, double> GConjugateGradientDescent::cycleLogic_() {
 
 /******************************************************************************/
 /**
- * Rebuilds the difference-quotient children of every starting point. For starting point i and
+ * @brief Rebuilds the difference-quotient children of every starting point. For starting point i and
  * direction j the child(ren) at
  *
  *   n_starting_points_ + i * children_per_sp + j * n_probes + probe   (children_per_sp = n_fp * n_probes)
@@ -467,7 +550,7 @@ void GConjugateGradientDescent::updateChildParameters() {
 
 /******************************************************************************/
 /**
- * Performs a non-linear conjugate-gradient step for every starting point.
+ * @brief Performs a non-linear conjugate-gradient step for every starting point.
  *
  * For each starting point the (proxy) gradient component in direction j is the
  * forward difference
@@ -786,12 +869,15 @@ void GConjugateGradientDescent::updateParentIndividuals() {
 
 /******************************************************************************/
 /**
- * Evaluates a batch of trial parameter vectors (the line-search probes) by cloning the given starting
+ * @brief Evaluates a batch of trial parameter vectors (the line-search probes) by cloning the given starting
  * point, assigning each probe's floating point values, and submitting the lot through the same
- * span+policy consumer path the main algorithm uses (this->workOn). Returns one min-only fitness per
- * probe, in input order. Because submission goes through the broker/executor, the probes are evaluated
- * on whatever consumer is active -- serial, multi-threaded, GPU or networked -- so the line search is
- * fully decoupled from where evaluation happens.
+ * span+policy consumer path the main algorithm uses (this->workOn). Because submission goes through the
+ * broker/executor, the probes are evaluated on whatever consumer is active -- serial, multi-threaded, GPU
+ * or networked -- so the line search is fully decoupled from where evaluation happens.
+ *
+ * @param starting_point The population position of the starting-point individual to clone for each probe
+ * @param points The trial parameter vectors to evaluate (each is one set of active floating point values)
+ * @return One min-only transformed fitness per probe, in the same order as points
  */
 std::vector<double> GConjugateGradientDescent::evaluateProbes(
     std::size_t starting_point,
@@ -817,7 +903,9 @@ std::vector<double> GConjugateGradientDescent::evaluateProbes(
 
 /******************************************************************************/
 /**
- * Adds local configuration options to a GParserBuilder object
+ * @brief Adds local configuration options to a GParserBuilder object
+ *
+ * @param gpb The GParserBuilder object to which the configuration options are added
  */
 void GConjugateGradientDescent::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
@@ -889,7 +977,9 @@ void GConjugateGradientDescent::addConfigurationOptions_(Gem::Common::GParserBui
 
 /******************************************************************************/
 /**
- * Triggers fitness calculation of all individuals via the broker.
+ * @brief Triggers fitness calculation of all individuals via the broker.
+ *
+ * Throws a geneva_exception if no complete set of evaluated items is received or if any individual reports errors.
  */
 void GConjugateGradientDescent::runFitnessCalculation_() {
     using namespace Gem::Courtier;
@@ -924,7 +1014,10 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
 
 /******************************************************************************/
 /**
- * Does some preparatory work before the optimization starts
+ * @brief Does some preparatory work before the optimization starts
+ *
+ * Extracts the active-parameter boundaries, recomputes the per-parameter finite step, and (re-)initialises
+ * the conjugate-gradient state and per-individual population positions.
  */
 void GConjugateGradientDescent::init() {
     // To be performed before any other action
@@ -973,7 +1066,7 @@ void GConjugateGradientDescent::init() {
 
 /******************************************************************************/
 /**
- * Recomputes the per-parameter difference-quotient step from finite_step_ and
+ * @brief Recomputes the per-parameter difference-quotient step from finite_step_ and
  * the extracted parameter ranges. Before init() the boundary vectors are
  * empty, so adjusted_finite_step_ is simply cleared and init() fills it once the
  * boundaries are known.
@@ -1001,7 +1094,7 @@ void GConjugateGradientDescent::updateDerivedQuantities() {
 
 /******************************************************************************/
 /**
- * (Re-)initialises the per-starting-point conjugate-gradient memory. Called
+ * @brief (Re-)initialises the per-starting-point conjugate-gradient memory. Called
  * from init() once n_fp_parms_first_ is known (it is set in adjustPopulation_,
  * which runs before init()).
  */
@@ -1033,7 +1126,10 @@ void GConjugateGradientDescent::resetCGState() {
 
 /******************************************************************************/
 /**
- * Does any necessary finalization work
+ * @brief Does any necessary finalization work
+ *
+ * When error estimation is enabled, computes an optional MINUIT-style parameter-error estimate at the
+ * best (converged) starting point and logs it, then delegates to the base class.
  */
 void GConjugateGradientDescent::finalize() {
     // Optional MINUIT-style parameter-error estimate at the converged minimum (opt-in). The curvature
@@ -1105,7 +1201,9 @@ void GConjugateGradientDescent::finalize() {
 
 /******************************************************************************/
 /**
- * Retrieve a GPersonalityTraits object belonging to this algorithm
+ * @brief Retrieve a GPersonalityTraits object belonging to this algorithm
+ *
+ * @return A new GConjugateGradientDescent_PersonalityTraits object, camouflaged as a GPersonalityTraits
  */
 std::shared_ptr<GPersonalityTraits> GConjugateGradientDescent::getPersonalityTraits_() const {
     return std::make_shared<GConjugateGradientDescent_PersonalityTraits>();
@@ -1113,7 +1211,7 @@ std::shared_ptr<GPersonalityTraits> GConjugateGradientDescent::getPersonalityTra
 
 /******************************************************************************/
 /**
- * Gives individuals an opportunity to update their internal structures. A
+ * @brief Gives individuals an opportunity to update their internal structures. A
  * conjugate gradient descent is largely deterministic; nothing to do here.
  */
 void GConjugateGradientDescent::actOnStalls_() {
@@ -1122,7 +1220,7 @@ void GConjugateGradientDescent::actOnStalls_() {
 
 /******************************************************************************/
 /**
- * Resizes the population to the desired level and does some error checks. The population is
+ * @brief Resizes the population to the desired level and does some error checks. The population is
  * n_starting_points_ * (n_fp_parms_first_ * n_probes + 1) individuals, where n_probes is 1 (forward
  * difference) or 2 (central difference): each starting point plus its perturbed difference-quotient
  * children.
@@ -1226,7 +1324,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
 
 /******************************************************************************/
 /**
- * Lets all individuals know about their position in the population.
+ * @brief Lets all individuals know about their position in the population.
  */
 void GConjugateGradientDescent::markIndividualPositions() {
     for(std::size_t pos = 0; pos < this->size(); pos++) {

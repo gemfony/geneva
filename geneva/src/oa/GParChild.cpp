@@ -57,7 +57,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor, As we do not have any individuals yet, we set the population
+ * @brief The default constructor. As we do not have any individuals yet, we set the population
  * size, and number of parents to 0. It is the philosophy of this class not
  * to provide constructors for each and every use case. Instead, you should set
  * vital parameters, such as the population size or the parent individuals by hand
@@ -74,12 +74,12 @@ GParChild::GParChild() {
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GParChild object
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
+ * @param cp A constant reference to another GOptimizationAlgorithmBase, expected to be a GParChild
+ * @param e The expected outcome of the comparison (e.g. equality or inequality)
+ * @param limit The maximum deviation for floating point values (unused here; important for similarity checks)
  */
 void GParChild::compare_(
     const GOptimizationAlgorithmBase &cp,
@@ -106,7 +106,7 @@ void GParChild::compare_(
 
 /******************************************************************************/
 /**
- * Resets the settings of this population to what was configured when
+ * @brief Resets the settings of this population to what was configured when
  * the optimize()-call was issued
  */
 void GParChild::resetToOptimizationStart_() {
@@ -117,12 +117,12 @@ void GParChild::resetToOptimizationStart_() {
 
 /******************************************************************************/
 /**
- * Specifies the default size of the population plus the number of parents.
+ * @brief Specifies the default size of the population plus the number of parents.
  * The population will be filled with additional individuals later, as required --
- * see GParChildT::adjustPopulation() . Also, all error checking is done in
+ * see GParChild::adjustPopulation_() . Also, all error checking is done in
  * that function.
  *
- * @param pop_size The desired size of the population
+ * @param pop_size The desired total size of the population
  * @param n_parents The desired number of parents
  */
 void GParChild::setPopulationSizes(
@@ -141,7 +141,7 @@ void GParChild::setPopulationSizes(
 
 /******************************************************************************/
 /**
- * Retrieve the number of parents as set by the user. This is a fixed parameter and
+ * @brief Retrieve the number of parents as set by the user. This is a fixed parameter and
  * should not be changed after it has first been set. Note that, if the size of the
  * population is smaller than the alleged number of parents, the function will return
  * the size of the population instead, thus interpreting its individuals as parents.
@@ -154,7 +154,7 @@ std::size_t GParChild::getNParents() const {
 
 /******************************************************************************/
 /**
- * Calculates the current number of children from the number of parents and the
+ * @brief Calculates the current number of children from the number of parents and the
  * size of the vector.
  *
  * @return The number of children in the population
@@ -171,7 +171,7 @@ std::size_t GParChild::getNChildren() const {
 
 /******************************************************************************/
 /**
- * Retrieves the defaultNChildren_ parameter. E.g. in GTransferPopulation::adaptChildren() ,
+ * @brief Retrieves the defaultNChildren_ parameter. E.g. in GTransferPopulation::adaptChildren() ,
  * this factor controls when a population is considered to be complete. The corresponding
  * loop which waits for new arrivals will then be stopped, which in turn allows
  * a new generation to start.
@@ -184,7 +184,7 @@ std::size_t GParChild::getDefaultNChildren() const {
 
 /**************************************************************************/
 /**
- * Retrieve the number of processible items in the current iteration.
+ * @brief Retrieve the number of processible items in the current iteration.
  *
  * @return The number of processible items in the current iteration
  */
@@ -207,10 +207,10 @@ std::size_t GParChild::getNProcessableItems_() const {
 
 /******************************************************************************/
 /**
- * Lets the user set the desired recombination method. No sanity checks for the
+ * @brief Lets the user set the desired recombination method. No sanity checks for the
  * values are necessary, as we use an enum.
  *
- * @param recombination_method The desired recombination method
+ * @param recombination_method The desired recombination (duplication) scheme
  */
 void GParChild::setRecombinationMethod(
     duplicationScheme recombination_method
@@ -220,9 +220,9 @@ void GParChild::setRecombinationMethod(
 
 /******************************************************************************/
 /**
- * Retrieves the value of the recombinationMethod_ variable
+ * @brief Retrieves the value of the recombination_method_ variable
  *
- * @return The value of the recombinationMethod_ variable
+ * @return The currently configured recombination (duplication) scheme
  */
 duplicationScheme GParChild::getRecombinationMethod() const {
     return recombination_method_;
@@ -230,9 +230,9 @@ duplicationScheme GParChild::getRecombinationMethod() const {
 
 /******************************************************************************/
 /**
- * Adds the option to increase the population by a given amount per iteration
+ * @brief Adds the option to increase the population by a given amount per iteration
  *
- * @param growth_rate The amount of individuals to be added in each iteration
+ * @param growth_rate The number of individuals to be added in each iteration
  * @param max_population_size The maximum allowed size of the population
  */
 void GParChild::setPopulationGrowth(
@@ -245,7 +245,7 @@ void GParChild::setPopulationGrowth(
 
 /******************************************************************************/
 /**
- * Allows to retrieve the growth rate of the population
+ * @brief Allows to retrieve the growth rate of the population
  *
  * @return The growth rate of the population per iteration
  */
@@ -255,7 +255,7 @@ std::size_t GParChild::getGrowthRate() const {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the maximum population size when growth is enabled
+ * @brief Allows to retrieve the maximum population size when growth is enabled
  *
  * @return The maximum population size allowed, when growth is enabled
  */
@@ -265,7 +265,7 @@ std::size_t GParChild::getMaxPopulationSize() const {
 
 /******************************************************************************/
 /**
- * Adds local configuration options to a GParserBuilder object
+ * @brief Adds local configuration options to a GParserBuilder object
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
@@ -328,8 +328,10 @@ void GParChild::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
 
 /******************************************************************************/
 /**
- * Allows to set the likelihood for amalgamation of two units to be
+ * @brief Allows to set the likelihood for amalgamation of two units to be
  * performed instead of "just" duplication.
+ *
+ * @param amalgamation_likelihood The likelihood for amalgamation (cross-over), must be in the range [0,1]
  */
 void GParChild::setAmalgamationLikelihood(double amalgamation_likelihood) {
     if(amalgamation_likelihood < 0. || amalgamation_likelihood > 1.) {
@@ -345,8 +347,10 @@ void GParChild::setAmalgamationLikelihood(double amalgamation_likelihood) {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the likelihood for amalgamation of two units to be
+ * @brief Allows to retrieve the likelihood for amalgamation of two units to be
  * performed instead of "just" duplication.
+ *
+ * @return The currently configured amalgamation (cross-over) likelihood, in the range [0,1]
  */
 double GParChild::getAmalgamationLikelihood() const {
     return amalgamation_likelihood_;
@@ -354,7 +358,7 @@ double GParChild::getAmalgamationLikelihood() const {
 
 /******************************************************************************/
 /**
- * This function assigns a new value to each child individual according to the chosen
+ * @brief This function assigns a new value to each child individual according to the chosen
  * recombination scheme.
  */
 void GParChild::doRecombine() {
@@ -529,7 +533,7 @@ void GParChild::doRecombine() {
 
 /******************************************************************************/
 /**
- * Gives individuals an opportunity to update their internal structures. Here
+ * @brief Gives individuals an opportunity to update their internal structures. Here
  * we just trigger an update of the adaptors. We only do so for parents, as
  * they will be replicated in the next iteration. We leave the best parent
  * untouched, so that otherwise successful adaptor settings may survive.
@@ -547,7 +551,7 @@ void GParChild::actOnStalls_() {
 
 /******************************************************************************/
 /**
- * Adapts all children in parallel, driven by the OA-owned adaption config (built at init()).
+ * @brief Adapts all children in parallel, driven by the OA-owned adaption config (built at init()).
  * Identical for every mu/lambda algorithm, so it lives here rather than being duplicated in each
  * derived class. The config is read-only inside the parallel schedule, so the loop is lock-free.
  */
@@ -603,7 +607,7 @@ void GParChild::adaptChildren_() {
 
 /******************************************************************************/
 /**
- * Reconciles the population after a job submission. Identical across the mu/lambda algorithms (it was
+ * @brief Reconciles the population after a job submission. Identical across the mu/lambda algorithms (it was
  * duplicated verbatim in EA and SA), so it lives here. The per-algorithm parent/child personality type
  * is obtained through makePersonalityTraits() (the virtual factory), and the parent/child flags are
  * read/written through the GBaseParChildPersonalityTraits base interface -- both are uniform, so no
@@ -711,7 +715,9 @@ void GParChild::fixAfterJobSubmission() {
 
 /******************************************************************************/
 /**
- * Emits a name for this class / object
+ * @brief Emits a name for this class / object
+ *
+ * @return The string "GParChild"
  */
 std::string GParChild::name_() const {
     return std::string("GParChild");
@@ -719,9 +725,9 @@ std::string GParChild::name_() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GParChildT object.
+ * @brief Loads the data of another GParChild object.
  *
- * @param cp A pointer to another GParChildT object
+ * @param cp A pointer to another GOptimizationAlgorithmBase, expected to be a GParChild
  */
 void GParChild::load_(const GOptimizationAlgorithmBase *cp) {
     // Check that we are dealing with a GParChild  reference independent of this object and convert the pointer
@@ -737,7 +743,7 @@ void GParChild::load_(const GOptimizationAlgorithmBase *cp) {
 
 /******************************************************************************/
 /**
- * This function is called from GOptimizationAlgorithmBase::optimize() and performs the
+ * @brief This function is called from GOptimizationAlgorithmBase::optimize() and performs the
  * actual recombination, based on the recombination schemes defined by the user.
  *
  * Note that, in DEBUG mode, this implementation will enforce a minimum number of children,
@@ -772,9 +778,9 @@ void GParChild::recombine() {
 
 /******************************************************************************/
 /**
- * Retrieves the adaption range in a given iteration and sorting scheme.
+ * @brief Retrieves the adaption range in a given iteration and sorting scheme.
  *
- * @return The range inside which adaption should take place
+ * @return A tuple holding the half-open [start, end) range of population positions to be adapted (children only)
  */
 std::tuple<std::size_t, std::size_t> GParChild::getAdaptionRange() const {
     return std::tuple<std::size_t, std::size_t>{n_parents_, this->size()};
@@ -782,7 +788,7 @@ std::tuple<std::size_t, std::size_t> GParChild::getAdaptionRange() const {
 
 /******************************************************************************/
 /**
- * This helper function marks parents as parents and children as children.
+ * @brief This helper function marks the first n_parents_ individuals in the population as parents.
  */
 void GParChild::markParents() {
     typename std::vector<std::unique_ptr<gen::GIndividualSlot>>::iterator it;
@@ -797,7 +803,7 @@ void GParChild::markParents() {
 
 /******************************************************************************/
 /**
- * This helper function marks children as children
+ * @brief This helper function marks the individuals behind the parents as children
  */
 void GParChild::markChildren() {
     typename std::vector<std::unique_ptr<gen::GIndividualSlot>>::iterator it;
@@ -812,7 +818,7 @@ void GParChild::markChildren() {
 
 /******************************************************************************/
 /**
- * This helper function lets all individuals know about their position in the
+ * @brief This helper function lets all individuals know about their position in the
  * population.
  */
 void GParChild::markIndividualPositions() {
@@ -826,10 +832,10 @@ void GParChild::markIndividualPositions() {
 
 /******************************************************************************/
 /**
- * This function implements the logic that constitutes evolutionary algorithms. The
+ * @brief This function implements the logic that constitutes evolutionary algorithms. The
  * function is called by GOptimizationAlgorithmBase for each cycle of the optimization,
  *
- * @return The value of the best individual found
+ * @return A tuple holding the raw and transformed primary fitness of the best individual found
  */
 std::tuple<double, double> GParChild::cycleLogic_() {
     // If this is not the first iteration, check whether we need to increase the population
@@ -867,7 +873,7 @@ std::tuple<double, double> GParChild::cycleLogic_() {
 
 /******************************************************************************/
 /**
- * The function checks that the population size meets the requirements and does some
+ * @brief The function checks that the population size meets the requirements and does some
  * tagging. It is called from within GOptimizationAlgorithmBase::optimize(), before the
  * actual optimization cycle starts.
  */
@@ -932,10 +938,12 @@ void GParChild::init() {
 
 /******************************************************************************/
 /**
- * Stores the externally-supplied OA-owned adaption configuration. init() adopts it -- after a
+ * @brief Stores the externally-supplied OA-owned adaption configuration. init() adopts it -- after a
  * checkConsistency() against the population's genome -- as the algorithm's run config; an adapting
  * algorithm with no config provided is a hard error (the genome carries no adaption intent). Passing a
  * null pointer clears it.
+ *
+ * @param config The OA-owned adaption configuration to store (shared ownership; a null pointer clears it)
  */
 void GParChild::setAdaptionConfig(std::shared_ptr<GAdaptionConfigBase> config) {
     provided_adaption_config_ = std::move(config);
@@ -943,7 +951,7 @@ void GParChild::setAdaptionConfig(std::shared_ptr<GAdaptionConfigBase> config) {
 
 /******************************************************************************/
 /**
- * Does any necessary finalization work
+ * @brief Does any necessary finalization work
  */
 void GParChild::finalize() {
     // Last action
@@ -952,7 +960,7 @@ void GParChild::finalize() {
 
 /******************************************************************************/
 /**
- * The function checks that the population size meets the requirements and resizes the
+ * @brief The function checks that the population size meets the requirements and resizes the
  * population to the appropriate size, if required. An obvious precondition is that at
  * least one individual has been added to the population. Individuals that have already
  * been added will not be replaced. This function is called once before the optimization
@@ -1011,7 +1019,7 @@ void GParChild::adjustPopulation_() {
 
 /******************************************************************************/
 /**
- * Increases the population size if requested by the user. This will happen until the population size exceeds
+ * @brief Increases the population size if requested by the user. This will happen until the population size exceeds
  * a predefined value, set with setPopulationGrowth() .
  */
 void GParChild::performScheduledPopulationGrowth() {
@@ -1034,10 +1042,10 @@ void GParChild::performScheduledPopulationGrowth() {
 
 /******************************************************************************/
 /**
- * This function implements the RANDOMDUPLICATIONSCHEME scheme. This functions uses BOOST's
- * numeric_cast function for safe conversion between std::size_t and uint16_t.
+ * @brief This function implements the RANDOMDUPLICATIONSCHEME scheme: a parent is chosen at random and
+ * its whole slot (individual plus OA-owned adaption scratch) is copied into the given child slot.
  *
- * @param child The individual for which a new value should be chosen
+ * @param child The child slot into which the randomly chosen parent's slot is loaded
  */
 void GParChild::randomRecombine(const std::unique_ptr<gen::GIndividualSlot> &child) {
     std::size_t parent_pos = 0;
@@ -1068,14 +1076,14 @@ void GParChild::randomRecombine(const std::unique_ptr<gen::GIndividualSlot> &chi
 
 /******************************************************************************/
 /**
- * This function implements the VALUEDUPLICATIONSCHEME scheme. The range [0.,1.[ is divided
+ * @brief This function implements the VALUEDUPLICATIONSCHEME scheme. The range [0.,1.[ is divided
  * into nParents_ sub-areas with different size (the largest for the first parent,
  * the smallest for the last). Parents are chosen for recombination according to a
  * random number evenly distributed between 0 and 1. This way parents with higher
  * fitness are more likely to be chosen for recombination.
  *
- * @param p The child individual for which a parent should be chosen
- * @param threshold A std::vector<double> holding the recombination likelihoods for each parent
+ * @param child The child slot into which the chosen parent's slot is loaded
+ * @param threshold A std::vector<double> holding the cumulative recombination likelihoods for each parent
  */
 void GParChild::valueRecombine(
     const std::unique_ptr<gen::GIndividualSlot> &child,
@@ -1109,7 +1117,7 @@ void GParChild::valueRecombine(
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -1133,7 +1141,7 @@ bool GParChild::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GParChild::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -1150,7 +1158,7 @@ void GParChild::specificTestsNoFailureExpected_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GParChild::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING

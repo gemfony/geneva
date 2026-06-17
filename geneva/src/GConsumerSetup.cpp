@@ -53,13 +53,24 @@ namespace Gem::Geneva {
 
 namespace {
 
-/** @brief The polymorphic clone for GOptimizableEntity (copy-construction would slice the held individual). */
+/**
+ * @brief Builds the polymorphic clone functor for GOptimizableEntity.
+ *
+ * Copy-construction would slice the held individual, so a virtual clone_unique() is used instead.
+ *
+ * @return A functor that deep-copies a GOptimizableEntity via its virtual clone_unique()
+ */
 std::function<std::unique_ptr<gen::GOptimizableEntity>(const std::unique_ptr<gen::GOptimizableEntity> &)>
 individualCloneFunction() {
     return [](const std::unique_ptr<gen::GOptimizableEntity> &p) { return p->clone_unique(); };
 }
 
-/** @brief Wraps a ready consumer (clone function already set) in a fresh single-consumer broker. */
+/**
+ * @brief Wraps a ready consumer (clone function already set) in a fresh single-consumer broker.
+ *
+ * @param consumer The fully configured consumer to register; ownership is taken (moved) into the broker
+ * @return A new broker with the given consumer registered as its sole consumer
+ */
 std::shared_ptr<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>>
 brokerFor(std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer) {
     auto broker = std::make_shared<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>>();
@@ -70,7 +81,16 @@ brokerFor(std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>
 } /* anonymous namespace */
 
 /******************************************************************************/
-
+/**
+ * @brief Builds a broker (and, for MPI workers, a worker loop) from a consumer specification.
+ *
+ * Dispatches on spec.mnemonic to instantiate the matching consumer, sets its clone function, starts
+ * any required server, and wraps it in a single-consumer broker. For the MPI mnemonic the master rank
+ * yields a broker while a worker rank yields a run_worker callable instead (and no broker).
+ *
+ * @param spec The consumer specification (mnemonic plus port/threads/serialization settings)
+ * @return A ConsumerSetup holding the broker and/or worker loop; empty for an unknown mnemonic
+ */
 ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
     namespace c2 = Gem::Courtier;
     ConsumerSetup setup;
@@ -119,7 +139,16 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
 }
 
 /******************************************************************************/
-
+/**
+ * @brief Reads a consumer specification out of the parsed command-line options.
+ *
+ * Each option read is guarded so an absent option leaves the corresponding spec default in place.
+ * The "sc" and "mpi" mnemonics carry no networked spec fields and rely entirely on the defaults.
+ *
+ * @param mnemonic The selected consumer mnemonic (e.g. "asio", "beast", "stc")
+ * @param vm The parsed program-options map produced during command-line parsing
+ * @return A ConsumerSpec populated from vm for the given mnemonic
+ */
 ConsumerSpec specFromCommandLine(
     const std::string &mnemonic, const boost::program_options::variables_map &vm) {
     ConsumerSpec spec;
@@ -180,6 +209,16 @@ ConsumerSpec specFromCommandLine(
 
 /******************************************************************************/
 
+/**
+ * @brief Builds the networked client matching a consumer specification.
+ *
+ * The asio and beast mnemonics produce a transport client wired to the spec's connection settings.
+ * Local-only consumers (sc/stc) need no client; the MPI worker loop is provided by
+ * buildConsumerSetup().run_worker instead.
+ *
+ * @param spec The consumer specification (mnemonic plus connection/serialization settings)
+ * @return A client for asio/beast; nullptr for local-only or non-client consumers
+ */
 std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GOptimizableEntity>>
 buildConsumerClient(const ConsumerSpec &spec) {
     namespace cons = Gem::Courtier::Consumers;
@@ -220,6 +259,12 @@ constexpr C2ConsumerInfo kC2Consumers[] = {
 #endif /* GENEVA_BUILD_WITH_MPI_CONSUMER */
 };
 
+/**
+ * @brief Looks up the consumer-info table entry for a mnemonic.
+ *
+ * @param mnemonic The consumer mnemonic to search for
+ * @return Pointer to the matching table entry, or nullptr if the mnemonic is unknown
+ */
 const C2ConsumerInfo *findC2Consumer(const std::string &mnemonic) {
     for(const auto &info : kC2Consumers) {
         if(mnemonic == info.mnemonic) {
@@ -233,6 +278,15 @@ const C2ConsumerInfo *findC2Consumer(const std::string &mnemonic) {
 
 /******************************************************************************/
 
+/**
+ * @brief Registers all consumer-related command-line options.
+ *
+ * Adds the per-consumer options (asio, beast, stc, and, when built, mpi) to the supplied
+ * program-options descriptions, splitting user-facing options from rarely-used/debug ones.
+ *
+ * @param visible The options description for user-facing options (shown in --help)
+ * @param hidden The options description for hidden/advanced options
+ */
 void addConsumerOptions(
     boost::program_options::options_description &visible,
     boost::program_options::options_description &hidden) {
@@ -308,12 +362,24 @@ void addConsumerOptions(
 
 /******************************************************************************/
 
+/**
+ * @brief Reports whether a mnemonic names a supported consumer.
+ *
+ * @param mnemonic The consumer mnemonic to test
+ * @return true if the mnemonic is a known/supported consumer, false otherwise
+ */
 bool isKnownConsumer(const std::string &mnemonic) {
     return findC2Consumer(mnemonic) != nullptr;
 }
 
 /******************************************************************************/
 
+/**
+ * @brief Reports whether a consumer requires a separate networked client process.
+ *
+ * @param mnemonic The consumer mnemonic to test
+ * @return true if the consumer can have a client (networked consumers), false otherwise (incl. unknown mnemonics)
+ */
 bool consumerNeedsClient(const std::string &mnemonic) {
     const C2ConsumerInfo *info = findC2Consumer(mnemonic);
     return info != nullptr && info->needs_client;
@@ -321,6 +387,11 @@ bool consumerNeedsClient(const std::string &mnemonic) {
 
 /******************************************************************************/
 
+/**
+ * @brief Produces a human-readable listing of all supported consumers.
+ *
+ * @return A newline-separated string mapping each mnemonic to its class name
+ */
 std::string consumerListing() {
     std::string result;
     for(const auto &info : kC2Consumers) {
@@ -331,6 +402,11 @@ std::string consumerListing() {
 
 /******************************************************************************/
 
+/**
+ * @brief Returns the number of supported consumers.
+ *
+ * @return The count of entries in the supported-consumer table (build-dependent, e.g. +1 with MPI)
+ */
 std::size_t consumerCount() {
     return std::size(kC2Consumers);
 }

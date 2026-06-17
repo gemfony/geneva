@@ -77,7 +77,12 @@ trainingSet::trainingSet()
 
 /******************************************************************************/
 /**
- * Initialization with the number of nodes
+ * @brief Initialization with the number of nodes
+ *
+ * Allocates the Input / Output arrays for the given dimensions and zero-initializes them.
+ *
+ * @param n_input The number of input nodes (size of the allocated Input array)
+ * @param n_output The number of output nodes (size of the allocated Output array)
  */
 trainingSet::trainingSet(const std::size_t &n_input, const std::size_t &n_output)
   : nInputNodes(n_input)
@@ -95,7 +100,9 @@ trainingSet::trainingSet(const std::size_t &n_input, const std::size_t &n_output
 
 /******************************************************************************/
 /**
- * A copy constructor
+ * @brief A copy constructor
+ *
+ * @param cp A constant reference to another trainingSet object whose data is deep-copied
  */
 trainingSet::trainingSet(const trainingSet &cp)
   : nInputNodes(0)
@@ -121,10 +128,10 @@ trainingSet::~trainingSet() {
 
 /******************************************************************************/
 /**
- * Assigns another trainingSet's data to this object
+ * @brief Assigns another trainingSet's data to this object
  *
- * @param cp A copy of another trainingSet object
- * @return A constant reference to this object
+ * @param cp A constant reference to another trainingSet object whose data is deep-copied
+ * @return A reference to this object
  */
 trainingSet &trainingSet::operator=(const trainingSet &cp) {
     Gem::Common::copyArrays(cp.Input, Input, cp.nInputNodes, nInputNodes);
@@ -135,11 +142,12 @@ trainingSet &trainingSet::operator=(const trainingSet &cp) {
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GFlatGenome object
+ * @param cp A constant reference to another trainingSet object to compare against
  * @param e The expected outcome of the comparison
+ * @param limit The acceptable deviation limit (unused here; data are compared for identity)
  */
 void trainingSet::compare(
     const trainingSet &cp,
@@ -180,9 +188,9 @@ networkData::networkData()
 
 /******************************************************************************/
 /**
- * Initialization with the amount of entries
+ * @brief Initialization with the amount of entries
  *
- * @param array_size The desired size of the array
+ * @param array_size The desired size of the internal array of training-set pointers
  */
 networkData::networkData(const std::size_t &array_size)
   : array_size_(array_size)
@@ -191,9 +199,9 @@ networkData::networkData(const std::size_t &array_size)
 
 /******************************************************************************/
 /**
- * Initializes the object with data from a file
+ * @brief Initializes the object with data from a file
  *
- * @param network_data_file The name of a file holding the training data
+ * @param network_data_file The name of a file holding the (serialized) training data to load
  */
 networkData::networkData(const std::string &network_data_file)
   : array_size_(0)
@@ -203,9 +211,9 @@ networkData::networkData(const std::string &network_data_file)
 
 /******************************************************************************/
 /**
- * Initializes with data from another networkData object
+ * @brief Initializes with data from another networkData object
  *
- * @param cp A copy of another networkData object
+ * @param cp A constant reference to another networkData object whose data is deep-copied
  */
 networkData::networkData(const networkData &cp)
   : Gem::Common::GPodContainerT<std::size_t>(cp)
@@ -231,11 +239,11 @@ networkData::~networkData() {
 
 /******************************************************************************/
 /**
- * Copies the data of another networkData object into this object, using one of Gemfony's
+ * @brief Copies the data of another networkData object into this object, using one of Gemfony's
  * utility functions.
  *
- * @param cp A copy of another networkData object
- * @return A constant reference to this object
+ * @param cp A constant reference to another networkData object whose data is deep-copied
+ * @return A reference to this object
  */
 networkData &networkData::operator=(const networkData &cp) {
     // Make sure the local data is copied
@@ -246,11 +254,12 @@ networkData &networkData::operator=(const networkData &cp) {
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another networkData object object
+ * @param cp A constant reference to another networkData object to compare against
  * @param e The expected outcome of the comparison
+ * @param limit The acceptable deviation limit (unused here; sizes are compared for identity)
  */
 void networkData::compare(
     const networkData &cp,
@@ -269,9 +278,9 @@ void networkData::compare(
 
 /******************************************************************************/
 /**
- * Saves the data of this struct to disc
+ * @brief Saves the data of this struct to disc
  *
- * @param network_data_file The name of the file that data should be saved to
+ * @param network_data_file The name of the file the data should be saved to (Boost.Serialization XML)
  */
 void networkData::saveToDisk(const std::string &network_data_file) const {
     std::ofstream tr_dat(network_data_file);
@@ -296,9 +305,9 @@ void networkData::saveToDisk(const std::string &network_data_file) const {
 
 /******************************************************************************/
 /**
- * Loads training data from the disc
+ * @brief Loads training data from the disc
  *
- * @param network_data_file The name of the file from which data should be loaded
+ * @param network_data_file The name of the file from which the data should be loaded (Boost.Serialization XML)
  */
 void networkData::loadFromDisk(const std::string &network_data_file) {
     networkData *raw = nullptr;
@@ -352,11 +361,11 @@ void networkData::loadFromDisk(const std::string &network_data_file) {
 
 /******************************************************************************/
 /**
- * Adds a new training set to the collection. Note that the training set isn't
+ * @brief Adds a new training set to the collection. Note that the training set isn't
  * cloned, simply a copy of the smart pointer is stored in the internal array.
  *
- * @param t_s A std::shared_ptr<trainingSet> object, pointing to a training set
- * @param pos The position, in which the data set should be stored.
+ * @param t_s A std::shared_ptr<trainingSet> object, pointing to the training set to store (shared, not cloned)
+ * @param pos The position in the internal array in which the data set should be stored (must be < array size)
  */
 void networkData::addTrainingSet(std::shared_ptr<trainingSet> t_s, const std::size_t &pos) {
     if(pos >= array_size_) {
@@ -371,11 +380,11 @@ void networkData::addTrainingSet(std::shared_ptr<trainingSet> t_s, const std::si
 
 /******************************************************************************/
 /**
- * Retrieves a training set at a given position. If the position exceeds the size of the array,
+ * @brief Retrieves a training set at a given position. If the position exceeds the size of the array,
  * a std::nullopt is returned which evaluates to "false".
  *
- * @param pos The position from which an item should be retreived
- * @return The training set at the requested position (or std::nullopt)
+ * @param pos The position from which an item should be retrieved
+ * @return The training set at the requested position, or std::nullopt if pos is out of range
  */
 std::optional<std::shared_ptr<trainingSet>>
 networkData::getTrainingSet(const std::size_t &pos) const {
@@ -408,13 +417,13 @@ std::size_t networkData::getNOutputNodes() const {
 
 /******************************************************************************/
 /**
- * Saves this data set in ROOT format for visual inspection. It assumes that the input dimension
+ * @brief Saves this data set in ROOT format for visual inspection. It assumes that the input dimension
  * is 2 and the output dimension is 1. It will generate two distributions that will be coloured
  * differently -- one with output < 0.5, the other with output >= 0.5.
  *
- * @param output_file The name of the file used for the visualization of the input data
- * @param min The minimum value of the distribution to be displayed
- * @param max The maximum value of the distribution to be displayed
+ * @param output_file The name of the file the ROOT visualization program should be written to
+ * @param min The minimum axis value of the distribution to be displayed
+ * @param max The maximum axis value of the distribution to be displayed
  */
 void networkData::toROOT(const std::string &output_file, const double &min, const double &max) {
     // Check that we have a matching number of input nodes
@@ -505,7 +514,9 @@ void networkData::toROOT(const std::string &output_file, const double &min, cons
 
 /******************************************************************************/
 /**
- * Allows to check whether an initialization range has been set
+ * @brief Allows to check whether an initialization range has been set
+ *
+ * @return true if an initialization range has been registered, false otherwise
  */
 bool networkData::initRangeSet() const {
     return not init_range_.empty();
@@ -513,7 +524,9 @@ bool networkData::initRangeSet() const {
 
 /******************************************************************************/
 /**
- * Allows to set the initialization range
+ * @brief Allows to set the initialization range
+ *
+ * @param init_range A vector of (lower, upper) tuples, one per input dimension, defining the init range
  */
 void networkData::setInitRange(const std::vector<std::tuple<double, double>> &init_range) {
     init_range_ = init_range;
@@ -521,7 +534,9 @@ void networkData::setInitRange(const std::vector<std::tuple<double, double>> &in
 
 /******************************************************************************/
 /**
- * Allows to retrieve the initialization range
+ * @brief Allows to retrieve the initialization range
+ *
+ * @return A vector of (lower, upper) tuples, one per input dimension (empty if none was set)
  */
 std::vector<std::tuple<double, double>> networkData::getInitRange() const {
     return init_range_;
@@ -529,7 +544,9 @@ std::vector<std::tuple<double, double>> networkData::getInitRange() const {
 
 /******************************************************************************/
 /**
- * Allows to retrieve a string that describes the network geometry
+ * @brief Allows to retrieve a string that describes the network geometry
+ *
+ * @return A dash-separated string of the per-layer node counts (e.g. "2-4-4-1")
  */
 std::string networkData::getNetworkGeometryString() const {
     std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
@@ -543,7 +560,9 @@ std::string networkData::getNetworkGeometryString() const {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object
+ *
+ * @return A std::shared_ptr to a newly allocated deep copy of this networkData object
  */
 std::shared_ptr<networkData> networkData::clone() const {
     // Lock access to this function
@@ -556,11 +575,11 @@ std::shared_ptr<networkData> networkData::clone() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Reads a Gem::Geneva::Individuals::trainingDataType item from a stream. Needed so we
+ * @brief Reads a Gem::Geneva::Individuals::trainingDataType item from a stream. Needed so we
  * can use boost::program_options to read trainingDataType data.
  *
  * @param i The stream the item should be read from
- * @param tdt The item read from the stream
+ * @param tdt The trainingDataType item read from the stream (output parameter)
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::trainingDataType &tdt) {
@@ -578,11 +597,11 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::trainingData
 
 /******************************************************************************/
 /**
- * Puts a Gem::Geneva::Individuals::trainingDataType item into a stream. Needed so we
+ * @brief Puts a Gem::Geneva::Individuals::trainingDataType item into a stream. Needed so we
  * can use boost::program_options to output trainingDataType data.
  *
  * @param o The ostream the item should be added to
- * @param tdt the item to be added to the stream
+ * @param tdt The trainingDataType item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::trainingDataType &tdt) {
@@ -593,11 +612,11 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::traini
 
 /******************************************************************************/
 /**
- * Reads a Gem::Geneva::Individuals::transferFunction item from a stream. Needed so we
+ * @brief Reads a Gem::Geneva::Individuals::transferFunction item from a stream. Needed so we
  * can use boost::program_options to read transferFunction data.
  *
  * @param i The stream the item should be read from
- * @param tF The item read from the stream
+ * @param t_f The transferFunction item read from the stream (output parameter)
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::transferFunction &t_f) {
@@ -615,11 +634,11 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::transferFunc
 
 /******************************************************************************/
 /**
- * Puts a Gem::Geneva::Individuals::transferFunction item into a stream. Needed so we
+ * @brief Puts a Gem::Geneva::Individuals::transferFunction item into a stream. Needed so we
  * can use boost::program_options to output transferFunction data.
  *
  * @param o The ostream the item should be added to
- * @param tF the item to be added to the stream
+ * @param t_f The transferFunction item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::transferFunction &t_f) {
@@ -641,8 +660,22 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual()
 
 /******************************************************************************/
 /**
- * A constructor which initializes the individual with a suitable set of network layers. It
+ * @brief A constructor which initializes the individual with a suitable set of network layers. It
  * also loads the training data from file.
+ *
+ * The arguments are forwarded to init(), which builds the flat weight genome for the network
+ * geometry held in the global training-data store with the given init range and Gauss settings.
+ *
+ * @param min The lower boundary of the initialization range for the weight parameters
+ * @param max The upper boundary of the initialization range for the weight parameters
+ * @param sigma The sigma (step width) for the Gauss adaptor
+ * @param sigma_sigma Influences the self-adaption of sigma
+ * @param min_sigma The lower allowed boundary for sigma
+ * @param max_sigma The upper allowed boundary for sigma
+ * @param ad_prob The probability for random adaptions of weight values
+ * @param adapt_ad_prob The rate of adaption of ad_prob (0 disables ad_prob self-adaption)
+ * @param min_ad_prob The lower allowed boundary for ad_prob variation
+ * @param max_ad_prob The upper allowed boundary for ad_prob variation
  */
 GNeuralNetworkIndividual::GNeuralNetworkIndividual(
     const double &min,
@@ -694,11 +727,12 @@ GNeuralNetworkIndividual::~GNeuralNetworkIndividual() { /* nothing */
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GFlatGenome object
+ * @param cp A constant reference to another GNeuralNetworkIndividual (as a GOptimizableEntity) to compare against
  * @param e The expected outcome of the comparison
+ * @param limit The acceptable deviation limit, forwarded to the base-class and member comparisons
  */
 void GNeuralNetworkIndividual::compare_(
     const gen::GOptimizableEntity &cp,
@@ -725,8 +759,22 @@ void GNeuralNetworkIndividual::compare_(
 
 /******************************************************************************/
 /**
- * A function which initializes the individual with a suitable set of network
+ * @brief A function which initializes the individual with a suitable set of network
  * layers, according to user-specifications.
+ *
+ * Builds the flat weight genome (via the static buildGenome() hook) for the network geometry
+ * held in the global data store and (re)builds the cached semantic architecture.
+ *
+ * @param min The lower boundary of the initialization range for the weight parameters
+ * @param max The upper boundary of the initialization range for the weight parameters
+ * @param sigma The sigma (step width) for the Gauss adaptor
+ * @param sigma_sigma Influences the self-adaption of sigma
+ * @param min_sigma The lower allowed boundary for sigma
+ * @param max_sigma The upper allowed boundary for sigma
+ * @param ad_prob The probability for random adaptions of weight values
+ * @param adapt_ad_prob The rate of adaption of ad_prob (0 disables ad_prob self-adaption)
+ * @param min_ad_prob The lower allowed boundary for ad_prob variation
+ * @param max_ad_prob The upper allowed boundary for ad_prob variation
  */
 void GNeuralNetworkIndividual::init(
     const double &min,
@@ -773,7 +821,9 @@ void GNeuralNetworkIndividual::init(
 
 /******************************************************************************/
 /**
- * Sets the type of the transfer function
+ * @brief Sets the type of the transfer function
+ *
+ * @param t_f The transfer function to use (SIGMOID or RBF)
  */
 void GNeuralNetworkIndividual::setTransferFunction(transferFunction t_f) {
     t_f_ = t_f;
@@ -781,7 +831,9 @@ void GNeuralNetworkIndividual::setTransferFunction(transferFunction t_f) {
 
 /******************************************************************************/
 /**
- * Retrieves the type of the transfer function
+ * @brief Retrieves the type of the transfer function
+ *
+ * @return The currently configured transfer function (SIGMOID or RBF)
  */
 transferFunction GNeuralNetworkIndividual::getTransferFunction() const {
     return t_f_;
@@ -789,7 +841,7 @@ transferFunction GNeuralNetworkIndividual::getTransferFunction() const {
 
 /******************************************************************************/
 /**
- * Creates a program which in turn creates a program suitable for visualization of optimization
+ * @brief Creates a program which in turn creates a program suitable for visualization of optimization
  * results with the ROOT analysis framework (see http://root.cern.ch for further information).
  *
  * @param vis_file The name of the file the visualization program should be saved to
@@ -1156,7 +1208,7 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string &vis_fil
 
 /******************************************************************************/
 /**
- * Creates a C++ output file for the trained network, suitable for usage in
+ * @brief Creates a C++ output file for the trained network, suitable for usage in
  * other projects. If you just want to retrieve the C++ description of the network,
  * call this function with an empty string "" .
  *
@@ -1352,9 +1404,9 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
 
 /******************************************************************************/
 /**
- * Loads the data of another GNeuralNetworkIndividual, camouflaged as a GFlatGenome
+ * @brief Loads the data of another GNeuralNetworkIndividual, camouflaged as a GOptimizableEntity
  *
- * @param cp A copy of another GNeuralNetworkIndividual, camouflaged as a GFlatGenome
+ * @param cp A pointer to another GNeuralNetworkIndividual, camouflaged as a GOptimizableEntity
  */
 void GNeuralNetworkIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GNeuralNetworkIndividual reference independent of this object and convert the pointer
@@ -1372,7 +1424,7 @@ void GNeuralNetworkIndividual::load_(const gen::GOptimizableEntity *cp) {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object
  *
  * @return A deep clone of this object, camouflaged as a GFlatGenome
  */
@@ -1382,9 +1434,12 @@ gen::GFlatGenome *GNeuralNetworkIndividual::clone_() const {
 
 /******************************************************************************/
 /**
- * Builds the shared, immutable semantic architecture for a given network geometry (DM §4). The layer
+ * @brief Builds the shared, immutable semantic architecture for a given network geometry (DM §4). The layer
  * sizes are read from the networkData; the architecture then exposes per-layer weight offsets into the
  * flat genome, layout-agnostically.
+ *
+ * @param n_d The network data describing the per-layer node counts (the network geometry)
+ * @return A std::shared_ptr to a newly built, immutable GNeuralNetworkArchitecture for that geometry
  */
 std::shared_ptr<const GNeuralNetworkArchitecture>
 GNeuralNetworkIndividual::makeArchitecture(const networkData &n_d) {
@@ -1398,9 +1453,11 @@ GNeuralNetworkIndividual::makeArchitecture(const networkData &n_d) {
 
 /******************************************************************************/
 /**
- * Lazily (re)builds and returns the cached semantic architecture. The cache is transient (not
+ * @brief Lazily (re)builds and returns the cached semantic architecture. The cache is transient (not
  * serialised, not copied), so it is rebuilt on first use after construction, copy or deserialisation;
  * the network geometry always comes from the (singleton-backed) networkData.
+ *
+ * @return A constant reference to the cached semantic architecture for this individual's geometry
  */
 const GNeuralNetworkArchitecture &GNeuralNetworkIndividual::architecture() const {
     if(not nn_arch_) {
@@ -1411,7 +1468,7 @@ const GNeuralNetworkArchitecture &GNeuralNetworkIndividual::architecture() const
 
 /******************************************************************************/
 /**
- * The actual fitness calculation (i.e. the error calculation) takes place here. In the
+ * @brief The actual fitness calculation (i.e. the error calculation) takes place here. In the
  * case of a feed-forward network this fitness is equivalent to the error a network makes
  * for a given weight-set when trying to categorize a training set with known network output.
  * Minimizing this error means training the network.
@@ -1505,8 +1562,11 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
 
 /******************************************************************************/
 /**
- * The transfer function, used to switch between radial basis and
+ * @brief The transfer function, used to switch between radial basis and
  * sigmoid networks
+ *
+ * @param value The activation input to the node (weighted sum minus bias)
+ * @return The node output after applying the configured transfer function (SIGMOID or RBF)
  */
 double GNeuralNetworkIndividual::transfer(const double &value) const {
     switch(t_f_) {
@@ -1535,9 +1595,12 @@ double GNeuralNetworkIndividual::transfer(const double &value) const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Registers the config-file options, binding them to the passed Config. This is the body of the former
+ * @brief Registers the config-file options, binding them to the passed Config. This is the body of the former
  * GNeuralNetworkIndividualFactory::describeLocalOptions_; the base GOptimizableEntity options are now
  * registered separately by GFlatIndividualFactory::getObject_ (via addConfigurationOptions).
+ *
+ * @param gpb The parser builder the file-parameter options are registered with
+ * @param c The Config object whose members the registered options are bound to (filled on parse)
  */
 void GNeuralNetworkIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
     gpb.registerFileParameter<double>(
@@ -1588,11 +1651,14 @@ void GNeuralNetworkIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, 
 
 /******************************************************************************/
 /**
- * Builds the flat weight genome (structure only) for the network geometry held in the global training-
+ * @brief Builds the flat weight genome (structure only) for the network geometry held in the global training-
  * data store. Each weight is an unbounded double, random-initialised in [min_var, max_var) with that
  * perimeter (the OA re-randomises every population member within it). The per-layer / per-weight meaning
  * is provided by GNeuralNetworkArchitecture, not by the genome layout; the Gauss adaptor lives on the
  * OA-owned config (buildAdaptionConfig), authored from the same sigma / ad_prob parameters.
+ *
+ * @param c The Config providing the [min_var, max_var) init range / perimeter for each weight
+ * @return The built flat genome (GenomeData) holding one double per network weight, layer-concatenated
  */
 gen::GenomeData GNeuralNetworkIndividual::buildGenome(const Config &c) {
     using namespace Gem::Hap;
@@ -1641,9 +1707,13 @@ gen::GenomeData GNeuralNetworkIndividual::buildGenome(const Config &c) {
 
 /******************************************************************************/
 /**
- * Builds the OA-owned adaption configuration for a network genome: every weight (one double group each)
+ * @brief Builds the OA-owned adaption configuration for a network genome: every weight (one double group each)
  * gets a Gauss adaptor with the configured parameters -- exactly the settings init() formerly baked into
  * the genome layout.
+ *
+ * @param sample A sample genome whose double-group structure the config is derived from
+ * @param c The Config providing the Gauss adaptor parameters (sigma, ad_prob and their bounds)
+ * @return A std::shared_ptr to the populated OA-owned adaption config
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
 GNeuralNetworkIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
@@ -1660,8 +1730,11 @@ GNeuralNetworkIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, co
 
 /******************************************************************************/
 /**
- * Per-object post-config hook (called by GFlatIndividualFactory::postProcess_ after the genome is
+ * @brief Per-object post-config hook (called by GFlatIndividualFactory::postProcess_ after the genome is
  * installed): applies the non-genome transfer function to a produced individual.
+ *
+ * @param ind The individual to configure (its transfer function is set)
+ * @param c The Config providing the transfer function to apply
  */
 void GNeuralNetworkIndividual::applyConfig(GNeuralNetworkIndividual &ind, const Config &c) {
     ind.setTransferFunction(c.t_f);
@@ -1679,10 +1752,11 @@ namespace Gem::Common {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A factory function for networkData objects, used by GSingletonT. It
+ * @brief A factory function for networkData objects, used by GSingletonT. It
  * queries a global options store for the name of the network data file
  *
- * @return A std::shared_ptr to a newly created T object
+ * @return A std::shared_ptr to a newly created networkData object (loaded from the configured
+ *         training-data file, or from the default data file if none is configured)
  */
 template <>
 std::shared_ptr<Gem::Geneva::Individuals::networkData> TFactory_GSingletonT() {

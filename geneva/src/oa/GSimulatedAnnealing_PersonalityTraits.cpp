@@ -37,16 +37,17 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GSimulatedAnne
 namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
-/** A short identifier suitable for storage in a std::map */
+/** @brief A short identifier ("sa") suitable for storage in a std::map */
 const std::string GSimulatedAnnealing_PersonalityTraits::nickname = "sa";
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
- * of the same type
+ * @brief Searches for compliance with expectations with respect to another object
+ * of the same type.
  *
- * @param cp A constant reference to another GPersonalityTraits object
- * @param e The expected outcome of the comparison
+ * @param cp A constant reference to another GPersonalityTraits object to compare against
+ * @param e The expected outcome of the comparison (e.g. equality or inequality)
+ * @param limit The maximum acceptable deviation for floating-point comparisons (unused here, as this class has no local data)
  */
 void GSimulatedAnnealing_PersonalityTraits::compare_(
     const GPersonalityTraits &cp,
@@ -75,7 +76,9 @@ void GSimulatedAnnealing_PersonalityTraits::compare_(
 
 /******************************************************************************/
 /**
- * Emits a name for this class / object
+ * @brief Emits a name for this class / object.
+ *
+ * @return The class name "GSimulatedAnnealing_PersonalityTraits" as a std::string
  */
 std::string GSimulatedAnnealing_PersonalityTraits::name_() const {
     return std::string("GSimulatedAnnealing_PersonalityTraits");
@@ -83,7 +86,9 @@ std::string GSimulatedAnnealing_PersonalityTraits::name_() const {
 
 /******************************************************************************/
 /**
- * Retrieves the mnemonic of the optimization algorithm
+ * @brief Retrieves the mnemonic of the optimization algorithm.
+ *
+ * @return The short identifier ("sa") of the simulated-annealing algorithm
  */
 std::string GSimulatedAnnealing_PersonalityTraits::getMnemonic() const {
     return GSimulatedAnnealing_PersonalityTraits::nickname;
@@ -91,7 +96,7 @@ std::string GSimulatedAnnealing_PersonalityTraits::getMnemonic() const {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object.
  *
  * @return A clone of this object, camouflaged as a GPersonalityTraits
  */
@@ -101,9 +106,9 @@ GPersonalityTraits *GSimulatedAnnealing_PersonalityTraits::clone_() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GSAPersonalityTraits object
+ * @brief Loads the data of another GSimulatedAnnealing_PersonalityTraits object.
  *
- * @param cp A copy of another GSAPersonalityTraits object, camouflaged as a GPersonalityTraits
+ * @param cp A copy of another GSimulatedAnnealing_PersonalityTraits object, camouflaged as a GPersonalityTraits
  */
 void GSimulatedAnnealing_PersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Check that we are dealing with a GSimulatedAnnealing_PersonalityTraits reference independent of this object and convert the pointer
@@ -122,7 +127,7 @@ void GSimulatedAnnealing_PersonalityTraits::load_(const GPersonalityTraits *cp) 
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes.
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -147,7 +152,7 @@ bool GSimulatedAnnealing_PersonalityTraits::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes.
  */
 void GSimulatedAnnealing_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -168,7 +173,7 @@ void GSimulatedAnnealing_PersonalityTraits::specificTestsNoFailureExpected_GUnit
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes.
  */
 void GSimulatedAnnealing_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING

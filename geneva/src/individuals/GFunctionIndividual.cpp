@@ -69,7 +69,9 @@ namespace Gem::Geneva::Individuals {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Initialization with the constant
+ * @brief Initialization with the constant.
+ *
+ * @param c The target constant against which the sum of the parameters is compared
  */
 GDoubleSumConstraint::GDoubleSumConstraint(const double &c)
   : c_(c) { /* nothing */
@@ -77,12 +79,11 @@ GDoubleSumConstraint::GDoubleSumConstraint(const double &c)
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
- * of the same type
+ * @brief Searches for compliance with expectations with respect to another object of the same type.
  *
- * @param cp A constant reference to another GPreEvaluationValidityCheckT object
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
+ * @param cp A constant reference to another GDoubleSumConstraint, camouflaged as a GPreEvaluationValidityCheckT
+ * @param e The expected outcome of the comparison (equality / inequality)
+ * @param limit The maximum deviation for floating point values (unused here, hence [[maybe_unused]])
  */
 void GDoubleSumConstraint::compare_(
     const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> &cp,
@@ -111,7 +112,9 @@ void GDoubleSumConstraint::compare_(
 
 /******************************************************************************/
 /**
- * Adds local configuration options to a GParserBuilder object
+ * @brief Adds local configuration options to a GParserBuilder object.
+ *
+ * @param gpb The GParserBuilder object to which configuration options should be added
  */
 void GDoubleSumConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
@@ -120,7 +123,10 @@ void GDoubleSumConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder 
 
 /******************************************************************************/
 /**
- * Checks whether a given individual is valid
+ * @brief Checks whether a given individual is valid (its parameter sum is below the target constant).
+ *
+ * @param p A pointer to the individual whose floating-point parameters are summed and checked
+ * @return 0 if the parameter sum is below the constant c_; otherwise sum/c_ as a penalty measure
  */
 double GDoubleSumConstraint::check_(const gen::GOptimizableEntity *p) const {
     std::vector<double> par_vec;
@@ -140,7 +146,9 @@ double GDoubleSumConstraint::check_(const gen::GOptimizableEntity *p) const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GDoubleSumConstraint
+ * @brief Loads the data of another GDoubleSumConstraint.
+ *
+ * @param cp A pointer to another GDoubleSumConstraint, camouflaged as a GPreEvaluationValidityCheckT; its data is copied into this object
  */
 void GDoubleSumConstraint::load_(const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *cp) {
     // Check that we are dealing with a GDoubleSumConstraint reference independent of this object and convert the pointer
@@ -158,7 +166,9 @@ void GDoubleSumConstraint::load_(const GPreEvaluationValidityCheckT<gen::GOptimi
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object.
+ *
+ * @return A deep clone of this object, camouflaged as a GPreEvaluationValidityCheckT pointer
  */
 GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *GDoubleSumConstraint::clone_() const {
     return new GDoubleSumConstraint(*this);
@@ -168,7 +178,10 @@ GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *GDoubleSumConstraint::clo
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Initialization with the constant
+ * @brief Initialization with the constant and the allowed gap around it.
+ *
+ * @param c The target constant around which the sum of the parameters should lie
+ * @param gap The half-width of the allowed corridor [c - gap, c + gap] for the parameter sum
  */
 GDoubleSumGapConstraint::GDoubleSumGapConstraint(const double &c, const double &gap)
   : c_(c)
@@ -177,11 +190,11 @@ GDoubleSumGapConstraint::GDoubleSumGapConstraint(const double &c, const double &
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
- * of the same type
+ * @brief Searches for compliance with expectations with respect to another object of the same type.
  *
- * @param cp A constant reference to another GPreEvaluationValidityCheckT object
- * @param e The expected outcome of the comparison
+ * @param cp A constant reference to another GDoubleSumGapConstraint, camouflaged as a GPreEvaluationValidityCheckT
+ * @param e The expected outcome of the comparison (equality / inequality)
+ * @param limit The maximum deviation for floating point values (unused here, hence [[maybe_unused]])
  */
 void GDoubleSumGapConstraint::compare_(
     const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> &cp,
@@ -210,7 +223,9 @@ void GDoubleSumGapConstraint::compare_(
 
 /******************************************************************************/
 /**
- * Adds local configuration options to a GParserBuilder object
+ * @brief Adds local configuration options to a GParserBuilder object.
+ *
+ * @param gpb The GParserBuilder object to which configuration options should be added
  */
 void GDoubleSumGapConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
@@ -219,7 +234,10 @@ void GDoubleSumGapConstraint::addConfigurationOptions_(Gem::Common::GParserBuild
 
 /******************************************************************************/
 /**
- * Checks whether a given individual is valid
+ * @brief Checks whether a given individual is valid (its parameter sum lies within the allowed corridor).
+ *
+ * @param p A pointer to the individual whose floating-point parameters are summed and checked
+ * @return 0 if the parameter sum is within [c_ - gap_, c_ + gap_]; otherwise 1 + |sum - c_| / c_ as a penalty measure
  */
 double GDoubleSumGapConstraint::check_(const gen::GOptimizableEntity *p) const {
     std::vector<double> par_vec;
@@ -240,7 +258,9 @@ double GDoubleSumGapConstraint::check_(const gen::GOptimizableEntity *p) const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GDoubleSumGapConstraint
+ * @brief Loads the data of another GDoubleSumGapConstraint.
+ *
+ * @param cp A pointer to another GDoubleSumGapConstraint, camouflaged as a GPreEvaluationValidityCheckT; its data is copied into this object
  */
 void GDoubleSumGapConstraint::load_(const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *cp) {
     // Check that we are dealing with a GDoubleSumGapConstraint reference independent of this object and convert the pointer
@@ -258,7 +278,9 @@ void GDoubleSumGapConstraint::load_(const GPreEvaluationValidityCheckT<gen::GOpt
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object.
+ *
+ * @return A deep clone of this object, camouflaged as a GPreEvaluationValidityCheckT pointer
  */
 GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *GDoubleSumGapConstraint::clone_() const {
     return new GDoubleSumGapConstraint(*this);
@@ -268,7 +290,9 @@ GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *GDoubleSumGapConstraint::
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Initialization with the diameter
+ * @brief Initialization with the diameter.
+ *
+ * @param diameter The maximum allowed Euclidean norm of the parameter vector
  */
 GSphereConstraint::GSphereConstraint(const double &diameter)
   : diameter_(diameter) { /* nothing */
@@ -276,12 +300,11 @@ GSphereConstraint::GSphereConstraint(const double &diameter)
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
- * of the same type
+ * @brief Searches for compliance with expectations with respect to another object of the same type.
  *
- * @param cp A constant reference to another GPreEvaluationValidityCheckT object
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
+ * @param cp A constant reference to another GSphereConstraint, camouflaged as a GPreEvaluationValidityCheckT
+ * @param e The expected outcome of the comparison (equality / inequality)
+ * @param limit The maximum deviation for floating point values (unused here, hence [[maybe_unused]])
  */
 void GSphereConstraint::compare_(
     const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> &cp,
@@ -308,7 +331,9 @@ void GSphereConstraint::compare_(
 
 /******************************************************************************/
 /**
- * Adds local configuration options to a GParserBuilder object
+ * @brief Adds local configuration options to a GParserBuilder object.
+ *
+ * @param gpb The GParserBuilder object to which configuration options should be added
  */
 void GSphereConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
@@ -317,7 +342,10 @@ void GSphereConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gp
 
 /******************************************************************************/
 /**
- * Checks whether a given individual is valid
+ * @brief Checks whether a given individual is valid (its parameter vector lies inside the sphere).
+ *
+ * @param p A pointer to the individual whose floating-point parameters form the vector whose norm is checked
+ * @return 0 if the Euclidean norm of the parameters is at most diameter_; otherwise (norm / diameter_) squared as a penalty measure
  */
 double GSphereConstraint::check_(const gen::GOptimizableEntity *p) const {
     std::vector<double> par_vec;
@@ -338,7 +366,9 @@ double GSphereConstraint::check_(const gen::GOptimizableEntity *p) const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GSphereConstraint
+ * @brief Loads the data of another GSphereConstraint.
+ *
+ * @param cp A pointer to another GSphereConstraint, camouflaged as a GPreEvaluationValidityCheckT; its data is copied into this object
  */
 void GSphereConstraint::load_(const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *cp) {
     // Check that we are dealing with a GSphereConstraint reference independent of this object and convert the pointer
@@ -356,7 +386,9 @@ void GSphereConstraint::load_(const GPreEvaluationValidityCheckT<gen::GOptimizab
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object.
+ *
+ * @return A deep clone of this object, camouflaged as a GPreEvaluationValidityCheckT pointer
  */
 GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *GSphereConstraint::clone_() const {
     return new GSphereConstraint(*this);
@@ -473,9 +505,9 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::initMode &ur
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Initialization with the desired demo function
+ * @brief Initialization with the desired demo function.
  *
- * @param d_f The id of the demo function
+ * @param d_f The id of the demo (benchmark) function to optimize
  */
 GFunctionIndividual::GFunctionIndividual(const solverFunction &d_f)
   : demo_function_(d_f) { /* nothing */
@@ -483,7 +515,9 @@ GFunctionIndividual::GFunctionIndividual(const solverFunction &d_f)
 
 /******************************************************************************/
 /**
- * Allows external entities to set the fitness
+ * @brief Allows external entities to set the fitness.
+ *
+ * @param result_vec A vector of result values to assign as this individual's fitness
  */
 void GFunctionIndividual::setFitness(std::vector<double> const &result_vec) {
     this->setFitness_(result_vec);
@@ -491,12 +525,11 @@ void GFunctionIndividual::setFitness(std::vector<double> const &result_vec) {
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
- * of the same type
+ * @brief Searches for compliance with expectations with respect to another object of the same type.
  *
- * @param cp A constant reference to another GPreEvaluationValidityCheckT object
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
+ * @param cp A constant reference to another GFunctionIndividual, camouflaged as a GOptimizableEntity
+ * @param e The expected outcome of the comparison (equality / inequality)
+ * @param limit The maximum deviation for floating point values (unused here, hence [[maybe_unused]])
  */
 void GFunctionIndividual::compare_(
     const gen::GOptimizableEntity &cp,
@@ -521,7 +554,7 @@ void GFunctionIndividual::compare_(
 
 /******************************************************************************/
 /**
- * Adds local configuration options to a GParserBuilder object
+ * @brief Adds local configuration options to a GParserBuilder object.
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
@@ -535,9 +568,9 @@ void GFunctionIndividual::addConfigurationOptions_(Gem::Common::GParserBuilder &
 
 /******************************************************************************/
 /**
- * Allows to set the demo function
+ * @brief Allows to set the demo function.
  *
- * @param d_f The id if the demo function
+ * @param d_f The id of the demo (benchmark) function to optimize
  */
 void GFunctionIndividual::setDemoFunction(solverFunction d_f) {
     demo_function_ = d_f;
@@ -545,7 +578,7 @@ void GFunctionIndividual::setDemoFunction(solverFunction d_f) {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the demo function
+ * @brief Allows to retrieve the demo function.
  *
  * @return The id of the currently selected demo function
  */
@@ -555,7 +588,7 @@ solverFunction GFunctionIndividual::getDemoFunction() const {
 
 /******************************************************************************/
 /**
- * Allows to cross check the parameter size
+ * @brief Allows to cross check the parameter size.
  *
  * @return The number of doubles stored in this object
  */
@@ -568,9 +601,9 @@ std::size_t GFunctionIndividual::getParameterSize() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GFunctionIndividual, camouflaged as a GFlatGenome
+ * @brief Loads the data of another GFunctionIndividual, camouflaged as a GOptimizableEntity.
  *
- * @param cp A copy of another GFunctionIndividual, camouflaged as a GFlatGenome
+ * @param cp A pointer to another GFunctionIndividual, camouflaged as a GOptimizableEntity; its data is copied into this object
  */
 void GFunctionIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GFunctionIndividual reference independent of this object and convert the pointer
@@ -586,9 +619,9 @@ void GFunctionIndividual::load_(const gen::GOptimizableEntity *cp) {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object.
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome
+ * @return A deep clone of this object, camouflaged as a GFlatGenome pointer
  */
 gen::GFlatGenome *GFunctionIndividual::clone_() const {
     return new GFunctionIndividual(*this);
@@ -596,7 +629,7 @@ gen::GFlatGenome *GFunctionIndividual::clone_() const {
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes.
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -623,7 +656,7 @@ bool GFunctionIndividual::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self-tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self-tests that are expected to succeed. This is needed for testing purposes.
  */
 void GFunctionIndividual::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -645,7 +678,7 @@ void GFunctionIndividual::specificTestsNoFailureExpected_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes.
  */
 void GFunctionIndividual::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -702,10 +735,14 @@ double GFunctionIndividual::fitnessCalculation() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Registers the config-file options, binding them to the passed Config. This is the body of the
- * former GFunctionIndividualFactory::describeLocalOptions_ (now binding plain Config fields instead of
- * GOneTimeRefParameterT references) plus the demo_function option the individual formerly registered in
- * its own addConfigurationOptions_.
+ * @brief Registers the config-file options, binding them to the passed Config.
+ *
+ * This is the body of the former GFunctionIndividualFactory::describeLocalOptions_ (now binding plain
+ * Config fields instead of GOneTimeRefParameterT references) plus the demo_function option the
+ * individual formerly registered in its own addConfigurationOptions_.
+ *
+ * @param gpb The GParserBuilder object with which the configuration file options are registered
+ * @param c The Config struct whose fields are bound to the registered options (filled on parse)
  */
 void GFunctionIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
@@ -866,12 +903,16 @@ void GFunctionIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Confi
 
 /******************************************************************************/
 /**
- * Builds the flat genome's STRUCTURE only (the body of the former
- * GFunctionIndividualFactory::postProcess_). The five legacy modes differ in constrained-vs-unbounded and
+ * @brief Builds the flat genome's STRUCTURE only (the body of the former GFunctionIndividualFactory::postProcess_).
+ *
+ * The five legacy modes differ in constrained-vs-unbounded and
  * whether the parameters share one adaption group (a *collection*) or each carry their own (a collection
  * of *objects* / individual objects). The configured Gauss / bi-Gauss adaptor settings live on the
  * OA-owned config (see buildAdaptionConfig()), not in the genome layout. The start value is the lower
  * perimeter; the optimization algorithm random-initialises within [min, max].
+ *
+ * @param c The Config supplying the parameter dimension (par_dim), the init range (min_var, max_var) and the parameter-object type (p_t)
+ * @return The flat genome structure (GenomeData) for the selected parameter type
  */
 gen::GenomeData GFunctionIndividual::buildGenome(const Config &c) {
     const std::size_t n_data = c.par_dim;
@@ -915,10 +956,15 @@ gen::GenomeData GFunctionIndividual::buildGenome(const Config &c) {
 
 /******************************************************************************/
 /**
- * Builds the OA-owned adaption configuration for a genome produced by this factory (the body of the
- * former GFunctionIndividualFactory::getAdaptionConfig). Every double group (one shared group for the
- * collection modes, one per parameter for the object modes) receives the configured single-Gauss or
- * bi-Gauss adaptor.
+ * @brief Builds the OA-owned adaption configuration for a genome produced by this factory.
+ *
+ * This is the body of the former GFunctionIndividualFactory::getAdaptionConfig. Every double group
+ * (one shared group for the collection modes, one per parameter for the object modes) receives the
+ * configured single-Gauss or bi-Gauss adaptor.
+ *
+ * @param sample A sample flat genome whose group structure the adaption config is built against
+ * @param c The Config supplying the adaptor parameters (sigmas, ad_prob, bi-gaussian flag, ...)
+ * @return A shared pointer to the populated OA-owned adaption configuration
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
 GFunctionIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
@@ -947,9 +993,14 @@ GFunctionIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const C
 
 /******************************************************************************/
 /**
- * Per-object post-config hook: applies the (non-genome) demo function to a produced individual. The demo
- * function was formerly registered + applied by the individual's own addConfigurationOptions_; it now
- * lives in the Config and is applied here, the symmetric companion to buildAdaptionConfig().
+ * @brief Per-object post-config hook: applies the (non-genome) demo function to a produced individual.
+ *
+ * The demo function was formerly registered + applied by the individual's own
+ * addConfigurationOptions_; it now lives in the Config and is applied here, the symmetric companion to
+ * buildAdaptionConfig().
+ *
+ * @param ind The individual to configure (mutated in place)
+ * @param c The Config supplying the demo (benchmark) function to apply
  */
 void GFunctionIndividual::applyConfig(GFunctionIndividual &ind, const Config &c) {
     ind.setDemoFunction(c.demo_function);
@@ -957,9 +1008,14 @@ void GFunctionIndividual::applyConfig(GFunctionIndividual &ind, const Config &c)
 
 /******************************************************************************/
 /**
- * Reads a GFunctionIndividual config file into a Config. Used by callers that build individuals directly
- * rather than through the factory (e.g. the dimension-sweeping GOptimizationBenchmark / CUDA benchmark,
- * which need a different genome dimension per measurement row).
+ * @brief Reads a GFunctionIndividual config file into a Config.
+ *
+ * Used by callers that build individuals directly rather than through the factory (e.g. the
+ * dimension-sweeping GOptimizationBenchmark / CUDA benchmark, which need a different genome dimension
+ * per measurement row).
+ *
+ * @param configFile The path to the configuration file to read
+ * @return A Config struct populated from the configuration file
  */
 GFunctionIndividual::Config GFunctionIndividual::readConfig(std::filesystem::path const &configFile) {
     Config c;
@@ -979,13 +1035,18 @@ GFunctionIndividual::Config GFunctionIndividual::readConfig(std::filesystem::pat
 
 /******************************************************************************/
 /**
- * Builds an individual fully configured the way the factory's get_as<>() would, but with a genome
- * dimension taken from @p c (which the caller may have overridden) rather than from the config file.
- * Mirrors the factory's getObject_ + describeLocalOptions_ + parse + postProcess_ sequence: the base
- * GOptimizableEntity options (eval_policy, maxmode, validity thresholds, ...) are registered and applied
- * from @p configFile, the genome structure comes from buildGenome(c), and the demo function from
- * applyConfig(). The Config-shaping keys are bound to a throwaway Config so they don't trip the
- * unknown-key diagnostic -- the caller's @p c drives the genome instead.
+ * @brief Builds an individual fully configured the way the factory's get_as<>() would, but with a caller-supplied genome dimension.
+ *
+ * The genome dimension is taken from @p c (which the caller may have overridden) rather than from the
+ * config file. Mirrors the factory's getObject_ + describeLocalOptions_ + parse + postProcess_
+ * sequence: the base GOptimizableEntity options (eval_policy, maxmode, validity thresholds, ...) are
+ * registered and applied from @p configFile, the genome structure comes from buildGenome(c), and the
+ * demo function from applyConfig(). The Config-shaping keys are bound to a throwaway Config so they
+ * don't trip the unknown-key diagnostic -- the caller's @p c drives the genome instead.
+ *
+ * @param c The Config driving the genome structure (e.g. an overridden par_dim) and the demo function
+ * @param configFile The path to the configuration file from which the base GOptimizableEntity options are parsed
+ * @return A shared pointer to the newly created, fully configured GFunctionIndividual
  */
 std::shared_ptr<GFunctionIndividual>
 GFunctionIndividual::buildConfigured(const Config &c, std::filesystem::path const &configFile) {
@@ -1012,7 +1073,11 @@ GFunctionIndividual::buildConfigured(const Config &c, std::filesystem::path cons
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Provide an easy way to print the individual's content
+ * @brief Provide an easy way to print the individual's content.
+ *
+ * @param s The output stream that is returned (the parameter dump itself is written to std::cout)
+ * @param f The GFunctionIndividual whose raw fitness and parameter values are printed
+ * @return The std::ostream object passed in as @p s
  */
 std::ostream &operator<<(std::ostream &s, const Gem::Geneva::Individuals::GFunctionIndividual &f) {
     std::vector<double> par_vec;
@@ -1031,7 +1096,11 @@ std::ostream &operator<<(std::ostream &s, const Gem::Geneva::Individuals::GFunct
 
 /******************************************************************************/
 /**
- * Provide an easy way to print the individual's content through a smart-pointer
+ * @brief Provide an easy way to print the individual's content through a smart-pointer.
+ *
+ * @param s The output stream that is returned (the parameter dump itself is written to std::cout)
+ * @param f_ptr A shared pointer to the GFunctionIndividual whose content is printed (dereferenced internally)
+ * @return The std::ostream object passed in as @p s
  */
 std::ostream &operator<<(std::ostream &s, std::shared_ptr<Gem::Geneva::Individuals::GFunctionIndividual> f_ptr) {
     return operator<<(s, *f_ptr);

@@ -80,8 +80,11 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /******************************************************************************/
 
 /**
- * The default constructor. All initialization work of member variable
+ * @brief The default constructor. All initialization work of member variables
  * is done in the class body.
+ *
+ * The constructor body only ensures a valid default population size (100 individuals,
+ * 1 parent) in case the user does not supply these values.
  */
 GEvolutionaryAlgorithm::GEvolutionaryAlgorithm() {
     // Make sure we start with a valid population size if the user does not supply these values
@@ -90,12 +93,12 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm() {
 
 /******************************************************************************/
 /**
-  * Searches for compliance with expectations with respect to another object
+  * @brief Searches for compliance with expectations with respect to another object
   * of the same type
   *
-  * @param cp A constant reference to another GEvolutionaryAlgorithm object
-  * @param e The expected outcome of the comparison
-  * @param limit The maximum deviation for floating point values (important for similarity checks)
+  * @param cp A constant reference to another GEvolutionaryAlgorithm object (passed as a GOptimizationAlgorithmBase reference) to compare against
+  * @param e The expected outcome of the comparison (e.g. equality or inequality)
+  * @param limit The maximum deviation for floating point values (important for similarity checks; unused here)
   */
 void GEvolutionaryAlgorithm::compare_(
     const GOptimizationAlgorithmBase &cp // the other object
@@ -124,7 +127,7 @@ void GEvolutionaryAlgorithm::compare_(
 
 /******************************************************************************/
 /**
- * Resets the settings of this population to what was configured when
+ * @brief Resets the settings of this population to what was configured when
  * the optimize()-call was issued
  */
 void GEvolutionaryAlgorithm::resetToOptimizationStart_() {
@@ -135,7 +138,7 @@ void GEvolutionaryAlgorithm::resetToOptimizationStart_() {
 
 /******************************************************************************/
 /**
-  * Sets the sorting scheme. In MUPLUSNU_SINGLEEVAL, new parents will be selected from the entire
+  * @brief Sets the sorting scheme. In MUPLUSNU_SINGLEEVAL, new parents will be selected from the entire
   * population, including the old parents. In MUCOMMANU_SINGLEEVAL new parents will be selected
   * from children only. MUNU1PRETAIN_SINGLEEVAL means that the best parent of the last generation
   * will also become a new parent (unless a better child was found). All other parents are
@@ -149,8 +152,8 @@ void GEvolutionaryAlgorithm::setSortingScheme(const sortingMode smode) {
 
 /******************************************************************************/
 /**
-  * Retrieves information about the current sorting scheme (see
-  * G_OA_EvolutionaryAlgorithm::setSortingScheme() for further information).
+  * @brief Retrieves information about the current sorting scheme (see
+  * GEvolutionaryAlgorithm::setSortingScheme() for further information).
   *
   * @return The current sorting scheme
   */
@@ -160,7 +163,9 @@ sortingMode GEvolutionaryAlgorithm::getSortingScheme() const {
 
 /******************************************************************************/
 /**
-  * Extracts all individuals on the pareto front
+  * @brief Extracts all individuals on the pareto front
+  *
+  * @param pareto_inds An output vector that, on return, holds clones of all individuals currently tagged as being on the pareto front (cleared on entry)
   */
 void GEvolutionaryAlgorithm::extractCurrentParetoIndividuals(
     std::vector<std::shared_ptr<gen::GOptimizableEntity>> &pareto_inds
@@ -178,11 +183,13 @@ void GEvolutionaryAlgorithm::extractCurrentParetoIndividuals(
 
 /******************************************************************************/
 /**
-  * Adds the individuals of this iteration to a priority queue. The
+  * @brief Adds the individuals of this iteration to a priority queue. The
   * queue will be sorted by the first evaluation criterion of the individuals
   * and may either have a limited or unlimited size, depending on user-
   * settings. The procedure is different for pareto optimization, as we only
   * want the individuals on the current pareto front to be added.
+  *
+  * @param best_individuals The priority queue of globally best individuals to be updated in place
   */
 void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
     gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals
@@ -235,10 +242,12 @@ void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
 
 /******************************************************************************/
 /**
- * Adds the individuals of this iteration to a priority queue. The
+ * @brief Adds the individuals of this iteration to a priority queue. The
  * queue will be sorted by the first evaluation criterion of the individuals
  * and will be cleared prior to adding the new individuals. This results in
  * the best individuals of the current iteration.
+ *
+ * @param best_individuals The priority queue of this iteration's best individuals to be updated in place
  */
 void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
     gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals
@@ -291,7 +300,7 @@ void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
 
 /******************************************************************************/
 /**
-  * Adds local configuration options to a GParserBuilder object
+  * @brief Adds local configuration options to a GParserBuilder object
   *
   * @param gpb The GParserBuilder object to which configuration options should be added
   */
@@ -319,9 +328,9 @@ void GEvolutionaryAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilde
 
 /******************************************************************************/
 /**
-  * Loads the data of another GEvolutionaryAlgorithm object.
+  * @brief Loads the data of another GEvolutionaryAlgorithm object.
  *
-  * @param cp A pointer to another GEvolutionaryAlgorithm object
+  * @param cp A pointer to another GEvolutionaryAlgorithm object (passed as a GOptimizationAlgorithmBase pointer)
   */
 void GEvolutionaryAlgorithm::load_(const GOptimizationAlgorithmBase *cp) {
     // Check that we are dealing with a GEvolutionaryAlgorithm reference independent
@@ -338,7 +347,10 @@ void GEvolutionaryAlgorithm::load_(const GOptimizationAlgorithmBase *cp) {
 
 /******************************************************************************/
 /**
- * Some error checks related to population sizes
+ * @brief Some error checks related to population sizes
+ *
+ * Throws a geneva_exception if the number of parents is zero or if the population
+ * size is too small for the currently selected sorting mode.
  */
 void GEvolutionaryAlgorithm::populationSanityChecks_() const {
     // First check that we have been given a suitable value for the number of parents.
@@ -395,7 +407,10 @@ void GEvolutionaryAlgorithm::populationSanityChecks_() const {
 
 /******************************************************************************/
 /**
-  * We submit individuals to the broker connector and wait for processed items.
+  * @brief We submit individuals to the broker connector and wait for processed items.
+  *
+  * Determines the evaluation range, submits that range for processing, removes any
+  * unprocessed or erroneous work items, and repairs the population afterwards.
  */
 void GEvolutionaryAlgorithm::runFitnessCalculation_() {
     //--------------------------------------------------------------------------------
@@ -474,7 +489,10 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
 
 /******************************************************************************/
 /**
-	* Choose new parents, based on the selection scheme set by the user.
+	* @brief Choose new parents, based on the selection scheme set by the user.
+	*
+	* Dispatches to the sorting routine matching the current sorting mode, marks the
+	* selected parents, and resizes the population back to its nominal size.
 	*/
 void GEvolutionaryAlgorithm::selectBest_() {
 #ifdef DEBUG
@@ -563,11 +581,11 @@ void GEvolutionaryAlgorithm::selectBest_() {
 
 /******************************************************************************/
 /**
-  * Retrieves the evaluation range in a given iteration and sorting scheme. Depending on the
+  * @brief Retrieves the evaluation range in a given iteration and sorting scheme. Depending on the
   * iteration and sorting scheme, the start point will be different. The end-point is not meant
   * to be inclusive.
   *
-  * @return The range inside which evaluation should take place
+  * @return A tuple holding the half-open [start, end) range of population positions inside which evaluation should take place
   */
 std::tuple<std::size_t, std::size_t> GEvolutionaryAlgorithm::getEvaluationRange_() const {
     // We evaluate all individuals in the first iteration This happens so pluggable
@@ -581,7 +599,9 @@ std::tuple<std::size_t, std::size_t> GEvolutionaryAlgorithm::getEvaluationRange_
 
 /******************************************************************************/
 /**
-  * Retrieve a GPersonalityTraits object belonging to this algorithm
+  * @brief Retrieve a GPersonalityTraits object belonging to this algorithm
+  *
+  * @return A shared pointer to a freshly created GEvolutionaryAlgorithm_PersonalityTraits object
   */
 std::shared_ptr<GPersonalityTraits> GEvolutionaryAlgorithm::getPersonalityTraits_() const {
     return std::make_shared<GEvolutionaryAlgorithm_PersonalityTraits>();
@@ -589,7 +609,7 @@ std::shared_ptr<GPersonalityTraits> GEvolutionaryAlgorithm::getPersonalityTraits
 
 /******************************************************************************/
 /**
- * Selection, MUPLUSNU_SINGLEEVAL style. Note that not all individuals of the population (including parents)
+ * @brief Selection, MUPLUSNU_SINGLEEVAL style. Note that not all individuals of the population (including parents)
  * are sorted -- only the n_parents best individuals are identified. The quality of the population can only
  * increase, but the optimization will stall more easily in MUPLUSNU_SINGLEEVAL mode.
  */
@@ -624,7 +644,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
 
 /******************************************************************************/
 /**
- * Selection, MUCOMMANU_SINGLEEVAL style. New parents are selected from children only. The quality
+ * @brief Selection, MUCOMMANU_SINGLEEVAL style. New parents are selected from children only. The quality
  * of the population may decrease occasionally from generation to generation, but the
  * optimization is less likely to stall.
  */
@@ -683,7 +703,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
 
 /******************************************************************************/
 /**
- * Selection, MUNU1PRETAIN_SINGLEEVAL style. This is a hybrid between MUPLUSNU_SINGLEEVAL and MUCOMMANU_SINGLEEVAL
+ * @brief Selection, MUNU1PRETAIN_SINGLEEVAL style. This is a hybrid between MUPLUSNU_SINGLEEVAL and MUCOMMANU_SINGLEEVAL
  * mode. If a better child was found than the best parent of the last generation,
  * all former parents are replaced. If no better child was found than the best
  * parent of the last generation, then this parent stays in place. All other parents
@@ -746,7 +766,7 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 
 /******************************************************************************/
 /**
-  * Selection according to the pareto tag, also taking into account the parents of a population (i.e. in MUPLUSNU
+  * @brief Selection according to the pareto tag, also taking into account the parents of a population (i.e. in MUPLUSNU
   * mode). This is used in conjunction with multi-criterion optimization. See e.g.
   * http://en.wikipedia.org/wiki/Pareto_efficiency for a discussion of this topic.
   */
@@ -873,7 +893,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
 
 /******************************************************************************/
 /**
- * Selection according to the pareto tag, not taking into account the parents of a population (i.e. in MUCOMMANU
+ * @brief Selection according to the pareto tag, not taking into account the parents of a population (i.e. in MUCOMMANU
   * mode). This is used in conjunction with multi-criterion optimization. See e.g.
   * http://en.wikipedia.org/wiki/Pareto_efficiency for a discussion of this topic.
   */
@@ -1009,9 +1029,9 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
 
 /******************************************************************************/
 /**
-  * Determines whether the first individual dominates the second.
+  * @brief Determines whether the first individual dominates the second.
   *
-  * @param x_ptr The individual that is assumed to dominate
+  * @param x_ptr The individual that is assumed to dominate (none of its fitness criteria may be worse than the corresponding criterion of y_ptr)
   * @param y_ptr The individual that is assumed to be dominated
   * @return A boolean indicating whether the first individual dominates the second
   */
@@ -1048,7 +1068,7 @@ bool GEvolutionaryAlgorithm::aDominatesB(
 
 /******************************************************************************/
 /**
-  * Applies modifications to this object. This is needed for testing purposes
+  * @brief Applies modifications to this object. This is needed for testing purposes
   *
   * @return A boolean which indicates whether modifications were made
   */
@@ -1080,9 +1100,9 @@ bool GEvolutionaryAlgorithm::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
-  * Fills the collection with individuals.
+  * @brief Fills the collection with individuals.
   *
-  * @param n_individuals The number of individuals that should be added to the collection
+  * @param n_individuals The number of individuals (GTestIndividual1 instances) that should be added to the collection
   */
 void GEvolutionaryAlgorithm::fillWithObjects(const std::size_t &n_individuals) {
 #ifdef GEM_TESTING
@@ -1107,7 +1127,7 @@ void GEvolutionaryAlgorithm::fillWithObjects(const std::size_t &n_individuals) {
 
 /******************************************************************************/
 /**
-  * Performs self tests that are expected to succeed. This is needed for testing purposes
+  * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
   */
 void GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -1175,7 +1195,7 @@ void GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests_() {
 
 /******************************************************************************/
 /**
-  * Performs self tests that are expected to fail. This is needed for testing purposes
+  * @brief Performs self tests that are expected to fail. This is needed for testing purposes
   */
 void GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -1194,6 +1214,15 @@ void GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests_() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
+/**
+ * @brief Streams a summary of the parent individuals' fitness values to an output stream.
+ *
+ * For each parent individual, the raw and transformed fitness values are printed on one line.
+ *
+ * @param os The output stream to write to
+ * @param pop The GEvolutionaryAlgorithm population whose parents should be summarised
+ * @return A reference to the output stream, for chaining
+ */
 std::ostream &operator<<(std::ostream &os, const GEvolutionaryAlgorithm &pop) {
     os << '\n' << '\n';
     for(auto it = pop.begin(); it != pop.begin() + pop.getNParents(); ++it) {

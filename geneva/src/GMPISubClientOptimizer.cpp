@@ -46,6 +46,20 @@
 #include <utility>
 
 namespace Gem::Geneva {
+/**
+ * @brief Constructs the optimizer, sets up the MPI sub-client topology and splits communicators.
+ *
+ * Verifies that the MPI consumer is in use, re-parses the configuration file to pick up this
+ * class's own options, initializes MPI if the base communicator is MPI_COMM_WORLD, and then
+ * partitions the processes into the geneva server, geneva clients and sub-clients. The resulting
+ * communicators are handed to the MPI consumer and to GMPISubClientIndividual.
+ *
+ * @param argc Argument count forwarded to the Go2 base class for command-line parsing.
+ * @param argv Argument vector forwarded to the Go2 base class for command-line parsing.
+ * @param configFilePath Path to the JSON configuration file, parsed both by Go2 and again here for this class's options.
+ * @param userDescriptions Additional user-defined command-line option descriptions forwarded to Go2.
+ * @param baseCommunicator The outermost MPI communicator to partition; if MPI_COMM_WORLD, MPI is initialized here, otherwise the user is assumed to have done so.
+ */
 GMPISubClientOptimizer::GMPISubClientOptimizer(
     int argc,
     char **argv,
@@ -147,6 +161,14 @@ GMPISubClientOptimizer::GMPISubClientOptimizer(
     }
 }
 
+/**
+ * @brief Adds this class's configuration-file options on top of those of the Go2 base class.
+ *
+ * Registers the "sub_client_group_size" file parameter that controls how many processes cooperate
+ * on a single individual.
+ *
+ * @param gpb The parser builder to which the configuration options are registered.
+ */
 void GMPISubClientOptimizer::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // let parent class `Go2` add its options first
     Go2::addConfigurationOptions_(gpb);
@@ -161,6 +183,12 @@ void GMPISubClientOptimizer::addConfigurationOptions_(Gem::Common::GParserBuilde
          "individual.";
 }
 
+/**
+ * @brief Registers the callback that each sub-client executes for its share of an individual's work.
+ *
+ * @param callback The job to run on a sub-client; it receives the sub-client group communicator and returns an exit code.
+ * @return A reference to this optimizer, to allow call chaining.
+ */
 GMPISubClientOptimizer &
 GMPISubClientOptimizer::registerSubClientJob(std::function<int(MPI_Comm)> callback) {
     subClientJob_ = std::move(callback);
@@ -169,6 +197,14 @@ GMPISubClientOptimizer::registerSubClientJob(std::function<int(MPI_Comm)> callba
     return *this;
 }
 
+/**
+ * @brief Starts a non-blocking barrier on the sub-client status communicator.
+ *
+ * The returned request is used to signal across the sub-client group when the geneva client has
+ * finished optimization.
+ *
+ * @return The MPI request handle for the freshly started non-blocking barrier.
+ */
 MPI_Request GMPISubClientOptimizer::startAsyncBarrier() const {
     MPI_Request request{};
     MPI_Ibarrier(subClientStatusComm_, &request);
@@ -176,6 +212,15 @@ MPI_Request GMPISubClientOptimizer::startAsyncBarrier() const {
     return request;
 }
 
+/**
+ * @brief Runs the per-process client loop, dispatching by sub-client versus geneva-client role.
+ *
+ * A sub-client marks itself as such, arms the asynchronous barrier used to detect completion and
+ * executes the registered sub-client job. A geneva client runs the normal Go2 client loop until
+ * optimization finishes and then trips the barrier to notify its sub-clients.
+ *
+ * @return The exit code: the sub-client job's return value for sub-clients, or the Go2 client run's return value for geneva clients.
+ */
 int GMPISubClientOptimizer::clientRun_() {
     if(isSubClient_) {
         GMPISubClientIndividual::setClientMode(ClientMode::SUB_CLIENT);

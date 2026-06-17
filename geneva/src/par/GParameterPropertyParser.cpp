@@ -57,6 +57,12 @@ constexpr std::size_t GPP_DEF_NSTEPS = 100; // The default number of steps for a
 // monitors (e.g. GProgressPlotter axis labels); it does NOT identify a parameter.
 namespace {
 
+/**
+ * @brief Strips leading and trailing whitespace (space, tab, newline, carriage return) from a string.
+ *
+ * @param s The string to trim
+ * @return A copy of @p s with surrounding whitespace removed, or an empty string if @p s is all whitespace
+ */
 std::string trim(const std::string &s) {
     std::size_t b = s.find_first_not_of(" \t\n\r");
     if(b == std::string::npos) {
@@ -66,6 +72,14 @@ std::string trim(const std::string &s) {
     return s.substr(b, e - b + 1);
 }
 
+/**
+ * @brief Splits a string on commas, trimming whitespace from each resulting token.
+ *
+ * An empty input yields a single empty token; a trailing comma yields a trailing empty token.
+ *
+ * @param s The string to split (the comma-separated argument list of a spec)
+ * @return The list of trimmed tokens between commas, in order
+ */
 std::vector<std::string> splitOnComma(const std::string &s) {
     std::vector<std::string> out;
     std::string cur;
@@ -82,6 +96,12 @@ std::vector<std::string> splitOnComma(const std::string &s) {
     return out;
 }
 
+/**
+ * @brief Checks whether a string consists solely of decimal digits (i.e. is a valid unsigned integer literal).
+ *
+ * @param s The token to test
+ * @return true if @p s is non-empty and contains only characters '0'-'9', false otherwise
+ */
 bool isUnsigned(const std::string &s) {
     if(s.empty()) {
         return false;
@@ -94,6 +114,13 @@ bool isUnsigned(const std::string &s) {
     return true;
 }
 
+/**
+ * @brief Aborts parsing by throwing a geneva_exception that reports the offending fragment.
+ *
+ * Marked [[noreturn]]: it always throws and never returns to the caller.
+ *
+ * @param raw The raw (sub)string that could not be parsed, included verbatim in the error message
+ */
 [[noreturn]] void fail(const std::string &raw) {
     throw geneva_exception(
         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -102,6 +129,13 @@ bool isUnsigned(const std::string &s) {
     );
 }
 
+/**
+ * @brief Converts a token to an unsigned integer, failing the parse if it is not a valid unsigned literal.
+ *
+ * @param s The token to convert
+ * @param raw The enclosing raw fragment, forwarded to fail() for error reporting on failure
+ * @return The parsed value as a std::size_t
+ */
 std::size_t toUnsigned(const std::string &s, const std::string &raw) {
     if(not isUnsigned(s)) {
         fail(raw);
@@ -109,6 +143,13 @@ std::size_t toUnsigned(const std::string &s, const std::string &raw) {
     return static_cast<std::size_t>(std::stoul(s));
 }
 
+/**
+ * @brief Converts a token to a boolean, accepting "true"/"1" and "false"/"0", and failing the parse otherwise.
+ *
+ * @param s The token to convert
+ * @param raw The enclosing raw fragment, forwarded to fail() for error reporting on an unrecognized token
+ * @return true for "true"/"1", false for "false"/"0"
+ */
 bool toBool(const std::string &s, const std::string &raw) {
     if(s == "true" || s == "1") {
         return true;
@@ -119,7 +160,22 @@ bool toBool(const std::string &s, const std::string &raw) {
     fail(raw);
 }
 
-// Fills the var/bounds/nSteps/label of a numeric (d/f/i) spec from its argument tokens.
+/**
+ * @brief Builds a parPropSpec for a numeric (d/f/i) parameter from its argument tokens.
+ *
+ * Fills the index, lower/upper boundaries, step count and optional label of the spec. The
+ * first three tokens are the mandatory index, lower boundary and upper boundary. Any further
+ * tokens are interpreted positionally-by-content: a purely numeric token sets nSteps, anything
+ * else is taken as the free-form display label. When no nSteps token is given, GPP_DEF_NSTEPS
+ * is used.
+ *
+ * @tparam par_type The parameter value type of the spec (double, float or std::int32_t)
+ * @tparam ConvFun Callable type used to convert a boundary token into a par_type value
+ * @param tok The comma-split argument tokens of the spec (at least index, lower, upper)
+ * @param convertBound Functor converting a boundary token to par_type; invoked as convertBound(token, raw)
+ * @param raw The raw fragment content, forwarded to fail() for error reporting
+ * @return A fully populated parPropSpec<par_type> describing the parameter scan
+ */
 template <typename par_type, typename ConvFun>
 parPropSpec<par_type> makeNumericSpec(
     const std::vector<std::string> &tok,
@@ -151,7 +207,9 @@ parPropSpec<par_type> makeNumericSpec(
 
 /******************************************************************************/
 /**
- * The standard constructor -- assignment of the "raw" parameter property string
+ * @brief The standard constructor -- stores the raw parameter-property string and parses it immediately.
+ *
+ * @param rw The raw parameter-property description string (see the grammar at the top of this file)
  */
 GParameterPropertyParser::GParameterPropertyParser(const std::string &rw)
   : raw_(rw)
@@ -161,7 +219,9 @@ GParameterPropertyParser::GParameterPropertyParser(const std::string &rw)
 
 /******************************************************************************/
 /**
- * Retrieves the raw parameter description
+ * @brief Retrieves the raw parameter description string that was supplied to the parser.
+ *
+ * @return The unparsed raw parameter-property string
  */
 std::string GParameterPropertyParser::getRawParameterDescription() const {
     return raw_;
@@ -169,7 +229,9 @@ std::string GParameterPropertyParser::getRawParameterDescription() const {
 
 /******************************************************************************/
 /**
- * Allows to check whether parsing has already taken place
+ * @brief Allows to check whether parsing has already taken place.
+ *
+ * @return true if the raw string has been parsed, false otherwise
  */
 bool GParameterPropertyParser::isParsed() const {
     return parsed_;
@@ -177,7 +239,12 @@ bool GParameterPropertyParser::isParsed() const {
 
 /******************************************************************************/
 /**
- * Allows to reset the internal structures and to parse a new parameter string
+ * @brief Resets the internal spec vectors and parses a new parameter-property string.
+ *
+ * Clears all previously parsed s/d/f/i/b specifications, replaces the raw string, marks
+ * the parser as not-yet-parsed and re-runs parse().
+ *
+ * @param raw The new raw parameter-property description string to store and parse
  */
 void GParameterPropertyParser::setNewParameterDescription(std::string raw) {
     raw_ = raw;
@@ -196,7 +263,13 @@ void GParameterPropertyParser::setNewParameterDescription(std::string raw) {
 
 /******************************************************************************/
 /**
- * Initiates parsing of the raw_ string. The grammar is documented at the top of this file.
+ * @brief Initiates parsing of the raw_ string into the typed spec vectors.
+ *
+ * Tokenizes raw_ into type'('content')' fragments, dispatches each to the appropriate
+ * numeric/bool/simple-scan handler and populates the corresponding spec vector. At most one
+ * "simple scan" ('s') entry is allowed (more than one is a hard error); if a simple-scan entry
+ * is present, any explicit d/f/i/b components are discarded with a warning. Does nothing if the
+ * string has already been parsed. The grammar is documented at the top of this file.
  */
 void GParameterPropertyParser::parse() {
     // Do nothing if the string has already been parsed
@@ -342,7 +415,12 @@ void GParameterPropertyParser::parse() {
 
 /******************************************************************************/
 /**
- * Retrieve the number of "simple scan" items
+ * @brief Retrieve the number of "simple scan" items requested by the parsed string.
+ *
+ * In DEBUG builds this additionally guards against more than one simple-scan entry having
+ * slipped through (which would be an internal inconsistency).
+ *
+ * @return The nItems of the (single) simple-scan entry, or 0 if no simple-scan entry was specified
  */
 std::size_t GParameterPropertyParser::getNSimpleScanItems() const {
     if(s_spec_vec_.empty()) {

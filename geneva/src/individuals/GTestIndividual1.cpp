@@ -55,7 +55,7 @@ namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 /**
- * The default constructor.
+ * @brief The default constructor; builds a 100-double parabola genome and randomly initialises it.
  */
 GTestIndividual1::GTestIndividual1() {
     using namespace Gem::Geneva;
@@ -78,8 +78,11 @@ GTestIndividual1::GTestIndividual1() {
 
 /******************************************************************************/
 /**
- * Builds the OA-owned adaption configuration: the single shared double group gets the Gauss adaptor the
- * constructor formerly baked into the layout (sigma 0.025 / sigma_sigma 0.1 / [1e-3, 1] / ad_prob 1).
+ * @brief Builds the OA-owned adaption configuration: the single shared double group gets the Gauss adaptor
+ * the constructor formerly baked into the layout (sigma 0.025 / sigma_sigma 0.1 / [1e-3, 1] / ad_prob 1).
+ *
+ * @return A shared pointer to a freshly built adaption config whose double group carries the Gauss adaptor
+ *         settings (sigma 0.025, sigma_sigma 0.1, min_sigma 1e-3, max_sigma 1.0, ad_prob 1.0)
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> GTestIndividual1::getAdaptionConfig() const {
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
@@ -92,11 +95,11 @@ std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> GTestIndividual1::g
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
- * of the same type
+ * @brief Searches for compliance with expectations with respect to another object of the same type.
  *
- * @param cp A constant reference to another GFlatGenome object
- * @param e The expected outcome of the comparison
+ * @param cp A constant reference to another object, camouflaged as a GOptimizableEntity, to compare against
+ * @param e The expected outcome of the comparison (equality, inequality, ...)
+ * @param limit The maximum acceptable deviation for (floating point) comparisons (unused here)
  */
 void GTestIndividual1::compare_(
     const gen::GOptimizableEntity &cp,
@@ -123,9 +126,9 @@ void GTestIndividual1::compare_(
 
 /******************************************************************************/
 /**
- * Loads the data of another GTestIndividual1, camouflaged as a GFlatGenome.
+ * @brief Loads the data of another GTestIndividual1, camouflaged as a GOptimizableEntity.
  *
- * @param cp A copy of another GTestIndividual1, camouflaged as a GFlatGenome
+ * @param cp A pointer to another GTestIndividual1, camouflaged as a GOptimizableEntity, to load from
  */
 void GTestIndividual1::load_(const gen::GOptimizableEntity *cp) {
     using namespace Gem::Common;
@@ -143,9 +146,9 @@ void GTestIndividual1::load_(const gen::GOptimizableEntity *cp) {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object.
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome
+ * @return A deep clone of this object, camouflaged as a GFlatGenome pointer
  */
 gen::GFlatGenome *GTestIndividual1::clone_() const {
     return new GTestIndividual1(*this);
@@ -153,9 +156,10 @@ gen::GFlatGenome *GTestIndividual1::clone_() const {
 
 /******************************************************************************/
 /**
- * The actual fitness calculation takes place here.
+ * @brief The actual fitness calculation takes place here; computes a parabola (sum of squares) over the
+ * flat double values.
  *
- * @return The value of this object
+ * @return The fitness of this object: the sum of the squares of all flat double parameters
  */
 double GTestIndividual1::fitnessCalculation() {
     double result = 0.;
@@ -175,8 +179,7 @@ double GTestIndividual1::fitnessCalculation() {
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
- * only.
+ * @brief Applies modifications to this object. This is needed for testing purposes only.
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -203,7 +206,7 @@ bool GTestIndividual1::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes.
  */
 void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -582,7 +585,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes.
  */
 void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING

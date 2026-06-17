@@ -42,8 +42,10 @@ volatile std::sig_atomic_t GenevaSigHupSent = 0;
 
 /******************************************************************************/
 /**
- * A handler for SIGHUP or CTRL_CLOSE_EVENT signals. This function works both
+ * @brief A handler for SIGHUP or CTRL_CLOSE_EVENT signals. This function works both
  * for Windows and Unix systems.
+ *
+ * @param signum The number of the signal that was raised; the internal flag is set only when it matches G_SIGHUP
  */
 void sigHupHandler(int signum) {
     if(G_SIGHUP == signum) {
@@ -53,7 +55,9 @@ void sigHupHandler(int signum) {
 
 /******************************************************************************/
 /**
- * Checks whether a SIGHUP or CTRL_CLOSE_EVENT signal has been sent.
+ * @brief Checks whether a SIGHUP or CTRL_CLOSE_EVENT signal has been sent.
+ *
+ * @return true if a SIGHUP (or CTRL_CLOSE_EVENT) signal has been received since program start, false otherwise
  */
 bool G_SIGHUP_SENT() {
     return (1 == GenevaSigHupSent);

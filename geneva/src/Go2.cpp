@@ -146,10 +146,12 @@ void Go2::registerDefaultAlgorithm(std::string const &mn) {
 
 /******************************************************************************/
 /**
- * Allows to register a default algorithm to be used when no other algorithms
- * have been specified. When others have been specified, this algorithm will
- * not be used. Note that any individuals registered with the default algorithm
- * will be copied into the Go2 object.
+ * @brief Allows to register a default algorithm to be used when no other algorithms have been specified.
+ *
+ * When others have been specified, this algorithm will not be used. Note that any individuals registered
+ * with the default algorithm will be copied into the Go2 object.
+ *
+ * @param default_algorithm A smart pointer to the optimization algorithm to use as the default
  */
 void Go2::registerDefaultAlgorithm(const std::shared_ptr<GOABase> &default_algorithm) {
     // Check that the pointer isn't empty
@@ -177,7 +179,9 @@ void Go2::registerDefaultAlgorithm(const std::shared_ptr<GOABase> &default_algor
 
 /******************************************************************************/
 /**
- * Allows to register a pluggable optimization monitor
+ * @brief Allows to register a pluggable optimization monitor.
+ *
+ * @param pluggable_om A smart pointer to the pluggable optimization monitor to register (must not be empty)
  */
 void Go2::registerPluggableOM(const std::shared_ptr<oa::GBasePluggableOM> &pluggable_om) {
     if(pluggable_om) {
@@ -193,7 +197,7 @@ void Go2::registerPluggableOM(const std::shared_ptr<oa::GBasePluggableOM> &plugg
 
 /******************************************************************************/
 /**
- * Allows resetting the local pluggable optimization monitor
+ * @brief Allows resetting the local pluggable optimization monitors.
  */
 void Go2::resetPluggableOM() {
     pluggable_monitors_cnt_.clear();
@@ -201,7 +205,9 @@ void Go2::resetPluggableOM() {
 
 /******************************************************************************/
 /**
- * Allows to check whether pluggable optimization monitors were registered
+ * @brief Allows to check whether pluggable optimization monitors were registered.
+ *
+ * @return true if at least one pluggable optimization monitor has been registered, false otherwise
  */
 bool Go2::hasOptimizationMonitors() const {
     return not pluggable_monitors_cnt_.empty();
@@ -209,8 +215,11 @@ bool Go2::hasOptimizationMonitors() const {
 
 /******************************************************************************/
 /**
- * Allows to set the maximum running time for a client. A duration of 0 results
- * in no time limit being set.
+ * @brief Allows to set the maximum running time for a client.
+ *
+ * A duration of 0 results in no time limit being set.
+ *
+ * @param max_duration The maximum running time for a client (in seconds); 0 means no time limit
  */
 void Go2::setMaxClientTime(std::chrono::duration<double> max_duration) {
     max_client_duration_ = max_duration;
@@ -218,7 +227,9 @@ void Go2::setMaxClientTime(std::chrono::duration<double> max_duration) {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the maximum running time for a client
+ * @brief Allows to retrieve the maximum running time for a client.
+ *
+ * @return The maximum running time for a client (in seconds); 0 means no time limit
  */
 std::chrono::duration<double> Go2::getMaxClientTime() const {
     return max_client_duration_;
@@ -226,13 +237,24 @@ std::chrono::duration<double> Go2::getMaxClientTime() const {
 
 /******************************************************************************/
 /**
- * Triggers execution of the client loop. Note that it is up to you to terminate
- * the program after calling this function.
+ * @brief Triggers execution of the client loop.
+ *
+ * Note that it is up to you to terminate the program after calling this function.
+ *
+ * @return The exit status of the client loop (0 on normal completion)
  */
 int Go2::clientRun() {
     return this->clientRun_();
 }
 
+/**
+ * @brief Implementation of the client loop.
+ *
+ * On an MPI worker rank routed through courtier this serves work through the courtier worker node;
+ * otherwise it builds the networked client for the chosen consumer and runs its processing loop.
+ *
+ * @return The exit status of the client loop (always 0 here)
+ */
 int Go2::clientRun_() {
     // On an MPI worker rank routed through courtier, serve work through the courtier worker node
     // (held type-erased from setupChosenConsumer) instead of a networked client.
@@ -276,7 +298,9 @@ bool Go2::clientMode() const {
 
 /******************************************************************************/
 /**
- * Specifies whether only the best individuals of a population should be copied
+ * @brief Specifies whether only the best individuals of a population should be copied.
+ *
+ * @param copy_best_individuals_only If true, only the best individuals are carried over between algorithms
  */
 void Go2::setCopyBestIndividualsOnly(bool copy_best_individuals_only) {
     copy_best_individuals_only_ = copy_best_individuals_only;
@@ -284,7 +308,9 @@ void Go2::setCopyBestIndividualsOnly(bool copy_best_individuals_only) {
 
 /******************************************************************************/
 /**
- * Checks whether only the best individuals are copied
+ * @brief Checks whether only the best individuals are copied.
+ *
+ * @return true if only the best individuals are carried over between algorithms, false otherwise
  */
 bool Go2::onlyBestIndividualsAreCopied() const {
     return copy_best_individuals_only_;
@@ -292,7 +318,9 @@ bool Go2::onlyBestIndividualsAreCopied() const {
 
 /******************************************************************************/
 /**
- * Retrieves the currently registered number of algorithms
+ * @brief Retrieves the currently registered number of algorithms.
+ *
+ * @return The number of optimization algorithms currently registered with this object
  */
 std::size_t Go2::getNAlgorithms() const {
     return algorithms_cnt_.size();
@@ -344,8 +372,10 @@ std::vector<std::shared_ptr<GOABase>> Go2::getRegisteredAlgorithms() {
 }
 
 /**
- * Returns the name of the consumer currently in use.
+ * @brief Returns the name of the consumer currently in use.
+ *
  * The consumer is set using the command line argument `--consumer`.
+ *
  * @return The used consumer's name
  */
 std::string Go2::getConsumerName() {
@@ -370,7 +400,9 @@ Go2 &Go2::operator&(const std::shared_ptr<GOABase> &alg) {
 
 /***************************************************************************/
 /**
- * Allows to add an optimization algorithm through its mnemonic
+ * @brief Allows to add an optimization algorithm through its mnemonic.
+ *
+ * @param mn A small mnemonic identifying the optimization algorithm in the global factory store (e.g. "ea")
  */
 void Go2::addAlgorithm(std::string const &mn) {
     // Retrieve the algorithm from the global store
@@ -390,7 +422,10 @@ void Go2::addAlgorithm(std::string const &mn) {
 
 /***************************************************************************/
 /**
- * Makes it easier to add algorithms through their mnemonics
+ * @brief Makes it easier to add algorithms through their mnemonics.
+ *
+ * @param mn A small mnemonic identifying the optimization algorithm in the global factory store (e.g. "ea")
+ * @return A reference to this object
  */
 Go2 &Go2::operator&(std::string const &mn) {
     this->addAlgorithm(mn);
@@ -399,8 +434,11 @@ Go2 &Go2::operator&(std::string const &mn) {
 
 /***************************************************************************/
 /**
- * Allows to register a content creator. A content creator creates individuals
- * to be added to the population.
+ * @brief Allows to register a content creator.
+ *
+ * A content creator creates individuals to be added to the population.
+ *
+ * @param cc_ptr A smart pointer to a factory that produces optimizable entities (must not be empty)
  */
 void Go2::registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> &cc_ptr) {
     if(not cc_ptr) {
@@ -427,6 +465,7 @@ void Go2::registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<ge
  * @param offset An iteration offset at which the first algorithm should start
  *               (e.g. for checkpoint resume); subsequent algorithms in the chain
  *               always start at 0. Defaults to 0 through the GOptimizerIT interface.
+ * @return A pointer to this object (after the optimization has run)
  */
 Go2 const *Go2::optimize_(std::uint32_t offset) {
     this->ensureAlgorithmPresent();
@@ -438,7 +477,7 @@ Go2 const *Go2::optimize_(std::uint32_t offset) {
 
 /******************************************************************************/
 /**
- * Adds the Geneva default algorithm if the user has registered none.
+ * @brief Adds the Geneva default algorithm if the user has registered none.
  */
 void Go2::ensureAlgorithmPresent() {
     if(algorithms_cnt_.empty()) {
@@ -460,14 +499,16 @@ void Go2::ensureAlgorithmPresent() {
 
 /******************************************************************************/
 /**
- * Loads a checkpoint into the first algorithm, or fills the population from the
- * content creator. Returns the iteration offset for the FIRST algorithm only
- * (a checkpoint resume overrides the passed-in offset); every subsequent
- * algorithm in the chain starts at iteration 0 so it gets its full iteration
- * budget -- otherwise a chained algorithm would inherit the previous one's end
+ * @brief Loads a checkpoint into the first algorithm, or fills the population from the content creator.
+ *
+ * Returns the iteration offset for the FIRST algorithm only (a checkpoint resume overrides the
+ * passed-in offset); every subsequent algorithm in the chain starts at iteration 0 so it gets its
+ * full iteration budget -- otherwise a chained algorithm would inherit the previous one's end
  * iteration and, with an absolute max-iteration halt criterion, stop immediately.
  *
  * @param offset The iteration offset requested for the first algorithm
+ * @return The iteration offset the first algorithm should actually start at (offset, or one past the
+ *         checkpoint's last iteration when resuming from a checkpoint)
  */
 std::uint32_t Go2::prepareInitialPopulation(std::uint32_t offset) {
     // Check whether a possible checkpoint file fits the first algorithm in the chain
@@ -534,9 +575,12 @@ std::uint32_t Go2::prepareInitialPopulation(std::uint32_t offset) {
 
 /******************************************************************************/
 /**
- * Runs the registered algorithms in sequence, threading the individuals from one
- * algorithm to the next. Only the first algorithm honours the offset (checkpoint
- * resume / user offset); subsequent algorithms start at 0 (full iteration budget).
+ * @brief Runs the registered algorithms in sequence, threading the individuals from one algorithm to the next.
+ *
+ * Only the first algorithm honours the offset (checkpoint resume / user offset); subsequent algorithms
+ * start at 0 (full iteration budget).
+ *
+ * @param first_algorithm_offset The iteration offset at which the first algorithm in the chain should start
  */
 void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
     total_iterations_ = 0;
@@ -603,9 +647,13 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
 
 /******************************************************************************/
 /**
- * Registers an OA-owned adaption configuration for an algorithm type (Phase 8 step 4). Stored keyed by
- * the algorithm's personality type and handed to the matching algorithm in runAlgorithmChain() before it
- * runs. A null config removes any existing entry.
+ * @brief Registers an OA-owned adaption configuration for an algorithm type (Phase 8 step 4).
+ *
+ * Stored keyed by the algorithm's personality type and handed to the matching algorithm in
+ * runAlgorithmChain() before it runs. A null config removes any existing entry.
+ *
+ * @param oa_personality_type The algorithm personality type the configuration applies to (registry key)
+ * @param config A smart pointer to the adaption configuration to register; a null pointer removes any existing entry
  */
 void Go2::registerAdaptionConfig(
     const std::string &oa_personality_type,
@@ -621,8 +669,9 @@ void Go2::registerAdaptionConfig(
 
 /******************************************************************************/
 /**
- * Sorts the collected individuals by their (min-only transformed) fitness so the
- * best individuals are easy to extract afterwards.
+ * @brief Sorts the collected individuals by their (min-only transformed) fitness.
+ *
+ * Sorting makes the best individuals easy to extract afterwards.
  */
 void Go2::sortIndividualsByFitness() {
     std::ranges::sort(
@@ -638,8 +687,9 @@ void Go2::sortIndividualsByFitness() {
 
 /******************************************************************************/
 /**
- * Retrieves the best individual found. This function returns a base pointer.
- * Conversion is done through a function stored in GOptimizableI.
+ * @brief Retrieves the best individual found.
+ *
+ * This function returns a base pointer. Conversion is done through a function stored in GOptimizableI.
  *
  * @return The best individual found
  */
@@ -677,10 +727,11 @@ std::shared_ptr<gen::GOptimizableEntity> Go2::getBestGlobalIndividual_() const {
 
 /******************************************************************************/
 /**
- * Retrieves a list of the best individuals found. This function returns  base pointers.
- * Conversion is done through a function stored in GOptimizableI.
+ * @brief Retrieves a list of the best individuals found.
  *
- * @return The best individual found
+ * This function returns base pointers. Conversion is done through a function stored in GOptimizableI.
+ *
+ * @return A vector holding the best individuals found
  */
 std::vector<std::shared_ptr<gen::GOptimizableEntity>> Go2::getBestGlobalIndividuals_() const {
     // Do some error checking
@@ -715,10 +766,11 @@ std::vector<std::shared_ptr<gen::GOptimizableEntity>> Go2::getBestGlobalIndividu
 
 /******************************************************************************/
 /**
- * Retrieves the best individual found. This function returns a base pointer.
- * Conversion is done through a function stored in GOptimizableI.
+ * @brief Retrieves the best individual of the current iteration.
  *
- * @return The best individual found
+ * This function is not meaningful for the algorithm-combiner Go2 and always throws when called.
+ *
+ * @return Never returns normally; always throws a geneva_exception
  */
 std::shared_ptr<gen::GOptimizableEntity> Go2::getBestIterationIndividual_() const {
     throw geneva_exception(
@@ -730,10 +782,11 @@ std::shared_ptr<gen::GOptimizableEntity> Go2::getBestIterationIndividual_() cons
 
 /******************************************************************************/
 /**
- * Retrieves a list of the best individuals found. This function returns  base pointers.
- * Conversion is done through a function stored in GOptimizableI.
+ * @brief Retrieves a list of the best individuals of the current iteration.
  *
- * @return The best individual found
+ * This function is not meaningful for the algorithm-combiner Go2 and always throws when called.
+ *
+ * @return Never returns normally; always throws a geneva_exception
  */
 std::vector<std::shared_ptr<gen::GOptimizableEntity>> Go2::getBestIterationIndividuals_() const {
     throw geneva_exception(
@@ -745,7 +798,7 @@ std::vector<std::shared_ptr<gen::GOptimizableEntity>> Go2::getBestIterationIndiv
 
 /******************************************************************************/
 /**
- * Satisfies a requirement of GOptimizerIT
+ * @brief Satisfies a requirement of GOptimizerIT (no-op for the algorithm combiner).
  */
 void Go2::runFitnessCalculation_() { /* nothing */
 }
@@ -822,7 +875,9 @@ std::uint16_t Go2::getNProducerThreads() const {
 
 /******************************************************************************/
 /**
- * Retrieval of the current iteration
+ * @brief Retrieval of the current iteration.
+ *
+ * @return The accumulated iteration count across all algorithms run so far (for reporting only)
  */
 uint32_t Go2::getIteration_() const {
     return total_iterations_;
@@ -848,7 +903,13 @@ std::string Go2::getAlgorithmPersonalityType_() const {
 /******************************************************************************/
 namespace {
 
-/** @brief Builds a "mnemonic:  human-readable-name" listing of all entries in a store. */
+/**
+ * @brief Builds a "mnemonic:  human-readable-name" listing of all entries in a store.
+ *
+ * @tparam StorePtr The (pointer-like) type of the store being iterated
+ * @param store The store whose registered keys and human-readable names should be listed
+ * @return A newline-separated listing of "mnemonic:  name" for every entry in the store
+ */
 template <typename StorePtr>
 std::string listMnemonics(StorePtr store) {
     std::vector<std::string> keys;
@@ -864,6 +925,7 @@ std::string listMnemonics(StorePtr store) {
 
 /******************************************************************************/
 /**
+ * @brief Parses the command line for the algorithms, consumer, checkpoint file and client options.
  *
  * @param argc The number of command line arguments
  * @param argv An array with the arguments
@@ -978,7 +1040,14 @@ void Go2::parseCommandLine(
 
 /******************************************************************************/
 /**
- * Emits the help message and exits the process, if --help / --showAll was given.
+ * @brief Emits the help message and exits the process, if --help / --showAll was given.
+ *
+ * @param vm The parsed program_options variables map (checked for the "help" / "showAll" flags)
+ * @param general The full options description (printed for --showAll)
+ * @param basic The basic Go2 options (included in the selected --help output)
+ * @param visible The visible algorithm- and consumer-options (included in the selected --help output)
+ * @param user_options The user-defined command line options (included if non-empty)
+ * @param usage_string The usage banner string used as the heading of the selected options listing
  */
 void Go2::emitHelpIfRequested(
     boost::program_options::variables_map const &vm,
@@ -1009,8 +1078,12 @@ void Go2::emitHelpIfRequested(
 
 /******************************************************************************/
 /**
- * Validates, initialises, configures and enrols the consumer chosen on the
- * command line (the consumer_name_ member).
+ * @brief Validates, initialises, configures and enrols the consumer chosen on the command line.
+ *
+ * Operates on the consumer_name_ member; assembles the transport-agnostic consumer spec, builds the
+ * courtier consumer/broker (except on an MPI worker rank) and derives client_mode_ for the MPI consumer.
+ *
+ * @param vm The parsed program_options variables map (used to assemble the consumer spec)
  */
 void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
     // No consumer specified, although brokered execution was requested
@@ -1076,7 +1149,10 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
 
 /******************************************************************************/
 /**
- * Turns the comma-separated --optimizationAlgorithms list into algorithm objects.
+ * @brief Turns the comma-separated --optimizationAlgorithms list into algorithm objects.
+ *
+ * @param vm The parsed program_options variables map (checked for the "optimizationAlgorithms" flag)
+ * @param optimization_algorithms The comma-separated list of algorithm mnemonics to instantiate
  */
 void Go2::parseRequestedAlgorithms(
     boost::program_options::variables_map const &vm,

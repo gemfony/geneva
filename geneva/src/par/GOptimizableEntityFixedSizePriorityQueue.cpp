@@ -50,9 +50,11 @@ namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 /**
-	 * Initialization with the maximum size. The GOptimizableEntityFixedSizePriorityQueue is
+	 * @brief Initialization with the maximum size. The GOptimizableEntityFixedSizePriorityQueue is
 	 * targetted at optimization algorithms, which only understand "minimization". Hence
 	 * "lower is better" is the only allowed mode of operation of this priority queue.
+	 *
+	 * @param max_size The maximum number of items the priority queue may hold
 	 */
 GOptimizableEntityFixedSizePriorityQueue::GOptimizableEntityFixedSizePriorityQueue(
     const std::size_t &max_size
@@ -65,7 +67,9 @@ GOptimizableEntityFixedSizePriorityQueue::GOptimizableEntityFixedSizePriorityQue
 
 /******************************************************************************/
 /**
-	 * Emits a name for this class / object
+	 * @brief Emits a name for this class / object
+	 *
+	 * @return The name of this class ("GOptimizableEntityFixedSizePriorityQueue")
 	 */
 std::string GOptimizableEntityFixedSizePriorityQueue::name_() const {
     return std::string("GOptimizableEntityFixedSizePriorityQueue");
@@ -73,11 +77,12 @@ std::string GOptimizableEntityFixedSizePriorityQueue::name_() const {
 
 /******************************************************************************/
 /**
-	 * Searches for compliance with expectations with respect to another object
+	 * @brief Searches for compliance with expectations with respect to another object
 	 * of the same type
 	 *
-	 * @param cp A constant reference to another GOptimizableEntityFixedSizePriorityQueue object
-	 * @param e The expected outcome of the comparison
+	 * @param cp A constant reference to another GFixedSizePriorityQueueT<GOptimizableEntity> object to compare against
+	 * @param e The expected outcome of the comparison (e.g. equality or inequality)
+	 * @param limit The maximum allowed deviation for floating point comparisons (unused here)
 	 */
 void GOptimizableEntityFixedSizePriorityQueue::compare_(
     const Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity> &cp // the other object
@@ -109,7 +114,9 @@ void GOptimizableEntityFixedSizePriorityQueue::compare_(
 
 /******************************************************************************/
 /**
-	 * Loads the data of another GOptimizableEntityFixedSizePriorityQueue object, camouflaged as a GFixedSizePriorityQueueT<GOptimizableEntity>
+	 * @brief Loads the data of another GOptimizableEntityFixedSizePriorityQueue object, camouflaged as a GFixedSizePriorityQueueT<GOptimizableEntity>
+	 *
+	 * @param cp A pointer to another object to load from, camouflaged as a GFixedSizePriorityQueueT<GOptimizableEntity>
 	 */
 void GOptimizableEntityFixedSizePriorityQueue::load_(
     const Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity> *cp
@@ -126,7 +133,9 @@ void GOptimizableEntityFixedSizePriorityQueue::load_(
 
 /******************************************************************************/
 /**
-	 * Creates a deep clone of this object
+	 * @brief Creates a deep clone of this object
+	 *
+	 * @return A deep clone of this object, camouflaged as a GFixedSizePriorityQueueT<GOptimizableEntity>
 	 */
 Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity> *
 GOptimizableEntityFixedSizePriorityQueue::clone_() const {
@@ -135,7 +144,10 @@ GOptimizableEntityFixedSizePriorityQueue::clone_() const {
 
 /******************************************************************************/
 /**
-	 * Checks whether no item has the dirty flag set
+	 * @brief Checks whether no item has the dirty flag set
+	 *
+	 * @param pos An out-parameter set to the number of items that were checked (the count of clean items preceding any dirty item, or the total count when all are clean)
+	 * @return true if all items are processed (clean), false as soon as a dirty item is found
 	 */
 bool GOptimizableEntityFixedSizePriorityQueue::allClean(std::size_t &pos) const {
     pos = 0;
@@ -151,7 +163,9 @@ bool GOptimizableEntityFixedSizePriorityQueue::allClean(std::size_t &pos) const 
 
 /******************************************************************************/
 /**
-	 * Emits information about the "dirty flag" of all items
+	 * @brief Emits information about the "dirty flag" of all items
+	 *
+	 * @return A string listing each item's position and clean/dirty status ("c" for clean, "d" for dirty)
 	 */
 std::string GOptimizableEntityFixedSizePriorityQueue::getCleanStatus() const {
     std::size_t pos = 0;
@@ -165,8 +179,11 @@ std::string GOptimizableEntityFixedSizePriorityQueue::getCleanStatus() const {
 
 /******************************************************************************/
 /**
-	 * Checks whether an Item is valid, i.e. holds a GOptimizableEntity item and has
+	 * @brief Checks whether an Item is valid, i.e. holds a GOptimizableEntity item and has
 	 * already been evaluated.
+	 *
+	 * @param item_ptr A shared pointer to the item to be checked
+	 * @return true if the pointer is non-empty and its item has been processed, false otherwise
 	 */
 bool GOptimizableEntityFixedSizePriorityQueue::isValid(
     const std::shared_ptr<GOptimizableEntity> &item_ptr
@@ -184,9 +201,12 @@ bool GOptimizableEntityFixedSizePriorityQueue::isValid(
 
 /******************************************************************************/
 /**
-	 * Evaluates a single work item, so that it can be sorted. Note that this function
+	 * @brief Evaluates a single work item, so that it can be sorted. Note that this function
 	 * will throw in DEBUG mode, if the dirty flag of item is set. Note that the function
 	 * uses the primary evaluation criterion only.
+	 *
+	 * @param item_ptr A shared pointer to the item to be evaluated
+	 * @return The min-only transformed fitness of the item (its primary evaluation criterion)
 	 */
 double GOptimizableEntityFixedSizePriorityQueue::evaluation(
     const std::shared_ptr<GOptimizableEntity> &item_ptr
@@ -196,7 +216,12 @@ double GOptimizableEntityFixedSizePriorityQueue::evaluation(
 
 /******************************************************************************/
 /**
-	 * Adds items in a range to the priority queue
+	 * @brief Adds items in a range to the priority queue. Only processed ("clean") items are added.
+	 *
+	 * @param begin An iterator to the first item of the range to be added
+	 * @param end An iterator one past the last item of the range to be added
+	 * @param do_clone If true, each added item is deep-cloned into the queue rather than co-owned
+	 * @param do_replace If true, the queue's existing content is replaced rather than merged
 	 */
 void GOptimizableEntityFixedSizePriorityQueue::add(
     std::vector<std::shared_ptr<GOptimizableEntity>>::const_iterator begin,
@@ -234,9 +259,13 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
 
 /******************************************************************************/
 /**
-	 * Adds the items in the items_cnt vector to the queue. This overload makes sure
+	 * @brief Adds the items in the items_cnt vector to the queue. This overload makes sure
 	 * that only processed items (i.e. without errors and with the PROCESSED flag) are
 	 * entered into the priority queue.
+	 *
+	 * @param items_cnt A vector of shared pointers to the items to be added
+	 * @param do_clone If true, each added item is deep-cloned into the queue rather than co-owned
+	 * @param do_replace If true, the queue's existing content is replaced rather than merged
 	 */
 void GOptimizableEntityFixedSizePriorityQueue::add(
     std::vector<std::shared_ptr<GOptimizableEntity>> const &items_cnt,
@@ -268,9 +297,12 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
 
 /******************************************************************************/
 /**
-	 * Adds a single item to the queue. his overload makes sure
+	 * @brief Adds a single item to the queue. This overload makes sure
 	 * that only processed items (i.e. without errors and with the PROCESSED flag) are
 	 * entered into the priority queue.
+	 *
+	 * @param item_ptr A shared pointer to the item to be added (ignored if empty or not processed)
+	 * @param do_clone If true, the item is deep-cloned into the queue rather than co-owned
 	 */
 void GOptimizableEntityFixedSizePriorityQueue::add(
     std::shared_ptr<GOptimizableEntity> const &item_ptr,
@@ -283,11 +315,14 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
 
 /******************************************************************************/
 /**
-	 * Boundary overload: adds the individuals of a unique_ptr-owned population. The population owns its
+	 * @brief Boundary overload: adds the individuals of a unique_ptr-owned population. The population owns its
 	 * individuals by unique_ptr, while this archive keeps its own shared_ptr clones, so we clone each
 	 * individual across the ownership boundary and hand the (already-cloned) shared_ptrs to the
 	 * shared_ptr overload with do_clone == false -- the archive co-owns the clones directly, no second
 	 * copy. (do_clone is intentionally ignored: cloning at the boundary is exactly what do_clone asks for.)
+	 *
+	 * @param items_cnt A vector of unique_ptr-owned individuals to be cloned into the queue
+	 * @param do_replace If true, the queue's existing content is replaced rather than merged
 	 */
 void GOptimizableEntityFixedSizePriorityQueue::add(
     std::vector<std::unique_ptr<GOptimizableEntity>> const &items_cnt,
@@ -306,11 +341,14 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
 
 /******************************************************************************/
 /**
-	 * Boundary overload: adds the individuals held by a SLOT population. The population owns its slots by
+	 * @brief Boundary overload: adds the individuals held by a SLOT population. The population owns its slots by
 	 * unique_ptr, each slot owns its individual; this archive keeps its own shared_ptr clones, so we clone
 	 * each slot's individual across the ownership boundary and delegate to the shared_ptr overload (which
 	 * co-owns the clones directly). (do_clone is intentionally ignored: cloning at the boundary is exactly
 	 * what do_clone asks for.)
+	 *
+	 * @param items_cnt A vector of slots whose held individuals are cloned into the queue (empty slots are skipped)
+	 * @param do_replace If true, the queue's existing content is replaced rather than merged
 	 */
 void GOptimizableEntityFixedSizePriorityQueue::add(
     std::vector<std::unique_ptr<GIndividualSlot>> const &items_cnt,
@@ -329,8 +367,12 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
 
 /******************************************************************************/
 /**
-	 * Boundary overload: adds the individuals held by a SLOT population sub-range [begin, end). See the
+	 * @brief Boundary overload: adds the individuals held by a SLOT population sub-range [begin, end). See the
 	 * slot-vector overload above.
+	 *
+	 * @param begin An iterator to the first slot of the range whose individuals are added
+	 * @param end An iterator one past the last slot of the range
+	 * @param do_replace If true, the queue's existing content is replaced rather than merged
 	 */
 void GOptimizableEntityFixedSizePriorityQueue::add(
     std::vector<std::unique_ptr<GIndividualSlot>>::const_iterator begin,
@@ -350,7 +392,11 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
 
 /******************************************************************************/
 /**
-	 * Boundary overload: adds a unique_ptr population sub-range [begin, end). See the vector overload above.
+	 * @brief Boundary overload: adds a unique_ptr population sub-range [begin, end). See the vector overload above.
+	 *
+	 * @param begin An iterator to the first individual of the range to be cloned into the queue
+	 * @param end An iterator one past the last individual of the range
+	 * @param do_replace If true, the queue's existing content is replaced rather than merged
 	 */
 void GOptimizableEntityFixedSizePriorityQueue::add(
     std::vector<std::unique_ptr<GOptimizableEntity>>::const_iterator begin,
@@ -370,7 +416,9 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
 
 /******************************************************************************/
 /**
-	 * Boundary overload: adds a single unique_ptr-owned individual. See the vector overload above.
+	 * @brief Boundary overload: adds a single unique_ptr-owned individual. See the vector overload above.
+	 *
+	 * @param item_ptr A unique_ptr-owned individual that is cloned into the queue (ignored if empty or not processed)
 	 */
 void GOptimizableEntityFixedSizePriorityQueue::add(
     std::unique_ptr<GOptimizableEntity> const &item_ptr,
@@ -382,7 +430,11 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
 }
 
 /******************************************************************************/
-/** @brief Applies modifications to this object. This is needed for testing purposes */
+/**
+ * @brief Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
 bool GOptimizableEntityFixedSizePriorityQueue::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 

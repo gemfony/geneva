@@ -70,7 +70,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /******************************************************************************/
 
 /**
- * The default constructor. All initialization work of member variable
+ * @brief The default constructor. All initialization work of member variables
  * is done in the class body.
  */
 GSimulatedAnnealing::GSimulatedAnnealing() {
@@ -80,12 +80,12 @@ GSimulatedAnnealing::GSimulatedAnnealing() {
 
 /******************************************************************************/
 /**
-  * Searches for compliance with expectations with respect to another object
+  * @brief Searches for compliance with expectations with respect to another object
   * of the same type
   *
-  * @param cp A constant reference to another GSimulatedAnnealing object
-  * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
+  * @param cp A constant reference to another GOptimizationAlgorithmBase, expected to be a GSimulatedAnnealing
+  * @param e The expected outcome of the comparison (e.g. equality or inequality)
+ * @param limit The maximum deviation for floating point values (unused here; important for similarity checks)
  */
 void GSimulatedAnnealing::compare_(
     const GOptimizationAlgorithmBase &cp // the other object
@@ -114,7 +114,7 @@ void GSimulatedAnnealing::compare_(
 
 /******************************************************************************/
 /**
- * Resets the settings of this population to what was configured when
+ * @brief Resets the settings of this population to what was configured when
  * the optimize()-call was issued
  */
 void GSimulatedAnnealing::resetToOptimizationStart_() {
@@ -128,7 +128,7 @@ void GSimulatedAnnealing::resetToOptimizationStart_() {
 
 /******************************************************************************/
 /**
-  * Adds local configuration options to a GParserBuilder object
+  * @brief Adds local configuration options to a GParserBuilder object
   *
   * @param gpb The GParserBuilder object to which configuration options should be added
   */
@@ -158,9 +158,9 @@ void GSimulatedAnnealing::addConfigurationOptions_(Gem::Common::GParserBuilder &
 
 /******************************************************************************/
 /**
-  * Determines the strength of the temperature degradation. This function is used for simulated annealing.
+  * @brief Determines the strength of the temperature degradation. This function is used for simulated annealing.
   *
-  * @param alpha The degradation speed of the temperature
+  * @param alpha The temperature degradation strength; must be in the open interval (0,1)
   */
 void GSimulatedAnnealing::setTDegradationStrength(double alpha) {
     if(alpha <= 0. || alpha >= 1.) {
@@ -176,7 +176,7 @@ void GSimulatedAnnealing::setTDegradationStrength(double alpha) {
 
 /******************************************************************************/
 /**
-  * Retrieves the temperature degradation strength. This function is used for simulated annealing.
+  * @brief Retrieves the temperature degradation strength. This function is used for simulated annealing.
   *
   * @return The temperature degradation strength
   */
@@ -186,9 +186,9 @@ double GSimulatedAnnealing::getTDegradationStrength() const {
 
 /******************************************************************************/
 /**
-  * Sets the start temperature. This function is used for simulated annealing.
+  * @brief Sets the start temperature. This function is used for simulated annealing.
   *
-  * @param t0 The start temperature
+  * @param t0 The start temperature; must be strictly positive
   */
 void GSimulatedAnnealing::setT0(double t0) {
     if(t0 <= 0.) {
@@ -204,7 +204,7 @@ void GSimulatedAnnealing::setT0(double t0) {
 
 /******************************************************************************/
 /**
-  * Retrieves the start temperature. This function is used for simulated annealing.
+  * @brief Retrieves the start temperature. This function is used for simulated annealing.
   *
   * @return The start temperature
   */
@@ -214,7 +214,7 @@ double GSimulatedAnnealing::getT0() const {
 
 /******************************************************************************/
 /**
-  * Retrieves the current temperature. This function is used for simulated annealing.
+  * @brief Retrieves the current temperature. This function is used for simulated annealing.
   *
   * @return The current temperature
   */
@@ -224,9 +224,9 @@ double GSimulatedAnnealing::getT() const {
 
 /******************************************************************************/
 /**
-  * Loads the data of another GSimulatedAnnealingT object.
+  * @brief Loads the data of another GSimulatedAnnealing object.
   *
-  * @param cp A pointer to another GSimulatedAnnealingT object
+  * @param cp A pointer to another GOptimizationAlgorithmBase, expected to be a GSimulatedAnnealing
   */
 void GSimulatedAnnealing::load_(const GOptimizationAlgorithmBase *cp) {
     // Check that we are dealing with a GSimulatedAnnealing reference independent
@@ -243,7 +243,7 @@ void GSimulatedAnnealing::load_(const GOptimizationAlgorithmBase *cp) {
 
 /******************************************************************************/
 /**
-  * Some error checks related to population sizes
+  * @brief Some error checks related to population sizes
   */
 void GSimulatedAnnealing::populationSanityChecks_() const {
     // First check that we have been given a suitable value for the number of parents.
@@ -272,7 +272,7 @@ void GSimulatedAnnealing::populationSanityChecks_() const {
 
 /******************************************************************************/
 /**
-  * We submit individuals to the broker connector and wait for processed items.
+  * @brief We submit individuals to the broker connector and wait for processed items.
  */
 void GSimulatedAnnealing::runFitnessCalculation_() {
     //--------------------------------------------------------------------------------
@@ -343,7 +343,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
 
 /******************************************************************************/
 /**
-  * Choose new parents, based on the SA selection scheme.
+  * @brief Choose new parents, based on the SA selection scheme.
   */
 void GSimulatedAnnealing::selectBest_() {
     // Sort according to the "Simulated Annealing" scheme
@@ -379,11 +379,11 @@ void GSimulatedAnnealing::selectBest_() {
 
 /******************************************************************************/
 /**
-  * Retrieves the evaluation range in a given iteration and sorting scheme. Depending on the
+  * @brief Retrieves the evaluation range in a given iteration and sorting scheme. Depending on the
   * iteration and sorting scheme, the start point will be different. The end-point is not meant
   * to be inclusive.
   *
-  * @return The range inside which evaluation should take place
+  * @return A tuple holding the half-open [start, end) range of population positions to be evaluated
   */
 std::tuple<std::size_t, std::size_t> GSimulatedAnnealing::getEvaluationRange_() const {
     // We evaluate all individuals in the first iteration This happens so pluggable
@@ -396,7 +396,9 @@ std::tuple<std::size_t, std::size_t> GSimulatedAnnealing::getEvaluationRange_() 
 
 /******************************************************************************/
 /**
-  * Retrieve a GPersonalityTraits object belonging to this algorithm
+  * @brief Retrieve a GPersonalityTraits object belonging to this algorithm
+  *
+  * @return A shared pointer to a freshly created GSimulatedAnnealing_PersonalityTraits object
   */
 std::shared_ptr<GPersonalityTraits> GSimulatedAnnealing::getPersonalityTraits_() const {
     return std::make_shared<GSimulatedAnnealing_PersonalityTraits>();
@@ -404,7 +406,7 @@ std::shared_ptr<GPersonalityTraits> GSimulatedAnnealing::getPersonalityTraits_()
 
 /******************************************************************************/
 /**
- * Performs a simulated annealing style sorting and selection
+ * @brief Performs a simulated annealing style sorting and selection
  */
 void GSimulatedAnnealing::sortSAMode() {
     // Position the n_parents best children of the population right behind the parents
@@ -454,13 +456,13 @@ void GSimulatedAnnealing::sortSAMode() {
 
 /******************************************************************************/
 /**
-  * Calculates the simulated annealing probability for a child to replace a parent.
+  * @brief Calculates the simulated annealing probability for a child to replace a parent.
   * Note that this function only sees minimization problems, as maximization problems
   * are transformed to minimization problems inside of GOptimizableEntity.
   *
-  * @param f_min_only_parent The "min only" fitness of the parent
-  * @param f_min_only_child The "min only" fitness of the child
-  * @return A double value in the range [0,1[, representing the likelihood for the child to replace the parent
+  * @param f_min_only_parent The "min only" (minimization-transformed) fitness of the parent
+  * @param f_min_only_child The "min only" (minimization-transformed) fitness of the child
+  * @return A double value representing the Boltzmann likelihood for the child to replace the parent
   */
 double
 GSimulatedAnnealing::saProb(const double &f_min_only_parent, const double &f_min_only_child) {
@@ -469,7 +471,7 @@ GSimulatedAnnealing::saProb(const double &f_min_only_parent, const double &f_min
 
 /******************************************************************************/
 /**
-  * Updates the temperature. This function is used for simulated annealing.
+  * @brief Updates the temperature. This function is used for simulated annealing.
   */
 void GSimulatedAnnealing::updateTemperature() {
     // Clamp to the smallest normalised double so t_ never enters the subnormal

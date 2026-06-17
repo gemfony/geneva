@@ -48,16 +48,18 @@ namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 /**
- * The default constructor -- private, as it is only needed for (de-)serialization purposes
+ * @brief The default constructor -- private, as it is only needed for (de-)serialization purposes.
  */
 GLineFitIndividual::GLineFitIndividual() { /* nothing */
 }
 
 /******************************************************************************/
 /**
- * The standard constructor, sets up the internal data structures
+ * @brief The standard constructor; builds the two-parameter (offset/slope) genome structure and
+ * stores the data points to be fitted.
  *
- * @param data_points The data points to fit a line through
+ * @param data_points The set of (x, y) data points a line should be fitted through; stored for the
+ *        fitness calculation
  */
 GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, double>> &data_points)
   : data_points_(data_points) {
@@ -75,8 +77,11 @@ GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, doub
 
 /******************************************************************************/
 /**
- * Builds the OA-owned adaption configuration: the line's offset a and slope b are each their own Gauss
- * group, configured with the settings the genome formerly baked into its layout.
+ * @brief Builds the OA-owned adaption configuration: the line's offset a and slope b are each their own
+ * Gauss group, configured with the settings the genome formerly baked into its layout.
+ *
+ * @return A shared pointer to a freshly built adaption config whose double groups each carry the Gauss
+ *         adaptor settings (sigma 0.025, sigma_sigma 0.1, min_sigma 0.0001, max_sigma 0.4, ad_prob 1.0)
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> GLineFitIndividual::getAdaptionConfig() const {
     auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(*this);
@@ -89,9 +94,9 @@ std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> GLineFitIndividual:
 
 /******************************************************************************/
 /**
- * The copy constructor
+ * @brief The copy constructor.
  *
- * @param cp A constant reference to another GLineFitIndividual object
+ * @param cp A constant reference to another GLineFitIndividual object to be copied
  */
 GLineFitIndividual::GLineFitIndividual(const GLineFitIndividual &cp)
   : gen::GFlatGenome(cp)
@@ -100,18 +105,18 @@ GLineFitIndividual::GLineFitIndividual(const GLineFitIndividual &cp)
 
 /******************************************************************************/
 /**
- * The standard destructor
+ * @brief The standard destructor.
  */
 GLineFitIndividual::~GLineFitIndividual() { /* nothing */
 }
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
- * of the same type
+ * @brief Searches for compliance with expectations with respect to another object of the same type.
  *
- * @param cp A constant reference to another GFlatGenome object
- * @param e The expected outcome of the comparison
+ * @param cp A constant reference to another object, camouflaged as a GOptimizableEntity, to compare against
+ * @param e The expected outcome of the comparison (equality, inequality, ...)
+ * @param limit The maximum acceptable deviation for (floating point) comparisons (unused here)
  */
 void GLineFitIndividual::compare_(
     const gen::GOptimizableEntity &cp,
@@ -138,7 +143,9 @@ void GLineFitIndividual::compare_(
 
 /******************************************************************************/
 /**
- * Retrieves the tuple (a,b) of the line represented by this object
+ * @brief Retrieves the tuple (a, b) of the line represented by this object.
+ *
+ * @return A tuple holding the line's offset a (first parameter) and slope b (second parameter)
  */
 std::tuple<double, double> GLineFitIndividual::getLine() const {
     std::vector<double> par_vec;
@@ -148,9 +155,9 @@ std::tuple<double, double> GLineFitIndividual::getLine() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GLineFitIndividual, camouflaged as a GFlatGenome.
+ * @brief Loads the data of another GLineFitIndividual, camouflaged as a GOptimizableEntity.
  *
- * @param cp A copy of another GLineFitIndividual, camouflaged as a GFlatGenome
+ * @param cp A pointer to another GLineFitIndividual, camouflaged as a GOptimizableEntity, to load from
  */
 void GLineFitIndividual::load_(const gen::GOptimizableEntity *cp) {
     using namespace Gem::Common;
@@ -169,9 +176,9 @@ void GLineFitIndividual::load_(const gen::GOptimizableEntity *cp) {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object.
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome
+ * @return A deep clone of this object, camouflaged as a GFlatGenome pointer
  */
 gen::GFlatGenome *GLineFitIndividual::clone_() const {
     return new GLineFitIndividual(*this);
@@ -179,9 +186,10 @@ gen::GFlatGenome *GLineFitIndividual::clone_() const {
 
 /******************************************************************************/
 /**
- * The actual fitness calculation takes place here.
+ * @brief The actual fitness calculation takes place here; computes the root of the summed squared
+ * deviation between the fitted line (a + b*x) and the stored data points.
  *
- * @return The value of this object
+ * @return The fitness of this object: sqrt of the summed squared deviations of line and data points
  */
 double GLineFitIndividual::fitnessCalculation() {
     double result = 0.;
@@ -205,7 +213,7 @@ double GLineFitIndividual::fitnessCalculation() {
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes.
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -231,7 +239,7 @@ bool GLineFitIndividual::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes.
  */
 void GLineFitIndividual::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -252,7 +260,7 @@ void GLineFitIndividual::specificTestsNoFailureExpected_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes.
  */
 void GLineFitIndividual::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING

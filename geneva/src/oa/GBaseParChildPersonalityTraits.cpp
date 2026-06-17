@@ -46,11 +46,12 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GPersonalityTraits object
- * @param e The expected outcome of the comparison
+ * @param cp A constant reference to another GPersonalityTraits object to compare against
+ * @param e The expected outcome of the comparison (e.g. equality or inequality)
+ * @param limit The maximum acceptable deviation for floating-point comparisons (unused here)
  */
 void GBaseParChildPersonalityTraits::compare_(
     const GPersonalityTraits &cp,
@@ -77,7 +78,9 @@ void GBaseParChildPersonalityTraits::compare_(
 
 /******************************************************************************/
 /**
- * Emits a name for this class / object
+ * @brief Emits a name for this class / object
+ *
+ * @return The class name as a string ("GBaseParChildPersonalityTraits")
  */
 std::string GBaseParChildPersonalityTraits::name_() const {
     return std::string("GBaseParChildPersonalityTraits");
@@ -85,7 +88,12 @@ std::string GBaseParChildPersonalityTraits::name_() const {
 
 /******************************************************************************/
 /**
- * Retrieves the mnemonic of the optimization algorithm
+ * @brief Retrieves the mnemonic of the optimization algorithm
+ *
+ * This base class has no associated optimization algorithm of its own, so the
+ * function always throws and never returns normally.
+ *
+ * @return Never returns normally; always throws a geneva_exception
  */
 std::string GBaseParChildPersonalityTraits::getMnemonic() const {
     throw geneva_exception(
@@ -99,9 +107,9 @@ std::string GBaseParChildPersonalityTraits::getMnemonic() const {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object
  *
- * @return A clone of this object, camouflaged as a GPersonalityTraits
+ * @return A heap-allocated clone of this object, camouflaged as a GPersonalityTraits pointer (caller owns it)
  */
 GPersonalityTraits *GBaseParChildPersonalityTraits::clone_() const {
     return new GBaseParChildPersonalityTraits(*this);
@@ -109,9 +117,9 @@ GPersonalityTraits *GBaseParChildPersonalityTraits::clone_() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GBaseParChildPersonalityTraits object
+ * @brief Loads the data of another GBaseParChildPersonalityTraits object
  *
- * @param cp A copy of another GBaseParChildPersonalityTraits object, camouflaged as a GPersonalityTraits
+ * @param cp A pointer to another GBaseParChildPersonalityTraits object, camouflaged as a GPersonalityTraits (not taken over)
  */
 void GBaseParChildPersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Check that we are dealing with a GBasePS::GBaseParChildPersonalityTraits reference independent of this object and convert the pointer
@@ -127,9 +135,9 @@ void GBaseParChildPersonalityTraits::load_(const GPersonalityTraits *cp) {
 
 /******************************************************************************/
 /**
- * Checks whether this is a parent individual
+ * @brief Checks whether this is a parent individual
  *
- * @return A boolean indicating whether this object is a parent at this time
+ * @return true if this object is currently a parent (parent_counter_ > 0), false otherwise
  */
 bool GBaseParChildPersonalityTraits::isParent() const {
     return (parent_counter_ > 0) ? true : false;
@@ -142,9 +150,9 @@ bool GBaseParChildPersonalityTraits::isParent() const {
 
 /******************************************************************************/
 /**
- * Retrieves the current value of the parent_counter_ variable
+ * @brief Retrieves the current value of the parent_counter_ variable
  *
- * @return The current value of the parent_counter_ variable
+ * @return The current value of the parent_counter_ variable (the number of generations spent as a parent)
  */
 std::uint32_t GBaseParChildPersonalityTraits::getParentCounter() const {
     return parent_counter_;
@@ -157,9 +165,11 @@ std::uint32_t GBaseParChildPersonalityTraits::getParentCounter() const {
 
 /******************************************************************************/
 /**
- * Marks an individual as a parent
+ * @brief Marks an individual as a parent
  *
- * @return A boolean indicating whether this individual was previously a parent (true) or a child (false)
+ * Increments the parent counter, so repeated calls track how long the individual has been a parent.
+ *
+ * @return true if this individual was already a parent before the call, false if it was a child
  */
 bool GBaseParChildPersonalityTraits::setIsParent() {
     bool previous = (parent_counter_ > 0) ? true : false;
@@ -174,9 +184,11 @@ bool GBaseParChildPersonalityTraits::setIsParent() {
 
 /******************************************************************************/
 /**
- * Marks an individual as a child
+ * @brief Marks an individual as a child
  *
- * @return A boolean indicating whether this individual was previously a parent (true) or a child (false)
+ * Resets the parent counter to zero.
+ *
+ * @return true if this individual was previously a parent, false if it was already a child
  */
 bool GBaseParChildPersonalityTraits::setIsChild() {
     bool previous = (parent_counter_ > 0) ? true : false;
@@ -191,9 +203,9 @@ bool GBaseParChildPersonalityTraits::setIsChild() {
 
 /******************************************************************************/
 /**
- * Sets the position of the individual in the population
+ * @brief Sets the position of the individual in the population
  *
- * @param pop_pos The new position of this individual in the population
+ * @param pop_pos The new zero-based position of this individual in the population
  */
 void GBaseParChildPersonalityTraits::setPopulationPosition(const std::size_t &pop_pos) {
     pop_pos_ = pop_pos;
@@ -206,9 +218,9 @@ void GBaseParChildPersonalityTraits::setPopulationPosition(const std::size_t &po
 
 /******************************************************************************/
 /**
- * Retrieves the position of the individual in the population
+ * @brief Retrieves the position of the individual in the population
  *
- * @return The current position of this individual in the population
+ * @return The current zero-based position of this individual in the population
  */
 std::size_t GBaseParChildPersonalityTraits::getPopulationPosition() const {
     return pop_pos_;
@@ -221,9 +233,9 @@ std::size_t GBaseParChildPersonalityTraits::getPopulationPosition() const {
 
 /******************************************************************************/
 /**
- * Stores the parent's id with this object.
+ * @brief Stores the parent's id with this object.
  *
- * @param parent_id The id of the individual's parent
+ * @param parent_id The id (population position) of the individual's parent; stored internally as a std::int16_t
  */
 void GBaseParChildPersonalityTraits::setParentId(const std::size_t &parent_id) {
     parent_id_ = static_cast<std::int16_t>(parent_id);
@@ -236,10 +248,10 @@ void GBaseParChildPersonalityTraits::setParentId(const std::size_t &parent_id) {
 
 /******************************************************************************/
 /**
- * Retrieves the parent id's value. Note that this function will throw if
+ * @brief Retrieves the parent id's value. Note that this function will throw if
  * no parent id has been set.
  *
- * @return The parent's id
+ * @return The parent's id; throws a geneva_exception if the parent id is unset
  */
 std::size_t GBaseParChildPersonalityTraits::getParentId() const {
     if(parent_id_ >= 0) {
@@ -264,9 +276,9 @@ std::size_t GBaseParChildPersonalityTraits::getParentId() const {
 
 /******************************************************************************/
 /**
- * Checks whether a parent id has been set
+ * @brief Checks whether a parent id has been set
  *
- * @return A boolean which indicates whether the parent id has been set
+ * @return true if a parent id has been set (parent_id_ >= 0), false otherwise
  */
 bool GBaseParChildPersonalityTraits::parentIdSet() const {
     if(parent_id_ >= 0) {
@@ -283,7 +295,7 @@ bool GBaseParChildPersonalityTraits::parentIdSet() const {
 
 /******************************************************************************/
 /**
- * Marks the parent id as unset
+ * @brief Marks the parent id as unset (sets parent_id_ to -1)
  */
 void GBaseParChildPersonalityTraits::unsetParentId() {
     parent_id_ = -1;
@@ -297,9 +309,9 @@ void GBaseParChildPersonalityTraits::unsetParentId() {
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes
  *
- * @return A boolean which indicates whether modifications were made
+ * @return true if any modifications were made, false otherwise
  */
 bool GBaseParChildPersonalityTraits::modify_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -324,7 +336,7 @@ bool GBaseParChildPersonalityTraits::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -413,7 +425,7 @@ void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_(
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING

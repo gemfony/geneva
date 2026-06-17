@@ -47,10 +47,10 @@ namespace Gem::Geneva::Individuals {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Puts a Gem::Geneva::Individuals::metaOptimizationTarget item into a stream
+ * @brief Puts a Gem::Geneva::Individuals::metaOptimizationTarget item into a stream.
  *
  * @param o The ostream the item should be added to
- * @param mot the item to be added to the stream
+ * @param mot The metaOptimizationTarget item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::metaOptimizationTarget &mot) {
@@ -61,10 +61,10 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::metaOp
 
 /******************************************************************************/
 /**
- * Reads a Gem::Geneva::Individuals::metaOptimizationTarget item from a stream
+ * @brief Reads a Gem::Geneva::Individuals::metaOptimizationTarget item from a stream.
  *
- * @param i The stream the item should be read from
- * @param mot The item read from the stream
+ * @param i The istream the item should be read from
+ * @param mot The metaOptimizationTarget item read from the stream (output parameter)
  * @return The std::istream object used to read the item from
  */
 std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::metaOptimizationTarget &mot) {

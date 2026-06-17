@@ -41,7 +41,14 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /******************************************************************************/
 namespace {
 
-/** @brief Returns x0 + alpha*dir. */
+/**
+ * @brief Computes the trial point x0 + alpha*dir.
+ *
+ * @param x0 The base point (origin of the line search)
+ * @param dir The search direction; must have the same dimension as x0
+ * @param alpha The step length scaling the direction
+ * @return A new parameter vector equal to x0 + alpha*dir
+ */
 std::vector<double>
 stepPoint(std::vector<double> const &x0, std::vector<double> const &dir, double alpha) {
     std::vector<double> point(x0.size());
@@ -55,11 +62,24 @@ stepPoint(std::vector<double> const &x0, std::vector<double> const &dir, double 
 
 /******************************************************************************/
 /**
- * Backtracking Armijo line search, batched to one courtier round per group of probes. The trial step
- * lengths form a decreasing geometric sequence alpha, alpha*backtrack, alpha*backtrack^2, ...; within a
- * batch we accept the LARGEST step that satisfies the Armijo sufficient-decrease condition. If none in
+ * @brief Performs a backtracking Armijo line search, batched to one courtier round per group of probes.
+ *
+ * The trial step lengths form a decreasing geometric sequence alpha, alpha*backtrack, alpha*backtrack^2, ...;
+ * within a batch we accept the LARGEST step that satisfies the Armijo sufficient-decrease condition. If none in
  * a batch passes, we continue backtracking from just past the smallest step probed, until the budget or
  * the minimum step length is reached.
+ *
+ * @param eval_fn Callback that evaluates a batch of candidate points and returns one fitness per point,
+ *                in the same order (the single courtier round per probe group)
+ * @param x0 The current (base) point from which the search starts
+ * @param dir The search direction along which trial steps are taken
+ * @param f0 The objective value at x0 (used as the reference for the Armijo test)
+ * @param g0_dot_dir The directional derivative at x0 along dir; must be strictly negative for a descent
+ *                   direction, otherwise the search reports failure immediately
+ * @param opts The line-search tuning options (initial/minimum step, backtracking factor, probe budget,
+ *             probes per round, Armijo constant c1)
+ * @return A GLineSearchResult holding the accepted step length, new point and fitness, the number of
+ *         evaluations performed, and a success flag (false if no acceptable step was found)
  */
 GLineSearchResult GLineSearch::search(
     eval_fn_t const &eval_fn,

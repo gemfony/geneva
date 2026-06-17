@@ -43,11 +43,12 @@ const std::string GEvolutionaryAlgorithm_PersonalityTraits::nickname = "ea"; // 
 
 /******************************************************************************/
 /**
- * Searches for compliance with expectations with respect to another object
+ * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
- * @param cp A constant reference to another GPersonalityTraits object
- * @param e The expected outcome of the comparison
+ * @param cp A constant reference to another GPersonalityTraits object to compare against
+ * @param e The expected outcome of the comparison (e.g. equality or inequality)
+ * @param limit The maximum allowed deviation for floating-point comparisons (unused here)
  */
 void GEvolutionaryAlgorithm_PersonalityTraits::compare_(
     const GPersonalityTraits &cp,
@@ -77,7 +78,9 @@ void GEvolutionaryAlgorithm_PersonalityTraits::compare_(
 
 /******************************************************************************/
 /**
- * Emits a name for this class / object
+ * @brief Emits a name for this class / object
+ *
+ * @return The string "GEvolutionaryAlgorithm_PersonalityTraits"
  */
 std::string GEvolutionaryAlgorithm_PersonalityTraits::name_() const {
     return std::string("GEvolutionaryAlgorithm_PersonalityTraits");
@@ -85,7 +88,9 @@ std::string GEvolutionaryAlgorithm_PersonalityTraits::name_() const {
 
 /******************************************************************************/
 /**
- * Retrieves the mnemonic of the optimization algorithm
+ * @brief Retrieves the mnemonic of the optimization algorithm
+ *
+ * @return The short identifier ("ea") for the evolutionary algorithm
  */
 std::string GEvolutionaryAlgorithm_PersonalityTraits::getMnemonic() const {
     return GEvolutionaryAlgorithm_PersonalityTraits::nickname;
@@ -93,7 +98,7 @@ std::string GEvolutionaryAlgorithm_PersonalityTraits::getMnemonic() const {
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
+ * @brief Creates a deep clone of this object
  *
  * @return A clone of this object, camouflaged as a GPersonalityTraits
  */
@@ -103,9 +108,9 @@ GPersonalityTraits *GEvolutionaryAlgorithm_PersonalityTraits::clone_() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GEAPersonalityTraits object
+ * @brief Loads the data of another GEvolutionaryAlgorithm_PersonalityTraits object
  *
- * @param cp A copy of another GEAPersonalityTraits object, camouflaged as a GPersonalityTraits
+ * @param cp A pointer to another GEvolutionaryAlgorithm_PersonalityTraits object, camouflaged as a GPersonalityTraits
  */
 void GEvolutionaryAlgorithm_PersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Check that we are dealing with a GEvolutionaryAlgorithm_PersonalityTraits reference independent of this object and convert the pointer
@@ -124,7 +129,7 @@ void GEvolutionaryAlgorithm_PersonalityTraits::load_(const GPersonalityTraits *c
 
 /******************************************************************************/
 /**
- * Allows to check whether this individual lies on the pareto front (only yields
+ * @brief Allows to check whether this individual lies on the pareto front (only yields
  * useful results after pareto-sorting in EA)
  *
  * @return A boolean indicating whether this object lies on the current pareto front
@@ -135,7 +140,7 @@ bool GEvolutionaryAlgorithm_PersonalityTraits::isOnParetoFront() const {
 
 /******************************************************************************/
 /**
- * Allows to reset the pareto tag to "true"
+ * @brief Allows to reset the pareto tag to "true"
  */
 void GEvolutionaryAlgorithm_PersonalityTraits::resetParetoTag() {
     is_on_pareto_front_ = true;
@@ -143,7 +148,7 @@ void GEvolutionaryAlgorithm_PersonalityTraits::resetParetoTag() {
 
 /******************************************************************************/
 /**
- * Allows to specify that this individual does not lie on the pareto front
+ * @brief Allows to specify that this individual does not lie on the pareto front
  * of the current iteration
  */
 void GEvolutionaryAlgorithm_PersonalityTraits::setIsNotOnParetoFront() {
@@ -152,7 +157,7 @@ void GEvolutionaryAlgorithm_PersonalityTraits::setIsNotOnParetoFront() {
 
 /******************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
+ * @brief Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made
  */
@@ -177,7 +182,7 @@ bool GEvolutionaryAlgorithm_PersonalityTraits::modify_GUnitTests_() {
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GEvolutionaryAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
@@ -198,7 +203,7 @@ void GEvolutionaryAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GU
 
 /******************************************************************************/
 /**
- * Performs self tests that are expected to fail. This is needed for testing purposes
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GEvolutionaryAlgorithm_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
