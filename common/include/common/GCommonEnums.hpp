@@ -98,7 +98,7 @@ enum class parameter_source : Gem::Common::ENUMBASETYPE {
 };
 
 /**
- * @brief Puts a Gem::Common::parameter_source into a stream. Needed also for boost::lexical_cast<>.
+ * @brief Puts a Gem::Common::parameter_source into a stream. Needed for streaming / Gem::Common::fromString<>.
  * @param o The output stream to write to
  * @param x The parameter_source value to be streamed out
  * @return A reference to the output stream
@@ -106,7 +106,7 @@ enum class parameter_source : Gem::Common::ENUMBASETYPE {
 std::ostream &operator<<(std::ostream &o, Gem::Common::parameter_source const &x);
 
 /**
- * @brief Reads a Gem::Common::parameter_source item from a stream. Needed also for boost::lexical_cast<>.
+ * @brief Reads a Gem::Common::parameter_source item from a stream. Needed for streaming / Gem::Common::fromString<>.
  * @param i The input stream to read from
  * @param x The parameter_source value to be filled from the stream
  * @return A reference to the input stream
@@ -125,7 +125,7 @@ enum class dimensions : Gem::Common::ENUMBASETYPE {
 };
 
 /**
- * @brief Puts a Gem::Common::dimensions into a stream. Needed also for boost::lexical_cast<>.
+ * @brief Puts a Gem::Common::dimensions into a stream. Needed for streaming / Gem::Common::fromString<>.
  * @param o The output stream to write to
  * @param x The dimensions value to be streamed out
  * @return A reference to the output stream
@@ -133,7 +133,7 @@ enum class dimensions : Gem::Common::ENUMBASETYPE {
 std::ostream &operator<<(std::ostream &o, Gem::Common::dimensions const &x);
 
 /**
- * @brief Reads a Gem::Common::dimensions item from a stream. Needed also for boost::lexical_cast<>.
+ * @brief Reads a Gem::Common::dimensions item from a stream. Needed for streaming / Gem::Common::fromString<>.
  * @param i The input stream to read from
  * @param x The dimensions value to be filled from the stream
  * @return A reference to the input stream
@@ -157,7 +157,7 @@ enum class sortOrder : Gem::Common::ENUMBASETYPE {
 };
 
 /**
- * @brief Puts a Gem::Common::sortOrder into a stream. Needed also for boost::lexical_cast<>.
+ * @brief Puts a Gem::Common::sortOrder into a stream. Needed for streaming / Gem::Common::fromString<>.
  * @param o The output stream to write to
  * @param x The sortOrder value to be streamed out
  * @return A reference to the output stream
@@ -165,7 +165,7 @@ enum class sortOrder : Gem::Common::ENUMBASETYPE {
 std::ostream &operator<<(std::ostream &o, Gem::Common::sortOrder const &x);
 
 /**
- * @brief Reads a Gem::Common::sortOrder item from a stream. Needed also for boost::lexical_cast<>.
+ * @brief Reads a Gem::Common::sortOrder item from a stream. Needed for streaming / Gem::Common::fromString<>.
  * @param i The input stream to read from
  * @param x The sortOrder value to be filled from the stream
  * @return A reference to the input stream
@@ -188,7 +188,7 @@ enum class logType : Gem::Common::ENUMBASETYPE {
 };
 
 /**
- * @brief Puts a Gem::Common::logType into a stream. Needed also for boost::lexical_cast<>.
+ * @brief Puts a Gem::Common::logType into a stream. Needed for streaming / Gem::Common::fromString<>.
  * @param o The output stream to write to
  * @param x The logType value to be streamed out
  * @return A reference to the output stream
@@ -196,7 +196,7 @@ enum class logType : Gem::Common::ENUMBASETYPE {
 std::ostream &operator<<(std::ostream &o, Gem::Common::logType const &x);
 
 /**
- * @brief Reads a Gem::Common::logType item from a stream. Needed also for boost::lexical_cast<>.
+ * @brief Reads a Gem::Common::logType item from a stream. Needed for streaming / Gem::Common::fromString<>.
  * @param i The input stream to read from
  * @param x The logType value to be filled from the stream
  * @return A reference to the input stream
@@ -248,7 +248,7 @@ enum class triboolStates : Gem::Common::ENUMBASETYPE {
 std::ostream &operator<<(std::ostream &o, Gem::Common::tribool const &x);
 
 /**
- * @brief Puts a Gem::Common::triboolStates into a stream. Needed also for boost::lexical_cast<>.
+ * @brief Puts a Gem::Common::triboolStates into a stream. Needed for streaming / Gem::Common::fromString<>.
  * @param o The output stream to write to
  * @param x The triboolStates value to be streamed out
  * @return A reference to the output stream
@@ -256,7 +256,7 @@ std::ostream &operator<<(std::ostream &o, Gem::Common::tribool const &x);
 std::ostream &operator<<(std::ostream &o, Gem::Common::triboolStates const &x);
 
 /**
- * @brief Reads a Gem::Common::triboolStates item from a stream. Needed also for boost::lexical_cast<>.
+ * @brief Reads a Gem::Common::triboolStates item from a stream. Needed for streaming / Gem::Common::fromString<>.
  * @param i The input stream to read from
  * @param x The triboolStates value to be filled from the stream
  * @return A reference to the input stream
@@ -274,7 +274,7 @@ enum class serializationMode : Gem::Common::ENUMBASETYPE {
 };
 
 /**
- * @brief Puts a Gem::Common::serializationMode into a stream. Needed also for boost::lexical_cast<>.
+ * @brief Puts a Gem::Common::serializationMode into a stream. Needed for streaming / Gem::Common::fromString<>.
  * @param o The output stream to write to
  * @param x The serializationMode value to be streamed out
  * @return A reference to the output stream
@@ -282,7 +282,7 @@ enum class serializationMode : Gem::Common::ENUMBASETYPE {
 std::ostream &operator<<(std::ostream &o, Gem::Common::serializationMode const &x);
 
 /**
- * @brief Reads a Gem::Common::serializationMode item from a stream. Needed also for boost::lexical_cast<>.
+ * @brief Reads a Gem::Common::serializationMode item from a stream. Needed for streaming / Gem::Common::fromString<>.
  * @param i The input stream to read from
  * @param x The serializationMode value to be filled from the stream
  * @return A reference to the input stream
@@ -316,7 +316,7 @@ enum class expectation : Gem::Common::ENUMBASETYPE {
 };
 
 /**
- * @brief Puts a Gem::Common::expectation into a stream. Needed also for boost::lexical_cast<>.
+ * @brief Puts a Gem::Common::expectation into a stream. Needed for streaming / Gem::Common::fromString<>.
  * @param o The output stream to write to
  * @param x The expectation value to be streamed out
  * @return A reference to the output stream
@@ -324,7 +324,7 @@ enum class expectation : Gem::Common::ENUMBASETYPE {
 std::ostream &operator<<(std::ostream &o, Gem::Common::expectation const &x);
 
 /**
- * @brief Reads a Gem::Common::expectation item from a stream. Needed also for boost::lexical_cast<>.
+ * @brief Reads a Gem::Common::expectation item from a stream. Needed for streaming / Gem::Common::fromString<>.
  * @param i The input stream to read from
  * @param x The expectation value to be filled from the stream
  * @return A reference to the input stream

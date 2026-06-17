@@ -503,8 +503,7 @@ void GStarterIndividual::specificTestsFailuresExpected_GUnitTests_() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Allows to output a GStarterIndividual or convert it to a string using
- * boost::lexical_cast
+ * Allows to output a GStarterIndividual (or convert it to a string) via its operator<<
  */
 std::ostream &operator<<(std::ostream &stream, std::shared_ptr<GStarterIndividual> gsi_ptr) {
     stream << gsi_ptr->print();

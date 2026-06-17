@@ -36,7 +36,7 @@ namespace Gem::Common {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Common::parameter_source into a stream. Needed also for boost::lexical_cast<>
+ * Puts a Gem::Common::parameter_source into a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param o The output stream to write to
  * @param x The parameter_source value to write
@@ -49,7 +49,7 @@ std::ostream &operator<<(std::ostream &o, Gem::Common::parameter_source const &x
 
 /******************************************************************************/
 /**
- * Reads a Gem::Common::parameter_source item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a Gem::Common::parameter_source item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param i The input stream to read from
  * @param x Output parameter: receives the parameter_source value read from the stream
@@ -64,7 +64,7 @@ std::istream &operator>>(std::istream &i, Gem::Common::parameter_source &x) {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Common::sortOrder into a stream. Needed also for boost::lexical_cast<>
+ * Puts a Gem::Common::sortOrder into a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param o The output stream to write to
  * @param x The sortOrder value to write
@@ -77,7 +77,7 @@ std::ostream &operator<<(std::ostream &o, Gem::Common::sortOrder const &x) {
 
 /******************************************************************************/
 /**
- * Reads a Gem::Common::sortOrder item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a Gem::Common::sortOrder item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param i The input stream to read from
  * @param x Output parameter: receives the sortOrder value read from the stream
@@ -92,7 +92,7 @@ std::istream &operator>>(std::istream &i, Gem::Common::sortOrder &x) {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Common::dimensions into a stream. Needed also for boost::lexical_cast<>
+ * Puts a Gem::Common::dimensions into a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param o The output stream to write to
  * @param x The dimensions value to write
@@ -105,7 +105,7 @@ std::ostream &operator<<(std::ostream &o, Gem::Common::dimensions const &x) {
 
 /******************************************************************************/
 /**
- * Reads a Gem::Common::dimensions item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a Gem::Common::dimensions item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param i The input stream to read from
  * @param x Output parameter: receives the dimensions value read from the stream
@@ -120,7 +120,7 @@ std::istream &operator>>(std::istream &i, Gem::Common::dimensions &x) {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Common::logType into a stream. Needed also for boost::lexical_cast<>
+ * Puts a Gem::Common::logType into a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param o The output stream to write to
  * @param x The logType value to write
@@ -133,7 +133,7 @@ std::ostream &operator<<(std::ostream &o, Gem::Common::logType const &x) {
 
 /******************************************************************************/
 /**
- * Reads a Gem::Common::logType item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a Gem::Common::logType item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param i The input stream to read from
  * @param x Output parameter: receives the logType value read from the stream
@@ -172,7 +172,7 @@ std::ostream &operator<<(std::ostream &o, Gem::Common::tribool const &x) {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Common::triboolStates into a stream. Needed also for boost::lexical_cast<>
+ * Puts a Gem::Common::triboolStates into a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param o The output stream to write to
  * @param x The triboolStates value to write
@@ -185,7 +185,7 @@ std::ostream &operator<<(std::ostream &o, Gem::Common::triboolStates const &x) {
 
 /******************************************************************************/
 /**
- * Reads a Gem::Common::triboolStates item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a Gem::Common::triboolStates item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param i The input stream to read from
  * @param x Output parameter: receives the triboolStates value read from the stream
@@ -200,7 +200,7 @@ std::istream &operator>>(std::istream &i, Gem::Common::triboolStates &x) {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Common::serializationMode into a stream. Needed also for boost::lexical_cast<>
+ * Puts a Gem::Common::serializationMode into a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param o The output stream to write to
  * @param x The serializationMode value to write
@@ -213,7 +213,7 @@ std::ostream &operator<<(std::ostream &o, Gem::Common::serializationMode const &
 
 /******************************************************************************/
 /**
- * Reads a Gem::Common::serializationMode item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a Gem::Common::serializationMode item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param i The input stream to read from
  * @param x Output parameter: receives the serializationMode value read from the stream
@@ -248,7 +248,7 @@ std::string serModeToString(Gem::Common::serializationMode ser_mod) {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Common::expectation into a stream. Needed also for boost::lexical_cast<>
+ * Puts a Gem::Common::expectation into a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param o The output stream to write to
  * @param x The expectation value to write
@@ -261,7 +261,7 @@ std::ostream &operator<<(std::ostream &o, Gem::Common::expectation const &x) {
 
 /******************************************************************************/
 /**
- * Reads a Gem::Common::expectation item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a Gem::Common::expectation item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param i The input stream to read from
  * @param x Output parameter: receives the expectation value read from the stream

@@ -75,14 +75,14 @@ constexpr std::size_t NPERFOBJECTTYPES = 5;
 
 /******************************************************************************/
 /**
- * @brief Puts a Gem::Geneva::Individuals::PERFOBJECTTYPE into a stream. Needed also for boost::lexical_cast<>
+ * @brief Puts a Gem::Geneva::Individuals::PERFOBJECTTYPE into a stream. Needed for streaming / Gem::Common::fromString<>
  * @param o The output stream the value is written to
  * @param x The PERFOBJECTTYPE value to be streamed out
  * @return A reference to the output stream, to allow chaining of stream operations
  */
 std::ostream &operator<<(std::ostream &, const Gem::Geneva::Individuals::PERFOBJECTTYPE &);
 /**
- * @brief Reads a Gem::Geneva::Individuals::PERFOBJECTTYPE from a stream. Needed also for boost::lexical_cast<>
+ * @brief Reads a Gem::Geneva::Individuals::PERFOBJECTTYPE from a stream. Needed for streaming / Gem::Common::fromString<>
  * @param i The input stream the value is read from
  * @param x The PERFOBJECTTYPE variable the read-in value is assigned to
  * @return A reference to the input stream, to allow chaining of stream operations

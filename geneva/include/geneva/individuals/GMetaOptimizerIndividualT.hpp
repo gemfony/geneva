@@ -69,11 +69,11 @@ enum class metaOptimizationTarget : Gem::Common::ENUMBASETYPE {
 /******************************************************************************/
 // Input and output of metaOptimizationTarget, so we can serialize this data
 
-/** @brief Puts a Gem::Geneva::Individuals::metaOptimizationTarget into a stream. Needed also for boost::lexical_cast<> */
+/** @brief Puts a Gem::Geneva::Individuals::metaOptimizationTarget into a stream. Needed for streaming / Gem::Common::fromString<> */
 std::ostream &
 operator<<(std::ostream &, const Gem::Geneva::Individuals::metaOptimizationTarget &);
 
-/** @brief Reads a Gem::Geneva::Individuals::metaOptimizationTarget from a stream. Needed also for boost::lexical_cast<> */
+/** @brief Reads a Gem::Geneva::Individuals::metaOptimizationTarget from a stream. Needed for streaming / Gem::Common::fromString<> */
 std::istream &operator>>(std::istream &, Gem::Geneva::Individuals::metaOptimizationTarget &);
 
 /******************************************************************************/
@@ -1168,8 +1168,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Allows to output a GMetaOptimizerIndividualT<ind_type> or convert it to a string using
- * boost::lexical_cast
+ * Allows to output a GMetaOptimizerIndividualT<ind_type> (or convert it to a string) via its operator<<
  *
  * @tparam ind_type The type of sub-individual whose optimization is being tuned
  * @param stream The output stream to write to

@@ -85,7 +85,7 @@ namespace Gem::Common {
 
 /******************************************************************************/
 /**
- * Puts a gColor into a stream. Needed also for boost::lexical_cast<>
+ * Puts a gColor into a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param o The output stream the value is written to
  * @param x The gColor enum value to be streamed out
@@ -99,7 +99,7 @@ std::ostream &operator<<(std::ostream &o, const gColor &x) {
 
 /******************************************************************************/
 /**
- * Reads a gColor item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a gColor item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param i The input stream the value is read from
  * @param x The gColor reference into which the parsed value is stored
@@ -120,7 +120,7 @@ std::istream &operator>>(std::istream &i, gColor &x) {
 
 /******************************************************************************/
 /**
- * Puts a gMarker into a stream. Needed also for boost::lexical_cast<>
+ * Puts a gMarker into a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param o The output stream the value is written to
  * @param x The gMarker enum value to be streamed out
@@ -134,7 +134,7 @@ std::ostream &operator<<(std::ostream &o, const gMarker &x) {
 
 /******************************************************************************/
 /**
- * Reads a gMarker item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a gMarker item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param i The input stream the value is read from
  * @param x The gMarker reference into which the parsed value is stored
@@ -155,7 +155,7 @@ std::istream &operator>>(std::istream &i, gMarker &x) {
 
 /******************************************************************************/
 /**
- * Puts a gLineStyle into a stream. Needed also for boost::lexical_cast<>
+ * Puts a gLineStyle into a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param o The output stream the value is written to
  * @param x The gLineStyle enum value to be streamed out
@@ -169,7 +169,7 @@ std::ostream &operator<<(std::ostream &o, const gLineStyle &x) {
 
 /******************************************************************************/
 /**
- * Reads a gLineStyle item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a gLineStyle item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param i The input stream the value is read from
  * @param x The gLineStyle reference into which the parsed value is stored
@@ -190,7 +190,7 @@ std::istream &operator>>(std::istream &i, gLineStyle &x) {
 
 /******************************************************************************/
 /**
- * Puts a graphPlotMode into a stream. Needed also for boost::lexical_cast<>
+ * Puts a graphPlotMode into a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param o The output stream the value is written to
  * @param x The graphPlotMode enum value to be streamed out
@@ -204,7 +204,7 @@ std::ostream &operator<<(std::ostream &o, const graphPlotMode &x) {
 
 /******************************************************************************/
 /**
- * Reads a graphPlotMode item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a graphPlotMode item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param i The input stream the value is read from
  * @param x The graphPlotMode reference into which the parsed value is stored
@@ -225,7 +225,7 @@ std::istream &operator>>(std::istream &i, graphPlotMode &x) {
 
 /******************************************************************************/
 /**
- * Puts a tddropt into a stream. Needed also for boost::lexical_cast<>
+ * Puts a tddropt into a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param o The output stream the value is written to
  * @param x The tddropt enum value to be streamed out
@@ -239,7 +239,7 @@ std::ostream &operator<<(std::ostream &o, const tddropt &x) {
 
 /******************************************************************************/
 /**
- * Reads a tddropt item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a tddropt item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param i The input stream the value is read from
  * @param x The tddropt reference into which the parsed value is stored

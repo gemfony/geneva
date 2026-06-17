@@ -247,10 +247,10 @@ enum class solverFunction : Gem::Common::ENUMBASETYPE {
 const solverFunction MAXDEMOFUNCTION = solverFunction::ZAKHAROV;
 
 // Make sure solverFunction can be streamed
-/** @brief Puts a Gem::Geneva::Individuals::solverFunction into a stream. Needed also for boost::lexical_cast<> */
+/** @brief Puts a Gem::Geneva::Individuals::solverFunction into a stream. Needed for streaming / Gem::Common::fromString<> */
 std::ostream &operator<<(std::ostream &, const Gem::Geneva::Individuals::solverFunction &);
 
-/** @brief Reads a Gem::Geneva::Individuals::solverFunction from a stream. Needed also for boost::lexical_cast<> */
+/** @brief Reads a Gem::Geneva::Individuals::solverFunction from a stream. Needed for streaming / Gem::Common::fromString<> */
 std::istream &operator>>(std::istream &, Gem::Geneva::Individuals::solverFunction &);
 
 /**
@@ -265,10 +265,10 @@ enum class parameterType : Gem::Common::ENUMBASETYPE {
 };
 
 // Make sure parameterType can be streamed
-/** @brief Puts a Gem::Geneva::Individuals::parameterType into a stream. Needed also for boost::lexical_cast<> */
+/** @brief Puts a Gem::Geneva::Individuals::parameterType into a stream. Needed for streaming / Gem::Common::fromString<> */
 std::ostream &operator<<(std::ostream &, const Gem::Geneva::Individuals::parameterType &);
 
-/** @brief Reads a Gem::Geneva::Individuals::parameterType from a stream. Needed also for boost::lexical_cast<> */
+/** @brief Reads a Gem::Geneva::Individuals::parameterType from a stream. Needed for streaming / Gem::Common::fromString<> */
 std::istream &operator>>(std::istream &, Gem::Geneva::Individuals::parameterType &);
 
 /**
@@ -281,10 +281,10 @@ enum class initMode : Gem::Common::ENUMBASETYPE {
 };
 
 // Make sure initMode can be streamed
-/** @brief Puts a Gem::Geneva::Individuals::initMode into a stream. Needed also for boost::lexical_cast<> */
+/** @brief Puts a Gem::Geneva::Individuals::initMode into a stream. Needed for streaming / Gem::Common::fromString<> */
 std::ostream &operator<<(std::ostream &, const Gem::Geneva::Individuals::initMode &);
 
-/** @brief Reads a Gem::Geneva::Individuals::initMode from a stream. Needed also for boost::lexical_cast<> */
+/** @brief Reads a Gem::Geneva::Individuals::initMode from a stream. Needed for streaming / Gem::Common::fromString<> */
 std::istream &operator>>(std::istream &, Gem::Geneva::Individuals::initMode &);
 
 /******************************************************************************/

@@ -72,10 +72,10 @@ enum class targetFunction : Gem::Common::ENUMBASETYPE {
 };
 
 // Make sure targetFunction can be streamed
-/** @brief Puts a Gem::Geneva::targetFunction into a stream. Needed also for boost::lexical_cast<> */
+/** @brief Puts a Gem::Geneva::targetFunction into a stream. Needed for streaming / Gem::Common::fromString<> */
 std::ostream &operator<<(std::ostream &, const Gem::Geneva::targetFunction &);
 
-/** @brief Reads a Gem::Geneva::targetFunction from a stream. Needed also for boost::lexical_cast<> */
+/** @brief Reads a Gem::Geneva::targetFunction from a stream. Needed for streaming / Gem::Common::fromString<> */
 std::istream &operator>>(std::istream &, Gem::Geneva::targetFunction &);
 
 /******************************************************************************/
@@ -302,7 +302,7 @@ private:
     /***************************************************************************/
 };
 
-/** @brief Allows to output a GStarterIndividual or convert it to a string using boost::lexical_cast */
+/** @brief Allows to output a GStarterIndividual (or convert it to a string) via its operator<< */
 std::ostream &operator<<(std::ostream &, std::shared_ptr<GStarterIndividual>);
 
 /******************************************************************************/

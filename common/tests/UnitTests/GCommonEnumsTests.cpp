@@ -31,8 +31,7 @@
 
 #include <sstream>
 #include <string>
-
-#include <boost/lexical_cast.hpp>
+#include <type_traits>
 
 #include "common/GCommonEnums.hpp"
 
@@ -40,7 +39,7 @@ using namespace Gem::Common;
 
 // Generic helper: stream the enum out, parse the integral form back in and
 // expect bit-for-bit equality. The integral-only round-trip mirrors the
-// boost::lexical_cast usage all callers go through.
+// stream-based string<->enum conversion all callers go through (Gem::Common::fromString<>).
 template <class E>
 E round_trip_int(E in) {
     std::ostringstream oss;
@@ -153,15 +152,18 @@ TEST_CASE("serModeToString: unknown value falls through to 'unknown'", "[common]
 }
 
 // ---------------------------------------------------------------------------
-// boost::lexical_cast: every enum that has operator<< / operator>> defined
-// for stream interop should be lexical_cast-able both directions. This is
-// the actual call-site pattern in the parser builder.
+// Every enum that has operator<< / operator>> defined for stream interop should
+// round-trip through a string both directions via those operators (the pattern
+// the config parser / serialization use through Gem::Common::fromString<T>).
 
-TEST_CASE("boost::lexical_cast: enums round-trip through string<->enum",
-          "[common][enums][lexical-cast]") {
+TEST_CASE("enum stream operators: round-trip through string<->enum",
+          "[common][enums][streaming]") {
     auto check = [](auto in) {
-        std::string s = boost::lexical_cast<std::string>(in);
-        auto out      = boost::lexical_cast<decltype(in)>(s);
+        std::ostringstream os;
+        os << in;
+        std::istringstream is(os.str());
+        std::decay_t<decltype(in)> out{};
+        is >> out;
         CHECK(out == in);
     };
 

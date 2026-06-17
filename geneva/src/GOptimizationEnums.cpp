@@ -354,7 +354,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::updateRule &ur) {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Geneva::adaptionMode into a stream. Needed also for boost::lexical_cast<>
+ * Puts a Gem::Geneva::adaptionMode into a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param o The ostream the item should be added to
  * @param am The item to be added to the stream
@@ -368,7 +368,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::adaptionMode &am) {
 
 /******************************************************************************/
 /**
- * Reads a Gem::Geneva::adaptionMode from a stream. Needed also for boost::lexical_cast<>
+ * Reads a Gem::Geneva::adaptionMode from a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param i The stream the item should be read from
  * @param am The item read from the stream
