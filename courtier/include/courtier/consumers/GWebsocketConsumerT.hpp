@@ -48,6 +48,7 @@
 #include "common/GThreadGroup.hpp"
 #include "courtier/transport/GWebsocketTransportT.hpp" // reuse the existing session + client + protocol
 #include "courtier/consumers/GNetworkedConsumerT.hpp"
+#include "courtier/GWireSerializationContext.hpp" // Phase 9 layout send-once: shared registry + peer ids
 
 namespace Gem::Courtier {
 
@@ -109,6 +110,13 @@ public:
     /** @brief Returns the number of currently active client sessions.
      *  @return The live session count */
     [[nodiscard]] std::size_t getNActiveSessions() const noexcept { return n_active_sessions_.load(); }
+
+    /***************************************************************************/
+    /** @brief The number of distinct genome layouts the server has interned for transport (Phase 9
+     *  send-once). One per distinct genome structure across all sessions -- so a whole population of
+     *  one problem type interns a single layout, however many work items and clients are involved.
+     *  @return The count of interned layouts. */
+    [[nodiscard]] std::size_t getInternedLayoutCount() const { return wire_registry_.size(); }
 
     /***************************************************************************/
     /** @brief Opens, binds and listens on the acceptor, then starts accepting connections and spins
@@ -279,7 +287,9 @@ private:
             },
             serialization_mode_,
             ping_interval_,
-            verbose_control_frames_
+            verbose_control_frames_,
+            &wire_registry_,
+            next_peer_id_.fetch_add(1) // a fresh peer id per session (connection)
         )
             ->async_start_run();
 
@@ -308,6 +318,12 @@ private:
     Gem::Common::GThreadGroup gtg_;
     std::atomic<std::size_t> n_active_sessions_{0};
     std::atomic<bool> stopped_already_{false};
+
+    /// The layout send-once registry shared by all of this consumer's sessions: a content-addressed
+    /// store of the genome layouts the server has sent, with per-peer (per-session) ack tracking, so a
+    /// given layout travels to a given client only once. next_peer_id_ hands each session a distinct id.
+    Gem::Courtier::GWireLayoutRegistry wire_registry_;
+    std::atomic<Gem::Courtier::GWirePeerId> next_peer_id_{1};
 };
 
 /******************************************************************************/

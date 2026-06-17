@@ -67,6 +67,7 @@
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
+#include "courtier/GWireSerializationContext.hpp" // Phase 9 layout send-once: wire (de)serialization scope
 
 namespace Gem::Courtier::Consumers {
 
@@ -170,6 +171,16 @@ public:
 
         // Set the callback to be executed on every incoming control frame.
         ws_.control_callback(f_when_control_frame_arrived_);
+
+        // Engage the layout send-once wire form (Phase 9). The client caches every layout it receives,
+        // keyed by content id, so an id-only work item resolves locally. No fetch_blob is installed: on
+        // websocket the server sends the full layout inline on the first item of each (re)connection and
+        // delivery is ordered, so an id-only item is only ever seen after its layout has been received
+        // and cached -- a miss would indicate a protocol error, which load() surfaces by throwing.
+        wire_ctx_.enabled = true;
+        wire_ctx_.peer = 0; // the single upstream server
+        wire_ctx_.registry = &wire_registry_;
+        wire_ctx_.mode = serialization_mode_;
     }
 
     //-------------------------------------------------------------------------
@@ -473,6 +484,7 @@ private:
         // De-serialize the object. A malformed/truncated message makes this throw; that must
         // not escape into io_context::run() (it would unwind the client's only io thread).
         try {
+            Gem::Courtier::GWireSerializationScope scope(&wire_ctx_);
             Gem::Courtier::container_from_string(message, command_container_, serialization_mode_);
         }
         catch(const std::exception &e) {
@@ -629,6 +641,7 @@ private:
         const GCommandContainerT<processable_type, networked_consumer_payload_command> &container
     ) {
         try {
+            Gem::Courtier::GWireSerializationScope scope(&wire_ctx_);
             this->async_start_write(
                 Gem::Courtier::container_to_string(container, serialization_mode_)
             );
@@ -758,6 +771,11 @@ private:
         networked_consumer_payload_command::NONE
     }; ///< The read/parse target; a COMPUTE item is moved out of it onto the compute pool
 
+    /// Per-client cache of received layouts (keyed by content id), and the wire scope installed around
+    /// every (de)serialisation so an id-referenced layout resolves locally (Phase 9 send-once).
+    Gem::Courtier::GWireLayoutRegistry wire_registry_;
+    Gem::Courtier::GWireSerializationContext wire_ctx_;
+
     boost::asio::steady_timer halt_timer_{
         io_context_
     }; ///< Periodically polls halt() to cancel the outstanding read on shutdown
@@ -821,7 +839,9 @@ public:
         std::function<void(bool)> server_sign_on,
         Gem::Common::serializationMode serialization_mode,
         std::size_t ping_interval,
-        bool verbose_control_frames
+        bool verbose_control_frames,
+        Gem::Courtier::GWireLayoutRegistry *wire_registry = nullptr,
+        Gem::Courtier::GWirePeerId peer_id = 0
     )
       : ws_(std::move(socket))
       , strand_(io_context.get_executor())
@@ -832,7 +852,18 @@ public:
       , server_sign_on_(std::move(server_sign_on))
       , serialization_mode_(serialization_mode)
       , ping_interval_(std::chrono::seconds(ping_interval))
-      , verbose_control_frames_(verbose_control_frames) {
+      , verbose_control_frames_(verbose_control_frames)
+      , wire_registry_(wire_registry)
+      , peer_id_(peer_id) {
+        // Engage the layout send-once wire form for this session's peer (Phase 9): each connection is a
+        // distinct peer, so the server sends a given layout in full only on the first work item to this
+        // peer and references it by content id thereafter. A reconnecting / late-joining client is a new
+        // peer and receives the layout fresh, so no separate fetch is needed on the ordered websocket
+        // stream. Disabled (-> self-contained full-layout form) when no registry is supplied.
+        wire_ctx_.enabled = (wire_registry_ != nullptr);
+        wire_ctx_.peer = peer_id_;
+        wire_ctx_.registry = wire_registry_;
+        wire_ctx_.mode = serialization_mode_;
         // ---------------------------------------------------
         // Make it known to the server that a new session has started
         this->server_sign_on_(true);
@@ -902,6 +933,11 @@ public:
     //-------------------------------------------------------------------------
     /** @brief The destructor. Signs the session off with the server. */
     ~GWebsocketConsumerSessionT() {
+        // Drop this peer's per-session layout-ack state (the connection is gone). The shared blob store
+        // is left intact for other peers. A reconnect is a fresh peer and re-receives its layouts.
+        if(wire_registry_ != nullptr) {
+            wire_registry_->forgetPeer(peer_id_);
+        }
         // Make it known to the server that this session has terminated
         this->server_sign_on_(false);
     }
@@ -1233,12 +1269,16 @@ private:
             // Extract the string from the buffer
             auto message = boost::beast::buffers_to_string(incoming_buffer_.data());
 
-            // De-serialize the object
-            Gem::Courtier::container_from_string(
-                message,
-                command_container_,
-                serialization_mode_
-            ); // may throw
+            // De-serialize the object (under the wire scope, so an id-referenced layout in a returned
+            // result resolves against this server's registry).
+            {
+                Gem::Courtier::GWireSerializationScope scope(wire_ctx_.enabled ? &wire_ctx_ : nullptr);
+                Gem::Courtier::container_from_string(
+                    message,
+                    command_container_,
+                    serialization_mode_
+                ); // may throw
+            }
 
             // Clear the buffer, so we may later fill it with data to be sent
             incoming_buffer_.consume(incoming_buffer_.size());
@@ -1313,6 +1353,9 @@ private:
             command_container_.reset(networked_consumer_payload_command::NODATA);
         }
 
+        // Serialize under the wire scope, so the work item's layout is shipped in full only the first
+        // time this peer sees it and by content id thereafter (Phase 9 send-once).
+        Gem::Courtier::GWireSerializationScope scope(wire_ctx_.enabled ? &wire_ctx_ : nullptr);
         return Gem::Courtier::container_to_string(command_container_, serialization_mode_);
     }
 
@@ -1353,6 +1396,13 @@ private:
     GCommandContainerT<processable_type, networked_consumer_payload_command> command_container_{
         networked_consumer_payload_command::NONE
     }; ///< Holds the current command and payload (if any)
+
+    /// The shared (consumer-owned) layout registry and this session's peer id, plus the wire scope
+    /// installed around (de)serialisation so a work item's layout is sent to this peer only once
+    /// (Phase 9 send-once). wire_registry_ is null when the feature is disabled.
+    Gem::Courtier::GWireLayoutRegistry *wire_registry_ = nullptr;
+    Gem::Courtier::GWirePeerId peer_id_ = 0;
+    Gem::Courtier::GWireSerializationContext wire_ctx_;
 
     //-------------------------------------------------------------------------
 };

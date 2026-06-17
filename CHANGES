@@ -146,9 +146,9 @@ Recommended Versions:
   that still carries the full layout by value, and a transport "send-once" form in
   which the layout is referenced by a content id -- the full layout is sent to a
   given client only the first time that id is seen on its connection, and by id
-  alone thereafter. A client that receives an id it does not yet hold fetches the
-  layout from the server on demand (so reconnecting and late-joining clients are
-  handled transparently). For a large structured genome whose layout is identical
+  alone thereafter. Reconnecting and late-joining clients are handled
+  transparently (a fresh connection re-receives the layouts it needs). For a
+  large structured genome whose layout is identical
   across the whole population this cuts the per-item wire size substantially. The
   added marker changes the genome serialization format, so archives written by
   earlier 1.12.0 development builds no longer load.
