@@ -66,6 +66,7 @@
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
+#include "courtier/GWireSerializationContext.hpp" // Phase 9 layout send-once: registry + wire scope
 
 // TODO: extract double buffering to GBaseConsumerClientT
 
@@ -73,6 +74,13 @@ namespace Gem::Courtier::Consumers {
 // constants that are used by the master and the worker nodes
 constexpr int TAG_REQUEST_WORK_ITEM = 42;
 constexpr int TAG_SEND_WORK_ITEM = 43;
+/// Phase 9 layout send-once cache-miss fetch (worker <-> master). A worker that receives an id-only
+/// work item whose layout it does not hold sends a REQUEST_LAYOUT message on TAG_REQUEST_LAYOUT; the
+/// master's receiver loop picks it up (it matches any tag) and answers with the serialized layout on
+/// TAG_SEND_LAYOUT. A distinct send tag keeps the reply from being mistaken for an ordinary work-item
+/// response by the worker's (double-buffered) MPI_ANY_TAG receive.
+constexpr int TAG_REQUEST_LAYOUT = 44;
+constexpr int TAG_SEND_LAYOUT = 45;
 constexpr int RANK_MASTER_NODE = 0;
 /// Once the master has been asked to stop, how long it keeps waiting for stragglers (a live worker's
 /// final double-buffered request, or an open session to finish) before abandoning them. Bounds
@@ -273,6 +281,21 @@ public:
                 << GLOGGING;
         // create the buffer for incoming messages
         incomingMessageBuffer_ = std::make_unique<char[]>(GMPICONSUMERMAXMESSAGESIZE);
+
+        // Engage the worker side of the layout send-once wire form (Phase 9). The worker caches every
+        // layout it receives (keyed by content id) so an id-only work item resolves locally; on a miss
+        // (a late-joining / restarted rank that never saw the full layout, or master-side eviction) the
+        // fetch_blob asks the master for it via a blocking REQUEST_LAYOUT / SEND_LAYOUT round trip. The
+        // fetch runs from inside the work-item deserialise, which on this worker is sequenced strictly
+        // before that iteration's outgoing send/receive is launched, so it never overlaps other MPI
+        // traffic on this rank.
+        wireCtx_.enabled = true;
+        wireCtx_.peer = 0; // worker side: the single upstream master
+        wireCtx_.registry = &wireRegistry_;
+        wireCtx_.mode = config_.serializationMode;
+        wireCtx_.fetch_blob = [this](const Gem::Courtier::GWireLayoutId &id) -> std::string {
+            return this->fetchLayoutBlob_(id);
+        };
     }
 
     /**
@@ -304,9 +327,13 @@ public:
          * optimization, or if a fatal error has been encountered.
          */
     void run() {
-        // set message for initial GETDATA request
-        outgoingMessage_ =
-            Gem::Courtier::container_to_string(commandContainer_, config_.serializationMode);
+        // set message for initial GETDATA request (carries no genome, but keep it under the scope for
+        // uniformity -- the scope is harmless for a payload-free command)
+        {
+            Gem::Courtier::GWireSerializationScope scope(&wireCtx_);
+            outgoingMessage_ =
+                Gem::Courtier::container_to_string(commandContainer_, config_.serializationMode);
+        }
 
         // send initial GETDATA request to receive first work item
         if(!sendResultAndRequestNewWork()) {
@@ -315,17 +342,23 @@ public:
 
         // stop if server tells this worker to stop or if the optimization stop criteria is fulfilled
         while(!stopRequestReceived_ && !halt_()) {
-            // swap messages
-            // serialize (processed) container and store in outgoingMessage_
-            // afterwards deserialize incomingMessage_ into the container
-            outgoingMessage_ = std::move(
-                Gem::Courtier::container_to_string(commandContainer_, config_.serializationMode)
-            );
-            Gem::Courtier::container_from_string(
-                incomingMessage_,
-                commandContainer_,
-                config_.serializationMode
-            );
+            // swap messages: serialize the (processed) container into outgoingMessage_, then deserialize
+            // incomingMessage_ into the container. Both run under the layout send-once wire scope
+            // (Phase 9): the outgoing RESULT ships its layout to the master in full only the first time
+            // and by id thereafter; the incoming COMPUTE resolves an id-only layout from the local cache
+            // or, on a miss, via the fetch round trip. This deserialise is sequenced before the async
+            // send/receive below, so a fetch here never overlaps this rank's other MPI traffic.
+            {
+                Gem::Courtier::GWireSerializationScope scope(&wireCtx_);
+                outgoingMessage_ = std::move(
+                    Gem::Courtier::container_to_string(commandContainer_, config_.serializationMode)
+                );
+                Gem::Courtier::container_from_string(
+                    incomingMessage_,
+                    commandContainer_,
+                    config_.serializationMode
+                );
+            }
 
             if(config_.useAsyncReq) {
                 std::future<bool> networkingSuccessful =
@@ -551,6 +584,7 @@ private:
          * received a last its request.
          */
     void processLastResponse() {
+        Gem::Courtier::GWireSerializationScope scope(&wireCtx_);
         Gem::Courtier::container_from_string(
             incomingMessage_,
             commandContainer_,
@@ -567,6 +601,90 @@ private:
                 << commandContainer_.get_command() << '\n'
             );
         }
+    }
+
+    /**
+         * @brief Worker-side cache-miss fetch (Phase 9): blocks until the master's layout for @p id is in
+         * hand, then returns the serialized blob (empty on failure).
+         *
+         * Sends a REQUEST_LAYOUT message (carrying the wanted id) to the master on TAG_REQUEST_LAYOUT and
+         * waits, bounded, for the SEND_LAYOUT reply on TAG_SEND_LAYOUT. The master's receiver loop matches
+         * any tag, so it picks up the request and dispatches a session that answers from its registry. A
+         * distinct send tag keeps the reply out of the worker's ordinary (double-buffered) MPI_ANY_TAG
+         * receive. This is called from inside the work-item deserialise, which is sequenced before this
+         * iteration's outgoing send/receive is launched, so it does not overlap other MPI traffic on this
+         * rank; the dedicated tag is a belt-and-braces guard.
+         *
+         * @param id The content id of the layout to fetch from the master.
+         * @return The serialized layout blob, or an empty string if the fetch failed / timed out.
+         */
+    std::string fetchLayoutBlob_(const Gem::Courtier::GWireLayoutId &id) {
+        // Build and serialise the REQUEST_LAYOUT message (no genome payload, so no nested wire scope).
+        std::string requestStr;
+        {
+            Gem::Courtier::GWireSerializationScope noScope(nullptr);
+            GCommandContainerT<processable_type, networked_consumer_payload_command> request{
+                networked_consumer_payload_command::REQUEST_LAYOUT
+            };
+            request.set_layout_id(id);
+            requestStr = Gem::Courtier::container_to_string(request, config_.serializationMode);
+        }
+
+        // Blocking send of the request to the master.
+        MPI_Request sendReq{};
+        MPI_Isend(
+            requestStr.data(),
+            requestStr.size(),
+            MPI_CHAR,
+            RANK_MASTER_NODE,
+            TAG_REQUEST_LAYOUT,
+            MPI_COMMUNICATOR,
+            &sendReq
+        );
+        MPI_Status status{};
+        if(not waitForRequestOrTimeout(sendReq, status) || status.MPI_ERROR != MPI_SUCCESS) {
+            glogger << "In GMPIConsumerWorkerNodeT<processable_type>::fetchLayoutBlob_() with rank="
+                    << commRank_ << ":" << '\n'
+                    << "Timed out / errored sending a REQUEST_LAYOUT to the master." << '\n'
+                    << GWARNING;
+            return {};
+        }
+
+        // Receive the SEND_LAYOUT reply on its dedicated tag.
+        auto replyBuffer = std::make_unique<char[]>(GMPICONSUMERMAXMESSAGESIZE);
+        MPI_Request recvReq{};
+        MPI_Irecv(
+            replyBuffer.get(),
+            GMPICONSUMERMAXMESSAGESIZE,
+            MPI_CHAR,
+            RANK_MASTER_NODE,
+            TAG_SEND_LAYOUT,
+            MPI_COMMUNICATOR,
+            &recvReq
+        );
+        if(not waitForRequestOrTimeout(recvReq, status) || status.MPI_ERROR != MPI_SUCCESS) {
+            glogger << "In GMPIConsumerWorkerNodeT<processable_type>::fetchLayoutBlob_() with rank="
+                    << commRank_ << ":" << '\n'
+                    << "Timed out / errored waiting for the SEND_LAYOUT reply from the master." << '\n'
+                    << GWARNING;
+            return {};
+        }
+
+        // Deserialise the reply (again no nested wire scope) and hand back the blob.
+        const std::string replyStr(replyBuffer.get(), mpiGetCount(status));
+        Gem::Courtier::GWireSerializationScope noScope(nullptr);
+        GCommandContainerT<processable_type, networked_consumer_payload_command> reply{
+            networked_consumer_payload_command::NONE
+        };
+        Gem::Courtier::container_from_string(replyStr, reply, config_.serializationMode);
+        if(reply.get_command() != networked_consumer_payload_command::SEND_LAYOUT) {
+            glogger << "In GMPIConsumerWorkerNodeT<processable_type>::fetchLayoutBlob_() with rank="
+                    << commRank_ << ":" << '\n'
+                    << "Expected SEND_LAYOUT but got command " << reply.get_command() << '\n'
+                    << GWARNING;
+            return {};
+        }
+        return reply.get_layout_blob();
     }
 
     //-------------------------------------------------------------------------
@@ -618,6 +736,12 @@ private:
     GCommandContainerT<processable_type, networked_consumer_payload_command> commandContainer_{
         networked_consumer_payload_command::GETDATA
     };
+
+    /// Phase 9 layout send-once (worker side): this rank's local cache of received layouts and the wire
+    /// context engaged around (de)serialisation. The context's fetch_blob resolves a cache miss via a
+    /// blocking REQUEST_LAYOUT / SEND_LAYOUT MPI round trip (see fetchLayoutBlob_).
+    Gem::Courtier::GWireLayoutRegistry wireRegistry_;
+    Gem::Courtier::GWireSerializationContext wireCtx_;
 };
 
 /**
@@ -652,7 +776,8 @@ public:
         std::function<std::unique_ptr<processable_type>()> getPayloadItem,
         std::function<void(std::unique_ptr<processable_type>)> putPayloadItem,
         Gem::Common::serializationMode serializationMode,
-        bool stopRequested
+        bool stopRequested,
+        Gem::Courtier::GWireLayoutRegistry *wireRegistry = nullptr
     )
       : mpiStatus_{status}
       ,
@@ -662,7 +787,16 @@ public:
       , stopRequested_{stopRequested}
       , getPayloadItem_(std::move(getPayloadItem))
       , putPayloadItem_(std::move(putPayloadItem))
-      , mpiRequestHandle_{} {
+      , mpiRequestHandle_{}
+      , wireRegistry_{wireRegistry} {
+        // Engage the master side of the layout send-once wire form (Phase 9), if a registry was supplied.
+        // MPI ranks are persistent, so the peer id is simply the requesting worker's rank
+        // (mpiStatus_.MPI_SOURCE) -- naturally stable across the whole run. With no registry the scope is
+        // never installed and the genome falls back to its self-contained full-layout encoding.
+        wireCtx_.enabled = (wireRegistry_ != nullptr);
+        wireCtx_.peer = static_cast<Gem::Courtier::GWirePeerId>(mpiStatus_.MPI_SOURCE);
+        wireCtx_.registry = wireRegistry_;
+        wireCtx_.mode = serializationMode_;
     }
 
     //-------------------------------------------------------------------------
@@ -745,12 +879,17 @@ private:
          */
     bool processRequest() {
         try {
-            // deserialize request string
-            Gem::Courtier::container_from_string(
-                requestMessage_,
-                commandContainer_,
-                serializationMode_
-            ); // may throw
+            // Deserialize the request under the wire scope (Phase 9): a returned RESULT genome may
+            // reference its layout by id, resolved against the master's shared registry (which holds
+            // every layout it has sent). The scope's peer is the requesting rank, set in the constructor.
+            {
+                Gem::Courtier::GWireSerializationScope scope(wireCtx_.enabled ? &wireCtx_ : nullptr);
+                Gem::Courtier::container_from_string(
+                    requestMessage_,
+                    commandContainer_,
+                    serializationMode_
+                ); // may throw
+            }
 
             // Extract the command
             auto inboundCommand = commandContainer_.get_command();
@@ -765,7 +904,14 @@ private:
             case GETDATA: {
                 return true; // no data to process
             }
-            default: { // clients may only send RESULT or GETDATA commands
+            case REQUEST_LAYOUT: {
+                // Phase 9 cache-miss fetch: remember the requested id; sendResponse() will answer with a
+                // SEND_LAYOUT carrying the serialized layout from the registry.
+                isLayoutRequest_ = true;
+                requestedLayoutId_ = commandContainer_.get_layout_id();
+                return true;
+            }
+            default: { // clients may only send RESULT, GETDATA or REQUEST_LAYOUT commands
                 glogger
                     << "GMPIConsumerSessionT<processable_type>::processRequest() connected to rank="
                     << mpiStatus_.MPI_SOURCE << ":" << '\n'
@@ -843,9 +989,14 @@ private:
          * Throws a geneva_exception if the serialized message exceeds the maximum configured message size.
          */
     void serializeOutgoingMsg() {
-        // set the outgoing message to the string representation of the
-        outgoingMessage_ =
-            Gem::Courtier::container_to_string(commandContainer_, serializationMode_);
+        // Serialize the response under the wire scope (Phase 9): a COMPUTE work item's layout is shipped
+        // in full to this peer (rank) only the first time it is seen and by content id thereafter. A
+        // NODATA / STOP carries no genome, so the scope is harmless there.
+        {
+            Gem::Courtier::GWireSerializationScope scope(wireCtx_.enabled ? &wireCtx_ : nullptr);
+            outgoingMessage_ =
+                Gem::Courtier::container_to_string(commandContainer_, serializationMode_);
+        }
 
         if(outgoingMessage_.size() > GMPICONSUMERMAXMESSAGESIZE) {
             throw geneva_exception(
@@ -870,6 +1021,14 @@ private:
          * The isCompleted()-method can be used to check for the completion of the send operation.
          */
     void sendResponse() {
+        // A layout cache-miss fetch is answered on its own tag, independent of work-item flow (Phase 9):
+        // the requesting worker is mid-decode and blocked waiting for exactly this reply, so it is served
+        // even while the master is shutting down.
+        if(isLayoutRequest_) {
+            sendLayoutResponse();
+            return;
+        }
+
         // prepare the correct type of message in the outgoing command
         if(stopRequested_) {
             prepareStopResponse();
@@ -893,6 +1052,46 @@ private:
         );
 
         // the isCompleted method can be used to check if the send-operation has been completed
+    }
+
+    /**
+         * @brief Answers a worker's REQUEST_LAYOUT with a SEND_LAYOUT carrying the serialized layout from
+         * the master's registry (Phase 9 cache-miss fetch). Sent on TAG_SEND_LAYOUT so it is not mistaken
+         * for a work-item response by the worker's ordinary receive. If the id is not (or no longer)
+         * cached the blob is left empty and the worker treats the fetch as failed.
+         */
+    void sendLayoutResponse() {
+        std::string blob;
+        if(wireRegistry_ != nullptr) {
+            wireRegistry_->tryGet(requestedLayoutId_, blob); // empty on a miss
+        }
+        // No wire scope: the reply carries only the raw blob, no genome.
+        commandContainer_.reset(networked_consumer_payload_command::SEND_LAYOUT);
+        commandContainer_.set_layout_id(requestedLayoutId_);
+        commandContainer_.set_layout_blob(std::move(blob));
+        outgoingMessage_ =
+            Gem::Courtier::container_to_string(commandContainer_, serializationMode_);
+
+        // A SEND_LAYOUT reply is bounded by the same per-message limit as everything else on this
+        // transport; a layout that would not fit could never have ridden inline on a COMPUTE either.
+        if(outgoingMessage_.size() > GMPICONSUMERMAXMESSAGESIZE) {
+            glogger << "GMPIConsumerSessionT<processable_type>::sendLayoutResponse() connected to rank="
+                    << mpiStatus_.MPI_SOURCE << ":" << '\n'
+                    << "SEND_LAYOUT message (" << outgoingMessage_.size()
+                    << " bytes) exceeds the maximum message size of " << GMPICONSUMERMAXMESSAGESIZE
+                    << "; the worker's fetch will fail. Increase the maximum message size." << '\n'
+                    << GWARNING;
+        }
+
+        MPI_Isend(
+            outgoingMessage_.data(),
+            outgoingMessage_.size(),
+            MPI_CHAR,
+            mpiStatus_.MPI_SOURCE,
+            TAG_SEND_LAYOUT,
+            MPI_COMMUNICATOR,
+            &mpiRequestHandle_
+        );
     }
 
     //-------------------------------------------------------------------------
@@ -926,6 +1125,15 @@ private:
          * serialized command container to be send out to worker
          */
     std::string outgoingMessage_;
+
+    /// Phase 9 layout send-once (master side): the consumer-shared registry (not owned) and the wire
+    /// scope installed around (de)serialisation, with the peer set to the requesting worker's rank. When
+    /// the inbound request is a REQUEST_LAYOUT, isLayoutRequest_ is set and requestedLayoutId_ holds the
+    /// wanted id so sendResponse() answers with a SEND_LAYOUT instead of a work item.
+    Gem::Courtier::GWireLayoutRegistry *wireRegistry_ = nullptr;
+    Gem::Courtier::GWireSerializationContext wireCtx_;
+    bool isLayoutRequest_ = false;
+    Gem::Courtier::GWireLayoutId requestedLayoutId_{0, 0};
 };
 
 /**
@@ -1143,7 +1351,8 @@ private:
             [this]() -> std::unique_ptr<processable_type> { return getPayloadItem(); },
             [this](std::unique_ptr<processable_type> p) { putPayloadItem(std::move(p)); },
             config_.serializationMode,
-            stopRequested
+            stopRequested,
+            &wireRegistry_ // Phase 9 layout send-once: the registry shared by all sessions of this master
         );
 
         // runs the session but does not close it
@@ -1300,6 +1509,13 @@ public:
         putPayloadItemFn_ = std::move(putPayloadItemFn);
     }
 
+    /**
+         * @brief The number of distinct genome layouts the master has interned for transport (Phase 9
+         * send-once). One per distinct genome structure across all worker ranks.
+         * @return The count of interned layouts.
+         */
+    [[nodiscard]] std::size_t getInternedLayoutCount() const { return wireRegistry_.size(); }
+
 private:
 
     //-------------------------------------------------------------------------
@@ -1331,6 +1547,12 @@ private:
     /// External source/sink injected by the courtier consumer via setPayloadFunctors().
     std::function<std::unique_ptr<processable_type>()> getPayloadItemFn_;
     std::function<void(std::unique_ptr<processable_type>)> putPayloadItemFn_;
+
+    /// Phase 9 layout send-once registry shared by every session this master opens. MPI ranks are
+    /// persistent, so each session keys its per-peer ack tracking on the requesting worker's rank
+    /// (status.MPI_SOURCE) -- a naturally stable id for the whole run. A late-joining / restarted rank
+    /// that misses a layout fetches it back via the REQUEST_LAYOUT / SEND_LAYOUT command pair.
+    Gem::Courtier::GWireLayoutRegistry wireRegistry_;
 };
 
 
