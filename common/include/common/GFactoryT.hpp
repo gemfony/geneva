@@ -72,12 +72,20 @@ namespace Gem::Common {
  * for reading additional configuration options from a configuration file. The actual setup
  * work needs to be done in functions that are implemented in derived classes for each target
  * object individually, or in specializations of this class.
+ *
+ * @tparam prod_type The type of object produced by this factory
  */
 template <typename prod_type>
 class GFactoryT {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /**
+     * @brief Loads the factory's persistent state from a Boost archive
+     * @tparam Archive The Boost.Serialization archive type being read from
+     * @param ar The input archive supplying the serialized data
+     * @param unsigned int The (unused) class version supplied by Boost.Serialization
+     */
     template <typename Archive>
     void load(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -90,6 +98,12 @@ class GFactoryT {
         config_path_ = std::filesystem::path(configFile);
     }
 
+    /**
+     * @brief Saves the factory's persistent state to a Boost archive
+     * @tparam Archive The Boost.Serialization archive type being written to
+     * @param ar The output archive receiving the serialized data
+     * @param unsigned int The (unused) class version supplied by Boost.Serialization
+     */
     template <typename Archive>
     void save(Archive &ar, const unsigned int) const {
         using boost::serialization::make_nvp;
@@ -109,7 +123,7 @@ public:
     /**
 	  * The standard constructor
 	  *
-	  * @param configFile The name of a configuration file holding information about objects of type T
+	  * @param configFile The path of a configuration file holding information about objects of type prod_type
 	  */
     explicit GFactoryT(std::filesystem::path configFile)
       : config_path_(std::move(configFile)) { /* nothing */
@@ -123,18 +137,35 @@ public:
     // freshly default-constructed instance in the new object — the standard
     // pattern for classes that carry a synchronisation primitive.
 
+    /**
+     * @brief Copy constructor; copies the config path and initialized flag, and leaves
+     * the new object with a freshly default-constructed synchronisation mutex
+     * @param cp The factory to copy from
+     */
     GFactoryT(const GFactoryT<prod_type> &cp)
       : config_path_(cp.config_path_)
       , initialized_(cp.initialized_) {
     }
 
+    /**
+     * @brief Move constructor; moves the config path and copies the initialized flag, and
+     * leaves the new object with a freshly default-constructed synchronisation mutex
+     * @param cp The factory to move from
+     */
     GFactoryT(GFactoryT<prod_type> &&cp) noexcept
       : config_path_(std::move(cp.config_path_))
       , initialized_(cp.initialized_) {
     }
 
+    /** @brief The (virtual, defaulted) destructor */
     virtual ~GFactoryT() = default;
 
+    /**
+     * @brief Copy-assignment operator; copies the config path and initialized flag and
+     * invalidates the transient parse cache (the mutex is deliberately not copied)
+     * @param cp The factory to copy from
+     * @return A reference to this object
+     */
     GFactoryT<prod_type> &operator=(GFactoryT<prod_type> const &cp) {
         if(this != &cp) {
             config_path_ = cp.config_path_;
@@ -148,6 +179,12 @@ public:
         return *this;
     }
 
+    /**
+     * @brief Move-assignment operator; moves the config path, copies the initialized flag and
+     * invalidates the transient parse cache (the mutex is deliberately not moved)
+     * @param cp The factory to move from
+     * @return A reference to this object
+     */
     GFactoryT<prod_type> &operator=(GFactoryT<prod_type> &&cp) noexcept {
         if(this != &cp) {
             config_path_ = std::move(cp.config_path_);
@@ -163,7 +200,8 @@ public:
     /**
 	  * Triggers the creation of objects of the desired type
 	  *
-	  * @return An individual of the desired type
+	  * @brief Function-call operator; a convenience alias for get()
+	  * @return A newly produced object of type prod_type
 	  */
     std::shared_ptr<prod_type> operator()() {
         return this->get();
@@ -193,6 +231,8 @@ public:
     /**
 	  * Sets a new name for the configuration file. Will only have an effect for
 	  * the next individual
+	  *
+	  * @param configFile The new configuration-file name (interpreted as a filesystem path)
 	  */
     void setConfigFile(std::string configFile) {
         config_path_ = std::filesystem::path(configFile);
@@ -202,6 +242,9 @@ public:
     /**
 	  * Retrieves an object of the desired type and converts it to a target type,
 	  * if possible.
+	  *
+	  * @tparam target_type The type the produced object should be converted to
+	  * @return The produced object converted to target_type, or an empty pointer if production yielded nothing
 	  */
     template <typename target_type>
     std::shared_ptr<target_type> get_as() {
@@ -217,7 +260,7 @@ public:
     /**
 	  * Writes a configuration file to disk
 	  *
-	  * @param header A header to be prepended to the configuration file
+	  * @param header A header comment to be prepended to the configuration file
 	  */
     void writeConfigFile(std::string const &header) {
         // Make sure the initialization code has been executed.
@@ -255,6 +298,8 @@ public:
     /***************************************************************************/
     /**
 	  * Loads the data of another GFactoryT<> object
+	  *
+	  * @param cp A pointer to the factory whose data (config path and initialized flag) should be loaded
 	  */
     virtual void load(std::shared_ptr<GFactoryT<prod_type>> cp) {
         config_path_ = cp->config_path_;
@@ -266,6 +311,8 @@ public:
 	  * Creates a deep clone of this object. This function is a trap. Factories
 	  * wishing to use this functionality need to overload this function.
 	  * Others don't have to due to this "pseudo-implementation".
+	  *
+	  * @return A deep clone of this factory (overloaded in derived classes; throws here)
 	  */
     virtual std::shared_ptr<GFactoryT<prod_type>> clone() const {
         throw geneva_exception(
@@ -279,6 +326,8 @@ public:
     /***************************************************************************/
     /**
 	 * Allows the creation of objects of the desired type.
+	 *
+	 * @return A newly produced object of type prod_type
 	 */
     std::shared_ptr<prod_type> get() {
         return this->get_();
@@ -294,15 +343,23 @@ protected:
     virtual void init_() { /* nothing */
     }
 
-    /** @brief Allows to describe local configuration options in derived classes */
+    /**
+     * @brief Allows to describe local configuration options in derived classes
+     * @param gpb The parser builder to which derived classes may register their configuration options
+     */
     virtual void describeLocalOptions_(Gem::Common::GParserBuilder &gpb) { /* nothing */ };
 
-    /** @brief Allows to act on the configuration options received from the configuration file */
+    /**
+     * @brief Allows to act on the configuration options received from the configuration file
+     * @param std::shared_ptr<prod_type>& The freshly produced object on which derived classes may act
+     */
     virtual void postProcess_(std::shared_ptr<prod_type> &) = 0;
 
     /***************************************************************************/
     /**
      * Allows the creation of objects of the desired type.
+     *
+     * @return A newly produced object of type prod_type, configured from the (cached) config file
      */
     virtual std::shared_ptr<prod_type> get_() {
         // Make sure the initialization code has been executed.
@@ -379,7 +436,11 @@ private:
     }
 
     /***************************************************************************/
-    /** @brief Creates individuals of the desired type */
+    /**
+     * @brief Creates objects of the desired type (implemented in derived classes)
+     * @param GParserBuilder& The parser builder to which the object may add further configuration options
+     * @return A newly created object of type prod_type
+     */
     virtual std::shared_ptr<prod_type> getObject_(Gem::Common::GParserBuilder &) = 0;
 
     /***************************************************************************/
@@ -404,8 +465,10 @@ private:
  * BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) */
 
 namespace boost::serialization {
+/** @brief Marks GFactoryT<T> as abstract for Boost.Serialization. @tparam T The factory's product type */
 template <typename T>
 struct is_abstract<Gem::Common::GFactoryT<T>> : public std::true_type {};
+/** @brief Marks const GFactoryT<T> as abstract for Boost.Serialization. @tparam T The factory's product type */
 template <typename T>
 struct is_abstract<const Gem::Common::GFactoryT<T>> : public std::true_type {};
 } /* namespace boost::serialization */

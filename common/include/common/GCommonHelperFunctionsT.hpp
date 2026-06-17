@@ -111,6 +111,12 @@ using enum_or_self_t = typename enum_or_self<T>::type;
  *     and is NOT treated as an error.
  *   - floating target from an integer/enum or a not-wider floating type:
  *     always in range, hence unchecked (may lose precision).
+ *
+ * @tparam To The target arithmetic or enum type the value is converted to
+ * @tparam From The source arithmetic or enum type of the value (deduced)
+ * @param value The value to be converted
+ * @return The value converted to To
+ * @throws std::overflow_error if the narrowing conversion would change the value
  */
 template <typename To, typename From>
 To narrow(From value) {
@@ -205,8 +211,11 @@ To narrow(From value) {
 
 /******************************************************************************/
 /**
- * Generates a UUID v4 string (e.g. "550e8400-e29b-41d4-a716-446655440000").
+ * @brief Generates a UUID v4 string (e.g. "550e8400-e29b-41d4-a716-446655440000").
+ *
  * Uses a thread-local Mersenne-Twister seeded from std::random_device.
+ *
+ * @return A newly generated, hyphen-formatted version-4 UUID string
  */
 inline std::string generate_uuid_v4() {
     static thread_local std::mt19937_64 rng{std::random_device{}()};
@@ -228,7 +237,13 @@ inline std::string generate_uuid_v4() {
 }
 
 /******************************************************************************/
-/** @brief Converts a string to target_type via stream extraction (replaces boost::lexical_cast) */
+/**
+ * @brief Converts a string to T via stream extraction (replaces boost::lexical_cast).
+ *
+ * @tparam T The target type to extract from the string (must be stream-extractable)
+ * @param s The input string to convert
+ * @return The value extracted from s; default-constructed/partially-read on extraction failure
+ */
 template <typename T>
 T from_string(const std::string &s) {
     T val;
@@ -239,11 +254,15 @@ T from_string(const std::string &s) {
 
 /******************************************************************************/
 /**
- * Reads a given environment variable and converts it to a target type. The
- * function requires that target_type is extractable from an istringstream.
+ * @brief Reads a given environment variable and converts it to a target type.
  *
+ * The function requires that target_type is extractable from an istringstream.
+ * The raw value is trimmed of surrounding whitespace before conversion. Access
+ * to std::getenv is serialised with a local mutex.
+ *
+ * @tparam target_type The type the environment variable's value is converted to
  * @param var The name of the environment variable to be read
- * @return The converted environment variable, or an empty optional
+ * @return The converted environment variable, or an empty optional if it is unset
  */
 template <typename target_type>
 std::optional<target_type> environmentVariableAs(std::string const &var) {
@@ -290,7 +309,10 @@ std::optional<target_type> environmentVariableAs(std::string const &var) {
 
 /******************************************************************************/
 /**
- * Null-safe delete, then sets the pointer to nullptr.
+ * @brief Null-safe delete, then sets the pointer to nullptr.
+ *
+ * @tparam T The pointee type
+ * @param p Reference to the pointer to be deleted and reset to nullptr (modified in place)
  */
 template <typename T>
 void g_delete(T *&p) {
@@ -302,7 +324,10 @@ void g_delete(T *&p) {
 
 /******************************************************************************/
 /**
- * Null-safe array delete, then sets the pointer to nullptr.
+ * @brief Null-safe array delete, then sets the pointer to nullptr.
+ *
+ * @tparam T The element type of the array
+ * @param p Reference to the array pointer to be deleted and reset to nullptr (modified in place)
  */
 template <typename T>
 void g_array_delete(T *&p) {
@@ -314,8 +339,13 @@ void g_array_delete(T *&p) {
 
 /******************************************************************************/
 /**
- * In debug builds, throws if two raw pointers alias the same object.
- * No-op for nullptr p1.
+ * @brief In debug builds, throws if two raw pointers alias the same object.
+ *
+ * No-op for nullptr p1, and a no-op entirely in release builds.
+ *
+ * @tparam T The pointee type
+ * @param p1 The first pointer (the check is skipped when this is nullptr)
+ * @param p2 The second pointer compared against p1 for aliasing
  */
 template <typename T>
 void ptrDifferenceCheck(const T *p1, const T *p2) {
@@ -332,8 +362,12 @@ void ptrDifferenceCheck(const T *p1, const T *p2) {
 
 /******************************************************************************/
 /**
- * Shared-pointer overload: in debug builds, throws if both non-null shared
- * pointers alias the same object.
+ * @brief Shared-pointer overload: in debug builds, throws if both non-null
+ * shared pointers alias the same object.
+ *
+ * @tparam T The pointee type
+ * @param p1 The first shared pointer (the check is skipped when this is empty)
+ * @param p2 The second shared pointer compared against p1 for aliasing
  */
 template <typename T>
 void ptrDifferenceCheck(std::shared_ptr<T> p1, std::shared_ptr<T> p2) {
@@ -356,6 +390,12 @@ void ptrDifferenceCheck(std::shared_ptr<T> p1, std::shared_ptr<T> p2) {
  * release. Returns nullptr unchanged. Throws in DEBUG on a failed cast.
  * (The previous comment "upcasts only" was inverted — a derived-from base
  * cast is a downcast.)
+ *
+ * @tparam base_type The source (base) pointer type
+ * @tparam target_type The target (derived) pointer type; must derive from base_type
+ * @param convert_ptr The base pointer to convert (nullptr is returned unchanged)
+ * @return convert_ptr converted to const target_type*, or nullptr if the input was nullptr
+ * @throws geneva_exception in DEBUG builds if the dynamic_cast fails
  */
 template <typename base_type, typename target_type>
     requires std::derived_from<target_type, base_type>
@@ -378,7 +418,13 @@ const target_type *g_ptr_conversion(const base_type *convert_ptr) {
 
 /******************************************************************************/
 /**
- * Shared-pointer overload of g_ptr_conversion.
+ * @brief Shared-pointer overload of g_ptr_conversion.
+ *
+ * @tparam base_type The source (base) pointee type
+ * @tparam target_type The target (derived) pointee type; must derive from base_type
+ * @param convert_ptr The base shared pointer to convert (empty is returned unchanged)
+ * @return convert_ptr converted to std::shared_ptr<target_type>, or empty if the input was empty
+ * @throws geneva_exception in DEBUG builds if the dynamic_pointer_cast fails
  */
 template <typename base_type, typename target_type>
     requires std::derived_from<target_type, base_type>
@@ -400,8 +446,17 @@ std::shared_ptr<target_type> g_ptr_conversion(std::shared_ptr<base_type> convert
 
 /******************************************************************************/
 /**
- * Converts convert_ptr to target_type and checks it does not alias
- * compare_ptr. Only accessible when base_type is a base of target_type.
+ * @brief Converts convert_ptr to target_type and checks it does not alias
+ * compare_ptr.
+ *
+ * Only accessible when base_type is a base of target_type.
+ *
+ * @tparam base_type The source (base) pointee type
+ * @tparam target_type The target (derived) pointee type; must derive from base_type
+ * @param convert_ptr The base shared pointer to convert
+ * @param compare_ptr The shared pointer that convert_ptr must not alias
+ * @return convert_ptr converted to std::shared_ptr<target_type>
+ * @throws geneva_exception in DEBUG builds on a failed conversion or on aliasing
  */
 template <typename base_type, typename target_type>
     requires std::derived_from<target_type, base_type>
@@ -416,7 +471,14 @@ std::shared_ptr<target_type> g_convert_and_compare(
 
 /******************************************************************************/
 /**
- * Raw-pointer overload of g_convert_and_compare.
+ * @brief Raw-pointer overload of g_convert_and_compare.
+ *
+ * @tparam base_type The source (base) pointee type
+ * @tparam target_type The target (derived) pointee type; must derive from base_type
+ * @param convert_ptr The base pointer to convert
+ * @param compare_ptr The pointer that convert_ptr must not alias
+ * @return convert_ptr converted to const target_type*
+ * @throws geneva_exception in DEBUG builds on a failed conversion or on aliasing
  */
 template <typename base_type, typename target_type>
     requires std::derived_from<target_type, base_type>
@@ -431,7 +493,14 @@ const target_type *g_convert_and_compare(
 
 /******************************************************************************/
 /**
- * Reference overload of g_convert_and_compare.
+ * @brief Reference overload of g_convert_and_compare.
+ *
+ * @tparam base_type The source (base) referent type
+ * @tparam target_type The target (derived) pointee type; must derive from base_type
+ * @param convert_ref The base reference whose address is converted
+ * @param compare_ptr The pointer that the converted address must not alias
+ * @return The address of convert_ref converted to const target_type*
+ * @throws geneva_exception in DEBUG builds on a failed conversion or on aliasing
  */
 template <typename base_type, typename target_type>
     requires std::derived_from<target_type, base_type>
@@ -446,8 +515,13 @@ const target_type *g_convert_and_compare(
 
 /******************************************************************************/
 /**
- * Returns a space-separated string representation of a std::vector.
- * T must be streamable.
+ * @brief Returns a space-separated string representation of a std::vector.
+ *
+ * T must be streamable. A trailing space follows the last element.
+ *
+ * @tparam T The element type (must be streamable to an ostream)
+ * @param vec The vector whose elements are stringified
+ * @return A string holding each element separated and trailed by a single space
  */
 template <typename T>
 std::string vecToString(const std::vector<T> &vec) {
@@ -460,7 +534,14 @@ std::string vecToString(const std::vector<T> &vec) {
 
 /******************************************************************************/
 /**
- * Deep-copies a shared_ptr to a cloneable/loadable object using clone()/load().
+ * @brief Deep-copies a shared_ptr to a cloneable/loadable object using clone()/load().
+ *
+ * Loads in place when the dynamic types match and deep-clones otherwise; an
+ * empty source resets the target.
+ *
+ * @tparam T The pointee type (must satisfy gemfony_common_interface)
+ * @param from The source shared pointer to copy from
+ * @param to The destination shared pointer to copy into (modified in place)
  */
 template <typename T>
     requires Gem::Common::gemfony_common_interface<T>
@@ -483,9 +564,15 @@ void copyCloneableSmartPointer(const std::shared_ptr<T> &from, std::shared_ptr<T
 
 /******************************************************************************/
 /**
- * unique_ptr counterpart of copyCloneableSmartPointer(): deep-copies a single cloneable object held
- * in a unique_ptr, loading in place when the dynamic types match (no allocation) and deep-cloning
+ * @brief unique_ptr counterpart of copyCloneableSmartPointer(): deep-copies a single cloneable
+ * object held in a unique_ptr.
+ *
+ * Loads in place when the dynamic types match (no allocation) and deep-clones
  * otherwise. No atomic reference counting is involved.
+ *
+ * @tparam T The pointee type (must satisfy gemfony_common_interface)
+ * @param from The source unique pointer to copy from
+ * @param to The destination unique pointer to copy into (modified in place)
  */
 template <typename T>
     requires Gem::Common::gemfony_common_interface<T>
@@ -503,10 +590,15 @@ void copyCloneableSmartPointer(const std::unique_ptr<T> &from, std::unique_ptr<T
 
 /******************************************************************************/
 /**
- * Wraps a uniquely-owned object in a NON-OWNING std::shared_ptr (a no-op deleter), for APIs that still
- * take a const std::shared_ptr<T>& but only read through it. The unique_ptr retains sole ownership; the
- * returned shared_ptr must not outlive it. Lets unique_ptr-owned objects be passed to such read-only
- * shared_ptr APIs without changing those APIs or co-owning the object.
+ * @brief Wraps a uniquely-owned object in a NON-OWNING std::shared_ptr (a no-op deleter).
+ *
+ * For APIs that still take a const std::shared_ptr<T>& but only read through it. The unique_ptr
+ * retains sole ownership; the returned shared_ptr must not outlive it. Lets unique_ptr-owned objects
+ * be passed to such read-only shared_ptr APIs without changing those APIs or co-owning the object.
+ *
+ * @tparam T The pointee type
+ * @param p The uniquely-owned object to wrap (ownership is NOT transferred)
+ * @return A non-owning shared_ptr aliasing p.get() with a do-nothing deleter
  */
 template <typename T>
 std::shared_ptr<T> nonOwningShared(const std::unique_ptr<T> &p) {
@@ -515,8 +607,16 @@ std::shared_ptr<T> nonOwningShared(const std::unique_ptr<T> &p) {
 
 /******************************************************************************/
 /**
- * Deep-copies a container of shared_ptrs to cloneable objects using
- * clone()/load(). Resizes the target container as needed.
+ * @brief Deep-copies a container of shared_ptrs to cloneable objects using
+ * clone()/load().
+ *
+ * Reuses existing slots when sizes match (load in place) and resizes the
+ * target container as needed.
+ *
+ * @tparam T The element pointee type (must satisfy gemfony_common_interface)
+ * @tparam c_type The container template (e.g. std::vector) holding the shared_ptrs
+ * @param from The source container to copy from
+ * @param to The destination container to copy into (resized/modified in place)
  */
 template <typename T, template <typename, typename> class c_type>
     requires Gem::Common::gemfony_common_interface<T>
@@ -558,9 +658,16 @@ void copyCloneableSmartPointerContainer(
 
 /******************************************************************************/
 /**
- * unique_ptr counterpart of copyCloneableSmartPointerContainer(): deep-copies a container of
- * unique_ptrs to cloneable objects via clone_unique()/load(), reusing existing slots when sizes
- * match (load in place) and resizing the target as needed. No atomic reference counting.
+ * @brief unique_ptr counterpart of copyCloneableSmartPointerContainer(): deep-copies a container of
+ * unique_ptrs to cloneable objects via clone_unique()/load().
+ *
+ * Reuses existing slots when sizes match (load in place) and resizes the target
+ * as needed. No atomic reference counting.
+ *
+ * @tparam T The element pointee type (must satisfy gemfony_common_interface)
+ * @tparam c_type The container template (e.g. std::vector) holding the unique_ptrs
+ * @param from The source container to copy from
+ * @param to The destination container to copy into (resized/modified in place)
  */
 template <typename T, template <typename, typename> class c_type>
     requires Gem::Common::gemfony_common_interface<T>
@@ -602,8 +709,15 @@ void copyCloneableSmartPointerContainer(
 
 /******************************************************************************/
 /**
- * Deep-copies a container of cloneable objects using load(). Resizes the
- * target container as needed.
+ * @brief Deep-copies a container of cloneable objects (held by value) using load().
+ *
+ * Loads in place for the overlapping range and resizes the target container as
+ * needed.
+ *
+ * @tparam T The element type (must satisfy gemfony_common_interface)
+ * @tparam c_type The container template (e.g. std::vector) holding the objects
+ * @param from The source container to copy from
+ * @param to The destination container to copy into (resized/modified in place)
  */
 template <typename T, template <typename, typename> class c_type>
     requires Gem::Common::gemfony_common_interface<T>
@@ -643,8 +757,17 @@ void copyCloneableObjectsContainer(
 
 /******************************************************************************/
 /**
- * Copies a raw array into another raw array, allocating or reallocating the
- * destination as needed. Both size parameters are kept consistent.
+ * @brief Copies a raw array into another raw array, allocating or reallocating
+ * the destination as needed.
+ *
+ * Both size parameters are kept consistent; a null source frees the destination.
+ *
+ * @tparam T The element type
+ * @param from The source array (may be nullptr only if n_from is 0)
+ * @param to Reference to the destination array pointer (allocated/reallocated/freed in place)
+ * @param n_from The number of elements in the source array
+ * @param n_to Reference to the destination element count (updated to match n_from)
+ * @throws geneva_exception on inconsistent pointer/size combinations
  */
 template <typename T>
 void copyArrays(T const *const from, T *&to, const std::size_t &n_from, std::size_t &n_to) {
@@ -696,8 +819,17 @@ void copyArrays(T const *const from, T *&to, const std::size_t &n_from, std::siz
 
 /******************************************************************************/
 /**
- * Deep-copies a raw array of shared_ptrs into another, allocating or
+ * @brief Deep-copies a raw array of shared_ptrs into another, allocating or
  * reallocating the destination as needed.
+ *
+ * Each destination slot receives a freshly constructed copy of the source pointee.
+ *
+ * @tparam T The pointee type
+ * @param from The source array of shared_ptrs (may be nullptr only if size_from is 0)
+ * @param to Reference to the destination array pointer (allocated/reallocated in place)
+ * @param size_from The number of elements in the source array
+ * @param size_to Reference to the destination element count (updated to match size_from)
+ * @throws geneva_exception on inconsistent pointer/size combinations
  */
 template <typename T>
 void copySmartPointerArrays(
@@ -747,8 +879,16 @@ void copySmartPointerArrays(
 
 /******************************************************************************/
 /**
- * Converts a shared_ptr to target_type. In debug builds uses dynamic_pointer_cast
- * and throws on failure or null input; in release builds uses static_pointer_cast.
+ * @brief Converts a shared_ptr to target_type.
+ *
+ * In debug builds uses dynamic_pointer_cast and throws on failure or null input;
+ * in release builds uses static_pointer_cast.
+ *
+ * @tparam source_type The source pointee type
+ * @tparam target_type The target pointee type
+ * @param p_raw The source shared pointer to convert
+ * @return p_raw converted to std::shared_ptr<target_type>
+ * @throws geneva_exception in DEBUG builds on a null input or a failed conversion
  */
 template <typename source_type, typename target_type>
 std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) {
@@ -775,7 +915,12 @@ std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_
 
 /******************************************************************************/
 /**
- * Splits a string into a vector of target_type values using a single separator.
+ * @brief Splits a string into a vector of split_type values using a single separator.
+ *
+ * @tparam split_type The type each fragment is converted to
+ * @param raw The input string to split
+ * @param sep The separator string fragments are split on
+ * @return A vector of the converted fragments
  */
 template <typename split_type>
 std::vector<split_type> splitStringT(const std::string &raw, const char *sep) {
@@ -788,8 +933,18 @@ std::vector<split_type> splitStringT(const std::string &raw, const char *sep) {
 
 /******************************************************************************/
 /**
- * Splits a string into a vector of (split_type1, split_type2) pairs using
- * two different separators. A possible usage: "0/0 0/1 1/0" → tuples of ints.
+ * @brief Splits a string into a vector of (split_type1, split_type2) tuples using
+ * two different separators.
+ *
+ * A possible usage: "0/0 0/1 1/0" → tuples of ints (sep1 = " ", sep2 = "/").
+ *
+ * @tparam split_type1 The type of the first tuple element
+ * @tparam split_type2 The type of the second tuple element
+ * @param raw The input string to split
+ * @param sep1 The outer separator splitting raw into fragments (must differ from sep2)
+ * @param sep2 The inner separator splitting each fragment into its two sub-fields
+ * @return A vector of (split_type1, split_type2) tuples
+ * @throws geneva_exception if sep1 and sep2 are identical, or (DEBUG) if a fragment lacks exactly two sub-fields
  */
 template <typename split_type1, typename split_type2>
 std::vector<std::tuple<split_type1, split_type2>>
@@ -823,8 +978,13 @@ splitStringT(const std::string &raw, const char *sep1, const char *sep2) {
 
 /******************************************************************************/
 /**
- * Returns a reference to the value at key in m; throws if the map is empty
- * or the key is absent.
+ * @brief Returns a reference to the value at key in m.
+ *
+ * @tparam item_type The mapped value type
+ * @param m The map to look up in (mutable)
+ * @param key The key whose mapped value is returned
+ * @return A reference to the mapped value associated with key
+ * @throws geneva_exception if the map is empty or the key is absent
  */
 template <typename item_type>
 item_type &getMapItem(std::map<std::string, item_type> &m, const std::string &key) {
@@ -845,7 +1005,13 @@ item_type &getMapItem(std::map<std::string, item_type> &m, const std::string &ke
 
 /******************************************************************************/
 /**
- * Const overload of getMapItem.
+ * @brief Const overload of getMapItem.
+ *
+ * @tparam item_type The mapped value type
+ * @param m The map to look up in (const)
+ * @param key The key whose mapped value is returned
+ * @return A const reference to the mapped value associated with key
+ * @throws geneva_exception if the map is empty or the key is absent
  */
 template <typename item_type>
 const item_type &getMapItem(const std::map<std::string, item_type> &m, const std::string &key) {
@@ -866,7 +1032,12 @@ const item_type &getMapItem(const std::map<std::string, item_type> &m, const std
 
 /******************************************************************************/
 /**
- * Adds an operator== to every object with a Gemfony-common interface
+ * @brief Adds an operator== to every object with a Gemfony-common interface.
+ *
+ * @tparam gemfony_common_type The compared type (must satisfy gemfony_common_interface)
+ * @param x The left-hand operand
+ * @param y The right-hand operand
+ * @return true if the two objects compare equal, false otherwise
  */
 template <class gemfony_common_type>
     requires Gem::Common::gemfony_common_interface<gemfony_common_type>
@@ -882,7 +1053,12 @@ bool operator==(const gemfony_common_type &x, const gemfony_common_type &y) {
 
 /******************************************************************************/
 /**
- * Adds an operator!= to every object with a Gemfony-common interface
+ * @brief Adds an operator!= to every object with a Gemfony-common interface.
+ *
+ * @tparam gemfony_common_type The compared type (must satisfy gemfony_common_interface)
+ * @param x The left-hand operand
+ * @param y The right-hand operand
+ * @return true if the two objects compare unequal, false otherwise
  */
 template <class gemfony_common_type>
     requires Gem::Common::gemfony_common_interface<gemfony_common_type>
@@ -898,7 +1074,11 @@ bool operator!=(const gemfony_common_type &x, const gemfony_common_type &y) {
 
 /******************************************************************************/
 /**
- * Converts integral types (except scoped enums) to std::string.
+ * @brief Converts integral types (and int-convertible unscoped enums) to std::string.
+ *
+ * @tparam integral_type The integral or implicitly-int-convertible enum type
+ * @param val The value to convert
+ * @return The decimal string representation of val
  */
 template <typename integral_type>
     requires (std::is_integral_v<integral_type> ||
@@ -909,7 +1089,11 @@ std::string to_string(integral_type val) {
 
 /******************************************************************************/
 /**
- * Converts floating-point values to std::string with full precision.
+ * @brief Converts floating-point values to std::string with full precision.
+ *
+ * @tparam fp_type The floating-point type
+ * @param val The value to convert
+ * @return The string representation of val at max_digits10 precision
  */
 template <std::floating_point fp_type>
 std::string to_string(fp_type val) {
@@ -920,7 +1104,11 @@ std::string to_string(fp_type val) {
 
 /******************************************************************************/
 /**
- * Converts a scoped enum (enum class) to std::string via uint32_t cast.
+ * @brief Converts a scoped enum (enum class) to std::string via uint32_t cast.
+ *
+ * @tparam enum_type The scoped enum type (not implicitly convertible to int)
+ * @param val The enum value to convert
+ * @return The decimal string representation of the enum's underlying value
  */
 template <typename enum_type>
     requires (std::is_enum_v<enum_type> && !std::is_convertible_v<enum_type, int>)
@@ -930,7 +1118,11 @@ std::string to_string(enum_type val) {
 
 /******************************************************************************/
 /**
- * Converts any remaining streamable type to std::string via ostringstream.
+ * @brief Converts any remaining (non-enum, non-arithmetic) streamable type to std::string.
+ *
+ * @tparam default_type The streamable type to convert
+ * @param val The value to convert
+ * @return The string produced by streaming val into an ostringstream
  */
 template <typename default_type>
     requires (!std::is_enum_v<default_type> && !std::is_arithmetic_v<default_type>)
@@ -942,10 +1134,16 @@ std::string to_string(default_type val) {
 
 /******************************************************************************/
 /**
- * Erases elements from a standard container matching a predicate. Equivalent
- * to C++20 std::erase_if, kept here for CUDA nvcc compatibility (nvcc does not
- * expose the C++20 standard-library additions). Returns the number of erased
- * elements.
+ * @brief Erases elements from a standard container matching a predicate.
+ *
+ * Equivalent to C++20 std::erase_if, kept here for CUDA nvcc compatibility
+ * (nvcc does not expose the C++20 standard-library additions).
+ *
+ * @tparam container_type The node-based / erase-by-iterator container type
+ * @tparam predicate_type The unary predicate type invoked on each element
+ * @param container The container whose matching elements are erased (modified in place)
+ * @param predicate The predicate; elements for which it returns true are erased
+ * @return The number of erased elements
  */
 template <typename container_type, typename predicate_type>
 std::size_t erase_if(container_type &container, const predicate_type &predicate) {

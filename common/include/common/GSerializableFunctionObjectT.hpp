@@ -52,9 +52,14 @@ namespace Gem::Common {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class forms the basis of a hierarchy of function objects that are
- * required to be serializable, so they may be registered with serializable
- * objects and thus modify their behaviour.
+ * @brief Base of a hierarchy of serializable function objects.
+ *
+ * These function objects can be registered with serializable objects and thus
+ * modify their behaviour. Being serializable themselves, they can travel over
+ * the network alongside the objects they operate on. Derived classes implement
+ * the actual behaviour by overriding process_().
+ *
+ * @tparam processable_type The type of object the function object operates on
  */
 template <typename processable_type>
 class GSerializableFunctionObjectT
@@ -88,8 +93,11 @@ public:
 
     /***************************************************************************/
     /**
-	  * Function call operator
-  	  */
+	  * @brief Function call operator; applies this function object to p.
+	  *
+	  * @param p The object to be processed (modified in place by process_())
+	  * @return The boolean result returned by the concrete process_() override
+	  */
     bool operator()(processable_type &p) {
         return this->process_(p);
     }
@@ -97,7 +105,12 @@ public:
 protected:
     /***************************************************************************/
     /**
-	  * Loads the data of another GSerializableFunctionObjectT<processable_type> object
+	  * @brief Loads the data of another GSerializableFunctionObjectT<processable_type> object.
+	  *
+	  * This class holds no local data; the conversion is invoked purely for its
+	  * type-mismatch / self-load checking side effect.
+	  *
+	  * @param cp A pointer to another GSerializableFunctionObjectT to load from
 	  */
     void load_(const GSerializableFunctionObjectT<processable_type> *cp) override {
         // Invoke g_convert_and_compare purely for its side effect (throws on
@@ -120,11 +133,12 @@ protected:
 
     /***************************************************************************/
     /**
-     * Checks for compliance with expectations with respect to another object
-     * of the same type
+     * @brief Checks for compliance with expectations with respect to another
+     * object of the same type.
      *
      * @param cp A constant reference to another GSerializableFunctionObjectT<processable_type> object
      * @param e The expected outcome of the comparison
+     * @param limit The maximum acceptable deviation for similarity checks (unused; no local data)
      */
     void compare_(
         const GSerializableFunctionObjectT<processable_type> &cp,
@@ -157,10 +171,17 @@ protected:
 
     /***************************************************************************/
 
-    /** @brief overload this function to make this class operational */
+    /**
+     * @brief Overload this function to make this class operational.
+     * @param p The object to be processed (typically modified in place)
+     * @return A boolean status defined by the concrete implementation
+     */
     virtual bool process_(processable_type &p) = 0;
 
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    /**
+     * @brief Applies modifications to this object. This is needed for testing purposes.
+     * @return true if a modification was made, false otherwise (here: always false)
+     */
     bool modify_GUnitTests_() override {
         return false;
     };
@@ -172,7 +193,8 @@ protected:
 private:
     /***************************************************************************/
     /**
-	  * Returns the name of this class
+	  * @brief Returns the name of this class.
+	  * @return The class name "GSerializableFunctionObjectT<processable_type>"
 	  */
     std::string name_() const override {
         return std::string("GSerializableFunctionObjectT<processable_type>");

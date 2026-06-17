@@ -97,23 +97,32 @@ public:
 
     /*************************************************************************/
 
-    /** @brief Adds an already created thread to the group */
-    void add_thread(thread_ptr);
+    /**
+     * @brief Adds an already created thread to the group
+     *
+     * @param thread_p A shared pointer to the std::jthread that should be added to the group
+     */
+    void add_thread(thread_ptr thread_p);
 
     /** @brief Requests all threads to join */
     void join_all();
 
-    /** @brief Returns the size of the current thread group */
+    /**
+     * @brief Returns the size of the current thread group
+     *
+     * @return The number of threads currently held in the group
+     */
     std::size_t size() const;
 
     /***************************************************************************/
     /**
-	  * Creates a new thread and adds it to the group
+	  * @brief Creates a new thread and adds it to the group
 	  *
 	  * TODO: Add perfect forwarding, so we may pass arguments directly
 	  *
+	  * @tparam F The type of the callable to be run by the thread
 	  * @param f The function to be run by the thread
-	  * @return A pointer to the newly created std::jthread
+	  * @return A shared pointer to the newly created std::jthread
 	  */
     template <typename F>
     std::shared_ptr<std::jthread> create_thread(F f) {
@@ -128,10 +137,11 @@ public:
 
     /***************************************************************************/
     /**
-	  * Creates n_threads new threads with the same function
+	  * @brief Creates n_threads new threads with the same function
 	  * and adds them to the group
 	  *
-	  * @param f The function to be run by the thread
+	  * @tparam F The type of the callable to be run by each thread
+	  * @param f The function to be run by each thread
 	  * @param n_threads The number of threads to add to the group
 	  */
     template <typename F>

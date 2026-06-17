@@ -52,7 +52,10 @@ constexpr std::size_t SUCCESSCOUNTER = 1;
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The standard constructor -- initialization with class name and expectation
+ * @brief The standard constructor -- initialization with class name and expectation
+ *
+ * @param caller The name of the class / function performing the comparison (used in messages)
+ * @param e The expectation (equality, similarity or inequality) the comparisons should fulfil
  */
 GToken::GToken(std::string caller, Gem::Common::expectation e)
   : test_counter_(std::make_tuple(static_cast<std::size_t>(0), static_cast<std::size_t>(0)))
@@ -62,7 +65,7 @@ GToken::GToken(std::string caller, Gem::Common::expectation e)
 
 /******************************************************************************/
 /**
- * Increments the test counter
+ * @brief Increments the counter of performed tests
  */
 void GToken::incrTestCounter() {
     std::get<TESTCOUNTER>(test_counter_) += 1;
@@ -70,7 +73,7 @@ void GToken::incrTestCounter() {
 
 /******************************************************************************/
 /**
- * Increments the counter of tests that met the expectation
+ * @brief Increments the counter of tests that met the expectation
  */
 void GToken::incrSuccessCounter() {
     std::get<SUCCESSCOUNTER>(test_counter_) += 1;
@@ -78,21 +81,29 @@ void GToken::incrSuccessCounter() {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the current state of the success counter
+ * @brief Allows to retrieve the current state of the success counter
+ *
+ * @return The number of tests that have met the expectation so far
  */
 std::size_t GToken::getSuccessCounter() const {
     return std::get<SUCCESSCOUNTER>(test_counter_);
 }
 
 /******************************************************************************/
-/** @brief Allows to retrieve the current state of the test counter */
+/**
+ * @brief Allows to retrieve the current state of the test counter
+ *
+ * @return The number of tests that have been performed so far
+ */
 std::size_t GToken::getTestCounter() const {
     return std::get<TESTCOUNTER>(test_counter_);
 }
 
 /******************************************************************************/
 /**
- * Allows to check whether the expectation was met
+ * @brief Allows to check whether the expectation was met
+ *
+ * @return true if the registered expectation has been satisfied, false otherwise
  */
 bool GToken::expectationMet() const {
     switch(e_) {
@@ -115,7 +126,9 @@ bool GToken::expectationMet() const {
 
 /******************************************************************************/
 /**
- * Conversion to a boolean indicating whether the expectation was met
+ * @brief Conversion to a boolean indicating whether the expectation was met
+ *
+ * @return true if the registered expectation has been satisfied, false otherwise
  */
 GToken::operator bool() const {
     return this->expectationMet();
@@ -123,7 +136,9 @@ GToken::operator bool() const {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the expectation token
+ * @brief Allows to retrieve the expectation token
+ *
+ * @return The expectation (equality, similarity or inequality) this token enforces
  */
 Gem::Common::expectation GToken::getExpectation() const {
     return e_;
@@ -131,7 +146,9 @@ Gem::Common::expectation GToken::getExpectation() const {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the expectation token as a string
+ * @brief Allows to retrieve the expectation token as a string
+ *
+ * @return The expectation as a string ("FP_SIMILARITY", "EQUALITY", "INEQUALITY", or "unknown")
  */
 std::string GToken::getExpectationStr() const {
     switch(e_) {
@@ -154,7 +171,9 @@ std::string GToken::getExpectationStr() const {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the name of the caller
+ * @brief Allows to retrieve the name of the caller
+ *
+ * @return The name of the class / function that created this token
  */
 std::string GToken::getCallerName() const {
     return caller_;
@@ -162,7 +181,9 @@ std::string GToken::getCallerName() const {
 
 /******************************************************************************/
 /**
- * Allows to register an error message e.g. obtained from a failed check
+ * @brief Allows to register an error message e.g. obtained from a failed check
+ *
+ * @param m The (non-empty) error message to store; an empty message triggers an exception
  */
 void GToken::registerErrorMessage(std::string const &m) {
     if(not m.empty()) {
@@ -179,7 +200,9 @@ void GToken::registerErrorMessage(std::string const &m) {
 
 /******************************************************************************/
 /**
- * Allows to register an exception obtained from a failed check
+ * @brief Allows to register an exception obtained from a failed check
+ *
+ * @param g The expectation-violation exception whose description should be stored
  */
 void GToken::registerErrorMessage(g_expectation_violation const &g) {
     error_messages_.emplace_back(g.what());
@@ -187,7 +210,9 @@ void GToken::registerErrorMessage(g_expectation_violation const &g) {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the currently registered error messages
+ * @brief Allows to retrieve the currently registered error messages
+ *
+ * @return The concatenation of all registered error messages, prefixed with a header line
  */
 std::string GToken::getErrorMessages() const {
     std::string result; // NOLINT(cppcoreguidelines-init-variables)
@@ -200,7 +225,9 @@ std::string GToken::getErrorMessages() const {
 
 /******************************************************************************/
 /**
- * Conversion to a string indicating success or failure
+ * @brief Conversion to a string indicating success or failure
+ *
+ * @return A human-readable description of whether the expectation was met, plus any failure details
  */
 std::string GToken::toString() const {
     std::string result = "Expectation of ";
@@ -243,7 +270,7 @@ std::string GToken::toString() const {
 
 /******************************************************************************/
 /**
- * Evaluates the information in this object
+ * @brief Evaluates the information in this object, throwing if the expectation was not met
  */
 void GToken::evaluate() const {
     if(not this->expectationMet()) {
@@ -253,7 +280,11 @@ void GToken::evaluate() const {
 
 /******************************************************************************/
 /**
- * Easy output of GToken objects
+ * @brief Easy output of GToken objects
+ *
+ * @param s The output stream to write to
+ * @param g The token whose state should be streamed
+ * @return A reference to the output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &s, GToken const &g) {
     s << "GToken for caller " << g.getCallerName() << " with expectation  " << g.getExpectationStr()
@@ -268,13 +299,14 @@ std::ostream &operator<<(std::ostream &s, GToken const &g) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This function checks whether two objects of type Gem::Common::tribool meet a given expectation.
+ * @brief This function checks whether two objects of type Gem::Common::tribool meet a given expectation.
  *
- * @param x The first vector to be compared
- * @param y The second vector to be compared
- * @param x_name The name of the first parameter
- * @param y_name The name of the second parameter
- * @param e The expectation both parameters need to fulfill
+ * @param x The first tribool to be compared
+ * @param y The second tribool to be compared
+ * @param x_name The name of the first parameter (used in the violation message)
+ * @param y_name The name of the second parameter (used in the violation message)
+ * @param e The expectation both parameters need to fulfill (equality / similarity / inequality)
+ * @param double The (unused) floating-point comparison limit; present for interface uniformity with numeric overloads
  */
 void compare(
     Gem::Common::tribool const &x,

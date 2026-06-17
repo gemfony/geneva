@@ -59,8 +59,18 @@ namespace Gem::Common {
 
 /******************************************************************************/
 /**
- * Enforces a value inside of a given range (both boundaries inclusive) for the
- * first parameter. Note that the value of this parameter may change.
+ * @brief Enforces a value inside of a given range (both boundaries inclusive).
+ *
+ * Note that the value of @p val may change: if it falls outside [lower, upper]
+ * it is clamped to the nearest boundary.
+ *
+ * @tparam fp_type The floating point type of the value and boundaries
+ * @param val The value to be constrained; modified in place if out of range
+ * @param lower The lower (inclusive) boundary of the allowed range
+ * @param upper The upper (inclusive) boundary of the allowed range
+ * @param caller Optional name of the calling context, used in log/error messages ("empty" suppresses the prefix)
+ * @param verbose If true, emits a warning whenever the value is clamped
+ * @return The (possibly clamped) value
  */
 template <std::floating_point fp_type>
 fp_type enforceRangeConstraint(
@@ -105,7 +115,14 @@ fp_type enforceRangeConstraint(
 
 /******************************************************************************/
 /**
- * Checks that a given floating point value is inside of a given set of boundaries (both inclusive)
+ * @brief Checks that a given floating point value is inside of a given set of boundaries (both inclusive).
+ *
+ * @tparam fp_type The floating point type of the value and boundaries
+ * @param val The value to be checked
+ * @param lower The lower (inclusive) boundary of the allowed range
+ * @param upper The upper (inclusive) boundary of the allowed range
+ * @param caller Optional name of the calling context, used in error messages ("empty" suppresses the prefix)
+ * @return true if lower <= val <= upper, false otherwise
  */
 template <std::floating_point fp_type>
 bool checkRangeCompliance(
@@ -128,7 +145,14 @@ bool checkRangeCompliance(
 
 /******************************************************************************/
 /**
- * Checks that a given floating point value is inside of a given set of boundaries (both inclusive)
+ * @brief Checks that a given integral value is inside of a given set of boundaries (both inclusive).
+ *
+ * @tparam int_type The integral type of the value and boundaries
+ * @param val The value to be checked
+ * @param lower The lower (inclusive) boundary of the allowed range
+ * @param upper The upper (inclusive) boundary of the allowed range
+ * @param caller Optional name of the calling context, used in error messages ("empty" suppresses the prefix)
+ * @return true if lower <= val <= upper, false otherwise
  */
 template <std::integral int_type>
 bool checkRangeCompliance(
@@ -151,8 +175,11 @@ bool checkRangeCompliance(
 
 /******************************************************************************/
 /**
- * Retrieves the worst known value for a given floating point type, depending
- * on whether maximal or minimal values are considered to be better
+ * @brief Retrieves the worst known value for a given floating point type.
+ *
+ * @tparam fp_type The floating point type whose worst-case value is requested
+ * @param max_mode If true, higher values are better (worst = lowest()); if false, lower is better (worst = max())
+ * @return The worst representable value of fp_type for the given optimization direction
  */
 template <std::floating_point fp_type>
 fp_type getWorstCase(bool max_mode) {
@@ -163,8 +190,11 @@ fp_type getWorstCase(bool max_mode) {
 
 /******************************************************************************/
 /**
- * Retrieves the best known value for a given floating point type, depending
- * on whether maximal or minimal values are considered to be better
+ * @brief Retrieves the best known value for a given floating point type.
+ *
+ * @tparam fp_type The floating point type whose best-case value is requested
+ * @param max_mode If true, higher values are better (best = max()); if false, lower is better (best = lowest())
+ * @return The best representable value of fp_type for the given optimization direction
  */
 template <std::floating_point fp_type>
 fp_type getBestCase(bool max_mode) {
@@ -175,8 +205,11 @@ fp_type getBestCase(bool max_mode) {
 
 /******************************************************************************/
 /**
- * Retrieves the worst known value for a given floating point type, depending
- * on whether maximal or minimal values are considered to be better
+ * @brief Retrieves the worst known value for a given floating point type.
+ *
+ * @tparam fp_type The floating point type whose worst-case value is requested
+ * @param sort_order The optimization direction; HIGHERISBETTER -> worst = lowest(), otherwise worst = max()
+ * @return The worst representable value of fp_type for the given sort order
  */
 template <std::floating_point fp_type>
 fp_type getWorstCase(Gem::Common::sortOrder sort_order) {
@@ -189,8 +222,11 @@ fp_type getWorstCase(Gem::Common::sortOrder sort_order) {
 
 /******************************************************************************/
 /**
- * Retrieves the best known value for a given floating point type, depending
- * on whether maximal or minimal values are considered to be better
+ * @brief Retrieves the best known value for a given floating point type.
+ *
+ * @tparam fp_type The floating point type whose best-case value is requested
+ * @param sort_order The optimization direction; HIGHERISBETTER -> best = max(), otherwise best = lowest()
+ * @return The best representable value of fp_type for the given sort order
  */
 template <std::floating_point fp_type>
 fp_type getBestCase(Gem::Common::sortOrder sort_order) {
@@ -203,15 +239,7 @@ fp_type getBestCase(Gem::Common::sortOrder sort_order) {
 
 /******************************************************************************/
 /**
- * Checks that a floating point value is contained in a given range
- *
- * @param val The value to be checked for containment
- * @param min The lower boundary (included)
- * @param max The upper boundary (possibly included)
- * @param lower_open Determines whether the lower boundary must be smaller or may be equal to val (default: closed)
- * @param upper_open Determines whether the upper boundary must be larger or may be equal to val (default: closed)
- * @param warn_only Will warn only if the condition isn't met
- * @return The value being checked
+ * @brief Named convenience constants for the boundary-openness and warning flags of checkValueRange().
  */
 constexpr bool GFPLOWERCLOSED = false;
 constexpr bool GFPLOWEROPEN = true;
@@ -219,6 +247,19 @@ constexpr bool GFPUPPERCLOSED = false;
 constexpr bool GFPUPPEROPEN = true;
 constexpr bool GFNOWARNING = false;
 
+/**
+ * @brief Checks that a floating point value is contained in a given range, warning or throwing otherwise.
+ *
+ * @tparam fp_type The floating point type of the value and boundaries
+ * @param val The value to be checked for containment
+ * @param min The lower boundary (included unless lower_open)
+ * @param max The upper boundary (included unless upper_open)
+ * @param lower_open If true the lower boundary is exclusive (val must be strictly greater); default closed
+ * @param upper_open If true the upper boundary is exclusive (val must be strictly smaller); default closed
+ * @param warn_only If true, an out-of-range value only triggers a warning; otherwise it throws
+ * @param var_name Optional variable name to include in the warning/error message
+ * @return The value being checked (unchanged)
+ */
 template <std::floating_point fp_type>
 fp_type checkValueRange(
     fp_type val,
@@ -279,15 +320,16 @@ fp_type checkValueRange(
 
 /******************************************************************************/
 /**
- * Checks that an integral value is contained in a given range
+ * @brief Checks that an integral value is contained in a given range, warning or throwing otherwise.
  *
+ * @tparam int_type The integral type of the value and boundaries
  * @param val The value to be checked for containment
- * @param min The lower boundary (included)
- * @param max The upper boundary (possibly included)
- * @param lower_open Determines whether the lower boundary must be smaller or may be equal to val (default: closed)
- * @param upper_open Determines whether the upper boundary must be larger or may be equal to val (default: closed)
- * @param warn_only Will warn only if the condition isn't met
- * @return The value being checked
+ * @param min The lower boundary (included unless lower_open)
+ * @param max The upper boundary (included unless upper_open)
+ * @param lower_open If true the lower boundary is exclusive (val must be strictly greater); default closed
+ * @param upper_open If true the upper boundary is exclusive (val must be strictly smaller); default closed
+ * @param warn_only If true, an out-of-range value only triggers a warning; otherwise it throws
+ * @return The value being checked (unchanged)
  */
 template <std::integral int_type>
 int_type checkValueRange(
@@ -347,11 +389,13 @@ int_type checkValueRange(
 
 /******************************************************************************/
 /**
- * Finds the minimum and maximum component in a vector of undefined types. This
- * function requires that x_type_undet can be compared using the usual operators.
+ * @brief Finds the minimum and maximum component in a vector of undefined types.
  *
+ * This function requires that x_type_undet can be compared using the usual operators.
+ *
+ * @tparam x_type_undet The element type of the vector (must be comparable)
  * @param ext_dat The vector holding the data, for which extreme values should be calculated
- * @return A std::tuple holding the extreme values
+ * @return A std::tuple {min, max} holding the extreme values
  */
 template <typename x_type_undet>
 auto getMinMax(const std::vector<x_type_undet> &ext_dat) {
@@ -369,12 +413,15 @@ auto getMinMax(const std::vector<x_type_undet> &ext_dat) {
 
 /******************************************************************************/
 /**
- * Find the minimum and maximum component in a vector of 2d-Tuples of undefined types.
- * This function requires that x_type_undet and y_type_undet can be compared using the
- * usual operators
+ * @brief Find the minimum and maximum component in a vector of 2d-tuples of undefined types.
  *
+ * This function requires that x_type_undet and y_type_undet can be compared using the
+ * usual operators.
+ *
+ * @tparam x_type_undet The type of the first (x) tuple component
+ * @tparam y_type_undet The type of the second (y) tuple component
  * @param ext_dat The vector holding the data, for which extreme values should be calculated
- * @return A std::tuple holding the extreme values
+ * @return A std::tuple {min_x, max_x, min_y, max_y} holding the per-component extreme values
  */
 template <typename x_type_undet, typename y_type_undet>
 auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &ext_dat) {
@@ -417,12 +464,16 @@ auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &ext_da
 
 /******************************************************************************/
 /**
- * Find the minimum and maximum component in a vector of 3d-Tuples of undefined types.
- * This function requires that x_type_undet, y_type_undet and z_type_undet can be compared
- * using the usual operators
+ * @brief Find the minimum and maximum component in a vector of 3d-tuples of undefined types.
  *
+ * This function requires that x_type_undet, y_type_undet and z_type_undet can be compared
+ * using the usual operators.
+ *
+ * @tparam x_type_undet The type of the first (x) tuple component
+ * @tparam y_type_undet The type of the second (y) tuple component
+ * @tparam z_type_undet The type of the third (z) tuple component
  * @param ext_dat The vector holding the data, for which extreme values should be calculated
- * @return A std::tuple holding the extreme values
+ * @return A std::tuple {min_x, max_x, min_y, max_y, min_z, max_z} holding the per-component extreme values
  */
 template <typename x_type_undet, typename y_type_undet, typename z_type_undet>
 auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>> &ext_dat) {
@@ -476,12 +527,17 @@ auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_u
 
 /******************************************************************************/
 /**
- * Find the minimum and maximum component in a vector of 4d-Tuples of undefined types.
- * This function requires that x_type_undet, y_type_undet, z_type_undet and w_type_undet
- * can be compared using the usual operators
+ * @brief Find the minimum and maximum component in a vector of 4d-tuples of undefined types.
  *
+ * This function requires that x_type_undet, y_type_undet, z_type_undet and w_type_undet
+ * can be compared using the usual operators.
+ *
+ * @tparam x_type_undet The type of the first (x) tuple component
+ * @tparam y_type_undet The type of the second (y) tuple component
+ * @tparam z_type_undet The type of the third (z) tuple component
+ * @tparam w_type_undet The type of the fourth (w) tuple component
  * @param ext_dat The vector holding the data, for which extreme values should be calculated
- * @return A std::tuple holding the extreme values
+ * @return A std::tuple {min_x, max_x, min_y, max_y, min_z, max_z, min_w, max_w} holding the per-component extreme values
  */
 template <
     typename x_type_undet,
@@ -549,10 +605,11 @@ auto getMinMax(
 
 /******************************************************************************/
 /**
- * Calculates the mean value from a std::vector of floating point values
+ * @brief Calculates the mean value from a std::vector of (floating point) values.
  *
- * @param par_vec The vector of values for which the mean should be calculated
- * @return The mean value of par_vec
+ * @tparam T The element type; must support addition and division by a scalar
+ * @param par_vec The vector of values for which the mean should be calculated (must be non-empty in DEBUG)
+ * @return The arithmetic mean of the values stored in par_vec
  */
 template <typename T>
 T GMean(const std::vector<T> &par_vec) {
@@ -575,10 +632,14 @@ T GMean(const std::vector<T> &par_vec) {
 
 /******************************************************************************/
 /**
- * Calculates the mean and standard deviation for a std::vector of floating point values
+ * @brief Calculates the mean and standard deviation for a std::vector of (floating point) values.
  *
+ * Uses the sample standard deviation (division by n-1). For a single-element vector the
+ * standard deviation is reported as 0.
+ *
+ * @tparam T The element type; must support the usual arithmetic operators and std::sqrt
  * @param par_vec The vector of values for which the standard deviation should be calculated
- * @return A std::tuple holding the mean value and the standard deviation of the values stored in par_vec
+ * @return A std::tuple {mean, sigma} holding the mean value and the standard deviation of par_vec
  */
 template <typename T>
 auto GStandardDeviation(const std::vector<T> &par_vec) {
@@ -603,8 +664,13 @@ auto GStandardDeviation(const std::vector<T> &par_vec) {
 
 /******************************************************************************/
 /**
- * Compile-time integer power: B^E.
+ * @brief Compile-time integer power: B^E.
+ *
  * Replaces the old PowSmallPosInt struct template metaprogramming.
+ *
+ * @tparam B The base of the power
+ * @tparam E The exponent of the power
+ * @return The value of B raised to the power E, computed at compile time
  */
 template <std::size_t B, std::size_t E>
 constexpr std::size_t PowSmallPosInt() {
@@ -621,11 +687,13 @@ constexpr std::size_t PowSmallPosInt() {
 
 /******************************************************************************/
 /**
- * Takes two std::vector<> and subtracts each position of the second vector from the
- * corresponding position of the first vector. Note that we assume here that T understands
- * the operator-= . Note that after this function has been called, a will have changed.
+ * @brief Subtracts the second vector from the first, element by element, in place.
  *
- * @param a The vector from whose elements numbers will be subtracted
+ * Note that we assume here that T understands operator- . After this function has been
+ * called, @p a will have changed. In DEBUG mode a size mismatch throws.
+ *
+ * @tparam T The element type; must support binary subtraction
+ * @param a The vector from whose elements numbers will be subtracted (modified in place)
  * @param b The vector whose elements will be subtracted from the elements of a
  */
 template <typename T>
@@ -647,11 +715,13 @@ void subtractVec(std::vector<T> &a, const std::vector<T> &b) {
 
 /******************************************************************************/
 /**
- * Takes two std::vector<> and adds each position of the second vector to the
- * corresponding position of the first vector. Note that we assume here that T understands
- * the operator+= . Note that after this function has been called, a will have changed.
+ * @brief Adds the second vector to the first, element by element, in place.
  *
- * @param a The vector to whose elements numbers will be added
+ * Note that we assume here that T understands operator+ . After this function has been
+ * called, @p a will have changed. In DEBUG mode a size mismatch throws.
+ *
+ * @tparam T The element type; must support binary addition
+ * @param a The vector to whose elements numbers will be added (modified in place)
  * @param b The vector whose elements will be added to the elements of a
  */
 template <typename T>
@@ -673,10 +743,13 @@ void addVec(std::vector<T> &a, const std::vector<T> &b) {
 
 /******************************************************************************/
 /**
- * Multiplies each position of a std::vector<> with a constant. Note that we assume here that
- * T understands the operator*= . Note that after this function has been called, a will have changed.
+ * @brief Multiplies each element of a std::vector<> by a constant, in place.
  *
- * @param a The vector whose elements will be multiplied by c
+ * Note that we assume here that T understands operator*= . After this function has been
+ * called, @p a will have changed.
+ *
+ * @tparam T The element type; must support operator*=
+ * @param a The vector whose elements will be multiplied by c (modified in place)
  * @param c The constant which will be multiplied with each position of a
  */
 template <typename T>
@@ -688,10 +761,11 @@ void multVecConst(std::vector<T> &a, const T &c) {
 
 /******************************************************************************/
 /**
- * Assigns a constant value to each position of the vector.
+ * @brief Assigns a constant value to each position of the vector.
  *
- * @param a The vector to whose elements c will be assigned
- * @param c The constant which will be assigned each position of a
+ * @tparam T The element type; must be assignable from c
+ * @param a The vector to whose elements c will be assigned (modified in place)
+ * @param c The constant which will be assigned to each position of a
  */
 template <typename T>
 void assignVecConst(std::vector<T> &a, const T &c) {
@@ -700,7 +774,11 @@ void assignVecConst(std::vector<T> &a, const T &c) {
 
 /******************************************************************************/
 /**
- * Sums up the x- and y-components individually of a vector of 2d-tuples
+ * @brief Sums up the x- and y-components individually of a vector of 2d-tuples.
+ *
+ * @tparam fp_type The floating point type of the tuple components
+ * @param data_points The vector of (x, y) tuples to be summed component-wise
+ * @return A std::tuple {sum_x, sum_y} holding the per-component sums
  */
 template <typename fp_type>
 std::tuple<fp_type, fp_type>
@@ -715,7 +793,11 @@ sumTupleVec(const std::vector<std::tuple<fp_type, fp_type>> &data_points) {
 
 /******************************************************************************/
 /**
- * Sums up the squares of x- and y-components individually of a vector of 2d-tuples
+ * @brief Sums up the squares of the x- and y-components individually of a vector of 2d-tuples.
+ *
+ * @tparam fp_type The floating point type of the tuple components
+ * @param data_points The vector of (x, y) tuples whose squared components are summed
+ * @return A std::tuple {sum_x^2, sum_y^2} holding the per-component sums of squares
  */
 template <typename fp_type>
 std::tuple<fp_type, fp_type>
@@ -732,7 +814,11 @@ squareSumTupleVec(const std::vector<std::tuple<fp_type, fp_type>> &data_points) 
 
 /******************************************************************************/
 /**
- * Sums up the product of x- and y-components of a vector of 2d-tuples
+ * @brief Sums up the products of the x- and y-components of a vector of 2d-tuples.
+ *
+ * @tparam fp_type The floating point type of the tuple components
+ * @param data_points The vector of (x, y) tuples; each x*y product is accumulated
+ * @return The sum over all data points of x*y
  */
 template <std::floating_point fp_type>
 fp_type productSumTupleVec(const std::vector<std::tuple<fp_type, fp_type>> &data_points) {
@@ -745,13 +831,13 @@ fp_type productSumTupleVec(const std::vector<std::tuple<fp_type, fp_type>> &data
 
 /******************************************************************************/
 /**
- * Calculates the "square deviation" of a set of floating point tuples from
- * a line defined through a + b*x .
+ * @brief Calculates the "square deviation" of a set of floating point tuples from a line a + b*x.
  *
- * @param data_points A vector of bi-tuples with x-y data points
- * @param a The offset of a line
- * @param b The slope of a line
- * @return The square deviation of the data points from the line
+ * @tparam fp_type The floating point type of the data and line parameters
+ * @param data_points A vector of bi-tuples with (x, y) data points
+ * @param a The offset (intercept) of the line
+ * @param b The slope of the line
+ * @return The sum of squared residuals of the data points from the line
  */
 template <std::floating_point fp_type>
 fp_type squareDeviation(
@@ -769,12 +855,13 @@ fp_type squareDeviation(
 
 /******************************************************************************/
 /**
- * Calculates the parameters a and b of a regression line, plus errors. The return
- * value is a std::tuple of four fp_type values: a, error_a, b, error_b, with the
- * line being defined by L(x)=a+b*x .
+ * @brief Calculates the parameters a and b of a regression line, plus their errors.
  *
- * @param data_points A vector of data points to which the lines parameters should fit
- * @return Regression parameters for a line defined by the input data points
+ * The line is defined by L(x) = a + b*x. An empty input yields an all-zero result tuple.
+ *
+ * @tparam fp_type The floating point type of the data and the computed parameters
+ * @param data_points A vector of (x, y) data points to which the line's parameters should fit
+ * @return A std::tuple {a, error_a, b, error_b} of intercept, slope and their respective errors
  */
 template <typename fp_type>
 auto getRegressionParameters(const std::vector<std::tuple<fp_type, fp_type>> &data_points) {
@@ -814,13 +901,16 @@ auto getRegressionParameters(const std::vector<std::tuple<fp_type, fp_type>> &da
 
 /******************************************************************************/
 /**
- * Calculates the error of a function f=s/p , where s and p are independent
- * quantities, each with its own error. Returns:
- * - The sleep time
- * - The error on the sleep-time (always 0)
- * - the quantity s/p
- * - error on s/p
- * s and p have the same structure
+ * @brief Calculates the value and error of f = s/p for two independent measured quantities.
+ *
+ * Each input is a tuple {sleep_time, sleep_time_error, value, value_error}; s and p must
+ * carry the same sleep_time, and p's value must be non-zero (otherwise this throws).
+ * The error is propagated assuming s and p are independent.
+ *
+ * @tparam fp_type The floating point type of the tuple components
+ * @param s The numerator measurement as {sleep_time, sleep_time_error, value, value_error}
+ * @param p The denominator measurement as {sleep_time, sleep_time_error, value, value_error}
+ * @return A std::tuple {sleep_time, 0, s/p, error_on_s/p}
  */
 template <typename fp_type>
 auto getRatioError(
@@ -864,10 +954,15 @@ auto getRatioError(
 
 /******************************************************************************/
 /**
- * Calculates the error for a function f=s/p , where s and p are independent
- * quantities, each with its own error. The function is applied to a std::vector
- * of different s and p (together with their errors). It returns a vector
- * of s/p together with their errors.
+ * @brief Calculates value and error of f = s/p for matched vectors of independent measurements.
+ *
+ * Applies getRatioError() element-wise to corresponding entries of @p sn and @p pn.
+ * Both vectors must have the same size, otherwise this throws.
+ *
+ * @tparam fp_type The floating point type of the tuple components
+ * @param sn The vector of numerator measurements {sleep_time, sleep_time_error, value, value_error}
+ * @param pn The vector of denominator measurements {sleep_time, sleep_time_error, value, value_error}
+ * @return A vector of {sleep_time, 0, s/p, error_on_s/p} tuples, one per input pair
  */
 template <typename fp_type>
 std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> getRatioErrors(
@@ -894,8 +989,13 @@ std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> getRatioErrors(
 
 /******************************************************************************/
 /**
- * This function checks whether a given floating point value is "close" to a given
- * target value, with a maximum difference provided as a parameter
+ * @brief Checks whether a floating point value is "close" to a target value within a margin.
+ *
+ * @tparam fp_type The floating point type of the values
+ * @param val The value to be tested
+ * @param target The reference value to compare against (default 0)
+ * @param margin The maximum permitted absolute difference for the values to count as close (default 0.00001)
+ * @return true if |val - target| <= margin, false otherwise
  */
 template <std::floating_point fp_type>
 bool isClose(
@@ -908,18 +1008,21 @@ bool isClose(
 
 /******************************************************************************/
 /**
- * Rational (algebraic) sigmoid — the Gjl-softsign function.
+ * @brief Rational (algebraic) sigmoid — the Gjl-softsign function.
+ *
  * See http://en.wikipedia.org/wiki/File:Gjl-t%28x%29.svg .
  *
  * NOT the logistic sigmoid (1/(1+e^-x)). This is a softsign:
  *   f(var) = barrier * var / (steepness + |var|)
  * which maps ℝ → (-barrier, +barrier) antisymmetrically and approaches its
  * asymptotes polynomially (not exponentially). Uses long double internally
- * for precision near the barrier. Precondition: steepness > 0.
+ * for precision near the barrier. Precondition: steepness > 0 (checked in DEBUG).
  *
+ * @tparam fp_type The floating point type of the argument and result
  * @param var       Input value
  * @param barrier   Asymptotic limit; output stays strictly within (-barrier, +barrier)
- * @param steepness Controls convergence speed; larger → slower approach to barrier
+ * @param steepness Controls convergence speed; larger → slower approach to barrier (must be > 0)
+ * @return The softsign value, strictly inside (-barrier, +barrier)
  */
 template <std::floating_point fp_type>
 fp_type grational_sigmoid(fp_type var, fp_type barrier, fp_type steepness) {

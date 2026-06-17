@@ -70,8 +70,14 @@ public:
 };
 
 /******************************************************************************/
-/** @brief This function allows to output a geneva_exception to a stream */
-std::ostream &operator<<(std::ostream &, const geneva_exception &);
+/**
+ * @brief This function allows to output a geneva_exception to a stream
+ *
+ * @param os The output stream the exception's message is written to
+ * @param e The geneva_exception whose message is streamed out
+ * @return A reference to the output stream
+ */
+std::ostream &operator<<(std::ostream &os, const geneva_exception &e);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +95,12 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This define allows easy access to throwing exceptions.
+ * @brief This define allows easy access to throwing exceptions.
+ *
+ * It captures the current source location, wraps the supplied message in a
+ * formatted error banner and throws a geneva_exception carrying the result.
+ *
+ * @param E A streamable expression describing the error (inserted into an ostringstream)
  */
 #define raiseException(E)                                                                          \
     {                                                                                              \

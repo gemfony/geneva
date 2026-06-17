@@ -38,6 +38,8 @@ namespace Gem::Common {
  * A data collector for 1-d data of user-defined type. This will usually be
  * data of a histogram type. It is assumed to be movable, hence we use all
  * defaulted constructors and assignment operators.
+ *
+ * @tparam x_type The numeric type of the 1-d data items stored in this collector
  */
 template <typename x_type>
 class GDataCollector1T : public GBasePlotter {
@@ -69,6 +71,8 @@ public:
     /**
 	  * Allows to retrieve information about the amount of data sets stored in
 	  * this object
+	  *
+	  * @return The number of data items currently stored in this collector
 	  */
     std::size_t currentSize() const {
         return data_.size();
@@ -80,6 +84,9 @@ public:
 	  * to add data easily to their data sets, when called through a
 	  * pointer. I.e., this makes "object_ptr->add(data)" instead of
 	  * "*object_ptr & data" possible.
+	  *
+	  * @tparam data_type The type of the data item being added
+	  * @param item The data item to be added to the collection
 	  */
     template <typename data_type>
     void add(const data_type &item) {
@@ -91,6 +98,7 @@ public:
 	  * Allows to add data of arbitrary type, provided it can be converted
 	  * safely to the target type.
 	  *
+	  * @tparam x_type_undet The source type of the data item, narrowed to x_type
 	  * @param x_undet The data item to be added to the collection
 	  */
     template <typename x_type_undet>
@@ -132,6 +140,7 @@ public:
 	  * Allows to add a collection of data items of undetermined type in one go,
 	  * provided the type can be converted safely into the target type
 	  *
+	  * @tparam x_type_undet The source element type of the vector, narrowed to x_type
 	  * @param x_cnt_undet A collection of data items of undetermined type, to be added to the collection
 	  */
     template <typename x_type_undet>
@@ -177,6 +186,8 @@ public:
     /***************************************************************************/
     /**
 	  * Retrieves the minimum and maximum values in data_
+	  *
+	  * @return A tuple holding the minimum and the maximum element found in the data
 	  */
     std::tuple<x_type, x_type> getMinMaxElements() const {
         auto minmax = std::minmax_element(data_.begin(), data_.end());
@@ -186,7 +197,9 @@ public:
 protected:
     /***************************************************************************/
     /**
-	  * Loads the data of another object
+	  * Single declaration of this class'es local data members, used by load_() and compare_()
+	  *
+	  * @return A tuple of named members (the data vector) of this object
 	  */
     auto localMembers() {
         return std::make_tuple(make_member("data_", data_));
@@ -195,6 +208,11 @@ protected:
         return std::make_tuple(make_member("data_", data_));
     }
 
+    /**
+	  * Loads the data of another object
+	  *
+	  * @param cp A pointer to another GDataCollector1T<x_type> object, camouflaged as a GBasePlotter
+	  */
     void load_(const GBasePlotter *cp) override {
         // Check that we are dealing with a GDataCollector1T<x_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(cp, this);
@@ -218,6 +236,10 @@ protected:
     /**
 	  * Investigates compliance with expectations with respect to another object
 	  * of the same type
+	  *
+	  * @param cp A constant reference to another object, camouflaged as a GBasePlotter
+	  * @param e The expectation for this object (e.g. equality or inequality)
+	  * @param limit The maximum allowed deviation for floating point comparisons (unused here)
 	  */
     void compare_(
         const GBasePlotter &cp,
@@ -247,13 +269,18 @@ private:
     /***************************************************************************/
     /**
 	  * Returns the name of this class
+	  *
+	  * @return The name of this class as a string
 	  */
     std::string name_() const override {
         return std::string("GDataCollector1T<x_type>");
     }
 
     /***************************************************************************/
-    /** @brief Creates a deep clone of this object */
+    /**
+	  * @brief Creates a deep clone of this object
+	  * @return A deep clone of this object, wrapped into a GBasePlotter pointer
+	  */
     GBasePlotter *clone_() const override = 0;
 
     /***************************************************************************/
@@ -280,13 +307,25 @@ class GHistogram1D : public GDataCollector1T<double> {
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief Initialization with the number of bins and automatic range detection */
-    explicit GHistogram1D(const std::size_t &);
+    /**
+	 * @brief Initialization with the number of bins and automatic range detection
+	 * @param nBinsX The number of bins in x-direction
+	 */
+    explicit GHistogram1D(const std::size_t &nBinsX);
 
-    /** @brief Initialization with a range in the form of a tuple */
-    GHistogram1D(const std::size_t &, const double &, const double &);
-    /** @brief Initialization with a range in the form of a tuple */
-    GHistogram1D(const std::size_t &, const std::tuple<double, double> &);
+    /**
+	 * @brief Initialization with the number of bins and an explicit range
+	 * @param nBinsX The number of bins in x-direction
+	 * @param minX The lower boundary of the histogram
+	 * @param maxX The upper boundary of the histogram
+	 */
+    GHistogram1D(const std::size_t &nBinsX, const double &minX, const double &maxX);
+    /**
+	 * @brief Initialization with the number of bins and a range in the form of a tuple
+	 * @param nBinsX The number of bins in x-direction
+	 * @param rangeX The lower and upper boundaries of the histogram, as a tuple
+	 */
+    GHistogram1D(const std::size_t &nBinsX, const std::tuple<double, double> &rangeX);
 
     /**********************************************************************/
     // Defaulted constructors, destructor and assignment operators
@@ -302,31 +341,68 @@ public:
 
     /**********************************************************************/
 
-    /** @brief Retrieve the number of bins in x-direction */
+    /**
+	 * @brief Retrieve the number of bins in x-direction
+	 * @return The number of bins in x-direction
+	 */
     std::size_t getNBinsX() const;
 
-    /** @brief Retrieve the lower boundary of the plot */
+    /**
+	 * @brief Retrieve the lower boundary of the plot
+	 * @return The lower boundary of the histogram in x-direction
+	 */
     double getMinX() const;
-    /** @brief Retrieve the upper boundary of the plot */
+    /**
+	 * @brief Retrieve the upper boundary of the plot
+	 * @return The upper boundary of the histogram in x-direction
+	 */
     double getMaxX() const;
 
-    /** @brief Retrieves a unique name for this plotter */
+    /**
+	 * @brief Retrieves a unique name for this plotter
+	 * @return A unique name for this plotter
+	 */
     std::string getPlotterName() const override;
 
 protected:
-    /** @brief Retrieve specific header settings for this plot */
-    std::string headerData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieve specific header settings for this plot
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The header section of the ROOT code for this plot
+	 */
+    std::string headerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieves the actual data sets */
-    std::string bodyData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieves the actual data sets
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The body section of the ROOT code, holding the actual data
+	 */
+    std::string bodyData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieves specific draw commands for this plot */
-    std::string footerData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieves specific draw commands for this plot
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The footer section of the ROOT code, holding the draw commands
+	 */
+    std::string footerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieve the current drawing arguments */
-    std::string drawingArguments(bool) const override;
+    /**
+	 * @brief Retrieve the current drawing arguments
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @return The drawing arguments to be passed to ROOT's Draw() call
+	 */
+    std::string drawingArguments(bool isSecondary) const override;
 
-    /** @brief Single declaration of this class'es local data members */
+    /**
+	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
+	 * @return A tuple of named local members of this object
+	 */
     auto localMembers() {
         return std::make_tuple(
             make_member("n_bins_x_", n_bins_x_),
@@ -342,26 +418,38 @@ protected:
         );
     }
 
-    /** @brief Loads the data of another object */
-    void load_(const GBasePlotter *) override;
+    /**
+	 * @brief Loads the data of another object
+	 * @param cp A pointer to another GHistogram1D object, camouflaged as a GBasePlotter
+	 */
+    void load_(const GBasePlotter *cp) override;
 
     /***************************************************************************/
 
     friend void compare_base_t<GHistogram1D>(GHistogram1D const &, GHistogram1D const &, GToken &);
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+	 * @brief Searches for compliance with expectations with respect to another object of the same type
+	 * @param cp A constant reference to another object, camouflaged as a GBasePlotter
+	 * @param e The expectation for this object (e.g. equality)
+	 * @param limit The maximum allowed deviation for floating point comparisons
+	 */
     void compare_(
-        const GBasePlotter & // the other object
-        ,
-        const expectation & // the expectation for this object, e.g. equality
-        ,
-        const double & // the limit for allowed deviations of floating point types
+        const GBasePlotter &cp,
+        const expectation &e,
+        const double &limit
     ) const override;
 
 private:
-    /** @brief Returns the name of this class */
+    /**
+	 * @brief Returns the name of this class
+	 * @return The name of this class as a string
+	 */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+	 * @brief Creates a deep clone of this object
+	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
+	 */
     GBasePlotter *clone_() const override;
 
     GHistogram1D() =
@@ -394,10 +482,19 @@ class GHistogram1I : public GDataCollector1T<std::int32_t> {
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The standard constructor */
-    GHistogram1I(const std::size_t &, const double &, const double &);
-    /** @brief Initialization with a range in the form of a tuple */
-    GHistogram1I(const std::size_t &, const std::tuple<double, double> &);
+    /**
+	 * @brief The standard constructor
+	 * @param nBinsX The number of bins in x-direction
+	 * @param minX The lower boundary of the histogram
+	 * @param maxX The upper boundary of the histogram
+	 */
+    GHistogram1I(const std::size_t &nBinsX, const double &minX, const double &maxX);
+    /**
+	 * @brief Initialization with a range in the form of a tuple
+	 * @param nBinsX The number of bins in x-direction
+	 * @param rangeX The lower and upper boundaries of the histogram, as a tuple
+	 */
+    GHistogram1I(const std::size_t &nBinsX, const std::tuple<double, double> &rangeX);
 
     /*********************************************************************/
     // Defaulted constructors, destructor and assignment operator
@@ -414,19 +511,34 @@ public:
 
     /*********************************************************************/
 
-    /** @brief Retrieve the number of bins in x-direction */
+    /**
+	 * @brief Retrieve the number of bins in x-direction
+	 * @return The number of bins in x-direction
+	 */
     std::size_t getNBinsX() const;
 
-    /** @brief Retrieve the lower boundary of the plot */
+    /**
+	 * @brief Retrieve the lower boundary of the plot
+	 * @return The lower boundary of the histogram in x-direction
+	 */
     double getMinX() const;
-    /** @brief Retrieve the upper boundary of the plot */
+    /**
+	 * @brief Retrieve the upper boundary of the plot
+	 * @return The upper boundary of the histogram in x-direction
+	 */
     double getMaxX() const;
 
-    /** @brief Retrieves a unique name for this plotter */
+    /**
+	 * @brief Retrieves a unique name for this plotter
+	 * @return A unique name for this plotter
+	 */
     std::string getPlotterName() const override;
 
 protected:
-    /** @brief Single declaration of this class'es local data members */
+    /**
+	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
+	 * @return A tuple of named local members of this object
+	 */
     auto localMembers() {
         return std::make_tuple(
             make_member("n_bins_x_", n_bins_x_),
@@ -442,37 +554,71 @@ protected:
         );
     }
 
-    /** @brief Loads the data of another object */
-    void load_(const GBasePlotter *) override;
+    /**
+	 * @brief Loads the data of another object
+	 * @param cp A pointer to another GHistogram1I object, camouflaged as a GBasePlotter
+	 */
+    void load_(const GBasePlotter *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void compare_base_t<GHistogram1I>(GHistogram1I const &, GHistogram1I const &, GToken &);
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+	 * @brief Searches for compliance with expectations with respect to another object of the same type
+	 * @param cp A constant reference to another object, camouflaged as a GBasePlotter
+	 * @param e The expectation for this object (e.g. equality)
+	 * @param limit The maximum allowed deviation for floating point comparisons
+	 */
     void compare_(
-        const GBasePlotter & // the other object
-        ,
-        const expectation & // the expectation for this object, e.g. equality
-        ,
-        const double & // the limit for allowed deviations of floating point types
+        const GBasePlotter &cp,
+        const expectation &e,
+        const double &limit
     ) const override;
 
-    /** @brief Retrieve specific header settings for this plot */
-    std::string headerData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieve specific header settings for this plot
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The header section of the ROOT code for this plot
+	 */
+    std::string headerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieves the actual data sets */
-    std::string bodyData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieves the actual data sets
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The body section of the ROOT code, holding the actual data
+	 */
+    std::string bodyData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieves specific draw commands for this plot */
-    std::string footerData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieves specific draw commands for this plot
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The footer section of the ROOT code, holding the draw commands
+	 */
+    std::string footerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieve the current drawing arguments */
-    std::string drawingArguments(bool) const override;
+    /**
+	 * @brief Retrieve the current drawing arguments
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @return The drawing arguments to be passed to ROOT's Draw() call
+	 */
+    std::string drawingArguments(bool isSecondary) const override;
 
 private:
-    /** @brief Returns the name of this class */
+    /**
+	 * @brief Returns the name of this class
+	 * @return The name of this class as a string
+	 */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+	 * @brief Creates a deep clone of this object
+	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
+	 */
     GBasePlotter *clone_() const override;
 
     GHistogram1I() =
@@ -488,6 +634,9 @@ private:
 /**
  * A data collector for 2-d data of user-defined type, such as a TGraph.
  * Note that the plot dimension may be different.
+ *
+ * @tparam x_type The numeric type of the x-component of each data item
+ * @tparam y_type The numeric type of the y-component of each data item
  */
 template <typename x_type, typename y_type>
 class GDataCollector2T : public GBasePlotter {
@@ -519,6 +668,8 @@ public:
     /**
 	  * Allows to retrieve information about the amount of data sets stored in
 	  * this object
+	  *
+	  * @return The number of data items currently stored in this collector
 	  */
     std::size_t currentSize() const {
         return data_.size();
@@ -529,9 +680,13 @@ public:
 	  * Allows to project the graph into a histogram (x-direction). This function is a
 	  * trap to catch calls with un-implemented types. Use the corresponding specializations,
 	  * if available.
+	  *
+	  * @param nBins The desired number of bins of the resulting histogram
+	  * @param range The lower and upper boundary of the resulting histogram
+	  * @return A 1-d histogram of the data projected onto the x-axis (only in specializations)
 	  */
     std::shared_ptr<GDataCollector1T<x_type>>
-    projectX(std::size_t, std::tuple<x_type, x_type>) const {
+    projectX(std::size_t nBins, std::tuple<x_type, x_type> range) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDataCollector2T<>::projectX(range, nBins): Error!" << '\n'
@@ -547,9 +702,13 @@ public:
 	  * Allows to project the graph into a histogram (y-direction). This function is a
 	  * trap to catch calls with un-implemented types. Use the corresponding specializations,
 	  * if available.
+	  *
+	  * @param nBins The desired number of bins of the resulting histogram
+	  * @param range The lower and upper boundary of the resulting histogram
+	  * @return A 1-d histogram of the data projected onto the y-axis (only in specializations)
 	  */
     std::shared_ptr<GDataCollector1T<y_type>>
-    projectY(std::size_t, std::tuple<y_type, y_type>) const {
+    projectY(std::size_t nBins, std::tuple<y_type, y_type> range) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDataCollector2T<>::projectY(range, nBins): Error!" << '\n'
@@ -566,6 +725,11 @@ public:
 	  * to add data easily to their data sets, when called through a
 	  * pointer. I.e., this makes object_ptr->add(data) instead of
 	  * *object_ptr & data possible.
+	  *
+	  * @tparam data_type1 The type of the x-component being added
+	  * @tparam data_type2 The type of the y-component being added
+	  * @param item1 The x-component of the data point to be added
+	  * @param item2 The y-component of the data point to be added
 	  */
     template <typename data_type1, typename data_type2>
     void add(const data_type1 &item1, const data_type2 &item2) {
@@ -577,6 +741,8 @@ public:
 	  * Allows to add data of undetermined type to the collection in an intuitive way,
 	  * provided that it can be converted safely to the target type.
 	  *
+	  * @tparam x_type_undet The source type of the x-component, narrowed to x_type
+	  * @tparam y_type_undet The source type of the y-component, narrowed to y_type
 	  * @param point_undet The data item to be added to the collection
 	  */
     template <typename x_type_undet, typename y_type_undet>
@@ -621,6 +787,8 @@ public:
 	  * collection in an intuitive way, provided they can be converted safely
 	  * to the target type.
 	  *
+	  * @tparam x_type_undet The source type of the x-component, narrowed to x_type
+	  * @tparam y_type_undet The source type of the y-component, narrowed to y_type
 	  * @param point_cnt_undet The collection of data items to be added to the collection
 	  */
     template <typename x_type_undet, typename y_type_undet>
@@ -684,6 +852,8 @@ public:
     /***************************************************************************/
     /**
 		* Retrieves the minimum and maximum values in data_ in x- and y-direction
+		*
+		* @return A tuple holding (min_x, max_x, min_y, max_y) of the stored data
 		*/
     std::tuple<x_type, x_type, y_type, y_type> getMinMaxElements() const {
         auto minmax_x = std::minmax_element(
@@ -713,7 +883,9 @@ public:
 protected:
     /***************************************************************************/
     /**
-	  * Loads the data of another object
+	  * Single declaration of this class'es local data members, used by load_() and compare_()
+	  *
+	  * @return A tuple of named members (the data vector) of this object
 	  */
     auto localMembers() {
         return std::make_tuple(make_member("data_", data_));
@@ -722,6 +894,11 @@ protected:
         return std::make_tuple(make_member("data_", data_));
     }
 
+    /**
+	  * Loads the data of another object
+	  *
+	  * @param cp A pointer to another GDataCollector2T<x_type, y_type> object, camouflaged as a GBasePlotter
+	  */
     void load_(const GBasePlotter *cp) override {
         // Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(cp, this);
@@ -745,6 +922,10 @@ protected:
     /**
 	  * Investigates compliance with expectations with respect to another object
 	  * of the same type
+	  *
+	  * @param cp A constant reference to another object, camouflaged as a GBasePlotter
+	  * @param e The expectation for this object (e.g. equality or inequality)
+	  * @param limit The maximum allowed deviation for floating point comparisons (unused here)
 	  */
     void compare_(
         const GBasePlotter &cp,
@@ -774,13 +955,18 @@ private:
     /***************************************************************************/
     /**
 	  * Returns the name of this class
+	  *
+	  * @return The name of this class as a string
 	  */
     std::string name_() const override {
         return std::string("GDataCollector2T<x_type, y_type>");
     }
 
     /***************************************************************************/
-    /** @brief Creates a deep clone of this object */
+    /**
+	  * @brief Creates a deep clone of this object
+	  * @return A deep clone of this object, wrapped into a GBasePlotter pointer
+	  */
     GBasePlotter *clone_() const override = 0;
 };
 
@@ -793,6 +979,7 @@ private:
  *
  * @param n_bins_x The number of bins of the histogram
  * @param range_x The minimum and maximum boundaries of the histogram
+ * @return A shared pointer to a GHistogram1D holding the x-projection of the data
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double>::projectX(
@@ -834,6 +1021,7 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double
  *
  * @param n_bins_y The number of bins of the histogram
  * @param range_y The minimum and maximum boundaries of the histogram
+ * @return A shared pointer to a GHistogram1D holding the y-projection of the data
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double>::projectY(
@@ -870,7 +1058,10 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double
 /**
  * A data collector for 2-d data of user-defined type, with the ability to
  * additionally specify an error component for both dimensions. Note that the
- * plot dimension may be different.
+ * plot dimension may be different. Each data item is a tuple (x, error_x, y, error_y).
+ *
+ * @tparam x_type The numeric type of the x-component and its error
+ * @tparam y_type The numeric type of the y-component and its error
  */
 template <typename x_type, typename y_type>
 class GDataCollector2ET : public GBasePlotter {
@@ -904,7 +1095,9 @@ public:
 	  * Allows to add data of undetermined type to the collection in an intuitive way,
 	  * provided that it can be converted safely to the target type.
 	  *
-	  * @param point_undet The data item to be added to the collection
+	  * @tparam x_type_undet The source type of the x-component and its error, narrowed to x_type
+	  * @tparam y_type_undet The source type of the y-component and its error, narrowed to y_type
+	  * @param point_undet The data item (x, error_x, y, error_y) to be added to the collection
 	  */
     template <typename x_type_undet, typename y_type_undet>
     void operator&(
@@ -939,10 +1132,10 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to add data of type std::tuple<x_type, y_type> to the collection in
-	  * an intuitive way.
+	  * Allows to add data of type std::tuple<x_type, x_type, y_type, y_type>
+	  * (x, error_x, y, error_y) to the collection in an intuitive way.
 	  *
-	  * @param point The data item to be added to the collection
+	  * @param point The data item (x, error_x, y, error_y) to be added to the collection
 	  */
     void operator&(const std::tuple<x_type, x_type, y_type, y_type> &point) {
         // Add the data item to the collection
@@ -955,6 +1148,8 @@ public:
 	  * collection in an intuitive way, provided they can be converted safely
 	  * to the target type.
 	  *
+	  * @tparam x_type_undet The source type of the x-component and its error, narrowed to x_type
+	  * @tparam y_type_undet The source type of the y-component and its error, narrowed to y_type
 	  * @param point_cnt_undet The collection of data items to be added to the collection
 	  */
     template <typename x_type_undet, typename y_type_undet>
@@ -1015,6 +1210,9 @@ public:
 	  * to add data easily to their data sets, when called through a
 	  * pointer. I.e., this makes "object_ptr->add(data)" instead of
 	  * "*object_ptr & data" possible.
+	  *
+	  * @tparam data_type The type of the data item being added
+	  * @param item The data item to be added to the collection
 	  */
     template <typename data_type>
     void add(const data_type &item) {
@@ -1039,7 +1237,9 @@ public:
 protected:
     /***************************************************************************/
     /**
-	  * Loads the data of another object
+	  * Single declaration of this class'es local data members, used by load_() and compare_()
+	  *
+	  * @return A tuple of named members (the data vector) of this object
 	  */
     auto localMembers() {
         return std::make_tuple(make_member("data_", data_));
@@ -1048,6 +1248,11 @@ protected:
         return std::make_tuple(make_member("data_", data_));
     }
 
+    /**
+	  * Loads the data of another object
+	  *
+	  * @param cp A pointer to another GDataCollector2ET<x_type, y_type> object, camouflaged as a GBasePlotter
+	  */
     void load_(const GBasePlotter *cp) override {
         // Check that we are dealing with a GDataCollector2ET<x_type, y_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(cp, this);
@@ -1071,6 +1276,10 @@ protected:
     /**
 	  * Investigates compliance with expectations with respect to another object
 	  * of the same type
+	  *
+	  * @param cp A constant reference to another object, camouflaged as a GBasePlotter
+	  * @param e The expectation for this object (e.g. equality or inequality)
+	  * @param limit The maximum allowed deviation for floating point comparisons (unused here)
 	  */
     void compare_(
         const GBasePlotter &cp,
@@ -1100,13 +1309,18 @@ private:
     /***************************************************************************/
     /**
 	  * Returns the name of this class
+	  *
+	  * @return The name of this class as a string
 	  */
     std::string name_() const override {
         return std::string("GDataCollector2ET<x_type, y_type>");
     }
 
     /***************************************************************************/
-    /** @brief Creates a deep clone of this object */
+    /**
+	  * @brief Creates a deep clone of this object
+	  * @return A deep clone of this object, wrapped into a GBasePlotter pointer
+	  */
     GBasePlotter *clone_() const override = 0;
 };
 
@@ -1134,24 +1348,42 @@ class GHistogram2D : public GDataCollector2T<double, double> {
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The standard constructor */
+    /**
+	 * @brief The standard constructor
+	 * @param nBinsX The number of bins in x-direction
+	 * @param nBinsY The number of bins in y-direction
+	 * @param minX The lower boundary of the histogram in x-direction
+	 * @param maxX The upper boundary of the histogram in x-direction
+	 * @param minY The lower boundary of the histogram in y-direction
+	 * @param maxY The upper boundary of the histogram in y-direction
+	 */
     GHistogram2D(
-        const std::size_t &,
-        const std::size_t &,
-        const double &,
-        const double &,
-        const double &,
-        const double &
+        const std::size_t &nBinsX,
+        const std::size_t &nBinsY,
+        const double &minX,
+        const double &maxX,
+        const double &minY,
+        const double &maxY
     );
-    /** @brief Initialization with ranges */
+    /**
+	 * @brief Initialization with ranges given as tuples
+	 * @param nBinsX The number of bins in x-direction
+	 * @param nBinsY The number of bins in y-direction
+	 * @param rangeX The lower and upper boundaries in x-direction, as a tuple
+	 * @param rangeY The lower and upper boundaries in y-direction, as a tuple
+	 */
     GHistogram2D(
-        const std::size_t &,
-        const std::size_t &,
-        const std::tuple<double, double> &,
-        const std::tuple<double, double> &
+        const std::size_t &nBinsX,
+        const std::size_t &nBinsY,
+        const std::tuple<double, double> &rangeX,
+        const std::tuple<double, double> &rangeY
     );
-    /** @brief Initialization with automatic range detection */
-    GHistogram2D(const std::size_t &, const std::size_t &);
+    /**
+	 * @brief Initialization with automatic range detection
+	 * @param nBinsX The number of bins in x-direction
+	 * @param nBinsY The number of bins in y-direction
+	 */
+    GHistogram2D(const std::size_t &nBinsX, const std::size_t &nBinsY);
 
     /**********************************************************************/
     // Defaulted constructors, destructor and assignment operators
@@ -1167,42 +1399,94 @@ public:
 
     /**********************************************************************/
 
-    /** @brief Retrieve the number of bins in x-direction */
+    /**
+	 * @brief Retrieve the number of bins in x-direction
+	 * @return The number of bins in x-direction
+	 */
     std::size_t getNBinsX() const;
-    /** @brief Retrieve the number of bins in y-direction */
+    /**
+	 * @brief Retrieve the number of bins in y-direction
+	 * @return The number of bins in y-direction
+	 */
     std::size_t getNBinsY() const;
 
-    /** @brief Retrieve the lower boundary of the plot in x-direction */
+    /**
+	 * @brief Retrieve the lower boundary of the plot in x-direction
+	 * @return The lower boundary in x-direction
+	 */
     double getMinX() const;
-    /** @brief Retrieve the upper boundary of the plot in x-direction */
+    /**
+	 * @brief Retrieve the upper boundary of the plot in x-direction
+	 * @return The upper boundary in x-direction
+	 */
     double getMaxX() const;
-    /** @brief Retrieve the lower boundary of the plot in y-direction */
+    /**
+	 * @brief Retrieve the lower boundary of the plot in y-direction
+	 * @return The lower boundary in y-direction
+	 */
     double getMinY() const;
-    /** @brief Retrieve the upper boundary of the plot in y-direction */
+    /**
+	 * @brief Retrieve the upper boundary of the plot in y-direction
+	 * @return The upper boundary in y-direction
+	 */
     double getMaxY() const;
 
-    /** @brief Retrieves a unique name for this plotter */
+    /**
+	 * @brief Retrieves a unique name for this plotter
+	 * @return A unique name for this plotter
+	 */
     std::string getPlotterName() const override;
 
-    /** @brief Allows to specify 2d-drawing options */
-    void set2DOpt(tddropt);
-    /** @brief Allows to retrieve 2d-drawing options */
+    /**
+	 * @brief Allows to specify 2d-drawing options
+	 * @param dropt The 2-d drawing option to be used for this histogram
+	 */
+    void set2DOpt(tddropt dropt);
+    /**
+	 * @brief Allows to retrieve 2d-drawing options
+	 * @return The currently set 2-d drawing option
+	 */
     tddropt get2DOpt() const;
 
 protected:
-    /** @brief Retrieve specific header settings for this plot */
-    std::string headerData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieve specific header settings for this plot
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The header section of the ROOT code for this plot
+	 */
+    std::string headerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieves the actual data sets */
-    std::string bodyData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieves the actual data sets
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The body section of the ROOT code, holding the actual data
+	 */
+    std::string bodyData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieves specific draw commands for this plot */
-    std::string footerData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieves specific draw commands for this plot
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The footer section of the ROOT code, holding the draw commands
+	 */
+    std::string footerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieve the current drawing arguments */
-    std::string drawingArguments(bool) const override;
+    /**
+	 * @brief Retrieve the current drawing arguments
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @return The drawing arguments to be passed to ROOT's Draw() call
+	 */
+    std::string drawingArguments(bool isSecondary) const override;
 
-    /** @brief Single declaration of this class'es local data members */
+    /**
+	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
+	 * @return A tuple of named local members of this object
+	 */
     auto localMembers() {
         return std::make_tuple(
             make_member("n_bins_x_", n_bins_x_),
@@ -1226,25 +1510,37 @@ protected:
         );
     }
 
-    /** @brief Loads the data of another object */
-    void load_(const GBasePlotter *) override;
+    /**
+	 * @brief Loads the data of another object
+	 * @param cp A pointer to another object of the same type, camouflaged as a GBasePlotter
+	 */
+    void load_(const GBasePlotter *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void compare_base_t<GHistogram2D>(GHistogram2D const &, GHistogram2D const &, GToken &);
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+	 * @brief Searches for compliance with expectations with respect to another object of the same type
+	 * @param cp A constant reference to another object, camouflaged as a GBasePlotter
+	 * @param e The expectation for this object (e.g. equality)
+	 * @param limit The maximum allowed deviation for floating point comparisons
+	 */
     void compare_(
-        const GBasePlotter & // the other object
-        ,
-        const expectation & // the expectation for this object, e.g. equality
-        ,
-        const double & // the limit for allowed deviations of floating point types
+        const GBasePlotter &cp,
+        const expectation &e,
+        const double &limit
     ) const override;
 
 private:
-    /** @brief Returns the name of this class */
+    /**
+	 * @brief Returns the name of this class
+	 * @return The name of this class as a string
+	 */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+	 * @brief Creates a deep clone of this object
+	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
+	 */
     GBasePlotter *clone_() const override;
 
     GHistogram2D() =
@@ -1297,33 +1593,73 @@ public:
 
     /**********************************************************************/
 
-    /** @brief Adds arrows to the plots between consecutive points */
-    void setDrawArrows(bool = true);
-    /** @brief Retrieves the value of the draw_arrows_ variable */
+    /**
+	 * @brief Adds arrows to the plots between consecutive points
+	 * @param drawArrows Whether arrows should be drawn between consecutive points (default true)
+	 */
+    void setDrawArrows(bool drawArrows = true);
+    /**
+	 * @brief Retrieves the value of the draw_arrows_ variable
+	 * @return Whether arrows are drawn between consecutive points
+	 */
     bool getDrawArrows() const;
 
-    /** @brief Determines whether a scatter plot or a curve is created */
-    void setPlotMode(graphPlotMode);
-    /** @brief Allows to retrieve the current plotting mode */
+    /**
+	 * @brief Determines whether a scatter plot or a curve is created
+	 * @param pm The plotting mode (scatter plot or connected curve) to be used
+	 */
+    void setPlotMode(graphPlotMode pm);
+    /**
+	 * @brief Allows to retrieve the current plotting mode
+	 * @return The currently set plotting mode
+	 */
     graphPlotMode getPlotMode() const;
 
-    /** @brief Retrieves a unique name for this plotter */
+    /**
+	 * @brief Retrieves a unique name for this plotter
+	 * @return A unique name for this plotter
+	 */
     std::string getPlotterName() const override;
 
 protected:
-    /** @brief Retrieve specific header settings for this plot */
-    std::string headerData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieve specific header settings for this plot
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The header section of the ROOT code for this plot
+	 */
+    std::string headerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieves the actual data sets */
-    std::string bodyData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieves the actual data sets
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The body section of the ROOT code, holding the actual data
+	 */
+    std::string bodyData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieves specific draw commands for this plot */
-    std::string footerData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieves specific draw commands for this plot
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The footer section of the ROOT code, holding the draw commands
+	 */
+    std::string footerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieve the current drawing arguments */
-    std::string drawingArguments(bool) const override;
+    /**
+	 * @brief Retrieve the current drawing arguments
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @return The drawing arguments to be passed to ROOT's Draw() call
+	 */
+    std::string drawingArguments(bool isSecondary) const override;
 
-    /** @brief Single declaration of this class'es local data members */
+    /**
+	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
+	 * @return A tuple of named local members of this object
+	 */
     auto localMembers() {
         return std::make_tuple(
             make_member("p_m_", p_m_),
@@ -1337,25 +1673,37 @@ protected:
         );
     }
 
-    /** @brief Loads the data of another object */
-    void load_(const GBasePlotter *) override;
+    /**
+	 * @brief Loads the data of another object
+	 * @param cp A pointer to another object of the same type, camouflaged as a GBasePlotter
+	 */
+    void load_(const GBasePlotter *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void compare_base_t<GGraph2D>(GGraph2D const &, GGraph2D const &, GToken &);
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+	 * @brief Searches for compliance with expectations with respect to another object of the same type
+	 * @param cp A constant reference to another object, camouflaged as a GBasePlotter
+	 * @param e The expectation for this object (e.g. equality)
+	 * @param limit The maximum allowed deviation for floating point comparisons
+	 */
     void compare_(
-        const GBasePlotter & // the other object
-        ,
-        const expectation & // the expectation for this object, e.g. equality
-        ,
-        const double & // the limit for allowed deviations of floating point types
+        const GBasePlotter &cp,
+        const expectation &e,
+        const double &limit
     ) const override;
 
 private:
-    /** @brief Returns the name of this class */
+    /**
+	 * @brief Returns the name of this class
+	 * @return The name of this class as a string
+	 */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+	 * @brief Creates a deep clone of this object
+	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
+	 */
     GBasePlotter *clone_() const override;
 
     graphPlotMode p_m_ =
@@ -1397,28 +1745,62 @@ public:
 
     /**********************************************************************/
 
-    /** @brief Determines whether a scatter plot or a curve is created */
-    void setPlotMode(graphPlotMode);
-    /** @brief Allows to retrieve the current plotting mode */
+    /**
+	 * @brief Determines whether a scatter plot or a curve is created
+	 * @param pm The plotting mode (scatter plot or connected curve) to be used
+	 */
+    void setPlotMode(graphPlotMode pm);
+    /**
+	 * @brief Allows to retrieve the current plotting mode
+	 * @return The currently set plotting mode
+	 */
     graphPlotMode getPlotMode() const;
 
-    /** @brief Retrieves a unique name for this plotter */
+    /**
+	 * @brief Retrieves a unique name for this plotter
+	 * @return A unique name for this plotter
+	 */
     std::string getPlotterName() const override;
 
 protected:
-    /** @brief Retrieve specific header settings for this plot */
-    std::string headerData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieve specific header settings for this plot
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The header section of the ROOT code for this plot
+	 */
+    std::string headerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieves the actual data sets */
-    std::string bodyData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieves the actual data sets
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The body section of the ROOT code, holding the actual data
+	 */
+    std::string bodyData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieves specific draw commands for this plot */
-    std::string footerData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieves specific draw commands for this plot
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The footer section of the ROOT code, holding the draw commands
+	 */
+    std::string footerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieve the current drawing arguments */
-    std::string drawingArguments(bool) const override;
+    /**
+	 * @brief Retrieve the current drawing arguments
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @return The drawing arguments to be passed to ROOT's Draw() call
+	 */
+    std::string drawingArguments(bool isSecondary) const override;
 
-    /** @brief Single declaration of this class'es local data members */
+    /**
+	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
+	 * @return A tuple of named local members of this object
+	 */
     auto localMembers() {
         return std::make_tuple(make_member("p_m_", p_m_));
     }
@@ -1426,25 +1808,37 @@ protected:
         return std::make_tuple(make_member("p_m_", p_m_));
     }
 
-    /** @brief Loads the data of another object */
-    void load_(const GBasePlotter *) override;
+    /**
+	 * @brief Loads the data of another object
+	 * @param cp A pointer to another object of the same type, camouflaged as a GBasePlotter
+	 */
+    void load_(const GBasePlotter *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void compare_base_t<GGraph2ED>(GGraph2ED const &, GGraph2ED const &, GToken &);
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+	 * @brief Searches for compliance with expectations with respect to another object of the same type
+	 * @param cp A constant reference to another object, camouflaged as a GBasePlotter
+	 * @param e The expectation for this object (e.g. equality)
+	 * @param limit The maximum allowed deviation for floating point comparisons
+	 */
     void compare_(
-        const GBasePlotter & // the other object
-        ,
-        const expectation & // the expectation for this object, e.g. equality
-        ,
-        const double & // the limit for allowed deviations of floating point types
+        const GBasePlotter &cp,
+        const expectation &e,
+        const double &limit
     ) const override;
 
 private:
-    /** @brief Returns the name of this class */
+    /**
+	 * @brief Returns the name of this class
+	 * @return The name of this class as a string
+	 */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+	 * @brief Creates a deep clone of this object
+	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
+	 */
     GBasePlotter *clone_() const override;
 
     graphPlotMode p_m_ =
@@ -1454,6 +1848,10 @@ private:
 /******************************************************************************/
 /**
  * A data collector for 3-d data of user-defined type
+ *
+ * @tparam x_type The numeric type of the x-component of each data item
+ * @tparam y_type The numeric type of the y-component of each data item
+ * @tparam z_type The numeric type of the z-component of each data item
  */
 template <typename x_type, typename y_type, typename z_type>
 class GDataCollector3T : public GBasePlotter {
@@ -1488,9 +1886,13 @@ public:
 	  * Allows to project the graph into a histogram (x-direction). This function is a
 	  * trap to catch calls with un-implemented types. Use the corresponding specializations,
 	  * if available.
+	  *
+	  * @param nBins The desired number of bins of the resulting histogram
+	  * @param range The lower and upper boundary of the resulting histogram
+	  * @return A 1-d histogram of the data projected onto the x-axis (only in specializations)
 	  */
     std::shared_ptr<GDataCollector1T<x_type>>
-    projectX(std::size_t, std::tuple<x_type, x_type>) const {
+    projectX(std::size_t nBins, std::tuple<x_type, x_type> range) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDataCollector3T<>::projectX(range, nBins): Error!" << '\n'
@@ -1506,9 +1908,13 @@ public:
 	  * Allows to project the graph into a histogram (y-direction). This function is a
 	  * trap to catch calls with un-implemented types. Use the corresponding specializations,
 	  * if available.
+	  *
+	  * @param nBins The desired number of bins of the resulting histogram
+	  * @param range The lower and upper boundary of the resulting histogram
+	  * @return A 1-d histogram of the data projected onto the y-axis (only in specializations)
 	  */
     std::shared_ptr<GDataCollector1T<y_type>>
-    projectY(std::size_t, std::tuple<y_type, y_type>) const {
+    projectY(std::size_t nBins, std::tuple<y_type, y_type> range) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDataCollector3T<>::projectY(range, nBins): Error!" << '\n'
@@ -1524,9 +1930,13 @@ public:
 	  * Allows to project the graph into a histogram (z-direction). This function is a
 	  * trap to catch calls with un-implemented types. Use the corresponding specializations,
 	  * if available.
+	  *
+	  * @param nBins The desired number of bins of the resulting histogram
+	  * @param range The lower and upper boundary of the resulting histogram
+	  * @return A 1-d histogram of the data projected onto the z-axis (only in specializations)
 	  */
     std::shared_ptr<GDataCollector1T<z_type>>
-    projectZ(std::size_t, std::tuple<z_type, z_type>) const {
+    projectZ(std::size_t nBins, std::tuple<z_type, z_type> range) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDataCollector3T<>::projectZ(range, nBins): Error!" << '\n'
@@ -1543,6 +1953,9 @@ public:
 	  * to add data easily to their data sets, when called through a
 	  * pointer. I.e., this makes object_ptr->add(data) instead of
 	  * *object_ptr & data possible.
+	  *
+	  * @tparam data_type The type of the data item being added
+	  * @param item The data item to be added to the collection
 	  */
     template <typename data_type>
     void add(const data_type &item) {
@@ -1554,6 +1967,9 @@ public:
 	  * Allows to add data of undetermined type to the collection in an intuitive way,
 	  * provided that it can be converted safely to the target type.
 	  *
+	  * @tparam x_type_undet The source type of the x-component, narrowed to x_type
+	  * @tparam y_type_undet The source type of the y-component, narrowed to y_type
+	  * @tparam z_type_undet The source type of the z-component, narrowed to z_type
 	  * @param point_undet The data item to be added to the collection
 	  */
     template <typename x_type_undet, typename y_type_undet, typename z_type_undet>
@@ -1600,6 +2016,9 @@ public:
 	  * collection in an intuitive way, provided they can be converted safely
 	  * to the target type.
 	  *
+	  * @tparam x_type_undet The source type of the x-component, narrowed to x_type
+	  * @tparam y_type_undet The source type of the y-component, narrowed to y_type
+	  * @tparam z_type_undet The source type of the z-component, narrowed to z_type
 	  * @param point_cnt_undet The collection of data items to be added to the collection
 	  */
     template <typename x_type_undet, typename y_type_undet, typename z_type_undet>
@@ -1655,7 +2074,9 @@ public:
 protected:
     /***************************************************************************/
     /**
-	  * Loads the data of another object
+	  * Single declaration of this class'es local data members, used by load_() and compare_()
+	  *
+	  * @return A tuple of named members (the data vector) of this object
 	  */
     auto localMembers() {
         return std::make_tuple(make_member("data_", data_));
@@ -1664,6 +2085,11 @@ protected:
         return std::make_tuple(make_member("data_", data_));
     }
 
+    /**
+	  * Loads the data of another object
+	  *
+	  * @param cp A pointer to another GDataCollector3T<x_type, y_type, z_type> object, camouflaged as a GBasePlotter
+	  */
     void load_(const GBasePlotter *cp) override {
         // Check that we are dealing with a GDataCollector3T<x_type, y_type, z_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(cp, this);
@@ -1687,6 +2113,10 @@ protected:
     /**
 	  * Investigates compliance with expectations with respect to another object
 	  * of the same type
+	  *
+	  * @param cp A constant reference to another object, camouflaged as a GBasePlotter
+	  * @param e The expectation for this object (e.g. equality or inequality)
+	  * @param limit The maximum allowed deviation for floating point comparisons (unused here)
 	  */
     void compare_(
         const GBasePlotter &cp,
@@ -1716,13 +2146,18 @@ private:
     /***************************************************************************/
     /**
 	  * Returns the name of this class
+	  *
+	  * @return The name of this class as a string
 	  */
     std::string name_() const override {
         return std::string("GDataCollector3T<x_type, y_type, z_type>");
     }
 
     /***************************************************************************/
-    /** @brief Creates a deep clone of this object */
+    /**
+	  * @brief Creates a deep clone of this object
+	  * @return A deep clone of this object, wrapped into a GBasePlotter pointer
+	  */
     GBasePlotter *clone_() const override = 0;
 };
 
@@ -1735,6 +2170,7 @@ private:
  *
  * @param n_bins_x The number of bins of the histogram
  * @param range_x The minimum and maximum boundaries of the histogram
+ * @return A shared pointer to a GHistogram1D holding the x-projection of the data
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double, double>::projectX(
@@ -1777,6 +2213,7 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double
  *
  * @param n_bins_y The number of bins of the histogram
  * @param range_y The minimum and maximum boundaries of the histogram
+ * @return A shared pointer to a GHistogram1D holding the y-projection of the data
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double, double>::projectY(
@@ -1818,6 +2255,7 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double
  *
  * @param n_bins_z The number of bins of the histogram
  * @param range_z The minimum and maximum boundaries of the histogram
+ * @return A shared pointer to a GHistogram1D holding the z-projection of the data
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double, double>::projectZ(
@@ -1887,28 +2325,62 @@ public:
 
     /*********************************************************************/
 
-    /** @brief Adds lines to the plots between consecutive points */
-    void setDrawLines(bool = true);
-    /** @brief Retrieves the value of the draw_lines_ variable */
+    /**
+	 * @brief Adds lines to the plots between consecutive points
+	 * @param drawLines Whether lines should be drawn between consecutive points (default true)
+	 */
+    void setDrawLines(bool drawLines = true);
+    /**
+	 * @brief Retrieves the value of the draw_lines_ variable
+	 * @return Whether lines are drawn between consecutive points
+	 */
     bool getDrawLines() const;
 
-    /** @brief Retrieves a unique name for this plotter */
+    /**
+	 * @brief Retrieves a unique name for this plotter
+	 * @return A unique name for this plotter
+	 */
     std::string getPlotterName() const override;
 
 protected:
-    /** @brief Retrieve specific header settings for this plot */
-    std::string headerData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieve specific header settings for this plot
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The header section of the ROOT code for this plot
+	 */
+    std::string headerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieves the actual data sets */
-    std::string bodyData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieves the actual data sets
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The body section of the ROOT code, holding the actual data
+	 */
+    std::string bodyData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieves specific draw commands for this plot */
-    std::string footerData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieves specific draw commands for this plot
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The footer section of the ROOT code, holding the draw commands
+	 */
+    std::string footerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieve the current drawing arguments */
-    std::string drawingArguments(bool) const override;
+    /**
+	 * @brief Retrieve the current drawing arguments
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @return The drawing arguments to be passed to ROOT's Draw() call
+	 */
+    std::string drawingArguments(bool isSecondary) const override;
 
-    /** @brief Single declaration of this class'es local data members */
+    /**
+	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
+	 * @return A tuple of named local members of this object
+	 */
     auto localMembers() {
         return std::make_tuple(make_member("draw_lines_", draw_lines_));
     }
@@ -1916,25 +2388,37 @@ protected:
         return std::make_tuple(make_member("draw_lines_", draw_lines_));
     }
 
-    /** @brief Loads the data of another object */
-    void load_(const GBasePlotter *) override;
+    /**
+	 * @brief Loads the data of another object
+	 * @param cp A pointer to another object of the same type, camouflaged as a GBasePlotter
+	 */
+    void load_(const GBasePlotter *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void compare_base_t<GGraph3D>(GGraph3D const &, GGraph3D const &, GToken &);
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+	 * @brief Searches for compliance with expectations with respect to another object of the same type
+	 * @param cp A constant reference to another object, camouflaged as a GBasePlotter
+	 * @param e The expectation for this object (e.g. equality)
+	 * @param limit The maximum allowed deviation for floating point comparisons
+	 */
     void compare_(
-        const GBasePlotter & // the other object
-        ,
-        const expectation & // the expectation for this object, e.g. equality
-        ,
-        const double & // the limit for allowed deviations of floating point types
+        const GBasePlotter &cp,
+        const expectation &e,
+        const double &limit
     ) const override;
 
 private:
-    /** @brief Returns the name of this class */
+    /**
+	 * @brief Returns the name of this class
+	 * @return The name of this class as a string
+	 */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+	 * @brief Creates a deep clone of this object
+	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
+	 */
     GBasePlotter *clone_() const override;
 
     bool draw_lines_ = false; ///< When set to true, lines will be drawn between consecutive points
@@ -1943,6 +2427,11 @@ private:
 /******************************************************************************/
 /**
  * A data collector for 4-d data of user-defined type
+ *
+ * @tparam x_type The numeric type of the x-component of each data item
+ * @tparam y_type The numeric type of the y-component of each data item
+ * @tparam z_type The numeric type of the z-component of each data item
+ * @tparam w_type The numeric type of the w-component of each data item
  */
 template <typename x_type, typename y_type, typename z_type, typename w_type>
 class GDataCollector4T : public GBasePlotter {
@@ -1976,9 +2465,13 @@ public:
 	  * Allows to project the graph into a histogram (x-direction). This function is a
 	  * trap to catch calls with un-implemented types. Use the corresponding specializations,
 	  * if available.
+	  *
+	  * @param nBins The desired number of bins of the resulting histogram
+	  * @param range The lower and upper boundary of the resulting histogram
+	  * @return A 1-d histogram of the data projected onto the x-axis (only in specializations)
 	  */
     std::shared_ptr<GDataCollector1T<x_type>>
-    projectX(std::size_t, std::tuple<x_type, x_type>) const {
+    projectX(std::size_t nBins, std::tuple<x_type, x_type> range) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDataCollector4T<>::projectX(range, nBins): Error!" << '\n'
@@ -1994,9 +2487,13 @@ public:
 	  * Allows to project the graph into a histogram (y-direction). This function is a
 	  * trap to catch calls with un-implemented types. Use the corresponding specializations,
 	  * if available.
+	  *
+	  * @param nBins The desired number of bins of the resulting histogram
+	  * @param range The lower and upper boundary of the resulting histogram
+	  * @return A 1-d histogram of the data projected onto the y-axis (only in specializations)
 	  */
     std::shared_ptr<GDataCollector1T<y_type>>
-    projectY(std::size_t, std::tuple<y_type, y_type>) const {
+    projectY(std::size_t nBins, std::tuple<y_type, y_type> range) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDataCollector4T<>::projectY(range, nBins): Error!" << '\n'
@@ -2012,9 +2509,13 @@ public:
 	  * Allows to project the graph into a histogram (z-direction). This function is a
 	  * trap to catch calls with un-implemented types. Use the corresponding specializations,
 	  * if available.
+	  *
+	  * @param nBins The desired number of bins of the resulting histogram
+	  * @param range The lower and upper boundary of the resulting histogram
+	  * @return A 1-d histogram of the data projected onto the z-axis (only in specializations)
 	  */
     std::shared_ptr<GDataCollector1T<z_type>>
-    projectZ(std::size_t, std::tuple<z_type, z_type>) const {
+    projectZ(std::size_t nBins, std::tuple<z_type, z_type> range) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDataCollector4T<>::projectZ(range, nBins): Error!" << '\n'
@@ -2030,9 +2531,13 @@ public:
 	  * Allows to project the graph into a histogram (w-direction). This function is a
 	  * trap to catch calls with un-implemented types. Use the corresponding specializations,
 	  * if available.
+	  *
+	  * @param nBins The desired number of bins of the resulting histogram
+	  * @param range The lower and upper boundary of the resulting histogram
+	  * @return A 1-d histogram of the data projected onto the w-axis (only in specializations)
 	  */
     std::shared_ptr<GDataCollector1T<w_type>>
-    projectW(std::size_t, std::tuple<w_type, w_type>) const {
+    projectW(std::size_t nBins, std::tuple<w_type, w_type> range) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDataCollector4T<>::projectZ(range, nBins): Error!" << '\n'
@@ -2049,6 +2554,9 @@ public:
 	  * to add data easily to their data sets, when called through a
 	  * pointer. I.e., this makes object_ptr->add(data) instead of
 	  * *object_ptr & data possible.
+	  *
+	  * @tparam data_type The type of the data item being added
+	  * @param item The data item to be added to the collection
 	  */
     template <typename data_type>
     void add(const data_type &item) {
@@ -2060,6 +2568,10 @@ public:
 	  * Allows to add data of undetermined type to the collection in an intuitive way,
 	  * provided that it can be converted safely to the target type.
 	  *
+	  * @tparam x_type_undet The source type of the x-component, narrowed to x_type
+	  * @tparam y_type_undet The source type of the y-component, narrowed to y_type
+	  * @tparam z_type_undet The source type of the z-component, narrowed to z_type
+	  * @tparam w_type_undet The source type of the w-component, narrowed to w_type
 	  * @param point_undet The data item to be added to the collection
 	  */
     template <
@@ -2098,8 +2610,8 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to add data of type std::tuple<x_type, y_type, z_type> to the collection
-	  * in an intuitive way.
+	  * Allows to add data of type std::tuple<x_type, y_type, z_type, w_type> to the
+	  * collection in an intuitive way.
 	  *
 	  * @param point The data item to be added to the collection
 	  */
@@ -2114,6 +2626,10 @@ public:
 	  * collection in an intuitive way, provided they can be converted safely
 	  * to the target type.
 	  *
+	  * @tparam x_type_undet The source type of the x-component, narrowed to x_type
+	  * @tparam y_type_undet The source type of the y-component, narrowed to y_type
+	  * @tparam z_type_undet The source type of the z-component, narrowed to z_type
+	  * @tparam w_type_undet The source type of the w-component, narrowed to w_type
 	  * @param point_cnt_undet The collection of data items to be added to the collection
 	  */
     template <
@@ -2175,7 +2691,9 @@ public:
 protected:
     /***************************************************************************/
     /**
-	  * Loads the data of another object
+	  * Single declaration of this class'es local data members, used by load_() and compare_()
+	  *
+	  * @return A tuple of named members (the data vector) of this object
 	  */
     auto localMembers() {
         return std::make_tuple(make_member("data_", data_));
@@ -2184,6 +2702,11 @@ protected:
         return std::make_tuple(make_member("data_", data_));
     }
 
+    /**
+	  * Loads the data of another object
+	  *
+	  * @param cp A pointer to another GDataCollector4T<x_type, y_type, z_type, w_type> object, camouflaged as a GBasePlotter
+	  */
     void load_(const GBasePlotter *cp) override {
         // Check that we are dealing with a GDataCollector4T<x_type, y_type, z_type, w_type> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(cp, this);
@@ -2207,6 +2730,10 @@ protected:
     /**
 	  * Investigates compliance with expectations with respect to another object
 	  * of the same type
+	  *
+	  * @param cp A constant reference to another object, camouflaged as a GBasePlotter
+	  * @param e The expectation for this object (e.g. equality or inequality)
+	  * @param limit The maximum allowed deviation for floating point comparisons (unused here)
 	  */
     void compare_(
         const GBasePlotter &cp,
@@ -2236,13 +2763,18 @@ private:
     /***************************************************************************/
     /**
 	  * Returns the name of this class
+	  *
+	  * @return The name of this class as a string
 	  */
     std::string name_() const override {
         return std::string("GDataCollector4T<x_type, y_type, z_type, w_type>");
     }
 
     /***************************************************************************/
-    /** @brief Creates a deep clone of this object */
+    /**
+	  * @brief Creates a deep clone of this object
+	  * @return A deep clone of this object, wrapped into a GBasePlotter pointer
+	  */
     GBasePlotter *clone_() const override = 0;
 };
 
@@ -2255,6 +2787,7 @@ private:
  *
  * @param n_bins_x The number of bins of the histogram
  * @param range_x The minimum and maximum boundaries of the histogram
+ * @return A shared pointer to a GHistogram1D holding the x-projection of the data
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>>
@@ -2298,6 +2831,7 @@ GDataCollector4T<double, double, double, double>::projectX(
  *
  * @param n_bins_y The number of bins of the histogram
  * @param range_y The minimum and maximum boundaries of the histogram
+ * @return A shared pointer to a GHistogram1D holding the y-projection of the data
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>>
@@ -2341,6 +2875,7 @@ GDataCollector4T<double, double, double, double>::projectY(
  *
  * @param n_bins_z The number of bins of the histogram
  * @param range_z The minimum and maximum boundaries of the histogram
+ * @return A shared pointer to a GHistogram1D holding the z-projection of the data
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>>
@@ -2384,6 +2919,7 @@ GDataCollector4T<double, double, double, double>::projectZ(
  *
  * @param n_bins_w The number of bins of the histogram
  * @param range_w The minimum and maximum boundaries of the histogram
+ * @return A shared pointer to a GHistogram1D holding the w-projection of the data
  */
 template <>
 inline std::shared_ptr<GDataCollector1T<double>>
@@ -2459,43 +2995,95 @@ public:
 
     /*********************************************************************/
 
-    /** @brief Allows to set the minimum marker size */
-    void setMinMarkerSize(const double &);
-    /** @brief Allows to set the maximum marker size */
-    void setMaxMarkerSize(const double &);
+    /**
+	 * @brief Allows to set the minimum marker size
+	 * @param minMarkerSize The minimum marker size to be used when drawing the w-component
+	 */
+    void setMinMarkerSize(const double &minMarkerSize);
+    /**
+	 * @brief Allows to set the maximum marker size
+	 * @param maxMarkerSize The maximum marker size to be used when drawing the w-component
+	 */
+    void setMaxMarkerSize(const double &maxMarkerSize);
 
-    /** @brief Allows to retrieve the minimum marker size */
+    /**
+	 * @brief Allows to retrieve the minimum marker size
+	 * @return The currently set minimum marker size
+	 */
     double getMinMarkerSize() const;
-    /** @brief Allows to retrieve the maximum marker size */
+    /**
+	 * @brief Allows to retrieve the maximum marker size
+	 * @return The currently set maximum marker size
+	 */
     double getMaxMarkerSize() const;
 
-    /** @brief Allows to specify whether small w yield large markers */
-    void setSmallWLargeMarker(const bool &);
-    /** @brief Allows to check whether small w yield large markers */
+    /**
+	 * @brief Allows to specify whether small w yield large markers
+	 * @param smallWLargeMarker If true, small w-values are mapped to large markers
+	 */
+    void setSmallWLargeMarker(const bool &smallWLargeMarker);
+    /**
+	 * @brief Allows to check whether small w yield large markers
+	 * @return Whether small w-values are mapped to large markers
+	 */
     bool getSmallWLargeMarker() const;
 
-    /** @brief Allows to set the number of solutions the class should show */
-    void setNBest(const std::size_t &);
-    /** @brief Allows to retrieve the number of solutions the class should show */
+    /**
+	 * @brief Allows to set the number of solutions the class should show
+	 * @param nBest The number of (best) solutions to display; 0 means all
+	 */
+    void setNBest(const std::size_t &nBest);
+    /**
+	 * @brief Allows to retrieve the number of solutions the class should show
+	 * @return The number of (best) solutions to display
+	 */
     std::size_t getNBest() const;
 
-    /** @brief Retrieves a unique name for this plotter */
+    /**
+	 * @brief Retrieves a unique name for this plotter
+	 * @return A unique name for this plotter
+	 */
     std::string getPlotterName() const override;
 
 protected:
-    /** @brief Retrieve specific header settings for this plot */
-    std::string headerData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieve specific header settings for this plot
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The header section of the ROOT code for this plot
+	 */
+    std::string headerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieves the actual data sets */
-    std::string bodyData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieves the actual data sets
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The body section of the ROOT code, holding the actual data
+	 */
+    std::string bodyData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieves specific draw commands for this plot */
-    std::string footerData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieves specific draw commands for this plot
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The footer section of the ROOT code, holding the draw commands
+	 */
+    std::string footerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieve the current drawing arguments */
-    std::string drawingArguments(bool) const override;
+    /**
+	 * @brief Retrieve the current drawing arguments
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @return The drawing arguments to be passed to ROOT's Draw() call
+	 */
+    std::string drawingArguments(bool isSecondary) const override;
 
-    /** @brief Single declaration of this class'es local data members */
+    /**
+	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
+	 * @return A tuple of named local members of this object
+	 */
     auto localMembers() {
         return std::make_tuple(
             make_member("min_marker_size_", min_marker_size_),
@@ -2513,25 +3101,37 @@ protected:
         );
     }
 
-    /** @brief Loads the data of another object */
-    void load_(const GBasePlotter *) override;
+    /**
+	 * @brief Loads the data of another object
+	 * @param cp A pointer to another object of the same type, camouflaged as a GBasePlotter
+	 */
+    void load_(const GBasePlotter *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void compare_base_t<GGraph4D>(GGraph4D const &, GGraph4D const &, GToken &);
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+	 * @brief Searches for compliance with expectations with respect to another object of the same type
+	 * @param cp A constant reference to another object, camouflaged as a GBasePlotter
+	 * @param e The expectation for this object (e.g. equality)
+	 * @param limit The maximum allowed deviation for floating point comparisons
+	 */
     void compare_(
-        const GBasePlotter & // the other object
-        ,
-        const expectation & // the expectation for this object, e.g. equality
-        ,
-        const double & // the limit for allowed deviations of floating point types
+        const GBasePlotter &cp,
+        const expectation &e,
+        const double &limit
     ) const override;
 
 private:
-    /** @brief Returns the name of this class */
+    /**
+	 * @brief Returns the name of this class
+	 * @return The name of this class as a string
+	 */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+	 * @brief Creates a deep clone of this object
+	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
+	 */
     GBasePlotter *clone_() const override;
 
     double min_marker_size_ = DEFMINMARKERSIZE; ///< The minimum allowed size of the marker
@@ -2564,8 +3164,12 @@ class GFunctionPlotter1D : public GBasePlotter {
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The standard constructor */
-    GFunctionPlotter1D(const std::string &, const std::tuple<double, double> &);
+    /**
+	 * @brief The standard constructor
+	 * @param fD A textual description of the 1-d function to be plotted (in ROOT TF1 syntax)
+	 * @param xExtremes The minimum and maximum value of the x-axis, as a tuple
+	 */
+    GFunctionPlotter1D(const std::string &fD, const std::tuple<double, double> &xExtremes);
 
     /*********************************************************************/
     // Defaulted constructors, destructor and assignment operators
@@ -2581,26 +3185,57 @@ public:
 
     /*********************************************************************/
 
-    /** @brief Allows to set the number of sampling points in x-direction */
-    void setNSamplesX(std::size_t);
+    /**
+	 * @brief Allows to set the number of sampling points in x-direction
+	 * @param nSamplesX The number of sampling points used to evaluate the function in x-direction
+	 */
+    void setNSamplesX(std::size_t nSamplesX);
 
-    /** @brief Retrieves a unique name for this plotter */
+    /**
+	 * @brief Retrieves a unique name for this plotter
+	 * @return A unique name for this plotter
+	 */
     std::string getPlotterName() const override;
 
 protected:
-    /** @brief Retrieve specific header settings for this plot */
-    std::string headerData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieve specific header settings for this plot
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The header section of the ROOT code for this plot
+	 */
+    std::string headerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieves the actual data sets */
-    std::string bodyData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieves the actual data sets
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The body section of the ROOT code, holding the actual data
+	 */
+    std::string bodyData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieves specific draw commands for this plot */
-    std::string footerData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieves specific draw commands for this plot
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The footer section of the ROOT code, holding the draw commands
+	 */
+    std::string footerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieve the current drawing arguments */
-    std::string drawingArguments(bool) const override;
+    /**
+	 * @brief Retrieve the current drawing arguments
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @return The drawing arguments to be passed to ROOT's Draw() call
+	 */
+    std::string drawingArguments(bool isSecondary) const override;
 
-    /** @brief Single declaration of this class'es local data members */
+    /**
+	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
+	 * @return A tuple of named local members of this object
+	 */
     auto localMembers() {
         return std::make_tuple(
             make_member("function_description_", function_description_),
@@ -2616,8 +3251,11 @@ protected:
         );
     }
 
-    /** @brief Loads the data of another object */
-    void load_(const GBasePlotter *) override;
+    /**
+	 * @brief Loads the data of another object
+	 * @param cp A pointer to another object of the same type, camouflaged as a GBasePlotter
+	 */
+    void load_(const GBasePlotter *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void compare_base_t<GFunctionPlotter1D>(
@@ -2626,25 +3264,34 @@ protected:
         GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+	 * @brief Searches for compliance with expectations with respect to another object of the same type
+	 * @param cp A constant reference to another object, camouflaged as a GBasePlotter
+	 * @param e The expectation for this object (e.g. equality)
+	 * @param limit The maximum allowed deviation for floating point comparisons
+	 */
     void compare_(
-        const GBasePlotter & // the other object
-        ,
-        const expectation & // the expectation for this object, e.g. equality
-        ,
-        const double & // the limit for allowed deviations of floating point types
+        const GBasePlotter &cp,
+        const expectation &e,
+        const double &limit
     ) const override;
 
 private:
-    /** @brief Returns the name of this class */
+    /**
+	 * @brief Returns the name of this class
+	 * @return The name of this class as a string
+	 */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+	 * @brief Creates a deep clone of this object
+	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
+	 */
     GBasePlotter *clone_() const override;
 
     GFunctionPlotter1D() =
         default; ///< The default constructor. Intentionally private, as it is only needed for (de-)serialization
 
-    std::string function_description_;
+    std::string function_description_; ///< A textual description of the function to be plotted
 
     std::tuple<double, double> x_extremes_; ///< Minimum and maximum values for the x-axis
     std::size_t n_samples_x_ = DEFNSAMPLES;  ///< The number of sampling points of the function
@@ -2670,11 +3317,16 @@ class GFunctionPlotter2D : public GBasePlotter {
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The standard constructor */
+    /**
+	 * @brief The standard constructor
+	 * @param fD A textual description of the 2-d function to be plotted (in ROOT TF2 syntax)
+	 * @param xExtremes The minimum and maximum value of the x-axis, as a tuple
+	 * @param yExtremes The minimum and maximum value of the y-axis, as a tuple
+	 */
     GFunctionPlotter2D(
-        const std::string &,
-        const std::tuple<double, double> &,
-        const std::tuple<double, double> &
+        const std::string &fD,
+        const std::tuple<double, double> &xExtremes,
+        const std::tuple<double, double> &yExtremes
     );
 
     /*********************************************************************/
@@ -2691,28 +3343,62 @@ public:
 
     /*********************************************************************/
 
-    /** @brief Allows to set the number of sampling points in x-direction */
-    void setNSamplesX(std::size_t);
-    /** @brief Allows to set the number of sampling points in y-direction */
-    void setNSamplesY(std::size_t);
+    /**
+	 * @brief Allows to set the number of sampling points in x-direction
+	 * @param nSamplesX The number of sampling points used to evaluate the function in x-direction
+	 */
+    void setNSamplesX(std::size_t nSamplesX);
+    /**
+	 * @brief Allows to set the number of sampling points in y-direction
+	 * @param nSamplesY The number of sampling points used to evaluate the function in y-direction
+	 */
+    void setNSamplesY(std::size_t nSamplesY);
 
-    /** @brief Retrieves a unique name for this plotter */
+    /**
+	 * @brief Retrieves a unique name for this plotter
+	 * @return A unique name for this plotter
+	 */
     std::string getPlotterName() const override;
 
 protected:
-    /** @brief Retrieve specific header settings for this plot */
-    std::string headerData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieve specific header settings for this plot
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The header section of the ROOT code for this plot
+	 */
+    std::string headerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieves the actual data sets */
-    std::string bodyData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieves the actual data sets
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The body section of the ROOT code, holding the actual data
+	 */
+    std::string bodyData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieves specific draw commands for this plot */
-    std::string footerData_(bool, std::size_t, const std::string &) const override;
+    /**
+	 * @brief Retrieves specific draw commands for this plot
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @param pId The id of this plotter, used to build unique variable names
+	 * @param indention The indention string prepended to each emitted line
+	 * @return The footer section of the ROOT code, holding the draw commands
+	 */
+    std::string footerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
 
-    /** @brief Retrieve the current drawing arguments */
-    std::string drawingArguments(bool) const override;
+    /**
+	 * @brief Retrieve the current drawing arguments
+	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
+	 * @return The drawing arguments to be passed to ROOT's Draw() call
+	 */
+    std::string drawingArguments(bool isSecondary) const override;
 
-    /** @brief Single declaration of this class'es local data members */
+    /**
+	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
+	 * @return A tuple of named local members of this object
+	 */
     auto localMembers() {
         return std::make_tuple(
             make_member("function_description_", function_description_),
@@ -2732,8 +3418,11 @@ protected:
         );
     }
 
-    /** @brief Loads the data of another object */
-    void load_(const GBasePlotter *) override;
+    /**
+	 * @brief Loads the data of another object
+	 * @param cp A pointer to another object of the same type, camouflaged as a GBasePlotter
+	 */
+    void load_(const GBasePlotter *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void compare_base_t<GFunctionPlotter2D>(
@@ -2742,25 +3431,34 @@ protected:
         GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+	 * @brief Searches for compliance with expectations with respect to another object of the same type
+	 * @param cp A constant reference to another object, camouflaged as a GBasePlotter
+	 * @param e The expectation for this object (e.g. equality)
+	 * @param limit The maximum allowed deviation for floating point comparisons
+	 */
     void compare_(
-        const GBasePlotter & // the other object
-        ,
-        const expectation & // the expectation for this object, e.g. equality
-        ,
-        const double & // the limit for allowed deviations of floating point types
+        const GBasePlotter &cp,
+        const expectation &e,
+        const double &limit
     ) const override;
 
 private:
-    /** @brief Returns the name of this class */
+    /**
+	 * @brief Returns the name of this class
+	 * @return The name of this class as a string
+	 */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+	 * @brief Creates a deep clone of this object
+	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
+	 */
     GBasePlotter *clone_() const override;
 
     GFunctionPlotter2D() =
         default; ///< The default constructor -- intentionally private, as it is only needed for (de-)serialization
 
-    std::string function_description_;
+    std::string function_description_; ///< A textual description of the function to be plotted
 
     std::tuple<double, double> x_extremes_; ///< Minimum and maximum values for the x-axis
     std::tuple<double, double> y_extremes_; ///< Minimum and maximum values for the y-axis

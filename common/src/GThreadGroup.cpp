@@ -55,9 +55,11 @@ namespace Gem::Common {
 
 /******************************************************************************/
 /**
- * Adds an already created thread to the group
+ * @brief Adds an already created thread to the group.
  *
- * @param thrd A pointer to a thread that should be added to the group
+ * A null pointer is silently ignored. The insertion is serialised by the group's mutex.
+ *
+ * @param thrd A shared pointer to the thread that should be added to the group
  */
 void GThreadGroup::add_thread(thread_ptr thrd) {
     if(thrd) {
@@ -68,9 +70,12 @@ void GThreadGroup::add_thread(thread_ptr thrd) {
 
 /******************************************************************************/
 /**
- * Requests all threads to join. The mutex is released *before* the join
- * loop so that any thread that calls back into the group (e.g. add_thread
- * from inside its functor) does not deadlock against us.
+ * @brief Requests cooperative stop on every thread, then joins them all.
+ *
+ * The mutex is released before the join loop so that any thread that calls back into the
+ * group (e.g. add_thread from inside its functor) does not deadlock against us. Stop is
+ * requested on all threads first, then they are joined, so a functor observing its
+ * std::stop_token gets the signal before we block on the first join.
  */
 void GThreadGroup::join_all() {
     thread_vector to_join;
@@ -95,8 +100,9 @@ void GThreadGroup::join_all() {
 
 /******************************************************************************/
 /**
- * Returns the size of the current thread group.
- * @return The size of the current group
+ * @brief Returns the size of the current thread group.
+ *
+ * @return The number of threads currently held by the group
  */
 std::size_t GThreadGroup::size() const {
     std::scoped_lock guard(mutex_);
@@ -105,9 +111,11 @@ std::size_t GThreadGroup::size() const {
 
 /******************************************************************************/
 /**
- * Clears the thread vector. Note that this is a very dangerous operation, which
- * is not made publicly available. This function is meant for consumption by the
- * thread GThreadPool class.
+ * @brief Clears the thread vector.
+ *
+ * Note that this is a very dangerous operation, which is not made publicly available. This
+ * function is meant for consumption by the GThreadPool class (after the threads have been
+ * joined).
  */
 void GThreadGroup::clearThreads() {
     std::scoped_lock guard(mutex_);

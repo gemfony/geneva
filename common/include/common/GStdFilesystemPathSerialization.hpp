@@ -54,12 +54,32 @@
  */
 namespace boost::serialization {
 
+/**
+ * @brief Boost.Serialization save hook for std::filesystem::path.
+ *
+ * Stores the path as its string() representation under the NVP key "path".
+ *
+ * @tparam Archive The Boost.Serialization output archive type
+ * @param ar The archive the path is written to
+ * @param p The path to be serialized
+ * @param version The class version supplied by Boost.Serialization (unused)
+ */
 template <class Archive>
 void save(Archive &ar, const std::filesystem::path &p, [[maybe_unused]] const unsigned int version) {
     std::string s = p.string();
     ar & boost::serialization::make_nvp("path", s);
 }
 
+/**
+ * @brief Boost.Serialization load hook for std::filesystem::path.
+ *
+ * Reads the stored string from the NVP key "path" and rebuilds the path from it.
+ *
+ * @tparam Archive The Boost.Serialization input archive type
+ * @param ar The archive the path is read from
+ * @param p The path to be reconstructed from the archive (overwritten)
+ * @param version The class version supplied by Boost.Serialization (unused)
+ */
 template <class Archive>
 void load(Archive &ar, std::filesystem::path &p, [[maybe_unused]] const unsigned int version) {
     std::string s;

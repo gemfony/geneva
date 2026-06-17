@@ -46,6 +46,9 @@ namespace Gem::Common {
  * purpose of this class. NOTE: As different access functions are needed for different
  * dimensions, some code duplication is unavoidable. C++ does not allow to add
  * "just" an additional function to a template specialization, unfortunately.
+ *
+ * @tparam dim The plot dimension (e.g. dimensions::Dim2, dimensions::Dim3) this decorator caters for
+ * @tparam coordinate_type The arithmetic type used for plot coordinates
  */
 template <dimensions dim, typename coordinate_type>
 class GDecorator { /* nothing */
@@ -56,6 +59,8 @@ class GDecorator { /* nothing */
 /******************************************************************************/
 /**
  * This is the specialization of GDecorator for 2D-plots (e.g. histograms, graphs, ...)
+ *
+ * @tparam coordinate_type The arithmetic type used for plot coordinates
  */
 template <typename coordinate_type>
 class GDecorator<dimensions::Dim2, coordinate_type>
@@ -63,6 +68,13 @@ class GDecorator<dimensions::Dim2, coordinate_type>
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /**
+     * Serializes this (data-less) base class via Boost.Serialization.
+     *
+     * @tparam Archive The Boost.Serialization archive type
+     * @param ar The archive to serialize to / from (unused: no local data)
+     * @param unsigned int The serialization version (unused)
+     */
     template <typename Archive>
     void serialize([[maybe_unused]] Archive & ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -92,30 +104,42 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the decorator data. Plot boundaries are not taken into account.
+	  * @brief Retrieves the decorator data. Plot boundaries are not taken into account.
+	  *
+	  * @param indent The leading whitespace prepended to each emitted line of plotting code
+	  * @param pos A running index that disambiguates the names of the generated plot objects
+	  * @return A string holding the plotting code that renders this decoration
 	  */
     virtual std::string
-    decoratorData(const std::string &, const std::size_t &) const = 0;
+    decoratorData(const std::string &indent, const std::size_t &pos) const = 0;
 
     /***************************************************************************/
     /**
-	  * Retrieves the decorator data, taking into account externally supplied
+	  * @brief Retrieves the decorator data, taking into account externally supplied
 	  * plot boundaries. Decorators will usually not be drawn if they would "live" outside
 	  * of the plot boundaries. Lines will be cut at the boundaries. Text, however, will
 	  * not be affected by the boundaries. This function needs to be implemented by derived
 	  * classes.
+	  *
+	  * @param x_axis_range A (min, max) tuple delimiting the plot range along the x-axis
+	  * @param y_axis_range A (min, max) tuple delimiting the plot range along the y-axis
+	  * @param indent The leading whitespace prepended to each emitted line of plotting code
+	  * @param pos A running index that disambiguates the names of the generated plot objects
+	  * @return A string holding the plotting code that renders this decoration within the boundaries
 	  */
     virtual std::string decoratorData(
         const std::tuple<coordinate_type, coordinate_type> &x_axis_range,
         const std::tuple<coordinate_type, coordinate_type> &y_axis_range,
         const std::string &indent,
-        const std::size_t &
+        const std::size_t &pos
     ) const = 0;
 
 protected:
     /***************************************************************************/
     /**
-     * Loads the data of another object
+     * @brief Loads the data of another object
+     *
+     * @param cp A pointer to another GDecorator object, camouflaged as the base type
      */
     void load_(const GDecorator<dimensions::Dim2, coordinate_type> *cp) override {
         // Check that we are dealing with a GDecorator reference independent of this object and convert the pointer
@@ -136,8 +160,12 @@ protected:
 
     /***************************************************************************/
     /**
-	 * Searches for compliance with expectations with respect to another object
+	 * @brief Searches for compliance with expectations with respect to another object
 	 * of the same type
+	 *
+	 * @param cp A constant reference to another object of the same type
+	 * @param e The expectation for the comparison (e.g. equality or inequality)
+	 * @param limit The maximum allowed deviation for comparisons of floating point types
 	 */
     void compare_(
         const GDecorator<dimensions::Dim2, coordinate_type> &cp // the other object
@@ -167,7 +195,9 @@ protected:
 private:
     /***************************************************************************/
     /**
-	  * Returns the name of this class
+	  * @brief Returns the name of this class
+	  *
+	  * @return The mnemonic name of this class
 	  */
     std::string name_() const override {
         return std::string("GDecorator<Dim2, coordinate_type>");
@@ -175,7 +205,9 @@ private:
 
     /***************************************************************************/
     /**
-	  * Creates a deep clone of this object (this function is purely virtual)
+	  * @brief Creates a deep clone of this object (this function is purely virtual)
+	  *
+	  * @return A deep clone of this object, allocated on the heap
 	  */
     GDecorator<dimensions::Dim2, coordinate_type> *clone_() const override = 0;
 
@@ -188,12 +220,21 @@ private:
 /**
  * Allows to add markers of different types to a plot. Note that this class
  * may only be used for 2D-plots.
+ *
+ * @tparam coordinate_type The arithmetic type used for plot coordinates
  */
 template <typename coordinate_type>
 class GMarker : public GDecorator<dimensions::Dim2, coordinate_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /**
+     * Serializes this class (and its base) via Boost.Serialization.
+     *
+     * @tparam Archive The Boost.Serialization archive type
+     * @param ar The archive to serialize the base class and local members to / from
+     * @param unsigned int The serialization version (unused)
+     */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -210,8 +251,13 @@ class GMarker : public GDecorator<dimensions::Dim2, coordinate_type> {
 public:
     /***************************************************************************/
     /**
-	  * The standard constructor, which takes all essential data for this
+	  * @brief The standard constructor, which takes all essential data for this
 	  * decorator type.
+	  *
+	  * @param coordinates The (x, y) position at which the marker is drawn
+	  * @param marker The type/shape of the marker to be drawn (e.g. a closed circle)
+	  * @param color The color of the marker
+	  * @param size The size of the marker
 	  */
     GMarker(
         const std::tuple<coordinate_type, coordinate_type> &coordinates,
@@ -238,7 +284,11 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the decorator data. Plot boundaries are not taken into account.
+	  * @brief Retrieves the decorator data. Plot boundaries are not taken into account.
+	  *
+	  * @param indent The leading whitespace prepended to each emitted line of plotting code
+	  * @param pos A running index that disambiguates the names of the generated plot objects
+	  * @return A string holding the plotting code that draws this marker
 	  */
     std::string decoratorData(const std::string &indent, const std::size_t &pos) const override {
         std::ostringstream data; // NOLINT(cppcoreguidelines-init-variables)
@@ -257,7 +307,16 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the decorator data. Plot boundaries are taken into account.
+	  * @brief Retrieves the decorator data. Plot boundaries are taken into account.
+	  *
+	  * The marker is drawn only when its coordinates lie outside the supplied axis
+	  * ranges; an in-range marker yields an empty string.
+	  *
+	  * @param x_axis_range A (min, max) tuple delimiting the plot range along the x-axis
+	  * @param y_axis_range A (min, max) tuple delimiting the plot range along the y-axis
+	  * @param indent The leading whitespace prepended to each emitted line of plotting code
+	  * @param pos A running index that disambiguates the names of the generated plot objects
+	  * @return Plotting code for the marker, or an empty string if it falls within the boundaries
 	  */
     std::string decoratorData(
         const std::tuple<coordinate_type, coordinate_type> &x_axis_range,
@@ -283,8 +342,10 @@ public:
 protected:
     /***************************************************************************/
     /**
-     * The single declaration of this class'es local data members. load_() and
+     * @brief The single declaration of this class'es local data members. load_() and
      * compare_() are derived from it, so the member list lives in one place.
+     *
+     * @return A tuple of named handles to this object's local data members
      */
     auto localMembers() {
         return std::make_tuple(
@@ -294,6 +355,11 @@ protected:
             make_member("size_", size_)
         );
     }
+    /**
+     * @brief Const overload exposing this class'es local data members for read-only access.
+     *
+     * @return A tuple of named handles to this object's local data members
+     */
     auto localMembers() const {
         return std::make_tuple(
             make_member("coordinates_", coordinates_),
@@ -305,7 +371,9 @@ protected:
 
     /***************************************************************************/
     /**
-	  * Loads the data of another object
+	  * @brief Loads the data of another object
+	  *
+	  * @param cp A pointer to another GMarker object, camouflaged as the base type
 	  */
     void load_(const GDecorator<dimensions::Dim2, coordinate_type> *cp) override {
         // Check that we are dealing with a GMarker reference independent of this object and convert the pointer
@@ -328,8 +396,12 @@ protected:
 
     /***************************************************************************/
     /**
-	  * Searches for compliance with expectations with respect to another object
+	  * @brief Searches for compliance with expectations with respect to another object
 	  * of the same type
+	  *
+	  * @param cp A constant reference to another object of the same type
+	  * @param e The expectation for the comparison (e.g. equality or inequality)
+	  * @param limit The maximum allowed deviation for comparisons of floating point types
 	  */
     void compare_(
         const GDecorator<dimensions::Dim2, coordinate_type> &cp // the other object
@@ -366,7 +438,9 @@ protected:
 private:
     /***************************************************************************/
     /**
-	  * Returns the name of this class
+	  * @brief Returns the name of this class
+	  *
+	  * @return The mnemonic name of this class
 	  */
     std::string name_() const override {
         return std::string("GMarker<coordinate_type>");
@@ -374,7 +448,9 @@ private:
 
     /***************************************************************************/
     /**
-	  * Creates a deep clone of this object.
+	  * @brief Creates a deep clone of this object.
+	  *
+	  * @return A deep clone of this object, allocated on the heap
 	  */
     GMarker<coordinate_type> *clone_() const override {
         return new GMarker<coordinate_type>(*this);
@@ -382,7 +458,7 @@ private:
 
     /***************************************************************************/
     /**
-	  * The default constructor -- intentionally private, as it is only needed
+	  * @brief The default constructor -- intentionally private, as it is only needed
 	  * for de-serialization.
 	  */
     GMarker() = default;
@@ -402,6 +478,8 @@ private:
 /******************************************************************************/
 /**
  * This is the specialization of GDecorator for 3D-plots (e.g. 2D-histograms, 3D-graphs, ...)
+ *
+ * @tparam coordinate_type The arithmetic type used for plot coordinates
  */
 template <typename coordinate_type>
 class GDecorator<dimensions::Dim3, coordinate_type>
@@ -409,6 +487,13 @@ class GDecorator<dimensions::Dim3, coordinate_type>
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /**
+     * Serializes this (data-less) base class via Boost.Serialization.
+     *
+     * @tparam Archive The Boost.Serialization archive type
+     * @param ar The archive to serialize to / from (unused: no local data)
+     * @param unsigned int The serialization version (unused)
+     */
     template <typename Archive>
     void serialize([[maybe_unused]] Archive & ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -438,17 +523,28 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the decorator data. Plot boundaries are not taken into account.
+	  * @brief Retrieves the decorator data. Plot boundaries are not taken into account.
+	  *
+	  * @param indent The leading whitespace prepended to each emitted line of plotting code
+	  * @param pos A running index that disambiguates the names of the generated plot objects
+	  * @return A string holding the plotting code that renders this decoration
 	  */
-    virtual std::string decoratorData(const std::string &, const std::size_t &) const = 0;
+    virtual std::string decoratorData(const std::string &indent, const std::size_t &pos) const = 0;
 
     /***************************************************************************/
     /**
-	  * Retrieves the decorator data, taking into account externally supplied
+	  * @brief Retrieves the decorator data, taking into account externally supplied
 	  * plot boundaries. Decorators will usually not be drawn if they would "live" outside
 	  * of the plot boundaries. Lines will be cut at the boundaries. Text, however, will
 	  * not be affected by the boundaries. This function needs to be implemented by derived
 	  * classes.
+	  *
+	  * @param x_axis_range A (min, max) tuple delimiting the plot range along the x-axis
+	  * @param y_axis_range A (min, max) tuple delimiting the plot range along the y-axis
+	  * @param z_axis_range A (min, max) tuple delimiting the plot range along the z-axis
+	  * @param indent The leading whitespace prepended to each emitted line of plotting code
+	  * @param pos A running index that disambiguates the names of the generated plot objects
+	  * @return A string holding the plotting code that renders this decoration within the boundaries
 	  */
     virtual std::string decoratorData(
         const std::tuple<coordinate_type, coordinate_type> &x_axis_range,
@@ -461,7 +557,9 @@ public:
 protected:
     /***************************************************************************/
     /**
-	  * Loads the data of another object
+	  * @brief Loads the data of another object
+	  *
+	  * @param cp A pointer to another GDecorator object, camouflaged as the base type
 	  */
     void load_(const GDecorator<dimensions::Dim3, coordinate_type> *cp) override {
         // Check that we are dealing with a GDecorator reference independent of this object and convert the pointer
@@ -482,8 +580,12 @@ protected:
 
     /***************************************************************************/
     /**
-	  * Searches for compliance with expectations with respect to another object
+	  * @brief Searches for compliance with expectations with respect to another object
 	  * of the same type
+	  *
+	  * @param cp A constant reference to another object of the same type
+	  * @param e The expectation for the comparison (e.g. equality or inequality)
+	  * @param limit The maximum allowed deviation for comparisons of floating point types
 	  */
     void compare_(
         const GDecorator<dimensions::Dim3, coordinate_type> &cp // the other object
@@ -513,7 +615,9 @@ protected:
 private:
     /***************************************************************************/
     /**
-	  * Returns the name of this class
+	  * @brief Returns the name of this class
+	  *
+	  * @return The mnemonic name of this class
 	  */
     std::string name_() const override {
         return std::string("GDecorator<imensions::Dim3, coordinate_type>");
@@ -521,7 +625,9 @@ private:
 
     /***************************************************************************/
     /**
-	  * Creates a deep clone of this object (this function is purely virtual)
+	  * @brief Creates a deep clone of this object (this function is purely virtual)
+	  *
+	  * @return A deep clone of this object, allocated on the heap
 	  */
     GDecorator<dimensions::Dim3, coordinate_type> *clone_() const override = 0;
 
@@ -537,6 +643,9 @@ private:
  * std::vector of std::shared_ptr<GDecorator<dim>> . Note that the actual work
  * is done in the specializations for different dimensions. Hence some code
  * duplications for the different template specializations cannot be avoided.
+ *
+ * @tparam dim The plot dimension (e.g. dimensions::Dim2, dimensions::Dim3) of the held decorators
+ * @tparam coordinate_type The arithmetic type used for plot coordinates
  */
 template <dimensions dim, typename coordinate_type>
 class GDecoratorContainer { /* nothing */
@@ -547,6 +656,8 @@ class GDecoratorContainer { /* nothing */
 /******************************************************************************/
 /**
  * Specialization of GDecoratorContainer for 2D-plots
+ *
+ * @tparam coordinate_type The arithmetic type used for plot coordinates
  */
 template <typename coordinate_type>
 class GDecoratorContainer<dimensions::Dim2, coordinate_type>
@@ -555,6 +666,13 @@ class GDecoratorContainer<dimensions::Dim2, coordinate_type>
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /**
+     * Serializes this container (forwarding to the GPtrContainerT base) via Boost.Serialization.
+     *
+     * @tparam Archive The Boost.Serialization archive type
+     * @param ar The archive to serialize the base container to / from
+     * @param unsigned int The serialization version (unused)
+     */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -590,8 +708,11 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the decorator data of all decorators. Plot boundaries are
+	  * @brief Retrieves the decorator data of all decorators. Plot boundaries are
 	  * not taken into account.
+	  *
+	  * @param indent The leading whitespace prepended to each emitted line of plotting code
+	  * @return The concatenated plotting code of all contained decorators
 	  */
     virtual std::string decoratorData(const std::string &indent) const {
         std::string result; // NOLINT(cppcoreguidelines-init-variables)
@@ -606,11 +727,16 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the decorator data of all decorators, taking into account externally supplied
+	  * @brief Retrieves the decorator data of all decorators, taking into account externally supplied
 	  * plot boundaries. Decorators will usually not be drawn if they would "live" outside
 	  * of the plot boundaries. Lines will be cut at the boundaries. Text, however, will
 	  * not be affected by the boundaries. This function needs to be implemented by derived
 	  * classes.
+	  *
+	  * @param x_axis_range A (min, max) tuple delimiting the plot range along the x-axis
+	  * @param y_axis_range A (min, max) tuple delimiting the plot range along the y-axis
+	  * @param indent The leading whitespace prepended to each emitted line of plotting code
+	  * @return The concatenated plotting code of all contained decorators, clipped to the boundaries
 	  */
     virtual std::string decoratorData(
         const std::tuple<coordinate_type, coordinate_type> &x_axis_range,
@@ -630,7 +756,9 @@ public:
 protected:
     /***************************************************************************/
     /**
-	  * Loads the data of another object
+	  * @brief Loads the data of another object
+	  *
+	  * @param cp A pointer to another GDecoratorContainer object, camouflaged as the base type
 	  */
     void load_(const GDecoratorContainer<dimensions::Dim2, coordinate_type> *cp) override {
         // Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
@@ -652,8 +780,12 @@ protected:
 
     /***************************************************************************/
     /**
-	  * Searches for compliance with expectations with respect to another object
+	  * @brief Searches for compliance with expectations with respect to another object
 	  * of the same type
+	  *
+	  * @param cp A constant reference to another object of the same type
+	  * @param e The expectation for the comparison (e.g. equality or inequality)
+	  * @param limit The maximum allowed deviation for comparisons of floating point types
 	  */
     void compare_(
         const GDecoratorContainer<dimensions::Dim2, coordinate_type> &cp // the other object
@@ -685,7 +817,9 @@ protected:
 private:
     /***************************************************************************/
     /**
-	  * Returns the name of this class
+	  * @brief Returns the name of this class
+	  *
+	  * @return The mnemonic name of this class
 	  */
     std::string name_() const override {
         return std::string("GDecoratorContainer<dimensions::Dim2, coordinate_type>");
@@ -693,7 +827,9 @@ private:
 
     /***************************************************************************/
     /**
-	  * Creates a deep clone of this object.
+	  * @brief Creates a deep clone of this object.
+	  *
+	  * @return A deep clone of this object, allocated on the heap
 	  */
     GDecoratorContainer<dimensions::Dim2, coordinate_type> *clone_() const override = 0;
 
@@ -705,12 +841,21 @@ private:
 /******************************************************************************/
 /**
  * Specialization for 2D decorators
+ *
+ * @tparam coordinate_type The arithmetic type used for plot coordinates
  */
 template <typename coordinate_type>
 class GDecoratorContainer_2D : public GDecoratorContainer<dimensions::Dim2, coordinate_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /**
+     * Serializes this container (forwarding to its base) via Boost.Serialization.
+     *
+     * @tparam Archive The Boost.Serialization archive type
+     * @param ar The archive to serialize the base container to / from
+     * @param unsigned int The serialization version (unused)
+     */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -730,7 +875,9 @@ public:
 protected:
     /***************************************************************************/
     /**
-	  * Loads the data of another object
+	  * @brief Loads the data of another object
+	  *
+	  * @param cp A pointer to another GDecoratorContainer_2D object, camouflaged as the base type
 	  */
     void load_(const GDecoratorContainer<dimensions::Dim2, coordinate_type> *cp) override {
         // Check that we are dealing with a GDecoratorContainer_2D reference independent of this object and convert the pointer
@@ -752,8 +899,12 @@ protected:
 
     /***************************************************************************/
     /**
-	  * Searches for compliance with expectations with respect to another object
+	  * @brief Searches for compliance with expectations with respect to another object
 	  * of the same type
+	  *
+	  * @param cp A constant reference to another object of the same type
+	  * @param e The expectation for the comparison (e.g. equality or inequality)
+	  * @param limit The maximum allowed deviation for comparisons of floating point types
 	  */
     void compare_(
         const GDecoratorContainer<dimensions::Dim2, coordinate_type> &cp // the other object
@@ -793,7 +944,9 @@ protected:
 private:
     /***************************************************************************/
     /**
-	 * Returns the name of this class
+	 * @brief Returns the name of this class
+	 *
+	 * @return The mnemonic name of this class
 	 */
     std::string name_() const override {
         return std::string("GDecoratorContainer_2D<coordinate_type>");
@@ -801,7 +954,9 @@ private:
 
     /***************************************************************************/
     /**
-	  * Creates a deep clone of this object.
+	  * @brief Creates a deep clone of this object.
+	  *
+	  * @return A deep clone of this object, allocated on the heap
 	  */
     GDecoratorContainer<dimensions::Dim2, coordinate_type> *clone_() const override {
         return new GDecoratorContainer_2D<coordinate_type>(*this);
@@ -815,6 +970,8 @@ private:
 /******************************************************************************/
 /**
  * Specialization of GDecoratorContainer for 3D-plots
+ *
+ * @tparam coordinate_type The arithmetic type used for plot coordinates
  */
 template <typename coordinate_type>
 class GDecoratorContainer<dimensions::Dim3, coordinate_type>
@@ -823,6 +980,13 @@ class GDecoratorContainer<dimensions::Dim3, coordinate_type>
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /**
+     * Serializes this container (forwarding to the GPtrContainerT base) via Boost.Serialization.
+     *
+     * @tparam Archive The Boost.Serialization archive type
+     * @param ar The archive to serialize the base container to / from
+     * @param unsigned int The serialization version (unused)
+     */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -857,8 +1021,11 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the decorator data of all decorators. Plot boundaries are
+	  * @brief Retrieves the decorator data of all decorators. Plot boundaries are
 	  * not taken into account.
+	  *
+	  * @param indent The leading whitespace prepended to each emitted line of plotting code
+	  * @return The concatenated plotting code of all contained decorators
 	  */
     virtual std::string decoratorData(const std::string &indent) const {
         std::string result; // NOLINT(cppcoreguidelines-init-variables)
@@ -873,11 +1040,17 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the decorator data of all decorators, taking into account externally supplied
+	  * @brief Retrieves the decorator data of all decorators, taking into account externally supplied
 	  * plot boundaries. Decorators will usually not be drawn if they would "live" outside
 	  * of the plot boundaries. Lines will be cut at the boundaries. Text, however, will
 	  * not be affected by the boundaries. This function needs to be implemented by derived
 	  * classes.
+	  *
+	  * @param x_axis_range A (min, max) tuple delimiting the plot range along the x-axis
+	  * @param y_axis_range A (min, max) tuple delimiting the plot range along the y-axis
+	  * @param z_axis_range A (min, max) tuple delimiting the plot range along the z-axis
+	  * @param indent The leading whitespace prepended to each emitted line of plotting code
+	  * @return The concatenated plotting code of all contained decorators, clipped to the boundaries
 	  */
     virtual std::string decoratorData(
         const std::tuple<coordinate_type, coordinate_type> &x_axis_range,
@@ -899,7 +1072,9 @@ public:
 protected:
     /***************************************************************************/
     /**
-	  * Loads the data of another object
+	  * @brief Loads the data of another object
+	  *
+	  * @param cp A pointer to another GDecoratorContainer object, camouflaged as the base type
 	  */
     void load_(const GDecoratorContainer<dimensions::Dim3, coordinate_type> *cp) override {
         // Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
@@ -921,8 +1096,12 @@ protected:
 
     /***************************************************************************/
     /**
-	  * Searches for compliance with expectations with respect to another object
+	  * @brief Searches for compliance with expectations with respect to another object
 	  * of the same type
+	  *
+	  * @param cp A constant reference to another object of the same type
+	  * @param e The expectation for the comparison (e.g. equality or inequality)
+	  * @param limit The maximum allowed deviation for comparisons of floating point types
 	  */
     void compare_(
         const GDecoratorContainer<dimensions::Dim3, coordinate_type> &cp // the other object
@@ -954,7 +1133,9 @@ protected:
 private:
     /***************************************************************************/
     /**
-	  * Returns the name of this class
+	  * @brief Returns the name of this class
+	  *
+	  * @return The mnemonic name of this class
 	  */
     std::string name_() const override {
         return std::string("GDecoratorContainer<dimensions::Dim3, coordinate_type>");
@@ -962,7 +1143,9 @@ private:
 
     /***************************************************************************/
     /**
-	 * Creates a deep clone of this object.
+	 * @brief Creates a deep clone of this object.
+	 *
+	 * @return A deep clone of this object, allocated on the heap
 	 */
     GDecoratorContainer<dimensions::Dim3, coordinate_type> *clone_() const override = 0;
 
@@ -973,13 +1156,22 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Specialization for DD decorators
+ * Specialization for 3D decorators
+ *
+ * @tparam coordinate_type The arithmetic type used for plot coordinates
  */
 template <typename coordinate_type>
 class GDecoratorContainer_3D : public GDecoratorContainer<dimensions::Dim3, coordinate_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /**
+     * Serializes this container (forwarding to its base) via Boost.Serialization.
+     *
+     * @tparam Archive The Boost.Serialization archive type
+     * @param ar The archive to serialize the base container to / from
+     * @param unsigned int The serialization version (unused)
+     */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -999,7 +1191,9 @@ public:
 protected:
     /***************************************************************************/
     /**
-	  * Loads the data of another object
+	  * @brief Loads the data of another object
+	  *
+	  * @param cp A pointer to another GDecoratorContainer_3D object, camouflaged as the base type
 	  */
     void load_(const GDecoratorContainer<dimensions::Dim3, coordinate_type> *cp) override {
         // Check that we are dealing with a GDecoratorContainer_3D reference independent of this object and convert the pointer
@@ -1021,8 +1215,12 @@ protected:
 
     /***************************************************************************/
     /**
-	  * Searches for compliance with expectations with respect to another object
+	  * @brief Searches for compliance with expectations with respect to another object
 	  * of the same type
+	  *
+	  * @param cp A constant reference to another object of the same type
+	  * @param e The expectation for the comparison (e.g. equality or inequality)
+	  * @param limit The maximum allowed deviation for comparisons of floating point types
 	  */
     void compare_(
         const GDecoratorContainer<dimensions::Dim3, coordinate_type> &cp // the other object
@@ -1062,7 +1260,9 @@ protected:
 private:
     /***************************************************************************/
     /**
-	 * Returns the name of this class
+	 * @brief Returns the name of this class
+	 *
+	 * @return The mnemonic name of this class
 	 */
     std::string name_() const override {
         return std::string("GDecoratorContainer_3D<coordinate_type>");
@@ -1070,7 +1270,9 @@ private:
 
     /***************************************************************************/
     /**
-	 * Creates a deep clone of this object.
+	 * @brief Creates a deep clone of this object.
+	 *
+	 * @return A deep clone of this object, allocated on the heap
 	 */
     GDecoratorContainer<dimensions::Dim3, coordinate_type> *clone_() const override {
         return new GDecoratorContainer_3D<coordinate_type>(*this);

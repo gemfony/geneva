@@ -58,6 +58,8 @@ namespace Gem::Common {
  * The remaining methods (getMnemonic / getName / addCLOptions) expose metadata
  * and command-line options without producing an object, which is what the help
  * output and option parsing need.
+ *
+ * @tparam T The type of object handed out by provide()
  */
 template <typename T>
 class GProviderT { // NOLINT(cppcoreguidelines-special-member-functions)
@@ -67,13 +69,26 @@ public:
     /** @brief The (defaulted) destructor */
     virtual ~GProviderT() = default;
 
-    /** @brief Hands out a usable object (produced or prototype, depending on the flavour) */
+    /**
+     * @brief Hands out a usable object (produced or prototype, depending on the flavour)
+     * @return A usable object of type T (a freshly produced instance or a shared prototype)
+     */
     virtual std::shared_ptr<T> provide() = 0;
-    /** @brief The mnemonic this provider is registered under */
+    /**
+     * @brief The mnemonic this provider is registered under
+     * @return The short mnemonic key used to look this provider up in the global store
+     */
     virtual std::string getMnemonic() const = 0;
-    /** @brief A human-readable name, for help output (produces no object) */
+    /**
+     * @brief A human-readable name, for help output (produces no object)
+     * @return The provider's descriptive name
+     */
     virtual std::string getName() const = 0;
-    /** @brief Adds the provided object's command-line options (produces no object) */
+    /**
+     * @brief Adds the provided object's command-line options (produces no object)
+     * @param visible The options description collecting user-facing (documented) options
+     * @param hidden The options description collecting internal / undocumented options
+     */
     virtual void addCLOptions(
         boost::program_options::options_description &visible,
         boost::program_options::options_description &hidden

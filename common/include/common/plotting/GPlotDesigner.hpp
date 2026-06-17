@@ -42,6 +42,12 @@ class GPlotDesigner : public GCommonInterfaceT<GPlotDesigner> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /**
+     * @brief Serializes this designer's state to or from a Boost archive
+     * @tparam Archive The Boost.Serialization archive type
+     * @param ar The archive being read from or written to
+     * @param unsigned int The (unused) class version supplied by Boost.Serialization
+     */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -54,82 +60,148 @@ class GPlotDesigner : public GCommonInterfaceT<GPlotDesigner> {
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The standard constructor */
-    GPlotDesigner(const std::string &, const std::size_t &, const std::size_t &);
+    /**
+     * @brief The standard constructor
+     * @param canvas_label The label of the canvas
+     * @param c_x_div The number of plot divisions (pads) in the x-direction
+     * @param c_y_div The number of plot divisions (pads) in the y-direction
+     */
+    GPlotDesigner(const std::string &canvas_label, const std::size_t &c_x_div, const std::size_t &c_y_div);
 
-    /** @brief Copy constructor */
-    GPlotDesigner(GPlotDesigner const &);
-    /** @brief Assignment operator */
-    GPlotDesigner &operator=(GPlotDesigner const &);
+    /**
+     * @brief Copy constructor
+     * @param cp The designer to copy from
+     */
+    GPlotDesigner(GPlotDesigner const &cp);
+    /**
+     * @brief Assignment operator
+     * @param cp The designer to copy from
+     * @return A reference to this object
+     */
+    GPlotDesigner &operator=(GPlotDesigner const &cp);
 
     /*********************************************************************/
     // Defaulted constructors, destructor and assignment operators
 
     // Defaulted default constructor in private section
 
+    /** @brief The move constructor */
     GPlotDesigner(GPlotDesigner &&) = default;
+    /** @brief The (defaulted) destructor */
     ~GPlotDesigner() override = default;
 
+    /** @brief The move-assignment operator @return A reference to this object */
     GPlotDesigner &operator=(GPlotDesigner &&) = default;
 
     /*********************************************************************/
 
-    /* @brief Emits the overall plot */
+    /**
+     * @brief Emits the overall plot as a ROOT input script
+     * @param plot_name The name used in the emitted script (and a warning context); defaults to "empty"
+     * @return The complete ROOT input script as a string
+     */
     std::string
-    plot(const std::filesystem::path & = std::filesystem::path("empty")) const;
-    /** @brief Writes the plot to a file */
-    void writeToFile(const std::filesystem::path &);
+    plot(const std::filesystem::path & plot_name = std::filesystem::path("empty")) const;
+    /**
+     * @brief Writes the plot to a file
+     * @param file_name The path of the file the emitted plot script is written to
+     */
+    void writeToFile(const std::filesystem::path & file_name);
 
-    /** @brief Allows to add a new plotter object */
-    void registerPlotter(std::shared_ptr<GBasePlotter>);
+    /**
+     * @brief Allows to add a new plotter object
+     * @param plotter_ptr The plotter to register with this designer
+     */
+    void registerPlotter(std::shared_ptr<GBasePlotter> plotter_ptr);
 
-    /** @brief Set the dimensions of the output canvas */
-    void setCanvasDimensions(const std::uint32_t &, const std::uint32_t &);
-    /** @brief Set the dimensions of the output canvas */
-    void setCanvasDimensions(const std::tuple<std::uint32_t, std::uint32_t> &);
-    /** @brief Allows to retrieve the canvas dimensions */
+    /**
+     * @brief Set the dimensions of the output canvas
+     * @param c_x_dim The canvas width in pixels
+     * @param c_y_dim The canvas height in pixels
+     */
+    void setCanvasDimensions(const std::uint32_t & c_x_dim, const std::uint32_t & c_y_dim);
+    /**
+     * @brief Set the dimensions of the output canvas
+     * @param c_dim A tuple holding the canvas width and height (in pixels)
+     */
+    void setCanvasDimensions(const std::tuple<std::uint32_t, std::uint32_t> & c_dim);
+    /**
+     * @brief Allows to retrieve the canvas dimensions
+     * @return A tuple holding the canvas width and height (in pixels)
+     */
     std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions() const;
 
-    /** @brief Allows to set the canvas label */
-    void setCanvasLabel(const std::string &);
-    /** @brief Allows to retrieve the canvas label */
+    /**
+     * @brief Allows to set the canvas label
+     * @param canvas_label The label to be assigned to the entire canvas
+     */
+    void setCanvasLabel(const std::string & canvas_label);
+    /**
+     * @brief Allows to retrieve the canvas label
+     * @return The current canvas label
+     */
     std::string getCanvasLabel() const;
 
-    /** @brief Allows to add a "Print" command to the end of the script so that picture files are created */
-    void setAddPrintCommand(bool);
-    /** @brief Allows to retrieve the current value of the add_print_command_ variable */
+    /**
+     * @brief Allows to add a "Print" command to the end of the script so that picture files are created
+     * @param add_print_command Whether a print command (for png creation) should be appended to the script
+     */
+    void setAddPrintCommand(bool add_print_command);
+    /**
+     * @brief Allows to retrieve the current value of the add_print_command_ variable
+     * @return Whether a print command is appended to the emitted script
+     */
     bool getAddPrintCommand() const;
 
     /** @brief Resets the plotters */
     void resetPlotters();
 
-    /** @brief Allows to set the number of spaces used for indention */
-    void setNIndentionSpaces(const std::size_t &);
+    /**
+     * @brief Allows to set the number of spaces used for indention
+     * @param n_indention_spaces The number of spaces used for indenting emitted lines
+     */
+    void setNIndentionSpaces(const std::size_t & n_indention_spaces);
 
-    /** @brief Allows to retrieve the number spaces used for indention */
+    /**
+     * @brief Allows to retrieve the number spaces used for indention
+     * @return The number of spaces currently used for indention
+     */
     std::size_t getNIndentionSpaces() const;
 
-    /** @brief Returns the current number of indention spaces as a string */
+    /**
+     * @brief Returns the current number of indention spaces as a string
+     * @return A string consisting of the configured number of indention spaces
+     */
     std::string indent() const;
 
 protected:
-    /** @brief A header for static data in a ROOT file */
-    std::string staticHeader(const std::string &) const;
+    /**
+     * @brief A header for static data in a ROOT file
+     * @param indent The indentation string prepended to each emitted line
+     * @return The static-data header section of the ROOT script
+     */
+    std::string staticHeader(const std::string & indent) const;
 
-    /** @brief Loads the data of another object */
-    void load_(const GPlotDesigner *) override;
+    /**
+     * @brief Loads the data of another object
+     * @param cp A pointer to the GPlotDesigner whose data should be loaded into this object
+     */
+    void load_(const GPlotDesigner *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void
     compare_base_t<GPlotDesigner>(GPlotDesigner const &, GPlotDesigner const &, GToken &);
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type
+     * @param cp The other GPlotDesigner to compare against
+     * @param e The expectation for this comparison, e.g. equality
+     * @param limit The limit for allowed deviations of floating-point types
+     */
     void compare_(
-        const GPlotDesigner & // the other object
-        ,
-        const expectation & // the expectation for this object, e.g. equality
-        ,
-        const double & // the limit for allowed deviations of floating point types
+        const GPlotDesigner &cp,
+        const expectation &e,
+        const double &limit
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -145,9 +217,15 @@ private:
     /** @brief The default constructor -- only needed for (de-)serialization */
     GPlotDesigner() = default;
 
-    /** @brief Returns the name of this class */
+    /**
+     * @brief Returns the name of this class
+     * @return The string "GPlotDesigner"
+     */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object
+     * @return A newly allocated deep copy of this designer
+     */
     GPlotDesigner *clone_() const override;
 
     std::vector<std::shared_ptr<GBasePlotter>>
@@ -174,83 +252,101 @@ private:
 // Declare abstract or export class names for Boost.Serialization
 namespace boost::serialization {
 
+/** @brief Marks the 2D GDecorator as abstract for Boost.Serialization. @tparam coordinate_type The decorator's coordinate type */
 template <typename coordinate_type>
 struct is_abstract<Gem::Common::GDecorator<Gem::Common::dimensions::Dim2, coordinate_type>>
   : public std::true_type { /* nothing */
 };
+/** @brief Marks the const 2D GDecorator as abstract for Boost.Serialization. @tparam coordinate_type The decorator's coordinate type */
 template <typename coordinate_type>
 struct is_abstract<const Gem::Common::GDecorator<Gem::Common::dimensions::Dim2, coordinate_type>>
   : public std::true_type { /* nothing */
 };
 
+/** @brief Marks the 3D GDecorator as abstract for Boost.Serialization. @tparam coordinate_type The decorator's coordinate type */
 template <typename coordinate_type>
 struct is_abstract<Gem::Common::GDecorator<Gem::Common::dimensions::Dim3, coordinate_type>>
   : public std::true_type { /* nothing */
 };
+/** @brief Marks the const 3D GDecorator as abstract for Boost.Serialization. @tparam coordinate_type The decorator's coordinate type */
 template <typename coordinate_type>
 struct is_abstract<const Gem::Common::GDecorator<Gem::Common::dimensions::Dim3, coordinate_type>>
   : public std::true_type { /* nothing */
 };
 
+/** @brief Marks the 2D GDecoratorContainer as abstract for Boost.Serialization. @tparam coordinate_type The container's coordinate type */
 template <typename coordinate_type>
 struct is_abstract<Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim2, coordinate_type>>
   : public std::true_type { /* nothing */
 };
+/** @brief Marks the const 2D GDecoratorContainer as abstract for Boost.Serialization. @tparam coordinate_type The container's coordinate type */
 template <typename coordinate_type>
 struct is_abstract<
     const Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim2, coordinate_type>>
   : public std::true_type { /* nothing */
 };
 
+/** @brief Marks the 3D GDecoratorContainer as abstract for Boost.Serialization. @tparam coordinate_type The container's coordinate type */
 template <typename coordinate_type>
 struct is_abstract<Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim3, coordinate_type>>
   : public std::true_type { /* nothing */
 };
+/** @brief Marks the const 3D GDecoratorContainer as abstract for Boost.Serialization. @tparam coordinate_type The container's coordinate type */
 template <typename coordinate_type>
 struct is_abstract<
     const Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim3, coordinate_type>>
   : public std::true_type { /* nothing */
 };
 
+/** @brief Marks GDataCollector1T as abstract for Boost.Serialization. @tparam x_type The x-coordinate data type */
 template <typename x_type>
 struct is_abstract<Gem::Common::GDataCollector1T<x_type>> : public std::true_type { /* nothing */
 };
+/** @brief Marks const GDataCollector1T as abstract for Boost.Serialization. @tparam x_type The x-coordinate data type */
 template <typename x_type>
 struct is_abstract<const Gem::Common::GDataCollector1T<x_type>>
   : public std::true_type { /* nothing */
 };
 
+/** @brief Marks GDataCollector2T as abstract for Boost.Serialization. @tparam x_type The x data type @tparam y_type The y data type */
 template <typename x_type, typename y_type>
 struct is_abstract<Gem::Common::GDataCollector2T<x_type, y_type>>
   : public std::true_type { /* nothing */
 };
+/** @brief Marks const GDataCollector2T as abstract for Boost.Serialization. @tparam x_type The x data type @tparam y_type The y data type */
 template <typename x_type, typename y_type>
 struct is_abstract<const Gem::Common::GDataCollector2T<x_type, y_type>>
   : public std::true_type { /* nothing */
 };
 
+/** @brief Marks GDataCollector2ET as abstract for Boost.Serialization. @tparam x_type The x data type @tparam y_type The y data type */
 template <typename x_type, typename y_type>
 struct is_abstract<Gem::Common::GDataCollector2ET<x_type, y_type>>
   : public std::true_type { /* nothing */
 };
+/** @brief Marks const GDataCollector2ET as abstract for Boost.Serialization. @tparam x_type The x data type @tparam y_type The y data type */
 template <typename x_type, typename y_type>
 struct is_abstract<const Gem::Common::GDataCollector2ET<x_type, y_type>>
   : public std::true_type { /* nothing */
 };
 
+/** @brief Marks GDataCollector3T as abstract for Boost.Serialization. @tparam x_type The x data type @tparam y_type The y data type @tparam z_type The z data type */
 template <typename x_type, typename y_type, typename z_type>
 struct is_abstract<Gem::Common::GDataCollector3T<x_type, y_type, z_type>>
   : public std::true_type { /* nothing */
 };
+/** @brief Marks const GDataCollector3T as abstract for Boost.Serialization. @tparam x_type The x data type @tparam y_type The y data type @tparam z_type The z data type */
 template <typename x_type, typename y_type, typename z_type>
 struct is_abstract<const Gem::Common::GDataCollector3T<x_type, y_type, z_type>>
   : public std::true_type { /* nothing */
 };
 
+/** @brief Marks GDataCollector4T as abstract for Boost.Serialization. @tparam x_type The x data type @tparam y_type The y data type @tparam z_type The z data type @tparam w_type The w data type */
 template <typename x_type, typename y_type, typename z_type, typename w_type>
 struct is_abstract<Gem::Common::GDataCollector4T<x_type, y_type, z_type, w_type>>
   : public std::true_type { /* nothing */
 };
+/** @brief Marks const GDataCollector4T as abstract for Boost.Serialization. @tparam x_type The x data type @tparam y_type The y data type @tparam z_type The z data type @tparam w_type The w data type */
 template <typename x_type, typename y_type, typename z_type, typename w_type>
 struct is_abstract<const Gem::Common::GDataCollector4T<x_type, y_type, z_type, w_type>>
   : public std::true_type { /* nothing */

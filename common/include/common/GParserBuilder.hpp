@@ -103,6 +103,8 @@ constexpr bool GCL_IMPLICIT_NOT_ALLOWED = false;
  * parameter_source holds the available parameter sources. These sources are
  * grouped in the order "command line", "environment variable", "configuration
  * file" and "network".
+ *
+ * @tparam parameter_type The type of the stored parameter value
  */
 template <typename parameter_type>
 class GMultiSourceParameterT {
@@ -121,6 +123,9 @@ public:
     /***************************************************************************/
     /**
 	  * Construction with a default value
+	  *
+	  * @param default_value The value returned by value() when none of the
+	  * registered sources has set a value
 	  */
     explicit GMultiSourceParameterT(parameter_type default_value)
       : default_value_(default_value) { /* nothing */
@@ -140,6 +145,9 @@ public:
     /***************************************************************************/
     /**
 	  * Allows to set the value associated with a given data source
+	  *
+	  * @param data_source The source (command line, environment, config file, ...) the value originates from
+	  * @param parameter_value The value to store for that source
 	  */
     void set(Gem::Common::parameter_source data_source, parameter_type parameter_value) {
         parameter_values_.at(data_source) = parameter_value;
@@ -148,6 +156,9 @@ public:
     /***************************************************************************/
     /**
 	  * Allows to check whether the value for a given data source was set
+	  *
+	  * @param data_source The source whose set-state should be queried
+	  * @return true if a value has been stored for the given source, false otherwise
 	  */
     bool isSet(Gem::Common::parameter_source data_source) {
         return parameter_values_.at(data_source).second;
@@ -158,6 +169,8 @@ public:
 	  * Retrieves the first stored value that has been set, in the order of
 	  * appearance in parameter_values_, or alternatively the default value,
 	  * if the value was not set from any source.
+	  *
+	  * @return The first source value that was set, or the default value if none was set
 	  */
     parameter_type value() const {
         for(auto const &v_pair : parameter_values_) {
@@ -176,6 +189,9 @@ public:
     /**
 	  * Returns the value stored for a given data source. The function will throw
 	  * when called for a parameter source not listed in parameter_values_.
+	  *
+	  * @param data_source The source whose stored value should be retrieved
+	  * @return The value stored for the given source
 	  */
     parameter_type value(Gem::Common::parameter_source data_source) {
         return parameter_values_.at(data_source);
@@ -184,6 +200,8 @@ public:
     /***************************************************************************/
     /**
 	  * Automatic conversion for constant callers
+	  *
+	  * @return The effective value, as returned by value()
 	  */
     operator parameter_type() const { // NOLINT
         return value();
@@ -221,8 +239,9 @@ private:
  */
 class commentLevel { // NOLINT(cppcoreguidelines-special-member-functions)
 public:
-    /** @brief Enforce setting of the comment level */
-    explicit commentLevel(std::size_t);
+    /** @brief Enforce setting of the comment level
+     *  @param comment_level The id of the comment to be selected inside GParsableI */
+    explicit commentLevel(std::size_t comment_level);
 
     /*************************************************************************/
     // Defaulted or deleted functions functions
@@ -237,7 +256,8 @@ public:
 
     /*************************************************************************/
 
-    /** @brief Retrieves the current commentLevel */
+    /** @brief Retrieves the current commentLevel
+     *  @return The stored comment level id */
     std::size_t getCommentLevel() const;
 
 private:
@@ -266,11 +286,15 @@ public:
  */
 class GParsableI {
 public:
-    /** @brief A constructor for individual items */
-    GParsableI(std::string const &, std::string const &);
+    /** @brief A constructor for individual items
+     *  @param option_name The single option name of this parameter
+     *  @param comment The single comment associated with this parameter */
+    GParsableI(std::string const &option_name, std::string const &comment);
 
-    /** @brief A constructor for vectors */
-    GParsableI(std::vector<std::string> const &, std::vector<std::string> const &);
+    /** @brief A constructor for vectors
+     *  @param option_names The list of option names of this parameter
+     *  @param comments The list of comments associated with this parameter */
+    GParsableI(std::vector<std::string> const &option_names, std::vector<std::string> const &comments);
 
     /** @brief The destructor */
     virtual ~GParsableI() = default;
@@ -282,20 +306,31 @@ public:
     GParsableI &operator=(GParsableI const &) = delete;
     GParsableI &operator=(GParsableI &&) = delete;
 
-    /** @brief Retrieves the option name at a given position */
-    std::string optionName(std::size_t = 0) const;
-    /** @brief Retrieves the comment that was assigned to this variable at a given position */
-    std::string comment(std::size_t = 0) const;
-    /** @brief Checks whether comments have indeed been registered */
+    /** @brief Retrieves the option name at a given position
+     *  @param pos The index of the option name to retrieve (defaults to the first)
+     *  @return The option name stored at the given position */
+    std::string optionName(std::size_t pos = 0) const;
+    /** @brief Retrieves the comment that was assigned to this variable at a given position
+     *  @param pos The index of the comment to retrieve (defaults to the first)
+     *  @return The comment stored at the given position */
+    std::string comment(std::size_t pos = 0) const;
+    /** @brief Checks whether comments have indeed been registered
+     *  @return true if at least one non-empty comment is stored, false otherwise */
     bool hasComments() const;
-    /** @brief Retrieves the number of comments available */
+    /** @brief Retrieves the number of comments available
+     *  @return The number of comment entries stored */
     std::size_t numberOfComments() const;
-    /** @brief Retrieves the number of option names registered for this parameter */
+    /** @brief Retrieves the number of option names registered for this parameter
+     *  @return The number of option-name entries stored */
     std::size_t numberOfOptionNames() const;
 
     /***************************************************************************/
     /**
 	  * Create a std::vector<T> from a single element
+	  *
+	  * @tparam T The element type of the resulting vector
+	  * @param item The single element to place into the vector
+	  * @return A vector containing the single element
 	  */
     template <typename T>
     static std::vector<T> makeVector(T const &item) {
@@ -307,6 +342,11 @@ public:
     /***************************************************************************/
     /**
 	  * Create a std::vector<T> from two elements
+	  *
+	  * @tparam T The element type of the resulting vector
+	  * @param item1 The first element to place into the vector
+	  * @param item2 The second element to place into the vector
+	  * @return A vector containing both elements, in order
 	  */
     template <typename T>
     static std::vector<T> makeVector(T const &item1, T const &item2) {
@@ -320,6 +360,10 @@ public:
     /**
 	  * This function will forward all arguments to a newly created ostringstream
 	  * and will then be added to the current comment_ entry.
+	  *
+	  * @tparam T The type of the value to be streamed into the current comment
+	  * @param t The value to be appended (via operator<<) to the current comment
+	  * @return A reference to this object, to allow chaining
 	  */
     template <typename T>
     GParsableI &operator<<(T const &t) {
@@ -330,21 +374,33 @@ public:
     }
 
     /***************************************************************************/
-    /** @brief Needed for std::ostringstream */
+    /** @brief Needed for std::ostringstream
+     *  @param val A stream manipulator (such as std::endl) to apply to the current comment
+     *  @return A reference to this object, to allow chaining */
     GParsableI &operator<<(std::ostream &(*val)(std::ostream &));
-    /** @brief Needed for std::ostringstream */
+    /** @brief Needed for std::ostringstream
+     *  @param val An std::ios manipulator to apply to the current comment
+     *  @return A reference to this object, to allow chaining */
     GParsableI &operator<<(std::ios &(*val)(std::ios &));
-    /** @brief Needed for std::ostringstream */
+    /** @brief Needed for std::ostringstream
+     *  @param val An std::ios_base manipulator to apply to the current comment
+     *  @return A reference to this object, to allow chaining */
     GParsableI &operator<<(std::ios_base &(*val)(std::ios_base &));
-    /** @brief Allows to indicate the current comment level */
-    GParsableI &operator<<(commentLevel const &);
-    /** @brief Allows to switch to the next comment level */
-    GParsableI &operator<<(nextComment const &);
+    /** @brief Allows to indicate the current comment level
+     *  @param cl A commentLevel manipulator selecting the comment entry to append to
+     *  @return A reference to this object, to allow chaining */
+    GParsableI &operator<<(commentLevel const &cl);
+    /** @brief Allows to switch to the next comment level
+     *  @param nc A nextComment manipulator that advances to the next comment entry
+     *  @return A reference to this object, to allow chaining */
+    GParsableI &operator<<(nextComment const &nc);
 
 protected:
     /***************************************************************************/
-    /** @brief Splits a comment into sub-tokens */
-    std::vector<std::string> splitComment(std::string const &) const;
+    /** @brief Splits a comment into sub-tokens
+     *  @param comment The comment string to split into sub-tokens
+     *  @return The list of sub-tokens extracted from the comment */
+    std::vector<std::string> splitComment(std::string const &comment) const;
 
 private:
     /***************************************************************************/
@@ -367,11 +423,16 @@ class GFileParsableI : public GParsableI {
     friend class GParserBuilder;
 
 public:
-    /** @brief A constructor for individual items */
-    GFileParsableI(std::string const &, std::string const &, bool);
-    /** @brief A constructor for vectors */
-    
-    GFileParsableI(std::vector<std::string> const &, std::vector<std::string> const &, bool);
+    /** @brief A constructor for individual items
+     *  @param option_name The single option name of this parameter
+     *  @param comment The single comment associated with this parameter
+     *  @param is_essential Whether this is an essential (true) or secondary (false) parameter */
+    GFileParsableI(std::string const &option_name, std::string const &comment, bool is_essential);
+    /** @brief A constructor for vectors
+     *  @param option_names The list of option names of this parameter
+     *  @param comments The list of comments associated with this parameter
+     *  @param is_essential Whether this is an essential (true) or secondary (false) parameter */
+    GFileParsableI(std::vector<std::string> const &option_names, std::vector<std::string> const &comments, bool is_essential);
 
     /** @brief The destructor */
     ~GFileParsableI() override = default;
@@ -383,10 +444,11 @@ public:
     GFileParsableI &operator=(GFileParsableI const &) = delete;
     GFileParsableI &operator=(GFileParsableI &&) = delete;
 
-    /** @brief Checks whether this is an essential variable at a given position */
+    /** @brief Checks whether this is an essential variable at a given position
+     *  @return true if this parameter is essential, false if it is secondary */
     bool isEssential() const;
 
-    /** @brief Executes a stored callbacl function */
+    /** @brief Executes a stored call-back function */
     void executeCallBackFunction();
 
     /** @brief Returns the top-level configuration-file (JSON) key this parameter
@@ -394,18 +456,21 @@ public:
      *  array parameters write their data directly under it. Combined parameters
      *  override this to return their JSON group label, under which their
      *  sub-options nest. Used by the unknown-key diagnostic to recognise valid
-     *  top-level keys. */
+     *  top-level keys.
+     *  @return The top-level configuration-file key occupied by this parameter */
     virtual std::string topLevelConfigKey() const {
         return GParsableI::optionName(0);
     }
 
 private:
     /***************************************************************************/
-    /** @brief Loads data from a property_tree object */
-    virtual void load_from(boost::property_tree::ptree const &) = 0;
+    /** @brief Loads data from a property_tree object
+     *  @param pt The property tree from which data should be loaded */
+    virtual void load_from(boost::property_tree::ptree const &pt) = 0;
 
-    /** @brief Saves data to a property tree object */
-    virtual void save_to(boost::property_tree::ptree &) const = 0;
+    /** @brief Saves data to a property tree object
+     *  @param pt The property tree to which data should be saved */
+    virtual void save_to(boost::property_tree::ptree &pt) const = 0;
 
     /** @brief Executes a stored call-back function */
     virtual void executeCallBackFunction_() = 0;
@@ -422,6 +487,8 @@ private:
  * A base class for single parameters. This class was introduced so we can
  * reset the default values in a central location rather than having to
  * convert to different target class. This makes user-code easier.
+ *
+ * @tparam parameter_type The type of the wrapped single parameter
  */
 template <typename parameter_type>
 class GSingleParmT : public GFileParsableI {
@@ -432,6 +499,11 @@ public:
     /***************************************************************************/
     /**
 	  * Initializes the parameter and sets values in the parent class
+	  *
+	  * @param option_name_var The option name of this parameter
+	  * @param comment_var The comment associated with this parameter
+	  * @param is_essential_var Whether this is an essential (true) or secondary (false) parameter
+	  * @param def_val The default value used when the option is absent from the configuration file
 	  */
     GSingleParmT(
         const std::string &option_name_var,
@@ -465,6 +537,8 @@ protected:
 	  * that no important data is stored in par_, as its value will be overwritten
 	  * as well. The reason is that configuration files will otherwise contain
 	  * the "old" par_-value.
+	  *
+	  * @param def_val The new default value, which also overwrites the current parameter value
 	  */
     void resetDefault(parameter_type const &def_val) {
         def_val_ = def_val;
@@ -477,11 +551,13 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Loads data from a property_tree object */
-    void load_from(boost::property_tree::ptree const &) override = 0;
+    /** @brief Loads data from a property_tree object
+     *  @param pt The property tree from which data should be loaded */
+    void load_from(boost::property_tree::ptree const &pt) override = 0;
 
-    /** @brief Saves data to a property tree object */
-    void save_to(boost::property_tree::ptree &) const override = 0;
+    /** @brief Saves data to a property tree object
+     *  @param pt The property tree to which data should be saved */
+    void save_to(boost::property_tree::ptree &pt) const override = 0;
 };
 
 /******************************************************************************/
@@ -490,6 +566,8 @@ private:
 /**
  * This class wraps individual parsable file parameters, to which a callback
  * function has been assigned.
+ *
+ * @tparam parameter_type The type of the wrapped single parameter
  */
 template <typename parameter_type>
 class GFileSingleParsableParameterT : public GSingleParmT<parameter_type> {
@@ -500,6 +578,11 @@ public:
     /***************************************************************************/
     /**
 	  * Initializes the parameter and sets values in the parent class
+	  *
+	  * @param option_name_var The option name of this parameter
+	  * @param comment_var The comment associated with this parameter
+	  * @param is_essential_var Whether this is an essential (true) or secondary (false) parameter
+	  * @param def_val The default value used when the option is absent from the configuration file
 	  */
     GFileSingleParsableParameterT(
         const std::string &option_name_var,
@@ -519,6 +602,9 @@ public:
     /**
 	  * Initializes the parameter and sets values in the parent class, except
 	  * for comments.
+	  *
+	  * @param option_name_var The option name of this parameter
+	  * @param def_val The default value used when the option is absent from the configuration file
 	  */
     GFileSingleParsableParameterT(const std::string &option_name_var, const parameter_type &def_val)
       : GSingleParmT<parameter_type>(
@@ -639,6 +725,8 @@ private:
  * This class wraps a reference to individual parameters. Instead of
  * executing a stored call-back function, executeCallBackFunction will assign
  * the parsed value to the reference.
+ *
+ * @tparam parameter_type The type of the referenced single parameter
  */
 template <typename parameter_type>
 class GFileReferenceParsableParameterT : public GSingleParmT<parameter_type> {
@@ -649,6 +737,12 @@ public:
     /***************************************************************************/
     /**
 	  * Initializes the parameter and sets values in the parent class
+	  *
+	  * @param stored_reference The variable to which the parsed value will be assigned
+	  * @param option_name_var The option name of this parameter
+	  * @param comment_var The comment associated with this parameter
+	  * @param is_essential_var Whether this is an essential (true) or secondary (false) parameter
+	  * @param def_val The default value used when the option is absent from the configuration file
 	  */
     GFileReferenceParsableParameterT(
         parameter_type &stored_reference,
@@ -665,6 +759,10 @@ public:
     /**
 	  * Initializes the parameter and sets values in the parent class, except
 	  * for comments.
+	  *
+	  * @param stored_reference The variable to which the parsed value will be assigned
+	  * @param option_name_var The option name of this parameter
+	  * @param def_val The default value used when the option is absent from the configuration file
 	  */
     GFileReferenceParsableParameterT(
         parameter_type &stored_reference,
@@ -765,6 +863,9 @@ private:
  * A base class for combined parameters. This class was introduced so we can
  * reset the default values in a central location rather than having to
  * convert to different target class. This makes user-code easier.
+ *
+ * @tparam par_type0 The type of the first combined parameter
+ * @tparam par_type1 The type of the second combined parameter
  */
 template <typename par_type0, typename par_type1>
 class GCombinedParT : public GFileParsableI {
@@ -775,6 +876,15 @@ public:
     /***************************************************************************/
     /**
 	  * Initializes the parameter and sets values in the parent class
+	  *
+	  * @param option_name_var0 The option name of the first parameter
+	  * @param comment_var0 The comment associated with the first parameter
+	  * @param def_val0 The default value of the first parameter
+	  * @param option_name_var1 The option name of the second parameter
+	  * @param comment_var1 The comment associated with the second parameter
+	  * @param def_val1 The default value of the second parameter
+	  * @param is_essential_var Whether this is an essential (true) or secondary (false) parameter
+	  * @param combined_label The JSON group label under which both sub-options are nested
 	  */
     GCombinedParT(
         std::string const &option_name_var0,
@@ -816,7 +926,8 @@ public:
     /***************************************************************************/
     /** @brief The combined parameter nests its sub-options under a single JSON
      *  group label, so that label -- not the individual sub-option names -- is the
-     *  top-level configuration-file key. */
+     *  top-level configuration-file key.
+     *  @return The combined JSON group label */
     std::string topLevelConfigKey() const override {
         return combined_label_;
     }
@@ -828,6 +939,9 @@ protected:
 	  * that no important data is stored in par1_ and par_2, as their values will
 	  * be overwritten as well. The reason is that configuration files will otherwise
 	  * contain the "old" par_-value.
+	  *
+	  * @param def_val0 The new default value for the first parameter
+	  * @param def_val1 The new default value for the second parameter
 	  */
     void resetDefault(par_type0 const &def_val0, par_type1 const &def_val1) {
         def_val0_ = def_val0;
@@ -844,11 +958,13 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Loads data from a property_tree object */
-    void load_from(boost::property_tree::ptree const &) override = 0;
+    /** @brief Loads data from a property_tree object
+     *  @param pt The property tree from which data should be loaded */
+    void load_from(boost::property_tree::ptree const &pt) override = 0;
 
-    /** @brief Saves data to a property tree object */
-    void save_to(boost::property_tree::ptree &) const override = 0;
+    /** @brief Saves data to a property tree object
+     *  @param pt The property tree to which data should be saved */
+    void save_to(boost::property_tree::ptree &pt) const override = 0;
 };
 
 /******************************************************************************/
@@ -857,6 +973,9 @@ private:
 /**
  * This class wraps combined parsable file parameters, to which a callback
  * function has been assigned.
+ *
+ * @tparam par_type0 The type of the first combined parameter
+ * @tparam par_type1 The type of the second combined parameter
  */
 template <typename par_type0, typename par_type1>
 class GFileCombinedParsableParameterT : public GCombinedParT<par_type0, par_type1> {
@@ -867,6 +986,15 @@ public:
     /***************************************************************************/
     /**
 	  * Initializes the parameters
+	  *
+	  * @param option_name_var0 The option name of the first parameter
+	  * @param comment_var0 The comment associated with the first parameter
+	  * @param def_val0 The default value of the first parameter
+	  * @param option_name_var1 The option name of the second parameter
+	  * @param comment_var1 The comment associated with the second parameter
+	  * @param def_val1 The default value of the second parameter
+	  * @param is_essential_var Whether this is an essential (true) or secondary (false) parameter
+	  * @param combined_label The JSON group label under which both sub-options are nested
 	  */
     GFileCombinedParsableParameterT(
         std::string const &option_name_var0,
@@ -892,7 +1020,13 @@ public:
 
     /***************************************************************************/
     /**
-	  * Initializes the parameters
+	  * Initializes the parameters, except for comments
+	  *
+	  * @param option_name_var0 The option name of the first parameter
+	  * @param def_val0 The default value of the first parameter
+	  * @param option_name_var1 The option name of the second parameter
+	  * @param def_val1 The default value of the second parameter
+	  * @param combined_label The JSON group label under which both sub-options are nested
 	  */
     GFileCombinedParsableParameterT(
         std::string const &option_name_var0,
@@ -1075,6 +1209,8 @@ private:
  * A base class for vector parameters. This class was introduced so we can
  * reset the default values in a central location rather than having to
  * convert to different target class. This makes user-code easier.
+ *
+ * @tparam parameter_type The element type of the wrapped parameter vector
  */
 template <typename parameter_type>
 class GVectorParT : public GFileParsableI {
@@ -1085,6 +1221,11 @@ public:
     /***************************************************************************/
     /**
 	  * Initializes the parameter and sets values in the parent class
+	  *
+	  * @param option_name_var The option name of this parameter
+	  * @param comment_var The comment associated with this parameter
+	  * @param def_val The default values; par_cnt_ is seeded with these so a write before parsing emits one value per default
+	  * @param is_essential_var Whether this is an essential (true) or secondary (false) parameter
 	  */
     GVectorParT(
         std::string const &option_name_var,
@@ -1123,6 +1264,8 @@ protected:
 	  * Allows derived classes to reset the default value. Keeps par_cnt_ in
 	  * lock-step with the new defaults so a subsequent writeConfigFile()
 	  * before parsing still emits one "value" per "default" entry.
+	  *
+	  * @param def_val The new default values, which also reseed the current parameter values
 	  */
     void resetDefault(std::vector<parameter_type> const &def_val) {
         def_val_cnt_ = def_val;
@@ -1135,11 +1278,13 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Loads data from a property_tree object */
-    void load_from(boost::property_tree::ptree const &) override = 0;
+    /** @brief Loads data from a property_tree object
+     *  @param pt The property tree from which data should be loaded */
+    void load_from(boost::property_tree::ptree const &pt) override = 0;
 
-    /** @brief Saves data to a property tree object */
-    void save_to(boost::property_tree::ptree &) const override = 0;
+    /** @brief Saves data to a property tree object
+     *  @param pt The property tree to which data should be saved */
+    void save_to(boost::property_tree::ptree &pt) const override = 0;
 };
 
 /******************************************************************************/
@@ -1150,6 +1295,8 @@ private:
  * Note that this class does not enforce a given amount of parameters. However,
  * there needs to be at least one default value in the def_val vector, if
  * you plan to write out a parameter file.
+ *
+ * @tparam parameter_type The element type of the wrapped parameter vector
  */
 template <typename parameter_type>
 class GFileVectorParsableParameterT : public GVectorParT<parameter_type> {
@@ -1160,6 +1307,11 @@ public:
     /***************************************************************************/
     /**
 	  * Initializes the parameters
+	  *
+	  * @param option_name_var The option name of this parameter
+	  * @param comment_var The comment associated with this parameter
+	  * @param def_val The default values used when the option is absent from the configuration file
+	  * @param is_essential_var Whether this is an essential (true) or secondary (false) parameter
 	  */
     GFileVectorParsableParameterT(
         std::string const &option_name_var,
@@ -1178,6 +1330,9 @@ public:
     /***************************************************************************/
     /**
 	  * Initializes the parameters, except for comments
+	  *
+	  * @param option_name_var The option name of this parameter
+	  * @param def_val The default values used when the option is absent from the configuration file
 	  */
     GFileVectorParsableParameterT(
         std::string const &option_name_var,
@@ -1325,6 +1480,8 @@ private:
  * Note that this class does not enforce a given amount of parameters. However,
  * there needs to be at least one default value in the def_val vector, if
  * you plan to write out a parameter file.
+ *
+ * @tparam parameter_type The element type of the referenced parameter vector
  */
 template <typename parameter_type>
 class GFileVectorReferenceParsableParameterT : public GVectorParT<parameter_type> {
@@ -1335,6 +1492,12 @@ public:
     /***************************************************************************/
     /**
 	  * Initializes the parameters
+	  *
+	  * @param stored_reference The vector to which the parsed values will be assigned
+	  * @param option_name_var The option name of this parameter
+	  * @param comment_var The comment associated with this parameter
+	  * @param def_val The default values used when the option is absent from the configuration file
+	  * @param is_essential_var Whether this is an essential (true) or secondary (false) parameter
 	  */
     GFileVectorReferenceParsableParameterT(
         std::vector<parameter_type> &stored_reference,
@@ -1350,6 +1513,10 @@ public:
     /***************************************************************************/
     /**
 	  * Initializes the parameters, except for comments
+	  *
+	  * @param stored_reference The vector to which the parsed values will be assigned
+	  * @param option_name_var The option name of this parameter
+	  * @param def_val The default values used when the option is absent from the configuration file
 	  */
     GFileVectorReferenceParsableParameterT(
         std::vector<parameter_type> &stored_reference,
@@ -1473,6 +1640,9 @@ private:
  * A base class for array parameters. This class was introduced so we can
  * reset the default values in a central location rather than having to
  * convert to different target class. This makes user-code easier.
+ *
+ * @tparam parameter_type The element type of the wrapped parameter array
+ * @tparam N The fixed number of elements in the array
  */
 template <typename parameter_type, std::size_t N>
 class GArrayParT : public GFileParsableI {
@@ -1483,6 +1653,11 @@ public:
     /***************************************************************************/
     /**
 	  * Initializes the parameter and sets values in the parent class
+	  *
+	  * @param option_name_var The option name of this parameter
+	  * @param comment_var The comment associated with this parameter
+	  * @param def_val The default values used when the option is absent from the configuration file
+	  * @param is_essential_var Whether this is an essential (true) or secondary (false) parameter
 	  */
     GArrayParT(
         std::string const &option_name_var,
@@ -1516,6 +1691,8 @@ protected:
 	  * that no important data is stored in par_, as its value will be overwritten
 	  * as well. The reason is that configuration files will otherwise contain
 	  * the "old" par_-value.
+	  *
+	  * @param def_val_arr The new default values, which also overwrite the current parameter values
 	  */
     void resetDefault(std::array<parameter_type, N> const &def_val_arr) {
         def_val_arr_ = def_val_arr;
@@ -1528,11 +1705,13 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Loads data from a property_tree object */
-    void load_from(boost::property_tree::ptree const &) override = 0;
+    /** @brief Loads data from a property_tree object
+     *  @param pt The property tree from which data should be loaded */
+    void load_from(boost::property_tree::ptree const &pt) override = 0;
 
-    /** @brief Saves data to a property tree object */
-    void save_to(boost::property_tree::ptree &) const override = 0;
+    /** @brief Saves data to a property tree object
+     *  @param pt The property tree to which data should be saved */
+    void save_to(boost::property_tree::ptree &pt) const override = 0;
 };
 
 /******************************************************************************/
@@ -1541,6 +1720,9 @@ private:
 /**
  * This class wraps a std::array of values (obviously of identical type).
  * This class enforces a fixed number of items in the array.
+ *
+ * @tparam parameter_type The element type of the wrapped parameter array
+ * @tparam N The fixed number of elements in the array
  */
 template <typename parameter_type, std::size_t N>
 class GFileArrayParsableParameterT : public GArrayParT<parameter_type, N> {
@@ -1551,6 +1733,11 @@ public:
     /***************************************************************************/
     /**
 	  * Initializes the parameters
+	  *
+	  * @param option_name_var The option name of this parameter
+	  * @param comment_var The comment associated with this parameter
+	  * @param def_val The default values used when the option is absent from the configuration file
+	  * @param is_essential_var Whether this is an essential (true) or secondary (false) parameter
 	  */
     GFileArrayParsableParameterT(
         std::string const &option_name_var,
@@ -1569,6 +1756,9 @@ public:
     /***************************************************************************/
     /**
 	  * Initializes the parameters, except for comments
+	  *
+	  * @param option_name_var The option name of this parameter
+	  * @param def_val The default values used when the option is absent from the configuration file
 	  */
     GFileArrayParsableParameterT(
         std::string const &option_name_var,
@@ -1713,6 +1903,9 @@ private:
 /**
  * This class wraps a reference to a std::array of values (obviously of
  * identical type). This class enforces a fixed number of items in the array.
+ *
+ * @tparam parameter_type The element type of the referenced parameter array
+ * @tparam N The fixed number of elements in the array
  */
 template <typename parameter_type, std::size_t N>
 class GFileArrayReferenceParsableParameterT : public GArrayParT<parameter_type, N> {
@@ -1723,6 +1916,12 @@ public:
     /***************************************************************************/
     /**
 	  * Initializes the parameters
+	  *
+	  * @param stored_reference The array to which the parsed values will be assigned
+	  * @param option_name_var The option name of this parameter
+	  * @param comment_var The comment associated with this parameter
+	  * @param def_val The default values used when the option is absent from the configuration file
+	  * @param is_essential_var Whether this is an essential (true) or secondary (false) parameter
 	  */
     GFileArrayReferenceParsableParameterT(
         std::array<parameter_type, N> &stored_reference,
@@ -1738,6 +1937,10 @@ public:
     /***************************************************************************/
     /**
 	  * Initializes the parameters, except for comments
+	  *
+	  * @param stored_reference The array to which the parsed values will be assigned
+	  * @param option_name_var The option name of this parameter
+	  * @param def_val The default values used when the option is absent from the configuration file
 	  */
     GFileArrayReferenceParsableParameterT(
         std::array<parameter_type, N> &stored_reference,
@@ -1866,10 +2069,14 @@ class GCLParsableI : public GParsableI {
     friend class GParserBuilder;
 
 public:
-    /** @brief A constructor for individual items */
-    GCLParsableI(std::string const &, std::string const &);
-    /** @brief A constructor for vectors */
-    GCLParsableI(std::vector<std::string> const &, std::vector<std::string> const &);
+    /** @brief A constructor for individual items
+     *  @param option_name The single option name of this command-line parameter
+     *  @param comment The single comment associated with this command-line parameter */
+    GCLParsableI(std::string const &option_name, std::string const &comment);
+    /** @brief A constructor for vectors
+     *  @param option_names The list of option names of this command-line parameter
+     *  @param comments The list of comments associated with this command-line parameter */
+    GCLParsableI(std::vector<std::string> const &option_names, std::vector<std::string> const &comments);
 
     /** @brief The destructor */
     ~GCLParsableI() override = default;
@@ -1883,10 +2090,12 @@ public:
     GCLParsableI &operator=(GCLParsableI &&) = delete;
 
 protected:
-    /** @brief Saves data to a property tree object */
-    virtual void save_to(boost::program_options::options_description &) const = 0;
+    /** @brief Registers this option with a Boost.ProgramOptions options description
+     *  @param desc The options description to which this option is added */
+    virtual void save_to(boost::program_options::options_description &desc) const = 0;
 
-    /** @brief Returns the content of this object as a std::string */
+    /** @brief Returns the content of this object as a std::string
+     *  @return A human-readable representation of this option's name and value */
     virtual std::string content() const = 0;
 };
 
@@ -1895,6 +2104,8 @@ protected:
 /******************************************************************************/
 /**
  * This class wraps a reference to individual command line parameters.
+ *
+ * @tparam parameter_type The type of the referenced command-line parameter
  */
 template <typename parameter_type>
 class GCLReferenceParsableParameterT // NOLINT(cppcoreguidelines-special-member-functions)
@@ -1906,6 +2117,13 @@ public:
     /***************************************************************************/
     /**
 	  * A constructor that initializes the internal reference
+	  *
+	  * @param stored_reference The variable to which the parsed value will be assigned
+	  * @param option_name_var The option name of this command-line parameter
+	  * @param comment_var The comment associated with this command-line parameter
+	  * @param def_val The default value used when the option is absent from the command line
+	  * @param implicit_allowed Whether the option may be given without a value (e.g. --server vs --server=true)
+	  * @param impl_val The implicit value used when only the option name is given
 	  */
     GCLReferenceParsableParameterT(
         parameter_type &stored_reference,
@@ -1927,7 +2145,13 @@ public:
 
     /***************************************************************************/
     /**
-	  * A constructor that initializes the internal variiables, except for comments
+	  * A constructor that initializes the internal variables, except for comments
+	  *
+	  * @param stored_reference The variable to which the parsed value will be assigned
+	  * @param option_name_var The option name of this command-line parameter
+	  * @param def_val The default value used when the option is absent from the command line
+	  * @param implicit_allowed Whether the option may be given without a value (e.g. --server vs --server=true)
+	  * @param impl_val The implicit value used when only the option name is given
 	  */
     GCLReferenceParsableParameterT(
         parameter_type &stored_reference,
@@ -1959,7 +2183,9 @@ public:
 private:
     /***************************************************************************/
     /**
-	  * Saves data to a property tree object
+	  * Registers this option with a Boost.ProgramOptions options description
+	  *
+	  * @param desc The options description to which this option is added
 	  */
     void save_to(boost::program_options::options_description &desc) const override {
         namespace po = boost::program_options;
@@ -1984,6 +2210,8 @@ private:
     /***************************************************************************/
     /**
 	  * Returns the content of this object as a std::string
+	  *
+	  * @return A human-readable representation of this option's name and value
 	  */
     std::string content() const override {
         std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
@@ -2029,31 +2257,50 @@ public:
     GParserBuilder &operator=(GParserBuilder const &) = delete;
     GParserBuilder &operator=(GParserBuilder &&) = delete;
 
-    /** @brief Reads and parses a configuration file, applying the values to the registered options. Optionally hands the parsed ptree back via the second argument so callers can cache it. */
-    bool parseConfigFile(std::filesystem::path const &, boost::property_tree::ptree * = nullptr);
-    /** @brief Applies an already-parsed configuration ptree to the registered options (no file access); runs the optional unknown-key diagnostic. */
+    /** @brief Reads and parses a configuration file, applying the values to the registered options. Optionally hands the parsed ptree back via the second argument so callers can cache it.
+     *  @param config_file The path of the configuration file to read and parse
+     *  @param out_ptree Optional output pointer; if non-null, receives a copy of the parsed property tree for caching
+     *  @return true if the file already existed and was parsed, false if it had to be created from defaults */
+    bool parseConfigFile(std::filesystem::path const &config_file, boost::property_tree::ptree *out_ptree = nullptr);
+    /** @brief Applies an already-parsed configuration ptree to the registered options (no file access); runs the optional unknown-key diagnostic.
+     *  @param pt The already-parsed property tree to apply to the registered options
+     *  @param config_file The originating file path, used only for diagnostic messages (may be empty)
+     *  @param run_unknown_key_check Whether to run the unknown-key diagnostic for this load */
     void loadFromPtree(
-        boost::property_tree::ptree const &,
-        std::filesystem::path const & = {},
+        boost::property_tree::ptree const &pt,
+        std::filesystem::path const &config_file = {},
         bool run_unknown_key_check = true
     );
-    /** @brief Writes out a configuration file */
+    /** @brief Writes out a configuration file
+     *  @param config_file The path of the configuration file to write
+     *  @param header A header comment to be placed at the top of the file
+     *  @param write_all Whether to also write secondary (non-essential) options */
     void
-    writeConfigFile(std::filesystem::path const &, std::string const & = "", bool = true) const;
-    /** @brief Globally enables/disables the unknown-configuration-key diagnostic (default: enabled; warns on config keys no registered parameter consumes). */
-    static void setCheckUnknownKeys(bool);
-    /** @brief Retrieves whether the unknown-configuration-key diagnostic is enabled */
+    writeConfigFile(std::filesystem::path const &config_file, std::string const &header = "", bool write_all = true) const;
+    /** @brief Globally enables/disables the unknown-configuration-key diagnostic (default: enabled; warns on config keys no registered parameter consumes).
+     *  @param check Whether the unknown-key diagnostic should be enabled */
+    static void setCheckUnknownKeys(bool check);
+    /** @brief Retrieves whether the unknown-configuration-key diagnostic is enabled
+     *  @return true if the unknown-key diagnostic is enabled, false otherwise */
     static bool checkUnknownKeys();
-    /** @brief Globally selects whether an unknown configuration-file key is an error (true) or a warning (false, the default). Only takes effect when the check is enabled. Call once at startup. */
-    static void setUnknownKeyIsError(bool);
-    /** @brief Retrieves whether unknown configuration-file keys are treated as an error */
+    /** @brief Globally selects whether an unknown configuration-file key is an error (true) or a warning (false, the default). Only takes effect when the check is enabled. Call once at startup.
+     *  @param is_error Whether an unknown key should throw (true) instead of warning (false) */
+    static void setUnknownKeyIsError(bool is_error);
+    /** @brief Retrieves whether unknown configuration-file keys are treated as an error
+     *  @return true if unknown keys are treated as an error, false if they only warn */
     static bool unknownKeyIsError();
-    /** @brief Provides information on the number of file configuration options stored in this class */
+    /** @brief Provides information on the number of file configuration options stored in this class
+     *  @return The number of registered file configuration options */
     std::size_t numberOfFileOptions() const;
 
-    /** @brief Parses the commandline for options */
-    bool parseCommandLine(int, char **, bool = false);
-    /** @brief Provides information on the number of command line configuration options stored in this class */
+    /** @brief Parses the commandline for options
+     *  @param argc The number of command-line arguments
+     *  @param argv The array of command-line argument strings
+     *  @param verbose Whether to print the parsed options to the log
+     *  @return true if parsing succeeded and execution should continue, false if help was requested */
+    bool parseCommandLine(int argc, char **argv, bool verbose = false);
+    /** @brief Provides information on the number of command line configuration options stored in this class
+     *  @return The number of registered command-line configuration options */
     std::size_t numberOfCLOptions() const;
 
     /***************************************************************************/
@@ -2061,6 +2308,10 @@ public:
 	  * Allows to retrieve a GFileParsableI-derivative by name and to convert it to
 	  * the derived type. This allows us to selectively change properties of these
 	  * objects.
+	  *
+	  * @tparam fileParsableDerivative The concrete GFileParsableI-derived type to cast to
+	  * @param option_name The first option name identifying the desired file parameter
+	  * @return A shared pointer to the matching parameter cast to the requested type, or an empty pointer if none matches
 	  */
     template <typename fileParsableDerivative>
     std::shared_ptr<fileParsableDerivative>
@@ -2084,6 +2335,10 @@ public:
 	  * Allows to retrieve a GCLParsableI-derivative by name and to convert it to
 	  * the derived type. This allows us to selectively change properties of these
 	  * objects.
+	  *
+	  * @tparam clParsableDerivative The concrete GCLParsableI-derived type to cast to
+	  * @param option_name The first option name identifying the desired command-line parameter
+	  * @return A shared pointer to the matching parameter cast to the requested type, or an empty pointer if none matches
 	  */
     template <typename clParsableDerivative>
     std::shared_ptr<clParsableDerivative>
@@ -2108,6 +2363,14 @@ public:
 	  * Adds a single parameter of configurable type to the collection. When
 	  * this parameter has been read using parseConfigFile, a call-back
 	  * function is executed.
+	  *
+	  * @tparam parameter_type The type of the parameter being registered
+	  * @param option_name The name of the option
+	  * @param def_val A default value used if the parameter is absent from the configuration file
+	  * @param call_back The function to be executed with the parsed value
+	  * @param is_essential Whether this is an essential or a secondary parameter
+	  * @param comment A comment to be associated with the parameter in configuration files
+	  * @return A reference to the registered parameter proxy, to allow further configuration
 	  */
     template <typename parameter_type>
     GParsableI &registerFileParameter(
@@ -2162,11 +2425,13 @@ public:
     /**
 	  * Adds a parameter with a configurable type to the collection.
 	  *
+	  * @tparam parameter_type The type of the parameter being registered
 	  * @param option_name The name of the option
 	  * @param parameter The parameter into which the value will be written
 	  * @param def_val A default value to be used if the corresponding parameter was not found in the configuration file
 	  * @param is_essential A boolean which indicates whether this is an essential or a secondary parameter
 	  * @param comment A comment to be associated with the parameter in configuration files
+	  * @return A reference to the registered parameter proxy, to allow further configuration
 	  */
     template <typename parameter_type>
     GParsableI &registerFileParameter(
@@ -2223,6 +2488,10 @@ public:
 	  * a different default value in configuration files. This function is meant
 	  * to be called before any parsing takes place, as the par_-value will be
 	  * overwritten as well.
+	  *
+	  * @tparam parameter_type The type of the parameter whose default is reset
+	  * @param option_name The name of the option whose default value should be reset
+	  * @param def_val The new default value
 	  */
     template <typename parameter_type>
     void resetFileParameterDefaults(std::string const &option_name, parameter_type def_val) {
@@ -2250,6 +2519,19 @@ public:
 	  * Adds two parameters of configurable types to the collection. When
 	  * these parameters have been read using parseConfigFile, a call-back
 	  * function will be executed.
+	  *
+	  * @tparam par_type1 The type of the first parameter
+	  * @tparam par_type2 The type of the second parameter
+	  * @param option_name1 The name of the first option
+	  * @param option_name2 The name of the second option
+	  * @param def_val1 The default value of the first parameter
+	  * @param def_val2 The default value of the second parameter
+	  * @param call_back The function to be executed with both parsed values
+	  * @param combined_label The JSON group label under which both sub-options are nested
+	  * @param is_essential Whether this is an essential or a secondary parameter
+	  * @param comment1 A comment to be associated with the first parameter
+	  * @param comment2 A comment to be associated with the second parameter
+	  * @return A reference to the registered parameter proxy, to allow further configuration
 	  */
     template <typename par_type1, typename par_type2>
     GParsableI &registerFileParameter(
@@ -2319,6 +2601,12 @@ public:
 	  * the first option name here, but two default values. This function is meant
 	  * to be called before any parsing takes place, as the par_-value will be
 	  * overwritten as well.
+	  *
+	  * @tparam par_type1 The type of the first parameter
+	  * @tparam par_type2 The type of the second parameter
+	  * @param option_name1 The name of the first option, which identifies the combined parameter
+	  * @param def_val1 The new default value for the first parameter
+	  * @param def_val2 The new default value for the second parameter
 	  */
     template <typename par_type1, typename par_type2>
     void resetFileParameterDefaults(
@@ -2349,6 +2637,14 @@ public:
     /**
 	  * Adds a vector of configurable type to the collection, using a
 	  * call-back function
+	  *
+	  * @tparam parameter_type The element type of the parameter vector
+	  * @param option_name The name of the option
+	  * @param def_val The default values used if the parameter is absent from the configuration file
+	  * @param call_back The function to be executed with the parsed vector
+	  * @param is_essential Whether this is an essential or a secondary parameter
+	  * @param comment A comment to be associated with the parameter in configuration files
+	  * @return A reference to the registered parameter proxy, to allow further configuration
 	  */
     template <typename parameter_type>
     GParsableI &registerFileParameter(
@@ -2403,6 +2699,14 @@ public:
     /***************************************************************************/
     /**
 	  * Adds a reference to a vector of configurable type to the collection
+	  *
+	  * @tparam parameter_type The element type of the parameter vector
+	  * @param option_name The name of the option
+	  * @param stored_reference The vector to which the parsed values will be assigned
+	  * @param def_val The default values used if the parameter is absent from the configuration file
+	  * @param is_essential Whether this is an essential or a secondary parameter
+	  * @param comment A comment to be associated with the parameter in configuration files
+	  * @return A reference to the registered parameter proxy, to allow further configuration
 	  */
     template <typename parameter_type>
     GParsableI &registerFileParameter(
@@ -2459,10 +2763,13 @@ public:
     /***************************************************************************/
     /**
 	  * Allows to reset default values. This is useful, if a derived class needs
-	  * a different default value in configuration files. Note that we only need
-	  * the first option name here, but two default values. This function is meant
+	  * a different default value in configuration files. This function is meant
 	  * to be called before any parsing takes place, as the par_-value will be
 	  * overwritten as well.
+	  *
+	  * @tparam parameter_type The element type of the parameter vector
+	  * @param option_name The name of the option whose default values should be reset
+	  * @param def_val The new default values
 	  */
     template <typename parameter_type>
     void resetFileParameterDefaults(
@@ -2493,6 +2800,15 @@ public:
 	  * Adds an array of configurable type but fixed size to the collection.
 	  * This allows to make sure that a given amount of configuration options
 	  * must be available.
+	  *
+	  * @tparam parameter_type The element type of the parameter array
+	  * @tparam N The fixed number of elements in the array
+	  * @param option_name The name of the option
+	  * @param def_val The default values used if the parameter is absent from the configuration file
+	  * @param call_back The function to be executed with the parsed array
+	  * @param is_essential Whether this is an essential or a secondary parameter
+	  * @param comment A comment to be associated with the parameter in configuration files
+	  * @return A reference to the registered parameter proxy, to allow further configuration
 	  */
     template <typename parameter_type, std::size_t N>
     GParsableI &registerFileParameter(
@@ -2549,6 +2865,15 @@ public:
     /**
 	  * Adds a reference to an array of configurable type but fixed size
 	  * to the file parameter collection
+	  *
+	  * @tparam parameter_type The element type of the parameter array
+	  * @tparam N The fixed number of elements in the array
+	  * @param option_name The name of the option
+	  * @param stored_reference The array to which the parsed values will be assigned
+	  * @param def_val The default values used if the parameter is absent from the configuration file
+	  * @param is_essential Whether this is an essential or a secondary parameter
+	  * @param comment A comment to be associated with the parameter in configuration files
+	  * @return A reference to the registered parameter proxy, to allow further configuration
 	  */
     template <typename parameter_type, std::size_t N>
     GParsableI &registerFileParameter(
@@ -2605,10 +2930,14 @@ public:
     /***************************************************************************/
     /**
 	  * Allows to reset default values. This is useful, if a derived class needs
-	  * a different default value in configuration files. Note that we only need
-	  * the first option name here, but two default values. This function is meant
+	  * a different default value in configuration files. This function is meant
 	  * to be called before any parsing takes place, as the par_-value will be
 	  * overwritten as well.
+	  *
+	  * @tparam parameter_type The element type of the parameter array
+	  * @tparam N The fixed number of elements in the array
+	  * @param option_name The name of the option whose default values should be reset
+	  * @param def_val The new default values
 	  */
 
     template <typename parameter_type, std::size_t N>
@@ -2638,6 +2967,15 @@ public:
     /***************************************************************************/
     /**
 	  * Adds a reference to a configurable type to the command line parameters.
+	  *
+	  * @tparam parameter_type The type of the command-line parameter
+	  * @param option_name The name of the option
+	  * @param parameter The variable to which the parsed value will be assigned
+	  * @param def_val The default value used if the option is absent from the command line
+	  * @param comment A comment to be shown in the command-line help
+	  * @param implicit_allowed Whether the option may be given without a value (e.g. --server vs --server=true)
+	  * @param impl_val The implicit value used when only the option name is given
+	  * @return A reference to the registered parameter proxy, to allow further configuration
 	  */
     template <typename parameter_type>
     GParsableI &registerCLParameter(
@@ -2718,6 +3056,10 @@ private:
  * The function assumes that the target object has a suitable addConfigurationOptions
  * function. The function will automatically generate the configuration file using
  * the mechanisms implemented in GParserBuilder, should the file not exist.
+ *
+ * @tparam conf_object_type The type of the object to be configured; must provide addConfigurationOptions
+ * @param target_object The object to be configured from the file
+ * @param conf_file The path of the configuration file to read (created from defaults if absent)
  */
 template <typename conf_object_type>
 void configureFromFile(conf_object_type &target_object, std::filesystem::path const &conf_file) {

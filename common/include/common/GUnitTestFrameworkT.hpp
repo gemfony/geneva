@@ -49,9 +49,10 @@
 
 /******************************************************************************/
 /**
- * This function creates a new T object. It can be specialized by the tested objects e.g. in case
+ * @brief This function creates a new T object. It can be specialized by the tested objects e.g. in case
  * they do not have a default constructor.
  *
+ * @tparam T The type of the object to be created for testing
  * @return A std::shared_ptr to a newly created T object
  */
 template <typename T>

@@ -73,8 +73,13 @@ namespace Gem::Common {
 class GToken // NOLINT(cppcoreguidelines-special-member-functions)
 {
 public:
-    /** @brief The standard constructor -- initialization with class name and expectation */
-    GToken(std::string, Gem::Common::expectation);
+    /**
+     * @brief The standard constructor -- initialization with class name and expectation.
+     *
+     * @param caller The name of the calling class, recorded for use in diagnostic messages
+     * @param e The expectation (EQUALITY / FP_SIMILARITY / INEQUALITY) all checks fed to this token must fulfill
+     */
+    GToken(std::string caller, Gem::Common::expectation e);
 
     /*************************************************************************/
     // Defaulted or deleted constructors, destructor and assignment operators
@@ -94,32 +99,65 @@ public:
     /** @brief Increments the counter of tests that met the expectation */
     void incrSuccessCounter();
 
-    /** @brief Allows to retrieve the current state of the success counter */
+    /**
+     * @brief Allows to retrieve the current state of the success counter.
+     * @return The number of tests that have met the expectation so far
+     */
     std::size_t getSuccessCounter() const;
-    /** @brief Allows to retrieve the current state of the test counter */
+    /**
+     * @brief Allows to retrieve the current state of the test counter.
+     * @return The total number of tests performed so far
+     */
     std::size_t getTestCounter() const;
 
-    /** @brief Allows to check whether the expectation was met */
+    /**
+     * @brief Allows to check whether the expectation was met.
+     * @return true if all recorded tests met the expectation, false otherwise
+     */
     bool expectationMet() const;
-    /** @brief Conversion to a boolean indicating whether the expectation was met */
+    /**
+     * @brief Conversion to a boolean indicating whether the expectation was met.
+     * @return true if all recorded tests met the expectation, false otherwise
+     */
     operator bool() const; // NOLINT
 
-    /** @brief Allows to retrieve the expectation token */
+    /**
+     * @brief Allows to retrieve the expectation token.
+     * @return The expectation (EQUALITY / FP_SIMILARITY / INEQUALITY) this token enforces
+     */
     Gem::Common::expectation getExpectation() const;
-    /** @brief Allows to retrieve the expectation token as a string */
+    /**
+     * @brief Allows to retrieve the expectation token as a string.
+     * @return A human-readable string representation of the enforced expectation
+     */
     std::string getExpectationStr() const;
-    /** @brief Allows to retrieve the name of the caller */
+    /**
+     * @brief Allows to retrieve the name of the caller.
+     * @return The name of the calling class passed to the constructor
+     */
     std::string getCallerName() const;
 
-    /** @brief Allows to register an error message e.g. obtained from a failed check */
-    void registerErrorMessage(std::string const &);
-    /** @brief Allows to register an exception obtained from a failed check */
-    void registerErrorMessage(g_expectation_violation const &);
+    /**
+     * @brief Allows to register an error message e.g. obtained from a failed check.
+     * @param error_message The error message to append to this token's collection
+     */
+    void registerErrorMessage(std::string const &error_message);
+    /**
+     * @brief Allows to register an exception obtained from a failed check.
+     * @param g The expectation-violation exception whose message is appended to this token's collection
+     */
+    void registerErrorMessage(g_expectation_violation const &g);
 
-    /** @brief Allows to retrieve the currently registered error messages */
+    /**
+     * @brief Allows to retrieve the currently registered error messages.
+     * @return A concatenation of all error messages recorded for failed checks
+     */
     std::string getErrorMessages() const;
 
-    /** @brief Conversion to a string indicating success or failure */
+    /**
+     * @brief Conversion to a string indicating success or failure.
+     * @return A human-readable summary of this token's success / failure state
+     */
     std::string toString() const;
 
     /** @brief Evaluates the information in this object */
@@ -139,7 +177,11 @@ private:
 
 /******************************************************************************/
 /**
- * This function facilitates the output of GToken objects, mostly for debugging purposes.
+ * @brief This function facilitates the output of GToken objects, mostly for debugging purposes.
+ *
+ * @param s The output stream the token is written to
+ * @param g The GToken object to be streamed
+ * @return A reference to the (modified) output stream, for chaining
  */
 std::ostream &operator<<(std::ostream &s, GToken const &g);
 
@@ -151,6 +193,8 @@ std::ostream &operator<<(std::ostream &s, GToken const &g);
 
 /**
  * This struct facilitates transfer of comparable items to comparators
+ *
+ * @tparam T The type of the two items (held by const reference) to be compared
  */
 template <typename T>
 struct identity // NOLINT(cppcoreguidelines-special-member-functions)
@@ -158,7 +202,13 @@ struct identity // NOLINT(cppcoreguidelines-special-member-functions)
 public:
     /***************************************************************************/
     /**
-     * The standard constructor
+     * @brief The standard constructor.
+     *
+     * @param x_var The first item to be compared (held by const reference)
+     * @param y_var The second item to be compared (held by const reference)
+     * @param x_name_var A human-readable name for the first item (moved into the struct)
+     * @param y_name_var A human-readable name for the second item (moved into the struct)
+     * @param l_var The maximum allowed deviation for "similar" floating point values
      */
     identity(
         T const &x_var,
@@ -195,6 +245,9 @@ public:
      * or `static_cast<identity<Base>>(id)`); implicit conversion would
      * widen the set of overload-resolution paths in surprising ways and
      * is rarely what the caller wants.
+     *
+     * @tparam base_type A base class of T that the held items are re-viewed as
+     * @return An identity object whose items are the base-class views of this object's items
      */
     template <typename base_type>
     explicit operator identity<base_type>() const {
@@ -214,7 +267,11 @@ public:
 private:
     /***************************************************************************/
     /**
-     * Does the actual conversion, including a check that base_type is indeed a base of T
+     * @brief Does the actual conversion, including a check that base_type is indeed a base of T.
+     *
+     * @tparam base_type A base class of T (enforced via a requires-clause) the items are cast to
+     * @return An identity object whose items are dynamic_cast base-class references of this object's items,
+     *         with the names prefixed by the base-type name and the same limit retained
      */
     template <typename base_type>
         requires std::is_base_of_v<base_type, T>
@@ -234,7 +291,12 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Easy output of an identity object
+ * @brief Easy output of an identity object.
+ *
+ * @tparam T The type of the items held by the identity object
+ * @param s The output stream the identity object is written to
+ * @param i The identity object whose item names are streamed
+ * @return A reference to the (modified) output stream, for chaining
  */
 template <typename T>
 std::ostream &operator<<(std::ostream &s, identity<T> const &i) {
@@ -246,9 +308,16 @@ std::ostream &operator<<(std::ostream &s, identity<T> const &i) {
 
 /******************************************************************************/
 /**
- * Returns an identity object. The function is needed as automatic type
+ * @brief Returns an identity object. The function is needed as automatic type
  * deduction does not work for structs / classes. We assume a central default
  * value for the maximum allowed difference for "similar" floating point values.
+ *
+ * @tparam T The type of the two items to be compared
+ * @param x_var The first item to be compared
+ * @param y_var The second item to be compared
+ * @param x_name_var A human-readable name for the first item
+ * @param y_name_var A human-readable name for the second item
+ * @return An identity object wrapping the two items, their names and the default similarity difference
  */
 template <typename T>
 identity<T> getIdentity(
@@ -275,7 +344,15 @@ identity<T> getIdentity(
 
 /******************************************************************************/
 /**
- * Returns an identity object for base types of T
+ * @brief Returns an identity object for base types of T.
+ *
+ * @tparam T The concrete type of the two items being compared
+ * @tparam base_type The base class of T the items are dynamic_cast to before being wrapped
+ * @param x_var The first item to be compared (cast to base_type const &)
+ * @param y_var The second item to be compared (cast to base_type const &)
+ * @param x_name_var A human-readable name for the first item
+ * @param y_name_var A human-readable name for the second item
+ * @return An identity object holding the base-class views of the two items and the default similarity difference
  */
 template <typename T, typename base_type>
 identity<base_type> getBaseIdentity(
@@ -322,11 +399,15 @@ identity<base_type> getBaseIdentity(
  * The function will throw a g_expectation_violation exception if the expectation
  * was violated.
  *
+ * @tparam basic_type The (non-floating-point, non-Gemfony) type of the items being compared
  * @param x The first parameter to be compared
  * @param y The second parameter to be compared
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
+ *
+ * @note The trailing (unnamed) double argument is an unused tolerance value,
+ *       present only to match the common compare() signature for non-FP types.
  */
 template <typename basic_type>
     requires (!std::is_floating_point_v<basic_type> &&
@@ -380,11 +461,16 @@ void compare(
  * equality. The function will throw a g_expectation_violation exception if the expectation
  * was violated.
  *
+ * @tparam Clock The clock type of the compared time points
+ * @tparam Duration The duration type of the compared time points (defaults to Clock::duration)
  * @param x The first parameter to be compared
  * @param y The second parameter to be compared
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
+ *
+ * @note The trailing (unnamed) double argument is an unused tolerance value,
+ *       present only to match the common compare() signature.
  */
 template <typename Clock, typename Duration = typename Clock::duration>
 void compare(
@@ -436,11 +522,16 @@ void compare(
  * equality. The function will throw a g_expectation_violation exception if the expectation
  * was violated.
  *
+ * @tparam Rep The arithmetic representation type of the compared durations
+ * @tparam Period The std::ratio tick period of the compared durations (defaults to std::ratio<1>)
  * @param x The first parameter to be compared
  * @param y The second parameter to be compared
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
+ *
+ * @note The trailing (unnamed) double argument is an unused tolerance value,
+ *       present only to match the common compare() signature.
  */
 template <typename Rep, typename Period = std::ratio<1>>
 void compare(
@@ -489,12 +580,13 @@ void compare(
  * The function will throw a g_expectation_violation exception if the expectation
  * was violated.
  *
+ * @tparam fp_type The floating point type of the two values being compared
  * @param x The first parameter to be compared
  * @param y The second parameter to be compared
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
- * @param limit The maximum allowed deviation of two floating point values
+ * @param limit The maximum allowed deviation of two floating point values (only used for FP_SIMILARITY)
  */
 template <std::floating_point fp_type>
 void compare(
@@ -550,11 +642,16 @@ void compare(
  * A specialization of this function is provided for floating point values. The function will throw a
  * g_expectation_violation exception if the expectation was violated.
  *
+ * @tparam base_type The (non-floating-point) element type held by the containers
+ * @tparam c_type The sequence container template (e.g. std::vector, std::deque) parameterised by element and allocator
  * @param x The first container to be compared
  * @param y The second container to be compared
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
+ *
+ * @note The trailing (unnamed) double argument is an unused tolerance value,
+ *       present only to match the common compare() signature for non-FP element types.
  */
 template <typename base_type, template <typename, typename> class c_type>
     requires (!std::is_floating_point_v<base_type>)
@@ -631,11 +728,16 @@ void compare(
  * the same as a check for equality. A specialization of this function is provided for floating point values.
  * The function will throw a g_expectation_violation exception if the expectation was violated.
  *
+ * @tparam base_type The (non-floating-point) element type held by the set-like containers
+ * @tparam s_type The set container template (e.g. std::set) parameterised by element, comparator and allocator
  * @param x The first container to be compared
  * @param y The second container to be compared
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
+ *
+ * @note The trailing (unnamed) double argument is an unused tolerance value,
+ *       present only to match the common compare() signature for non-FP element types.
  */
 template <typename base_type, template <typename, typename, typename> class s_type>
     requires (!std::is_floating_point_v<base_type>)
@@ -710,12 +812,14 @@ void compare(
 /**
  * This function checks whether two containers of floating point types meet a given expectation.
  *
+ * @tparam fp_type The floating point element type held by the containers
+ * @tparam c_type The sequence container template (e.g. std::vector, std::deque) parameterised by element and allocator
  * @param x The first vector to be compared
  * @param y The second vector to be compared
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
- * @param limit The maximum allowed deviation of two floating point values
+ * @param limit The maximum allowed per-element deviation of two floating point values (only used for FP_SIMILARITY)
  */
 template <std::floating_point fp_type, template <typename, typename> class c_type>
 void compare(
@@ -808,12 +912,14 @@ void compare(
  * This function checks whether two containers with a std::set template interface,
  * holding floating point types meet a given expectation.
  *
+ * @tparam fp_type The floating point element type held by the set-like containers
+ * @tparam s_type The set container template (e.g. std::set) parameterised by element, comparator and allocator
  * @param x The first vector to be compared
  * @param y The second vector to be compared
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
- * @param limit The maximum allowed deviation of two floating point values
+ * @param limit The maximum allowed per-element deviation of two floating point values (only used for FP_SIMILARITY)
  */
 template <std::floating_point fp_type, template <typename, typename, typename> class s_type>
 void compare(
@@ -906,12 +1012,13 @@ void compare(
  * This function checks whether two complex types meet a given expectation. It is assumed that
  * these types have the standard Geneva interface with corresponding "compare" functions.
  *
+ * @tparam geneva_type A type satisfying the Gemfony common interface (provides a compare() member)
  * @param x The first parameter to be compared
  * @param y The second parameter to be compared
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
- * @param limit The maximum allowed deviation of two floating point values
+ * @param limit The maximum allowed deviation of two floating point values, forwarded to the member compare()
  */
 template <typename geneva_type>
     requires Gem::Common::gemfony_common_interface<geneva_type>
@@ -982,12 +1089,13 @@ void compare(
  * It is assumed that these types have the standard Geneva interface with corresponding "compare"
  * functions.
  *
- * @param x The first parameter to be compared
- * @param y The second parameter to be compared
+ * @tparam geneva_type A type satisfying the Gemfony common interface (provides a compare() member)
+ * @param x The first parameter to be compared (a smart pointer; may be empty)
+ * @param y The second parameter to be compared (a smart pointer; may be empty)
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
- * @param limit The maximum allowed deviation of two floating point values
+ * @param limit The maximum allowed deviation of two floating point values, forwarded to the pointee compare()
  */
 template <typename geneva_type>
     requires Gem::Common::gemfony_common_interface<geneva_type>
@@ -1091,12 +1199,13 @@ void compare(
  * reported as unequal. The pointees are viewed through NON-OWNING shared_ptrs (no-op deleter) so the
  * full shared_ptr comparison logic (null handling, EQUALITY / INEQUALITY) is reused verbatim.
  *
- * @param x The first parameter to be compared
- * @param y The second parameter to be compared
+ * @tparam geneva_type A type satisfying the Gemfony common interface (provides a compare() member)
+ * @param x The first parameter to be compared (a uniquely-owned pointer; may be empty)
+ * @param y The second parameter to be compared (a uniquely-owned pointer; may be empty)
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
- * @param limit The maximum allowed deviation of two floating point values
+ * @param limit The maximum allowed deviation of two floating point values, forwarded to the pointee compare()
  */
 template <typename geneva_type>
     requires Gem::Common::gemfony_common_interface<geneva_type>
@@ -1125,12 +1234,14 @@ void compare(
  * functions. For an idea of what the template specifier does, search for "template template" in conjunction
  * with containers.
  *
+ * @tparam geneva_type A type satisfying the Gemfony common interface (provides a compare() member)
+ * @tparam c_type The sequence container template (e.g. std::vector) holding the smart pointers
  * @param x The first vector to be compared
  * @param y The second vector to be compared
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
- * @param limit The maximum allowed deviation of two floating point values
+ * @param limit The maximum allowed deviation of two floating point values, forwarded to each element compare()
  */
 template <typename geneva_type, template <typename, typename> class c_type>
     requires Gem::Common::gemfony_common_interface<geneva_type>
@@ -1281,12 +1392,14 @@ void compare(
  * element addresses, so two independent clones would always be reported as unequal. Non-owning
  * shared_ptr views (no-op deleter) are built so the full shared_ptr container logic is reused verbatim.
  *
+ * @tparam geneva_type A type satisfying the Gemfony common interface (provides a compare() member)
+ * @tparam c_type The sequence container template (e.g. std::vector) holding the unique pointers
  * @param x The first vector to be compared
  * @param y The second vector to be compared
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
- * @param limit The maximum allowed deviation of two floating point values
+ * @param limit The maximum allowed deviation of two floating point values, forwarded to each element compare()
  */
 template <typename geneva_type, template <typename, typename> class c_type>
     requires Gem::Common::gemfony_common_interface<geneva_type>
@@ -1312,8 +1425,17 @@ void compare(
 }
 
 /******************************************************************************/
-/** @brief This function checks whether two objects of type Gem::Common::tribool meet a given expectation. */
-
+/**
+ * @brief This function checks whether two objects of type Gem::Common::tribool meet a given expectation.
+ *
+ * The parameters, in signature order, are: the first tribool to compare, the second tribool to compare,
+ * the name of the first tribool, the name of the second tribool, the expectation both must fulfill,
+ * and the limit (the maximum allowed deviation of two floating point values; unused for tribool and
+ * present only to match the common compare() signature). A g_expectation_violation exception is thrown
+ * if the expectation is violated.
+ *
+ * @param limit The maximum allowed deviation of two floating point values (unused for tribool)
+ */
 void compare(
     Gem::Common::tribool const &,
     Gem::Common::tribool const &,
@@ -1325,10 +1447,16 @@ void compare(
 
 /******************************************************************************/
 /**
- * This function checks whether two types fulfill a given expectation.
+ * @brief This function checks whether two types fulfill a given expectation.
  *
- * @param data The identity struct
- * @param token The token holding information about the number of failed tests
+ * It increments the token's test counter, delegates to the appropriate compare() overload using the
+ * items, names and limit held by the identity struct and the expectation taken from the token, and
+ * records either success or a registered error message on the token. Non-expectation exceptions are
+ * re-thrown as a geneva_exception.
+ *
+ * @tparam T The type of the two items wrapped by the identity struct
+ * @param data The identity struct holding the two items, their names and the comparison limit
+ * @param token The token holding the expectation and accumulating test / success counts and error messages
  */
 template <typename T>
 void compare_t(identity<T> const &data, GToken &token) {
@@ -1356,7 +1484,16 @@ void compare_t(identity<T> const &data, GToken &token) {
 
 /******************************************************************************/
 /**
- * This function checks whether two base types fulfill a given expectation.
+ * @brief This function checks whether two base types fulfill a given expectation.
+ *
+ * It forces the use of base_type's own compare_() member (so only the base-class slice is compared),
+ * incrementing the token's test counter and recording success or a registered error message on the
+ * token. Non-expectation exceptions are re-thrown as a geneva_exception.
+ *
+ * @tparam base_type The base class whose compare_() member is invoked for the comparison
+ * @param x The first object whose base_type slice is compared
+ * @param y The second object whose base_type slice is compared
+ * @param token The token holding the expectation and accumulating test / success counts and error messages
  */
 template <typename base_type>
 void compare_base_t(base_type const &x, base_type const &y, GToken &token) {
@@ -1396,17 +1533,53 @@ void compare_base_t(base_type const &x, base_type const &y, GToken &token) {
  */
 
 /******************************************************************************/
-/** @brief Compares a single member pairwise, dispatched on its kind. */
+/**
+ * @brief Compares a single member pairwise, dispatched on its kind.
+ *
+ * This overload handles plain (non-atomic) member descriptors by feeding their referenced values
+ * and names to compare_t().
+ *
+ * @tparam A The descriptor type of the first member (exposes .ref and .name)
+ * @tparam B The descriptor type of the second member (exposes .ref and .name)
+ * @param a The first member descriptor (its .ref value and .name are compared)
+ * @param b The second member descriptor (its .ref value and .name are compared)
+ * @param token The token holding the expectation and recording the comparison result
+ */
 template <typename A, typename B>
 void g_compare_one(const A &a, const B &b, GToken &token) {
     compare_t(getIdentity(a.ref, b.ref, a.name, b.name), token);
 }
+/**
+ * @brief Compares a single atomic member pairwise, dispatched on its kind.
+ *
+ * This overload compares the loaded values of atomic member descriptors rather than the atomic
+ * objects themselves.
+ *
+ * @tparam A The value type wrapped by the first atomic member descriptor
+ * @tparam B The value type wrapped by the second atomic member descriptor
+ * @param a The first atomic member descriptor (its loaded .ref value and .name are compared)
+ * @param b The second atomic member descriptor (its loaded .ref value and .name are compared)
+ * @param token The token holding the expectation and recording the comparison result
+ */
 template <typename A, typename B>
 void g_compare_one(const atomic_member_t<A> &a, const atomic_member_t<B> &b, GToken &token) {
     // Compare the loaded values rather than the atomic objects themselves.
     compare_t(getIdentity(a.ref.load(), b.ref.load(), a.name, b.name), token);
 }
 
+/**
+ * @brief Compares two tuples of member descriptors element-by-element via a fold over an index sequence.
+ *
+ * @tparam ATuple The tuple type of the first set of member descriptors
+ * @tparam BTuple The tuple type of the second set of member descriptors
+ * @tparam I The compile-time index pack enumerating the tuple elements to compare
+ * @param a The first tuple of member descriptors
+ * @param b The second tuple of member descriptors
+ * @param token The token holding the expectation and accumulating the per-member comparison results
+ *
+ * @note The trailing (unnamed) std::index_sequence<I...> argument only carries the indices I... that
+ *       drive the comparison fold; it has no runtime value.
+ */
 template <typename ATuple, typename BTuple, std::size_t... I>
 void g_compare_members_impl(
     const ATuple &a, const BTuple &b, GToken &token, std::index_sequence<I...>
@@ -1414,7 +1587,15 @@ void g_compare_members_impl(
     (g_compare_one(std::get<I>(a), std::get<I>(b), token), ...);
 }
 
-/** @brief Compares each local member pairwise, recording results in the token. */
+/**
+ * @brief Compares each local member pairwise, recording results in the token.
+ *
+ * @tparam ATuple The tuple type of the first object's local member descriptors
+ * @tparam BTuple The tuple type of the second object's local member descriptors
+ * @param a The first object's tuple of local member descriptors (e.g. from localMembers())
+ * @param b The second object's tuple of local member descriptors (e.g. from localMembers())
+ * @param token The token holding the expectation and accumulating the per-member comparison results
+ */
 template <typename ATuple, typename BTuple>
 void g_compare_members(ATuple a, BTuple b, GToken &token) {
     static_assert(

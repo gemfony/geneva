@@ -57,6 +57,8 @@ namespace Gem::Common {
  * will have the same options. NOTE: This class uses locking internally
  * to make it thread-safe. It thus assumes occasional accesses and is not
  * suited well for frequent querying.
+ *
+ * @tparam T The type of the option values stored in this option store
  */
 template <typename T>
 class GGlobalOptionsT { // NOLINT(cppcoreguidelines-special-member-functions)
@@ -80,11 +82,11 @@ public:
 
     /***************************************************************************/
     /**
-	 * Retrieves the value of an option from the map, storing it in
+	 * @brief Retrieves the value of an option from the map, storing it in
 	 * an argument.
 	 *
 	 * @param key The name of the option that should be retrieved
-	 * @param value The value that should be retrieved
+	 * @param value An output parameter that receives the option's value if the key exists
 	 * @return A boolean indicating whether retrieval of the option was successful
 	 */
     bool get(const std::string &key, T &value) {
@@ -98,12 +100,17 @@ public:
 
     /***************************************************************************/
     /**
-	 * Retrieves an option from the map, returning it as the function result.
+	 * @brief Retrieves an option from the map, returning it as the function result.
+	 *
 	 * Throws @c geneva_exception when the key does not exist (previously, the
 	 * function used @c map::operator[] which silently inserted a default-
 	 * constructed value — surprising for a read-only accessor and a source of
 	 * silent map growth / null-deref bugs in callers that forgot to call
 	 * @c exists() first).
+	 *
+	 * @param key The name of the option that should be retrieved
+	 * @return The value associated with the given key
+	 * @throw geneva_exception if the key is not present in the option map
 	 */
     T get(const std::string &key) {
         std::scoped_lock guard(mutex_);
@@ -120,7 +127,7 @@ public:
 
     /***************************************************************************/
     /**
-	 * Sets a new option or changes an existing option
+	 * @brief Sets a new option or changes an existing option
 	 *
 	 * @param key The name of the option
 	 * @param value The value of the option
@@ -132,10 +139,10 @@ public:
 
     /***************************************************************************/
     /**
-	 * Sets a new option once or returns false, if the option already exists
+	 * @brief Sets a new option once or returns false, if the option already exists
 	 *
 	 * @param key The name of the option
-    * @param value The value of the option
+	 * @param value The value of the option
 	 * @return A boolean indicating whether creation of the new option was successful
 	 */
     bool setOnce(const std::string &key, T value) {
@@ -149,7 +156,7 @@ public:
 
     /***************************************************************************/
     /**
-	 * Removes an option from the map, if available
+	 * @brief Removes an option from the map, if available
 	 *
 	 * @param key The name of the option that should be removed
 	 * @return A boolean indicating whether the option was indeed available
@@ -165,7 +172,7 @@ public:
 
     /************************************************************************/
     /**
-	 * Allows to check whether an option with a given name is available
+	 * @brief Allows to check whether an option with a given name is available
 	 *
 	 * @param key The name of the option that should be checked for existence
 	 * @return A boolean that indicates whether a given option is available
@@ -177,7 +184,9 @@ public:
 
     /************************************************************************/
     /**
-	 * Allows to find out the number of registered options
+	 * @brief Allows to find out the number of registered options
+	 *
+	 * @return The number of options currently held in the option store
 	 */
     std::size_t size() const {
         std::scoped_lock guard(mutex_);
@@ -186,7 +195,9 @@ public:
 
     /************************************************************************/
     /**
-	 * Allows to check whether any options are present
+	 * @brief Allows to check whether any options are present
+	 *
+	 * @return A boolean indicating whether the option store holds no options
 	 */
     bool empty() const {
         std::scoped_lock guard(mutex_);
@@ -195,7 +206,9 @@ public:
 
     /************************************************************************/
     /**
-	 * Retrieves a full list of all keys
+	 * @brief Retrieves a full list of all keys
+	 *
+	 * @return A single string holding all option keys, separated by ", "
 	 */
     std::string getKeyDescription() const {
         std::scoped_lock guard(mutex_);
@@ -213,10 +226,14 @@ public:
 
     /************************************************************************/
     /**
-	 * Retrieves a vector of all keys. The caller's vector is cleared and
+	 * @brief Retrieves a vector of all keys.
+	 *
+	 * The caller's vector is cleared and
 	 * repopulated under a single lock acquisition (the previous version
 	 * cleared the caller's vector *before* taking the lock, which is a data
 	 * race if the caller shares the vector across threads).
+	 *
+	 * @param keys An output vector that is cleared and then filled with all option keys
 	 */
     void getKeyVector(std::vector<std::string> &keys) const {
         std::scoped_lock guard(mutex_);
@@ -229,7 +246,9 @@ public:
 
     /************************************************************************/
     /**
-	 * Retrieves a vector of all content items
+	 * @brief Retrieves a vector of all content items
+	 *
+	 * @param content An output vector that is cleared and then filled with all stored option values
 	 */
     void getContentVector(std::vector<T> &content) const {
         std::scoped_lock guard(mutex_);
@@ -242,11 +261,15 @@ public:
 
     /************************************************************************/
     /**
-	 * Returns a fresh vector containing all stored values, captured under a
-	 * single mutex acquisition. Prefer this over keys-then-get loops at the
+	 * @brief Returns a fresh vector containing all stored values, captured under a
+	 * single mutex acquisition.
+	 *
+	 * Prefer this over keys-then-get loops at the
 	 * call site: it is both atomic (no race window between key snapshot and
 	 * value lookup) and cheaper (one lock + one traversal instead of N+1
 	 * locks + N find()s).
+	 *
+	 * @return A vector holding a snapshot of all stored option values
 	 */
     [[nodiscard]] std::vector<T> getContentSnapshot() const {
         std::scoped_lock guard(mutex_);
@@ -280,6 +303,8 @@ private:
  * places — including during shutdown. Opt every GGlobalOptionsT<T> singleton
  * into never-destroy semantics so it outlives other statics and avoids any
  * destruction-order hazard. Reclaimed by the OS at process exit.
+ *
+ * @tparam T The option value type carried by the GGlobalOptionsT singleton
  */
 template <typename T>
 struct gsingleton_never_destroy<GGlobalOptionsT<T>> : std::true_type {};

@@ -87,6 +87,9 @@ namespace Gem::Common {
  * configuration with one type. `T` must be at least move-constructible.
  *
  * Items are pushed at the front and popped from the back, giving FIFO order.
+ *
+ * @tparam T The element type stored in the queue (must be move-constructible)
+ * @tparam t_capacity The maximum number of items; 0 selects an unbounded queue
  */
 template <typename T, std::size_t t_capacity = DEFAULTBUFFERSIZE>
 class GBlockingMPMCQueueT final {
@@ -130,6 +133,7 @@ public:
      * queue is full (bounded case) or closed. Covers both copy and move via
      * perfect forwarding.
      *
+     * @tparam U The forwarded argument type (must be usable to construct a T)
      * @param item The item to add (forwarded into the queue)
      * @return true if the item was added, false otherwise
      */
@@ -153,6 +157,7 @@ public:
      * adding) if the queue is closed while waiting or already closed. For an
      * unbounded queue this never blocks.
      *
+     * @tparam U The forwarded argument type (must be usable to construct a T)
      * @param item The item to add (forwarded into the queue)
      * @return true if the item was added, false if the queue was closed
      */
@@ -179,6 +184,9 @@ public:
      * Returns false if it timed out or the queue was closed. For an unbounded
      * queue this never times out on fullness.
      *
+     * @tparam U The forwarded argument type (must be usable to construct a T)
+     * @tparam Rep The std::chrono::duration tick representation of the timeout
+     * @tparam Period The std::chrono::duration period of the timeout
      * @param item The item to add (forwarded into the queue)
      * @param timeout Maximum time to wait for space
      * @return true if the item was added, false on timeout or close
@@ -255,6 +263,8 @@ public:
      * Removes an item, blocking until one is available or the timeout elapses.
      * Returns std::nullopt on timeout, or if the queue is closed and empty.
      *
+     * @tparam Rep The std::chrono::duration tick representation of the timeout
+     * @tparam Period The std::chrono::duration period of the timeout
      * @param timeout Maximum time to wait for an item
      * @return The item, or std::nullopt on timeout / closed-and-empty
      */

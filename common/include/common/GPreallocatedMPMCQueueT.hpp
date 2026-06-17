@@ -85,6 +85,9 @@ namespace Gem::Common {
  *
  * `Cap` is the fixed capacity and must be > 0 (this queue is bounded by construction; use the deque
  * backend for the unbounded case). Items are pushed at the tail and popped from the head (FIFO).
+ *
+ * @tparam T The element type stored in the queue (must be move-constructible)
+ * @tparam Cap The fixed ring-buffer capacity in slots (must be > 0)
  */
 template <typename T, std::size_t Cap>
 class GPreallocatedMPMCQueueT final {
@@ -116,6 +119,7 @@ public:
     using value_type = T;
 
     /*************************************************************************/
+    /** @brief Default constructor; allocates the Cap-slot ring buffer on the heap. */
     GPreallocatedMPMCQueueT()
         : ring_(std::make_unique<Slot[]>(Cap))
     { /* nothing */ }
@@ -152,6 +156,10 @@ public:
     /**
      * Tries to add an item without blocking. Returns false immediately if the queue is full or
      * closed. Covers both copy and move via perfect forwarding.
+     *
+     * @tparam U The forwarded argument type (must be usable to construct a T)
+     * @param item The item to add (forwarded into a ring slot)
+     * @return true if the item was added, false if the queue was full or closed
      */
     template <typename U>
         requires std::constructible_from<T, U &&>
@@ -174,6 +182,10 @@ public:
     /**
      * Adds an item, blocking until space is available. Returns false (without adding) if the queue is
      * closed while waiting or already closed.
+     *
+     * @tparam U The forwarded argument type (must be usable to construct a T)
+     * @param item The item to add (forwarded into a ring slot)
+     * @return true if the item was added, false if the queue was closed
      */
     template <typename U>
         requires std::constructible_from<T, U &&>
@@ -198,6 +210,13 @@ public:
     /**
      * Adds an item, blocking until space is available or the timeout elapses. Returns false if it
      * timed out or the queue was closed.
+     *
+     * @tparam U The forwarded argument type (must be usable to construct a T)
+     * @tparam Rep The std::chrono::duration tick representation of the timeout
+     * @tparam Period The std::chrono::duration period of the timeout
+     * @param item The item to add (forwarded into a ring slot)
+     * @param timeout Maximum time to wait for a free slot
+     * @return true if the item was added, false on timeout or close
      */
     template <typename U, typename Rep, typename Period>
         requires std::constructible_from<T, U &&>
@@ -224,7 +243,10 @@ public:
     }
 
     /*************************************************************************/
-    /** @brief Tries to remove an item without blocking. Returns std::nullopt if the queue is empty. */
+    /**
+     * @brief Tries to remove an item without blocking.
+     * @return The head item, or std::nullopt if the queue was empty
+     */
     [[nodiscard]] std::optional<T> try_pop() {
         if(items_.try_acquire()) {
             return take_after_permit_();
@@ -236,6 +258,8 @@ public:
     /**
      * Removes an item, blocking until one is available. If the queue is closed and drained, returns
      * std::nullopt -- so the canonical consumer loop is `while (auto item = q.pop()) { ... }`.
+     *
+     * @return The head item, or std::nullopt if the queue is closed and empty
      */
     [[nodiscard]] std::optional<T> pop() {
         for(;;) {
@@ -256,6 +280,11 @@ public:
     /**
      * Removes an item, blocking until one is available or the timeout elapses. Returns std::nullopt on
      * timeout, or if the queue is closed and empty.
+     *
+     * @tparam Rep The std::chrono::duration tick representation of the timeout
+     * @tparam Period The std::chrono::duration period of the timeout
+     * @param timeout Maximum time to wait for an item
+     * @return The head item, or std::nullopt on timeout or closed-and-empty
      */
     template <typename Rep, typename Period>
     [[nodiscard]] std::optional<T> pop_wait(std::chrono::duration<Rep, Period> const &timeout) {
@@ -326,14 +355,23 @@ public:
 
 private:
     /*************************************************************************/
-    /** @brief The next ring index after @p i. */
+    /**
+     * @brief The next ring index after @p i (wraps around at Cap).
+     * @param i The current ring index
+     * @return The successor index modulo Cap
+     */
     [[nodiscard]] static constexpr std::size_t next_index(std::size_t i) noexcept {
         return (i + 1) % Cap;
     }
 
     /*************************************************************************/
-    /** @brief Clamps a remaining-time slice to the poll interval, so a blocking wait still wakes to
-     *  re-check close() at least every close_poll_. */
+    /**
+     * @brief Clamps a remaining-time slice to the poll interval, so a blocking wait still wakes to
+     *  re-check close() at least every close_poll_.
+     * @tparam Duration The std::chrono::duration type of the remaining-time argument
+     * @param remaining The time left until the caller's deadline
+     * @return The smaller of @p remaining and close_poll_, expressed in nanoseconds
+     */
     template <typename Duration>
     [[nodiscard]] static std::chrono::nanoseconds poll_slice_(Duration const &remaining) {
         const auto r = std::chrono::duration_cast<std::chrono::nanoseconds>(remaining);
@@ -342,8 +380,12 @@ private:
     }
 
     /*************************************************************************/
-    /** @brief Constructs an item into the tail slot (caller already holds a free_ permit), then
-     *  publishes it by releasing an items_ permit. */
+    /**
+     * @brief Constructs an item into the tail slot (caller already holds a free_ permit), then
+     *  publishes it by releasing an items_ permit.
+     * @tparam U The forwarded argument type (used to construct a T)
+     * @param item The item to construct into the tail slot (forwarded)
+     */
     template <typename U>
     void store_at_tail_(U &&item) {
         {
@@ -367,8 +409,11 @@ private:
     }
 
     /*************************************************************************/
-    /** @brief Moves out and destroys the head item. Precondition: the caller has already acquired one
-     *  items_ permit, which guarantees a live item exists at the head (permits == live items). */
+    /**
+     * @brief Moves out and destroys the head item. Precondition: the caller has already acquired one
+     *  items_ permit, which guarantees a live item exists at the head (permits == live items).
+     * @return The moved-out head item (always engaged given the precondition)
+     */
     [[nodiscard]] std::optional<T> take_after_permit_() {
         std::optional<T> result;
         {

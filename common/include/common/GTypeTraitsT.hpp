@@ -56,6 +56,8 @@ namespace Gem::Common {
  * with it (alongside the standard std::floating_point / std::signed_integral
  * concepts), replacing the former in-body std::is_arithmetic_v static_assert
  * guards.
+ *
+ * @tparam T The type checked for being integral or floating-point
  */
 template <typename T>
 concept arithmetic = std::integral<T> || std::floating_point<T>;
@@ -70,7 +72,9 @@ class gemfony_common_interface_indicator {};
 /**
  * A type trait helping to check whether a class has the Gemfony Scientific library
  * interface. The simple convention is that the base class of a hierarchy must
- * (we recommend) privately inherit from common_gemfony_iterface .
+ * (we recommend) inherit from gemfony_common_interface_indicator.
+ *
+ * @tparam T The type checked for carrying the Gemfony common interface
  */
 template <typename T>
 struct has_gemfony_common_interface {
@@ -84,6 +88,8 @@ struct has_gemfony_common_interface {
  * has_gemfony_common_interface<T>::value but more ergonomic and giving clearer
  * diagnostics at the constraint site. (is_base_of, not std::derived_from, since
  * the indicator is inherited privately and is therefore not an accessible base.)
+ *
+ * @tparam T The type checked for carrying the Gemfony common interface
  */
 template <typename T>
 concept gemfony_common_interface =
@@ -97,6 +103,8 @@ concept gemfony_common_interface =
  *
  * Modernized from pre-C++11 SFINAE to a C++20 requires-expression.
  * The @c ::value member is preserved for backward compatibility.
+ *
+ * @tparam T The type checked for a compare member
  */
 template <typename T>
 struct has_compare_member {
@@ -111,6 +119,8 @@ struct has_compare_member {
  *
  * Modernized from pre-C++11 SFINAE to a C++20 requires-expression.
  * The @c ::value member is preserved for backward compatibility.
+ *
+ * @tparam T The type checked for a clone member
  */
 template <typename T>
 struct has_clone_member {
@@ -125,6 +135,8 @@ struct has_clone_member {
  *
  * Modernized from pre-C++11 SFINAE to a C++20 requires-expression.
  * The @c ::value member is preserved for backward compatibility.
+ *
+ * @tparam T The type checked for a load member
  */
 template <typename T>
 struct has_load_member {

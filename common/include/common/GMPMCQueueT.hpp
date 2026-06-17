@@ -65,6 +65,10 @@ namespace Gem::Common {
  *
  * Use this type wherever a queue might benefit from switching backends at build time (e.g. a hot,
  * bounded buffer) -- callers depend only on the stable facade, not on a concrete backend.
+ *
+ * @tparam T The element type stored in the queue
+ * @tparam Cap The queue capacity; Cap == 0 means unbounded (only valid for the Deque backend)
+ * @tparam Backend The backend selected at compile time (Deque or Preallocated)
  */
 template <typename T, std::size_t Cap = DEFAULTBUFFERSIZE, QueueBackend Backend = QueueBackend::Deque>
 class GMPMCQueueT final {
@@ -89,6 +93,7 @@ public:
     using value_type = T;
 
     /*************************************************************************/
+    /** @brief The default constructor; default-constructs the chosen backend */
     GMPMCQueueT() = default;
 
     // Owns the backend (a mutex, condition variables, storage): neither copyable nor movable.
@@ -98,20 +103,44 @@ public:
     GMPMCQueueT &operator=(GMPMCQueueT &&) = delete;
 
     /*************************************************************************/
-    /** @brief Which backend this instance uses. Compile-time. */
+    /**
+     * @brief Which backend this instance uses. Compile-time.
+     * @return The QueueBackend selected via the Backend template argument
+     */
     [[nodiscard]] static constexpr QueueBackend backend() noexcept { return Backend; }
 
     /*************************************************************************/
     // --- producer side (forwarded verbatim) ---
 
+    /**
+     * @brief Attempts to push an item without blocking
+     * @tparam U The (forwarded) type of the value used to construct a T
+     * @param item The value to enqueue (perfect-forwarded into a T)
+     * @return true if the item was enqueued, false if the queue was full or closed
+     */
     template <typename U>
         requires std::constructible_from<T, U &&>
     [[nodiscard]] bool try_push(U &&item) { return impl_.try_push(std::forward<U>(item)); }
 
+    /**
+     * @brief Pushes an item, blocking until space is available
+     * @tparam U The (forwarded) type of the value used to construct a T
+     * @param item The value to enqueue (perfect-forwarded into a T)
+     * @return true if the item was enqueued, false if the queue was closed
+     */
     template <typename U>
         requires std::constructible_from<T, U &&>
     [[nodiscard]] bool push(U &&item) { return impl_.push(std::forward<U>(item)); }
 
+    /**
+     * @brief Pushes an item, blocking until space is available or the timeout elapses
+     * @tparam U The (forwarded) type of the value used to construct a T
+     * @tparam Rep The arithmetic representation type of the timeout duration
+     * @tparam Period The std::ratio tick period of the timeout duration
+     * @param item The value to enqueue (perfect-forwarded into a T)
+     * @param timeout The maximum time to wait for free space
+     * @return true if the item was enqueued, false if the queue stayed full until the timeout or was closed
+     */
     template <typename U, typename Rep, typename Period>
         requires std::constructible_from<T, U &&>
     [[nodiscard]] bool push_wait(U &&item, std::chrono::duration<Rep, Period> const &timeout) {
@@ -121,9 +150,24 @@ public:
     /*************************************************************************/
     // --- consumer side (forwarded verbatim) ---
 
+    /**
+     * @brief Attempts to pop an item without blocking
+     * @return The dequeued item, or std::nullopt if the queue was empty
+     */
     [[nodiscard]] std::optional<T> try_pop() { return impl_.try_pop(); }
+    /**
+     * @brief Pops an item, blocking until one is available
+     * @return The dequeued item, or std::nullopt if the queue was closed and drained
+     */
     [[nodiscard]] std::optional<T> pop() { return impl_.pop(); }
 
+    /**
+     * @brief Pops an item, blocking until one is available or the timeout elapses
+     * @tparam Rep The arithmetic representation type of the timeout duration
+     * @tparam Period The std::ratio tick period of the timeout duration
+     * @param timeout The maximum time to wait for an item
+     * @return The dequeued item, or std::nullopt on timeout / a closed-and-drained queue
+     */
     template <typename Rep, typename Period>
     [[nodiscard]] std::optional<T> pop_wait(std::chrono::duration<Rep, Period> const &timeout) {
         return impl_.pop_wait(timeout);
@@ -132,12 +176,37 @@ public:
     /*************************************************************************/
     // --- lifecycle and observers (forwarded verbatim) ---
 
+    /** @brief Closes the queue; blocked producers/consumers are released */
     void close() { impl_.close(); }
+    /**
+     * @brief Reports whether the queue has been closed
+     * @return true if close() has been called, false otherwise
+     */
     [[nodiscard]] bool is_closed() const { return impl_.is_closed(); }
+    /**
+     * @brief The queue's capacity
+     * @return The maximum number of elements the queue may hold (0 means unbounded)
+     */
     [[nodiscard]] static constexpr std::size_t capacity() noexcept { return impl_type::capacity(); }
+    /**
+     * @brief Whether the queue is bounded
+     * @return true if the queue has a finite capacity, false if it is unbounded
+     */
     [[nodiscard]] static constexpr bool bounded() noexcept { return impl_type::bounded(); }
+    /**
+     * @brief The current number of elements in the queue
+     * @return The number of enqueued elements at the moment of the call
+     */
     [[nodiscard]] std::size_t size() const { return impl_.size(); }
+    /**
+     * @brief The currently available free space in the queue
+     * @return The number of additional elements that can be enqueued before the queue is full
+     */
     [[nodiscard]] std::size_t remaining_space() const { return impl_.remaining_space(); }
+    /**
+     * @brief Whether the queue is currently empty
+     * @return true if the queue holds no elements, false otherwise
+     */
     [[nodiscard]] bool empty() const { return impl_.empty(); }
 
 private:

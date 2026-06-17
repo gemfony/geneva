@@ -57,10 +57,11 @@ namespace Gem::Common {
 
 /******************************************************************************/
 /**
- * This function creates a new T object. It can be specialized by the object
+ * @brief This function creates a new T object. It can be specialized by the object
  * used inside of Gemfony's singleton, e.g. in case they do not have a default
  * constructor or wish to perform special actions prior to initialization.
  *
+ * @tparam T The type of the object to be created
  * @return A std::shared_ptr to a newly created T object
  */
 template <typename T> std::shared_ptr<T> TFactory_GSingletonT() {
@@ -79,6 +80,8 @@ template <typename T> std::shared_ptr<T> TFactory_GSingletonT() {
  * instance and break the singleton invariant). Leave the default
  * (std::false_type) for singletons whose destructor must run, e.g. those that
  * join threads or release OS resources (such as GRandomFactory).
+ *
+ * @tparam T The singleton payload type whose shutdown-lifetime policy is being declared
  */
 template <typename T>
 struct gsingleton_never_destroy : std::false_type {};
@@ -89,6 +92,8 @@ struct gsingleton_never_destroy : std::false_type {};
  * a std::shared_ptr. This allows other singletons to store a shared_ptr to
  * T, so that it only gets destroyed once it is no longer needed. Note that
  * the static shared_ptr may long have vanished at that time.
+ *
+ * @tparam T The type of the singleton payload object handed out by instance()
  */
 template <typename T>
 class GSingletonT {
@@ -110,9 +115,11 @@ public:
 
     /***************************************************************************/
     /**
-	  * Returns the singleton instance, creating it on first access. It is handed
+	  * @brief Returns the singleton instance, creating it on first access. It is handed
 	  * out as a std::shared_ptr so other objects may keep it alive past this
 	  * static's own destruction, which fixes inter-singleton destruction order.
+	  *
+	  * @return A std::shared_ptr to the (lazily created) singleton instance of T
 	  */
     [[nodiscard]] static std::shared_ptr<T> instance() {
         storage_type &s = storage();
@@ -150,11 +157,14 @@ public:
 
     /***************************************************************************/
     /**
-	  * Drops the stored instance so the next instance() call creates a fresh one.
+	  * @brief Drops the stored instance so the next instance() call creates a fresh one.
 	  * Disabled for never-destroy singletons (see gsingleton_never_destroy): for
 	  * those, resetting would leave the leaked pin pointing at an orphaned
 	  * instance while instance() builds a second one, breaking uniqueness.
 	  * Calling reset() on such a type is therefore a compile error.
+	  *
+	  * @tparam U Defaulted to T; exists only so the requires-clause can disable reset()
+	  *           for never-destroy types. Must not be supplied explicitly.
 	  */
     template <typename U = T>
     static void reset()
@@ -182,6 +192,11 @@ private:
         std::mutex creation_mutex;
     };
 
+    /**
+     * @brief Returns the function-local static storage, lazily constructed on first call.
+     *
+     * @return A reference to the single storage_type instance backing this singleton
+     */
     static storage_type &storage() {
         static storage_type s;
         return s;

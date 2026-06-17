@@ -29,7 +29,14 @@
 
 #pragma once
 
-// GPlotDesigner was split into focused headers under common/plotting/ (D-2). This umbrella keeps
-// existing #include "common/GPlotDesigner.hpp" working; it pulls in the full plotting stack (each
-// plotting header also stands alone and chain-includes its own dependencies).
+/**
+ * @file
+ * @brief Umbrella header re-exporting the full Geneva plotting stack.
+ *
+ * GPlotDesigner was split into focused headers under common/plotting/ (D-2). This umbrella keeps
+ * existing #include "common/GPlotDesigner.hpp" working; it pulls in the full plotting stack (each
+ * plotting header also stands alone and chain-includes its own dependencies). The public plotting
+ * API (GPlotDesigner, the GBasePlotter hierarchy, etc.) is declared and documented in
+ * common/plotting/GPlotDesigner.hpp and the sibling plotting headers it includes.
+ */
 #include "common/plotting/GPlotDesigner.hpp"

@@ -43,11 +43,18 @@ namespace Gem::Common {
 
 /******************************************************************************/
 /**
- * This class allows to specify default values for specific types
+ * @brief This class allows to specify default values for specific types
  * through specializations.
+ *
+ * @tparam T The type for which a default value should be provided
  */
 template <typename T>
 struct GDefaultValueT {
+    /**
+     * @brief Returns the default value for type T
+     *
+     * @return A value-initialized T (T(0) for the generic case)
+     */
     static T value() {
         return T(0);
     }
@@ -55,10 +62,15 @@ struct GDefaultValueT {
 
 /******************************************************************************/
 /**
- * Specialization for T == bool
+ * @brief Specialization for T == bool
  */
 template <>
 struct GDefaultValueT<bool> {
+    /**
+     * @brief Returns the default value for bool
+     *
+     * @return The boolean default value (true)
+     */
     static bool value() {
         return true;
     }
@@ -66,10 +78,15 @@ struct GDefaultValueT<bool> {
 
 /******************************************************************************/
 /**
- * Specialization for T == std::string
+ * @brief Specialization for T == std::string
  */
 template <>
 struct GDefaultValueT<std::string> {
+    /**
+     * @brief Returns the default value for std::string
+     *
+     * @return An empty std::string
+     */
     static std::string value() {
         return {};
     }

@@ -273,6 +273,15 @@ class GContainerT {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /**
+     * @brief Boost.Serialization hook — (de)serialises the underlying data container.
+     *
+     * The trailing unsigned int is the class version supplied by
+     * Boost.Serialization; it is intentionally unnamed and unused.
+     *
+     * @tparam Archive The Boost.Serialization archive type (input or output).
+     * @param ar The archive to read from or write to.
+     */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -813,6 +822,7 @@ public:
      * by unique_ptr. The shared_ptr is only read; the container stores a clone. New code can instead
      * push a std::unique_ptr (moved in) to avoid the clone.
      *
+     * @tparam U The (derived-of-ValueType) pointee type of the supplied shared_ptr.
      * @param item A shared_ptr to a (derived-of-ValueType) object to clone into the container.
      */
     template <typename U>
@@ -1121,6 +1131,10 @@ public:
      * Policy-aware deep clone used by the clone-based pointer operations: shared_ptr storage clones
      * via clone() (an independent, separately-owned copy), unique_ptr storage via clone_unique()
      * (sole ownership). Caller must ensure @p p is non-null.
+     *
+     * @param p A non-null stored handle whose pointee is to be cloned.
+     * @return A fresh StoredType handle owning the cloned object.
+     * @note Only available for pointer storage (SharedPtrStorage / UniquePtrStorage).
      */
     static StoredType clone_into_stored(const StoredType &p)
         requires (!std::same_as<StoredType, ValueType>)
@@ -1416,6 +1430,11 @@ public:
      * deleter) is returned instead -- it must not outlive the container. This keeps the
      * shared_ptr-returning convenience views (attachViewTo / filteredView) usable on both storage
      * policies without transferring ownership out of a unique container.
+     *
+     * @tparam DerivedType The target type of the polymorphic down-cast.
+     * @param ptr The stored handle whose pointee is to be cast.
+     * @return A std::shared_ptr<DerivedType> (co-owning for shared storage, non-owning for unique
+     *         storage), or a null shared_ptr when the dynamic cast fails.
      */
     template <typename DerivedType>
     [[nodiscard]] static std::shared_ptr<DerivedType> viewCast_(const StoredType &ptr) {

@@ -38,8 +38,9 @@ namespace Gem::Common {
 
 /******************************************************************************/
 /**
- * Initialisation with a number of threads. The worker threads are started
- * eagerly (they then block on the empty task queue at ~0 CPU).
+ * @brief Initialisation with a number of threads.
+ *
+ * The worker threads are started eagerly (they then block on the empty task queue at ~0 CPU).
  *
  * @param n_threads The desired number of worker threads (0 -> hardware default)
  */
@@ -57,9 +58,11 @@ GThreadPool::GThreadPool(unsigned int n_threads)
 
 /******************************************************************************/
 /**
- * The destructor. Closing the queue makes the workers drain any remaining tasks
- * (running them, so their futures are satisfied) and then exit on the now-empty
- * queue; we then join them. No exception may escape a destructor.
+ * @brief The destructor.
+ *
+ * Closing the queue makes the workers drain any remaining tasks (running them, so their
+ * futures are satisfied) and then exit on the now-empty queue; we then join them. No
+ * exception may escape a destructor.
  */
 GThreadPool::~GThreadPool() {
     try {
@@ -76,7 +79,9 @@ GThreadPool::~GThreadPool() {
 
 /******************************************************************************/
 /**
- * Starts n worker threads, each draining the current task queue.
+ * @brief Starts n worker threads, each draining the current task queue.
+ *
+ * @param n The number of additional worker threads to create
  */
 void GThreadPool::start_workers(unsigned int n) {
     worker_group_.create_threads([this](std::stop_token st) { this->worker_loop(st); }, n);
@@ -84,11 +89,15 @@ void GThreadPool::start_workers(unsigned int n) {
 
 /******************************************************************************/
 /**
- * Common submission path for async_schedule() and post(). Bumps the in-flight
- * counter and enqueues the (already type-erased) task while holding the shared
- * submission lock, so submissions run concurrently with each other but not while
- * wait()/setNThreads() drains the pool. Returns false if the queue was closed
- * (pool shutting down), leaving the in-flight counter unchanged.
+ * @brief Common submission path for async_schedule() and post().
+ *
+ * Bumps the in-flight counter and enqueues the (already type-erased) task while holding the
+ * shared submission lock, so submissions run concurrently with each other but not while
+ * wait()/setNThreads() drains the pool. On a closed queue the speculative increment is undone.
+ *
+ * @param task The type-erased work item to be executed by a worker thread (taken by value/moved)
+ * @return true if the task was enqueued; false if the queue was closed (pool shutting down),
+ *         in which case the in-flight counter is left unchanged
  */
 bool GThreadPool::enqueue(std::function<void()> task) {
     std::shared_lock<std::shared_mutex> sub_lck(submission_mutex_);
@@ -109,9 +118,11 @@ bool GThreadPool::enqueue(std::function<void()> task) {
 
 /******************************************************************************/
 /**
- * The worker body. pop() blocks at ~0 CPU on an empty queue, drains remaining
- * tasks after close(), and returns std::nullopt once the queue is closed and
- * empty -- which is how a worker leaves the loop and terminates.
+ * @brief The worker body (documented below at GThreadPool::worker_loop).
+ *
+ * pop() blocks at ~0 CPU on an empty queue, drains remaining tasks after close(), and
+ * returns std::nullopt once the queue is closed and empty -- which is how a worker leaves
+ * the loop and terminates.
  */
 namespace {
 // True while THIS thread is executing a task inside a GThreadPool worker loop. Thread-local, so it
@@ -120,10 +131,27 @@ namespace {
 thread_local bool t_in_worker_thread = false;
 } // namespace
 
+/**
+ * @brief Reports whether the calling thread is currently executing inside a pool worker loop.
+ *
+ * Lets nested work (e.g. a sub-optimizer launched from within a task) detect that it is
+ * already running on a pool worker, so it can avoid re-submitting to the same pool.
+ *
+ * @return true if the current thread is a GThreadPool worker running a task, false otherwise
+ */
 bool GThreadPool::inWorkerThread() noexcept {
     return t_in_worker_thread;
 }
 
+/**
+ * @brief The worker thread body: pulls tasks off the queue and runs them until the queue closes.
+ *
+ * A stop request (e.g. from GThreadGroup::join_all()) closes the task queue via a stop_callback;
+ * the loop then drains the remaining tasks and exits once the queue is closed and empty, so
+ * pending futures are still satisfied (a graceful "drain and stop").
+ *
+ * @param st The cooperative stop token whose stop request closes the task queue
+ */
 void GThreadPool::worker_loop(std::stop_token st) {
     // A stop request (e.g. from GThreadGroup::join_all()) closes the task queue. The drain loop
     // below then finishes the remaining tasks and exits once the queue is closed and empty, so
@@ -148,8 +176,10 @@ void GThreadPool::worker_loop(std::stop_token st) {
 
 /******************************************************************************/
 /**
- * Blocks (under counter_mutex_) until no tasks are in flight. The caller must
- * already hold submission_mutex_ exclusively, so no new tasks can be added.
+ * @brief Blocks (under counter_mutex_) until no tasks are in flight.
+ *
+ * The caller must already hold submission_mutex_ exclusively, so no new tasks can be added
+ * while this drains the pool.
  */
 void GThreadPool::drain() {
     std::unique_lock<std::mutex> cnt_lck(counter_mutex_);
@@ -158,8 +188,10 @@ void GThreadPool::drain() {
 
 /******************************************************************************/
 /**
- * Blocks until all submitted tasks have been processed. Blocks new submissions
- * for the duration. Must NOT be called from a task running inside the pool.
+ * @brief Blocks until all submitted tasks have been processed.
+ *
+ * Blocks new submissions for the duration. Must NOT be called from a task running inside
+ * the pool (would deadlock).
  */
 void GThreadPool::wait() {
     std::unique_lock<std::shared_mutex> sub_lck(submission_mutex_);
@@ -168,8 +200,11 @@ void GThreadPool::wait() {
 
 /******************************************************************************/
 /**
- * Retrieves the configured (and, since workers start eagerly, live) number of
- * worker threads.
+ * @brief Retrieves the configured number of worker threads.
+ *
+ * Since workers start eagerly, this is also the live count of worker threads.
+ *
+ * @return The current number of worker threads in the pool
  */
 unsigned int GThreadPool::getNThreads() const {
     return n_threads_;
@@ -177,10 +212,11 @@ unsigned int GThreadPool::getNThreads() const {
 
 /******************************************************************************/
 /**
- * Sets the number of worker threads. Blocks new submissions and lets the pool
- * run empty first. Growing simply adds workers to the same queue; shrinking
- * recreates the queue (its close() is terminal) and restarts the worker set.
- * Must NOT be called from a task running inside the pool.
+ * @brief Sets the number of worker threads, draining and reconfiguring the pool.
+ *
+ * Blocks new submissions and lets the pool run empty first. Growing simply adds workers to
+ * the same queue; shrinking recreates the queue (its close() is terminal) and restarts the
+ * worker set. Must NOT be called from a task running inside the pool (would deadlock).
  *
  * @param n_threads The desired number of worker threads (0 -> hardware default)
  */

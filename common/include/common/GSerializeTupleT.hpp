@@ -65,7 +65,13 @@ namespace boost::serialization {
 
 /******************************************************************************/
 /**
- * Serialization of a std::tuple with a single element
+ * @brief Serialization of a std::tuple with a single element.
+ *
+ * @tparam archive The Boost.Serialization archive type (input or output)
+ * @tparam T0 The element type of the tuple
+ * @param ar The archive the tuple element is read from / written to
+ * @param tpl The tuple whose element is (de)serialized
+ * @param (unnamed) The Boost.Serialization class version (unused)
  */
 template <typename archive, typename T0>
 void serialize(archive &ar, std::tuple<T0> &tpl, unsigned int) {
@@ -77,7 +83,14 @@ void serialize(archive &ar, std::tuple<T0> &tpl, unsigned int) {
 
 /******************************************************************************/
 /**
- * Serialization of a std::tuple with two elements
+ * @brief Serialization of a std::tuple with two elements.
+ *
+ * @tparam archive The Boost.Serialization archive type (input or output)
+ * @tparam T0 The type of the first tuple element
+ * @tparam T1 The type of the second tuple element
+ * @param ar The archive the tuple elements are read from / written to
+ * @param tpl The tuple whose elements are (de)serialized
+ * @param (unnamed) The Boost.Serialization class version (unused)
  */
 template <typename archive, typename T0, typename T1>
 void serialize(archive &ar, std::tuple<T0, T1> &tpl, unsigned int) {
@@ -89,7 +102,15 @@ void serialize(archive &ar, std::tuple<T0, T1> &tpl, unsigned int) {
 
 /******************************************************************************/
 /**
- * Serialization of a std::tuple with three elements
+ * @brief Serialization of a std::tuple with three elements.
+ *
+ * @tparam archive The Boost.Serialization archive type (input or output)
+ * @tparam T0 The type of the first tuple element
+ * @tparam T1 The type of the second tuple element
+ * @tparam T2 The type of the third tuple element
+ * @param ar The archive the tuple elements are read from / written to
+ * @param tpl The tuple whose elements are (de)serialized
+ * @param (unnamed) The Boost.Serialization class version (unused)
  */
 template <typename archive, typename T0, typename T1, typename T2>
 void serialize(archive &ar, std::tuple<T0, T1, T2> &tpl, unsigned int) {
@@ -102,7 +123,16 @@ void serialize(archive &ar, std::tuple<T0, T1, T2> &tpl, unsigned int) {
 
 /******************************************************************************/
 /**
- * Serialization of a std::tuple with four elements
+ * @brief Serialization of a std::tuple with four elements.
+ *
+ * @tparam archive The Boost.Serialization archive type (input or output)
+ * @tparam T0 The type of the first tuple element
+ * @tparam T1 The type of the second tuple element
+ * @tparam T2 The type of the third tuple element
+ * @tparam T3 The type of the fourth tuple element
+ * @param ar The archive the tuple elements are read from / written to
+ * @param tpl The tuple whose elements are (de)serialized
+ * @param (unnamed) The Boost.Serialization class version (unused)
  */
 template <typename archive, typename T0, typename T1, typename T2, typename T3>
 void serialize(archive &ar, std::tuple<T0, T1, T2, T3> &tpl, unsigned int) {
@@ -115,7 +145,17 @@ void serialize(archive &ar, std::tuple<T0, T1, T2, T3> &tpl, unsigned int) {
 
 /******************************************************************************/
 /**
- * Serialization of a std::tuple with five elements
+ * @brief Serialization of a std::tuple with five elements.
+ *
+ * @tparam archive The Boost.Serialization archive type (input or output)
+ * @tparam T0 The type of the first tuple element
+ * @tparam T1 The type of the second tuple element
+ * @tparam T2 The type of the third tuple element
+ * @tparam T3 The type of the fourth tuple element
+ * @tparam T4 The type of the fifth tuple element
+ * @param ar The archive the tuple elements are read from / written to
+ * @param tpl The tuple whose elements are (de)serialized
+ * @param (unnamed) The Boost.Serialization class version (unused)
  */
 template <typename archive, typename T0, typename T1, typename T2, typename T3, typename T4>
 void serialize(archive &ar, std::tuple<T0, T1, T2, T3, T4> &tpl, unsigned int) {
@@ -129,7 +169,18 @@ void serialize(archive &ar, std::tuple<T0, T1, T2, T3, T4> &tpl, unsigned int) {
 
 /******************************************************************************/
 /**
- * Serialization of a std::tuple with six elements
+ * @brief Serialization of a std::tuple with six elements.
+ *
+ * @tparam archive The Boost.Serialization archive type (input or output)
+ * @tparam T0 The type of the first tuple element
+ * @tparam T1 The type of the second tuple element
+ * @tparam T2 The type of the third tuple element
+ * @tparam T3 The type of the fourth tuple element
+ * @tparam T4 The type of the fifth tuple element
+ * @tparam T5 The type of the sixth tuple element
+ * @param ar The archive the tuple elements are read from / written to
+ * @param tpl The tuple whose elements are (de)serialized
+ * @param (unnamed) The Boost.Serialization class version (unused)
  */
 template <
     typename archive,

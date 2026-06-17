@@ -69,6 +69,9 @@ enum class QueueBackend {
  * optional-returning pops (no out-parameter, works for move-only T), and a terminal close() that
  * lets blocked producers return false and lets consumers drain then see std::nullopt. Shutdown is
  * signalled through return values, never through exceptions.
+ *
+ * @tparam Q The queue type being checked for conformance
+ * @tparam T The element type the queue is expected to store
  */
 template <typename Q, typename T>
 concept MPMCQueue = requires(Q q, const Q cq, T item, std::chrono::milliseconds d) {

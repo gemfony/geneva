@@ -95,9 +95,13 @@
 
 //-----------------------------------------------------------
 
-/** Returns x squared, evaluating its argument exactly once (the former GSQUARED
+/** @brief Returns x squared, evaluating its argument exactly once (the former GSQUARED
  *  macro evaluated it twice). Direct multiplication is faster than std::pow(x, 2)
- *  on g++. */
+ *  on g++.
+ *
+ *  @tparam T The type of the value to be squared (must support operator*)
+ *  @param x The value to be squared; evaluated exactly once
+ *  @return The product x * x, of whatever type x * x yields */
 namespace Gem::Common {
 template <typename T>
 [[nodiscard]] constexpr auto gsquared(T const &x) -> decltype(x * x) {

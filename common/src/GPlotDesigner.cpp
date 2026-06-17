@@ -86,6 +86,10 @@ namespace Gem::Common {
 /******************************************************************************/
 /**
  * Puts a gColor into a stream. Needed also for boost::lexical_cast<>
+ *
+ * @param o The output stream the value is written to
+ * @param x The gColor enum value to be streamed out
+ * @return A reference to the output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, const gColor &x) {
     ENUMBASETYPE tmp = static_cast<ENUMBASETYPE>(x);
@@ -96,6 +100,10 @@ std::ostream &operator<<(std::ostream &o, const gColor &x) {
 /******************************************************************************/
 /**
  * Reads a gColor item from a stream. Needed also for boost::lexical_cast<>
+ *
+ * @param i The input stream the value is read from
+ * @param x The gColor reference into which the parsed value is stored
+ * @return A reference to the input stream, to allow chaining
  */
 std::istream &operator>>(std::istream &i, gColor &x) {
     ENUMBASETYPE tmp = 0;
@@ -113,6 +121,10 @@ std::istream &operator>>(std::istream &i, gColor &x) {
 /******************************************************************************/
 /**
  * Puts a gMarker into a stream. Needed also for boost::lexical_cast<>
+ *
+ * @param o The output stream the value is written to
+ * @param x The gMarker enum value to be streamed out
+ * @return A reference to the output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, const gMarker &x) {
     ENUMBASETYPE tmp = static_cast<ENUMBASETYPE>(x);
@@ -123,6 +135,10 @@ std::ostream &operator<<(std::ostream &o, const gMarker &x) {
 /******************************************************************************/
 /**
  * Reads a gMarker item from a stream. Needed also for boost::lexical_cast<>
+ *
+ * @param i The input stream the value is read from
+ * @param x The gMarker reference into which the parsed value is stored
+ * @return A reference to the input stream, to allow chaining
  */
 std::istream &operator>>(std::istream &i, gMarker &x) {
     ENUMBASETYPE tmp = 0;
@@ -140,6 +156,10 @@ std::istream &operator>>(std::istream &i, gMarker &x) {
 /******************************************************************************/
 /**
  * Puts a gLineStyle into a stream. Needed also for boost::lexical_cast<>
+ *
+ * @param o The output stream the value is written to
+ * @param x The gLineStyle enum value to be streamed out
+ * @return A reference to the output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, const gLineStyle &x) {
     ENUMBASETYPE tmp = static_cast<ENUMBASETYPE>(x);
@@ -150,6 +170,10 @@ std::ostream &operator<<(std::ostream &o, const gLineStyle &x) {
 /******************************************************************************/
 /**
  * Reads a gLineStyle item from a stream. Needed also for boost::lexical_cast<>
+ *
+ * @param i The input stream the value is read from
+ * @param x The gLineStyle reference into which the parsed value is stored
+ * @return A reference to the input stream, to allow chaining
  */
 std::istream &operator>>(std::istream &i, gLineStyle &x) {
     ENUMBASETYPE tmp = 0;
@@ -167,6 +191,10 @@ std::istream &operator>>(std::istream &i, gLineStyle &x) {
 /******************************************************************************/
 /**
  * Puts a graphPlotMode into a stream. Needed also for boost::lexical_cast<>
+ *
+ * @param o The output stream the value is written to
+ * @param x The graphPlotMode enum value to be streamed out
+ * @return A reference to the output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, const graphPlotMode &x) {
     ENUMBASETYPE tmp = static_cast<ENUMBASETYPE>(x);
@@ -177,6 +205,10 @@ std::ostream &operator<<(std::ostream &o, const graphPlotMode &x) {
 /******************************************************************************/
 /**
  * Reads a graphPlotMode item from a stream. Needed also for boost::lexical_cast<>
+ *
+ * @param i The input stream the value is read from
+ * @param x The graphPlotMode reference into which the parsed value is stored
+ * @return A reference to the input stream, to allow chaining
  */
 std::istream &operator>>(std::istream &i, graphPlotMode &x) {
     ENUMBASETYPE tmp = 0;
@@ -194,6 +226,10 @@ std::istream &operator>>(std::istream &i, graphPlotMode &x) {
 /******************************************************************************/
 /**
  * Puts a tddropt into a stream. Needed also for boost::lexical_cast<>
+ *
+ * @param o The output stream the value is written to
+ * @param x The tddropt enum value to be streamed out
+ * @return A reference to the output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, const tddropt &x) {
     ENUMBASETYPE tmp = static_cast<ENUMBASETYPE>(x);
@@ -204,6 +240,10 @@ std::ostream &operator<<(std::ostream &o, const tddropt &x) {
 /******************************************************************************/
 /**
  * Reads a tddropt item from a stream. Needed also for boost::lexical_cast<>
+ *
+ * @param i The input stream the value is read from
+ * @param x The tddropt reference into which the parsed value is stored
+ * @return A reference to the input stream, to allow chaining
  */
 std::istream &operator>>(std::istream &i, tddropt &x) {
     ENUMBASETYPE tmp = 0;
@@ -247,6 +287,9 @@ GBasePlotter::GBasePlotter(const GBasePlotter &cp)
 /******************************************************************************/
 /**
  * Assignment operator
+ *
+ * @param cp A constant reference to another GBasePlotter object to copy from
+ * @return A reference to this object, to allow chaining
  */
 GBasePlotter &GBasePlotter::operator=(GBasePlotter const &cp) {
     if(this == &cp) {
@@ -280,6 +323,8 @@ void GBasePlotter::setDrawingArguments(std::string drawing_arguments) {
 /******************************************************************************/
 /**
  * Sets the label for the x-axis
+ *
+ * @param x_axis_label The label to be assigned to the x-axis
  * */
 void GBasePlotter::setXAxisLabel(std::string x_axis_label) {
     x_axis_label_ = x_axis_label;
@@ -288,6 +333,8 @@ void GBasePlotter::setXAxisLabel(std::string x_axis_label) {
 /******************************************************************************/
 /**
  * Retrieve the x-axis label
+ *
+ * @return The label currently assigned to the x-axis
  */
 std::string GBasePlotter::xAxisLabel() const {
     return x_axis_label_;
@@ -296,6 +343,8 @@ std::string GBasePlotter::xAxisLabel() const {
 /******************************************************************************/
 /**
  * Sets the label for the y-axis
+ *
+ * @param y_axis_label The label to be assigned to the y-axis
  */
 void GBasePlotter::setYAxisLabel(std::string y_axis_label) {
     y_axis_label_ = y_axis_label;
@@ -304,6 +353,8 @@ void GBasePlotter::setYAxisLabel(std::string y_axis_label) {
 /******************************************************************************/
 /**
  * Retrieve the y-axis label
+ *
+ * @return The label currently assigned to the y-axis
  */
 std::string GBasePlotter::yAxisLabel() const {
     return y_axis_label_;
@@ -312,6 +363,8 @@ std::string GBasePlotter::yAxisLabel() const {
 /******************************************************************************/
 /**
  * Sets the label for the z-axis
+ *
+ * @param z_axis_label The label to be assigned to the z-axis
  */
 void GBasePlotter::setZAxisLabel(std::string z_axis_label) {
     z_axis_label_ = z_axis_label;
@@ -320,6 +373,8 @@ void GBasePlotter::setZAxisLabel(std::string z_axis_label) {
 /******************************************************************************/
 /**
  * Retrieve the z-axis label
+ *
+ * @return The label currently assigned to the z-axis
  */
 std::string GBasePlotter::zAxisLabel() const {
     return z_axis_label_;
@@ -368,6 +423,9 @@ std::string GBasePlotter::dsMarker() const {
 /******************************************************************************/
 /**
  * Allows to add secondary plots to be added to the same sub-canvas
+ *
+ * @param sp A shared pointer to the secondary plotter to register; must be
+ * non-empty and compatible with this plotter, otherwise an exception is thrown
  */
 void GBasePlotter::registerSecondaryPlotter(std::shared_ptr<GBasePlotter> sp) {
     // Check that the secondary plot isn't empty
@@ -398,6 +456,9 @@ void GBasePlotter::registerSecondaryPlotter(std::shared_ptr<GBasePlotter> sp) {
  * Check that a given plotter is compatible with us. By default we only
  * check that the names of both plotters match. If other plot types are
  * compatible with this plotter, you need to overload this function.
+ *
+ * @param other A shared pointer to the other plotter whose compatibility is checked
+ * @return true if the other plotter is compatible (same plotter name by default), false otherwise
  */
 bool GBasePlotter::isCompatible(std::shared_ptr<GBasePlotter> other) const {
     return (this->getPlotterName() == other->getPlotterName());
@@ -406,6 +467,10 @@ bool GBasePlotter::isCompatible(std::shared_ptr<GBasePlotter> other) const {
 /******************************************************************************/
 /**
  * calculate a suffix from id and parent ids
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, only used when is_secondary is true
+ * @return A suffix string built from the parent id (if secondary) and this object's own id
  */
 std::string GBasePlotter::suffix(bool is_secondary, std::size_t p_id) const {
     std::string result; // NOLINT(cppcoreguidelines-init-variables)
@@ -423,6 +488,8 @@ std::string GBasePlotter::suffix(bool is_secondary, std::size_t p_id) const {
 /******************************************************************************/
 /**
  * Allows to retrieve the id of this object
+ *
+ * @return The id currently assigned to this object
  */
 std::size_t GBasePlotter::id() const {
     return id_;
@@ -441,6 +508,8 @@ void GBasePlotter::setId(const std::size_t &id) {
 /******************************************************************************/
 /**
  * Returns the name of this class
+ *
+ * @return The name of this class as a string
  */
 std::string GBasePlotter::name_() const {
     return std::string("GBasePlotter");
@@ -450,6 +519,10 @@ std::string GBasePlotter::name_() const {
 /**
  * Searches for compliance with expectations with respect to another object
  * of the same type
+ *
+ * @param cp A constant reference to another GBasePlotter object, passed as a GBasePlotter reference
+ * @param e The expectation (equality / inequality) the comparison should fulfil
+ * @param limit The acceptable tolerance for floating point comparisons (unused here)
  */
 void GBasePlotter::compare_(
     const GBasePlotter &cp,
@@ -481,6 +554,8 @@ void GBasePlotter::compare_(
 /******************************************************************************/
 /**
  * Loads the data of another object
+ *
+ * @param cp A constant pointer to another GBasePlotter object whose data is loaded into this object
  */
 void GBasePlotter::load_(const GBasePlotter *cp) {
     // Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
@@ -503,6 +578,9 @@ void GBasePlotter::load_(const GBasePlotter *cp) {
 /******************************************************************************/
 /**
  * Retrieve header settings for this plot (and any sub-plots)
+ *
+ * @param indent The indentation string prepended to every emitted line
+ * @return The combined header data of this primary plotter and any secondary plotters
  */
 std::string GBasePlotter::headerData(const std::string &indent) const {
     std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
@@ -532,6 +610,9 @@ std::string GBasePlotter::headerData(const std::string &indent) const {
 /******************************************************************************/
 /**
  * Retrieves body / data settings for this plot (and any sub-plots)
+ *
+ * @param indent The indentation string prepended to every emitted line
+ * @return The combined body data of this primary plotter and any secondary plotters
  */
 std::string GBasePlotter::bodyData(const std::string &indent) const {
     std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
@@ -556,6 +637,9 @@ std::string GBasePlotter::bodyData(const std::string &indent) const {
 /******************************************************************************/
 /**
  * Retrieves footer / drawing settings for this plot (and any sub-plots)
+ *
+ * @param indent The indentation string prepended to every emitted line
+ * @return The combined footer data of this primary plotter and any secondary plotters
  */
 std::string GBasePlotter::footerData(const std::string &indent) const {
     std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
@@ -624,6 +708,8 @@ graphPlotMode GGraph2D::getPlotMode() const {
 /******************************************************************************/
 /**
  * Retrieves a unique name for this plotter
+ *
+ * @return A unique name identifying this plotter type
  */
 std::string GGraph2D::getPlotterName() const {
     return "GGraph2D";
@@ -632,6 +718,8 @@ std::string GGraph2D::getPlotterName() const {
 /******************************************************************************/
 /**
  * Returns the name of this class
+ *
+ * @return The name of this class as a string
  */
 std::string GGraph2D::name_() const {
     return std::string("GGraph2D");
@@ -641,6 +729,10 @@ std::string GGraph2D::name_() const {
 /**
  * Searches for compliance with expectations with respect to another object
  * of the same type
+ *
+ * @param cp A constant reference to another object, passed as a GBasePlotter reference
+ * @param e The expectation (equality / inequality) the comparison should fulfil
+ * @param limit The acceptable tolerance for floating point comparisons (unused here)
  */
 void GGraph2D::compare_(
     const GBasePlotter &cp,
@@ -665,6 +757,11 @@ void GGraph2D::compare_(
 /******************************************************************************/
 /**
  * Retrieve specific header settings for this plot
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build array names for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The header code declaring the x/y data arrays for this graph
  */
 std::string
 GGraph2D::headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -694,6 +791,11 @@ GGraph2D::headerData_(bool is_secondary, std::size_t p_id, const std::string &in
 /******************************************************************************/
 /**
  * Retrieves the actual data sets
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build array names for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The body code filling the x/y data arrays with this graph's tuple values
  */
 std::string
 GGraph2D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -731,6 +833,11 @@ GGraph2D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &inde
 /******************************************************************************/
 /**
  * Retrieves specific draw commands for this plot
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build array/object names for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The footer code creating and drawing the ROOT TGraph (and optional arrows) for this graph
  */
 std::string
 GGraph2D::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -806,6 +913,9 @@ GGraph2D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
 /******************************************************************************/
 /**
  * Retrieve the current drawing arguments
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @return The ROOT draw-option string, derived from custom arguments or the plot mode / arrow setting
  */
 std::string GGraph2D::drawingArguments(bool is_secondary) const {
     std::string d_a;
@@ -835,6 +945,8 @@ std::string GGraph2D::drawingArguments(bool is_secondary) const {
 /******************************************************************************/
 /**
  * Creates a deep clone of this object
+ *
+ * @return A deep copy of this object, returned as a GBasePlotter pointer
  */
 GBasePlotter *GGraph2D::clone_() const {
     return new GGraph2D(*this);
@@ -843,6 +955,8 @@ GBasePlotter *GGraph2D::clone_() const {
 /******************************************************************************/
 /**
  * Loads the data of another object
+ *
+ * @param cp A constant pointer to another object (as a GBasePlotter) whose data is loaded into this one
  */
 void GGraph2D::load_(const GBasePlotter *cp) {
     // Check that we are dealing with a GGraph2D reference independent of this object and convert the pointer
@@ -880,6 +994,8 @@ graphPlotMode GGraph2ED::getPlotMode() const {
 /******************************************************************************/
 /**
  * Retrieves a unique name for this plotter
+ *
+ * @return A unique name identifying this plotter type
  */
 std::string GGraph2ED::getPlotterName() const {
     return "GGraph2ED";
@@ -888,6 +1004,8 @@ std::string GGraph2ED::getPlotterName() const {
 /******************************************************************************/
 /**
  * Returns the name of this class
+ *
+ * @return The name of this class as a string
  */
 std::string GGraph2ED::name_() const {
     return std::string("GGraph2ED");
@@ -897,6 +1015,10 @@ std::string GGraph2ED::name_() const {
 /**
  * Searches for compliance with expectations with respect to another object
  * of the same type
+ *
+ * @param cp A constant reference to another object, passed as a GBasePlotter reference
+ * @param e The expectation (equality / inequality) the comparison should fulfil
+ * @param limit The acceptable tolerance for floating point comparisons (unused here)
  */
 void GGraph2ED::compare_(
     const GBasePlotter &cp,
@@ -921,6 +1043,11 @@ void GGraph2ED::compare_(
 /******************************************************************************/
 /**
  * Retrieve specific header settings for this plot
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build array names for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The header code declaring the x/ex/y/ey data arrays for this error graph
  */
 std::string
 GGraph2ED::headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -956,6 +1083,11 @@ GGraph2ED::headerData_(bool is_secondary, std::size_t p_id, const std::string &i
 /******************************************************************************/
 /**
  * Retrieves the actual data sets
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build array names for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The body code filling the x/ex/y/ey data arrays with this graph's tuple values
  */
 std::string
 GGraph2ED::bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -999,6 +1131,11 @@ GGraph2ED::bodyData_(bool is_secondary, std::size_t p_id, const std::string &ind
 /******************************************************************************/
 /**
  * Retrieves specific draw commands for this plot
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build array/object names for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The footer code creating and drawing the ROOT TGraphErrors object for this graph
  */
 std::string
 GGraph2ED::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -1048,6 +1185,9 @@ GGraph2ED::footerData_(bool is_secondary, std::size_t p_id, const std::string &i
 /******************************************************************************/
 /**
  * Retrieve the current drawing arguments
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @return The ROOT draw-option string, derived from custom arguments or the current plot mode
  */
 std::string GGraph2ED::drawingArguments(bool is_secondary) const {
     std::string d_a;
@@ -1077,6 +1217,8 @@ std::string GGraph2ED::drawingArguments(bool is_secondary) const {
 /******************************************************************************/
 /**
  * Creates a deep clone of this object
+ *
+ * @return A deep copy of this object, returned as a GBasePlotter pointer
  */
 GBasePlotter *GGraph2ED::clone_() const {
     return new GGraph2ED(*this);
@@ -1085,6 +1227,8 @@ GBasePlotter *GGraph2ED::clone_() const {
 /******************************************************************************/
 /**
  * Loads the data of another object
+ *
+ * @param cp A constant pointer to another object (as a GBasePlotter) whose data is loaded into this one
  */
 void GGraph2ED::load_(const GBasePlotter *cp) {
     // Check that we are dealing with a GGraph2ED reference independent of this object and convert the pointer
@@ -1122,6 +1266,8 @@ bool GGraph3D::getDrawLines() const {
 /******************************************************************************/
 /**
  * Retrieves a unique name for this plotter
+ *
+ * @return A unique name identifying this plotter type
  */
 std::string GGraph3D::getPlotterName() const {
     return "GGraph3D";
@@ -1130,6 +1276,8 @@ std::string GGraph3D::getPlotterName() const {
 /******************************************************************************/
 /**
  * Returns the name of this class
+ *
+ * @return The name of this class as a string
  */
 std::string GGraph3D::name_() const {
     return std::string("GGraph3D");
@@ -1139,6 +1287,10 @@ std::string GGraph3D::name_() const {
 /**
  * Searches for compliance with expectations with respect to another object
  * of the same type
+ *
+ * @param cp A constant reference to another object, passed as a GBasePlotter reference
+ * @param e The expectation (equality / inequality) the comparison should fulfil
+ * @param limit The acceptable tolerance for floating point comparisons (unused here)
  */
 void GGraph3D::compare_(
     const GBasePlotter &cp,
@@ -1163,6 +1315,11 @@ void GGraph3D::compare_(
 /******************************************************************************/
 /**
  * Retrieve specific header settings for this plot
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build array names for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The header code declaring the x/y/z data arrays for this 3D graph
  */
 std::string
 GGraph3D::headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -1195,6 +1352,11 @@ GGraph3D::headerData_(bool is_secondary, std::size_t p_id, const std::string &in
 /******************************************************************************/
 /**
  * Retrieves the actual data sets
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build array names for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The body code filling the x/y/z data arrays with this graph's tuple values
  */
 std::string
 GGraph3D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -1234,6 +1396,11 @@ GGraph3D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &inde
 /******************************************************************************/
 /**
  * Retrieves specific draw commands for this plot
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build array/object names for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The footer code creating and drawing the ROOT TGraph2D (and optional poly-line) for this graph
  */
 std::string
 GGraph3D::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -1318,6 +1485,9 @@ GGraph3D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
 /******************************************************************************/
 /**
  * Retrieve the current drawing arguments
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @return The ROOT draw-option string, derived from custom arguments or the default point-draw option
  */
 std::string GGraph3D::drawingArguments(bool is_secondary) const {
     std::string d_a;
@@ -1339,6 +1509,8 @@ std::string GGraph3D::drawingArguments(bool is_secondary) const {
 /******************************************************************************/
 /**
  * Creates a deep clone of this object
+ *
+ * @return A deep copy of this object, returned as a GBasePlotter pointer
  */
 GBasePlotter *GGraph3D::clone_() const {
     return new GGraph3D(*this);
@@ -1347,6 +1519,8 @@ GBasePlotter *GGraph3D::clone_() const {
 /******************************************************************************/
 /**
  * Loads the data of another object
+ *
+ * @param cp A constant pointer to another object (as a GBasePlotter) whose data is loaded into this one
  */
 void GGraph3D::load_(const GBasePlotter *cp) {
     // Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
@@ -1364,6 +1538,8 @@ void GGraph3D::load_(const GBasePlotter *cp) {
 /******************************************************************************/
 /**
  * Allows to set the minimum marker size
+ *
+ * @param min_marker_size The minimum marker size; must be non-negative, otherwise an exception is thrown
  */
 void GGraph4D::setMinMarkerSize(const double &min_marker_size) {
     if(min_marker_size < 0.) {
@@ -1380,6 +1556,9 @@ void GGraph4D::setMinMarkerSize(const double &min_marker_size) {
 /******************************************************************************/
 /**
  * Allows to set the maximum marker size
+ *
+ * @param max_marker_size The maximum marker size; must be non-negative and not smaller than the
+ * previously set minimum marker size, otherwise an exception is thrown
  */
 void GGraph4D::setMaxMarkerSize(const double &max_marker_size) {
     if(max_marker_size < 0. || max_marker_size < min_marker_size_) {
@@ -1398,6 +1577,8 @@ void GGraph4D::setMaxMarkerSize(const double &max_marker_size) {
 /******************************************************************************/
 /**
  * Allows to retrieve the minimum marker size
+ *
+ * @return The currently configured minimum marker size
  */
 double GGraph4D::getMinMarkerSize() const {
     return min_marker_size_;
@@ -1406,6 +1587,8 @@ double GGraph4D::getMinMarkerSize() const {
 /******************************************************************************/
 /**
  * Allows to retrieve the maximum marker size
+ *
+ * @return The currently configured maximum marker size
  */
 double GGraph4D::getMaxMarkerSize() const {
     return max_marker_size_;
@@ -1414,6 +1597,8 @@ double GGraph4D::getMaxMarkerSize() const {
 /******************************************************************************/
 /**
  * Allows to specify whether small w yield large markers
+ *
+ * @param swlm If true, small fourth-component (w) values are mapped to large markers; if false, the reverse
  */
 void GGraph4D::setSmallWLargeMarker(const bool &swlm) {
     small_w_large_marker_ = swlm;
@@ -1422,6 +1607,8 @@ void GGraph4D::setSmallWLargeMarker(const bool &swlm) {
 /******************************************************************************/
 /**
  * Allows to check whether small w yield large markers
+ *
+ * @return true if small fourth-component (w) values are mapped to large markers, false otherwise
  */
 bool GGraph4D::getSmallWLargeMarker() const {
     return small_w_large_marker_;
@@ -1431,6 +1618,8 @@ bool GGraph4D::getSmallWLargeMarker() const {
 /**
  * Allows to set the number of solutions the class should show. Setting the value
  * to 0 will result in all data being displayed.
+ *
+ * @param n_best The number of (best) solutions to display; 0 means display all data points
  */
 void GGraph4D::setNBest(const std::size_t &n_best) {
     n_best_ = n_best;
@@ -1439,6 +1628,8 @@ void GGraph4D::setNBest(const std::size_t &n_best) {
 /******************************************************************************/
 /**
  * Allows to retrieve the number of solutions the class should show
+ *
+ * @return The number of (best) solutions to display; 0 means all data points are shown
  */
 std::size_t GGraph4D::getNBest() const {
     return n_best_;
@@ -1447,6 +1638,8 @@ std::size_t GGraph4D::getNBest() const {
 /******************************************************************************/
 /**
  * Retrieves a unique name for this plotter
+ *
+ * @return A unique name identifying this plotter type
  */
 std::string GGraph4D::getPlotterName() const {
     return "GGraph4D";
@@ -1455,6 +1648,8 @@ std::string GGraph4D::getPlotterName() const {
 /******************************************************************************/
 /**
  * Returns the name of this class
+ *
+ * @return The name of this class as a string
  */
 std::string GGraph4D::name_() const {
     return std::string("GGraph4D");
@@ -1464,13 +1659,17 @@ std::string GGraph4D::name_() const {
 /**
  * Searches for compliance with expectations with respect to another object
  * of the same type
+ *
+ * @param cp A constant reference to another object, passed as a GBasePlotter reference
+ * @param e The expectation (equality / inequality) the comparison should fulfil
+ * @param limit The acceptable tolerance for floating point comparisons (unused here)
  */
 void GGraph4D::compare_(
     const GBasePlotter &cp,
     const expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
-    // Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
+    // Check that we are dealing with a GGraph4D reference independent of this object and convert the pointer
     const auto *p_load = g_convert_and_compare(cp, this);
 
     GToken token("GGraph4D", e);
@@ -1487,7 +1686,11 @@ void GGraph4D::compare_(
 
 /******************************************************************************/
 /**
- * Retrieve specific header settings for this plot
+ * Retrieve specific header settings for this plot. The three positional parameters
+ * (is_secondary flag, parent id and indentation string) are unused because this 4D
+ * graph emits all of its ROOT code in the footer section.
+ *
+ * @return An empty string, as this 4D graph emits no header code
  */
 std::string GGraph4D::headerData_(bool, std::size_t, std::string const &) const {
     std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
@@ -1499,7 +1702,11 @@ std::string GGraph4D::headerData_(bool, std::size_t, std::string const &) const 
 
 /******************************************************************************/
 /**
- * Retrieves the actual data sets
+ * Retrieves the actual data sets. The three positional parameters (is_secondary flag,
+ * parent id and indentation string) are unused because this 4D graph emits all of its
+ * ROOT code in the footer section.
+ *
+ * @return An empty string, as this 4D graph emits no body data
  */
 std::string GGraph4D::bodyData_(bool, std::size_t, std::string const &) const {
     std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
@@ -1512,6 +1719,11 @@ std::string GGraph4D::bodyData_(bool, std::size_t, std::string const &) const {
 /******************************************************************************/
 /**
  * Retrieves specific draw commands for this plot
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build unique object names for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The footer code creating the 3D frame and per-point poly-markers (sized by the fourth component)
  */
 std::string
 GGraph4D::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -1623,7 +1835,10 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
 
 /******************************************************************************/
 /**
- * Retrieve the current drawing arguments
+ * Retrieve the current drawing arguments. The is_secondary flag parameter is unused,
+ * as this 4D graph builds its draw commands entirely in the footer section.
+ *
+ * @return An empty string, as no generic draw-option string is used by this plotter
  */
 std::string GGraph4D::drawingArguments(bool) const {
     std::string d_a;
@@ -1636,6 +1851,8 @@ std::string GGraph4D::drawingArguments(bool) const {
 /******************************************************************************/
 /**
  * Creates a deep clone of this object
+ *
+ * @return A deep copy of this object, returned as a GBasePlotter pointer
  */
 GBasePlotter *GGraph4D::clone_() const {
     return new GGraph4D(*this);
@@ -1644,6 +1861,8 @@ GBasePlotter *GGraph4D::clone_() const {
 /******************************************************************************/
 /**
  * Loads the data of another object
+ *
+ * @param cp A constant pointer to another object (as a GBasePlotter) whose data is loaded into this one
  */
 void GGraph4D::load_(const GBasePlotter *cp) {
     // Check that we are dealing with a GGraph4D reference independent of this object and convert the pointer
@@ -1661,6 +1880,8 @@ void GGraph4D::load_(const GBasePlotter *cp) {
 /******************************************************************************/
 /**
  * Initialization with number of bins and automatic range detection
+ *
+ * @param n_bins_x The number of bins along the x-axis (the range is detected automatically from the data)
  */
 GHistogram1D::GHistogram1D(const std::size_t &n_bins_x)
   : n_bins_x_(n_bins_x) { /* nothing */
@@ -1668,7 +1889,11 @@ GHistogram1D::GHistogram1D(const std::size_t &n_bins_x)
 
 /******************************************************************************/
 /**
- * Initialization with a range in the form of a tuple
+ * Initialization with the number of bins and an explicit x-range
+ *
+ * @param n_bins_x The number of bins along the x-axis
+ * @param min_x The lower boundary of the x-axis range
+ * @param max_x The upper boundary of the x-axis range
  */
 GHistogram1D::GHistogram1D(const std::size_t &n_bins_x, const double &min_x, const double &max_x)
   : n_bins_x_(n_bins_x)
@@ -1679,6 +1904,9 @@ GHistogram1D::GHistogram1D(const std::size_t &n_bins_x, const double &min_x, con
 /******************************************************************************/
 /**
  * Initialization with a range in the form of a tuple
+ *
+ * @param n_bins_x The number of bins along the x-axis
+ * @param range_x A tuple holding the lower (get<0>) and upper (get<1>) boundary of the x-axis range
  */
 GHistogram1D::GHistogram1D(const std::size_t &n_bins_x, const std::tuple<double, double> &range_x)
   : n_bins_x_(n_bins_x)
@@ -1689,6 +1917,11 @@ GHistogram1D::GHistogram1D(const std::size_t &n_bins_x, const std::tuple<double,
 /******************************************************************************/
 /**
  * Retrieve specific header settings for this plot
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build a unique histogram name for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The header code declaring the ROOT TH1D histogram (using explicit or auto-detected range)
  */
 std::string
 GHistogram1D::headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -1721,6 +1954,11 @@ GHistogram1D::headerData_(bool is_secondary, std::size_t p_id, const std::string
 /******************************************************************************/
 /**
  * Retrieves the actual data sets
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build a unique histogram name for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The body code filling the ROOT TH1D histogram with this plotter's data values
  */
 std::string
 GHistogram1D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -1751,6 +1989,11 @@ GHistogram1D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
 /******************************************************************************/
 /**
  * Retrieves specific draw commands for this plot
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build a unique histogram name for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The footer code setting titles and drawing the ROOT TH1D histogram
  */
 std::string
 GHistogram1D::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -1786,6 +2029,9 @@ GHistogram1D::footerData_(bool is_secondary, std::size_t p_id, const std::string
 /******************************************************************************/
 /**
  * Retrieve the current drawing arguments
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @return The ROOT draw-option string; secondary plotters get the "same" option appended
  */
 std::string GHistogram1D::drawingArguments(bool is_secondary) const {
     std::string d_a;
@@ -1840,6 +2086,8 @@ double GHistogram1D::getMaxX() const {
 /******************************************************************************/
 /**
  * Retrieves a unique name for this plotter
+ *
+ * @return A unique name identifying this plotter type
  */
 std::string GHistogram1D::getPlotterName() const {
     return "GHistogram1D";
@@ -1848,6 +2096,8 @@ std::string GHistogram1D::getPlotterName() const {
 /******************************************************************************/
 /**
  * Returns the name of this class
+ *
+ * @return The name of this class as a string
  */
 std::string GHistogram1D::name_() const {
     return std::string("GHistogram1D");
@@ -1857,6 +2107,10 @@ std::string GHistogram1D::name_() const {
 /**
  * Searches for compliance with expectations with respect to another object
  * of the same type
+ *
+ * @param cp A constant reference to another object, passed as a GBasePlotter reference
+ * @param e The expectation (equality / inequality) the comparison should fulfil
+ * @param limit The acceptable tolerance for floating point comparisons (unused here)
  */
 void GHistogram1D::compare_(
     const GBasePlotter &cp,
@@ -1881,6 +2135,8 @@ void GHistogram1D::compare_(
 /******************************************************************************/
 /**
  * Creates a deep clone of this object
+ *
+ * @return A deep copy of this object, returned as a GBasePlotter pointer
  */
 GBasePlotter *GHistogram1D::clone_() const {
     return new GHistogram1D(*this);
@@ -1889,6 +2145,8 @@ GBasePlotter *GHistogram1D::clone_() const {
 /******************************************************************************/
 /**
  * Loads the data of another object
+ *
+ * @param cp A constant pointer to another object (as a GBasePlotter) whose data is loaded into this one
  */
 void GHistogram1D::load_(const GBasePlotter *cp) {
     // Check that we are dealing with a GHistogram1D reference independent of this object and convert the pointer
@@ -1906,6 +2164,10 @@ void GHistogram1D::load_(const GBasePlotter *cp) {
 /******************************************************************************/
 /**
  * The standard constructor
+ *
+ * @param n_bins_x The number of bins along the x-axis
+ * @param min_x The lower boundary of the x-axis range
+ * @param max_x The upper boundary of the x-axis range
  */
 GHistogram1I::GHistogram1I(const std::size_t &n_bins_x, const double &min_x, const double &max_x)
   : n_bins_x_(n_bins_x)
@@ -1916,6 +2178,9 @@ GHistogram1I::GHistogram1I(const std::size_t &n_bins_x, const double &min_x, con
 /******************************************************************************/
 /**
  * Initialization with a range in the form of a tuple
+ *
+ * @param n_bins_x The number of bins along the x-axis
+ * @param range_x A tuple holding the lower (get<0>) and upper (get<1>) boundary of the x-axis range
  */
 GHistogram1I::GHistogram1I(const std::size_t &n_bins_x, const std::tuple<double, double> &range_x)
   : n_bins_x_(n_bins_x)
@@ -1926,6 +2191,11 @@ GHistogram1I::GHistogram1I(const std::size_t &n_bins_x, const std::tuple<double,
 /******************************************************************************/
 /**
  * Retrieve specific header settings for this plot
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build a unique histogram name for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The header code declaring the ROOT TH1I integer histogram
  */
 std::string
 GHistogram1I::headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -1949,6 +2219,11 @@ GHistogram1I::headerData_(bool is_secondary, std::size_t p_id, const std::string
 /******************************************************************************/
 /**
  * Retrieves the actual data sets
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build a unique histogram name for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The body code filling the ROOT TH1I histogram with this plotter's integer data values
  */
 std::string
 GHistogram1I::bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -1980,6 +2255,11 @@ GHistogram1I::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
 /******************************************************************************/
 /**
  * Retrieves specific draw commands for this plot
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build a unique histogram name for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The footer code setting titles and drawing the ROOT TH1I histogram
  */
 std::string
 GHistogram1I::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -2015,6 +2295,9 @@ GHistogram1I::footerData_(bool is_secondary, std::size_t p_id, const std::string
 /******************************************************************************/
 /**
  * Retrieve the current drawing arguments
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @return The ROOT draw-option string; secondary plotters get the "same" option appended
  */
 std::string GHistogram1I::drawingArguments(bool is_secondary) const {
     std::string d_a;
@@ -2069,6 +2352,8 @@ double GHistogram1I::getMaxX() const {
 /******************************************************************************/
 /**
  * Retrieves a unique name for this plotter
+ *
+ * @return A unique name identifying this plotter type
  */
 std::string GHistogram1I::getPlotterName() const {
     return "GHistogram1I";
@@ -2077,6 +2362,8 @@ std::string GHistogram1I::getPlotterName() const {
 /******************************************************************************/
 /**
  * Returns the name of this class
+ *
+ * @return The name of this class as a string
  */
 std::string GHistogram1I::name_() const {
     return std::string("GHistogram1I");
@@ -2086,6 +2373,10 @@ std::string GHistogram1I::name_() const {
 /**
  * Searches for compliance with expectations with respect to another object
  * of the same type
+ *
+ * @param cp A constant reference to another object, passed as a GBasePlotter reference
+ * @param e The expectation (equality / inequality) the comparison should fulfil
+ * @param limit The acceptable tolerance for floating point comparisons (unused here)
  */
 void GHistogram1I::compare_(
     const GBasePlotter &cp,
@@ -2110,6 +2401,8 @@ void GHistogram1I::compare_(
 /******************************************************************************/
 /**
  * Creates a deep clone of this object
+ *
+ * @return A deep copy of this object, returned as a GBasePlotter pointer
  */
 GBasePlotter *GHistogram1I::clone_() const {
     return new GHistogram1I(*this);
@@ -2118,6 +2411,8 @@ GBasePlotter *GHistogram1I::clone_() const {
 /******************************************************************************/
 /**
  * Loads the data of another object
+ *
+ * @param cp A constant pointer to another object (as a GBasePlotter) whose data is loaded into this one
  */
 void GHistogram1I::load_(const GBasePlotter *cp) {
     // Check that we are dealing with a GHistogram1I reference independent of this object and convert the pointer
@@ -2135,6 +2430,13 @@ void GHistogram1I::load_(const GBasePlotter *cp) {
 /******************************************************************************/
 /**
  * The standard constructor
+ *
+ * @param n_bins_x The number of bins along the x-axis
+ * @param n_bins_y The number of bins along the y-axis
+ * @param min_x The lower boundary of the x-axis range
+ * @param max_x The upper boundary of the x-axis range
+ * @param min_y The lower boundary of the y-axis range
+ * @param max_y The upper boundary of the y-axis range
  */
 GHistogram2D::GHistogram2D(
     const std::size_t &n_bins_x,
@@ -2156,6 +2458,11 @@ GHistogram2D::GHistogram2D(
 /******************************************************************************/
 /**
  * Initialization with ranges
+ *
+ * @param n_bins_x The number of bins along the x-axis
+ * @param n_bins_y The number of bins along the y-axis
+ * @param range_x A tuple holding the lower (get<0>) and upper (get<1>) boundary of the x-axis range
+ * @param range_y A tuple holding the lower (get<0>) and upper (get<1>) boundary of the y-axis range
  */
 GHistogram2D::GHistogram2D(
     const std::size_t &n_bins_x,
@@ -2175,6 +2482,9 @@ GHistogram2D::GHistogram2D(
 /******************************************************************************/
 /**
  * Initialization with automatic range detection
+ *
+ * @param n_bins_x The number of bins along the x-axis (the x-range is detected automatically)
+ * @param n_bins_y The number of bins along the y-axis (the y-range is detected automatically)
  */
 GHistogram2D::GHistogram2D(const std::size_t &n_bins_x, const std::size_t &n_bins_y)
   : n_bins_x_(n_bins_x)
@@ -2189,6 +2499,11 @@ GHistogram2D::GHistogram2D(const std::size_t &n_bins_x, const std::size_t &n_bin
 /******************************************************************************/
 /**
  * Retrieve specific header settings for this plot
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build a unique histogram name for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The header code declaring the ROOT TH2D histogram (using explicit or auto-detected ranges)
  */
 std::string
 GHistogram2D::headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -2224,6 +2539,11 @@ GHistogram2D::headerData_(bool is_secondary, std::size_t p_id, const std::string
 /******************************************************************************/
 /**
  * Retrieves the actual data sets
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build a unique histogram name for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The body code filling the ROOT TH2D histogram with this plotter's (x, y) data values
  */
 std::string
 GHistogram2D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -2255,6 +2575,11 @@ GHistogram2D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
 /******************************************************************************/
 /**
  * Retrieves specific draw commands for this plot
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build a unique histogram name for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
+ * @return The footer code setting titles and drawing the ROOT TH2D histogram
  */
 std::string
 GHistogram2D::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
@@ -2290,6 +2615,10 @@ GHistogram2D::footerData_(bool is_secondary, std::size_t p_id, const std::string
 /******************************************************************************/
 /**
  * Retrieve the current drawing arguments
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @return The ROOT draw-option string derived from the 2D drawing option; secondary plotters get
+ * the "same" option appended
  */
 std::string GHistogram2D::drawingArguments(bool is_secondary) const {
     std::string d_a;
@@ -2384,6 +2713,8 @@ std::string GHistogram2D::drawingArguments(bool is_secondary) const {
 /******************************************************************************/
 /**
  * Allows to specify 2d-drawing options
+ *
+ * @param dropt The 2D drawing option (e.g. surface, contour, lego, ...) to be used when drawing the histogram
  */
 void GHistogram2D::set2DOpt(tddropt dropt) {
     dropt_ = dropt;
@@ -2392,6 +2723,8 @@ void GHistogram2D::set2DOpt(tddropt dropt) {
 /******************************************************************************/
 /**
  * Allows to retrieve 2d-drawing options
+ *
+ * @return The currently configured 2D drawing option
  */
 tddropt GHistogram2D::get2DOpt() const {
     return dropt_;
@@ -2460,6 +2793,8 @@ double GHistogram2D::getMaxY() const {
 /******************************************************************************/
 /**
  * Retrieves a unique name for this plotter
+ *
+ * @return A unique name identifying this plotter type
  */
 std::string GHistogram2D::getPlotterName() const {
     return "GHistogram2D";
@@ -2468,6 +2803,8 @@ std::string GHistogram2D::getPlotterName() const {
 /******************************************************************************/
 /**
  * Returns the name of this class
+ *
+ * @return The name of this class as a string
  */
 std::string GHistogram2D::name_() const {
     return std::string("GHistogram2D");
@@ -2477,6 +2814,10 @@ std::string GHistogram2D::name_() const {
 /**
  * Searches for compliance with expectations with respect to another object
  * of the same type
+ *
+ * @param cp A constant reference to another object, passed as a GBasePlotter reference
+ * @param e The expectation (equality / inequality) the comparison should fulfil
+ * @param limit The acceptable tolerance for floating point comparisons (unused here)
  */
 void GHistogram2D::compare_(
     const GBasePlotter &cp,
@@ -2501,6 +2842,8 @@ void GHistogram2D::compare_(
 /******************************************************************************/
 /**
  * Creates a deep clone of this object
+ *
+ * @return A deep copy of this object, returned as a GBasePlotter pointer
  */
 GBasePlotter *GHistogram2D::clone_() const {
     return new GHistogram2D(*this);
@@ -2509,6 +2852,8 @@ GBasePlotter *GHistogram2D::clone_() const {
 /******************************************************************************/
 /**
  * Loads the data of another object
+ *
+ * @param cp A constant pointer to another object (as a GBasePlotter) whose data is loaded into this one
  */
 void GHistogram2D::load_(const GBasePlotter *cp) {
     // Check that we are dealing with a GHistogram2D reference independent of this object and convert the pointer
@@ -2527,6 +2872,9 @@ void GHistogram2D::load_(const GBasePlotter *cp) {
 /**
  * The standard constructor. Some member variables may be initialized in the
  * class body.
+ *
+ * @param f_d The function description (a ROOT-style formula string) to be plotted
+ * @param x_extremes A tuple holding the lower (get<0>) and upper (get<1>) boundary of the x-axis range
  */
 GFunctionPlotter1D::GFunctionPlotter1D(
     const std::string &f_d,
@@ -2549,6 +2897,8 @@ void GFunctionPlotter1D::setNSamplesX(std::size_t n_samples_x) {
 /******************************************************************************/
 /**
  * Retrieves a unique name for this plotter
+ *
+ * @return A unique name identifying this plotter type
  */
 std::string GFunctionPlotter1D::getPlotterName() const {
     return "GFunctionPlotter1D";
@@ -2557,6 +2907,8 @@ std::string GFunctionPlotter1D::getPlotterName() const {
 /******************************************************************************/
 /**
  * Returns the name of this class
+ *
+ * @return The name of this class as a string
  */
 std::string GFunctionPlotter1D::name_() const {
     return std::string("GFunctionPlotter1D");
@@ -2566,13 +2918,17 @@ std::string GFunctionPlotter1D::name_() const {
 /**
  * Searches for compliance with expectations with respect to another object
  * of the same type
+ *
+ * @param cp A constant reference to another object, passed as a GBasePlotter reference
+ * @param e The expectation (equality / inequality) the comparison should fulfil
+ * @param limit The acceptable tolerance for floating point comparisons (unused here)
  */
 void GFunctionPlotter1D::compare_(
     const GBasePlotter &cp,
     const expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
-    // Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
+    // Check that we are dealing with a GFunctionPlotter1D reference independent of this object and convert the pointer
     const auto *p_load = g_convert_and_compare(cp, this);
 
     GToken token("GFunctionPlotter1D", e);
@@ -2591,6 +2947,9 @@ void GFunctionPlotter1D::compare_(
 /**
  * Retrieve specific header settings for this plot
  *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build a unique function name for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
  * @return The code to be added to the plot header for this function
  */
 std::string GFunctionPlotter1D::headerData_(
@@ -2625,9 +2984,10 @@ std::string GFunctionPlotter1D::headerData_(
 
 /******************************************************************************/
 /**
- * Retrieves the actual data sets
+ * Retrieves the actual data sets. The three positional parameters (is_secondary flag,
+ * parent id and indentation string) are unused, as a function plotter contributes no data points.
  *
- * @return The code to be added to the plot's data section for this function
+ * @return The code to be added to the plot's data section for this function (always empty)
  */
 std::string GFunctionPlotter1D::bodyData_(bool, std::size_t, std::string const &) const {
     // No data needs to be added for a function plotter
@@ -2638,6 +2998,9 @@ std::string GFunctionPlotter1D::bodyData_(bool, std::size_t, std::string const &
 /**
  * Retrieves specific draw commands for this plot
  *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build a unique function name for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
  * @return The draw command to be added to the plot's data for this function
  */
 std::string GFunctionPlotter1D::footerData_(
@@ -2678,6 +3041,9 @@ std::string GFunctionPlotter1D::footerData_(
 /******************************************************************************/
 /**
  * Retrieve the current drawing arguments
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @return The ROOT draw-option string; secondary plotters get the "same" option appended
  */
 std::string GFunctionPlotter1D::drawingArguments(bool is_secondary) const {
     std::string d_a;
@@ -2701,6 +3067,8 @@ std::string GFunctionPlotter1D::drawingArguments(bool is_secondary) const {
 /******************************************************************************/
 /**
  * Creates a deep clone of this object
+ *
+ * @return A deep copy of this object, returned as a GBasePlotter pointer
  */
 GBasePlotter *GFunctionPlotter1D::clone_() const {
     return new GFunctionPlotter1D(*this);
@@ -2709,6 +3077,8 @@ GBasePlotter *GFunctionPlotter1D::clone_() const {
 /******************************************************************************/
 /**
  * Loads the data of another object
+ *
+ * @param cp A constant pointer to another object (as a GBasePlotter) whose data is loaded into this one
  */
 void GFunctionPlotter1D::load_(const GBasePlotter *cp) {
     // Check that we are dealing with a GFunctionPlotter1D reference independent of this object and convert the pointer
@@ -2726,6 +3096,10 @@ void GFunctionPlotter1D::load_(const GBasePlotter *cp) {
 /******************************************************************************/
 /**
  * The standard constructor
+ *
+ * @param f_d The function description (a ROOT-style formula string) to be plotted
+ * @param x_extremes A tuple holding the lower (get<0>) and upper (get<1>) boundary of the x-axis range
+ * @param y_extremes A tuple holding the lower (get<0>) and upper (get<1>) boundary of the y-axis range
  */
 GFunctionPlotter2D::GFunctionPlotter2D(
     const std::string &f_d,
@@ -2760,6 +3134,8 @@ void GFunctionPlotter2D::setNSamplesY(std::size_t n_samples_y) {
 /******************************************************************************/
 /**
  * Retrieves a unique name for this plotter
+ *
+ * @return A unique name identifying this plotter type
  */
 std::string GFunctionPlotter2D::getPlotterName() const {
     return "GFunctionPlotter2D";
@@ -2768,6 +3144,8 @@ std::string GFunctionPlotter2D::getPlotterName() const {
 /******************************************************************************/
 /**
  * Returns the name of this class
+ *
+ * @return The name of this class as a string
  */
 std::string GFunctionPlotter2D::name_() const {
     return std::string("GFunctionPlotter2D");
@@ -2777,13 +3155,17 @@ std::string GFunctionPlotter2D::name_() const {
 /**
  * Searches for compliance with expectations with respect to another object
  * of the same type
+ *
+ * @param cp A constant reference to another object, passed as a GBasePlotter reference
+ * @param e The expectation (equality / inequality) the comparison should fulfil
+ * @param limit The acceptable tolerance for floating point comparisons (unused here)
  */
 void GFunctionPlotter2D::compare_(
     const GBasePlotter &cp,
     const expectation &e,
     [[maybe_unused]] const double & limit
 ) const {
-    // Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
+    // Check that we are dealing with a GFunctionPlotter2D reference independent of this object and convert the pointer
     const auto *p_load = g_convert_and_compare(cp, this);
 
     GToken token("GFunctionPlotter2D", e);
@@ -2802,6 +3184,9 @@ void GFunctionPlotter2D::compare_(
 /**
  * Retrieve specific header settings for this plot
  *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build a unique function name for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
  * @return The code to be added to the plot header for this function
  */
 std::string GFunctionPlotter2D::headerData_(
@@ -2846,9 +3231,10 @@ std::string GFunctionPlotter2D::headerData_(
 
 /******************************************************************************/
 /**
- * Retrieves the actual data sets
+ * Retrieves the actual data sets. The three positional parameters (is_secondary flag,
+ * parent id and indentation string) are unused, as a function plotter contributes no data points.
  *
- * @return The code to be added to the plot's data section for this function
+ * @return The code to be added to the plot's data section for this function (always empty)
  */
 std::string GFunctionPlotter2D::bodyData_(bool, std::size_t, std::string const &) const {
     // No data needs to be added for a function plotter
@@ -2859,6 +3245,9 @@ std::string GFunctionPlotter2D::bodyData_(bool, std::size_t, std::string const &
 /**
  * Retrieves specific draw commands for this plot
  *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @param p_id The id of the parent plotter, used to build a unique function name for secondary plotters
+ * @param indent The indentation string prepended to every emitted line
  * @return The draw command to be added to the plot's data for this function
  */
 std::string GFunctionPlotter2D::footerData_(
@@ -2902,6 +3291,9 @@ std::string GFunctionPlotter2D::footerData_(
 /******************************************************************************/
 /**
  * Retrieve the current drawing arguments
+ *
+ * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
+ * @return The ROOT draw-option string; secondary plotters get the "same" option appended
  */
 std::string GFunctionPlotter2D::drawingArguments(bool is_secondary) const {
     std::string d_a;
@@ -2921,6 +3313,8 @@ std::string GFunctionPlotter2D::drawingArguments(bool is_secondary) const {
 /******************************************************************************/
 /**
  * Creates a deep clone of this object
+ *
+ * @return A deep copy of this object, returned as a GBasePlotter pointer
  */
 GBasePlotter *GFunctionPlotter2D::clone_() const {
     return new GFunctionPlotter2D(*this);
@@ -2929,6 +3323,8 @@ GBasePlotter *GFunctionPlotter2D::clone_() const {
 /******************************************************************************/
 /**
  * Loads the data of another object
+ *
+ * @param cp A constant pointer to another object (as a GBasePlotter) whose data is loaded into this one
  */
 void GFunctionPlotter2D::load_(const GBasePlotter *cp) {
     // Check that we are dealing with a GFunctionPlotter2D reference independent of this object and convert the pointer
@@ -2965,6 +3361,8 @@ GPlotDesigner::GPlotDesigner(
 /******************************************************************************/
 /**
  * The copy constructor
+ *
+ * @param cp A constant reference to another GPlotDesigner object to copy from
  */
 GPlotDesigner::GPlotDesigner(const GPlotDesigner &cp)
   : c_x_div_(cp.c_x_div_)
@@ -2981,6 +3379,9 @@ GPlotDesigner::GPlotDesigner(const GPlotDesigner &cp)
 /******************************************************************************/
 /**
  * The assignment operator
+ *
+ * @param cp A constant reference to another GPlotDesigner object to copy from
+ * @return A reference to this object, to allow chaining
  */
 GPlotDesigner &GPlotDesigner::operator=(GPlotDesigner const &cp) {
     if(this == &cp) {
@@ -3013,8 +3414,12 @@ void GPlotDesigner::writeToFile(const std::filesystem::path &file_name) {
 }
 
 /******************************************************************************/
-/*
+/**
  * Emits the overall plot
+ *
+ * @param plot_name The output file name; used to derive the png file name in the emitted print command
+ * (the literal string "empty" or an empty path suppresses the print command)
+ * @return The complete ROOT macro source code for the canvas and all registered plotters
  */
 std::string GPlotDesigner::plot(const std::filesystem::path &plot_name) const {
     std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
@@ -3096,6 +3501,9 @@ std::string GPlotDesigner::plot(const std::filesystem::path &plot_name) const {
 /******************************************************************************/
 /**
  * A default header for a ROOT file
+ *
+ * @param indent The indentation string prepended to every emitted line
+ * @return The ROOT macro source code setting up the canvas, title and graph pad
  */
 std::string GPlotDesigner::staticHeader(const std::string &indent) const {
     std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
@@ -3159,6 +3567,8 @@ void GPlotDesigner::setCanvasDimensions(
 /******************************************************************************/
 /**
  * Set the dimensions of the output canvas
+ *
+ * @param c_dim A tuple holding the x-dimension (get<0>) and y-dimension (get<1>) of the output canvas
  */
 void GPlotDesigner::setCanvasDimensions(const std::tuple<std::uint32_t, std::uint32_t> &c_dim) {
     this->setCanvasDimensions(std::get<0>(c_dim), std::get<1>(c_dim));
@@ -3177,6 +3587,8 @@ std::tuple<std::uint32_t, std::uint32_t> GPlotDesigner::getCanvasDimensions() co
 /******************************************************************************/
 /**
  * Allows to set the canvas label
+ *
+ * @param canvas_label The label to be assigned to the output canvas
  */
 void GPlotDesigner::setCanvasLabel(const std::string &canvas_label) {
     canvas_label_ = canvas_label;
@@ -3185,6 +3597,8 @@ void GPlotDesigner::setCanvasLabel(const std::string &canvas_label) {
 /******************************************************************************/
 /**
  * Allows to retrieve the canvas label
+ *
+ * @return The label currently assigned to the output canvas
  */
 std::string GPlotDesigner::getCanvasLabel() const {
     return canvas_label_;
@@ -3193,6 +3607,8 @@ std::string GPlotDesigner::getCanvasLabel() const {
 /******************************************************************************/
 /**
  * Allows to add a "Print" command to the end of the script so that picture files are created
+ *
+ * @param add_print_command If true, a print command writing a png file is appended to the emitted script
  */
 void GPlotDesigner::setAddPrintCommand(bool add_print_command) {
     add_print_command_ = add_print_command;
@@ -3201,6 +3617,8 @@ void GPlotDesigner::setAddPrintCommand(bool add_print_command) {
 /******************************************************************************/
 /**
  * Allows to retrieve the current value of the add_print_command_ variable
+ *
+ * @return true if a print command is appended to the emitted script, false otherwise
  */
 bool GPlotDesigner::getAddPrintCommand() const {
     return add_print_command_;
@@ -3209,6 +3627,8 @@ bool GPlotDesigner::getAddPrintCommand() const {
 /******************************************************************************/
 /**
  * Allows to set the number of spaces used for indention
+ *
+ * @param n_indention_spaces The number of space characters used for one level of indentation
  */
 void GPlotDesigner::setNIndentionSpaces(const std::size_t &n_indention_spaces) {
     n_indention_spaces_ = n_indention_spaces;
@@ -3217,6 +3637,8 @@ void GPlotDesigner::setNIndentionSpaces(const std::size_t &n_indention_spaces) {
 /******************************************************************************/
 /**
  * Allows to retrieve the number spaces used for indention
+ *
+ * @return The number of space characters used for one level of indentation
  */
 std::size_t GPlotDesigner::getNIndentionSpaces() const {
     return n_indention_spaces_;
@@ -3225,6 +3647,8 @@ std::size_t GPlotDesigner::getNIndentionSpaces() const {
 /******************************************************************************/
 /**
  * Returns the current number of indention spaces as a string
+ *
+ * @return A string consisting of the configured number of space characters
  */
 std::string GPlotDesigner::indent() const {
     return std::string(n_indention_spaces_, ' ');
@@ -3241,6 +3665,8 @@ void GPlotDesigner::resetPlotters() {
 /******************************************************************************/
 /**
  * Returns the name of this class
+ *
+ * @return The name of this class as a string
  */
 std::string GPlotDesigner::name_() const {
     return std::string("GPlotDesigner");
@@ -3250,6 +3676,10 @@ std::string GPlotDesigner::name_() const {
 /**
  * Searches for compliance with expectations with respect to another object
  * of the same type
+ *
+ * @param cp A constant reference to another GPlotDesigner object to compare against
+ * @param e The expectation (equality / inequality) the comparison should fulfil
+ * @param limit The acceptable tolerance for floating point comparisons (unused here)
  */
 void GPlotDesigner::compare_(
     const GPlotDesigner &cp,
@@ -3281,6 +3711,8 @@ void GPlotDesigner::compare_(
 /******************************************************************************/
 /**
  * Creates a deep clone of this object
+ *
+ * @return A deep copy of this object, returned as a GPlotDesigner pointer
  */
 GPlotDesigner *GPlotDesigner::clone_() const {
     return new GPlotDesigner(*this);
@@ -3289,9 +3721,11 @@ GPlotDesigner *GPlotDesigner::clone_() const {
 /******************************************************************************/
 /**
  * Loads the data of another object
+ *
+ * @param cp A constant pointer to another GPlotDesigner object whose data is loaded into this object
  */
 void GPlotDesigner::load_(const GPlotDesigner *cp) {
-    // Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+    // Check that we are dealing with a GPlotDesigner reference independent of this object and convert the pointer
     const auto *p_load = g_convert_and_compare(cp, this);
 
     // No "loadable" parent class

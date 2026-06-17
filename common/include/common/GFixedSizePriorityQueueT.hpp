@@ -57,6 +57,8 @@ constexpr auto GFSPQ_DEF_SORT_ORDER = Gem::Common::sortOrder::LOWERISBETTER;
 
 /******************************************************************************/
 /**
+         * @brief A fixed-size priority queue holding the best items seen so far.
+         *
          * This class implements a fixed-size priority queue. Note that data items
          * are held inside of std::shared_ptr objects and must be copy-constructible.
          * It is also required that T can be compared using operator== and operator!= .
@@ -64,6 +66,8 @@ constexpr auto GFSPQ_DEF_SORT_ORDER = Gem::Common::sortOrder::LOWERISBETTER;
          *
          * IMPORTANT: This class assumes that T has a member function clone<T>()
          * which returns a std::shared_ptr<T> as a copy of the T object.
+         *
+         * @tparam T The type of the work items stored in the queue
          */
 template <typename T>
 class GFixedSizePriorityQueueT : public GCommonInterfaceT<GFixedSizePriorityQueueT<T>> {
@@ -83,9 +87,9 @@ class GFixedSizePriorityQueueT : public GCommonInterfaceT<GFixedSizePriorityQueu
 public:
     /***************************************************************************/
     /**
-         * Initialization with the maximum number of entries
+         * @brief Initialization with the maximum number of entries
          *
-         * @param maxSize The maximum size of the queue
+         * @param maxSize The maximum size of the queue (0 means unlimited)
          */
     explicit GFixedSizePriorityQueueT(const std::size_t &maxSize)
       : max_size_(maxSize) {
@@ -94,10 +98,10 @@ public:
 
     /***************************************************************************/
     /**
-         * Initialization with the maximum number of entries and the information,
+         * @brief Initialization with the maximum number of entries and the information,
          * whether higher or lower evaluations are better.
          *
-         * @param maxSize The maximum size of the queue
+         * @param maxSize The maximum size of the queue (0 means unlimited)
          * @param sortOrder Indicates whether the queue should minimize or maximize
          */
     GFixedSizePriorityQueueT(const std::size_t &maxSize, const sortOrder &sortOrder)
@@ -108,7 +112,9 @@ public:
 
     /***************************************************************************/
     /**
-         * The copy constructor
+         * @brief The copy constructor
+         *
+         * @param cp A constant reference to another object of the same type that is copied
          */
     GFixedSizePriorityQueueT(GFixedSizePriorityQueueT const &cp)
       : max_size_(cp.max_size_)
@@ -118,7 +124,10 @@ public:
 
     /***************************************************************************/
     /**
-         * The move constructor
+         * @brief The move constructor
+         *
+         * @param cp An rvalue reference to another object of the same type whose content is moved in
+         *           (and which is reset to default values afterwards)
          */
     GFixedSizePriorityQueueT(GFixedSizePriorityQueueT &&cp) noexcept {
         // Move content, then reset cp to default values
@@ -140,7 +149,10 @@ public:
 
     /***************************************************************************/
     /**
-         * Assignment operator
+         * @brief Copy assignment operator
+         *
+         * @param cp A constant reference to another object of the same type that is copied
+         * @return A reference to this object
          */
     GFixedSizePriorityQueueT &operator=(GFixedSizePriorityQueueT const &cp) {
         if(this == &cp) {
@@ -156,7 +168,11 @@ public:
 
     /***************************************************************************/
     /**
-         * Assignment operator
+         * @brief Move assignment operator
+         *
+         * @param cp An rvalue reference to another object of the same type whose content is moved in
+         *           (and which is reset to default values afterwards)
+         * @return A reference to this object
          */
     GFixedSizePriorityQueueT &operator=(GFixedSizePriorityQueueT &&cp) noexcept {
         // Move data over, then set remote object to default values
@@ -174,7 +190,10 @@ public:
 
     /***************************************************************************/
     /**
-         * Gives access to the best item without copying it
+         * @brief Gives access to the best item without copying it
+         *
+         * @return A std::shared_ptr to the best item (the front of the queue)
+         * @throw geneva_exception if the queue is empty
          */
     std::shared_ptr<T> best() const {
         if(data_deq_.empty()) {
@@ -191,7 +210,10 @@ public:
 
     /***************************************************************************/
     /**
-         * Gives access to the worst item without copying it
+         * @brief Gives access to the worst item without copying it
+         *
+         * @return A std::shared_ptr to the worst item (the back of the queue)
+         * @throw geneva_exception if the queue is empty
          */
     std::shared_ptr<T> worst() const {
         if(data_deq_.empty()) {
@@ -208,9 +230,11 @@ public:
 
     /***************************************************************************/
     /**
-         * Allows to set the priority mode. A value of "HIGHERISBETTER" means that higher
-         * values are considered better, "false" means that lower values are
+         * @brief Allows to set the priority mode. A value of "HIGHERISBETTER" means that higher
+         * values are considered better, "LOWERISBETTER" means that lower values are
          * considered to be better.
+         *
+         * @param sortOrder The new sort order to be used for prioritizing items
          */
     void setSortOrder(const sortOrder &sortOrder) {
         sort_order_ = sortOrder;
@@ -218,7 +242,9 @@ public:
 
     /***************************************************************************/
     /**
-         * Allows to retrieve the current value of sort_order_
+         * @brief Allows to retrieve the current value of sort_order_
+         *
+         * @return The currently configured sort order
          */
     sortOrder getSortOrder() const {
         return sort_order_;
@@ -226,8 +252,10 @@ public:
 
     /***************************************************************************/
     /**
-         * Add an item to the queue. Note that the comparator used in this function
-         * should sort the data in descending order (assuming that higher
+         * @brief Add an item to the queue.
+         *
+         * Note that the comparator used in this function
+         * sorts the data in descending order (assuming that higher
          * values are better) or ascending order (if lower values are better),
          * so that the worst items are always at the end of the queue.
          *
@@ -277,7 +305,12 @@ public:
 
     /***************************************************************************/
     /**
-         * Adds a range of items to the priority queue.
+         * @brief Adds a range of items to the priority queue.
+         *
+         * @param begin Iterator pointing to the first item of the range to be added
+         * @param end Iterator pointing one past the last item of the range to be added
+         * @param do_clone If set to true, work items will be cloned. Otherwise only the smart pointer will be added
+         * @param replace If set to true, the queue will be emptied before adding the new work items
          */
     virtual void
     add(typename std::vector<std::shared_ptr<T>>::const_iterator begin,
@@ -345,8 +378,10 @@ public:
 
     /***************************************************************************/
     /**
-         * Add a set of items to the queue. Note that the comparator used in this
-         * function should sort the data in descending order (assuming that higher
+         * @brief Add a set of items to the queue.
+         *
+         * Note that the comparator used in this
+         * function sorts the data in descending order (assuming that higher
          * values are better) or ascending order (if lower values are better),
          * so that the worst items are always at the end of the queue.
          *
@@ -361,7 +396,10 @@ public:
 
     /***************************************************************************/
     /**
-             * Removes the best item from the queue and returns it
+             * @brief Removes the best item from the queue and returns it
+             *
+             * @return A std::shared_ptr to the (now removed) best item
+             * @throw geneva_exception if the queue is empty
              */
     std::shared_ptr<T> pop() {
         if(data_deq_.empty()) {
@@ -380,7 +418,9 @@ public:
 
     /***************************************************************************/
     /**
-             * Converts the local deque to a std::vector and returns it
+             * @brief Converts the local deque to a std::vector and returns it
+             *
+             * @return A std::vector holding the stored items in priority order (best first)
              */
     std::vector<std::shared_ptr<T>> toVector() const {
         std::vector<std::shared_ptr<T>> result;
@@ -394,7 +434,9 @@ public:
 
     /***************************************************************************/
     /**
-             * Returns the current size of the queue
+             * @brief Returns the current size of the queue
+             *
+             * @return The number of items currently held in the queue
              */
     std::size_t size() const {
         return data_deq_.size();
@@ -402,7 +444,9 @@ public:
 
     /***************************************************************************/
     /**
-             * Checks whether the data is empty
+             * @brief Checks whether the data is empty
+             *
+             * @return A boolean indicating whether the queue holds no items
              */
     bool empty() const {
         return data_deq_.empty();
@@ -410,7 +454,7 @@ public:
 
     /***************************************************************************/
     /**
-             * Allows to clear the queue
+             * @brief Allows to clear the queue, removing all stored items
              */
     void clear() {
         data_deq_.clear();
@@ -418,7 +462,12 @@ public:
 
     /***************************************************************************/
     /**
-             * Sets the maximum size of the priority queue
+             * @brief Sets the maximum size of the priority queue
+             *
+             * If the queue currently holds more items than maxSize, surplus
+             * (worst) items are dropped.
+             *
+             * @param maxSize The new maximum number of items the queue may hold (0 means unlimited)
              */
     void setMaxSize(std::size_t maxSize) {
         // Make sure the current size of data_ complies with maxSize
@@ -431,7 +480,9 @@ public:
 
     /***************************************************************************/
     /**
-             * Retrieves the maximum size of the priority queue
+             * @brief Retrieves the maximum size of the priority queue
+             *
+             * @return The maximum number of items the queue may hold (0 means unlimited)
              */
     std::size_t getMaxSize() const {
         return max_size_;
@@ -439,7 +490,7 @@ public:
 
     /***************************************************************************/
     /**
-             * Prints the evaluations. This is for debugging purposes.
+             * @brief Prints the evaluations of all stored items to std::cout. This is for debugging purposes.
              */
     void printEvaluations() const {
         std::cout << "==================== printEvaluations =====================" << '\n';
@@ -451,7 +502,9 @@ public:
 protected:
     /***************************************************************************/
     /**
-             * Loads the data of another GFixedSizePriorityQueue<T> object
+             * @brief Loads the data of another GFixedSizePriorityQueueT<T> object
+             *
+             * @param cp A pointer to another GFixedSizePriorityQueueT<T> object whose data is loaded into this object
              */
     void load_(const GFixedSizePriorityQueueT *cp) override {
         // Check that we are dealing with a GFixedSizePriorityQueueT<T> reference independent of this object and convert the pointer
@@ -477,11 +530,12 @@ protected:
 
     /***************************************************************************/
     /**
-             * Checks for compliance with expectations with respect to another object
+             * @brief Checks for compliance with expectations with respect to another object
              * of the same type
              *
-             * @param cp A constant reference to another GFixedSizePriorityQueueT<T> object
+             * @param cp A constant reference to another GFixedSizePriorityQueueT<T> object to compare against
              * @param e The expected outcome of the comparison
+             * @param limit The maximum deviation tolerated for floating point comparisons (unused here)
              */
     void compare_(
         const GFixedSizePriorityQueueT &cp,
@@ -513,7 +567,11 @@ protected:
 
     /***************************************************************************/
     /**
-             * Checks whether value new_item is better than value old_item
+             * @brief Checks whether the evaluation of new_item_ptr is better than that of old_item_ptr
+             *
+             * @param new_item_ptr The candidate item whose evaluation is being judged
+             * @param old_item_ptr The reference item to compare against
+             * @return A boolean indicating whether new_item_ptr is strictly better than old_item_ptr
              */
     bool
     isBetter(std::shared_ptr<T> const &new_item_ptr, std::shared_ptr<T> const &old_item_ptr) const {
@@ -522,7 +580,11 @@ protected:
 
     /***************************************************************************/
     /**
-             * Checks whether value new_item is better than value old_item
+             * @brief Checks whether the evaluation of new_item_ptr is better than the value old_item_val
+             *
+             * @param new_item_ptr The candidate item whose evaluation is being judged
+             * @param old_item_val The reference evaluation value to compare against
+             * @return A boolean indicating whether new_item_ptr is strictly better than old_item_val
              */
     bool isBetter(std::shared_ptr<T> const &new_item_ptr, double old_item_val) const {
         return this->isBetter(this->evaluation(new_item_ptr), old_item_val);
@@ -530,7 +592,11 @@ protected:
 
     /***************************************************************************/
     /**
-             * Checks whether value new_item is better than value old_item
+             * @brief Checks whether the value new_item_val is better than the evaluation of old_item_ptr
+             *
+             * @param new_item_val The candidate evaluation value being judged
+             * @param old_item_ptr The reference item to compare against
+             * @return A boolean indicating whether new_item_val is strictly better than old_item_ptr
              */
     bool isBetter(double new_item_val, std::shared_ptr<T> const &old_item_ptr) const {
         return this->isBetter(new_item_val, this->evaluation(old_item_ptr));
@@ -538,13 +604,18 @@ protected:
 
     /***************************************************************************/
     /**
-         * Checks whether value new_item is *strictly* better than value old_item.
+         * @brief Checks whether value new_item_val is *strictly* better than value old_item_val.
          *
          * Both branches use a strict comparison (`<` / `>`) so the ordering is
          * symmetric: equal values are never reported as "better", regardless of
          * sort direction. The previous LOWERISBETTER branch used `<=`, which
          * treated equality as "better" only for one direction — making
          * incumbent-replacement behave differently for the two sort orders.
+         *
+         * @param new_item_val The candidate evaluation value being judged
+         * @param old_item_val The reference evaluation value to compare against
+         * @return A boolean that is true if new_item_val is strictly better than old_item_val
+         *         under the current sort order
          */
     bool isBetter(double new_item_val, double old_item_val) const {
         return (sort_order_ == sortOrder::LOWERISBETTER) ? (new_item_val < old_item_val)
@@ -552,14 +623,26 @@ protected:
     }
 
     /***************************************************************************/
-    /** @brief Checks whether an Item is valid */
-    virtual bool isValid(const std::shared_ptr<T> &) const = 0;
-    /** @brief Evaluates a single work item, so that it can be sorted */
-    virtual double evaluation(const std::shared_ptr<T> &) const = 0;
+    /**
+     * @brief Checks whether an item is valid
+     *
+     * @param item_ptr A std::shared_ptr to the work item to be checked
+     * @return A boolean indicating whether the item is valid
+     */
+    virtual bool isValid(const std::shared_ptr<T> &item_ptr) const = 0;
+    /**
+     * @brief Evaluates a single work item, so that it can be sorted
+     *
+     * @param item_ptr A std::shared_ptr to the work item to be evaluated
+     * @return The evaluation (priority) value associated with the item
+     */
+    virtual double evaluation(const std::shared_ptr<T> &item_ptr) const = 0;
 
     /***************************************************************************/
     /**
-             * Applies modifications to this object. This is needed for testing purposes
+             * @brief Applies modifications to this object. This is needed for testing purposes
+             *
+             * @return A boolean indicating whether the object was modified (always false here)
              */
     bool modify_GUnitTests_() override {
         return false;
@@ -567,7 +650,7 @@ protected:
 
     /***************************************************************************/
     /**
-             * Performs self tests that are expected to succeed. This is needed for testing purposes
+             * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
              */
     void specificTestsNoFailureExpected_GUnitTests_() override {
         /* nothing */
@@ -575,7 +658,7 @@ protected:
 
     /***************************************************************************/
     /**
-             * Performs self tests that are expected to fail. This is needed for testing purposes
+             * @brief Performs self tests that are expected to fail. This is needed for testing purposes
              */
     void specificTestsFailuresExpected_GUnitTests_() override {
         /* nothing */
@@ -593,7 +676,9 @@ protected:
 private:
     /***************************************************************************/
     /**
-         * Uses the storage addresses of individuals to remove duplicates
+         * @brief Uses the storage addresses of individuals to remove duplicates
+         *
+         * @param items The deque from which duplicate items (sharing the same raw pointer) are removed in place
          */
     void removeDuplicates(std::deque<std::shared_ptr<T>> &items) {
         // Stores addresses we have already encountered
@@ -618,7 +703,9 @@ private:
 
     /***************************************************************************/
     /**
-             * Returns the name of this class
+             * @brief Returns the name of this class
+             *
+             * @return The string "GFixedSizePriorityQueueT<T>"
              */
     std::string name_() const override {
         return std::string("GFixedSizePriorityQueueT<T>");
