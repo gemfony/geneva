@@ -121,6 +121,29 @@ TEST_CASE("GWireLayoutRegistry: LRU eviction respects the capacity bound", "[wir
 }
 
 /******************************************************************************/
+TEST_CASE("GWireLayoutRegistry: evicting a blob also clears its per-peer acks", "[wire][layout]") {
+    // Correctness coupling: a server must never keep referencing an evicted layout by id to a peer it
+    // can no longer answer a fetch for. Evicting a blob therefore clears that id from every peer's ack
+    // set, so the next send re-inlines the layout in full.
+    GWireLayoutRegistry reg;
+    reg.setCapacity(2);
+    const GWirePeerId p = 7;
+
+    reg.put(id(1, 0), "L1");
+    reg.markPeerHasLayout(p, id(1, 0));
+    reg.put(id(2, 0), "L2");
+    reg.markPeerHasLayout(p, id(2, 0));
+    REQUIRE(reg.peerHasLayout(p, id(1, 0)));
+    REQUIRE(reg.peerHasLayout(p, id(2, 0)));
+
+    // Inserting a third blob evicts the least-recently-used (id 1) -- and with it, peer p's ack for id 1.
+    reg.put(id(3, 0), "L3");
+    CHECK_FALSE(reg.has(id(1, 0)));
+    CHECK_FALSE(reg.peerHasLayout(p, id(1, 0))); // ack cleared -> the server will re-inline id 1
+    CHECK(reg.peerHasLayout(p, id(2, 0)));       // id 2 still present -> ack retained
+}
+
+/******************************************************************************/
 TEST_CASE("GWireSerializationScope: thread-local install / restore / nesting", "[wire][layout]") {
     CHECK(GWireSerializationScope::current() == nullptr);
 

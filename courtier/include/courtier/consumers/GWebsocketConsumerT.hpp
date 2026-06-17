@@ -118,6 +118,13 @@ public:
      *  @return The count of interned layouts. */
     [[nodiscard]] std::size_t getInternedLayoutCount() const { return wire_registry_.size(); }
 
+    /** @brief Bounds the number of distinct genome layouts the server caches for transport (Phase 9);
+     *  0 (the default) keeps them all. Beyond the bound the least-recently-used layout is evicted and the
+     *  next work item that needs it re-sends it in full -- so this only trades a re-send for memory and
+     *  never affects correctness. Useful for a long run over many evolving genome structures.
+     *  @param max_layouts The maximum number of cached layouts (0 == unbounded). */
+    void setInternedLayoutCapacity(std::size_t max_layouts) { wire_registry_.setCapacity(max_layouts); }
+
     /***************************************************************************/
     /** @brief Opens, binds and listens on the acceptor, then starts accepting connections and spins
      *  up the io threads. Throws a geneva_exception if the acceptor cannot be opened/bound. */

@@ -223,8 +223,12 @@ private:
         pos = lru_.begin();
     }
 
-    /** @brief Evicts least-recently-used blobs until the capacity bound is met. Per-peer ack sets are
-     *  intentionally NOT pruned here: a missing blob is simply re-fetched on demand. Caller holds mtx_. */
+    /** @brief Evicts least-recently-used blobs until the capacity bound is met. Crucially, evicting a
+     *  blob also drops that id from EVERY peer's ack set: otherwise the server would keep referencing the
+     *  evicted layout by id to a peer (because it still believes the peer holds it) while no longer being
+     *  able to answer that peer's cache-miss fetch -- a deadlock. Clearing the acks forces the next send
+     *  of that layout to that peer to re-inline it in full (which re-populates the blob store). Caller
+     *  holds mtx_. */
     void evict_locked() {
         if(capacity_ == 0) {
             return;
@@ -233,6 +237,9 @@ private:
             const GWireLayoutId victim = lru_.back();
             lru_.pop_back();
             blobs_.erase(victim);
+            for(auto &kv : peer_acked_) {
+                kv.second.erase(victim);
+            }
         }
     }
 

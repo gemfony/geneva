@@ -1459,6 +1459,82 @@ TEST_CASE("Wire send-once over a real ASIO loopback interns one layout", "[flat]
 }
 
 /******************************************************************************/
+TEST_CASE("Wire send-once: many distinct layouts under a bounded registry stay correct",
+          "[flat][wire][net]") {
+    // Dynamic-structure stress: a population mixing SEVERAL distinct genome structures (so the server
+    // interns several layouts -- the same thing a NEAT-style run does as architectures evolve), evaluated
+    // over real sockets with the server's layout cache bounded BELOW the number of distinct structures.
+    // That forces least-recently-used eviction mid-run; the eviction-clears-acks rule then makes the
+    // server re-inline an evicted layout on its next use. Every item must still come back processed.
+    namespace c2 = Gem::Courtier;
+    namespace ccons = Gem::Courtier::Consumers;
+    constexpr auto BIN = Gem::Common::serializationMode::BINARY;
+
+    const std::vector<std::size_t> sizes{8, 16, 24, 32}; // four distinct layout structures
+    constexpr std::size_t N = 80;
+    std::vector<std::unique_ptr<GOptimizableEntity>> items;
+    items.reserve(N);
+    for(std::size_t i = 0; i < N; ++i) {
+        auto ind = std::make_unique<FlatManyGroups>(sizes[i % sizes.size()]);
+        ind->randomInit(activityMode::ALLPARAMETERS);
+        items.push_back(std::move(ind));
+    }
+
+    auto broker = std::make_shared<c2::GBrokerT<GOptimizableEntity>>();
+    auto consumer = std::make_shared<c2::GWebsocketConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/2, BIN);
+    consumer->setCloneFunction(
+        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); }
+    );
+    consumer->setInternedLayoutCapacity(2); // below the 4 distinct layouts -> eviction is forced
+    broker->registerConsumer(consumer);
+    consumer->startServer();
+    const unsigned short port = consumer->getPort();
+
+    constexpr std::size_t n_clients = 3;
+    std::vector<std::shared_ptr<ccons::GWebsocketClientT<GOptimizableEntity>>> clients;
+    std::vector<std::thread> client_threads;
+    std::atomic<bool> any_threw{false};
+    for(std::size_t c = 0; c < n_clients; ++c) {
+        auto client = std::make_shared<ccons::GWebsocketClientT<GOptimizableEntity>>(
+            "127.0.0.1", port, BIN, /*verbose_control_frames=*/false, /*prefetch_depth=*/4
+        );
+        clients.push_back(client);
+        client_threads.emplace_back([client, &any_threw] {
+            try {
+                client->run();
+            }
+            catch(...) {
+                any_threw.store(true);
+            }
+        });
+    }
+
+    c2::GExecutorT<GOptimizableEntity> executor(broker);
+    executor.workOn(items, c2::GSubmissionPolicy::full_success_or_fatal());
+
+    for(auto &client : clients) {
+        client->flagCloseRequested();
+    }
+    for(auto &t : client_threads) {
+        if(t.joinable()) {
+            t.join();
+        }
+    }
+
+    std::size_t processed = 0;
+    for(const auto &it : items) {
+        if(it && it->is_processed()) {
+            ++processed;
+        }
+    }
+    CHECK(processed == N);                              // correct despite eviction + re-inline mid-run
+    CHECK(consumer->getInternedLayoutCount() <= 2);    // the capacity bound was honoured
+
+    consumer->stopServer();
+    CHECK_FALSE(any_threw.load());
+}
+
+/******************************************************************************/
 // NOTE: the former "GGridArchitecture reads a TREE genome identically" case was removed when the
 // tree hierarchy was deleted. The "[flat][architecture]" case above already proves the
 // architecture is layout-agnostic by reading the genome purely through the §2 streamlineFP() seam.
