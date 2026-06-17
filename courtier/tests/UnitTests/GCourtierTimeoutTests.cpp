@@ -28,7 +28,7 @@
  ********************************************************************************/
 
 /**
- * Tier-1 tests for the courtier Phase-5 machinery -- the adaptive timeout / death-detection (the
+ * Tier-1 tests for the courtier timeout machinery -- the adaptive timeout / death-detection (the
  * reclaim lease + the explicit put-back) and the clone-from-template refill. The networked timeout
  * logic lives in GNetworkedConsumerT independently of any actual socket, so it is exercised here
  * deterministically by a test subclass acting as a simulated transport: a driver thread plays the
@@ -140,8 +140,8 @@ void run_with_misbehaviour(std::vector<item_ptr> &batch, misbehave mode, VictimP
     worker.join();
 }
 
-/** @brief A SimNetConsumer that also exposes the late-return buffer knobs/observers (the #13a
- *  mechanism), so a test can enable the buffer and inspect what it holds / has dropped. */
+/** @brief A SimNetConsumer that also exposes the late-return buffer knobs/observers,
+ *  so a test can enable the buffer and inspect what it holds / has dropped. */
 class LateNetConsumer : public SimNetConsumer {
 public:
     using c2::GNetworkedConsumerT<GFaultyContainer>::setLateReturnBuffer;
@@ -237,7 +237,7 @@ TEST_CASE("courtier(clone): unresolved slots are refilled from the supplied temp
 }
 
 /******************************************************************************/
-// Late-return buffer mechanism (#13a): a result that arrives after its batch finished/timed out is
+// Late-return buffer mechanism: a result that arrives after its batch finished/timed out is
 // no longer silently dropped -- with the buffer enabled it is parked (bounded + TTL'd), and every
 // drop (disabled buffer, capacity overflow, TTL expiry) is counted observably.
 

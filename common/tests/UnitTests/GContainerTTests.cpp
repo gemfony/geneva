@@ -215,7 +215,7 @@ public:
     ~ConcretePtrVec() override = default;
 };
 
-// Concrete GUniquePtrContainerT subclass for the Phase-1 unique-container tests. The explicit
+// Concrete GUniquePtrContainerT subclass for the unique-container tests. The explicit
 // (defaulted) special members keep the container movable -- declaring the destructor would
 // otherwise suppress the implicit move operations.
 class ConcreteUniquePtrVec : public Gem::Common::GUniquePtrContainerT<TestBase> {
@@ -1872,9 +1872,8 @@ TEST_CASE("GContainerT: Boost.Serialization round-trips", "[GContainerT][seriali
 }
 
 /******************************************************************************/
-// Phase 0 of the shared_ptr -> unique_ptr migration: the UniquePtrStorage policy and the
-// unique_ptr overloads of the deep-copy helpers, exercised in isolation (nothing in geneva uses
-// the unique container yet).
+// The UniquePtrStorage policy and the unique_ptr overloads of the deep-copy helpers, exercised in
+// isolation (nothing in geneva uses the unique container yet).
 
 TEST_CASE("GContainerT: UniquePtrStorage + unique_ptr deep-copy helpers", "[GContainerT][ptr][unique]") {
     using Vec = std::vector<std::unique_ptr<TestBase>>;
@@ -1973,7 +1972,7 @@ TEST_CASE("GContainerT: UniquePtrStorage + unique_ptr deep-copy helpers", "[GCon
 }
 
 /******************************************************************************/
-// A populated GUniquePtrContainerT (Phase 1, sub-step a): the pointer API now works for unique_ptr
+// A populated GUniquePtrContainerT: the pointer API now works for unique_ptr
 // storage -- clone-based ops clone via clone_unique(), move-based ops move the sole-owned handle.
 
 TEST_CASE("GContainerT: GUniquePtrContainerT populated container", "[GContainerT][ptr][unique]") {

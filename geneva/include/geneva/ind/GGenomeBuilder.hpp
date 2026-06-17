@@ -190,7 +190,7 @@ private:
  * The imperative authoring API for a flat genome: the user declares each parameter (or group / array
  * of parameters) once, optionally attaching an adaptor, and calls build() to obtain a GenomeData (value
  * arrays + shared layout). This replaces the tree's "push_back parameter objects + adaptors" idiom
- * without losing fine-grained control (see the migration plan's mapping table).
+ * without losing fine-grained control.
  *
  * Three group shapes per type:
  *  - addX(init[,min,max])          : one parameter, its own adaption group (size 1)

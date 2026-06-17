@@ -81,16 +81,12 @@ Recommended Versions:
   conversion goes through the stream operators / Gem::Common::fromString<T>, and the
   one remaining (test-only) use was removed. Internal only -- not source-breaking.
 
-- NOTE: several entries below were written for the earlier parameter-object model
-  and still mention GParameterSet / GParameterBase; read them in light of the flat
-  genome described above (e.g. "Individuals (GParameterSet) travel by unique_ptr"
-  now refers to the flat GFlatGenome individuals).
-
-- The per-parameter "name" concept has been removed. GParameterBase no longer
-  carries a parameter_name_ member, and GParameterBase::getParameterName() /
-  setParameterName() are gone, along with all by-name parameter addressing: the
-  std::map<std::string, std::vector<T>> "streamline" / "assignValueVectors"
-  overloads, GParameterSet::getVariableNames(), and the by-name modes of
+- The per-parameter "name" concept has been removed (the parameter objects that
+  carried it are themselves gone -- see the flat-genome note above): there is no
+  per-parameter name, and all by-name parameter addressing is gone -- the former
+  getParameterName() / setParameterName(), the std::map<std::string,
+  std::vector<T>> "streamline" / "assignValueVectors" overloads, getVariableNames(),
+  and the by-name modes of
   getVarVal(). Parameters are addressed strictly by position (index) now. The
   parameter-scan and GProgressPlotter variable specifications therefore use the
   positional form (e.g. "d(0, -10, 10, 100)"); a name token in a spec is now a
@@ -108,7 +104,7 @@ Recommended Versions:
   grammar GFormulaParserT (and its math_logic_error exception family) and the
   GParameterSetFormulaConstraint that was its sole consumer are gone. Constraints
   are now expressed exclusively as C++ constraint objects -- subclasses of
-  GParameterSetConstraint (e.g. GDoubleSumConstraint, GSphereConstraint,
+  GOptimizableEntityConstraint (e.g. GDoubleSumConstraint, GSphereConstraint,
   GDoubleSumGapConstraint) -- which are strictly more versatile than a formula
   string: they see every parameter type (not just doubles), are type-safe and can
   branch/loop arbitrarily. The GExternalEvaluatorIndividual "bounds/expression"
@@ -130,7 +126,7 @@ Recommended Versions:
   enters Geneva's translation units (a compile-time win). This is internal only --
   not source-breaking.
 
-- Individuals (GParameterSet) now travel by std::unique_ptr rather than
+- Individuals (the flat GFlatGenome) now travel by std::unique_ptr rather than
   std::shared_ptr along the hot path: the optimization-algorithm population
   container, the courtier work item and wire payload, and the transport
   get/put callbacks all carry sole ownership now. Only genuinely shared
@@ -215,8 +211,8 @@ Recommended Versions:
   interface headers -> geneva/Interface/G<X>.hpp; #include paths must be updated
   accordingly. User code must qualify these types with oa:: / Interface:: (or the
   full namespace) and fix its include paths. The common high-level workflow
-  (subclass GParameterSet, drive it via Gem::Geneva::Go2 with a JSON config
-  and algorithm mnemonics) is otherwise unaffected -- Go2 itself is unchanged
+  (subclass GFlatGenome / GFlatIndividualT, drive it via Gem::Geneva::Go2 with a
+  JSON config and algorithm mnemonics) is otherwise unaffected -- Go2 itself is unchanged
   -- except for the updated include paths. Note also that, as a consequence,
   Boost.Serialization class-export keys changed: checkpoint/archive files
   written by earlier Geneva versions are not loadable by this version (this
@@ -273,7 +269,7 @@ Recommended Versions:
   infrastructure (network clients, sessions, MPI nodes, the GCommandContainerT wire protocol
   and MPI initialisation) was kept and relocated under courtier/transport/. Code that drove
   submission through the old Courtier API directly must be updated; the usual high-level path
-  (subclass GParameterSet, drive it via Go2 with a consumer mnemonic) is unaffected.
+  (subclass GFlatGenome, drive it via Go2 with a consumer mnemonic) is unaffected.
 - The networked consumers (GAsioConsumerT, GWebsocketConsumerT and, when built,
   GMPIConsumerT) now share a common fan-in core (GNetworkedConsumerT): many optimization
   algorithms can submit to the SAME client pool concurrently, results are correlated by a
@@ -360,7 +356,7 @@ Recommended Versions:
   Gem::Geneva::GObject directly -- as a type, an explicit base class, a
   GObject* pointer/cast, or via a GObject::-qualified call -- must be updated to
   the relevant category root (most users never do: the standard workflow
-  subclasses GParameterSet and drives it via Go2, which is unaffected). The
+  subclasses GFlatGenome and drives it via Go2, which is unaffected). The
   former static SIGHUP signal API moved off GObject into free functions in the
   new header geneva/GSigHupHandler.hpp: GObject::sigHupHandler ->
   Gem::Geneva::sigHupHandler and GObject::G_SIGHUP_SENT() ->

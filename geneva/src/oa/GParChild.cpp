@@ -540,7 +540,7 @@ void GParChild::doRecombine() {
  */
 void GParChild::actOnStalls_() {
     if(adaption_config_ && this->getNParents() > 1) {
-        // Update parent individuals. We leave the best parent untouched. Phase 8: reset the per-group
+        // Update parent individuals. We leave the best parent untouched. Reset the per-group
         // adaption state to its seeds via the OA-owned config (the data-oriented twin of the individual's
         // updateAdaptorsOnStall()), so otherwise-successful adaptor settings are not carried into a stall.
         for(auto it = this->begin() + 1; it != this->begin() + this->getNParents(); ++it) {
@@ -568,7 +568,7 @@ void GParChild::adaptChildren_() {
         futures_cnt.push_back(tp_ptr_->async_schedule(
             // Note: may not pass it as a reference, as it is a local variable in the loop and might
             // vanish or have been altered once the thread has started and adaption is requested.
-            // Phase 8: drive the data-oriented adaption from the OA-owned config instead of the
+            // Drive the data-oriented adaption from the OA-owned config instead of the
             // individual's own adapt(). The config is read-only here, so the schedule stays lock-free.
             [it, cfg = adaption_config_.get()]() {
                 auto &flat = dynamic_cast<gen::GFlatGenome &>((*it)->individual());
@@ -895,7 +895,7 @@ void GParChild::init() {
     default_n_children_ = GOptimizationAlgorithmBase::getDefaultPopulationSize() - n_parents_;
 
     // Build the OA-owned adaption configuration from a representative genome (all individuals share the
-    // same genome layout). It drives the data-oriented adaption free functions (Phase 8), replacing the
+    // same genome layout). It drives the data-oriented adaption free functions, replacing the
     // individual's own adapt(). It is transient run scratch, rebuilt on every optimize().
     adaption_config_.reset();
     if(not this->empty()) {

@@ -277,32 +277,32 @@ using CORRELATION_ID_TYPE = std::uint32_t;
 
 /******************************************************************************/
 
-/** @brief Puts a Gem::Courtier::networked_consumer_payload_command into a stream. Needed also for boost::lexical_cast<> */
+/** @brief Puts a Gem::Courtier::networked_consumer_payload_command into a stream. Needed for streaming / Gem::Common::fromString<> */
 std::ostream &
 operator<<(std::ostream &, const Gem::Courtier::networked_consumer_payload_command &);
-/** @brief Reads a Gem::Courtier::networked_consumer_payload_command item from a stream. Needed also for boost::lexical_cast<> */
+/** @brief Reads a Gem::Courtier::networked_consumer_payload_command item from a stream. Needed for streaming / Gem::Common::fromString<> */
 std::istream &
 operator>>(std::istream &, Gem::Courtier::networked_consumer_payload_command &);
 
-/** @brief Puts a Gem::Courtier::beast_ping_state into a stream. Needed also for boost::lexical_cast<> */
+/** @brief Puts a Gem::Courtier::beast_ping_state into a stream. Needed for streaming / Gem::Common::fromString<> */
 std::ostream &operator<<(std::ostream &, const Gem::Courtier::beast_ping_state &);
-/** @brief Reads a Gem::Courtier::beast_ping_state item from a stream. Needed also for boost::lexical_cast<> */
+/** @brief Reads a Gem::Courtier::beast_ping_state item from a stream. Needed for streaming / Gem::Common::fromString<> */
 std::istream &operator>>(std::istream &, Gem::Courtier::beast_ping_state &);
 
-/** @brief Puts a Gem::Courtier::submissionReturnMode into a stream. Needed also for boost::lexical_cast<> */
+/** @brief Puts a Gem::Courtier::submissionReturnMode into a stream. Needed for streaming / Gem::Common::fromString<> */
 std::ostream &
 operator<<(std::ostream &, const Gem::Courtier::submissionReturnMode &);
-/** @brief Reads a Gem::Courtier::submissionReturnMode item from a stream. Needed also for boost::lexical_cast<> */
+/** @brief Reads a Gem::Courtier::submissionReturnMode item from a stream. Needed for streaming / Gem::Common::fromString<> */
 std::istream &operator>>(std::istream &, Gem::Courtier::submissionReturnMode &);
 
-/** @brief Puts a Gem::Courtier::processingStatus into a stream. Needed also for boost::lexical_cast<> */
+/** @brief Puts a Gem::Courtier::processingStatus into a stream. Needed for streaming / Gem::Common::fromString<> */
 std::ostream &operator<<(std::ostream &, const Gem::Courtier::processingStatus &);
-/** @brief Reads a Gem::Courtier::processingStatus item from a stream. Needed also for boost::lexical_cast<> */
+/** @brief Reads a Gem::Courtier::processingStatus item from a stream. Needed for streaming / Gem::Common::fromString<> */
 std::istream &operator>>(std::istream &, Gem::Courtier::processingStatus &);
 
-/** @brief Puts a Gem::Courtier::consumerType into a stream. Needed also for boost::lexical_cast<> */
+/** @brief Puts a Gem::Courtier::consumerType into a stream. Needed for streaming / Gem::Common::fromString<> */
 std::ostream &operator<<(std::ostream &, const Gem::Courtier::consumerType &);
-/** @brief Reads a Gem::Courtier::consumerType item from a stream. Needed also for boost::lexical_cast<> */
+/** @brief Reads a Gem::Courtier::consumerType item from a stream. Needed for streaming / Gem::Common::fromString<> */
 std::istream &operator>>(std::istream &, Gem::Courtier::consumerType &);
 
 /******************************************************************************/

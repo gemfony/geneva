@@ -459,8 +459,8 @@ private:
  * bi-Gauss / integer-Gauss / flip + their seeds) addressed by channel + index or by interned label, and
  * is built FROM a genome so it can only describe groups that actually exist. Concretely it holds one
  * GroupSpec vector per channel -- the *config half* of the (currently still layout-resident) group
- * specs -- plus the interned label table. Phase 8 step 3 will strip the adaptor fields out of the
- * GGenomeLayout, at which point this object becomes their sole home; for now it is a separate,
+ * specs -- plus the interned label table. Once the adaptor fields are stripped out of the
+ * GGenomeLayout, this object becomes their sole home; for now it is a separate,
  * OA-owned copy that nothing is yet wired to.
  *
  * The base owns the OA-agnostic machinery: existence-validated authoring, a structural signature +

@@ -459,7 +459,7 @@ bool GImageIndividual::modify_GUnitTests_() {
     // Call the parent classes' functions
     gen::GFlatGenome::modify_GUnitTests();
 
-    // Change the parameter settings. The adaption state + logic are OA-owned (Phase 10); a standalone
+    // Change the parameter settings. The adaption state + logic are OA-owned; a standalone
     // individual drives them via a self-owned scratch + the config it authored in init() (StandaloneAdapter).
     if(adaption_config_) {
         Gem::Geneva::OptimizationAlgorithms::StandaloneAdapter(*this, adaption_config_).adapt(*this);

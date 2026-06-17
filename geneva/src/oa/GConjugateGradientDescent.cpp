@@ -64,8 +64,8 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /**
  * The auxiliary-store keys under which each starting point keeps its conjugate-gradient memory on the
  * OA scratch of its CENTRAL individual's GIndividualSlot (the slot at population position == starting
- * point). Phase 10.3 optional tail: this per-starting-point scratch (previously parallel vectors on the
- * algorithm) now rides on the slot as plain POD blocks. The two double blocks hold g_{k-1} / d_{k-1}
+ * point). This per-starting-point scratch (previously parallel vectors on the
+ * algorithm) rides on the slot as plain POD blocks. The two double blocks hold g_{k-1} / d_{k-1}
  * (n_fp_parms entries each); the one-byte block flags whether a previous gradient/direction exists. The
  * values are distinct from the adaption AuxKeys 1-7 and the swarm velocity key 8.
  */

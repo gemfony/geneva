@@ -111,7 +111,7 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         // in-process optimisation). The transient per-group adaption state is NOT serialised here
         // (it is re-seeded on load); full-state checkpointing is a separate, later concern.
         //
-        // TRANSPORT-SIZE OPTIMISATION OPPORTUNITY (Phase 9 #10, deferred): the layout is IDENTICAL for
+        // TRANSPORT-SIZE OPTIMISATION OPPORTUNITY (deferred): the layout is IDENTICAL for
         // every individual in a population and never changes during a run, yet it is re-serialised with
         // EVERY work item -- for a large genome (~2 bounds + kind/active per parameter) this roughly
         // doubles the per-item wire payload and reconstructs the whole structure on every round-trip.
@@ -188,7 +188,7 @@ public:
     // Mutable access to the raw INTERNAL value arrays. Adaption drifts the unbounded internal
     // representation in place (constrained values are folded into range only on read, via streamline) --
     // so the OA-owned adaption kernels must operate on these spans, NOT on the folded streamline view.
-    // These are the seam the Phase-8 free-function adaption uses; ordinary value access still goes
+    // These are the seam the free-function adaption uses; ordinary value access still goes
     // through streamline()/assignValueVector().
 
     /** @brief @return A mutable span over the raw internal double channel (unfolded representation) */

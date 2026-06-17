@@ -193,7 +193,7 @@ bool GTestIndividual1::modify_GUnitTests_() {
         result = true;
     }
 
-    // Change the parameter settings. The adaption state + logic are OA-owned (Phase 10); a standalone
+    // Change the parameter settings. The adaption state + logic are OA-owned; a standalone
     // individual drives them via a self-owned scratch + config (StandaloneAdapter).
     Gem::Geneva::OptimizationAlgorithms::StandaloneAdapter(*this, getAdaptionConfig()).adapt(*this);
     result = true;
@@ -254,7 +254,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         bool dirty_flag = false;
 
         // The per-group adaption state + the bare "mutate values without marking dirty" kernel run are
-        // OA-owned (Phase 10). runAdaptionKernels() is the data-oriented twin of the former
+        // OA-owned. runAdaptionKernels() is the data-oriented twin of the former
         // customAdaptions(): it drifts the values but does NOT touch the processing status.
         auto cfg = p_test->getAdaptionConfig();
         gen::GAuxiliaryStore scratch;
@@ -454,7 +454,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
     //------------------------------------------------------------------------------
 
-    // NOTE (parameter-object unique_ptr migration): the former resize_clone / resize_noclone /
+    // NOTE: the former resize_clone / resize_noclone /
     // find / count and insert_clone / insert_noclone test blocks were removed here. They exercised
     // SHARED-container semantics that no longer apply now that GTreeGenome owns its parameters by
     // unique_ptr: in particular insert_noclone's "same physical address as an external shared_ptr"
@@ -465,7 +465,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
     //------------------------------------------------------------------------------
 
-    // NOTE (parameter-object unique_ptr migration): the GPtrVectorT<GParameterBase>-functionality
+    // NOTE: the GPtrVectorT<GParameterBase>-functionality
     // test blocks (push_back_clone/noclone, getDataCopy, resize_clone/noclone, insert_clone/noclone,
     // count/find, and the empty-pointer throw checks) were removed from GTestIndividual1. They
     // exercised SHARED-container semantics (sharing/aliasing an external shared_ptr's object,

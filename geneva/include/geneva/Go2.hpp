@@ -272,7 +272,7 @@ public:
     std::string getConsumerName();
 
     /**
-     * @brief Registers an OA-owned adaption configuration for an algorithm type (Phase 8 step 4). When an
+     * @brief Registers an OA-owned adaption configuration for an algorithm type. When an
      * algorithm of the given personality type (e.g. "PERSONALITY_EA") runs in the chain, Go2 hands it this
      * config, which it adopts (after validating it matches the population's genome) instead of deriving a
      * default from the genome layout. This separates adaption authoring (OA-owned, optionally from a config
@@ -471,7 +471,7 @@ private:
     // The list of "chained" optimization algorithms
     std::vector<std::shared_ptr<GOABase>> algorithms_cnt_;
     // OA-owned adaption configs keyed by algorithm personality type ("PERSONALITY_EA", …). Installed on
-    // the matching algorithm before it runs in the chain (Phase 8 step 4); empty by default, in which
+    // the matching algorithm before it runs in the chain; empty by default, in which
     // case each adapting algorithm derives its config from the genome layout.
     std::map<std::string, std::shared_ptr<oa::GAdaptionConfigBase>> adaption_config_registry_;
     // The default algorithm (if any)

@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
         std::shared_ptr<GTestIndividual2> gti_ptr(new GTestIndividual2(2, PERFOBJECTTYPE(o)));
 
         // One adapter held across the walk, so the self-adapting sigma persists between steps (the
-        // adaption state + logic are OA-owned in Phase 10; a standalone individual drives them via a
+        // adaption state + logic are OA-owned; a standalone individual drives them via a
         // self-owned scratch + the config the individual authors -- its genome carries only structure).
         Gem::Geneva::OptimizationAlgorithms::StandaloneAdapter adapter(*gti_ptr, gti_ptr->getAdaptionConfig());
 

@@ -533,7 +533,7 @@ TEST_CASE("GFlatGenome: randomInit stays within bounds and changes values", "[fl
 TEST_CASE("GFlatGenome: OA stall-reset restores sigma to its seed", "[flat][oa]") {
     FlatSphere ind(3);
 
-    // The OA-owned config drives both the sigma readout and the stall-reset (Phase 8 / 10). It is the
+    // The OA-owned config drives both the sigma readout and the stall-reset. It is the
     // config the individual authors; the per-group adaption STATE is OA-owned scratch (held on the
     // GIndividualSlot in a live run) -- here a standalone GAuxiliaryStore, seeded from the config.
     auto cfg_ptr = ind.getAdaptionConfig();
@@ -901,5 +901,5 @@ TEST_CASE("GNeuralNetworkArchitecture computes per-layer weight offsets", "[arch
 
 /******************************************************************************/
 // NOTE: the former "GGridArchitecture reads a TREE genome identically" case was removed when the
-// tree hierarchy was deleted (Phase 7). The "[flat][architecture]" case above already proves the
+// tree hierarchy was deleted. The "[flat][architecture]" case above already proves the
 // architecture is layout-agnostic by reading the genome purely through the §2 streamlineFP() seam.

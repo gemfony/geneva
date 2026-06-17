@@ -78,7 +78,7 @@ namespace Gem::Courtier {
  * longer active (a late arrival from a batch that already timed out / finished) is silently dropped --
  * this is what makes resubmission and lease-reclaim safe, and replaces the former per-round generation.
  *
- * Borrow contract (also what makes the later shared_ptr->unique_ptr migration a localized change): the
+ * Borrow contract: the
  * batch's vector is BORROWED for the duration of dispatch_; the consumer reads/serializes/schedules
  * through it but never takes ownership. The only write is checkin() swapping a slot's pointer for the
  * deserialized result -- the population stays the sole owner of its individuals.
@@ -641,7 +641,7 @@ private:
     batch_key_t last_served_batch_ = 0;         ///< Round-robin cursor across batches (for fairness)
     std::size_t total_pending_ = 0;             ///< Slots PENDING across ALL batches (cv predicate)
 
-    // --- late-return buffer (#13 mechanism): a result that arrives after its batch finished/timed out
+    // --- late-return buffer: a result that arrives after its batch finished/timed out
     //     is parked here instead of dropped, for a later getOldWorkItems() to reap. Bounded by cap +
     //     TTL rounds. The per-entry epoch is the generation tag that, with ttl_rounds << the batch_id
     //     wraparound (2^16), guarantees a buffered batch_id cannot alias a freshly-minted one before it

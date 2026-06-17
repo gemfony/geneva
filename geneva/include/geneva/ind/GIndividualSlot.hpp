@@ -61,7 +61,7 @@ namespace Gem::Geneva::Genome {
  * A population element: the pairing of an individual ("the part that travels") with the
  * optimization-algorithm-owned scratch it accumulates while a given algorithm holds it.
  *
- * Rationale (Phase 10 — struct-based population): the optimization algorithms previously carried
+ * Rationale (struct-based population): the optimization algorithms previously carried
  * their per-individual scratch (the personality traits + the per-group adaption POD state, and later
  * swarm velocity / pbest, gradient, ...) INSIDE the individual. That made the individual not-quite
  * pure data and forced a serialization-purpose split (transport vs. checkpoint) on the genome itself.
@@ -79,7 +79,7 @@ namespace Gem::Geneva::Genome {
  * span for workOn() and back afterwards (see individualPtr() / releaseIndividual() / resetIndividual()),
  * so the broker still deals in individuals — no courtier change.
  *
- * Serialization vs. comparison (the two open questions decided for Phase 10.0):
+ * Serialization vs. comparison:
  *  - compare_() compares the wrapped individual ONLY. The scratch is OA-installed and is deliberately
  *    kept out of the compared identity, so two slots holding equal individuals but touched by different
  *    algorithms compare equal (mirrors how the personality was already excluded from the individual's

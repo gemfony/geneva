@@ -1027,7 +1027,7 @@ protected:
         }
 
         // Change the parameter settings (only when the genome has actually been built). The adaption
-        // state + logic are OA-owned (Phase 10); a standalone individual drives them via a self-owned
+        // state + logic are OA-owned; a standalone individual drives them via a self-owned
         // scratch + config (StandaloneAdapter).
         if(this->template countParameters<std::int32_t>() + this->template countParameters<double>() > 0) {
             // The genome is structure-only; drive the self-owned adaption via the authored meta config.

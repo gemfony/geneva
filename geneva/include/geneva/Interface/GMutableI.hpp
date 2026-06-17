@@ -46,7 +46,7 @@ namespace Gem::Geneva::Interface {
 /**
  * This is a interface class for mutable objects, in particular individuals.
  *
- * Historically it declared a pure virtual adapt(). With the struct-based population (Phase 10) the
+ * Historically it declared a pure virtual adapt(). With the struct-based population the
  * per-group adaption state and the adaption logic moved entirely off the individual and onto the
  * optimization-algorithm side (the GIndividualSlot's scratch + the geneva/oa/ adaption free functions),
  * so the individual is now pure data and carries no adapt() of its own. The interface is kept as a

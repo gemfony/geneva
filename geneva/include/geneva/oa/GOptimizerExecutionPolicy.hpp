@@ -195,7 +195,7 @@ private:
         }
         executor_ = std::make_shared<Gem::Courtier::GExecutorT<gen::GOptimizableEntity>>(broker_);
 
-        // Enable the consumer's late-return buffer (#13b): a result that comes back AFTER its batch was
+        // Enable the consumer's late-return buffer: a result that comes back AFTER its batch was
         // reconciled is retained for the OA to reap, instead of dropped. A no-op on local consumers.
         if(broker_ && broker_->hasConsumer()) {
             broker_->consumer().enableLateReturns(late_return_cap, /*ttl_rounds*/ 3);

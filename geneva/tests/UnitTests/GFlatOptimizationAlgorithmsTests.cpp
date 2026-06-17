@@ -28,7 +28,7 @@
  ********************************************************************************/
 
 /**
- * Phase 5 of the flat-only migration: end-to-end checks that EVERY optimization algorithm can drive a
+ * End-to-end checks that EVERY optimization algorithm can drive a
  * GFlatGenome individual, not just the EA. Each algorithm only ever touches an individual through the
  * storage-agnostic channel interface (streamline / assignValueVector / boundaries / countParameters /
  * adapt / randomInit) + population-level access + personality traits -- and the OA populations already
@@ -339,7 +339,7 @@ TEST_CASE("EA checkpoint round-trip preserves the per-slot adaption scratch", "[
     using Gem::Geneva::Genome::AUXKEY_GAUSS_DOUBLE;
     using Gem::Geneva::Genome::GaussState;
 
-    // Phase 10.4: the per-individual OA scratch (adaption sigma/state) lives on the GIndividualSlot and is
+    // The per-individual OA scratch (adaption sigma/state) lives on the GIndividualSlot and is
     // serialized for check-pointing, so a resumed algorithm keeps its evolved state. Here we seed a slot's
     // scratch (as the EA does at setup), drive its sigma to a known value, round-trip the whole algorithm
     // through the exact checkpoint path (toFile -> loadCheckpoint) and confirm the scratch survives. A
@@ -402,7 +402,7 @@ TEST_CASE("EA checkpoint round-trip preserves the per-slot adaption scratch", "[
 /******************************************************************************/
 
 TEST_CASE("EA adopts an externally-provided adaption config", "[flat][oa]") {
-    // Phase 8 step 4: an algorithm uses an externally-supplied OA-owned config (Go2 hands it the one it
+    // An algorithm uses an externally-supplied OA-owned config (Go2 hands it the one it
     // holds for the algorithm's type) instead of deriving a default from the genome layout. Here we author
     // a config explicitly from the genome and confirm the EA drives a converging adaption with it. (That
     // the provided config -- not just any default -- is actually consumed is proven by the companion
@@ -796,7 +796,7 @@ TEST_CASE("Parameter scan sweeps a flat individual", "[flat][oa]") {
 }
 
 /******************************************************************************/
-// Worked examples for the bi-gaussian + flip kernels (Phase 6), driven end-to-end by an EA.
+// Worked examples for the bi-gaussian + flip kernels, driven end-to-end by an EA.
 /******************************************************************************/
 
 TEST_CASE("EA optimizes a flat individual with a BI-GAUSSIAN adaptor", "[flat][oa][bigauss]") {
@@ -878,7 +878,7 @@ TEST_CASE("EA optimizes a flat BOOLEAN OneMax with a FLIP adaptor", "[flat][oa][
 }
 
 /******************************************************************************/
-// Migrated library individual (Phase 6): GLineFitIndividual is now a flat genome. Beyond the standard
+// Library individual: GLineFitIndividual is a flat genome. Beyond the standard
 // machinery test, prove it still fits a line end-to-end under an EA.
 /******************************************************************************/
 

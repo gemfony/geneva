@@ -263,7 +263,7 @@ public:
     void loadCheckpoint(std::filesystem::path const &cp_file);
 
     /**
-     * @brief Hands this algorithm an OA-owned adaption configuration to use for the run (Phase 8 step 4).
+     * @brief Hands this algorithm an OA-owned adaption configuration to use for the run.
      * Go2 installs the config it holds for this algorithm's type before the algorithm runs in a chain; an
      * adapting algorithm (EA / SA) adopts it (validating that it matches the population's genome) instead
      * of deriving a default from the genome layout. The base does nothing -- non-adapting algorithms
@@ -375,7 +375,7 @@ public:
     /******************************************************************************/
     /**
      * Injects a ready-to-use courtier broker that this algorithm should submit through, instead of
-     * building its own local consumer (Phase-7 increment 2). The broker must already have its
+     * building its own local consumer. The broker must already have its
      * consumer registered, its clone function set, and -- for networked consumers -- its server
      * started. Used by Go2 for the networked consumers (asio/websocket), where a single server-backed
      * consumer is shared across the whole run rather than created per algorithm. Transient runtime
@@ -878,7 +878,7 @@ private:
     virtual std::size_t getNProcessableItems_() const;
 
     /**
-     * @brief The submission policy this algorithm uses when routed through courtier (Phase 7).
+     * @brief The submission policy this algorithm uses when routed through courtier.
      *  Default: clone-on-partial-return (population-based, tolerant -- EA/SA/Swarm). The "need-all"
      *  algorithms (GD/CGD/Nelder-Mead/ParameterScan), which cannot proceed with a missing or failed
      *  evaluation, override this to full-success-or-fatal.

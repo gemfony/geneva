@@ -299,7 +299,7 @@ int main() {
         }
         std::cout << '\n';
 
-        // Mutate the parameters. The adaption state + logic are OA-owned (Phase 10); a standalone
+        // Mutate the parameters. The adaption state + logic are OA-owned; a standalone
         // individual drives them via a self-owned scratch + the config it authors (StandaloneAdapter).
         // We expect changes.
         oa::StandaloneAdapter(ind, ind.getAdaptionConfig()).adapt(ind);

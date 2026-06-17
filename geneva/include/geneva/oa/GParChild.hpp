@@ -54,7 +54,7 @@ class GFlatGenome;
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
-// The OA-owned adaption configuration, built from the population's shared genome layout (Phase 8).
+// The OA-owned adaption configuration, built from the population's shared genome layout.
 class GAdaptionConfigBase;
 
 /******************************************************************************/
@@ -206,7 +206,7 @@ public:
         );
     }
 
-    /** @brief Hands this mu/lambda algorithm an OA-owned adaption config to use (Phase 8 step 4). When
+    /** @brief Hands this mu/lambda algorithm an OA-owned adaption config to use. When
      *  set, init() adopts it (after validating it matches the population's genome) instead of deriving a
      *  default from the genome layout. Transient run scratch -- NOT serialized.
      *  @param config The externally-supplied adaption configuration to be adopted at init() */
@@ -320,7 +320,7 @@ protected:
     std::shared_ptr<GAdaptionConfigBase> adaption_config_;
 
     /**
-     * @brief An optionally externally-supplied adaption configuration (Phase 8 step 4, set via
+     * @brief An optionally externally-supplied adaption configuration (set via
      * setAdaptionConfig() -- Go2 installs the one it holds for this algorithm's type). When present, init()
      * uses it (validating it against the population's genome) in place of the layout-derived default.
      * Transient run scratch: NOT serialized, NOT compared, NOT part of localMembers().

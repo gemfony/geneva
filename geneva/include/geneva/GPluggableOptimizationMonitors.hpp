@@ -2436,7 +2436,7 @@ private:
             max_iteration_ = iteration;
             n_iterations_recorded_++;
 
-            // Do the actual logging. Phase 10: the per-group adaption state (sigma, …) is OA-owned
+            // Do the actual logging. The per-group adaption state (sigma, …) is OA-owned
             // scratch and lives on the GIndividualSlot, not on the individual. The live evolving sigma
             // is therefore read from each population slot's scratch via readAdaptionSigmas(). Only the
             // "sigma" property is exposed by the flat genome.

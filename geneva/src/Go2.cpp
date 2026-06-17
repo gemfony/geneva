@@ -607,7 +607,7 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
         // Remove our local copies
         this->clear();
 
-        // Phase 8 step 4: if an OA-owned adaption config was registered for this algorithm's type, hand
+        // If an OA-owned adaption config was registered for this algorithm's type, hand
         // it over now (before it runs). The algorithm adopts it -- validating it against the population's
         // genome -- in place of deriving a default from the genome layout.
         if(const auto it = adaption_config_registry_.find(alg_ptr->getAlgorithmPersonalityType());
@@ -647,7 +647,7 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
 
 /******************************************************************************/
 /**
- * @brief Registers an OA-owned adaption configuration for an algorithm type (Phase 8 step 4).
+ * @brief Registers an OA-owned adaption configuration for an algorithm type.
  *
  * Stored keyed by the algorithm's personality type and handed to the matching algorithm in
  * runAlgorithmChain() before it runs. A null config removes any existing entry.

@@ -686,7 +686,7 @@ public:
 
     /**
      * @brief Public, non-folding access to this individual's per-individual RNG stream. The OA-owned
-     * adaption free functions (Phase 8) draw from it; each individual owns its own stream, so parallel
+     * adaption free functions draw from it; each individual owns its own stream, so parallel
      * adaption of distinct individuals is lock-free.
      *
      * @return A reference to this individual's per-individual random engine

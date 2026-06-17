@@ -59,8 +59,8 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /******************************************************************************/
 /**
  * The auxiliary-store key under which each particle keeps its velocity vector (one double per active
- * floating-point parameter) on its GIndividualSlot's OA scratch. Phase 10.3 optional tail: the velocity
- * is per-particle OA scratch and now rides on the slot rather than in a parallel vector on the algorithm,
+ * floating-point parameter) on its GIndividualSlot's OA scratch. The velocity
+ * is per-particle OA scratch and rides on the slot rather than in a parallel vector on the algorithm,
  * so it stays coherent with its particle (and is a plain POD double block, GPU-upload-friendly). The
  * value is distinct from the adaption AuxKeys 1-7 (a swarm never installs adaption state and vice versa,
  * but distinct keys keep the scratch self-describing).

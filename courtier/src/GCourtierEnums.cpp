@@ -202,7 +202,7 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::processingStatus &srm) 
 
 /******************************************************************************/
 /**
- * Puts a Gem::Courtier::consumerType into a stream. Needed also for boost::lexical_cast<>
+ * Puts a Gem::Courtier::consumerType into a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param o The ostream the item should be added to
  * @param bm The consumerType item to be added to the stream
@@ -216,7 +216,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Courtier::consumerType &bm)
 
 /******************************************************************************/
 /**
- * Reads a Gem::Courtier::consumerType item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a Gem::Courtier::consumerType item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param i The stream the item should be read from
  * @param bm The consumerType item read from the stream

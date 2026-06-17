@@ -86,7 +86,7 @@ TEST_CASE("GAuxiliaryStore POD blocks: install / typed access / copy-independenc
 TEST_CASE("GIndividualSlot scratch: clone copies it; compare ignores it; resetPersonality drops it", "[aux][slot]") {
     using Gem::Geneva::Individuals::GTestIndividual3;
 
-    // The per-group POD adaption scratch is OA-owned and lives on the GIndividualSlot (Phase 10), not on
+    // The per-group POD adaption scratch is OA-owned and lives on the GIndividualSlot, not on
     // the individual. Its clone-copies / compare-ignores / boundary-clears contract is therefore a slot
     // property now.
     GIndividualSlot slot(std::make_unique<GTestIndividual3>());
