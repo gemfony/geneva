@@ -45,6 +45,7 @@
 #include <cstddef>
 #include <functional>
 #include <memory>
+#include <thread>
 #include <vector>
 
 #include "courtier/GBrokerRegistry.hpp"
@@ -205,6 +206,64 @@ TEST_CASE("Broker registry holds at most one broker per kind", "[consumer][shari
     CHECK(reg.get(broker_kind::serial) == serial); // clear is per-kind
     reg.clearAll();
     CHECK(reg.get(broker_kind::serial) == nullptr);
+}
+
+/******************************************************************************/
+
+TEST_CASE(
+    "Concurrent algorithms fan in to one shared thread-pool consumer",
+    "[consumer][sharing][stress]") {
+    using StcConsumer = Gem::Courtier::GStdThreadConsumerT<gen::GOptimizableEntity>;
+
+    // The shared thread-pool consumer is meant to serve several algorithms at once (the fan-in case):
+    // each submitter waits on its OWN per-batch counter in dispatch_, not a global pool drain. Here K
+    // independent EAs run on K separate threads, all un-injected so all converge on the ONE registered
+    // thread-pool consumer. This exercises concurrent dispatch_ calls on the shared pool and asserts
+    // (a) every algorithm still converges and (b) only ONE pool was built (bounded threads, no
+    // per-algorithm oversubscription). The submitting threads are NOT pool workers, so they block on
+    // their batches while the pool drains them -- no pool-reentrancy (a nested EA-in-EA on the SAME pool
+    // would instead be split across kinds; see the two-tier meta-optimization model).
+    Gem::Courtier::GBrokerRegistryT<gen::GOptimizableEntity>::instance().clearAll();
+    StcConsumer::instances_constructed().store(0);
+
+    constexpr int K = 4;
+    std::vector<double> results(K, 1.0e9); // each thread writes only its own slot -> no data race
+
+    std::vector<std::thread> threads;
+    threads.reserve(K);
+    for(int t = 0; t < K; ++t) {
+        threads.emplace_back([t, &results]() {
+            auto ea = std::make_shared<oa::GEvolutionaryAlgorithm>();
+            ea->setPopulationSizes(12, 4);
+            ea->setMaxIteration(40);
+            ea->setReportIteration(100000);
+            InnerSphere src;
+            ea->push_back(src.clone_unique());
+            ea->setAdaptionConfig(src.buildAdaptionConfig());
+            // No setLocalConsumer(): the default thread-pool consumer is resolved (and shared) via the registry.
+            ea->optimize();
+
+            auto best = ea->getBestGlobalIndividual<InnerSphere>();
+            std::vector<double> v;
+            best->streamline<double>(v);
+            double s = 0.;
+            for(double x : v) {
+                s += x * x;
+            }
+            results[t] = s;
+        });
+    }
+    for(auto &th : threads) {
+        th.join();
+    }
+
+    // Assertions on the main thread only (Catch2 macros are not thread-safe).
+    for(double s : results) {
+        CHECK(s < 20.0); // every concurrent algorithm converged (well below the f=27 start)
+    }
+    CHECK(StcConsumer::instances_constructed().load() == 1); // one shared pool for all K algorithms
+
+    Gem::Courtier::GBrokerRegistryT<gen::GOptimizableEntity>::instance().clearAll();
 }
 
 /******************************************************************************/
