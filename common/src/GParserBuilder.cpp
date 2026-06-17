@@ -488,6 +488,8 @@ void GParserBuilder::loadFromPtree(
 /**
  * Tries to parse a given configuration file for a set of options.
  *
+ * @param config_file The path to the configuration file that should be parsed
+ * @param captured An optional pointer to a property tree that, if non-null, receives the parsed options
  * @return A boolean indicating whether parsing was successful
  */
 bool GParserBuilder::parseConfigFile(std::filesystem::path const &config_file, boost::property_tree::ptree *captured) {

@@ -210,6 +210,9 @@ public:
      * Note that the string will likely describe a derivative of g_class_type, as g_class_type cannot usually be instantiated.
      * Note also that you will have to take care yourself that serialization and de-serialization happens
      * in the same mode.
+     *
+     * @param descr The string representation from which the object should be initialized
+     * @param ser_mod The desired serialization mode
      */
     void fromString(const std::string &descr, Gem::Common::serializationMode ser_mod) {
         std::istringstream istr(descr);

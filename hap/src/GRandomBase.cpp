@@ -54,7 +54,8 @@ GRandomBase::~GRandomBase() { /* nothing */
  *
  * Retrieves a raw random item. This function, together with the min() and
  * max() functions make it possible to use GRandomBase as a generator for
- * boost's random distributions.
+ * the C++11 standard random distributions (it satisfies the
+ * UniformRandomBitGenerator interface).
  *
  * @return A "raw" random number suitable for a C++11 standard random engine
  */
