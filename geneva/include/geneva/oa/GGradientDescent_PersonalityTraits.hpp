@@ -52,14 +52,27 @@ class GGradientDescent_PersonalityTraits // NOLINT(cppcoreguidelines-special-mem
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    /** @brief Single declaration of this class'es local data members */
+    /**
+     * @brief Single declaration of this class's local data members (non-const access).
+     * @return A tuple of named-member bindings used by serialization and comparison.
+     */
     auto localMembers() {
         return std::make_tuple(Gem::Common::make_member("pop_pos_", pop_pos_));
     }
+    /**
+     * @brief Single declaration of this class's local data members (const access).
+     * @return A tuple of named-member bindings used by serialization and comparison.
+     */
     auto localMembers() const {
         return std::make_tuple(Gem::Common::make_member("pop_pos_", pop_pos_));
     }
 
+    /**
+     * @brief Serializes this object to/from a Boost.Serialization archive.
+     * @tparam Archive The Boost.Serialization archive type.
+     * @param ar The archive to read from or write to.
+     * @param (unnamed) The serialization version number (unused).
+     */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -76,36 +89,55 @@ public:
 
     /** @brief The default constructor */
     GGradientDescent_PersonalityTraits() = default;
-    /** @brief The copy contructor */
-    
+    /**
+     * @brief The copy constructor.
+     * @param (unnamed) The object to be copied.
+     */
     GGradientDescent_PersonalityTraits(const GGradientDescent_PersonalityTraits &) = default;
 
     /** @brief The standard destructor */
     ~GGradientDescent_PersonalityTraits() override = default;
 
-    /** @brief Sets the position of the individual in the population */
+    /**
+     * @brief Sets the position of the individual in the population.
+     * @param (unnamed) The new position of this individual within the population.
+     */
     void setPopulationPosition(const std::size_t &);
-    /** @brief Retrieves the position of the individual in the population */
+    /**
+     * @brief Retrieves the position of the individual in the population.
+     * @return The position of this individual within the population.
+     */
     std::size_t getPopulationPosition() const;
 
-    /** @brief Retrieves the mnemonic of the optimization algorithm */
+    /**
+     * @brief Retrieves the mnemonic of the optimization algorithm.
+     * @return The mnemonic ("gd") identifying the gradient-descent algorithm.
+     */
     std::string getMnemonic() const override;
 
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
-    /** @brief Loads the data of another GGDPersonalityTraits object */
+    /**
+     * @brief Loads the data of another GGradientDescent_PersonalityTraits object.
+     * @param (unnamed) A pointer to another GGradientDescent_PersonalityTraits object, camouflaged as a GPersonalityTraits.
+     */
     void load_(const GPersonalityTraits *) override;
 
-    /** @brief Allow access to this classes compare_ function */
+    /** @brief Allow access to this class's compare_ function */
     friend void Gem::Common::compare_base_t<GGradientDescent_PersonalityTraits>(
         GGradientDescent_PersonalityTraits const &,
         GGradientDescent_PersonalityTraits const &,
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     * @param (unnamed) The other object to compare against (a GPersonalityTraits reference).
+     * @param (unnamed) The expectation for this object, e.g. equality.
+     * @param (unnamed) The limit for allowed deviations of floating point types.
+     */
     void compare_(
         const GPersonalityTraits & // the other object
         ,
@@ -114,7 +146,10 @@ protected:
         const double & // the limit for allowed deviations of floating point types
     ) const override;
 
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    /**
+     * @brief Applies modifications to this object. This is needed for testing purposes.
+     * @return true if any modification was made, false otherwise.
+     */
     bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
     void specificTestsNoFailureExpected_GUnitTests_() override;
@@ -124,9 +159,15 @@ protected:
     /***************************************************************************/
 
 private:
-    /** @brief Emits a name for this class / object */
+    /**
+     * @brief Emits a name for this class / object.
+     * @return The name of this class as a string.
+     */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object.
+     * @return A pointer to a freshly allocated deep copy of this object.
+     */
     GPersonalityTraits *clone_() const override;
 
     /** @brief Stores the current position in the population */

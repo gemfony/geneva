@@ -71,7 +71,11 @@ class GOptimizationAlgorithmT : public Parent {
 public:
     /** @brief The default constructor */
     GOptimizationAlgorithmT() = default;
-    /** @brief The copy constructor */
+    /**
+     * @brief The copy constructor
+     *
+     * @param The object to be copied (default member-wise copy).
+     */
     GOptimizationAlgorithmT(const GOptimizationAlgorithmT &) = default;
     /** @brief The destructor */
     ~GOptimizationAlgorithmT() override = default;
@@ -112,18 +116,34 @@ protected:
     }
 
 private:
-    /** @brief Emits a name for this class / object */
+    /**
+     * @brief Emits a name for this class / object
+     *
+     * @return The concrete algorithm's class name, taken from Derived::oa_class_name.
+     */
     std::string name_() const override { return std::string(Derived::oa_class_name); }
 
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object
+     *
+     * @return A heap-allocated deep copy of this object, as a GOptimizationAlgorithmBase pointer (caller owns it).
+     */
     GOptimizationAlgorithmBase *clone_() const override {
         return new Derived(static_cast<const Derived &>(*this));
     }
 
-    /** @brief Returns the human-readable name of this optimization algorithm */
+    /**
+     * @brief Returns the human-readable name of this optimization algorithm
+     *
+     * @return The algorithm's human-readable name, taken from Derived::oa_algorithm_name.
+     */
     std::string getAlgorithmName_() const override { return std::string(Derived::oa_algorithm_name); }
 
-    /** @brief Returns the personality-type tag of this optimization algorithm */
+    /**
+     * @brief Returns the personality-type tag of this optimization algorithm
+     *
+     * @return The algorithm's personality-type tag, taken from Derived::oa_personality_type.
+     */
     std::string getAlgorithmPersonalityType_() const override {
         return std::string(Derived::oa_personality_type);
     }

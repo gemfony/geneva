@@ -69,7 +69,11 @@ public:
 
     /** @brief The default constructor */
     GConjugateGradientDescent_PersonalityTraits() = default;
-    /** @brief The copy contructor */
+    /**
+     * @brief The copy contructor.
+     *
+     * @param GConjugateGradientDescent_PersonalityTraits const & The object to copy from
+     */
     GConjugateGradientDescent_PersonalityTraits(
         const GConjugateGradientDescent_PersonalityTraits &
     ) = default;
@@ -77,37 +81,74 @@ public:
     /** @brief The standard destructor */
     ~GConjugateGradientDescent_PersonalityTraits() override = default;
 
-    /** @brief Sets the position of the individual in the population */
+    /**
+     * @brief Sets the position of the individual in the population.
+     *
+     * @param std::size_t const & The position of the individual within the (parent + children) layout
+     */
     void setPopulationPosition(const std::size_t &);
-    /** @brief Retrieves the position of the individual in the population */
+    /**
+     * @brief Retrieves the position of the individual in the population.
+     *
+     * @return The position of the individual within the population layout
+     */
     std::size_t getPopulationPosition() const;
 
-    /** @brief Retrieves the mnemonic of the optimization algorithm */
+    /**
+     * @brief Retrieves the mnemonic of the optimization algorithm.
+     *
+     * @return The short identifier (mnemonic) of the conjugate gradient descent algorithm
+     */
     std::string getMnemonic() const override;
 
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
-    /** @brief Single declaration of this class'es local data members */
+    /**
+     * @brief Single declaration of this class'es local data members (non-const overload).
+     *
+     * @return A tuple of named members used by the comparison and serialization framework
+     */
     auto localMembers() {
         return std::make_tuple(Gem::Common::make_member("pop_pos_", pop_pos_));
     }
+    /**
+     * @brief Single declaration of this class'es local data members (const overload).
+     *
+     * @return A tuple of named members used by the comparison and serialization framework
+     */
     auto localMembers() const {
         return std::make_tuple(Gem::Common::make_member("pop_pos_", pop_pos_));
     }
 
-    /** @brief Loads the data of another GConjugateGradientDescent_PersonalityTraits object */
+    /**
+     * @brief Loads the data of another GConjugateGradientDescent_PersonalityTraits object into this one.
+     *
+     * @param GPersonalityTraits const * Pointer to the object whose data is copied (must be a GConjugateGradientDescent_PersonalityTraits)
+     */
     void load_(const GPersonalityTraits *) override;
 
-    /** @brief Allow access to this classes compare_ function */
+    /**
+     * @brief Allow access to this classes compare_ function.
+     *
+     * @param GConjugateGradientDescent_PersonalityTraits const & The first object to compare
+     * @param GConjugateGradientDescent_PersonalityTraits const & The second object to compare
+     * @param Gem::Common::GToken & The token accumulating the comparison result
+     */
     friend void Gem::Common::compare_base_t<GConjugateGradientDescent_PersonalityTraits>(
         GConjugateGradientDescent_PersonalityTraits const &,
         GConjugateGradientDescent_PersonalityTraits const &,
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     *
+     * @param GPersonalityTraits const & The other object to compare against
+     * @param Gem::Common::expectation const & The expectation for this object, e.g. equality
+     * @param double const & The limit for allowed deviations of floating point types
+     */
     void compare_(
         const GPersonalityTraits & // the other object
         ,
@@ -116,7 +157,11 @@ protected:
         const double & // the limit for allowed deviations of floating point types
     ) const override;
 
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    /**
+     * @brief Applies modifications to this object. This is needed for testing purposes.
+     *
+     * @return true if the object was modified, false otherwise
+     */
     bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
     void specificTestsNoFailureExpected_GUnitTests_() override;
@@ -126,9 +171,17 @@ protected:
     /***************************************************************************/
 
 private:
-    /** @brief Emits a name for this class / object */
+    /**
+     * @brief Emits a name for this class / object.
+     *
+     * @return The class name as a string
+     */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object.
+     *
+     * @return A pointer to a newly allocated deep copy of this object
+     */
     GPersonalityTraits *clone_() const override;
 
     /** @brief Stores the current position in the population */

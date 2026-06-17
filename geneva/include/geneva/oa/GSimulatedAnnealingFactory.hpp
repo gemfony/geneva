@@ -53,7 +53,8 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class is a specialization of the GFactoryT<> class for simulated annealing.
+ * @brief A specialization of the GFactoryT<> class for simulated annealing.
+ *
  * It will only return objects which perform all evaluation through the broker.
  */
 class GSimulatedAnnealingFactory // NOLINT(cppcoreguidelines-special-member-functions)
@@ -63,16 +64,20 @@ class GSimulatedAnnealingFactory // NOLINT(cppcoreguidelines-special-member-func
 public:
     /** @brief The default constructor */
     GSimulatedAnnealingFactory() = default;
-    /** @brief Initialization with the name of the config file */
+    /** @brief Initialization with the name of the config file
+     *  @param config_file The path to the configuration file driving the produced algorithm */
     explicit GSimulatedAnnealingFactory(std::filesystem::path const &config_file)
       : Base(config_file) { /* nothing */ }
-    /** @brief Initialization with the name of the config file and a content creator */
+    /** @brief Initialization with the name of the config file and a content creator
+     *  @param config_file The path to the configuration file driving the produced algorithm
+     *  @param content_creator_ptr A factory used to create the individuals the algorithm operates on */
     GSimulatedAnnealingFactory(
         const std::string &config_file,
         std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr
     )
       : Base(config_file, content_creator_ptr) { /* nothing */ }
-    /** @brief The copy constructor */
+    /** @brief The copy constructor
+     *  @param (unnamed) Another GSimulatedAnnealingFactory object to be copied */
     GSimulatedAnnealingFactory(const GSimulatedAnnealingFactory &) = default;
     /** @brief The destructor */
     ~GSimulatedAnnealingFactory() override = default;

@@ -57,10 +57,19 @@ namespace Gem::Geneva {
  */
 class GenevaInitializer { // NOLINT(cppcoreguidelines-special-member-functions)
 public:
-    /** @brief The default constructor */
+    /**
+     * @brief The default constructor; performs the runtime init of the random factory.
+     *
+     * Brings the global random-number factory online so that all Geneva facilities have a usable RNG
+     * source for the lifetime of this object.
+     */
     GenevaInitializer();
 
-    /** @brief The destructor */
+    /**
+     * @brief The destructor; performs the runtime finalize of the random factory.
+     *
+     * Tears down the global random-number factory that the constructor brought online.
+     */
     ~GenevaInitializer();
 
     /***************************************************************************/

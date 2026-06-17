@@ -85,14 +85,20 @@ public:
 
     /** @brief The default constructor */
     GStandardMonitor() = default;
-    /** @brief The copy constructor */
+    /**
+     * @brief The copy constructor
+     * @param cp A constant reference to another GStandardMonitor object whose data is deep-copied
+     */
     GStandardMonitor(const GStandardMonitor &cp) = default;
     /** @brief The destructor */
     ~GStandardMonitor() override = default;
 
 protected:
     /***************************************************************************/
-    /** @brief Loads the data of another object */
+    /**
+     * @brief Loads the data of another object into this one
+     * @param cp A pointer to another object of this type, camouflaged as a GBasePluggableOM, whose data is copied
+     */
     void load_(const oa::GBasePluggableOM *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -102,7 +108,12 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type
+     * @param cp A constant reference to another GBasePluggableOM object to compare against
+     * @param e The expected outcome of the comparison (e.g. equality or inequality)
+     * @param limit The maximum allowed deviation for comparisons of floating point types
+     */
     void compare_(
         const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
@@ -117,12 +128,23 @@ protected:
     void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
-    /** @brief Emits a name for this class / object */
+    /**
+     * @brief Emits a name for this class / object
+     * @return The human-readable class name of this object
+     */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object
+     * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
+     */
     oa::GBasePluggableOM *clone_() const override;
 
-    /** @brief Aggregates the work of all registered pluggable monitors */
+    /**
+     * @brief Aggregates the work of all registered pluggable monitors
+     *
+     * The first (unnamed) argument is the information mode (init, processing or finalization).
+     * @param goa A constant pointer to the optimization algorithm whose state is being monitored
+     */
     void
     informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
 };
@@ -192,33 +214,64 @@ public:
 
     /** @brief The default constructor */
     GFitnessMonitor() = default;
-    /** @brief The copy constructor */
+    /**
+     * @brief The copy constructor
+     * @param cp A constant reference to another GFitnessMonitor object whose data is deep-copied
+     */
     GFitnessMonitor(const GFitnessMonitor &cp);
     /** @brief The destructor */
     ~GFitnessMonitor() override = default;
 
-    /** @brief Allows to specify a different name for the result file */
+    /**
+     * @brief Allows to specify a different name for the result file
+     * @param result_file The new name of the result file
+     */
     void setResultFileName(const std::string &result_file);
-    /** @brief Allows to retrieve the current value of the result file name */
+    /**
+     * @brief Allows to retrieve the current value of the result file name
+     * @return The current name of the result file
+     */
     std::string getResultFileName() const;
 
-    /** @brief Allows to set the dimensions of the canvas */
+    /**
+     * @brief Allows to set the dimensions of the canvas
+     * @param x_dim The canvas dimension in x-direction
+     * @param y_dim The canvas dimension in y-direction
+     */
     void setDims(const std::uint32_t &x_dim, const std::uint32_t &y_dim);
-    /** @brief Retrieve the dimensions as a tuple */
+    /**
+     * @brief Retrieve the dimensions as a tuple
+     * @return A tuple holding the canvas dimensions in x- and y-direction
+     */
     std::tuple<std::uint32_t, std::uint32_t> getDims() const;
-    /** @brief Retrieves the dimension of the canvas in x-direction */
+    /**
+     * @brief Retrieves the dimension of the canvas in x-direction
+     * @return The canvas dimension in x-direction
+     */
     std::uint32_t getXDim() const;
-    /** @brief Retrieves the dimension of the canvas in y-direction */
+    /**
+     * @brief Retrieves the dimension of the canvas in y-direction
+     * @return The canvas dimension in y-direction
+     */
     std::uint32_t getYDim() const;
 
-    /** @brief Sets the number of individuals in the population that should be monitored */
+    /**
+     * @brief Sets the number of individuals in the population that should be monitored
+     * @param n_monitor_inds The number of individuals that should be monitored
+     */
     void setNMonitorIndividuals(const std::size_t &n_monitor_inds);
-    /** @brief Retrieves the number of individuals that are being monitored */
+    /**
+     * @brief Retrieves the number of individuals that are being monitored
+     * @return The number of individuals that are being monitored
+     */
     std::size_t getNMonitorIndividuals() const;
 
 protected:
     /************************************************************************/
-    /** @brief Loads the data of another object */
+    /**
+     * @brief Loads the data of another object into this one
+     * @param cp A pointer to another object of this type, camouflaged as a GBasePluggableOM, whose data is copied
+     */
     void load_(const oa::GBasePluggableOM *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -228,7 +281,12 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type
+     * @param cp A constant reference to another GBasePluggableOM object to compare against
+     * @param e The expected outcome of the comparison (e.g. equality or inequality)
+     * @param limit The maximum allowed deviation for comparisons of floating point types
+     */
     void compare_(
         const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
@@ -244,12 +302,23 @@ protected:
 
 private:
     /************************************************************************/
-    /** @brief Emits a name for this class / object */
+    /**
+     * @brief Emits a name for this class / object
+     * @return The human-readable class name of this object
+     */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object
+     * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
+     */
     oa::GBasePluggableOM *clone_() const override;
 
-    /** @brief Aggregates the work of all registered pluggable monitors */
+    /**
+     * @brief Aggregates the work of all registered pluggable monitors
+     *
+     * The first (unnamed) argument is the information mode (init, processing or finalization).
+     * @param goa A constant pointer to the optimization algorithm whose state is being monitored
+     */
     void
     informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
 
@@ -327,21 +396,33 @@ public:
     /***************************************************************************/
     /** @brief The default constructor */
     GCollectiveMonitor() = default;
-    /** @brief The copy constructor */
+    /**
+     * @brief The copy constructor
+     * @param cp A constant reference to another GCollectiveMonitor object whose data is deep-copied
+     */
     GCollectiveMonitor(const GCollectiveMonitor &cp);
     /** @brief The destructor */
     ~GCollectiveMonitor() override = default;
 
-    /** @brief Allows to register a new pluggable monitor */
+    /**
+     * @brief Allows to register a new pluggable monitor
+     * @param om_ptr A shared pointer to the pluggable optimization monitor to add to this collection
+     */
     void registerPluggableOM(std::shared_ptr<oa::GBasePluggableOM> om_ptr);
-    /** @brief Checks if adaptors have been registered in the collective monitor */
+    /**
+     * @brief Checks if pluggable monitors have been registered in the collective monitor
+     * @return true if at least one pluggable monitor has been registered, false otherwise
+     */
     bool hasOptimizationMonitors() const;
     /** @brief Allows to clear all registered monitors */
     void resetPluggbleOM();
 
 protected:
     /***************************************************************************/
-    /** @brief Loads the data of another object */
+    /**
+     * @brief Loads the data of another object into this one
+     * @param cp A pointer to another object of this type, camouflaged as a GBasePluggableOM, whose data is copied
+     */
     void load_(const oa::GBasePluggableOM *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -351,7 +432,12 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type
+     * @param cp A constant reference to another GBasePluggableOM object to compare against
+     * @param e The expected outcome of the comparison (e.g. equality or inequality)
+     * @param limit The maximum allowed deviation for comparisons of floating point types
+     */
     void compare_(
         const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
@@ -367,12 +453,23 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Emits a name for this class / object */
+    /**
+     * @brief Emits a name for this class / object
+     * @return The human-readable class name of this object
+     */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object
+     * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
+     */
     oa::GBasePluggableOM *clone_() const override;
 
-    /** @brief Aggregates the work of all registered pluggable monitors */
+    /**
+     * @brief Aggregates the work of all registered pluggable monitors
+     *
+     * The first (unnamed) argument is the information mode (init, processing or finalization).
+     * @param goa A constant pointer to the optimization algorithm whose state is being monitored
+     */
     void
     informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
 
@@ -387,6 +484,8 @@ private:
  * This class allows to monitor a given set of variables inside of all or of the
  * best individuals of a population, creating a graphical output using ROOT. It
  * supports floating point types only. double and float values may not be mixed.
+ *
+ * @tparam fp_type The floating point type of the monitored variables (e.g. double or float)
  */
 template <typename fp_type>
 class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
@@ -467,9 +566,12 @@ public:
 
     /***************************************************************************/
     /**
-	  * Construction with the information whether only the best individuals
+	  * @brief Construction with the information whether only the best individuals
 	  * should be monitored and whether only valid items should be recorded.
 	  * Some member variables may be initialized in the class body.
+	  *
+	  * @param monitor_best_only If true, only the best individual(s) of the population are monitored
+	  * @param monitor_valid_only If true, only individuals with a valid parameter set are recorded
 	  */
     GProgressPlotterT(bool monitor_best_only, bool monitor_valid_only)
       : gpd_("Progress information", 1, 1)
@@ -480,7 +582,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * The copy constructor
+	  * @brief The copy constructor
+	  *
+	  * @param cp A constant reference to another GProgressPlotterT object whose data is deep-copied
 	  */
     GProgressPlotterT(const GProgressPlotterT<fp_type> &cp)
       : oa::GBasePluggableOM(cp)
@@ -505,9 +609,11 @@ public:
 
     /**************************************************************************/
     /**
-	  * Sets the specifications of the variables to be profiled. Note that
+	  * @brief Sets the specifications of the variables to be profiled. Note that
 	  * boolean and integer variables specified in the argument will simply
 	  * be ignored.
+	  *
+	  * @param par_str A non-empty parameter-property specification string describing which floating-point variables to profile
 	  */
     void setProfileSpec(std::string const &par_str) {
         // Check that the parameter string isn't empty
@@ -547,7 +653,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to specify whether only the best individuals should be monitored.
+	  * @brief Allows to specify whether only the best individuals should be monitored.
+	  *
+	  * @param monitor_best_only If true, only the best individual(s) of the population are monitored
 	  */
     void setMonitorBestOnly(bool monitor_best_only = true) {
         monitor_best_only_ = monitor_best_only;
@@ -555,7 +663,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to check whether only the best individuals should be monitored.
+	  * @brief Allows to check whether only the best individuals should be monitored.
+	  *
+	  * @return true if only the best individual(s) are monitored, false otherwise
 	  */
     bool getMonitorBestOnly() const {
         return monitor_best_only_;
@@ -563,7 +673,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to specify whether only valid individuals should be monitored.
+	  * @brief Allows to specify whether only valid individuals should be monitored.
+	  *
+	  * @param monitor_valid_only If true, only individuals with a valid parameter set are recorded
 	  */
     void setMonitorValidOnly(bool monitor_valid_only = true) {
         monitor_valid_only_ = monitor_valid_only;
@@ -571,7 +683,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to check whether only valid individuals should be monitored.
+	  * @brief Allows to check whether only valid individuals should be monitored.
+	  *
+	  * @return true if only valid individuals are monitored, false otherwise
 	  */
     bool getMonitorValidOnly() const {
         return monitor_valid_only_;
@@ -579,7 +693,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to spefify whether scan boundaries should be observed
+	  * @brief Allows to specify whether scan boundaries should be observed
+	  *
+	  * @param observe_boundaries If true, values outside a scan boundary are ignored when plotting
 	  */
     void setObserveBoundaries(bool observe_boundaries) {
         observe_boundaries_ = observe_boundaries;
@@ -587,7 +703,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to check whether boundaries should be observed
+	  * @brief Allows to check whether boundaries should be observed
+	  *
+	  * @return true if scan boundaries are observed, false otherwise
 	  */
     bool getObserveBoundaries() const {
         return observe_boundaries_;
@@ -595,7 +713,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to check whether parameters should be profiled
+	  * @brief Allows to check whether parameters should be profiled
+	  *
+	  * @return true if at least one variable has been registered for profiling, false otherwise
 	  */
     bool parameterProfileCreationRequested() const {
         return not fp_prof_var_vec_.empty();
@@ -603,7 +723,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the number of variables that will be profiled
+	  * @brief Retrieves the number of variables that will be profiled
+	  *
+	  * @return The number of registered profiling variables
 	  */
     std::size_t nProfileVars() const {
         return fp_prof_var_vec_.size();
@@ -611,7 +733,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to set the canvas dimensions
+	  * @brief Allows to set the canvas dimensions
+	  *
+	  * @param canvas_dimensions A tuple holding the canvas dimensions in x- and y-direction
 	  */
     void setCanvasDimensions(std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions) {
         canvas_dimensions_ = canvas_dimensions;
@@ -619,7 +743,10 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to set the canvas dimensions using separate x and y values
+	  * @brief Allows to set the canvas dimensions using separate x and y values
+	  *
+	  * @param x The canvas dimension in x-direction
+	  * @param y The canvas dimension in y-direction
 	  */
     void setCanvasDimensions(std::uint32_t x, std::uint32_t y) {
         canvas_dimensions_ = std::tuple<std::uint32_t, std::uint32_t>(x, y);
@@ -627,7 +754,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Gives access to the canvas dimensions
+	  * @brief Gives access to the canvas dimensions
+	  *
+	  * @return A tuple holding the canvas dimensions in x- and y-direction
 	  */
     std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions() const {
         return canvas_dimensions_;
@@ -635,7 +764,9 @@ public:
 
     /******************************************************************************/
     /**
-	  * Allows to add a "Print" command to the end of the script so that picture files are created
+	  * @brief Allows to add a "Print" command to the end of the script so that picture files are created
+	  *
+	  * @param add_print_command If true, a print command is appended so that picture files are created
 	  */
     void setAddPrintCommand(bool add_print_command) {
         add_print_command_ = add_print_command;
@@ -643,7 +774,9 @@ public:
 
     /******************************************************************************/
     /**
-	  * Allows to retrieve the current value of the add_print_command_ variable
+	  * @brief Allows to retrieve the current value of the add_print_command_ variable
+	  *
+	  * @return true if a print command will be appended to the script, false otherwise
 	  */
     bool getAddPrintCommand() const {
         return add_print_command_;
@@ -651,7 +784,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to set the filename
+	  * @brief Allows to set the filename
+	  *
+	  * @param file_name The name of the file to which information will be emitted
 	  */
     void setFileName(const std::string &file_name) {
         file_name_ = file_name;
@@ -659,7 +794,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the current filename to which information will be emitted
+	  * @brief Retrieves the current filename to which information will be emitted
+	  *
+	  * @return The name of the file to which information will be emitted
 	  */
     std::string getFileName() const {
         return file_name_;
@@ -667,7 +804,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to set the canvas label
+	  * @brief Allows to set the canvas label
+	  *
+	  * @param canvas_label The label to assign to the canvas
 	  */
     void setCanvasLabel(const std::string &canvas_label) {
         gpd_.setCanvasLabel(canvas_label);
@@ -675,7 +814,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to retrieve the canvas label
+	  * @brief Allows to retrieve the canvas label
+	  *
+	  * @return The current canvas label
 	  */
     std::string getCanvasLabel() const {
         return gpd_.getCanvasLabel();
@@ -683,7 +824,10 @@ public:
 
     /***************************************************************************/
     /**
-	  * Determines a suitable label for a given parPropSpec value
+	  * @brief Determines a suitable label for a given parPropSpec value
+	  *
+	  * @param s A parameter-property specification whose variable descriptor is turned into a label
+	  * @return A human-readable label string for the given variable
 	  */
     std::string getLabel(const gen::parPropSpec<fp_type> &s) const {
         std::string result; // NOLINT(cppcoreguidelines-init-variables)
@@ -727,9 +871,9 @@ public:
 protected:
     /************************************************************************/
     /**
-	  * Loads the data of another object
+	  * @brief Loads the data of another object into this one
 	  *
-	  * cp A pointer to another GProgressPlotterTT<fp_type> object, camouflaged as a GBasePluggableOM
+	  * @param cp A pointer to another GProgressPlotterT<fp_type> object, camouflaged as a GBasePluggableOM, whose data is copied
 	  */
     void load_(const oa::GBasePluggableOM *cp) override {
         // Check that we are dealing with a GProgressPlotterT<fp_type> reference independent of this object and convert the pointer
@@ -759,8 +903,9 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GBasePluggableOM object
-     * @param e The expected outcome of the comparison
+     * @param cp A constant reference to another GBasePluggableOM object to compare against
+     * @param e The expected outcome of the comparison (e.g. equality or inequality)
+     * @param limit The maximum allowed deviation for comparisons of floating point types (unused here)
      */
     void compare_(
         const oa::GBasePluggableOM &cp,
@@ -853,7 +998,9 @@ protected:
 private:
     /***************************************************************************/
     /**
-	  * Emits a name for this class / object
+	  * @brief Emits a name for this class / object
+	  *
+	  * @return The class name of this object
 	  */
     std::string name_() const override {
         return std::string("GProgressPlotterT<fp_type>");
@@ -861,7 +1008,9 @@ private:
 
     /************************************************************************/
     /**
-	  * Creates a deep clone of this object
+	  * @brief Creates a deep clone of this object
+	  *
+	  * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
 	  */
     oa::GBasePluggableOM *clone_() const override {
         return new GProgressPlotterT<fp_type>(*this);
@@ -869,8 +1018,11 @@ private:
 
     /***************************************************************************/
     /**
-     * Allows to emit information in different stages of the information cycle
+     * @brief Allows to emit information in different stages of the information cycle
      * (initialization, during each cycle and during finalization)
+     *
+     * @param im The information mode (initialization, processing or finalization) for this call
+     * @param goa A constant pointer to the optimization algorithm whose state is being monitored
      */
     void informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override {
         switch(im) {
@@ -1191,9 +1343,9 @@ private:
  * commas will be printed in-between values. It is possible to filter the results by
  * asking the class to only log solutions better than a given set of values. What
  * is considered better depends on whether evaluation criteria are maximized or minimized
- * and is determined from the individual. Note that this class can only be instantiated
- * if individual_type is either a derivative of GParamterSet or is an object of the
- * GOptimizableEntity class itself.
+ * and is determined from the individual. Note that this class operates on the
+ * GOptimizableEntity hierarchy (the flat-genome GFlatGenome / its GenomeData), i.e. on
+ * the optimizable entities managed by the algorithm.
  */
 class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-functions)
   : public oa::GBasePluggableOM {
@@ -1252,64 +1404,124 @@ public:
 
     /** @brief The default constructor */
     GAllSolutionFileLogger() = default;
-    /** @brief Initialization with a file name */
+    /**
+     * @brief Initialization with a file name
+     * @param file_name The name of the file to which solutions should be logged
+     */
     explicit GAllSolutionFileLogger(const std::string &file_name);
-    /** @brief Initialization with a file name and boundaries */
-
+    /**
+     * @brief Initialization with a file name and boundaries
+     * @param file_name The name of the file to which solutions should be logged
+     * @param boundaries Value boundaries used to filter which solutions are logged
+     */
     GAllSolutionFileLogger(const std::string &file_name, const std::vector<double> &boundaries);
     /** @brief The copy constructor */
     GAllSolutionFileLogger(const GAllSolutionFileLogger &cp) = default;
     /** @brief The destructor */
     ~GAllSolutionFileLogger() override = default;
 
-    /** @brief Sets the file name */
+    /**
+     * @brief Sets the file name
+     * @param file_name The name of the file to which solutions should be logged
+     */
     void setFileName(const std::string &file_name);
-    /** @brief Retrieves the current file name */
+    /**
+     * @brief Retrieves the current file name
+     * @return The name of the file to which solutions are logged
+     */
     std::string getFileName() const;
 
-    /** @brief Sets the boundaries */
+    /**
+     * @brief Sets the boundaries
+     * @param boundaries Value boundaries used to filter which solutions are logged
+     */
     void setBoundaries(const std::vector<double> &boundaries);
-    /** @brief Allows to retrieve the boundaries */
+    /**
+     * @brief Allows to retrieve the boundaries
+     * @return The value boundaries used to filter which solutions are logged
+     */
     std::vector<double> getBoundaries() const;
-    /** @brief Allows to check whether boundaries are active */
+    /**
+     * @brief Allows to check whether boundaries are active
+     * @return true if boundaries have been set and are active, false otherwise
+     */
     bool boundariesActive() const;
     /** @brief Allows to inactivate boundaries */
     void setBoundariesInactive();
 
-    /** @brief  Allows to specify whether explanations should be printed for parameter- and fitness values. */
+    /**
+     * @brief Allows to specify whether explanations should be printed for parameter- and fitness values.
+     * @param with_name_and_type If true, a header line with variable names and types is prepended
+     */
     void setPrintWithNameAndType(bool with_name_and_type = true);
-    /** @brief Allows to check whether explanations should be printed for parameter-and fitness values */
+    /**
+     * @brief Allows to check whether explanations should be printed for parameter-and fitness values
+     * @return true if a header line with variable names and types is prepended, false otherwise
+     */
     bool getPrintWithNameAndType() const;
 
-    /** @brief Allows to specify whether commas should be printed in-between values */
+    /**
+     * @brief Allows to specify whether commas should be printed in-between values
+     * @param with_commas If true, commas are printed in-between values
+     */
     void setPrintWithCommas(bool with_commas = true);
-    /** @brief Allows to check whether commas should be printed in-between values */
+    /**
+     * @brief Allows to check whether commas should be printed in-between values
+     * @return true if commas are printed in-between values, false otherwise
+     */
     bool getPrintWithCommas() const;
 
-    /** @brief Allows to specify whether the true (instead of the transformed) fitness should be shown */
+    /**
+     * @brief Allows to specify whether the true (instead of the transformed) fitness should be shown
+     * @param use_raw_fitness If true, the raw (true) fitness is shown instead of the transformed fitness
+     */
     void setUseTrueFitness(bool use_raw_fitness = true);
-    /** @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown */
+    /**
+     * @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown
+     * @return true if the raw (true) fitness is shown, false if the transformed fitness is shown
+     */
     bool getUseTrueFitness() const;
 
-    /** @brief Allows to specify whether the validity of a solution should be shown */
+    /**
+     * @brief Allows to specify whether the validity of a solution should be shown
+     * @param show_validity If true, the validity of each solution is shown
+     */
     void setShowValidity(bool show_validity = true);
-    /** @brief Allows to check whether the validity of a solution will be shown */
+    /**
+     * @brief Allows to check whether the validity of a solution will be shown
+     * @return true if the validity of each solution is shown, false otherwise
+     */
     bool getShowValidity() const;
 
-    /** @brief Allows to specifiy whether the initial population should be printed. */
+    /**
+     * @brief Allows to specify whether the initial population should be printed.
+     * @param print_initial If true, the initial population is also printed
+     */
     void setPrintInitial(bool print_initial = true);
-    /** @brief Allows to check whether the initial population should be printed. */
+    /**
+     * @brief Allows to check whether the initial population should be printed.
+     * @return true if the initial population is printed, false otherwise
+     */
     bool getPrintInitial() const;
 
-    /** @brief Allows to specifiy whether a comment line should be inserted between iterations */
+    /**
+     * @brief Allows to specify whether a comment line should be inserted between iterations
+     * @param show_iteration_boundaries If true, a comment line is inserted between iterations
+     */
     void setShowIterationBoundaries(bool show_iteration_boundaries = true);
-    /** @brief Allows to check whether a comment line should be inserted between iterations */
+    /**
+     * @brief Allows to check whether a comment line should be inserted between iterations
+     * @return true if a comment line is inserted between iterations, false otherwise
+     */
     bool getShowIterationBoundaries() const;
 
 protected:
     /************************************************************************/
 
-    /** @brief Loads the data of another object */
+    /**
+     * @brief Loads the data of another object into this one
+     * @param cp A pointer to another object of this type, camouflaged as a GBasePluggableOM, whose data is copied
+     */
     void load_(const oa::GBasePluggableOM *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -1319,7 +1531,12 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type
+     * @param cp A constant reference to another GBasePluggableOM object to compare against
+     * @param e The expected outcome of the comparison (e.g. equality or inequality)
+     * @param limit The maximum allowed deviation for comparisons of floating point types
+     */
     void compare_(
         const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
@@ -1335,16 +1552,31 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Emits a name for this class / object */
+    /**
+     * @brief Emits a name for this class / object
+     * @return The human-readable class name of this object
+     */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object
+     * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
+     */
     oa::GBasePluggableOM *clone_() const override;
 
-    /** @brief Allows to emit information in different stages of the information cycle */
+    /**
+     * @brief Allows to emit information in different stages of the information cycle
+     *
+     * The first (unnamed) argument is the information mode (init, processing or finalization).
+     * @param goa A constant pointer to the optimization algorithm whose state is being monitored
+     */
     void
     informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
 
-    /** @brief Does the actual printing */
+    /**
+     * @brief Does the actual printing of the population to the log file
+     * @param iteration_description A textual description of the current iteration, used in the output
+     * @param goa A constant pointer to the optimization algorithm whose population is printed
+     */
     void printPopulation(
         const std::string &iteration_description,
         oa::GOptimizationAlgorithmBase const *const goa
@@ -1419,31 +1651,55 @@ public:
 
     /** @brief The default constructor */
     GIterationResultsFileLogger() = default;
-    /** @brief Initialization with a file name */
+    /**
+     * @brief Initialization with a file name
+     * @param file_name The name of the file to which iteration results should be logged
+     */
     explicit GIterationResultsFileLogger(const std::string &file_name);
     /** @brief The copy constructor */
     GIterationResultsFileLogger(const GIterationResultsFileLogger &cp) = default;
     /** @brief The destructor */
     ~GIterationResultsFileLogger() override = default;
 
-    /** @brief Sets the file name */
+    /**
+     * @brief Sets the file name
+     * @param file_name The name of the file to which iteration results should be logged
+     */
     void setFileName(const std::string &file_name);
-    /** @brief Retrieves the current file name */
+    /**
+     * @brief Retrieves the current file name
+     * @return The name of the file to which iteration results are logged
+     */
     std::string getFileName() const;
 
-    /** @brief Allows to specify whether commas should be printed in-between values */
+    /**
+     * @brief Allows to specify whether commas should be printed in-between values
+     * @param with_commas If true, commas are printed in-between values
+     */
     void setPrintWithCommas(bool with_commas);
-    /** @brief Allows to check whether commas should be printed in-between values */
+    /**
+     * @brief Allows to check whether commas should be printed in-between values
+     * @return true if commas are printed in-between values, false otherwise
+     */
     bool getPrintWithCommas() const;
 
-    /** @brief Allows to specify whether the true (instead of the transformed) fitness should be shown */
+    /**
+     * @brief Allows to specify whether the true (instead of the transformed) fitness should be shown
+     * @param use_raw_fitness If true, the raw (true) fitness is shown instead of the transformed fitness
+     */
     void setUseTrueFitness(bool use_raw_fitness);
-    /** @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown */
+    /**
+     * @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown
+     * @return true if the raw (true) fitness is shown, false if the transformed fitness is shown
+     */
     bool getUseTrueFitness() const;
 
 protected:
     /************************************************************************/
-    /** @brief Loads the data of another object */
+    /**
+     * @brief Loads the data of another object into this one
+     * @param cp A pointer to another object of this type, camouflaged as a GBasePluggableOM, whose data is copied
+     */
     void load_(const oa::GBasePluggableOM *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -1453,7 +1709,12 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type
+     * @param cp A constant reference to another GBasePluggableOM object to compare against
+     * @param e The expected outcome of the comparison (e.g. equality or inequality)
+     * @param limit The maximum allowed deviation for comparisons of floating point types
+     */
     void compare_(
         const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
@@ -1469,12 +1730,23 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Emits a name for this class / object */
+    /**
+     * @brief Emits a name for this class / object
+     * @return The human-readable class name of this object
+     */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object
+     * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
+     */
     oa::GBasePluggableOM *clone_() const override;
 
-    /** @brief Allows to emit information in different stages of the information cycle */
+    /**
+     * @brief Allows to emit information in different stages of the information cycle
+     *
+     * The first (unnamed) argument is the information mode (init, processing or finalization).
+     * @param goa A constant pointer to the optimization algorithm whose state is being monitored
+     */
     void
     informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
 
@@ -1557,39 +1829,76 @@ public:
 
     /** @brief The default constructor */
     GNAdpationsLogger() = default;
-    /** @brief Initialization with a file name */
+    /**
+     * @brief Initialization with a file name
+     * @param file_name The name of the file to which the number of adaptions should be logged
+     */
     explicit GNAdpationsLogger(const std::string &file_name);
-    /** @brief The copy constructor */
+    /**
+     * @brief The copy constructor
+     * @param cp A constant reference to another GNAdpationsLogger object whose data is deep-copied
+     */
     GNAdpationsLogger(const GNAdpationsLogger &cp);
     /** @brief The destructor */
     ~GNAdpationsLogger() override = default;
 
-    /** @brief Sets the file name */
+    /**
+     * @brief Sets the file name
+     * @param file_name The name of the file to which the number of adaptions should be logged
+     */
     void setFileName(const std::string &file_name);
-    /** @brief Retrieves the current file name */
+    /**
+     * @brief Retrieves the current file name
+     * @return The name of the file to which the number of adaptions is logged
+     */
     std::string getFileName() const;
 
-    /** @brief Allows to specify whether only the best individuals should be monitored */
+    /**
+     * @brief Allows to specify whether only the best individuals should be monitored
+     * @param monitor_best_only If true, only the best individual(s) of the population are monitored
+     */
     void setMonitorBestOnly(bool monitor_best_only = true);
-    /** @brief Allows to check whether only the best individuals should be monitored */
+    /**
+     * @brief Allows to check whether only the best individuals should be monitored
+     * @return true if only the best individual(s) are monitored, false otherwise
+     */
     bool getMonitorBestOnly() const;
 
-    /** @brief Allows to set the canvas dimensions */
+    /**
+     * @brief Allows to set the canvas dimensions
+     * @param canvas_dimensions A tuple holding the canvas dimensions in x- and y-direction
+     */
     void setCanvasDimensions(std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions);
-    /** @brief Allows to set the canvas dimensions using separate x and y values */
+    /**
+     * @brief Allows to set the canvas dimensions using separate x and y values
+     * @param x The canvas dimension in x-direction
+     * @param y The canvas dimension in y-direction
+     */
     void setCanvasDimensions(std::uint32_t x, std::uint32_t y);
-    /** @brief Gives access to the canvas dimensions */
+    /**
+     * @brief Gives access to the canvas dimensions
+     * @return A tuple holding the canvas dimensions in x- and y-direction
+     */
     std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions() const;
 
-    /** @brief Allows to add a "Print" command to the end of the script so that picture files are created */
+    /**
+     * @brief Allows to add a "Print" command to the end of the script so that picture files are created
+     * @param add_print_command If true, a print command is appended so that picture files are created
+     */
     void setAddPrintCommand(bool add_print_command);
-    /** @brief Allows to retrieve the current value of the add_print_command_ variable */
+    /**
+     * @brief Allows to retrieve the current value of the add_print_command_ variable
+     * @return true if a print command will be appended to the script, false otherwise
+     */
     bool getAddPrintCommand() const;
 
 protected:
     /************************************************************************/
 
-    /** @brief Loads the data of another object */
+    /**
+     * @brief Loads the data of another object into this one
+     * @param cp A pointer to another object of this type, camouflaged as a GBasePluggableOM, whose data is copied
+     */
     void load_(const oa::GBasePluggableOM *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -1599,7 +1908,12 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object
+     * @param cp A constant reference to another GBasePluggableOM object to compare against
+     * @param e The expected outcome of the comparison (e.g. equality or inequality)
+     * @param limit The maximum allowed deviation for comparisons of floating point types
+     */
     void compare_(
         const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
@@ -1615,10 +1929,18 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object
+     * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
+     */
     oa::GBasePluggableOM *clone_() const override;
 
-    /** @brief Allows to emit information in different stages of the information cycle */
+    /**
+     * @brief Allows to emit information in different stages of the information cycle
+     *
+     * The first (unnamed) argument is the information mode (init, processing or finalization).
+     * @param goa A constant pointer to the optimization algorithm whose state is being monitored
+     */
     void
     informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
 
@@ -1660,6 +1982,8 @@ private:
 /**
  * This class allows to log chosen properties of adaptors. Such properties
  * are limited to numeric entities, that may be converted to double
+ *
+ * @tparam num_type The arithmetic type of the logged adaptor property (convertible to double)
  */
 template <typename num_type>
 class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functions)
@@ -1735,7 +2059,11 @@ public:
 
     /***************************************************************************/
     /**
-	  * Initialization with a file name
+	  * @brief Initialization with a file name, adaptor name and property name
+	  *
+	  * @param file_name The name of the file the logged property should be written to
+	  * @param adaptor_name The name of the adaptor whose property should be logged
+	  * @param property The name of the property to be logged (e.g. "sigma")
 	  */
     GAdaptorPropertyLoggerT(std::string file_name, std::string adaptor_name, std::string property)
       : file_name_(std::move(file_name))
@@ -1747,7 +2075,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * The copy constructor
+	  * @brief The copy constructor
+	  *
+	  * @param cp A constant reference to another GAdaptorPropertyLoggerT object whose data is deep-copied
 	  */
     GAdaptorPropertyLoggerT(const GAdaptorPropertyLoggerT<num_type> &cp)
       : oa::GBasePluggableOM(cp)
@@ -1777,7 +2107,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Sets the file name
+	  * @brief Sets the file name
+	  *
+	  * @param file_name The name of the file the logged property should be written to
 	  */
     void setFileName(const std::string &file_name) {
         file_name_ = file_name;
@@ -1785,7 +2117,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the current file name
+	  * @brief Retrieves the current file name
+	  *
+	  * @return The name of the file the logged property is written to
 	  */
     std::string getFileName() const {
         return file_name_;
@@ -1793,7 +2127,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Sets the name of the adaptor
+	  * @brief Sets the name of the adaptor
+	  *
+	  * @param adaptor_name The name of the adaptor whose property should be logged
 	  */
     void setAdaptorName(std::string adaptor_name) {
         adaptor_name_ = adaptor_name;
@@ -1801,7 +2137,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the name of the adaptor
+	  * @brief Retrieves the name of the adaptor
+	  *
+	  * @return The name of the adaptor whose property is logged
 	  */
     std::string getAdaptorName() const {
         return adaptor_name_;
@@ -1809,7 +2147,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Sets the name of the property
+	  * @brief Sets the name of the property
+	  *
+	  * @param property The name of the property to be logged (e.g. "sigma")
 	  */
     void setPropertyName(std::string property) {
         property_ = property;
@@ -1817,7 +2157,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the name of the property
+	  * @brief Retrieves the name of the property
+	  *
+	  * @return The name of the property being logged
 	  */
     std::string getPropertyName() const {
         return property_;
@@ -1825,7 +2167,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to specify whether only the best individuals should be monitored.
+	  * @brief Allows to specify whether only the best individuals should be monitored.
+	  *
+	  * @param monitor_best_only If true, only the best individual(s) of the population are monitored
 	  */
     void setMonitorBestOnly(bool monitor_best_only = true) {
         monitor_best_only_ = monitor_best_only;
@@ -1833,7 +2177,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to check whether only the best individuals should be monitored.
+	  * @brief Allows to check whether only the best individuals should be monitored.
+	  *
+	  * @return true if only the best individual(s) are monitored, false otherwise
 	  */
     bool getMonitorBestOnly() const {
         return monitor_best_only_;
@@ -1841,7 +2187,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to set the canvas dimensions
+	  * @brief Allows to set the canvas dimensions
+	  *
+	  * @param canvas_dimensions A tuple holding the canvas dimensions in x- and y-direction
 	  */
     void setCanvasDimensions(std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions) {
         canvas_dimensions_ = canvas_dimensions;
@@ -1849,7 +2197,10 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to set the canvas dimensions using separate x and y values
+	  * @brief Allows to set the canvas dimensions using separate x and y values
+	  *
+	  * @param x The canvas dimension in x-direction
+	  * @param y The canvas dimension in y-direction
 	  */
     void setCanvasDimensions(std::uint32_t x, std::uint32_t y) {
         canvas_dimensions_ = std::tuple<std::uint32_t, std::uint32_t>(x, y);
@@ -1857,7 +2208,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Gives access to the canvas dimensions
+	  * @brief Gives access to the canvas dimensions
+	  *
+	  * @return A tuple holding the canvas dimensions in x- and y-direction
 	  */
     std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions() const {
         return canvas_dimensions_;
@@ -1865,7 +2218,9 @@ public:
 
     /******************************************************************************/
     /**
-	  * Allows to add a "Print" command to the end of the script so that picture files are created
+	  * @brief Allows to add a "Print" command to the end of the script so that picture files are created
+	  *
+	  * @param add_print_command If true, a print command is appended so that picture files are created
 	  */
     void setAddPrintCommand(bool add_print_command) {
         add_print_command_ = add_print_command;
@@ -1873,7 +2228,9 @@ public:
 
     /******************************************************************************/
     /**
-	  * Allows to retrieve the current value of the add_print_command_ variable
+	  * @brief Allows to retrieve the current value of the add_print_command_ variable
+	  *
+	  * @return true if a print command will be appended to the script, false otherwise
 	  */
     bool getAddPrintCommand() const {
         return add_print_command_;
@@ -1882,9 +2239,9 @@ public:
 protected:
     /************************************************************************/
     /**
-	  * Loads the data of another object
+	  * @brief Loads the data of another object into this one
 	  *
-	  * cp A pointer to another GAdaptorPropertyLoggerTT<num_type object, camouflaged as a GBasePluggableOM
+	  * @param cp A pointer to another GAdaptorPropertyLoggerT<num_type> object, camouflaged as a GBasePluggableOM, whose data is copied
 	  */
     void load_(const oa::GBasePluggableOM *cp) override {
         // Check that we are dealing with a GAdaptorPropertyLoggerT<num_type> reference independent of this object and convert the pointer
@@ -1913,8 +2270,9 @@ protected:
      * Searches for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GBasePluggableOM object
-     * @param e The expected outcome of the comparison
+     * @param cp A constant reference to another GBasePluggableOM object to compare against
+     * @param e The expected outcome of the comparison (e.g. equality or inequality)
+     * @param limit The maximum allowed deviation for comparisons of floating point types (unused here)
      */
     void compare_(
         const oa::GBasePluggableOM &cp,
@@ -2009,7 +2367,9 @@ protected:
 private:
     /***************************************************************************/
     /**
-	  * Emits a name for this class / object
+	  * @brief Emits a name for this class / object
+	  *
+	  * @return The class name of this object
 	  */
     std::string name_() const override {
         return std::string("GAdaptorPropertyLoggerT");
@@ -2017,7 +2377,9 @@ private:
 
     /************************************************************************/
     /**
-	  * Creates a deep clone of this object
+	  * @brief Creates a deep clone of this object
+	  *
+	  * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
 	  */
     oa::GBasePluggableOM *clone_() const override {
         return new GAdaptorPropertyLoggerT<num_type>(*this);
@@ -2025,8 +2387,11 @@ private:
 
     /***************************************************************************/
     /**
-     * Allows to emit information in different stages of the information cycle
+     * @brief Allows to emit information in different stages of the information cycle
      * (initialization, during each cycle and during finalization)
+     *
+     * @param im The information mode (initialization, processing or finalization) for this call
+     * @param goa A constant pointer to the optimization algorithm whose state is being monitored
      */
     void informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override {
         using namespace Gem::Common;
@@ -2290,7 +2655,14 @@ public:
 
     /** @brief The default constructor */
     GProcessingTimesLogger();
-    /** @brief Initialization with a file name */
+    /**
+     * @brief Initialization with file names and histogram bin counts
+     * @param file_name_pth The file name for the 1D processing-times histograms (ROOT format)
+     * @param file_name_pth2 The file name for the 2D processing-times-versus-iteration histograms (ROOT format)
+     * @param file_name_txt The file name for the plain-text processing-times output
+     * @param n_bins_x The number of histogram bins in x-direction
+     * @param n_bins_y The number of histogram bins in y-direction
+     */
     GProcessingTimesLogger(
         const std::string &file_name_pth,
         const std::string &file_name_pth2,
@@ -2303,49 +2675,102 @@ public:
     /** @brief  The destructor */
     ~GProcessingTimesLogger() override = default;
 
-    /** @brief Sets the file name for the processing times histogram */
+    /**
+     * @brief Sets the file name for the processing times histogram
+     * @param file_name The file name for the 1D processing-times histograms
+     */
     void setFileName_pth(const std::string &file_name);
-    /** @brief Retrieves the current file name for the processing times histogram */
+    /**
+     * @brief Retrieves the current file name for the processing times histogram
+     * @return The file name for the 1D processing-times histograms
+     */
     std::string getFileName_pth() const;
-    /** @brief Sets the file name for the processing times histograms (2D) */
+    /**
+     * @brief Sets the file name for the processing times histograms (2D)
+     * @param file_name The file name for the 2D processing-times histograms
+     */
     void setFileName_pth2(const std::string &file_name);
-    /** @brief Retrieves the current file name for the processing times histograms (2D) */
+    /**
+     * @brief Retrieves the current file name for the processing times histograms (2D)
+     * @return The file name for the 2D processing-times histograms
+     */
     std::string getFileName_pth2() const;
 
-    /** @brief Sets the file name for the text output */
+    /**
+     * @brief Sets the file name for the text output
+     * @param file_name The file name for the plain-text processing-times output
+     */
     void setFileName_txt(const std::string &file_name);
-    /** @brief Retrieves the current file name for the text output */
+    /**
+     * @brief Retrieves the current file name for the text output
+     * @return The file name for the plain-text processing-times output
+     */
     std::string getFileName_txt() const;
 
-    /** @brief Allows to set the canvas dimensions for the processing times histograms */
+    /**
+     * @brief Allows to set the canvas dimensions for the processing times histograms
+     * @param canvas_dimensions A tuple holding the canvas dimensions in x- and y-direction
+     */
     void setCanvasDimensions_pth(std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions);
-    /** @brief Allows to set the canvas dimensions using separate x and y values for the processing times histograms */
+    /**
+     * @brief Allows to set the canvas dimensions using separate x and y values for the processing times histograms
+     * @param x The canvas dimension in x-direction
+     * @param y The canvas dimension in y-direction
+     */
     void setCanvasDimensions_pth(std::uint32_t x, std::uint32_t y);
 
-    /** @brief Gives access to the canvas dimensions of the processing times histograms */
+    /**
+     * @brief Gives access to the canvas dimensions of the processing times histograms
+     * @return A tuple holding the canvas dimensions in x- and y-direction
+     */
     std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions_pth() const;
-    /** @brief Allows to set the canvas dimensions for the processing times histograms (2D) */
+    /**
+     * @brief Allows to set the canvas dimensions for the processing times histograms (2D)
+     * @param canvas_dimensions A tuple holding the canvas dimensions in x- and y-direction
+     */
     void setCanvasDimensions_pth2(std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions);
 
-    /** @brief Allows to set the canvas dimensions using separate x and y values for the processing times histograms (2D) */
+    /**
+     * @brief Allows to set the canvas dimensions using separate x and y values for the processing times histograms (2D)
+     * @param x The canvas dimension in x-direction
+     * @param y The canvas dimension in y-direction
+     */
     void setCanvasDimensions_pth2(std::uint32_t x, std::uint32_t y);
-    /** @brief Gives access to the canvas dimensions of the processing times histograms (2D) */
+    /**
+     * @brief Gives access to the canvas dimensions of the processing times histograms (2D)
+     * @return A tuple holding the canvas dimensions in x- and y-direction
+     */
     std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions_pth2() const;
 
-    /** @brief Sets the number of bins for the processing times histograms in y-direction */
+    /**
+     * @brief Sets the number of bins for the processing times histograms in x-direction
+     * @param n_bins_x The number of histogram bins in x-direction
+     */
     void setNBinsX(std::size_t n_bins_x);
-    /** @brief Retrieves the current number of bins for the processing times histograms in x-direction */
+    /**
+     * @brief Retrieves the current number of bins for the processing times histograms in x-direction
+     * @return The number of histogram bins in x-direction
+     */
     std::size_t getNBinsX() const;
 
-    /** @brief Sets the number of bins for the processing times histograms in y-direction */
+    /**
+     * @brief Sets the number of bins for the processing times histograms in y-direction
+     * @param n_bins_y The number of histogram bins in y-direction
+     */
     void setNBinsY(std::size_t n_bins_y);
-    /** @brief Retrieves the current number of bins for the processing times histograms in y-direction */
+    /**
+     * @brief Retrieves the current number of bins for the processing times histograms in y-direction
+     * @return The number of histogram bins in y-direction
+     */
     std::size_t getNBinsY() const;
 
 protected:
     /************************************************************************/
 
-    /** @brief Loads the data of another object */
+    /**
+     * @brief Loads the data of another object into this one
+     * @param cp A pointer to another object of this type, camouflaged as a GBasePluggableOM, whose data is copied
+     */
     void load_(const oa::GBasePluggableOM *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -2355,7 +2780,12 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type
+     * @param cp A constant reference to another GBasePluggableOM object to compare against
+     * @param e The expected outcome of the comparison (e.g. equality or inequality)
+     * @param limit The maximum allowed deviation for comparisons of floating point types
+     */
     void compare_(
         const oa::GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
@@ -2371,12 +2801,23 @@ protected:
 
 private:
     /************************************************************************/
-    /** @brief Emits a name for this class / object */
+    /**
+     * @brief Emits a name for this class / object
+     * @return The human-readable class name of this object
+     */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object
+     * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
+     */
     oa::GBasePluggableOM *clone_() const override;
 
-    /** @brief Allows to emit information in different stages of the information cycle */
+    /**
+     * @brief Allows to emit information in different stages of the information cycle
+     *
+     * The first (unnamed) argument is the information mode (init, processing or finalization).
+     * @param goa A constant pointer to the optimization algorithm whose state is being monitored
+     */
     void
     informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
 

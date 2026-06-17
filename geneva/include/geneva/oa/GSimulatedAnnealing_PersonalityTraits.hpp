@@ -77,14 +77,22 @@ public:
     /** @brief The standard destructor */
     ~GSimulatedAnnealing_PersonalityTraits() override = default;
 
-    /** @brief Retrieves the mnemonic of the optimization algorithm */
+    /**
+     * @brief Retrieves the mnemonic of the optimization algorithm.
+     * @return The short mnemonic string identifying the simulated annealing algorithm
+     */
     std::string getMnemonic() const override;
 
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
-    /** @brief Loads the data of another GSAPersonalityTraits object */
+    /**
+     * @brief Loads the data of another GSimulatedAnnealing_PersonalityTraits object into this one.
+     *
+     * The (unnamed) argument is a pointer to another GSimulatedAnnealing_PersonalityTraits object,
+     * camouflaged as a GPersonalityTraits, whose data is copied into this object.
+     */
     void load_(const GPersonalityTraits *) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -94,7 +102,13 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     *
+     * The three (unnamed) arguments are, in order: the other object to compare against (camouflaged as a
+     * GPersonalityTraits), the expectation for this object (e.g. equality), and the limit for allowed
+     * deviations of floating point types.
+     */
     void compare_(
         const GPersonalityTraits & // the other object
         ,
@@ -103,7 +117,10 @@ protected:
         const double & // the limit for allowed deviations of floating point types
     ) const override;
 
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    /**
+     * @brief Applies modifications to this object. This is needed for testing purposes.
+     * @return A boolean indicating whether modifications were actually carried out
+     */
     bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
     void specificTestsNoFailureExpected_GUnitTests_() override;
@@ -113,9 +130,15 @@ protected:
     /***************************************************************************/
 
 private:
-    /** @brief Emits a name for this class / object */
+    /**
+     * @brief Emits a name for this class / object.
+     * @return A string holding the name of this class
+     */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object.
+     * @return A deep clone of this object, allocated on the heap (caller takes ownership)
+     */
     GPersonalityTraits *clone_() const override;
 };
 

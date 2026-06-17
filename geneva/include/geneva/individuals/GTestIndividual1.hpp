@@ -83,17 +83,26 @@ class GTestIndividual1 // NOLINT(cppcoreguidelines-special-member-functions)
 public:
     /** @brief The default constructor */
     GTestIndividual1();
-    /** @brief The copy constructor */
+    /**
+     * @brief The copy constructor
+     * @param cp Another GTestIndividual1 object whose data is copied into this one
+     */
     GTestIndividual1(const GTestIndividual1 &) = default;
     /** @brief The standard destructor */
     ~GTestIndividual1() override = default;
 
-    /** @brief The OA-owned Gauss adaption config authoring this genome's single shared group (used by the
-     *  self-driven modify hook + the data-oriented adaption unit tests). */
+    /**
+     * @brief The OA-owned Gauss adaption config authoring this genome's single shared group (used by the
+     *  self-driven modify hook + the data-oriented adaption unit tests).
+     * @return A shared pointer to the Gauss adaption config describing this genome's group
+     */
     std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const;
 
 protected:
-    /** @brief Loads the data of another GTestIndividual1 */
+    /**
+     * @brief Loads the data of another GTestIndividual1
+     * @param cp A pointer to another GTestIndividual1 object, camouflaged as a GOptimizableEntity
+     */
     void load_(const gen::GOptimizableEntity *) final;
 
     /** @brief Allow access to this classes compare_ function */
@@ -103,7 +112,12 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type
+     * @param cp The other object to compare this one against, camouflaged as a GOptimizableEntity
+     * @param e The expectation for this comparison, e.g. equality or inequality
+     * @param limit The limit for allowed deviations of floating point types
+     */
     void compare_(
         const gen::GOptimizableEntity & // the other object
         ,
@@ -112,13 +126,19 @@ protected:
         const double & // the limit for allowed deviations of floating point types
     ) const final;
 
-    /** @brief The actual fitness calculation takes place here. */
+    /**
+     * @brief The actual fitness calculation takes place here.
+     * @return The fitness value computed for this individual's genome
+     */
     double fitnessCalculation() final;
 
     // Note: The following functions are, in the context of GTestIndividual1,
     // designed to mainly test parent classes
 
-    /** @brief Applies modifications to this object. */
+    /**
+     * @brief Applies modifications to this object.
+     * @return A boolean indicating whether a modification was actually carried out
+     */
     bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. */
     void specificTestsNoFailureExpected_GUnitTests_() override;
@@ -126,7 +146,10 @@ protected:
     void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object
+     * @return A deep clone of this object, returned as a pointer to its GFlatGenome base
+     */
     gen::GFlatGenome *clone_() const final;
 };
 

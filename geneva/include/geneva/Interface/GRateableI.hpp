@@ -43,44 +43,94 @@
 namespace Gem::Geneva::Interface {
 /******************************************************************************/
 /**
-     * A simple interface class for objects that can be evaluated.
+     * @brief A simple interface class for objects that can be evaluated.
+     *
+     * Defines the public accessors for raw and transformed fitness values (single value by id
+     * or the full vector) and the protected fitnessCalculation() hook that derived classes
+     * implement to compute the main quality criterion.
      */
 class GRateableI {
 public:
-    /** @brief Retrieves the stored raw fitness with a given id */
+    /**
+     * @brief Retrieves the stored raw fitness with a given id.
+     *
+     * @param id The index of the fitness criterion to retrieve (default 0, the main criterion)
+     * @return The raw (untransformed) fitness value for the requested criterion
+     */
     double raw_fitness(std::size_t = 0) const;
-    /** @brief Retrieves the stored transformed fitness with a given id */
+    /**
+     * @brief Retrieves the stored transformed fitness with a given id.
+     *
+     * @param id The index of the fitness criterion to retrieve (default 0, the main criterion)
+     * @return The transformed fitness value for the requested criterion
+     */
     double transformed_fitness(std::size_t = 0) const;
 
-    /** @brief Returns all raw fitness results in a std::vector */
+    /**
+     * @brief Returns all raw fitness results in a std::vector.
+     *
+     * @return A vector holding the raw (untransformed) fitness value of every criterion
+     */
     std::vector<double> raw_fitness_vec() const;
-    /** @brief Returns all transformed fitness results in a std::vector */
+    /**
+     * @brief Returns all transformed fitness results in a std::vector.
+     *
+     * @return A vector holding the transformed fitness value of every criterion
+     */
     std::vector<double> transformed_fitness_vec() const;
 
 protected:
-    /** @brief The fitness calculation for the main quality criterion takes place here */
+    /**
+     * @brief The fitness calculation for the main quality criterion takes place here.
+     *
+     * @return The computed raw fitness of the main quality criterion
+     */
     virtual double fitnessCalculation() = 0;
 
     /**************************************************************************/
     // Defaulted constructors / destructors / assignment operators
 
+    /** @brief The default constructor. */
     GRateableI() = default;
+    /** @brief The copy constructor. */
     GRateableI(GRateableI const &) = default;
+    /** @brief The move constructor. */
     GRateableI(GRateableI &&) = default;
+    /** @brief The destructor. */
     ~GRateableI() = default;
 
+    /** @brief The copy assignment operator. */
     GRateableI &operator=(GRateableI const &) = default;
+    /** @brief The move assignment operator. */
     GRateableI &operator=(GRateableI &&) = default;
 
 private:
-    /** @brief Retrieves the stored raw fitness with a given id */
+    /**
+     * @brief Retrieves the stored raw fitness with a given id.
+     *
+     * @param id The index of the fitness criterion to retrieve
+     * @return The raw (untransformed) fitness value for the requested criterion
+     */
     virtual double raw_fitness_(std::size_t) const = 0;
-    /** @brief Retrieves the stored transformed fitness with a given id */
+    /**
+     * @brief Retrieves the stored transformed fitness with a given id.
+     *
+     * @param id The index of the fitness criterion to retrieve
+     * @return The transformed fitness value for the requested criterion
+     */
     virtual double transformed_fitness_(std::size_t) const = 0;
 
-    /** @brief Returns all raw fitness results in a std::vector */
+    /**
+     * @brief Returns all raw fitness results in a std::vector.
+     *
+     * @return A vector holding the raw (untransformed) fitness value of every criterion
+     */
     virtual std::vector<double> raw_fitness_vec_() const = 0;
-    /** @brief Returns all transformed fitness results in a std::vector */
+    /**
+     * @brief Returns all transformed fitness results in a std::vector.
+     *
+     * @return A vector holding the transformed fitness value of every criterion
+     */
     virtual std::vector<double> transformed_fitness_vec_() const = 0;
 };
 

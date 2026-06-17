@@ -53,6 +53,8 @@ namespace Gem::Geneva::Genome {
  * stays unused (those channels are mutated by flip adaptors, added later). This mirrors the tree's
  * adaption_fp_type trait but is defined locally so the layout (in geneva/ind/) does not depend on the
  * parameter-object hierarchy (geneva/par/).
+ *
+ * @tparam T The parameter type whose adaption floating-point type is being selected.
  */
 template <typename T> struct adaption_fp { using type = double; };
 template <> struct adaption_fp<double> { using type = double; };
@@ -70,6 +72,13 @@ enum class ParamKind : std::uint8_t { Plain, Constrained };
  * long double, like the original, to keep the double behaviour bit-for-bit. NaN / infinity are
  * rejected unconditionally (they would silently corrupt the range comparison and every value derived
  * from them), matching the tree.
+ *
+ * @tparam T The floating-point value type (double or float).
+ * @param val The unbounded internal value to fold into range.
+ * @param lo The lower (inclusive) boundary of the external range.
+ * @param hi The upper (exclusive) boundary of the external range.
+ * @return The folded value in the half-open range [lo, hi); lo if the range is collapsed (hi <= lo).
+ * @throw geneva_exception if val is NaN or infinite.
  */
 template <typename T>
 T foldConstrainedFP(const T &val, const T &lo, const T &hi) {
@@ -126,6 +135,12 @@ T foldConstrainedFP(const T &val, const T &lo, const T &hi) {
 /**
  * The reflecting fold of GConstrainedIntT::transfer(), re-expressed as a free function over (val, lo,
  * hi). Integer ranges are CLOSED [lo, hi] (both boundaries included), unlike the half-open FP range.
+ *
+ * @tparam T The integer value type.
+ * @param val The unbounded internal value to fold into range.
+ * @param lo The lower (inclusive) boundary of the closed external range.
+ * @param hi The upper (inclusive) boundary of the closed external range.
+ * @return The folded value in the closed range [lo, hi].
  */
 template <typename T>
 T foldConstrainedInt(const T &val, const T &lo, const T &hi) {
@@ -223,6 +238,7 @@ struct ChannelLayout {
     std::vector<std::uint8_t> active;///< per value: mirrors the owning group's active flag (1/0)
     std::vector<GroupStructure<T>> groups;///< contiguous groups tiling [0, size()) -- STRUCTURE only
 
+    /** @brief The number of values in this channel. @return The per-value array length. */
     std::size_t size() const { return lower.size(); }
 };
 
@@ -261,7 +277,11 @@ public:
 
     std::vector<std::string> labels;///< the interned, distinct group-label strings (label_id indexes this)
 
-    /** @brief Interns a label string, returning its id; an already-present string returns its existing id. */
+    /**
+     * @brief Interns a label string, returning its id; an already-present string returns its existing id.
+     * @param name The label string to intern.
+     * @return The id (index into `labels`) of the interned or pre-existing string.
+     */
     std::int32_t internLabel(const std::string &name) {
         const std::int32_t existing = labelId(name);
         if(existing >= 0) {
@@ -271,7 +291,11 @@ public:
         return static_cast<std::int32_t>(labels.size() - 1);
     }
 
-    /** @brief Resolves a label string to its id, or -1 if it is not interned. */
+    /**
+     * @brief Resolves a label string to its id, or -1 if it is not interned.
+     * @param name The label string to look up.
+     * @return The id (index into `labels`) of the string, or -1 if it is not present.
+     */
     std::int32_t labelId(const std::string &name) const {
         for(std::size_t k = 0; k < labels.size(); ++k) {
             if(labels[k] == name) {
@@ -281,7 +305,11 @@ public:
         return -1;
     }
 
-    /** @brief Resolves a label id to its string; returns "" for -1 / out-of-range. */
+    /**
+     * @brief Resolves a label id to its string; returns "" for -1 / out-of-range.
+     * @param id The label id to resolve (index into `labels`).
+     * @return A reference to the label string, or a reference to an empty string for -1 / out-of-range.
+     */
     const std::string &labelName(std::int32_t id) const {
         static const std::string empty;
         if(id < 0 || static_cast<std::size_t>(id) >= labels.size()) {
@@ -290,7 +318,11 @@ public:
         return labels[static_cast<std::size_t>(id)];
     }
 
-    /** @brief Resolves a label string to every group it tags, across all channels (one-to-many). */
+    /**
+     * @brief Resolves a label string to every group it tags, across all channels (one-to-many).
+     * @param name The label string to look up.
+     * @return A vector of GroupRef for every group tagged with this label; empty if the label is not interned.
+     */
     std::vector<GroupRef> groupsForLabel(const std::string &name) const {
         std::vector<GroupRef> out;
         const std::int32_t id = labelId(name);
@@ -305,6 +337,14 @@ public:
     }
 
 private:
+    /**
+     * @brief Appends a GroupRef for every group in one channel that carries the given label id.
+     * @tparam T The channel's value type.
+     * @param ch The channel to scan.
+     * @param tag The channel tag recorded in each emitted GroupRef.
+     * @param id The label id to match against each group's label_id.
+     * @param out The output vector that matching GroupRef entries are appended to.
+     */
     template <typename T>
     static void
     collectGroups(const ChannelLayout<T> &ch, ChannelTag tag, std::int32_t id, std::vector<GroupRef> &out) {

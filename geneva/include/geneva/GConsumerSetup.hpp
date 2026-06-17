@@ -89,67 +89,99 @@ struct ConsumerSetup {
 
 /******************************************************************************/
 /**
- * Builds a courtier setup from @p spec: constructs the matching courtier consumer, sets the
- * polymorphic GOptimizableEntity clone function (required by clone-on-partial-return), registers it with a
- * fresh single-consumer broker, and -- for networked consumers -- starts the server (for MPI only on
- * the master rank; a worker rank yields a run_worker loop and a null broker instead).
+ * @brief Builds a courtier setup (broker and/or worker loop) for the current process from a spec.
+ *
+ * Constructs the matching courtier consumer, sets the polymorphic GOptimizableEntity clone function
+ * (required by clone-on-partial-return), registers it with a fresh single-consumer broker, and -- for
+ * networked consumers -- starts the server (for MPI only on the master rank; a worker rank yields a
+ * run_worker loop and a null broker instead).
  *
  * This is the SINGLE place that knows the concrete courtier consumer types, so callers (Go2 and the
- * standalone examples) share one construction path and stay free of consumer specifics. An unknown
- * mnemonic yields an empty setup (both fields null).
+ * standalone examples) share one construction path and stay free of consumer specifics.
+ *
+ * @param spec The transport-agnostic description of the consumer to build (mnemonic, ports, threads,
+ *   serialization, client-side fields).
+ * @return A ConsumerSetup whose broker is ready to inject into the algorithms (or null when this
+ *   process is a worker rather than a submitter), and whose run_worker holds the worker loop when this
+ *   process must serve as a worker. An unknown mnemonic yields an empty setup (both fields null).
  */
 ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec);
 
 /******************************************************************************/
 /**
- * Builds a ConsumerSpec for @p mnemonic from the already-parsed command line @p vm.
+ * @brief Builds a ConsumerSpec for a mnemonic from an already-parsed command line.
  *
  * This is the single place that maps the consumer command-line options (asio_port,
  * beast_serializationMode, nWorkerThreads, ...) onto the transport-agnostic spec, keeping callers
- * (Go2, the standalone examples) free of per-consumer option knowledge. Options absent from @p vm
- * fall back to the spec's defaults; an unknown mnemonic yields a spec carrying only the mnemonic.
+ * (Go2, the standalone examples) free of per-consumer option knowledge.
+ *
+ * @param mnemonic The consumer mnemonic to build a spec for ("sc"|"stc"|"asio"|"beast"|"mpi").
+ * @param vm The parsed program-options variables map to read consumer option values from.
+ * @return The populated ConsumerSpec. Options absent from @p vm fall back to the spec's defaults; an
+ *   unknown mnemonic yields a spec carrying only the mnemonic.
  */
 ConsumerSpec specFromCommandLine(
     const std::string &mnemonic, const boost::program_options::variables_map &vm);
 
 /******************************************************************************/
 /**
- * Builds the networked client for @p spec, for a process running in client mode. The socket servers
- * built by buildConsumerSetup() are wire-compatible with the existing client classes, so this is the
- * single place that maps a mnemonic onto the matching client (asio/beast). The caller sets the maximum
- * runtime and invokes run() on the returned client.
+ * @brief Builds the networked client for a spec, for a process running in client mode.
  *
- * Returns null for mnemonics that have no socket client (sc/stc are local; the mpi worker loop is
- * obtained from buildConsumerSetup().run_worker instead).
+ * The socket servers built by buildConsumerSetup() are wire-compatible with the existing client
+ * classes, so this is the single place that maps a mnemonic onto the matching client (asio/beast).
+ * The caller sets the maximum runtime and invokes run() on the returned client.
+ *
+ * @param spec The consumer description; its client-side fields (ip, port, serialization, reconnects,
+ *   prefetch depth) drive the client that is constructed.
+ * @return The constructed client, or null for mnemonics that have no socket client (sc/stc are local;
+ *   the mpi worker loop is obtained from buildConsumerSetup().run_worker instead).
  */
 std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GOptimizableEntity>>
 buildConsumerClient(const ConsumerSpec &spec);
 
 /******************************************************************************/
 /**
- * Registers the command-line options for every supported courtier consumer (asio/beast/stc, and mpi
- * when built) into @p visible / @p hidden. This is the single place that owns the consumer option
- * surface, so callers (Go2) register them without iterating a consumer store. specFromCommandLine()
- * reads the matching values back out of the parsed map.
+ * @brief Registers the command-line options of every supported courtier consumer.
+ *
+ * Registers the options for asio/beast/stc (and mpi when built). This is the single place that owns
+ * the consumer option surface, so callers (Go2) register them without iterating a consumer store.
+ * specFromCommandLine() reads the matching values back out of the parsed map.
+ *
+ * @param visible The options group that user-facing (help-listed) consumer options are added to.
+ * @param hidden The options group that internal / non-listed consumer options are added to.
  */
 void addConsumerOptions(
     boost::program_options::options_description &visible,
     boost::program_options::options_description &hidden);
 
 /******************************************************************************/
-/** @brief Whether @p mnemonic names a consumer this layer can build (sc/stc/asio/beast/mpi). */
+/**
+ * @brief Whether a mnemonic names a consumer this layer can build (sc/stc/asio/beast/mpi).
+ * @param mnemonic The consumer mnemonic to test.
+ * @return true if the mnemonic is a known/buildable consumer, false otherwise.
+ */
 bool isKnownConsumer(const std::string &mnemonic);
 
 /******************************************************************************/
-/** @brief Whether a process selecting @p mnemonic can run as a networked client (asio/beast/mpi). */
+/**
+ * @brief Whether a process selecting the given mnemonic can run as a networked client.
+ * @param mnemonic The consumer mnemonic to test.
+ * @return true if the mnemonic denotes a consumer with a client role (asio/beast/mpi), false otherwise.
+ */
 bool consumerNeedsClient(const std::string &mnemonic);
 
 /******************************************************************************/
-/** @brief A "mnemonic:  human-readable-name" listing of the supported consumers, for help text. */
+/**
+ * @brief A "mnemonic:  human-readable-name" listing of the supported consumers, for help text.
+ * @return A formatted multi-line string with one line per supported consumer.
+ */
 std::string consumerListing();
 
 /******************************************************************************/
-/** @brief The number of supported consumers (for help text). */
+/**
+ * @brief The number of supported consumers (for help text).
+ * @return The count of supported consumers.
+ */
 std::size_t consumerCount();
 
 /******************************************************************************/

@@ -100,35 +100,46 @@ public:
     GMPISubClientIndividual(const GMPISubClientIndividual &) = default;
 
     /**
-         * Allows retrieving the communicator which is used by this individual to communicate with dedicated workers.
+         * @brief Retrieves the MPI communicator used by this individual to talk to its dedicated sub-client workers.
+         *
+         * @return The static communicator shared by all instances (MPI_COMM_NULL if none has been set yet).
          */
     static MPI_Comm getCommunicator();
 
 protected:
     /**
-         * @return status of the associated client in the communication group
+         * @brief Retrieves the status of the associated client in the communication group.
+         *
+         * @return The client status (RUNNING, FINISHED or ERROR), determined from the pending status request.
          */
     static ClientStatus getClientStatus();
 
     /**
-         * @return mode of the current process, either client or sub client
+         * @brief Retrieves the role of the current process within the MPI sub-group.
+         *
+         * @return The client mode of this process, either CLIENT or SUB_CLIENT.
          */
     static ClientMode getClientMode();
 
 private:
     /**
-         * Sets the MPI communicator that can be used by the individual to communicate with sub-clients in an MPI sub-group
-         * @param communicator The communicator to set.
+         * @brief Sets the MPI communicator the individual uses to communicate with sub-clients in an MPI sub-group.
+         *
+         * @param communicator The communicator to store for shared, static use by all instances.
          */
     static void setCommunicator(const MPI_Comm &communicator);
 
     /**
-         * Sets a request that can be used to check for the status of the client in the current communication group
+         * @brief Stores a request that can be used to check the status of the client in the current communication group.
+         *
+         * @param request The MPI request handle whose completion signals a change in the client status.
          */
     static void setClientStatusRequest(const MPI_Request &request);
 
     /**
-         * Sets the mode for this process to client or sub-client, such that the user can access this property inside of individuals
+         * @brief Sets the mode of this process to client or sub-client, so individuals can query this property.
+         *
+         * @param mode The role to record for the current process, either CLIENT or SUB_CLIENT.
          */
     static void setClientMode(const ClientMode &mode);
 

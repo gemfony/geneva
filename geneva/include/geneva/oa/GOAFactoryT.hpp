@@ -61,6 +61,8 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /******************************************************************************/
 /**
  * This class is a specialization of the GFactoryT<> class for optimization algorithms.
+ *
+ * @tparam oa_type The concrete optimization-algorithm type this factory produces
  */
 template <typename oa_type>
 class GOAFactoryT // NOLINT(cppcoreguidelines-special-member-functions)
@@ -77,6 +79,8 @@ public:
     /***************************************************************************/
     /**
 	  * Initialization with the name of a config file
+	  *
+	  * @param config_file The path to the configuration file describing the algorithm
 	  */
     explicit GOAFactoryT(std::filesystem::path const &config_file)
       : Gem::Common::GFactoryT<oa_type>(config_file) { /* nothing */
@@ -85,6 +89,9 @@ public:
     /***************************************************************************/
     /**
 	  * A constructor which adds a content creation function
+	  *
+	  * @param config_file The path to the configuration file describing the algorithm
+	  * @param content_creator_ptr A factory that produces the individuals used to populate the algorithm
 	  */
     GOAFactoryT(
         std::filesystem::path const &config_file,
@@ -97,6 +104,8 @@ public:
     /***************************************************************************/
     /**
 	  * The copy constructor
+	  *
+	  * @param cp Another GOAFactoryT object whose state (incl. content creator and monitor) is deep-copied
 	  */
     GOAFactoryT(const GOAFactoryT<oa_type> &cp)
       : Gem::Common::GFactoryT<oa_type>(cp)
@@ -139,6 +148,7 @@ public:
 	  * the output, some options are hidden and will only be shown upon explicit request by
 	  * the user
 	  *
+	  * @param visible Command line options that should always be visible (currently unused here)
 	  * @param hidden Command line options that should only be visible upon request
 	  */
     virtual void addCLOptions(
@@ -171,6 +181,7 @@ public:
 	  * Triggers the creation of objects of the desired type and converts them
 	  * to a given target type. Will throw if conversion is unsuccessful.
 	  *
+	  * @tparam target_type The type the produced algorithm should be converted to
 	  * @return A converted copy of the desired production type
 	  */
     template <typename target_type>
@@ -183,6 +194,8 @@ public:
     /***************************************************************************/
     /**
 	  * Allows to register a content creator
+	  *
+	  * @param cc_ptr A factory that produces the individuals used to populate the algorithm; must be non-empty
 	  */
     void registerContentCreator(std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> cc_ptr) {
         if(not cc_ptr) {
@@ -200,6 +213,8 @@ public:
     /***************************************************************************/
     /**
 	  * Allows to register a pluggable optimization monitor
+	  *
+	  * @param pluggable_om The pluggable optimization monitor to register; must be non-empty
 	  */
     void registerPluggableOM(std::shared_ptr<GBasePluggableOM> pluggable_om) {
         if(pluggable_om) {
@@ -226,18 +241,24 @@ public:
     /***************************************************************************/
     /**
 	  * Gives access to the mnemonics / nickname describing an algorithm
+	  *
+	  * @return The short mnemonic / nickname identifying the algorithm (e.g. "ea")
 	  */
     virtual std::string getMnemonic() const = 0;
 
     /***************************************************************************/
     /**
 	  * Gives access to a clear-text description of an algorithm
+	  *
+	  * @return A human-readable, clear-text name of the algorithm
 	  */
     virtual std::string getAlgorithmName() const = 0;
 
     /***************************************************************************/
     /**
 	  * Allows to manually set the maximum number of iterations as is usually specified on the command line
+	  *
+	  * @param max_iteration_cl The maximum allowed number of iterations
 	  */
     void setMaxIterationCL(std::uint32_t max_iteration_cl) {
         max_iteration_cl_ = Gem::Common::narrow<std::int32_t>(max_iteration_cl);
@@ -246,6 +267,8 @@ public:
     /***************************************************************************/
     /**
 	  * Allows to check whether the maximum number of iterations was set on the command line or using the manual function
+	  *
+	  * @return true if a maximum number of iterations was set, false otherwise
 	  */
     bool maxIterationsCLSet() const {
         if(max_iteration_cl_ >= 0) {
@@ -258,6 +281,8 @@ public:
     /***************************************************************************/
     /**
 	  * Allows to retrieve the maximum number of iterations as set on the command line
+	  *
+	  * @return The maximum number of iterations set on the command line (throws if it was never set)
 	  */
     std::uint32_t getMaxIterationCL() const {
         if(max_iteration_cl_ >= 0) {
@@ -277,6 +302,8 @@ public:
     /***************************************************************************/
     /**
 	  * Allows to manually set the maximum number of stall iterations as is usually specified on the command line
+	  *
+	  * @param max_stall_iteration_cl The maximum allowed number of stalled (improvement-free) iterations
 	  */
     void setMaxStallIterationCL(std::uint32_t max_stall_iteration_cl) {
         max_stall_iteration_cl_ = Gem::Common::narrow<std::int32_t>(max_stall_iteration_cl);
@@ -285,6 +312,8 @@ public:
     /***************************************************************************/
     /**
 	  * Allows to check whether the maximum number of stall iterations was set on the command line or using the manual function
+	  *
+	  * @return true if a maximum number of stall iterations was set, false otherwise
 	  */
     bool maxStallIterationsCLSet() const {
         if(max_stall_iteration_cl_ >= 0) {
@@ -297,6 +326,8 @@ public:
     /***************************************************************************/
     /**
 	  * Allows to retrieve the maximum number of stall iterations as set on the command line
+	  *
+	  * @return The maximum number of stall iterations set on the command line (throws if it was never set)
 	  */
     std::uint32_t getMaxStallIterationCL() const {
         if(max_stall_iteration_cl_ >= 0) {
@@ -317,6 +348,8 @@ public:
     /***************************************************************************/
     /**
 	  * Allows to manually set the maximum number of seconds for a run as is usually specified on the command line
+	  *
+	  * @param max_seconds_cl The maximum allowed run duration, in seconds
 	  */
     void setMaxSecondsCL(std::uint32_t max_seconds_cl) {
         max_seconds_cl_ = Gem::Common::narrow<std::int32_t>(max_seconds_cl);
@@ -325,6 +358,8 @@ public:
     /***************************************************************************/
     /**
 	  * Allows to check whether the maximum number of seconds was set on the command line or using the manual function
+	  *
+	  * @return true if a maximum run duration was set, false otherwise
 	  */
     bool maxSecondsCLSet() const {
         if(max_seconds_cl_ >= 0) {
@@ -337,6 +372,8 @@ public:
     /***************************************************************************/
     /**
 	  * Allows to retrieve the maximum number of seconds as set on the command line
+	  *
+	  * @return The maximum run duration set on the command line, as a duration (throws if it was never set)
 	  */
     std::chrono::duration<double> getMaxTimeCL() const {
         if(max_seconds_cl_ >= 0) {
@@ -393,7 +430,7 @@ protected:
     /**
 	  * Allows to describe configuration options
 	  *
-	  * @param gpb A reference to the parser-builder
+	  * @param gpb A reference to the parser-builder that collects the configuration options
 	  */
     void describeLocalOptions_(Gem::Common::GParserBuilder &gpb) override {
         /* nothing */
@@ -402,6 +439,8 @@ protected:
     /***************************************************************************/
     /**
 	  * Allows to act on the configuration options received from the configuration file or from the command line
+	  *
+	  * @param p The freshly produced algorithm onto which the command-line limits are applied
 	  */
     void postProcess_(std::shared_ptr<oa_type> &p) override {
         // Set local options
@@ -431,7 +470,11 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Creates individuals of this type */
+    /**
+     * @brief Creates an algorithm object of this type.
+     * @param gpb A reference to the parser-builder used to register the object's configuration options
+     * @return A shared pointer to a freshly created algorithm object
+     */
     std::shared_ptr<oa_type> getObject_(Gem::Common::GParserBuilder &) override = 0;
 
     /***************************************************************************/

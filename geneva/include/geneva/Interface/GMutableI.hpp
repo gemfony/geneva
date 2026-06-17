@@ -57,17 +57,36 @@ protected:
     /**************************************************************************/
     // Defaulted constructors / destructors / assignment operators / rule of five
 
+    /** @brief The default constructor */
     GMutableI() = default;
+    /**
+      * @brief The copy constructor
+      * @param other Another GMutableI object whose (empty) base state is copied into this one
+      */
     GMutableI(GMutableI const &) = default;
+    /**
+      * @brief The move constructor
+      * @param other Another GMutableI object whose (empty) base state is moved into this one
+      */
     GMutableI(GMutableI &&) = default;
 
     /**
-      * The destructor. Making this function protected and non-virtual follows
+      * @brief The destructor. Making this function protected and non-virtual follows
       * this discussion: http://www.gotw.ca/publications/mill18.htm
       */
     ~GMutableI() = default;
 
+    /**
+      * @brief The copy assignment operator
+      * @param other Another GMutableI object whose (empty) base state is copied into this one
+      * @return A reference to this object
+      */
     GMutableI &operator=(GMutableI const &) = default;
+    /**
+      * @brief The move assignment operator
+      * @param other Another GMutableI object whose (empty) base state is moved into this one
+      * @return A reference to this object
+      */
     GMutableI &operator=(GMutableI &&) = default;
 
     /**************************************************************************/

@@ -75,12 +75,21 @@ namespace Gem::Geneva::Genome {
  *   };
  *   BOOST_CLASS_EXPORT(MyIndividual)
  * @endcode
+ *
+ * @tparam Derived The concrete flat individual type (CRTP), supplying its constructor and fitnessCalculation()
  */
 template <class Derived>
 class GFlatIndividualT : public GFlatGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /**
+     * @brief Serialises this individual through its GFlatGenome base (no extra members to add).
+     *
+     * @tparam Archive The Boost.Serialization archive type
+     * @param ar The archive to read from / write to
+     * @param unsigned The (unused) serialization version number
+     */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         ar &boost::serialization::make_nvp(
@@ -95,7 +104,8 @@ public:
     using GFlatGenome::GFlatGenome;
 
 protected:
-    /** @brief Creates a deep clone of this object via the Derived copy constructor */
+    /** @brief Creates a deep clone of this object via the Derived copy constructor.
+     *  @return A heap-allocated deep copy of this individual (as a GFlatGenome base pointer) */
     GFlatGenome *clone_() const override {
         return new Derived(*static_cast<const Derived *>(this));
     }

@@ -104,26 +104,47 @@ public:
     /** @brief The standard destructor */
     ~GSimulatedAnnealing() override = default;
 
-    /** @brief Determines the strength of the temperature degradation */
+    /**
+     * @brief Determines the strength of the temperature degradation (cooling schedule).
+     * @param alpha The new value of the temperature degradation strength (alpha_)
+     */
     void setTDegradationStrength(double alpha);
-    /** @brief Retrieves the temperature degradation strength. This function is used for simulated annealing */
+    /**
+     * @brief Retrieves the temperature degradation strength. This function is used for simulated annealing.
+     * @return The current value of the temperature degradation strength (alpha_)
+     */
     double getTDegradationStrength() const;
 
-    /** @brief Sets the start temperature. This function is used for simulated annealing */
+    /**
+     * @brief Sets the start temperature. This function is used for simulated annealing.
+     * @param t0 The new value of the start temperature (t0_)
+     */
     void setT0(double t0);
-    /** @brief Retrieves the start temperature. This function is used for simulated annealing */
+    /**
+     * @brief Retrieves the start temperature. This function is used for simulated annealing.
+     * @return The current value of the start temperature (t0_)
+     */
     double getT0() const;
-    /** @brief Retrieves the current temperature. This function is used for simulated annealing */
+    /**
+     * @brief Retrieves the current temperature. This function is used for simulated annealing.
+     * @return The current temperature (t_)
+     */
     double getT() const;
 
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
-    /** @brief Adds local configuration options to a GParserBuilder object */
+    /**
+     * @brief Adds local configuration options to a GParserBuilder object.
+     * @param gpb The GParserBuilder object to which configuration options should be added
+     */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
-    /** @brief Loads the data of another GSimulatedAnnealingT object */
+    /**
+     * @brief Loads the data of another GSimulatedAnnealing object into this one.
+     * @param cp A pointer to another GSimulatedAnnealing object, camouflaged as a GOptimizationAlgorithmBase
+     */
     void load_(const GOptimizationAlgorithmBase *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -133,7 +154,12 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     * @param cp The other GSimulatedAnnealing object to compare against (camouflaged as a GOptimizationAlgorithmBase)
+     * @param e The expectation for this object, e.g. equality
+     * @param limit The limit for allowed deviations of floating point types
+     */
     void compare_(
         const GOptimizationAlgorithmBase &cp // the other object
         ,
@@ -154,16 +180,22 @@ private:
     /***************************************************************************/
     // Virtual or overridden private functions
 
-    /** @brief  We submit individuals to the broker connector and wait for processed items. */
+    /** @brief We submit individuals to the broker connector and wait for processed items. */
     void runFitnessCalculation_() override;
 
-    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
+    /**
+     * @brief Retrieve a GPersonalityTraits object belonging to this algorithm.
+     * @return A shared_ptr to a freshly created GSimulatedAnnealing_PersonalityTraits object
+     */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
 
     /** @brief Choose new parents, based on the SA selection scheme. */
     void selectBest_() override;
 
-    /** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
+    /**
+     * @brief Retrieves the evaluation range in a given iteration and sorting scheme.
+     * @return A tuple holding the start and end positions of the range of individuals to be evaluated
+     */
     std::tuple<std::size_t, std::size_t> getEvaluationRange_() const override;
     /** @brief Some error checks related to population sizes */
     void populationSanityChecks_() const override;
@@ -173,7 +205,12 @@ private:
     /** @brief Performs a simulated annealing style sorting and selection */
     void sortSAMode();
 
-    /** @brief Calculates the simulated annealing probability for a child to replace a parent */
+    /**
+     * @brief Calculates the simulated annealing probability for a child to replace a parent.
+     * @param q_parent The fitness value of the parent
+     * @param q_child The fitness value of the child
+     * @return The probability (in the range [0,1]) that the child replaces the parent
+     */
     double saProb(const double &q_parent, const double &q_child);
 
     /** @brief Updates the temperature. This function is used for simulated annealing. */

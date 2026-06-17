@@ -60,6 +60,8 @@ namespace Gem::Geneva {
  * is required as not all optimization algorithms will react gracefully to a silent
  * change of their individuals (think e.g. of gradient descents). The mnemonics
  * must be accessible via the base_type-object through the member-function getMnemonic().
+ *
+ * @tparam base_type The processable type (the individual) this post-processor operates on
  */
 template <typename base_type>
 class GPostProcessorBaseT // NOLINT(cppcoreguidelines-special-member-functions)
@@ -90,7 +92,9 @@ public:
 
     /**************************************************************************/
     /**
-	  * The copy constructor
+	  * @brief The copy constructor
+	  *
+	  * @param cp A constant reference to another GPostProcessorBaseT object to be copied
 	  */
     GPostProcessorBaseT(const GPostProcessorBaseT<base_type> &cp) = default;
 
@@ -102,7 +106,9 @@ public:
 
     /**************************************************************************/
     /**
-	  * Permits postprocessing for a specific type
+	  * @brief Permits postprocessing for the optimization algorithm with the given mnemonic
+	  *
+	  * @param oa_mnemonic The mnemonic of an optimization algorithm to be added to the allow-list
 	  */
     void allowPostProcessingFor(const std::string &oa_mnemonic) {
         allowed_mnemonics_.insert(oa_mnemonic);
@@ -110,10 +116,13 @@ public:
 
     /**************************************************************************/
     /**
-	  * Allows to check whether this post-processor is allowed to run under an optimization algorithm with
+	  * @brief Allows to check whether this post-processor is allowed to run under an optimization algorithm with
 	  * the given mnemonic. The optimization algorithm queries this at setup (it knows its own mnemonic) and
 	  * vetoes post-processing on the work items where it returns false; the individual itself carries no
 	  * knowledge of which algorithm owns it.
+	  *
+	  * @param oa_mnemonic The mnemonic of the querying optimization algorithm
+	  * @return true if the mnemonic is on the allow-list (or "all" was registered), false otherwise
 	  */
     bool postProcessingAllowedFor(const std::string &oa_mnemonic) const {
         if(allowed_mnemonics_.contains("all")) {
@@ -126,14 +135,22 @@ public:
 
 protected:
     /**************************************************************************/
-    /** @brief Raw post-processing (no checks for eligibility); purely virtual */
+    /**
+	  * @brief Raw post-processing (no checks for eligibility); purely virtual
+	  *
+	  * @param p_raw A reference to the individual to be post-processed in place
+	  * @return true if the individual was modified by the post-processing, false otherwise
+	  */
     virtual bool raw_processing_(base_type &p_raw) = 0;
 
     /**************************************************************************/
     /**
-	  * Post-processing is triggered here. Eligibility (the mnemonic gate) is decided by the optimization
+	  * @brief Post-processing is triggered here. Eligibility (the mnemonic gate) is decided by the optimization
 	  * algorithm at setup, which vetoes post-processing on ineligible work items (see
 	  * GProcessingContainerT::vetoPostProcessing); by the time we are invoked the veto has already gated us.
+	  *
+	  * @param p A reference to the individual to be post-processed in place
+	  * @return true if the individual was modified by the post-processing, false otherwise
 	  */
     bool process_(base_type &p) override {
         return raw_processing_(p);
@@ -141,7 +158,9 @@ protected:
 
     /**************************************************************************/
     /**
-	  * Loads the data of another GEvolutionaryAlgorithmPostOptimizer object
+	  * @brief Loads the data of another GPostProcessorBaseT object
+	  *
+	  * @param cp A pointer to another GPostProcessorBaseT object, camouflaged as a pointer to its base type
 	  */
     void load_(const Gem::Common::GSerializableFunctionObjectT<base_type> *cp) override {
         using namespace Gem::Common;
@@ -168,11 +187,12 @@ protected:
 
     /**************************************************************************/
     /**
-     * Checks for compliance with expectations with respect to another object
+     * @brief Checks for compliance with expectations with respect to another object
      * of the same type
      *
-     * @param cp A constant reference to another GEvolutionaryAlgorithmPostOptimizer object
+     * @param cp A constant reference to another GPostProcessorBaseT object, camouflaged as a reference to its base type
      * @param e The expected outcome of the comparison
+     * @param limit The maximum acceptable deviation for floating-point comparisons (unused here)
      */
     void compare_(
         const Gem::Common::GSerializableFunctionObjectT<base_type> &cp,
@@ -203,7 +223,7 @@ protected:
 
     /**************************************************************************/
     /**
-     * Applies modifications to this object. This is needed for testing purposes
+     * @brief Applies modifications to this object. This is needed for testing purposes
      *
      * @return A boolean which indicates whether modifications were made
      */
@@ -226,7 +246,7 @@ protected:
 
     /**************************************************************************/
     /**
-     * Performs self tests that are expected to succeed. This is needed for testing purposes
+     * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
      */
     void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
@@ -244,7 +264,7 @@ protected:
 
     /**************************************************************************/
     /**
-     * Performs self tests that are expected to fail. This is needed for testing purposes
+     * @brief Performs self tests that are expected to fail. This is needed for testing purposes
      */
     void specificTestsFailuresExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
@@ -263,14 +283,20 @@ protected:
 private:
     /**************************************************************************/
     /**
-	  * Returns the name of this class
+	  * @brief Returns the name of this class
+	  *
+	  * @return The name of this class, as a string
 	  */
     std::string name_() const override {
         return std::string("GPostProcessorBaseT");
     }
 
     /**************************************************************************/
-    /** @brief Creates a deep clone of this object; purely virtual */
+    /**
+     * @brief Creates a deep clone of this object; purely virtual
+     *
+     * @return A deep clone of this object, as a pointer to its base type
+     */
     Gem::Common::GSerializableFunctionObjectT<base_type> *clone_() const override = 0;
 
     /**************************************************************************/
@@ -310,36 +336,73 @@ class GEvolutionaryAlgorithmPostOptimizer // NOLINT(cppcoreguidelines-special-me
 
 public:
     /**************************************************************************/
-    /** @brief Initialization with the execution mode and configuration file */
+    /**
+     * @brief Initialization with the execution mode and configuration files
+     *
+     * @param execution_mode Whether to run the post-optimizer in serial or multi-threaded mode
+     * @param oa_config_file The name of the configuration file for the evolutionary algorithm
+     * @param executor_config_file The name of the configuration file for the executor
+     */
     GEvolutionaryAlgorithmPostOptimizer(
         execMode execution_mode,
         const std::string &oa_config_file,
         const std::string &executor_config_file
     );
-    /** @brief The copy constructor */
-    
+    /**
+     * @brief The copy constructor
+     *
+     * @param cp A constant reference to another GEvolutionaryAlgorithmPostOptimizer object to be copied
+     */
     GEvolutionaryAlgorithmPostOptimizer(const GEvolutionaryAlgorithmPostOptimizer &cp) = default;
     /** @brief The destructor */
     ~GEvolutionaryAlgorithmPostOptimizer() override = default;
 
-    /** @brief Allows to set the execution mode for this post-processor (serial vs. multi-threaded) */
+    /**
+     * @brief Allows to set the execution mode for this post-processor (serial vs. multi-threaded)
+     *
+     * @param execution_mode The desired execution mode
+     */
     void setExecMode(execMode execution_mode);
-    /** @brief Allows to retrieve the current execution mode */
+    /**
+     * @brief Allows to retrieve the current execution mode
+     *
+     * @return The currently configured execution mode
+     */
     execMode getExecMode() const;
 
-    /** @brief Allows to specify the name of a configuration file for the optimization algorithm */
+    /**
+     * @brief Allows to specify the name of a configuration file for the optimization algorithm
+     *
+     * @param oa_config_file The name of the configuration file for the evolutionary algorithm
+     */
     void setOAConfigFile(const std::string &oa_config_file);
-    /** @brief Allows to retrieve the configuration file for the optimization algorithm */
+    /**
+     * @brief Allows to retrieve the configuration file for the optimization algorithm
+     *
+     * @return The name of the configuration file for the evolutionary algorithm
+     */
     std::string getOAConfigFile() const;
 
-    /** @brief Allows to specify the name of a configuration file for the executor */
+    /**
+     * @brief Allows to specify the name of a configuration file for the executor
+     *
+     * @param executor_config_file The name of the configuration file for the executor
+     */
     void setExecutorConfigFile(const std::string &executor_config_file);
-    /** @brief Allows to retrieve the configuration file for the executor */
+    /**
+     * @brief Allows to retrieve the configuration file for the executor
+     *
+     * @return The name of the configuration file for the executor
+     */
     std::string getExecutorConfigFile() const;
 
 protected:
     /**************************************************************************/
-    /** @brief Single declaration of this class'es local data members */
+    /**
+     * @brief Single declaration of this class'es local data members (mutable access)
+     *
+     * @return A tuple of named, comparable/serializable references to this object's local data members
+     */
     auto localMembers() {
         return std::make_tuple(
             Gem::Common::make_member("oa_config_file_", oa_config_file_),
@@ -347,6 +410,11 @@ protected:
             Gem::Common::make_member("execution_mode_", execution_mode_)
         );
     }
+    /**
+     * @brief Single declaration of this class'es local data members (const access)
+     *
+     * @return A tuple of named, comparable/serializable const references to this object's local data members
+     */
     auto localMembers() const {
         return std::make_tuple(
             Gem::Common::make_member("oa_config_file_", oa_config_file_),
@@ -355,7 +423,11 @@ protected:
         );
     }
 
-    /** @brief Loads the data of another GEvolutionaryAlgorithmPostOptimizer object */
+    /**
+     * @brief Loads the data of another GEvolutionaryAlgorithmPostOptimizer object
+     *
+     * @param cp A pointer to another GEvolutionaryAlgorithmPostOptimizer object, camouflaged as a pointer to its base type
+     */
     void
     load_(const Gem::Common::GSerializableFunctionObjectT<gen::GOptimizableEntity> *cp) override;
 
@@ -366,17 +438,32 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Checks for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Checks for compliance with expectations with respect to another object of the same type
+     *
+     * @param cp A constant reference to another GEvolutionaryAlgorithmPostOptimizer object, camouflaged as a reference to its base type
+     * @param e The expected outcome of the comparison
+     * @param limit The maximum acceptable deviation for floating-point comparisons
+     */
     void compare_(
         const Gem::Common::GSerializableFunctionObjectT<gen::GOptimizableEntity> &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
 
-    /** @brief The actual post-processing takes place here (no further checks) */
+    /**
+     * @brief The actual post-processing takes place here (no further checks)
+     *
+     * @param p A reference to the individual to be post-processed in place
+     * @return true if the individual was modified by the post-processing, false otherwise
+     */
     bool raw_processing_(gen::GOptimizableEntity &p) override;
 
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    /**
+     * @brief Applies modifications to this object. This is needed for testing purposes
+     *
+     * @return A boolean which indicates whether modifications were made
+     */
     bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
     void specificTestsNoFailureExpected_GUnitTests_() override;
@@ -384,9 +471,17 @@ protected:
     void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
-    /** @brief Returns the name of this class */
+    /**
+     * @brief Returns the name of this class
+     *
+     * @return The name of this class, as a string
+     */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object
+     *
+     * @return A deep clone of this object, as a pointer to its base type
+     */
     Gem::Common::GSerializableFunctionObjectT<gen::GOptimizableEntity> *clone_() const override;
 
     /** @brief The standard constructor */

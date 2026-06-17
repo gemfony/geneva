@@ -101,41 +101,81 @@ public:
 
     /** @brief The default constructor */
     GSwarmAlgorithm_PersonalityTraits() = default;
-    /** @brief The copy contructor */
-    GSwarmAlgorithm_PersonalityTraits(const GSwarmAlgorithm_PersonalityTraits &);
+    /**
+     * @brief The copy constructor
+     *
+     * @param cp A constant reference to another GSwarmAlgorithm_PersonalityTraits object to be copied
+     */
+    GSwarmAlgorithm_PersonalityTraits(const GSwarmAlgorithm_PersonalityTraits & cp);
     /** @brief The standard destructor */
     ~GSwarmAlgorithm_PersonalityTraits() override = default;
 
-    /** @brief Specifies in which neighborhood the individual is at present */
-    void setNeighborhood(const std::size_t &);
-    /** @brief Retrieves the id of the neighborhood the individual is in at present */
+    /**
+     * @brief Specifies in which neighborhood the individual is at present
+     *
+     * @param neighborhood The id of the neighborhood the individual is to be assigned to
+     */
+    void setNeighborhood(const std::size_t & neighborhood);
+    /**
+     * @brief Retrieves the id of the neighborhood the individual is in at present
+     *
+     * @return The id of the neighborhood the individual currently belongs to
+     */
     std::size_t getNeighborhood() const;
 
     /** @brief Sets the no_position_update_ flag */
     void setNoPositionUpdate();
-    /** @brief Retrieves the current value of the no_position_update_ flag */
+    /**
+     * @brief Retrieves the current value of the no_position_update_ flag
+     *
+     * @return true if the individual's position is not to be updated, false otherwise
+     */
     bool noPositionUpdate() const;
-    /** @brief Retrieves and resets the current value of the no_position_update_ flag */
+    /**
+     * @brief Retrieves and resets the current value of the no_position_update_ flag
+     *
+     * @return The value of the no_position_update_ flag prior to being reset to false
+     */
     bool checkNoPositionUpdateAndReset();
 
-    /** @brief Allows to add a new personal best to the individual */
-    void registerPersonalBest(std::shared_ptr<gen::GOptimizableEntity>);
-    /** @brief Allows to retrieve the personal best individual */
+    /**
+     * @brief Allows to add a new personal best to the individual
+     *
+     * @param p A shared pointer to the GOptimizableEntity representing the individual's new personal best
+     */
+    void registerPersonalBest(std::shared_ptr<gen::GOptimizableEntity> p);
+    /**
+     * @brief Allows to retrieve the personal best individual
+     *
+     * @return A shared pointer to the GOptimizableEntity holding the individual's personal best
+     */
     std::shared_ptr<gen::GOptimizableEntity> getPersonalBest() const;
     /** @brief Resets the personal best individual */
     void resetPersonalBest();
-    /** @brief Retrieve quality of personally best individual */
+    /**
+     * @brief Retrieve quality of personally best individual
+     *
+     * @return A tuple holding the raw and transformed fitness of the personally best individual
+     */
     std::tuple<double, double> getPersonalBestQuality() const;
 
-    /** @brief Retrieves the mnemonic of the optimization algorithm */
+    /**
+     * @brief Retrieves the mnemonic of the optimization algorithm
+     *
+     * @return The mnemonic (short identifier) associated with the swarm optimization algorithm
+     */
     std::string getMnemonic() const override;
 
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
-    /** @brief Loads the data of another GSwarmPersonalityTraits object */
-    void load_(const GPersonalityTraits *) override;
+    /**
+     * @brief Loads the data of another GSwarmAlgorithm_PersonalityTraits object
+     *
+     * @param cp A pointer to another GPersonalityTraits object (expected to be a GSwarmAlgorithm_PersonalityTraits), camouflaged as a base-class pointer
+     */
+    void load_(const GPersonalityTraits * cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GSwarmAlgorithm_PersonalityTraits>(
@@ -144,13 +184,19 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type
+     *
+     * @param cp A constant reference to another GPersonalityTraits object (the object to be compared against)
+     * @param e The expectation for this comparison, e.g. equality or inequality
+     * @param limit The maximum allowed deviation of floating point types still considered equal
+     */
     void compare_(
-        const GPersonalityTraits & // the other object
+        const GPersonalityTraits & cp // the other object
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation & e // the expectation for this object, e.g. equality
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double & limit // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -163,9 +209,17 @@ protected:
     /***************************************************************************/
 
 private:
-    /** @brief Emits a name for this class / object */
+    /**
+     * @brief Emits a name for this class / object
+     *
+     * @return A string holding the name of this class
+     */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object
+     *
+     * @return A deep clone of this object, returned as a pointer to the GPersonalityTraits base class
+     */
     GPersonalityTraits *clone_() const override;
 
     /** @brief Stores the current position in the population */

@@ -49,8 +49,14 @@
 using GOAStore =
     Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<
         std::shared_ptr<Gem::Common::GProviderT<oa::GOptimizationAlgorithmBase>>>>;
-// Drop-in replacement for the former GOAFactoryStore macro. Returns the global
-// optimization-algorithm-provider store singleton.
+/**
+ * @brief Returns the global optimization-algorithm-provider store singleton.
+ *
+ * Drop-in replacement for the former GOAFactoryStore macro.
+ *
+ * @return A shared pointer to the singleton store mapping keys to
+ *         optimization-algorithm providers (never nullptr)
+ */
 [[nodiscard]] inline std::shared_ptr<GOAStore::STYPE> oaFactoryStore() {
     return GOAStore::instance();
 }

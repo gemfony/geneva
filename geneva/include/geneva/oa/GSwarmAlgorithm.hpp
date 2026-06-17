@@ -132,63 +132,144 @@ private:
 public:
     /** @brief The default constructor */
     GSwarmAlgorithm();
-    /** @brief Initialization with neighborhood sizes and amount of individuals in each neighborhood */
+    /**
+     * @brief Initialization with neighborhood sizes and amount of individuals in each neighborhood.
+     *
+     * The first (unnamed) argument is the number of neighborhoods, the second is the (default) number
+     * of individuals in each neighborhood.
+     */
     GSwarmAlgorithm(const std::size_t &, const std::size_t &);
-    /** @brief A standard copy constructor */
+    /**
+     * @brief A standard copy constructor. The (unnamed) argument is the other GSwarmAlgorithm object to be copied.
+     */
     GSwarmAlgorithm(const GSwarmAlgorithm &);
     /** @brief The destructor */
     ~GSwarmAlgorithm() override = default;
 
-    /** @brief Sets the number of neighborhoods and the number of members in them */
+    /**
+     * @brief Sets the number of neighborhoods and the number of members in them.
+     *
+     * The first (unnamed) argument is the desired number of neighborhoods, the second is the desired
+     * number of members per neighborhood.
+     */
     void setSwarmSizes(std::size_t, std::size_t);
 
-    /** @brief Allows to set a static multiplier for personal distances */
+    /**
+     * @brief Allows to set a static multiplier for personal distances.
+     *
+     * The (unnamed) argument is the new value of the personal-distance multiplier (c_personal_).
+     */
     void setCPersonal(double);
-    /** @brief Allows to retrieve the static multiplier for personal distances */
+    /**
+     * @brief Allows to retrieve the static multiplier for personal distances.
+     * @return The current value of the personal-distance multiplier (c_personal_)
+     */
     double getCPersonal() const;
 
-    /** @brief Allows to set a static multiplier for neighborhood distances */
+    /**
+     * @brief Allows to set a static multiplier for neighborhood distances.
+     *
+     * The (unnamed) argument is the new value of the neighborhood-distance multiplier (c_neighborhood_).
+     */
     void setCNeighborhood(double);
-    /** @brief Allows to retrieve the static multiplier for neighborhood distances */
+    /**
+     * @brief Allows to retrieve the static multiplier for neighborhood distances.
+     * @return The current value of the neighborhood-distance multiplier (c_neighborhood_)
+     */
     double getCNeighborhood() const;
 
-    /** @brief Allows to set a static multiplier for global distances */
+    /**
+     * @brief Allows to set a static multiplier for global distances.
+     *
+     * The (unnamed) argument is the new value of the global-distance multiplier (c_global_).
+     */
     void setCGlobal(double);
-    /** @brief Allows to retrieve the static multiplier for global distances */
+    /**
+     * @brief Allows to retrieve the static multiplier for global distances.
+     * @return The current value of the global-distance multiplier (c_global_)
+     */
     double getCGlobal() const;
 
-    /** @brief Allows to set a static multiplier for velocities */
+    /**
+     * @brief Allows to set a static multiplier for velocities.
+     *
+     * The (unnamed) argument is the new value of the velocity multiplier (c_velocity_).
+     */
     void setCVelocity(double);
-    /** @brief Allows to retrieve the static multiplier for velocities */
+    /**
+     * @brief Allows to retrieve the static multiplier for velocities.
+     * @return The current value of the velocity multiplier (c_velocity_)
+     */
     double getCVelocity() const;
 
-    /** @brief Allows to set the velocity range percentage */
+    /**
+     * @brief Allows to set the velocity range percentage.
+     *
+     * The (unnamed) argument is the new percentage of the parameter value range used when initializing
+     * velocities (velocity_range_percentage_).
+     */
     void setVelocityRangePercentage(double);
-    /** @brief Allows to retrieve the velocity range percentage */
+    /**
+     * @brief Allows to retrieve the velocity range percentage.
+     * @return The current velocity range percentage (velocity_range_percentage_)
+     */
     double getVelocityRangePercentage() const;
 
-    /** @brief Retrieves the number of neighborhoods */
+    /**
+     * @brief Retrieves the number of neighborhoods.
+     * @return The number of neighborhoods in the population (n_neighborhoods_)
+     */
     std::size_t getNNeighborhoods() const;
-    /** @brief Retrieves the default number of individuals in each neighborhood */
+    /**
+     * @brief Retrieves the default number of individuals in each neighborhood.
+     * @return The default number of individuals per neighborhood (default_n_neighborhood_members_)
+     */
     std::size_t getDefaultNNeighborhoodMembers() const;
-    /** @brief Retrieves the current number of individuals in a given neighborhood */
+    /**
+     * @brief Retrieves the current number of individuals in a given neighborhood.
+     *
+     * The (unnamed) argument is the index of the neighborhood whose current member count is requested.
+     * @return The current number of individuals in the requested neighborhood
+     */
     std::size_t getCurrentNNeighborhoodMembers(const std::size_t &) const;
 
-    /** @brief Allows to specify the update rule to be used by the swarm */
+    /**
+     * @brief Allows to specify the update rule to be used by the swarm.
+     *
+     * The (unnamed) argument is the new update rule (update_rule_) governing how positions are updated.
+     */
     void setUpdateRule(updateRule);
-    /** @brief Allows to retrieve the update rule currently used by the swarm */
+    /**
+     * @brief Allows to retrieve the update rule currently used by the swarm.
+     * @return The update rule currently in use (update_rule_)
+     */
     updateRule getUpdateRule() const;
 
-    /** @brief Allows to specify the number of stalls as of which the algorithm switches to repulsive mode */
+    /**
+     * @brief Allows to specify the number of stalls as of which the algorithm switches to repulsive mode.
+     *
+     * The (unnamed) argument is the new repulsion threshold (repulsion_threshold_); a value of 0 disables
+     * the switch to repulsion.
+     */
     void setRepulsionThreshold(std::uint32_t);
-    /** @brief Allows to retrieve the number of stalls as of which the algorithm switches to repulsive mode */
+    /**
+     * @brief Allows to retrieve the number of stalls as of which the algorithm switches to repulsive mode.
+     * @return The current repulsion threshold (repulsion_threshold_)
+     */
     std::uint32_t getRepulsionThreshold() const;
 
     /** @brief All individuals automatically added to a neighborhood will have equal value */
     void setNeighborhoodsEqualFillUp();
-    /** @brief All individuals automatically added to a neighborhood will have a random value */
+    /**
+     * @brief All individuals automatically added to a neighborhood will have a random value.
+     *
+     * The (unnamed) argument indicates whether random fill-up should be enabled (defaults to true).
+     */
     void setNeighborhoodsRandomFillUp(bool = true);
-    /** @brief Allows to check whether neighborhoods are filled up with random individuals */
+    /**
+     * @brief Allows to check whether neighborhoods are filled up with random individuals.
+     * @return true if neighborhoods are filled up with random individuals, false otherwise
+     */
     bool neighborhoodsFilledUpRandomly() const;
 
     /***************************************************************************/
@@ -197,6 +278,7 @@ public:
 	  * `requires std::derived_from` constraint below makes this overload visible to the compiler only when
 	  * individual_type is a derivative of GOptimizableEntity.
 	  *
+	  * @tparam individual_type The target type to which the best individual is cast (must derive from gen::GOptimizableEntity)
 	  * @param neighborhood The neighborhood, whose best individual should be returned
 	  * @return A converted shared_ptr to the best individual of a given neighborhood
 	  */
@@ -225,9 +307,17 @@ protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
-    /** @brief Adds local configuration options to a GParserBuilder object */
+    /**
+     * @brief Adds local configuration options to a GParserBuilder object.
+     * @param gpb The GParserBuilder object to which configuration options should be added
+     */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
-    /** @brief Loads the data of another population */
+    /**
+     * @brief Loads the data of another population into this one.
+     *
+     * The (unnamed) argument is a pointer to another GSwarmAlgorithm object, camouflaged as a
+     * GOptimizationAlgorithmBase, whose data is copied into this object.
+     */
     void load_(const GOptimizationAlgorithmBase *) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -237,7 +327,13 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     *
+     * The three (unnamed) arguments are, in order: the other object to compare against (camouflaged as a
+     * GOptimizationAlgorithmBase), the expectation for this object (e.g. equality), and the limit for
+     * allowed deviations of floating point types.
+     */
     void compare_(
         const GOptimizationAlgorithmBase & // the other object
         ,
@@ -254,7 +350,10 @@ protected:
     /** @brief Does any necessary finalization work */
     void finalize() override;
 
-    /** @brief Updates the best individuals found */
+    /**
+     * @brief Updates the best individuals found.
+     * @return A tuple holding the best raw and transformed fitness values found
+     */
     virtual std::tuple<double, double> findBests();
     /** @brief Triggers an update of all individual's positions */
     virtual void updatePositions();
@@ -267,18 +366,44 @@ protected:
 
     /***************************************************************************/
 
-    /** @brief Checks whether each neighborhood has the default size */
+    /**
+     * @brief Checks whether each neighborhood has the default size.
+     * @return true if every neighborhood currently holds its nominal (default) number of members, false otherwise
+     */
     bool neighborhoodsHaveNominalValues() const;
 
-    /** @brief Helper function that returns the id of the first individual of a neighborhood */
+    /**
+     * @brief Helper function that returns the id of the first individual of a neighborhood.
+     *
+     * The (unnamed) argument is the index of the neighborhood whose first individual position is requested.
+     * @return The position (index in the population) of the first individual of the given neighborhood
+     */
     std::size_t getFirstNIPos(const std::size_t &) const;
-    /** @brief Helper function that returns the id of the first individual of a neighborhood, using a vector of neighborhood sizes */
+    /**
+     * @brief Helper function that returns the id of the first individual of a neighborhood, using a vector of neighborhood sizes.
+     *
+     * The first (unnamed) argument is the index of the neighborhood; the second is a vector holding the
+     * sizes of all neighborhoods, used to compute the offset.
+     * @return The position (index in the population) of the first individual of the given neighborhood
+     */
     std::size_t
     getFirstNIPosVec(const std::size_t &, const std::vector<std::size_t> &) const;
-    /** @brief Helper function that returns the id of the last individual of a neighborhood */
+    /**
+     * @brief Helper function that returns the id of the last individual of a neighborhood.
+     *
+     * The (unnamed) argument is the index of the neighborhood whose last individual position is requested.
+     * @return The position (index in the population) one past the last individual of the given neighborhood
+     */
     std::size_t getLastNIPos(const std::size_t &) const;
 
-    /** @brief Triggers an update of an individual's positions */
+    /**
+     * @brief Triggers an update of an individual's positions.
+     *
+     * The (unnamed) arguments are, in order: the neighborhood index, the population slot being moved
+     * (borrowed), the neighborhood-best individual, the global-best individual, and a tuple holding the
+     * four multipliers (c_personal, c_neighborhood, c_global, c_velocity). The per-particle velocity now
+     * lives on the slot's OA scratch.
+     */
     void updateIndividualPositions(
         const std::size_t &,
         const std::unique_ptr<gen::GIndividualSlot> &, // the population slot being moved (borrowed)
@@ -287,12 +412,26 @@ protected:
         std::tuple<double, double, double, double>      // c_personal / c_neighborhood / c_global / c_velocity
     );                                                  // (velocity now lives on the slot's OA scratch)
 
-    /** @brief Adjusts the velocity vector so that its values don't exceed the allowed value range */
+    /**
+     * @brief Adjusts the velocity vector so that its values don't exceed the allowed value range.
+     *
+     * The (unnamed) argument is the velocity vector to be pruned in place (clamped to the maximum allowed
+     * per-component velocities).
+     */
     void pruneVelocity(std::vector<double> &);
 
-    /** Updates the personal best of an individual */
+    /**
+     * @brief Updates the personal best of an individual.
+     *
+     * The (unnamed) argument is the population slot whose personal best is unconditionally updated (borrowed).
+     */
     void updatePersonalBest(const std::unique_ptr<gen::GIndividualSlot> &);
-    /** Updates the personal best of an individual, if a better solution was found */
+    /**
+     * @brief Updates the personal best of an individual, if a better solution was found.
+     *
+     * The (unnamed) argument is the population slot whose personal best is updated only when the current
+     * solution is better (borrowed).
+     */
     void updatePersonalBestIfBetter(const std::unique_ptr<gen::GIndividualSlot> &);
 
     std::size_t n_neighborhoods_ =
@@ -347,15 +486,24 @@ private:
     /***************************************************************************/
     // Virtual or overridden private functions
 
-    /** @brief The actual business logic to be performed during each iteration; Returns the best achieved fitness */
+    /**
+     * @brief The actual business logic to be performed during each iteration.
+     * @return A tuple holding the best raw and transformed fitness values achieved in this iteration
+     */
     std::tuple<double, double> cycleLogic_() override;
     /** @brief Updates the fitness of all individuals */
     void runFitnessCalculation_() override;
 
-    /** @brief Retrieves the number of processable items for the current iteration */
+    /**
+     * @brief Retrieves the number of processable items for the current iteration.
+     * @return The number of individuals that need to be (re-)evaluated in the current iteration
+     */
     std::size_t getNProcessableItems_() const override;
 
-    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
+    /**
+     * @brief Retrieve a GPersonalityTraits object belonging to this algorithm.
+     * @return A shared_ptr to a freshly created GSwarmAlgorithm_PersonalityTraits object
+     */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
     /** @brief Gives individuals an opportunity to update their internal structures */
     void actOnStalls_() override;
@@ -365,7 +513,12 @@ private:
 
     /***************************************************************************/
 
-    /** @brief Helper function that checks the content of two nNeighborhoodMembers_ arrays */
+    /**
+     * @brief Helper function that checks the content of two nNeighborhoodMembers_ arrays.
+     *
+     * The two (unnamed) arguments are the two neighborhood-member-count vectors to be compared.
+     * @return true if both vectors hold identical neighborhood member counts, false otherwise
+     */
     bool nNeighborhoodMembersEqual(
         const std::vector<std::size_t> &,
         const std::vector<std::size_t> &

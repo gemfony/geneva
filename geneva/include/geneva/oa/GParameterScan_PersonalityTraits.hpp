@@ -44,8 +44,8 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /**
- * This class adds variables and functions to GPersonalityTraits that are specific
- * to gradient descents.
+ * @brief Adds variables and functions to GPersonalityTraits that are specific
+ * to parameter scans.
  */
 class GParameterScan_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
   : public GPersonalityTraits {
@@ -60,6 +60,10 @@ class GParameterScan_PersonalityTraits // NOLINT(cppcoreguidelines-special-membe
         return std::make_tuple(Gem::Common::make_member("pop_pos_", pop_pos_));
     }
 
+    /** @brief Serializes this object via Boost.Serialization
+     *  @tparam Archive The archive type used for (de-)serialization
+     *  @param ar The archive to serialize to / from
+     *  @param (unused) The class version supplied by Boost.Serialization */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -76,26 +80,30 @@ public:
 
     /** @brief The default constructor */
     GParameterScan_PersonalityTraits() = default;
-    /** @brief The copy contructor */
-    
+    /** @brief The copy constructor
+     *  @param (unnamed) Another GParameterScan_PersonalityTraits object to be copied */
     GParameterScan_PersonalityTraits(const GParameterScan_PersonalityTraits &) = default;
 
     /** @brief The standard destructor */
     ~GParameterScan_PersonalityTraits() override = default;
 
-    /** @brief Sets the position of the individual in the population */
+    /** @brief Sets the position of the individual in the population
+     *  @param (unnamed) The position the individual should be assigned within the population */
     void setPopulationPosition(const std::size_t &);
-    /** @brief Retrieves the position of the individual in the population */
+    /** @brief Retrieves the position of the individual in the population
+     *  @return The stored position of the individual within the population */
     std::size_t getPopulationPosition() const;
 
-    /** @brief Retrieves the mnemonic of the optimization algorithm */
+    /** @brief Retrieves the mnemonic of the optimization algorithm
+     *  @return The short mnemonic identifying the parameter-scan algorithm */
     std::string getMnemonic() const override;
 
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
-    /** @brief Loads the data of another GPSPersonalityTraits object */
+    /** @brief Loads the data of another GParameterScan_PersonalityTraits object
+     *  @param (unnamed) A pointer to another object of this type, camouflaged as a GPersonalityTraits */
     void load_(const GPersonalityTraits *) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -105,7 +113,10 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /** @brief Searches for compliance with expectations with respect to another object of the same type
+     *  @param (first) The other object to be compared against (as a GPersonalityTraits)
+     *  @param (second) The expectation for this object, e.g. equality
+     *  @param (third) The limit for allowed deviations of floating point types */
     void compare_(
         const GPersonalityTraits & // the other object
         ,
@@ -114,7 +125,8 @@ protected:
         const double & // the limit for allowed deviations of floating point types
     ) const override;
 
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    /** @brief Applies modifications to this object. This is needed for testing purposes
+     *  @return true if the object was modified, false otherwise */
     bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
     void specificTestsNoFailureExpected_GUnitTests_() override;
@@ -124,9 +136,11 @@ protected:
     /***************************************************************************/
 
 private:
-    /** @brief Emits a name for this class / object */
+    /** @brief Emits a name for this class / object
+     *  @return The class name of this object */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /** @brief Creates a deep clone of this object
+     *  @return A pointer to a freshly allocated deep copy of this object */
     GPersonalityTraits *clone_() const override;
 
     /** @brief Stores the current position in the population */

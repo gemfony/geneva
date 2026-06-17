@@ -55,13 +55,14 @@ class GMPISubClientOptimizer // NOLINT(cppcoreguidelines-special-member-function
   : public Go2 {
 public:
     /**
-         * A constructor that first parses the command line for relevant parameters and allows to specify a default config file name
-         * @param argc number of command line arguments
-         * @param argv vector of command line arguments
-         * @param configFilePath The name and location of a configuration file
-         * @param userDescriptions A vector of additional command line options (cmp. boost::program_options)
-         * @param baseCommunicator MPI communicator that all processes which instantiate GMPISubClientOptimizer call.
-         *  In the most frequent and less complicated case the default value of MPI_COMM_WORLD will be correct.
+         * @brief Parses the command line for relevant parameters and allows to specify a default config file name.
+         *
+         * @param argc Number of command line arguments
+         * @param argv Array of command line argument strings
+         * @param configFilePath The name and location of the configuration file
+         * @param userDescriptions Additional command line options (cmp. boost::program_options); defaults to an empty set
+         * @param baseCommunicator MPI communicator that all processes instantiating GMPISubClientOptimizer call. In the
+         *  most frequent and least complicated case the default value of MPI_COMM_WORLD will be correct.
          */
     GMPISubClientOptimizer(
         int argc,
@@ -75,36 +76,48 @@ public:
     GMPISubClientOptimizer(GMPISubClientOptimizer const &) = delete;
 
     /**
-         * Registers a function to be called by sub-clients.
+         * @brief Registers a function to be called by sub-clients.
          *
-         * The function takes an MPI_Comm communicator as an argument.
-         * This is the communicator that is used by this process and all processes in the same sub-group.
+         * The callback receives the MPI_Comm communicator used by this process and all processes in the same sub-group,
+         * over which the sub-clients cooperate to solve the fitness calculation.
          *
-         * @param callback The function called by sub-clients
-         * @return
+         * @param callback The function executed by sub-clients; it takes the sub-group communicator and returns an
+         *  integer status code
+         * @return A reference to this object, allowing call chaining
          */
     GMPISubClientOptimizer &
     registerSubClientJob(std::function<int(MPI_Comm)> callback);
 
+    /**
+         * @brief Checks whether the current process is a sub-client.
+         *
+         * @return True if this process acts as a sub-client, false otherwise
+         */
     [[nodiscard]] bool isSubClient() const {
         return isSubClient_;
     }
 
 protected:
     /**
-         * Triggers execution of the client job
-         * @return An integer type return value for the main function indicating execution status.
+         * @brief Triggers execution of the client job.
+         *
+         * @return An integer return value (suitable for the main function) indicating the execution status.
          */
     int clientRun_() override;
 
     /**
-         * Adds local configuration options to a GParserBuilder object
+         * @brief Adds local configuration options to a GParserBuilder object.
          *
          * @param gpb The GParserBuilder object to which configuration options should be added
          */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
 private:
+    /**
+         * @brief Starts a non-blocking MPI barrier over the base communicator.
+         *
+         * @return The MPI request handle that completes once all participating processes reach the barrier.
+         */
     MPI_Request startAsyncBarrier() const;
     /**
          * MPI communicator used for communication between the geneva GMPIConsumerMasterNodeT and GMPIConsumerWorkerNodeT.

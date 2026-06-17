@@ -82,15 +82,24 @@ public:
     using broker_ptr = std::shared_ptr<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>>;
 
     /***************************************************************************/
-    /** @brief Selects a LOCAL consumer (serial / multithreaded) to submit through. n_threads == 0 means
-     *  hardware concurrency. Ignored once an external broker has been injected via setBroker(). */
+    /**
+     * @brief Selects a LOCAL consumer (serial / multithreaded) to submit through. Ignored once an
+     * external broker has been injected via setBroker().
+     *
+     * @param kind Which local consumer to build (serial, multithreaded, or none).
+     * @param n_threads Thread-pool size for the multithreaded kind; 0 means hardware concurrency.
+     */
     void setLocalConsumer(local_consumer_kind kind, unsigned int n_threads = 0) {
         local_kind_ = kind;
         local_threads_ = n_threads;
     }
 
-    /** @brief Injects a ready broker (its consumer registered, clone function set, server started for the
-     *  networked case), e.g. from Go2. Takes precedence over setLocalConsumer(). */
+    /**
+     * @brief Injects a ready broker (its consumer registered, clone function set, server started for the
+     * networked case), e.g. from Go2. Takes precedence over setLocalConsumer().
+     *
+     * @param broker The ready-to-use courtier broker to submit through; ownership is shared and stored.
+     */
     void setBroker(broker_ptr broker) {
         broker_ = std::move(broker);
         external_broker_ = true;
@@ -111,6 +120,11 @@ public:
      * buffer, sized to @p late_return_cap) on first use. The span aliases the caller's population
      * sub-range, so results + cloned refills are written in place; @p policy is the algorithm's choice
      * (clone-on-partial-return for tolerant population OAs, full-success-or-fatal for need-all OAs).
+     *
+     * @param sp Span aliasing the caller's population sub-range of work items; results are written in place.
+     * @param policy The courtier submission policy governing partial-return handling for this OA.
+     * @param late_return_cap Capacity used to size the consumer's late-return buffer on first use.
+     * @return The executor status; the error flag is set if any returned work item reports errors.
      */
     Gem::Courtier::executor_status_t workOn(
         std::span<item_ptr> sp,
@@ -134,8 +148,13 @@ public:
         return Gem::Courtier::executor_status_t{true, has_errors};
     }
 
-    /** @brief Reaps any LATE returns the consumer buffered (results that came back after their batch was
-     *  reconciled). Empty for a local consumer; a networked consumer hands back its bounded buffer. */
+    /**
+     * @brief Reaps any LATE returns the consumer buffered (results that came back after their batch was
+     * reconciled).
+     *
+     * @return The buffered late-return work items; empty for a local consumer, the bounded buffer's
+     *         contents for a networked consumer.
+     */
     std::vector<item_ptr> getOldWorkItems() {
         if(broker_ && broker_->hasConsumer()) {
             return broker_->consumer().getLateReturns();
@@ -145,8 +164,12 @@ public:
 
 private:
     /***************************************************************************/
-    /** @brief Lazily builds the broker (with the selected local consumer) + executor on first use, and
-     *  enables the consumer's late-return buffer. A no-op once established. */
+    /**
+     * @brief Lazily builds the broker (with the selected local consumer) + executor on first use, and
+     * enables the consumer's late-return buffer. A no-op once established.
+     *
+     * @param late_return_cap Capacity used to size the consumer's late-return buffer when it is enabled.
+     */
     void ensureExecutor_(std::size_t late_return_cap) {
         if(executor_) {
             return;

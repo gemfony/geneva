@@ -53,8 +53,10 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class is a specialization of the GFactoryT<> class for simulated annealing.
- * It will only return objects which perform all evaluation through the broker.
+ * @brief A factory that builds GParameterScan optimization algorithms from a configuration file.
+ *
+ * This class is a specialization of the GOptimizationAlgorithmFactoryT<> scaffold for the parameter-scan
+ * algorithm. It will only return objects which perform all evaluation through the broker.
  */
 class GParameterScanFactory // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmFactoryT<GParameterScan, GParameterScan_PersonalityTraits> {
@@ -63,16 +65,29 @@ class GParameterScanFactory // NOLINT(cppcoreguidelines-special-member-functions
 public:
     /** @brief The default constructor */
     GParameterScanFactory() = default;
-    /** @brief Initialization with the name of the config file */
+    /**
+     * @brief Initialization with the name of the config file
+     *
+     * @param config_file Path to the JSON configuration file from which the algorithm's options are read.
+     */
     explicit GParameterScanFactory(std::filesystem::path const &config_file)
       : Base(config_file) { /* nothing */ }
-    /** @brief Initialization with the name of the config file and a content creator */
+    /**
+     * @brief Initialization with the name of the config file and a content creator
+     *
+     * @param config_file Path to the JSON configuration file from which the algorithm's options are read.
+     * @param content_creator_ptr Factory used to populate the algorithm's population with individuals.
+     */
     GParameterScanFactory(
         std::filesystem::path const &config_file,
         std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr
     )
       : Base(config_file, content_creator_ptr) { /* nothing */ }
-    /** @brief The copy constructor */
+    /**
+     * @brief The copy constructor
+     *
+     * @param The factory to be copied (default member-wise copy).
+     */
     GParameterScanFactory(const GParameterScanFactory &) = default;
     /** @brief The destructor */
     ~GParameterScanFactory() override = default;
@@ -81,21 +96,38 @@ public:
     // by the GOptimizationAlgorithmFactoryT scaffold. Parameter Scan adds a command-line parameter
     // spec (the variables to scan), so it also overrides addCLOptions()/postProcess_() below.
 
-    /** @brief Adds local command line options to boost::program_options::options_description objects */
+    /**
+     * @brief Adds local command line options to boost::program_options::options_description objects
+     *
+     * @param The options_description for visible (user-facing) command line options.
+     * @param The options_description for hidden command line options.
+     */
     void addCLOptions(
         boost::program_options::options_description &,
         boost::program_options::options_description &
     ) override;
 
-    /** @brief Allows to specify the command line parameter manually for variables to be scanned */
+    /**
+     * @brief Allows to specify the command line parameter manually for variables to be scanned
+     *
+     * @param par_str The parameter specification string describing the variables to be scanned.
+     */
     void setCLParameterSpecs(std::string par_str);
-    /** @brief Allows to retrieve the command line parameter settings for variables to be scanned */
+    /**
+     * @brief Allows to retrieve the command line parameter settings for variables to be scanned
+     *
+     * @return The current parameter specification string for the variables to be scanned.
+     */
     std::string getCLParameterSpecs() const;
     /** @brief Allows to reset the command line parameter specs */
     void resetCLParameterSpecs();
 
 protected:
-    /** @brief Allows to act on the configuration options received from the configuration file */
+    /**
+     * @brief Allows to act on the configuration options received from the configuration file
+     *
+     * @param The freshly created algorithm to be post-processed after its options have been read.
+     */
     void postProcess_(std::shared_ptr<GOptimizationAlgorithmBase> &) override;
 
 private:

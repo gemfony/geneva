@@ -64,16 +64,26 @@ class GNelderMeadFactory // NOLINT(cppcoreguidelines-special-member-functions)
 public:
     /** @brief The default constructor */
     GNelderMeadFactory() = default;
-    /** @brief Initialization with the name of the config file */
+    /**
+     * @brief Initialization with the name of the config file.
+     * @param config_file The path to the JSON configuration file driving the factory.
+     */
     explicit GNelderMeadFactory(std::filesystem::path const &config_file)
       : Base(config_file) { /* nothing */ }
-    /** @brief Initialization with the name of the config file and a content creator */
+    /**
+     * @brief Initialization with the name of the config file and a content creator.
+     * @param config_file The name/path of the JSON configuration file driving the factory.
+     * @param content_creator_ptr A factory that creates the individuals (content) the algorithm operates on.
+     */
     GNelderMeadFactory(
         const std::string &config_file,
         std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr
     )
       : Base(config_file, content_creator_ptr) { /* nothing */ }
-    /** @brief The copy constructor */
+    /**
+     * @brief The copy constructor.
+     * @param (unnamed) The GNelderMeadFactory object to be copied.
+     */
     GNelderMeadFactory(const GNelderMeadFactory &) = default;
     /** @brief The destructor */
     ~GNelderMeadFactory() override = default;

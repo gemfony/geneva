@@ -64,16 +64,30 @@ class GConjugateGradientDescentFactory // NOLINT(cppcoreguidelines-special-membe
 public:
     /** @brief The default constructor */
     GConjugateGradientDescentFactory() = default;
-    /** @brief Initialization with the name of the config file */
+    /**
+     * @brief Initialization with the name of the config file.
+     *
+     * @param config_file Path to the configuration file read by the factory
+     */
     explicit GConjugateGradientDescentFactory(std::filesystem::path const &config_file)
       : Base(config_file) { /* nothing */ }
-    /** @brief Initialization with the name of the config file and a content creator */
+    /**
+     * @brief Initialization with the name of the config file and a content creator.
+     *
+     * @param config_file Name of the configuration file read by the factory
+     * @param content_creator_ptr Shared pointer to a factory that creates the individuals
+     *        (entities) the produced algorithm will optimize
+     */
     GConjugateGradientDescentFactory(
         const std::string &config_file,
         std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr
     )
       : Base(config_file, content_creator_ptr) { /* nothing */ }
-    /** @brief The copy constructor */
+    /**
+     * @brief The copy constructor.
+     *
+     * @param GConjugateGradientDescentFactory const & The factory object to copy from
+     */
     GConjugateGradientDescentFactory(const GConjugateGradientDescentFactory &) = default;
     /** @brief The destructor */
     ~GConjugateGradientDescentFactory() override = default;

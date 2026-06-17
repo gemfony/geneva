@@ -78,18 +78,30 @@ class GLineFitIndividual // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The default constructor */
-    GLineFitIndividual(const std::vector<std::tuple<double, double>> &);
-    /** @brief The copy constructor */
-    GLineFitIndividual(const GLineFitIndividual &);
+    /**
+     * @brief The default constructor.
+     * @param data_points The (x,y) data points the fitted line is evaluated against
+     */
+    GLineFitIndividual(const std::vector<std::tuple<double, double>> & data_points);
+    /**
+     * @brief The copy constructor.
+     * @param cp A constant reference to another GLineFitIndividual object
+     */
+    GLineFitIndividual(const GLineFitIndividual & cp);
 
     /** @brief The standard destructor */
     ~GLineFitIndividual() override;
 
-    /** @brief Retrieves the tuple (a,b) of the line represented by this object */
+    /**
+     * @brief Retrieves the tuple (a,b) of the line represented by this object.
+     * @return The line's (offset a, slope b) as a tuple
+     */
     std::tuple<double, double> getLine() const;
 
-    /** @brief The OA-owned adaption config authoring this genome's two Gauss groups (offset + slope). */
+    /**
+     * @brief The OA-owned adaption config authoring this genome's two Gauss groups (offset + slope).
+     * @return A shared pointer to the populated adaption config
+     */
     std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const;
 
 protected:
@@ -101,8 +113,11 @@ protected:
         return std::make_tuple(Gem::Common::make_member("data_points_", data_points_));
     }
 
-    /** @brief Loads the data of another GLineFitIndividual */
-    void load_(const gen::GOptimizableEntity *) final;
+    /**
+     * @brief Loads the data of another GLineFitIndividual.
+     * @param cp A pointer to another GLineFitIndividual, camouflaged as a GOptimizableEntity
+     */
+    void load_(const gen::GOptimizableEntity *cp) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GLineFitIndividual>(
@@ -111,19 +126,30 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     * @param cp The other object to compare against
+     * @param e The expectation for this object, e.g. equality
+     * @param limit The limit for allowed deviations of floating point types
+     */
     void compare_(
-        const gen::GOptimizableEntity & // the other object
+        const gen::GOptimizableEntity & cp
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation & e
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double & limit
     ) const final;
 
-    /** @brief The actual fitness calculation takes place here. */
+    /**
+     * @brief The actual fitness calculation takes place here.
+     * @return The root-square deviation of the data points from the represented line
+     */
     double fitnessCalculation() final;
 
-    /** @brief Applies modifications to this object. */
+    /**
+     * @brief Applies modifications to this object.
+     * @return A boolean indicating whether any modifications were made
+     */
     bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. */
     void specificTestsNoFailureExpected_GUnitTests_() override;
@@ -131,7 +157,10 @@ protected:
     void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object.
+     * @return A deep clone of this object, camouflaged as a GFlatGenome
+     */
     gen::GFlatGenome *clone_() const final;
 
     /** @brief The default constructor -- private, as it is only needed for (de-)serialization purposes */

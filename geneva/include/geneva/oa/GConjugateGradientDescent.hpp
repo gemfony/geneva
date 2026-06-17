@@ -76,9 +76,21 @@ enum class gradientMethod : std::uint8_t {
     LBFGS = 5              ///< Limited-memory BFGS quasi-Newton (two-loop recursion over the last m (s,y) pairs)
 };
 
-/** @brief Streams a gradientMethod (as its underlying integer); required by the comparison framework. */
+/**
+ * @brief Streams a gradientMethod (as its underlying integer); required by the comparison framework.
+ *
+ * @param std::ostream & The output stream to write to
+ * @param gradientMethod The search-direction rule to serialize
+ * @return A reference to the output stream after writing
+ */
 std::ostream &operator<<(std::ostream &, gradientMethod);
-/** @brief Reads a gradientMethod from a stream. */
+/**
+ * @brief Reads a gradientMethod from a stream.
+ *
+ * @param std::istream & The input stream to read from
+ * @param gradientMethod & The search-direction rule to populate from the stream
+ * @return A reference to the input stream after reading
+ */
 std::istream &operator>>(std::istream &, gradientMethod &);
 
 /**
@@ -92,9 +104,21 @@ enum class errorEstimationMode : std::uint8_t {
     MINOS = 3     ///< MINOS asymmetric errors: profiled (re-minimised) UP-contour bounds, low dimension only
 };
 
-/** @brief Streams an errorEstimationMode (as its underlying integer); required by the comparison framework. */
+/**
+ * @brief Streams an errorEstimationMode (as its underlying integer); required by the comparison framework.
+ *
+ * @param std::ostream & The output stream to write to
+ * @param errorEstimationMode The error-estimation mode to serialize
+ * @return A reference to the output stream after writing
+ */
 std::ostream &operator<<(std::ostream &, errorEstimationMode);
-/** @brief Reads an errorEstimationMode from a stream. */
+/**
+ * @brief Reads an errorEstimationMode from a stream.
+ *
+ * @param std::istream & The input stream to read from
+ * @param errorEstimationMode & The error-estimation mode to populate from the stream
+ * @return A reference to the input stream after reading
+ */
 std::istream &operator>>(std::istream &, errorEstimationMode &);
 
 /**
@@ -140,7 +164,11 @@ private:
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    /** @brief Single declaration of this class'es local data members */
+    /**
+     * @brief Single declaration of this class'es local data members (non-const overload).
+     *
+     * @return A tuple of named members used by the comparison and serialization framework
+     */
     auto localMembers() {
         return std::make_tuple(
             Gem::Common::make_member("n_starting_points_", n_starting_points_),
@@ -154,6 +182,11 @@ private:
             Gem::Common::make_member("lbfgs_memory_", lbfgs_memory_)
         );
     }
+    /**
+     * @brief Single declaration of this class'es local data members (const overload).
+     *
+     * @return A tuple of named members used by the comparison and serialization framework
+     */
     auto localMembers() const {
         return std::make_tuple(
             Gem::Common::make_member("n_starting_points_", n_starting_points_),
@@ -183,82 +216,184 @@ private:
 public:
     /** @brief The default constructor */
     GConjugateGradientDescent();
-    /** @brief Initialization with the number of starting points and step parameters */
+    /**
+     * @brief Initialization with the number of starting points and step parameters.
+     *
+     * @param std::size_t const & The number of starting points in the parameter space
+     * @param double const & The size of the finite step of the difference quotient
+     * @param double const & The multiplier for the initial trial step along the search direction
+     */
     GConjugateGradientDescent(const std::size_t &, const double &, const double &);
-    /** @brief A standard copy constructor */
+    /**
+     * @brief A standard copy constructor.
+     *
+     * @param GConjugateGradientDescent const & The object to copy from
+     */
     GConjugateGradientDescent(const GConjugateGradientDescent &) = default;
     /** @brief The destructor */
     ~GConjugateGradientDescent() override = default;
 
-    /** @brief Retrieves the number of starting points of the algorithm */
+    /**
+     * @brief Retrieves the number of starting points of the algorithm.
+     *
+     * @return The number of starting positions in the parameter space
+     */
     std::size_t getNStartingPoints() const;
-    /** @brief Allows to set the number of starting points for the conjugate gradient descent */
+    /**
+     * @brief Allows to set the number of starting points for the conjugate gradient descent.
+     *
+     * @param std::size_t The number of starting positions in the parameter space
+     */
     void setNStartingPoints(std::size_t);
 
-    /** @brief Set the size of the finite step of the difference quotient */
+    /**
+     * @brief Set the size of the finite step of the difference quotient.
+     *
+     * @param double The difference-quotient step (per mill of the parameter range)
+     */
     void setFiniteStep(double);
-    /** @brief Retrieve the size of the finite step of the difference quotient */
+    /**
+     * @brief Retrieve the size of the finite step of the difference quotient.
+     *
+     * @return The difference-quotient step (per mill of the parameter range)
+     */
     double getFiniteStep() const;
 
-    /** @brief Sets a multiplier for the initial trial step along the search direction */
+    /**
+     * @brief Sets a multiplier for the initial trial step along the search direction.
+     *
+     * @param double The multiplicative factor for the initial trial step (the line search refines it)
+     */
     void setStepSize(double);
-    /** @brief Retrieves the current step size */
+    /**
+     * @brief Retrieves the current step size.
+     *
+     * @return The multiplicative factor for the initial trial step
+     */
     double getStepSize() const;
 
-    /** @brief Selects the search-direction rule (conjugate PR+ or plain steepest descent) */
+    /**
+     * @brief Selects the search-direction rule (conjugate PR+ or plain steepest descent).
+     *
+     * @param gradientMethod The search-direction rule to use
+     */
     void setGradientMethod(gradientMethod);
-    /** @brief Retrieves the search-direction rule currently in use */
+    /**
+     * @brief Retrieves the search-direction rule currently in use.
+     *
+     * @return The search-direction rule currently configured
+     */
     gradientMethod getGradientMethod() const;
 
-    /** @brief Enables the O(h^2) CENTRAL-difference gradient (g_j = (f(x+h)-f(x-h))/2h) instead of the
-     *  default O(h) forward difference. More accurate, but doubles the number of probe evaluations per
-     *  iteration (two perturbed children per direction instead of one). */
+    /**
+     * @brief Enables the O(h^2) CENTRAL-difference gradient (g_j = (f(x+h)-f(x-h))/2h) instead of the
+     * default O(h) forward difference. More accurate, but doubles the number of probe evaluations per
+     * iteration (two perturbed children per direction instead of one).
+     *
+     * @param bool If true, the central-difference gradient is enabled; if false, the forward difference is used
+     */
     void setCentralDifferences(bool);
-    /** @brief Whether the central-difference gradient is in use. */
+    /**
+     * @brief Whether the central-difference gradient is in use.
+     *
+     * @return true if the central-difference gradient is enabled, false otherwise
+     */
     [[nodiscard]] bool getCentralDifferences() const;
 
-    /** @brief Sets the L-BFGS history size m (the number of (s, y) curvature pairs kept per starting
-     *  point). Only used when gradientMethod::LBFGS is selected. Larger m -> a better inverse-Hessian
-     *  approximation at the cost of m*n storage and O(m*n) work per step. Clamped to >= 1. */
+    /**
+     * @brief Sets the L-BFGS history size m (the number of (s, y) curvature pairs kept per starting
+     * point). Only used when gradientMethod::LBFGS is selected. Larger m -> a better inverse-Hessian
+     * approximation at the cost of m*n storage and O(m*n) work per step. Clamped to >= 1.
+     *
+     * @param std::size_t The L-BFGS history size m (number of (s, y) pairs to keep)
+     */
     void setLBFGSMemory(std::size_t);
-    /** @brief Retrieves the L-BFGS history size m. */
+    /**
+     * @brief Retrieves the L-BFGS history size m.
+     *
+     * @return The L-BFGS history size m (number of (s, y) pairs kept)
+     */
     [[nodiscard]] std::size_t getLBFGSMemory() const;
 
-    /** @brief Selects whether/how a MINUIT-style parameter-error estimate is computed at convergence */
+    /**
+     * @brief Selects whether/how a MINUIT-style parameter-error estimate is computed at convergence.
+     *
+     * @param errorEstimationMode The error-estimation mode to use
+     */
     void setErrorEstimation(errorEstimationMode);
-    /** @brief Retrieves the error-estimation mode currently in use */
+    /**
+     * @brief Retrieves the error-estimation mode currently in use.
+     *
+     * @return The error-estimation mode currently configured
+     */
     errorEstimationMode getErrorEstimation() const;
-    /** @brief Sets the error definition UP (1 for chi^2-like, 0.5 for -logL); see MINUIT */
+    /**
+     * @brief Sets the error definition UP (1 for chi^2-like, 0.5 for -logL); see MINUIT.
+     *
+     * @param double The MINUIT error definition UP value
+     */
     void setErrorDefinition(double);
-    /** @brief Retrieves the error definition UP */
+    /**
+     * @brief Retrieves the error definition UP.
+     *
+     * @return The MINUIT error definition UP value
+     */
     double getErrorDefinition() const;
-    /** @brief Retrieves the most recent convergence error estimate (valid only if one was requested) */
+    /**
+     * @brief Retrieves the most recent convergence error estimate (valid only if one was requested).
+     *
+     * @return The most recent error estimate result
+     */
     GHesseErrorResult getLastErrorEstimate() const;
 
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
-    /** @brief Need-all algorithm: a missing or failed evaluation cannot be tolerated, so it submits
-     *  through courtier under full-success-or-fatal (matches the legacy throw-on-error). */
+    /**
+     * @brief Need-all algorithm: a missing or failed evaluation cannot be tolerated, so it submits
+     * through courtier under full-success-or-fatal (matches the legacy throw-on-error).
+     *
+     * @return The full-success-or-fatal submission policy
+     */
     Gem::Courtier::GSubmissionPolicy getSubmissionPolicy_() const override {
         return Gem::Courtier::GSubmissionPolicy::full_success_or_fatal();
     }
 
-    /** @brief Adds local configuration options to a GParserBuilder object */
+    /**
+     * @brief Adds local configuration options to a GParserBuilder object.
+     *
+     * @param gpb The parser builder to which this algorithm's configuration options are added
+     */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
-    /** @brief Loads the data of another population */
+    /**
+     * @brief Loads the data of another population into this one.
+     *
+     * @param GOptimizationAlgorithmBase const * Pointer to the algorithm whose data is copied (must be a GConjugateGradientDescent)
+     */
     void load_(const GOptimizationAlgorithmBase *) override;
 
-    /** @brief Allow access to this classes compare_ function */
+    /**
+     * @brief Allow access to this classes compare_ function.
+     *
+     * @param GConjugateGradientDescent const & The first object to compare
+     * @param GConjugateGradientDescent const & The second object to compare
+     * @param Gem::Common::GToken & The token accumulating the comparison result
+     */
     friend void Gem::Common::compare_base_t<GConjugateGradientDescent>(
         GConjugateGradientDescent const &,
         GConjugateGradientDescent const &,
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     *
+     * @param GOptimizationAlgorithmBase const & The other object to compare against
+     * @param Gem::Common::expectation const & The expectation for this object, e.g. equality
+     * @param double const & The limit for allowed deviations of floating point types
+     */
     void compare_(
         const GOptimizationAlgorithmBase & // the other object
         ,
@@ -290,15 +425,27 @@ private:
     /***************************************************************************/
     // Virtual or overridden private functions
 
-    /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
+    /**
+     * @brief The actual business logic to be performed during each iteration.
+     *
+     * @return A tuple holding the best achieved fitness (raw and transformed)
+     */
     std::tuple<double, double> cycleLogic_() override;
     /** @brief Triggers fitness calculation of a number of individuals */
     void runFitnessCalculation_() override;
 
-    /** @brief Retrieves the number of processable items for the current iteration */
+    /**
+     * @brief Retrieves the number of processable items for the current iteration.
+     *
+     * @return The number of work items to be processed this iteration
+     */
     std::size_t getNProcessableItems_() const override;
 
-    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
+    /**
+     * @brief Retrieve a GPersonalityTraits object belonging to this algorithm.
+     *
+     * @return A shared pointer to a newly created personality-traits object for this algorithm
+     */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
     /** @brief Resizes the population to the desired level and does some error checks */
     void adjustPopulation_() override;
@@ -312,9 +459,15 @@ private:
     void updateDerivedQuantities();
     /** @brief (Re-)initialises the per-starting-point conjugate-gradient state */
     void resetCGState();
-    /** @brief Evaluates a batch of trial parameter vectors (line-search probes) as clones of the
-     *  given starting point, submitted through the same consumer the algorithm uses, and returns one
-     *  min-only fitness per probe. */
+    /**
+     * @brief Evaluates a batch of trial parameter vectors (line-search probes) as clones of the
+     * given starting point, submitted through the same consumer the algorithm uses, and returns one
+     * min-only fitness per probe.
+     *
+     * @param starting_point Index of the starting point whose central individual is cloned for each probe
+     * @param points The trial parameter vectors to evaluate (one inner vector per probe)
+     * @return One min-only fitness value per probe, in the same order as @p points
+     */
     std::vector<double> evaluateProbes(
         std::size_t starting_point,
         std::vector<std::vector<double>> const &points

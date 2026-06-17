@@ -107,6 +107,8 @@ namespace Gem::Geneva::Genome {
  *   GFlatIndividualFactory<MyIndividual> f("config/MyIndividual.json");
  *   auto ind = f.get_as<MyIndividual>();
  * @endcode
+ *
+ * @tparam Derived The concrete flat individual type, supplying the Config / describeConfig / buildGenome hooks
  */
 template <class Derived>
 class GFlatIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
@@ -114,6 +116,13 @@ class GFlatIndividualFactory // NOLINT(cppcoreguidelines-special-member-function
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /**
+     * @brief Serialises only the factory base; Config and the genome cache are transient.
+     *
+     * @tparam Archive The Boost.Serialization archive type
+     * @param ar The archive to read from / write to
+     * @param unsigned The (unused) serialization version number
+     */
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
         // Only the base is serialised. The Config is transient -- re-read from the (still known)
@@ -141,6 +150,8 @@ public:
     /**
      * The copy constructor. The built-genome cache and its guard are deliberately *not* copied: a
      * copied factory rebuilds its own shared genome lazily (the mutex is also non-copyable).
+     *
+     * @param cp The factory to copy from (base state and parsed Config are copied)
      */
     GFlatIndividualFactory(const GFlatIndividualFactory<Derived> &cp)
       : GOptimizableEntityFactory(cp)
@@ -169,6 +180,8 @@ public:
     /***************************************************************************/
     /**
      * Creates a deep clone of this object
+     *
+     * @return A shared pointer to a deep copy of this factory
      */
     std::shared_ptr<Gem::Common::GFactoryT<GOptimizableEntity>> clone() const override {
         return std::make_shared<GFlatIndividualFactory<Derived>>(*this);
@@ -182,6 +195,9 @@ public:
      * provides one, and otherwise returns a null pointer (the individual has no default adaption config,
      * e.g. a derivative-free or test individual). The configuration must have been parsed first (call
      * after a get_()/get() so config_ is populated).
+     *
+     * @param sample A sample genome produced by this factory, passed to the buildAdaptionConfig hook
+     * @return The OA-owned adaption configuration, or a null pointer if the individual provides no hook
      */
     std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
     getAdaptionConfig(const GFlatGenome &sample) const {
@@ -200,6 +216,8 @@ protected:
     /**
      * Describes the local configuration options -- delegated to the Derived static hook, which binds
      * the options to this factory's Config instance.
+     *
+     * @param gpb The parser builder the config-file options are registered on
      */
     void describeLocalOptions_(Gem::Common::GParserBuilder &gpb) override {
         Derived::describeConfig(gpb, config_);
@@ -210,6 +228,8 @@ protected:
      * Acts on the parsed configuration: builds the shared genome (value arrays + shared immutable
      * layout) exactly once, then installs it on the freshly produced individual (a cheap value-array
      * copy plus a bind to the shared layout handle).
+     *
+     * @param p The freshly produced individual to install the shared genome on (must be a GFlatGenome)
      */
     void postProcess_(std::shared_ptr<GOptimizableEntity> &p) override {
         {
@@ -250,6 +270,9 @@ private:
      * Bound to this freshly produced object, those options are applied to it when GFactoryT parses (or
      * re-applies the cached) configuration. Derived-specific options are registered separately by
      * describeConfig(); the genome itself is installed in postProcess_ once the config has been parsed.
+     *
+     * @param gpb The parser builder the individual's base configuration options are registered on
+     * @return A shared pointer to the freshly produced (empty-genome) individual
      */
     std::shared_ptr<GOptimizableEntity> getObject_(Gem::Common::GParserBuilder &gpb) override {
         auto p = std::make_shared<Derived>();

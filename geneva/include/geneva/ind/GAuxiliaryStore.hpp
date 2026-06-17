@@ -84,6 +84,10 @@ struct AuxBlock {
      * stable within a single process, so a checkpoint written by one run would never match the reader's
      * tag. It therefore stays at its default 0 on load, which metaRecords()'s debug check treats as
      * "type-unchecked" (the stride / size check, which IS stable, still applies).
+     *
+     * @tparam Archive The Boost.Serialization archive type
+     * @param ar The archive to serialize to / from
+     * @param (unnamed) The serialization version (unused)
      */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -108,7 +112,12 @@ struct AuxBlock {
 };
 
 /******************************************************************************/
-/** @brief A cheap, stable-per-process type tag used to sanity-check typed POD access (debug only) */
+/**
+ * @brief A cheap, stable-per-process type tag used to sanity-check typed POD access (debug only)
+ *
+ * @tparam POD The POD type whose type tag is requested
+ * @return A per-process-stable hash of the POD type's typeid
+ */
 template <typename POD>
 inline std::uint32_t auxTypeTag() {
     return static_cast<std::uint32_t>(typeid(POD).hash_code());
@@ -120,9 +129,9 @@ inline std::uint32_t auxTypeTag() {
 /**
  * The unified, per-individual home for optimization-algorithm-owned auxiliary data.
  *
- * It is genome-layout-agnostic: the tree individual (GTreeGenome) and the future flat individual
- * both hold exactly one, so the place where an optimization algorithm stashes its per-individual
- * data is the same regardless of how the genome is stored.
+ * It is genome-layout-agnostic: the flat individual (GFlatGenome) holds exactly one, so the place
+ * where an optimization algorithm stashes its per-individual data is the same regardless of how the
+ * genome is stored.
  *
  * It has two channels:
  *  - an OBJECT slot: the personality traits (the one per-individual OA *object*; deep-cloned).
@@ -152,7 +161,11 @@ public:
     /** @brief The default constructor */
     GAuxiliaryStore() = default;
 
-    /** @brief The copy constructor deep-clones the personality and copies the POD blocks */
+    /**
+     * @brief The copy constructor deep-clones the personality and copies the POD blocks
+     *
+     * @param cp A constant reference to another GAuxiliaryStore object to be copied
+     */
     GAuxiliaryStore(const GAuxiliaryStore &cp)
       : pods_(cp.pods_) {
         Gem::Common::copyCloneableSmartPointer(cp.personality_, personality_);
@@ -164,7 +177,12 @@ public:
     /** @brief The destructor */
     ~GAuxiliaryStore() = default;
 
-    /** @brief Copy assignment deep-clones the personality and copies the POD blocks */
+    /**
+     * @brief Copy assignment deep-clones the personality and copies the POD blocks
+     *
+     * @param cp A constant reference to another GAuxiliaryStore object to be copied
+     * @return A reference to this object
+     */
     GAuxiliaryStore &operator=(const GAuxiliaryStore &cp) {
         if(this != &cp) {
             Gem::Common::copyCloneableSmartPointer(cp.personality_, personality_);
@@ -173,20 +191,31 @@ public:
         return *this;
     }
 
-    /** @brief Move assignment */
+    /**
+     * @brief Move assignment
+     *
+     * @return A reference to this object
+     */
     GAuxiliaryStore &operator=(GAuxiliaryStore &&) = default;
 
     /***************************************************************************/
     // Personality (the per-individual OA object; part of the genome's serialized/compared identity).
 
     /**
-     * Direct access to the personality-traits slot. Returned by reference so the individual's
-     * serialization / load / compare machinery (make_cloneable_member) can drive it exactly as it
-     * drove the former bare pt_ptr_ member.
+     * @brief Direct (mutable) access to the personality-traits slot. Returned by reference so the
+     * individual's serialization / load / compare machinery (make_cloneable_member) can drive it
+     * exactly as it drove the former bare pt_ptr_ member.
+     *
+     * @return A mutable reference to the personality-traits shared pointer slot
      */
     std::shared_ptr<Gem::Geneva::GPersonalityTraits> &personalityRef() {
         return personality_;
     }
+    /**
+     * @brief Direct (const) access to the personality-traits slot
+     *
+     * @return A const reference to the personality-traits shared pointer slot
+     */
     const std::shared_ptr<Gem::Geneva::GPersonalityTraits> &personalityRef() const {
         return personality_;
     }
@@ -194,14 +223,24 @@ public:
     /***************************************************************************/
     // POD blocks (per-parameter / per-group OA metadata; transient run-scoped scratch).
 
-    /** @brief Whether a POD block is installed under the given key */
+    /**
+     * @brief Whether a POD block is installed under the given key
+     *
+     * @param key The key identifying the auxiliary POD block
+     * @return true if a block is installed under the key, false otherwise
+     */
     bool hasAux(AuxKey key) const {
         return pods_.find(key) != pods_.end();
     }
 
     /**
-     * Installs (or replaces) a zero-initialised POD block of record_count records of type POD under
-     * the given key. The OA calls this at setup to size its per-group metadata.
+     * @brief Installs (or replaces) a zero-initialised POD block of record_count records of type POD
+     * under the given key. The OA calls this at setup to size its per-group metadata.
+     *
+     * @tparam POD The standard-layout, trivially-copyable record type held by the block
+     * @param key The key under which the block is installed (overwriting any existing block)
+     * @param record_count The number of records to allocate (each sizeof(POD) bytes)
+     * @param scope Whether the block holds one record per genome group or one per individual
      */
     template <typename POD>
     void installAuxBlock(AuxKey key, std::size_t record_count, AuxScope scope = AuxScope::PerGroup) {
@@ -217,13 +256,25 @@ public:
         pods_[key] = std::move(b);
     }
 
-    /** @brief A typed, mutable view over the records of the POD block under key */
+    /**
+     * @brief A typed, mutable view over the records of the POD block under key
+     *
+     * @tparam POD The record type the block holds
+     * @param key The key identifying the auxiliary POD block
+     * @return A mutable span over the block's records
+     */
     template <typename POD>
     std::span<POD> metaRecords(AuxKey key) {
         AuxBlock &b = fetch(key, sizeof(POD), auxTypeTag<POD>());
         return std::span<POD>(reinterpret_cast<POD *>(b.bytes.data()), b.bytes.size() / sizeof(POD));
     }
-    /** @brief A typed, read-only view over the records of the POD block under key */
+    /**
+     * @brief A typed, read-only view over the records of the POD block under key
+     *
+     * @tparam POD The record type the block holds
+     * @param key The key identifying the auxiliary POD block
+     * @return A read-only span over the block's records
+     */
     template <typename POD>
     std::span<const POD> metaRecords(AuxKey key) const {
         const AuxBlock &b = fetch(key, sizeof(POD), auxTypeTag<POD>());
@@ -233,17 +284,34 @@ public:
         );
     }
 
-    /** @brief Typed access to a per-individual (single-record) POD block */
+    /**
+     * @brief Typed (mutable) access to a per-individual (single-record) POD block
+     *
+     * @tparam POD The record type the block holds
+     * @param key The key identifying the single-record auxiliary POD block
+     * @return A mutable reference to the block's single record
+     */
     template <typename POD>
     POD &metaScalar(AuxKey key) {
         return metaRecords<POD>(key)[0];
     }
+    /**
+     * @brief Typed (read-only) access to a per-individual (single-record) POD block
+     *
+     * @tparam POD The record type the block holds
+     * @param key The key identifying the single-record auxiliary POD block
+     * @return A const reference to the block's single record
+     */
     template <typename POD>
     const POD &metaScalar(AuxKey key) const {
         return metaRecords<POD>(key)[0];
     }
 
-    /** @brief Copies just the POD blocks from another store (the personality is loaded separately, via localMembers) */
+    /**
+     * @brief Copies just the POD blocks from another store (the personality is loaded separately, via localMembers)
+     *
+     * @param src The store whose POD blocks are copied into this one
+     */
     void copyPodsFrom(const GAuxiliaryStore &src) {
         pods_ = src.pods_;
     }
@@ -267,6 +335,13 @@ private:
     // velocity / personal-best, conjugate-gradient memory, personality) instead of restarting it.
     friend class boost::serialization::access;
 
+    /**
+     * @brief Full-state (de)serialization of the personality object and the opaque POD blocks
+     *
+     * @tparam Archive The Boost.Serialization archive type
+     * @param ar The archive to serialize to / from
+     * @param (unnamed) The serialization version (unused)
+     */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         ar &boost::serialization::make_nvp("personality_", personality_);
@@ -274,7 +349,14 @@ private:
     }
 
     /***************************************************************************/
-    /** @brief Looks up a POD block, sanity-checking its stride and type tag in DEBUG mode */
+    /**
+     * @brief Looks up a POD block (mutable), sanity-checking its stride and type tag in DEBUG mode
+     *
+     * @param key The key identifying the auxiliary POD block
+     * @param pod_size The expected record stride (sizeof of the caller's POD type)
+     * @param pod_tag The expected type tag of the caller's POD type
+     * @return A mutable reference to the matching auxiliary block
+     */
     AuxBlock &fetch(AuxKey key, std::size_t pod_size, std::uint32_t pod_tag) {
         auto it = pods_.find(key);
 #ifdef DEBUG
@@ -282,6 +364,14 @@ private:
 #endif
         return it->second;
     }
+    /**
+     * @brief Looks up a POD block (read-only), sanity-checking its stride and type tag in DEBUG mode
+     *
+     * @param key The key identifying the auxiliary POD block
+     * @param pod_size The expected record stride (sizeof of the caller's POD type)
+     * @param pod_tag The expected type tag of the caller's POD type
+     * @return A const reference to the matching auxiliary block
+     */
     const AuxBlock &fetch(AuxKey key, std::size_t pod_size, std::uint32_t pod_tag) const {
         auto it = pods_.find(key);
 #ifdef DEBUG
@@ -290,6 +380,16 @@ private:
         return it->second;
     }
 #ifdef DEBUG
+    /**
+     * @brief Throws if a fetched POD block is absent or its stride / type tag disagrees with the caller's POD type
+     *
+     * @tparam It The map iterator type pointing at the looked-up block
+     * @param found Whether the lookup found a block under the key
+     * @param key The key that was looked up (for the error message)
+     * @param pod_size The expected record stride (sizeof of the caller's POD type)
+     * @param pod_tag The expected type tag of the caller's POD type (0 on a deserialised block is treated as type-unchecked)
+     * @param it An iterator to the looked-up block (valid only when found is true)
+     */
     template <typename It>
     void verify(bool found, AuxKey key, std::size_t pod_size, std::uint32_t pod_tag, It it) const {
         if(not found) {

@@ -71,19 +71,36 @@ class GOptimizableEntityConstraint // NOLINT(cppcoreguidelines-special-member-fu
 public:
     /** @brief The default constructor */
     GOptimizableEntityConstraint() = default;
-    /** @brief The copy constructor */
-    GOptimizableEntityConstraint(const GOptimizableEntityConstraint &) = default;
+    /**
+     * @brief The copy constructor
+     *
+     * @param cp A constant reference to another GOptimizableEntityConstraint object to be copied
+     */
+    GOptimizableEntityConstraint(const GOptimizableEntityConstraint & cp) = default;
     /** @brief The destructor */
     ~GOptimizableEntityConstraint() override = default;
 
 protected:
-    /** @brief Checks whether a given individual is valid */
-    double check_(const GOptimizableEntity *) const override = 0;
+    /**
+     * @brief Checks whether a given individual is valid
+     *
+     * @param individual A pointer to the GOptimizableEntity to be checked for constraint compliance
+     * @return A measure of the constraint violation (pure virtual; defined by derived classes)
+     */
+    double check_(const GOptimizableEntity * individual) const override = 0;
 
-    /** @brief Adds local configuration options to a GParserBuilder object */
-    void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
-    /** @brief Loads the data of another GOptimizableEntityConstraint */
-    void load_(const GPreEvaluationValidityCheckT<GOptimizableEntity> *) override;
+    /**
+     * @brief Adds local configuration options to a GParserBuilder object
+     *
+     * @param gpb A reference to the GParserBuilder to which this object's configuration options are added
+     */
+    void addConfigurationOptions_(Gem::Common::GParserBuilder & gpb) override;
+    /**
+     * @brief Loads the data of another GOptimizableEntityConstraint
+     *
+     * @param cp A pointer to another GPreEvaluationValidityCheckT (expected to be a GOptimizableEntityConstraint) whose data is to be loaded
+     */
+    void load_(const GPreEvaluationValidityCheckT<GOptimizableEntity> * cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GOptimizableEntityConstraint>(
@@ -92,17 +109,27 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type
+     *
+     * @param cp A constant reference to another GPreEvaluationValidityCheckT object (the object to be compared against)
+     * @param e The expectation for this comparison, e.g. equality or inequality
+     * @param limit The maximum allowed deviation of floating point types still considered equal
+     */
     void compare_(
-        const GPreEvaluationValidityCheckT<GOptimizableEntity> & // the other object
+        const GPreEvaluationValidityCheckT<GOptimizableEntity> & cp // the other object
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation & e // the expectation for this object, e.g. equality
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double & limit // the limit for allowed deviations of floating point types
     ) const override;
 
 private:
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object
+     *
+     * @return A deep clone of this object (pure virtual; defined by derived classes)
+     */
     GPreEvaluationValidityCheckT<GOptimizableEntity> *clone_() const override = 0;
 };
 

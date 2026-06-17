@@ -107,7 +107,7 @@ enum class activityMode : Gem::Common::ENUMBASETYPE {
 
 /******************************************************************************/
 /**
- * The number of calls to the GTreeGenome::customAdaption() function
+ * The number of calls to the genome's adaption function
  * without actual modifications
  */
 constexpr std::size_t DEFMAXUNSUCCESSFULADAPTIONS = 1000;
@@ -185,7 +185,7 @@ constexpr std::size_t DEFAULTEANPARENTS = 2;
 constexpr double DEFAULTAMALGAMATIONLIKELIHOOD = 0.;
 
 /**
- * The default likelihood for two items of a GTreeGenome to be exchanged
+ * The default likelihood for two items of a flat genome to be exchanged
  */
 constexpr double DEFAULTPERITEMEXCHANGELIKELIHOOD = 0.5;
 
@@ -580,77 +580,197 @@ const updateRule DEFAULTUPDATERULE =
 
 /******************************************************************************/
 
-/** @brief Puts a Gem::Geneva::maxMode into a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Puts a Gem::Geneva::maxMode into a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the output stream to write to; the second is the maxMode value to emit.
+ * @return A reference to the same output stream, to allow chaining
+ */
 std::ostream &operator<<(std::ostream &, const Gem::Geneva::maxMode &);
 
-/** @brief Reads a Gem::Geneva::maxMode from a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Reads a Gem::Geneva::maxMode from a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the input stream to read from; the second receives the parsed maxMode value.
+ * @return A reference to the same input stream, to allow chaining
+ */
 std::istream &operator>>(std::istream &, Gem::Geneva::maxMode &);
 
-/** @brief Puts a Gem::Geneva::activityMode into a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Puts a Gem::Geneva::activityMode into a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the output stream to write to; the second is the activityMode value to emit.
+ * @return A reference to the same output stream, to allow chaining
+ */
 std::ostream &operator<<(std::ostream &, const Gem::Geneva::activityMode &);
 
-/** @brief Reads a Gem::Geneva::activityMode item from a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Reads a Gem::Geneva::activityMode item from a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the input stream to read from; the second receives the parsed activityMode value.
+ * @return A reference to the same input stream, to allow chaining
+ */
 std::istream &operator>>(std::istream &, Gem::Geneva::activityMode &);
 
-/** @brief Puts a Gem::Geneva::evaluationPolicy into a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Puts a Gem::Geneva::evaluationPolicy into a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the output stream to write to; the second is the evaluationPolicy value to emit.
+ * @return A reference to the same output stream, to allow chaining
+ */
 std::ostream &operator<<(std::ostream &, const Gem::Geneva::evaluationPolicy &);
 
-/** @brief Reads a Gem::Geneva::evaluationPolicy item from a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Reads a Gem::Geneva::evaluationPolicy item from a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the input stream to read from; the second receives the parsed evaluationPolicy value.
+ * @return A reference to the same input stream, to allow chaining
+ */
 std::istream &operator>>(std::istream &, Gem::Geneva::evaluationPolicy &);
 
-/** @brief Puts a Gem::Geneva::validityCheckCombinerPolicy into a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Puts a Gem::Geneva::validityCheckCombinerPolicy into a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the output stream to write to; the second is the validityCheckCombinerPolicy value to emit.
+ * @return A reference to the same output stream, to allow chaining
+ */
 std::ostream &
 operator<<(std::ostream &, const Gem::Geneva::validityCheckCombinerPolicy &);
 
-/** @brief Reads a Gem::Geneva::validityCheckCombinerPolicy item from a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Reads a Gem::Geneva::validityCheckCombinerPolicy item from a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the input stream to read from; the second receives the parsed validityCheckCombinerPolicy value.
+ * @return A reference to the same input stream, to allow chaining
+ */
 std::istream &operator>>(std::istream &, Gem::Geneva::validityCheckCombinerPolicy &);
 
-/** @brief Puts a Gem::Geneva::execMode into a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Puts a Gem::Geneva::execMode into a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the output stream to write to; the second is the execMode value to emit.
+ * @return A reference to the same output stream, to allow chaining
+ */
 std::ostream &operator<<(std::ostream &, const Gem::Geneva::execMode &);
 
-/** @brief Reads a Gem::Geneva::execMode item from a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Reads a Gem::Geneva::execMode item from a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the input stream to read from; the second receives the parsed execMode value.
+ * @return A reference to the same input stream, to allow chaining
+ */
 std::istream &operator>>(std::istream &, Gem::Geneva::execMode &);
 
-/** @brief Puts a Gem::Geneva::duplicationScheme into a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Puts a Gem::Geneva::duplicationScheme into a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the output stream to write to; the second is the duplicationScheme value to emit.
+ * @return A reference to the same output stream, to allow chaining
+ */
 std::ostream &operator<<(std::ostream &, const Gem::Geneva::duplicationScheme &);
 
-/** @brief Reads a Gem::Geneva::duplicationScheme item from a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Reads a Gem::Geneva::duplicationScheme item from a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the input stream to read from; the second receives the parsed duplicationScheme value.
+ * @return A reference to the same input stream, to allow chaining
+ */
 std::istream &operator>>(std::istream &, Gem::Geneva::duplicationScheme &);
 
-/** @brief Puts a Gem::Geneva::infoMode into a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Puts a Gem::Geneva::infoMode into a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the output stream to write to; the second is the infoMode value to emit.
+ * @return A reference to the same output stream, to allow chaining
+ */
 std::ostream &operator<<(std::ostream &, const Gem::Geneva::infoMode &);
 
-/** @brief Reads a Gem::Geneva::infoMode item from a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Reads a Gem::Geneva::infoMode item from a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the input stream to read from; the second receives the parsed infoMode value.
+ * @return A reference to the same input stream, to allow chaining
+ */
 std::istream &operator>>(std::istream &, Gem::Geneva::infoMode &);
 
-/** @brief Puts a Gem::Geneva::adaptorId into a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Puts a Gem::Geneva::adaptorId into a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the output stream to write to; the second is the adaptorId value to emit.
+ * @return A reference to the same output stream, to allow chaining
+ */
 std::ostream &operator<<(std::ostream &, const Gem::Geneva::adaptorId &);
 
-/** @brief Reads a Gem::Geneva::adaptorId item from a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Reads a Gem::Geneva::adaptorId item from a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the input stream to read from; the second receives the parsed adaptorId value.
+ * @return A reference to the same input stream, to allow chaining
+ */
 std::istream &operator>>(std::istream &, Gem::Geneva::adaptorId &);
 
-/** @brief Puts a Gem::Geneva::sortingMode into a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Puts a Gem::Geneva::sortingMode into a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the output stream to write to; the second is the sortingMode value to emit.
+ * @return A reference to the same output stream, to allow chaining
+ */
 std::ostream &operator<<(std::ostream &, const Gem::Geneva::sortingMode &);
 
-/** @brief Reads a Gem::Geneva::sortingMode from a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Reads a Gem::Geneva::sortingMode from a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the input stream to read from; the second receives the parsed sortingMode value.
+ * @return A reference to the same input stream, to allow chaining
+ */
 std::istream &operator>>(std::istream &, Gem::Geneva::sortingMode &);
 
-/** @brief Puts a Gem::Geneva::sortingModeMP into a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Puts a Gem::Geneva::sortingModeMP into a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the output stream to write to; the second is the sortingModeMP value to emit.
+ * @return A reference to the same output stream, to allow chaining
+ */
 std::ostream &operator<<(std::ostream &, const Gem::Geneva::sortingModeMP &);
 
-/** @brief Reads a Gem::Geneva::sortingModeMP from a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Reads a Gem::Geneva::sortingModeMP from a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the input stream to read from; the second receives the parsed sortingModeMP value.
+ * @return A reference to the same input stream, to allow chaining
+ */
 std::istream &operator>>(std::istream &, Gem::Geneva::sortingModeMP &);
 
-/** @brief Puts a Gem::Geneva::updateRule into a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Puts a Gem::Geneva::updateRule into a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the output stream to write to; the second is the updateRule value to emit.
+ * @return A reference to the same output stream, to allow chaining
+ */
 std::ostream &operator<<(std::ostream &, const Gem::Geneva::updateRule &);
 
-/** @brief Reads a Gem::Geneva::updateRule from a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Reads a Gem::Geneva::updateRule from a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the input stream to read from; the second receives the parsed updateRule value.
+ * @return A reference to the same input stream, to allow chaining
+ */
 std::istream &operator>>(std::istream &, Gem::Geneva::updateRule &);
 
-/** @brief Puts a Gem::Geneva::adaptionMode into a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Puts a Gem::Geneva::adaptionMode into a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the output stream to write to; the second is the adaptionMode value to emit.
+ * @return A reference to the same output stream, to allow chaining
+ */
 std::ostream &operator<<(std::ostream &, const Gem::Geneva::adaptionMode &);
 
-/** @brief Reads a Gem::Geneva::adaptionMode from a stream. Needed also for boost::lexical_cast<> */
+/**
+ * @brief Reads a Gem::Geneva::adaptionMode from a stream. Needed also for boost::lexical_cast<>
+ *
+ * The first (unnamed) argument is the input stream to read from; the second receives the parsed adaptionMode value.
+ * @return A reference to the same input stream, to allow chaining
+ */
 std::istream &operator>>(std::istream &, Gem::Geneva::adaptionMode &);
 
 /******************************************************************************/

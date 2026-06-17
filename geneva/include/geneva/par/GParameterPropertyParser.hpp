@@ -62,6 +62,8 @@ using NAMEANDIDTYPE = std::tuple<std::size_t, std::string, std::size_t>;
  * it may only signify the latter. Note that we have given this class the standard
  * Gemfony interface, so that we may serialize it more easily as part of some
  * other classes.
+ *
+ * @tparam par_type The parameter type described by this spec (e.g. float, double, std::int32_t or bool)
  */
 template <typename par_type>
 class parPropSpec // NOLINT(cppcoreguidelines-special-member-functions)
@@ -82,26 +84,30 @@ class parPropSpec // NOLINT(cppcoreguidelines-special-member-functions)
 public:
     /***************************************************************************/
     /**
-	  * The (trivial) default constructor. Class members are initialized in the
+	  * @brief The (trivial) default constructor. Class members are initialized in the
 	  * class body.
 	  */
     parPropSpec() = default;
 
     /***************************************************************************/
     /**
-	  * The copy constructor
+	  * @brief The copy constructor
+	  *
+	  * @param cp Another parPropSpec object whose contents are copied into this one
 	  */
     parPropSpec(const parPropSpec<par_type> &cp) = default;
 
     /***************************************************************************/
     /**
-	  * The standard destructor
+	  * @brief The standard destructor
 	  * */
     ~parPropSpec() override = default;
 
     /***************************************************************************/
     /**
-	  * Swap with another parPropSpec
+	  * @brief Swaps the contents of this object with another parPropSpec
+	  *
+	  * @param b The other parPropSpec whose data members are exchanged with this object's
 	  */
     void swap(parPropSpec<par_type> &b) noexcept {
         NAMEANDIDTYPE var_c = b.var;
@@ -133,8 +139,10 @@ public:
 protected:
     /************************************************************************/
     /**
-     * The single declaration of this class'es local data members. load_() and
+     * @brief The single declaration of this class'es local data members. load_() and
      * compare_() are derived from it, so the member list lives in one place.
+     *
+     * @return A tuple of named members (mutable references) bundling var, lowerBoundary, upperBoundary and nSteps
      */
     auto localMembers() {
         return std::make_tuple(
@@ -144,6 +152,11 @@ protected:
             Gem::Common::make_member("nSteps", nSteps)
         );
     }
+    /**
+     * @brief The const overload of the local data member declaration (see above).
+     *
+     * @return A tuple of named members (const references) bundling var, lowerBoundary, upperBoundary and nSteps
+     */
     auto localMembers() const {
         return std::make_tuple(
             Gem::Common::make_member("var", var),
@@ -155,9 +168,9 @@ protected:
 
     /************************************************************************/
     /**
-	  * Loads the data of another object
+	  * @brief Loads the data of another object into this one
 	  *
-	  * cp A pointer to another parPropSpec<T> object
+	  * @param cp A pointer to another parPropSpec<par_type> object whose data is copied into this one
 	  */
     void load_(const parPropSpec<par_type> *cp) override {
         // Check that we are dealing with a parPropSpec<T> reference independent of this object and convert the pointer
@@ -179,12 +192,13 @@ protected:
 
     /***************************************************************************/
     /**
-     * Checks for compliance with expectations with respect to another object
-     * of type T. This purely virtual function ensures the well-formedness of the
+     * @brief Checks for compliance with expectations with respect to another object
+     * of the same type. This function ensures the well-formedness of the
      * compare hierarchy in derived classes.
      *
-     * @param cp A constant reference to another object of the same type, camouflaged as a base object
-     * @param e The expected outcome of the comparison
+     * @param cp A constant reference to another parPropSpec object to compare against
+     * @param e The expected outcome of the comparison (e.g. equality or inequality)
+     * @param limit The maximum allowed deviation for floating point comparisons (unused here)
      */
     void compare_(
         const parPropSpec<par_type> &cp // the other object
@@ -195,7 +209,7 @@ protected:
     ) const override {
         using namespace Gem::Common;
 
-        // Check that we are dealing with a GPlotDesigner reference independent of this object and convert the pointer
+        // Check that we are dealing with a parPropSpec reference independent of this object and convert the pointer
         const parPropSpec<par_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
         Gem::Common::GToken token("parPropSpec<T>", e);
@@ -226,7 +240,9 @@ protected:
 private:
     /***************************************************************************/
     /**
-	  * Emits a name for this class / object
+	  * @brief Emits a name for this class / object
+	  *
+	  * @return The string identifier of this class ("parPropSpec<T>")
 	  */
     std::string name_() const override {
         return std::string{"parPropSpec<T>"};
@@ -234,7 +250,9 @@ private:
 
     /************************************************************************/
     /**
-	  * Creates a deep clone of this object
+	  * @brief Creates a deep clone of this object
+	  *
+	  * @return A pointer to a newly allocated, independent copy of this object (caller takes ownership)
 	  */
     parPropSpec<par_type> *clone_() const override {
         return new parPropSpec<par_type>(*this);
@@ -243,7 +261,7 @@ private:
 
 /******************************************************************************/
 /**
- * This struct holds all information relating to "simple" parameter scans, i.e.
+ * @brief This struct holds all information relating to "simple" parameter scans, i.e.
  * parameter scans, where all variables are varied randomly. Currently the only
  * data component is the number of items to be scanned.
  */
@@ -253,11 +271,12 @@ struct simpleScanSpec {
 
 /******************************************************************************/
 /**
- * A simple output operator, mostly for debugging purposes
+ * @brief A simple output operator, mostly for debugging purposes
  *
- * @param o A reference to the output stream
- * @param s The object to be emitted
- * @return A reference to the output stream
+ * @tparam par_type The parameter type of the parPropSpec being emitted
+ * @param o A reference to the output stream the object is written to
+ * @param s The parPropSpec object to be emitted
+ * @return A reference to the (modified) output stream o, to allow chaining
  */
 template <typename par_type>
 std::ostream &operator<<(std::ostream &o, const parPropSpec<par_type> &s) {
@@ -299,7 +318,7 @@ namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 /**
- * This class accepts a "raw" parameter description, parses it and provides
+ * @brief This class accepts a "raw" parameter description, parses it and provides
  * functions to access individual parameter properties. This is used by parameter
  * scans to parse a string holding informations about the variables to be scanned
  * (including ranges and steps). Note that this class is meant for setup purposes
@@ -307,31 +326,41 @@ namespace Gem::Geneva::Genome {
  */
 class GParameterPropertyParser {
 public:
+    /** @brief The deleted copy constructor -- this class must not be copied
+     *  @param The (unused) source object */
     GParameterPropertyParser(const GParameterPropertyParser&) = delete;
+    /** @brief The deleted copy-assignment operator -- this class must not be assigned
+     *  @param The (unused) source object
+     *  @return (deleted, never returns) */
     GParameterPropertyParser& operator=(const GParameterPropertyParser&) = delete;
 
-    /** @brief The default constructor -- intentionally undefined */
+    /** @brief The default constructor -- deleted, as a raw description string is mandatory */
     GParameterPropertyParser() = delete;
-    /** @brief The standard constructor -- assignment of the "raw" paramter property string */
+    /** @brief The standard constructor -- assignment of the "raw" parameter property string
+     *  @param The raw parameter description string to be parsed */
     explicit GParameterPropertyParser(const std::string &);
 
-    /** @brief Retrieves the raw parameter description */
+    /** @brief Retrieves the raw parameter description
+     *  @return The raw, unparsed parameter description string held by this object */
     std::string getRawParameterDescription() const;
-    /** @brief Allows to check whether parsing has already taken place */
+    /** @brief Allows to check whether parsing has already taken place
+     *  @return true if the raw string has already been parsed, false otherwise */
     bool isParsed() const;
 
-    /** @brief Allows to reset the internal structures and to parse a new parameter string */
+    /** @brief Allows to reset the internal structures and to parse a new parameter string
+     *  @param The new raw parameter description string that replaces the current one */
     void setNewParameterDescription(std::string);
 
     /** @brief Initiates parsing of the raw string */
     void parse();
 
-    /** @brief Retrieve the number of "simple scan" items */
+    /** @brief Retrieve the number of "simple scan" items
+     *  @return The number of items requested for simple (fully random) parameter scans */
     std::size_t getNSimpleScanItems() const;
 
     /***************************************************************************/
     /**
-	  * This function returns a set of const_iterators that allow to retrieve
+	  * @brief This function returns a set of const_iterators that allow to retrieve
 	  * the information from the parsers. Note that these iterators may go out
 	  * of scope, if a new parameter description is supplied to this class.
 	  *
@@ -343,6 +372,9 @@ public:
 	  *
 	  * Note that this implementation is a trap. Use one of the overloads for
 	  * supported types instead.
+	  *
+	  * @tparam par_type The parameter type whose specification iterators are requested
+	  * @return A tuple holding the begin and end const_iterators of the matching spec vector (never returns here -- always throws)
 	  */
     template <typename par_type>
     std::tuple<
@@ -381,7 +413,7 @@ private:
 
 /******************************************************************************/
 /**
- * This function returns a set of const_iterators that allow to retrieve
+ * @brief This function returns a set of const_iterators that allow to retrieve
  * the information from the parsers. Note that these iterators may go out
  * of scope, if a new parameter description is supplied to this class.
  *
@@ -392,6 +424,8 @@ private:
  * The function will throw if parsing hasn't happened yet.
  *
  * This is the overload for double parameters.
+ *
+ * @return A tuple holding the begin and end const_iterators of the double spec vector
  */
 template <>
 inline std::tuple<
@@ -417,7 +451,7 @@ GParameterPropertyParser::getIterators<double>() const {
 
 /******************************************************************************/
 /**
- * This function returns a set of const_iterators that allow to retrieve
+ * @brief This function returns a set of const_iterators that allow to retrieve
  * the information from the parsers. Note that these iterators may go out
  * of scope, if a new parameter description is supplied to this class.
  *
@@ -428,6 +462,8 @@ GParameterPropertyParser::getIterators<double>() const {
  * The function will throw if parsing hasn't happened yet.
  *
  * This is the overload for float parameters.
+ *
+ * @return A tuple holding the begin and end const_iterators of the float spec vector
  */
 template <>
 inline std::tuple<
@@ -453,7 +489,7 @@ GParameterPropertyParser::getIterators<float>() const {
 
 /******************************************************************************/
 /**
- * This function returns a set of const_iterators that allow to retrieve
+ * @brief This function returns a set of const_iterators that allow to retrieve
  * the information from the parsers. Note that these iterators may go out
  * of scope, if a new parameter description is supplied to this class.
  *
@@ -464,6 +500,8 @@ GParameterPropertyParser::getIterators<float>() const {
  * The function will throw if parsing hasn't happened yet.
  *
  * This is the overload for std::int32_t parameters.
+ *
+ * @return A tuple holding the begin and end const_iterators of the std::int32_t spec vector
  */
 template <>
 inline std::tuple<
@@ -489,7 +527,7 @@ GParameterPropertyParser::getIterators<std::int32_t>() const {
 
 /******************************************************************************/
 /**
- * This function returns a set of const_iterators that allow to retrieve
+ * @brief This function returns a set of const_iterators that allow to retrieve
  * the information from the parsers. Note that these iterators may go out
  * of scope, if a new parameter description is supplied to this class.
  *
@@ -500,6 +538,8 @@ GParameterPropertyParser::getIterators<std::int32_t>() const {
  * The function will throw if parsing hasn't happened yet.
  *
  * This is the overload for bool parameters.
+ *
+ * @return A tuple holding the begin and end const_iterators of the bool spec vector
  */
 template <>
 inline std::tuple<

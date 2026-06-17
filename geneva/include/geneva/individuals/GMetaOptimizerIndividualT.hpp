@@ -180,6 +180,8 @@ constexpr std::size_t MOT_NVAR = 11;
  * an optimization algorithm are optimized alongside a given "sub-"individual.
  * The individual is meant for tuning the parameters of Evolutionary Algorithms,
  * but may be used to find better optima as well.
+ *
+ * @tparam ind_type The type of sub-individual whose optimization is being tuned
  */
 template <typename ind_type = Gem::Geneva::Individuals::GFunctionIndividual>
 class GMetaOptimizerIndividualT // NOLINT(cppcoreguidelines-special-member-functions)
@@ -217,7 +219,7 @@ public:
     /**
      * A standard copy constructor
      *
-     * @param cp A copy of another GFunctionIndidivual
+     * @param cp A constant reference to another GMetaOptimizerIndividualT object
      */
     GMetaOptimizerIndividualT(const GMetaOptimizerIndividualT<ind_type> &cp)
       : gen::GFlatGenome(cp)
@@ -249,6 +251,8 @@ public:
     /**
      * Allows to specify the path and name of a configuration file passed to
      * the (sub-)evolutionary algorithm
+     *
+     * @param sub_ea_config The path and name of the (sub-)EA configuration file
      */
     void setSubEAConfig(std::string sub_ea_config) {
         sub_ea_config_ = sub_ea_config;
@@ -258,6 +262,8 @@ public:
     /**
      * Allows to retrieve the path and name of a configuration file passed to
      * the (sub-)evolutionary algorithm
+     *
+     * @return The path and name of the (sub-)EA configuration file
      */
     std::string getSubEAConfig() const {
         return sub_ea_config_;
@@ -266,6 +272,8 @@ public:
     /***************************************************************************/
     /**
      * Allows to specify how many optimizations should be performed for each (sub-)optimization
+     *
+     * @param n_runs_per_optimization The number of optimization runs per sub-optimization (must be > 0)
      */
     void setNRunsPerOptimization(std::size_t n_runs_per_optimization) {
 #ifdef DEBUG
@@ -285,6 +293,8 @@ public:
     /***************************************************************************/
     /**
      * Allows to retrieve the number of optimizations to be performed for each (sub-)optimization
+     *
+     * @return The number of optimization runs per sub-optimization
      */
     std::size_t getNRunsPerOptimization() const {
         return n_runs_per_optimization_;
@@ -293,6 +303,8 @@ public:
     /***************************************************************************/
     /**
      * Allows to set the fitness target for each optimization
+     *
+     * @param fitness_target The fitness value below which a sub-optimization may stop
      */
     void setFitnessTarget(double fitness_target) {
         fitness_target_ = fitness_target;
@@ -301,6 +313,8 @@ public:
     /***************************************************************************/
     /**
      * Retrieves the fitness target for each optimization
+     *
+     * @return The fitness target for each sub-optimization
      */
     double getFitnessTarget() const {
         return fitness_target_;
@@ -309,6 +323,8 @@ public:
     /***************************************************************************/
     /**
      * Allows to set the iteration threshold
+     *
+     * @param iteration_threshold The maximum allowed number of iterations per sub-optimization
      */
     void setIterationThreshold(std::uint32_t iteration_threshold) {
         iteration_threshold_ = iteration_threshold;
@@ -317,6 +333,8 @@ public:
     /***************************************************************************/
     /**
      * Allows to retrieve the iteration threshold
+     *
+     * @return The maximum allowed number of iterations per sub-optimization
      */
     std::uint32_t getIterationThreshold() const {
         return iteration_threshold_;
@@ -325,6 +343,8 @@ public:
     /***************************************************************************/
     /**
      * Allows to set the desired target of the meta-optimization
+     *
+     * @param mo_target The optimization target (best fitness, fewest solver calls, or multi-criterion)
      */
     void setMetaOptimizationTarget(metaOptimizationTarget mo_target) {
         mo_target_ = mo_target;
@@ -338,6 +358,8 @@ public:
     /***************************************************************************/
     /**
      * Allows to retrieve the current target of the meta-optimization
+     *
+     * @return The current meta-optimization target
      */
     metaOptimizationTarget getMetaOptimizationTarget() const {
         return mo_target_;
@@ -346,6 +368,8 @@ public:
     /***************************************************************************/
     /**
      * Retrieves the current number of parents. Needed for the optimization monitor.
+     *
+     * @return The number of parents currently encoded in the genome
      */
     std::size_t getNParents() const {
         return Gem::Common::narrow<std::size_t>(motIntValue(MOT_NPARENTS));
@@ -354,6 +378,8 @@ public:
     /***************************************************************************/
     /**
      * Retrieves the current number of children. Needed for the optimization monitor.
+     *
+     * @return The number of children currently encoded in the genome
      */
     std::size_t getNChildren() const {
         return Gem::Common::narrow<std::size_t>(motIntValue(MOT_NCHILDREN));
@@ -362,6 +388,8 @@ public:
     /***************************************************************************/
     /**
      * Retrieves the adaption probability. Needed for the optimization monitor.
+     *
+     * @return The adaption probability derived from min_ad_prob and the ad_prob range/start percentage
      */
     double getAdProb() const {
         std::vector<double> d;
@@ -373,6 +401,8 @@ public:
     /***************************************************************************/
     /**
      * Retrieves the lower sigma boundary. Needed for the optimization monitor.
+     *
+     * @return The lower sigma boundary currently encoded in the genome
      */
     double getMinSigma() const {
         return motDoubleValue(MOT_MINSIGMA);
@@ -381,6 +411,8 @@ public:
     /***************************************************************************/
     /**
      * Retrieves the sigma range. Needed for the optimization monitor.
+     *
+     * @return The sigma range currently encoded in the genome
      */
     double getSigmaRange() const {
         return motDoubleValue(MOT_SIGMARANGE);
@@ -389,6 +421,8 @@ public:
     /***************************************************************************/
     /**
      * Retrieves the sigma-sigma parameter. Needed for the optimization monitor.
+     *
+     * @return The sigma-sigma (sigma self-adaption strength) currently encoded in the genome
      */
     double getSigmaSigma() const {
         return motDoubleValue(MOT_SIGMASIGMA);
@@ -397,7 +431,39 @@ public:
     /***************************************************************************/
     /**
      * This function is used to unify the setup from within the constructor
-     * and factory.
+     * and factory. It builds the flat meta genome (two int32 slots followed by nine
+     * double slots, in MOT_* order) for the passed individual.
+     *
+     * @param p The individual whose genome is being built (modified in place)
+     * @param init_n_parents The initial number of parents
+     * @param n_parents_lb The lower boundary for variations of the number of parents
+     * @param n_parents_ub The upper boundary for variations of the number of parents
+     * @param init_n_children The initial number of children
+     * @param n_children_lb The lower boundary for variations of the number of children
+     * @param n_children_ub The upper boundary for variations of the number of children
+     * @param init_amalgamation_lklh The initial cross-over (amalgamation) likelihood
+     * @param amalgamation_lklh_lb The lower boundary for the amalgamation likelihood
+     * @param amalgamation_lklh_ub The upper boundary for the amalgamation likelihood
+     * @param init_min_ad_prob The initial lower boundary for the variation of ad_prob
+     * @param min_ad_prob_lb The lower boundary for min_ad_prob
+     * @param min_ad_prob_ub The upper boundary for min_ad_prob
+     * @param init_ad_prob_range The initial range for the variation of ad_prob
+     * @param ad_prob_range_lb The lower boundary for ad_prob_range
+     * @param ad_prob_range_ub The upper boundary for ad_prob_range
+     * @param init_ad_prob_start_percentage The start value for ad_prob relative to its allowed range
+     * @param init_adapt_ad_prob The initial strength of ad_prob self-adaption
+     * @param adapt_ad_prob_lb The lower boundary for the strength of ad_prob self-adaption
+     * @param adapt_ad_prob_ub The upper boundary for the strength of ad_prob self-adaption
+     * @param init_min_sigma The initial lower boundary for sigma
+     * @param min_sigma_lb The lower boundary for the variation of the lower sigma boundary
+     * @param min_sigma_ub The upper boundary for the variation of the lower sigma boundary
+     * @param init_sigma_range The initial maximum range for sigma
+     * @param sigma_range_lb The lower boundary for the maximum range of sigma
+     * @param sigma_range_ub The upper boundary for the maximum range of sigma
+     * @param init_sigma_range_percentage The initial percentage of the sigma range as start value
+     * @param init_sigma_sigma The initial strength of sigma self-adaption
+     * @param sigma_sigma_lb The lower boundary for the strength of sigma self-adaption
+     * @param sigma_sigma_ub The upper boundary for the strength of sigma self-adaption
      */
     static void addContent(
         std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> p,
@@ -481,6 +547,8 @@ public:
      * n_children an integer-Gauss adaptor, and every meta double a Gauss adaptor -- the exact settings
      * addContent() formerly baked into the genome layout. Used by the outer EA (via Go2 / setAdaptionConfig)
      * and by the self-driven modify hook.
+     *
+     * @return A shared pointer to the populated OA-owned adaption config
      */
     std::shared_ptr<oa::GAdaptionConfigBase> getAdaptionConfig() const {
         auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
@@ -495,6 +563,9 @@ public:
     /***************************************************************************/
     /**
      * Emit information about this individual
+     *
+     * @param with_fitness Whether the fitness line should be included in the output
+     * @return A human-readable, multi-line description of this individual's parameters
      */
     std::string print(bool with_fitness = true) const {
         std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
@@ -569,6 +640,8 @@ public:
     /**
      * Registers a factory class with this object. This function clones the factory,
      * so the individual can be sure to have a unique factory.
+     *
+     * @param factory The sub-individual factory to clone and store (must not be empty)
      */
     void registerIndividualFactory(std::shared_ptr<typename ind_type::FACTORYTYPE> factory) {
         if(not factory) {
@@ -707,6 +780,7 @@ protected:
      *
      * @param cp A constant reference to another GMetaOptimizerIndividualT object
      * @param e The expected outcome of the comparison
+     * @param limit The limit for allowed deviations of floating point types
      */
     void compare_(
         const gen::GOptimizableEntity &cp,
@@ -914,6 +988,9 @@ protected:
     /***************************************************************************/
     /**
      * Retrieves a clear-text description of the optimization target
+     *
+     * @param mot The meta-optimization target to describe
+     * @return A human-readable description of the target
      */
     std::string getClearTextMOT(const metaOptimizationTarget &mot) const {
         switch(mot) {
@@ -937,7 +1014,7 @@ protected:
     /**
      * Applies modifications to this object.
      *
-     * @return A boolean indicating whether
+     * @return A boolean indicating whether any modifications were made
      */
     bool modify_GUnitTests_() override {
 #ifdef GEM_TESTING
@@ -1032,19 +1109,30 @@ private:
      * Maps a MOT_* slot to its index within the double value channel. The two int32 slots
      * (MOT_NPARENTS, MOT_NCHILDREN) precede the doubles in MOT order, so the double channel index is
      * simply the MOT_* offset from the first double slot (MOT_AMALGAMATION).
+     *
+     * @param mot The MOT_* slot to map
+     * @return The index of that slot within the double value channel
      */
     static constexpr std::size_t dblIndex(std::size_t mot) {
         return mot - MOT_AMALGAMATION;
     }
 
-    /** @brief Reads one int32 value of the flat genome by its channel index (MOT_NPARENTS/NCHILDREN). */
+    /**
+     * @brief Reads one int32 value of the flat genome by its channel index (MOT_NPARENTS/NCHILDREN).
+     * @param channel_index The positional index within the int32 value channel
+     * @return The int32 value stored at that channel index
+     */
     std::int32_t motIntValue(std::size_t channel_index) const {
         std::vector<std::int32_t> v;
         this->template streamline<std::int32_t>(v);
         return v.at(channel_index);
     }
 
-    /** @brief Reads one double value of the flat genome by its MOT_* slot (folded through dblIndex). */
+    /**
+     * @brief Reads one double value of the flat genome by its MOT_* slot (folded through dblIndex).
+     * @param mot The MOT_* slot to read
+     * @return The double value stored at that slot
+     */
     double motDoubleValue(std::size_t mot) const {
         std::vector<double> v;
         this->template streamline<double>(v);
@@ -1082,6 +1170,11 @@ private:
 /**
  * Allows to output a GMetaOptimizerIndividualT<ind_type> or convert it to a string using
  * boost::lexical_cast
+ *
+ * @tparam ind_type The type of sub-individual whose optimization is being tuned
+ * @param stream The output stream to write to
+ * @param gsi The meta-optimizer individual whose content is written
+ * @return A reference to the output stream
  */
 template <typename ind_type>
 std::ostream &operator<<(std::ostream &stream, const GMetaOptimizerIndividualT<ind_type> &gsi) {
@@ -1094,6 +1187,8 @@ std::ostream &operator<<(std::ostream &stream, const GMetaOptimizerIndividualT<i
 /******************************************************************************/
 /**
  * A factory for GMetaOptimizerIndividualT<ind_type> objects
+ *
+ * @tparam ind_type The type of sub-individual whose optimization is being tuned
  */
 template <typename ind_type>
 class GMetaOptimizerIndividualFactoryT : public Gem::Common::GFactoryT<gen::GOptimizableEntity> {
@@ -1119,6 +1214,8 @@ public:
     /**
      * Registers a factory class with this object. This function clones the factory,
      * so the individual can be sure to have a unique factory.
+     *
+     * @param factory The sub-individual factory to clone and store (must not be empty)
      */
     void registerIndividualFactory(std::shared_ptr<typename ind_type::FACTORYTYPE> factory) {
         if(not factory) {
@@ -1138,7 +1235,9 @@ public:
 protected:
     /***************************************************************************/
     /**
-     * Allows to describe local configuration options for gradient descents
+     * Allows to describe local configuration options for the meta-optimizer factory
+     *
+     * @param gpb The GParserBuilder object to which configuration options should be added
      */
     void describeLocalOptions_(Gem::Common::GParserBuilder &gpb) override {
         // Describe our own options
@@ -1503,6 +1602,7 @@ private:
     /**
      * Creates items of this type
      *
+     * @param gpb The GParserBuilder to which the new object's configuration options are added
      * @return Items of the desired type
      */
     std::shared_ptr<gen::GOptimizableEntity>
@@ -1603,6 +1703,8 @@ constexpr std::size_t P_YDIM = 1400;
  * type of individual. Note that the class uses ROOT scripts for the output of its results.
  *
  * TODO: templatize this class on executor_type, like is being done for the other optimization monitors
+ *
+ * @tparam ind_type The sub-individual type wrapped by the GMetaOptimizerIndividualT being monitored
  */
 template <typename ind_type>
 class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
@@ -1639,7 +1741,9 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
 public:
     /***************************************************************************/
     /**
-     * The default constructor
+     * Initialization with the name of the output file
+     *
+     * @param file_name The name of the file the recorded plots are written to
      */
     GOptOptMonitorT(const std::string file_name)
       : file_name_(file_name)
@@ -1688,6 +1792,8 @@ public:
     /***************************************************************************/
     /**
      * Sets the file name
+     *
+     * @param file_name The name of the file the recorded plots are written to
      */
     void setFileName(std::string file_name) {
         file_name_ = file_name;
@@ -1696,6 +1802,8 @@ public:
     /***************************************************************************/
     /**
      * Retrieves the current file name
+     *
+     * @return The name of the output file
      */
     std::string getFileName() const {
         return file_name_;
@@ -1745,6 +1853,7 @@ protected:
      *
      * @param cp A constant reference to another GBasePluggableOM object
      * @param e The expected outcome of the comparison
+     * @param limit The limit for allowed deviations of floating point types
      */
     void compare_(
         const oa::GBasePluggableOM &cp,
@@ -1844,6 +1953,8 @@ private:
     /***************************************************************************/
     /**
      * Emits a name for this class / object
+     *
+     * @return The name of this class
      */
     std::string name_() const override {
         return std::string("GOptOptMonitorT<>");
@@ -1863,6 +1974,9 @@ private:
     /**
      * Allows to emit information in different stages of the information cycle
      * (initialization, during each cycle and during finalization)
+     *
+     * @param im The current stage of the information cycle (init, processing or end)
+     * @param goa A pointer to the optimization algorithm the monitor is attached to
      */
     void informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override {
         using namespace Gem::Common;

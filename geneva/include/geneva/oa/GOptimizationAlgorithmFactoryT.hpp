@@ -71,12 +71,21 @@ public:
         ) { /* nothing */
     }
 
-    /** @brief Initialization with the name of the config file. */
+    /**
+     * @brief Initialization with the name of the config file.
+     *
+     * @param config_file Path to the JSON configuration file from which the algorithm's options are read.
+     */
     explicit GOptimizationAlgorithmFactoryT(std::filesystem::path const &config_file)
       : GOAFactoryT<GOptimizationAlgorithmBase>(config_file) { /* nothing */
     }
 
-    /** @brief Initialization with the config file and a content creator. */
+    /**
+     * @brief Initialization with the config file and a content creator.
+     *
+     * @param config_file Path to the JSON configuration file from which the algorithm's options are read.
+     * @param content_creator_ptr Factory used to populate the algorithm's population with individuals.
+     */
     GOptimizationAlgorithmFactoryT(
         std::filesystem::path const &config_file,
         std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr
@@ -84,18 +93,35 @@ public:
       : GOAFactoryT<GOptimizationAlgorithmBase>(config_file, content_creator_ptr) { /* nothing */
     }
 
-    /** @brief The copy constructor. */
+    /**
+     * @brief The copy constructor.
+     *
+     * @param The factory to be copied (default member-wise copy).
+     */
     GOptimizationAlgorithmFactoryT(const GOptimizationAlgorithmFactoryT &) = default;
     /** @brief The destructor. */
     ~GOptimizationAlgorithmFactoryT() override = default;
 
-    /** @brief The command-line mnemonic / nickname describing this algorithm. */
+    /**
+     * @brief The command-line mnemonic / nickname describing this algorithm.
+     *
+     * @return The personality traits' nickname, used as the command-line mnemonic for this algorithm.
+     */
     std::string getMnemonic() const override { return personality_traits_type::nickname; }
-    /** @brief The clear-text name of this algorithm. */
+    /**
+     * @brief The clear-text name of this algorithm.
+     *
+     * @return The human-readable algorithm name taken from oa_type::oa_algorithm_name.
+     */
     std::string getAlgorithmName() const override { return std::string(oa_type::oa_algorithm_name); }
 
 protected:
-    /** @brief Creates the algorithm and registers its configuration options. */
+    /**
+     * @brief Creates the algorithm and registers its configuration options.
+     *
+     * @param gpb The parser builder onto which the new algorithm registers its configuration options.
+     * @return A newly constructed algorithm of type oa_type, with its configuration options registered.
+     */
     std::shared_ptr<GOptimizationAlgorithmBase>
     getObject_(Gem::Common::GParserBuilder &gpb) override {
         std::shared_ptr<oa_type> target(new oa_type());

@@ -43,7 +43,7 @@ namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
- * A handler for SIGHUP or CTRL_CLOSE_EVENT signals. This function works both
+ * @brief A handler for SIGHUP or CTRL_CLOSE_EVENT signals. This function works both
  * for Windows and Unix systems. Register it with e.g.
  * `signal(G_SIGHUP, Gem::Geneva::sigHupHandler)` to allow interruption of an
  * optimization run without loss of data.
@@ -54,7 +54,7 @@ void sigHupHandler(int signum);
 
 /******************************************************************************/
 /**
- * Checks whether a SIGHUP or CTRL_CLOSE_EVENT signal has been sent.
+ * @brief Checks whether a SIGHUP or CTRL_CLOSE_EVENT signal has been sent.
  *
  * @return A boolean indicating whether a SIGHUP / CTRL_CLOSE_EVENT signal was received
  */

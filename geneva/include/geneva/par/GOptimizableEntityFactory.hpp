@@ -78,6 +78,8 @@ public:
     /***************************************************************************/
     /**
 	  * The copy constructor
+	  *
+	  * @param cp A constant reference to another GOptimizableEntityFactory object to be copied
 	  */
     GOptimizableEntityFactory(const GOptimizableEntityFactory &cp)
       : Gem::Common::GFactoryT<GOptimizableEntity>(cp) {
@@ -92,6 +94,8 @@ public:
     /***************************************************************************/
     /**
 	  * Registration of pre-processor function objects
+	  *
+	  * @param p A shared pointer to a pre-processor function object to be cloned into each produced individual; must not be empty
 	  */
     void registerPreProcessor(
         std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> p
@@ -111,6 +115,8 @@ public:
     /***************************************************************************/
     /**
 	  * Registration of post-processor function objects
+	  *
+	  * @param p A shared pointer to a post-processor function object to be cloned into each produced individual; must not be empty
 	  */
     void registerPostProcessor(
         std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> p
@@ -137,6 +143,8 @@ protected:
     /***************************************************************************/
     /**
      * Production of GOptimizableEntity-derivatives
+     *
+     * @return A shared pointer to a newly produced GOptimizableEntity-derivative, with any registered pre- and post-processor cloned and attached
      */
     std::shared_ptr<GOptimizableEntity> get_() override {
         std::shared_ptr<GOptimizableEntity> p = GFactoryT<GOptimizableEntity>::get_();

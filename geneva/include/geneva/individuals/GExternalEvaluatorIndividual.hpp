@@ -121,7 +121,10 @@ class GExternalEvaluatorIndividual
 
     friend class boost::serialization::access;
 
-    /** @brief Single declaration of this class'es local data members */
+    /**
+     * @brief Single declaration of this class'es local data members
+     * @return A tuple of named member references driving serialize(), load_() and compare_()
+     */
     auto localMembers() {
         return std::make_tuple(
             Gem::Common::make_member("program_name_", program_name_),
@@ -132,6 +135,10 @@ class GExternalEvaluatorIndividual
             Gem::Common::make_member("remove_exec_temporaries_", remove_exec_temporaries_)
         );
     }
+    /**
+     * @brief Single declaration of this class'es local data members (const overload)
+     * @return A tuple of named const member references driving serialize() and compare_()
+     */
     auto localMembers() const {
         return std::make_tuple(
             Gem::Common::make_member("program_name_", program_name_),
@@ -143,6 +150,12 @@ class GExternalEvaluatorIndividual
         );
     }
 
+    /**
+     * @brief Serializes this class to/from a Boost archive
+     * @tparam Archive The Boost.Serialization archive type
+     * @param ar The archive to read from or write to
+     * @param version The serialization version (unused)
+     */
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -162,45 +175,90 @@ public:
 
     /** @brief The default constructor */
     GExternalEvaluatorIndividual();
-    /** @brief A standard copy constructor */
+    /**
+     * @brief A standard copy constructor
+     * @param cp The other GExternalEvaluatorIndividual object whose data is copied
+     */
     GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual &);
 
     /** @brief The standard destructor */
     ~GExternalEvaluatorIndividual() override;
 
-    /** @brief Sets the name of the external evaluation program */
+    /**
+     * @brief Sets the name of the external evaluation program
+     * @param program_name The path / name of the external program to be executed
+     */
     void setProgramName(const std::string &);
-    /** @brief Retrieves the name of the external evaluation program */
+    /**
+     * @brief Retrieves the name of the external evaluation program
+     * @return The name of the external evaluation program
+     */
     std::string getProgramName() const;
 
-    /** @brief Sets any custom options that need to be passed to the external evaluation program */
+    /**
+     * @brief Sets any custom options that need to be passed to the external evaluation program
+     * @param custom_options The custom command-line options forwarded to the external program
+     */
     void setCustomOptions(const std::string &);
-    /** @brief Retrieves any custom options that need to be passed to the external evaluation program */
+    /**
+     * @brief Retrieves any custom options that need to be passed to the external evaluation program
+     * @return The custom options string
+     */
     std::string getCustomOptions() const;
 
-    /** @brief Sets the base name of the data exchange file */
+    /**
+     * @brief Sets the base name of the data exchange file
+     * @param parameter_file_base_name The base name used for the XML parameter exchange files
+     */
     void setExchangeBaseName(const std::string &);
-    /** @brief Retrieves the current value of the parameter_file_base_name_ variable */
+    /**
+     * @brief Retrieves the current value of the parameter_file_base_name_ variable
+     * @return The base name of the data exchange file
+     */
     std::string getExchangeBaseName() const;
 
-    /** @brief Sets the number of results to be expected from the external evaluation program */
+    /**
+     * @brief Sets the number of results to be expected from the external evaluation program
+     * @param n_results The number of fitness results expected from each evaluation
+     */
     void setNExpectedResults(const std::size_t &);
-    /** @brief Retrieves the number of results to be expected from the external evaluation program */
+    /**
+     * @brief Retrieves the number of results to be expected from the external evaluation program
+     * @return The number of expected results
+     */
     std::size_t getNExpectedResults() const;
 
-    /** @brief Allows to set the data type of this individual */
+    /**
+     * @brief Allows to set the data type of this individual
+     * @param dataType The data-type tag forwarded to the external program in the exchange file
+     */
     void setDataType(std::string);
-    /** @brief Allows to retrieve the data type of this individual */
+    /**
+     * @brief Allows to retrieve the data type of this individual
+     * @return The data-type tag of this individual
+     */
     std::string getDataType() const;
 
-    /** @brief Allows to assign a run-id to this individual */
+    /**
+     * @brief Allows to assign a run-id to this individual
+     * @param run_id The unique identifier for this optimization run
+     */
     void setRunId(std::string);
-    /** @brief Allows to retrieve the run-id assigned to this individual */
+    /**
+     * @brief Allows to retrieve the run-id assigned to this individual
+     * @return The run-id assigned to this individual
+     */
     std::string getRunId() const;
 
-    /** @brief Allows to specify whether temporary files should be removed */
+    /**
+     * @brief Allows to specify whether temporary files should be removed
+     * @param remove_temporaries Whether the temporary exchange files should be deleted after use
+     */
     void setRemoveExecTemporaries(bool);
-    /** @brief Allows to check whether temporaries should be removed */
+    /**
+     * @brief Allows to check whether temporaries should be removed
+     * @return true if temporary files are removed, false otherwise
+     */
     bool getRemoveExecTemporaries() const;
 
     /***************************************************************************/
@@ -240,27 +298,54 @@ public:
         std::size_t n_results_expected = GEEI_DEF_NRESULTS;
     };
 
-    /** @brief Registers the config-file options, binding them to the passed Config */
+    /**
+     * @brief Registers the config-file options, binding them to the passed Config
+     * @param gpb The parser builder the configuration options are registered with
+     * @param c The Config object whose members the options are bound to
+     */
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
-    /** @brief Queries the external evaluator for the individual structure and builds the flat genome;
-     *  also records the discovered run_id / n_results_expected back into @p c. */
+    /**
+     * @brief Queries the external evaluator for the individual structure and builds the flat genome;
+     *  also records the discovered run_id / n_results_expected back into @p c.
+     * @param c The Config supplying the external-program settings; updated in place with the
+     *          discovered run_id and n_results_expected
+     * @return The flat genome data describing the individual's parameter structure
+     */
     static gen::GenomeData buildGenome(Config &c);
-    /** @brief The OA-owned adaption config: the configured Gauss/bi-Gauss adaptor on every ACTIVE group */
+    /**
+     * @brief The OA-owned adaption config: the configured Gauss/bi-Gauss adaptor on every ACTIVE group
+     * @param sample A sample flat genome whose group structure the adaption config is built for
+     * @param c The Config supplying the Gauss / bi-Gauss adaptor settings
+     * @return A shared pointer to the constructed adaption config
+     */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
     buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
-    /** @brief Per-object post-config hook: applies the external-program parameters + discovered metadata */
+    /**
+     * @brief Per-object post-config hook: applies the external-program parameters + discovered metadata
+     * @param ind The individual that the configuration is applied to
+     * @param c The Config supplying the external-program parameters and discovered metadata
+     */
     static void applyConfig(GExternalEvaluatorIndividual &ind, const Config &c);
-    /** @brief Teardown hook (called when the factory is destroyed): runs the external program --finalize */
+    /**
+     * @brief Teardown hook (called when the factory is destroyed): runs the external program --finalize
+     * @param c The Config supplying the external-program name and options used for the --finalize call
+     */
     static void finalize(const Config &c);
-    /** @brief Submits a batch of best individuals to the external program for archiving (--archive).
-     *  Reads the program name / custom options / exchange base name / run-id from the individuals. */
+    /**
+     * @brief Submits a batch of best individuals to the external program for archiving (--archive).
+     *  Reads the program name / custom options / exchange base name / run-id from the individuals.
+     * @param arch The batch of best individuals to be archived
+     */
     static void archive(const std::vector<std::shared_ptr<GExternalEvaluatorIndividual>> &arch);
 
 protected:
     /***************************************************************************/
 
     /***************************************************************************/
-    /** @brief Loads the data of another GExternalEvaluatorIndividual */
+    /**
+     * @brief Loads the data of another GExternalEvaluatorIndividual
+     * @param cp Pointer to the other object (a GExternalEvaluatorIndividual passed as a base-class pointer)
+     */
     void load_(const gen::GOptimizableEntity *) final;
 
     /** @brief Allow access to this classes compare_ function */
@@ -270,7 +355,12 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type
+     * @param cp The other object to compare against (passed as a base-class reference)
+     * @param e The expectation for this object, e.g. equality
+     * @param limit The limit for allowed deviations of floating point types
+     */
     void compare_(
         const gen::GOptimizableEntity & // the other object
         ,
@@ -279,13 +369,19 @@ protected:
         const double & // the limit for allowed deviations of floating point types
     ) const final;
 
-    /** @brief The actual fitness calculation takes place here */
+    /**
+     * @brief The actual fitness calculation takes place here
+     * @return The fitness value obtained from the external evaluation program
+     */
     double fitnessCalculation() final;
 
 private:
     /***************************************************************************/
 
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object
+     * @return A pointer to a newly allocated deep copy of this object
+     */
     gen::GFlatGenome *clone_() const final;
 
     /***************************************************************************/

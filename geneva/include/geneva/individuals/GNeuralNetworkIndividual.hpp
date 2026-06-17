@@ -128,25 +128,40 @@ struct trainingSet {
 
     /////////////////////////////////////////////////////////////////////////////
 
-    /** @brief The constructor */
-    trainingSet(const std::size_t &, const std::size_t &);
-    /** @brief A copy constructor */
-    trainingSet(const trainingSet &);
+    /**
+     * @brief The constructor.
+     * @param nInputNodes The number of input nodes (size of the Input array)
+     * @param nOutputNodes The number of output nodes (size of the Output array)
+     */
+    trainingSet(const std::size_t & nInputNodes, const std::size_t & nOutputNodes);
+    /**
+     * @brief A copy constructor.
+     * @param cp A constant reference to another trainingSet object
+     */
+    trainingSet(const trainingSet & cp);
 
     /** @brief The destructor */
     virtual ~trainingSet();
 
-    /** @brief Assigns another trainingSet's data to this object */
-    trainingSet &operator=(const trainingSet &);
-    /** @brief Checks for equality with another trainingSet object */
+    /**
+     * @brief Assigns another trainingSet's data to this object.
+     * @param cp A constant reference to the trainingSet to copy from
+     * @return A reference to this object
+     */
+    trainingSet &operator=(const trainingSet & cp);
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     * @param cp The other object to compare against
+     * @param e The expectation for this object, e.g. equality
+     * @param limit The limit for allowed deviations of floating point types
+     */
     virtual void compare(
-        const trainingSet & // the other object
+        const trainingSet & cp
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation & e
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double & limit
     ) const;
 
     /***************************************************************************/
@@ -232,60 +247,118 @@ class networkData : public Gem::Common::GPodContainerT<std::size_t> {
 
 public:
     /***************************************************************************/
-    /** @brief Initialization with the amount of entries */
-    explicit networkData(const std::size_t &);
+    /**
+     * @brief Initialization with the amount of entries.
+     * @param nData The number of training sets this object will hold
+     */
+    explicit networkData(const std::size_t & nData);
 
-    /** @brief Initialization with data from file */
-    explicit networkData(const std::string &);
-    /** @brief The copy constructor */
-    networkData(const networkData &);
+    /**
+     * @brief Initialization with data from file.
+     * @param networkDataFile The path of the file the training data is loaded from
+     */
+    explicit networkData(const std::string & networkDataFile);
+    /**
+     * @brief The copy constructor.
+     * @param cp A constant reference to another networkData object
+     */
+    networkData(const networkData & cp);
 
     /** @brief A standard destructor. */
     ~networkData() override;
 
-    /** @brief Copies the data of another networkData object */
-    networkData &operator=(const networkData &);
+    /**
+     * @brief Copies the data of another networkData object.
+     * @param cp A constant reference to the networkData to copy from
+     * @return A reference to this object
+     */
+    networkData &operator=(const networkData & cp);
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     * @param cp The other object to compare against
+     * @param e The expectation for this object, e.g. equality
+     * @param limit The limit for allowed deviations of floating point types
+     */
     virtual void compare(
-        const networkData & // the other object
+        const networkData & cp
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation & e
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double & limit
     ) const;
 
-    /** @brief Saves the data of this struct to disc */
-    void saveToDisk(const std::string &) const;
-    /** @brief Loads training data from the disc */
-    void loadFromDisk(const std::string &);
+    /**
+     * @brief Saves the data of this struct to disc.
+     * @param networkDataFile The path of the file the data is written to
+     */
+    void saveToDisk(const std::string & networkDataFile) const;
+    /**
+     * @brief Loads training data from the disc.
+     * @param networkDataFile The path of the file the data is read from
+     */
+    void loadFromDisk(const std::string & networkDataFile);
 
-    /** @brief Adds a new training set to the collection, Requires for the network architecture to be defined already */
-    void addTrainingSet(std::shared_ptr<trainingSet>, const std::size_t &);
-    /** @brief Retrieves  training set at a given position */
+    /**
+     * @brief Adds a new training set to the collection. Requires the network architecture to be defined already.
+     * @param tS The training set to store
+     * @param pos The position at which the training set is stored
+     */
+    void addTrainingSet(std::shared_ptr<trainingSet> tS, const std::size_t & pos);
+    /**
+     * @brief Retrieves the training set at a given position.
+     * @param pos The position of the training set to retrieve
+     * @return The training set at that position, or an empty optional if none is stored there
+     */
     std::optional<std::shared_ptr<trainingSet>>
 
-    getTrainingSet(const std::size_t &) const;
+    getTrainingSet(const std::size_t & pos) const;
 
-    /** @brief Retrieves the number of input nodes of this network */
+    /**
+     * @brief Retrieves the number of input nodes of this network.
+     * @return The number of input nodes (the first stored layer size)
+     */
     std::size_t getNInputNodes() const;
-    /** @brief Retrieves the number of output nodes of this network */
+    /**
+     * @brief Retrieves the number of output nodes of this network.
+     * @return The number of output nodes (the last stored layer size)
+     */
     std::size_t getNOutputNodes() const;
 
-    /** @brief Saves this data set in ROOT format for visual inspection */
-    void toROOT(const std::string &, const double &, const double &);
+    /**
+     * @brief Saves this data set in ROOT format for visual inspection.
+     * @param outputFile The path of the ROOT script to write
+     * @param min The lower boundary of the plotted value range
+     * @param max The upper boundary of the plotted value range
+     */
+    void toROOT(const std::string & outputFile, const double & min, const double & max);
 
-    /** @brief Allows to check whether an initialization range has been set */
+    /**
+     * @brief Allows to check whether an initialization range has been set.
+     * @return true if an initialization range has been set, false otherwise
+     */
     bool initRangeSet() const;
-    /** @brief Allows to set the initialization range */
+    /**
+     * @brief Allows to set the initialization range.
+     * @param init_range The per-dimension (lower, upper) initialization ranges
+     */
     void setInitRange(const std::vector<std::tuple<double, double>> &init_range);
-    /** @brief Allows to retrieve the initialization range */
+    /**
+     * @brief Allows to retrieve the initialization range.
+     * @return The per-dimension (lower, upper) initialization ranges
+     */
     std::vector<std::tuple<double, double>> getInitRange() const;
 
-    /** @brief Allows to retrieve a string that describes the network geometry */
+    /**
+     * @brief Allows to retrieve a string that describes the network geometry.
+     * @return A string describing the network geometry (layer sizes)
+     */
     std::string getNetworkGeometryString() const;
 
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object.
+     * @return A deep clone of this object, wrapped in a shared_ptr
+     */
     std::shared_ptr<networkData> clone() const;
 
 private:
@@ -340,7 +413,10 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::transf
 // A global singleton giving access to the training data.
 // See also the definition of TFactory_GSingletonT<Gem::Geneva::Individuals::networkData>
 using GDatStore = Gem::Common::GSingletonT<Gem::Geneva::Individuals::networkData>;
-// Drop-in replacement for the former GNNTrainingDataStore macro.
+/**
+ * @brief Drop-in replacement for the former GNNTrainingDataStore macro.
+ * @return A shared pointer to the global training-data singleton
+ */
 [[nodiscard]] inline std::shared_ptr<GDatStore::STYPE> nnTrainingDataStore() {
     return GDatStore::instance();
 }
@@ -377,7 +453,10 @@ const transferFunction GNN_DEF_TRANSFER = transferFunction::SIGMOID;
  */
 class GNeuralNetworkArchitecture : public gen::GGenomeArchitecture {
 public:
-    /** @brief Initialization from the per-layer node counts (input ... output) */
+    /**
+     * @brief Initialization from the per-layer node counts (input ... output).
+     * @param layer_sizes The number of nodes in each layer, from input layer to output layer
+     */
     explicit GNeuralNetworkArchitecture(std::vector<std::size_t> layer_sizes)
       : layer_sizes_(std::move(layer_sizes)) {
         offsets_.resize(layer_sizes_.size());
@@ -389,16 +468,39 @@ public:
         total_weights_ = off;
     }
 
+    /**
+     * @brief Emits a name for this architecture.
+     * @return The name of this architecture class
+     */
     std::string name() const override { return "GNeuralNetworkArchitecture"; }
+    /**
+     * @brief The number of floating-point genome entries this architecture expects.
+     * @return The total number of weights across all layers
+     */
     std::size_t expectedFPSize() const override { return total_weights_; }
 
-    /** @brief The number of layers (input + hidden + output) */
+    /**
+     * @brief The number of layers (input + hidden + output).
+     * @return The number of layers
+     */
     std::size_t nLayers() const { return layer_sizes_.size(); }
-    /** @brief The number of nodes in layer l */
+    /**
+     * @brief The number of nodes in layer l.
+     * @param l The layer index (0 = input layer)
+     * @return The number of nodes in layer l
+     */
     std::size_t layerSize(std::size_t l) const { return layer_sizes_.at(l); }
-    /** @brief The offset of layer l's weights into the flat genome */
+    /**
+     * @brief The offset of layer l's weights into the flat genome.
+     * @param l The layer index (0 = input layer)
+     * @return The offset of layer l's first weight within the flat weight genome
+     */
     std::size_t layerOffset(std::size_t l) const { return offsets_.at(l); }
-    /** @brief The number of weights owned by layer l */
+    /**
+     * @brief The number of weights owned by layer l.
+     * @param l The layer index (0 = input layer)
+     * @return The number of weights belonging to layer l
+     */
     std::size_t weightCount(std::size_t l) const {
         return (l == 0) ? (2 * layer_sizes_[0]) : (layer_sizes_[l] * (layer_sizes_[l - 1] + 1));
     }
@@ -465,7 +567,19 @@ public:
     /***************************************************************************/
     /** @brief The default constructor */
     GNeuralNetworkIndividual();
-    /** @brief A constructor which initializes the individual with a suitable set of network layers */
+    /**
+     * @brief A constructor which initializes the individual with a suitable set of network layers.
+     * @param min The lower boundary of the weight initialization range
+     * @param max The upper boundary of the weight initialization range
+     * @param sigma The initial sigma (step width) of the weight Gauss adaptor
+     * @param sigma_sigma The self-adaption strength of sigma
+     * @param min_sigma The lower boundary for sigma
+     * @param max_sigma The upper boundary for sigma
+     * @param ad_prob The adaption probability
+     * @param adapt_ad_prob The self-adaption strength of the adaption probability
+     * @param min_ad_prob The lower boundary for the adaption probability
+     * @param max_ad_prob The upper boundary for the adaption probability
+     */
     GNeuralNetworkIndividual(
         [[maybe_unused]] const double & min,
         [[maybe_unused]] const double & max
@@ -482,13 +596,28 @@ public:
         [[maybe_unused]] const double & min_ad_prob,
         [[maybe_unused]] const double & max_ad_prob
     );
-    /** @brief A standard copy constructor */
+    /**
+     * @brief A standard copy constructor.
+     * @param cp A constant reference to another GNeuralNetworkIndividual object
+     */
     GNeuralNetworkIndividual(const GNeuralNetworkIndividual &cp);
 
     /** @brief The standard destructor */
     ~GNeuralNetworkIndividual() override;
 
-    /** @brief Initialization according to user-specifications */
+    /**
+     * @brief Initialization according to user-specifications.
+     * @param min The lower boundary of the weight initialization range
+     * @param max The upper boundary of the weight initialization range
+     * @param sigma The initial sigma (step width) of the weight Gauss adaptor
+     * @param sigma_sigma The self-adaption strength of sigma
+     * @param min_sigma The lower boundary for sigma
+     * @param max_sigma The upper boundary for sigma
+     * @param ad_prob The adaption probability
+     * @param adapt_ad_prob The self-adaption strength of the adaption probability
+     * @param min_ad_prob The lower boundary for the adaption probability
+     * @param max_ad_prob The upper boundary for the adaption probability
+     */
     void init(
         [[maybe_unused]] const double & min,
         [[maybe_unused]] const double & max
@@ -506,9 +635,15 @@ public:
         [[maybe_unused]] const double & max_ad_prob
     );
 
-    /** @brief Sets the type of the transfer function */
+    /**
+     * @brief Sets the type of the transfer function.
+     * @param t_f The transfer function (sigmoid or radial basis function) to use
+     */
     void setTransferFunction(transferFunction t_f);
-    /** @brief Retrieves the type of the transfer function */
+    /**
+     * @brief Retrieves the type of the transfer function.
+     * @return The transfer function currently in use
+     */
     transferFunction getTransferFunction() const;
 
     /***************************************************************************/
@@ -1090,9 +1225,15 @@ public:
     }
 
     /***************************************************************************/
-    /** @brief Creates a program used  for the visualization of optimization results */
+    /**
+     * @brief Creates a program used for the visualization of optimization results.
+     * @param vis_file The path of the visualization file to write
+     */
     void writeVisualizationFile(const std::string &vis_file);
-    /** @brief Creates a C++ output file for the trained network */
+    /**
+     * @brief Creates a C++ output file for the trained network.
+     * @param header_file The path of the C++ header file to write
+     */
     void writeTrainedNetwork(const std::string &header_file);
 
     /***************************************************************************/
@@ -1115,21 +1256,41 @@ public:
         transferFunction t_f = GNN_DEF_TRANSFER;
     };
 
-    /** @brief Registers the config-file options, binding them to the passed Config */
+    /**
+     * @brief Registers the config-file options, binding them to the passed Config.
+     * @param gpb The GParserBuilder object to which the configurable values are added
+     * @param c The Config instance whose members are bound to the parser (written on parse)
+     */
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
-    /** @brief Builds the flat weight genome (structure only) for the geometry in the global data store */
+    /**
+     * @brief Builds the flat weight genome (structure only) for the geometry in the global data store.
+     * @param c The configuration providing the weight init range
+     * @return The structure-only weight genome data
+     */
     static gen::GenomeData buildGenome(const Config &c);
-    /** @brief The OA-owned Gauss adaption config: every weight group gets the configured Gauss adaptor */
+    /**
+     * @brief The OA-owned Gauss adaption config: every weight group gets the configured Gauss adaptor.
+     * @param sample A sample flat genome whose group structure the config mirrors
+     * @param c The configuration providing the Gauss adaptor settings
+     * @return A shared pointer to the populated adaption config
+     */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
     buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
-    /** @brief Per-object post-config hook: applies the (non-genome) transfer function to a produced individual */
+    /**
+     * @brief Per-object post-config hook: applies the (non-genome) transfer function to a produced individual.
+     * @param ind The individual to configure (modified in place)
+     * @param c The configuration providing the transfer function to apply
+     */
     static void applyConfig(GNeuralNetworkIndividual &ind, const Config &c);
 
 protected:
     /***************************************************************************/
 
     /***************************************************************************/
-    /** @brief Loads the data of another GNeuralNetworkIndividual */
+    /**
+     * @brief Loads the data of another GNeuralNetworkIndividual.
+     * @param cp A pointer to another GNeuralNetworkIndividual, camouflaged as a GOptimizableEntity
+     */
     void load_(const gen::GOptimizableEntity *cp) final;
 
     /** @brief Allow access to this classes compare_ function */
@@ -1139,32 +1300,54 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     * @param cp The other object to compare against
+     * @param e The expectation for this object, e.g. equality
+     * @param limit The limit for allowed deviations of floating point types
+     */
     void compare_(
-        const gen::GOptimizableEntity & // the other object
+        const gen::GOptimizableEntity & cp
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation & e
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double & limit
     ) const final;
 
-    /** @brief The actual fitness calculation */
+    /**
+     * @brief The actual fitness calculation.
+     * @return The training error of the network encoded by this individual's weights
+     */
     double fitnessCalculation() final;
 
 public:
-    /** @brief Builds the (shared, immutable) semantic architecture for a given network geometry */
+    /**
+     * @brief Builds the (shared, immutable) semantic architecture for a given network geometry.
+     * @param n_d The network data describing the network geometry (layer sizes)
+     * @return A shared pointer to the immutable architecture for that geometry
+     */
     static std::shared_ptr<const GNeuralNetworkArchitecture>
     makeArchitecture(const networkData &n_d);
 
 private:
     /***************************************************************************/
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object.
+     * @return A deep clone of this object, camouflaged as a GFlatGenome
+     */
     gen::GFlatGenome *clone_() const final;
 
-    /** @brief The transfer function */
+    /**
+     * @brief The transfer function.
+     * @param value The pre-activation input value
+     * @return The transfer function (sigmoid or RBF) applied to the input value
+     */
     double transfer(const double &value) const;
 
-    /** @brief The semantic architecture (lazily built from n_d_; not serialised -- recoverable) */
+    /**
+     * @brief The semantic architecture (lazily built from n_d_; not serialised -- recoverable).
+     * @return A reference to the cached semantic architecture
+     */
     const GNeuralNetworkArchitecture &architecture() const;
 
     /***************************************************************************/
@@ -1199,12 +1382,18 @@ namespace Gem::Common {
 
 // A global store for network configuration data
 using GNNOptStore = GSingletonT<GGlobalOptionsT<std::string>>;
-// Drop-in replacement for the former GNeuralNetworkOptions macro.
+/**
+ * @brief Drop-in replacement for the former GNeuralNetworkOptions macro.
+ * @return A shared pointer to the global neural-network options singleton
+ */
 [[nodiscard]] inline std::shared_ptr<GNNOptStore::STYPE> neuralNetworkOptions() {
     return GNNOptStore::instance();
 }
 
-// A factory function for networkData objects, used by GSingletonT
+/**
+ * @brief A factory function for networkData objects, used by GSingletonT.
+ * @return A default-initialized networkData object, wrapped in a shared_ptr
+ */
 template <>
 std::shared_ptr<Gem::Geneva::Individuals::networkData> TFactory_GSingletonT();
 
@@ -1218,8 +1407,13 @@ std::shared_ptr<Gem::Geneva::Individuals::networkData> TFactory_GSingletonT();
 #ifdef GEM_TESTING
 
 /**
- * As the Gem::Geneva::Individuals::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> has a private default constructor, we need to provide a
- * specialization of the factory function that creates GStartProjectIndividual objects
+ * @brief Factory specialization that creates GNeuralNetworkIndividual objects for the unit tests.
+ *
+ * As Gem::Geneva::Individuals::GNeuralNetworkIndividual has a private default constructor, we
+ * provide a specialization of the factory function that constructs it via the parameterized
+ * constructor using the default settings.
+ *
+ * @return A newly created GNeuralNetworkIndividual, wrapped in a shared_ptr
  */
 template <>
 inline std::shared_ptr<Gem::Geneva::Individuals::GNeuralNetworkIndividual>

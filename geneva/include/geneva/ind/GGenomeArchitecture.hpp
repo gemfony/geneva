@@ -67,10 +67,12 @@ public:
     /** @brief The (virtual) destructor */
     virtual ~GGenomeArchitecture() = default;
 
-    /** @brief A human-readable name for this architecture */
+    /** @brief A human-readable name for this architecture.
+     *  @return The architecture's name */
     virtual std::string name() const = 0;
 
-    /** @brief The number of floating-point genome values this architecture expects */
+    /** @brief The number of floating-point genome values this architecture expects.
+     *  @return The expected count of floating-point genome values */
     virtual std::size_t expectedFPSize() const = 0;
 };
 
@@ -85,20 +87,29 @@ public:
  */
 class GGridArchitecture : public GGenomeArchitecture {
 public:
-    /** @brief Initialization with the field dimensions */
+    /** @brief Initialization with the field dimensions.
+     *  @param rows The number of rows in the 2D field
+     *  @param cols The number of columns in the 2D field */
     GGridArchitecture(std::size_t rows, std::size_t cols)
       : rows_(rows)
       , cols_(cols) {
         /* nothing */
     }
 
+    /** @brief @return The name of this architecture ("GGridArchitecture") */
     std::string name() const override { return "GGridArchitecture"; }
+    /** @brief @return The number of floating-point genome values expected (rows * cols) */
     std::size_t expectedFPSize() const override { return rows_ * cols_; }
 
+    /** @brief @return The number of rows in the field */
     std::size_t rows() const { return rows_; }
+    /** @brief @return The number of columns in the field */
     std::size_t cols() const { return cols_; }
 
-    /** @brief Extracts one row of the field from the individual's floating-point view */
+    /** @brief Extracts one row of the field from the individual's floating-point view.
+     *  @param ind The individual to read the floating-point genome values from
+     *  @param r The (zero-based) index of the row to extract
+     *  @return A vector holding the cols_ values of row r */
     std::vector<double> row(GOptimizableEntity const &ind, std::size_t r) const {
         std::vector<double> all;
         ind.streamlineFP(all);
@@ -111,7 +122,11 @@ public:
         return out;
     }
 
-    /** @brief Extracts a single field element (row r, column c) */
+    /** @brief Extracts a single field element (row r, column c).
+     *  @param ind The individual to read the floating-point genome values from
+     *  @param r The (zero-based) row index of the element
+     *  @param c The (zero-based) column index of the element
+     *  @return The floating-point value at field position (r, c) */
     double at(GOptimizableEntity const &ind, std::size_t r, std::size_t c) const {
         std::vector<double> all;
         ind.streamlineFP(all);
@@ -120,6 +135,8 @@ public:
     }
 
 private:
+    /** @brief Verifies the individual supplies enough FP values for the field, throwing otherwise.
+     *  @param n The number of floating-point values the individual provided */
     void checkSize(std::size_t n) const {
         if(n < rows_ * cols_) {
             throw geneva_exception(

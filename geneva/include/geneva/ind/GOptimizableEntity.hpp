@@ -81,6 +81,12 @@ class individual_processing_result {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /**
+     * @brief Serializes this object to/from a Boost archive
+     * @tparam Archive The Boost.Serialization archive type
+     * @param ar The archive to read from or write to
+     * @param version The serialization version (unused)
+     */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -94,55 +100,106 @@ public:
     /** @brief The default constuctor */
     individual_processing_result() = default;
 
-    /** @brief Initialization with a raw fitness */
+    /**
+     * @brief Initialization with a raw fitness
+     * @param raw_fitness The raw fitness value to store
+     */
     explicit individual_processing_result(double);
 
-    /** @brief Initialization with a raw and transformed fitness */
+    /**
+     * @brief Initialization with a raw and transformed fitness
+     * @param raw_fitness The raw fitness value to store
+     * @param transformed_fitness The transformed fitness value to store
+     */
     individual_processing_result(double, double);
 
-    /** @brief Initialization with a raw fitness and recalculation of the transformed fitness */
+    /**
+     * @brief Initialization with a raw fitness and recalculation of the transformed fitness
+     * @param raw_fitness The raw fitness value to store
+     * @param transform The function used to derive the transformed fitness from the raw value
+     */
     individual_processing_result(double, std::function<double(double)>);
 
-    /** @brief Copy construction */
+    /**
+     * @brief Copy construction
+     * @param cp The other object to copy from
+     */
     individual_processing_result(individual_processing_result const &) = default;
 
-    /** @brief Move construction */
+    /**
+     * @brief Move construction
+     * @param cp The other object to move from
+     */
     individual_processing_result(individual_processing_result &&) = default;
 
     /** @brief Destructor */
     ~individual_processing_result() = default;
 
-    /** @brief Assignment */
+    /**
+     * @brief Assignment
+     * @param cp The other object to copy-assign from
+     * @return A reference to this object
+     */
     individual_processing_result &operator=(individual_processing_result const &) = default;
 
-    /** @brief Move assignment */
+    /**
+     * @brief Move assignment
+     * @param cp The other object to move-assign from
+     * @return A reference to this object
+     */
     individual_processing_result &operator=(individual_processing_result &&) = default;
 
-    /** @brief Access to the raw fitness */
+    /**
+     * @brief Access to the raw fitness
+     * @return The stored raw fitness value
+     */
     double rawFitness() const;
 
-    /** @brief Access to the transformed fitness */
+    /**
+     * @brief Access to the transformed fitness
+     * @return The stored transformed fitness value
+     */
     double transformedFitness() const;
 
-    /** @brief Updates the transformed fitness using an external function */
+    /**
+     * @brief Updates the transformed fitness using an external function
+     * @param transform The function applied to the raw fitness to obtain the transformed fitness
+     */
     void setTransformedFitnessWith(std::function<double(double)>);
 
-    /** @brief Sets the transformed fitness to a user-defined value */
+    /**
+     * @brief Sets the transformed fitness to a user-defined value
+     * @param transformed_fitness The transformed fitness value to store
+     */
     void setTransformedFitnessTo(double);
 
     /** @brief Sets the transformed fitness to the same value as the raw fitness */
     void setTransformedFitnessToRaw();
 
-    /** @brief Checks whether the transformed fitness was set */
+    /**
+     * @brief Checks whether the transformed fitness was set
+     * @return true if a transformed fitness value is available, false otherwise
+     */
     bool transformedFitnessSet() const;
 
-    /** @brief Resets the object and stores a new raw value in the class */
+    /**
+     * @brief Resets the object and stores a new raw value in the class
+     * @param raw_fitness The new raw fitness value to store
+     */
     void reset(double);
 
-    /** @brief Resets the object and stores a new raw and transformed value in the class */
+    /**
+     * @brief Resets the object and stores a new raw and transformed value in the class
+     * @param raw_fitness The new raw fitness value to store
+     * @param transformed_fitness The new transformed fitness value to store
+     */
     void reset(double, double);
 
-    /** @brief Resets the object and stores a new raw value in the class and triggers recalculation of the transformed value */
+    /**
+     * @brief Resets the object and stores a new raw value in the class and triggers recalculation of the transformed value
+     * @param raw_fitness The new raw fitness value to store
+     * @param transform The function used to derive the transformed fitness from the raw value
+     */
     void reset(double, std::function<double(double)>);
 
 private:
@@ -165,10 +222,9 @@ private:
  * registered constraint object, best-past fitness, iteration, validity, stall
  * counters, eval policy, personality traits, ...) and the algorithm-facing surface
  * that the optimization algorithms operate on. The genome itself -- how the actual
- * parameters are stored -- is left to the derived classes: GTreeGenome stores a
- * tree of GParameterBase objects, while a flat sibling may store plain value
- * vectors. The optimization algorithms hold their population as
- * GOptimizableEntity, so genome layouts are interchangeable type-safely.
+ * parameters are stored -- is left to the derived classes: the flat GFlatGenome
+ * stores plain value vectors (GenomeData). The optimization algorithms hold their
+ * population as GOptimizableEntity, so genome layouts are interchangeable type-safely.
  *
  * This class is the CRTP category root (GCommonInterfaceT<GOptimizableEntity>); the
  * genome access points that the algorithms call polymorphically are declared pure
@@ -192,6 +248,8 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
      *
      * Handled manually (NOT in this tuple): the GProcessingContainerT processing base,
      * which is a base-object rather than a local member.
+     *
+     * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
     auto localMembers() {
         return std::make_tuple(
@@ -211,6 +269,10 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_cloneable_member("individual_constraint_ptr_", individual_constraint_ptr_)
         );
     }
+    /**
+     * @brief Single declaration of this class'es local data members (const overload)
+     * @return A tuple of named const member references driving serialize() and compare_()
+     */
     auto localMembers() const {
         return std::make_tuple(
             Gem::Common::make_member("best_past_primary_fitness_", best_past_primary_fitness_),
@@ -230,6 +292,12 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
         );
     }
 
+    /**
+     * @brief Serializes this object to/from a Boost archive
+     * @tparam Archive The Boost.Serialization archive type
+     * @param ar The archive to read from or write to
+     * @param version The serialization version (unused)
+     */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -258,23 +326,47 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
 public:
     /** @brief The default constructor */
     GOptimizableEntity();
-    /** @brief Initialization with the number of fitness criteria */
+    /**
+     * @brief Initialization with the number of fitness criteria
+     * @param n_fitness_criteria The number of fitness criteria this individual evaluates
+     */
     explicit GOptimizableEntity(std::size_t);
-    /** @brief The copy constructor */
+    /**
+     * @brief The copy constructor
+     * @param cp The other GOptimizableEntity whose data is copied
+     */
     GOptimizableEntity(GOptimizableEntity const &);
     /** @brief The destructor */
     ~GOptimizableEntity() override = default;
 
-    /** @brief Allows to randomly initialize parameter members */
+    /**
+     * @brief Allows to randomly initialize parameter members
+     * @param am The activity mode controlling which parameters are affected
+     * @return true if at least one parameter was randomly initialized
+     */
     bool randomInit(activityMode const &);
 
-    /** @brief Specify whether we want to work in maximization (maxMode::MAXIMIZE) or minimization (maxMode::MINIMIZE) mode */
+    /**
+     * @brief Specify whether we want to work in maximization (maxMode::MAXIMIZE) or minimization (maxMode::MINIMIZE) mode
+     * @param mode The optimization mode (maximization or minimization)
+     */
     void setMaxMode(maxMode const &);
 
-    /** @brief Transformation of the individual's parameter objects into a boost::property_tree object */
+    /**
+     * @brief Transformation of the individual's parameters into a boost::property_tree object
+     * @param ptr The property tree the parameters are written to
+     * @param baseName The base name under which the parameters are stored (default "parameterset")
+     */
     virtual void toPropertyTree(pt::ptree &, std::string const & = "parameterset") const = 0;
 
-    /** @brief Transformation of the individual's parameter objects into a list of comma-separated values */
+    /**
+     * @brief Transformation of the individual's parameters into a list of comma-separated values
+     * @param with_name_and_type Whether to prepend each value with its name and type
+     * @param with_commas Whether to separate values with commas
+     * @param use_raw_fitness Whether to emit the raw (rather than transformed) fitness
+     * @param show_validity Whether to include the validity status
+     * @return The CSV representation of this individual
+     */
     virtual std::string toCSV(
         bool = false // with_name_and_type
         ,
@@ -285,14 +377,25 @@ public:
         bool = true // show_validity
     ) const = 0;
 
-    /** @brief Checks whether this object is better than a given set of evaluations */
+    /**
+     * @brief Checks whether this object is better than a given set of evaluations
+     * @param boundaries The set of evaluation values to compare this individual's fitness against
+     * @return true if this object is good enough (better than the given evaluations)
+     */
     bool isGoodEnough(std::vector<double> const &);
 
-    /** @brief Perform a cross-over operation between this object and another */
+    /**
+     * @brief Perform a cross-over operation between this object and another
+     * @param cp The other entity to cross over with
+     * @return A shared pointer to the resulting offspring entity
+     */
     virtual std::shared_ptr<GOptimizableEntity>
     crossOverWith(GOptimizableEntity const &) const = 0;
 
-    /** @brief Retrieves parameters relevant for the evaluation from another GOptimizableEntity */
+    /**
+     * @brief Retrieves parameters relevant for the evaluation from another GOptimizableEntity
+     * @param cp The entity whose evaluation-relevant parameters are absorbed into this object
+     */
     virtual void cannibalize(GOptimizableEntity &) = 0;
 
     /***************************************************************************/
@@ -301,7 +404,12 @@ public:
     // concrete genome (GTreeGenome / a future GFlatGenome) implements. The algorithms therefore
     // read and write parameter values without knowing the storage layout -- no downcast.
 
-    /** @brief Streamlines all parameters of type par_type into a vector (cleared first) */
+    /**
+     * @brief Streamlines all parameters of type par_type into a vector (cleared first)
+     * @tparam par_type The parameter value type (double, float, std::int32_t or bool)
+     * @param par_vec The vector the parameter values are written into (cleared first)
+     * @param am The activity mode controlling which parameters are included
+     */
     template <typename par_type>
     void streamline(
         std::vector<par_type> &par_vec,
@@ -310,7 +418,12 @@ public:
         this->streamline_(par_vec, am);
     }
 
-    /** @brief Assigns values from a vector to the parameters of type par_type */
+    /**
+     * @brief Assigns values from a vector to the parameters of type par_type
+     * @tparam par_type The parameter value type (double, float, std::int32_t or bool)
+     * @param par_vec The vector of values to scatter onto the matching parameters
+     * @param am The activity mode controlling which parameters are written
+     */
     template <typename par_type>
     void assignValueVector(
         std::vector<par_type> const &par_vec,
@@ -331,7 +444,12 @@ public:
         this->mark_as_due_for_processing();
     }
 
-    /** @brief The number of parameters of type par_type */
+    /**
+     * @brief The number of parameters of type par_type
+     * @tparam par_type The parameter value type (double, float, std::int32_t or bool)
+     * @param am The activity mode controlling which parameters are counted
+     * @return The number of parameters of the requested type
+     */
     template <typename par_type>
     std::size_t countParameters(activityMode const &am = activityMode::DEFAULTACTIVITYMODE) const {
         if constexpr(std::is_same_v<par_type, double>) {
@@ -352,7 +470,13 @@ public:
         }
     }
 
-    /** @brief Lower/upper boundaries of all parameters of type par_type (cleared first) */
+    /**
+     * @brief Lower/upper boundaries of all parameters of type par_type (cleared first)
+     * @tparam par_type The parameter value type (double, float, std::int32_t or bool)
+     * @param l_bnd_vec The vector the lower boundaries are written into (cleared first)
+     * @param u_bnd_vec The vector the upper boundaries are written into (cleared first)
+     * @param am The activity mode controlling which parameters are included
+     */
     template <typename par_type>
     void boundaries(
         std::vector<par_type> &l_bnd_vec,
@@ -367,13 +491,21 @@ public:
     // once here on top of the per-type channels above, so every genome layout gets it for free.
     // Geometric algorithms -- (conjugate) gradient descent, Nelder-Mead, swarm -- use this view.
 
-    /** @brief The combined number of double- and float-typed parameters */
+    /**
+     * @brief The combined number of double- and float-typed parameters
+     * @param am The activity mode controlling which parameters are counted
+     * @return The combined count of double and float parameters
+     */
     std::size_t
     countFPParameters(activityMode const &am = activityMode::DEFAULTACTIVITYMODE) const {
         return countParameters<double>(am) + countParameters<float>(am);
     }
 
-    /** @brief Streamlines all floating point parameters into a single double vector (double-typed first, then widened float-typed) */
+    /**
+     * @brief Streamlines all floating point parameters into a single double vector (double-typed first, then widened float-typed)
+     * @param par_vec The vector the floating point values are written into (cleared first)
+     * @param am The activity mode controlling which parameters are included
+     */
     void streamlineFP(
         std::vector<double> &par_vec,
         activityMode const &am = activityMode::DEFAULTACTIVITYMODE
@@ -389,7 +521,11 @@ public:
         }
     }
 
-    /** @brief Scatters a double vector produced by streamlineFP() back onto the floating point parameters */
+    /**
+     * @brief Scatters a double vector produced by streamlineFP() back onto the floating point parameters
+     * @param par_vec The combined double vector (double-typed first, then float-typed) to scatter back
+     * @param am The activity mode controlling which parameters are written
+     */
     void assignFPValueVector(
         std::vector<double> const &par_vec,
         activityMode const &am = activityMode::DEFAULTACTIVITYMODE
@@ -423,7 +559,12 @@ public:
         }
     }
 
-    /** @brief Lower/upper boundaries of all floating point parameters (matching streamlineFP() ordering) */
+    /**
+     * @brief Lower/upper boundaries of all floating point parameters (matching streamlineFP() ordering)
+     * @param l_bnd_vec The vector the lower boundaries are written into (cleared first)
+     * @param u_bnd_vec The vector the upper boundaries are written into (cleared first)
+     * @param am The activity mode controlling which parameters are included
+     */
     void boundariesFP(
         std::vector<double> &l_bnd_vec,
         std::vector<double> &u_bnd_vec,
@@ -451,52 +592,104 @@ public:
         }
     }
 
-    /** @brief Register another result value of the fitness calculation */
+    /**
+     * @brief Register another result value of the fitness calculation
+     * @param id The index of the fitness criterion to store the result for
+     * @param value The result value to register
+     */
     void setResult(std::size_t, double);
-    /** @brief Determines whether more than one fitness criterion is present for this individual */
+    /**
+     * @brief Determines whether more than one fitness criterion is present for this individual
+     * @return true if more than one fitness criterion is present
+     */
     bool hasMultipleFitnessCriteria() const;
 
-    /** @brief Retrieve the fitness tuple at a given evaluation position */
+    /**
+     * @brief Retrieve the fitness tuple at a given evaluation position
+     * @param id The evaluation position (fitness criterion index); defaults to 0
+     * @return A (raw, transformed) fitness tuple at the requested position
+     */
     std::tuple<double, double> getFitnessTuple(std::uint32_t = 0) const;
 
-    /** @brief Allows to retrieve the maxmode_ parameter */
+    /**
+     * @brief Allows to retrieve the maxmode_ parameter
+     * @return The optimization mode (maximization or minimization)
+     */
     maxMode getMaxMode() const;
 
-    /** @brief Retrieves the worst possible evaluation result, depending on whether we are in maximization or minimization mode */
+    /**
+     * @brief Retrieves the worst possible evaluation result, depending on whether we are in maximization or minimization mode
+     * @return The worst-case evaluation value for the current mode
+     */
     virtual double getWorstCase() const;
 
-    /** @brief Retrieves the best possible evaluation result, depending on whether we are in maximization or minimization mode */
+    /**
+     * @brief Retrieves the best possible evaluation result, depending on whether we are in maximization or minimization mode
+     * @return The best-case evaluation value for the current mode
+     */
     virtual double getBestCase() const;
 
-    /** @brief Retrieves the steepness_ variable (used for the sigmoid transformation) */
+    /**
+     * @brief Retrieves the steepness_ variable (used for the sigmoid transformation)
+     * @return The sigmoid steepness value
+     */
     double getSteepness() const;
-    /** @brief Sets the steepness variable (used for the sigmoid transformation) */
+    /**
+     * @brief Sets the steepness variable (used for the sigmoid transformation)
+     * @param steepness The new sigmoid steepness value
+     */
     void setSteepness(double);
 
-    /** @brief Retrieves the barrier_ variable (used for the sigmoid transformation) */
+    /**
+     * @brief Retrieves the barrier_ variable (used for the sigmoid transformation)
+     * @return The sigmoid barrier (extreme) value
+     */
     double getBarrier() const;
-    /** @brief Sets the barrier variable (used for the sigmoid transformation) */
+    /**
+     * @brief Sets the barrier variable (used for the sigmoid transformation)
+     * @param barrier The new sigmoid barrier (extreme) value
+     */
     void setBarrier(double);
 
-    /** @brief Sets the maximum number of adaption attempts that may pass without actual modifications */
+    /**
+     * @brief Sets the maximum number of adaption attempts that may pass without actual modifications
+     * @param max_unsuccessful_adaptions The maximum number of unsuccessful adaption attempts allowed
+     */
     void setMaxUnsuccessfulAdaptions(std::size_t);
-    /** @brief Retrieves the maximum number of adaption attempts that may pass without actual modifications */
+    /**
+     * @brief Retrieves the maximum number of adaption attempts that may pass without actual modifications
+     * @return The maximum number of unsuccessful adaption attempts allowed
+     */
     std::size_t getMaxUnsuccessfulAdaptions() const;
 
-    /** @brief Set maximum number of retries until a valid individual was found  */
+    /**
+     * @brief Set maximum number of retries until a valid individual was found
+     * @param max_retries_until_valid The maximum number of adaption retries until a valid individual is found
+     */
     void setMaxRetriesUntilValid(std::size_t max_retries_until_valid);
-    /** Retrieves the maximum number of retries until a valid individual was found. */
+    /**
+     * @brief Retrieves the maximum number of retries until a valid individual was found
+     * @return The maximum number of adaption retries until a valid individual is found
+     */
     std::size_t getMaxRetriesUntilValid() const;
 
-    /** @brief Retrieves the number of adaptions performed during the last call to adapt() */
+    /**
+     * @brief Retrieves the number of adaptions performed during the last call to adapt()
+     * @return The number of adaptions performed during the last adaption
+     */
     std::size_t getNAdaptions() const;
-    /** @brief Records the number of adaptions performed (used by the OA-owned adaption free functions) */
+    /**
+     * @brief Records the number of adaptions performed (used by the OA-owned adaption free functions)
+     * @param n The number of adaptions performed to record
+     */
     void setNAdaptions(std::size_t n) { n_adaptions_ = n; }
 
     /**
      * @brief Public, non-folding access to this individual's per-individual RNG stream. The OA-owned
      * adaption free functions (Phase 8) draw from it; each individual owns its own stream, so parallel
      * adaption of distinct individuals is lock-free.
+     *
+     * @return A reference to this individual's per-individual random engine
      */
     Gem::Hap::GRandomBase &getRandomEngine() { return gr_; }
 
@@ -504,29 +697,55 @@ public:
      * @brief Public constraint check used by the OA-owned adaption retry loop. Forwards to the protected
      * individualFulfillsConstraints(); returns true if the individual satisfies its constraints and writes
      * the validity level to the out-parameter.
+     *
+     * @param validity_level Out-parameter receiving the computed validity level
+     * @return true if the individual satisfies its constraints, false otherwise
      */
     bool fulfillsConstraints(double &validity_level) const {
         return this->individualFulfillsConstraints(validity_level);
     }
 
-    /** @brief Allows to set the current iteration of the parent optimization algorithm. */
+    /**
+     * @brief Allows to set the current iteration of the parent optimization algorithm.
+     * @param iteration The current iteration of the parent optimization algorithm
+     */
     void setAssignedIteration(std::uint32_t const &);
-    /** @brief Gives access to the parent optimization algorithm's iteration */
+    /**
+     * @brief Gives access to the parent optimization algorithm's iteration
+     * @return The current iteration of the parent optimization algorithm
+     */
     std::uint32_t getAssignedIteration() const;
 
-    /** @brief Allows to specify the number of optimization cycles without improvement of the primary fitness criterion */
+    /**
+     * @brief Allows to specify the number of optimization cycles without improvement of the primary fitness criterion
+     * @param nStalls The number of stalled optimization cycles to record
+     */
     void setNStalls(std::uint32_t const &);
-    /** @brief Allows to retrieve the number of optimization cycles without improvement of the primary fitness criterion */
+    /**
+     * @brief Allows to retrieve the number of optimization cycles without improvement of the primary fitness criterion
+     * @return The number of stalled optimization cycles
+     */
     std::uint32_t getNStalls() const;
 
-    /** @brief Allows to activate random crashes for debugging purposes */
+    /**
+     * @brief Allows to activate random crashes for debugging purposes
+     * @param useRandomCrash Whether random crashes are enabled
+     * @param prob The probability with which a random crash occurs
+     */
     void setRandomCrash(bool, double);
-    /** @brief Allows to check whether random crashes are activated, and with which probability the occur */
+    /**
+     * @brief Allows to check whether random crashes are activated, and with which probability the occur
+     * @return A (enabled, probability) tuple describing the random-crash configuration
+     */
     std::tuple<bool, double> getRandomCrash() const;
 
     /***************************************************************************/
     /**
-     * Retrieves a parameter of a given type at the specified position.
+     * @brief Retrieves a parameter of a given type at the specified position.
+     * @tparam val_type The value type to retrieve (double, float, std::int32_t or bool)
+     * @param target A (type-index, name, position) tuple; the third element is the index of the
+     *        active parameter to retrieve
+     * @return The parameter value of the requested type at the requested index
      */
     template <typename val_type>
     val_type getVarVal(std::tuple<std::size_t, std::string, std::size_t> const &target) {
@@ -557,27 +776,54 @@ public:
     // individual is pure data: genome + bounds + fitness + constraints + the courtier processing
     // container. The adaption logic is OA-owned (geneva/oa/GAdaption.hpp), driven by the slot's scratch.
 
-    /** @brief Check how valid a given solution is */
+    /**
+     * @brief Check how valid a given solution is
+     * @return The validity level of the current solution
+     */
     double getValidityLevel() const;
-    /** @brief Checks whether all constraints were fulfilled */
+    /**
+     * @brief Checks whether all constraints were fulfilled
+     * @return true if all registered constraints are fulfilled
+     */
     bool constraintsFulfilled() const;
-    /** @brief Allows to register a constraint with this individual */
+    /**
+     * @brief Allows to register a constraint with this individual
+     * @param constraint_ptr The constraint-check object to register with this individual
+     */
     void
         registerConstraint(std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>>);
 
-    /** @brief Allows to set the policy to use in case this individual represents an invalid solution */
+    /**
+     * @brief Allows to set the policy to use in case this individual represents an invalid solution
+     * @param eval_policy The evaluation policy to apply for invalid solutions
+     */
     void setEvaluationPolicy(evaluationPolicy eval_policy);
-    /** @brief Allows to retrieve the current policy in case this individual represents an invalid solution */
+    /**
+     * @brief Allows to retrieve the current policy in case this individual represents an invalid solution
+     * @return The current evaluation policy
+     */
     evaluationPolicy getEvaluationPolicy() const;
 
-    /** @brief Checks whether this is a valid solution; meant to be called for "clean" individuals only */
+    /**
+     * @brief Checks whether this is a valid solution; meant to be called for "clean" individuals only
+     * @return true if this is a valid solution
+     */
     bool isValid() const;
-    /** @brief Checks whether this solution is invalid */
+    /**
+     * @brief Checks whether this solution is invalid
+     * @return true if this solution is invalid
+     */
     bool isInValid() const;
 
-    /** @brief Allows to set the globally best known primary fitness */
+    /**
+     * @brief Allows to set the globally best known primary fitness
+     * @param bnf The (raw, transformed) globally best known primary fitness tuple
+     */
     void setBestKnownPrimaryFitness(std::tuple<double, double> const &);
-    /** @brief Retrieves the value of the globally best known primary fitness */
+    /**
+     * @brief Retrieves the value of the globally best known primary fitness
+     * @return The (raw, transformed) globally best known primary fitness tuple
+     */
     std::tuple<double, double> getBestKnownPrimaryFitness() const;
 
     /***************************************************************************/
@@ -598,15 +844,25 @@ protected:
     std::uniform_int_distribution<std::size_t> uniform_int_;
 
     /***************************************************************************/
-    /** @brief Do the required processing for this object */
+    /**
+     * @brief Do the required processing for this object
+     * @param res_vec An optional vector of pre-computed processing results; if empty, the
+     *        fitness is calculated here
+     */
     void process_(
         const std::vector<individual_processing_result> &res_vec =
             std::vector<individual_processing_result>()
     ) final;
 
-    /** @brief Adds local configuration options to a GParserBuilder object */
+    /**
+     * @brief Adds local configuration options to a GParserBuilder object
+     * @param gpb The parser builder the configuration options are registered with
+     */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
-    /** @brief Loads the data of another GOptimizableEntity */
+    /**
+     * @brief Loads the data of another GOptimizableEntity
+     * @param cp Pointer to the other GOptimizableEntity whose data is loaded
+     */
     void load_(const GOptimizableEntity *) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -616,7 +872,12 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type
+     * @param cp The other object to compare against
+     * @param e The expectation for this object, e.g. equality
+     * @param limit The limit for allowed deviations of floating point types
+     */
     void compare_(
         GOptimizableEntity const & // the other object
         ,
@@ -625,50 +886,99 @@ protected:
         double const & // the limit for allowed deviations of floating point types
     ) const override;
 
-    /** @brief Random initialization */
+    /**
+     * @brief Random initialization
+     * @param am The activity mode controlling which parameters are affected
+     * @return true if at least one parameter was randomly initialized
+     */
     virtual bool randomInit_(activityMode const &) = 0;
 
-    /** @brief The fitness calculation for the main quality criterion takes place here */
+    /**
+     * @brief The fitness calculation for the main quality criterion takes place here
+     * @return The computed primary fitness value
+     */
     double fitnessCalculation() override = 0;
-    /** @brief Sets the fitness to a given set of values and clears the dirty flag */
+    /**
+     * @brief Sets the fitness to a given set of values and clears the dirty flag
+     * @param fitness_vec The set of fitness values to assign
+     */
     void setFitness_(std::vector<double> const &);
 
-    /** @brief Combines secondary evaluation results by adding the individual results */
+    /**
+     * @brief Combines secondary evaluation results by adding the individual results
+     * @return The sum of the secondary evaluation results
+     */
     double sumCombiner() const;
-    /** @brief Combines secondary evaluation results by adding the absolute values of individual results */
+    /**
+     * @brief Combines secondary evaluation results by adding the absolute values of individual results
+     * @return The sum of the absolute values of the secondary evaluation results
+     */
     double fabsSumCombiner() const;
-    /** @brief Combines secondary evaluation results by calculating the square root of the squared sum */
+    /**
+     * @brief Combines secondary evaluation results by calculating the square root of the squared sum
+     * @return The Euclidean (square-root-of-squared-sum) combination of the secondary results
+     */
     double squaredSumCombiner() const;
-    /** @brief Combines secondary evaluation results by calculation the square root of the weighed squared sum */
+    /**
+     * @brief Combines secondary evaluation results by calculation the square root of the weighed squared sum
+     * @param weights The per-result weights applied before squaring and summing
+     * @return The square root of the weighed squared sum of the secondary results
+     */
     double weighedSquaredSumCombiner(std::vector<double> const &) const;
 
-    /** @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only */
+    /**
+     * @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only
+     * @param validity_level Out-parameter receiving the computed validity level
+     * @return true if this solution fulfils its constraints
+     */
     bool individualFulfillsConstraints(double &) const;
 
 private:
     /***************************************************************************/
     // Overridden or virtual private functions
 
-    /** @brief Emits a name for this class / object */
+    /**
+     * @brief Emits a name for this class / object
+     * @return The class / object name
+     */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object
+     * @return A pointer to a newly allocated deep copy of this object
+     */
     GOptimizableEntity *clone_() const override = 0;
 
-    /** @brief Retrieves the stored raw fitness with a given id */
+    /**
+     * @brief Retrieves the stored raw fitness with a given id
+     * @param id The index of the fitness criterion
+     * @return The stored raw fitness for the requested criterion
+     */
     double raw_fitness_(std::size_t) const final;
-    /** @brief Retrieves the stored transformed fitness with a given id */
+    /**
+     * @brief Retrieves the stored transformed fitness with a given id
+     * @param id The index of the fitness criterion
+     * @return The stored transformed fitness for the requested criterion
+     */
     double transformed_fitness_(std::size_t) const final;
 
-    /** @brief Returns all raw fitness results in a std::vector */
+    /**
+     * @brief Returns all raw fitness results in a std::vector
+     * @return A vector of all stored raw fitness results
+     */
     std::vector<double> raw_fitness_vec_() const final;
-    /** @brief Returns all transformed fitness results in a std::vector */
+    /**
+     * @brief Returns all transformed fitness results in a std::vector
+     * @return A vector of all stored transformed fitness results
+     */
     std::vector<double> transformed_fitness_vec_() const final;
 
     /***************************************************************************/
 
     /** @brief Retrieve the value of the active parameter at the given index, per type (genome-specific
      *  dispatch). The non-template targets of the public getVarVal<T>() template -- typed virtuals rather
-     *  than a std::any-returning impl, so there is no boxing/typeid on the (hot) monitor path. */
+     *  than a std::any-returning impl, so there is no boxing/typeid on the (hot) monitor path.
+     *  @param idx The index of the active parameter to retrieve
+     *  @return The active parameter value at @p idx (double for _d_, float for _f_, std::int32_t for _i_, bool for _b_) */
     virtual double getVarVal_d_(std::size_t idx) = 0;
     virtual float getVarVal_f_(std::size_t idx) = 0;
     virtual std::int32_t getVarVal_i_(std::size_t idx) = 0;
@@ -677,8 +987,9 @@ private:
     /***************************************************************************/
     // Per-type genome value channels -- the non-template dispatch targets of the public
     // streamline<T>/assignValueVector<T>/countParameters<T>/boundaries<T> templates. Implemented by
-    // the concrete genome (the tree iterates its parameter objects; a flat genome copies a channel
-    // array). These are the entire seam that makes value access genome-agnostic.
+    // the concrete flat genome (which copies a channel array). These are the entire seam that makes
+    // value access genome-agnostic. Each overload takes the per-type value/boundary vector(s) and the
+    // activityMode controlling which parameters participate.
     virtual void streamline_(std::vector<double> &, activityMode const &) const = 0;
     virtual void streamline_(std::vector<float> &, activityMode const &) const = 0;
     virtual void streamline_(std::vector<std::int32_t> &, activityMode const &) const = 0;
@@ -699,10 +1010,17 @@ private:
     virtual void boundaries_(std::vector<std::int32_t> &, std::vector<std::int32_t> &, activityMode const &) const = 0;
     virtual void boundaries_(std::vector<bool> &, std::vector<bool> &, activityMode const &) const = 0;
 
-    /** @brief  Allows to set all fitnesses to the same value (both raw and transformed values) */
+    /**
+     * @brief  Allows to set all fitnesses to the same value (both raw and transformed values)
+     * @param val The value assigned to every raw and transformed fitness
+     */
     void setAllFitnessTo(double);
 
-    /** @brief  Allows to set all fitnesses to the same value (raw and transformed values seperately) */
+    /**
+     * @brief  Allows to set all fitnesses to the same value (raw and transformed values seperately)
+     * @param raw_val The value assigned to every raw fitness
+     * @param transformed_val The value assigned to every transformed fitness
+     */
     void setAllFitnessTo(double, double);
 
     /***************************************************************************/

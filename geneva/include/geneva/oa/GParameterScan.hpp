@@ -67,8 +67,16 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This function fills a given std::vector<T> with items. It needs to be re-implemented
- * in concrete specializations. This generic function is just a trap.
+ * @brief Fills a std::vector<T> with the grid points for a scan dimension.
+ *
+ * This generic function is just a trap. It needs to be re-implemented in concrete
+ * specializations (bool, std::int32_t, float, double) and always throws when called.
+ *
+ * @tparam T The parameter type for which grid points are generated
+ * @param nSteps The number of steps (grid points) to generate, including the boundaries
+ * @param lower The lower boundary of the scanned range (inclusive)
+ * @param upper The upper boundary of the scanned range (inclusive)
+ * @return A vector holding the generated grid points (never returns -- always throws)
  */
 template <typename T>
 std::vector<T> fillWithData(
@@ -90,9 +98,23 @@ std::vector<T> fillWithData(
     return std::vector<T>();
 }
 
+/**
+ * @brief Specialization of fillWithData() for type bool (yields the values false and true).
+ * @param n_steps The number of steps to generate
+ * @param lower The lower boundary of the scanned range
+ * @param upper The upper boundary of the scanned range
+ * @return A vector holding the boolean grid points
+ */
 template <>
 std::vector<bool> fillWithData<bool>(std::size_t n_steps, bool lower, bool upper);
 
+/**
+ * @brief Specialization of fillWithData() for type std::int32_t.
+ * @param n_steps The number of steps to generate (only used for random entries)
+ * @param lower The lower boundary of the scanned range (inclusive)
+ * @param upper The upper boundary of the scanned range (inclusive)
+ * @return A vector holding the integer grid points
+ */
 template <>
 std::vector<std::int32_t> fillWithData<std::int32_t>(
     std::size_t n_steps // will only be used for random entries
@@ -101,9 +123,23 @@ std::vector<std::int32_t> fillWithData<std::int32_t>(
     std::int32_t upper // inclusive
 );
 
+/**
+ * @brief Specialization of fillWithData() for type float.
+ * @param n_steps The number of steps to generate, including the boundaries
+ * @param lower The lower boundary of the scanned range (inclusive)
+ * @param upper The upper boundary of the scanned range (inclusive)
+ * @return A vector holding the floating point grid points
+ */
 template <>
 std::vector<float> fillWithData<float>(std::size_t n_steps, float lower, float upper);
 
+/**
+ * @brief Specialization of fillWithData() for type double.
+ * @param n_steps The number of steps to generate, including the boundaries
+ * @param lower The lower boundary of the scanned range (inclusive)
+ * @param upper The upper boundary of the scanned range (inclusive)
+ * @return A vector holding the floating point grid points
+ */
 template <>
 std::vector<double> fillWithData<double>(std::size_t n_steps, double lower, double upper);
 
@@ -115,12 +151,24 @@ std::vector<double> fillWithData<double>(std::size_t n_steps, double lower, doub
  */
 class GScanParInterface {
 public:
+    /** @brief The (defaulted) virtual destructor */
     virtual ~GScanParInterface() = default;
+    /** @brief Retrieves the name and/or position address of the scanned variable
+     *  @return The address (name and id) of the variable inside the individual */
     virtual gen::NAMEANDIDTYPE getVarAddress() const = 0;
+    /** @brief Advances to the next grid position, rewinding to the start at the end
+     *  @return true if a warp (rewind to the first position) has taken place, false otherwise */
     virtual bool goToNextItem() = 0;
+    /** @brief Checks whether the current position is past the last grid item
+     *  @return true if the position is at (or beyond) the terminal position, false otherwise */
     virtual bool isAtTerminalPosition() const = 0;
+    /** @brief Checks whether the current position is the first grid item
+     *  @return true if the position points to the first item, false otherwise */
     virtual bool isAtFirstPosition() const = 0;
+    /** @brief Resets the current position back to the start of the grid */
     virtual void resetPosition() = 0;
+    /** @brief Retrieves a textual identifier for the scanned type
+     *  @return A string descriptor of the parameter type */
     virtual std::string getTypeDescriptor() const = 0;
 };
 
@@ -128,7 +176,9 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Basic parameter functionality
+ * @brief Basic parameter functionality shared by all scan-parameter types.
+ *
+ * @tparam T The parameter type held and scanned by this object (bool, std::int32_t, float, double)
  */
 template <typename T>
 class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
@@ -137,6 +187,10 @@ class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Serializes this object via Boost.Serialization
+     *  @tparam Archive The archive type used for (de-)serialization
+     *  @param ar The archive to serialize to / from
+     *  @param (unused) The class version supplied by Boost.Serialization */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -156,7 +210,15 @@ class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
 public:
     /***************************************************************************/
     /**
-     * The standard constructor
+     * @brief The standard constructor.
+     *
+     * Stores the variable address, boundaries and step count from the property
+     * specification. For a (non-random) grid scan the grid points are pre-computed
+     * via fillWithData<T>().
+     *
+     * @param pps The parameter property specification (variable address, boundaries, number of steps)
+     * @param random_scan If true, items are drawn randomly; if false, a grid is pre-filled
+     * @param t A textual identifier for the parameter type (stored as type_description_)
      */
     GBaseScanParT(
         gen::parPropSpec<T> pps,
@@ -179,8 +241,10 @@ public:
 
     /***************************************************************************/
     /**
-     * Copy constructor. Not defaulted, so we can avoid copying of the
+     * @brief Copy constructor. Not defaulted, so we can avoid copying of the
      * random number generator.
+     *
+     * @param cp Another GBaseScanParT object whose state is copied
      */
     GBaseScanParT(const GBaseScanParT<T> &cp)
       : var_(cp.var_)
@@ -194,13 +258,14 @@ public:
 
     /***************************************************************************/
     /**
-     * The destructor
+     * @brief The (defaulted) destructor
      */
     ~GBaseScanParT() override = default;
 
     /***************************************************************************/
     /**
-     * Retrieve the address of this object
+     * @brief Retrieve the address (name and id) of the scanned variable
+     * @return The variable address inside the individual
      */
     gen::NAMEANDIDTYPE getVarAddress() const override {
         return var_;
@@ -208,7 +273,8 @@ public:
 
     /***************************************************************************/
     /**
-     * Retrieves the current item position
+     * @brief Retrieves the current item position in the grid
+     * @return The current step index
      */
     std::size_t getCurrentItemPos() const {
         return step_;
@@ -216,7 +282,9 @@ public:
 
     /***************************************************************************/
     /**
-     * Retrieve the current item
+     * @brief Retrieve the current item -- a grid point or, in random mode, a random draw.
+     * @param gr A reference to a random number generator (used in random-scan mode)
+     * @return The current parameter value
      */
     T getCurrentItem(Gem::Hap::GRandomBase &gr) const {
         if(random_scan_) {
@@ -228,9 +296,9 @@ public:
 
     /***************************************************************************/
     /**
-     * Switch to the next position in the vector or rewind
+     * @brief Switch to the next position in the vector or rewind
      *
-     * @return A boolean indicating whether a warp has taken place
+     * @return true if a warp (rewind to the start) has taken place, false otherwise
      */
     bool goToNextItem() override {
         if(++step_ >= n_steps_) {
@@ -242,7 +310,8 @@ public:
 
     /***************************************************************************/
     /**
-     * Checks whether step_ points to the last item in the array
+     * @brief Checks whether step_ points past the last item in the array
+     * @return true if the position is at (or beyond) the terminal position, false otherwise
      */
     bool isAtTerminalPosition() const override {
         return step_ >= n_steps_;
@@ -250,7 +319,8 @@ public:
 
     /***************************************************************************/
     /**
-     * Checks whether step_ points to the first item in the array
+     * @brief Checks whether step_ points to the first item in the array
+     * @return true if the position points to the first item, false otherwise
      */
     bool isAtFirstPosition() const override {
         return 0 == step_;
@@ -258,7 +328,7 @@ public:
 
     /***************************************************************************/
     /**
-     * Resets the current position
+     * @brief Resets the current position back to the start of the grid
      */
     void resetPosition() override {
         step_ = 0;
@@ -266,7 +336,8 @@ public:
 
     /***************************************************************************/
     /**
-     * Retrieve the type descriptor
+     * @brief Retrieve the type descriptor
+     * @return A string identifier for the parameter type
      */
     std::string getTypeDescriptor() const override {
         return type_description_;
@@ -299,7 +370,12 @@ protected:
 
     /***************************************************************************/
     /**
-     * Retrieves a random item. To be re-implemented for each supported type
+     * @brief Retrieves a random item. To be re-implemented for each supported type.
+     *
+     * The generic version is a trap and always throws.
+     *
+     * @param gr A reference to a random number generator
+     * @return A random parameter value within the configured boundaries (never returns -- always throws)
      */
     T getRandomItem(
         [[maybe_unused]] Gem::Hap::GRandomBase & gr
@@ -330,7 +406,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Retrieval of a random value for type bool
+ * @brief Retrieval of a random value for type bool
+ * @param gr A reference to a random number generator
+ * @return A uniformly distributed random boolean
  */
 template <>
 inline bool GBaseScanParT<bool>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
@@ -339,7 +417,9 @@ inline bool GBaseScanParT<bool>::getRandomItem(Gem::Hap::GRandomBase &gr) const 
 
 /******************************************************************************/
 /**
- * Retrieval of a random value for type float
+ * @brief Retrieval of a random value for type float
+ * @param gr A reference to a random number generator
+ * @return A uniformly distributed random float within [lower_, upper_)
  */
 template <>
 inline float GBaseScanParT<float>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
@@ -351,7 +431,9 @@ inline float GBaseScanParT<float>::getRandomItem(Gem::Hap::GRandomBase &gr) cons
 
 /******************************************************************************/
 /**
- * Retrieval of a random value for type double
+ * @brief Retrieval of a random value for type double
+ * @param gr A reference to a random number generator
+ * @return A uniformly distributed random double within [lower_, upper_)
  */
 template <>
 inline double GBaseScanParT<double>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
@@ -363,7 +445,9 @@ inline double GBaseScanParT<double>::getRandomItem(Gem::Hap::GRandomBase &gr) co
 
 /******************************************************************************/
 /**
- * Retrieval of a random value for type std::int32_t
+ * @brief Retrieval of a random value for type std::int32_t
+ * @param gr A reference to a random number generator
+ * @return A uniformly distributed random integer within [lower_, upper_] (upper is inclusive)
  */
 template <>
 inline std::int32_t GBaseScanParT<std::int32_t>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
@@ -384,6 +468,10 @@ class GBScanPar // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Serializes this object via Boost.Serialization
+     *  @tparam Archive The archive type used for (de-)serialization
+     *  @param ar The archive to serialize to / from
+     *  @param (unused) The class version supplied by Boost.Serialization */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -396,14 +484,18 @@ class GBScanPar // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief Construction from local variables */
+    /** @brief Construction from a parameter property specification and a random-scan flag.
+     *  @param (first) The parameter property specification (variable address, boundaries, steps)
+     *  @param (second) If true, items are drawn randomly; if false, a grid is pre-filled */
     GBScanPar(gen::parPropSpec<bool>, bool);
-    /** @brief Copy constructor */
+    /** @brief Copy constructor
+     *  @param (unnamed) Another GBScanPar object to be copied */
     GBScanPar(const GBScanPar &) = default;
     /** @brief The destructor */
     ~GBScanPar() override = default;
 
-    /** @brief Cloning of this object */
+    /** @brief Cloning of this object
+     *  @return A deep copy of this object wrapped in a shared_ptr */
     std::shared_ptr<GBScanPar> clone() const;
 
 private:
@@ -422,6 +514,10 @@ class GInt32ScanPar // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Serializes this object via Boost.Serialization
+     *  @tparam Archive The archive type used for (de-)serialization
+     *  @param ar The archive to serialize to / from
+     *  @param (unused) The class version supplied by Boost.Serialization */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -434,14 +530,18 @@ class GInt32ScanPar // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The standard destructor */
+    /** @brief Construction from a parameter property specification and a random-scan flag.
+     *  @param (first) The parameter property specification (variable address, boundaries, steps)
+     *  @param (second) If true, items are drawn randomly; if false, a grid is pre-filled */
     GInt32ScanPar(gen::parPropSpec<std::int32_t>, bool);
-    /** @brief Copy constructor */
+    /** @brief Copy constructor
+     *  @param (unnamed) Another GInt32ScanPar object to be copied */
     GInt32ScanPar(const GInt32ScanPar &) = default;
     /** @brief The destructor */
     ~GInt32ScanPar() override = default;
 
-    /** @brief Cloning of this object */
+    /** @brief Cloning of this object
+     *  @return A deep copy of this object wrapped in a shared_ptr */
     std::shared_ptr<GInt32ScanPar> clone() const;
 
 private:
@@ -460,6 +560,10 @@ class GDScanPar // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Serializes this object via Boost.Serialization
+     *  @tparam Archive The archive type used for (de-)serialization
+     *  @param ar The archive to serialize to / from
+     *  @param (unused) The class version supplied by Boost.Serialization */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -472,14 +576,18 @@ class GDScanPar // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The standard destructor */
+    /** @brief Construction from a parameter property specification and a random-scan flag.
+     *  @param (first) The parameter property specification (variable address, boundaries, steps)
+     *  @param (second) If true, items are drawn randomly; if false, a grid is pre-filled */
     GDScanPar(gen::parPropSpec<double>, bool);
-    /** @brief The copy constructor */
+    /** @brief The copy constructor
+     *  @param (unnamed) Another GDScanPar object to be copied */
     GDScanPar(const GDScanPar &) = default;
     /** @brief The destructor */
     ~GDScanPar() override = default;
 
-    /** @brief Cloning of this object */
+    /** @brief Cloning of this object
+     *  @return A deep copy of this object wrapped in a shared_ptr */
     std::shared_ptr<GDScanPar> clone() const;
 
 private:
@@ -498,6 +606,10 @@ class GFScanPar // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Serializes this object via Boost.Serialization
+     *  @tparam Archive The archive type used for (de-)serialization
+     *  @param ar The archive to serialize to / from
+     *  @param (unused) The class version supplied by Boost.Serialization */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -510,14 +622,18 @@ class GFScanPar // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The standard destructor */
+    /** @brief Construction from a parameter property specification and a random-scan flag.
+     *  @param (first) The parameter property specification (variable address, boundaries, steps)
+     *  @param (second) If true, items are drawn randomly; if false, a grid is pre-filled */
     GFScanPar(gen::parPropSpec<float>, bool);
-    /** @brief The copy constructor */
+    /** @brief The copy constructor
+     *  @param (unnamed) Another GFScanPar object to be copied */
     GFScanPar(const GFScanPar &) = default;
     /** @brief The destructor */
     ~GFScanPar() override = default;
 
-    /** @brief Cloning of this object */
+    /** @brief Cloning of this object
+     *  @return A deep copy of this object wrapped in a shared_ptr */
     std::shared_ptr<GFScanPar> clone() const;
 
 private:
@@ -548,7 +664,10 @@ struct parSet {
 };
 
 /******************************************************************************/
-/** @brief A simple output operator for parSet object, mostly meant for debugging */
+/** @brief A simple output operator for parSet object, mostly meant for debugging
+ *  @param os The output stream to write to
+ *  @param p_s The parameter set to be streamed
+ *  @return A reference to the output stream, for chaining */
 std::ostream &operator<<(std::ostream &os, const parSet &p_s);
 
 /******************************************************************************/
@@ -621,6 +740,10 @@ private:
         );
     }
 
+    /** @brief Serializes this object via Boost.Serialization
+     *  @tparam Archive The archive type used for (de-)serialization
+     *  @param ar The archive to serialize to / from
+     *  @param (unused) The class version supplied by Boost.Serialization */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -639,29 +762,38 @@ private:
 public:
     /** @brief The default constructor */
     GParameterScan() = default;
-    /** @brief A standard copy constructor */
+    /** @brief A standard copy constructor
+     *  @param (unnamed) Another GParameterScan object to be copied */
     GParameterScan(const GParameterScan &);
     /** @brief The destructor */
     ~GParameterScan() override = default;
 
-    /** @brief Allows to set the number of "best" individuals to be monitored over the course of the algorithm run */
+    /** @brief Allows to set the number of "best" individuals to be monitored over the course of the algorithm run
+     *  @param (unnamed) The number of best individuals of the entire run to be kept */
     void setNMonitorInds(std::size_t);
-    /** @brief Allows to retrieve  the number of "best" individuals to be monitored over the course of the algorithm run */
+    /** @brief Allows to retrieve the number of "best" individuals to be monitored over the course of the algorithm run
+     *  @return The number of best individuals being monitored */
     std::size_t getNMonitorInds() const;
 
-    /** @brief Fills vectors with parameter specifications */
+    /** @brief Fills the parameter vectors from a textual parameter specification
+     *  @param (unnamed) The parameter specification string to be parsed */
     void setParameterSpecs(std::string);
 
-    /** @brief Puts the class in "simple scan" mode */
+    /** @brief Puts the class in "simple scan" mode
+     *  @param (unnamed) The number of random samples of the whole parameter space to take (0 disables simple-scan mode) */
     void setNSimpleScans(std::size_t);
-    /** @brief Retrieves the number of simple scans (or 0, if disabled) */
+    /** @brief Retrieves the number of simple scans (or 0, if disabled)
+     *  @return The configured number of simple scans */
     std::size_t getNSimpleScans() const;
-    /** @brief Retrieves the number of scans performed so far */
+    /** @brief Retrieves the number of scans performed so far
+     *  @return The number of scans processed so far */
     std::size_t getNScansPerformed() const;
 
-    /** @brief Allows to specify whether the parameter space should be scanned randomly or on a grid */
+    /** @brief Allows to specify whether the parameter space should be scanned randomly or on a grid
+     *  @param (unnamed) If true the space is scanned randomly, if false on a grid */
     void setScanRandomly(bool);
-    /** @brief Allows to check whether the parameter space should be scanned randomly or on a grid */
+    /** @brief Allows to check whether the parameter space should be scanned randomly or on a grid
+     *  @return true if the space is scanned randomly, false if on a grid */
     bool getScanRandomly() const;
 
 protected:
@@ -674,9 +806,11 @@ protected:
         return Gem::Courtier::GSubmissionPolicy::full_success_or_fatal();
     }
 
-    /** @brief Adds local configuration options to a GParserBuilder object */
+    /** @brief Adds local configuration options to a GParserBuilder object
+     *  @param gpb The parser builder to which the configuration options are added */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
-    /** @brief Loads the data of another population */
+    /** @brief Loads the data of another population
+     *  @param (unnamed) A pointer to another GParameterScan object, camouflaged as a GOptimizationAlgorithmBase */
     void load_(const GOptimizationAlgorithmBase *) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -686,7 +820,10 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /** @brief Searches for compliance with expectations with respect to another object of the same type
+     *  @param (first) The other object to be compared against (a GParameterScan as a GOptimizationAlgorithmBase)
+     *  @param (second) The expectation for this object, e.g. equality
+     *  @param (third) The limit for allowed deviations of floating point types */
     void compare_(
         const GOptimizationAlgorithmBase & // the other object
         ,
@@ -712,27 +849,35 @@ private:
     /***************************************************************************/
     // Virtual or overridden private functions
 
-    /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
+    /** @brief The actual business logic to be performed during each iteration.
+     *  @return A tuple holding the best raw and transformed fitness achieved this iteration */
     std::tuple<double, double> cycleLogic_() override;
     /** @brief Triggers fitness calculation of a number of individuals */
     void runFitnessCalculation_() override;
 
-    /** @brief Retrieves the number of processable items for the current iteration */
+    /** @brief Retrieves the number of processable items for the current iteration
+     *  @return The number of items that can be processed in the current iteration */
     std::size_t getNProcessableItems_() const override;
 
-    /** @brief A custom halt criterion for the optimization, allowing to stop the loop when no items are left to be scanned */
+    /** @brief A custom halt criterion for the optimization, allowing to stop the loop when no items are left to be scanned
+     *  @return true if the optimization should be halted, false otherwise */
     bool customHalt_() const override;
 
     /** @brief Resizes the population to the desired level and does some error checks */
     void adjustPopulation_() override;
-    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
+    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm
+     *  @return A shared_ptr to a personality-traits object for the parameter scan */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
     /** @brief Gives individuals an opportunity to update their internal structures */
     void actOnStalls_() override;
 
     /***************************************************************************/
     /**
-     * Adds a given data point to a data vector
+     * @brief Adds a given data point to a data vector at the position encoded in the tuple.
+     *
+     * @tparam data_type The parameter value type held by the data point
+     * @param data_point A tuple of (value, mode, name, position); only mode 0 is valid here
+     * @param data_vec The destination vector, written at the position element of the tuple
      */
     template <typename data_type>
     void addDataPoint(
@@ -767,7 +912,11 @@ private:
 
     /***************************************************************************/
     /**
-     * Adds a given data point to a data map
+     * @brief Adds a given data point to a named data map at the position encoded in the tuple.
+     *
+     * @tparam data_type The parameter value type held by the data point
+     * @param data_point A tuple of (value, mode, name, position); name selects the map entry, position the slot
+     * @param data_map The destination map, keyed by parameter name, written at the encoded position
      */
     template <typename data_type>
     void addDataPoint(
@@ -791,10 +940,13 @@ private:
     /** @brief Randomly shuffle the work items a number of times */
     void randomShuffle();
 
-    /** @brief Retrieves the next available parameter set */
+    /** @brief Retrieves the next available parameter set
+     *  @param (unnamed) An out-parameter receiving the running index of the returned parameter set
+     *  @return A shared_ptr to the next parameter set to be evaluated */
     std::shared_ptr<parSet> getParameterSet(std::size_t &);
 
-    /** @brief Switches to the next parameter set */
+    /** @brief Switches to the next parameter set
+     *  @return true if all parameter sets have been exhausted (warp-around), false otherwise */
     bool switchToNextParameterSet();
 
     /** @brief Fills all parameter objects into the all_par_vec_ vector */

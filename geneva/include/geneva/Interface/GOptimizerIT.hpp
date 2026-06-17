@@ -49,8 +49,14 @@ namespace Gem::Geneva::Interface {
 
 /******************************************************************************/
 /**
- * This class specifies the interface that needs to be implemented by optimization
- * algorithms.
+ * @brief Common interface that every optimization algorithm must implement.
+ *
+ * Provides type-safe access (via dynamic_pointer_cast / clone) to the best individuals
+ * found so far -- both globally and within the current iteration -- as well as basic
+ * algorithm metadata and the optimization trigger. The concrete behaviour is supplied by
+ * derived classes through the private virtual hooks (the underscore-suffixed members).
+ *
+ * @tparam optimizer_type The concrete optimization algorithm type returned by optimize().
  */
 template <typename optimizer_type>
 class GOptimizerIT {
@@ -60,14 +66,18 @@ public:
     // optimization algorithms seems too complex and of very limited use, so
     // we prevent it until the need arises.
 
-    
+    /** @brief Deleted move constructor (moving optimization algorithms is not supported). */
     GOptimizerIT(GOptimizerIT<optimizer_type> &&) noexcept = delete;
+    /** @brief Deleted move assignment (moving optimization algorithms is not supported). */
     GOptimizerIT<optimizer_type> &
     operator=(GOptimizerIT<optimizer_type> &&) noexcept = delete;
 
     /***************************************************************************/
     /**
-	  * Triggers the optimization cycle, starting to count iterations at a given offset
+	  * @brief Triggers the optimization cycle, starting to count iterations at a given offset.
+	  *
+	  * @param offset The iteration number at which to start counting (default 0)
+	  * @return A pointer to this optimization algorithm once the cycle has completed
 	  */
     optimizer_type const *optimize(std::uint32_t offset = 0) {
         return this->optimize_(offset);
@@ -75,10 +85,12 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the best individual found so far and converts it to a given target type. Note that
-	  * this function will not allow you to modify the best individual itself as it will
-	  * return a copy to you.
+	  * @brief Retrieves the best individual found so far and converts it to a given target type.
 	  *
+	  * Note that this function will not allow you to modify the best individual itself as it will
+	  * return a copy to you. Throws if the dynamic_pointer_cast to individual_type fails.
+	  *
+	  * @tparam individual_type The concrete individual type to cast the best individual to (must derive from gen::GOptimizableEntity)
 	  * @return A copy of the best individual found in the optimization run
 	  */
     template <typename individual_type>
@@ -98,10 +110,12 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves a list of the best individuals found so far and converts them to a given target type.
-	  * Note that this function will not allow you to modify the best individuals themselves
-	  * as it will return copies to you.
+	  * @brief Retrieves a list of the best individuals found so far and converts them to a given target type.
 	  *
+	  * Note that this function will not allow you to modify the best individuals themselves
+	  * as it will return copies to you. Throws if the collection is empty or if any cast fails.
+	  *
+	  * @tparam individual_type The concrete individual type to cast each best individual to (must derive from gen::GOptimizableEntity)
 	  * @return A list of copies of the best individuals found in the optimization run
 	  */
     template <typename individual_type>
@@ -140,12 +154,15 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the best individual found in the iteration and converts it to a given target type.
+	  * @brief Retrieves the best individual found in the iteration and converts it to a given target type.
+	  *
 	  * Note that this function will not allow you to modify the best individual itself as it will
 	  * return a copy to you. Retrieval of this copy is protected by a lock, so that potentially
 	  * costly operations on results may be performed in parallel (i.e. a copy of the best individual
 	  * is retrieved under protection, any action on this individual may then be carried out in parallel).
+	  * Throws if the dynamic_pointer_cast to individual_type fails.
 	  *
+	  * @tparam individual_type The concrete individual type to cast the best individual to (must derive from gen::GOptimizableEntity)
 	  * @return A copy of the best individual found in the iteration
 	  */
     template <typename individual_type>
@@ -165,10 +182,12 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves a list of the best individuals found in the iteration and converts them to a
-	  * given target type. Note that this function will not allow you to modify the best individuals
-	  * themselves as it will return copies to you.
+	  * @brief Retrieves a list of the best individuals found in the iteration and converts them to a given target type.
 	  *
+	  * Note that this function will not allow you to modify the best individuals
+	  * themselves as it will return copies to you. Throws if the collection is empty or if any clone fails.
+	  *
+	  * @tparam individual_type The concrete individual type to clone each best individual into (must derive from gen::GOptimizableEntity)
 	  * @return A list of copies of the best individuals found in the iteration
 	  */
     template <typename individual_type>
@@ -208,7 +227,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Returns one-word information about the type of optimization algorithm.
+	  * @brief Returns one-word information about the type of optimization algorithm.
+	  *
+	  * @return A short string identifying the algorithm's personality type
 	  */
     std::string getAlgorithmPersonalityType() const {
         return this->getAlgorithmPersonalityType_();
@@ -216,7 +237,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Returns a descriptive name assigned to this algorithm
+	  * @brief Returns a descriptive name assigned to this algorithm.
+	  *
+	  * @return The human-readable name of this optimization algorithm
 	  */
     std::string getAlgorithmName() const {
         return this->getAlgorithmName_();
@@ -224,7 +247,9 @@ public:
 
     /***************************************************************************/
     /**
-	  * Retrieves the current iteration of this object
+	  * @brief Retrieves the current iteration of this object.
+	  *
+	  * @return The current iteration counter
 	  */
     std::uint32_t getIteration() const {
         return this->getIteration_();
@@ -234,22 +259,32 @@ protected:
     /***************************************************************************/
     // Defaulted or constructors / destructors / assignment operators
 
+    /** @brief The default constructor. */
     GOptimizerIT() = default;
+    /** @brief The copy constructor. */
     GOptimizerIT(GOptimizerIT<optimizer_type> const &) = default;
 
     /**
- 	  * The destructor. Making this function protected and non-virtual follows
+ 	  * @brief The destructor.
+ 	  *
+ 	  * Making this function protected and non-virtual follows
  	  * this discussion: http://www.gotw.ca/publications/mill18.htm
  	  */
     ~GOptimizerIT() = default;
 
+    /** @brief The copy assignment operator. */
     GOptimizerIT<optimizer_type> &
     operator=(GOptimizerIT<optimizer_type> const &) = default;
 
     /***************************************************************************/
 
 private:
-    /** @brief Perform the actual optimization cycle, starting to count iterations at a given offset */
+    /**
+     * @brief Performs the actual optimization cycle, starting to count iterations at a given offset.
+     *
+     * @param offset The iteration number at which to start counting
+     * @return A pointer to this optimization algorithm once the cycle has completed
+     */
     virtual optimizer_type const *optimize_(std::uint32_t offset) = 0;
 
     /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */

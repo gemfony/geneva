@@ -77,28 +77,40 @@ public:
 
     /** @brief The default constructor */
     GEvolutionaryAlgorithm_PersonalityTraits() = default;
-    /** @brief The copy contructor */
+    /**
+     * @brief The copy contructor.
+     * @param The object to be copied
+     */
     GEvolutionaryAlgorithm_PersonalityTraits(
         const GEvolutionaryAlgorithm_PersonalityTraits &
     ) = default;
     /** @brief The standard destructor */
     ~GEvolutionaryAlgorithm_PersonalityTraits() override = default;
 
-    /** @brief Allows to check whether this individual lies on the pareto front (only yields useful results after pareto-sorting in EA) */
+    /**
+     * @brief Allows to check whether this individual lies on the pareto front (only yields useful results after pareto-sorting in EA).
+     * @return true if the individual is currently tagged as lying on the pareto front, false otherwise
+     */
     bool isOnParetoFront() const;
     /** @brief Allows to reset the pareto tag to "true" */
     void resetParetoTag();
     /** @brief Allows to specify that this individual does not lie on the pareto front of the current iteration */
     void setIsNotOnParetoFront();
 
-    /** @brief Retrieves the mnemonic of the optimization algorithm */
+    /**
+     * @brief Retrieves the mnemonic of the optimization algorithm.
+     * @return The short mnemonic string identifying the evolutionary-algorithm personality
+     */
     std::string getMnemonic() const override;
 
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
-    /** @brief Loads the data of another GEAPersonalityTraits object */
+    /**
+     * @brief Loads the data of another GEvolutionaryAlgorithm_PersonalityTraits object.
+     * @param The other object whose data is loaded into this one (downcast from GPersonalityTraits)
+     */
     void load_(const GPersonalityTraits *) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -108,7 +120,12 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     * @param The other object to compare against (downcast from GPersonalityTraits)
+     * @param The expectation for this object, e.g. equality
+     * @param The limit for allowed deviations of floating point types
+     */
     void compare_(
         const GPersonalityTraits & // the other object
         ,

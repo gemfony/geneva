@@ -53,6 +53,8 @@ namespace Genome { class GOptimizableEntity; }
  * constraints. Objects representing the template parameter are evaluated for their
  * validity. Note that the classes in this hierarchy are meant to be used PRIOR
  * to the evaluation.
+ *
+ * @tparam ind_type The individual type to be checked; must derive from Genome::GOptimizableEntity
  */
 template <typename ind_type>
 class GPreEvaluationValidityCheckT // NOLINT(cppcoreguidelines-special-member-functions)
@@ -100,15 +102,19 @@ public:
 
     /***************************************************************************/
     /**
-     * Checks whether a given parameter set is valid. The function returns a
-     * double value which is expected to be >= 0. Values in the range [0,1]
+     * @brief Checks whether a given parameter set is valid.
+     *
+     * The function returns a double value which is expected to be >= 0. Values in the range [0,1]
      * indicate valid parameters (according to this constraint). Values above 1
      * indicate invalid parameters. The size of the return value can thus
      * be used to indicate the extent of the invalidity. Two policies are implemented
-     * when check_() returns a value < 0: If allowNevative is set to true, such
+     * when check_() returns a value < 0: If allow_negative_ is set to true, such
      * evaluations are considered to be valid, and the function returns 0. If
-     * allow_negative is set to false, am invalidity is calculated, and the return-
+     * allow_negative_ is set to false, an invalidity is calculated, and the return
      * value will be > 1.
+     *
+     * @param cp A pointer to the individual whose parameters are to be checked
+     * @return 0 if the parameters are valid, otherwise a value > 1 indicating the extent of the invalidity
      */
     double check(const ind_type *cp) const {
         double result = check_(cp);
@@ -138,11 +144,11 @@ public:
 
     /***************************************************************************/
     /**
-     * Checks whether the constraint is valid
+     * @brief Checks whether the constraint is valid for the given individual.
      *
      * @param cp A pointer to the individual to be checked
-     * @param validity_level Will be filled with the validity level of this individual
-     * @return A boolean indicating whether a constraint is valid
+     * @param validity_level Output parameter, filled with the computed validity level of this individual
+     * @return A boolean indicating whether the constraint is valid
      */
     bool isValid(const ind_type *cp, double &validity_level) const {
         // Set the external validity level
@@ -162,11 +168,11 @@ public:
 
     /***************************************************************************/
     /**
-     * Checks whether a constraint it invalid
+     * @brief Checks whether the constraint is invalid for the given individual.
      *
      * @param cp A pointer to the individual to be checked
-     * @param validity_level Will be filled with the validity level of this individual
-     * @return A boolean indicating whether a constraint is invalid
+     * @param validity_level Output parameter, filled with the computed validity level of this individual
+     * @return A boolean indicating whether the constraint is invalid
      */
     bool isInvalid(const ind_type *cp, double &validity_level) const {
         return not this->isValid(cp, validity_level);
@@ -174,7 +180,9 @@ public:
 
     /***************************************************************************/
     /**
-     * Allows to specify whether negative values are considered to be valid
+     * @brief Retrieves whether negative check values are considered to be valid.
+     *
+     * @return True if negative values are treated as valid, false otherwise
      */
     bool getAllowNegative() const {
         return allow_negative_;
@@ -182,7 +190,9 @@ public:
 
     /***************************************************************************/
     /**
-     * Allows to specify whether negative values are considered to be valid
+     * @brief Specifies whether negative check values are considered to be valid.
+     *
+     * @param allow_negative If true, negative values returned by check_() are treated as valid
      */
     void setAllowNegative(bool allow_negative) {
         allow_negative_ = allow_negative;
@@ -191,18 +201,23 @@ public:
 protected:
     /***************************************************************************/
     /**
-     * Checks whether a given parameter set is valid. The function returns a
-     * double value which is expected to be >= 0., giving a level of confidence
-     * that this is a valid solution. This function must be overloaded in
-     * derived classes.
+     * @brief Checks whether a given parameter set is valid.
+     *
+     * The function returns a double value which is expected to be >= 0., giving a level of confidence
+     * that this is a valid solution. This function must be overloaded in derived classes.
+     *
+     * @param cp A pointer to the individual whose parameters are to be checked
+     * @return A raw validity level (>= 0. expected), with values in [0,1] indicating validity
      */
     virtual double check_(const ind_type *) const = 0;
 
     /***************************************************************************/
     /**
-     * Adds local configuration options to a GParserBuilder object
+     * @brief Adds local configuration options to a GParserBuilder object.
      *
-     * TODO: Check whether it makes sense to provide custom configuration files -- if so, add allowNegative_ here
+     * TODO: Check whether it makes sense to provide custom configuration files -- if so, add allow_negative_ here
+     *
+     * @param gpb The GParserBuilder object to which configuration options should be added
      */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override {
         // Call our parent class'es function
@@ -211,14 +226,23 @@ protected:
 
     /***************************************************************************/
     /**
-     * The single declaration of this class'es local data members. load_() and
+     * @brief Returns this class's local data members as a tuple (mutable overload).
+     *
+     * The single declaration of this class's local data members. load_() and
      * compare_() are derived from it, so the member list lives in one place.
+     *
+     * @return A tuple of named, mutable references to the local data members
      */
     auto localMembers() {
         return std::make_tuple(
             Gem::Common::make_member("allow_negative_", allow_negative_)
         );
     }
+    /**
+     * @brief Returns this class's local data members as a tuple (const overload).
+     *
+     * @return A tuple of named, const references to the local data members
+     */
     auto localMembers() const {
         return std::make_tuple(
             Gem::Common::make_member("allow_negative_", allow_negative_)
@@ -227,7 +251,9 @@ protected:
 
     /***************************************************************************/
     /**
-     * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
+     * @brief Loads the data of another GPreEvaluationValidityCheckT<ind_type>.
+     *
+     * @param cp A pointer to another GPreEvaluationValidityCheckT object whose data is loaded into this one
      */
     void load_(const GPreEvaluationValidityCheckT<ind_type> *cp) override {
         // Check that we are dealing with a GPreEvaluationValidityCheckT<ind_type>  reference independent of this object and convert the pointer
@@ -255,11 +281,11 @@ protected:
 
     /***************************************************************************/
     /**
-     * Searches for compliance with expectations with respect to another object
-     * of the same type
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
      *
      * @param cp A constant reference to another GPreEvaluationValidityCheckT object
      * @param e The expected outcome of the comparison
+     * @param limit The maximum acceptable deviation for floating point comparisons (unused here)
      */
     void compare_(
         const GPreEvaluationValidityCheckT<ind_type> &cp,
@@ -291,7 +317,9 @@ protected:
 
     /***************************************************************************/
     /**
-     * Applies modifications to this object. This is needed for testing purposes
+     * @brief Applies modifications to this object. This is needed for testing purposes.
+     *
+     * @return A boolean indicating whether this object was actually modified
      */
     bool modify_GUnitTests_() override {
 #ifdef GEM_TESTING
@@ -313,7 +341,7 @@ protected:
 
     /***************************************************************************/
     /**
-     * Performs self tests that are expected to succeed. This is needed for testing purposes
+     * @brief Performs self tests that are expected to succeed. This is needed for testing purposes.
      */
     void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
@@ -328,7 +356,7 @@ protected:
 
     /***************************************************************************/
     /**
-     * Performs self tests that are expected to fail. This is needed for testing purposes
+     * @brief Performs self tests that are expected to fail. This is needed for testing purposes.
      */
     void specificTestsFailuresExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
@@ -355,7 +383,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * An collection of validity checks with the GPreEvaluationValidityCheckT interface
+ * A collection of validity checks with the GPreEvaluationValidityCheckT interface
+ *
+ * @tparam ind_type The individual type to be checked; must derive from Genome::GOptimizableEntity
  */
 template <typename ind_type>
 class GValidityCheckContainerT : public GPreEvaluationValidityCheckT<ind_type> {
@@ -381,7 +411,9 @@ public:
 
     /***************************************************************************/
     /**
-     * Initialization from a vector of validity checks
+     * @brief Initialization from a vector of validity checks.
+     *
+     * @param validity_checks A vector of validity checks; each one is cloned into this container
      */
     explicit GValidityCheckContainerT(
         const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>> &validity_checks
@@ -391,7 +423,9 @@ public:
 
     /***************************************************************************/
     /**
-     * The copy constructor
+     * @brief The copy constructor.
+     *
+     * @param cp Another GValidityCheckContainerT object whose contained checks are deep-copied
      */
     GValidityCheckContainerT(const GValidityCheckContainerT<ind_type> &cp)
       : GPreEvaluationValidityCheckT<ind_type>(cp) {
@@ -406,7 +440,10 @@ public:
 
     /***************************************************************************/
     /**
-     * The standard assignment operator
+     * @brief The standard assignment operator.
+     *
+     * @param cp Another GValidityCheckContainerT object whose data is loaded into this one
+     * @return A reference to this object
      */
     GValidityCheckContainerT<ind_type> &operator=(const GValidityCheckContainerT<ind_type> &cp) {
         if(this == &cp) {
@@ -418,8 +455,11 @@ public:
 
     /***************************************************************************/
     /**
-     * Adds a validity check to this object. Note that we clone the check so
-     * that it can be used multiple times.
+     * @brief Adds a validity check to this object.
+     *
+     * Note that the check is cloned so that it can be used multiple times. A null pointer triggers an exception.
+     *
+     * @param vc_ptr A shared pointer to the validity check to add (must not be null)
      */
     void addCheck(std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>> vc_ptr) {
         if(not vc_ptr) {
@@ -437,12 +477,19 @@ public:
 
 protected:
     /***************************************************************************/
-    /** @brief Checks whether a given parameter set is valid. To be specified in derived classes */
+    /**
+     * @brief Checks whether a given parameter set is valid. To be specified in derived classes.
+     *
+     * @param cp A pointer to the individual whose parameters are to be checked
+     * @return A raw validity level (>= 0. expected), with values in [0,1] indicating validity
+     */
     double check_(const ind_type *) const override = 0;
 
     /***************************************************************************/
     /**
-     * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
+     * @brief Loads the data of another GPreEvaluationValidityCheckT<ind_type>.
+     *
+     * @param cp A pointer to another GPreEvaluationValidityCheckT object whose data is loaded into this one
      */
     void load_(const GPreEvaluationValidityCheckT<ind_type> *cp) override {
         // Check that we are dealing with a GValidityCheckContainerT<ind_type>  reference independent of this object and convert the pointer
@@ -471,11 +518,11 @@ protected:
 
     /***************************************************************************/
     /**
-     * Searches for compliance with expectations with respect to another object
-     * of the same type
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
      *
      * @param cp A constant reference to another GPreEvaluationValidityCheckT object
      * @param e The expected outcome of the comparison
+     * @param limit The maximum acceptable deviation for floating point comparisons (unused here)
      */
     void compare_(
         const GPreEvaluationValidityCheckT<ind_type> &cp,
@@ -523,6 +570,8 @@ private:
 /**
  * A class which combines all values (i.e. values > 1) according to a
  * user-defined policy or returns 0, if all checks are valid.
+ *
+ * @tparam ind_type The individual type to be checked; must derive from Genome::GOptimizableEntity
  */
 template <typename ind_type>
 class GCheckCombinerT : public GValidityCheckContainerT<ind_type> {
@@ -549,7 +598,9 @@ public:
 
     /***************************************************************************/
     /**
-     * Initialization from a vector of validity checks
+     * @brief Initialization from a vector of validity checks.
+     *
+     * @param validity_checks A vector of validity checks; forwarded to the base container, which clones each one
      */
     explicit GCheckCombinerT(
         const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>> &validity_checks
@@ -559,7 +610,7 @@ public:
 
     /***************************************************************************/
     /**
-     * The copy constructor
+     * @brief The copy constructor.
      */
     GCheckCombinerT(const GCheckCombinerT<ind_type> &) = default;
 
@@ -571,7 +622,10 @@ public:
 
     /***************************************************************************/
     /**
-     * The standard assignment operator
+     * @brief The standard assignment operator.
+     *
+     * @param cp Another GCheckCombinerT object whose data is loaded into this one
+     * @return A reference to this object
      */
     GCheckCombinerT<ind_type> &operator=(const GCheckCombinerT<ind_type> &cp) {
         if(this == &cp) {
@@ -583,7 +637,9 @@ public:
 
     /***************************************************************************/
     /**
-     * Allows to set the combiner policy
+     * @brief Allows to set the combiner policy.
+     *
+     * @param combiner_policy The policy used to combine the individual invalidities (e.g. MULTIPLYINVALID, ADDINVALID)
      */
     void setCombinerPolicy(validityCheckCombinerPolicy combiner_policy) {
         combiner_policy_ = combiner_policy;
@@ -591,7 +647,9 @@ public:
 
     /***************************************************************************/
     /**
-     * Allows to retrieve the combiner policy
+     * @brief Allows to retrieve the combiner policy.
+     *
+     * @return The currently set policy used to combine the individual invalidities
      */
     validityCheckCombinerPolicy getCombinerPolicy() const {
         return combiner_policy_;
@@ -600,9 +658,12 @@ public:
 protected:
     /***************************************************************************/
     /**
-     * Combines all parameters according to a user-defined policy. Note that we
-     * DO have to take care here of a situation where the invalidity equals
-     * MIN- or MAX_DOUBLE.
+     * @brief Combines all invalidities according to the user-defined policy.
+     *
+     * Note that we DO have to take care here of a situation where the invalidity equals MIN- or MAX_DOUBLE.
+     *
+     * @param cp A pointer to the individual whose parameters are checked against all registered checks
+     * @return 0 if all checks are valid, otherwise the combined invalidity (or MAX_DOUBLE at the numeric boundaries)
      */
     double check_(const ind_type *cp) const override {
         // First identify invalid checks
@@ -669,14 +730,23 @@ protected:
 
     /***************************************************************************/
     /**
-     * The single declaration of this class'es local data members. load_() and
+     * @brief Returns this class's local data members as a tuple (mutable overload).
+     *
+     * The single declaration of this class's local data members. load_() and
      * compare_() are derived from it, so the member list lives in one place.
+     *
+     * @return A tuple of named, mutable references to the local data members
      */
     auto localMembers() {
         return std::make_tuple(
             Gem::Common::make_member("combiner_policy_", combiner_policy_)
         );
     }
+    /**
+     * @brief Returns this class's local data members as a tuple (const overload).
+     *
+     * @return A tuple of named, const references to the local data members
+     */
     auto localMembers() const {
         return std::make_tuple(
             Gem::Common::make_member("combiner_policy_", combiner_policy_)
@@ -685,7 +755,9 @@ protected:
 
     /***************************************************************************/
     /**
-     * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
+     * @brief Loads the data of another GPreEvaluationValidityCheckT<ind_type>.
+     *
+     * @param cp A pointer to another GPreEvaluationValidityCheckT object whose data is loaded into this one
      */
     void load_(const GPreEvaluationValidityCheckT<ind_type> *cp) override {
         // Check that we are dealing with a GCheckCombinerT<ind_type>  reference independent of this object and convert the pointer
@@ -711,11 +783,11 @@ protected:
 
     /***************************************************************************/
     /**
-     * Searches for compliance with expectations with respect to another object
-     * of the same type
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
      *
      * @param cp A constant reference to another GPreEvaluationValidityCheckT object
      * @param e The expected outcome of the comparison
+     * @param limit The maximum acceptable deviation for floating point comparisons (unused here)
      */
     void compare_(
         const GPreEvaluationValidityCheckT<ind_type> &cp,
@@ -745,7 +817,9 @@ protected:
 private:
     /***************************************************************************/
     /**
-     * Creates a deep clone of this object
+     * @brief Creates a deep clone of this object.
+     *
+     * @return A newly allocated deep copy of this GCheckCombinerT, owned by the caller
      */
     GPreEvaluationValidityCheckT<ind_type> *clone_() const override {
         return new GCheckCombinerT<ind_type>(*this);

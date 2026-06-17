@@ -108,17 +108,29 @@ public:
     /***************************************************************************/
     /** @brief The default constructor */
     GEvolutionaryAlgorithm();
-    /** @brief A standard copy constructor */
+    /**
+     * @brief A standard copy constructor.
+     * @param The object to be copied
+     */
     GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm &) = default;
     /** @brief The standard destructor */
     ~GEvolutionaryAlgorithm() override = default;
 
-    /** @brief Sets the sorting scheme */
+    /**
+     * @brief Sets the sorting scheme.
+     * @param smode The selection/sorting scheme to use (e.g. mu+nu, mu,nu, munu1pretain)
+     */
     void setSortingScheme(sortingMode smode);
-    /** @brief Retrieves information about the current sorting scheme */
+    /**
+     * @brief Retrieves information about the current sorting scheme.
+     * @return The currently configured sorting/selection scheme
+     */
     sortingMode getSortingScheme() const;
 
-    /** @brief Extracts all individuals on the pareto front */
+    /**
+     * @brief Extracts all individuals on the pareto front.
+     * @param pareto_inds Output vector that, on return, is filled with the individuals currently tagged as lying on the pareto front
+     */
     void extractCurrentParetoIndividuals(
         std::vector<std::shared_ptr<gen::GOptimizableEntity>> &pareto_inds
     );
@@ -127,10 +139,16 @@ protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
-    /** @brief Adds local configuration options to a GParserBuilder object */
+    /**
+     * @brief Adds local configuration options to a GParserBuilder object.
+     * @param gpb The parser-builder to which this algorithm's configuration options are added
+     */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
-    /** @brief Loads the data of another GEvolutionaryAlgorithm object */
+    /**
+     * @brief Loads the data of another GEvolutionaryAlgorithm object.
+     * @param cp A pointer to the other object whose data is loaded into this one (downcast from GOptimizationAlgorithmBase)
+     */
     void load_(const GOptimizationAlgorithmBase *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -140,7 +158,12 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     * @param cp The other object to compare against (downcast from GOptimizationAlgorithmBase)
+     * @param e The expectation for this object, e.g. equality
+     * @param limit The limit for allowed deviations of floating point types
+     */
     void compare_(
         const GOptimizationAlgorithmBase &cp // the other object
         ,
@@ -172,12 +195,21 @@ private:
     /** @brief We submit individuals to the broker connector and wait for processed items */
     void runFitnessCalculation_() override;
 
-    /** @brief Adds the individuals of this iteration to a priority queue */
+    /**
+     * @brief Adds the individuals of this iteration to a priority queue holding the global bests.
+     * @param best_individuals The fixed-size priority queue of global best individuals to update
+     */
     void updateGlobalBestsPQ_(gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals) override;
-    /** @brief Adds the individuals of this iteration to a priority queue */
+    /**
+     * @brief Adds the individuals of this iteration to a priority queue holding this iteration's bests.
+     * @param best_individuals The fixed-size priority queue of this iteration's best individuals to update
+     */
     void updateIterationBestsPQ_(gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals) override;
 
-    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
+    /**
+     * @brief Retrieve a GPersonalityTraits object belonging to this algorithm.
+     * @return A shared pointer to a freshly created personality-traits object for this algorithm
+     */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
 
     /** @brief Choose new parents, based on the selection scheme set by the user */
@@ -185,7 +217,10 @@ private:
 
     /** @brief Some error checks related to population sizes */
     void populationSanityChecks_() const override;
-    /** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
+    /**
+     * @brief Retrieves the evaluation range in a given iteration and sorting scheme.
+     * @return A tuple holding the [start, end) index range of individuals that need to be (re-)evaluated
+     */
     std::tuple<std::size_t, std::size_t> getEvaluationRange_() const override;
 
     /***************************************************************************/
@@ -201,13 +236,21 @@ private:
     void sortMuPlusNuParetoMode();
     /** @brief Selection according to the pareto tag, not taking into account the parents of a population (i.e. in MUCOMMANU mode). */
     void sortMuCommaNuParetoMode();
-    /** @brief Determines whether the first individual dominates the second */
+    /**
+     * @brief Determines whether the first individual dominates the second.
+     * @param a The first individual (the potential dominator)
+     * @param b The second individual (the potentially dominated one)
+     * @return true if individual a dominates individual b, false otherwise
+     */
     bool aDominatesB(
         const std::unique_ptr<gen::GOptimizableEntity> &a,
         const std::unique_ptr<gen::GOptimizableEntity> &b
     ) const;
 
-    /** @brief Fills the collection with individuals */
+    /**
+     * @brief Fills the collection with individuals.
+     * @param n_individuals The number of individuals to add to the collection
+     */
     void fillWithObjects(const std::size_t &n_individuals);
 
     /***************************************************************************/
@@ -222,8 +265,11 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
-         * Allows to output this population. The function only outputs the parent individuals' fitness.
-         */
+ * @brief Allows to output this population. The function only outputs the parent individuals' fitness.
+ * @param os The output stream to write to
+ * @param pop The evolutionary-algorithm population to stream
+ * @return A reference to the output stream, for chaining
+ */
 std::ostream &operator<<(std::ostream &os, const GEvolutionaryAlgorithm &pop);
 
 /******************************************************************************/

@@ -63,16 +63,25 @@ class GSwarmAlgorithmFactory // NOLINT(cppcoreguidelines-special-member-function
 public:
     /** @brief The default constructor */
     GSwarmAlgorithmFactory() = default;
-    /** @brief Initialization with the name of the config file */
+    /**
+     * @brief Initialization with the name of the config file.
+     * @param config_file The path to the configuration file from which settings are read
+     */
     explicit GSwarmAlgorithmFactory(std::filesystem::path const &config_file)
       : Base(config_file) { /* nothing */ }
-    /** @brief Initialization with the name of the config file and a content creator */
+    /**
+     * @brief Initialization with the name of the config file and a content creator.
+     * @param config_file The name of the configuration file from which settings are read
+     * @param content_creator_ptr A factory used to create the individuals that populate the produced algorithm
+     */
     GSwarmAlgorithmFactory(
         const std::string &config_file,
         std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr
     )
       : Base(config_file, content_creator_ptr) { /* nothing */ }
-    /** @brief The copy constructor */
+    /**
+     * @brief The copy constructor. The (unnamed) argument is the other GSwarmAlgorithmFactory object to be copied.
+     */
     GSwarmAlgorithmFactory(const GSwarmAlgorithmFactory &) = default;
     /** @brief The destructor */
     ~GSwarmAlgorithmFactory() override = default;

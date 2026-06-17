@@ -133,6 +133,10 @@ constexpr int FUNC_MAX = 14; ///< highest valid ID
  * Unimodal, convex, separable. Global minimum f=0 at origin.
  * Baseline function — every algorithm should solve this in few iterations.
  * Condition number = 1; no scale imbalance between dimensions.
+ *
+ * @param x Pointer to the array of n parameter values
+ * @param n Number of parameters (problem dimension)
+ * @return The function value Σxᵢ²
  */
 G_CALLABLE inline double parabola(const double *x, int n) {
     double r = 0.;
@@ -148,6 +152,10 @@ G_CALLABLE inline double parabola(const double *x, int n) {
  * Radially symmetric, non-separable. Global minimum f=0 at origin.
  * The cosine overlay creates a dense shell structure of local optima
  * centred on the origin while the global parabolic shape remains.
+ *
+ * @param x Pointer to the array of n parameter values
+ * @param n Number of parameters (problem dimension)
+ * @return The function value (cos(‖x‖²)+2)·‖x‖²
  */
 G_CALLABLE inline double noisyParabola(const double *x, int n) {
     double sq = 0.;
@@ -163,6 +171,10 @@ G_CALLABLE inline double noisyParabola(const double *x, int n) {
  * Non-separable, unimodal for n≤3. Global minimum f=0 at (1,...,1).
  * The narrow, curved banana-shaped valley is nearly flat along its floor,
  * making it hard for gradient-free methods and slow for gradient descent.
+ *
+ * @param x Pointer to the array of n parameter values (n≥2 expected)
+ * @param n Number of parameters (problem dimension)
+ * @return The Rosenbrock function value
  */
 G_CALLABLE inline double rosenbrock(const double *x, int n) {
     double r = 0.;
@@ -179,6 +191,10 @@ G_CALLABLE inline double rosenbrock(const double *x, int n) {
  *
  * Non-canonical form retained for backward compatibility.
  * For the standard CEC/BBOB benchmark, use ackleyCanonical().
+ *
+ * @param x Pointer to the array of n parameter values (n≥2 expected)
+ * @param n Number of parameters (problem dimension)
+ * @return The pairwise-variant Ackley function value
  */
 G_CALLABLE inline double ackley(const double *x, int n) {
     double r = 0.;
@@ -195,6 +211,10 @@ G_CALLABLE inline double ackley(const double *x, int n) {
  * Highly multimodal, separable. Global minimum f=0 at origin.
  * ~10ⁿ regularly spaced local minima of similar depth. Recommended domain [-5.12, 5.12].
  * Standard benchmark for multimodal robustness.
+ *
+ * @param x Pointer to the array of n parameter values
+ * @param n Number of parameters (problem dimension)
+ * @return The Rastrigin function value
  */
 G_CALLABLE inline double rastrigin(const double *x, int n) {
     double r = 10. * n;
@@ -210,6 +230,10 @@ G_CALLABLE inline double rastrigin(const double *x, int n) {
  * Deceptive: global optimum at xᵢ≈420.97, far from origin and far from
  * all secondary optima. Recommended domain [-500, 500].
  * Note: Geneva normalises by 1/n; the standard formulation does not.
+ *
+ * @param x Pointer to the array of n parameter values
+ * @param n Number of parameters (problem dimension); also the normalisation divisor
+ * @return The (1/n-normalised) Schwefel function value
  */
 G_CALLABLE inline double schwefel(const double *x, int n) {
     double r = 0.;
@@ -224,6 +248,10 @@ G_CALLABLE inline double schwefel(const double *x, int n) {
  *
  * Multimodal, radially symmetric, non-separable. Global minimum f=0 at origin.
  * Recommended domain [-100, 100]. Concentric shells of local optima.
+ *
+ * @param x Pointer to the array of n parameter values
+ * @param n Number of parameters (problem dimension)
+ * @return The Salomon function value
  */
 G_CALLABLE inline double salomon(const double *x, int n) {
     double sq = 0.;
@@ -238,6 +266,10 @@ G_CALLABLE inline double salomon(const double *x, int n) {
  * @brief Negative parabola: f(x) = -Σxᵢ²
  *
  * Global maximum f=0 at origin. Used only to verify Geneva's maximisation mode.
+ *
+ * @param x Pointer to the array of n parameter values
+ * @param n Number of parameters (problem dimension)
+ * @return The negated parabola value -Σxᵢ²
  */
 G_CALLABLE inline double negParabola(const double *x, int n) {
     return -parabola(x, n);
@@ -250,6 +282,10 @@ G_CALLABLE inline double negParabola(const double *x, int n) {
  * Recommended domain [-32.768, 32.768].
  * Almost flat outer plateau (near-zero gradient) followed by steep drop to global basin.
  * Standard benchmark in CEC and BBOB suites.
+ *
+ * @param x Pointer to the array of n parameter values
+ * @param n Number of parameters (problem dimension)
+ * @return The canonical Ackley function value
  */
 G_CALLABLE inline double ackleyCanonical(const double *x, int n) {
     double sq = 0.;
@@ -268,6 +304,10 @@ G_CALLABLE inline double ackleyCanonical(const double *x, int n) {
  * Weakly non-separable (product term), multimodal. Global minimum f=0 at origin.
  * Recommended domain [-600, 600]. Quadratic envelope with fine multimodal structure;
  * distinguishes global-structure exploitation from local exploration.
+ *
+ * @param x Pointer to the array of n parameter values
+ * @param n Number of parameters (problem dimension)
+ * @return The Griewank function value
  */
 G_CALLABLE inline double griewank(const double *x, int n) {
     double sq = 0.;
@@ -285,6 +325,10 @@ G_CALLABLE inline double griewank(const double *x, int n) {
  *
  * Separable, multimodal. Global minimum f=0 at (1,...,1).
  * Recommended domain [-10, 10]. Narrow closely-spaced basins test fine-grained precision.
+ *
+ * @param x Pointer to the array of n parameter values (x[0] and x[n-1] are used as endpoints)
+ * @param n Number of parameters (problem dimension)
+ * @return The Lévy function value
  */
 G_CALLABLE inline double levy(const double *x, int n) {
     auto w = [](double xi) { return 1. + (xi - 1.) / 4.; };
@@ -310,6 +354,10 @@ G_CALLABLE inline double levy(const double *x, int n) {
  * Separable, multimodal, asymmetric. Global minimum ≈-39.166·n at xᵢ≈-2.9035.
  * Recommended domain [-5, 5]. The off-centre optimum exposes initialisation bias
  * and mutation symmetry artefacts of gradient-free algorithms.
+ *
+ * @param x Pointer to the array of n parameter values
+ * @param n Number of parameters (problem dimension)
+ * @return The Styblinski-Tang function value
  */
 G_CALLABLE inline double styblinskiTang(const double *x, int n) {
     double r = 0.;
@@ -327,6 +375,10 @@ G_CALLABLE inline double styblinskiTang(const double *x, int n) {
  * Unimodal, separable, condition number 10⁶. Global minimum f=0 at origin.
  * Recommended domain [-5, 5]. The extreme scale imbalance across dimensions tests
  * self-adaptive per-dimension step-size mechanisms (sigma in ES adaptors).
+ *
+ * @param x Pointer to the array of n parameter values
+ * @param n Number of parameters (problem dimension); drives the per-dimension scale exponent
+ * @return The Ellipsoid function value
  */
 G_CALLABLE inline double ellipsoid(const double *x, int n) {
     double r = 0.;
@@ -344,6 +396,10 @@ G_CALLABLE inline double ellipsoid(const double *x, int n) {
  * Domain: [0, π] — this differs from all other functions.
  * NOTE: Set min_var=0, max_var≈3.14159 in the factory configuration!
  * The high exponent m=20 creates extremely narrow ridges. Tests fine-grained local search.
+ *
+ * @param x Pointer to the array of n parameter values (expected in [0, π])
+ * @param n Number of parameters (problem dimension)
+ * @return The Michalewicz function value
  */
 G_CALLABLE inline double michalewicz(const double *x, int n) {
     double r = 0.;
@@ -363,6 +419,10 @@ G_CALLABLE inline double michalewicz(const double *x, int n) {
  * Unimodal, non-separable. Global minimum f=0 at origin.
  * Recommended domain [-5, 10]. The weighted linear coupling introduces dimension-
  * weighted interactions without multimodality; tests non-separable step adaptation.
+ *
+ * @param x Pointer to the array of n parameter values
+ * @param n Number of parameters (problem dimension)
+ * @return The Zakharov function value
  */
 G_CALLABLE inline double zakharov(const double *x, int n) {
     double sq = 0.;

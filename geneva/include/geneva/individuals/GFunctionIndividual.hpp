@@ -352,23 +352,41 @@ public:
 
     /** @brief The default constructor */
     GFunctionIndividual() = default;
-    /** @brief Initialization with the desired demo function */
-    explicit GFunctionIndividual(const solverFunction &);
-    /** @brief A standard copy constructor */
+    /**
+     * @brief Initialization with the desired demo function.
+     * @param df The solverFunction this individual should evaluate
+     */
+    explicit GFunctionIndividual(const solverFunction &df);
+    /**
+     * @brief A standard copy constructor.
+     * @param cp A constant reference to another GFunctionIndividual object
+     */
     GFunctionIndividual(const GFunctionIndividual &cp) = default;
 
     /** @brief The standard destructor */
     ~GFunctionIndividual() override = default;
 
-    /** @brief Allows external entities to set the fitness */
-    void setFitness(std::vector<double> const &);
+    /**
+     * @brief Allows external entities to set the fitness (e.g. from a remote evaluation).
+     * @param fitnesses The vector of fitness values to assign to this individual
+     */
+    void setFitness(std::vector<double> const &fitnesses);
 
-    /** @brief Allows to set the demo function */
-    void setDemoFunction(solverFunction);
-    /** @brief Allows to retrieve the current demo function */
+    /**
+     * @brief Allows to set the demo function to be evaluated.
+     * @param df The solverFunction this individual should evaluate
+     */
+    void setDemoFunction(solverFunction df);
+    /**
+     * @brief Allows to retrieve the current demo function.
+     * @return The solverFunction currently selected for evaluation
+     */
     solverFunction getDemoFunction() const;
 
-    /** @brief Allows to cross check the parameter size */
+    /**
+     * @brief Allows to cross check the parameter size.
+     * @return The number of double parameters held by this individual's genome
+     */
     std::size_t getParameterSize() const;
 
     //---------------------------------------------------------------------------
@@ -697,30 +715,59 @@ public:
         solverFunction demo_function = GO_DEF_EVALFUNCTION;
     };
 
-    /** @brief Registers the config-file options, binding them to the passed Config */
+    /**
+     * @brief Registers the config-file options, binding them to the passed Config.
+     * @param gpb The GParserBuilder object to which the configurable values are added
+     * @param c The Config instance whose members are bound to the parser (written on parse)
+     */
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
-    /** @brief Builds the flat genome's structure for the configured parameter-type mode */
+    /**
+     * @brief Builds the flat genome's structure for the configured parameter-type mode.
+     * @param c The configuration describing dimension, bounds and parameter-type mode
+     * @return The structure-only genome data for the selected mode
+     */
     static gen::GenomeData buildGenome(const Config &c);
-    /** @brief The OA-owned adaption config: every double group gets the configured Gauss / bi-Gauss adaptor */
+    /**
+     * @brief The OA-owned adaption config: every double group gets the configured Gauss / bi-Gauss adaptor.
+     * @param sample A sample flat genome whose group structure the config mirrors
+     * @param c The configuration providing the Gauss / bi-Gauss adaptor settings
+     * @return A shared pointer to the populated adaption config
+     */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
     buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
-    /** @brief Per-object post-config hook: applies the (non-genome) demo function to a produced individual */
+    /**
+     * @brief Per-object post-config hook: applies the (non-genome) demo function to a produced individual.
+     * @param ind The individual to configure (modified in place)
+     * @param c The configuration providing the demo function to apply
+     */
     static void applyConfig(GFunctionIndividual &ind, const Config &c);
-    /** @brief Reads a GFunctionIndividual config file into a Config (for callers that build directly,
-     *  e.g. the dimension-sweeping benchmarks) */
+    /**
+     * @brief Reads a GFunctionIndividual config file into a Config (for callers that build directly,
+     *  e.g. the dimension-sweeping benchmarks).
+     * @param configFile Path to the JSON configuration file
+     * @return A Config populated from the file
+     */
     static Config readConfig(std::filesystem::path const &configFile);
-    /** @brief Builds an individual fully configured the way the factory would: installs the genome from
+    /**
+     * @brief Builds an individual fully configured the way the factory would: installs the genome from
      *  @p c (whose par_dim the caller may have overridden) and the demo function, AND applies the base
      *  GOptimizableEntity options (eval_policy / maxmode / validity thresholds) from @p configFile -- a
      *  faithful drop-in for factory get_as<>() for callers that need a genome dimension differing from the
-     *  config file (the dimension-sweeping benchmarks). */
+     *  config file (the dimension-sweeping benchmarks).
+     * @param c The configuration providing genome dimension, bounds and demo function
+     * @param configFile Path to the config file supplying the base GOptimizableEntity options
+     * @return A fully configured GFunctionIndividual, wrapped in a shared_ptr
+     */
     static std::shared_ptr<GFunctionIndividual>
     buildConfigured(const Config &c, std::filesystem::path const &configFile);
 
 protected:
     //---------------------------------------------------------------------------
-    /** @brief Adds local configuration options to a GParserBuilder object */
-    void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
+    /**
+     * @brief Adds local configuration options to a GParserBuilder object.
+     * @param gpb The GParserBuilder object to which configuration options should be added
+     */
+    void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
     /** @brief Single declaration of this class'es local data members */
     auto localMembers() {
         return std::make_tuple(Gem::Common::make_member("demo_function_", demo_function_));
@@ -729,8 +776,11 @@ protected:
         return std::make_tuple(Gem::Common::make_member("demo_function_", demo_function_));
     }
 
-    /** @brief Loads the data of another GFunctionIndividual */
-    void load_(const gen::GOptimizableEntity *) final;
+    /**
+     * @brief Loads the data of another GFunctionIndividual.
+     * @param cp A pointer to another GFunctionIndividual, camouflaged as a GOptimizableEntity
+     */
+    void load_(const gen::GOptimizableEntity *cp) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GFunctionIndividual>(
@@ -739,21 +789,32 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     * @param cp The other object to compare against
+     * @param e The expectation for this object, e.g. equality
+     * @param limit The limit for allowed deviations of floating point types
+     */
     void compare_(
-        const gen::GOptimizableEntity & // the other object
+        const gen::GOptimizableEntity & cp
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation & e
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double & limit
     ) const final;
 
-    /** @brief The actual value calculation takes place here */
+    /**
+     * @brief The actual value calculation takes place here.
+     * @return The fitness value of this individual for the selected demo function
+     */
     double fitnessCalculation() final;
 
     //---------------------------------------------------------------------------
 
-    /** @brief Applies modifications to this object. */
+    /**
+     * @brief Applies modifications to this object.
+     * @return A boolean indicating whether any modifications were made
+     */
     bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. */
     void specificTestsNoFailureExpected_GUnitTests_() override;
@@ -762,7 +823,10 @@ protected:
 
 private:
     //---------------------------------------------------------------------------
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object.
+     * @return A deep clone of this object, camouflaged as a GFlatGenome
+     */
     gen::GFlatGenome *clone_() const final;
 
     //---------------------------------------------------------------------------
@@ -774,13 +838,22 @@ private:
 
 /******************************************************************************/
 /**
- * Provide an easy way to print the individual's content
+ * @brief Provides an easy way to print the individual's content.
+ * @param os The output stream to write to
+ * @param ind The individual whose content is written
+ * @return A reference to the output stream
  */
 std::ostream &
-operator<<(std::ostream &, const Gem::Geneva::Individuals::GFunctionIndividual &);
+operator<<(std::ostream & os, const Gem::Geneva::Individuals::GFunctionIndividual & ind);
 
+/**
+ * @brief Provides an easy way to print the individual's content via a shared pointer.
+ * @param os The output stream to write to
+ * @param ind_ptr A shared pointer to the individual whose content is written
+ * @return A reference to the output stream
+ */
 std::ostream &
-operator<<(std::ostream &, std::shared_ptr<Gem::Geneva::Individuals::GFunctionIndividual>);
+operator<<(std::ostream & os, std::shared_ptr<Gem::Geneva::Individuals::GFunctionIndividual> ind_ptr);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -826,22 +899,39 @@ class GDoubleSumConstraint
 public:
     /** @brief The default constructor */
     GDoubleSumConstraint() = default;
-    /** @brief Initialization with the constant */
-    explicit GDoubleSumConstraint(const double &);
-    /** @brief The copy constructor */
+    /**
+     * @brief Initialization with the constant.
+     * @param c The constant that the sum of all double parameters must not exceed
+     */
+    explicit GDoubleSumConstraint(const double &c);
+    /**
+     * @brief The copy constructor.
+     * @param cp A constant reference to another GDoubleSumConstraint object
+     */
     GDoubleSumConstraint(const GDoubleSumConstraint &cp) = default;
 
     /** @brief The destructor */
     ~GDoubleSumConstraint() override = default;
 
 protected:
-    double check_(const gen::GOptimizableEntity *) const override;
+    /**
+     * @brief Checks whether the constraint (sum of parameters below the constant) is fulfilled.
+     * @param cp The individual whose parameters are checked
+     * @return A measure of constraint violation (0 if the constraint is satisfied)
+     */
+    double check_(const gen::GOptimizableEntity *cp) const override;
 
-    /** @brief Adds local configuration options to a GParserBuilder object */
-    void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
+    /**
+     * @brief Adds local configuration options to a GParserBuilder object.
+     * @param gpb The GParserBuilder object to which configuration options should be added
+     */
+    void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
-    /** @brief Loads the data of another GOptimizableEntityMultiConstraint */
-    void load_(const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *) override;
+    /**
+     * @brief Loads the data of another GDoubleSumConstraint.
+     * @param cp A pointer to another constraint of the same type, camouflaged as the base type
+     */
+    void load_(const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GDoubleSumConstraint>(
@@ -850,17 +940,25 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     * @param cp The other object to compare against
+     * @param e The expectation for this object, e.g. equality
+     * @param limit The limit for allowed deviations of floating point types
+     */
     void compare_(
-        const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> & // the other object
+        const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> & cp
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation & e
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double & limit
     ) const final;
 
 private:
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object.
+     * @return A deep clone of this object, camouflaged as the base constraint type
+     */
     GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *clone_() const override;
 
     double c_ = 1.; ///< The constant that should not be exceeded by the sum of parameters
@@ -900,22 +998,40 @@ class GDoubleSumGapConstraint
 public:
     /** @brief The default constructor */
     GDoubleSumGapConstraint() = default;
-    /** @brief Initialization with the constant */
-    GDoubleSumGapConstraint(const double &, const double &);
-    /** @brief The copy constructor */
+    /**
+     * @brief Initialization with the constant and the gap.
+     * @param c The target value the sum of all double parameters should equal
+     * @param gap The tolerance around c that is still considered valid
+     */
+    GDoubleSumGapConstraint(const double &c, const double &gap);
+    /**
+     * @brief The copy constructor.
+     * @param cp A constant reference to another GDoubleSumGapConstraint object
+     */
     GDoubleSumGapConstraint(const GDoubleSumGapConstraint &cp) = default;
 
     /** @brief The destructor */
     ~GDoubleSumGapConstraint() override = default;
 
 protected:
-    double check_(const gen::GOptimizableEntity *) const override;
+    /**
+     * @brief Checks whether the equality constraint (sum of parameters near the constant) is fulfilled.
+     * @param cp The individual whose parameters are checked
+     * @return A measure of constraint violation (0 if within the allowed gap)
+     */
+    double check_(const gen::GOptimizableEntity *cp) const override;
 
-    /** @brief Adds local configuration options to a GParserBuilder object */
-    void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
+    /**
+     * @brief Adds local configuration options to a GParserBuilder object.
+     * @param gpb The GParserBuilder object to which configuration options should be added
+     */
+    void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
-    /** @brief Loads the data of another GOptimizableEntityMultiConstraint */
-    void load_(const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *) override;
+    /**
+     * @brief Loads the data of another GDoubleSumGapConstraint.
+     * @param cp A pointer to another constraint of the same type, camouflaged as the base type
+     */
+    void load_(const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GDoubleSumGapConstraint>(
@@ -924,17 +1040,25 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     * @param cp The other object to compare against
+     * @param e The expectation for this object, e.g. equality
+     * @param limit The limit for allowed deviations of floating point types
+     */
     void compare_(
-        const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> & // the other object
+        const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> & cp
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation & e
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double & limit
     ) const final;
 
 private:
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object.
+     * @return A deep clone of this object, camouflaged as the base constraint type
+     */
     GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *clone_() const override;
 
     double c_ = 1.;    ///< The constant that should not be exceeded by the sum of parameters
@@ -973,22 +1097,39 @@ class GSphereConstraint
 public:
     /** @brief The default constructor */
     GSphereConstraint() = default;
-    /** @brief Initialization with the diameter */
+    /**
+     * @brief Initialization with the diameter.
+     * @param cp The diameter of the sphere within which solutions are valid
+     */
     explicit GSphereConstraint(const double &cp);
-    /** @brief The copy constructor */
-    GSphereConstraint(const GSphereConstraint &) = default;
+    /**
+     * @brief The copy constructor.
+     * @param cp A constant reference to another GSphereConstraint object
+     */
+    GSphereConstraint(const GSphereConstraint & cp) = default;
 
     /** @brief The destructor */
     ~GSphereConstraint() override = default;
 
 protected:
-    double check_(const gen::GOptimizableEntity *) const override;
+    /**
+     * @brief Checks whether the constraint (solution within a sphere around 0) is fulfilled.
+     * @param cp The individual whose parameters are checked
+     * @return A measure of constraint violation (0 if inside the sphere)
+     */
+    double check_(const gen::GOptimizableEntity *cp) const override;
 
-    /** @brief Adds local configuration options to a GParserBuilder object */
-    void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
+    /**
+     * @brief Adds local configuration options to a GParserBuilder object.
+     * @param gpb The GParserBuilder object to which configuration options should be added
+     */
+    void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
-    /** @brief Loads the data of another GOptimizableEntityMultiConstraint */
-    void load_(const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *) override;
+    /**
+     * @brief Loads the data of another GSphereConstraint.
+     * @param cp A pointer to another constraint of the same type, camouflaged as the base type
+     */
+    void load_(const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GSphereConstraint>(
@@ -997,17 +1138,25 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     * @param cp The other object to compare against
+     * @param e The expectation for this object, e.g. equality
+     * @param limit The limit for allowed deviations of floating point types
+     */
     void compare_(
-        const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> & // the other object
+        const GPreEvaluationValidityCheckT<gen::GOptimizableEntity> & cp
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation & e
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double & limit
     ) const final;
 
 private:
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object.
+     * @return A deep clone of this object, camouflaged as the base constraint type
+     */
     GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *clone_() const override;
 
     /** @brief The diameter of the sphere */

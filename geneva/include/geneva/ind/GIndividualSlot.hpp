@@ -111,12 +111,19 @@ class GIndividualSlot // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_cloneable_member("individual_", individual_)
         );
     }
+    /** @return A tuple naming the single compared/serialized member (the wrapped individual). */
     auto localMembers() const {
         return std::make_tuple(
             Gem::Common::make_cloneable_member("individual_", individual_)
         );
     }
 
+    /**
+     * @brief Boost.Serialization hook: serializes the wrapped individual plus the OA-owned scratch.
+     * @tparam Archive The Boost.Serialization archive type.
+     * @param ar The archive to read from / write to.
+     * @param (unused) The serialization format version (ignored).
+     */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -143,12 +150,18 @@ public:
     /** @brief The default constructor creates an empty slot (no individual) */
     GIndividualSlot() = default;
 
-    /** @brief Wraps an existing individual into a fresh slot (the scratch starts empty) */
+    /**
+     * @brief Wraps an existing individual into a fresh slot (the scratch starts empty).
+     * @param ind The individual to take ownership of (moved into the slot).
+     */
     explicit GIndividualSlot(std::unique_ptr<GOptimizableEntity> ind)
       : individual_(std::move(ind)) {
     }
 
-    /** @brief The copy constructor deep-clones the individual and deep-copies the scratch */
+    /**
+     * @brief The copy constructor deep-clones the individual and deep-copies the scratch.
+     * @param cp The slot to copy from.
+     */
     GIndividualSlot(const GIndividualSlot &cp)
       : Gem::Common::GCommonInterfaceT<GIndividualSlot>(cp)
       , scratch_(cp.scratch_) {
@@ -161,7 +174,11 @@ public:
     /** @brief The destructor */
     ~GIndividualSlot() override = default;
 
-    /** @brief Copy assignment via the load_() deep-copy protocol */
+    /**
+     * @brief Copy assignment via the load_() deep-copy protocol.
+     * @param cp The slot to copy from.
+     * @return *this.
+     */
     GIndividualSlot &operator=(const GIndividualSlot &cp) {
         if(this != &cp) {
             this->load_(&cp);
@@ -169,21 +186,22 @@ public:
         return *this;
     }
 
-    /** @brief Move assignment */
+    /** @brief Move assignment. @return *this. */
     GIndividualSlot &operator=(GIndividualSlot &&) noexcept = default;
 
     /***************************************************************************/
     // Access. Explicit -- no operator-> forwarding to the individual (see the class note).
 
-    /** @brief Whether this slot currently holds an individual */
+    /** @brief Whether this slot currently holds an individual. @return true if an individual is held. */
     bool hasIndividual() const noexcept {
         return static_cast<bool>(individual_);
     }
 
-    /** @brief The wrapped individual */
+    /** @brief The wrapped individual. @return A reference to the held individual. */
     GOptimizableEntity &individual() noexcept {
         return *individual_;
     }
+    /** @brief The wrapped individual (const). @return A const reference to the held individual. */
     const GOptimizableEntity &individual() const noexcept {
         return *individual_;
     }
@@ -192,28 +210,40 @@ public:
      * @brief The owning pointer to the wrapped individual. Used by the optimization algorithm to swap
      * the individual out into a courtier submission span for workOn() and back afterwards, so the broker
      * keeps dealing in individuals.
+     * @return A reference to the owning unique_ptr holding the individual.
      */
     std::unique_ptr<GOptimizableEntity> &individualPtr() noexcept {
         return individual_;
     }
+    /**
+     * @brief The owning pointer to the wrapped individual (const).
+     * @return A const reference to the owning unique_ptr holding the individual.
+     */
     const std::unique_ptr<GOptimizableEntity> &individualPtr() const noexcept {
         return individual_;
     }
 
-    /** @brief Moves the individual out of the slot, leaving it empty */
+    /**
+     * @brief Moves the individual out of the slot, leaving it empty.
+     * @return The owning pointer to the individual (the slot is empty afterwards).
+     */
     std::unique_ptr<GOptimizableEntity> releaseIndividual() {
         return std::move(individual_);
     }
 
-    /** @brief Moves an individual into the slot, replacing any previous one */
+    /**
+     * @brief Moves an individual into the slot, replacing any previous one.
+     * @param ind The individual to take ownership of (moved into the slot).
+     */
     void resetIndividual(std::unique_ptr<GOptimizableEntity> ind) {
         individual_ = std::move(ind);
     }
 
-    /** @brief The optimization-algorithm-owned scratch (personality + POD adaption state) */
+    /** @brief The optimization-algorithm-owned scratch (personality + POD adaption state). @return A reference to the scratch store. */
     GAuxiliaryStore &scratch() noexcept {
         return scratch_;
     }
+    /** @brief The OA-owned scratch (const). @return A const reference to the scratch store. */
     const GAuxiliaryStore &scratch() const noexcept {
         return scratch_;
     }
@@ -226,6 +256,9 @@ public:
     /**
      * @brief Converts the personality base pointer to the desired type. Only accessible when
      * personality_type derives from GPersonalityTraits (mirrors the former GOptimizableEntity template).
+     * @tparam personality_type The concrete personality-traits type to convert to (must derive from GPersonalityTraits).
+     * @return A shared pointer to the personality traits cast to personality_type.
+     * @throw geneva_exception (DEBUG builds) if the personality pointer is empty.
      */
     template <typename personality_type>
         requires std::derived_from<personality_type, GPersonalityTraits>
@@ -243,7 +276,11 @@ public:
         return Gem::Common::convertSmartPointer<GPersonalityTraits, personality_type>(scratch_.personalityRef());
     }
 
-    /** @brief The personality-traits base pointer */
+    /**
+     * @brief The personality-traits base pointer.
+     * @return A shared pointer to the slot's GPersonalityTraits.
+     * @throw geneva_exception (DEBUG builds) if the personality pointer is empty.
+     */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits() {
 #ifdef DEBUG
         if(not scratch_.personalityRef()) {
@@ -256,7 +293,11 @@ public:
         return scratch_.personalityRef();
     }
 
-    /** @brief Sets the personality of this slot */
+    /**
+     * @brief Sets the personality of this slot.
+     * @param gpt The personality-traits object to install (must be non-null).
+     * @throw geneva_exception if gpt is empty.
+     */
     void setPersonality(std::shared_ptr<GPersonalityTraits> gpt) {
         if(not gpt) {
             throw geneva_exception(
@@ -272,7 +313,10 @@ public:
         scratch_.clearScratch();
     }
 
-    /** @brief A string identifier for the current personality, or "PERSONALITY_NONE" */
+    /**
+     * @brief A string identifier for the current personality.
+     * @return The personality's name(), or "PERSONALITY_NONE" if no personality is set.
+     */
     std::string getPersonality() const {
         if(scratch_.personalityRef()) {
             return scratch_.personalityRef()->name();
@@ -282,7 +326,10 @@ public:
 
 protected:
     /***************************************************************************/
-    /** @brief Loads the data of another GIndividualSlot */
+    /**
+     * @brief Loads the data of another GIndividualSlot into this one (deep copy).
+     * @param (the other slot) The slot whose data is copied into this one.
+     */
     void load_(const GIndividualSlot *) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -292,7 +339,12 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     * @param (other) The other object to compare against (the wrapped individual only; scratch excluded).
+     * @param (expectation) The expectation for this object, e.g. equality.
+     * @param (limit) The limit for allowed deviations of floating point types.
+     */
     void compare_(
         GIndividualSlot const & // the other object
         ,
@@ -301,7 +353,10 @@ protected:
         double const & // the limit for allowed deviations of floating point types
     ) const override;
 
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    /**
+     * @brief Applies modifications to this object. This is needed for testing purposes.
+     * @return true if at least one modification was applied, false otherwise.
+     */
     bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
     void specificTestsNoFailureExpected_GUnitTests_() override;
@@ -310,9 +365,9 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Emits a name for this class / object */
+    /** @brief Emits a name for this class / object. @return The class name string. */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /** @brief Creates a deep clone of this object. @return A heap-allocated deep copy of this slot. */
     GIndividualSlot *clone_() const override;
 
     /***************************************************************************/

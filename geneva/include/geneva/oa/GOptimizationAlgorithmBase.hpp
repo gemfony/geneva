@@ -226,14 +226,20 @@ public:
     // holds slots.
     using Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>::push_back;
 
-    /** @brief Adds an individual to the population, wrapping it in a fresh GIndividualSlot */
+    /**
+     * @brief Adds an individual to the population, wrapping it in a fresh GIndividualSlot.
+     * @param ind The individual to add; ownership is transferred into a newly created slot
+     */
     void push_back(std::unique_ptr<gen::GOptimizableEntity> ind) {
         Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>::push_back(
             std::make_unique<gen::GIndividualSlot>(std::move(ind))
         );
     }
 
-    /** @brief The copy constructor */
+    /**
+     * @brief The copy constructor.
+     * @param cp Another GOptimizationAlgorithmBase object whose state is copied
+     */
     GOptimizationAlgorithmBase(GOptimizationAlgorithmBase const &cp);
 
     /***************************************************************************/
@@ -244,10 +250,16 @@ public:
 
     /***************************************************************************/
 
-    /** @brief Performs the necessary administratory work of doing check-pointing */
+    /**
+     * @brief Performs the necessary administratory work of doing check-pointing.
+     * @param is_better Whether the current iteration produced an improvement over the previous best
+     */
     void checkpoint(bool is_better) const;
 
-    /** @brief Loads the state of the class from disc */
+    /**
+     * @brief Loads the state of the class from disc.
+     * @param cp_file The path to the checkpoint file to restore the algorithm state from
+     */
     void loadCheckpoint(std::filesystem::path const &cp_file);
 
     /**
@@ -256,6 +268,8 @@ public:
      * adapting algorithm (EA / SA) adopts it (validating that it matches the population's genome) instead
      * of deriving a default from the genome layout. The base does nothing -- non-adapting algorithms
      * (swarm, gradient descent, scan) have no adaption config.
+     *
+     * @param config The OA-owned adaption configuration to adopt for this run
      */
     virtual void setAdaptionConfig(std::shared_ptr<GAdaptionConfigBase> /* config */) { /* no-op */ }
 
@@ -264,32 +278,68 @@ public:
      * (EA / SA) build it at init() and return it here so telemetry (e.g. the adaptor-property monitor) can
      * read each group's adaptor settings without snapshotting the structure-only genome layout. The base
      * (non-adapting algorithms) returns null.
+     *
+     * @return The OA-owned adaption configuration in effect for this run, or null if there is none
      */
     virtual std::shared_ptr<const GAdaptionConfigBase> getAdaptionConfig() const { return {}; }
 
-    /** @brief Checks whether the optimization process has been halted */
+    /**
+     * @brief Checks whether the optimization process has been halted.
+     * @return true if the optimization has halted, false otherwise
+     */
     bool halted() const;
 
-    /** @brief Allows to set the number of generations after which a checkpoint should be written */
+    /**
+     * @brief Allows to set the number of generations after which a checkpoint should be written.
+     * @param cp_interval The checkpoint interval in iterations (-1 means: write whenever an improvement occurs)
+     */
     void setCheckpointInterval(std::int32_t cp_interval);
-    /** @brief Allows to retrieve the number of generations after which a checkpoint should be written */
+    /**
+     * @brief Allows to retrieve the number of generations after which a checkpoint should be written.
+     * @return The checkpoint interval in iterations
+     */
     std::int32_t getCheckpointInterval() const;
 
-    /** @brief Allows to set the base name of the checkpoint file and the directory where it should be stored. */
+    /**
+     * @brief Allows to set the base name of the checkpoint file and the directory where it should be stored.
+     * @param cp_directory The directory in which checkpoint files are stored
+     * @param cp_base_name The base name of the checkpoint files
+     */
     void setCheckpointBaseName(std::string cp_directory, std::string cp_base_name);
-    /** @brief Allows to retrieve the base name of the checkpoint file. */
+    /**
+     * @brief Allows to retrieve the base name of the checkpoint file.
+     * @return The base name of the checkpoint files
+     */
     std::string getCheckpointBaseName() const;
-    /** @brief Allows to retrieve the directory where checkpoint files should be stored */
+    /**
+     * @brief Allows to retrieve the directory where checkpoint files should be stored.
+     * @return The checkpoint directory as a string
+     */
     std::string getCheckpointDirectory() const;
-    /** @brief Allows to retrieve the directory where checkpoint files should be stored */
+    /**
+     * @brief Allows to retrieve the directory where checkpoint files should be stored.
+     * @return The checkpoint directory as a filesystem path
+     */
     std::filesystem::path getCheckpointDirectoryPath() const;
-    /** @brief Determines whether checkpointing should be done in Text-, XML- or Binary-mode */
+    /**
+     * @brief Determines whether checkpointing should be done in Text-, XML- or Binary-mode.
+     * @param cp_ser_mode The serialization mode used for checkpoint files
+     */
     void setCheckpointSerializationMode(Gem::Common::serializationMode cp_ser_mode);
-    /** @brief Retrieves the current checkpointing serialization mode */
+    /**
+     * @brief Retrieves the current checkpointing serialization mode.
+     * @return The serialization mode used for checkpoint files
+     */
     Gem::Common::serializationMode getCheckpointSerializationMode() const;
-    /** @brief Allows to set the cp_overwrite_ flag */
+    /**
+     * @brief Allows to set the cp_remove_ flag.
+     * @param cp_remove Whether checkpoint files should be removed (true) or kept (false)
+     */
     void setRemoveCheckpointFiles(bool cp_remove);
-    /** @brief Allows to check whether checkpoint files will be removed */
+    /**
+     * @brief Allows to check whether checkpoint files will be removed.
+     * @return true if checkpoint files are removed, false if they are kept
+     */
     bool checkpointFilesAreRemoved() const;
 
     /** @brief Resets the class to the state before the optimize call. */
@@ -302,15 +352,24 @@ public:
      * neither serialized nor cloned. @p n_threads is honoured only for the multithreaded kind
      * (0 == hardware concurrency). If neither this nor setBroker() is called, init() defaults
      * to a multithreaded local consumer.
+     *
+     * @param kind The kind of local consumer to submit work items through
+     * @param n_threads The number of threads (honoured only for the multithreaded kind; 0 == hardware concurrency)
      */
     void setLocalConsumer(local_consumer_kind kind, unsigned int n_threads = 0) {
         exec_policy_.setLocalConsumer(kind, n_threads);
     }
 
-    /** @brief Sets the number of threads used for parallel organizational work (adaption,
-     *  recombination, ...). 0 means "automatic" (hardware concurrency). */
+    /**
+     * @brief Sets the number of threads used for parallel organizational work (adaption,
+     *  recombination, ...). 0 means "automatic" (hardware concurrency).
+     * @param n_threads The number of organizational-work threads (0 == hardware concurrency)
+     */
     void setNThreads(std::uint16_t n_threads);
-    /** @brief Retrieves the number of threads used for parallel organizational work. */
+    /**
+     * @brief Retrieves the number of threads used for parallel organizational work.
+     * @return The number of threads used for organizational work
+     */
     [[nodiscard]] std::uint16_t getNThreads() const;
 
     /******************************************************************************/
@@ -321,6 +380,8 @@ public:
      * started. Used by Go2 for the networked consumers (asio/websocket), where a single server-backed
      * consumer is shared across the whole run rather than created per algorithm. Transient runtime
      * state, neither serialized nor cloned; takes precedence over setLocalConsumer().
+     *
+     * @param broker A ready-to-use courtier broker (consumer registered, clone function set, server started)
      */
     void setBroker(std::shared_ptr<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>> broker) {
         exec_policy_.setBroker(std::move(broker));
@@ -328,88 +389,185 @@ public:
 
     /******************************************************************************/
 
-    /** @brief Emits information specific to this class */
+    /**
+     * @brief Emits information specific to this class.
+     * @param im The information mode, e.g. start / processing / end of an optimization run
+     */
     void informationUpdate(const infoMode &im);
 
-    /** @brief Checks whether a better solution was found. */
+    /**
+     * @brief Checks whether a better solution was found.
+     * @return true if the current iteration improved on the best known fitness, false otherwise
+     */
     bool progress() const;
 
-    /** @brief Allows to register a pluggable optimization monitor. */
+    /**
+     * @brief Allows to register a pluggable optimization monitor.
+     * @param pluggable_om The pluggable optimization monitor to register
+     */
     void registerPluggableOM(std::shared_ptr<GBasePluggableOM> pluggable_om);
     /** @brief Allows to reset the local pluggable optimization monitors */
     void resetPluggableOM();
-    /** @brief Allows to check whether pluggable optimization monitors were registered */
+    /**
+     * @brief Allows to check whether pluggable optimization monitors were registered.
+     * @return true if at least one pluggable optimization monitor is registered, false otherwise
+     */
     bool hasPluggableOptimizationMonitors() const;
 
-    /** @brief Retrieves the default population size */
+    /**
+     * @brief Retrieves the default population size.
+     * @return The nominal (default) population size
+     */
     std::size_t getDefaultPopulationSize() const;
-    /** @brief Retrieve the current population size */
+    /**
+     * @brief Retrieve the current population size.
+     * @return The current number of individuals in the population
+     */
     std::size_t getPopulationSize() const;
 
-    /** @brief Set the number of iterations after which the optimization should be stopped */
+    /**
+     * @brief Set the number of iterations after which the optimization should be stopped.
+     * @param max_iteration The maximum number of iterations
+     */
     void setMaxIteration(std::uint32_t max_iteration);
-    /** @brief Retrieve the number of iterations after which optimization should be stopped */
+    /**
+     * @brief Retrieve the number of iterations after which optimization should be stopped.
+     * @return The maximum number of iterations
+     */
     std::uint32_t getMaxIteration() const;
 
-    /** @brief Sets the minimum number of iterations */
+    /**
+     * @brief Sets the minimum number of iterations.
+     * @param min_iteration The minimum number of iterations to run before a halt criterion may take effect
+     */
     void setMinIteration(std::uint32_t min_iteration);
-    /** @brief Retrieves the currently set minimum number of iterations */
+    /**
+     * @brief Retrieves the currently set minimum number of iterations.
+     * @return The minimum number of iterations
+     */
     std::uint32_t getMinIteration() const;
 
-    /** @brief Sets the maximum number of iterations allowed without improvement of the best individual */
+    /**
+     * @brief Sets the maximum number of iterations allowed without improvement of the best individual.
+     * @param max_stall_iteration The maximum number of stalled (improvement-free) iterations
+     */
     void setMaxStallIteration(std::uint32_t max_stall_iteration);
-    /** @brief Retrieves the maximum number of generations allowed in an optimization run without improvement of the best individual. */
+    /**
+     * @brief Retrieves the maximum number of generations allowed in an optimization run without improvement of the best individual.
+     * @return The maximum number of stalled iterations
+     */
     std::uint32_t getMaxStallIteration() const;
 
-    /** @brief Sets the maximum allowed processing time */
+    /**
+     * @brief Sets the maximum allowed processing time.
+     * @param max_duration The maximum allowed run duration
+     */
     void setMaxTime(std::chrono::duration<double> max_duration);
-    /** @brief Retrieves the value of the max_duration_ parameter. */
+    /**
+     * @brief Retrieves the value of the max_duration_ parameter.
+     * @return The maximum allowed run duration
+     */
     std::chrono::duration<double> getMaxTime() const;
 
-    /** @brief Sets the minimum required processing time */
+    /**
+     * @brief Sets the minimum required processing time.
+     * @param min_duration The minimum run duration before a halt criterion may take effect
+     */
     void setMinTime(std::chrono::duration<double> min_duration);
-    /** @brief Retrieves the value of the min_duration_ parameter */
+    /**
+     * @brief Retrieves the value of the min_duration_ parameter.
+     * @return The minimum required run duration
+     */
     std::chrono::duration<double> getMinTime() const;
 
-    /** @brief Sets a quality threshold beyond which optimization is expected to stop */
+    /**
+     * @brief Sets a quality threshold beyond which optimization is expected to stop.
+     * @param quality_threshold The quality threshold value
+     * @param has_quality_threshold Whether the quality threshold is active
+     */
     void setQualityThreshold(double quality_threshold, bool has_quality_threshold);
-    /** @brief Retrieves the current value of the quality threshold and also indicates whether the threshold is active */
+    /**
+     * @brief Retrieves the current value of the quality threshold and also indicates whether the threshold is active.
+     * @param has_quality_threshold Output parameter set to true if the threshold is active, false otherwise
+     * @return The current quality threshold value
+     */
     double getQualityThreshold(bool &has_quality_threshold) const;
 
-    /** @brief Sets the name of a "termination file" */
+    /**
+     * @brief Sets the name of a "termination file".
+     * @param termination_file The path to a file whose modification triggers termination
+     * @param terminate_on_file_modification Whether modification of the file should trigger termination
+     */
     void setTerminationFile(std::string termination_file, bool terminate_on_file_modification);
-    /** @brief Retrieves the current name of the termination file and also indicates whether the "touched halt" is active */
+    /**
+     * @brief Retrieves the current name of the termination file and also indicates whether the "touched halt" is active.
+     * @param terminate_on_file_modification Output parameter set to true if the touched-halt feature is active
+     * @return The current termination file name
+     */
     std::string getTerminationFile(bool &terminate_on_file_modification) const;
 
     /** @brief Removes the quality threshold */
     void resetQualityThreshold();
-    /** @brief Checks whether a quality threshold has been set */
+    /**
+     * @brief Checks whether a quality threshold has been set.
+     * @return true if a quality threshold is active, false otherwise
+     */
     bool hasQualityThreshold() const;
 
-    /** @brief Returns the current offset used to calculate the current iteration */
+    /**
+     * @brief Returns the current offset used to calculate the current iteration.
+     * @return The starting iteration offset (non-zero when resuming from a checkpoint)
+     */
     std::uint32_t getStartIteration() const;
 
-    /** @brief Sets the number of iterations after which the algorithm should report about its inner state. */
+    /**
+     * @brief Sets the number of iterations after which the algorithm should report about its inner state.
+     * @param iter The reporting interval in iterations
+     */
     void setReportIteration(std::uint32_t iter);
-    /** @brief Returns the number of iterations after which the algorithm should report about its inner state. */
+    /**
+     * @brief Returns the number of iterations after which the algorithm should report about its inner state.
+     * @return The reporting interval in iterations
+     */
     std::uint32_t getReportIteration() const;
 
-    /** @brief Retrieves the current number of failed optimization attempts */
+    /**
+     * @brief Retrieves the current number of failed optimization attempts.
+     * @return The current stall counter (number of consecutive improvement-free iterations)
+     */
     std::uint32_t getStallCounter() const;
 
-    /** @brief Allows to set the number of iterations without improvement, after which individuals are asked to update their internal data structures */
+    /**
+     * @brief Allows to set the number of iterations without improvement, after which individuals are asked to update their internal data structures.
+     * @param stall_counter_threshold The stall count after which actOnStalls is triggered
+     */
     void setStallCounterThreshold(std::uint32_t stall_counter_threshold);
-    /** @brief Allows to retrieve the number of iterations without improvement, after which individuals are asked to update their internal data structures */
+    /**
+     * @brief Allows to retrieve the number of iterations without improvement, after which individuals are asked to update their internal data structures.
+     * @return The stall-counter threshold
+     */
     std::uint32_t getStallCounterThreshold() const;
 
-    /** @brief Retrieve the best value found in the entire optimization run so far */
+    /**
+     * @brief Retrieve the best value found in the entire optimization run so far.
+     * @return A tuple holding the best known primary fitness (raw, transformed)
+     */
     std::tuple<double, double> getBestKnownPrimaryFitness() const;
-    /** @brief Retrieves the best value found in the current iteration */
+    /**
+     * @brief Retrieves the best value found in the current iteration.
+     * @return A tuple holding the best current primary fitness (raw, transformed)
+     */
     std::tuple<double, double> getBestCurrentPrimaryFitness() const;
 
-    /** @brief Specifies whether information about termination reasons should be emitted */
+    /**
+     * @brief Specifies whether information about termination reasons should be emitted.
+     * @param emit_terminatio_reason Whether termination reasons should be emitted (default true)
+     */
     void setEmitTerminationReason(bool emit_terminatio_reason = true);
-    /** @brief Retrieves information on whether information about termination reasons should be emitted */
+    /**
+     * @brief Retrieves information on whether information about termination reasons should be emitted.
+     * @return true if termination reasons are emitted, false otherwise
+     */
     bool getEmitTerminationReason() const;
 
     /******************************************************************************/
@@ -418,6 +576,7 @@ public:
      * type and returns it. In DEBUG mode, the function will check whether the
      * requested position exists.
      *
+     * @tparam target_type The concrete individual type the entry should be converted to
      * @param pos The position in our data array that shall be converted
      * @return A converted version of the GOptimizableEntity object, as required by the user
      */
@@ -444,18 +603,34 @@ public:
 
     /***************************************************************************/
 
-    /** @brief Retrieve the number of processable items in the current iteration. */
+    /**
+     * @brief Retrieve the number of processable items in the current iteration.
+     * @return The number of individuals to be evaluated in the current iteration
+     */
     std::size_t getNProcessableItems() const;
 
-    /** @brief If individuals have been stored in this population, they are added to the priority queue. */
+    /**
+     * @brief If individuals have been stored in this population, they are added to the priority queue.
+     * @param best_individuals The priority queue that the stored best individuals are added to
+     */
     void addCleanStoredBests(gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals);
 
-    /** @brief Helper function that determines whether we are currently inside of the first iteration */
+    /**
+     * @brief Helper function that determines whether we are currently inside of the first iteration.
+     * @return true if the current iteration is the first one, false otherwise
+     */
     bool inFirstIteration() const;
-    /** @brief Helper function that determines whether we are after the first iteration */
+    /**
+     * @brief Helper function that determines whether we are after the first iteration.
+     * @return true if the optimization is past the first iteration, false otherwise
+     */
     bool afterFirstIteration() const;
 
-    /** @brief Checks whether a checkpoint-file has the same "personality" as our own algorithm */
+    /**
+     * @brief Checks whether a checkpoint-file has the same "personality" as our own algorithm.
+     * @param p The path to the checkpoint file to inspect
+     * @return true if the checkpoint's personality matches this algorithm, false otherwise
+     */
     bool cp_personality_fits(const std::filesystem::path &p) const;
 
 protected:
@@ -470,9 +645,15 @@ protected:
     /***************************************************************************/
     // Overridden or virtual protected functions
 
-    /** @brief Adds local configuration options to a GParserBuilder object */
+    /**
+     * @brief Adds local configuration options to a GParserBuilder object.
+     * @param gpb A reference to the parser-builder that collects this algorithm's configuration options
+     */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
-    /** @brief Loads the data of another GOptimizationAlgorithm object */
+    /**
+     * @brief Loads the data of another GOptimizationAlgorithm object.
+     * @param cp A pointer to another GOptimizationAlgorithmBase object to load from
+     */
     void load_(const GOptimizationAlgorithmBase *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -482,7 +663,12 @@ protected:
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     * @param cp The other GOptimizationAlgorithmBase object to compare against
+     * @param e The expectation for this comparison, e.g. equality
+     * @param limit The limit for allowed deviations of floating point types
+     */
     void compare_(
         const GOptimizationAlgorithmBase &cp,
         const Gem::Common::expectation &e,
@@ -517,9 +703,15 @@ protected:
 
     /***************************************************************************/
 
-    /** @brief Submits the contiguous sub-range [start, end) of @p work_items for evaluation through
+    /**
+     * @brief Submits the contiguous sub-range [start, end) of @p work_items for evaluation through
      *  courtier. The algorithm passes the range it wants evaluated explicitly (no per-item DO_PROCESS
-     *  flagging needed); the consumer marks and reconciles exactly that span in place. */
+     *  flagging needed); the consumer marks and reconciles exactly that span in place.
+     * @param work_items The work-item vector whose sub-range is submitted (reconciled in place)
+     * @param start The (inclusive) start index of the range to evaluate
+     * @param end The (exclusive) end index of the range to evaluate
+     * @return The executor status describing the outcome of the submission
+     */
     Gem::Courtier::executor_status_t workOn(
         std::vector<std::unique_ptr<gen::GOptimizableEntity>> &work_items,
         std::size_t start,
@@ -532,20 +724,36 @@ protected:
      * (positions preserved), runs workOn() on it, then moves the (possibly reconciled) individuals back
      * into their slots. The slots -- and the OA scratch they carry -- stay put. workOn() is in-place
      * (the work-item vector keeps its size), so the move-back by index is exact.
+     * @param start The (inclusive) start index of the population range to evaluate
+     * @param end The (exclusive) end index of the population range to evaluate
+     * @return The executor status describing the outcome of the submission
      */
     Gem::Courtier::executor_status_t workOnPopulation(std::size_t start, std::size_t end);
-    /** @brief Retrieves a vector of old work items after job submission */
+    /**
+     * @brief Retrieves a vector of old work items after job submission.
+     * @return The work items that were superseded by reconciliation during the last submission
+     */
     std::vector<std::unique_ptr<gen::GOptimizableEntity>> getOldWorkItems();
 
-    /** @brief Returns a fresh personality-traits object for this algorithm. Protected, non-virtual
+    /**
+     * @brief Returns a fresh personality-traits object for this algorithm. Protected, non-virtual
      *  wrapper around the private getPersonalityTraits_() factory so intermediate base classes (e.g.
-     *  GParChild) can mint the correct concrete personality for slots they build themselves. */
+     *  GParChild) can mint the correct concrete personality for slots they build themselves.
+     * @return A shared pointer to a freshly created personality-traits object for this algorithm
+     */
     std::shared_ptr<GPersonalityTraits> makePersonalityTraits() const { return getPersonalityTraits_(); }
 
-    /** @brief Saves the state of the class to disc */
+    /**
+     * @brief Saves the state of the class to disc.
+     * @param output_file The path of the checkpoint file to write the algorithm state to
+     */
     void saveCheckpoint(std::filesystem::path const &output_file) const;
 
-    /** @brief Extracts the short name of the optimization algorithm */
+    /**
+     * @brief Extracts the short name of the optimization algorithm.
+     * @param p The path from which the algorithm's short name is extracted
+     * @return The short name of the optimization algorithm encoded in the path
+     */
     std::string extractOptAlgFromPath(const std::filesystem::path &p) const;
 
     /** @brief Allows to set the personality type of the individuals */
@@ -553,18 +761,33 @@ protected:
     /** @brief Resets the individual's personality types */
     void resetIndividualPersonalities();
 
-    /** @brief Sets the default size of the population */
+    /**
+     * @brief Sets the default size of the population.
+     * @param def_pop_size The nominal (default) population size
+     */
     void setDefaultPopulationSize(std::size_t def_pop_size);
 
     // NB: protected, as a derived function may fall back to this function, cmp EA in non-pareto mode
-    /** @brief Adds the individuals of this iteration to a priority queue. */
+    /**
+     * @brief Adds the individuals of this iteration to the global-best priority queue.
+     * @param best_individuals The priority queue the current iteration's individuals are added to
+     */
     virtual void updateGlobalBestsPQ_(gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals);
-    /** @brief Adds the individuals of this iteration to a priority queue. */
+    /**
+     * @brief Adds the individuals of this iteration to the iteration-best priority queue.
+     * @param best_individuals The priority queue the current iteration's individuals are added to
+     */
     virtual void updateIterationBestsPQ_(gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals);
 
-    /** @brief Set the number of "best" individuals to be recorded in each iteration */
+    /**
+     * @brief Set the number of "best" individuals to be recorded in each iteration.
+     * @param n_record_best_individuals The number of best individuals to record per iteration
+     */
     void setNRecordBestIndividuals(std::size_t n_record_best_individuals);
-    /** @brief Retrieve the number of best individuals to be recorded in each iteration */
+    /**
+     * @brief Retrieve the number of best individuals to be recorded in each iteration.
+     * @return The number of best individuals recorded per iteration
+     */
     std::size_t getNRecordBestIndividuals() const;
 
     /** @brief Allows derived classes to reset the stall counter. */
@@ -583,6 +806,8 @@ protected:
      * PRESERVE the restored per-individual scratch (personality + adaption / swarm / CG POD blocks)
      * instead of re-seeding it, so a resumed algorithm keeps its evolved state. It is deliberately NOT
      * serialized (it is a transient resume marker, and loadCheckpoint sets it AFTER fromFile anyway).
+     *
+     * @return true if this run was resumed from a checkpoint and its scratch must be preserved
      */
     bool resumedFromCheckpoint() const { return resumed_from_checkpoint_; }
     bool resumed_from_checkpoint_ = false;
@@ -591,45 +816,82 @@ private:
     /***************************************************************************/
     // Overloaded or virtual base functions
 
-    /** @brief This function encapsulates some common functionality of iteration-based optimization algorithms. */
+    /**
+     * @brief This function encapsulates some common functionality of iteration-based optimization algorithms.
+     * @param offset An iteration offset to start from (non-zero when resuming from a checkpoint)
+     * @return A pointer to this algorithm after the optimization run has completed
+     */
     GOptimizationAlgorithmBase const *optimize_(std::uint32_t offset) final;
-    /** @brief Emits a name for this class / object; this can be a long name with spaces */
+    /**
+     * @brief Emits a name for this class / object; this can be a long name with spaces.
+     * @return The name of this class / object
+     */
     std::string name_() const override = 0;
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object.
+     * @return A newly allocated deep copy of this object
+     */
     GOptimizationAlgorithmBase *clone_() const override = 0;
 
     /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
     void runFitnessCalculation_() override = 0;
-    /** @brief The actual business logic to be performed during each iteration */
+    /**
+     * @brief The actual business logic to be performed during each iteration.
+     * @return A tuple holding the best achieved fitness (raw, transformed) of this iteration
+     */
     virtual std::tuple<double, double> cycleLogic_() = 0;
 
-    /** @brief Retrieve the current iteration of the optimization run */
+    /**
+     * @brief Retrieve the current iteration of the optimization run.
+     * @return The current iteration number
+     */
     std::uint32_t getIteration_() const override;
 
-    /** @brief Retrieves the best individual found up to now */
+    /**
+     * @brief Retrieves the best individual found up to now.
+     * @return A shared pointer to the globally best individual
+     */
     std::shared_ptr<gen::GOptimizableEntity> getBestGlobalIndividual_() const final;
-    /** @brief Retrieves a list of the best individuals found */
+    /**
+     * @brief Retrieves a list of the best individuals found.
+     * @return A vector of shared pointers to the globally best individuals
+     */
     std::vector<std::shared_ptr<gen::GOptimizableEntity>>
     getBestGlobalIndividuals_() const final;
 
-    /** @brief Retrieves the best individual found in the iteration */
+    /**
+     * @brief Retrieves the best individual found in the iteration.
+     * @return A shared pointer to the best individual of the current iteration
+     */
     std::shared_ptr<gen::GOptimizableEntity> getBestIterationIndividual_() const final;
-    /** @brief Retrieves a list of the best individuals found in the */
+    /**
+     * @brief Retrieves a list of the best individuals found in the current iteration.
+     * @return A vector of shared pointers to the best individuals of the current iteration
+     */
     std::vector<std::shared_ptr<gen::GOptimizableEntity>>
     getBestIterationIndividuals_() const final;
 
-    /** @brief Retrieve the number of processable items in the current iteration. */
+    /**
+     * @brief Retrieve the number of processable items in the current iteration.
+     * @return The number of individuals to be evaluated in the current iteration
+     */
     virtual std::size_t getNProcessableItems_() const;
 
-    /** @brief The submission policy this algorithm uses when routed through courtier (Phase 7).
+    /**
+     * @brief The submission policy this algorithm uses when routed through courtier (Phase 7).
      *  Default: clone-on-partial-return (population-based, tolerant -- EA/SA/Swarm). The "need-all"
      *  algorithms (GD/CGD/Nelder-Mead/ParameterScan), which cannot proceed with a missing or failed
-     *  evaluation, override this to full-success-or-fatal. */
+     *  evaluation, override this to full-success-or-fatal.
+     * @return The submission policy used for courtier submissions (clone-on-partial-return by default)
+     */
     virtual Gem::Courtier::GSubmissionPolicy getSubmissionPolicy_() const {
         return Gem::Courtier::GSubmissionPolicy::clone_on_partial_return();
     }
 
-    /** @brief Retrieve a personality trait object belonging to this algorithm */
+    /**
+     * @brief Retrieve a personality trait object belonging to this algorithm.
+     * @return A shared pointer to a freshly created personality-traits object for this algorithm
+     */
     virtual std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const = 0;
 
     /** @brief Resizes the population to the desired level and does some error checks */
@@ -640,53 +902,106 @@ private:
 
     /***************************************************************************/
 
-    /** @brief Update the stall counter. */
+    /**
+     * @brief Update the stall counter.
+     * @param best_eval The best evaluation (raw, transformed) of the current iteration used to decide on improvement
+     */
     void updateStallCounter(const std::tuple<double, double> &best_eval);
 
-    /** @brief This function returns true once a given time has passed */
+    /**
+     * @brief This function returns true once a given time has passed.
+     * @param current_time The current time against which the maximum duration is checked
+     * @return true if the maximum duration has been exceeded, false otherwise
+     */
     bool timedHalt(const std::chrono::system_clock::time_point &current_time) const;
-    /** @brief This function checks whether a minimum amount of time has passed */
+    /**
+     * @brief This function checks whether a minimum amount of time has passed.
+     * @param current_time The current time against which the minimum duration is checked
+     * @return true if the minimum duration has passed, false otherwise
+     */
     bool minTimePassed(const std::chrono::system_clock::time_point &current_time) const;
 
-    /** @brief This function returns true once the quality has passed a given threshold */
+    /**
+     * @brief This function returns true once the quality has passed a given threshold.
+     * @return true if the quality threshold has been reached, false otherwise
+     */
     bool qualityHalt() const;
 
-    /** @brief This function returns true once a given number of stalls has been exceeded in a row */
+    /**
+     * @brief This function returns true once a given number of stalls has been exceeded in a row.
+     * @return true if the maximum number of stalls has been exceeded, false otherwise
+     */
     bool stallHalt() const;
 
-    /** @brief This function returns true once a maximum number of iterations has been exceeded */
+    /**
+     * @brief This function returns true once a maximum number of iterations has been exceeded.
+     * @return true if the maximum number of iterations has been exceeded, false otherwise
+     */
     bool iterationHalt() const;
-    /** @brief This function returns true when the minimum number of iterations has been passed. */
+    /**
+     * @brief This function returns true when the minimum number of iterations has been passed.
+     * @return true if the minimum number of iterations has been passed, false otherwise
+     */
     bool minIterationPassed() const;
 
-    /** @brief This function returns true if a SIGHUP / CTRL_CLOSE_EVENT signal was sent */
+    /**
+     * @brief This function returns true if a SIGHUP / CTRL_CLOSE_EVENT signal was sent.
+     * @return true if a termination signal was received, false otherwise
+     */
     bool sigHupHalt() const;
 
-    /** @brief Triggers termination of the optimization run, when a file with a user-defined file is modified */
+    /**
+     * @brief Triggers termination of the optimization run when a user-defined file is modified.
+     * @return true if the termination file was modified after the run started, false otherwise
+     */
     bool touchHalt() const;
 
-    /** @brief A wrapper for customHalt_ that allows to emit the termination reason */
+    /**
+     * @brief A wrapper for customHalt_ that allows to emit the termination reason.
+     * @return true if the custom halt criterion has been reached, false otherwise
+     */
     bool customHalt() const;
-    /** @brief Custom setting of halt criteria */
+    /**
+     * @brief Custom setting of halt criteria.
+     * @return true if the custom halt criterion has been reached, false otherwise
+     */
     virtual bool customHalt_() const;
 
-    /** @brief This function checks whether a halt criterion has been reached. */
+    /**
+     * @brief This function checks whether a halt criterion has been reached.
+     * @return true if any halt criterion has been reached, false otherwise
+     */
     bool halt() const;
 
-    /** @brief Check whether the max-iteration halt is set */
+    /**
+     * @brief Check whether the max-iteration halt is set.
+     * @return true if a maximum-iteration halt criterion is active, false otherwise
+     */
     bool maxIterationHaltset() const;
-    /** @brief Check whether a halt criterion based on the number of stalls has been set */
+    /**
+     * @brief Check whether a halt criterion based on the number of stalls has been set.
+     * @return true if a stall-based halt criterion is active, false otherwise
+     */
     bool stallHaltSet() const;
 
-    /** @brief Check whether the max_duration-halt criterion has been set */
+    /**
+     * @brief Check whether the max_duration-halt criterion has been set.
+     * @return true if a maximum-duration halt criterion is active, false otherwise
+     */
     bool maxDurationHaltSet() const;
 
-    /** @brief Check whether the quality-threshold halt-criterion has been set */
+    /**
+     * @brief Check whether the quality-threshold halt-criterion has been set.
+     * @return true if a quality-threshold halt criterion is active, false otherwise
+     */
     bool qualityThresholdHaltSet() const;
     /** @brief Marks the globally best known fitness in all individuals */
     void markBestFitness();
 
-    /** @brief Indicates whether the stall_counter_threshold_ has been exceeded */
+    /**
+     * @brief Indicates whether the stall_counter_threshold_ has been exceeded.
+     * @return true if the stall-counter threshold has been exceeded, false otherwise
+     */
     bool stallCounterThresholdExceeded() const;
 
     /***************************************************************************/
@@ -762,7 +1077,13 @@ private:
     // plumbing (broker / executor / local consumer lifecycle + late-return wiring) to this policy;
     // configured via setLocalConsumer() / setBroker(), defaulted in init() via applyInitDefault(). ---
     GOptimizerExecutionPolicy exec_policy_;
-    /** @brief Submits the contiguous sub-range [start, end) of @p work_items through courtier. */
+    /**
+     * @brief Submits the contiguous sub-range [start, end) of @p work_items through courtier.
+     * @param work_items The work-item vector whose sub-range is submitted (reconciled in place)
+     * @param start The (inclusive) start index of the range to evaluate
+     * @param end The (exclusive) end index of the range to evaluate
+     * @return The executor status describing the outcome of the submission
+     */
     Gem::Courtier::executor_status_t workOnViaConsumer_(
         std::vector<std::unique_ptr<gen::GOptimizableEntity>> &work_items,
         std::size_t start,

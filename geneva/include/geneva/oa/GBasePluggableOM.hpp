@@ -100,44 +100,89 @@ public:
     GBasePluggableOM &operator=(GBasePluggableOM &&) = default;
 
     /***************************************************************************/
-    /** @brief Access tp information about the current iteration */
+    /**
+     * @brief Public entry point that forwards to the derived-class hook for emitting
+     * information about the current iteration.
+     *
+     * @param infoMode Indicates which optimization phase is active (initialization, the
+     *        per-iteration cycle, or finalization)
+     * @param GOptimizationAlgorithmBase const *const Non-owning pointer to the algorithm
+     *        currently being monitored; the monitor reads its state but does not own it
+     */
     void informationFunction(infoMode, GOptimizationAlgorithmBase const *const);
 
-    /** @brief Allows to set the use_raw_evaluation_ variable */
+    /**
+     * @brief Allows to set the use_raw_evaluation_ variable.
+     *
+     * @param use_raw If true, the true (unmodified) evaluation is used instead of any
+     *        transformed value
+     */
     void setUseRawEvaluation(bool use_raw);
 
-    /** @brief Allows to retrieve the value of the use_raw_evaluation_ variable */
+    /**
+     * @brief Allows to retrieve the value of the use_raw_evaluation_ variable.
+     *
+     * @return true if the true (unmodified) evaluation is requested, false otherwise
+     */
     bool getUseRawEvaluation() const;
 
 protected:
     /************************************************************************/
-    /** @brief Single declaration of this class'es local data members */
+    /**
+     * @brief Single declaration of this class'es local data members (non-const overload).
+     *
+     * @return A tuple of named members used by the comparison and serialization framework
+     */
     auto localMembers() {
         return std::make_tuple(Gem::Common::make_member("use_raw_evaluation_", use_raw_evaluation_));
     }
+    /**
+     * @brief Single declaration of this class'es local data members (const overload).
+     *
+     * @return A tuple of named members used by the comparison and serialization framework
+     */
     auto localMembers() const {
         return std::make_tuple(Gem::Common::make_member("use_raw_evaluation_", use_raw_evaluation_));
     }
 
-    /** @brief Loads the data of another object */
+    /**
+     * @brief Loads the data of another object into this one.
+     *
+     * @param cp A constant pointer to another GBasePluggableOM object whose data is copied
+     */
     void load_(const GBasePluggableOM *cp) override;
 
-    /** @brief Allow access to this classes compare_ function */
+    /**
+     * @brief Allow access to this classes compare_ function.
+     *
+     * @param GBasePluggableOM const & The first object to compare
+     * @param GBasePluggableOM const & The second object to compare
+     * @param Gem::Common::GToken & The token accumulating the comparison result
+     */
     friend void Gem::Common::compare_base_t<GBasePluggableOM>(
         GBasePluggableOM const &,
         GBasePluggableOM const &,
         Gem::Common::GToken &
     );
 
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     *
+     * @param cp A constant reference to another GBasePluggableOM object to compare against
+     * @param e The expectation for this object, e.g. equality or inequality
+     * @param limit The maximum allowed deviation for floating point comparisons
+     */
     void compare_(
         const GBasePluggableOM &cp,
         const Gem::Common::expectation &e,
         const double &limit
     ) const override;
 
-    /** @brief Applies modifications to this object. This is needed for testing purposes
- */
+    /**
+     * @brief Applies modifications to this object. This is needed for testing purposes.
+     *
+     * @return true if the object was modified, false otherwise
+     */
     bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
     void specificTestsNoFailureExpected_GUnitTests_() override;
@@ -151,10 +196,22 @@ protected:
         false; ///< Specifies whether the true (unmodified) evaluation should be used
 
 private:
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object.
+     *
+     * @return A pointer to a newly allocated deep copy of this object (pure virtual)
+     */
     GBasePluggableOM *clone_() const override = 0;
 
-    /** @brief Overload this function in derived classes, specifying actions for initialization, the optimization cycles and finalization. */
+    /**
+     * @brief Overload this function in derived classes, specifying actions for initialization,
+     * the optimization cycles and finalization (pure virtual).
+     *
+     * @param infoMode Indicates which optimization phase is active (initialization, the
+     *        per-iteration cycle, or finalization)
+     * @param GOptimizationAlgorithmBase const *const Non-owning pointer to the algorithm
+     *        currently being monitored
+     */
     virtual void
     informationFunction_(infoMode, GOptimizationAlgorithmBase const *const) = 0;
 };
