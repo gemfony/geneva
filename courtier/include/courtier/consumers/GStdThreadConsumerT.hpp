@@ -67,9 +67,23 @@ public:
      *  @param n_threads Number of worker threads in the pool; 0 means use the hardware concurrency. */
     explicit GStdThreadConsumerT(unsigned int n_threads = 0)
         : pool_(n_threads == 0 ? default_threads() : n_threads)
-    { /* nothing */ }
+    {
+        instances_constructed().fetch_add(1, std::memory_order_relaxed);
+    }
 
     ~GStdThreadConsumerT() override = default;
+
+    /***************************************************************************/
+    /** @brief Process-wide count of how many thread-pool consumers (of this work-item type) have ever
+     *  been constructed. Each instance owns its own GThreadPool, so this also counts the worker pools
+     *  built. The single-shared-consumer goal is that every un-injected algorithm needing this KIND
+     *  converges on ONE shared instance, so a whole process (even a nested EA-in-EA) builds exactly one;
+     *  the count is the observable for that invariant. Lightweight (one relaxed atomic add per ctor).
+     *  @return A reference to the process-wide construction counter. */
+    static std::atomic<std::size_t> &instances_constructed() {
+        static std::atomic<std::size_t> counter{0};
+        return counter;
+    }
 
 protected:
     /***************************************************************************/
