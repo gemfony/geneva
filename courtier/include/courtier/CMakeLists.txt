@@ -30,13 +30,11 @@
 SET ( COMMUNICATIONINCLUDES
     GBaseClientT.hpp
     GBaseConsumerT.hpp
-    GBrokerT.hpp
     GCommandContainerT.hpp
     GCourtierEnums.hpp
     GCourtierHelperFunctions.hpp
     GDemoProcessingContainers.hpp
     GExecutorStatusT.hpp
-    GExecutorT.hpp
     GProcessingContainerT.hpp
     GSubmissionPolicy.hpp
 )
