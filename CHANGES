@@ -533,6 +533,14 @@ Recommended Versions:
   mpi_cleanSessInterval default was aligned to the consumer's own 1000 ms so the
   default behaviour is unchanged).
 
+- Fixed: the MPI consumer no longer has a fixed 20 KB message-size cap. Receives previously posted a
+  fixed-size buffer (GMPICONSUMERMAXMESSAGESIZE = 20 KB); a large genome's first (full-layout) work
+  item or a big SEND_LAYOUT reply that exceeded it could not be delivered. The receivers (the master's
+  single listener thread and the worker's single IO loop) now MPI_Iprobe + MPI_Get_count to learn each
+  message's exact size and receive it into an exactly-sized buffer, so messages of any size are handled.
+  The now-obsolete cap constant and the send-side size checks were removed. (Handler threads only send,
+  so the probe-then-receive on the single-threaded receive paths is race-free.)
+
 - Robustness: GSwarmAlgorithm::adjustNeighborhoods now guards a completely empty first-iteration
   population in all builds (previously a DEBUG-only check; in a release build a total first-iteration
   work-item loss reached this->front() on an empty container -- undefined behaviour). It now throws a

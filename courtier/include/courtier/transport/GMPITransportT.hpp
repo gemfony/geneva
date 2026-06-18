@@ -281,8 +281,6 @@ public:
       , config_{config} {
         glogger << "GMPIConsumerWorkerNodeT with rank " << commRank_ << " started up" << '\n'
                 << GLOGGING;
-        // create the buffer for incoming messages
-        incomingMessageBuffer_ = std::make_unique<char[]>(GMPICONSUMERMAXMESSAGESIZE);
 
         // Engage the worker side of the layout send-once wire form. The worker caches every
         // layout it receives (keyed by content id) so an id-only work item resolves locally; on a miss
@@ -419,19 +417,6 @@ private:
             &sendHandle_
         );
 
-        // start asynchronous receive call to receive the servers result. By starting this call before we even have
-        // confirmed that the send operation has completed, we can save some time. I.e. after the server has fully received
-        // the request it can immediately respond without having to wait for the client side starting to receive
-        MPI_Irecv(
-            incomingMessageBuffer_.get(),
-            GMPICONSUMERMAXMESSAGESIZE,
-            MPI_CHAR,
-            RANK_MASTER_NODE,
-            MPI_ANY_TAG,
-            MPI_COMMUNICATOR,
-            &receiveHandle_
-        );
-
         MPI_Status status{};
 
         // Wait until sending completed -- bounded, so a dead/unresponsive master cannot hang the
@@ -461,9 +446,11 @@ private:
             return false;
         }
 
-        // Wait until we have received the response -- bounded for the same reason (this is where a
-        // dead master would otherwise hang the worker indefinitely).
-        if(not waitForRequestOrTimeout(receiveHandle_, status)) {
+        // Wait until the master's response is available -- bounded for the same reason (this is where a
+        // dead master would otherwise hang the worker indefinitely). Probe first so the response can be
+        // of any size (the master may inline a large full-layout work item); receiveProbedMessage() then
+        // sizes the receive to the message exactly, removing the old fixed-size cap.
+        if(not probeWithTimeout(RANK_MASTER_NODE, MPI_ANY_TAG, status)) {
             glogger
                 << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork() "
                    "with rank="
@@ -491,8 +478,8 @@ private:
             return false;
         }
 
-        // create string with correct size from the fixed size buffer
-        incomingMessage_ = std::string(incomingMessageBuffer_.get(), mpiGetCount(status));
+        // Receive the response, sized exactly to its content.
+        incomingMessage_ = receiveProbedMessage(status);
 
         return true;
     }
@@ -523,6 +510,58 @@ private:
             }
             std::this_thread::sleep_for(std::chrono::milliseconds{1});
         }
+    }
+
+    /**
+         * Polls (with the same bounded give-up behaviour as waitForRequestOrTimeout) for an incoming
+         * message from @p source on @p tag, without posting a receive. On success @p status carries the
+         * pending message's envelope, from which the caller reads its exact size (MPI_Get_count) before
+         * receiving it -- so a message of any size can be received without a fixed-size buffer cap.
+         *
+         * @param source The expected sender rank
+         * @param tag The expected message tag (may be MPI_ANY_TAG)
+         * @param status Filled with the pending message's envelope on success
+         * @return true if a matching message is pending (status filled); false on timeout / halt.
+         */
+    [[nodiscard]] bool probeWithTimeout(int source, int tag, MPI_Status &status) {
+        const auto deadline = std::chrono::steady_clock::now() + GMPICONSUMERWORKERMPITIMEOUT;
+
+        while(true) {
+            int isAvailable{0};
+            MPI_Iprobe(source, tag, MPI_COMMUNICATOR, &isAvailable, &status);
+            if(isAvailable) {
+                return true;
+            }
+            // A probe posts no request, so on give-up there is nothing to cancel.
+            if(halt_() || std::chrono::steady_clock::now() >= deadline) {
+                return false;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds{1});
+        }
+    }
+
+    /**
+         * Receives the message just reported by a successful probe, sized exactly to its content (no
+         * fixed cap). Matches the probed source/tag so it receives precisely that message.
+         *
+         * @param probeStatus The status filled by a successful probeWithTimeout()
+         * @return The received message as a string
+         */
+    std::string receiveProbedMessage(const MPI_Status &probeStatus) {
+        int count{0};
+        MPI_Get_count(&probeStatus, MPI_CHAR, &count);
+        std::string message(static_cast<std::size_t>(count), '\0');
+        MPI_Status recvStatus{};
+        MPI_Recv(
+            message.data(),
+            count,
+            MPI_CHAR,
+            probeStatus.MPI_SOURCE,
+            probeStatus.MPI_TAG,
+            MPI_COMMUNICATOR,
+            &recvStatus
+        );
+        return message;
     }
 
     /**
@@ -653,19 +692,10 @@ private:
             return {};
         }
 
-        // Receive the SEND_LAYOUT reply on its dedicated tag.
-        auto replyBuffer = std::make_unique<char[]>(GMPICONSUMERMAXMESSAGESIZE);
-        MPI_Request recvReq{};
-        MPI_Irecv(
-            replyBuffer.get(),
-            GMPICONSUMERMAXMESSAGESIZE,
-            MPI_CHAR,
-            RANK_MASTER_NODE,
-            TAG_SEND_LAYOUT,
-            MPI_COMMUNICATOR,
-            &recvReq
-        );
-        if(not waitForRequestOrTimeout(recvReq, status) || status.MPI_ERROR != MPI_SUCCESS) {
+        // Receive the SEND_LAYOUT reply on its dedicated tag. Probe first so a layout blob of any size
+        // can be received (a large layout is exactly what would have exceeded the old fixed cap).
+        if(not probeWithTimeout(RANK_MASTER_NODE, TAG_SEND_LAYOUT, status) ||
+           status.MPI_ERROR != MPI_SUCCESS) {
             glogger << "In GMPIConsumerWorkerNodeT<processable_type>::fetchLayoutBlob_() with rank="
                     << commRank_ << ":" << '\n'
                     << "Timed out / errored waiting for the SEND_LAYOUT reply from the master." << '\n'
@@ -674,7 +704,7 @@ private:
         }
 
         // Deserialise the reply (again no nested wire scope) and hand back the blob.
-        const std::string replyStr(replyBuffer.get(), mpiGetCount(status));
+        const std::string replyStr = receiveProbedMessage(status);
         return Gem::Courtier::parseLayoutReply<processable_type>(replyStr, config_.serializationMode);
     }
 
@@ -707,7 +737,6 @@ private:
     // So the program logic ensures that the access to these resources is exclusive to one thread, so we do not
     // need to enforce this with mutex or something similar and can store the handles as members.
     MPI_Request sendHandle_{};
-    MPI_Request receiveHandle_{};
 
     /**
          * counter for how many times we have not received data when requesting data from the master node
@@ -719,8 +748,6 @@ private:
         randomDevice_()
     }; ///< The actual random number engine, seeded by randomDevice_
 
-    // we only work with one IO-thread here. So we can store the buffer as a member variable without concurrency issues
-    std::unique_ptr<char[]> incomingMessageBuffer_;
     std::string incomingMessage_;
     std::string outgoingMessage_;
     // contains the current command and payload (if any)
@@ -969,7 +996,9 @@ private:
     /**
          * @brief Serializes the commandContainer_ member into outgoingMessage_ for transmission.
          *
-         * Throws a geneva_exception if the serialized message exceeds the maximum configured message size.
+         * Any message size is permitted: the receiver probes the incoming message and sizes its receive
+         * to fit (see GMPIConsumerMasterNodeT::listenForRequests / the worker's receiveProbedMessage),
+         * so there is no fixed send cap.
          */
     void serializeOutgoingMsg() {
         // Serialize the response under the wire scope (layout send-once): a COMPUTE work item's layout is shipped
@@ -980,21 +1009,6 @@ private:
             wireCtx_.enabled ? &wireCtx_ : nullptr,
             serializationMode_
         );
-
-        if(outgoingMessage_.size() > GMPICONSUMERMAXMESSAGESIZE) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "GMPIConsumerSessionT<processable_type>::serializeOutgoingMsg():" << '\n'
-                << "Size of individual to send after serialization greater than maximum configured "
-                   "message size."
-                << '\n'
-                << "Size of Individual is " << outgoingMessage_.size() << '\n'
-                << "Maximum message size is " << GMPICONSUMERMAXMESSAGESIZE << '\n'
-                << "Serialization mode is " << serializationMode_ << '\n'
-                << "To overcome this issue, change the serialization mode or adjust the maximum "
-                   "message size."
-            );
-        }
     }
 
     /**
@@ -1051,17 +1065,6 @@ private:
             wireRegistry_,
             serializationMode_
         );
-
-        // A SEND_LAYOUT reply is bounded by the same per-message limit as everything else on this
-        // transport; a layout that would not fit could never have ridden inline on a COMPUTE either.
-        if(outgoingMessage_.size() > GMPICONSUMERMAXMESSAGESIZE) {
-            glogger << "GMPIConsumerSessionT<processable_type>::sendLayoutResponse() connected to rank="
-                    << mpiStatus_.MPI_SOURCE << ":" << '\n'
-                    << "SEND_LAYOUT message (" << outgoingMessage_.size()
-                    << " bytes) exceeds the maximum message size of " << GMPICONSUMERMAXMESSAGESIZE
-                    << "; the worker's fetch will fail. Increase the maximum message size." << '\n'
-                    << GWARNING;
-        }
 
         MPI_Isend(
             outgoingMessage_.data(),
@@ -1234,65 +1237,68 @@ private:
         const int32_t reqNumStops{2 * (this->commSize_ - 1)};
 
         while(stopRequestsSendOut < reqNumStops) {
-            MPI_Request requestHandle{};
-            // create a buffer for each request.
-            // once the session finished handling the request, it will release the handle and the memory will be freed
-            auto buffer = std::make_shared<char[]>(GMPICONSUMERMAXMESSAGESIZE);
-
-            // register asynchronous receiving of message from any worker node
-            MPI_Irecv(
-                buffer.get(),
-                GMPICONSUMERMAXMESSAGESIZE,
-                MPI_CHAR,
-                MPI_ANY_SOURCE,
-                MPI_ANY_TAG,
-                MPI_COMMUNICATOR,
-                &requestHandle
-            );
-
-            int isCompleted{0};
+            // Probe (rather than post a fixed-size receive) so a request of ANY size can be received:
+            // MPI_Get_count then tells us the exact length and we allocate to fit. This removes the old
+            // fixed message-size cap, which a large genome's first (full-layout) work item
+            // or a big SEND_LAYOUT reply could exceed. The receive side is single-threaded (only this
+            // listener probes/receives; handler threads merely send), so the probe -> receive pair below
+            // is race-free.
+            int isAvailable{0};
             MPI_Status status{};
             std::optional<std::chrono::steady_clock::time_point> giveUpAt;
 
             while(true) {
-                MPI_Test(&requestHandle, &isCompleted, &status);
-                if(isCompleted) {
+                MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMMUNICATOR, &isAvailable, &status);
+                if(isAvailable) {
                     break;
                 }
-                // Do not busy-spin on MPI_Test, and make shutdown observable: once a stop has been
-                // requested, give live workers a short grace window to send their final (double-
-                // buffered) requests, then abandon the outstanding receive. Otherwise a worker that
-                // died before its final handshake would wedge this loop -- and thus shutdown() -- and
-                // MPI_Finalize would never be reached.
+                // Do not busy-spin, and make shutdown observable: once a stop has been requested, give
+                // live workers a short grace window to send their final (double-buffered) requests, then
+                // stop listening. Otherwise a worker that died before its final handshake would wedge
+                // this loop -- and thus shutdown() -- and MPI_Finalize would never be reached.
                 if(isToldToStop_.load()) {
                     const auto now = std::chrono::steady_clock::now();
                     if(not giveUpAt) {
                         giveUpAt = now + GMPICONSUMERSHUTDOWNGRACE;
                     }
                     if(now >= *giveUpAt) {
-                        break; // isCompleted stays 0
+                        break; // isAvailable stays 0
                     }
                 }
                 std::this_thread::sleep_for(std::chrono::milliseconds{1});
             }
 
-            if(not isCompleted) {
-                // Shutting down and a straggler request never arrived: cancel the outstanding receive
-                // so its MPI_Request is reclaimed, then stop listening.
-                MPI_Cancel(&requestHandle);
-                MPI_Wait(&requestHandle, MPI_STATUS_IGNORE);
+            if(not isAvailable) {
+                // Shutting down and a straggler request never arrived: nothing is posted (a probe holds
+                // no MPI request), so simply stop listening.
                 break;
             }
 
-            // The request completed normally -- dispatch it to a handler thread. We capture copies of
-            // the smart pointers in the closure, which keeps the underlying data alive.
+            // A message is pending; receive it at its exact size. Match the probed source/tag so we
+            // receive precisely the message we just probed.
+            int count{0};
+            MPI_Get_count(&status, MPI_CHAR, &count);
+            auto buffer = std::make_shared<char[]>(static_cast<std::size_t>(count));
+            MPI_Status recvStatus{};
+            MPI_Recv(
+                buffer.get(),
+                count,
+                MPI_CHAR,
+                status.MPI_SOURCE,
+                status.MPI_TAG,
+                MPI_COMMUNICATOR,
+                &recvStatus
+            );
+
+            // Dispatch it to a handler thread. We capture copies of the smart pointers in the closure,
+            // which keeps the underlying data alive.
             const bool stopRequested = isToldToStop_.load();
             if(stopRequested) {
                 ++stopRequestsSendOut;
             }
             const auto self = this->shared_from_this();
-            handlerThreadPool_->async_schedule([self, status, buffer, stopRequested] {
-                self->handleRequest(status, buffer, stopRequested);
+            handlerThreadPool_->async_schedule([self, recvStatus, buffer, stopRequested] {
+                self->handleRequest(recvStatus, buffer, stopRequested);
             });
         }
     }

@@ -119,11 +119,6 @@ constexpr std::size_t GBEASTMSTIMEOUT = 50;
  */
 constexpr std::size_t GMPICONSUMERBROKERACCESSBROKERTIMEOUT = 50;
 /**
- * The size of the allocated buffer for receiving and sending messages between GMPIConsumerMasterNodeT and
- * GMPIConsumerWorkerNodeT. If messages exceed this size they can not be fully delivered and runtime errors will occur.
- */
-constexpr std::uint32_t GMPICONSUMERMAXMESSAGESIZE = 1024 * 20;
-/**
  * When GMPIConsumerWorkerNodeT does retrieve a NODATA response from GMPIConsumerMasterNodeT it waits for a random number
  * of milliseconds which is distributed between GMPICONSUMERWORKERNODERETRYINTERVALLOWERBOUNDARYMSEC and
  * GMPICONSUMERWORKERNODERETRYINTERVALUPPERBOUNDARYMSEC.
