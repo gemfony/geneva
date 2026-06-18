@@ -139,15 +139,16 @@ public:
      * buffered late return can never be confused with a fresh batch. Evictions (cap or TTL) are counted
      * (lateReturnDroppedCount()) and warned once -- never silently lost.
      *
-     * IMPORTANT -- results-only returns are NOT buffered: a work item returned in the lightweight
-     * results-only form (only its computed results travel; its input parameters are grafted back from
-     * the still-held original during checkin -- see GProcessingContainerT::graftInputDataFrom) cannot be
-     * reconstructed once it arrives LATE, because its batch has been reconciled and the original it would
-     * graft from is gone. Such a late arrival is therefore DROPPED (and counted in
-     * lateReturnDroppedCount()) rather than parked, since an input-less individual would corrupt the
-     * population if reaped via getLateReturns(). Only FULL returns (the default-off results-only form, or
-     * an item that opted into a full return) are ever buffered. The buffer is consequently most useful on
-     * transports / configurations that return full individuals.
+     * Results-only late returns: a work item returned in the lightweight results-only form (only its
+     * computed results travel; its input parameters are grafted back from the originally-submitted item
+     * -- see GProcessingContainerT::graftInputDataFrom) normally cannot be reconstructed once it arrives
+     * LATE, because its batch has been reconciled and the original it would graft from is gone. To make
+     * such a slow-but-alive worker's result usable, enabling this buffer ALSO makes dispatch_ retain a
+     * clone of every un-returned original (keyed by correlation id, bounded by the same cap + ttl_rounds).
+     * A late results-only return then grafts its input parameters from that retained original and is
+     * parked like a full return; only a late results-only return with NO matching retained original (e.g.
+     * one that outlived the ttl) is DROPPED (and counted in lateReturnDroppedCount()), since an
+     * input-less individual would corrupt the population if reaped.
      *
      * @param cap Maximum number of late items held; 0 disables buffering (the default)
      * @param ttl_rounds A held item is evicted after this many dispatch rounds
@@ -163,10 +164,16 @@ public:
         std::lock_guard<std::mutex> lk(mtx_);
         return late_returns_.size();
     }
+    /** @brief Number of un-returned originals currently retained so a later results-only return can be
+     *  grafted (see setLateReturnBuffer()). Mostly for tests/diagnostics.
+     *  @return The count of retained originals currently held */
+    [[nodiscard]] std::size_t retainedOriginalCount() const {
+        std::lock_guard<std::mutex> lk(mtx_);
+        return retained_originals_.size();
+    }
     /** @brief Total late returns dropped since construction -- an observable, non-silent drop count.
-     *  Counts cap/TTL evictions, arrivals while buffering is disabled, AND every results-only late
-     *  return (which cannot be buffered because its input parameters are unrecoverable once its batch is
-     *  gone -- see setLateReturnBuffer()).
+     *  Counts cap/TTL evictions, arrivals while buffering is disabled, and results-only late returns
+     *  with no matching retained original to graft from (see setLateReturnBuffer()).
      *  @return The running total of dropped late returns */
     [[nodiscard]] std::uint64_t lateReturnDroppedCount() const {
         std::lock_guard<std::mutex> lk(mtx_);
@@ -183,8 +190,9 @@ public:
 
     /** @brief GBaseConsumerT hook: drain the late-return buffer, transferring the held items to the
      *  caller (the optimization algorithm reaps them in fixAfterJobSubmission). FIFO / arrival order.
-     *  Only FULL late returns are ever present here; results-only late returns were dropped on arrival
-     *  (their input parameters are unrecoverable once their batch is gone -- see setLateReturnBuffer()).
+     *  Every parked item is a complete individual: a full late return as-is, or a results-only late
+     *  return whose input parameters were grafted from a retained original on arrival (see
+     *  setLateReturnBuffer()).
      *  @return The buffered late items in arrival order (ownership transferred; the buffer is emptied) */
     std::vector<item_ptr> getLateReturns() override {
         std::lock_guard<std::mutex> lk(mtx_);
@@ -438,12 +446,28 @@ protected:
             // original DO_PROCESS item == MISSING for the policy loop. Drop the still-PENDING slots
             // from the global count and deregister the batch (its borrowed vector is about to leave
             // dispatch_'s scope), so any very late checkin() for it becomes a no-op.
+            //
+            // Before deregistering, retain a CLONE of each un-returned (MISSING) original, keyed by its
+            // correlation id, so a slow-but-alive worker's later results-only return can still be grafted
+            // (its input parameters reconstructed) and reaped via getOldWorkItems() instead of dropped.
+            // Only when buffering is enabled; bounded by the same TTL + cap as the late-return buffer.
+            if(late_buffer_cap_ > 0) {
+                for(std::size_t k = 0; k < b.items->size(); ++k) {
+                    if((*b.items)[k] &&
+                       (*b.items)[k]->getDispatchState() != Gem::Courtier::dispatchState::DONE) {
+                        retained_originals_.insert_or_assign(
+                            (*b.items)[k]->getCorrelationId(),
+                            std::make_pair(buffer_epoch_, this->clone_item_((*b.items)[k])));
+                    }
+                }
+            }
             total_pending_ -= b.pending;
             batches_.erase(my_it);
             // A dispatch round completed: advance the late-buffer epoch and age out any TTL-expired
-            // entries (so stale late returns are evicted even when no new late arrival comes in).
+            // entries (so stale late returns / retained originals are evicted even when none arrives).
             ++buffer_epoch_;
             evictLateReturns_locked();
+            evictRetainedOriginals_locked();
         }
     }
 
@@ -487,14 +511,30 @@ private:
      *  when enabled, a parked item is later reaped by the OA via getOldWorkItems(). Caller holds mtx_.
      *  @param p The late-arriving result item (ownership transferred); parked if buffering is enabled, else its drop is counted */
     void bufferLateReturn_locked(item_ptr p) {
-        // A results-only return carries no input parameters; they are grafted from the originally-
-        // submitted item in checkin(). But a LATE return arrives after its batch was deregistered, so
-        // that original is no longer held and the genome cannot be reconstructed. Such an item is
-        // unusable -- buffering it would let the optimization algorithm reap (via getOldWorkItems) an
-        // individual with an empty genome and fold it into the population. Drop it instead.
-        if(p && p->inputDataOmitted()) {
-            recordLateDrop_locked(1);
+        if(not p) {
             return;
+        }
+        const Gem::Courtier::CORRELATION_ID_TYPE id = p->getCorrelationId();
+        // A results-only return carries no input parameters; they are grafted from the originally-
+        // submitted item. A LATE return arrives after its batch was deregistered, so checkin()'s usual
+        // original is gone -- but when late-return buffering is enabled, dispatch_ retained a CLONE of
+        // each un-returned original (keyed by correlation id) for exactly this case. If that retained
+        // original is still held, graft the input parameters from it so the result becomes a complete
+        // individual; otherwise the genome is unrecoverable and the result is dropped (buffering it would
+        // let the algorithm reap an individual with an empty genome).
+        if(p->inputDataOmitted()) {
+            auto rit = retained_originals_.find(id);
+            if(rit == retained_originals_.end()) {
+                recordLateDrop_locked(1); // no retained original -> unrecoverable
+                return;
+            }
+            p->graftInputDataFrom(*rit->second.second);
+            retained_originals_.erase(rit);
+            // p is now a complete individual -> fall through to park it
+        }
+        else {
+            // A full late return makes any retained original for this id redundant.
+            retained_originals_.erase(id);
         }
         if(late_buffer_cap_ == 0) {
             recordLateDrop_locked(1); // buffering off: count the drop, do not hold the item
@@ -502,6 +542,26 @@ private:
         }
         late_returns_.emplace_back(buffer_epoch_, std::move(p));
         evictLateReturns_locked();
+    }
+
+    /** @brief Evicts retained originals (the un-returned clones kept so results-only late returns stay
+     *  graftable) past their TTL horizon, and bounds their number by the late-return cap (oldest first).
+     *  Caller holds mtx_. */
+    void evictRetainedOriginals_locked() {
+        for(auto it = retained_originals_.begin(); it != retained_originals_.end();) {
+            if(buffer_epoch_ - it->second.first >= late_buffer_ttl_rounds_) {
+                it = retained_originals_.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+        while(retained_originals_.size() > late_buffer_cap_) {
+            auto oldest = std::min_element(
+                retained_originals_.begin(), retained_originals_.end(),
+                [](const auto &a, const auto &b) { return a.second.first < b.second.first; });
+            retained_originals_.erase(oldest);
+        }
     }
 
     /** @brief Enforces the TTL and capacity bounds on the late-return buffer (FIFO eviction of the
@@ -680,6 +740,10 @@ private:
     //     when enabled, the OA-side reaper (GOptimizerExecutionPolicy, via enableLateReturns() /
     //     getOldWorkItems()) drains it. All access is under mtx_. ---
     std::deque<std::pair<std::uint64_t, item_ptr>> late_returns_; ///< (epoch, item) FIFO of late arrivals
+    // Clones of un-returned originals, keyed by correlation id, kept so a late RESULTS-ONLY return can
+    // still be grafted (its input parameters reconstructed) instead of dropped. Populated when a batch
+    // retires with MISSING slots; bounded by the same TTL + cap as the late-return buffer. (epoch, clone).
+    std::map<Gem::Courtier::CORRELATION_ID_TYPE, std::pair<std::uint64_t, item_ptr>> retained_originals_;
     std::uint64_t buffer_epoch_ = 0;            ///< Monotonic round counter (advances per retired batch)
     std::size_t late_buffer_cap_ = 0;           ///< Max buffered late items (0 = buffering disabled)
     std::uint64_t late_buffer_ttl_rounds_ = 8;  ///< Evict a late entry this many rounds after buffering

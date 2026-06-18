@@ -424,6 +424,16 @@ Recommended Versions:
   single listening endpoint. Behaviour is unchanged for an algorithm that is given a
   broker explicitly.
 
+- Networked late returns are handled more completely. The work-item correlation id
+  is now 64-bit, with a process-wide, non-wrapping batch id, so a stale result can
+  never be misrouted to the wrong submitter once several algorithms share one
+  consumer. And a slow-but-alive worker's result that returns after its round closed
+  is no longer necessarily lost: when the late-return buffer is enabled, the consumer
+  retains a copy of each un-returned work item for a bounded number of rounds, so a
+  late results-only return (which carries no input parameters) can still have them
+  grafted back and be reaped, instead of dropped. Only a late result with no retained
+  original left to graft from is dropped.
+
 - Preliminary support for two new local optimization algorithms:
   Nelder-Mead (the downhill-simplex method; class GNelderMead,
   mnemonic "nm") and Conjugate Gradient Descent (Polak-Ribiere+;

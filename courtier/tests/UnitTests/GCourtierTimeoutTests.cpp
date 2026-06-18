@@ -182,6 +182,47 @@ void deliver_late(LateNetConsumer &consumer, std::size_t stored, c2::CORRELATION
     consumer.checkin(std::move(p));
 }
 
+/** @brief Delivers a single late RESULTS-ONLY return (input data omitted) with the given correlation id.
+ *  Its stored id is omitted (0); a successful graft from a retained original restores the original's id. */
+void deliver_late_resultsonly(LateNetConsumer &consumer, c2::CORRELATION_ID_TYPE corr) {
+    auto p = std::make_unique<GFaultyContainer>(/*stored*/ 0, fault_mode::NONE);
+    p->set_input_omitted(true);
+    p->setCorrelationId(corr);
+    consumer.checkin(std::move(p));
+}
+
+/** @brief Runs an n-item batch but ABANDONS the victim slot forever (never checks it in). The batch
+ *  therefore retires with that slot still MISSING, which -- with the late-return buffer enabled -- makes
+ *  the consumer retain a clone of the victim's original (keyed by its correlation id) so a later
+ *  results-only return can be grafted. The other slots are processed normally (so at least one return is
+ *  observed and the give-up window engages). The first (only) dispatch round has batch_id 0, so the
+ *  victim slot's correlation id is simply its slot index. */
+void run_abandoning_forever(LateNetConsumer &consumer, std::vector<item_ptr> &batch,
+                            std::size_t victim_stored) {
+    consumer.setLeaseBootstrap(20ms);
+    consumer.setLeaseBounds(10ms, 200ms);
+    consumer.setSweepTick(5ms);
+    std::atomic<bool> finished{false};
+    std::jthread worker([&] {
+        consumer.processBatch(std::span<item_ptr>(batch.data(), batch.size()),
+                              c2::GSubmissionPolicy::clone_on_partial_return());
+        finished.store(true);
+    });
+    while(not finished.load()) {
+        auto p = consumer.checkout();
+        if(not p) {
+            std::this_thread::sleep_for(1ms);
+            continue;
+        }
+        if(p->get_stored_number() == victim_stored) {
+            continue; // never check it in -> stays unreturned -> retired MISSING -> retained
+        }
+        p->process();
+        consumer.checkin(std::move(p));
+    }
+    worker.join();
+}
+
 } /* anonymous namespace */
 
 /******************************************************************************/
@@ -310,3 +351,44 @@ TEST_CASE("courtier(late): a buffered entry is evicted once it ages past its TTL
 }
 
 /******************************************************************************/
+
+/******************************************************************************/
+// Results-only late returns: a slow-but-alive worker's late results-only return is graftable from a
+// retained original (the un-returned clone the consumer keeps when a batch retires MISSING), so it is
+// reaped rather than dropped; only one with no retained original to graft from is dropped.
+/******************************************************************************/
+
+TEST_CASE("courtier(late): a results-only late return is grafted from a retained original",
+          "[courtier][latereturn]") {
+    LateNetConsumer consumer;
+    consumer.setLateReturnBuffer(/*cap*/ 8, /*ttl_rounds*/ 100); // buffering on -> originals are retained
+
+    // Abandon slot 2 forever: the batch retires with it MISSING, so its original (stored id 2) is retained
+    // under its correlation id (slot index, batch_id 0).
+    auto batch = make_batch(3);
+    run_abandoning_forever(consumer, batch, /*victim_stored*/ 2);
+    REQUIRE(consumer.retainedOriginalCount() == 1); // the un-returned original was retained
+
+    // The slow worker's result finally arrives, results-only (its input id omitted). It must be grafted
+    // from the retained original (recovering stored id 2) and parked -- not dropped.
+    deliver_late_resultsonly(consumer, /*corr*/ 2);
+    CHECK(consumer.lateReturnBufferSize() == 1);
+    CHECK(consumer.lateReturnDroppedCount() == 0);
+    CHECK(consumer.retainedOriginalCount() == 0); // the retained original was consumed by the graft
+
+    auto reaped = consumer.getLateReturns();
+    REQUIRE(reaped.size() == 1);
+    CHECK(reaped[0]->get_stored_number() == 2); // the omitted input id was restored from the original
+}
+
+TEST_CASE("courtier(late): a results-only late return with no retained original is dropped",
+          "[courtier][latereturn]") {
+    LateNetConsumer consumer;
+    consumer.setLateReturnBuffer(/*cap*/ 8, /*ttl_rounds*/ 100);
+
+    // No batch ever ran, so nothing is retained: a results-only late return cannot be reconstructed and
+    // must be dropped (counted), never parked (an input-less individual would corrupt the population).
+    deliver_late_resultsonly(consumer, /*corr*/ 12345);
+    CHECK(consumer.lateReturnBufferSize() == 0);
+    CHECK(consumer.lateReturnDroppedCount() == 1);
+}
