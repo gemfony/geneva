@@ -62,11 +62,10 @@ constexpr double GTI_DEF_ADPROB = 0.05;
 GTestIndividual3::GTestIndividual3() {
     using namespace Gem::Geneva;
 
-    // Build a flat genome that reproduces the historical nested structure: GTI_DEF_NITEMS records,
-    // each holding 10 constrained doubles in the order a[2], b, c[3], d[3], e (the order the tree's
-    // GParameterObjectCollection streamlined them), all sharing the same Gauss adaptor config. A
-    // collection becomes one shared-sigma group; a standalone object its own group. The flat
-    // streamline order is therefore identical to the tree's, so getPlainData() reads it positionally.
+    // Build a flat genome of GTI_DEF_NITEMS records, each holding 10 constrained doubles in the order
+    // a[2], b, c[3], d[3], e. A multi-value field becomes one shared-sigma group; a standalone field
+    // its own group. This streamline order is a positional contract, so getPlainData() reads it
+    // positionally.
     // Structure only -- this individual is never adapted (it is a genome / slot-scratch test fixture), so
     // no adaptor is attached and no OA adaption config is authored for it.
     gen::GGenomeBuilder bld;
@@ -81,7 +80,7 @@ GTestIndividual3::GTestIndividual3() {
 
     this->setGenome(bld.build());
 
-    // Mirror the tree's per-parameter random initialization within bounds.
+    // Per-parameter random initialization within bounds.
     this->randomInit(activityMode::ALLPARAMETERS);
 }
 
@@ -199,9 +198,9 @@ double GTestIndividual3::fitnessCalculation() {
 std::shared_ptr<float> GTestIndividual3::getPlainData() const {
     using namespace Gem::Geneva;
 
-    // The flat genome stores the 10 doubles of each record contiguously, in the same order the tree's
-    // nested GParameterObjectCollection streamlined them (a[0], a[1], b, c[0..2], d[0..2], e). So record
-    // i's field k sits at flat position i*10 + k -- a straight positional copy, no per-field decoding.
+    // The flat genome stores the 10 doubles of each record contiguously, in the order
+    // a[0], a[1], b, c[0..2], d[0..2], e. So record i's field k sits at flat position i*10 + k --
+    // a straight positional copy, no per-field decoding.
     std::vector<double> par_vec;
     this->streamline<double>(par_vec);
 

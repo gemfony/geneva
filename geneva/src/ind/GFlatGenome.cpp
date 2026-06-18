@@ -105,8 +105,8 @@ GFlatGenome::GFlatGenome(GFlatGenome const &cp)
  * @brief Installs the value arrays and shared structural layout produced by a GGenomeBuilder.
  *
  * The per-group adaption state is OA-owned scratch (it lives on the GIndividualSlot, not on the
- * individual) and is no longer seeded here -- an optimization algorithm seeds each slot's scratch
- * from its adaption config at setup. Marks the genome as due for processing.
+ * individual); an optimization algorithm seeds each slot's scratch from its adaption config at setup.
+ * Marks the genome as due for processing.
  *
  * @param g The GenomeData bundle (double/float/int/bool value arrays plus the shared layout) to install
  */

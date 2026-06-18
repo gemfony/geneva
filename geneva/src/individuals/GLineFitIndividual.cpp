@@ -65,9 +65,9 @@ GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, doub
   : data_points_(data_points) {
     using namespace Gem::Geneva;
 
-    // Two unbounded double parameters (the line's offset a and slope b), each its own Gauss group.
-    // The default unbounded init range [0, 1] matches the former GDoubleObject() default. The Gauss
-    // adaptor settings now live on the OA-owned config (see getAdaptionConfig()), not the genome layout.
+    // Two unbounded double parameters (the line's offset a and slope b), each its own Gauss group,
+    // with a default unbounded init range of [0, 1]. The Gauss adaptor settings live on the OA-owned
+    // config (see getAdaptionConfig()), not the genome layout.
     gen::GGenomeBuilder b;
     for(std::size_t i = 0; i < 2; i++) {
         b.addDouble(0.);
@@ -78,7 +78,7 @@ GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, doub
 /******************************************************************************/
 /**
  * @brief Builds the OA-owned adaption configuration: the line's offset a and slope b are each their own
- * Gauss group, configured with the settings the genome formerly baked into its layout.
+ * Gauss group, configured with the settings below.
  *
  * @return A shared pointer to a freshly built adaption config whose double groups each carry the Gauss
  *         adaptor settings (sigma 0.025, sigma_sigma 0.1, min_sigma 0.0001, max_sigma 0.4, ad_prob 1.0)

@@ -194,13 +194,13 @@ public:
     void setFitness(std::vector<double> const &);
 
     //---------------------------------------------------------------------------
-    // GFlatIndividualFactory<GImageIndividual> hooks. Instead of a bespoke factory the individual supplies
-    // the static hooks the generic factory needs: describeConfig (the configurable values), buildGenome
+    // GFlatIndividualFactory<GImageIndividual> hooks. The individual supplies the static hooks the generic
+    // factory needs: describeConfig (the configurable values), buildGenome
     // (the labelled triangle + background genome structure), applyConfig (the per-object members + the
     // random init) and buildAdaptionConfig (the OA-owned main/location Gauss adaption config, authored
     // from the labelled genome layout -- NOT stored on the individual).
 
-    /** @brief All values formerly parsed by the bespoke GImageIndividualFactory. */
+    /** @brief The configurable values parsed from the config file. */
     struct Config {
         std::size_t n_triangles = GII_DEF_NTRIANGLES;
         double bg_red = GII_DEF_BGRED;
@@ -325,11 +325,10 @@ protected:
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
-     * A factory for GImageIndividual objects. The bespoke factory has been replaced by the generic,
-     * config-driven GFlatIndividualFactory; GImageIndividual supplies the static describeConfig /
-     * buildGenome / applyConfig / buildAdaptionConfig hooks. The alias keeps existing call sites
-     * (ctor(path), get_as<>(), and the factory's getAdaptionConfig(sample)) compiling unchanged. The
-     * factory's former getters and adaptor-range setters were dead code (no external caller) and dropped.
+     * A factory for GImageIndividual objects: an alias for the generic, config-driven
+     * GFlatIndividualFactory, for which GImageIndividual supplies the static describeConfig /
+     * buildGenome / applyConfig / buildAdaptionConfig hooks. Call sites use ctor(path), get_as<>()
+     * and the factory's getAdaptionConfig(sample).
      */
 using GImageIndividualFactory = Gem::Geneva::Genome::GFlatIndividualFactory<GImageIndividual>;
 

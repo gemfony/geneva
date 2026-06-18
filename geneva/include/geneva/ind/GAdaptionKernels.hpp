@@ -48,17 +48,16 @@ namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 /**
- * Data-oriented adaption kernels: the mutation mathematics of the tree adaptors, re-expressed as
- * stateless free functions over a (config, state, values) triple. The config is the static, shared
- * part (sigma-adaption rate, bounds, mode, …); the state is the per-individual, per-group evolving
- * part (the current sigma / adaption probability / counter); both are plain POD so they live happily
- * in the shared adaption layout and the per-individual auxiliary store respectively, and the kernel
- * has no dependency on the parameter-object hierarchy.
+ * Data-oriented adaption kernels: the parameter-mutation mathematics expressed as stateless free
+ * functions over a (config, state, values) triple. The config is the static, shared part
+ * (sigma-adaption rate, bounds, mode, …); the state is the per-individual, per-group evolving part
+ * (the current sigma / adaption probability / counter); both are plain POD so they live happily in
+ * the shared adaption layout and the per-individual auxiliary store respectively, and the kernel has
+ * no dependency on any parameter-object hierarchy.
  *
- * The Gauss kernel mirrors GAdaptorT::adapt(std::vector) + GNumGaussAdaptorT::customAdaptAdaption +
- * GFPGaussAdaptorT::customAdaptions exactly (same draw order, the same ad-prob / sigma self-adaption
- * and the same one-ULP "an adaption that fires always changes the value/sigma" guarantees), so it is
- * statistically identical to the tree adaptor (bit-identical given the same RNG draw sequence).
+ * The Gauss kernel applies a gated `range * N(0, sigma)` value step plus log-normal self-adaption of
+ * the adaption probability and sigma, with a one-ULP "an adaption that fires always changes the
+ * value/sigma" guarantee.
  *
  * Templated on the adaption floating-point type T (double for double parameters, float for float).
  */
@@ -87,7 +86,7 @@ struct GaussState {
 
 /******************************************************************************/
 /**
- * @brief Adapts one group of values sharing a single GaussState, mirroring the tree adaptor's vector path.
+ * @brief Adapts one group of values sharing a single GaussState.
  *
  * For each value the per-group adaption probability gates whether it mutates; a mutating value receives a
  * `range * N(0, sigma)` step (with a one-ULP guarantee that a firing adaption always changes the value),
@@ -311,14 +310,12 @@ inline std::size_t adaptGaussIntGroup(
 /******************************************************************************/
 /**
  * The flip kernels: the mutation mathematics of the integer / boolean flip adaptors
- * (GNumFlipAdaptorT, GInt32FlipAdaptor, GBooleanAdaptor), re-expressed in the same stateless
- * (config, state, values) style as the Gauss kernel. A flip adaptor has NO sigma -- its only evolving
- * state is the adaption probability ad_prob (which self-adapts log-normally like the Gauss one). There
- * is no sigma self-adaption, so GAdaptorT::adaptAdaption() makes no RNG draw for a flip adaptor and is
- * therefore not modelled here (the tree's adaption counter has no effect for flip). The value step is a
+ * for integer and boolean parameters, expressed in the same stateless (config, state, values) style as
+ * the Gauss kernel. A flip adaptor has NO sigma -- its only evolving state is the adaption probability
+ * ad_prob (which self-adapts log-normally like the Gauss one). There is no sigma self-adaption, so no
+ * adaption-counter draw is made for a flip adaptor and none is modelled here. The value step is a
  * deterministic ±1 (integers) or a toggle (booleans); the integer fold into a constrained range is
- * applied by the genome on read (GFlatGenome / foldConstrainedInt), exactly as the tree applies it via
- * GConstrainedIntT.
+ * applied by the genome on read (GFlatGenome / foldConstrainedInt).
  *
  * The adaption-fp type for the integer and boolean channels is double (their adaption_fp_type), so the
  * flip config / state are plain double POD.
@@ -457,11 +454,10 @@ inline std::size_t adaptFlipBoolGroup(
 
 /******************************************************************************/
 /**
- * The bi-gaussian kernel: the mutation mathematics of GFPBiGaussAdaptorT / GNumBiGaussAdaptorT,
- * re-expressed in the same (config, state, values) style as the Gauss kernel. Instead of a single
- * gaussian it samples from a bi-modal distribution of two gaussians separated by a distance "delta";
- * sigma1, sigma2 and delta each self-adapt log-normally (sigma2 == sigma1 in the symmetric case for
- * the value step, but all three still self-adapt, mirroring the tree). The value step adds
+ * The bi-gaussian kernel, in the same (config, state, values) style as the Gauss kernel. Instead of a
+ * single gaussian it samples from a bi-modal distribution of two gaussians separated by a distance
+ * "delta"; sigma1, sigma2 and delta each self-adapt log-normally (sigma2 == sigma1 in the symmetric
+ * case for the value step, but all three still self-adapt). The value step adds
  * range * bi_normal(0, sigma1, sigma2, delta), with the same one-ULP "an adaption that fires always
  * changes the value" guarantee as the Gauss kernel.
  */
@@ -498,8 +494,7 @@ struct BiGaussState {
 };
 
 /**
- * @brief Adapts one group of values sharing a single BiGaussState, mirroring the tree bi-gaussian
- * adaptor's vector path.
+ * @brief Adapts one group of values sharing a single BiGaussState.
  *
  * Like adaptGaussGroup(), but the value step samples from a bi-modal distribution of two gaussians
  * separated by @c delta; sigma1, sigma2 and delta each self-adapt log-normally on the trigger. @p st is

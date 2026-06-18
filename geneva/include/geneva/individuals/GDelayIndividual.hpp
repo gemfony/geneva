@@ -156,8 +156,8 @@ public:
     /***************************************************************************/
     /**
      * The configuration the delay benchmarks read for a series of delay individuals. This individual
-     * is only ever used by benchmarks/tests (it performs no real optimisation), so -- rather than a
-     * bespoke factory -- it owns its own config parsing and construction through the static helpers
+     * is only ever used by benchmarks/tests (it performs no real optimisation), so -- rather than going
+     * through a factory -- it owns its own config parsing and construction through the static helpers
      * below: the benchmark reads a Config, then drives the delay sequence itself.
      */
     struct Config {

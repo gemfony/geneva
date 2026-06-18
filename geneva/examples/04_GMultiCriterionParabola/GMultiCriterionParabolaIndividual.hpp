@@ -95,13 +95,13 @@ public:
     void setMinima(const std::vector<double> &);
 
     //---------------------------------------------------------------------------
-    // GFlatIndividualFactory<GMultiCriterionParabolaIndividual> hooks. Instead of a bespoke factory the
-    // individual supplies the static hooks the generic factory needs: describeConfig (the configurable
+    // GFlatIndividualFactory<GMultiCriterionParabolaIndividual> hooks. The individual supplies the static
+    // hooks the generic factory needs: describeConfig (the configurable
     // values), buildGenome (one constrained-double Gauss group per minimum), applyConfig (the number of
     // evaluation criteria and the per-criterion minima) and buildAdaptionConfig (the OA-owned Gauss
     // adaption config -- authored from the genome layout, NOT stored on the individual).
 
-    /** @brief All values formerly parsed by the bespoke GMultiCriterionParabolaIndividualFactory. */
+    /** @brief The configurable values parsed from the config file. */
     struct Config {
         double par_min = -10.;              ///< The lower boundary of the parabola
         double par_max = 10.;               ///< The upper boundary of the parabola
@@ -138,10 +138,10 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A factory for GMultiCriterionParabolaIndividual objects. The bespoke factory has been replaced by the
- * generic, config-driven GFlatIndividualFactory; GMultiCriterionParabolaIndividual supplies the static
- * describeConfig / buildGenome / applyConfig hooks. The alias keeps existing call sites (ctor(path),
- * get(), registerContentCreator()) compiling unchanged.
+ * A factory for GMultiCriterionParabolaIndividual objects: an alias for the generic, config-driven
+ * GFlatIndividualFactory, for which GMultiCriterionParabolaIndividual supplies the static
+ * describeConfig / buildGenome / applyConfig hooks. Call sites use ctor(path), get() and
+ * registerContentCreator().
  */
 using GMultiCriterionParabolaIndividualFactory =
     Gem::Geneva::Genome::GFlatIndividualFactory<GMultiCriterionParabolaIndividual>;

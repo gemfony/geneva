@@ -682,12 +682,12 @@ public:
 
     //---------------------------------------------------------------------------
     // GFlatIndividualFactory<GFunctionIndividual> hooks. GFunctionIndividual is a Tier-2
-    // (config-driven) flat individual: instead of a bespoke factory it supplies the static hooks the
-    // generic factory needs -- describeConfig (the configurable values), buildGenome (the genome
-    // structure for the five legacy parameter-type modes), buildAdaptionConfig (the OA-owned Gauss /
-    // bi-Gauss adaption config) and applyConfig (the demo function, a per-object non-genome setting).
+    // (config-driven) flat individual: it supplies the static hooks the generic factory needs --
+    // describeConfig (the configurable values), buildGenome (the genome structure for the five
+    // parameter-type modes), buildAdaptionConfig (the OA-owned Gauss / bi-Gauss adaption config) and
+    // applyConfig (the demo function, a per-object non-genome setting).
 
-    /** @brief All values formerly parsed by the bespoke GFunctionIndividualFactory. */
+    /** @brief The configurable values parsed from the config file. */
     struct Config {
         double ad_prob = GFI_DEF_ADPROB;
         double adapt_ad_prob = GFI_DEF_ADAPTADPROB;
@@ -859,11 +859,10 @@ operator<<(std::ostream & os, std::shared_ptr<Gem::Geneva::Individuals::GFunctio
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A factory for GFunctionIndividual objects. The bespoke factory has been replaced by the generic,
- * config-driven GFlatIndividualFactory; GFunctionIndividual supplies the static describeConfig /
- * buildGenome / buildAdaptionConfig / applyConfig hooks. The alias keeps existing call sites
- * (ctor(path), get()/get_as<>(), getAdaptionConfig(), registerContentCreator(), serialization via
- * GMetaOptimizer) compiling unchanged.
+ * A factory for GFunctionIndividual objects: an alias for the generic, config-driven
+ * GFlatIndividualFactory, for which GFunctionIndividual supplies the static describeConfig /
+ * buildGenome / buildAdaptionConfig / applyConfig hooks. Call sites use ctor(path), get()/get_as<>(),
+ * getAdaptionConfig(), registerContentCreator() and serialization via GMetaOptimizer.
  */
 using GFunctionIndividualFactory =
     Gem::Geneva::Genome::GFlatIndividualFactory<GFunctionIndividual>;

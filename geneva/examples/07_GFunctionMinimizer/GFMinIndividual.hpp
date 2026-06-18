@@ -123,13 +123,13 @@ public:
     double getAverageSigma() const;
 
     //---------------------------------------------------------------------------
-    // GFlatIndividualFactory<GFMinIndividual> hooks. Instead of a bespoke factory the individual supplies
-    // the static hooks the generic factory needs: describeConfig (the configurable values, including the
+    // GFlatIndividualFactory<GFMinIndividual> hooks. The individual supplies the static hooks the generic
+    // factory needs: describeConfig (the configurable values, including the
     // target function), buildGenome (one shared constrained-double group), buildAdaptionConfig (the
     // OA-owned Gauss adaptor for that group) and applyConfig (the target function + the seed sigma stamped
     // for the getAverageSigma() telemetry hook -- per-object, non-genome settings).
 
-    /** @brief All values formerly parsed by the bespoke GFMinIndividualFactory. */
+    /** @brief The configurable values parsed from the config file. */
     struct Config {
         double ad_prob = GFI_DEF_ADPROB;
         double sigma = GFI_DEF_SIGMA;
@@ -193,10 +193,9 @@ std::ostream &operator<<(std::ostream &, std::shared_ptr<Gem::Geneva::GFMinIndiv
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A factory for GFMinIndividual objects. The bespoke factory has been replaced by the generic,
- * config-driven GFlatIndividualFactory; GFMinIndividual supplies the static describeConfig / buildGenome /
- * buildAdaptionConfig / applyConfig hooks. The alias keeps existing call sites (ctor(path), operator(),
- * get_as<>(), getAdaptionConfig()) compiling unchanged.
+ * A factory for GFMinIndividual objects: an alias for the generic, config-driven GFlatIndividualFactory,
+ * for which GFMinIndividual supplies the static describeConfig / buildGenome / buildAdaptionConfig /
+ * applyConfig hooks. Call sites use ctor(path), operator(), get_as<>() and getAdaptionConfig().
  */
 using GFMinIndividualFactory = Gem::Geneva::Genome::GFlatIndividualFactory<GFMinIndividual>;
 

@@ -509,9 +509,8 @@ bool GExternalEvaluatorIndividual::getRemoveExecTemporaries() const {
 /**
  * @brief Registers the config-file options, binding them to the passed Config.
  *
- * This is the body of the former GExternalEvaluatorIndividualFactory::describeLocalOptions_; the base
- * GOptimizableEntity options are registered separately by GFlatIndividualFactory::getObject_ (via
- * addConfigurationOptions).
+ * The base GOptimizableEntity options are registered separately by GFlatIndividualFactory::getObject_
+ * (via addConfigurationOptions).
  *
  * @param gpb The GParserBuilder object with which the configuration file options are registered
  * @param c The Config struct whose fields are bound to the registered options (filled on parse)
@@ -566,9 +565,9 @@ void GExternalEvaluatorIndividual::describeConfig(Gem::Common::GParserBuilder &g
 /**
  * @brief Queries the external evaluator program for the desired structure of the individuals and builds the flat genome from it.
  *
- * This combines the former factory's setUpPropertyTree() (run the program with --init then --setup,
- * parse the returned XML) and postProcess_()'s genome construction. Because the generic factory builds
- * the shared genome exactly once, the (expensive) external query happens once too. The discovered
+ * This runs the program with --init then --setup, parses the returned XML, and builds the genome from
+ * it. Because the generic factory builds the shared genome exactly once, the (expensive) external query
+ * happens once too. The discovered
  * run-id and result count are recorded back into @p c so applyConfig() can hand them to each produced
  * individual.
  *
@@ -742,8 +741,7 @@ gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
  * @brief Builds the OA-owned adaption configuration for a genome produced by this individual.
  *
  * Every ACTIVE double group (the constrained variables) receives the configured single-Gauss or
- * bi-Gauss adaptor; fixed groups (adaptionMode::NEVER) are left un-authored. Formerly
- * GExternalEvaluatorIndividualFactory::getAdaptionConfig.
+ * bi-Gauss adaptor; fixed groups (adaptionMode::NEVER) are left un-authored.
  *
  * @param sample A sample flat genome whose group structure the adaption config is built against
  * @param c The Config supplying the adaptor parameters (sigmas, ad_prob, bi-gaussian flag, ...)
@@ -781,7 +779,7 @@ GExternalEvaluatorIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample
  *
  * Called by GFlatIndividualFactory::postProcess_ after the genome is installed; applies the
  * external-program parameters and the metadata discovered by buildGenome (run-id, expected result
- * count). Formerly the tail of the factory's postProcess_.
+ * count).
  *
  * @param ind The individual to configure (mutated in place)
  * @param c The Config supplying the exchange base name, program name, custom options, expected result count, temporary-removal flag and run-id
@@ -799,8 +797,7 @@ void GExternalEvaluatorIndividual::applyConfig(GExternalEvaluatorIndividual &ind
 /**
  * @brief Teardown hook giving the external evaluator program a chance to perform final work (--finalize).
  *
- * Called by GFlatIndividualFactory's destructor once a genome has been produced. Formerly the body of
- * the factory destructor. Errors here are fatal, as in the legacy code.
+ * Called by GFlatIndividualFactory's destructor once a genome has been produced. Errors here are fatal.
  *
  * @param c The Config supplying the program name and custom options used to invoke the external program with --finalize
  */
@@ -839,9 +836,8 @@ void GExternalEvaluatorIndividual::finalize(const Config &c) {
 /**
  * @brief Submits a batch of best individuals to the external program for archiving (--archive).
  *
- * Formerly GExternalEvaluatorIndividualFactory::archive; it now reads the program name / custom
- * options / exchange base name / run-id from the archived individuals themselves (every produced
- * individual carries them, courtesy of applyConfig).
+ * Reads the program name / custom options / exchange base name / run-id from the archived individuals
+ * themselves (every produced individual carries them, courtesy of applyConfig).
  *
  * @param arch A vector of best individuals to archive; if empty the call is a no-op, otherwise the first element supplies the run metadata
  */

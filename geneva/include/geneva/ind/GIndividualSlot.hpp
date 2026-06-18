@@ -61,11 +61,11 @@ namespace Gem::Geneva::Genome {
  * A population element: the pairing of an individual ("the part that travels") with the
  * optimization-algorithm-owned scratch it accumulates while a given algorithm holds it.
  *
- * Rationale (struct-based population): the optimization algorithms previously carried
- * their per-individual scratch (the personality traits + the per-group adaption POD state, and later
- * swarm velocity / pbest, gradient, ...) INSIDE the individual. That made the individual not-quite
- * pure data and forced a serialization-purpose split (transport vs. checkpoint) on the genome itself.
- * GIndividualSlot lifts that scratch OUT of the individual and onto the population element:
+ * Rationale (struct-based population): the per-individual scratch an optimization algorithm
+ * accumulates (the personality traits + the per-group adaption POD state, plus swarm velocity / pbest,
+ * gradient, ...) is kept OUT of the individual so the individual stays pure data and needs no
+ * serialization-purpose split (transport vs. checkpoint). GIndividualSlot holds that scratch on the
+ * population element:
  *  - individual_ — the genome + parameter bounds (shared GGenomeLayout) + fitness + multi-constraint +
  *    the courtier processing container (correlation id / status). This is exactly the object that is
  *    shipped to a remote worker and back; it is, by itself, pure data.
@@ -249,13 +249,12 @@ public:
     }
 
     /***************************************************************************/
-    // Personality (the per-individual OA object). It used to live on the individual; in the struct-based
-    // population it belongs to the slot (OA-owned scratch). These accessors mirror the former
-    // GOptimizableEntity surface so the optimization algorithms' personality call sites barely change.
+    // Personality (the per-individual OA object). In the struct-based population it belongs to the slot
+    // (OA-owned scratch). These accessors give the optimization algorithms a uniform personality surface.
 
     /**
      * @brief Converts the personality base pointer to the desired type. Only accessible when
-     * personality_type derives from GPersonalityTraits (mirrors the former GOptimizableEntity template).
+     * personality_type derives from GPersonalityTraits.
      * @tparam personality_type The concrete personality-traits type to convert to (must derive from GPersonalityTraits).
      * @return A shared pointer to the personality traits cast to personality_type.
      * @throw geneva_exception (DEBUG builds) if the personality pointer is empty.

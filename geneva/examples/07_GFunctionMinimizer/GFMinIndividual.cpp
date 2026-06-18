@@ -259,9 +259,8 @@ std::ostream &operator<<(std::ostream &s, std::shared_ptr<Gem::Geneva::GFMinIndi
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Registers the config-file options, binding them to the passed Config. This is the body of the former
- * GFMinIndividualFactory::describeLocalOptions_ (now binding plain Config fields) plus the target_function
- * option the individual formerly registered in its own addConfigurationOptions.
+ * Registers the config-file options, binding them to the passed Config: the parameter-dimension /
+ * bounds / adaptor options plus the target_function option.
  */
 void GFMinIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
     std::string comment;
@@ -323,10 +322,9 @@ void GFMinIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c
 
 /******************************************************************************/
 /**
- * Builds the flat genome's STRUCTURE only (the genome-building body of the former
- * GFMinIndividualFactory::postProcess_): one constrained-double group of par_dim values (shared sigma),
- * mirroring the historical single GConstrainedDoubleCollection + one GDoubleGaussAdaptor. The adaptor
- * settings live on the OA-owned config (see buildAdaptionConfig()), not in the structure-only genome.
+ * Builds the flat genome's STRUCTURE only: one constrained-double group of par_dim values sharing a
+ * single sigma. The adaptor settings live on the OA-owned config (see buildAdaptionConfig()), not in
+ * the structure-only genome.
  */
 gen::GenomeData GFMinIndividual::buildGenome(const Config &c) {
     gen::GGenomeBuilder b;
@@ -336,9 +334,8 @@ gen::GenomeData GFMinIndividual::buildGenome(const Config &c) {
 
 /******************************************************************************/
 /**
- * Builds the OA-owned adaption configuration for a genome produced by this factory (the body of the former
- * GFMinIndividualFactory::getAdaptionConfig): the single shared double group gets a Gauss adaptor with the
- * configured parameters.
+ * Builds the OA-owned adaption configuration for a genome produced by this factory: the single shared
+ * double group gets a Gauss adaptor with the configured parameters.
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
 GFMinIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
@@ -352,8 +349,8 @@ GFMinIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Confi
 
 /******************************************************************************/
 /**
- * Per-object post-config hook (the per-object tail of the former postProcess_): the target function and
- * the seed sigma stamped for the getAverageSigma() telemetry hook.
+ * Per-object post-config hook: applies the target function and stamps the seed sigma for the
+ * getAverageSigma() telemetry hook.
  */
 void GFMinIndividual::applyConfig(GFMinIndividual &ind, const Config &c) {
     ind.setTargetFunction(c.target_function);

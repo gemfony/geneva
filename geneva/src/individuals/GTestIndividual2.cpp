@@ -167,8 +167,8 @@ GTestIndividual2::~GTestIndividual2() { /* nothing */
 /**
  * @brief Builds the OA-owned adaption configuration for this individual
  *
- * Every double group of this genome gets the Gauss adaptor the constructor formerly baked into the
- * layout (sigma 0.025 / sigma_sigma 0.1 / [0, 1] / ad_prob 1).
+ * Every double group of this genome gets a Gauss adaptor (sigma 0.025 / sigma_sigma 0.1 / [0, 1] /
+ * ad_prob 1).
  *
  * @return A shared pointer to the freshly built adaption configuration covering all double groups
  */

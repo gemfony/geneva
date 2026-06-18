@@ -1047,7 +1047,7 @@ void GSwarmAlgorithm::updatePositions() {
 /******************************************************************************/
 /**
  * Update the individual's positions. Note that we use a std::tuple as an argument,
- * so that we do not have to pass too many parameters. The particle's velocity is no longer
+ * so that we do not have to pass too many parameters. The particle's velocity is not
  * passed in: it lives as a per-slot POD double block in the slot's OA scratch (AUXKEY_SWARM_VELOCITY)
  * and is read/written there.
  *

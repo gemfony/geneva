@@ -560,9 +560,8 @@ void GFunctionIndividual::compare_(
  */
 void GFunctionIndividual::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function. The demo_function option (and all other configurable values)
-    // is now registered by the static describeConfig() hook and applied via applyConfig(), so that the
-    // generic GFlatIndividualFactory<GFunctionIndividual> is a complete replacement for the former
-    // bespoke factory.
+    // is registered by the static describeConfig() hook and applied via applyConfig(), so the generic
+    // GFlatIndividualFactory<GFunctionIndividual> handles all of this individual's configuration.
     gen::GFlatGenome::addConfigurationOptions_(gpb);
 }
 
@@ -737,9 +736,8 @@ double GFunctionIndividual::fitnessCalculation() {
 /**
  * @brief Registers the config-file options, binding them to the passed Config.
  *
- * This is the body of the former GFunctionIndividualFactory::describeLocalOptions_ (now binding plain
- * Config fields instead of GOneTimeRefParameterT references) plus the demo_function option the
- * individual formerly registered in its own addConfigurationOptions_.
+ * Registers the parameter-dimension / bounds / adaptor options plus the demo_function option, binding
+ * each to a field of the passed Config (filled on parse).
  *
  * @param gpb The GParserBuilder object with which the configuration file options are registered
  * @param c The Config struct whose fields are bound to the registered options (filled on parse)
@@ -903,9 +901,9 @@ void GFunctionIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Confi
 
 /******************************************************************************/
 /**
- * @brief Builds the flat genome's STRUCTURE only (the body of the former GFunctionIndividualFactory::postProcess_).
+ * @brief Builds the flat genome's STRUCTURE only.
  *
- * The five legacy modes differ in constrained-vs-unbounded and
+ * The five parameter-type modes differ in constrained-vs-unbounded and
  * whether the parameters share one adaption group (a *collection*) or each carry their own (a collection
  * of *objects* / individual objects). The configured Gauss / bi-Gauss adaptor settings live on the
  * OA-owned config (see buildAdaptionConfig()), not in the genome layout. The start value is the lower
@@ -958,9 +956,8 @@ gen::GenomeData GFunctionIndividual::buildGenome(const Config &c) {
 /**
  * @brief Builds the OA-owned adaption configuration for a genome produced by this factory.
  *
- * This is the body of the former GFunctionIndividualFactory::getAdaptionConfig. Every double group
- * (one shared group for the collection modes, one per parameter for the object modes) receives the
- * configured single-Gauss or bi-Gauss adaptor.
+ * Every double group (one shared group for the collection modes, one per parameter for the object
+ * modes) receives the configured single-Gauss or bi-Gauss adaptor.
  *
  * @param sample A sample flat genome whose group structure the adaption config is built against
  * @param c The Config supplying the adaptor parameters (sigmas, ad_prob, bi-gaussian flag, ...)
@@ -995,8 +992,7 @@ GFunctionIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const C
 /**
  * @brief Per-object post-config hook: applies the (non-genome) demo function to a produced individual.
  *
- * The demo function was formerly registered + applied by the individual's own
- * addConfigurationOptions_; it now lives in the Config and is applied here, the symmetric companion to
+ * The demo function lives in the Config and is applied here, the symmetric companion to
  * buildAdaptionConfig().
  *
  * @param ind The individual to configure (mutated in place)

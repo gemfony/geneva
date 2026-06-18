@@ -79,7 +79,7 @@ std::ostream &operator<<(std::ostream &os, const CircleTriangle &ct) {
 	 * per triangle -- cx, cy, radius, angle1..3, r, g, b, a -- followed by the 3 background colours, all
 	 * constrained gimage_fp_t in their own Gauss group; the centre (cx, cy) groups carry the "loc" label
 	 * and everything else "main", so applyConfig() can author the matching OA-owned Gauss adaptor by label.
-	 * The configured ranges are validated up front (formerly at the top of init()).
+	 * The configured ranges are validated up front.
 	 */
 gen::GenomeData GImageIndividual::buildGenome(const Config &c) {
     if(c.min_size < 0. || c.max_size > 1. || c.min_size >= c.max_size) {
@@ -148,12 +148,11 @@ gen::GenomeData GImageIndividual::buildGenome(const Config &c) {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Build the flat genome via GGenomeBuilder. The streamline order matches the historical tree's
-    // push_back order exactly -- per triangle: cx, cy, radius, angle1..3, r, g, b, a (10 values), then
-    // the 3 background colours -- so getTriangleData() / getBackGroundColor() / the GPU marshaller read
-    // it positionally and the rasteriser is unchanged. Every value is a constrained gimage_fp_t with
-    // its own Gauss group (the tree gave each parameter its own cloned adaptor); the location params
-    // (cx, cy) use the "loc" adaptor config, everything else the main one.
+    // Build the flat genome via GGenomeBuilder. The streamline order is a positional contract --
+    // per triangle: cx, cy, radius, angle1..3, r, g, b, a (10 values), then the 3 background colours --
+    // so getTriangleData() / getBackGroundColor() / the GPU marshaller read it positionally and the
+    // rasteriser matches. Every value is a constrained gimage_fp_t with its own Gauss group; the
+    // location params (cx, cy) use the "loc" adaptor config, everything else the main one.
     const std::size_t nTriangles = c.n_triangles;
 
     gen::GGenomeBuilder bld;
@@ -528,10 +527,8 @@ void GImageIndividual::specificTestsFailuresExpected_GUnitTests_() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Registers the config-file options, binding them to the passed Config. This is the body of the former
- * GImageIndividualFactory::describeLocalOptions_, now binding plain Config fields instead of
- * GOneTimeRefParameterT references. The checkValueRange() guards (which validate the defaults at
- * registration time) are preserved verbatim.
+ * Registers the config-file options, binding them to the passed Config. The checkValueRange() guards
+ * validate the defaults at registration time.
  */
 void GImageIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
     using namespace Gem::Common;

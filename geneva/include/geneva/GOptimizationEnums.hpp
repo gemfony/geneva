@@ -160,8 +160,7 @@ const std::string DEFAULTOPTALG = "ea";
 
 /******************************************************************************/
 // The default number of threads for parallelization with threads lives in the courtier layer as
-// Gem::Courtier::DEFAULTNSTDTHREADS (courtier/GCourtierEnums.hpp); the formerly duplicated
-// Gem::Geneva constant of the same name was removed -- qualify the courtier one at the use site.
+// Gem::Courtier::DEFAULTNSTDTHREADS (courtier/GCourtierEnums.hpp) -- qualify it at the use site.
 
 /******************************************************************************/
 /**

@@ -399,11 +399,10 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A factory for GExternalEvaluatorIndividual objects. The bespoke factory has been replaced by the
- * generic, config-driven GFlatIndividualFactory; GExternalEvaluatorIndividual supplies the static
- * describeConfig / buildGenome / buildAdaptionConfig / applyConfig / finalize hooks (plus the static
- * archive() helper). The alias keeps existing call sites (ctor(path), get_as<>(), getAdaptionConfig(),
- * registerContentCreator()) compiling unchanged.
+ * A factory for GExternalEvaluatorIndividual objects: an alias for the generic, config-driven
+ * GFlatIndividualFactory, for which GExternalEvaluatorIndividual supplies the static describeConfig /
+ * buildGenome / buildAdaptionConfig / applyConfig / finalize hooks (plus the static archive() helper).
+ * Call sites use ctor(path), get_as<>(), getAdaptionConfig() and registerContentCreator().
  */
 using GExternalEvaluatorIndividualFactory =
     Gem::Geneva::Genome::GFlatIndividualFactory<GExternalEvaluatorIndividual>;

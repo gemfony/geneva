@@ -60,11 +60,9 @@ namespace Gem::Geneva::Individuals {
 GTestIndividual1::GTestIndividual1() {
     using namespace Gem::Geneva;
 
-    // 100 unbounded doubles (init perimeter [-10, 10]) sharing one Gauss adaptor (the flat
-    // equivalent of a GDoubleCollection(100, -10, 10) with a single GDoubleGaussAdaptor). The
-    // builder's default adapt_ad_prob == 0 reproduces the old setAdaptAdProb(0.) ("prevent
-    // changes to adProb_"). A small positive min_sigma (1e-3, vs the tree adaptor's 0) floors
-    // the self-adapting sigma so every adaption step stays well above ULP magnitude; this keeps
+    // 100 unbounded doubles (init perimeter [-10, 10]) sharing one Gauss adaptor. The builder's
+    // default adapt_ad_prob == 0 prevents changes to adProb_. A small positive min_sigma (1e-3)
+    // floors the self-adapting sigma so every adaption step stays well above ULP magnitude; this keeps
     // the "fitness changes after every customAdaptions()" unit test below reliable. With
     // min_sigma == 0 the shared sigma can collapse toward zero, the value steps fall back to a
     // one-ULP nudge, and 100 such nudges can round away in the sum-of-squares fitness.
@@ -72,14 +70,14 @@ GTestIndividual1::GTestIndividual1() {
     b.addDoublePlainGroup(100, -10., 10.); // structure only; the adaptor lives on the OA config
     this->setGenome(b.build());
 
-    // Random per-parameter initialisation, mirroring the tree's randomInit.
+    // Random per-parameter initialisation.
     this->randomInit(activityMode::ACTIVEONLY);
 }
 
 /******************************************************************************/
 /**
- * @brief Builds the OA-owned adaption configuration: the single shared double group gets the Gauss adaptor
- * the constructor formerly baked into the layout (sigma 0.025 / sigma_sigma 0.1 / [1e-3, 1] / ad_prob 1).
+ * @brief Builds the OA-owned adaption configuration: the single shared double group gets a Gauss adaptor
+ * (sigma 0.025 / sigma_sigma 0.1 / [1e-3, 1] / ad_prob 1).
  *
  * @return A shared pointer to a freshly built adaption config whose double group carries the Gauss adaptor
  *         settings (sigma 0.025, sigma_sigma 0.1, min_sigma 1e-3, max_sigma 1.0, ad_prob 1.0)
@@ -254,8 +252,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         bool dirty_flag = false;
 
         // The per-group adaption state + the bare "mutate values without marking dirty" kernel run are
-        // OA-owned. runAdaptionKernels() is the data-oriented twin of the former
-        // customAdaptions(): it drifts the values but does NOT touch the processing status.
+        // OA-owned. runAdaptionKernels() drifts the values but does NOT touch the processing status.
         auto cfg = p_test->getAdaptionConfig();
         gen::GAuxiliaryStore scratch;
         cfg->installInto(scratch);
@@ -424,8 +421,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         std::vector<double> values_old;
         CHECK_NOTHROW(p_test1->streamline(values_old));
 
-        // Adapt (drift values without marking dirty -- the data-oriented twin of the former
-        // customAdaptions()) and evaluate the first individual.
+        // Adapt (drift values without marking dirty via runAdaptionKernels()) and evaluate the first
+        // individual.
         {
             auto cfg = p_test1->getAdaptionConfig();
             gen::GAuxiliaryStore scratch;
@@ -454,28 +451,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
     //------------------------------------------------------------------------------
 
-    // NOTE: the former resize_clone / resize_noclone /
-    // find / count and insert_clone / insert_noclone test blocks were removed here. They exercised
-    // SHARED-container semantics that no longer apply now that the genome owns its parameters by
-    // unique_ptr: in particular insert_noclone's "same physical address as an external shared_ptr"
-    // assertions cannot hold for sole ownership, and find()/count()-by-shared-item are shared-only.
-    // This container functionality is covered for the unique_ptr container by
-    // common/tests/UnitTests/GContainerTTests.cpp. (REVIEW: re-add a unique-semantics integration
-    // test here if desired.)
-
-    //------------------------------------------------------------------------------
-
-    // NOTE: the GPtrVectorT<GParameterBase>-functionality
-    // test blocks (push_back_clone/noclone, getDataCopy, resize_clone/noclone, insert_clone/noclone,
-    // count/find, and the empty-pointer throw checks) were removed from GTestIndividual1. They
-    // exercised SHARED-container semantics (sharing/aliasing an external shared_ptr's object,
-    // find()/count()-by-shared-item) that no longer apply now that the genome owns its parameters
-    // by unique_ptr. This functionality is covered for the unique_ptr container in
-    // common/tests/UnitTests/GContainerTTests.cpp. (REVIEW: re-add unique-semantics integration
-    // tests here if desired.)
-
-    //------------------------------------------------------------------------------
-
+    // Generic container semantics for the genome's parameter storage are covered in
+    // common/tests/UnitTests/GContainerTTests.cpp.
 
     //------------------------------------------------------------------------------
 

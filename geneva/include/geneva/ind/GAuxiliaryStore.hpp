@@ -201,7 +201,7 @@ public:
     /**
      * @brief Direct (mutable) access to the personality-traits slot. Returned by reference so the
      * individual's serialization / load / compare machinery (make_cloneable_member) can drive it
-     * exactly as it drove the former bare pt_ptr_ member.
+     * directly.
      *
      * @return A mutable reference to the personality-traits shared pointer slot
      */

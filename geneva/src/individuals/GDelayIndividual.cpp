@@ -303,9 +303,6 @@ std::tuple<double, double> GDelayIndividual::getSleepWindow() const {
 /**
  * @brief Registers the delay configuration options, binding them to the passed Config.
  *
- * This is the body of the former GDelayIndividualFactory::describeLocalOptions_, now owned by the
- * individual itself.
- *
  * @param gpb The GParserBuilder object with which the configuration file options are registered
  * @param c The Config struct whose fields are bound to the registered options (filled on parse)
  */
@@ -370,8 +367,7 @@ void GDelayIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &
 /**
  * @brief Reads a delay configuration file, creating it with default values if it does not yet exist.
  *
- * Replaces the legacy factory's config parsing; the benchmark calls this once and then drives the
- * delay sequence.
+ * The benchmark calls this once and then drives the delay sequence.
  *
  * @param configFile The path to the configuration file to read (created with defaults if absent)
  * @return A Config struct populated from the configuration file
@@ -423,9 +419,8 @@ GDelayIndividual::tupleToTime(const std::tuple<unsigned int, unsigned int> &time
 /**
  * @brief Builds a configured delay individual for one fixed sleep time.
  *
- * Replaces the legacy factory's postProcess_: the genome is n_variables unbounded double parameters
- * (structure only) -- pure transport ballast for the overhead measurement, carrying no adaptor
- * (customAdaptions() is a no-op).
+ * The genome is n_variables unbounded double parameters (structure only) -- pure transport ballast for
+ * the overhead measurement, carrying no adaptor (customAdaptions() is a no-op).
  *
  * @param c The Config supplying crash, random-sleep and n_variables settings for the new individual
  * @param sleepTime The fixed sleep time assigned to the new individual, as a duration in seconds

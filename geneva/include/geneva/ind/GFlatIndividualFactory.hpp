@@ -67,8 +67,8 @@ namespace Gem::Geneva::Genome {
  * generically and the shared GGenomeLayout is built once and reused by every produced individual,
  * the factory machinery -- read the config, build the structure once, spawn, attach pre/post
  * processors -- is identical for every concrete flat individual. So instead of hand-writing a factory
- * class per individual (as the tree required), a Tier-2 (config-driven) flat individual only supplies
- * two static hooks, and uses this template directly.
+ * class per individual, a Tier-2 (config-driven) flat individual only supplies two static hooks, and
+ * uses this template directly.
  *
  * The Derived individual must provide:
  *  - a nested @c Config type (a plain, copyable struct holding the configurable values, e.g. par_dim,
@@ -161,7 +161,7 @@ public:
     /***************************************************************************/
     /**
      * The destructor. Invokes an optional Derived::finalize(const Config&) teardown hook when a genome
-     * was actually produced -- the lifetime-bound counterpart to the legacy factories' destructors (e.g.
+     * was actually produced -- a lifetime-bound teardown (e.g.
      * telling an external evaluator program to finalise). An individual without the hook gets the default
      * (trivial) teardown. A destructor must never propagate an exception, so the hook is shielded.
      */
@@ -251,9 +251,8 @@ protected:
         fg->setGenome(shared_genome_);
 
         // Optional per-object configuration hook: lets a Derived individual apply its own non-genome
-        // settings parsed into config_ (e.g. a transfer function) -- the counterpart to whatever the
-        // legacy bespoke factory did in postProcess_ beyond building the genome. It is the symmetric
-        // companion to buildAdaptionConfig(): an individual without the hook is simply left unconfigured.
+        // settings parsed into config_ (e.g. a transfer function) beyond building the genome. It is the
+        // symmetric companion to buildAdaptionConfig(): an individual without the hook is simply left unconfigured.
         if constexpr (requires(Derived &d, const typename Derived::Config &c) {
                           Derived::applyConfig(d, c);
                       }) {
@@ -266,7 +265,7 @@ private:
     /**
      * Creates an (empty-genome) individual of the desired type and registers its own base
      * GOptimizableEntity configuration options (eval policy, validity thresholds, maxmode, ...) on the
-     * parser, exactly as the legacy bespoke factories did via target->addConfigurationOptions(gpb).
+     * parser via target->addConfigurationOptions(gpb).
      * Bound to this freshly produced object, those options are applied to it when GFactoryT parses (or
      * re-applies the cached) configuration. Derived-specific options are registered separately by
      * describeConfig(); the genome itself is installed in postProcess_ once the config has been parsed.
@@ -284,9 +283,9 @@ private:
     /**
      * The default constructor; only needed for (de-)serialization, hence private. It hands a placeholder
      * path to the base (whose own default constructor is private); the real configFile is restored from
-     * the archive by serialize() immediately afterwards. This mirrors the legacy bespoke factories'
-     * default constructors and lets an exported alias (e.g. GFunctionIndividualFactory, serialized as part
-     * of a network-transported GMetaOptimizerIndividualT) be reconstructed.
+     * the archive by serialize() immediately afterwards. This lets an exported alias (e.g.
+     * GFunctionIndividualFactory, serialized as part of a network-transported GMetaOptimizerIndividualT)
+     * be reconstructed.
      */
     GFlatIndividualFactory()
       : GOptimizableEntityFactory("empty") { /* nothing */

@@ -54,9 +54,8 @@ namespace Gem::Geneva::Genome {
 /**
  * The adaption floating-point type for a parameter type: double parameters adapt in double, float
  * parameters in float, everything else (int / bool) carries a double-typed Gauss config that simply
- * stays unused (those channels are mutated by flip adaptors, added later). This mirrors the tree's
- * adaption_fp_type trait but is defined locally so the layout (in geneva/ind/) does not depend on the
- * parameter-object hierarchy (geneva/par/).
+ * stays unused (those channels are mutated by flip adaptors). The trait is defined locally so the
+ * layout (in geneva/ind/) stays self-contained.
  *
  * @tparam T The parameter type whose adaption floating-point type is being selected.
  */
@@ -71,11 +70,10 @@ enum class ParamKind : std::uint8_t { Plain, Constrained };
 
 /******************************************************************************/
 /**
- * The reflecting fold of GConstrainedFPT::transfer(), re-expressed as a free function over (val, lo,
- * hi). It maps an unbounded internal value into the half-open external range [lo, hi). Computed in
- * long double, like the original, to keep the double behaviour bit-for-bit. NaN / infinity are
- * rejected unconditionally (they would silently corrupt the range comparison and every value derived
- * from them), matching the tree.
+ * The reflecting fold, a free function over (val, lo, hi). It maps an unbounded internal value into the
+ * half-open external range [lo, hi). Computed in long double to keep the double behaviour bit-for-bit.
+ * NaN / infinity are rejected unconditionally (they would silently corrupt the range comparison and
+ * every value derived from them).
  *
  * @tparam T The floating-point value type (double or float).
  * @param val The unbounded internal value to fold into range.

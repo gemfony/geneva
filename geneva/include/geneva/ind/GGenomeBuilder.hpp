@@ -189,8 +189,7 @@ private:
 /**
  * The imperative authoring API for a flat genome: the user declares each parameter (or group / array
  * of parameters) once, optionally attaching an adaptor, and calls build() to obtain a GenomeData (value
- * arrays + shared layout). This replaces the tree's "push_back parameter objects + adaptors" idiom
- * without losing fine-grained control.
+ * arrays + shared layout), with fine-grained per-parameter control.
  *
  * Three group shapes per type:
  *  - addX(init[,min,max])          : one parameter, its own adaption group (size 1)
@@ -545,7 +544,7 @@ private:
         g.start = start;
         g.len = static_cast<std::uint32_t>(len);
         g.active = true;
-        // The comparative range mirrors the tree: (upper-lower) for constrained, the init range
+        // The comparative range is (upper-lower) for constrained parameters, the init range
         // otherwise. Used to scale the Gauss step independently of a parameter's value range. Relevant
         // for the FP channels (Gauss / bi-Gauss) and the int32 channel (integer Gauss adaptor); left at
         // 1 for bool (flip only, no range).

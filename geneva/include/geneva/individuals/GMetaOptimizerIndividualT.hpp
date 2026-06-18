@@ -459,9 +459,8 @@ public:
     /***************************************************************************/
     /**
      * @brief Builds the OA-owned adaption configuration for the meta genome: n_parents gets a flip adaptor,
-     * n_children an integer-Gauss adaptor, and every meta double a Gauss adaptor -- the exact settings
-     * addContent() formerly baked into the genome layout. Used by the outer EA (via Go2 / setAdaptionConfig)
-     * and by the self-driven modify hook.
+     * n_children an integer-Gauss adaptor, and every meta double a Gauss adaptor. Used by the outer EA
+     * (via Go2 / setAdaptionConfig) and by the self-driven modify hook.
      *
      * @return A shared pointer to the populated OA-owned adaption config
      */
@@ -763,11 +762,9 @@ protected:
 
         // The sub-individuals' adaptors live on an OA-owned config (their genome is structure-only). The
         // meta individual OWNS the adaptor parameters it optimises, so it authors that config INLINE here
-        // (the inner individuals are single-Gauss). This used to be done by pushing the values into
-        // ind_factory_ via setters and calling ind_factory_->getAdaptionConfig(); but the generic
-        // GFlatIndividualFactory re-applies its config file on every get_(), so programmatic setters would
-        // not stick -- hence the factory now only produces structure-only genomes and the config is built
-        // here from a sample genome.
+        // (the inner individuals are single-Gauss). It is built here from a sample genome rather than via
+        // the factory because GFlatIndividualFactory re-applies its config file on every get_(), so
+        // programmatic setters on the factory would not stick.
         auto sub_adaption_config = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(
             dynamic_cast<const gen::GFlatGenome &>(*ind_factory_->get())
         );

@@ -1595,9 +1595,9 @@ double GNeuralNetworkIndividual::transfer(const double &value) const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * @brief Registers the config-file options, binding them to the passed Config. This is the body of the former
- * GNeuralNetworkIndividualFactory::describeLocalOptions_; the base GOptimizableEntity options are now
- * registered separately by GFlatIndividualFactory::getObject_ (via addConfigurationOptions).
+ * @brief Registers the config-file options, binding them to the passed Config. The base
+ * GOptimizableEntity options are registered separately by GFlatIndividualFactory::getObject_ (via
+ * addConfigurationOptions).
  *
  * @param gpb The parser builder the file-parameter options are registered with
  * @param c The Config object whose members the registered options are bound to (filled on parse)
@@ -1708,8 +1708,7 @@ gen::GenomeData GNeuralNetworkIndividual::buildGenome(const Config &c) {
 /******************************************************************************/
 /**
  * @brief Builds the OA-owned adaption configuration for a network genome: every weight (one double group each)
- * gets a Gauss adaptor with the configured parameters -- exactly the settings init() formerly baked into
- * the genome layout.
+ * gets a Gauss adaptor with the configured parameters.
  *
  * @param sample A sample genome whose double-group structure the config is derived from
  * @param c The Config providing the Gauss adaptor parameters (sigma, ad_prob and their bounds)

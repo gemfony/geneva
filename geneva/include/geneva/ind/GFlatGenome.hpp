@@ -204,8 +204,8 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
 
         ar &BOOST_SERIALIZATION_NVP(dv_) &BOOST_SERIALIZATION_NVP(fv_) &
             BOOST_SERIALIZATION_NVP(iv_) &BOOST_SERIALIZATION_NVP(bv_);
-        // The per-group adaption state is OA-owned scratch (on the GIndividualSlot), no longer seeded
-        // here: an optimization algorithm seeds each slot's scratch from its config at setup.
+        // The per-group adaption state is OA-owned scratch (on the GIndividualSlot): an optimization
+        // algorithm seeds each slot's scratch from its config at setup.
 
         // Follow the self-describing wire form written by save() (see there for the two forms).
         bool interned = false;
@@ -716,9 +716,8 @@ private:
     }
 
     /***************************************************************************/
-    // Random-init channel helpers. (The per-channel ADAPTION kernels are no longer driven from the
-    // individual: the adaption state and logic are OA-owned -- see geneva/oa/GAdaption.hpp, fed by the
-    // GIndividualSlot's scratch.)
+    // Random-init channel helpers. (The per-channel ADAPTION kernels are OA-owned -- see
+    // geneva/oa/GAdaption.hpp, fed by the GIndividualSlot's scratch.)
 
     /** @brief Randomly initialises a floating-point channel's active parameters.
      *  @tparam T The channel's value type (double / float)

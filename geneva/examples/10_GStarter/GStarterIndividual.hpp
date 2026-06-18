@@ -142,14 +142,14 @@ public:
     std::string print();
 
     //---------------------------------------------------------------------------
-    // GFlatIndividualFactory<GStarterIndividual> hooks. Instead of a bespoke factory the individual
-    // supplies the static hooks the generic factory needs: describeConfig (the configurable values,
+    // GFlatIndividualFactory<GStarterIndividual> hooks. The individual supplies the static hooks the
+    // generic factory needs: describeConfig (the configurable values,
     // including the target function), buildGenome (one constrained double per start value), applyConfig
     // (the per-object, non-genome target function) and buildAdaptionConfig (the OA-owned Gauss adaption
     // config, authored from the Config -- NOT stored on the individual). The full ctor + addContent()
     // below remain as a standalone (factory-less) construction path, used by the unit tests.
 
-    /** @brief All values formerly parsed by the bespoke GStarterIndividualFactory. */
+    /** @brief The configurable values parsed from the config file. */
     struct Config {
         double ad_prob = GSI_DEF_ADPROB;
         double sigma = GSI_DEF_SIGMA;
@@ -292,11 +292,10 @@ std::ostream &operator<<(std::ostream &, std::shared_ptr<GStarterIndividual>);
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A factory for GStarterIndividual objects. The bespoke factory has been replaced by the generic,
- * config-driven GFlatIndividualFactory; GStarterIndividual supplies the static describeConfig /
- * buildGenome / applyConfig / buildAdaptionConfig hooks. The alias keeps existing call sites
- * (ctor(path), get_as<>(), registerContentCreator(), and the factory's getAdaptionConfig(sample))
- * compiling unchanged.
+ * A factory for GStarterIndividual objects: an alias for the generic, config-driven
+ * GFlatIndividualFactory, for which GStarterIndividual supplies the static describeConfig /
+ * buildGenome / applyConfig / buildAdaptionConfig hooks. Call sites use ctor(path), get_as<>(),
+ * registerContentCreator() and the factory's getAdaptionConfig(sample).
  */
 using GStarterIndividualFactory = Gem::Geneva::Genome::GFlatIndividualFactory<GStarterIndividual>;
 

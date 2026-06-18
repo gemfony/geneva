@@ -50,15 +50,14 @@ GMPIEvaluatedIndividual::GMPIEvaluatedIndividual()
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10.) {
     // Build a flat genome of two constrained doubles in [M_PAR_MIN, M_PAR_MAX[, each its own Gauss
-    // group with the default GDoubleGaussAdaptor configuration (the tree relied on the lazily
-    // installed default adaptor).
+    // group adapted with the default GDoubleGaussAdaptor configuration.
     gen::GGenomeBuilder b;
     for(std::size_t npar = 0; npar < 2; npar++) {
         b.addDouble(M_PAR_MIN, M_PAR_MIN, M_PAR_MAX); // structure only; the adaptor lives on the OA config
     }
     this->setGenome(b.build());
 
-    // Mirror the tree's per-parameter random initialization within bounds.
+    // Per-parameter random initialization within bounds.
     this->randomInit(activityMode::ALLPARAMETERS);
 }
 

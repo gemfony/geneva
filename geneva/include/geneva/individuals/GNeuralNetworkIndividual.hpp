@@ -414,7 +414,7 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::transf
 // See also the definition of TFactory_GSingletonT<Gem::Geneva::Individuals::networkData>
 using GDatStore = Gem::Common::GSingletonT<Gem::Geneva::Individuals::networkData>;
 /**
- * @brief Drop-in replacement for the former GNNTrainingDataStore macro.
+ * @brief Accessor for the global training-data singleton.
  * @return A shared pointer to the global training-data singleton
  */
 [[nodiscard]] inline std::shared_ptr<GDatStore::STYPE> nnTrainingDataStore() {
@@ -1362,10 +1362,10 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A factory for GNeuralNetworkIndividual objects. The bespoke factory has been replaced by the generic,
- * config-driven GFlatIndividualFactory; GNeuralNetworkIndividual supplies the static describeConfig /
- * buildGenome / buildAdaptionConfig / applyConfig hooks. The alias keeps existing call sites (ctor(path),
- * get_as<>(), getAdaptionConfig(), registerContentCreator()) compiling unchanged.
+ * A factory for GNeuralNetworkIndividual objects: an alias for the generic, config-driven
+ * GFlatIndividualFactory, for which GNeuralNetworkIndividual supplies the static describeConfig /
+ * buildGenome / buildAdaptionConfig / applyConfig hooks. Call sites use ctor(path),
+ * get_as<>(), getAdaptionConfig() and registerContentCreator().
  */
 using GNeuralNetworkIndividualFactory =
     Gem::Geneva::Genome::GFlatIndividualFactory<GNeuralNetworkIndividual>;
@@ -1383,7 +1383,7 @@ namespace Gem::Common {
 // A global store for network configuration data
 using GNNOptStore = GSingletonT<GGlobalOptionsT<std::string>>;
 /**
- * @brief Drop-in replacement for the former GNeuralNetworkOptions macro.
+ * @brief Accessor for the global neural-network options singleton.
  * @return A shared pointer to the global neural-network options singleton
  */
 [[nodiscard]] inline std::shared_ptr<GNNOptStore::STYPE> neuralNetworkOptions() {

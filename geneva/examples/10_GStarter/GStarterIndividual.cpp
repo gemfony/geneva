@@ -467,9 +467,8 @@ std::ostream &operator<<(std::ostream &stream, std::shared_ptr<GStarterIndividua
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Registers the config-file options, binding them to the passed Config. This is the body of the former
- * GStarterIndividualFactory::describeLocalOptions_ (now binding plain Config fields) plus the
- * target_function option the individual formerly registered in its own addConfigurationOptions.
+ * Registers the config-file options, binding them to the passed Config: the adaptor / bounds options
+ * plus the target_function option.
  */
 void GStarterIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
     gpb.registerFileParameter<double>("ad_prob", c.ad_prob, GSI_DEF_ADPROB)

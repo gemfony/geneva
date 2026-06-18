@@ -619,7 +619,7 @@ void GParChild::fixAfterJobSubmission() {
 
     // Retrieve any LATE returns the consumer buffered -- bare individuals that came back after their
     // batch had already been reconciled (only networked consumers produce these; local consumers return
-    // an empty list). They no longer carry the OA personality (that lives on the population slot), so we
+    // an empty list). They carry no OA personality (that lives on the population slot), so we
     // reconcile purely by assigned iteration: each is appended below as a fresh child candidate and the
     // subsequent selection keeps it only if it is competitive -- which makes this MO-safe without any
     // bespoke "fitness >" comparison.
@@ -921,10 +921,9 @@ void GParChild::init() {
             adaption_config_ = provided_adaption_config_;
 
             // Seed each slot's OA-owned scratch with the per-group adaption state from the shared
-            // config. The state (sigma / ad_prob / counter, …) formerly lived on the individual's
-            // auxiliary store; it now lives on the GIndividualSlot, OA-owned. Children created by
-            // recombination copy their chosen parent's whole slot (scratch included), so the evolved
-            // state propagates exactly as it did when it rode on the individual.
+            // config. The state (sigma / ad_prob / counter, …) lives on the GIndividualSlot, OA-owned.
+            // Children created by recombination copy their chosen parent's whole slot (scratch included),
+            // so the evolved state propagates with the parent.
             // On a checkpoint resume the slots already carry their restored, evolved adaption state --
             // preserve it (skip the re-seed) so a resumed run keeps its sigma rather than restarting.
             if(not this->resumedFromCheckpoint()) {

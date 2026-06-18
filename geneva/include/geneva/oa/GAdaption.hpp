@@ -51,12 +51,11 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /******************************************************************************/
 /**
  * The OA-side adaption logic, expressed as stateless free functions over (individual, scratch, config,
- * RNG). It is the data-oriented twin of the individual's former GFlatGenome::customAdaptions() /
- * updateAdaptorsOnStall() / queryAdaptor(), but driven by an OA-OWNED GAdaptionConfig rather than by the
- * (soon structure-only) genome layout. The config supplies each group's adaptor kind + parameters; the
- * genome supplies the mutable internal value spans; the per-group evolving state lives in an OA-owned
- * GAuxiliaryStore (the GIndividualSlot's scratch_) passed in explicitly — it is no longer carried by the
- * individual, which is now pure data. The RNG is the individual's own per-individual stream. Each call
+ * RNG). The adaption is driven by an OA-OWNED GAdaptionConfig rather than by the structure-only genome
+ * layout. The config supplies each group's adaptor kind + parameters; the genome supplies the mutable
+ * internal value spans; the per-group evolving state lives in an OA-owned GAuxiliaryStore (the
+ * GIndividualSlot's scratch_) passed in explicitly — the individual itself is pure data. The RNG is the
+ * individual's own per-individual stream. Each call
  * touches only this individual's values + its slot's scratch + its RNG and reads the shared config
  * read-only, so the functions compose with the EA's parallel adaptChildren_.
  */
@@ -348,8 +347,8 @@ inline void resetAdaptionState(detail::GAuxiliaryStore &scratch, const GAdaption
 /******************************************************************************/
 /**
  * @brief Reads the current per-group sigma of a named Gauss adaptor from an OA-owned adaption-state
- * store (the slot's scratch — one entry per Gauss group), replacing the former GFlatGenome::queryAdaptor()
- * for the pluggable monitors and the in-fitness sigma logging. Recognised names: "GDoubleGaussAdaptor",
+ * store (the slot's scratch — one entry per Gauss group), for the pluggable monitors and the in-fitness
+ * sigma logging. Recognised names: "GDoubleGaussAdaptor",
  * "GFloatGaussAdaptor", "GInt32GaussAdaptor". Sigmas are returned as double (the float sigma widened).
  * For an individual that is detached from its slot (an archived best, a transport copy, or a standalone
  * individual), pass a scratch freshly seeded from the OA config (cfg.installInto(scratch)) to obtain the

@@ -158,9 +158,8 @@ double GMultiCriterionParabolaIndividual::fitnessCalculation() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Registers the config-file options, binding them to the passed Config. This is the body of the former
- * GMultiCriterionParabolaIndividualFactory::describeLocalOptions_ (now binding plain Config fields instead
- * of GOneTimeRefParameterT references).
+ * Registers the config-file options (parabola bounds and the list of minima), binding them to the
+ * passed Config.
  */
 void GMultiCriterionParabolaIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
     std::string comment;
@@ -186,8 +185,7 @@ void GMultiCriterionParabolaIndividual::describeConfig(Gem::Common::GParserBuild
 
 /******************************************************************************/
 /**
- * Builds the flat genome's STRUCTURE only (the genome-building body of the former
- * GMultiCriterionParabolaIndividualFactory::postProcess_): one constrained double per minimum, in
+ * Builds the flat genome's STRUCTURE only: one constrained double per minimum, in
  * [par_min, par_max]. The start value is the lower perimeter; the optimization algorithm
  * random-initialises within bounds. The Gauss adaptor settings live on the OA-owned config (see
  * getAdaptionConfig()), not in the structure-only genome layout.
@@ -205,9 +203,9 @@ gen::GenomeData GMultiCriterionParabolaIndividual::buildGenome(const Config &c) 
 
 /******************************************************************************/
 /**
- * Per-object post-config hook (the per-object body of the former postProcess_): the number of evaluation
- * criteria equals the number of parabolas (= the number of minima), and the per-criterion minima are
- * stored on the individual for fitnessCalculation().
+ * Per-object post-config hook: the number of evaluation criteria equals the number of parabolas
+ * (= the number of minima), and the per-criterion minima are stored on the individual for
+ * fitnessCalculation().
  */
 void GMultiCriterionParabolaIndividual::applyConfig(
     GMultiCriterionParabolaIndividual &ind,

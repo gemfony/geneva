@@ -52,8 +52,6 @@ using GOAStore =
 /**
  * @brief Returns the global optimization-algorithm-provider store singleton.
  *
- * Drop-in replacement for the former GOAFactoryStore macro.
- *
  * @return A shared pointer to the singleton store mapping keys to
  *         optimization-algorithm providers (never nullptr)
  */
