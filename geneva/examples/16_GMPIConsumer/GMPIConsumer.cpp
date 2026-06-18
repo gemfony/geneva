@@ -288,8 +288,8 @@ int main(int argc, char **argv) {
     // config the factory authors. Hand it to the EA directly.
     pop_ptr->setAdaptionConfig(gfi.getAdaptionConfig(*parentIndividuals[0]));
 
-    // Submit through the courtier MPI master broker built above.
-    pop_ptr->setBroker(mpiSetup.broker);
+    // buildConsumerSetup already registered the MPI master consumer as the process consumer; the
+    // algorithm submits through it automatically.
 
     /****************************************************************************/
     // Perform the actual optimization

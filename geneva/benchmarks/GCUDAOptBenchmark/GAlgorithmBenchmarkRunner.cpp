@@ -88,11 +88,8 @@ gind::solverFunction parseBenchmarkFunction(const std::string &name) {
 
 /******************************************************************************/
 
-GAlgorithmBenchmarkRunner::GAlgorithmBenchmarkRunner(
-    BenchmarkConfig cfg,
-    std::shared_ptr<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>> cudaBroker)
+GAlgorithmBenchmarkRunner::GAlgorithmBenchmarkRunner(BenchmarkConfig cfg)
     : cfg_(std::move(cfg))
-    , cudaBroker_(std::move(cudaBroker))
 {}
 
 /******************************************************************************/
@@ -157,9 +154,8 @@ GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(
     // Create algorithm from factory + config file
     auto alg = makeAlgorithm(entry);
 
-    // Submit this algorithm's populations to the GPU consumer (courtier): inject the shared broker
-    // so workOn() routes through it instead of the legacy executor.
-    alg->setBroker(cudaBroker_);
+    // The algorithm submits its populations through the process consumer (the GPU consumer the
+    // caller registered before run()).
 
     // Attach termination monitor
     auto monitor = std::make_shared<GBenchmarkTerminationMonitor>();

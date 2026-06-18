@@ -393,6 +393,21 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- A server binary now uses a single courtier consumer for everything, held in a
+  process-global registry (GConsumerRegistry). Algorithms are transport-agnostic:
+  they submit through that one consumer and get back a fully evaluated population,
+  never knowing whether evaluation happened locally, on a GPU, or on a remote
+  client. The consumer is established once -- by Go2 (from the command-line
+  mnemonic / default), or manually via Go2::registerConsumer() -- and every
+  algorithm reads it from the registry. Consequently the per-algorithm
+  GOptimizationAlgorithmBase::setBroker() and setLocalConsumer() (and the
+  local_consumer_kind enum) have been REMOVED, along with the per-algorithm
+  execution-policy plumbing; a standalone algorithm with no consumer set lazily
+  builds a default local thread-pool consumer on first use. Nested optimizations
+  (the meta-EA, the post-optimizer) run their inner work off this consumer -- the
+  meta-EA on its own orchestration pool, the post-optimizer inline -- so the one
+  consumer is never re-entered.
+
 - Meta-optimization (tuning an optimization algorithm's own parameters) now has a
   dedicated driver, GMetaEvolutionaryAlgorithm. It is a standard evolutionary
   algorithm whose population members are "umbrella" individuals, each running a

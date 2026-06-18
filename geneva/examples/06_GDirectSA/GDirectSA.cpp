@@ -337,39 +337,41 @@ int main(int argc, char **argv) {
     // config the factory authors. Hand it to the simulated-annealing population directly.
     pop_ptr->setAdaptionConfig(gfi.getAdaptionConfig(*parentIndividuals[0]));
 
-    // Route submission through courtier, depending on the parallelisation mode.
-    switch(parallelizationMode) {
-    //----------------------------------------------------------------------------
-    case execMode::SERIAL: // Serial (inline) execution
-        pop_ptr->setLocalConsumer(oa::local_consumer_kind::serial);
-        break;
-
+    // Build and register the ONE process-wide consumer, depending on the parallelisation mode.
+    // The algorithm submits through it automatically.
+    {
+        Gem::Geneva::ConsumerSpec spec;
+        switch(parallelizationMode) {
         //----------------------------------------------------------------------------
-    case execMode::MULTITHREADED: // Multi-threaded local execution
-        pop_ptr->setLocalConsumer(
-            oa::local_consumer_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
-        break;
+        case execMode::SERIAL: // Serial (inline) execution
+            spec.mnemonic = "sc";
+            break;
 
-        //----------------------------------------------------------------------------
-    case execMode::BROKER: // Networked execution (or a purely local consumer for testing)
-        if(addLocalConsumer) {
-            // "Broker mode" with only a local multi-threaded consumer (testing / benchmarking).
-            pop_ptr->setLocalConsumer(
-                oa::local_consumer_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
+            //----------------------------------------------------------------------------
+        case execMode::MULTITHREADED: // Multi-threaded local execution
+            spec.mnemonic  = "stc";
+            spec.n_threads = static_cast<unsigned int>(nEvaluationThreads);
+            break;
+
+            //----------------------------------------------------------------------------
+        case execMode::BROKER: // Networked execution (or a purely local consumer for testing)
+            if(addLocalConsumer) {
+                // "Broker mode" with only a local multi-threaded consumer (testing / benchmarking).
+                spec.mnemonic  = "stc";
+                spec.n_threads = static_cast<unsigned int>(nEvaluationThreads);
+            }
+            else {
+                // Build a courtier ASIO server via the shared factory; the clients started above (built by
+                // buildConsumerClient for the same mnemonic) connect to it.
+                spec.mnemonic           = "asio";
+                spec.port               = port;
+                spec.serialization_mode = serMode;
+            }
+            break;
+
+            //----------------------------------------------------------------------------
         }
-        else {
-            // Build a courtier ASIO server via the shared factory; the clients started above (built by
-            // buildConsumerClient for the same mnemonic) connect to it.
-            Gem::Geneva::ConsumerSpec spec;
-            spec.mnemonic           = "asio";
-            spec.port               = port;
-            spec.serialization_mode = serMode;
-            auto setup = Gem::Geneva::buildConsumerSetup(spec);
-            pop_ptr->setBroker(setup.broker);
-        }
-        break;
-
-        //----------------------------------------------------------------------------
+        Gem::Geneva::buildConsumerSetup(spec); // registers the process consumer
     }
 
     /****************************************************************************/

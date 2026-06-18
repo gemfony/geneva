@@ -145,6 +145,19 @@ public:
      */
     static std::vector<TunableParam> tunableManifest();
 
+    /**
+     * @brief Requests INLINE evaluation: the population is evaluated in the calling thread (each item's
+     * process() run directly), bypassing the process-wide work consumer. Needed for a nested refinement
+     * EA (e.g. the post-optimizer) that itself runs inside an individual's process() -- on a consumer
+     * worker or a remote client -- where submitting to that same consumer would re-enter it or find none.
+     * Transient execution choice (not serialized).
+     * @param inln true to evaluate inline in the calling thread; false (default) to use the work consumer
+     */
+    void setInlineEvaluation(bool inln) { inline_evaluation_ = inln; }
+    /** @brief Whether inline (in-thread) evaluation is enabled.
+     *  @return true if the population is evaluated inline rather than through the work consumer */
+    [[nodiscard]] bool getInlineEvaluation() const { return inline_evaluation_; }
+
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
@@ -279,6 +292,10 @@ private:
     // Local data
 
     sortingMode sorting_mode_ = DEFAULTEASORTINGMODE; ///< The chosen sorting scheme
+
+    /** @brief Evaluate the population inline (in-thread) instead of via the work consumer. Transient
+     *  execution choice for nested refiners (see setInlineEvaluation()); not serialized/compared. */
+    bool inline_evaluation_ = false;
 
     /***************************************************************************/
 };

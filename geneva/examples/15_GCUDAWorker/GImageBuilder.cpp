@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
             << tgt.height << ")" << '\n'
             << GLOGGING;
 
-    // ---- build the GPU consumer, wrap it in a broker and hand it to Go2 -----------------------
+    // ---- build the GPU consumer and hand it to Go2 as the process consumer --------------------
     // GGPUConsumerT evaluates a whole generation in one bulk launch; the marshaller knows how to turn
     // GImageIndividuals into flat device buffers and how to write the results back.
     auto marshaller = std::make_shared<MonaLisa::GMonaLisaGPUMarshaller>();
@@ -124,9 +124,7 @@ int main(int argc, char **argv) {
     consumer->setCloneFunction([](const std::unique_ptr<gen::GOptimizableEntity> &p) {
         return p->clone_unique();
     });
-    auto broker = std::make_shared<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>>();
-    broker->registerConsumer(consumer);
-    go.registerBroker(broker);
+    go.registerConsumer(consumer);
 
     // ---- as this is a server, allow interrupting the run "on the fly" -------------------------
     signal(G_SIGHUP, Gem::Geneva::sigHupHandler);

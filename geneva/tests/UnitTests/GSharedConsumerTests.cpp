@@ -28,16 +28,13 @@
  ********************************************************************************/
 
 /**
- * The single-shared-consumer invariant: at most one consumer of a given KIND per process, shared by
- * every algorithm that needs that kind. This file pins the thread-pool (stc) case: a nested
- * EA-in-EA -- an outer EA whose individuals each run an inner EA through the default (un-injected ->
- * thread-pool) submission path -- builds, across the whole process, exactly ONE thread-pool consumer
- * (and hence one worker pool), not one per inner evaluation.
- *
- * This holds because GOptimizerExecutionPolicy::ensureExecutor_ resolves an un-injected local consumer
- * through the process-global per-kind broker registry: the first inner EA builds and registers the
- * thread-pool consumer; every later one shares it. The test clears the registry first so the count
- * reflects only the consumers built during this test.
+ * The single-consumer model: a process has at most ONE work consumer (GConsumerRegistry), shared by
+ * every algorithm. This file pins three things: (1) the registry holds exactly one consumer and
+ * ensureConsumer builds it only once; (2) the meta-EA evaluates its umbrella-individuals on its OWN
+ * orchestration pool while their inner sub-EAs all share the one work consumer (the deadlock-free way
+ * to nest optimizations); (3) several independent algorithms submitting at once fan in to that one
+ * consumer. (A naive nested EA-in-EA that ran BOTH tiers on the single work pool would re-enter the pool
+ * and deadlock -- which is exactly why nesting goes through the meta-EA's separate pool.)
  */
 
 #include <catch2/catch_test_macros.hpp>
@@ -48,7 +45,7 @@
 #include <thread>
 #include <vector>
 
-#include "courtier/GBrokerRegistry.hpp"
+#include "courtier/GConsumerRegistry.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
 #include "geneva/GConsumerSetup.hpp"
@@ -141,66 +138,33 @@ protected:
 
 /******************************************************************************/
 
-TEST_CASE(
-    "Nested EA-in-EA shares a single thread-pool consumer",
-    "[consumer][sharing]") {
-    using StcConsumer = Gem::Courtier::GStdThreadConsumerT<gen::GOptimizableEntity>;
-
-    // Start from an empty registry so the count reflects only the consumers built during this test,
-    // and so the shared thread-pool consumer is genuinely built here (not inherited from an earlier test).
-    Gem::Courtier::GBrokerRegistryT<gen::GOptimizableEntity>::instance().clearAll();
-
-    // The outer EA is serial so it builds no thread-pool consumer of its own: the count then reflects
-    // ONLY the inner (thread-pool) consumers, isolating the invariant under test.
-    StcConsumer::instances_constructed().store(0);
-
-    auto outer = std::make_shared<oa::GEvolutionaryAlgorithm>();
-    outer->setPopulationSizes(4, 2);
-    outer->setMaxIteration(1);
-    outer->setReportIteration(100000);
-    MetaSphere src;
-    outer->push_back(src.clone_unique());
-    outer->setAdaptionConfig(src.buildAdaptionConfig());
-    outer->setLocalConsumer(oa::local_consumer_kind::serial);
-    outer->optimize();
-
-    const std::size_t built = StcConsumer::instances_constructed().load();
-    // Every un-injected inner EA converges on ONE shared thread-pool consumer.
-    CHECK(built == 1);
-}
-
-/******************************************************************************/
-
-TEST_CASE("Broker registry holds one shared work broker", "[consumer][sharing][registry]") {
-    using Registry = Gem::Courtier::GBrokerRegistryT<gen::GOptimizableEntity>;
-    using broker_t = Gem::Courtier::GBrokerT<gen::GOptimizableEntity>;
-    using Gem::Courtier::broker_kind;
+TEST_CASE("Consumer registry holds one consumer", "[consumer][sharing][registry]") {
+    using Registry = Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>;
+    using consumer_t = Gem::Courtier::GStdThreadConsumerT<gen::GOptimizableEntity>;
 
     auto &reg = Registry::instance();
-    reg.clearAll();
+    reg.clear();
 
-    CHECK(reg.sharedWorkBroker() == nullptr);
+    CHECK(reg.consumer() == nullptr);
 
-    // ensureSharedWork builds exactly once; later (and concurrent-shaped) calls share the same broker.
+    // ensureConsumer builds exactly once; later (and concurrent-shaped) calls share the same consumer.
     std::size_t factory_calls = 0;
-    auto factory = [&factory_calls]() {
+    auto factory = [&factory_calls]() -> Registry::consumer_ptr {
         ++factory_calls;
-        return std::make_shared<broker_t>();
+        return std::make_shared<consumer_t>();
     };
-    auto first = reg.ensureSharedWork(broker_kind::multithreaded, factory);
-    auto second = reg.ensureSharedWork(broker_kind::multithreaded, factory);
-    CHECK(factory_calls == 1);     // the second call did NOT build a new broker
-    CHECK(first == second);        // it returned the same shared work broker
-    CHECK(reg.sharedWorkBroker() == first);
-    CHECK(reg.sharedWorkKind() == broker_kind::multithreaded);
+    auto first = reg.ensureConsumer(factory);
+    auto second = reg.ensureConsumer(factory);
+    CHECK(factory_calls == 1);     // the second call did NOT build a new consumer
+    CHECK(first == second);        // it returned the same consumer
+    CHECK(reg.consumer() == first);
 
-    // publishSharedWork replaces it (e.g. Go2 publishing the consumer it built); clearAll empties.
-    auto replacement = std::make_shared<broker_t>();
-    reg.publishSharedWork(broker_kind::networked, replacement);
-    CHECK(reg.sharedWorkBroker() == replacement);
-    CHECK(reg.sharedWorkKind() == broker_kind::networked);
-    reg.clearAll();
-    CHECK(reg.sharedWorkBroker() == nullptr);
+    // setConsumer replaces it (e.g. Go2 registering the consumer it built); clear empties.
+    auto replacement = std::make_shared<consumer_t>();
+    reg.setConsumer(replacement);
+    CHECK(reg.consumer() == replacement);
+    reg.clear();
+    CHECK(reg.consumer() == nullptr);
 }
 
 /******************************************************************************/
@@ -218,7 +182,7 @@ TEST_CASE(
     // per-algorithm oversubscription). The submitting threads are NOT pool workers, so they block on
     // their batches while the pool drains them -- no pool-reentrancy (a nested EA-in-EA on the SAME pool
     // would instead be split across kinds; see the two-tier meta-optimization model).
-    Gem::Courtier::GBrokerRegistryT<gen::GOptimizableEntity>::instance().clearAll();
+    Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().clear();
     StcConsumer::instances_constructed().store(0);
 
     constexpr int K = 4;
@@ -258,7 +222,7 @@ TEST_CASE(
     }
     CHECK(StcConsumer::instances_constructed().load() == 1); // one shared pool for all K algorithms
 
-    Gem::Courtier::GBrokerRegistryT<gen::GOptimizableEntity>::instance().clearAll();
+    Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().clear();
 }
 
 /******************************************************************************/
@@ -274,7 +238,7 @@ TEST_CASE(
     // umbrella-individual blocking on its inner EA never starves the pool it runs on -- no deadlock. (A
     // plain EA here would instead evaluate the umbrellas on the work consumer, whose workers would then
     // block on inner work posted back to the same pool -- the deadlock the meta-EA exists to avoid.)
-    Gem::Courtier::GBrokerRegistryT<gen::GOptimizableEntity>::instance().clearAll();
+    Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().clear();
     StcConsumer::instances_constructed().store(0);
 
     auto meta = std::make_shared<oa::GMetaEvolutionaryAlgorithm>();
@@ -293,28 +257,25 @@ TEST_CASE(
     // pool is not a consumer, so it does not add to this count.
     CHECK(StcConsumer::instances_constructed().load() == 1);
 
-    Gem::Courtier::GBrokerRegistryT<gen::GOptimizableEntity>::instance().clearAll();
+    Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().clear();
 }
 
 /******************************************************************************/
 
-TEST_CASE("buildConsumerSetup publishes the shared work broker", "[consumer][sharing][registry]") {
-    using Registry = Gem::Courtier::GBrokerRegistryT<gen::GOptimizableEntity>;
-    using Gem::Courtier::broker_kind;
+TEST_CASE("buildConsumerSetup registers the process consumer", "[consumer][sharing][registry]") {
+    using Registry = Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>;
 
     auto &reg = Registry::instance();
-    reg.clearAll();
+    reg.clear();
 
     auto stc = Gem::Geneva::buildConsumerSetup(Gem::Geneva::ConsumerSpec{.mnemonic = "stc"});
-    REQUIRE(stc.broker);
-    CHECK(reg.sharedWorkBroker() == stc.broker); // published, so un-injected algorithms submit through it
-    CHECK(reg.sharedWorkKind() == broker_kind::multithreaded);
+    REQUIRE(stc.consumer);
+    CHECK(reg.consumer() == stc.consumer); // registered, so un-injected algorithms submit through it
 
-    // A later build replaces the single shared work broker (the process has one work endpoint).
+    // A later build replaces the single process consumer (the process has one work endpoint).
     auto sc = Gem::Geneva::buildConsumerSetup(Gem::Geneva::ConsumerSpec{.mnemonic = "sc"});
-    REQUIRE(sc.broker);
-    CHECK(reg.sharedWorkBroker() == sc.broker);
-    CHECK(reg.sharedWorkKind() == broker_kind::serial);
+    REQUIRE(sc.consumer);
+    CHECK(reg.consumer() == sc.consumer);
 
-    reg.clearAll();
+    reg.clear();
 }

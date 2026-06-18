@@ -49,6 +49,7 @@
 #include "common/GParserBuilder.hpp"
 #include "courtier/GWireSerializationContext.hpp" // layout send-once: wire context + registry
 #include "courtier/GBrokerT.hpp"
+#include "courtier/GConsumerRegistry.hpp"
 #include "courtier/GExecutorT.hpp"
 #include "courtier/GSubmissionPolicy.hpp"
 #include "courtier/consumers/GWebsocketConsumerT.hpp"
@@ -1624,12 +1625,10 @@ TEST_CASE("EA over a websocket consumer with results-only returns keeps full gen
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
     constexpr auto BIN = Gem::Common::serializationMode::BINARY;
 
-    auto broker = std::make_shared<c2::GBrokerT<GOptimizableEntity>>();
     auto consumer = std::make_shared<c2::GWebsocketConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/4, BIN);
     consumer->setCloneFunction(
         [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); }
     );
-    broker->registerConsumer(consumer);
     consumer->startServer();
     const unsigned short port = consumer->getPort();
 
@@ -1654,7 +1653,7 @@ TEST_CASE("EA over a websocket consumer with results-only returns keeps full gen
         pop->push_back(proto.clone_unique());
     }
     pop->setAdaptionConfig(proto.getAdaptionConfig());
-    pop->setBroker(broker);
+    c2::GConsumerRegistryT<GOptimizableEntity>::instance().setConsumer(consumer);
 
     pop->optimize();
     auto best = pop->getBestGlobalIndividual<FlatSphere>();
@@ -1662,6 +1661,7 @@ TEST_CASE("EA over a websocket consumer with results-only returns keeps full gen
     for(auto &client : clients) { client->flagCloseRequested(); }
     for(auto &t : client_threads) { if(t.joinable()) t.join(); }
     consumer->stopServer();
+    c2::GConsumerRegistryT<GOptimizableEntity>::instance().clear(); // don't leak into other test cases
 
     REQUIRE(best);
     std::vector<double> v;

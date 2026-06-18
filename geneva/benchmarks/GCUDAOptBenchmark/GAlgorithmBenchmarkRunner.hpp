@@ -162,11 +162,12 @@ private:
  *
  * The caller is responsible for:
  *   1. Creating a GenevaInitializer (must outlive this runner).
- *   2. Enrolling a consumer with broker<GOptimizableEntity>() before calling run().
+ *   2. Registering the process consumer (GConsumerRegistryT::setConsumer) before calling run().
  *
- * The GPU consumer (Gem::Courtier::GPU::GGPUConsumerT, the same one example 15 uses) is created by
- * the caller and passed to the runner via the broker; the runner itself is pure C++ and free of any
- * CUDA build-time dependency (the kernel is runtime-compiled by the consumer's backend).
+ * The GPU consumer (Gem::Courtier::GPU::GGPUConsumerT, the same one example 15 uses) is created and
+ * registered as the process consumer by the caller; each algorithm submits through it automatically.
+ * The runner itself is pure C++ and free of any CUDA build-time dependency (the kernel is
+ * runtime-compiled by the consumer's backend).
  *
  * For each algorithm entry and each run, the algorithm is created fresh via the
  * appropriate factory, a GFunctionIndividual is added, and optimize() is called.
@@ -174,11 +175,10 @@ private:
  */
 class GAlgorithmBenchmarkRunner {
 public:
-    /** @brief @p cudaBroker holds the courtier GPU consumer; it is injected into every algorithm
-     *  via setBroker() so each optimization submits its population to the GPU. */
-    GAlgorithmBenchmarkRunner(
-        BenchmarkConfig cfg,
-        std::shared_ptr<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>> cudaBroker);
+    /** @brief Constructs the runner. The GPU consumer must already be registered as the process
+     *  consumer (GConsumerRegistryT::setConsumer) before run() is called; each algorithm submits
+     *  through it automatically. */
+    explicit GAlgorithmBenchmarkRunner(BenchmarkConfig cfg);
 
     /**
      * @brief Runs the full benchmark and returns aggregated results per tag.
@@ -204,7 +204,6 @@ private:
     );
 
     BenchmarkConfig cfg_;
-    std::shared_ptr<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>> cudaBroker_;
 };
 
 /******************************************************************************/

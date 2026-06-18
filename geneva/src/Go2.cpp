@@ -587,12 +587,9 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
     sorted_           = false;
     bool is_first_algorithm = true;
     for(const auto &alg_ptr : algorithms_cnt_) {
-        // If courtier routing was selected, inject the shared broker so the algorithm's workOn()
-        // submits through courtier rather than the legacy executor. (When no broker was built -- an
-        // unknown legacy-only consumer -- the algorithm uses its own default, see GOptimizationAlgorithmBase::init.)
-        if(broker_) {
-            alg_ptr->setBroker(broker_);
-        }
+        // No per-algorithm broker injection: every algorithm submits through the one process consumer
+        // (registered in GConsumerRegistry by setupChosenConsumer / registerConsumer). A standalone
+        // algorithm with none set builds a default local consumer on first use.
 
         // Add the pluggable optimization monitors to the algorithm
         for(auto const &pm_ptr : pluggable_monitors_cnt_) {
@@ -1126,22 +1123,22 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
     consumer_spec_ = Gem::Geneva::specFromCommandLine(consumer_name_, vm);
 
     // Build the courtier consumer through the shared factory -- the single place that knows the
-    // concrete consumer types -- and inject the resulting broker into every algorithm (in
-    // runAlgorithmChain). MPI builds on EVERY rank (the consumer self-determines master/worker from its
-    // process rank: master -> broker, worker -> run_worker); the socket and local consumers build a
-    // server only when this process is not a client.
+    // concrete consumer types -- which registers the resulting consumer as the process's single consumer
+    // (GConsumerRegistry); every algorithm reads it from there. MPI builds on EVERY rank (the consumer
+    // self-determines master/worker from its process rank: master -> consumer, worker -> run_worker); the
+    // socket and local consumers build a server only when this process is not a client.
     if(consumer_name_ == "mpi" || not client_mode_) {
         auto setup = Gem::Geneva::buildConsumerSetup(consumer_spec_);
-        broker_         = setup.broker;     // injected into the algorithms (null on an MPI worker)
+        consumer_       = setup.consumer;   // also registered as the process consumer (null on an MPI worker)
         mpi_run_worker_ = setup.run_worker; // MPI worker rank: clientRun_ serves through it
 
         // MPI fixes the client/server role by rank: a worker rank yields a run_worker loop (and a null
-        // broker). Reflect that in client_mode_ so the caller dispatches to clientRun_().
+        // consumer). Reflect that in client_mode_ so the caller dispatches to clientRun_().
         if(consumer_name_ == "mpi") {
             client_mode_ = static_cast<bool>(mpi_run_worker_);
         }
 
-        if(broker_) {
+        if(consumer_) {
             std::cout << "Routing consumer \"" << consumer_name_ << "\" through courtier\n";
         }
     }

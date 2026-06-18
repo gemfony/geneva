@@ -44,6 +44,7 @@
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
+#include "geneva/GConsumerSetup.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/Go2.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
@@ -382,25 +383,29 @@ int main(int argc, char **argv) {
 
     std::shared_ptr<oa::GEvolutionaryAlgorithm> pop_ptr(new oa::GEvolutionaryAlgorithm());
 
-    // All three modes are LOCAL here (the "broker" mode used a local thread consumer too); route them
-    // through courtier's local consumers. Serial -> inline, the others -> multithreaded.
-    switch(parallelizationMode) {
-    case execMode::SERIAL: // Serial (inline) execution
-        std::cout << "Using serial execution." << std::endl;
-        pop_ptr->setLocalConsumer(oa::local_consumer_kind::serial);
-        break;
+    // All three modes are LOCAL here (the "broker" mode used a local thread consumer too); build and
+    // register the ONE process-wide consumer. Serial -> inline, the others -> multithreaded.
+    {
+        Gem::Geneva::ConsumerSpec spec;
+        switch(parallelizationMode) {
+        case execMode::SERIAL: // Serial (inline) execution
+            std::cout << "Using serial execution." << std::endl;
+            spec.mnemonic = "sc";
+            break;
 
-    case execMode::MULTITHREADED: // Multi-threaded local execution
-        std::cout << "Using plain multi-threaded execution." << std::endl;
-        pop_ptr->setLocalConsumer(
-            oa::local_consumer_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
-        break;
+        case execMode::MULTITHREADED: // Multi-threaded local execution
+            std::cout << "Using plain multi-threaded execution." << std::endl;
+            spec.mnemonic  = "stc";
+            spec.n_threads = static_cast<unsigned int>(nEvaluationThreads);
+            break;
 
-    case execMode::BROKER: // Historically a local thread consumer behind the broker -- still local.
-        std::cout << "Using a local multi-threaded courtier consumer." << std::endl;
-        pop_ptr->setLocalConsumer(
-            oa::local_consumer_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
-        break;
+        case execMode::BROKER: // Historically a local thread consumer behind the broker -- still local.
+            std::cout << "Using a local multi-threaded courtier consumer." << std::endl;
+            spec.mnemonic  = "stc";
+            spec.n_threads = static_cast<unsigned int>(nEvaluationThreads);
+            break;
+        }
+        Gem::Geneva::buildConsumerSetup(spec); // registers the process consumer
     }
 
     // Add individuals to the population

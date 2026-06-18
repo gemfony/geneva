@@ -78,8 +78,8 @@ void startReferenceMeasurement(
     // Create an evolutionary algorithm
     auto ea_alg_master = ea_serial_factory.get<oa::GEvolutionaryAlgorithm>();
 
-    // Submit through a courtier serial (inline) consumer.
-    ea_alg_master->setLocalConsumer(oa::local_consumer_kind::serial);
+    // The algorithm submits through the process-wide consumer (a default local thread-pool consumer
+    // is lazily built if none has been registered).
 
     //---------------------------------------------------------------------
     // Cycle through the configured delays, building a fresh delay individual for each one.

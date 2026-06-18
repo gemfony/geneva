@@ -52,13 +52,12 @@
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GStdFilesystemPathSerialization.hpp"
 #include "courtier/GExecutorStatusT.hpp" // executor_status_t (workOn's return type)
-// --- Submission goes through courtier: the local consumer is selected by Go2 (or a standalone main)
-//     and plumbed in via setLocalConsumer() / setBroker(), see workOn ---
-#include "courtier/GBrokerT.hpp"
-#include "courtier/GExecutorT.hpp"
+// --- Submission goes through the one process-wide consumer (GConsumerRegistry): the algorithm is
+//     transport-agnostic, it just reads that consumer and calls processBatch(), see workOn ---
+#include "courtier/GBaseConsumerT.hpp"
+#include "courtier/GConsumerRegistry.hpp"
 #include "courtier/GSubmissionPolicy.hpp"
-#include "courtier/consumers/GSerialConsumerT.hpp"
-#include "courtier/consumers/GStdThreadConsumerT.hpp"
+#include "courtier/consumers/GStdThreadConsumerT.hpp" // the default consumer built when none was set
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/par/GOptimizableEntityFixedSizePriorityQueue.hpp"
@@ -66,13 +65,8 @@
 #include "geneva/Interface/GOptimizerIT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/oa/GBasePluggableOM.hpp" // the pluggable-monitor CRTP root (extracted from this header)
-#include "geneva/oa/GOptimizerExecutionPolicy.hpp" // local_consumer_kind + the courtier submission mechanism (D-3)
 
 namespace Gem::Geneva::OptimizationAlgorithms {
-
-// local_consumer_kind and the courtier submission mechanism (broker / executor / local consumer +
-// late-return wiring) live in GOptimizerExecutionPolicy (D-3): the algorithm owns one and delegates
-// submission to it, rather than managing courtier plumbing itself.
 
 /******************************************************************************/
 // GBasePluggableOM -- the CRTP category root of all pluggable optimization monitors -- now lives in
@@ -347,20 +341,6 @@ public:
 
     /******************************************************************************/
     /**
-     * Selects the courtier LOCAL consumer this algorithm submits through. Called by Go2 once the
-     * parallelisation mnemonic is known, or directly for standalone use; transient runtime state,
-     * neither serialized nor cloned. @p n_threads is honoured only for the multithreaded kind
-     * (0 == hardware concurrency). If neither this nor setBroker() is called, init() defaults
-     * to a multithreaded local consumer.
-     *
-     * @param kind The kind of local consumer to submit work items through
-     * @param n_threads The number of threads (honoured only for the multithreaded kind; 0 == hardware concurrency)
-     */
-    void setLocalConsumer(local_consumer_kind kind, unsigned int n_threads = 0) {
-        exec_policy_.setLocalConsumer(kind, n_threads);
-    }
-
-    /**
      * @brief Sets the number of threads used for parallel organizational work (adaption,
      *  recombination, ...). 0 means "automatic" (hardware concurrency).
      * @param n_threads The number of organizational-work threads (0 == hardware concurrency)
@@ -371,21 +351,6 @@ public:
      * @return The number of threads used for organizational work
      */
     [[nodiscard]] std::uint16_t getNThreads() const;
-
-    /******************************************************************************/
-    /**
-     * Injects a ready-to-use courtier broker that this algorithm should submit through, instead of
-     * building its own local consumer. The broker must already have its
-     * consumer registered, its clone function set, and -- for networked consumers -- its server
-     * started. Used by Go2 for the networked consumers (asio/websocket), where a single server-backed
-     * consumer is shared across the whole run rather than created per algorithm. Transient runtime
-     * state, neither serialized nor cloned; takes precedence over setLocalConsumer().
-     *
-     * @param broker A ready-to-use courtier broker (consumer registered, clone function set, server started)
-     */
-    void setBroker(std::shared_ptr<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>> broker) {
-        exec_policy_.setBroker(std::move(broker));
-    }
 
     /******************************************************************************/
 
@@ -1072,13 +1037,9 @@ private:
     std::vector<std::shared_ptr<GBasePluggableOM>>
         pluggable_monitors_cnt_; ///< A collection of monitors
 
-    // --- courtier submission (TRANSIENT run state, not serialized/cloned -- a clone gets a fresh,
-    // unconfigured policy and re-establishes routing at setup). The algorithm delegates all courtier
-    // plumbing (broker / executor / local consumer lifecycle + late-return wiring) to this policy;
-    // configured via setLocalConsumer() / setBroker(), defaulted in init() via applyInitDefault(). ---
-    GOptimizerExecutionPolicy exec_policy_;
     /**
-     * @brief Submits the contiguous sub-range [start, end) of @p work_items through courtier.
+     * @brief Submits the contiguous sub-range [start, end) of @p work_items through the one process-wide
+     * consumer (GConsumerRegistry), building a default local thread-pool consumer if none was set.
      * @param work_items The work-item vector whose sub-range is submitted (reconciled in place)
      * @param start The (inclusive) start index of the range to evaluate
      * @param end The (exclusive) end index of the range to evaluate
@@ -1089,6 +1050,11 @@ private:
         std::size_t start,
         std::size_t end
     );
+
+    /** @brief Returns the one process-wide consumer, lazily building+registering a default local
+     *  thread-pool consumer (with the polymorphic clone function) if none has been established yet.
+     *  @return The shared consumer this algorithm submits through */
+    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumerForSubmission_();
 };
 
 /*******************************************************************************/

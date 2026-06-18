@@ -43,7 +43,7 @@
 
 // Geneva headers
 #include "common/GCommonEnums.hpp" // serializationMode
-#include "courtier/GBrokerT.hpp"
+#include "courtier/GBaseConsumerT.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 
 namespace Gem::Courtier {
@@ -78,10 +78,10 @@ struct ConsumerSpec {
  * The result of building a courtier setup for the current process.
  */
 struct ConsumerSetup {
-    /** @brief A ready broker (consumer registered, clone function set, server started for networked
-     *  consumers) to inject into the algorithms via GOptimizationAlgorithmBase::setBroker(). Null when this
-     *  process is not a submitter -- e.g. an MPI worker rank. */
-    std::shared_ptr<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>> broker;
+    /** @brief The ready consumer (clone function set, server started for networked consumers), also
+     *  registered as the process's single consumer in GConsumerRegistry. Null when this process is not a
+     *  submitter -- e.g. an MPI worker rank. */
+    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer;
     /** @brief When this process must serve as a worker (an MPI worker rank), the loop to run; null
      *  otherwise. The caller invokes it instead of submitting. */
     std::function<void()> run_worker;

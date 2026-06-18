@@ -185,6 +185,20 @@ void GEvolutionaryAlgorithm::extractCurrentParetoIndividuals(
 
 Gem::Courtier::executor_status_t
 GEvolutionaryAlgorithm::evaluatePopulationRange_(std::size_t start, std::size_t end) {
+    if(inline_evaluation_) {
+        // Evaluate in the calling thread, bypassing the work consumer (a nested refiner that itself runs
+        // inside an individual's process() must not re-enter that consumer). process() funnels any thrown
+        // exception into the item's status, so a local evaluation never goes MISSING.
+        end = std::min(end, this->size());
+        bool has_errors = false;
+        for(std::size_t i = start; i < end; ++i) {
+            this->at(i)->individual().process();
+            if(this->at(i)->individual().has_errors()) {
+                has_errors = true;
+            }
+        }
+        return Gem::Courtier::executor_status_t{true, has_errors};
+    }
     return this->workOnPopulation(start, end);
 }
 

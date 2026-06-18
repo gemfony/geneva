@@ -1592,11 +1592,47 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
     }
 
     // Submit a span over exactly [start, end); it aliases the population sub-range, so results + any
-    // cloned refills are written straight into work_items[start..end). The execution policy owns the
-    // broker / executor / consumer lifecycle and the late-return buffer (sized to ~one generation); the
-    // submission policy is the algorithm's choice (clone-on-partial-return vs full-success-or-fatal).
+    // cloned refills are written straight into work_items[start..end). The algorithm is
+    // transport-agnostic: it submits through the one process-wide consumer and gets back a fully
+    // reconciled span. The submission policy is the algorithm's choice (clone-on-partial-return vs
+    // full-success-or-fatal).
     std::span<std::unique_ptr<gen::GOptimizableEntity>> sp(work_items.data() + start, end - start);
-    return exec_policy_.workOn(sp, this->getSubmissionPolicy_(), this->size());
+    auto consumer = this->consumerForSubmission_();
+    consumer->processBatch(sp, this->getSubmissionPolicy_());
+
+    bool has_errors = false;
+    for(const auto &it : sp) {
+        if(it && it->has_errors()) {
+            has_errors = true;
+            break;
+        }
+    }
+    return Gem::Courtier::executor_status_t{true, has_errors};
+}
+
+/******************************************************************************/
+/**
+ * @brief Returns the one process-wide consumer, lazily building a default local thread-pool consumer
+ * (with the polymorphic clone function) if none has been established, and enabling its late-return
+ * buffer (sized to roughly one generation).
+ *
+ * @return The shared consumer this algorithm submits through
+ */
+std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>
+GOptimizationAlgorithmBase::consumerForSubmission_() {
+    namespace c2 = Gem::Courtier;
+    auto consumer = c2::GConsumerRegistryT<gen::GOptimizableEntity>::instance().ensureConsumer(
+        []() -> std::shared_ptr<c2::GBaseConsumerT<gen::GOptimizableEntity>> {
+            auto c = std::make_shared<c2::GStdThreadConsumerT<gen::GOptimizableEntity>>();
+            // Polymorphic clone (GOptimizableEntity holds a concrete individual; copy-construction slices).
+            c->setCloneFunction([](const std::unique_ptr<gen::GOptimizableEntity> &p) {
+                return p->clone_unique();
+            });
+            return c;
+        });
+    // Enable the late-return buffer (sized to ~one generation). Idempotent: re-setting the cap is harmless.
+    consumer->enableLateReturns(this->size(), /*ttl_rounds*/ 3);
+    return consumer;
 }
 
 /******************************************************************************/
@@ -1607,10 +1643,14 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
  */
 std::vector<std::unique_ptr<gen::GOptimizableEntity>> GOptimizationAlgorithmBase::getOldWorkItems() {
     // Reap any LATE returns the consumer buffered -- results that came back after their batch had
-    // already been reconciled in place. Delegated to the execution policy (empty for a local consumer;
-    // a networked consumer hands back its bounded late-return buffer). The OA folds the returned (bare)
-    // individuals into the next selection via fixAfterJobSubmission().
-    return exec_policy_.getOldWorkItems();
+    // already been reconciled in place (empty for a local consumer; a networked consumer hands back its
+    // bounded late-return buffer). The OA folds the returned (bare) individuals into the next selection
+    // via fixAfterJobSubmission().
+    auto consumer = Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().consumer();
+    if(consumer) {
+        return consumer->getLateReturns();
+    }
+    return {};
 }
 
 /******************************************************************************/
@@ -1830,10 +1870,9 @@ void GOptimizationAlgorithmBase::resetStallCounter() {
  * as their first action, call this function.
  */
 void GOptimizationAlgorithmBase::init() {
-    // courtier is the submission path. If no routing was injected (Go2, or setBroker / setLocalConsumer),
-    // default this algorithm to a courtier local multithreaded consumer -- so a bare alg->optimize()
-    // works standalone, without Go2 and without enrolling a consumer.
-    exec_policy_.applyInitDefault();
+    // Submission goes through the one process-wide consumer (GConsumerRegistry). No routing is
+    // configured here: the first submission lazily builds a default local thread-pool consumer if the
+    // process has none (see consumerForSubmission_), so a bare alg->optimize() works standalone.
 
     // Create the shared thread pool used for parallel organizational work (adaption,
     // recombination, ...). Derived algorithms that call GOptimizationAlgorithmBase::init() first get it for free.

@@ -351,32 +351,33 @@ int main(int argc, char **argv) {
         new oa::GSwarmAlgorithm(nNeighborhoods, nNeighborhoodMembers)
     );
 
-    // Route submission through courtier, depending on the requested consumer type.
-    switch(cType) {
-    //---------------------------------------------------------------------------
-    case consumerType::SERIAL: // Serial (inline) execution
-        pop_ptr->setLocalConsumer(oa::local_consumer_kind::serial);
-        break;
-
-        //---------------------------------------------------------------------------
-    case consumerType::MULTITHREADED: // Multi-threaded local execution
-        pop_ptr->setLocalConsumer(
-            oa::local_consumer_kind::multithreaded, static_cast<unsigned int>(nEvaluationThreads));
-        break;
-
-        //---------------------------------------------------------------------------
-    case consumerType::NETWORKED: // Networked execution (server-side)
+    // Build and register the ONE process-wide consumer, depending on the requested consumer type.
+    // The algorithm submits through it automatically.
     {
-        // Build a courtier ASIO server via the shared factory; the clients started above connect to it.
         ConsumerSpec spec;
-        spec.mnemonic           = "asio";
-        spec.port               = port;
-        spec.serialization_mode = serMode;
-        auto setup = buildConsumerSetup(spec);
-        pop_ptr->setBroker(setup.broker);
-    } break;
+        switch(cType) {
+        //---------------------------------------------------------------------------
+        case consumerType::SERIAL: // Serial (inline) execution
+            spec.mnemonic = "sc";
+            break;
 
-        //----------------------------------------------------------------------------
+            //---------------------------------------------------------------------------
+        case consumerType::MULTITHREADED: // Multi-threaded local execution
+            spec.mnemonic  = "stc";
+            spec.n_threads = static_cast<unsigned int>(nEvaluationThreads);
+            break;
+
+            //---------------------------------------------------------------------------
+        case consumerType::NETWORKED: // Networked execution (server-side)
+            // Build a courtier ASIO server via the shared factory; the clients started above connect to it.
+            spec.mnemonic           = "asio";
+            spec.port               = port;
+            spec.serialization_mode = serMode;
+            break;
+
+            //----------------------------------------------------------------------------
+        }
+        buildConsumerSetup(spec); // registers the process consumer
     }
 
     /****************************************************************************/

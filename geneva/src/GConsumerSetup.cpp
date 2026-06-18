@@ -37,7 +37,7 @@
 // Default values for the consumer command-line options.
 #include "courtier/GCourtierEnums.hpp"
 
-#include "courtier/GBrokerRegistry.hpp"
+#include "courtier/GConsumerRegistry.hpp"
 
 // The concrete courtier consumers -- known ONLY here.
 #include "courtier/consumers/GAsioConsumerT.hpp"
@@ -67,19 +67,6 @@ individualCloneFunction() {
     return [](const std::unique_ptr<gen::GOptimizableEntity> &p) { return p->clone_unique(); };
 }
 
-/**
- * @brief Wraps a ready consumer (clone function already set) in a fresh single-consumer broker.
- *
- * @param consumer The fully configured consumer to register; ownership is taken (moved) into the broker
- * @return A new broker with the given consumer registered as its sole consumer
- */
-std::shared_ptr<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>>
-brokerFor(std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer) {
-    auto broker = std::make_shared<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>>();
-    broker->registerConsumer(std::move(consumer));
-    return broker;
-}
-
 } /* anonymous namespace */
 
 /******************************************************************************/
@@ -93,37 +80,19 @@ brokerFor(std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>
  * @param spec The consumer specification (mnemonic plus port/threads/serialization settings)
  * @return A ConsumerSetup holding the broker and/or worker loop; empty for an unknown mnemonic
  */
-/**
- * @brief Maps a consumer mnemonic to its broker kind for the process-global per-kind registry.
- *
- * @param mnemonic The consumer mnemonic (sc / stc / asio / beast / mpi)
- * @return The broker kind: serial for "sc", multithreaded for "stc", networked for the rest
- */
-Gem::Courtier::broker_kind brokerKindForMnemonic(const std::string &mnemonic) {
-    if(mnemonic == "sc") {
-        return Gem::Courtier::broker_kind::serial;
-    }
-    if(mnemonic == "stc") {
-        return Gem::Courtier::broker_kind::multithreaded;
-    }
-    return Gem::Courtier::broker_kind::networked; // asio / beast / mpi
-}
-
 ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
     namespace c2 = Gem::Courtier;
     ConsumerSetup setup;
 
-    auto &registry = c2::GBrokerRegistryT<gen::GOptimizableEntity>::instance();
+    auto &registry = c2::GConsumerRegistryT<gen::GOptimizableEntity>::instance();
 
-    // Idempotent networked build: a socket server binds a port, so if the process already has a
-    // networked shared work broker, reuse it rather than binding again -- one listening endpoint per
-    // process. (MPI is excluded: its consumer is built on every rank and self-determines master/worker,
-    // so it is constructed normally and published below; a sub-algorithm reuses it via the registry, not
-    // by re-entering this builder.)
+    // Idempotent networked build: a socket server binds a port, so if the process already has a consumer,
+    // reuse it rather than binding again -- one listening endpoint per process. (MPI is excluded: its
+    // consumer is built on every rank and self-determines master/worker, so it is constructed normally
+    // and registered below; a sub-algorithm reuses it via the registry, not by re-entering this builder.)
     if(spec.mnemonic == "asio" || spec.mnemonic == "beast") {
-        if(registry.sharedWorkBroker() &&
-           registry.sharedWorkKind() == c2::broker_kind::networked) {
-            setup.broker = registry.sharedWorkBroker();
+        if(auto existing = registry.consumer()) {
+            setup.consumer = existing;
             return setup;
         }
     }
@@ -131,26 +100,26 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
     if(spec.mnemonic == "sc") {
         auto consumer = std::make_shared<c2::GSerialConsumerT<gen::GOptimizableEntity>>();
         consumer->setCloneFunction(individualCloneFunction());
-        setup.broker = brokerFor(consumer);
+        setup.consumer = consumer;
     }
     else if(spec.mnemonic == "stc") {
         auto consumer = std::make_shared<c2::GStdThreadConsumerT<gen::GOptimizableEntity>>(spec.n_threads);
         consumer->setCloneFunction(individualCloneFunction());
-        setup.broker = brokerFor(consumer);
+        setup.consumer = consumer;
     }
     else if(spec.mnemonic == "asio") {
         auto consumer = std::make_shared<c2::GAsioConsumerT<gen::GOptimizableEntity>>(
             spec.port, spec.n_threads, spec.serialization_mode);
         consumer->setCloneFunction(individualCloneFunction());
         consumer->startServer();
-        setup.broker = brokerFor(consumer);
+        setup.consumer = consumer;
     }
     else if(spec.mnemonic == "beast") {
         auto consumer = std::make_shared<c2::GWebsocketConsumerT<gen::GOptimizableEntity>>(
             spec.port, spec.n_threads, spec.serialization_mode);
         consumer->setCloneFunction(individualCloneFunction());
         consumer->startServer();
-        setup.broker = brokerFor(consumer);
+        setup.consumer = consumer;
     }
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
     else if(spec.mnemonic == "mpi") {
@@ -159,20 +128,19 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
         if(consumer->isMasterNode()) {
             consumer->setCloneFunction(individualCloneFunction());
             consumer->startServer();
-            setup.broker = brokerFor(consumer);
+            setup.consumer = consumer;
         }
         else {
-            // Worker rank: serve through the consumer (kept alive by the capture); no broker to inject.
+            // Worker rank: serve through the consumer (kept alive by the capture); no consumer to register.
             setup.run_worker = [consumer]() { consumer->runWorker(); };
         }
     }
 #endif /* GENEVA_BUILD_WITH_MPI_CONSUMER */
 
-    // Publish the freshly-built broker as the process's shared work broker so every un-injected
-    // algorithm submits through it (and a later networked socket build reuses it instead of binding a
-    // second port). An MPI worker rank has no broker (run_worker only), so nothing is published there.
-    if(setup.broker) {
-        registry.publishSharedWork(brokerKindForMnemonic(spec.mnemonic), setup.broker);
+    // Register the freshly-built consumer as the process's single consumer so every algorithm submits
+    // through it. An MPI worker rank has no consumer (run_worker only), so nothing is registered there.
+    if(setup.consumer) {
+        registry.setConsumer(setup.consumer);
     }
 
     return setup;

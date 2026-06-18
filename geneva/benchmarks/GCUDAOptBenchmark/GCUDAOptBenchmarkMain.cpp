@@ -53,6 +53,7 @@
 #include <boost/property_tree/ptree.hpp>
 
 #include "courtier/GBrokerT.hpp"
+#include "courtier/GConsumerRegistry.hpp"
 #include "courtier/gpu/GGPUConsumer.hpp"
 #include "geneva/GenevaInitializer.hpp"
 #include "GAlgorithmBenchmarkRunner.hpp"
@@ -161,20 +162,19 @@ int main(int argc, char **argv) {
     // Initialize Geneva — must outlive the runner and all optimization.
     Gem::Geneva::GenevaInitializer gi;
 
-    // Build the courtier broker holding the unified GPU consumer (the SAME GGPUConsumerT example 15
-    // uses). The whole population is scored in one bulk, runtime-compiled kernel launch; the backend
-    // (cpu/cuda/opencl) and kernel are selected in config/GGPUConsumer.json. The clone function is the
-    // polymorphic GOptimizableEntity clone needed by the clone-on-partial-return policy.
+    // Build the unified GPU consumer (the SAME GGPUConsumerT example 15 uses) and register it as the
+    // process consumer. The whole population is scored in one bulk, runtime-compiled kernel launch; the
+    // backend (cpu/cuda/opencl) and kernel are selected in config/GGPUConsumer.json. The clone function
+    // is the polymorphic GOptimizableEntity clone needed by the clone-on-partial-return policy.
     auto marshaller = std::make_shared<GBenchmarkGPUMarshaller>();
     auto consumer = std::make_shared<Gem::Courtier::GPU::GGPUConsumerT<gen::GOptimizableEntity>>(
         "./config/GGPUConsumer.json", marshaller);
     consumer->setCloneFunction([](const std::unique_ptr<gen::GOptimizableEntity> &p) {
         return p->clone_unique();
     });
-    auto cudaBroker = std::make_shared<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>>();
-    cudaBroker->registerConsumer(consumer);
+    Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().setConsumer(consumer);
 
-    GAlgorithmBenchmarkRunner runner(cfg, cudaBroker);
+    GAlgorithmBenchmarkRunner runner(cfg);
     const auto results = runner.run();
 
     for (const auto &r : results) {

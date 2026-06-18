@@ -48,6 +48,7 @@
 #include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
+#include "courtier/GConsumerRegistry.hpp"
 #include "geneva/GConsumerSetup.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GSigHupHandler.hpp"
@@ -161,15 +162,17 @@ public:
      */
     Go2 &operator&(std::string const &);
 
-    /** @brief Supplies a custom, ready-to-use courtier broker (its consumer already registered, clone
-     *  function set, and -- for networked consumers -- server started) for this run, OVERRIDING the
-     *  mnemonic-based consumer selection. Used to plug in a custom consumer (e.g. a GPU consumer) that
-     *  Go2 does not know how to build itself; the broker is injected into every algorithm. Call after
-     *  construction and before optimize().
-     *  @param broker The ready-to-use broker to inject into every algorithm (ownership is taken via move). */
-    void registerBroker(
-        std::shared_ptr<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>> broker) {
-        broker_ = std::move(broker);
+    /** @brief Supplies a custom, ready-to-use courtier consumer (clone function set, and -- for
+     *  networked consumers -- server started) for this run, OVERRIDING the mnemonic-based consumer
+     *  selection. Used to plug in a custom consumer (e.g. a GPU consumer) that Go2 does not know how to
+     *  build itself; it becomes the process's single consumer that every algorithm submits through. Call
+     *  after construction and before optimize().
+     *  @param consumer The ready-to-use consumer to register as the process consumer (ownership is taken via move). */
+    void registerConsumer(
+        std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer) {
+        consumer_ = consumer;
+        Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().setConsumer(
+            std::move(consumer));
     }
 
     /**
@@ -426,15 +429,14 @@ private:
         GO2_DEF_NOCONSUMER; ///< The name of a consumer requested by the user on the command line
 
     //---------------------------------------------------------------------------
-    // courtier routing (the DEFAULT submission path). setupChosenConsumer() builds the consumer for
-    // the chosen mnemonic through the shared factory buildConsumerSetup() and stores the result here;
-    // runAlgorithmChain() injects broker_ into every algorithm. Consumers without a courtier form
-    // yet (e.g. cuda) stay on the legacy path until ported. A custom broker can be supplied directly
-    // via registerBroker() (e.g. the CUDA examples).
-    /** @brief The single server-backed/local courtier broker, shared across all algorithms. Held here
-     *  so its consumer (and any listening server) outlives the run and is torn down by RAII at Go2
-     *  destruction. Null when no courtier routing was built (legacy fallback, or an MPI worker rank). */
-    std::shared_ptr<Gem::Courtier::GBrokerT<gen::GOptimizableEntity>> broker_;
+    // courtier routing (the DEFAULT submission path). setupChosenConsumer() builds the consumer for the
+    // chosen mnemonic through the shared factory buildConsumerSetup(), which registers it as the
+    // process's single consumer (GConsumerRegistry); every algorithm reads it from there -- no per-OA
+    // injection. A custom consumer can be supplied directly via registerConsumer() (e.g. a GPU consumer).
+    /** @brief The single server-backed/local courtier consumer, shared across all algorithms. Held here
+     *  so it (and any listening server) outlives the run and is torn down by RAII at Go2 destruction.
+     *  Null when no courtier routing was built (an MPI worker rank). */
+    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer_;
     /** @brief Set on a courtier MPI WORKER rank: runs the courtier worker loop (clientRun_ invokes
      *  it instead of the legacy client). Type-erased so Go2.hpp needs no MPI headers; the captured
      *  consumer shared_ptr keeps the worker node alive. Empty on master / non-MPI / legacy paths. */

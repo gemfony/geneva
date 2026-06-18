@@ -284,35 +284,14 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GOptimizableEntit
     oa::GEvolutionaryAlgorithmFactory ea_factory(oa_config_file_);
     auto ea_ptr = ea_factory.get<oa::GEvolutionaryAlgorithm>();
 
-    // Submit the post-optimization through a courtier LOCAL consumer (post-processing refines each
-    // individual locally): SERIAL -> inline, anything else -> multithreaded.
-    //
-    // CRITICAL: when this post-optimizer itself runs on a thread-pool worker (i.e. the TOP-LEVEL
-    // consumer is multithreaded and dispatched this individual onto a worker), a multithreaded inner EA
-    // would spawn a SECOND pool ON TOP of the outer one -- nested pools of hardware_concurrency each give
-    // an O(cores^2) thread explosion (e.g. 32x32) that oversubscribes the box, churns broker/pool/
-    // GRandomFactory state and intermittently corrupts the heap (observed SIGSEGV in the inner EA's
-    // best-individual queue). The outer pool already parallelises ACROSS the post-processed individuals,
-    // so an inner pool adds threads without adding useful parallelism. Force the inner EA SERIAL when we
-    // are already on a pool worker; only when post-processing runs off-pool (serial top-level consumer)
-    // does a multithreaded inner EA actually help.
-    const bool nested_on_pool = Gem::Common::GThreadPool::inWorkerThread();
-    const bool inner_multithreaded = (execution_mode_ != execMode::SERIAL) && not nested_on_pool;
-    if((execution_mode_ != execMode::SERIAL) && nested_on_pool) {
-        static std::atomic<bool> warned{false};
-        if(not warned.exchange(true)) {
-            glogger << "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_(): Warning!" << '\n'
-                    << "Multithreaded post-processing was requested while the post-optimizer is itself" << '\n'
-                    << "running on a thread-pool worker (multithreaded top-level consumer). Running the" << '\n'
-                    << "inner optimization SERIALLY to avoid a nested-thread-pool explosion; the outer" << '\n'
-                    << "pool already parallelises across the individuals being post-processed." << '\n'
-                    << GWARNING;
-        }
-    }
-    ea_ptr->setLocalConsumer(
-        inner_multithreaded
-            ? oa::local_consumer_kind::multithreaded
-            : oa::local_consumer_kind::serial);
+    // Post-processing refines each individual locally, inside the individual's own process() -- which
+    // itself runs on the one work consumer (a thread-pool worker, or a remote client) when the outer
+    // optimization is evaluated. So the inner refinement EA must NOT submit to that work consumer: that
+    // would re-enter the pool it is running on (a nested-pool thread explosion / deadlock) or, on a
+    // remote client, have no consumer at all. It therefore evaluates its population INLINE, in the
+    // calling thread. The outer optimization already parallelises across the individuals being
+    // post-processed, so inline inner evaluation costs no useful parallelism.
+    ea_ptr->setInlineEvaluation(true);
 
     // Add our individual to the algorithm (the population owns its individuals by unique_ptr; this
     // shared_ptr is bridged across the boundary with a clone -- the optimized result is read back below).

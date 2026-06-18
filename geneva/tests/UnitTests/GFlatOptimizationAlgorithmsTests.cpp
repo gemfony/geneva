@@ -302,7 +302,6 @@ TEST_CASE("Evolutionary algorithm optimizes a flat individual", "[flat][oa]") {
     FlatSphereOA src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
-    pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 
     auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
@@ -324,7 +323,6 @@ TEST_CASE("EA in a PARETO mode degenerates safely on a single-objective individu
     FlatSphereOA src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
-    pop->setLocalConsumer(oa::local_consumer_kind::serial);
     CHECK_NOTHROW(pop->optimize());
 
     auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
@@ -387,7 +385,6 @@ TEST_CASE("EA checkpoint round-trip preserves the per-slot adaption scratch", "[
     // restored per-slot scratch is preserved, not re-seeded, by the resume path.
     resumed->setAdaptionConfig(
         dynamic_cast<gind::GLineFitIndividual &>(resumed->at(0)->individual()).getAdaptionConfig());
-    resumed->setLocalConsumer(oa::local_consumer_kind::serial);
     resumed->optimize();
 
     auto best = resumed->getBestGlobalIndividual<gind::GLineFitIndividual>();
@@ -420,7 +417,6 @@ TEST_CASE("EA adopts an externally-provided adaption config", "[flat][oa]") {
 
     pop->push_back(std::move(ind));
     pop->setAdaptionConfig(cfg);
-    pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 
     auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
@@ -446,7 +442,6 @@ TEST_CASE("EA rejects an adaption config built for a different genome", "[flat][
     auto cfg = std::make_shared<oa::GEAAdaptionConfig>(oflat);
 
     pop->setAdaptionConfig(cfg);
-    pop->setLocalConsumer(oa::local_consumer_kind::serial);
     CHECK_THROWS(pop->optimize()); // checkConsistency rejects the mismatched config at init()
 }
 
@@ -460,7 +455,6 @@ TEST_CASE("EA with no adaption config is a hard error", "[flat][oa]") {
     pop->setMaxIteration(2);
     pop->setReportIteration(100000);
     pop->push_back(FlatSphereOA().clone_unique());
-    pop->setLocalConsumer(oa::local_consumer_kind::serial);
     CHECK_THROWS(pop->optimize()); // no setAdaptionConfig() -> init() hard-errors
 }
 
@@ -474,7 +468,6 @@ TEST_CASE("Simulated annealing optimizes a flat individual", "[flat][oa]") {
     FlatSphereOA src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
-    pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 
     auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
@@ -522,7 +515,6 @@ TEST_CASE("Simulated annealing cools geometrically and floors above zero", "[fla
         FlatSphereOA src;
         pop->push_back(src.clone_unique());
         pop->setAdaptionConfig(src.buildAdaptionConfig());
-        pop->setLocalConsumer(oa::local_consumer_kind::serial);
         pop->optimize();
 
         const double t = pop->getT();
@@ -545,7 +537,6 @@ TEST_CASE("Simulated annealing cools geometrically and floors above zero", "[fla
         FlatSphereOA src;
         pop->push_back(src.clone_unique());
         pop->setAdaptionConfig(src.buildAdaptionConfig());
-        pop->setLocalConsumer(oa::local_consumer_kind::serial);
         pop->optimize();
 
         const double t = pop->getT();
@@ -562,7 +553,6 @@ TEST_CASE("Swarm optimization optimizes a flat individual", "[flat][oa]") {
     pop->setMaxIteration(120);
     pop->setReportIteration(100000);
     pop->push_back(FlatSphereOA().clone_unique());
-    pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 
     auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
@@ -581,7 +571,6 @@ TEST_CASE("Swarm tolerates a frozen (equal-bound) parameter", "[flat][oa]") {
     pop->setMaxIteration(60);
     pop->setReportIteration(100000);
     pop->push_back(FlatFrozenOA().clone_unique());
-    pop->setLocalConsumer(oa::local_consumer_kind::serial);
     CHECK_NOTHROW(pop->optimize()); // must NOT crash on the frozen dimension
 
     auto best = pop->getBestGlobalIndividual<FlatFrozenOA>();
@@ -612,7 +601,6 @@ TEST_CASE("Swarm normalizes a non-canonical user population at setup", "[flat][o
         for(std::size_t i = 0; i < 10; i++) { // 3 < 10 < 18
             pop->push_back(FlatSphereOA().clone_unique());
         }
-        pop->setLocalConsumer(oa::local_consumer_kind::serial);
         CHECK_NOTHROW(pop->optimize());
         CHECK(pop->size() == default_pop_size); // filled to capacity, nothing discarded mid-setup
         auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
@@ -628,7 +616,6 @@ TEST_CASE("Swarm normalizes a non-canonical user population at setup", "[flat][o
         for(std::size_t i = 0; i < 25; i++) { // 25 > 18
             pop->push_back(FlatSphereOA().clone_unique());
         }
-        pop->setLocalConsumer(oa::local_consumer_kind::serial);
         CHECK_NOTHROW(pop->optimize());
         CHECK(pop->size() == default_pop_size); // surplus trimmed, topology intact (no last-neighborhood dump)
         auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
@@ -645,7 +632,6 @@ TEST_CASE("Conjugate gradient descent optimizes a flat individual", "[flat][oa]"
     pop->setMaxIteration(500);
     pop->setReportIteration(100000);
     pop->push_back(FlatSphereWideOA().clone_unique());
-    pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 
     auto best = pop->getBestGlobalIndividual<FlatSphereWideOA>();
@@ -672,7 +658,6 @@ TEST_CASE("Conjugate gradient descent: every beta formula converges", "[flat][oa
         pop->setMaxIteration(500);
         pop->setReportIteration(100000);
         pop->push_back(FlatSphereWideOA().clone_unique());
-        pop->setLocalConsumer(oa::local_consumer_kind::serial);
         pop->optimize();
 
         auto best = pop->getBestGlobalIndividual<FlatSphereWideOA>();
@@ -696,7 +681,6 @@ TEST_CASE("Conjugate gradient descent: central-difference gradient converges", "
     pop->setMaxIteration(500);
     pop->setReportIteration(100000);
     pop->push_back(FlatSphereWideOA().clone_unique());
-    pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 
     CHECK(pop->getCentralDifferences());
@@ -722,7 +706,6 @@ TEST_CASE("Conjugate gradient descent: L-BFGS converges", "[flat][oa]") {
         pop->setMaxIteration(500);
         pop->setReportIteration(100000);
         pop->push_back(FlatSphereWideOA().clone_unique());
-        pop->setLocalConsumer(oa::local_consumer_kind::serial);
         pop->optimize();
 
         CHECK(pop->getLBFGSMemory() == m);
@@ -745,7 +728,6 @@ TEST_CASE("Nelder-Mead optimizes a flat individual", "[flat][oa]") {
     pop->setMaxIteration(200);
     pop->setReportIteration(100000);
     pop->push_back(FlatSphereOA().clone_unique());
-    pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 
     auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
@@ -763,7 +745,6 @@ TEST_CASE("Nelder-Mead with oriented restart still converges", "[flat][oa]") {
     pop->setReportIteration(100000);
     pop->setRestartThreshold(5); // restart every 5 stalled iterations
     pop->push_back(FlatSphereOA().clone_unique());
-    pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 
     CHECK(pop->getRestartThreshold() == 5);
@@ -785,7 +766,6 @@ TEST_CASE("Parameter scan sweeps a flat individual", "[flat][oa]") {
                                      // do not stop early on stall-convergence (order/seed dependent)
     pop->setReportIteration(100000);
     pop->push_back(FlatSphereOA().clone_unique());
-    pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 
     auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
@@ -807,7 +787,6 @@ TEST_CASE("EA optimizes a flat individual with a BI-GAUSSIAN adaptor", "[flat][o
     FlatBiGaussSphereOA src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
-    pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 
     auto best = pop->getBestGlobalIndividual<FlatBiGaussSphereOA>();
@@ -833,7 +812,6 @@ TEST_CASE("EA optimizes a flat INTEGER individual with a FLIP adaptor", "[flat][
     FlatIntSphereOA src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
-    pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 
     auto best = pop->getBestGlobalIndividual<FlatIntSphereOA>();
@@ -859,7 +837,6 @@ TEST_CASE("EA optimizes a flat BOOLEAN OneMax with a FLIP adaptor", "[flat][oa][
     FlatOneMaxOA src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
-    pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 
     auto best = pop->getBestGlobalIndividual<FlatOneMaxOA>();
@@ -896,7 +873,6 @@ TEST_CASE("EA fits a line with the migrated (flat) GLineFitIndividual", "[flat][
     gind::GLineFitIndividual src(data_points);
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.getAdaptionConfig());
-    pop->setLocalConsumer(oa::local_consumer_kind::serial);
     pop->optimize();
 
     auto best = pop->getBestGlobalIndividual<gind::GLineFitIndividual>();
