@@ -126,15 +126,34 @@ class GImagePOM final : public oa::GBasePluggableOM {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /**
+     * @brief Single declaration of this class'es local data members
+     * @return A tuple of named member references driving serialize(), load_() and compare_()
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("resultImageDirectory_", resultImageDirectory_),
+            Gem::Common::make_member("emitBestOnly_", emitBestOnly_)
+        );
+    }
+    /** @brief Single declaration of this class'es local data members (const overload) */
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("resultImageDirectory_", resultImageDirectory_),
+            Gem::Common::make_member("emitBestOnly_", emitBestOnly_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-
+        // The member list is derived from the single localMembers() declaration
+        // so serialize()/load_()/compare_() stay in sync (no silently-dropped member).
         ar &make_nvp(
             "GBasePluggableOM",
             boost::serialization::base_object<oa::GBasePluggableOM>(*this)
-        ) & BOOST_SERIALIZATION_NVP(resultImageDirectory_) &
-            BOOST_SERIALIZATION_NVP(emitBestOnly_);
+        );
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -191,8 +210,7 @@ protected:
         oa::GBasePluggableOM::load_(cp);
 
         // ... and then our local data
-        this->resultImageDirectory_ = p_load->resultImageDirectory_;
-        this->emitBestOnly_ = p_load->emitBestOnly_;
+        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
     }
 
     /** @brief Allow access to this classes compare_ function */
@@ -219,8 +237,7 @@ protected:
         Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
         // ... and then our local data
-        compare_t(IDENTITY(resultImageDirectory_, p_load->resultImageDirectory_), token);
-        compare_t(IDENTITY(emitBestOnly_, p_load->emitBestOnly_), token);
+        g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();

@@ -96,12 +96,38 @@ class GStarterIndividual : public gen::GFlatGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /**
+     * @brief Single declaration of this class'es local data members
+     * @return A tuple of named member references driving serialize(), load_() and compare_()
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("targetFunction_", targetFunction_),
+            Gem::Common::make_member("seed_sigma_", seed_sigma_),
+            Gem::Common::make_member("seed_sigma_sigma_", seed_sigma_sigma_),
+            Gem::Common::make_member("seed_min_sigma_", seed_min_sigma_),
+            Gem::Common::make_member("seed_max_sigma_", seed_max_sigma_),
+            Gem::Common::make_member("seed_ad_prob_", seed_ad_prob_)
+        );
+    }
+    /** @brief Single declaration of this class'es local data members (const overload) */
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("targetFunction_", targetFunction_),
+            Gem::Common::make_member("seed_sigma_", seed_sigma_),
+            Gem::Common::make_member("seed_sigma_sigma_", seed_sigma_sigma_),
+            Gem::Common::make_member("seed_min_sigma_", seed_min_sigma_),
+            Gem::Common::make_member("seed_max_sigma_", seed_max_sigma_),
+            Gem::Common::make_member("seed_ad_prob_", seed_ad_prob_)
+        );
+    }
+
     template <class Archive>
     void serialize(Archive &ar, const unsigned int) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
-            BOOST_SERIALIZATION_NVP(targetFunction_) & BOOST_SERIALIZATION_NVP(seed_sigma_) &
-            BOOST_SERIALIZATION_NVP(seed_sigma_sigma_) & BOOST_SERIALIZATION_NVP(seed_min_sigma_) &
-            BOOST_SERIALIZATION_NVP(seed_max_sigma_) & BOOST_SERIALIZATION_NVP(seed_ad_prob_);
+        // The member list is derived from the single localMembers() declaration
+        // so serialize()/load_()/compare_() stay in sync (no silently-dropped member).
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
 
     ///////////////////////////////////////////////////////////////////////

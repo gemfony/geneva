@@ -181,12 +181,7 @@ void GStarterIndividual::compare_(
     Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
 
     // ... and then the local data
-    Gem::Common::compare_t(IDENTITY(targetFunction_, p_load->targetFunction_), token);
-    Gem::Common::compare_t(IDENTITY(seed_sigma_, p_load->seed_sigma_), token);
-    Gem::Common::compare_t(IDENTITY(seed_sigma_sigma_, p_load->seed_sigma_sigma_), token);
-    Gem::Common::compare_t(IDENTITY(seed_min_sigma_, p_load->seed_min_sigma_), token);
-    Gem::Common::compare_t(IDENTITY(seed_max_sigma_, p_load->seed_max_sigma_), token);
-    Gem::Common::compare_t(IDENTITY(seed_ad_prob_, p_load->seed_ad_prob_), token);
+    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -279,12 +274,7 @@ void GStarterIndividual::load_(const gen::GOptimizableEntity *cp) {
     gen::GFlatGenome::load_(cp);
 
     // ... and then our local data
-    targetFunction_ = p_load->targetFunction_;
-    seed_sigma_ = p_load->seed_sigma_;
-    seed_sigma_sigma_ = p_load->seed_sigma_sigma_;
-    seed_min_sigma_ = p_load->seed_min_sigma_;
-    seed_max_sigma_ = p_load->seed_max_sigma_;
-    seed_ad_prob_ = p_load->seed_ad_prob_;
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/
