@@ -58,6 +58,7 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
+#include "geneva/oa/GMetaEvolutionaryAlgorithm.hpp"
 
 namespace gen = Gem::Geneva::Genome;
 namespace oa = Gem::Geneva::OptimizationAlgorithms;
@@ -256,6 +257,41 @@ TEST_CASE(
         CHECK(s < 20.0); // every concurrent algorithm converged (well below the f=27 start)
     }
     CHECK(StcConsumer::instances_constructed().load() == 1); // one shared pool for all K algorithms
+
+    Gem::Courtier::GBrokerRegistryT<gen::GOptimizableEntity>::instance().clearAll();
+}
+
+/******************************************************************************/
+
+TEST_CASE(
+    "Meta-EA evaluates umbrella-individuals on its own pool; sub-EAs share the one work consumer",
+    "[consumer][sharing][metaea]") {
+    using StcConsumer = Gem::Courtier::GStdThreadConsumerT<gen::GOptimizableEntity>;
+
+    // The meta-EA evaluates its umbrella-individuals (MetaSphere -- each runs an inner EA) on its OWN
+    // orchestration pool, NOT the work consumer. The inner EAs, un-injected, all converge on the one
+    // shared work consumer. Because the orchestration pool and the work consumer are distinct pools, an
+    // umbrella-individual blocking on its inner EA never starves the pool it runs on -- no deadlock. (A
+    // plain EA here would instead evaluate the umbrellas on the work consumer, whose workers would then
+    // block on inner work posted back to the same pool -- the deadlock the meta-EA exists to avoid.)
+    Gem::Courtier::GBrokerRegistryT<gen::GOptimizableEntity>::instance().clearAll();
+    StcConsumer::instances_constructed().store(0);
+
+    auto meta = std::make_shared<oa::GMetaEvolutionaryAlgorithm>();
+    meta->setPopulationSizes(4, 2);
+    meta->setMaxIteration(1);
+    meta->setReportIteration(100000);
+    meta->setNOrchestrationThreads(2);
+    MetaSphere src;
+    meta->push_back(src.clone_unique());
+    meta->setAdaptionConfig(src.buildAdaptionConfig());
+    meta->optimize();
+
+    auto best = meta->getBestGlobalIndividual<MetaSphere>();
+    REQUIRE(best); // completed without deadlock
+    // Exactly one work consumer was built and shared by every inner EA; the meta-EA's own orchestration
+    // pool is not a consumer, so it does not add to this count.
+    CHECK(StcConsumer::instances_constructed().load() == 1);
 
     Gem::Courtier::GBrokerRegistryT<gen::GOptimizableEntity>::instance().clearAll();
 }

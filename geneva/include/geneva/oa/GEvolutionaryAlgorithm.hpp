@@ -206,6 +206,18 @@ private:
     void runFitnessCalculation_() override;
 
     /**
+     * @brief Evaluates the population's [start, end) range and returns the executor status. The default
+     * routes through the process's work consumer (workOnPopulation); a subclass may override this to
+     * evaluate elsewhere (e.g. GMetaEvolutionaryAlgorithm runs its umbrella-individuals on its own
+     * orchestration thread pool, leaving the work consumer to the sub-optimizations they spawn).
+     * @param start First population index to evaluate (inclusive)
+     * @param end One past the last population index to evaluate
+     * @return The executor status (completeness + error flags) for the evaluated range
+     */
+    virtual Gem::Courtier::executor_status_t
+    evaluatePopulationRange_(std::size_t start, std::size_t end);
+
+    /**
      * @brief Adds the individuals of this iteration to a priority queue holding the global bests.
      * @param best_individuals The fixed-size priority queue of global best individuals to update
      */

@@ -183,6 +183,13 @@ void GEvolutionaryAlgorithm::extractCurrentParetoIndividuals(
 
 /******************************************************************************/
 
+Gem::Courtier::executor_status_t
+GEvolutionaryAlgorithm::evaluatePopulationRange_(std::size_t start, std::size_t end) {
+    return this->workOnPopulation(start, end);
+}
+
+/******************************************************************************/
+
 std::vector<TunableParam> GEvolutionaryAlgorithm::tunableManifest() {
     namespace n = ea_tunable;
     // {name, is_integer, init, lower, upper}. The order fixes the genome layout (the integer knobs
@@ -468,8 +475,9 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
 
     //--------------------------------------------------------------------------------
     // Submit the [start, end) evaluation range and wait for results. courtier marks the span
-    // DO_PROCESS and reconciles it in place -- no per-item flagging needed.
-    auto status = this->workOnPopulation(std::get<0>(range), std::get<1>(range));
+    // DO_PROCESS and reconciles it in place -- no per-item flagging needed. Routed through
+    // evaluatePopulationRange_ so a subclass (e.g. the meta-EA) can evaluate elsewhere.
+    auto status = this->evaluatePopulationRange_(std::get<0>(range), std::get<1>(range));
 
     //--------------------------------------------------------------------------------
     // Take care of unprocessed items, if these exist
