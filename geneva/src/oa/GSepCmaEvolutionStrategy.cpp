@@ -475,11 +475,24 @@ void GSepCmaEvolutionStrategy::clampToBox(std::vector<double> &x) const {
  */
 void GSepCmaEvolutionStrategy::sampleOffspring() {
     std::normal_distribution<double> norm(0., 1.);
+    std::vector<double> z(n_, 0.); // current standard-normal draw; mirrored on the odd offspring
 
     for(std::size_t k = 0; k < this->size(); ++k) {
+        // Mirrored sampling (Brockhoff et al. 2010): offspring come in antithetic pairs
+        // x = m +/- sigma*sqrt(C)*z, which cancels the first-order sampling noise of the weighted
+        // recombination and yields steadier, faster progress per generation at no extra cost.
+        if(k % 2 == 0) {
+            for(std::size_t i = 0; i < n_; ++i) {
+                z[i] = norm(gr_);
+            }
+        } else {
+            for(std::size_t i = 0; i < n_; ++i) {
+                z[i] = -z[i];
+            }
+        }
         std::vector<double> x(n_);
         for(std::size_t i = 0; i < n_; ++i) {
-            x[i] = m_[i] + sigma_ * std::sqrt(C_[i]) * norm(gr_);
+            x[i] = m_[i] + sigma_ * std::sqrt(C_[i]) * z[i];
         }
         clampToBox(x);
 

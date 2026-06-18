@@ -84,11 +84,15 @@ constexpr std::size_t DEFAULTSEPCMALAMBDA = 0;
  * \f$O(n)\f$ storage/time instead of the \f$O(n^{2})\f$ of full CMA-ES), and two evolution paths.
  *
  * @par Sampling and recombination
- * Each generation draws \f$\lambda\f$ offspring (\f$\odot\f$ is the element-wise product):
+ * Each generation draws \f$\lambda\f$ offspring (\f$\odot\f$ is the element-wise product) using
+ * @b mirrored @b sampling (Brockhoff et al. 2010) — antithetic pairs that share one Gaussian draw,
  * \f[
- *   \mathbf{x}_{k}=\mathbf{m}+\sigma\,\sqrt{\mathbf{C}}\odot\mathbf{z}_{k},\qquad
- *   \mathbf{z}_{k}\sim\mathcal{N}(\mathbf{0},\mathbf{I}),\quad k=1,\dots,\lambda,
+ *   \mathbf{x}_{2k-1}=\mathbf{m}+\sigma\,\sqrt{\mathbf{C}}\odot\mathbf{z}_{k},\qquad
+ *   \mathbf{x}_{2k}=\mathbf{m}-\sigma\,\sqrt{\mathbf{C}}\odot\mathbf{z}_{k},\qquad
+ *   \mathbf{z}_{k}\sim\mathcal{N}(\mathbf{0},\mathbf{I}),
  * \f]
+ * which cancels the first-order sampling noise of the weighted recombination (steadier, faster progress
+ * at no extra cost). It then
  * evaluates them through the single process consumer (transport-agnostic, mirroring the stock EA's
  * submission path), ranks them, and recombines the best \f$\mu\f$ with positive logarithmic weights
  * \f[
@@ -154,6 +158,8 @@ constexpr std::size_t DEFAULTSEPCMALAMBDA = 0;
  *   Parallel Problem Solving from Nature (PPSN X), LNCS 5199:296-305, 2008.
  * - K. Deb, A. Pratap, S. Agarwal, T. Meyarivan, "A Fast and Elitist Multiobjective Genetic Algorithm:
  *   NSGA-II", IEEE Trans. Evolutionary Computation 6(2):182-197, 2002.
+ * - D. Brockhoff, A. Auger, N. Hansen, D. V. Arnold, T. Hohm, "Mirrored Sampling and Sequential
+ *   Selection for Evolution Strategies", Parallel Problem Solving from Nature (PPSN XI), 2010.
  */
 class GSepCmaEvolutionStrategy // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmT<GSepCmaEvolutionStrategy> {
