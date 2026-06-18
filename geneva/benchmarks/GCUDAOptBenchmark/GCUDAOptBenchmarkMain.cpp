@@ -52,7 +52,6 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
-#include "courtier/GBrokerT.hpp"
 #include "courtier/GConsumerRegistry.hpp"
 #include "courtier/gpu/GGPUConsumer.hpp"
 #include "geneva/GenevaInitializer.hpp"

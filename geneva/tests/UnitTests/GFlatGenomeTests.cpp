@@ -34,6 +34,7 @@
 #include <filesystem>
 #include <memory>
 #include <vector>
+#include <span>
 
 #include <sstream>
 
@@ -48,9 +49,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "courtier/GWireSerializationContext.hpp" // layout send-once: wire context + registry
-#include "courtier/GBrokerT.hpp"
 #include "courtier/GConsumerRegistry.hpp"
-#include "courtier/GExecutorT.hpp"
 #include "courtier/GSubmissionPolicy.hpp"
 #include "courtier/consumers/GWebsocketConsumerT.hpp"
 #include "courtier/transport/GWebsocketTransportT.hpp"
@@ -1388,7 +1387,6 @@ TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[
         items.push_back(std::move(ind));
     }
 
-    auto broker = std::make_shared<c2::GBrokerT<GOptimizableEntity>>();
     auto consumer =
         std::make_shared<c2::GWebsocketConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/2, BIN);
     // The work item is the abstract GOptimizableEntity base, so the consumer needs a polymorphic clone
@@ -1396,7 +1394,6 @@ TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[
     consumer->setCloneFunction(
         [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); }
     );
-    broker->registerConsumer(consumer);
     consumer->startServer();
     const unsigned short port = consumer->getPort();
 
@@ -1419,8 +1416,8 @@ TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[
         });
     }
 
-    c2::GExecutorT<GOptimizableEntity> executor(broker);
-    executor.workOn(items, c2::GSubmissionPolicy::full_success_or_fatal());
+    consumer->processBatch(std::span<std::unique_ptr<GOptimizableEntity>>(items.data(), items.size()),
+                           c2::GSubmissionPolicy::full_success_or_fatal());
 
     for(auto &client : clients) {
         client->flagCloseRequested();
@@ -1472,12 +1469,10 @@ TEST_CASE("Wire send-once over a real ASIO loopback interns one layout", "[flat]
         items.push_back(std::move(ind));
     }
 
-    auto broker = std::make_shared<c2::GBrokerT<GOptimizableEntity>>();
     auto consumer = std::make_shared<c2::GAsioConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/2, BIN);
     consumer->setCloneFunction(
         [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); }
     );
-    broker->registerConsumer(consumer);
     consumer->startServer();
     const unsigned short port = consumer->getPort();
 
@@ -1500,8 +1495,8 @@ TEST_CASE("Wire send-once over a real ASIO loopback interns one layout", "[flat]
         });
     }
 
-    c2::GExecutorT<GOptimizableEntity> executor(broker);
-    executor.workOn(items, c2::GSubmissionPolicy::full_success_or_fatal());
+    consumer->processBatch(std::span<std::unique_ptr<GOptimizableEntity>>(items.data(), items.size()),
+                           c2::GSubmissionPolicy::full_success_or_fatal());
 
     for(auto &client : clients) {
         client->flagCloseRequested();
@@ -1552,13 +1547,11 @@ TEST_CASE("Wire send-once: many distinct layouts under a bounded registry stay c
         items.push_back(std::move(ind));
     }
 
-    auto broker = std::make_shared<c2::GBrokerT<GOptimizableEntity>>();
     auto consumer = std::make_shared<c2::GWebsocketConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/2, BIN);
     consumer->setCloneFunction(
         [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); }
     );
     consumer->setInternedLayoutCapacity(2); // below the 4 distinct layouts -> eviction is forced
-    broker->registerConsumer(consumer);
     consumer->startServer();
     const unsigned short port = consumer->getPort();
 
@@ -1581,8 +1574,8 @@ TEST_CASE("Wire send-once: many distinct layouts under a bounded registry stay c
         });
     }
 
-    c2::GExecutorT<GOptimizableEntity> executor(broker);
-    executor.workOn(items, c2::GSubmissionPolicy::full_success_or_fatal());
+    consumer->processBatch(std::span<std::unique_ptr<GOptimizableEntity>>(items.data(), items.size()),
+                           c2::GSubmissionPolicy::full_success_or_fatal());
 
     for(auto &client : clients) {
         client->flagCloseRequested();

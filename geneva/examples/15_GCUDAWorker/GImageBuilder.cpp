@@ -58,7 +58,6 @@
 
 // Geneva headers
 #include "common/GParserBuilder.hpp"
-#include "courtier/GBrokerT.hpp"
 #include "courtier/gpu/GGPUConsumer.hpp"
 #include "geneva/Go2.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"

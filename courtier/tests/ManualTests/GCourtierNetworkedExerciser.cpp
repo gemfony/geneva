@@ -47,13 +47,12 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <span>
 
 #include "common/GParserBuilder.hpp"
 #include "courtier/GDemoProcessingContainers.hpp"
 #include "courtier/transport/GAsioTransportT.hpp"
 #include "courtier/transport/GWebsocketTransportT.hpp"
-#include "courtier/GBrokerT.hpp"
-#include "courtier/GExecutorT.hpp"
 #include "courtier/GSubmissionPolicy.hpp"
 #include "courtier/consumers/GAsioConsumerT.hpp"
 #include "courtier/consumers/GWebsocketConsumerT.hpp"
@@ -68,8 +67,6 @@ namespace {
 constexpr auto BIN = Gem::Common::serializationMode::BINARY;
 
 int run_server(const std::string &consumer, unsigned short port, std::size_t n, std::size_t fault_every) {
-    auto broker = std::make_shared<c2::GBrokerT<GFaultyContainer>>();
-
     // Build the chosen courtier consumer behind the common base type.
     std::shared_ptr<c2::GBaseConsumerT<GFaultyContainer>> base;
     std::shared_ptr<c2::GAsioConsumerT<GFaultyContainer>> asio;
@@ -82,7 +79,6 @@ int run_server(const std::string &consumer, unsigned short port, std::size_t n, 
         asio = std::make_shared<c2::GAsioConsumerT<GFaultyContainer>>(port, 0, BIN);
         base = asio;
     }
-    broker->registerConsumer(base);
 
     if(asio) {
         asio->startServer();
@@ -109,8 +105,7 @@ int run_server(const std::string &consumer, unsigned short port, std::size_t n, 
         ? c2::GSubmissionPolicy::clone_on_partial_return()
         : c2::GSubmissionPolicy::full_success_or_fatal();
 
-    c2::GExecutorT<GFaultyContainer> executor(broker);
-    executor.workOn(items, policy);
+    base->processBatch(std::span<std::unique_ptr<GFaultyContainer>>(items.data(), items.size()), policy);
 
     if(asio) {
         asio->stopServer();

@@ -47,11 +47,10 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <span>
 
 #include "common/GParserBuilder.hpp"
 #include "courtier/GDemoProcessingContainers.hpp"
-#include "courtier/GBrokerT.hpp"
-#include "courtier/GExecutorT.hpp"
 #include "courtier/GSubmissionPolicy.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
 
@@ -90,13 +89,14 @@ int main(int argc, char **argv) {
         return 2;
     }
 
-    auto broker = std::make_shared<GBrokerT<GFaultyContainer>>();
-    broker->registerConsumer(std::make_shared<GStdThreadConsumerT<GFaultyContainer>>(4));
-    GExecutorT<GFaultyContainer> executor(broker);
+    auto consumer = std::make_shared<GStdThreadConsumerT<GFaultyContainer>>(4);
+    auto workOn = [&consumer](std::vector<item_ptr> &batch, const GSubmissionPolicy &policy) {
+        consumer->processBatch(std::span<item_ptr>(batch.data(), batch.size()), policy);
+    };
 
     if(scenario == "ok") {
         auto batch = make_batch(8, fault_mode::NONE);
-        executor.workOn(batch, GSubmissionPolicy::full_success_or_fatal());
+        workOn(batch, GSubmissionPolicy::full_success_or_fatal());
         std::cout << "ok: returned normally\n";
         return 0;
     }
@@ -104,20 +104,20 @@ int main(int argc, char **argv) {
         // One deterministically-throwing slot, no retry budget -> unresolved -> FATAL.
         auto batch = make_batch(8, fault_mode::NONE);
         batch[3] = std::make_unique<GFaultyContainer>(3, fault_mode::THROW_PROCESSING);
-        executor.workOn(batch, GSubmissionPolicy::full_success_or_fatal());
+        workOn(batch, GSubmissionPolicy::full_success_or_fatal());
         std::cout << "fatal-unfixable: ERROR -- returned without terminating\n";
         return 0; // should be unreachable
     }
     if(scenario == "fatal-none-fatal") {
         auto batch = make_batch(8, fault_mode::THROW_PROCESSING);
-        executor.workOn(batch, GSubmissionPolicy::full_success_or_fatal());
+        workOn(batch, GSubmissionPolicy::full_success_or_fatal());
         std::cout << "fatal-none-fatal: ERROR -- returned without terminating\n";
         return 0; // should be unreachable
     }
     if(scenario == "fatal-none-clone") {
         // Even the tolerant clone policy cannot continue if NOTHING came back to clone from.
         auto batch = make_batch(8, fault_mode::THROW_PROCESSING);
-        executor.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
+        workOn(batch, GSubmissionPolicy::clone_on_partial_return());
         std::cout << "fatal-none-clone: ERROR -- returned without terminating\n";
         return 0; // should be unreachable
     }

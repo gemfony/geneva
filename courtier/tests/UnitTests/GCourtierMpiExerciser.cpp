@@ -43,10 +43,9 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <span>
 
 #include "courtier/GDemoProcessingContainers.hpp"
-#include "courtier/GBrokerT.hpp"
-#include "courtier/GExecutorT.hpp"
 #include "courtier/GSubmissionPolicy.hpp"
 #include "courtier/consumers/GMPIConsumerT.hpp"
 
@@ -60,8 +59,6 @@ int main(int argc, char **argv) {
     auto consumer = std::make_shared<c2::GMPIConsumerT<GFaultyContainer>>(&argc, &argv);
 
     if(consumer->isMasterNode()) {
-        auto broker = std::make_shared<c2::GBrokerT<GFaultyContainer>>();
-        broker->registerConsumer(consumer);
         consumer->startServer();
 
         std::vector<std::unique_ptr<GFaultyContainer>> items;
@@ -70,8 +67,8 @@ int main(int argc, char **argv) {
             items.push_back(std::make_unique<GFaultyContainer>(i, fault_mode::NONE));
         }
 
-        c2::GExecutorT<GFaultyContainer> executor(broker);
-        executor.workOn(items, c2::GSubmissionPolicy::full_success_or_fatal());
+        consumer->processBatch(std::span<std::unique_ptr<GFaultyContainer>>(items.data(), items.size()),
+                               c2::GSubmissionPolicy::full_success_or_fatal());
 
         consumer->stopServer();
 

@@ -44,10 +44,10 @@
 #include <cstddef>
 #include <memory>
 #include <vector>
+#include <span>
 
 #include "courtier/GDemoProcessingContainers.hpp"
-#include "courtier/GBrokerT.hpp"
-#include "courtier/GExecutorT.hpp"
+#include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GSubmissionPolicy.hpp"
 #include "courtier/consumers/GSerialConsumerT.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
@@ -60,16 +60,16 @@ namespace {
 
 using item_ptr = std::unique_ptr<GFaultyContainer>;
 
-/** @brief Wires a broker + a local consumer of type @p ConsumerT + executor for a test. */
+/** @brief Wires a local consumer of type @p ConsumerT for a test. */
 template <typename ConsumerT>
 struct LocalFixtureT {
-    std::shared_ptr<GBrokerT<GFaultyContainer>> broker = std::make_shared<GBrokerT<GFaultyContainer>>();
-    GExecutorT<GFaultyContainer> executor;
+    std::shared_ptr<GBaseConsumerT<GFaultyContainer>> consumer = std::make_shared<ConsumerT>();
 
-    LocalFixtureT()
-        : executor(broker)
-    {
-        broker->registerConsumer(std::make_shared<ConsumerT>());
+    /** @brief Reconciles the batch in place against the policy via the consumer directly. */
+    void workOn(std::vector<item_ptr> &items, const GSubmissionPolicy &policy,
+                item_ptr clone_template = nullptr) {
+        consumer->processBatch(std::span<item_ptr>(items.data(), items.size()), policy,
+                               std::move(clone_template));
     }
 };
 
@@ -109,7 +109,7 @@ TEST_CASE("courtier: a clean batch is fully evaluated", "[courtier][policy]") {
     LocalFixture f;
     auto batch = make_batch(16);
 
-    f.executor.workOn(batch, GSubmissionPolicy::full_success_or_fatal());
+    f.workOn(batch, GSubmissionPolicy::full_success_or_fatal());
 
     CHECK(batch.size() == 16);
     CHECK(count_processed(batch) == 16);
@@ -119,7 +119,7 @@ TEST_CASE("courtier: size is preserved across all policies", "[courtier][policy]
     LocalFixture f;
     auto batch = make_batch(10, {2, 5, 9}, fault_mode::THROW_PROCESSING);
 
-    f.executor.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
+    f.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
 
     // The span is fixed-size: clone-on-partial-return refills the failed slots, never shrinks.
     CHECK(batch.size() == 10);
@@ -129,7 +129,7 @@ TEST_CASE("courtier: clone-on-partial-return refills throwing slots", "[courtier
     LocalFixture f;
     auto batch = make_batch(12, {1, 4, 7, 11}, fault_mode::THROW_PROCESSING);
 
-    f.executor.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
+    f.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
 
     // Every slot ends up holding a successfully evaluated item (originals or clones of survivors).
     CHECK(count_processed(batch) == 12);
@@ -139,7 +139,7 @@ TEST_CASE("courtier: clone-on-partial-return handles a clean-error flag", "[cour
     LocalFixture f;
     auto batch = make_batch(8, {3, 6}, fault_mode::FLAG_ERROR);
 
-    f.executor.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
+    f.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
 
     CHECK(count_processed(batch) == 8);
 }
@@ -148,7 +148,7 @@ TEST_CASE("courtier: a single-item clean batch works", "[courtier][policy]") {
     LocalFixture f;
     auto batch = make_batch(1);
 
-    f.executor.workOn(batch, GSubmissionPolicy::fail_on_no_return());
+    f.workOn(batch, GSubmissionPolicy::fail_on_no_return());
 
     CHECK(count_processed(batch) == 1);
 }
@@ -157,7 +157,7 @@ TEST_CASE("courtier: an empty batch is a no-op", "[courtier][policy]") {
     LocalFixture f;
     std::vector<item_ptr> batch;
 
-    f.executor.workOn(batch, GSubmissionPolicy::full_success_or_fatal());
+    f.workOn(batch, GSubmissionPolicy::full_success_or_fatal());
 
     CHECK(batch.empty());
 }
@@ -167,7 +167,7 @@ TEST_CASE("courtier: a mostly-faulty batch still recovers via cloning", "[courti
     // 9 of 10 throw; the lone survivor seeds the clones.
     auto batch = make_batch(10, {0, 1, 2, 3, 4, 5, 6, 8, 9}, fault_mode::THROW_PROCESSING);
 
-    f.executor.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
+    f.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
 
     CHECK(count_processed(batch) == 10);
 }
@@ -187,20 +187,20 @@ TEMPLATE_LIST_TEST_CASE(
 
     SECTION("clean batch") {
         auto batch = make_batch(8);
-        f.executor.workOn(batch, GSubmissionPolicy::full_success_or_fatal());
+        f.workOn(batch, GSubmissionPolicy::full_success_or_fatal());
         CHECK(count_processed(batch) == 8);
     }
 
     SECTION("clone-on-partial-return refills throwing slots") {
         auto batch = make_batch(8, {2, 5}, fault_mode::THROW_PROCESSING);
-        f.executor.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
+        f.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
         CHECK(batch.size() == 8);
         CHECK(count_processed(batch) == 8);
     }
 
     SECTION("clone-on-partial-return handles a clean-error flag") {
         auto batch = make_batch(8, {1, 6}, fault_mode::FLAG_ERROR);
-        f.executor.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
+        f.workOn(batch, GSubmissionPolicy::clone_on_partial_return());
         CHECK(count_processed(batch) == 8);
     }
 }

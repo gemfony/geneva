@@ -43,11 +43,10 @@
 #include <memory>
 #include <thread>
 #include <vector>
+#include <span>
 
 #include "courtier/GDemoProcessingContainers.hpp"
 #include "courtier/transport/GAsioTransportT.hpp" // the (reused) client
-#include "courtier/GBrokerT.hpp"
-#include "courtier/GExecutorT.hpp"
 #include "courtier/GSubmissionPolicy.hpp"
 #include "courtier/consumers/GAsioConsumerT.hpp"
 
@@ -89,9 +88,7 @@ std::size_t count_processed(const std::vector<item_ptr> &v) {
  *  batch through the executor, then tears everything down cleanly. */
 void run_over_sockets(std::vector<item_ptr> &items, const c2::GSubmissionPolicy &policy,
                       std::size_t n_clients = 1, std::size_t prefetch_depth = 1) {
-    auto broker = std::make_shared<c2::GBrokerT<GFaultyContainer>>();
     auto consumer = std::make_shared<c2::GAsioConsumerT<GFaultyContainer>>(/*port=*/0, /*threads=*/2, BIN);
-    broker->registerConsumer(consumer);
     consumer->startServer();
     const unsigned short port = consumer->getPort();
 
@@ -113,8 +110,7 @@ void run_over_sockets(std::vector<item_ptr> &items, const c2::GSubmissionPolicy 
         });
     }
 
-    c2::GExecutorT<GFaultyContainer> executor(broker);
-    executor.workOn(items, policy);
+    consumer->processBatch(std::span<item_ptr>(items.data(), items.size()), policy);
 
     for(auto &client : clients) {
         client->flagCloseRequested();

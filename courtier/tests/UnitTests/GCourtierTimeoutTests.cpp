@@ -47,10 +47,9 @@
 #include <set>
 #include <thread>
 #include <vector>
+#include <span>
 
 #include "courtier/GDemoProcessingContainers.hpp"
-#include "courtier/GBrokerT.hpp"
-#include "courtier/GExecutorT.hpp"
 #include "courtier/GSubmissionPolicy.hpp"
 #include "courtier/consumers/GNetworkedConsumerT.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
@@ -258,14 +257,13 @@ TEST_CASE("courtier(clone): unresolved slots are refilled from the supplied temp
     tmpl->set_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);
     tmpl->process(); // a valid, evaluated template
 
-    auto broker = std::make_shared<c2::GBrokerT<GFaultyContainer>>();
-    broker->registerConsumer(std::make_shared<c2::GStdThreadConsumerT<GFaultyContainer>>(4));
-    c2::GExecutorT<GFaultyContainer> executor(broker);
+    auto consumer = std::make_shared<c2::GStdThreadConsumerT<GFaultyContainer>>(4);
 
     const std::vector<std::size_t> faulty{2, 5, 9};
     auto batch = make_batch(12, faulty, fault_mode::THROW_PROCESSING);
 
-    executor.workOn(batch, c2::GSubmissionPolicy::clone_on_partial_return(), std::move(tmpl));
+    consumer->processBatch(std::span<std::unique_ptr<GFaultyContainer>>(batch.data(), batch.size()),
+                           c2::GSubmissionPolicy::clone_on_partial_return(), std::move(tmpl));
 
     CHECK(count_processed(batch) == 12); // no slot left unevaluated
     // The throwing slots must hold clones of the TEMPLATE (not of a surviving sibling).

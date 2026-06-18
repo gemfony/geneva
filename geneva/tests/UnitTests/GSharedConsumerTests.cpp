@@ -46,7 +46,6 @@
 #include <vector>
 
 #include "courtier/GConsumerRegistry.hpp"
-#include "courtier/GBrokerT.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
 #include "geneva/GConsumerSetup.hpp"
 #include "geneva/ind/GFlatIndividualT.hpp"

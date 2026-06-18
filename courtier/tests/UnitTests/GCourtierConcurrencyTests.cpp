@@ -53,8 +53,6 @@
 #include <vector>
 
 #include "courtier/GDemoProcessingContainers.hpp"
-#include "courtier/GBrokerT.hpp"
-#include "courtier/GExecutorT.hpp"
 #include "courtier/GSubmissionPolicy.hpp"
 #include "courtier/consumers/GNetworkedConsumerT.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
@@ -247,8 +245,7 @@ TEST_CASE("courtier(fanin): concurrent submitters to one local thread consumer",
     constexpr std::size_t M = 8;
     constexpr std::size_t N = 30;
 
-    auto broker = std::make_shared<c2::GBrokerT<GFaultyContainer>>();
-    broker->registerConsumer(std::make_shared<c2::GStdThreadConsumerT<GFaultyContainer>>(4));
+    auto consumer = std::make_shared<c2::GStdThreadConsumerT<GFaultyContainer>>(4);
 
     std::vector<std::vector<item_ptr>> batches;
     batches.reserve(M);
@@ -260,8 +257,8 @@ TEST_CASE("courtier(fanin): concurrent submitters to one local thread consumer",
     submitters.reserve(M);
     for(std::size_t b = 0; b < M; ++b) {
         submitters.emplace_back([&, b] {
-            c2::GExecutorT<GFaultyContainer> executor(broker); // thin; just forwards to the consumer
-            executor.workOn(batches[b], c2::GSubmissionPolicy::full_success_or_fatal());
+            consumer->processBatch(std::span<item_ptr>(batches[b].data(), batches[b].size()),
+                                   c2::GSubmissionPolicy::full_success_or_fatal());
         });
     }
     for(auto &s : submitters) {

@@ -43,7 +43,6 @@
 // Geneva headers
 #include "common/GCommonEnums.hpp"
 #include "common/GLogger.hpp"
-#include "courtier/GBrokerT.hpp"
 #include "geneva/GenevaInitializer.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
