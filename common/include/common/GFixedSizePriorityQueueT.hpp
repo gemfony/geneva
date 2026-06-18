@@ -74,12 +74,33 @@ class GFixedSizePriorityQueueT : public GCommonInterfaceT<GFixedSizePriorityQueu
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /***************************************************************************/
+    /**
+     * @brief Single declaration of this class'es local data members
+     * @return A tuple of named member references driving serialize(), load_() and compare_()
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("max_size_", max_size_),
+            Gem::Common::make_member("sort_order_", sort_order_),
+            Gem::Common::make_cloneable_container_member("data_deq_", data_deq_)
+        );
+    }
+    /** @brief Single declaration of this class'es local data members (const overload) */
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("max_size_", max_size_),
+            Gem::Common::make_member("sort_order_", sort_order_),
+            Gem::Common::make_cloneable_container_member("data_deq_", data_deq_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-
-        ar &BOOST_SERIALIZATION_NVP(max_size_) & BOOST_SERIALIZATION_NVP(sort_order_) &
-            BOOST_SERIALIZATION_NVP(data_deq_);
+        // The member list is derived from the single localMembers() declaration
+        // so serialize()/load_()/compare_() stay in sync (no silently-dropped member).
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -515,9 +536,7 @@ protected:
             );
 
         // Load local data
-        max_size_ = p_load->max_size_;
-        sort_order_ = p_load->sort_order_;
-        Common::copyCloneableSmartPointerContainer(p_load->data_deq_, data_deq_);
+        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
     }
 
     /***************************************************************************/
@@ -557,9 +576,7 @@ protected:
         Common::compare_base_t<GCommonInterfaceT<GFixedSizePriorityQueueT>>(*this, *p_load, token);
 
         // ... and then our local data
-        compare_t(IDENTITY(max_size_, p_load->max_size_), token);
-        compare_t(IDENTITY(sort_order_, p_load->sort_order_), token);
-        compare_t(IDENTITY(data_deq_, p_load->data_deq_), token);
+        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();

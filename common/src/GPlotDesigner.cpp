@@ -538,14 +538,7 @@ void GBasePlotter::compare_(
     compare_base_t<GCommonInterfaceT<GBasePlotter>>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(drawing_arguments_, p_load->drawing_arguments_), token);
-    compare_t(IDENTITY(x_axis_label_, p_load->x_axis_label_), token);
-    compare_t(IDENTITY(y_axis_label_, p_load->y_axis_label_), token);
-    compare_t(IDENTITY(z_axis_label_, p_load->z_axis_label_), token);
-    compare_t(IDENTITY(plot_label_, p_load->plot_label_), token);
-    compare_t(IDENTITY(ds_marker_, p_load->ds_marker_), token);
-    compare_t(IDENTITY(secondary_plotter_, p_load->secondary_plotter_), token);
-    compare_t(IDENTITY(id_, p_load->id_), token);
+    g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -564,15 +557,7 @@ void GBasePlotter::load_(const GBasePlotter *cp) {
     // No parent class with loadable data
 
     // Load local data
-    drawing_arguments_ = p_load->drawing_arguments_;
-    x_axis_label_ = p_load->x_axis_label_;
-    y_axis_label_ = p_load->y_axis_label_;
-    z_axis_label_ = p_load->z_axis_label_;
-    plot_label_ = p_load->plot_label_;
-    ds_marker_ = p_load->ds_marker_;
-    id_ = p_load->id_;
-
-    copyCloneableSmartPointerContainer(p_load->secondary_plotter_, secondary_plotter_);
+    g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

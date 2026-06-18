@@ -518,7 +518,11 @@ Recommended Versions:
   by the round-trip tests -- serialize() are derived, instead of maintaining the
   same member list in several parallel hand-written functions. Helpers added in
   GExpectationChecksT.hpp (make_member, g_load_members, g_compare_members,
-  serialize_members).
+  serialize_members). The remaining hand-listed classes were migrated to this
+  pattern (GFixedSizePriorityQueueT, GBasePlotter and the GStarterIndividual /
+  GImageIndividual / GImagePOM example types). GPlotDesigner is intentionally
+  left as-is: its plot list is deep-copied on clone but deliberately never
+  serialized, an asymmetry the single-source pattern cannot express.
 
 - The Geneva standard unit tests (clone/modify/compare and TEXT/XML/BINARY
   (de)serialization round-trips) now also cover all seven optimization

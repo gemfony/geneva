@@ -44,6 +44,36 @@ class GBasePlotter : public GCommonInterfaceT<GBasePlotter> {
     friend class boost::serialization::access;
 
     /**
+     * @brief Single declaration of this class'es local data members
+     * @return A tuple of named member references driving serialize(), load_() and compare_()
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("drawing_arguments_", drawing_arguments_),
+            Gem::Common::make_member("x_axis_label_", x_axis_label_),
+            Gem::Common::make_member("y_axis_label_", y_axis_label_),
+            Gem::Common::make_member("z_axis_label_", z_axis_label_),
+            Gem::Common::make_member("plot_label_", plot_label_),
+            Gem::Common::make_member("ds_marker_", ds_marker_),
+            Gem::Common::make_cloneable_container_member("secondary_plotter_", secondary_plotter_),
+            Gem::Common::make_member("id_", id_)
+        );
+    }
+    /** @brief Single declaration of this class'es local data members (const overload) */
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("drawing_arguments_", drawing_arguments_),
+            Gem::Common::make_member("x_axis_label_", x_axis_label_),
+            Gem::Common::make_member("y_axis_label_", y_axis_label_),
+            Gem::Common::make_member("z_axis_label_", z_axis_label_),
+            Gem::Common::make_member("plot_label_", plot_label_),
+            Gem::Common::make_member("ds_marker_", ds_marker_),
+            Gem::Common::make_cloneable_container_member("secondary_plotter_", secondary_plotter_),
+            Gem::Common::make_member("id_", id_)
+        );
+    }
+
+    /**
      * @brief Serializes this plotter's state to or from a Boost archive
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive being read from or written to
@@ -52,11 +82,9 @@ class GBasePlotter : public GCommonInterfaceT<GBasePlotter> {
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-
-        ar &BOOST_SERIALIZATION_NVP(drawing_arguments_) & BOOST_SERIALIZATION_NVP(x_axis_label_) &
-            BOOST_SERIALIZATION_NVP(y_axis_label_) & BOOST_SERIALIZATION_NVP(z_axis_label_) &
-            BOOST_SERIALIZATION_NVP(plot_label_) & BOOST_SERIALIZATION_NVP(ds_marker_) &
-            BOOST_SERIALIZATION_NVP(secondary_plotter_) & BOOST_SERIALIZATION_NVP(id_);
+        // The member list is derived from the single localMembers() declaration
+        // so serialize()/load_()/compare_() stay in sync (no silently-dropped member).
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 
