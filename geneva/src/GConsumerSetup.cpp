@@ -124,7 +124,17 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
     else if(spec.mnemonic == "mpi") {
         // MPI fixes the master/worker split by rank; the consumer is built on every rank and branches.
-        auto consumer = std::make_shared<c2::GMPIConsumerT<gen::GOptimizableEntity>>();
+        // Forward the [mpi] command-line options into the consumer's config.
+        Gem::Courtier::Consumers::MPIConsumerConfig mpi_config;
+        mpi_config.useAsyncReq = spec.mpi_async_req;
+        // 0 == hardware concurrency: leave the default-constructed config's recommendation in place.
+        if(spec.mpi_n_handler_threads != 0) {
+            mpi_config.nHandlerThreads = spec.mpi_n_handler_threads;
+        }
+        mpi_config.serializationMode = spec.serialization_mode;
+        mpi_config.masterCleanSessIntervalMSec = spec.mpi_clean_sess_interval;
+        auto consumer = std::make_shared<c2::GMPIConsumerT<gen::GOptimizableEntity>>(
+            nullptr, nullptr, mpi_config);
         if(consumer->isMasterNode()) {
             consumer->setCloneFunction(individualCloneFunction());
             consumer->startServer();
@@ -210,7 +220,21 @@ ConsumerSpec specFromCommandLine(
             spec.n_threads = static_cast<unsigned int>(vm["nWorkerThreads"].as<std::size_t>());
         }
     }
-    // "sc" and "mpi" carry no networked spec fields: the defaults suffice.
+#ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
+    else if(mnemonic == "mpi") {
+        if(vm.count("mpi_asyncReq") != 0u) {
+            spec.mpi_async_req = vm["mpi_asyncReq"].as<bool>();
+        }
+        if(vm.count("mpi_nHandlerThreads") != 0u) {
+            spec.mpi_n_handler_threads = vm["mpi_nHandlerThreads"].as<std::uint32_t>();
+        }
+        if(vm.count("mpi_cleanSessInterval") != 0u) {
+            spec.mpi_clean_sess_interval = vm["mpi_cleanSessInterval"].as<std::uint32_t>();
+        }
+        readSerMode("mpi_serializationMode", spec.serialization_mode);
+    }
+#endif /* GENEVA_BUILD_WITH_MPI_CONSUMER */
+    // "sc" carries no networked spec fields: the defaults suffice.
 
     return spec;
 }
@@ -352,15 +376,15 @@ void addConsumerOptions(
         "\t[stc] A debugging option toggling timeouts in the executor");
 
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
-    // [mpi] -- accepted for command-line compatibility; the courtier mpi path currently uses its own
-    // defaults for these (per-option passthrough is a planned refinement).
+    // [mpi] -- forwarded into the MPI consumer's config by specFromCommandLine()/buildConsumerSetup().
+    // The defaults mirror MPIConsumerConfig so an unset option leaves the consumer's own default in place.
     visible.add_options()(
         "mpi_asyncReq", po::value<bool>()->default_value(true),
         "\t[mpi] Whether clients prefetch the next work item")(
         "mpi_nHandlerThreads", po::value<std::uint32_t>()->default_value(0),
         "\t[mpi] The number of request-handler threads (0 == hardware concurrency)");
     hidden.add_options()(
-        "mpi_cleanSessInterval", po::value<std::uint32_t>()->default_value(100),
+        "mpi_cleanSessInterval", po::value<std::uint32_t>()->default_value(1000),
         "\t[mpi] Interval in ms between master session-completion checks")(
         "mpi_serializationMode",
         po::value<serializationMode>()->default_value(Gem::Courtier::GCONSUMERSERIALIZATIONMODE),

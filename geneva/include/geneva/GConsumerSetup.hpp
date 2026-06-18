@@ -71,6 +71,11 @@ struct ConsumerSpec {
     bool verbose_control_frames = false; ///< [beast] client: log ping/pong/close frames
     std::size_t client_prefetch_depth = 1; ///< [asio/beast] client: max work items held concurrently
                                            ///< (1 == serial; >1 overlaps fetch/compute/return)
+    // --- [mpi] config fields (ignored by the other consumers). Defaults mirror MPIConsumerConfig so the
+    //     default behaviour is unchanged; serialization_mode (above) carries mpi_serializationMode. ---
+    bool mpi_async_req = true;                    ///< [mpi] clients prefetch the next work item
+    unsigned int mpi_n_handler_threads = 0;       ///< [mpi] request-handler threads (0 == hardware concurrency)
+    unsigned int mpi_clean_sess_interval = 1000;  ///< [mpi] ms between master session-completion checks
 };
 
 /******************************************************************************/
