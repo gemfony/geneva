@@ -911,12 +911,13 @@ private:
             }
         }
         catch(const geneva_exception &ex) {
-            auto ePtr = std::current_exception();
-            glogger << "GMPIConsumerSessionT<processable_type>::processRequest() connected to rank="
-                    << mpiStatus_.MPI_SOURCE << ":" << '\n'
-                    << ": Caught exception while deserializing request" << '\n'
-                    << ex.what() << '\n'
-                    << GEXCEPTION;
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "GMPIConsumerSessionT<processable_type>::processRequest() connected to rank="
+                << mpiStatus_.MPI_SOURCE << ":" << '\n'
+                << "Caught exception while deserializing request" << '\n'
+                << ex.what() << '\n'
+            );
         }
 
         return false;
