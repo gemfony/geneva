@@ -118,18 +118,19 @@ public:
     /**
 	  * @brief Creates a new thread and adds it to the group
 	  *
-	  * TODO: Add perfect forwarding, so we may pass arguments directly
-	  *
 	  * @tparam F The type of the callable to be run by the thread
+	  * @tparam Args The types of the arguments perfect-forwarded to the callable
 	  * @param f The function to be run by the thread
+	  * @param args Arguments perfect-forwarded to @p f when the thread starts
 	  * @return A shared pointer to the newly created std::jthread
 	  */
-    template <typename F>
-    std::shared_ptr<std::jthread> create_thread(F f) {
+    template <typename F, typename... Args>
+    std::shared_ptr<std::jthread> create_thread(F &&f, Args &&...args) {
         // Build the thread before taking the lock so the only critical
         // section is the vector push. Use make_shared instead of a bare
         // `new std::jthread(...)` for exception-safe single-allocation.
-        auto new_thread = std::make_shared<std::jthread>(std::move(f));
+        auto new_thread =
+            std::make_shared<std::jthread>(std::forward<F>(f), std::forward<Args>(args)...);
         std::scoped_lock guard(mutex_);
         threads_.push_back(new_thread);
         return new_thread;

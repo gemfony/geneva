@@ -541,6 +541,11 @@ Recommended Versions:
   The now-obsolete cap constant and the send-side size checks were removed. (Handler threads only send,
   so the probe-then-receive on the single-threaded receive paths is race-free.)
 
+- The MPI helper utilities in courtier/GMPIHelperFunctions (the MPIStatusCode / MPICompletionStatus
+  types and the mpi*() functions) were moved out of the global namespace into Gem::Courtier, removing
+  the global unscoped enumerators SUCCESS / STOPPED / ERROR (a portability hazard against headers that
+  define those as macros). SOURCE-breaking only for code that referenced these helpers unqualified.
+
 - Fixed: GEvolutionaryAlgorithm::populationSanityChecks_ now validates the population size for the
   PARETO sorting modes too. Previously MUPLUSNU_PARETO / MUCOMMANU_PARETO bypassed the check, so a
   too-small population (fewer children than parents in comma selection, or no children in plus

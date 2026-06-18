@@ -39,6 +39,10 @@
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPISubClientParaboloidIndividualMultiD) // NOLINT
 namespace Gem::Geneva {
 
+// The MPI helper utilities (mpiSize / mpiErrorString / MPIStatusCode / MPICompletionStatus, …) now
+// live in the Gem::Courtier namespace.
+using namespace Gem::Courtier;
+
 /********************************************************************************************/
 /**
  * The default constructor. This function will add a specified number of double parameters to this individual,
@@ -150,7 +154,7 @@ double GMPISubClientParaboloidIndividualMultiD::fitnessCalculation() {
     );
 
     switch(status.statusCode) {
-    case ::ERROR:
+    case ERROR:
         std::cerr << "MPI error occurred: " << '\n'
                   << mpiErrorString(status.mpiStatus.MPI_ERROR) << '\n';
         break;

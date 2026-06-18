@@ -36,6 +36,8 @@
 #include <string>
 #include <thread>
 
+namespace Gem::Courtier {
+
 /******************************************************************************/
 /**
  * Returns the message size of a completed request.
@@ -196,3 +198,5 @@ MPICompletionStatus mpiGatherWhile(
 
     return waitForRequestCompletionWhile(requestHandle, pollIntervalMSec, runWhile);
 }
+
+} /* namespace Gem::Courtier */

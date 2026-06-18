@@ -51,6 +51,10 @@
 
 namespace Gem::Geneva {
 
+// The MPI helper utilities moved into the Gem::Courtier namespace; pull in the types this header's
+// method signatures reference.
+using Gem::Courtier::MPICompletionStatus;
+
 namespace OptimizationAlgorithms {
 class GAdaptionConfigBase;
 } // namespace OptimizationAlgorithms

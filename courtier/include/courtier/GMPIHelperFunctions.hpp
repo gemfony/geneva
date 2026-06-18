@@ -41,7 +41,7 @@
 #include <string>
 #include <thread>
 
-// TODO: maybe create a new namespace for these utilities
+namespace Gem::Courtier {
 
 enum MPIStatusCode {
     /**
@@ -152,3 +152,5 @@ std::uint32_t mpiSize(const MPI_Comm &comm);
     MPI_Comm comm,
     const std::uint64_t &pollIntervalMSec
 );
+
+} /* namespace Gem::Courtier */
