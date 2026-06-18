@@ -86,6 +86,17 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 			COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3
 					${MPIEXEC_PREFLAGS} $<TARGET_FILE:GCourtierMpiExerciser> ${MPIEXEC_POSTFLAGS})
 	SET_TESTS_PROPERTIES(GCourtierMpiTest PROPERTIES LABELS "courtier")
+
+	# Large-payload variant: each work item far exceeds the former fixed 20 KB MPI message cap,
+	# so this covers the dynamically-sized (MPI_Iprobe + MPI_Get_count) receive path.
+	ADD_EXECUTABLE(GCourtierMpiLargePayloadExerciser GCourtierMpiLargePayloadExerciser.cpp)
+	TARGET_LINK_LIBRARIES(GCourtierMpiLargePayloadExerciser ${LIBRARIES_TO_LINK})
+	INSTALL(TARGETS GCourtierMpiLargePayloadExerciser
+			DESTINATION ${INSTALL_PREFIX_DATA}/tests/courtier/UnitTests)
+	ADD_TEST(NAME GCourtierMpiLargePayloadTest
+			COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3
+					${MPIEXEC_PREFLAGS} $<TARGET_FILE:GCourtierMpiLargePayloadExerciser> ${MPIEXEC_POSTFLAGS})
+	SET_TESTS_PROPERTIES(GCourtierMpiLargePayloadTest PROPERTIES LABELS "courtier")
 ENDIF()
 
 GENEVA_AGGREGATE_TARGET( "tests-courtier-unit" )
