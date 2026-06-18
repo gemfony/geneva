@@ -326,10 +326,11 @@ class GEvolutionaryAlgorithmPostOptimizer // NOLINT(cppcoreguidelines-special-me
             "GPostProcessorBaseT_GOptimizableEntity",
             boost::serialization::base_object<GPostProcessorBaseT<gen::GOptimizableEntity>>(*this)
         ) & BOOST_SERIALIZATION_NVP(oa_config_file_) &
-            BOOST_SERIALIZATION_NVP(executor_config_file_) &
             BOOST_SERIALIZATION_NVP(execution_mode_);
 
-        // TODO: How to initialize the ea factory
+        // The inner EA factory is deliberately not serialized: raw_processing_() rebuilds it from
+        // oa_config_file_ (serialized above) on every run, so a resumed post-optimizer reconstructs
+        // an identical factory -- there is no factory state to persist.
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -337,16 +338,14 @@ class GEvolutionaryAlgorithmPostOptimizer // NOLINT(cppcoreguidelines-special-me
 public:
     /**************************************************************************/
     /**
-     * @brief Initialization with the execution mode and configuration files
+     * @brief Initialization with the execution mode and the inner-EA configuration file
      *
      * @param execution_mode Whether to run the post-optimizer in serial or multi-threaded mode
      * @param oa_config_file The name of the configuration file for the evolutionary algorithm
-     * @param executor_config_file The name of the configuration file for the executor
      */
     GEvolutionaryAlgorithmPostOptimizer(
         execMode execution_mode,
-        const std::string &oa_config_file,
-        const std::string &executor_config_file
+        const std::string &oa_config_file
     );
     /**
      * @brief The copy constructor
@@ -383,19 +382,6 @@ public:
      */
     std::string getOAConfigFile() const;
 
-    /**
-     * @brief Allows to specify the name of a configuration file for the executor
-     *
-     * @param executor_config_file The name of the configuration file for the executor
-     */
-    void setExecutorConfigFile(const std::string &executor_config_file);
-    /**
-     * @brief Allows to retrieve the configuration file for the executor
-     *
-     * @return The name of the configuration file for the executor
-     */
-    std::string getExecutorConfigFile() const;
-
 protected:
     /**************************************************************************/
     /**
@@ -406,7 +392,6 @@ protected:
     auto localMembers() {
         return std::make_tuple(
             Gem::Common::make_member("oa_config_file_", oa_config_file_),
-            Gem::Common::make_member("executor_config_file_", executor_config_file_),
             Gem::Common::make_member("execution_mode_", execution_mode_)
         );
     }
@@ -418,7 +403,6 @@ protected:
     auto localMembers() const {
         return std::make_tuple(
             Gem::Common::make_member("oa_config_file_", oa_config_file_),
-            Gem::Common::make_member("executor_config_file_", executor_config_file_),
             Gem::Common::make_member("execution_mode_", execution_mode_)
         );
     }
@@ -491,7 +475,6 @@ private:
     // Data
     std::string
         oa_config_file_; ///< The name of the configuration file for this evolutionary algorithm
-    std::string executor_config_file_; ///< The name of the configuration file for the executor
     execMode execution_mode_ =
         execMode::SERIAL; ///< Whether to run the post-optimizer in serial or multi-threaded mode
 };

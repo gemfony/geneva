@@ -59,15 +59,12 @@ namespace Gem::Geneva {
  *
  * @param execution_mode The desired execution mode; only SERIAL and MULTITHREADED are accepted (BROKER throws)
  * @param oa_config_file The path to the JSON configuration file for the inner evolutionary algorithm
- * @param executor_config_file The path to the configuration file for the executor used by the inner algorithm
  */
 GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
     execMode execution_mode,
-    const std::string &oa_config_file,
-    const std::string &executor_config_file
+    const std::string &oa_config_file
 )
   : oa_config_file_(oa_config_file)
-  , executor_config_file_(executor_config_file)
   , execution_mode_(
         (execution_mode == execMode::SERIAL || execution_mode == execMode::MULTITHREADED)
             ? execution_mode
@@ -185,28 +182,6 @@ void GEvolutionaryAlgorithmPostOptimizer::setOAConfigFile(const std::string &oa_
  */
 std::string GEvolutionaryAlgorithmPostOptimizer::getOAConfigFile() const {
     return oa_config_file_;
-}
-
-/******************************************************************************/
-/**
- * @brief Allows to specify the name of a configuration file for the executor
- *
- * @param executor_config_file The path to the configuration file for the executor used by the inner algorithm
- */
-void GEvolutionaryAlgorithmPostOptimizer::setExecutorConfigFile(
-    const std::string &executor_config_file
-) {
-    executor_config_file_ = executor_config_file;
-}
-
-/******************************************************************************/
-/**
- * @brief Allows to retrieve the configuration file for the executor
- *
- * @return The path to the configuration file for the executor used by the inner algorithm
- */
-std::string GEvolutionaryAlgorithmPostOptimizer::getExecutorConfigFile() const {
-    return executor_config_file_;
 }
 
 /******************************************************************************/

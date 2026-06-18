@@ -541,6 +541,15 @@ Recommended Versions:
   The now-obsolete cap constant and the send-side size checks were removed. (Handler threads only send,
   so the probe-then-receive on the single-threaded receive paths is race-free.)
 
+- GEvolutionaryAlgorithmPostOptimizer (the --usePostProcessor refiner) lost its vestigial
+  executor_config_file_ member (and the matching constructor parameter, set/getExecutorConfigFile
+  accessors and serialized field): the executor model was removed in the single-consumer rework and
+  raw_processing_ evaluates the inner EA inline, so the executor config was stored and serialized but
+  never used. Its serialize() also no longer carries a stale "how to initialise the EA factory" TODO --
+  the factory is rebuilt from the (serialized) oa_config_file_ on each run, so a resumed post-optimizer
+  reconstructs it identically. SOURCE-breaking for the 3-argument constructor; changes the
+  post-optimizer's serialized form.
+
 - The MPI helper utilities in courtier/GMPIHelperFunctions (the MPIStatusCode / MPICompletionStatus
   types and the mpi*() functions) were moved out of the global namespace into Gem::Courtier, removing
   the global unscoped enumerators SUCCESS / STOPPED / ERROR (a portability hazard against headers that

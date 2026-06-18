@@ -97,8 +97,7 @@ int main(int argc, char **argv) {
         std::shared_ptr<GEvolutionaryAlgorithmPostOptimizer> eaPostOptimizer_ptr(
             new GEvolutionaryAlgorithmPostOptimizer(
                 execModePP,
-                "./config/GPostEvolutionaryAlgorithm.json",
-                "./config/GSerialExecutor.json"
+                "./config/GPostEvolutionaryAlgorithm.json"
             )
         );
 
