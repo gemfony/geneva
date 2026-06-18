@@ -393,6 +393,14 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- The CUDA random-number backend no longer leaves its output buffer unfilled when
+  a GPU call fails: a failed cuRAND/CUDA call (which under heavy concurrent demand
+  can be a transient launch failure) previously returned with the buffer untouched,
+  so stale/uninitialised memory could be handed out as random numbers. It now falls
+  back to a CPU generator for that batch so the buffer is always filled with real
+  randomness; the GPU failure is still reported, so the underlying problem stays
+  visible.
+
 - The evolutionary algorithm now publishes a tunable manifest
   (GEvolutionaryAlgorithm::tunableManifest()) describing the knobs a meta-optimizer
   may tune -- each with a name, value channel and default search range. The

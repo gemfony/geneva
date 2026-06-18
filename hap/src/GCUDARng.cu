@@ -35,6 +35,7 @@
 #include <atomic>
 #include <cstdint>
 #include <cstdio>
+#include <random>
 
 namespace Gem::Hap {
 
@@ -147,6 +148,19 @@ GCudaRNG::~GCudaRNG() {
 void GCudaRNG::generate(result_type *dst, std::size_t n) {
     if (n == 0 || cudaShuttingDown()) return;
 
+    // A failed GPU call must never leave dst unfilled: the caller would then ship stale/uninitialised
+    // memory as "random numbers" (corrupting any consumer, e.g. an optimizer fed non-random values).
+    // On any failure -- which under heavy concurrent demand can be a transient cuRAND launch failure --
+    // fall back to a thread-local CPU generator so the buffer is always filled with real randomness. The
+    // failure is still reported by checkCurand/checkCuda, so the GPU problem stays observable; a true
+    // shutdown is handled by the early return above (cudaShuttingDown()).
+    auto cpuFallback = [dst, n]() {
+        thread_local std::mt19937_64 eng{std::random_device{}()};
+        for (std::size_t i = 0; i < n; ++i) {
+            dst[i] = static_cast<result_type>(eng());
+        }
+    };
+
     // cuRAND's curandGenerate produces 32-bit words; two of them make one
     // 64-bit result_type, so we request 2*n words of raw uniform bits.
     const std::size_t words = 2 * n;
@@ -156,6 +170,7 @@ void GCudaRNG::generate(result_type *dst, std::size_t n) {
         if (!checkCuda(cudaMalloc(&d_buf_, words * sizeof(std::uint32_t)), "cudaMalloc")) {
             d_buf_ = nullptr;
             d_words_ = 0;
+            cpuFallback();
             return;
         }
         d_words_ = words;
@@ -164,11 +179,19 @@ void GCudaRNG::generate(result_type *dst, std::size_t n) {
     auto stream = static_cast<cudaStream_t>(stream_);
     if (!checkCurand(curandGenerate(static_cast<curandGenerator_t>(gen_),
                                     static_cast<unsigned int *>(d_buf_), words),
-                     "curandGenerate")) return;
+                     "curandGenerate")) {
+        cpuFallback();
+        return;
+    }
     if (!checkCuda(cudaMemcpyAsync(dst, d_buf_, words * sizeof(std::uint32_t),
                                    cudaMemcpyDeviceToHost, stream),
-                   "cudaMemcpyAsync")) return;
-    checkCuda(cudaStreamSynchronize(stream), "cudaStreamSynchronize");
+                   "cudaMemcpyAsync")) {
+        cpuFallback();
+        return;
+    }
+    if (!checkCuda(cudaStreamSynchronize(stream), "cudaStreamSynchronize")) {
+        cpuFallback();
+    }
 }
 
 } /* namespace Gem::Hap */
