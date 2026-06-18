@@ -154,6 +154,8 @@ public:
      * @param adapt_ad_prob The self-adaption strength applied to ad_prob (default 0, i.e. fixed)
      * @param adaption_threshold The number of calls after which sigmas are self-adapted (default 1)
      * @param mode The adaption mode (default WITHPROBABILITY)
+     * @param min_ad_prob The lower clamp for ad_prob during self-adaption (default 0)
+     * @param max_ad_prob The upper clamp for ad_prob during self-adaption (default 1)
      * @return A reference to this handle, for fluent chaining
      */
     GroupConfigHandle &biGauss(
@@ -173,7 +175,9 @@ public:
         bool use_symmetric_sigmas = false,
         adfp adapt_ad_prob = adfp(0),
         std::uint32_t adaption_threshold = 1,
-        adaptionMode mode = adaptionMode::WITHPROBABILITY
+        adaptionMode mode = adaptionMode::WITHPROBABILITY,
+        adfp min_ad_prob = adfp(0),
+        adfp max_ad_prob = adfp(1)
     ) {
         static_assert(std::is_floating_point_v<T>, "biGauss() is only available for floating point groups");
         for(GroupSpec<T> *g : groups_) {
@@ -191,8 +195,8 @@ public:
             g->bigauss.max_sigma2 = max_sigma2;
             g->bigauss.min_delta = min_delta;
             g->bigauss.max_delta = max_delta;
-            g->bigauss.min_ad_prob = adfp(0);
-            g->bigauss.max_ad_prob = adfp(1);
+            g->bigauss.min_ad_prob = min_ad_prob;
+            g->bigauss.max_ad_prob = max_ad_prob;
             g->bigauss.adapt_ad_prob = adapt_ad_prob;
             g->bigauss.adaption_threshold = adaption_threshold;
             g->bigauss.use_symmetric_sigmas = use_symmetric_sigmas;

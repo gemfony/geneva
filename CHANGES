@@ -525,6 +525,19 @@ Recommended Versions:
   -> response bytes) shared by the request/response transports (Asio, websocket); the
   MPI server keeps its own split receive/send structure and reuses serveWorkItem().
 
+- Fixed: the MPI consumer ignored its command-line options. The mpi_asyncReq /
+  mpi_nHandlerThreads / mpi_cleanSessInterval / mpi_serializationMode options were
+  registered (accepted) but never read back or forwarded -- the consumer always used
+  its built-in defaults. They are now threaded through ConsumerSpec into the
+  MPIConsumerConfig (mpi_nHandlerThreads == 0 still means hardware concurrency; the
+  mpi_cleanSessInterval default was aligned to the consumer's own 1000 ms so the
+  default behaviour is unchanged).
+
+- The bi-gaussian adaptor configuration (GAdaptionConfig::biGauss) gained the optional
+  min_ad_prob / max_ad_prob clamp parameters (default [0, 1]) that the single-gaussian
+  gauss() already exposed; previously biGauss hardcoded the [0, 1] ad_prob clamp with
+  no way to override it. Additive -- existing biGauss() calls are unchanged.
+
 - Single source of truth for each polymorphic class's local data members: a
   new localMembers() declaration (a tuple of named member references) from which
   load_(), compare_() and -- for the symmetric-serialization classes validated
