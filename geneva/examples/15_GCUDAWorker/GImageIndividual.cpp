@@ -242,11 +242,10 @@ gen::GenomeData GImageIndividual::buildGenome(const Config &c) {
 /******************************************************************************/
 /**
 	 * Per-object post-config hook. The factory installs the shared, structure-only genome (above) on the
-	 * produced individual; this then sets the individual's local members, randomly initialises the ACTIVE
-	 * parameters within their bounds (inactive frozen-alpha / frozen-background groups keep their seeds),
-	 * and authors the OA-owned adaption config from the labelled genome: the location adaptor on the "loc"
-	 * (centre) groups and the main adaptor on every "main" group. The frozen alpha / background groups are
-	 * labelled "main" too but were built adaptionMode::NEVER (inactive), so the adaption kernel skips them.
+	 * produced individual; this then sets the individual's local members and randomly initialises the
+	 * ACTIVE parameters within their bounds (inactive frozen-alpha / frozen-background groups keep their
+	 * seeds). The Gauss adaption config is NOT stored on the individual -- it is authored separately by
+	 * buildAdaptionConfig() and owned by the optimization algorithm.
 	 */
 void GImageIndividual::applyConfig(GImageIndividual &ind, const Config &c) {
     ind.nTriangles_ = c.n_triangles;
@@ -255,17 +254,33 @@ void GImageIndividual::applyConfig(GImageIndividual &ind, const Config &c) {
     ind.changeBGColor_ = c.change_bg_color;
 
     ind.randomInit(activityMode::ACTIVEONLY);
+}
 
+/******************************************************************************/
+/**
+	 * Builds the OA-owned adaption configuration for a genome produced by this factory: the location
+	 * adaptor on the "loc" (centre) groups and the main adaptor on every "main" group, authored from the
+	 * labelled genome layout. The frozen alpha / background groups are labelled "main" too but were built
+	 * adaptionMode::NEVER (inactive), so the adaption kernel skips them. The adaptor settings come from the
+	 * Config and live solely on the returned (OA-owned) config -- none of them reside on the individual.
+	 *
+	 * @param sample A sample flat genome whose labelled group structure the config mirrors
+	 * @param c The Config supplying the main / location Gauss adaptor parameters
+	 * @return A shared pointer to the populated OA-owned adaption config
+	 */
+std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+GImageIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
-    ind.adaption_config_ = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(ind);
-    ind.adaption_config_->forLabel("loc").gauss(
+    auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
+    cfg->forLabel("loc").gauss(
         c.loc_sigma, c.loc_sigma_sigma, c.loc_min_sigma, c.loc_max_sigma, c.loc_ad_prob,
         c.loc_adapt_ad_prob, 1, adaptionMode::WITHPROBABILITY, c.loc_min_ad_prob, c.loc_max_ad_prob
     );
-    ind.adaption_config_->forLabel("main").gauss(
+    cfg->forLabel("main").gauss(
         c.sigma, c.sigma_sigma, c.min_sigma, c.max_sigma, c.ad_prob, c.adapt_ad_prob, 1,
         adaptionMode::WITHPROBABILITY, c.min_ad_prob, c.max_ad_prob
     );
+    return cfg;
 }
 
 /** @brief Allows an external entity to set our fitness */
@@ -405,10 +420,6 @@ void GImageIndividual::load_(const gen::GOptimizableEntity *cp) {
 
     // Load local data
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
-
-    // Documented manual tail: adaption_config_ is a transient pointer to the
-    // OA-owned adaption configuration (not serialized, not compared); share it.
-    adaption_config_ = p_load->adaption_config_; // share the OA-owned config (transient, read-only)
 }
 
 /******************************************************************************/
@@ -449,14 +460,10 @@ double GImageIndividual::fitnessCalculation() {
 bool GImageIndividual::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 
-    // Call the parent classes' functions
+    // Call the parent classes' functions. This already random-initialises every genome parameter, so
+    // the object is changed. The Gauss adaptor configuration is OA-owned and not exercised here (the
+    // individual carries no adaptor data).
     gen::GFlatGenome::modify_GUnitTests();
-
-    // Change the parameter settings. The adaption state + logic are OA-owned; a standalone
-    // individual drives them via a self-owned scratch + the config it authored in init() (StandaloneAdapter).
-    if(adaption_config_) {
-        Gem::Geneva::OptimizationAlgorithms::StandaloneAdapter(*this, adaption_config_).adapt(*this);
-    }
 
     return true;
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

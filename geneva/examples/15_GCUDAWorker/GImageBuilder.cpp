@@ -139,8 +139,8 @@ int main(int argc, char **argv) {
     go.push_back(initial);
 
     // The genome carries only structure; its main + location Gauss adaptors live on an OA-owned config the
-    // individual authored in applyConfig(). Register it for the evolutionary algorithm.
-    go.registerAdaptionConfig("PERSONALITY_EA", initial->getAdaptionConfig());
+    // factory authors from the configuration. Register it for the evolutionary algorithm.
+    go.registerAdaptionConfig("PERSONALITY_EA", f.getAdaptionConfig(*initial));
 
     // ---- create an evolutionary algorithm (broker mode) and run it ----------------------------
     oa::GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json");

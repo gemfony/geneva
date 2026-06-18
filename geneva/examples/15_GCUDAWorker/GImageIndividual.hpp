@@ -144,11 +144,6 @@ class GImageIndividual final : public gen::GFlatGenome {
     /**
      * @brief Single declaration of this class'es local data members
      * @return A tuple of named member references driving serialize(), load_() and compare_()
-     *
-     * adaption_config_ is intentionally NOT part of this tuple: it is a transient
-     * pointer to the optimization-algorithm-owned adaption configuration (shared,
-     * not owned, not adapted on a worker), so it is neither serialized nor compared
-     * and is shallow-shared in load_() (see the documented tail there).
      */
     auto localMembers() {
         return std::make_tuple(
@@ -201,8 +196,9 @@ public:
     //---------------------------------------------------------------------------
     // GFlatIndividualFactory<GImageIndividual> hooks. Instead of a bespoke factory the individual supplies
     // the static hooks the generic factory needs: describeConfig (the configurable values), buildGenome
-    // (the labelled triangle + background genome structure) and applyConfig (the per-object members + the
-    // random init + the OA-owned main/location Gauss adaption config authored from the labelled genome).
+    // (the labelled triangle + background genome structure), applyConfig (the per-object members + the
+    // random init) and buildAdaptionConfig (the OA-owned main/location Gauss adaption config, authored
+    // from the labelled genome layout -- NOT stored on the individual).
 
     /** @brief All values formerly parsed by the bespoke GImageIndividualFactory. */
     struct Config {
@@ -241,9 +237,12 @@ public:
     /** @brief Builds the flat genome's labelled structure (per triangle: cx,cy,radius,3 angles,r,g,b,a,
      *  then 3 background colours), validating the configured ranges */
     static gen::GenomeData buildGenome(const Config &c);
-    /** @brief Per-object post-config hook: sets the local members, random-inits the active parameters and
-     *  authors the OA-owned main/location Gauss adaption config from the labelled genome */
+    /** @brief Per-object post-config hook: sets the local members and random-inits the active parameters */
     static void applyConfig(GImageIndividual &ind, const Config &c);
+    /** @brief The OA-owned main/location Gauss adaption config, authored from the labelled genome layout.
+     *  Authored from the Config -- no adaptor data resides on the individual. */
+    static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+    buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
 
     /** @brief Retrieves the number of triangles */
     std::size_t getNTriangles() const;
@@ -313,17 +312,6 @@ private:
     ///< Indicates whether the alpha-channel of triangle colors shall be mutated
     bool mutateAlphaChannel_{GII_DEF_MUTATE_ALPHA_CHANNEL};
 
-    /** @brief The OA-owned adaption config (the main + location Gauss adaptors), authored in init() onto
-     *  the labelled genome groups. Transient run/authoring data: not serialized, not compared; shared
-     *  through copy/clone so a standalone individual can drive its own adaption. */
-    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> adaption_config_;
-
-public:
-    /** @brief The OA-owned Gauss adaption config for this image's genome (location + main adaptors). */
-    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const {
-        return adaption_config_;
-    }
-
 protected:
     /** @brief Applies modifications to this object. */
     bool modify_GUnitTests_() override;
@@ -339,9 +327,9 @@ protected:
 /**
      * A factory for GImageIndividual objects. The bespoke factory has been replaced by the generic,
      * config-driven GFlatIndividualFactory; GImageIndividual supplies the static describeConfig /
-     * buildGenome / applyConfig hooks. The alias keeps existing call sites (ctor(path), get_as<>(),
-     * getAdaptionConfig() on the produced individual) compiling unchanged. The factory's former getters
-     * and adaptor-range setters were dead code (no external caller) and have been dropped.
+     * buildGenome / applyConfig / buildAdaptionConfig hooks. The alias keeps existing call sites
+     * (ctor(path), get_as<>(), and the factory's getAdaptionConfig(sample)) compiling unchanged. The
+     * factory's former getters and adaptor-range setters were dead code (no external caller) and dropped.
      */
 using GImageIndividualFactory = Gem::Geneva::Genome::GFlatIndividualFactory<GImageIndividual>;
 
