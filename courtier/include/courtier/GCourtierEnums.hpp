@@ -278,7 +278,10 @@ constexpr std::size_t DEFAULTMAXRESUBMISSIONS = 5;
 using ITERATION_COUNTER_TYPE = std::uint64_t;
 using RESUBMISSION_COUNTER_TYPE = std::size_t;
 using COLLECTION_POSITION_TYPE = std::size_t;
-using CORRELATION_ID_TYPE = std::uint32_t;
+// 64-bit so the networked consumer can pack a 48-bit, process-unique, never-wrapping batch id with a
+// 16-bit slot index (GNetworkedConsumerT). A wide batch id is what makes late-return routing safe when
+// many algorithms submit through one shared consumer: a stale return cannot alias a freshly-minted batch.
+using CORRELATION_ID_TYPE = std::uint64_t;
 
 /******************************************************************************/
 

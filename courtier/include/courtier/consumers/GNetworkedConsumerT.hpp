@@ -134,10 +134,10 @@ public:
      * GOptimizerExecutionPolicy reaper enables it via enableLateReturns() and drains it through
      * getLateReturns()/getOldWorkItems()). The buffer is bounded two ways: @p cap (max items held; 0 DISABLES buffering, the
      * default) and @p ttl_rounds (a held item is evicted after this many dispatch rounds). Each entry
-     * carries the dispatch-round "epoch" at which it was buffered; with ttl_rounds kept well below the
-     * batch_id wraparound (2^16) a buffered, retired batch_id cannot be re-minted while the entry is
-     * still alive, so the 16-bit on-wire batch_id needs no widening for the single-OA case. Evictions
-     * (cap or TTL) are counted (lateReturnDroppedCount()) and warned once -- never silently lost.
+     * carries the dispatch-round "epoch" at which it was buffered, used only for TTL eviction; the batch
+     * id is a 48-bit, process-wide, non-wrapping counter, so a retired batch id is never re-minted and a
+     * buffered late return can never be confused with a fresh batch. Evictions (cap or TTL) are counted
+     * (lateReturnDroppedCount()) and warned once -- never silently lost.
      *
      * IMPORTANT -- results-only returns are NOT buffered: a work item returned in the lightweight
      * results-only form (only its computed results travel; its input parameters are grafted back from
@@ -150,13 +150,12 @@ public:
      * transports / configurations that return full individuals.
      *
      * @param cap Maximum number of late items held; 0 disables buffering (the default)
-     * @param ttl_rounds A held item is evicted after this many dispatch rounds (clamped well below the batch_id wraparound)
+     * @param ttl_rounds A held item is evicted after this many dispatch rounds
      */
     void setLateReturnBuffer(std::size_t cap, std::uint64_t ttl_rounds) {
         std::lock_guard<std::mutex> lk(mtx_);
         late_buffer_cap_ = cap;
-        // Keep the TTL well under the batch_id wraparound so a live buffered id cannot alias a fresh one.
-        late_buffer_ttl_rounds_ = std::min<std::uint64_t>(ttl_rounds, (BATCH_MASK >> 2));
+        late_buffer_ttl_rounds_ = ttl_rounds;
     }
     /** @brief Number of late returns currently held in the buffer (reaped by the OA via getOldWorkItems()).
      *  @return The count of late items currently buffered */
@@ -450,15 +449,16 @@ protected:
 
 private:
     /***************************************************************************/
-    // The work item's correlation id (a uint32) carries the wire correlation token: the high 16 bits
-    // hold the batch_id (which active submitter's batch), the low 16 the slot index within it. NB:
-    // this bounds a single batch to 2^16 items (ample for any Geneva population) and the batch_id
-    // wraps every 2^16 dispatch rounds -- a harmless, astronomically unlikely aliasing, since a stale
-    // return only matters within a timeout window of its dispatch.
+    // The work item's correlation id (a uint64) carries the wire correlation token: the high 48 bits
+    // hold the batch_id (which submitter's batch), the low 16 the slot index within it. The batch_id is
+    // drawn from a single monotonic process-wide counter (next_batch_id_) on the shared consumer, so two
+    // concurrent submitters never collide; at 48 bits it does not wrap in any realistic run (2^48 dispatch
+    // rounds), which is what makes late-return routing safe -- a stale return can never alias a freshly
+    // minted batch. The slot field bounds a single batch to 2^16 items (ample for any Geneva population).
     using batch_key_t = Gem::Courtier::CORRELATION_ID_TYPE;
     static constexpr Gem::Courtier::CORRELATION_ID_TYPE SLOT_BITS = 16;
-    static constexpr Gem::Courtier::CORRELATION_ID_TYPE SLOT_MASK = (1u << SLOT_BITS) - 1u;
-    static constexpr Gem::Courtier::CORRELATION_ID_TYPE BATCH_MASK = 0xFFFFu;
+    static constexpr Gem::Courtier::CORRELATION_ID_TYPE SLOT_MASK = (1ull << SLOT_BITS) - 1ull;
+    static constexpr Gem::Courtier::CORRELATION_ID_TYPE BATCH_MASK = (1ull << 48) - 1ull;
 
     /** @brief Packs a batch_id and slot into the on-wire correlation id (batch in the high 16 bits, slot in the low 16).
      *  @param batch The batch id (masked to 16 bits)
@@ -675,11 +675,10 @@ private:
 
     // --- late-return buffer: a result that arrives after its batch finished/timed out
     //     is parked here instead of dropped, for a later getOldWorkItems() to reap. Bounded by cap +
-    //     TTL rounds. The per-entry epoch is the generation tag that, with ttl_rounds << the batch_id
-    //     wraparound (2^16), guarantees a buffered batch_id cannot alias a freshly-minted one before it
-    //     is evicted -- so the 16-bit on-wire batch_id needs no widening for the single-OA case.
-    //     Disabled by default (cap == 0); when enabled, the OA-side reaper (GOptimizerExecutionPolicy,
-    //     via enableLateReturns() / getOldWorkItems()) drains it. All access is under mtx_. ---
+    //     TTL rounds; the per-entry epoch is the dispatch-round tag used only for TTL eviction (the
+    //     48-bit batch id never wraps, so it is not an aliasing concern). Disabled by default (cap == 0);
+    //     when enabled, the OA-side reaper (GOptimizerExecutionPolicy, via enableLateReturns() /
+    //     getOldWorkItems()) drains it. All access is under mtx_. ---
     std::deque<std::pair<std::uint64_t, item_ptr>> late_returns_; ///< (epoch, item) FIFO of late arrivals
     std::uint64_t buffer_epoch_ = 0;            ///< Monotonic round counter (advances per retired batch)
     std::size_t late_buffer_cap_ = 0;           ///< Max buffered late items (0 = buffering disabled)
