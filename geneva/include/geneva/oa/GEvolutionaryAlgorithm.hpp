@@ -43,32 +43,132 @@
 #include "common/GExceptions.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GParChild.hpp"
 #include "geneva/oa/GTunableManifest.hpp"
 #include "geneva/oa/GOptimizationAlgorithmT.hpp"
 
 #ifdef GEM_TESTING
-
-#ifdef GEM_TESTING
 #include "geneva/individuals/GTestIndividual1.hpp"
-#endif /* GEM_TESTING */
-
 #endif /* GEM_TESTING */
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 /**
-     * The default sorting mode
-     */
+ * The default sorting mode (matches the classic EA)
+ */
 constexpr auto DEFAULTEASORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
-     * This is a specialization of the GParChildT<executor_type> class. The class adds
-     * an infrastructure for evolutionary algorithms.
-     */
+ * @brief The Geneva evolutionary algorithm ("ea"): a \f$(\mu,\lambda)\f$ / \f$(\mu+\lambda)\f$
+ * self-adaptive evolution strategy with a selectable step-size controller that repairs the classic
+ * σSA-ES's poor @e fine convergence in high dimension.
+ *
+ * @details
+ * This is the canonical Geneva EA. It evolves a population through the standard generational loop on the
+ * GParChild spine and adds a @c stepControl strategy (read from the OA-owned GAdaptionConfig) selecting
+ * @e how the mutation step size \f$\sigma\f$ is controlled. The legacy (pre-adaptive) EA is exactly the
+ * \c SELF_ADAPT mode; the other controllers are opt-in improvements.
+ *
+ * @par Generational loop
+ * With \f$\mu\f$ parents and \f$\lambda\f$ offspring (population size \f$\lambda\f$, @c n_parents
+ * \f$=\mu\f$), each generation performs:
+ * -# @b Recombination — every child is filled from the parents under the chosen duplication scheme
+ *    (default / random / value-weighted-by-rank); the base scheme copies one parent's whole slot (genome
+ *    and its \f$\sigma\f$ scratch) into each child.
+ * -# @b Mutation — each child's genome is perturbed coordinate-wise and its per-individual \f$\sigma\f$
+ *    self-adapts (below).
+ * -# @b Evaluation — the whole offspring set is submitted to the single process consumer and scored.
+ * -# @b Selection — the population is ranked under one of the \c sortingMode schemes and the best
+ *    \f$\mu\f$ become the next parents.
+ *
+ * @par Selection schemes (\c sortingMode)
+ * \c MUPLUSNU_SINGLEEVAL (elitist \f$\mu+\lambda\f$: parents compete with their children),
+ * \c MUCOMMANU_SINGLEEVAL (non-elitist \f$\mu,\lambda\f$: parents are discarded — the default, and the
+ * theoretically correct pairing for mutative \f$\sigma\f$ self-adaption), \c MUNU1PRETAIN_SINGLEEVAL
+ * (comma selection, but the single best parent is retained), and the two multi-objective variants
+ * \c MUPLUSNU_PARETO / \c MUCOMMANU_PARETO (non-dominated ranking).
+ *
+ * @par Mutation and classic step-size self-adaption (σSA)
+ * Each coordinate \f$x_j\f$ of a child is perturbed, with per-group probability \f$p_{\mathrm{ad}}\f$, by
+ * an isotropic Gaussian scaled by that parameter's range \f$r\f$, and \f$\sigma\f$ itself self-adapts
+ * log-normally with learning rate \f$\tau\f$ (the config's @c sigma_sigma):
+ * \f[
+ *   x_j \leftarrow x_j + r\,\sigma\,\mathcal{N}(0,1),
+ *   \qquad
+ *   \sigma \leftarrow \sigma\,\exp\!\bigl(\tau\,\mathcal{N}(0,1)\bigr).
+ * \f]
+ *
+ * @par Why a controller is needed (motivation)
+ * Classic σSA uses a @e fixed \f$\tau\f$ (default 0.8) never scaled by the dimension \f$n\f$, whereas
+ * self-adaptive-ES theory prescribes \f$\tau\propto 1/\sqrt{2n}\f$:
+ * \f[
+ *   \begin{array}{c|ccc}
+ *     n & 10 & 10^{3} & 10^{4}\\\hline
+ *     1/\sqrt{2n} & 0.22 & 0.022 & 0.007\\
+ *     \text{fixed }\tau & 0.8 & 0.8 & 0.8
+ *   \end{array}
+ * \f]
+ * At \f$n=10^{4}\f$ the fixed rate is \f$\sim\!100\times\f$ too large, so near the optimum the over-hot
+ * log-normal update random-walks \f$\sigma\f$ instead of letting it settle and fine convergence stalls.
+ *
+ * @par Step-control modes (selected on the GAdaptionConfig)
+ * - @b SELF_ADAPT — the classic σSA above, unchanged; reproduces the legacy EA bit-for-bit.
+ * - @b SELF_ADAPT_SCALED @e (default) — the same log-normal rule with the textbook dimension-scaled rate
+ *   \f[
+ *     \tau=\frac{c}{\sqrt{2n}}\ \text{(one shared }\sigma\text{)},
+ *     \qquad
+ *     \tau'=\frac{c}{\sqrt{2\sqrt{n}}}\ \text{(per-coordinate }\sigma\text{)},
+ *   \f]
+ *   for the user constant \f$c=\,\f$@c learning_rate_c (default 1). (Schwefel 1981; Beyer & Schwefel 2002.)
+ * - @b ONE_FIFTH — Rechenberg's \f$1/5\f$ success rule on a single global \f$\sigma\f$. With
+ *   \f$p_{\mathrm{succ}}\f$ the fraction of the \f$\mu\f$ survivors that improved on the previous
+ *   generation's best, and damping \f$d=0.2\f$,
+ *   \f[ \sigma \leftarrow \sigma\,\exp\!\Bigl(\tfrac{p_{\mathrm{succ}}-1/5}{1+d}\Bigr). \f]
+ *   (Rechenberg 1973.)
+ * - @b CSA — a scalar cumulative step-size adaptation: an evolution-path proxy \f$p_\sigma\f$ accumulates
+ *   the normalised success-rate deviation \f$s=(p_{\mathrm{succ}}-1/5)/(1-1/5)\f$ from the \f$1/5\f$
+ *   target, with cumulation constant \f$c_\sigma=1/(1+\sqrt{n}/4)\f$:
+ *   \f[
+ *     p_\sigma \leftarrow (1-c_\sigma)\,p_\sigma + \sqrt{c_\sigma(2-c_\sigma)}\;s,
+ *     \qquad
+ *     \sigma \leftarrow \sigma\,\exp(0.3\,p_\sigma),
+ *   \f]
+ *   with \f$\sigma\f$ clamped to \f$[10^{-12},10]\f$. (The scalar analogue of the vector evolution-path
+ *   step control of Hansen & Ostermeier 2001 — the same principle used at covariance level 0 in
+ *   GSepCmaEvolutionStrategy.)
+ *
+ * @par Intermediate recombination of \f$\sigma\f$
+ * For the per-individual-\f$\sigma\f$ modes (SELF_ADAPT / SELF_ADAPT_SCALED), when @c recombine_sigma is
+ * set, every child's \f$\sigma\f$ is replaced after recombination by the mean of the \f$\mu\f$ parents'
+ * \f$\sigma\f$,
+ * \f[ \sigma_{\text{child}} \leftarrow \frac{1}{\mu}\sum_{i=1}^{\mu}\sigma_i, \f]
+ * the standard σSA variance-reducing stabiliser that the classic GParChild::recombine (values only) omits.
+ * It is a no-op for the global-\f$\sigma\f$ modes (every slot already shares one \f$\sigma\f$).
+ *
+ * @par Reproducing the legacy (pre-adaptive) EA exactly
+ * Set @c stepControl = @c SELF_ADAPT and @c recombine_sigma = @c false, leaving the remaining EA settings
+ * (@c size, @c n_parents, @c sorting_method, @c max_iteration) and the adaption config (@c sigma,
+ * @c min/max_sigma, @c sigma_sigma, @c ad_prob, …) at the legacy values. Verified by code cross-check:
+ * every step then performs the identical operations and consumes the RNG in the identical order, so the
+ * results match the old EA up to the (non-deterministic) seed.
+ *
+ * @note Clean-room implementation from the published methods (the equations above); no third-party
+ * optimizer source was consulted.
+ *
+ * @par References
+ * - I. Rechenberg, "Evolutionsstrategie: Optimierung technischer Systeme nach Prinzipien der biologischen
+ *   Evolution", Frommann-Holzboog, 1973 (the \f$1/5\f$ success rule).
+ * - H.-P. Schwefel, "Numerical Optimization of Computer Models", Wiley, 1981 (mutative \f$\sigma\f$
+ *   self-adaptation; the \f$1/\sqrt{2n}\f$ learning rate).
+ * - H.-G. Beyer, H.-P. Schwefel, "Evolution Strategies: A Comprehensive Introduction", Natural Computing
+ *   1(1):3-52, 2002.
+ * - N. Hansen, A. Ostermeier, "Completely Derandomized Self-Adaptation in Evolution Strategies",
+ *   Evolutionary Computation 9(2):159-195, 2001 (cumulative step-size adaptation).
+ */
 class GEvolutionaryAlgorithm // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmT<GEvolutionaryAlgorithm, GParChild> {
 public:
@@ -84,12 +184,18 @@ private:
     /** @brief Single declaration of this class'es local data members */
     auto localMembers() {
         return std::make_tuple(
-            Gem::Common::make_member("sorting_mode_", sorting_mode_)
+            Gem::Common::make_member("sorting_mode_", sorting_mode_),
+            Gem::Common::make_member("step_control_", step_control_),
+            Gem::Common::make_member("learning_rate_c_", learning_rate_c_),
+            Gem::Common::make_member("recombine_sigma_", recombine_sigma_)
         );
     }
     auto localMembers() const {
         return std::make_tuple(
-            Gem::Common::make_member("sorting_mode_", sorting_mode_)
+            Gem::Common::make_member("sorting_mode_", sorting_mode_),
+            Gem::Common::make_member("step_control_", step_control_),
+            Gem::Common::make_member("learning_rate_c_", learning_rate_c_),
+            Gem::Common::make_member("recombine_sigma_", recombine_sigma_)
         );
     }
 
@@ -98,8 +204,6 @@ private:
         using boost::serialization::make_nvp;
 
         ar &make_nvp("GParChild", boost::serialization::base_object<GParChild>(*this));
-        // Member list derived from the single localMembers() declaration (same NVP
-        // names/order as the previous explicit list).
         Gem::Common::serialize_members(ar, this->localMembers());
     }
 
@@ -109,69 +213,56 @@ public:
     /***************************************************************************/
     /** @brief The default constructor */
     GEvolutionaryAlgorithm();
-    /**
-     * @brief A standard copy constructor.
-     * @param The object to be copied
-     */
+    /** @brief A standard copy constructor. @param The object to be copied */
     GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm &) = default;
     /** @brief The standard destructor */
     ~GEvolutionaryAlgorithm() override = default;
 
-    /**
-     * @brief Sets the sorting scheme.
-     * @param smode The selection/sorting scheme to use (e.g. mu+nu, mu,nu, munu1pretain)
-     */
+    /** @brief Sets the sorting scheme. @param smode The selection/sorting scheme to use */
     void setSortingScheme(sortingMode smode);
-    /**
-     * @brief Retrieves information about the current sorting scheme.
-     * @return The currently configured sorting/selection scheme
-     */
+    /** @brief Retrieves the current sorting scheme. @return The currently configured sorting scheme */
     sortingMode getSortingScheme() const;
 
-    /**
-     * @brief Extracts all individuals on the pareto front.
-     * @param pareto_inds Output vector that, on return, is filled with the individuals currently tagged as lying on the pareto front
-     */
+    /** @brief Sets the step-size-control strategy. The default is SELF_ADAPT_SCALED.
+     *  @param sc The strategy (SELF_ADAPT, SELF_ADAPT_SCALED, ONE_FIFTH or CSA) */
+    void setStepControl(stepControl sc);
+    /** @brief Retrieves the step-size-control strategy. @return The configured strategy. */
+    stepControl getStepControl() const;
+
+    /** @brief Sets the learning-rate constant c for SELF_ADAPT_SCALED (tau = c/sqrt(2n)).
+     *  @param c The constant (≈1 by convention). */
+    void setLearningRateConstant(double c);
+    /** @brief Retrieves the learning-rate constant c. @return The configured constant. */
+    double getLearningRateConstant() const;
+
+    /** @brief Enables/disables intermediate recombination of the per-individual sigma.
+     *  @param r true to average parents' sigma into children after recombination. */
+    void setSigmaRecombination(bool r);
+    /** @brief Whether intermediate sigma-recombination is enabled. @return true if enabled. */
+    bool getSigmaRecombination() const;
+
+    /** @brief Extracts all individuals on the pareto front.
+     *  @param pareto_inds Output vector filled with the individuals currently tagged as on the front */
     void extractCurrentParetoIndividuals(
         std::vector<std::shared_ptr<gen::GOptimizableEntity>> &pareto_inds
     );
 
-    /**
-     * @brief The knobs a meta-optimizer may tune on an evolutionary algorithm, with default search
-     * ranges. This is the single source of truth for which parameters exist, which value channel carries
-     * each, and in what order -- a meta-optimizer builds its search genome from it (one labelled group
-     * per descriptor) and reads values back by name, so no hand-maintained index can drift.
-     * @return The ordered list of tunable parameters (population, cross-over, sigma / ad_prob knobs)
-     */
+    /** @brief The knobs a meta-optimizer may tune. @return The ordered list of tunable parameters. */
     static std::vector<TunableParam> tunableManifest();
 
-    /**
-     * @brief Requests INLINE evaluation: the population is evaluated in the calling thread (each item's
-     * process() run directly), bypassing the process-wide work consumer. Needed for a nested refinement
-     * EA (e.g. the post-optimizer) that itself runs inside an individual's process() -- on a consumer
-     * worker or a remote client -- where submitting to that same consumer would re-enter it or find none.
-     * Transient execution choice (not serialized).
-     * @param inln true to evaluate inline in the calling thread; false (default) to use the work consumer
-     */
+    /** @brief Requests INLINE evaluation (see GEvolutionaryAlgorithm). @param inln true to evaluate inline */
     void setInlineEvaluation(bool inln) { inline_evaluation_ = inln; }
-    /** @brief Whether inline (in-thread) evaluation is enabled.
-     *  @return true if the population is evaluated inline rather than through the work consumer */
+    /** @brief Whether inline (in-thread) evaluation is enabled. @return true if inline */
     [[nodiscard]] bool getInlineEvaluation() const { return inline_evaluation_; }
 
 protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
-    /**
-     * @brief Adds local configuration options to a GParserBuilder object.
-     * @param gpb The parser-builder to which this algorithm's configuration options are added
-     */
+    /** @brief Adds local configuration options. @param gpb The parser-builder */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
-    /**
-     * @brief Loads the data of another GEvolutionaryAlgorithm object.
-     * @param cp A pointer to the other object whose data is loaded into this one (downcast from GOptimizationAlgorithmBase)
-     */
+    /** @brief Loads the data of another GEvolutionaryAlgorithm. @param cp The other object */
     void load_(const GOptimizationAlgorithmBase *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -181,111 +272,82 @@ protected:
         Gem::Common::GToken &
     );
 
-    /**
-     * @brief Searches for compliance with expectations with respect to another object of the same type.
-     * @param cp The other object to compare against (downcast from GOptimizationAlgorithmBase)
-     * @param e The expectation for this object, e.g. equality
-     * @param limit The limit for allowed deviations of floating point types
-     */
+    /** @brief Searches for compliance with expectations. @param cp other @param e expectation @param limit fp limit */
     void compare_(
-        const GOptimizationAlgorithmBase &cp // the other object
-        ,
-        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
-        ,
-        const double &limit // the limit for allowed deviations of floating point types
+        const GOptimizationAlgorithmBase &cp,
+        const Gem::Common::expectation &e,
+        const double &limit
     ) const override;
 
-    /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
+    /** @brief Resets the settings to what was configured at the optimize()-call */
     void resetToOptimizationStart_() override;
+
+    /** @brief Performs initialization work before the optimization loop starts (installs the step controller). */
+    void init() override;
+
+    /** @brief Recombination + (optionally) intermediate sigma-recombination of children. */
+    void recombine() override;
 
     /** @brief Applies modifications to this object */
     bool modify_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    /** @brief Performs self tests that are expected to succeed */
     void specificTestsNoFailureExpected_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    /** @brief Performs self tests that are expected to fail */
     void specificTestsFailuresExpected_GUnitTests_() override;
 
     /***************************************************************************/
 
 private:
     /***************************************************************************/
-    // Overloaded or virtual base functions
-
-    // name_(), clone_(), getAlgorithmName_() and getAlgorithmPersonalityType_() are generated by the
-    // GOptimizationAlgorithmT scaffold from the oa_* identifiers above. (The GUnitTests methods are
-    // overridden below, since EA has real algorithm-specific tests.)
+    // Overloaded or virtual base functions (mirror GEvolutionaryAlgorithm).
 
     /** @brief We submit individuals to the broker connector and wait for processed items */
     void runFitnessCalculation_() override;
 
-    /**
-     * @brief Evaluates the population's [start, end) range and returns the executor status. The default
-     * routes through the process's work consumer (workOnPopulation); a subclass may override this to
-     * evaluate elsewhere (e.g. GMetaEvolutionaryAlgorithm runs its umbrella-individuals on its own
-     * orchestration thread pool, leaving the work consumer to the sub-optimizations they spawn).
-     * @param start First population index to evaluate (inclusive)
-     * @param end One past the last population index to evaluate
-     * @return The executor status (completeness + error flags) for the evaluated range
-     */
+    /** @brief Evaluates the population's [start, end) range and returns the executor status. */
     virtual Gem::Courtier::executor_status_t
     evaluatePopulationRange_(std::size_t start, std::size_t end);
 
-    /**
-     * @brief Adds the individuals of this iteration to a priority queue holding the global bests.
-     * @param best_individuals The fixed-size priority queue of global best individuals to update
-     */
+    /** @brief Adds the iteration's individuals to the global-best priority queue. */
     void updateGlobalBestsPQ_(gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals) override;
-    /**
-     * @brief Adds the individuals of this iteration to a priority queue holding this iteration's bests.
-     * @param best_individuals The fixed-size priority queue of this iteration's best individuals to update
-     */
+    /** @brief Adds the iteration's individuals to this iteration's best priority queue. */
     void updateIterationBestsPQ_(gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals) override;
 
-    /**
-     * @brief Retrieve a GPersonalityTraits object belonging to this algorithm.
-     * @return A shared pointer to a freshly created personality-traits object for this algorithm
-     */
+    /** @brief Retrieve a personality-traits object belonging to this algorithm. */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
 
-    /** @brief Choose new parents, based on the selection scheme set by the user */
+    /** @brief Choose new parents, based on the selection scheme set by the user (then drive the controller). */
     void selectBest_() override;
 
     /** @brief Some error checks related to population sizes */
     void populationSanityChecks_() const override;
-    /**
-     * @brief Retrieves the evaluation range in a given iteration and sorting scheme.
-     * @return A tuple holding the [start, end) index range of individuals that need to be (re-)evaluated
-     */
+    /** @brief Retrieves the evaluation range in a given iteration and sorting scheme. */
     std::tuple<std::size_t, std::size_t> getEvaluationRange_() const override;
 
     /***************************************************************************/
+    // Step-control machinery (the addition over GEvolutionaryAlgorithm).
 
-    /** @brief Selection, MUPLUSNU_SINGLEEVAL style */
+    /** @brief Installs the step-size controller onto the OA-owned adaption config at init() (rescales /
+     *  suppresses self-adaption per the chosen mode) and seeds the controller's global-sigma state. */
+    void installStepController();
+    /** @brief Drives the global-sigma controller (ONE_FIFTH / CSA) once per generation after selection,
+     *  then pushes the updated global sigma into every population slot's scratch. A no-op for the
+     *  self-adaptive modes. */
+    void driveGlobalSigmaController();
+
+    /***************************************************************************/
+    // Selection helpers (verbatim from GEvolutionaryAlgorithm so all five sorting modes work, Pareto incl.).
+
     void sortMuPlusNuMode();
-    /** @brief Selection, MUCOMMANU_SINGLEEVAL style */
     void sortMuCommaNuMode();
-    /** @brief Selection, MUNU1PRETAIN_SINGLEEVAL style */
     void sortMunu1pretainMode();
-
-    /** @brief Selection according to the pareto tag, also taking into account the parents of a population (i.e. in MUPLUSNU mode). */
     void sortMuPlusNuParetoMode();
-    /** @brief Selection according to the pareto tag, not taking into account the parents of a population (i.e. in MUCOMMANU mode). */
     void sortMuCommaNuParetoMode();
-    /**
-     * @brief Determines whether the first individual dominates the second.
-     * @param a The first individual (the potential dominator)
-     * @param b The second individual (the potentially dominated one)
-     * @return true if individual a dominates individual b, false otherwise
-     */
     bool aDominatesB(
         const std::unique_ptr<gen::GOptimizableEntity> &a,
         const std::unique_ptr<gen::GOptimizableEntity> &b
     ) const;
 
-    /**
-     * @brief Fills the collection with individuals.
-     * @param n_individuals The number of individuals to add to the collection
-     */
     void fillWithObjects(const std::size_t &n_individuals);
 
     /***************************************************************************/
@@ -293,9 +355,24 @@ private:
 
     sortingMode sorting_mode_ = DEFAULTEASORTINGMODE; ///< The chosen sorting scheme
 
-    /** @brief Evaluate the population inline (in-thread) instead of via the work consumer. Transient
-     *  execution choice for nested refiners (see setInlineEvaluation()); not serialized/compared. */
+    /** @brief The step-size-control strategy applied to the adaption config (default SELF_ADAPT_SCALED). */
+    stepControl step_control_ = stepControl::SELF_ADAPT_SCALED;
+    /** @brief The learning-rate constant c for SELF_ADAPT_SCALED (tau = c/sqrt(2n)). */
+    double learning_rate_c_ = 1.;
+    /** @brief Whether to intermediate-recombine the per-individual sigma after recombination. */
+    bool recombine_sigma_ = true;
+
+    /** @brief Evaluate the population inline (transient; not serialized/compared). */
     bool inline_evaluation_ = false;
+
+    /***************************************************************************/
+    // Transient run scratch for the global-sigma controllers (ONE_FIFTH / CSA). NOT serialized / compared
+    // / part of localMembers(): rebuilt at init() from the seed sigma in the adaption config.
+    double global_sigma_ = 1.;       ///< the single global step size (ONE_FIFTH / CSA)
+    double p_sigma_ = 0.;            ///< the CSA evolution-path accumulator (scalar proxy)
+    double prev_best_fitness_ = 0.;  ///< the previous generation's best transformed (min-only) fitness
+    bool   have_prev_best_ = false;  ///< whether prev_best_fitness_ is meaningful yet
+    std::size_t controller_dim_ = 0; ///< the adapted dimension n the controller reasons about
 
     /***************************************************************************/
 };
@@ -303,18 +380,10 @@ private:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-/**
- * @brief Allows to output this population. The function only outputs the parent individuals' fitness.
- * @param os The output stream to write to
- * @param pop The evolutionary-algorithm population to stream
- * @return A reference to the output stream, for chaining
- */
+/** @brief Streams a summary of the parent individuals' fitness values. */
 std::ostream &operator<<(std::ostream &os, const GEvolutionaryAlgorithm &pop);
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 } /* namespace Gem::Geneva::OptimizationAlgorithms */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GEvolutionaryAlgorithm) // NOLINT
-

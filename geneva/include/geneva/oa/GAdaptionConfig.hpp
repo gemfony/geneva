@@ -72,7 +72,7 @@ using Gem::Geneva::Genome::GroupStructure;
  * The step-size control strategy an adapting algorithm applies on top of the per-group Gauss adaptors.
  * It is a property of the OA-owned adaption config so the same genome can be driven by different
  * controllers without touching the structure-only layout. The default reproduces the classic Geneva
- * behaviour bit-for-bit; the other modes are used by GAdaptiveEvolutionaryAlgorithm ("aea").
+ * behaviour bit-for-bit; the other modes are used by GEvolutionaryAlgorithm ("ea").
  *
  * - SELF_ADAPT        : classic mutative self-adaptive isotropic Gaussian (σSA). Each group's sigma
  *                       self-adapts log-normally with whatever sigma_sigma the user authored. This is
@@ -702,7 +702,7 @@ public:
     const std::vector<std::string> &labels() const { return labels_; }
 
     /***************************************************************************/
-    // Step-size-control strategy (used by GAdaptiveEvolutionaryAlgorithm; default reproduces the
+    // Step-size-control strategy (used by GEvolutionaryAlgorithm; default reproduces the
     // classic σSA behaviour, so the stock EA is unaffected).
 
     /** @brief Selects the step-size-control strategy applied on top of the per-group Gauss adaptors.

@@ -43,20 +43,13 @@
 namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-
-/******************************************************************************/
 /**
- * @brief Self-registration of this optimization-algorithm factory with the global
- * factory store at library-load time, so that Go2 needs no explicit
- * registration call. (Geneva is always built as a shared library, so these
- * load-time initializers are never stripped.)
+ * @brief Self-registration of this optimization-algorithm factory with the global factory store at
+ * library-load time, so Go2 needs no explicit registration call. (Geneva is always built as a shared
+ * library, so these load-time initializers are never stripped.)
  */
 namespace {
-GInitializerT<GEvolutionaryAlgorithmFactory> g_oaf_registrant;
+GInitializerT<GEvolutionaryAlgorithmFactory> g_eaa_oaf_registrant;
 } // anonymous namespace
 
 /******************************************************************************/

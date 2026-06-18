@@ -28,7 +28,7 @@
  ********************************************************************************/
 
 /**
- * Validation + head-to-head convergence checks for GAdaptiveEvolutionaryAlgorithm ("aea") vs the stock
+ * Validation + head-to-head convergence checks for the adaptive EA modes vs the legacy EA mode of
  * GEvolutionaryAlgorithm ("ea"). The headline test runs both on a HIGH-DIMENSIONAL sphere (the CPU proxy
  * for the GPU image benchmark) for the same budget and asserts the adaptive variant reaches a markedly
  * lower fitness -- precisely the fine-convergence-near-the-optimum behaviour the stock EA lacks at large
@@ -49,8 +49,7 @@
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
-#include "geneva/oa/GAdaptiveEvolutionaryAlgorithm.hpp"
-#include "geneva/oa/GAdaptiveEvolutionaryAlgorithmFactory.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
 
@@ -100,7 +99,9 @@ protected:
     }
 };
 
-/** @brief Runs a stock EA on the high-dim sphere for a fixed budget and returns the best fitness. */
+/** @brief Runs the EA in its LEGACY (pre-adaptive) mode -- the documented opt-in stepControl=SELF_ADAPT,
+ *  i.e. classic log-normal sigma self-adaption with no dimension scaling -- on the high-dim sphere for a
+ *  fixed budget and returns the best fitness. This reproduces the behaviour of the former stock EA. */
 template <std::size_t N>
 double runStockEA(std::size_t pop, std::size_t parents, std::size_t iterations) {
     auto p = std::make_shared<oa::GEvolutionaryAlgorithm>();
@@ -108,6 +109,7 @@ double runStockEA(std::size_t pop, std::size_t parents, std::size_t iterations) 
     p->setMaxIteration(iterations);
     p->setMaxStallIteration(0);
     p->setReportIteration(100000);
+    p->setStepControl(stepControl::SELF_ADAPT); // legacy fixed-sigma-self-adaption behaviour
     HighDimSphere<N> src;
     p->push_back(src.clone_unique());
     p->setAdaptionConfig(src.buildAdaptionConfig());
@@ -123,11 +125,11 @@ double runStockEA(std::size_t pop, std::size_t parents, std::size_t iterations) 
     return s;
 }
 
-/** @brief Runs the adaptive EA (aea) on the high-dim sphere for a fixed budget and returns the best
+/** @brief Runs the EA (selectable step controller) on the high-dim sphere for a fixed budget and returns the best
  *  fitness. The step controller is selectable. */
 template <std::size_t N>
 double runAdaptiveEA(std::size_t pop, std::size_t parents, std::size_t iterations, stepControl sc) {
-    auto p = std::make_shared<oa::GAdaptiveEvolutionaryAlgorithm>();
+    auto p = std::make_shared<oa::GEvolutionaryAlgorithm>();
     p->setPopulationSizes(pop, parents);
     p->setMaxIteration(iterations);
     p->setMaxStallIteration(0);
@@ -152,32 +154,32 @@ double runAdaptiveEA(std::size_t pop, std::size_t parents, std::size_t iteration
 
 /******************************************************************************/
 
-TEST_CASE("aea optimizes a flat individual (basic)", "[aea][oa]") {
+TEST_CASE("ea optimizes a flat individual (basic)", "[ea][oa]") {
     const double f = runAdaptiveEA<5>(18, 6, 120, stepControl::SELF_ADAPT_SCALED);
     CHECK(f < 5.0); // converges from the f = 5*4 = 20 start
 }
 
 /******************************************************************************/
 
-TEST_CASE("aea default step control is SELF_ADAPT_SCALED", "[aea][oa]") {
-    auto p = std::make_shared<oa::GAdaptiveEvolutionaryAlgorithm>();
+TEST_CASE("ea default step control is SELF_ADAPT_SCALED", "[ea][oa]") {
+    auto p = std::make_shared<oa::GEvolutionaryAlgorithm>();
     CHECK(p->getStepControl() == stepControl::SELF_ADAPT_SCALED);
 }
 
 /******************************************************************************/
 
-TEST_CASE("aea self-registers its mnemonic in the OA factory store", "[aea][oa]") {
-    // The factory's GInitializerT registrant runs at library load and inserts the "aea" mnemonic into
+TEST_CASE("ea self-registers its mnemonic in the OA factory store", "[ea][oa]") {
+    // The factory's GInitializerT registrant runs at library load and inserts the "ea" mnemonic into
     // the global store, so Go2 / the examples can select it by name (just like "ea"). Touch the factory
     // type so the translation unit (and hence the registrant) is linked in this build.
-    (void)oa::GAdaptiveEvolutionaryAlgorithmFactory{};
-    CHECK(oaFactoryStore()->exists("aea"));
+    (void)oa::GEvolutionaryAlgorithmFactory{};
+    CHECK(oaFactoryStore()->exists("ea"));
 }
 
 /******************************************************************************/
 
-TEST_CASE("aea SELF_ADAPT mode reproduces the classic algorithm, SCALED beats it", "[aea][oa]") {
-    // With stepControl=SELF_ADAPT, aea IS the classic algorithm (no dimension scaling); with the same
+TEST_CASE("ea SELF_ADAPT mode reproduces the classic algorithm, SCALED beats it", "[ea][oa]") {
+    // With stepControl=SELF_ADAPT, the EA IS the classic algorithm (no dimension scaling); with the same
     // budget + config the dimension-scaled default must do at least as well -- demonstrating the scaling
     // is the lever. f start = 20*4 = 80.
     const double f_self = runAdaptiveEA<20>(40, 10, 200, stepControl::SELF_ADAPT);
@@ -189,12 +191,12 @@ TEST_CASE("aea SELF_ADAPT mode reproduces the classic algorithm, SCALED beats it
 
 /******************************************************************************/
 
-TEST_CASE("aea Pareto modes still work on a single-objective problem", "[aea][oa][pareto]") {
+TEST_CASE("ea Pareto modes still work on a single-objective problem", "[ea][oa][pareto]") {
     // Pareto comes from the EA base; verify both Pareto sorting modes compile + run (they degenerate to
     // single-eval on a single-criterion individual, which must still converge, not crash).
     for(auto mode :
         {Gem::Geneva::sortingMode::MUPLUSNU_PARETO, Gem::Geneva::sortingMode::MUCOMMANU_PARETO}) {
-        auto p = std::make_shared<oa::GAdaptiveEvolutionaryAlgorithm>();
+        auto p = std::make_shared<oa::GEvolutionaryAlgorithm>();
         p->setPopulationSizes(18, 6);
         p->setMaxIteration(120);
         p->setReportIteration(100000);
@@ -210,7 +212,7 @@ TEST_CASE("aea Pareto modes still work on a single-objective problem", "[aea][oa
 
 /******************************************************************************/
 
-TEST_CASE("aea ONE_FIFTH and CSA controllers converge", "[aea][oa]") {
+TEST_CASE("ea ONE_FIFTH and CSA controllers converge", "[ea][oa]") {
     const double f_one_fifth = runAdaptiveEA<20>(40, 10, 200, stepControl::ONE_FIFTH);
     CHECK(f_one_fifth < 20.0);
     const double f_csa = runAdaptiveEA<20>(40, 10, 200, stepControl::CSA);
@@ -219,10 +221,10 @@ TEST_CASE("aea ONE_FIFTH and CSA controllers converge", "[aea][oa]") {
 
 /******************************************************************************/
 
-TEST_CASE("aea out-converges the stock EA on a HIGH-DIM sphere", "[aea][oa][highdim]") {
+TEST_CASE("ea out-converges the stock EA on a HIGH-DIM sphere", "[ea][oa][highdim]") {
     // The headline comparison: at high n the stock EA's fixed sigma_sigma=0.8 is far too hot, so it
-    // random-walks sigma near the optimum and stalls. The dimension-scaled aea keeps converging. Same
-    // genome, same starting config, same budget -> aea must reach a markedly LOWER fitness.
+    // random-walks sigma near the optimum and stalls. The dimension-scaled EA keeps converging. Same
+    // genome, same starting config, same budget -> the scaled EA must reach a markedly LOWER fitness.
     constexpr std::size_t N = 1000;
     constexpr std::size_t pop = 30;
     constexpr std::size_t parents = 6;
@@ -234,9 +236,9 @@ TEST_CASE("aea out-converges the stock EA on a HIGH-DIM sphere", "[aea][oa][high
     const double f_one_fifth = runAdaptiveEA<N>(pop, parents, iters, stepControl::ONE_FIFTH);
 
     INFO("n=" << N << " budget=" << iters << " iters : stock ea f=" << f_ea
-              << "  aea(SELF_ADAPT_SCALED) f=" << f_scaled
-              << "  aea(CSA) f=" << f_csa
-              << "  aea(ONE_FIFTH) f=" << f_one_fifth);
+              << "  ea(SELF_ADAPT_SCALED) f=" << f_scaled
+              << "  ea(CSA) f=" << f_csa
+              << "  ea(ONE_FIFTH) f=" << f_one_fifth);
 
     // The default SELF_ADAPT_SCALED must reach a markedly lower fitness than the stock EA at high n
     // (the stock EA's fixed sigma_sigma=0.8 random-walks sigma and it makes essentially no progress).
@@ -249,14 +251,14 @@ TEST_CASE("aea out-converges the stock EA on a HIGH-DIM sphere", "[aea][oa][high
 
 /******************************************************************************/
 
-TEST_CASE("aea out-converges the stock EA at n=10000", "[aea][oa][highdim10k]") {
+TEST_CASE("ea out-converges the stock EA at n=10000", "[ea][oa][highdim10k]") {
     // The full-scale 10000-parameter case (the benchmark's dimension). Convergence speed scales ~1/n, so
     // the absolute drop over a modest budget is small, but the stock EA is FROZEN at the f=40000 start
-    // (its fixed sigma_sigma=0.8 instantly random-walks the shared sigma) while the dimension-scaled aea
+    // (its fixed sigma_sigma=0.8 instantly random-walks the shared sigma) while the dimension-scaled EA
     // keeps descending. Tagged separately so it can be skipped when time is tight.
     constexpr std::size_t N = 10000;
     const double f_ea = runStockEA<N>(20, 4, 300);
     const double f_scaled = runAdaptiveEA<N>(20, 4, 300, stepControl::SELF_ADAPT_SCALED);
-    INFO("n=10000 iters=300 : ea f=" << f_ea << "  aea(SCALED) f=" << f_scaled);
+    INFO("n=10000 iters=300 : ea f=" << f_ea << "  ea(SCALED) f=" << f_scaled);
     CHECK(f_scaled < f_ea);
 }

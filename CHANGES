@@ -78,7 +78,7 @@ Recommended Versions:
   unchanged.
 
 - ADDITIVE (opt-in): a new high-dimensional optimization algorithm,
-  GSepCmaEvolutionStrategy (mnemonic "eab"). It is a from-scratch CSA evolution
+  GSepCmaEvolutionStrategy (mnemonic "sepcma"). It is a from-scratch CSA evolution
   strategy with an optional separable (diagonal) covariance adaptation (sep-CMA-ES).
   Each generation it samples lambda offspring x = m + sigma * sqrt(C) o N(0,I) from a
   single search distribution it owns internally (mean m, global step sigma, diagonal
@@ -89,7 +89,7 @@ Recommended Versions:
   self-adaptive EA's per-individual sigma adaption stalls. It needs no adaption config
   (it carries no per-genome adaptors). A NSGA-II-style multi-objective selection mode
   (non-dominated sort + crowding distance) is available via setParetoMode(true).
-  Use it via the "eab" mnemonic or by constructing GSepCmaEvolutionStrategy directly.
+  Use it via the "sepcma" mnemonic or by constructing GSepCmaEvolutionStrategy directly.
 
 - boost::lexical_cast is no longer used anywhere in Geneva: enum <-> string
   conversion goes through the stream operators / Gem::Common::fromString<T>, and the
@@ -407,19 +407,19 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
-- A new optimization algorithm, GAdaptiveEvolutionaryAlgorithm (mnemonic "eaa"),
-  improves convergence near the optimum at high dimension. It is a drop-in twin of
-  the standard evolutionary algorithm (same selection / recombination machinery and
-  all five sorting modes, Pareto included) with a selectable step-size-control
-  strategy on the OA-owned adaption config: SELF_ADAPT (the classic behaviour),
-  SELF_ADAPT_SCALED (the default -- the sigma self-adaption rate is scaled by the
-  parameter count, tau = c/sqrt(2n), instead of the fixed rate the classic EA uses,
-  which is far too hot at large n), ONE_FIFTH (Rechenberg 1/5 success rule on a
-  single global sigma) and CSA (cumulative step-size adaptation). It also
-  intermediate-recombines the per-individual sigma. The classic
-  GEvolutionaryAlgorithm ("ea") is unchanged. On a 1000-parameter sphere over a
-  fixed budget the stock EA stalls at the starting fitness while "eaa" with the
-  default scaled controller reaches less than half of it.
+- The evolutionary algorithm GEvolutionaryAlgorithm ("ea") gained a selectable
+  step-size-control strategy on the OA-owned adaption config that improves
+  convergence near the optimum at high dimension: SELF_ADAPT (the classic
+  mutative sigma self-adaption), SELF_ADAPT_SCALED (the default -- the sigma
+  self-adaption rate is scaled by the parameter count, tau = c/sqrt(2n), instead
+  of the fixed rate, which is far too hot at large n), ONE_FIFTH (Rechenberg 1/5
+  success rule on a single global sigma) and CSA (cumulative step-size adaptation);
+  it also optionally intermediate-recombines the per-individual sigma. The former
+  separate, non-adaptive EA has been folded in: it is exactly the SELF_ADAPT mode
+  with recombine_sigma=false, so the legacy behaviour is reproduced bit-for-bit
+  (up to the RNG seed) by selecting that. On a 1000-parameter sphere over a fixed
+  budget the legacy SELF_ADAPT stalls at the starting fitness while the default
+  scaled controller reaches less than half of it.
 
 - A server binary now uses a single courtier consumer for everything, held in a
   process-global registry (GConsumerRegistry). Algorithms are transport-agnostic:

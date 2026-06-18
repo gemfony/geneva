@@ -57,7 +57,6 @@ void GEvolutionaryAlgorithm_PersonalityTraits::compare_(
 ) const {
     using namespace Gem::Common;
 
-    // Check that we are dealing with a GEvolutionaryAlgorithm_PersonalityTraits reference independent of this object and convert the pointer
     const GEvolutionaryAlgorithm_PersonalityTraits *p_load =
         Gem::Common::g_convert_and_compare<GPersonalityTraits, GEvolutionaryAlgorithm_PersonalityTraits>(
             cp,
@@ -90,7 +89,7 @@ std::string GEvolutionaryAlgorithm_PersonalityTraits::name_() const {
 /**
  * @brief Retrieves the mnemonic of the optimization algorithm
  *
- * @return The short identifier ("ea") for the evolutionary algorithm
+ * @return The short identifier ("ea") for the adaptive evolutionary algorithm
  */
 std::string GEvolutionaryAlgorithm_PersonalityTraits::getMnemonic() const {
     return GEvolutionaryAlgorithm_PersonalityTraits::nickname;
@@ -110,10 +109,9 @@ GPersonalityTraits *GEvolutionaryAlgorithm_PersonalityTraits::clone_() const {
 /**
  * @brief Loads the data of another GEvolutionaryAlgorithm_PersonalityTraits object
  *
- * @param cp A pointer to another GEvolutionaryAlgorithm_PersonalityTraits object, camouflaged as a GPersonalityTraits
+ * @param cp A pointer to another such object, camouflaged as a GPersonalityTraits
  */
 void GEvolutionaryAlgorithm_PersonalityTraits::load_(const GPersonalityTraits *cp) {
-    // Check that we are dealing with a GEvolutionaryAlgorithm_PersonalityTraits reference independent of this object and convert the pointer
     const GEvolutionaryAlgorithm_PersonalityTraits *p_load =
         Gem::Common::g_convert_and_compare<GPersonalityTraits, GEvolutionaryAlgorithm_PersonalityTraits>(
             cp,
@@ -129,8 +127,7 @@ void GEvolutionaryAlgorithm_PersonalityTraits::load_(const GPersonalityTraits *c
 
 /******************************************************************************/
 /**
- * @brief Allows to check whether this individual lies on the pareto front (only yields
- * useful results after pareto-sorting in EA)
+ * @brief Allows to check whether this individual lies on the pareto front
  *
  * @return A boolean indicating whether this object lies on the current pareto front
  */
@@ -190,9 +187,6 @@ void GEvolutionaryAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GU
     // Call the parent class'es function
     GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
 
-    // --------------------------------------------------------------------------
-    // --------------------------------------------------------------------------
-
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
         "GEvolutionaryAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests",
@@ -210,9 +204,6 @@ void GEvolutionaryAlgorithm_PersonalityTraits::specificTestsFailuresExpected_GUn
 
     // Call the parent class'es function
     GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();
-
-    // --------------------------------------------------------------------------
-    // --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(

@@ -46,8 +46,9 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class adds variables and functions to GPersonalityTraits that are specific
- * to evolutionary algorithms.
+ * This class adds variables and functions to GPersonalityTraits that are specific to the dimension-aware
+ * adaptive evolutionary algorithm ("ea"). It is a near-twin of GEvolutionaryAlgorithm_PersonalityTraits
+ * (same pareto-front tag) but carries its own nickname so it self-registers a distinct mnemonic.
  */
 class GEvolutionaryAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
   : public GBaseParChildPersonalityTraits {
@@ -99,7 +100,7 @@ public:
 
     /**
      * @brief Retrieves the mnemonic of the optimization algorithm.
-     * @return The short mnemonic string identifying the evolutionary-algorithm personality
+     * @return The short mnemonic string identifying the adaptive-evolutionary-algorithm personality
      */
     std::string getMnemonic() const override;
 
@@ -160,4 +161,3 @@ private:
 } /* namespace Gem::Geneva::OptimizationAlgorithms */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GEvolutionaryAlgorithm_PersonalityTraits) // NOLINT
-

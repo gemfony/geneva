@@ -53,6 +53,7 @@
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/par/GOptimizableEntityFixedSizePriorityQueue.hpp"
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <exception>
@@ -75,107 +76,89 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GEvolutionaryA
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
+using GType = GEvolutionaryAlgorithm;
+using TraitsType = GEvolutionaryAlgorithm_PersonalityTraits;
 
+/******************************************************************************/
 /**
- * @brief The default constructor. All initialization work of member variables
- * is done in the class body.
- *
- * The constructor body only ensures a valid default population size (100 individuals,
- * 1 parent) in case the user does not supply these values.
+ * @brief The default constructor. Sets a valid default population size.
  */
 GEvolutionaryAlgorithm::GEvolutionaryAlgorithm() {
-    // Make sure we start with a valid population size if the user does not supply these values
     this->setPopulationSizes(100, 1);
 }
 
 /******************************************************************************/
 /**
-  * @brief Searches for compliance with expectations with respect to another object
-  * of the same type
-  *
-  * @param cp A constant reference to another GEvolutionaryAlgorithm object (passed as a GOptimizationAlgorithmBase reference) to compare against
-  * @param e The expected outcome of the comparison (e.g. equality or inequality)
-  * @param limit The maximum deviation for floating point values (important for similarity checks; unused here)
-  */
-void GEvolutionaryAlgorithm::compare_(
-    const GOptimizationAlgorithmBase &cp // the other object
-    ,
-    const Gem::Common::expectation &e // the expectation for this object, e.g. equality
-    ,
-    const double & /*limit*/ // the limit for allowed deviations of floating point types
+ * @brief Searches for compliance with expectations with respect to another object of the same type.
+ */
+void GType::compare_(
+    const GOptimizationAlgorithmBase &cp,
+    const Gem::Common::expectation &e,
+    const double & /*limit*/
 ) const {
     using namespace Gem::Common;
 
-    // Check that we are dealing with a GEvolutionaryAlgorithm reference independent of this object and convert the pointer
-    const GEvolutionaryAlgorithm *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GEvolutionaryAlgorithm>(cp, this);
+    const GType *p_load =
+        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GType>(cp, this);
 
     GToken token("GEvolutionaryAlgorithm", e);
 
-    // Compare our parent data ...
     Gem::Common::compare_base_t<GParChild>(*this, *p_load, token);
-
-    // ... and then the local data, derived from the single localMembers() declaration
     g_compare_members(localMembers(), p_load->localMembers(), token);
 
-    // React on deviations from the expectation
     token.evaluate();
 }
 
 /******************************************************************************/
-/**
- * @brief Resets the settings of this population to what was configured when
- * the optimize()-call was issued
- */
-void GEvolutionaryAlgorithm::resetToOptimizationStart_() {
-    // There is no more work to be done here, so we simply call the
-    // function of the parent class
+
+void GType::resetToOptimizationStart_() {
     GParChild::resetToOptimizationStart_();
 }
 
 /******************************************************************************/
-/**
-  * @brief Sets the sorting scheme. In MUPLUSNU_SINGLEEVAL, new parents will be selected from the entire
-  * population, including the old parents. In MUCOMMANU_SINGLEEVAL new parents will be selected
-  * from children only. MUNU1PRETAIN_SINGLEEVAL means that the best parent of the last generation
-  * will also become a new parent (unless a better child was found). All other parents are
-  * selected from children only.
-  *
-  * @param smode The desired sorting scheme
-  */
-void GEvolutionaryAlgorithm::setSortingScheme(const sortingMode smode) {
+
+void GType::setSortingScheme(const sortingMode smode) {
     sorting_mode_ = smode;
 }
 
-/******************************************************************************/
-/**
-  * @brief Retrieves information about the current sorting scheme (see
-  * GEvolutionaryAlgorithm::setSortingScheme() for further information).
-  *
-  * @return The current sorting scheme
-  */
-sortingMode GEvolutionaryAlgorithm::getSortingScheme() const {
+sortingMode GType::getSortingScheme() const {
     return sorting_mode_;
 }
 
 /******************************************************************************/
-/**
-  * @brief Extracts all individuals on the pareto front
-  *
-  * @param pareto_inds An output vector that, on return, holds clones of all individuals currently tagged as being on the pareto front (cleared on entry)
-  */
-void GEvolutionaryAlgorithm::extractCurrentParetoIndividuals(
+
+void GType::setStepControl(stepControl sc) {
+    step_control_ = sc;
+}
+
+stepControl GType::getStepControl() const {
+    return step_control_;
+}
+
+void GType::setLearningRateConstant(double c) {
+    learning_rate_c_ = c;
+}
+
+double GType::getLearningRateConstant() const {
+    return learning_rate_c_;
+}
+
+void GType::setSigmaRecombination(bool r) {
+    recombine_sigma_ = r;
+}
+
+bool GType::getSigmaRecombination() const {
+    return recombine_sigma_;
+}
+
+/******************************************************************************/
+
+void GType::extractCurrentParetoIndividuals(
     std::vector<std::shared_ptr<gen::GOptimizableEntity>> &pareto_inds
 ) {
-    // Make sure the vector is empty
     pareto_inds.clear();
-
     for(const auto &ind_ptr : *this) {
-        if(ind_ptr->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-               ->isOnParetoFront()) {
+        if(ind_ptr->template getPersonalityTraits<TraitsType>()->isOnParetoFront()) {
             pareto_inds.push_back(ind_ptr->individual().clone<gen::GOptimizableEntity>());
         }
     }
@@ -184,11 +167,8 @@ void GEvolutionaryAlgorithm::extractCurrentParetoIndividuals(
 /******************************************************************************/
 
 Gem::Courtier::executor_status_t
-GEvolutionaryAlgorithm::evaluatePopulationRange_(std::size_t start, std::size_t end) {
+GType::evaluatePopulationRange_(std::size_t start, std::size_t end) {
     if(inline_evaluation_) {
-        // Evaluate in the calling thread, bypassing the work consumer (a nested refiner that itself runs
-        // inside an individual's process() must not re-enter that consumer). process() funnels any thrown
-        // exception into the item's status, so a local evaluation never goes MISSING.
         end = std::min(end, this->size());
         bool has_errors = false;
         for(std::size_t i = start; i < end; ++i) {
@@ -204,10 +184,8 @@ GEvolutionaryAlgorithm::evaluatePopulationRange_(std::size_t start, std::size_t 
 
 /******************************************************************************/
 
-std::vector<TunableParam> GEvolutionaryAlgorithm::tunableManifest() {
+std::vector<TunableParam> GType::tunableManifest() {
     namespace n = ea_tunable;
-    // {name, is_integer, init, lower, upper}. The order fixes the genome layout (the integer knobs
-    // populate the int32 channel, the rest the double channel, each in this order) and the read order.
     return {
         {n::n_parents, true, 1., 1., 6.},
         {n::n_children, true, 100., 5., 250.},
@@ -224,35 +202,25 @@ std::vector<TunableParam> GEvolutionaryAlgorithm::tunableManifest() {
 }
 
 /******************************************************************************/
-/**
-  * @brief Adds the individuals of this iteration to a priority queue. The
-  * queue will be sorted by the first evaluation criterion of the individuals
-  * and may either have a limited or unlimited size, depending on user-
-  * settings. The procedure is different for pareto optimization, as we only
-  * want the individuals on the current pareto front to be added.
-  *
-  * @param best_individuals The priority queue of globally best individuals to be updated in place
-  */
-void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
+
+void GType::updateGlobalBestsPQ_(
     gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals
 ) {
-    constexpr bool replace = true;
     constexpr bool donotreplace = false;
     constexpr bool clone = true;
+    constexpr bool replace = true;
 
 #ifdef DEBUG
     if(this->empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In G_OA_EvolutionaryAlgorithm::updateGlobalBestsPQ() :" << '\n'
-            << "Tried to retrieve the best individuals even though the population is empty."
-            << '\n'
+            << "In GEvolutionaryAlgorithm::updateGlobalBestsPQ_() :" << '\n'
+            << "Tried to retrieve the best individuals even though the population is empty." << '\n'
         );
     }
 #endif /* DEBUG */
 
     switch(sorting_mode_) {
-    //----------------------------------------------------------------------------
     case sortingMode::MUPLUSNU_SINGLEEVAL:
     case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
     case sortingMode::MUCOMMANU_SINGLEEVAL:
@@ -262,36 +230,20 @@ void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
             clone,
             donotreplace
         );
-        // GOptimizationAlgorithmBase::updateGlobalBestsPQ_(best_individuals);
         break;
 
-    //----------------------------------------------------------------------------
     case sortingMode::MUPLUSNU_PARETO:
     case sortingMode::MUCOMMANU_PARETO: {
-        // Retrieve all individuals on the pareto front
         std::vector<std::shared_ptr<gen::GOptimizableEntity>> pareto_inds;
         this->extractCurrentParetoIndividuals(pareto_inds);
-
-        // We simply add all parent individuals to the queue. As we only want
-        // the individuals on the current pareto front, we replace all members
-        // of the current priority queue
         best_individuals.add(pareto_inds, clone, replace);
     } break;
-
-        //----------------------------------------------------------------------------
     }
 }
 
 /******************************************************************************/
-/**
- * @brief Adds the individuals of this iteration to a priority queue. The
- * queue will be sorted by the first evaluation criterion of the individuals
- * and will be cleared prior to adding the new individuals. This results in
- * the best individuals of the current iteration.
- *
- * @param best_individuals The priority queue of this iteration's best individuals to be updated in place
- */
-void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
+
+void GType::updateIterationBestsPQ_(
     gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool clone = true;
@@ -302,15 +254,13 @@ void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
     if(this->empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "G_OA_EvolutionaryAlgorithm::updateIterationBestsPQ() :" << '\n'
-            << "Tried to retrieve the best individuals even though the population is empty."
-            << '\n'
+            << "GEvolutionaryAlgorithm::updateIterationBestsPQ_() :" << '\n'
+            << "Tried to retrieve the best individuals even though the population is empty." << '\n'
         );
     }
 #endif /* DEBUG */
 
     switch(sorting_mode_) {
-    //----------------------------------------------------------------------------
     case sortingMode::MUPLUSNU_SINGLEEVAL:
     case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
     case sortingMode::MUCOMMANU_SINGLEEVAL: {
@@ -320,42 +270,25 @@ void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
             clone,
             donotreplace
         );
-        // GOptimizationAlgorithmBase::updateIterationBestsPQ_(best_individuals);
     } break;
 
-    //----------------------------------------------------------------------------
     case sortingMode::MUPLUSNU_PARETO:
     case sortingMode::MUCOMMANU_PARETO: {
-        // Retrieve all individuals on the pareto front
         std::vector<std::shared_ptr<gen::GOptimizableEntity>> pareto_inds;
         this->extractCurrentParetoIndividuals(pareto_inds);
-
-        // We simply add all parent individuals to the queue. As we only want
-        // the individuals on the current pareto front, we replace all members
-        // of the current priority queue
         best_individuals.add(pareto_inds, clone, replace);
     } break;
-
-        //----------------------------------------------------------------------------
     }
 }
 
 /******************************************************************************/
-/**
-  * @brief Adds local configuration options to a GParserBuilder object
-  *
-  * @param gpb The GParserBuilder object to which configuration options should be added
-  */
-void GEvolutionaryAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
-    // Call our parent class'es function (registers the shared n_adaption_threads option)
+
+void GType::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     GParChild::addConfigurationOptions_(gpb);
 
-    // Add local data
     gpb.registerFileParameter<sortingMode>(
-        "sorting_method" // The name of the variable
-        ,
-        DEFAULTEASORTINGMODE // The default value
-        ,
+        "sorting_method",
+        DEFAULTEASORTINGMODE,
         [this](sortingMode sm) { this->setSortingScheme(sm); }
     ) << "The sorting scheme. Options"
       << '\n'
@@ -366,56 +299,52 @@ void GEvolutionaryAlgorithm::addConfigurationOptions_(Gem::Common::GParserBuilde
       << "   unless a better individual has been found" << '\n'
       << "3: MUPLUSNU mode for multiple evaluation criteria, pareto selection" << '\n'
       << "4: MUCOMMANU mode for multiple evaluation criteria, pareto selection";
+
+    gpb.registerFileParameter<std::uint8_t>(
+        "step_control",
+        static_cast<std::uint8_t>(stepControl::SELF_ADAPT_SCALED),
+        [this](std::uint8_t sc) { this->setStepControl(static_cast<stepControl>(sc)); }
+    ) << "The step-size control strategy. Options"
+      << '\n'
+      << "0: SELF_ADAPT (classic mutative sigma self-adaption, like \"ea\")" << '\n'
+      << "1: SELF_ADAPT_SCALED (dimension-scaled tau = c/sqrt(2n)) [default]" << '\n'
+      << "2: ONE_FIFTH (Rechenberg 1/5 success rule on a single global sigma)" << '\n'
+      << "3: CSA (cumulative step-size adaptation on a single global sigma)";
+
+    gpb.registerFileParameter<double>(
+        "learning_rate_c",
+        1.,
+        [this](double c) { this->setLearningRateConstant(c); }
+    ) << "The learning-rate constant c used by SELF_ADAPT_SCALED (tau = c/sqrt(2n))";
+
+    gpb.registerFileParameter<bool>(
+        "recombine_sigma",
+        true,
+        [this](bool r) { this->setSigmaRecombination(r); }
+    ) << "Whether to intermediate-recombine the per-individual sigma after recombination";
 }
 
 /******************************************************************************/
-/**
-  * @brief Loads the data of another GEvolutionaryAlgorithm object.
- *
-  * @param cp A pointer to another GEvolutionaryAlgorithm object (passed as a GOptimizationAlgorithmBase pointer)
-  */
-void GEvolutionaryAlgorithm::load_(const GOptimizationAlgorithmBase *cp) {
-    // Check that we are dealing with a GEvolutionaryAlgorithm reference independent
-    // of this object and convert the pointer
-    const GEvolutionaryAlgorithm *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GEvolutionaryAlgorithm>(cp, this);
 
-    // First load the parent class's data ...
+void GType::load_(const GOptimizationAlgorithmBase *cp) {
+    const GType *p_load =
+        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GType>(cp, this);
+
     GParChild::load_(cp);
-
-    // ... and then our own data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/
-/**
- * @brief Some error checks related to population sizes
- *
- * Throws a geneva_exception if the number of parents is zero or if the population
- * size is too small for the currently selected sorting mode.
- */
-void GEvolutionaryAlgorithm::populationSanityChecks_() const {
-    // First check that we have been given a suitable value for the number of parents.
-    // Note that a number of checks (e.g. population size != 0) has already been done
-    // in the parent class.
+
+void GType::populationSanityChecks_() const {
     if(this->n_parents_ == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In G_OA_EvolutionaryAlgorithm::populationSanityChecks(): Error!" << '\n'
+            << "In GEvolutionaryAlgorithm::populationSanityChecks(): Error!" << '\n'
             << "Number of parents is set to 0"
         );
     }
 
-    // In MUCOMMANU_SINGLEEVAL mode we want to have at least as many children as parents,
-    // whereas MUPLUSNU_SINGLEEVAL only requires the population size to be larger than the
-    // number of parents. MUNU1PRETAIN has the same requirements as MUCOMMANU_SINGLEEVAL,
-    // as it is theoretically possible that all children are better than the former
-    // parents, so that the first parent individual will be replaced.
-    //
-    // The PARETO sorting modes only change the ranking (non-dominated sorting), not the
-    // comma/plus selection cardinality, so they carry the same population-size requirements
-    // as their single-evaluation counterparts: MUCOMMANU_PARETO like MUCOMMANU_SINGLEEVAL
-    // (>= 2*n_parents) and MUPLUSNU_PARETO like MUPLUSNU_SINGLEEVAL (> n_parents).
     std::size_t pop_size = this->getPopulationSize();
     if(
         ((sorting_mode_ == sortingMode::MUCOMMANU_SINGLEEVAL ||
@@ -427,52 +356,19 @@ void GEvolutionaryAlgorithm::populationSanityChecks_() const {
          pop_size <= this->n_parents_)
     ) {
         std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
-        error << "In G_OA_EvolutionaryAlgorithm::populationSanityChecks() :" << '\n'
+        error << "In GEvolutionaryAlgorithm::populationSanityChecks() :" << '\n'
               << "Requested size of population is too small :" << pop_size << " "
-              << this->n_parents_ << '\n'
-              << "Sorting scheme is ";
-
-        switch(sorting_mode_) {
-        case sortingMode::MUPLUSNU_SINGLEEVAL:
-            error << "MUPLUSNU_SINGLEEVAL" << '\n';
-            break;
-        case sortingMode::MUCOMMANU_SINGLEEVAL:
-            error << "MUCOMMANU_SINGLEEVAL" << '\n';
-            break;
-        case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
-            error << "MUNU1PRETAIN" << '\n';
-            break;
-        case sortingMode::MUPLUSNU_PARETO:
-            error << "MUPLUSNU_PARETO" << '\n';
-            break;
-        case sortingMode::MUCOMMANU_PARETO:
-            error << "MUCOMMANU_PARETO" << '\n';
-            break;
-        };
-
+              << this->n_parents_ << '\n';
         throw geneva_exception(g_error_streamer(DO_LOG, Gem::Common::timeAndPlace()) << error.str());
     }
 }
 
-
 /******************************************************************************/
-/**
-  * @brief We submit individuals to the broker connector and wait for processed items.
-  *
-  * Determines the evaluation range, submits that range for processing, removes any
-  * unprocessed or erroneous work items, and repairs the population afterwards.
- */
-void GEvolutionaryAlgorithm::runFitnessCalculation_() {
-    //--------------------------------------------------------------------------------
-    // Start by marking the work to be done in the individuals.
-    // "range" will hold the start- and end-points of the range
-    // to be worked on
+
+void GType::runFitnessCalculation_() {
     const std::tuple<std::size_t, std::size_t> range = getEvaluationRange_();
 
 #ifdef DEBUG
-    // There should be no situation in which a "clean" child is submitted
-    // through this function. There MAY be situations, where in the first iteration
-    // parents are clean, e.g. when they were extracted from another optimization.
     for(std::size_t i = this->getNParents(); i < this->size(); i++) {
         if(not this->at(i)->individual().is_due_for_processing()) {
             throw geneva_exception(
@@ -495,66 +391,32 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
     }
 #endif
 
-    //--------------------------------------------------------------------------------
-    // Submit the [start, end) evaluation range and wait for results. courtier marks the span
-    // DO_PROCESS and reconciles it in place -- no per-item flagging needed. Routed through
-    // evaluatePopulationRange_ so a subclass (e.g. the meta-EA) can evaluate elsewhere.
     auto status = this->evaluatePopulationRange_(std::get<0>(range), std::get<1>(range));
 
-    //--------------------------------------------------------------------------------
-    // Take care of unprocessed items, if these exist
     if(not status.is_complete) {
-        std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
-                return (p->individual().getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
-            });
-
-#ifdef DEBUG
-        glogger << "In GEvolutionaryAlgorithm::runFitnessCalculation(): " << '\n'
-                << "Removed " << n_erased << " unprocessed work items in iteration "
-                << this->getIteration() << '\n'
-                << GLOGGING;
-#endif
+        std::erase_if(this->data_cnt_, [](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
+            return (p->individual().getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
+        });
     }
 
-    // Remove items for which an error has occurred during processing
     if(status.has_errors) {
-        std::size_t n_erased = std::erase_if(
+        std::erase_if(
             this->data_cnt_,
-            [this](const auto &p) -> bool { return p->individual().has_errors(); }
+            [](const auto &p) -> bool { return p->individual().has_errors(); }
         );
-
-#ifdef DEBUG
-        glogger << "In GEvolutionaryAlgorithm::runFitnessCalculation(): " << '\n'
-                << "Removed " << n_erased << " erroneous work items in iteration "
-                << this->getIteration() << '\n'
-                << GLOGGING;
-#endif
     }
 
-    //--------------------------------------------------------------------------------
-    // Now fix the population -- it may be smaller than its nominal size
     fixAfterJobSubmission();
 }
 
-
 /******************************************************************************/
-/**
-	* @brief Choose new parents, based on the selection scheme set by the user.
-	*
-	* Dispatches to the sorting routine matching the current sorting mode, marks the
-	* selected parents, and resizes the population back to its nominal size.
-	*/
-void GEvolutionaryAlgorithm::selectBest_() {
+
+void GType::selectBest_() {
 #ifdef DEBUG
-    // We require at this stage that at least the default number of
-    // children is present. If individuals can get lost in your setting,
-    // you must add mechanisms to "repair" the population before this
-    // function is called
     if((this->size() - this->n_parents_) < this->default_n_children_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In G_OA_EvolutionaryAlgorithm::select():" << '\n'
+            << "In GEvolutionaryAlgorithm::select():" << '\n'
             << "Too few children. Got " << (this->size() - this->getNParents()) << "," << '\n'
             << "but was expecting at least " << this->getDefaultNChildren() << '\n'
         );
@@ -562,12 +424,10 @@ void GEvolutionaryAlgorithm::selectBest_() {
 #endif /* DEBUG */
 
     switch(sorting_mode_) {
-    //----------------------------------------------------------------------------
     case sortingMode::MUPLUSNU_SINGLEEVAL: {
         this->sortMuPlusNuMode();
     } break;
 
-    //----------------------------------------------------------------------------
     case sortingMode::MUNU1PRETAIN_SINGLEEVAL: {
         if(1 == n_parents_ || this->inFirstIteration()) {
             this->sortMuPlusNuMode();
@@ -577,7 +437,6 @@ void GEvolutionaryAlgorithm::selectBest_() {
         }
     } break;
 
-    //----------------------------------------------------------------------------
     case sortingMode::MUCOMMANU_SINGLEEVAL: {
         if(this->inFirstIteration()) {
             this->sortMuPlusNuMode();
@@ -587,12 +446,10 @@ void GEvolutionaryAlgorithm::selectBest_() {
         }
     } break;
 
-    //----------------------------------------------------------------------------
     case sortingMode::MUPLUSNU_PARETO:
         this->sortMuPlusNuParetoMode();
         break;
 
-    //----------------------------------------------------------------------------
     case sortingMode::MUCOMMANU_PARETO: {
         if(this->inFirstIteration()) {
             this->sortMuPlusNuParetoMode();
@@ -601,47 +458,31 @@ void GEvolutionaryAlgorithm::selectBest_() {
             this->sortMuCommaNuParetoMode();
         }
     } break;
-
-        //----------------------------------------------------------------------------
     }
 
-    // Let parents know they are parents
     this->markParents();
 
 #ifdef DEBUG
-    // Make sure our population is not smaller than its nominal size -- this
-    // should have been taken care of in fixAfterJobSubmission() .
     if(this->size() < this->getDefaultPopulationSize()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In G_OA_EvolutionaryAlgorithm::selectBest(): Error!" << '\n'
+            << "In GEvolutionaryAlgorithm::selectBest(): Error!" << '\n'
             << "Size of population is smaller than expected: " << this->size() << " / "
             << this->getDefaultPopulationSize() << '\n'
         );
     }
 #endif /* DEBUG */
 
-    ////////////////////////////////////////////////////////////
-    // At this point we have a sorted list of individuals and can take care of
-    // too many members, so the next iteration finds a "standard" population. This
-    // function will remove the last items.
     this->resize(this->getNParents() + this->getDefaultNChildren());
 
-    // Everything should be back to normal ...
+    // Drive the global-sigma controller (a no-op for the self-adaptive modes), now that the new parents
+    // have been selected and sit at the front of the population.
+    this->driveGlobalSigmaController();
 }
 
 /******************************************************************************/
-/**
-  * @brief Retrieves the evaluation range in a given iteration and sorting scheme. Depending on the
-  * iteration and sorting scheme, the start point will be different. The end-point is not meant
-  * to be inclusive.
-  *
-  * @return A tuple holding the half-open [start, end) range of population positions inside which evaluation should take place
-  */
-std::tuple<std::size_t, std::size_t> GEvolutionaryAlgorithm::getEvaluationRange_() const {
-    // We evaluate all individuals in the first iteration This happens so pluggable
-    // optimization monitors do not need to distinguish between algorithms, and
-    // MUCOMMANU selection may fall back to MUPLUSNU in the first iteration.
+
+std::tuple<std::size_t, std::size_t> GType::getEvaluationRange_() const {
     return std::make_tuple<std::size_t, std::size_t>(
         this->inFirstIteration() ? static_cast<std::size_t>(0) : this->getNParents(),
         this->size()
@@ -649,40 +490,206 @@ std::tuple<std::size_t, std::size_t> GEvolutionaryAlgorithm::getEvaluationRange_
 }
 
 /******************************************************************************/
-/**
-  * @brief Retrieve a GPersonalityTraits object belonging to this algorithm
-  *
-  * @return A shared pointer to a freshly created GEvolutionaryAlgorithm_PersonalityTraits object
-  */
-std::shared_ptr<GPersonalityTraits> GEvolutionaryAlgorithm::getPersonalityTraits_() const {
-    return std::make_shared<GEvolutionaryAlgorithm_PersonalityTraits>();
+
+std::shared_ptr<GPersonalityTraits> GType::getPersonalityTraits_() const {
+    return std::make_shared<TraitsType>();
+}
+
+/******************************************************************************/
+// Step-control machinery
+/******************************************************************************/
+
+void GType::init() {
+    // GParChild::init() adopts + validates the provided adaption config and seeds each slot's scratch.
+    GParChild::init();
+
+    // Mirror the chosen knobs onto the OA-owned config so the kernels read them.
+    installStepController();
 }
 
 /******************************************************************************/
 /**
- * @brief Selection, MUPLUSNU_SINGLEEVAL style. Note that not all individuals of the population (including parents)
- * are sorted -- only the n_parents best individuals are identified. The quality of the population can only
- * increase, but the optimization will stall more easily in MUPLUSNU_SINGLEEVAL mode.
+ * @brief Installs the chosen step controller onto the OA-owned adaption config (after GParChild::init()
+ * adopted and seeded it). For SELF_ADAPT_SCALED the per-group sigma_sigma is rescaled to the textbook
+ * dimension-aware value; for ONE_FIFTH / CSA the per-group log-normal self-adaption is suppressed (the
+ * global controller owns sigma) and the global-sigma run scratch is seeded from the config's seed sigma.
  */
-void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
-#ifdef DEBUG
-    // Check that we do not accidently trigger value calculation
-    std::size_t pos = 0;
-    for(auto const &ind_ptr : *this) {
-        if(ind_ptr->individual().is_due_for_processing()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GEvolutionaryAlgorithm::sortMuplusnuMode(): Error!" << '\n'
-                << "In iteration " << GOptimizationAlgorithmBase::getIteration()
-                << ": Found individual in position " << pos << '\n'
-                << " that is unprocessed." << '\n'
-            );
-        }
-        pos++;
+void GType::installStepController() {
+    auto cfg = this->adaption_config_;
+    if(not cfg) {
+        return; // a non-adapting / non-flat individual: nothing to install
     }
-#endif /* DEBUG */
 
-    // Only partially sort the arrays
+    cfg->setStepControl(step_control_);
+    cfg->setLearningRateConstant(learning_rate_c_);
+    controller_dim_ = cfg->adaptedDimension();
+
+    switch(step_control_) {
+    case stepControl::SELF_ADAPT:
+        // Classic behaviour -- leave the config exactly as authored.
+        break;
+
+    case stepControl::SELF_ADAPT_SCALED:
+        cfg->applyScaledSelfAdaptionRate();
+        break;
+
+    case stepControl::ONE_FIFTH:
+    case stepControl::CSA: {
+        // The global controller owns sigma: stop the per-group log-normal self-adaption.
+        cfg->suppressPerGroupSigmaSelfAdaption();
+        // Seed the global sigma from a representative seed sigma in the (already seeded) scratch.
+        global_sigma_ = 1.;
+        p_sigma_ = 0.;
+        have_prev_best_ = false;
+        if(not this->empty() && not this->resumedFromCheckpoint()) {
+            global_sigma_ = readRepresentativeSigma(this->at(0)->scratch(), *cfg, 1.);
+            // Push the seed global sigma into every slot so the first adaption uses it uniformly.
+            for(auto const &slot : *this) {
+                writeGlobalSigma(slot->scratch(), *cfg, global_sigma_);
+            }
+        }
+    } break;
+    }
+}
+
+/******************************************************************************/
+/**
+ * @brief Drives the single-global-sigma controllers (ONE_FIFTH / CSA) once per generation, after the new
+ * parents have been selected. A no-op for the self-adaptive modes (their sigma lives in the per-group
+ * state and is recombined / log-normally self-adapted by the kernels).
+ *
+ * - ONE_FIFTH: estimate the success rate as the fraction of children that beat the previous best parent
+ *   and apply the Rechenberg rule (sigma *= exp((p_success - 1/5) / d) with a damping d ~ 1/3). Since the
+ *   number of trials per generation is large, this is a stable, well-behaved global step controller.
+ * - CSA: a scalar evolution-path proxy accumulates the SIGN of the generation's improvement; sigma is
+ *   then driven up when the path is consistently positive (improving) and down otherwise. This is the
+ *   O(1) scalar analogue of the vector CSA evolution path, sufficient for an isotropic global sigma.
+ *
+ * The updated global sigma is clamped to a sane range and pushed into every slot's scratch so the next
+ * generation's adaption (and the children cloned from these parents) uses it.
+ */
+void GType::driveGlobalSigmaController() {
+    if(step_control_ != stepControl::ONE_FIFTH && step_control_ != stepControl::CSA) {
+        return;
+    }
+    auto cfg = this->adaption_config_;
+    if(not cfg || this->empty()) {
+        return;
+    }
+
+    // The best (min-only transformed) fitness of the current generation's selected parents.
+    const double best_now = minOnly_transformed_fitness(this->at(0)->individual());
+
+    // The success rate: the fraction of this generation's SELECTED survivors (the np new parents, now at
+    // the front of the population) that improved on the PREVIOUS generation's best fitness. Measuring the
+    // survivors -- not the discarded children -- is the right offspring-vs-parent success signal for a
+    // (mu,lambda) step-size rule: it is the share of the surviving search distribution that made forward
+    // progress. The Rechenberg 1/5 rule and the scalar CSA both key off it.
+    const std::size_t np = this->getNParents();
+    double p_success = 0.;
+    {
+        std::size_t n_success = 0;
+        for(std::size_t i = 0; i < np; ++i) {
+            if(minOnly_transformed_fitness(this->at(i)->individual()) < prev_best_fitness_) {
+                ++n_success;
+            }
+        }
+        p_success = (np > 0) ? static_cast<double>(n_success) / static_cast<double>(np)
+                             : (best_now < prev_best_fitness_ ? 1. : 0.);
+    }
+
+    if(have_prev_best_) {
+        if(step_control_ == stepControl::ONE_FIFTH) {
+            // Rechenberg 1/5 success rule: grow sigma while more than 1/5 of the offspring improve,
+            // shrink it otherwise. A responsive damping (≈1/5) lets sigma climb fast enough that the
+            // step does not collapse into the high-dimensional "noise dominates" regime, then settle.
+            constexpr double target = 1. / 5.;
+            constexpr double damping = 0.2;
+            global_sigma_ *= std::exp((p_success - target) / (1. + damping));
+        }
+        else { // CSA (scalar success-rate path)
+            // A scalar evolution path that accumulates the success-rate deviation from the 1/5 target.
+            // This is the O(1) analogue of the CSA evolution path: a persistently > 1/5 success rate
+            // pushes the path positive (grow sigma); a persistently < 1/5 rate pushes it negative
+            // (shrink). The cumulation constant gives it memory; the damping keeps each step mild.
+            const double n = std::max<double>(1., static_cast<double>(controller_dim_));
+            const double c_sigma = 1. / (1. + std::sqrt(n) / 4.); // O(1/sqrt(n)) time constant, floored
+            constexpr double target = 1. / 5.;
+            const double signal = (p_success - target) / (1. - target); // in [-0.25, +1]
+            p_sigma_ = (1. - c_sigma) * p_sigma_ + std::sqrt(c_sigma * (2. - c_sigma)) * signal;
+            global_sigma_ *= std::exp(0.3 * p_sigma_);
+        }
+    }
+
+    // Clamp to a sane band so the controller can never explode or collapse to zero.
+    global_sigma_ = std::clamp(global_sigma_, 1e-12, 10.0);
+
+    // Push the new global sigma into every slot (parents now at the front; children get it on the next
+    // recombine via the whole-slot copy, but writing all slots keeps the state coherent for telemetry).
+    for(auto const &slot : *this) {
+        writeGlobalSigma(slot->scratch(), *cfg, global_sigma_);
+    }
+
+    prev_best_fitness_ = best_now;
+    have_prev_best_ = true;
+}
+
+/******************************************************************************/
+/**
+ * @brief Recombination, then (optionally) intermediate recombination of the per-individual sigma.
+ *
+ * The base recombine() copies the chosen parent's whole slot (sigma scratch included) into each child,
+ * so each child inherits exactly ONE parent's sigma. For the per-individual-sigma modes (SELF_ADAPT /
+ * SELF_ADAPT_SCALED) we additionally average the surviving parents' sigma into every child -- the
+ * "intermediate recombination of sigma" the classic GParChild lacks, which reduces sigma's variance and
+ * markedly improves fine convergence. A no-op for the global-sigma modes (every slot already shares one
+ * sigma) and when sigma-recombination is disabled.
+ */
+void GType::recombine() {
+    GParChild::recombine();
+
+    if(not recombine_sigma_) {
+        return;
+    }
+    if(step_control_ != stepControl::SELF_ADAPT && step_control_ != stepControl::SELF_ADAPT_SCALED) {
+        return; // the global-sigma modes share one sigma already
+    }
+    auto cfg = this->adaption_config_;
+    if(not cfg || this->empty()) {
+        return;
+    }
+
+    const std::size_t np = this->getNParents();
+    if(np < 2) {
+        return; // nothing to average with a single parent
+    }
+
+    // Mean of the parents' representative sigma.
+    double sum = 0.;
+    std::size_t cnt = 0;
+    for(std::size_t i = 0; i < np; ++i) {
+        const double s = readRepresentativeSigma(this->at(i)->scratch(), *cfg, -1.);
+        if(s >= 0.) {
+            sum += s;
+            ++cnt;
+        }
+    }
+    if(cnt == 0) {
+        return;
+    }
+    const double mean_sigma = sum / static_cast<double>(cnt);
+
+    // Write the mean into every child's scratch (children are at [np, size())).
+    for(std::size_t i = np; i < this->size(); ++i) {
+        writeGlobalSigma(this->at(i)->scratch(), *cfg, mean_sigma);
+    }
+}
+
+/******************************************************************************/
+// Selection helpers (verbatim from GEvolutionaryAlgorithm).
+/******************************************************************************/
+
+void GType::sortMuPlusNuMode() {
     std::partial_sort(
         GOptimizationAlgorithmBase::data_cnt_.begin(),
         GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_,
@@ -694,48 +701,8 @@ void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
 }
 
 /******************************************************************************/
-/**
- * @brief Selection, MUCOMMANU_SINGLEEVAL style. New parents are selected from children only. The quality
- * of the population may decrease occasionally from generation to generation, but the
- * optimization is less likely to stall.
- */
-void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
-#ifdef DEBUG
-    if(GOptimizationAlgorithmBase::inFirstIteration()) {
-        // Check that we do not accidentally trigger value calculation -- check the whole range
-        typename GEvolutionaryAlgorithm::iterator it;
-        for(it = this->begin(); it != this->end(); ++it) {
-            if((*it)->individual().is_due_for_processing()) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GEvolutionaryAlgorithm::sortMucommanuMode(): Error!" << '\n'
-                    << "In iteration " << GOptimizationAlgorithmBase::getIteration()
-                    << ": Found individual in position " << std::distance(this->begin(), it)
-                    << '\n'
-                    << " whose dirty flag is set." << '\n'
-                );
-            }
-        }
-    }
-    else {
-        // Check that we do not accidentally trigger value calculation -- check children only
-        typename GEvolutionaryAlgorithm::iterator it;
-        for(it = this->begin() + n_parents_; it != this->end(); ++it) {
-            if((*it)->individual().is_due_for_processing()) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GEvolutionaryAlgorithm::sortMucommanuMode(): Error!" << '\n'
-                    << "In iteration " << GOptimizationAlgorithmBase::getIteration()
-                    << ": Found individual in position " << std::distance(this->begin(), it)
-                    << '\n'
-                    << " which is unprocessed." << '\n'
-                );
-            }
-        }
-    }
-#endif /* DEBUG */
 
-    // Only sort the children
+void GType::sortMuCommaNuMode() {
     std::partial_sort(
         GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_,
         GOptimizationAlgorithmBase::data_cnt_.begin() + 2 * n_parents_,
@@ -753,34 +720,8 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
 }
 
 /******************************************************************************/
-/**
- * @brief Selection, MUNU1PRETAIN_SINGLEEVAL style. This is a hybrid between MUPLUSNU_SINGLEEVAL and MUCOMMANU_SINGLEEVAL
- * mode. If a better child was found than the best parent of the last generation,
- * all former parents are replaced. If no better child was found than the best
- * parent of the last generation, then this parent stays in place. All other parents
- * are replaced by the (nParents_-1) best children. The scheme falls back to MUPLUSNU_SINGLEEVAL
- * mode, if only one parent is available, or if this is the first generation (so we
- * do not accidentally trigger value calculation).
- */
-void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
-#ifdef DEBUG
-    // Check that we do not accidentally trigger value calculation
-    typename GEvolutionaryAlgorithm::iterator it;
-    for(it = this->begin() + n_parents_; it != this->end(); ++it) {
-        if((*it)->individual().is_due_for_processing()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GEvolutionaryAlgorithm::sortMunu1pretainMode(): Error!" << '\n'
-                << "In iteration " << GOptimizationAlgorithmBase::getIteration()
-                << ": Found individual in position " << std::distance(this->begin(), it)
-                << '\n'
-                << " whose dirty flag is set." << '\n'
-            );
-        }
-    }
-#endif /* DEBUG */
 
-    // Sort the children
+void GType::sortMunu1pretainMode() {
     std::partial_sort(
         GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_,
         GOptimizationAlgorithmBase::data_cnt_.begin() + 2 * n_parents_,
@@ -790,16 +731,13 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
         }
     );
 
-    // Retrieve the best child's and the last generation's best parent's fitness
-    double best_tranformed_child_fitness_min_only = minOnly_transformed_fitness(
+    double best_child = minOnly_transformed_fitness(
         (*(GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_))->individual()
     );
-    double best_tranformed_parent_fitness_min_only =
+    double best_parent =
         minOnly_transformed_fitness((*(GOptimizationAlgorithmBase::data_cnt_.begin()))->individual());
 
-    // Leave the best parent in place, if no better child was found
-    if(best_tranformed_child_fitness_min_only < best_tranformed_parent_fitness_min_only) {
-        // A better child was found. Overwrite all parents
+    if(best_child < best_parent) {
         std::swap_ranges(
             GOptimizationAlgorithmBase::data_cnt_.begin(),
             GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_,
@@ -816,20 +754,11 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 }
 
 /******************************************************************************/
-/**
-  * @brief Selection according to the pareto tag, also taking into account the parents of a population (i.e. in MUPLUSNU
-  * mode). This is used in conjunction with multi-criterion optimization. See e.g.
-  * http://en.wikipedia.org/wiki/Pareto_efficiency for a discussion of this topic.
-  */
-void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
-    typename GEvolutionaryAlgorithm::iterator it;
-    typename GEvolutionaryAlgorithm::iterator it_cmp;
 
-    // A PARETO sorting mode was requested. With only a single evaluation criterion Pareto
-    // selection is degenerate (the front collapses to the single best individual), so we fall back
-    // to the single-eval MUPLUSNU sort. That fallback is mathematically correct, but a user who
-    // selected a PARETO mode almost certainly intended multi-objective optimization -- warn once so
-    // a misconfigured individual (returning only one fitness) is not silently treated as single-eval.
+void GType::sortMuPlusNuParetoMode() {
+    typename GType::iterator it;
+    typename GType::iterator it_cmp;
+
     it = this->begin();
     if(not(*it)->individual().hasMultipleFitnessCriteria()) {
         static std::atomic<bool> warned{false};
@@ -837,102 +766,62 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
             glogger << "In GEvolutionaryAlgorithm::sortMuPlusNuParetoMode(): Warning!" << '\n'
                     << "A PARETO sorting mode was selected, but the individuals expose only a single" << '\n'
                     << "fitness criterion. Pareto selection therefore degenerates to single-objective" << '\n'
-                    << "MUPLUSNU selection. If you intended multi-objective optimization, make your" << '\n'
-                    << "individual return multiple fitness criteria; otherwise select a single-evaluation" << '\n'
-                    << "sorting mode to silence this warning." << '\n'
+                    << "MUPLUSNU selection." << '\n'
                     << GWARNING;
         }
         this->sortMuPlusNuMode();
         return;
     }
 
-    // Mark all individuals as being on the pareto front initially
     for(const auto &ind : *this) {
-        ind
-            ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-            ->resetParetoTag();
+        ind->template getPersonalityTraits<TraitsType>()->resetParetoTag();
     }
 
-    // Compare all parameters
     for(it = this->begin(); it != this->end(); ++it) {
         for(it_cmp = it + 1; it_cmp != this->end(); ++it_cmp) {
-            // If we already know that this individual is *not*
-            // on the front we do not have to do any tests
-            if(not(*it_cmp)
-                      ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-                      ->isOnParetoFront()) {
+            if(not(*it_cmp)->template getPersonalityTraits<TraitsType>()->isOnParetoFront()) {
                 continue;
             }
-
-            // Check if it dominates it_cmp. If so, mark it accordingly
             if(aDominatesB((*it)->individualPtr(), (*it_cmp)->individualPtr())) {
-                (*it_cmp)
-                    ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-                    ->setIsNotOnParetoFront();
+                (*it_cmp)->template getPersonalityTraits<TraitsType>()->setIsNotOnParetoFront();
             }
-
-            // If a it dominated by it_cmp, we mark it accordingly and break the loop
             if(aDominatesB((*it_cmp)->individualPtr(), (*it)->individualPtr())) {
-                (*it)
-                    ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-                    ->setIsNotOnParetoFront();
+                (*it)->template getPersonalityTraits<TraitsType>()->setIsNotOnParetoFront();
                 break;
             }
         }
     }
 
-    // At this point we have tagged all individuals according to whether or not they are
-    // on the pareto front. Lets sort them accordingly, bringing individuals with the
-    // pareto tag to the front of the collection.
     sort(
         this->begin(),
         this->end(),
         [](const auto &x, const auto &y) {
-            return x->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-                       ->isOnParetoFront() >
-                   y->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-                       ->isOnParetoFront();
+            return x->template getPersonalityTraits<TraitsType>()->isOnParetoFront() >
+                   y->template getPersonalityTraits<TraitsType>()->isOnParetoFront();
         }
     );
 
-    // Count the number of individuals on the pareto front
     std::size_t n_individuals_on_pareto_front = 0;
     for(const auto &ind : *this) {
-        if(ind
-               ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-               ->isOnParetoFront()) {
+        if(ind->template getPersonalityTraits<TraitsType>()->isOnParetoFront()) {
             n_individuals_on_pareto_front++;
         }
     }
 
-    // If the number of individuals on the pareto front exceeds the number of parents, we
-    // do not want to introduce a bias by selecting only the first nParent individuals. Hence
-    // we randomly shuffle them. Note that not all individuals on the pareto front might survive,
-    // as subsequent iterations will only take into account parents for the reproduction step.
-    // If fewer individuals are on the pareto front than there are parents, then we want the
-    // remaining parent positions to be filled up with the non-pareto-front individuals with
-    // the best minOnly_fitness(0), i.e. with the best "master" fitness (transformed to take into
-    // account minimization and maximization).
     if(n_individuals_on_pareto_front > this->getNParents()) {
-        // randomly shuffle pareto-front individuals to avoid a bias
         std::shuffle(this->begin(), this->begin() + n_individuals_on_pareto_front, this->gr_);
     }
     else if(n_individuals_on_pareto_front < this->getNParents()) {
-        // Sort the non-pareto-front individuals according to their master fitness
         std::partial_sort(
             this->begin() + n_individuals_on_pareto_front,
             this->begin() + this->n_parents_,
             this->end(),
-            [](const auto &x_ptr,
-               const auto &y_ptr) -> bool {
+            [](const auto &x_ptr, const auto &y_ptr) -> bool {
                 return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
             }
         );
     }
 
-    // Finally, we sort the parents only according to their master fitness. This is meant
-    // to give some sense to the value recombination scheme. It won't change much in case of the
-    // random recombination scheme.
     std::sort(
         this->begin(),
         this->begin() + this->n_parents_,
@@ -943,18 +832,11 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
 }
 
 /******************************************************************************/
-/**
- * @brief Selection according to the pareto tag, not taking into account the parents of a population (i.e. in MUCOMMANU
-  * mode). This is used in conjunction with multi-criterion optimization. See e.g.
-  * http://en.wikipedia.org/wiki/Pareto_efficiency for a discussion of this topic.
-  */
-void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
-    typename GEvolutionaryAlgorithm::iterator it;
-    typename GEvolutionaryAlgorithm::iterator it_cmp;
 
-    // See sortMuPlusNuParetoMode() for the rationale: a single evaluation criterion makes Pareto
-    // selection degenerate, so we fall back to the single-eval MUCOMMANU sort -- correct, but warn
-    // once so a misconfigured single-fitness individual is not silently treated as single-eval.
+void GType::sortMuCommaNuParetoMode() {
+    typename GType::iterator it;
+    typename GType::iterator it_cmp;
+
     it = this->begin();
     if(not(*it)->individual().hasMultipleFitnessCriteria()) {
         static std::atomic<bool> warned{false};
@@ -962,113 +844,66 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
             glogger << "In GEvolutionaryAlgorithm::sortMuCommaNuParetoMode(): Warning!" << '\n'
                     << "A PARETO sorting mode was selected, but the individuals expose only a single" << '\n'
                     << "fitness criterion. Pareto selection therefore degenerates to single-objective" << '\n'
-                    << "MUCOMMANU selection. If you intended multi-objective optimization, make your" << '\n'
-                    << "individual return multiple fitness criteria; otherwise select a single-evaluation" << '\n'
-                    << "sorting mode to silence this warning." << '\n'
+                    << "MUCOMMANU selection." << '\n'
                     << GWARNING;
         }
         this->sortMuCommaNuMode();
         return;
     }
 
-    // Mark the last iterations parents as not being on the pareto front
     for(it = this->begin(); it != this->begin() + this->n_parents_; ++it) {
-        (*it)
-            ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-            ->setIsNotOnParetoFront();
+        (*it)->template getPersonalityTraits<TraitsType>()->setIsNotOnParetoFront();
     }
 
-    // Mark all children as being on the pareto front initially
     for(it = this->begin() + this->n_parents_; it != this->end(); ++it) {
-        (*it)
-            ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-            ->resetParetoTag();
+        (*it)->template getPersonalityTraits<TraitsType>()->resetParetoTag();
     }
 
-    // Compare all parameters of all children
     for(it = this->begin() + this->n_parents_; it != this->end(); ++it) {
         for(it_cmp = it + 1; it_cmp != this->end(); ++it_cmp) {
-            // If we already know that this individual is *not*
-            // on the front we do not have to do any tests
-            if(not(*it_cmp)
-                      ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-                      ->isOnParetoFront()) {
+            if(not(*it_cmp)->template getPersonalityTraits<TraitsType>()->isOnParetoFront()) {
                 continue;
             }
-
-            // Check if it dominates it_cmp. If so, mark it accordingly
             if(aDominatesB((*it)->individualPtr(), (*it_cmp)->individualPtr())) {
-                (*it_cmp)
-                    ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-                    ->setIsNotOnParetoFront();
+                (*it_cmp)->template getPersonalityTraits<TraitsType>()->setIsNotOnParetoFront();
             }
-
-            // If a it dominated by it_cmp, we mark it accordingly and break the loop
             if(aDominatesB((*it_cmp)->individualPtr(), (*it)->individualPtr())) {
-                (*it)
-                    ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-                    ->setIsNotOnParetoFront();
+                (*it)->template getPersonalityTraits<TraitsType>()->setIsNotOnParetoFront();
                 break;
             }
         }
     }
 
-    // At this point we have tagged all children according to whether or not they are
-    // on the pareto front. Lets sort them accordingly, bringing individuals with the
-    // pareto tag to the front of the population. Note that parents have been manually
-    // tagged as not being on the pareto front in the beginning of this function, so
-    // sorting the individuals according to the pareto tag will move former parents out
-    // of the parents section.
     sort(
         this->begin(),
         this->end(),
         [](const auto &x, const auto &y) {
-            return x->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-                       ->isOnParetoFront() >
-                   y->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-                       ->isOnParetoFront();
+            return x->template getPersonalityTraits<TraitsType>()->isOnParetoFront() >
+                   y->template getPersonalityTraits<TraitsType>()->isOnParetoFront();
         }
     );
 
-    // Count the number of individuals on the pareto front
     std::size_t n_individuals_on_pareto_front = 0;
     for(const auto &ind : *this) {
-        if(ind
-               ->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()
-               ->isOnParetoFront()) {
+        if(ind->template getPersonalityTraits<TraitsType>()->isOnParetoFront()) {
             n_individuals_on_pareto_front++;
         }
     }
 
-    // If the number of individuals on the pareto front exceeds the number of parents, we
-    // do not want to introduce a bias by selecting only the first nParent individuals. Hence
-    // we randomly shuffle them. Note that not all individuals on the pareto front might survive,
-    // as subsequent iterations will only take into account parents for the reproduction step.
-    // If fewer individuals are on the pareto front than there are parents, then we want the
-    // remaining parent positions to be filled up with the non-pareto-front individuals with
-    // the best minOnly_fitness(0), i.e. with the best "master" fitness, transformed to take into account
-    // minimization and maximization. Note that, unlike MUCOMMANU_SINGLEEVAL
-    // this implies the possibility that former parents are "elected" as new parents again.
     if(n_individuals_on_pareto_front > this->getNParents()) {
-        // randomly shuffle pareto-front individuals to avoid a bias
         std::shuffle(this->begin(), this->begin() + n_individuals_on_pareto_front, this->gr_);
     }
     else if(n_individuals_on_pareto_front < this->getNParents()) {
-        // Sort the non-pareto-front individuals according to their master fitness
         std::partial_sort(
             this->begin() + n_individuals_on_pareto_front,
             this->begin() + this->n_parents_,
             this->end(),
-            [](const auto &x_ptr,
-               const auto &y_ptr) -> bool {
+            [](const auto &x_ptr, const auto &y_ptr) -> bool {
                 return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
             }
         );
     }
 
-    // Finally, we sort the parents only according to their master fitness. This is meant
-    // to give some sense to the value recombination scheme. It won't change much in case of the
-    // random recombination scheme.
     std::sort(
         this->begin(),
         this->begin() + this->n_parents_,
@@ -1079,34 +914,24 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
 }
 
 /******************************************************************************/
-/**
-  * @brief Determines whether the first individual dominates the second.
-  *
-  * @param x_ptr The individual that is assumed to dominate (none of its fitness criteria may be worse than the corresponding criterion of y_ptr)
-  * @param y_ptr The individual that is assumed to be dominated
-  * @return A boolean indicating whether the first individual dominates the second
-  */
-bool GEvolutionaryAlgorithm::aDominatesB(
+
+bool GType::aDominatesB(
     const std::unique_ptr<gen::GOptimizableEntity> &x_ptr,
     const std::unique_ptr<gen::GOptimizableEntity> &y_ptr
 ) const {
-    std::size_t n_criteria_x =
-        x_ptr->getNStoredResults(); // NOLINT(cppcoreguidelines-init-variables)
+    std::size_t n_criteria_x = x_ptr->getNStoredResults();
 
 #ifdef DEBUG
-    std::size_t n_criteria_y =
-        y_ptr->getNStoredResults(); // NOLINT(cppcoreguidelines-init-variables)
+    std::size_t n_criteria_y = y_ptr->getNStoredResults();
     if(n_criteria_x != n_criteria_y) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In G_OA_EvolutionaryAlgorithm::aDominatesB(): Error!" << '\n'
-            << "Number of fitness criteria differ: " << n_criteria_x << " / " << n_criteria_y
-            << '\n'
+            << "In GEvolutionaryAlgorithm::aDominatesB(): Error!" << '\n'
+            << "Number of fitness criteria differ: " << n_criteria_x << " / " << n_criteria_y << '\n'
         );
     }
 #endif
 
-    // x dominates y if none of its fitness criteria is worse than the corresponding criterion of y.
     auto m = x_ptr->getMaxMode();
     for(std::size_t i = 0; i < n_criteria_x; i++) {
         if(isWorse(x_ptr->transformed_fitness(i), y_ptr->transformed_fitness(i), m)) {
@@ -1118,17 +943,11 @@ bool GEvolutionaryAlgorithm::aDominatesB(
 }
 
 /******************************************************************************/
-/**
-  * @brief Applies modifications to this object. This is needed for testing purposes
-  *
-  * @return A boolean which indicates whether modifications were made
-  */
-bool GEvolutionaryAlgorithm::modify_GUnitTests_() {
-#ifdef GEM_TESTING
 
+bool GType::modify_GUnitTests_() {
+#ifdef GEM_TESTING
     bool result = false;
 
-    // Call the parent class'es function
     if(GParChild::modify_GUnitTests_()) {
         result = true;
     }
@@ -1143,100 +962,58 @@ bool GEvolutionaryAlgorithm::modify_GUnitTests_() {
 
     return result;
 
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset("G_OA_EvolutionaryAlgorithm::modify_GUnitTests", "GEM_TESTING");
+#else /* GEM_TESTING */
+    Gem::Common::condnotset("GEvolutionaryAlgorithm::modify_GUnitTests", "GEM_TESTING");
     return false;
 #endif                  /* GEM_TESTING */
 }
 
 /******************************************************************************/
-/**
-  * @brief Fills the collection with individuals.
-  *
-  * @param n_individuals The number of individuals (GTestIndividual1 instances) that should be added to the collection
-  */
-void GEvolutionaryAlgorithm::fillWithObjects(const std::size_t &n_individuals) {
+
+void GType::fillWithObjects(const std::size_t &n_individuals) {
 #ifdef GEM_TESTING
-    // Clear the collection, so we can start fresh
     CHECK_NOTHROW(this->clear());
 
-    // Add some some
     for(std::size_t i = 0; i < n_individuals; i++) {
         this->push_back(std::make_unique<gen::GIndividualSlot>(
             std::make_unique<Gem::Geneva::Individuals::GTestIndividual1>()));
     }
 
-    // Make sure we have unique data items
     for(const auto &ind_ptr : *this) {
         ind_ptr->individual().randomInit(activityMode::ALLPARAMETERS);
     }
 
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset("G_OA_EvolutionaryAlgorithm::fillWithObjects", "GEM_TESTING");
+#else /* GEM_TESTING */
+    Gem::Common::condnotset("GEvolutionaryAlgorithm::fillWithObjects", "GEM_TESTING");
 #endif                  /* GEM_TESTING */
 }
 
 /******************************************************************************/
-/**
-  * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
-  */
-void GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests_() {
+
+void GType::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-    // Call the parent class'es function
     GParChild::specificTestsNoFailureExpected_GUnitTests_();
 
-    //------------------------------------------------------------------------------
-
     {
-        // Call the parent class'es function
-        std::shared_ptr<GEvolutionaryAlgorithm> p_test =
-            this->template clone<GEvolutionaryAlgorithm>();
-
-        // Fill p_test with individuals
+        std::shared_ptr<GType> p_test = this->template clone<GType>();
         p_test->fillWithObjects(100);
-
-        // Run the parent class'es tests
         p_test->GParChild::specificTestsNoFailureExpected_GUnitTests_();
     }
 
-    //------------------------------------------------------------------------------
-
     {
-        // Check setting and retrieval of the population size and number of parents/children
-        std::shared_ptr<GEvolutionaryAlgorithm> p_test =
-            this->template clone<GEvolutionaryAlgorithm>();
-
-        // Set the default population size and number of children to different numbers
+        std::shared_ptr<GType> p_test = this->template clone<GType>();
         for(std::size_t n_children = 5; n_children < 10; n_children++) {
             for(std::size_t n_parents = 1; n_parents < n_children; n_parents++) {
-                // Clear the collection
                 CHECK_NOTHROW(p_test->clear());
-
-                // Add the required number of individuals
                 p_test->fillWithObjects(n_parents + n_children);
-
                 CHECK_NOTHROW(p_test->setPopulationSizes(n_parents + n_children, n_parents));
-
-                // Check that the number of parents is as expected
-                INFO(
-                    "p_test->getNParents() == " << p_test->getNParents() << ", n_parents = "
-                                                << n_parents << ", size = " << p_test->size()
-                );
                 CHECK(p_test->getNParents() == n_parents);
-
-                // Check that the actual number of children has the same value
-                INFO(
-                    "p_test->getNChildren() = " << p_test->getNChildren()
-                                                << ", n_children = " << n_children
-                );
                 CHECK(p_test->getNChildren() == n_children);
             }
         }
     }
 
-    //------------------------------------------------------------------------------
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+#else /* GEM_TESTING */
     Gem::Common::condnotset(
         "GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests",
         "GEM_TESTING"
@@ -1245,14 +1022,10 @@ void GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests_() {
 }
 
 /******************************************************************************/
-/**
-  * @brief Performs self tests that are expected to fail. This is needed for testing purposes
-  */
-void GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    // Call the parent class'es function
-    GParChild::specificTestsFailuresExpected_GUnitTests_();
 
+void GType::specificTestsFailuresExpected_GUnitTests_() {
+#ifdef GEM_TESTING
+    GParChild::specificTestsFailuresExpected_GUnitTests_();
 #else  /* GEM_TESTING */
     Gem::Common::condnotset(
         "GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests",
@@ -1262,18 +1035,7 @@ void GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests_() {
 }
 
 /******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
 
-/**
- * @brief Streams a summary of the parent individuals' fitness values to an output stream.
- *
- * For each parent individual, the raw and transformed fitness values are printed on one line.
- *
- * @param os The output stream to write to
- * @param pop The GEvolutionaryAlgorithm population whose parents should be summarised
- * @return A reference to the output stream, for chaining
- */
 std::ostream &operator<<(std::ostream &os, const GEvolutionaryAlgorithm &pop) {
     os << '\n' << '\n';
     for(auto it = pop.begin(); it != pop.begin() + pop.getNParents(); ++it) {
@@ -1284,8 +1046,6 @@ std::ostream &operator<<(std::ostream &os, const GEvolutionaryAlgorithm &pop) {
     return os;
 }
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
 } // namespace Gem::Geneva::OptimizationAlgorithms
