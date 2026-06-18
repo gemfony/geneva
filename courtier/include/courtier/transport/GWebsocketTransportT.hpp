@@ -67,6 +67,7 @@
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
+#include "courtier/GWireCodec.hpp"                // shared scope-wrapped (de)serialization
 #include "courtier/GWireSerializationContext.hpp" // layout send-once: wire (de)serialization scope
 
 namespace Gem::Courtier::Consumers {
@@ -488,8 +489,7 @@ private:
         // De-serialize the object. A malformed/truncated message makes this throw; that must
         // not escape into io_context::run() (it would unwind the client's only io thread).
         try {
-            Gem::Courtier::GWireSerializationScope scope(&wire_ctx_);
-            Gem::Courtier::container_from_string(message, command_container_, serialization_mode_);
+            Gem::Courtier::wireDecode(message, command_container_, &wire_ctx_, serialization_mode_);
         }
         catch(const std::exception &e) {
             glogger << "In GWebsocketClientT<processable_type>::handle_message():" << '\n'
@@ -645,9 +645,8 @@ private:
         const GCommandContainerT<processable_type, networked_consumer_payload_command> &container
     ) {
         try {
-            Gem::Courtier::GWireSerializationScope scope(&wire_ctx_);
             this->async_start_write(
-                Gem::Courtier::container_to_string(container, serialization_mode_)
+                Gem::Courtier::wireEncode(container, &wire_ctx_, serialization_mode_)
             );
         }
         catch(const std::exception &e) {
@@ -1275,14 +1274,12 @@ private:
 
             // De-serialize the object (under the wire scope, so an id-referenced layout in a returned
             // result resolves against this server's registry).
-            {
-                Gem::Courtier::GWireSerializationScope scope(wire_ctx_.enabled ? &wire_ctx_ : nullptr);
-                Gem::Courtier::container_from_string(
-                    message,
-                    command_container_,
-                    serialization_mode_
-                ); // may throw
-            }
+            Gem::Courtier::wireDecode(
+                message,
+                command_container_,
+                wire_ctx_.enabled ? &wire_ctx_ : nullptr,
+                serialization_mode_
+            ); // may throw
 
             // Clear the buffer, so we may later fill it with data to be sent
             incoming_buffer_.consume(incoming_buffer_.size());
@@ -1359,8 +1356,11 @@ private:
 
         // Serialize under the wire scope, so the work item's layout is shipped in full only the first
         // time this peer sees it and by content id thereafter (layout send-once).
-        Gem::Courtier::GWireSerializationScope scope(wire_ctx_.enabled ? &wire_ctx_ : nullptr);
-        return Gem::Courtier::container_to_string(command_container_, serialization_mode_);
+        return Gem::Courtier::wireEncode(
+            command_container_,
+            wire_ctx_.enabled ? &wire_ctx_ : nullptr,
+            serialization_mode_
+        );
     }
 
     //-------------------------------------------------------------------------

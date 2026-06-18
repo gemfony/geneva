@@ -66,6 +66,7 @@
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
+#include "courtier/GWireCodec.hpp"                // shared scope-wrapped (de)serialization + layout fetch
 #include "courtier/GWireSerializationContext.hpp" // layout send-once: registry + wire scope
 
 // TODO: extract double buffering to GBaseConsumerClientT
@@ -337,11 +338,8 @@ public:
     void run() {
         // set message for initial GETDATA request (carries no genome, but keep it under the scope for
         // uniformity -- the scope is harmless for a payload-free command)
-        {
-            Gem::Courtier::GWireSerializationScope scope(&wireCtx_);
-            outgoingMessage_ =
-                Gem::Courtier::container_to_string(commandContainer_, config_.serializationMode);
-        }
+        outgoingMessage_ =
+            Gem::Courtier::wireEncode(commandContainer_, &wireCtx_, config_.serializationMode);
 
         // send initial GETDATA request to receive first work item
         if(!sendResultAndRequestNewWork()) {
@@ -356,17 +354,14 @@ public:
             // and by id thereafter; the incoming COMPUTE resolves an id-only layout from the local cache
             // or, on a miss, via the fetch round trip. This deserialise is sequenced before the async
             // send/receive below, so a fetch here never overlaps this rank's other MPI traffic.
-            {
-                Gem::Courtier::GWireSerializationScope scope(&wireCtx_);
-                outgoingMessage_ = std::move(
-                    Gem::Courtier::container_to_string(commandContainer_, config_.serializationMode)
-                );
-                Gem::Courtier::container_from_string(
-                    incomingMessage_,
-                    commandContainer_,
-                    config_.serializationMode
-                );
-            }
+            outgoingMessage_ =
+                Gem::Courtier::wireEncode(commandContainer_, &wireCtx_, config_.serializationMode);
+            Gem::Courtier::wireDecode(
+                incomingMessage_,
+                commandContainer_,
+                &wireCtx_,
+                config_.serializationMode
+            );
 
             if(config_.useAsyncReq) {
                 std::future<bool> networkingSuccessful =
@@ -592,10 +587,10 @@ private:
          * received a last its request.
          */
     void processLastResponse() {
-        Gem::Courtier::GWireSerializationScope scope(&wireCtx_);
-        Gem::Courtier::container_from_string(
+        Gem::Courtier::wireDecode(
             incomingMessage_,
             commandContainer_,
+            &wireCtx_,
             config_.serializationMode
         );
 
@@ -629,14 +624,13 @@ private:
     std::string fetchLayoutBlob_(const Gem::Courtier::GWireLayoutId &id) {
         // Build and serialise the REQUEST_LAYOUT message (no genome payload, so no nested wire scope).
         std::string requestStr;
-        {
-            Gem::Courtier::GWireSerializationScope noScope(nullptr);
-            GCommandContainerT<processable_type, networked_consumer_payload_command> request{
-                networked_consumer_payload_command::REQUEST_LAYOUT
-            };
-            request.set_layout_id(id);
-            requestStr = Gem::Courtier::container_to_string(request, config_.serializationMode);
-        }
+        // Build the REQUEST_LAYOUT message (under a null scope; carries no genome). MPI identifies the
+        // worker by rank, so no peer id is needed (the default 0 is sent).
+        requestStr = Gem::Courtier::buildLayoutRequest<processable_type>(
+            id,
+            /* peer = */ 0,
+            config_.serializationMode
+        );
 
         // Blocking send of the request to the master.
         MPI_Request sendReq{};
@@ -680,19 +674,7 @@ private:
 
         // Deserialise the reply (again no nested wire scope) and hand back the blob.
         const std::string replyStr(replyBuffer.get(), mpiGetCount(status));
-        Gem::Courtier::GWireSerializationScope noScope(nullptr);
-        GCommandContainerT<processable_type, networked_consumer_payload_command> reply{
-            networked_consumer_payload_command::NONE
-        };
-        Gem::Courtier::container_from_string(replyStr, reply, config_.serializationMode);
-        if(reply.get_command() != networked_consumer_payload_command::SEND_LAYOUT) {
-            glogger << "In GMPIConsumerWorkerNodeT<processable_type>::fetchLayoutBlob_() with rank="
-                    << commRank_ << ":" << '\n'
-                    << "Expected SEND_LAYOUT but got command " << reply.get_command() << '\n'
-                    << GWARNING;
-            return {};
-        }
-        return reply.get_layout_blob();
+        return Gem::Courtier::parseLayoutReply<processable_type>(replyStr, config_.serializationMode);
     }
 
     //-------------------------------------------------------------------------
@@ -890,14 +872,12 @@ private:
             // Deserialize the request under the wire scope (layout send-once): a returned RESULT genome may
             // reference its layout by id, resolved against the master's shared registry (which holds
             // every layout it has sent). The scope's peer is the requesting rank, set in the constructor.
-            {
-                Gem::Courtier::GWireSerializationScope scope(wireCtx_.enabled ? &wireCtx_ : nullptr);
-                Gem::Courtier::container_from_string(
-                    requestMessage_,
-                    commandContainer_,
-                    serializationMode_
-                ); // may throw
-            }
+            Gem::Courtier::wireDecode(
+                requestMessage_,
+                commandContainer_,
+                wireCtx_.enabled ? &wireCtx_ : nullptr,
+                serializationMode_
+            ); // may throw
 
             // Extract the command
             auto inboundCommand = commandContainer_.get_command();
@@ -1000,11 +980,11 @@ private:
         // Serialize the response under the wire scope (layout send-once): a COMPUTE work item's layout is shipped
         // in full to this peer (rank) only the first time it is seen and by content id thereafter. A
         // NODATA / STOP carries no genome, so the scope is harmless there.
-        {
-            Gem::Courtier::GWireSerializationScope scope(wireCtx_.enabled ? &wireCtx_ : nullptr);
-            outgoingMessage_ =
-                Gem::Courtier::container_to_string(commandContainer_, serializationMode_);
-        }
+        outgoingMessage_ = Gem::Courtier::wireEncode(
+            commandContainer_,
+            wireCtx_.enabled ? &wireCtx_ : nullptr,
+            serializationMode_
+        );
 
         if(outgoingMessage_.size() > GMPICONSUMERMAXMESSAGESIZE) {
             throw geneva_exception(
@@ -1069,16 +1049,13 @@ private:
          * cached the blob is left empty and the worker treats the fetch as failed.
          */
     void sendLayoutResponse() {
-        std::string blob;
-        if(wireRegistry_ != nullptr) {
-            wireRegistry_->tryGet(requestedLayoutId_, blob); // empty on a miss
-        }
-        // No wire scope: the reply carries only the raw blob, no genome.
-        commandContainer_.reset(networked_consumer_payload_command::SEND_LAYOUT);
-        commandContainer_.set_layout_id(requestedLayoutId_);
-        commandContainer_.set_layout_blob(std::move(blob));
-        outgoingMessage_ =
-            Gem::Courtier::container_to_string(commandContainer_, serializationMode_);
+        // Build the SEND_LAYOUT reply from the master's shared registry (under a null scope; the reply
+        // carries only the raw blob, no genome). Empty blob on a miss -> the worker fails the fetch.
+        outgoingMessage_ = Gem::Courtier::buildLayoutReply<processable_type>(
+            requestedLayoutId_,
+            wireRegistry_,
+            serializationMode_
+        );
 
         // A SEND_LAYOUT reply is bounded by the same per-message limit as everything else on this
         // transport; a layout that would not fit could never have ridden inline on a COMPUTE either.

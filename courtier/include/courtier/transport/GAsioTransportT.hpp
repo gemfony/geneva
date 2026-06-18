@@ -64,6 +64,7 @@
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
+#include "courtier/GWireCodec.hpp"                // shared scope-wrapped (de)serialization + layout fetch
 #include "courtier/GWireSerializationContext.hpp" // layout send-once: registry + wire scope
 
 namespace Gem::Courtier::Consumers {
@@ -478,10 +479,10 @@ private:
         // fetch_layout_blob_). A malformed or truncated message makes this throw; that must not escape
         // into io_context::run() (it would unwind the client's only io thread).
         try {
-            Gem::Courtier::GWireSerializationScope scope(&wire_ctx_);
-            Gem::Courtier::container_from_string(
+            Gem::Courtier::wireDecode(
                 incoming_message_str_,
                 command_container_,
+                &wire_ctx_,
                 serialization_mode_
             );
         }
@@ -592,9 +593,8 @@ private:
         try {
             // Serialize the returned item under the wire scope so its (unchanged) layout is sent in full
             // to the server only the first time, by id thereafter (layout send-once).
-            Gem::Courtier::GWireSerializationScope scope(&wire_ctx_);
             exchange_queue_.push_back(
-                Gem::Courtier::container_to_string(container, serialization_mode_)
+                Gem::Courtier::wireEncode(container, &wire_ctx_, serialization_mode_)
             );
         }
         catch(const std::exception &e) {
@@ -669,22 +669,11 @@ private:
 	  */
     std::string fetch_layout_blob_(const Gem::Courtier::GWireLayoutId &id) {
         try {
-            // This runs mid-decode (inside a genome load() under the work-item wire scope). Install a
-            // null scope for the duration so the REQUEST_LAYOUT/SEND_LAYOUT (de)serialisation below does
-            // not see (and cannot recurse into) the send-once context. The previous scope is restored on
-            // return, so the interrupted work-item decode continues unaffected.
-            Gem::Courtier::GWireSerializationScope no_scope(nullptr);
-
-            // Build the REQUEST_LAYOUT request (no payload; carries the wanted id + our peer id).
-            GCommandContainerT<processable_type, networked_consumer_payload_command> request{
-                networked_consumer_payload_command::REQUEST_LAYOUT
-            };
-            request.set_layout_id(id);
-            request.set_peer_id(peer_id_);
-            // Serialize WITHOUT a wire scope: a REQUEST_LAYOUT carries no genome, and we must not recurse
-            // into the send-once logic while resolving a layout.
+            // This runs mid-decode (inside a genome load() under the work-item wire scope). The codec's
+            // build/parse helpers each (de)serialize under a null scope so the REQUEST_LAYOUT/SEND_LAYOUT
+            // exchange does not recurse into the send-once context of the work item being decoded.
             const std::string request_str =
-                Gem::Courtier::container_to_string(request, serialization_mode_);
+                Gem::Courtier::buildLayoutRequest<processable_type>(id, peer_id_, serialization_mode_);
 
             // A self-contained synchronous exchange on its own io_context/socket.
             boost::asio::io_context fetch_ctx;
@@ -712,19 +701,8 @@ private:
                 return {};
             }
 
-            // De-serialize the SEND_LAYOUT reply (no wire scope, for the same reason as above) and pull
-            // out the blob.
-            GCommandContainerT<processable_type, networked_consumer_payload_command> reply{
-                networked_consumer_payload_command::NONE
-            };
-            Gem::Courtier::container_from_string(response_str, reply, serialization_mode_);
-            if(reply.get_command() != networked_consumer_payload_command::SEND_LAYOUT) {
-                glogger << "In GAsioConsumerClientT<processable_type>::fetch_layout_blob_(): " << '\n'
-                        << "expected SEND_LAYOUT but got command " << reply.get_command() << '\n'
-                        << GWARNING;
-                return {};
-            }
-            return reply.get_layout_blob();
+            // De-serialize the SEND_LAYOUT reply (under a null scope) and pull out the blob.
+            return Gem::Courtier::parseLayoutReply<processable_type>(response_str, serialization_mode_);
         }
         catch(const std::exception &e) {
             glogger << "In GAsioConsumerClientT<processable_type>::fetch_layout_blob_(): " << '\n'
@@ -1205,18 +1183,11 @@ private:
 	  * @return A serialized SEND_LAYOUT command container carrying the id and (if found) the blob.
 	  */
     std::string serializeLayoutReply(const Gem::Courtier::GWireLayoutId &id) {
-        std::string blob;
-        if(wire_registry_ != nullptr) {
-            wire_registry_->tryGet(id, blob); // leaves blob empty on a miss
-        }
-        GCommandContainerT<processable_type, networked_consumer_payload_command> reply{
-            networked_consumer_payload_command::SEND_LAYOUT
-        };
-        reply.set_layout_id(id);
-        reply.set_layout_blob(std::move(blob));
-        // No wire scope: the reply carries no genome, only the raw blob; we must not recurse into the
-        // send-once logic while answering a layout request.
-        return Gem::Courtier::container_to_string(reply, serialization_mode_);
+        return Gem::Courtier::buildLayoutReply<processable_type>(
+            id,
+            wire_registry_,
+            serialization_mode_
+        );
     }
 
     //-------------------------------------------------------------------------

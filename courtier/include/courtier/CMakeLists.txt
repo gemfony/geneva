@@ -37,6 +37,8 @@ SET ( COMMUNICATIONINCLUDES
     GExecutorStatusT.hpp
     GProcessingContainerT.hpp
     GSubmissionPolicy.hpp
+    GWireCodec.hpp
+    GWireSerializationContext.hpp
 )
 
 # Consumer classes (namespace Gem::Courtier): the span+policy submission consumers (formerly the

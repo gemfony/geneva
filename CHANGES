@@ -512,6 +512,14 @@ Recommended Versions:
   obsolete Boost version guards dropped; five BOOST_ASSERT(0) sites in
   the formula parser replaced with assert(false).
 
+- Internal: the wire (de)serialization of the networked session protocol was
+  de-duplicated into a shared GWireCodec (courtier). The three transports
+  (Asio, websocket, MPI) previously each open-coded the GWireSerializationScope
+  wrap around a command container and the REQUEST_LAYOUT / SEND_LAYOUT layout
+  cache-miss messages (with the subtle null-scope discipline); they now call
+  wireEncode / wireDecode / buildLayoutRequest / parseLayoutReply / buildLayoutReply.
+  Behaviour-preserving (the on-wire bytes are unchanged).
+
 - Single source of truth for each polymorphic class's local data members: a
   new localMembers() declaration (a tuple of named member references) from which
   load_(), compare_() and -- for the symmetric-serialization classes validated
