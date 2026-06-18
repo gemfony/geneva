@@ -36,6 +36,7 @@ SET ( COMMUNICATIONINCLUDES
     GDemoProcessingContainers.hpp
     GExecutorStatusT.hpp
     GProcessingContainerT.hpp
+    GServerSessionLogic.hpp
     GSubmissionPolicy.hpp
     GWireCodec.hpp
     GWireSerializationContext.hpp

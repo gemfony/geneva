@@ -518,7 +518,12 @@ Recommended Versions:
   wrap around a command container and the REQUEST_LAYOUT / SEND_LAYOUT layout
   cache-miss messages (with the subtle null-scope discipline); they now call
   wireEncode / wireDecode / buildLayoutRequest / parseLayoutReply / buildLayoutReply.
-  Behaviour-preserving (the on-wire bytes are unchanged).
+  Behaviour-preserving (the on-wire bytes are unchanged). The server-side request
+  dispatch was likewise de-duplicated into a shared GServerSessionLogic: a pure
+  serveWorkItem() (check a work item out -> COMPUTE / NODATA), used by all three
+  transports, and a synchronous handleServerRequest() (GETDATA / RESULT / REQUEST_LAYOUT
+  -> response bytes) shared by the request/response transports (Asio, websocket); the
+  MPI server keeps its own split receive/send structure and reuses serveWorkItem().
 
 - Single source of truth for each polymorphic class's local data members: a
   new localMembers() declaration (a tuple of named member references) from which

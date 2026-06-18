@@ -67,6 +67,7 @@
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
+#include "courtier/GServerSessionLogic.hpp"       // shared synchronous server dispatch (GETDATA/RESULT/...)
 #include "courtier/GWireCodec.hpp"                // shared scope-wrapped (de)serialization
 #include "courtier/GWireSerializationContext.hpp" // layout send-once: wire (de)serialization scope
 
@@ -1284,43 +1285,18 @@ private:
             // Clear the buffer, so we may later fill it with data to be sent
             incoming_buffer_.consume(incoming_buffer_.size());
 
-            // Extract the command
-            auto inboundCommand = command_container_.get_command();
-
-            // Act on the command received
-            switch(inboundCommand) {
-                using enum Gem::Courtier::networked_consumer_payload_command;
-            case GETDATA: {
-                return getAndSerializeWorkItem();
-            } /* break; */ // break is unreachable
-
-            case RESULT: {
-                // Retrieve the payload from the command container
-                auto payload_ptr = command_container_.release_payload();
-
-                // Submit the payload to the server (which will send it to the broker)
-                if(payload_ptr) {
-                    this->put_payload_item_(std::move(payload_ptr));
-                }
-                else {
-                    glogger << "GWebsocketConsumerSessionT<processable_type>::process_request():"
-                            << '\n'
-                            << "payload is empty even though a result was expected" << '\n'
-                            << GWARNING;
-                }
-
-                // Retrieve the next work item and send it to the client for processing
-                return getAndSerializeWorkItem();
-            } /* break; */ // break is unreachable
-
-            default: {
-                glogger << "GWebsocketConsumerSessionT<processable_type>::process_request():"
-                        << '\n'
-                        << "Got unknown or invalid command "
-                        << inboundCommand << '\n'
-                        << GWARNING;
-            } break;
-            }
+            // Act on the command and produce the response (shared synchronous server dispatch). A
+            // websocket worker never sends REQUEST_LAYOUT (layouts arrive inline on the ordered
+            // connection), so only GETDATA / RESULT are exercised here; the response is serialized under
+            // this session's wire scope (layout send-once).
+            return Gem::Courtier::handleServerRequest(
+                command_container_,
+                get_payload_item_,
+                put_payload_item_,
+                wire_registry_,
+                wire_ctx_.enabled ? &wire_ctx_ : nullptr,
+                serialization_mode_
+            );
         }
         catch(...) {
             glogger << "GWebsocketConsumerSessionT<processable_type>::process_request(): Caught "
@@ -1333,34 +1309,6 @@ private:
 
         // Make the compiler happy
         return {};
-    }
-
-    //-------------------------------------------------------------------------
-    /**
-	  * @brief Retrieval of a work item from the server and serialization. A valid item is wrapped in a
-	  * COMPUTE command; when none is available a NODATA command is produced instead.
-	  *
-	  * @return A serialized COMPUTE container with the work item, or a serialized NODATA container
-	  */
-    std::string getAndSerializeWorkItem() {
-        // Obtain a container_payload object from the queue, serialize it and send it off
-        auto payload_ptr = this->get_payload_item_();
-
-        if(payload_ptr) { // Did we get a valid item ?
-            command_container_.reset(networked_consumer_payload_command::COMPUTE, std::move(payload_ptr));
-        }
-        else {
-            // Let the remote side know whe don't have work
-            command_container_.reset(networked_consumer_payload_command::NODATA);
-        }
-
-        // Serialize under the wire scope, so the work item's layout is shipped in full only the first
-        // time this peer sees it and by content id thereafter (layout send-once).
-        return Gem::Courtier::wireEncode(
-            command_container_,
-            wire_ctx_.enabled ? &wire_ctx_ : nullptr,
-            serialization_mode_
-        );
     }
 
     //-------------------------------------------------------------------------

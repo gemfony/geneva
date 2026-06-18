@@ -66,6 +66,7 @@
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
+#include "courtier/GServerSessionLogic.hpp"       // shared server-side work-item decision (serveWorkItem)
 #include "courtier/GWireCodec.hpp"                // shared scope-wrapped (de)serialization + layout fetch
 #include "courtier/GWireSerializationContext.hpp" // layout send-once: registry + wire scope
 
@@ -951,16 +952,9 @@ private:
          * stores a NODATA command.
          */
     void prepareDataResponse() {
-        // Obtain a container_payload object from the queue, serialize it and send it off
-        // this function includes a timeout that might result in a nullptr being returned
-        auto payloadPtr = this->getPayloadItem_();
-
-        if(payloadPtr) {
-            commandContainer_.reset(networked_consumer_payload_command::COMPUTE, std::move(payloadPtr));
-        }
-        else {
-            commandContainer_.reset(networked_consumer_payload_command::NODATA);
-        }
+        // Check a work item out of the queue (the callable includes a timeout that may yield nullptr)
+        // and store it as COMPUTE, or NODATA when the queue is empty -- the shared server-side decision.
+        Gem::Courtier::serveWorkItem(commandContainer_, this->getPayloadItem_);
     }
 
     /**

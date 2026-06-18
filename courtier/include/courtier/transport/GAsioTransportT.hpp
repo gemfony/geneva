@@ -64,6 +64,7 @@
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
+#include "courtier/GServerSessionLogic.hpp"       // shared synchronous server dispatch (GETDATA/RESULT/...)
 #include "courtier/GWireCodec.hpp"                // shared scope-wrapped (de)serialization + layout fetch
 #include "courtier/GWireSerializationContext.hpp" // layout send-once: registry + wire scope
 
@@ -217,8 +218,9 @@ private:
             // tracking on it across our many short connections.
             getdata.set_peer_id(peer_id_);
             try {
+                // A GETDATA carries no genome, so no wire context is engaged (null scope).
                 exchange_queue_.push_back(
-                    Gem::Courtier::container_to_string(getdata, serialization_mode_)
+                    Gem::Courtier::wireEncode(getdata, nullptr, serialization_mode_)
                 );
             }
             catch(const std::exception &e) {
@@ -1070,14 +1072,12 @@ private:
             // reference its layout by id, which is resolved against this consumer's shared registry (the
             // server holds every layout it has sent). The scope's peer does not matter for decoding (only
             // for re-encoding), so it is left at its default here and set from the announced id below.
-            {
-                Gem::Courtier::GWireSerializationScope scope(wire_ctx_.enabled ? &wire_ctx_ : nullptr);
-                Gem::Courtier::container_from_string(
-                    incoming_message_str_,
-                    command_container_,
-                    serialization_mode_
-                ); // may throw
-            }
+            Gem::Courtier::wireDecode(
+                incoming_message_str_,
+                command_container_,
+                wire_ctx_.enabled ? &wire_ctx_ : nullptr,
+                serialization_mode_
+            ); // may throw
 
             // Clear the buffer, so we may later fill it with data to be sent
             incoming_message_str_.clear();
@@ -1087,51 +1087,18 @@ private:
             // the client across its many short connections.
             wire_ctx_.peer = command_container_.get_peer_id();
 
-            // Extract the command
-            auto inboundCommand = command_container_.get_command();
-
-            // Act on the command received
-            switch(inboundCommand) {
-                using enum Gem::Courtier::networked_consumer_payload_command;
-            case GETDATA: {
-                return getAndSerializeWorkItem();
-            } break;
-
-            case RESULT: {
-                // Retrieve the payload from the command container
-                auto payload_ptr = command_container_.release_payload();
-
-                // Submit the payload to the server (which will send it to the broker)
-                if(payload_ptr) {
-                    this->put_payload_item_(std::move(payload_ptr));
-                }
-                else {
-                    glogger << "GAsioConsumerSessionT<processable_type>::process_request():"
-                            << '\n'
-                            << "payload is empty even though a result was expected" << '\n'
-                            << GWARNING;
-                }
-
-                // Retrieve the next work item and send it to the client for processing
-                return getAndSerializeWorkItem();
-            } break;
-
-            case REQUEST_LAYOUT: {
-                // Layout cache-miss fetch: the client holds an id-only work item whose layout it does
-                // not have. Answer with the serialized layout from this consumer's registry (SEND_LAYOUT),
-                // or an empty blob if it is not (or no longer) cached -- the client treats that as a
-                // failed fetch.
-                return serializeLayoutReply(command_container_.get_layout_id());
-            } break;
-
-            default: {
-                glogger << "GAsioConsumerSessionT<processable_type>::process_request():"
-                        << '\n'
-                        << "Got unknown or invalid command "
-                        << inboundCommand << '\n'
-                        << GWARNING;
-            } break;
-            }
+            // Act on the command and produce the response (shared synchronous server dispatch:
+            // GETDATA serves an item, RESULT sinks the returned item and serves the next, REQUEST_LAYOUT
+            // answers from the registry). The COMPUTE/NODATA response is serialized under the wire scope
+            // (peer set above) so a work item's layout is sent send-once.
+            return Gem::Courtier::handleServerRequest(
+                command_container_,
+                get_payload_item_,
+                put_payload_item_,
+                wire_registry_,
+                wire_ctx_.enabled ? &wire_ctx_ : nullptr,
+                serialization_mode_
+            );
         }
         catch(
             ...
@@ -1144,50 +1111,6 @@ private:
 
         // Make the compiler happy
         return {};
-    }
-
-    //-------------------------------------------------------------------------
-    /**
-	  * @brief Retrieval of a work item from the server and serialization. Produces a COMPUTE command
-	  * container when an item is available, or a NODATA container when the queue is empty.
-	  *
-	  * @return A serialized command container holding the work item (COMPUTE) or a NODATA marker
-	  */
-    std::string getAndSerializeWorkItem() {
-        // Obtain a container_payload object from the queue, serialize it and send it off
-        auto payload_ptr = this->get_payload_item_();
-
-        if(payload_ptr) { // Did we get a valid item ?
-            command_container_.reset(networked_consumer_payload_command::COMPUTE, std::move(payload_ptr));
-        }
-        else {
-            // Let the remote side know whe don't have work
-            command_container_.reset(networked_consumer_payload_command::NODATA);
-        }
-
-        // Serialize the response under the wire scope (layout send-once): a COMPUTE work item's layout is shipped
-        // in full to this peer only the first time it is seen and by content id thereafter. wire_ctx_.peer
-        // was set from the announced client id in process_request(). A NODATA carries no genome, so the
-        // scope is harmless there.
-        Gem::Courtier::GWireSerializationScope scope(wire_ctx_.enabled ? &wire_ctx_ : nullptr);
-        return Gem::Courtier::container_to_string(command_container_, serialization_mode_);
-    }
-
-    //-------------------------------------------------------------------------
-    /**
-	  * @brief Builds a SEND_LAYOUT reply to a worker's REQUEST_LAYOUT (layout cache-miss fetch). The
-	  * serialized layout is copied out of this consumer's shared registry; if the id is not cached the
-	  * blob is left empty and the client treats the fetch as failed.
-	  *
-	  * @param id The content id of the requested layout.
-	  * @return A serialized SEND_LAYOUT command container carrying the id and (if found) the blob.
-	  */
-    std::string serializeLayoutReply(const Gem::Courtier::GWireLayoutId &id) {
-        return Gem::Courtier::buildLayoutReply<processable_type>(
-            id,
-            wire_registry_,
-            serialization_mode_
-        );
     }
 
     //-------------------------------------------------------------------------
