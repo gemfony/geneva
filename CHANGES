@@ -533,6 +533,13 @@ Recommended Versions:
   mpi_cleanSessInterval default was aligned to the consumer's own 1000 ms so the
   default behaviour is unchanged).
 
+- Robustness: GSwarmAlgorithm::adjustNeighborhoods now guards a completely empty first-iteration
+  population in all builds (previously a DEBUG-only check; in a release build a total first-iteration
+  work-item loss reached this->front() on an empty container -- undefined behaviour). It now throws a
+  clean exception. Two long-standing TODOs there were resolved: the empty/partial-neighborhood backfill
+  (including an entirely empty neighborhood, e.g. after networked timeouts) was confirmed correct and
+  documented; and getFirstNIPosVec() gained the missing (DEBUG) neighborhood-size-vector bounds check.
+
 - The bi-gaussian adaptor configuration (GAdaptionConfig::biGauss) gained the optional
   min_ad_prob / max_ad_prob clamp parameters (default [0, 1]) that the single-gaussian
   gauss() already exposed; previously biGauss hardcoded the [0, 1] ad_prob clamp with

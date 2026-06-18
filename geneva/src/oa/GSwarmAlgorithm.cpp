@@ -409,7 +409,16 @@ std::size_t GSwarmAlgorithm::getFirstNIPosVec(
         );
     }
 
-    // TODO: Add check for array sizes
+    // The summation below reads vec[0 .. neighborhood-1], so the size vector must cover every
+    // neighborhood up to (and including) the requested one.
+    if(vec.size() < n_neighborhoods_) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GSwarmAlgorithm::getFirstNIPosVec():" << '\n'
+            << "The neighborhood-size vector is too small: size " << vec.size() << '\n'
+            << "but " << n_neighborhoods_ << " neighborhoods are expected." << '\n'
+        );
+    }
 #endif
 
     if(neighborhood == 0) {
@@ -813,8 +822,13 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
             );
         }
         else { // n_neighborhood_members_cnt_[n] < default_n_neighborhood_members_
-            // TODO: Deal with cases where no items of a given neighborhood have returned
-            // The number of missing items
+            // The number of missing items. This covers an entirely empty neighborhood
+            // (n_neighborhood_members_cnt_[n] == 0, e.g. when every work item of this neighborhood
+            // timed out on a networked transport): n_missing == default_n_neighborhood_members_, and
+            // the backfill below restores the whole neighborhood. Because the preceding neighborhoods
+            // were already repaired to the default size, first_ni_pos == n * default_n_neighborhood_members_,
+            // which aligns with neighborhood n in the (full, default-sized) last-iteration snapshot, so
+            // the [first_ni_pos + i] reads are correctly aligned and in bounds (i < n_missing <= default).
             std::size_t n_missing =
                 default_n_neighborhood_members_ -
                 n_neighborhood_members_cnt_[n]; // NOLINT(cppcoreguidelines-init-variables)
@@ -834,16 +848,17 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
                 }
             }
             else { // first iteration
-#ifdef DEBUG
-                // At least one individual must have returned.
+                // At least one individual must have returned: the first-iteration backfill seeds missing
+                // slots from this->front(), so a completely empty population is unrecoverable. Guard in
+                // all builds (not just DEBUG) -- otherwise this->front() below is undefined behaviour in
+                // a release build when every first-iteration work item failed to return.
                 if(this->empty()) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In GSwarmAlgorithm::adjustNeighborhoods(): Error!" << '\n'
-                        << "No items found in the population. Cannot fix." << '\n'
+                        << "No items returned in the first iteration; cannot seed the swarm." << '\n'
                     );
                 }
-#endif
 
                 // Fill up with random items.
                 for(std::size_t n_m = 0; n_m < n_missing; n_m++) {
