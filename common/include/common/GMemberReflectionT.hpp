@@ -62,8 +62,9 @@ namespace Gem::Common {
  * GExpectationChecksT.hpp (it depends on the comparison DSL), which includes
  * this header.
  *
- * serialize() is intentionally NOT derived from this for the wire format
- * by default -- see prompts/2026-05-25-serialize-single-source-followup.md.
+ * A class may additionally derive its serialize() from the same localMembers() declaration (via
+ * serialize_members() below), keeping the on-wire member list in lockstep with load_()/compare_();
+ * classes whose wire format is asymmetric to their in-memory layout keep a hand-written serialize().
  *
  * @tparam T The type of the referenced member
  */

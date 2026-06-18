@@ -160,17 +160,17 @@ public:
 
         hidden.add_options()(
 			 (this->getMnemonic() + std::string("MaxIterations")).c_str()
-			 , po::value<std::int32_t>(&max_iteration_cl_)->default_value(-1)
+			 , po::value<std::int32_t>(&max_iteration_cl_)->default_value(CL_UNSET)
 			 , (std::string("\t[FactoryT / ") + this->getMnemonic() +
 				 "] The maximum allowed number of iterations or 0 to disable limit").c_str()
 		 )(
 			 (this->getMnemonic() + std::string("MaxStallIterations")).c_str()
-			 , po::value<std::int32_t>(&max_stall_iteration_cl_)->default_value(-1)
+			 , po::value<std::int32_t>(&max_stall_iteration_cl_)->default_value(CL_UNSET)
 			 , (std::string("\t[FactoryT / ") + this->getMnemonic() +
 				 "] The maximum allowed number of stalled iterations or 0 to disable limit").c_str()
 		 )(
 			 (this->getMnemonic() + std::string("MaxSeconds")).c_str()
-			 , po::value<std::int32_t>(&max_seconds_cl_)->default_value(-1)
+			 , po::value<std::int32_t>(&max_seconds_cl_)->default_value(CL_UNSET)
 			 , (std::string("\t[FactoryT / ") + this->getMnemonic() +
 				 "] The maximum allowed duration in seconds or 0 to disable limit").c_str()
 		 );
@@ -271,11 +271,7 @@ public:
 	  * @return true if a maximum number of iterations was set, false otherwise
 	  */
     bool maxIterationsCLSet() const {
-        if(max_iteration_cl_ >= 0) {
-            return true;
-        }
-                    return false;
-       
+        return max_iteration_cl_ != CL_UNSET;
     }
 
     /***************************************************************************/
@@ -285,7 +281,7 @@ public:
 	  * @return The maximum number of iterations set on the command line (throws if it was never set)
 	  */
     std::uint32_t getMaxIterationCL() const {
-        if(max_iteration_cl_ >= 0) {
+        if(max_iteration_cl_ != CL_UNSET) {
             return Gem::Common::narrow<std::uint32_t>(max_iteration_cl_);
         }
                     throw geneva_exception(
@@ -316,11 +312,7 @@ public:
 	  * @return true if a maximum number of stall iterations was set, false otherwise
 	  */
     bool maxStallIterationsCLSet() const {
-        if(max_stall_iteration_cl_ >= 0) {
-            return true;
-        }
-                    return false;
-       
+        return max_stall_iteration_cl_ != CL_UNSET;
     }
 
     /***************************************************************************/
@@ -330,7 +322,7 @@ public:
 	  * @return The maximum number of stall iterations set on the command line (throws if it was never set)
 	  */
     std::uint32_t getMaxStallIterationCL() const {
-        if(max_stall_iteration_cl_ >= 0) {
+        if(max_stall_iteration_cl_ != CL_UNSET) {
             return Gem::Common::narrow<std::uint32_t>(max_stall_iteration_cl_);
         }
                     throw geneva_exception(
@@ -362,11 +354,7 @@ public:
 	  * @return true if a maximum run duration was set, false otherwise
 	  */
     bool maxSecondsCLSet() const {
-        if(max_seconds_cl_ >= 0) {
-            return true;
-        }
-                    return false;
-       
+        return max_seconds_cl_ != CL_UNSET;
     }
 
     /***************************************************************************/
@@ -376,7 +364,7 @@ public:
 	  * @return The maximum run duration set on the command line, as a duration (throws if it was never set)
 	  */
     std::chrono::duration<double> getMaxTimeCL() const {
-        if(max_seconds_cl_ >= 0) {
+        if(max_seconds_cl_ != CL_UNSET) {
             std::chrono::duration<double> max_duration =
                 std::chrono::seconds(Gem::Common::narrow<long>(max_seconds_cl_));
             return max_duration;
@@ -479,12 +467,15 @@ private:
 
     /***************************************************************************/
 
-    std::int32_t max_iteration_cl_ =
-        -1; ///< The maximum number of iterations. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
-    std::int32_t max_stall_iteration_cl_ =
-        -1; ///< The maximum number of generations without improvement, after which optimization is stopped. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
-    std::int32_t max_seconds_cl_ =
-        -1; ///< The maximum number of seconds for the optimization to run. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
+    /// Sentinel for "not set on the command line". These are bound directly to a Boost.program_options
+    /// value (which needs a concrete arithmetic type, so std::optional cannot be used), hence a signed
+    /// type with a negative "unset" marker; the *CLSet() / get*() accessors present the optional-style
+    /// "has value / get-or-throw" interface on top of it.
+    static constexpr std::int32_t CL_UNSET = -1;
+
+    std::int32_t max_iteration_cl_ = CL_UNSET;       ///< The maximum number of iterations (CL_UNSET == not set)
+    std::int32_t max_stall_iteration_cl_ = CL_UNSET; ///< Max improvement-free generations before stopping (CL_UNSET == not set)
+    std::int32_t max_seconds_cl_ = CL_UNSET;         ///< The maximum run duration in seconds (CL_UNSET == not set)
 };
 
 /******************************************************************************/

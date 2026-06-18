@@ -60,6 +60,26 @@ class GAdaptionConfigBase;
 namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
+// Optional static hooks a concrete flat individual may provide. The factory detects each via the
+// concept below and adapts: an individual that omits a hook simply gets the default behaviour.
+
+/** @brief Satisfied if Derived supplies a static finalize(const Config&) teardown hook. */
+template <typename Derived>
+concept HasFinalizeHook = requires(const typename Derived::Config &c) { Derived::finalize(c); };
+
+/** @brief Satisfied if Derived supplies a static buildAdaptionConfig(const GFlatGenome&, const Config&) hook. */
+template <typename Derived>
+concept HasBuildAdaptionConfigHook =
+    requires(const GFlatGenome &g, const typename Derived::Config &c) {
+        Derived::buildAdaptionConfig(g, c);
+    };
+
+/** @brief Satisfied if Derived supplies a static applyConfig(Derived&, const Config&) per-object hook. */
+template <typename Derived>
+concept HasApplyConfigHook =
+    requires(Derived &d, const typename Derived::Config &c) { Derived::applyConfig(d, c); };
+
+/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
@@ -166,7 +186,7 @@ public:
      * (trivial) teardown. A destructor must never propagate an exception, so the hook is shielded.
      */
     ~GFlatIndividualFactory() override {
-        if constexpr (requires(const typename Derived::Config &c) { Derived::finalize(c); }) {
+        if constexpr (HasFinalizeHook<Derived>) {
             if(genome_built_) {
                 try {
                     Derived::finalize(config_);
@@ -201,9 +221,7 @@ public:
      */
     std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
     getAdaptionConfig(const GFlatGenome &sample) const {
-        if constexpr (requires(const GFlatGenome &g, const typename Derived::Config &c) {
-                          Derived::buildAdaptionConfig(g, c);
-                      }) {
+        if constexpr (HasBuildAdaptionConfigHook<Derived>) {
             return Derived::buildAdaptionConfig(sample, config_);
         }
         else {
@@ -253,9 +271,7 @@ protected:
         // Optional per-object configuration hook: lets a Derived individual apply its own non-genome
         // settings parsed into config_ (e.g. a transfer function) beyond building the genome. It is the
         // symmetric companion to buildAdaptionConfig(): an individual without the hook is simply left unconfigured.
-        if constexpr (requires(Derived &d, const typename Derived::Config &c) {
-                          Derived::applyConfig(d, c);
-                      }) {
+        if constexpr (HasApplyConfigHook<Derived>) {
             Derived::applyConfig(*static_cast<Derived *>(fg), config_);
         }
     }
