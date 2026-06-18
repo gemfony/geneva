@@ -3680,14 +3680,7 @@ void GPlotDesigner::compare_(
     compare_base_t<GCommonInterfaceT<GPlotDesigner>>(*this, *p_load, token);
 
     // ... and then the local data
-    compare_t(IDENTITY(plotters_cnt_, p_load->plotters_cnt_), token);
-    compare_t(IDENTITY(c_x_div_, p_load->c_x_div_), token);
-    compare_t(IDENTITY(c_y_div_, p_load->c_y_div_), token);
-    compare_t(IDENTITY(c_x_dim_, p_load->c_x_dim_), token);
-    compare_t(IDENTITY(c_y_dim_, p_load->c_y_dim_), token);
-    compare_t(IDENTITY(canvas_label_, p_load->canvas_label_), token);
-    compare_t(IDENTITY(add_print_command_, p_load->add_print_command_), token);
-    compare_t(IDENTITY(n_indention_spaces_, p_load->n_indention_spaces_), token);
+    g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -3716,14 +3709,7 @@ void GPlotDesigner::load_(const GPlotDesigner *cp) {
     // No "loadable" parent class
 
     // Load local data
-    copyCloneableSmartPointerContainer(p_load->plotters_cnt_, plotters_cnt_);
-    c_x_div_ = p_load->c_x_div_;
-    c_y_div_ = p_load->c_y_div_;
-    c_x_dim_ = p_load->c_x_dim_;
-    c_y_dim_ = p_load->c_y_dim_;
-    canvas_label_ = p_load->canvas_label_;
-    add_print_command_ = p_load->add_print_command_;
-    n_indention_spaces_ = p_load->n_indention_spaces_;
+    g_load_members(localMembers(), p_load->localMembers());
 }
 
 /******************************************************************************/

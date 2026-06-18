@@ -43,6 +43,36 @@ class GPlotDesigner : public GCommonInterfaceT<GPlotDesigner> {
     friend class boost::serialization::access;
 
     /**
+     * @brief Single declaration of this class'es local data members
+     * @return A tuple of named member references driving serialize(), load_() and compare_()
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_cloneable_container_member("plotters_cnt_", plotters_cnt_),
+            Gem::Common::make_member("c_x_div_", c_x_div_),
+            Gem::Common::make_member("c_y_div_", c_y_div_),
+            Gem::Common::make_member("c_x_dim_", c_x_dim_),
+            Gem::Common::make_member("c_y_dim_", c_y_dim_),
+            Gem::Common::make_member("canvas_label_", canvas_label_),
+            Gem::Common::make_member("add_print_command_", add_print_command_),
+            Gem::Common::make_member("n_indention_spaces_", n_indention_spaces_)
+        );
+    }
+    /** @brief Single declaration of this class'es local data members (const overload) */
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_cloneable_container_member("plotters_cnt_", plotters_cnt_),
+            Gem::Common::make_member("c_x_div_", c_x_div_),
+            Gem::Common::make_member("c_y_div_", c_y_div_),
+            Gem::Common::make_member("c_x_dim_", c_x_dim_),
+            Gem::Common::make_member("c_y_dim_", c_y_dim_),
+            Gem::Common::make_member("canvas_label_", canvas_label_),
+            Gem::Common::make_member("add_print_command_", add_print_command_),
+            Gem::Common::make_member("n_indention_spaces_", n_indention_spaces_)
+        );
+    }
+
+    /**
      * @brief Serializes this designer's state to or from a Boost archive
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive being read from or written to
@@ -51,11 +81,12 @@ class GPlotDesigner : public GCommonInterfaceT<GPlotDesigner> {
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-
-        ar &BOOST_SERIALIZATION_NVP(c_x_div_) & BOOST_SERIALIZATION_NVP(c_y_div_) &
-            BOOST_SERIALIZATION_NVP(c_x_dim_) & BOOST_SERIALIZATION_NVP(c_y_dim_) &
-            BOOST_SERIALIZATION_NVP(canvas_label_) & BOOST_SERIALIZATION_NVP(add_print_command_) &
-            BOOST_SERIALIZATION_NVP(n_indention_spaces_);
+        // The member list is derived from the single localMembers() declaration
+        // so serialize()/load_()/compare_() stay in sync. plotters_cnt_ (the plot
+        // list) is included so a checkpointed monitor's accumulated plots survive
+        // a resume -- it was previously dropped from the wire while load_()/compare_()
+        // carried it.
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 

@@ -141,12 +141,47 @@ class GImageIndividual final : public gen::GFlatGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /**
+     * @brief Single declaration of this class'es local data members
+     * @return A tuple of named member references driving serialize(), load_() and compare_()
+     *
+     * adaption_config_ is intentionally NOT part of this tuple: it is a transient
+     * pointer to the optimization-algorithm-owned adaption configuration (shared,
+     * not owned, not adapted on a worker), so it is neither serialized nor compared
+     * and is shallow-shared in load_() (see the documented tail there).
+     */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("width_", width_),
+            Gem::Common::make_member("height_", height_),
+            Gem::Common::make_member("nTriangles_", nTriangles_),
+            Gem::Common::make_member("alphaSort_", alphaSort_),
+            Gem::Common::make_member("changeBGColor_", changeBGColor_),
+            Gem::Common::make_member("mutateAlphaChannel_", mutateAlphaChannel_)
+        );
+    }
+    /** @brief Single declaration of this class'es local data members (const overload) */
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("width_", width_),
+            Gem::Common::make_member("height_", height_),
+            Gem::Common::make_member("nTriangles_", nTriangles_),
+            Gem::Common::make_member("alphaSort_", alphaSort_),
+            Gem::Common::make_member("changeBGColor_", changeBGColor_),
+            Gem::Common::make_member("mutateAlphaChannel_", mutateAlphaChannel_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
-
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
-            BOOST_SERIALIZATION_NVP(nTriangles_) & BOOST_SERIALIZATION_NVP(alphaSort_);
+        // The member list is derived from the single localMembers() declaration so
+        // serialize()/load_()/compare_() stay in sync. The image dimensions and the
+        // background / alpha mutation flags are now on the wire too (they were
+        // previously dropped, leaving a networked worker or a resumed checkpoint with
+        // default dimensions / flags while load_()/compare_() already carried them).
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
 
     ///////////////////////////////////////////////////////////////////////

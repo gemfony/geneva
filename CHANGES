@@ -519,12 +519,16 @@ Recommended Versions:
   same member list in several parallel hand-written functions. Helpers added in
   GExpectationChecksT.hpp (make_member, g_load_members, g_compare_members,
   serialize_members). The remaining hand-listed classes were migrated to this
-  pattern (GFixedSizePriorityQueueT, GBasePlotter and the GStarterIndividual /
-  GImagePOM example types). GPlotDesigner and the GImageIndividual example type
-  are intentionally left hand-written: their serialize() deliberately covers
-  fewer members than load_()/compare_() (the plot list, respectively the image
-  configuration flags, are deep-copied on clone but not serialized) -- an
-  asymmetry the single-source pattern cannot express.
+  pattern (GFixedSizePriorityQueueT, GBasePlotter, GPlotDesigner and the
+  GStarterIndividual / GImagePOM / GImageIndividual example types). Two
+  pre-existing serialize() omissions were fixed as part of this: GPlotDesigner
+  did not serialize its plot list (plotters_cnt_), so a checkpointed monitor's
+  accumulated plots were lost on resume; and GImageIndividual did not serialize
+  its image dimensions or background / alpha mutation flags, so a networked
+  worker or a resumed checkpoint silently reverted them to defaults. Both are
+  now on the wire. (GImageIndividual's adaption_config_ remains deliberately
+  transient -- a shared pointer to the optimization-algorithm-owned adaption
+  configuration, neither serialized nor compared.)
 
 - The Geneva standard unit tests (clone/modify/compare and TEXT/XML/BINARY
   (de)serialization round-trips) now also cover all seven optimization

@@ -299,12 +299,7 @@ void GImageIndividual::compare_(
     Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
 
     // ... and then the local data
-    Gem::Common::compare_t(IDENTITY(width_, p_load->width_), token);
-    Gem::Common::compare_t(IDENTITY(height_, p_load->height_), token);
-    Gem::Common::compare_t(IDENTITY(nTriangles_, p_load->nTriangles_), token);
-    Gem::Common::compare_t(IDENTITY(alphaSort_, p_load->alphaSort_), token);
-    Gem::Common::compare_t(IDENTITY(changeBGColor_, p_load->changeBGColor_), token);
-    Gem::Common::compare_t(IDENTITY(mutateAlphaChannel_, p_load->mutateAlphaChannel_), token);
+    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -409,12 +404,10 @@ void GImageIndividual::load_(const gen::GOptimizableEntity *cp) {
     gen::GFlatGenome::load_(cp);
 
     // Load local data
-    nTriangles_ = p_load->nTriangles_;
-    alphaSort_ = p_load->alphaSort_;
-    changeBGColor_ = p_load->changeBGColor_;
-    mutateAlphaChannel_ = p_load->mutateAlphaChannel_;
-    width_ = p_load->width_;
-    height_ = p_load->height_;
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+
+    // Documented manual tail: adaption_config_ is a transient pointer to the
+    // OA-owned adaption configuration (not serialized, not compared); share it.
     adaption_config_ = p_load->adaption_config_; // share the OA-owned config (transient, read-only)
 }
 
