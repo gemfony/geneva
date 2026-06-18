@@ -170,7 +170,7 @@ TEST_CASE(
 
 /******************************************************************************/
 
-TEST_CASE("Broker registry holds at most one broker per kind", "[consumer][sharing][registry]") {
+TEST_CASE("Broker registry holds one shared work broker", "[consumer][sharing][registry]") {
     using Registry = Gem::Courtier::GBrokerRegistryT<gen::GOptimizableEntity>;
     using broker_t = Gem::Courtier::GBrokerT<gen::GOptimizableEntity>;
     using Gem::Courtier::broker_kind;
@@ -178,34 +178,28 @@ TEST_CASE("Broker registry holds at most one broker per kind", "[consumer][shari
     auto &reg = Registry::instance();
     reg.clearAll();
 
-    CHECK(reg.get(broker_kind::multithreaded) == nullptr);
+    CHECK(reg.sharedWorkBroker() == nullptr);
 
-    // getOrRegister builds exactly once for a kind; later (and concurrent-shaped) calls share it.
+    // ensureSharedWork builds exactly once; later (and concurrent-shaped) calls share the same broker.
     std::size_t factory_calls = 0;
     auto factory = [&factory_calls]() {
         ++factory_calls;
         return std::make_shared<broker_t>();
     };
-    auto first = reg.getOrRegister(broker_kind::multithreaded, factory);
-    auto second = reg.getOrRegister(broker_kind::multithreaded, factory);
+    auto first = reg.ensureSharedWork(broker_kind::multithreaded, factory);
+    auto second = reg.ensureSharedWork(broker_kind::multithreaded, factory);
     CHECK(factory_calls == 1);     // the second call did NOT build a new broker
-    CHECK(first == second);        // it returned the same shared broker
-    CHECK(reg.get(broker_kind::multithreaded) == first);
+    CHECK(first == second);        // it returned the same shared work broker
+    CHECK(reg.sharedWorkBroker() == first);
+    CHECK(reg.sharedWorkKind() == broker_kind::multithreaded);
 
-    // Different kinds are independent.
-    auto serial = reg.getOrRegister(broker_kind::serial, factory);
-    CHECK(factory_calls == 2);
-    CHECK(serial != first);
-
-    // set() publishes/replaces; clear() drops one kind; clearAll() empties.
+    // publishSharedWork replaces it (e.g. Go2 publishing the consumer it built); clearAll empties.
     auto replacement = std::make_shared<broker_t>();
-    reg.set(broker_kind::multithreaded, replacement);
-    CHECK(reg.get(broker_kind::multithreaded) == replacement);
-    reg.clear(broker_kind::multithreaded);
-    CHECK(reg.get(broker_kind::multithreaded) == nullptr);
-    CHECK(reg.get(broker_kind::serial) == serial); // clear is per-kind
+    reg.publishSharedWork(broker_kind::networked, replacement);
+    CHECK(reg.sharedWorkBroker() == replacement);
+    CHECK(reg.sharedWorkKind() == broker_kind::networked);
     reg.clearAll();
-    CHECK(reg.get(broker_kind::serial) == nullptr);
+    CHECK(reg.sharedWorkBroker() == nullptr);
 }
 
 /******************************************************************************/
@@ -268,7 +262,7 @@ TEST_CASE(
 
 /******************************************************************************/
 
-TEST_CASE("buildConsumerSetup publishes the local broker under its kind", "[consumer][sharing][registry]") {
+TEST_CASE("buildConsumerSetup publishes the shared work broker", "[consumer][sharing][registry]") {
     using Registry = Gem::Courtier::GBrokerRegistryT<gen::GOptimizableEntity>;
     using Gem::Courtier::broker_kind;
 
@@ -277,12 +271,14 @@ TEST_CASE("buildConsumerSetup publishes the local broker under its kind", "[cons
 
     auto stc = Gem::Geneva::buildConsumerSetup(Gem::Geneva::ConsumerSpec{.mnemonic = "stc"});
     REQUIRE(stc.broker);
-    CHECK(reg.get(broker_kind::multithreaded) == stc.broker); // published, so un-injected OAs share it
+    CHECK(reg.sharedWorkBroker() == stc.broker); // published, so un-injected algorithms submit through it
+    CHECK(reg.sharedWorkKind() == broker_kind::multithreaded);
 
+    // A later build replaces the single shared work broker (the process has one work endpoint).
     auto sc = Gem::Geneva::buildConsumerSetup(Gem::Geneva::ConsumerSpec{.mnemonic = "sc"});
     REQUIRE(sc.broker);
-    CHECK(reg.get(broker_kind::serial) == sc.broker);
-    CHECK(reg.get(broker_kind::multithreaded) == stc.broker); // the serial build left the stc entry intact
+    CHECK(reg.sharedWorkBroker() == sc.broker);
+    CHECK(reg.sharedWorkKind() == broker_kind::serial);
 
     reg.clearAll();
 }

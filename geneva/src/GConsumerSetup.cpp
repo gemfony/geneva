@@ -115,14 +115,15 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
 
     auto &registry = c2::GBrokerRegistryT<gen::GOptimizableEntity>::instance();
 
-    // Idempotent networked build: a socket server binds a port, so a second request for a networked
-    // socket consumer reuses the existing one rather than binding again -- one listening endpoint per
+    // Idempotent networked build: a socket server binds a port, so if the process already has a
+    // networked shared work broker, reuse it rather than binding again -- one listening endpoint per
     // process. (MPI is excluded: its consumer is built on every rank and self-determines master/worker,
     // so it is constructed normally and published below; a sub-algorithm reuses it via the registry, not
     // by re-entering this builder.)
     if(spec.mnemonic == "asio" || spec.mnemonic == "beast") {
-        if(auto existing = registry.get(c2::broker_kind::networked)) {
-            setup.broker = existing;
+        if(registry.sharedWorkBroker() &&
+           registry.sharedWorkKind() == c2::broker_kind::networked) {
+            setup.broker = registry.sharedWorkBroker();
             return setup;
         }
     }
@@ -167,11 +168,11 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
     }
 #endif /* GENEVA_BUILD_WITH_MPI_CONSUMER */
 
-    // Publish the freshly-built broker under its kind so un-injected algorithms of that kind converge
-    // on it (and a later networked socket build reuses it instead of binding a second port). An MPI
-    // worker rank has no broker (run_worker only), so nothing is published there.
+    // Publish the freshly-built broker as the process's shared work broker so every un-injected
+    // algorithm submits through it (and a later networked socket build reuses it instead of binding a
+    // second port). An MPI worker rank has no broker (run_worker only), so nothing is published there.
     if(setup.broker) {
-        registry.set(brokerKindForMnemonic(spec.mnemonic), setup.broker);
+        registry.publishSharedWork(brokerKindForMnemonic(spec.mnemonic), setup.broker);
     }
 
     return setup;

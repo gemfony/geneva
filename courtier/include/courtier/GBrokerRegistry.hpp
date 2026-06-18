@@ -33,7 +33,6 @@
 
 // Standard headers
 #include <functional>
-#include <map>
 #include <memory>
 #include <mutex>
 
@@ -45,10 +44,9 @@ namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
- * The kind of consumer a broker fronts. The single-shared-consumer invariant is "at most one consumer
- * of a given kind per process, shared by every algorithm that needs that kind", so the registry below
- * holds at most one broker PER KIND: a local serial consumer, a local thread-pool consumer, and a
- * networked consumer (the one external clients connect to) may coexist, but never two of the same kind.
+ * The kind of consumer a broker fronts. An optimization algorithm never selects a kind -- it just
+ * submits through whatever broker it is given -- so this is used only for build-time bookkeeping (e.g.
+ * recognising that the shared work broker is networked, to avoid binding its port a second time).
  */
 enum class broker_kind {
     serial,        ///< Inline, single-threaded local consumer (GSerialConsumerT)
@@ -58,19 +56,22 @@ enum class broker_kind {
 
 /******************************************************************************/
 /**
- * A process-global, per-kind registry of brokers. It lets every un-injected optimization algorithm that
- * needs a consumer of a given kind converge on ONE shared broker (and hence one consumer / one worker
- * pool / one networked port) instead of each building its own. The execution policy consults it after an
- * explicitly-injected broker (which always wins): explicit injection -> the process-global broker of the
- * requested kind -> build the default consumer of that kind and register it here.
+ * A process-global holder for the single SHARED WORK BROKER -- the one consumer every un-injected
+ * optimization algorithm submits through. An algorithm is transport-agnostic: it either has a broker
+ * explicitly injected (Go2 into its chained algorithms, or a meta-optimization master's own
+ * orchestration pool) or, failing that, resolves the one shared work broker here and calls workOn()
+ * without ever knowing whether evaluation happens locally, on a GPU, or on a remote client. So a whole
+ * process exposes a single work endpoint (one pool, or one networked port) that all un-injected
+ * algorithms -- including the inner algorithms of a meta-optimization -- converge on, instead of each
+ * building its own.
  *
  * The single instance is handed out via GSingletonT (it outlives ordinary statics and is reachable
  * concurrently). All mutation is guarded by an internal mutex, so concurrent submitters (e.g. the inner
  * algorithms of a meta-optimization, evaluated in parallel) race-freely converge on one broker. The
- * registry is CLEARABLE (clear / clearAll) so unit tests can start from a known-empty state -- without
- * that, a broker registered by one test would leak into the next.
+ * holder is CLEARABLE (clearAll) so unit tests can start from a known-empty state -- without that, a
+ * broker published by one test would leak into the next.
  *
- * @tparam processable_type The work-item type the registered brokers' consumers handle
+ * @tparam processable_type The work-item type the shared broker's consumer handles
  */
 template <typename processable_type>
 class GBrokerRegistryT {
@@ -88,68 +89,66 @@ public:
     }
 
     /***************************************************************************/
-    /** @brief The broker currently registered for @p kind, or nullptr if none.
-     *  @param kind The consumer kind to look up
-     *  @return The registered broker of that kind, or nullptr */
-    broker_ptr get(broker_kind kind) {
+    /** @brief The current shared work broker, or nullptr if none has been established yet.
+     *  @return The shared work broker, or nullptr */
+    broker_ptr sharedWorkBroker() {
         const std::lock_guard<std::mutex> lk(mtx_);
-        const auto it = store_.find(kind);
-        return it == store_.end() ? broker_ptr{} : it->second;
+        return work_broker_;
+    }
+
+    /***************************************************************************/
+    /** @brief The kind of the current shared work broker (meaningful only when one exists). Used for
+     *  build-time idempotency (recognising a networked endpoint), never for algorithm-side resolution.
+     *  @return The kind of the current shared work broker */
+    broker_kind sharedWorkKind() {
+        const std::lock_guard<std::mutex> lk(mtx_);
+        return work_kind_;
     }
 
     /***************************************************************************/
     /**
-     * @brief Returns the broker registered for @p kind, building and registering one via @p factory if
-     * none exists yet. Idempotent under concurrency: only the first caller for a given kind runs the
-     * factory; later callers (and concurrent ones) get the same broker, so there is never more than one
-     * consumer of a kind. The factory runs under the registry lock (broker construction is cheap and
-     * one-shot per kind).
+     * @brief Returns the shared work broker, building and publishing one via @p factory if none exists
+     * yet. Idempotent under concurrency: only the first caller runs the factory; later callers (and
+     * concurrent ones) get the same broker, so a process has at most one shared work consumer. The
+     * factory runs under the lock (broker construction is cheap and one-shot).
      *
-     * @param kind The consumer kind to resolve
+     * @param kind The kind recorded for the broker the factory builds (for build-time bookkeeping)
      * @param factory Builds a ready broker (consumer registered, clone function set) when none is present
-     * @return The shared broker for @p kind (the pre-existing one, or the freshly built+registered one)
+     * @return The shared work broker (the pre-existing one, or the freshly built+published one)
      */
-    broker_ptr getOrRegister(broker_kind kind, const std::function<broker_ptr()> &factory) {
+    broker_ptr ensureSharedWork(broker_kind kind, const std::function<broker_ptr()> &factory) {
         const std::lock_guard<std::mutex> lk(mtx_);
-        const auto it = store_.find(kind);
-        if(it != store_.end()) {
-            return it->second;
+        if(work_broker_) {
+            return work_broker_;
         }
-        broker_ptr b = factory();
-        store_[kind] = b;
-        return b;
+        work_broker_ = factory();
+        work_kind_ = kind;
+        return work_broker_;
     }
 
     /***************************************************************************/
-    /** @brief Registers (or replaces) the broker for @p kind. Used to publish an externally-built broker
-     *  (e.g. the one Go2 constructs) so un-injected algorithms of that kind share it.
-     *  @param kind The consumer kind to publish under
-     *  @param b The broker to register for that kind */
-    void set(broker_kind kind, broker_ptr b) {
+    /** @brief Publishes (replaces) the shared work broker -- e.g. the one Go2 builds -- so every
+     *  un-injected algorithm submits through it.
+     *  @param kind The kind of the broker being published
+     *  @param b The broker to publish as the shared work broker */
+    void publishSharedWork(broker_kind kind, broker_ptr b) {
         const std::lock_guard<std::mutex> lk(mtx_);
-        store_[kind] = std::move(b);
+        work_broker_ = std::move(b);
+        work_kind_ = kind;
     }
 
     /***************************************************************************/
-    /** @brief Drops the broker registered for @p kind (no-op if none). The next request for that kind
-     *  rebuilds it. Primarily for tests and explicit teardown.
-     *  @param kind The consumer kind to clear */
-    void clear(broker_kind kind) {
-        const std::lock_guard<std::mutex> lk(mtx_);
-        store_.erase(kind);
-    }
-
-    /***************************************************************************/
-    /** @brief Drops all registered brokers, returning the registry to its empty state. Primarily for
-     *  tests (start each from a known-empty registry) and explicit teardown. */
+    /** @brief Drops the shared work broker, returning the holder to its empty state. Primarily for
+     *  tests (start each from a known-empty state) and explicit teardown. */
     void clearAll() {
         const std::lock_guard<std::mutex> lk(mtx_);
-        store_.clear();
+        work_broker_.reset();
     }
 
 private:
-    std::mutex mtx_;                          ///< Guards store_ against concurrent submitters
-    std::map<broker_kind, broker_ptr> store_; ///< At most one broker per kind
+    std::mutex mtx_;                                  ///< Guards the shared work broker
+    broker_ptr work_broker_;                          ///< The single shared work broker (null until established)
+    broker_kind work_kind_ = broker_kind::multithreaded; ///< Kind of work_broker_ (bookkeeping only)
 };
 
 /******************************************************************************/

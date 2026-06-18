@@ -169,12 +169,13 @@ private:
      * @brief Lazily resolves the broker + executor on first use, and enables the consumer's late-return
      * buffer. A no-op once established.
      *
-     * Precedence (the single-shared-consumer invariant): an explicitly-injected broker (setBroker, e.g.
-     * from Go2 or a meta-optimization master's local orchestration pool) always wins. Otherwise the LOCAL
-     * path resolves through the process-global per-kind broker registry: the first un-injected algorithm
-     * of a given kind builds the consumer and registers it; every later one (and any concurrent inner
-     * algorithms of a meta-optimization) shares that one broker, so a whole process has at most one
-     * consumer -- one worker pool -- per kind, rather than one per algorithm.
+     * The algorithm is transport-agnostic: it never selects a consumer kind. Precedence: an
+     * explicitly-injected broker (setBroker, e.g. from Go2 or a meta-optimization master's own
+     * orchestration pool) always wins. Otherwise -- unless the caller explicitly asked for inline
+     * execution via setLocalConsumer(serial), which gets a private serial consumer -- it submits through
+     * the one process-wide SHARED WORK broker (whatever it is: a local pool, or the networked endpoint
+     * Go2 set up). The first un-injected algorithm establishes it; every later one (and any concurrent
+     * inner algorithms of a meta-optimization) shares it, so a process exposes a single work endpoint.
      *
      * @param late_return_cap Capacity used to size the consumer's late-return buffer when it is enabled.
      */
@@ -182,32 +183,36 @@ private:
         if(executor_) {
             return;
         }
-        // A networked broker injected via setBroker() arrives ready (consumer registered, clone function
-        // set, server started). Only the un-injected LOCAL path resolves through the registry.
+        // A broker injected via setBroker() arrives ready (consumer registered, clone function set,
+        // server started for the networked case) and always wins.
         if(not broker_) {
             using namespace Gem::Courtier;
-            const broker_kind kind = (local_kind_ == local_consumer_kind::serial)
-                                         ? broker_kind::serial
-                                         : broker_kind::multithreaded;
-            const unsigned int n_threads = local_threads_;
-            broker_ = GBrokerRegistryT<gen::GOptimizableEntity>::instance().getOrRegister(
-                kind, [kind, n_threads]() {
-                    auto broker = std::make_shared<GBrokerT<gen::GOptimizableEntity>>();
-                    std::shared_ptr<GBaseConsumerT<gen::GOptimizableEntity>> consumer;
-                    if(kind == broker_kind::serial) {
-                        consumer = std::make_shared<GSerialConsumerT<gen::GOptimizableEntity>>();
-                    }
-                    else {
-                        consumer =
-                            std::make_shared<GStdThreadConsumerT<gen::GOptimizableEntity>>(n_threads);
-                    }
-                    // Polymorphic clone (GOptimizableEntity holds a concrete individual; copy-construction slices).
-                    consumer->setCloneFunction([](const std::unique_ptr<gen::GOptimizableEntity> &p) {
-                        return p->clone_unique();
-                    });
-                    broker->registerConsumer(consumer);
-                    return broker;
+            if(local_kind_ == local_consumer_kind::serial) {
+                // Explicit inline execution: a private serial consumer (not shared, no pool).
+                broker_ = std::make_shared<GBrokerT<gen::GOptimizableEntity>>();
+                auto consumer = std::make_shared<GSerialConsumerT<gen::GOptimizableEntity>>();
+                consumer->setCloneFunction([](const std::unique_ptr<gen::GOptimizableEntity> &p) {
+                    return p->clone_unique();
                 });
+                broker_->registerConsumer(consumer);
+            }
+            else {
+                // Transport-agnostic default: submit through the one shared work broker, building a local
+                // thread pool as the default work endpoint if none has been established yet.
+                const unsigned int n_threads = local_threads_;
+                broker_ = GBrokerRegistryT<gen::GOptimizableEntity>::instance().ensureSharedWork(
+                    broker_kind::multithreaded, [n_threads]() {
+                        auto broker = std::make_shared<GBrokerT<gen::GOptimizableEntity>>();
+                        auto consumer =
+                            std::make_shared<GStdThreadConsumerT<gen::GOptimizableEntity>>(n_threads);
+                        // Polymorphic clone (GOptimizableEntity holds a concrete individual; copy-construction slices).
+                        consumer->setCloneFunction([](const std::unique_ptr<gen::GOptimizableEntity> &p) {
+                            return p->clone_unique();
+                        });
+                        broker->registerConsumer(consumer);
+                        return broker;
+                    });
+            }
         }
         executor_ = std::make_shared<Gem::Courtier::GExecutorT<gen::GOptimizableEntity>>(broker_);
 
