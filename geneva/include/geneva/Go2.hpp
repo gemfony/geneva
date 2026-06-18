@@ -114,8 +114,10 @@ public:
     /** @brief Deleted copy constructor */
     Go2(Go2 const &) = delete;
 
-    /** @brief The (defaulted) destructor */
-    ~Go2() override = default;
+    /** @brief Destructor. Releases the process consumer this Go2 established (clearing it from
+     *  GConsumerRegistry) so a networked consumer's server threads are torn down by RAII at the end of
+     *  the run rather than lingering until process exit. */
+    ~Go2() override;
 
     /**
      * @brief Triggers execution of the client loop.

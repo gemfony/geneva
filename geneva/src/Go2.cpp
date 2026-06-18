@@ -120,6 +120,23 @@ Go2::Go2(
 
 /******************************************************************************/
 /**
+ * @brief Destructor. Releases the process consumer this Go2 established so a networked consumer's server
+ * threads are torn down by RAII at the end of the run, instead of lingering in the process-global
+ * registry until process exit. Only the consumer THIS Go2 registered is cleared (a later
+ * Go2 / registerConsumer may have replaced it), and only if the registry still holds it.
+ */
+Go2::~Go2() {
+    if(consumer_) {
+        auto &registry = Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance();
+        if(registry.consumer() == consumer_) {
+            registry.clear();
+        }
+        consumer_.reset(); // drop our reference -> RAII teardown once no one else holds it
+    }
+}
+
+/******************************************************************************/
+/**
  * Allows to register a default algorithm to be used when no other algorithms
  * have been specified. When others have been specified, this algorithm will
  * not be used. Note that any individuals registered with the default algorithm

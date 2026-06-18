@@ -434,19 +434,6 @@ Recommended Versions:
   without silently shifting another. The meta-optimizer's configuration file keys
   are unchanged.
 
-- Optimization algorithms now share a consumer per kind across the process rather
-  than each building its own. When an algorithm is not handed a broker explicitly
-  (e.g. by Go2), it resolves a local consumer through a process-global, per-kind
-  broker registry: the first algorithm of a given kind (serial or thread-pool)
-  builds and registers the consumer, and every later one -- including the inner
-  algorithms of a meta-optimization, evaluated in parallel -- shares it. The effect
-  is at most one worker pool per kind per process instead of one per algorithm (no
-  thread oversubscription when algorithms are nested). The consumer Go2 builds is
-  published the same way, and a second request for a networked socket consumer
-  reuses the existing one rather than binding a second port, so a process exposes a
-  single listening endpoint. Behaviour is unchanged for an algorithm that is given a
-  broker explicitly.
-
 - Networked late returns are handled more completely. The work-item correlation id
   is now 64-bit, with a process-wide, non-wrapping batch id, so a stale result can
   never be misrouted to the wrong submitter once several algorithms share one
