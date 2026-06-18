@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
     // genome geometry) and register it for the evolutionary algorithm.
     {
         auto sample = std::dynamic_pointer_cast<GMultiCriterionParabolaIndividual>(gpi_ptr->get());
-        go.registerAdaptionConfig("PERSONALITY_EA", sample->getAdaptionConfig());
+        go.registerAdaptionConfig("PERSONALITY_EA", gpi_ptr->getAdaptionConfig(*sample));
     }
 
     // Add a default optimization algorithm to the Go2 object.

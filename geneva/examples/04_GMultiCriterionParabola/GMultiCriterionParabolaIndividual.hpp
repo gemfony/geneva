@@ -94,14 +94,12 @@ public:
     /** @brief Assigns a number of minima to this object */
     void setMinima(const std::vector<double> &);
 
-    /** @brief The OA-owned adaption config authoring this genome's per-parameter Gauss groups. */
-    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const;
-
     //---------------------------------------------------------------------------
     // GFlatIndividualFactory<GMultiCriterionParabolaIndividual> hooks. Instead of a bespoke factory the
     // individual supplies the static hooks the generic factory needs: describeConfig (the configurable
-    // values), buildGenome (one constrained-double Gauss group per minimum) and applyConfig (the number
-    // of evaluation criteria and the per-criterion minima -- per-object, non-genome settings).
+    // values), buildGenome (one constrained-double Gauss group per minimum), applyConfig (the number of
+    // evaluation criteria and the per-criterion minima) and buildAdaptionConfig (the OA-owned Gauss
+    // adaption config -- authored from the genome layout, NOT stored on the individual).
 
     /** @brief All values formerly parsed by the bespoke GMultiCriterionParabolaIndividualFactory. */
     struct Config {
@@ -116,6 +114,10 @@ public:
     static gen::GenomeData buildGenome(const Config &c);
     /** @brief Per-object post-config hook: sets the number of evaluation criteria and the minima */
     static void applyConfig(GMultiCriterionParabolaIndividual &ind, const Config &c);
+    /** @brief The OA-owned Gauss adaption config: every parameter group gets the configured adaptor.
+     *  Authored from the genome layout -- no adaptor data resides on the individual. */
+    static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+    buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
 
 protected:
     /** @brief Loads the data of another GMultiCriterionParabolaIndividual */

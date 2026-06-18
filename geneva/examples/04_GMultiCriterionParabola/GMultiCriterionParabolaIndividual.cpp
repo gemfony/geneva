@@ -220,13 +220,17 @@ void GMultiCriterionParabolaIndividual::applyConfig(
 
 /******************************************************************************/
 /**
- * Builds the OA-owned adaption configuration for this genome: each of the nPar_ double parameters is its
- * own Gauss group, configured with the default GDoubleGaussAdaptor settings the tree relied upon. The
- * adaptor settings live on the OA-owned config, not in the shared, structure-only genome layout.
+ * Builds the OA-owned adaption configuration for a genome produced by this factory: each double
+ * parameter is its own Gauss group, configured with the default GDoubleGaussAdaptor settings. The
+ * adaptor settings live solely on the returned (OA-owned) config -- none reside on the individual.
+ *
+ * @param sample A sample flat genome whose group structure the config mirrors
+ * @param  The Config (unused: the adaptor settings are fixed defaults)
+ * @return A shared pointer to the populated OA-owned adaption config
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GMultiCriterionParabolaIndividual::getAdaptionConfig() const {
-    auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(*this);
+GMultiCriterionParabolaIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &) {
+    auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(sample);
     for(std::size_t npar = 0; npar < cfg->doubleGroups().size(); npar++) {
         cfg->groupDouble(npar).gauss(
             DEFAULTSIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, DEFAULTADPROB
