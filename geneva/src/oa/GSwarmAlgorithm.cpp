@@ -480,7 +480,9 @@ void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gen::GIndividualS
     }
 #endif /* DEBUG */
 
-    // TODO: Is this correct ? Updates the personal best of itself ?!??
+    // First-iteration seed: each particle's personal best is initialised unconditionally from its own
+    // freshly-evaluated position (there is no prior best to compare against yet). The steady-state,
+    // guarded update -- only re-register when strictly better -- lives in updatePersonalBestIfBetter().
     // The archive (personal_best_) keeps its own shared_ptr copy; the population owns the live
     // individual by unique_ptr, so we hand registerPersonalBest a clone across the ownership boundary.
     ind_ptr->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->registerPersonalBest(
