@@ -393,6 +393,14 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- Meta-optimization (tuning an optimization algorithm's own parameters) now has a
+  dedicated driver, GMetaEvolutionaryAlgorithm. It is a standard evolutionary
+  algorithm whose population members are "umbrella" individuals, each running a
+  sub-optimization; it evaluates those umbrella individuals on its own thread pool
+  while their sub-optimizations submit their work to the normal work consumer. This
+  keeps a single work consumer for the process and lets the sub-optimizations run in
+  parallel without the meta level competing for that consumer. Example 11 uses it.
+
 - The CUDA random-number backend no longer leaves its output buffer unfilled when
   a GPU call fails: a failed cuRAND/CUDA call (which under heavy concurrent demand
   can be a transient launch failure) previously returned with the buffer untouched,

@@ -41,6 +41,9 @@
 
 // The individual that should be optimized
 #include "geneva/individuals/GMetaOptimizerIndividualT.hpp"
+// The single facility for meta-optimization: it runs the umbrella-individuals on its own orchestration
+// thread pool, while their sub-optimizations submit to the one process-wide work consumer.
+#include "geneva/oa/GMetaEvolutionaryAlgorithm.hpp"
 
 using namespace Gem::Geneva;
 
@@ -95,8 +98,12 @@ int main(int argc, char **argv) {
         go.registerAdaptionConfig("PERSONALITY_EA", sample->getAdaptionConfig());
     }
 
-    // Add a default optimization algorithm to the Go2 object
-    go.registerDefaultAlgorithm("ea");
+    // Drive the meta-optimization with the dedicated meta-EA: it evaluates the umbrella-individuals on
+    // its own orchestration pool, so each umbrella's sub-EA can submit to the one work consumer without
+    // the meta level competing for it (a plain EA here would deadlock once the sub-EA shares that
+    // consumer). It is a standard EA otherwise (PERSONALITY_EA), so the registered adaption config and
+    // the EA-targeted monitor apply unchanged.
+    go.registerDefaultAlgorithm(std::make_shared<oa::GMetaEvolutionaryAlgorithm>());
 
     // Perform the actual optimization
     std::shared_ptr<gind::GMetaOptimizerIndividualT<gind::GFunctionIndividual>> bestIndividual_ptr =

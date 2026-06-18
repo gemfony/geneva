@@ -796,8 +796,10 @@ protected:
                       << '\n';
             ea_ptr = ea.get<oa::GEvolutionaryAlgorithm>();
 
-            // Submit the inner optimization through a courtier serial (inline) consumer.
-            ea_ptr->setLocalConsumer(oa::local_consumer_kind::serial);
+            // The inner optimization submits to the one process-wide work consumer (the default). This is
+            // safe because this individual is evaluated by GMetaEvolutionaryAlgorithm on its own
+            // orchestration pool -- distinct from that work consumer -- so the inner submission never
+            // starves the pool this evaluation runs on.
 
             // Set the population parameters
             ea_ptr->setPopulationSizes(pop_size, n_parents);
