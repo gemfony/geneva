@@ -885,7 +885,7 @@ TEST_CASE("EA fits a line with the migrated (flat) GLineFitIndividual", "[flat][
 }
 
 /******************************************************************************/
-// Separable CMA / CSA evolution strategy ("eab"): a from-scratch high-dimensional optimizer.
+// Separable CMA / CSA evolution strategy ("sepcma"): a from-scratch high-dimensional optimizer.
 // O(n) per generation, dimension-scaled CSA + diagonal covariance constants -- it out-converges the
 // stock self-adaptive EA at high n on the same fixed evaluation budget.
 /******************************************************************************/
@@ -903,7 +903,7 @@ public:
     }
     FlatHighDimSphere(const FlatHighDimSphere &) = default;
 
-    /** @brief Gauss adaption config for the stock EA (eab needs none -- it owns its own distribution). */
+    /** @brief Gauss adaption config for the stock EA (sepcma needs none -- it owns its own distribution). */
     std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
         auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
         cfg->groupDouble(0).gauss(0.5, 0.8, 1e-3, 2., 1.);
@@ -967,12 +967,12 @@ protected:
 
 /******************************************************************************/
 
-TEST_CASE("Separable CMA-ES optimizes a flat individual", "[flat][oa][eab]") {
+TEST_CASE("Separable CMA-ES optimizes a flat individual", "[flat][oa][sepcma]") {
     auto pop = std::make_shared<oa::GSepCmaEvolutionStrategy>();
     pop->setMaxIteration(200);
     pop->setReportIteration(100000);
     pop->push_back(FlatSphereOA().clone_unique());
-    pop->optimize(); // eab owns its own distribution: NO adaption config needed
+    pop->optimize(); // sepcma owns its own distribution: NO adaption config needed
 
     auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
     REQUIRE(best);
@@ -981,7 +981,7 @@ TEST_CASE("Separable CMA-ES optimizes a flat individual", "[flat][oa][eab]") {
 
 /******************************************************************************/
 
-TEST_CASE("Pure CSA-ES (no diagonal covariance) optimizes a flat individual", "[flat][oa][eab]") {
+TEST_CASE("Pure CSA-ES (no diagonal covariance) optimizes a flat individual", "[flat][oa][sepcma]") {
     auto pop = std::make_shared<oa::GSepCmaEvolutionStrategy>();
     pop->setUseDiagonalCMA(false); // step-size control only
     pop->setMaxIteration(300);
@@ -996,7 +996,7 @@ TEST_CASE("Pure CSA-ES (no diagonal covariance) optimizes a flat individual", "[
 
 /******************************************************************************/
 
-TEST_CASE("Separable CMA-ES out-converges the stock EA at high dimension", "[flat][oa][eab]") {
+TEST_CASE("Separable CMA-ES out-converges the stock EA at high dimension", "[flat][oa][sepcma]") {
     // The headline claim: on a high-dimensional sphere with a FIXED evaluation budget, the
     // dimension-scaled sep-CMA-ES reaches a far better fitness than the stock self-adaptive EA, whose
     // per-individual sigma adaption lacks the 1/n / 1/sqrt(n) scaling.
@@ -1020,7 +1020,7 @@ TEST_CASE("Separable CMA-ES out-converges the stock EA at high dimension", "[fla
         ea_best = sphereValue(best);
     }
 
-    // eab: auto lambda (4 + floor(3 ln 200) = 19) over the same kind of budget (~150 gens), no config.
+    // sepcma: auto lambda (4 + floor(3 ln 200) = 19) over the same kind of budget (~150 gens), no config.
     double eab_best = 0.;
     {
         auto pop = std::make_shared<oa::GSepCmaEvolutionStrategy>();
@@ -1034,9 +1034,9 @@ TEST_CASE("Separable CMA-ES out-converges the stock EA at high dimension", "[fla
         eab_best = sphereValue(best);
     }
 
-    INFO("n=" << N << " stock-ea best=" << ea_best << "  eab best=" << eab_best);
-    // The start fitness is N * 9 = 1800. eab must end well below the EA -- by a clear margin, not a
-    // hair. (Observed: stock-ea ~1100, eab ~75 -- roughly a 15x lead at n=200.)
+    INFO("n=" << N << " stock-ea best=" << ea_best << "  sepcma best=" << eab_best);
+    // The start fitness is N * 9 = 1800. sepcma must end well below the EA -- by a clear margin, not a
+    // hair. (Observed: stock-ea ~1100, sepcma ~75 -- roughly a 15x lead at n=200.)
     CHECK(eab_best < ea_best);
     CHECK(eab_best < ea_best / 3.0); // a decisive margin, not a coin-flip win
     CHECK(eab_best < 0.1 * 1800.0);  // also an absolute bar: well below 10% of the f=1800 start
@@ -1044,7 +1044,7 @@ TEST_CASE("Separable CMA-ES out-converges the stock EA at high dimension", "[fla
 
 /******************************************************************************/
 
-TEST_CASE("Separable CMA-ES Pareto mode runs on a two-objective individual", "[flat][oa][eab][pareto]") {
+TEST_CASE("Separable CMA-ES Pareto mode runs on a two-objective individual", "[flat][oa][sepcma][pareto]") {
     auto pop = std::make_shared<oa::GSepCmaEvolutionStrategy>();
     pop->setParetoMode(true); // NSGA-II non-dominated sort + crowding distance as the ranking key
     pop->setMaxIteration(120);

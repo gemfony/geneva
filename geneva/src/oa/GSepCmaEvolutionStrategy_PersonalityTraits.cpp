@@ -41,7 +41,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map -- the command-line mnemonic. */
-const std::string GSepCmaEvolutionStrategy_PersonalityTraits::nickname = "eab"; // NOLINT
+const std::string GSepCmaEvolutionStrategy_PersonalityTraits::nickname = "sepcma"; // NOLINT
 
 /******************************************************************************/
 /**
@@ -93,7 +93,7 @@ void GSepCmaEvolutionStrategy_PersonalityTraits::setIsNotOnParetoFront() {
 /**
  * @brief Retrieves the mnemonic of the optimization algorithm
  *
- * @return The mnemonic ("eab") associated with this personality
+ * @return The mnemonic ("sepcma") associated with this personality
  */
 std::string GSepCmaEvolutionStrategy_PersonalityTraits::getMnemonic() const {
     return GSepCmaEvolutionStrategy_PersonalityTraits::nickname;

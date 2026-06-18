@@ -54,7 +54,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /******************************************************************************/
 /**
  * This class is a specialization of the GFactoryT<> class for the dimension-aware adaptive evolutionary
- * algorithm ("eaa"). It is a thin twin of GEvolutionaryAlgorithmFactory carrying its own mnemonic.
+ * algorithm ("aea"). It is a thin twin of GEvolutionaryAlgorithmFactory carrying its own mnemonic.
  */
 class GAdaptiveEvolutionaryAlgorithmFactory // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmFactoryT<GAdaptiveEvolutionaryAlgorithm, GAdaptiveEvolutionaryAlgorithm_PersonalityTraits> {

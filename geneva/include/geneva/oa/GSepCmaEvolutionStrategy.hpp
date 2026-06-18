@@ -66,33 +66,94 @@ constexpr std::size_t DEFAULTSEPCMALAMBDA = 0;
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * GSepCmaEvolutionStrategy implements a derandomized evolution strategy that scales to very high
- * dimensions (10000+ parameters). It is a from-scratch CSA-ES with an optional separable (diagonal)
- * covariance matrix adaptation (sep-CMA-ES). All updates are O(n) per generation, so unlike full
- * CMA-ES (O(n^2)) it remains usable for n in the tens of thousands.
+ * @brief A from-scratch, high-dimensional derandomized evolution strategy: separable CMA-ES with
+ * cumulative step-size adaptation (CSA), usable at \f$ n \gtrsim 10^4 \f$ parameters thanks to an
+ * \f$ O(n) \f$ per-generation cost.
  *
- * Unlike the classic (mu,lambda) self-adaptive ES (GEvolutionaryAlgorithm), this algorithm does NOT
- * carry a per-individual step size, and it does NOT use a per-genome adaption config: it maintains a
- * single search distribution entirely inside the algorithm object:
+ * @details
+ * Unlike the classic \f$(\mu,\lambda)\f$ self-adaptive ES (GEvolutionaryAlgorithm), which mutates a
+ * @e per-individual step size, this strategy maintains a single multivariate-normal search distribution
+ * \f$ \mathcal{N}\!\bigl(\mathbf{m},\,\sigma^{2}\mathbf{C}\bigr) \f$ inside the algorithm object and
+ * adapts its moments from the ranked offspring. The state is
+ * \f[
+ *   \mathbf{m}\in\mathbb{R}^{n},\quad \sigma>0,\quad
+ *   \mathbf{C}=\operatorname{diag}(c_{1},\dots,c_{n}),\quad
+ *   \mathbf{p}_{\sigma}\in\mathbb{R}^{n},\quad \mathbf{p}_{c}\in\mathbb{R}^{n},
+ * \f]
+ * i.e. the mean, a global step size, a @e diagonal covariance (the separable simplification, giving
+ * \f$O(n)\f$ storage/time instead of the \f$O(n^{2})\f$ of full CMA-ES), and two evolution paths.
  *
- *   - m       : the distribution mean (length n)
- *   - sigma   : a single global step size
- *   - C       : a diagonal covariance (length n; per-coordinate variance)
- *   - p_sigma : the conjugate evolution path (drives CSA step-size control)
- *   - p_c     : the anisotropic evolution path (drives the rank-1 C update)
+ * @par Sampling and recombination
+ * Each generation draws \f$\lambda\f$ offspring (\f$\odot\f$ is the element-wise product):
+ * \f[
+ *   \mathbf{x}_{k}=\mathbf{m}+\sigma\,\sqrt{\mathbf{C}}\odot\mathbf{z}_{k},\qquad
+ *   \mathbf{z}_{k}\sim\mathcal{N}(\mathbf{0},\mathbf{I}),\quad k=1,\dots,\lambda,
+ * \f]
+ * evaluates them through the single process consumer (transport-agnostic, mirroring the stock EA's
+ * submission path), ranks them, and recombines the best \f$\mu\f$ with positive logarithmic weights
+ * \f[
+ *   w_{i}=\frac{w_{i}'}{\sum_{j=1}^{\mu}w_{j}'},\qquad
+ *   w_{i}'=\ln\!\Bigl(\mu+\tfrac{1}{2}\Bigr)-\ln i,\qquad
+ *   \mu_{\mathrm{eff}}=\Bigl(\textstyle\sum_{i=1}^{\mu}w_{i}^{2}\Bigr)^{-1}.
+ * \f]
+ * With the sorted, normalised steps \f$\mathbf{y}_{i}=(\mathbf{x}_{i:\lambda}-\mathbf{m})/\sigma\f$ and
+ * \f$\langle\mathbf{y}\rangle_{w}=\sum_{i=1}^{\mu}w_{i}\mathbf{y}_{i}\f$, the mean moves as
+ * \f$ \mathbf{m}\leftarrow\mathbf{m}+\sigma\,\langle\mathbf{y}\rangle_{w} \f$.
  *
- * Each generation samples lambda offspring  x_k = m + sigma * sqrt(C) o N(0,I), evaluates them through
- * the one process consumer (transport-agnostic, mirroring the stock EA's submission path), selects the
- * mu best, weighted-recombines them (positive log weights), and updates m -> p_sigma -> sigma (CSA) ->
- * p_c -> C (rank-1 [+ optional rank-mu]).
+ * @par Step-size control (CSA)
+ * \f[
+ *   \mathbf{p}_{\sigma}\leftarrow(1-c_{\sigma})\,\mathbf{p}_{\sigma}
+ *     +\sqrt{c_{\sigma}(2-c_{\sigma})\,\mu_{\mathrm{eff}}}\;
+ *     \mathbf{C}^{-1/2}\langle\mathbf{y}\rangle_{w},\qquad
+ *   \sigma\leftarrow\sigma\,\exp\!\Biggl(\frac{c_{\sigma}}{d_{\sigma}}
+ *     \biggl(\frac{\lVert\mathbf{p}_{\sigma}\rVert}{\chi_{n}}-1\biggr)\Biggr),
+ * \f]
+ * where \f$\chi_{n}=\mathbb{E}\lVert\mathcal{N}(\mathbf{0},\mathbf{I})\rVert
+ * \approx\sqrt{n}\,\bigl(1-\tfrac{1}{4n}+\tfrac{1}{21n^{2}}\bigr)\f$ and \f$\mathbf{C}^{-1/2}\f$ is
+ * element-wise on the diagonal.
  *
- * The constants (c_sigma, d_sigma, c_c, c_1, c_mu) all carry the standard 1/n and 1/sqrt(n) dimension
- * scalings (Hansen, "The CMA Evolution Strategy: A Tutorial", 2016; Ros & Hansen, "A Simple Modification
- * in CMA-ES Achieving Linear Time and Space Complexity", PPSN 2008). THIS dimension scaling is what the
- * stock self-adaptive EA lacks at high n.
+ * @par Covariance update (rank-1 + optional rank-\f$\mu\f$, diagonal)
+ * With the Heaviside stall switch \f$h_{\sigma}\f$ on \f$\lVert\mathbf{p}_{\sigma}\rVert\f$,
+ * \f[
+ *   \mathbf{p}_{c}\leftarrow(1-c_{c})\,\mathbf{p}_{c}
+ *     +h_{\sigma}\sqrt{c_{c}(2-c_{c})\,\mu_{\mathrm{eff}}}\;\langle\mathbf{y}\rangle_{w},
+ *   \qquad
+ *   c_{j}\leftarrow(1-c_{1}-c_{\mu})\,c_{j}
+ *     +c_{1}\,p_{c,j}^{2}
+ *     +c_{\mu}\sum_{i=1}^{\mu}w_{i}\,y_{i,j}^{2},\quad j=1,\dots,n.
+ * \f]
+ * Setting @c useDiagonalCMA = @c false disables this block, leaving a pure CSA-ES (covariance level 0).
  *
- * It also supports an NSGA-II-style multi-objective selection mode (fast non-dominated sort + crowding
- * distance) used as the recombination ranking key.
+ * @par Dimension-scaled constants (the property the stock self-adaptive EA lacks)
+ * \f[
+ *   \lambda=4+\lfloor 3\ln n\rfloor,\quad \mu=\lfloor\lambda/2\rfloor,\quad
+ *   c_{\sigma}=\frac{\mu_{\mathrm{eff}}+2}{n+\mu_{\mathrm{eff}}+5},\quad
+ *   d_{\sigma}=1+2\max\!\Bigl(0,\sqrt{\tfrac{\mu_{\mathrm{eff}}-1}{n+1}}-1\Bigr)+c_{\sigma},\quad
+ *   c_{c}\sim\frac{4}{n}.
+ * \f]
+ * The rank-1 / rank-\f$\mu\f$ rates are the full-CMA values
+ * \f$ c_{1}^{\text{full}}=\tfrac{2}{(n+1.3)^{2}+\mu_{\mathrm{eff}}} \f$,
+ * \f$ c_{\mu}^{\text{full}}=\min\!\bigl(1-c_{1}^{\text{full}},\,
+ * \tfrac{2(\mu_{\mathrm{eff}}-2+1/\mu_{\mathrm{eff}})}{(n+2)^{2}+\mu_{\mathrm{eff}}}\bigr) \f$
+ * multiplied by the separable factor \f$\tfrac{n+2}{3}\f$ (Ros & Hansen 2008), which lets the diagonal
+ * model adapt fast enough to be worthwhile at large \f$n\f$.
+ *
+ * A multi-objective mode replaces the scalar ranking with an NSGA-II fast-non-dominated-sort + crowding
+ * distance key (Deb et al. 2002), used as the selection order for recombination.
+ *
+ * @note Clean-room implementation: derived solely from the cited publications (the equations above), not
+ * adapted from any existing CMA-ES codebase — keeping it free of copyleft entanglement with Geneva's
+ * Apache-2.0 licence. Behaviour may be cross-checked black-box against a reference (e.g. pycma on BBOB),
+ * but no third-party source was consulted.
+ *
+ * @par References
+ * - N. Hansen, A. Ostermeier, "Completely Derandomized Self-Adaptation in Evolution Strategies",
+ *   Evolutionary Computation 9(2):159-195, 2001.
+ * - N. Hansen, "The CMA Evolution Strategy: A Tutorial", arXiv:1604.00772, 2016.
+ * - R. Ros, N. Hansen, "A Simple Modification in CMA-ES Achieving Linear Time and Space Complexity",
+ *   Parallel Problem Solving from Nature (PPSN X), LNCS 5199:296-305, 2008.
+ * - K. Deb, A. Pratap, S. Agarwal, T. Meyarivan, "A Fast and Elitist Multiobjective Genetic Algorithm:
+ *   NSGA-II", IEEE Trans. Evolutionary Computation 6(2):182-197, 2002.
  */
 class GSepCmaEvolutionStrategy // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmT<GSepCmaEvolutionStrategy> {

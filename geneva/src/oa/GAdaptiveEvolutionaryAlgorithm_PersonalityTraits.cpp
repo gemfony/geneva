@@ -39,7 +39,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
-const std::string GAdaptiveEvolutionaryAlgorithm_PersonalityTraits::nickname = "eaa"; // NOLINT
+const std::string GAdaptiveEvolutionaryAlgorithm_PersonalityTraits::nickname = "aea"; // NOLINT
 
 /******************************************************************************/
 /**
@@ -89,7 +89,7 @@ std::string GAdaptiveEvolutionaryAlgorithm_PersonalityTraits::name_() const {
 /**
  * @brief Retrieves the mnemonic of the optimization algorithm
  *
- * @return The short identifier ("eaa") for the adaptive evolutionary algorithm
+ * @return The short identifier ("aea") for the adaptive evolutionary algorithm
  */
 std::string GAdaptiveEvolutionaryAlgorithm_PersonalityTraits::getMnemonic() const {
     return GAdaptiveEvolutionaryAlgorithm_PersonalityTraits::nickname;

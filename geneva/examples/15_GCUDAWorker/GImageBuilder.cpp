@@ -139,13 +139,16 @@ int main(int argc, char **argv) {
     go.push_back(initial);
 
     // The genome carries only structure; its main + location Gauss adaptors live on an OA-owned config the
-    // factory authors from the configuration. Register it for the evolutionary algorithm.
+    // factory authors from the configuration. Register it for every adapting algorithm we may select: the
+    // classic EA and the dimension-aware adaptive EA (aea). The from-scratch sep-CMA strategy (sepcma) manages
+    // its own search distribution and needs no adaption config.
     go.registerAdaptionConfig("PERSONALITY_EA", f.getAdaptionConfig(*initial));
+    go.registerAdaptionConfig("PERSONALITY_AEA", f.getAdaptionConfig(*initial));
 
-    // ---- create an evolutionary algorithm (broker mode) and run it ----------------------------
-    oa::GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json");
-    std::shared_ptr<oa::GEvolutionaryAlgorithm> ea_ptr = ea.get<oa::GEvolutionaryAlgorithm>();
-    go & ea_ptr;
+    // ---- run the optimization with the algorithm chosen by mnemonic --------------------------
+    // Default is the classic "ea"; override on the command line to compare the high-dimensional
+    // variants, e.g.  --optimizationAlgorithms "aea"  or  --optimizationAlgorithms "sepcma".
+    go.registerDefaultAlgorithm("ea");
 
     // Perform the optimization. The per-iteration picture (the useful output) is written by GImagePOM.
     std::shared_ptr<GImageIndividual> best = go.optimize()->getBestGlobalIndividual<GImageIndividual>();

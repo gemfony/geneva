@@ -63,29 +63,73 @@ constexpr auto DEFAULTEAASORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * @brief A dimension-aware adaptive evolutionary algorithm ("eaa").
+ * @brief A dimension-aware adaptive evolutionary algorithm ("aea"): the classic \f$(\mu,\lambda)\f$ /
+ * \f$(\mu+\lambda)\f$ evolution strategy plus a selectable step-size controller that repairs its poor
+ * @e fine convergence at high dimension.
  *
- * This is structurally a copy of GEvolutionaryAlgorithm (the same (mu,lambda) / (mu+lambda) machinery,
- * the same five sorting modes incl. the two Pareto modes), with one addition: a `stepControl` strategy
- * read from the OA-owned adaption config that fixes the classic algorithm's poor FINE convergence at
- * high dimension. The stock EA's mutative self-adaptive isotropic Gaussian uses a FIXED sigma self-
- * adaption rate (default 0.8) that is never scaled by the parameter count n -- ~100x too hot at n=10000,
- * so far from the optimum coarse convergence works but near the optimum the over-hot log-normal sigma
- * update random-walks sigma instead of letting it settle and fine convergence stalls. The modes:
+ * @details
+ * Structurally this is GEvolutionaryAlgorithm (the same GParChild population model and the same five
+ * sorting modes, including the two Pareto modes); the single addition is a @c stepControl strategy, read
+ * from the OA-owned GAdaptionConfig, that governs how the mutation step size \f$\sigma\f$ evolves.
  *
- * - SELF_ADAPT        : classic behaviour (identical to GEvolutionaryAlgorithm).
- * - SELF_ADAPT_SCALED : sigma_sigma rescaled to the textbook tau = c/sqrt(2n) (shared sigma) or
- *                       c/sqrt(2*sqrt(n)) (per-coordinate). THE DEFAULT for this class -- its reason to
- *                       exist.
- * - ONE_FIFTH         : a single global sigma driven by the Rechenberg 1/5 success rule.
- * - CSA               : a single global sigma driven by cumulative step-size adaptation (evolution path).
+ * @par Motivation
+ * The stock EA perturbs each coordinate by \f$ x_{j}\leftarrow x_{j}+\sigma\,\mathcal{N}(0,1) \f$ and
+ * self-adapts \f$\sigma\f$ log-normally, \f$ \sigma\leftarrow\sigma\exp(\tau\,\mathcal{N}(0,1)) \f$, with
+ * a @e fixed learning rate \f$\tau=\,\f$@c sigma_sigma (default 0.8) that is never scaled by the
+ * dimension \f$n\f$. Self-adaptive-ES theory prescribes \f$\tau\propto 1/\sqrt{2n}\f$; at \f$n=10^{4}\f$
+ * a fixed \f$0.8\f$ is \f$\sim\!100\times\f$ too large, so near the optimum the over-hot update lets
+ * \f$\sigma\f$ random-walk instead of settling and fine convergence stalls.
  *
- * In addition, the algorithm intermediate-recombines the per-individual sigma (averages the surviving
- * parents' sigma into every child after recombination) for the per-individual-sigma modes; this is the
- * sigma-recombination the classic GParChild::doRecombine lacks (it recombines VALUES only).
+ * @par Step-control modes (selected on the GAdaptionConfig)
+ * - @b SELF_ADAPT — the classic log-normal self-adaptation, identical to GEvolutionaryAlgorithm
+ *   bit-for-bit: \f[ \sigma\leftarrow\sigma\,\exp\!\bigl(\tau\,\mathcal{N}(0,1)\bigr),\qquad
+ *   \tau=\text{sigma\_sigma}. \f]
+ * - @b SELF_ADAPT_SCALED — the default (this class's reason to exist): the same rule with the textbook
+ *   dimension-scaled rate \f[ \tau=\frac{c}{\sqrt{2n}}\ \text{(shared }\sigma),\qquad
+ *   \tau'=\frac{c}{\sqrt{2\sqrt{n}}}\ \text{(per-coordinate }\sigma), \f] for a user constant \f$c=\,\f$
+ *   @c learning_rate_c (default 1). (Schwefel 1981; Beyer & Schwefel 2002.)
+ * - @b ONE_FIFTH — a single global \f$\sigma\f$ driven by Rechenberg's \f$1/5\f$ success rule: enlarge
+ *   \f$\sigma\f$ when the fraction \f$p_{\mathrm{succ}}\f$ of improving offspring exceeds \f$1/5\f$ and
+ *   shrink it otherwise, \f[ \sigma\leftarrow\sigma\cdot\alpha^{\,\operatorname{sign}(p_{\mathrm{succ}}-1/5)}. \f]
+ *   (Rechenberg 1973.)
+ * - @b CSA — a single global \f$\sigma\f$ driven by cumulative step-size adaptation: an evolution path
+ *   \f$\mathbf{p}_{\sigma}\f$ accumulates successive (weighted) mean shifts and \f$\sigma\f$ grows or
+ *   shrinks as that path is longer or shorter than its expected length under random selection. (Hansen &
+ *   Ostermeier 2001 — the same step-size principle used at covariance level 0 in GSepCmaEvolutionStrategy.)
  *
- * The choice of strategy lives on the GAdaptionConfig (an OA-owned object), so the same structure-only
- * genome can be driven by either the classic EA or this one without change.
+ * For the per-individual-\f$\sigma\f$ modes the algorithm additionally intermediate-recombines \f$\sigma\f$
+ * (averages the surviving parents' \f$\sigma\f$ into each child), the standard self-adaptive-ES stabiliser
+ * that the classic GParChild::doRecombine omits (it recombines values only).
+ *
+ * Because the strategy lives on the GAdaptionConfig (an OA-owned object), the same structure-only genome
+ * can be driven by either the classic EA or this class without change; @b SELF_ADAPT reproduces the stock
+ * EA exactly, so the new controllers are strictly opt-in.
+ *
+ * @par Reproducing the legacy (pre-adaptive) EA exactly
+ * This class is the continuation of the original GEvolutionaryAlgorithm — the legacy EA is simply one of
+ * its modes. To recover the legacy behaviour bit-for-bit (verified by code cross-check; the only residual
+ * difference is the non-deterministic RNG seed), set on the configuration:
+ * - @c stepControl = @c SELF_ADAPT (classic log-normal σ self-adaption — no dimension scaling), and
+ * - @c recombine_sigma = @c false (the legacy EA does not intermediate-recombine σ),
+ *
+ * with the remaining EA settings (population @c size, @c n_parents, @c sorting_method, @c max_iteration)
+ * and the adaption config (@c sigma, @c min/max_sigma, @c sigma_sigma, @c ad_prob, …) left at the same
+ * values the legacy EA used. With those settings every step — initialisation, recombination, mutation,
+ * selection/sorting, evaluation — performs the identical operations and consumes the RNG in the identical
+ * order, so results match the old EA up to the seed.
+ *
+ * @note Clean-room implementation from the published methods (the equations above); no third-party
+ * optimizer source was consulted.
+ *
+ * @par References
+ * - I. Rechenberg, "Evolutionsstrategie: Optimierung technischer Systeme nach Prinzipien der biologischen
+ *   Evolution", Frommann-Holzboog, 1973 (the \f$1/5\f$ success rule).
+ * - H.-P. Schwefel, "Numerical Optimization of Computer Models", Wiley, 1981 (mutative \f$\sigma\f$
+ *   self-adaptation and the \f$1/\sqrt{2n}\f$ learning rate).
+ * - H.-G. Beyer, H.-P. Schwefel, "Evolution Strategies: A Comprehensive Introduction", Natural Computing
+ *   1(1):3-52, 2002.
+ * - N. Hansen, A. Ostermeier, "Completely Derandomized Self-Adaptation in Evolution Strategies",
+ *   Evolutionary Computation 9(2):159-195, 2001 (CSA).
  */
 class GAdaptiveEvolutionaryAlgorithm // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmT<GAdaptiveEvolutionaryAlgorithm, GParChild> {
@@ -93,7 +137,7 @@ public:
     // Identifiers consumed by the GOptimizationAlgorithmT scaffold.
     static constexpr std::string_view oa_class_name = "GAdaptiveEvolutionaryAlgorithm";
     static constexpr std::string_view oa_algorithm_name = "Adaptive Evolutionary Algorithm";
-    static constexpr std::string_view oa_personality_type = "PERSONALITY_EAA";
+    static constexpr std::string_view oa_personality_type = "PERSONALITY_AEA";
 
 private:
     ///////////////////////////////////////////////////////////////////////
