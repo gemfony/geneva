@@ -100,12 +100,7 @@ GStarterIndividual::GStarterIndividual(
     const std::size_t &prod_id,
     const std::vector<double> &startValues,
     const std::vector<double> &lowerBoundaries,
-    const std::vector<double> &upperBoundaries,
-    const double &sigma,
-    const double &sigmaSigma,
-    const double &minSigma,
-    const double &maxSigma,
-    const double &adProb
+    const std::vector<double> &upperBoundaries
 )
   : targetFunction_(targetFunction::PARABOLA) {
     try {
@@ -116,12 +111,7 @@ GStarterIndividual::GStarterIndividual(
             prod_id,
             startValues,
             lowerBoundaries,
-            upperBoundaries,
-            sigma,
-            sigmaSigma,
-            minSigma,
-            maxSigma,
-            adProb
+            upperBoundaries
         );
     }
     catch(const geneva_exception &e) {
@@ -140,12 +130,7 @@ GStarterIndividual::GStarterIndividual(
  */
 GStarterIndividual::GStarterIndividual(const GStarterIndividual &cp)
   : gen::GFlatGenome(cp)
-  , targetFunction_(cp.targetFunction_)
-  , seed_sigma_(cp.seed_sigma_)
-  , seed_sigma_sigma_(cp.seed_sigma_sigma_)
-  , seed_min_sigma_(cp.seed_min_sigma_)
-  , seed_max_sigma_(cp.seed_max_sigma_)
-  , seed_ad_prob_(cp.seed_ad_prob_) { /* nothing */
+  , targetFunction_(cp.targetFunction_) { /* nothing */
 }
 
 /******************************************************************************/
@@ -207,29 +192,21 @@ targetFunction GStarterIndividual::getTargetFunction() const {
     return targetFunction_;
 }
 
-/*******************************************************************************************/
-/**
- * Retrieves the average value of all sigmas used in Gauss adaptors.
- *
- * @return The average value of sigma used in Gauss adaptors
- */
-double GStarterIndividual::getAverageSigma() const {
-    // The Gauss adaptor configuration now lives on the OA-owned config (the genome is structure-only), and
-    // the live evolving per-group sigmas are OA-owned scratch on the GIndividualSlot, not on the
-    // individual. An individual queried in isolation (as here) is detached from its slot, so this reports
-    // the configured SEED sigma stamped at construction (every parameter group shares one configuration).
-    return seed_sigma_;
-}
-
 /******************************************************************************/
 /**
- * Builds the OA-owned adaption configuration: every parameter group receives a Gauss adaptor with this
- * individual's stamped (configured) parameters.
+ * Builds the OA-owned adaption configuration for a genome produced by this factory: every parameter
+ * group receives a Gauss adaptor with the configured parameters. The adaptor settings come from the
+ * Config and live solely on the returned (OA-owned) config -- none of them reside on the individual.
+ *
+ * @param sample A sample flat genome whose group structure the config mirrors
+ * @param c The Config supplying the Gauss adaptor parameters
+ * @return A shared pointer to the populated OA-owned adaption config
  */
-std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> GStarterIndividual::getAdaptionConfig() const {
-    auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
+std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+GStarterIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
+    auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
     for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
-        cfg->groupDouble(i).gauss(seed_sigma_, seed_sigma_sigma_, seed_min_sigma_, seed_max_sigma_, seed_ad_prob_);
+        cfg->groupDouble(i).gauss(c.sigma, c.sigma_sigma, c.min_sigma, c.max_sigma, c.ad_prob);
     }
     return cfg;
 }
@@ -254,7 +231,6 @@ std::string GStarterIndividual::print() {
     for(std::size_t i = 0; i < parVec.size(); i++) {
         result << i << ": " << parVec.at(i) << '\n';
     }
-    result << "The average sigma of this individual is " << this->getAverageSigma() << '\n';
 
     return result.str();
 }
@@ -366,14 +342,10 @@ bool GStarterIndividual::modify_GUnitTests_() {
         result = true;
     }
 
-    // Change the parameter settings (only when the genome has actually been built). The adaption state +
-    // logic are OA-owned; a standalone individual drives them via a self-owned scratch +
-    // config (StandaloneAdapter).
-    if(this->countParameters<double>() > 0) {
-        // The genome is structure-only; drive the self-owned adaption via the individual's authored config.
-        oa::StandaloneAdapter(*this, getAdaptionConfig()).adapt(*this);
-        result = true;
-    }
+    // The parent's modify_GUnitTests_() already random-initialises every genome parameter, so the
+    // object is changed. The Gauss adaptor configuration is OA-owned and is not exercised here (the
+    // individual carries no adaptor data).
+    result = true;
 
     // Let the audience know whether we have changed the content
     return result;
@@ -400,9 +372,8 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests_() {
 
     {
         const std::size_t NENTRIES = 100;
-        double DEFAULTSIGMA = 0.025;
 
-        // Check standard construction and whether calculation of the average sigma works
+        // Check standard construction and that the genome is built with one parameter per start value
         std::vector<double> startValues;
         std::vector<double> lowerBoundaries;
         std::vector<double> upperBoundaries;
@@ -420,19 +391,11 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests_() {
                 ,
                 startValues,
                 lowerBoundaries,
-                upperBoundaries,
-                DEFAULTSIGMA,
-                0.6,
-                0.001,
-                2.,
-                0.05
+                upperBoundaries
             ))
         );
 
-        CHECK_THAT(
-            p_test->getAverageSigma(),
-            Catch::Matchers::WithinRel(DEFAULTSIGMA, 0.001 / 100.0)
-        ); // Should be similar
+        CHECK(p_test->countParameters<double>() == NENTRIES);
     }
 
     //------------------------------------------------------------------------------
@@ -580,17 +543,12 @@ gen::GenomeData GStarterIndividual::buildGenome(const Config &c) {
 
 /******************************************************************************/
 /**
- * Per-object post-config hook (the per-object tail of addContent()): the target function and the Gauss
- * adaptor parameters the individual stamps so its getAdaptionConfig() can author the OA-owned config and
- * report its configured seed sigma.
+ * Per-object post-config hook (the per-object tail of addContent()): stamps the (non-genome) target
+ * function. The Gauss adaptor parameters are NOT stored on the individual -- they live on the OA-owned
+ * config authored by buildAdaptionConfig().
  */
 void GStarterIndividual::applyConfig(GStarterIndividual &ind, const Config &c) {
     ind.setTargetFunction(c.target_function);
-    ind.seed_sigma_ = c.sigma;
-    ind.seed_sigma_sigma_ = c.sigma_sigma;
-    ind.seed_min_sigma_ = c.min_sigma;
-    ind.seed_max_sigma_ = c.max_sigma;
-    ind.seed_ad_prob_ = c.ad_prob;
 }
 
 /******************************************************************************/

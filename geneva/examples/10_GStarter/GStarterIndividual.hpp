@@ -101,25 +101,11 @@ class GStarterIndividual : public gen::GFlatGenome {
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
     auto localMembers() {
-        return std::make_tuple(
-            Gem::Common::make_member("targetFunction_", targetFunction_),
-            Gem::Common::make_member("seed_sigma_", seed_sigma_),
-            Gem::Common::make_member("seed_sigma_sigma_", seed_sigma_sigma_),
-            Gem::Common::make_member("seed_min_sigma_", seed_min_sigma_),
-            Gem::Common::make_member("seed_max_sigma_", seed_max_sigma_),
-            Gem::Common::make_member("seed_ad_prob_", seed_ad_prob_)
-        );
+        return std::make_tuple(Gem::Common::make_member("targetFunction_", targetFunction_));
     }
     /** @brief Single declaration of this class'es local data members (const overload) */
     auto localMembers() const {
-        return std::make_tuple(
-            Gem::Common::make_member("targetFunction_", targetFunction_),
-            Gem::Common::make_member("seed_sigma_", seed_sigma_),
-            Gem::Common::make_member("seed_sigma_sigma_", seed_sigma_sigma_),
-            Gem::Common::make_member("seed_min_sigma_", seed_min_sigma_),
-            Gem::Common::make_member("seed_max_sigma_", seed_max_sigma_),
-            Gem::Common::make_member("seed_ad_prob_", seed_ad_prob_)
-        );
+        return std::make_tuple(Gem::Common::make_member("targetFunction_", targetFunction_));
     }
 
     template <class Archive>
@@ -135,17 +121,12 @@ class GStarterIndividual : public gen::GFlatGenome {
 public:
     /** @brief The default constructor */
     GStarterIndividual();
-    /** @brief A constructor that receives all arguments */
+    /** @brief A constructor that receives the genome's start values and bounds */
     GStarterIndividual(
         const std::size_t &,
         const std::vector<double> &,
         const std::vector<double> &,
-        const std::vector<double> &,
-        const double &,
-        const double &,
-        const double &,
-        const double &,
-        const double &
+        const std::vector<double> &
     );
     /** @brief A standard copy constructor */
     GStarterIndividual(const GStarterIndividual &);
@@ -157,23 +138,16 @@ public:
     /** @brief Allows to retrieve the current demo function */
     targetFunction getTargetFunction() const;
 
-    /** @brief Retrieves the average value of the sigma used in local Gauss adaptors */
-    double getAverageSigma() const;
-
-    /** @brief The OA-owned Gauss adaption config authoring every parameter group with this individual's
-     *  configured (stamped) adaptor parameters. */
-    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const;
-
     /** @brief Emit information about this individual */
     std::string print();
 
     //---------------------------------------------------------------------------
     // GFlatIndividualFactory<GStarterIndividual> hooks. Instead of a bespoke factory the individual
     // supplies the static hooks the generic factory needs: describeConfig (the configurable values,
-    // including the target function), buildGenome (one constrained double per start value) and applyConfig
-    // (the target function + the stamped Gauss adaptor parameters the individual's getAdaptionConfig()
-    // authors -- per-object, non-genome settings). The full ctor + addContent() below remain as a
-    // standalone (factory-less) construction path, used by the unit tests.
+    // including the target function), buildGenome (one constrained double per start value), applyConfig
+    // (the per-object, non-genome target function) and buildAdaptionConfig (the OA-owned Gauss adaption
+    // config, authored from the Config -- NOT stored on the individual). The full ctor + addContent()
+    // below remain as a standalone (factory-less) construction path, used by the unit tests.
 
     /** @brief All values formerly parsed by the bespoke GStarterIndividualFactory. */
     struct Config {
@@ -192,8 +166,12 @@ public:
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
     /** @brief Builds the flat genome's structure: one constrained double per start value */
     static gen::GenomeData buildGenome(const Config &c);
-    /** @brief Per-object post-config hook: stamps the target function and the Gauss adaptor parameters */
+    /** @brief Per-object post-config hook: stamps the (non-genome) target function */
     static void applyConfig(GStarterIndividual &ind, const Config &c);
+    /** @brief The OA-owned Gauss adaption config: every parameter group gets the configured adaptor.
+     *  Authored from the Config -- no adaptor data resides on the individual. */
+    static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+    buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
 
     /***************************************************************************/
     /**
@@ -205,12 +183,7 @@ public:
         const std::size_t &prod_id,
         const std::vector<double> &startValues,
         const std::vector<double> &lowerBoundaries,
-        const std::vector<double> &upperBoundaries,
-        const double &sigma,
-        const double &sigmaSigma,
-        const double &minSigma,
-        const double &maxSigma,
-        const double &adProb
+        const std::vector<double> &upperBoundaries
     ) {
         // Some error checking
 #ifdef DEBUG
@@ -248,18 +221,12 @@ public:
 #endif /* DEBUG */
 
         // Build the flat genome's STRUCTURE: one constrained double per parameter. The Gauss adaptor lives
-        // on the OA-owned config (getAdaptionConfig()); stamp its parameters here so the individual can
-        // author that config and report its configured seed sigma.
+        // solely on the OA-owned config (buildAdaptionConfig()); none of its parameters reside here.
         gen::GGenomeBuilder b;
         for(std::size_t i = 0; i < startValues.size(); i++) {
             b.addDouble(startValues.at(i), lowerBoundaries.at(i), upperBoundaries.at(i));
         }
         p.setGenome(b.build());
-        p.seed_sigma_ = sigma;
-        p.seed_sigma_sigma_ = sigmaSigma;
-        p.seed_min_sigma_ = minSigma;
-        p.seed_max_sigma_ = maxSigma;
-        p.seed_ad_prob_ = adProb;
 
         // The first individual (prod_id == 0) keeps the supplied start values; all others start
         // randomly within bounds.
@@ -306,16 +273,6 @@ private:
         GO_DEF_TARGETFUNCTION; ///< Specifies which demo function should be used
 
     /***************************************************************************/
-    // The configured Gauss adaptor parameters, stamped by addContent(). They live here (not in the
-    // structure-only genome layout) so the individual can author its OA-owned adaption config and report
-    // its configured seed sigma. All parameter groups share one configuration.
-    double seed_sigma_ = 0.025;
-    double seed_sigma_sigma_ = 0.6;
-    double seed_min_sigma_ = 0.001;
-    double seed_max_sigma_ = 2.;
-    double seed_ad_prob_ = 0.05;
-
-    /***************************************************************************/
     /** @brief Creates a deep clone of this object */
     virtual gen::GFlatGenome *clone_() const final;
 
@@ -337,8 +294,9 @@ std::ostream &operator<<(std::ostream &, std::shared_ptr<GStarterIndividual>);
 /**
  * A factory for GStarterIndividual objects. The bespoke factory has been replaced by the generic,
  * config-driven GFlatIndividualFactory; GStarterIndividual supplies the static describeConfig /
- * buildGenome / applyConfig hooks. The alias keeps existing call sites (ctor(path), get_as<>(),
- * registerContentCreator(), getAdaptionConfig() on the produced individual) compiling unchanged.
+ * buildGenome / applyConfig / buildAdaptionConfig hooks. The alias keeps existing call sites
+ * (ctor(path), get_as<>(), registerContentCreator(), and the factory's getAdaptionConfig(sample))
+ * compiling unchanged.
  */
 using GStarterIndividualFactory = Gem::Geneva::Genome::GFlatIndividualFactory<GStarterIndividual>;
 

@@ -77,11 +77,11 @@ int main(int argc, char **argv) {
     // Add a content creator so Go2 can generate its own individuals, if necessary
     go.registerContentCreator(gsif_ptr);
 
-    // The genome carries only structure; its Gauss adaptor lives on an OA-owned config the individual
-    // authors from its stamped parameters. Register it for the adapting algorithms (EA / SA).
+    // The genome carries only structure; its Gauss adaptor lives on an OA-owned config the factory
+    // authors from the configuration. Register it for the adapting algorithms (EA / SA).
     {
         auto sample = gsif_ptr->get_as<GStarterIndividual>();
-        auto cfg = sample->getAdaptionConfig();
+        auto cfg = gsif_ptr->getAdaptionConfig(*sample);
         go.registerAdaptionConfig("PERSONALITY_EA", cfg);
         go.registerAdaptionConfig("PERSONALITY_SA", cfg);
     }
