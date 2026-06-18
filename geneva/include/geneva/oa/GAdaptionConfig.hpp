@@ -33,7 +33,10 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <cmath>
 #include <cstdint>
+#include <istream>
+#include <ostream>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -63,6 +66,50 @@ using Gem::Geneva::Genome::GGenomeLayout;
 using Gem::Geneva::Genome::GroupRef;
 using Gem::Geneva::Genome::GroupSpec;
 using Gem::Geneva::Genome::GroupStructure;
+
+/******************************************************************************/
+/**
+ * The step-size control strategy an adapting algorithm applies on top of the per-group Gauss adaptors.
+ * It is a property of the OA-owned adaption config so the same genome can be driven by different
+ * controllers without touching the structure-only layout. The default reproduces the classic Geneva
+ * behaviour bit-for-bit; the other modes are used by GAdaptiveEvolutionaryAlgorithm ("eaa").
+ *
+ * - SELF_ADAPT        : classic mutative self-adaptive isotropic Gaussian (σSA). Each group's sigma
+ *                       self-adapts log-normally with whatever sigma_sigma the user authored. This is
+ *                       what GEvolutionaryAlgorithm ("ea") uses and is the default for every config.
+ * - SELF_ADAPT_SCALED : as SELF_ADAPT, but the σ self-adaption learning rate is rescaled by the
+ *                       parameter count n: a shared-σ group gets sigma_sigma = c/sqrt(2n), a
+ *                       per-coordinate (length-1) group gets sigma_sigma = c/sqrt(2*sqrt(n)). This is
+ *                       the textbook τ that the fixed Geneva default (0.8) lacks; at large n the fixed
+ *                       rate is ~100x too hot and the σ random-walks instead of settling.
+ * - ONE_FIFTH         : a single GLOBAL sigma driven by the Rechenberg 1/5 success rule. Per-group
+ *                       log-normal self-adaption is suppressed; the OA pushes the global sigma into
+ *                       every group's state each generation. O(1) controller state.
+ * - CSA               : a single GLOBAL sigma driven by cumulative step-size adaptation (an evolution
+ *                       path p_sigma). Per-group log-normal self-adaption is suppressed; the OA pushes
+ *                       the global sigma into every group's state each generation. O(n) controller state.
+ */
+enum class stepControl : std::uint8_t {
+    SELF_ADAPT = 0,
+    SELF_ADAPT_SCALED = 1,
+    ONE_FIFTH = 2,
+    CSA = 3
+};
+
+/** @brief Streams a stepControl value as its integer code (needed by the comparison / logging helpers).
+ *  @param o The output stream @param sc The value @return The stream */
+inline std::ostream &operator<<(std::ostream &o, const stepControl &sc) {
+    o << static_cast<std::uint32_t>(static_cast<std::uint8_t>(sc));
+    return o;
+}
+/** @brief Reads a stepControl value from its integer code.
+ *  @param i The input stream @param sc The value to fill @return The stream */
+inline std::istream &operator>>(std::istream &i, stepControl &sc) {
+    std::uint32_t tmp = 0;
+    i >> tmp;
+    sc = static_cast<stepControl>(static_cast<std::uint8_t>(tmp));
+    return i;
+}
 
 /******************************************************************************/
 /**
@@ -654,6 +701,102 @@ public:
     /** @brief Read access to the interned label table. @return The vector of label strings (indexed by label id). */
     const std::vector<std::string> &labels() const { return labels_; }
 
+    /***************************************************************************/
+    // Step-size-control strategy (used by GAdaptiveEvolutionaryAlgorithm; default reproduces the
+    // classic σSA behaviour, so the stock EA is unaffected).
+
+    /** @brief Selects the step-size-control strategy applied on top of the per-group Gauss adaptors.
+     *  @param sc The strategy (SELF_ADAPT, SELF_ADAPT_SCALED, ONE_FIFTH or CSA)
+     *  @return A reference to this config, for chaining */
+    GAdaptionConfigBase &setStepControl(stepControl sc) {
+        step_control_ = sc;
+        return *this;
+    }
+    /** @brief The configured step-size-control strategy. @return The strategy currently in effect. */
+    stepControl getStepControl() const { return step_control_; }
+
+    /** @brief Sets the learning-rate constant c used by SELF_ADAPT_SCALED (τ = c/sqrt(2n)).
+     *  @param c The constant (≈1 by convention). @return A reference to this config, for chaining. */
+    GAdaptionConfigBase &setLearningRateConstant(double c) {
+        learning_rate_c_ = c;
+        return *this;
+    }
+    /** @brief The learning-rate constant c. @return The constant used by the scaled self-adaption rate. */
+    double getLearningRateConstant() const { return learning_rate_c_; }
+
+    /**
+     * @brief The total number of floating-point parameters that are actually adapted by a Gauss /
+     * bi-Gauss adaptor across the double + float channels. This is the dimension n that the
+     * dimension-scaled step controllers reason about. Computed live from the group structure.
+     *
+     * @return The number of adapted FP parameters (Σ group length over active Gauss / bi-Gauss groups).
+     */
+    std::size_t adaptedDimension() const {
+        std::size_t n = 0;
+        for(const GroupSpec<double> &g : d_) {
+            if((g.has_gauss || g.has_bigauss) && g.active) {
+                n += g.len;
+            }
+        }
+        for(const GroupSpec<float> &g : f_) {
+            if((g.has_gauss || g.has_bigauss) && g.active) {
+                n += g.len;
+            }
+        }
+        return n;
+    }
+
+    /**
+     * @brief Applies the SELF_ADAPT_SCALED transformation: rewrites every Gauss / bi-Gauss group's
+     * σ self-adaption rate (sigma_sigma) to the dimension-scaled textbook value. A shared-σ group (len
+     * > 1, one σ for the whole group) uses the global rate c/sqrt(2n); a per-coordinate group (len == 1)
+     * uses c/sqrt(2*sqrt(n)). A no-op when there are no adapted FP parameters. Idempotent enough for
+     * setup use (the OA calls it once at init()).
+     */
+    void applyScaledSelfAdaptionRate() {
+        const std::size_t n = adaptedDimension();
+        if(n == 0) {
+            return;
+        }
+        const double c = learning_rate_c_;
+        const double tau_global = c / std::sqrt(2. * static_cast<double>(n));
+        const double tau_coord = c / std::sqrt(2. * std::sqrt(static_cast<double>(n)));
+        auto rescale = [&]<typename T>(std::vector<GroupSpec<T>> &groups) {
+            for(GroupSpec<T> &g : groups) {
+                const auto rate = static_cast<adaption_fp_t<T>>(g.len == 1 ? tau_coord : tau_global);
+                if(g.has_gauss) {
+                    g.gauss.sigma_sigma = rate;
+                }
+                if(g.has_bigauss) {
+                    g.bigauss.sigma_sigma1 = rate;
+                    g.bigauss.sigma_sigma2 = rate;
+                    g.bigauss.sigma_delta = rate;
+                }
+            }
+        };
+        rescale(d_);
+        rescale(f_);
+    }
+
+    /**
+     * @brief Suppresses the per-group log-normal σ self-adaption on every Gauss / bi-Gauss group, so
+     * an external controller (ONE_FIFTH / CSA) owns σ alone. Implemented by setting sigma_sigma to 0
+     * (a zero-rate log-normal step is the identity) — the group still applies its `range * N(0, σ)`
+     * value step with whatever σ the OA wrote into its state, but never self-adapts σ on its own.
+     */
+    void suppressPerGroupSigmaSelfAdaption() {
+        auto zero = [&]<typename T>(std::vector<GroupSpec<T>> &groups) {
+            for(GroupSpec<T> &g : groups) {
+                g.gauss.sigma_sigma = adaption_fp_t<T>(0);
+                g.bigauss.sigma_sigma1 = adaption_fp_t<T>(0);
+                g.bigauss.sigma_sigma2 = adaption_fp_t<T>(0);
+                g.bigauss.sigma_delta = adaption_fp_t<T>(0);
+            }
+        };
+        zero(d_);
+        zero(f_);
+    }
+
 protected:
     /***************************************************************************/
     /**
@@ -911,6 +1054,12 @@ private:
     std::vector<GroupSpec<std::int32_t>> i_;
     std::vector<GroupSpec<bool>> b_;
     std::vector<std::string> labels_;
+
+    /***************************************************************************/
+    // Step-size-control strategy + its tunables. The default reproduces the classic σSA behaviour, so
+    // a config used by the stock EA is byte-identical to before.
+    stepControl step_control_ = stepControl::SELF_ADAPT; ///< the step-size-control strategy
+    double learning_rate_c_ = 1.;                        ///< the τ = c/sqrt(2n) constant for SELF_ADAPT_SCALED
 };
 
 /******************************************************************************/

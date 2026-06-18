@@ -409,6 +409,83 @@ std::shared_ptr<ConfigT> makeAdaptionConfig(const detail::GFlatGenome &genome) {
 
 /******************************************************************************/
 /**
+ * @brief Overwrites the current per-group sigma of EVERY Gauss group (double + float channels) in one
+ * scratch store with a single global value. Used by the global-σ step controllers (ONE_FIFTH / CSA),
+ * which own a single search-distribution sigma and push it into every group's state each generation so
+ * the next adaption uses it. A no-op for channels with no installed Gauss block. The bi-Gauss sigmas are
+ * intentionally left alone (the global-σ controllers operate on the single-Gauss path).
+ *
+ * @param scratch The per-individual auxiliary store whose Gauss state blocks are overwritten.
+ * @param cfg The shared adaption config supplying the per-channel group specs.
+ * @param global_sigma The global sigma to write into every Gauss group's state.
+ */
+inline void writeGlobalSigma(
+    detail::GAuxiliaryStore &scratch,
+    const GAdaptionConfigBase &cfg,
+    double global_sigma
+) {
+    using namespace Gem::Geneva::Genome;
+    if(scratch.hasAux(AUXKEY_GAUSS_DOUBLE)) {
+        std::span<GaussState<double>> st = scratch.metaRecords<GaussState<double>>(AUXKEY_GAUSS_DOUBLE);
+        const auto &groups = cfg.doubleGroups();
+        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
+            if(groups[gi].has_gauss) {
+                st[gi].sigma = global_sigma;
+            }
+        }
+    }
+    if(scratch.hasAux(AUXKEY_GAUSS_FLOAT)) {
+        std::span<GaussState<float>> st = scratch.metaRecords<GaussState<float>>(AUXKEY_GAUSS_FLOAT);
+        const auto &groups = cfg.floatGroups();
+        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
+            if(groups[gi].has_gauss) {
+                st[gi].sigma = static_cast<float>(global_sigma);
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+/**
+ * @brief Reads back one representative per-group sigma from a scratch store (the first installed Gauss
+ * group, double channel preferred, else float). Used by the global-σ controllers to recover the seed
+ * sigma at setup and to read the per-individual sigma when intermediate-recombining σ. Returns the
+ * fallback when no Gauss state is present.
+ *
+ * @param scratch The per-individual auxiliary store to read from.
+ * @param cfg The shared adaption config supplying the per-channel group specs.
+ * @param fallback The value returned when no Gauss state is installed.
+ * @return The first installed Gauss group's current sigma, or @p fallback.
+ */
+inline double readRepresentativeSigma(
+    const detail::GAuxiliaryStore &scratch,
+    const GAdaptionConfigBase &cfg,
+    double fallback
+) {
+    using namespace Gem::Geneva::Genome;
+    if(scratch.hasAux(AUXKEY_GAUSS_DOUBLE)) {
+        std::span<const GaussState<double>> st = scratch.metaRecords<GaussState<double>>(AUXKEY_GAUSS_DOUBLE);
+        const auto &groups = cfg.doubleGroups();
+        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
+            if(groups[gi].has_gauss) {
+                return st[gi].sigma;
+            }
+        }
+    }
+    if(scratch.hasAux(AUXKEY_GAUSS_FLOAT)) {
+        std::span<const GaussState<float>> st = scratch.metaRecords<GaussState<float>>(AUXKEY_GAUSS_FLOAT);
+        const auto &groups = cfg.floatGroups();
+        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
+            if(groups[gi].has_gauss) {
+                return static_cast<double>(st[gi].sigma);
+            }
+        }
+    }
+    return fallback;
+}
+
+/******************************************************************************/
+/**
  * @brief A small RAII helper that gives a single, slot-less individual its own adaption scratch + config
  * so the data-oriented adaption can be driven outside an optimization algorithm (test individuals'
  * modify hooks, standalone perturbation loops, serialization benchmarks). Construct once with the

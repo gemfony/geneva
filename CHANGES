@@ -393,6 +393,20 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- A new optimization algorithm, GAdaptiveEvolutionaryAlgorithm (mnemonic "eaa"),
+  improves convergence near the optimum at high dimension. It is a drop-in twin of
+  the standard evolutionary algorithm (same selection / recombination machinery and
+  all five sorting modes, Pareto included) with a selectable step-size-control
+  strategy on the OA-owned adaption config: SELF_ADAPT (the classic behaviour),
+  SELF_ADAPT_SCALED (the default -- the sigma self-adaption rate is scaled by the
+  parameter count, tau = c/sqrt(2n), instead of the fixed rate the classic EA uses,
+  which is far too hot at large n), ONE_FIFTH (Rechenberg 1/5 success rule on a
+  single global sigma) and CSA (cumulative step-size adaptation). It also
+  intermediate-recombines the per-individual sigma. The classic
+  GEvolutionaryAlgorithm ("ea") is unchanged. On a 1000-parameter sphere over a
+  fixed budget the stock EA stalls at the starting fitness while "eaa" with the
+  default scaled controller reaches less than half of it.
+
 - A server binary now uses a single courtier consumer for everything, held in a
   process-global registry (GConsumerRegistry). Algorithms are transport-agnostic:
   they submit through that one consumer and get back a fully evaluated population,

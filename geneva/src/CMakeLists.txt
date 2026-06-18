@@ -41,6 +41,9 @@ SET ( OPTIMIZATIONSOURCES
     oa/GEvolutionaryAlgorithm.cpp
     oa/GEvolutionaryAlgorithmFactory.cpp
     oa/GEvolutionaryAlgorithm_PersonalityTraits.cpp
+    oa/GAdaptiveEvolutionaryAlgorithm.cpp
+    oa/GAdaptiveEvolutionaryAlgorithmFactory.cpp
+    oa/GAdaptiveEvolutionaryAlgorithm_PersonalityTraits.cpp
     oa/GMetaEvolutionaryAlgorithm.cpp
     oa/GParChild.cpp
     oa/GBaseParChildPersonalityTraits.cpp
