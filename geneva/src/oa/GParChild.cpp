@@ -365,8 +365,9 @@ void GParChild::doRecombine() {
     std::size_t i = 0;
     std::vector<double> threshold(n_parents_);
     double threshold_sum = 0.;
-    // Calculate a weight vector
-    // TODO: Check whether it is sufficient to do this only once
+    // Calculate a weight vector. This depends only on n_parents_ (a fixed population-structure
+    // parameter), so it is identical on every call; recomputing it once per generation is correct
+    // and the O(n_parents_) cost is negligible against an evaluation cycle, so it is not cached.
     if(duplicationScheme::VALUEDUPLICATIONSCHEME == recombination_method_ && n_parents_ > 1) {
         for(i = 0; i < n_parents_; i++) {
             threshold_sum += 1. / (static_cast<double>(i) + 2.);

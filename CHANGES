@@ -541,6 +541,12 @@ Recommended Versions:
   The now-obsolete cap constant and the send-side size checks were removed. (Handler threads only send,
   so the probe-then-receive on the single-threaded receive paths is race-free.)
 
+- Fixed: GEvolutionaryAlgorithm::populationSanityChecks_ now validates the population size for the
+  PARETO sorting modes too. Previously MUPLUSNU_PARETO / MUCOMMANU_PARETO bypassed the check, so a
+  too-small population (fewer children than parents in comma selection, or no children in plus
+  selection) was accepted and only misbehaved later; they now carry the same requirements as their
+  single-evaluation counterparts (MUCOMMANU_PARETO >= 2*n_parents, MUPLUSNU_PARETO > n_parents).
+
 - Robustness: GSwarmAlgorithm::adjustNeighborhoods now guards a completely empty first-iteration
   population in all builds (previously a DEBUG-only check; in a release build a total first-iteration
   work-item loss reached this->front() on an empty container -- undefined behaviour). It now throws a

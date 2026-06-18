@@ -411,12 +411,20 @@ void GEvolutionaryAlgorithm::populationSanityChecks_() const {
     // number of parents. MUNU1PRETAIN has the same requirements as MUCOMMANU_SINGLEEVAL,
     // as it is theoretically possible that all children are better than the former
     // parents, so that the first parent individual will be replaced.
+    //
+    // The PARETO sorting modes only change the ranking (non-dominated sorting), not the
+    // comma/plus selection cardinality, so they carry the same population-size requirements
+    // as their single-evaluation counterparts: MUCOMMANU_PARETO like MUCOMMANU_SINGLEEVAL
+    // (>= 2*n_parents) and MUPLUSNU_PARETO like MUPLUSNU_SINGLEEVAL (> n_parents).
     std::size_t pop_size = this->getPopulationSize();
-    if( // TODO: Why are PARETO modes missing here ?
+    if(
         ((sorting_mode_ == sortingMode::MUCOMMANU_SINGLEEVAL ||
-          sorting_mode_ == sortingMode::MUNU1PRETAIN_SINGLEEVAL) &&
+          sorting_mode_ == sortingMode::MUNU1PRETAIN_SINGLEEVAL ||
+          sorting_mode_ == sortingMode::MUCOMMANU_PARETO) &&
          (pop_size < 2 * this->n_parents_)) ||
-        (sorting_mode_ == sortingMode::MUPLUSNU_SINGLEEVAL && pop_size <= this->n_parents_)
+        ((sorting_mode_ == sortingMode::MUPLUSNU_SINGLEEVAL ||
+          sorting_mode_ == sortingMode::MUPLUSNU_PARETO) &&
+         pop_size <= this->n_parents_)
     ) {
         std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
         error << "In G_OA_EvolutionaryAlgorithm::populationSanityChecks() :" << '\n'

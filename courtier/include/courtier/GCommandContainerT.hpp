@@ -247,9 +247,15 @@ public:
     /**
 	  * @brief Processing of the payload. Delegates to the payload's process() method.
 	  *
-	  * @throws geneva_exception if the container holds no payload
+	  * Errors during processing are handled one layer down: GProcessingContainerT::process()
+	  * wraps the user's process_() in a try/catch, records the failure on the item
+	  * (processing_status_ = EXCEPTION_CAUGHT plus stored error descriptions) and rethrows a
+	  * typed g_processing_exception. This method intentionally lets that exception propagate to
+	  * the caller (the worker compute loop), which catches it and returns the item carrying its
+	  * error state -- so a faulty work item never crashes the worker.
 	  *
-	  * // TODO: Check for errors during processing
+	  * @throws geneva_exception if the container holds no payload
+	  * @throws g_processing_exception (from the payload) if processing flagged or threw an error
 	  */
     void process() {
         if(payload_ptr_) {
