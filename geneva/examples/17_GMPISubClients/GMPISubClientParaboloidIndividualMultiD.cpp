@@ -109,11 +109,15 @@ gen::GFlatGenome *GMPISubClientParaboloidIndividualMultiD::clone_() const {
 /********************************************************************************************/
 /**
  * Builds the OA-owned adaption configuration: every parameter is its own Gauss group, configured with the
- * default GDoubleGaussAdaptor settings the genome formerly baked into its layout.
+ * default GDoubleGaussAdaptor settings. The adaptor settings live solely on the returned (OA-owned)
+ * config -- none reside on the individual.
+ *
+ * @param sample A sample flat genome whose group structure the config mirrors
+ * @return A shared pointer to the populated OA-owned adaption config
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GMPISubClientParaboloidIndividualMultiD::getAdaptionConfig() const {
-    auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(*this);
+GMPISubClientParaboloidIndividualMultiD::buildAdaptionConfig(const gen::GFlatGenome &sample) {
+    auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(sample);
     for(std::size_t npar = 0; npar < cfg->doubleGroups().size(); npar++) {
         cfg->groupDouble(npar).gauss(DEFAULTSIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, DEFAULTADPROB);
     }

@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
 
     // The genome carries only structure; its Gauss adaptors live on an OA-owned config. Register it for
     // the evolutionary algorithm so Go2 hands it over before the EA runs.
-    go.registerAdaptionConfig("PERSONALITY_EA", p->getAdaptionConfig());
+    go.registerAdaptionConfig("PERSONALITY_EA", GParaboloidIndividual2D::buildAdaptionConfig(*p));
 
     // Add an evolutionary algorithm to the Go2 class.
     go & "ea";

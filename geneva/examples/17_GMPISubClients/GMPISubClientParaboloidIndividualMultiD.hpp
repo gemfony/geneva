@@ -89,8 +89,10 @@ public:
 
     static int subClientJob(MPI_Comm comm);
 
-    /** @brief The OA-owned adaption config authoring this genome's per-parameter Gauss groups. */
-    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const;
+    /** @brief The OA-owned adaption config authoring this genome's per-parameter Gauss groups, built from
+     *  the genome layout. Static (no adaptor data resides on the individual). */
+    static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+    buildAdaptionConfig(const gen::GFlatGenome &sample);
 
 protected:
     /** @brief Loads the data of another GMPISubClientParaboloidIndividualMultiD */

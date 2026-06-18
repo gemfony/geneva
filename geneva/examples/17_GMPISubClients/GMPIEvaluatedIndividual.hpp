@@ -87,8 +87,10 @@ public:
     /** @brief The standard destructor */
     ~GMPIEvaluatedIndividual() override;
 
-    /** @brief The OA-owned adaption config authoring this genome's two Gauss groups. */
-    std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const;
+    /** @brief The OA-owned adaption config authoring this genome's two Gauss groups, built from the genome
+     *  layout. Static (no adaptor data resides on the individual). */
+    static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+    buildAdaptionConfig(const gen::GFlatGenome &sample);
 
     static void setCommunicator(MPI_Comm);
 
