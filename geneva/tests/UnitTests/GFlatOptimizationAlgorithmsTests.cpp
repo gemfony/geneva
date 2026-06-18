@@ -63,6 +63,7 @@
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GNelderMead.hpp"
 #include "geneva/oa/GParameterScan.hpp"
+#include "geneva/oa/GSepCmaEvolutionStrategy.hpp"
 #include "geneva/oa/GSimulatedAnnealing.hpp"
 #include "geneva/oa/GSwarmAlgorithm.hpp"
 
@@ -881,4 +882,189 @@ TEST_CASE("EA fits a line with the migrated (flat) GLineFitIndividual", "[flat][
     const auto [a, b] = best->getLine();
     CHECK(std::abs(a - 0.) < 0.5); // offset near 0
     CHECK(std::abs(b - 1.) < 0.3); // slope near 1
+}
+
+/******************************************************************************/
+// Separable CMA / CSA evolution strategy ("eab"): a from-scratch high-dimensional optimizer.
+// O(n) per generation, dimension-scaled CSA + diagonal covariance constants -- it out-converges the
+// stock self-adaptive EA at high n on the same fixed evaluation budget.
+/******************************************************************************/
+
+namespace {
+
+/** @brief A high-dimensional flat sphere: N constrained doubles in [-5, 5), started at 3.0. */
+template <std::size_t N>
+class FlatHighDimSphere : public gen::GFlatIndividualT<FlatHighDimSphere<N>> {
+public:
+    FlatHighDimSphere() {
+        gen::GGenomeBuilder b;
+        b.addDoubleGroup(N, -5., 5.).init(3.0);
+        this->setGenome(b.build());
+    }
+    FlatHighDimSphere(const FlatHighDimSphere &) = default;
+
+    /** @brief Gauss adaption config for the stock EA (eab needs none -- it owns its own distribution). */
+    std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
+        auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
+        cfg->groupDouble(0).gauss(0.5, 0.8, 1e-3, 2., 1.);
+        return cfg;
+    }
+
+protected:
+    double fitnessCalculation() override {
+        std::vector<double> v;
+        this->template streamline<double>(v);
+        double s = 0.;
+        for(double x : v) {
+            s += x * x;
+        }
+        return s;
+    }
+};
+
+/** @brief Sum of squares of a flat individual's double parameters (its sphere value). */
+double sphereValue(const std::shared_ptr<gen::GOptimizableEntity> &best) {
+    std::vector<double> v;
+    best->streamline<double>(v);
+    double s = 0.;
+    for(double x : v) {
+        s += x * x;
+    }
+    return s;
+}
+
+/**
+ * @brief A two-objective flat individual: minimise f1 = sum x_i^2 and f2 = sum (x_i - 2)^2 over N_DIM
+ * constrained doubles in [-5, 5). The Pareto front is the segment x_i in [0, 2]; used for the NSGA-II
+ * selection smoke test.
+ */
+class FlatBiObjective : public gen::GFlatIndividualT<FlatBiObjective> {
+public:
+    FlatBiObjective() {
+        gen::GGenomeBuilder b;
+        b.addDoubleGroup(N_DIM, -5., 5.).init(3.0);
+        this->setGenome(b.build());
+        this->setNStoredResults(2); // two evaluation criteria
+    }
+    FlatBiObjective(const FlatBiObjective &) = default;
+
+protected:
+    double fitnessCalculation() override {
+        std::vector<double> v;
+        this->streamline<double>(v);
+        double f1 = 0.;
+        double f2 = 0.;
+        for(double x : v) {
+            f1 += x * x;
+            f2 += (x - 2.) * (x - 2.);
+        }
+        this->setResult(1, f2);
+        return f1; // criterion 0
+    }
+};
+
+} /* anonymous namespace */
+
+/******************************************************************************/
+
+TEST_CASE("Separable CMA-ES optimizes a flat individual", "[flat][oa][eab]") {
+    auto pop = std::make_shared<oa::GSepCmaEvolutionStrategy>();
+    pop->setMaxIteration(200);
+    pop->setReportIteration(100000);
+    pop->push_back(FlatSphereOA().clone_unique());
+    pop->optimize(); // eab owns its own distribution: NO adaption config needed
+
+    auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+    REQUIRE(best);
+    CHECK(bestSphere(best) < 1.0e-3); // sep-CMA drives the sphere far below the f=45 start
+}
+
+/******************************************************************************/
+
+TEST_CASE("Pure CSA-ES (no diagonal covariance) optimizes a flat individual", "[flat][oa][eab]") {
+    auto pop = std::make_shared<oa::GSepCmaEvolutionStrategy>();
+    pop->setUseDiagonalCMA(false); // step-size control only
+    pop->setMaxIteration(300);
+    pop->setReportIteration(100000);
+    pop->push_back(FlatSphereOA().clone_unique());
+    pop->optimize();
+
+    auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+    REQUIRE(best);
+    CHECK(bestSphere(best) < 1.0e-2); // CSA alone still converges the isotropic sphere
+}
+
+/******************************************************************************/
+
+TEST_CASE("Separable CMA-ES out-converges the stock EA at high dimension", "[flat][oa][eab]") {
+    // The headline claim: on a high-dimensional sphere with a FIXED evaluation budget, the
+    // dimension-scaled sep-CMA-ES reaches a far better fitness than the stock self-adaptive EA, whose
+    // per-individual sigma adaption lacks the 1/n / 1/sqrt(n) scaling.
+    constexpr std::size_t N = 200;
+    using Ind = FlatHighDimSphere<N>;
+
+    // Stock EA: (6 + 24) population, 120 generations -> 6 + 119*24 = 2862 evaluations.
+    double ea_best = 0.;
+    {
+        auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
+        pop->setPopulationSizes(30, 6);
+        pop->setMaxIteration(120);
+        pop->setMaxStallIteration(0);
+        pop->setReportIteration(100000);
+        Ind src;
+        pop->push_back(src.clone_unique());
+        pop->setAdaptionConfig(src.buildAdaptionConfig());
+        pop->optimize();
+        auto best = pop->getBestGlobalIndividual<Ind>();
+        REQUIRE(best);
+        ea_best = sphereValue(best);
+    }
+
+    // eab: auto lambda (4 + floor(3 ln 200) = 19) over the same kind of budget (~150 gens), no config.
+    double eab_best = 0.;
+    {
+        auto pop = std::make_shared<oa::GSepCmaEvolutionStrategy>();
+        pop->setMaxIteration(150);
+        pop->setMaxStallIteration(0);
+        pop->setReportIteration(100000);
+        pop->push_back(Ind().clone_unique());
+        pop->optimize();
+        auto best = pop->getBestGlobalIndividual<Ind>();
+        REQUIRE(best);
+        eab_best = sphereValue(best);
+    }
+
+    INFO("n=" << N << " stock-ea best=" << ea_best << "  eab best=" << eab_best);
+    // The start fitness is N * 9 = 1800. eab must end well below the EA -- by a clear margin, not a
+    // hair. (Observed: stock-ea ~1100, eab ~75 -- roughly a 15x lead at n=200.)
+    CHECK(eab_best < ea_best);
+    CHECK(eab_best < ea_best / 3.0); // a decisive margin, not a coin-flip win
+    CHECK(eab_best < 0.1 * 1800.0);  // also an absolute bar: well below 10% of the f=1800 start
+}
+
+/******************************************************************************/
+
+TEST_CASE("Separable CMA-ES Pareto mode runs on a two-objective individual", "[flat][oa][eab][pareto]") {
+    auto pop = std::make_shared<oa::GSepCmaEvolutionStrategy>();
+    pop->setParetoMode(true); // NSGA-II non-dominated sort + crowding distance as the ranking key
+    pop->setMaxIteration(120);
+    pop->setReportIteration(100000);
+    pop->push_back(FlatBiObjective().clone_unique());
+    CHECK_NOTHROW(pop->optimize());
+
+    auto best = pop->getBestGlobalIndividual<FlatBiObjective>();
+    REQUIRE(best);
+    // The Pareto front for (sum x^2, sum (x-2)^2) is the box x_i in [0, 2]. The global-best individual is
+    // selected by criterion 0 (f1), so it sits at the f1 end of the front (x near 0): f1 is tiny while f2
+    // is correspondingly large -- the textbook trade-off. We assert the run stays inside the genome box
+    // and that the criterion-0-best really reached the f1 corner of the front, far below its f1=45 start.
+    std::vector<double> v;
+    best->streamline<double>(v);
+    double f1 = 0.;
+    for(double x : v) {
+        f1 += x * x;
+        CHECK(x >= -5.0);
+        CHECK(x < 5.0);
+    }
+    CHECK(f1 < 10.0); // the criterion-0 best reached the f1 corner of the front (far below the f1=45 start)
 }

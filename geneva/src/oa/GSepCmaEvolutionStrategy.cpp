@@ -1,0 +1,887 @@
+/********************************************************************************
+ *
+ * This file is part of the Geneva library collection. The following license
+ * applies to this file:
+ *
+ * ------------------------------------------------------------------------------
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------
+ *
+ * Note that other files in the Geneva library collection may use a different
+ * license. Please see the licensing information in each file.
+ *
+ ********************************************************************************
+ *
+ * See the NOTICE file in the top-level directory of the Geneva library
+ * collection for a list of contributors and copyright information.
+ *
+ ********************************************************************************/
+
+#include "geneva/oa/GSepCmaEvolutionStrategy.hpp"
+
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <limits>
+#include <numeric>
+#include <random>
+#include <tuple>
+#include <vector>
+
+#include "common/GExceptions.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "common/GLogger.hpp"
+#include "common/GParserBuilder.hpp"
+#include "courtier/GProcessingContainerT.hpp"
+#include "geneva/GenevaHelperFunctions.hpp"
+#include "geneva/GPersonalityTraits.hpp"
+#include "geneva/ind/GIndividualSlot.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
+
+#ifdef GEM_TESTING
+#include <catch2/catch_test_macros.hpp>
+#endif /* GEM_TESTING */
+
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GSepCmaEvolutionStrategy) // NOLINT
+
+namespace Gem::Geneva::OptimizationAlgorithms {
+
+using Gem::Geneva::activityMode;
+
+/******************************************************************************/
+/**
+ * The default constructor. We start with a single individual; the population is grown to lambda
+ * offspring in adjustPopulation_() once the dimension n is known.
+ */
+GSepCmaEvolutionStrategy::GSepCmaEvolutionStrategy() {
+    // A sep-CMA-ES is not a parent/child population: there is just a search distribution sampled into
+    // lambda offspring. We start small; adjustPopulation_() grows the population to lambda at setup.
+    this->setDefaultPopulationSize(1);
+}
+
+/******************************************************************************/
+
+void GSepCmaEvolutionStrategy::setLambda(std::size_t lambda) {
+    lambda_ = lambda;
+}
+
+/******************************************************************************/
+
+std::size_t GSepCmaEvolutionStrategy::getLambda() const {
+    return lambda_;
+}
+
+/******************************************************************************/
+
+void GSepCmaEvolutionStrategy::setMu(std::size_t mu) {
+    mu_ = mu;
+}
+
+/******************************************************************************/
+
+std::size_t GSepCmaEvolutionStrategy::getMu() const {
+    return mu_;
+}
+
+/******************************************************************************/
+
+void GSepCmaEvolutionStrategy::setUseDiagonalCMA(bool use_diagonal_cma) {
+    use_diagonal_cma_ = use_diagonal_cma;
+}
+
+/******************************************************************************/
+
+bool GSepCmaEvolutionStrategy::getUseDiagonalCMA() const {
+    return use_diagonal_cma_;
+}
+
+/******************************************************************************/
+
+void GSepCmaEvolutionStrategy::setParetoMode(bool pareto_mode) {
+    pareto_mode_ = pareto_mode;
+}
+
+/******************************************************************************/
+
+bool GSepCmaEvolutionStrategy::getParetoMode() const {
+    return pareto_mode_;
+}
+
+/******************************************************************************/
+
+void GSepCmaEvolutionStrategy::setInitialSigma(double initial_sigma) {
+    if(initial_sigma <= 0.) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GSepCmaEvolutionStrategy::setInitialSigma(): Error!" << '\n'
+            << "Got invalid initial sigma " << initial_sigma << '\n'
+        );
+    }
+    initial_sigma_ = initial_sigma;
+}
+
+/******************************************************************************/
+
+double GSepCmaEvolutionStrategy::getInitialSigma() const {
+    return initial_sigma_;
+}
+
+/******************************************************************************/
+
+double GSepCmaEvolutionStrategy::getSigma() const {
+    return sigma_;
+}
+
+/******************************************************************************/
+/**
+ * Adds local configuration options to a GParserBuilder object.
+ */
+void GSepCmaEvolutionStrategy::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
+    // Call our parent class'es function
+    GOptimizationAlgorithmT<GSepCmaEvolutionStrategy>::addConfigurationOptions_(gpb);
+
+    gpb.registerFileParameter<std::size_t>(
+        "lambda",
+        DEFAULTSEPCMALAMBDA,
+        [this](std::size_t l) { this->setLambda(l); }
+    ) << "The number of offspring sampled per generation (lambda)." << '\n'
+      << "A value of 0 selects the textbook default 4 + floor(3*ln(n)).";
+
+    gpb.registerFileParameter<std::size_t>(
+        "mu",
+        std::size_t(0),
+        [this](std::size_t m) { this->setMu(m); }
+    ) << "The number of selected parents (mu). 0 means lambda/2.";
+
+    gpb.registerFileParameter<bool>(
+        "useDiagonalCMA",
+        true,
+        [this](bool b) { this->setUseDiagonalCMA(b); }
+    ) << "Whether to run the separable (diagonal) covariance adaptation." << '\n'
+      << "If false, the algorithm is a pure CSA-ES (step-size control only).";
+
+    gpb.registerFileParameter<bool>(
+        "paretoMode",
+        false,
+        [this](bool b) { this->setParetoMode(b); }
+    ) << "Whether to use NSGA-II-style multi-objective selection (non-dominated" << '\n'
+      << "sort + crowding distance) as the recombination ranking key.";
+
+    gpb.registerFileParameter<double>(
+        "initialSigma",
+        0.3,
+        [this](double s) { this->setInitialSigma(s); }
+    ) << "The initial global step size sigma, as a fraction of the parameter range.";
+}
+
+/******************************************************************************/
+/**
+ * Loads the data of another GSepCmaEvolutionStrategy object.
+ */
+void GSepCmaEvolutionStrategy::load_(const GOptimizationAlgorithmBase *cp) {
+    const GSepCmaEvolutionStrategy *p_load =
+        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GSepCmaEvolutionStrategy>(cp, this);
+
+    // First load the parent class's data ...
+    GOptimizationAlgorithmT<GSepCmaEvolutionStrategy>::load_(cp);
+
+    // ... and then our own data, derived from the single localMembers() declaration
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object of the same type.
+ */
+void GSepCmaEvolutionStrategy::compare_(
+    const GOptimizationAlgorithmBase &cp,
+    const Gem::Common::expectation &e,
+    const double & /*limit*/
+) const {
+    using namespace Gem::Common;
+
+    const GSepCmaEvolutionStrategy *p_load =
+        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GSepCmaEvolutionStrategy>(cp, this);
+
+    GToken token("GSepCmaEvolutionStrategy", e);
+
+    // Compare our parent data ...
+    Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
+
+    // ... and then the local data, derived from the single localMembers() declaration
+    g_compare_members(localMembers(), p_load->localMembers(), token);
+
+    token.evaluate();
+}
+
+/******************************************************************************/
+/**
+ * Resets the settings of this population to what was configured when optimize() was issued.
+ */
+void GSepCmaEvolutionStrategy::resetToOptimizationStart_() {
+    n_ = 0;
+    sigma_ = 0.;
+    m_.clear();
+    C_.clear();
+    p_sigma_.clear();
+    p_c_.clear();
+    lower_.clear();
+    upper_.clear();
+    state_initialized_ = false;
+    mu_eff_ = 0.;
+    c_sigma_ = d_sigma_ = c_c_ = c_1_ = c_mu_ = chi_n_ = 0.;
+    weights_.clear();
+
+    GOptimizationAlgorithmT<GSepCmaEvolutionStrategy>::resetToOptimizationStart_();
+}
+
+/******************************************************************************/
+/**
+ * Determines the dimension n_ and the parameter bounds from the first individual.
+ */
+void GSepCmaEvolutionStrategy::determineDimensionAndBounds() {
+    std::vector<double> mean;
+    this->at(0)->individual().streamlineFP(mean, activityMode::ACTIVEONLY);
+    n_ = mean.size();
+
+    if(n_ == 0) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GSepCmaEvolutionStrategy::determineDimensionAndBounds(): Error!" << '\n'
+            << "The individual exposes no floating point parameters; sep-CMA-ES" << '\n'
+            << "requires a continuous (double / float) genome." << '\n'
+        );
+    }
+
+    lower_.clear();
+    upper_.clear();
+    this->at(0)->individual().boundariesFP(lower_, upper_, activityMode::ACTIVEONLY);
+}
+
+/******************************************************************************/
+/**
+ * Derives lambda, mu, the recombination weights and all dimension-scaled strategy constants once the
+ * dimension n_ is known.
+ *
+ * Constant choices follow Hansen, "The CMA Evolution Strategy: A Tutorial" (2016) with the separable
+ * (diagonal) modification of Ros & Hansen (PPSN 2008), which scales the rank-1/rank-mu learning rates by
+ * the sep-CMA factor (n+2)/3 so that the whole update is O(n). These are the canonical defaults; they
+ * carry the 1/n and 1/sqrt(n) dimension scalings the stock self-adaptive ES lacks.
+ */
+void GSepCmaEvolutionStrategy::setUpStrategyParameters() {
+    const double n = static_cast<double>(n_);
+
+    // --- lambda (population size). Textbook default 4 + floor(3 ln n). -----------
+    std::size_t lambda = lambda_;
+    if(lambda == 0) {
+        lambda = static_cast<std::size_t>(4 + std::floor(3. * std::log(n)));
+    }
+    if(lambda < 4) {
+        lambda = 4;
+    }
+    lambda_ = lambda;
+
+    // --- mu (parents) and the positive log recombination weights ----------------
+    std::size_t mu = mu_;
+    if(mu == 0) {
+        mu = lambda_ / 2;
+    }
+    if(mu < 1) {
+        mu = 1;
+    }
+    if(mu > lambda_) {
+        mu = lambda_;
+    }
+    mu_ = mu;
+
+    // Preliminary (unnormalized) weights w_i' = ln(mu + 0.5) - ln(i), i = 1..mu .
+    weights_.assign(mu_, 0.);
+    double w_sum = 0.;
+    double w_sq_sum = 0.;
+    for(std::size_t i = 0; i < mu_; ++i) {
+        double w = std::log(static_cast<double>(mu_) + 0.5) - std::log(static_cast<double>(i + 1));
+        weights_[i] = w;
+        w_sum += w;
+    }
+    // Normalize so that sum(w_i) = 1 .
+    for(double &w : weights_) {
+        w /= w_sum;
+    }
+    for(double w : weights_) {
+        w_sq_sum += w * w;
+    }
+    // Variance-effective selection mass mu_eff = 1 / sum(w_i^2) .
+    mu_eff_ = 1. / w_sq_sum;
+
+    // --- step-size control (CSA) ------------------------------------------------
+    // c_sigma ~ (mu_eff + 2) / (n + mu_eff + 5)  -- O(1/n) cumulation rate.
+    c_sigma_ = (mu_eff_ + 2.) / (n + mu_eff_ + 5.);
+    // damping d_sigma = 1 + 2*max(0, sqrt((mu_eff-1)/(n+1)) - 1) + c_sigma .
+    d_sigma_ =
+        1. + 2. * (std::max)(0., std::sqrt((mu_eff_ - 1.) / (n + 1.)) - 1.) + c_sigma_;
+
+    // --- covariance adaptation (separable / diagonal) ---------------------------
+    // c_c ~ 4/n -- O(1/n) cumulation rate for the rank-1 path.
+    c_c_ = 4. / (n + 4.);
+    // Full-CMA learning rates ...
+    double c_1_full = 2. / ((n + 1.3) * (n + 1.3) + mu_eff_);
+    double c_mu_full =
+        (std::min)(1. - c_1_full,
+                   2. * (mu_eff_ - 2. + 1. / mu_eff_) / ((n + 2.) * (n + 2.) + mu_eff_));
+    // ... scaled up by the sep-CMA factor (n+2)/3 (Ros & Hansen 2008). This makes the diagonal model
+    // learn variances ~n times faster than full CMA would, which is exactly why sep-CMA converges fast
+    // at very high n.
+    const double sep_factor = (n + 2.) / 3.;
+    c_1_ = (std::min)(1., c_1_full * sep_factor);
+    c_mu_ = (std::min)(1. - c_1_, c_mu_full * sep_factor);
+
+    // E[||N(0,I)||] ~ sqrt(n) (1 - 1/(4n) + 1/(21 n^2)) .
+    chi_n_ = std::sqrt(n) * (1. - 1. / (4. * n) + 1. / (21. * n * n));
+}
+
+/******************************************************************************/
+/**
+ * Sizes the population to lambda offspring and seeds the search distribution. Runs at setup, BEFORE
+ * setIndividualPersonalities() and init(), so every slot (including the freshly cloned ones) receives a
+ * personality.
+ */
+void GSepCmaEvolutionStrategy::adjustPopulation_() {
+    if(this->empty()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GSepCmaEvolutionStrategy::adjustPopulation_(): Error!" << '\n'
+            << "No individuals found in the population. You need to add at least" << '\n'
+            << "one individual before the call to optimize()." << '\n'
+        );
+    }
+
+    // Determine the dimension n and the parameter bounds, then derive lambda/mu/weights/constants.
+    determineDimensionAndBounds();
+    setUpStrategyParameters();
+
+    // Grow the population to lambda offspring, all clones of the prototype.
+    while(this->size() < lambda_) {
+        this->push_back(this->at(0)->individual().clone_unique());
+    }
+    if(this->size() > lambda_) {
+        this->resize(lambda_);
+    }
+    this->setDefaultPopulationSize(lambda_);
+}
+
+/******************************************************************************/
+/**
+ * Does any necessary initialization work before the optimization cycle starts. Seeds the distribution
+ * mean from the registered start individual (unless resumed from a checkpoint).
+ */
+void GSepCmaEvolutionStrategy::init() {
+    // To be performed before any other action.
+    GOptimizationAlgorithmT<GSepCmaEvolutionStrategy>::init();
+
+    // The dimension / bounds / constants were established in adjustPopulation_(); refresh in case a
+    // resumed run carried a stale value.
+    if(n_ == 0 || lower_.size() != n_) {
+        determineDimensionAndBounds();
+        setUpStrategyParameters();
+    }
+
+    std::vector<double> mean;
+    this->at(0)->individual().streamlineFP(mean, activityMode::ACTIVEONLY);
+
+    if(not state_initialized_) {
+        // Fresh start (not resumed from a checkpoint): seed the distribution.
+        m_ = mean; // mean from the registered start individual
+
+        // Initial step size relative to the (mean) finite parameter range.
+        double range_sum = 0.;
+        std::size_t range_cnt = 0;
+        for(std::size_t i = 0; i < n_; ++i) {
+            double range = upper_[i] - lower_[i];
+            if(std::isfinite(range) && range > 0.) {
+                range_sum += range;
+                ++range_cnt;
+            }
+        }
+        double mean_range = (range_cnt > 0) ? (range_sum / static_cast<double>(range_cnt)) : 1.;
+        sigma_ = initial_sigma_ * mean_range;
+        if(not(sigma_ > 0.)) {
+            sigma_ = initial_sigma_;
+        }
+
+        C_.assign(n_, 1.); // unit diagonal covariance
+        p_sigma_.assign(n_, 0.);
+        p_c_.assign(n_, 0.);
+        state_initialized_ = true;
+    }
+    else {
+        // Resumed from a checkpoint: keep the loaded distribution state but make sure the bookkeeping
+        // vectors are dimensionally consistent.
+        if(m_.size() != n_) {
+            m_ = mean;
+        }
+        if(C_.size() != n_) {
+            C_.assign(n_, 1.);
+        }
+        if(p_sigma_.size() != n_) {
+            p_sigma_.assign(n_, 0.);
+        }
+        if(p_c_.size() != n_) {
+            p_c_.assign(n_, 0.);
+        }
+    }
+}
+
+/******************************************************************************/
+/**
+ * Does any necessary finalization work.
+ */
+void GSepCmaEvolutionStrategy::finalize() {
+    GOptimizationAlgorithmT<GSepCmaEvolutionStrategy>::finalize();
+}
+
+/******************************************************************************/
+/**
+ * Clamps a flat parameter vector to the [lower, upper) box. The parameter objects themselves fold
+ * constrained values on assignment, but clamping here keeps the sampled representation consistent with
+ * what is evaluated.
+ */
+void GSepCmaEvolutionStrategy::clampToBox(std::vector<double> &x) const {
+    for(std::size_t i = 0; i < x.size() && i < lower_.size(); ++i) {
+        if(std::isfinite(lower_[i]) && x[i] < lower_[i]) {
+            x[i] = lower_[i];
+        }
+        if(std::isfinite(upper_[i]) && x[i] >= upper_[i]) {
+            // Half-open interval [lower, upper): nudge just below the upper bound.
+            x[i] = std::nextafter(upper_[i], lower_[i]);
+        }
+    }
+}
+
+/******************************************************************************/
+/**
+ * Samples lambda offspring from the current distribution into the population.
+ *   x_k = m + sigma * sqrt(C) o N(0,I)
+ */
+void GSepCmaEvolutionStrategy::sampleOffspring() {
+    std::normal_distribution<double> norm(0., 1.);
+
+    for(std::size_t k = 0; k < this->size(); ++k) {
+        std::vector<double> x(n_);
+        for(std::size_t i = 0; i < n_; ++i) {
+            x[i] = m_[i] + sigma_ * std::sqrt(C_[i]) * norm(gr_);
+        }
+        clampToBox(x);
+
+        // Write the sampled values into the individual (constrained folding happens inside the parameter
+        // objects) and mark it for (re)evaluation.
+        this->at(k)->individual().assignFPValueVector(x, activityMode::ACTIVEONLY);
+        this->at(k)->individual().mark_as_due_for_processing();
+    }
+}
+
+/******************************************************************************/
+/**
+ * Submits all offspring to the one process consumer and waits for processed items. Mirrors the stock
+ * EA's submission path (workOnPopulation reconciles the range in place); unprocessed / errored items
+ * are dropped.
+ */
+void GSepCmaEvolutionStrategy::runFitnessCalculation_() {
+    auto status = this->workOnPopulation(0, this->size());
+
+    // Drop unprocessed items, if any.
+    if(not status.is_complete) {
+        std::erase_if(this->data_cnt_, [](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
+            return (p->individual().getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
+        });
+    }
+    // Drop items that errored out.
+    if(status.has_errors) {
+        std::erase_if(this->data_cnt_, [](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
+            return p->individual().has_errors();
+        });
+    }
+}
+
+/******************************************************************************/
+/**
+ * Returns the indices of the population sorted best-first for selection.
+ */
+std::vector<std::size_t> GSepCmaEvolutionStrategy::rankPopulation() const {
+    if(pareto_mode_) {
+        return rankPopulationPareto();
+    }
+
+    const std::size_t sz = this->size();
+    std::vector<std::size_t> idx(sz);
+    std::iota(idx.begin(), idx.end(), 0);
+
+    const bool maximize = (this->at(0)->individual().getMaxMode() == maxMode::MAXIMIZE);
+    std::stable_sort(idx.begin(), idx.end(), [this, maximize](std::size_t a, std::size_t b) -> bool {
+        double fa = this->at(a)->individual().transformed_fitness();
+        double fb = this->at(b)->individual().transformed_fitness();
+        return maximize ? (fa > fb) : (fa < fb);
+    });
+
+    return idx;
+}
+
+/******************************************************************************/
+/**
+ * Determines whether individual a Pareto-dominates individual b: a is no worse on every criterion and
+ * strictly better on at least one.
+ */
+bool GSepCmaEvolutionStrategy::aDominatesB(
+    const gen::GOptimizableEntity &a,
+    const gen::GOptimizableEntity &b
+) const {
+    const std::size_t n_crit = a.getNStoredResults();
+    const maxMode m = a.getMaxMode();
+
+    bool strictly_better_somewhere = false;
+    for(std::size_t c = 0; c < n_crit; ++c) {
+        double va = a.transformed_fitness(c);
+        double vb = b.transformed_fitness(c);
+        if(Gem::Geneva::isWorse(va, vb, m)) {
+            return false; // a is worse on some criterion -> cannot dominate
+        }
+        if(Gem::Geneva::isWorse(vb, va, m)) {
+            strictly_better_somewhere = true; // a is strictly better here
+        }
+    }
+    return strictly_better_somewhere;
+}
+
+/******************************************************************************/
+/**
+ * Computes an NSGA-II ranking order (best-first): individuals are first grouped into non-domination
+ * fronts (fast non-dominated sort), then within each front ordered by decreasing crowding distance. The
+ * leading mu indices are used as the recombination parents, so the distribution is pulled toward the
+ * Pareto front.
+ */
+std::vector<std::size_t> GSepCmaEvolutionStrategy::rankPopulationPareto() const {
+    const std::size_t sz = this->size();
+    const std::size_t n_crit = sz > 0 ? this->at(0)->individual().getNStoredResults() : 1;
+
+    // --- fast non-dominated sort -----------------------------------------------
+    std::vector<std::vector<std::size_t>> dominated(sz); // who each individual dominates
+    std::vector<std::size_t> dom_count(sz, 0);           // how many dominate each individual
+    std::vector<std::vector<std::size_t>> fronts(1);
+
+    for(std::size_t p = 0; p < sz; ++p) {
+        for(std::size_t q = 0; q < sz; ++q) {
+            if(p == q) {
+                continue;
+            }
+            if(aDominatesB(this->at(p)->individual(), this->at(q)->individual())) {
+                dominated[p].push_back(q);
+            }
+            else if(aDominatesB(this->at(q)->individual(), this->at(p)->individual())) {
+                ++dom_count[p];
+            }
+        }
+        if(dom_count[p] == 0) {
+            fronts[0].push_back(p);
+        }
+    }
+
+    std::size_t fi = 0;
+    while(fi < fronts.size() && not fronts[fi].empty()) {
+        std::vector<std::size_t> next_front;
+        for(std::size_t p : fronts[fi]) {
+            for(std::size_t q : dominated[p]) {
+                if(--dom_count[q] == 0) {
+                    next_front.push_back(q);
+                }
+            }
+        }
+        if(next_front.empty()) {
+            break;
+        }
+        fronts.push_back(std::move(next_front));
+        ++fi;
+    }
+
+    // --- crowding distance within each front, then concatenate -----------------
+    std::vector<std::size_t> order;
+    order.reserve(sz);
+    for(auto &front : fronts) {
+        const std::size_t fs = front.size();
+        std::vector<double> crowd(fs, 0.);
+        for(std::size_t c = 0; c < n_crit; ++c) {
+            // Sort this front by criterion c.
+            std::vector<std::size_t> by_c(fs);
+            std::iota(by_c.begin(), by_c.end(), 0);
+            auto val = [&](std::size_t local) {
+                return this->at(front[local])->individual().transformed_fitness(c);
+            };
+            std::sort(by_c.begin(), by_c.end(), [&](std::size_t a, std::size_t b) {
+                return val(a) < val(b);
+            });
+            // Boundary points get infinite crowding (always retained).
+            crowd[by_c.front()] = std::numeric_limits<double>::infinity();
+            crowd[by_c.back()] = std::numeric_limits<double>::infinity();
+            double span = val(by_c.back()) - val(by_c.front());
+            if(span <= 0.) {
+                continue;
+            }
+            for(std::size_t j = 1; j + 1 < fs; ++j) {
+                crowd[by_c[j]] += (val(by_c[j + 1]) - val(by_c[j - 1])) / span;
+            }
+        }
+        // Order this front by decreasing crowding distance.
+        std::vector<std::size_t> local_order(fs);
+        std::iota(local_order.begin(), local_order.end(), 0);
+        std::sort(local_order.begin(), local_order.end(), [&](std::size_t a, std::size_t b) {
+            return crowd[a] > crowd[b];
+        });
+        for(std::size_t local : local_order) {
+            order.push_back(front[local]);
+        }
+    }
+
+    return order;
+}
+
+/******************************************************************************/
+/**
+ * Performs the mean / sigma / C / path updates from the ranked offspring.
+ */
+void GSepCmaEvolutionStrategy::updateDistribution(const std::vector<std::size_t> &ranked) {
+    const std::size_t mu = (std::min)(mu_, ranked.size());
+    if(mu == 0) {
+        return;
+    }
+
+    // --- weighted recombination of the mu best -> new mean ----------------------
+    std::vector<double> m_old = m_;
+    std::vector<std::vector<double>> selected(mu);
+    double w_used = 0.;
+    for(std::size_t i = 0; i < mu; ++i) {
+        this->at(ranked[i])->individual().streamlineFP(selected[i], activityMode::ACTIVEONLY);
+        w_used += weights_[i];
+    }
+    if(not(w_used > 0.)) {
+        return;
+    }
+
+    std::vector<double> m_new(n_, 0.);
+    for(std::size_t i = 0; i < mu; ++i) {
+        double w = weights_[i] / w_used; // re-normalize in case mu was truncated
+        for(std::size_t j = 0; j < n_; ++j) {
+            m_new[j] += w * selected[i][j];
+        }
+    }
+    m_ = m_new;
+
+    // y_w = (m_new - m_old) / sigma  -- the weighted mean step in N(0,I) units.
+    std::vector<double> y_w(n_, 0.);
+    for(std::size_t j = 0; j < n_; ++j) {
+        y_w[j] = (m_new[j] - m_old[j]) / sigma_;
+    }
+
+    // --- CSA step-size path: p_sigma = (1-c_sigma) p_sigma
+    //                                 + sqrt(c_sigma(2-c_sigma) mu_eff) C^{-1/2} y_w
+    // For the diagonal model C^{-1/2} y_w  =  y_w / sqrt(C) component-wise.
+    const double cs_factor = std::sqrt(c_sigma_ * (2. - c_sigma_) * mu_eff_);
+    double ps_norm_sq = 0.;
+    for(std::size_t j = 0; j < n_; ++j) {
+        p_sigma_[j] = (1. - c_sigma_) * p_sigma_[j] + cs_factor * (y_w[j] / std::sqrt(C_[j]));
+        ps_norm_sq += p_sigma_[j] * p_sigma_[j];
+    }
+    const double ps_norm = std::sqrt(ps_norm_sq);
+
+    // --- rank-1 path p_c, with the h_sigma stalling switch ----------------------
+    // h_sigma guards the rank-1 update against an over-long step early on.
+    const std::uint32_t gen = this->getIteration() + 1;
+    double hsig_threshold =
+        (1.4 + 2. / (static_cast<double>(n_) + 1.)) * chi_n_ *
+        std::sqrt(1. - std::pow(1. - c_sigma_, 2. * static_cast<double>(gen)));
+    bool h_sigma = ps_norm < hsig_threshold;
+
+    const double pc_factor = std::sqrt(c_c_ * (2. - c_c_) * mu_eff_);
+    for(std::size_t j = 0; j < n_; ++j) {
+        p_c_[j] = (1. - c_c_) * p_c_[j] + (h_sigma ? pc_factor * y_w[j] : 0.);
+    }
+
+    // --- step-size update (CSA): sigma *= exp( c_sigma/d_sigma * (||p_sigma||/chi_n - 1) )
+    sigma_ *= std::exp((c_sigma_ / d_sigma_) * (ps_norm / chi_n_ - 1.));
+
+    // --- diagonal covariance update (rank-1 + rank-mu) --------------------------
+    if(use_diagonal_cma_) {
+        // Loss-of-variance compensation when h_sigma == 0.
+        double delta_hsig = (1. - (h_sigma ? 1. : 0.)) * c_c_ * (2. - c_c_);
+        for(std::size_t j = 0; j < n_; ++j) {
+            double rank_mu = 0.;
+            for(std::size_t i = 0; i < mu; ++i) {
+                double w = weights_[i] / w_used;
+                double yj = (selected[i][j] - m_old[j]) / sigma_;
+                rank_mu += w * yj * yj;
+            }
+            C_[j] = (1. - c_1_ - c_mu_) * C_[j] +
+                    c_1_ * (p_c_[j] * p_c_[j] + delta_hsig * C_[j]) +
+                    c_mu_ * rank_mu;
+            // Numerical floor so sqrt(C) stays well-defined.
+            if(not(C_[j] > 1.e-300)) {
+                C_[j] = 1.e-300;
+            }
+        }
+    }
+
+    // Guard sigma against under-/overflow.
+    if(not std::isfinite(sigma_) || sigma_ <= 0.) {
+        sigma_ = initial_sigma_;
+    }
+}
+
+/******************************************************************************/
+/**
+ * The actual business logic performed during each iteration.
+ */
+std::tuple<double, double> GSepCmaEvolutionStrategy::cycleLogic_() {
+    // 1) Sample lambda offspring from the current distribution.
+    sampleOffspring();
+
+    // 2) Evaluate them through the one process consumer.
+    runFitnessCalculation_();
+
+    if(this->empty()) {
+        // All items got dropped (errors / incomplete); report a worst-case value.
+        double wc = std::numeric_limits<double>::max();
+        return std::make_tuple(wc, wc);
+    }
+
+    // 3) Rank and select; update the search distribution.
+    std::vector<std::size_t> ranked = rankPopulation();
+    updateDistribution(ranked);
+
+    // 4) Record the rank in each individual's personality traits (informational), and move the best
+    //    individual to the front so the base class's best-extraction (slot 0) picks it up.
+    for(std::size_t r = 0; r < ranked.size(); ++r) {
+        this->at(ranked[r])
+            ->getPersonalityTraits<GSepCmaEvolutionStrategy_PersonalityTraits>()
+            ->setRank(r);
+    }
+    if(ranked[0] != 0) {
+        std::swap(this->data_cnt_[0], this->data_cnt_[ranked[0]]);
+    }
+
+    // 5) Report the best fitness of this iteration.
+    return this->at(0)->individual().getFitnessTuple();
+}
+
+/******************************************************************************/
+/**
+ * Gives derived classes an opportunity to update their internal structures.
+ */
+void GSepCmaEvolutionStrategy::actOnStalls_() {
+    /* nothing */
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the number of processable items for the current iteration. All offspring are sampled fresh
+ * each generation, so all of them are processed.
+ */
+std::size_t GSepCmaEvolutionStrategy::getNProcessableItems_() const {
+    return this->size();
+}
+
+/******************************************************************************/
+/**
+ * Retrieve a GPersonalityTraits object belonging to this algorithm.
+ */
+std::shared_ptr<GPersonalityTraits> GSepCmaEvolutionStrategy::getPersonalityTraits_() const {
+    return std::make_shared<GSepCmaEvolutionStrategy_PersonalityTraits>();
+}
+
+/******************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes.
+ */
+bool GSepCmaEvolutionStrategy::modify_GUnitTests_() {
+#ifdef GEM_TESTING
+    bool result = false;
+
+    if(GOptimizationAlgorithmT<GSepCmaEvolutionStrategy>::modify_GUnitTests_()) {
+        result = true;
+    }
+
+    this->setInitialSigma(this->getInitialSigma() + 0.1);
+    this->setUseDiagonalCMA(not this->getUseDiagonalCMA());
+    result = true;
+
+    return result;
+#else  /* GEM_TESTING */
+    Gem::Common::condnotset("GSepCmaEvolutionStrategy::modify_GUnitTests", "GEM_TESTING");
+    return false;
+#endif /* GEM_TESTING */
+}
+
+/******************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes.
+ */
+void GSepCmaEvolutionStrategy::specificTestsNoFailureExpected_GUnitTests_() {
+#ifdef GEM_TESTING
+    GOptimizationAlgorithmT<GSepCmaEvolutionStrategy>::specificTestsNoFailureExpected_GUnitTests_();
+
+    { // Test setting and retrieval of basic strategy parameters
+        std::shared_ptr<GSepCmaEvolutionStrategy> p_test = this->clone<GSepCmaEvolutionStrategy>();
+
+        CHECK_NOTHROW(p_test->setLambda(20));
+        CHECK(p_test->getLambda() == 20);
+
+        CHECK_NOTHROW(p_test->setMu(7));
+        CHECK(p_test->getMu() == 7);
+
+        CHECK_NOTHROW(p_test->setUseDiagonalCMA(false));
+        CHECK(p_test->getUseDiagonalCMA() == false);
+
+        CHECK_NOTHROW(p_test->setParetoMode(true));
+        CHECK(p_test->getParetoMode() == true);
+
+        CHECK_NOTHROW(p_test->setInitialSigma(0.5));
+        CHECK(std::abs(p_test->getInitialSigma() - 0.5) < 1.e-9);
+    }
+
+    { // Setting an invalid initial sigma must throw
+        std::shared_ptr<GSepCmaEvolutionStrategy> p_test = this->clone<GSepCmaEvolutionStrategy>();
+        CHECK_THROWS(p_test->setInitialSigma(-1.));
+    }
+#else  /* GEM_TESTING */
+    Gem::Common::condnotset(
+        "GSepCmaEvolutionStrategy::specificTestsNoFailureExpected_GUnitTests",
+        "GEM_TESTING"
+    );
+#endif /* GEM_TESTING */
+}
+
+/******************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes.
+ */
+void GSepCmaEvolutionStrategy::specificTestsFailuresExpected_GUnitTests_() {
+#ifdef GEM_TESTING
+    GOptimizationAlgorithmT<GSepCmaEvolutionStrategy>::specificTestsFailuresExpected_GUnitTests_();
+#else  /* GEM_TESTING */
+    Gem::Common::condnotset(
+        "GSepCmaEvolutionStrategy::specificTestsFailuresExpected_GUnitTests",
+        "GEM_TESTING"
+    );
+#endif /* GEM_TESTING */
+}
+
+/******************************************************************************/
+
+} /* namespace Gem::Geneva::OptimizationAlgorithms */

@@ -77,6 +77,9 @@ SET ( OA_INCLUDES
     oa/GSwarmAlgorithm.hpp
     oa/GSwarmAlgorithmFactory.hpp
     oa/GSwarmAlgorithm_PersonalityTraits.hpp
+    oa/GSepCmaEvolutionStrategy.hpp
+    oa/GSepCmaEvolutionStrategyFactory.hpp
+    oa/GSepCmaEvolutionStrategy_PersonalityTraits.hpp
 )
 
 # Interface headers (namespace Gem::Geneva::Interface), installed under

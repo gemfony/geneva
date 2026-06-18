@@ -47,6 +47,9 @@ SET ( OPTIMIZATIONSOURCES
     oa/GMetaEvolutionaryAlgorithm.cpp
     oa/GParChild.cpp
     oa/GBaseParChildPersonalityTraits.cpp
+    oa/GSepCmaEvolutionStrategy.cpp
+    oa/GSepCmaEvolutionStrategyFactory.cpp
+    oa/GSepCmaEvolutionStrategy_PersonalityTraits.cpp
 	GOptimizationEnums.cpp
 	GSigHupHandler.cpp
 	par/GParameterPropertyParser.cpp
