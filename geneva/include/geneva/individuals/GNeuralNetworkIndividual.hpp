@@ -436,7 +436,7 @@ constexpr double GNN_DEF_MINSIGMA = 0.01;
 constexpr double GNN_DEF_MAXSIGMA = 0.2;
 constexpr double GNN_DEF_MINVAR = -10.;
 constexpr double GNN_DEF_MAXVAR = 10.;
-const transferFunction GNN_DEF_TRANSFER = transferFunction::SIGMOID;
+constexpr transferFunction GNN_DEF_TRANSFER = transferFunction::SIGMOID;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -824,12 +824,11 @@ public:
             n_d->push_back(*it);
         }
 
-        double local_radius = 1.;
-
         for(std::size_t dat_counter = 0; dat_counter < n_data_sets; dat_counter++) {
             std::shared_ptr<trainingSet> t_s(new trainingSet(n_input_nodes, n_output_nodes));
 
-            local_radius = uniform_real_distribution(
+            // Declared at first assignment (the former leading `= 1.` initializer was a dead store).
+            double local_radius = uniform_real_distribution(
                 gr_l,
                 std::uniform_real_distribution<double>::param_type(0., 3 * radius)
             );
@@ -1217,7 +1216,7 @@ public:
             error << "In createDataset(): Error!" << '\n'
                   << "Received invalid data type " << t << '\n';
             throw(geneva_exception(error.str()));
-        } break;
+        } // no break: the default case always throws (the trailing break was unreachable)
         }
 
         // Write distribution to file
