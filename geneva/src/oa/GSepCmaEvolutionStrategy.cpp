@@ -161,7 +161,7 @@ void GSepCmaEvolutionStrategy::addConfigurationOptions_(Gem::Common::GParserBuil
 
     gpb.registerFileParameter<std::size_t>(
         "mu",
-        std::size_t(0),
+        static_cast<std::size_t>(0),
         [this](std::size_t m) { this->setMu(m); }
     ) << "The number of selected parents (mu). 0 means lambda/2.";
 

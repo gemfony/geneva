@@ -1001,7 +1001,7 @@ template <std::floating_point fp_type>
 bool isClose(
     fp_type val,
     fp_type target = 0,
-    fp_type margin = fp_type(0.00001)
+    fp_type margin = static_cast<fp_type>(0.00001)
 ) {
     return (std::abs(val - target) <= margin);
 }

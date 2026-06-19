@@ -283,7 +283,7 @@ bool GFlatGenome::randomInitBool(activityMode const &am) {
         if(not amMatch(ch.active[k], am)) {
             continue;
         }
-        bv_[k] = dist(gr_) ? std::uint8_t(1) : std::uint8_t(0);
+        bv_[k] = dist(gr_) ? static_cast<std::uint8_t>(1) : static_cast<std::uint8_t>(0);
         modified = true;
     }
     return modified;

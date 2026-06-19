@@ -723,7 +723,7 @@ private:
         std::size_t pos = 0;
         for(std::size_t k = 0; k < bv_.size(); ++k) {
             if(amMatch(layout_->b.active[k], am)) {
-                bv_[k] = in.at(pos++) ? std::uint8_t(1) : std::uint8_t(0);
+                bv_[k] = in.at(pos++) ? static_cast<std::uint8_t>(1) : static_cast<std::uint8_t>(0);
             }
         }
     }

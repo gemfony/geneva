@@ -335,7 +335,7 @@ void GParameterPropertyParser::parse() {
         else if(type == 'i') {
             i_spec_vec_.push_back(makeNumericSpec<std::int32_t>(
                 tok,
-                [](const std::string &t, const std::string &raw) { return t.empty() ? (fail(raw), std::int32_t(0)) : static_cast<std::int32_t>(std::stoi(t)); },
+                [](const std::string &t, const std::string &raw) { return t.empty() ? (fail(raw), static_cast<std::int32_t>(0)) : static_cast<std::int32_t>(std::stoi(t)); },
                 fragment.second
             ));
         }

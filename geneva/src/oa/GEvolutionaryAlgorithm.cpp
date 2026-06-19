@@ -769,7 +769,7 @@ void GType::sortMunu1pretainMode() {
 
 void GType::selectParetoParents(bool include_parents) {
     const std::size_t sz = this->size();
-    const std::size_t start = include_parents ? std::size_t(0) : this->n_parents_;
+    const std::size_t start = include_parents ? static_cast<std::size_t>(0) : this->n_parents_;
 
     // Rank the eligible individuals (the whole population for mu+nu, only the children for mu,nu) by the
     // shared NSGA-II order: non-dominated front first, ties within a front broken by DECREASING crowding

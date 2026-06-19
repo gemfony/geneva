@@ -158,11 +158,11 @@ public:
         adfp min_sigma,
         adfp max_sigma,
         adfp ad_prob,
-        adfp adapt_ad_prob = adfp(0),
+        adfp adapt_ad_prob = static_cast<adfp>(0),
         std::uint32_t adaption_threshold = 1,
         adaptionMode mode = adaptionMode::WITHPROBABILITY,
-        adfp min_ad_prob = adfp(0),
-        adfp max_ad_prob = adfp(1)
+        adfp min_ad_prob = static_cast<adfp>(0),
+        adfp max_ad_prob = static_cast<adfp>(1)
     ) {
         static_assert(std::is_floating_point_v<T>, "gauss() is only available for floating point groups");
         for(GroupSpec<T> *g : groups_) {
@@ -223,8 +223,8 @@ public:
         adfp adapt_ad_prob = adfp(0),
         std::uint32_t adaption_threshold = 1,
         adaptionMode mode = adaptionMode::WITHPROBABILITY,
-        adfp min_ad_prob = adfp(0),
-        adfp max_ad_prob = adfp(1)
+        adfp min_ad_prob = static_cast<adfp>(0),
+        adfp max_ad_prob = static_cast<adfp>(1)
     ) {
         static_assert(std::is_floating_point_v<T>, "biGauss() is only available for floating point groups");
         for(GroupSpec<T> *g : groups_) {

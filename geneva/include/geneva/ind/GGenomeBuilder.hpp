@@ -397,7 +397,7 @@ public:
         g.iv = iv_;
         g.bv.reserve(bvBool_.size());
         for(bool v : bvBool_) {
-            g.bv.push_back(v ? std::uint8_t(1) : std::uint8_t(0));
+            g.bv.push_back(v ? static_cast<std::uint8_t>(1) : static_cast<std::uint8_t>(0));
         }
         g.layout = std::make_shared<const GGenomeLayout>(layout_);
         return g;

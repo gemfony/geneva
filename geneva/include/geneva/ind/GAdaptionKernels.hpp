@@ -430,7 +430,7 @@ inline std::size_t adaptFlipBoolGroup(
     selfAdaptFlipAdProb(cfg, st, gr);
 
     // The value step: a plain toggle (matches GBooleanAdaptor::customAdaptions); no RNG draw.
-    auto toggle = [](std::uint8_t &v) { v = v ? std::uint8_t(0) : std::uint8_t(1); };
+    auto toggle = [](std::uint8_t &v) { v = v ? static_cast<std::uint8_t>(0) : static_cast<std::uint8_t>(1); };
 
     std::size_t n_adapted = 0;
     if(adaptionMode::WITHPROBABILITY == cfg.mode) {
