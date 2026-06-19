@@ -78,10 +78,21 @@ class GPostProcessorBaseT // NOLINT(cppcoreguidelines-special-member-functions)
             boost::serialization::base_object<Gem::Common::GSerializableFunctionObjectT<base_type>>(
                 *this
             )
-        ) & BOOST_SERIALIZATION_NVP(allowed_mnemonics_);
+        );
+        // The sole local member, derived from the single localMembers() declaration.
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
 
     ///////////////////////////////////////////////////////////////////////
+
+    /** @brief Single declaration of this class's local data (just allowed_mnemonics_), feeding
+     *  serialize()/load_()/compare_() from one source. */
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+        return std::make_tuple(Gem::Common::make_member("allowed_mnemonics_", allowed_mnemonics_));
+    }
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+        return std::make_tuple(Gem::Common::make_member("allowed_mnemonics_", allowed_mnemonics_));
+    }
 
 public:
     /**************************************************************************/
@@ -173,8 +184,8 @@ protected:
         // Load our parent class'es data ...
         Gem::Common::GSerializableFunctionObjectT<base_type>::load_(cp);
 
-        // ... and then our local data
-        allowed_mnemonics_ = p_load->allowed_mnemonics_;
+        // ... and then our local data, derived from the single localMembers() declaration
+        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
     }
 
     /**************************************************************************/
@@ -211,11 +222,8 @@ protected:
         // Compare our parent data ...
         Gem::Common::compare_base_t<GSerializableFunctionObjectT<base_type>>(*this, *p_load, token);
 
-        // ... and then our local data
-        compare_t<std::set<std::string>>(
-            Gem::Common::getIdentity(allowed_mnemonics_, p_load->allowed_mnemonics_, "allowed_mnemonics_", "p_load->allowed_mnemonics_"),
-            token
-        );
+        // ... and then our local data, derived from the single localMembers() declaration
+        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();

@@ -49,10 +49,27 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /**
- * The meta-optimization evolutionary algorithm: a standard evolutionary algorithm whose population
- * members are "umbrella" individuals, each wrapping and running a sub-optimization (see
- * GMetaOptimizerIndividualT). It is the SINGLE facility for meta-optimization in Geneva.
+ * @brief The meta-optimization evolutionary algorithm: an EA that tunes an optimization algorithm's own
+ * parameters by treating each candidate parameter-set as an individual whose fitness is the quality the
+ * tuned algorithm achieves.
  *
+ * @details
+ * This is a standard evolutionary algorithm whose population members are "umbrella" individuals
+ * (GMetaOptimizerIndividualT), each encoding a vector of hyper-parameters \f$\boldsymbol{\theta}\f$ for an
+ * inner algorithm (e.g. an EA's \f$\sigma\f$ bounds, \f$\sigma\f$-adaption strength, adaption probability,
+ * parent/child counts). The meta-objective is the @e expected solution quality the inner algorithm reaches
+ * with those parameters: evaluating an umbrella individual runs \f$R\f$ independent sub-optimizations of
+ * the target problem configured with \f$\boldsymbol{\theta}\f$ and aggregates their results,
+ * \f[
+ *   F(\boldsymbol{\theta}) \;=\; \frac{1}{R}\sum_{r=1}^{R} q_r(\boldsymbol{\theta}),
+ * \f]
+ * where \f$q_r\f$ is the best fitness (or the solver-call count, per the configured target) of run
+ * \f$r\f$. Averaging over \f$R\f$ runs damps the stochastic noise of a single optimization so the meta-EA
+ * selects on robust, repeatable performance rather than a lucky seed. The outer loop is then the ordinary
+ * EA: \f$(\mu,\lambda)\f$ / \f$(\mu+\lambda)\f$ selection, adaption and sorting over the
+ * \f$\boldsymbol{\theta}\f$ genomes. It is the SINGLE facility for meta-optimization in Geneva.
+ *
+ * @par Two-tier evaluation (deadlock-free nesting)
  * The only thing it changes about GEvolutionaryAlgorithm is WHERE its population is evaluated: a meta-EA
  * evaluates its umbrella-individuals on its OWN orchestration thread pool, NOT through the process-wide
  * work consumer. Each umbrella-individual's evaluation in turn runs a sub-optimization whose fine-grained

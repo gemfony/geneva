@@ -728,8 +728,9 @@ protected:
         namespace n = oa::ea_tunable;
         const auto v = readTuned();
 
-#ifdef DEBUG
-        // Check that we have been given a factory
+        // Check that we have been given a factory. This guard runs in release builds too: without it the
+        // ind_factory_->get() below would dereference a null factory pointer (undefined behaviour) rather
+        // than report the missing registration.
         if(not ind_factory_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -737,7 +738,6 @@ protected:
                 << "No factory class for individuals has been registered" << '\n'
             );
         }
-#endif
 
         // Derive the sub-individuals' adaptor settings from the meta-optimised parameters. The genome
         // carries RAW knobs (min + range + start percentage) so it always holds valid values; the actual
@@ -1060,8 +1060,6 @@ private:
     double fitness_target_;             ///< The quality target to be reached by
     std::uint32_t iteration_threshold_; ///< The maximum allowed number of iterations
     metaOptimizationTarget mo_target_;  ///< The target used for the meta-optimization
-    std::string
-        individual_config_; ///< Path and name of the configuration file needed for the individual
     std::string
         sub_ea_config_; ///< Path and name of the configuration file needed for (sub-)evolutionary algorithms
 
