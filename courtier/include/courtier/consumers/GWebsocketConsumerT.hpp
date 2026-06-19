@@ -94,8 +94,16 @@ public:
         , verbose_control_frames_(verbose_control_frames)
     { /* nothing */ }
 
-    /** @brief The destructor. Stops the server (idempotent). */
-    ~GWebsocketConsumerT() override { this->stopServer(); }
+    /** @brief The destructor. Stops the server (idempotent). stopServer() posts to a strand and joins
+     *  the io threads, either of which may throw; a destructor must not propagate, so teardown is
+     *  best-effort and any exception is swallowed. */
+    ~GWebsocketConsumerT() override {
+        try {
+            this->stopServer();
+        } catch(...) {
+            // best-effort teardown: never let an exception escape a destructor
+        }
+    }
 
     GWebsocketConsumerT(const GWebsocketConsumerT &) = delete;
     GWebsocketConsumerT(GWebsocketConsumerT &&) = delete;

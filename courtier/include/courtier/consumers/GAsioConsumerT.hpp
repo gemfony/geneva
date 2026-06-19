@@ -90,8 +90,16 @@ public:
         , serialization_mode_(serialization_mode)
     { /* nothing */ }
 
-    /** @brief The destructor stops the server (idempotent). */
-    ~GAsioConsumerT() override { this->stopServer(); }
+    /** @brief The destructor stops the server (idempotent). stopServer() posts to a strand and joins
+     *  the io threads, either of which may throw; a destructor must not propagate, so teardown is
+     *  best-effort and any exception is swallowed. */
+    ~GAsioConsumerT() override {
+        try {
+            this->stopServer();
+        } catch(...) {
+            // best-effort teardown: never let an exception escape a destructor
+        }
+    }
 
     GAsioConsumerT(const GAsioConsumerT &) = delete;
     GAsioConsumerT(GAsioConsumerT &&) = delete;
