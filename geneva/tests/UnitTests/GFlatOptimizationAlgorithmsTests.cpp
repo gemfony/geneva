@@ -776,6 +776,27 @@ TEST_CASE("Swarm rejects inverted parameter bounds instead of UB", "[flat][oa]")
 
 /******************************************************************************/
 
+TEST_CASE("Swarm with many neighborhoods does not overflow its bookkeeping", "[flat][oa]") {
+    // Regression for a heap-buffer-overflow in fillUpNeighborhood1(): a default-constructed swarm sizes
+    // n_neighborhood_members_cnt_ to the DEFAULT neighborhood count, but setSwarmSizes() can grow
+    // n_neighborhoods_ beyond that; adjustPopulation_()->fillUpNeighborhood1() then indexed the (too
+    // small) vector by neighborhood and wrote past its end. setSwarmSizes() now resizes the per-
+    // neighborhood vectors in lockstep. Using more neighborhoods than the default (5) triggers the old
+    // overflow (deterministically caught under AddressSanitizer; here it must simply run and converge).
+    auto pop = std::make_shared<oa::GSwarmAlgorithm>();
+    pop->setSwarmSizes(8, 8); // 8 neighborhoods (> the default), 64 particles
+    pop->setMaxIteration(40);
+    pop->setReportIteration(100000);
+    pop->push_back(FlatSphereOA().clone_unique());
+    CHECK_NOTHROW(pop->optimize());
+
+    auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+    REQUIRE(best);
+    CHECK(bestSphere(best) < 20.0);
+}
+
+/******************************************************************************/
+
 TEST_CASE("Conjugate gradient descent optimizes a flat individual", "[flat][oa]") {
     auto pop = std::make_shared<oa::GConjugateGradientDescent>();
     pop->setNStartingPoints(1);

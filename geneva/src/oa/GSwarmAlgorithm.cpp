@@ -337,6 +337,14 @@ void GSwarmAlgorithm::setSwarmSizes(
     default_n_neighborhood_members_ =
         (default_n_neighborhood_members >= 2) ? default_n_neighborhood_members : 2;
 
+    // Keep the per-neighborhood bookkeeping vectors in lockstep with n_neighborhoods_. setSwarmSizes()
+    // can GROW n_neighborhoods_ beyond the value the vectors were sized to at construction, and
+    // adjustPopulation_() -> fillUpNeighborhood1() indexes n_neighborhood_members_cnt_ by neighborhood
+    // BEFORE init()/resetToOptimizationStart_() would resize it -- a heap-buffer-overflow otherwise
+    // (e.g. default-constructed swarm with 5 neighborhoods, then setSwarmSizes(8, ...)).
+    n_neighborhood_members_cnt_.resize(n_neighborhoods_, default_n_neighborhood_members_);
+    neighborhood_bests_cnt_.resize(n_neighborhoods_);
+
     // Update our parent class'es values
     GOptimizationAlgorithmBase::setDefaultPopulationSize(
         n_neighborhoods_ * default_n_neighborhood_members_
