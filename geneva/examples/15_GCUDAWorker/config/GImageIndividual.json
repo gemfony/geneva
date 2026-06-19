@@ -123,7 +123,7 @@
         "value": "0.90000000000000002"
     },
     "n_triangles": {
-        "comment": "Capped at 64 to match the kernel's per-thread corner cache (MONALISA_MAXTRI)",
+        "comment": "Number of triangles per candidate image. Allowed range [1,1000]; the GPU kernel caches all corners cooperatively in shared memory once per block (MONALISA_MAXTRI=1000), so the whole range runs on the GPU.",
         "default": "300",
         "value": "64"
     },
