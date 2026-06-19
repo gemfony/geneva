@@ -1636,16 +1636,43 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp(
             "GBasePluggableOM",
             boost::serialization::base_object<oa::GBasePluggableOM>(*this)
-        ) & BOOST_SERIALIZATION_NVP(file_name_) &
-            BOOST_SERIALIZATION_NVP(gpd_) & BOOST_SERIALIZATION_NVP(progress_plotter_) &
-            BOOST_SERIALIZATION_NVP(n_parent_plotter_) &
-            BOOST_SERIALIZATION_NVP(n_children_plotter_) & BOOST_SERIALIZATION_NVP(ad_prob_plotter_) &
-            BOOST_SERIALIZATION_NVP(min_sigma_plotter_) &
-            BOOST_SERIALIZATION_NVP(max_sigma_plotter_) &
-            BOOST_SERIALIZATION_NVP(sigma_range_plotter_) &
-            BOOST_SERIALIZATION_NVP(sigma_sigma_plotter_);
+        );
+        // All local members, derived from the single localMembers() declaration (same NVP tags as before).
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
+
+    /** @brief Single declaration of this monitor's local data members, feeding serialize() / load_() /
+     *  compare_() from one source. The eight plotters are std::shared_ptr<GGraph2D> that must be deep-cloned
+     *  on load (make_cloneable_member); file_name_ and gpd_ are plain value members. */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("file_name_", file_name_),
+            Gem::Common::make_member("gpd_", gpd_),
+            Gem::Common::make_cloneable_member("progress_plotter_", progress_plotter_),
+            Gem::Common::make_cloneable_member("n_parent_plotter_", n_parent_plotter_),
+            Gem::Common::make_cloneable_member("n_children_plotter_", n_children_plotter_),
+            Gem::Common::make_cloneable_member("ad_prob_plotter_", ad_prob_plotter_),
+            Gem::Common::make_cloneable_member("min_sigma_plotter_", min_sigma_plotter_),
+            Gem::Common::make_cloneable_member("max_sigma_plotter_", max_sigma_plotter_),
+            Gem::Common::make_cloneable_member("sigma_range_plotter_", sigma_range_plotter_),
+            Gem::Common::make_cloneable_member("sigma_sigma_plotter_", sigma_sigma_plotter_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("file_name_", file_name_),
+            Gem::Common::make_member("gpd_", gpd_),
+            Gem::Common::make_cloneable_member("progress_plotter_", progress_plotter_),
+            Gem::Common::make_cloneable_member("n_parent_plotter_", n_parent_plotter_),
+            Gem::Common::make_cloneable_member("n_children_plotter_", n_children_plotter_),
+            Gem::Common::make_cloneable_member("ad_prob_plotter_", ad_prob_plotter_),
+            Gem::Common::make_cloneable_member("min_sigma_plotter_", min_sigma_plotter_),
+            Gem::Common::make_cloneable_member("max_sigma_plotter_", max_sigma_plotter_),
+            Gem::Common::make_cloneable_member("sigma_range_plotter_", sigma_range_plotter_),
+            Gem::Common::make_cloneable_member("sigma_sigma_plotter_", sigma_sigma_plotter_)
+        );
+    }
 
 public:
     /***************************************************************************/
@@ -1734,17 +1761,9 @@ protected:
         // Load the parent classes' data ...
         oa::GBasePluggableOM::load_(cp);
 
-        // Load local data
-        file_name_ = p_load->file_name_;
-        gpd_ = p_load->gpd_;
-        Gem::Common::copyCloneableSmartPointer(p_load->progress_plotter_, progress_plotter_);
-        Gem::Common::copyCloneableSmartPointer(p_load->n_parent_plotter_, n_parent_plotter_);
-        Gem::Common::copyCloneableSmartPointer(p_load->n_children_plotter_, n_children_plotter_);
-        Gem::Common::copyCloneableSmartPointer(p_load->ad_prob_plotter_, ad_prob_plotter_);
-        Gem::Common::copyCloneableSmartPointer(p_load->min_sigma_plotter_, min_sigma_plotter_);
-        Gem::Common::copyCloneableSmartPointer(p_load->max_sigma_plotter_, max_sigma_plotter_);
-        Gem::Common::copyCloneableSmartPointer(p_load->sigma_range_plotter_, sigma_range_plotter_);
-        Gem::Common::copyCloneableSmartPointer(p_load->sigma_sigma_plotter_, sigma_sigma_plotter_);
+        // Load local data, derived from the single localMembers() declaration (the cloneable plotter
+        // pointers are deep-cloned, the plain members assigned).
+        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
     }
 
     /***************************************************************************/
@@ -1780,17 +1799,8 @@ protected:
         // Compare our parent data ...
         Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
-        // ... and then our local data
-        compare_t(IDENTITY(file_name_, p_load->file_name_), token);
-        compare_t(IDENTITY(gpd_, p_load->gpd_), token);
-        compare_t(IDENTITY(progress_plotter_, p_load->progress_plotter_), token);
-        compare_t(IDENTITY(n_parent_plotter_, p_load->n_parent_plotter_), token);
-        compare_t(IDENTITY(n_children_plotter_, p_load->n_children_plotter_), token);
-        compare_t(IDENTITY(ad_prob_plotter_, p_load->ad_prob_plotter_), token);
-        compare_t(IDENTITY(min_sigma_plotter_, p_load->min_sigma_plotter_), token);
-        compare_t(IDENTITY(max_sigma_plotter_, p_load->max_sigma_plotter_), token);
-        compare_t(IDENTITY(sigma_range_plotter_, p_load->sigma_range_plotter_), token);
-        compare_t(IDENTITY(sigma_sigma_plotter_, p_load->sigma_sigma_plotter_), token);
+        // ... and then our local data, derived from the single localMembers() declaration
+        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();

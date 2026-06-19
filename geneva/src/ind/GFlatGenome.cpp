@@ -145,10 +145,9 @@ void GFlatGenome::compare_(
 
     Gem::Common::compare_base_t<GOptimizableEntity>(*this, *p_load, token);
 
-    compare_t(IDENTITY(this->dv_, p_load->dv_), token);
-    compare_t(IDENTITY(this->fv_, p_load->fv_), token);
-    compare_t(IDENTITY(this->iv_, p_load->iv_), token);
-    compare_t(IDENTITY(this->bv_, p_load->bv_), token);
+    // The value channels, derived from the single localMembers() declaration. (The shared layout is
+    // problem metadata, not per-individual identity, so -- as before -- it is intentionally not compared.)
+    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
     token.evaluate();
 }
@@ -169,10 +168,9 @@ void GFlatGenome::load_(const GOptimizableEntity *cp) {
 
     GOptimizableEntity::load_(cp);
 
-    dv_ = p_load->dv_;
-    fv_ = p_load->fv_;
-    iv_ = p_load->iv_;
-    bv_ = p_load->bv_;
+    // The value channels, derived from the single localMembers() declaration ...
+    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+    // ... and the manual tail: the shared (immutable) layout is shared, not value-copied.
     layout_ = p_load->layout_;
     // Propagate the transient results-only marker, so a load_()-based copy (e.g. fromString, which
     // deserialises into a fresh object then load_()s it) reflects that the input data is still pending

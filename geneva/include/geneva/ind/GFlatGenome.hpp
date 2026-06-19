@@ -94,6 +94,28 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Single declaration of this class's plain local data members (the four value channels),
+     *  feeding save()/load()/load_()/compare_() from one source. Defined before save() so its deduced
+     *  (auto) return type is available there. The shared layout_ and the transient input_omitted_ are
+     *  handled separately (the layout is interned on the wire and shared, not value-copied; input_omitted_
+     *  is a load-only transient), so they are deliberately NOT listed here. */
+    auto localMembers() {
+        return std::make_tuple(
+            Gem::Common::make_member("dv_", dv_),
+            Gem::Common::make_member("fv_", fv_),
+            Gem::Common::make_member("iv_", iv_),
+            Gem::Common::make_member("bv_", bv_)
+        );
+    }
+    auto localMembers() const {
+        return std::make_tuple(
+            Gem::Common::make_member("dv_", dv_),
+            Gem::Common::make_member("fv_", fv_),
+            Gem::Common::make_member("iv_", iv_),
+            Gem::Common::make_member("bv_", bv_)
+        );
+    }
+
     /**
      * @brief Serialises the genome: the four value channels plus the shared structural layout, the
      * latter either by value (self-contained form) or by content id (transport send-once form), as
@@ -123,8 +145,7 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
             return;
         }
 
-        ar &BOOST_SERIALIZATION_NVP(dv_) &BOOST_SERIALIZATION_NVP(fv_) &
-            BOOST_SERIALIZATION_NVP(iv_) &BOOST_SERIALIZATION_NVP(bv_);
+        Gem::Common::serialize_members(ar, this->localMembers());
 
         // The transient per-group adaption state is NOT serialised here (it is OA-owned slot scratch);
         // full-state checkpointing is a separate concern.
@@ -202,8 +223,7 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         }
         input_omitted_ = false;
 
-        ar &BOOST_SERIALIZATION_NVP(dv_) &BOOST_SERIALIZATION_NVP(fv_) &
-            BOOST_SERIALIZATION_NVP(iv_) &BOOST_SERIALIZATION_NVP(bv_);
+        Gem::Common::serialize_members(ar, this->localMembers());
         // The per-group adaption state is OA-owned scratch (on the GIndividualSlot): an optimization
         // algorithm seeds each slot's scratch from its config at setup.
 
