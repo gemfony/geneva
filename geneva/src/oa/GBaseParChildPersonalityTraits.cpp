@@ -140,7 +140,7 @@ void GBaseParChildPersonalityTraits::load_(const GPersonalityTraits *cp) {
  * @return true if this object is currently a parent (parent_counter_ > 0), false otherwise
  */
 bool GBaseParChildPersonalityTraits::isParent() const {
-    return (parent_counter_ > 0) ? true : false;
+    return parent_counter_ > 0;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -172,7 +172,7 @@ std::uint32_t GBaseParChildPersonalityTraits::getParentCounter() const {
  * @return true if this individual was already a parent before the call, false if it was a child
  */
 bool GBaseParChildPersonalityTraits::setIsParent() {
-    bool previous = (parent_counter_ > 0) ? true : false;
+    bool previous = parent_counter_ > 0;
     parent_counter_++;
     return previous;
 }
@@ -191,7 +191,7 @@ bool GBaseParChildPersonalityTraits::setIsParent() {
  * @return true if this individual was previously a parent, false if it was already a child
  */
 bool GBaseParChildPersonalityTraits::setIsChild() {
-    bool previous = (parent_counter_ > 0) ? true : false;
+    bool previous = parent_counter_ > 0;
     parent_counter_ = 0;
     return previous;
 }
@@ -281,10 +281,7 @@ std::size_t GBaseParChildPersonalityTraits::getParentId() const {
  * @return true if a parent id has been set (parent_id_ >= 0), false otherwise
  */
 bool GBaseParChildPersonalityTraits::parentIdSet() const {
-    if(parent_id_ >= 0) {
-        return true;
-    }
-            return false;
+    return parent_id_ >= 0;
    
 }
 

@@ -117,7 +117,7 @@ public:
         std::vector<double> out;
         out.reserve(cols_);
         for(std::size_t c = 0; c < cols_; ++c) {
-            out.push_back(all[r * cols_ + c]);
+            out.push_back(all[(r * cols_) + c]);
         }
         return out;
     }
@@ -131,7 +131,7 @@ public:
         std::vector<double> all;
         ind.streamlineFP(all);
         checkSize(all.size());
-        return all[r * cols_ + c];
+        return all[(r * cols_) + c];
     }
 
 private:

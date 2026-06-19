@@ -227,7 +227,7 @@ public:
      * @return true if a block is installed under the key, false otherwise
      */
     bool hasAux(AuxKey key) const {
-        return pods_.find(key) != pods_.end();
+        return pods_.contains(key);
     }
 
     /**

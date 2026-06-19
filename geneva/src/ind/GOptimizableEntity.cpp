@@ -884,10 +884,7 @@ double GOptimizableEntity::getValidityLevel() const {
      * @return A boolean indicating, whether all constraints were fulfilled
      */
 bool GOptimizableEntity::constraintsFulfilled() const {
-    if(validity_level_ <= 1.) {
-        return true;
-    }
-            return false;
+    return validity_level_ <= 1.;
 
 }
 
@@ -956,10 +953,7 @@ bool GOptimizableEntity::isValid() const {
     }
 #endif
 
-    if(validity_level_ <= 1.) {
-        return true;
-    }
-            return false;
+    return validity_level_ <= 1.;
 
 }
 

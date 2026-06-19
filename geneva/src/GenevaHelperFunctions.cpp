@@ -68,7 +68,7 @@ double minOnly_transformed_fitness(
         if(std::numeric_limits<double>::max() == f) {
             return std::numeric_limits<double>::lowest();
         }
-        else if(std::numeric_limits<double>::lowest() == f) {
+        if(std::numeric_limits<double>::lowest() == f) {
             return std::numeric_limits<double>::max();
         }
         else {
@@ -107,10 +107,7 @@ bool isBetter(
 #endif
 
     // We assume that both items have the same maxMode and simply compare the "minOnly-Fitness"
-    if(minOnly_transformed_fitness(*x_ptr) < minOnly_transformed_fitness(*y_ptr)) {
-        return true;
-    }
-            return false;
+    return minOnly_transformed_fitness(*x_ptr) < minOnly_transformed_fitness(*y_ptr);
    
 }
 
@@ -142,20 +139,16 @@ bool isWorse(
  */
 bool isBetter(const double x, const double y, const maxMode m) {
     if(maxMode::MAXIMIZE == m) {
-        if(x > y) {
-            return true;
-        }
-                    return false;
+        return x > y;
        
     }
-    else {
-        // maxMode::MINIMIZE
+            // maxMode::MINIMIZE
         if(x < y) {
             return true;
         }
                     return false;
        
-    }
+   
 }
 
 /******************************************************************************/

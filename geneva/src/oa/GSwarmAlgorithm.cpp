@@ -838,7 +838,7 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
             // Remove n_surplus items from the position (n+1)*default_n_neighborhood_members_
             data_cnt_.erase(
                 data_cnt_.begin() + (n + 1) * default_n_neighborhood_members_,
-                data_cnt_.begin() + ((n + 1) * default_n_neighborhood_members_ + n_surplus)
+                data_cnt_.begin() + (((n + 1) * default_n_neighborhood_members_) + n_surplus)
             );
         }
         else { // n_neighborhood_members_cnt_[n] < default_n_neighborhood_members_
@@ -1295,9 +1295,7 @@ void GSwarmAlgorithm::pruneVelocity(std::vector<double> &vel_vec) {
         if(std::abs(vel_vec[i]) > dbl_vel_max_cnt_[i]) {
             overflow_found = true;
             current_percentage = std::abs(vel_vec[i]) / dbl_vel_max_cnt_[i];
-            if(current_percentage > max_percentage) {
-                max_percentage = current_percentage;
-            }
+            max_percentage = std::max(current_percentage, max_percentage);
         }
     }
 

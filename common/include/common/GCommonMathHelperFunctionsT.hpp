@@ -847,7 +847,7 @@ fp_type squareDeviation(
 ) {
     fp_type result = fp_type(0);
     for(const auto &p : data_points) {
-        const auto d = std::get<1>(p) - a - b * std::get<0>(p);
+        const auto d = std::get<1>(p) - a - (b * std::get<0>(p));
         result += d * d;
     }
     return result;
@@ -887,7 +887,7 @@ auto getRegressionParameters(const std::vector<std::tuple<fp_type, fp_type>> &da
 
     fp_type prod_sum_xy = productSumTupleVec(data_points);
 
-    const fp_type denom = n * sq_sum_x - sum_x * sum_x;
+    const fp_type denom = (n * sq_sum_x) - (sum_x * sum_x);
     a = (sum_y * sq_sum_x - sum_x * prod_sum_xy) / denom;
     b = (n * prod_sum_xy - sum_x * sum_y) / denom;
 
@@ -948,7 +948,7 @@ auto getRatioError(
         sleep_time,
         fp_type(0.),
         s_val / p_val,
-        std::sqrt(s_err_term * s_err_term + p_err_term * p_err_term)
+        std::sqrt((s_err_term * s_err_term) + (p_err_term * p_err_term))
     };
 }
 

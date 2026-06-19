@@ -66,7 +66,7 @@ namespace Gem::Geneva::Genome {
  * Results in a single fitness criterion and an empty genome (to be filled by setGenome()).
  */
 GFlatGenome::GFlatGenome()
-  : GOptimizableEntity() {
+   {
     /* nothing */
 }
 

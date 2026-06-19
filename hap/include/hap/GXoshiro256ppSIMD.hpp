@@ -134,10 +134,12 @@ public:
     void seed(result_type s) noexcept {
         std::uint64_t              sm = s;
         alignas(32) std::uint64_t  init[4][LANES]; // init[word][lane]
-        for (int lane = 0; lane < LANES; ++lane)
+        for (int lane = 0; lane < LANES; ++lane) {
             for (auto & w : init) w[lane] = detail::splitmix64(sm);
-        for (int w = 0; w < 4; ++w)
+}
+        for (int w = 0; w < 4; ++w) {
             s_[w] = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(init[w]));
+}
         bufpos_ = LANES; // buffer empty
     }
 
@@ -152,8 +154,9 @@ public:
      */
     void generate(result_type *dst, std::size_t n) noexcept {
         std::size_t i = 0;
-        for (; i + LANES <= n; i += LANES)
+        for (; i + LANES <= n; i += LANES) {
             _mm256_storeu_si256(reinterpret_cast<__m256i *>(dst + i), next_lanes());
+}
         if (i < n) { // tail < LANES
             alignas(32) result_type tmp[LANES];
             _mm256_store_si256(reinterpret_cast<__m256i *>(tmp), next_lanes());

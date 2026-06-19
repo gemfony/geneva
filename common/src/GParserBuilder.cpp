@@ -467,13 +467,12 @@ void GParserBuilder::loadFromPtree(
                     << "This usually indicates config/code drift (a renamed or stale key)." << '\n'
                 );
             }
-            else {
-                glogger << "In GParserBuilder::loadFromPtree(): Warning!" << '\n'
+                            glogger << "In GParserBuilder::loadFromPtree(): Warning!" << '\n'
                         << "Configuration file " << config_path.string() << '\n'
                         << "contains the unknown key \"" << key_value.first
                         << "\" that no registered parameter consumes; it will be ignored." << '\n'
                         << GLOGGING;
-            }
+           
         }
     }
 

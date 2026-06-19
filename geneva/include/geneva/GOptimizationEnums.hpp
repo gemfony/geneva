@@ -408,7 +408,7 @@ enum class evaluationPolicy : Gem::Common::ENUMBASETYPE {
     USESIGMOID =
         2 // Assign a multiple of validity_level_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations
         ,
-    EVALUATIONPOLICY_LAST = static_cast<Gem::Common::ENUMBASETYPE>(evaluationPolicy::USESIGMOID)
+    EVALUATIONPOLICY_LAST = evaluationPolicy::USESIGMOID
 };
 
 // * Note that this might be accompanied by assistance from the optimization algorithm
@@ -423,7 +423,7 @@ enum class execMode : Gem::Common::ENUMBASETYPE {
     SERIAL = 0,
     MULTITHREADED = 1,
     BROKER = 2,
-    LAST = static_cast<Gem::Common::ENUMBASETYPE>(execMode::BROKER)
+    LAST = execMode::BROKER
 };
 
 /**
@@ -443,7 +443,7 @@ enum class duplicationScheme : Gem::Common::ENUMBASETYPE {
     RANDOMDUPLICATIONSCHEME = 1,
     VALUEDUPLICATIONSCHEME = 2,
     DUPLICATIONSCHEME_LAST =
-        static_cast<Gem::Common::ENUMBASETYPE>(duplicationScheme::VALUEDUPLICATIONSCHEME)
+        duplicationScheme::VALUEDUPLICATIONSCHEME
 };
 
 /******************************************************************************/
@@ -454,7 +454,7 @@ enum class infoMode : Gem::Common::ENUMBASETYPE {
     INFOINIT = 0,
     INFOPROCESSING = 1,
     INFOEND = 2,
-    INFOMODE_LAST = static_cast<Gem::Common::ENUMBASETYPE>(infoMode::INFOEND)
+    INFOMODE_LAST = infoMode::INFOEND
 };
 
 /******************************************************************************/
@@ -469,7 +469,7 @@ enum class adaptorId : Gem::Common::ENUMBASETYPE {
     GINT32GAUSSADAPTOR = 4,
     GBOOLEANADAPTOR = 5,
     GINT32FLIPADAPTOR = 6,
-    ADAPTORIDE_LAST = static_cast<Gem::Common::ENUMBASETYPE>(adaptorId::GINT32FLIPADAPTOR)
+    ADAPTORIDE_LAST = adaptorId::GINT32FLIPADAPTOR
 };
 
 /******************************************************************************/
@@ -485,7 +485,7 @@ enum class sortingMode : Gem::Common::ENUMBASETYPE {
     MUNU1PRETAIN_SINGLEEVAL = 2,
     MUPLUSNU_PARETO = 3,
     MUCOMMANU_PARETO = 4,
-    SORTINGMODE_LAST = static_cast<Gem::Common::ENUMBASETYPE>(sortingMode::MUCOMMANU_PARETO)
+    SORTINGMODE_LAST = sortingMode::MUCOMMANU_PARETO
 };
 
 /******************************************************************************/
@@ -497,7 +497,7 @@ enum class sortingModeMP : Gem::Common::ENUMBASETYPE {
     MUCOMMANU_SINGLEEVAL_MP = 1,
     MUNU1PRETAIN_SINGLEEVAL_MP = 2,
     SORTINGMODEMP_LAST =
-        static_cast<Gem::Common::ENUMBASETYPE>(sortingModeMP::MUNU1PRETAIN_SINGLEEVAL_MP)
+        sortingModeMP::MUNU1PRETAIN_SINGLEEVAL_MP
 };
 
 /******************************************************************************/
@@ -569,7 +569,7 @@ constexpr std::size_t DEFAULTNNEIGHBORHOODMEMBERS =
 enum class updateRule : Gem::Common::ENUMBASETYPE {
     SWARM_UPDATERULE_LINEAR = 0,
     SWARM_UPDATERULE_CLASSIC = 1,
-    UPDATERULE_LAST = static_cast<Gem::Common::ENUMBASETYPE>(SWARM_UPDATERULE_CLASSIC)
+    UPDATERULE_LAST = SWARM_UPDATERULE_CLASSIC
 };
 
 /******************************************************************************/

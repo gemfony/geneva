@@ -288,9 +288,7 @@ void GSepCmaEvolutionStrategy::setUpStrategyParameters() {
     if(lambda == 0) {
         lambda = static_cast<std::size_t>(4 + std::floor(3. * std::log(n)));
     }
-    if(lambda < 4) {
-        lambda = 4;
-    }
+    lambda = std::max<std::size_t>(lambda, 4);
     lambda_ = lambda;
 
     // --- mu (parents) and the positive log recombination weights ----------------
@@ -298,12 +296,8 @@ void GSepCmaEvolutionStrategy::setUpStrategyParameters() {
     if(mu == 0) {
         mu = lambda_ / 2;
     }
-    if(mu < 1) {
-        mu = 1;
-    }
-    if(mu > lambda_) {
-        mu = lambda_;
-    }
+    mu = std::max<std::size_t>(mu, 1);
+    mu = std::min(mu, lambda_);
     mu_ = mu;
 
     // Preliminary (unnormalized) weights w_i' = ln(mu + 0.5) - ln(i), i = 1..mu .
@@ -330,7 +324,7 @@ void GSepCmaEvolutionStrategy::setUpStrategyParameters() {
     c_sigma_ = (mu_eff_ + 2.) / (n + mu_eff_ + 5.);
     // damping d_sigma = 1 + 2*max(0, sqrt((mu_eff-1)/(n+1)) - 1) + c_sigma .
     d_sigma_ =
-        1. + 2. * (std::max)(0., std::sqrt((mu_eff_ - 1.) / (n + 1.)) - 1.) + c_sigma_;
+        1. + (2. * (std::max)(0., std::sqrt((mu_eff_ - 1.) / (n + 1.)) - 1.)) + c_sigma_;
 
     // --- covariance adaptation (separable / diagonal) ---------------------------
     // c_c ~ 4/n -- O(1/n) cumulation rate for the rank-1 path.
@@ -515,7 +509,7 @@ void GSepCmaEvolutionStrategy::sampleOffspring() {
         }
         std::vector<double> x(n_);
         for(std::size_t i = 0; i < n_; ++i) {
-            x[i] = m_[i] + sigma_ * std::sqrt(C_[i]) * z[i];
+            x[i] = m_[i] + (sigma_ * std::sqrt(C_[i]) * z[i]);
         }
         clampToBox(x);
 
@@ -631,7 +625,7 @@ void GSepCmaEvolutionStrategy::updateDistribution(const std::vector<std::size_t>
     const double cs_factor = std::sqrt(c_sigma_ * (2. - c_sigma_) * mu_eff_);
     double ps_norm_sq = 0.;
     for(std::size_t j = 0; j < n_; ++j) {
-        p_sigma_[j] = (1. - c_sigma_) * p_sigma_[j] + cs_factor * (y_w[j] / std::sqrt(C_[j]));
+        p_sigma_[j] = ((1. - c_sigma_) * p_sigma_[j]) + (cs_factor * (y_w[j] / std::sqrt(C_[j])));
         ps_norm_sq += p_sigma_[j] * p_sigma_[j];
     }
     const double ps_norm = std::sqrt(ps_norm_sq);
@@ -646,7 +640,7 @@ void GSepCmaEvolutionStrategy::updateDistribution(const std::vector<std::size_t>
 
     const double pc_factor = std::sqrt(c_c_ * (2. - c_c_) * mu_eff_);
     for(std::size_t j = 0; j < n_; ++j) {
-        p_c_[j] = (1. - c_c_) * p_c_[j] + (h_sigma ? pc_factor * y_w[j] : 0.);
+        p_c_[j] = ((1. - c_c_) * p_c_[j]) + (h_sigma ? pc_factor * y_w[j] : 0.);
     }
 
     // --- step-size update (CSA): sigma *= exp( c_sigma/d_sigma * (||p_sigma||/chi_n - 1) )
@@ -663,9 +657,9 @@ void GSepCmaEvolutionStrategy::updateDistribution(const std::vector<std::size_t>
                 double yj = (selected[i][j] - m_old[j]) / sigma_;
                 rank_mu += w * yj * yj;
             }
-            C_[j] = (1. - c_1_ - c_mu_) * C_[j] +
-                    c_1_ * (p_c_[j] * p_c_[j] + delta_hsig * C_[j]) +
-                    c_mu_ * rank_mu;
+            C_[j] = ((1. - c_1_ - c_mu_) * C_[j]) +
+                    (c_1_ * (p_c_[j] * p_c_[j] + delta_hsig * C_[j])) +
+                    (c_mu_ * rank_mu);
             // Numerical floor so sqrt(C) stays well-defined.
             if(not(C_[j] > 1.e-300)) {
                 C_[j] = 1.e-300;

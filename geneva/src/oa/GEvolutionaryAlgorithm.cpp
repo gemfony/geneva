@@ -628,7 +628,7 @@ void GType::driveGlobalSigmaController() {
             const double c_sigma = 1. / (1. + std::sqrt(n) / 4.); // O(1/sqrt(n)) time constant, floored
             constexpr double target = 1. / 5.;
             const double signal = (p_success - target) / (1. - target); // in [-0.25, +1]
-            p_sigma_ = (1. - c_sigma) * p_sigma_ + std::sqrt(c_sigma * (2. - c_sigma)) * signal;
+            p_sigma_ = ((1. - c_sigma) * p_sigma_) + (std::sqrt(c_sigma * (2. - c_sigma)) * signal);
             global_sigma_ *= std::exp(0.3 * p_sigma_);
         }
     }

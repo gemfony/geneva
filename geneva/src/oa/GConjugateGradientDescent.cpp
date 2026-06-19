@@ -527,7 +527,7 @@ void GConjugateGradientDescent::updateChildParameters() {
             const double orig_parm_val = parm_vec[j];
             for(std::size_t probe = 0; probe < n_probes; probe++) {
                 const std::size_t child_pos =
-                    n_starting_points_ + i * children_per_sp + j * n_probes + probe;
+                    n_starting_points_ + (i * children_per_sp) + (j * n_probes) + probe;
 
                 // Load the current "parent" into the "child"
                 this->at(child_pos)->load(this->at(i));
@@ -539,7 +539,7 @@ void GConjugateGradientDescent::updateChildParameters() {
 
                 // probe 0 = forward (+h); probe 1 (central only) = backward (-h)
                 const double sign = (probe == 0) ? 1. : -1.;
-                parm_vec[j] = orig_parm_val + sign * adjusted_finite_step_[j];
+                parm_vec[j] = orig_parm_val + (sign * adjusted_finite_step_[j]);
                 this->at(child_pos)->individual().assignFPValueVector(parm_vec, activityMode::ACTIVEONLY);
             }
             // Restore the original value for the next direction
@@ -645,7 +645,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
             if(h <= 0.) {
                 continue;
             }
-            const std::size_t fwd = n_starting_points_ + i * children_per_sp + j * n_probes;
+            const std::size_t fwd = n_starting_points_ + (i * children_per_sp) + (j * n_probes);
             const double f_fwd = minOnly_transformed_fitness(this->at(fwd)->individual());
             if(central_differences_) {
                 const double f_bwd = minOnly_transformed_fitness(this->at(fwd + 1)->individual());

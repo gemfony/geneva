@@ -1129,7 +1129,7 @@ void compare(
                   << "Thus the expectation of " << expectation_str << " was violated" << '\n';
             break; // The expectation was clearly not met
         }
-        else if(not x &&
+        if(not x &&
                 not y) { // No content to check. Both smart pointers can be considered equal
             expectation_met = true;
             break;
@@ -1300,7 +1300,7 @@ void compare(
                 found_deviation = true;
                 break; // terminate the loop
             }
-            else if(not *x_it &&
+            if(not *x_it &&
                     not *y_it) { // No content to check. Both smart pointers can be considered equal
                 continue;        // Go on with next iteration in the loop
             }

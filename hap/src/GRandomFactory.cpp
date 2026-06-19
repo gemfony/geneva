@@ -92,9 +92,8 @@ GRandomFactory::GRandomFactory() {
             << "and may be instantiated only once" << '\n'
         );
     }
-    else {
-        multiple_call_trap_.store(true);
-    }
+            multiple_call_trap_.store(true);
+   
 }
 
 /******************************************************************************/
@@ -399,13 +398,15 @@ void GRandomFactory::producer(std::uint32_t seed) {
         auto fill = [&](std::unique_ptr<random_container> &cont, bool fresh) {
 #if defined(HAP_USE_CUDA)
             if(useCuda) {
-                if(fresh) cont.reset(new random_container(*cuda));
-                else      cont->refresh(*cuda);
+                if(fresh) { cont.reset(new random_container(*cuda));
+                } else {      cont->refresh(*cuda);
+}
                 return;
             }
 #endif
-            if(fresh) cont.reset(new random_container(mt));
-            else      cont->refresh(mt);
+            if(fresh) { cont.reset(new random_container(mt));
+            } else {      cont->refresh(mt);
+}
         };
 
         std::unique_ptr<random_container> p;

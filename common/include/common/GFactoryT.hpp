@@ -452,7 +452,7 @@ private:
     // Transient parse cache (NOT serialized; reset to empty/false on copy, move and
     // deserialization via the default member initialisers). The config file is read
     // and parsed only on the first get_(); later calls re-apply this cached ptree.
-    boost::property_tree::ptree config_ptree_{}; ///< Cached parsed configuration (transient)
+    boost::property_tree::ptree config_ptree_; ///< Cached parsed configuration (transient)
     bool config_ptree_cached_ = false;           ///< Whether config_ptree_ has been populated
 };
 

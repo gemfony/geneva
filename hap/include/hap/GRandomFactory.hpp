@@ -83,10 +83,11 @@ using G_CPU_BASE_GENERATOR = xoshiro256pp;
  *         "mt19937_64", "mt19937" or "unknown")
  */
 inline const char *cpuEngineName() noexcept {
-    if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, std::mt19937_64>) return "mt19937_64";
-    else if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, std::mt19937>) return "mt19937";
-    else if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, xoshiro256pp>) return "xoshiro256++";
-    else return "unknown";
+    if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, std::mt19937_64>) { return "mt19937_64";
+    } else if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, std::mt19937>) { return "mt19937";
+    } else if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, xoshiro256pp>) { return "xoshiro256++";
+    } else { return "unknown";
+}
 }
 
 class GRandomFactory; // Forward declaration, so we can make random_container constructor private

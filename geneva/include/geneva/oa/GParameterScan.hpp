@@ -676,7 +676,7 @@ template <typename T>
 struct singleParameter {
     T value{};            ///< The parameter value to be written into the individual
     std::size_t mode{0};  ///< The addressing mode (always 0 = positional / by-index)
-    std::string name{};   ///< The parameter's name (may be empty for purely positional addressing)
+    std::string name;   ///< The parameter's name (may be empty for purely positional addressing)
     std::size_t pos{0};   ///< The parameter's position within its value channel
 };
 

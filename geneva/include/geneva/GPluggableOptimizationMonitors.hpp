@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <algorithm>
 #include <chrono>
 #include <filesystem>
 #include <any>
@@ -2405,9 +2406,7 @@ private:
             // Within adaptor_property_store_, find the largest number of adaptions performed
             double max_property = 0.;
             for(const auto &property_entry : adaptor_property_store_) {
-                if(std::get<1>(property_entry) > max_property) {
-                    max_property = std::get<1>(property_entry);
-                }
+                max_property = std::max(std::get<1>(property_entry), max_property);
             }
 
             // Create the histogram object

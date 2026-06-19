@@ -176,17 +176,17 @@ ConsumerSpec specFromCommandLine(
     // command-line parsing; here we read the ones the spec needs back out of the parsed map. Each
     // read is guarded so an absent option leaves the spec default in place.
     auto readPort = [&vm](const char *key, unsigned short &dst) {
-        if(vm.count(key) != 0u) {
+        if(vm.contains(key)) {
             dst = vm[key].as<unsigned short>();
         }
     };
     auto readSerMode = [&vm](const char *key, Gem::Common::serializationMode &dst) {
-        if(vm.count(key) != 0u) {
+        if(vm.contains(key)) {
             dst = vm[key].as<Gem::Common::serializationMode>();
         }
     };
     auto readString = [&vm](const char *key, std::string &dst) {
-        if(vm.count(key) != 0u) {
+        if(vm.contains(key)) {
             dst = vm[key].as<std::string>();
         }
     };
@@ -195,10 +195,10 @@ ConsumerSpec specFromCommandLine(
         readPort("asio_port", spec.port);
         readSerMode("asio_serializationMode", spec.serialization_mode);
         readString("asio_ip", spec.ip);
-        if(vm.count("asio_maxReconnects") != 0u) {
+        if(vm.contains("asio_maxReconnects")) {
             spec.max_reconnects = vm["asio_maxReconnects"].as<std::size_t>();
         }
-        if(vm.count("asio_prefetchDepth") != 0u) {
+        if(vm.contains("asio_prefetchDepth")) {
             spec.client_prefetch_depth = vm["asio_prefetchDepth"].as<std::size_t>();
         }
         spec.n_threads = 0; // networked IO threads: hardware concurrency
@@ -207,28 +207,28 @@ ConsumerSpec specFromCommandLine(
         readPort("beast_port", spec.port);
         readSerMode("beast_serializationMode", spec.serialization_mode);
         readString("beast_ip", spec.ip);
-        if(vm.count("beast_verboseControlFrames") != 0u) {
+        if(vm.contains("beast_verboseControlFrames")) {
             spec.verbose_control_frames = vm["beast_verboseControlFrames"].as<bool>();
         }
-        if(vm.count("beast_prefetchDepth") != 0u) {
+        if(vm.contains("beast_prefetchDepth")) {
             spec.client_prefetch_depth = vm["beast_prefetchDepth"].as<std::size_t>();
         }
         spec.n_threads = 0;
     }
     else if(mnemonic == "stc") {
-        if(vm.count("nWorkerThreads") != 0u) {
+        if(vm.contains("nWorkerThreads")) {
             spec.n_threads = static_cast<unsigned int>(vm["nWorkerThreads"].as<std::size_t>());
         }
     }
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
     else if(mnemonic == "mpi") {
-        if(vm.count("mpi_asyncReq") != 0u) {
+        if(vm.contains("mpi_asyncReq")) {
             spec.mpi_async_req = vm["mpi_asyncReq"].as<bool>();
         }
-        if(vm.count("mpi_nHandlerThreads") != 0u) {
+        if(vm.contains("mpi_nHandlerThreads")) {
             spec.mpi_n_handler_threads = vm["mpi_nHandlerThreads"].as<std::uint32_t>();
         }
-        if(vm.count("mpi_cleanSessInterval") != 0u) {
+        if(vm.contains("mpi_cleanSessInterval")) {
             spec.mpi_clean_sess_interval = vm["mpi_cleanSessInterval"].as<std::uint32_t>();
         }
         readSerMode("mpi_serializationMode", spec.serialization_mode);

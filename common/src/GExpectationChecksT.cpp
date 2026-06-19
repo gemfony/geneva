@@ -332,9 +332,9 @@ void compare(
 
     case Gem::Common::expectation::INEQUALITY:
         expectation_str = "INEQUALITY";
-        if(not(x == Gem::Common::tribool::True  && y == Gem::Common::tribool::True) &&
-           not(x == Gem::Common::tribool::False && y == Gem::Common::tribool::False) &&
-           not(x == Gem::Common::tribool::Indeterminate && y == Gem::Common::tribool::Indeterminate)) {
+        if((x != Gem::Common::tribool::True  || y != Gem::Common::tribool::True) &&
+           (x != Gem::Common::tribool::False || y != Gem::Common::tribool::False) &&
+           (x != Gem::Common::tribool::Indeterminate || y != Gem::Common::tribool::Indeterminate)) {
             expectation_met = true;
         }
         break;

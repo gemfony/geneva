@@ -139,20 +139,20 @@ public:
     result_type operator()(URBG &g, const param_type &p) {
         if(have_spare_) {
             have_spare_ = false;
-            return p.mean() + p.stddev() * spare_;
+            return p.mean() + (p.stddev() * spare_);
         }
         fp_type u; // NOLINT(cppcoreguidelines-init-variables)
         fp_type v; // NOLINT(cppcoreguidelines-init-variables)
         fp_type s; // NOLINT(cppcoreguidelines-init-variables)
         do {
-            u = fp_type(2) * fast_uniform_01<fp_type>(g) - fp_type(1);
-            v = fp_type(2) * fast_uniform_01<fp_type>(g) - fp_type(1);
-            s = u * u + v * v;
+            u = (fp_type(2) * fast_uniform_01<fp_type>(g)) - fp_type(1);
+            v = (fp_type(2) * fast_uniform_01<fp_type>(g)) - fp_type(1);
+            s = (u * u) + (v * v);
         } while(s >= fp_type(1) || s == fp_type(0));
         const fp_type f = std::sqrt(fp_type(-2) * std::log(s) / s);
         spare_          = v * f;
         have_spare_     = true;
-        return p.mean() + p.stddev() * (u * f);
+        return p.mean() + (p.stddev() * (u * f));
     }
 
 private:
@@ -221,7 +221,7 @@ public:
     }
 
 private:
-    param_type params_{};
+    param_type params_;
 };
 
 /******************************************************************************/
@@ -519,11 +519,11 @@ public:
         if(uniform_bool_(g)) {
             fp_type mean_left = params.mean() - std::abs(params.distance() / 2.);
             fp_type sigma_left = params.sigma1();
-            return sigma_left * normal_distribution_(g) + mean_left;
+            return (sigma_left * normal_distribution_(g)) + mean_left;
         }
                     fp_type mean_right = params.mean() + std::abs(params.distance() / 2.);
             fp_type sigma_right = params.sigma2();
-            return sigma_right * normal_distribution_(g) + mean_right;
+            return (sigma_right * normal_distribution_(g)) + mean_right;
        
     }
 

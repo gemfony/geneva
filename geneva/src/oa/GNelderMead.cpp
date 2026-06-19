@@ -278,7 +278,7 @@ std::size_t GNelderMead::simplexBlockSize() const {
  * @return The flat population position of the requested vertex
  */
 std::size_t GNelderMead::vertexPos(std::size_t s, std::size_t v) const {
-    return s * simplexBlockSize() + v;
+    return (s * simplexBlockSize()) + v;
 }
 
 /******************************************************************************/
@@ -290,7 +290,7 @@ std::size_t GNelderMead::vertexPos(std::size_t s, std::size_t v) const {
  * @return The flat population position of the requested trial slot
  */
 std::size_t GNelderMead::trialPos(std::size_t s, std::size_t t) const {
-    return s * simplexBlockSize() + (n_fp_parms_first_ + 1) + t;
+    return (s * simplexBlockSize()) + (n_fp_parms_first_ + 1) + t;
 }
 
 /******************************************************************************/
@@ -493,10 +493,10 @@ void GNelderMead::proposeTrials() {
         std::vector<double> contract(n_fp_parms_first_);
         std::vector<double> ocontract(n_fp_parms_first_);
         for(std::size_t k = 0; k < n_fp_parms_first_; k++) {
-            reflect[k] = centroid[k] + alpha_ * (centroid[k] - xw[k]);
-            expand[k] = centroid[k] + gamma_ * (centroid[k] - xw[k]);
-            contract[k] = centroid[k] + rho_ * (xw[k] - centroid[k]);   // inside  contraction
-            ocontract[k] = centroid[k] + rho_ * (reflect[k] - centroid[k]); // outside contraction
+            reflect[k] = centroid[k] + (alpha_ * (centroid[k] - xw[k]));
+            expand[k] = centroid[k] + (gamma_ * (centroid[k] - xw[k]));
+            contract[k] = centroid[k] + (rho_ * (xw[k] - centroid[k]));   // inside  contraction
+            ocontract[k] = centroid[k] + (rho_ * (reflect[k] - centroid[k])); // outside contraction
         }
 
         this->at(trialPos(s, NM_REFLECT))
@@ -629,7 +629,7 @@ void GNelderMead::shrinkTowardsBest(std::size_t s, std::size_t b) {
         std::vector<double> xv;
         this->at(vertexPos(s, v))->individual().streamlineFP(xv, activityMode::ACTIVEONLY);
         for(std::size_t k = 0; k < n_fp_parms_first_; k++) {
-            xv[k] = xb[k] + sigma_ * (xv[k] - xb[k]);
+            xv[k] = xb[k] + (sigma_ * (xv[k] - xb[k]));
         }
         this->at(vertexPos(s, v))->individual().assignFPValueVector(xv, activityMode::ACTIVEONLY);
     }

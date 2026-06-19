@@ -180,13 +180,13 @@ double GGeneralizedSimulatedAnnealing::getCoolingTimescale() const {
 /******************************************************************************/
 /** Population index of the current point of chain c. */
 std::size_t GGeneralizedSimulatedAnnealing::currentPos(std::size_t c) const {
-    return c * GSA_SLOTS_PER_CHAIN + GSA_CURRENT;
+    return (c * GSA_SLOTS_PER_CHAIN) + GSA_CURRENT;
 }
 
 /******************************************************************************/
 /** Population index of the proposal point of chain c. */
 std::size_t GGeneralizedSimulatedAnnealing::proposalPos(std::size_t c) const {
-    return c * GSA_SLOTS_PER_CHAIN + GSA_PROPOSAL;
+    return (c * GSA_SLOTS_PER_CHAIN) + GSA_PROPOSAL;
 }
 
 /******************************************************************************/
@@ -465,7 +465,7 @@ void GGeneralizedSimulatedAnnealing::markIndividualPositions() {
  * timescale of 1, t_eff == t and the strict Tsallis schedule is recovered.
  */
 double GGeneralizedSimulatedAnnealing::effectiveTime(std::uint32_t t) const {
-    return 1. + (static_cast<double>(t) - 1.) / cooling_timescale_;
+    return 1. + ((static_cast<double>(t) - 1.) / cooling_timescale_);
 }
 
 /******************************************************************************/
@@ -509,9 +509,7 @@ std::vector<double> GGeneralizedSimulatedAnnealing::drawVisitingJump(double tqv)
     // A single heavy-tail scalar shared across all coordinates of this jump.
     constexpr double eps = 1.e-12;
     double z = std::fabs(gauss(gr_));
-    if(z < eps) {
-        z = eps;
-    }
+    z = std::max(z, eps);
     const double tail = std::pow(z, (qv_ - 1.) / 2.); // |z|^{(qv-1)/2}
 
     std::vector<double> dx(n_fp_parms_);
@@ -538,7 +536,7 @@ double GGeneralizedSimulatedAnnealing::acceptanceProbability(double delta_e, dou
     }
 
     const double one_minus_qa = 1. - qa_;
-    const double bracket = 1. - one_minus_qa * (delta_e / tqa);
+    const double bracket = 1. - (one_minus_qa * (delta_e / tqa));
 
     if(bracket <= 0.) {
         return 0.;

@@ -3040,7 +3040,7 @@ private:
     std::vector<std::shared_ptr<GCLParsableI>>
         cl_parameter_proxies_; ///< Holds command line parameter proxies
 
-    std::filesystem::path config_base_dir_{};
+    std::filesystem::path config_base_dir_;
 
     static std::mutex
         configfile_parser_mutex_; ///< Synchronization of access to configuration files (may only happen serially)

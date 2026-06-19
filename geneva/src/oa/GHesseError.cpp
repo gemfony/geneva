@@ -126,7 +126,7 @@ double profileMin(
         for(std::size_t a = 0; a < idx.size(); ++a) {
             const std::size_t k = idx[a];
             const double h = (step_sizes[k] > 0.) ? step_sizes[k] : 1.e-6;
-            const double gk = (gv[2 * a] - gv[2 * a + 1]) / (2. * h);
+            const double gk = (gv[2 * a] - gv[(2 * a) + 1]) / (2. * h);
             dir[k] = -gk;
             gnorm2 += gk * gk;
         }
@@ -164,7 +164,7 @@ std::optional<double> minosBound(G &&g, double x0, double sigma_step) {
     double gb = g(b);
     std::size_t expand = 0;
     while(gb < 0. && expand < 25) {
-        b = x0 + (b - x0) * 1.6;
+        b = x0 + ((b - x0) * 1.6);
         gb = g(b);
         ++expand;
     }
@@ -186,7 +186,7 @@ std::optional<double> minosBound(G &&g, double x0, double sigma_step) {
             break;
         }
     }
-    return std::abs(0.5 * (a + b) - x0);
+    return std::abs((0.5 * (a + b)) - x0);
 }
 
 /**
@@ -306,7 +306,7 @@ GHesseErrorResult GHesseError::estimate(
     for(std::size_t j = 0; j < n; ++j) {
         const double h = step_sizes[j];
         const double f_plus = diag_values[2 * j];
-        const double f_minus = diag_values[2 * j + 1];
+        const double f_minus = diag_values[(2 * j) + 1];
         const double curv = (h > 0.) ? (f_plus - 2. * f_min + f_minus) / (h * h) : 0.;
         hessian_diag[j] = curv;
         if(curv > 0.) {
@@ -357,8 +357,8 @@ GHesseErrorResult GHesseError::estimate(
                 const double hi = step_sizes[i];
                 const double hj = step_sizes[j];
                 const double v =
-                    (off_values[4 * k] - off_values[4 * k + 1] - off_values[4 * k + 2] +
-                     off_values[4 * k + 3]) /
+                    (off_values[4 * k] - off_values[(4 * k) + 1] - off_values[(4 * k) + 2] +
+                     off_values[(4 * k) + 3]) /
                     (4. * hi * hj);
                 hessian[i][j] = v;
                 hessian[j][i] = v;

@@ -86,7 +86,7 @@ enum class consumerType : Gem::Common::ENUMBASETYPE {
     SERIAL = 0,
     MULTITHREADED = 1,
     NETWORKED = 2,
-    LAST = static_cast<Gem::Common::ENUMBASETYPE>(consumerType::NETWORKED)
+    LAST = consumerType::NETWORKED
 };
 
 /**

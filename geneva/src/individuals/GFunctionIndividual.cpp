@@ -252,7 +252,7 @@ double GDoubleSumGapConstraint::check_(const gen::GOptimizableEntity *p) const {
     if(sum >= (c_ - gap_) && sum <= (c_ + gap_)) {
         return 0.;
     }
-            return 1. + fabs(sum - c_) / c_;
+            return 1. + (fabs(sum - c_) / c_);
    
 }
 

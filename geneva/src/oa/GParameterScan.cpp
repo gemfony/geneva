@@ -119,8 +119,8 @@ std::vector<std::int32_t> fillWithData<std::int32_t>(
 
     for(std::size_t i = 0; i < n_steps; i++) {
         const double v = static_cast<double>(lower) +
-            static_cast<double>(upper - lower) * static_cast<double>(i) /
-                static_cast<double>(n_steps - 1);
+            (static_cast<double>(upper - lower) * static_cast<double>(i) /
+                static_cast<double>(n_steps - 1));
         result.push_back(static_cast<std::int32_t>(std::llround(v)));
     }
 
@@ -150,7 +150,7 @@ std::vector<float> fillWithData<float>(std::size_t n_steps, float lower, float u
     }
 
     for(std::size_t i = 0; i < n_steps; i++) {
-        result.push_back(lower + (upper - lower) * static_cast<float>(i) / static_cast<float>(n_steps - 1));
+        result.push_back(lower + ((upper - lower) * static_cast<float>(i) / static_cast<float>(n_steps - 1)));
     }
 
     return result;
@@ -179,7 +179,7 @@ std::vector<double> fillWithData<double>(std::size_t n_steps, double lower, doub
     }
 
     for(std::size_t i = 0; i < n_steps; i++) {
-        result.push_back(lower + (upper - lower) * static_cast<double>(i) / static_cast<double>(n_steps - 1));
+        result.push_back(lower + ((upper - lower) * static_cast<double>(i) / static_cast<double>(n_steps - 1)));
     }
 
     return result;

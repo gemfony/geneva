@@ -384,7 +384,7 @@ public:
     double getAdProb() const {
         const auto v = readTuned();
         return v.at(oa::ea_tunable::min_ad_prob) +
-               v.at(oa::ea_tunable::ad_prob_start_pct) * v.at(oa::ea_tunable::ad_prob_range);
+               (v.at(oa::ea_tunable::ad_prob_start_pct) * v.at(oa::ea_tunable::ad_prob_range));
     }
 
     /***************************************************************************/
@@ -523,7 +523,7 @@ public:
                << "individual::ad_prob_start_percentage_ptr = "
                << ad_prob_start_percentage << '\n'
                << "individual::ad_prob = "
-               << min_ad_prob + ad_prob_range * ad_prob_start_percentage
+               << min_ad_prob + (ad_prob_range * ad_prob_start_percentage)
                << '\n'
                << "individual::min_ad_prob = " << min_ad_prob << '\n'
                << "individual::max_ad_prob = "
@@ -533,7 +533,7 @@ public:
                << "individual::sigma_range_percentage_ptr = " << sigma_range_percentage
                << '\n'
                << "individual::sigma1 = "
-               << minsigma + sigmarange * sigma_range_percentage
+               << minsigma + (sigmarange * sigma_range_percentage)
                << '\n'
                << "individual::min_sigma1 = " << minsigma << '\n'
                << "individual::max_sigma1 = " << minsigma + sigmarange
@@ -738,14 +738,14 @@ protected:
         double sigma_range = v.at(n::sigma_range);
         double max_sigma = min_sigma + sigma_range;
         double sigma_range_percentage = v.at(n::sigma_range_pct);
-        double start_sigma = min_sigma + sigma_range_percentage * sigma_range;
+        double start_sigma = min_sigma + (sigma_range_percentage * sigma_range);
         double sigma_sigma = v.at(n::sigma_sigma);
 
         double min_ad_prob = v.at(n::min_ad_prob);
         double ad_prob_range = v.at(n::ad_prob_range);
         double max_ad_prob = min_ad_prob + ad_prob_range;
         double ad_prob_start_percentage = v.at(n::ad_prob_start_pct);
-        double start_ad_prob = min_ad_prob + ad_prob_start_percentage * ad_prob_range;
+        double start_ad_prob = min_ad_prob + (ad_prob_start_percentage * ad_prob_range);
 
         double adapt_ad_prob = v.at(n::adapt_ad_prob);
 
@@ -844,7 +844,7 @@ protected:
 
             // Do book-keeping
             solver_calls_per_optimization.push_back(
-                static_cast<double>((iterations_consumed + 1) * n_children + n_parents)
+                static_cast<double>(((iterations_consumed + 1) * n_children) + n_parents)
             );
             iterations_per_optimization.push_back(static_cast<double>(iterations_consumed + 1));
             best_evaluations.push_back(

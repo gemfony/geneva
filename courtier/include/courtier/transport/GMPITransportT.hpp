@@ -1522,7 +1522,7 @@ private:
     /*
          * Mutex to protect the vector of open sessions
          */
-    std::mutex openSessionsMutex_{};
+    std::mutex openSessionsMutex_;
     /*
          * Open sessions
          */

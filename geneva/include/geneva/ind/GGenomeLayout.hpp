@@ -114,7 +114,7 @@ T foldConstrainedFP(const T &val, const T &lo, const T &hi) {
 
     long double mapping = 0.L;
     if(region % 2 == 0) { // even region (0, 2, ... or a negative even range): ascending
-        mapping = local_val - static_cast<long double>(region) * (upper - lower);
+        mapping = local_val - (static_cast<long double>(region) * (upper - lower));
     }
     else { // odd region: descending
         mapping = -local_val + (static_cast<long double>(region - 1) * (upper - lower) + 2 * upper);

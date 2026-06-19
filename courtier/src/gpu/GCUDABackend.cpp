@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 // Standard headers
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -294,9 +295,7 @@ void GCUDABackend<scalar_type>::evaluate(
     if(n_items <= 0) {
         return;
     }
-    if(threads_per_item < 1) {
-        threads_per_item = 1;
-    }
+    threads_per_item = std::max(threads_per_item, 1);
     cuCheck(cuCtxPushCurrent(p_->context), "cuCtxPushCurrent(evaluate)");
 
     const std::size_t paramBytes = static_cast<std::size_t>(n_items) * static_cast<std::size_t>(dim) * sizeof(scalar_type);

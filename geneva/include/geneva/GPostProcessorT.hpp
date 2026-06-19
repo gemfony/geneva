@@ -139,7 +139,7 @@ public:
         }
 
         // Check whether the given mnemonic was registered with this class
-        return allowed_mnemonics_.count(oa_mnemonic) != 0;
+        return allowed_mnemonics_.contains(oa_mnemonic);
     }
 
 protected:

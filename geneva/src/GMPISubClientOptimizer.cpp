@@ -104,7 +104,7 @@ GMPISubClientOptimizer::GMPISubClientOptimizer(
     // As an example: In case of 17 processes with one server, 4 clients and 4 sub-clients the ranks
     // [0, 1, 5, 7, 13] are server and geneva clients. All other processes will be sub-clients.
     isSubClient_ = !isServer && ((baseCommRank_ - 1) % subClientGroupSize_ != 0);
-    const int subCommColor = (baseCommRank_ - 1) / (subClientGroupSize_) + M_MPI_GENEVA_COLOR;
+    const int subCommColor = ((baseCommRank_ - 1) / (subClientGroupSize_)) + M_MPI_GENEVA_COLOR;
 
     // emit output about this instance
     if(!isServer) { // the server is in no sub-client group
@@ -229,15 +229,14 @@ int GMPISubClientOptimizer::clientRun_() {
         // execute the sub-client job
         return subClientJob_(subClientComm_);
     }
-    else {
-        GMPISubClientIndividual::setClientMode(ClientMode::CLIENT);
+            GMPISubClientIndividual::setClientMode(ClientMode::CLIENT);
         // run the client until optimization finished
         int returnValue{Go2::clientRun_()};
         // tell sub-clients that the optimization has finished
         startAsyncBarrier();
         // return value
         return returnValue;
-    }
+   
 }
 
 } /* namespace Gem::Geneva */

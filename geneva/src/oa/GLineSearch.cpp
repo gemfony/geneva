@@ -53,7 +53,7 @@ std::vector<double>
 stepPoint(std::vector<double> const &x0, std::vector<double> const &dir, double alpha) {
     std::vector<double> point(x0.size());
     for(std::size_t i = 0; i < x0.size(); ++i) {
-        point[i] = x0[i] + alpha * dir[i];
+        point[i] = x0[i] + (alpha * dir[i]);
     }
     return point;
 }
@@ -133,7 +133,7 @@ GLineSearchResult GLineSearch::search(
 
         // Accept the largest step (alphas are in decreasing order) that satisfies Armijo.
         for(std::size_t j = 0; j < alphas.size(); ++j) {
-            const double armijo_rhs = f0 + opts.c1 * alphas[j] * g0_dot_dir;
+            const double armijo_rhs = f0 + (opts.c1 * alphas[j] * g0_dot_dir);
             if(values[j] <= armijo_rhs) {
                 result.alpha = alphas[j];
                 result.x_new = points[j];

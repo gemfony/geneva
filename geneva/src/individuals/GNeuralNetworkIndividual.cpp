@@ -1515,8 +1515,8 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
         double node_result = 0;
         const std::size_t input_offset = arch.layerOffset(0);
         for(std::size_t node_counter = 0; node_counter < n_layer_nodes; node_counter++) {
-            node_result = t_s.Input[node_counter] * w[input_offset + 2 * node_counter] -
-                          w[input_offset + 2 * node_counter + 1];
+            node_result = (t_s.Input[node_counter] * w[input_offset + (2 * node_counter)]) -
+                          w[input_offset + (2 * node_counter) + 1];
             node_result = transfer(node_result);
             prev_results.push_back(node_result);
         }
@@ -1536,10 +1536,10 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
                     prev_node_counter++) {
                     node_result +=
                         prev_results.at(prev_node_counter) *
-                        w[layer_offset + node_counter * (n_prev_layer_nodes + 1) + prev_node_counter];
+                        w[layer_offset + (node_counter * (n_prev_layer_nodes + 1)) + prev_node_counter];
                 }
                 node_result -=
-                    w[layer_offset + node_counter * (n_prev_layer_nodes + 1) + n_prev_layer_nodes];
+                    w[layer_offset + (node_counter * (n_prev_layer_nodes + 1)) + n_prev_layer_nodes];
                 node_result = transfer(node_result);
                 current_results.push_back(node_result);
             }

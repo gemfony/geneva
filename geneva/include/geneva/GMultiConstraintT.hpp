@@ -126,8 +126,7 @@ public:
                             return result;
            
         }
-        else {
-            if(result >= 0. && result <= 1.) { // valid
+                    if(result >= 0. && result <= 1.) { // valid
                 return 0.;
             }
                            // invalid
@@ -139,7 +138,7 @@ public:
                     return result;
                 }
            
-        }
+       
     }
 
     /***************************************************************************/

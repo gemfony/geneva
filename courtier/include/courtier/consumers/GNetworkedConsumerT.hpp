@@ -609,7 +609,7 @@ private:
         std::size_t pending = 0;                ///< Slots currently PENDING (awaiting a client)
         std::size_t cursor = 0;                 ///< Next slot index to consider in checkout
         std::vector<clock::time_point> checked_out_at; ///< Per-slot checkout time (lease + stats)
-        clock::time_point last_progress{};      ///< Time of the most recent checkin (stall basis)
+        clock::time_point last_progress;      ///< Time of the most recent checkin (stall basis)
     };
 
     /***************************************************************************/
@@ -696,7 +696,7 @@ private:
             mean_return_ms_ = ms;
         }
         else {
-            mean_return_ms_ = ema_alpha_ * ms + (1.0 - ema_alpha_) * mean_return_ms_;
+            mean_return_ms_ = (ema_alpha_ * ms) + ((1.0 - ema_alpha_) * mean_return_ms_);
         }
         ++n_return_samples_;
     }

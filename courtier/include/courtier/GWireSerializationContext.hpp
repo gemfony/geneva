@@ -116,7 +116,7 @@ public:
      *  @param id The layout id to look up. @return true iff the blob is present. */
     bool has(const GWireLayoutId &id) const {
         std::scoped_lock lk(mtx_);
-        return blobs_.find(id) != blobs_.end();
+        return blobs_.contains(id);
     }
 
     /** @brief Copies out the cached blob for an id, if present (and marks it most-recently-used).
@@ -159,7 +159,7 @@ public:
     bool peerHasLayout(GWirePeerId peer, const GWireLayoutId &id) const {
         std::scoped_lock lk(mtx_);
         auto it = peer_acked_.find(peer);
-        return it != peer_acked_.end() && it->second.find(id) != it->second.end();
+        return it != peer_acked_.end() && it->second.contains(id);
     }
 
     /** @brief Records that a peer now holds a given layout (so it is referenced by id thereafter).

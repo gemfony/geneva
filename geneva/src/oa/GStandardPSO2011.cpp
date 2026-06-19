@@ -442,7 +442,7 @@ void GStandardPSO2011::confine(std::vector<double> &pos, std::vector<double> &ve
     for(std::size_t d = 0; d < n_fp_parms_; ++d) {
         const double lo = dbl_lower_[d];
         const double hi = dbl_upper_[d];
-        if(not(std::isfinite(lo) && std::isfinite(hi) && hi > lo)) {
+        if(!std::isfinite(lo) || !std::isfinite(hi) || hi <= lo) {
             continue; // unbounded dimension: no confinement
         }
         if(pos[d] < lo) {
@@ -479,15 +479,15 @@ void GStandardPSO2011::updatePositions() {
         if(p_is_local) {
             // 2-point center: G = (x + P) / 2, with P = x + c (p - x).
             for(std::size_t d = 0; d < n_fp_parms_; ++d) {
-                const double P = x[d] + SPSO_C * (p[d] - x[d]);
+                const double P = x[d] + (SPSO_C * (p[d] - x[d]));
                 G[d] = 0.5 * (x[d] + P);
             }
         }
         else {
             // 3-point center: G = (x + P + L) / 3.
             for(std::size_t d = 0; d < n_fp_parms_; ++d) {
-                const double P = x[d] + SPSO_C * (p[d] - x[d]);
-                const double L = x[d] + SPSO_C * (l[d] - x[d]);
+                const double P = x[d] + (SPSO_C * (p[d] - x[d]));
+                const double L = x[d] + (SPSO_C * (l[d] - x[d]));
                 G[d] = (x[d] + P + L) / 3.;
             }
         }
@@ -520,7 +520,7 @@ void GStandardPSO2011::updatePositions() {
         std::vector<double> x_prime(n_fp_parms_, 0.);
         if(norm > 0. && r > 0.) {
             for(std::size_t d = 0; d < n_fp_parms_; ++d) {
-                x_prime[d] = G[d] + r * radius_factor * (dir[d] / norm);
+                x_prime[d] = G[d] + (r * radius_factor * (dir[d] / norm));
             }
         }
         else {
@@ -536,7 +536,7 @@ void GStandardPSO2011::updatePositions() {
         // the swarm settle and refine.
         std::vector<double> &v = velocities_[i];
         for(std::size_t d = 0; d < n_fp_parms_; ++d) {
-            v[d] = SPSO_W * v[d] + (x_prime[d] - x[d]);
+            v[d] = (SPSO_W * v[d]) + (x_prime[d] - x[d]);
             const double lo = dbl_lower_[d];
             const double hi = dbl_upper_[d];
             if(std::isfinite(lo) && std::isfinite(hi) && hi > lo) {

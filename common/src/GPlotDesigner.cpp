@@ -909,7 +909,7 @@ std::string GGraph2D::drawingArguments(bool is_secondary) const {
         d_a = this->drawing_arguments_;
     }
     else {
-        if(graphPlotMode::SCATTER == p_m_ || true == draw_arrows_) {
+        if(graphPlotMode::SCATTER == p_m_ || draw_arrows_) {
             d_a = "P";
         }
         else {
@@ -1787,12 +1787,12 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
         }
         else {
             if(small_w_large_marker_) {
-                marker_size = min_marker_size_ + (max_marker_size_ - min_marker_size_) *
-                                                   pow((1. - (w - w_min) / w_range), 8.);
+                marker_size = min_marker_size_ + ((max_marker_size_ - min_marker_size_) *
+                                                   pow((1. - ((w - w_min) / w_range)), 8.));
             }
             else {
                 marker_size = min_marker_size_ +
-                              (max_marker_size_ - min_marker_size_) * pow(((w - w_min) / w_range), 8);
+                              ((max_marker_size_ - min_marker_size_) * pow(((w - w_min) / w_range), 8));
             }
         }
 

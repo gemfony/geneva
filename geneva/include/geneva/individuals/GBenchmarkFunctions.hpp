@@ -179,9 +179,9 @@ G_CALLABLE inline double noisyParabola(const double *x, int n) {
 G_CALLABLE inline double rosenbrock(const double *x, int n) {
     double r = 0.;
     for(int i = 0; i < n - 1; ++i) {
-        double t = x[i + 1] - x[i] * x[i];
+        double t = x[i + 1] - (x[i] * x[i]);
         double u = 1. - x[i];
-        r += 100. * t * t + u * u;
+        r += (100. * t * t) + (u * u);
     }
     return r;
 }
@@ -199,8 +199,8 @@ G_CALLABLE inline double rosenbrock(const double *x, int n) {
 G_CALLABLE inline double ackley(const double *x, int n) {
     double r = 0.;
     for(int i = 0; i < n - 1; ++i) {
-        double s = x[i] * x[i] + x[i + 1] * x[i + 1];
-        r += exp(-0.2) * sqrt(s) + 3. * (cos(2. * x[i]) + sin(2. * x[i + 1]));
+        double s = (x[i] * x[i]) + (x[i + 1] * x[i + 1]);
+        r += (exp(-0.2) * sqrt(s)) + (3. * (cos(2. * x[i]) + sin(2. * x[i + 1])));
     }
     return r;
 }
@@ -219,7 +219,7 @@ G_CALLABLE inline double ackley(const double *x, int n) {
 G_CALLABLE inline double rastrigin(const double *x, int n) {
     double r = 10. * n;
     for(int i = 0; i < n; ++i) {
-        r += x[i] * x[i] - 10. * cos(2. * GBM_PI * x[i]);
+        r += (x[i] * x[i]) - (10. * cos(2. * GBM_PI * x[i]));
     }
     return r;
 }
@@ -259,7 +259,7 @@ G_CALLABLE inline double salomon(const double *x, int n) {
         sq += x[i] * x[i];
     }
     const double r = sqrt(sq);
-    return -cos(2. * GBM_PI * r) + 0.1 * r + 1.;
+    return -cos(2. * GBM_PI * r) + (0.1 * r) + 1.;
 }
 
 /**
@@ -295,7 +295,7 @@ G_CALLABLE inline double ackleyCanonical(const double *x, int n) {
         cs += cos(2. * GBM_PI * x[i]);
     }
     const double inv_n = 1. / n;
-    return -20. * exp(-0.2 * sqrt(sq * inv_n)) - exp(cs * inv_n) + 20. + GBM_E;
+    return (-20. * exp(-0.2 * sqrt(sq * inv_n))) - exp(cs * inv_n) + 20. + GBM_E;
 }
 
 /**
@@ -316,7 +316,7 @@ G_CALLABLE inline double griewank(const double *x, int n) {
         sq += x[i] * x[i];
         prod *= cos(x[i] / sqrt(static_cast<double>(i + 1)));
     }
-    return sq / 4000. - prod + 1.;
+    return (sq / 4000.) - prod + 1.;
 }
 
 /**
@@ -331,7 +331,7 @@ G_CALLABLE inline double griewank(const double *x, int n) {
  * @return The Lévy function value
  */
 G_CALLABLE inline double levy(const double *x, int n) {
-    auto w = [](double xi) { return 1. + (xi - 1.) / 4.; };
+    auto w = [](double xi) { return 1. + ((xi - 1.) / 4.); };
 
     const double w0 = w(x[0]);
     double r = sin(GBM_PI * w0) * sin(GBM_PI * w0);
@@ -364,7 +364,7 @@ G_CALLABLE inline double styblinskiTang(const double *x, int n) {
     for(int i = 0; i < n; ++i) {
         const double xi = x[i];
         const double x2 = xi * xi;
-        r += x2 * x2 - 16. * x2 + 5. * xi;
+        r += (x2 * x2) - (16. * x2) + (5. * xi);
     }
     return 0.5 * r;
 }
@@ -431,7 +431,7 @@ G_CALLABLE inline double zakharov(const double *x, int n) {
         sq += x[i] * x[i];
         lin += 0.5 * (i + 1) * x[i];
     }
-    return sq + lin * lin + lin * lin * lin * lin;
+    return sq + (lin * lin) + (lin * lin * lin * lin);
 }
 
 // ── Central dispatch ─────────────────────────────────────────────────────────
