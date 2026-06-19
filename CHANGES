@@ -419,7 +419,13 @@ Recommended Versions:
   of this the EA's Pareto-front tagging now uses strict dominance (no worse on all
   criteria AND strictly better on at least one) like the rest of Geneva; it
   previously used a weak test (no worse on all criteria), which mis-handled exact
-  ties between candidates.
+  ties between candidates. The EA's PARETO sorting modes now also SELECT the mu
+  survivors by the full NSGA-II procedure (non-dominated fronts, then decreasing
+  crowding distance) through that shared ranking, instead of the previous first-front
+  detection + random shuffle of an over-full front + single-objective fallback -- so
+  an over-full front is truncated to a well-spread subset of the trade-off surface
+  rather than an arbitrary one. (Single-criterion problems still degenerate to
+  ordinary single-objective selection.)
 
 - The evolutionary algorithm GEvolutionaryAlgorithm ("ea") gained a selectable
   step-size-control strategy on the OA-owned adaption config that improves

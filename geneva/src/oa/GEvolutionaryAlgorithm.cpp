@@ -158,9 +158,20 @@ void GType::extractCurrentParetoIndividuals(
     std::vector<std::shared_ptr<gen::GOptimizableEntity>> &pareto_inds
 ) {
     pareto_inds.clear();
-    for(const auto &ind_ptr : *this) {
-        if(ind_ptr->template getPersonalityTraits<TraitsType>()->isOnParetoFront()) {
-            pareto_inds.push_back(ind_ptr->individual().clone<gen::GOptimizableEntity>());
+    // An individual is on the (first) Pareto front iff no other individual strictly dominates it. Computed
+    // directly here via the shared paretoDominates(), so the best-archive does not depend on any
+    // selection-time tagging.
+    const std::size_t sz = this->size();
+    for(std::size_t i = 0; i < sz; ++i) {
+        bool dominated = false;
+        for(std::size_t j = 0; j < sz; ++j) {
+            if(i != j && paretoDominates(this->at(j)->individual(), this->at(i)->individual())) {
+                dominated = true;
+                break;
+            }
+        }
+        if(not dominated) {
+            pareto_inds.push_back(this->at(i)->individual().clone<gen::GOptimizableEntity>());
         }
     }
 }
@@ -756,12 +767,53 @@ void GType::sortMunu1pretainMode() {
 
 /******************************************************************************/
 
-void GType::sortMuPlusNuParetoMode() {
-    typename GType::iterator it;
-    typename GType::iterator it_cmp;
+void GType::selectParetoParents(bool include_parents) {
+    const std::size_t sz = this->size();
+    const std::size_t start = include_parents ? std::size_t(0) : this->n_parents_;
 
-    it = this->begin();
-    if(not(*it)->individual().hasMultipleFitnessCriteria()) {
+    // Rank the eligible individuals (the whole population for mu+nu, only the children for mu,nu) by the
+    // shared NSGA-II order: non-dominated front first, ties within a front broken by DECREASING crowding
+    // distance. The leading n_parents_ become the survivors. Crowding makes an over-full front keep a
+    // well-SPREAD subset (the former implementation kept a RANDOM subset of the first front and ranked the
+    // remainder by a single-objective scalar, which lost coverage of the trade-off surface).
+    std::vector<const gen::GOptimizableEntity *> eligible;
+    eligible.reserve(sz - start);
+    for(std::size_t i = start; i < sz; ++i) {
+        eligible.push_back(&this->at(i)->individual());
+    }
+    const std::vector<std::size_t> order = nonDominatedRank(eligible); // best-first, local to [start, sz)
+
+    // Rebuild the population: eligible individuals in NSGA-II order (so [0, n_parents_) are the survivors),
+    // then -- for mu,nu -- the discarded old parents at the tail (overwritten by the next recombination).
+    std::vector<std::unique_ptr<gen::GIndividualSlot>> reordered;
+    reordered.reserve(sz);
+    for(std::size_t local : order) {
+        reordered.push_back(std::move(this->data_cnt_[start + local]));
+    }
+    if(not include_parents) {
+        for(std::size_t i = 0; i < this->n_parents_; ++i) {
+            reordered.push_back(std::move(this->data_cnt_[i]));
+        }
+    }
+    this->data_cnt_ = std::move(reordered);
+
+    // Order the surviving parent block by the min-only scalar fitness -- the EA convention (parent[0] is
+    // the single-objective best for reporting, and the rank drives the recombination weighting). The
+    // NSGA-II step already decided WHICH mu survive; this only orders that block.
+    std::sort(
+        this->begin(),
+        this->begin() + this->n_parents_,
+        [](const auto &x_ptr, const auto &y_ptr) -> bool {
+            return minOnly_transformed_fitness(x_ptr->individual()) <
+                   minOnly_transformed_fitness(y_ptr->individual());
+        }
+    );
+}
+
+/******************************************************************************/
+
+void GType::sortMuPlusNuParetoMode() {
+    if(not(*this->begin())->individual().hasMultipleFitnessCriteria()) {
         static std::atomic<bool> warned{false};
         if(not warned.exchange(true)) {
             glogger << "In GEvolutionaryAlgorithm::sortMuPlusNuParetoMode(): Warning!" << '\n'
@@ -773,73 +825,14 @@ void GType::sortMuPlusNuParetoMode() {
         this->sortMuPlusNuMode();
         return;
     }
-
-    for(const auto &ind : *this) {
-        ind->template getPersonalityTraits<TraitsType>()->resetParetoTag();
-    }
-
-    for(it = this->begin(); it != this->end(); ++it) {
-        for(it_cmp = it + 1; it_cmp != this->end(); ++it_cmp) {
-            if(not(*it_cmp)->template getPersonalityTraits<TraitsType>()->isOnParetoFront()) {
-                continue;
-            }
-            if(paretoDominates((*it)->individual(), (*it_cmp)->individual())) {
-                (*it_cmp)->template getPersonalityTraits<TraitsType>()->setIsNotOnParetoFront();
-            }
-            if(paretoDominates((*it_cmp)->individual(), (*it)->individual())) {
-                (*it)->template getPersonalityTraits<TraitsType>()->setIsNotOnParetoFront();
-                break;
-            }
-        }
-    }
-
-    sort(
-        this->begin(),
-        this->end(),
-        [](const auto &x, const auto &y) {
-            return x->template getPersonalityTraits<TraitsType>()->isOnParetoFront() >
-                   y->template getPersonalityTraits<TraitsType>()->isOnParetoFront();
-        }
-    );
-
-    std::size_t n_individuals_on_pareto_front = 0;
-    for(const auto &ind : *this) {
-        if(ind->template getPersonalityTraits<TraitsType>()->isOnParetoFront()) {
-            n_individuals_on_pareto_front++;
-        }
-    }
-
-    if(n_individuals_on_pareto_front > this->getNParents()) {
-        std::shuffle(this->begin(), this->begin() + n_individuals_on_pareto_front, this->gr_);
-    }
-    else if(n_individuals_on_pareto_front < this->getNParents()) {
-        std::partial_sort(
-            this->begin() + n_individuals_on_pareto_front,
-            this->begin() + this->n_parents_,
-            this->end(),
-            [](const auto &x_ptr, const auto &y_ptr) -> bool {
-                return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
-            }
-        );
-    }
-
-    std::sort(
-        this->begin(),
-        this->begin() + this->n_parents_,
-        [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
-        }
-    );
+    // mu+nu: parents AND children compete for the mu survivor slots.
+    this->selectParetoParents(/* include_parents = */ true);
 }
 
 /******************************************************************************/
 
 void GType::sortMuCommaNuParetoMode() {
-    typename GType::iterator it;
-    typename GType::iterator it_cmp;
-
-    it = this->begin();
-    if(not(*it)->individual().hasMultipleFitnessCriteria()) {
+    if(not(*this->begin())->individual().hasMultipleFitnessCriteria()) {
         static std::atomic<bool> warned{false};
         if(not warned.exchange(true)) {
             glogger << "In GEvolutionaryAlgorithm::sortMuCommaNuParetoMode(): Warning!" << '\n'
@@ -851,67 +844,8 @@ void GType::sortMuCommaNuParetoMode() {
         this->sortMuCommaNuMode();
         return;
     }
-
-    for(it = this->begin(); it != this->begin() + this->n_parents_; ++it) {
-        (*it)->template getPersonalityTraits<TraitsType>()->setIsNotOnParetoFront();
-    }
-
-    for(it = this->begin() + this->n_parents_; it != this->end(); ++it) {
-        (*it)->template getPersonalityTraits<TraitsType>()->resetParetoTag();
-    }
-
-    for(it = this->begin() + this->n_parents_; it != this->end(); ++it) {
-        for(it_cmp = it + 1; it_cmp != this->end(); ++it_cmp) {
-            if(not(*it_cmp)->template getPersonalityTraits<TraitsType>()->isOnParetoFront()) {
-                continue;
-            }
-            if(paretoDominates((*it)->individual(), (*it_cmp)->individual())) {
-                (*it_cmp)->template getPersonalityTraits<TraitsType>()->setIsNotOnParetoFront();
-            }
-            if(paretoDominates((*it_cmp)->individual(), (*it)->individual())) {
-                (*it)->template getPersonalityTraits<TraitsType>()->setIsNotOnParetoFront();
-                break;
-            }
-        }
-    }
-
-    sort(
-        this->begin(),
-        this->end(),
-        [](const auto &x, const auto &y) {
-            return x->template getPersonalityTraits<TraitsType>()->isOnParetoFront() >
-                   y->template getPersonalityTraits<TraitsType>()->isOnParetoFront();
-        }
-    );
-
-    std::size_t n_individuals_on_pareto_front = 0;
-    for(const auto &ind : *this) {
-        if(ind->template getPersonalityTraits<TraitsType>()->isOnParetoFront()) {
-            n_individuals_on_pareto_front++;
-        }
-    }
-
-    if(n_individuals_on_pareto_front > this->getNParents()) {
-        std::shuffle(this->begin(), this->begin() + n_individuals_on_pareto_front, this->gr_);
-    }
-    else if(n_individuals_on_pareto_front < this->getNParents()) {
-        std::partial_sort(
-            this->begin() + n_individuals_on_pareto_front,
-            this->begin() + this->n_parents_,
-            this->end(),
-            [](const auto &x_ptr, const auto &y_ptr) -> bool {
-                return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
-            }
-        );
-    }
-
-    std::sort(
-        this->begin(),
-        this->begin() + this->n_parents_,
-        [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
-        }
-    );
+    // mu,nu: only the children compete; the old parents are discarded.
+    this->selectParetoParents(/* include_parents = */ false);
 }
 
 /******************************************************************************/

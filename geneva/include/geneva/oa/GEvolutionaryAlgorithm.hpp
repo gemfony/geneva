@@ -90,7 +90,19 @@ constexpr auto DEFAULTEASORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
  * \c MUCOMMANU_SINGLEEVAL (non-elitist \f$\mu,\lambda\f$: parents are discarded — the default, and the
  * theoretically correct pairing for mutative \f$\sigma\f$ self-adaption), \c MUNU1PRETAIN_SINGLEEVAL
  * (comma selection, but the single best parent is retained), and the two multi-objective variants
- * \c MUPLUSNU_PARETO / \c MUCOMMANU_PARETO (non-dominated ranking).
+ * \c MUPLUSNU_PARETO / \c MUCOMMANU_PARETO (see the Pareto selection below).
+ *
+ * @par Multi-objective (Pareto) selection
+ * In the two PARETO sorting modes the \f$\mu\f$ survivors are chosen by the standard @b NSGA-II procedure
+ * (Deb et al. 2002), via the shared OptimizationAlgorithms::nonDominatedRank helper: the eligible
+ * individuals (parents + children for \c MUPLUSNU_PARETO, children only for \c MUCOMMANU_PARETO) are
+ * partitioned into non-domination fronts (a candidate dominates another iff it is no worse on every
+ * criterion and strictly better on at least one), and within a front that would overflow the \f$\mu\f$
+ * budget the survivors are taken by @e decreasing crowding distance, so a well-spread subset of the
+ * trade-off surface is retained rather than an arbitrary one. (On a single-criterion individual these
+ * modes degenerate to the corresponding single-objective scheme.) The same helper backs the Pareto mode
+ * of GSepCmaEvolutionStrategy, so every Pareto-capable algorithm in Geneva shares one dominance test and
+ * one ranking.
  *
  * @par Mutation and classic step-size self-adaption (σSA)
  * Each coordinate \f$x_j\f$ of a child is perturbed, with per-group probability \f$p_{\mathrm{ad}}\f$, by
@@ -185,6 +197,8 @@ constexpr auto DEFAULTEASORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
  *   1(1):3-52, 2002.
  * - N. Hansen, A. Ostermeier, "Completely Derandomized Self-Adaptation in Evolution Strategies",
  *   Evolutionary Computation 9(2):159-195, 2001 (cumulative step-size adaptation).
+ * - K. Deb, A. Pratap, S. Agarwal, T. Meyarivan, "A Fast and Elitist Multiobjective Genetic Algorithm:
+ *   NSGA-II", IEEE Trans. Evolutionary Computation 6(2):182-197, 2002 (the Pareto selection).
  */
 class GEvolutionaryAlgorithm // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmT<GEvolutionaryAlgorithm, GParChild> {
@@ -360,6 +374,10 @@ private:
     void sortMunu1pretainMode();
     void sortMuPlusNuParetoMode();
     void sortMuCommaNuParetoMode();
+    /** @brief NSGA-II Pareto selection of the mu survivors (non-dominated front + crowding distance, via
+     *  the shared OptimizationAlgorithms::nonDominatedRank). @param include_parents true for mu+nu (parents
+     *  and children compete), false for mu,nu (only children). */
+    void selectParetoParents(bool include_parents);
 
     void fillWithObjects(const std::size_t &n_individuals);
 
