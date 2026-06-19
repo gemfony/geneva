@@ -392,6 +392,21 @@ class GValidityCheckContainerT : public GPreEvaluationValidityCheckT<ind_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Single declaration of this class's local data (the validity checks), feeding
+     *  serialize()/load_()/compare_() from one source. The checks are std::shared_ptr<...> that must be
+     *  deep-cloned on load (make_cloneable_container_member). Defined before serialize() so its deduced
+     *  return type is available there. */
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+        return std::make_tuple(
+            Gem::Common::make_cloneable_container_member("validity_checks_", validity_checks_)
+        );
+    }
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+        return std::make_tuple(
+            Gem::Common::make_cloneable_container_member("validity_checks_", validity_checks_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
@@ -399,6 +414,9 @@ class GValidityCheckContainerT : public GPreEvaluationValidityCheckT<ind_type> {
             "GPreEvaluationValidityCheckT_ind_type",
             boost::serialization::base_object<GPreEvaluationValidityCheckT<ind_type>>(*this)
         );
+        // The validity checks, derived from the single localMembers() declaration. (Previously they were
+        // compared and loaded but NOT serialized -- they now travel in checkpoints / on the wire too.)
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -504,8 +522,9 @@ protected:
         // Load our parent class'es data ...
         GPreEvaluationValidityCheckT<ind_type>::load_(cp);
 
-        // and then our local data
-        Gem::Common::copyCloneableSmartPointerContainer(p_load->validity_checks_, validity_checks_);
+        // and then our local data, derived from the single localMembers() declaration (the checks are
+        // deep-cloned, not pointer-aliased).
+        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
     }
 
     /***************************************************************************/
@@ -545,8 +564,8 @@ protected:
         // Compare our parent data ...
         compare_base_t<GPreEvaluationValidityCheckT<ind_type>>(*this, *p_load, token);
 
-        // ... and then the local data
-        compare_t(Gem::Common::getIdentity(validity_checks_, p_load->validity_checks_, "validity_checks_", "p_load->validity_checks_"), token);
+        // ... and then the local data, derived from the single localMembers() declaration
+        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
         // React on deviations from the expectation
         token.evaluate();
