@@ -87,6 +87,9 @@ SET ( OA_INCLUDES
     oa/GAntColonyOptimization.hpp
     oa/GAntColonyOptimizationFactory.hpp
     oa/GAntColonyOptimization_PersonalityTraits.hpp
+    oa/GGeneralizedSimulatedAnnealing.hpp
+    oa/GGeneralizedSimulatedAnnealingFactory.hpp
+    oa/GGeneralizedSimulatedAnnealing_PersonalityTraits.hpp
 )
 
 # Interface headers (namespace Gem::Geneva::Interface), installed under

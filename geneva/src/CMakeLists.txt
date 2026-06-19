@@ -53,6 +53,9 @@ SET ( OPTIMIZATIONSOURCES
     oa/GAntColonyOptimization.cpp
     oa/GAntColonyOptimizationFactory.cpp
     oa/GAntColonyOptimization_PersonalityTraits.cpp
+    oa/GGeneralizedSimulatedAnnealing.cpp
+    oa/GGeneralizedSimulatedAnnealingFactory.cpp
+    oa/GGeneralizedSimulatedAnnealing_PersonalityTraits.cpp
 	GOptimizationEnums.cpp
 	GSigHupHandler.cpp
 	par/GParameterPropertyParser.cpp
