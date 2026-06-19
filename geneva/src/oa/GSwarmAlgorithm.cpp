@@ -1385,8 +1385,7 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
                                          ->getNeighborhood()] += 1;
     }
 
-    // The population will be fixed in the GSwarmAlgorithm::adjustNeighborhoods() function
-    // TODO: Change to fixAfterJobSubmission
+    // The population is repaired per-iteration in GSwarmAlgorithm::adjustNeighborhoods().
 }
 
 /******************************************************************************/
@@ -1613,7 +1612,7 @@ void GSwarmAlgorithm::adjustPopulation_() {
     // We do not initialize the neighborhood and global bests here, as this requires the value of
     // all individuals to be calculated.
 
-    // Division of responsibility (the "split" an older TODO here asked for already exists):
+    // Division of responsibility (the "split" once envisioned here already exists):
     //   - adjustPopulation_()    runs ONCE at setup and only SIZES the initial population to
     //                            default_pop_size; neighborhood ids are then assigned by
     //                            setIndividualPersonalities().

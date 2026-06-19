@@ -53,8 +53,33 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This is a specialization of the GParChild class. The class adds
- * an infrastructure for simulated annealing (Geneva-style, i.e. with larger populations).
+ * @brief A population-based simulated annealing optimizer: a \f$(\mu,\lambda)\f$ evolutionary loop whose
+ * parent/child replacement uses the Metropolis acceptance criterion with a cooling temperature.
+ *
+ * @details
+ * Like the evolutionary algorithm this is a \f$(\mu,\lambda)\f$ scheme (\f$\mu\f$ parents produce
+ * \f$\lambda\f$ children by adaption, "Geneva-style" with larger-than-textbook populations), but the
+ * selection step differs: instead of always keeping the best, each parent \f$i\f$ is compared with its
+ * child and the child is accepted with the @e Metropolis probability
+ * \f[
+ *   P(\text{accept child}_i) =
+ *   \begin{cases}
+ *     1 & \text{if } f_{\text{child}} \le f_{\text{parent}}\ (\text{child is at least as good}),\\[2pt]
+ *     \exp\!\Bigl(-\dfrac{f_{\text{child}}-f_{\text{parent}}}{T}\Bigr) & \text{otherwise},
+ *   \end{cases}
+ * \f]
+ * on the minimisation (min-only transformed) fitness. A worse child is thus accepted with a probability
+ * that falls off with the fitness gap and rises with the temperature \f$T\f$ -- the mechanism that lets
+ * the search climb out of local optima early on. After each generation the temperature is cooled
+ * geometrically,
+ * \f[
+ *   T \leftarrow \max\bigl(\alpha\,T,\ T_{\min}\bigr),\qquad 0 < \alpha < 1,
+ * \f]
+ * starting from \f$T_0\f$, with \f$\alpha\f$ the degradation strength. The floor
+ * \f$T_{\min}=\texttt{std::numeric\_limits<double>::min()}\f$ keeps \f$T\f$ strictly positive so the
+ * acceptance probability never evaluates \f$0/0\f$; as \f$T\to T_{\min}\f$ the rule approaches pure
+ * greedy (elitist) selection. The newly accepted parents are then re-sorted by fitness for the next
+ * generation.
  */
 class GSimulatedAnnealing // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmT<GSimulatedAnnealing, GParChild> {
@@ -69,14 +94,14 @@ private:
     friend class boost::serialization::access;
 
     /** @brief Single declaration of this class'es local data members */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("t0_", t0_),
             Gem::Common::make_member("t_", t_),
             Gem::Common::make_member("alpha_", alpha_)
         );
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("t0_", t0_),
             Gem::Common::make_member("t_", t_),
@@ -209,9 +234,10 @@ private:
      * @brief Calculates the simulated annealing probability for a child to replace a parent.
      * @param q_parent The fitness value of the parent
      * @param q_child The fitness value of the child
-     * @return The probability (in the range [0,1]) that the child replaces the parent
+     * @return The acceptance weight for the child (a probability in [0,1] for a worse child; >= 1, i.e.
+     *         always accept, for a child that is at least as good). Reads only the temperature, so const.
      */
-    double saProb(const double &q_parent, const double &q_child);
+    double saProb(const double &q_parent, const double &q_child) const;
 
     /** @brief Updates the temperature. This function is used for simulated annealing. */
     void updateTemperature();

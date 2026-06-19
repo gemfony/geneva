@@ -85,7 +85,7 @@ class GParChild // NOLINT(cppcoreguidelines-special-member-functions)
     friend class boost::serialization::access;
 
     /** @brief Single declaration of this class'es local data members */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("n_parents_", n_parents_),
             Gem::Common::make_member("recombination_method_", recombination_method_),
@@ -95,7 +95,7 @@ class GParChild // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_member("amalgamation_likelihood_", amalgamation_likelihood_)
         );
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("n_parents_", n_parents_),
             Gem::Common::make_member("recombination_method_", recombination_method_),

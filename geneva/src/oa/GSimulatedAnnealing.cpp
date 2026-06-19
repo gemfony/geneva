@@ -465,7 +465,11 @@ void GSimulatedAnnealing::sortSAMode() {
   * @return A double value representing the Boltzmann likelihood for the child to replace the parent
   */
 double
-GSimulatedAnnealing::saProb(const double &f_min_only_parent, const double &f_min_only_child) {
+GSimulatedAnnealing::saProb(const double &f_min_only_parent, const double &f_min_only_child) const {
+    // Minimisation: a worse child has f_child > f_parent, so the exponent is negative and the result
+    // lies in (0, 1); a child that is at least as good gives a non-negative exponent, hence a result
+    // >= 1, which the caller treats as "always accept". t_ is floored > 0 by updateTemperature(), so
+    // there is no division by zero.
     return exp(-(f_min_only_child - f_min_only_parent) / t_);
 }
 
@@ -474,11 +478,12 @@ GSimulatedAnnealing::saProb(const double &f_min_only_parent, const double &f_min
   * @brief Updates the temperature. This function is used for simulated annealing.
   */
 void GSimulatedAnnealing::updateTemperature() {
-    // Clamp to the smallest normalised double so t_ never enters the subnormal
-    // range or reaches 0.  With t_ == 0 and Δf == 0, saProb() would compute
-    // 0/0 = NaN; the floor prevents that without changing late-phase behaviour
-    // (exp(-Δf / min()) ≈ 0 for any positive Δf, so worse candidates are
-    // never accepted once the temperature hits the floor).
+    // Clamp to the smallest normalised double so t_ never enters the subnormal range or reaches 0.
+    // With t_ == 0 and a fitness gap of 0, saProb() would compute 0/0 = NaN; the floor prevents that
+    // without changing late-phase behaviour: exp(-(f_child - f_parent) / min()) is approximately 0 for
+    // any positive gap, so worse candidates are effectively never accepted once the floor is reached.
+    // (std::max applies the floor AFTER the multiply, so even if t_ * alpha_ underflows to 0 the result
+    // is min(), never 0.)
     t_ = std::max(t_ * alpha_, std::numeric_limits<double>::min());
 }
 

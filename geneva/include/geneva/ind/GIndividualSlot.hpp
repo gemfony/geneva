@@ -106,13 +106,13 @@ class GIndividualSlot // NOLINT(cppcoreguidelines-special-member-functions)
      * is listed: it is the slot's compared identity. The scratch personality is serialized separately
      * (see serialize()) so it rides along for a checkpoint without being part of the comparison.
      */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_cloneable_member("individual_", individual_)
         );
     }
     /** @return A tuple naming the single compared/serialized member (the wrapped individual). */
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_cloneable_member("individual_", individual_)
         );

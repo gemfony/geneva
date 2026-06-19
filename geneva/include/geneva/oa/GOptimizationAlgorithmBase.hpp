@@ -113,7 +113,7 @@ private:
      * free serialization in GStdFilesystemPathSerialization.hpp and is plain-assignable
      * in memory, so it needs no special handling anymore.
      */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("iteration_", iteration_),
             Gem::Common::make_member("offset_", offset_),
@@ -147,7 +147,7 @@ private:
             Gem::Common::make_cloneable_container_member("pluggable_monitors_cnt_", pluggable_monitors_cnt_)
         );
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("iteration_", iteration_),
             Gem::Common::make_member("offset_", offset_),

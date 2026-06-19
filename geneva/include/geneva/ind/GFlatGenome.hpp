@@ -99,7 +99,7 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
      *  (auto) return type is available there. The shared layout_ and the transient input_omitted_ are
      *  handled separately (the layout is interned on the wire and shared, not value-copied; input_omitted_
      *  is a load-only transient), so they are deliberately NOT listed here. */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("dv_", dv_),
             Gem::Common::make_member("fv_", fv_),
@@ -107,7 +107,7 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_member("bv_", bv_)
         );
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("dv_", dv_),
             Gem::Common::make_member("fv_", fv_),

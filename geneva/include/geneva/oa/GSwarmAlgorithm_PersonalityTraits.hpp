@@ -65,14 +65,14 @@ class GSwarmAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-memb
      * clone, so personal_best_ stays in the documented manual tail of
      * serialize()/load_()/compare_().
      */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("neighborhood_", neighborhood_),
             Gem::Common::make_member("no_position_update_", no_position_update_),
             Gem::Common::make_member("personal_best_quality_", personal_best_quality_)
         );
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("neighborhood_", neighborhood_),
             Gem::Common::make_member("no_position_update_", no_position_update_),

@@ -208,7 +208,7 @@ private:
      *
      * @return A tuple of named members used by the comparison and serialization framework
      */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("n_starting_points_", n_starting_points_),
             Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
@@ -226,7 +226,7 @@ private:
      *
      * @return A tuple of named members used by the comparison and serialization framework
      */
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("n_starting_points_", n_starting_points_),
             Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),

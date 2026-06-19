@@ -201,10 +201,10 @@ protected:
 	  *
 	  * @return A tuple of named members (the data vector) of this object
 	  */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(make_member("data_", data_));
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(make_member("data_", data_));
     }
 
@@ -403,14 +403,14 @@ protected:
 	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
 	 * @return A tuple of named local members of this object
 	 */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             make_member("n_bins_x_", n_bins_x_),
             make_member("min_x_", min_x_),
             make_member("max_x_", max_x_)
         );
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             make_member("n_bins_x_", n_bins_x_),
             make_member("min_x_", min_x_),
@@ -539,14 +539,14 @@ protected:
 	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
 	 * @return A tuple of named local members of this object
 	 */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             make_member("n_bins_x_", n_bins_x_),
             make_member("min_x_", min_x_),
             make_member("max_x_", max_x_)
         );
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             make_member("n_bins_x_", n_bins_x_),
             make_member("min_x_", min_x_),
@@ -887,10 +887,10 @@ protected:
 	  *
 	  * @return A tuple of named members (the data vector) of this object
 	  */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(make_member("data_", data_));
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(make_member("data_", data_));
     }
 
@@ -1241,10 +1241,10 @@ protected:
 	  *
 	  * @return A tuple of named members (the data vector) of this object
 	  */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(make_member("data_", data_));
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(make_member("data_", data_));
     }
 
@@ -1487,7 +1487,7 @@ protected:
 	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
 	 * @return A tuple of named local members of this object
 	 */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             make_member("n_bins_x_", n_bins_x_),
             make_member("n_bins_y_", n_bins_y_),
@@ -1498,7 +1498,7 @@ protected:
             make_member("dropt_", dropt_)
         );
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             make_member("n_bins_x_", n_bins_x_),
             make_member("n_bins_y_", n_bins_y_),
@@ -1660,13 +1660,13 @@ protected:
 	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
 	 * @return A tuple of named local members of this object
 	 */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             make_member("p_m_", p_m_),
             make_member("draw_arrows_", draw_arrows_)
         );
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             make_member("p_m_", p_m_),
             make_member("draw_arrows_", draw_arrows_)
@@ -1801,10 +1801,10 @@ protected:
 	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
 	 * @return A tuple of named local members of this object
 	 */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(make_member("p_m_", p_m_));
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(make_member("p_m_", p_m_));
     }
 
@@ -2078,10 +2078,10 @@ protected:
 	  *
 	  * @return A tuple of named members (the data vector) of this object
 	  */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(make_member("data_", data_));
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(make_member("data_", data_));
     }
 
@@ -2381,10 +2381,10 @@ protected:
 	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
 	 * @return A tuple of named local members of this object
 	 */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(make_member("draw_lines_", draw_lines_));
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(make_member("draw_lines_", draw_lines_));
     }
 
@@ -2695,10 +2695,10 @@ protected:
 	  *
 	  * @return A tuple of named members (the data vector) of this object
 	  */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(make_member("data_", data_));
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(make_member("data_", data_));
     }
 
@@ -3084,7 +3084,7 @@ protected:
 	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
 	 * @return A tuple of named local members of this object
 	 */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             make_member("min_marker_size_", min_marker_size_),
             make_member("max_marker_size_", max_marker_size_),
@@ -3092,7 +3092,7 @@ protected:
             make_member("n_best_", n_best_)
         );
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             make_member("min_marker_size_", min_marker_size_),
             make_member("max_marker_size_", max_marker_size_),
@@ -3236,14 +3236,14 @@ protected:
 	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
 	 * @return A tuple of named local members of this object
 	 */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             make_member("function_description_", function_description_),
             make_member("x_extremes_", x_extremes_),
             make_member("n_samples_x_", n_samples_x_)
         );
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             make_member("function_description_", function_description_),
             make_member("x_extremes_", x_extremes_),
@@ -3399,7 +3399,7 @@ protected:
 	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
 	 * @return A tuple of named local members of this object
 	 */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             make_member("function_description_", function_description_),
             make_member("x_extremes_", x_extremes_),
@@ -3408,7 +3408,7 @@ protected:
             make_member("n_samples_y_", n_samples_y_)
         );
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             make_member("function_description_", function_description_),
             make_member("x_extremes_", x_extremes_),

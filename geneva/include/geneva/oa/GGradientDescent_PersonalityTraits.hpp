@@ -56,14 +56,14 @@ class GGradientDescent_PersonalityTraits // NOLINT(cppcoreguidelines-special-mem
      * @brief Single declaration of this class's local data members (non-const access).
      * @return A tuple of named-member bindings used by serialization and comparison.
      */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(Gem::Common::make_member("pop_pos_", pop_pos_));
     }
     /**
      * @brief Single declaration of this class's local data members (const access).
      * @return A tuple of named-member bindings used by serialization and comparison.
      */
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(Gem::Common::make_member("pop_pos_", pop_pos_));
     }
 

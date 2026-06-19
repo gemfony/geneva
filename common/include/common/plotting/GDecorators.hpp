@@ -347,7 +347,7 @@ protected:
      *
      * @return A tuple of named handles to this object's local data members
      */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             make_member("coordinates_", coordinates_),
             make_member("marker_", marker_),
@@ -360,7 +360,7 @@ protected:
      *
      * @return A tuple of named handles to this object's local data members
      */
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             make_member("coordinates_", coordinates_),
             make_member("marker_", marker_),

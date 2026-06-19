@@ -92,8 +92,6 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * \f$ \mathbf{x}_i \leftarrow \mathbf{x}_i - \mathbf{v}_i \f$ once the run has stalled for that many
  * iterations, so particles walk @e away from the known bests to escape a local optimum, reverting to
  * attraction once progress resumes.
- *
- * TODO: Mark checkpoints so the serialization mode can be determined automatically (e.g. using file extension ??)
  */
 class GSwarmAlgorithm // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmT<GSwarmAlgorithm> {
@@ -114,7 +112,7 @@ private:
      * neighborhood_bests_cnt_, global_best_ptr_) are handled in a manual tail in
      * serialize()/load_()/compare_() because their load_() depends on neighborhood count,
      * iteration state and per-element clone()/load(). */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("default_n_neighborhood_members_", default_n_neighborhood_members_),
             Gem::Common::make_member("c_personal_", c_personal_),
@@ -130,7 +128,7 @@ private:
             Gem::Common::make_member("velocity_range_percentage_", velocity_range_percentage_)
         );
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("default_n_neighborhood_members_", default_n_neighborhood_members_),
             Gem::Common::make_member("c_personal_", c_personal_),

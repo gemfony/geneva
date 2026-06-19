@@ -320,10 +320,8 @@ void GParameterScan::compare_(
     Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
 
     // ... and then the unconditional plain local data, derived from the single localMembers() declaration
+    // (cycle_logic_halt_ is now one of them).
     g_compare_members(localMembers(), p_load->localMembers(), token);
-
-    // MANUAL tail: cycle_logic_halt_ is a load-only transient but still compared here.
-    compare_t(Gem::Common::getIdentity(cycle_logic_halt_, p_load->cycle_logic_halt_, "cycle_logic_halt_", "p_load->cycle_logic_halt_"), token);
 
     // ... and the scan-parameter vectors. Their element type lacks the Gemfony common interface, so we
     // compare them element-by-element through each scan parameter's own compareScanPar() (which feeds the
@@ -409,11 +407,8 @@ void GParameterScan::load_(const GOptimizationAlgorithmBase *cp) {
     GOptimizationAlgorithmBase::load_(cp);
 
     // ... and then our own unconditional plain data, derived from the single localMembers() declaration
+    // (cycle_logic_halt_ is now one of them).
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
-
-    // MANUAL tail (asymmetric / load-only):
-    // cycle_logic_halt_ is a load-only transient (not serialized).
-    cycle_logic_halt_ = p_load->cycle_logic_halt_;
 
     // Load the parameter objects (their element type lacks the Gemfony common interface,
     // so they are deep-copied via the scan classes' own clone()).

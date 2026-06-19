@@ -110,7 +110,7 @@ protected:
      *
      * @return A tuple of named members used by the comparison and serialization framework
      */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(Gem::Common::make_member("pop_pos_", pop_pos_));
     }
     /**
@@ -118,7 +118,7 @@ protected:
      *
      * @return A tuple of named members used by the comparison and serialization framework
      */
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(Gem::Common::make_member("pop_pos_", pop_pos_));
     }
 

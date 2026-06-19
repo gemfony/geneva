@@ -708,30 +708,32 @@ private:
 
     /** @brief Single declaration of this class'es UNCONDITIONALLY-handled, plain local data members.
      *
-     * Only members handled identically (plain assignment / direct compare / NVP) in
-     * serialize(), load_() and compare_() live here. Excluded:
-     *  - cycle_logic_halt_: a LOAD-ONLY transient (assigned in load_(), compared, but NOT
-     *    serialized), kept manual in load_()/compare_() and out of serialize().
+     * All members handled identically (plain assignment / direct compare / NVP) in serialize(), load_()
+     * and compare_() live here -- including cycle_logic_halt_, which is now persisted like the rest (it
+     * is reset to false by init() at the start of each optimize() anyway, so persisting it is harmless
+     * and keeps the handling uniform). Excluded:
      *  - b_cnt_ / int32_cnt_ / d_cnt_ / f_cnt_: vectors of std::shared_ptr<...ScanPar>.
      *    Their element type (GBScanPar etc., via GContainerT/GPodContainerT) does NOT carry
      *    the Gemfony common interface, so they cannot use make_cloneable_container_member
      *    (which needs clone<T>()/load()/compare()); load_() deep-copies them with the
      *    scan classes' own clone(), and compare_() compares them element-by-element via each
      *    scan parameter's compareScanPar(). Hence they stay in the manual tail. */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("scan_randomly_", scan_randomly_),
             Gem::Common::make_member("n_monitor_inds_", n_monitor_inds_),
             Gem::Common::make_member("simple_scan_items_", simple_scan_items_),
-            Gem::Common::make_member("scans_performed_", scans_performed_)
+            Gem::Common::make_member("scans_performed_", scans_performed_),
+            Gem::Common::make_member("cycle_logic_halt_", cycle_logic_halt_)
         );
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("scan_randomly_", scan_randomly_),
             Gem::Common::make_member("n_monitor_inds_", n_monitor_inds_),
             Gem::Common::make_member("simple_scan_items_", simple_scan_items_),
-            Gem::Common::make_member("scans_performed_", scans_performed_)
+            Gem::Common::make_member("scans_performed_", scans_performed_),
+            Gem::Common::make_member("cycle_logic_halt_", cycle_logic_halt_)
         );
     }
 
@@ -746,8 +748,8 @@ private:
         ar &make_nvp("GOptimizationAlgorithmBase", boost::serialization::base_object<GOptimizationAlgorithmBase>(*this));
         // Unconditional plain members, derived from the single localMembers() declaration ...
         Gem::Common::serialize_members(ar, this->localMembers());
-        // ... and the manual tail for the parameter-object vectors (cycle_logic_halt_ is
-        // intentionally NOT serialized -- it is a load-only transient).
+        // ... and the manual tail for the parameter-object vectors (their element type lacks the
+        // Gemfony common interface, so they are (de)serialized directly here).
         ar & BOOST_SERIALIZATION_NVP(b_cnt_) & BOOST_SERIALIZATION_NVP(int32_cnt_) &
             BOOST_SERIALIZATION_NVP(d_cnt_) & BOOST_SERIALIZATION_NVP(f_cnt_);
     }

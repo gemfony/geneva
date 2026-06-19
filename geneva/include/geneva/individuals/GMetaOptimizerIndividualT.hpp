@@ -634,7 +634,7 @@ protected:
      * it is not part of the copy/compare semantics. serialize() handles it
      * separately; do not derive serialize() from localMembers() for this class.
      */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("n_runs_per_optimization_", n_runs_per_optimization_),
             Gem::Common::make_member("fitness_target_", fitness_target_),
@@ -643,7 +643,7 @@ protected:
             Gem::Common::make_member("sub_ea_config_", sub_ea_config_)
         );
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("n_runs_per_optimization_", n_runs_per_optimization_),
             Gem::Common::make_member("fitness_target_", fitness_target_),
@@ -1645,7 +1645,7 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
     /** @brief Single declaration of this monitor's local data members, feeding serialize() / load_() /
      *  compare_() from one source. The eight plotters are std::shared_ptr<GGraph2D> that must be deep-cloned
      *  on load (make_cloneable_member); file_name_ and gpd_ are plain value members. */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("file_name_", file_name_),
             Gem::Common::make_member("gpd_", gpd_),
@@ -1659,7 +1659,7 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_cloneable_member("sigma_sigma_plotter_", sigma_sigma_plotter_)
         );
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("file_name_", file_name_),
             Gem::Common::make_member("gpd_", gpd_),

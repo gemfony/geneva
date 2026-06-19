@@ -213,7 +213,7 @@ private:
     friend class boost::serialization::access;
 
     /** @brief Single declaration of this class'es local data members */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("sorting_mode_", sorting_mode_),
             Gem::Common::make_member("step_control_", step_control_),
@@ -221,7 +221,7 @@ private:
             Gem::Common::make_member("recombine_sigma_", recombine_sigma_)
         );
     }
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("sorting_mode_", sorting_mode_),
             Gem::Common::make_member("step_control_", step_control_),

@@ -233,7 +233,7 @@ protected:
      *
      * @return A tuple of named, mutable references to the local data members
      */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("allow_negative_", allow_negative_)
         );
@@ -243,7 +243,7 @@ protected:
      *
      * @return A tuple of named, const references to the local data members
      */
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("allow_negative_", allow_negative_)
         );
@@ -737,7 +737,7 @@ protected:
      *
      * @return A tuple of named, mutable references to the local data members
      */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("combiner_policy_", combiner_policy_)
         );
@@ -747,7 +747,7 @@ protected:
      *
      * @return A tuple of named, const references to the local data members
      */
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("combiner_policy_", combiner_policy_)
         );

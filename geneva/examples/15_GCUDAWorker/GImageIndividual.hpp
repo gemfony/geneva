@@ -145,7 +145,7 @@ class GImageIndividual final : public gen::GFlatGenome {
      * @brief Single declaration of this class'es local data members
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("width_", width_),
             Gem::Common::make_member("height_", height_),
@@ -156,7 +156,7 @@ class GImageIndividual final : public gen::GFlatGenome {
         );
     }
     /** @brief Single declaration of this class'es local data members (const overload) */
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("width_", width_),
             Gem::Common::make_member("height_", height_),

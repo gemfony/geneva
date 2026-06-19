@@ -62,7 +62,7 @@ class GBaseParChildPersonalityTraits // NOLINT(cppcoreguidelines-special-member-
      *
      * @return A tuple of named member bindings for parent_counter_, pop_pos_ and parent_id_
      */
-    auto localMembers() {
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("parent_counter_", parent_counter_),
             Gem::Common::make_member("pop_pos_", pop_pos_),
@@ -74,7 +74,7 @@ class GBaseParChildPersonalityTraits // NOLINT(cppcoreguidelines-special-member-
      *
      * @return A tuple of named member bindings for parent_counter_, pop_pos_ and parent_id_
      */
-    auto localMembers() const {
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("parent_counter_", parent_counter_),
             Gem::Common::make_member("pop_pos_", pop_pos_),
