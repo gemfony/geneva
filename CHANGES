@@ -414,10 +414,14 @@ Recommended Versions:
 - GParameterScan's scan-parameter objects (GBScanPar / GInt32ScanPar / GDScanPar /
   GFScanPar) were given the Gemfony common interface (clone_() / load_() / compare_()).
   This lets the four scan-parameter vectors be folded into the single-source
-  localMembers() declaration via make_cloneable_container_member(), so serialize(),
-  load_() and compare_() all derive from one list with no hand-written tail -- the
-  last manual serialization tail in the optimization algorithms is gone. The on-wire
-  serialization layout (NVP tags and order) is unchanged.
+  localMembers() declaration via make_cloneable_container_member(), so GParameterScan's
+  serialize(), load_() and compare_() all derive from one list with no hand-written
+  tail -- the last manual serialization tail in the optimization algorithms is gone.
+  The scan-parameter base class GBaseScanParT itself was likewise converted to a single
+  localMembers() declaration driving its own serialize() / load_() / compareScanPar()
+  (the variable address tuple is listed as its three named sub-elements so the whole
+  state can be compared, not just (de)serialized). The pre-computed grid kept in the
+  GPodContainerT base continues to be handled through that base.
 
 - Three additional optimization algorithms were added, each a clean-room
   implementation from the published specification with a full mathematical

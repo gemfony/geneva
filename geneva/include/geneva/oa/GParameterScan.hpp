@@ -189,6 +189,38 @@ class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    /** @brief Single declaration of this class'es scan-state members, so serialize(), load_() and
+     *  compareScanPar() all derive from one list. var_ (a std::tuple) is listed as its three named
+     *  sub-elements: that lets it be compared (compare_t cannot stream a whole tuple). The pre-computed
+     *  grid lives in the GPodContainerT base and is handled separately via base_object / operator= /
+     *  the data_cnt_ comparison. */
+    auto localMembers() { // NOLINT -- intentionally hides the base localMembers()
+        return std::make_tuple(
+            Gem::Common::make_member("var_mode", std::get<0>(var_)),
+            Gem::Common::make_member("var_name", std::get<1>(var_)),
+            Gem::Common::make_member("var_pos", std::get<2>(var_)),
+            Gem::Common::make_member("step_", step_),
+            Gem::Common::make_member("n_steps_", n_steps_),
+            Gem::Common::make_member("lower_", lower_),
+            Gem::Common::make_member("upper_", upper_),
+            Gem::Common::make_member("random_scan_", random_scan_),
+            Gem::Common::make_member("type_description_", type_description_)
+        );
+    }
+    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers()
+        return std::make_tuple(
+            Gem::Common::make_member("var_mode", std::get<0>(var_)),
+            Gem::Common::make_member("var_name", std::get<1>(var_)),
+            Gem::Common::make_member("var_pos", std::get<2>(var_)),
+            Gem::Common::make_member("step_", step_),
+            Gem::Common::make_member("n_steps_", n_steps_),
+            Gem::Common::make_member("lower_", lower_),
+            Gem::Common::make_member("upper_", upper_),
+            Gem::Common::make_member("random_scan_", random_scan_),
+            Gem::Common::make_member("type_description_", type_description_)
+        );
+    }
+
     /** @brief Serializes this object via Boost.Serialization
      *  @tparam Archive The archive type used for (de-)serialization
      *  @param ar The archive to serialize to / from
@@ -197,14 +229,13 @@ class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
+        // The pre-computed grid (GPodContainerT base) ...
         ar &boost::serialization::make_nvp(
             "GPodContainerT_T",
             boost::serialization::base_object<Gem::Common::GPodContainerT<T>>(*this)
-        ) &
-            BOOST_SERIALIZATION_NVP(var_) & BOOST_SERIALIZATION_NVP(step_) &
-            BOOST_SERIALIZATION_NVP(n_steps_) & BOOST_SERIALIZATION_NVP(lower_) &
-            BOOST_SERIALIZATION_NVP(upper_) & BOOST_SERIALIZATION_NVP(random_scan_) &
-            BOOST_SERIALIZATION_NVP(type_description_);
+        );
+        // ... and the scan-state members, derived from the single localMembers() declaration.
+        Gem::Common::serialize_members(ar, this->localMembers());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -309,16 +340,10 @@ public:
      */
     void compareScanPar(const GBaseScanParT<T> &other, Gem::Common::GToken &token) const {
         using namespace Gem::Common;
-        compare_t(Gem::Common::getIdentity(std::get<0>(var_), std::get<0>(other.var_), "std::get<0>(var_)", "std::get<0>(other.var_)"), token); // mode
-        compare_t(Gem::Common::getIdentity(std::get<1>(var_), std::get<1>(other.var_), "std::get<1>(var_)", "std::get<1>(other.var_)"), token); // name
-        compare_t(Gem::Common::getIdentity(std::get<2>(var_), std::get<2>(other.var_), "std::get<2>(var_)", "std::get<2>(other.var_)"), token); // position
-        compare_t(Gem::Common::getIdentity(step_, other.step_, "step_", "other.step_"), token);
-        compare_t(Gem::Common::getIdentity(n_steps_, other.n_steps_, "n_steps_", "other.n_steps_"), token);
-        compare_t(Gem::Common::getIdentity(lower_, other.lower_, "lower_", "other.lower_"), token);
-        compare_t(Gem::Common::getIdentity(upper_, other.upper_, "upper_", "other.upper_"), token);
-        compare_t(Gem::Common::getIdentity(random_scan_, other.random_scan_, "random_scan_", "other.random_scan_"), token);
-        compare_t(Gem::Common::getIdentity(type_description_, other.type_description_, "type_description_", "other.type_description_"), token);
-        compare_t(Gem::Common::getIdentity(this->data_cnt_, other.data_cnt_, "this->data_cnt_", "other.data_cnt_"), token); // the pre-computed grid points
+        // The pre-computed grid (held by the GPodContainerT base) ...
+        compare_t(Gem::Common::getIdentity(this->data_cnt_, other.data_cnt_, "this->data_cnt_", "other.data_cnt_"), token);
+        // ... and all the scan-state members, derived from the single localMembers() declaration.
+        g_compare_members(this->localMembers(), other.localMembers(), token);
     }
 
     /***************************************************************************/
@@ -384,14 +409,8 @@ protected:
         // GCommonInterfaceT carries no data of its own; copy the pre-computed grid held by the container
         // base ...
         Gem::Common::GPodContainerT<T>::operator=(*cp);
-        // ... and our own scan state.
-        var_ = cp->var_;
-        step_ = cp->step_;
-        n_steps_ = cp->n_steps_;
-        lower_ = cp->lower_;
-        upper_ = cp->upper_;
-        random_scan_ = cp->random_scan_;
-        type_description_ = cp->type_description_;
+        // ... and the scan state, derived from the single localMembers() declaration.
+        Gem::Common::g_load_members(this->localMembers(), cp->localMembers());
     }
 
     /**
