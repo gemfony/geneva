@@ -66,17 +66,22 @@ public:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+/** @brief A dependent-false helper so the generic traps below fire only when actually instantiated. */
+template <typename>
+inline constexpr bool always_false_scan_v = false;
+
 /**
  * @brief Fills a std::vector<T> with the grid points for a scan dimension.
  *
- * This generic function is just a trap. It needs to be re-implemented in concrete
- * specializations (bool, std::int32_t, float, double) and always throws when called.
+ * Only the explicit specializations for bool, std::int32_t, float and double exist. The generic
+ * template is a compile-time trap: instantiating it for any other type is a hard error, so an
+ * unsupported scan type fails at compile time rather than at runtime.
  *
  * @tparam T The parameter type for which grid points are generated
  * @param nSteps The number of steps (grid points) to generate, including the boundaries
  * @param lower The lower boundary of the scanned range (inclusive)
  * @param upper The upper boundary of the scanned range (inclusive)
- * @return A vector holding the generated grid points (never returns -- always throws)
+ * @return A vector holding the generated grid points
  */
 template <typename T>
 std::vector<T> fillWithData(
@@ -86,15 +91,10 @@ std::vector<T> fillWithData(
     ,
     [[maybe_unused]] T upper
 ) {
-    throw geneva_exception(
-        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-        << "In generic function template <typename T> std::vector<T> fillWithData(): Error!"
-        << '\n'
-        << "This function should never be called directly. Use one of the specializations."
-        << '\n'
+    static_assert(
+        always_false_scan_v<T>,
+        "fillWithData<T> is only available for bool, std::int32_t, float and double"
     );
-
-    // Make the compiler happy
     return std::vector<T>();
 }
 
@@ -247,7 +247,8 @@ public:
      * @param cp Another GBaseScanParT object whose state is copied
      */
     GBaseScanParT(const GBaseScanParT<T> &cp)
-      : var_(cp.var_)
+      : Gem::Common::GPodContainerT<T>(cp) // copy the pre-computed grid (the random members default-construct)
+      , var_(cp.var_)
       , step_(cp.step_)
       , n_steps_(cp.n_steps_)
       , lower_(cp.lower_)
@@ -290,8 +291,32 @@ public:
         if(random_scan_) {
             return getRandomItem(gr);
         }
-                    return this->at(step_);
-       
+        return this->at(step_);
+    }
+
+    /***************************************************************************/
+    /**
+     * @brief Compares this scan parameter against another one of the same type.
+     *
+     * Feeds all scan state -- the variable address, the current/total step counts, the boundaries,
+     * the random-scan flag, the type descriptor and the pre-computed grid points -- to the given token,
+     * so a round-trip / clone comparison detects any difference in scan state.
+     *
+     * @param other The other scan parameter to compare against
+     * @param token The comparison token collecting the results
+     */
+    void compareScanPar(const GBaseScanParT<T> &other, Gem::Common::GToken &token) const {
+        using namespace Gem::Common;
+        compare_t(IDENTITY(std::get<0>(var_), std::get<0>(other.var_)), token); // mode
+        compare_t(IDENTITY(std::get<1>(var_), std::get<1>(other.var_)), token); // name
+        compare_t(IDENTITY(std::get<2>(var_), std::get<2>(other.var_)), token); // position
+        compare_t(IDENTITY(step_, other.step_), token);
+        compare_t(IDENTITY(n_steps_, other.n_steps_), token);
+        compare_t(IDENTITY(lower_, other.lower_), token);
+        compare_t(IDENTITY(upper_, other.upper_), token);
+        compare_t(IDENTITY(random_scan_, other.random_scan_), token);
+        compare_t(IDENTITY(type_description_, other.type_description_), token);
+        compare_t(IDENTITY(this->data_cnt_, other.data_cnt_), token); // the pre-computed grid points
     }
 
     /***************************************************************************/
@@ -355,8 +380,6 @@ protected:
     bool random_scan_;             ///< Indicates whether we are dealing with a random scan or not
     std::string type_description_; ///< Holds an identifier for the type described by this class
 
-    mutable Gem::Hap::GRandom gr_; ///< Simple access to a random number generator
-
     /***************************************************************************/
     /** @brief The default constructor -- only needed for de-serialization, hence protected */
     GBaseScanParT()
@@ -370,24 +393,21 @@ protected:
 
     /***************************************************************************/
     /**
-     * @brief Retrieves a random item. To be re-implemented for each supported type.
+     * @brief Retrieves a random item. Re-implemented for each supported type (bool, std::int32_t,
+     * float, double) via explicit specialization.
      *
-     * The generic version is a trap and always throws.
+     * The generic version is a compile-time trap: instantiating it for any other type is a hard error.
      *
      * @param gr A reference to a random number generator
-     * @return A random parameter value within the configured boundaries (never returns -- always throws)
+     * @return A random parameter value within the configured boundaries
      */
     T getRandomItem(
         [[maybe_unused]] Gem::Hap::GRandomBase & gr
     ) const {
-        // A trap. This function needs to be re-implemented for each supported type
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBaseScanParT::getRandomItem(): Error!" << '\n'
-            << "Function called for unsupported type" << '\n'
+        static_assert(
+            always_false_scan_v<T>,
+            "getRandomItem() is only available for bool, std::int32_t, float and double"
         );
-
-        // Make the compiler happy
         return T(0);
     }
 
@@ -453,7 +473,9 @@ template <>
 inline std::int32_t GBaseScanParT<std::int32_t>::getRandomItem(Gem::Hap::GRandomBase &gr) const {
     return uniform_int_distribution_(
         gr,
-        std::uniform_int_distribution<std::int32_t>::param_type(lower_, upper_ + 1)
+        // std::uniform_int_distribution treats both bounds as INCLUSIVE, so the upper bound is passed
+        // as-is (adding 1 would let the draw exceed the configured inclusive upper boundary).
+        std::uniform_int_distribution<std::int32_t>::param_type(lower_, upper_)
     );
 }
 
@@ -461,184 +483,123 @@ inline std::int32_t GBaseScanParT<std::int32_t>::getRandomItem(Gem::Hap::GRandom
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class holds boolean parameters
+ * @brief A CRTP helper supplying the boilerplate shared by every concrete scan-parameter type.
+ *
+ * It provides construction from a property specification (injecting the derived type's single-character
+ * descriptor), the de-serialization default constructor and typed cloning. Each concrete type
+ * (GBScanPar, GInt32ScanPar, GDScanPar, GFScanPar) only declares its Boost export identity (a distinct
+ * serialize() NVP, so the export keys keep working) and a one-line scanTypeDescriptor().
+ *
+ * @tparam Derived The concrete scan-parameter class (CRTP)
+ * @tparam T The parameter type held and scanned (bool, std::int32_t, float, double)
  */
-class GBScanPar // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBaseScanParT<bool> {
-    ///////////////////////////////////////////////////////////////////////
+template <typename Derived, typename T>
+class GScanParT // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GBaseScanParT<T> {
+public:
+    /** @brief Construction from a parameter property specification and a random-scan flag.
+     *  @param pps The parameter property specification (variable address, boundaries, steps)
+     *  @param random_scan If true, items are drawn randomly; if false, a grid is pre-filled */
+    GScanParT(gen::parPropSpec<T> pps, bool random_scan)
+      : GBaseScanParT<T>(pps, random_scan, Derived::scanTypeDescriptor()) { /* nothing */ }
+    /** @brief Copy constructor (deep-copies the base, including the pre-computed grid) */
+    GScanParT(const GScanParT &) = default;
+    /** @brief The destructor */
+    ~GScanParT() override = default;
+
+    /** @brief Cloning of this object
+     *  @return A deep copy of this object wrapped in a shared_ptr to the concrete type */
+    std::shared_ptr<Derived> clone() const {
+        return std::make_shared<Derived>(static_cast<const Derived &>(*this));
+    }
+
+protected:
+    /** @brief The default constructor -- only needed for de-serialization, hence protected */
+    GScanParT() = default;
+};
+
+/******************************************************************************/
+/**
+ * @brief Holds boolean parameters to be scanned.
+ */
+class GBScanPar final : public GScanParT<GBScanPar, bool> {
     friend class boost::serialization::access;
 
-    /** @brief Serializes this object via Boost.Serialization
-     *  @tparam Archive The archive type used for (de-)serialization
-     *  @param ar The archive to serialize to / from
-     *  @param (unused) The class version supplied by Boost.Serialization */
+    /** @brief Serializes this object via Boost.Serialization */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
-        using boost::serialization::make_nvp;
-
         ar &boost::serialization::make_nvp(
             "baseScanParT_bool", boost::serialization::base_object<GBaseScanParT<bool>>(*this)
         );
     }
 
-    ///////////////////////////////////////////////////////////////////////
-
 public:
-    /** @brief Construction from a parameter property specification and a random-scan flag.
-     *  @param (first) The parameter property specification (variable address, boundaries, steps)
-     *  @param (second) If true, items are drawn randomly; if false, a grid is pre-filled */
-    GBScanPar(gen::parPropSpec<bool>, bool);
-    /** @brief Copy constructor
-     *  @param (unnamed) Another GBScanPar object to be copied */
-    GBScanPar(const GBScanPar &) = default;
-    /** @brief The destructor */
-    ~GBScanPar() override = default;
-
-    /** @brief Cloning of this object
-     *  @return A deep copy of this object wrapped in a shared_ptr */
-    std::shared_ptr<GBScanPar> clone() const;
-
-private:
-    /** @brief The default constructor -- only needed for de-serialization, hence private */
-    GBScanPar();
+    using GScanParT<GBScanPar, bool>::GScanParT;
+    /** @brief The single-character type descriptor injected into the base */
+    static constexpr const char *scanTypeDescriptor() { return "b"; }
 };
 
 /******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
 /**
- * A derivative of GBaseScanParT for std::int32_t values
+ * @brief Holds std::int32_t parameters to be scanned.
  */
-class GInt32ScanPar // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBaseScanParT<std::int32_t> {
-    ///////////////////////////////////////////////////////////////////////
+class GInt32ScanPar final : public GScanParT<GInt32ScanPar, std::int32_t> {
     friend class boost::serialization::access;
 
-    /** @brief Serializes this object via Boost.Serialization
-     *  @tparam Archive The archive type used for (de-)serialization
-     *  @param ar The archive to serialize to / from
-     *  @param (unused) The class version supplied by Boost.Serialization */
+    /** @brief Serializes this object via Boost.Serialization */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
-        using boost::serialization::make_nvp;
-
         ar &boost::serialization::make_nvp(
             "baseScanParT_int32", boost::serialization::base_object<GBaseScanParT<std::int32_t>>(*this)
         );
     }
 
-    ///////////////////////////////////////////////////////////////////////
-
 public:
-    /** @brief Construction from a parameter property specification and a random-scan flag.
-     *  @param (first) The parameter property specification (variable address, boundaries, steps)
-     *  @param (second) If true, items are drawn randomly; if false, a grid is pre-filled */
-    GInt32ScanPar(gen::parPropSpec<std::int32_t>, bool);
-    /** @brief Copy constructor
-     *  @param (unnamed) Another GInt32ScanPar object to be copied */
-    GInt32ScanPar(const GInt32ScanPar &) = default;
-    /** @brief The destructor */
-    ~GInt32ScanPar() override = default;
-
-    /** @brief Cloning of this object
-     *  @return A deep copy of this object wrapped in a shared_ptr */
-    std::shared_ptr<GInt32ScanPar> clone() const;
-
-private:
-    /** @brief The default constructor -- only needed for de-serialization, hence private */
-    GInt32ScanPar();
+    using GScanParT<GInt32ScanPar, std::int32_t>::GScanParT;
+    /** @brief The single-character type descriptor injected into the base */
+    static constexpr const char *scanTypeDescriptor() { return "i"; }
 };
 
 /******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
 /**
- * A derivative of fpScanParT for double values
+ * @brief Holds double parameters to be scanned.
  */
-class GDScanPar // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBaseScanParT<double> {
-    ///////////////////////////////////////////////////////////////////////
+class GDScanPar final : public GScanParT<GDScanPar, double> {
     friend class boost::serialization::access;
 
-    /** @brief Serializes this object via Boost.Serialization
-     *  @tparam Archive The archive type used for (de-)serialization
-     *  @param ar The archive to serialize to / from
-     *  @param (unused) The class version supplied by Boost.Serialization */
+    /** @brief Serializes this object via Boost.Serialization */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
-        using boost::serialization::make_nvp;
-
         ar &boost::serialization::make_nvp(
             "baseScanParT_double", boost::serialization::base_object<GBaseScanParT<double>>(*this)
         );
     }
 
-    ///////////////////////////////////////////////////////////////////////
-
 public:
-    /** @brief Construction from a parameter property specification and a random-scan flag.
-     *  @param (first) The parameter property specification (variable address, boundaries, steps)
-     *  @param (second) If true, items are drawn randomly; if false, a grid is pre-filled */
-    GDScanPar(gen::parPropSpec<double>, bool);
-    /** @brief The copy constructor
-     *  @param (unnamed) Another GDScanPar object to be copied */
-    GDScanPar(const GDScanPar &) = default;
-    /** @brief The destructor */
-    ~GDScanPar() override = default;
-
-    /** @brief Cloning of this object
-     *  @return A deep copy of this object wrapped in a shared_ptr */
-    std::shared_ptr<GDScanPar> clone() const;
-
-private:
-    /** @brief The default constructor -- only needed for de-serialization, hence private */
-    GDScanPar();
+    using GScanParT<GDScanPar, double>::GScanParT;
+    /** @brief The single-character type descriptor injected into the base */
+    static constexpr const char *scanTypeDescriptor() { return "d"; }
 };
 
 /******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
 /**
- * A derivative of fpScanParT for float values
+ * @brief Holds float parameters to be scanned.
  */
-class GFScanPar // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBaseScanParT<float> {
-    ///////////////////////////////////////////////////////////////////////
+class GFScanPar final : public GScanParT<GFScanPar, float> {
     friend class boost::serialization::access;
 
-    /** @brief Serializes this object via Boost.Serialization
-     *  @tparam Archive The archive type used for (de-)serialization
-     *  @param ar The archive to serialize to / from
-     *  @param (unused) The class version supplied by Boost.Serialization */
+    /** @brief Serializes this object via Boost.Serialization */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
-        using boost::serialization::make_nvp;
-
         ar &boost::serialization::make_nvp(
             "baseScanParT_float", boost::serialization::base_object<GBaseScanParT<float>>(*this)
         );
     }
 
-    ///////////////////////////////////////////////////////////////////////
-
 public:
-    /** @brief Construction from a parameter property specification and a random-scan flag.
-     *  @param (first) The parameter property specification (variable address, boundaries, steps)
-     *  @param (second) If true, items are drawn randomly; if false, a grid is pre-filled */
-    GFScanPar(gen::parPropSpec<float>, bool);
-    /** @brief The copy constructor
-     *  @param (unnamed) Another GFScanPar object to be copied */
-    GFScanPar(const GFScanPar &) = default;
-    /** @brief The destructor */
-    ~GFScanPar() override = default;
-
-    /** @brief Cloning of this object
-     *  @return A deep copy of this object wrapped in a shared_ptr */
-    std::shared_ptr<GFScanPar> clone() const;
-
-private:
-    /** @brief The default constructor -- only needed for de-serialization, hence private */
-    GFScanPar();
+    using GScanParT<GFScanPar, float>::GScanParT;
+    /** @brief The single-character type descriptor injected into the base */
+    static constexpr const char *scanTypeDescriptor() { return "f"; }
 };
 
 /******************************************************************************/
@@ -646,11 +607,27 @@ private:
 /******************************************************************************/
 
 /******************************************************************************/
-// A number of typedefs that indicate the position and value of a parameter inside of an individual
-using singleBPar = std::tuple<bool, std::size_t, std::string, std::size_t>;
-using singleInt32Par = std::tuple<std::int32_t, std::size_t, std::string, std::size_t>;
-using singleFPar = std::tuple<float, std::size_t, std::string, std::size_t>;
-using singleDPar = std::tuple<double, std::size_t, std::string, std::size_t>;
+/**
+ * @brief A single scanned parameter value together with its addressing metadata.
+ *
+ * Replaces the former positional 4-tuple (value, mode, name, position), whose anonymous std::get<N>
+ * accesses were error-prone.
+ *
+ * @tparam T The parameter value type (bool, std::int32_t, float, double)
+ */
+template <typename T>
+struct singleParameter {
+    T value{};            ///< The parameter value to be written into the individual
+    std::size_t mode{0};  ///< The addressing mode (always 0 = positional / by-index)
+    std::string name{};   ///< The parameter's name (may be empty for purely positional addressing)
+    std::size_t pos{0};   ///< The parameter's position within its value channel
+};
+
+// Convenience aliases for the value/position descriptor of a single scanned parameter
+using singleBPar = singleParameter<bool>;
+using singleInt32Par = singleParameter<std::int32_t>;
+using singleFPar = singleParameter<float>;
+using singleDPar = singleParameter<double>;
 
 /******************************************************************************/
 /**
@@ -721,8 +698,8 @@ private:
      *    Their element type (GBScanPar etc., via GContainerT/GPodContainerT) does NOT carry
      *    the Gemfony common interface, so they cannot use make_cloneable_container_member
      *    (which needs clone<T>()/load()/compare()); load_() deep-copies them with the
-     *    scan classes' own clone(), and compare_() does not compare them at all. Hence
-     *    they stay in the manual tail. */
+     *    scan classes' own clone(), and compare_() compares them element-by-element via each
+     *    scan parameter's compareScanPar(). Hence they stay in the manual tail. */
     auto localMembers() {
         return std::make_tuple(
             Gem::Common::make_member("scan_randomly_", scan_randomly_),
@@ -873,61 +850,38 @@ private:
 
     /***************************************************************************/
     /**
-     * @brief Adds a given data point to a data vector at the position encoded in the tuple.
+     * @brief Writes a single scanned parameter into a value-channel vector at its encoded position.
      *
      * @tparam data_type The parameter value type held by the data point
-     * @param data_point A tuple of (value, mode, name, position); only mode 0 is valid here
-     * @param data_vec The destination vector, written at the position element of the tuple
+     * @param data_point The scanned parameter (value + addressing metadata); only mode 0 is valid here
+     * @param data_vec The destination vector, written at data_point.pos
      */
     template <typename data_type>
     void addDataPoint(
-        const std::tuple<data_type, std::size_t, std::string, std::size_t> &data_point,
+        const singleParameter<data_type> &data_point,
         std::vector<data_type> &data_vec
     ) {
 #ifdef DEBUG
-        if(0 != std::get<1>(data_point)) {
+        if(0 != data_point.mode) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterScan::addDataPoint(mode 0): Error!" << '\n'
-                << "Function was called for invalid mode " << std::get<1>(data_point) << '\n'
+                << "Function was called for invalid mode " << data_point.mode << '\n'
             );
         }
 #endif
 
-        data_type l_data = std::get<0>(data_point);
-        std::size_t l_pos = std::get<3>(data_point);
-
-        // Check that we haven't exceeded the size of the boolean data vector
-        if(l_pos >= data_vec.size()) {
+        // Check that we haven't exceeded the size of the data vector
+        if(data_point.pos >= data_vec.size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterScan::addDataPoint(): Error!" << '\n'
-                << "Got position beyond end of data vector: " << l_pos << " / " << data_vec.size()
-                << '\n'
+                << "Got position beyond end of data vector: " << data_point.pos << " / "
+                << data_vec.size() << '\n'
             );
         }
 
-        data_vec.at(l_pos) = l_data;
-    }
-
-    /***************************************************************************/
-    /**
-     * @brief Adds a given data point to a named data map at the position encoded in the tuple.
-     *
-     * @tparam data_type The parameter value type held by the data point
-     * @param data_point A tuple of (value, mode, name, position); name selects the map entry, position the slot
-     * @param data_map The destination map, keyed by parameter name, written at the encoded position
-     */
-    template <typename data_type>
-    void addDataPoint(
-        const std::tuple<data_type, std::size_t, std::string, std::size_t> &data_point,
-        std::map<std::string, std::vector<data_type>> &data_map
-    ) {
-        data_type l_data = std::get<0>(data_point);
-        std::string l_name = std::get<2>(data_point);
-        std::size_t l_pos = std::get<3>(data_point);
-
-        (Gem::Common::getMapItem(data_map, l_name)).at(l_pos) = l_data;
+        data_vec.at(data_point.pos) = data_point.value;
     }
 
     /***************************************************************************/
@@ -937,8 +891,8 @@ private:
     /** @brief Adds new parameter sets to the population */
     void updateSelectedParameters();
 
-    /** @brief Randomly shuffle the work items a number of times */
-    void randomShuffle();
+    /** @brief Randomly re-initializes the work items (simple-scan mode) */
+    void randomInitPopulation();
 
     /** @brief Retrieves the next available parameter set
      *  @param (unnamed) An out-parameter receiving the running index of the returned parameter set

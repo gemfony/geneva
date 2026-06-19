@@ -52,8 +52,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * @param hidden Command line options that should only be visible upon request
  */
 void GParameterScanFactory::addCLOptions(
-    boost::program_options::options_description &visible // NOLINT(misc-unused-parameters)
-    ,
+    boost::program_options::options_description &visible,
     boost::program_options::options_description &hidden
 ) {
     namespace po = boost::program_options;

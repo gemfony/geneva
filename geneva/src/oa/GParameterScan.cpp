@@ -40,6 +40,7 @@
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
 #include "geneva/par/GParameterPropertyParser.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
@@ -85,24 +86,44 @@ std::vector<bool> fillWithData<bool>(
 
 /******************************************************************************/
 /**
- * @brief Returns a set of std::int32_t data items, one per integer in the inclusive range.
+ * @brief Returns a set of std::int32_t data items spread evenly over the inclusive scan interval.
  *
- * @param nSteps The requested number of grid steps (ignored here; only used for random entries)
- * @param lower The (inclusive) lower scan boundary
- * @param upper The (inclusive) upper scan boundary
- * @return A vector with every integer value from lower to upper inclusive
+ * Like the float/double specializations, this honours n_steps: it generates exactly n_steps values
+ * evenly spaced over [lower, upper] (endpoints included), each rounded to the nearest integer. Honouring
+ * n_steps keeps the grid vector size equal to n_steps_, which the grid traversal logic (goToNextItem /
+ * isAtTerminalPosition) relies on. Note that for a small integer range with many steps, neighbouring
+ * grid points may round to the same value (harmless, redundant evaluations).
+ *
+ * @param n_steps The number of grid points to generate (must be at least 2)
+ * @param lower The (inclusive) lower scan boundary (first generated value)
+ * @param upper The (inclusive) upper scan boundary (last generated value)
+ * @return A vector of n_steps integer values evenly spaced over [lower, upper]
  */
 template <>
 std::vector<std::int32_t> fillWithData<std::int32_t>(
-    std::size_t /*nSteps*/ // will only be used for random entries
+    std::size_t n_steps
     ,
     std::int32_t lower,
     std::int32_t upper // inclusive
 ) {
     std::vector<std::int32_t> result;
-    for(std::int32_t i = lower; i <= upper; i++) {
-        result.push_back(i);
+
+    // We require at least 2 steps, unless we are in random mode
+    if(n_steps < 2) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In std::vector<std::int32_t> fillWithData<std::int32_t>(): Error!" << '\n'
+            << "Number of requested steps is too low: " << n_steps << '\n'
+        );
     }
+
+    for(std::size_t i = 0; i < n_steps; i++) {
+        const double v = static_cast<double>(lower) +
+            static_cast<double>(upper - lower) * static_cast<double>(i) /
+                static_cast<double>(n_steps - 1);
+        result.push_back(static_cast<std::int32_t>(std::llround(v)));
+    }
+
     return result;
 }
 
@@ -119,7 +140,7 @@ template <>
 std::vector<float> fillWithData<float>(std::size_t n_steps, float lower, float upper) {
     std::vector<float> result;
 
-    // We require at least 2 steps, unless we are are in random mode
+    // We require at least 2 steps, unless we are in random mode
     if(n_steps < 2) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -148,7 +169,7 @@ template <>
 std::vector<double> fillWithData<double>(std::size_t n_steps, double lower, double upper) {
     std::vector<double> result;
 
-    // We require at least 2 steps, unless we are are in random mode
+    // We require at least 2 steps, unless we are in random mode
     if(n_steps < 2) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -167,125 +188,11 @@ std::vector<double> fillWithData<double>(std::size_t n_steps, double lower, doub
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-/**
- * @brief The default constructor. Only needed for de-serialization.
- */
-GBScanPar::GBScanPar() { /* nothing */
-}
+// The concrete scan-parameter classes (GBScanPar, GInt32ScanPar, GDScanPar, GFScanPar) are now fully
+// defined header-side via the GScanParT CRTP helper (construction, cloning and the default constructor
+// are all inherited / generated). Only their Boost export-implement macros live in this translation
+// unit (see the top of the file).
 
-/******************************************************************************/
-/**
- * @brief Construction from a boolean parameter property specification.
- *
- * @param pps The parameter property specification describing the boolean variable to be scanned
- * @param random_scan Whether the variable should be scanned randomly (true) or on a grid (false)
- */
-GBScanPar::GBScanPar(gen::parPropSpec<bool> pps, bool random_scan)
-  : GBaseScanParT<bool>(pps, random_scan, "b") { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * @brief Cloning of this object.
- *
- * @return A shared pointer to a deep copy of this object
- */
-std::shared_ptr<GBScanPar> GBScanPar::clone() const {
-    return std::make_shared<GBScanPar>(*this);
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * @brief The default constructor. Only needed for de-serialization.
- */
-GInt32ScanPar::GInt32ScanPar() { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * @brief Construction from a std::int32_t parameter property specification.
- *
- * @param pps The parameter property specification describing the integer variable to be scanned
- * @param random_scan Whether the variable should be scanned randomly (true) or on a grid (false)
- */
-GInt32ScanPar::GInt32ScanPar(gen::parPropSpec<std::int32_t> pps, bool random_scan)
-  : GBaseScanParT<std::int32_t>(pps, random_scan, "i") { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * @brief Cloning of this object.
- *
- * @return A shared pointer to a deep copy of this object
- */
-std::shared_ptr<GInt32ScanPar> GInt32ScanPar::clone() const {
-    return std::make_shared<GInt32ScanPar>(*this);
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * @brief The default constructor. Only needed for de-serialization.
- */
-GDScanPar::GDScanPar() { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * @brief Construction from a double parameter property specification.
- *
- * @param pps The parameter property specification describing the double variable to be scanned
- * @param random_scan Whether the variable should be scanned randomly (true) or on a grid (false)
- */
-GDScanPar::GDScanPar(gen::parPropSpec<double> pps, bool random_scan)
-  : GBaseScanParT<double>(pps, random_scan, "d") { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * @brief Cloning of this object.
- *
- * @return A shared pointer to a deep copy of this object
- */
-std::shared_ptr<GDScanPar> GDScanPar::clone() const {
-    return std::make_shared<GDScanPar>(*this);
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * @brief The default constructor. Only needed for de-serialization.
- */
-GFScanPar::GFScanPar() { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * @brief Construction from a float parameter property specification.
- *
- * @param pps The parameter property specification describing the float variable to be scanned
- * @param random_scan Whether the variable should be scanned randomly (true) or on a grid (false)
- */
-GFScanPar::GFScanPar(gen::parPropSpec<float> pps, bool random_scan)
-  : GBaseScanParT<float>(pps, random_scan, "f") { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * @brief Cloning of this object.
- *
- * @return A shared pointer to a deep copy of this object
- */
-std::shared_ptr<GFScanPar> GFScanPar::clone() const {
-    return std::make_shared<GFScanPar>(*this);
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * @brief A simple output operator for parSet objects, mostly meant for debugging.
@@ -298,12 +205,13 @@ std::ostream &operator<<(std::ostream &os, const parSet &p_s) {
     os << "###########################################################" << '\n'
        << "# New parSet object:" << '\n';
 
+    // Each entry is printed as "position:value".
+
     // Boolean data
     if(not p_s.bParVec.empty()) {
         os << "# Boolean data" << '\n';
-        std::vector<singleBPar>::const_iterator cit;
-        for(cit = p_s.bParVec.begin(); cit != p_s.bParVec.end(); ++cit) {
-            os << (std::get<1>(*cit) ? "true" : "false") << ":" << std::get<0>(*cit);
+        for(auto cit = p_s.bParVec.begin(); cit != p_s.bParVec.end(); ++cit) {
+            os << cit->pos << ":" << (cit->value ? "true" : "false");
             if(cit + 1 != p_s.bParVec.end()) {
                 os << ", ";
             }
@@ -314,9 +222,8 @@ std::ostream &operator<<(std::ostream &os, const parSet &p_s) {
     // std::int32_t data
     if(not p_s.iParVec.empty()) {
         os << "# std::int32_t data" << '\n';
-        std::vector<singleInt32Par>::const_iterator cit;
-        for(cit = p_s.iParVec.begin(); cit != p_s.iParVec.end(); ++cit) {
-            os << std::get<1>(*cit) << ":" << std::get<0>(*cit);
+        for(auto cit = p_s.iParVec.begin(); cit != p_s.iParVec.end(); ++cit) {
+            os << cit->pos << ":" << cit->value;
             if(cit + 1 != p_s.iParVec.end()) {
                 os << ", ";
             }
@@ -327,9 +234,8 @@ std::ostream &operator<<(std::ostream &os, const parSet &p_s) {
     // float data
     if(not p_s.fParVec.empty()) {
         os << "# float data" << '\n';
-        std::vector<singleFPar>::const_iterator cit;
-        for(cit = p_s.fParVec.begin(); cit != p_s.fParVec.end(); ++cit) {
-            os << std::get<1>(*cit) << ":" << std::get<0>(*cit);
+        for(auto cit = p_s.fParVec.begin(); cit != p_s.fParVec.end(); ++cit) {
+            os << cit->pos << ":" << cit->value;
             if(cit + 1 != p_s.fParVec.end()) {
                 os << ", ";
             }
@@ -340,9 +246,8 @@ std::ostream &operator<<(std::ostream &os, const parSet &p_s) {
     // double data
     if(not p_s.dParVec.empty()) {
         os << "# double data" << '\n';
-        std::vector<singleDPar>::const_iterator cit;
-        for(cit = p_s.dParVec.begin(); cit != p_s.dParVec.end(); ++cit) {
-            os << std::get<1>(*cit) << ":" << std::get<0>(*cit);
+        for(auto cit = p_s.dParVec.begin(); cit != p_s.dParVec.end(); ++cit) {
+            os << cit->pos << ":" << cit->value;
             if(cit + 1 != p_s.dParVec.end()) {
                 os << ", ";
             }
@@ -417,9 +322,26 @@ void GParameterScan::compare_(
     // ... and then the unconditional plain local data, derived from the single localMembers() declaration
     g_compare_members(localMembers(), p_load->localMembers(), token);
 
-    // MANUAL tail: cycle_logic_halt_ is a load-only transient but still compared here
-    // (the parameter-object vectors are intentionally not compared, as before).
+    // MANUAL tail: cycle_logic_halt_ is a load-only transient but still compared here.
     compare_t(IDENTITY(cycle_logic_halt_, p_load->cycle_logic_halt_), token);
+
+    // ... and the scan-parameter vectors. Their element type lacks the Gemfony common interface, so we
+    // compare them element-by-element through each scan parameter's own compareScanPar() (which feeds the
+    // full scan state -- including the pre-computed grid -- to the token).
+    auto compareScanVec = [&token](const auto &lhs_vec, const auto &rhs_vec) {
+        const std::size_t lhs_size = lhs_vec.size();
+        const std::size_t rhs_size = rhs_vec.size();
+        compare_t(IDENTITY(lhs_size, rhs_size), token);
+        if(lhs_size == rhs_size) {
+            for(std::size_t i = 0; i < lhs_size; ++i) {
+                lhs_vec[i]->compareScanPar(*rhs_vec[i], token);
+            }
+        }
+    };
+    compareScanVec(b_cnt_, p_load->b_cnt_);
+    compareScanVec(int32_cnt_, p_load->int32_cnt_);
+    compareScanVec(d_cnt_, p_load->d_cnt_);
+    compareScanVec(f_cnt_, p_load->f_cnt_);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -523,7 +445,7 @@ std::tuple<double, double> GParameterScan::cycleLogic_() {
         updateSelectedParameters();
     }
     else { // We have been asked to randomly initialize the individuals a given number of times
-        randomShuffle();
+        randomInitPopulation();
     }
 
     // Trigger value calculation for all individuals
@@ -671,32 +593,32 @@ void GParameterScan::updateSelectedParameters() {
 
 /******************************************************************************/
 /**
- * @brief Randomly initialize the individuals a given number of times.
+ * @brief Randomly (re-)initializes the population's individuals (simple-scan mode).
+ *
+ * Fills as many individuals as the population holds, counting each one in scans_performed_, until the
+ * requested overall number of random scans (simple_scan_items_) has been reached. When the target is
+ * hit mid-population the population is trimmed to exactly the individuals initialized this iteration, so
+ * the count is exact and no stale (un-initialized) clone is left behind -- mirroring the grid path's
+ * resize semantics in updateSelectedParameters().
  */
-void GParameterScan::randomShuffle() {
+void GParameterScan::randomInitPopulation() {
     std::size_t ind_pos = 0;
 
     while(true) {
-        // Update the individual and mark it as "dirty"
+        // Randomly (re-)initialize the current individual and mark it for re-evaluation.
         this->at(ind_pos)->individual().randomInit(activityMode::ACTIVEONLY);
-        // Mark the individual as "dirty", so it gets re-evaluated the
-        // next time the fitness() function is called
         this->at(ind_pos)->individual().mark_as_due_for_processing();
+
+        // Count this initialized work item.
+        ++scans_performed_;
 
         // We were successful
         cycle_logic_halt_ = false;
 
         //------------------------------------------------------------------------
-        // We do not want to exceed the boundaries of the population -- stop
-        // if we have reached the end of the population
-        if(++ind_pos >= this->getDefaultPopulationSize()) {
-            break;
-        }
-
-        //------------------------------------------------------------------------
-        // Make sure we terminate when the desired overall number of random scans has
-        // been performed
-        if(++scans_performed_ >= simple_scan_items_) {
+        // Stop once the requested overall number of random scans has been performed. ind_pos still
+        // points at the individual just initialized, so keep exactly [0 .. ind_pos].
+        if(scans_performed_ >= simple_scan_items_) {
             // Let the audience know that the optimization may be stopped
             this->cycle_logic_halt_ = true;
 
@@ -707,6 +629,13 @@ void GParameterScan::randomShuffle() {
             this->resize(ind_pos + 1);
 
             // Terminate the loop
+            break;
+        }
+
+        //------------------------------------------------------------------------
+        // We do not want to exceed the boundaries of the population -- stop if we have reached the end
+        // of the population (the next iteration fills the rest).
+        if(++ind_pos >= this->getDefaultPopulationSize()) {
             break;
         }
     }
@@ -760,13 +689,12 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
             mode_set = true;
         }
 
-        singleBPar item(
-            b_scan_par->getCurrentItem(gr_),
-            std::get<0>(var),
-            std::get<1>(var),
-            std::get<2>(var)
-        );
-        (result->bParVec).push_back(item);
+        (result->bParVec).push_back(singleBPar{
+            b_scan_par->getCurrentItem(gr_), // value
+            std::get<0>(var),                // mode
+            std::get<1>(var),                // name
+            std::get<2>(var)                 // position
+        });
     }
     // 2) For std::int32_t objects
     for(const auto &i_scan_par : int32_cnt_) {
@@ -786,13 +714,12 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
             mode_set = true;
         }
 
-        singleInt32Par item(
-            i_scan_par->getCurrentItem(gr_),
-            std::get<0>(var),
-            std::get<1>(var),
-            std::get<2>(var)
-        );
-        (result->iParVec).push_back(item);
+        (result->iParVec).push_back(singleInt32Par{
+            i_scan_par->getCurrentItem(gr_), // value
+            std::get<0>(var),                // mode
+            std::get<1>(var),                // name
+            std::get<2>(var)                 // position
+        });
     }
     // 3) For float objects
     for(const auto &f_scan_par : f_cnt_) {
@@ -812,13 +739,12 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
             mode_set = true;
         }
 
-        singleFPar item(
-            f_scan_par->getCurrentItem(gr_),
-            std::get<0>(var),
-            std::get<1>(var),
-            std::get<2>(var)
-        );
-        (result->fParVec).push_back(item);
+        (result->fParVec).push_back(singleFPar{
+            f_scan_par->getCurrentItem(gr_), // value
+            std::get<0>(var),                // mode
+            std::get<1>(var),                // name
+            std::get<2>(var)                 // position
+        });
     }
     // 4) For double objects
     for(const auto &d_scan_par : d_cnt_) {
@@ -838,13 +764,12 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
             mode_set = true;
         }
 
-        singleDPar item(
-            d_scan_par->getCurrentItem(gr_),
-            std::get<0>(var),
-            std::get<1>(var),
-            std::get<2>(var)
-        );
-        (result->dParVec).push_back(item);
+        (result->dParVec).push_back(singleDPar{
+            d_scan_par->getCurrentItem(gr_), // value
+            std::get<0>(var),                // mode
+            std::get<1>(var),                // name
+            std::get<2>(var)                 // position
+        });
     }
 
     return result;
@@ -859,6 +784,12 @@ std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
  * collection (false)
  */
 bool GParameterScan::switchToNextParameterSet() {
+    // Nothing to advance through (e.g. a spec that yielded no scanned parameters) -- treat it as
+    // "all combinations exhausted" rather than dereferencing an empty vector.
+    if(all_par_cnt_.empty()) {
+        return false;
+    }
+
     auto it = all_par_cnt_.begin();
 
     // Switch to the next parameter set
@@ -867,16 +798,12 @@ bool GParameterScan::switchToNextParameterSet() {
             if(it + 1 == all_par_cnt_.end()) {
                 return false; // All possible combinations were found
             }
-                            ++it; // Try the next parameter object
-           
+            ++it; // Try the next parameter object
         }
         else {
             return true; // We have successfully switched to the next parameter set
         }
     }
-
-    // Make the compiler happy
-    return false;
 }
 
 /******************************************************************************/
@@ -925,8 +852,7 @@ bool GParameterScan::customHalt_() const {
                 << GLOGGING;
         return true;
     }
-            return false;
-   
+    return false;
 }
 
 /******************************************************************************/

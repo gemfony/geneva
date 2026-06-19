@@ -670,6 +670,20 @@ Recommended Versions:
 - oa::GBase now re-exposes the inherited public load(const&), which had been
   name-hidden by the private split-serialization load(Archive&, unsigned int).
 
+- GParameterScan received a round of correctness fixes and a cleanup. Correctness:
+  the scan-parameter copy constructor dropped its grid (the GPodContainerT base was
+  not copied), so a cloned grid scan threw mid-sweep; integer random scans could
+  exceed their inclusive upper bound by one; advancing an empty parameter set
+  dereferenced an empty container; the simple-scan path under-counted the items it
+  evaluated and kept one un-initialized individual; and the integer grid now honours
+  the requested number of steps (like the float / double grids) instead of
+  enumerating every integer in the range, keeping the grid size consistent with the
+  traversal logic. Cleanup: the four near-identical scan-parameter wrapper classes
+  now share a small CRTP helper; the anonymous (value, mode, name, position) tuple
+  became a named struct; compare_() now actually compares the scan-parameter state;
+  the unsupported-type generic fillWithData<T> / getRandomItem traps are now
+  compile-time errors; and a dead random-number-generator member was removed.
+
 //------------------------------------------------------------------------------------------------------
 * Version 1.11, "Hendaye" - March 16, 2026
 

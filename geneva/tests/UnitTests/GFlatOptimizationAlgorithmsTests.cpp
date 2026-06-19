@@ -49,6 +49,8 @@
 #include <cstddef>
 #include <filesystem>
 #include <memory>
+#include <mutex>
+#include <set>
 #include <tuple>
 #include <vector>
 
@@ -273,6 +275,63 @@ protected:
     double fitnessCalculation() override {
         std::vector<double> v;
         this->streamline<double>(v);
+        double s = 0.;
+        for(double x : v) {
+            s += x * x;
+        }
+        return s;
+    }
+};
+
+/******************************************************************************/
+// Probe individuals for the parameter-scan tests. Their fitnessCalculation() records, thread-safely,
+// the parameter values it is handed (evaluation runs on the local thread-pool consumer), so a test can
+// inspect -- after optimize() has joined all work -- exactly which values the scan actually evaluated.
+
+std::mutex g_scan_probe_mutex;
+std::vector<std::int32_t> g_scan_int_samples;            ///< every int value the int probe was evaluated at
+std::vector<std::pair<double, double>> g_scan_pair_samples; ///< every (x, y) the 2-double probe was evaluated at
+
+/** @brief A single-int32 probe (genome bound [-10, 10]) recording each evaluated int value. */
+class FlatScanIntProbe : public gen::GFlatIndividualT<FlatScanIntProbe> {
+public:
+    FlatScanIntProbe() {
+        gen::GGenomeBuilder b;
+        b.addInt32Group(1, -10, 10).init(0);
+        this->setGenome(b.build());
+    }
+    FlatScanIntProbe(const FlatScanIntProbe &) = default;
+
+protected:
+    double fitnessCalculation() override {
+        std::vector<std::int32_t> v;
+        this->streamline<std::int32_t>(v);
+        {
+            std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
+            g_scan_int_samples.push_back(v[0]);
+        }
+        return static_cast<double>(v[0]) * static_cast<double>(v[0]);
+    }
+};
+
+/** @brief A two-double probe (genome bounds [-5, 5)) recording each evaluated (x, y) pair. */
+class FlatScanPairProbe : public gen::GFlatIndividualT<FlatScanPairProbe> {
+public:
+    FlatScanPairProbe() {
+        gen::GGenomeBuilder b;
+        b.addDoubleGroup(2, -5., 5.).init(0.0);
+        this->setGenome(b.build());
+    }
+    FlatScanPairProbe(const FlatScanPairProbe &) = default;
+
+protected:
+    double fitnessCalculation() override {
+        std::vector<double> v;
+        this->streamline<double>(v);
+        {
+            std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
+            g_scan_pair_samples.emplace_back(v[0], v[1]);
+        }
         double s = 0.;
         for(double x : v) {
             s += x * x;
@@ -777,6 +836,155 @@ TEST_CASE("Parameter scan sweeps a flat individual", "[flat][oa]") {
     // The scan swept the grid and returned the best grid point (near the origin); the grid's
     // resolution -- not the optimum -- bounds how close it gets.
     CHECK(bestSphere(best) < 5.0);
+}
+
+/******************************************************************************/
+
+TEST_CASE("Parameter scan grid clone round-trip preserves the grid", "[flat][oa][ps]") {
+    // Regression for the copy ctor that dropped the GPodContainerT base: a cloned GRID scan
+    // (scan_randomly = false) used to lose its pre-computed grid, so getCurrentItem -> at(step_) threw
+    // during the sweep. We build a grid scan, CLONE it (via the copy ctor that clone() uses), and run the
+    // clone: it must sweep the intact grid and find the origin (which is on a 3-step [-5, 5] grid).
+    auto pop = std::make_shared<oa::GParameterScan>();
+    pop->setScanRandomly(false); // GRID scan -> the grid points are pre-computed and must survive a clone
+    pop->setParameterSpecs(
+        "d(0, -5., 5., 3), d(1, -5., 5., 3), d(2, -5., 5., 3), d(3, -5., 5., 3), d(4, -5., 5., 3)"
+    );
+    pop->setMaxIteration(100000);
+    pop->setMaxStallIteration(0);
+    pop->setReportIteration(100000);
+    pop->push_back(FlatSphereOA().clone_unique());
+
+    // Deep-copy through the copy constructor (exactly what clone() / load_() use).
+    auto clone = std::make_shared<oa::GParameterScan>(*pop);
+    CHECK_NOTHROW(clone->optimize()); // would throw before the fix (empty grid -> at(step_) out of range)
+
+    auto best = clone->getBestGlobalIndividual<FlatSphereOA>();
+    REQUIRE(best);
+    CHECK(bestSphere(best) < 1.0e-6); // the 3-step grid (-5, 0, 5) per dim includes the origin
+}
+
+/******************************************************************************/
+
+TEST_CASE("Parameter scan random int stays within the inclusive bounds", "[flat][oa][ps]") {
+    // Regression for the int32 random off-by-one: uniform_int_distribution treats both bounds as
+    // inclusive, so passing upper + 1 let draws exceed the configured upper bound. A random scan over the
+    // inclusive range [3, 5] must therefore never produce a 6.
+    {
+        std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
+        g_scan_int_samples.clear();
+    }
+
+    auto pop = std::make_shared<oa::GParameterScan>();
+    pop->setScanRandomly(true); // random scan -> getRandomItem (inclusive bounds)
+    pop->setParameterSpecs("i(0, 3, 5, 60)"); // 60 random draws in the inclusive range [3, 5]
+    pop->setMaxIteration(100000);
+    pop->setMaxStallIteration(0);
+    pop->setReportIteration(100000);
+    pop->push_back(FlatScanIntProbe().clone_unique());
+    pop->optimize();
+
+    std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
+    REQUIRE(g_scan_int_samples.size() >= 3);
+    std::set<std::int32_t> seen;
+    for(std::int32_t s : g_scan_int_samples) {
+        CHECK(s >= 3);
+        CHECK(s <= 5); // never 6 -- the former upper_ + 1 off-by-one
+        seen.insert(s);
+    }
+    CHECK(seen.size() > 1); // the draws actually vary across the range (randomness happened)
+}
+
+/******************************************************************************/
+
+TEST_CASE("Parameter scan grid covers exactly the product of the per-dimension steps", "[flat][oa][ps]") {
+    // A 3x3 grid over two doubles must evaluate exactly 9 distinct combinations and cover the four
+    // corners -- no missing points, no duplicates.
+    {
+        std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
+        g_scan_pair_samples.clear();
+    }
+
+    auto pop = std::make_shared<oa::GParameterScan>();
+    pop->setScanRandomly(false); // grid scan
+    pop->setParameterSpecs("d(0, -1., 1., 3), d(1, -1., 1., 3)"); // 3 steps each -> {-1, 0, 1}
+    pop->setMaxIteration(100000);
+    pop->setMaxStallIteration(0);
+    pop->setReportIteration(100000);
+    pop->push_back(FlatScanPairProbe().clone_unique());
+    pop->optimize();
+
+    std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
+    std::set<std::pair<double, double>> combos(g_scan_pair_samples.begin(), g_scan_pair_samples.end());
+    CHECK(combos.size() == 9);                 // exactly product(n_steps) = 3 * 3
+    CHECK(g_scan_pair_samples.size() == 9);    // and each grid point evaluated exactly once (no duplicates)
+    // The four corners are present.
+    CHECK(combos.count(std::make_pair(-1., -1.)) == 1);
+    CHECK(combos.count(std::make_pair(-1., 1.)) == 1);
+    CHECK(combos.count(std::make_pair(1., -1.)) == 1);
+    CHECK(combos.count(std::make_pair(1., 1.)) == 1);
+}
+
+/******************************************************************************/
+
+TEST_CASE("Parameter scan simple-scan evaluates exactly N random items", "[flat][oa][ps]") {
+    // Regression for the simple-scan over-count + stale individual: the counter was incremented after the
+    // population-full break (under-counting) and the population was trimmed to one too many (keeping an
+    // un-initialized clone). setNSimpleScans(k) must evaluate exactly k random items.
+    constexpr std::size_t k = 7;
+    {
+        std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
+        g_scan_pair_samples.clear();
+    }
+
+    auto pop = std::make_shared<oa::GParameterScan>();
+    pop->setNSimpleScans(k); // simple-scan mode: randomly (re-)initialize whole individuals
+    pop->setMaxIteration(100000);
+    pop->setMaxStallIteration(0);
+    pop->setReportIteration(100000);
+    pop->push_back(FlatScanPairProbe().clone_unique());
+    pop->optimize();
+
+    CHECK(pop->getNScansPerformed() == k); // exact count, not k-1 (the former under-count)
+
+    std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
+    CHECK(g_scan_pair_samples.size() == k); // exactly k items evaluated, no stale extra
+}
+
+/******************************************************************************/
+
+TEST_CASE("Parameter scan compare detects scan-state differences", "[flat][oa][ps]") {
+    using Gem::Common::expectation;
+
+    // Two grid scans that differ ONLY in their parameter specs (same everything else) must compare
+    // unequal -- which is only detectable if compare_ actually compares the scan-parameter vectors.
+    auto a = std::make_shared<oa::GParameterScan>();
+    a->setScanRandomly(false);
+    a->setParameterSpecs("d(0, -5., 5., 3)");
+
+    auto b = std::make_shared<oa::GParameterScan>();
+    b->setScanRandomly(false);
+    b->setParameterSpecs("d(0, -3., 3., 3)"); // same arity / steps, different bounds -> different grid
+
+    CHECK_THROWS(a->compare(*b, expectation::EQUALITY, 0.)); // grids differ -> not equal
+
+    // A clone compares equal (the grid and all scan state round-trip through the copy ctor).
+    auto a_clone = std::make_shared<oa::GParameterScan>(*a);
+    CHECK_NOTHROW(a->compare(*a_clone, expectation::EQUALITY, 0.));
+}
+
+/******************************************************************************/
+
+TEST_CASE("Parameter scan with no scanned parameters does not crash", "[flat][oa][ps]") {
+    // Regression for the empty-vector deref in switchToNextParameterSet(): with no scanned parameters
+    // (and not in simple-scan mode) the central parameter vector is empty; advancing it must halt
+    // cleanly instead of dereferencing all_par_cnt_.begin() on an empty container.
+    auto pop = std::make_shared<oa::GParameterScan>();
+    pop->setMaxIteration(10);
+    pop->setMaxStallIteration(0);
+    pop->setReportIteration(100000);
+    pop->push_back(FlatSphereOA().clone_unique()); // no setParameterSpecs / setNSimpleScans
+    CHECK_NOTHROW(pop->optimize());
 }
 
 /******************************************************************************/
