@@ -655,8 +655,14 @@ GOptimizationAlgorithmBase const *GOptimizationAlgorithmBase::optimize_(std::uin
     // Initialize the start time with the current time.
     start_time_ = std::chrono::system_clock::now();
 
-    // Initialize a file start time, as it may not be comparable with system_clock
-    file_start_time_ = Gem::Common::touch_time("geneva_file_startTime", "marker", true);
+    // Initialize a file-clock start time for the touchHalt feature, which compares it against a
+    // termination file's last_write_time() (both are std::filesystem::file_time_type). C++20's
+    // std::chrono::file_clock::now() reads the filesystem clock directly -- no need to create, stat and
+    // remove a marker file. The former touch-a-file approach used a single fixed name in the working
+    // directory, which raced fatally when several algorithms started concurrently (one removed the marker
+    // between another's create and its last_write_time() read, throwing std::filesystem_error and
+    // aborting the process).
+    file_start_time_ = std::chrono::file_clock::now();
 
     do {
         // Let all individuals know the current iteration

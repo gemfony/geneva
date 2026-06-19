@@ -670,6 +670,16 @@ Recommended Versions:
 - oa::GBase now re-exposes the inherited public load(const&), which had been
   name-hidden by the private split-serialization load(Archive&, unsigned int).
 
+- Fixed a fatal filesystem race at optimization start. Every algorithm recorded a
+  filesystem-clock start time by creating, stat-ing and deleting a marker file with a
+  single FIXED name ("geneva_file_startTime") in the working directory. When several
+  algorithms started concurrently (the shared-consumer fan-in case, and the meta-EA's
+  concurrent sub-EAs) one removed the marker between another's create and its
+  last_write_time() read, throwing std::filesystem_error on a worker thread and
+  aborting the whole process (SIGABRT). The marker file is gone: the start time is now
+  read directly from C++20's std::chrono::file_clock::now(), which needs no file and
+  cannot race.
+
 - GSwarmAlgorithm now rejects inverted parameter boundaries (lower > upper) with a
   clear error at init() instead of computing a negative velocity range, which fed a
   std::uniform_real_distribution with a > b (undefined behaviour). The genome builder
