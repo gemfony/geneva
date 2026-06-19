@@ -411,6 +411,16 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- The multi-objective (Pareto) machinery shared by the optimization algorithms was
+  factored into one place (geneva/oa/GParetoTools.hpp): a single strict-Pareto
+  dominance test (paretoDominates) and the NSGA-II non-dominated-sort + crowding
+  ranking (nonDominatedRank), used by both the evolutionary algorithm and the
+  separable-CMA strategy (and available to any future NSGA-II algorithm). As part
+  of this the EA's Pareto-front tagging now uses strict dominance (no worse on all
+  criteria AND strictly better on at least one) like the rest of Geneva; it
+  previously used a weak test (no worse on all criteria), which mis-handled exact
+  ties between candidates.
+
 - The evolutionary algorithm GEvolutionaryAlgorithm ("ea") gained a selectable
   step-size-control strategy on the OA-owned adaption config that improves
   convergence near the optimum at high dimension: SELF_ADAPT (the classic

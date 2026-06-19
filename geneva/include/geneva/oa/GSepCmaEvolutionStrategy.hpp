@@ -374,13 +374,9 @@ private:
     void sampleOffspring();
     /** @brief Returns the indices of the population sorted best-first for selection */
     std::vector<std::size_t> rankPopulation() const;
-    /** @brief Computes the NSGA-II crowding/non-dominated ranking order (best-first) */
+    /** @brief Computes the NSGA-II crowding/non-dominated ranking order (best-first) via the shared
+     *  OptimizationAlgorithms::nonDominatedRank helper */
     std::vector<std::size_t> rankPopulationPareto() const;
-    /** @brief Determines whether individual a dominates individual b (Pareto sense) */
-    bool aDominatesB(
-        const gen::GOptimizableEntity &a,
-        const gen::GOptimizableEntity &b
-    ) const;
     /** @brief Performs the mean / sigma / C / path updates from the ranked offspring */
     void updateDistribution(const std::vector<std::size_t> &ranked);
     /** @brief Clamps a flat parameter vector to the [lower,upper) box */

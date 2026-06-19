@@ -49,6 +49,7 @@
 #include "geneva/oa/GParChild.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
+#include "geneva/oa/GParetoTools.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/par/GOptimizableEntityFixedSizePriorityQueue.hpp"
@@ -782,10 +783,10 @@ void GType::sortMuPlusNuParetoMode() {
             if(not(*it_cmp)->template getPersonalityTraits<TraitsType>()->isOnParetoFront()) {
                 continue;
             }
-            if(aDominatesB((*it)->individualPtr(), (*it_cmp)->individualPtr())) {
+            if(paretoDominates((*it)->individual(), (*it_cmp)->individual())) {
                 (*it_cmp)->template getPersonalityTraits<TraitsType>()->setIsNotOnParetoFront();
             }
-            if(aDominatesB((*it_cmp)->individualPtr(), (*it)->individualPtr())) {
+            if(paretoDominates((*it_cmp)->individual(), (*it)->individual())) {
                 (*it)->template getPersonalityTraits<TraitsType>()->setIsNotOnParetoFront();
                 break;
             }
@@ -864,10 +865,10 @@ void GType::sortMuCommaNuParetoMode() {
             if(not(*it_cmp)->template getPersonalityTraits<TraitsType>()->isOnParetoFront()) {
                 continue;
             }
-            if(aDominatesB((*it)->individualPtr(), (*it_cmp)->individualPtr())) {
+            if(paretoDominates((*it)->individual(), (*it_cmp)->individual())) {
                 (*it_cmp)->template getPersonalityTraits<TraitsType>()->setIsNotOnParetoFront();
             }
-            if(aDominatesB((*it_cmp)->individualPtr(), (*it)->individualPtr())) {
+            if(paretoDominates((*it_cmp)->individual(), (*it)->individual())) {
                 (*it)->template getPersonalityTraits<TraitsType>()->setIsNotOnParetoFront();
                 break;
             }
@@ -911,35 +912,6 @@ void GType::sortMuCommaNuParetoMode() {
             return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
         }
     );
-}
-
-/******************************************************************************/
-
-bool GType::aDominatesB(
-    const std::unique_ptr<gen::GOptimizableEntity> &x_ptr,
-    const std::unique_ptr<gen::GOptimizableEntity> &y_ptr
-) const {
-    std::size_t n_criteria_x = x_ptr->getNStoredResults();
-
-#ifdef DEBUG
-    std::size_t n_criteria_y = y_ptr->getNStoredResults();
-    if(n_criteria_x != n_criteria_y) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GEvolutionaryAlgorithm::aDominatesB(): Error!" << '\n'
-            << "Number of fitness criteria differ: " << n_criteria_x << " / " << n_criteria_y << '\n'
-        );
-    }
-#endif
-
-    auto m = x_ptr->getMaxMode();
-    for(std::size_t i = 0; i < n_criteria_x; i++) {
-        if(isWorse(x_ptr->transformed_fitness(i), y_ptr->transformed_fitness(i), m)) {
-            return false;
-        }
-    }
-
-    return true;
 }
 
 /******************************************************************************/

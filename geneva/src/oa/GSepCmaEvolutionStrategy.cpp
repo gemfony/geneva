@@ -48,6 +48,7 @@
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/oa/GParetoTools.hpp"
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
@@ -551,119 +552,18 @@ std::vector<std::size_t> GSepCmaEvolutionStrategy::rankPopulation() const {
 
 /******************************************************************************/
 /**
- * Determines whether individual a Pareto-dominates individual b: a is no worse on every criterion and
- * strictly better on at least one.
- */
-bool GSepCmaEvolutionStrategy::aDominatesB(
-    const gen::GOptimizableEntity &a,
-    const gen::GOptimizableEntity &b
-) const {
-    const std::size_t n_crit = a.getNStoredResults();
-    const maxMode m = a.getMaxMode();
-
-    bool strictly_better_somewhere = false;
-    for(std::size_t c = 0; c < n_crit; ++c) {
-        double va = a.transformed_fitness(c);
-        double vb = b.transformed_fitness(c);
-        if(Gem::Geneva::isWorse(va, vb, m)) {
-            return false; // a is worse on some criterion -> cannot dominate
-        }
-        if(Gem::Geneva::isWorse(vb, va, m)) {
-            strictly_better_somewhere = true; // a is strictly better here
-        }
-    }
-    return strictly_better_somewhere;
-}
-
-/******************************************************************************/
-/**
  * Computes an NSGA-II ranking order (best-first): individuals are first grouped into non-domination
  * fronts (fast non-dominated sort), then within each front ordered by decreasing crowding distance. The
  * leading mu indices are used as the recombination parents, so the distribution is pulled toward the
  * Pareto front.
  */
 std::vector<std::size_t> GSepCmaEvolutionStrategy::rankPopulationPareto() const {
-    const std::size_t sz = this->size();
-    const std::size_t n_crit = sz > 0 ? this->at(0)->individual().getNStoredResults() : 1;
-
-    // --- fast non-dominated sort -----------------------------------------------
-    std::vector<std::vector<std::size_t>> dominated(sz); // who each individual dominates
-    std::vector<std::size_t> dom_count(sz, 0);           // how many dominate each individual
-    std::vector<std::vector<std::size_t>> fronts(1);
-
-    for(std::size_t p = 0; p < sz; ++p) {
-        for(std::size_t q = 0; q < sz; ++q) {
-            if(p == q) {
-                continue;
-            }
-            if(aDominatesB(this->at(p)->individual(), this->at(q)->individual())) {
-                dominated[p].push_back(q);
-            }
-            else if(aDominatesB(this->at(q)->individual(), this->at(p)->individual())) {
-                ++dom_count[p];
-            }
-        }
-        if(dom_count[p] == 0) {
-            fronts[0].push_back(p);
-        }
+    std::vector<const gen::GOptimizableEntity *> pop;
+    pop.reserve(this->size());
+    for(std::size_t i = 0; i < this->size(); ++i) {
+        pop.push_back(&this->at(i)->individual());
     }
-
-    std::size_t fi = 0;
-    while(fi < fronts.size() && not fronts[fi].empty()) {
-        std::vector<std::size_t> next_front;
-        for(std::size_t p : fronts[fi]) {
-            for(std::size_t q : dominated[p]) {
-                if(--dom_count[q] == 0) {
-                    next_front.push_back(q);
-                }
-            }
-        }
-        if(next_front.empty()) {
-            break;
-        }
-        fronts.push_back(std::move(next_front));
-        ++fi;
-    }
-
-    // --- crowding distance within each front, then concatenate -----------------
-    std::vector<std::size_t> order;
-    order.reserve(sz);
-    for(auto &front : fronts) {
-        const std::size_t fs = front.size();
-        std::vector<double> crowd(fs, 0.);
-        for(std::size_t c = 0; c < n_crit; ++c) {
-            // Sort this front by criterion c.
-            std::vector<std::size_t> by_c(fs);
-            std::iota(by_c.begin(), by_c.end(), 0);
-            auto val = [&](std::size_t local) {
-                return this->at(front[local])->individual().transformed_fitness(c);
-            };
-            std::sort(by_c.begin(), by_c.end(), [&](std::size_t a, std::size_t b) {
-                return val(a) < val(b);
-            });
-            // Boundary points get infinite crowding (always retained).
-            crowd[by_c.front()] = std::numeric_limits<double>::infinity();
-            crowd[by_c.back()] = std::numeric_limits<double>::infinity();
-            double span = val(by_c.back()) - val(by_c.front());
-            if(span <= 0.) {
-                continue;
-            }
-            for(std::size_t j = 1; j + 1 < fs; ++j) {
-                crowd[by_c[j]] += (val(by_c[j + 1]) - val(by_c[j - 1])) / span;
-            }
-        }
-        // Order this front by decreasing crowding distance.
-        std::vector<std::size_t> local_order(fs);
-        std::iota(local_order.begin(), local_order.end(), 0);
-        std::sort(local_order.begin(), local_order.end(), [&](std::size_t a, std::size_t b) {
-            return crowd[a] > crowd[b];
-        });
-        for(std::size_t local : local_order) {
-            order.push_back(front[local]);
-        }
-    }
-
-    return order;
+    return nonDominatedRank(pop);
 }
 
 /******************************************************************************/

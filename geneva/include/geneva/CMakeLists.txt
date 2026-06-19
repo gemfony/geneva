@@ -51,6 +51,7 @@ SET ( OA_INCLUDES
     oa/GOptimizationAlgorithmFactoryT.hpp
     oa/GParChild.hpp
     oa/GAdaptionConfig.hpp
+    oa/GParetoTools.hpp
     oa/GAdaption.hpp
     oa/GInitializerT.hpp
     oa/GOAFactoryT.hpp

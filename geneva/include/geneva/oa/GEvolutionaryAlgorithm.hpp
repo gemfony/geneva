@@ -360,10 +360,6 @@ private:
     void sortMunu1pretainMode();
     void sortMuPlusNuParetoMode();
     void sortMuCommaNuParetoMode();
-    bool aDominatesB(
-        const std::unique_ptr<gen::GOptimizableEntity> &a,
-        const std::unique_ptr<gen::GOptimizableEntity> &b
-    ) const;
 
     void fillWithObjects(const std::size_t &n_individuals);
 
