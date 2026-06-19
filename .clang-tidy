@@ -38,6 +38,8 @@ Checks: >-
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -cppcoreguidelines-pro-bounds-constant-array-index,
   -cppcoreguidelines-pro-type-vararg,
+  -cppcoreguidelines-avoid-c-arrays,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
   -cppcoreguidelines-non-private-member-variables-in-classes,
   -cppcoreguidelines-avoid-const-or-ref-data-members,
   -cppcoreguidelines-avoid-do-while,
@@ -65,6 +67,7 @@ Checks: >-
   -modernize-avoid-c-arrays,
   -modernize-use-nodiscard,
   performance-*,
+  -performance-enum-size,
   portability-*,
   -portability-avoid-pragma-once,
   -portability-template-virtual-member-function,
@@ -206,7 +209,12 @@ CheckOptions:
   # Allowed: G_API_* visibility macros, GEM_* build guards, G_DEPRECATED,
   # GSQUARED utility macro, GENEVA_* config macros, DEBUG, and the
   # intentionally lowercase `time_and_place` source-location macro.
-  cppcoreguidelines-macro-usage.AllowedRegexp: '^(DEBUG|G_.*|GEM_.*|GENEVA_.*|GSQUARED|time_and_place)$'
+  # Also allowed (cannot be constexpr): raiseException/LOGEXIT capture
+  # __FILE__/__LINE__ at the throw/exit site; MIN_BOOST_VERSION and
+  # BOOST_FILESYSTEM_VERSION / CL_TARGET_OPENCL_VERSION are preprocessor
+  # version/feature gates that must be #defines (used in #if / before a
+  # third-party #include).
+  cppcoreguidelines-macro-usage.AllowedRegexp: '^(DEBUG|G_.*|GEM_.*|GENEVA_.*|GSQUARED|time_and_place|raiseException|LOGEXIT|MIN_BOOST_VERSION|BOOST_FILESYSTEM_VERSION|CL_TARGET_OPENCL_VERSION)$'
 
   # Performance.
   performance-for-range-copy.WarnOnAllAutoCopies: 'true'
