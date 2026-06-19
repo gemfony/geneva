@@ -667,13 +667,27 @@ void GSwarmAlgorithm::init() {
     }
 #endif /* DEBUG */
 
-    // Calculate the allowed maximum values of the velocities
+    // Calculate the allowed maximum values of the velocities. The per-dimension cap is
+    // l * (upper - lower); an inverted boundary (lower > upper) would make it negative, which later feeds
+    // a std::uniform_real_distribution::param_type(-range, range) with a > b (undefined behaviour) and a
+    // negative velocity clamp. The genome builder does not reject inverted bounds, so guard against them
+    // here (in release builds too) with a clear error rather than silently producing UB. An equal-bound
+    // (frozen) parameter has range 0, which is fine -- its velocity cap is simply 0.
     double l = getVelocityRangePercentage();
     dbl_vel_max_cnt_.clear();
     for(std::size_t i = 0; i < dbl_lower_parameter_boundaries_cnt_.size(); i++) {
-        dbl_vel_max_cnt_.push_back(
-            l * (dbl_upper_parameter_boundaries_cnt_[i] - dbl_lower_parameter_boundaries_cnt_[i])
-        );
+        const double range =
+            dbl_upper_parameter_boundaries_cnt_[i] - dbl_lower_parameter_boundaries_cnt_[i];
+        if(range < 0.) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GSwarmAlgorithm::init(): Error!" << '\n'
+                << "Parameter " << i << " has inverted boundaries: lower="
+                << dbl_lower_parameter_boundaries_cnt_[i] << " > upper="
+                << dbl_upper_parameter_boundaries_cnt_[i] << '\n'
+            );
+        }
+        dbl_vel_max_cnt_.push_back(l * range);
     }
 
     // Each particle's velocity is a per-slot POD double block (one double per active floating-point

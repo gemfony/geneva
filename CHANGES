@@ -670,6 +670,14 @@ Recommended Versions:
 - oa::GBase now re-exposes the inherited public load(const&), which had been
   name-hidden by the private split-serialization load(Archive&, unsigned int).
 
+- GSwarmAlgorithm now rejects inverted parameter boundaries (lower > upper) with a
+  clear error at init() instead of computing a negative velocity range, which fed a
+  std::uniform_real_distribution with a > b (undefined behaviour). The genome builder
+  does not reject inverted bounds, so the guard runs in release builds too. An
+  equal-bound (frozen) parameter, with range 0, remains valid. A regression test for
+  the 1-D Nelder-Mead simplex path (where the second-worst vertex coincides with the
+  best) was also added.
+
 - GParameterScan received a round of correctness fixes and a cleanup. Correctness:
   the scan-parameter copy constructor dropped its grid (the GPodContainerT base was
   not copied), so a cloned grid scan threw mid-sweep; integer random scans could

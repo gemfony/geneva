@@ -340,6 +340,49 @@ protected:
     }
 };
 
+/** @brief A ONE-dimensional flat sphere: a single constrained double in [-5, 5), started at 3.0. Used to
+ *  exercise the n_vert == 2 (1-D) Nelder-Mead simplex path. */
+class FlatSphere1D : public gen::GFlatIndividualT<FlatSphere1D> {
+public:
+    FlatSphere1D() {
+        gen::GGenomeBuilder b;
+        b.addDoubleGroup(1, -5., 5.).init(3.0);
+        this->setGenome(b.build());
+    }
+    FlatSphere1D(const FlatSphere1D &) = default;
+
+protected:
+    double fitnessCalculation() override {
+        std::vector<double> v;
+        this->streamline<double>(v);
+        return v[0] * v[0];
+    }
+};
+
+/** @brief A flat individual with INVERTED bounds (lower > upper): three constrained doubles declared as
+ *  [5, -5]. The genome builder does not reject this, so it is used to confirm the swarm rejects the
+ *  resulting negative velocity range with a clear error instead of hitting undefined behaviour. */
+class FlatInvertedBoundsOA : public gen::GFlatIndividualT<FlatInvertedBoundsOA> {
+public:
+    FlatInvertedBoundsOA() {
+        gen::GGenomeBuilder b;
+        b.addDoubleGroup(3, 5., -5.); // lower = 5 > upper = -5 (intentionally inverted)
+        this->setGenome(b.build());
+    }
+    FlatInvertedBoundsOA(const FlatInvertedBoundsOA &) = default;
+
+protected:
+    double fitnessCalculation() override {
+        std::vector<double> v;
+        this->streamline<double>(v);
+        double s = 0.;
+        for(double x : v) {
+            s += x * x;
+        }
+        return s;
+    }
+};
+
 /** @brief Sphere value of the best individual, also asserting the constraints held. */
 double bestSphere(const std::shared_ptr<FlatSphereOA> &best) {
     std::vector<double> v;
@@ -689,6 +732,20 @@ TEST_CASE("Swarm normalizes a non-canonical user population at setup", "[flat][o
 
 /******************************************************************************/
 
+TEST_CASE("Swarm rejects inverted parameter bounds instead of UB", "[flat][oa]") {
+    // The genome builder does not reject inverted bounds (lower > upper). Such a parameter yields a
+    // negative velocity range, which would feed std::uniform_real_distribution::param_type(-range, range)
+    // with a > b (undefined behaviour). init() must instead reject it with a clear exception.
+    auto pop = std::make_shared<oa::GSwarmAlgorithm>();
+    pop->setSwarmSizes(3, 6);
+    pop->setMaxIteration(10);
+    pop->setReportIteration(100000);
+    pop->push_back(FlatInvertedBoundsOA().clone_unique());
+    CHECK_THROWS(pop->optimize()); // inverted bounds -> clean throw in init(), not UB
+}
+
+/******************************************************************************/
+
 TEST_CASE("Conjugate gradient descent optimizes a flat individual", "[flat][oa]") {
     auto pop = std::make_shared<oa::GConjugateGradientDescent>();
     pop->setNStartingPoints(1);
@@ -814,6 +871,27 @@ TEST_CASE("Nelder-Mead with oriented restart still converges", "[flat][oa]") {
     auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
     REQUIRE(best);
     CHECK(bestSphere(best) < 5.0);
+}
+
+/******************************************************************************/
+
+TEST_CASE("Nelder-Mead optimizes a 1-D individual", "[flat][oa][nm]") {
+    // A 1-D problem makes the simplex a 2-vertex segment (n_vert == 2), where the second-worst vertex IS
+    // the best vertex (f_second == f_best) and the "accept reflection between best and second-worst"
+    // branch correctly collapses. This exercises that degenerate path end-to-end and confirms it still
+    // converges (rather than stalling).
+    auto pop = std::make_shared<oa::GNelderMead>();
+    pop->setMaxIteration(200);
+    pop->setReportIteration(100000);
+    pop->push_back(FlatSphere1D().clone_unique());
+    pop->optimize();
+
+    auto best = pop->getBestGlobalIndividual<FlatSphere1D>();
+    REQUIRE(best);
+    std::vector<double> v;
+    best->streamline<double>(v);
+    REQUIRE(v.size() == 1);
+    CHECK(v[0] * v[0] < 1.0e-3); // the 1-D simplex descends from f = 9 to the optimum at the origin
 }
 
 /******************************************************************************/
