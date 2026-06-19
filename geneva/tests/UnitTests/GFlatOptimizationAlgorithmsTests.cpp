@@ -1104,6 +1104,28 @@ TEST_CASE("Parameter scan compare detects scan-state differences", "[flat][oa][p
 
 /******************************************************************************/
 
+TEST_CASE("Parameter scan survives a Boost serialization round-trip", "[flat][oa][ps]") {
+    using Gem::Common::expectation;
+    using Gem::Common::serializationMode;
+
+    // The scan-parameter vectors are now folded into the single-source localMembers() route (they carry
+    // the Gemfony common interface). This pins that serialize_members() (de)serializes them: a grid scan
+    // written to a string and read back must compare EQUAL -- including its pre-computed grid points.
+    auto a = std::make_shared<oa::GParameterScan>();
+    a->setScanRandomly(false);
+    a->setParameterSpecs("d(0, -5., 5., 3), i(1, 0, 4, 5), b(2)"); // mixed double / int32 / bool grids
+
+    for(auto mode : {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+        const std::string archived = a->toString(mode);
+        auto restored = std::make_shared<oa::GParameterScan>();
+        restored->fromString(archived, mode);
+        // Equal on every scan parameter (the grids included) only if the vectors round-tripped.
+        CHECK_NOTHROW(a->compare(*restored, expectation::EQUALITY, 0.));
+    }
+}
+
+/******************************************************************************/
+
 TEST_CASE("Parameter scan with no scanned parameters does not crash", "[flat][oa][ps]") {
     // Regression for the empty-vector deref in switchToNextParameterSet(): with no scanned parameters
     // (and not in simple-scan mode) the central parameter vector is empty; advancing it must halt

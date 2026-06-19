@@ -40,6 +40,7 @@
 
 // Geneva headers go here
 #include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GCommonInterfaceT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GContainerT.hpp"
 #include "common/GPlotDesigner.hpp"
@@ -183,7 +184,8 @@ public:
 template <typename T>
 class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GPodContainerT<T>
-  , public GScanParInterface {
+  , public GScanParInterface
+  , public Gem::Common::GCommonInterfaceT<GBaseScanParT<T>> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -370,6 +372,52 @@ public:
 
 protected:
     /***************************************************************************/
+    // Gemfony common interface. Giving each scan-parameter type clone_()/load_()/compare_() lets the
+    // GParameterScan scan-parameter vectors be (de)serialized, deep-copied and compared through the
+    // single-source make_cloneable_container_member() route, instead of a hand-written tail.
+
+    /**
+     * @brief Loads the data of another GBaseScanParT<T> in place (deep-copies the grid + scan state).
+     * @param cp The object to load from (its dynamic type matches this object's)
+     */
+    void load_(const GBaseScanParT<T> *cp) override {
+        // GCommonInterfaceT carries no data of its own; copy the pre-computed grid held by the container
+        // base ...
+        Gem::Common::GPodContainerT<T>::operator=(*cp);
+        // ... and our own scan state.
+        var_ = cp->var_;
+        step_ = cp->step_;
+        n_steps_ = cp->n_steps_;
+        lower_ = cp->lower_;
+        upper_ = cp->upper_;
+        random_scan_ = cp->random_scan_;
+        type_description_ = cp->type_description_;
+    }
+
+    /**
+     * @brief Searches for compliance with expectations with respect to another scan parameter.
+     * @param cp The object to compare against (its dynamic type matches this object's)
+     * @param e The expected outcome of the comparison
+     * @param limit The maximum acceptable deviation (unused -- the scan state compares exactly)
+     */
+    void compare_(
+        const GBaseScanParT<T> &cp,
+        const Gem::Common::expectation &e,
+        [[maybe_unused]] const double &limit
+    ) const override {
+        Gem::Common::GToken token("GBaseScanParT", e);
+        this->compareScanPar(cp, token);
+        token.evaluate();
+    }
+
+    /** @brief Test hook: applies modifications to this object (no-op for this plain value type). */
+    bool modify_GUnitTests_() override { return false; }
+    /** @brief Test hook: self tests expected to succeed (none for this plain value type). */
+    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ }
+    /** @brief Test hook: self tests expected to fail (none for this plain value type). */
+    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ }
+
+    /***************************************************************************/
     // Data
 
     gen::NAMEANDIDTYPE var_;           ///< Name and/or position of the variable
@@ -507,13 +555,13 @@ public:
     /** @brief The destructor */
     ~GScanParT() override = default;
 
-    /** @brief Cloning of this object
-     *  @return A deep copy of this object wrapped in a shared_ptr to the concrete type */
-    std::shared_ptr<Derived> clone() const {
-        return std::make_shared<Derived>(static_cast<const Derived &>(*this));
+protected:
+    /** @brief Creates a deep clone of this object (Gemfony common-interface hook)
+     *  @return A raw, owning pointer to a deep clone (as the GBaseScanParT<T> root) */
+    GBaseScanParT<T> *clone_() const override {
+        return new Derived(static_cast<const Derived &>(*this));
     }
 
-protected:
     /** @brief The default constructor -- only needed for de-serialization, hence protected */
     GScanParT() = default;
 };
@@ -706,25 +754,27 @@ public:
 
 private:
 
-    /** @brief Single declaration of this class'es UNCONDITIONALLY-handled, plain local data members.
+    /** @brief Single declaration of this class'es local data members.
      *
-     * All members handled identically (plain assignment / direct compare / NVP) in serialize(), load_()
-     * and compare_() live here -- including cycle_logic_halt_, which is now persisted like the rest (it
-     * is reset to false by init() at the start of each optimize() anyway, so persisting it is harmless
-     * and keeps the handling uniform). Excluded:
-     *  - b_cnt_ / int32_cnt_ / d_cnt_ / f_cnt_: vectors of std::shared_ptr<...ScanPar>.
-     *    Their element type (GBScanPar etc., via GContainerT/GPodContainerT) does NOT carry
-     *    the Gemfony common interface, so they cannot use make_cloneable_container_member
-     *    (which needs clone<T>()/load()/compare()); load_() deep-copies them with the
-     *    scan classes' own clone(), and compare_() compares them element-by-element via each
-     *    scan parameter's compareScanPar(). Hence they stay in the manual tail. */
+     * The plain members are handled identically (plain assignment / direct compare / NVP) in serialize(),
+     * load_() and compare_() -- including cycle_logic_halt_, which is persisted like the rest (it is reset
+     * to false by init() at the start of each optimize() anyway, so persisting it is harmless and keeps
+     * the handling uniform). The scan-parameter vectors b_cnt_ / int32_cnt_ / d_cnt_ / f_cnt_ (vectors of
+     * std::shared_ptr<...ScanPar>) now also live here: their element types carry the Gemfony common
+     * interface (clone_()/load_()/compare_()), so make_cloneable_container_member() deep-clones them on
+     * load and compares them element-by-element through each scan parameter's compare_() -- no hand-written
+     * tail is needed. */
     auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
         return std::make_tuple(
             Gem::Common::make_member("scan_randomly_", scan_randomly_),
             Gem::Common::make_member("n_monitor_inds_", n_monitor_inds_),
             Gem::Common::make_member("simple_scan_items_", simple_scan_items_),
             Gem::Common::make_member("scans_performed_", scans_performed_),
-            Gem::Common::make_member("cycle_logic_halt_", cycle_logic_halt_)
+            Gem::Common::make_member("cycle_logic_halt_", cycle_logic_halt_),
+            Gem::Common::make_cloneable_container_member("b_cnt_", b_cnt_),
+            Gem::Common::make_cloneable_container_member("int32_cnt_", int32_cnt_),
+            Gem::Common::make_cloneable_container_member("d_cnt_", d_cnt_),
+            Gem::Common::make_cloneable_container_member("f_cnt_", f_cnt_)
         );
     }
     auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
@@ -733,7 +783,11 @@ private:
             Gem::Common::make_member("n_monitor_inds_", n_monitor_inds_),
             Gem::Common::make_member("simple_scan_items_", simple_scan_items_),
             Gem::Common::make_member("scans_performed_", scans_performed_),
-            Gem::Common::make_member("cycle_logic_halt_", cycle_logic_halt_)
+            Gem::Common::make_member("cycle_logic_halt_", cycle_logic_halt_),
+            Gem::Common::make_cloneable_container_member("b_cnt_", b_cnt_),
+            Gem::Common::make_cloneable_container_member("int32_cnt_", int32_cnt_),
+            Gem::Common::make_cloneable_container_member("d_cnt_", d_cnt_),
+            Gem::Common::make_cloneable_container_member("f_cnt_", f_cnt_)
         );
     }
 
@@ -746,12 +800,10 @@ private:
         using boost::serialization::make_nvp;
 
         ar &make_nvp("GOptimizationAlgorithmBase", boost::serialization::base_object<GOptimizationAlgorithmBase>(*this));
-        // Unconditional plain members, derived from the single localMembers() declaration ...
+        // All members -- the plain scalars AND the scan-parameter vectors -- are derived from the single
+        // localMembers() declaration; the scan parameters now carry the Gemfony common interface, so no
+        // hand-written tail is needed.
         Gem::Common::serialize_members(ar, this->localMembers());
-        // ... and the manual tail for the parameter-object vectors (their element type lacks the
-        // Gemfony common interface, so they are (de)serialized directly here).
-        ar & BOOST_SERIALIZATION_NVP(b_cnt_) & BOOST_SERIALIZATION_NVP(int32_cnt_) &
-            BOOST_SERIALIZATION_NVP(d_cnt_) & BOOST_SERIALIZATION_NVP(f_cnt_);
     }
 
     ///////////////////////////////////////////////////////////////////////

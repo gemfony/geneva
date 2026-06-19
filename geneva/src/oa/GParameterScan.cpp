@@ -276,11 +276,11 @@ GParameterScan::GParameterScan(const GParameterScan &cp)
     // Copying / setting of the optimization algorithm id is done by the parent class. The same
     // applies to the copying of the optimization monitor.
 
-    // Load the parameter objects
-    for(const auto &p : cp.b_cnt_)     b_cnt_.push_back(p->clone());
-    for(const auto &p : cp.int32_cnt_) int32_cnt_.push_back(p->clone());
-    for(const auto &p : cp.d_cnt_)     d_cnt_.push_back(p->clone());
-    for(const auto &p : cp.f_cnt_)     f_cnt_.push_back(p->clone());
+    // Deep-copy the scan-parameter objects through the Gemfony common interface.
+    Gem::Common::copyCloneableSmartPointerContainer(cp.b_cnt_, b_cnt_);
+    Gem::Common::copyCloneableSmartPointerContainer(cp.int32_cnt_, int32_cnt_);
+    Gem::Common::copyCloneableSmartPointerContainer(cp.d_cnt_, d_cnt_);
+    Gem::Common::copyCloneableSmartPointerContainer(cp.f_cnt_, f_cnt_);
 }
 
 /******************************************************************************/
@@ -319,27 +319,12 @@ void GParameterScan::compare_(
     // Compare our parent data ...
     Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
 
-    // ... and then the unconditional plain local data, derived from the single localMembers() declaration
-    // (cycle_logic_halt_ is now one of them).
+    // ... and then ALL local data, derived from the single localMembers() declaration. This now also
+    // covers the scan-parameter vectors (cycle_logic_halt_ included): their element types carry the
+    // Gemfony common interface, so g_compare_members() compares them element-by-element through each scan
+    // parameter's compare_() (which feeds the full scan state -- including the pre-computed grid -- to the
+    // token).
     g_compare_members(localMembers(), p_load->localMembers(), token);
-
-    // ... and the scan-parameter vectors. Their element type lacks the Gemfony common interface, so we
-    // compare them element-by-element through each scan parameter's own compareScanPar() (which feeds the
-    // full scan state -- including the pre-computed grid -- to the token).
-    auto compareScanVec = [&token](const auto &lhs_vec, const auto &rhs_vec) {
-        const std::size_t lhs_size = lhs_vec.size();
-        const std::size_t rhs_size = rhs_vec.size();
-        compare_t(Gem::Common::getIdentity(lhs_size, rhs_size, "lhs_size", "rhs_size"), token);
-        if(lhs_size == rhs_size) {
-            for(std::size_t i = 0; i < lhs_size; ++i) {
-                lhs_vec[i]->compareScanPar(*rhs_vec[i], token);
-            }
-        }
-    };
-    compareScanVec(b_cnt_, p_load->b_cnt_);
-    compareScanVec(int32_cnt_, p_load->int32_cnt_);
-    compareScanVec(d_cnt_, p_load->d_cnt_);
-    compareScanVec(f_cnt_, p_load->f_cnt_);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -406,23 +391,10 @@ void GParameterScan::load_(const GOptimizationAlgorithmBase *cp) {
     // This will also take care of copying all individuals.
     GOptimizationAlgorithmBase::load_(cp);
 
-    // ... and then our own unconditional plain data, derived from the single localMembers() declaration
-    // (cycle_logic_halt_ is now one of them).
+    // ... and then ALL of our own data, derived from the single localMembers() declaration. This now also
+    // deep-copies the scan-parameter vectors (cycle_logic_halt_ included): their element types carry the
+    // Gemfony common interface, so make_cloneable_container_member() clones each element via clone_()/load_().
     Gem::Common::g_load_members(localMembers(), p_load->localMembers());
-
-    // Load the parameter objects (their element type lacks the Gemfony common interface,
-    // so they are deep-copied via the scan classes' own clone()).
-    b_cnt_.clear();
-    for(const auto &p : p_load->b_cnt_)     b_cnt_.push_back(p->clone());
-
-    int32_cnt_.clear();
-    for(const auto &p : p_load->int32_cnt_) int32_cnt_.push_back(p->clone());
-
-    d_cnt_.clear();
-    for(const auto &p : p_load->d_cnt_)     d_cnt_.push_back(p->clone());
-
-    f_cnt_.clear();
-    for(const auto &p : p_load->f_cnt_)     f_cnt_.push_back(p->clone());
 }
 
 /******************************************************************************/
