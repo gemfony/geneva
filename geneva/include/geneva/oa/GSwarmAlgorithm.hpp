@@ -112,38 +112,27 @@ private:
      * neighborhood_bests_cnt_, global_best_ptr_) are handled in a manual tail in
      * serialize()/load_()/compare_() because their load_() depends on neighborhood count,
      * iteration state and per-element clone()/load(). */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    // The member list is written ONCE, in the static template helper below; the two localMembers()
+    // overloads are trivial forwarders. Self is deduced as the (const) class type.
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("default_n_neighborhood_members_", default_n_neighborhood_members_),
-            Gem::Common::make_member("c_personal_", c_personal_),
-            Gem::Common::make_member("c_neighborhood_", c_neighborhood_),
-            Gem::Common::make_member("c_global_", c_global_),
-            Gem::Common::make_member("c_velocity_", c_velocity_),
-            Gem::Common::make_member("update_rule_", update_rule_),
-            Gem::Common::make_member("random_fill_up_", random_fill_up_),
-            Gem::Common::make_member("repulsion_threshold_", repulsion_threshold_),
-            Gem::Common::make_member("dbl_lower_parameter_boundaries_cnt_", dbl_lower_parameter_boundaries_cnt_),
-            Gem::Common::make_member("dbl_upper_parameter_boundaries_cnt_", dbl_upper_parameter_boundaries_cnt_),
-            Gem::Common::make_member("dbl_vel_max_cnt_", dbl_vel_max_cnt_),
-            Gem::Common::make_member("velocity_range_percentage_", velocity_range_percentage_)
+            Gem::Common::make_member("default_n_neighborhood_members_", self.default_n_neighborhood_members_),
+            Gem::Common::make_member("c_personal_", self.c_personal_),
+            Gem::Common::make_member("c_neighborhood_", self.c_neighborhood_),
+            Gem::Common::make_member("c_global_", self.c_global_),
+            Gem::Common::make_member("c_velocity_", self.c_velocity_),
+            Gem::Common::make_member("update_rule_", self.update_rule_),
+            Gem::Common::make_member("random_fill_up_", self.random_fill_up_),
+            Gem::Common::make_member("repulsion_threshold_", self.repulsion_threshold_),
+            Gem::Common::make_member("dbl_lower_parameter_boundaries_cnt_", self.dbl_lower_parameter_boundaries_cnt_),
+            Gem::Common::make_member("dbl_upper_parameter_boundaries_cnt_", self.dbl_upper_parameter_boundaries_cnt_),
+            Gem::Common::make_member("dbl_vel_max_cnt_", self.dbl_vel_max_cnt_),
+            Gem::Common::make_member("velocity_range_percentage_", self.velocity_range_percentage_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("default_n_neighborhood_members_", default_n_neighborhood_members_),
-            Gem::Common::make_member("c_personal_", c_personal_),
-            Gem::Common::make_member("c_neighborhood_", c_neighborhood_),
-            Gem::Common::make_member("c_global_", c_global_),
-            Gem::Common::make_member("c_velocity_", c_velocity_),
-            Gem::Common::make_member("update_rule_", update_rule_),
-            Gem::Common::make_member("random_fill_up_", random_fill_up_),
-            Gem::Common::make_member("repulsion_threshold_", repulsion_threshold_),
-            Gem::Common::make_member("dbl_lower_parameter_boundaries_cnt_", dbl_lower_parameter_boundaries_cnt_),
-            Gem::Common::make_member("dbl_upper_parameter_boundaries_cnt_", dbl_upper_parameter_boundaries_cnt_),
-            Gem::Common::make_member("dbl_vel_max_cnt_", dbl_vel_max_cnt_),
-            Gem::Common::make_member("velocity_range_percentage_", velocity_range_percentage_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {

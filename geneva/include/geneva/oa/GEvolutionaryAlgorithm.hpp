@@ -213,22 +213,19 @@ private:
     friend class boost::serialization::access;
 
     /** @brief Single declaration of this class'es local data members */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    // The member list is written ONCE, in the static template helper below; the two localMembers()
+    // overloads are trivial forwarders. Self is deduced as the (const) class type.
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("sorting_mode_", sorting_mode_),
-            Gem::Common::make_member("step_control_", step_control_),
-            Gem::Common::make_member("learning_rate_c_", learning_rate_c_),
-            Gem::Common::make_member("recombine_sigma_", recombine_sigma_)
+            Gem::Common::make_member("sorting_mode_", self.sorting_mode_),
+            Gem::Common::make_member("step_control_", self.step_control_),
+            Gem::Common::make_member("learning_rate_c_", self.learning_rate_c_),
+            Gem::Common::make_member("recombine_sigma_", self.recombine_sigma_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("sorting_mode_", sorting_mode_),
-            Gem::Common::make_member("step_control_", step_control_),
-            Gem::Common::make_member("learning_rate_c_", learning_rate_c_),
-            Gem::Common::make_member("recombine_sigma_", recombine_sigma_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {

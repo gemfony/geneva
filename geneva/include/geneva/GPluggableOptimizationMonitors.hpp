@@ -171,28 +171,20 @@ class GFitnessMonitor // NOLINT(cppcoreguidelines-special-member-functions)
      * (make_cloneable_container_member); the rest are plain (make_member).
      * No manual tail is needed.
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("x_dim_", x_dim_),
-            Gem::Common::make_member("y_dim_", y_dim_),
-            Gem::Common::make_member("n_monitor_inds_", n_monitor_inds_),
-            Gem::Common::make_member("result_file_", result_file_),
-            Gem::Common::make_member("info_init_run_", info_init_run_),
-            Gem::Common::make_cloneable_container_member("global_fitness_graph_vec_", global_fitness_graph_vec_),
-            Gem::Common::make_cloneable_container_member("iteration_fitness_graph_vec_", iteration_fitness_graph_vec_)
+            Gem::Common::make_member("x_dim_", self.x_dim_),
+            Gem::Common::make_member("y_dim_", self.y_dim_),
+            Gem::Common::make_member("n_monitor_inds_", self.n_monitor_inds_),
+            Gem::Common::make_member("result_file_", self.result_file_),
+            Gem::Common::make_member("info_init_run_", self.info_init_run_),
+            Gem::Common::make_cloneable_container_member("global_fitness_graph_vec_", self.global_fitness_graph_vec_),
+            Gem::Common::make_cloneable_container_member("iteration_fitness_graph_vec_", self.iteration_fitness_graph_vec_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("x_dim_", x_dim_),
-            Gem::Common::make_member("y_dim_", y_dim_),
-            Gem::Common::make_member("n_monitor_inds_", n_monitor_inds_),
-            Gem::Common::make_member("result_file_", result_file_),
-            Gem::Common::make_member("info_init_run_", info_init_run_),
-            Gem::Common::make_cloneable_container_member("global_fitness_graph_vec_", global_fitness_graph_vec_),
-            Gem::Common::make_cloneable_container_member("iteration_fitness_graph_vec_", iteration_fitness_graph_vec_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -362,16 +354,14 @@ class GCollectiveMonitor // NOLINT(cppcoreguidelines-special-member-functions)
      * container, which serialize_members() cannot express. So serialize() keeps
      * its bespoke body below.
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_cloneable_container_member("pluggable_monitors_", pluggable_monitors_)
+            Gem::Common::make_cloneable_container_member("pluggable_monitors_", self.pluggable_monitors_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_cloneable_container_member("pluggable_monitors_", pluggable_monitors_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -506,32 +496,22 @@ class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
      * gpd_, a GPlotDesigner VALUE member loaded via gpd_.load() rather than a
      * plain assignment. Both stay in the documented manual tail.
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_cloneable_member("progress_plotter2_d_oa_", progress_plotter2_d_oa_),
-            Gem::Common::make_cloneable_member("progress_plotter3_d_oa_", progress_plotter3_d_oa_),
-            Gem::Common::make_cloneable_member("progress_plotter4_d_oa_", progress_plotter4_d_oa_),
-            Gem::Common::make_member("file_name_", file_name_),
-            Gem::Common::make_member("canvas_dimensions_", canvas_dimensions_),
-            Gem::Common::make_member("monitor_best_only_", monitor_best_only_),
-            Gem::Common::make_member("monitor_valid_only_", monitor_valid_only_),
-            Gem::Common::make_member("observe_boundaries_", observe_boundaries_),
-            Gem::Common::make_member("add_print_command_", add_print_command_)
+            Gem::Common::make_cloneable_member("progress_plotter2_d_oa_", self.progress_plotter2_d_oa_),
+            Gem::Common::make_cloneable_member("progress_plotter3_d_oa_", self.progress_plotter3_d_oa_),
+            Gem::Common::make_cloneable_member("progress_plotter4_d_oa_", self.progress_plotter4_d_oa_),
+            Gem::Common::make_member("file_name_", self.file_name_),
+            Gem::Common::make_member("canvas_dimensions_", self.canvas_dimensions_),
+            Gem::Common::make_member("monitor_best_only_", self.monitor_best_only_),
+            Gem::Common::make_member("monitor_valid_only_", self.monitor_valid_only_),
+            Gem::Common::make_member("observe_boundaries_", self.observe_boundaries_),
+            Gem::Common::make_member("add_print_command_", self.add_print_command_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_cloneable_member("progress_plotter2_d_oa_", progress_plotter2_d_oa_),
-            Gem::Common::make_cloneable_member("progress_plotter3_d_oa_", progress_plotter3_d_oa_),
-            Gem::Common::make_cloneable_member("progress_plotter4_d_oa_", progress_plotter4_d_oa_),
-            Gem::Common::make_member("file_name_", file_name_),
-            Gem::Common::make_member("canvas_dimensions_", canvas_dimensions_),
-            Gem::Common::make_member("monitor_best_only_", monitor_best_only_),
-            Gem::Common::make_member("monitor_valid_only_", monitor_valid_only_),
-            Gem::Common::make_member("observe_boundaries_", observe_boundaries_),
-            Gem::Common::make_member("add_print_command_", add_print_command_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -1358,32 +1338,22 @@ class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-function
      * serialize(), load_() and compare_() from one place. All members are plain
      * config values (make_member); no manual tail is needed.
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("file_name_", file_name_),
-            Gem::Common::make_member("boundaries_", boundaries_),
-            Gem::Common::make_member("boundaries_active_", boundaries_active_),
-            Gem::Common::make_member("with_name_and_type_", with_name_and_type_),
-            Gem::Common::make_member("with_commas_", with_commas_),
-            Gem::Common::make_member("use_raw_fitness_", use_raw_fitness_),
-            Gem::Common::make_member("show_validity_", show_validity_),
-            Gem::Common::make_member("print_initial_", print_initial_),
-            Gem::Common::make_member("show_iteration_boundaries_", show_iteration_boundaries_)
+            Gem::Common::make_member("file_name_", self.file_name_),
+            Gem::Common::make_member("boundaries_", self.boundaries_),
+            Gem::Common::make_member("boundaries_active_", self.boundaries_active_),
+            Gem::Common::make_member("with_name_and_type_", self.with_name_and_type_),
+            Gem::Common::make_member("with_commas_", self.with_commas_),
+            Gem::Common::make_member("use_raw_fitness_", self.use_raw_fitness_),
+            Gem::Common::make_member("show_validity_", self.show_validity_),
+            Gem::Common::make_member("print_initial_", self.print_initial_),
+            Gem::Common::make_member("show_iteration_boundaries_", self.show_iteration_boundaries_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("file_name_", file_name_),
-            Gem::Common::make_member("boundaries_", boundaries_),
-            Gem::Common::make_member("boundaries_active_", boundaries_active_),
-            Gem::Common::make_member("with_name_and_type_", with_name_and_type_),
-            Gem::Common::make_member("with_commas_", with_commas_),
-            Gem::Common::make_member("use_raw_fitness_", use_raw_fitness_),
-            Gem::Common::make_member("show_validity_", show_validity_),
-            Gem::Common::make_member("print_initial_", print_initial_),
-            Gem::Common::make_member("show_iteration_boundaries_", show_iteration_boundaries_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -1617,20 +1587,16 @@ class GIterationResultsFileLogger // NOLINT(cppcoreguidelines-special-member-fun
      * serialize(), load_() and compare_() from one place. All members are plain
      * config values (make_member); no manual tail is needed.
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("file_name_", file_name_),
-            Gem::Common::make_member("with_commas_", with_commas_),
-            Gem::Common::make_member("use_raw_fitness_", use_raw_fitness_)
+            Gem::Common::make_member("file_name_", self.file_name_),
+            Gem::Common::make_member("with_commas_", self.with_commas_),
+            Gem::Common::make_member("use_raw_fitness_", self.use_raw_fitness_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("file_name_", file_name_),
-            Gem::Common::make_member("with_commas_", with_commas_),
-            Gem::Common::make_member("use_raw_fitness_", use_raw_fitness_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -1779,36 +1745,24 @@ class GNAdpationsLogger // NOLINT(cppcoreguidelines-special-member-functions)
      * the gpd_ GPlotDesigner value, which load_() assigns plainly) uses
      * make_member. No manual tail is needed.
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("file_name_", file_name_),
-            Gem::Common::make_member("canvas_dimensions_", canvas_dimensions_),
-            Gem::Common::make_member("gpd_", gpd_),
-            Gem::Common::make_cloneable_member("n_adaptions_hist2_d_oa_", n_adaptions_hist2_d_oa_),
-            Gem::Common::make_cloneable_member("n_adaptions_graph2_d_oa_", n_adaptions_graph2_d_oa_),
-            Gem::Common::make_cloneable_member("fitness_graph2_d_oa_", fitness_graph2_d_oa_),
-            Gem::Common::make_member("monitor_best_only_", monitor_best_only_),
-            Gem::Common::make_member("add_print_command_", add_print_command_),
-            Gem::Common::make_member("max_iteration_", max_iteration_),
-            Gem::Common::make_member("n_iterations_recorded_", n_iterations_recorded_),
-            Gem::Common::make_member("n_adaptions_store_", n_adaptions_store_)
+            Gem::Common::make_member("file_name_", self.file_name_),
+            Gem::Common::make_member("canvas_dimensions_", self.canvas_dimensions_),
+            Gem::Common::make_member("gpd_", self.gpd_),
+            Gem::Common::make_cloneable_member("n_adaptions_hist2_d_oa_", self.n_adaptions_hist2_d_oa_),
+            Gem::Common::make_cloneable_member("n_adaptions_graph2_d_oa_", self.n_adaptions_graph2_d_oa_),
+            Gem::Common::make_cloneable_member("fitness_graph2_d_oa_", self.fitness_graph2_d_oa_),
+            Gem::Common::make_member("monitor_best_only_", self.monitor_best_only_),
+            Gem::Common::make_member("add_print_command_", self.add_print_command_),
+            Gem::Common::make_member("max_iteration_", self.max_iteration_),
+            Gem::Common::make_member("n_iterations_recorded_", self.n_iterations_recorded_),
+            Gem::Common::make_member("n_adaptions_store_", self.n_adaptions_store_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("file_name_", file_name_),
-            Gem::Common::make_member("canvas_dimensions_", canvas_dimensions_),
-            Gem::Common::make_member("gpd_", gpd_),
-            Gem::Common::make_cloneable_member("n_adaptions_hist2_d_oa_", n_adaptions_hist2_d_oa_),
-            Gem::Common::make_cloneable_member("n_adaptions_graph2_d_oa_", n_adaptions_graph2_d_oa_),
-            Gem::Common::make_cloneable_member("fitness_graph2_d_oa_", fitness_graph2_d_oa_),
-            Gem::Common::make_member("monitor_best_only_", monitor_best_only_),
-            Gem::Common::make_member("add_print_command_", add_print_command_),
-            Gem::Common::make_member("max_iteration_", max_iteration_),
-            Gem::Common::make_member("n_iterations_recorded_", n_iterations_recorded_),
-            Gem::Common::make_member("n_adaptions_store_", n_adaptions_store_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -2000,38 +1954,25 @@ class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functio
      * the gpd_ GPlotDesigner value, which load_() assigns plainly here) uses
      * make_member. No manual tail is needed.
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("file_name_", file_name_),
-            Gem::Common::make_member("adaptor_name_", adaptor_name_),
-            Gem::Common::make_member("property_", property_),
-            Gem::Common::make_member("canvas_dimensions_", canvas_dimensions_),
-            Gem::Common::make_member("gpd_", gpd_),
-            Gem::Common::make_cloneable_member("adaptor_property_hist2_d_oa_", adaptor_property_hist2_d_oa_),
-            Gem::Common::make_cloneable_member("fitness_graph2_d_oa_", fitness_graph2_d_oa_),
-            Gem::Common::make_member("monitor_best_only_", monitor_best_only_),
-            Gem::Common::make_member("add_print_command_", add_print_command_),
-            Gem::Common::make_member("max_iteration_", max_iteration_),
-            Gem::Common::make_member("n_iterations_recorded_", n_iterations_recorded_),
-            Gem::Common::make_member("adaptor_property_store_", adaptor_property_store_)
+            Gem::Common::make_member("file_name_", self.file_name_),
+            Gem::Common::make_member("adaptor_name_", self.adaptor_name_),
+            Gem::Common::make_member("property_", self.property_),
+            Gem::Common::make_member("canvas_dimensions_", self.canvas_dimensions_),
+            Gem::Common::make_member("gpd_", self.gpd_),
+            Gem::Common::make_cloneable_member("adaptor_property_hist2_d_oa_", self.adaptor_property_hist2_d_oa_),
+            Gem::Common::make_cloneable_member("fitness_graph2_d_oa_", self.fitness_graph2_d_oa_),
+            Gem::Common::make_member("monitor_best_only_", self.monitor_best_only_),
+            Gem::Common::make_member("add_print_command_", self.add_print_command_),
+            Gem::Common::make_member("max_iteration_", self.max_iteration_),
+            Gem::Common::make_member("n_iterations_recorded_", self.n_iterations_recorded_),
+            Gem::Common::make_member("adaptor_property_store_", self.adaptor_property_store_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("file_name_", file_name_),
-            Gem::Common::make_member("adaptor_name_", adaptor_name_),
-            Gem::Common::make_member("property_", property_),
-            Gem::Common::make_member("canvas_dimensions_", canvas_dimensions_),
-            Gem::Common::make_member("gpd_", gpd_),
-            Gem::Common::make_cloneable_member("adaptor_property_hist2_d_oa_", adaptor_property_hist2_d_oa_),
-            Gem::Common::make_cloneable_member("fitness_graph2_d_oa_", fitness_graph2_d_oa_),
-            Gem::Common::make_member("monitor_best_only_", monitor_best_only_),
-            Gem::Common::make_member("add_print_command_", add_print_command_),
-            Gem::Common::make_member("max_iteration_", max_iteration_),
-            Gem::Common::make_member("n_iterations_recorded_", n_iterations_recorded_),
-            Gem::Common::make_member("adaptor_property_store_", adaptor_property_store_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -2593,48 +2534,30 @@ class GProcessingTimesLogger // NOLINT(cppcoreguidelines-special-member-function
      * the previous hand-written load_() forgot to load n_bins_y_ (it was
      * serialized and compared but never copied on load).
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("file_name_pth_", file_name_pth_),
-            Gem::Common::make_member("canvas_dimensions_pth_", canvas_dimensions_pth_),
-            Gem::Common::make_member("gpd_pth_", gpd_pth_),
-            Gem::Common::make_member("file_name_pth2_", file_name_pth2_),
-            Gem::Common::make_member("canvas_dimensions_pth2_", canvas_dimensions_pth2_),
-            Gem::Common::make_member("gpd_pth2_", gpd_pth2_),
-            Gem::Common::make_member("file_name_txt_", file_name_txt_),
-            Gem::Common::make_cloneable_member("pre_processing_times_hist_", pre_processing_times_hist_),
-            Gem::Common::make_cloneable_member("processing_times_hist_", processing_times_hist_),
-            Gem::Common::make_cloneable_member("post_processing_times_hist_", post_processing_times_hist_),
-            Gem::Common::make_cloneable_member("all_processing_times_hist_", all_processing_times_hist_),
-            Gem::Common::make_cloneable_member("pre_processing_times_hist2_d_", pre_processing_times_hist2_d_),
-            Gem::Common::make_cloneable_member("processing_times_hist2_d_", processing_times_hist2_d_),
-            Gem::Common::make_cloneable_member("post_processing_times_hist2_d_", post_processing_times_hist2_d_),
-            Gem::Common::make_cloneable_member("all_processing_times_hist2_d_", all_processing_times_hist2_d_),
-            Gem::Common::make_member("n_bins_x_", n_bins_x_),
-            Gem::Common::make_member("n_bins_y_", n_bins_y_)
+            Gem::Common::make_member("file_name_pth_", self.file_name_pth_),
+            Gem::Common::make_member("canvas_dimensions_pth_", self.canvas_dimensions_pth_),
+            Gem::Common::make_member("gpd_pth_", self.gpd_pth_),
+            Gem::Common::make_member("file_name_pth2_", self.file_name_pth2_),
+            Gem::Common::make_member("canvas_dimensions_pth2_", self.canvas_dimensions_pth2_),
+            Gem::Common::make_member("gpd_pth2_", self.gpd_pth2_),
+            Gem::Common::make_member("file_name_txt_", self.file_name_txt_),
+            Gem::Common::make_cloneable_member("pre_processing_times_hist_", self.pre_processing_times_hist_),
+            Gem::Common::make_cloneable_member("processing_times_hist_", self.processing_times_hist_),
+            Gem::Common::make_cloneable_member("post_processing_times_hist_", self.post_processing_times_hist_),
+            Gem::Common::make_cloneable_member("all_processing_times_hist_", self.all_processing_times_hist_),
+            Gem::Common::make_cloneable_member("pre_processing_times_hist2_d_", self.pre_processing_times_hist2_d_),
+            Gem::Common::make_cloneable_member("processing_times_hist2_d_", self.processing_times_hist2_d_),
+            Gem::Common::make_cloneable_member("post_processing_times_hist2_d_", self.post_processing_times_hist2_d_),
+            Gem::Common::make_cloneable_member("all_processing_times_hist2_d_", self.all_processing_times_hist2_d_),
+            Gem::Common::make_member("n_bins_x_", self.n_bins_x_),
+            Gem::Common::make_member("n_bins_y_", self.n_bins_y_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("file_name_pth_", file_name_pth_),
-            Gem::Common::make_member("canvas_dimensions_pth_", canvas_dimensions_pth_),
-            Gem::Common::make_member("gpd_pth_", gpd_pth_),
-            Gem::Common::make_member("file_name_pth2_", file_name_pth2_),
-            Gem::Common::make_member("canvas_dimensions_pth2_", canvas_dimensions_pth2_),
-            Gem::Common::make_member("gpd_pth2_", gpd_pth2_),
-            Gem::Common::make_member("file_name_txt_", file_name_txt_),
-            Gem::Common::make_cloneable_member("pre_processing_times_hist_", pre_processing_times_hist_),
-            Gem::Common::make_cloneable_member("processing_times_hist_", processing_times_hist_),
-            Gem::Common::make_cloneable_member("post_processing_times_hist_", post_processing_times_hist_),
-            Gem::Common::make_cloneable_member("all_processing_times_hist_", all_processing_times_hist_),
-            Gem::Common::make_cloneable_member("pre_processing_times_hist2_d_", pre_processing_times_hist2_d_),
-            Gem::Common::make_cloneable_member("processing_times_hist2_d_", processing_times_hist2_d_),
-            Gem::Common::make_cloneable_member("post_processing_times_hist2_d_", post_processing_times_hist2_d_),
-            Gem::Common::make_cloneable_member("all_processing_times_hist2_d_", all_processing_times_hist2_d_),
-            Gem::Common::make_member("n_bins_x_", n_bins_x_),
-            Gem::Common::make_member("n_bins_y_", n_bins_y_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {

@@ -57,16 +57,14 @@ class GAntColonyOptimization_PersonalityTraits // NOLINT(cppcoreguidelines-speci
     friend class boost::serialization::access;
 
     /** @brief Single declaration of this class'es local data members */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("population_position_", population_position_)
+            Gem::Common::make_member("population_position_", self.population_position_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("population_position_", population_position_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {

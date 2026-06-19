@@ -87,12 +87,12 @@ class GPostProcessorBaseT // NOLINT(cppcoreguidelines-special-member-functions)
 
     /** @brief Single declaration of this class's local data (just allowed_mnemonics_), feeding
      *  serialize()/load_()/compare_() from one source. */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(Gem::Common::make_member("allowed_mnemonics_", allowed_mnemonics_));
+    template <typename Self>
+    static auto localMembers_(Self &self) {
+        return std::make_tuple(Gem::Common::make_member("allowed_mnemonics_", self.allowed_mnemonics_));
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(Gem::Common::make_member("allowed_mnemonics_", allowed_mnemonics_));
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
 public:
     /**************************************************************************/
@@ -397,23 +397,15 @@ protected:
      *
      * @return A tuple of named, comparable/serializable references to this object's local data members
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("oa_config_file_", oa_config_file_),
-            Gem::Common::make_member("execution_mode_", execution_mode_)
+            Gem::Common::make_member("oa_config_file_", self.oa_config_file_),
+            Gem::Common::make_member("execution_mode_", self.execution_mode_)
         );
     }
-    /**
-     * @brief Single declaration of this class'es local data members (const access)
-     *
-     * @return A tuple of named, comparable/serializable const references to this object's local data members
-     */
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("oa_config_file_", oa_config_file_),
-            Gem::Common::make_member("execution_mode_", execution_mode_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Loads the data of another GEvolutionaryAlgorithmPostOptimizer object

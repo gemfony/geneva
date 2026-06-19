@@ -79,21 +79,16 @@ class GFixedSizePriorityQueueT : public GCommonInterfaceT<GFixedSizePriorityQueu
      * @brief Single declaration of this class'es local data members
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("max_size_", max_size_),
-            Gem::Common::make_member("sort_order_", sort_order_),
-            Gem::Common::make_cloneable_container_member("data_deq_", data_deq_)
+            Gem::Common::make_member("max_size_", self.max_size_),
+            Gem::Common::make_member("sort_order_", self.sort_order_),
+            Gem::Common::make_cloneable_container_member("data_deq_", self.data_deq_)
         );
     }
-    /** @brief Single declaration of this class'es local data members (const overload) */
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("max_size_", max_size_),
-            Gem::Common::make_member("sort_order_", sort_order_),
-            Gem::Common::make_cloneable_container_member("data_deq_", data_deq_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {

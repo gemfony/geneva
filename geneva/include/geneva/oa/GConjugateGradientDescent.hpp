@@ -204,41 +204,28 @@ private:
     friend class boost::serialization::access;
 
     /**
-     * @brief Single declaration of this class'es local data members (non-const overload).
+     * @brief Single declaration of this class'es local data members.
      *
      * @return A tuple of named members used by the comparison and serialization framework
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    // The member list is written ONCE, in the static template helper below; the two localMembers()
+    // overloads are trivial forwarders. Self is deduced as the (const) class type.
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("n_starting_points_", n_starting_points_),
-            Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
-            Gem::Common::make_member("finite_step_", finite_step_),
-            Gem::Common::make_member("step_size_", step_size_),
-            Gem::Common::make_member("gradient_method_", gradient_method_),
-            Gem::Common::make_member("error_estimation_", error_estimation_),
-            Gem::Common::make_member("error_up_", error_up_),
-            Gem::Common::make_member("central_differences_", central_differences_),
-            Gem::Common::make_member("lbfgs_memory_", lbfgs_memory_)
+            Gem::Common::make_member("n_starting_points_", self.n_starting_points_),
+            Gem::Common::make_member("n_fp_parms_first_", self.n_fp_parms_first_),
+            Gem::Common::make_member("finite_step_", self.finite_step_),
+            Gem::Common::make_member("step_size_", self.step_size_),
+            Gem::Common::make_member("gradient_method_", self.gradient_method_),
+            Gem::Common::make_member("error_estimation_", self.error_estimation_),
+            Gem::Common::make_member("error_up_", self.error_up_),
+            Gem::Common::make_member("central_differences_", self.central_differences_),
+            Gem::Common::make_member("lbfgs_memory_", self.lbfgs_memory_)
         );
     }
-    /**
-     * @brief Single declaration of this class'es local data members (const overload).
-     *
-     * @return A tuple of named members used by the comparison and serialization framework
-     */
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("n_starting_points_", n_starting_points_),
-            Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
-            Gem::Common::make_member("finite_step_", finite_step_),
-            Gem::Common::make_member("step_size_", step_size_),
-            Gem::Common::make_member("gradient_method_", gradient_method_),
-            Gem::Common::make_member("error_estimation_", error_estimation_),
-            Gem::Common::make_member("error_up_", error_up_),
-            Gem::Common::make_member("central_differences_", central_differences_),
-            Gem::Common::make_member("lbfgs_memory_", lbfgs_memory_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {

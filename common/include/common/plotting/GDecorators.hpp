@@ -347,27 +347,17 @@ protected:
      *
      * @return A tuple of named handles to this object's local data members
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            make_member("coordinates_", coordinates_),
-            make_member("marker_", marker_),
-            make_member("color_", color_),
-            make_member("size_", size_)
+            make_member("coordinates_", self.coordinates_),
+            make_member("marker_", self.marker_),
+            make_member("color_", self.color_),
+            make_member("size_", self.size_)
         );
     }
-    /**
-     * @brief Const overload exposing this class'es local data members for read-only access.
-     *
-     * @return A tuple of named handles to this object's local data members
-     */
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            make_member("coordinates_", coordinates_),
-            make_member("marker_", marker_),
-            make_member("color_", color_),
-            make_member("size_", size_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /***************************************************************************/
     /**

@@ -62,25 +62,16 @@ class GBaseParChildPersonalityTraits // NOLINT(cppcoreguidelines-special-member-
      *
      * @return A tuple of named member bindings for parent_counter_, pop_pos_ and parent_id_
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("parent_counter_", parent_counter_),
-            Gem::Common::make_member("pop_pos_", pop_pos_),
-            Gem::Common::make_member("parent_id_", parent_id_)
+            Gem::Common::make_member("parent_counter_", self.parent_counter_),
+            Gem::Common::make_member("pop_pos_", self.pop_pos_),
+            Gem::Common::make_member("parent_id_", self.parent_id_)
         );
     }
-    /**
-     * @brief Single declaration of this class's local data members (const access, for serialization).
-     *
-     * @return A tuple of named member bindings for parent_counter_, pop_pos_ and parent_id_
-     */
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("parent_counter_", parent_counter_),
-            Gem::Common::make_member("pop_pos_", pop_pos_),
-            Gem::Common::make_member("parent_id_", parent_id_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Serializes this object, including its base class, to or from a Boost archive.

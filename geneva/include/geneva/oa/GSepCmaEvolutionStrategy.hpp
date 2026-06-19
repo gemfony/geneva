@@ -174,58 +174,37 @@ private:
     friend class boost::serialization::access;
 
     /** @brief Single declaration of this class'es local data members (drives serialize/load/compare). */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    // The member list is written ONCE, in the static template helper below; the two localMembers()
+    // overloads are trivial forwarders. Self is deduced as the (const) class type.
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("lambda_", lambda_),
-            Gem::Common::make_member("mu_", mu_),
-            Gem::Common::make_member("use_diagonal_cma_", use_diagonal_cma_),
-            Gem::Common::make_member("pareto_mode_", pareto_mode_),
-            Gem::Common::make_member("initial_sigma_", initial_sigma_),
-            Gem::Common::make_member("n_", n_),
-            Gem::Common::make_member("sigma_", sigma_),
-            Gem::Common::make_member("m_", m_),
-            Gem::Common::make_member("C_", C_),
-            Gem::Common::make_member("p_sigma_", p_sigma_),
-            Gem::Common::make_member("p_c_", p_c_),
-            Gem::Common::make_member("lower_", lower_),
-            Gem::Common::make_member("upper_", upper_),
-            Gem::Common::make_member("state_initialized_", state_initialized_),
-            Gem::Common::make_member("mu_eff_", mu_eff_),
-            Gem::Common::make_member("c_sigma_", c_sigma_),
-            Gem::Common::make_member("d_sigma_", d_sigma_),
-            Gem::Common::make_member("c_c_", c_c_),
-            Gem::Common::make_member("c_1_", c_1_),
-            Gem::Common::make_member("c_mu_", c_mu_),
-            Gem::Common::make_member("chi_n_", chi_n_),
-            Gem::Common::make_member("weights_", weights_)
+            Gem::Common::make_member("lambda_", self.lambda_),
+            Gem::Common::make_member("mu_", self.mu_),
+            Gem::Common::make_member("use_diagonal_cma_", self.use_diagonal_cma_),
+            Gem::Common::make_member("pareto_mode_", self.pareto_mode_),
+            Gem::Common::make_member("initial_sigma_", self.initial_sigma_),
+            Gem::Common::make_member("n_", self.n_),
+            Gem::Common::make_member("sigma_", self.sigma_),
+            Gem::Common::make_member("m_", self.m_),
+            Gem::Common::make_member("C_", self.C_),
+            Gem::Common::make_member("p_sigma_", self.p_sigma_),
+            Gem::Common::make_member("p_c_", self.p_c_),
+            Gem::Common::make_member("lower_", self.lower_),
+            Gem::Common::make_member("upper_", self.upper_),
+            Gem::Common::make_member("state_initialized_", self.state_initialized_),
+            Gem::Common::make_member("mu_eff_", self.mu_eff_),
+            Gem::Common::make_member("c_sigma_", self.c_sigma_),
+            Gem::Common::make_member("d_sigma_", self.d_sigma_),
+            Gem::Common::make_member("c_c_", self.c_c_),
+            Gem::Common::make_member("c_1_", self.c_1_),
+            Gem::Common::make_member("c_mu_", self.c_mu_),
+            Gem::Common::make_member("chi_n_", self.chi_n_),
+            Gem::Common::make_member("weights_", self.weights_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("lambda_", lambda_),
-            Gem::Common::make_member("mu_", mu_),
-            Gem::Common::make_member("use_diagonal_cma_", use_diagonal_cma_),
-            Gem::Common::make_member("pareto_mode_", pareto_mode_),
-            Gem::Common::make_member("initial_sigma_", initial_sigma_),
-            Gem::Common::make_member("n_", n_),
-            Gem::Common::make_member("sigma_", sigma_),
-            Gem::Common::make_member("m_", m_),
-            Gem::Common::make_member("C_", C_),
-            Gem::Common::make_member("p_sigma_", p_sigma_),
-            Gem::Common::make_member("p_c_", p_c_),
-            Gem::Common::make_member("lower_", lower_),
-            Gem::Common::make_member("upper_", upper_),
-            Gem::Common::make_member("state_initialized_", state_initialized_),
-            Gem::Common::make_member("mu_eff_", mu_eff_),
-            Gem::Common::make_member("c_sigma_", c_sigma_),
-            Gem::Common::make_member("d_sigma_", d_sigma_),
-            Gem::Common::make_member("c_c_", c_c_),
-            Gem::Common::make_member("c_1_", c_1_),
-            Gem::Common::make_member("c_mu_", c_mu_),
-            Gem::Common::make_member("chi_n_", chi_n_),
-            Gem::Common::make_member("weights_", weights_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {

@@ -47,31 +47,21 @@ class GBasePlotter : public GCommonInterfaceT<GBasePlotter> {
      * @brief Single declaration of this class'es local data members
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("drawing_arguments_", drawing_arguments_),
-            Gem::Common::make_member("x_axis_label_", x_axis_label_),
-            Gem::Common::make_member("y_axis_label_", y_axis_label_),
-            Gem::Common::make_member("z_axis_label_", z_axis_label_),
-            Gem::Common::make_member("plot_label_", plot_label_),
-            Gem::Common::make_member("ds_marker_", ds_marker_),
-            Gem::Common::make_cloneable_container_member("secondary_plotter_", secondary_plotter_),
-            Gem::Common::make_member("id_", id_)
+            Gem::Common::make_member("drawing_arguments_", self.drawing_arguments_),
+            Gem::Common::make_member("x_axis_label_", self.x_axis_label_),
+            Gem::Common::make_member("y_axis_label_", self.y_axis_label_),
+            Gem::Common::make_member("z_axis_label_", self.z_axis_label_),
+            Gem::Common::make_member("plot_label_", self.plot_label_),
+            Gem::Common::make_member("ds_marker_", self.ds_marker_),
+            Gem::Common::make_cloneable_container_member("secondary_plotter_", self.secondary_plotter_),
+            Gem::Common::make_member("id_", self.id_)
         );
     }
-    /** @brief Single declaration of this class'es local data members (const overload) */
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("drawing_arguments_", drawing_arguments_),
-            Gem::Common::make_member("x_axis_label_", x_axis_label_),
-            Gem::Common::make_member("y_axis_label_", y_axis_label_),
-            Gem::Common::make_member("z_axis_label_", z_axis_label_),
-            Gem::Common::make_member("plot_label_", plot_label_),
-            Gem::Common::make_member("ds_marker_", ds_marker_),
-            Gem::Common::make_cloneable_container_member("secondary_plotter_", secondary_plotter_),
-            Gem::Common::make_member("id_", id_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Serializes this plotter's state to or from a Boost archive

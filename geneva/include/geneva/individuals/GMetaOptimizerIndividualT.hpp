@@ -634,24 +634,18 @@ protected:
      * it is not part of the copy/compare semantics. serialize() handles it
      * separately; do not derive serialize() from localMembers() for this class.
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("n_runs_per_optimization_", n_runs_per_optimization_),
-            Gem::Common::make_member("fitness_target_", fitness_target_),
-            Gem::Common::make_member("iteration_threshold_", iteration_threshold_),
-            Gem::Common::make_member("mo_target_", mo_target_),
-            Gem::Common::make_member("sub_ea_config_", sub_ea_config_)
+            Gem::Common::make_member("n_runs_per_optimization_", self.n_runs_per_optimization_),
+            Gem::Common::make_member("fitness_target_", self.fitness_target_),
+            Gem::Common::make_member("iteration_threshold_", self.iteration_threshold_),
+            Gem::Common::make_member("mo_target_", self.mo_target_),
+            Gem::Common::make_member("sub_ea_config_", self.sub_ea_config_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("n_runs_per_optimization_", n_runs_per_optimization_),
-            Gem::Common::make_member("fitness_target_", fitness_target_),
-            Gem::Common::make_member("iteration_threshold_", iteration_threshold_),
-            Gem::Common::make_member("mo_target_", mo_target_),
-            Gem::Common::make_member("sub_ea_config_", sub_ea_config_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /***************************************************************************/
     /**
@@ -1643,34 +1637,23 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
     /** @brief Single declaration of this monitor's local data members, feeding serialize() / load_() /
      *  compare_() from one source. The eight plotters are std::shared_ptr<GGraph2D> that must be deep-cloned
      *  on load (make_cloneable_member); file_name_ and gpd_ are plain value members. */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("file_name_", file_name_),
-            Gem::Common::make_member("gpd_", gpd_),
-            Gem::Common::make_cloneable_member("progress_plotter_", progress_plotter_),
-            Gem::Common::make_cloneable_member("n_parent_plotter_", n_parent_plotter_),
-            Gem::Common::make_cloneable_member("n_children_plotter_", n_children_plotter_),
-            Gem::Common::make_cloneable_member("ad_prob_plotter_", ad_prob_plotter_),
-            Gem::Common::make_cloneable_member("min_sigma_plotter_", min_sigma_plotter_),
-            Gem::Common::make_cloneable_member("max_sigma_plotter_", max_sigma_plotter_),
-            Gem::Common::make_cloneable_member("sigma_range_plotter_", sigma_range_plotter_),
-            Gem::Common::make_cloneable_member("sigma_sigma_plotter_", sigma_sigma_plotter_)
+            Gem::Common::make_member("file_name_", self.file_name_),
+            Gem::Common::make_member("gpd_", self.gpd_),
+            Gem::Common::make_cloneable_member("progress_plotter_", self.progress_plotter_),
+            Gem::Common::make_cloneable_member("n_parent_plotter_", self.n_parent_plotter_),
+            Gem::Common::make_cloneable_member("n_children_plotter_", self.n_children_plotter_),
+            Gem::Common::make_cloneable_member("ad_prob_plotter_", self.ad_prob_plotter_),
+            Gem::Common::make_cloneable_member("min_sigma_plotter_", self.min_sigma_plotter_),
+            Gem::Common::make_cloneable_member("max_sigma_plotter_", self.max_sigma_plotter_),
+            Gem::Common::make_cloneable_member("sigma_range_plotter_", self.sigma_range_plotter_),
+            Gem::Common::make_cloneable_member("sigma_sigma_plotter_", self.sigma_sigma_plotter_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("file_name_", file_name_),
-            Gem::Common::make_member("gpd_", gpd_),
-            Gem::Common::make_cloneable_member("progress_plotter_", progress_plotter_),
-            Gem::Common::make_cloneable_member("n_parent_plotter_", n_parent_plotter_),
-            Gem::Common::make_cloneable_member("n_children_plotter_", n_children_plotter_),
-            Gem::Common::make_cloneable_member("ad_prob_plotter_", ad_prob_plotter_),
-            Gem::Common::make_cloneable_member("min_sigma_plotter_", min_sigma_plotter_),
-            Gem::Common::make_cloneable_member("max_sigma_plotter_", max_sigma_plotter_),
-            Gem::Common::make_cloneable_member("sigma_range_plotter_", sigma_range_plotter_),
-            Gem::Common::make_cloneable_member("sigma_sigma_plotter_", sigma_sigma_plotter_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
 public:
     /***************************************************************************/

@@ -251,46 +251,27 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
      *
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("best_past_primary_fitness_", best_past_primary_fitness_),
-            Gem::Common::make_member("n_stalls_", n_stalls_),
-            Gem::Common::make_member("maxmode_", maxmode_),
-            Gem::Common::make_member("assigned_iteration_", assigned_iteration_),
-            Gem::Common::make_member("validity_level_", validity_level_),
-            Gem::Common::make_member("eval_policy_", eval_policy_),
-            Gem::Common::make_member("sigmoid_steepness_", sigmoid_steepness_),
-            Gem::Common::make_member("sigmoid_extremes_", sigmoid_extremes_),
-            Gem::Common::make_member("max_unsuccessful_adaptions_", max_unsuccessful_adaptions_),
-            Gem::Common::make_member("max_retries_until_valid_", max_retries_until_valid_),
-            Gem::Common::make_member("n_adaptions_", n_adaptions_),
-            Gem::Common::make_member("use_random_crash_", use_random_crash_),
-            Gem::Common::make_member("random_crash_prob_", random_crash_prob_),
-            Gem::Common::make_cloneable_member("individual_constraint_ptr_", individual_constraint_ptr_)
+            Gem::Common::make_member("best_past_primary_fitness_", self.best_past_primary_fitness_),
+            Gem::Common::make_member("n_stalls_", self.n_stalls_),
+            Gem::Common::make_member("maxmode_", self.maxmode_),
+            Gem::Common::make_member("assigned_iteration_", self.assigned_iteration_),
+            Gem::Common::make_member("validity_level_", self.validity_level_),
+            Gem::Common::make_member("eval_policy_", self.eval_policy_),
+            Gem::Common::make_member("sigmoid_steepness_", self.sigmoid_steepness_),
+            Gem::Common::make_member("sigmoid_extremes_", self.sigmoid_extremes_),
+            Gem::Common::make_member("max_unsuccessful_adaptions_", self.max_unsuccessful_adaptions_),
+            Gem::Common::make_member("max_retries_until_valid_", self.max_retries_until_valid_),
+            Gem::Common::make_member("n_adaptions_", self.n_adaptions_),
+            Gem::Common::make_member("use_random_crash_", self.use_random_crash_),
+            Gem::Common::make_member("random_crash_prob_", self.random_crash_prob_),
+            Gem::Common::make_cloneable_member("individual_constraint_ptr_", self.individual_constraint_ptr_)
         );
     }
-    /**
-     * @brief Single declaration of this class'es local data members (const overload)
-     * @return A tuple of named const member references driving serialize() and compare_()
-     */
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("best_past_primary_fitness_", best_past_primary_fitness_),
-            Gem::Common::make_member("n_stalls_", n_stalls_),
-            Gem::Common::make_member("maxmode_", maxmode_),
-            Gem::Common::make_member("assigned_iteration_", assigned_iteration_),
-            Gem::Common::make_member("validity_level_", validity_level_),
-            Gem::Common::make_member("eval_policy_", eval_policy_),
-            Gem::Common::make_member("sigmoid_steepness_", sigmoid_steepness_),
-            Gem::Common::make_member("sigmoid_extremes_", sigmoid_extremes_),
-            Gem::Common::make_member("max_unsuccessful_adaptions_", max_unsuccessful_adaptions_),
-            Gem::Common::make_member("max_retries_until_valid_", max_retries_until_valid_),
-            Gem::Common::make_member("n_adaptions_", n_adaptions_),
-            Gem::Common::make_member("use_random_crash_", use_random_crash_),
-            Gem::Common::make_member("random_crash_prob_", random_crash_prob_),
-            Gem::Common::make_cloneable_member("individual_constraint_ptr_", individual_constraint_ptr_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Serializes this object to/from a Boost archive

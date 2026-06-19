@@ -46,31 +46,21 @@ class GPlotDesigner : public GCommonInterfaceT<GPlotDesigner> {
      * @brief Single declaration of this class'es local data members
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_cloneable_container_member("plotters_cnt_", plotters_cnt_),
-            Gem::Common::make_member("c_x_div_", c_x_div_),
-            Gem::Common::make_member("c_y_div_", c_y_div_),
-            Gem::Common::make_member("c_x_dim_", c_x_dim_),
-            Gem::Common::make_member("c_y_dim_", c_y_dim_),
-            Gem::Common::make_member("canvas_label_", canvas_label_),
-            Gem::Common::make_member("add_print_command_", add_print_command_),
-            Gem::Common::make_member("n_indention_spaces_", n_indention_spaces_)
+            Gem::Common::make_cloneable_container_member("plotters_cnt_", self.plotters_cnt_),
+            Gem::Common::make_member("c_x_div_", self.c_x_div_),
+            Gem::Common::make_member("c_y_div_", self.c_y_div_),
+            Gem::Common::make_member("c_x_dim_", self.c_x_dim_),
+            Gem::Common::make_member("c_y_dim_", self.c_y_dim_),
+            Gem::Common::make_member("canvas_label_", self.canvas_label_),
+            Gem::Common::make_member("add_print_command_", self.add_print_command_),
+            Gem::Common::make_member("n_indention_spaces_", self.n_indention_spaces_)
         );
     }
-    /** @brief Single declaration of this class'es local data members (const overload) */
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_cloneable_container_member("plotters_cnt_", plotters_cnt_),
-            Gem::Common::make_member("c_x_div_", c_x_div_),
-            Gem::Common::make_member("c_y_div_", c_y_div_),
-            Gem::Common::make_member("c_x_dim_", c_x_dim_),
-            Gem::Common::make_member("c_y_dim_", c_y_dim_),
-            Gem::Common::make_member("canvas_label_", canvas_label_),
-            Gem::Common::make_member("add_print_command_", add_print_command_),
-            Gem::Common::make_member("n_indention_spaces_", n_indention_spaces_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Serializes this designer's state to or from a Boost archive

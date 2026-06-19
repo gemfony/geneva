@@ -233,21 +233,16 @@ protected:
      *
      * @return A tuple of named, mutable references to the local data members
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    // The member list is written ONCE, in the static template helper below; the two localMembers()
+    // overloads are trivial forwarders.
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("allow_negative_", allow_negative_)
+            Gem::Common::make_member("allow_negative_", self.allow_negative_)
         );
     }
-    /**
-     * @brief Returns this class's local data members as a tuple (const overload).
-     *
-     * @return A tuple of named, const references to the local data members
-     */
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("allow_negative_", allow_negative_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /***************************************************************************/
     /**
@@ -396,16 +391,14 @@ class GValidityCheckContainerT : public GPreEvaluationValidityCheckT<ind_type> {
      *  serialize()/load_()/compare_() from one source. The checks are std::shared_ptr<...> that must be
      *  deep-cloned on load (make_cloneable_container_member). Defined before serialize() so its deduced
      *  return type is available there. */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_cloneable_container_member("validity_checks_", validity_checks_)
+            Gem::Common::make_cloneable_container_member("validity_checks_", self.validity_checks_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_cloneable_container_member("validity_checks_", validity_checks_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -756,21 +749,14 @@ protected:
      *
      * @return A tuple of named, mutable references to the local data members
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("combiner_policy_", combiner_policy_)
+            Gem::Common::make_member("combiner_policy_", self.combiner_policy_)
         );
     }
-    /**
-     * @brief Returns this class's local data members as a tuple (const overload).
-     *
-     * @return A tuple of named, const references to the local data members
-     */
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("combiner_policy_", combiner_policy_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /***************************************************************************/
     /**

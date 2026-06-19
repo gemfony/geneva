@@ -113,74 +113,45 @@ private:
      * free serialization in GStdFilesystemPathSerialization.hpp and is plain-assignable
      * in memory, so it needs no special handling anymore.
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    // The member list is written ONCE, in the static template helper below; the two localMembers()
+    // overloads are trivial forwarders. Self is deduced as the (const) class type.
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("iteration_", iteration_),
-            Gem::Common::make_member("offset_", offset_),
-            Gem::Common::make_member("max_iteration_", max_iteration_),
-            Gem::Common::make_member("min_iteration_", min_iteration_),
-            Gem::Common::make_member("max_stall_iteration_", max_stall_iteration_),
-            Gem::Common::make_member("report_iteration_", report_iteration_),
-            Gem::Common::make_member("n_recordbest_global_individuals_", n_recordbest_global_individuals_),
-            Gem::Common::make_member("best_global_individuals_pq_", best_global_individuals_pq_),
-            Gem::Common::make_member("default_population_size_", default_population_size_),
-            Gem::Common::make_member("best_known_primary_fitness_", best_known_primary_fitness_),
-            Gem::Common::make_member("best_current_primary_fitness_", best_current_primary_fitness_),
-            Gem::Common::make_member("stall_counter_", stall_counter_),
-            Gem::Common::make_member("stall_counter_threshold_", stall_counter_threshold_),
-            Gem::Common::make_member("cp_interval_", cp_interval_),
-            Gem::Common::make_member("cp_base_name_", cp_base_name_),
-            Gem::Common::make_member("cp_directory_path_", cp_directory_path_),
-            Gem::Common::make_member("cp_last_", cp_last_),
-            Gem::Common::make_member("cp_remove_", cp_remove_),
-            Gem::Common::make_member("cp_serialization_mode_", cp_serialization_mode_),
-            Gem::Common::make_member("quality_threshold_", quality_threshold_),
-            Gem::Common::make_member("has_quality_threshold_", has_quality_threshold_),
-            Gem::Common::make_member("max_duration_", max_duration_),
-            Gem::Common::make_member("min_duration_", min_duration_),
-            Gem::Common::make_member("termination_file_", termination_file_),
-            Gem::Common::make_member("terminate_on_file_modification_", terminate_on_file_modification_),
-            Gem::Common::make_member("emit_termination_reason_", emit_termination_reason_),
-            Gem::Common::make_member("worst_known_valids_cnt_", worst_known_valids_cnt_),
-            Gem::Common::make_member("n_threads_", n_threads_),
-            Gem::Common::make_atomic_member("halted_", halted_),
-            Gem::Common::make_cloneable_container_member("pluggable_monitors_cnt_", pluggable_monitors_cnt_)
+            Gem::Common::make_member("iteration_", self.iteration_),
+            Gem::Common::make_member("offset_", self.offset_),
+            Gem::Common::make_member("max_iteration_", self.max_iteration_),
+            Gem::Common::make_member("min_iteration_", self.min_iteration_),
+            Gem::Common::make_member("max_stall_iteration_", self.max_stall_iteration_),
+            Gem::Common::make_member("report_iteration_", self.report_iteration_),
+            Gem::Common::make_member("n_recordbest_global_individuals_", self.n_recordbest_global_individuals_),
+            Gem::Common::make_member("best_global_individuals_pq_", self.best_global_individuals_pq_),
+            Gem::Common::make_member("default_population_size_", self.default_population_size_),
+            Gem::Common::make_member("best_known_primary_fitness_", self.best_known_primary_fitness_),
+            Gem::Common::make_member("best_current_primary_fitness_", self.best_current_primary_fitness_),
+            Gem::Common::make_member("stall_counter_", self.stall_counter_),
+            Gem::Common::make_member("stall_counter_threshold_", self.stall_counter_threshold_),
+            Gem::Common::make_member("cp_interval_", self.cp_interval_),
+            Gem::Common::make_member("cp_base_name_", self.cp_base_name_),
+            Gem::Common::make_member("cp_directory_path_", self.cp_directory_path_),
+            Gem::Common::make_member("cp_last_", self.cp_last_),
+            Gem::Common::make_member("cp_remove_", self.cp_remove_),
+            Gem::Common::make_member("cp_serialization_mode_", self.cp_serialization_mode_),
+            Gem::Common::make_member("quality_threshold_", self.quality_threshold_),
+            Gem::Common::make_member("has_quality_threshold_", self.has_quality_threshold_),
+            Gem::Common::make_member("max_duration_", self.max_duration_),
+            Gem::Common::make_member("min_duration_", self.min_duration_),
+            Gem::Common::make_member("termination_file_", self.termination_file_),
+            Gem::Common::make_member("terminate_on_file_modification_", self.terminate_on_file_modification_),
+            Gem::Common::make_member("emit_termination_reason_", self.emit_termination_reason_),
+            Gem::Common::make_member("worst_known_valids_cnt_", self.worst_known_valids_cnt_),
+            Gem::Common::make_member("n_threads_", self.n_threads_),
+            Gem::Common::make_atomic_member("halted_", self.halted_),
+            Gem::Common::make_cloneable_container_member("pluggable_monitors_cnt_", self.pluggable_monitors_cnt_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("iteration_", iteration_),
-            Gem::Common::make_member("offset_", offset_),
-            Gem::Common::make_member("max_iteration_", max_iteration_),
-            Gem::Common::make_member("min_iteration_", min_iteration_),
-            Gem::Common::make_member("max_stall_iteration_", max_stall_iteration_),
-            Gem::Common::make_member("report_iteration_", report_iteration_),
-            Gem::Common::make_member("n_recordbest_global_individuals_", n_recordbest_global_individuals_),
-            Gem::Common::make_member("best_global_individuals_pq_", best_global_individuals_pq_),
-            Gem::Common::make_member("default_population_size_", default_population_size_),
-            Gem::Common::make_member("best_known_primary_fitness_", best_known_primary_fitness_),
-            Gem::Common::make_member("best_current_primary_fitness_", best_current_primary_fitness_),
-            Gem::Common::make_member("stall_counter_", stall_counter_),
-            Gem::Common::make_member("stall_counter_threshold_", stall_counter_threshold_),
-            Gem::Common::make_member("cp_interval_", cp_interval_),
-            Gem::Common::make_member("cp_base_name_", cp_base_name_),
-            Gem::Common::make_member("cp_directory_path_", cp_directory_path_),
-            Gem::Common::make_member("cp_last_", cp_last_),
-            Gem::Common::make_member("cp_remove_", cp_remove_),
-            Gem::Common::make_member("cp_serialization_mode_", cp_serialization_mode_),
-            Gem::Common::make_member("quality_threshold_", quality_threshold_),
-            Gem::Common::make_member("has_quality_threshold_", has_quality_threshold_),
-            Gem::Common::make_member("max_duration_", max_duration_),
-            Gem::Common::make_member("min_duration_", min_duration_),
-            Gem::Common::make_member("termination_file_", termination_file_),
-            Gem::Common::make_member("terminate_on_file_modification_", terminate_on_file_modification_),
-            Gem::Common::make_member("emit_termination_reason_", emit_termination_reason_),
-            Gem::Common::make_member("worst_known_valids_cnt_", worst_known_valids_cnt_),
-            Gem::Common::make_member("n_threads_", n_threads_),
-            Gem::Common::make_atomic_member("halted_", halted_),
-            Gem::Common::make_cloneable_container_member("pluggable_monitors_cnt_", pluggable_monitors_cnt_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {

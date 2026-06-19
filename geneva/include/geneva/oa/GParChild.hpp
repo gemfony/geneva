@@ -85,26 +85,21 @@ class GParChild // NOLINT(cppcoreguidelines-special-member-functions)
     friend class boost::serialization::access;
 
     /** @brief Single declaration of this class'es local data members */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    // The member list is written ONCE, in the static template helper below; the two localMembers()
+    // overloads are trivial forwarders. Self is deduced as the (const) class type.
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("n_parents_", n_parents_),
-            Gem::Common::make_member("recombination_method_", recombination_method_),
-            Gem::Common::make_member("default_n_children_", default_n_children_),
-            Gem::Common::make_member("growth_rate_", growth_rate_),
-            Gem::Common::make_member("max_population_size_", max_population_size_),
-            Gem::Common::make_member("amalgamation_likelihood_", amalgamation_likelihood_)
+            Gem::Common::make_member("n_parents_", self.n_parents_),
+            Gem::Common::make_member("recombination_method_", self.recombination_method_),
+            Gem::Common::make_member("default_n_children_", self.default_n_children_),
+            Gem::Common::make_member("growth_rate_", self.growth_rate_),
+            Gem::Common::make_member("max_population_size_", self.max_population_size_),
+            Gem::Common::make_member("amalgamation_likelihood_", self.amalgamation_likelihood_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("n_parents_", n_parents_),
-            Gem::Common::make_member("recombination_method_", recombination_method_),
-            Gem::Common::make_member("default_n_children_", default_n_children_),
-            Gem::Common::make_member("growth_rate_", growth_rate_),
-            Gem::Common::make_member("max_population_size_", max_population_size_),
-            Gem::Common::make_member("amalgamation_likelihood_", amalgamation_likelihood_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /** @brief Serializes this object via Boost.Serialization
      *  @tparam Archive The archive type used for (de-)serialization

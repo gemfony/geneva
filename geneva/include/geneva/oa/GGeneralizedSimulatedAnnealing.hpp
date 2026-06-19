@@ -245,26 +245,21 @@ private:
      *  Only the scalar configuration (n_chains, q_v, q_a, t0, reannealing) is persisted; all per-chain
      *  state (current points/energies, cooling clocks, stall counters, parameter bounds) is transient
      *  and rebuilt in init(). */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    // The member list is written ONCE, in the static template helper below; the two localMembers()
+    // overloads are trivial forwarders. Self is deduced as the (const) class type.
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("n_chains_", n_chains_),
-            Gem::Common::make_member("qv_", qv_),
-            Gem::Common::make_member("qa_", qa_),
-            Gem::Common::make_member("t0_", t0_),
-            Gem::Common::make_member("reannealing_steps_", reannealing_steps_),
-            Gem::Common::make_member("cooling_timescale_", cooling_timescale_)
+            Gem::Common::make_member("n_chains_", self.n_chains_),
+            Gem::Common::make_member("qv_", self.qv_),
+            Gem::Common::make_member("qa_", self.qa_),
+            Gem::Common::make_member("t0_", self.t0_),
+            Gem::Common::make_member("reannealing_steps_", self.reannealing_steps_),
+            Gem::Common::make_member("cooling_timescale_", self.cooling_timescale_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("n_chains_", n_chains_),
-            Gem::Common::make_member("qv_", qv_),
-            Gem::Common::make_member("qa_", qa_),
-            Gem::Common::make_member("t0_", t0_),
-            Gem::Common::make_member("reannealing_steps_", reannealing_steps_),
-            Gem::Common::make_member("cooling_timescale_", cooling_timescale_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {

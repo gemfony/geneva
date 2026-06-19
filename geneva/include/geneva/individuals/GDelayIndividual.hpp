@@ -213,28 +213,18 @@ protected:
      * @brief Single declaration of this class'es local data members
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("fixed_sleep_time_", fixed_sleep_time_),
-            Gem::Common::make_member("may_crash_", may_crash_),
-            Gem::Common::make_member("throw_likelihood_", throw_likelihood_),
-            Gem::Common::make_member("sleep_randomly_", sleep_randomly_),
-            Gem::Common::make_member("rand_sleep_boundaries_", rand_sleep_boundaries_)
+            Gem::Common::make_member("fixed_sleep_time_", self.fixed_sleep_time_),
+            Gem::Common::make_member("may_crash_", self.may_crash_),
+            Gem::Common::make_member("throw_likelihood_", self.throw_likelihood_),
+            Gem::Common::make_member("sleep_randomly_", self.sleep_randomly_),
+            Gem::Common::make_member("rand_sleep_boundaries_", self.rand_sleep_boundaries_)
         );
     }
-    /**
-     * @brief Single declaration of this class'es local data members (const overload)
-     * @return A tuple of named const member references driving serialize() and compare_()
-     */
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("fixed_sleep_time_", fixed_sleep_time_),
-            Gem::Common::make_member("may_crash_", may_crash_),
-            Gem::Common::make_member("throw_likelihood_", throw_likelihood_),
-            Gem::Common::make_member("sleep_randomly_", sleep_randomly_),
-            Gem::Common::make_member("rand_sleep_boundaries_", rand_sleep_boundaries_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Loads the data of another GDelayIndividual, camouflaged as a GFlatGenome

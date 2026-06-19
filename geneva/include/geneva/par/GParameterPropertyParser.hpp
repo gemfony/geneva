@@ -144,27 +144,17 @@ protected:
      *
      * @return A tuple of named members (mutable references) bundling var, lowerBoundary, upperBoundary and nSteps
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("var", var),
-            Gem::Common::make_member("lowerBoundary", lowerBoundary),
-            Gem::Common::make_member("upperBoundary", upperBoundary),
-            Gem::Common::make_member("nSteps", nSteps)
+            Gem::Common::make_member("var", self.var),
+            Gem::Common::make_member("lowerBoundary", self.lowerBoundary),
+            Gem::Common::make_member("upperBoundary", self.upperBoundary),
+            Gem::Common::make_member("nSteps", self.nSteps)
         );
     }
-    /**
-     * @brief The const overload of the local data member declaration (see above).
-     *
-     * @return A tuple of named members (const references) bundling var, lowerBoundary, upperBoundary and nSteps
-     */
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("var", var),
-            Gem::Common::make_member("lowerBoundary", lowerBoundary),
-            Gem::Common::make_member("upperBoundary", upperBoundary),
-            Gem::Common::make_member("nSteps", nSteps)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /************************************************************************/
     /**

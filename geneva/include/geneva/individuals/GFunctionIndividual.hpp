@@ -769,12 +769,12 @@ protected:
      */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
     /** @brief Single declaration of this class'es local data members */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(Gem::Common::make_member("demo_function_", demo_function_));
+    template <typename Self>
+    static auto localMembers_(Self &self) {
+        return std::make_tuple(Gem::Common::make_member("demo_function_", self.demo_function_));
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(Gem::Common::make_member("demo_function_", demo_function_));
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Loads the data of another GFunctionIndividual.
@@ -881,12 +881,12 @@ class GDoubleSumConstraint
     friend class boost::serialization::access;
 
     /** @brief Single declaration of this class'es local data members */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(Gem::Common::make_member("c_", c_));
+    template <typename Self>
+    static auto localMembers_(Self &self) {
+        return std::make_tuple(Gem::Common::make_member("c_", self.c_));
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(Gem::Common::make_member("c_", c_));
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -976,16 +976,14 @@ class GDoubleSumGapConstraint
     friend class boost::serialization::access;
 
     /** @brief The single declaration of this class'es local data members. */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("c_", c_),
-            Gem::Common::make_member("gap_", gap_));
+            Gem::Common::make_member("c_", self.c_),
+            Gem::Common::make_member("gap_", self.gap_));
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("c_", c_),
-            Gem::Common::make_member("gap_", gap_));
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -1077,12 +1075,12 @@ class GSphereConstraint
     friend class boost::serialization::access;
 
     /** @brief Single declaration of this class'es local data members */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(Gem::Common::make_member("diameter_", diameter_));
+    template <typename Self>
+    static auto localMembers_(Self &self) {
+        return std::make_tuple(Gem::Common::make_member("diameter_", self.diameter_));
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(Gem::Common::make_member("diameter_", diameter_));
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {

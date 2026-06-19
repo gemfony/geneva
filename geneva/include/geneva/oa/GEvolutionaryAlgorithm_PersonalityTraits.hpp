@@ -56,12 +56,12 @@ class GEvolutionaryAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-speci
     friend class boost::serialization::access;
 
     /** @brief Single declaration of this class'es local data members */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(Gem::Common::make_member("is_on_pareto_front_", is_on_pareto_front_));
+    template <typename Self>
+    static auto localMembers_(Self &self) {
+        return std::make_tuple(Gem::Common::make_member("is_on_pareto_front_", self.is_on_pareto_front_));
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(Gem::Common::make_member("is_on_pareto_front_", is_on_pareto_front_));
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {

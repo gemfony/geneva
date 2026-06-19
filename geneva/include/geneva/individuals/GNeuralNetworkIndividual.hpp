@@ -527,12 +527,12 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
     /** @brief The single declaration of this class'es serialised local data
      *  members. n_d_ is intentionally NOT listed: it is recovered from a global
      *  singleton in load() (asymmetric) rather than stored. */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(Gem::Common::make_member("t_f_", t_f_));
+    template <typename Self>
+    static auto localMembers_(Self &self) {
+        return std::make_tuple(Gem::Common::make_member("t_f_", self.t_f_));
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(Gem::Common::make_member("t_f_", t_f_));
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void load(Archive &ar, const unsigned int) {

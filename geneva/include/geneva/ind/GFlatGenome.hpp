@@ -99,22 +99,17 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
      *  (auto) return type is available there. The shared layout_ and the transient input_omitted_ are
      *  handled separately (the layout is interned on the wire and shared, not value-copied; input_omitted_
      *  is a load-only transient), so they are deliberately NOT listed here. */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("dv_", dv_),
-            Gem::Common::make_member("fv_", fv_),
-            Gem::Common::make_member("iv_", iv_),
-            Gem::Common::make_member("bv_", bv_)
+            Gem::Common::make_member("dv_", self.dv_),
+            Gem::Common::make_member("fv_", self.fv_),
+            Gem::Common::make_member("iv_", self.iv_),
+            Gem::Common::make_member("bv_", self.bv_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("dv_", dv_),
-            Gem::Common::make_member("fv_", fv_),
-            Gem::Common::make_member("iv_", iv_),
-            Gem::Common::make_member("bv_", bv_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Serialises the genome: the four value channels plus the shared structural layout, the

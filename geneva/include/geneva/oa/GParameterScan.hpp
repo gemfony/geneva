@@ -194,32 +194,25 @@ class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
      *  sub-elements: that lets it be compared (compare_t cannot stream a whole tuple). The pre-computed
      *  grid lives in the GPodContainerT base and is handled separately via base_object / operator= /
      *  the data_cnt_ comparison. */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers()
+    // The member list is written ONCE, in the static template helper below. Self is deduced as
+    // GBaseScanParT or const GBaseScanParT, so each member binds with the matching const-ness and
+    // make_member() deduces accordingly; the two localMembers() overloads are trivial forwarders.
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("var_mode", std::get<0>(var_)),
-            Gem::Common::make_member("var_name", std::get<1>(var_)),
-            Gem::Common::make_member("var_pos", std::get<2>(var_)),
-            Gem::Common::make_member("step_", step_),
-            Gem::Common::make_member("n_steps_", n_steps_),
-            Gem::Common::make_member("lower_", lower_),
-            Gem::Common::make_member("upper_", upper_),
-            Gem::Common::make_member("random_scan_", random_scan_),
-            Gem::Common::make_member("type_description_", type_description_)
+            Gem::Common::make_member("var_mode", std::get<0>(self.var_)),
+            Gem::Common::make_member("var_name", std::get<1>(self.var_)),
+            Gem::Common::make_member("var_pos", std::get<2>(self.var_)),
+            Gem::Common::make_member("step_", self.step_),
+            Gem::Common::make_member("n_steps_", self.n_steps_),
+            Gem::Common::make_member("lower_", self.lower_),
+            Gem::Common::make_member("upper_", self.upper_),
+            Gem::Common::make_member("random_scan_", self.random_scan_),
+            Gem::Common::make_member("type_description_", self.type_description_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers()
-        return std::make_tuple(
-            Gem::Common::make_member("var_mode", std::get<0>(var_)),
-            Gem::Common::make_member("var_name", std::get<1>(var_)),
-            Gem::Common::make_member("var_pos", std::get<2>(var_)),
-            Gem::Common::make_member("step_", step_),
-            Gem::Common::make_member("n_steps_", n_steps_),
-            Gem::Common::make_member("lower_", lower_),
-            Gem::Common::make_member("upper_", upper_),
-            Gem::Common::make_member("random_scan_", random_scan_),
-            Gem::Common::make_member("type_description_", type_description_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /** @brief Serializes this object via Boost.Serialization
      *  @tparam Archive The archive type used for (de-)serialization
@@ -783,32 +776,26 @@ private:
      * interface (clone_()/load_()/compare_()), so make_cloneable_container_member() deep-clones them on
      * load and compares them element-by-element through each scan parameter's compare_() -- no hand-written
      * tail is needed. */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    // The member list is written ONCE, in the static template helper below; the two localMembers()
+    // overloads are trivial forwarders. Self is deduced as GParameterScan or const GParameterScan, so
+    // each member binds with the matching const-ness and make_member()/make_cloneable_container_member()
+    // deduce accordingly.
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("scan_randomly_", scan_randomly_),
-            Gem::Common::make_member("n_monitor_inds_", n_monitor_inds_),
-            Gem::Common::make_member("simple_scan_items_", simple_scan_items_),
-            Gem::Common::make_member("scans_performed_", scans_performed_),
-            Gem::Common::make_member("cycle_logic_halt_", cycle_logic_halt_),
-            Gem::Common::make_cloneable_container_member("b_cnt_", b_cnt_),
-            Gem::Common::make_cloneable_container_member("int32_cnt_", int32_cnt_),
-            Gem::Common::make_cloneable_container_member("d_cnt_", d_cnt_),
-            Gem::Common::make_cloneable_container_member("f_cnt_", f_cnt_)
+            Gem::Common::make_member("scan_randomly_", self.scan_randomly_),
+            Gem::Common::make_member("n_monitor_inds_", self.n_monitor_inds_),
+            Gem::Common::make_member("simple_scan_items_", self.simple_scan_items_),
+            Gem::Common::make_member("scans_performed_", self.scans_performed_),
+            Gem::Common::make_member("cycle_logic_halt_", self.cycle_logic_halt_),
+            Gem::Common::make_cloneable_container_member("b_cnt_", self.b_cnt_),
+            Gem::Common::make_cloneable_container_member("int32_cnt_", self.int32_cnt_),
+            Gem::Common::make_cloneable_container_member("d_cnt_", self.d_cnt_),
+            Gem::Common::make_cloneable_container_member("f_cnt_", self.f_cnt_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("scan_randomly_", scan_randomly_),
-            Gem::Common::make_member("n_monitor_inds_", n_monitor_inds_),
-            Gem::Common::make_member("simple_scan_items_", simple_scan_items_),
-            Gem::Common::make_member("scans_performed_", scans_performed_),
-            Gem::Common::make_member("cycle_logic_halt_", cycle_logic_halt_),
-            Gem::Common::make_cloneable_container_member("b_cnt_", b_cnt_),
-            Gem::Common::make_cloneable_container_member("int32_cnt_", int32_cnt_),
-            Gem::Common::make_cloneable_container_member("d_cnt_", d_cnt_),
-            Gem::Common::make_cloneable_container_member("f_cnt_", f_cnt_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /** @brief Serializes this object via Boost.Serialization
      *  @tparam Archive The archive type used for (de-)serialization

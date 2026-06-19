@@ -157,30 +157,23 @@ public:
 private:
 
     /** @brief Single declaration of this class'es local data members */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    // The member list is written ONCE, in the static template helper below; the two localMembers()
+    // overloads are trivial forwarders. Self is deduced as the (const) class type.
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("n_simplices_", n_simplices_),
-            Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
-            Gem::Common::make_member("alpha_", alpha_),
-            Gem::Common::make_member("gamma_", gamma_),
-            Gem::Common::make_member("rho_", rho_),
-            Gem::Common::make_member("sigma_", sigma_),
-            Gem::Common::make_member("initial_edge_", initial_edge_),
-            Gem::Common::make_member("restart_threshold_", restart_threshold_)
+            Gem::Common::make_member("n_simplices_", self.n_simplices_),
+            Gem::Common::make_member("n_fp_parms_first_", self.n_fp_parms_first_),
+            Gem::Common::make_member("alpha_", self.alpha_),
+            Gem::Common::make_member("gamma_", self.gamma_),
+            Gem::Common::make_member("rho_", self.rho_),
+            Gem::Common::make_member("sigma_", self.sigma_),
+            Gem::Common::make_member("initial_edge_", self.initial_edge_),
+            Gem::Common::make_member("restart_threshold_", self.restart_threshold_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("n_simplices_", n_simplices_),
-            Gem::Common::make_member("n_fp_parms_first_", n_fp_parms_first_),
-            Gem::Common::make_member("alpha_", alpha_),
-            Gem::Common::make_member("gamma_", gamma_),
-            Gem::Common::make_member("rho_", rho_),
-            Gem::Common::make_member("sigma_", sigma_),
-            Gem::Common::make_member("initial_edge_", initial_edge_),
-            Gem::Common::make_member("restart_threshold_", restart_threshold_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {

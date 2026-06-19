@@ -190,18 +190,17 @@ private:
     /** @brief Single declaration of this class'es local data members (drives serialize/load/compare).
      *  Only the scalar configuration is persisted; all per-particle swarm state (velocities, personal
      *  bests, topology, bounds, ...) is transient and rebuilt in init(). */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    // The member list is written ONCE, in the static template helper below; the two localMembers()
+    // overloads are trivial forwarders. Self is deduced as the (const) class type.
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("swarm_size_", swarm_size_),
-            Gem::Common::make_member("n_informants_", n_informants_)
+            Gem::Common::make_member("swarm_size_", self.swarm_size_),
+            Gem::Common::make_member("n_informants_", self.n_informants_)
         );
     }
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("swarm_size_", swarm_size_),
-            Gem::Common::make_member("n_informants_", n_informants_)
-        );
-    }
+    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
+    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
