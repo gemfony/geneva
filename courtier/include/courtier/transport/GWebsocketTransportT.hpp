@@ -152,7 +152,7 @@ public:
         }
 
         // Set a control-frame callback
-        f_when_control_frame_arrived_ = [this](frame_type frame_t, string_view s) {
+        f_when_control_frame_arrived_ = [this](frame_type frame_t, [[maybe_unused]] string_view s) {
             // Let the audience know what type of control frame we have received
             // if the user has requested it.
             if(this->verbose_control_frames_) {
@@ -878,7 +878,7 @@ public:
         // async_start_ping() is executed from there.
 
         // Set a control-frame callback
-        f_when_control_frame_arrived_ = [this](frame_type frame_t, string_view s) {
+        f_when_control_frame_arrived_ = [this](frame_type frame_t, [[maybe_unused]] string_view s) {
             if(
 				 // We might have received a pong as an answer to our own ping,
 				 // or someone might be sending us pings. In either case the conection is alive.

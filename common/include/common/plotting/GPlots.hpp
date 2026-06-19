@@ -672,7 +672,7 @@ public:
 	  * @return A 1-d histogram of the data projected onto the x-axis (only in specializations)
 	  */
     std::shared_ptr<GDataCollector1T<x_type>>
-    projectX(std::size_t nBins, std::tuple<x_type, x_type> range) const {
+    projectX([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<x_type, x_type> range) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDataCollector2T<>::projectX(range, nBins): Error!" << '\n'
@@ -694,7 +694,7 @@ public:
 	  * @return A 1-d histogram of the data projected onto the y-axis (only in specializations)
 	  */
     std::shared_ptr<GDataCollector1T<y_type>>
-    projectY(std::size_t nBins, std::tuple<y_type, y_type> range) const {
+    projectY([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<y_type, y_type> range) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDataCollector2T<>::projectY(range, nBins): Error!" << '\n'
@@ -1857,7 +1857,7 @@ public:
 	  * @return A 1-d histogram of the data projected onto the x-axis (only in specializations)
 	  */
     std::shared_ptr<GDataCollector1T<x_type>>
-    projectX(std::size_t nBins, std::tuple<x_type, x_type> range) const {
+    projectX([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<x_type, x_type> range) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDataCollector3T<>::projectX(range, nBins): Error!" << '\n'
@@ -1879,7 +1879,7 @@ public:
 	  * @return A 1-d histogram of the data projected onto the y-axis (only in specializations)
 	  */
     std::shared_ptr<GDataCollector1T<y_type>>
-    projectY(std::size_t nBins, std::tuple<y_type, y_type> range) const {
+    projectY([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<y_type, y_type> range) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDataCollector3T<>::projectY(range, nBins): Error!" << '\n'
@@ -1901,7 +1901,7 @@ public:
 	  * @return A 1-d histogram of the data projected onto the z-axis (only in specializations)
 	  */
     std::shared_ptr<GDataCollector1T<z_type>>
-    projectZ(std::size_t nBins, std::tuple<z_type, z_type> range) const {
+    projectZ([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<z_type, z_type> range) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDataCollector3T<>::projectZ(range, nBins): Error!" << '\n'
@@ -2432,7 +2432,7 @@ public:
 	  * @return A 1-d histogram of the data projected onto the x-axis (only in specializations)
 	  */
     std::shared_ptr<GDataCollector1T<x_type>>
-    projectX(std::size_t nBins, std::tuple<x_type, x_type> range) const {
+    projectX([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<x_type, x_type> range) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDataCollector4T<>::projectX(range, nBins): Error!" << '\n'
@@ -2454,7 +2454,7 @@ public:
 	  * @return A 1-d histogram of the data projected onto the y-axis (only in specializations)
 	  */
     std::shared_ptr<GDataCollector1T<y_type>>
-    projectY(std::size_t nBins, std::tuple<y_type, y_type> range) const {
+    projectY([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<y_type, y_type> range) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDataCollector4T<>::projectY(range, nBins): Error!" << '\n'
@@ -2476,7 +2476,7 @@ public:
 	  * @return A 1-d histogram of the data projected onto the z-axis (only in specializations)
 	  */
     std::shared_ptr<GDataCollector1T<z_type>>
-    projectZ(std::size_t nBins, std::tuple<z_type, z_type> range) const {
+    projectZ([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<z_type, z_type> range) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDataCollector4T<>::projectZ(range, nBins): Error!" << '\n'
@@ -2498,7 +2498,7 @@ public:
 	  * @return A 1-d histogram of the data projected onto the w-axis (only in specializations)
 	  */
     std::shared_ptr<GDataCollector1T<w_type>>
-    projectW(std::size_t nBins, std::tuple<w_type, w_type> range) const {
+    projectW([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<w_type, w_type> range) const {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GDataCollector4T<>::projectZ(range, nBins): Error!" << '\n'

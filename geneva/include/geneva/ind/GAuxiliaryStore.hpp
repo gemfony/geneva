@@ -354,7 +354,7 @@ private:
      * @param pod_tag The expected type tag of the caller's POD type
      * @return A mutable reference to the matching auxiliary block
      */
-    AuxBlock &fetch(AuxKey key, std::size_t pod_size, std::uint32_t pod_tag) {
+    AuxBlock &fetch(AuxKey key, [[maybe_unused]] std::size_t pod_size, [[maybe_unused]] std::uint32_t pod_tag) {
         auto it = pods_.find(key);
 #ifdef DEBUG
         verify(it != pods_.end(), key, pod_size, pod_tag, it);
@@ -369,7 +369,7 @@ private:
      * @param pod_tag The expected type tag of the caller's POD type
      * @return A const reference to the matching auxiliary block
      */
-    const AuxBlock &fetch(AuxKey key, std::size_t pod_size, std::uint32_t pod_tag) const {
+    const AuxBlock &fetch(AuxKey key, [[maybe_unused]] std::size_t pod_size, [[maybe_unused]] std::uint32_t pod_tag) const {
         auto it = pods_.find(key);
 #ifdef DEBUG
         verify(it != pods_.end(), key, pod_size, pod_tag, it);

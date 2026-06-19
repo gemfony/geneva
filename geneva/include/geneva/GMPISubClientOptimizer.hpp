@@ -151,7 +151,7 @@ private:
     /**
          * Callback function which is executed by sub-clients when clientRun() is called
          */
-    std::function<int(MPI_Comm)> subClientJob_{[](MPI_Comm comm) -> int {
+    std::function<int(MPI_Comm)> subClientJob_{[]([[maybe_unused]] MPI_Comm comm) -> int {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "GMPISubClientOptimizer::subClientJob_(MPI_Comm comm): Error!" << '\n'
