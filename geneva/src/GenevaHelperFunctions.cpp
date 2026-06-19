@@ -63,18 +63,15 @@ double minOnly_transformed_fitness(
     if(maxMode::MINIMIZE == m) {
         return f;
     }
-            // MAXIMIZE
-        // Negation will transform maximization problems into minimization problems
-        if(std::numeric_limits<double>::max() == f) {
-            return std::numeric_limits<double>::lowest();
-        }
-        if(std::numeric_limits<double>::lowest() == f) {
-            return std::numeric_limits<double>::max();
-        }
-        else {
-            return -f;
-        }
-   
+    // MAXIMIZE
+    // Negation will transform maximization problems into minimization problems
+    if(std::numeric_limits<double>::max() == f) {
+        return std::numeric_limits<double>::lowest();
+    }
+    if(std::numeric_limits<double>::lowest() == f) {
+        return std::numeric_limits<double>::max();
+    }
+    return -f;
 }
 
 /******************************************************************************/

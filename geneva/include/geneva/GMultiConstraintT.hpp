@@ -123,22 +123,18 @@ public:
             if(result <= 1.) { // valid
                 return 0.;
             }
-                            return result;
-           
+            return result;
         }
-                    if(result >= 0. && result <= 1.) { // valid
-                return 0.;
-            }
-                           // invalid
-                if(result < 0.) { // we need to calculate a replacement value
-                    // Will be the more invalid the further below 0 "result" is
-                    return 1. + std::abs(result);
-                }
-                else { // result > 1, we may just return the unmodified value
-                    return result;
-                }
-           
-       
+        if(result >= 0. && result <= 1.) { // valid
+            return 0.;
+        }
+        // invalid
+        if(result < 0.) { // we need to calculate a replacement value
+            // Will be the more invalid the further below 0 "result" is
+            return 1. + std::abs(result);
+        }
+        // result > 1, we may just return the unmodified value
+        return result;
     }
 
     /***************************************************************************/
