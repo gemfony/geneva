@@ -808,7 +808,7 @@ protected:
 
         // ... and then the local data. Actually this allows us to compare
         // the second parent class without directly calling it.
-        compare_t(IDENTITY(this->data_cnt_, p_load->data_cnt_), token);
+        compare_t(Gem::Common::getIdentity(this->data_cnt_, p_load->data_cnt_, "this->data_cnt_", "p_load->data_cnt_"), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1124,7 +1124,7 @@ protected:
 
         // ... and then the local data. This allows us to compare
         // the second parent class without directly calling it.
-        compare_t(IDENTITY(this->data_cnt_, p_load->data_cnt_), token);
+        compare_t(Gem::Common::getIdentity(this->data_cnt_, p_load->data_cnt_, "this->data_cnt_", "p_load->data_cnt_"), token);
 
         // React on deviations from the expectation
         token.evaluate();

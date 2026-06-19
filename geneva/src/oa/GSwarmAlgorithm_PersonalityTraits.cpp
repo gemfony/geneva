@@ -99,7 +99,7 @@ void GSwarmAlgorithm_PersonalityTraits::compare_(
     Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // ... and finally the manual tail: personal_best_ (see localMembers() docs).
-    compare_t(IDENTITY(personal_best_, p_load->personal_best_), token);
+    compare_t(Gem::Common::getIdentity(personal_best_, p_load->personal_best_, "personal_best_", "p_load->personal_best_"), token);
 
     // React on deviations from the expectation
     token.evaluate();

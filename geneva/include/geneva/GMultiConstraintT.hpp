@@ -546,7 +546,7 @@ protected:
         compare_base_t<GPreEvaluationValidityCheckT<ind_type>>(*this, *p_load, token);
 
         // ... and then the local data
-        compare_t(IDENTITY(validity_checks_, p_load->validity_checks_), token);
+        compare_t(Gem::Common::getIdentity(validity_checks_, p_load->validity_checks_, "validity_checks_", "p_load->validity_checks_"), token);
 
         // React on deviations from the expectation
         token.evaluate();

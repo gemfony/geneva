@@ -1640,7 +1640,7 @@ public:
         double limit
     ) const {
         Gem::Common::GToken token("GContainerT", e);
-        Gem::Common::compare_t(IDENTITY(this->data_cnt_, cp.data_cnt_), token);
+        Gem::Common::compare_t(Gem::Common::getIdentity(this->data_cnt_, cp.data_cnt_, "this->data_cnt_", "cp.data_cnt_"), token);
         token.evaluate();
     }
 

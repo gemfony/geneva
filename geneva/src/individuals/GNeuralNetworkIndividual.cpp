@@ -159,15 +159,15 @@ void trainingSet::compare(
     Gem::Common::GToken token("trainingSet", e);
 
     // Compare our local data
-    Gem::Common::compare_t(IDENTITY(nInputNodes, cp.nInputNodes), token);
-    Gem::Common::compare_t(IDENTITY(nOutputNodes, cp.nOutputNodes), token);
+    Gem::Common::compare_t(Gem::Common::getIdentity(nInputNodes, cp.nInputNodes, "nInputNodes", "cp.nInputNodes"), token);
+    Gem::Common::compare_t(Gem::Common::getIdentity(nOutputNodes, cp.nOutputNodes, "nOutputNodes", "cp.nOutputNodes"), token);
 
     for(std::size_t i = 0; i < nInputNodes; i++) {
-        Gem::Common::compare_t(IDENTITY(Input[i], cp.Input[i]), token);
+        Gem::Common::compare_t(Gem::Common::getIdentity(Input[i], cp.Input[i], "Input[i]", "cp.Input[i]"), token);
     }
 
     for(std::size_t i = 0; i < nOutputNodes; i++) {
-        Gem::Common::compare_t(IDENTITY(Output[i], cp.Output[i]), token);
+        Gem::Common::compare_t(Gem::Common::getIdentity(Output[i], cp.Output[i], "Output[i]", "cp.Output[i]"), token);
     }
 
     // React on deviations from the expectation
@@ -269,8 +269,8 @@ void networkData::compare(
     Gem::Common::GToken token("networkData", e);
 
     // Compare our local data
-    Gem::Common::compare_t(IDENTITY(array_size_, cp.array_size_), token);
-    Gem::Common::compare_t(IDENTITY(this->data_cnt_, cp.data_cnt_), token);
+    Gem::Common::compare_t(Gem::Common::getIdentity(array_size_, cp.array_size_, "array_size_", "cp.array_size_"), token);
+    Gem::Common::compare_t(Gem::Common::getIdentity(this->data_cnt_, cp.data_cnt_, "this->data_cnt_", "cp.data_cnt_"), token);
 
     // React on deviations from the expectation
     token.evaluate();

@@ -923,8 +923,8 @@ protected:
         Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
         // ... the manual tail (value container + GPlotDesigner value member) ...
-        compare_t(IDENTITY(fp_prof_var_vec_, p_load->fp_prof_var_vec_), token);
-        compare_t(IDENTITY(gpd_, p_load->gpd_), token);
+        compare_t(Gem::Common::getIdentity(fp_prof_var_vec_, p_load->fp_prof_var_vec_, "fp_prof_var_vec_", "p_load->fp_prof_var_vec_"), token);
+        compare_t(Gem::Common::getIdentity(gpd_, p_load->gpd_, "gpd_", "p_load->gpd_"), token);
 
         // ... and then the unconditionally-handled members, derived from localMembers().
         Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);

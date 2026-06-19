@@ -259,18 +259,18 @@ void GSwarmAlgorithm::compare_(
     g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // MANUAL tail: the conditionally-reconstructed members (see load_()).
-    compare_t(IDENTITY(n_neighborhoods_, p_load->n_neighborhoods_), token);
-    compare_t(IDENTITY(global_best_ptr_, p_load->global_best_ptr_), token);
+    compare_t(Gem::Common::getIdentity(n_neighborhoods_, p_load->n_neighborhoods_, "n_neighborhoods_", "p_load->n_neighborhoods_"), token);
+    compare_t(Gem::Common::getIdentity(global_best_ptr_, p_load->global_best_ptr_, "global_best_ptr_", "p_load->global_best_ptr_"), token);
 
     // The next checks only makes sense if the number of neighborhoods are equal
     if(n_neighborhoods_ == p_load->n_neighborhoods_) {
         compare_t(
-            IDENTITY(n_neighborhood_members_cnt_, p_load->n_neighborhood_members_cnt_),
+            Gem::Common::getIdentity(n_neighborhood_members_cnt_, p_load->n_neighborhood_members_cnt_, "n_neighborhood_members_cnt_", "p_load->n_neighborhood_members_cnt_"),
             token
         );
         // No neighborhood bests have been assigned yet in iteration 0
         if(afterFirstIteration()) {
-            compare_t(IDENTITY(neighborhood_bests_cnt_, p_load->neighborhood_bests_cnt_), token);
+            compare_t(Gem::Common::getIdentity(neighborhood_bests_cnt_, p_load->neighborhood_bests_cnt_, "neighborhood_bests_cnt_", "p_load->neighborhood_bests_cnt_"), token);
         }
     }
 

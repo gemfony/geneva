@@ -69,7 +69,7 @@ protected:
     void compare_(TestObj const &cp, expectation const &e, [[maybe_unused]] double const & limit) const override {
         GToken token("TestObj", e);
         compare_base_t<GCommonInterfaceT<TestObj>>(*this, cp, token);
-        compare_t(IDENTITY(v_, cp.v_), token);
+        compare_t(Gem::Common::getIdentity(v_, cp.v_, "v_", "cp.v_"), token);
         token.evaluate();
     }
 

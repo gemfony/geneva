@@ -323,7 +323,7 @@ void GParameterScan::compare_(
     g_compare_members(localMembers(), p_load->localMembers(), token);
 
     // MANUAL tail: cycle_logic_halt_ is a load-only transient but still compared here.
-    compare_t(IDENTITY(cycle_logic_halt_, p_load->cycle_logic_halt_), token);
+    compare_t(Gem::Common::getIdentity(cycle_logic_halt_, p_load->cycle_logic_halt_, "cycle_logic_halt_", "p_load->cycle_logic_halt_"), token);
 
     // ... and the scan-parameter vectors. Their element type lacks the Gemfony common interface, so we
     // compare them element-by-element through each scan parameter's own compareScanPar() (which feeds the
@@ -331,7 +331,7 @@ void GParameterScan::compare_(
     auto compareScanVec = [&token](const auto &lhs_vec, const auto &rhs_vec) {
         const std::size_t lhs_size = lhs_vec.size();
         const std::size_t rhs_size = rhs_vec.size();
-        compare_t(IDENTITY(lhs_size, rhs_size), token);
+        compare_t(Gem::Common::getIdentity(lhs_size, rhs_size, "lhs_size", "rhs_size"), token);
         if(lhs_size == rhs_size) {
             for(std::size_t i = 0; i < lhs_size; ++i) {
                 lhs_vec[i]->compareScanPar(*rhs_vec[i], token);

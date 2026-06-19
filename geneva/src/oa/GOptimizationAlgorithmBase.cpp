@@ -532,7 +532,7 @@ void GOptimizationAlgorithmBase::compare_(
     // The container base'es data (the population) -- compared explicitly, as it is a
     // base-object rather than a local member.
     compare_t(
-        IDENTITY(this->data_cnt_, p_load->data_cnt_),
+        Gem::Common::getIdentity(this->data_cnt_, p_load->data_cnt_, "this->data_cnt_", "p_load->data_cnt_"),
         token
     ); // This allows us to compare the parent class without directly referring to it.
 
@@ -543,7 +543,7 @@ void GOptimizationAlgorithmBase::compare_(
     // ... and finally best_iteration_individuals_pq_, which is intentionally not
     // persisted (so it is not part of localMembers()) but is still compared.
     compare_t(
-        IDENTITY(best_iteration_individuals_pq_, p_load->best_iteration_individuals_pq_),
+        Gem::Common::getIdentity(best_iteration_individuals_pq_, p_load->best_iteration_individuals_pq_, "best_iteration_individuals_pq_", "p_load->best_iteration_individuals_pq_"),
         token
     );
 

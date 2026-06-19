@@ -213,7 +213,7 @@ protected:
 
         // ... and then our local data
         compare_t<std::set<std::string>>(
-            IDENTITY(allowed_mnemonics_, p_load->allowed_mnemonics_),
+            Gem::Common::getIdentity(allowed_mnemonics_, p_load->allowed_mnemonics_, "allowed_mnemonics_", "p_load->allowed_mnemonics_"),
             token
         );
 

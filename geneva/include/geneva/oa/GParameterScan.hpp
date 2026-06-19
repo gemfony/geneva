@@ -307,16 +307,16 @@ public:
      */
     void compareScanPar(const GBaseScanParT<T> &other, Gem::Common::GToken &token) const {
         using namespace Gem::Common;
-        compare_t(IDENTITY(std::get<0>(var_), std::get<0>(other.var_)), token); // mode
-        compare_t(IDENTITY(std::get<1>(var_), std::get<1>(other.var_)), token); // name
-        compare_t(IDENTITY(std::get<2>(var_), std::get<2>(other.var_)), token); // position
-        compare_t(IDENTITY(step_, other.step_), token);
-        compare_t(IDENTITY(n_steps_, other.n_steps_), token);
-        compare_t(IDENTITY(lower_, other.lower_), token);
-        compare_t(IDENTITY(upper_, other.upper_), token);
-        compare_t(IDENTITY(random_scan_, other.random_scan_), token);
-        compare_t(IDENTITY(type_description_, other.type_description_), token);
-        compare_t(IDENTITY(this->data_cnt_, other.data_cnt_), token); // the pre-computed grid points
+        compare_t(Gem::Common::getIdentity(std::get<0>(var_), std::get<0>(other.var_), "std::get<0>(var_)", "std::get<0>(other.var_)"), token); // mode
+        compare_t(Gem::Common::getIdentity(std::get<1>(var_), std::get<1>(other.var_), "std::get<1>(var_)", "std::get<1>(other.var_)"), token); // name
+        compare_t(Gem::Common::getIdentity(std::get<2>(var_), std::get<2>(other.var_), "std::get<2>(var_)", "std::get<2>(other.var_)"), token); // position
+        compare_t(Gem::Common::getIdentity(step_, other.step_, "step_", "other.step_"), token);
+        compare_t(Gem::Common::getIdentity(n_steps_, other.n_steps_, "n_steps_", "other.n_steps_"), token);
+        compare_t(Gem::Common::getIdentity(lower_, other.lower_, "lower_", "other.lower_"), token);
+        compare_t(Gem::Common::getIdentity(upper_, other.upper_, "upper_", "other.upper_"), token);
+        compare_t(Gem::Common::getIdentity(random_scan_, other.random_scan_, "random_scan_", "other.random_scan_"), token);
+        compare_t(Gem::Common::getIdentity(type_description_, other.type_description_, "type_description_", "other.type_description_"), token);
+        compare_t(Gem::Common::getIdentity(this->data_cnt_, other.data_cnt_, "this->data_cnt_", "other.data_cnt_"), token); // the pre-computed grid points
     }
 
     /***************************************************************************/
