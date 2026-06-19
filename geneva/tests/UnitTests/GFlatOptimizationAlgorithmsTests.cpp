@@ -42,7 +42,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
 #include <cmath>
+#include <limits>
+#include <utility>
 #include <cstddef>
 #include <filesystem>
 #include <memory>
@@ -948,6 +951,13 @@ public:
     }
     FlatBiObjective(const FlatBiObjective &) = default;
 
+    /** @brief A Gauss adaption config for the EA (sep-CMA needs none). */
+    std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
+        auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
+        cfg->groupDouble(0).gauss(0.5, 0.8, 1e-3, 2., 1.);
+        return cfg;
+    }
+
 protected:
     double fitnessCalculation() override {
         std::vector<double> v;
@@ -1067,4 +1077,75 @@ TEST_CASE("Separable CMA-ES Pareto mode runs on a two-objective individual", "[f
         CHECK(x < 5.0);
     }
     CHECK(f1 < 10.0); // the criterion-0 best reached the f1 corner of the front (far below the f1=45 start)
+}
+
+/******************************************************************************/
+
+TEST_CASE("ea NSGA-II Pareto selection spreads the survivors across the front", "[flat][oa][ea][pareto]") {
+    // The two-objective front of (f1 = sum x^2, f2 = sum (x-2)^2) over N_DIM=5 dims runs from (0,20) to
+    // (20,0). With NSGA-II selection (non-dominated front + crowding distance) the mu survivors should
+    // spread ALONG that front rather than cluster -- exactly what the former first-front + random-shuffle
+    // selection failed to do. We measure the spread (the f1 range the survivors cover) and the 2-D
+    // hypervolume of the surviving front (which rewards BOTH convergence and coverage).
+    constexpr std::size_t MU = 20;
+    auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    pop->setPopulationSizes(3 * MU, MU);
+    pop->setMaxIteration(200);
+    pop->setMaxStallIteration(0);
+    pop->setReportIteration(100000);
+    pop->setSortingScheme(Gem::Geneva::sortingMode::MUPLUSNU_PARETO);
+    FlatBiObjective src;
+    pop->push_back(src.clone_unique());
+    pop->setAdaptionConfig(src.buildAdaptionConfig());
+    pop->optimize();
+
+    // Read the mu surviving parents' two objective values.
+    std::vector<std::pair<double, double>> pts; // (f1, f2)
+    pts.reserve(pop->getNParents());
+    for(std::size_t i = 0; i < pop->getNParents(); ++i) {
+        const auto &ind = pop->at(i)->individual();
+        pts.emplace_back(ind.transformed_fitness(0), ind.transformed_fitness(1));
+    }
+    REQUIRE(pts.size() == MU);
+
+    // Spread: the f1-range covered by the survivors (the front's f1-extent is 20).
+    double min_f1 = pts.front().first;
+    double max_f1 = pts.front().first;
+    for(const auto &p : pts) {
+        min_f1 = (std::min)(min_f1, p.first);
+        max_f1 = (std::max)(max_f1, p.first);
+    }
+    const double spread = max_f1 - min_f1;
+
+    // 2-D hypervolume w.r.t. reference (20,20), minimisation: keep the non-dominated points (f1 ascending,
+    // f2 strictly decreasing), then sum the dominated rectangles up to the reference.
+    auto hypervolume = [](std::vector<std::pair<double, double>> p, double rx, double ry) {
+        std::sort(p.begin(), p.end()); // by f1 ascending, then f2
+        std::vector<std::pair<double, double>> nd;
+        double best_f2 = std::numeric_limits<double>::infinity();
+        for(const auto &q : p) {
+            if(q.first >= rx || q.second >= ry) {
+                continue; // outside the reference box -> contributes nothing
+            }
+            if(q.second < best_f2) {
+                nd.push_back(q);
+                best_f2 = q.second;
+            }
+        }
+        double area = 0.;
+        for(std::size_t i = 0; i < nd.size(); ++i) {
+            const double next_f1 = (i + 1 < nd.size()) ? nd[i + 1].first : rx;
+            area += (next_f1 - nd[i].first) * (ry - nd[i].second);
+        }
+        return area;
+    };
+    const double hv = hypervolume(pts, 20.0, 20.0);
+
+    INFO("ea NSGA-II survivors: spread(f1 range)=" << spread << "  hypervolume=" << hv
+         << "  (front f1-extent=20, ref=(20,20))");
+    // Crowding always retains the two boundary points (infinite crowding distance), so the survivors
+    // cover essentially the whole f1-extent of the front; a clustering selection would not. (Observed
+    // spread ~20.0, hypervolume ~319 of the 400 reference box, with very low run-to-run variance.)
+    CHECK(spread > 16.0); // near-full coverage of the 20-wide front (boundary retention), not a cluster
+    CHECK(hv > 280.0);    // strong convergence AND spread (ideal ~ the 400 reference box)
 }
