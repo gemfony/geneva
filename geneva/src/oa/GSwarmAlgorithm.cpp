@@ -784,11 +784,9 @@ std::tuple<double, double> GSwarmAlgorithm::cycleLogic_() {
 
 /******************************************************************************/
 /**
- * Fixes the population after a job submission. We do nothing by default. This
- * function was introduced to avoid having to add a separate cycleLogic to
+ * Repairs the neighborhood topology after a job submission (e.g. splicing fresh slots into short
+ * neighborhoods after partial returns). It was introduced to avoid adding a separate cycleLogic to
  * GSwarmAlgorithm.
- *
- * TODO: Change name to fixAfterJobSubmission ?
  */
 void GSwarmAlgorithm::adjustNeighborhoods() {
     std::size_t first_ni_pos = 0; // Will hold the expected first position of a neighborhood
