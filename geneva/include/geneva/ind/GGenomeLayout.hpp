@@ -443,7 +443,7 @@ private:
     collectGroups(const ChannelLayout<T> &ch, ChannelTag tag, std::int32_t id, std::vector<GroupRef> &out) {
         for(std::size_t gi = 0; gi < ch.groups.size(); ++gi) {
             if(ch.groups[gi].label_id == id) {
-                out.push_back(GroupRef{tag, gi});
+                out.push_back(GroupRef{.channel=tag, .index=gi});
             }
         }
     }
@@ -484,7 +484,7 @@ private:
             }
         }
         /** @brief The accumulated 128-bit id. @return The two-lane hash as a LayoutId. */
-        LayoutId id() const { return LayoutId{h1, h2}; }
+        LayoutId id() const { return LayoutId{.hi=h1, .lo=h2}; }
     };
 
     /** @brief Folds one channel's full structural content into the hasher (length-prefixed throughout,

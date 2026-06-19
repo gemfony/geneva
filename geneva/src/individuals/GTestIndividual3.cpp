@@ -179,8 +179,8 @@ double GTestIndividual3::fitnessCalculation() {
     this->streamline(par_vec);
 
     // Calculate the value of the parabola
-    for(std::size_t i = 0; i < par_vec.size(); i++) {
-        result += Gem::Common::gsquared(par_vec[i]);
+    for(double i : par_vec) {
+        result += Gem::Common::gsquared(i);
     }
 
     return result;

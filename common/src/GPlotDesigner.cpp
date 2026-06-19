@@ -1745,7 +1745,7 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
         getMinMax(local_data);
 
     // Set up TView object for our 3D data, spanning the minimum and maximum values
-    footer_data << indent << "TH3F *fr = new TH3F(\"fr\",\"fr\","
+    footer_data << indent << R"(TH3F *fr = new TH3F("fr","fr",)"
                 << "10, " << std::get<0>(min_max) << ", " << std::get<1>(min_max) << ", "
                 << "10, " << std::get<2>(min_max) << ", " << std::get<3>(min_max) << ", "
                 << "10, " << std::get<4>(min_max) << ", " << std::get<5>(min_max) << ");" << '\n'
@@ -3498,14 +3498,14 @@ std::string GPlotDesigner::staticHeader(const std::string &indent) const {
            << indent << "gStyle->SetStatBorderSize(1);" << '\n'
            << indent << "gStyle->SetOptStat(0);" << '\n'
            << '\n'
-           << indent << "TCanvas *cc = new TCanvas(\"cc\", \"cc\",0,0," << c_x_dim_ << ","
+           << indent << R"(TCanvas *cc = new TCanvas("cc", "cc",0,0,)" << c_x_dim_ << ","
            << c_y_dim_ << ");" << '\n'
            << '\n'
            << indent << "TPaveLabel* canvasTitle = new TPaveLabel(0.2,0.95,0.8,0.99, \""
            << canvas_label_ << "\");" << '\n'
            << indent << "canvasTitle->Draw();" << '\n'
            << '\n'
-           << indent << "TPad* graphPad = new TPad(\"Graphs\", \"Graphs\", 0.01, 0.01, 0.99, 0.94);"
+           << indent << R"(TPad* graphPad = new TPad("Graphs", "Graphs", 0.01, 0.01, 0.99, 0.94);)"
            << '\n'
            << indent << "graphPad->Draw();" << '\n'
            << indent << "graphPad->Divide(" << c_x_div_ << "," << c_y_div_ << ");" << '\n'

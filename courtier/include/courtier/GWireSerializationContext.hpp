@@ -146,7 +146,7 @@ public:
             return;
         }
         lru_.push_front(id);
-        blobs_.emplace(id, Entry{std::move(blob), lru_.begin()});
+        blobs_.emplace(id, Entry{.blob=std::move(blob), .lru_pos=lru_.begin()});
         evict_locked();
     }
 

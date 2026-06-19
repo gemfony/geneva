@@ -1594,7 +1594,7 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
     // Clamp the requested range to the population and bail out if it is empty.
     end = std::min(end, work_items.size());
     if(end <= start) {
-        return Gem::Courtier::executor_status_t{true, false};
+        return Gem::Courtier::executor_status_t{.is_complete=true, .has_errors=false};
     }
 
     // Submit a span over exactly [start, end); it aliases the population sub-range, so results + any
@@ -1613,7 +1613,7 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
             break;
         }
     }
-    return Gem::Courtier::executor_status_t{true, has_errors};
+    return Gem::Courtier::executor_status_t{.is_complete=true, .has_errors=has_errors};
 }
 
 /******************************************************************************/

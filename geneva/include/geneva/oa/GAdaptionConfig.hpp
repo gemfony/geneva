@@ -895,7 +895,7 @@ private:
     collect(const std::vector<GroupSpec<T>> &groups, ChannelTag tag, std::int32_t id, std::vector<GroupRef> &out) {
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             if(groups[gi].label_id == id) {
-                out.push_back(GroupRef{tag, gi});
+                out.push_back(GroupRef{.channel=tag, .index=gi});
             }
         }
     }

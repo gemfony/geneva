@@ -158,8 +158,7 @@ public:
                 items[idx[k]] = std::move(to_eval[k]);
             }
 
-            for(std::size_t k = 0; k < idx.size(); ++k) {
-                const std::size_t i = idx[k];
+            for(unsigned long i : idx) {
                 const auto st = items[i]->getProcessingStatus();
                 if(st == processingStatus::PROCESSED) {
                     state[i] = slot::resolved;

@@ -694,8 +694,8 @@ std::tuple<double, double> GGeneralizedSimulatedAnnealing::cycleLogic_() {
         this->at(0)->individual().getWorstCase()
     );
 
-    for(std::size_t pos = 0; pos < this->size(); ++pos) {
-        auto &ind = this->at(pos)->individual();
+    for(const auto & pos : *this) {
+        auto &ind = pos->individual();
         if(ind.is_due_for_processing() || ind.has_errors()) {
             continue;
         }

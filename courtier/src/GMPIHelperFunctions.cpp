@@ -103,10 +103,10 @@ MPICompletionStatus waitForRequestCompletionWhile(
         // return appropriate result in case of completion
         if(isCompleted) {
             if(status.MPI_ERROR == MPI_SUCCESS) {
-                return MPICompletionStatus{MPIStatusCode::SUCCESS, status};
+                return MPICompletionStatus{.statusCode=MPIStatusCode::SUCCESS, .mpiStatus=status};
             }
             else {
-                return MPICompletionStatus{MPIStatusCode::ERROR, status};
+                return MPICompletionStatus{.statusCode=MPIStatusCode::ERROR, .mpiStatus=status};
             }
         }
 
@@ -117,7 +117,7 @@ MPICompletionStatus waitForRequestCompletionWhile(
     // the execution shall be stopped due to the stop criterion returning false
 
     // return appropriate result
-    return MPICompletionStatus{MPIStatusCode::STOPPED, status};
+    return MPICompletionStatus{.statusCode=MPIStatusCode::STOPPED, .mpiStatus=status};
 }
 /**
  * Performs an async scatter and blocks until the request has completed or a predicate returns false

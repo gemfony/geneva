@@ -282,12 +282,12 @@ struct C2ConsumerInfo {
 };
 
 constexpr C2ConsumerInfo kC2Consumers[] = {
-    {"sc", "GSerialConsumerT", false},
-    {"stc", "GStdThreadConsumerT", false},
-    {"asio", "GAsioConsumerT", true},
-    {"beast", "GWebsocketConsumerT", true},
+    {.mnemonic="sc", .name="GSerialConsumerT", .needs_client=false},
+    {.mnemonic="stc", .name="GStdThreadConsumerT", .needs_client=false},
+    {.mnemonic="asio", .name="GAsioConsumerT", .needs_client=true},
+    {.mnemonic="beast", .name="GWebsocketConsumerT", .needs_client=true},
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
-    {"mpi", "GMPIConsumerT", true},
+    {.mnemonic="mpi", .name="GMPIConsumerT", .needs_client=true},
 #endif /* GENEVA_BUILD_WITH_MPI_CONSUMER */
 };
 

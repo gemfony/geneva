@@ -582,8 +582,8 @@ std::vector<std::size_t> GSepCmaEvolutionStrategy::rankPopulation() const {
 std::vector<std::size_t> GSepCmaEvolutionStrategy::rankPopulationPareto() const {
     std::vector<const gen::GOptimizableEntity *> pop;
     pop.reserve(this->size());
-    for(std::size_t i = 0; i < this->size(); ++i) {
-        pop.push_back(&this->at(i)->individual());
+    for(const auto & i : *this) {
+        pop.push_back(&i->individual());
     }
     return nonDominatedRank(pop);
 }

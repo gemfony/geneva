@@ -296,10 +296,10 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
             std::filesystem::remove(cmdOut);
         }
     } temp_guard{
-        parameterfile_name,
-        result_file_name,
-        command_output_file_name,
-        remove_exec_temporaries_
+        .param=parameterfile_name,
+        .result=result_file_name,
+        .cmdOut=command_output_file_name,
+        .active=remove_exec_temporaries_
     };
 
     // Save the parameters to a file for the external evaluation

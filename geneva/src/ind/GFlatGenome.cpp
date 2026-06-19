@@ -307,8 +307,8 @@ void GFlatGenome::boundaries_(
     l.clear();
     u.clear();
     const ChannelLayout<bool> &ch = layout_->b;
-    for(std::size_t k = 0; k < ch.active.size(); ++k) {
-        if(not amMatch(ch.active[k], am)) {
+    for(unsigned char k : ch.active) {
+        if(not amMatch(k, am)) {
             continue;
         }
         l.push_back(false);

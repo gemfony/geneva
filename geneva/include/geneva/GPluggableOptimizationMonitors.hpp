@@ -2391,9 +2391,7 @@ private:
             else { // Monitor all individuals
                 // Loop over all individuals of the algorithm, reading the live adaption state off each
                 // slot's OA-owned scratch.
-                for(std::size_t pos = 0; pos < goa->size(); pos++) {
-                    const auto &slot = goa->at(pos);
-
+                for(const auto & slot : *goa) {
                     if(property_ == "sigma" && cfg_ptr) {
                         for(double sigma : oa::readAdaptionSigmas(slot->scratch(), *cfg_ptr, adaptor_name_)) {
                             adaptor_property_store_.emplace_back(static_cast<double>(iteration), sigma);

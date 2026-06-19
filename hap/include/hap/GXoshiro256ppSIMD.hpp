@@ -135,7 +135,7 @@ public:
         std::uint64_t              sm = s;
         alignas(32) std::uint64_t  init[4][LANES]; // init[word][lane]
         for (int lane = 0; lane < LANES; ++lane)
-            for (int w = 0; w < 4; ++w) init[w][lane] = detail::splitmix64(sm);
+            for (auto & w : init) w[lane] = detail::splitmix64(sm);
         for (int w = 0; w < 4; ++w)
             s_[w] = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(init[w]));
         bufpos_ = LANES; // buffer empty

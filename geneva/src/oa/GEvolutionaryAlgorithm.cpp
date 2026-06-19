@@ -189,7 +189,7 @@ GType::evaluatePopulationRange_(std::size_t start, std::size_t end) {
                 has_errors = true;
             }
         }
-        return Gem::Courtier::executor_status_t{true, has_errors};
+        return Gem::Courtier::executor_status_t{.is_complete=true, .has_errors=has_errors};
     }
     return this->workOnPopulation(start, end);
 }
