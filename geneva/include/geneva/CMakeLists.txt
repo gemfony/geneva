@@ -84,6 +84,9 @@ SET ( OA_INCLUDES
     oa/GStandardPSO2011.hpp
     oa/GStandardPSO2011Factory.hpp
     oa/GStandardPSO2011_PersonalityTraits.hpp
+    oa/GAntColonyOptimization.hpp
+    oa/GAntColonyOptimizationFactory.hpp
+    oa/GAntColonyOptimization_PersonalityTraits.hpp
 )
 
 # Interface headers (namespace Gem::Geneva::Interface), installed under

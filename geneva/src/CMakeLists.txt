@@ -50,6 +50,9 @@ SET ( OPTIMIZATIONSOURCES
     oa/GStandardPSO2011.cpp
     oa/GStandardPSO2011Factory.cpp
     oa/GStandardPSO2011_PersonalityTraits.cpp
+    oa/GAntColonyOptimization.cpp
+    oa/GAntColonyOptimizationFactory.cpp
+    oa/GAntColonyOptimization_PersonalityTraits.cpp
 	GOptimizationEnums.cpp
 	GSigHupHandler.cpp
 	par/GParameterPropertyParser.cpp
