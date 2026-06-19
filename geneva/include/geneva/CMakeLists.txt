@@ -81,6 +81,9 @@ SET ( OA_INCLUDES
     oa/GSepCmaEvolutionStrategy.hpp
     oa/GSepCmaEvolutionStrategyFactory.hpp
     oa/GSepCmaEvolutionStrategy_PersonalityTraits.hpp
+    oa/GStandardPSO2011.hpp
+    oa/GStandardPSO2011Factory.hpp
+    oa/GStandardPSO2011_PersonalityTraits.hpp
 )
 
 # Interface headers (namespace Gem::Geneva::Interface), installed under

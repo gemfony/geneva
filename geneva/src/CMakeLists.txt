@@ -47,6 +47,9 @@ SET ( OPTIMIZATIONSOURCES
     oa/GSepCmaEvolutionStrategy.cpp
     oa/GSepCmaEvolutionStrategyFactory.cpp
     oa/GSepCmaEvolutionStrategy_PersonalityTraits.cpp
+    oa/GStandardPSO2011.cpp
+    oa/GStandardPSO2011Factory.cpp
+    oa/GStandardPSO2011_PersonalityTraits.cpp
 	GOptimizationEnums.cpp
 	GSigHupHandler.cpp
 	par/GParameterPropertyParser.cpp
