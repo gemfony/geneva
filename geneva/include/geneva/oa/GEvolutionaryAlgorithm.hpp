@@ -120,6 +120,19 @@ constexpr auto DEFAULTEASORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
  * step-size principle of CMA-ES) and the strongest of these modes on realistic multimodal / bounded
  * problems. @b SELF_ADAPT_SCALED is better on smooth high-dimensional unimodal problems (e.g. the sphere)
  * and remains available; @b SELF_ADAPT is the bit-for-bit legacy behaviour.
+ *
+ * @par Tradeoff: per-parameter vs. global \f$\sigma\f$
+ * @b SELF_ADAPT and @b SELF_ADAPT_SCALED keep the legacy structure of one self-adapting \f$\sigma\f$ @e per
+ * adaption group (i.e. per parameter, for a genome built with one group per value), so each coordinate can
+ * acquire its own step size. @b ONE_FIFTH and @b CSA instead control a @e single global \f$\sigma\f$ shared
+ * by all parameters (the per-group self-adaption is switched off); the per-parameter @c range factor in the
+ * step \f$ r\,\sigma\,\mathcal{N}(0,1) \f$ still scales by each parameter's bounds, but there is no longer an
+ * independently-adapting \f$\sigma\f$ per coordinate. This is why CSA is the better default at high dimension
+ * (the per-coordinate @e mutative self-adaption is too noisy there to learn useful per-axis scales, so one
+ * robustly-controlled \f$\sigma\f$ wins) but @b SELF_ADAPT_SCALED can be preferable on low-dimensional or
+ * strongly heterogeneous-scale problems where per-coordinate \f$\sigma\f$ is both reliable and useful.
+ * (Robust @e derandomized per-coordinate scaling is what GSepCmaEvolutionStrategy's diagonal covariance
+ * provides, which is why it outperforms both.)
  * - @b SELF_ADAPT — the classic σSA above, unchanged; reproduces the legacy EA bit-for-bit.
  * - @b SELF_ADAPT_SCALED — the same log-normal rule with the textbook dimension-scaled rate
  *   \f[
