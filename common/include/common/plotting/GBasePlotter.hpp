@@ -145,7 +145,7 @@ public:
      * @brief Allows to assign a label to the entire plot
      * @param plot_label The label for the entire plot
      */
-    void setPlotLabel(std::string plot_label);
+    void setPlotLabel(std::string p_l);
     /**
      * @brief Allows to retrieve the plot label
      * @return The current plot label
@@ -167,7 +167,7 @@ public:
      * @brief Allows to add secondary plots to be added to the same sub-canvas
      * @param secondary_plotter A plotter whose data should be emitted into the same canvas as this one
      */
-    void registerSecondaryPlotter(std::shared_ptr<GBasePlotter> secondary_plotter);
+    void registerSecondaryPlotter(std::shared_ptr<GBasePlotter> sp);
 
     /**
      * @brief Allows to retrieve the id of this object
@@ -282,7 +282,7 @@ protected:
      * @param parent_id The id of the parent plotter (used only when is_secondary is true)
      * @return A suffix string built from this plotter's id (and the parent id for secondary plotters)
      */
-    std::string suffix(bool is_secondary, std::size_t parent_id) const;
+    std::string suffix(bool is_secondary, std::size_t p_id) const;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     bool modify_GUnitTests_() override {

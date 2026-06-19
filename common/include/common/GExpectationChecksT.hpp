@@ -141,7 +141,7 @@ public:
      * @brief Allows to register an error message e.g. obtained from a failed check.
      * @param error_message The error message to append to this token's collection
      */
-    void registerErrorMessage(std::string const &error_message);
+    void registerErrorMessage(std::string const &m);
     /**
      * @brief Allows to register an exception obtained from a failed check.
      * @param g The expectation-violation exception whose message is appended to this token's collection

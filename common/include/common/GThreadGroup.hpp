@@ -102,7 +102,7 @@ public:
      *
      * @param thread_p A shared pointer to the std::jthread that should be added to the group
      */
-    void add_thread(thread_ptr thread_p);
+    void add_thread(thread_ptr thrd);
 
     /** @brief Requests all threads to join */
     void join_all();

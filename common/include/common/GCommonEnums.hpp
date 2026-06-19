@@ -294,7 +294,7 @@ std::istream &operator>>(std::istream &i, Gem::Common::serializationMode &x);
  * @param s The serializationMode value to be converted
  * @return A human-readable string representation of @p s
  */
-[[nodiscard]] std::string serModeToString(Gem::Common::serializationMode s);
+[[nodiscard]] std::string serModeToString(Gem::Common::serializationMode ser_mod);
 
 /******************************************************************************/
 /**

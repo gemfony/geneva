@@ -96,7 +96,7 @@ public:
      *
      * @param maxSize The maximum number of items the priority queue is allowed to hold
      */
-    explicit GOptimizableEntityFixedSizePriorityQueue(const std::size_t & maxSize);
+    explicit GOptimizableEntityFixedSizePriorityQueue(const std::size_t & max_size);
     /**
      * @brief The copy constructor
      *
@@ -132,7 +132,7 @@ public:
     add(std::vector<std::shared_ptr<GOptimizableEntity>>::const_iterator begin,
         std::vector<std::shared_ptr<GOptimizableEntity>>::const_iterator end,
         bool do_clone,
-        bool replace) override;
+        bool do_replace) override;
 
     /**
      * @brief Adds the items in the items_cnt container to the queue
@@ -144,7 +144,7 @@ public:
     void
     add(std::vector<std::shared_ptr<GOptimizableEntity>> const &items_cnt,
         const bool do_clone,
-        const bool replace) override;
+        const bool do_replace) override;
 
     /**
      * @brief Adds a single item to the queue
@@ -152,7 +152,7 @@ public:
      * @param item A constant reference to the item to be added to the queue
      * @param do_clone If true, the item is cloned before being added; otherwise the shared pointer is stored as-is
      */
-    void add(std::shared_ptr<GOptimizableEntity> const &item, const bool do_clone) override;
+    void add(std::shared_ptr<GOptimizableEntity> const &item_ptr, const bool do_clone) override;
 
     /***************************************************************************/
     // Boundary overloads for the unique_ptr population. The OA population now owns its individuals
@@ -170,7 +170,7 @@ public:
     add(std::vector<std::unique_ptr<GOptimizableEntity>>::const_iterator begin,
         std::vector<std::unique_ptr<GOptimizableEntity>>::const_iterator end,
         bool do_clone,
-        bool replace);
+        bool do_replace);
     /**
      * @brief Adds the individuals of a unique_ptr population to the queue (cloning across the boundary)
      *
@@ -178,14 +178,14 @@ public:
      * @param do_clone If true, each individual is cloned before being added
      * @param replace If true, the queue's existing content is replaced rather than merged with the new items
      */
-    void add(std::vector<std::unique_ptr<GOptimizableEntity>> const &items_cnt, bool do_clone, bool replace);
+    void add(std::vector<std::unique_ptr<GOptimizableEntity>> const &items_cnt, bool do_clone, bool do_replace);
     /**
      * @brief Adds a single unique_ptr-owned individual to the queue (cloning across the boundary)
      *
      * @param item A constant reference to the unique_ptr-owned individual to be added
      * @param do_clone If true, the individual is cloned before being added
      */
-    void add(std::unique_ptr<GOptimizableEntity> const &item, bool do_clone);
+    void add(std::unique_ptr<GOptimizableEntity> const &item_ptr, bool do_clone);
     /**
      * @brief Adds the individuals held by a SLOT population to the queue (cloning each slot's individual across the boundary)
      *
@@ -193,7 +193,7 @@ public:
      * @param do_clone If true, each slot's individual is cloned before being added
      * @param replace If true, the queue's existing content is replaced rather than merged with the new items
      */
-    void add(std::vector<std::unique_ptr<GIndividualSlot>> const &items_cnt, bool do_clone, bool replace);
+    void add(std::vector<std::unique_ptr<GIndividualSlot>> const &items_cnt, bool do_clone, bool do_replace);
     /**
      * @brief Adds the individuals held by a SLOT population sub-range [begin, end) to the queue (cloning each slot's individual across the boundary)
      *
@@ -206,7 +206,7 @@ public:
     add(std::vector<std::unique_ptr<GIndividualSlot>>::const_iterator begin,
         std::vector<std::unique_ptr<GIndividualSlot>>::const_iterator end,
         bool do_clone,
-        bool replace);
+        bool do_replace);
 
 protected:
     /***************************************************************************/
@@ -245,14 +245,14 @@ protected:
      * @param item A constant reference to the work item to be checked
      * @return true if the item is valid (e.g. has no dirty flag set), false otherwise
      */
-    bool isValid(const std::shared_ptr<GOptimizableEntity> & item) const override;
+    bool isValid(const std::shared_ptr<GOptimizableEntity> & item_ptr) const override;
     /**
      * @brief Evaluates a single work item, so that it can be sorted
      *
      * @param item A constant reference to the work item to be evaluated
      * @return The fitness value of the item used as the sorting criterion within the priority queue
      */
-    double evaluation(const std::shared_ptr<GOptimizableEntity> & item) const override;
+    double evaluation(const std::shared_ptr<GOptimizableEntity> & item_ptr) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     bool modify_GUnitTests_() override;

@@ -77,7 +77,7 @@ public:
  * @param e The geneva_exception whose message is streamed out
  * @return A reference to the output stream
  */
-std::ostream &operator<<(std::ostream &os, const geneva_exception &e);
+std::ostream &operator<<(std::ostream &o, const geneva_exception &g);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

@@ -143,7 +143,7 @@ public:
      *
      * @param message The log message to be written to the console
      */
-    void log(std::string const &message) const override;
+    void log(std::string const &msg) const override;
 
     /**
      * @brief Writes a message to the console, prefixed with its source specifier
@@ -151,7 +151,7 @@ public:
      * @param message The log message to be written to the console
      * @param extension An identifier of the logging source, emitted as a textual prefix
      */
-    void logWithSource(std::string const &message, std::string const &extension) const override;
+    void logWithSource(std::string const &msg, std::string const &extension) const override;
 };
 
 /******************************************************************************/
@@ -188,7 +188,7 @@ public:
      *
      * @param message The log message to be appended to the file
      */
-    void log(std::string const &message) const override;
+    void log(std::string const &msg) const override;
 
     /**
      * @brief Logs to a file whose name is extended with the source identifier
@@ -196,7 +196,7 @@ public:
      * @param message The log message to be appended to the file
      * @param extension An identifier of the logging source, appended (with an underscore) to the file name
      */
-    void logWithSource(std::string const &message, std::string const &extension) const override;
+    void logWithSource(std::string const &msg, std::string const &extension) const override;
 
 private:
     std::string fname_ = "Geneva-Library-Collection.log"; ///< The name of the log file

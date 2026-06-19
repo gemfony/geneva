@@ -241,7 +241,7 @@ class commentLevel { // NOLINT(cppcoreguidelines-special-member-functions)
 public:
     /** @brief Enforce setting of the comment level
      *  @param comment_level The id of the comment to be selected inside GParsableI */
-    explicit commentLevel(std::size_t comment_level);
+    explicit commentLevel(std::size_t cl);
 
     /*************************************************************************/
     // Defaulted or deleted functions functions
@@ -289,12 +289,12 @@ public:
     /** @brief A constructor for individual items
      *  @param option_name The single option name of this parameter
      *  @param comment The single comment associated with this parameter */
-    GParsableI(std::string const &option_name, std::string const &comment);
+    GParsableI(std::string const &option_name_var, std::string const &comment_var);
 
     /** @brief A constructor for vectors
      *  @param option_names The list of option names of this parameter
      *  @param comments The list of comments associated with this parameter */
-    GParsableI(std::vector<std::string> const &option_names, std::vector<std::string> const &comments);
+    GParsableI(std::vector<std::string> const &option_name_vec, std::vector<std::string> const &comment_vec);
 
     /** @brief The destructor */
     virtual ~GParsableI() = default;
@@ -427,12 +427,12 @@ public:
      *  @param option_name The single option name of this parameter
      *  @param comment The single comment associated with this parameter
      *  @param is_essential Whether this is an essential (true) or secondary (false) parameter */
-    GFileParsableI(std::string const &option_name, std::string const &comment, bool is_essential);
+    GFileParsableI(std::string const &option_name_var, std::string const &comment_var, bool is_essential_var);
     /** @brief A constructor for vectors
      *  @param option_names The list of option names of this parameter
      *  @param comments The list of comments associated with this parameter
      *  @param is_essential Whether this is an essential (true) or secondary (false) parameter */
-    GFileParsableI(std::vector<std::string> const &option_names, std::vector<std::string> const &comments, bool is_essential);
+    GFileParsableI(std::vector<std::string> const &option_name_vec, std::vector<std::string> const &comment_vec, bool is_essential_var);
 
     /** @brief The destructor */
     ~GFileParsableI() override = default;
@@ -2072,11 +2072,11 @@ public:
     /** @brief A constructor for individual items
      *  @param option_name The single option name of this command-line parameter
      *  @param comment The single comment associated with this command-line parameter */
-    GCLParsableI(std::string const &option_name, std::string const &comment);
+    GCLParsableI(std::string const &option_name_var, std::string const &comment_var);
     /** @brief A constructor for vectors
      *  @param option_names The list of option names of this command-line parameter
      *  @param comments The list of comments associated with this command-line parameter */
-    GCLParsableI(std::vector<std::string> const &option_names, std::vector<std::string> const &comments);
+    GCLParsableI(std::vector<std::string> const &option_name_vec, std::vector<std::string> const &comment_vec);
 
     /** @brief The destructor */
     ~GCLParsableI() override = default;
@@ -2261,14 +2261,14 @@ public:
      *  @param config_file The path of the configuration file to read and parse
      *  @param out_ptree Optional output pointer; if non-null, receives a copy of the parsed property tree for caching
      *  @return true if the file already existed and was parsed, false if it had to be created from defaults */
-    bool parseConfigFile(std::filesystem::path const &config_file, boost::property_tree::ptree *out_ptree = nullptr);
+    bool parseConfigFile(std::filesystem::path const &config_file, boost::property_tree::ptree *captured = nullptr);
     /** @brief Applies an already-parsed configuration ptree to the registered options (no file access); runs the optional unknown-key diagnostic.
      *  @param pt The already-parsed property tree to apply to the registered options
      *  @param config_file The originating file path, used only for diagnostic messages (may be empty)
      *  @param run_unknown_key_check Whether to run the unknown-key diagnostic for this load */
     void loadFromPtree(
-        boost::property_tree::ptree const &pt,
-        std::filesystem::path const &config_file = {},
+        boost::property_tree::ptree const &ptr,
+        std::filesystem::path const &config_path = {},
         bool run_unknown_key_check = true
     );
     /** @brief Writes out a configuration file
@@ -2279,7 +2279,7 @@ public:
     writeConfigFile(std::filesystem::path const &config_file, std::string const &header = "", bool write_all = true) const;
     /** @brief Globally enables/disables the unknown-configuration-key diagnostic (default: enabled; warns on config keys no registered parameter consumes).
      *  @param check Whether the unknown-key diagnostic should be enabled */
-    static void setCheckUnknownKeys(bool check);
+    static void setCheckUnknownKeys(bool enabled);
     /** @brief Retrieves whether the unknown-configuration-key diagnostic is enabled
      *  @return true if the unknown-key diagnostic is enabled, false otherwise */
     static bool checkUnknownKeys();

@@ -233,7 +233,7 @@ private:
      * @return The acceptance weight for the child (a probability in [0,1] for a worse child; >= 1, i.e.
      *         always accept, for a child that is at least as good). Reads only the temperature, so const.
      */
-    double saProb(const double &q_parent, const double &q_child) const;
+    double saProb(const double &f_min_only_parent, const double &f_min_only_child) const;
 
     /** @brief Updates the temperature. This function is used for simulated annealing. */
     void updateTemperature();

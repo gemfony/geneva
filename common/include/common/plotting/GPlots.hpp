@@ -309,7 +309,7 @@ public:
 	 * @brief Initialization with the number of bins and automatic range detection
 	 * @param nBinsX The number of bins in x-direction
 	 */
-    explicit GHistogram1D(const std::size_t &nBinsX);
+    explicit GHistogram1D(const std::size_t &n_bins_x);
 
     /**
 	 * @brief Initialization with the number of bins and an explicit range
@@ -317,13 +317,13 @@ public:
 	 * @param minX The lower boundary of the histogram
 	 * @param maxX The upper boundary of the histogram
 	 */
-    GHistogram1D(const std::size_t &nBinsX, const double &minX, const double &maxX);
+    GHistogram1D(const std::size_t &n_bins_x, const double &min_x, const double &max_x);
     /**
 	 * @brief Initialization with the number of bins and a range in the form of a tuple
 	 * @param nBinsX The number of bins in x-direction
 	 * @param rangeX The lower and upper boundaries of the histogram, as a tuple
 	 */
-    GHistogram1D(const std::size_t &nBinsX, const std::tuple<double, double> &rangeX);
+    GHistogram1D(const std::size_t &n_bins_x, const std::tuple<double, double> &range_x);
 
     /**********************************************************************/
     // Defaulted constructors, destructor and assignment operators
@@ -370,7 +370,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -379,7 +379,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -388,14 +388,14 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
 	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
 	 * @return The drawing arguments to be passed to ROOT's Draw() call
 	 */
-    std::string drawingArguments(bool isSecondary) const override;
+    std::string drawingArguments(bool is_secondary) const override;
 
     /**
 	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
@@ -480,13 +480,13 @@ public:
 	 * @param minX The lower boundary of the histogram
 	 * @param maxX The upper boundary of the histogram
 	 */
-    GHistogram1I(const std::size_t &nBinsX, const double &minX, const double &maxX);
+    GHistogram1I(const std::size_t &n_bins_x, const double &min_x, const double &max_x);
     /**
 	 * @brief Initialization with a range in the form of a tuple
 	 * @param nBinsX The number of bins in x-direction
 	 * @param rangeX The lower and upper boundaries of the histogram, as a tuple
 	 */
-    GHistogram1I(const std::size_t &nBinsX, const std::tuple<double, double> &rangeX);
+    GHistogram1I(const std::size_t &n_bins_x, const std::tuple<double, double> &range_x);
 
     /*********************************************************************/
     // Defaulted constructors, destructor and assignment operator
@@ -568,7 +568,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -577,7 +577,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -586,14 +586,14 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
 	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
 	 * @return The drawing arguments to be passed to ROOT's Draw() call
 	 */
-    std::string drawingArguments(bool isSecondary) const override;
+    std::string drawingArguments(bool is_secondary) const override;
 
 private:
     /**
@@ -1340,12 +1340,12 @@ public:
 	 * @param maxY The upper boundary of the histogram in y-direction
 	 */
     GHistogram2D(
-        const std::size_t &nBinsX,
-        const std::size_t &nBinsY,
-        const double &minX,
-        const double &maxX,
-        const double &minY,
-        const double &maxY
+        const std::size_t &n_bins_x,
+        const std::size_t &n_bins_y,
+        const double &min_x,
+        const double &max_x,
+        const double &min_y,
+        const double &max_y
     );
     /**
 	 * @brief Initialization with ranges given as tuples
@@ -1355,17 +1355,17 @@ public:
 	 * @param rangeY The lower and upper boundaries in y-direction, as a tuple
 	 */
     GHistogram2D(
-        const std::size_t &nBinsX,
-        const std::size_t &nBinsY,
-        const std::tuple<double, double> &rangeX,
-        const std::tuple<double, double> &rangeY
+        const std::size_t &n_bins_x,
+        const std::size_t &n_bins_y,
+        const std::tuple<double, double> &range_x,
+        const std::tuple<double, double> &range_y
     );
     /**
 	 * @brief Initialization with automatic range detection
 	 * @param nBinsX The number of bins in x-direction
 	 * @param nBinsY The number of bins in y-direction
 	 */
-    GHistogram2D(const std::size_t &nBinsX, const std::size_t &nBinsY);
+    GHistogram2D(const std::size_t &n_bins_x, const std::size_t &n_bins_y);
 
     /**********************************************************************/
     // Defaulted constructors, destructor and assignment operators
@@ -1438,7 +1438,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -1447,7 +1447,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -1456,14 +1456,14 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
 	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
 	 * @return The drawing arguments to be passed to ROOT's Draw() call
 	 */
-    std::string drawingArguments(bool isSecondary) const override;
+    std::string drawingArguments(bool is_secondary) const override;
 
     /**
 	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
@@ -1569,7 +1569,7 @@ public:
 	 * @brief Adds arrows to the plots between consecutive points
 	 * @param drawArrows Whether arrows should be drawn between consecutive points (default true)
 	 */
-    void setDrawArrows(bool drawArrows = true);
+    void setDrawArrows(bool d_a = true);
     /**
 	 * @brief Retrieves the value of the draw_arrows_ variable
 	 * @return Whether arrows are drawn between consecutive points
@@ -1580,7 +1580,7 @@ public:
 	 * @brief Determines whether a scatter plot or a curve is created
 	 * @param pm The plotting mode (scatter plot or connected curve) to be used
 	 */
-    void setPlotMode(graphPlotMode pm);
+    void setPlotMode(graphPlotMode p_m);
     /**
 	 * @brief Allows to retrieve the current plotting mode
 	 * @return The currently set plotting mode
@@ -1601,7 +1601,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -1610,7 +1610,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -1619,14 +1619,14 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
 	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
 	 * @return The drawing arguments to be passed to ROOT's Draw() call
 	 */
-    std::string drawingArguments(bool isSecondary) const override;
+    std::string drawingArguments(bool is_secondary) const override;
 
     /**
 	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
@@ -1716,7 +1716,7 @@ public:
 	 * @brief Determines whether a scatter plot or a curve is created
 	 * @param pm The plotting mode (scatter plot or connected curve) to be used
 	 */
-    void setPlotMode(graphPlotMode pm);
+    void setPlotMode(graphPlotMode p_m);
     /**
 	 * @brief Allows to retrieve the current plotting mode
 	 * @return The currently set plotting mode
@@ -1737,7 +1737,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -1746,7 +1746,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -1755,14 +1755,14 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
 	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
 	 * @return The drawing arguments to be passed to ROOT's Draw() call
 	 */
-    std::string drawingArguments(bool isSecondary) const override;
+    std::string drawingArguments(bool is_secondary) const override;
 
     /**
 	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
@@ -2292,7 +2292,7 @@ public:
 	 * @brief Adds lines to the plots between consecutive points
 	 * @param drawLines Whether lines should be drawn between consecutive points (default true)
 	 */
-    void setDrawLines(bool drawLines = true);
+    void setDrawLines(bool d_l = true);
     /**
 	 * @brief Retrieves the value of the draw_lines_ variable
 	 * @return Whether lines are drawn between consecutive points
@@ -2313,7 +2313,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -2322,7 +2322,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -2331,14 +2331,14 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
 	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
 	 * @return The drawing arguments to be passed to ROOT's Draw() call
 	 */
-    std::string drawingArguments(bool isSecondary) const override;
+    std::string drawingArguments(bool is_secondary) const override;
 
     /**
 	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
@@ -2958,12 +2958,12 @@ public:
 	 * @brief Allows to set the minimum marker size
 	 * @param minMarkerSize The minimum marker size to be used when drawing the w-component
 	 */
-    void setMinMarkerSize(const double &minMarkerSize);
+    void setMinMarkerSize(const double &min_marker_size);
     /**
 	 * @brief Allows to set the maximum marker size
 	 * @param maxMarkerSize The maximum marker size to be used when drawing the w-component
 	 */
-    void setMaxMarkerSize(const double &maxMarkerSize);
+    void setMaxMarkerSize(const double &max_marker_size);
 
     /**
 	 * @brief Allows to retrieve the minimum marker size
@@ -2980,7 +2980,7 @@ public:
 	 * @brief Allows to specify whether small w yield large markers
 	 * @param smallWLargeMarker If true, small w-values are mapped to large markers
 	 */
-    void setSmallWLargeMarker(const bool &smallWLargeMarker);
+    void setSmallWLargeMarker(const bool &swlm);
     /**
 	 * @brief Allows to check whether small w yield large markers
 	 * @return Whether small w-values are mapped to large markers
@@ -2991,7 +2991,7 @@ public:
 	 * @brief Allows to set the number of solutions the class should show
 	 * @param nBest The number of (best) solutions to display; 0 means all
 	 */
-    void setNBest(const std::size_t &nBest);
+    void setNBest(const std::size_t &n_best);
     /**
 	 * @brief Allows to retrieve the number of solutions the class should show
 	 * @return The number of (best) solutions to display
@@ -3030,7 +3030,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
@@ -3121,7 +3121,7 @@ public:
 	 * @param fD A textual description of the 1-d function to be plotted (in ROOT TF1 syntax)
 	 * @param xExtremes The minimum and maximum value of the x-axis, as a tuple
 	 */
-    GFunctionPlotter1D(const std::string &fD, const std::tuple<double, double> &xExtremes);
+    GFunctionPlotter1D(const std::string &f_d, const std::tuple<double, double> &x_extremes);
 
     /*********************************************************************/
     // Defaulted constructors, destructor and assignment operators
@@ -3141,7 +3141,7 @@ public:
 	 * @brief Allows to set the number of sampling points in x-direction
 	 * @param nSamplesX The number of sampling points used to evaluate the function in x-direction
 	 */
-    void setNSamplesX(std::size_t nSamplesX);
+    void setNSamplesX(std::size_t n_samples_x);
 
     /**
 	 * @brief Retrieves a unique name for this plotter
@@ -3157,7 +3157,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -3175,14 +3175,14 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
 	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
 	 * @return The drawing arguments to be passed to ROOT's Draw() call
 	 */
-    std::string drawingArguments(bool isSecondary) const override;
+    std::string drawingArguments(bool is_secondary) const override;
 
     /**
 	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
@@ -3270,9 +3270,9 @@ public:
 	 * @param yExtremes The minimum and maximum value of the y-axis, as a tuple
 	 */
     GFunctionPlotter2D(
-        const std::string &fD,
-        const std::tuple<double, double> &xExtremes,
-        const std::tuple<double, double> &yExtremes
+        const std::string &f_d,
+        const std::tuple<double, double> &x_extremes,
+        const std::tuple<double, double> &y_extremes
     );
 
     /*********************************************************************/
@@ -3293,12 +3293,12 @@ public:
 	 * @brief Allows to set the number of sampling points in x-direction
 	 * @param nSamplesX The number of sampling points used to evaluate the function in x-direction
 	 */
-    void setNSamplesX(std::size_t nSamplesX);
+    void setNSamplesX(std::size_t n_samples_x);
     /**
 	 * @brief Allows to set the number of sampling points in y-direction
 	 * @param nSamplesY The number of sampling points used to evaluate the function in y-direction
 	 */
-    void setNSamplesY(std::size_t nSamplesY);
+    void setNSamplesY(std::size_t n_samples_y);
 
     /**
 	 * @brief Retrieves a unique name for this plotter
@@ -3314,7 +3314,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -3332,14 +3332,14 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
 	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
 	 * @return The drawing arguments to be passed to ROOT's Draw() call
 	 */
-    std::string drawingArguments(bool isSecondary) const override;
+    std::string drawingArguments(bool is_secondary) const override;
 
     /**
 	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()

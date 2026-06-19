@@ -133,7 +133,7 @@ struct trainingSet {
      * @param nInputNodes The number of input nodes (size of the Input array)
      * @param nOutputNodes The number of output nodes (size of the Output array)
      */
-    trainingSet(const std::size_t & nInputNodes, const std::size_t & nOutputNodes);
+    trainingSet(const std::size_t & n_input, const std::size_t & n_output);
     /**
      * @brief A copy constructor.
      * @param cp A constant reference to another trainingSet object
@@ -251,13 +251,13 @@ public:
      * @brief Initialization with the amount of entries.
      * @param nData The number of training sets this object will hold
      */
-    explicit networkData(const std::size_t & nData);
+    explicit networkData(const std::size_t & array_size);
 
     /**
      * @brief Initialization with data from file.
      * @param networkDataFile The path of the file the training data is loaded from
      */
-    explicit networkData(const std::string & networkDataFile);
+    explicit networkData(const std::string & network_data_file);
     /**
      * @brief The copy constructor.
      * @param cp A constant reference to another networkData object
@@ -292,19 +292,19 @@ public:
      * @brief Saves the data of this struct to disc.
      * @param networkDataFile The path of the file the data is written to
      */
-    void saveToDisk(const std::string & networkDataFile) const;
+    void saveToDisk(const std::string & network_data_file) const;
     /**
      * @brief Loads training data from the disc.
      * @param networkDataFile The path of the file the data is read from
      */
-    void loadFromDisk(const std::string & networkDataFile);
+    void loadFromDisk(const std::string & network_data_file);
 
     /**
      * @brief Adds a new training set to the collection. Requires the network architecture to be defined already.
      * @param tS The training set to store
      * @param pos The position at which the training set is stored
      */
-    void addTrainingSet(std::shared_ptr<trainingSet> tS, const std::size_t & pos);
+    void addTrainingSet(std::shared_ptr<trainingSet> t_s, const std::size_t & pos);
     /**
      * @brief Retrieves the training set at a given position.
      * @param pos The position of the training set to retrieve
@@ -331,7 +331,7 @@ public:
      * @param min The lower boundary of the plotted value range
      * @param max The upper boundary of the plotted value range
      */
-    void toROOT(const std::string & outputFile, const double & min, const double & max);
+    void toROOT(const std::string & output_file, const double & min, const double & max);
 
     /**
      * @brief Allows to check whether an initialization range has been set.

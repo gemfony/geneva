@@ -356,7 +356,7 @@ public:
      * @brief Initialization with the desired demo function.
      * @param df The solverFunction this individual should evaluate
      */
-    explicit GFunctionIndividual(const solverFunction &df);
+    explicit GFunctionIndividual(const solverFunction &d_f);
     /**
      * @brief A standard copy constructor.
      * @param cp A constant reference to another GFunctionIndividual object
@@ -370,13 +370,13 @@ public:
      * @brief Allows external entities to set the fitness (e.g. from a remote evaluation).
      * @param fitnesses The vector of fitness values to assign to this individual
      */
-    void setFitness(std::vector<double> const &fitnesses);
+    void setFitness(std::vector<double> const &result_vec);
 
     /**
      * @brief Allows to set the demo function to be evaluated.
      * @param df The solverFunction this individual should evaluate
      */
-    void setDemoFunction(solverFunction df);
+    void setDemoFunction(solverFunction d_f);
     /**
      * @brief Allows to retrieve the current demo function.
      * @return The solverFunction currently selected for evaluation
@@ -842,7 +842,7 @@ private:
  * @return A reference to the output stream
  */
 std::ostream &
-operator<<(std::ostream & os, const Gem::Geneva::Individuals::GFunctionIndividual & ind);
+operator<<(std::ostream & s, const Gem::Geneva::Individuals::GFunctionIndividual & f);
 
 /**
  * @brief Provides an easy way to print the individual's content via a shared pointer.
@@ -851,7 +851,7 @@ operator<<(std::ostream & os, const Gem::Geneva::Individuals::GFunctionIndividua
  * @return A reference to the output stream
  */
 std::ostream &
-operator<<(std::ostream & os, std::shared_ptr<Gem::Geneva::Individuals::GFunctionIndividual> ind_ptr);
+operator<<(std::ostream & s, std::shared_ptr<Gem::Geneva::Individuals::GFunctionIndividual> f_ptr);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -914,7 +914,7 @@ protected:
      * @param cp The individual whose parameters are checked
      * @return A measure of constraint violation (0 if the constraint is satisfied)
      */
-    double check_(const gen::GOptimizableEntity *cp) const override;
+    double check_(const gen::GOptimizableEntity *p) const override;
 
     /**
      * @brief Adds local configuration options to a GParserBuilder object.
@@ -1010,7 +1010,7 @@ protected:
      * @param cp The individual whose parameters are checked
      * @return A measure of constraint violation (0 if within the allowed gap)
      */
-    double check_(const gen::GOptimizableEntity *cp) const override;
+    double check_(const gen::GOptimizableEntity *p) const override;
 
     /**
      * @brief Adds local configuration options to a GParserBuilder object.
@@ -1090,7 +1090,7 @@ public:
      * @brief Initialization with the diameter.
      * @param cp The diameter of the sphere within which solutions are valid
      */
-    explicit GSphereConstraint(const double &cp);
+    explicit GSphereConstraint(const double &diameter);
     /**
      * @brief The copy constructor.
      * @param cp A constant reference to another GSphereConstraint object
@@ -1106,7 +1106,7 @@ protected:
      * @param cp The individual whose parameters are checked
      * @return A measure of constraint violation (0 if inside the sphere)
      */
-    double check_(const gen::GOptimizableEntity *cp) const override;
+    double check_(const gen::GOptimizableEntity *p) const override;
 
     /**
      * @brief Adds local configuration options to a GParserBuilder object.

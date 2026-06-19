@@ -497,7 +497,7 @@ public:
      * @brief Specifies whether information about termination reasons should be emitted.
      * @param emit_terminatio_reason Whether termination reasons should be emitted (default true)
      */
-    void setEmitTerminationReason(bool emit_terminatio_reason = true);
+    void setEmitTerminationReason(bool emit_termination_reason = true);
     /**
      * @brief Retrieves information on whether information about termination reasons should be emitted.
      * @return true if termination reasons are emitted, false otherwise

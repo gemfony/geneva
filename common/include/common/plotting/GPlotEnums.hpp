@@ -101,7 +101,7 @@ enum class gColor : ENUMBASETYPE {
  * @param c The gColor item to be streamed out
  * @return A reference to the output stream
  */
-std::ostream &operator<<(std::ostream &os, const gColor &c);
+std::ostream &operator<<(std::ostream &o, const gColor &x);
 
 /**
  * @brief Reads a gColor item from a stream. Needed for streaming / Gem::Common::fromString<>
@@ -110,7 +110,7 @@ std::ostream &operator<<(std::ostream &os, const gColor &c);
  * @param c The gColor item that receives the value read from the stream
  * @return A reference to the input stream
  */
-std::istream &operator>>(std::istream &is, gColor &c);
+std::istream &operator>>(std::istream &i, gColor &x);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,7 +135,7 @@ enum class gMarker : ENUMBASETYPE {
  * @param m The gMarker item to be streamed out
  * @return A reference to the output stream
  */
-std::ostream &operator<<(std::ostream &os, const gMarker &m);
+std::ostream &operator<<(std::ostream &o, const gMarker &x);
 
 /**
  * @brief Reads a gMarker item from a stream. Needed for streaming / Gem::Common::fromString<>
@@ -144,7 +144,7 @@ std::ostream &operator<<(std::ostream &os, const gMarker &m);
  * @param m The gMarker item that receives the value read from the stream
  * @return A reference to the input stream
  */
-std::istream &operator>>(std::istream &is, gMarker &m);
+std::istream &operator>>(std::istream &i, gMarker &x);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -174,7 +174,7 @@ enum class gLineStyle : ENUMBASETYPE {
  * @param ls The gLineStyle item to be streamed out
  * @return A reference to the output stream
  */
-std::ostream &operator<<(std::ostream &os, gLineStyle const &ls);
+std::ostream &operator<<(std::ostream &o, gLineStyle const &x);
 
 /**
  * @brief Reads a gLineStyle item from a stream. Needed for streaming / Gem::Common::fromString<>
@@ -183,7 +183,7 @@ std::ostream &operator<<(std::ostream &os, gLineStyle const &ls);
  * @param ls The gLineStyle item that receives the value read from the stream
  * @return A reference to the input stream
  */
-std::istream &operator>>(std::istream &is, gLineStyle &ls);
+std::istream &operator>>(std::istream &i, gLineStyle &x);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -203,7 +203,7 @@ enum class graphPlotMode : ENUMBASETYPE {
  * @param gpm The graphPlotMode item to be streamed out
  * @return A reference to the output stream
  */
-std::ostream &operator<<(std::ostream &os, graphPlotMode const &gpm);
+std::ostream &operator<<(std::ostream &o, graphPlotMode const &x);
 
 /**
  * @brief Reads a graphPlotMode item from a stream. Needed for streaming / Gem::Common::fromString<>
@@ -212,7 +212,7 @@ std::ostream &operator<<(std::ostream &os, graphPlotMode const &gpm);
  * @param gpm The graphPlotMode item that receives the value read from the stream
  * @return A reference to the input stream
  */
-std::istream &operator>>(std::istream &is, graphPlotMode &gpm);
+std::istream &operator>>(std::istream &i, graphPlotMode &x);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -248,7 +248,7 @@ enum class tddropt : ENUMBASETYPE {
  * @param tdo The tddropt item to be streamed out
  * @return A reference to the output stream
  */
-std::ostream &operator<<(std::ostream &os, tddropt const &tdo);
+std::ostream &operator<<(std::ostream &o, tddropt const &x);
 
 /**
  * @brief Reads a tddropt item from a stream. Needed for streaming / Gem::Common::fromString<>
@@ -257,7 +257,7 @@ std::ostream &operator<<(std::ostream &os, tddropt const &tdo);
  * @param tdo The tddropt item that receives the value read from the stream
  * @return A reference to the input stream
  */
-std::istream &operator>>(std::istream &is, tddropt &tdo);
+std::istream &operator>>(std::istream &i, tddropt &x);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
