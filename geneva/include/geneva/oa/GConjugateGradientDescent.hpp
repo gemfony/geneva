@@ -132,25 +132,64 @@ constexpr std::size_t DEFAULTCGDLBFGSMEMORY = 10; ///< Default L-BFGS history si
 
 /******************************************************************************/
 /**
- * GConjugateGradientDescent implements an approximate non-linear conjugate
- * gradient method (Polak-Ribière+ with automatic restart). It is a drop-in
- * sibling of GGradientDescent and reuses the very same population layout
- * (one "parent" per starting point followed by nFPParms difference-quotient
- * "children"). The only conceptual difference is that, instead of stepping
- * straight along the negative gradient, the step is taken along a search
- * direction that is conjugate to the previous ones:
+ * @brief An approximate non-linear conjugate-gradient / quasi-Newton local optimizer that needs no
+ * analytic gradient: the gradient is estimated by finite differences and the step is taken along a
+ * direction that is conjugate to (or quasi-Newton-scaled relative to) the previous ones.
  *
- *   g_k        = forward-difference gradient at the current point
- *   beta_k     = max(0, g_k . (g_k - g_{k-1}) / (g_{k-1} . g_{k-1}))   (PR+)
- *   d_k        = -g_k + beta_k * d_{k-1}                               (d_0 = -g_0)
- *   x_{k+1}    = x_k + lambda * d_k
+ * @details
+ * For each of \f$ n_\text{start} \f$ independent starting points the population holds one "parent"
+ * followed by the difference-quotient "children" used to probe the gradient. At the current point
+ * \f$ \mathbf{x}_k \f$ the gradient component in direction \f$ j \f$ is a finite-difference quotient,
+ * either @e forward (\f$ O(h) \f$, one probe per direction) or, optionally
+ * (setCentralDifferences()), @e central (\f$ O(h^2) \f$, two probes per direction):
+ * \f[
+ *   g_{k,j} = \frac{f(\mathbf{x}_k + h_j\mathbf{e}_j) - f(\mathbf{x}_k)}{h_j}
+ *   \qquad\text{or}\qquad
+ *   g_{k,j} = \frac{f(\mathbf{x}_k + h_j\mathbf{e}_j) - f(\mathbf{x}_k - h_j\mathbf{e}_j)}{2 h_j},
+ * \f]
+ * where the probe size \f$ h_j \f$ is the configured finite step taken as a fraction of the parameter's
+ * value range (so every coordinate is probed on its own scale).
  *
- * The line-search is intentionally approximated by a fixed, range-scaled step
- * (identical scaling to GGradientDescent) rather than a Wolfe line search:
- * this keeps the algorithm fully compatible with Geneva's batch/broker
- * evaluation model (one submission of the whole population per iteration).
- * Only difference quotients of the evaluation function are used; no analytic
- * gradient and no error/Hessian information is computed.
+ * @par Search direction
+ * The new search direction \f$ \mathbf{d}_k \f$ is built from the gradient and the previous direction
+ * \f$ \mathbf{d}_{k-1} \f$,
+ * \f[
+ *   \mathbf{d}_k = -\mathbf{g}_k + \beta_k\,\mathbf{d}_{k-1},\qquad \mathbf{d}_0 = -\mathbf{g}_0,
+ * \f]
+ * where \f$ \beta_k \f$ selects the method (setGradientMethod()). With
+ * \f$ \mathbf{y}_k=\mathbf{g}_k-\mathbf{g}_{k-1} \f$ the supported variants are
+ * \f[
+ *   \beta^{\mathrm{SD}}=0,\quad
+ *   \beta^{\mathrm{FR}}=\frac{\mathbf{g}_k^{\!\top}\mathbf{g}_k}{\mathbf{g}_{k-1}^{\!\top}\mathbf{g}_{k-1}},\quad
+ *   \beta^{\mathrm{PR+}}=\frac{\mathbf{g}_k^{\!\top}\mathbf{y}_k}{\mathbf{g}_{k-1}^{\!\top}\mathbf{g}_{k-1}},\quad
+ *   \beta^{\mathrm{HS}}=\frac{\mathbf{g}_k^{\!\top}\mathbf{y}_k}{\mathbf{d}_{k-1}^{\!\top}\mathbf{y}_k},\quad
+ *   \beta^{\mathrm{DY}}=\frac{\mathbf{g}_k^{\!\top}\mathbf{g}_k}{\mathbf{d}_{k-1}^{\!\top}\mathbf{y}_k},
+ * \f]
+ * for steepest descent (SD), Fletcher-Reeves (FR), Polak-Ribière (PR+, the default), Hestenes-Stiefel
+ * (HS) and Dai-Yuan (DY). \f$ \beta_k \f$ is clamped to \f$ \max(0,\beta) \f$ (the "+" automatic
+ * restart, keeping every variant globally convergent), capped to avoid blow-up when the denominator
+ * nearly vanishes, and forced to \f$ 0 \f$ both periodically (a conjugate direction loses accuracy after
+ * about \f$ n \f$ steps) and on a Powell restart when successive gradients are insufficiently orthogonal,
+ * \f$ |\mathbf{g}_k^{\!\top}\mathbf{g}_{k-1}| / \lVert\mathbf{g}_k\rVert^2 \ge 0.1 \f$.
+ *
+ * @par L-BFGS option
+ * With setGradientMethod(LBFGS) the direction is the quasi-Newton step \f$ \mathbf{d}_k=-H_k\mathbf{g}_k \f$,
+ * where the inverse-Hessian approximation \f$ H_k \f$ is defined implicitly by the last \f$ m \f$ curvature
+ * pairs \f$ (\mathbf{s}_i,\mathbf{y}_i) \f$ with \f$ \mathbf{s}_i=\mathbf{x}_i-\mathbf{x}_{i-1} \f$ and
+ * \f$ \mathbf{y}_i=\mathbf{g}_i-\mathbf{g}_{i-1} \f$. It is recovered by the two-loop recursion (Nocedal)
+ * without ever forming \f$ H_k \f$, using the initial scaling
+ * \f$ \gamma = (\mathbf{s}^{\!\top}\mathbf{y})/(\mathbf{y}^{\!\top}\mathbf{y}) \f$ from the newest pair
+ * (\f$ \gamma=1 \f$ when no pair is available, i.e. plain steepest descent).
+ *
+ * @par Step and batch model
+ * A descent safeguard forces \f$ \mathbf{d}_k=-\mathbf{g}_k \f$ whenever a stale direction fails
+ * \f$ \mathbf{g}_k^{\!\top}\mathbf{d}_k<0 \f$, after which the next point is
+ * \f$ \mathbf{x}_{k+1}=\mathbf{x}_k+\lambda\,\mathbf{d}_k \f$. The line search uses a fixed,
+ * range-scaled trial step \f$ \lambda \f$ (configurable multiplier) rather than a Wolfe line search,
+ * which keeps the whole method compatible with Geneva's batch/broker evaluation model (one submission of
+ * the entire population per iteration). Only difference quotients of the objective are used; no analytic
+ * gradient is required. Optional post-run parameter-error estimates (errorEstimationMode: DIAGONAL /
+ * FULL / MINOS) can be computed from the Hessian but do not influence the optimization itself.
  */
 class GConjugateGradientDescent // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmT<GConjugateGradientDescent> {

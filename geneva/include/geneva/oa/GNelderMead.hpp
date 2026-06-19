@@ -81,34 +81,67 @@ constexpr std::size_t NM_OCONTRACT = 3; ///< outside contraction
 
 /******************************************************************************/
 /**
- * GNelderMead implements the n-dimensional downhill simplex method of Nelder
- * and Mead. It is a derivative-free local optimizer and is therefore suitable
- * for non-differentiable (and moderately noisy) objective functions, for which
- * a (conjugate) gradient descent is inappropriate.
+ * @brief The n-dimensional downhill simplex method of Nelder and Mead (1965): a derivative-free local
+ * optimizer for non-differentiable (and moderately noisy) objectives where a (conjugate) gradient
+ * descent is inappropriate.
  *
- * A simplex in an n-dimensional parameter space has n+1 vertices. The
- * population layout per simplex is
+ * @details
+ * A simplex in \f$ n \f$-dimensional parameter space is a set of \f$ n+1 \f$ vertices
+ * \f$ \mathbf{x}_0,\dots,\mathbf{x}_n \f$. Each iteration ranks them by fitness, identifies the best
+ * \f$ \mathbf{x}_b \f$ and worst \f$ \mathbf{x}_w \f$, forms the centroid of all vertices @e except the
+ * worst,
+ * \f[
+ *   \bar{\mathbf{x}} = \frac{1}{n}\sum_{i \neq w} \mathbf{x}_i,
+ * \f]
+ * and proposes four trial points by moving the worst vertex along the line through the centroid:
+ * \f[
+ *   \underbrace{\mathbf{x}_r=\bar{\mathbf{x}}+\alpha(\bar{\mathbf{x}}-\mathbf{x}_w)}_{\text{reflection}},
+ *   \quad
+ *   \underbrace{\mathbf{x}_e=\bar{\mathbf{x}}+\gamma(\bar{\mathbf{x}}-\mathbf{x}_w)}_{\text{expansion}},
+ *   \quad
+ *   \underbrace{\mathbf{x}_{ic}=\bar{\mathbf{x}}+\rho(\mathbf{x}_w-\bar{\mathbf{x}})}_{\text{inside contraction}},
+ *   \quad
+ *   \underbrace{\mathbf{x}_{oc}=\bar{\mathbf{x}}+\rho(\mathbf{x}_r-\bar{\mathbf{x}})}_{\text{outside contraction}},
+ * \f]
+ * with the standard coefficients \f$ \alpha=1 \f$ (reflection), \f$ \gamma=2 \f$ (expansion) and
+ * \f$ \rho=\tfrac{1}{2} \f$ (contraction). Writing \f$ f_b \le f_{s} \le f_w \f$ for the best,
+ * second-worst and worst fitnesses, the worst vertex is replaced according to the classical acceptance
+ * rules:
+ * \f[
+ *   \mathbf{x}_w \leftarrow
+ *   \begin{cases}
+ *     \mathbf{x}_e & \text{if } f_r < f_b \text{ and } f_e < f_r,\\
+ *     \mathbf{x}_r & \text{if } f_r < f_b \text{ (else)},\\
+ *     \mathbf{x}_r & \text{if } f_b \le f_r < f_{s},\\
+ *     \mathbf{x}_{oc} & \text{if } f_{s} \le f_r < f_w \text{ and } f_{oc} \le f_r,\\
+ *     \mathbf{x}_{ic} & \text{if } f_r \ge f_w \text{ and } f_{ic} < f_w.
+ *   \end{cases}
+ * \f]
+ * If neither contraction improves on the worst, the whole simplex @e shrinks towards the best vertex,
+ * \f$ \mathbf{x}_i \leftarrow \mathbf{x}_b + \sigma(\mathbf{x}_i-\mathbf{x}_b) \f$ for all \f$ i\neq b \f$,
+ * with \f$ \sigma=\tfrac{1}{2} \f$.
  *
- *   [ v_0 ... v_n | reflect | expand | inside-contract | outside-contract ]
+ * @par Batch mapping (one-iteration lag)
+ * Because Geneva evaluates a @e fixed population per iteration through the single process consumer, the
+ * classically @e sequential simplex moves are mapped onto a batch scheme. The population layout per
+ * simplex is
+ * \f[
+ *   [\,\underbrace{\mathbf{x}_0\,\dots\,\mathbf{x}_n}_{n+1\text{ vertices}}\;|\;
+ *      \mathbf{x}_r\;|\;\mathbf{x}_e\;|\;\mathbf{x}_{ic}\;|\;\mathbf{x}_{oc}\,],
+ * \f]
+ * i.e. \f$ n+1 \f$ vertices plus \f$ 4 \f$ speculative trial slots (block size \f$ n+5 \f$). In every
+ * iteration all four candidates are proposed and submitted @e together with the vertices, and the
+ * acceptance rules above are applied in the @e next iteration once their fitnesses are known. This costs
+ * a one-iteration evaluation lag (the same approximation style as GConjugateGradientDescent's difference
+ * quotients) but lets the method exploit the batch/broker evaluation model and converge to a local
+ * optimum without any gradient information. \f$ n_\text{simplices} \f$ such blocks run simultaneously
+ * (analogous to the multiple starting points of the gradient descents).
  *
- * i.e. n+1 vertices plus 4 speculative trial slots, giving a block size of
- * nFPParms + 5. n_simplices_ such blocks are run simultaneously (analogous to
- * the multiple starting points of the gradient descents).
- *
- * Because Geneva evaluates a fixed population per iteration through the
- * broker, the classical *sequential* simplex moves are mapped onto a batch
- * scheme: in every iteration the reflection, expansion and both (inside and
- * outside) contraction candidates are proposed and submitted together with the
- * vertices, and the standard Nelder-Mead acceptance rules are applied in the
- * next iteration once their fitnesses are known. This introduces a
- * one-iteration evaluation lag (the same approximation style used by
- * GGradientDescent's difference quotients) and converges to a local optimum
- * without any gradient information.
- *
- * An optional oriented restart (setRestartThreshold(), config "restart_threshold")
- * rebuilds every simplex around its best vertex, oriented down the local descent
- * direction, after the run has stalled for that many iterations. It escapes a
- * degenerate simplex collapse; at a genuine optimum it simply re-converges.
+ * @par Oriented restart
+ * An optional oriented restart (setRestartThreshold(), config "restart_threshold") rebuilds every
+ * simplex around its best vertex, with the edges oriented down the local descent direction, after the run
+ * has stalled for that many iterations. It escapes a degenerate simplex collapse (where the vertices
+ * become near-coplanar and progress stops); at a genuine optimum it simply re-converges.
  */
 class GNelderMead // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmT<GNelderMead> {

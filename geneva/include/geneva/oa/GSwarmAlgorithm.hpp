@@ -54,10 +54,44 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /**
- * The GSwarmAlgorithm class implements a swarm optimization algorithm, based on the infrastructure
- * provided by the GOptimizationAlgorithmBase class. Its population is based on a constant number
- * of neighborhoods, whose amount of members is allowed to vary. This happens so that late
- * arrivals in case of networked execution can still be integrated into later iterations.
+ * @brief A particle-swarm optimizer (PSO): a population of candidate solutions ("particles") that move
+ * through the parameter space pulled towards the best positions found so far.
+ *
+ * @details
+ * The swarm is partitioned into a constant number of @e neighborhoods whose member counts may vary (so
+ * late arrivals under networked execution can still join later iterations). Each particle \f$ i \f$ keeps
+ * a velocity \f$ \mathbf{v}_i \f$ (a per-slot POD block in its OA scratch) and is attracted towards
+ * three reference points: its own best-ever position \f$ \mathbf{p}_i \f$ (personal best), the best
+ * position in its neighborhood \f$ \mathbf{p}_{N(i)} \f$, and -- only when there is more than one
+ * neighborhood -- the global best \f$ \mathbf{g} \f$. Per iteration the velocity is updated and the
+ * particle moved:
+ * \f[
+ *   \mathbf{v}_i \leftarrow c_v\,\mathbf{v}_i
+ *     + c_p\,\mathbf{r}_p \odot (\mathbf{p}_i-\mathbf{x}_i)
+ *     + c_n\,\mathbf{r}_n \odot (\mathbf{p}_{N(i)}-\mathbf{x}_i)
+ *     + c_g\,\mathbf{r}_g \odot (\mathbf{g}-\mathbf{x}_i),
+ *   \qquad
+ *   \mathbf{x}_i \leftarrow \mathbf{x}_i + \mathbf{v}_i,
+ * \f]
+ * where \f$ \odot \f$ is the element-wise product, \f$ c_v \f$ is the inertia / velocity weight and
+ * \f$ c_p, c_n, c_g \f$ are the personal / neighborhood / global acceleration constants (defaults
+ * \f$ c_v=0.72,\ c_p=c_n=1.49,\ c_g=1.0 \f$). The random weights \f$ \mathbf{r}_\bullet \f$ are drawn
+ * uniformly from \f$ [0,1) \f$; in the @e classic update rule (the default) each @e component gets its
+ * own independent draw, while in the @e linear rule one scalar per term scales the whole difference
+ * vector.
+ *
+ * @par Velocity clamping
+ * After the update each velocity component is clamped (pruneVelocity()) so that it stays within a
+ * per-dimension cap proportional to that parameter's value range (a configurable percentage,
+ * velocity_range_percentage_); if any component overflows, the whole velocity vector is scaled down by
+ * the largest overflow ratio, preserving its direction. A frozen (equal-bound) parameter has a zero
+ * range and hence a zero velocity cap, which is handled without dividing by the zero range.
+ *
+ * @par Repulsion (stall escape)
+ * With a non-zero repulsion threshold (setRepulsionThreshold()) the swarm flips the move to
+ * \f$ \mathbf{x}_i \leftarrow \mathbf{x}_i - \mathbf{v}_i \f$ once the run has stalled for that many
+ * iterations, so particles walk @e away from the known bests to escape a local optimum, reverting to
+ * attraction once progress resumes.
  *
  * TODO: Mark checkpoints so the serialization mode can be determined automatically (e.g. using file extension ??)
  */

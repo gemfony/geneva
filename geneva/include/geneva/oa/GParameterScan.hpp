@@ -653,26 +653,44 @@ constexpr std::size_t DEFAULTNMONITORINDS = 10;
 
 /******************************************************************************/
 /**
- * This algorithm scans a given parameter range, either in a random order,
- * or on a grid. On a grid, for each integer- or floating point-coordinate to be scanned,
- * it is given the lower and upper boundaries (both inclusive) and the number
- * of steps (including the boundaries). For boolean parameters, both true and
- * false will be tested. The algorithm only takes into consideration the first
- * individual that was registered. It will be duplicated for all possible
- * combinations, and the parameters adapted as required. The algorithm will
- * decide itself about the number of iterations, based on the number of required
- * tests and the desired population size. Please note that the amount of tests
- * required grows quickly with the number of steps and parameters and can easily
- * extend beyond the range where computation still makes sense. E.g., if you
- * plan to test but 4 values for each of 100 parameters, you'd have to evaluate
- * 4^100 individuals which, at a millisecond evaluation time per individual, would
- * require approximately 7*10^49 years to compute ... (on a side note, this is
- * the very reason why optimization algorithms are needed to search for the
- * best solution). So realistically, this algorithm can only be used for small
- * numbers of parameters and steps. In random sampling mode, the algorithm will
- * try to evenly scatter random individuals throughout the parameter space (defined
- * by those parameters intended to be modified). The optimization monitor associated
- * with this class will simply store all parameters and results in an XML file.
+ * @brief An exhaustive / sampling parameter-space explorer (not an optimizer in the search-heuristic
+ * sense): it evaluates a prescribed set of parameter combinations and reports the best one found.
+ *
+ * @details
+ * A single registered individual defines the genome; it is duplicated and its scanned parameters are
+ * overwritten with each combination to be tested. The algorithm runs in one of three modes.
+ *
+ * @par Grid scan
+ * Each scanned coordinate \f$ j \f$ is given an (inclusive) range \f$ [l_j, u_j] \f$ and a step count
+ * \f$ s_j \f$; its grid points are spread evenly over the range,
+ * \f[
+ *   x_{j,k} = l_j + (u_j - l_j)\,\frac{k}{s_j-1},\qquad k = 0,\dots,s_j-1
+ * \f]
+ * (integer coordinates round each \f$ x_{j,k} \f$ to the nearest integer; booleans always test both
+ * \f$ \{\text{false}, \text{true}\} \f$, i.e. \f$ s_j=2 \f$). The Cartesian product of the per-coordinate
+ * grids is enumerated odometer-style: the scan advances the first coordinate until it wraps, then carries
+ * into the next, and terminates when the last coordinate wraps. It therefore evaluates exactly
+ * \f[
+ *   N = \prod_{j} s_j
+ * \f]
+ * combinations. Note that \f$ N \f$ grows @e exponentially with the number of scanned parameters: a mere
+ * \f$ 4 \f$ values for each of \f$ 100 \f$ parameters is \f$ 4^{100} \approx 1.6\times10^{60} \f$
+ * evaluations -- astronomically infeasible, which is the very reason search heuristics exist. Grid mode is
+ * thus only practical for a handful of parameters and steps.
+ *
+ * @par Random scan
+ * In random mode each scanned coordinate's value is instead drawn uniformly at random from its range on
+ * every visit (floating point: \f$ [l_j, u_j) \f$; integer: the inclusive \f$ [l_j, u_j] \f$; boolean:
+ * a fair coin). The per-coordinate step count then bounds how many random draws are taken, scattering
+ * sample points throughout the chosen subspace.
+ *
+ * @par Simple scan
+ * In simple-scan mode (setNSimpleScans(N)) the per-parameter specification is ignored: the @e whole
+ * individual is randomly (re-)initialized \f$ N \f$ times, sampling the entire active parameter space.
+ *
+ * In every mode the work is spread across iterations of the configured population size, the best result
+ * seen is retained, and the run halts automatically once all combinations / samples have been evaluated.
+ * The associated optimization monitor stores all parameters and results in an XML file.
  */
 class GParameterScan // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmT<GParameterScan> {
