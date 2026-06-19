@@ -1092,6 +1092,26 @@ void Go2::emitHelpIfRequested(
 
 /******************************************************************************/
 /**
+ * @brief Registers a ready-built custom consumer as the process's single consumer, overriding the
+ * mnemonic-based default that setupChosenConsumer() established during construction.
+ *
+ * setupChosenConsumer() already announced and registered the mnemonic-based default (e.g. "stc"); this
+ * replaces it in the GConsumerRegistry. We log the replacement so the earlier "Using consumer <name>"
+ * line is not mistaken for the consumer that actually runs the work (e.g. a GPU consumer).
+ *
+ * @param consumer The ready-to-use consumer to register as the process consumer (ownership is moved in)
+ */
+void Go2::registerConsumer(
+    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer) {
+    consumer_ = consumer;
+    Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().setConsumer(
+        std::move(consumer));
+    std::cout << "Using a custom registered consumer; it replaces the default \"" << consumer_name_
+              << "\" as the process consumer\n";
+}
+
+/******************************************************************************/
+/**
  * @brief Validates, initialises, configures and enrols the consumer chosen on the command line.
  *
  * Operates on the consumer_name_ member; assembles the transport-agnostic consumer spec, builds the

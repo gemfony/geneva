@@ -171,11 +171,7 @@ public:
      *  after construction and before optimize().
      *  @param consumer The ready-to-use consumer to register as the process consumer (ownership is taken via move). */
     void registerConsumer(
-        std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer) {
-        consumer_ = consumer;
-        Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().setConsumer(
-            std::move(consumer));
-    }
+        std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer);
 
     /**
      * @brief Retrieves the currently registered number of algorithms.
