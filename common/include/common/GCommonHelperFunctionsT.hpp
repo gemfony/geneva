@@ -159,9 +159,9 @@ To narrow(From value) {
         // (int64 -> double). When inexact, reject `==` at the boundary too.
         constexpr ToCheck   to_max                 = std::numeric_limits<ToCheck>::max();
         constexpr ToCheck   to_min                 = std::numeric_limits<ToCheck>::min();
-        constexpr FromCheck max_as_from            = static_cast<FromCheck>(to_max);
-        constexpr FromCheck max_minus_one_as_from  = static_cast<FromCheck>(to_max - 1);
-        constexpr FromCheck min_as_from            = static_cast<FromCheck>(to_min);
+        constexpr auto max_as_from            = static_cast<FromCheck>(to_max);
+        constexpr auto max_minus_one_as_from  = static_cast<FromCheck>(to_max - 1);
+        constexpr auto min_as_from            = static_cast<FromCheck>(to_min);
         constexpr bool      max_is_exact           =
             (max_as_from - max_minus_one_as_from) == FromCheck{1};
 
@@ -194,7 +194,7 @@ To narrow(From value) {
             if(std::isfinite(check_value)) {
                 // Widening the (smaller) destination max into FromCheck is
                 // exact, so this comparison is well-defined.
-                constexpr FromCheck to_max =
+                constexpr auto to_max =
                     static_cast<FromCheck>(std::numeric_limits<ToCheck>::max());
                 if(check_value > to_max || check_value < -to_max) {
                     throw std::overflow_error("narrow: floating-point overflow");
@@ -486,7 +486,7 @@ const target_type *g_convert_and_compare(
     const base_type *convert_ptr,
     const target_type *compare_ptr
 ) {
-    const target_type *p = g_ptr_conversion<base_type, target_type>(convert_ptr);
+    const auto *p = g_ptr_conversion<base_type, target_type>(convert_ptr);
     ptrDifferenceCheck(p, compare_ptr);
     return p;
 }
@@ -633,23 +633,23 @@ void copyCloneableSmartPointerContainer(
     const std::size_t size_to = to.size();
 
     if(size_from == size_to) {
-        const_iter_t it_from = from.begin();
-        for(iter_t it_to = to.begin(); it_to != to.end(); ++it_from, ++it_to) {
+        auto it_from = from.begin();
+        for(auto it_to = to.begin(); it_to != to.end(); ++it_from, ++it_to) {
             copyCloneableSmartPointer(*it_from, *it_to);
         }
     }
     else if(size_from > size_to) {
-        const_iter_t it_from = from.begin();
-        for(iter_t it_to = to.begin(); it_to != to.end(); ++it_from, ++it_to) {
+        auto it_from = from.begin();
+        for(auto it_to = to.begin(); it_to != to.end(); ++it_from, ++it_to) {
             copyCloneableSmartPointer(*it_from, *it_to);
         }
-        for(const_iter_t it = from.begin() + size_to; it != from.end(); ++it) {
+        for(auto it = from.begin() + size_to; it != from.end(); ++it) {
             to.push_back((*it)->T::template clone<T>());
         }
     }
     else { // size_from < size_to
-        const_iter_t it_from = from.begin();
-        for(iter_t it_to = to.begin(); it_from != from.end(); ++it_from, ++it_to) {
+        auto it_from = from.begin();
+        for(auto it_to = to.begin(); it_from != from.end(); ++it_from, ++it_to) {
             copyCloneableSmartPointer(*it_from, *it_to);
         }
         to.resize(size_from);
@@ -684,23 +684,23 @@ void copyCloneableSmartPointerContainer(
     const std::size_t size_to = to.size();
 
     if(size_from == size_to) {
-        const_iter_t it_from = from.begin();
-        for(iter_t it_to = to.begin(); it_to != to.end(); ++it_from, ++it_to) {
+        auto it_from = from.begin();
+        for(auto it_to = to.begin(); it_to != to.end(); ++it_from, ++it_to) {
             copyCloneableSmartPointer(*it_from, *it_to);
         }
     }
     else if(size_from > size_to) {
-        const_iter_t it_from = from.begin();
-        for(iter_t it_to = to.begin(); it_to != to.end(); ++it_from, ++it_to) {
+        auto it_from = from.begin();
+        for(auto it_to = to.begin(); it_to != to.end(); ++it_from, ++it_to) {
             copyCloneableSmartPointer(*it_from, *it_to);
         }
-        for(const_iter_t it = from.begin() + size_to; it != from.end(); ++it) {
+        for(auto it = from.begin() + size_to; it != from.end(); ++it) {
             to.push_back((*it)->template clone_unique<T>());
         }
     }
     else { // size_from < size_to
-        const_iter_t it_from = from.begin();
-        for(iter_t it_to = to.begin(); it_from != from.end(); ++it_from, ++it_to) {
+        auto it_from = from.begin();
+        for(auto it_to = to.begin(); it_from != from.end(); ++it_from, ++it_to) {
             copyCloneableSmartPointer(*it_from, *it_to);
         }
         to.resize(size_from);
@@ -732,23 +732,23 @@ void copyCloneableObjectsContainer(
     const std::size_t size_to = to.size();
 
     if(size_from == size_to) {
-        const_iter_t it_from = from.begin();
-        for(iter_t it_to = to.begin(); it_from != from.end(); ++it_from, ++it_to) {
+        auto it_from = from.begin();
+        for(auto it_to = to.begin(); it_from != from.end(); ++it_from, ++it_to) {
             it_to->T::load(*it_from);
         }
     }
     else if(size_from > size_to) {
-        const_iter_t it_from = from.begin();
-        for(iter_t it_to = to.begin(); it_to != to.end(); ++it_from, ++it_to) {
+        auto it_from = from.begin();
+        for(auto it_to = to.begin(); it_to != to.end(); ++it_from, ++it_to) {
             it_to->T::load(*it_from);
         }
-        for(const_iter_t it = from.begin() + size_to; it != from.end(); ++it) {
+        for(auto it = from.begin() + size_to; it != from.end(); ++it) {
             to.push_back(T(*it));
         }
     }
     else { // size_from < size_to
-        const_iter_t it_from = from.begin();
-        for(iter_t it_to = to.begin(); it_from != from.end(); ++it_from, ++it_to) {
+        auto it_from = from.begin();
+        for(auto it_to = to.begin(); it_from != from.end(); ++it_from, ++it_to) {
             it_to->T::load(*it_from);
         }
         to.resize(size_from);

@@ -64,7 +64,7 @@ namespace Gem::Hap {
  */
 template <std::floating_point fp_type, class URBG>
 inline fp_type fast_uniform_01(URBG &g) {
-    const std::uint64_t x = static_cast<std::uint64_t>(g());
+    const auto x = static_cast<std::uint64_t>(g());
     if constexpr(std::is_same_v<fp_type, double>) {
         return static_cast<double>(x >> 11) * 0x1.0p-53; // 53-bit mantissa
     } else {

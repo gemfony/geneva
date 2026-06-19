@@ -323,7 +323,7 @@ void GOptimizableEntity::compare_(
     using namespace Gem::Common;
 
     // Check that we are dealing with a GOptimizableEntity reference independent of this object and convert the pointer
-    const GOptimizableEntity *p_load =
+    const auto *p_load =
         Gem::Common::g_convert_and_compare<GOptimizableEntity, GOptimizableEntity>(cp, this);
 
     GToken token("GOptimizableEntity", e);
@@ -1150,7 +1150,7 @@ void GOptimizableEntity::process_(const std::vector<individual_processing_result
      */
 void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
     // Check that we are dealing with a GOptimizableEntity reference independent of this object and convert the pointer
-    const GOptimizableEntity *p_load =
+    const auto *p_load =
         Gem::Common::g_convert_and_compare<GOptimizableEntity, GOptimizableEntity>(cp, this);
 
     // This is the category root; there is no GObject parent class to load.

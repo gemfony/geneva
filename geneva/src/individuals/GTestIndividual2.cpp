@@ -54,7 +54,7 @@ namespace Gem::Geneva::Individuals {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::PERFOBJECTTYPE &lt) {
-    Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(lt);
+    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(lt);
     o << tmp;
     return o;
 }

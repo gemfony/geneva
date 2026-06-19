@@ -385,7 +385,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
         }
 
         // Check that only a single result was returned
-        std::size_t n_external_individuals = ptr_in.get<std::size_t>(
+        auto n_external_individuals = ptr_in.get<std::size_t>(
             batch + ".n_individuals"
         ); // NOLINT(cppcoreguidelines-init-variables)
         if(1 != n_external_individuals) {
@@ -397,7 +397,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
         }
 
         // Check that the number of results provided by the result file matches the number of expected results
-        std::size_t external_n_results = ptr_in.get<std::size_t>(
+        auto external_n_results = ptr_in.get<std::size_t>(
             "batch.individuals.individual0.n_results"
         ); // NOLINT(cppcoreguidelines-init-variables)
         if(external_n_results != n_results_) {
@@ -656,7 +656,7 @@ gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
     gen::GGenomeBuilder gb;
 
     try {
-        std::size_t n_individuals = ptr.get<std::size_t>("batch.n_individuals");
+        auto n_individuals = ptr.get<std::size_t>("batch.n_individuals");
         if(1 != n_individuals) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -666,7 +666,7 @@ gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
         }
 
         c.run_id = ptr.get<std::string>("batch.run_id");
-        std::size_t n_var = ptr.get<std::size_t>("batch.individuals.individual0.nVars");
+        auto n_var = ptr.get<std::size_t>("batch.individuals.individual0.nVars");
         c.n_results_expected = ptr.get<std::size_t>("batch.individuals.individual0.n_results");
 
         boost::optional<pt::ptree &> var_set_node_opt =
@@ -677,9 +677,9 @@ gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
             for(const auto &[var_name, var_subtree] : *var_set_node_opt) {
                 if(var_string == var_name) {
                     if("GConstrainedDoubleObject" == var_subtree.get<std::string>("type")) {
-                        double min_var = var_subtree.get<double>("lowerBoundary");
-                        double max_var = var_subtree.get<double>("upperBoundary");
-                        double init_value = var_subtree.get<double>("values.value0");
+                        auto min_var = var_subtree.get<double>("lowerBoundary");
+                        auto max_var = var_subtree.get<double>("upperBoundary");
+                        auto init_value = var_subtree.get<double>("values.value0");
                         if(min_var == max_var) {
                             // Take this as a sign that the parameter should not be modified.
                             gb.addDouble(

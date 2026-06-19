@@ -281,7 +281,7 @@ void GSepCmaEvolutionStrategy::determineDimensionAndBounds() {
  * carry the 1/n and 1/sqrt(n) dimension scalings the stock self-adaptive ES lacks.
  */
 void GSepCmaEvolutionStrategy::setUpStrategyParameters() {
-    const double n = static_cast<double>(n_);
+    const auto n = static_cast<double>(n_);
 
     // --- lambda (population size). Textbook default 4 + floor(3 ln n). -----------
     std::size_t lambda = lambda_;

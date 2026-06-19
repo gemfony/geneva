@@ -481,7 +481,7 @@ void GNelderMead::proposeTrials() {
                 centroid[k] += vparm[v][k];
             }
         }
-        const double denom = static_cast<double>(n_vert - 1);
+        const auto denom = static_cast<double>(n_vert - 1);
         for(std::size_t k = 0; k < n_fp_parms_first_; k++) {
             centroid[k] /= denom;
         }
@@ -834,7 +834,7 @@ bool GNelderMead::restartSimplices() {
                 centroid[k] += vparm[v][k];
             }
         }
-        const double denom = static_cast<double>(n_vert - 1);
+        const auto denom = static_cast<double>(n_vert - 1);
         for(std::size_t k = 0; k < n_fp_parms_first_; k++) {
             centroid[k] /= denom;
         }

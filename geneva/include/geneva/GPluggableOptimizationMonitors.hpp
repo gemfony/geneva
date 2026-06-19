@@ -1067,7 +1067,7 @@ private:
                 if(not monitor_valid_only_ || p->isValid()) {
                     switch(this->nProfileVars()) {
                     case 1: {
-                        fp_type val0 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[0].var);
+                        auto val0 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[0].var);
 
                         if(observe_boundaries_) {
                             if(val0 >= fp_prof_var_vec_[0].lowerBoundary &&
@@ -1081,8 +1081,8 @@ private:
                     } break;
 
                     case 2: {
-                        fp_type val0 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[0].var);
-                        fp_type val1 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[1].var);
+                        auto val0 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[0].var);
+                        auto val1 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[1].var);
 
                         if(observe_boundaries_) {
                             if(val0 >= fp_prof_var_vec_[0].lowerBoundary &&
@@ -1110,9 +1110,9 @@ private:
                     } break;
 
                     case 3: {
-                        fp_type val0 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[0].var);
-                        fp_type val1 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[1].var);
-                        fp_type val2 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[2].var);
+                        auto val0 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[0].var);
+                        auto val1 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[1].var);
+                        auto val2 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[2].var);
 
                         if(observe_boundaries_) {
                             if(val0 >= fp_prof_var_vec_[0].lowerBoundary &&
@@ -1160,7 +1160,7 @@ private:
                     if(not monitor_valid_only_ || ind_ptr->individual().isValid()) {
                         switch(this->nProfileVars()) {
                         case 1: {
-                            fp_type val0 = ind_ptr->individual().template getVarVal<fp_type>(
+                            auto val0 = ind_ptr->individual().template getVarVal<fp_type>(
                                 fp_prof_var_vec_[0].var
                             );
 
@@ -1176,10 +1176,10 @@ private:
                         } break;
 
                         case 2: {
-                            fp_type val0 = ind_ptr->individual().template getVarVal<fp_type>(
+                            auto val0 = ind_ptr->individual().template getVarVal<fp_type>(
                                 fp_prof_var_vec_[0].var
                             );
-                            fp_type val1 = ind_ptr->individual().template getVarVal<fp_type>(
+                            auto val1 = ind_ptr->individual().template getVarVal<fp_type>(
                                 fp_prof_var_vec_[1].var
                             );
 
@@ -1209,13 +1209,13 @@ private:
                         } break;
 
                         case 3: {
-                            fp_type val0 = ind_ptr->individual().template getVarVal<fp_type>(
+                            auto val0 = ind_ptr->individual().template getVarVal<fp_type>(
                                 fp_prof_var_vec_[0].var
                             );
-                            fp_type val1 = ind_ptr->individual().template getVarVal<fp_type>(
+                            auto val1 = ind_ptr->individual().template getVarVal<fp_type>(
                                 fp_prof_var_vec_[1].var
                             );
-                            fp_type val2 = ind_ptr->individual().template getVarVal<fp_type>(
+                            auto val2 = ind_ptr->individual().template getVarVal<fp_type>(
                                 fp_prof_var_vec_[2].var
                             );
 

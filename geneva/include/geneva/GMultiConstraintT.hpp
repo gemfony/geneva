@@ -250,7 +250,7 @@ protected:
      */
     void load_(const GPreEvaluationValidityCheckT<ind_type> *cp) override {
         // Check that we are dealing with a GPreEvaluationValidityCheckT<ind_type>  reference independent of this object and convert the pointer
-        const GPreEvaluationValidityCheckT<ind_type> *p_load =
+        const auto *p_load =
             Gem::Common::g_convert_and_compare<
                 GPreEvaluationValidityCheckT<ind_type>,
                 GPreEvaluationValidityCheckT<ind_type>>(
@@ -288,7 +288,7 @@ protected:
         using namespace Gem::Common;
 
         // Check that we are dealing with a GPreEvaluationValidityCheckT<ind_type>  reference independent of this object and convert the pointer
-        const GPreEvaluationValidityCheckT<ind_type> *p_load =
+        const auto *p_load =
             Gem::Common::g_convert_and_compare<
                 GPreEvaluationValidityCheckT<ind_type>,
                 GPreEvaluationValidityCheckT<ind_type>>(

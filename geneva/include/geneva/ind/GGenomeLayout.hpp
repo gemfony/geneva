@@ -99,9 +99,9 @@ T foldConstrainedFP(const T &val, const T &lo, const T &hi) {
         return lo;
     }
 
-    const long double local_val = Gem::Common::narrow<long double>(val);
-    const long double lower = Gem::Common::narrow<long double>(lo);
-    const long double upper = Gem::Common::narrow<long double>(hi);
+    const auto local_val = Gem::Common::narrow<long double>(val);
+    const auto lower = Gem::Common::narrow<long double>(lo);
+    const auto upper = Gem::Common::narrow<long double>(hi);
 
     if(local_val >= lower && local_val < upper) {
         return val;
@@ -109,7 +109,7 @@ T foldConstrainedFP(const T &val, const T &lo, const T &hi) {
 
     // Determine which fold region the value lies in (compare transferFunction.pdf shipped with the
     // tree implementation). floor() is required for correctness with negative values.
-    const std::int64_t region =
+    const auto region =
         Gem::Common::narrow<std::int64_t>(std::floor((local_val - lower) / (upper - lower)));
 
     long double mapping = 0.L;

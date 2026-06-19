@@ -46,7 +46,7 @@ namespace Gem::Geneva::Genome {
  */
 void GIndividualSlot::load_(const GIndividualSlot *cp) {
     // Convert the pointer to our target type and check for self-assignment
-    const GIndividualSlot *p_load =
+    const auto *p_load =
         Gem::Common::g_convert_and_compare<GIndividualSlot, GIndividualSlot>(cp, this);
 
     // The CRTP base carries no data, so there is no base load.
@@ -77,7 +77,7 @@ void GIndividualSlot::compare_(
     using namespace Gem::Common;
 
     // Check that we are dealing with a GIndividualSlot reference independent of this object and convert
-    const GIndividualSlot *p_load =
+    const auto *p_load =
         Gem::Common::g_convert_and_compare<GIndividualSlot, GIndividualSlot>(cp, this);
 
     GToken token("GIndividualSlot", e);

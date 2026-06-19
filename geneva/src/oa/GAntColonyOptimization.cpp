@@ -399,7 +399,7 @@ void GAntColonyOptimization::computeSelectionProbabilities() {
     double sum = 0.;
     for(std::size_t l = 0; l < archive_size_; ++l) {
         // rank is l+1, so (rank-1) == l
-        const double rank_minus_one = static_cast<double>(l);
+        const auto rank_minus_one = static_cast<double>(l);
         const double w = std::exp(-(rank_minus_one * rank_minus_one) / denom_exp);
         selection_probabilities_[l] = w;
         sum += w;

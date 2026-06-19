@@ -486,8 +486,8 @@ public:
         // Retrieve the parameters from the flat genome by name (see readTuned()).
         namespace n = oa::ea_tunable;
         const auto v = readTuned();
-        const std::int32_t npar = static_cast<std::int32_t>(v.at(n::n_parents));
-        const std::int32_t nch = static_cast<std::int32_t>(v.at(n::n_children));
+        const auto npar = static_cast<std::int32_t>(v.at(n::n_parents));
+        const auto nch = static_cast<std::int32_t>(v.at(n::n_children));
         const double amalgamation = v.at(n::amalgamation);
         const double min_ad_prob = v.at(n::min_ad_prob);
         const double ad_prob_range = v.at(n::ad_prob_range);
@@ -770,8 +770,8 @@ protected:
         // Run the required number of optimizations
         std::shared_ptr<oa::GEvolutionaryAlgorithm> ea_ptr;
 
-        std::uint32_t n_children = static_cast<std::uint32_t>(v.at(n::n_children));
-        std::uint32_t n_parents = static_cast<std::uint32_t>(v.at(n::n_parents));
+        auto n_children = static_cast<std::uint32_t>(v.at(n::n_children));
+        auto n_parents = static_cast<std::uint32_t>(v.at(n::n_parents));
         std::uint32_t pop_size = n_parents + n_children;
         std::uint32_t iterations_consumed = 0;
         double amalgamation_likelihood = v.at(n::amalgamation);
@@ -1938,7 +1938,7 @@ private:
 
         case Gem::Geneva::infoMode::INFOPROCESSING: {
             // Convert the base pointer to the target type
-            oa::GEvolutionaryAlgorithm const *const ea =
+            auto const *const ea =
                 static_cast<oa::GEvolutionaryAlgorithm const *const>(
                     goa
                 ); // NOLINT(cppcoreguidelines-init-variables)

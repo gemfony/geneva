@@ -631,7 +631,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         }
         std::span<double> prev_gradient = cg_scratch.metaRecords<double>(AUXKEY_CGD_PREV_GRADIENT);
         std::span<double> prev_direction = cg_scratch.metaRecords<double>(AUXKEY_CGD_PREV_DIRECTION);
-        std::uint8_t &cg_valid = cg_scratch.metaScalar<std::uint8_t>(AUXKEY_CGD_HISTORY_VALID);
+        auto &cg_valid = cg_scratch.metaScalar<std::uint8_t>(AUXKEY_CGD_HISTORY_VALID);
 
         // 1) Normalised finite-difference gradient. FORWARD: g_j = (f(x+h_j e_j) - f(x)) / h_j (O(h), one
         //    probe). CENTRAL: g_j = (f(x+h_j e_j) - f(x-h_j e_j)) / (2 h_j) (O(h^2), two probes). Both are
@@ -666,7 +666,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
             std::span<double> s_hist = cg_scratch.metaRecords<double>(AUXKEY_CGD_LBFGS_S);
             std::span<double> y_hist = cg_scratch.metaRecords<double>(AUXKEY_CGD_LBFGS_Y);
             std::span<double> prev_x = cg_scratch.metaRecords<double>(AUXKEY_CGD_LBFGS_PREV_X);
-            std::uint32_t &count = cg_scratch.metaScalar<std::uint32_t>(AUXKEY_CGD_LBFGS_COUNT);
+            auto &count = cg_scratch.metaScalar<std::uint32_t>(AUXKEY_CGD_LBFGS_COUNT);
             const std::size_t n = n_fp_parms_first_;
 
             // 2a) Curvature update from the previous step (skipped on the first iteration / after a
@@ -738,7 +738,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
                 for(std::size_t j = 0; j < n; j++) {
                     y_dot_r += static_cast<long double>(y_hist[slot + j]) * r[j];
                 }
-                const double beta_k = Gem::Common::narrow<double>(rho[k] * y_dot_r);
+                const auto beta_k = Gem::Common::narrow<double>(rho[k] * y_dot_r);
                 for(std::size_t j = 0; j < n; j++) {
                     r[j] += (alpha[k] - beta_k) * s_hist[slot + j];
                 }

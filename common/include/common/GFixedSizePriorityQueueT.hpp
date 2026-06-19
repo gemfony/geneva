@@ -331,7 +331,7 @@ public:
         typename std::vector<std::shared_ptr<T>>::const_iterator end,
         bool do_clone,
         bool replace) {
-        double worstKnownEvaluation = Gem::Common::getWorstCase<double>(sort_order_);
+        auto worstKnownEvaluation = Gem::Common::getWorstCase<double>(sort_order_);
         if(replace || data_deq_.empty()) {
             data_deq_.clear();
         }
@@ -522,7 +522,7 @@ protected:
              */
     void load_(const GFixedSizePriorityQueueT *cp) override {
         // Check that we are dealing with a GFixedSizePriorityQueueT<T> reference independent of this object and convert the pointer
-        const GFixedSizePriorityQueueT *p_load =
+        const auto *p_load =
             Common::g_convert_and_compare<GFixedSizePriorityQueueT, GFixedSizePriorityQueueT>(
                 cp,
                 this
@@ -557,7 +557,7 @@ protected:
         using namespace Gem::Common;
 
         // Check that we are dealing with a GFixedSizePriorityQueueT<T> reference independent of this object and convert the pointer
-        const GFixedSizePriorityQueueT *p_load =
+        const auto *p_load =
             Common::g_convert_and_compare<GFixedSizePriorityQueueT, GFixedSizePriorityQueueT>(
                 cp,
                 this

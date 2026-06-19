@@ -92,7 +92,7 @@ namespace Gem::Common {
  * @return A reference to the output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, const gColor &x) {
-    ENUMBASETYPE tmp = static_cast<ENUMBASETYPE>(x);
+    auto tmp = static_cast<ENUMBASETYPE>(x);
     o << tmp;
     return o;
 }
@@ -127,7 +127,7 @@ std::istream &operator>>(std::istream &i, gColor &x) {
  * @return A reference to the output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, const gMarker &x) {
-    ENUMBASETYPE tmp = static_cast<ENUMBASETYPE>(x);
+    auto tmp = static_cast<ENUMBASETYPE>(x);
     o << tmp;
     return o;
 }
@@ -162,7 +162,7 @@ std::istream &operator>>(std::istream &i, gMarker &x) {
  * @return A reference to the output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, const gLineStyle &x) {
-    ENUMBASETYPE tmp = static_cast<ENUMBASETYPE>(x);
+    auto tmp = static_cast<ENUMBASETYPE>(x);
     o << tmp;
     return o;
 }
@@ -197,7 +197,7 @@ std::istream &operator>>(std::istream &i, gLineStyle &x) {
  * @return A reference to the output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, const graphPlotMode &x) {
-    ENUMBASETYPE tmp = static_cast<ENUMBASETYPE>(x);
+    auto tmp = static_cast<ENUMBASETYPE>(x);
     o << tmp;
     return o;
 }
@@ -232,7 +232,7 @@ std::istream &operator>>(std::istream &i, graphPlotMode &x) {
  * @return A reference to the output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, const tddropt &x) {
-    ENUMBASETYPE tmp = static_cast<ENUMBASETYPE>(x);
+    auto tmp = static_cast<ENUMBASETYPE>(x);
     o << tmp;
     return o;
 }

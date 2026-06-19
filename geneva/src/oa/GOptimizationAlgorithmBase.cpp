@@ -83,7 +83,7 @@ void GBasePluggableOM::compare_(
     using namespace Gem::Common;
 
     // Check that we are dealing with a GBasePluggableOM reference independent of this object and convert the pointer
-    const GBasePluggableOM *p_load =
+    const auto *p_load =
         Gem::Common::g_convert_and_compare<GBasePluggableOM, GBasePluggableOM>(cp, this);
 
     GToken token("GBasePluggableOM", e);
@@ -141,7 +141,7 @@ void GBasePluggableOM::informationFunction(
  */
 void GBasePluggableOM::load_(const GBasePluggableOM *cp) {
     // Check that we are dealing with a GBasePluggableOM reference independent of this object and convert the pointer
-    const GBasePluggableOM *p_load =
+    const auto *p_load =
         Gem::Common::g_convert_and_compare<GBasePluggableOM, GBasePluggableOM>(cp, this);
 
     // This is the category root; there is no GObject parent class to load.
@@ -521,7 +521,7 @@ void GOptimizationAlgorithmBase::compare_(
     using namespace Gem::Common;
 
     // Check that we are dealing with a GOptimizationAlgorithmBase reference independent of this object and convert the pointer
-    const GOptimizationAlgorithmBase *p_load =
+    const auto *p_load =
         Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GOptimizationAlgorithmBase>(cp, this);
 
     GToken token("GOptimizationAlgorithmBase", e);
@@ -1503,7 +1503,7 @@ bool GOptimizationAlgorithmBase::cp_personality_fits(const std::filesystem::path
  */
 void GOptimizationAlgorithmBase::load_(const GOptimizationAlgorithmBase *cp) {
     // Check that we are dealing with a GOptimizationAlgorithmBase reference independent of this object and convert the pointer
-    const GOptimizationAlgorithmBase *p_load =
+    const auto *p_load =
         Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GOptimizationAlgorithmBase>(cp, this);
 
     // This is the category root; there is no GObject parent class to load.

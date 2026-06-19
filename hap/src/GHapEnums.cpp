@@ -47,7 +47,7 @@ namespace Gem::Hap {
  * @return The std::ostream object passed in (to allow chaining)
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Hap::RANDFLAVOURS &grts) {
-    Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(grts);
+    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(grts);
     o << tmp;
     return o;
 }

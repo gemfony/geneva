@@ -148,7 +148,7 @@ protected:
         using namespace Gem::Common;
 
         // Check that we are dealing with a GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
-        const GSerializableFunctionObjectT<processable_type> *p_load =
+        const auto *p_load =
             Gem::Common::g_convert_and_compare<
                 GSerializableFunctionObjectT<processable_type>,
                 GSerializableFunctionObjectT<processable_type>>(cp, this);

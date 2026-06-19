@@ -333,7 +333,7 @@ void GCUDABackend<scalar_type>::evaluate(
     const unsigned int bx = p_->spec.launch.block_x > 0 ? p_->spec.launch.block_x : 256;
     const unsigned long long totalThreads =
         static_cast<unsigned long long>(n_items) * static_cast<unsigned long long>(threads_per_item);
-    const unsigned int gx = static_cast<unsigned int>((totalThreads + bx - 1) / bx);
+    const auto gx = static_cast<unsigned int>((totalThreads + bx - 1) / bx);
 
     cuCheck(
         cuLaunchKernel(p_->kernel, gx, 1, 1, bx, 1, 1, 0, nullptr, args, nullptr),

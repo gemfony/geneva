@@ -400,7 +400,7 @@ void GStandardPSO2011::buildTopology() {
                     0., static_cast<double>(swarm_size_)
                 )
             );
-            std::size_t target = static_cast<std::size_t>(u);
+            auto target = static_cast<std::size_t>(u);
             if(target >= swarm_size_) {
                 target = swarm_size_ - 1; // guard against u == swarm_size_ (degenerate rounding)
             }

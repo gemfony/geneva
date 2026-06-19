@@ -54,7 +54,7 @@ namespace Gem::Geneva::Individuals {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::metaOptimizationTarget &mot) {
-    Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(mot);
+    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(mot);
     o << tmp;
     return o;
 }

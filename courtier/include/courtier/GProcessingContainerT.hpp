@@ -983,7 +983,7 @@ public:
 	  */
     void load_pc(const GProcessingContainerT<processable_type, processing_result_type> *cp) {
         // Check that we are dealing with a GProcessingContainerT<processable_type, processing_result_type> reference independent of this object and convert the pointer
-        const GProcessingContainerT<processable_type, processing_result_type> *p_load =
+        const auto *p_load =
             Gem::Common::g_convert_and_compare<
                 GProcessingContainerT<processable_type, processing_result_type>,
                 GProcessingContainerT<processable_type, processing_result_type>>(cp, this);

@@ -605,7 +605,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::trainingData
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::trainingDataType &tdt) {
-    Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(tdt);
+    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(tdt);
     o << tmp;
     return o;
 }
@@ -642,7 +642,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::transferFunc
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::transferFunction &t_f) {
-    Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(t_f);
+    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(t_f);
     o << tmp;
     return o;
 }

@@ -131,7 +131,7 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::beast_ping_state &ps) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Courtier::submissionReturnMode &srm) {
-    Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(srm);
+    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(srm);
     o << tmp;
     return o;
 }
@@ -209,7 +209,7 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::processingStatus &srm) 
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Courtier::consumerType &bm) {
-    Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(bm);
+    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(bm);
     o << tmp;
     return o;
 }

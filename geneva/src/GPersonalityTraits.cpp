@@ -50,7 +50,7 @@ void GPersonalityTraits::compare_(
     using namespace Gem::Common;
 
     // Check that we are dealing with a GPersonalityTraits reference independent of this object and convert the pointer
-    const GPersonalityTraits *p_load =
+    const auto *p_load =
         Gem::Common::g_convert_and_compare<GPersonalityTraits, GPersonalityTraits>(cp, this);
 
     GToken token("GPersonalityTraits", e);

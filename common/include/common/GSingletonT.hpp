@@ -146,7 +146,7 @@ public:
                     // function-local static so the allocation stays reachable
                     // (LSan reports it as still-reachable, not as a leak). This
                     // branch runs once, under creation_mutex.
-                    static std::shared_ptr<T> *const keep_alive =
+                    static auto *const keep_alive =
                         new std::shared_ptr<T>(sp);
                     (void) keep_alive;
                 }
