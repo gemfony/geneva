@@ -67,6 +67,8 @@ constexpr double DEFAULTGSAQA = -5.0;        ///< Acceptance parameter q_a
 constexpr double DEFAULTGSAT0 = 0.;          ///< Initial visiting temperature (0 => derive from ranges)
 constexpr std::uint32_t DEFAULTGSAREANNEAL =
     0; ///< Per-chain stall steps before a cooling-clock restart (0 = disabled)
+constexpr double DEFAULTGSACOOLING =
+    1.; ///< Cooling timescale: divides the step counter in the schedule (1 = strict/faithful schedule)
 
 /** @brief Number of population slots used per chain (current + proposal) */
 constexpr std::size_t GSA_SLOTS_PER_CHAIN = 2;
@@ -107,6 +109,21 @@ constexpr std::size_t GSA_PROPOSAL = 1;
  * \f[
  *   T_{q_a}(t) \;=\; \frac{T_{q_v}(t)}{t}.
  * \f]
+ *
+ * \par Cooling timescale (long, high-dimensional runs)
+ * The strict schedule above advances its clock by one per step, so the visiting
+ * temperature reaches near-local values within the first \f$\sim 10^2\f$ steps.
+ * That is well matched to short or low-dimensional runs, but on a
+ * high-dimensional landscape the chains freeze long before they have refined all
+ * coordinates. A configurable \em cooling \em timescale \f$\kappa\ge 1\f$
+ * therefore stretches the clock,
+ * \f[
+ *   t_{\mathrm{eff}} \;=\; 1 + \frac{t-1}{\kappa},
+ * \f]
+ * and both \f$T_{q_v}\f$ and \f$T_{q_a}\f$ are evaluated at \f$t_{\mathrm{eff}}\f$.
+ * The faithful default \f$\kappa=1\f$ recovers the exact Tsallis schedule
+ * (\f$t_{\mathrm{eff}}=t\f$); larger values cool proportionally more slowly so the
+ * jumps stay useful across a long, time-bounded, high-dimensional search.
  * The initial visiting temperature \f$T_{q_v}(1)=T_0\f$ may be supplied
  * explicitly or, when left at \f$0\f$, derived from the parameter ranges (the
  * mean finite parameter span, with a robust fallback), mirroring how
@@ -234,7 +251,8 @@ private:
             Gem::Common::make_member("qv_", qv_),
             Gem::Common::make_member("qa_", qa_),
             Gem::Common::make_member("t0_", t0_),
-            Gem::Common::make_member("reannealing_steps_", reannealing_steps_)
+            Gem::Common::make_member("reannealing_steps_", reannealing_steps_),
+            Gem::Common::make_member("cooling_timescale_", cooling_timescale_)
         );
     }
     auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
@@ -243,7 +261,8 @@ private:
             Gem::Common::make_member("qv_", qv_),
             Gem::Common::make_member("qa_", qa_),
             Gem::Common::make_member("t0_", t0_),
-            Gem::Common::make_member("reannealing_steps_", reannealing_steps_)
+            Gem::Common::make_member("reannealing_steps_", reannealing_steps_),
+            Gem::Common::make_member("cooling_timescale_", cooling_timescale_)
         );
     }
 
@@ -293,6 +312,11 @@ public:
     void setReannealingSteps(std::uint32_t reannealing_steps);
     /** @brief Retrieves the per-chain reannealing stall threshold */
     std::uint32_t getReannealingSteps() const;
+
+    /** @brief Sets the cooling timescale (stretches the schedule; 1 = strict/faithful, larger = slower cooling) */
+    void setCoolingTimescale(double cooling_timescale);
+    /** @brief Retrieves the cooling timescale */
+    double getCoolingTimescale() const;
 
 protected:
     /***************************************************************************/
@@ -367,6 +391,9 @@ private:
     /** @brief Lets individuals know about their position in the population */
     void markIndividualPositions();
 
+    /** @brief Maps a raw step counter to the cooling-timescale-stretched effective time */
+    double effectiveTime(std::uint32_t t) const;
+
     /** @brief Computes the Tsallis power-law visiting temperature at step t */
     double visitingTemperature(std::uint32_t t) const;
     /** @brief Draws a single Tsallis-style heavy-tailed jump vector for a given visiting temperature */
@@ -388,6 +415,8 @@ private:
     double t0_ = DEFAULTGSAT0;                 ///< Initial visiting temperature (0 => derived in init())
     std::uint32_t reannealing_steps_ =
         DEFAULTGSAREANNEAL; ///< Per-chain stall steps before a cooling-clock restart (0 = disabled)
+    double cooling_timescale_ =
+        DEFAULTGSACOOLING; ///< Divides the step counter in the schedule (1 = strict; larger slows cooling)
 
     /***************************************************************************/
     // Internal per-chain state (transient; rebuilt in init(), excluded from serialize/compare)

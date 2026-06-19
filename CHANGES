@@ -411,6 +411,34 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- Three additional optimization algorithms were added, each a clean-room
+  implementation from the published specification with a full mathematical
+  description in its Doxygen preamble: Standard PSO 2011 (GStandardPSO2011, "spso2011"),
+  Ant Colony Optimization for continuous domains (GAntColonyOptimization, "acor",
+  a ranked-Gaussian-archive sampler that generalizes the recombination idea of the
+  evolutionary methods) and Generalized / Dual Simulated Annealing
+  (GGeneralizedSimulatedAnnealing, "gsa", a Tsallis heavy-tailed visiting
+  distribution with generalized acceptance and power-law cooling). All three are
+  ordinary Geneva optimization algorithms (factory, personality traits, single-source
+  serialization) and submit to the one process consumer like every other algorithm.
+
+- High-dimensional tuning of the two annealing/swarm additions, after profiling on a
+  100/200-dimensional benchmark (GOABenchmark) under an equal wall-clock budget:
+  * Generalized-SA gained a configurable cooling timescale (config key
+    "cooling_timescale", default 1 = the strict Tsallis schedule). The strict
+    schedule cools within the first ~100 steps, which freezes the chains long before
+    they can refine every coordinate of a high-dimensional problem; stretching the
+    schedule keeps the heavy-tailed jumps useful across a long, time-bounded run. On
+    the 100-d sphere this lowers the reached fitness by more than an order of
+    magnitude. The faithful default is unchanged, so the existing low-dimensional
+    behaviour is bit-for-bit identical.
+  * Standard PSO 2011 gained a Vmax velocity clamp (a fraction of each parameter's
+    range). Strict SPSO-2011 relies on the constriction alone to contract the swarm,
+    but in high dimension the hypersphere radius factor U^(1/n) -> 1 so the swarm
+    never contracts and stagnates; the clamp roughly halves the stalled fitness. It
+    is documented as a deliberate, mitigating deviation -- SPSO-2011 remains
+    out-scaled at large n by CMA-ES and archive methods such as ACOR.
+
 - The multi-objective (Pareto) machinery shared by the optimization algorithms was
   factored into one place (geneva/oa/GParetoTools.hpp): a single strict-Pareto
   dominance test (paretoDominates) and the NSGA-II non-dominated-sort + crowding

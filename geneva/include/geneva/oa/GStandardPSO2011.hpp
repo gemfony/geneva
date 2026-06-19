@@ -148,6 +148,18 @@ constexpr std::size_t DEFAULTSPSOK = 3;          ///< The default number of part
  * \f]
  * Dimensions with an unbounded (non-finite) range are not confined.
  *
+ * @par Velocity clamping (deviation from strict SPSO-2011)
+ * After the velocity update each component is clamped to \f$\pm\,k\,(\mathrm{upper}_d-\mathrm{lower}_d)\f$
+ * (\f$k=0.2\f$). Strict SPSO-2011 omits a \f$V_{\max}\f$ and relies on the constriction (\f$w<1\f$) to
+ * contract the swarm. That contraction works well in low dimension, but in HIGH dimension the
+ * hypersphere radius factor \f$U(0,1)^{1/n}\to 1\f$, so every trial point sits at distance
+ * \f$\approx\lVert\mathbf{G}-\mathbf{x}\rVert\f$ from the centre: the step never becomes small relative to
+ * the swarm spread, the velocity does not decay, and the swarm fails to contract (it stagnates,
+ * coordinates pinned near the box walls). The \f$V_{\max}\f$ clamp curbs this runaway and roughly halves
+ * the stalled fitness. It is, however, only a mitigation: SPSO-2011 has a well-known high-dimensional
+ * weakness and is out-scaled at large \f$n\f$ by CMA-ES and archive methods (e.g. ACOR) -- prefer those
+ * for high-dimensional problems.
+ *
  * @par Initialization
  * Position \f$x_i\f$ is drawn uniformly from the box \f$[\mathrm{lower}_d, \mathrm{upper}_d]\f$ (particle
  * 0 keeps the registered start individual). The velocity uses the SPSO-2011 "half-diff" rule,

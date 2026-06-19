@@ -247,6 +247,9 @@ void runMatrix(double budget_s) {
     if(want("gsa")) {
         auto pop = std::make_shared<oa::GGeneralizedSimulatedAnnealing>();
         pop->setNChains(64);
+        // Stretch the Tsallis cooling so the chains keep making useful moves across a long,
+        // high-dimensional, time-bounded run instead of freezing within the first ~100 steps.
+        pop->setCoolingTimescale(300.);
         pop->push_back(proto.clone_unique());
         record("Generalized-SA", pop);
     }
@@ -277,7 +280,8 @@ void runMatrix(double budget_s) {
 /******************************************************************************/
 
 TEST_CASE("OA benchmark: high-dimensional synthetic functions, equal time budget", "[.oabench]") {
-    constexpr double BUDGET = 5.0; // seconds per algorithm per problem
+    const char *budget_env = std::getenv("GBENCH_BUDGET");
+    const double BUDGET = (budget_env != nullptr) ? std::atof(budget_env) : 5.0; // seconds per algorithm per problem
 
     std::cout << "\n#### Geneva OA benchmark -- equal wall-clock budget per algorithm (timed halt) ####\n";
 

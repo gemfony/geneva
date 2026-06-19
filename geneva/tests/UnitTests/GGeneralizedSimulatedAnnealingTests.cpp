@@ -174,6 +174,35 @@ TEST_CASE("Generalized Simulated Annealing optimizes a 10-dim flat sphere", "[gs
 
 /******************************************************************************/
 
+TEST_CASE("Generalized Simulated Annealing: cooling timescale rescues a high-dim run", "[gsa]") {
+    // On a high-dimensional sphere the strict Tsallis schedule (timescale 1) cools so fast that the
+    // chains freeze within the first ~100 steps, long before they can refine all coordinates. Stretching
+    // the schedule with a larger cooling timescale keeps the jumps useful across the whole budget. This
+    // test pins that the stretched schedule converges where the strict one stalls.
+    constexpr std::size_t N = 25;
+    constexpr std::uint32_t ITER = 8000;
+
+    auto run = [](double timescale) {
+        auto pop = std::make_shared<oa::GGeneralizedSimulatedAnnealing>();
+        pop->setNChains(16);
+        pop->setCoolingTimescale(timescale);
+        pop->setMaxIteration(ITER);
+        pop->setMaxStallIteration(0); // run the full budget
+        pop->setReportIteration(100000);
+        pop->push_back(FlatSphereGSA<N>().clone_unique());
+        pop->optimize();
+        return bestSphere<N>(pop->getBestGlobalIndividual<FlatSphereGSA<N>>());
+    };
+
+    const double strict = run(1.0);    // faithful default: cools too fast at this dimension
+    const double stretched = run(300.); // stretched: keeps refining across the budget
+
+    CHECK(stretched < 5.0);       // the stretched schedule converges deep (start f = 25 * 9 = 225)
+    CHECK(stretched < strict);    // and clearly beats the prematurely-frozen strict schedule
+}
+
+/******************************************************************************/
+
 TEST_CASE("Generalized Simulated Annealing reaches a good value on a multimodal Rastrigin", "[gsa]") {
     auto pop = std::make_shared<oa::GGeneralizedSimulatedAnnealing>();
     pop->setNChains(12);
@@ -206,6 +235,10 @@ TEST_CASE("Generalized Simulated Annealing parameter validation", "[gsa]") {
     CHECK(gsa->getT0() == 5.0);
     gsa->setReannealingSteps(50);
     CHECK(gsa->getReannealingSteps() == 50);
+    gsa->setCoolingTimescale(250.);
+    CHECK(gsa->getCoolingTimescale() == 250.);
+    gsa->setCoolingTimescale(0.1); // below 1 is clamped to the strict schedule
+    CHECK(gsa->getCoolingTimescale() == 1.0);
 
     CHECK_THROWS(gsa->setNChains(0)); // need at least 1 chain
     CHECK_THROWS(gsa->setQv(1.0));    // q_v must be in ]1,3[

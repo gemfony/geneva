@@ -61,6 +61,7 @@ using Gem::Geneva::activityMode;
 namespace {
 const double SPSO_W = 1. / (2. * std::log(2.)); ///< inertia weight w = 1/(2 ln 2)
 const double SPSO_C = 0.5 + std::log(2.);       ///< acceleration c = 1/2 + ln 2
+constexpr double SPSO_VMAX_FACTOR = 0.2; ///< velocity clamp as a fraction of each parameter's range
 } // namespace
 
 /******************************************************************************/
@@ -527,10 +528,21 @@ void GStandardPSO2011::updatePositions() {
             x_prime = G;
         }
 
-        // Velocity and position update.
+        // Velocity and position update, with per-dimension velocity clamping (Vmax). Strict SPSO-2011
+        // omits Vmax and relies on the constriction (w<1) to contract, but in HIGH dimension the
+        // hypersphere radius factor U^(1/n) -> 1, so the trial point sits at distance ~||G-x|| from G
+        // every step: the velocity never decays, the swarm cannot contract, and coordinates get pinned to
+        // the box walls (it stagnates). Clamping the velocity to a fraction of the parameter range lets
+        // the swarm settle and refine.
         std::vector<double> &v = velocities_[i];
         for(std::size_t d = 0; d < n_fp_parms_; ++d) {
             v[d] = SPSO_W * v[d] + (x_prime[d] - x[d]);
+            const double lo = dbl_lower_[d];
+            const double hi = dbl_upper_[d];
+            if(std::isfinite(lo) && std::isfinite(hi) && hi > lo) {
+                const double vmax = SPSO_VMAX_FACTOR * (hi - lo);
+                v[d] = std::clamp(v[d], -vmax, vmax);
+            }
             x[d] = x[d] + v[d];
         }
 

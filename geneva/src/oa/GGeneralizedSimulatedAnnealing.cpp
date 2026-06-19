@@ -163,6 +163,21 @@ std::uint32_t GGeneralizedSimulatedAnnealing::getReannealingSteps() const {
 }
 
 /******************************************************************************/
+/**
+ * Sets the cooling timescale. The schedule's step counter is divided by this value, so a larger
+ * timescale stretches the cooling over proportionally more steps. The strict Tsallis schedule (the
+ * faithful default) corresponds to a timescale of 1. Values below 1 are clamped to 1.
+ */
+void GGeneralizedSimulatedAnnealing::setCoolingTimescale(double cooling_timescale) {
+    cooling_timescale_ = (cooling_timescale >= 1.) ? cooling_timescale : 1.;
+}
+
+/******************************************************************************/
+double GGeneralizedSimulatedAnnealing::getCoolingTimescale() const {
+    return cooling_timescale_;
+}
+
+/******************************************************************************/
 /** Population index of the current point of chain c. */
 std::size_t GGeneralizedSimulatedAnnealing::currentPos(std::size_t c) const {
     return c * GSA_SLOTS_PER_CHAIN + GSA_CURRENT;
@@ -213,6 +228,12 @@ void GGeneralizedSimulatedAnnealing::addConfigurationOptions_(Gem::Common::GPars
         DEFAULTGSAREANNEAL,
         [this](std::uint32_t r) { this->setReannealingSteps(r); }
     ) << "Per-chain stall steps before a cooling-clock restart (0 = disabled)";
+
+    gpb.registerFileParameter<double>(
+        "cooling_timescale",
+        DEFAULTGSACOOLING,
+        [this](double c) { this->setCoolingTimescale(c); }
+    ) << "Cooling timescale stretching the schedule (1 = strict Tsallis; larger = slower cooling, better for long high-dimensional runs)";
 }
 
 /******************************************************************************/
@@ -438,12 +459,20 @@ void GGeneralizedSimulatedAnnealing::markIndividualPositions() {
 /**
  * The Tsallis power-law visiting temperature at step t (t = 1, 2, ...):
  *
- *   T_qv(t) = T_qv(1) * (2^{qv-1} - 1) / ((1 + t)^{qv-1} - 1).
+ *   T_qv(t) = T_qv(1) * (2^{qv-1} - 1) / ((1 + t_eff)^{qv-1} - 1),
+ *
+ * where t_eff = 1 + (t - 1) / cooling_timescale_ stretches the schedule. With the faithful default
+ * timescale of 1, t_eff == t and the strict Tsallis schedule is recovered.
  */
+double GGeneralizedSimulatedAnnealing::effectiveTime(std::uint32_t t) const {
+    return 1. + (static_cast<double>(t) - 1.) / cooling_timescale_;
+}
+
+/******************************************************************************/
 double GGeneralizedSimulatedAnnealing::visitingTemperature(std::uint32_t t) const {
     const double exponent = qv_ - 1.;
     const double numerator = std::pow(2., exponent) - 1.;
-    const double denominator = std::pow(1. + static_cast<double>(t), exponent) - 1.;
+    const double denominator = std::pow(1. + this->effectiveTime(t), exponent) - 1.;
 
     if(denominator <= 0.) {
         // Only happens at t == 1 (denominator == numerator) which is fine; this guards against any
@@ -573,7 +602,7 @@ void GGeneralizedSimulatedAnnealing::applyAcceptance() {
         else {
             const std::uint32_t t = chain_step_[c];
             const double tqv = this->visitingTemperature(t);
-            const double tqa = tqv / static_cast<double>(t); // coupled acceptance temperature
+            const double tqa = tqv / this->effectiveTime(t); // coupled acceptance temperature (stretched time)
             const double p_pass = this->acceptanceProbability(delta_e, tqa);
 
             const double challenge = uniform_real_distribution_(
