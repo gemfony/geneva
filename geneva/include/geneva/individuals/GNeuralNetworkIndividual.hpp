@@ -546,7 +546,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
         Gem::Common::serialize_members(ar, this->localMembers());
 
         // Load the network data from disk
-        n_d_ = nnTrainingDataStore(); // A glogal singleton
+        n_d_ = nnTrainingDataStore(); // A global singleton
     }
 
     template <typename Archive>
