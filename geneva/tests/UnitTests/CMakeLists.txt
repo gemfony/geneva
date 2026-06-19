@@ -40,6 +40,7 @@ SET ( ${EXECUTABLENAME}_SRCS
 	GStandardPSO2011Tests.cpp
 	GAntColonyOptimizationTests.cpp
 	GGeneralizedSimulatedAnnealingTests.cpp
+	GOABenchmark.cpp
 	GEvolutionaryAlgorithmModesTests.cpp
 	GAdaptionConfigTests.cpp
 	GIndividualSlotTests.cpp
