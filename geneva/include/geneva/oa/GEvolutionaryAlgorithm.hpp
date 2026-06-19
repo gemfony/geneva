@@ -116,8 +116,12 @@ constexpr auto DEFAULTEASORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
  * log-normal update random-walks \f$\sigma\f$ instead of letting it settle and fine convergence stalls.
  *
  * @par Step-control modes (selected on the GAdaptionConfig)
+ * The default is @b CSA: a derandomized step-size controller that is robust across landscapes (it is the
+ * step-size principle of CMA-ES) and the strongest of these modes on realistic multimodal / bounded
+ * problems. @b SELF_ADAPT_SCALED is better on smooth high-dimensional unimodal problems (e.g. the sphere)
+ * and remains available; @b SELF_ADAPT is the bit-for-bit legacy behaviour.
  * - @b SELF_ADAPT — the classic σSA above, unchanged; reproduces the legacy EA bit-for-bit.
- * - @b SELF_ADAPT_SCALED @e (default) — the same log-normal rule with the textbook dimension-scaled rate
+ * - @b SELF_ADAPT_SCALED — the same log-normal rule with the textbook dimension-scaled rate
  *   \f[
  *     \tau=\frac{c}{\sqrt{2n}}\ \text{(one shared }\sigma\text{)},
  *     \qquad
@@ -129,7 +133,7 @@ constexpr auto DEFAULTEASORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
  *   generation's best, and damping \f$d=0.2\f$,
  *   \f[ \sigma \leftarrow \sigma\,\exp\!\Bigl(\tfrac{p_{\mathrm{succ}}-1/5}{1+d}\Bigr). \f]
  *   (Rechenberg 1973.)
- * - @b CSA — a scalar cumulative step-size adaptation: an evolution-path proxy \f$p_\sigma\f$ accumulates
+ * - @b CSA @e (default) — a scalar cumulative step-size adaptation: an evolution-path proxy \f$p_\sigma\f$ accumulates
  *   the normalised success-rate deviation \f$s=(p_{\mathrm{succ}}-1/5)/(1-1/5)\f$ from the \f$1/5\f$
  *   target, with cumulation constant \f$c_\sigma=1/(1+\sqrt{n}/4)\f$:
  *   \f[
@@ -356,7 +360,7 @@ private:
     sortingMode sorting_mode_ = DEFAULTEASORTINGMODE; ///< The chosen sorting scheme
 
     /** @brief The step-size-control strategy applied to the adaption config (default SELF_ADAPT_SCALED). */
-    stepControl step_control_ = stepControl::SELF_ADAPT_SCALED;
+    stepControl step_control_ = stepControl::CSA;
     /** @brief The learning-rate constant c for SELF_ADAPT_SCALED (tau = c/sqrt(2n)). */
     double learning_rate_c_ = 1.;
     /** @brief Whether to intermediate-recombine the per-individual sigma after recombination. */

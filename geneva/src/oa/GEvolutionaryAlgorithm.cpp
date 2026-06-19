@@ -302,14 +302,14 @@ void GType::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
 
     gpb.registerFileParameter<std::uint8_t>(
         "step_control",
-        static_cast<std::uint8_t>(stepControl::SELF_ADAPT_SCALED),
+        static_cast<std::uint8_t>(stepControl::CSA),
         [this](std::uint8_t sc) { this->setStepControl(static_cast<stepControl>(sc)); }
     ) << "The step-size control strategy. Options"
       << '\n'
-      << "0: SELF_ADAPT (classic mutative sigma self-adaption, like \"ea\")" << '\n'
-      << "1: SELF_ADAPT_SCALED (dimension-scaled tau = c/sqrt(2n)) [default]" << '\n'
+      << "0: SELF_ADAPT (classic mutative sigma self-adaption, the legacy \"ea\")" << '\n'
+      << "1: SELF_ADAPT_SCALED (dimension-scaled tau = c/sqrt(2n))" << '\n'
       << "2: ONE_FIFTH (Rechenberg 1/5 success rule on a single global sigma)" << '\n'
-      << "3: CSA (cumulative step-size adaptation on a single global sigma)";
+      << "3: CSA (cumulative step-size adaptation on a single global sigma) [default]";
 
     gpb.registerFileParameter<double>(
         "learning_rate_c",

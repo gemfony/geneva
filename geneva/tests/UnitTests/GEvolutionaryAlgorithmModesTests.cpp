@@ -161,9 +161,9 @@ TEST_CASE("ea optimizes a flat individual (basic)", "[ea][oa]") {
 
 /******************************************************************************/
 
-TEST_CASE("ea default step control is SELF_ADAPT_SCALED", "[ea][oa]") {
+TEST_CASE("ea default step control is CSA", "[ea][oa]") {
     auto p = std::make_shared<oa::GEvolutionaryAlgorithm>();
-    CHECK(p->getStepControl() == stepControl::SELF_ADAPT_SCALED);
+    CHECK(p->getStepControl() == stepControl::CSA);
 }
 
 /******************************************************************************/
@@ -180,7 +180,7 @@ TEST_CASE("ea self-registers its mnemonic in the OA factory store", "[ea][oa]") 
 
 TEST_CASE("ea SELF_ADAPT mode reproduces the classic algorithm, SCALED beats it", "[ea][oa]") {
     // With stepControl=SELF_ADAPT, the EA IS the classic algorithm (no dimension scaling); with the same
-    // budget + config the dimension-scaled default must do at least as well -- demonstrating the scaling
+    // budget + config the dimension-scaled mode must do at least as well -- demonstrating the scaling
     // is the lever. f start = 20*4 = 80.
     const double f_self = runAdaptiveEA<20>(40, 10, 200, stepControl::SELF_ADAPT);
     const double f_scaled = runAdaptiveEA<20>(40, 10, 200, stepControl::SELF_ADAPT_SCALED);
@@ -240,7 +240,7 @@ TEST_CASE("ea out-converges the stock EA on a HIGH-DIM sphere", "[ea][oa][highdi
               << "  ea(CSA) f=" << f_csa
               << "  ea(ONE_FIFTH) f=" << f_one_fifth);
 
-    // The default SELF_ADAPT_SCALED must reach a markedly lower fitness than the stock EA at high n
+    // SELF_ADAPT_SCALED must reach a markedly lower fitness than the stock EA at high n
     // (the stock EA's fixed sigma_sigma=0.8 random-walks sigma and it makes essentially no progress).
     CHECK(f_scaled < f_ea);
     CHECK(f_scaled < 0.5 * f_ea);

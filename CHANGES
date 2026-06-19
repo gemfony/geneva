@@ -414,16 +414,20 @@ Recommended Versions:
 - The evolutionary algorithm GEvolutionaryAlgorithm ("ea") gained a selectable
   step-size-control strategy on the OA-owned adaption config that improves
   convergence near the optimum at high dimension: SELF_ADAPT (the classic
-  mutative sigma self-adaption), SELF_ADAPT_SCALED (the default -- the sigma
-  self-adaption rate is scaled by the parameter count, tau = c/sqrt(2n), instead
-  of the fixed rate, which is far too hot at large n), ONE_FIFTH (Rechenberg 1/5
-  success rule on a single global sigma) and CSA (cumulative step-size adaptation);
-  it also optionally intermediate-recombines the per-individual sigma. The former
-  separate, non-adaptive EA has been folded in: it is exactly the SELF_ADAPT mode
-  with recombine_sigma=false, so the legacy behaviour is reproduced bit-for-bit
-  (up to the RNG seed) by selecting that. On a 1000-parameter sphere over a fixed
-  budget the legacy SELF_ADAPT stalls at the starting fitness while the default
-  scaled controller reaches less than half of it.
+  mutative sigma self-adaption), SELF_ADAPT_SCALED (the sigma self-adaption rate
+  scaled by the parameter count, tau = c/sqrt(2n), instead of the fixed rate which
+  is far too hot at large n), ONE_FIFTH (Rechenberg 1/5 success rule on a single
+  global sigma) and CSA (cumulative step-size adaptation, now the default -- it is
+  the robust, derandomized step-size principle of CMA-ES and the strongest of these
+  on realistic multimodal / bounded problems; on the 1000-triangle Mona-Lisa image
+  it reaches ~16% lower fitness in 500 generations than the legacy behaviour, where
+  SELF_ADAPT_SCALED was actually slightly worse). It also optionally
+  intermediate-recombines the per-individual sigma. The former separate,
+  non-adaptive EA has been folded in: it is exactly the SELF_ADAPT mode with
+  recombine_sigma=false, so the legacy behaviour is reproduced bit-for-bit (up to
+  the RNG seed) by selecting that. SELF_ADAPT_SCALED remains the better choice on
+  smooth high-dimensional unimodal problems (e.g. a sphere, where it reaches less
+  than half the stalled stock-EA fitness over a fixed budget).
 
 - A server binary now uses a single courtier consumer for everything, held in a
   process-global registry (GConsumerRegistry). Algorithms are transport-agnostic:
