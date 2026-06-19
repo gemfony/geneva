@@ -87,15 +87,13 @@ class GFixedSizePriorityQueueT : public GCommonInterfaceT<GFixedSizePriorityQueu
             Gem::Common::make_cloneable_container_member("data_deq_", self.data_deq_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         // The member list is derived from the single localMembers() declaration
         // so serialize()/load_()/compare_() stay in sync (no silently-dropped member).
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -531,7 +529,7 @@ protected:
             );
 
         // Load local data
-        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
     }
 
     /***************************************************************************/
@@ -571,7 +569,7 @@ protected:
         Common::compare_base_t<GCommonInterfaceT<GFixedSizePriorityQueueT>>(*this, *p_load, token);
 
         // ... and then our local data
-        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
+        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
         // React on deviations from the expectation
         token.evaluate();

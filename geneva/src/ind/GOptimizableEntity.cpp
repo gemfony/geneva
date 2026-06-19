@@ -333,7 +333,7 @@ void GOptimizableEntity::compare_(
 
     // ... and all the local data (plain + cloneable pointers), derived from the
     // single localMembers() declaration.
-    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
+    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1163,7 +1163,7 @@ void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
     // members are assigned, the cloneable smart pointers are deep-cloned (the tie
     // dispatches on the member kind). The OA-owned scratch (personality + the per-group adaption POD
     // state) is not held here — it lives on the GIndividualSlot and is copied by GIndividualSlot::load_.
-    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
 }
 
 /******************************************************************************/

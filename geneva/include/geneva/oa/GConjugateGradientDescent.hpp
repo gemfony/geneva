@@ -224,8 +224,6 @@ private:
             Gem::Common::make_member("lbfgs_memory_", self.lbfgs_memory_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -234,7 +232,7 @@ private:
         ar &make_nvp("GOptimizationAlgorithmBase", boost::serialization::base_object<GOptimizationAlgorithmBase>(*this));
         // Member list derived from the single localMembers() declaration (same NVP
         // names/order as the previous explicit list).
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
 
     ///////////////////////////////////////////////////////////////////////

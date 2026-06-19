@@ -644,8 +644,6 @@ protected:
             Gem::Common::make_member("sub_ea_config_", self.sub_ea_config_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /***************************************************************************/
     /**
@@ -665,7 +663,7 @@ protected:
         gen::GFlatGenome::load_(cp);
 
         // ... and then our local data, derived from the single localMembers() declaration
-        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
 
         // We simply keep our local individual factory, as all settings are made inside of fitnessCalculation
     }
@@ -705,7 +703,7 @@ protected:
         Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
 
         // ... and then the local data, derived from the single localMembers() declaration
-        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
+        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1630,7 +1628,7 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
             boost::serialization::base_object<oa::GBasePluggableOM>(*this)
         );
         // All local members, derived from the single localMembers() declaration (same NVP tags as before).
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1652,8 +1650,6 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_cloneable_member("sigma_sigma_plotter_", self.sigma_sigma_plotter_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
 public:
     /***************************************************************************/
@@ -1744,7 +1740,7 @@ protected:
 
         // Load local data, derived from the single localMembers() declaration (the cloneable plotter
         // pointers are deep-cloned, the plain members assigned).
-        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
     }
 
     /***************************************************************************/
@@ -1781,7 +1777,7 @@ protected:
         Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
         // ... and then our local data, derived from the single localMembers() declaration
-        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
+        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
         // React on deviations from the expectation
         token.evaluate();

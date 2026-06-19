@@ -139,8 +139,6 @@ protected:
     static auto localMembers_(Self &self) {
         return std::make_tuple(Gem::Common::make_member("use_raw_evaluation_", self.use_raw_evaluation_));
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Loads the data of another object into this one.

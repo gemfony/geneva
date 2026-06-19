@@ -80,7 +80,7 @@ class GPostProcessorBaseT // NOLINT(cppcoreguidelines-special-member-functions)
             )
         );
         // The sole local member, derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -91,8 +91,6 @@ class GPostProcessorBaseT // NOLINT(cppcoreguidelines-special-member-functions)
     static auto localMembers_(Self &self) {
         return std::make_tuple(Gem::Common::make_member("allowed_mnemonics_", self.allowed_mnemonics_));
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
 public:
     /**************************************************************************/
@@ -185,7 +183,7 @@ protected:
         Gem::Common::GSerializableFunctionObjectT<base_type>::load_(cp);
 
         // ... and then our local data, derived from the single localMembers() declaration
-        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
     }
 
     /**************************************************************************/
@@ -223,7 +221,7 @@ protected:
         Gem::Common::compare_base_t<GSerializableFunctionObjectT<base_type>>(*this, *p_load, token);
 
         // ... and then our local data, derived from the single localMembers() declaration
-        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
+        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -404,8 +402,6 @@ protected:
             Gem::Common::make_member("execution_mode_", self.execution_mode_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Loads the data of another GEvolutionaryAlgorithmPostOptimizer object

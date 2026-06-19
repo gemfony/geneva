@@ -108,8 +108,6 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_member("bv_", self.bv_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Serialises the genome: the four value channels plus the shared structural layout, the
@@ -140,7 +138,7 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
             return;
         }
 
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
 
         // The transient per-group adaption state is NOT serialised here (it is OA-owned slot scratch);
         // full-state checkpointing is a separate concern.
@@ -218,7 +216,7 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         }
         input_omitted_ = false;
 
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
         // The per-group adaption state is OA-owned scratch (on the GIndividualSlot): an optimization
         // algorithm seeds each slot's scratch from its config at setup.
 

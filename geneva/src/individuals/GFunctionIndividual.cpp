@@ -104,7 +104,7 @@ void GDoubleSumConstraint::compare_(
     Gem::Common::compare_base_t<gen::GOptimizableEntityConstraint>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
+    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -161,7 +161,7 @@ void GDoubleSumConstraint::load_(const GPreEvaluationValidityCheckT<gen::GOptimi
     gen::GOptimizableEntityConstraint::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
 }
 
 /******************************************************************************/
@@ -215,7 +215,7 @@ void GDoubleSumGapConstraint::compare_(
     Gem::Common::compare_base_t<gen::GOptimizableEntityConstraint>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
+    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -273,7 +273,7 @@ void GDoubleSumGapConstraint::load_(const GPreEvaluationValidityCheckT<gen::GOpt
     gen::GOptimizableEntityConstraint::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
 }
 
 /******************************************************************************/
@@ -323,7 +323,7 @@ void GSphereConstraint::compare_(
     Gem::Common::compare_base_t<gen::GOptimizableEntityConstraint>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
+    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -381,7 +381,7 @@ void GSphereConstraint::load_(const GPreEvaluationValidityCheckT<gen::GOptimizab
     gen::GOptimizableEntityConstraint::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
 }
 
 /******************************************************************************/
@@ -546,7 +546,7 @@ void GFunctionIndividual::compare_(
     Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
+    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -613,7 +613,7 @@ void GFunctionIndividual::load_(const gen::GOptimizableEntity *cp) {
     gen::GFlatGenome::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
 }
 
 /******************************************************************************/

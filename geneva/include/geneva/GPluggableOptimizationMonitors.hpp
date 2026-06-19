@@ -183,8 +183,6 @@ class GFitnessMonitor // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_cloneable_container_member("iteration_fitness_graph_vec_", self.iteration_fitness_graph_vec_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -196,7 +194,7 @@ class GFitnessMonitor // NOLINT(cppcoreguidelines-special-member-functions)
         );
 
         // All members are derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -360,8 +358,6 @@ class GCollectiveMonitor // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_cloneable_container_member("pluggable_monitors_", self.pluggable_monitors_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -510,8 +506,6 @@ class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_member("add_print_command_", self.add_print_command_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -527,7 +521,7 @@ class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
         ar & BOOST_SERIALIZATION_NVP(fp_prof_var_vec_) & BOOST_SERIALIZATION_NVP(gpd_);
 
         // The unconditionally-handled members, derived from localMembers().
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -867,7 +861,7 @@ protected:
         gpd_.load(p_load->gpd_);
 
         // ... and then the unconditionally-handled members, derived from localMembers().
-        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
     }
 
     /***************************************************************************/
@@ -907,7 +901,7 @@ protected:
         compare_t(Gem::Common::getIdentity(gpd_, p_load->gpd_, "gpd_", "p_load->gpd_"), token);
 
         // ... and then the unconditionally-handled members, derived from localMembers().
-        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
+        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1352,8 +1346,6 @@ class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-function
             Gem::Common::make_member("show_iteration_boundaries_", self.show_iteration_boundaries_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -1365,7 +1357,7 @@ class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-function
         );
 
         // All members are derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1595,8 +1587,6 @@ class GIterationResultsFileLogger // NOLINT(cppcoreguidelines-special-member-fun
             Gem::Common::make_member("use_raw_fitness_", self.use_raw_fitness_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -1608,7 +1598,7 @@ class GIterationResultsFileLogger // NOLINT(cppcoreguidelines-special-member-fun
         );
 
         // All members are derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1761,8 +1751,6 @@ class GNAdpationsLogger // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_member("n_adaptions_store_", self.n_adaptions_store_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -1774,7 +1762,7 @@ class GNAdpationsLogger // NOLINT(cppcoreguidelines-special-member-functions)
         );
 
         // All members are derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1971,8 +1959,6 @@ class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functio
             Gem::Common::make_member("adaptor_property_store_", self.adaptor_property_store_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -1984,7 +1970,7 @@ class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functio
         );
 
         // All members are derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -2196,7 +2182,7 @@ protected:
         oa::GBasePluggableOM::load_(cp);
 
         // ... and then all local data, derived from the single localMembers() declaration.
-        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
     }
 
     /** @brief Allow access to this classes compare_ function */
@@ -2235,7 +2221,7 @@ protected:
         Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
         // ... and then all local data, derived from the single localMembers() declaration.
-        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
+        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -2556,8 +2542,6 @@ class GProcessingTimesLogger // NOLINT(cppcoreguidelines-special-member-function
             Gem::Common::make_member("n_bins_y_", self.n_bins_y_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -2569,7 +2553,7 @@ class GProcessingTimesLogger // NOLINT(cppcoreguidelines-special-member-function
         );
 
         // All members are derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 

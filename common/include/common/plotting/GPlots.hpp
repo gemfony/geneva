@@ -205,8 +205,6 @@ protected:
     static auto localMembers_(Self &self) {
         return std::make_tuple(make_member("data_", self.data_));
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
 	  * Loads the data of another object
@@ -221,7 +219,7 @@ protected:
         GBasePlotter::load_(cp);
 
         // ... and then our own, derived from the single localMembers() declaration
-        g_load_members(localMembers(), p_load->localMembers());
+        g_load_members(localMembers_(*this), localMembers_(*p_load));
     }
 
     /***************************************************************************/
@@ -255,7 +253,7 @@ protected:
         compare_base_t<GBasePlotter>(*this, *p_load, token);
 
         // ... and then the local data, derived from the single localMembers() declaration
-        g_compare_members(localMembers(), p_load->localMembers(), token);
+        g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -411,8 +409,6 @@ protected:
             make_member("max_x_", self.max_x_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
 	 * @brief Loads the data of another object
@@ -543,8 +539,6 @@ protected:
             make_member("max_x_", self.max_x_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
 	 * @brief Loads the data of another object
@@ -883,8 +877,6 @@ protected:
     static auto localMembers_(Self &self) {
         return std::make_tuple(make_member("data_", self.data_));
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
 	  * Loads the data of another object
@@ -899,7 +891,7 @@ protected:
         GBasePlotter::load_(cp);
 
         // ... and then our own, derived from the single localMembers() declaration
-        g_load_members(localMembers(), p_load->localMembers());
+        g_load_members(localMembers_(*this), localMembers_(*p_load));
     }
 
     /***************************************************************************/
@@ -933,7 +925,7 @@ protected:
         compare_base_t<GBasePlotter>(*this, *p_load, token);
 
         // ... and then the local data, derived from the single localMembers() declaration
-        g_compare_members(localMembers(), p_load->localMembers(), token);
+        g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1237,8 +1229,6 @@ protected:
     static auto localMembers_(Self &self) {
         return std::make_tuple(make_member("data_", self.data_));
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
 	  * Loads the data of another object
@@ -1253,7 +1243,7 @@ protected:
         GBasePlotter::load_(cp);
 
         // ... and then our own, derived from the single localMembers() declaration
-        g_load_members(localMembers(), p_load->localMembers());
+        g_load_members(localMembers_(*this), localMembers_(*p_load));
     }
 
     /***************************************************************************/
@@ -1287,7 +1277,7 @@ protected:
         compare_base_t<GBasePlotter>(*this, *p_load, token);
 
         // ... and then the local data, derived from the single localMembers() declaration
-        g_compare_members(localMembers(), p_load->localMembers(), token);
+        g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1491,8 +1481,6 @@ protected:
             make_member("dropt_", self.dropt_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
 	 * @brief Loads the data of another object
@@ -1651,8 +1639,6 @@ protected:
             make_member("draw_arrows_", self.draw_arrows_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
 	 * @brief Loads the data of another object
@@ -1786,8 +1772,6 @@ protected:
     static auto localMembers_(Self &self) {
         return std::make_tuple(make_member("p_m_", self.p_m_));
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
 	 * @brief Loads the data of another object
@@ -2063,8 +2047,6 @@ protected:
     static auto localMembers_(Self &self) {
         return std::make_tuple(make_member("data_", self.data_));
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
 	  * Loads the data of another object
@@ -2079,7 +2061,7 @@ protected:
         GBasePlotter::load_(cp);
 
         // ... and then our own, derived from the single localMembers() declaration
-        g_load_members(localMembers(), p_load->localMembers());
+        g_load_members(localMembers_(*this), localMembers_(*p_load));
     }
 
     /***************************************************************************/
@@ -2113,7 +2095,7 @@ protected:
         compare_base_t<GBasePlotter>(*this, *p_load, token);
 
         // ... and then the local data, derived from the single localMembers() declaration
-        g_compare_members(localMembers(), p_load->localMembers(), token);
+        g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -2366,8 +2348,6 @@ protected:
     static auto localMembers_(Self &self) {
         return std::make_tuple(make_member("draw_lines_", self.draw_lines_));
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
 	 * @brief Loads the data of another object
@@ -2680,8 +2660,6 @@ protected:
     static auto localMembers_(Self &self) {
         return std::make_tuple(make_member("data_", self.data_));
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
 	  * Loads the data of another object
@@ -2696,7 +2674,7 @@ protected:
         GBasePlotter::load_(cp);
 
         // ... and then our own, derived from the single localMembers() declaration
-        g_load_members(localMembers(), p_load->localMembers());
+        g_load_members(localMembers_(*this), localMembers_(*p_load));
     }
 
     /***************************************************************************/
@@ -2730,7 +2708,7 @@ protected:
         compare_base_t<GBasePlotter>(*this, *p_load, token);
 
         // ... and then the local data, derived from the single localMembers() declaration
-        g_compare_members(localMembers(), p_load->localMembers(), token);
+        g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -3074,8 +3052,6 @@ protected:
             make_member("n_best_", self.n_best_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
 	 * @brief Loads the data of another object
@@ -3220,8 +3196,6 @@ protected:
             make_member("n_samples_x_", self.n_samples_x_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
 	 * @brief Loads the data of another object
@@ -3381,8 +3355,6 @@ protected:
             make_member("n_samples_y_", self.n_samples_y_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
 	 * @brief Loads the data of another object

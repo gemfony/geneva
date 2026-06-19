@@ -751,7 +751,7 @@ void GNeuralNetworkIndividual::compare_(
     Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers(), p_load->localMembers(), token);
+    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1419,7 +1419,7 @@ void GNeuralNetworkIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Load our local data, derived from the single localMembers() declaration.
     // We do not copy the network data, as it is always initialized through
     // the constructors, even in the case of a copy constructor
-    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
 }
 
 /******************************************************************************/

@@ -203,8 +203,6 @@ private:
             Gem::Common::make_member("weights_", self.weights_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -214,7 +212,7 @@ private:
             "GOptimizationAlgorithmBase",
             boost::serialization::base_object<GOptimizationAlgorithmBase>(*this)
         );
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 

@@ -531,8 +531,6 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
     static auto localMembers_(Self &self) {
         return std::make_tuple(Gem::Common::make_member("t_f_", self.t_f_));
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void load(Archive &ar, const unsigned int) {
@@ -543,7 +541,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
         // default; read it back via the single localMembers() declaration. In a
         // split save()/load(), the same serialize_members() drives both -- the
         // non-const localMembers() overload here yields writable refs to read into.
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
 
         // Load the network data from disk
         n_d_ = nnTrainingDataStore(); // A global singleton
@@ -556,7 +554,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
         // The const localMembers() overload yields const refs, which the output
         // archive writes -- the symmetric counterpart to load() above.
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()

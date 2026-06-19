@@ -100,12 +100,9 @@ class GStarterIndividual : public gen::GFlatGenome {
      * @brief Single declaration of this class'es local data members
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(Gem::Common::make_member("targetFunction_", targetFunction_));
-    }
-    /** @brief Single declaration of this class'es local data members (const overload) */
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(Gem::Common::make_member("targetFunction_", targetFunction_));
+    template <typename Self>
+    static auto localMembers_(Self &self) {
+        return std::make_tuple(Gem::Common::make_member("targetFunction_", self.targetFunction_));
     }
 
     template <class Archive>
@@ -113,7 +110,7 @@ class GStarterIndividual : public gen::GFlatGenome {
         // The member list is derived from the single localMembers() declaration
         // so serialize()/load_()/compare_() stay in sync (no silently-dropped member).
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
 
     ///////////////////////////////////////////////////////////////////////

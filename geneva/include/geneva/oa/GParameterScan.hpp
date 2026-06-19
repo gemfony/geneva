@@ -211,9 +211,6 @@ class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_member("type_description_", self.type_description_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
-
     /** @brief Serializes this object via Boost.Serialization
      *  @tparam Archive The archive type used for (de-)serialization
      *  @param ar The archive to serialize to / from
@@ -227,8 +224,8 @@ class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
             "GPodContainerT_T",
             boost::serialization::base_object<Gem::Common::GPodContainerT<T>>(*this)
         );
-        // ... and the scan-state members, derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, this->localMembers());
+        // ... and the scan-state members, derived from the single localMembers_() declaration.
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -335,8 +332,8 @@ public:
         using namespace Gem::Common;
         // The pre-computed grid (held by the GPodContainerT base) ...
         compare_t(Gem::Common::getIdentity(this->data_cnt_, other.data_cnt_, "this->data_cnt_", "other.data_cnt_"), token);
-        // ... and all the scan-state members, derived from the single localMembers() declaration.
-        g_compare_members(this->localMembers(), other.localMembers(), token);
+        // ... and all the scan-state members, derived from the single localMembers_() declaration.
+        g_compare_members(localMembers_(*this), localMembers_(other), token);
     }
 
     /***************************************************************************/
@@ -402,8 +399,8 @@ protected:
         // GCommonInterfaceT carries no data of its own; copy the pre-computed grid held by the container
         // base ...
         Gem::Common::GPodContainerT<T>::operator=(*cp);
-        // ... and the scan state, derived from the single localMembers() declaration.
-        Gem::Common::g_load_members(this->localMembers(), cp->localMembers());
+        // ... and the scan state, derived from the single localMembers_() declaration.
+        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*cp));
     }
 
     /**
@@ -794,8 +791,6 @@ private:
             Gem::Common::make_cloneable_container_member("f_cnt_", self.f_cnt_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /** @brief Serializes this object via Boost.Serialization
      *  @tparam Archive The archive type used for (de-)serialization
@@ -809,7 +804,7 @@ private:
         // All members -- the plain scalars AND the scan-parameter vectors -- are derived from the single
         // localMembers() declaration; the scan parameters now carry the Gemfony common interface, so no
         // hand-written tail is needed.
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
 
     ///////////////////////////////////////////////////////////////////////

@@ -104,8 +104,6 @@ protected:
     static auto localMembers_(Self &self) {
         return std::make_tuple(Gem::Common::make_member("pop_pos_", self.pop_pos_));
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Loads the data of another GNelderMead_PersonalityTraits object.

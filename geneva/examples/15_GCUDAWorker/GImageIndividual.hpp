@@ -145,25 +145,15 @@ class GImageIndividual final : public gen::GFlatGenome {
      * @brief Single declaration of this class'es local data members
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
-    auto localMembers() { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
+    template <typename Self>
+    static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("width_", width_),
-            Gem::Common::make_member("height_", height_),
-            Gem::Common::make_member("nTriangles_", nTriangles_),
-            Gem::Common::make_member("alphaSort_", alphaSort_),
-            Gem::Common::make_member("changeBGColor_", changeBGColor_),
-            Gem::Common::make_member("mutateAlphaChannel_", mutateAlphaChannel_)
-        );
-    }
-    /** @brief Single declaration of this class'es local data members (const overload) */
-    auto localMembers() const { // NOLINT -- intentionally hides the base localMembers() (each class is its own single source; the base members are handled via the base-class serialize/load_/compare_ call)
-        return std::make_tuple(
-            Gem::Common::make_member("width_", width_),
-            Gem::Common::make_member("height_", height_),
-            Gem::Common::make_member("nTriangles_", nTriangles_),
-            Gem::Common::make_member("alphaSort_", alphaSort_),
-            Gem::Common::make_member("changeBGColor_", changeBGColor_),
-            Gem::Common::make_member("mutateAlphaChannel_", mutateAlphaChannel_)
+            Gem::Common::make_member("width_", self.width_),
+            Gem::Common::make_member("height_", self.height_),
+            Gem::Common::make_member("nTriangles_", self.nTriangles_),
+            Gem::Common::make_member("alphaSort_", self.alphaSort_),
+            Gem::Common::make_member("changeBGColor_", self.changeBGColor_),
+            Gem::Common::make_member("mutateAlphaChannel_", self.mutateAlphaChannel_)
         );
     }
 
@@ -176,7 +166,7 @@ class GImageIndividual final : public gen::GFlatGenome {
         // previously dropped, leaving a networked worker or a resumed checkpoint with
         // default dimensions / flags while load_()/compare_() already carried them).
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
 
     ///////////////////////////////////////////////////////////////////////

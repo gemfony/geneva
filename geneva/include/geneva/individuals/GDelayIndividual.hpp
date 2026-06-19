@@ -223,8 +223,6 @@ protected:
             Gem::Common::make_member("rand_sleep_boundaries_", self.rand_sleep_boundaries_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Loads the data of another GDelayIndividual, camouflaged as a GFlatGenome

@@ -96,7 +96,7 @@ void GSwarmAlgorithm_PersonalityTraits::compare_(
 
     // ... then the unconditionally-handled local data, derived from the single
     // localMembers() declaration ...
-    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
+    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
     // ... and finally the manual tail: personal_best_ (see localMembers() docs).
     compare_t(Gem::Common::getIdentity(personal_best_, p_load->personal_best_, "personal_best_", "p_load->personal_best_"), token);
@@ -295,7 +295,7 @@ void GSwarmAlgorithm_PersonalityTraits::load_(const GPersonalityTraits *cp) {
 
     // and then the unconditionally-handled local data, derived from the single
     // localMembers() declaration
-    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
 
     // Manual tail: copy the personal_best_ over (see localMembers() docs). The stored best is a bare
     // individual carrying no personality (it lives on the population slot), so there is no "chain".

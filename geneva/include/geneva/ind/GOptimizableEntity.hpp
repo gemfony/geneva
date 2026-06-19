@@ -270,8 +270,6 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_cloneable_member("individual_constraint_ptr_", self.individual_constraint_ptr_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Serializes this object to/from a Boost archive
@@ -300,7 +298,7 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
         // identity (the personality object lives on the GIndividualSlot, and post-processing eligibility
         // is decided by the algorithm and vetoed on the work item's processing metadata), so serialize()
         // is unconditionally pure.
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 

@@ -131,8 +131,6 @@ private:
             Gem::Common::make_member("velocity_range_percentage_", self.velocity_range_percentage_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -140,7 +138,7 @@ private:
 
         ar &make_nvp("GOptimizationAlgorithmBase", boost::serialization::base_object<GOptimizationAlgorithmBase>(*this));
         // Unconditional members derived from the single localMembers() declaration ...
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
         // ... and the manual tail for the conditionally-reconstructed members (kept as
         // separate NVPs, with the same names as before).
         ar & BOOST_SERIALIZATION_NVP(n_neighborhoods_) &

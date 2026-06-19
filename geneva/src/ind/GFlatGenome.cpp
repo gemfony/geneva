@@ -147,7 +147,7 @@ void GFlatGenome::compare_(
 
     // The value channels, derived from the single localMembers() declaration. (The shared layout is
     // problem metadata, not per-individual identity, so -- as before -- it is intentionally not compared.)
-    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
+    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
     token.evaluate();
 }
@@ -169,7 +169,7 @@ void GFlatGenome::load_(const GOptimizableEntity *cp) {
     GOptimizableEntity::load_(cp);
 
     // The value channels, derived from the single localMembers() declaration ...
-    Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
     // ... and the manual tail: the shared (immutable) layout is shared, not value-copied.
     layout_ = p_load->layout_;
     // Propagate the transient results-only marker, so a load_()-based copy (e.g. fromString, which

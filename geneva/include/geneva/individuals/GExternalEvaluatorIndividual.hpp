@@ -136,8 +136,6 @@ class GExternalEvaluatorIndividual
             Gem::Common::make_member("remove_exec_temporaries_", self.remove_exec_temporaries_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Serializes this class to/from a Boost archive
@@ -152,7 +150,7 @@ class GExternalEvaluatorIndividual
         // (de)serialization; derive the member list from the single
         // localMembers() declaration so it stays in sync.
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
 
     ///////////////////////////////////////////////////////////////////////

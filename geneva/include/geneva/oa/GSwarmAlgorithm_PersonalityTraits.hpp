@@ -73,8 +73,6 @@ class GSwarmAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-memb
             Gem::Common::make_member("personal_best_quality_", self.personal_best_quality_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -84,7 +82,7 @@ class GSwarmAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-memb
 
         // The unconditionally-handled local members, derived from the single
         // localMembers() declaration.
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
 
         // Manual tail: personal_best_ (deep-cloned + personality-reset on load).
         ar & BOOST_SERIALIZATION_NVP(personal_best_);

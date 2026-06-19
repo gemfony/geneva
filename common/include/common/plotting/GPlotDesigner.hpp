@@ -59,8 +59,6 @@ class GPlotDesigner : public GCommonInterfaceT<GPlotDesigner> {
             Gem::Common::make_member("n_indention_spaces_", self.n_indention_spaces_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Serializes this designer's state to or from a Boost archive
@@ -76,7 +74,7 @@ class GPlotDesigner : public GCommonInterfaceT<GPlotDesigner> {
         // list) is included so a checkpointed monitor's accumulated plots survive
         // a resume -- it was previously dropped from the wire while load_()/compare_()
         // carried it.
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 

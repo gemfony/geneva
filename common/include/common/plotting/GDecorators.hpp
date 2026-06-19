@@ -356,8 +356,6 @@ protected:
             make_member("size_", self.size_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /***************************************************************************/
     /**
@@ -373,7 +371,7 @@ protected:
         GDecorator<dimensions::Dim2, coordinate_type>::load_(cp);
 
         // ... and then our local data, derived from the single localMembers() declaration
-        g_load_members(localMembers(), p_load->localMembers());
+        g_load_members(localMembers_(*this), localMembers_(*p_load));
     }
 
     /***************************************************************************/
@@ -409,7 +407,7 @@ protected:
         compare_base_t<GDecorator<dimensions::Dim2, coordinate_type>>(*this, *p_load, token);
 
         // ... and then our local data, derived from the single localMembers() declaration
-        g_compare_members(localMembers(), p_load->localMembers(), token);
+        g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
         // React on deviations from the expectation
         token.evaluate();

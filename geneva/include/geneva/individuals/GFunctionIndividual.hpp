@@ -773,8 +773,6 @@ protected:
     static auto localMembers_(Self &self) {
         return std::make_tuple(Gem::Common::make_member("demo_function_", self.demo_function_));
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Loads the data of another GFunctionIndividual.
@@ -885,14 +883,12 @@ class GDoubleSumConstraint
     static auto localMembers_(Self &self) {
         return std::make_tuple(Gem::Common::make_member("c_", self.c_));
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GOptimizableEntityConstraint);
-        Gem::Common::serialize_members(ar, localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -982,14 +978,12 @@ class GDoubleSumGapConstraint
             Gem::Common::make_member("c_", self.c_),
             Gem::Common::make_member("gap_", self.gap_));
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GOptimizableEntityConstraint);
-        Gem::Common::serialize_members(ar, localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -1079,8 +1073,6 @@ class GSphereConstraint
     static auto localMembers_(Self &self) {
         return std::make_tuple(Gem::Common::make_member("diameter_", self.diameter_));
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -1088,7 +1080,7 @@ class GSphereConstraint
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GOptimizableEntityConstraint);
         // diameter_ was previously not serialized at all -- it was silently lost on
         // (de)serialization. Derive it from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 public:

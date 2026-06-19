@@ -150,8 +150,6 @@ private:
             Gem::Common::make_cloneable_container_member("pluggable_monitors_cnt_", self.pluggable_monitors_cnt_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
@@ -171,7 +169,7 @@ private:
         // members serialise directly, the cloneable smart pointers (de)serialise as
         // polymorphic pointers, and halted_ goes through the std::atomic<bool> free
         // serialization.
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
 
     ///////////////////////////////////////////////////////////////////////

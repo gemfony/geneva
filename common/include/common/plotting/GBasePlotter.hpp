@@ -60,8 +60,6 @@ class GBasePlotter : public GCommonInterfaceT<GBasePlotter> {
             Gem::Common::make_member("id_", self.id_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Serializes this plotter's state to or from a Boost archive
@@ -74,7 +72,7 @@ class GBasePlotter : public GCommonInterfaceT<GBasePlotter> {
         using boost::serialization::make_nvp;
         // The member list is derived from the single localMembers() declaration
         // so serialize()/load_()/compare_() stay in sync (no silently-dropped member).
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 

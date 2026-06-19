@@ -52,7 +52,7 @@ void GIndividualSlot::load_(const GIndividualSlot *cp) {
     // The CRTP base carries no data, so there is no base load.
 
     // The wrapped individual, derived from the single localMembers() declaration.
-    Gem::Common::g_load_members(this->localMembers(), p_load->localMembers());
+    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
 
     // The OA-owned scratch (personality + POD blocks). Not part of localMembers(), copied explicitly.
     scratch_ = p_load->scratch_;
@@ -86,7 +86,7 @@ void GIndividualSlot::compare_(
     Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GIndividualSlot>>(*this, *p_load, token);
 
     // ... and the wrapped individual (the scratch is intentionally NOT compared).
-    Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
+    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
     // React on deviations from the expectation
     token.evaluate();

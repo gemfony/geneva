@@ -63,14 +63,12 @@ class GStandardPSO2011_PersonalityTraits // NOLINT(cppcoreguidelines-special-mem
             Gem::Common::make_member("particle_", self.particle_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 

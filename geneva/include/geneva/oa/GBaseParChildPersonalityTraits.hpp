@@ -70,8 +70,6 @@ class GBaseParChildPersonalityTraits // NOLINT(cppcoreguidelines-special-member-
             Gem::Common::make_member("parent_id_", self.parent_id_)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /**
      * @brief Serializes this object, including its base class, to or from a Boost archive.
@@ -85,7 +83,7 @@ class GBaseParChildPersonalityTraits // NOLINT(cppcoreguidelines-special-member-
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
         // ... and then our own data, derived from the single localMembers() declaration
-        Gem::Common::serialize_members(ar, this->localMembers());
+        Gem::Common::serialize_members(ar, localMembers_(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 

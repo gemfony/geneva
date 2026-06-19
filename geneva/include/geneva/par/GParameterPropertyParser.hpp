@@ -153,8 +153,6 @@ protected:
             Gem::Common::make_member("nSteps", self.nSteps)
         );
     }
-    auto localMembers() { return localMembers_(*this); }       // NOLINT -- intentionally hides the base localMembers()
-    auto localMembers() const { return localMembers_(*this); } // NOLINT -- intentionally hides the base localMembers()
 
     /************************************************************************/
     /**
@@ -169,7 +167,7 @@ protected:
         // No parent class with loadable data
 
         // Load local data, derived from the single localMembers() declaration
-        Gem::Common::g_load_members(localMembers(), p_load->localMembers());
+        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
     }
 
     /***************************************************************************/
@@ -212,7 +210,7 @@ protected:
         );
 
         // ... and then the local data, derived from the single localMembers() declaration
-        Gem::Common::g_compare_members(localMembers(), p_load->localMembers(), token);
+        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
         // React on deviations from the expectation
         token.evaluate();
