@@ -165,11 +165,14 @@ CheckOptions:
   readability-identifier-naming.ConstexprFunctionCase: camelBack
   readability-identifier-naming.ConstexprMethodCase: camelBack
   # Geneva 5.B / §4 STL carve-out: exempt the STL-like container method
-  # surface from the camelBack rule. The explicit list covers the
-  # underscore-free STL names; the trailing '|_' also exempts any method
-  # containing an underscore (push_back/pop_back/emplace_back/shrink_to_fit
-  # and Geneva's trailing-underscore private-virtual pattern, e.g. load_).
-  readability-identifier-naming.MethodIgnoredRegexp: '^(push_back|pop_back|emplace_back|shrink_to_fit|max_size)$|_'
+  # surface from the camelBack rule, plus any method containing an underscore
+  # (the STL names push_back/pop_back/emplace_back/shrink_to_fit/max_size, and
+  # Geneva's trailing-underscore private-virtual pattern, e.g. load_, plus
+  # snake_case internal helpers such as compare_base / clone_unique).
+  # NOTE: clang-tidy matches *IgnoredRegexp against the WHOLE identifier, so the
+  # exemption must be a full-string pattern ('.*_.*'), not a bare '_' (which
+  # would only match the identifier literally named "_").
+  readability-identifier-naming.MethodIgnoredRegexp: '.*_.*'
 
   # ------------------------------------------------------------------
   # Modernization knobs.
