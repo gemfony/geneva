@@ -79,14 +79,14 @@ inline constexpr bool always_false_scan_v = false;
  * unsupported scan type fails at compile time rather than at runtime.
  *
  * @tparam T The parameter type for which grid points are generated
- * @param nSteps The number of steps (grid points) to generate, including the boundaries
+ * @param n_steps The number of steps (grid points) to generate, including the boundaries
  * @param lower The lower boundary of the scanned range (inclusive)
  * @param upper The upper boundary of the scanned range (inclusive)
  * @return A vector holding the generated grid points
  */
 template <typename T>
 std::vector<T> fillWithData(
-    [[maybe_unused]] std::size_t nSteps
+    [[maybe_unused]] std::size_t n_steps
     ,
     [[maybe_unused]] T lower
     ,

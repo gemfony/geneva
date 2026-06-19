@@ -284,7 +284,7 @@ GParsableI &GParsableI::operator<<(commentLevel const &cl) {
  * @param nC A nextComment tag object that triggers the level increment (unused)
  * @return A reference to this object (to allow chaining)
  */
-GParsableI &GParsableI::operator<<([[maybe_unused]] nextComment const & nC) {
+GParsableI &GParsableI::operator<<([[maybe_unused]] nextComment const & nc) {
 #ifdef DEBUG
     if(comment_.empty()) {
         throw geneva_exception(

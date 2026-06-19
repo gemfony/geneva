@@ -65,14 +65,14 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /**
  * @brief Returns a set of boolean data items (always both false and true).
  *
- * @param nSteps The requested number of grid steps (unused for booleans, which always yield two values)
+ * @param n_steps The requested number of grid steps (unused for booleans, which always yield two values)
  * @param lower The lower scan boundary (unused for booleans)
  * @param upper The upper scan boundary (unused for booleans)
  * @return A vector containing the two boolean values {false, true}
  */
 template <>
 std::vector<bool> fillWithData<bool>(
-    [[maybe_unused]] std::size_t nSteps
+    [[maybe_unused]] std::size_t n_steps
     ,
     [[maybe_unused]] bool lower
     ,
