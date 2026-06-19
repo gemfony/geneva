@@ -154,21 +154,21 @@ public:
      * @param ttl_rounds A held item is evicted after this many dispatch rounds
      */
     void setLateReturnBuffer(std::size_t cap, std::uint64_t ttl_rounds) {
-        std::lock_guard<std::mutex> lk(mtx_);
+        std::scoped_lock lk(mtx_);
         late_buffer_cap_ = cap;
         late_buffer_ttl_rounds_ = ttl_rounds;
     }
     /** @brief Number of late returns currently held in the buffer (reaped by the OA via getOldWorkItems()).
      *  @return The count of late items currently buffered */
     [[nodiscard]] std::size_t lateReturnBufferSize() const {
-        std::lock_guard<std::mutex> lk(mtx_);
+        std::scoped_lock lk(mtx_);
         return late_returns_.size();
     }
     /** @brief Number of un-returned originals currently retained so a later results-only return can be
      *  grafted (see setLateReturnBuffer()). Mostly for tests/diagnostics.
      *  @return The count of retained originals currently held */
     [[nodiscard]] std::size_t retainedOriginalCount() const {
-        std::lock_guard<std::mutex> lk(mtx_);
+        std::scoped_lock lk(mtx_);
         return retained_originals_.size();
     }
     /** @brief Total late returns dropped since construction -- an observable, non-silent drop count.
@@ -176,7 +176,7 @@ public:
      *  with no matching retained original to graft from (see setLateReturnBuffer()).
      *  @return The running total of dropped late returns */
     [[nodiscard]] std::uint64_t lateReturnDroppedCount() const {
-        std::lock_guard<std::mutex> lk(mtx_);
+        std::scoped_lock lk(mtx_);
         return late_dropped_count_;
     }
 
@@ -195,7 +195,7 @@ public:
      *  setLateReturnBuffer()).
      *  @return The buffered late items in arrival order (ownership transferred; the buffer is emptied) */
     std::vector<item_ptr> getLateReturns() override {
-        std::lock_guard<std::mutex> lk(mtx_);
+        std::scoped_lock lk(mtx_);
         std::vector<item_ptr> out;
         out.reserve(late_returns_.size());
         for(auto &entry : late_returns_) {
@@ -240,7 +240,7 @@ protected:
             if(not p) {
                 return;
             }
-            std::lock_guard<std::mutex> lk(mtx);
+            std::scoped_lock lk(mtx);
             in_flight.insert(p->getCorrelationId());
         }
         /** @brief Drops an item the session returned normally (nothing left for the lease to reclaim).
@@ -249,13 +249,13 @@ protected:
             if(not p) {
                 return;
             }
-            std::lock_guard<std::mutex> lk(mtx);
+            std::scoped_lock lk(mtx);
             in_flight.erase(p->getCorrelationId());
         }
         ~CheckoutLease() {
             std::set<Gem::Courtier::CORRELATION_ID_TYPE> remaining;
             {
-                std::lock_guard<std::mutex> lk(mtx);
+                std::scoped_lock lk(mtx);
                 remaining.swap(in_flight);
             }
             if(on_abandon) {
@@ -272,7 +272,7 @@ protected:
      *  correlation rides its (batch_id, slot) id.
      *  @return A clone of the next pending item to ship, or nullptr if no slot is pending */
     item_ptr checkout() {
-        std::lock_guard<std::mutex> lk(mtx_);
+        std::scoped_lock lk(mtx_);
         return checkout_locked();
     }
 
@@ -300,7 +300,7 @@ protected:
         if(not p) {
             return;
         }
-        std::lock_guard<std::mutex> lk(mtx_);
+        std::scoped_lock lk(mtx_);
         const Gem::Courtier::CORRELATION_ID_TYPE id = p->getCorrelationId();
         auto it = batches_.find(decodeBatch(id));
         if(it == batches_.end()) {
@@ -348,7 +348,7 @@ protected:
      *  passed correlation id. A no-op if the batch moved on or the slot is no longer in flight.
      *  @param id The (batch_id, slot) correlation id of the item to put back */
     void requeue(Gem::Courtier::CORRELATION_ID_TYPE id) {
-        std::lock_guard<std::mutex> lk(mtx_);
+        std::scoped_lock lk(mtx_);
         auto it = batches_.find(decodeBatch(id));
         if(it == batches_.end()) {
             return;
@@ -398,7 +398,7 @@ protected:
         const auto start = clock::now();
         typename std::map<batch_key_t, BatchState>::iterator my_it;
         {
-            std::lock_guard<std::mutex> lk(mtx_);
+            std::scoped_lock lk(mtx_);
             const batch_key_t key = (next_batch_id_++ & BATCH_MASK);
             BatchState b;
             b.items = &items;

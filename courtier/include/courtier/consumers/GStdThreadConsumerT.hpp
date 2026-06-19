@@ -127,7 +127,7 @@ protected:
                     // worker thread. Reconciliation reads the status, not an exception.
                 }
                 if(remaining->fetch_sub(1) == 1) { // this was the last item of THIS batch
-                    std::lock_guard<std::mutex> lk(*m);
+                    std::scoped_lock lk(*m);
                     cv->notify_one();
                 }
             });

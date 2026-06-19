@@ -115,7 +115,7 @@ public:
     /** @brief Whether a blob for the given id is cached.
      *  @param id The layout id to look up. @return true iff the blob is present. */
     bool has(const GWireLayoutId &id) const {
-        std::lock_guard<std::mutex> lk(mtx_);
+        std::scoped_lock lk(mtx_);
         return blobs_.find(id) != blobs_.end();
     }
 
@@ -124,7 +124,7 @@ public:
      *  @param out Receives the blob on a hit (left unchanged on a miss).
      *  @return true on a hit (out written), false on a miss. */
     bool tryGet(const GWireLayoutId &id, std::string &out) const {
-        std::lock_guard<std::mutex> lk(mtx_);
+        std::scoped_lock lk(mtx_);
         auto it = blobs_.find(id);
         if(it == blobs_.end()) {
             return false;
@@ -138,7 +138,7 @@ public:
      *  capacity bound afterwards.
      *  @param id The layout id. @param blob The serialized layout blob to cache. */
     void put(const GWireLayoutId &id, std::string blob) {
-        std::lock_guard<std::mutex> lk(mtx_);
+        std::scoped_lock lk(mtx_);
         auto it = blobs_.find(id);
         if(it != blobs_.end()) {
             it->second.blob = std::move(blob);
@@ -157,7 +157,7 @@ public:
      *  @param peer The peer (session) to query. @param id The layout id.
      *  @return true iff the peer was previously recorded as holding this layout. */
     bool peerHasLayout(GWirePeerId peer, const GWireLayoutId &id) const {
-        std::lock_guard<std::mutex> lk(mtx_);
+        std::scoped_lock lk(mtx_);
         auto it = peer_acked_.find(peer);
         return it != peer_acked_.end() && it->second.find(id) != it->second.end();
     }
@@ -165,7 +165,7 @@ public:
     /** @brief Records that a peer now holds a given layout (so it is referenced by id thereafter).
      *  @param peer The peer (session). @param id The layout id the peer now holds. */
     void markPeerHasLayout(GWirePeerId peer, const GWireLayoutId &id) {
-        std::lock_guard<std::mutex> lk(mtx_);
+        std::scoped_lock lk(mtx_);
         peer_acked_[peer].insert(id);
     }
 
@@ -173,7 +173,7 @@ public:
      *  store is left intact (other peers may still need it, and it answers future fetches).
      *  @param peer The peer whose ack state is forgotten. */
     void forgetPeer(GWirePeerId peer) {
-        std::lock_guard<std::mutex> lk(mtx_);
+        std::scoped_lock lk(mtx_);
         peer_acked_.erase(peer);
     }
 
@@ -183,26 +183,26 @@ public:
     /** @brief Sets the maximum number of blobs retained (LRU eviction beyond it); 0 == unbounded.
      *  @param max_blobs The capacity bound (0 disables eviction). */
     void setCapacity(std::size_t max_blobs) {
-        std::lock_guard<std::mutex> lk(mtx_);
+        std::scoped_lock lk(mtx_);
         capacity_ = max_blobs;
         evict_locked();
     }
 
     /** @brief @return The number of blobs currently cached. */
     std::size_t size() const {
-        std::lock_guard<std::mutex> lk(mtx_);
+        std::scoped_lock lk(mtx_);
         return blobs_.size();
     }
 
     /** @brief @return The number of peers with recorded ack state. */
     std::size_t trackedPeers() const {
-        std::lock_guard<std::mutex> lk(mtx_);
+        std::scoped_lock lk(mtx_);
         return peer_acked_.size();
     }
 
     /** @brief Clears the entire registry (blob store + all per-peer ack state). */
     void clear() {
-        std::lock_guard<std::mutex> lk(mtx_);
+        std::scoped_lock lk(mtx_);
         blobs_.clear();
         lru_.clear();
         peer_acked_.clear();

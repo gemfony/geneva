@@ -80,7 +80,7 @@ public:
     /** @brief The process's single consumer, or nullptr if none has been established yet.
      *  @return The registered consumer, or nullptr */
     consumer_ptr consumer() {
-        const std::lock_guard<std::mutex> lk(mtx_);
+        const std::scoped_lock lk(mtx_);
         return consumer_;
     }
 
@@ -95,7 +95,7 @@ public:
      * @return The process consumer (the pre-existing one, or the freshly built+registered one)
      */
     consumer_ptr ensureConsumer(const std::function<consumer_ptr()> &factory) {
-        const std::lock_guard<std::mutex> lk(mtx_);
+        const std::scoped_lock lk(mtx_);
         if(consumer_) {
             return consumer_;
         }
@@ -108,7 +108,7 @@ public:
      *  (a GPU consumer) the user supplies.
      *  @param c The consumer to register as the process's single consumer */
     void setConsumer(consumer_ptr c) {
-        const std::lock_guard<std::mutex> lk(mtx_);
+        const std::scoped_lock lk(mtx_);
         consumer_ = std::move(c);
     }
 
@@ -116,7 +116,7 @@ public:
     /** @brief Drops the registered consumer, returning the holder to its empty state. Primarily for
      *  tests (start each from a known-empty state) and explicit teardown. */
     void clear() {
-        const std::lock_guard<std::mutex> lk(mtx_);
+        const std::scoped_lock lk(mtx_);
         consumer_.reset();
     }
 
