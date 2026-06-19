@@ -383,6 +383,36 @@ protected:
     }
 };
 
+/** @brief A MIXED flat individual: 3 constrained doubles in [-5, 5) plus 2 constrained int32 in [-10, 10].
+ *  Used to confirm sep-CMA-ES (an FP-only evolution strategy) optimizes the doubles, leaves the integers
+ *  at their start values, and warns rather than crashing on the non-FP parameters. */
+class FlatMixedOA : public gen::GFlatIndividualT<FlatMixedOA> {
+public:
+    FlatMixedOA() {
+        gen::GGenomeBuilder b;
+        b.addDoubleGroup(3, -5., 5.).init(3.0);
+        b.addInt32Group(2, -10, 10).init(7);
+        this->setGenome(b.build());
+    }
+    FlatMixedOA(const FlatMixedOA &) = default;
+
+protected:
+    double fitnessCalculation() override {
+        std::vector<double> v;
+        this->streamline<double>(v);
+        std::vector<std::int32_t> iv;
+        this->streamline<std::int32_t>(iv);
+        double s = 0.;
+        for(double x : v) {
+            s += x * x;
+        }
+        for(std::int32_t x : iv) {
+            s += static_cast<double>(x) * static_cast<double>(x);
+        }
+        return s;
+    }
+};
+
 /** @brief Sphere value of the best individual, also asserting the constraints held. */
 double bestSphere(const std::shared_ptr<FlatSphereOA> &best) {
     std::vector<double> v;
@@ -1336,6 +1366,34 @@ TEST_CASE("Separable CMA-ES out-converges the stock EA at high dimension", "[fla
     CHECK(eab_best < ea_best);
     CHECK(eab_best < ea_best / 3.0); // a decisive margin, not a coin-flip win
     CHECK(eab_best < 0.1 * 1800.0);  // also an absolute bar: well below 10% of the f=1800 start
+}
+
+/******************************************************************************/
+
+TEST_CASE("Separable CMA-ES tolerates (and warns about) non-FP parameters", "[flat][oa][sepcma]") {
+    // sep-CMA-ES optimizes only the floating-point parameters. On a mixed individual (doubles + int32) it
+    // must not crash: it warns at setup, optimizes the doubles, and leaves the integers at their start
+    // value (7). This exercises the non-FP guard path end-to-end.
+    auto pop = std::make_shared<oa::GSepCmaEvolutionStrategy>();
+    pop->setMaxIteration(150);
+    pop->setReportIteration(100000);
+    pop->push_back(FlatMixedOA().clone_unique());
+    CHECK_NOTHROW(pop->optimize()); // warns about the 2 int parameters, does not throw
+
+    auto best = pop->getBestGlobalIndividual<FlatMixedOA>();
+    REQUIRE(best);
+    std::vector<double> v;
+    best->streamline<double>(v);
+    double fp_sphere = 0.;
+    for(double x : v) {
+        fp_sphere += x * x;
+    }
+    CHECK(fp_sphere < 1.0); // the FP parameters were driven down from the f=27 (doubles) start
+    std::vector<std::int32_t> iv;
+    best->streamline<std::int32_t>(iv);
+    REQUIRE(iv.size() == 2);
+    CHECK(iv[0] == 7); // the integer parameters were left untouched at their start value
+    CHECK(iv[1] == 7);
 }
 
 /******************************************************************************/

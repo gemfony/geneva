@@ -390,6 +390,28 @@ void GSepCmaEvolutionStrategy::init() {
     // To be performed before any other action.
     GOptimizationAlgorithmT<GSepCmaEvolutionStrategy>::init();
 
+    // sep-CMA-ES is a real-valued evolution strategy: it samples a multivariate-normal distribution over
+    // the floating-point (double/float) parameters only and never touches int32/bool parameters. Warn
+    // (once, at setup) if the start individual carries active non-FP parameters, which would otherwise be
+    // silently held at their start values for the whole run. Use a different algorithm (e.g. the EA) for
+    // problems with integer or boolean parameters.
+    if(not this->empty()) {
+        const auto &ind = this->at(0)->individual();
+        const std::size_t n_int = ind.countParameters<std::int32_t>(activityMode::ACTIVEONLY);
+        const std::size_t n_bool = ind.countParameters<bool>(activityMode::ACTIVEONLY);
+        if(n_int + n_bool > 0) {
+            glogger << "In GSepCmaEvolutionStrategy::init(): Warning!" << '\n'
+                    << "The individual has " << n_int << " active integer and " << n_bool
+                    << " active boolean parameter(s)." << '\n'
+                    << "sep-CMA-ES optimizes only floating-point parameters; these will be left at their"
+                    << '\n'
+                    << "start values. Use an algorithm that adapts all parameter types (e.g. the EA)"
+                    << '\n'
+                    << "if the integer/boolean parameters should be optimized." << '\n'
+                    << GWARNING;
+        }
+    }
+
     // The dimension / bounds / constants were established in adjustPopulation_(); refresh in case a
     // resumed run carried a stale value.
     if(n_ == 0 || lower_.size() != n_) {
