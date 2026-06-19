@@ -81,10 +81,10 @@ public:
      *  @param argv Pointer to the program's argv, forwarded to MPI_Init (may be nullptr if MPI is already initialized)
      *  @param config Configuration for the master/worker nodes (timeouts, buffer sizes, etc.) */
     explicit GMPIConsumerT(int *argc = nullptr, char ***argv = nullptr, config_type config = config_type{})
-        : config_(config)
+        : config_(config), i_initialized_mpi_(Gem::Courtier::Consumers::initializeMPI(argc, argv))
     {
         // Reuse the existing, correct MPI initialization (MPI_THREAD_MULTIPLE).
-        i_initialized_mpi_ = Gem::Courtier::Consumers::initializeMPI(argc, argv);
+        
 
         MPI_Comm_size(MPI_COMM_WORLD, &comm_size_);
         MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank_);

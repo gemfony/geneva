@@ -362,7 +362,7 @@ std::vector<std::string> splitString(std::string const &str, const char *sep) {
 
     char sep_char = sep[0];
     std::string::size_type start = 0;
-    std::string::size_type pos;
+    std::string::size_type pos = 0;
     while((pos = str.find(sep_char, start)) != std::string::npos) {
         std::string frag = str.substr(start, pos - start);
         // Trim leading/trailing whitespace

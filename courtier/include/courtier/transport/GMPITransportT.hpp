@@ -149,10 +149,10 @@ struct MPIConsumerConfig {
      *
      * The value may later be overwritten by user-defined command line options.
      */
-    MPIConsumerConfig() {
+    MPIConsumerConfig() : nHandlerThreads(this->nHandlerThreadsRecommendation()) {
         // Set the handler threads to the hardware recommendation as a default value
         // This can later be overwritten by user-defined command line options
-        this->nHandlerThreads = this->nHandlerThreadsRecommendation();
+        
     }
 
     /**

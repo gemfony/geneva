@@ -311,7 +311,7 @@ void GStandardPSO2011::init() {
         for(std::size_t d = 0; d < n_fp_parms_; ++d) {
             const double lo = dbl_lower_[d];
             const double hi = dbl_upper_[d];
-            double sample;
+            double sample = 0.0;
             if(std::isfinite(lo) && std::isfinite(hi) && hi > lo) {
                 sample = uniform_real_distribution_(
                     gr_,

@@ -143,15 +143,11 @@ public:
          * @param cp An rvalue reference to another object of the same type whose content is moved in
          *           (and which is reset to default values afterwards)
          */
-    GFixedSizePriorityQueueT(GFixedSizePriorityQueueT &&cp) noexcept {
-        // Move content, then reset cp to default values
-        max_size_ = cp.max_size_;
+    GFixedSizePriorityQueueT(GFixedSizePriorityQueueT &&cp) noexcept
+        : max_size_(cp.max_size_), sort_order_(cp.sort_order_), data_deq_(std::move(cp.data_deq_)) {
+        // Reset cp to default values
         cp.max_size_ = GFSPQ_DEF_MAX_SIZE;
-
-        sort_order_ = cp.sort_order_;
         cp.sort_order_ = GFSPQ_DEF_SORT_ORDER;
-
-        data_deq_ = std::move(cp.data_deq_);
         cp.data_deq_.clear();
     }
 

@@ -762,7 +762,7 @@ void GNelderMead::buildInitialSimplices() {
             std::vector<double> p = p0;
             const std::size_t k = v - 1; // coordinate perturbed for this vertex
 
-            double edge;
+            double edge = 0.0;
             const double range =
                 dbl_upper_parameter_boundaries_[k] - dbl_lower_parameter_boundaries_[k];
             if(std::isfinite(range) && range > 0.) {
@@ -849,7 +849,7 @@ bool GNelderMead::restartSimplices() {
             }
             std::vector<double> p = xb;
 
-            double edge;
+            double edge = 0.0;
             const double range =
                 dbl_upper_parameter_boundaries_[k] - dbl_lower_parameter_boundaries_[k];
             if(std::isfinite(range) && range > 0.) {

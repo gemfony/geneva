@@ -272,7 +272,7 @@ void load(
     std::chrono::duration<double> &val,
     [[maybe_unused]] unsigned int version
 ) {
-    typename std::chrono::duration<double>::rep chrono_duration;
+    typename std::chrono::duration<double>::rep chrono_duration = 0.0;
     ar &make_nvp("chrono_duration", chrono_duration);
     val = std::chrono::duration<double>(chrono_duration);
 }
@@ -316,7 +316,7 @@ void load(
     std::chrono::high_resolution_clock::time_point &val,
     [[maybe_unused]] unsigned int version
 ) {
-    std::chrono::milliseconds::rep representation;
+    std::chrono::milliseconds::rep representation = 0;
     ar &make_nvp("timpoint_milliseconds", representation);
     val = Gem::Common::milliseconds_to_time_point(representation);
 }
