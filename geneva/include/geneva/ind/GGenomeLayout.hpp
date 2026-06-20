@@ -64,9 +64,6 @@ template <> struct adaption_fp<double> { using type = double; };
 template <> struct adaption_fp<float> { using type = float; };
 template <typename T> using adaption_fp_t = typename adaption_fp<T>::type;
 
-/******************************************************************************/
-/** @brief Whether a value is plain (unbounded) or constrained to a half-open / closed interval. */
-enum class ParamKind : std::uint8_t { Plain, Constrained };
 
 /******************************************************************************/
 /**
@@ -285,18 +282,28 @@ struct GroupSpec {
 
 /******************************************************************************/
 /**
- * The structural description of one value channel (all parameters of a single type). Per-value:
- * bounds, kind, init range (for randomInit) and an active flag; plus the list of adaption groups
- * tiling the channel. Held by the shared GGenomeLayout; the per-individual GFlatGenome only stores
- * the value array and a handle to this.
+ * The structural description of one value channel (all parameters of a single type). Per-value: the
+ * hard bound [lower, upper], the init perimeter [init_lower, init_upper], a `fold` bit and an active
+ * flag; plus the list of adaption groups tiling the channel. Held by the shared GGenomeLayout; the
+ * per-individual GFlatGenome only stores the value array and a handle to this.
+ *
+ * The `fold` bit is the single bounded/unbounded distinction (§2.5):
+ *   - fold == true  (bounded): the value folds into the half-open [lower, upper) (FP) / closed [lower,
+ *                              upper] (int); an external write out of range throws. The mutation scale
+ *                              is the bound width (upper - lower).
+ *   - fold == false (unbounded): there is NO hard bound (lower/upper are unused as a constraint); the
+ *                              value may roam ℝ. The mutation scale is the init-perimeter width.
+ * The init perimeter [init_lower, init_upper] is the random-init region; for a bounded parameter it may
+ * be narrower than the bound (a tight start within a wide box) and is the scale only for unbounded
+ * parameters (where there is no bound to scale by).
  */
 template <typename T>
 struct ChannelLayout {
-    std::vector<T> lower;            ///< per value: lower boundary (Constrained) / unused (Plain)
-    std::vector<T> upper;            ///< per value: upper boundary (Constrained) / unused (Plain)
-    std::vector<T> init_lower;       ///< per value: lower random-init boundary
-    std::vector<T> init_upper;       ///< per value: upper random-init boundary
-    std::vector<ParamKind> kind;     ///< per value: Plain or Constrained
+    std::vector<T> lower;            ///< per value: lower bound (fold ceiling if folding; unused as a constraint otherwise)
+    std::vector<T> upper;            ///< per value: upper bound (fold ceiling if folding; unused as a constraint otherwise)
+    std::vector<T> init_lower;       ///< per value: lower random-init perimeter (and the mutation scale for unbounded)
+    std::vector<T> init_upper;       ///< per value: upper random-init perimeter (and the mutation scale for unbounded)
+    std::vector<std::uint8_t> fold;  ///< per value: 1 ⇔ the value folds into [lower,upper) (bounded); 0 ⇔ unbounded
     std::vector<std::uint8_t> active;///< per value: mirrors the owning group's active flag (1/0)
     std::vector<GroupStructure<T>> groups;///< contiguous groups tiling [0, size()) -- STRUCTURE only
 
@@ -305,25 +312,21 @@ struct ChannelLayout {
 };
 
 /******************************************************************************/
-// Per-value scale / anchor for the normalized internal coordinate (§2.1), derived from the channel's
-// existing bounds: a constrained value uses its hard bound [lower, upper); an unbounded (Plain) value
-// uses its init perimeter [init_lower, init_upper) as the mutation scale (there is no hard bound). No
-// new state is stored -- these are computed from the arrays already present. Phase-1: helpers only,
-// not yet wired into the live read/write path.
+// Per-value scale / anchor for the normalized internal coordinate (§2.1). A bounded parameter is scaled
+// by its hard bound [lower, upper); an unbounded one (no hard bound) by its init perimeter
+// [init_lower, init_upper). No separate state is stored -- these are computed from the arrays present.
 
-/** @brief The mutation scale of value k: (upper-lower) constrained, (init_upper-init_lower) plain. */
+/** @brief The mutation scale of value k: the bound width (folding) or the init-perimeter width (unbounded). */
 template <typename T>
 T ngScale(ChannelLayout<T> const &ch, std::size_t k) {
-    return (ch.kind[k] == ParamKind::Constrained) ? (ch.upper[k] - ch.lower[k])
-                                                  : (ch.init_upper[k] - ch.init_lower[k]);
+    return ch.fold[k] ? (ch.upper[k] - ch.lower[k]) : (ch.init_upper[k] - ch.init_lower[k]);
 }
 
 /** @brief The anchor (interval centre) of value k, matching ngScale's interval choice. */
 template <typename T>
 T ngAnchor(ChannelLayout<T> const &ch, std::size_t k) {
-    return (ch.kind[k] == ParamKind::Constrained)
-               ? ((ch.lower[k] + ch.upper[k]) / T(2))
-               : ((ch.init_lower[k] + ch.init_upper[k]) / T(2));
+    return ch.fold[k] ? ((ch.lower[k] + ch.upper[k]) / T(2))
+                      : ((ch.init_lower[k] + ch.init_upper[k]) / T(2));
 }
 
 /******************************************************************************/
@@ -581,9 +584,9 @@ private:
         fp(c.upper);
         fp(c.init_lower);
         fp(c.init_upper);
-        h.value<std::uint64_t>(c.kind.size());
-        for(ParamKind k : c.kind) {
-            h.value<std::uint8_t>(static_cast<std::uint8_t>(k));
+        h.value<std::uint64_t>(c.fold.size());
+        for(std::uint8_t fl : c.fold) {
+            h.value<std::uint8_t>(fl);
         }
         h.value<std::uint64_t>(c.active.size());
         for(std::uint8_t a : c.active) {
@@ -612,9 +615,9 @@ private:
         bv(c.upper);
         bv(c.init_lower);
         bv(c.init_upper);
-        h.value<std::uint64_t>(c.kind.size());
-        for(ParamKind k : c.kind) {
-            h.value<std::uint8_t>(static_cast<std::uint8_t>(k));
+        h.value<std::uint64_t>(c.fold.size());
+        for(std::uint8_t fl : c.fold) {
+            h.value<std::uint8_t>(fl);
         }
         h.value<std::uint64_t>(c.active.size());
         for(std::uint8_t a : c.active) {
@@ -650,7 +653,7 @@ private:
     template <typename T>
     static bool sameChannel(const ChannelLayout<T> &a, const ChannelLayout<T> &bb) {
         return a.lower == bb.lower && a.upper == bb.upper && a.init_lower == bb.init_lower &&
-               a.init_upper == bb.init_upper && a.kind == bb.kind && a.active == bb.active &&
+               a.init_upper == bb.init_upper && a.fold == bb.fold && a.active == bb.active &&
                a.groups == bb.groups;
     }
 

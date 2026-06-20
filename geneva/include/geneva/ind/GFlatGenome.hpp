@@ -563,7 +563,7 @@ private:
         if constexpr(std::is_floating_point_v<T>) {
             const T scale = ngScale<T>(ch, k);
             const T anchor = ngAnchor<T>(ch, k);
-            if(ch.kind[k] != ParamKind::Constrained) {
+            if(not ch.fold[k]) {
                 // Unbounded (plain): the internal value may roam ℝ; affine-map it, no fold, no clamp.
                 return ngInternalToExternal<T>(stored, scale, anchor);
             }
@@ -584,7 +584,7 @@ private:
             );
         }
         else {
-            if(ch.kind[k] != ParamKind::Constrained) {
+            if(not ch.fold[k]) {
                 return stored;
             }
             return foldConstrainedInt<T>(stored, ch.lower[k], ch.upper[k]);
@@ -615,7 +615,7 @@ private:
         static_assert(std::is_floating_point_v<T>, "FP-only external write");
         const T scale = ngScale<T>(ch, k);
         const T anchor = ngAnchor<T>(ch, k);
-        if(ch.kind[k] == ParamKind::Constrained) {
+        if(ch.fold[k]) {
             if(scale <= T(0)) {
                 return T(0); // frozen: the single valid value maps to the centre
             }
@@ -703,7 +703,7 @@ private:
     template <typename T>
     static void foldChannelInPlace(ChannelLayout<T> const &ch, std::vector<T> &store) {
         for(std::size_t k = 0; k < store.size(); ++k) {
-            if(ch.kind[k] != ParamKind::Constrained) {
+            if(not ch.fold[k]) {
                 continue; // unbounded: roams freely
             }
             if constexpr(std::is_floating_point_v<T>) {
@@ -790,7 +790,7 @@ private:
         for(std::size_t k = 0; k < store.size(); ++k) {
             if(amMatch(ch.active[k], am)) {
                 const T u = in.at(pos++);
-                store[k] = (ch.kind[k] == ParamKind::Constrained) ? ngFoldInternal<T>(u) : u;
+                store[k] = (ch.fold[k]) ? ngFoldInternal<T>(u) : u;
             }
         }
     }
@@ -817,7 +817,7 @@ private:
             if(not amMatch(ch.active[k], am)) {
                 continue;
             }
-            if(ch.kind[k] == ParamKind::Constrained) {
+            if(ch.fold[k]) {
                 l.push_back(T(-0.5));
                 u.push_back(T(0.5));
             }
@@ -863,7 +863,7 @@ private:
             if(not amMatch(ch.active[k], am)) {
                 continue;
             }
-            if(ch.kind[k] == ParamKind::Constrained) {
+            if(ch.fold[k]) {
                 l.push_back(ch.lower[k]);
                 u.push_back(ch.upper[k]);
             }

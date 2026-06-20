@@ -129,11 +129,12 @@ void serialize(Archive &ar, Gem::Geneva::Genome::GroupStructure<T> &g, const uns
 /******************************************************************************/
 // ChannelLayout transport encoding -- "layout interning" (the per-item layout payload is the same for
 // every individual in a population and dominates the wire size for large genomes). A channel's per-value
-// arrays (lower / upper / init_lower / init_upper / kind) are UNIFORM within each group by construction
-// (a group is built with uniform bounds), and `active` simply mirrors the group's flag. So when every
-// group is uniform we serialise ONE representative value-set PER GROUP -- O(groups) instead of
-// O(values) -- and reconstruct the per-value arrays on load. ESCAPE ROUTE: a channel whose groups are
-// NOT uniform (a layout with per-value variation) falls back to the full per-value arrays, flagged by
+// arrays (lower / upper / init_lower / init_upper / fold) are UNIFORM within each group by construction
+// (a group is built with one bound + one perimeter + one fold bit), and `active` mirrors the group flag.
+// So when every group is uniform
+// we serialise ONE representative value-set PER GROUP -- O(groups) instead of O(values) -- and
+// reconstruct the per-value arrays on load. ESCAPE ROUTE: a channel whose groups are NOT uniform (a
+// layout with per-value variation) falls back to the full per-value arrays, flagged by
 // `compact == false`. This is fully per-item: each individual carries its own (compact-or-full) layout,
 // so a population with VARYING layouts (e.g. heterogeneous / meta-optimization individuals) is handled
 // correctly -- no cross-item sharing is assumed.
@@ -142,7 +143,7 @@ void serialize(Archive &ar, Gem::Geneva::Genome::GroupStructure<T> &g, const uns
  * @brief True iff every group's per-value layout data is constant across the group (the normal case).
  * @tparam T The channel's value type.
  * @param c The channel to inspect.
- * @return true if every group's lower/upper/init_lower/init_upper/kind are uniform across the group;
+ * @return true if every group's lower/upper/init_lower/init_upper/fold are uniform across the group;
  * false as soon as any per-value variation is found (triggering the full, non-compact encoding).
  */
 template <typename T>
@@ -151,7 +152,7 @@ bool channelGroupsUniform(const Gem::Geneva::Genome::ChannelLayout<T> &c) {
         for(std::uint32_t k = g.start + 1; k < g.start + g.len; ++k) {
             if(c.lower[k] != c.lower[g.start] || c.upper[k] != c.upper[g.start] ||
                c.init_lower[k] != c.init_lower[g.start] || c.init_upper[k] != c.init_upper[g.start] ||
-               c.kind[k] != c.kind[g.start]) {
+               c.fold[k] != c.fold[g.start]) {
                 return false;
             }
         }
@@ -170,35 +171,34 @@ bool channelGroupsUniform(const Gem::Geneva::Genome::ChannelLayout<T> &c) {
  */
 template <class Archive, typename T>
 void save(Archive &ar, const Gem::Geneva::Genome::ChannelLayout<T> &c, const unsigned int) {
-    using Gem::Geneva::Genome::ParamKind;
     bool compact = channelGroupsUniform<T>(c);
     ar &make_nvp("compact", compact);
     ar &make_nvp("groups", c.groups);
     if(compact) {
         // One representative value-set per group; per-value arrays + `active` are rebuilt on load.
         std::vector<T> g_lower, g_upper, g_init_lower, g_init_upper;
-        std::vector<ParamKind> g_kind;
+        std::vector<std::uint8_t> g_fold;
         const std::size_t ng = c.groups.size();
         g_lower.reserve(ng);
         g_upper.reserve(ng);
         g_init_lower.reserve(ng);
         g_init_upper.reserve(ng);
-        g_kind.reserve(ng);
+        g_fold.reserve(ng);
         for(const auto &g : c.groups) {
             g_lower.push_back(c.lower[g.start]);
             g_upper.push_back(c.upper[g.start]);
             g_init_lower.push_back(c.init_lower[g.start]);
             g_init_upper.push_back(c.init_upper[g.start]);
-            g_kind.push_back(c.kind[g.start]);
+            g_fold.push_back(c.fold[g.start]);
         }
         ar &make_nvp("g_lower", g_lower) &make_nvp("g_upper", g_upper) &
             make_nvp("g_init_lower", g_init_lower) &make_nvp("g_init_upper", g_init_upper) &
-            make_nvp("g_kind", g_kind);
+            make_nvp("g_fold", g_fold);
     }
     else {
         ar &make_nvp("lower", c.lower) &make_nvp("upper", c.upper) &
             make_nvp("init_lower", c.init_lower) &make_nvp("init_upper", c.init_upper) &
-            make_nvp("kind", c.kind) &make_nvp("active", c.active);
+            make_nvp("fold", c.fold) &make_nvp("active", c.active);
     }
 }
 
@@ -213,16 +213,15 @@ void save(Archive &ar, const Gem::Geneva::Genome::ChannelLayout<T> &c, const uns
  */
 template <class Archive, typename T>
 void load(Archive &ar, Gem::Geneva::Genome::ChannelLayout<T> &c, const unsigned int) {
-    using Gem::Geneva::Genome::ParamKind;
     bool compact = false;
     ar &make_nvp("compact", compact);
     ar &make_nvp("groups", c.groups);
     if(compact) {
         std::vector<T> g_lower, g_upper, g_init_lower, g_init_upper;
-        std::vector<ParamKind> g_kind;
+        std::vector<std::uint8_t> g_fold;
         ar &make_nvp("g_lower", g_lower) &make_nvp("g_upper", g_upper) &
             make_nvp("g_init_lower", g_init_lower) &make_nvp("g_init_upper", g_init_upper) &
-            make_nvp("g_kind", g_kind);
+            make_nvp("g_fold", g_fold);
         // The groups tile [0, size()) contiguously, so size == past-the-end of the last group.
         const std::size_t size = c.groups.empty()
                                      ? 0
@@ -231,7 +230,7 @@ void load(Archive &ar, Gem::Geneva::Genome::ChannelLayout<T> &c, const unsigned 
         c.upper.assign(size, T{});
         c.init_lower.assign(size, T{});
         c.init_upper.assign(size, T{});
-        c.kind.assign(size, ParamKind::Plain);
+        c.fold.assign(size, std::uint8_t{0});
         c.active.assign(size, std::uint8_t{0});
         for(std::size_t gi = 0; gi < c.groups.size(); ++gi) {
             const auto &g = c.groups[gi];
@@ -240,7 +239,7 @@ void load(Archive &ar, Gem::Geneva::Genome::ChannelLayout<T> &c, const unsigned 
                 c.upper[k] = g_upper[gi];
                 c.init_lower[k] = g_init_lower[gi];
                 c.init_upper[k] = g_init_upper[gi];
-                c.kind[k] = g_kind[gi];
+                c.fold[k] = g_fold[gi];
                 c.active[k] = g.active ? std::uint8_t{1} : std::uint8_t{0};
             }
         }
@@ -248,7 +247,7 @@ void load(Archive &ar, Gem::Geneva::Genome::ChannelLayout<T> &c, const unsigned 
     else {
         ar &make_nvp("lower", c.lower) &make_nvp("upper", c.upper) &
             make_nvp("init_lower", c.init_lower) &make_nvp("init_upper", c.init_upper) &
-            make_nvp("kind", c.kind) &make_nvp("active", c.active);
+            make_nvp("fold", c.fold) &make_nvp("active", c.active);
     }
 }
 

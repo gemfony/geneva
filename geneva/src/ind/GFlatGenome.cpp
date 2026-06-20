@@ -118,7 +118,7 @@ void GFlatGenome::setGenome(GenomeData const &g) {
     // Reject inverted bounds up front with a clear message rather than silently treating them as frozen.
     auto checkBounds = [](auto const &ch, const char *type_name) {
         for(std::size_t k = 0; k < ch.size(); ++k) {
-            if(ch.kind[k] == ParamKind::Constrained && ch.lower[k] > ch.upper[k]) {
+            if(ch.fold[k] && ch.lower[k] > ch.upper[k]) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GFlatGenome::setGenome(): Error!" << '\n'
@@ -238,11 +238,11 @@ bool GFlatGenome::randomInit_(activityMode const &am) {
  * @brief Randomly (re-)initializes the active entries of one floating-point value channel.
  *
  * Each active entry (per the activity mode) is drawn from a uniform real distribution spanning the
- * channel's per-element init perimeter [init_lower, init_upper].
+ * channel's per-element interval [lower, upper] (the init perimeter / bound).
  *
  * @tparam T The floating-point value type of the channel (double or float)
  * @param store The value array of this channel, modified in place
- * @param ch The channel layout providing per-element activity flags and init perimeter bounds
+ * @param ch The channel layout providing per-element activity flags and interval bounds
  * @param am The activity mode that selects which entries are initialized
  * @return true if at least one entry was modified, false otherwise
  */
@@ -256,7 +256,7 @@ bool GFlatGenome::randomInitFP(std::vector<T> &store, ChannelLayout<T> const &ch
         }
         // Draw an EXTERNAL value uniformly from the init perimeter [init_lower, init_upper) (half-open, so
         // never exactly init_upper), then convert it to the normalized internal store (§2.2). For a bounded
-        // parameter the init perimeter lies within [lower, upper), so the conversion never throws.
+        // parameter the perimeter lies within [lower, upper), so the conversion never throws.
         const T x = dist(
             gr_,
             typename std::uniform_real_distribution<T>::param_type(ch.init_lower[k], ch.init_upper[k])
@@ -271,8 +271,8 @@ bool GFlatGenome::randomInitFP(std::vector<T> &store, ChannelLayout<T> const &ch
 /**
  * @brief Randomly (re-)initializes the active entries of the int32 value channel.
  *
- * Constrained entries are drawn within their [lower, upper] bounds; plain entries within their
- * [init_lower, init_upper] perimeter. The bounds are swapped if given in reverse order.
+ * A bounded entry is drawn within its [lower, upper] bound; an unbounded one within its init perimeter
+ * [init_lower, init_upper]. The bounds are swapped if given in reverse order.
  *
  * @param am The activity mode that selects which entries are initialized
  * @return true if at least one entry was modified, false otherwise
@@ -285,10 +285,8 @@ bool GFlatGenome::randomInitInt(activityMode const &am) {
         if(not amMatch(ch.active[k], am)) {
             continue;
         }
-        std::int32_t lo =
-            (ch.kind[k] == ParamKind::Constrained) ? ch.lower[k] : ch.init_lower[k];
-        std::int32_t hi =
-            (ch.kind[k] == ParamKind::Constrained) ? ch.upper[k] : ch.init_upper[k];
+        std::int32_t lo = ch.fold[k] ? ch.lower[k] : ch.init_lower[k];
+        std::int32_t hi = ch.fold[k] ? ch.upper[k] : ch.init_upper[k];
         if(hi < lo) {
             std::swap(lo, hi);
         }

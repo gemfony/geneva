@@ -57,6 +57,13 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 
 using Gem::Geneva::activityMode;
 
+/** @brief A dimensionless floor on the sampling sigma, as a fraction of a parameter's (normalized)
+ *  range. Without it a collapsed archive (all members coincident) drives the mean-distance bandwidth to
+ *  zero regardless of remaining search volume, so the sampler stops exploring and the run converges
+ *  prematurely. The floor is universal because every parameter is normalized to the unit interval. It is
+ *  small enough not to cap the achievable precision. */
+constexpr double ACOR_SIGMA_FLOOR_FRACTION = 1.e-4;
+
 /******************************************************************************/
 /**
  * The default constructor.
@@ -481,16 +488,15 @@ void GAntColonyOptimization::constructAnts() {
                 }
                 sum_dist += std::fabs(archive_parms_[e][i] - mu);
             }
-            const double sigma = xi_ * sum_dist / static_cast<double>(archive_size_ - 1);
+            // The mean-distance bandwidth, floored against a dimensionless fraction of the (normalized)
+            // range so a collapsed archive cannot drive sigma to zero and stall the search prematurely.
+            const double sigma = std::max(
+                xi_ * sum_dist / static_cast<double>(archive_size_ - 1), ACOR_SIGMA_FLOOR_FRACTION
+            );
 
-            // 3. Sample the new coordinate ~ N(mu, sigma). If sigma == 0 keep mu.
-            if(sigma > 0.) {
-                std::normal_distribution<double> gauss(mu, sigma);
-                x_new[i] = gauss(gr_);
-            }
-            else {
-                x_new[i] = mu;
-            }
+            // 3. Sample the new coordinate ~ N(mu, sigma).
+            std::normal_distribution<double> gauss(mu, sigma);
+            x_new[i] = gauss(gr_);
         }
 
         // Write the sampled vector through the genome; the constrained parameter objects fold/clamp it

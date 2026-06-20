@@ -83,6 +83,18 @@ Recommended Versions:
   Some transient per-algorithm bookkeeping dropped out of the serialized form (it is
   recomputed at setup) -- consistent with the checkpoint clean break above.
 
+- The bounded/unbounded parameter distinction is now a single per-value `fold` bit on
+  the genome layout, replacing the former ParamKind {Plain, Constrained} enum: a bounded
+  value folds into its [lower, upper) interval (and an out-of-range external write
+  throws), an unbounded one roams freely (perimeter-scaled, no hard bound). The genome
+  layout's per-value `kind` array became a `fold` array (the layout content hash and
+  serialized form change accordingly -- consistent with the checkpoint clean break). The
+  builder API is unchanged. The internal `plain_init_from_bounds` builder flag is gone
+  (the init perimeter defaults to the supplied [min, max] for every parameter and can
+  still be narrowed via the handle's perimeter()). GAntColonyOptimization now floors its
+  sampling sigma at a small dimensionless fraction of the (normalized) range, so a
+  collapsed archive can no longer drive the bandwidth to zero and converge prematurely.
+
 - The optimizable-entity / genome layer was renamed from the namespace
   Gem::Geneva::Parameters to Gem::Geneva::Genome (the pervasive short alias gpar::
   became gen::), and the value-array type formerly named Genome is now GenomeData.

@@ -846,9 +846,14 @@ void GConjugateGradientDescent::updateParentIndividuals() {
 
         // 5) Apply the accepted step. A starting point for which no step satisfied Armijo is left in
         //    place: it has effectively converged (zero gradient) or sits where the current direction
-        //    cannot improve it.
+        //    cannot improve it. It still re-joins the next population evaluation (its position is
+        //    unchanged, so the recomputed fitness is identical), so mark it due either way -- the
+        //    per-iteration evaluation contract requires every individual to be due for processing.
         if(lr.success) {
             this->at(i)->individual().assignFPValueVectorInternal(lr.x_new, activityMode::ACTIVEONLY);
+        }
+        else {
+            this->at(i)->individual().mark_as_due_for_processing();
         }
 
         // 6) Remember gradient/direction for the next conjugate step (on the slot's scratch).

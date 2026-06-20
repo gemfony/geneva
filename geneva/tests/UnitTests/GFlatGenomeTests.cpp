@@ -247,7 +247,7 @@ TEST_CASE("GGenomeBuilder produces the expected shared layout", "[flat]") {
     for(std::size_t k = 0; k < 5; ++k) {
         CHECK(ch.lower[k] == -10.);
         CHECK(ch.upper[k] == 10.);
-        CHECK(ch.kind[k] == ParamKind::Constrained);
+        CHECK(ch.fold[k]); // bounded
         CHECK(g.dv[k] == 1.0);
     }
 }
@@ -440,11 +440,11 @@ TEST_CASE("GFlatGenome: layout interning round-trips losslessly (compact + escap
     CHECK(RL->d.upper == L->d.upper);
     CHECK(RL->d.init_lower == L->d.init_lower);
     CHECK(RL->d.init_upper == L->d.init_upper);
-    CHECK(RL->d.kind == L->d.kind);
+    CHECK(RL->d.fold == L->d.fold);
     CHECK(RL->d.active == L->d.active);
     CHECK(RL->i.lower == L->i.lower);
     CHECK(RL->i.upper == L->i.upper);
-    CHECK(RL->i.kind == L->i.kind);
+    CHECK(RL->i.fold == L->i.fold);
     CHECK(RL->b.active == L->b.active);
 
     // ESCAPE ROUTE: a channel with per-value variation WITHIN a group (not producible by the builder, but
@@ -456,7 +456,7 @@ TEST_CASE("GFlatGenome: layout interning round-trips losslessly (compact + escap
     ch.upper = {1., 5., 9.};
     ch.init_lower = {-1., -5., -9.};
     ch.init_upper = {1., 5., 9.};
-    ch.kind = {ParamKind::Constrained, ParamKind::Constrained, ParamKind::Plain};
+    ch.fold = {std::uint8_t{1}, std::uint8_t{1}, std::uint8_t{0}};
     ch.active = {1, 1, 1};
 
     std::ostringstream oss;
@@ -474,7 +474,7 @@ TEST_CASE("GFlatGenome: layout interning round-trips losslessly (compact + escap
     CHECK(ch2.upper == ch.upper);
     CHECK(ch2.init_lower == ch.init_lower);
     CHECK(ch2.init_upper == ch.init_upper);
-    CHECK(ch2.kind == ch.kind); // including the per-value Plain/Constrained variation
+    CHECK(ch2.fold == ch.fold); // including the per-value bounded/unbounded variation
     CHECK(ch2.active == ch.active);
 }
 

@@ -209,7 +209,7 @@ public:
      * @return A handle to the new group, for fluent tuning.
      */
     ParamHandle<double> addDouble(double init, double min, double max) {
-        return addOne(layout_.d, dv_, init, min, max, ParamKind::Constrained);
+        return addOne(layout_.d, dv_, init, min, max, /*fold=*/true);
     }
     /**
      * @brief Adds one unbounded (Plain) double parameter as its own adaption group (size 1).
@@ -217,7 +217,7 @@ public:
      * @return A handle to the new group, for fluent tuning.
      */
     ParamHandle<double> addDouble(double init) {
-        return addOne(layout_.d, dv_, init, 0., 1., ParamKind::Plain);
+        return addOne(layout_.d, dv_, init, 0., 1., /*fold=*/false);
     }
     /**
      * @brief Adds n constrained double parameters sharing ONE adaption group (a collection).
@@ -227,7 +227,7 @@ public:
      * @return A handle to the new group, for fluent tuning.
      */
     ParamHandle<double> addDoubleGroup(std::size_t n, double min, double max) {
-        return addGrouped(layout_.d, dv_, n, min, max, ParamKind::Constrained);
+        return addGrouped(layout_.d, dv_, n, min, max, /*fold=*/true);
     }
     /**
      * @brief Adds n constrained double parameters, each its own adaption group of size 1.
@@ -237,7 +237,7 @@ public:
      * @return A handle spanning all n new groups, for fluent tuning.
      */
     ParamHandle<double> addDoubleArray(std::size_t n, double min, double max) {
-        return addArray(layout_.d, dv_, n, min, max, ParamKind::Constrained);
+        return addArray(layout_.d, dv_, n, min, max, /*fold=*/true);
     }
     // Unbounded (plain) collections -- like GDoubleCollection / GDoubleObjectCollection: min/max are
     // not constraints (no fold), they only set the random-init perimeter + the Gauss step range.
@@ -250,7 +250,7 @@ public:
      * @return A handle to the new group, for fluent tuning.
      */
     ParamHandle<double> addDoublePlainGroup(std::size_t n, double initMin, double initMax) {
-        return addGrouped(layout_.d, dv_, n, initMin, initMax, ParamKind::Plain, /*plain_init_from_bounds=*/true);
+        return addGrouped(layout_.d, dv_, n, initMin, initMax, /*fold=*/false);
     }
     /**
      * @brief Adds n unbounded (Plain) double parameters, each its own adaption group of size 1; initMin/
@@ -261,7 +261,7 @@ public:
      * @return A handle spanning all n new groups, for fluent tuning.
      */
     ParamHandle<double> addDoublePlainArray(std::size_t n, double initMin, double initMax) {
-        return addArray(layout_.d, dv_, n, initMin, initMax, ParamKind::Plain, /*plain_init_from_bounds=*/true);
+        return addArray(layout_.d, dv_, n, initMin, initMax, /*fold=*/false);
     }
 
     /***************************************************************************/
@@ -275,7 +275,7 @@ public:
      * @return A handle to the new group, for fluent tuning.
      */
     ParamHandle<float> addFloat(float init, float min, float max) {
-        return addOne(layout_.f, fv_, init, min, max, ParamKind::Constrained);
+        return addOne(layout_.f, fv_, init, min, max, /*fold=*/true);
     }
     /**
      * @brief Adds one unbounded (Plain) float parameter as its own adaption group (size 1).
@@ -283,7 +283,7 @@ public:
      * @return A handle to the new group, for fluent tuning.
      */
     ParamHandle<float> addFloat(float init) {
-        return addOne(layout_.f, fv_, init, 0.f, 1.f, ParamKind::Plain);
+        return addOne(layout_.f, fv_, init, 0.f, 1.f, /*fold=*/false);
     }
     /**
      * @brief Adds n constrained float parameters sharing ONE adaption group (a collection).
@@ -293,7 +293,7 @@ public:
      * @return A handle to the new group, for fluent tuning.
      */
     ParamHandle<float> addFloatGroup(std::size_t n, float min, float max) {
-        return addGrouped(layout_.f, fv_, n, min, max, ParamKind::Constrained);
+        return addGrouped(layout_.f, fv_, n, min, max, /*fold=*/true);
     }
     /**
      * @brief Adds n constrained float parameters, each its own adaption group of size 1.
@@ -303,7 +303,7 @@ public:
      * @return A handle spanning all n new groups, for fluent tuning.
      */
     ParamHandle<float> addFloatArray(std::size_t n, float min, float max) {
-        return addArray(layout_.f, fv_, n, min, max, ParamKind::Constrained);
+        return addArray(layout_.f, fv_, n, min, max, /*fold=*/true);
     }
 
     /***************************************************************************/
@@ -317,7 +317,7 @@ public:
      * @return A handle to the new group, for fluent tuning.
      */
     ParamHandle<std::int32_t> addInt32(std::int32_t init, std::int32_t min, std::int32_t max) {
-        return addOne(layout_.i, iv_, init, min, max, ParamKind::Constrained);
+        return addOne(layout_.i, iv_, init, min, max, /*fold=*/true);
     }
     /**
      * @brief Adds one unbounded (Plain) int32 parameter as its own adaption group (size 1); the bounds
@@ -326,14 +326,10 @@ public:
      * @return A handle to the new group, for fluent tuning.
      */
     ParamHandle<std::int32_t> addInt32(std::int32_t init) {
-        return addOne(
-            layout_.i,
-            iv_,
-            init,
-            std::numeric_limits<std::int32_t>::lowest(),
-            std::numeric_limits<std::int32_t>::max(),
-            ParamKind::Plain
-        );
+        // Unbounded (fold == false): there is no hard bound. The interval is only the init perimeter /
+        // mutation scale, conventionally [0, 1] for a bare scalar (the integer Gauss step then scales by
+        // a range of 1); the value may roam ℝ.
+        return addOne(layout_.i, iv_, init, 0, 1, /*fold=*/false);
     }
     /**
      * @brief Adds n constrained int32 parameters sharing ONE adaption group (a collection).
@@ -343,7 +339,7 @@ public:
      * @return A handle to the new group, for fluent tuning.
      */
     ParamHandle<std::int32_t> addInt32Group(std::size_t n, std::int32_t min, std::int32_t max) {
-        return addGrouped(layout_.i, iv_, n, min, max, ParamKind::Constrained);
+        return addGrouped(layout_.i, iv_, n, min, max, /*fold=*/true);
     }
     /**
      * @brief Adds n constrained int32 parameters, each its own adaption group of size 1.
@@ -353,7 +349,7 @@ public:
      * @return A handle spanning all n new groups, for fluent tuning.
      */
     ParamHandle<std::int32_t> addInt32Array(std::size_t n, std::int32_t min, std::int32_t max) {
-        return addArray(layout_.i, iv_, n, min, max, ParamKind::Constrained);
+        return addArray(layout_.i, iv_, n, min, max, /*fold=*/true);
     }
 
     /***************************************************************************/
@@ -365,7 +361,7 @@ public:
      * @return A handle to the new group, for fluent tuning.
      */
     ParamHandle<bool> addBool(bool init) {
-        return addOne(layout_.b, bvBool_, init, false, true, ParamKind::Plain);
+        return addOne(layout_.b, bvBool_, init, false, true, /*fold=*/false);
     }
     /**
      * @brief Adds n bool parameters sharing ONE adaption group (a collection).
@@ -373,7 +369,7 @@ public:
      * @return A handle to the new group, for fluent tuning.
      */
     ParamHandle<bool> addBoolGroup(std::size_t n) {
-        return addGrouped(layout_.b, bvBool_, n, false, true, ParamKind::Plain);
+        return addGrouped(layout_.b, bvBool_, n, false, true, /*fold=*/false);
     }
     /**
      * @brief Adds n bool parameters, each its own adaption group of size 1.
@@ -381,7 +377,7 @@ public:
      * @return A handle spanning all n new groups, for fluent tuning.
      */
     ParamHandle<bool> addBoolArray(std::size_t n) {
-        return addArray(layout_.b, bvBool_, n, false, true, ParamKind::Plain);
+        return addArray(layout_.b, bvBool_, n, false, true, /*fold=*/false);
     }
 
     /***************************************************************************/
@@ -419,10 +415,9 @@ private:
      * @param ch The channel to append to.
      * @param values The channel's start-value array to append to.
      * @param init The start value of the parameter.
-     * @param min The lower bound (constraint or, for Plain, init perimeter).
-     * @param max The upper bound (constraint or, for Plain, init perimeter).
-     * @param kind Whether the parameter is Plain (unbounded) or Constrained.
-     * @param plain_init_from_bounds For a Plain collection, true ⇒ derive the init perimeter / step range from [min, max].
+     * @param min The lower end of the parameter's interval [min, max].
+     * @param max The upper end of the parameter's interval [min, max].
+     * @param fold Whether the parameter folds into [min, max) (bounded) or roams freely (unbounded).
      * @return A handle to the single new group.
      */
     template <typename T>
@@ -432,10 +427,9 @@ private:
         T init,
         T min,
         T max,
-        ParamKind kind,
-        bool plain_init_from_bounds = false
+        bool fold
     ) {
-        return addGroupImpl(ch, values, 1, init, min, max, kind, plain_init_from_bounds);
+        return addGroupImpl(ch, values, 1, init, min, max, fold);
     }
 
     /**
@@ -444,10 +438,9 @@ private:
      * @param ch The channel to append to.
      * @param values The channel's start-value array to append to.
      * @param n The number of parameters in the group.
-     * @param min The lower bound; also seeds the start value of every member.
-     * @param max The upper bound.
-     * @param kind Whether the parameters are Plain (unbounded) or Constrained.
-     * @param plain_init_from_bounds For a Plain collection, true ⇒ derive the init perimeter / step range from [min, max].
+     * @param min The lower end of the interval; also seeds the start value of every member.
+     * @param max The upper end of the interval.
+     * @param fold Whether the parameters fold into [min, max) (bounded) or roam freely (unbounded).
      * @return A handle to the single new group.
      */
     template <typename T>
@@ -457,10 +450,9 @@ private:
         std::size_t n,
         T min,
         T max,
-        ParamKind kind,
-        bool plain_init_from_bounds = false
+        bool fold
     ) {
-        return addGroupImpl(ch, values, n, min, min, max, kind, plain_init_from_bounds);
+        return addGroupImpl(ch, values, n, min, min, max, fold);
     }
 
     /**
@@ -469,10 +461,9 @@ private:
      * @param ch The channel to append to.
      * @param values The channel's start-value array to append to.
      * @param n The number of size-1 groups to create.
-     * @param min The lower bound; also seeds the start value of every parameter.
-     * @param max The upper bound.
-     * @param kind Whether the parameters are Plain (unbounded) or Constrained.
-     * @param plain_init_from_bounds For a Plain collection, true ⇒ derive the init perimeter / step range from [min, max].
+     * @param min The lower end of the interval; also seeds the start value of every parameter.
+     * @param max The upper end of the interval.
+     * @param fold Whether the parameters fold into [min, max) (bounded) or roam freely (unbounded).
      * @return A handle spanning all n freshly-created groups.
      */
     template <typename T>
@@ -482,12 +473,11 @@ private:
         std::size_t n,
         T min,
         T max,
-        ParamKind kind,
-        bool plain_init_from_bounds = false
+        bool fold
     ) {
         const std::size_t first_group = ch.groups.size();
         for(std::size_t k = 0; k < n; ++k) {
-            addGroupImpl(ch, values, 1, min, min, max, kind, plain_init_from_bounds);
+            addGroupImpl(ch, values, 1, min, min, max, fold);
         }
         // The handle spans all n freshly-created groups, so an adaptor / init / perimeter applied to it
         // configures every one of them (not just the first).
@@ -497,20 +487,17 @@ private:
     /***************************************************************************/
     /**
      * @brief Appends one group of `len` values to a channel, extending all per-value vectors and registering
-     * the group. `init` seeds the start value of every member; the init perimeter defaults to the
-     * bounds (Constrained) or [0,1] (Plain), and can be overridden via the returned handle. For an
-     * unbounded (Plain) collection the caller passes plain_init_from_bounds = true so the random-init
-     * perimeter and the comparative Gauss step range follow [min, max] (like GDoubleCollection) rather
-     * than the conservative [0, 1] default used for a bare unbounded scalar.
+     * the group. `init` seeds the start value of every member; the single interval [min, max] is the
+     * parameter's natural scale (and, when fold is set, its hard ceiling). A bare unbounded scalar passes
+     * the conservative [0, 1] perimeter, while an unbounded collection passes its caller-supplied [min, max].
      * @tparam T The channel's value type.
      * @param ch The channel to append the group to.
      * @param values The channel's start-value array to append to.
      * @param len The number of values in the new group.
      * @param init The start value seeded into every member of the group.
-     * @param min The lower bound stored per value (constraint or, for Plain, unused as a constraint).
-     * @param max The upper bound stored per value.
-     * @param kind Whether the group is Plain (unbounded) or Constrained.
-     * @param plain_init_from_bounds For a Plain group, true ⇒ derive the init perimeter and comparative range from [min, max].
+     * @param min The lower end of the parameter's interval [min, max] (the bound if folding, else the init perimeter).
+     * @param max The upper end of the parameter's interval [min, max].
+     * @param fold Whether the group folds into [min, max) (a bounded parameter) or roams freely (unbounded).
      * @return A handle to the single new group.
      */
     template <typename T>
@@ -521,21 +508,19 @@ private:
         T init,
         T min,
         T max,
-        ParamKind kind,
-        bool plain_init_from_bounds
+        bool fold
     ) {
         const auto start = static_cast<std::uint32_t>(ch.size());
 
-        const bool from_bounds = (kind == ParamKind::Constrained) || plain_init_from_bounds;
-        const T init_lo = from_bounds ? min : T(0);
-        const T init_hi = from_bounds ? max : T(1);
-
         for(std::size_t k = 0; k < len; ++k) {
+            // [min, max] is the hard bound when folding (also the default init perimeter). For an
+            // unbounded parameter it is only the init perimeter / mutation scale. The init perimeter
+            // defaults to [min, max] and may be narrowed afterwards via the handle's perimeter().
             ch.lower.push_back(min);
             ch.upper.push_back(max);
-            ch.init_lower.push_back(init_lo);
-            ch.init_upper.push_back(init_hi);
-            ch.kind.push_back(kind);
+            ch.init_lower.push_back(min);
+            ch.init_upper.push_back(max);
+            ch.fold.push_back(fold ? std::uint8_t{1} : std::uint8_t{0});
             ch.active.push_back(1);
             values.push_back(init);
         }
@@ -544,9 +529,6 @@ private:
         g.start = start;
         g.len = static_cast<std::uint32_t>(len);
         g.active = true;
-        // The parameter's natural scale (upper-lower constrained, init span plain) is NOT stored: it is
-        // computed on demand from the bounds via ngScale wherever needed (the normalized model's single
-        // `scale` concept, used by the FP transform and the integer Gauss adaptor).
 
         const std::size_t gi = ch.groups.size();
         ch.groups.push_back(g);
