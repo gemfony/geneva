@@ -644,6 +644,10 @@ void GSepCmaEvolutionStrategy::updateDistribution(const std::vector<std::size_t>
     }
 
     // --- step-size update (CSA): sigma *= exp( c_sigma/d_sigma * (||p_sigma||/chi_n - 1) )
+    // Capture the sigma that actually generated this generation's samples BEFORE the
+    // CSA update: the rank-mu covariance update below must normalize the sample steps
+    // by that sigma_old (as the rank-1 path does via y_w), not by the just-updated value.
+    const double sigma_old = sigma_;
     sigma_ *= std::exp((c_sigma_ / d_sigma_) * (ps_norm / chi_n_ - 1.));
 
     // --- diagonal covariance update (rank-1 + rank-mu) --------------------------
@@ -654,7 +658,7 @@ void GSepCmaEvolutionStrategy::updateDistribution(const std::vector<std::size_t>
             double rank_mu = 0.;
             for(std::size_t i = 0; i < mu; ++i) {
                 double w = weights_[i] / w_used;
-                double yj = (selected[i][j] - m_old[j]) / sigma_;
+                double yj = (selected[i][j] - m_old[j]) / sigma_old;
                 rank_mu += w * yj * yj;
             }
             C_[j] = ((1. - c_1_ - c_mu_) * C_[j]) +
