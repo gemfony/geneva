@@ -479,7 +479,7 @@ private:
 
     /** @brief Lets individuals know about their position in the population */
     void markIndividualPositions();
-    /** @brief Recomputes adjusted_finite_step_ from finite_step_ and the parameter ranges */
+    /** @brief Recomputes the dimensionless adjusted_finite_step_ (finite_step_/1000) */
     void updateDerivedQuantities();
     /** @brief (Re-)initialises the per-starting-point conjugate-gradient state */
     void resetCGState();
@@ -522,12 +522,10 @@ private:
 
     GHesseErrorResult last_error_estimate_; ///< The most recent error estimate (transient; not serialized)
 
-    std::vector<double>
-        dbl_lower_parameter_boundaries_; ///< Lower boundaries of double parameters; extracted in init() (transient)
-    std::vector<double>
-        dbl_upper_parameter_boundaries_; ///< Upper boundaries of double parameters; extracted in init() (transient)
-    std::vector<double>
-        adjusted_finite_step_; ///< Per-parameter difference-quotient step; recomputed in init() (transient)
+    double adjusted_finite_step_ =
+        0.; ///< Dimensionless difference-quotient step (finite_step_/1000, a fraction of the normalized
+            ///< parameter range); recomputed in init() (transient). Uniform across parameters now that the
+            ///< step is taken in the normalized internal coordinate, so no per-parameter boundary vectors.
 
     // The per-starting-point conjugate-gradient memory (g_{k-1} / d_{k-1} / history-valid flag) now
     // lives on the OA scratch of each starting point's central individual slot, as POD blocks keyed

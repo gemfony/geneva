@@ -285,8 +285,6 @@ void GGeneralizedSimulatedAnnealing::compare_(
  */
 void GGeneralizedSimulatedAnnealing::resetToOptimizationStart_() {
     n_fp_parms_ = 0;
-    dbl_lower_.clear();
-    dbl_upper_.clear();
     t0_effective_ = 0.;
     chain_step_.clear();
     chain_best_energy_.clear();
@@ -336,21 +334,10 @@ void GGeneralizedSimulatedAnnealing::adjustPopulation_() {
 void GGeneralizedSimulatedAnnealing::init() {
     GOptimizationAlgorithmT<GGeneralizedSimulatedAnnealing>::init();
 
-    // Extract the boundaries of all (active) floating point parameters. Reuses the flat-genome FP channel
-    // exactly as GSepCmaEvolutionStrategy / GStandardPSO2011 / GAntColonyOptimization do.
-    dbl_lower_.clear();
-    dbl_upper_.clear();
-    this->at(0)->individual().boundariesFPInternal(dbl_lower_, dbl_upper_, activityMode::ACTIVEONLY);
+    // The chains move in the normalized internal coordinate, so no per-parameter bounds are needed; only
+    // the count of active floating point parameters matters (the proposal jump is dimensionless).
+    n_fp_parms_ = this->at(0)->individual().countFPParameters(activityMode::ACTIVEONLY);
 
-    n_fp_parms_ = dbl_lower_.size();
-
-    if(dbl_lower_.size() != dbl_upper_.size()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GGeneralizedSimulatedAnnealing::init(): Error!" << '\n'
-            << "Found invalid sizes: " << dbl_lower_.size() << " / " << dbl_upper_.size() << '\n'
-        );
-    }
     if(n_fp_parms_ == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -361,35 +348,16 @@ void GGeneralizedSimulatedAnnealing::init() {
     }
 
     // Derive the effective initial visiting temperature. If the user supplied a positive t0_, use it
-    // directly; otherwise derive it from the parameter ranges so that the initial visiting *jump* scale
-    // is on the order of the mean parameter span.
+    // directly; otherwise the initial visiting *jump* scale is one normalized parameter range.
     //
     // The jump scale tracks the visiting temperature linearly: tau(t) = L * T_qv(t) / T_qv(1) (see
-    // drawVisitingJump()), so the initial scale is tau(1) = L (the mean parameter span) and then shrinks
-    // *polynomially* with the power-law cooling toward local moves. Tying the scale to T_qv(t) (rather
-    // than to the strictly faithful Tsallis exponent T^{1/(3-qv)}, which collapses far too fast) is what
-    // keeps the step schedule practical over a finite iteration budget -- broad early exploration, fine
-    // late refinement. We therefore set the effective initial visiting temperature to L (or the
-    // user-supplied t0_, if positive).
-    if(t0_ > 0.) {
-        t0_effective_ = t0_;
-    }
-    else {
-        double sum = 0.;
-        std::size_t cnt = 0;
-        for(std::size_t k = 0; k < dbl_lower_.size(); ++k) {
-            const double range = dbl_upper_[k] - dbl_lower_[k];
-            if(std::isfinite(range) && range > 0.) {
-                sum += range;
-                ++cnt;
-            }
-        }
-        const double mean_range = (cnt > 0) ? (sum / static_cast<double>(cnt)) : 1.;
-        t0_effective_ = (mean_range > 0.) ? mean_range : 1.;
-        if(not(t0_effective_ > 0.)) {
-            t0_effective_ = 1.;
-        }
-    }
+    // drawVisitingJump()), so the initial scale is tau(1) = L and then shrinks *polynomially* with the
+    // power-law cooling toward local moves. Parameters live in the normalized internal coordinate (interval
+    // width 1), so L is simply 1 (the full box width, a dimensionless fraction of the range) -- no
+    // per-parameter span averaging. Tying the scale to T_qv(t) (rather than to the strictly faithful
+    // Tsallis exponent T^{1/(3-qv)}, which collapses far too fast) is what keeps the step schedule
+    // practical over a finite iteration budget -- broad early exploration, fine late refinement.
+    t0_effective_ = (t0_ > 0.) ? t0_ : 1.;
 
     // Seed the chains. Chain 0's current slot keeps the registered start individual unchanged; the other
     // chains' current slots are randomized uniformly inside the box. Each proposal slot is initialized

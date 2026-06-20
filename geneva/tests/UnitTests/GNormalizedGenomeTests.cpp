@@ -455,8 +455,7 @@ TEST_CASE(
 
 /******************************************************************************/
 TEST_CASE(
-    "normalized-genome: ngScale/ngAnchor derive from bounds (constrained) and perimeter (plain), "
-    "and scale == the stored range",
+    "normalized-genome: ngScale/ngAnchor derive from bounds (constrained) and perimeter (plain)",
     "[normalized-genome]"
 ) {
     GGenomeBuilder b;
@@ -467,13 +466,10 @@ TEST_CASE(
     const ChannelLayout<double> &ch = g.layout->d;
     REQUIRE(ch.size() == 4);
 
+    // The single `scale` concept is computed on demand from the bounds -- there is no stored `range`
+    // field on the group (Phase-3 unification).
     CHECK(ngScale(ch, 0) == 4.);
     CHECK(ngAnchor(ch, 0) == 1.);
     CHECK(ngScale(ch, 2) == 20.);
     CHECK(ngAnchor(ch, 2) == 0.);
-
-    // The derived scale equals the per-group `range` already in the layout (they are unified in Phase 3).
-    REQUIRE(ch.groups.size() == 2);
-    CHECK(ch.groups[0].range == ngScale(ch, 0));
-    CHECK(ch.groups[1].range == ngScale(ch, 2));
 }

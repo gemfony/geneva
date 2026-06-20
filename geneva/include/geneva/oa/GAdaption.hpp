@@ -103,11 +103,10 @@ std::size_t adaptGaussChannel(
             continue;
         }
         // The FP value step is taken in the NORMALIZED internal coordinate (interval width 1), so the
-        // kernel's range multiplier is the dimensionless 1, not the parameter's box width (§2.4). The
-        // physical scale is reapplied by the external transform when the objective reads the value. (The
-        // kernel's `range` parameter is removed outright in Phase 3.)
+        // gaussian step is dimensionless (sigma is a fraction of the parameter's range); the physical
+        // scale is reapplied by the external transform when the objective reads the value (§2.4).
         n += Gem::Geneva::Genome::adaptGaussGroup<T>(
-            g.gauss, states[gi], values.subspan(g.start, g.len), T(1), gr
+            g.gauss, states[gi], values.subspan(g.start, g.len), gr
         );
     }
     return n;
@@ -146,9 +145,9 @@ std::size_t adaptBiGaussChannel(
         if(not g.has_bigauss || not g.active) {
             continue;
         }
-        // Normalized internal coordinate: the step uses the dimensionless range 1, not the box width (§2.4).
+        // Normalized internal coordinate: the bi-gaussian step is dimensionless (§2.4).
         n += Gem::Geneva::Genome::adaptBiGaussGroup<T>(
-            g.bigauss, states[gi], values.subspan(g.start, g.len), T(1), gr
+            g.bigauss, states[gi], values.subspan(g.start, g.len), gr
         );
     }
     return n;
@@ -183,17 +182,20 @@ inline std::size_t runAdaptionKernels(
     n += detail::adaptBiGaussChannel<double>(scratch, cfg.doubleGroups(), ind.internalDoubleValues(), AUXKEY_BIGAUSS_DOUBLE, gr);
     n += detail::adaptBiGaussChannel<float>(scratch, cfg.floatGroups(), ind.internalFloatValues(), AUXKEY_BIGAUSS_FLOAT, gr);
 
-    // Integer Gauss (state is GaussState<double>, range is int32).
+    // Integer Gauss. Integers are NOT normalized (§2.7), so the step is still scaled by the parameter's
+    // integer range, taken from the genome's int channel layout (upper-lower constrained, init span plain).
     if(scratch.hasAux(AUXKEY_GAUSS_INT)) {
         std::span<GaussState<double>> states = scratch.metaRecords<GaussState<double>>(AUXKEY_GAUSS_INT);
         std::span<std::int32_t> values = ind.internalInt32Values();
         const auto &groups = cfg.int32Groups();
+        const ChannelLayout<std::int32_t> &layout_i = ind.getLayout()->i;
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             const GroupSpec<std::int32_t> &g = groups[gi];
             if(not g.has_gauss || not g.active) {
                 continue;
             }
-            n += adaptGaussIntGroup(g.gauss, states[gi], values.subspan(g.start, g.len), g.range, gr);
+            const std::int32_t int_range = ngScale(layout_i, g.start);
+            n += adaptGaussIntGroup(g.gauss, states[gi], values.subspan(g.start, g.len), int_range, gr);
         }
     }
 

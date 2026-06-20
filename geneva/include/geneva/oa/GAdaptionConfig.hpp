@@ -834,7 +834,6 @@ private:
             g.len = s.len;
             g.label_id = s.label_id;
             g.active = s.active;
-            g.range = s.range;
             dst.push_back(g);
         }
     }

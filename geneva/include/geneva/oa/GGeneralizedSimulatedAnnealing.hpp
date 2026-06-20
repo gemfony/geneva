@@ -416,9 +416,6 @@ private:
 
     std::size_t n_fp_parms_ = 0; ///< The number of active floating point parameters (set in init())
 
-    std::vector<double> dbl_lower_; ///< Lower boundaries of the fp parameters (set in init())
-    std::vector<double> dbl_upper_; ///< Upper boundaries of the fp parameters (set in init())
-
     double t0_effective_ = 0.; ///< The visiting temperature actually used (== t0_ or derived)
 
     std::vector<std::uint32_t>

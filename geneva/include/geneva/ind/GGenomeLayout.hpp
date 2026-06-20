@@ -235,9 +235,10 @@ T ngClampHalfOpen(T x, const T &lo, const T &hi) {
  * a longer group a collection). This is structure ONLY -- the adaptor configuration (Gauss / bi-Gauss /
  * flip rates and seeds) is NOT here; it lives on the OA-owned GAdaptionConfig (a GroupSpec, below). The
  * layout therefore carries no adaption intent at all, staying a pure, shared, immutable structural
- * descriptor. `range` and `active` are structural (the parameter's natural scale, derived from its bounds,
- * and whether it is mutable at all -- adaptionMode::NEVER), so they stay here and are copied into the
- * config when one is built from the genome.
+ * descriptor. `active` is structural (whether the group is mutable at all -- adaptionMode::NEVER), so it
+ * stays here and is copied into the config when one is built from the genome. A parameter's natural scale
+ * is NOT stored: it is the single `scale` concept of the normalized model, computed on demand from the
+ * channel's bounds (ngScale) wherever it is needed -- there is no redundant `range` field.
  */
 template <typename T>
 struct GroupStructure {
@@ -245,7 +246,6 @@ struct GroupStructure {
     std::uint32_t len = 1;      ///< number of values in this group
     std::int32_t label_id = -1; ///< interned label index into GGenomeLayout::labels (-1 = unlabeled)
     bool active = true;         ///< false ⇔ adaptionMode::NEVER (the group is never adapted / mutated)
-    T range = T(1);             ///< comparative range for an adaptor step (upper-lower, or the init range)
 
     /** @brief Field-wise structural equality (the basis of the layout's collision-safe id compare). */
     bool operator==(const GroupStructure &) const = default;
@@ -255,7 +255,7 @@ struct GroupStructure {
 /**
  * One adaption group's full configuration, owned by the OA's GAdaptionConfig (NOT by the genome layout).
  * It carries the group's STRUCTURE (mirrored from the layout's GroupStructure: start / len / label_id /
- * active / range) plus the *static* adaption config (rates / bounds / mode) and the *seed* values for the
+ * active) plus the *static* adaption config (rates / bounds / mode) and the *seed* values for the
  * per-individual adaption state (which the OA installs into a slot's auxiliary store). The evolving state
  * itself lives in the store, not here. A GAdaptionConfig is built from a genome (snapshotting the
  * structure) and then authored via its fluent API; the adaptor settings never touch the shared layout.
@@ -270,7 +270,6 @@ struct GroupSpec {
     GaussConfig<adaption_fp_t<T>> gauss{};        ///< the static Gauss configuration (valid iff has_gauss)
     adaption_fp_t<T> start_sigma = adaption_fp_t<T>(1);   ///< GaussState sigma seed + updateOnStall reset target
     adaption_fp_t<T> start_ad_prob = adaption_fp_t<T>(1); ///< Gauss/BiGauss/Flip ad_prob seed + reset target
-    T range = T(1);                ///< comparative range for the Gauss step (upper-lower, or the init range)
 
     // Bi-gaussian alternative (FP groups only): mutually exclusive with has_gauss for the same group.
     bool has_bigauss = false;      ///< whether a bi-gaussian adaptor is configured (FP groups only)
@@ -596,7 +595,6 @@ private:
             h.value<std::uint32_t>(g.len);
             h.value<std::int32_t>(g.label_id);
             h.value<std::uint8_t>(g.active ? std::uint8_t{1} : std::uint8_t{0});
-            h.value<T>(g.range);
         }
     }
 
@@ -628,7 +626,6 @@ private:
             h.value<std::uint32_t>(g.len);
             h.value<std::int32_t>(g.label_id);
             h.value<std::uint8_t>(g.active ? std::uint8_t{1} : std::uint8_t{0});
-            h.value<std::uint8_t>(g.range ? std::uint8_t{1} : std::uint8_t{0});
         }
     }
 

@@ -55,9 +55,11 @@ namespace Gem::Geneva::Genome {
  * the shared adaption layout and the per-individual auxiliary store respectively, and the kernel has
  * no dependency on any parameter-object hierarchy.
  *
- * The Gauss kernel applies a gated `range * N(0, sigma)` value step plus log-normal self-adaption of
- * the adaption probability and sigma, with a one-ULP "an adaption that fires always changes the
- * value/sigma" guarantee.
+ * The Gauss kernel applies a gated `N(0, sigma)` value step (in the normalized internal coordinate,
+ * whose interval has width 1, so sigma is a dimensionless fraction of the parameter's range) plus
+ * log-normal self-adaption of the adaption probability and sigma, with a one-ULP "an adaption that
+ * fires always changes the value/sigma" guarantee. The integer kernel, whose values are NOT normalized,
+ * keeps an explicit range multiplier.
  *
  * Templated on the adaption floating-point type T (double for double parameters, float for float).
  */
@@ -89,15 +91,15 @@ struct GaussState {
  * @brief Adapts one group of values sharing a single GaussState.
  *
  * For each value the per-group adaption probability gates whether it mutates; a mutating value receives a
- * `range * N(0, sigma)` step (with a one-ULP guarantee that a firing adaption always changes the value),
- * and sigma self-adapts log-normally on the threshold / probability trigger. The adaption probability
- * itself self-adapts once for the whole group up front. @p st is updated in place.
+ * `N(0, sigma)` step in the normalized internal coordinate (with a one-ULP guarantee that a firing
+ * adaption always changes the value), and sigma self-adapts log-normally on the threshold / probability
+ * trigger. The adaption probability itself self-adapts once for the whole group up front. @p st is
+ * updated in place.
  *
  * @tparam T The adaption floating-point type (double for double parameters, float for float).
  * @param cfg The static, shared Gauss configuration for this group (sigma bounds, self-adaption rates, mode).
  * @param st The per-individual evolving Gauss state (current sigma / adaption probability / counter); updated in place.
- * @param values The group's parameter values to adapt, in their unbounded internal representation.
- * @param range The value range scaling the gaussian step (typically the constrained span, 1 for unbounded).
+ * @param values The group's parameter values to adapt, in their normalized internal representation.
  * @param gr The per-individual random engine the mutation draws from.
  * @return The number of values that were actually adapted.
  */
@@ -106,7 +108,6 @@ std::size_t adaptGaussGroup(
     const GaussConfig<T> &cfg,
     GaussState<T> &st,
     std::span<T> values,
-    const T &range,
     Gem::Hap::GRandomBase &gr
 ) {
     // Distribution objects hoisted out of the per-value loop (creating them per value is measurably slower).
@@ -161,10 +162,11 @@ std::size_t adaptGaussGroup(
         }
     };
 
-    // The value step (range * N(0, sigma) + one-ULP guarantee), mirroring GFPGaussAdaptorT::customAdaptions.
+    // The value step (N(0, sigma) in the normalized internal coordinate + one-ULP guarantee), mirroring
+    // GFPGaussAdaptorT::customAdaptions.
     auto gauss_step = [&](T &v) {
         const T before = v;
-        const T delta = range * normal(gr, n_param(T(0.), st.sigma));
+        const T delta = normal(gr, n_param(T(0.), st.sigma));
         v = before + delta;
         if(v == before) {
             const T dir = (delta < T(0.)) ? std::numeric_limits<T>::lowest()
@@ -458,8 +460,8 @@ inline std::size_t adaptFlipBoolGroup(
  * single gaussian it samples from a bi-modal distribution of two gaussians separated by a distance
  * "delta"; sigma1, sigma2 and delta each self-adapt log-normally (sigma2 == sigma1 in the symmetric
  * case for the value step, but all three still self-adapt). The value step adds
- * range * bi_normal(0, sigma1, sigma2, delta), with the same one-ULP "an adaption that fires always
- * changes the value" guarantee as the Gauss kernel.
+ * bi_normal(0, sigma1, sigma2, delta) in the normalized internal coordinate, with the same one-ULP "an
+ * adaption that fires always changes the value" guarantee as the Gauss kernel.
  */
 
 /** @brief Static, shared bi-gaussian configuration for one group of FP parameters. */
@@ -503,8 +505,7 @@ struct BiGaussState {
  * @tparam T The adaption floating-point type (double for double parameters, float for float).
  * @param cfg The static, shared bi-gaussian configuration (the three sigma/delta families, bounds, mode).
  * @param st The per-individual evolving bi-gaussian state (sigma1 / sigma2 / delta / adaption probability / counter); updated in place.
- * @param values The group's parameter values to adapt, in their unbounded internal representation.
- * @param range The value range scaling the bi-gaussian step (typically the constrained span, 1 for unbounded).
+ * @param values The group's parameter values to adapt, in their normalized internal representation.
  * @param gr The per-individual random engine the mutation draws from.
  * @return The number of values that were actually adapted.
  */
@@ -513,7 +514,6 @@ std::size_t adaptBiGaussGroup(
     const BiGaussConfig<T> &cfg,
     BiGaussState<T> &st,
     std::span<T> values,
-    const T &range,
     Gem::Hap::GRandomBase &gr
 ) {
     Gem::Hap::g_normal_distribution<T> normal;
@@ -560,12 +560,12 @@ std::size_t adaptBiGaussGroup(
         }
     };
 
-    // The value step (range * bi_normal(0, sigma1, sigma2|sigma1, delta) + one-ULP guarantee),
-    // mirroring GFPBiGaussAdaptorT::customAdaptions.
+    // The value step (bi_normal(0, sigma1, sigma2|sigma1, delta) in the normalized internal coordinate
+    // + one-ULP guarantee), mirroring GFPBiGaussAdaptorT::customAdaptions.
     auto bigauss_step = [&](T &v) {
         const T before = v;
         const T s2 = cfg.use_symmetric_sigmas ? st.sigma1 : st.sigma2;
-        v += range * bi_normal(gr, bn_param(T(0.), st.sigma1, s2, st.delta));
+        v += bi_normal(gr, bn_param(T(0.), st.sigma1, s2, st.delta));
         if(v == before) {
             v = std::nextafter(before, std::numeric_limits<T>::max());
         }

@@ -420,21 +420,10 @@ void GSepCmaEvolutionStrategy::init() {
         // Fresh start (not resumed from a checkpoint): seed the distribution.
         m_ = mean; // mean from the registered start individual
 
-        // Initial step size relative to the (mean) finite parameter range.
-        double range_sum = 0.;
-        std::size_t range_cnt = 0;
-        for(std::size_t i = 0; i < n_; ++i) {
-            double range = upper_[i] - lower_[i];
-            if(std::isfinite(range) && range > 0.) {
-                range_sum += range;
-                ++range_cnt;
-            }
-        }
-        double mean_range = (range_cnt > 0) ? (range_sum / static_cast<double>(range_cnt)) : 1.;
-        sigma_ = initial_sigma_ * mean_range;
-        if(not(sigma_ > 0.)) {
-            sigma_ = initial_sigma_;
-        }
+        // The initial step size is a dimensionless fraction of the parameter range: parameters live in
+        // the normalized internal coordinate (interval width 1), so initial_sigma_ is used directly (no
+        // per-parameter range scaling -- the physical scale is reapplied by the external transform).
+        sigma_ = initial_sigma_;
 
         C_.assign(n_, 1.); // unit diagonal covariance
         p_sigma_.assign(n_, 0.);

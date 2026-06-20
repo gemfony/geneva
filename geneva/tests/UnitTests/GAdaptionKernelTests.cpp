@@ -51,7 +51,7 @@ TEST_CASE("adaptGaussGroup: mode NEVER leaves values and state untouched", "[ker
     std::vector<double> v{1., 2., 3.};
     const auto before = v;
 
-    const auto n = adaptGaussGroup<double>(cfg, st, std::span<double>(v), 1.0, gr);
+    const auto n = adaptGaussGroup<double>(cfg, st, std::span<double>(v), gr);
     CHECK(n == 0);
     CHECK(v == before);
 }
@@ -67,7 +67,7 @@ TEST_CASE("adaptGaussGroup: mode ALWAYS adapts every value (ULP-guaranteed chang
 
     std::vector<double> v(50, 0.);
     const auto before = v;
-    const auto n = adaptGaussGroup<double>(cfg, st, std::span<double>(v), 1.0, gr);
+    const auto n = adaptGaussGroup<double>(cfg, st, std::span<double>(v), gr);
     CHECK(n == v.size());
     for(std::size_t i = 0; i < v.size(); ++i) {
         CHECK(v[i] != before[i]);
@@ -84,7 +84,7 @@ TEST_CASE("adaptGaussGroup: WITHPROBABILITY honours the ad_prob extremes", "[ker
         GaussState<double> st;
         st.ad_prob = 1.;
         std::vector<double> v(40, 0.);
-        CHECK(adaptGaussGroup<double>(cfg, st, std::span<double>(v), 1., gr) == v.size());
+        CHECK(adaptGaussGroup<double>(cfg, st, std::span<double>(v), gr) == v.size());
     }
     // ad_prob == 0 => no value is adapted
     {
@@ -92,7 +92,7 @@ TEST_CASE("adaptGaussGroup: WITHPROBABILITY honours the ad_prob extremes", "[ker
         st.ad_prob = 0.;
         std::vector<double> v(40, 0.);
         const auto before = v;
-        CHECK(adaptGaussGroup<double>(cfg, st, std::span<double>(v), 1., gr) == 0);
+        CHECK(adaptGaussGroup<double>(cfg, st, std::span<double>(v), gr) == 0);
         CHECK(v == before);
     }
 }
@@ -112,7 +112,7 @@ TEST_CASE("adaptGaussGroup: sigma self-adapts and stays within [min,max]", "[ker
 
     std::vector<double> v(1, 0.);
     for(int i = 0; i < 200; ++i) {
-        adaptGaussGroup<double>(cfg, st, std::span<double>(v), 1., gr);
+        adaptGaussGroup<double>(cfg, st, std::span<double>(v), gr);
         CHECK(st.sigma >= cfg.min_sigma);
         CHECK(st.sigma <= cfg.max_sigma);
         if(st.sigma != first) {
@@ -135,7 +135,7 @@ TEST_CASE("adaptGaussGroup: ad_prob self-adapts and stays within [min,max]", "[k
 
     std::vector<double> v(1, 0.);
     for(int i = 0; i < 200; ++i) {
-        adaptGaussGroup<double>(cfg, st, std::span<double>(v), 1., gr);
+        adaptGaussGroup<double>(cfg, st, std::span<double>(v), gr);
         CHECK(st.ad_prob >= cfg.min_ad_prob);
         CHECK(st.ad_prob <= cfg.max_ad_prob);
     }
@@ -152,7 +152,7 @@ TEST_CASE("adaptGaussGroup: works in float precision", "[kernel]") {
 
     std::vector<float> v(20, 0.f);
     const auto before = v;
-    CHECK(adaptGaussGroup<float>(cfg, st, std::span<float>(v), 1.f, gr) == v.size());
+    CHECK(adaptGaussGroup<float>(cfg, st, std::span<float>(v), gr) == v.size());
     for(std::size_t i = 0; i < v.size(); ++i) {
         CHECK(v[i] != before[i]);
     }
@@ -264,7 +264,7 @@ TEST_CASE("adaptBiGaussGroup: mode NEVER leaves values untouched", "[kernel]") {
     std::vector<double> v{1., 2., 3.};
     const auto before = v;
 
-    CHECK(adaptBiGaussGroup<double>(cfg, st, std::span<double>(v), 1.0, gr) == 0);
+    CHECK(adaptBiGaussGroup<double>(cfg, st, std::span<double>(v), gr) == 0);
     CHECK(v == before);
 }
 
@@ -283,7 +283,7 @@ TEST_CASE("adaptBiGaussGroup: mode ALWAYS adapts every value (ULP-guaranteed cha
 
     std::vector<double> v(50, 0.);
     const auto before = v;
-    CHECK(adaptBiGaussGroup<double>(cfg, st, std::span<double>(v), 1.0, gr) == v.size());
+    CHECK(adaptBiGaussGroup<double>(cfg, st, std::span<double>(v), gr) == v.size());
     for(std::size_t i = 0; i < v.size(); ++i) {
         CHECK(v[i] != before[i]);
     }
@@ -310,7 +310,7 @@ TEST_CASE("adaptBiGaussGroup: sigma1/sigma2/delta self-adapt within their bounds
 
     std::vector<double> v(1, 0.);
     for(int i = 0; i < 200; ++i) {
-        adaptBiGaussGroup<double>(cfg, st, std::span<double>(v), 1., gr);
+        adaptBiGaussGroup<double>(cfg, st, std::span<double>(v), gr);
         CHECK(st.sigma1 >= cfg.min_sigma1);
         CHECK(st.sigma1 <= cfg.max_sigma1);
         CHECK(st.sigma2 >= cfg.min_sigma2);
@@ -339,7 +339,7 @@ TEST_CASE("adaptBiGaussGroup: works in float precision", "[kernel]") {
 
     std::vector<float> v(20, 0.f);
     const auto before = v;
-    CHECK(adaptBiGaussGroup<float>(cfg, st, std::span<float>(v), 1.f, gr) == v.size());
+    CHECK(adaptBiGaussGroup<float>(cfg, st, std::span<float>(v), gr) == v.size());
     for(std::size_t i = 0; i < v.size(); ++i) {
         CHECK(v[i] != before[i]);
     }

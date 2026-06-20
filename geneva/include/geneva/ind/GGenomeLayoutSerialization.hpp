@@ -113,7 +113,7 @@ serialize(Archive &ar, Gem::Geneva::Genome::FlipConfig &g, const unsigned int) {
 // The genome layout holds structure-only groups. The adaptor configuration lives on the (transient,
 // non-serialized) OA-owned GAdaptionConfig, so only the structure is serialized here.
 /**
- * @brief Serializes a GroupStructure (structure only: start / len / label_id / active / range).
+ * @brief Serializes a GroupStructure (structure only: start / len / label_id / active).
  * @tparam Archive The Boost.Serialization archive type.
  * @tparam T The group's value type.
  * @param ar The archive to read from / write to.
@@ -123,7 +123,7 @@ serialize(Archive &ar, Gem::Geneva::Genome::FlipConfig &g, const unsigned int) {
 template <class Archive, typename T>
 void serialize(Archive &ar, Gem::Geneva::Genome::GroupStructure<T> &g, const unsigned int) {
     ar &make_nvp("start", g.start) &make_nvp("len", g.len) &make_nvp("label_id", g.label_id) &
-        make_nvp("active", g.active) &make_nvp("range", g.range);
+        make_nvp("active", g.active);
 }
 
 /******************************************************************************/

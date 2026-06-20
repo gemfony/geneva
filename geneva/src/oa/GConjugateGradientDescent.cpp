@@ -413,10 +413,9 @@ void GConjugateGradientDescent::compare_(
     Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration.
-    // dbl_lower_parameter_boundaries_, dbl_upper_parameter_boundaries_ and adjusted_finite_step_ are
-    // transient: recomputed in init() from the serialized fields above and not restored in load_().
-    // Comparing them would cause round-trip equality tests to fail spuriously. (The conjugate-gradient
-    // memory likewise transient now lives on the central slots' OA scratch, outside this object.)
+    // adjusted_finite_step_ is transient: recomputed in init() from the serialized fields above and not
+    // restored in load_(). Comparing it would cause round-trip equality tests to fail spuriously. (The
+    // conjugate-gradient memory likewise transient now lives on the central slots' OA scratch.)
     g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
     token.evaluate();
@@ -428,9 +427,7 @@ void GConjugateGradientDescent::compare_(
  * the optimize()-call was issued
  */
 void GConjugateGradientDescent::resetToOptimizationStart_() {
-    dbl_lower_parameter_boundaries_.clear();
-    dbl_upper_parameter_boundaries_.clear();
-    adjusted_finite_step_.clear();
+    adjusted_finite_step_ = 0.;
     // The per-starting-point conjugate-gradient memory now lives on the central slots' OA scratch and is
     // dropped at the optimization-algorithm boundary (resetIndividualPersonalities -> clearScratch).
 
@@ -451,8 +448,8 @@ void GConjugateGradientDescent::load_(const GOptimizationAlgorithmBase *cp) {
     GOptimizationAlgorithmBase::load_(cp);
 
     // ... and then our own (serialized) data, derived from the single localMembers() declaration.
-    // adjusted_finite_step_ and dbl*ParameterBoundaries_ are transient and recomputed in init(); the
-    // conjugate-gradient memory is transient too and lives on the central slots' OA scratch.
+    // adjusted_finite_step_ is transient and recomputed in init(); the conjugate-gradient memory is
+    // transient too and lives on the central slots' OA scratch.
     Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
 }
 
@@ -539,7 +536,7 @@ void GConjugateGradientDescent::updateChildParameters() {
 
                 // probe 0 = forward (+h); probe 1 (central only) = backward (-h)
                 const double sign = (probe == 0) ? 1. : -1.;
-                parm_vec[j] = orig_parm_val + (sign * adjusted_finite_step_[j]);
+                parm_vec[j] = orig_parm_val + (sign * adjusted_finite_step_);
                 this->at(child_pos)->individual().assignFPValueVectorInternal(parm_vec, activityMode::ACTIVEONLY);
             }
             // Restore the original value for the next direction
@@ -577,14 +574,8 @@ void GConjugateGradientDescent::updateParentIndividuals() {
 
     // A representative parameter-space scale for the initial trial step. The gradient below is
     // normalised (units of 1/parameter), so a bare step_ratio would be mis-scaled; multiplying by the
-    // mean difference-quotient step restores the old fixed step's magnitude as the first trial.
-    double mean_h = 0.;
-    if(not adjusted_finite_step_.empty()) {
-        for(double h : adjusted_finite_step_) {
-            mean_h += h;
-        }
-        mean_h /= static_cast<double>(adjusted_finite_step_.size());
-    }
+    // (now uniform) difference-quotient step restores the old fixed step's magnitude as the first trial.
+    const double mean_h = adjusted_finite_step_;
 
     // A conjugate direction loses accuracy after about n steps, so restart to steepest descent every
     // n_fp_parms iterations (the classical periodic restart) to keep the nonlinear CG globally
@@ -640,8 +631,8 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         const std::size_t n_probes = central_differences_ ? 2 : 1;
         const std::size_t children_per_sp = n_fp_parms_first_ * n_probes;
         std::vector<double> gradient(n_fp_parms_first_, 0.);
+        const double h = adjusted_finite_step_; // uniform across parameters (normalized coordinate)
         for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
-            const double h = adjusted_finite_step_[j];
             if(h <= 0.) {
                 continue;
             }
@@ -1023,23 +1014,7 @@ void GConjugateGradientDescent::init() {
     // To be performed before any other action
     GOptimizationAlgorithmBase::init();
 
-    // Extract the boundaries of all active parameters
-    this->at(0)->individual().boundariesFPInternal(
-        dbl_lower_parameter_boundaries_,
-        dbl_upper_parameter_boundaries_,
-        activityMode::ACTIVEONLY
-    );
-
 #ifdef DEBUG
-    if(dbl_lower_parameter_boundaries_.size() != dbl_upper_parameter_boundaries_.size()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GConjugateGradientDescent::init(): Error!" << '\n'
-            << "Found invalid sizes: " << dbl_lower_parameter_boundaries_.size() << " / "
-            << dbl_upper_parameter_boundaries_.size() << '\n'
-        );
-    }
-
     if(step_size_ <= 0. || step_size_ > 1000.) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -1066,30 +1041,12 @@ void GConjugateGradientDescent::init() {
 
 /******************************************************************************/
 /**
- * @brief Recomputes the per-parameter difference-quotient step from finite_step_ and
- * the extracted parameter ranges. Before init() the boundary vectors are
- * empty, so adjusted_finite_step_ is simply cleared and init() fills it once the
- * boundaries are known.
+ * @brief Recomputes the dimensionless difference-quotient step from finite_step_. Parameters live in the
+ * normalized internal coordinate (interval width 1), so the step is simply finite_step_/1000 (a fraction
+ * of each parameter's range, applied uniformly) -- no per-parameter boundary scaling.
  */
 void GConjugateGradientDescent::updateDerivedQuantities() {
-    try {
-        adjusted_finite_step_.clear();
-        long double finite_step_ratio = (static_cast<long double>(finite_step_)) / (static_cast<long double>(1000.));
-        for(std::size_t pos = 0; pos < dbl_lower_parameter_boundaries_.size(); pos++) {
-            long double parameter_range = static_cast<long double>(dbl_upper_parameter_boundaries_[pos]) -
-                                          static_cast<long double>(dbl_lower_parameter_boundaries_[pos]);
-            adjusted_finite_step_.push_back(
-                Gem::Common::narrow<double>(finite_step_ratio * parameter_range)
-            );
-        }
-    }
-    catch(std::overflow_error &e) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GConjugateGradientDescent::updateDerivedQuantities(): Error!" << '\n'
-            << "Bad conversion with message " << e.what() << '\n'
-        );
-    }
+    adjusted_finite_step_ = finite_step_ / 1000.;
 }
 
 /******************************************************************************/
@@ -1159,13 +1116,16 @@ void GConjugateGradientDescent::finalize() {
 
         const std::size_t best_point = best;
         GHesseError estimator;
+        // The difference-quotient step is uniform across parameters now; the Hesse estimator still takes a
+        // per-parameter step vector, so expand the scalar to x_min's dimension.
+        const std::vector<double> hesse_step(x_min.size(), adjusted_finite_step_);
         last_error_estimate_ = estimator.estimate(
             [this, best_point](std::vector<std::vector<double>> const &points) {
                 return this->evaluateProbes(best_point, points);
             },
             x_min,
             best_fitness,
-            adjusted_finite_step_,
+            hesse_step,
             opts
         );
 

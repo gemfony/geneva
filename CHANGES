@@ -58,6 +58,17 @@ Recommended Versions:
   binary checkpoints no longer load (a clean break). Mutation parameters (sigma,
   step width, velocity fraction) are interpreted as a dimensionless fraction of a
   parameter's range, unchanged in effect from the previous range-scaled behaviour.
+  The optimization-algorithm step machinery is correspondingly dimensionless: the
+  Gauss / bi-Gauss adaption kernels no longer multiply by a per-parameter range, and
+  the per-parameter scaling derived from the bounds (sep-CMA initial-sigma range
+  scaling, GD difference-quotient step) is gone -- the step is the registered fraction
+  directly. Existing JSON config files need NO migration: every affected value (sigma,
+  sep-CMA initialSigma, GD finite_step, swarm velocity percentage) was already a
+  fraction, so its number is unchanged; only its documented unit is now explicitly
+  "fraction of the range". The redundant per-group `range` field was removed from the
+  genome layout (the single `scale` concept is computed from the bounds), which changes
+  the layout's content hash and serialized form -- consistent with the checkpoint clean
+  break above.
 
 - The optimizable-entity / genome layer was renamed from the namespace
   Gem::Geneva::Parameters to Gem::Geneva::Genome (the pervasive short alias gpar::

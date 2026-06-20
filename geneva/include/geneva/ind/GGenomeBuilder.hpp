@@ -544,17 +544,9 @@ private:
         g.start = start;
         g.len = static_cast<std::uint32_t>(len);
         g.active = true;
-        // The comparative range is (upper-lower) for constrained parameters, the init range
-        // otherwise. Used to scale the Gauss step independently of a parameter's value range. Relevant
-        // for the FP channels (Gauss / bi-Gauss) and the int32 channel (integer Gauss adaptor); left at
-        // 1 for bool (flip only, no range).
-        if constexpr(std::is_floating_point_v<T> || (std::is_integral_v<T> && !std::is_same_v<T, bool>)) {
-            g.range = (kind == ParamKind::Constrained) ? static_cast<T>(max - min)
-                                                       : static_cast<T>(init_hi - init_lo);
-        }
-        else {
-            g.range = T(1);
-        }
+        // The parameter's natural scale (upper-lower constrained, init span plain) is NOT stored: it is
+        // computed on demand from the bounds via ngScale wherever needed (the normalized model's single
+        // `scale` concept, used by the FP transform and the integer Gauss adaptor).
 
         const std::size_t gi = ch.groups.size();
         ch.groups.push_back(g);

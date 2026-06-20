@@ -222,13 +222,14 @@ TEST_CASE("GGenomeBuilder produces the expected shared layout", "[flat]") {
     REQUIRE(ch.size() == 5);
     REQUIRE(ch.groups.size() == 1);
 
-    // The layout's group is STRUCTURE only: start / len / active / range (no adaptor fields).
+    // The layout's group is STRUCTURE only: start / len / active (no adaptor fields, no stored range --
+    // the natural scale is computed on demand from the bounds via ngScale).
     const GroupStructure<double> &grp = ch.groups[0];
     CHECK(grp.start == 0u);
     CHECK(grp.len == 5u);
     CHECK(grp.active);
     CHECK(grp.label_id == -1);
-    CHECK(grp.range == 20.); // upper - lower
+    CHECK(ngScale(ch, 0) == 20.); // upper - lower, computed from the bounds
 
     // The adaptor itself is authored on the OA-owned config (built from the genome's structure). It
     // mirrors the builder's old gaussAdaptor(...) one-to-one.
@@ -242,7 +243,6 @@ TEST_CASE("GGenomeBuilder produces the expected shared layout", "[flat]") {
     CHECK(cgrp.gauss.sigma_sigma == 0.8);
     CHECK(cgrp.gauss.min_sigma == 1e-3);
     CHECK(cgrp.gauss.max_sigma == 2.);
-    CHECK(cgrp.range == 20.); // the structural range is snapshotted into the config too
 
     for(std::size_t k = 0; k < 5; ++k) {
         CHECK(ch.lower[k] == -10.);
@@ -451,7 +451,7 @@ TEST_CASE("GFlatGenome: layout interning round-trips losslessly (compact + escap
     // representable by the data structure) must fall back to full per-value serialisation and round-trip
     // exactly. Build one by hand and round-trip the ChannelLayout directly.
     ChannelLayout<double> ch;
-    ch.groups.push_back(GroupStructure<double>{0u, 3u, -1, true, 1.0}); // one group of 3, NON-uniform below
+    ch.groups.push_back(GroupStructure<double>{0u, 3u, -1, true}); // one group of 3, NON-uniform below
     ch.lower = {-1., -5., -9.};
     ch.upper = {1., 5., 9.};
     ch.init_lower = {-1., -5., -9.};
