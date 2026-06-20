@@ -29,7 +29,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <cmath>
 #include <cstdint>
+#include <limits>
 #include <vector>
 
 #include <boost/serialization/base_object.hpp>
@@ -208,16 +210,18 @@ TEST_CASE("GAdaption: runAdaptionKernels mutates within bounds (config-driven)",
         }
         CHECK(before != after); // values actually moved
 
-        // ADAPTION-TIME FOLD invariant: the kernels fold each constrained value back into range at
-        // adaption time, so the STORED internal representation now equals the external one (it no longer
-        // drifts unbounded with the fold applied only on read). Verify the raw store == the streamlined
-        // external values, and is itself in range.
+        // WRITE-FOLD invariant (normalized-genome architecture §2.2): the kernels add their step to the
+        // raw internal value, then foldConstrainedValuesInPlace() folds each bounded value back into the
+        // canonical internal interval [-0.5, 0.5). The external value is its affine image (box [-5, 5):
+        // scale = 10, anchor = 0, so external == internal * 10). Verify the raw store is in the canonical
+        // interval and maps to the external value.
         std::span<const double> store_d = ind.internalDoubleValues();
         REQUIRE(store_d.size() == after.size());
         for(std::size_t k = 0; k < after.size(); ++k) {
-            CHECK(store_d[k] == after[k]); // internal == external (folded at adaption time)
-            CHECK(store_d[k] >= -5.);
-            CHECK(store_d[k] < 5.);
+            CHECK(store_d[k] >= -0.5);
+            CHECK(store_d[k] < 0.5);
+            const double tol = 8. * std::numeric_limits<double>::epsilon() * 10.;
+            CHECK(std::abs(after[k] - store_d[k] * 10.) <= tol); // external == internal * scale (anchor 0)
         }
         std::span<const std::int32_t> store_i = ind.internalInt32Values();
         REQUIRE(store_i.size() == iv.size());

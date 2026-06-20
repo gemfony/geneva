@@ -240,8 +240,15 @@ TEST_CASE(
         std::vector<double> out;
         ind.streamline<double>(out);
         REQUIRE(out.size() == bx.vals.size());
+        // The round-trip is correctly-rounded w.r.t. the NORMALIZED store, whose resolution is
+        // ULP(u)*scale (§2.1) -- i.e. SCALE-relative, not value-relative. So a small-magnitude value in a
+        // wide box (e.g. -0.9 in [-1, 1e4)) round-trips to ~eps*scale, not ~eps*|value|. This is the
+        // documented trade-off: a parameter's meaningful resolution is a fraction of its own range.
+        const double scale = bx.hi - bx.lo;
         for(std::size_t i = 0; i < out.size(); ++i) {
-            CHECK(faithful(out[i], bx.vals[i]));
+            const double tol = 8. * std::numeric_limits<double>::epsilon()
+                               * std::max({1.0, scale, std::abs(bx.vals[i])});
+            CHECK(std::abs(out[i] - bx.vals[i]) <= tol);
         }
     }
 }
@@ -340,6 +347,110 @@ TEST_CASE(
             CHECK(ext_new < bx.hi);
         }
     }
+}
+
+/******************************************************************************/
+// --- Phase 2: the split read/write contract (now wired into the live path) -------------------------
+
+TEST_CASE(
+    "normalized-genome: an out-of-range EXTERNAL write throws (incl. exactly the open upper)",
+    "[normalized-genome]"
+) {
+    // Box [-1, 10000): 9999 is accepted, 10000 (exactly the open upper) and 10001 both throw; below the
+    // lower bound throws too. (Mirrors the §2.6 worked example.)
+    NgBoxIndividual ind(1, -1., 10000.);
+    CHECK_NOTHROW(ind.assignValueVector<double>(std::vector<double>{9999.0}));
+    CHECK_NOTHROW(ind.assignValueVector<double>(std::vector<double>{-1.0})); // exactly the closed lower
+    CHECK_THROWS(ind.assignValueVector<double>(std::vector<double>{10000.0})); // exactly the open upper
+    CHECK_THROWS(ind.assignValueVector<double>(std::vector<double>{10001.0}));
+    CHECK_THROWS(ind.assignValueVector<double>(std::vector<double>{-1.5}));
+}
+
+/******************************************************************************/
+TEST_CASE(
+    "normalized-genome: an unbounded EXTERNAL write never throws (no wall to violate)",
+    "[normalized-genome]"
+) {
+    NgMixedIndividual ind; // params 0,1 bounded [-1,1); params 2,3 unbounded (perimeter [-10,10])
+    // A value far outside the unbounded params' init perimeter is legal; the bounded ones stay in range.
+    CHECK_NOTHROW(ind.assignValueVector<double>(std::vector<double>{0.5, -0.5, 500.0, -500.0}));
+    // But a bounded param out of range still throws, even mixed with legal unbounded values.
+    CHECK_THROWS(ind.assignValueVector<double>(std::vector<double>{1.0, -0.5, 500.0, -500.0}));
+}
+
+/******************************************************************************/
+TEST_CASE(
+    "normalized-genome: the internal store of a bounded parameter stays in [-0.5, 0.5)",
+    "[normalized-genome]"
+) {
+    // After an external write of in-range values, the raw internal store must lie in the canonical
+    // interval; after randomInit it must too. GFlatGenome exposes the raw internal span directly.
+    NgBoxIndividual ind(32, -3., 7.);
+    ind.assignValueVector<double>(std::vector<double>(32, 4.5)); // an interior value
+    for(double u : ind.internalDoubleValues()) {
+        CHECK(u >= -0.5);
+        CHECK(u < 0.5);
+    }
+    ind.randomInit(activityMode::ALLPARAMETERS);
+    for(double u : ind.internalDoubleValues()) {
+        CHECK(u >= -0.5);
+        CHECK(u < 0.5);
+    }
+}
+
+/******************************************************************************/
+TEST_CASE(
+    "normalized-genome: an internal (OA) write folds an overshoot and never throws, preserving the "
+    "external value",
+    "[normalized-genome]"
+) {
+    // The internal write is external-value-preserving: writing an internal coordinate that overshoots the
+    // canonical interval folds it back in (never throws) and yields the SAME external value as folding by
+    // hand. Box [-2, 6): scale = 8, anchor = 2.
+    NgBoxIndividual ind(1, -2., 6.);
+
+    // Read the current internal value, push it past the wall (+0.2 beyond 0.4999...), write it back
+    // internally -- it must fold, and the external read must equal the affine image of the folded value.
+    std::vector<double> u;
+    ind.streamlineFPInternal(u);
+    REQUIRE(u.size() == 1);
+    const double overshoot = 0.45;   // a deliberately out-of-[-0.5,0.5) internal coordinate
+    CHECK_NOTHROW(ind.assignFPValueVectorInternal(std::vector<double>{0.5 + overshoot}));
+
+    std::vector<double> u_after;
+    ind.streamlineFPInternal(u_after);
+    REQUIRE(u_after.size() == 1);
+    CHECK(u_after[0] >= -0.5);
+    CHECK(u_after[0] < 0.5);
+    CHECK(faithful(u_after[0], ngFoldInternal<double>(0.5 + overshoot))); // matches the hand fold
+
+    // And the external value is the affine image of the folded internal value, in range.
+    std::vector<double> x;
+    ind.streamline<double>(x);
+    REQUIRE(x.size() == 1);
+    CHECK(x[0] >= -2.);
+    CHECK(x[0] < 6.);
+    CHECK(faithful(x[0], 2. + u_after[0] * 8.));
+}
+
+/******************************************************************************/
+TEST_CASE(
+    "normalized-genome: the internal boundary view is the canonical interval for a bounded parameter",
+    "[normalized-genome]"
+) {
+    NgMixedIndividual ind; // 2 bounded + 2 unbounded
+    std::vector<double> l;
+    std::vector<double> u;
+    ind.boundariesFPInternal(l, u, activityMode::ACTIVEONLY);
+    REQUIRE(l.size() == 4);
+    REQUIRE(u.size() == 4);
+    // Bounded params report the canonical interval [-0.5, 0.5); unbounded report the full ±range.
+    CHECK(l[0] == -0.5);
+    CHECK(u[0] == 0.5);
+    CHECK(l[1] == -0.5);
+    CHECK(u[1] == 0.5);
+    CHECK(u[2] == std::numeric_limits<double>::max());
+    CHECK(u[3] == std::numeric_limits<double>::max());
 }
 
 /******************************************************************************/

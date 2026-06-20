@@ -40,6 +40,25 @@ Recommended Versions:
   config is now a HARD ERROR -- there is no automatic derivation from the genome.
   SOURCE-breaking for all problem code; serialization-affecting.
 
+- NORMALIZED GENOME COORDINATE MODEL: a floating-point parameter is now stored in a
+  NORMALIZED INTERNAL coordinate (magnitude ~ 1, confined to the centered unit
+  interval [-0.5, 0.5) for a bounded parameter); the user-visible EXTERNAL value is
+  its affine image, composed in long double for a well-conditioned round-trip (this
+  fixes the precision loss of offset / narrow boxes such as [1e6, 1e6+1]). Value
+  access splits into two readers: the optimization algorithms read and write the raw
+  internal coordinate (streamlineFPInternal / assignFPValueVectorInternal /
+  boundariesFPInternal), while fitnessCalculation(), the GPU marshaller and user
+  inspection read the scaled external value (streamline / streamlineFP unchanged).
+  The reflecting fold moved from read time to WRITE time: an internal (algorithm)
+  write folds an overshooting bounded value back into range (never throws); an
+  external (user) write range-validates and THROWS on an out-of-range value,
+  including exactly the open upper bound. Integer / boolean parameters are not
+  normalized. Inverted bounds (lower > upper) on a bounded FP parameter are now
+  rejected at genome construction. This changes the stored representation, so older
+  binary checkpoints no longer load (a clean break). Mutation parameters (sigma,
+  step width, velocity fraction) are interpreted as a dimensionless fraction of a
+  parameter's range, unchanged in effect from the previous range-scaled behaviour.
+
 - The optimizable-entity / genome layer was renamed from the namespace
   Gem::Geneva::Parameters to Gem::Geneva::Genome (the pervasive short alias gpar::
   became gen::), and the value-array type formerly named Genome is now GenomeData.

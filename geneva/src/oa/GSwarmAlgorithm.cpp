@@ -657,7 +657,7 @@ void GSwarmAlgorithm::init() {
     GOptimizationAlgorithmBase::init();
 
     // Extract the boundaries of all parameters
-    this->at(0)->individual().boundariesFP(
+    this->at(0)->individual().boundariesFPInternal(
         dbl_lower_parameter_boundaries_cnt_,
         dbl_upper_parameter_boundaries_cnt_,
         activityMode::ACTIVEONLY
@@ -1160,10 +1160,10 @@ void GSwarmAlgorithm::updateIndividualPositions(
     std::vector<double> personal_best_vec;
     std::vector<double> nbh_best_vec;
     std::vector<double> glb_best_vec;
-    ind->individual().streamlineFP(ind_vec, activityMode::ACTIVEONLY);
-    personal_best->streamlineFP(personal_best_vec, activityMode::ACTIVEONLY);
-    neighborhood_best->streamlineFP(nbh_best_vec, activityMode::ACTIVEONLY);
-    global_best->streamlineFP(glb_best_vec, activityMode::ACTIVEONLY);
+    ind->individual().streamlineFPInternal(ind_vec, activityMode::ACTIVEONLY);
+    personal_best->streamlineFPInternal(personal_best_vec, activityMode::ACTIVEONLY);
+    neighborhood_best->streamlineFPInternal(nbh_best_vec, activityMode::ACTIVEONLY);
+    global_best->streamlineFPInternal(glb_best_vec, activityMode::ACTIVEONLY);
     std::vector<double> vel_vec(velocity.begin(), velocity.end());
 
     // Subtract the individual vector from the personal, neighborhood and global bests
@@ -1256,7 +1256,7 @@ void GSwarmAlgorithm::updateIndividualPositions(
     std::copy(vel_vec.begin(), vel_vec.end(), velocity.begin());
 
     // Update the candidate solution
-    ind->individual().assignFPValueVector(ind_vec, activityMode::ACTIVEONLY);
+    ind->individual().assignFPValueVectorInternal(ind_vec, activityMode::ACTIVEONLY);
 }
 
 /******************************************************************************/

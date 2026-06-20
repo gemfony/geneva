@@ -340,7 +340,7 @@ void GGeneralizedSimulatedAnnealing::init() {
     // exactly as GSepCmaEvolutionStrategy / GStandardPSO2011 / GAntColonyOptimization do.
     dbl_lower_.clear();
     dbl_upper_.clear();
-    this->at(0)->individual().boundariesFP(dbl_lower_, dbl_upper_, activityMode::ACTIVEONLY);
+    this->at(0)->individual().boundariesFPInternal(dbl_lower_, dbl_upper_, activityMode::ACTIVEONLY);
 
     n_fp_parms_ = dbl_lower_.size();
 
@@ -557,15 +557,16 @@ double GGeneralizedSimulatedAnnealing::acceptanceProbability(double delta_e, dou
 /******************************************************************************/
 /**
  * Proposes a new point for every chain by drawing a heavy-tailed Tsallis jump (scaled by the chain's
- * current visiting temperature) and adding it to the chain's current point. The result is written into
- * the proposal slot, where assignFPValueVector folds constrained parameters back into their range.
+ * current visiting temperature) and adding it to the chain's current point. The jump is taken in the
+ * normalized internal coordinate; the result is written into the proposal slot via the internal FP
+ * channel, which folds a bounded parameter's overshooting jump back into the canonical [-0.5, 0.5).
  */
 void GGeneralizedSimulatedAnnealing::proposeMoves() {
     for(std::size_t c = 0; c < n_chains_; ++c) {
         const double tqv = this->visitingTemperature(chain_step_[c]);
 
         std::vector<double> x;
-        this->at(currentPos(c))->individual().streamlineFP(x, activityMode::ACTIVEONLY);
+        this->at(currentPos(c))->individual().streamlineFPInternal(x, activityMode::ACTIVEONLY);
 
         const std::vector<double> dx = this->drawVisitingJump(tqv);
 
@@ -574,7 +575,7 @@ void GGeneralizedSimulatedAnnealing::proposeMoves() {
             x_new[k] = x[k] + dx[k];
         }
 
-        this->at(proposalPos(c))->individual().assignFPValueVector(x_new, activityMode::ACTIVEONLY);
+        this->at(proposalPos(c))->individual().assignFPValueVectorInternal(x_new, activityMode::ACTIVEONLY);
         this->at(proposalPos(c))->individual().mark_as_due_for_processing();
     }
 }

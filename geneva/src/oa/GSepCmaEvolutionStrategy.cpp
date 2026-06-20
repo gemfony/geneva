@@ -253,7 +253,7 @@ void GSepCmaEvolutionStrategy::resetToOptimizationStart_() {
  */
 void GSepCmaEvolutionStrategy::determineDimensionAndBounds() {
     std::vector<double> mean;
-    this->at(0)->individual().streamlineFP(mean, activityMode::ACTIVEONLY);
+    this->at(0)->individual().streamlineFPInternal(mean, activityMode::ACTIVEONLY);
     n_ = mean.size();
 
     if(n_ == 0) {
@@ -267,7 +267,7 @@ void GSepCmaEvolutionStrategy::determineDimensionAndBounds() {
 
     lower_.clear();
     upper_.clear();
-    this->at(0)->individual().boundariesFP(lower_, upper_, activityMode::ACTIVEONLY);
+    this->at(0)->individual().boundariesFPInternal(lower_, upper_, activityMode::ACTIVEONLY);
 }
 
 /******************************************************************************/
@@ -414,7 +414,7 @@ void GSepCmaEvolutionStrategy::init() {
     }
 
     std::vector<double> mean;
-    this->at(0)->individual().streamlineFP(mean, activityMode::ACTIVEONLY);
+    this->at(0)->individual().streamlineFPInternal(mean, activityMode::ACTIVEONLY);
 
     if(not state_initialized_) {
         // Fresh start (not resumed from a checkpoint): seed the distribution.
@@ -515,7 +515,7 @@ void GSepCmaEvolutionStrategy::sampleOffspring() {
 
         // Write the sampled values into the individual (constrained folding happens inside the parameter
         // objects) and mark it for (re)evaluation.
-        this->at(k)->individual().assignFPValueVector(x, activityMode::ACTIVEONLY);
+        this->at(k)->individual().assignFPValueVectorInternal(x, activityMode::ACTIVEONLY);
         this->at(k)->individual().mark_as_due_for_processing();
     }
 }
@@ -597,7 +597,7 @@ void GSepCmaEvolutionStrategy::updateDistribution(const std::vector<std::size_t>
     std::vector<std::vector<double>> selected(mu);
     double w_used = 0.;
     for(std::size_t i = 0; i < mu; ++i) {
-        this->at(ranked[i])->individual().streamlineFP(selected[i], activityMode::ACTIVEONLY);
+        this->at(ranked[i])->individual().streamlineFPInternal(selected[i], activityMode::ACTIVEONLY);
         w_used += weights_[i];
     }
     if(not(w_used > 0.)) {

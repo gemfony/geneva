@@ -102,8 +102,12 @@ std::size_t adaptGaussChannel(
         if(not g.has_gauss || not g.active) {
             continue;
         }
+        // The FP value step is taken in the NORMALIZED internal coordinate (interval width 1), so the
+        // kernel's range multiplier is the dimensionless 1, not the parameter's box width (§2.4). The
+        // physical scale is reapplied by the external transform when the objective reads the value. (The
+        // kernel's `range` parameter is removed outright in Phase 3.)
         n += Gem::Geneva::Genome::adaptGaussGroup<T>(
-            g.gauss, states[gi], values.subspan(g.start, g.len), g.range, gr
+            g.gauss, states[gi], values.subspan(g.start, g.len), T(1), gr
         );
     }
     return n;
@@ -142,8 +146,9 @@ std::size_t adaptBiGaussChannel(
         if(not g.has_bigauss || not g.active) {
             continue;
         }
+        // Normalized internal coordinate: the step uses the dimensionless range 1, not the box width (§2.4).
         n += Gem::Geneva::Genome::adaptBiGaussGroup<T>(
-            g.bigauss, states[gi], values.subspan(g.start, g.len), g.range, gr
+            g.bigauss, states[gi], values.subspan(g.start, g.len), T(1), gr
         );
     }
     return n;

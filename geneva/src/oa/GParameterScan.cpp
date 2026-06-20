@@ -507,6 +507,31 @@ void GParameterScan::updateSelectedParameters() {
                 this->addDataPoint<double>(d_par, d_data);
             }
 
+            // A floating-point scan grid is generated over the CLOSED interval [lower, upper] the user
+            // requested, but a bounded genome parameter is half-open [lower, upper) -- so a grid endpoint
+            // sitting exactly on a parameter's upper bound is not a representable value and an external
+            // write would (correctly) reject it. Snap such an endpoint to the largest representable value
+            // just inside the bound, so a "scan up to the boundary" samples the boundary instead of
+            // throwing. Unbounded parameters report ±max() bounds, so they are left untouched.
+            auto snapHalfOpen = [](auto &data, const auto &l, const auto &u) {
+                for(std::size_t k = 0; k < data.size(); ++k) {
+                    if(data[k] >= u[k]) {
+                        data[k] = std::nextafter(u[k], l[k]);
+                    }
+                    else if(data[k] < l[k]) {
+                        data[k] = l[k];
+                    }
+                }
+            };
+            std::vector<double> d_lo;
+            std::vector<double> d_hi;
+            ind.boundaries<double>(d_lo, d_hi);
+            snapHalfOpen(d_data, d_lo, d_hi);
+            std::vector<float> f_lo;
+            std::vector<float> f_hi;
+            ind.boundaries<float>(f_lo, f_hi);
+            snapHalfOpen(f_data, f_lo, f_hi);
+
             // Copy the data back into the individual
             ind.assignValueVector<bool>(b_data);
             ind.assignValueVector<std::int32_t>(i_data);

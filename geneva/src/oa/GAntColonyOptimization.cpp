@@ -286,7 +286,7 @@ void GAntColonyOptimization::init() {
     // exactly as GSepCmaEvolutionStrategy / GStandardPSO2011 do.
     dbl_lower_.clear();
     dbl_upper_.clear();
-    this->at(0)->individual().boundariesFP(dbl_lower_, dbl_upper_, activityMode::ACTIVEONLY);
+    this->at(0)->individual().boundariesFPInternal(dbl_lower_, dbl_upper_, activityMode::ACTIVEONLY);
 
     n_fp_parms_ = dbl_lower_.size();
 
@@ -324,12 +324,12 @@ void GAntColonyOptimization::seedInitialArchive() {
     archive_fitness_.assign(archive_size_, this->at(0)->individual().getWorstCase());
 
     // Member 0: the (user-supplied) start individual, unchanged.
-    this->at(0)->individual().streamlineFP(archive_parms_[0], activityMode::ACTIVEONLY);
+    this->at(0)->individual().streamlineFPInternal(archive_parms_[0], activityMode::ACTIVEONLY);
 
     // Members 1..k-1: random restarts within the bounds (reuses the genome's randomInit channel).
     for(std::size_t l = 1; l < archive_size_; ++l) {
         this->at(l)->individual().randomInit(activityMode::ACTIVEONLY);
-        this->at(l)->individual().streamlineFP(archive_parms_[l], activityMode::ACTIVEONLY);
+        this->at(l)->individual().streamlineFPInternal(archive_parms_[l], activityMode::ACTIVEONLY);
     }
 }
 
@@ -507,7 +507,7 @@ void GAntColonyOptimization::constructAnts() {
 
         // Write the sampled vector through the genome; the constrained parameter objects fold/clamp it
         // into the feasible box automatically. Mark the slot for (re)evaluation.
-        this->at(a)->individual().assignFPValueVector(x_new, activityMode::ACTIVEONLY);
+        this->at(a)->individual().assignFPValueVectorInternal(x_new, activityMode::ACTIVEONLY);
         this->at(a)->individual().mark_as_due_for_processing();
     }
 }
@@ -525,7 +525,7 @@ void GAntColonyOptimization::updateArchive() {
         auto &ind = this->at(a)->individual();
 
         std::vector<double> parms;
-        ind.streamlineFP(parms, activityMode::ACTIVEONLY);
+        ind.streamlineFPInternal(parms, activityMode::ACTIVEONLY);
 
         const double fit = minOnly_transformed_fitness(ind);
 
@@ -591,7 +591,7 @@ std::tuple<double, double> GAntColonyOptimization::cycleLogic_() {
 
         for(std::size_t l = 0; l < archive_size_; ++l) {
             auto &ind = this->at(l)->individual();
-            ind.streamlineFP(archive_parms_[l], activityMode::ACTIVEONLY);
+            ind.streamlineFPInternal(archive_parms_[l], activityMode::ACTIVEONLY);
             archive_fitness_[l] = minOnly_transformed_fitness(ind);
         }
         sortArchive();

@@ -521,7 +521,7 @@ void GConjugateGradientDescent::updateChildParameters() {
     const std::size_t children_per_sp = n_fp_parms_first_ * n_probes;
     for(std::size_t i = 0; i < n_starting_points_; i++) {
         std::vector<double> parm_vec;
-        this->at(i)->individual().streamlineFP(parm_vec, activityMode::ACTIVEONLY);
+        this->at(i)->individual().streamlineFPInternal(parm_vec, activityMode::ACTIVEONLY);
 
         for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
             const double orig_parm_val = parm_vec[j];
@@ -540,7 +540,7 @@ void GConjugateGradientDescent::updateChildParameters() {
                 // probe 0 = forward (+h); probe 1 (central only) = backward (-h)
                 const double sign = (probe == 0) ? 1. : -1.;
                 parm_vec[j] = orig_parm_val + (sign * adjusted_finite_step_[j]);
-                this->at(child_pos)->individual().assignFPValueVector(parm_vec, activityMode::ACTIVEONLY);
+                this->at(child_pos)->individual().assignFPValueVectorInternal(parm_vec, activityMode::ACTIVEONLY);
             }
             // Restore the original value for the next direction
             parm_vec[j] = orig_parm_val;
@@ -596,7 +596,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
 
     for(std::size_t i = 0; i < n_starting_points_; i++) {
         std::vector<double> parm_vec;
-        this->at(i)->individual().streamlineFP(parm_vec, activityMode::ACTIVEONLY);
+        this->at(i)->individual().streamlineFPInternal(parm_vec, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
         if(this->at(i)->individual().is_due_for_processing() || (this->at(i)->individual().has_errors())) {
@@ -857,7 +857,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         //    place: it has effectively converged (zero gradient) or sits where the current direction
         //    cannot improve it.
         if(lr.success) {
-            this->at(i)->individual().assignFPValueVector(lr.x_new, activityMode::ACTIVEONLY);
+            this->at(i)->individual().assignFPValueVectorInternal(lr.x_new, activityMode::ACTIVEONLY);
         }
 
         // 6) Remember gradient/direction for the next conjugate step (on the slot's scratch).
@@ -887,7 +887,7 @@ std::vector<double> GConjugateGradientDescent::evaluateProbes(
     probes.reserve(points.size());
     for(auto const &pt : points) {
         auto probe = this->at(starting_point)->individual().clone_unique();
-        probe->assignFPValueVector(pt, activityMode::ACTIVEONLY);
+        probe->assignFPValueVectorInternal(pt, activityMode::ACTIVEONLY);
         probes.push_back(std::move(probe));
     }
 
@@ -1024,7 +1024,7 @@ void GConjugateGradientDescent::init() {
     GOptimizationAlgorithmBase::init();
 
     // Extract the boundaries of all active parameters
-    this->at(0)->individual().boundariesFP(
+    this->at(0)->individual().boundariesFPInternal(
         dbl_lower_parameter_boundaries_,
         dbl_upper_parameter_boundaries_,
         activityMode::ACTIVEONLY
@@ -1147,7 +1147,7 @@ void GConjugateGradientDescent::finalize() {
         }
 
         std::vector<double> x_min;
-        this->at(best)->individual().streamlineFP(x_min, activityMode::ACTIVEONLY);
+        this->at(best)->individual().streamlineFPInternal(x_min, activityMode::ACTIVEONLY);
 
         GHesseErrorOptions opts;
         opts.up = error_up_;

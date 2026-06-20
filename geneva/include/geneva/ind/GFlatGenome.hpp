@@ -80,14 +80,17 @@ namespace Gem::Geneva::Genome {
  * fitnessCalculation(). The clone/load/compare/serialize machinery is provided here and reused
  * unchanged via the GFlatIndividualT CRTP base.
  *
- * Value access is genome-agnostic: GFlatGenome implements the DM §2 per-type channel virtuals
- * declared on GOptimizableEntity (streamline_/assignValueVector_/countParameters*_/boundaries_), so
- * the optimization algorithms read and write parameter values without a downcast. Constrained values
- * are folded into their external range at ADAPTION time (the adaption
- * kernels add to the value, then foldConstrainedValuesInPlace() folds it back into [lo, hi) before it
- * is stored), so the stored representation stays in range and equals the external value. Read access
- * (streamline) still folds defensively -- a no-op fast path for an in-range value -- so a value that
- * arrives out of range by some other path (e.g. a legacy deserialised genome) is still corrected.
+ * Value access is genome-agnostic: GFlatGenome implements the DM §2 per-type channel virtuals declared
+ * on GOptimizableEntity, so the optimization algorithms read and write parameter values without a
+ * downcast. A floating-point parameter is stored in the NORMALIZED INTERNAL coordinate (magnitude ≈ 1,
+ * confined to [-0.5, 0.5) for a bounded parameter); the user-facing EXTERNAL value is its affine image
+ * (normalized-genome architecture, §2). This realizes the two-reader split: the OAs read/write the raw
+ * internal value (streamlineInternal_/assignValueVectorInternal_), while the objective function, GPU
+ * marshaller and user inspection read the scaled external value (streamline_/assignValueVector_). The
+ * fold lives at WRITE time, not read time: an internal (OA) write folds an overshooting bounded value
+ * back into [-0.5, 0.5) (and the post-kernel foldConstrainedValuesInPlace() does the same for the
+ * adaption path), while an external (user) write range-validates and throws. Integer parameters are not
+ * normalized (§2.7): they keep the closed-range integer fold, applied on read.
  */
 class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizableEntity {
@@ -312,11 +315,9 @@ public:
     std::shared_ptr<const GGenomeLayout> getLayout() const noexcept { return layout_; }
 
     /***************************************************************************/
-    // Mutable access to the raw INTERNAL value arrays. Adaption drifts the unbounded internal
-    // representation in place (constrained values are folded into range only on read, via streamline) --
-    // so the OA-owned adaption kernels must operate on these spans, NOT on the folded streamline view.
-    // These are the seam the free-function adaption uses; ordinary value access still goes
-    // through streamline()/assignValueVector().
+    // Mutable access to the raw INTERNAL (normalized) value arrays. The OA-owned adaption kernels add
+    // their step directly to these spans (then foldConstrainedValuesInPlace() folds a bounded value back
+    // into [-0.5, 0.5)); ordinary external value access goes through streamline()/assignValueVector().
 
     /** @brief @return A mutable span over the raw internal double channel (unfolded representation) */
     std::span<double> internalDoubleValues() noexcept { return {dv_.data(), dv_.size()}; }
@@ -381,10 +382,10 @@ public:
     /***************************************************************************/
     /** @brief Bulk-flatten fast path: streamlines an FP/int32 channel DIRECTLY into a caller-provided
      *  buffer (no temporary vector, no second copy), returning the number of values written. Produces
-     *  exactly the same external (range-folded) values as streamline<T>() with the same activityMode --
+     *  exactly the same external (scaled) values as streamline<T>() with the same activityMode --
      *  use it to flatten a whole population into one contiguous device buffer (the GPU marshallers).
-     *  NB: a raw memcpy of the channel storage is NOT a valid substitute -- constrained values are kept
-     *  in their unbounded internal form and only folded to range here.
+     *  NB: a raw memcpy of the channel storage is NOT a valid substitute -- the stored value is the
+     *  normalized internal coordinate, mapped to the external user value only here.
      *
      *  @param dst The caller-provided destination buffer for the double channel (must be large enough)
      *  @param am The activity mode selecting which parameters are written (default: all parameters)
@@ -407,10 +408,10 @@ public:
         return streamlineIntoImpl<std::int32_t>(dst, layout_->i, iv_, am);
     }
 
-    /** @brief Adaption-time fold: rewrites every CONSTRAINED stored value to its external (range-folded)
-     *  representation, so the stored internal == external. Called by the OA adaption driver right after
-     *  the adaption kernels run, so a constrained value never drifts unboundedly outside [lo, hi) between
-     *  generations (unbounded "plain" parameters are left untouched). The bool channel is always valid
+    /** @brief Adaption-time write-fold (§2.2): contains every bounded value after the adaption kernels
+     *  added their (unbounded) step. Called by the OA adaption driver right after the kernels run -- a
+     *  bounded FP value is folded into the canonical internal interval [-0.5, 0.5), a bounded int into its
+     *  closed [lo, hi] range; unbounded ("plain") parameters roam freely. The bool channel is always valid
      *  (0/1), so it is not folded. */
     void foldConstrainedValuesInPlace() {
         foldChannelInPlace<double>(layout_->d, dv_);
@@ -543,29 +544,98 @@ private:
         }
     }
 
-    /** @brief THE single source of truth for the per-element constrained-value fold: maps a stored value
-     *  to its external (range-folded) representation -- identity for an unbounded parameter,
-     *  foldConstrainedFP / foldConstrainedInt for a constrained one. BOTH the read-time fold
-     *  (streamlineImpl / streamlineIntoImpl) AND the adaption-time fold (foldChannelInPlace) go through
-     *  this one function, so the two paths can never diverge -- any change to the fold belongs here (or,
-     *  for the maths, in foldConstrainedFP / foldConstrainedInt).
+    /** @brief THE single source of truth for the per-element internal->external map (normalized-genome
+     *  architecture §2.1). For a FLOATING-POINT channel the stored value is the NORMALIZED internal
+     *  coordinate (magnitude ≈ 1, confined to [-0.5, 0.5) for a bounded parameter); the external value is
+     *  its affine image `anchor + u*scale` (composed in long double), with the half-open [lo, hi) contract
+     *  re-enforced after the narrowing cast for a bounded parameter (an unbounded one has no wall). The
+     *  fold is NOT applied here -- it was moved to write time (§2.2), so the read path is scale-only; a
+     *  DEBUG build asserts the internal value really is in range, catching any write path that forgot to
+     *  fold/validate. INTEGER channels are NOT normalized (§2.7): they keep the closed-range integer fold.
      *
      *  @tparam T The channel's value type (double / float / int32)
      *  @param ch The channel layout describing the parameter's kind and bounds
-     *  @param stored The internally stored (possibly unbounded) value
+     *  @param stored The internally stored value (normalized internal for FP, unbounded int for int32)
      *  @param k The index of the parameter within the channel
-     *  @return The external, range-folded representation of the stored value */
+     *  @return The external (user-coordinate) representation of the stored value */
     template <typename T>
     static T externalValue(ChannelLayout<T> const &ch, T stored, std::size_t k) {
-        if(ch.kind[k] != ParamKind::Constrained) {
-            return stored;
-        }
         if constexpr(std::is_floating_point_v<T>) {
-            return foldConstrainedFP<T>(stored, ch.lower[k], ch.upper[k]);
+            const T scale = ngScale<T>(ch, k);
+            const T anchor = ngAnchor<T>(ch, k);
+            if(ch.kind[k] != ParamKind::Constrained) {
+                // Unbounded (plain): the internal value may roam ℝ; affine-map it, no fold, no clamp.
+                return ngInternalToExternal<T>(stored, scale, anchor);
+            }
+#ifdef DEBUG
+            // Fold-on-write guarantees the internal value is in [-0.5, 0.5); a violation means a write
+            // path stored a raw value without folding/validating. (Frozen scale <= 0 stores the centre 0.)
+            if(scale > T(0) && not(stored >= T(-0.5) && stored < T(0.5))) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GFlatGenome::externalValue(): Error!" << '\n'
+                    << "Internal coordinate " << stored << " of bounded parameter " << k
+                    << " is outside the canonical interval [-0.5, 0.5) -- a write path failed to fold." << '\n'
+                );
+            }
+#endif /* DEBUG */
+            return ngClampHalfOpen<T>(
+                ngInternalToExternal<T>(stored, scale, anchor), ch.lower[k], ch.upper[k]
+            );
         }
         else {
+            if(ch.kind[k] != ParamKind::Constrained) {
+                return stored;
+            }
             return foldConstrainedInt<T>(stored, ch.lower[k], ch.upper[k]);
         }
+    }
+
+    /** @brief The per-element EXTERNAL->INTERNAL map for a floating-point external write (§2.2 write
+     *  taxonomy). A bounded parameter is range-validated against the half-open [lo, hi) (throwing on an
+     *  out-of-range value, INCLUDING exactly the open upper bound -- a user error, not silently clamped),
+     *  then scaled to the normalized internal coordinate; an unbounded parameter is scaled with no
+     *  validation. A frozen parameter (scale <= 0, lo == hi) maps to the interval centre 0.
+     *
+     *  @p allow_upper_bound relaxes the upper check to the CLOSED [lo, hi] for a DECLARED start value (the
+     *  builder's init / a factory default may legitimately sit exactly on the bound, e.g. a tunable whose
+     *  default equals its max); such a boundary value snaps to the largest representable internal value
+     *  just inside the wall. A runtime user assignment leaves it false, so exactly the upper bound throws.
+     *
+     *  @tparam T The floating-point channel's value type (double / float)
+     *  @param ch The channel layout describing the parameter's kind and bounds
+     *  @param x The external (user-coordinate) value being written
+     *  @param k The index of the parameter within the channel
+     *  @param allow_upper_bound Whether a value exactly on the (inclusive) upper bound is accepted + snapped
+     *  @return The normalized internal coordinate to store */
+    template <typename T>
+    static T externalToInternalChecked(
+        ChannelLayout<T> const &ch, T x, std::size_t k, bool allow_upper_bound = false
+    ) {
+        static_assert(std::is_floating_point_v<T>, "FP-only external write");
+        const T scale = ngScale<T>(ch, k);
+        const T anchor = ngAnchor<T>(ch, k);
+        if(ch.kind[k] == ParamKind::Constrained) {
+            if(scale <= T(0)) {
+                return T(0); // frozen: the single valid value maps to the centre
+            }
+            const bool below = x < ch.lower[k];
+            const bool above = allow_upper_bound ? (x > ch.upper[k]) : not(x < ch.upper[k]);
+            if(below || above) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GFlatGenome::externalToInternalChecked(): Error!" << '\n'
+                    << "External value " << x << " is outside the "
+                    << (allow_upper_bound ? "range [" : "half-open range [")
+                    << ch.lower[k] << ", " << ch.upper[k] << (allow_upper_bound ? "]" : ")")
+                    << " of bounded parameter " << k << '\n'
+                );
+            }
+            // A validated in-range x maps into [-0.5, 0.5); enforce the half-open internal contract in
+            // case the narrowing cast (or an inclusive-upper start value) lands exactly on the open upper.
+            return ngClampHalfOpen<T>(ngExternalToInternal<T>(x, scale, anchor), T(-0.5), T(0.5));
+        }
+        return ngExternalToInternal<T>(x, scale, anchor); // unbounded: no validation
     }
 
     /***************************************************************************/
@@ -592,11 +662,11 @@ private:
         }
     }
 
-    /** @brief Writes the active channel's external (range-folded) values DIRECTLY into a caller buffer,
-     *  returning the count written. Same per-element fold as streamlineImpl() (both via externalValue()),
-     *  but no temporary vector and no second copy -- the bulk-flatten fast path behind streamlineInto().
-     *  Since values are folded at adaption time the fold here is the in-range fast path (~a copy), but it
-     *  is retained defensively, so a raw memcpy of `store` is not a guaranteed-correct substitute.
+    /** @brief Writes the active channel's external (scaled) values DIRECTLY into a caller buffer,
+     *  returning the count written. Same per-element internal->external map as streamlineImpl() (both via
+     *  externalValue()), but no temporary vector and no second copy -- the bulk-flatten fast path behind
+     *  streamlineInto(). The stored value is the normalized internal coordinate, so a raw memcpy of
+     *  `store` is not a valid substitute.
      *
      *  @tparam T The channel's value type (double / float / int32)
      *  @param dst The caller-provided destination buffer (must hold at least the active count)
@@ -620,25 +690,39 @@ private:
         return n;
     }
 
-    /** @brief Adaption-time fold: normalises every value of a channel to its external (range-folded)
-     *  representation IN THE STORE, via the SAME externalValue() the read path uses (identity for
-     *  unbounded parameters, so only constrained values move back into [lo, hi)). After this the stored
-     *  internal == external. Sharing externalValue() is what keeps this in lock-step with read-time folds.
+    /** @brief Adaption-time write-fold (§2.2): contains every bounded value IN THE STORE after the
+     *  adaption kernels added their (unbounded) step. A floating-point bounded value is folded into the
+     *  canonical internal interval [-0.5, 0.5) (ngFoldInternal); an integer bounded value is folded into
+     *  its closed [lo, hi] range (foldConstrainedInt); unbounded values are left to roam. The fold is
+     *  external-value-preserving and idempotent, so this keeps the stored internal magnitude bounded
+     *  without changing the value an OA's step produced.
      *
      *  @tparam T The channel's value type (double / float / int32)
      *  @param ch The channel layout (kind / bounds)
-     *  @param store The internal value storage, rewritten in place to its external representation */
+     *  @param store The internal value storage, folded in place */
     template <typename T>
     static void foldChannelInPlace(ChannelLayout<T> const &ch, std::vector<T> &store) {
         for(std::size_t k = 0; k < store.size(); ++k) {
-            store[k] = externalValue<T>(ch, store[k], k);
+            if(ch.kind[k] != ParamKind::Constrained) {
+                continue; // unbounded: roams freely
+            }
+            if constexpr(std::is_floating_point_v<T>) {
+                store[k] = ngFoldInternal<T>(store[k]);
+            }
+            else {
+                store[k] = foldConstrainedInt<T>(store[k], ch.lower[k], ch.upper[k]);
+            }
         }
     }
 
-    /** @brief Writes a vector of external values back into the active slots of a channel's storage.
+    /** @brief Writes a vector of EXTERNAL (user-coordinate) values back into the active slots of a
+     *  channel's storage (§2.2 external write). A floating-point value is range-validated and scaled to
+     *  the normalized internal coordinate (externalToInternalChecked -- throws on an out-of-range bounded
+     *  value); an integer value is stored raw (it is not normalized -- folded into its closed range on
+     *  read).
      *  @tparam T The channel's value type (double / float / int32)
-     *  @param in The incoming values, consumed in order for each active parameter
-     *  @param ch The channel layout (active flags)
+     *  @param in The incoming external values, consumed in order for each active parameter
+     *  @param ch The channel layout (kind / bounds / active flags)
      *  @param store The internal value storage to update at the active positions
      *  @param am The activity mode selecting which parameters are overwritten */
     template <typename T>
@@ -651,7 +735,95 @@ private:
         std::size_t pos = 0;
         for(std::size_t k = 0; k < store.size(); ++k) {
             if(amMatch(ch.active[k], am)) {
-                store[k] = in.at(pos++);
+                const T x = in.at(pos++);
+                if constexpr(std::is_floating_point_v<T>) {
+                    store[k] = externalToInternalChecked<T>(ch, x, k);
+                }
+                else {
+                    store[k] = x; // int: stored raw, folded into its closed range on read
+                }
+            }
+        }
+    }
+
+    /** @brief Collects a channel's active values in their raw INTERNAL representation (no scale, no fold)
+     *  -- the OA-facing read of the two-reader split (§2.3). For an FP channel this is the normalized
+     *  internal coordinate; only the FP channels use it.
+     *  @tparam T The channel's value type (double / float)
+     *  @param out The output vector, cleared then filled with the selected internal values
+     *  @param ch The channel layout (active flags)
+     *  @param store The internal value storage for this channel
+     *  @param am The activity mode selecting which parameters are collected */
+    template <typename T>
+    void streamlineInternalImpl(
+        std::vector<T> &out,
+        ChannelLayout<T> const &ch,
+        std::vector<T> const &store,
+        activityMode const &am
+    ) const {
+        out.clear();
+        for(std::size_t k = 0; k < store.size(); ++k) {
+            if(amMatch(ch.active[k], am)) {
+                out.push_back(store[k]);
+            }
+        }
+    }
+
+    /** @brief Writes a vector of raw INTERNAL values back into the active slots of an FP channel (§2.2
+     *  internal write): a bounded value is FOLDED into the canonical interval [-0.5, 0.5) (the fold is
+     *  external-value-preserving, so an OA's overshooting step is contained, not rejected); an unbounded
+     *  value is stored as-is (it may roam). Never validates / throws -- that is the external write's job.
+     *  @tparam T The FP channel's value type (double / float)
+     *  @param in The incoming internal values, consumed in order for each active parameter
+     *  @param ch The channel layout (kind / active flags)
+     *  @param store The internal value storage to update at the active positions
+     *  @param am The activity mode selecting which parameters are overwritten */
+    template <typename T>
+    void assignInternalImpl(
+        std::vector<T> const &in,
+        ChannelLayout<T> const &ch,
+        std::vector<T> &store,
+        activityMode const &am
+    ) {
+        static_assert(std::is_floating_point_v<T>, "the internal write is FP-only");
+        std::size_t pos = 0;
+        for(std::size_t k = 0; k < store.size(); ++k) {
+            if(amMatch(ch.active[k], am)) {
+                const T u = in.at(pos++);
+                store[k] = (ch.kind[k] == ParamKind::Constrained) ? ngFoldInternal<T>(u) : u;
+            }
+        }
+    }
+
+    /** @brief Collects the INTERNAL-coordinate bounds of an FP channel's active parameters (§2.3): a
+     *  bounded parameter spans the canonical interval [-0.5, 0.5); an unbounded one spans the full ±range
+     *  (no internal wall).
+     *  @tparam T The FP channel's value type (double / float)
+     *  @param l Output vector filled with each active parameter's internal lower bound
+     *  @param u Output vector filled with each active parameter's internal upper bound
+     *  @param ch The channel layout (kind / active flags)
+     *  @param am The activity mode selecting which parameters are reported */
+    template <typename T>
+    void boundariesInternalImpl(
+        std::vector<T> &l,
+        std::vector<T> &u,
+        ChannelLayout<T> const &ch,
+        activityMode const &am
+    ) const {
+        static_assert(std::is_floating_point_v<T>, "the internal boundary view is FP-only");
+        l.clear();
+        u.clear();
+        for(std::size_t k = 0; k < ch.size(); ++k) {
+            if(not amMatch(ch.active[k], am)) {
+                continue;
+            }
+            if(ch.kind[k] == ParamKind::Constrained) {
+                l.push_back(T(-0.5));
+                u.push_back(T(0.5));
+            }
+            else {
+                l.push_back(std::numeric_limits<T>::lowest());
+                u.push_back((std::numeric_limits<T>::max)());
             }
         }
     }
@@ -787,6 +959,25 @@ private:
     void boundaries_(std::vector<std::int32_t> &l, std::vector<std::int32_t> &u, activityMode const &am) const override { boundariesImpl<std::int32_t>(l, u, layout_->i, am); }
     /** @brief Collects bool-channel bounds. @param l Lower bounds out. @param u Upper bounds out. @param am Activity mode. */
     void boundaries_(std::vector<bool> &l, std::vector<bool> &u, activityMode const &am) const override;
+
+    /***************************************************************************/
+    // The INTERNAL (normalized) FP-channel virtuals (normalized-genome architecture §2.3) -- the OA-facing
+    // half of the two-reader split. Only double/float have an internal/external distinction.
+
+    /** @brief Reads the raw internal double channel into v. @param v Output vector. @param am Activity mode. */
+    void streamlineInternal_(std::vector<double> &v, activityMode const &am) const override { streamlineInternalImpl<double>(v, layout_->d, dv_, am); }
+    /** @brief Reads the raw internal float channel into v. @param v Output vector. @param am Activity mode. */
+    void streamlineInternal_(std::vector<float> &v, activityMode const &am) const override { streamlineInternalImpl<float>(v, layout_->f, fv_, am); }
+
+    /** @brief Internal-writes (folds) v into the double channel's active slots. @param v Internal values. @param am Activity mode. */
+    void assignValueVectorInternal_(std::vector<double> const &v, activityMode const &am) override { assignInternalImpl<double>(v, layout_->d, dv_, am); }
+    /** @brief Internal-writes (folds) v into the float channel's active slots. @param v Internal values. @param am Activity mode. */
+    void assignValueVectorInternal_(std::vector<float> const &v, activityMode const &am) override { assignInternalImpl<float>(v, layout_->f, fv_, am); }
+
+    /** @brief Collects internal-coordinate double bounds. @param l Lower out. @param u Upper out. @param am Activity mode. */
+    void boundariesInternal_(std::vector<double> &l, std::vector<double> &u, activityMode const &am) const override { boundariesInternalImpl<double>(l, u, layout_->d, am); }
+    /** @brief Collects internal-coordinate float bounds. @param l Lower out. @param u Upper out. @param am Activity mode. */
+    void boundariesInternal_(std::vector<float> &l, std::vector<float> &u, activityMode const &am) const override { boundariesInternalImpl<float>(l, u, layout_->f, am); }
 
     /***************************************************************************/
     // Data: the four contiguous value channels + the shared structural layout.

@@ -111,11 +111,39 @@ GFlatGenome::GFlatGenome(GFlatGenome const &cp)
  * @param g The GenomeData bundle (double/float/int/bool value arrays plus the shared layout) to install
  */
 void GFlatGenome::setGenome(GenomeData const &g) {
-    dv_ = g.dv;
-    fv_ = g.fv;
+    layout_ = g.layout ? g.layout : std::make_shared<const GGenomeLayout>();
+
+    // The normalized coordinate model requires a non-negative scale (upper >= lower) on every bounded
+    // floating-point parameter (lower == upper is a valid frozen parameter; lower > upper is malformed).
+    // Reject inverted bounds up front with a clear message rather than silently treating them as frozen.
+    auto checkBounds = [](auto const &ch, const char *type_name) {
+        for(std::size_t k = 0; k < ch.size(); ++k) {
+            if(ch.kind[k] == ParamKind::Constrained && ch.lower[k] > ch.upper[k]) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GFlatGenome::setGenome(): Error!" << '\n'
+                    << "Bounded " << type_name << " parameter " << k << " has inverted bounds (lower "
+                    << ch.lower[k] << " > upper " << ch.upper[k] << ")." << '\n'
+                );
+            }
+        }
+    };
+    checkBounds(layout_->d, "double");
+    checkBounds(layout_->f, "float");
+
+    // The builder's floating-point start values are EXTERNAL (user-coordinate) values; convert each to
+    // the normalized internal store (range-validated -- an out-of-range start value throws, §2.2). The
+    // int / bool channels are not normalized and are stored as-is.
+    dv_.resize(g.dv.size());
+    for(std::size_t k = 0; k < g.dv.size(); ++k) {
+        dv_[k] = externalToInternalChecked<double>(layout_->d, g.dv[k], k, /*allow_upper_bound=*/true);
+    }
+    fv_.resize(g.fv.size());
+    for(std::size_t k = 0; k < g.fv.size(); ++k) {
+        fv_[k] = externalToInternalChecked<float>(layout_->f, g.fv[k], k, /*allow_upper_bound=*/true);
+    }
     iv_ = g.iv;
     bv_ = g.bv;
-    layout_ = g.layout ? g.layout : std::make_shared<const GGenomeLayout>();
 
     this->mark_as_due_for_processing();
 }
@@ -226,10 +254,14 @@ bool GFlatGenome::randomInitFP(std::vector<T> &store, ChannelLayout<T> const &ch
         if(not amMatch(ch.active[k], am)) {
             continue;
         }
-        store[k] = dist(
+        // Draw an EXTERNAL value uniformly from the init perimeter [init_lower, init_upper) (half-open, so
+        // never exactly init_upper), then convert it to the normalized internal store (§2.2). For a bounded
+        // parameter the init perimeter lies within [lower, upper), so the conversion never throws.
+        const T x = dist(
             gr_,
             typename std::uniform_real_distribution<T>::param_type(ch.init_lower[k], ch.init_upper[k])
         );
+        store[k] = externalToInternalChecked<T>(ch, x, k);
         modified = true;
     }
     return modified;

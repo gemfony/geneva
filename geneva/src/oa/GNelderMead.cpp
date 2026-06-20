@@ -448,7 +448,7 @@ void GNelderMead::proposeTrials() {
         std::vector<double> vfit(n_vert);
         for(std::size_t v = 0; v < n_vert; v++) {
             auto &ind = this->at(vertexPos(s, v));
-            ind->individual().streamlineFP(vparm[v], activityMode::ACTIVEONLY);
+            ind->individual().streamlineFPInternal(vparm[v], activityMode::ACTIVEONLY);
             // A vertex modified by a shrink in applyNelderMeadDecision() during
             // this same iteration has not been re-evaluated yet (its stored
             // result was invalidated). Parameters are always readable, but its
@@ -500,13 +500,13 @@ void GNelderMead::proposeTrials() {
         }
 
         this->at(trialPos(s, NM_REFLECT))
-            ->individual().assignFPValueVector(reflect, activityMode::ACTIVEONLY);
+            ->individual().assignFPValueVectorInternal(reflect, activityMode::ACTIVEONLY);
         this->at(trialPos(s, NM_EXPAND))
-            ->individual().assignFPValueVector(expand, activityMode::ACTIVEONLY);
+            ->individual().assignFPValueVectorInternal(expand, activityMode::ACTIVEONLY);
         this->at(trialPos(s, NM_CONTRACT))
-            ->individual().assignFPValueVector(contract, activityMode::ACTIVEONLY);
+            ->individual().assignFPValueVectorInternal(contract, activityMode::ACTIVEONLY);
         this->at(trialPos(s, NM_OCONTRACT))
-            ->individual().assignFPValueVector(ocontract, activityMode::ACTIVEONLY);
+            ->individual().assignFPValueVectorInternal(ocontract, activityMode::ACTIVEONLY);
     }
 }
 
@@ -621,17 +621,17 @@ void GNelderMead::applyNelderMeadDecision() {
 void GNelderMead::shrinkTowardsBest(std::size_t s, std::size_t b) {
     const std::size_t n_vert = n_fp_parms_first_ + 1;
     std::vector<double> xb;
-    this->at(vertexPos(s, b))->individual().streamlineFP(xb, activityMode::ACTIVEONLY);
+    this->at(vertexPos(s, b))->individual().streamlineFPInternal(xb, activityMode::ACTIVEONLY);
     for(std::size_t v = 0; v < n_vert; v++) {
         if(v == b) {
             continue;
         }
         std::vector<double> xv;
-        this->at(vertexPos(s, v))->individual().streamlineFP(xv, activityMode::ACTIVEONLY);
+        this->at(vertexPos(s, v))->individual().streamlineFPInternal(xv, activityMode::ACTIVEONLY);
         for(std::size_t k = 0; k < n_fp_parms_first_; k++) {
             xv[k] = xb[k] + (sigma_ * (xv[k] - xb[k]));
         }
-        this->at(vertexPos(s, v))->individual().assignFPValueVector(xv, activityMode::ACTIVEONLY);
+        this->at(vertexPos(s, v))->individual().assignFPValueVectorInternal(xv, activityMode::ACTIVEONLY);
     }
 }
 
@@ -721,7 +721,7 @@ void GNelderMead::runFitnessCalculation_() {
 void GNelderMead::init() {
     GOptimizationAlgorithmBase::init();
 
-    this->at(0)->individual().boundariesFP(
+    this->at(0)->individual().boundariesFPInternal(
         dbl_lower_parameter_boundaries_,
         dbl_upper_parameter_boundaries_,
         activityMode::ACTIVEONLY
@@ -756,7 +756,7 @@ void GNelderMead::init() {
 void GNelderMead::buildInitialSimplices() {
     for(std::size_t s = 0; s < n_simplices_; s++) {
         std::vector<double> p0;
-        this->at(vertexPos(s, 0))->individual().streamlineFP(p0, activityMode::ACTIVEONLY);
+        this->at(vertexPos(s, 0))->individual().streamlineFPInternal(p0, activityMode::ACTIVEONLY);
 
         for(std::size_t v = 1; v <= n_fp_parms_first_; v++) {
             std::vector<double> p = p0;
@@ -774,13 +774,13 @@ void GNelderMead::buildInitialSimplices() {
             }
 
             p[k] += edge;
-            this->at(vertexPos(s, v))->individual().assignFPValueVector(p, activityMode::ACTIVEONLY);
+            this->at(vertexPos(s, v))->individual().assignFPValueVectorInternal(p, activityMode::ACTIVEONLY);
         }
 
         // The trial slots start as copies of the seed; they are overwritten by
         // proposeTrials() before they are first used for a decision.
         for(std::size_t t = 0; t < NM_NTRIALS; t++) {
-            this->at(trialPos(s, t))->individual().assignFPValueVector(p0, activityMode::ACTIVEONLY);
+            this->at(trialPos(s, t))->individual().assignFPValueVectorInternal(p0, activityMode::ACTIVEONLY);
         }
     }
 }
@@ -815,7 +815,7 @@ bool GNelderMead::restartSimplices() {
         std::vector<double> vfit(n_vert);
         for(std::size_t v = 0; v < n_vert; v++) {
             auto &ind = this->at(vertexPos(s, v));
-            ind->individual().streamlineFP(vparm[v], activityMode::ACTIVEONLY);
+            ind->individual().streamlineFPInternal(vparm[v], activityMode::ACTIVEONLY);
             vfit[v] = minOnly_transformed_fitness(ind->individual());
         }
         std::size_t b = 0;
@@ -865,7 +865,7 @@ bool GNelderMead::restartSimplices() {
             const double sign = (descent >= 0.) ? 1. : -1.;
             p[k] += sign * edge;
 
-            this->at(vertexPos(s, v))->individual().assignFPValueVector(p, activityMode::ACTIVEONLY);
+            this->at(vertexPos(s, v))->individual().assignFPValueVectorInternal(p, activityMode::ACTIVEONLY);
             k++;
         }
     }

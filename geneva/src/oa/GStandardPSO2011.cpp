@@ -241,7 +241,7 @@ void GStandardPSO2011::init() {
     // Extract the boundaries of all (active) floating point parameters.
     dbl_lower_.clear();
     dbl_upper_.clear();
-    this->at(0)->individual().boundariesFP(dbl_lower_, dbl_upper_, activityMode::ACTIVEONLY);
+    this->at(0)->individual().boundariesFPInternal(dbl_lower_, dbl_upper_, activityMode::ACTIVEONLY);
 
     n_fp_parms_ = dbl_lower_.size();
 
@@ -289,7 +289,7 @@ void GStandardPSO2011::init() {
             ->setParticle(i);
 
         std::vector<double> pos;
-        this->at(i)->individual().streamlineFP(pos, activityMode::ACTIVEONLY);
+        this->at(i)->individual().streamlineFPInternal(pos, activityMode::ACTIVEONLY);
 
         // Particle 0 keeps the registered start individual; all others are randomized uniformly inside
         // the box (where the range is finite).
@@ -304,7 +304,7 @@ void GStandardPSO2011::init() {
                     );
                 }
             }
-            this->at(i)->individual().assignFPValueVector(pos, activityMode::ACTIVEONLY);
+            this->at(i)->individual().assignFPValueVectorInternal(pos, activityMode::ACTIVEONLY);
         }
 
         // Half-diff velocity initialization: v_d = (U(lower, upper) - x_d) / 2 .
@@ -466,7 +466,7 @@ void GStandardPSO2011::updatePositions() {
 
     for(std::size_t i = 0; i < swarm_size_; ++i) {
         std::vector<double> x;
-        this->at(i)->individual().streamlineFP(x, activityMode::ACTIVEONLY);
+        this->at(i)->individual().streamlineFPInternal(x, activityMode::ACTIVEONLY);
 
         const std::vector<double> &p = personal_bests_[i];
         const std::vector<double> l = localBest(i);
@@ -549,7 +549,7 @@ void GStandardPSO2011::updatePositions() {
         // Boundary confinement.
         confine(x, v);
 
-        this->at(i)->individual().assignFPValueVector(x, activityMode::ACTIVEONLY);
+        this->at(i)->individual().assignFPValueVectorInternal(x, activityMode::ACTIVEONLY);
         this->at(i)->individual().mark_as_due_for_processing();
     }
 }
@@ -579,13 +579,13 @@ std::tuple<double, double> GStandardPSO2011::updateBests() {
         // Update the personal best (lower minimization fitness is always better).
         if(fit < personal_best_fitness_[i]) {
             personal_best_fitness_[i] = fit;
-            ind.streamlineFP(personal_bests_[i], activityMode::ACTIVEONLY);
+            ind.streamlineFPInternal(personal_bests_[i], activityMode::ACTIVEONLY);
         }
 
         // Update the global best.
         if(fit < global_best_fitness_) {
             global_best_fitness_ = fit;
-            ind.streamlineFP(global_best_, activityMode::ACTIVEONLY);
+            ind.streamlineFPInternal(global_best_, activityMode::ACTIVEONLY);
             global_best_improved_ = true;
         }
 

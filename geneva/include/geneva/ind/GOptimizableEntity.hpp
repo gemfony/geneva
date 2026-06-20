@@ -587,6 +587,115 @@ public:
         }
     }
 
+    /***************************************************************************/
+    // The INTERNAL (normalized) floating-point view (normalized-genome architecture, §2.3). The
+    // optimization algorithms read and write the raw, normalized internal coordinate (magnitude ≈ 1,
+    // confined to the canonical interval [-0.5, 0.5) for a bounded parameter), NOT the user-facing
+    // external value. This is the "two-reader split": OAs use these *Internal accessors; the objective
+    // function / GPU marshaller / user inspection use the external streamlineFP / assignFPValueVector /
+    // boundariesFP above. The internal view costs no per-read affine map (it is the stored value), and
+    // an internal write FOLDS an overshooting bounded value back into range (never throws), whereas an
+    // external write scales + range-validates (throws out of range). Ordering matches streamlineFP:
+    // double-typed first, then float-typed widened to double.
+
+    /**
+     * @brief Streamlines all floating point parameters in their raw INTERNAL (normalized) representation
+     *  into a single double vector (double-typed first, then widened float-typed). For OA move generation.
+     * @param par_vec The vector the internal values are written into (cleared first)
+     * @param am The activity mode controlling which parameters are included
+     */
+    void streamlineFPInternal(
+        std::vector<double> &par_vec,
+        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
+    ) const {
+        par_vec.clear();
+        this->streamlineInternal_(par_vec, am);
+
+        std::vector<float> float_vec;
+        this->streamlineInternal_(float_vec, am);
+        par_vec.reserve(par_vec.size() + float_vec.size());
+        for(float f : float_vec) {
+            par_vec.push_back(static_cast<double>(f));
+        }
+    }
+
+    /**
+     * @brief Scatters a vector of raw INTERNAL (normalized) values back onto the floating point parameters
+     *  (an OA write: a bounded value is folded into [-0.5, 0.5), never range-validated). Ordering matches
+     *  streamlineFPInternal() (double-typed first, then float-typed).
+     * @param par_vec The combined internal-value vector to scatter back
+     * @param am The activity mode controlling which parameters are written
+     */
+    void assignFPValueVectorInternal(
+        std::vector<double> const &par_vec,
+        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
+    ) {
+        const std::size_t n_double = countParameters<double>(am);
+        const std::size_t n_float = countParameters<float>(am);
+
+#ifdef DEBUG
+        if(n_double + n_float != par_vec.size()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GOptimizableEntity::assignFPValueVectorInternal():" << '\n'
+                << "Sizes don't match: " << (n_double + n_float) << " / " << par_vec.size() << '\n'
+            );
+        }
+#endif /* DEBUG */
+
+        if(n_double > 0) {
+            std::vector<double> double_vec(
+                par_vec.begin(),
+                par_vec.begin() + static_cast<std::ptrdiff_t>(n_double)
+            );
+            this->assignValueVectorInternal_(double_vec, am);
+        }
+        if(n_float > 0) {
+            std::vector<float> float_vec(n_float);
+            for(std::size_t i = 0; i < n_float; ++i) {
+                float_vec[i] = static_cast<float>(par_vec[n_double + i]);
+            }
+            this->assignValueVectorInternal_(float_vec, am);
+        }
+        // As with the external assign, modifying the parameters marks the item for reprocessing.
+        this->mark_as_due_for_processing();
+    }
+
+    /**
+     * @brief Lower/upper boundaries of all floating point parameters in INTERNAL coordinates (matching
+     *  streamlineFPInternal() ordering): [-0.5, 0.5) for a bounded parameter, the full ±range for an
+     *  unbounded one (which has no internal wall).
+     * @param l_bnd_vec The vector the lower boundaries are written into (cleared first)
+     * @param u_bnd_vec The vector the upper boundaries are written into (cleared first)
+     * @param am The activity mode controlling which parameters are included
+     */
+    void boundariesFPInternal(
+        std::vector<double> &l_bnd_vec,
+        std::vector<double> &u_bnd_vec,
+        activityMode const &am = activityMode::DEFAULTACTIVITYMODE
+    ) const {
+        std::vector<double> l_double;
+        std::vector<double> u_double;
+        this->boundariesInternal_(l_double, u_double, am);
+
+        std::vector<float> l_float;
+        std::vector<float> u_float;
+        this->boundariesInternal_(l_float, u_float, am);
+
+        l_bnd_vec.clear();
+        u_bnd_vec.clear();
+        l_bnd_vec.reserve(l_double.size() + l_float.size());
+        u_bnd_vec.reserve(u_double.size() + u_float.size());
+        l_bnd_vec.insert(l_bnd_vec.end(), l_double.begin(), l_double.end());
+        u_bnd_vec.insert(u_bnd_vec.end(), u_double.begin(), u_double.end());
+        for(float v : l_float) {
+            l_bnd_vec.push_back(static_cast<double>(v));
+        }
+        for(float v : u_float) {
+            u_bnd_vec.push_back(static_cast<double>(v));
+        }
+    }
+
     /**
      * @brief Register another result value of the fitness calculation
      * @param id The index of the fitness criterion to store the result for
@@ -1004,6 +1113,19 @@ private:
     virtual void boundaries_(std::vector<float> &, std::vector<float> &, activityMode const &) const = 0;
     virtual void boundaries_(std::vector<std::int32_t> &, std::vector<std::int32_t> &, activityMode const &) const = 0;
     virtual void boundaries_(std::vector<bool> &, std::vector<bool> &, activityMode const &) const = 0;
+
+    // The INTERNAL (normalized) floating-point channel virtuals backing streamlineFPInternal /
+    // assignFPValueVectorInternal / boundariesFPInternal (normalized-genome architecture §2.3). Only the
+    // FP channels carry an internal/external distinction (int / bool are not normalized), so only double
+    // and float overloads exist. The internal read returns the raw stored value; the internal write folds
+    // a bounded value into [-0.5, 0.5) (no range validation); the internal boundaries are [-0.5, 0.5) for
+    // a bounded parameter and the full ±range for an unbounded one.
+    virtual void streamlineInternal_(std::vector<double> &, activityMode const &) const = 0;
+    virtual void streamlineInternal_(std::vector<float> &, activityMode const &) const = 0;
+    virtual void assignValueVectorInternal_(std::vector<double> const &, activityMode const &) = 0;
+    virtual void assignValueVectorInternal_(std::vector<float> const &, activityMode const &) = 0;
+    virtual void boundariesInternal_(std::vector<double> &, std::vector<double> &, activityMode const &) const = 0;
+    virtual void boundariesInternal_(std::vector<float> &, std::vector<float> &, activityMode const &) const = 0;
 
     /**
      * @brief  Allows to set all fitnesses to the same value (both raw and transformed values)

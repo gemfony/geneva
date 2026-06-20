@@ -762,16 +762,12 @@ TEST_CASE("Swarm normalizes a non-canonical user population at setup", "[flat][o
 
 /******************************************************************************/
 
-TEST_CASE("Swarm rejects inverted parameter bounds instead of UB", "[flat][oa]") {
-    // The genome builder does not reject inverted bounds (lower > upper). Such a parameter yields a
-    // negative velocity range, which would feed std::uniform_real_distribution::param_type(-range, range)
-    // with a > b (undefined behaviour). init() must instead reject it with a clear exception.
-    auto pop = std::make_shared<oa::GSwarmAlgorithm>();
-    pop->setSwarmSizes(3, 6);
-    pop->setMaxIteration(10);
-    pop->setReportIteration(100000);
-    pop->push_back(FlatInvertedBoundsOA().clone_unique());
-    CHECK_THROWS(pop->optimize()); // inverted bounds -> clean throw in init(), not UB
+TEST_CASE("Inverted parameter bounds are rejected at genome build instead of UB", "[flat][oa]") {
+    // A bounded floating-point parameter with lower > upper is malformed: the normalized coordinate model
+    // requires a non-negative scale (upper - lower). setGenome() rejects inverted bounds up front with a
+    // clear exception (at genome construction), rather than deferring to an OA that happens to trip over
+    // the resulting negative range. (lower == upper stays valid -- a frozen parameter.)
+    CHECK_THROWS(FlatInvertedBoundsOA()); // inverted bounds -> clean throw in setGenome(), not UB
 }
 
 /******************************************************************************/
