@@ -781,8 +781,9 @@ public:
     /**
      * @brief Suppresses the per-group log-normal σ self-adaption on every Gauss / bi-Gauss group, so
      * an external controller (ONE_FIFTH / CSA) owns σ alone. Implemented by setting sigma_sigma to 0
-     * (a zero-rate log-normal step is the identity) — the group still applies its `range * N(0, σ)`
-     * value step with whatever σ the OA wrote into its state, but never self-adapts σ on its own.
+     * (a zero-rate log-normal step is the identity) — the group still applies its `N(0, σ)` value step
+     * (in the normalized internal coordinate) with whatever σ the OA wrote into its state, but never
+     * self-adapts σ on its own.
      */
     void suppressPerGroupSigmaSelfAdaption() {
         auto zero = [&]<typename T>(std::vector<GroupSpec<T>> &groups) {

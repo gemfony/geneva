@@ -229,9 +229,9 @@ void GStandardPSO2011::adjustPopulation_() {
 
 /******************************************************************************/
 /**
- * Does some preparatory work before the optimization starts. It extracts the parameter boundaries,
- * randomly initializes all particles (keeping particle 0 as the registered start individual), seeds the
- * velocities via the SPSO-2011 half-diff rule, and sets each personal best to the start position.
+ * Does some preparatory work before the optimization starts. It determines the floating-point parameter
+ * count, randomly initializes all particles (keeping particle 0 as the registered start individual),
+ * seeds the velocities via the SPSO-2011 half-diff rule, and sets each personal best to the start position.
  */
 void GStandardPSO2011::init() {
     GOptimizationAlgorithmT<GStandardPSO2011>::init();

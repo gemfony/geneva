@@ -408,11 +408,9 @@ public:
         return streamlineIntoImpl<std::int32_t>(dst, layout_->i, iv_, am);
     }
 
-    /** @brief Adaption-time write-fold (§2.2): contains every bounded value after the adaption kernels
-     *  added their (unbounded) step. Called by the OA adaption driver right after the kernels run -- a
-     *  bounded FP value is folded into the canonical internal interval [-0.5, 0.5), a bounded int into its
-     *  closed [lo, hi] range; unbounded ("plain") parameters roam freely. The bool channel is always valid
-     *  (0/1), so it is not folded. */
+    /** @brief Adaption-time write-fold (§2.2): folds every bounded value back into range in the FP and
+     *  int32 stores (see foldChannelInPlace for the per-channel semantics). Called by the OA adaption
+     *  driver right after the kernels run. The bool channel is always valid (0/1), so it is not folded. */
     void foldConstrainedValuesInPlace() {
         foldChannelInPlace<double>(layout_->d, dv_);
         foldChannelInPlace<float>(layout_->f, fv_);
@@ -579,6 +577,9 @@ private:
                 );
             }
 #endif /* DEBUG */
+            // The read-side clamp is in EXTERNAL coordinates and is not redundant with the write-side
+            // internal clamp: a valid internal value (< 0.5) can still round, through the affine map and
+            // the narrowing cast, exactly onto the exclusive external upper -- this enforces [lo, hi) there.
             return ngClampHalfOpen<T>(
                 ngInternalToExternal<T>(stored, scale, anchor), ch.lower[k], ch.upper[k]
             );

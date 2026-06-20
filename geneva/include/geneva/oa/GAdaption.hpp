@@ -227,12 +227,12 @@ inline std::size_t runAdaptionKernels(
         }
     }
 
-    // Adaption-time fold: the gauss / bi-gauss / int-gauss kernels add their step to the UNBOUNDED
-    // internal value, so a constrained value can land outside [lo, hi). Fold each constrained value back
-    // into range now (storing the external representation) instead of letting the internal drift and
-    // folding only on read. This keeps the stored internal == external (so it is directly usable, e.g.
-    // memcpy-flatten to a device) and bounds the internal's drift across generations. NB it intentionally
-    // shifts the boundary random-walk dynamics: the next step starts from the folded position.
+    // Adaption-time write-fold (normalized-genome architecture §2.2): the gauss / bi-gauss / int-gauss
+    // kernels add their step to the raw internal value, so a bounded value can overshoot its canonical
+    // interval. Fold each bounded value back into range now -- a bounded FP value into the internal
+    // [-0.5, 0.5), a bounded int into its closed [lo, hi] -- rather than letting the internal magnitude
+    // grow unbounded. The fold is external-value-preserving, so the next step simply starts from the
+    // folded (reflected) internal position; unbounded parameters are left to roam.
     if(n > 0) {
         ind.foldConstrainedValuesInPlace();
     }

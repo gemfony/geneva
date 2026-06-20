@@ -355,7 +355,7 @@ void GSepCmaEvolutionStrategy::adjustPopulation_() {
         );
     }
 
-    // Determine the dimension n and the parameter bounds, then derive lambda/mu/weights/constants.
+    // Determine the dimension n, then derive lambda/mu/weights/constants.
     determineDimension();
     setUpStrategyParameters();
 

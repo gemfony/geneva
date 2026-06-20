@@ -280,8 +280,8 @@ void GAntColonyOptimization::adjustPopulation_() {
 
 /******************************************************************************/
 /**
- * Does some preparatory work before the optimization starts: extracts the parameter boundaries, computes
- * the ranked selection probabilities and seeds the initial archive into the first k population slots
+ * Does some preparatory work before the optimization starts: determines the floating-point parameter
+ * count, computes the ranked selection probabilities and seeds the initial archive into the first k population slots
  * (member 0 keeps the registered start individual; the rest are randomized uniformly inside the box).
  */
 void GAntColonyOptimization::init() {

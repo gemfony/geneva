@@ -326,8 +326,8 @@ void GGeneralizedSimulatedAnnealing::adjustPopulation_() {
 
 /******************************************************************************/
 /**
- * Does some preparatory work before the optimization starts: extracts the parameter boundaries, derives
- * the effective initial visiting temperature, seeds the chains (chain 0's current slot keeps the
+ * Does some preparatory work before the optimization starts: determines the floating-point parameter
+ * count, derives the effective initial visiting temperature, seeds the chains (chain 0's current slot keeps the
  * registered start individual; the other chains' current slots are randomized uniformly inside the box;
  * each proposal slot is initialized from its current slot) and initializes the per-chain cooling clocks.
  */

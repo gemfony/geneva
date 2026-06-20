@@ -170,14 +170,12 @@ T foldConstrainedInt(const T &val, const T &lo, const T &hi) {
 /******************************************************************************/
 // --- Normalized internal coordinate (normalized-genome architecture, §2.1) ---------------------------
 // The OA-facing INTERNAL value lives in the centered, width-1 interval [-0.5, 0.5); the user-facing
-// EXTERNAL value is an affine image of it (plus, for a constrained parameter, the reflecting fold above).
+// EXTERNAL value is an affine image of it (plus, for a bounded parameter, the reflecting fold above).
 // With a width-1 interval, scale == (upper - lower) and anchor == (upper + lower) / 2, so internal
-// -0.5 maps to `lower` and +0.5 to `upper`. (scale equals the per-group `range` already stored in the
-// layout; the two are unified in Phase 3.) All maps compose in long double for a faithful, well-
-// conditioned round-trip even for offset / narrow boxes (compare §2.1).
-//
-// Phase-1 status: these are the single source of truth for the coordinate transform but are NOT yet
-// wired into the live read/write path (that is Phase 2), so genome behaviour is unchanged.
+// -0.5 maps to `lower` and +0.5 to `upper`. `scale` is the single scale concept of the model, computed
+// here from the bounds (ngScale) -- there is no separately stored copy. These helpers are the single
+// source of truth for the coordinate transform and back the live read/write path (GFlatGenome). All maps
+// compose in long double for a faithful, well-conditioned round-trip even for offset / narrow boxes.
 
 /** @brief external = anchor + u * scale, composed in long double and narrowed back to T. */
 template <typename T>

@@ -348,8 +348,7 @@ void GNelderMead::resetToOptimizationStart_() {
  * @brief Loads the data of another GNelderMead object into this one.
  *
  * The parent class'es data (including all individuals) is loaded first, followed by this class's own
- * serialized members. The transient parameter boundaries and the pending-trials flag are not restored;
- * they are re-established in init().
+ * serialized members. The transient pending-trials flag is not restored; it is reset in init().
  *
  * @param cp A constant pointer to another GOptimizationAlgorithmBase, expected to be a GNelderMead
  */
