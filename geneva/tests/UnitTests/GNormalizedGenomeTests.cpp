@@ -433,25 +433,6 @@ TEST_CASE(
     CHECK(faithful(x[0], 2. + u_after[0] * 8.));
 }
 
-/******************************************************************************/
-TEST_CASE(
-    "normalized-genome: the internal boundary view is the canonical interval for a bounded parameter",
-    "[normalized-genome]"
-) {
-    NgMixedIndividual ind; // 2 bounded + 2 unbounded
-    std::vector<double> l;
-    std::vector<double> u;
-    ind.boundariesFPInternal(l, u, activityMode::ACTIVEONLY);
-    REQUIRE(l.size() == 4);
-    REQUIRE(u.size() == 4);
-    // Bounded params report the canonical interval [-0.5, 0.5); unbounded report the full ±range.
-    CHECK(l[0] == -0.5);
-    CHECK(u[0] == 0.5);
-    CHECK(l[1] == -0.5);
-    CHECK(u[1] == 0.5);
-    CHECK(u[2] == std::numeric_limits<double>::max());
-    CHECK(u[3] == std::numeric_limits<double>::max());
-}
 
 /******************************************************************************/
 TEST_CASE(

@@ -125,9 +125,8 @@ constexpr std::size_t GSA_PROPOSAL = 1;
  * (\f$t_{\mathrm{eff}}=t\f$); larger values cool proportionally more slowly so the
  * jumps stay useful across a long, time-bounded, high-dimensional search.
  * The initial visiting temperature \f$T_{q_v}(1)=T_0\f$ may be supplied
- * explicitly or, when left at \f$0\f$, derived from the parameter ranges (the
- * mean finite parameter span, with a robust fallback), mirroring how
- * GSimulatedAnnealing scales its start temperature.
+ * explicitly or, when left at \f$0\f$, defaults to one normalized parameter range
+ * (the chains move in the normalized internal coordinate, whose interval has width 1).
  *
  * \par Tsallis visiting distribution
  * The exact generalized visiting density of Tsallis & Stariolo for a jump
@@ -155,10 +154,10 @@ constexpr std::size_t GSA_PROPOSAL = 1;
  * \f[
  *   \tau(t) \;=\; \bar{L}\,\frac{T_{q_v}(t)}{T_{q_v}(1)} ,
  * \f]
- * where \f$\bar{L}\f$ is the mean finite parameter span. The derived initial
- * visiting temperature is set to \f$T_{q_v}(1)=\bar{L}\f$, so that the \em
- * initial jump scale is exactly \f$\tau(1)=\bar{L}\f$ -- on the order of the
- * search box -- and \f$\tau(t)\f$ then decays exactly with the visiting
+ * where \f$\bar{L}\f$ is the jump scale. The derived initial visiting temperature
+ * is set to \f$T_{q_v}(1)=\bar{L}=1\f$ (one normalized parameter range), so that the
+ * \em initial jump scale is exactly \f$\tau(1)=1\f$ -- the full normalized range --
+ * and \f$\tau(t)\f$ then decays exactly with the visiting
  * temperature, giving broad early exploration and fine late refinement within a
  * finite iteration budget. For each chain we then form the jump
  * \f[
@@ -209,7 +208,7 @@ constexpr std::size_t GSA_PROPOSAL = 1;
  *
  * \par Reuse of Geneva facilities
  * Candidate parameters are read and written through the standard flat genome FP
- * channels (streamlineFPInternal, assignFPValueVectorInternal, boundariesFPInternal) with
+ * channels (streamlineFPInternal, assignFPValueVectorInternal) with
  * activityMode::ACTIVEONLY, and the whole population is evaluated through the one
  * process consumer via workOnPopulation(), mirroring the other from-scratch
  * flat-genome optimizers (e.g. GSepCmaEvolutionStrategy, GStandardPSO2011,

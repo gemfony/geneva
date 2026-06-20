@@ -76,9 +76,12 @@ Recommended Versions:
   Removed: sep-CMA's clampToBox + bound vectors, GStandardPSO2011's boundary confinement
   (the fold replaces the clamp-and-bounce) + bound vectors, GSwarmAlgorithm's per-
   parameter velocity-cap vector (now a single dimensionless cap) + bound vectors, the
-  ACO bound vectors, and the defensive isfinite branches these used. PSO velocity
-  stabilization (pruneVelocity / the SPSO Vmax clamp) is kept but rescaled to a fixed
-  fraction of the unit interval. Near a bound an algorithm's trajectory now reflects
+  ACO bound vectors, GNelderMead's simplex-edge range scaling + bound vectors, and the
+  defensive isfinite branches these used. With no algorithm querying parameter bounds
+  any more, the genome's internal-coordinate boundary accessor (boundariesFPInternal)
+  was removed too. PSO velocity stabilization (pruneVelocity / the SPSO Vmax clamp) is
+  kept but rescaled to a fixed fraction of the unit interval. Near a bound an
+  algorithm's trajectory now reflects
   (continuous) rather than saturating (hard clamp); interior behaviour is unchanged.
   Some transient per-algorithm bookkeeping dropped out of the serialized form (it is
   recomputed at setup) -- consistent with the checkpoint clean break above.

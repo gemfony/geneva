@@ -419,11 +419,6 @@ private:
     std::uint32_t restart_threshold_ =
         DEFAULTNMRESTARTTHRESHOLD; ///< Stall count triggering an oriented restart (0 = disabled)
 
-    std::vector<double>
-        dbl_lower_parameter_boundaries_; ///< Lower boundaries of double parameters; extracted in init() (transient)
-    std::vector<double>
-        dbl_upper_parameter_boundaries_; ///< Upper boundaries of double parameters; extracted in init() (transient)
-
     bool trials_pending_ =
         false; ///< True once real trial points have been proposed (transient; gates the first decision)
 };

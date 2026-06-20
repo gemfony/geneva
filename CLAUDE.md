@@ -94,6 +94,14 @@ The genome is a **flat** list of parameters with a fixed structure; adaptors (mu
 
 See `docs/writing-optimization-problems.md` for the full guide, and `examples/geneva/10_GStarter/` (minimal) / `examples/geneva/03_GParameterObjectUsagePatterns/` for canonical examples. (The former `GParameterSet` tree-of-parameter-objects model has been removed.)
 
+#### Normalized coordinate model
+
+Internally, a floating-point parameter is stored in a **normalized internal coordinate** (magnitude ≈ 1, confined to the centered unit interval `[-0.5, 0.5)` for a bounded parameter); the user-visible **external** value is its affine image, composed in `long double` for a well-conditioned round-trip. This is invisible above the genome read/write layer — `fitnessCalculation()`, the GPU marshaller and user inspection always see external (user-coordinate) values via `streamline<T>()` / `streamlineFP()`; the optimization algorithms are **boundary-agnostic** and work in the internal coordinate via the `*Internal` accessors.
+
+- A parameter is **bounded** (`addDouble(init, lo, hi)`, `addDoubleGroup`, …) or **unbounded** (`addDoublePlainGroup`, `addDouble(init)`, …) — a single `fold` bit. A bounded value folds into its `[lo, hi)` interval on every write; an out-of-range **external assignment throws** (including exactly the open `upper`). An unbounded value roams ℝ; its `[min, max]` is only the init perimeter / mutation scale, not a constraint.
+- **Mutation parameters are dimensionless fractions of a parameter's range.** σ, σ-bounds, the GD/CGD finite step and the PSO velocity fraction are interpreted as a fraction of the parameter's range (`1.0` = the full range; `×100` = percent) — the same default works for any range. Rates/probabilities (`sigma_sigma`, `ad_prob`, ACO `xi`) are dimensionless rates, unchanged.
+- Stored representation changed, so **older binary checkpoints do not load** (a clean break); JSON configs need no migration (the values were already fractional).
+
 ### Parallelization
 
 Parallelization is configured externally (via `Go2` JSON config or command-line), not in the problem definition. The same individual code runs serially, multi-threaded, over MPI, or via websockets without modification. On the networked transports the shared genome layout is sent once per client and the individual's parameters are not echoed back with each result — see "Wire transport" under Serialization below.

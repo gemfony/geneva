@@ -795,39 +795,6 @@ private:
         }
     }
 
-    /** @brief Collects the INTERNAL-coordinate bounds of an FP channel's active parameters (§2.3): a
-     *  bounded parameter spans the canonical interval [-0.5, 0.5); an unbounded one spans the full ±range
-     *  (no internal wall).
-     *  @tparam T The FP channel's value type (double / float)
-     *  @param l Output vector filled with each active parameter's internal lower bound
-     *  @param u Output vector filled with each active parameter's internal upper bound
-     *  @param ch The channel layout (kind / active flags)
-     *  @param am The activity mode selecting which parameters are reported */
-    template <typename T>
-    void boundariesInternalImpl(
-        std::vector<T> &l,
-        std::vector<T> &u,
-        ChannelLayout<T> const &ch,
-        activityMode const &am
-    ) const {
-        static_assert(std::is_floating_point_v<T>, "the internal boundary view is FP-only");
-        l.clear();
-        u.clear();
-        for(std::size_t k = 0; k < ch.size(); ++k) {
-            if(not amMatch(ch.active[k], am)) {
-                continue;
-            }
-            if(ch.fold[k]) {
-                l.push_back(T(-0.5));
-                u.push_back(T(0.5));
-            }
-            else {
-                l.push_back(std::numeric_limits<T>::lowest());
-                u.push_back((std::numeric_limits<T>::max)());
-            }
-        }
-    }
-
     /** @brief Counts how many of a channel's parameters match the requested activity mode.
      *  @tparam T The channel's value type (double / float / int32 / bool)
      *  @param ch The channel layout (active flags)
@@ -973,11 +940,6 @@ private:
     void assignValueVectorInternal_(std::vector<double> const &v, activityMode const &am) override { assignInternalImpl<double>(v, layout_->d, dv_, am); }
     /** @brief Internal-writes (folds) v into the float channel's active slots. @param v Internal values. @param am Activity mode. */
     void assignValueVectorInternal_(std::vector<float> const &v, activityMode const &am) override { assignInternalImpl<float>(v, layout_->f, fv_, am); }
-
-    /** @brief Collects internal-coordinate double bounds. @param l Lower out. @param u Upper out. @param am Activity mode. */
-    void boundariesInternal_(std::vector<double> &l, std::vector<double> &u, activityMode const &am) const override { boundariesInternalImpl<double>(l, u, layout_->d, am); }
-    /** @brief Collects internal-coordinate float bounds. @param l Lower out. @param u Upper out. @param am Activity mode. */
-    void boundariesInternal_(std::vector<float> &l, std::vector<float> &u, activityMode const &am) const override { boundariesInternalImpl<float>(l, u, layout_->f, am); }
 
     /***************************************************************************/
     // Data: the four contiguous value channels + the shared structural layout.

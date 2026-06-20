@@ -324,10 +324,8 @@ void GNelderMead::compare_(
 
     Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
 
-    // Local data, derived from the single localMembers() declaration.
-    // dbl_lower_parameter_boundaries_, dbl_upper_parameter_boundaries_ and trials_pending_
-    // are transient: recomputed in init() and not restored in load_(). Comparing
-    // them would cause round-trip equality tests to fail spuriously.
+    // Local data, derived from the single localMembers() declaration. trials_pending_ is transient:
+    // reset in init() and not restored in load_(). Comparing it would fail round-trip equality spuriously.
     g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
 
     token.evaluate();
@@ -337,11 +335,9 @@ void GNelderMead::compare_(
 /**
  * @brief Resets transient state so a fresh optimization run can start.
  *
- * Clears the cached parameter boundaries and the pending-trials flag, then delegates to the base class.
+ * Clears the pending-trials flag, then delegates to the base class.
  */
 void GNelderMead::resetToOptimizationStart_() {
-    dbl_lower_parameter_boundaries_.clear();
-    dbl_upper_parameter_boundaries_.clear();
     trials_pending_ = false;
 
     GOptimizationAlgorithmBase::resetToOptimizationStart_();
@@ -715,28 +711,11 @@ void GNelderMead::runFitnessCalculation_() {
 /**
  * @brief Does some preparatory work before the optimization starts.
  *
- * Caches the floating-point parameter boundaries of the first individual, clears the pending-trials flag,
- * builds the initial simplices and records each individual's population position.
+ * Clears the pending-trials flag, builds the initial simplices and records each individual's population
+ * position. (The algorithm is boundary-agnostic: it works in the normalized internal coordinate.)
  */
 void GNelderMead::init() {
     GOptimizationAlgorithmBase::init();
-
-    this->at(0)->individual().boundariesFPInternal(
-        dbl_lower_parameter_boundaries_,
-        dbl_upper_parameter_boundaries_,
-        activityMode::ACTIVEONLY
-    );
-
-#ifdef DEBUG
-    if(dbl_lower_parameter_boundaries_.size() != dbl_upper_parameter_boundaries_.size()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GNelderMead::init(): Error!" << '\n'
-            << "Found invalid sizes: " << dbl_lower_parameter_boundaries_.size() << " / "
-            << dbl_upper_parameter_boundaries_.size() << '\n'
-        );
-    }
-#endif /* DEBUG */
 
     trials_pending_ = false;
     buildInitialSimplices();
@@ -749,9 +728,8 @@ void GNelderMead::init() {
  *
  * Vertex 0 of
  * every simplex is the (user-supplied or randomized) seed; the remaining n
- * vertices are obtained by perturbing one coordinate each. The perturbation is
- * a fraction (initial_edge_) of the parameter range where that range is finite,
- * and a robust absolute fallback otherwise.
+ * vertices are obtained by perturbing one coordinate each by a dimensionless fraction
+ * (initial_edge_) of the normalized unit interval.
  */
 void GNelderMead::buildInitialSimplices() {
     for(std::size_t s = 0; s < n_simplices_; s++) {
@@ -762,16 +740,9 @@ void GNelderMead::buildInitialSimplices() {
             std::vector<double> p = p0;
             const std::size_t k = v - 1; // coordinate perturbed for this vertex
 
-            double edge = 0.0;
-            const double range =
-                dbl_upper_parameter_boundaries_[k] - dbl_lower_parameter_boundaries_[k];
-            if(std::isfinite(range) && range > 0.) {
-                edge = initial_edge_ * range;
-            }
-            else {
-                edge = (std::fabs(p0[k]) > 1e-12) ? initial_edge_ * std::fabs(p0[k])
-                                                  : initial_edge_;
-            }
+            // The simplex edge is a dimensionless fraction of the normalized unit interval (the same for
+            // every parameter); positions live in the internal coordinate, so no per-parameter range.
+            const double edge = initial_edge_;
 
             p[k] += edge;
             this->at(vertexPos(s, v))->individual().assignFPValueVectorInternal(p, activityMode::ACTIVEONLY);
@@ -849,15 +820,9 @@ bool GNelderMead::restartSimplices() {
             }
             std::vector<double> p = xb;
 
-            double edge = 0.0;
-            const double range =
-                dbl_upper_parameter_boundaries_[k] - dbl_lower_parameter_boundaries_[k];
-            if(std::isfinite(range) && range > 0.) {
-                edge = initial_edge_ * range;
-            }
-            else {
-                edge = (std::fabs(xb[k]) > 1e-12) ? initial_edge_ * std::fabs(xb[k]) : initial_edge_;
-            }
+            // The simplex edge is a dimensionless fraction of the normalized unit interval (see
+            // buildInitialSimplices); positions live in the internal coordinate, so no per-parameter range.
+            const double edge = initial_edge_;
 
             // Orient the perturbation downhill: step in the direction leading from the
             // (worse) centroid towards the best vertex. Fall back to + when they coincide.

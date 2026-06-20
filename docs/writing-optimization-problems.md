@@ -64,6 +64,26 @@ this->setGenome(b.build());
 `.adaptionMode(mode)`. A handle from an `add*Array`/`add*Group` call applies to **every** group it
 created.
 
+### Bounded vs unbounded, and the normalized coordinate model
+
+Geneva stores a floating-point parameter in a **normalized internal coordinate** (confined to the
+centered unit interval `[-0.5, 0.5)` for a bounded parameter) and presents the user-visible **external**
+value — the one your `fitnessCalculation()` sees via `streamline<T>()` — as its affine image. You never
+deal with the internal coordinate directly; the model only changes how you think about two things:
+
+- **Bounded vs unbounded is a single choice at build time.** A bounded parameter (`addDouble(init, lo,
+  hi)`, `addDoubleGroup`, …) has a hard `[lo, hi)` wall: a mutation that overshoots is folded back into
+  range, and assigning an out-of-range external value (including exactly `upper`) **throws**. An
+  unbounded parameter (`addDoublePlainGroup`, `addDouble(init)`, …) has no wall — it may roam ℝ; its
+  `[min, max]` is only the init perimeter / mutation scale (e.g. a neural-net weight seeded in `[-10,10]`
+  may reach 200). `.perimeter(lo, hi)` narrows the random-init region (it may be tighter than a bounded
+  parameter's wall).
+- **Mutation magnitudes are fractions of the parameter's range.** The Gauss σ (and σ-bounds), the
+  GD/CGD finite step and the PSO velocity fraction are dimensionless fractions of the range: `σ = 0.1`
+  means "10% of this parameter's range" for *every* parameter and *every* problem, so re-ranging a
+  parameter never requires re-tuning its σ. Rates and probabilities (`sigma_sigma`, `ad_prob`, ACO `xi`)
+  are dimensionless and unaffected.
+
 ## 3. Author adaptors on the OA-owned `GAdaptionConfig`
 
 Adaptors are configured **per optimization algorithm**, on a `GAdaptionConfig` built from the
