@@ -113,6 +113,23 @@ for arg in "$@"; do
 	esac
 done
 
+# Geneva REQUIRES an out-of-source build. The build directory is the directory this script is invoked
+# from (GENEVA_BUILDROOT = PWD). Refuse to proceed when that is the source tree itself -- a common
+# footgun when the script is run from the checkout instead of a dedicated build directory. Left
+# unguarded, --clean would delete the sources (find PWD ... -exec rm -rf) and a configure/build would
+# litter the source tree with CMake artifacts. This check is independent of all other options.
+_SRC_ROOT="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)"
+_BUILD_ROOT_CANON="$(cd "${GENEVA_BUILDROOT}" 2>/dev/null && pwd)"
+if [ -n "${_SRC_ROOT}" ] && [ "${_BUILD_ROOT_CANON}" = "${_SRC_ROOT}" ]; then
+	echo -e "\nError: refusing to use the Geneva source tree as the build directory:"
+	echo -e "  ${_SRC_ROOT}"
+	echo -e "Geneva requires an out-of-source build. Run this script from a dedicated build"
+	echo -e "directory, for example:\n"
+	echo -e "  mkdir -p ~/build && cd ~/build"
+	echo -e "  $(cd "$(dirname "$0")" && pwd)/$(basename "$0") /path/to/myConfig.gcfg --clean -y --build\n"
+	exit 1
+fi
+
 # --clean may not be combined with --dryrun or --generate-preset.
 if [ "${CLEAN}" = "1" ]; then
 	if [ "${DRYRUN}" = "1" ] || [ "${GENERATE_PRESET}" = "1" ]; then
