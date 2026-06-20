@@ -237,8 +237,6 @@ void GSepCmaEvolutionStrategy::resetToOptimizationStart_() {
     C_.clear();
     p_sigma_.clear();
     p_c_.clear();
-    lower_.clear();
-    upper_.clear();
     state_initialized_ = false;
     mu_eff_ = 0.;
     c_sigma_ = d_sigma_ = c_c_ = c_1_ = c_mu_ = chi_n_ = 0.;
@@ -249,25 +247,21 @@ void GSepCmaEvolutionStrategy::resetToOptimizationStart_() {
 
 /******************************************************************************/
 /**
- * Determines the dimension n_ and the parameter bounds from the first individual.
+ * Determines the dimension n_ from the first individual. No parameter bounds are needed: the strategy
+ * works in the normalized internal coordinate and an out-of-range sample is folded back into range by the
+ * genome on assignment (no clamping in the algorithm).
  */
-void GSepCmaEvolutionStrategy::determineDimensionAndBounds() {
-    std::vector<double> mean;
-    this->at(0)->individual().streamlineFPInternal(mean, activityMode::ACTIVEONLY);
-    n_ = mean.size();
+void GSepCmaEvolutionStrategy::determineDimension() {
+    n_ = this->at(0)->individual().countFPParameters(activityMode::ACTIVEONLY);
 
     if(n_ == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GSepCmaEvolutionStrategy::determineDimensionAndBounds(): Error!" << '\n'
+            << "In GSepCmaEvolutionStrategy::determineDimension(): Error!" << '\n'
             << "The individual exposes no floating point parameters; sep-CMA-ES" << '\n'
             << "requires a continuous (double / float) genome." << '\n'
         );
     }
-
-    lower_.clear();
-    upper_.clear();
-    this->at(0)->individual().boundariesFPInternal(lower_, upper_, activityMode::ACTIVEONLY);
 }
 
 /******************************************************************************/
@@ -362,7 +356,7 @@ void GSepCmaEvolutionStrategy::adjustPopulation_() {
     }
 
     // Determine the dimension n and the parameter bounds, then derive lambda/mu/weights/constants.
-    determineDimensionAndBounds();
+    determineDimension();
     setUpStrategyParameters();
 
     // Grow the population to lambda offspring, all clones of the prototype.
@@ -406,10 +400,10 @@ void GSepCmaEvolutionStrategy::init() {
         }
     }
 
-    // The dimension / bounds / constants were established in adjustPopulation_(); refresh in case a
-    // resumed run carried a stale value.
-    if(n_ == 0 || lower_.size() != n_) {
-        determineDimensionAndBounds();
+    // The dimension / constants were established in adjustPopulation_(); refresh if the dimension is
+    // unset or no longer matches the genome (e.g. a resumed run carrying a stale value).
+    if(n_ == 0 || n_ != this->at(0)->individual().countFPParameters(activityMode::ACTIVEONLY)) {
+        determineDimension();
         setUpStrategyParameters();
     }
 
@@ -458,24 +452,6 @@ void GSepCmaEvolutionStrategy::finalize() {
 
 /******************************************************************************/
 /**
- * Clamps a flat parameter vector to the [lower, upper) box. The parameter objects themselves fold
- * constrained values on assignment, but clamping here keeps the sampled representation consistent with
- * what is evaluated.
- */
-void GSepCmaEvolutionStrategy::clampToBox(std::vector<double> &x) const {
-    for(std::size_t i = 0; i < x.size() && i < lower_.size(); ++i) {
-        if(std::isfinite(lower_[i]) && x[i] < lower_[i]) {
-            x[i] = lower_[i];
-        }
-        if(std::isfinite(upper_[i]) && x[i] >= upper_[i]) {
-            // Half-open interval [lower, upper): nudge just below the upper bound.
-            x[i] = std::nextafter(upper_[i], lower_[i]);
-        }
-    }
-}
-
-/******************************************************************************/
-/**
  * Samples lambda offspring from the current distribution into the population.
  *   x_k = m + sigma * sqrt(C) o N(0,I)
  */
@@ -500,10 +476,10 @@ void GSepCmaEvolutionStrategy::sampleOffspring() {
         for(std::size_t i = 0; i < n_; ++i) {
             x[i] = m_[i] + (sigma_ * std::sqrt(C_[i]) * z[i]);
         }
-        clampToBox(x);
 
-        // Write the sampled values into the individual (constrained folding happens inside the parameter
-        // objects) and mark it for (re)evaluation.
+        // Write the sampled values into the individual. A bounded coordinate that overshot its range is
+        // folded back into range by the genome on assignment (no clamping needed here); an unbounded one
+        // roams freely. Mark it for (re)evaluation.
         this->at(k)->individual().assignFPValueVectorInternal(x, activityMode::ACTIVEONLY);
         this->at(k)->individual().mark_as_due_for_processing();
     }

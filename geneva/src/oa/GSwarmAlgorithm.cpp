@@ -119,9 +119,8 @@ GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
   , update_rule_(cp.update_rule_)
   , random_fill_up_(cp.random_fill_up_)
   , repulsion_threshold_(cp.repulsion_threshold_)
-  , dbl_lower_parameter_boundaries_cnt_(cp.dbl_lower_parameter_boundaries_cnt_)
-  , dbl_upper_parameter_boundaries_cnt_(cp.dbl_upper_parameter_boundaries_cnt_)
-  , dbl_vel_max_cnt_(cp.dbl_vel_max_cnt_)
+  , vel_max_(cp.vel_max_)
+  , n_fp_parms_(cp.n_fp_parms_)
   , velocity_range_percentage_(cp.velocity_range_percentage_) {
     // Note that this setting might differ from nCPIndividuals, as it is not guaranteed
     // that cp has, at the time of copying, all individuals present in each neighborhood.
@@ -295,9 +294,8 @@ void GSwarmAlgorithm::resetToOptimizationStart_() {
         n_neighborhoods_
     ); // The collection of best individuals from each neighborhood
 
-    dbl_lower_parameter_boundaries_cnt_.clear(); // Holds lower boundaries of double parameters
-    dbl_upper_parameter_boundaries_cnt_.clear(); // Holds upper boundaries of double parameters
-    dbl_vel_max_cnt_.clear(); // Holds the maximum allowed values of double-type velocities
+    vel_max_ = 0.;     // The dimensionless maximum velocity (recomputed in init())
+    n_fp_parms_ = 0;   // The active floating-point parameter count (recomputed in init())
 
     last_iteration_individuals_cnt_
         .clear(); // A temporary copy of the last iteration's individuals
@@ -656,47 +654,14 @@ void GSwarmAlgorithm::init() {
     // To be performed before any other action
     GOptimizationAlgorithmBase::init();
 
-    // Extract the boundaries of all parameters
-    this->at(0)->individual().boundariesFPInternal(
-        dbl_lower_parameter_boundaries_cnt_,
-        dbl_upper_parameter_boundaries_cnt_,
-        activityMode::ACTIVEONLY
-    );
+    // The number of active floating point parameters fixes the per-particle velocity block size; the
+    // swarm works in the normalized internal coordinate and needs no per-parameter bounds.
+    n_fp_parms_ = this->at(0)->individual().countFPParameters(activityMode::ACTIVEONLY);
 
-#ifdef DEBUG
-    // Size matters!
-    if(dbl_lower_parameter_boundaries_cnt_.size() != dbl_upper_parameter_boundaries_cnt_.size()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GSwarmAlgorithm::init(): Error!" << '\n'
-            << "Found invalid sizes: " << dbl_lower_parameter_boundaries_cnt_.size() << " / "
-            << dbl_upper_parameter_boundaries_cnt_.size() << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    // Calculate the allowed maximum values of the velocities. The per-dimension cap is
-    // l * (upper - lower); an inverted boundary (lower > upper) would make it negative, which later feeds
-    // a std::uniform_real_distribution::param_type(-range, range) with a > b (undefined behaviour) and a
-    // negative velocity clamp. The genome builder does not reject inverted bounds, so guard against them
-    // here (in release builds too) with a clear error rather than silently producing UB. An equal-bound
-    // (frozen) parameter has range 0, which is fine -- its velocity cap is simply 0.
-    double l = getVelocityRangePercentage();
-    dbl_vel_max_cnt_.clear();
-    for(std::size_t i = 0; i < dbl_lower_parameter_boundaries_cnt_.size(); i++) {
-        const double range =
-            dbl_upper_parameter_boundaries_cnt_[i] - dbl_lower_parameter_boundaries_cnt_[i];
-        if(range < 0.) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GSwarmAlgorithm::init(): Error!" << '\n'
-                << "Parameter " << i << " has inverted boundaries: lower="
-                << dbl_lower_parameter_boundaries_cnt_[i] << " > upper="
-                << dbl_upper_parameter_boundaries_cnt_[i] << '\n'
-            );
-        }
-        dbl_vel_max_cnt_.push_back(l * range);
-    }
+    // The maximum velocity is a single dimensionless fraction of the normalized unit interval (the same
+    // for every parameter), used to stabilize the velocities (pruneVelocity); positions are contained by
+    // the genome's write-fold, not by clamping here.
+    vel_max_ = getVelocityRangePercentage();
 
     // Each particle's velocity is a per-slot POD double block (one double per active floating-point
     // parameter) installed + randomised lazily by updatePositions() (which guarantees every slot --
@@ -954,18 +919,16 @@ void GSwarmAlgorithm::updatePositions() {
     // the original population, but adjustNeighborhoods() may have spliced in fresh slots (cloned
     // individuals wrapped in empty slots) to fill short neighborhoods after lost returns -- give those a
     // freshly randomised velocity here so the velocity always travels with its particle.
-    const std::size_t n_vel = dbl_vel_max_cnt_.size();
     for(const auto &slot : *this) {
         if(not slot->scratch().hasAux(AUXKEY_SWARM_VELOCITY)) {
             slot->scratch().installAuxBlock<double>(
-                AUXKEY_SWARM_VELOCITY, n_vel, gen::AuxScope::PerIndividual
+                AUXKEY_SWARM_VELOCITY, n_fp_parms_, gen::AuxScope::PerIndividual
             );
             std::span<double> vel = slot->scratch().metaRecords<double>(AUXKEY_SWARM_VELOCITY);
-            for(std::size_t i = 0; i < n_vel; i++) {
-                const double range = dbl_vel_max_cnt_[i];
+            for(std::size_t i = 0; i < n_fp_parms_; i++) {
                 vel[i] = GOptimizationAlgorithmBase::uniform_real_distribution_(
                     gr_,
-                    std::uniform_real_distribution<double>::param_type(-range, range)
+                    std::uniform_real_distribution<double>::param_type(-vel_max_, vel_max_)
                 );
             }
         }
@@ -1266,51 +1229,26 @@ void GSwarmAlgorithm::updateIndividualPositions(
  * @param vel_vec the velocity vector to be adjusted
  */
 void GSwarmAlgorithm::pruneVelocity(std::vector<double> &vel_vec) {
-#ifdef DEBUG
-    if(vel_vec.size() != dbl_vel_max_cnt_.size()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GSwarmAlgorithm::pruneVelocity(): Error!" << '\n'
-            << "Found invalid vector sizes: " << vel_vec.size() << " / " << dbl_vel_max_cnt_.size()
-            << '\n'
-        );
+    // The velocity cap vel_max_ is a single dimensionless fraction of the normalized unit interval, the
+    // same for every parameter. A zero cap (velocity range percentage of 0) freezes all velocities.
+    if(vel_max_ <= 0.) {
+        std::fill(vel_vec.begin(), vel_vec.end(), 0.);
+        return;
     }
 
-#endif
-
-    // Find the parameter that exceeds the allowed range by the largest percentage
-    double current_percentage = 0.;
-    double max_percentage = 0.;
+    // Find the component that exceeds the cap by the largest factor; if any does, scale the whole velocity
+    // vector down uniformly so its largest component sits exactly at the cap (preserving its direction).
+    double max_percentage = 1.;
     bool overflow_found = false;
-    for(std::size_t i = 0; i < vel_vec.size(); i++) {
-        if(dbl_vel_max_cnt_[i] <= 0.) {
-            // A frozen parameter (upper == lower, so the allowed velocity range l*(upper-lower) is 0)
-            // cannot move: clamp its velocity to zero and skip it. It can never exceed its zero
-            // allowance, and it must NOT contribute to max_percentage below (dividing by its zero max
-            // would be undefined). Freezing a parameter by equal bounds is a normal, supported use case.
-            vel_vec[i] = 0.;
-            continue;
-        }
-
-        if(std::abs(vel_vec[i]) > dbl_vel_max_cnt_[i]) {
+    for(double v : vel_vec) {
+        if(std::abs(v) > vel_max_) {
             overflow_found = true;
-            current_percentage = std::abs(vel_vec[i]) / dbl_vel_max_cnt_[i];
-            max_percentage = std::max(current_percentage, max_percentage);
+            max_percentage = std::max(max_percentage, std::abs(v) / vel_max_);
         }
     }
 
     if(overflow_found) {
-        // Scale all velocity entries by max_percentage
-        for(double & i : vel_vec) {
-#ifdef DEBUG
-            if(max_percentage <= 0.) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GSwarmAlgorithm::pruneVelocity(): Error!" << '\n'
-                    << "Invalid max_percentage: " << max_percentage << '\n'
-                );
-            }
-#endif
+        for(double &i : vel_vec) {
             i /= max_percentage;
         }
     }

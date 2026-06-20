@@ -134,19 +134,12 @@ constexpr std::size_t DEFAULTSPSOK = 3;          ///< The default number of part
  *   x_i \leftarrow x_i + v_i .
  * \f]
  *
- * @par Boundary confinement
- * After the position update, each dimension is confined to its allowed range
- * \f$[\mathrm{lower}_d, \mathrm{upper}_d]\f$. If \f$x_{i,d}\f$ leaves the range, it is clamped to the
- * boundary and its velocity component is reversed and halved:
- * \f[
- *   x_{i,d} < \mathrm{lower}_d \;\Rightarrow\;
- *     x_{i,d} = \mathrm{lower}_d,\; v_{i,d} = -\tfrac{1}{2} v_{i,d},
- * \f]
- * \f[
- *   x_{i,d} > \mathrm{upper}_d \;\Rightarrow\;
- *     x_{i,d} = \mathrm{upper}_d,\; v_{i,d} = -\tfrac{1}{2} v_{i,d} .
- * \f]
- * Dimensions with an unbounded (non-finite) range are not confined.
+ * @par Boundary handling
+ * The swarm works in the normalized internal coordinate and is boundary-agnostic: it never queries or
+ * clamps parameter bounds. A position that overshoots a bounded parameter's range is folded back into
+ * range by the genome on assignment (continuous reflection); an unbounded parameter roams freely. Only
+ * the velocity is stabilized, by capping each component to a fixed fraction (SPSO_VMAX_FACTOR) of the
+ * normalized unit interval.
  *
  * @par Velocity clamping (deviation from strict SPSO-2011)
  * After the velocity update each component is clamped to \f$\pm\,k\,(\mathrm{upper}_d-\mathrm{lower}_d)\f$
@@ -305,8 +298,6 @@ private:
     std::tuple<double, double> updateBests();
     /** @brief Determines the local best position of a particle from its informants */
     std::vector<double> localBest(std::size_t particle) const;
-    /** @brief Confines a position to its boundaries, reflecting the velocity component */
-    void confine(std::vector<double> &pos, std::vector<double> &vel) const;
 
     /***************************************************************************/
     // User-facing strategy parameters (configured by the user / factory)
@@ -331,9 +322,6 @@ private:
 
     std::vector<std::vector<bool>>
         informs_; ///< informs_[i][j] == true iff particle i informs particle j
-
-    std::vector<double> dbl_lower_; ///< Lower boundaries of the fp parameters
-    std::vector<double> dbl_upper_; ///< Upper boundaries of the fp parameters
 
     bool global_best_improved_ =
         true; ///< Whether the global best improved in the previous iteration (gates topology rebuild)

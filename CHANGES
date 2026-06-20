@@ -70,6 +70,19 @@ Recommended Versions:
   the layout's content hash and serialized form -- consistent with the checkpoint clean
   break above.
 
+- The optimization algorithms are now boundary-agnostic: they read and write the
+  normalized internal coordinate and rely on the genome's write-fold to contain an
+  out-of-range value (continuous reflection), so the bespoke containment code is gone.
+  Removed: sep-CMA's clampToBox + bound vectors, GStandardPSO2011's boundary confinement
+  (the fold replaces the clamp-and-bounce) + bound vectors, GSwarmAlgorithm's per-
+  parameter velocity-cap vector (now a single dimensionless cap) + bound vectors, the
+  ACO bound vectors, and the defensive isfinite branches these used. PSO velocity
+  stabilization (pruneVelocity / the SPSO Vmax clamp) is kept but rescaled to a fixed
+  fraction of the unit interval. Near a bound an algorithm's trajectory now reflects
+  (continuous) rather than saturating (hard clamp); interior behaviour is unchanged.
+  Some transient per-algorithm bookkeeping dropped out of the serialized form (it is
+  recomputed at setup) -- consistent with the checkpoint clean break above.
+
 - The optimizable-entity / genome layer was renamed from the namespace
   Gem::Geneva::Parameters to Gem::Geneva::Genome (the pervasive short alias gpar::
   became gen::), and the value-array type formerly named Genome is now GenomeData.

@@ -125,9 +125,6 @@ private:
             Gem::Common::make_member("update_rule_", self.update_rule_),
             Gem::Common::make_member("random_fill_up_", self.random_fill_up_),
             Gem::Common::make_member("repulsion_threshold_", self.repulsion_threshold_),
-            Gem::Common::make_member("dbl_lower_parameter_boundaries_cnt_", self.dbl_lower_parameter_boundaries_cnt_),
-            Gem::Common::make_member("dbl_upper_parameter_boundaries_cnt_", self.dbl_upper_parameter_boundaries_cnt_),
-            Gem::Common::make_member("dbl_vel_max_cnt_", self.dbl_vel_max_cnt_),
             Gem::Common::make_member("velocity_range_percentage_", self.velocity_range_percentage_)
         );
     }
@@ -488,12 +485,8 @@ protected:
     std::uint32_t repulsion_threshold_ =
         DEFREPULSIONTHRESHOLD; ///< The number of stalls until the swarm algorithm switches to repulsion instead of attraction
 
-    std::vector<double>
-        dbl_lower_parameter_boundaries_cnt_; ///< Holds lower boundaries of double parameters
-    std::vector<double>
-        dbl_upper_parameter_boundaries_cnt_; ///< Holds upper boundaries of double parameters
-    std::vector<double>
-        dbl_vel_max_cnt_; ///< Holds the maximum allowed values of double-type velocities
+    double vel_max_ = 0.; ///< The dimensionless velocity cap (a fraction of the normalized unit interval); recomputed in init() (transient)
+    std::size_t n_fp_parms_ = 0; ///< The number of active floating point parameters; recomputed in init() (transient)
 
     double velocity_range_percentage_ =
         DEFAULTVELOCITYRANGEPERCENTAGE; ///< Indicates the percentage of a value range used for the initialization of the velocity

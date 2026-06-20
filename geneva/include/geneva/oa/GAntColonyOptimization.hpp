@@ -360,9 +360,6 @@ private:
     std::vector<double>
         archive_fitness_; ///< Min-only transformed fitness of each archived solution
 
-    std::vector<double> dbl_lower_; ///< Lower boundaries of the fp parameters
-    std::vector<double> dbl_upper_; ///< Upper boundaries of the fp parameters
-
     std::vector<double>
         selection_probabilities_; ///< Cached roulette-wheel probabilities p_l
 };

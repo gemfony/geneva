@@ -190,8 +190,6 @@ private:
             Gem::Common::make_member("C_", self.C_),
             Gem::Common::make_member("p_sigma_", self.p_sigma_),
             Gem::Common::make_member("p_c_", self.p_c_),
-            Gem::Common::make_member("lower_", self.lower_),
-            Gem::Common::make_member("upper_", self.upper_),
             Gem::Common::make_member("state_initialized_", self.state_initialized_),
             Gem::Common::make_member("mu_eff_", self.mu_eff_),
             Gem::Common::make_member("c_sigma_", self.c_sigma_),
@@ -343,8 +341,8 @@ private:
     /***************************************************************************/
     // Algorithm-internal helpers
 
-    /** @brief Determines the dimension n and the parameter bounds from the first individual */
-    void determineDimensionAndBounds();
+    /** @brief Determines the dimension n from the first individual */
+    void determineDimension();
     /** @brief Derives lambda/mu/weights/constants once the dimension n is known */
     void setUpStrategyParameters();
     /** @brief Samples lambda offspring from the current distribution into the population */
@@ -356,8 +354,6 @@ private:
     std::vector<std::size_t> rankPopulationPareto() const;
     /** @brief Performs the mean / sigma / C / path updates from the ranked offspring */
     void updateDistribution(const std::vector<std::size_t> &ranked);
-    /** @brief Clamps a flat parameter vector to the [lower,upper) box */
-    void clampToBox(std::vector<double> &x) const;
 
     /***************************************************************************/
     // User-facing strategy parameters (configured by the user / factory)
@@ -378,8 +374,6 @@ private:
     std::vector<double> C_;          ///< The diagonal covariance (per-coordinate variance)
     std::vector<double> p_sigma_;    ///< The conjugate evolution path (CSA)
     std::vector<double> p_c_;        ///< The anisotropic evolution path (rank-1)
-    std::vector<double> lower_;      ///< Lower parameter boundaries
-    std::vector<double> upper_;      ///< Upper parameter boundaries
     bool state_initialized_ = false; ///< Whether the distribution state has been set up
 
     /***************************************************************************/

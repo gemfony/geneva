@@ -61,7 +61,7 @@ using Gem::Geneva::activityMode;
 namespace {
 const double SPSO_W = 1. / (2. * std::log(2.)); ///< inertia weight w = 1/(2 ln 2)
 const double SPSO_C = 0.5 + std::log(2.);       ///< acceleration c = 1/2 + ln 2
-constexpr double SPSO_VMAX_FACTOR = 0.2; ///< velocity clamp as a fraction of each parameter's range
+constexpr double SPSO_VMAX_FACTOR = 0.2; ///< velocity clamp as a fraction of the normalized unit interval
 } // namespace
 
 /******************************************************************************/
@@ -196,8 +196,6 @@ void GStandardPSO2011::resetToOptimizationStart_() {
     global_best_.clear();
     global_best_fitness_ = 0.;
     informs_.clear();
-    dbl_lower_.clear();
-    dbl_upper_.clear();
     global_best_improved_ = true;
 
     GOptimizationAlgorithmT<GStandardPSO2011>::resetToOptimizationStart_();
@@ -238,20 +236,11 @@ void GStandardPSO2011::adjustPopulation_() {
 void GStandardPSO2011::init() {
     GOptimizationAlgorithmT<GStandardPSO2011>::init();
 
-    // Extract the boundaries of all (active) floating point parameters.
-    dbl_lower_.clear();
-    dbl_upper_.clear();
-    this->at(0)->individual().boundariesFPInternal(dbl_lower_, dbl_upper_, activityMode::ACTIVEONLY);
+    // The swarm works in the normalized internal coordinate (boundary-agnostic): a bounded parameter
+    // occupies the unit interval [-0.5, 0.5) and an unbounded one its perimeter image, so no per-parameter
+    // bounds are needed -- only the count of active floating point parameters.
+    n_fp_parms_ = this->at(0)->individual().countFPParameters(activityMode::ACTIVEONLY);
 
-    n_fp_parms_ = dbl_lower_.size();
-
-    if(dbl_lower_.size() != dbl_upper_.size()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GStandardPSO2011::init(): Error!" << '\n'
-            << "Found invalid sizes: " << dbl_lower_.size() << " / " << dbl_upper_.size() << '\n'
-        );
-    }
     if(n_fp_parms_ == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -259,19 +248,6 @@ void GStandardPSO2011::init() {
             << "The individual exposes no floating point parameters; Standard PSO 2011" << '\n'
             << "requires a continuous (double / float) genome." << '\n'
         );
-    }
-
-    // Reject inverted bounds (lower > upper) up front: a negative range would feed
-    // uniform_real_distribution::param_type(lo, hi) with lo > hi (undefined behaviour).
-    for(std::size_t d = 0; d < n_fp_parms_; ++d) {
-        if(std::isfinite(dbl_lower_[d]) && std::isfinite(dbl_upper_[d]) && dbl_upper_[d] < dbl_lower_[d]) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GStandardPSO2011::init(): Error!" << '\n'
-                << "Found inverted bounds in dimension " << d << ": [" << dbl_lower_[d] << ", "
-                << dbl_upper_[d] << "]." << '\n'
-            );
-        }
     }
 
     velocities_.assign(swarm_size_, std::vector<double>(n_fp_parms_, 0.));
@@ -291,36 +267,24 @@ void GStandardPSO2011::init() {
         std::vector<double> pos;
         this->at(i)->individual().streamlineFPInternal(pos, activityMode::ACTIVEONLY);
 
-        // Particle 0 keeps the registered start individual; all others are randomized uniformly inside
-        // the box (where the range is finite).
+        // Particle 0 keeps the registered start individual; all others are randomized uniformly within the
+        // normalized unit interval [-0.5, 0.5) (an out-of-range value is folded back by the genome).
         if(i != 0) {
             for(std::size_t d = 0; d < n_fp_parms_; ++d) {
-                const double lo = dbl_lower_[d];
-                const double hi = dbl_upper_[d];
-                if(std::isfinite(lo) && std::isfinite(hi) && hi > lo) {
-                    pos[d] = uniform_real_distribution_(
-                        gr_,
-                        std::uniform_real_distribution<double>::param_type(lo, hi)
-                    );
-                }
+                pos[d] = uniform_real_distribution_(
+                    gr_,
+                    std::uniform_real_distribution<double>::param_type(-0.5, 0.5)
+                );
             }
             this->at(i)->individual().assignFPValueVectorInternal(pos, activityMode::ACTIVEONLY);
         }
 
-        // Half-diff velocity initialization: v_d = (U(lower, upper) - x_d) / 2 .
+        // Half-diff velocity initialization: v_d = (U(-0.5, 0.5) - x_d) / 2 (SPSO-2011, normalized box).
         for(std::size_t d = 0; d < n_fp_parms_; ++d) {
-            const double lo = dbl_lower_[d];
-            const double hi = dbl_upper_[d];
-            double sample = 0.0;
-            if(std::isfinite(lo) && std::isfinite(hi) && hi > lo) {
-                sample = uniform_real_distribution_(
-                    gr_,
-                    std::uniform_real_distribution<double>::param_type(lo, hi)
-                );
-            }
-            else {
-                sample = pos[d]; // unbounded dimension -> zero initial velocity
-            }
+            const double sample = uniform_real_distribution_(
+                gr_,
+                std::uniform_real_distribution<double>::param_type(-0.5, 0.5)
+            );
             velocities_[i][d] = 0.5 * (sample - pos[d]);
         }
 
@@ -433,33 +397,10 @@ std::vector<double> GStandardPSO2011::localBest(std::size_t particle) const {
 }
 
 /******************************************************************************/
-/**
- * Confines a position to its boundaries. A coordinate that leaves the allowed range is clamped to the
- * boundary and its velocity component is reversed and halved. Dimensions with a non-finite range are
- * left untouched.
- */
-void GStandardPSO2011::confine(std::vector<double> &pos, std::vector<double> &vel) const {
-    for(std::size_t d = 0; d < n_fp_parms_; ++d) {
-        const double lo = dbl_lower_[d];
-        const double hi = dbl_upper_[d];
-        if(!std::isfinite(lo) || !std::isfinite(hi) || hi <= lo) {
-            continue; // unbounded dimension: no confinement
-        }
-        if(pos[d] < lo) {
-            pos[d] = lo;
-            vel[d] = -0.5 * vel[d];
-        }
-        else if(pos[d] > hi) {
-            pos[d] = hi;
-            vel[d] = -0.5 * vel[d];
-        }
-    }
-}
-
 /******************************************************************************/
 /**
- * Updates the velocity and position of every particle using the SPSO-2011 hypersphere rule, then confines
- * positions to the parameter boundaries.
+ * Updates the velocity and position of every particle using the SPSO-2011 hypersphere rule. Positions are
+ * contained by the genome's write-fold on assignment (no explicit boundary clamping).
  */
 void GStandardPSO2011::updatePositions() {
     std::normal_distribution<double> gauss(0., 1.);
@@ -537,18 +478,14 @@ void GStandardPSO2011::updatePositions() {
         std::vector<double> &v = velocities_[i];
         for(std::size_t d = 0; d < n_fp_parms_; ++d) {
             v[d] = (SPSO_W * v[d]) + (x_prime[d] - x[d]);
-            const double lo = dbl_lower_[d];
-            const double hi = dbl_upper_[d];
-            if(std::isfinite(lo) && std::isfinite(hi) && hi > lo) {
-                const double vmax = SPSO_VMAX_FACTOR * (hi - lo);
-                v[d] = std::clamp(v[d], -vmax, vmax);
-            }
+            // Velocity stabilization (not boundary clamping): cap each component to SPSO_VMAX_FACTOR, a
+            // dimensionless fraction of the normalized unit interval (uniform across parameters).
+            v[d] = std::clamp(v[d], -SPSO_VMAX_FACTOR, SPSO_VMAX_FACTOR);
             x[d] = x[d] + v[d];
         }
 
-        // Boundary confinement.
-        confine(x, v);
-
+        // A coordinate that left its range is folded back by the genome on assignment (continuous
+        // reflection); no explicit boundary confinement here.
         this->at(i)->individual().assignFPValueVectorInternal(x, activityMode::ACTIVEONLY);
         this->at(i)->individual().mark_as_due_for_processing();
     }

@@ -231,8 +231,6 @@ void GAntColonyOptimization::resetToOptimizationStart_() {
     n_fp_parms_ = 0;
     archive_parms_.clear();
     archive_fitness_.clear();
-    dbl_lower_.clear();
-    dbl_upper_.clear();
     selection_probabilities_.clear();
 
     GOptimizationAlgorithmT<GAntColonyOptimization>::resetToOptimizationStart_();
@@ -282,21 +280,11 @@ void GAntColonyOptimization::adjustPopulation_() {
 void GAntColonyOptimization::init() {
     GOptimizationAlgorithmT<GAntColonyOptimization>::init();
 
-    // Extract the boundaries of all (active) floating point parameters. Reuses the flat-genome FP channel
-    // exactly as GSepCmaEvolutionStrategy / GStandardPSO2011 do.
-    dbl_lower_.clear();
-    dbl_upper_.clear();
-    this->at(0)->individual().boundariesFPInternal(dbl_lower_, dbl_upper_, activityMode::ACTIVEONLY);
+    // ACOR samples in the normalized internal coordinate (boundary-agnostic): a bounded parameter occupies
+    // the unit interval and an out-of-range sample is folded back by the genome on assignment, so only the
+    // count of active floating point parameters is needed.
+    n_fp_parms_ = this->at(0)->individual().countFPParameters(activityMode::ACTIVEONLY);
 
-    n_fp_parms_ = dbl_lower_.size();
-
-    if(dbl_lower_.size() != dbl_upper_.size()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GAntColonyOptimization::init(): Error!" << '\n'
-            << "Found invalid sizes: " << dbl_lower_.size() << " / " << dbl_upper_.size() << '\n'
-        );
-    }
     if(n_fp_parms_ == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
