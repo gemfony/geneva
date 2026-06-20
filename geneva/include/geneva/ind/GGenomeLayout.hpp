@@ -171,6 +171,64 @@ T foldConstrainedInt(const T &val, const T &lo, const T &hi) {
 }
 
 /******************************************************************************/
+// --- Normalized internal coordinate (normalized-genome architecture, §2.1) ---------------------------
+// The OA-facing INTERNAL value lives in the centered, width-1 interval [-0.5, 0.5); the user-facing
+// EXTERNAL value is an affine image of it (plus, for a constrained parameter, the reflecting fold above).
+// With a width-1 interval, scale == (upper - lower) and anchor == (upper + lower) / 2, so internal
+// -0.5 maps to `lower` and +0.5 to `upper`. (scale equals the per-group `range` already stored in the
+// layout; the two are unified in Phase 3.) All maps compose in long double for a faithful, well-
+// conditioned round-trip even for offset / narrow boxes (compare §2.1).
+//
+// Phase-1 status: these are the single source of truth for the coordinate transform but are NOT yet
+// wired into the live read/write path (that is Phase 2), so genome behaviour is unchanged.
+
+/** @brief external = anchor + u * scale, composed in long double and narrowed back to T. */
+template <typename T>
+T ngInternalToExternal(const T &u, const T &scale, const T &anchor) {
+    const long double x = Gem::Common::narrow<long double>(anchor)
+                          + Gem::Common::narrow<long double>(u) * Gem::Common::narrow<long double>(scale);
+    return Gem::Common::narrow<T>(x);
+}
+
+/** @brief u = (external - anchor) / scale, composed in long double and narrowed back to T. A collapsed
+ *  scale (frozen parameter, scale <= 0) maps everything to the interval centre 0. */
+template <typename T>
+T ngExternalToInternal(const T &x, const T &scale, const T &anchor) {
+    if(not(scale > T(0))) {
+        return T(0);
+    }
+    const long double u = (Gem::Common::narrow<long double>(x) - Gem::Common::narrow<long double>(anchor))
+                          / Gem::Common::narrow<long double>(scale);
+    return Gem::Common::narrow<T>(u);
+}
+
+/** @brief Reflecting fold of an internal value into the canonical interval [-0.5, 0.5). Reuses the
+ *  single reflection implementation (foldConstrainedFP) -- the centered fold is just a parameterisation. */
+template <typename T>
+T ngFoldInternal(const T &u) {
+    return foldConstrainedFP<T>(u, T(-0.5), T(0.5));
+}
+
+/** @brief Enforce the half-open [lo, hi) contract on an external value. Necessary because the affine
+ *  map + narrowing can round a correctly half-open internal value (uf < 0.5) onto the EXCLUSIVE upper
+ *  bound (e.g. 0.5 + (0.5-eps)*scale -> hi). This is the external-coordinate analogue of the boundary
+ *  enforcement inside foldConstrainedFP, applied AFTER the affine map so the conditioning benefit of
+ *  folding in the centered interval is preserved (no re-fold in user coordinates). */
+template <typename T>
+T ngClampHalfOpen(T x, const T &lo, const T &hi) {
+    if(hi <= lo) {
+        return lo; // frozen / collapsed range
+    }
+    if(x < lo) {
+        return lo;
+    }
+    if(x >= hi) {
+        return std::nextafter(hi, lo);
+    }
+    return x;
+}
+
+/******************************************************************************/
 /**
  * The STRUCTURE of one adaption group, as held by the shared genome layout: a contiguous run of values
  * within a single channel that form one group (a group of length 1 mirrors a standalone parameter object;
@@ -246,6 +304,28 @@ struct ChannelLayout {
     /** @brief The number of values in this channel. @return The per-value array length. */
     std::size_t size() const { return lower.size(); }
 };
+
+/******************************************************************************/
+// Per-value scale / anchor for the normalized internal coordinate (§2.1), derived from the channel's
+// existing bounds: a constrained value uses its hard bound [lower, upper); an unbounded (Plain) value
+// uses its init perimeter [init_lower, init_upper) as the mutation scale (there is no hard bound). No
+// new state is stored -- these are computed from the arrays already present. Phase-1: helpers only,
+// not yet wired into the live read/write path.
+
+/** @brief The mutation scale of value k: (upper-lower) constrained, (init_upper-init_lower) plain. */
+template <typename T>
+T ngScale(ChannelLayout<T> const &ch, std::size_t k) {
+    return (ch.kind[k] == ParamKind::Constrained) ? (ch.upper[k] - ch.lower[k])
+                                                  : (ch.init_upper[k] - ch.init_lower[k]);
+}
+
+/** @brief The anchor (interval centre) of value k, matching ngScale's interval choice. */
+template <typename T>
+T ngAnchor(ChannelLayout<T> const &ch, std::size_t k) {
+    return (ch.kind[k] == ParamKind::Constrained)
+               ? ((ch.lower[k] + ch.upper[k]) / T(2))
+               : ((ch.init_lower[k] + ch.init_upper[k]) / T(2));
+}
 
 /******************************************************************************/
 /** @brief Identifies one of the four value channels (used to address a group across channels). */

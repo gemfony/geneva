@@ -275,3 +275,94 @@ TEST_CASE("normalized-genome: randomInit keeps constrained values in range", "[n
         CHECK(x < 7.);
     }
 }
+
+/******************************************************************************/
+// --- coordinate-model helpers (Phase 1, not yet wired into the live path) --------------------------
+
+namespace {
+struct Box {
+    double lo;
+    double hi;
+};
+const std::vector<Box> kBoxes = {
+    {0., 1.}, {-5., 5.}, {1e6, 1e6 + 1.}, {-1., 1e4} // last two: offset / narrow (cancellation case)
+};
+} // namespace
+
+/******************************************************************************/
+TEST_CASE(
+    "normalized-genome: affine internal<->external round-trip is faithful and centered",
+    "[normalized-genome]"
+) {
+    for(const auto &bx : kBoxes) {
+        const double scale = bx.hi - bx.lo;
+        const double anchor = (bx.lo + bx.hi) / 2.;
+        for(double frac : {-0.5, -0.25, 0.0, 0.25, 0.499}) {
+            const double x = anchor + frac * scale; // an in-range external value
+            const double u = ngExternalToInternal<double>(x, scale, anchor);
+            CHECK(u >= -0.5);
+            CHECK(u < 0.5); // in-range external maps into the canonical interval
+            const double x2 = ngInternalToExternal<double>(u, scale, anchor);
+            CHECK(faithful(x2, x)); // faithful round-trip, incl. offset/narrow boxes
+        }
+    }
+    // A frozen parameter (scale <= 0) maps everything to the interval centre.
+    CHECK(ngExternalToInternal<double>(4., 0., 4.) == 0.);
+}
+
+/******************************************************************************/
+TEST_CASE(
+    "normalized-genome: the normalized fold path reproduces the user-coordinate fold",
+    "[normalized-genome]"
+) {
+    // For in- and out-of-range probes, folding in the centered internal interval and mapping back
+    // must equal the existing user-coordinate fold -- this is what makes the Phase 2 switch safe.
+    // Probes span the REALISTIC regime: with fold-on-write the internal value is folded every step, so
+    // the fold never sees more than ~1 step out of range. (Folding a value many box-widths out is
+    // precision-meaningless -- the residual is a catastrophic cancellation in either framing -- so for
+    // far-out inputs only range-membership is meaningful; that is covered by the fold-contract test.)
+    const std::vector<double> fracs = {-2.7, -1.5, -1.0, -0.5, 0.0, 0.25, 0.499, 0.9, 1.5, 2.7};
+    for(const auto &bx : kBoxes) {
+        const double scale = bx.hi - bx.lo;
+        const double anchor = (bx.lo + bx.hi) / 2.;
+        for(double frac : fracs) {
+            const double x = anchor + frac * scale;
+            const double ext_old = foldConstrainedFP<double>(x, bx.lo, bx.hi);
+
+            const double u = ngExternalToInternal<double>(x, scale, anchor);
+            const double uf = ngFoldInternal<double>(u);
+            // affine map back, then enforce the half-open contract in external coordinates
+            const double ext_new =
+                ngClampHalfOpen<double>(ngInternalToExternal<double>(uf, scale, anchor), bx.lo, bx.hi);
+
+            CHECK(faithful(ext_new, ext_old));
+            CHECK(ext_new >= bx.lo);
+            CHECK(ext_new < bx.hi);
+        }
+    }
+}
+
+/******************************************************************************/
+TEST_CASE(
+    "normalized-genome: ngScale/ngAnchor derive from bounds (constrained) and perimeter (plain), "
+    "and scale == the stored range",
+    "[normalized-genome]"
+) {
+    GGenomeBuilder b;
+    b.addDoubleGroup(2, -1., 3.);        // constrained: scale = 4, anchor = 1
+    b.addDoublePlainGroup(2, -10., 10.); // plain: scale = 20, anchor = 0 (from the init perimeter)
+    auto g = b.build();
+    REQUIRE(g.layout);
+    const ChannelLayout<double> &ch = g.layout->d;
+    REQUIRE(ch.size() == 4);
+
+    CHECK(ngScale(ch, 0) == 4.);
+    CHECK(ngAnchor(ch, 0) == 1.);
+    CHECK(ngScale(ch, 2) == 20.);
+    CHECK(ngAnchor(ch, 2) == 0.);
+
+    // The derived scale equals the per-group `range` already in the layout (they are unified in Phase 3).
+    REQUIRE(ch.groups.size() == 2);
+    CHECK(ch.groups[0].range == ngScale(ch, 0));
+    CHECK(ch.groups[1].range == ngScale(ch, 2));
+}
