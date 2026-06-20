@@ -36,6 +36,7 @@ SET ( ${EXECUTABLENAME}_SRCS
 	GAuxiliaryStoreTests.cpp
 	GAdaptionKernelTests.cpp
 	GFlatGenomeTests.cpp
+	GNormalizedGenomeTests.cpp
 	GFlatOptimizationAlgorithmsTests.cpp
 	GStandardPSO2011Tests.cpp
 	GAntColonyOptimizationTests.cpp
