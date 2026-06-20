@@ -173,6 +173,19 @@ public:
     void registerConsumer(
         std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer);
 
+    /** @brief Registers a builder closure for the GPU consumer, making "--consumer gpu" (or gpu in
+     *  Go2.json) a first-class, mnemonic-selectable consumer. The GPU consumer needs problem-specific
+     *  pieces Go2 cannot supply (a device marshaller, the scalar type, the kernel/backend config), so the
+     *  problem contributes a closure that constructs the ready-to-use consumer (clone function set); Go2
+     *  owns the rest (mnemonic, selection, lifecycle). The closure is type-erased to the courtier-core
+     *  base type, so geneva gains no GPU library dependency. It is invoked LAZILY at the start of
+     *  optimize() -- after construction, so the problem's marshaller / data are already available -- and
+     *  only when the gpu mnemonic is selected. Selecting gpu with no builder registered is a fatal,
+     *  early error. Call after construction and before optimize().
+     *  @param builder A closure returning the ready-to-use GPU consumer (as the courtier base pointer). */
+    void registerGPUConsumerBuilder(
+        std::function<std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>()> builder);
+
     /**
      * @brief Retrieves the currently registered number of algorithms.
      * @return The number of algorithms in the chain
@@ -403,6 +416,11 @@ private:
      * @param vm The parsed command line variables map from which the consumer choice is read
      */
     void setupChosenConsumer(boost::program_options::variables_map const &vm);
+    /** @brief Lazily builds + registers the GPU consumer from the registered builder when the gpu
+     *  mnemonic is selected (a no-op otherwise). Called at the start of optimize_(), after construction,
+     *  so the problem's marshaller / data are available. Throws if gpu is selected but no builder was
+     *  registered. */
+    void ensureGPUConsumerBuilt();
     /**
      * @brief Turns the comma-separated --optimizationAlgorithms list into algorithm objects.
      * @param vm The parsed command line variables map (source of further per-algorithm options)
@@ -430,11 +448,17 @@ private:
     // courtier routing (the DEFAULT submission path). setupChosenConsumer() builds the consumer for the
     // chosen mnemonic through the shared factory buildConsumerSetup(), which registers it as the
     // process's single consumer (GConsumerRegistry); every algorithm reads it from there -- no per-OA
-    // injection. A custom consumer can be supplied directly via registerConsumer() (e.g. a GPU consumer).
+    // injection. A fully custom consumer can be supplied directly via registerConsumer(); the GPU
+    // consumer is selected by the "gpu" mnemonic and built from a registerGPUConsumerBuilder() closure.
     /** @brief The single server-backed/local courtier consumer, shared across all algorithms. Held here
      *  so it (and any listening server) outlives the run and is torn down by RAII at Go2 destruction.
      *  Null when no courtier routing was built (an MPI worker rank). */
     std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer_;
+    /** @brief Builder for the GPU consumer, contributed by the problem via registerGPUConsumerBuilder().
+     *  Type-erased to the courtier-core base type so geneva carries no GPU dependency; invoked lazily by
+     *  ensureGPUConsumerBuilt() when the gpu mnemonic is selected. Empty unless a GPU program set it. */
+    std::function<std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>()>
+        gpu_consumer_builder_;
     /** @brief Set on a courtier MPI WORKER rank: runs the courtier worker loop (clientRun_ invokes
      *  it instead of the legacy client). Type-erased so Go2.hpp needs no MPI headers; the captured
      *  consumer shared_ptr keeps the worker node alive. Empty on master / non-MPI / legacy paths. */

@@ -98,6 +98,17 @@ Recommended Versions:
   sampling sigma at a small dimensionless fraction of the (normalized) range, so a
   collapsed archive can no longer drive the bandwidth to zero and converge prematurely.
 
+- The GPU consumer (GGPUConsumerT) is now a first-class, mnemonic-selectable consumer:
+  run with `--consumer gpu` on equal footing with sc/stc/asio/beast/mpi. Because the GPU
+  consumer needs problem-specific pieces Go2 cannot supply (a device marshaller, the
+  scalar type, the kernel/backend config), a GPU problem contributes a builder closure
+  via the new Go2::registerGPUConsumerBuilder(...); Go2 selects and builds it lazily at
+  optimize() like any other consumer. The closure is type-erased to the courtier-core
+  base type, so geneva/Go2 gain NO dependency on the optional GPU library. Example 15
+  switched from the manual Go2::registerConsumer() injection to this path (run it with
+  `--consumer gpu`; omit for a CPU run via the individual's fitnessCalculation()).
+  Selecting `gpu` without a registered builder is a clear, early error.
+
 - The optimizable-entity / genome layer was renamed from the namespace
   Gem::Geneva::Parameters to Gem::Geneva::Genome (the pervasive short alias gpar::
   became gen::), and the value-array type formerly named Genome is now GenomeData.

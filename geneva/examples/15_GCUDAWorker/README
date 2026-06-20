@@ -13,7 +13,11 @@ What is new
 -----------
 This example is evaluated through the unified courtier GPU consumer
 (Gem::Courtier::GPU::GGPUConsumerT), which lives in the Courtier library and is built as the optional
-add-on `gemfony-courtier-gpu`. A whole generation is flattened and scored in ONE bulk kernel launch.
+add-on `gemfony-courtier-gpu`. The GPU consumer is now a first-class, mnemonic-selectable consumer:
+run with `--consumer gpu` to evaluate on the device. The example contributes only its device marshaller
+via Go2::registerGPUConsumerBuilder(...); Go2 selects and builds the consumer like any other. Running
+without `--consumer gpu` (e.g. the default `--consumer stc`) evaluates on the CPU through the
+individual's fitnessCalculation(). A whole generation is flattened and scored in ONE bulk kernel launch.
 The kernel (kernels/monalisa_eval.cu) is compiled at RUN TIME (NVRTC for CUDA), so:
 
   * the example builds with an ordinary C++ toolchain -- no CUDA language is enabled at build time;
@@ -36,9 +40,11 @@ SDK is present. With neither, set backend=cpu in config/GGPUConsumer.json to run
 
 Running
 -------
-  ./GCUDAWorker
+  ./GCUDAWorker --consumer gpu      # evaluate on the device (backend chosen in GGPUConsumer.json)
+  ./GCUDAWorker                     # default --consumer stc: evaluate on the CPU (fitnessCalculation)
 
 Useful options:
+  --consumer gpu       Select the GPU consumer (omit to use the default CPU thread-pool consumer)
   --target <png>       The target image (default ./pictures/ml-small.png)
   --gpuConfig <json>   The GPU consumer config (default ./config/GGPUConsumer.json)
   --logImages <bool>   Write the best candidate image per iteration (default true)

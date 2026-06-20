@@ -113,17 +113,24 @@ int main(int argc, char **argv) {
             << tgt.height << ")" << '\n'
             << GLOGGING;
 
-    // ---- build the GPU consumer and hand it to Go2 as the process consumer --------------------
-    // GGPUConsumerT evaluates a whole generation in one bulk launch; the marshaller knows how to turn
-    // GImageIndividuals into flat device buffers and how to write the results back.
-    auto marshaller = std::make_shared<MonaLisa::GMonaLisaGPUMarshaller>();
-    auto consumer =
-        std::make_shared<gpu::GGPUConsumerT<gen::GOptimizableEntity, gimage_fp_t>>(consumerConfig, marshaller);
-    // The clone-on-partial-return policy used by the evolutionary algorithm needs a polymorphic clone.
-    consumer->setCloneFunction([](const std::unique_ptr<gen::GOptimizableEntity> &p) {
-        return p->clone_unique();
+    // ---- register the GPU consumer builder; select it with "--consumer gpu" -------------------
+    // The GPU consumer is now a first-class, mnemonic-selectable consumer: run with "--consumer gpu" to
+    // evaluate on the device (backend cpu/cuda/opencl chosen in GGPUConsumer.json), or with any other
+    // consumer (e.g. the default "--consumer stc") to evaluate on the CPU via the individual's
+    // fitnessCalculation(). We only contribute the problem-specific piece -- a closure that builds the
+    // device marshaller + consumer; Go2 owns selection and lifecycle. The closure is invoked lazily at
+    // optimize() (after the target is loaded), only when gpu is selected. GGPUConsumerT evaluates a whole
+    // generation in one bulk launch via the marshaller.
+    go.registerGPUConsumerBuilder([consumerConfig]() {
+        auto marshaller = std::make_shared<MonaLisa::GMonaLisaGPUMarshaller>();
+        auto consumer =
+            std::make_shared<gpu::GGPUConsumerT<gen::GOptimizableEntity, gimage_fp_t>>(consumerConfig, marshaller);
+        // The clone-on-partial-return policy used by the evolutionary algorithm needs a polymorphic clone.
+        consumer->setCloneFunction([](const std::unique_ptr<gen::GOptimizableEntity> &p) {
+            return p->clone_unique();
+        });
+        return std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>(consumer);
     });
-    go.registerConsumer(consumer);
 
     // ---- as this is a server, allow interrupting the run "on the fly" -------------------------
     signal(G_SIGHUP, Gem::Geneva::sigHupHandler);

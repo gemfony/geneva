@@ -289,6 +289,12 @@ constexpr C2ConsumerInfo kC2Consumers[] = {
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
     {.mnemonic="mpi", .name="GMPIConsumerT", .needs_client=true},
 #endif /* GENEVA_BUILD_WITH_MPI_CONSUMER */
+    // The GPU consumer is built by Go2 from a problem-registered builder closure (it needs a device
+    // marshaller Go2 cannot supply), NOT by buildConsumerSetup(). It is listed here only so the mnemonic
+    // is recognised/validated/printed; selecting it without a registered builder is a clear Go2 error.
+    // No build guard: geneva never links the (optional) GPU library, so the entry is always visible and a
+    // not-built program simply has no builder registered.
+    {.mnemonic="gpu", .name="GGPUConsumerT", .needs_client=false},
 };
 
 /**
