@@ -42,8 +42,11 @@
 #include <cstddef>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
 #include <ios>
 #include <istream>
+#include <limits>
+#include <locale>
 #include <memory>
 #include <ostream>
 #include <sstream>
@@ -77,6 +80,51 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GFunctionPlotter2D)                   
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GPlotDesigner)                         // NOLINT
 
 namespace Gem::Common {
+
+namespace {
+
+/******************************************************************************/
+/**
+ * A locale-independent, full-round-trip-precision string builder for emitted ROOT macro text.
+ * Every coordinate value must be emitted through such a stream: a default std::ostringstream prints
+ * only 6 significant digits (lossy for optimization traces) and honours the global locale (a
+ * comma-decimal locale would emit "12,5", which ROOT misparses as two arguments). Imbuing the
+ * classic ("C") locale and setting max_digits10 precision once, in the constructor, fixes both for
+ * all subsequent insertions.
+ */
+class EmitStream : public std::ostringstream {
+public:
+    EmitStream() {
+        this->imbue(std::locale::classic());
+        *this << std::setprecision(std::numeric_limits<double>::max_digits10);
+    }
+};
+
+/******************************************************************************/
+/**
+ * Escape a user-supplied string for safe inclusion inside a ROOT C-string literal (axis/plot/canvas
+ * labels, TF1/TF2 formulae) or a // comment. Without this, a label containing a double quote,
+ * backslash or newline would produce a non-compiling macro (or, inside a comment, inject code past
+ * the comment). Only the C-string metacharacters are touched, so ROOT TLatex markup (#frac, #sqrt,
+ * braces) passes through unchanged.
+ */
+std::string rootEscape(const std::string &in) {
+    std::string out;
+    out.reserve(in.size());
+    for(char c : in) {
+        switch(c) {
+            case '\\': out += "\\\\"; break;
+            case '"':  out += "\\\""; break;
+            case '\n': out += "\\n"; break;
+            case '\t': out += "\\t"; break;
+            case '\r':                break; // drop bare CRs
+            default:   out += c;      break;
+        }
+    }
+    return out;
+}
+
+} // anonymous namespace
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -568,7 +616,7 @@ void GBasePlotter::load_(const GBasePlotter *cp) {
  * @return The combined header data of this primary plotter and any secondary plotters
  */
 std::string GBasePlotter::headerData(const std::string &indent) const {
-    std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Add this plot's data
     header_data << indent << "// Header data for primary plotter" << '\n'
@@ -600,7 +648,7 @@ std::string GBasePlotter::headerData(const std::string &indent) const {
  * @return The combined body data of this primary plotter and any secondary plotters
  */
 std::string GBasePlotter::bodyData(const std::string &indent) const {
-    std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Add this plot's data
     body_data << indent << "// Body data for primary plotter" << '\n'
@@ -627,7 +675,7 @@ std::string GBasePlotter::bodyData(const std::string &indent) const {
  * @return The combined footer data of this primary plotter and any secondary plotters
  */
 std::string GBasePlotter::footerData(const std::string &indent) const {
-    std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Add this plot's data
     footer_data << indent << "// Footer data for primary plotter" << '\n'
@@ -750,7 +798,7 @@ void GGraph2D::compare_(
  */
 std::string
 GGraph2D::headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
     std::string base_name = suffix(is_secondary, p_id);
@@ -761,7 +809,7 @@ GGraph2D::headerData_(bool is_secondary, std::size_t p_id, const std::string &in
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        comment = "// " + ds_marker_;
+        comment = "// " + rootEscape(ds_marker_);
     }
 
     header_data << indent << "double " << x_array_name << "[" << to_string(data_.size()) << "];"
@@ -784,7 +832,7 @@ GGraph2D::headerData_(bool is_secondary, std::size_t p_id, const std::string &in
  */
 std::string
 GGraph2D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
     std::string base_name = suffix(is_secondary, p_id);
@@ -795,7 +843,7 @@ GGraph2D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &inde
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        body_data << "// " + ds_marker_ << '\n';
+        body_data << "// " + rootEscape(ds_marker_) << '\n';
     }
 
     // Fill data from the tuples into the arrays
@@ -826,7 +874,7 @@ GGraph2D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &inde
  */
 std::string
 GGraph2D::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
     std::string base_name = suffix(is_secondary, p_id);
@@ -839,7 +887,7 @@ GGraph2D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        footer_data << "// " + ds_marker_ << '\n';
+        footer_data << "// " + rootEscape(ds_marker_) << '\n';
     }
 
     // Retrieve the current drawing arguments
@@ -848,13 +896,13 @@ GGraph2D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
     // Fill the data in our tuple-vector into a ROOT TGraph object
     footer_data << indent << "TGraph *" << graph_name << " = new TGraph(" << data_.size() << ", "
                 << x_array_name << ", " << y_array_name << ");" << '\n'
-                << indent << graph_name << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");"
+                << indent << graph_name << "->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");"
                 << '\n'
-                << indent << graph_name << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");"
+                << indent << graph_name << "->GetYaxis()->SetTitle(\"" << rootEscape(yAxisLabel()) << "\");"
                 << '\n';
 
     if(!plot_label_.empty()) {
-        footer_data << indent << graph_name << "->SetTitle(\"" << plot_label_ << "\");" << '\n';
+        footer_data << indent << graph_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
     }
     else {
         footer_data << indent << graph_name << "->SetTitle(\" \");" << '\n';
@@ -1036,7 +1084,7 @@ void GGraph2ED::compare_(
  */
 std::string
 GGraph2ED::headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
     std::string base_name = suffix(is_secondary, p_id);
@@ -1049,7 +1097,7 @@ GGraph2ED::headerData_(bool is_secondary, std::size_t p_id, const std::string &i
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        comment = "// " + ds_marker_;
+        comment = "// " + rootEscape(ds_marker_);
     }
 
     header_data << indent << "double " << x_array_name << "[" << to_string(data_.size()) << "];"
@@ -1076,7 +1124,7 @@ GGraph2ED::headerData_(bool is_secondary, std::size_t p_id, const std::string &i
  */
 std::string
 GGraph2ED::bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
     std::string base_name = suffix(is_secondary, p_id);
@@ -1089,7 +1137,7 @@ GGraph2ED::bodyData_(bool is_secondary, std::size_t p_id, const std::string &ind
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        body_data << "// " + ds_marker_ << '\n';
+        body_data << "// " + rootEscape(ds_marker_) << '\n';
     }
 
     // Fill data from the tuples into the arrays
@@ -1124,7 +1172,7 @@ GGraph2ED::bodyData_(bool is_secondary, std::size_t p_id, const std::string &ind
  */
 std::string
 GGraph2ED::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
     std::string base_name = suffix(is_secondary, p_id);
@@ -1139,7 +1187,7 @@ GGraph2ED::footerData_(bool is_secondary, std::size_t p_id, const std::string &i
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        footer_data << "// " + ds_marker_ << '\n';
+        footer_data << "// " + rootEscape(ds_marker_) << '\n';
     }
 
     // Check whether custom drawing arguments have been set or whether one
@@ -1150,13 +1198,13 @@ GGraph2ED::footerData_(bool is_secondary, std::size_t p_id, const std::string &i
     footer_data << indent << "TGraphErrors *" << graph_name << " = new TGraphErrors("
                 << data_.size() << ", " << x_array_name << ", " << y_array_name << ", "
                 << ex_array_name << " ," << ey_array_name << ");" << '\n'
-                << indent << graph_name << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");"
+                << indent << graph_name << "->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");"
                 << '\n'
-                << indent << graph_name << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");"
+                << indent << graph_name << "->GetYaxis()->SetTitle(\"" << rootEscape(yAxisLabel()) << "\");"
                 << '\n';
 
     if(!plot_label_.empty()) {
-        footer_data << indent << graph_name << "->SetTitle(\"" << plot_label_ << "\");" << '\n';
+        footer_data << indent << graph_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
     }
     else {
         footer_data << indent << graph_name << "->SetTitle(\" \");" << '\n';
@@ -1308,7 +1356,7 @@ void GGraph3D::compare_(
  */
 std::string
 GGraph3D::headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
     std::string base_name = suffix(is_secondary, p_id);
@@ -1320,7 +1368,7 @@ GGraph3D::headerData_(bool is_secondary, std::size_t p_id, const std::string &in
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        comment = "// " + ds_marker_;
+        comment = "// " + rootEscape(ds_marker_);
     }
 
     header_data << indent << "double " << x_array_name << "[" << to_string(data_.size()) << "];"
@@ -1345,7 +1393,7 @@ GGraph3D::headerData_(bool is_secondary, std::size_t p_id, const std::string &in
  */
 std::string
 GGraph3D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
     std::string base_name = suffix(is_secondary, p_id);
@@ -1357,7 +1405,7 @@ GGraph3D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &inde
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        body_data << "// " + ds_marker_ << '\n';
+        body_data << "// " + rootEscape(ds_marker_) << '\n';
     }
 
     // Fill data from the tuples into the arrays
@@ -1389,7 +1437,7 @@ GGraph3D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &inde
  */
 std::string
 GGraph3D::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
     std::string base_name = suffix(is_secondary, p_id);
@@ -1403,7 +1451,7 @@ GGraph3D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        footer_data << "// " + ds_marker_ << '\n';
+        footer_data << "// " + rootEscape(ds_marker_) << '\n';
     }
 
     // Check whether custom drawing arguments have been set or whether one
@@ -1414,13 +1462,13 @@ GGraph3D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
     footer_data << indent << "TGraph2D *" << graph_name << " = new TGraph2D(" << data_.size()
                 << ", " << x_array_name << ", " << y_array_name << ", " << z_array_name << ");"
                 << '\n'
-                << indent << graph_name << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");"
+                << indent << graph_name << "->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");"
                 << '\n'
                 << indent << graph_name << "->GetXaxis()->SetTitleOffset(1.5);" << '\n'
-                << indent << graph_name << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");"
+                << indent << graph_name << "->GetYaxis()->SetTitle(\"" << rootEscape(yAxisLabel()) << "\");"
                 << '\n'
                 << indent << graph_name << "->GetYaxis()->SetTitleOffset(1.5);" << '\n'
-                << indent << graph_name << "->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");"
+                << indent << graph_name << "->GetZaxis()->SetTitle(\"" << rootEscape(zAxisLabel()) << "\");"
                 << '\n'
                 << indent << graph_name << "->GetZaxis()->SetTitleOffset(1.5);" << '\n'
                 << indent << graph_name << "->SetMarkerStyle(20);" << '\n'
@@ -1428,7 +1476,7 @@ GGraph3D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
                 << indent << graph_name << "->SetMarkerColor(2);" << '\n';
 
     if(!plot_label_.empty()) {
-        footer_data << indent << graph_name << "->SetTitle(\"" << plot_label_ << "\");" << '\n';
+        footer_data << indent << graph_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
     }
     else {
         footer_data << indent << graph_name << "->SetTitle(\" \");" << '\n';
@@ -1678,7 +1726,7 @@ void GGraph4D::compare_(
  * @return An empty string, as this 4D graph emits no header code
  */
 std::string GGraph4D::headerData_([[maybe_unused]] bool is_secondary, [[maybe_unused]] std::size_t parent_id, [[maybe_unused]] std::string const &indent) const {
-    std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // nothing
 
@@ -1694,7 +1742,7 @@ std::string GGraph4D::headerData_([[maybe_unused]] bool is_secondary, [[maybe_un
  * @return An empty string, as this 4D graph emits no body data
  */
 std::string GGraph4D::bodyData_([[maybe_unused]] bool is_secondary, [[maybe_unused]] std::size_t parent_id, [[maybe_unused]] std::string const &indent) const {
-    std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // nothing
 
@@ -1738,7 +1786,7 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
         );
     }
 
-    std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Find out about the minimum and maximum values of the data vector
     std::tuple<double, double, double, double, double, double, double, double> min_max =
@@ -1750,11 +1798,11 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
                 << "10, " << std::get<2>(min_max) << ", " << std::get<3>(min_max) << ", "
                 << "10, " << std::get<4>(min_max) << ", " << std::get<5>(min_max) << ");" << '\n'
                 << indent << "fr->SetTitle(\" \");" << '\n'
-                << indent << "fr->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << '\n'
+                << indent << "fr->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");" << '\n'
                 << indent << "fr->GetXaxis()->SetTitleOffset(1.6);" << '\n'
-                << indent << "fr->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << '\n'
+                << indent << "fr->GetYaxis()->SetTitle(\"" << rootEscape(yAxisLabel()) << "\");" << '\n'
                 << indent << "fr->GetYaxis()->SetTitleOffset(1.6);" << '\n'
-                << indent << "fr->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << '\n'
+                << indent << "fr->GetZaxis()->SetTitle(\"" << rootEscape(zAxisLabel()) << "\");" << '\n'
                 << indent << "fr->GetZaxis()->SetTitleOffset(1.6);" << '\n'
                 << '\n'
                 << indent << "fr->Draw();" << '\n';
@@ -1910,11 +1958,11 @@ GHistogram1D::GHistogram1D(const std::size_t &n_bins_x, const std::tuple<double,
  */
 std::string
 GHistogram1D::headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        comment = "// " + ds_marker_;
+        comment = "// " + rootEscape(ds_marker_);
     }
 
     std::string hist_name = "histD" + suffix(is_secondary, p_id);
@@ -1947,11 +1995,11 @@ GHistogram1D::headerData_(bool is_secondary, std::size_t p_id, const std::string
  */
 std::string
 GHistogram1D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        comment = "// " + ds_marker_;
+        comment = "// " + rootEscape(ds_marker_);
     }
     else {
         comment = "";
@@ -1982,12 +2030,12 @@ GHistogram1D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
  */
 std::string
 GHistogram1D::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string hist_name = "histD" + suffix(is_secondary, p_id);
 
     if(!plot_label_.empty()) {
-        footer_data << indent << hist_name << "->SetTitle(\"" << plot_label_ << "\");" << '\n';
+        footer_data << indent << hist_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
     }
     else {
         footer_data << indent << hist_name << "->SetTitle(\" \");" << '\n';
@@ -1995,15 +2043,15 @@ GHistogram1D::footerData_(bool is_secondary, std::size_t p_id, const std::string
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        footer_data << "// " + ds_marker_ << '\n';
+        footer_data << "// " + rootEscape(ds_marker_) << '\n';
     }
 
     // Check whether custom drawing arguments have been set
     std::string d_a = this->drawingArguments(is_secondary);
 
-    footer_data << indent << hist_name << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");"
+    footer_data << indent << hist_name << "->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");"
                 << '\n'
-                << indent << hist_name << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");"
+                << indent << hist_name << "->GetYaxis()->SetTitle(\"" << rootEscape(yAxisLabel()) << "\");"
                 << '\n'
                 << indent << hist_name << "->Draw(\"" << d_a << "\");" << '\n'
                 << '\n';
@@ -2184,11 +2232,11 @@ GHistogram1I::GHistogram1I(const std::size_t &n_bins_x, const std::tuple<double,
  */
 std::string
 GHistogram1I::headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        comment = "// " + ds_marker_;
+        comment = "// " + rootEscape(ds_marker_);
     }
 
     std::string hist_name = "histI" + suffix(is_secondary, p_id);
@@ -2212,11 +2260,11 @@ GHistogram1I::headerData_(bool is_secondary, std::size_t p_id, const std::string
  */
 std::string
 GHistogram1I::bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        comment = "// " + ds_marker_;
+        comment = "// " + rootEscape(ds_marker_);
     }
     else {
         comment = "";
@@ -2248,12 +2296,12 @@ GHistogram1I::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
  */
 std::string
 GHistogram1I::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string hist_name = "histI" + suffix(is_secondary, p_id);
 
     if(!plot_label_.empty()) {
-        footer_data << indent << hist_name << "->SetTitle(\"" << plot_label_ << "\");" << '\n';
+        footer_data << indent << hist_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
     }
     else {
         footer_data << indent << hist_name << "->SetTitle(\" \");" << '\n';
@@ -2261,15 +2309,15 @@ GHistogram1I::footerData_(bool is_secondary, std::size_t p_id, const std::string
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        footer_data << "// " + ds_marker_ << '\n';
+        footer_data << "// " + rootEscape(ds_marker_) << '\n';
     }
 
     // Check whether custom drawing arguments have been set
     std::string d_a = this->drawingArguments(is_secondary);
 
-    footer_data << indent << hist_name << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");"
+    footer_data << indent << hist_name << "->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");"
                 << '\n'
-                << indent << hist_name << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");"
+                << indent << hist_name << "->GetYaxis()->SetTitle(\"" << rootEscape(yAxisLabel()) << "\");"
                 << '\n'
                 << indent << hist_name << "->Draw(\"" << d_a << "\");" << '\n'
                 << '\n';
@@ -2492,11 +2540,11 @@ GHistogram2D::GHistogram2D(const std::size_t &n_bins_x, const std::size_t &n_bin
  */
 std::string
 GHistogram2D::headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        comment = "// " + ds_marker_;
+        comment = "// " + rootEscape(ds_marker_);
     }
 
     std::string hist_name = "hist2D" + suffix(is_secondary, p_id);
@@ -2532,11 +2580,11 @@ GHistogram2D::headerData_(bool is_secondary, std::size_t p_id, const std::string
  */
 std::string
 GHistogram2D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        comment = "// " + ds_marker_;
+        comment = "// " + rootEscape(ds_marker_);
     }
     else {
         comment = "";
@@ -2568,12 +2616,12 @@ GHistogram2D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
  */
 std::string
 GHistogram2D::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string hist_name = "hist2D" + suffix(is_secondary, p_id);
 
     if(!plot_label_.empty()) {
-        footer_data << indent << hist_name << "->SetTitle(\"" << plot_label_ << "\");" << '\n';
+        footer_data << indent << hist_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
     }
     else {
         footer_data << indent << hist_name << "->SetTitle(\" \");" << '\n';
@@ -2581,15 +2629,15 @@ GHistogram2D::footerData_(bool is_secondary, std::size_t p_id, const std::string
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        footer_data << "// " + ds_marker_ << '\n';
+        footer_data << "// " + rootEscape(ds_marker_) << '\n';
     }
 
     // Check whether custom drawing arguments have been set
     std::string d_a = this->drawingArguments(is_secondary);
 
-    footer_data << indent << hist_name << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");"
+    footer_data << indent << hist_name << "->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");"
                 << '\n'
-                << indent << hist_name << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");"
+                << indent << hist_name << "->GetYaxis()->SetTitle(\"" << rootEscape(yAxisLabel()) << "\");"
                 << '\n'
                 << indent << hist_name << "->Draw(\"" << d_a << "\");" << '\n'
                 << '\n';
@@ -2952,16 +3000,16 @@ std::string GFunctionPlotter1D::headerData_(
         );
     }
 
-    std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream result; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        comment = "// " + ds_marker_;
+        comment = "// " + rootEscape(ds_marker_);
     }
 
     std::string function_name = "func1D" + suffix(is_secondary, p_id);
     result << indent << "TF1 *" << function_name << " = new TF1(\"" << function_name << "\", \""
-           << function_description_ << "\"," << std::get<0>(x_extremes_) << ", "
+           << rootEscape(function_description_) << "\"," << std::get<0>(x_extremes_) << ", "
            << std::get<1>(x_extremes_) << ");" << (!comment.empty() ? comment : "") << '\n';
 
     return result.str();
@@ -2993,22 +3041,22 @@ std::string GFunctionPlotter1D::footerData_(
     std::size_t p_id,
     const std::string &indent
 ) const {
-    std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        comment = "// " + ds_marker_;
+        comment = "// " + rootEscape(ds_marker_);
     }
 
     std::string function_name = "func1D" + suffix(is_secondary, p_id);
-    footer_data << indent << function_name << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");"
+    footer_data << indent << function_name << "->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");"
                 << '\n'
-                << indent << function_name << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");"
+                << indent << function_name << "->GetYaxis()->SetTitle(\"" << rootEscape(yAxisLabel()) << "\");"
                 << '\n'
                 << indent << function_name << "->SetNpx(" << n_samples_x_ << ");" << '\n';
 
     if(!plot_label_.empty()) {
-        footer_data << indent << function_name << "->SetTitle(\"" << plot_label_ << "\");" << '\n';
+        footer_data << indent << function_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
     }
     else {
         footer_data << indent << function_name << "->SetTitle(\" \");" << '\n';
@@ -3198,16 +3246,16 @@ std::string GFunctionPlotter2D::headerData_(
         );
     }
 
-    std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream result; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        comment = "// " + ds_marker_;
+        comment = "// " + rootEscape(ds_marker_);
     }
 
     std::string function_name = "func2D" + suffix(is_secondary, p_id);
     result << indent << "TF2 *" << function_name << " = new TF2(\"" << function_name << "\", \""
-           << function_description_ << "\"," << std::get<0>(x_extremes_) << ", "
+           << rootEscape(function_description_) << "\"," << std::get<0>(x_extremes_) << ", "
            << std::get<1>(x_extremes_) << ", " << std::get<0>(y_extremes_) << ", "
            << std::get<1>(y_extremes_) << ");" << (!comment.empty() ? comment : "") << '\n';
 
@@ -3240,25 +3288,25 @@ std::string GFunctionPlotter2D::footerData_(
     std::size_t p_id,
     std::string const &indent
 ) const {
-    std::ostringstream footer_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
-        comment = "// " + ds_marker_;
+        comment = "// " + rootEscape(ds_marker_);
     }
 
     std::string function_name = "func2D" + suffix(is_secondary, p_id);
-    footer_data << indent << function_name << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");"
+    footer_data << indent << function_name << "->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");"
                 << '\n'
-                << indent << function_name << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");"
+                << indent << function_name << "->GetYaxis()->SetTitle(\"" << rootEscape(yAxisLabel()) << "\");"
                 << '\n'
-                << indent << function_name << "->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");"
+                << indent << function_name << "->GetZaxis()->SetTitle(\"" << rootEscape(zAxisLabel()) << "\");"
                 << '\n'
                 << indent << function_name << "->SetNpx(" << n_samples_x_ << ");" << '\n'
                 << indent << function_name << "->SetNpy(" << n_samples_y_ << ");" << '\n';
 
     if(!plot_label_.empty()) {
-        footer_data << indent << function_name << "->SetTitle(\"" << plot_label_ << "\");" << '\n';
+        footer_data << indent << function_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
     }
     else {
         footer_data << indent << function_name << "->SetTitle(\" \");" << '\n';
@@ -3411,7 +3459,7 @@ void GPlotDesigner::writeToFile(const std::filesystem::path &file_name) {
  * @return The complete ROOT macro source code for the canvas and all registered plotters
  */
 std::string GPlotDesigner::plot(const std::filesystem::path &plot_name) const {
-    std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream result; // NOLINT(cppcoreguidelines-init-variables)
     std::size_t max_plots = c_x_div_ * c_y_div_;
 
     if(plotters_cnt_.size() > max_plots) {
@@ -3495,7 +3543,7 @@ std::string GPlotDesigner::plot(const std::filesystem::path &plot_name) const {
  * @return The ROOT macro source code setting up the canvas, title and graph pad
  */
 std::string GPlotDesigner::staticHeader(const std::string &indent) const {
-    std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream result; // NOLINT(cppcoreguidelines-init-variables)
 
     result << indent << "gROOT->Reset();" << '\n'
            << indent << "gStyle->SetCanvasColor(0);" << '\n'
@@ -3506,7 +3554,7 @@ std::string GPlotDesigner::staticHeader(const std::string &indent) const {
            << c_y_dim_ << ");" << '\n'
            << '\n'
            << indent << "TPaveLabel* canvasTitle = new TPaveLabel(0.2,0.95,0.8,0.99, \""
-           << canvas_label_ << "\");" << '\n'
+           << rootEscape(canvas_label_) << "\");" << '\n'
            << indent << "canvasTitle->Draw();" << '\n'
            << '\n'
            << indent << R"(TPad* graphPad = new TPad("Graphs", "Graphs", 0.01, 0.01, 0.99, 0.94);)"
