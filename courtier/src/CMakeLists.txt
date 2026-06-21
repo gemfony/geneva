@@ -40,6 +40,17 @@ IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
             GMPIHelperFunctions.cpp)
 ENDIF ()
 
+# GPU-consumer is optional too, and is folded into this one courtier library exactly like the MPI
+# consumer: the device backends compile in (and CUDA/OpenCL link in) only when requested. The backend
+# source list + toolkit detection come from gpu/GPUBackends.cmake (which sets COURTIER_GPU_SRCS and the
+# COURTIER_GPU_HAVE_{CUDA,OPENCL} flags used in the link/definitions block below).
+IF (GENEVA_BUILD_WITH_GPU_CONSUMER)
+    INCLUDE( ${CMAKE_CURRENT_SOURCE_DIR}/gpu/GPUBackends.cmake )
+    SET( COMMUNICATIONSOURCES
+            ${COMMUNICATIONSOURCES}
+            ${COURTIER_GPU_SRCS})
+ENDIF ()
+
 set_source_files_properties(
         ${COMMUNICATIONSOURCES}
         PROPERTIES
@@ -77,7 +88,35 @@ IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
     TARGET_LINK_LIBRARIES(${COURTIER_LIBNAME} PRIVATE MPI::MPI_CXX)
 ENDIF ()
 
-INSTALL(TARGETS ${COURTIER_LIBNAME} EXPORT GenevaTargets DESTINATION ${INSTALL_PREFIX_LIBS})
+# The GPU consumer's device dependencies (CUDA driver/NVRTC, OpenCL) are implementation details of the
+# backend .cpp files -> link them PRIVATE so they do not leak into courtier's exported interface. The
+# GPUGEN_HAVE_* feature macros are likewise PRIVATE: only GGPUBackendFactory.cpp (a courtier translation
+# unit) switches on them to register the available backends; no public GPU header references them, so a
+# program that builds a GPU marshaller (e.g. example 15) does not need them.
+IF (GENEVA_BUILD_WITH_GPU_CONSUMER)
+    IF (COURTIER_GPU_HAVE_CUDA)
+        TARGET_COMPILE_DEFINITIONS(${COURTIER_LIBNAME} PRIVATE GPUGEN_HAVE_CUDA)
+        # NVRTC for runtime kernel compilation; the CUDA driver API (cuda) for module load + launch.
+        TARGET_LINK_LIBRARIES(${COURTIER_LIBNAME} PRIVATE CUDA::nvrtc CUDA::cuda_driver)
+        MESSAGE(STATUS "${COURTIER_LIBNAME}: GPU consumer CUDA backend enabled (NVRTC + CUDA driver API)")
+    ELSE ()
+        MESSAGE(STATUS "${COURTIER_LIBNAME}: GPU consumer CUDA backend DISABLED (no CUDA toolkit)")
+    ENDIF ()
+    IF (COURTIER_GPU_HAVE_OPENCL)
+        TARGET_COMPILE_DEFINITIONS(${COURTIER_LIBNAME} PRIVATE GPUGEN_HAVE_OPENCL)
+        TARGET_LINK_LIBRARIES(${COURTIER_LIBNAME} PRIVATE OpenCL::OpenCL)
+        MESSAGE(STATUS "${COURTIER_LIBNAME}: GPU consumer OpenCL backend enabled")
+    ELSE ()
+        MESSAGE(STATUS "${COURTIER_LIBNAME}: GPU consumer OpenCL backend DISABLED (no OpenCL SDK)")
+    ENDIF ()
+    # The CUDA toolkit's bundled host compiler can inject an older libstdc++ into the link step; link
+    # the CXX compiler's own libstdc++.so by full path to satisfy the required CXXABI (see top-level
+    # CMakeLists notes on the CUDA link fix).
+    IF (COURTIER_GPU_HAVE_CUDA AND DEFINED GENEVA_CXX_RUNTIME_LIB_DIR
+        AND EXISTS "${GENEVA_CXX_RUNTIME_LIB_DIR}/libstdc++.so")
+        TARGET_LINK_LIBRARIES(${COURTIER_LIBNAME} PRIVATE "${GENEVA_CXX_RUNTIME_LIB_DIR}/libstdc++.so")
+    ENDIF ()
+    MESSAGE(STATUS "${COURTIER_LIBNAME}: GPU consumer built in (consumer mnemonic 'gpu' available)")
+ENDIF ()
 
-# Optional GPU consumer add-on (CPU backend always, CUDA/OpenCL when available).
-ADD_SUBDIRECTORY ( gpu )
+INSTALL(TARGETS ${COURTIER_LIBNAME} EXPORT GenevaTargets DESTINATION ${INSTALL_PREFIX_LIBS})

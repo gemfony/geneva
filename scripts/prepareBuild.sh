@@ -222,6 +222,7 @@ VERBOSEMAKEFILE="0"
 INSTALLDIR="/opt/geneva"
 MPIROOT=""
 BUILDMPICONSUMER="0"
+BUILDGPUCONSUMER="0"
 USECUDARNG="0"
 SKIPALLCUDA="0"
 GIMAGE_USE_FLOAT="1"
@@ -322,10 +323,11 @@ case "${SANITIZER}" in
 	*) echo -e "\nError: SANITIZER must be none|thread|address|undefined. Got '${SANITIZER}'. Leaving...\n"; exit 1 ;;
 esac
 if [ "${SANITIZER}" != "none" ]; then
-	echo -e "\nSanitizer '${SANITIZER}' enabled — forcing CUDA and the MPI consumer OFF for this build."
+	echo -e "\nSanitizer '${SANITIZER}' enabled — forcing CUDA, the MPI consumer and the GPU consumer OFF for this build."
 	SKIPALLCUDA="1"
 	USECUDARNG="0"
 	BUILDMPICONSUMER="0"
+	BUILDGPUCONSUMER="0"
 	CUDA_NVCC=""
 	CUDA_ROOT=""
 fi
@@ -397,6 +399,7 @@ if [ "${GENERATE_PRESET}" = "1" ]; then
 	_preset_add "GENEVA_BUILD_EXAMPLES"           "BOOL"   "${BUILDEXAMPLES}"
 	_preset_add "GENEVA_BUILD_BENCHMARKS"         "BOOL"   "${BUILDBENCHMARKS}"
 	_preset_add "GENEVA_BUILD_WITH_MPI_CONSUMER"  "BOOL"   "${BUILDMPICONSUMER}"
+	_preset_add "GENEVA_BUILD_WITH_GPU_CONSUMER"  "BOOL"   "${BUILDGPUCONSUMER}"
 	_preset_add "GENEVA_USE_CUDA_RNG"             "BOOL"   "${USECUDARNG}"
 
 	if [ -n "${BOOSTROOT}" ]; then
@@ -471,6 +474,7 @@ cmake_args+=(
 	"-DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE}"
 	"-DCMAKE_INSTALL_PREFIX=${INSTALLDIR}"
 	"-DGENEVA_BUILD_WITH_MPI_CONSUMER=${BUILDMPICONSUMER}"
+	"-DGENEVA_BUILD_WITH_GPU_CONSUMER=${BUILDGPUCONSUMER}"
 	"-DGENEVA_USE_CUDA_RNG=${USECUDARNG}"
 	"-DGENEVA_SKIP_CUDA=${SKIPALLCUDA}"
 	"-DGIMAGE_USE_FLOAT=${GIMAGE_USE_FLOAT}"

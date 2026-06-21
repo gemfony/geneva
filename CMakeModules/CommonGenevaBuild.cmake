@@ -197,10 +197,9 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	SET ( COMMON_LIBNAME            "gemfony-common" )
 	SET ( HAP_LIBNAME               "gemfony-hap" )
 	SET ( COURTIER_LIBNAME          "gemfony-courtier" )
-	# Optional GPU consumer add-on to courtier (CPU always, CUDA/OpenCL when their toolkits exist).
-	# It is NOT part of GENEVA_LIBRARIES: only GPU-aware programs link it explicitly, so the core
-	# libraries never pull in CUDA/OpenCL.
-	SET ( COURTIER_GPU_LIBNAME      "gemfony-courtier-gpu" )
+	# The GPU consumer is folded INTO gemfony-courtier as an opt-in add-on (GENEVA_BUILD_WITH_GPU_CONSUMER),
+	# exactly like the MPI consumer: when enabled, courtier dynamically links the CUDA/OpenCL backends; when
+	# disabled, no GPU code is compiled. There is no separate GPU library.
 	SET ( GENEVA_LIBNAME            "gemfony-geneva" )
 	SET ( GENEVA_INDIVIDUAL_LIBNAME "gemfony-geneva-individuals" )
 

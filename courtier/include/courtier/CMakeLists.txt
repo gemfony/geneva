@@ -61,8 +61,9 @@ SET ( TRANSPORT_INCLUDES
 )
 
 # GPU consumer framework (namespace Gem::Courtier::GPU): the device-agnostic core, the CPU/CUDA/OpenCL
-# backends and the bulk-dispatch consumer. Header-only except for the backend .cpp files compiled into
-# the optional gemfony-courtier-gpu add-on (see src/gpu/).
+# backends and the bulk-dispatch consumer. Header-only except for the backend .cpp files, which are
+# compiled into gemfony-courtier as an opt-in add-on when GENEVA_BUILD_WITH_GPU_CONSUMER is ON (see
+# src/gpu/GPUBackends.cmake). The headers are device-toolkit-clean and install unconditionally.
 SET ( GPU_INCLUDES
     gpu/GCPUBackend.hpp
     gpu/GCUDABackend.hpp

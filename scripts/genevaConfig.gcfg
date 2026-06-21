@@ -93,6 +93,16 @@ LINKEREXTRAFLAGS=""
 # Whether to build MPI consumer
 BUILDMPICONSUMER="1"
 
+# Whether to build the GPU consumer (GGPUConsumerT) into the courtier library and
+# expose the "gpu" consumer mnemonic. Like the MPI consumer this is an opt-in add-on:
+# when "1", courtier dynamically links the CUDA (NVRTC + driver API) and/or OpenCL
+# device backends that are present on the system (a CPU backend is always available);
+# when "0", no GPU code is compiled and "gpu" is not a selectable consumer. Example 15
+# (GCUDAWorker) and the GPU optimisation benchmark are built only when this is "1".
+# Independent of USECUDARNG (a separate Hap feature). SKIPALLCUDA still forces the CUDA
+# backend off (leaving CPU/OpenCL).
+BUILDGPUCONSUMER="0"
+
 # Whether to instrument the Common library and its tests with code-coverage
 # flags (--coverage for GCC, -fprofile-instr-generate -fcoverage-mapping for
 # Clang). Used together with the `coverage` make target to produce gcovr

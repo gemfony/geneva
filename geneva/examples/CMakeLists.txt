@@ -51,7 +51,7 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 			GMPISubClients)
 ENDIF()
 
-IF(CMAKE_CUDA_COMPILER_LOADED)
+IF(GENEVA_BUILD_WITH_GPU_CONSUMER)
 	SET(DEPENDENCIES
 		${DEPENDENCIES}
 		GCUDAWorker)
@@ -75,11 +75,14 @@ ADD_SUBDIRECTORY( 12_GExternalEvaluator )
 ADD_SUBDIRECTORY( 13_GPluggableOptimizationMonitors )
 ADD_SUBDIRECTORY( 14_GDependentConstraints )
 
-# Example 15 (Mona-Lisa) drives the optional courtier GPU consumer. Its kernel is runtime-compiled
-# (NVRTC/OpenCL), so it no longer needs the CUDA language enabled at build time -- it builds with an
-# ordinary C++ toolchain and selects CPU/CUDA/OpenCL at run time. It only requires libpng (its own
+# Example 15 (Mona-Lisa) drives the courtier GPU consumer, so it is built only when that consumer is
+# (GENEVA_BUILD_WITH_GPU_CONSUMER -- the opt-in add-on folded into gemfony-courtier). Its kernel is
+# runtime-compiled (NVRTC/OpenCL), so it needs no CUDA language at build time -- it builds with an
+# ordinary C++ toolchain and selects CPU/CUDA/OpenCL at run time. It also requires libpng (its own
 # CMakeLists skips the example if libpng is absent).
-ADD_SUBDIRECTORY(15_GCUDAWorker)
+IF(GENEVA_BUILD_WITH_GPU_CONSUMER)
+	ADD_SUBDIRECTORY(15_GCUDAWorker)
+ENDIF()
 
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 	ADD_SUBDIRECTORY( 16_GMPIConsumer )

@@ -27,22 +27,28 @@
 #
 ################################################################################
 
-# The unified, device-model-agnostic GPU consumer add-on to courtier. It builds a small static
-# library (gemfony-courtier-gpu) carrying the device-agnostic core + the always-available CPU
-# backend, plus the CUDA and OpenCL backends when their toolkits are present. The CUDA/OpenCL
-# dependencies stay confined to THIS library: the core courtier shared library never pulls them in,
-# and only GPU-aware programs link gemfony-courtier-gpu.
+# GPU-consumer backend sources + device-toolkit detection. This fragment is INCLUDEd from
+# courtier/src/CMakeLists.txt when GENEVA_BUILD_WITH_GPU_CONSUMER is ON, so the device-model-agnostic
+# GPU consumer ships INSIDE the one gemfony-courtier library (just like the MPI consumer), rather than
+# in a separate library. It only sets variables; the caller folds the sources into the courtier target
+# and applies the matching link libraries + compile definitions:
+#   COURTIER_GPU_SRCS         -- backend .cpp to compile into courtier (paths relative to courtier/src)
+#   COURTIER_GPU_HAVE_CUDA    -- TRUE when the CUDA (NVRTC + driver API) backend is included
+#   COURTIER_GPU_HAVE_OPENCL  -- TRUE when the OpenCL backend is included
+# The always-available CPU backend is header-only; the CUDA/OpenCL headers are confined to these .cpp,
+# so folding them in does not leak device headers into courtier's public interface.
 
 SET ( COURTIER_GPU_SRCS
-	GGPUBackendFactory.cpp
+	gpu/GGPUBackendFactory.cpp
 )
 
 # --- optional CUDA backend (NVRTC + CUDA driver API; no nvcc compilation here) ----------------
-# CUDA is enabled globally by the top-level CMakeLists when a toolkit is found (CMAKE_CUDA_COMPILER).
+# CUDA is enabled globally by the top-level CMakeLists when a toolkit is found (CMAKE_CUDA_COMPILER)
+# and GENEVA_SKIP_CUDA is OFF.
 SET ( COURTIER_GPU_HAVE_CUDA FALSE )
 IF ( CMAKE_CUDA_COMPILER )
 	SET ( COURTIER_GPU_HAVE_CUDA TRUE )
-	SET ( COURTIER_GPU_SRCS ${COURTIER_GPU_SRCS} GCUDABackend.cpp )
+	SET ( COURTIER_GPU_SRCS ${COURTIER_GPU_SRCS} gpu/GCUDABackend.cpp )
 ENDIF ()
 
 # --- optional OpenCL backend ------------------------------------------------------------------
@@ -68,53 +74,5 @@ FIND_PACKAGE ( OpenCL QUIET )
 SET ( COURTIER_GPU_HAVE_OPENCL FALSE )
 IF ( OpenCL_FOUND )
 	SET ( COURTIER_GPU_HAVE_OPENCL TRUE )
-	SET ( COURTIER_GPU_SRCS ${COURTIER_GPU_SRCS} GOpenCLBackend.cpp )
+	SET ( COURTIER_GPU_SRCS ${COURTIER_GPU_SRCS} gpu/GOpenCLBackend.cpp )
 ENDIF ()
-
-set_source_files_properties (
-	${COURTIER_GPU_SRCS}
-	PROPERTIES
-	LANGUAGE CXX
-	CXX_STANDARD 20
-)
-
-ADD_LIBRARY ( ${COURTIER_GPU_LIBNAME} STATIC ${COURTIER_GPU_SRCS} )
-
-SET_TARGET_PROPERTIES ( ${COURTIER_GPU_LIBNAME} PROPERTIES
-	CXX_STANDARD 20
-	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF
-	POSITION_INDEPENDENT_CODE ON
-	EXPORT_NAME courtier-gpu
-)
-
-# The framework headers live with the courtier headers, and it builds on courtier (and transitively
-# hap + common). No dependency on the geneva layer: the marshaller interfaces are processable-generic.
-TARGET_LINK_LIBRARIES ( ${COURTIER_GPU_LIBNAME} PUBLIC ${COURTIER_LIBNAME} )
-TARGET_COMPILE_FEATURES ( ${COURTIER_GPU_LIBNAME} PUBLIC cxx_std_20 )
-
-IF ( COURTIER_GPU_HAVE_CUDA )
-	TARGET_COMPILE_DEFINITIONS ( ${COURTIER_GPU_LIBNAME} PUBLIC GPUGEN_HAVE_CUDA )
-	# NVRTC for runtime kernel compilation; the CUDA driver API (cuda) for module load + launch.
-	TARGET_LINK_LIBRARIES ( ${COURTIER_GPU_LIBNAME} PUBLIC CUDA::nvrtc CUDA::cuda_driver )
-	MESSAGE ( STATUS "${COURTIER_GPU_LIBNAME}: CUDA backend enabled (NVRTC + CUDA driver API)" )
-ELSE ()
-	MESSAGE ( STATUS "${COURTIER_GPU_LIBNAME}: CUDA backend DISABLED (no CUDA toolkit)" )
-ENDIF ()
-
-IF ( COURTIER_GPU_HAVE_OPENCL )
-	TARGET_COMPILE_DEFINITIONS ( ${COURTIER_GPU_LIBNAME} PUBLIC GPUGEN_HAVE_OPENCL )
-	TARGET_LINK_LIBRARIES ( ${COURTIER_GPU_LIBNAME} PUBLIC OpenCL::OpenCL )
-	MESSAGE ( STATUS "${COURTIER_GPU_LIBNAME}: OpenCL backend enabled" )
-ELSE ()
-	MESSAGE ( STATUS "${COURTIER_GPU_LIBNAME}: OpenCL backend DISABLED (no OpenCL SDK)" )
-ENDIF ()
-
-# The CUDA toolkit's bundled host compiler can inject an older libstdc++ into the link step; link the
-# CXX compiler's own libstdc++.so by full path to satisfy the required CXXABI (see top-level notes).
-IF ( COURTIER_GPU_HAVE_CUDA AND DEFINED GENEVA_CXX_RUNTIME_LIB_DIR
-     AND EXISTS "${GENEVA_CXX_RUNTIME_LIB_DIR}/libstdc++.so" )
-	TARGET_LINK_LIBRARIES ( ${COURTIER_GPU_LIBNAME} PUBLIC "${GENEVA_CXX_RUNTIME_LIB_DIR}/libstdc++.so" )
-ENDIF ()
-
-INSTALL ( TARGETS ${COURTIER_GPU_LIBNAME} EXPORT GenevaTargets DESTINATION ${INSTALL_PREFIX_LIBS} )

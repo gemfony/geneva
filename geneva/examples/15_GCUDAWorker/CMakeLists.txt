@@ -27,8 +27,9 @@
 #
 ################################################################################
 
-# Example 15 -- the Mona-Lisa problem, evaluated through the unified courtier GPU consumer
-# (gemfony-courtier-gpu). Unlike the old example 15 it does NOT enable the CUDA language: the kernel
+# Example 15 -- the Mona-Lisa problem, evaluated through the unified courtier GPU consumer (folded into
+# gemfony-courtier when GENEVA_BUILD_WITH_GPU_CONSUMER is ON, which gates this whole example -- see
+# geneva/examples/CMakeLists.txt). Unlike the old example 15 it does NOT enable the CUDA language: the kernel
 # is runtime-compiled by NVRTC at run time, so the example builds with an ordinary C++ toolchain and
 # selects CPU / CUDA / OpenCL at run time via config/GGPUConsumer.json. It only needs libpng to load
 # the target image and write result pictures; if libpng is missing the example is skipped.
@@ -83,10 +84,10 @@ ELSE ()
 	MESSAGE ( STATUS "Example 15 (GCUDAWorker): building with DOUBLE parameters + the double GPU kernel (GIMAGE_USE_FLOAT=OFF)" )
 ENDIF ()
 
-# The GPU consumer add-on (carries the CUDA/OpenCL backends + NVRTC), the Geneva libraries, Boost and
-# libpng. gemfony-courtier-gpu is an OPTIONAL add-on built next to courtier (see courtier/src/gpu/).
+# The Geneva libraries (the GPU consumer + its CUDA/OpenCL backends are folded into gemfony-courtier
+# when GENEVA_BUILD_WITH_GPU_CONSUMER is ON -- which is required for this example to be built at all,
+# see geneva/examples/CMakeLists.txt), Boost and libpng.
 TARGET_LINK_LIBRARIES ( ${EXECUTABLENAME} PRIVATE
-	${COURTIER_GPU_LIBNAME}
 	${GENEVA_LIBRARIES}
 	${Boost_LIBRARIES}
 	PNG::PNG

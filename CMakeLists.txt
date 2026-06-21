@@ -46,6 +46,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # system CUDA installation is broken or incompatible (e.g. CUDA 13.1 + glibc 2.39).
 option(GENEVA_SKIP_CUDA "Disable all CUDA compilation" OFF)
 
+# Set ON to build the GPU consumer (GGPUConsumerT) INTO the courtier library and expose
+# the "gpu" consumer mnemonic. Like the MPI consumer this is an opt-in add-on: when ON the
+# courtier library dynamically links the CUDA (NVRTC + driver API) and/or OpenCL device
+# backends that are present; when OFF no GPU code is compiled and "gpu" is not a selectable
+# consumer (example 15 and the GPU benchmark are skipped too). A CPU backend is always
+# available when the consumer is built. Independent of GENEVA_USE_CUDA_RNG (a separate Hap
+# feature); honours GENEVA_SKIP_CUDA, which forces the CUDA backend off (leaving CPU/OpenCL).
+option(GENEVA_BUILD_WITH_GPU_CONSUMER "Build the GPU consumer (GGPUConsumerT) into courtier and expose the 'gpu' mnemonic" OFF)
+
 # Set ON to instrument the Common library and its tests with coverage flags
 # (--coverage on GCC, -fprofile-instr-generate -fcoverage-mapping on Clang).
 # Used together with the `coverage` make target to produce gcovr reports.
@@ -177,6 +186,14 @@ SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 # Set preprocessor define to use in source code if building with MPI consumer
 IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
 	ADD_COMPILE_DEFINITIONS(GENEVA_BUILD_WITH_MPI_CONSUMER)
+ENDIF ()
+
+# Set preprocessor define to use in source code if building with the GPU consumer.
+# This gates the "gpu" mnemonic in GConsumerSetup just as GENEVA_BUILD_WITH_MPI_CONSUMER
+# gates "mpi". The CUDA/OpenCL backend selection inside courtier uses the separate
+# GPUGEN_HAVE_CUDA / GPUGEN_HAVE_OPENCL feature macros (see courtier/src/CMakeLists.txt).
+IF (GENEVA_BUILD_WITH_GPU_CONSUMER)
+	ADD_COMPILE_DEFINITIONS(GENEVA_BUILD_WITH_GPU_CONSUMER)
 ENDIF ()
 
 ###############################################################################
