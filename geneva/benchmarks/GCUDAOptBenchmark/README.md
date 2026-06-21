@@ -219,8 +219,9 @@ A human-readable summary table is also printed to stdout at the end of the run.
 
 ```
 GCUDAOptBenchmarkMain.cpp   (C++20, compiled by GCC)
-  main() — parses config, creates GenevaInitializer, builds a broker holding a
-           Gem::Courtier::GPU::GGPUConsumerT<GParameterSet> + GBenchmarkGPUMarshaller
+  main() — parses config, creates GenevaInitializer, builds a
+           Gem::Courtier::GPU::GGPUConsumerT<GOptimizableEntity> + GBenchmarkGPUMarshaller
+           and registers it as the process consumer (GConsumerRegistry)
            (the SAME unified GPU consumer example 15 uses), runs
            GAlgorithmBenchmarkRunner, writes output via GBenchmarkResultWriter.
            There is no build-time CUDA compilation unit any more.
@@ -257,10 +258,10 @@ GBenchmarkRunResult.hpp
 ### Broker / consumer lifecycle
 
 `GenevaInitializer` is constructed once in `main()` and lives for the duration of
-the process. The `GGPUConsumerT` is enrolled with `broker<GParameterSet>()` once,
-before any optimization starts. Algorithm instances are created per-run via Geneva
-factories (`GEvolutionaryAlgorithmFactory`, etc.), which default to broker-mode
-execution and therefore route all evaluations through the already-enrolled consumer.
+the process. The `GGPUConsumerT` is registered as the single process consumer
+(`GConsumerRegistry`) once, before any optimization starts. Algorithm instances are
+created per-run via Geneva factories (`GEvolutionaryAlgorithmFactory`, etc.) and
+route all evaluations through that already-registered process consumer.
 This avoids the double-finalization problem that arises when multiple `Go2` instances
 each try to finalize the broker on destruction.
 
