@@ -238,9 +238,11 @@ protected:
         const double &limit
     ) const override;
 
+private:
     /** @brief The function checks that the population size meets the requirements and resizes the population to the appropriate size, if required. */
     void adjustPopulation_() override;
 
+protected:
     /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
     void resetToOptimizationStart_() override;
 

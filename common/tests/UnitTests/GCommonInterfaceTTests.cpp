@@ -77,9 +77,9 @@ protected:
     void specificTestsNoFailureExpected_GUnitTests_() override {}
     void specificTestsFailuresExpected_GUnitTests_() override {}
 
+private:
     TestObj *clone_() const override { return new TestObj(*this); }
 
-private:
     friend class boost::serialization::access;
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] unsigned int version) {

@@ -60,9 +60,9 @@ protected:
         return true;
     }
 
+private:
     Doubler *clone_() const override { return new Doubler(*this); }
 
-private:
     int marker_{0};
 };
 
@@ -71,6 +71,8 @@ private:
 class AlwaysFail : public GSerializableFunctionObjectT<Item> {
 protected:
     bool process_([[maybe_unused]] Item & p) override { return false; }
+
+private:
     AlwaysFail *clone_() const override { return new AlwaysFail(*this); }
 };
 

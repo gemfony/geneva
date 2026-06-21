@@ -86,6 +86,7 @@ protected:
     bool   isValid   ([[maybe_unused]] std::shared_ptr<TestItem> const &p) const override { return true; }
     double evaluation(std::shared_ptr<TestItem> const &p) const override { return p->value; }
 
+private:
     TestPQ *clone_() const override {
         return new TestPQ(*this);
     }

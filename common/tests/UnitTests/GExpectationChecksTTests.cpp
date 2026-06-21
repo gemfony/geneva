@@ -310,9 +310,10 @@ protected:
     bool modify_GUnitTests_() override { return false; }
     void specificTestsNoFailureExpected_GUnitTests_() override {}
     void specificTestsFailuresExpected_GUnitTests_() override {}
-    CmpObj *clone_() const override { return new CmpObj(*this); }
 
 private:
+    CmpObj *clone_() const override { return new CmpObj(*this); }
+
     int v_{0};
 };
 

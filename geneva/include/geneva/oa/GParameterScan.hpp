@@ -564,13 +564,14 @@ public:
     /** @brief The destructor */
     ~GScanParT() override = default;
 
-protected:
+private:
     /** @brief Creates a deep clone of this object (Gemfony common-interface hook)
      *  @return A raw, owning pointer to a deep clone (as the GBaseScanParT<T> root) */
     GBaseScanParT<T> *clone_() const override {
         return new Derived(static_cast<const Derived &>(*this));
     }
 
+protected:
     /** @brief The default constructor -- only needed for de-serialization, hence protected */
     GScanParT() = default;
 };
@@ -850,12 +851,14 @@ protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
+private:
     /** @brief Need-all algorithm: a missing or failed evaluation cannot be tolerated, so it submits
      *  through courtier under full-success-or-fatal (matches the legacy throw-on-error). */
     Gem::Courtier::GSubmissionPolicy getSubmissionPolicy_() const override {
         return Gem::Courtier::GSubmissionPolicy::full_success_or_fatal();
     }
 
+protected:
     /** @brief Adds local configuration options to a GParserBuilder object
      *  @param gpb The parser builder to which the configuration options are added */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;

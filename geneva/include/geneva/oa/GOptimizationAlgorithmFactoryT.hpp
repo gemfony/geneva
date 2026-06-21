@@ -115,7 +115,7 @@ public:
      */
     std::string getAlgorithmName() const override { return std::string(oa_type::oa_algorithm_name); }
 
-protected:
+private:
     /**
      * @brief Creates the algorithm and registers its configuration options.
      *

@@ -103,7 +103,7 @@ public:
     /** @brief Inherit the GFlatGenome constructors (default + n-fitness-criteria) */
     using GFlatGenome::GFlatGenome;
 
-protected:
+private:
     /** @brief Creates a deep clone of this object via the Derived copy constructor.
      *  @return A heap-allocated deep copy of this individual (as a GFlatGenome base pointer) */
     GFlatGenome *clone_() const override {

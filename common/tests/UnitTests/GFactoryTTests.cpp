@@ -77,6 +77,7 @@ protected:
         }
     }
 
+private:
     std::shared_ptr<Product>
     getObject_([[maybe_unused]] GParserBuilder & gpb) override {
         ++get_object_calls;
@@ -189,6 +190,8 @@ public:
     explicit DerivedFactory(std::filesystem::path const &p) : GFactoryT<PolyProduct>(p) {}
 protected:
     void postProcess_([[maybe_unused]] std::shared_ptr<PolyProduct> &p) override {}
+
+private:
     std::shared_ptr<PolyProduct> getObject_([[maybe_unused]] GParserBuilder & gpb) override {
         return std::make_shared<DerivedProduct>();
     }
@@ -295,6 +298,8 @@ public:
 protected:
     void init_() override { ++init_count; }
     void postProcess_([[maybe_unused]] std::shared_ptr<Product> &p) override {}
+
+private:
     std::shared_ptr<Product> getObject_([[maybe_unused]] GParserBuilder & gpb) override {
         return std::make_shared<Product>();
     }
