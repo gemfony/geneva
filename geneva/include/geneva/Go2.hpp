@@ -77,7 +77,7 @@ constexpr bool GO2_DEF_COPYBESTINDIVIDUALSONLY = true;
 /**
  * @brief Sets the number of producer threads of the random number factory.
  *
- * @param nProducerThreads The number of threads the random number factory should use to produce random numbers
+ * @param n_producer_threads The number of threads the random number factory should use to produce random numbers
  */
 void setRNFParameters(std::uint16_t nProducerThreads);
 
@@ -103,8 +103,8 @@ public:
      *
      * @param argc The number of command line arguments
      * @param argv The array of command line argument strings
-     * @param configFilePath The name and location of the configuration file
-     * @param userDescriptions Additional user-defined command line options (cmp. boost::program_options); defaults to an empty set
+     * @param config_filename The name and location of the configuration file
+     * @param user_descriptions Additional user-defined command line options (cmp. boost::program_options); defaults to an empty set
      */
     Go2(int argc,
         char **argv,
@@ -132,7 +132,7 @@ public:
 
     /**
      * @brief Specifies whether only the best individuals of a population should be copied to the next algorithm.
-     * @param copyBestOnly If true, only the best individuals are carried over between chained algorithms
+     * @param copy_best_individuals_only If true, only the best individuals are carried over between chained algorithms
      */
     void setCopyBestIndividualsOnly(bool copy_best_individuals_only);
     /**
@@ -154,12 +154,12 @@ public:
     Go2 &operator&(const std::shared_ptr<GOABase> &alg);
     /**
      * @brief Allows to add an optimization algorithm through its mnemonic.
-     * @param mnemonic The mnemonic string identifying the algorithm to append (e.g. "ea", "sa")
+     * @param mn The mnemonic string identifying the algorithm to append (e.g. "ea", "sa")
      */
     void addAlgorithm(std::string const &mn);
     /**
      * @brief Makes it easier to add algorithms by mnemonic (operator form of addAlgorithm).
-     * @param mnemonic The mnemonic string identifying the algorithm to append (e.g. "ea", "sa")
+     * @param mn The mnemonic string identifying the algorithm to append (e.g. "ea", "sa")
      * @return A reference to this object, allowing call chaining
      */
     Go2 &operator&(std::string const &mn);
@@ -194,7 +194,7 @@ public:
 
     /**
      * @brief Allows to register a content creator (a factory producing the individuals to be optimized).
-     * @param cc A shared pointer to the factory used to fill the initial population
+     * @param cc_ptr A shared pointer to the factory used to fill the initial population
      */
     void
         registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> &cc_ptr);
@@ -203,7 +203,7 @@ public:
     // The following is a trivial list of getters and setters
     /**
      * @brief Sets whether this object runs in client mode.
-     * @param clientMode If true, this object represents a network client
+     * @param client_mode If true, this object represents a network client
      */
     void setClientMode(bool client_mode);
 
@@ -217,7 +217,7 @@ public:
      * @brief Loads some configuration data from arguments passed on the command line (or another char ** presented to it).
      * @param argc The number of command line arguments
      * @param argv The array of command line argument strings
-     * @param userOptions Additional user-defined command line options (cmp. boost::program_options); defaults to an empty set
+     * @param user_options Additional user-defined command line options (cmp. boost::program_options); defaults to an empty set
      */
     void parseCommandLine(
         int argc,
@@ -227,7 +227,7 @@ public:
     );
     /**
      * @brief Loads some configuration data from a configuration file.
-     * @param configFile The path to the configuration file to read
+     * @param config_filename The path to the configuration file to read
      */
     void parseConfigFile(std::filesystem::path const &config_filename);
 
@@ -240,18 +240,18 @@ public:
     /***************************************************************************/
     /**
      * @brief Allows to register a default algorithm via a shared pointer.
-     * @param alg A shared pointer to the algorithm used when no other algorithm has been registered
+     * @param default_algorithm A shared pointer to the algorithm used when no other algorithm has been registered
      */
     void registerDefaultAlgorithm(const std::shared_ptr<GOABase> &default_algorithm);
     /**
      * @brief Allows to register a default algorithm via its mnemonic.
-     * @param mnemonic The mnemonic of the algorithm used when no other algorithm has been registered
+     * @param mn The mnemonic of the algorithm used when no other algorithm has been registered
      */
     void registerDefaultAlgorithm(std::string const &mn);
 
     /**
      * @brief Allows to register a pluggable optimization monitor.
-     * @param pluggableOM A shared pointer to the pluggable optimization monitor to register
+     * @param pluggable_om A shared pointer to the pluggable optimization monitor to register
      */
     void registerPluggableOM(const std::shared_ptr<oa::GBasePluggableOM> &pluggable_om);
     /** @brief Allows to reset the local pluggable optimization monitors */
@@ -365,7 +365,7 @@ private:
     /***************************************************************************/
     /**
      * @brief Sets the number of random number production threads.
-     * @param nProducerThreads The number of threads used to produce random numbers
+     * @param n_producer_threads The number of threads used to produce random numbers
      */
     void setNProducerThreads(std::uint16_t n_producer_threads);
 
