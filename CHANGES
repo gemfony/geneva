@@ -109,6 +109,14 @@ Recommended Versions:
   `--consumer gpu`; omit for a CPU run via the individual's fitnessCalculation()).
   Selecting `gpu` without a registered builder is a clear, early error.
 
+- GGenomeBuilder gained convenience helpers: vector-of-starts group overloads
+  (addDoubleGroup / addDoublePlainGroup / addFloatGroup taking a per-element start
+  vector, with the group size inferred from the vector and each member seeded with its
+  own external start value), and random-init singles that need no throwaway start value
+  (addDoubleRandom / addDoublePlainRandom / addFloatRandom / addFloatPlainRandom). All
+  are thin wrappers over the existing add path; start values are range-validated at
+  setGenome() exactly as for a scalar start.
+
 - The optimizable-entity / genome layer was renamed from the namespace
   Gem::Geneva::Parameters to Gem::Geneva::Genome (the pervasive short alias gpar::
   became gen::), and the value-array type formerly named Genome is now GenomeData.

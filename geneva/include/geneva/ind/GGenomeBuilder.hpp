@@ -264,6 +264,52 @@ public:
         return addArray(layout_.d, dv_, n, initMin, initMax, /*fold=*/false);
     }
 
+    // Convenience (§2.6): per-element start vectors (group size inferred from the vector) and random-init
+    // singles that need no throwaway start value.
+    /**
+     * @brief Adds a constrained double GROUP of size starts.size(), each member seeded with its OWN start
+     * value (the others-seeded-to-min default of addDoubleGroup does not apply here). The start values are
+     * external user-coordinate values: an out-of-range start is range-validated and throws at setGenome.
+     * @param starts Per-element start values (external units); the group size is starts.size().
+     * @param min The lower constraint boundary, shared by every member (also the lower init bound).
+     * @param max The upper constraint boundary, shared by every member (also the upper init bound).
+     * @return A handle to the new group, for fluent tuning.
+     */
+    ParamHandle<double> addDoubleGroup(const std::vector<double> &starts, double min, double max) {
+        return addGroupedWithStarts(layout_.d, dv_, starts, min, max, /*fold=*/true);
+    }
+    /**
+     * @brief Adds an unbounded (Plain) double GROUP of size starts.size() from a per-element start vector;
+     * initMin/initMax set the init perimeter / Gauss step range (NOT a constraint, no fold).
+     * @param starts Per-element start values; the group size is starts.size().
+     * @param initMin The lower random-init / step-range bound (not a constraint).
+     * @param initMax The upper random-init / step-range bound (not a constraint).
+     * @return A handle to the new group, for fluent tuning.
+     */
+    ParamHandle<double> addDoublePlainGroup(const std::vector<double> &starts, double initMin, double initMax) {
+        return addGroupedWithStarts(layout_.d, dv_, starts, initMin, initMax, /*fold=*/false);
+    }
+    /**
+     * @brief Adds one constrained double, randomly initialized within [min, max) at setup. A convenience
+     * over addDouble(init, min, max) when the start value is irrelevant (randomInit overwrites it).
+     * @param min The lower constraint boundary (also the lower random-init bound).
+     * @param max The upper constraint boundary (also the upper random-init bound).
+     * @return A handle to the new group, for fluent tuning.
+     */
+    ParamHandle<double> addDoubleRandom(double min, double max) {
+        return addOne(layout_.d, dv_, min, min, max, /*fold=*/true);
+    }
+    /**
+     * @brief Adds one unbounded (Plain) double with init perimeter [initMin, initMax), randomly
+     * initialized within it at setup; the value may later roam outside the perimeter (no hard bound).
+     * @param initMin The lower random-init / step-range bound (not a constraint).
+     * @param initMax The upper random-init / step-range bound (not a constraint).
+     * @return A handle to the new group, for fluent tuning.
+     */
+    ParamHandle<double> addDoublePlainRandom(double initMin, double initMax) {
+        return addOne(layout_.d, dv_, initMin, initMin, initMax, /*fold=*/false);
+    }
+
     /***************************************************************************/
     // Float channel
 
@@ -304,6 +350,38 @@ public:
      */
     ParamHandle<float> addFloatArray(std::size_t n, float min, float max) {
         return addArray(layout_.f, fv_, n, min, max, /*fold=*/true);
+    }
+
+    // Convenience (§2.6), float counterparts of the double helpers above.
+    /**
+     * @brief Adds a constrained float GROUP of size starts.size(), each member seeded with its own start
+     * value (external units; an out-of-range start throws at setGenome).
+     * @param starts Per-element start values; the group size is starts.size().
+     * @param min The lower constraint boundary, shared by every member.
+     * @param max The upper constraint boundary, shared by every member.
+     * @return A handle to the new group, for fluent tuning.
+     */
+    ParamHandle<float> addFloatGroup(const std::vector<float> &starts, float min, float max) {
+        return addGroupedWithStarts(layout_.f, fv_, starts, min, max, /*fold=*/true);
+    }
+    /**
+     * @brief Adds one constrained float, randomly initialized within [min, max) at setup.
+     * @param min The lower constraint boundary (also the lower random-init bound).
+     * @param max The upper constraint boundary (also the upper random-init bound).
+     * @return A handle to the new group, for fluent tuning.
+     */
+    ParamHandle<float> addFloatRandom(float min, float max) {
+        return addOne(layout_.f, fv_, min, min, max, /*fold=*/true);
+    }
+    /**
+     * @brief Adds one unbounded (Plain) float with init perimeter [initMin, initMax), randomly
+     * initialized within it at setup; the value may later roam outside the perimeter (no hard bound).
+     * @param initMin The lower random-init / step-range bound (not a constraint).
+     * @param initMax The upper random-init / step-range bound (not a constraint).
+     * @return A handle to the new group, for fluent tuning.
+     */
+    ParamHandle<float> addFloatPlainRandom(float initMin, float initMax) {
+        return addOne(layout_.f, fv_, initMin, initMin, initMax, /*fold=*/false);
     }
 
     /***************************************************************************/
@@ -482,6 +560,38 @@ private:
         // The handle spans all n freshly-created groups, so an adaptor / init / perimeter applied to it
         // configures every one of them (not just the first).
         return ParamHandle<T>(&ch, &values, first_group, n, &layout_);
+    }
+
+    /**
+     * @brief One group of starts.size() parameters, each seeded with its own external start value. Backs
+     * the vector-of-starts add* overloads: it adds the group via addGroupImpl (which seeds every member to
+     * a placeholder) and then overwrites the per-member start values from `starts`. The starts are kept in
+     * external user coordinates; setGenome() range-validates + converts them (an out-of-range start on a
+     * bounded group throws there), exactly as for a scalar start.
+     * @tparam T The channel's value type.
+     * @param ch The channel to append to.
+     * @param values The channel's start-value array to append to.
+     * @param starts Per-element start values; the group size is starts.size().
+     * @param min The lower end of the interval (bound if folding, init perimeter otherwise).
+     * @param max The upper end of the interval.
+     * @param fold Whether the group folds into [min, max) (bounded) or roams freely (unbounded).
+     * @return A handle to the single new group.
+     */
+    template <typename T>
+    ParamHandle<T> addGroupedWithStarts(
+        ChannelLayout<T> &ch,
+        std::vector<T> &values,
+        const std::vector<T> &starts,
+        T min,
+        T max,
+        bool fold
+    ) {
+        const std::size_t base = values.size();
+        ParamHandle<T> handle = addGroupImpl(ch, values, starts.size(), min, min, max, fold);
+        for(std::size_t k = 0; k < starts.size(); ++k) {
+            values[base + k] = starts[k];
+        }
+        return handle;
     }
 
     /***************************************************************************/

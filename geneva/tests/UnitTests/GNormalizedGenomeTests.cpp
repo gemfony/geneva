@@ -167,12 +167,45 @@ private:
     }
 };
 
+/******************************************************************************/
+/** A flat individual fed an externally-built genome, for exercising the GGenomeBuilder ergonomics
+ *  (vector-of-starts groups, random-init helpers). */
+class NgErgoIndividual : public GFlatIndividualT<NgErgoIndividual> {
+public:
+    NgErgoIndividual() = default;
+    explicit NgErgoIndividual(const GenomeData &g) { this->setGenome(g); }
+    NgErgoIndividual(const NgErgoIndividual &) = default;
+
+protected:
+    double fitnessCalculation() override {
+        std::vector<double> v;
+        this->streamline<double>(v);
+        double s = 0.;
+        for(double x : v) {
+            s += x * x;
+        }
+        return s;
+    }
+
+private:
+    friend class boost::serialization::access;
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        ar &boost::serialization::make_nvp(
+            "GFlatIndividualT",
+            boost::serialization::base_object<GFlatIndividualT<NgErgoIndividual>>(*this)
+        );
+    }
+};
+
 } // namespace Gem::Tests
 
 BOOST_CLASS_EXPORT(Gem::Tests::NgBoxIndividual)   // NOLINT
 BOOST_CLASS_EXPORT(Gem::Tests::NgMixedIndividual) // NOLINT
+BOOST_CLASS_EXPORT(Gem::Tests::NgErgoIndividual)  // NOLINT
 
 using Gem::Tests::NgBoxIndividual;
+using Gem::Tests::NgErgoIndividual;
 using Gem::Tests::NgMixedIndividual;
 
 namespace {
@@ -433,6 +466,54 @@ TEST_CASE(
     CHECK(faithful(x[0], 2. + u_after[0] * 8.));
 }
 
+/******************************************************************************/
+// --- Builder ergonomics (§2.6): vector-of-starts groups + random-init helpers ----------------------
+
+TEST_CASE(
+    "normalized-genome: vector-of-starts group seeds each element and round-trips",
+    "[normalized-genome]"
+) {
+    GGenomeBuilder b;
+    b.addDoubleGroup(std::vector<double>{0.1, 0.4, -0.2}, -1., 1.);  // bounded, n inferred = 3
+    b.addDoublePlainGroup(std::vector<double>{5.0, -7.0}, -2., 2.);  // plain: starts beyond the perimeter
+    NgErgoIndividual ind(b.build());
+    std::vector<double> out;
+    ind.streamline<double>(out);
+    REQUIRE(out.size() == 5);
+    const std::vector<double> expect{0.1, 0.4, -0.2, 5.0, -7.0}; // plain starts (5, -7) legally exceed [-2,2)
+    for(std::size_t i = 0; i < expect.size(); ++i) {
+        CHECK(faithful(out[i], expect[i]));
+    }
+}
+
+/******************************************************************************/
+TEST_CASE(
+    "normalized-genome: an out-of-range start in a BOUNDED start-vector throws at setGenome",
+    "[normalized-genome]"
+) {
+    GGenomeBuilder b;
+    b.addDoubleGroup(std::vector<double>{0.0, 1.5}, -1., 1.); // 1.5 is outside [-1, 1) -> throws
+    CHECK_THROWS(NgErgoIndividual(b.build()));
+}
+
+/******************************************************************************/
+TEST_CASE(
+    "normalized-genome: addDoubleRandom / addDoublePlainRandom init within range",
+    "[normalized-genome]"
+) {
+    GGenomeBuilder b;
+    b.addDoubleRandom(-3., 7.);       // bounded single (no throwaway start needed)
+    b.addDoublePlainRandom(-2., 2.);  // plain single with init perimeter [-2, 2)
+    NgErgoIndividual ind(b.build());
+    ind.randomInit(activityMode::ALLPARAMETERS);
+    std::vector<double> out;
+    ind.streamline<double>(out);
+    REQUIRE(out.size() == 2);
+    CHECK(out[0] >= -3.);
+    CHECK(out[0] < 7.);   // a bounded parameter stays within its range
+    CHECK(out[1] >= -2.);
+    CHECK(out[1] < 2.);   // an unbounded parameter random-inits within its perimeter
+}
 
 /******************************************************************************/
 TEST_CASE(
