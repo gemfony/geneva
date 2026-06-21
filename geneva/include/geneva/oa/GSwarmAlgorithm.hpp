@@ -402,8 +402,8 @@ protected:
      * sizes of all neighborhoods, used to compute the offset.
      * @return The position (index in the population) of the first individual of the given neighborhood
      */
-    std::size_t
-    getFirstNIPosVec(const std::size_t &neighborhood, const std::vector<std::size_t> &vec) const;
+    static std::size_t
+    getFirstNIPosVec(const std::size_t &neighborhood, const std::vector<std::size_t> &vec);
     /**
      * @brief Helper function that returns the id of the last individual of a neighborhood.
      *
@@ -441,7 +441,7 @@ protected:
      *
      * The (unnamed) argument is the population slot whose personal best is unconditionally updated (borrowed).
      */
-    void updatePersonalBest(const std::unique_ptr<gen::GIndividualSlot> &ind_ptr);
+    static void updatePersonalBest(const std::unique_ptr<gen::GIndividualSlot> &ind_ptr);
     /**
      * @brief Updates the personal best of an individual, if a better solution was found.
      *
@@ -531,10 +531,10 @@ private:
      * The two (unnamed) arguments are the two neighborhood-member-count vectors to be compared.
      * @return true if both vectors hold identical neighborhood member counts, false otherwise
      */
-    bool nNeighborhoodMembersEqual(
+    static bool nNeighborhoodMembersEqual(
         const std::vector<std::size_t> &one,
         const std::vector<std::size_t> &two
-    ) const;
+    );
 
     /** @brief Small helper function that helps to fill up a neighborhood, if there is just one entry in it */
     void fillUpNeighborhood1();

@@ -191,7 +191,7 @@ public:
 	 *
 	 * @return The std::thread::id of the calling thread
 	 */
-    std::thread::id getThreadId() const {
+    static std::thread::id getThreadId() {
         return std::this_thread::get_id();
     }
 

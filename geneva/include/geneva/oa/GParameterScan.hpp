@@ -933,7 +933,7 @@ private:
      * @param data_vec The destination vector, written at data_point.pos
      */
     template <typename data_type>
-    void addDataPoint(
+    static void addDataPoint(
         const singleParameter<data_type> &data_point,
         std::vector<data_type> &data_vec
     ) {

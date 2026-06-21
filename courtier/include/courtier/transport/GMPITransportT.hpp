@@ -225,7 +225,7 @@ struct MPIConsumerConfig {
      * @brief Recommends a default number of handler threads based on available hardware concurrency.
      * @return The number of hardware threads, or 8 if the C++ runtime cannot determine it
      */
-    [[nodiscard]] std::uint32_t nHandlerThreadsRecommendation() const {
+    [[nodiscard]] static std::uint32_t nHandlerThreadsRecommendation() {
         // query hint that indicates how many hardware threads are available (might return 0 if unknown)
         const unsigned int hwThreads{std::thread::hardware_concurrency()};
 

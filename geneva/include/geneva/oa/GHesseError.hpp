@@ -145,13 +145,13 @@ public:
      * @param opts The error definition UP and the gate controlling whether the full covariance is computed.
      * @return The estimate (validity flags, per-parameter errors, and -- when computed -- the covariance).
      */
-    GHesseErrorResult estimate(
+    static GHesseErrorResult estimate(
         eval_fn_t const &eval_fn,
         std::vector<double> const &x_min,
         double f_min,
         std::vector<double> const &step_sizes,
         GHesseErrorOptions const &opts = GHesseErrorOptions{}
-    ) const;
+    );
 };
 
 /******************************************************************************/

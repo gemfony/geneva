@@ -318,7 +318,7 @@ GParsableI &GParsableI::operator<<([[maybe_unused]] nextComment const & nc) {
  * @param comment The comment string to be split (the literal "empty" and an empty string yield no tokens)
  * @return A vector of the individual sub-tokens obtained from @p comment
  */
-std::vector<std::string> GParsableI::splitComment(std::string const &comment) const {
+std::vector<std::string> GParsableI::splitComment(std::string const &comment) {
     std::vector<std::string> results;
 
     if(not comment.empty() && comment != "empty") {

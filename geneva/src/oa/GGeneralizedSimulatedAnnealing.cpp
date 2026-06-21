@@ -179,13 +179,13 @@ double GGeneralizedSimulatedAnnealing::getCoolingTimescale() const {
 
 /******************************************************************************/
 /** Population index of the current point of chain c. */
-std::size_t GGeneralizedSimulatedAnnealing::currentPos(std::size_t c) const {
+std::size_t GGeneralizedSimulatedAnnealing::currentPos(std::size_t c) {
     return (c * GSA_SLOTS_PER_CHAIN) + GSA_CURRENT;
 }
 
 /******************************************************************************/
 /** Population index of the proposal point of chain c. */
-std::size_t GGeneralizedSimulatedAnnealing::proposalPos(std::size_t c) const {
+std::size_t GGeneralizedSimulatedAnnealing::proposalPos(std::size_t c) {
     return (c * GSA_SLOTS_PER_CHAIN) + GSA_PROPOSAL;
 }
 

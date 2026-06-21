@@ -403,14 +403,14 @@ private:
      * @param user_options The additional user-supplied options group
      * @param usage_string The usage line printed at the top of the help message
      */
-    void emitHelpIfRequested(
+    static void emitHelpIfRequested(
         boost::program_options::variables_map const &vm,
         boost::program_options::options_description const &general,
         boost::program_options::options_description const &basic,
         boost::program_options::options_description const &visible,
         boost::program_options::options_description const &user_options,
         std::string const &usage_string
-    ) const;
+    );
     /**
      * @brief Validates, initialises, configures and enrols the consumer chosen on the command line.
      * @param vm The parsed command line variables map from which the consumer choice is read

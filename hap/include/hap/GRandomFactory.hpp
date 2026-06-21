@@ -130,7 +130,7 @@ public:
 	  *
 	  * @return The fixed number of random numbers a full container holds (DEFAULTARRAYSIZE)
 	  */
-    std::size_t size() const {
+    static std::size_t size() {
         return DEFAULTARRAYSIZE;
     }
 
@@ -320,14 +320,14 @@ public:
      *
      * @return The number of random numbers in a full container
      */
-    std::size_t getCurrentArraySize() const;
+    static std::size_t getCurrentArraySize();
 
     /**
      * @brief Allows to retrieve the size of the bounded buffer of containers.
      *
      * @return The maximum number of containers the factory's buffer can hold
      */
-    std::size_t getBufferSize() const;
+    static std::size_t getBufferSize();
 
     /**
      * @brief Delivers a new random number container with the current standard size to clients.

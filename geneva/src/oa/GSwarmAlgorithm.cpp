@@ -360,7 +360,7 @@ void GSwarmAlgorithm::setSwarmSizes(
 bool GSwarmAlgorithm::nNeighborhoodMembersEqual(
     const std::vector<std::size_t> &one,
     const std::vector<std::size_t> &two
-) const {
+) {
     if(one.size() != two.size()) {
         return false;
     }
@@ -401,7 +401,7 @@ std::size_t GSwarmAlgorithm::getFirstNIPos(const std::size_t &neighborhood) cons
 std::size_t GSwarmAlgorithm::getFirstNIPosVec(
     const std::size_t &neighborhood,
     const std::vector<std::size_t> &vec
-) const {
+) {
 #ifdef DEBUG
     if(neighborhood >= n_neighborhoods_) {
         throw geneva_exception(

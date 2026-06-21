@@ -127,14 +127,14 @@ public:
      *         result carries x0 / f0 with success == false, so the caller can restart to steepest
      *         descent or stop.
      */
-    GLineSearchResult search(
+    static GLineSearchResult search(
         eval_fn_t const &eval_fn,
         std::vector<double> const &x0,
         std::vector<double> const &dir,
         double f0,
         double g0_dot_dir,
         GLineSearchOptions const &opts = GLineSearchOptions{}
-    ) const;
+    );
 };
 
 /******************************************************************************/

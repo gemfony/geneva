@@ -201,7 +201,7 @@ GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(
  * GOptimizationAlgorithmBase::default_exec_mode_).
  */
 std::shared_ptr<oa::GOptimizationAlgorithmBase>
-GAlgorithmBenchmarkRunner::makeAlgorithm(const AlgorithmEntry &entry) const {
+GAlgorithmBenchmarkRunner::makeAlgorithm(const AlgorithmEntry &entry) {
     if (entry.mnemonic == "ea") {
         return oa::GEvolutionaryAlgorithmFactory(entry.configFile)
             .get<oa::GOptimizationAlgorithmBase>();

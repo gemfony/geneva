@@ -278,7 +278,7 @@ GHesseErrorResult GHesseError::estimate(
     double f_min,
     std::vector<double> const &step_sizes,
     GHesseErrorOptions const &opts
-) const {
+) {
     GHesseErrorResult result;
     result.up = opts.up;
 

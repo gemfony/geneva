@@ -667,7 +667,7 @@ protected:
      * @brief Retrieves a vector of old work items after job submission.
      * @return The work items that were superseded by reconciliation during the last submission
      */
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>> getOldWorkItems();
+    static std::vector<std::unique_ptr<gen::GOptimizableEntity>> getOldWorkItems();
 
     /**
      * @brief Returns a fresh personality-traits object for this algorithm. Protected, non-virtual
@@ -688,7 +688,7 @@ protected:
      * @param p The path from which the algorithm's short name is extracted
      * @return The short name of the optimization algorithm encoded in the path
      */
-    std::string extractOptAlgFromPath(const std::filesystem::path &p) const;
+    static std::string extractOptAlgFromPath(const std::filesystem::path &p);
 
     /** @brief Allows to set the personality type of the individuals */
     void setIndividualPersonalities();
@@ -882,7 +882,7 @@ private:
      * @brief This function returns true if a SIGHUP / CTRL_CLOSE_EVENT signal was sent.
      * @return true if a termination signal was received, false otherwise
      */
-    bool sigHupHalt() const;
+    static bool sigHupHalt();
 
     /**
      * @brief Triggers termination of the optimization run when a user-defined file is modified.

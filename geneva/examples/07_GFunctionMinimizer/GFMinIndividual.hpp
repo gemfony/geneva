@@ -175,9 +175,9 @@ private:
 
     /***************************************************************************/
     /** @brief A simple n-dimensional parabola */
-    double parabola(const std::vector<double> &parVec) const;
+    static double parabola(const std::vector<double> &parVec);
     /** @brief A "noisy" parabola */
-    double noisyParabola(const std::vector<double> &parVec) const;
+    static double noisyParabola(const std::vector<double> &parVec);
 
     /***************************************************************************/
 };

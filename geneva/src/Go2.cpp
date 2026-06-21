@@ -1071,7 +1071,7 @@ void Go2::emitHelpIfRequested(
     boost::program_options::options_description const &visible,
     boost::program_options::options_description const &user_options,
     std::string const &usage_string
-) const {
+) {
     if(not vm.contains("help") && not vm.contains("showAll")) {
         return;
     }

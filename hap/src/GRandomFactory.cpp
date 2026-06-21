@@ -152,7 +152,7 @@ void GRandomFactory::finalize() {
  *
  * @return The size of a random number array (DEFAULTARRAYSIZE)
  */
-std::size_t GRandomFactory::getCurrentArraySize() const {
+std::size_t GRandomFactory::getCurrentArraySize() {
     return DEFAULTARRAYSIZE;
 }
 
@@ -164,7 +164,7 @@ std::size_t GRandomFactory::getCurrentArraySize() const {
  *
  * @return The size of the random buffer (DEFAULTFACTORYBUFFERSIZE)
  */
-std::size_t GRandomFactory::getBufferSize() const {
+std::size_t GRandomFactory::getBufferSize() {
     return DEFAULTFACTORYBUFFERSIZE;
 }
 

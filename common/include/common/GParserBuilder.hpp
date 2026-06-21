@@ -400,7 +400,7 @@ protected:
     /** @brief Splits a comment into sub-tokens
      *  @param comment The comment string to split into sub-tokens
      *  @return The list of sub-tokens extracted from the comment */
-    std::vector<std::string> splitComment(std::string const &comment) const;
+    static std::vector<std::string> splitComment(std::string const &comment);
 
 private:
     /***************************************************************************/

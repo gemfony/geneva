@@ -205,7 +205,7 @@ double GFMinIndividual::fitnessCalculation() {
 /**
  * A simple n-dimensional parabola
  */
-double GFMinIndividual::parabola(const std::vector<double> &parVec) const {
+double GFMinIndividual::parabola(const std::vector<double> &parVec) {
     double result = 0.;
 
     std::vector<double>::const_iterator cit;
@@ -220,7 +220,7 @@ double GFMinIndividual::parabola(const std::vector<double> &parVec) const {
 /**
  * A "noisy" parabola
  */
-double GFMinIndividual::noisyParabola(const std::vector<double> &parVec) const {
+double GFMinIndividual::noisyParabola(const std::vector<double> &parVec) {
     double xsquared = 0.;
 
     std::vector<double>::const_iterator cit;

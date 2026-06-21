@@ -1680,7 +1680,7 @@ void GOptimizationAlgorithmBase::saveCheckpoint(std::filesystem::path const &out
  * @return The extracted algorithm personality token (the second hyphen-separated token of the filename)
  */
 std::string
-GOptimizationAlgorithmBase::extractOptAlgFromPath(const std::filesystem::path &p) const {
+GOptimizationAlgorithmBase::extractOptAlgFromPath(const std::filesystem::path &p) {
     // Extract the filename
     std::string filename = p.filename().string();
 
@@ -2110,7 +2110,7 @@ bool GOptimizationAlgorithmBase::minIterationPassed() const {
  *
  * @return A boolean indicating whether the program was interrupted with a SIGHUP or CTRL_CLOSE_EVENT signal
  */
-bool GOptimizationAlgorithmBase::sigHupHalt() const {
+bool GOptimizationAlgorithmBase::sigHupHalt() {
     if(G_SIGHUP_SENT()) {
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
         std::cout

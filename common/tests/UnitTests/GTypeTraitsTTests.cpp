@@ -73,7 +73,7 @@ struct HasAll : public gemfony_common_interface_indicator {
 // Different return / argument signatures should still satisfy the predicate
 // — the requires-clause only takes the address of the member.
 struct HasUnusualCompare {
-    std::string compare([[maybe_unused]] double first, [[maybe_unused]] double second) noexcept {
+    static std::string compare([[maybe_unused]] double first, [[maybe_unused]] double second) noexcept {
         return {};
     }
 };

@@ -394,9 +394,9 @@ private:
     double acceptanceProbability(double delta_e, double tqa) const;
 
     /** @brief Convenience: population index of the current point of chain c */
-    std::size_t currentPos(std::size_t c) const;
+    static std::size_t currentPos(std::size_t c);
     /** @brief Convenience: population index of the proposal point of chain c */
-    std::size_t proposalPos(std::size_t c) const;
+    static std::size_t proposalPos(std::size_t c);
 
     /***************************************************************************/
     // User-facing strategy parameters (configured by the user / factory)

@@ -192,8 +192,8 @@ private:
         const gind::GFunctionIndividual::Config &indCfg
     );
 
-    std::shared_ptr<oa::GOptimizationAlgorithmBase>
-    makeAlgorithm(const AlgorithmEntry &entry) const;
+    static std::shared_ptr<oa::GOptimizationAlgorithmBase>
+    makeAlgorithm(const AlgorithmEntry &entry);
 
     static GAlgorithmBenchmarkResult aggregate(
         const std::string &tag,

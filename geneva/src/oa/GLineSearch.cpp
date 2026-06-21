@@ -88,7 +88,7 @@ GLineSearchResult GLineSearch::search(
     double f0,
     double g0_dot_dir,
     GLineSearchOptions const &opts
-) const {
+) {
     GLineSearchResult result;
     result.x_new = x0;
     result.f_new = f0;
