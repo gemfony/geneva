@@ -190,6 +190,13 @@ public:
 	  * @return A tuple holding the minimum and the maximum element found in the data
 	  */
     std::tuple<x_type, x_type> getMinMaxElements() const {
+        if(data_.empty()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GDataCollector1T::getMinMaxElements(): Error!" << '\n'
+                << "Cannot determine the data range of an empty collector." << '\n'
+            );
+        }
         auto minmax = std::minmax_element(data_.begin(), data_.end());
         return std::make_tuple(*minmax.first, *minmax.second);
     };
@@ -842,6 +849,13 @@ public:
 		* @return A tuple holding (min_x, max_x, min_y, max_y) of the stored data
 		*/
     std::tuple<x_type, x_type, y_type, y_type> getMinMaxElements() const {
+        if(data_.empty()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GDataCollector2T::getMinMaxElements(): Error!" << '\n'
+                << "Cannot determine the data range of an empty collector." << '\n'
+            );
+        }
         auto minmax_x = std::minmax_element(
             data_.begin(),
             data_.end(),

@@ -1448,7 +1448,7 @@ GGraph3D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
                     << data_.size() << ");" << '\n'
                     << '\n';
 
-        for(it = data_.begin() + 1; it != data_.end(); ++it) {
+        for(it = data_.begin(); it != data_.end(); ++it) {
             x = std::get<0>(*it);
             y = std::get<1>(*it);
             z = std::get<2>(*it);
@@ -3016,7 +3016,7 @@ std::string GFunctionPlotter1D::footerData_(
 
     std::string d_a = this->drawingArguments(is_secondary);
 
-    footer_data << indent << function_name << "->Draw(" << d_a << ");"
+    footer_data << indent << function_name << "->Draw(\"" << d_a << "\");"
                 << (!comment.empty() ? comment : "") << '\n'
                 << '\n';
 
@@ -3266,7 +3266,7 @@ std::string GFunctionPlotter2D::footerData_(
 
     std::string d_a = this->drawingArguments(is_secondary);
 
-    footer_data << indent << function_name << "->Draw(" << d_a << ");"
+    footer_data << indent << function_name << "->Draw(\"" << d_a << "\");"
                 << (!comment.empty() ? comment : "") << '\n'
                 << '\n';
 
@@ -3282,6 +3282,10 @@ std::string GFunctionPlotter2D::footerData_(
  */
 std::string GFunctionPlotter2D::drawingArguments(bool is_secondary) const {
     std::string d_a;
+
+    if(!this->drawing_arguments_.empty()) {
+        d_a = this->drawing_arguments_;
+    }
 
     if(is_secondary) {
         if(d_a.empty()) {

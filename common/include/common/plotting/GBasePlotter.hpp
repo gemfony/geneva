@@ -306,8 +306,6 @@ protected:
         ""
     ); ///< A marker to make the origin of data structures clear in the output file
 
-    std::vector<line> lines_; ///< Lines to be drawn into the drawing area
-
 private:
     /***************************************************************************/
     /**
