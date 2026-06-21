@@ -314,11 +314,9 @@ namespace Gem::Geneva::Genome {
  */
 class GParameterPropertyParser {
 public:
-    /** @brief The deleted copy constructor -- this class must not be copied
-     *  @param The (unused) source object */
+    /** @brief The deleted copy constructor -- this class must not be copied */
     GParameterPropertyParser(const GParameterPropertyParser&) = delete;
     /** @brief The deleted copy-assignment operator -- this class must not be assigned
-     *  @param The (unused) source object
      *  @return (deleted, never returns) */
     GParameterPropertyParser& operator=(const GParameterPropertyParser&) = delete;
 

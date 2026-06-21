@@ -82,7 +82,6 @@ public:
       : Base(config_file, content_creator_ptr) { /* nothing */ }
     /**
      * @brief The copy constructor.
-     * @param (unnamed) The GNelderMeadFactory object to be copied.
      */
     GNelderMeadFactory(const GNelderMeadFactory &) = default;
     /** @brief The destructor */

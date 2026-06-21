@@ -78,8 +78,7 @@ public:
 
     /** @brief The default constructor */
     GParameterScan_PersonalityTraits() = default;
-    /** @brief The copy constructor
-     *  @param (unnamed) Another GParameterScan_PersonalityTraits object to be copied */
+    /** @brief The copy constructor */
     GParameterScan_PersonalityTraits(const GParameterScan_PersonalityTraits &) = default;
 
     /** @brief The standard destructor */

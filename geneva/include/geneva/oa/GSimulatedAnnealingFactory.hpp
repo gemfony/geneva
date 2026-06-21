@@ -76,8 +76,7 @@ public:
         std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr
     )
       : Base(config_file, content_creator_ptr) { /* nothing */ }
-    /** @brief The copy constructor
-     *  @param (unnamed) Another GSimulatedAnnealingFactory object to be copied */
+    /** @brief The copy constructor */
     GSimulatedAnnealingFactory(const GSimulatedAnnealingFactory &) = default;
     /** @brief The destructor */
     ~GSimulatedAnnealingFactory() override = default;

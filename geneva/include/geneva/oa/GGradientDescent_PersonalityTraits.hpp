@@ -85,7 +85,6 @@ public:
     GGradientDescent_PersonalityTraits() = default;
     /**
      * @brief The copy constructor.
-     * @param (unnamed) The object to be copied.
      */
     GGradientDescent_PersonalityTraits(const GGradientDescent_PersonalityTraits &) = default;
 
