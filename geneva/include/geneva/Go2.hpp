@@ -79,7 +79,7 @@ constexpr bool GO2_DEF_COPYBESTINDIVIDUALSONLY = true;
  *
  * @param n_producer_threads The number of threads the random number factory should use to produce random numbers
  */
-void setRNFParameters(std::uint16_t nProducerThreads);
+void setRNFParameters(std::uint16_t n_producer_threads);
 
 /******************************************************************************/
 /** Syntactic sugar -- make the code easier to read */
