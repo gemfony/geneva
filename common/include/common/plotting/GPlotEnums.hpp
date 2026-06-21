@@ -38,6 +38,8 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
+#include <ranges>
+#include <span>
 #include <sstream>
 #include <string>
 #include <tuple>

@@ -50,7 +50,7 @@ namespace Gem::Common {
  * @tparam dim The plot dimension (e.g. dimensions::Dim2, dimensions::Dim3) this decorator caters for
  * @tparam coordinate_type The arithmetic type used for plot coordinates
  */
-template <dimensions dim, typename coordinate_type>
+template <dimensions dim, Gem::Common::arithmetic coordinate_type>
 class GDecorator { /* nothing */
 };
 
@@ -62,7 +62,7 @@ class GDecorator { /* nothing */
  *
  * @tparam coordinate_type The arithmetic type used for plot coordinates
  */
-template <typename coordinate_type>
+template <Gem::Common::arithmetic coordinate_type>
 class GDecorator<dimensions::Dim2, coordinate_type>
   : public GCommonInterfaceT<GDecorator<dimensions::Dim2, coordinate_type>> {
     ///////////////////////////////////////////////////////////////////////
@@ -83,10 +83,8 @@ class GDecorator<dimensions::Dim2, coordinate_type>
     }
     ///////////////////////////////////////////////////////////////////////
 
-    static_assert(
-        std::is_arithmetic_v<coordinate_type>,
-        "coordinate_type should either be a floating-point or an integer type"
-    );
+    // coordinate_type is constrained to be arithmetic via the Gem::Common::arithmetic
+    // concept on the template parameter (clearer diagnostics than the former static_assert).
 
 public:
     /***************************************************************************/
@@ -223,7 +221,7 @@ private:
  *
  * @tparam coordinate_type The arithmetic type used for plot coordinates
  */
-template <typename coordinate_type>
+template <Gem::Common::arithmetic coordinate_type>
 class GMarker : public GDecorator<dimensions::Dim2, coordinate_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -469,7 +467,7 @@ private:
  *
  * @tparam coordinate_type The arithmetic type used for plot coordinates
  */
-template <typename coordinate_type>
+template <Gem::Common::arithmetic coordinate_type>
 class GDecorator<dimensions::Dim3, coordinate_type>
   : public GCommonInterfaceT<GDecorator<dimensions::Dim3, coordinate_type>> {
     ///////////////////////////////////////////////////////////////////////
@@ -490,10 +488,8 @@ class GDecorator<dimensions::Dim3, coordinate_type>
     }
     ///////////////////////////////////////////////////////////////////////
 
-    static_assert(
-        std::is_arithmetic_v<coordinate_type>,
-        "coordinate_type should either be a floating-point or an integer type"
-    );
+    // coordinate_type is constrained to be arithmetic via the Gem::Common::arithmetic
+    // concept on the template parameter (clearer diagnostics than the former static_assert).
 
 public:
     /***************************************************************************/
@@ -635,7 +631,7 @@ private:
  * @tparam dim The plot dimension (e.g. dimensions::Dim2, dimensions::Dim3) of the held decorators
  * @tparam coordinate_type The arithmetic type used for plot coordinates
  */
-template <dimensions dim, typename coordinate_type>
+template <dimensions dim, Gem::Common::arithmetic coordinate_type>
 class GDecoratorContainer { /* nothing */
 };
 
@@ -647,7 +643,7 @@ class GDecoratorContainer { /* nothing */
  *
  * @tparam coordinate_type The arithmetic type used for plot coordinates
  */
-template <typename coordinate_type>
+template <Gem::Common::arithmetic coordinate_type>
 class GDecoratorContainer<dimensions::Dim2, coordinate_type>
   : public GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2, coordinate_type>>
   , public GPtrContainerT<GDecorator<dimensions::Dim2, coordinate_type>> {
@@ -673,10 +669,8 @@ class GDecoratorContainer<dimensions::Dim2, coordinate_type>
     }
     ///////////////////////////////////////////////////////////////////////
 
-    static_assert(
-        std::is_arithmetic_v<coordinate_type>,
-        "coordinate_type should either be a floating-point or an integer type"
-    );
+    // coordinate_type is constrained to be arithmetic via the Gem::Common::arithmetic
+    // concept on the template parameter (clearer diagnostics than the former static_assert).
 
 public:
     /***************************************************************************/
@@ -832,7 +826,7 @@ private:
  *
  * @tparam coordinate_type The arithmetic type used for plot coordinates
  */
-template <typename coordinate_type>
+template <Gem::Common::arithmetic coordinate_type>
 class GDecoratorContainer_2D : public GDecoratorContainer<dimensions::Dim2, coordinate_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -961,7 +955,7 @@ private:
  *
  * @tparam coordinate_type The arithmetic type used for plot coordinates
  */
-template <typename coordinate_type>
+template <Gem::Common::arithmetic coordinate_type>
 class GDecoratorContainer<dimensions::Dim3, coordinate_type>
   : public GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3, coordinate_type>>
   , public GPtrContainerT<GDecorator<dimensions::Dim3, coordinate_type>> {
@@ -987,10 +981,8 @@ class GDecoratorContainer<dimensions::Dim3, coordinate_type>
     }
     ///////////////////////////////////////////////////////////////////////
 
-    static_assert(
-        std::is_arithmetic_v<coordinate_type>,
-        "coordinate_type should either be a floating-point or an integer type"
-    );
+    // coordinate_type is constrained to be arithmetic via the Gem::Common::arithmetic
+    // concept on the template parameter (clearer diagnostics than the former static_assert).
 
 public:
     /***************************************************************************/
@@ -1148,7 +1140,7 @@ private:
  *
  * @tparam coordinate_type The arithmetic type used for plot coordinates
  */
-template <typename coordinate_type>
+template <Gem::Common::arithmetic coordinate_type>
 class GDecoratorContainer_3D : public GDecoratorContainer<dimensions::Dim3, coordinate_type> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;

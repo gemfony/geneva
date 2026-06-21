@@ -119,7 +119,7 @@ public:
      * @param plot_name The name used in the emitted script (and a warning context); defaults to "empty"
      * @return The complete ROOT input script as a string
      */
-    std::string
+    [[nodiscard]] std::string
     plot(const std::filesystem::path & plot_name = std::filesystem::path("empty")) const;
     /**
      * @brief Writes the plot to a file

@@ -49,6 +49,7 @@
 #include <locale>
 #include <memory>
 #include <ostream>
+#include <ranges>
 #include <sstream>
 #include <tuple>
 #include <vector>
@@ -624,15 +625,14 @@ std::string GBasePlotter::headerData(const std::string &indent) const {
 
     // Extract data from the secondary plotters, if any
     std::size_t pos = 0;
-    std::vector<std::shared_ptr<GBasePlotter>>::const_iterator cit;
-    for(cit = secondary_plotter_.begin(); cit != secondary_plotter_.end(); ++cit) {
+    for(auto const &plotter_ptr : secondary_plotter_) {
         // Give the plotters their own id which will act as a child id in this case
-        (*cit)->setId(pos);
+        plotter_ptr->setId(pos);
 
         // We parent id 0 is reserved for primary plotters
         header_data << indent << "// Header data for secondary plotter " << pos << " of "
                     << this->getPlotterName() << '\n'
-                    << (*cit)->headerData_(true, this->id(), indent) << '\n';
+                    << plotter_ptr->headerData_(true, this->id(), indent) << '\n';
 
         pos++;
     }
@@ -683,11 +683,10 @@ std::string GBasePlotter::footerData(const std::string &indent) const {
 
     // Extract data from the secondary plotters, if any
     std::size_t pos = 0;
-    std::vector<std::shared_ptr<GBasePlotter>>::const_iterator cit;
-    for(cit = secondary_plotter_.begin(); cit != secondary_plotter_.end(); ++cit) {
+    for(auto const &plotter_ptr : secondary_plotter_) {
         footer_data << indent << "// Footer data for secondary plotter " << pos << " of "
                     << this->getPlotterName() << '\n'
-                    << (*cit)->footerData_(true, this->id(), indent) << '\n';
+                    << plotter_ptr->footerData_(true, this->id(), indent) << '\n';
 
         pos++;
     }
@@ -1779,12 +1778,12 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
         order[i] = i;
     }
     if(small_w_large_marker_) {
-        std::sort(order.begin(), order.end(), [&w_col](std::size_t a, std::size_t b) -> bool {
+        std::ranges::sort(order, [&w_col](std::size_t a, std::size_t b) -> bool {
             return (w_col[a] < w_col[b]);
         });
     }
     else {
-        std::sort(order.begin(), order.end(), [&w_col](std::size_t a, std::size_t b) -> bool {
+        std::ranges::sort(order, [&w_col](std::size_t a, std::size_t b) -> bool {
             return (w_col[a] > w_col[b]);
         });
     }
@@ -1802,14 +1801,14 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
         );
     }
     std::tuple<double, double, double, double, double, double, double, double> min_max{
-        *std::min_element(x_col.begin(), x_col.end()),
-        *std::max_element(x_col.begin(), x_col.end()),
-        *std::min_element(y_col.begin(), y_col.end()),
-        *std::max_element(y_col.begin(), y_col.end()),
-        *std::min_element(z_col.begin(), z_col.end()),
-        *std::max_element(z_col.begin(), z_col.end()),
-        *std::min_element(w_col.begin(), w_col.end()),
-        *std::max_element(w_col.begin(), w_col.end())
+        *std::ranges::min_element(x_col),
+        *std::ranges::max_element(x_col),
+        *std::ranges::min_element(y_col),
+        *std::ranges::max_element(y_col),
+        *std::ranges::min_element(z_col),
+        *std::ranges::max_element(z_col),
+        *std::ranges::min_element(w_col),
+        *std::ranges::max_element(w_col)
     };
 
     // Set up TView object for our 3D data, spanning the minimum and maximum values

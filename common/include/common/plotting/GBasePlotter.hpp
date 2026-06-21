@@ -119,7 +119,7 @@ public:
      * @brief Retrieve the x-axis label
      * @return The current x-axis label
      */
-    std::string xAxisLabel() const;
+    [[nodiscard]] std::string xAxisLabel() const;
     /**
      * @brief Sets the label for the y-axis
      * @param y_axis_label The text to use as the y-axis label
@@ -129,7 +129,7 @@ public:
      * @brief Retrieve the y-axis label
      * @return The current y-axis label
      */
-    std::string yAxisLabel() const;
+    [[nodiscard]] std::string yAxisLabel() const;
     /**
      * @brief Sets the label for the z-axis
      * @param z_axis_label The text to use as the z-axis label
@@ -139,7 +139,7 @@ public:
      * @brief Retrieve the z-axis label
      * @return The current z-axis label
      */
-    std::string zAxisLabel() const;
+    [[nodiscard]] std::string zAxisLabel() const;
 
     /**
      * @brief Allows to assign a label to the entire plot
@@ -150,7 +150,7 @@ public:
      * @brief Allows to retrieve the plot label
      * @return The current plot label
      */
-    std::string plotLabel() const;
+    [[nodiscard]] std::string plotLabel() const;
 
     /**
      * @brief Allows to assign a marker to data structures
@@ -161,7 +161,7 @@ public:
      * @brief Allows to retrieve the data structure marker
      * @return The current data-structure marker
      */
-    std::string dsMarker() const;
+    [[nodiscard]] std::string dsMarker() const;
 
     /**
      * @brief Allows to add secondary plots to be added to the same sub-canvas
@@ -173,7 +173,7 @@ public:
      * @brief Allows to retrieve the id of this object
      * @return The id currently assigned to this plotter
      */
-    std::size_t id() const;
+    [[nodiscard]] std::size_t id() const;
     /**
      * @brief Sets the id of the object
      * @param id The id to be assigned to this plotter
@@ -193,21 +193,21 @@ public:
      * @param indent The indentation string prepended to each emitted line
      * @return The combined header section for this plotter and its secondary plotters
      */
-    std::string headerData(const std::string &indent) const;
+    [[nodiscard]] std::string headerData(const std::string &indent) const;
 
     /**
      * @brief Retrieves body / data settings for this plot (and any sub-plots)
      * @param indent The indentation string prepended to each emitted line
      * @return The combined body / data section for this plotter and its secondary plotters
      */
-    std::string bodyData(const std::string &indent) const;
+    [[nodiscard]] std::string bodyData(const std::string &indent) const;
 
     /**
      * @brief Retrieves footer / drawing settings for this plot (and any sub-plots)
      * @param indent The indentation string prepended to each emitted line
      * @return The combined footer / drawing section for this plotter and its secondary plotters
      */
-    std::string footerData(const std::string &indent) const;
+    [[nodiscard]] std::string footerData(const std::string &indent) const;
 
 protected:
     /***************************************************************************/

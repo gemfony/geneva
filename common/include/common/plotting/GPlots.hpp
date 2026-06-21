@@ -94,7 +94,7 @@ public:
 	  *
 	  * @return The number of data items currently stored in this collector
 	  */
-    std::size_t currentSize() const {
+    [[nodiscard]] std::size_t currentSize() const {
         return std::get<0>(columns_).size();
     }
 
@@ -217,6 +217,21 @@ public:
     }
 
     /**
+	  * Adds a contiguous range of exactly-typed data items in one go. This span
+	  * overload sits alongside the std::vector overload above and lets callers
+	  * pass arrays / sub-ranges without first materializing a std::vector.
+	  *
+	  * @param cnt A span of data items to be added to the collection
+	  */
+    void operator&(std::span<const item_t> cnt) {
+        this->reserve(this->currentSize() + cnt.size());
+        for(auto const &item : cnt) {
+            // Add the data item to our collection
+            pushItem(item, std::make_index_sequence<n_axes>{});
+        }
+    }
+
+    /**
 	  * Adds a collection of data items of undetermined component type(s) in one
 	  * go, provided they can be converted safely into the target component type(s).
 	  *
@@ -225,6 +240,22 @@ public:
 	  */
     template <typename... Us, std::enable_if_t<sizeof...(Us) == sizeof...(Ts), int> = 0>
     void operator&(const std::vector<std::tuple<Us...>> &cnt_undet) {
+        this->reserve(this->currentSize() + cnt_undet.size());
+        for(auto const &item_undet : cnt_undet) {
+            pushItem(narrowItem(item_undet), std::make_index_sequence<n_axes>{});
+        }
+    }
+
+    /**
+	  * Adds a contiguous range of data items of undetermined component type(s) in
+	  * one go (span counterpart of the std::vector overload above), provided they
+	  * can be converted safely into the target component type(s).
+	  *
+	  * @tparam Us The source component type(s), narrowed to the target type(s)
+	  * @param cnt_undet A span of data items of undetermined type, to be added
+	  */
+    template <typename... Us, std::enable_if_t<sizeof...(Us) == sizeof...(Ts), int> = 0>
+    void operator&(std::span<const std::tuple<Us...>> cnt_undet) {
         this->reserve(this->currentSize() + cnt_undet.size());
         for(auto const &item_undet : cnt_undet) {
             pushItem(narrowItem(item_undet), std::make_index_sequence<n_axes>{});
@@ -252,6 +283,39 @@ public:
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GDataCollectorT::operator&(const std::vector<T>&): Error!" << '\n'
+                    << "Encountered invalid cast with Gem::Common::narrow," << '\n'
+                    << "with the message " << '\n'
+                    << e.what() << '\n'
+                );
+            }
+
+            // Add the converted data to our collection
+            std::get<0>(columns_).push_back(x);
+        }
+    }
+
+    /**
+	  * For a single-axis collector only: adds a contiguous range of bare values of
+	  * undetermined type (span counterpart of the std::vector overload above),
+	  * provided they can be converted safely to the target type.
+	  *
+	  * @tparam U The source element type of the span, narrowed to the target type
+	  * @param x_cnt_undet A span of data items of undetermined type, to be added
+	  */
+    template <typename U, std::size_t M = n_axes, std::enable_if_t<M == 1, int> = 0>
+    void operator&(std::span<const U> x_cnt_undet) {
+        axis_t<0> x = axis_t<0>(0);
+
+        std::get<0>(columns_).reserve(std::get<0>(columns_).size() + x_cnt_undet.size());
+        for(auto const &src : x_cnt_undet) {
+            // Make sure the data can be converted to doubles
+            try {
+                x = Gem::Common::narrow<axis_t<0>>(src);
+            }
+            catch(std::overflow_error &e) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GDataCollectorT::operator&(std::span<const T>): Error!" << '\n'
                     << "Encountered invalid cast with Gem::Common::narrow," << '\n'
                     << "with the message " << '\n'
                     << e.what() << '\n'
@@ -376,7 +440,7 @@ public:
         // sort, and scatter the result back into the columns -- this co-sorts all
         // axes (a row stays together) and matches the old ordering exactly.
         std::vector<item_t> items = asTuples();
-        std::sort(items.begin(), items.end(), [](const item_t &a, const item_t &b) -> bool {
+        std::ranges::sort(items, [](const item_t &a, const item_t &b) -> bool {
             return std::get<0>(a) < std::get<0>(b);
         });
         assignFromTuples(items, std::make_index_sequence<n_axes>{});
@@ -391,7 +455,7 @@ public:
 	  *
 	  * @return A tuple holding the per-axis (min, max) pairs of the stored data
 	  */
-    auto getMinMaxElements() const {
+    [[nodiscard]] auto getMinMaxElements() const {
         if(this->currentSize() == 0) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -599,7 +663,7 @@ private:
     template <std::size_t I>
     std::pair<axis_t<I>, axis_t<I>> minMaxAxis() const {
         const auto &col = std::get<I>(columns_);
-        auto [min_it, max_it] = std::minmax_element(col.begin(), col.end());
+        auto [min_it, max_it] = std::ranges::minmax_element(col);
         return {*min_it, *max_it};
     }
 
