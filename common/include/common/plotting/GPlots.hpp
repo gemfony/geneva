@@ -37,10 +37,14 @@ namespace Gem::Common {
 /**
  * A variadic data collector for N-d data of user-defined component types. It is
  * the single, generic implementation backing the named GDataCollector{1T,2T,2ET,
- * 3T,4T} collectors (see the alias declarations below). Each data item is stored
- * as a std::tuple<Ts...>; the per-axis machinery (the narrowing operator&
- * overloads, the projections, sorting and min/max extraction) is generated from
- * the parameter pack via fold expressions / std::index_sequence.
+ * 3T,4T} collectors (see the alias declarations below). The data is stored in
+ * columnar (struct-of-arrays) form: one std::vector per axis, i.e.
+ * std::tuple<std::vector<Ts>...>. This matches the per-axis C arrays the emitter
+ * builds and removes the std::get<>() churn of the previous array-of-tuples
+ * layout. A logical data item is the cross-section of all columns at one index;
+ * the per-axis machinery (the narrowing operator& overloads, the projections,
+ * sorting and min/max extraction) is generated from the parameter pack via fold
+ * expressions / std::index_sequence.
  *
  * The class is assumed to be movable, hence we use all defaulted constructors and
  * assignment operators.
@@ -56,7 +60,7 @@ class GDataCollectorT : public GBasePlotter {
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter) & BOOST_SERIALIZATION_NVP(data_);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter) & BOOST_SERIALIZATION_NVP(columns_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -65,8 +69,10 @@ class GDataCollectorT : public GBasePlotter {
     /** @brief The component type of axis I (e.g. axis_t<0> is the x-component type) */
     template <std::size_t I>
     using axis_t = std::tuple_element_t<I, std::tuple<Ts...>>;
-    /** @brief The element type stored in the data vector */
+    /** @brief The logical type of a single data item (the cross-section of all columns) */
     using item_t = std::tuple<Ts...>;
+    /** @brief The columnar storage type: one std::vector per axis */
+    using columns_t = std::tuple<std::vector<Ts>...>;
 
 public:
     /***************************************************************************/
@@ -89,7 +95,29 @@ public:
 	  * @return The number of data items currently stored in this collector
 	  */
     std::size_t currentSize() const {
-        return data_.size();
+        return std::get<0>(columns_).size();
+    }
+
+    /***************************************************************************/
+    /**
+	  * Reserves capacity in every column, so a known number of subsequent
+	  * insertions does not repeatedly reallocate.
+	  *
+	  * @param n The number of data items to reserve room for
+	  */
+    void reserve(std::size_t n) {
+        reserveImpl(n, std::make_index_sequence<n_axes>{});
+    }
+
+    /***************************************************************************/
+    /**
+	  * Alias for reserve(), provided for call sites that pass a non-binding
+	  * size hint.
+	  *
+	  * @param n The number of data items to reserve room for
+	  */
+    void reserveHint(std::size_t n) {
+        this->reserve(n);
     }
 
     /***************************************************************************/
@@ -131,13 +159,7 @@ public:
 	  * @param item The data item to be added to the collection
 	  */
     void operator&(const item_t &item) {
-        if constexpr(n_axes == 1) {
-            data_.push_back(item);
-        }
-        else {
-            // Add the data item to the collection
-            data_.push_back(item);
-        }
+        pushItem(item, std::make_index_sequence<n_axes>{});
     }
 
     /**
@@ -149,7 +171,7 @@ public:
 	  */
     template <typename... Us, std::enable_if_t<sizeof...(Us) == sizeof...(Ts), int> = 0>
     void operator&(const std::tuple<Us...> &item_undet) {
-        data_.push_back(narrowItem(item_undet));
+        pushItem(narrowItem(item_undet), std::make_index_sequence<n_axes>{});
     }
 
     /**
@@ -178,7 +200,7 @@ public:
         }
 
         // Add the converted data to our collection
-        data_.push_back(item_t(x));
+        std::get<0>(columns_).push_back(x);
     }
 
     /**
@@ -187,9 +209,10 @@ public:
 	  * @param cnt A vector of data items to be added to the collection
 	  */
     void operator&(const std::vector<item_t> &cnt) {
+        this->reserve(this->currentSize() + cnt.size());
         for(auto const &item : cnt) {
             // Add the data item to our collection
-            data_.push_back(item);
+            pushItem(item, std::make_index_sequence<n_axes>{});
         }
     }
 
@@ -202,8 +225,9 @@ public:
 	  */
     template <typename... Us, std::enable_if_t<sizeof...(Us) == sizeof...(Ts), int> = 0>
     void operator&(const std::vector<std::tuple<Us...>> &cnt_undet) {
+        this->reserve(this->currentSize() + cnt_undet.size());
         for(auto const &item_undet : cnt_undet) {
-            data_.push_back(narrowItem(item_undet));
+            pushItem(narrowItem(item_undet), std::make_index_sequence<n_axes>{});
         }
     }
 
@@ -218,6 +242,7 @@ public:
     void operator&(const std::vector<U> &x_cnt_undet) {
         axis_t<0> x = axis_t<0>(0);
 
+        std::get<0>(columns_).reserve(std::get<0>(columns_).size() + x_cnt_undet.size());
         for(auto const &src : x_cnt_undet) {
             // Make sure the data can be converted to doubles
             try {
@@ -234,7 +259,42 @@ public:
             }
 
             // Add the converted data to our collection
-            data_.push_back(item_t(x));
+            std::get<0>(columns_).push_back(x);
+        }
+    }
+
+    /**
+	  * Adds a collection of exactly-typed data items in one go, stealing the
+	  * incoming buffer for a single-axis collector (where the buffer matches the
+	  * sole column directly). For multi-axis collectors there is no single column
+	  * to move into, so the items are appended element-wise.
+	  *
+	  * @param cnt A vector of data items to be moved into the collection
+	  */
+    void operator&(std::vector<item_t> &&cnt) {
+        if constexpr(n_axes == 1) {
+            auto &col = std::get<0>(columns_);
+            if(col.empty()) {
+                // Steal the incoming buffer wholesale (item_t is a 1-tuple of axis_t<0>;
+                // it is layout-equivalent to its sole element, but we move element-wise
+                // to stay strictly within well-defined behavior).
+                col.reserve(cnt.size());
+                for(auto &item : cnt) {
+                    col.push_back(std::move(std::get<0>(item)));
+                }
+            }
+            else {
+                col.reserve(col.size() + cnt.size());
+                for(auto &item : cnt) {
+                    col.push_back(std::move(std::get<0>(item)));
+                }
+            }
+        }
+        else {
+            this->reserve(this->currentSize() + cnt.size());
+            for(auto &item : cnt) {
+                pushItem(std::move(item), std::make_index_sequence<n_axes>{});
+            }
         }
     }
 
@@ -303,9 +363,23 @@ public:
 	  * Sorts the data according to its x-component (axis 0)
 	  */
     void sortX() {
-        std::sort(data_.begin(), data_.end(), [](const item_t &a, const item_t &b) -> bool {
+        const std::size_t n = this->currentSize();
+        if(n < 2) {
+            return;
+        }
+
+        // Reproduce the previous behaviour byte-for-byte: the old storage was a
+        // std::vector<item_t> and was sorted with std::sort comparing only the
+        // x-component (axis 0). std::sort is not stable, so the exact order of
+        // x-ties is an artefact of the algorithm operating on that very element
+        // sequence. We therefore materialize the item tuples, run the identical
+        // sort, and scatter the result back into the columns -- this co-sorts all
+        // axes (a row stays together) and matches the old ordering exactly.
+        std::vector<item_t> items = asTuples();
+        std::sort(items.begin(), items.end(), [](const item_t &a, const item_t &b) -> bool {
             return std::get<0>(a) < std::get<0>(b);
         });
+        assignFromTuples(items, std::make_index_sequence<n_axes>{});
     }
 
     /***************************************************************************/
@@ -318,7 +392,7 @@ public:
 	  * @return A tuple holding the per-axis (min, max) pairs of the stored data
 	  */
     auto getMinMaxElements() const {
-        if(data_.empty()) {
+        if(this->currentSize() == 0) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GDataCollectorT::getMinMaxElements(): Error!" << '\n'
@@ -337,7 +411,26 @@ protected:
 	  */
     template <typename Self>
     static auto localMembers_(Self &self) {
-        return std::make_tuple(make_member("data_", self.data_));
+        // Expose one named member per column, so each column is compared via the
+        // existing sequence-container comparison path (exactly as the former single
+        // data_ vector was). The columns are the serialized / compared state.
+        return localMembersImpl_(self, std::make_index_sequence<n_axes>{});
+    }
+
+    /** @brief Stable per-axis member name ("column_0", "column_1", ...) for diagnostics */
+    template <std::size_t I>
+    static constexpr const char *columnName_() {
+        constexpr const char *names[] = {
+            "column_0", "column_1", "column_2", "column_3",
+            "column_4", "column_5", "column_6", "column_7"
+        };
+        static_assert(I < (sizeof(names) / sizeof(names[0])), "GDataCollectorT: too many axes for column naming");
+        return names[I];
+    }
+
+    template <typename Self, std::size_t... Is>
+    static auto localMembersImpl_(Self &self, std::index_sequence<Is...>) {
+        return std::make_tuple(make_member(columnName_<Is>(), std::get<Is>(self.columns_))...);
     }
 
     /**
@@ -394,10 +487,85 @@ protected:
     }
 
     /***************************************************************************/
+    /**
+	  * Returns the column (the per-axis value vector) for axis I, for use by the
+	  * concrete plotters' emission code. Both const and non-const overloads are
+	  * provided; they are protected, i.e. internal to the collector hierarchy.
+	  *
+	  * @tparam I The axis whose value vector should be returned
+	  * @return A reference to the std::vector holding axis I's values
+	  */
+    template <std::size_t I>
+    std::vector<axis_t<I>> &column() {
+        return std::get<I>(columns_);
+    }
 
-    std::vector<item_t> data_; ///< Holds the actual data
+    template <std::size_t I>
+    const std::vector<axis_t<I>> &column() const {
+        return std::get<I>(columns_);
+    }
+
+    /***************************************************************************/
+
+    columns_t columns_; ///< Holds the actual data in columnar (struct-of-arrays) form
 
 private:
+    /***************************************************************************/
+    /**
+	  * Appends one logical item (one value per axis) to the columns.
+	  */
+    template <typename Tuple, std::size_t... Is>
+    void pushItem(Tuple &&item, std::index_sequence<Is...>) {
+        (std::get<Is>(columns_).push_back(std::get<Is>(std::forward<Tuple>(item))), ...);
+    }
+
+    /***************************************************************************/
+    /**
+	  * Reserves capacity n in every column.
+	  */
+    template <std::size_t... Is>
+    void reserveImpl(std::size_t n, std::index_sequence<Is...>) {
+        (std::get<Is>(columns_).reserve(n), ...);
+    }
+
+    /***************************************************************************/
+    /**
+	  * Materializes the columnar data into a vector of item tuples (an
+	  * array-of-tuples view). Used by the few legacy call sites (project<>() and
+	  * the GGraph4D footer) that drive the free getMinMax(vector-of-tuples) helper
+	  * and by sortX().
+	  *
+	  * @return A vector of item tuples reconstructed from the columns
+	  */
+    std::vector<item_t> asTuples() const {
+        return asTuplesImpl(std::make_index_sequence<n_axes>{});
+    }
+
+    template <std::size_t... Is>
+    std::vector<item_t> asTuplesImpl(std::index_sequence<Is...>) const {
+        const std::size_t n = this->currentSize();
+        std::vector<item_t> out;
+        out.reserve(n);
+        for(std::size_t i = 0; i < n; ++i) {
+            out.emplace_back(std::get<Is>(columns_)[i]...);
+        }
+        return out;
+    }
+
+    /***************************************************************************/
+    /**
+	  * Replaces the columns with the contents of a vector of item tuples,
+	  * de-interleaving each axis into its own column.
+	  */
+    template <std::size_t... Is>
+    void assignFromTuples(const std::vector<item_t> &items, std::index_sequence<Is...>) {
+        (std::get<Is>(columns_).clear(), ...);
+        (std::get<Is>(columns_).reserve(items.size()), ...);
+        for(const auto &item : items) {
+            (std::get<Is>(columns_).push_back(std::get<Is>(item)), ...);
+        }
+    }
+
     /***************************************************************************/
     /**
 	  * Narrows a tuple of undetermined component types into the target item type,
@@ -430,11 +598,9 @@ private:
 	  */
     template <std::size_t I>
     std::pair<axis_t<I>, axis_t<I>> minMaxAxis() const {
-        auto cmp = [](const item_t &a, const item_t &b) -> bool {
-            return std::get<I>(a) < std::get<I>(b);
-        };
-        auto [min_it, max_it] = std::minmax_element(data_.begin(), data_.end(), cmp);
-        return {std::get<I>(*min_it), std::get<I>(*max_it)};
+        const auto &col = std::get<I>(columns_);
+        auto [min_it, max_it] = std::minmax_element(col.begin(), col.end());
+        return {*min_it, *max_it};
     }
 
     template <std::size_t... Is>
@@ -941,8 +1107,8 @@ inline std::shared_ptr<GDataCollectorT<double>> GDataCollectorT<double, double>:
     std::tuple<double, double> my_range_x;
     std::tuple<double, double> default_range;
     if(range_x == default_range) {
-        // Find out about the minimum and maximum values in the data_ array
-        std::tuple<double, double, double, double> extremes = getMinMax(this->data_);
+        // Find out about the minimum and maximum values in the data
+        std::tuple<double, double, double, double> extremes = getMinMax(this->asTuples());
         my_range_x = std::tuple<double, double>(std::get<0>(extremes), std::get<1>(extremes));
     }
     else {
@@ -956,8 +1122,8 @@ inline std::shared_ptr<GDataCollectorT<double>> GDataCollectorT<double, double>:
     result->setPlotLabel(this->plotLabel() + " / x-projection");
 
     // Add data to the object
-    for(auto const &o : data_) {
-        (*result) & std::get<0>(o);
+    for(auto const &v : this->template column<0>()) {
+        (*result) & v;
     }
 
     // Return the data
@@ -984,8 +1150,8 @@ inline std::shared_ptr<GDataCollectorT<double>> GDataCollectorT<double, double>:
     std::tuple<double, double> my_range_y;
     std::tuple<double, double> default_range;
     if(range_y == default_range) {
-        // Find out about the minimum and maximum values in the data_ array
-        std::tuple<double, double, double, double> extremes = getMinMax(data_);
+        // Find out about the minimum and maximum values in the data
+        std::tuple<double, double, double, double> extremes = getMinMax(this->asTuples());
         my_range_y = std::tuple<double, double>(std::get<2>(extremes), std::get<3>(extremes));
     }
     else {
@@ -999,8 +1165,8 @@ inline std::shared_ptr<GDataCollectorT<double>> GDataCollectorT<double, double>:
     result->setPlotLabel(this->plotLabel() + " / y-projection");
 
     // Add data to the object
-    for(auto const &o : data_) {
-        (*result) & std::get<1>(o);
+    for(auto const &v : this->template column<1>()) {
+        (*result) & v;
     }
 
     // Return the data
@@ -1531,9 +1697,9 @@ inline std::shared_ptr<GDataCollectorT<double>> GDataCollectorT<double, double, 
     std::tuple<double, double> my_range_x;
     std::tuple<double, double> default_range;
     if(range_x == default_range) {
-        // Find out about the minimum and maximum values in the data_ array
+        // Find out about the minimum and maximum values in the data
         std::tuple<double, double, double, double, double, double> extremes =
-            getMinMax(this->data_);
+            getMinMax(this->asTuples());
         my_range_x = std::tuple<double, double>(std::get<0>(extremes), std::get<1>(extremes));
     }
     else {
@@ -1547,8 +1713,8 @@ inline std::shared_ptr<GDataCollectorT<double>> GDataCollectorT<double, double, 
     result->setPlotLabel(this->plotLabel() + " / x-projection");
 
     // Add data to the object
-    for(auto const &o : data_) {
-        (*result) & std::get<0>(o);
+    for(auto const &v : this->template column<0>()) {
+        (*result) & v;
     }
 
     // Return the data
@@ -1575,8 +1741,8 @@ inline std::shared_ptr<GDataCollectorT<double>> GDataCollectorT<double, double, 
     std::tuple<double, double> my_range_y;
     std::tuple<double, double> default_range;
     if(range_y == default_range) {
-        // Find out about the minimum and maximum values in the data_ array
-        std::tuple<double, double, double, double, double, double> extremes = getMinMax(data_);
+        // Find out about the minimum and maximum values in the data
+        std::tuple<double, double, double, double, double, double> extremes = getMinMax(this->asTuples());
         my_range_y = std::tuple<double, double>(std::get<2>(extremes), std::get<3>(extremes));
     }
     else {
@@ -1590,8 +1756,8 @@ inline std::shared_ptr<GDataCollectorT<double>> GDataCollectorT<double, double, 
     result->setPlotLabel(this->plotLabel() + " / y-projection");
 
     // Add data to the object
-    for(auto const &o : data_) {
-        (*result) & std::get<1>(o);
+    for(auto const &v : this->template column<1>()) {
+        (*result) & v;
     }
 
     // Return the data
@@ -1618,8 +1784,8 @@ inline std::shared_ptr<GDataCollectorT<double>> GDataCollectorT<double, double, 
     std::tuple<double, double> my_range_z;
     std::tuple<double, double> default_range;
     if(range_z == default_range) {
-        // Find out about the minimum and maximum values in the data_ array
-        std::tuple<double, double, double, double, double, double> extremes = getMinMax(data_);
+        // Find out about the minimum and maximum values in the data
+        std::tuple<double, double, double, double, double, double> extremes = getMinMax(this->asTuples());
         my_range_z = std::tuple<double, double>(std::get<4>(extremes), std::get<5>(extremes));
     }
     else {
@@ -1633,8 +1799,8 @@ inline std::shared_ptr<GDataCollectorT<double>> GDataCollectorT<double, double, 
     result->setPlotLabel(this->plotLabel() + " / z-projection");
 
     // Add data to the object
-    for(auto const &o : data_) {
-        (*result) & std::get<2>(o);
+    for(auto const &v : this->template column<2>()) {
+        (*result) & v;
     }
 
     // Return the data
@@ -1796,9 +1962,9 @@ GDataCollectorT<double, double, double, double>::project<0>(
     std::tuple<double, double> my_range_x;
     std::tuple<double, double> default_range;
     if(range_x == default_range) {
-        // Find out about the minimum and maximum values in the data_ array
+        // Find out about the minimum and maximum values in the data
         std::tuple<double, double, double, double, double, double, double, double> extremes =
-            getMinMax(this->data_);
+            getMinMax(this->asTuples());
         my_range_x = std::tuple<double, double>(std::get<0>(extremes), std::get<1>(extremes));
     }
     else {
@@ -1812,8 +1978,8 @@ GDataCollectorT<double, double, double, double>::project<0>(
     result->setPlotLabel(this->plotLabel() + " / x-projection");
 
     // Add data to the object
-    for(auto const &o : data_) {
-        (*result) & std::get<0>(o);
+    for(auto const &v : this->template column<0>()) {
+        (*result) & v;
     }
 
     // Return the data
@@ -1841,9 +2007,9 @@ GDataCollectorT<double, double, double, double>::project<1>(
     std::tuple<double, double> my_range_y;
     std::tuple<double, double> default_range;
     if(range_y == default_range) {
-        // Find out about the minimum and maximum values in the data_ array
+        // Find out about the minimum and maximum values in the data
         std::tuple<double, double, double, double, double, double, double, double> extremes =
-            getMinMax(this->data_);
+            getMinMax(this->asTuples());
         my_range_y = std::tuple<double, double>(std::get<2>(extremes), std::get<3>(extremes));
     }
     else {
@@ -1857,8 +2023,8 @@ GDataCollectorT<double, double, double, double>::project<1>(
     result->setPlotLabel(this->plotLabel() + " / y-projection");
 
     // Add data to the object
-    for(auto const &o : data_) {
-        (*result) & std::get<1>(o);
+    for(auto const &v : this->template column<1>()) {
+        (*result) & v;
     }
 
     // Return the data
@@ -1886,9 +2052,9 @@ GDataCollectorT<double, double, double, double>::project<2>(
     std::tuple<double, double> my_range_z;
     std::tuple<double, double> default_range;
     if(range_z == default_range) {
-        // Find out about the minimum and maximum values in the data_ array
+        // Find out about the minimum and maximum values in the data
         std::tuple<double, double, double, double, double, double, double, double> extremes =
-            getMinMax(this->data_);
+            getMinMax(this->asTuples());
         my_range_z = std::tuple<double, double>(std::get<4>(extremes), std::get<5>(extremes));
     }
     else {
@@ -1902,8 +2068,8 @@ GDataCollectorT<double, double, double, double>::project<2>(
     result->setPlotLabel(this->plotLabel() + " / z-projection");
 
     // Add data to the object
-    for(auto const &o : data_) {
-        (*result) & std::get<2>(o);
+    for(auto const &v : this->template column<2>()) {
+        (*result) & v;
     }
 
     // Return the data
@@ -1931,9 +2097,9 @@ GDataCollectorT<double, double, double, double>::project<3>(
     std::tuple<double, double> my_range_w;
     std::tuple<double, double> default_range;
     if(range_w == default_range) {
-        // Find out about the minimum and maximum values in the data_ array
+        // Find out about the minimum and maximum values in the data
         std::tuple<double, double, double, double, double, double, double, double> extremes =
-            getMinMax(this->data_);
+            getMinMax(this->asTuples());
         my_range_w = std::tuple<double, double>(std::get<6>(extremes), std::get<7>(extremes));
     }
     else {
@@ -1947,8 +2113,8 @@ GDataCollectorT<double, double, double, double>::project<3>(
     result->setPlotLabel(this->plotLabel() + " / w-projection");
 
     // Add data to the object
-    for(auto const &o : data_) {
-        (*result) & std::get<3>(o);
+    for(auto const &v : this->template column<3>()) {
+        (*result) & v;
     }
 
     // Return the data

@@ -812,9 +812,9 @@ GGraph2D::headerData_(bool is_secondary, std::size_t p_id, const std::string &in
         comment = "// " + rootEscape(ds_marker_);
     }
 
-    header_data << indent << "double " << x_array_name << "[" << to_string(data_.size()) << "];"
+    header_data << indent << "double " << x_array_name << "[" << to_string(this->currentSize()) << "];"
                 << (!comment.empty() ? comment : "") << '\n'
-                << indent << "double " << y_array_name << "[" << to_string(data_.size()) << "];"
+                << indent << "double " << y_array_name << "[" << to_string(this->currentSize()) << "];"
                 << '\n'
                 << '\n';
 
@@ -846,17 +846,16 @@ GGraph2D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &inde
         body_data << "// " + rootEscape(ds_marker_) << '\n';
     }
 
-    // Fill data from the tuples into the arrays
-    std::vector<std::tuple<double, double>>::const_iterator it;
-    std::size_t pos_counter = 0;
+    // Fill data from the columns into the arrays
+    const auto &x_col = this->column<0>();
+    const auto &y_col = this->column<1>();
+    const std::size_t n = this->currentSize();
 
-    for(it = data_.begin(); it != data_.end(); ++it) {
-        body_data << indent << x_array_name << "[" << pos_counter << "] = " << std::get<0>(*it)
+    for(std::size_t pos_counter = 0; pos_counter < n; ++pos_counter) {
+        body_data << indent << x_array_name << "[" << pos_counter << "] = " << x_col[pos_counter]
                   << ";"
-                  << "\t" << y_array_name << "[" << pos_counter << "] = " << std::get<1>(*it) << ";"
+                  << "\t" << y_array_name << "[" << pos_counter << "] = " << y_col[pos_counter] << ";"
                   << '\n';
-
-        pos_counter++;
     }
     body_data << '\n';
 
@@ -893,8 +892,8 @@ GGraph2D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
     // Retrieve the current drawing arguments
     std::string d_a = this->drawingArguments(is_secondary);
 
-    // Fill the data in our tuple-vector into a ROOT TGraph object
-    footer_data << indent << "TGraph *" << graph_name << " = new TGraph(" << data_.size() << ", "
+    // Fill the data in our columns into a ROOT TGraph object
+    footer_data << indent << "TGraph *" << graph_name << " = new TGraph(" << this->currentSize() << ", "
                 << x_array_name << ", " << y_array_name << ");" << '\n'
                 << indent << graph_name << "->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");"
                 << '\n'
@@ -910,18 +909,20 @@ GGraph2D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
 
     footer_data << indent << graph_name << "->Draw(\"" << d_a << "\");" << '\n' << '\n';
 
-    if(draw_arrows_ && data_.size() >= 2) {
-        std::vector<std::tuple<double, double>>::const_iterator it;
+    if(draw_arrows_ && this->currentSize() >= 2) {
+        const auto &x_col = this->column<0>();
+        const auto &y_col = this->column<1>();
+        const std::size_t n = this->currentSize();
         std::size_t pos_counter = 0;
 
-        double x1 = std::get<0>(*data_.begin());
-        double y1 = std::get<1>(*data_.begin());
+        double x1 = x_col[0];
+        double y1 = y_col[0];
         double x2 = 0.;
         double y2 = 0.;
 
-        for(it = data_.begin() + 1; it != data_.end(); ++it) {
-            x2 = std::get<0>(*it);
-            y2 = std::get<1>(*it);
+        for(std::size_t i = 1; i < n; ++i) {
+            x2 = x_col[i];
+            y2 = y_col[i];
 
             footer_data << indent << "TArrow * ta_" << graph_name << "_" << pos_counter
                         << " = new TArrow(" << x1 << ", " << y1 << "," << x2 << ", " << y2 << ", "
@@ -1100,13 +1101,13 @@ GGraph2ED::headerData_(bool is_secondary, std::size_t p_id, const std::string &i
         comment = "// " + rootEscape(ds_marker_);
     }
 
-    header_data << indent << "double " << x_array_name << "[" << to_string(data_.size()) << "];"
+    header_data << indent << "double " << x_array_name << "[" << to_string(this->currentSize()) << "];"
                 << comment << '\n'
-                << indent << "double " << ex_array_name << "[" << to_string(data_.size()) << "];"
+                << indent << "double " << ex_array_name << "[" << to_string(this->currentSize()) << "];"
                 << '\n'
-                << indent << "double " << y_array_name << "[" << to_string(data_.size()) << "];"
+                << indent << "double " << y_array_name << "[" << to_string(this->currentSize()) << "];"
                 << '\n'
-                << indent << "double " << ey_array_name << "[" << to_string(data_.size()) << "];"
+                << indent << "double " << ey_array_name << "[" << to_string(this->currentSize()) << "];"
                 << '\n'
                 << '\n';
 
@@ -1140,21 +1141,22 @@ GGraph2ED::bodyData_(bool is_secondary, std::size_t p_id, const std::string &ind
         body_data << "// " + rootEscape(ds_marker_) << '\n';
     }
 
-    // Fill data from the tuples into the arrays
-    std::vector<std::tuple<double, double, double, double>>::const_iterator it;
-    std::size_t pos_counter = 0;
+    // Fill data from the columns into the arrays
+    const auto &x_col = this->column<0>();
+    const auto &ex_col = this->column<1>();
+    const auto &y_col = this->column<2>();
+    const auto &ey_col = this->column<3>();
+    const std::size_t n = this->currentSize();
 
-    for(it = data_.begin(); it != data_.end(); ++it) {
-        body_data << indent << x_array_name << "[" << pos_counter << "] = " << std::get<0>(*it)
+    for(std::size_t pos_counter = 0; pos_counter < n; ++pos_counter) {
+        body_data << indent << x_array_name << "[" << pos_counter << "] = " << x_col[pos_counter]
                   << ";" << '\n'
-                  << indent << ex_array_name << "[" << pos_counter << "] = " << std::get<1>(*it)
+                  << indent << ex_array_name << "[" << pos_counter << "] = " << ex_col[pos_counter]
                   << ";" << '\n'
-                  << indent << y_array_name << "[" << pos_counter << "] = " << std::get<2>(*it)
+                  << indent << y_array_name << "[" << pos_counter << "] = " << y_col[pos_counter]
                   << ";" << '\n'
-                  << indent << ey_array_name << "[" << pos_counter << "] = " << std::get<3>(*it)
+                  << indent << ey_array_name << "[" << pos_counter << "] = " << ey_col[pos_counter]
                   << ";" << '\n';
-
-        pos_counter++;
     }
     body_data << '\n';
 
@@ -1196,7 +1198,7 @@ GGraph2ED::footerData_(bool is_secondary, std::size_t p_id, const std::string &i
 
     // Fill the data in our tuple-vector into a ROOT TGraphErrors object
     footer_data << indent << "TGraphErrors *" << graph_name << " = new TGraphErrors("
-                << data_.size() << ", " << x_array_name << ", " << y_array_name << ", "
+                << this->currentSize() << ", " << x_array_name << ", " << y_array_name << ", "
                 << ex_array_name << " ," << ey_array_name << ");" << '\n'
                 << indent << graph_name << "->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");"
                 << '\n'
@@ -1371,11 +1373,11 @@ GGraph3D::headerData_(bool is_secondary, std::size_t p_id, const std::string &in
         comment = "// " + rootEscape(ds_marker_);
     }
 
-    header_data << indent << "double " << x_array_name << "[" << to_string(data_.size()) << "];"
+    header_data << indent << "double " << x_array_name << "[" << to_string(this->currentSize()) << "];"
                 << (!comment.empty() ? comment : "") << '\n'
-                << indent << "double " << y_array_name << "[" << to_string(data_.size()) << "];"
+                << indent << "double " << y_array_name << "[" << to_string(this->currentSize()) << "];"
                 << '\n'
-                << indent << "double " << z_array_name << "[" << to_string(data_.size()) << "];"
+                << indent << "double " << z_array_name << "[" << to_string(this->currentSize()) << "];"
                 << '\n'
                 << '\n';
 
@@ -1408,18 +1410,18 @@ GGraph3D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &inde
         body_data << "// " + rootEscape(ds_marker_) << '\n';
     }
 
-    // Fill data from the tuples into the arrays
-    std::vector<std::tuple<double, double, double>>::const_iterator it;
-    std::size_t pos_counter = 0;
+    // Fill data from the columns into the arrays
+    const auto &x_col = this->column<0>();
+    const auto &y_col = this->column<1>();
+    const auto &z_col = this->column<2>();
+    const std::size_t n = this->currentSize();
 
-    for(it = data_.begin(); it != data_.end(); ++it) {
-        body_data << indent << x_array_name << "[" << pos_counter << "] = " << std::get<0>(*it)
+    for(std::size_t pos_counter = 0; pos_counter < n; ++pos_counter) {
+        body_data << indent << x_array_name << "[" << pos_counter << "] = " << x_col[pos_counter]
                   << ";"
-                  << "\t" << y_array_name << "[" << pos_counter << "] = " << std::get<1>(*it) << ";"
-                  << "\t" << z_array_name << "[" << pos_counter << "] = " << std::get<2>(*it) << ";"
+                  << "\t" << y_array_name << "[" << pos_counter << "] = " << y_col[pos_counter] << ";"
+                  << "\t" << z_array_name << "[" << pos_counter << "] = " << z_col[pos_counter] << ";"
                   << '\n';
-
-        pos_counter++;
     }
     body_data << '\n';
 
@@ -1458,8 +1460,8 @@ GGraph3D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
     // of our generic choices has been selected
     std::string d_a = this->drawingArguments(is_secondary);
 
-    // Fill the data in our tuple-vector into a ROOT TGraph object
-    footer_data << indent << "TGraph2D *" << graph_name << " = new TGraph2D(" << data_.size()
+    // Fill the data in our columns into a ROOT TGraph object
+    footer_data << indent << "TGraph2D *" << graph_name << " = new TGraph2D(" << this->currentSize()
                 << ", " << x_array_name << ", " << y_array_name << ", " << z_array_name << ");"
                 << '\n'
                 << indent << graph_name << "->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");"
@@ -1484,27 +1486,27 @@ GGraph3D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
 
     footer_data << indent << graph_name << "->Draw(\"" << d_a << "\");" << '\n' << '\n';
 
-    if(draw_lines_ && data_.size() >= 2) {
-        std::vector<std::tuple<double, double, double>>::const_iterator it;
-        std::size_t pos_counter = 0;
+    if(draw_lines_ && this->currentSize() >= 2) {
+        const auto &x_col = this->column<0>();
+        const auto &y_col = this->column<1>();
+        const auto &z_col = this->column<2>();
+        const std::size_t n = this->currentSize();
 
         double x = 0.0;
         double y = 0.0;
         double z = 0.0;
 
         footer_data << indent << "TPolyLine3D *lines_" << graph_name << " = new TPolyLine3D("
-                    << data_.size() << ");" << '\n'
+                    << this->currentSize() << ");" << '\n'
                     << '\n';
 
-        for(it = data_.begin(); it != data_.end(); ++it) {
-            x = std::get<0>(*it);
-            y = std::get<1>(*it);
-            z = std::get<2>(*it);
+        for(std::size_t pos_counter = 0; pos_counter < n; ++pos_counter) {
+            x = x_col[pos_counter];
+            y = y_col[pos_counter];
+            z = z_col[pos_counter];
 
             footer_data << indent << "lines_" << graph_name << "->SetPoint(" << pos_counter << ", "
                         << x << ", " << y << ", " << z << ");";
-
-            pos_counter++;
         }
         footer_data << '\n'
                     << indent << "lines_" << graph_name << "->SetLineWidth(3);" << '\n'
@@ -1760,37 +1762,55 @@ std::string GGraph4D::bodyData_([[maybe_unused]] bool is_secondary, [[maybe_unus
  */
 std::string
 GGraph4D::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
-    std::vector<std::tuple<double, double, double, double>> local_data = data_;
+    // Read the four columns directly. Rather than copying the whole data set to
+    // sort it on every emission, we sort an index permutation by the w-component
+    // (axis 3) and read each point through that permutation; the columns stay put.
+    const auto &x_col = this->column<0>();
+    const auto &y_col = this->column<1>();
+    const auto &z_col = this->column<2>();
+    const auto &w_col = this->column<3>();
+    const std::size_t data_size = this->currentSize();
 
     std::string base_name = suffix(is_secondary, p_id);
 
-    // Sort the data, so we can select the n_best_ best more easily
+    // Build the w-ordered index permutation, so we can select the n_best_ best more easily
+    std::vector<std::size_t> order(data_size);
+    for(std::size_t i = 0; i < data_size; ++i) {
+        order[i] = i;
+    }
     if(small_w_large_marker_) {
-        std::sort(
-            local_data.begin(),
-            local_data.end(),
-            [](std::tuple<double, double, double, double> a,
-               std::tuple<double, double, double, double> b) -> bool {
-                return (std::get<3>(a) < std::get<3>(b));
-            }
-        );
+        std::sort(order.begin(), order.end(), [&w_col](std::size_t a, std::size_t b) -> bool {
+            return (w_col[a] < w_col[b]);
+        });
     }
     else {
-        std::sort(
-            local_data.begin(),
-            local_data.end(),
-            [](std::tuple<double, double, double, double> a,
-               std::tuple<double, double, double, double> b) -> bool {
-                return (std::get<3>(a) > std::get<3>(b));
-            }
-        );
+        std::sort(order.begin(), order.end(), [&w_col](std::size_t a, std::size_t b) -> bool {
+            return (w_col[a] > w_col[b]);
+        });
     }
 
     EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
-    // Find out about the minimum and maximum values of the data vector
-    std::tuple<double, double, double, double, double, double, double, double> min_max =
-        getMinMax(local_data);
+    // Find out about the minimum and maximum values of the data set. This preserves
+    // the previous getMinMax(4D) contract, including its requirement of at least two
+    // data items, while reading straight from the columns (no copy).
+    if(data_size < static_cast<std::size_t>(2)) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GBasePlotter::getMinMax(4D): Error!" << '\n'
+            << "Got vector of invalid size " << data_size << '\n'
+        );
+    }
+    std::tuple<double, double, double, double, double, double, double, double> min_max{
+        *std::min_element(x_col.begin(), x_col.end()),
+        *std::max_element(x_col.begin(), x_col.end()),
+        *std::min_element(y_col.begin(), y_col.end()),
+        *std::max_element(y_col.begin(), y_col.end()),
+        *std::min_element(z_col.begin(), z_col.end()),
+        *std::max_element(z_col.begin(), z_col.end()),
+        *std::min_element(w_col.begin(), w_col.end()),
+        *std::max_element(w_col.begin(), w_col.end())
+    };
 
     // Set up TView object for our 3D data, spanning the minimum and maximum values
     footer_data << indent << R"(TH3F *fr = new TH3F("fr","fr",)"
@@ -1810,11 +1830,10 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
     double w_min = std::get<6>(min_max);
     double w_max = std::get<7>(min_max);
 
-    // Fill data from the tuples into the arrays
+    // Fill data from the columns into the arrays, following the w-ordered permutation
     double w_range = w_max - w_min;
     std::size_t pos = 0;
-    std::vector<std::tuple<double, double, double, double>>::const_iterator it;
-    for(it = local_data.begin(); it != local_data.end(); ++it) {
+    for(std::size_t idx : order) {
         std::string poly_marker_name =
             std::string("pm3d_") + base_name + std::string("_") + to_string(pos);
 
@@ -1822,10 +1841,10 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
         footer_data << indent << "TPolyMarker3D *" << poly_marker_name << " = new TPolyMarker3D(1);"
                     << '\n';
 
-        double x = std::get<0>(*it);
-        double y = std::get<1>(*it);
-        double z = std::get<2>(*it);
-        double w = std::get<3>(*it);
+        double x = x_col[idx];
+        double y = y_col[idx];
+        double z = z_col[idx];
+        double w = w_col[idx];
 
         // Translate the fourth component into a marker size. By default,
         // smaller values will yield the largest value
@@ -2007,12 +2026,11 @@ GHistogram1D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
 
     std::string hist_name = "histD" + suffix(is_secondary, p_id);
 
-    std::vector<std::tuple<double>>::const_iterator it;
-    std::size_t pos_counter = 0;
-    for(it = data_.begin(); it != data_.end(); ++it) {
-        body_data << indent << hist_name << "->Fill(" << std::showpoint << std::get<0>(*it) << ");"
+    const auto &x_col = this->column<0>();
+    const std::size_t n = this->currentSize();
+    for(std::size_t pos_counter = 0; pos_counter < n; ++pos_counter) {
+        body_data << indent << hist_name << "->Fill(" << std::showpoint << x_col[pos_counter] << ");"
                   << (pos_counter == 0 ? comment : ("")) << '\n';
-        pos_counter++;
     }
     body_data << '\n';
 
@@ -2272,12 +2290,11 @@ GHistogram1I::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
 
     std::string hist_name = "histI" + suffix(is_secondary, p_id);
 
-    std::vector<std::tuple<std::int32_t>>::const_iterator it;
-    std::size_t pos_counter = 0;
-    for(it = data_.begin(); it != data_.end(); ++it) {
-        body_data << indent << hist_name << "->Fill(" << std::get<0>(*it) << ");"
+    const auto &x_col = this->column<0>();
+    const std::size_t n = this->currentSize();
+    for(std::size_t pos_counter = 0; pos_counter < n; ++pos_counter) {
+        body_data << indent << hist_name << "->Fill(" << x_col[pos_counter] << ");"
                   << (pos_counter == 0 ? comment : ("")) << '\n';
-        pos_counter++;
     }
 
     body_data << '\n';
@@ -2592,12 +2609,12 @@ GHistogram2D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
 
     std::string hist_name = "hist2D" + suffix(is_secondary, p_id);
 
-    std::vector<std::tuple<double, double>>::const_iterator it;
-    std::size_t pos_counter = 0;
-    for(it = data_.begin(); it != data_.end(); ++it) {
-        body_data << indent << hist_name << "->Fill(" << std::showpoint << std::get<0>(*it) << ", "
-                  << std::get<1>(*it) << ");" << (pos_counter == 0 ? comment : ("")) << '\n';
-        pos_counter++;
+    const auto &x_col = this->column<0>();
+    const auto &y_col = this->column<1>();
+    const std::size_t n = this->currentSize();
+    for(std::size_t pos_counter = 0; pos_counter < n; ++pos_counter) {
+        body_data << indent << hist_name << "->Fill(" << std::showpoint << x_col[pos_counter] << ", "
+                  << y_col[pos_counter] << ");" << (pos_counter == 0 ? comment : ("")) << '\n';
     }
 
     body_data << '\n';
