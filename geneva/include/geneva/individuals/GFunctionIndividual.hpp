@@ -248,10 +248,10 @@ const solverFunction MAXDEMOFUNCTION = solverFunction::ZAKHAROV;
 
 // Make sure solverFunction can be streamed
 /** @brief Puts a Gem::Geneva::Individuals::solverFunction into a stream. Needed for streaming / Gem::Common::fromString<> */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::Individuals::solverFunction &);
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::solverFunction &ur);
 
 /** @brief Reads a Gem::Geneva::Individuals::solverFunction from a stream. Needed for streaming / Gem::Common::fromString<> */
-std::istream &operator>>(std::istream &, Gem::Geneva::Individuals::solverFunction &);
+std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::solverFunction &ur);
 
 /**
  * This enum describes different parameter types that may be used to fill the object with data
@@ -266,10 +266,10 @@ enum class parameterType : Gem::Common::ENUMBASETYPE {
 
 // Make sure parameterType can be streamed
 /** @brief Puts a Gem::Geneva::Individuals::parameterType into a stream. Needed for streaming / Gem::Common::fromString<> */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::Individuals::parameterType &);
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::parameterType &ur);
 
 /** @brief Reads a Gem::Geneva::Individuals::parameterType from a stream. Needed for streaming / Gem::Common::fromString<> */
-std::istream &operator>>(std::istream &, Gem::Geneva::Individuals::parameterType &);
+std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::parameterType &ur);
 
 /**
  * This enum describes several ways of initializing the data collections
@@ -282,10 +282,10 @@ enum class initMode : Gem::Common::ENUMBASETYPE {
 
 // Make sure initMode can be streamed
 /** @brief Puts a Gem::Geneva::Individuals::initMode into a stream. Needed for streaming / Gem::Common::fromString<> */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::Individuals::initMode &);
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::initMode &ur);
 
 /** @brief Reads a Gem::Geneva::Individuals::initMode from a stream. Needed for streaming / Gem::Common::fromString<> */
-std::istream &operator>>(std::istream &, Gem::Geneva::Individuals::initMode &);
+std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::initMode &ur);
 
 /******************************************************************************/
 // A number of default settings for the factory
@@ -340,7 +340,7 @@ class GFunctionIndividual
     friend class boost::serialization::access;
 
     template <class Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
             BOOST_SERIALIZATION_NVP(demo_function_);
     }
@@ -885,7 +885,7 @@ class GDoubleSumConstraint
     }
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GOptimizableEntityConstraint);
         Gem::Common::serialize_members(ar, localMembers_(*this));
@@ -980,7 +980,7 @@ class GDoubleSumGapConstraint
     }
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GOptimizableEntityConstraint);
         Gem::Common::serialize_members(ar, localMembers_(*this));
@@ -1075,7 +1075,7 @@ class GSphereConstraint
     }
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GOptimizableEntityConstraint);
         // diameter_ was previously not serialized at all -- it was silently lost on

@@ -55,7 +55,7 @@ class GConjugateGradientDescent_PersonalityTraits // NOLINT(cppcoreguidelines-sp
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits) &
@@ -86,7 +86,7 @@ public:
      *
      * @param std::size_t const & The position of the individual within the (parent + children) layout
      */
-    void setPopulationPosition(const std::size_t &);
+    void setPopulationPosition(const std::size_t &pop_pos);
     /**
      * @brief Retrieves the position of the individual in the population.
      *
@@ -120,7 +120,7 @@ protected:
      *
      * @param GPersonalityTraits const * Pointer to the object whose data is copied (must be a GConjugateGradientDescent_PersonalityTraits)
      */
-    void load_(const GPersonalityTraits *) override;
+    void load_(const GPersonalityTraits *cp) override;
 
     /**
      * @brief Allow access to this classes compare_ function.
@@ -143,11 +143,11 @@ protected:
      * @param double const & The limit for allowed deviations of floating point types
      */
     void compare_(
-        const GPersonalityTraits & // the other object
+        const GPersonalityTraits &cp // the other object
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         ,
-        const double & // the limit for allowed deviations of floating point types
+        [[maybe_unused]] const double &limit // the limit for allowed deviations of floating point types
     ) const override;
 
     /**

@@ -77,17 +77,17 @@ constexpr std::size_t NPERFOBJECTTYPES = 5;
 /**
  * @brief Puts a Gem::Geneva::Individuals::PERFOBJECTTYPE into a stream. Needed for streaming / Gem::Common::fromString<>
  * @param o The output stream the value is written to
- * @param x The PERFOBJECTTYPE value to be streamed out
+ * @param lt The PERFOBJECTTYPE value to be streamed out
  * @return A reference to the output stream, to allow chaining of stream operations
  */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::Individuals::PERFOBJECTTYPE &);
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::PERFOBJECTTYPE &lt);
 /**
  * @brief Reads a Gem::Geneva::Individuals::PERFOBJECTTYPE from a stream. Needed for streaming / Gem::Common::fromString<>
  * @param i The input stream the value is read from
- * @param x The PERFOBJECTTYPE variable the read-in value is assigned to
+ * @param lt The PERFOBJECTTYPE variable the read-in value is assigned to
  * @return A reference to the input stream, to allow chaining of stream operations
  */
-std::istream &operator>>(std::istream &, Gem::Geneva::Individuals::PERFOBJECTTYPE &);
+std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::PERFOBJECTTYPE &lt);
 
 /******************************************************************************/
 /**
@@ -101,7 +101,7 @@ class GTestIndividual2
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
@@ -115,12 +115,12 @@ public:
      * @param n_objects The number of double parameters (or collection entries) to add to the genome
      * @param otype The representation type of the double parameters to be created (see PERFOBJECTTYPE)
      */
-    GTestIndividual2(const std::size_t &, const PERFOBJECTTYPE &);
+    GTestIndividual2(const std::size_t &n_objects, const PERFOBJECTTYPE &otype);
     /**
      * @brief The copy constructor
      * @param cp Another GTestIndividual2 object whose data is copied into this one
      */
-    GTestIndividual2(const GTestIndividual2 &);
+    GTestIndividual2(const GTestIndividual2 &cp);
 
     /** @brief The standard destructor */
     ~GTestIndividual2() override;
@@ -137,7 +137,7 @@ protected:
      * @brief Loads the data of another GTestIndividual2
      * @param cp A pointer to another GTestIndividual2 object, camouflaged as a GOptimizableEntity
      */
-    void load_(const gen::GOptimizableEntity *) final;
+    void load_(const gen::GOptimizableEntity *cp) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GTestIndividual2>(
@@ -153,11 +153,11 @@ protected:
      * @param limit The limit for allowed deviations of floating point types
      */
     void compare_(
-        const gen::GOptimizableEntity & // the other object
+        const gen::GOptimizableEntity &cp // the other object
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double &limit // the limit for allowed deviations of floating point types
     ) const final;
 
     /**

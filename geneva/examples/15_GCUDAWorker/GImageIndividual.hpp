@@ -158,7 +158,7 @@ class GImageIndividual final : public gen::GFlatGenome {
     }
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         // The member list is derived from the single localMembers() declaration so
         // serialize()/load_()/compare_() stay in sync. The image dimensions and the

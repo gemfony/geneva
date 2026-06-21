@@ -99,7 +99,7 @@ class GFMinIndividual : public gen::GFlatGenome {
     friend class boost::serialization::access;
 
     template <class Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
             BOOST_SERIALIZATION_NVP(targetFunction_) & BOOST_SERIALIZATION_NVP(seed_sigma_);
     }

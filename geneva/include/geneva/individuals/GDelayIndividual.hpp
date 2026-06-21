@@ -88,7 +88,7 @@ class GDelayIndividual
     friend class boost::serialization::access;
 
     template <class Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
             BOOST_SERIALIZATION_NVP(fixed_sleep_time_) & BOOST_SERIALIZATION_NVP(may_crash_) &
             BOOST_SERIALIZATION_NVP(throw_likelihood_) & BOOST_SERIALIZATION_NVP(sleep_randomly_) &
@@ -104,7 +104,7 @@ public:
      * @brief A standard copy constructor
      * @param cp The other GDelayIndividual object whose data is copied
      */
-    GDelayIndividual(const GDelayIndividual &);
+    GDelayIndividual(const GDelayIndividual &cp);
     /** @brief The standard destructor */
     ~GDelayIndividual() override;
 
@@ -112,7 +112,7 @@ public:
      * @brief Sets the sleep-time to a user-defined value
      * @param sleepTime The fixed amount of time (in seconds) the fitness function should sleep
      */
-    void setFixedSleepTime(const std::chrono::duration<double> &);
+    void setFixedSleepTime(const std::chrono::duration<double> &sleep_time);
     /**
      * @brief Retrieval of the current value of the fixed_sleep_time_ variable
      * @return The fixed sleep time as a duration in seconds
@@ -124,7 +124,7 @@ public:
      * @param mayCrash Whether the fitness function is allowed to throw
      * @param likelihood The probability with which a crash is triggered
      */
-    void setMayCrash(bool, double);
+    void setMayCrash(bool may_crash, double throw_likelihood);
     /**
      * @brief Check whether the fitness function may crash at the end of the sleep time
      * @return true if the fitness function may throw, false otherwise
@@ -141,7 +141,7 @@ public:
      * @param randomSleep Whether random sleeps are enabled (instead of the fixed sleep time)
      * @param window The (min, max) time window in seconds within which random sleeps are drawn
      */
-    void setRandomSleep(bool, std::tuple<double, double>);
+    void setRandomSleep(bool sleep_randomly, std::tuple<double, double> rand_sleep_boundaries);
     /**
      * @brief Checks whether the fitness function has a random sleep schedule
      * @return true if random sleeps are enabled, false otherwise
@@ -198,7 +198,7 @@ public:
      * @param t The (seconds, milliseconds) tuple to convert
      * @return The corresponding duration in seconds
      */
-    static std::chrono::duration<double> tupleToTime(const std::tuple<unsigned int, unsigned int> &);
+    static std::chrono::duration<double> tupleToTime(const std::tuple<unsigned int, unsigned int> &time_tuple);
     /**
      * @brief Builds a configured delay individual (genome = n_variables doubles) for one fixed sleep time
      * @param c The Config supplying genome size and crash / random-sleep settings
@@ -228,7 +228,7 @@ protected:
      * @brief Loads the data of another GDelayIndividual, camouflaged as a GFlatGenome
      * @param cp Pointer to the other object (a GDelayIndividual passed as a base-class pointer)
      */
-    void load_(const gen::GOptimizableEntity *) final;
+    void load_(const gen::GOptimizableEntity *cp) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GDelayIndividual>(
@@ -244,11 +244,11 @@ protected:
      * @param limit The limit for allowed deviations of floating point types
      */
     void compare_(
-        const gen::GOptimizableEntity & // the other object
+        const gen::GOptimizableEntity &cp // the other object
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         ,
-        const double & // the limit for allowed deviations of floating point types
+        [[maybe_unused]] const double &limit // the limit for allowed deviations of floating point types
     ) const final;
 
     /**

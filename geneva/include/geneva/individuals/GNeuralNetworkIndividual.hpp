@@ -95,7 +95,7 @@ struct trainingSet {
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void load(Archive &ar, const unsigned int) {
+    void load(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_NVP(nInputNodes) & BOOST_SERIALIZATION_NVP(nOutputNodes);
@@ -115,7 +115,7 @@ struct trainingSet {
     }
 
     template <typename Archive>
-    void save(Archive &ar, const unsigned int) const {
+    void save(Archive &ar, [[maybe_unused]] const unsigned int version) const {
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_NVP(nInputNodes) & BOOST_SERIALIZATION_NVP(nOutputNodes);
@@ -194,7 +194,7 @@ class networkData : public Gem::Common::GPodContainerT<std::size_t> {
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void load(Archive &ar, const unsigned int) {
+    void load(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
@@ -230,7 +230,7 @@ class networkData : public Gem::Common::GPodContainerT<std::size_t> {
     }
 
     template <typename Archive>
-    void save(Archive &ar, const unsigned int) const {
+    void save(Archive &ar, [[maybe_unused]] const unsigned int version) const {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
@@ -533,7 +533,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
     }
 
     template <typename Archive>
-    void load(Archive &ar, const unsigned int) {
+    void load(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
@@ -548,7 +548,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
     }
 
     template <typename Archive>
-    void save(Archive &ar, const unsigned int) const {
+    void save(Archive &ar, [[maybe_unused]] const unsigned int version) const {
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);

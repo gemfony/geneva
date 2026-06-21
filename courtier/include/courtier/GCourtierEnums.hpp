@@ -282,31 +282,31 @@ using CORRELATION_ID_TYPE = std::uint64_t;
 
 /** @brief Puts a Gem::Courtier::networked_consumer_payload_command into a stream. Needed for streaming / Gem::Common::fromString<> */
 std::ostream &
-operator<<(std::ostream &, const Gem::Courtier::networked_consumer_payload_command &);
+operator<<(std::ostream &o, const Gem::Courtier::networked_consumer_payload_command &ps);
 /** @brief Reads a Gem::Courtier::networked_consumer_payload_command item from a stream. Needed for streaming / Gem::Common::fromString<> */
 std::istream &
-operator>>(std::istream &, Gem::Courtier::networked_consumer_payload_command &);
+operator>>(std::istream &i, Gem::Courtier::networked_consumer_payload_command &ps);
 
 /** @brief Puts a Gem::Courtier::beast_ping_state into a stream. Needed for streaming / Gem::Common::fromString<> */
-std::ostream &operator<<(std::ostream &, const Gem::Courtier::beast_ping_state &);
+std::ostream &operator<<(std::ostream &o, const Gem::Courtier::beast_ping_state &ps);
 /** @brief Reads a Gem::Courtier::beast_ping_state item from a stream. Needed for streaming / Gem::Common::fromString<> */
-std::istream &operator>>(std::istream &, Gem::Courtier::beast_ping_state &);
+std::istream &operator>>(std::istream &i, Gem::Courtier::beast_ping_state &ps);
 
 /** @brief Puts a Gem::Courtier::submissionReturnMode into a stream. Needed for streaming / Gem::Common::fromString<> */
 std::ostream &
-operator<<(std::ostream &, const Gem::Courtier::submissionReturnMode &);
+operator<<(std::ostream &o, const Gem::Courtier::submissionReturnMode &srm);
 /** @brief Reads a Gem::Courtier::submissionReturnMode item from a stream. Needed for streaming / Gem::Common::fromString<> */
-std::istream &operator>>(std::istream &, Gem::Courtier::submissionReturnMode &);
+std::istream &operator>>(std::istream &i, Gem::Courtier::submissionReturnMode &srm);
 
 /** @brief Puts a Gem::Courtier::processingStatus into a stream. Needed for streaming / Gem::Common::fromString<> */
-std::ostream &operator<<(std::ostream &, const Gem::Courtier::processingStatus &);
+std::ostream &operator<<(std::ostream &o, const Gem::Courtier::processingStatus &srm);
 /** @brief Reads a Gem::Courtier::processingStatus item from a stream. Needed for streaming / Gem::Common::fromString<> */
-std::istream &operator>>(std::istream &, Gem::Courtier::processingStatus &);
+std::istream &operator>>(std::istream &i, Gem::Courtier::processingStatus &srm);
 
 /** @brief Puts a Gem::Courtier::consumerType into a stream. Needed for streaming / Gem::Common::fromString<> */
-std::ostream &operator<<(std::ostream &, const Gem::Courtier::consumerType &);
+std::ostream &operator<<(std::ostream &o, const Gem::Courtier::consumerType &bm);
 /** @brief Reads a Gem::Courtier::consumerType item from a stream. Needed for streaming / Gem::Common::fromString<> */
-std::istream &operator>>(std::istream &, Gem::Courtier::consumerType &);
+std::istream &operator>>(std::istream &i, Gem::Courtier::consumerType &bm);
 
 /******************************************************************************/
 

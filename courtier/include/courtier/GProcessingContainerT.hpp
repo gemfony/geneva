@@ -94,7 +94,7 @@ class GProcessingContainerT {
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_NVP(iteration_counter_) &
@@ -1119,7 +1119,7 @@ private:
 	  *
 	  * @param cd_ptr A pointer to the object whose constant data should be loaded (unused in the default no-op)
 	  */
-    virtual void loadConstantData_(std::shared_ptr<processable_type>) { /* nothing */
+    virtual void loadConstantData_([[maybe_unused]] std::shared_ptr<processable_type> cd_ptr) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1130,7 +1130,7 @@ private:
 
     /** @brief Hook: graft the input data of @p original onto this (results-only) item. Default no-op.
      *  @param original The originally-submitted item supplying the input data (unused in the default). */
-    virtual void graftInputDataFrom_(const processable_type &) { /* nothing */ }
+    virtual void graftInputDataFrom_([[maybe_unused]] const processable_type &original) { /* nothing */ }
 
     /***************************************************************************/
 

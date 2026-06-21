@@ -64,10 +64,10 @@ class GPlotDesigner : public GCommonInterfaceT<GPlotDesigner> {
      * @brief Serializes this designer's state to or from a Boost archive
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive being read from or written to
-     * @param unsigned int The (unused) class version supplied by Boost.Serialization
+     * @param version The (unused) class version supplied by Boost.Serialization
      */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         // The member list is derived from the single localMembers() declaration
         // so serialize()/load_()/compare_() stay in sync. plotters_cnt_ (the plot

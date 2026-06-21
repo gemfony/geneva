@@ -83,7 +83,7 @@ public:
       : GFixedSizePriorityQueueT<TestItem>(maxSize, so) {}
 
 protected:
-    bool   isValid   (std::shared_ptr<TestItem> const &) const override { return true; }
+    bool   isValid   ([[maybe_unused]] std::shared_ptr<TestItem> const &p) const override { return true; }
     double evaluation(std::shared_ptr<TestItem> const &p) const override { return p->value; }
 
     TestPQ *clone_() const override {

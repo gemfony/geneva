@@ -188,7 +188,7 @@ class DerivedFactory : public GFactoryT<PolyProduct> {
 public:
     explicit DerivedFactory(std::filesystem::path const &p) : GFactoryT<PolyProduct>(p) {}
 protected:
-    void postProcess_(std::shared_ptr<PolyProduct> &) override {}
+    void postProcess_([[maybe_unused]] std::shared_ptr<PolyProduct> &p) override {}
     std::shared_ptr<PolyProduct> getObject_([[maybe_unused]] GParserBuilder & gpb) override {
         return std::make_shared<DerivedProduct>();
     }
@@ -294,7 +294,7 @@ public:
     std::atomic<int> init_count{0};
 protected:
     void init_() override { ++init_count; }
-    void postProcess_(std::shared_ptr<Product> &) override {}
+    void postProcess_([[maybe_unused]] std::shared_ptr<Product> &p) override {}
     std::shared_ptr<Product> getObject_([[maybe_unused]] GParserBuilder & gpb) override {
         return std::make_shared<Product>();
     }

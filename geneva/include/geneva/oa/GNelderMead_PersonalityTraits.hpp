@@ -55,7 +55,7 @@ class GNelderMead_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-f
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits) &
@@ -125,11 +125,11 @@ protected:
      * @param limit The limit for allowed deviations of floating point types
      */
     void compare_(
-        const GPersonalityTraits & // the other object
+        const GPersonalityTraits &cp // the other object
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double &limit // the limit for allowed deviations of floating point types
     ) const override;
 
     /**

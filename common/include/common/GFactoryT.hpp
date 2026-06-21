@@ -84,10 +84,10 @@ class GFactoryT {
      * @brief Loads the factory's persistent state from a Boost archive
      * @tparam Archive The Boost.Serialization archive type being read from
      * @param ar The input archive supplying the serialized data
-     * @param unsigned int The (unused) class version supplied by Boost.Serialization
+     * @param version The (unused) class version supplied by Boost.Serialization
      */
     template <typename Archive>
-    void load(Archive &ar, const unsigned int) {
+    void load(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         std::string configFile{};
@@ -102,10 +102,10 @@ class GFactoryT {
      * @brief Saves the factory's persistent state to a Boost archive
      * @tparam Archive The Boost.Serialization archive type being written to
      * @param ar The output archive receiving the serialized data
-     * @param unsigned int The (unused) class version supplied by Boost.Serialization
+     * @param version The (unused) class version supplied by Boost.Serialization
      */
     template <typename Archive>
-    void save(Archive &ar, const unsigned int) const {
+    void save(Archive &ar, [[maybe_unused]] const unsigned int version) const {
         using boost::serialization::make_nvp;
 
         // Transfer the path to the string

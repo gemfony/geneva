@@ -67,7 +67,7 @@ namespace Gem::Geneva::Genome {
  *       double fitnessCalculation() override { ... }
  *   private:
  *       friend class boost::serialization::access;
- *       template <typename Archive> void serialize(Archive& ar, const unsigned int) {
+ *       template <typename Archive> void serialize(Archive& ar, [[maybe_unused]] const unsigned int version) {
  *           ar & boost::serialization::make_nvp(
  *               "GFlatIndividualT",
  *               boost::serialization::base_object<GFlatIndividualT<MyIndividual>>(*this));
@@ -88,10 +88,10 @@ class GFlatIndividualT : public GFlatGenome {
      *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to read from / write to
-     * @param unsigned The (unused) serialization version number
+     * @param version The (unused) serialization version number
      */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
             "GFlatGenome",
             boost::serialization::base_object<GFlatGenome>(*this)

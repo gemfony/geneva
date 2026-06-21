@@ -132,6 +132,14 @@ Recommended Versions:
   are thin wrappers over the existing add path; start values are range-validated at
   setGenome() exactly as for a scalar start.
 
+- Readability sweep: every function parameter in the collection now carries an explicit
+  name (clang-tidy readability-named-parameter, 392 sites -> 0). Header declarations use
+  the same identifier as their .cpp definition; the deliberately-ignored Boost.Serialization
+  version parameter and other genuinely-unused parameters (e.g. compare()/compare_() tolerance
+  arguments, no-op stub bodies) are marked [[maybe_unused]] -- the modern C++ replacement for
+  the old "unnamed parameter + @param (unused)/(unnamed) Doxygen placeholder" idiom, which is
+  gone. Names only; no signature, type, or behaviour change.
+
 - The optimizable-entity / genome layer was renamed from the namespace
   Gem::Geneva::Parameters to Gem::Geneva::Genome (the pervasive short alias gpar::
   became gen::), and the value-array type formerly named Genome is now GenomeData.

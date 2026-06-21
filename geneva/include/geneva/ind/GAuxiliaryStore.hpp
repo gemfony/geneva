@@ -87,10 +87,10 @@ struct AuxBlock {
      *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to serialize to / from
-     * @param (unnamed) The serialization version (unused)
+     * @param version The serialization version (unused)
      */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         auto scope_u = static_cast<std::uint8_t>(scope);
         ar &boost::serialization::make_nvp("scope", scope_u);
         scope = static_cast<AuxScope>(scope_u);
@@ -337,10 +337,10 @@ private:
      *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to serialize to / from
-     * @param (unnamed) The serialization version (unused)
+     * @param version The serialization version (unused)
      */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp("personality_", personality_);
         ar &boost::serialization::make_nvp("pods_", pods_);
     }

@@ -582,195 +582,195 @@ const updateRule DEFAULTUPDATERULE =
 /**
  * @brief Puts a Gem::Geneva::maxMode into a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the output stream to write to; the second is the maxMode value to emit.
+ * The first argument is the output stream to write to; the second is the maxMode value to emit.
  * @return A reference to the same output stream, to allow chaining
  */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::maxMode &);
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::maxMode &am);
 
 /**
  * @brief Reads a Gem::Geneva::maxMode from a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the input stream to read from; the second receives the parsed maxMode value.
+ * The first argument is the input stream to read from; the second receives the parsed maxMode value.
  * @return A reference to the same input stream, to allow chaining
  */
-std::istream &operator>>(std::istream &, Gem::Geneva::maxMode &);
+std::istream &operator>>(std::istream &i, Gem::Geneva::maxMode &am);
 
 /**
  * @brief Puts a Gem::Geneva::activityMode into a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the output stream to write to; the second is the activityMode value to emit.
+ * The first argument is the output stream to write to; the second is the activityMode value to emit.
  * @return A reference to the same output stream, to allow chaining
  */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::activityMode &);
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::activityMode &am);
 
 /**
  * @brief Reads a Gem::Geneva::activityMode item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the input stream to read from; the second receives the parsed activityMode value.
+ * The first argument is the input stream to read from; the second receives the parsed activityMode value.
  * @return A reference to the same input stream, to allow chaining
  */
-std::istream &operator>>(std::istream &, Gem::Geneva::activityMode &);
+std::istream &operator>>(std::istream &i, Gem::Geneva::activityMode &am);
 
 /**
  * @brief Puts a Gem::Geneva::evaluationPolicy into a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the output stream to write to; the second is the evaluationPolicy value to emit.
+ * The first argument is the output stream to write to; the second is the evaluationPolicy value to emit.
  * @return A reference to the same output stream, to allow chaining
  */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::evaluationPolicy &);
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::evaluationPolicy &iip);
 
 /**
  * @brief Reads a Gem::Geneva::evaluationPolicy item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the input stream to read from; the second receives the parsed evaluationPolicy value.
+ * The first argument is the input stream to read from; the second receives the parsed evaluationPolicy value.
  * @return A reference to the same input stream, to allow chaining
  */
-std::istream &operator>>(std::istream &, Gem::Geneva::evaluationPolicy &);
+std::istream &operator>>(std::istream &i, Gem::Geneva::evaluationPolicy &iip);
 
 /**
  * @brief Puts a Gem::Geneva::validityCheckCombinerPolicy into a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the output stream to write to; the second is the validityCheckCombinerPolicy value to emit.
+ * The first argument is the output stream to write to; the second is the validityCheckCombinerPolicy value to emit.
  * @return A reference to the same output stream, to allow chaining
  */
 std::ostream &
-operator<<(std::ostream &, const Gem::Geneva::validityCheckCombinerPolicy &);
+operator<<(std::ostream &o, const Gem::Geneva::validityCheckCombinerPolicy &vccp);
 
 /**
  * @brief Reads a Gem::Geneva::validityCheckCombinerPolicy item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the input stream to read from; the second receives the parsed validityCheckCombinerPolicy value.
+ * The first argument is the input stream to read from; the second receives the parsed validityCheckCombinerPolicy value.
  * @return A reference to the same input stream, to allow chaining
  */
-std::istream &operator>>(std::istream &, Gem::Geneva::validityCheckCombinerPolicy &);
+std::istream &operator>>(std::istream &i, Gem::Geneva::validityCheckCombinerPolicy &vccp);
 
 /**
  * @brief Puts a Gem::Geneva::execMode into a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the output stream to write to; the second is the execMode value to emit.
+ * The first argument is the output stream to write to; the second is the execMode value to emit.
  * @return A reference to the same output stream, to allow chaining
  */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::execMode &);
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::execMode &pm);
 
 /**
  * @brief Reads a Gem::Geneva::execMode item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the input stream to read from; the second receives the parsed execMode value.
+ * The first argument is the input stream to read from; the second receives the parsed execMode value.
  * @return A reference to the same input stream, to allow chaining
  */
-std::istream &operator>>(std::istream &, Gem::Geneva::execMode &);
+std::istream &operator>>(std::istream &i, Gem::Geneva::execMode &pm);
 
 /**
  * @brief Puts a Gem::Geneva::duplicationScheme into a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the output stream to write to; the second is the duplicationScheme value to emit.
+ * The first argument is the output stream to write to; the second is the duplicationScheme value to emit.
  * @return A reference to the same output stream, to allow chaining
  */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::duplicationScheme &);
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::duplicationScheme &rc);
 
 /**
  * @brief Reads a Gem::Geneva::duplicationScheme item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the input stream to read from; the second receives the parsed duplicationScheme value.
+ * The first argument is the input stream to read from; the second receives the parsed duplicationScheme value.
  * @return A reference to the same input stream, to allow chaining
  */
-std::istream &operator>>(std::istream &, Gem::Geneva::duplicationScheme &);
+std::istream &operator>>(std::istream &i, Gem::Geneva::duplicationScheme &rc);
 
 /**
  * @brief Puts a Gem::Geneva::infoMode into a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the output stream to write to; the second is the infoMode value to emit.
+ * The first argument is the output stream to write to; the second is the infoMode value to emit.
  * @return A reference to the same output stream, to allow chaining
  */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::infoMode &);
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::infoMode &im);
 
 /**
  * @brief Reads a Gem::Geneva::infoMode item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the input stream to read from; the second receives the parsed infoMode value.
+ * The first argument is the input stream to read from; the second receives the parsed infoMode value.
  * @return A reference to the same input stream, to allow chaining
  */
-std::istream &operator>>(std::istream &, Gem::Geneva::infoMode &);
+std::istream &operator>>(std::istream &i, Gem::Geneva::infoMode &im);
 
 /**
  * @brief Puts a Gem::Geneva::adaptorId into a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the output stream to write to; the second is the adaptorId value to emit.
+ * The first argument is the output stream to write to; the second is the adaptorId value to emit.
  * @return A reference to the same output stream, to allow chaining
  */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::adaptorId &);
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::adaptorId &aid);
 
 /**
  * @brief Reads a Gem::Geneva::adaptorId item from a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the input stream to read from; the second receives the parsed adaptorId value.
+ * The first argument is the input stream to read from; the second receives the parsed adaptorId value.
  * @return A reference to the same input stream, to allow chaining
  */
-std::istream &operator>>(std::istream &, Gem::Geneva::adaptorId &);
+std::istream &operator>>(std::istream &i, Gem::Geneva::adaptorId &aid);
 
 /**
  * @brief Puts a Gem::Geneva::sortingMode into a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the output stream to write to; the second is the sortingMode value to emit.
+ * The first argument is the output stream to write to; the second is the sortingMode value to emit.
  * @return A reference to the same output stream, to allow chaining
  */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::sortingMode &);
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::sortingMode &smode);
 
 /**
  * @brief Reads a Gem::Geneva::sortingMode from a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the input stream to read from; the second receives the parsed sortingMode value.
+ * The first argument is the input stream to read from; the second receives the parsed sortingMode value.
  * @return A reference to the same input stream, to allow chaining
  */
-std::istream &operator>>(std::istream &, Gem::Geneva::sortingMode &);
+std::istream &operator>>(std::istream &i, Gem::Geneva::sortingMode &smode);
 
 /**
  * @brief Puts a Gem::Geneva::sortingModeMP into a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the output stream to write to; the second is the sortingModeMP value to emit.
+ * The first argument is the output stream to write to; the second is the sortingModeMP value to emit.
  * @return A reference to the same output stream, to allow chaining
  */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::sortingModeMP &);
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::sortingModeMP &smode);
 
 /**
  * @brief Reads a Gem::Geneva::sortingModeMP from a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the input stream to read from; the second receives the parsed sortingModeMP value.
+ * The first argument is the input stream to read from; the second receives the parsed sortingModeMP value.
  * @return A reference to the same input stream, to allow chaining
  */
-std::istream &operator>>(std::istream &, Gem::Geneva::sortingModeMP &);
+std::istream &operator>>(std::istream &i, Gem::Geneva::sortingModeMP &smode);
 
 /**
  * @brief Puts a Gem::Geneva::updateRule into a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the output stream to write to; the second is the updateRule value to emit.
+ * The first argument is the output stream to write to; the second is the updateRule value to emit.
  * @return A reference to the same output stream, to allow chaining
  */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::updateRule &);
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::updateRule &ur);
 
 /**
  * @brief Reads a Gem::Geneva::updateRule from a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the input stream to read from; the second receives the parsed updateRule value.
+ * The first argument is the input stream to read from; the second receives the parsed updateRule value.
  * @return A reference to the same input stream, to allow chaining
  */
-std::istream &operator>>(std::istream &, Gem::Geneva::updateRule &);
+std::istream &operator>>(std::istream &i, Gem::Geneva::updateRule &ur);
 
 /**
  * @brief Puts a Gem::Geneva::adaptionMode into a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the output stream to write to; the second is the adaptionMode value to emit.
+ * The first argument is the output stream to write to; the second is the adaptionMode value to emit.
  * @return A reference to the same output stream, to allow chaining
  */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::adaptionMode &);
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::adaptionMode &am);
 
 /**
  * @brief Reads a Gem::Geneva::adaptionMode from a stream. Needed for streaming / Gem::Common::fromString<>
  *
- * The first (unnamed) argument is the input stream to read from; the second receives the parsed adaptionMode value.
+ * The first argument is the input stream to read from; the second receives the parsed adaptionMode value.
  * @return A reference to the same input stream, to allow chaining
  */
-std::istream &operator>>(std::istream &, Gem::Geneva::adaptionMode &);
+std::istream &operator>>(std::istream &i, Gem::Geneva::adaptionMode &am);
 
 /******************************************************************************/
 

@@ -223,11 +223,11 @@ void GMultiCriterionParabolaIndividual::applyConfig(
  * adaptor settings live solely on the returned (OA-owned) config -- none reside on the individual.
  *
  * @param sample A sample flat genome whose group structure the config mirrors
- * @param  The Config (unused: the adaptor settings are fixed defaults)
+ * @param c The Config (unused: the adaptor settings are fixed defaults)
  * @return A shared pointer to the populated OA-owned adaption config
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GMultiCriterionParabolaIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &) {
+GMultiCriterionParabolaIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, [[maybe_unused]] const Config &c) {
     auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(sample);
     for(std::size_t npar = 0; npar < cfg->doubleGroups().size(); npar++) {
         cfg->groupDouble(npar).gauss(

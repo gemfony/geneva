@@ -79,7 +79,7 @@ constexpr bool GO2_DEF_COPYBESTINDIVIDUALSONLY = true;
  *
  * @param nProducerThreads The number of threads the random number factory should use to produce random numbers
  */
-void setRNFParameters(std::uint16_t);
+void setRNFParameters(std::uint16_t nProducerThreads);
 
 /******************************************************************************/
 /** Syntactic sugar -- make the code easier to read */
@@ -106,10 +106,10 @@ public:
      * @param configFilePath The name and location of the configuration file
      * @param userDescriptions Additional user-defined command line options (cmp. boost::program_options); defaults to an empty set
      */
-    Go2(int,
-        char **,
-        std::string const &,
-        boost::program_options::options_description const & =
+    Go2(int argc,
+        char **argv,
+        std::string const &config_filename,
+        boost::program_options::options_description const &user_descriptions =
             boost::program_options::options_description());
     /** @brief Deleted copy constructor */
     Go2(Go2 const &) = delete;
@@ -134,7 +134,7 @@ public:
      * @brief Specifies whether only the best individuals of a population should be copied to the next algorithm.
      * @param copyBestOnly If true, only the best individuals are carried over between chained algorithms
      */
-    void setCopyBestIndividualsOnly(bool);
+    void setCopyBestIndividualsOnly(bool copy_best_individuals_only);
     /**
      * @brief Checks whether only the best individuals are copied.
      * @return True if only the best individuals are carried over between chained algorithms
@@ -145,24 +145,24 @@ public:
      * @brief Allows to add an optimization algorithm to the chain.
      * @param alg A shared pointer to the optimization algorithm to append to the chain
      */
-    void addAlgorithm(const std::shared_ptr<GOABase> &);
+    void addAlgorithm(const std::shared_ptr<GOABase> &alg);
     /**
      * @brief Makes it easier to add algorithms (operator form of addAlgorithm).
      * @param alg A shared pointer to the optimization algorithm to append to the chain
      * @return A reference to this object, allowing call chaining
      */
-    Go2 &operator&(const std::shared_ptr<GOABase> &);
+    Go2 &operator&(const std::shared_ptr<GOABase> &alg);
     /**
      * @brief Allows to add an optimization algorithm through its mnemonic.
      * @param mnemonic The mnemonic string identifying the algorithm to append (e.g. "ea", "sa")
      */
-    void addAlgorithm(std::string const &);
+    void addAlgorithm(std::string const &mn);
     /**
      * @brief Makes it easier to add algorithms by mnemonic (operator form of addAlgorithm).
      * @param mnemonic The mnemonic string identifying the algorithm to append (e.g. "ea", "sa")
      * @return A reference to this object, allowing call chaining
      */
-    Go2 &operator&(std::string const &);
+    Go2 &operator&(std::string const &mn);
 
     /** @brief Supplies a custom, ready-to-use courtier consumer (clone function set, and -- for
      *  networked consumers -- server started) for this run, OVERRIDING the mnemonic-based consumer
@@ -197,7 +197,7 @@ public:
      * @param cc A shared pointer to the factory used to fill the initial population
      */
     void
-        registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> &);
+        registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> &cc_ptr);
 
     /***************************************************************************/
     // The following is a trivial list of getters and setters
@@ -205,7 +205,7 @@ public:
      * @brief Sets whether this object runs in client mode.
      * @param clientMode If true, this object represents a network client
      */
-    void setClientMode(bool);
+    void setClientMode(bool client_mode);
 
     /**
      * @brief Retrieves the number of random number production threads.
@@ -220,40 +220,40 @@ public:
      * @param userOptions Additional user-defined command line options (cmp. boost::program_options); defaults to an empty set
      */
     void parseCommandLine(
-        int,
-        char **,
-        boost::program_options::options_description const & =
+        int argc,
+        char **argv,
+        boost::program_options::options_description const &user_options =
             boost::program_options::options_description()
     );
     /**
      * @brief Loads some configuration data from a configuration file.
      * @param configFile The path to the configuration file to read
      */
-    void parseConfigFile(std::filesystem::path const &);
+    void parseConfigFile(std::filesystem::path const &config_filename);
 
     /**
      * @brief Adds local configuration options to a GParserBuilder object.
      * @param gpb The GParserBuilder object to which configuration options should be added
      */
-    void addConfigurationOptions(Gem::Common::GParserBuilder &);
+    void addConfigurationOptions(Gem::Common::GParserBuilder &gpb);
 
     /***************************************************************************/
     /**
      * @brief Allows to register a default algorithm via a shared pointer.
      * @param alg A shared pointer to the algorithm used when no other algorithm has been registered
      */
-    void registerDefaultAlgorithm(const std::shared_ptr<GOABase> &);
+    void registerDefaultAlgorithm(const std::shared_ptr<GOABase> &default_algorithm);
     /**
      * @brief Allows to register a default algorithm via its mnemonic.
      * @param mnemonic The mnemonic of the algorithm used when no other algorithm has been registered
      */
-    void registerDefaultAlgorithm(std::string const &);
+    void registerDefaultAlgorithm(std::string const &mn);
 
     /**
      * @brief Allows to register a pluggable optimization monitor.
      * @param pluggableOM A shared pointer to the pluggable optimization monitor to register
      */
-    void registerPluggableOM(const std::shared_ptr<oa::GBasePluggableOM> &);
+    void registerPluggableOM(const std::shared_ptr<oa::GBasePluggableOM> &pluggable_om);
     /** @brief Allows to reset the local pluggable optimization monitors */
     void resetPluggableOM();
     /**
@@ -312,7 +312,7 @@ protected:
      * @brief Adds local configuration options to a GParserBuilder object.
      * @param gpb The GParserBuilder object to which configuration options should be added
      */
-    virtual void addConfigurationOptions_(Gem::Common::GParserBuilder &);
+    virtual void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb);
 
 private:
     /***************************************************************************/
@@ -367,14 +367,14 @@ private:
      * @brief Sets the number of random number production threads.
      * @param nProducerThreads The number of threads used to produce random numbers
      */
-    void setNProducerThreads(std::uint16_t);
+    void setNProducerThreads(std::uint16_t n_producer_threads);
 
     /**
      * @brief Performs the actual optimization cycle.
      * @param offset The iteration offset at which to start the optimization
      * @return A pointer to this object after optimization completed
      */
-    Go2 const *optimize_(std::uint32_t) final;
+    Go2 const *optimize_(std::uint32_t offset) final;
 
     // --- optimize_ sub-steps (decomposition) ---
     /** @brief Adds the Geneva default algorithm if none have been registered */

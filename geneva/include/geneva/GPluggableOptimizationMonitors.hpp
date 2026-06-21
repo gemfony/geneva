@@ -70,7 +70,7 @@ class GStandardMonitor // NOLINT(cppcoreguidelines-special-member-functions)
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
@@ -147,7 +147,7 @@ private:
      * @param goa A constant pointer to the optimization algorithm whose state is being monitored
      */
     void
-    informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
+    informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override;
 };
 
 /******************************************************************************/
@@ -186,7 +186,7 @@ class GFitnessMonitor // NOLINT(cppcoreguidelines-special-member-functions)
     }
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
@@ -311,7 +311,7 @@ private:
      * @param goa A constant pointer to the optimization algorithm whose state is being monitored
      */
     void
-    informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
+    informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override;
 
     /************************************************************************/
 
@@ -361,7 +361,7 @@ class GCollectiveMonitor // NOLINT(cppcoreguidelines-special-member-functions)
     }
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
@@ -458,7 +458,7 @@ private:
      * @param goa A constant pointer to the optimization algorithm whose state is being monitored
      */
     void
-    informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
+    informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override;
 
     std::vector<std::shared_ptr<oa::GBasePluggableOM>>
         pluggable_monitors_; ///< The collection of monitors
@@ -509,7 +509,7 @@ class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
     }
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
@@ -1349,7 +1349,7 @@ class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-function
     }
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
@@ -1533,7 +1533,7 @@ private:
      * @param goa A constant pointer to the optimization algorithm whose state is being monitored
      */
     void
-    informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
+    informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override;
 
     /**
      * @brief Does the actual printing of the population to the log file
@@ -1590,7 +1590,7 @@ class GIterationResultsFileLogger // NOLINT(cppcoreguidelines-special-member-fun
     }
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
@@ -1705,7 +1705,7 @@ private:
      * @param goa A constant pointer to the optimization algorithm whose state is being monitored
      */
     void
-    informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
+    informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override;
 
     std::string file_name_ =
         "IterationResultsLog.txt"; ///< The name of the file to which solutions should be stored
@@ -1754,7 +1754,7 @@ class GNAdpationsLogger // NOLINT(cppcoreguidelines-special-member-functions)
     }
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
@@ -1885,7 +1885,7 @@ private:
      * @param goa A constant pointer to the optimization algorithm whose state is being monitored
      */
     void
-    informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
+    informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override;
 
     std::string file_name_ =
         "NAdaptions.C"; ///< The name of the file to which solutions should be stored
@@ -1962,7 +1962,7 @@ class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functio
     }
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
@@ -2541,7 +2541,7 @@ class GProcessingTimesLogger // NOLINT(cppcoreguidelines-special-member-function
     }
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
@@ -2723,7 +2723,7 @@ private:
      * @param goa A constant pointer to the optimization algorithm whose state is being monitored
      */
     void
-    informationFunction_(infoMode, oa::GOptimizationAlgorithmBase const *const goa) override;
+    informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override;
 
     /************************************************************************/
 

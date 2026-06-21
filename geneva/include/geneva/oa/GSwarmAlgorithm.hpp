@@ -130,7 +130,7 @@ private:
     }
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp("GOptimizationAlgorithmBase", boost::serialization::base_object<GOptimizationAlgorithmBase>(*this));
@@ -154,11 +154,11 @@ public:
      * The first (unnamed) argument is the number of neighborhoods, the second is the (default) number
      * of individuals in each neighborhood.
      */
-    GSwarmAlgorithm(const std::size_t &, const std::size_t &);
+    GSwarmAlgorithm(const std::size_t &n_neighborhoods, const std::size_t &default_n_neighborhood_members);
     /**
      * @brief A standard copy constructor. The (unnamed) argument is the other GSwarmAlgorithm object to be copied.
      */
-    GSwarmAlgorithm(const GSwarmAlgorithm &);
+    GSwarmAlgorithm(const GSwarmAlgorithm &cp);
     /** @brief The destructor */
     ~GSwarmAlgorithm() override = default;
 
@@ -168,14 +168,14 @@ public:
      * The first (unnamed) argument is the desired number of neighborhoods, the second is the desired
      * number of members per neighborhood.
      */
-    void setSwarmSizes(std::size_t, std::size_t);
+    void setSwarmSizes(std::size_t n_neighborhoods, std::size_t default_n_neighborhood_members);
 
     /**
      * @brief Allows to set a static multiplier for personal distances.
      *
      * The (unnamed) argument is the new value of the personal-distance multiplier (c_personal_).
      */
-    void setCPersonal(double);
+    void setCPersonal(double c_personal);
     /**
      * @brief Allows to retrieve the static multiplier for personal distances.
      * @return The current value of the personal-distance multiplier (c_personal_)
@@ -187,7 +187,7 @@ public:
      *
      * The (unnamed) argument is the new value of the neighborhood-distance multiplier (c_neighborhood_).
      */
-    void setCNeighborhood(double);
+    void setCNeighborhood(double c_neighborhood);
     /**
      * @brief Allows to retrieve the static multiplier for neighborhood distances.
      * @return The current value of the neighborhood-distance multiplier (c_neighborhood_)
@@ -199,7 +199,7 @@ public:
      *
      * The (unnamed) argument is the new value of the global-distance multiplier (c_global_).
      */
-    void setCGlobal(double);
+    void setCGlobal(double c_global);
     /**
      * @brief Allows to retrieve the static multiplier for global distances.
      * @return The current value of the global-distance multiplier (c_global_)
@@ -211,7 +211,7 @@ public:
      *
      * The (unnamed) argument is the new value of the velocity multiplier (c_velocity_).
      */
-    void setCVelocity(double);
+    void setCVelocity(double c_velocity);
     /**
      * @brief Allows to retrieve the static multiplier for velocities.
      * @return The current value of the velocity multiplier (c_velocity_)
@@ -224,7 +224,7 @@ public:
      * The (unnamed) argument is the new percentage of the parameter value range used when initializing
      * velocities (velocity_range_percentage_).
      */
-    void setVelocityRangePercentage(double);
+    void setVelocityRangePercentage(double velocity_range_percentage);
     /**
      * @brief Allows to retrieve the velocity range percentage.
      * @return The current velocity range percentage (velocity_range_percentage_)
@@ -247,14 +247,14 @@ public:
      * The (unnamed) argument is the index of the neighborhood whose current member count is requested.
      * @return The current number of individuals in the requested neighborhood
      */
-    std::size_t getCurrentNNeighborhoodMembers(const std::size_t &) const;
+    std::size_t getCurrentNNeighborhoodMembers(const std::size_t &neighborhood) const;
 
     /**
      * @brief Allows to specify the update rule to be used by the swarm.
      *
      * The (unnamed) argument is the new update rule (update_rule_) governing how positions are updated.
      */
-    void setUpdateRule(updateRule);
+    void setUpdateRule(updateRule ur);
     /**
      * @brief Allows to retrieve the update rule currently used by the swarm.
      * @return The update rule currently in use (update_rule_)
@@ -267,7 +267,7 @@ public:
      * The (unnamed) argument is the new repulsion threshold (repulsion_threshold_); a value of 0 disables
      * the switch to repulsion.
      */
-    void setRepulsionThreshold(std::uint32_t);
+    void setRepulsionThreshold(std::uint32_t repulsion_threshold);
     /**
      * @brief Allows to retrieve the number of stalls as of which the algorithm switches to repulsive mode.
      * @return The current repulsion threshold (repulsion_threshold_)
@@ -281,7 +281,7 @@ public:
      *
      * The (unnamed) argument indicates whether random fill-up should be enabled (defaults to true).
      */
-    void setNeighborhoodsRandomFillUp(bool = true);
+    void setNeighborhoodsRandomFillUp(bool random_fill_up = true);
     /**
      * @brief Allows to check whether neighborhoods are filled up with random individuals.
      * @return true if neighborhoods are filled up with random individuals, false otherwise
@@ -334,7 +334,7 @@ protected:
      * The (unnamed) argument is a pointer to another GSwarmAlgorithm object, camouflaged as a
      * GOptimizationAlgorithmBase, whose data is copied into this object.
      */
-    void load_(const GOptimizationAlgorithmBase *) override;
+    void load_(const GOptimizationAlgorithmBase *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GSwarmAlgorithm>(
@@ -351,11 +351,11 @@ protected:
      * allowed deviations of floating point types.
      */
     void compare_(
-        const GOptimizationAlgorithmBase & // the other object
+        const GOptimizationAlgorithmBase &cp // the other object
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double &limit // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
@@ -394,7 +394,7 @@ protected:
      * The (unnamed) argument is the index of the neighborhood whose first individual position is requested.
      * @return The position (index in the population) of the first individual of the given neighborhood
      */
-    std::size_t getFirstNIPos(const std::size_t &) const;
+    std::size_t getFirstNIPos(const std::size_t &neighborhood) const;
     /**
      * @brief Helper function that returns the id of the first individual of a neighborhood, using a vector of neighborhood sizes.
      *
@@ -403,14 +403,14 @@ protected:
      * @return The position (index in the population) of the first individual of the given neighborhood
      */
     std::size_t
-    getFirstNIPosVec(const std::size_t &, const std::vector<std::size_t> &) const;
+    getFirstNIPosVec(const std::size_t &neighborhood, const std::vector<std::size_t> &vec) const;
     /**
      * @brief Helper function that returns the id of the last individual of a neighborhood.
      *
      * The (unnamed) argument is the index of the neighborhood whose last individual position is requested.
      * @return The position (index in the population) one past the last individual of the given neighborhood
      */
-    std::size_t getLastNIPos(const std::size_t &) const;
+    std::size_t getLastNIPos(const std::size_t &neighborhood) const;
 
     /**
      * @brief Triggers an update of an individual's positions.
@@ -421,11 +421,11 @@ protected:
      * lives on the slot's OA scratch.
      */
     void updateIndividualPositions(
-        const std::size_t &,
-        const std::unique_ptr<gen::GIndividualSlot> &, // the population slot being moved (borrowed)
-        std::shared_ptr<gen::GOptimizableEntity>,      // neighborhood best
-        std::shared_ptr<gen::GOptimizableEntity>,      // global best
-        std::tuple<double, double, double, double>      // c_personal / c_neighborhood / c_global / c_velocity
+        const std::size_t &neighborhood,
+        const std::unique_ptr<gen::GIndividualSlot> &ind, // the population slot being moved (borrowed)
+        std::shared_ptr<gen::GOptimizableEntity> neighborhood_best,      // neighborhood best
+        std::shared_ptr<gen::GOptimizableEntity> global_best,      // global best
+        std::tuple<double, double, double, double> constants      // c_personal / c_neighborhood / c_global / c_velocity
     );                                                  // (velocity now lives on the slot's OA scratch)
 
     /**
@@ -434,21 +434,21 @@ protected:
      * The (unnamed) argument is the velocity vector to be pruned in place (clamped to the maximum allowed
      * per-component velocities).
      */
-    void pruneVelocity(std::vector<double> &);
+    void pruneVelocity(std::vector<double> &vel_vec);
 
     /**
      * @brief Updates the personal best of an individual.
      *
      * The (unnamed) argument is the population slot whose personal best is unconditionally updated (borrowed).
      */
-    void updatePersonalBest(const std::unique_ptr<gen::GIndividualSlot> &);
+    void updatePersonalBest(const std::unique_ptr<gen::GIndividualSlot> &ind_ptr);
     /**
      * @brief Updates the personal best of an individual, if a better solution was found.
      *
      * The (unnamed) argument is the population slot whose personal best is updated only when the current
      * solution is better (borrowed).
      */
-    void updatePersonalBestIfBetter(const std::unique_ptr<gen::GIndividualSlot> &);
+    void updatePersonalBestIfBetter(const std::unique_ptr<gen::GIndividualSlot> &ind_ptr);
 
     std::size_t n_neighborhoods_ =
         (DEFAULTNNEIGHBORHOODS ? DEFAULTNNEIGHBORHOODS
@@ -532,8 +532,8 @@ private:
      * @return true if both vectors hold identical neighborhood member counts, false otherwise
      */
     bool nNeighborhoodMembersEqual(
-        const std::vector<std::size_t> &,
-        const std::vector<std::size_t> &
+        const std::vector<std::size_t> &one,
+        const std::vector<std::size_t> &two
     ) const;
 
     /** @brief Small helper function that helps to fill up a neighborhood, if there is just one entry in it */

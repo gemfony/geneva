@@ -88,7 +88,7 @@ class individual_processing_result {
      * @param version The serialization version (unused)
      */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_NVP(raw_fitness_) &
             BOOST_SERIALIZATION_NVP(transformed_fitness_) &
@@ -104,21 +104,21 @@ public:
      * @brief Initialization with a raw fitness
      * @param raw_fitness The raw fitness value to store
      */
-    explicit individual_processing_result(double);
+    explicit individual_processing_result(double raw_fitness);
 
     /**
      * @brief Initialization with a raw and transformed fitness
      * @param raw_fitness The raw fitness value to store
      * @param transformed_fitness The transformed fitness value to store
      */
-    individual_processing_result(double, double);
+    individual_processing_result(double raw_fitness, double transformed_fitness);
 
     /**
      * @brief Initialization with a raw fitness and recalculation of the transformed fitness
      * @param raw_fitness The raw fitness value to store
      * @param transform The function used to derive the transformed fitness from the raw value
      */
-    individual_processing_result(double, std::function<double(double)>);
+    individual_processing_result(double raw_fitness, std::function<double(double)> f);
 
     /**
      * @brief Copy construction
@@ -165,13 +165,13 @@ public:
      * @brief Updates the transformed fitness using an external function
      * @param transform The function applied to the raw fitness to obtain the transformed fitness
      */
-    void setTransformedFitnessWith(std::function<double(double)>);
+    void setTransformedFitnessWith(std::function<double(double)> f);
 
     /**
      * @brief Sets the transformed fitness to a user-defined value
      * @param transformed_fitness The transformed fitness value to store
      */
-    void setTransformedFitnessTo(double);
+    void setTransformedFitnessTo(double transformed_fitness);
 
     /** @brief Sets the transformed fitness to the same value as the raw fitness */
     void setTransformedFitnessToRaw();
@@ -186,21 +186,21 @@ public:
      * @brief Resets the object and stores a new raw value in the class
      * @param raw_fitness The new raw fitness value to store
      */
-    void reset(double);
+    void reset(double raw_fitness);
 
     /**
      * @brief Resets the object and stores a new raw and transformed value in the class
      * @param raw_fitness The new raw fitness value to store
      * @param transformed_fitness The new transformed fitness value to store
      */
-    void reset(double, double);
+    void reset(double raw_fitness, double transformed_fitness);
 
     /**
      * @brief Resets the object and stores a new raw value in the class and triggers recalculation of the transformed value
      * @param raw_fitness The new raw fitness value to store
      * @param transform The function used to derive the transformed fitness from the raw value
      */
-    void reset(double, std::function<double(double)>);
+    void reset(double raw_fitness, std::function<double(double)> f);
 
 private:
     /***************************************************************************/
@@ -278,7 +278,7 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
      * @param version The serialization version (unused)
      */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         // This is the CRTP category root. Its CRTP base
@@ -309,12 +309,12 @@ public:
      * @brief Initialization with the number of fitness criteria
      * @param n_fitness_criteria The number of fitness criteria this individual evaluates
      */
-    explicit GOptimizableEntity(std::size_t);
+    explicit GOptimizableEntity(std::size_t n_fitness_criteria);
     /**
      * @brief The copy constructor
      * @param cp The other GOptimizableEntity whose data is copied
      */
-    GOptimizableEntity(GOptimizableEntity const &);
+    GOptimizableEntity(GOptimizableEntity const &cp);
     /** @brief The destructor */
     ~GOptimizableEntity() override = default;
 
@@ -323,13 +323,13 @@ public:
      * @param am The activity mode controlling which parameters are affected
      * @return true if at least one parameter was randomly initialized
      */
-    bool randomInit(activityMode const &);
+    bool randomInit(activityMode const &am);
 
     /**
      * @brief Specify whether we want to work in maximization (maxMode::MAXIMIZE) or minimization (maxMode::MINIMIZE) mode
      * @param mode The optimization mode (maximization or minimization)
      */
-    void setMaxMode(maxMode const &);
+    void setMaxMode(maxMode const &mode);
 
     /**
      * @brief Requests that this individual be returned to the server in FULL (its input parameters
@@ -377,7 +377,7 @@ public:
      * @param boundaries The set of evaluation values to compare this individual's fitness against
      * @return true if this object is good enough (better than the given evaluations)
      */
-    bool isGoodEnough(std::vector<double> const &);
+    bool isGoodEnough(std::vector<double> const &boundaries);
 
     /**
      * @brief Perform a cross-over operation between this object and another
@@ -666,7 +666,7 @@ public:
      * @param id The index of the fitness criterion to store the result for
      * @param value The result value to register
      */
-    void setResult(std::size_t, double);
+    void setResult(std::size_t id, double value);
     /**
      * @brief Determines whether more than one fitness criterion is present for this individual
      * @return true if more than one fitness criterion is present
@@ -678,7 +678,7 @@ public:
      * @param id The evaluation position (fitness criterion index); defaults to 0
      * @return A (raw, transformed) fitness tuple at the requested position
      */
-    std::tuple<double, double> getFitnessTuple(std::uint32_t = 0) const;
+    std::tuple<double, double> getFitnessTuple(std::uint32_t id = 0) const;
 
     /**
      * @brief Allows to retrieve the maxmode_ parameter
@@ -707,7 +707,7 @@ public:
      * @brief Sets the steepness variable (used for the sigmoid transformation)
      * @param steepness The new sigmoid steepness value
      */
-    void setSteepness(double);
+    void setSteepness(double steepness);
 
     /**
      * @brief Retrieves the barrier_ variable (used for the sigmoid transformation)
@@ -718,13 +718,13 @@ public:
      * @brief Sets the barrier variable (used for the sigmoid transformation)
      * @param barrier The new sigmoid barrier (extreme) value
      */
-    void setBarrier(double);
+    void setBarrier(double barrier);
 
     /**
      * @brief Sets the maximum number of adaption attempts that may pass without actual modifications
      * @param max_unsuccessful_adaptions The maximum number of unsuccessful adaption attempts allowed
      */
-    void setMaxUnsuccessfulAdaptions(std::size_t);
+    void setMaxUnsuccessfulAdaptions(std::size_t max_unsuccessful_adaptions);
     /**
      * @brief Retrieves the maximum number of adaption attempts that may pass without actual modifications
      * @return The maximum number of unsuccessful adaption attempts allowed
@@ -778,7 +778,7 @@ public:
      * @brief Allows to set the current iteration of the parent optimization algorithm.
      * @param iteration The current iteration of the parent optimization algorithm
      */
-    void setAssignedIteration(std::uint32_t const &);
+    void setAssignedIteration(std::uint32_t const &parent_alg_iteration);
     /**
      * @brief Gives access to the parent optimization algorithm's iteration
      * @return The current iteration of the parent optimization algorithm
@@ -789,7 +789,7 @@ public:
      * @brief Allows to specify the number of optimization cycles without improvement of the primary fitness criterion
      * @param nStalls The number of stalled optimization cycles to record
      */
-    void setNStalls(std::uint32_t const &);
+    void setNStalls(std::uint32_t const &n_stalls);
     /**
      * @brief Allows to retrieve the number of optimization cycles without improvement of the primary fitness criterion
      * @return The number of stalled optimization cycles
@@ -801,7 +801,7 @@ public:
      * @param useRandomCrash Whether random crashes are enabled
      * @param prob The probability with which a random crash occurs
      */
-    void setRandomCrash(bool, double);
+    void setRandomCrash(bool use_random_crash, double crash_prob);
     /**
      * @brief Allows to check whether random crashes are activated, and with which probability the occur
      * @return A (enabled, probability) tuple describing the random-crash configuration
@@ -860,7 +860,7 @@ public:
      * @param constraint_ptr The constraint-check object to register with this individual
      */
     void
-        registerConstraint(std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>>);
+        registerConstraint(std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>> c_ptr);
 
     /**
      * @brief Allows to set the policy to use in case this individual represents an invalid solution
@@ -888,7 +888,7 @@ public:
      * @brief Allows to set the globally best known primary fitness
      * @param bnf The (raw, transformed) globally best known primary fitness tuple
      */
-    void setBestKnownPrimaryFitness(std::tuple<double, double> const &);
+    void setBestKnownPrimaryFitness(std::tuple<double, double> const &bnf);
     /**
      * @brief Retrieves the value of the globally best known primary fitness
      * @return The (raw, transformed) globally best known primary fitness tuple
@@ -927,12 +927,12 @@ protected:
      * @brief Adds local configuration options to a GParserBuilder object
      * @param gpb The parser builder the configuration options are registered with
      */
-    void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
+    void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
     /**
      * @brief Loads the data of another GOptimizableEntity
      * @param cp Pointer to the other GOptimizableEntity whose data is loaded
      */
-    void load_(const GOptimizableEntity *) override;
+    void load_(const GOptimizableEntity *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GOptimizableEntity>(
@@ -948,11 +948,11 @@ protected:
      * @param limit The limit for allowed deviations of floating point types
      */
     void compare_(
-        GOptimizableEntity const & // the other object
+        GOptimizableEntity const &cp // the other object
         ,
-        Gem::Common::expectation const & // the expectation for this object, e.g. equality
+        Gem::Common::expectation const &e // the expectation for this object, e.g. equality
         ,
-        double const & // the limit for allowed deviations of floating point types
+        [[maybe_unused]] double const &limit // the limit for allowed deviations of floating point types
     ) const override;
 
     /**
@@ -971,7 +971,7 @@ protected:
      * @brief Sets the fitness to a given set of values and clears the dirty flag
      * @param fitness_vec The set of fitness values to assign
      */
-    void setFitness_(std::vector<double> const &);
+    void setFitness_(std::vector<double> const &f_cnt);
 
     /**
      * @brief Combines secondary evaluation results by adding the individual results
@@ -993,14 +993,14 @@ protected:
      * @param weights The per-result weights applied before squaring and summing
      * @return The square root of the weighed squared sum of the secondary results
      */
-    double weighedSquaredSumCombiner(std::vector<double> const &) const;
+    double weighedSquaredSumCombiner(std::vector<double> const &weights) const;
 
     /**
      * @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only
      * @param validity_level Out-parameter receiving the computed validity level
      * @return true if this solution fulfils its constraints
      */
-    bool individualFulfillsConstraints(double &) const;
+    bool individualFulfillsConstraints(double &validity_level) const;
 
 private:
     /***************************************************************************/
@@ -1022,13 +1022,13 @@ private:
      * @param id The index of the fitness criterion
      * @return The stored raw fitness for the requested criterion
      */
-    double raw_fitness_(std::size_t) const final;
+    double raw_fitness_(std::size_t id) const final;
     /**
      * @brief Retrieves the stored transformed fitness with a given id
      * @param id The index of the fitness criterion
      * @return The stored transformed fitness for the requested criterion
      */
-    double transformed_fitness_(std::size_t) const final;
+    double transformed_fitness_(std::size_t id) const final;
 
     /**
      * @brief Returns all raw fitness results in a std::vector
@@ -1094,14 +1094,14 @@ private:
      * @brief  Allows to set all fitnesses to the same value (both raw and transformed values)
      * @param val The value assigned to every raw and transformed fitness
      */
-    void setAllFitnessTo(double);
+    void setAllFitnessTo(double val);
 
     /**
      * @brief  Allows to set all fitnesses to the same value (raw and transformed values seperately)
      * @param raw_val The value assigned to every raw fitness
      * @param transformed_val The value assigned to every transformed fitness
      */
-    void setAllFitnessTo(double, double);
+    void setAllFitnessTo(double raw_value, double transformed_value);
 
     /***************************************************************************/
     // Data

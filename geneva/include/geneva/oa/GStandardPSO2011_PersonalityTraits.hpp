@@ -65,7 +65,7 @@ class GStandardPSO2011_PersonalityTraits // NOLINT(cppcoreguidelines-special-mem
     }
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
         Gem::Common::serialize_members(ar, localMembers_(*this));
@@ -113,7 +113,7 @@ protected:
      * @brief Loads the data of another GStandardPSO2011_PersonalityTraits object.
      * @param The other object whose data is loaded into this one (downcast from GPersonalityTraits)
      */
-    void load_(const GPersonalityTraits *) override;
+    void load_(const GPersonalityTraits *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GStandardPSO2011_PersonalityTraits>(
@@ -129,11 +129,11 @@ protected:
      * @param The limit for allowed deviations of floating point types
      */
     void compare_(
-        const GPersonalityTraits & // the other object
+        const GPersonalityTraits &cp // the other object
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         ,
-        const double & // the limit for allowed deviations of floating point types
+        [[maybe_unused]] const double &limit // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */

@@ -54,17 +54,17 @@ public:
     /**
      * @brief Retrieves the stored raw fitness with a given id.
      *
-     * @param id The index of the fitness criterion to retrieve (default 0, the main criterion)
+     * @param pos The index of the fitness criterion to retrieve (default 0, the main criterion)
      * @return The raw (untransformed) fitness value for the requested criterion
      */
-    double raw_fitness(std::size_t = 0) const;
+    double raw_fitness(std::size_t pos = 0) const;
     /**
      * @brief Retrieves the stored transformed fitness with a given id.
      *
-     * @param id The index of the fitness criterion to retrieve (default 0, the main criterion)
+     * @param pos The index of the fitness criterion to retrieve (default 0, the main criterion)
      * @return The transformed fitness value for the requested criterion
      */
-    double transformed_fitness(std::size_t = 0) const;
+    double transformed_fitness(std::size_t pos = 0) const;
 
     /**
      * @brief Returns all raw fitness results in a std::vector.

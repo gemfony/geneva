@@ -141,10 +141,10 @@ class GFlatIndividualFactory // NOLINT(cppcoreguidelines-special-member-function
      *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to read from / write to
-     * @param unsigned The (unused) serialization version number
+     * @param version The (unused) serialization version number
      */
     template <class Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         // Only the base is serialised. The Config is transient -- re-read from the (still known)
         // config file on the first get_() after deserialisation -- and the built-genome cache is a
         // transient optimisation that is rebuilt lazily.

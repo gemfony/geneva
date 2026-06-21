@@ -67,9 +67,9 @@ GSimpleContainer::GSimpleContainer(const std::size_t &snr)
 /********************************************************************************************/
 /**
 * @brief Performs this object's processing task -- a no-op, as this class exists only for
-* debugging and benchmarking. The (unnamed) input vector is ignored.
+* debugging and benchmarking. The input vector is ignored.
 */
-void GSimpleContainer::process_(const std::vector<bool> &) { /* nothing */
+void GSimpleContainer::process_([[maybe_unused]] const std::vector<bool> &res_vec) { /* nothing */
 }
 
 /********************************************************************************************/
@@ -98,9 +98,9 @@ GRandomNumberContainer::GRandomNumberContainer(const std::size_t &nrnr)
 /********************************************************************************************/
 /**
  * @brief Performs this object's processing task: sorts the stored array of random numbers in place.
- * The (unnamed) input vector is ignored.
+ * The input vector is ignored.
  */
-void GRandomNumberContainer::process_(const std::vector<bool> &) {
+void GRandomNumberContainer::process_([[maybe_unused]] const std::vector<bool> &res_vec) {
     std::sort(random_numbers_.begin(), random_numbers_.end());
 }
 
@@ -135,9 +135,9 @@ GFaultyContainer::GFaultyContainer(std::size_t stored_number, fault_mode fm, uns
  *
  * THROW_PROCESSING raises the dedicated g_processing_exception, which the worker is expected to
  * catch and turn into a flagged item; THROW_FATAL raises a plain std::runtime_error, which (pre-T1)
- * escapes the worker thread. The (unnamed) input vector is ignored.
+ * escapes the worker thread. The input vector is ignored.
  */
-void GFaultyContainer::process_(const std::vector<bool> &) {
+void GFaultyContainer::process_([[maybe_unused]] const std::vector<bool> &res_vec) {
     switch(fault_mode_) {
     case fault_mode::NONE:
         registerResult(0, true);

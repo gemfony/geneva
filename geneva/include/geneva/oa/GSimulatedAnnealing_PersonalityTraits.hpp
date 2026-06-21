@@ -58,7 +58,7 @@ class GSimulatedAnnealing_PersonalityTraits // NOLINT(cppcoreguidelines-special-
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseParChildPersonalityTraits);
     }
@@ -93,7 +93,7 @@ protected:
      * The (unnamed) argument is a pointer to another GSimulatedAnnealing_PersonalityTraits object,
      * camouflaged as a GPersonalityTraits, whose data is copied into this object.
      */
-    void load_(const GPersonalityTraits *) override;
+    void load_(const GPersonalityTraits *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GSimulatedAnnealing_PersonalityTraits>(
@@ -110,11 +110,11 @@ protected:
      * deviations of floating point types.
      */
     void compare_(
-        const GPersonalityTraits & // the other object
+        const GPersonalityTraits &cp // the other object
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double &limit // the limit for allowed deviations of floating point types
     ) const override;
 
     /**

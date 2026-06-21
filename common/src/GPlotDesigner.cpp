@@ -1677,7 +1677,7 @@ void GGraph4D::compare_(
  *
  * @return An empty string, as this 4D graph emits no header code
  */
-std::string GGraph4D::headerData_(bool, std::size_t, std::string const &) const {
+std::string GGraph4D::headerData_([[maybe_unused]] bool is_secondary, [[maybe_unused]] std::size_t parent_id, [[maybe_unused]] std::string const &indent) const {
     std::ostringstream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // nothing
@@ -1693,7 +1693,7 @@ std::string GGraph4D::headerData_(bool, std::size_t, std::string const &) const 
  *
  * @return An empty string, as this 4D graph emits no body data
  */
-std::string GGraph4D::bodyData_(bool, std::size_t, std::string const &) const {
+std::string GGraph4D::bodyData_([[maybe_unused]] bool is_secondary, [[maybe_unused]] std::size_t parent_id, [[maybe_unused]] std::string const &indent) const {
     std::ostringstream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // nothing
@@ -1825,7 +1825,7 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
  *
  * @return An empty string, as no generic draw-option string is used by this plotter
  */
-std::string GGraph4D::drawingArguments(bool) const {
+std::string GGraph4D::drawingArguments([[maybe_unused]] bool is_secondary) const {
     std::string d_a;
 
     // nothing
@@ -2974,7 +2974,7 @@ std::string GFunctionPlotter1D::headerData_(
  *
  * @return The code to be added to the plot's data section for this function (always empty)
  */
-std::string GFunctionPlotter1D::bodyData_(bool, std::size_t, std::string const &) const {
+std::string GFunctionPlotter1D::bodyData_([[maybe_unused]] bool is_secondary, [[maybe_unused]] std::size_t parent_id, [[maybe_unused]] std::string const &indent) const {
     // No data needs to be added for a function plotter
     return {};
 }
@@ -3221,7 +3221,7 @@ std::string GFunctionPlotter2D::headerData_(
  *
  * @return The code to be added to the plot's data section for this function (always empty)
  */
-std::string GFunctionPlotter2D::bodyData_(bool, std::size_t, std::string const &) const {
+std::string GFunctionPlotter2D::bodyData_([[maybe_unused]] bool is_secondary, [[maybe_unused]] std::size_t parent_id, [[maybe_unused]] std::string const &indent) const {
     // No data needs to be added for a function plotter
     return {};
 }

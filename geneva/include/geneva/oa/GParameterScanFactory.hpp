@@ -99,12 +99,12 @@ public:
     /**
      * @brief Adds local command line options to boost::program_options::options_description objects
      *
-     * @param The options_description for visible (user-facing) command line options.
-     * @param The options_description for hidden command line options.
+     * @param visible The options_description for visible (user-facing) command line options.
+     * @param hidden The options_description for hidden command line options.
      */
     void addCLOptions(
-        boost::program_options::options_description &,
-        boost::program_options::options_description &
+        boost::program_options::options_description &visible,
+        boost::program_options::options_description &hidden
     ) override;
 
     /**
@@ -126,9 +126,9 @@ protected:
     /**
      * @brief Allows to act on the configuration options received from the configuration file
      *
-     * @param The freshly created algorithm to be post-processed after its options have been read.
+     * @param p_base The freshly created algorithm to be post-processed after its options have been read.
      */
-    void postProcess_(std::shared_ptr<GOptimizationAlgorithmBase> &) override;
+    void postProcess_(std::shared_ptr<GOptimizationAlgorithmBase> &p_base) override;
 
 private:
     /** @brief Holds information on the variables to be optimized -- set through the corresponding member function or on the command line */

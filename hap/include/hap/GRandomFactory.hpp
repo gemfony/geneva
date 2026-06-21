@@ -313,7 +313,7 @@ public:
      *
      * @param n_producer_threads The desired number of threads producing random number packages
      */
-    void setNProducerThreads(const std::uint16_t &);
+    void setNProducerThreads(const std::uint16_t &n_producer_threads);
 
     /**
      * @brief Allows to retrieve the size of the random number array held by each container.
@@ -351,9 +351,9 @@ public:
      * Returns a (possibly partially consumed) container to the factory so its
      * used entries can be refilled and the container reused.
      *
-     * @param r A unique_ptr (moved-from) to the container being returned for recycling
+     * @param p A unique_ptr (moved-from) to the container being returned for recycling
      */
-    void returnUsedPackage(std::unique_ptr<random_container> &&);
+    void returnUsedPackage(std::unique_ptr<random_container> &&p);
 
 private:
     /**

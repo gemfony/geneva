@@ -119,10 +119,10 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
      *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to write the genome into
-     * @param unsigned The (unused) serialization version number
+     * @param version The (unused) serialization version number
      */
     template <typename Archive>
-    void save(Archive &ar, const unsigned int) const {
+    void save(Archive &ar, [[maybe_unused]] const unsigned int version) const {
         using boost::serialization::make_nvp;
         ar &make_nvp("GOptimizableEntity", boost::serialization::base_object<GOptimizableEntity>(*this));
 
@@ -193,10 +193,10 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
      *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to read the genome from
-     * @param unsigned The (unused) serialization version number
+     * @param version The (unused) serialization version number
      */
     template <typename Archive>
-    void load(Archive &ar, const unsigned int) {
+    void load(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         ar &make_nvp("GOptimizableEntity", boost::serialization::base_object<GOptimizableEntity>(*this));
 
@@ -284,15 +284,15 @@ public:
     /**
      * @brief Initialization with the number of fitness criteria.
      *
-     * @param std::size_t The number of fitness criteria this genome will report
+     * @param n_fitness_criteria The number of fitness criteria this genome will report
      */
-    explicit GFlatGenome(std::size_t);
+    explicit GFlatGenome(std::size_t n_fitness_criteria);
     /**
      * @brief The copy constructor.
      *
-     * @param GFlatGenome The genome to copy from (value channels and shared layout handle)
+     * @param cp The genome to copy from (value channels and shared layout handle)
      */
-    GFlatGenome(GFlatGenome const &);
+    GFlatGenome(GFlatGenome const &cp);
     /** @brief The destructor */
     ~GFlatGenome() override = default;
 
@@ -303,9 +303,9 @@ public:
     /**
      * @brief Installs the value arrays + shared layout produced by a GGenomeBuilder.
      *
-     * @param GenomeData The genome data (the four value channels plus the shared immutable layout)
+     * @param g The genome data (the four value channels plus the shared immutable layout)
      */
-    void setGenome(GenomeData const &);
+    void setGenome(GenomeData const &g);
 
     /**
      * @brief Direct, shared access to the structural layout (problem metadata).
@@ -340,10 +340,10 @@ public:
     /**
      * @brief Transformation of the individual's parameters into a boost::property_tree object.
      *
-     * @param pt::ptree The property tree to populate with this individual's parameters
-     * @param std::string The base path / key prefix to write under (defaults to "parameterset")
+     * @param ptr The property tree to populate with this individual's parameters
+     * @param base_name The base path / key prefix to write under (defaults to "parameterset")
      */
-    void toPropertyTree(pt::ptree &, std::string const & = "parameterset") const override;
+    void toPropertyTree(pt::ptree &ptr, std::string const &base_name = "parameterset") const override;
 
     /**
      * @brief Transformation of the individual's parameters into a list of comma-separated values.
@@ -355,29 +355,29 @@ public:
      * @return The parameters (and optionally fitness/validity) as a single CSV string
      */
     std::string toCSV(
-        bool = false // with_name_and_type
+        bool with_name_and_type = false
         ,
-        bool = true // with_commas
+        bool with_commas = true
         ,
-        bool = true // use_raw_fitness
+        bool use_raw_fitness = true
         ,
-        bool = true // show_validity
+        bool show_validity = true
     ) const override;
 
     /**
      * @brief Perform a cross-over operation between this object and another.
      *
-     * @param GOptimizableEntity The other genome to cross over with (must be a GFlatGenome)
+     * @param cp_base The other genome to cross over with (must be a GFlatGenome)
      * @return A new genome holding the recombined parameter values
      */
-    std::shared_ptr<GOptimizableEntity> crossOverWith(GOptimizableEntity const &) const override;
+    std::shared_ptr<GOptimizableEntity> crossOverWith(GOptimizableEntity const &cp_base) const override;
 
     /**
      * @brief Retrieves parameters relevant for the evaluation from another GFlatGenome.
      *
-     * @param GOptimizableEntity The genome whose evaluation-relevant parameters are absorbed into this one
+     * @param cp_base The genome whose evaluation-relevant parameters are absorbed into this one
      */
-    void cannibalize(GOptimizableEntity &) override;
+    void cannibalize(GOptimizableEntity &cp_base) override;
 
     /***************************************************************************/
     /** @brief Bulk-flatten fast path: streamlines an FP/int32 channel DIRECTLY into a caller-provided
@@ -427,9 +427,9 @@ protected:
     /**
      * @brief Loads the data of another GFlatGenome, camouflaged as a base pointer.
      *
-     * @param GOptimizableEntity A base pointer to the GFlatGenome whose data is copied into this object
+     * @param cp A base pointer to the GFlatGenome whose data is copied into this object
      */
-    void load_(const GOptimizableEntity *) override;
+    void load_(const GOptimizableEntity *cp) override;
 
     /**
      * @brief Allow access to this class's compare_ function.
@@ -447,14 +447,14 @@ protected:
     /**
      * @brief Searches for compliance with expectations with respect to another object of the same type.
      *
-     * @param GOptimizableEntity The other object to compare this one against
-     * @param expectation The expected relation (equality / inequality) between the two objects
-     * @param double The maximum allowed deviation for floating-point comparisons (the limit)
+     * @param cp The other object to compare this one against
+     * @param e The expected relation (equality / inequality) between the two objects
+     * @param limit The maximum allowed deviation for floating-point comparisons (the limit)
      */
     void compare_(
-        GOptimizableEntity const &,
-        Gem::Common::expectation const &,
-        double const &
+        GOptimizableEntity const &cp,
+        Gem::Common::expectation const &e,
+        [[maybe_unused]] double const &limit
     ) const override;
 
     /**
@@ -463,7 +463,7 @@ protected:
      * @param activityMode The activity mode selecting which parameters are randomly initialised
      * @return true if at least one parameter value was changed, false otherwise
      */
-    bool randomInit_(activityMode const &) override;
+    bool randomInit_(activityMode const &am) override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     bool modify_GUnitTests_() override;
@@ -518,10 +518,10 @@ private:
     bool getVarVal_b_(std::size_t idx) override;
 
     /** @brief Retrieval of a suitable position for cross over inside of a vector.
-     *  @param std::size_t The size of the value vector to pick a cross-over position in
-     *  @param std::size_t The minimum allowed cross-over position
+     *  @param lower The size of the value vector to pick a cross-over position in
+     *  @param upper The minimum allowed cross-over position
      *  @return A valid cross-over position within the vector */
-    std::size_t getCrossOverPos(std::size_t, std::size_t);
+    std::size_t getCrossOverPos(std::size_t lower, std::size_t upper);
 
     /***************************************************************************/
     // Activity / fold helpers (genome-agnostic value mapping).

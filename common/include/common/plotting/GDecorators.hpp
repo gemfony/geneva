@@ -73,10 +73,10 @@ class GDecorator<dimensions::Dim2, coordinate_type>
      *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to serialize to / from (unused: no local data)
-     * @param unsigned int The serialization version (unused)
+     * @param version The serialization version (unused)
      */
     template <typename Archive>
-    void serialize([[maybe_unused]] Archive & ar, const unsigned int) {
+    void serialize([[maybe_unused]] Archive & ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         /* nothing */
@@ -233,10 +233,10 @@ class GMarker : public GDecorator<dimensions::Dim2, coordinate_type> {
      *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to serialize the base class and local members to / from
-     * @param unsigned int The serialization version (unused)
+     * @param version The serialization version (unused)
      */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
@@ -480,10 +480,10 @@ class GDecorator<dimensions::Dim3, coordinate_type>
      *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to serialize to / from (unused: no local data)
-     * @param unsigned int The serialization version (unused)
+     * @param version The serialization version (unused)
      */
     template <typename Archive>
-    void serialize([[maybe_unused]] Archive & ar, const unsigned int) {
+    void serialize([[maybe_unused]] Archive & ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         // nothing
@@ -659,10 +659,10 @@ class GDecoratorContainer<dimensions::Dim2, coordinate_type>
      *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to serialize the base container to / from
-     * @param unsigned int The serialization version (unused)
+     * @param version The serialization version (unused)
      */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
@@ -842,10 +842,10 @@ class GDecoratorContainer_2D : public GDecoratorContainer<dimensions::Dim2, coor
      *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to serialize the base container to / from
-     * @param unsigned int The serialization version (unused)
+     * @param version The serialization version (unused)
      */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
@@ -973,10 +973,10 @@ class GDecoratorContainer<dimensions::Dim3, coordinate_type>
      *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to serialize the base container to / from
-     * @param unsigned int The serialization version (unused)
+     * @param version The serialization version (unused)
      */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
@@ -1158,10 +1158,10 @@ class GDecoratorContainer_3D : public GDecoratorContainer<dimensions::Dim3, coor
      *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to serialize the base container to / from
-     * @param unsigned int The serialization version (unused)
+     * @param version The serialization version (unused)
      */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(

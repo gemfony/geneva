@@ -66,7 +66,7 @@ class GTestIndividual3 // NOLINT(cppcoreguidelines-special-member-functions)
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         using namespace Gem::Geneva;
 
@@ -81,7 +81,7 @@ public:
      * @brief The copy constructor
      * @param cp Another GTestIndividual3 object whose data is copied into this one
      */
-    GTestIndividual3(const GTestIndividual3 &);
+    GTestIndividual3(const GTestIndividual3 &cp);
 
     /** @brief The destructor */
     ~GTestIndividual3() override;
@@ -98,7 +98,7 @@ protected:
      * @brief Loads the data of another GTestIndividual3
      * @param cp A pointer to another GTestIndividual3 object, camouflaged as a GOptimizableEntity
      */
-    void load_(const gen::GOptimizableEntity *) final;
+    void load_(const gen::GOptimizableEntity *cp) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GTestIndividual3>(
@@ -114,11 +114,11 @@ protected:
      * @param limit The limit for allowed deviations of floating point types
      */
     void compare_(
-        const gen::GOptimizableEntity & // the other object
+        const gen::GOptimizableEntity &cp // the other object
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         ,
-        const double & // the limit for allowed deviations of floating point types
+        [[maybe_unused]] const double &limit // the limit for allowed deviations of floating point types
     ) const final;
 
     /**

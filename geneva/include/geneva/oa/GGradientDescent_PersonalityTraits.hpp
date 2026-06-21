@@ -65,10 +65,10 @@ class GGradientDescent_PersonalityTraits // NOLINT(cppcoreguidelines-special-mem
      * @brief Serializes this object to/from a Boost.Serialization archive.
      * @tparam Archive The Boost.Serialization archive type.
      * @param ar The archive to read from or write to.
-     * @param (unnamed) The serialization version number (unused).
+     * @param version The serialization version number (unused).
      */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
@@ -94,9 +94,9 @@ public:
 
     /**
      * @brief Sets the position of the individual in the population.
-     * @param (unnamed) The new position of this individual within the population.
+     * @param pop_pos The new position of this individual within the population.
      */
-    void setPopulationPosition(const std::size_t &);
+    void setPopulationPosition(const std::size_t &pop_pos);
     /**
      * @brief Retrieves the position of the individual in the population.
      * @return The position of this individual within the population.
@@ -115,9 +115,9 @@ protected:
 
     /**
      * @brief Loads the data of another GGradientDescent_PersonalityTraits object.
-     * @param (unnamed) A pointer to another GGradientDescent_PersonalityTraits object, camouflaged as a GPersonalityTraits.
+     * @param cp A pointer to another GGradientDescent_PersonalityTraits object, camouflaged as a GPersonalityTraits.
      */
-    void load_(const GPersonalityTraits *) override;
+    void load_(const GPersonalityTraits *cp) override;
 
     /** @brief Allow access to this class's compare_ function */
     friend void Gem::Common::compare_base_t<GGradientDescent_PersonalityTraits>(
@@ -128,16 +128,16 @@ protected:
 
     /**
      * @brief Searches for compliance with expectations with respect to another object of the same type.
-     * @param (unnamed) The other object to compare against (a GPersonalityTraits reference).
-     * @param (unnamed) The expectation for this object, e.g. equality.
-     * @param (unnamed) The limit for allowed deviations of floating point types.
+     * @param cp The other object to compare against (a GPersonalityTraits reference).
+     * @param e The expectation for this object, e.g. equality.
+     * @param limit The limit for allowed deviations of floating point types.
      */
     void compare_(
-        const GPersonalityTraits & // the other object
+        const GPersonalityTraits &cp // the other object
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double &limit // the limit for allowed deviations of floating point types
     ) const override;
 
     /**

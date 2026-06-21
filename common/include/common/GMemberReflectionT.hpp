@@ -227,10 +227,10 @@ void g_load_one(atomic_member_t<Dst> &dst, const atomic_member_t<Src> &src) {
  * @tparam I The compile-time member indices expanded by the fold
  * @param dst The destination member tuple (written to)
  * @param src The source member tuple (read from)
- * @param  Index sequence used to expand the pack; its value is unused
+ * @param seq Index sequence used to expand the pack; its value is unused
  */
 template <typename DstTuple, typename SrcTuple, std::size_t... I>
-void g_load_members_impl(DstTuple &dst, const SrcTuple &src, std::index_sequence<I...>) {
+void g_load_members_impl(DstTuple &dst, const SrcTuple &src, [[maybe_unused]] std::index_sequence<I...> seq) {
     (g_load_one(std::get<I>(dst), std::get<I>(src)), ...);
 }
 
@@ -265,10 +265,10 @@ void g_load_members(DstTuple dst, SrcTuple src) {
  * @tparam I The compile-time member indices expanded by the fold
  * @param ar The archive to serialize through
  * @param members The localMembers() tuple whose entries are serialized
- * @param  Index sequence used to expand the pack; its value is unused
+ * @param seq Index sequence used to expand the pack; its value is unused
  */
 template <typename Archive, typename Tuple, std::size_t... I>
-void serialize_members_impl(Archive& ar, Tuple& members, std::index_sequence<I...>) {
+void serialize_members_impl(Archive& ar, Tuple& members, [[maybe_unused]] std::index_sequence<I...> seq) {
     ((ar & boost::serialization::make_nvp(std::get<I>(members).name, std::get<I>(members).ref)), ...);
 }
 /**

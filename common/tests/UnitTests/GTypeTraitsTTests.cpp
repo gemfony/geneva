@@ -53,7 +53,7 @@ struct HasCommonInterface : public gemfony_common_interface_indicator {};
 struct DerivedFromCommonInterface : public HasCommonInterface {};
 
 struct HasCompare {
-    void compare(int) const {}
+    void compare([[maybe_unused]] int value) const {}
 };
 
 struct HasClone {
@@ -61,19 +61,19 @@ struct HasClone {
 };
 
 struct HasLoad {
-    void load(int) {}
+    void load([[maybe_unused]] int value) {}
 };
 
 struct HasAll : public gemfony_common_interface_indicator {
-    void compare(int) const {}
+    void compare([[maybe_unused]] int value) const {}
     void clone() const {}
-    void load(int) {}
+    void load([[maybe_unused]] int value) {}
 };
 
 // Different return / argument signatures should still satisfy the predicate
 // — the requires-clause only takes the address of the member.
 struct HasUnusualCompare {
-    std::string compare(double, double) noexcept {
+    std::string compare([[maybe_unused]] double first, [[maybe_unused]] double second) noexcept {
         return {};
     }
 };

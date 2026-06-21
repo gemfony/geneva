@@ -112,7 +112,7 @@ class GMultiSourceParameterT {
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_NVP(default_value_) & BOOST_SERIALIZATION_NVP(parameter_values_);

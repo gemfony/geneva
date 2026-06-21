@@ -306,7 +306,7 @@ std::ostream &operator<<(std::ostream &s, GToken const &g) {
  * @param x_name The name of the first parameter (used in the violation message)
  * @param y_name The name of the second parameter (used in the violation message)
  * @param e The expectation both parameters need to fulfill (equality / similarity / inequality)
- * @param double The (unused) floating-point comparison limit; present for interface uniformity with numeric overloads
+ * @param limit The (unused) floating-point comparison limit; present for interface uniformity with numeric overloads
  */
 void compare(
     Gem::Common::tribool const &x,
@@ -314,7 +314,7 @@ void compare(
     std::string const &x_name,
     std::string const &y_name,
     Gem::Common::expectation e,
-    double
+    [[maybe_unused]] double limit
 ) {
     bool expectation_met = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)

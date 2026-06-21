@@ -61,9 +61,9 @@ class GParameterScan_PersonalityTraits // NOLINT(cppcoreguidelines-special-membe
     /** @brief Serializes this object via Boost.Serialization
      *  @tparam Archive The archive type used for (de-)serialization
      *  @param ar The archive to serialize to / from
-     *  @param (unused) The class version supplied by Boost.Serialization */
+     *  @param version The class version supplied by Boost.Serialization */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
@@ -86,8 +86,8 @@ public:
     ~GParameterScan_PersonalityTraits() override = default;
 
     /** @brief Sets the position of the individual in the population
-     *  @param (unnamed) The position the individual should be assigned within the population */
-    void setPopulationPosition(const std::size_t &);
+     *  @param pop_pos The position the individual should be assigned within the population */
+    void setPopulationPosition(const std::size_t &pop_pos);
     /** @brief Retrieves the position of the individual in the population
      *  @return The stored position of the individual within the population */
     std::size_t getPopulationPosition() const;
@@ -101,8 +101,8 @@ protected:
     // Virtual or overridden protected functions
 
     /** @brief Loads the data of another GParameterScan_PersonalityTraits object
-     *  @param (unnamed) A pointer to another object of this type, camouflaged as a GPersonalityTraits */
-    void load_(const GPersonalityTraits *) override;
+     *  @param cp A pointer to another object of this type, camouflaged as a GPersonalityTraits */
+    void load_(const GPersonalityTraits *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterScan_PersonalityTraits>(
@@ -112,15 +112,15 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type
-     *  @param (first) The other object to be compared against (as a GPersonalityTraits)
-     *  @param (second) The expectation for this object, e.g. equality
-     *  @param (third) The limit for allowed deviations of floating point types */
+     *  @param cp The other object to be compared against (as a GPersonalityTraits)
+     *  @param e The expectation for this object, e.g. equality
+     *  @param limit The limit for allowed deviations of floating point types */
     void compare_(
-        const GPersonalityTraits & // the other object
+        const GPersonalityTraits &cp // the other object
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double &limit // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes

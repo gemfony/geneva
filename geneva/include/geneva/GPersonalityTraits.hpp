@@ -64,7 +64,7 @@ class GPersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize([[maybe_unused]] Archive & ar, const unsigned int) {
+    void serialize([[maybe_unused]] Archive & ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         // This is the CRTP category root. Its CRTP base
@@ -97,7 +97,7 @@ protected:
      * The single (unnamed) argument is a pointer to another GPersonalityTraits object,
      * whose data is copied into this one. Derived classes extend this to load their own state.
      */
-    void load_(const GPersonalityTraits *) override;
+    void load_(const GPersonalityTraits *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GPersonalityTraits>(
@@ -114,11 +114,11 @@ protected:
      * allowed deviations of floating point types.
      */
     void compare_(
-        const GPersonalityTraits & // the other object
+        const GPersonalityTraits &cp // the other object
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double &limit // the limit for allowed deviations of floating point types
     ) const override;
 
     /**

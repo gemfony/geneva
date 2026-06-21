@@ -102,9 +102,9 @@ class GParChild // NOLINT(cppcoreguidelines-special-member-functions)
     /** @brief Serializes this object via Boost.Serialization
      *  @tparam Archive The archive type used for (de-)serialization
      *  @param ar The archive to serialize to / from
-     *  @param (unused) The class version supplied by Boost.Serialization */
+     *  @param version The class version supplied by Boost.Serialization */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp("GOptimizationAlgorithmBase", boost::serialization::base_object<GOptimizationAlgorithmBase>(*this));

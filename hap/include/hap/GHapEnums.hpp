@@ -66,19 +66,19 @@ enum class RANDFLAVOURS : Gem::Common::ENUMBASETYPE {
 /**
  * @brief Puts a Gem::Hap::RANDFLAVOURS into a stream. Needed for streaming / Gem::Common::fromString<>.
  *
- * @param os The output stream the flavour is written to
- * @param rf The RANDFLAVOURS value to serialize (written as its underlying integer)
+ * @param o The output stream the flavour is written to
+ * @param grts The RANDFLAVOURS value to serialize (written as its underlying integer)
  * @return A reference to the output stream (for chaining)
  */
-std::ostream &operator<<(std::ostream &, const Gem::Hap::RANDFLAVOURS &);
+std::ostream &operator<<(std::ostream &o, const Gem::Hap::RANDFLAVOURS &grts);
 /**
  * @brief Reads a Gem::Hap::RANDFLAVOURS item from a stream. Needed for streaming / Gem::Common::fromString<>.
  *
- * @param is The input stream the flavour is read from
- * @param rf The RANDFLAVOURS variable that receives the parsed value
+ * @param i The input stream the flavour is read from
+ * @param grts The RANDFLAVOURS variable that receives the parsed value
  * @return A reference to the input stream (for chaining)
  */
-std::istream &operator>>(std::istream &, Gem::Hap::RANDFLAVOURS &);
+std::istream &operator>>(std::istream &i, Gem::Hap::RANDFLAVOURS &grts);
 
 /******************************************************************************/
 } /* namespace Gem::Hap */

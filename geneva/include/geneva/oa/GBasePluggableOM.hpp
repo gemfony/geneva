@@ -74,7 +74,7 @@ class GBasePluggableOM : public Gem::Common::GCommonInterfaceT<GBasePluggableOM>
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         // This is the CRTP category root. Its CRTP base
@@ -109,7 +109,7 @@ public:
      * @param GOptimizationAlgorithmBase const *const Non-owning pointer to the algorithm
      *        currently being monitored; the monitor reads its state but does not own it
      */
-    void informationFunction(infoMode, GOptimizationAlgorithmBase const *const);
+    void informationFunction(infoMode im, GOptimizationAlgorithmBase const *const goa);
 
     /**
      * @brief Allows to set the use_raw_evaluation_ variable.

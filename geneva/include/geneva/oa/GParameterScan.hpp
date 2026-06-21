@@ -214,9 +214,9 @@ class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
     /** @brief Serializes this object via Boost.Serialization
      *  @tparam Archive The archive type used for (de-)serialization
      *  @param ar The archive to serialize to / from
-     *  @param (unused) The class version supplied by Boost.Serialization */
+     *  @param version The class version supplied by Boost.Serialization */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         // The pre-computed grid (GPodContainerT base) ...
@@ -584,7 +584,7 @@ class GBScanPar final : public GScanParT<GBScanPar, bool> {
 
     /** @brief Serializes this object via Boost.Serialization */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
             "baseScanParT_bool", boost::serialization::base_object<GBaseScanParT<bool>>(*this)
         );
@@ -605,7 +605,7 @@ class GInt32ScanPar final : public GScanParT<GInt32ScanPar, std::int32_t> {
 
     /** @brief Serializes this object via Boost.Serialization */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
             "baseScanParT_int32", boost::serialization::base_object<GBaseScanParT<std::int32_t>>(*this)
         );
@@ -626,7 +626,7 @@ class GDScanPar final : public GScanParT<GDScanPar, double> {
 
     /** @brief Serializes this object via Boost.Serialization */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
             "baseScanParT_double", boost::serialization::base_object<GBaseScanParT<double>>(*this)
         );
@@ -647,7 +647,7 @@ class GFScanPar final : public GScanParT<GFScanPar, float> {
 
     /** @brief Serializes this object via Boost.Serialization */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
             "baseScanParT_float", boost::serialization::base_object<GBaseScanParT<float>>(*this)
         );
@@ -795,9 +795,9 @@ private:
     /** @brief Serializes this object via Boost.Serialization
      *  @tparam Archive The archive type used for (de-)serialization
      *  @param ar The archive to serialize to / from
-     *  @param (unused) The class version supplied by Boost.Serialization */
+     *  @param version The class version supplied by Boost.Serialization */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp("GOptimizationAlgorithmBase", boost::serialization::base_object<GOptimizationAlgorithmBase>(*this));
@@ -813,25 +813,25 @@ public:
     /** @brief The default constructor */
     GParameterScan() = default;
     /** @brief A standard copy constructor
-     *  @param (unnamed) Another GParameterScan object to be copied */
-    GParameterScan(const GParameterScan &);
+     *  @param cp Another GParameterScan object to be copied */
+    GParameterScan(const GParameterScan &cp);
     /** @brief The destructor */
     ~GParameterScan() override = default;
 
     /** @brief Allows to set the number of "best" individuals to be monitored over the course of the algorithm run
-     *  @param (unnamed) The number of best individuals of the entire run to be kept */
-    void setNMonitorInds(std::size_t);
+     *  @param n_monitor_inds The number of best individuals of the entire run to be kept */
+    void setNMonitorInds(std::size_t n_monitor_inds);
     /** @brief Allows to retrieve the number of "best" individuals to be monitored over the course of the algorithm run
      *  @return The number of best individuals being monitored */
     std::size_t getNMonitorInds() const;
 
     /** @brief Fills the parameter vectors from a textual parameter specification
-     *  @param (unnamed) The parameter specification string to be parsed */
-    void setParameterSpecs(std::string);
+     *  @param par_str The parameter specification string to be parsed */
+    void setParameterSpecs(std::string par_str);
 
     /** @brief Puts the class in "simple scan" mode
-     *  @param (unnamed) The number of random samples of the whole parameter space to take (0 disables simple-scan mode) */
-    void setNSimpleScans(std::size_t);
+     *  @param simple_scan_items The number of random samples of the whole parameter space to take (0 disables simple-scan mode) */
+    void setNSimpleScans(std::size_t simple_scan_items);
     /** @brief Retrieves the number of simple scans (or 0, if disabled)
      *  @return The configured number of simple scans */
     std::size_t getNSimpleScans() const;
@@ -840,8 +840,8 @@ public:
     std::size_t getNScansPerformed() const;
 
     /** @brief Allows to specify whether the parameter space should be scanned randomly or on a grid
-     *  @param (unnamed) If true the space is scanned randomly, if false on a grid */
-    void setScanRandomly(bool);
+     *  @param scan_randomly If true the space is scanned randomly, if false on a grid */
+    void setScanRandomly(bool scan_randomly);
     /** @brief Allows to check whether the parameter space should be scanned randomly or on a grid
      *  @return true if the space is scanned randomly, false if on a grid */
     bool getScanRandomly() const;
@@ -860,8 +860,8 @@ protected:
      *  @param gpb The parser builder to which the configuration options are added */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
     /** @brief Loads the data of another population
-     *  @param (unnamed) A pointer to another GParameterScan object, camouflaged as a GOptimizationAlgorithmBase */
-    void load_(const GOptimizationAlgorithmBase *) override;
+     *  @param cp A pointer to another GParameterScan object, camouflaged as a GOptimizationAlgorithmBase */
+    void load_(const GOptimizationAlgorithmBase *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GParameterScan>(
@@ -871,15 +871,15 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type
-     *  @param (first) The other object to be compared against (a GParameterScan as a GOptimizationAlgorithmBase)
-     *  @param (second) The expectation for this object, e.g. equality
-     *  @param (third) The limit for allowed deviations of floating point types */
+     *  @param cp The other object to be compared against (a GParameterScan as a GOptimizationAlgorithmBase)
+     *  @param e The expectation for this object, e.g. equality
+     *  @param limit The limit for allowed deviations of floating point types */
     void compare_(
-        const GOptimizationAlgorithmBase & // the other object
+        const GOptimizationAlgorithmBase &cp // the other object
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double &limit // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
@@ -968,9 +968,9 @@ private:
     void randomInitPopulation();
 
     /** @brief Retrieves the next available parameter set
-     *  @param (unnamed) An out-parameter receiving the running index of the returned parameter set
+     *  @param mode An out-parameter receiving the running index of the returned parameter set
      *  @return A shared_ptr to the next parameter set to be evaluated */
-    std::shared_ptr<parSet> getParameterSet(std::size_t &);
+    std::shared_ptr<parSet> getParameterSet(std::size_t &mode);
 
     /** @brief Switches to the next parameter set
      *  @return true if all parameter sets have been exhausted (warp-around), false otherwise */

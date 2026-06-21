@@ -62,7 +62,7 @@ class GEvolutionaryAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-speci
     }
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseParChildPersonalityTraits);
         // ... and then our own data, derived from the single localMembers() declaration
@@ -108,9 +108,9 @@ protected:
 
     /**
      * @brief Loads the data of another GEvolutionaryAlgorithm_PersonalityTraits object.
-     * @param The other object whose data is loaded into this one (downcast from GPersonalityTraits)
+     * @param cp The other object whose data is loaded into this one (downcast from GPersonalityTraits)
      */
-    void load_(const GPersonalityTraits *) override;
+    void load_(const GPersonalityTraits *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GEvolutionaryAlgorithm_PersonalityTraits>(
@@ -121,16 +121,16 @@ protected:
 
     /**
      * @brief Searches for compliance with expectations with respect to another object of the same type.
-     * @param The other object to compare against (downcast from GPersonalityTraits)
-     * @param The expectation for this object, e.g. equality
-     * @param The limit for allowed deviations of floating point types
+     * @param cp The other object to compare against (downcast from GPersonalityTraits)
+     * @param e The expectation for this object, e.g. equality
+     * @param limit The limit for allowed deviations of floating point types
      */
     void compare_(
-        const GPersonalityTraits & // the other object
+        const GPersonalityTraits &cp // the other object
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double &limit // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */

@@ -64,10 +64,10 @@ namespace boost::serialization {
  * @tparam T The Gauss config's floating-point type.
  * @param ar The archive to read from / write to.
  * @param g The GaussConfig to serialize.
- * @param (unused) The serialization format version (ignored).
+ * @param version The serialization format version (ignored).
  */
 template <class Archive, typename T>
-void serialize(Archive &ar, Gem::Geneva::Genome::GaussConfig<T> &g, const unsigned int) {
+void serialize(Archive &ar, Gem::Geneva::Genome::GaussConfig<T> &g, [[maybe_unused]] const unsigned int version) {
     ar &make_nvp("sigma_sigma", g.sigma_sigma) &make_nvp("min_sigma", g.min_sigma) &
         make_nvp("max_sigma", g.max_sigma) &make_nvp("min_ad_prob", g.min_ad_prob) &
         make_nvp("max_ad_prob", g.max_ad_prob) &make_nvp("adapt_ad_prob", g.adapt_ad_prob) &
@@ -81,10 +81,10 @@ void serialize(Archive &ar, Gem::Geneva::Genome::GaussConfig<T> &g, const unsign
  * @tparam T The bi-gaussian config's floating-point type.
  * @param ar The archive to read from / write to.
  * @param g The BiGaussConfig to serialize.
- * @param (unused) The serialization format version (ignored).
+ * @param version The serialization format version (ignored).
  */
 template <class Archive, typename T>
-void serialize(Archive &ar, Gem::Geneva::Genome::BiGaussConfig<T> &g, const unsigned int) {
+void serialize(Archive &ar, Gem::Geneva::Genome::BiGaussConfig<T> &g, [[maybe_unused]] const unsigned int version) {
     ar &make_nvp("sigma_sigma1", g.sigma_sigma1) &make_nvp("sigma_sigma2", g.sigma_sigma2) &
         make_nvp("sigma_delta", g.sigma_delta) &make_nvp("min_sigma1", g.min_sigma1) &
         make_nvp("max_sigma1", g.max_sigma1) &make_nvp("min_sigma2", g.min_sigma2) &
@@ -101,11 +101,11 @@ void serialize(Archive &ar, Gem::Geneva::Genome::BiGaussConfig<T> &g, const unsi
  * @tparam Archive The Boost.Serialization archive type.
  * @param ar The archive to read from / write to.
  * @param g The FlipConfig to serialize.
- * @param (unused) The serialization format version (ignored).
+ * @param version The serialization format version (ignored).
  */
 template <class Archive>
 inline void
-serialize(Archive &ar, Gem::Geneva::Genome::FlipConfig &g, const unsigned int) {
+serialize(Archive &ar, Gem::Geneva::Genome::FlipConfig &g, [[maybe_unused]] const unsigned int version) {
     ar &make_nvp("min_ad_prob", g.min_ad_prob) &make_nvp("max_ad_prob", g.max_ad_prob) &
         make_nvp("adapt_ad_prob", g.adapt_ad_prob) &make_nvp("mode", g.mode);
 }
@@ -118,10 +118,10 @@ serialize(Archive &ar, Gem::Geneva::Genome::FlipConfig &g, const unsigned int) {
  * @tparam T The group's value type.
  * @param ar The archive to read from / write to.
  * @param g The GroupStructure to serialize.
- * @param (unused) The serialization format version (ignored).
+ * @param version The serialization format version (ignored).
  */
 template <class Archive, typename T>
-void serialize(Archive &ar, Gem::Geneva::Genome::GroupStructure<T> &g, const unsigned int) {
+void serialize(Archive &ar, Gem::Geneva::Genome::GroupStructure<T> &g, [[maybe_unused]] const unsigned int version) {
     ar &make_nvp("start", g.start) &make_nvp("len", g.len) &make_nvp("label_id", g.label_id) &
         make_nvp("active", g.active);
 }
@@ -167,10 +167,10 @@ bool channelGroupsUniform(const Gem::Geneva::Genome::ChannelLayout<T> &c) {
  * @tparam T The channel's value type.
  * @param ar The archive to write to.
  * @param c The channel to save.
- * @param (unused) The serialization format version (ignored).
+ * @param version The serialization format version (ignored).
  */
 template <class Archive, typename T>
-void save(Archive &ar, const Gem::Geneva::Genome::ChannelLayout<T> &c, const unsigned int) {
+void save(Archive &ar, const Gem::Geneva::Genome::ChannelLayout<T> &c, [[maybe_unused]] const unsigned int version) {
     bool compact = channelGroupsUniform<T>(c);
     ar &make_nvp("compact", compact);
     ar &make_nvp("groups", c.groups);
@@ -209,10 +209,10 @@ void save(Archive &ar, const Gem::Geneva::Genome::ChannelLayout<T> &c, const uns
  * @tparam T The channel's value type.
  * @param ar The archive to read from.
  * @param c The channel to populate.
- * @param (unused) The serialization format version (ignored).
+ * @param version The serialization format version (ignored).
  */
 template <class Archive, typename T>
-void load(Archive &ar, Gem::Geneva::Genome::ChannelLayout<T> &c, const unsigned int) {
+void load(Archive &ar, Gem::Geneva::Genome::ChannelLayout<T> &c, [[maybe_unused]] const unsigned int version) {
     bool compact = false;
     ar &make_nvp("compact", compact);
     ar &make_nvp("groups", c.groups);
@@ -269,10 +269,10 @@ void serialize(Archive &ar, Gem::Geneva::Genome::ChannelLayout<T> &c, const unsi
  * @tparam Archive The Boost.Serialization archive type.
  * @param ar The archive to read from / write to.
  * @param l The layout to serialize.
- * @param (unused) The serialization format version (ignored).
+ * @param version The serialization format version (ignored).
  */
 template <class Archive>
-void serialize(Archive &ar, Gem::Geneva::Genome::GGenomeLayout &l, const unsigned int) {
+void serialize(Archive &ar, Gem::Geneva::Genome::GGenomeLayout &l, [[maybe_unused]] const unsigned int version) {
     ar &make_nvp("d", l.d) &make_nvp("f", l.f) &make_nvp("i", l.i) &make_nvp("b", l.b) &
         make_nvp("labels", l.labels);
 }

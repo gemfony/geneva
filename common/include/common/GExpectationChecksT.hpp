@@ -406,7 +406,7 @@ identity<base_type> getBaseIdentity(
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  *
- * @note The trailing (unnamed) double argument is an unused tolerance value,
+ * @note The trailing double `limit` argument is an unused tolerance value,
  *       present only to match the common compare() signature for non-FP types.
  */
 template <typename basic_type>
@@ -418,7 +418,7 @@ void compare(
     std::string const &x_name,
     std::string const &y_name,
     Gem::Common::expectation e,
-    double = 0.
+    [[maybe_unused]] double limit = 0.
 ) {
     bool expectation_met = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
@@ -469,7 +469,7 @@ void compare(
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  *
- * @note The trailing (unnamed) double argument is an unused tolerance value,
+ * @note The trailing double `limit` argument is an unused tolerance value,
  *       present only to match the common compare() signature.
  */
 template <typename Clock, typename Duration = typename Clock::duration>
@@ -479,7 +479,7 @@ void compare(
     std::string const &x_name,
     std::string const &y_name,
     Gem::Common::expectation e,
-    double = 0.
+    [[maybe_unused]] double limit = 0.
 ) {
     bool expectation_met = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
@@ -530,7 +530,7 @@ void compare(
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  *
- * @note The trailing (unnamed) double argument is an unused tolerance value,
+ * @note The trailing double `limit` argument is an unused tolerance value,
  *       present only to match the common compare() signature.
  */
 template <typename Rep, typename Period = std::ratio<1>>
@@ -540,7 +540,7 @@ void compare(
     std::string const &x_name,
     std::string const &y_name,
     Gem::Common::expectation e,
-    double = 0.
+    [[maybe_unused]] double limit = 0.
 ) {
     bool expectation_met = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
@@ -650,7 +650,7 @@ void compare(
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  *
- * @note The trailing (unnamed) double argument is an unused tolerance value,
+ * @note The trailing double `limit` argument is an unused tolerance value,
  *       present only to match the common compare() signature for non-FP element types.
  */
 template <typename base_type, template <typename, typename> class c_type>
@@ -661,7 +661,7 @@ void compare(
     std::string const &x_name,
     std::string const &y_name,
     Gem::Common::expectation e,
-    double = 0.
+    [[maybe_unused]] double limit = 0.
 ) {
     bool expectation_met = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
@@ -736,7 +736,7 @@ void compare(
  * @param y_name The name of the second parameter
  * @param e The expectation both parameters need to fulfill
  *
- * @note The trailing (unnamed) double argument is an unused tolerance value,
+ * @note The trailing double `limit` argument is an unused tolerance value,
  *       present only to match the common compare() signature for non-FP element types.
  */
 template <typename base_type, template <typename, typename, typename> class s_type>
@@ -747,7 +747,7 @@ void compare(
     std::string const &x_name,
     std::string const &y_name,
     Gem::Common::expectation e,
-    double = 0.
+    [[maybe_unused]] double limit = 0.
 ) {
     bool expectation_met = false;
     std::string expectation_str; // NOLINT(cppcoreguidelines-init-variables)
@@ -1437,11 +1437,11 @@ void compare(
  * @param limit The maximum allowed deviation of two floating point values (unused for tribool)
  */
 void compare(
-    Gem::Common::tribool const &,
-    Gem::Common::tribool const &,
-    std::string const &,
-    std::string const &,
-    Gem::Common::expectation,
+    Gem::Common::tribool const &x,
+    Gem::Common::tribool const &y,
+    std::string const &x_name,
+    std::string const &y_name,
+    Gem::Common::expectation e,
     double limit = CE_DEF_SIMILARITY_DIFFERENCE
 );
 
@@ -1577,12 +1577,12 @@ void g_compare_one(const atomic_member_t<A> &a, const atomic_member_t<B> &b, GTo
  * @param b The second tuple of member descriptors
  * @param token The token holding the expectation and accumulating the per-member comparison results
  *
- * @note The trailing (unnamed) std::index_sequence<I...> argument only carries the indices I... that
+ * @note The trailing std::index_sequence<I...> argument only carries the indices I... that
  *       drive the comparison fold; it has no runtime value.
  */
 template <typename ATuple, typename BTuple, std::size_t... I>
 void g_compare_members_impl(
-    const ATuple &a, const BTuple &b, GToken &token, std::index_sequence<I...>
+    const ATuple &a, const BTuple &b, GToken &token, [[maybe_unused]] std::index_sequence<I...> indices
 ) {
     (g_compare_one(std::get<I>(a), std::get<I>(b), token), ...);
 }

@@ -68,7 +68,7 @@ class GSerializableFunctionObjectT
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize([[maybe_unused]] Archive & ar, const unsigned int) {
+    void serialize([[maybe_unused]] Archive & ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         /* nothing */

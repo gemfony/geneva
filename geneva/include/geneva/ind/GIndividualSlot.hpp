@@ -117,10 +117,10 @@ class GIndividualSlot // NOLINT(cppcoreguidelines-special-member-functions)
      * @brief Boost.Serialization hook: serializes the wrapped individual plus the OA-owned scratch.
      * @tparam Archive The Boost.Serialization archive type.
      * @param ar The archive to read from / write to.
-     * @param (unused) The serialization format version (ignored).
+     * @param version The serialization format version (ignored).
      */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         // The CRTP base (Gem::Common::GCommonInterfaceT<GIndividualSlot>) carries no state and is
@@ -322,9 +322,9 @@ protected:
     /***************************************************************************/
     /**
      * @brief Loads the data of another GIndividualSlot into this one (deep copy).
-     * @param (the other slot) The slot whose data is copied into this one.
+     * @param cp The slot whose data is copied into this one.
      */
-    void load_(const GIndividualSlot *) override;
+    void load_(const GIndividualSlot *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GIndividualSlot>(
@@ -335,16 +335,16 @@ protected:
 
     /**
      * @brief Searches for compliance with expectations with respect to another object of the same type.
-     * @param (other) The other object to compare against (the wrapped individual only; scratch excluded).
-     * @param (expectation) The expectation for this object, e.g. equality.
-     * @param (limit) The limit for allowed deviations of floating point types.
+     * @param cp The other object to compare against (the wrapped individual only; scratch excluded).
+     * @param e The expectation for this object, e.g. equality.
+     * @param limit The limit for allowed deviations of floating point types.
      */
     void compare_(
-        GIndividualSlot const & // the other object
+        GIndividualSlot const &cp // the other object
         ,
-        Gem::Common::expectation const & // the expectation for this object, e.g. equality
+        Gem::Common::expectation const &e // the expectation for this object, e.g. equality
         ,
-        double const & // the limit for allowed deviations of floating point types
+        [[maybe_unused]] double const &limit // the limit for allowed deviations of floating point types
     ) const override;
 
     /**

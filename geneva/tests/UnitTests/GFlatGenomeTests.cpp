@@ -120,7 +120,7 @@ private:
 
     friend class boost::serialization::access;
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
             "GFlatIndividualT",
             boost::serialization::base_object<GFlatIndividualT<FlatSphere>>(*this)
@@ -195,7 +195,7 @@ protected:
 private:
     friend class boost::serialization::access;
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
             "GFlatIndividualT",
             boost::serialization::base_object<GFlatIndividualT<FactorySphere>>(*this)
@@ -677,7 +677,7 @@ protected:
 private:
     friend class boost::serialization::access;
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
             "GFlatIndividualT",
             boost::serialization::base_object<GFlatIndividualT<FlatMixed>>(*this)
@@ -719,7 +719,7 @@ protected:
 private:
     friend class boost::serialization::access;
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
             "GFlatIndividualT",
             boost::serialization::base_object<GFlatIndividualT<FlatIntGauss>>(*this)
@@ -756,7 +756,7 @@ private:
 
     friend class boost::serialization::access;
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
             "GFlatIndividualT",
             boost::serialization::base_object<GFlatIndividualT<FlatManyGroups>>(*this)

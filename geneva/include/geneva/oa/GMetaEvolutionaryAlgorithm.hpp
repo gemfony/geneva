@@ -88,7 +88,7 @@ private:
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
             "GEvolutionaryAlgorithm",
             boost::serialization::base_object<GEvolutionaryAlgorithm>(*this));

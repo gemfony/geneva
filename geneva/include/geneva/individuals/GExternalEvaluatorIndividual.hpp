@@ -144,7 +144,7 @@ class GExternalEvaluatorIndividual
      * @param version The serialization version (unused)
      */
     template <class Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         // run_id_ was previously omitted here and silently lost on
         // (de)serialization; derive the member list from the single
@@ -166,7 +166,7 @@ public:
      * @brief A standard copy constructor
      * @param cp The other GExternalEvaluatorIndividual object whose data is copied
      */
-    GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual &);
+    GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual &cp);
 
     /** @brief The standard destructor */
     ~GExternalEvaluatorIndividual() override;
@@ -175,7 +175,7 @@ public:
      * @brief Sets the name of the external evaluation program
      * @param program_name The path / name of the external program to be executed
      */
-    void setProgramName(const std::string &);
+    void setProgramName(const std::string &program_name);
     /**
      * @brief Retrieves the name of the external evaluation program
      * @return The name of the external evaluation program
@@ -186,7 +186,7 @@ public:
      * @brief Sets any custom options that need to be passed to the external evaluation program
      * @param custom_options The custom command-line options forwarded to the external program
      */
-    void setCustomOptions(const std::string &);
+    void setCustomOptions(const std::string &custom_options);
     /**
      * @brief Retrieves any custom options that need to be passed to the external evaluation program
      * @return The custom options string
@@ -195,9 +195,9 @@ public:
 
     /**
      * @brief Sets the base name of the data exchange file
-     * @param parameter_file_base_name The base name used for the XML parameter exchange files
+     * @param parameter_file The base name used for the XML parameter exchange files
      */
-    void setExchangeBaseName(const std::string &);
+    void setExchangeBaseName(const std::string &parameter_file);
     /**
      * @brief Retrieves the current value of the parameter_file_base_name_ variable
      * @return The base name of the data exchange file
@@ -208,7 +208,7 @@ public:
      * @brief Sets the number of results to be expected from the external evaluation program
      * @param n_results The number of fitness results expected from each evaluation
      */
-    void setNExpectedResults(const std::size_t &);
+    void setNExpectedResults(const std::size_t &n_results);
     /**
      * @brief Retrieves the number of results to be expected from the external evaluation program
      * @return The number of expected results
@@ -230,7 +230,7 @@ public:
      * @brief Allows to assign a run-id to this individual
      * @param run_id The unique identifier for this optimization run
      */
-    void setRunId(std::string);
+    void setRunId(std::string run_id);
     /**
      * @brief Allows to retrieve the run-id assigned to this individual
      * @return The run-id assigned to this individual
@@ -241,7 +241,7 @@ public:
      * @brief Allows to specify whether temporary files should be removed
      * @param remove_temporaries Whether the temporary exchange files should be deleted after use
      */
-    void setRemoveExecTemporaries(bool);
+    void setRemoveExecTemporaries(bool remove_exec_temporaries);
     /**
      * @brief Allows to check whether temporaries should be removed
      * @return true if temporary files are removed, false otherwise
@@ -333,7 +333,7 @@ protected:
      * @brief Loads the data of another GExternalEvaluatorIndividual
      * @param cp Pointer to the other object (a GExternalEvaluatorIndividual passed as a base-class pointer)
      */
-    void load_(const gen::GOptimizableEntity *) final;
+    void load_(const gen::GOptimizableEntity *cp) final;
 
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GExternalEvaluatorIndividual>(
@@ -349,11 +349,11 @@ protected:
      * @param limit The limit for allowed deviations of floating point types
      */
     void compare_(
-        const gen::GOptimizableEntity & // the other object
+        const gen::GOptimizableEntity &cp // the other object
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double &limit // the limit for allowed deviations of floating point types
     ) const final;
 
     /**

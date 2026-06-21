@@ -75,10 +75,10 @@ enum class metaOptimizationTarget : Gem::Common::ENUMBASETYPE {
 
 /** @brief Puts a Gem::Geneva::Individuals::metaOptimizationTarget into a stream. Needed for streaming / Gem::Common::fromString<> */
 std::ostream &
-operator<<(std::ostream &, const Gem::Geneva::Individuals::metaOptimizationTarget &);
+operator<<(std::ostream &o, const Gem::Geneva::Individuals::metaOptimizationTarget &mot);
 
 /** @brief Reads a Gem::Geneva::Individuals::metaOptimizationTarget from a stream. Needed for streaming / Gem::Common::fromString<> */
-std::istream &operator>>(std::istream &, Gem::Geneva::Individuals::metaOptimizationTarget &);
+std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::metaOptimizationTarget &mot);
 
 /******************************************************************************/
 // A number of default settings for the factory and individual
@@ -180,7 +180,7 @@ class GMetaOptimizerIndividualT // NOLINT(cppcoreguidelines-special-member-funct
     friend class boost::serialization::access;
 
     template <class Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
             BOOST_SERIALIZATION_NVP(n_runs_per_optimization_) &
             BOOST_SERIALIZATION_NVP(fitness_target_) & BOOST_SERIALIZATION_NVP(iteration_threshold_) &
@@ -1620,7 +1620,7 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(

@@ -76,10 +76,10 @@ class GBaseParChildPersonalityTraits // NOLINT(cppcoreguidelines-special-member-
      *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to read from or write to
-     * @param unnamed The serialization version number (unused)
+     * @param version The serialization version number (unused)
      */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
         // ... and then our own data, derived from the single localMembers() declaration
@@ -124,9 +124,9 @@ public:
     /**
      * @brief Sets the position of the individual in the population.
      *
-     * @param popPos The zero-based position of the individual within the population
+     * @param pop_pos The zero-based position of the individual within the population
      */
-    void setPopulationPosition(const std::size_t &);
+    void setPopulationPosition(const std::size_t &pop_pos);
     /**
      * @brief Retrieves the position of the individual in the population.
      *
@@ -137,9 +137,9 @@ public:
     /**
      * @brief Stores the parent's id with this object.
      *
-     * @param parentId The population position of the parent this individual descended from
+     * @param parent_id The population position of the parent this individual descended from
      */
-    void setParentId(const std::size_t &);
+    void setParentId(const std::size_t &parent_id);
     /**
      * @brief Retrieves the parent id's value.
      *
@@ -171,7 +171,7 @@ protected:
      *
      * @param cp A pointer to the GPersonalityTraits object to load from (must be a GBaseParChildPersonalityTraits)
      */
-    void load_(const GPersonalityTraits *) override;
+    void load_(const GPersonalityTraits *cp) override;
 
     /** @brief Allow access to this class's compare_ function. */
     friend void Gem::Common::compare_base_t<GBaseParChildPersonalityTraits>(
@@ -188,11 +188,11 @@ protected:
      * @param limit The maximum allowed deviation for floating point comparisons
      */
     void compare_(
-        const GPersonalityTraits & // the other object
+        const GPersonalityTraits &cp // the other object
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double &limit // the limit for allowed deviations of floating point types
     ) const override;
 
     /**

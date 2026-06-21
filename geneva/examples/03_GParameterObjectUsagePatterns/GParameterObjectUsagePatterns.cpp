@@ -63,7 +63,7 @@ class GDemoIndividual : public gen::GFlatIndividualT<GDemoIndividual> {
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
             "GFlatIndividualT",
             boost::serialization::base_object<gen::GFlatIndividualT<GDemoIndividual>>(*this)

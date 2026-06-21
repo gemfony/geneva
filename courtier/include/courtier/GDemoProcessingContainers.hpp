@@ -73,7 +73,7 @@ class GSimpleContainer
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
@@ -87,7 +87,7 @@ class GSimpleContainer
 public:
     /** @brief The standard constructor -- Initialization with a stored pay-load number
      *  @param snr The number to store as this object's pay-load */
-    explicit GSimpleContainer(const std::size_t &);
+    explicit GSimpleContainer(const std::size_t &snr);
     /** @brief The copy constructor */
     GSimpleContainer(const GSimpleContainer &) = default;
     /** @brief The copy assignment operator */
@@ -122,7 +122,7 @@ class GRandomNumberContainer
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
@@ -136,7 +136,7 @@ class GRandomNumberContainer
 public:
     /** @brief The standard constructor -- Initialization with an amount of random numbers
      *  @param nrnr The desired count of random numbers to generate and store as the pay-load */
-    explicit GRandomNumberContainer(const std::size_t &);
+    explicit GRandomNumberContainer(const std::size_t &nrnr);
 
     /******************************************************************************************/
     // Defaulted constructors, destructor and assignment operators
@@ -193,7 +193,7 @@ class GFaultyContainer
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(

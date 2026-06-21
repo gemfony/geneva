@@ -76,7 +76,7 @@ class GMPISubClientParaboloidIndividualMultiD : public GMPISubClientIndividual {
          * base classes.
          */
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         // Serialize the base class
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);

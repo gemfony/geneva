@@ -83,7 +83,7 @@ enum class gradientMethod : std::uint8_t {
  * @param gradientMethod The search-direction rule to serialize
  * @return A reference to the output stream after writing
  */
-std::ostream &operator<<(std::ostream &, gradientMethod);
+std::ostream &operator<<(std::ostream &o, gradientMethod gm);
 /**
  * @brief Reads a gradientMethod from a stream.
  *
@@ -91,7 +91,7 @@ std::ostream &operator<<(std::ostream &, gradientMethod);
  * @param gradientMethod & The search-direction rule to populate from the stream
  * @return A reference to the input stream after reading
  */
-std::istream &operator>>(std::istream &, gradientMethod &);
+std::istream &operator>>(std::istream &i, gradientMethod &gm);
 
 /**
  * Selects whether (and how thoroughly) a MINUIT-style parameter-error estimate is computed at the
@@ -111,7 +111,7 @@ enum class errorEstimationMode : std::uint8_t {
  * @param errorEstimationMode The error-estimation mode to serialize
  * @return A reference to the output stream after writing
  */
-std::ostream &operator<<(std::ostream &, errorEstimationMode);
+std::ostream &operator<<(std::ostream &o, errorEstimationMode em);
 /**
  * @brief Reads an errorEstimationMode from a stream.
  *
@@ -119,7 +119,7 @@ std::ostream &operator<<(std::ostream &, errorEstimationMode);
  * @param errorEstimationMode & The error-estimation mode to populate from the stream
  * @return A reference to the input stream after reading
  */
-std::istream &operator>>(std::istream &, errorEstimationMode &);
+std::istream &operator>>(std::istream &i, errorEstimationMode &em);
 
 /**
  * Default values for the conjugate gradient descent. They mirror the plain
@@ -226,7 +226,7 @@ private:
     }
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
         ar &make_nvp("GOptimizationAlgorithmBase", boost::serialization::base_object<GOptimizationAlgorithmBase>(*this));
@@ -247,7 +247,7 @@ public:
      * @param double const & The size of the finite step of the difference quotient
      * @param double const & The multiplier for the initial trial step along the search direction
      */
-    GConjugateGradientDescent(const std::size_t &, const double &, const double &);
+    GConjugateGradientDescent(const std::size_t &n_starting_points, const double &finite_step, const double &step_size);
     /**
      * @brief A standard copy constructor.
      *
@@ -268,14 +268,14 @@ public:
      *
      * @param std::size_t The number of starting positions in the parameter space
      */
-    void setNStartingPoints(std::size_t);
+    void setNStartingPoints(std::size_t n_starting_points);
 
     /**
      * @brief Set the size of the finite step of the difference quotient.
      *
      * @param double The difference-quotient step (per mill of the parameter range)
      */
-    void setFiniteStep(double);
+    void setFiniteStep(double finite_step);
     /**
      * @brief Retrieve the size of the finite step of the difference quotient.
      *
@@ -288,7 +288,7 @@ public:
      *
      * @param double The multiplicative factor for the initial trial step (the line search refines it)
      */
-    void setStepSize(double);
+    void setStepSize(double step_size);
     /**
      * @brief Retrieves the current step size.
      *
@@ -301,7 +301,7 @@ public:
      *
      * @param gradientMethod The search-direction rule to use
      */
-    void setGradientMethod(gradientMethod);
+    void setGradientMethod(gradientMethod gm);
     /**
      * @brief Retrieves the search-direction rule currently in use.
      *
@@ -316,7 +316,7 @@ public:
      *
      * @param bool If true, the central-difference gradient is enabled; if false, the forward difference is used
      */
-    void setCentralDifferences(bool);
+    void setCentralDifferences(bool central);
     /**
      * @brief Whether the central-difference gradient is in use.
      *
@@ -331,7 +331,7 @@ public:
      *
      * @param std::size_t The L-BFGS history size m (number of (s, y) pairs to keep)
      */
-    void setLBFGSMemory(std::size_t);
+    void setLBFGSMemory(std::size_t m);
     /**
      * @brief Retrieves the L-BFGS history size m.
      *
@@ -344,7 +344,7 @@ public:
      *
      * @param errorEstimationMode The error-estimation mode to use
      */
-    void setErrorEstimation(errorEstimationMode);
+    void setErrorEstimation(errorEstimationMode em);
     /**
      * @brief Retrieves the error-estimation mode currently in use.
      *
@@ -356,7 +356,7 @@ public:
      *
      * @param double The MINUIT error definition UP value
      */
-    void setErrorDefinition(double);
+    void setErrorDefinition(double up);
     /**
      * @brief Retrieves the error definition UP.
      *
@@ -396,7 +396,7 @@ protected:
      *
      * @param GOptimizationAlgorithmBase const * Pointer to the algorithm whose data is copied (must be a GConjugateGradientDescent)
      */
-    void load_(const GOptimizationAlgorithmBase *) override;
+    void load_(const GOptimizationAlgorithmBase *cp) override;
 
     /**
      * @brief Allow access to this classes compare_ function.
@@ -419,11 +419,11 @@ protected:
      * @param double const & The limit for allowed deviations of floating point types
      */
     void compare_(
-        const GOptimizationAlgorithmBase & // the other object
+        const GOptimizationAlgorithmBase &cp // the other object
         ,
-        const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
         ,
-        const double & // the limit for allowed deviations of floating point types
+        const double &limit // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */

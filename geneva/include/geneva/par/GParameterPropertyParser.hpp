@@ -72,7 +72,7 @@ class parPropSpec // NOLINT(cppcoreguidelines-special-member-functions)
     friend class boost::serialization::access;
 
     template <typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         using namespace Gem::Common;
 
@@ -325,8 +325,8 @@ public:
     /** @brief The default constructor -- deleted, as a raw description string is mandatory */
     GParameterPropertyParser() = delete;
     /** @brief The standard constructor -- assignment of the "raw" parameter property string
-     *  @param The raw parameter description string to be parsed */
-    explicit GParameterPropertyParser(const std::string &);
+     *  @param rw The raw parameter description string to be parsed */
+    explicit GParameterPropertyParser(const std::string &rw);
 
     /** @brief Retrieves the raw parameter description
      *  @return The raw, unparsed parameter description string held by this object */
@@ -336,8 +336,8 @@ public:
     bool isParsed() const;
 
     /** @brief Allows to reset the internal structures and to parse a new parameter string
-     *  @param The new raw parameter description string that replaces the current one */
-    void setNewParameterDescription(std::string);
+     *  @param raw The new raw parameter description string that replaces the current one */
+    void setNewParameterDescription(std::string raw);
 
     /** @brief Initiates parsing of the raw string */
     void parse();
