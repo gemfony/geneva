@@ -35,14 +35,20 @@ namespace Gem::Common {
 
 /******************************************************************************/
 /**
- * A data collector for 1-d data of user-defined type. This will usually be
- * data of a histogram type. It is assumed to be movable, hence we use all
- * defaulted constructors and assignment operators.
+ * A variadic data collector for N-d data of user-defined component types. It is
+ * the single, generic implementation backing the named GDataCollector{1T,2T,2ET,
+ * 3T,4T} collectors (see the alias declarations below). Each data item is stored
+ * as a std::tuple<Ts...>; the per-axis machinery (the narrowing operator&
+ * overloads, the projections, sorting and min/max extraction) is generated from
+ * the parameter pack via fold expressions / std::index_sequence.
  *
- * @tparam x_type The numeric type of the 1-d data items stored in this collector
+ * The class is assumed to be movable, hence we use all defaulted constructors and
+ * assignment operators.
+ *
+ * @tparam Ts The numeric component types of each stored data item (one per axis)
  */
-template <typename x_type>
-class GDataCollector1T : public GBasePlotter {
+template <typename... Ts>
+class GDataCollectorT : public GBasePlotter {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -54,18 +60,26 @@ class GDataCollector1T : public GBasePlotter {
     }
     ///////////////////////////////////////////////////////////////////////
 
+    /** @brief The number of axes / components of each stored data item */
+    static constexpr std::size_t n_axes = sizeof...(Ts);
+    /** @brief The component type of axis I (e.g. axis_t<0> is the x-component type) */
+    template <std::size_t I>
+    using axis_t = std::tuple_element_t<I, std::tuple<Ts...>>;
+    /** @brief The element type stored in the data vector */
+    using item_t = std::tuple<Ts...>;
+
 public:
     /***************************************************************************/
     // Defaulted constructors and destructors
 
-    GDataCollector1T() = default;
-    GDataCollector1T(GDataCollector1T<x_type> const &) = default;
-    GDataCollector1T(GDataCollector1T<x_type> &&) = default;
+    GDataCollectorT() = default;
+    GDataCollectorT(GDataCollectorT<Ts...> const &) = default;
+    GDataCollectorT(GDataCollectorT<Ts...> &&) = default;
 
-    ~GDataCollector1T() override = default;
+    ~GDataCollectorT() override = default;
 
-    GDataCollector1T<x_type> &operator=(GDataCollector1T<x_type> const &) = default;
-    GDataCollector1T<x_type> &operator=(GDataCollector1T<x_type> &&) = default;
+    GDataCollectorT<Ts...> &operator=(GDataCollectorT<Ts...> const &) = default;
+    GDataCollectorT<Ts...> &operator=(GDataCollectorT<Ts...> &&) = default;
 
     /***************************************************************************/
     /**
@@ -95,25 +109,68 @@ public:
 
     /***************************************************************************/
     /**
-	  * Allows to add data of arbitrary type, provided it can be converted
-	  * safely to the target type.
+	  * For multi-axis (1<) collectors: convenience add() taking one argument per
+	  * axis, assembling them into a tuple before forwarding to operator&.
 	  *
-	  * @tparam x_type_undet The source type of the data item, narrowed to x_type
+	  * @param items One value per axis, to be combined into a single data item
+	  */
+    template <typename... Args, std::size_t M = n_axes, std::enable_if_t<(M > 1) && sizeof...(Args) == M, int> = 0>
+    void add(const Args &...items) {
+        *this &std::make_tuple(items...);
+    }
+
+    /***************************************************************************/
+    // The data-insertion operators. For a single-axis collector (n_axes == 1)
+    // values are passed bare; for multi-axis collectors they are passed as a
+    // std::tuple. Both the exactly-typed and the convertible ("undetermined")
+    // forms are provided, the latter performing a checked narrow<> conversion.
+
+    /**
+	  * Adds a single, exactly-typed data item.
+	  *
+	  * @param item The data item to be added to the collection
+	  */
+    void operator&(const item_t &item) {
+        if constexpr(n_axes == 1) {
+            data_.push_back(item);
+        }
+        else {
+            // Add the data item to the collection
+            data_.push_back(item);
+        }
+    }
+
+    /**
+	  * Adds a single data item of undetermined component type(s), provided it can
+	  * be converted safely to the target component type(s).
+	  *
+	  * @tparam Us The source component type(s), narrowed to the target type(s)
+	  * @param item_undet The data item to be added to the collection
+	  */
+    template <typename... Us, std::enable_if_t<sizeof...(Us) == sizeof...(Ts), int> = 0>
+    void operator&(const std::tuple<Us...> &item_undet) {
+        data_.push_back(narrowItem(item_undet));
+    }
+
+    /**
+	  * For a single-axis collector only: adds a bare value of undetermined type,
+	  * provided it can be converted safely to the target component type.
+	  *
+	  * @tparam U The source type of the data item, narrowed to the target type
 	  * @param x_undet The data item to be added to the collection
 	  */
-    template <typename x_type_undet>
-    void operator&(const x_type_undet &x_undet) {
-
-        x_type x = x_type(0);
+    template <typename U, std::size_t M = n_axes, std::enable_if_t<M == 1, int> = 0>
+    void operator&(const U &x_undet) {
+        axis_t<0> x = axis_t<0>(0);
 
         // Make sure the data can be converted to doubles
         try {
-            x = Gem::Common::narrow<x_type>(x_undet);
+            x = Gem::Common::narrow<axis_t<0>>(x_undet);
         }
         catch(std::overflow_error &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GDataCollector1T<x_type>::operator&(const T&): Error!" << '\n'
+                << "In GDataCollectorT::operator&(const T&): Error!" << '\n'
                 << "Encountered invalid cast with Gem::Common::narrow," << '\n'
                 << "with the message " << '\n'
                 << e.what() << '\n'
@@ -121,43 +178,55 @@ public:
         }
 
         // Add the converted data to our collection
-        data_.push_back(x);
+        data_.push_back(item_t(x));
     }
 
-    /***************************************************************************/
     /**
-	  * Allows to add data of type "x_type
+	  * Adds a collection of exactly-typed data items in one go.
 	  *
-	  * @param x The data item to be added to the collection
+	  * @param cnt A vector of data items to be added to the collection
 	  */
-    void operator&(const x_type &x) {
-        // Add the data item to our collection
-        data_.push_back(x);
+    void operator&(const std::vector<item_t> &cnt) {
+        for(auto const &item : cnt) {
+            // Add the data item to our collection
+            data_.push_back(item);
+        }
     }
 
-    /***************************************************************************/
     /**
-	  * Allows to add a collection of data items of undetermined type in one go,
-	  * provided the type can be converted safely into the target type
+	  * Adds a collection of data items of undetermined component type(s) in one
+	  * go, provided they can be converted safely into the target component type(s).
 	  *
-	  * @tparam x_type_undet The source element type of the vector, narrowed to x_type
-	  * @param x_cnt_undet A collection of data items of undetermined type, to be added to the collection
+	  * @tparam Us The source component type(s), narrowed to the target type(s)
+	  * @param cnt_undet A vector of data items of undetermined type, to be added
 	  */
-    template <typename x_type_undet>
-    void operator&(const std::vector<x_type_undet> &x_cnt_undet) {
+    template <typename... Us, std::enable_if_t<sizeof...(Us) == sizeof...(Ts), int> = 0>
+    void operator&(const std::vector<std::tuple<Us...>> &cnt_undet) {
+        for(auto const &item_undet : cnt_undet) {
+            data_.push_back(narrowItem(item_undet));
+        }
+    }
 
-        x_type x = x_type(0);
+    /**
+	  * For a single-axis collector only: adds a collection of bare values of
+	  * undetermined type, provided they can be converted safely to the target type.
+	  *
+	  * @tparam U The source element type of the vector, narrowed to the target type
+	  * @param x_cnt_undet A collection of data items of undetermined type, to be added
+	  */
+    template <typename U, std::size_t M = n_axes, std::enable_if_t<M == 1, int> = 0>
+    void operator&(const std::vector<U> &x_cnt_undet) {
+        axis_t<0> x = axis_t<0>(0);
 
-        typename std::vector<x_type_undet>::const_iterator cit;
-        for(cit = x_cnt_undet.begin(); cit != x_cnt_undet.end(); ++cit) {
+        for(auto const &src : x_cnt_undet) {
             // Make sure the data can be converted to doubles
             try {
-                x = Gem::Common::narrow<x_type>(*cit);
+                x = Gem::Common::narrow<axis_t<0>>(src);
             }
             catch(std::overflow_error &e) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GDataCollector1T::operator&(const std::vector<T>&): Error!" << '\n'
+                    << "In GDataCollectorT::operator&(const std::vector<T>&): Error!" << '\n'
                     << "Encountered invalid cast with Gem::Common::narrow," << '\n'
                     << "with the message " << '\n'
                     << e.what() << '\n'
@@ -165,40 +234,98 @@ public:
             }
 
             // Add the converted data to our collection
-            data_.push_back(x);
+            data_.push_back(item_t(x));
         }
     }
 
     /***************************************************************************/
     /**
-	  * Allows to add a collection of data items of type x_type to our data_ vector.
+	  * Projects the data onto axis I, returning a 1-d histogram. This generic
+	  * version is a trap to catch calls with un-implemented types -- it is only
+	  * meaningfully specialized for all-double collectors (see project<I>()
+	  * below and the named projectX/Y/Z/W wrappers).
 	  *
-	  * @param x_cnt A vector of data items to be added to the data_ vector
+	  * @tparam I The axis to project onto
+	  * @param nBins The desired number of bins of the resulting histogram
+	  * @param range The lower and upper boundary of the resulting histogram
+	  * @return A 1-d histogram of the data projected onto axis I (only in specializations)
 	  */
-    void operator&(const std::vector<x_type> &x_cnt) {
-        typename std::vector<x_type>::const_iterator cit;
-        for(cit = x_cnt.begin(); cit != x_cnt.end(); ++cit) {
-            // Add the data item to our collection
-            data_.push_back(*cit);
-        }
+    template <std::size_t I>
+    std::shared_ptr<GDataCollectorT<axis_t<I>>>
+    project([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<axis_t<I>, axis_t<I>> range) const {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GDataCollectorT<>::project<I>(range, nBins): Error!" << '\n'
+            << "Function was called for class with un-implemented types" << '\n'
+        );
+
+        // Make the compiler happy
+        return std::shared_ptr<GDataCollectorT<axis_t<I>>>();
+    }
+
+    /***************************************************************************/
+    // Named projection wrappers, preserved from the original per-arity API. They
+    // are only available for the axes actually present in this collector.
+
+    // The named wrappers are templated on their (fixed-by-default) axis index so
+    // that the axis_t<I> appearing in their signature is a dependent type, only
+    // instantiated when the wrapper is actually called -- otherwise a low-arity
+    // collector (e.g. the single-axis histogram base) would hard-error merely by
+    // forming projectY/Z/W's parameter type. enable_if then keeps each wrapper
+    // available only for collectors that actually have the requested axis.
+
+    /** @brief Projects the data onto the x-axis (see project<0>()) */
+    template <std::size_t I = 0, std::enable_if_t<(I == 0) && (n_axes >= 1), int> = 0>
+    auto projectX(std::size_t nBins, std::tuple<axis_t<I>, axis_t<I>> range) const {
+        return this->template project<I>(nBins, range);
+    }
+
+    /** @brief Projects the data onto the y-axis (see project<1>()) */
+    template <std::size_t I = 1, std::enable_if_t<(I == 1) && (n_axes >= 2), int> = 0>
+    auto projectY(std::size_t nBins, std::tuple<axis_t<I>, axis_t<I>> range) const {
+        return this->template project<I>(nBins, range);
+    }
+
+    /** @brief Projects the data onto the z-axis (see project<2>()) */
+    template <std::size_t I = 2, std::enable_if_t<(I == 2) && (n_axes >= 3), int> = 0>
+    auto projectZ(std::size_t nBins, std::tuple<axis_t<I>, axis_t<I>> range) const {
+        return this->template project<I>(nBins, range);
+    }
+
+    /** @brief Projects the data onto the w-axis (see project<3>()) */
+    template <std::size_t I = 3, std::enable_if_t<(I == 3) && (n_axes >= 4), int> = 0>
+    auto projectW(std::size_t nBins, std::tuple<axis_t<I>, axis_t<I>> range) const {
+        return this->template project<I>(nBins, range);
     }
 
     /***************************************************************************/
     /**
-	  * Retrieves the minimum and maximum values in data_
-	  *
-	  * @return A tuple holding the minimum and the maximum element found in the data
+	  * Sorts the data according to its x-component (axis 0)
 	  */
-    std::tuple<x_type, x_type> getMinMaxElements() const {
+    void sortX() {
+        std::sort(data_.begin(), data_.end(), [](const item_t &a, const item_t &b) -> bool {
+            return std::get<0>(a) < std::get<0>(b);
+        });
+    }
+
+    /***************************************************************************/
+    /**
+	  * Retrieves the per-axis minimum and maximum values in data_, interleaved as
+	  * (min_0, max_0, min_1, max_1, ...). For a single-axis collector this is the
+	  * familiar (min, max); for a two-axis collector it is (min_x, max_x, min_y,
+	  * max_y), matching the original per-arity return type.
+	  *
+	  * @return A tuple holding the per-axis (min, max) pairs of the stored data
+	  */
+    auto getMinMaxElements() const {
         if(data_.empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GDataCollector1T::getMinMaxElements(): Error!" << '\n'
+                << "In GDataCollectorT::getMinMaxElements(): Error!" << '\n'
                 << "Cannot determine the data range of an empty collector." << '\n'
             );
         }
-        auto minmax = std::minmax_element(data_.begin(), data_.end());
-        return std::make_tuple(*minmax.first, *minmax.second);
+        return minMaxImpl(std::make_index_sequence<n_axes>{});
     };
 
 protected:
@@ -216,10 +343,10 @@ protected:
     /**
 	  * Loads the data of another object
 	  *
-	  * @param cp A pointer to another GDataCollector1T<x_type> object, camouflaged as a GBasePlotter
+	  * @param cp A pointer to another GDataCollectorT<Ts...> object, camouflaged as a GBasePlotter
 	  */
     void load_(const GBasePlotter *cp) override {
-        // Check that we are dealing with a GDataCollector1T<x_type> reference independent of this object and convert the pointer
+        // Check that we are dealing with a GDataCollectorT<Ts...> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(cp, this);
 
         // Load our parent class'es data ...
@@ -231,9 +358,9 @@ protected:
 
     /***************************************************************************/
 
-    friend void compare_base_t<GDataCollector1T<x_type>>(
-        GDataCollector1T<x_type> const &,
-        GDataCollector1T<x_type> const &,
+    friend void compare_base_t<GDataCollectorT<Ts...>>(
+        GDataCollectorT<Ts...> const &,
+        GDataCollectorT<Ts...> const &,
         GToken &
     );
 
@@ -251,10 +378,10 @@ protected:
         const expectation &e,
         [[maybe_unused]] const double & limit
     ) const override {
-        // Check that we are dealing with a GDataCollector1T<x_type> reference independent of this object and convert the pointer
+        // Check that we are dealing with a GDataCollectorT<Ts...> reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(cp, this);
 
-        GToken token("GDataCollector1T<x_type>", e);
+        GToken token("GDataCollectorT<Ts...>", e);
 
         // Compare our parent data ...
         compare_base_t<GBasePlotter>(*this, *p_load, token);
@@ -268,9 +395,56 @@ protected:
 
     /***************************************************************************/
 
-    std::vector<x_type> data_; ///< Holds the actual data
+    std::vector<item_t> data_; ///< Holds the actual data
 
 private:
+    /***************************************************************************/
+    /**
+	  * Narrows a tuple of undetermined component types into the target item type,
+	  * wrapping every per-component narrow<> in the original try/catch contract.
+	  */
+    template <typename... Us>
+    item_t narrowItem(const std::tuple<Us...> &src) const {
+        return narrowItemImpl(src, std::make_index_sequence<n_axes>{});
+    }
+
+    template <typename Src, std::size_t... Is>
+    item_t narrowItemImpl(const Src &src, std::index_sequence<Is...>) const {
+        try {
+            return item_t(Gem::Common::narrow<axis_t<Is>>(std::get<Is>(src))...);
+        }
+        catch(std::overflow_error &e) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GDataCollectorT::operator&(tuple): Error!" << '\n'
+                << "Encountered invalid cast with Gem::Common::narrow," << '\n'
+                << "with the message " << '\n'
+                << e.what() << '\n'
+            );
+        }
+    }
+
+    /***************************************************************************/
+    /**
+	  * Computes the per-axis (min, max) of a single axis I across the data vector.
+	  */
+    template <std::size_t I>
+    std::pair<axis_t<I>, axis_t<I>> minMaxAxis() const {
+        auto cmp = [](const item_t &a, const item_t &b) -> bool {
+            return std::get<I>(a) < std::get<I>(b);
+        };
+        auto [min_it, max_it] = std::minmax_element(data_.begin(), data_.end(), cmp);
+        return {std::get<I>(*min_it), std::get<I>(*max_it)};
+    }
+
+    template <std::size_t... Is>
+    auto minMaxImpl(std::index_sequence<Is...>) const {
+        // Interleave the per-axis (min, max) pairs into a single flat tuple
+        return std::tuple_cat(
+            std::make_tuple(minMaxAxis<Is>().first, minMaxAxis<Is>().second)...
+        );
+    }
+
     /***************************************************************************/
     /**
 	  * Returns the name of this class
@@ -278,7 +452,7 @@ private:
 	  * @return The name of this class as a string
 	  */
     std::string name_() const override {
-        return std::string("GDataCollector1T<x_type>");
+        return std::string("GDataCollectorT<Ts...>");
     }
 
     /***************************************************************************/
@@ -289,6 +463,130 @@ private:
     GBasePlotter *clone_() const override = 0;
 
     /***************************************************************************/
+};
+
+/******************************************************************************/
+/**
+ * The five named data collectors are thin aliases over the single variadic
+ * GDataCollectorT. They preserve the historical names, arities and the exact
+ * stored layout (std::vector<std::tuple<Ts...>>) the concrete plotters rely on.
+ *
+ * - GDataCollector1T<X>        : 1-d data (e.g. for histograms)
+ * - GDataCollector2T<X,Y>      : 2-d data (e.g. for a TGraph)
+ * - GDataCollector2ET<X,Y>     : 2-d data with x- and y-errors (x, error_x, y, error_y)
+ * - GDataCollector3T<X,Y,Z>    : 3-d data
+ * - GDataCollector4T<X,Y,Z,W>  : 4-d data
+ */
+template <typename x_type>
+using GDataCollector1T = GDataCollectorT<x_type>;
+
+template <typename x_type, typename y_type>
+using GDataCollector2T = GDataCollectorT<x_type, y_type>;
+
+template <typename x_type, typename y_type, typename z_type>
+using GDataCollector3T = GDataCollectorT<x_type, y_type, z_type>;
+
+template <typename x_type, typename y_type, typename z_type, typename w_type>
+using GDataCollector4T = GDataCollectorT<x_type, y_type, z_type, w_type>;
+
+/******************************************************************************/
+/**
+ * The 2-d data collector with error bars stores a 4-tuple (x, error_x, y,
+ * error_y). Its tuple layout (X, X, Y, Y) would otherwise be indistinguishable
+ * from a four-axis GDataCollector4T<X, X, Y, Y>, so it is realized as a distinct,
+ * trivial subclass of the variadic base rather than as a bare alias. This keeps
+ * its identity (and its is_abstract<> Boost.Serialization marker) separate while
+ * inheriting all of the shared collector machinery unchanged.
+ *
+ * @tparam x_type The numeric type of the x-component and its error
+ * @tparam y_type The numeric type of the y-component and its error
+ */
+template <typename x_type, typename y_type>
+class GDataCollector2ET : public GDataCollectorT<x_type, x_type, y_type, y_type> {
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
+
+    template <typename Archive>
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
+        using boost::serialization::make_nvp;
+
+        ar &make_nvp(
+            "GDataCollectorT_base",
+            boost::serialization::base_object<GDataCollectorT<x_type, x_type, y_type, y_type>>(*this)
+        );
+    }
+    ///////////////////////////////////////////////////////////////////////
+
+public:
+    /***************************************************************************/
+    // Defaulted constructors and destructors -- all machinery is inherited
+
+    GDataCollector2ET() = default;
+    GDataCollector2ET(GDataCollector2ET<x_type, y_type> const &) = default;
+    GDataCollector2ET(GDataCollector2ET<x_type, y_type> &&) = default;
+
+    ~GDataCollector2ET() override = default;
+
+    GDataCollector2ET<x_type, y_type> &operator=(GDataCollector2ET<x_type, y_type> const &) = default;
+    GDataCollector2ET<x_type, y_type> &operator=(GDataCollector2ET<x_type, y_type> &&) = default;
+
+protected:
+    /***************************************************************************/
+    /**
+	  * Loads the data of another object. This class adds no own members, so it
+	  * simply forwards to the variadic base.
+	  *
+	  * @param cp A pointer to another GDataCollector2ET<x_type, y_type> object, camouflaged as a GBasePlotter
+	  */
+    void load_(const GBasePlotter *cp) override {
+        // Ensure the camouflaged pointer is an independent object of our own type
+        (void) g_convert_and_compare(cp, this);
+        // No own members -- defer entirely to the base
+        GDataCollectorT<x_type, x_type, y_type, y_type>::load_(cp);
+    }
+
+    /***************************************************************************/
+    /** @brief Allow access to this classes compare_ function */
+    friend void compare_base_t<GDataCollector2ET<x_type, y_type>>(
+        GDataCollector2ET<x_type, y_type> const &,
+        GDataCollector2ET<x_type, y_type> const &,
+        GToken &
+    );
+
+    /***************************************************************************/
+    /**
+	  * Investigates compliance with expectations with respect to another object
+	  * of the same type. This class adds no own members, so it simply compares
+	  * the variadic base.
+	  *
+	  * @param cp A constant reference to another object, camouflaged as a GBasePlotter
+	  * @param e The expectation for this object (e.g. equality or inequality)
+	  * @param limit The maximum allowed deviation for floating point comparisons (unused here)
+	  */
+    void compare_(
+        const GBasePlotter &cp,
+        const expectation &e,
+        [[maybe_unused]] const double & limit
+    ) const override {
+        // Ensure the camouflaged pointer is an independent object of our own type
+        const auto *p_load = g_convert_and_compare(cp, this);
+
+        GToken token("GDataCollector2ET<x_type, y_type>", e);
+
+        // No own members -- compare the variadic base only
+        compare_base_t<GDataCollectorT<x_type, x_type, y_type, y_type>>(*this, *p_load, token);
+
+        // React on deviations from the expectation
+        token.evaluate();
+    }
+
+private:
+    /***************************************************************************/
+    /**
+	  * @brief Creates a deep clone of this object
+	  * @return A deep clone of this object, wrapped into a GBasePlotter pointer
+	  */
+    GBasePlotter *clone_() const override = 0;
 };
 
 /******************************************************************************/
@@ -625,351 +923,6 @@ private:
 
 /******************************************************************************/
 /**
- * A data collector for 2-d data of user-defined type, such as a TGraph.
- * Note that the plot dimension may be different.
- *
- * @tparam x_type The numeric type of the x-component of each data item
- * @tparam y_type The numeric type of the y-component of each data item
- */
-template <typename x_type, typename y_type>
-class GDataCollector2T : public GBasePlotter {
-    ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
-
-    template <typename Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter) & BOOST_SERIALIZATION_NVP(data_);
-    }
-    ///////////////////////////////////////////////////////////////////////
-
-public:
-    /***************************************************************************/
-    // Defaulted constructors and destructors
-
-    GDataCollector2T() = default;
-    GDataCollector2T(GDataCollector2T<x_type, y_type> const &) = default;
-    GDataCollector2T(GDataCollector2T<x_type, y_type> &&) = default;
-
-    ~GDataCollector2T() override = default;
-
-    GDataCollector2T<x_type, y_type> &operator=(GDataCollector2T<x_type, y_type> const &) = default;
-    GDataCollector2T<x_type, y_type> &operator=(GDataCollector2T<x_type, y_type> &&) = default;
-
-    /***************************************************************************/
-    /**
-	  * Allows to retrieve information about the amount of data sets stored in
-	  * this object
-	  *
-	  * @return The number of data items currently stored in this collector
-	  */
-    std::size_t currentSize() const {
-        return data_.size();
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to project the graph into a histogram (x-direction). This function is a
-	  * trap to catch calls with un-implemented types. Use the corresponding specializations,
-	  * if available.
-	  *
-	  * @param nBins The desired number of bins of the resulting histogram
-	  * @param range The lower and upper boundary of the resulting histogram
-	  * @return A 1-d histogram of the data projected onto the x-axis (only in specializations)
-	  */
-    std::shared_ptr<GDataCollector1T<x_type>>
-    projectX([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<x_type, x_type> range) const {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GDataCollector2T<>::projectX(range, nBins): Error!" << '\n'
-            << "Function was called for class with un-implemented types" << '\n'
-        );
-
-        // Make the compiler happy
-        return std::shared_ptr<GDataCollector1T<x_type>>();
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to project the graph into a histogram (y-direction). This function is a
-	  * trap to catch calls with un-implemented types. Use the corresponding specializations,
-	  * if available.
-	  *
-	  * @param nBins The desired number of bins of the resulting histogram
-	  * @param range The lower and upper boundary of the resulting histogram
-	  * @return A 1-d histogram of the data projected onto the y-axis (only in specializations)
-	  */
-    std::shared_ptr<GDataCollector1T<y_type>>
-    projectY([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<y_type, y_type> range) const {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GDataCollector2T<>::projectY(range, nBins): Error!" << '\n'
-            << "Function was called for class with un-implemented types" << '\n'
-        );
-
-        // Make the compiler happy
-        return std::shared_ptr<GDataCollector1T<y_type>>();
-    }
-
-    /***************************************************************************/
-    /**
-	  * This very simple functions allows derived classes
-	  * to add data easily to their data sets, when called through a
-	  * pointer. I.e., this makes object_ptr->add(data) instead of
-	  * *object_ptr & data possible.
-	  *
-	  * @tparam data_type1 The type of the x-component being added
-	  * @tparam data_type2 The type of the y-component being added
-	  * @param item1 The x-component of the data point to be added
-	  * @param item2 The y-component of the data point to be added
-	  */
-    template <typename data_type1, typename data_type2>
-    void add(const data_type1 &item1, const data_type2 &item2) {
-        *this &std::make_tuple(item1, item2);
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to add data of undetermined type to the collection in an intuitive way,
-	  * provided that it can be converted safely to the target type.
-	  *
-	  * @tparam x_type_undet The source type of the x-component, narrowed to x_type
-	  * @tparam y_type_undet The source type of the y-component, narrowed to y_type
-	  * @param point_undet The data item to be added to the collection
-	  */
-    template <typename x_type_undet, typename y_type_undet>
-    void operator&(const std::tuple<x_type_undet, y_type_undet> &point_undet) {
-
-        x_type x = x_type(0);
-        y_type y = y_type(0);
-
-        // Make sure the data can be converted to doubles
-        try {
-            x = Gem::Common::narrow<x_type>(std::get<0>(point_undet));
-            y = Gem::Common::narrow<y_type>(std::get<1>(point_undet));
-        }
-        catch(std::overflow_error &e) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GDataCollector2T::operator&(const std::tuple<S,T>&): Error!" << '\n'
-                << "Encountered invalid cast with Gem::Common::narrow," << '\n'
-                << "with the message " << '\n'
-                << e.what() << '\n'
-            );
-        }
-
-        data_.push_back(std::tuple<x_type, y_type>(x, y));
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to add data of type std::tuple<x_type, y_type> to the collection in
-	  * an intuitive way.
-	  *
-	  * @param point The data item to be added to the collection
-	  */
-    void operator&(const std::tuple<x_type, y_type> &point) {
-        // Add the data item to the collection
-        data_.push_back(point);
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to add a collection of data items of undetermined type to the
-	  * collection in an intuitive way, provided they can be converted safely
-	  * to the target type.
-	  *
-	  * @tparam x_type_undet The source type of the x-component, narrowed to x_type
-	  * @tparam y_type_undet The source type of the y-component, narrowed to y_type
-	  * @param point_cnt_undet The collection of data items to be added to the collection
-	  */
-    template <typename x_type_undet, typename y_type_undet>
-    void operator&(const std::vector<std::tuple<x_type_undet, y_type_undet>> &point_cnt_undet) {
-
-        x_type x = x_type(0);
-        y_type y = y_type(0);
-
-        typename std::vector<std::tuple<x_type_undet, y_type_undet>>::const_iterator cit;
-        for(cit = point_cnt_undet.begin(); cit != point_cnt_undet.end(); ++cit) {
-            // Make sure the data can be converted to doubles
-            try {
-                x = Gem::Common::narrow<x_type>(std::get<0>(*cit));
-                y = Gem::Common::narrow<y_type>(std::get<1>(*cit));
-            }
-            catch(std::overflow_error &e) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GDataCollector2T::operator&(const std::vector<std::tuple<S,T>>&): Error!"
-                    << '\n'
-                    << "Encountered invalid cast with Gem::Common::narrow," << '\n'
-                    << "with the message " << '\n'
-                    << e.what() << '\n'
-                );
-            }
-
-            data_.push_back(std::tuple<x_type, y_type>(x, y));
-        }
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to add a collection of data items of type std::tuple<x_type, y_type>
-	  * to the collection in an intuitive way, provided they can be converted safely
-	  * to the target type.
-	  *
-	  * @param point_cnt The collection of data items to be added to the collection
-	  */
-    void operator&(const std::vector<std::tuple<x_type, y_type>> &point_cnt) {
-        typename std::vector<std::tuple<x_type, y_type>>::const_iterator cit;
-        for(cit = point_cnt.begin(); cit != point_cnt.end(); ++cit) {
-            // Add the data item to the collection
-            data_.push_back(*cit);
-        }
-    }
-
-    /***************************************************************************/
-    /**
-	  * Sorts the data according to its x-component
-	  */
-    void sortX() {
-        std::sort(
-            data_.begin(),
-            data_.end(),
-            [](const std::tuple<x_type, y_type> &x, const std::tuple<x_type, y_type> &y) -> bool {
-                return std::get<0>(x) < std::get<0>(y);
-            }
-        );
-    }
-
-    /***************************************************************************/
-    /**
-		* Retrieves the minimum and maximum values in data_ in x- and y-direction
-		*
-		* @return A tuple holding (min_x, max_x, min_y, max_y) of the stored data
-		*/
-    std::tuple<x_type, x_type, y_type, y_type> getMinMaxElements() const {
-        if(data_.empty()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GDataCollector2T::getMinMaxElements(): Error!" << '\n'
-                << "Cannot determine the data range of an empty collector." << '\n'
-            );
-        }
-        auto minmax_x = std::minmax_element(
-            data_.begin(),
-            data_.end(),
-            [](const std::tuple<x_type, y_type> &x, const std::tuple<x_type, y_type> &y) -> bool {
-                return (std::get<0>(x) < std::get<0>(y));
-            }
-        );
-
-        auto minmax_y = std::minmax_element(
-            data_.begin(),
-            data_.end(),
-            [](const std::tuple<x_type, y_type> &x, const std::tuple<x_type, y_type> &y) -> bool {
-                return (std::get<1>(x) < std::get<1>(y));
-            }
-        );
-
-        double min_x = std::get<0>(*minmax_x.first);
-        double max_x = std::get<0>(*minmax_x.second);
-        double min_y = std::get<1>(*minmax_y.first);
-        double max_y = std::get<1>(*minmax_y.second);
-
-        return std::make_tuple(min_x, max_x, min_y, max_y);
-    };
-
-protected:
-    /***************************************************************************/
-    /**
-	  * Single declaration of this class'es local data members, used by load_() and compare_()
-	  *
-	  * @return A tuple of named members (the data vector) of this object
-	  */
-    template <typename Self>
-    static auto localMembers_(Self &self) {
-        return std::make_tuple(make_member("data_", self.data_));
-    }
-
-    /**
-	  * Loads the data of another object
-	  *
-	  * @param cp A pointer to another GDataCollector2T<x_type, y_type> object, camouflaged as a GBasePlotter
-	  */
-    void load_(const GBasePlotter *cp) override {
-        // Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
-        const auto *p_load = g_convert_and_compare(cp, this);
-
-        // Load our parent class'es data ...
-        GBasePlotter::load_(cp);
-
-        // ... and then our own, derived from the single localMembers() declaration
-        g_load_members(localMembers_(*this), localMembers_(*p_load));
-    }
-
-    /***************************************************************************/
-    /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GDataCollector2T<x_type, y_type>>(
-        GDataCollector2T<x_type, y_type> const &,
-        GDataCollector2T<x_type, y_type> const &,
-        GToken &
-    );
-
-    /***************************************************************************/
-    /**
-	  * Investigates compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another object, camouflaged as a GBasePlotter
-	  * @param e The expectation for this object (e.g. equality or inequality)
-	  * @param limit The maximum allowed deviation for floating point comparisons (unused here)
-	  */
-    void compare_(
-        const GBasePlotter &cp,
-        const expectation &e,
-        [[maybe_unused]] const double & limit
-    ) const override {
-        // Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
-        const auto *p_load = g_convert_and_compare(cp, this);
-
-        GToken token("GDataCollector2T<x_type, y_type>", e);
-
-        // Compare our parent data ...
-        compare_base_t<GBasePlotter>(*this, *p_load, token);
-
-        // ... and then the local data, derived from the single localMembers() declaration
-        g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
-
-        // React on deviations from the expectation
-        token.evaluate();
-    }
-
-    /***************************************************************************/
-
-    std::vector<std::tuple<x_type, y_type>> data_; ///< Holds the actual data
-
-private:
-    /***************************************************************************/
-    /**
-	  * Returns the name of this class
-	  *
-	  * @return The name of this class as a string
-	  */
-    std::string name_() const override {
-        return std::string("GDataCollector2T<x_type, y_type>");
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Creates a deep clone of this object
-	  * @return A deep clone of this object, wrapped into a GBasePlotter pointer
-	  */
-    GBasePlotter *clone_() const override = 0;
-};
-
-/******************************************************************************/
-/**
  * Specialization of projectX for <x_type, y_type> = <double, double>, that will return a
  * GHistogram1D object, wrapped into a std::shared_ptr<GHistogram1D>. In case of a
  * default-constructed range, the function will attempt to determine suitable parameters
@@ -980,7 +933,8 @@ private:
  * @return A shared pointer to a GHistogram1D holding the x-projection of the data
  */
 template <>
-inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double>::projectX(
+template <>
+inline std::shared_ptr<GDataCollectorT<double>> GDataCollectorT<double, double>::project<0>(
     std::size_t n_bins_x,
     std::tuple<double, double> range_x
 ) const {
@@ -1022,7 +976,8 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double
  * @return A shared pointer to a GHistogram1D holding the y-projection of the data
  */
 template <>
-inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double>::projectY(
+template <>
+inline std::shared_ptr<GDataCollectorT<double>> GDataCollectorT<double, double>::project<1>(
     std::size_t n_bins_y,
     std::tuple<double, double> range_y
 ) const {
@@ -1051,274 +1006,6 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double
     // Return the data
     return result;
 }
-
-/******************************************************************************/
-/**
- * A data collector for 2-d data of user-defined type, with the ability to
- * additionally specify an error component for both dimensions. Note that the
- * plot dimension may be different. Each data item is a tuple (x, error_x, y, error_y).
- *
- * @tparam x_type The numeric type of the x-component and its error
- * @tparam y_type The numeric type of the y-component and its error
- */
-template <typename x_type, typename y_type>
-class GDataCollector2ET : public GBasePlotter {
-    ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
-
-    template <typename Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter) & BOOST_SERIALIZATION_NVP(data_);
-    }
-    ///////////////////////////////////////////////////////////////////////
-
-public:
-    /***************************************************************************/
-    // Defaulted constructors and destructors
-
-    GDataCollector2ET() = default;
-    GDataCollector2ET(GDataCollector2ET<x_type, y_type> const &) = default;
-    GDataCollector2ET(GDataCollector2ET<x_type, y_type> &&) = default;
-
-    ~GDataCollector2ET() override = default;
-
-    GDataCollector2ET<x_type, y_type> &
-    operator=(GDataCollector2ET<x_type, y_type> const &) = default;
-    GDataCollector2ET<x_type, y_type> &operator=(GDataCollector2ET<x_type, y_type> &&) = default;
-
-    /***************************************************************************/
-    /**
-	  * Allows to add data of undetermined type to the collection in an intuitive way,
-	  * provided that it can be converted safely to the target type.
-	  *
-	  * @tparam x_type_undet The source type of the x-component and its error, narrowed to x_type
-	  * @tparam y_type_undet The source type of the y-component and its error, narrowed to y_type
-	  * @param point_undet The data item (x, error_x, y, error_y) to be added to the collection
-	  */
-    template <typename x_type_undet, typename y_type_undet>
-    void operator&(
-        const std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet> &point_undet
-    ) {
-
-        x_type x = x_type(0);
-        x_type ex = x_type(0);
-        y_type y = y_type(0);
-        y_type ey = y_type(0);
-
-        // Make sure the data can be converted to doubles
-        try {
-            x = Gem::Common::narrow<x_type>(std::get<0>(point_undet));
-            ex = Gem::Common::narrow<x_type>(std::get<1>(point_undet));
-            y = Gem::Common::narrow<y_type>(std::get<2>(point_undet));
-            ey = Gem::Common::narrow<y_type>(std::get<3>(point_undet));
-        }
-        catch(std::overflow_error &e) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GDataCollector2ET::operator&(const std::tuple<S,S,T,T>&): Error!"
-                << '\n'
-                << "Encountered invalid cast with Gem::Common::narrow," << '\n'
-                << "with the message " << '\n'
-                << e.what() << '\n'
-            );
-        }
-
-        data_.push_back(std::tuple<x_type, x_type, y_type, y_type>(x, ex, y, ey));
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to add data of type std::tuple<x_type, x_type, y_type, y_type>
-	  * (x, error_x, y, error_y) to the collection in an intuitive way.
-	  *
-	  * @param point The data item (x, error_x, y, error_y) to be added to the collection
-	  */
-    void operator&(const std::tuple<x_type, x_type, y_type, y_type> &point) {
-        // Add the data item to the collection
-        data_.push_back(point);
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to add a collection of data items of undetermined type to the
-	  * collection in an intuitive way, provided they can be converted safely
-	  * to the target type.
-	  *
-	  * @tparam x_type_undet The source type of the x-component and its error, narrowed to x_type
-	  * @tparam y_type_undet The source type of the y-component and its error, narrowed to y_type
-	  * @param point_cnt_undet The collection of data items to be added to the collection
-	  */
-    template <typename x_type_undet, typename y_type_undet>
-    void
-    operator&(const std::vector<std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>>
-                  &point_cnt_undet) {
-
-        x_type x = x_type(0);
-        x_type ex = x_type(0);
-        y_type y = y_type(0);
-        y_type ey = y_type(0);
-
-        typename std::vector<
-            std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>>::const_iterator cit;
-        for(cit = point_cnt_undet.begin(); cit != point_cnt_undet.end(); ++cit) {
-            // Make sure the data can be converted to doubles
-            try {
-                x = Gem::Common::narrow<x_type>(std::get<0>(*cit));
-                ex = Gem::Common::narrow<x_type>(std::get<1>(*cit));
-                y = Gem::Common::narrow<y_type>(std::get<2>(*cit));
-                ey = Gem::Common::narrow<y_type>(std::get<3>(*cit));
-            }
-            catch(std::overflow_error &e) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GDataCollector2ET::operator&(const std::vector<std::tuple<S,S,T,T>>&): "
-                       "Error!"
-                    << '\n'
-                    << "Encountered invalid cast with Gem::Common::narrow," << '\n'
-                    << "with the message " << '\n'
-                    << e.what() << '\n'
-                );
-            }
-
-            data_.push_back(std::tuple<x_type, x_type, y_type, y_type>(x, ex, y, ey));
-        }
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to add a collection of data items of type std::tuple<x_type, x_type, y_type, y_type>
-	  * to the collection in an intuitive way, provided they can be converted safely
-	  * to the target type.
-	  *
-	  * @param point_cnt The collection of data items to be added to the collection
-	  */
-    void operator&(const std::vector<std::tuple<x_type, x_type, y_type, y_type>> &point_cnt) {
-        typename std::vector<std::tuple<x_type, x_type, y_type, y_type>>::const_iterator cit;
-        for(cit = point_cnt.begin(); cit != point_cnt.end(); ++cit) {
-            // Add the data item to the collection
-            data_.push_back(*cit);
-        }
-    }
-
-    /***************************************************************************/
-    /**
-	  * This very simple functions allows derived classes
-	  * to add data easily to their data sets, when called through a
-	  * pointer. I.e., this makes "object_ptr->add(data)" instead of
-	  * "*object_ptr & data" possible.
-	  *
-	  * @tparam data_type The type of the data item being added
-	  * @param item The data item to be added to the collection
-	  */
-    template <typename data_type>
-    void add(const data_type &item) {
-        *this &item;
-    }
-
-    /***************************************************************************/
-    /**
-	  * Sorts the data according to its x-component
-	  */
-    void sortX() {
-        std::sort(
-            data_.begin(),
-            data_.end(),
-            [](const std::tuple<x_type, x_type, y_type, y_type> &x,
-               const std::tuple<x_type, x_type, y_type, y_type> &y) -> bool {
-                return std::get<0>(x) < std::get<0>(y);
-            }
-        );
-    }
-
-protected:
-    /***************************************************************************/
-    /**
-	  * Single declaration of this class'es local data members, used by load_() and compare_()
-	  *
-	  * @return A tuple of named members (the data vector) of this object
-	  */
-    template <typename Self>
-    static auto localMembers_(Self &self) {
-        return std::make_tuple(make_member("data_", self.data_));
-    }
-
-    /**
-	  * Loads the data of another object
-	  *
-	  * @param cp A pointer to another GDataCollector2ET<x_type, y_type> object, camouflaged as a GBasePlotter
-	  */
-    void load_(const GBasePlotter *cp) override {
-        // Check that we are dealing with a GDataCollector2ET<x_type, y_type> reference independent of this object and convert the pointer
-        const auto *p_load = g_convert_and_compare(cp, this);
-
-        // Load our parent class'es data ...
-        GBasePlotter::load_(cp);
-
-        // ... and then our own, derived from the single localMembers() declaration
-        g_load_members(localMembers_(*this), localMembers_(*p_load));
-    }
-
-    /***************************************************************************/
-    /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GDataCollector2ET<x_type, y_type>>(
-        GDataCollector2ET<x_type, y_type> const &,
-        GDataCollector2ET<x_type, y_type> const &,
-        GToken &
-    );
-
-    /***************************************************************************/
-    /**
-	  * Investigates compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another object, camouflaged as a GBasePlotter
-	  * @param e The expectation for this object (e.g. equality or inequality)
-	  * @param limit The maximum allowed deviation for floating point comparisons (unused here)
-	  */
-    void compare_(
-        const GBasePlotter &cp,
-        const expectation &e,
-        [[maybe_unused]] const double & limit
-    ) const override {
-        // Check that we are dealing with a GDataCollector2ET<x_type, y_type> reference independent of this object and convert the pointer
-        const auto *p_load = g_convert_and_compare(cp, this);
-
-        GToken token("GDataCollector2ET<x_type, y_type>", e);
-
-        // Compare our parent data ...
-        compare_base_t<GBasePlotter>(*this, *p_load, token);
-
-        // ... and then the local data, derived from the single localMembers() declaration
-        g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
-
-        // React on deviations from the expectation
-        token.evaluate();
-    }
-
-    /***************************************************************************/
-
-    std::vector<std::tuple<x_type, x_type, y_type, y_type>> data_; ///< Holds the actual data
-
-private:
-    /***************************************************************************/
-    /**
-	  * Returns the name of this class
-	  *
-	  * @return The name of this class as a string
-	  */
-    std::string name_() const override {
-        return std::string("GDataCollector2ET<x_type, y_type>");
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Creates a deep clone of this object
-	  * @return A deep clone of this object, wrapped into a GBasePlotter pointer
-	  */
-    GBasePlotter *clone_() const override = 0;
-};
 
 /******************************************************************************/
 /**
@@ -1826,320 +1513,6 @@ private:
 
 /******************************************************************************/
 /**
- * A data collector for 3-d data of user-defined type
- *
- * @tparam x_type The numeric type of the x-component of each data item
- * @tparam y_type The numeric type of the y-component of each data item
- * @tparam z_type The numeric type of the z-component of each data item
- */
-template <typename x_type, typename y_type, typename z_type>
-class GDataCollector3T : public GBasePlotter {
-    ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
-
-    template <typename Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter) & BOOST_SERIALIZATION_NVP(data_);
-    }
-    ///////////////////////////////////////////////////////////////////////
-
-public:
-    /***************************************************************************/
-    // Defaulted constructors and destructors
-
-    GDataCollector3T() = default;
-    GDataCollector3T(GDataCollector3T<x_type, y_type, z_type> const &) = default;
-    GDataCollector3T(GDataCollector3T<x_type, y_type, z_type> &&) = default;
-
-    ~GDataCollector3T() override = default;
-
-    GDataCollector3T<x_type, y_type, z_type> &
-    operator=(GDataCollector3T<x_type, y_type, z_type> const &) = default;
-    GDataCollector3T<x_type, y_type, z_type> &
-    operator=(GDataCollector3T<x_type, y_type, z_type> &&) = default;
-
-    /***************************************************************************/
-    /**
-	  * Allows to project the graph into a histogram (x-direction). This function is a
-	  * trap to catch calls with un-implemented types. Use the corresponding specializations,
-	  * if available.
-	  *
-	  * @param nBins The desired number of bins of the resulting histogram
-	  * @param range The lower and upper boundary of the resulting histogram
-	  * @return A 1-d histogram of the data projected onto the x-axis (only in specializations)
-	  */
-    std::shared_ptr<GDataCollector1T<x_type>>
-    projectX([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<x_type, x_type> range) const {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GDataCollector3T<>::projectX(range, nBins): Error!" << '\n'
-            << "Function was called for class with un-implemented types" << '\n'
-        );
-
-        // Make the compiler happy
-        return std::shared_ptr<GDataCollector1T<x_type>>();
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to project the graph into a histogram (y-direction). This function is a
-	  * trap to catch calls with un-implemented types. Use the corresponding specializations,
-	  * if available.
-	  *
-	  * @param nBins The desired number of bins of the resulting histogram
-	  * @param range The lower and upper boundary of the resulting histogram
-	  * @return A 1-d histogram of the data projected onto the y-axis (only in specializations)
-	  */
-    std::shared_ptr<GDataCollector1T<y_type>>
-    projectY([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<y_type, y_type> range) const {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GDataCollector3T<>::projectY(range, nBins): Error!" << '\n'
-            << "Function was called for class with un-implemented types" << '\n'
-        );
-
-        // Make the compiler happy
-        return std::shared_ptr<GDataCollector1T<y_type>>();
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to project the graph into a histogram (z-direction). This function is a
-	  * trap to catch calls with un-implemented types. Use the corresponding specializations,
-	  * if available.
-	  *
-	  * @param nBins The desired number of bins of the resulting histogram
-	  * @param range The lower and upper boundary of the resulting histogram
-	  * @return A 1-d histogram of the data projected onto the z-axis (only in specializations)
-	  */
-    std::shared_ptr<GDataCollector1T<z_type>>
-    projectZ([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<z_type, z_type> range) const {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GDataCollector3T<>::projectZ(range, nBins): Error!" << '\n'
-            << "Function was called for class with un-implemented types" << '\n'
-        );
-
-        // Make the compiler happy
-        return std::shared_ptr<GDataCollector1T<z_type>>();
-    }
-
-    /***************************************************************************/
-    /**
-	  * This very simple functions allows derived classes
-	  * to add data easily to their data sets, when called through a
-	  * pointer. I.e., this makes object_ptr->add(data) instead of
-	  * *object_ptr & data possible.
-	  *
-	  * @tparam data_type The type of the data item being added
-	  * @param item The data item to be added to the collection
-	  */
-    template <typename data_type>
-    void add(const data_type &item) {
-        *this &item;
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to add data of undetermined type to the collection in an intuitive way,
-	  * provided that it can be converted safely to the target type.
-	  *
-	  * @tparam x_type_undet The source type of the x-component, narrowed to x_type
-	  * @tparam y_type_undet The source type of the y-component, narrowed to y_type
-	  * @tparam z_type_undet The source type of the z-component, narrowed to z_type
-	  * @param point_undet The data item to be added to the collection
-	  */
-    template <typename x_type_undet, typename y_type_undet, typename z_type_undet>
-    void operator&(const std::tuple<x_type_undet, y_type_undet, z_type_undet> &point_undet) {
-
-        x_type x = x_type(0);
-        y_type y = y_type(0);
-        z_type z = z_type(0);
-
-        // Make sure the data can be converted to doubles
-        try {
-            x = Gem::Common::narrow<x_type>(std::get<0>(point_undet));
-            y = Gem::Common::narrow<y_type>(std::get<1>(point_undet));
-            z = Gem::Common::narrow<z_type>(std::get<2>(point_undet));
-        }
-        catch(std::overflow_error &e) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GDataCollector3T::operator&(const std::tuple<S,T,U>&): Error!" << '\n'
-                << "Encountered invalid cast with Gem::Common::narrow," << '\n'
-                << "with the message " << '\n'
-                << e.what() << '\n'
-            );
-        }
-
-        data_.push_back(std::tuple<x_type, y_type, z_type>(x, y, z));
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to add data of type std::tuple<x_type, y_type, z_type> to the collection
-	  * in an intuitive way.
-	  *
-	  * @param point The data item to be added to the collection
-	  */
-    void operator&(const std::tuple<x_type, y_type, z_type> &point) {
-        // Add the data item to the collection
-        data_.push_back(point);
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to add a collection of data items of undetermined type to the
-	  * collection in an intuitive way, provided they can be converted safely
-	  * to the target type.
-	  *
-	  * @tparam x_type_undet The source type of the x-component, narrowed to x_type
-	  * @tparam y_type_undet The source type of the y-component, narrowed to y_type
-	  * @tparam z_type_undet The source type of the z-component, narrowed to z_type
-	  * @param point_cnt_undet The collection of data items to be added to the collection
-	  */
-    template <typename x_type_undet, typename y_type_undet, typename z_type_undet>
-    void operator&(
-        const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>> &point_cnt_undet
-    ) {
-
-        x_type x = x_type(0);
-        y_type y = y_type(0);
-        z_type z = z_type(0);
-
-        typename std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>>::const_iterator
-            cit;
-        for(cit = point_cnt_undet.begin(); cit != point_cnt_undet.end(); ++cit) {
-            // Make sure the data can be converted to doubles
-            try {
-                x = Gem::Common::narrow<x_type>(std::get<0>(*cit));
-                y = Gem::Common::narrow<y_type>(std::get<1>(*cit));
-                z = Gem::Common::narrow<z_type>(std::get<2>(*cit));
-            }
-            catch(std::overflow_error &e) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GDataCollector3T::operator&(const std::vector<std::tuple<S,T,U>>&): "
-                       "Error!"
-                    << '\n'
-                    << "Encountered invalid cast with Gem::Common::narrow," << '\n'
-                    << "with the message " << '\n'
-                    << e.what() << '\n'
-                );
-            }
-
-            data_.push_back(std::tuple<x_type, y_type, z_type>(x, y, z));
-        }
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to add a collection of data items of type std::tuple<x_type, y_type, z_type>
-	  * to the collection in an intuitive way, provided they can be converted safely
-	  * to the target type.
-	  *
-	  * @param point_cnt The collection of data items to be added to the collection
-	  */
-    void operator&(const std::vector<std::tuple<x_type, y_type, z_type>> &point_cnt) {
-        typename std::vector<std::tuple<x_type, y_type, z_type>>::const_iterator cit;
-        for(cit = point_cnt.begin(); cit != point_cnt.end(); ++cit) {
-            // Add the data item to the collection
-            data_.push_back(*cit);
-        }
-    }
-
-protected:
-    /***************************************************************************/
-    /**
-	  * Single declaration of this class'es local data members, used by load_() and compare_()
-	  *
-	  * @return A tuple of named members (the data vector) of this object
-	  */
-    template <typename Self>
-    static auto localMembers_(Self &self) {
-        return std::make_tuple(make_member("data_", self.data_));
-    }
-
-    /**
-	  * Loads the data of another object
-	  *
-	  * @param cp A pointer to another GDataCollector3T<x_type, y_type, z_type> object, camouflaged as a GBasePlotter
-	  */
-    void load_(const GBasePlotter *cp) override {
-        // Check that we are dealing with a GDataCollector3T<x_type, y_type, z_type> reference independent of this object and convert the pointer
-        const auto *p_load = g_convert_and_compare(cp, this);
-
-        // Load our parent class'es data ...
-        GBasePlotter::load_(cp);
-
-        // ... and then our own, derived from the single localMembers() declaration
-        g_load_members(localMembers_(*this), localMembers_(*p_load));
-    }
-
-    /***************************************************************************/
-    /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GDataCollector3T<x_type, y_type, z_type>>(
-        GDataCollector3T<x_type, y_type, z_type> const &,
-        GDataCollector3T<x_type, y_type, z_type> const &,
-        GToken &
-    );
-
-    /***************************************************************************/
-    /**
-	  * Investigates compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another object, camouflaged as a GBasePlotter
-	  * @param e The expectation for this object (e.g. equality or inequality)
-	  * @param limit The maximum allowed deviation for floating point comparisons (unused here)
-	  */
-    void compare_(
-        const GBasePlotter &cp,
-        const expectation &e,
-        [[maybe_unused]] const double & limit
-    ) const override {
-        // Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
-        const auto *p_load = g_convert_and_compare(cp, this);
-
-        GToken token("GDataCollector3T<x_type, y_type, z_type>", e);
-
-        // Compare our parent data ...
-        compare_base_t<GBasePlotter>(*this, *p_load, token);
-
-        // ... and then the local data, derived from the single localMembers() declaration
-        g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
-
-        // React on deviations from the expectation
-        token.evaluate();
-    }
-
-    /***************************************************************************/
-
-    std::vector<std::tuple<x_type, y_type, z_type>> data_; ///< Holds the actual data
-
-private:
-    /***************************************************************************/
-    /**
-	  * Returns the name of this class
-	  *
-	  * @return The name of this class as a string
-	  */
-    std::string name_() const override {
-        return std::string("GDataCollector3T<x_type, y_type, z_type>");
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Creates a deep clone of this object
-	  * @return A deep clone of this object, wrapped into a GBasePlotter pointer
-	  */
-    GBasePlotter *clone_() const override = 0;
-};
-
-/******************************************************************************/
-/**
  * Specialization of projectX for <x_type, y_type, z_type> = <double, double, double>, that will return a
  * GHistogram1D object, wrapped into a std::shared_ptr<GHistogram1D>. In case of a
  * default-constructed range, the function will attempt to determine suitable parameters
@@ -2150,7 +1523,8 @@ private:
  * @return A shared pointer to a GHistogram1D holding the x-projection of the data
  */
 template <>
-inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double, double>::projectX(
+template <>
+inline std::shared_ptr<GDataCollectorT<double>> GDataCollectorT<double, double, double>::project<0>(
     std::size_t n_bins_x,
     std::tuple<double, double> range_x
 ) const {
@@ -2193,7 +1567,8 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double
  * @return A shared pointer to a GHistogram1D holding the y-projection of the data
  */
 template <>
-inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double, double>::projectY(
+template <>
+inline std::shared_ptr<GDataCollectorT<double>> GDataCollectorT<double, double, double>::project<1>(
     std::size_t n_bins_y,
     std::tuple<double, double> range_y
 ) const {
@@ -2235,7 +1610,8 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double
  * @return A shared pointer to a GHistogram1D holding the z-projection of the data
  */
 template <>
-inline std::shared_ptr<GDataCollector1T<double>> GDataCollector3T<double, double, double>::projectZ(
+template <>
+inline std::shared_ptr<GDataCollectorT<double>> GDataCollectorT<double, double, double>::project<2>(
     std::size_t n_bins_z,
     std::tuple<double, double> range_z
 ) const {
@@ -2401,358 +1777,6 @@ private:
 
 /******************************************************************************/
 /**
- * A data collector for 4-d data of user-defined type
- *
- * @tparam x_type The numeric type of the x-component of each data item
- * @tparam y_type The numeric type of the y-component of each data item
- * @tparam z_type The numeric type of the z-component of each data item
- * @tparam w_type The numeric type of the w-component of each data item
- */
-template <typename x_type, typename y_type, typename z_type, typename w_type>
-class GDataCollector4T : public GBasePlotter {
-    ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
-
-    template <typename Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBasePlotter) & BOOST_SERIALIZATION_NVP(data_);
-    }
-    ///////////////////////////////////////////////////////////////////////
-
-public:
-    /***************************************************************************/
-    // Defaulted constructors and destructors
-
-    GDataCollector4T() = default;
-    GDataCollector4T(GDataCollector4T<x_type, y_type, z_type, w_type> const &) = default;
-    GDataCollector4T(GDataCollector4T<x_type, y_type, z_type, w_type> &&) = default;
-    ~GDataCollector4T() override = default;
-
-    GDataCollector4T<x_type, y_type, z_type, w_type> &
-    operator=(GDataCollector4T<x_type, y_type, z_type, w_type> const &) = default;
-    GDataCollector4T<x_type, y_type, z_type, w_type> &
-    operator=(GDataCollector4T<x_type, y_type, z_type, w_type> &&) = default;
-
-    /***************************************************************************/
-    /**
-	  * Allows to project the graph into a histogram (x-direction). This function is a
-	  * trap to catch calls with un-implemented types. Use the corresponding specializations,
-	  * if available.
-	  *
-	  * @param nBins The desired number of bins of the resulting histogram
-	  * @param range The lower and upper boundary of the resulting histogram
-	  * @return A 1-d histogram of the data projected onto the x-axis (only in specializations)
-	  */
-    std::shared_ptr<GDataCollector1T<x_type>>
-    projectX([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<x_type, x_type> range) const {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GDataCollector4T<>::projectX(range, nBins): Error!" << '\n'
-            << "Function was called for class with un-implemented types" << '\n'
-        );
-
-        // Make the compiler happy
-        return std::shared_ptr<GDataCollector1T<x_type>>();
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to project the graph into a histogram (y-direction). This function is a
-	  * trap to catch calls with un-implemented types. Use the corresponding specializations,
-	  * if available.
-	  *
-	  * @param nBins The desired number of bins of the resulting histogram
-	  * @param range The lower and upper boundary of the resulting histogram
-	  * @return A 1-d histogram of the data projected onto the y-axis (only in specializations)
-	  */
-    std::shared_ptr<GDataCollector1T<y_type>>
-    projectY([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<y_type, y_type> range) const {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GDataCollector4T<>::projectY(range, nBins): Error!" << '\n'
-            << "Function was called for class with un-implemented types" << '\n'
-        );
-
-        // Make the compiler happy
-        return std::shared_ptr<GDataCollector1T<y_type>>();
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to project the graph into a histogram (z-direction). This function is a
-	  * trap to catch calls with un-implemented types. Use the corresponding specializations,
-	  * if available.
-	  *
-	  * @param nBins The desired number of bins of the resulting histogram
-	  * @param range The lower and upper boundary of the resulting histogram
-	  * @return A 1-d histogram of the data projected onto the z-axis (only in specializations)
-	  */
-    std::shared_ptr<GDataCollector1T<z_type>>
-    projectZ([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<z_type, z_type> range) const {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GDataCollector4T<>::projectZ(range, nBins): Error!" << '\n'
-            << "Function was called for class with un-implemented types" << '\n'
-        );
-
-        // Make the compiler happy
-        return std::shared_ptr<GDataCollector1T<z_type>>();
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to project the graph into a histogram (w-direction). This function is a
-	  * trap to catch calls with un-implemented types. Use the corresponding specializations,
-	  * if available.
-	  *
-	  * @param nBins The desired number of bins of the resulting histogram
-	  * @param range The lower and upper boundary of the resulting histogram
-	  * @return A 1-d histogram of the data projected onto the w-axis (only in specializations)
-	  */
-    std::shared_ptr<GDataCollector1T<w_type>>
-    projectW([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<w_type, w_type> range) const {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GDataCollector4T<>::projectZ(range, nBins): Error!" << '\n'
-            << "Function was called for class with un-implemented types" << '\n'
-        );
-
-        // Make the compiler happy
-        return std::shared_ptr<GDataCollector1T<w_type>>();
-    }
-
-    /***************************************************************************/
-    /**
-	  * This very simple functions allows derived classes
-	  * to add data easily to their data sets, when called through a
-	  * pointer. I.e., this makes object_ptr->add(data) instead of
-	  * *object_ptr & data possible.
-	  *
-	  * @tparam data_type The type of the data item being added
-	  * @param item The data item to be added to the collection
-	  */
-    template <typename data_type>
-    void add(const data_type &item) {
-        *this &item;
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to add data of undetermined type to the collection in an intuitive way,
-	  * provided that it can be converted safely to the target type.
-	  *
-	  * @tparam x_type_undet The source type of the x-component, narrowed to x_type
-	  * @tparam y_type_undet The source type of the y-component, narrowed to y_type
-	  * @tparam z_type_undet The source type of the z-component, narrowed to z_type
-	  * @tparam w_type_undet The source type of the w-component, narrowed to w_type
-	  * @param point_undet The data item to be added to the collection
-	  */
-    template <
-        typename x_type_undet,
-        typename y_type_undet,
-        typename z_type_undet,
-        typename w_type_undet>
-    void operator&(
-        const std::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet> &point_undet
-    ) {
-
-        x_type x = x_type(0);
-        y_type y = y_type(0);
-        z_type z = z_type(0);
-        w_type w = w_type(0);
-
-        // Make sure the data can be converted to doubles
-        try {
-            x = Gem::Common::narrow<x_type>(std::get<0>(point_undet));
-            y = Gem::Common::narrow<y_type>(std::get<1>(point_undet));
-            z = Gem::Common::narrow<z_type>(std::get<2>(point_undet));
-            w = Gem::Common::narrow<w_type>(std::get<3>(point_undet));
-        }
-        catch(std::overflow_error &e) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GDataCollector4T::operator&(const std::tuple<S,T,U,W>&): Error!" << '\n'
-                << "Encountered invalid cast with Gem::Common::narrow," << '\n'
-                << "with the message " << '\n'
-                << e.what() << '\n'
-            );
-        }
-
-        data_.push_back(std::tuple<x_type, y_type, z_type, w_type>(x, y, z, w));
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to add data of type std::tuple<x_type, y_type, z_type, w_type> to the
-	  * collection in an intuitive way.
-	  *
-	  * @param point The data item to be added to the collection
-	  */
-    void operator&(const std::tuple<x_type, y_type, z_type, w_type> &point) {
-        // Add the data item to the collection
-        data_.push_back(point);
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to add a collection of data items of undetermined type to the
-	  * collection in an intuitive way, provided they can be converted safely
-	  * to the target type.
-	  *
-	  * @tparam x_type_undet The source type of the x-component, narrowed to x_type
-	  * @tparam y_type_undet The source type of the y-component, narrowed to y_type
-	  * @tparam z_type_undet The source type of the z-component, narrowed to z_type
-	  * @tparam w_type_undet The source type of the w-component, narrowed to w_type
-	  * @param point_cnt_undet The collection of data items to be added to the collection
-	  */
-    template <
-        typename x_type_undet,
-        typename y_type_undet,
-        typename z_type_undet,
-        typename w_type_undet>
-    void
-    operator&(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet>>
-                  &point_cnt_undet) {
-
-        x_type x = x_type(0);
-        y_type y = y_type(0);
-        z_type z = z_type(0);
-        w_type w = w_type(0);
-
-        typename std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>>::const_iterator
-            cit;
-        for(cit = point_cnt_undet.begin(); cit != point_cnt_undet.end(); ++cit) {
-            // Make sure the data can be converted to doubles
-            try {
-                x = Gem::Common::narrow<x_type>(std::get<0>(*cit));
-                y = Gem::Common::narrow<y_type>(std::get<1>(*cit));
-                z = Gem::Common::narrow<z_type>(std::get<2>(*cit));
-                w = Gem::Common::narrow<w_type>(std::get<3>(*cit));
-            }
-            catch(std::overflow_error &e) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GDataCollector4T::operator&(const std::vector<std::tuple<S,T,U,W>>&): "
-                       "Error!"
-                    << '\n'
-                    << "Encountered invalid cast with Gem::Common::narrow," << '\n'
-                    << "with the message " << '\n'
-                    << e.what() << '\n'
-                );
-            }
-
-            data_.push_back(std::tuple<x_type, y_type, z_type, w_type>(x, y, z, w));
-        }
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to add a collection of data items of type std::tuple<x_type, y_type, z_type, w_type>
-	  * to the collection in an intuitive way, provided they can be converted safely
-	  * to the target type.
-	  *
-	  * @param point_cnt The collection of data items to be added to the collection
-	  */
-    void operator&(const std::vector<std::tuple<x_type, y_type, z_type, w_type>> &point_cnt) {
-        typename std::vector<std::tuple<x_type, y_type, z_type, w_type>>::const_iterator cit;
-        for(cit = point_cnt.begin(); cit != point_cnt.end(); ++cit) {
-            // Add the data item to the collection
-            data_.push_back(*cit);
-        }
-    }
-
-protected:
-    /***************************************************************************/
-    /**
-	  * Single declaration of this class'es local data members, used by load_() and compare_()
-	  *
-	  * @return A tuple of named members (the data vector) of this object
-	  */
-    template <typename Self>
-    static auto localMembers_(Self &self) {
-        return std::make_tuple(make_member("data_", self.data_));
-    }
-
-    /**
-	  * Loads the data of another object
-	  *
-	  * @param cp A pointer to another GDataCollector4T<x_type, y_type, z_type, w_type> object, camouflaged as a GBasePlotter
-	  */
-    void load_(const GBasePlotter *cp) override {
-        // Check that we are dealing with a GDataCollector4T<x_type, y_type, z_type, w_type> reference independent of this object and convert the pointer
-        const auto *p_load = g_convert_and_compare(cp, this);
-
-        // Load our parent class'es data ...
-        GBasePlotter::load_(cp);
-
-        // ... and then our own, derived from the single localMembers() declaration
-        g_load_members(localMembers_(*this), localMembers_(*p_load));
-    }
-
-    /***************************************************************************/
-    /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GDataCollector4T<x_type, y_type, z_type, w_type>>(
-        GDataCollector4T<x_type, y_type, z_type, w_type> const &,
-        GDataCollector4T<x_type, y_type, z_type, w_type> const &,
-        GToken &
-    );
-
-    /***************************************************************************/
-    /**
-	  * Investigates compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another object, camouflaged as a GBasePlotter
-	  * @param e The expectation for this object (e.g. equality or inequality)
-	  * @param limit The maximum allowed deviation for floating point comparisons (unused here)
-	  */
-    void compare_(
-        const GBasePlotter &cp,
-        const expectation &e,
-        [[maybe_unused]] const double & limit
-    ) const override {
-        // Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
-        const auto *p_load = g_convert_and_compare(cp, this);
-
-        GToken token("GDataCollector4T<x_type, y_type, z_type, w_type>", e);
-
-        // Compare our parent data ...
-        compare_base_t<GBasePlotter>(*this, *p_load, token);
-
-        // ... and then the local data, derived from the single localMembers() declaration
-        g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
-
-        // React on deviations from the expectation
-        token.evaluate();
-    }
-
-    /***************************************************************************/
-
-    std::vector<std::tuple<x_type, y_type, z_type, w_type>> data_; ///< Holds the actual data
-
-private:
-    /***************************************************************************/
-    /**
-	  * Returns the name of this class
-	  *
-	  * @return The name of this class as a string
-	  */
-    std::string name_() const override {
-        return std::string("GDataCollector4T<x_type, y_type, z_type, w_type>");
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Creates a deep clone of this object
-	  * @return A deep clone of this object, wrapped into a GBasePlotter pointer
-	  */
-    GBasePlotter *clone_() const override = 0;
-};
-
-/******************************************************************************/
-/**
  * Specialization of projectX for <x_type, y_type, z_type, w_type> = <double, double, double, double>,
  * that will return a GHistogram1D object, wrapped into a std::shared_ptr<GHistogram1D>. In case of a
  * default-constructed range, the function will attempt to determine suitable parameters
@@ -2763,8 +1787,9 @@ private:
  * @return A shared pointer to a GHistogram1D holding the x-projection of the data
  */
 template <>
-inline std::shared_ptr<GDataCollector1T<double>>
-GDataCollector4T<double, double, double, double>::projectX(
+template <>
+inline std::shared_ptr<GDataCollectorT<double>>
+GDataCollectorT<double, double, double, double>::project<0>(
     std::size_t n_bins_x,
     std::tuple<double, double> range_x
 ) const {
@@ -2807,8 +1832,9 @@ GDataCollector4T<double, double, double, double>::projectX(
  * @return A shared pointer to a GHistogram1D holding the y-projection of the data
  */
 template <>
-inline std::shared_ptr<GDataCollector1T<double>>
-GDataCollector4T<double, double, double, double>::projectY(
+template <>
+inline std::shared_ptr<GDataCollectorT<double>>
+GDataCollectorT<double, double, double, double>::project<1>(
     std::size_t n_bins_y,
     std::tuple<double, double> range_y
 ) const {
@@ -2851,8 +1877,9 @@ GDataCollector4T<double, double, double, double>::projectY(
  * @return A shared pointer to a GHistogram1D holding the z-projection of the data
  */
 template <>
-inline std::shared_ptr<GDataCollector1T<double>>
-GDataCollector4T<double, double, double, double>::projectZ(
+template <>
+inline std::shared_ptr<GDataCollectorT<double>>
+GDataCollectorT<double, double, double, double>::project<2>(
     std::size_t n_bins_z,
     std::tuple<double, double> range_z
 ) const {
@@ -2895,8 +1922,9 @@ GDataCollector4T<double, double, double, double>::projectZ(
  * @return A shared pointer to a GHistogram1D holding the w-projection of the data
  */
 template <>
-inline std::shared_ptr<GDataCollector1T<double>>
-GDataCollector4T<double, double, double, double>::projectW(
+template <>
+inline std::shared_ptr<GDataCollectorT<double>>
+GDataCollectorT<double, double, double, double>::project<3>(
     std::size_t n_bins_w,
     std::tuple<double, double> range_w
 ) const {

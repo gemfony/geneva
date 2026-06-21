@@ -2007,10 +2007,10 @@ GHistogram1D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
 
     std::string hist_name = "histD" + suffix(is_secondary, p_id);
 
-    std::vector<double>::const_iterator it;
+    std::vector<std::tuple<double>>::const_iterator it;
     std::size_t pos_counter = 0;
     for(it = data_.begin(); it != data_.end(); ++it) {
-        body_data << indent << hist_name << "->Fill(" << std::showpoint << *it << ");"
+        body_data << indent << hist_name << "->Fill(" << std::showpoint << std::get<0>(*it) << ");"
                   << (pos_counter == 0 ? comment : ("")) << '\n';
         pos_counter++;
     }
@@ -2272,10 +2272,10 @@ GHistogram1I::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
 
     std::string hist_name = "histI" + suffix(is_secondary, p_id);
 
-    std::vector<std::int32_t>::const_iterator it;
+    std::vector<std::tuple<std::int32_t>>::const_iterator it;
     std::size_t pos_counter = 0;
     for(it = data_.begin(); it != data_.end(); ++it) {
-        body_data << indent << hist_name << "->Fill(" << *it << ");"
+        body_data << indent << hist_name << "->Fill(" << std::get<0>(*it) << ");"
                   << (pos_counter == 0 ? comment : ("")) << '\n';
         pos_counter++;
     }
