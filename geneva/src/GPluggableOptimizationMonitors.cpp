@@ -381,9 +381,9 @@ void GFitnessMonitor::informationFunction_(
     case Gem::Geneva::infoMode::INFOPROCESSING: {
         // Retrieve the list of globally- and iteration bests individuals
         auto global_bests =
-            goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividuals<gen::GOptimizableEntity>();
+            goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividuals<gen::GOptimizableEntity>();
         auto iter_bests =
-            goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestIterationIndividuals<gen::GOptimizableEntity>();
+            goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestIterationIndividuals<gen::GOptimizableEntity>();
 
         // Retrieve the current iteration in the population
         std::uint32_t iteration = goa->getIteration();
@@ -1182,7 +1182,7 @@ void GAllSolutionFileLogger::printPopulation(
 
     // Loop over all individuals of the algorithm.
     for(std::size_t pos = 0; pos < goa->size(); pos++) {
-        std::shared_ptr<gen::GOptimizableEntity> ind = goa->template individual_cast<gen::GOptimizableEntity>(pos);
+        std::shared_ptr<gen::GOptimizableEntity> ind = goa->individual_cast<gen::GOptimizableEntity>(pos);
 
         // Note that isGoodEnough may throw if loop acts on a "dirty" individual
         if(not boundaries_active_ || ind->isGoodEnough(boundaries_)) {
@@ -1744,7 +1744,7 @@ void GNAdpationsLogger::informationFunction_(
 
         // Record the current fitness
         std::shared_ptr<gen::GOptimizableEntity> p =
-            goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividual<gen::GOptimizableEntity>();
+            goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividual<gen::GOptimizableEntity>();
         (*fitness_graph2_d_oa_) & std::tuple<double, double>(static_cast<double>(iteration), p->raw_fitness(0));
 
         // Update the largest known iteration and the number of recorded iterations
@@ -1754,14 +1754,14 @@ void GNAdpationsLogger::informationFunction_(
         // Do the actual logging
         if(monitor_best_only_) {
             std::shared_ptr<gen::GOptimizableEntity> best =
-                goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::template getBestGlobalIndividual<gen::GOptimizableEntity>();
+                goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividual<gen::GOptimizableEntity>();
             n_adaptions_store_.emplace_back(static_cast<double>(iteration), static_cast<double>(best->getNAdaptions()));
         }
         else { // Monitor all individuals
             // Loop over all individuals of the algorithm.
             for(std::size_t pos = 0; pos < goa->size(); pos++) {
                 std::shared_ptr<gen::GOptimizableEntity> ind =
-                    goa->template individual_cast<gen::GOptimizableEntity>(pos);
+                    goa->individual_cast<gen::GOptimizableEntity>(pos);
                 n_adaptions_store_.emplace_back(static_cast<double>(iteration), static_cast<double>(ind->getNAdaptions()));
             }
         }
@@ -2343,7 +2343,7 @@ void GProcessingTimesLogger::informationFunction_(
         // Loop over all individuals of the algorithm.
         for(std::size_t pos = 0; pos < goa->size(); pos++) {
             // Get access to each individual in sequence
-            std::shared_ptr<gen::GOptimizableEntity> ind = goa->template individual_cast<gen::GOptimizableEntity>(pos);
+            std::shared_ptr<gen::GOptimizableEntity> ind = goa->individual_cast<gen::GOptimizableEntity>(pos);
 
             // Retrieve the processing timings
             std::tuple<double, double, double> processing_times = ind->getProcessingTimes();
