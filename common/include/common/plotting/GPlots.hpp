@@ -487,16 +487,17 @@ public:
     /***************************************************************************/
     /**
 	  * Reports this collector's columns generically, as a storage-order list of
-	  * read-only double columns, so the plot backends can read the data without
-	  * knowing the concrete plotter type (they switch on plotSpec().kind instead).
-	  * Only an all-double collector exports its columns; a collector with a
-	  * non-double axis (the integer histogram) reports nothing, exactly as the base
-	  * default does -- such data is ROOT-only.
+	  * type-tagged (float64 / int32) read-only columns, so the plot backends can read
+	  * the data without knowing the concrete plotter type (they switch on
+	  * plotSpec().kind instead). A collector whose every axis is double or int32 exports
+	  * its columns with their true dtype; a collector with any other axis type reports
+	  * nothing, exactly as the base default does -- such data is ROOT-only.
 	  *
-	  * @return Pointers to every column, in storage order (empty if any axis is not double)
+	  * @return Type-tagged views of every column, in storage order (empty if an axis is
+	  *         neither double nor int32)
 	  */
-    [[nodiscard]] std::vector<const std::vector<double> *> dataColumns() const override {
-        if constexpr ((std::is_same_v<Ts, double> && ...)) {
+    [[nodiscard]] std::vector<GPlotColumn> dataColumns() const override {
+        if constexpr (((std::is_same_v<Ts, double> || std::is_same_v<Ts, std::int32_t>) && ...)) {
             return dataColumnsImpl_(std::make_index_sequence<n_axes>{});
         } else {
             return {};
@@ -608,13 +609,13 @@ protected:
 private:
     /***************************************************************************/
     /**
-	  * Collects pointers to every column, in storage order, for dataColumns().
-	  * Instantiated only when every axis is double (guarded by the caller's
-	  * if constexpr), so the const std::vector<double>* casts are exact.
+	  * Collects type-tagged views of every column, in storage order, for dataColumns().
+	  * Instantiated only when every axis is double or int32 (guarded by the caller's
+	  * if constexpr), so each &column pointer is a valid GPlotColumn alternative.
 	  */
     template <std::size_t... Is>
-    std::vector<const std::vector<double> *> dataColumnsImpl_(std::index_sequence<Is...>) const {
-        return {(&std::get<Is>(columns_))...};
+    std::vector<GPlotColumn> dataColumnsImpl_(std::index_sequence<Is...>) const {
+        return {GPlotColumn{&std::get<Is>(columns_)}...};
     }
 
     /***************************************************************************/

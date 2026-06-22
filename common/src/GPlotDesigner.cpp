@@ -523,13 +523,13 @@ GPlotSpec GBasePlotter::plotSpec() const {
 
 /******************************************************************************/
 /**
- * The base reports no exportable double columns; the columnar collectors override
- * this (see GDataCollectorT::dataColumns()). A plotter that stores no double sample
- * columns -- a function plotter, or the integer histogram -- keeps this default.
+ * The base reports no exportable columns; the columnar collectors override this (see
+ * GDataCollectorT::dataColumns()). A plotter that stores no exportable sample columns
+ * -- a function plotter -- keeps this default.
  *
  * @return An empty list of columns
  */
-std::vector<const std::vector<double> *> GBasePlotter::dataColumns() const {
+std::vector<GPlotColumn> GBasePlotter::dataColumns() const {
     return {};
 }
 
@@ -3968,6 +3968,24 @@ std::string GnuplotEmitter::fileExtension() const {
 namespace {
 
 /******************************************************************************/
+// Shared helpers for reading a GPlotColumn (the type-tagged float64 / int32 view a
+// plotter exposes via dataColumns()). These let every non-ROOT backend consume a
+// column generically; an int32 column streams as integers and exports as a real
+// int32 numpy array, while a double column is unchanged. Declared first so the
+// gnuplot, matplotlib and data sections below can all use them.
+
+/** @brief The number of elements in a column (visits whichever value vector it holds). */
+std::size_t columnSize(const GPlotColumn &c) {
+    return std::visit([](const auto *v) { return v->size(); }, c);
+}
+
+/** @brief The double-typed value vector behind a column. Only valid for a column known
+ *  to be float64 (the graph plotters, whose axes are always double); throws otherwise. */
+const std::vector<double> &asDoubleColumn(const GPlotColumn &c) {
+    return *std::get<const std::vector<double> *>(c);
+}
+
+/******************************************************************************/
 // Helpers backing the gnuplot backend. A "dataset" is one plotter's inline data
 // block (`x y ...` rows terminated by `e`); a "spec" is the leading
 // `'-' with <style> title "..."` fragment naming that dataset inside a (s)plot
@@ -4030,37 +4048,38 @@ std::string datasetRows(const GBasePlotter &p, graphKind k, const std::string &i
     // Columns come back in storage order (see plotSpec().columns); the gnuplot row
     // layout is the same EXCEPT GGraph2ED, whose stored (x, ex, y, ey) is re-ordered
     // to the `x y xdelta ydelta` that the xyerrorbars style expects.
+    // Graph plotters are always float64, so each column is read as a double vector.
     const auto cols = p.dataColumns();
     switch(k) {
         case graphKind::g2d: {
-            const auto &x = *cols[0];
-            const auto &y = *cols[1];
+            const auto &x = asDoubleColumn(cols[0]);
+            const auto &y = asDoubleColumn(cols[1]);
             for(std::size_t i = 0; i < x.size(); ++i) {
                 rows << indent << x[i] << ' ' << y[i] << '\n';
             }
         } break;
         case graphKind::g2ed: {
-            const auto &x  = *cols[0];
-            const auto &ex = *cols[1];
-            const auto &y  = *cols[2];
-            const auto &ey = *cols[3];
+            const auto &x  = asDoubleColumn(cols[0]);
+            const auto &ex = asDoubleColumn(cols[1]);
+            const auto &y  = asDoubleColumn(cols[2]);
+            const auto &ey = asDoubleColumn(cols[3]);
             for(std::size_t i = 0; i < x.size(); ++i) {
                 rows << indent << x[i] << ' ' << y[i] << ' ' << ex[i] << ' ' << ey[i] << '\n';
             }
         } break;
         case graphKind::g3d: {
-            const auto &x = *cols[0];
-            const auto &y = *cols[1];
-            const auto &z = *cols[2];
+            const auto &x = asDoubleColumn(cols[0]);
+            const auto &y = asDoubleColumn(cols[1]);
+            const auto &z = asDoubleColumn(cols[2]);
             for(std::size_t i = 0; i < x.size(); ++i) {
                 rows << indent << x[i] << ' ' << y[i] << ' ' << z[i] << '\n';
             }
         } break;
         case graphKind::g4d: {
-            const auto &x = *cols[0];
-            const auto &y = *cols[1];
-            const auto &z = *cols[2];
-            const auto &w = *cols[3];
+            const auto &x = asDoubleColumn(cols[0]);
+            const auto &y = asDoubleColumn(cols[1]);
+            const auto &z = asDoubleColumn(cols[2]);
+            const auto &w = asDoubleColumn(cols[3]);
             for(std::size_t i = 0; i < x.size(); ++i) {
                 rows << indent << x[i] << ' ' << y[i] << ' ' << z[i] << ' ' << w[i] << '\n';
             }
@@ -4213,7 +4232,7 @@ namespace {
 // Python list literals at full (round-trippable) precision through an EmitStream.
 
 /** @brief The plotter kind the matplotlib backend understands. */
-enum class mplKind { g2d, g2ed, g3d, g4d, hist1d, hist2d };
+enum class mplKind { g2d, g2ed, g3d, g4d, hist1d, hist1i, hist2d };
 
 /** @brief Classify a plotter for the matplotlib backend; throws for unsupported types
  *  (e.g. function plotters), directing the caller to the ROOT backend. */
@@ -4225,6 +4244,7 @@ mplKind classifyMpl(const GBasePlotter &p) {
         case plotKind::graph_4d:     return mplKind::g4d;
         case plotKind::hist_2d:      return mplKind::hist2d;
         case plotKind::hist_1d:      return mplKind::hist1d;
+        case plotKind::hist_1i:      return mplKind::hist1i;
         default:                     break;
     }
     throw geneva_exception(
@@ -4240,8 +4260,10 @@ bool isThreeDimensionalMpl(mplKind k) {
     return k == mplKind::g3d || k == mplKind::g4d;
 }
 
-/** @brief Emit one column of doubles as a Python list literal `[v0, v1, ...]` at full precision. */
-std::string pyList(const std::vector<double> &col) {
+/** @brief Emit one numeric column as a Python list literal `[v0, v1, ...]` at full precision.
+ *  Works for both float64 and int32 element types (an int column emits integer literals). */
+template <typename T>
+std::string pyList(const std::vector<T> &col) {
     EmitStream out; // NOLINT(cppcoreguidelines-init-variables)
     out << '[';
     for(std::size_t i = 0; i < col.size(); ++i) {
@@ -4249,6 +4271,11 @@ std::string pyList(const std::vector<double> &col) {
     }
     out << ']';
     return out.str();
+}
+
+/** @brief Emit a type-tagged column (float64 or int32) as a Python list literal. */
+std::string pyListCol(const GPlotColumn &c) {
+    return std::visit([](const auto *v) { return pyList(*v); }, c);
 }
 
 /** @brief Emit the matplotlib plotting call(s) for ONE plotter into the named Axes `ax`. The data are
@@ -4270,35 +4297,37 @@ std::string mplPlotCall(
     const GPlotSpec spec = p.plotSpec();
     switch(k) {
         case mplKind::g2d: {
-            call << ax << ".plot(" << pyList(*cols[0]) << ", "
-                 << pyList(*cols[1]) << ", marker=\"o\", label=\"" << label << "\")" << '\n';
+            call << ax << ".plot(" << pyListCol(cols[0]) << ", "
+                 << pyListCol(cols[1]) << ", marker=\"o\", label=\"" << label << "\")" << '\n';
         } break;
         case mplKind::g2ed: {
-            call << ax << ".errorbar(" << pyList(*cols[0]) << ", "
-                 << pyList(*cols[2]) << ", xerr=" << pyList(*cols[1])
-                 << ", yerr=" << pyList(*cols[3]) << ", fmt=\"o\", label=\"" << label << "\")"
+            call << ax << ".errorbar(" << pyListCol(cols[0]) << ", "
+                 << pyListCol(cols[2]) << ", xerr=" << pyListCol(cols[1])
+                 << ", yerr=" << pyListCol(cols[3]) << ", fmt=\"o\", label=\"" << label << "\")"
                  << '\n';
         } break;
         case mplKind::g3d: {
-            call << ax << ".plot(" << pyList(*cols[0]) << ", "
-                 << pyList(*cols[1]) << ", " << pyList(*cols[2])
+            call << ax << ".plot(" << pyListCol(cols[0]) << ", "
+                 << pyListCol(cols[1]) << ", " << pyListCol(cols[2])
                  << ", label=\"" << label << "\")" << '\n';
         } break;
         case mplKind::g4d: {
             // 3-d scatter coloured by the w-component, with a colourbar.
-            call << "_sc = " << ax << ".scatter(" << pyList(*cols[0]) << ", "
-                 << pyList(*cols[1]) << ", " << pyList(*cols[2])
-                 << ", c=" << pyList(*cols[3]) << ", cmap=\"viridis\", label=\"" << label
+            call << "_sc = " << ax << ".scatter(" << pyListCol(cols[0]) << ", "
+                 << pyListCol(cols[1]) << ", " << pyListCol(cols[2])
+                 << ", c=" << pyListCol(cols[3]) << ", cmap=\"viridis\", label=\"" << label
                  << "\")" << '\n'
                  << fig << ".colorbar(_sc, ax=" << ax << ")" << '\n';
         } break;
-        case mplKind::hist1d: {
-            call << ax << ".hist(" << pyList(*cols[0]) << ", bins="
+        case mplKind::hist1d:
+        case mplKind::hist1i: {
+            // A 1-d histogram of the raw samples (float64 or int32); same matplotlib call.
+            call << ax << ".hist(" << pyListCol(cols[0]) << ", bins="
                  << *spec.n_bins_x << ", label=\"" << label << "\")" << '\n';
         } break;
         case mplKind::hist2d: {
-            call << "_h = " << ax << ".hist2d(" << pyList(*cols[0]) << ", "
-                 << pyList(*cols[1]) << ", bins=[" << *spec.n_bins_x << ", " << *spec.n_bins_y
+            call << "_h = " << ax << ".hist2d(" << pyListCol(cols[0]) << ", "
+                 << pyListCol(cols[1]) << ", bins=[" << *spec.n_bins_x << ", " << *spec.n_bins_y
                  << "])" << '\n'
                  << fig << ".colorbar(_h[3], ax=" << ax << ")" << '\n';
         } break;
@@ -4429,7 +4458,7 @@ struct dataSeries {
     std::string name;                              ///< the plotter's plot label
     std::string kind;                              ///< the plotter's getPlotterName()
     std::vector<std::string> column_names;         ///< per-axis names (x, ex, y, ...)
-    std::vector<const std::vector<double> *> columns; ///< per-axis value vectors (parallel)
+    std::vector<GPlotColumn> columns;              ///< per-axis value vectors (type-tagged, parallel)
     GPlotSpec spec;                                ///< the plotter's full reported plot spec
     std::size_t pad = 0;                           ///< the canvas pad this series draws into
     bool secondary = false;                        ///< true if it overlays a primary in the same pad
@@ -4444,9 +4473,9 @@ struct canvasInfo {
 };
 
 /** @brief Capture a plotter's columns as a dataSeries, or std::nullopt for a plotter that
- *  carries no exportable sampled data (the function plotters, and the integer histogram).
- *  The column data and names are read generically through dataColumns() / plotSpec(),
- *  so the capture is decoupled from the concrete plotter type. */
+ *  carries no exportable sampled data (the function plotters). The column data (float64
+ *  or int32) and names are read generically through dataColumns() / plotSpec(), so the
+ *  capture is decoupled from the concrete plotter type. */
 std::optional<dataSeries> captureSeries(const GBasePlotter &p) {
     dataSeries s;
     s.name = p.plotLabel();
@@ -4454,8 +4483,8 @@ std::optional<dataSeries> captureSeries(const GBasePlotter &p) {
     s.spec = p.plotSpec();
     s.columns = p.dataColumns();
 
-    // A plotter with no exportable double columns (a function plotter, or the integer
-    // histogram) reports nothing here -- those are ROOT-only / dataless and are skipped.
+    // A plotter with no exportable columns (a function plotter) reports nothing here --
+    // those are dataless and are skipped.
     if(s.columns.empty()) {
         return std::nullopt;
     }
@@ -4468,7 +4497,7 @@ std::optional<dataSeries> captureSeries(const GBasePlotter &p) {
 
 /** @brief The number of data rows in a captured series (the common column length). */
 std::size_t seriesRows(const dataSeries &s) {
-    return s.columns.empty() ? 0 : s.columns.front()->size();
+    return s.columns.empty() ? 0 : columnSize(s.columns.front());
 }
 
 /******************************************************************************/
@@ -4522,11 +4551,13 @@ std::string emitCsv(const std::vector<dataSeries> &series, const canvasInfo &can
         }
         out << '\n';
 
-        // Data rows.
+        // Data rows. Each cell streams its column's value at row r -- an int32 column
+        // prints integers, a float64 column full-precision doubles.
         const std::size_t rows = seriesRows(s);
         for(std::size_t r = 0; r < rows; ++r) {
             for(std::size_t c = 0; c < s.columns.size(); ++c) {
-                out << (c == 0 ? "" : ",") << (*s.columns[c])[r];
+                out << (c == 0 ? "" : ",");
+                std::visit([&out, r](const auto *v) { out << (*v)[r]; }, s.columns[c]);
             }
             out << '\n';
         }
@@ -4580,13 +4611,21 @@ std::uint32_t crc32(const std::string &data) {
 }
 
 /** @brief Build the bytes of a numpy `.npy` (format v1.0) for a 2-D C-order little-endian
- *  float64 array of shape (rows, cols). The column-major `columns` are interleaved into
- *  the row-major payload. A 1-column series is still written as shape (rows, 1). */
-std::string buildNpy(const std::vector<const std::vector<double> *> &columns, std::size_t rows) {
+ *  array of shape (rows, cols). The dtype is taken from the columns: a series whose
+ *  columns are int32 is written as `<i4` (a real numpy int32 array), otherwise `<f8`
+ *  float64. A series' columns are uniform dtype (a plotter's axes are all double or all
+ *  int32). The column-major `columns` are interleaved into the row-major payload; a
+ *  1-column series is still written as shape (rows, 1). */
+std::string buildNpy(const std::vector<GPlotColumn> &columns, std::size_t rows) {
     const std::size_t cols = columns.size();
 
+    const bool is_int = !columns.empty()
+        && std::holds_alternative<const std::vector<std::int32_t> *>(columns.front());
+    const char *descr = is_int ? "<i4" : "<f8";
+    const std::size_t elem_size = is_int ? sizeof(std::int32_t) : sizeof(double);
+
     // The ASCII dict header describing the array.
-    std::string dict = "{'descr': '<f8', 'fortran_order': False, 'shape': (";
+    std::string dict = std::string("{'descr': '") + descr + "', 'fortran_order': False, 'shape': (";
     dict += std::to_string(rows);
     dict += ", ";
     dict += std::to_string(cols);
@@ -4607,14 +4646,17 @@ std::string buildNpy(const std::vector<const std::vector<double> *> &columns, st
     putU16(npy, static_cast<std::uint16_t>(dict.size())); // header length (LE)
     npy += dict;
 
-    // The raw float64 payload in C order: row-major, i.e. all columns of row 0, then row 1...
-    npy.reserve(npy.size() + rows * cols * sizeof(double));
+    // The raw payload in C order: row-major, i.e. all columns of row 0, then row 1...
+    // Each value is written in its native (little-endian) byte width matching `descr`.
+    npy.reserve(npy.size() + rows * cols * elem_size);
     for(std::size_t r = 0; r < rows; ++r) {
         for(std::size_t c = 0; c < cols; ++c) {
-            const double v = (*columns[c])[r];
-            char bytes[sizeof(double)];
-            std::memcpy(bytes, &v, sizeof(double)); // native (little-endian) order
-            npy.append(bytes, sizeof(double));
+            std::visit([&npy, r](const auto *v) {
+                const auto val = (*v)[r];
+                char bytes[sizeof(val)];
+                std::memcpy(bytes, &val, sizeof(val)); // native (little-endian) order
+                npy.append(bytes, sizeof(val));
+            }, columns[c]);
         }
     }
     return npy;

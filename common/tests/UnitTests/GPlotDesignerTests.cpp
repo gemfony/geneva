@@ -385,10 +385,10 @@ TEST_CASE("data backend (NPZ) emits a non-empty ZIP/.npz archive", "[plotting]")
 }
 
 /******************************************************************************/
-// dataColumns(): a double-columned plotter reports pointers to its columns in storage
-// order; a dataless / non-double plotter reports an empty list.
+// dataColumns(): a plotter reports type-tagged (float64 / int32) views of its columns in
+// storage order; a dataless plotter reports an empty list.
 TEST_CASE("dataColumns reports columns generically in storage order", "[plotting]") {
-    // GGraph2ED stores four columns (x, ex, y, ey) -- the tricky reorder case.
+    // GGraph2ED stores four float64 columns (x, ex, y, ey) -- the tricky reorder case.
     GGraph2ED g;
     g & std::tuple<double, double, double, double>(1.0, 0.1, 2.0, 0.2);
     g & std::tuple<double, double, double, double>(3.0, 0.3, 4.0, 0.4);
@@ -396,15 +396,24 @@ TEST_CASE("dataColumns reports columns generically in storage order", "[plotting
     const auto cols = g.dataColumns();
     REQUIRE(cols.size() == 4); // matches plotSpec().columns {"x","ex","y","ey"}
     CHECK(g.plotSpec().columns.size() == cols.size());
-    REQUIRE(cols[0]->size() == 2);
-    CHECK((*cols[0])[0] == 1.0); // x
-    CHECK((*cols[1])[0] == 0.1); // ex
-    CHECK((*cols[2])[0] == 2.0); // y
-    CHECK((*cols[3])[1] == 0.4); // ey
+    // Each column is the float64 alternative of the type-tagged variant.
+    const auto *x = std::get<const std::vector<double> *>(cols[0]);
+    REQUIRE(x->size() == 2);
+    CHECK((*x)[0] == 1.0); // x
+    CHECK((*std::get<const std::vector<double> *>(cols[1]))[0] == 0.1); // ex
+    CHECK((*std::get<const std::vector<double> *>(cols[2]))[0] == 2.0); // y
+    CHECK((*std::get<const std::vector<double> *>(cols[3]))[1] == 0.4); // ey
 
-    // The integer histogram has a non-double axis -> nothing exported this way (ROOT-only).
+    // The integer histogram now exports its samples as a TRUE int32 column.
     GHistogram1I hi(5, 0.0, 10.0);
-    CHECK(hi.dataColumns().empty());
+    hi & std::int32_t(2);
+    hi & std::int32_t(7);
+    const auto icols = hi.dataColumns();
+    REQUIRE(icols.size() == 1);
+    const auto *iv = std::get<const std::vector<std::int32_t> *>(icols[0]); // int32 alternative
+    REQUIRE(iv->size() == 2);
+    CHECK((*iv)[0] == 2);
+    CHECK((*iv)[1] == 7);
 
     // A function plotter holds no sample columns at all.
     GFunctionPlotter1D fp(std::string("x^2"), std::tuple<double, double>(-1.0, 1.0));
@@ -435,7 +444,7 @@ TEST_CASE("makePlotter reconstructs a plotter from its GPlotSpec", "[plotting]")
         CHECK(rspec.drawing_args == std::string("AP"));
         CHECK(rspec.columns == spec.columns);
         // The rebuilt plotter is empty (no data carried by the spec).
-        CHECK(rebuilt->dataColumns()[0]->empty());
+        CHECK(std::get<const std::vector<double> *>(rebuilt->dataColumns()[0])->empty());
     }
 
     SECTION("histogram round-trips its bin counts") {

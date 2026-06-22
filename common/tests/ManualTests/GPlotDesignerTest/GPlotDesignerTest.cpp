@@ -205,19 +205,29 @@ int main(int argc, char **argv) {
     mpl_hist2d_ptr->setXAxisLabel("x");
     mpl_hist2d_ptr->setYAxisLabel("y");
 
+    // An INTEGER histogram, rendered by the matplotlib backend (it reads the int32
+    // samples via the type-tagged dataColumns() and emits an ax.hist call just like the
+    // double histogram).
+    std::shared_ptr<GHistogram1I> mpl_hist1i_ptr(new GHistogram1I(11, -5.0, 6.0));
+    mpl_hist1i_ptr->setPlotLabel("an integer histogram, matplotlib");
+    mpl_hist1i_ptr->setXAxisLabel("value");
+    mpl_hist1i_ptr->setYAxisLabel("count");
+
     for(std::size_t i = 0; i < 2000; i++) {
         double x = 4. * std::sin(static_cast<double>(i));
         double y = 4. * std::cos(static_cast<double>(i) * 1.3);
         (*mpl_hist1d_ptr) & x;
         (*mpl_hist2d_ptr) & std::tuple<double, double>(x, y);
+        (*mpl_hist1i_ptr) & static_cast<std::int32_t>(std::lround(x));
     }
 
-    GPlotDesigner gpd_mpl("Graphs and histograms through matplotlib", 2, 2);
+    GPlotDesigner gpd_mpl("Graphs and histograms through matplotlib", 2, 3);
     gpd_mpl.setPlotBackend(Gem::Common::plotBackend::MATPLOTLIB);
     gpd_mpl.registerPlotter(mpl_sin_ptr);
     gpd_mpl.registerPlotter(mpl_helix_ptr);
     gpd_mpl.registerPlotter(mpl_hist1d_ptr);
     gpd_mpl.registerPlotter(mpl_hist2d_ptr);
+    gpd_mpl.registerPlotter(mpl_hist1i_ptr);
     gpd_mpl.writeToFile("result.py");
 
     // -------------------------------------------------------------------------
@@ -331,7 +341,18 @@ int main(int argc, char **argv) {
             (*full_h2d) & std::tuple<double, double>(v, w);
         }
 
-        GPlotDesigner gpd_full("Series data (render coverage)", 3, 2);
+        // An INTEGER histogram: its samples export with their TRUE int32 dtype (the .npz
+        // member is a real numpy int32 array). The known values 0,0,1,1,1,2,...,9 let the
+        // data-validity harness assert the int32 round-trip bit-exactly.
+        auto full_h1i = std::make_shared<GHistogram1I>(10, 0, 10);
+        full_h1i->setPlotLabel("h1i");
+        for(std::int32_t value = 0; value < 10; value++) {
+            for(std::int32_t rep = 0; rep <= value; rep++) {
+                (*full_h1i) & value; // value appears (value+1) times
+            }
+        }
+
+        GPlotDesigner gpd_full("Series data (render coverage)", 3, 3);
         gpd_full.setDataFormat(Gem::Common::dataFormat::NPZ);
         gpd_full.registerPlotter(full_g2d);
         gpd_full.registerPlotter(full_g2ed);
@@ -339,6 +360,7 @@ int main(int argc, char **argv) {
         gpd_full.registerPlotter(full_g4d);
         gpd_full.registerPlotter(full_h1d);
         gpd_full.registerPlotter(full_h2d);
+        gpd_full.registerPlotter(full_h1i);
         gpd_full.writeToFile("result_data_full.npz");
     }
 }

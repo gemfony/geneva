@@ -29,10 +29,25 @@
 
 #pragma once
 
+#include <cstdint>
+#include <variant>
+#include <vector>
+
 #include "common/plotting/GDecorators.hpp"
 #include "common/plotting/GPlotSpec.hpp"
 
 namespace Gem::Common {
+
+/******************************************************************************/
+/**
+ * A read-only, type-tagged view of one exportable plotter column: either a float64
+ * (double) or an int32 value vector. The plot backends consume a plotter's data
+ * through a list of these (see GBasePlotter::dataColumns()), so an integer-valued
+ * plotter (the GHistogram1I integer histogram) exports its samples with their TRUE
+ * int32 dtype -- a numpy .npz then carries a real int32 array, not a widened float64.
+ * The pointer aliases the plotter's column and is valid for its lifetime.
+ */
+using GPlotColumn = std::variant<const std::vector<double> *, const std::vector<std::int32_t> *>;
 
 /******************************************************************************/
 /**
@@ -214,14 +229,15 @@ public:
      * Together with plotSpec() this lets the render / data backends consume a plotter
      * generically -- they switch on plotSpec().kind and read the columns through this
      * accessor, instead of dynamic_cast'ing back to each concrete plotter. The returned
-     * pointers alias this plotter's columns and stay valid for its lifetime; the order
-     * matches plotSpec().columns. The base returns an empty list (a plotter that holds
-     * no double-typed sample columns -- a function plotter, or the integer histogram --
-     * exports nothing this way).
+     * columns alias this plotter's data and stay valid for its lifetime; the order
+     * matches plotSpec().columns. Each column is type-tagged (float64 or int32), so an
+     * integer plotter exports its samples with their true dtype. The base returns an
+     * empty list (a plotter that holds no exportable sample columns -- a function
+     * plotter -- exports nothing this way).
      *
-     * @return Pointers to this plotter's per-axis value vectors, in storage order
+     * @return Type-tagged views of this plotter's per-axis value vectors, in storage order
      */
-    [[nodiscard]] virtual std::vector<const std::vector<double> *> dataColumns() const;
+    [[nodiscard]] virtual std::vector<GPlotColumn> dataColumns() const;
 
     /***************************************************************************/
 

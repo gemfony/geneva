@@ -44,7 +44,8 @@ It reads either format the DATA backend emits:
 The manifest describes the canvas (title + pad grid) and, per series, its plot kind,
 labels, columns, histogram bin counts and the pad it draws into (``secondary`` series
 overlay the primary in the same pad). The plot kinds mirror the C++ matplotlib backend:
-graph_2d / graph_2d_err / graph_3d / graph_4d / hist_1d / hist_2d.
+graph_2d / graph_2d_err / graph_3d / graph_4d / hist_1d / hist_1i / hist_2d (an
+``hist_1i`` integer histogram is stored as a true int32 array in the ``.npz``).
 
 Usage:
     geneva_plot_render.py INPUT[.npz|.csv] [-o OUTPUT.png]
@@ -181,7 +182,8 @@ def _draw_series(ax, fig, s):
     elif kind == "graph_4d":
         sc = ax.scatter(data[0], data[1], data[2], c=data[3], cmap="viridis", label=label)
         fig.colorbar(sc, ax=ax)
-    elif kind == "hist_1d":
+    elif kind in ("hist_1d", "hist_1i"):
+        # 1-d histogram of the raw samples (hist_1i carries true int32 values).
         nb = s.get("n_bins_x") or 10
         ax.hist(data[0], bins=nb, label=label)
     elif kind == "hist_2d":
@@ -190,8 +192,8 @@ def _draw_series(ax, fig, s):
         h = ax.hist2d(data[0], data[1], bins=[nbx, nby])
         fig.colorbar(h[3], ax=ax)
     else:
-        # function_1d / function_2d / hist_1i carry no exported sample data and are
-        # never present in a DATA export; ignore defensively.
+        # function_1d / function_2d carry no exported sample data and are never present
+        # in a DATA export; ignore defensively.
         raise ValueError("cannot render kind %r from data export" % kind)
 
 
