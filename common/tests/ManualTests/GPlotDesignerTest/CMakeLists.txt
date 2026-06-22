@@ -96,4 +96,33 @@ ELSE()
 	MESSAGE(STATUS "GPlotDesigner: gnuplot validity test skipped (gnuplot not found)")
 ENDIF()
 
+# Optional matplotlib-validity test: feed the generated Python/matplotlib script (MATPLOTLIB backend) to
+# the real python3 + matplotlib to confirm it is valid, RENDERING matplotlib input. Enabled only when
+# python3 is present AND `python3 -c "import matplotlib"` succeeds; skipped gracefully otherwise.
+# matplotlib renders reliably headless via its Agg backend (no display/xvfb needed), so the check keys
+# off a produced (non-trivial) PNG, a zero exit code AND the absence of a Python traceback / error.
+FIND_PROGRAM(GENEVA_PYTHON3_EXECUTABLE NAMES python3)
+IF(GENEVA_PYTHON3_EXECUTABLE)
+	EXECUTE_PROCESS(
+		COMMAND ${GENEVA_PYTHON3_EXECUTABLE} -c "import matplotlib"
+		RESULT_VARIABLE GENEVA_MATPLOTLIB_RC
+		OUTPUT_QUIET ERROR_QUIET
+	)
+ELSE()
+	SET(GENEVA_MATPLOTLIB_RC 1)
+ENDIF()
+IF(GENEVA_PYTHON3_EXECUTABLE AND GENEVA_MATPLOTLIB_RC EQUAL 0)
+	ADD_TEST(
+		NAME GPlotDesignerMatplotlibValidity
+		COMMAND ${CMAKE_COMMAND}
+			-DGEN_EXE=$<TARGET_FILE:${EXECUTABLENAME}>
+			-DPYTHON_EXE=${GENEVA_PYTHON3_EXECUTABLE}
+			-DWORKDIR=${CMAKE_CURRENT_BINARY_DIR}
+			-P ${CMAKE_CURRENT_SOURCE_DIR}/RunMatplotlibValidity.cmake
+	)
+	MESSAGE(STATUS "GPlotDesigner: matplotlib validity test ENABLED (python3=${GENEVA_PYTHON3_EXECUTABLE})")
+ELSE()
+	MESSAGE(STATUS "GPlotDesigner: matplotlib validity test skipped (python3 and/or matplotlib not found)")
+ENDIF()
+
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/common/ManualTests/${EXECUTABLENAME} )

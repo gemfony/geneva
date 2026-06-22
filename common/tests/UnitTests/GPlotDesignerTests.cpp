@@ -199,3 +199,68 @@ TEST_CASE("gnuplot backend throws for non-graph plotters", "[plotting]") {
         CHECK_THROWS(gpd.plot());
     }
 }
+
+/******************************************************************************/
+// The matplotlib backend emits a headless, Agg-selected Python script for a GGraph2D,
+// with escaped labels and an axes plot call.
+TEST_CASE("matplotlib backend emits a headless plot script for a GGraph2D", "[plotting]") {
+    auto g = std::make_shared<GGraph2D>();
+    (*g) & std::tuple<double, double>(1.0, 2.0);
+    (*g) & std::tuple<double, double>(3.0, 4.0);
+    g->setPlotLabel(std::string("a\"b"));        // an embedded double quote (must be escaped)
+    g->setXAxisLabel(std::string("the x axis"));
+
+    GPlotDesigner gpd("matplotlib graphs", 1, 1);
+    gpd.setPlotBackend(plotBackend::MATPLOTLIB);
+    gpd.registerPlotter(g);
+
+    const std::string s = gpd.plot();
+
+    // The script selects the headless Agg backend BEFORE importing pyplot, builds a figure with a
+    // subplot, and plots into the axes -- but never calls savefig (terminal-agnostic).
+    CHECK(s.find("matplotlib.use(\"Agg\")") != std::string::npos);
+    CHECK(s.find("add_subplot(") != std::string::npos);
+    CHECK(s.find(".plot(") != std::string::npos);
+    CHECK(s.find("savefig") == std::string::npos);
+    // The data values are present in the emitted list literals.
+    CHECK(s.find("1") != std::string::npos);
+    // Labels are python-escaped (a\"b), never a bare a"b that closes the literal early.
+    CHECK(s.find("a\\\"b") != std::string::npos);
+    CHECK(s.find("the x axis") != std::string::npos);
+}
+
+/******************************************************************************/
+// The matplotlib backend uses a 3-d projection for a GGraph3D.
+TEST_CASE("matplotlib backend uses a 3d projection for a GGraph3D", "[plotting]") {
+    auto g = std::make_shared<GGraph3D>();
+    (*g) & std::tuple<double, double, double>(1.0, 2.0, 3.0);
+
+    GPlotDesigner gpd("matplotlib 3d", 1, 1);
+    gpd.setPlotBackend(plotBackend::MATPLOTLIB);
+    gpd.registerPlotter(g);
+
+    const std::string s = gpd.plot();
+    CHECK(s.find("projection=\"3d\"") != std::string::npos);
+    CHECK(s.find("set_zlabel(") != std::string::npos);
+}
+
+/******************************************************************************/
+// The matplotlib backend (stage 1) rejects histograms and function plotters.
+TEST_CASE("matplotlib backend throws for histograms and function plotters", "[plotting]") {
+    {
+        auto h = std::make_shared<GHistogram1D>(10, 0.0, 1.0);
+        (*h) & 0.5;
+        GPlotDesigner gpd("matplotlib hist", 1, 1);
+        gpd.setPlotBackend(plotBackend::MATPLOTLIB);
+        gpd.registerPlotter(h);
+        CHECK_THROWS(gpd.plot());
+    }
+    {
+        const std::tuple<double, double> rx(-1., 1.);
+        auto f = std::make_shared<GFunctionPlotter1D>("sin(x)", rx);
+        GPlotDesigner gpd("matplotlib func", 1, 1);
+        gpd.setPlotBackend(plotBackend::MATPLOTLIB);
+        gpd.registerPlotter(f);
+        CHECK_THROWS(gpd.plot());
+    }
+}

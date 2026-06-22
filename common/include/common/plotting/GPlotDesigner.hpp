@@ -48,6 +48,7 @@ class GPlotDesigner : public GCommonInterfaceT<GPlotDesigner> {
     // dimensions / divisions and label to compose their backend document.
     friend class GRootEmitter;
     friend class GnuplotEmitter;
+    friend class MatplotlibEmitter;
 
     /**
      * @brief Single declaration of this class'es local data members

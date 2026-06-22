@@ -157,4 +157,43 @@ int main(int argc, char **argv) {
     gpd_gnuplot.registerPlotter(gp_sin_ptr);
     gpd_gnuplot.registerPlotter(gp_helix_ptr);
     gpd_gnuplot.writeToFile("result.gp");
+
+    // -------------------------------------------------------------------------
+    // The same graphs emitted through the matplotlib backend (which supports the
+    // graph plotters and -- from stage 2 -- histograms). A fresh set of plotters is
+    // used because a plotter is registered into exactly one designer; the data is
+    // identical to the gnuplot demo above.
+    std::shared_ptr<GGraph2D> mpl_sin_ptr(new GGraph2D());
+    mpl_sin_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
+    mpl_sin_ptr->setPlotLabel("sin(x), matplotlib");
+    mpl_sin_ptr->setXAxisLabel("x");
+    mpl_sin_ptr->setYAxisLabel("sin(x)");
+
+    // A secondary plotter sharing the first pad (overlaid on the same axes).
+    std::shared_ptr<GGraph2D> mpl_cos_ptr(new GGraph2D());
+    mpl_cos_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
+    mpl_cos_ptr->setPlotLabel("cos(x), matplotlib");
+    mpl_sin_ptr->registerSecondaryPlotter(mpl_cos_ptr);
+
+    std::shared_ptr<GGraph3D> mpl_helix_ptr(new GGraph3D());
+    mpl_helix_ptr->setPlotLabel("a helix, matplotlib");
+    mpl_helix_ptr->setXAxisLabel("x");
+    mpl_helix_ptr->setYAxisLabel("y");
+    mpl_helix_ptr->setZAxisLabel("z");
+
+    for(std::size_t i = 0; i < 200; i++) {
+        double x = 2 * std::numbers::pi * static_cast<double>(i) / 200. - std::numbers::pi;
+        (*mpl_sin_ptr) & std::tuple<double, double>(x, std::sin(x));
+        (*mpl_cos_ptr) & std::tuple<double, double>(x, std::cos(x));
+
+        double t = 4 * std::numbers::pi * static_cast<double>(i) / 200.;
+        (*mpl_helix_ptr) &
+            std::tuple<double, double, double>(std::cos(t), std::sin(t), t);
+    }
+
+    GPlotDesigner gpd_mpl("Graphs through matplotlib", 1, 2);
+    gpd_mpl.setPlotBackend(Gem::Common::plotBackend::MATPLOTLIB);
+    gpd_mpl.registerPlotter(mpl_sin_ptr);
+    gpd_mpl.registerPlotter(mpl_helix_ptr);
+    gpd_mpl.writeToFile("result.py");
 }

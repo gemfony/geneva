@@ -149,6 +149,31 @@ std::string gnuplotEscape(const std::string &in) {
     return out;
 }
 
+/******************************************************************************/
+/**
+ * Escape a user-supplied string for safe inclusion inside a Python DOUBLE-quoted
+ * string literal (labels, titles). Python double-quoted literals interpret C-style
+ * backslash escapes (\" \\ \n \t \r), so the metacharacters are backslash-escaped
+ * exactly as for those literals -- this is deliberately NEITHER rootEscape (ROOT
+ * C-string contract, drops bare CRs) NOR gnuplotEscape (which targets a gnuplot
+ * double-quoted literal). The result is always inserted between two `"` delimiters.
+ */
+std::string pythonEscape(const std::string &in) {
+    std::string out;
+    out.reserve(in.size());
+    for(char c : in) {
+        switch(c) {
+            case '\\': out += "\\\\"; break;
+            case '"':  out += "\\\""; break;
+            case '\n': out += "\\n"; break;
+            case '\t': out += "\\t"; break;
+            case '\r': out += "\\r"; break;
+            default:   out += c;      break;
+        }
+    }
+    return out;
+}
+
 } // anonymous namespace
 
 /******************************************************************************/
@@ -3540,8 +3565,9 @@ void GPlotDesigner::writeToFile(const std::filesystem::path &file_name) {
  */
 void GPlotDesigner::setPlotBackend(plotBackend backend) {
     switch(backend) {
-        case plotBackend::ROOT:    emitter_ = std::make_shared<GRootEmitter>(); break;
-        case plotBackend::GNUPLOT: emitter_ = std::make_shared<GnuplotEmitter>(); break;
+        case plotBackend::ROOT:       emitter_ = std::make_shared<GRootEmitter>(); break;
+        case plotBackend::GNUPLOT:    emitter_ = std::make_shared<GnuplotEmitter>(); break;
+        case plotBackend::MATPLOTLIB: emitter_ = std::make_shared<MatplotlibEmitter>(); break;
     }
 }
 
@@ -3922,6 +3948,226 @@ std::string GnuplotEmitter::emitDocument(const GPlotDesigner &gpd) const {
     }
 
     result << "unset multiplot" << '\n';
+
+    return result.str();
+}
+
+/******************************************************************************/
+/**
+ * The matplotlib-script file extension.
+ *
+ * @return The string ".py"
+ */
+std::string MatplotlibEmitter::fileExtension() const {
+    return std::string(".py");
+}
+
+namespace {
+
+/******************************************************************************/
+// Helpers backing the matplotlib backend. The plotters expose their columns via the
+// public const column<I>() accessor on GDataCollectorT; coordinates are emitted into
+// Python list literals at full (round-trippable) precision through an EmitStream.
+
+/** @brief The plotter kind the matplotlib backend understands. */
+enum class mplKind { g2d, g2ed, g3d, g4d, hist1d, hist2d };
+
+/** @brief Classify a plotter for the matplotlib backend; throws for unsupported types
+ *  (e.g. function plotters), directing the caller to the ROOT backend. */
+mplKind classifyMpl(const GBasePlotter &p) {
+    if(dynamic_cast<const GGraph2ED *>(&p) != nullptr) {
+        return mplKind::g2ed; // checked before GGraph2D's base would match
+    }
+    if(dynamic_cast<const GGraph2D *>(&p) != nullptr) {
+        return mplKind::g2d;
+    }
+    if(dynamic_cast<const GGraph3D *>(&p) != nullptr) {
+        return mplKind::g3d;
+    }
+    if(dynamic_cast<const GGraph4D *>(&p) != nullptr) {
+        return mplKind::g4d;
+    }
+    // NOTE: histogram support (GHistogram1D / GHistogram2D) is added in stage 2.
+    throw geneva_exception(
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+        << "In MatplotlibEmitter::emitDocument(): Error!" << '\n'
+        << "the matplotlib backend does not support " << p.getPlotterName()
+        << "; use the ROOT backend for it" << '\n'
+    );
+}
+
+/** @brief Whether a plotter is drawn into a 3-d (mplot3d) Axes. */
+bool isThreeDimensionalMpl(mplKind k) {
+    return k == mplKind::g3d || k == mplKind::g4d;
+}
+
+/** @brief Emit one column of doubles as a Python list literal `[v0, v1, ...]` at full precision. */
+std::string pyList(const std::vector<double> &col) {
+    EmitStream out; // NOLINT(cppcoreguidelines-init-variables)
+    out << '[';
+    for(std::size_t i = 0; i < col.size(); ++i) {
+        out << (i == 0 ? "" : ", ") << col[i];
+    }
+    out << ']';
+    return out.str();
+}
+
+/** @brief Emit the matplotlib plotting call(s) for ONE plotter into the named Axes `ax`. The data are
+ *  written as inline Python list literals; `ax` is a 2-d Axes for g2d/g2ed/hist*, a 3-d Axes for
+ *  g3d/g4d. `fig` is the figure name (used for the g4d/hist2d colourbar). All statements are emitted at
+ *  column 0 -- Python is whitespace-sensitive, so no indentation is applied. */
+std::string mplPlotCall(
+    const GBasePlotter &p,
+    mplKind k,
+    const std::string &ax,
+    const std::string &fig
+) {
+    EmitStream call; // NOLINT(cppcoreguidelines-init-variables)
+    const std::string label = pythonEscape(p.plotLabel());
+    switch(k) {
+        case mplKind::g2d: {
+            const auto &g = dynamic_cast<const GGraph2D &>(p);
+            call << ax << ".plot(" << pyList(g.column<0>()) << ", "
+                 << pyList(g.column<1>()) << ", marker=\"o\", label=\"" << label << "\")" << '\n';
+        } break;
+        case mplKind::g2ed: {
+            // GGraph2ED stores (x, ex, y, ey); errorbar wants xerr/yerr.
+            const auto &g = dynamic_cast<const GGraph2ED &>(p);
+            call << ax << ".errorbar(" << pyList(g.column<0>()) << ", "
+                 << pyList(g.column<2>()) << ", xerr=" << pyList(g.column<1>())
+                 << ", yerr=" << pyList(g.column<3>()) << ", fmt=\"o\", label=\"" << label << "\")"
+                 << '\n';
+        } break;
+        case mplKind::g3d: {
+            const auto &g = dynamic_cast<const GGraph3D &>(p);
+            call << ax << ".plot(" << pyList(g.column<0>()) << ", "
+                 << pyList(g.column<1>()) << ", " << pyList(g.column<2>())
+                 << ", label=\"" << label << "\")" << '\n';
+        } break;
+        case mplKind::g4d: {
+            // 3-d scatter coloured by the w-component, with a colourbar.
+            const auto &g = dynamic_cast<const GGraph4D &>(p);
+            call << "_sc = " << ax << ".scatter(" << pyList(g.column<0>()) << ", "
+                 << pyList(g.column<1>()) << ", " << pyList(g.column<2>())
+                 << ", c=" << pyList(g.column<3>()) << ", cmap=\"viridis\", label=\"" << label
+                 << "\")" << '\n'
+                 << fig << ".colorbar(_sc, ax=" << ax << ")" << '\n';
+        } break;
+        case mplKind::hist1d: {
+            const auto &h = dynamic_cast<const GHistogram1D &>(p);
+            call << ax << ".hist(" << pyList(h.column<0>()) << ", bins="
+                 << h.getNBinsX() << ", label=\"" << label << "\")" << '\n';
+        } break;
+        case mplKind::hist2d: {
+            const auto &h = dynamic_cast<const GHistogram2D &>(p);
+            call << "_h = " << ax << ".hist2d(" << pyList(h.column<0>()) << ", "
+                 << pyList(h.column<1>()) << ", bins=[" << h.getNBinsX() << ", " << h.getNBinsY()
+                 << "])" << '\n'
+                 << fig << ".colorbar(_h[3], ax=" << ax << ")" << '\n';
+        } break;
+    }
+    return call.str();
+}
+
+} // anonymous namespace
+
+/******************************************************************************/
+/**
+ * Emits a self-contained Python/matplotlib script for the graph plotters (GGraph2D /
+ * GGraph2ED / GGraph3D / GGraph4D) and the histogram plotters (GHistogram1D /
+ * GHistogram2D). Any other plotter type (e.g. a function plotter) triggers a clear
+ * geneva_exception. The script selects the headless Agg backend, creates a `fig` and
+ * one Axes per pad (a 3-d Axes for the 3-d graphs), sets each pad's axis labels and
+ * title and plots the pad's primary-and-secondary plotters into it. It deliberately
+ * ends WITHOUT `fig.savefig(...)`, so it is terminal-agnostic: a validity harness (or
+ * the caller) appends its own `fig.savefig('out.png')`.
+ *
+ * @param gpd The designer holding the plotters and canvas configuration
+ * @return The complete matplotlib (Python) script as a string
+ */
+std::string MatplotlibEmitter::emitDocument(const GPlotDesigner &gpd) const {
+    const std::size_t cols = gpd.c_x_div_;
+    const std::size_t rows = gpd.c_y_div_;
+    const std::size_t max_plots = cols * rows;
+
+    EmitStream result; // NOLINT(cppcoreguidelines-init-variables)
+
+    // Validate ALL plotters (and their secondaries) up front, so a partial script is
+    // never produced for an unsupported plotter type. A 2-d and a 3-d plotter cannot
+    // share one pad (one is a flat Axes, the other an mplot3d Axes).
+    for(const auto &p : gpd.plotters_cnt_) {
+        const mplKind k = classifyMpl(*p);
+        for(const auto &sp : p->secondaryPlotters()) {
+            const mplKind sk = classifyMpl(*sp);
+            if(isThreeDimensionalMpl(k) != isThreeDimensionalMpl(sk)) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In MatplotlibEmitter::emitDocument(): Error!" << '\n'
+                    << "a 2-d and a 3-d graph cannot share a single matplotlib pad ("
+                    << p->getPlotterName() << " vs. " << sp->getPlotterName() << ")" << '\n'
+                );
+            }
+        }
+    }
+
+    if(gpd.plotters_cnt_.size() > max_plots) {
+        glogger << "In MatplotlibEmitter::emitDocument() (Canvas label = \"" << gpd.getCanvasLabel()
+                << "\":" << '\n'
+                << "Warning! Found more plots than pads (" << gpd.plotters_cnt_.size() << " vs. "
+                << max_plots << ")" << '\n'
+                << "Some of the plots will be ignored" << '\n'
+                << GWARNING;
+    }
+
+    // NOTE: Python is whitespace-sensitive, so every statement below is emitted at column 0 (the
+    // GPlotDesigner indentation setting does not apply to a Python script).
+
+    // Script preamble: select the headless Agg backend BEFORE importing pyplot, then create the
+    // figure. Pads are added individually via fig.add_subplot(rows, cols, idx[, projection='3d']) so a
+    // 3-d pad gets an mplot3d Axes while 2-d pads stay flat -- a single plt.subplots() grid cannot mix
+    // the two.
+    result << "import matplotlib" << '\n'
+           << "matplotlib.use(\"Agg\")" << '\n'
+           << "import matplotlib.pyplot as plt" << '\n'
+           << "from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 (registers the 3d projection)"
+           << '\n' << '\n'
+           << "fig = plt.figure(figsize=(" << (cols == 0 ? 1 : cols) * 5 << ", "
+           << (rows == 0 ? 1 : rows) * 4 << "))" << '\n'
+           << "fig.suptitle(\"" << pythonEscape(gpd.getCanvasLabel()) << "\")" << '\n' << '\n';
+
+    // Per pad: create the Axes with the right projection, set labels/title, then plot the pad's
+    // primary-and-secondary plotters into it (secondaries overlay on the same Axes).
+    std::size_t n_plots = 0;
+    for(const auto &p : gpd.plotters_cnt_) {
+        if(n_plots >= max_plots) {
+            break;
+        }
+        const std::size_t pad_idx = n_plots + 1; // matplotlib subplot indices start at 1
+        ++n_plots;
+
+        const mplKind k = classifyMpl(*p);
+        const bool three_d = isThreeDimensionalMpl(k);
+
+        result << "ax = fig.add_subplot(" << rows << ", " << cols << ", " << pad_idx
+               << (three_d ? ", projection=\"3d\"" : "") << ")" << '\n';
+
+        // Per-pad axis labels and title.
+        result << "ax.set_xlabel(\"" << pythonEscape(p->xAxisLabel()) << "\")" << '\n'
+               << "ax.set_ylabel(\"" << pythonEscape(p->yAxisLabel()) << "\")" << '\n';
+        if(three_d) {
+            result << "ax.set_zlabel(\"" << pythonEscape(p->zAxisLabel()) << "\")" << '\n';
+        }
+        result << "ax.set_title(\"" << pythonEscape(p->plotLabel()) << "\")" << '\n';
+
+        // The primary plotter, then any secondary plotters overlaid on the same Axes.
+        result << mplPlotCall(*p, k, "ax", "fig");
+        for(const auto &sp : p->secondaryPlotters()) {
+            result << mplPlotCall(*sp, classifyMpl(*sp), "ax", "fig");
+        }
+        result << '\n';
+    }
+
+    result << "fig.tight_layout()" << '\n';
 
     return result.str();
 }
