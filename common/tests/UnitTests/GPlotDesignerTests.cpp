@@ -552,4 +552,42 @@ TEST_CASE("GDataLog reproduces the legacy plotter-object output byte-for-byte", 
         }
         CHECK(log.toDesigner().plot() == legacy);
     }
+
+    SECTION("sortX + setAddPrintCommand + canvas dimensions round-trip") {
+        // Unsorted x data exercises sortByFirstColumn; print command + canvas dims
+        // exercise the forwarded designer settings. (These are exactly the GProgressPlotterT
+        // INFOEND touchpoints.)
+        auto g = std::make_shared<GGraph2D>();
+        g->setPlotLabel("progress");
+        g->setXAxisLabel("Iteration");
+        g->setYAxisLabel("Fitness");
+        g->setPlotMode(graphPlotMode::CURVE);
+        g->add(2., 1.);
+        g->add(0., 5.);
+        g->add(1., 3.); // deliberately out of x order
+        g->sortX();
+        GPlotDesigner gpd_legacy("Progress information", 1, 1);
+        gpd_legacy.setCanvasDimensions(1024, 768);
+        gpd_legacy.setAddPrintCommand(true);
+        gpd_legacy.registerPlotter(g);
+        const std::string legacy = gpd_legacy.plot();
+
+        // Build a fresh unsorted graph so its spec carries no accidental sort.
+        auto gs = std::make_shared<GGraph2D>();
+        gs->setPlotLabel("progress");
+        gs->setXAxisLabel("Iteration");
+        gs->setYAxisLabel("Fitness");
+        gs->setPlotMode(graphPlotMode::CURVE);
+
+        GDataLog log("Progress information", 1, 1);
+        log.setCanvasDimensions(1024, 768);
+        log.setAddPrintCommand(true);
+        const auto id = log.declareSeries(gs->plotSpec());
+        log.append(id, 2., 1.);
+        log.append(id, 0., 5.);
+        log.append(id, 1., 3.); // same out-of-order data
+        log.sortByFirstColumn(id);
+
+        CHECK(log.toDesigner().plot() == legacy);
+    }
 }

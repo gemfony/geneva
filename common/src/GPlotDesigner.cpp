@@ -550,6 +550,13 @@ void GBasePlotter::appendRow([[maybe_unused]] std::span<const double> row) {
 
 /******************************************************************************/
 /**
+ * The base has no sortable columns to order; the columnar collectors override this
+ * (see GDataCollectorT::sortByFirstColumn()).
+ */
+void GBasePlotter::sortByFirstColumn() { /* nothing */ }
+
+/******************************************************************************/
+/**
  * Constructs an empty plotter of the kind described by a GPlotSpec (the inverse of
  * GBasePlotter::plotSpec()), applying the spec's labels, drawing arguments and (for
  * histograms) bin counts. The function plotters cannot be reconstructed from a spec
@@ -5236,6 +5243,33 @@ void GDataLog::setCanvasDimensions(std::uint32_t x_dim, std::uint32_t y_dim) {
 
 /******************************************************************************/
 /**
+ * Marks a series so its rows are sorted by the first column before rendering.
+ *
+ * @param id The series to sort
+ */
+void GDataLog::sortByFirstColumn(SeriesId id) {
+    if(id >= series_.size()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GDataLog::sortByFirstColumn(): Error!" << '\n'
+            << "series id " << id << " is out of range" << '\n'
+        );
+    }
+    series_[id].sort_first_column = true;
+}
+
+/******************************************************************************/
+/**
+ * Forwards the "add a print command" flag to the built GPlotDesigner.
+ *
+ * @param add_print_command Whether the designer should add a print / save command
+ */
+void GDataLog::setAddPrintCommand(bool add_print_command) {
+    add_print_command_ = add_print_command;
+}
+
+/******************************************************************************/
+/**
  * Realizes the log into a populated GPlotDesigner: each series' plotter is built from
  * its spec (makePlotter) and filled (appendRow); an overlay is attached as a secondary
  * plotter of its primary. Primaries are registered in declaration order, so the emitted
@@ -5248,13 +5282,20 @@ GPlotDesigner GDataLog::toDesigner() const {
     if(dims_.has_value()) {
         gpd.setCanvasDimensions(*dims_);
     }
+    if(add_print_command_.has_value()) {
+        gpd.setAddPrintCommand(*add_print_command_);
+    }
 
-    // Build every series' plotter (primary or overlay) from its spec + rows.
+    // Build every series' plotter (primary or overlay) from its spec + rows, sorting
+    // by the first column where requested.
     std::vector<std::shared_ptr<GBasePlotter>> built(series_.size());
     for(std::size_t i = 0; i < series_.size(); ++i) {
         std::shared_ptr<GBasePlotter> p = makePlotter(series_[i].spec);
         for(const auto &row : series_[i].rows) {
             p->appendRow(row);
+        }
+        if(series_[i].sort_first_column) {
+            p->sortByFirstColumn();
         }
         built[i] = std::move(p);
     }

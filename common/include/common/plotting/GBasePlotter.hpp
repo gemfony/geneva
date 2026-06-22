@@ -254,6 +254,15 @@ public:
      */
     virtual void appendRow(std::span<const double> row);
 
+    /**
+     * @brief Sorts this plotter's data rows by their first column, generically -- the
+     * data path used by GDataLog to reproduce a monitor's GGraph2D::sortX() without
+     * knowing the concrete plotter type. The base is a no-op (a plotter with no sortable
+     * columns -- a function plotter -- has nothing to sort); the columnar collectors
+     * override it.
+     */
+    virtual void sortByFirstColumn();
+
     /***************************************************************************/
 
     /**

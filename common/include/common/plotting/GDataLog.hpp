@@ -103,6 +103,13 @@ public:
     /** @brief Convenience append for a 4-column (x, y, z, w) series */
     void append(SeriesId id, double x, double y, double z, double w);
 
+    /**
+     * @brief Marks a series so its data is sorted by the first column before rendering
+     * (the GDataLog equivalent of GGraph2D::sortX()).
+     * @param id The series to sort
+     */
+    void sortByFirstColumn(SeriesId id);
+
     /***************************************************************************/
     /**
      * @brief Sets the canvas pixel dimensions (forwarded to the built GPlotDesigner)
@@ -110,6 +117,13 @@ public:
      * @param y_dim The canvas height in pixels
      */
     void setCanvasDimensions(std::uint32_t x_dim, std::uint32_t y_dim);
+
+    /**
+     * @brief Forwards the "add a print command" flag to the built GPlotDesigner (only
+     * applied when set, so an untouched log emits byte-identically to a plain designer)
+     * @param add_print_command Whether the designer should add a print / save command
+     */
+    void setAddPrintCommand(bool add_print_command);
 
     /***************************************************************************/
     /**
@@ -142,12 +156,14 @@ private:
         GPlotSpec spec;                      ///< the plot-choice value for this series
         std::vector<std::vector<double>> rows; ///< appended data rows (one value per column)
         std::optional<SeriesId> primary;     ///< set if this series overlays a primary's pad
+        bool sort_first_column = false;      ///< sort rows by the first column before rendering
     };
 
     std::string canvas_label_; ///< the canvas title
     std::size_t c_x_div_;      ///< number of pad columns
     std::size_t c_y_div_;      ///< number of pad rows
     std::optional<std::tuple<std::uint32_t, std::uint32_t>> dims_; ///< optional canvas pixel dimensions
+    std::optional<bool> add_print_command_; ///< forwarded to the designer only when set
     std::vector<Series> series_; ///< the declared series, in declaration order
 };
 

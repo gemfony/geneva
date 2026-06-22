@@ -530,6 +530,16 @@ public:
         }
     }
 
+    /***************************************************************************/
+    /**
+	  * Sorts the data rows by the first column (axis 0), generically -- forwards to the
+	  * collector's existing sortX(), so GDataLog can reproduce GGraph2D::sortX() without
+	  * the concrete type.
+	  */
+    void sortByFirstColumn() override {
+        this->sortX();
+    }
+
 protected:
     /***************************************************************************/
     /**
