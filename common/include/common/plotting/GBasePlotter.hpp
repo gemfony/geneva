@@ -170,6 +170,12 @@ public:
     void registerSecondaryPlotter(std::shared_ptr<GBasePlotter> sp);
 
     /**
+     * @brief Read-only access to the secondary plotters sharing this plotter's pad
+     * @return A const reference to the list of registered secondary plotters
+     */
+    [[nodiscard]] const std::vector<std::shared_ptr<GBasePlotter>> &secondaryPlotters() const;
+
+    /**
      * @brief Allows to retrieve the id of this object
      * @return The id currently assigned to this plotter
      */

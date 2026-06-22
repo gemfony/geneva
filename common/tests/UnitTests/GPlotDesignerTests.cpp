@@ -132,3 +132,66 @@ TEST_CASE("auto-ranged histogram with no data throws instead of UB", "[plotting]
     GHistogram1D h(10); // 10 bins, no data added -> default min==max -> auto-range path
     CHECK_THROWS(h.headerData(""));
 }
+
+/******************************************************************************/
+// The gnuplot backend emits a valid gnuplot script for graph plotters.
+TEST_CASE("gnuplot backend emits a multiplot script for a GGraph2D", "[plotting]") {
+    auto g = std::make_shared<GGraph2D>();
+    (*g) & std::tuple<double, double>(1.0, 2.0);
+    (*g) & std::tuple<double, double>(3.0, 4.0);
+    g->setPlotLabel(std::string("a\"b"));        // an embedded double quote (must be escaped)
+    g->setXAxisLabel(std::string("the x axis"));
+
+    GPlotDesigner gpd("gnuplot graphs", 1, 1);
+    gpd.setPlotBackend(plotBackend::GNUPLOT);
+    gpd.registerPlotter(g);
+
+    const std::string s = gpd.plot();
+
+    // The multiplot grid and an inline 2-d plot command are present.
+    CHECK(s.find("set multiplot") != std::string::npos);
+    CHECK(s.find("plot '-'") != std::string::npos);
+    CHECK(s.find("unset multiplot") != std::string::npos);
+    // The data rows and the end-of-data marker are present.
+    CHECK(s.find("1 2") != std::string::npos);
+    CHECK(s.find("3 4") != std::string::npos);
+    // Labels are gnuplot-escaped (a\"b), never a bare a"b that closes the literal early.
+    CHECK(s.find("a\\\"b") != std::string::npos);
+    CHECK(s.find("the x axis") != std::string::npos);
+}
+
+/******************************************************************************/
+// The gnuplot backend uses splot for a GGraph3D.
+TEST_CASE("gnuplot backend uses splot for a GGraph3D", "[plotting]") {
+    auto g = std::make_shared<GGraph3D>();
+    (*g) & std::tuple<double, double, double>(1.0, 2.0, 3.0);
+
+    GPlotDesigner gpd("gnuplot 3d", 1, 1);
+    gpd.setPlotBackend(plotBackend::GNUPLOT);
+    gpd.registerPlotter(g);
+
+    const std::string s = gpd.plot();
+    CHECK(s.find("splot '-'") != std::string::npos);
+    CHECK(s.find("1 2 3") != std::string::npos);
+}
+
+/******************************************************************************/
+// The gnuplot backend rejects non-graph plotters (histograms, functions).
+TEST_CASE("gnuplot backend throws for non-graph plotters", "[plotting]") {
+    {
+        auto h = std::make_shared<GHistogram1D>(10, 0.0, 1.0);
+        (*h) & 0.5;
+        GPlotDesigner gpd("gnuplot hist", 1, 1);
+        gpd.setPlotBackend(plotBackend::GNUPLOT);
+        gpd.registerPlotter(h);
+        CHECK_THROWS(gpd.plot());
+    }
+    {
+        const std::tuple<double, double> rx(-1., 1.);
+        auto f = std::make_shared<GFunctionPlotter1D>("sin(x)", rx);
+        GPlotDesigner gpd("gnuplot func", 1, 1);
+        gpd.setPlotBackend(plotBackend::GNUPLOT);
+        gpd.registerPlotter(f);
+        CHECK_THROWS(gpd.plot());
+    }
+}

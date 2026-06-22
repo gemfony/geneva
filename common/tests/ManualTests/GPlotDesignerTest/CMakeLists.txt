@@ -77,4 +77,23 @@ ELSE()
 	MESSAGE(STATUS "GPlotDesigner: ROOT validity test skipped (root and/or xvfb-run not found)")
 ENDIF()
 
+# Optional gnuplot-validity test: feed the generated gnuplot script (GNUPLOT backend) to the real
+# gnuplot interpreter to confirm it is valid gnuplot input. Enabled only when `gnuplot` is present and
+# skipped gracefully otherwise. gnuplot renders reliably headless (no xvfb needed), so the check keys
+# off BOTH a produced PNG and a zero exit code.
+FIND_PROGRAM(GENEVA_GNUPLOT_EXECUTABLE NAMES gnuplot)
+IF(GENEVA_GNUPLOT_EXECUTABLE)
+	ADD_TEST(
+		NAME GPlotDesignerGnuplotValidity
+		COMMAND ${CMAKE_COMMAND}
+			-DGEN_EXE=$<TARGET_FILE:${EXECUTABLENAME}>
+			-DGNUPLOT_EXE=${GENEVA_GNUPLOT_EXECUTABLE}
+			-DWORKDIR=${CMAKE_CURRENT_BINARY_DIR}
+			-P ${CMAKE_CURRENT_SOURCE_DIR}/RunGnuplotValidity.cmake
+	)
+	MESSAGE(STATUS "GPlotDesigner: gnuplot validity test ENABLED (gnuplot=${GENEVA_GNUPLOT_EXECUTABLE})")
+ELSE()
+	MESSAGE(STATUS "GPlotDesigner: gnuplot validity test skipped (gnuplot not found)")
+ENDIF()
+
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/common/ManualTests/${EXECUTABLENAME} )

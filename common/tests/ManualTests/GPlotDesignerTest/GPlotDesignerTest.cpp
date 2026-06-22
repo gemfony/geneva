@@ -119,4 +119,42 @@ int main(int argc, char **argv) {
     gpd.registerPlotter(noisyParabola_plotter_2D_ptr);
 
     gpd.writeToFile("result.C");
+
+    // -------------------------------------------------------------------------
+    // A graphs-only designer emitted through the gnuplot backend. The gnuplot
+    // backend supports only the graph plotters (GGraph2D/2ED/3D/4D), so this uses
+    // a separate designer that registers only graphs (no functions / histograms).
+    std::shared_ptr<GGraph2D> gp_sin_ptr(new GGraph2D());
+    gp_sin_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
+    gp_sin_ptr->setPlotLabel("sin(x), gnuplot");
+    gp_sin_ptr->setXAxisLabel("x");
+    gp_sin_ptr->setYAxisLabel("sin(x)");
+
+    // A secondary plotter sharing the first pad (a second inline dataset).
+    std::shared_ptr<GGraph2D> gp_cos_ptr(new GGraph2D());
+    gp_cos_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
+    gp_cos_ptr->setPlotLabel("cos(x), gnuplot");
+    gp_sin_ptr->registerSecondaryPlotter(gp_cos_ptr);
+
+    std::shared_ptr<GGraph3D> gp_helix_ptr(new GGraph3D());
+    gp_helix_ptr->setPlotLabel("a helix, gnuplot");
+    gp_helix_ptr->setXAxisLabel("x");
+    gp_helix_ptr->setYAxisLabel("y");
+    gp_helix_ptr->setZAxisLabel("z");
+
+    for(std::size_t i = 0; i < 200; i++) {
+        double x = 2 * std::numbers::pi * static_cast<double>(i) / 200. - std::numbers::pi;
+        (*gp_sin_ptr) & std::tuple<double, double>(x, std::sin(x));
+        (*gp_cos_ptr) & std::tuple<double, double>(x, std::cos(x));
+
+        double t = 4 * std::numbers::pi * static_cast<double>(i) / 200.;
+        (*gp_helix_ptr) &
+            std::tuple<double, double, double>(std::cos(t), std::sin(t), t);
+    }
+
+    GPlotDesigner gpd_gnuplot("Graphs through gnuplot", 1, 2);
+    gpd_gnuplot.setPlotBackend(Gem::Common::plotBackend::GNUPLOT);
+    gpd_gnuplot.registerPlotter(gp_sin_ptr);
+    gpd_gnuplot.registerPlotter(gp_helix_ptr);
+    gpd_gnuplot.writeToFile("result.gp");
 }

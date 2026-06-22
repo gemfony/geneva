@@ -125,6 +125,30 @@ std::string rootEscape(const std::string &in) {
     return out;
 }
 
+/******************************************************************************/
+/**
+ * Escape a user-supplied string for safe inclusion inside a gnuplot DOUBLE-quoted
+ * string literal (labels, titles). gnuplot double-quoted strings interpret C-style
+ * backslash escapes (\" \\ \n \t), so the metacharacters must be backslash-escaped
+ * exactly as for those literals -- this is deliberately NOT rootEscape (which targets
+ * a ROOT C-string literal and additionally drops bare CRs / has its own contract).
+ */
+std::string gnuplotEscape(const std::string &in) {
+    std::string out;
+    out.reserve(in.size());
+    for(char c : in) {
+        switch(c) {
+            case '\\': out += "\\\\"; break;
+            case '"':  out += "\\\""; break;
+            case '\n': out += "\\n"; break;
+            case '\t': out += "\\t"; break;
+            case '\r': out += "\\r"; break;
+            default:   out += c;      break;
+        }
+    }
+    return out;
+}
+
 } // anonymous namespace
 
 /******************************************************************************/
@@ -543,6 +567,16 @@ std::string GBasePlotter::suffix(bool is_secondary, std::size_t p_id, std::size_
  */
 std::size_t GBasePlotter::id() const {
     return id_;
+}
+
+/******************************************************************************/
+/**
+ * Read-only access to the secondary plotters sharing this plotter's pad
+ *
+ * @return A const reference to the list of registered secondary plotters
+ */
+const std::vector<std::shared_ptr<GBasePlotter>> &GBasePlotter::secondaryPlotters() const {
+    return secondary_plotter_;
 }
 
 /******************************************************************************/
@@ -3657,19 +3691,213 @@ std::string GnuplotEmitter::fileExtension() const {
     return std::string(".gp");
 }
 
+namespace {
+
+/******************************************************************************/
+// Helpers backing the gnuplot backend. A "dataset" is one plotter's inline data
+// block (`x y ...` rows terminated by `e`); a "spec" is the leading
+// `'-' with <style> title "..."` fragment naming that dataset inside a (s)plot
+// command. The graph plotters expose their columns via the public const
+// column<I>() accessor added to GDataCollectorT.
+
+/** @brief The graph-plotter kind, used to group compatible plotters into one (s)plot. */
+enum class graphKind { g2d, g2ed, g3d, g4d };
+
+/** @brief Classify a plotter; throws if it is not one of the four graph plotters. */
+graphKind classifyGraph(const GBasePlotter &p) {
+    if(dynamic_cast<const GGraph2ED *>(&p) != nullptr) {
+        return graphKind::g2ed; // checked before GGraph2D's base would match
+    }
+    if(dynamic_cast<const GGraph2D *>(&p) != nullptr) {
+        return graphKind::g2d;
+    }
+    if(dynamic_cast<const GGraph3D *>(&p) != nullptr) {
+        return graphKind::g3d;
+    }
+    if(dynamic_cast<const GGraph4D *>(&p) != nullptr) {
+        return graphKind::g4d;
+    }
+    throw geneva_exception(
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+        << "In GnuplotEmitter::emitDocument(): Error!" << '\n'
+        << "the gnuplot backend supports only graph plotters; use the ROOT backend for "
+        << p.getPlotterName() << '\n'
+    );
+}
+
+/** @brief Whether a (s)plot groups 2-d (plot) or 3-d (splot) datasets. */
+bool isThreeDimensional(graphKind k) {
+    return k == graphKind::g3d || k == graphKind::g4d;
+}
+
+/** @brief The `'-' with <style> ...` spec naming a plotter's inline dataset. */
+std::string datasetSpec(const GBasePlotter &p, graphKind k) {
+    EmitStream spec; // NOLINT(cppcoreguidelines-init-variables)
+    const std::string title = gnuplotEscape(p.plotLabel());
+    switch(k) {
+        case graphKind::g2d:
+            spec << "'-' with linespoints title \"" << title << "\"";
+            break;
+        case graphKind::g2ed:
+            spec << "'-' with xyerrorbars title \"" << title << "\"";
+            break;
+        case graphKind::g3d:
+            spec << "'-' with linespoints title \"" << title << "\"";
+            break;
+        case graphKind::g4d:
+            spec << "'-' using 1:2:3:4 with points palette pointtype 7 title \"" << title << "\"";
+            break;
+    }
+    return spec.str();
+}
+
+/** @brief A plotter's inline data rows, terminated by the gnuplot end-of-data `e`. */
+std::string datasetRows(const GBasePlotter &p, graphKind k, const std::string &indent) {
+    EmitStream rows; // NOLINT(cppcoreguidelines-init-variables)
+    switch(k) {
+        case graphKind::g2d: {
+            const auto &g = dynamic_cast<const GGraph2D &>(p);
+            const auto &x = g.column<0>();
+            const auto &y = g.column<1>();
+            for(std::size_t i = 0; i < x.size(); ++i) {
+                rows << indent << x[i] << ' ' << y[i] << '\n';
+            }
+        } break;
+        case graphKind::g2ed: {
+            // GGraph2ED stores (x, ex, y, ey); gnuplot xyerrorbars wants x y xdelta ydelta.
+            const auto &g = dynamic_cast<const GGraph2ED &>(p);
+            const auto &x  = g.column<0>();
+            const auto &ex = g.column<1>();
+            const auto &y  = g.column<2>();
+            const auto &ey = g.column<3>();
+            for(std::size_t i = 0; i < x.size(); ++i) {
+                rows << indent << x[i] << ' ' << y[i] << ' ' << ex[i] << ' ' << ey[i] << '\n';
+            }
+        } break;
+        case graphKind::g3d: {
+            const auto &g = dynamic_cast<const GGraph3D &>(p);
+            const auto &x = g.column<0>();
+            const auto &y = g.column<1>();
+            const auto &z = g.column<2>();
+            for(std::size_t i = 0; i < x.size(); ++i) {
+                rows << indent << x[i] << ' ' << y[i] << ' ' << z[i] << '\n';
+            }
+        } break;
+        case graphKind::g4d: {
+            const auto &g = dynamic_cast<const GGraph4D &>(p);
+            const auto &x = g.column<0>();
+            const auto &y = g.column<1>();
+            const auto &z = g.column<2>();
+            const auto &w = g.column<3>();
+            for(std::size_t i = 0; i < x.size(); ++i) {
+                rows << indent << x[i] << ' ' << y[i] << ' ' << z[i] << ' ' << w[i] << '\n';
+            }
+        } break;
+    }
+    rows << indent << "e" << '\n';
+    return rows.str();
+}
+
+} // anonymous namespace
+
 /******************************************************************************/
 /**
- * Emits a gnuplot script for the graph plotters. Implemented in stage B.
+ * Emits a gnuplot script for the graph plotters (GGraph2D / GGraph2ED / GGraph3D /
+ * GGraph4D). Any other plotter type triggers a clear geneva_exception. The script
+ * is terminal-agnostic (the caller / validity harness prepends `set terminal` and
+ * `set output`): it lays the pads out as a `set multiplot` grid and, per pad, sets
+ * the axis labels and title and emits a `plot`/`splot` with one inline dataset per
+ * primary-or-secondary plotter sharing that pad.
  *
  * @param gpd The designer holding the graph plotters and canvas configuration
  * @return The complete gnuplot script as a string
  */
-std::string GnuplotEmitter::emitDocument([[maybe_unused]] const GPlotDesigner &gpd) const {
-    throw geneva_exception(
-        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-        << "In GnuplotEmitter::emitDocument(): Error!" << '\n'
-        << "The gnuplot backend is not yet implemented." << '\n'
-    );
+std::string GnuplotEmitter::emitDocument(const GPlotDesigner &gpd) const {
+    const std::size_t cols = gpd.c_x_div_;
+    const std::size_t rows = gpd.c_y_div_;
+    const std::size_t max_plots = cols * rows;
+
+    EmitStream result; // NOLINT(cppcoreguidelines-init-variables)
+
+    // Validate ALL plotters (and their secondaries) up front, so a partial script is
+    // never produced for an unsupported plotter type.
+    for(const auto &p : gpd.plotters_cnt_) {
+        const graphKind k = classifyGraph(*p);
+        for(const auto &sp : p->secondaryPlotters()) {
+            const graphKind sk = classifyGraph(*sp);
+            if(isThreeDimensional(k) != isThreeDimensional(sk)) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GnuplotEmitter::emitDocument(): Error!" << '\n'
+                    << "a 2-d and a 3-d graph cannot share a single gnuplot pad ("
+                    << p->getPlotterName() << " vs. " << sp->getPlotterName() << ")" << '\n'
+                );
+            }
+        }
+    }
+
+    if(gpd.plotters_cnt_.size() > max_plots) {
+        glogger << "In GnuplotEmitter::emitDocument() (Canvas label = \"" << gpd.getCanvasLabel()
+                << "\":" << '\n'
+                << "Warning! Found more plots than pads (" << gpd.plotters_cnt_.size() << " vs. "
+                << max_plots << ")" << '\n'
+                << "Some of the plots will be ignored" << '\n'
+                << GWARNING;
+    }
+
+    const std::string &indent = gpd.indent();
+
+    // gnuplot multiplot grid (rows = c_y_div, cols = c_x_div).
+    result << "set multiplot layout " << rows << "," << cols << " title \""
+           << gnuplotEscape(gpd.getCanvasLabel()) << "\"" << '\n' << '\n';
+
+    std::size_t n_plots = 0;
+    for(const auto &p : gpd.plotters_cnt_) {
+        if(n_plots++ >= max_plots) {
+            break;
+        }
+
+        const graphKind k = classifyGraph(*p);
+        const bool three_d = isThreeDimensional(k);
+
+        // Per-pad axis labels and title.
+        result << indent << "set xlabel \"" << gnuplotEscape(p->xAxisLabel()) << "\"" << '\n'
+               << indent << "set ylabel \"" << gnuplotEscape(p->yAxisLabel()) << "\"" << '\n';
+        if(three_d) {
+            result << indent << "set zlabel \"" << gnuplotEscape(p->zAxisLabel()) << "\"" << '\n';
+        }
+        result << indent << "set title \"" << gnuplotEscape(p->plotLabel()) << "\"" << '\n';
+
+        // GGraph4D maps its w-component to a colour palette.
+        if(k == graphKind::g4d) {
+            result << indent << "set palette" << '\n';
+        }
+
+        // Collect this pad's datasets (primary first, then any secondary plotters).
+        std::vector<const GBasePlotter *> pad;
+        pad.push_back(p.get());
+        for(const auto &sp : p->secondaryPlotters()) {
+            pad.push_back(sp.get());
+        }
+
+        // The (s)plot command: one `'-' ...` spec per dataset, comma-separated.
+        result << indent << (three_d ? "splot " : "plot ");
+        for(std::size_t i = 0; i < pad.size(); ++i) {
+            result << (i == 0 ? "" : ", ") << datasetSpec(*pad[i], classifyGraph(*pad[i]));
+        }
+        result << '\n';
+
+        // The inline data blocks, in the same order as the specs.
+        for(const auto *dp : pad) {
+            result << datasetRows(*dp, classifyGraph(*dp), indent);
+        }
+
+        result << '\n';
+    }
+
+    result << "unset multiplot" << '\n';
+
+    return result.str();
 }
 
 /******************************************************************************/

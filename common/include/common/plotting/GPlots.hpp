@@ -466,6 +466,21 @@ public:
         return minMaxImpl(std::make_index_sequence<n_axes>{});
     };
 
+    /***************************************************************************/
+    /**
+	  * Const, read-only access to the per-axis value vector (the column) for axis
+	  * I. This exposes the columnar data to out-of-hierarchy consumers (the
+	  * pluggable plot emitters) without granting any mutation path; the writable
+	  * column() overload remains protected / internal to the collector hierarchy.
+	  *
+	  * @tparam I The axis whose value vector should be returned
+	  * @return A const reference to the std::vector holding axis I's values
+	  */
+    template <std::size_t I>
+    const std::vector<axis_t<I>> &column() const {
+        return std::get<I>(columns_);
+    }
+
 protected:
     /***************************************************************************/
     /**
@@ -561,11 +576,6 @@ protected:
 	  */
     template <std::size_t I>
     std::vector<axis_t<I>> &column() {
-        return std::get<I>(columns_);
-    }
-
-    template <std::size_t I>
-    const std::vector<axis_t<I>> &column() const {
         return std::get<I>(columns_);
     }
 
