@@ -245,22 +245,44 @@ TEST_CASE("matplotlib backend uses a 3d projection for a GGraph3D", "[plotting]"
 }
 
 /******************************************************************************/
-// The matplotlib backend (stage 1) rejects histograms and function plotters.
-TEST_CASE("matplotlib backend throws for histograms and function plotters", "[plotting]") {
+// The matplotlib backend emits ax.hist / ax.hist2d for the histogram plotters.
+TEST_CASE("matplotlib backend emits hist calls for histograms", "[plotting]") {
     {
-        auto h = std::make_shared<GHistogram1D>(10, 0.0, 1.0);
-        (*h) & 0.5;
-        GPlotDesigner gpd("matplotlib hist", 1, 1);
+        auto h = std::make_shared<GHistogram1D>(7, 0.0, 1.0);
+        (*h) & 0.25;
+        (*h) & 0.75;
+        GPlotDesigner gpd("matplotlib hist1d", 1, 1);
         gpd.setPlotBackend(plotBackend::MATPLOTLIB);
         gpd.registerPlotter(h);
-        CHECK_THROWS(gpd.plot());
+
+        const std::string s = gpd.plot();
+        // A 1-d histogram is a flat (non-3d) Axes with an ax.hist(...) call honouring the bin count.
+        CHECK(s.find(".hist(") != std::string::npos);
+        CHECK(s.find("bins=7") != std::string::npos);
+        CHECK(s.find("projection=\"3d\"") == std::string::npos);
     }
     {
-        const std::tuple<double, double> rx(-1., 1.);
-        auto f = std::make_shared<GFunctionPlotter1D>("sin(x)", rx);
-        GPlotDesigner gpd("matplotlib func", 1, 1);
+        auto h = std::make_shared<GHistogram2D>(5, 3, 0.0, 1.0, 0.0, 1.0);
+        (*h) & std::tuple<double, double>(0.25, 0.5);
+        GPlotDesigner gpd("matplotlib hist2d", 1, 1);
         gpd.setPlotBackend(plotBackend::MATPLOTLIB);
-        gpd.registerPlotter(f);
-        CHECK_THROWS(gpd.plot());
+        gpd.registerPlotter(h);
+
+        const std::string s = gpd.plot();
+        // A 2-d histogram uses ax.hist2d(...) with the per-axis bin counts and a colourbar.
+        CHECK(s.find(".hist2d(") != std::string::npos);
+        CHECK(s.find("bins=[5, 3]") != std::string::npos);
+        CHECK(s.find("colorbar(") != std::string::npos);
     }
+}
+
+/******************************************************************************/
+// The matplotlib backend still rejects function plotters (deferred to a later pass).
+TEST_CASE("matplotlib backend throws for function plotters", "[plotting]") {
+    const std::tuple<double, double> rx(-1., 1.);
+    auto f = std::make_shared<GFunctionPlotter1D>("sin(x)", rx);
+    GPlotDesigner gpd("matplotlib func", 1, 1);
+    gpd.setPlotBackend(plotBackend::MATPLOTLIB);
+    gpd.registerPlotter(f);
+    CHECK_THROWS(gpd.plot());
 }

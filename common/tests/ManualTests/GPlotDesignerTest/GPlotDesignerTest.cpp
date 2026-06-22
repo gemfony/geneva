@@ -191,9 +191,32 @@ int main(int argc, char **argv) {
             std::tuple<double, double, double>(std::cos(t), std::sin(t), t);
     }
 
-    GPlotDesigner gpd_mpl("Graphs through matplotlib", 1, 2);
+    // Histograms are a matplotlib strength (and a gnuplot gap): a 1-d and a 2-d
+    // histogram exercise ax.hist / ax.hist2d.
+    std::shared_ptr<GHistogram1D> mpl_hist1d_ptr(new GHistogram1D(20, -4.0, 4.0));
+    mpl_hist1d_ptr->setPlotLabel("a 1d histogram, matplotlib");
+    mpl_hist1d_ptr->setXAxisLabel("value");
+    mpl_hist1d_ptr->setYAxisLabel("count");
+
+    std::shared_ptr<GHistogram2D> mpl_hist2d_ptr(
+        new GHistogram2D(20, 20, -4.0, 4.0, -4.0, 4.0)
+    );
+    mpl_hist2d_ptr->setPlotLabel("a 2d histogram, matplotlib");
+    mpl_hist2d_ptr->setXAxisLabel("x");
+    mpl_hist2d_ptr->setYAxisLabel("y");
+
+    for(std::size_t i = 0; i < 2000; i++) {
+        double x = 4. * std::sin(static_cast<double>(i));
+        double y = 4. * std::cos(static_cast<double>(i) * 1.3);
+        (*mpl_hist1d_ptr) & x;
+        (*mpl_hist2d_ptr) & std::tuple<double, double>(x, y);
+    }
+
+    GPlotDesigner gpd_mpl("Graphs and histograms through matplotlib", 2, 2);
     gpd_mpl.setPlotBackend(Gem::Common::plotBackend::MATPLOTLIB);
     gpd_mpl.registerPlotter(mpl_sin_ptr);
     gpd_mpl.registerPlotter(mpl_helix_ptr);
+    gpd_mpl.registerPlotter(mpl_hist1d_ptr);
+    gpd_mpl.registerPlotter(mpl_hist2d_ptr);
     gpd_mpl.writeToFile("result.py");
 }

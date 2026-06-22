@@ -3987,7 +3987,12 @@ mplKind classifyMpl(const GBasePlotter &p) {
     if(dynamic_cast<const GGraph4D *>(&p) != nullptr) {
         return mplKind::g4d;
     }
-    // NOTE: histogram support (GHistogram1D / GHistogram2D) is added in stage 2.
+    if(dynamic_cast<const GHistogram2D *>(&p) != nullptr) {
+        return mplKind::hist2d;
+    }
+    if(dynamic_cast<const GHistogram1D *>(&p) != nullptr) {
+        return mplKind::hist1d;
+    }
     throw geneva_exception(
         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In MatplotlibEmitter::emitDocument(): Error!" << '\n'

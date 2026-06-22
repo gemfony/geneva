@@ -8,3 +8,16 @@ the file result.C with a text editor -- it was created with GPlotDesigner and
 associated classes. Then, if ROOT is in your path, execute
 
 root -l ./result.C
+
+The same run also writes result.gp (the gnuplot backend, graph plotters only)
+and result.py (the matplotlib backend). The matplotlib script is a self-
+contained, headless (Agg) Python program; it ends without a savefig, so append
+one and run it, e.g.:
+
+    ( cat result.py; echo "fig.savefig('result.png')" ) | python3
+
+The matplotlib backend supports the graph plotters (GGraph2D/2ED/3D/4D) and the
+histogram plotters (GHistogram1D/GHistogram2D). Function plotters
+(GFunctionPlotter1D/2D) are NOT yet supported on the matplotlib (or gnuplot)
+backend -- they would require translating the ROOT TFormula formula dialect into
+a NumPy-evaluable expression, which is deferred; use the ROOT backend for those.
