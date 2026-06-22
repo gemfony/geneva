@@ -286,3 +286,54 @@ TEST_CASE("matplotlib backend throws for function plotters", "[plotting]") {
     gpd.registerPlotter(f);
     CHECK_THROWS(gpd.plot());
 }
+
+/******************************************************************************/
+// The DATA backend in CSV mode exports the raw series data: a `# series` header comment,
+// a column-name row and the data rows for a GGraph2D (NOT a rendered plot).
+TEST_CASE("data backend (CSV) emits the raw series data for a GGraph2D", "[plotting]") {
+    auto g = std::make_shared<GGraph2D>();
+    (*g) & std::tuple<double, double>(1.0, 2.0);
+    (*g) & std::tuple<double, double>(3.0, 4.0);
+    g->setPlotLabel(std::string("my series"));
+
+    GPlotDesigner gpd("data csv", 1, 1);
+    gpd.setDataFormat(dataFormat::CSV);
+    gpd.registerPlotter(g);
+
+    const std::string s = gpd.plot();
+
+    // The section header comment names the series, its kind and its columns.
+    CHECK(s.find("# series 0: \"my series\" kind=GGraph2D columns=x,y") != std::string::npos);
+    // The column-name header row.
+    CHECK(s.find("x,y") != std::string::npos);
+    // The data rows, full precision, dot decimal separator.
+    CHECK(s.find("1,2") != std::string::npos);
+    CHECK(s.find("3,4") != std::string::npos);
+    // No rendering / script content leaks into the data export.
+    CHECK(s.find("import") == std::string::npos);
+    CHECK(s.find("TCanvas") == std::string::npos);
+}
+
+/******************************************************************************/
+// The DATA backend in NPZ mode produces a non-empty binary numpy .npz archive: the bytes
+// begin with the ZIP local-file-header signature "PK\x03\x04".
+TEST_CASE("data backend (NPZ) emits a non-empty ZIP/.npz archive", "[plotting]") {
+    auto g = std::make_shared<GGraph2D>();
+    (*g) & std::tuple<double, double>(1.0, 2.0);
+    (*g) & std::tuple<double, double>(3.0, 4.0);
+
+    GPlotDesigner gpd("data npz", 1, 1);
+    gpd.setDataFormat(dataFormat::NPZ);
+    gpd.registerPlotter(g);
+
+    const std::string s = gpd.plot();
+
+    REQUIRE(s.size() > 4);
+    // The .npz is an uncompressed ZIP: it begins with the local file header signature.
+    CHECK(s.compare(0, 4, std::string("PK\x03\x04", 4)) == 0);
+    // It is a real archive: an end-of-central-directory record ("PK\x05\x06") is present.
+    CHECK(s.find(std::string("PK\x05\x06", 4)) != std::string::npos);
+    // The .npy member magic and the manifest member name are embedded.
+    CHECK(s.find(std::string("\x93NUMPY", 6)) != std::string::npos);
+    CHECK(s.find("manifest.json") != std::string::npos);
+}

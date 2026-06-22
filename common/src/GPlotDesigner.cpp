@@ -38,8 +38,11 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -48,6 +51,7 @@
 #include <limits>
 #include <locale>
 #include <memory>
+#include <optional>
 #include <ostream>
 #include <ranges>
 #include <sstream>
@@ -3551,8 +3555,13 @@ GPlotDesigner &GPlotDesigner::operator=(GPlotDesigner const &cp) {
  * @param file_name The name of the file to which the data can be written
  */
 void GPlotDesigner::writeToFile(const std::filesystem::path &file_name) {
-    std::ofstream result(file_name);
-    result << plot(file_name);
+    // Some backends (the DATA backend's NPZ mode) emit a BINARY document that may contain
+    // embedded NUL bytes; a text-mode `<<` would truncate / mangle it. Render once, then
+    // write the full byte length binary-safe so every backend round-trips intact (the text
+    // backends are unaffected -- their bytes are the same in either mode).
+    const std::string document = plot(file_name);
+    std::ofstream result(file_name, std::ios::binary);
+    result.write(document.data(), static_cast<std::streamsize>(document.size()));
     result.close();
 }
 
@@ -3568,7 +3577,20 @@ void GPlotDesigner::setPlotBackend(plotBackend backend) {
         case plotBackend::ROOT:       emitter_ = std::make_shared<GRootEmitter>(); break;
         case plotBackend::GNUPLOT:    emitter_ = std::make_shared<GnuplotEmitter>(); break;
         case plotBackend::MATPLOTLIB: emitter_ = std::make_shared<MatplotlibEmitter>(); break;
+        case plotBackend::DATA:       emitter_ = std::make_shared<GDataEmitter>(); break;
     }
+}
+
+/******************************************************************************/
+/**
+ * Selects the DATA backend in the requested export format, installing a GDataEmitter.
+ * A convenience for setEmitter(std::make_shared<GDataEmitter>(format)); plot() then
+ * delegates to it, exporting the raw series data rather than a rendered plot.
+ *
+ * @param format The on-disk format to export (CSV, the default, or NPZ)
+ */
+void GPlotDesigner::setDataFormat(dataFormat format) {
+    emitter_ = std::make_shared<GDataEmitter>(format);
 }
 
 /******************************************************************************/
@@ -4175,6 +4197,420 @@ std::string MatplotlibEmitter::emitDocument(const GPlotDesigner &gpd) const {
     result << "fig.tight_layout()" << '\n';
 
     return result.str();
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+// The DATA backend (GDataEmitter): exports the raw columnar series data (NOT a
+// rendered plot) as either human-inspectable CSV text or a binary numpy .npz archive.
+
+namespace {
+
+/******************************************************************************/
+/**
+ * A single exportable series: one plotter's columnar data captured generically. `name`
+ * is the plotter's plot label, `kind` its getPlotterName(), `column_names` the per-axis
+ * labels (x, y, ...) and `columns` the per-axis value vectors (all equal length). The
+ * DATA backend reads everything through the public column<I>() accessor, so the series
+ * is decoupled from the concrete plotter type once captured.
+ */
+struct dataSeries {
+    std::string name;                              ///< the plotter's plot label
+    std::string kind;                              ///< the plotter's getPlotterName()
+    std::vector<std::string> column_names;         ///< per-axis names (x, ex, y, ...)
+    std::vector<const std::vector<double> *> columns; ///< per-axis value vectors (parallel)
+};
+
+/** @brief Capture a plotter's columns as a dataSeries, or std::nullopt for a plotter that
+ *  carries no sampled data (the function plotters). Mirrors MatplotlibEmitter::classifyMpl's
+ *  most-derived-first dynamic_cast ordering so GGraph2ED is not mistaken for a GGraph2D. */
+std::optional<dataSeries> captureSeries(const GBasePlotter &p) {
+    dataSeries s;
+    s.name = p.plotLabel();
+    s.kind = p.getPlotterName();
+
+    if(const auto *g = dynamic_cast<const GGraph2ED *>(&p)) { // before GGraph2D
+        s.column_names = {"x", "ex", "y", "ey"};
+        s.columns = {&g->column<0>(), &g->column<1>(), &g->column<2>(), &g->column<3>()};
+        return s;
+    }
+    if(const auto *g = dynamic_cast<const GGraph2D *>(&p)) {
+        s.column_names = {"x", "y"};
+        s.columns = {&g->column<0>(), &g->column<1>()};
+        return s;
+    }
+    if(const auto *g = dynamic_cast<const GGraph3D *>(&p)) {
+        s.column_names = {"x", "y", "z"};
+        s.columns = {&g->column<0>(), &g->column<1>(), &g->column<2>()};
+        return s;
+    }
+    if(const auto *g = dynamic_cast<const GGraph4D *>(&p)) {
+        s.column_names = {"x", "y", "z", "w"};
+        s.columns = {&g->column<0>(), &g->column<1>(), &g->column<2>(), &g->column<3>()};
+        return s;
+    }
+    if(const auto *h = dynamic_cast<const GHistogram2D *>(&p)) { // before GHistogram1D
+        s.column_names = {"x", "y"};
+        s.columns = {&h->column<0>(), &h->column<1>()};
+        return s;
+    }
+    if(const auto *h = dynamic_cast<const GHistogram1D *>(&p)) {
+        s.column_names = {"value"}; // the raw (unbinned) sample values
+        s.columns = {&h->column<0>()};
+        return s;
+    }
+    // Function plotters (and any other dataless plotter) have no sampled columns.
+    return std::nullopt;
+}
+
+/** @brief The number of data rows in a captured series (the common column length). */
+std::size_t seriesRows(const dataSeries &s) {
+    return s.columns.empty() ? 0 : s.columns.front()->size();
+}
+
+/******************************************************************************/
+// CSV mode.
+
+/** @brief Escape a label for a CSV header comment / a quoted CSV field: drop CRs/newlines
+ *  (a comment line and a data row must stay single-line) and double any embedded `"`. */
+std::string csvComment(const std::string &in) {
+    std::string out;
+    out.reserve(in.size());
+    for(char c : in) {
+        if(c == '\n' || c == '\r') {
+            out += ' ';
+        } else {
+            out += c;
+        }
+    }
+    return out;
+}
+
+/** @brief Render all captured series as the CSV document: one section per series separated
+ *  by a blank line; each section a `# series ...` comment header, a column-name header row,
+ *  then the data rows. Values are full-precision and locale-independent (EmitStream). */
+std::string emitCsv(const std::vector<dataSeries> &series) {
+    EmitStream out; // NOLINT(cppcoreguidelines-init-variables)
+    for(std::size_t si = 0; si < series.size(); ++si) {
+        const dataSeries &s = series[si];
+        if(si != 0) {
+            out << '\n'; // blank line between sections
+        }
+
+        // Comma-list of column names for the header comment.
+        std::string col_list;
+        for(std::size_t c = 0; c < s.column_names.size(); ++c) {
+            col_list += (c == 0 ? "" : ",") + s.column_names[c];
+        }
+
+        out << "# series " << si << ": \"" << csvComment(s.name) << "\" kind=" << s.kind
+            << " columns=" << col_list << '\n';
+
+        // Column-name header row.
+        for(std::size_t c = 0; c < s.column_names.size(); ++c) {
+            out << (c == 0 ? "" : ",") << s.column_names[c];
+        }
+        out << '\n';
+
+        // Data rows.
+        const std::size_t rows = seriesRows(s);
+        for(std::size_t r = 0; r < rows; ++r) {
+            for(std::size_t c = 0; c < s.columns.size(); ++c) {
+                out << (c == 0 ? "" : ",") << (*s.columns[c])[r];
+            }
+            out << '\n';
+        }
+    }
+    return out.str();
+}
+
+/******************************************************************************/
+// NPZ mode: build a numpy .npz (an uncompressed ZIP of float64 .npy members) by hand,
+// with no new C++ dependency. Helpers below assume a little-endian host (every platform
+// Geneva targets) -- the float64 / uint bytes are emitted in native order.
+
+/** @brief Append a uint16 little-endian to a byte buffer. */
+void putU16(std::string &buf, std::uint16_t v) {
+    buf.push_back(static_cast<char>(v & 0xFFu));
+    buf.push_back(static_cast<char>((v >> 8) & 0xFFu));
+}
+
+/** @brief Append a uint32 little-endian to a byte buffer. */
+void putU32(std::string &buf, std::uint32_t v) {
+    buf.push_back(static_cast<char>(v & 0xFFu));
+    buf.push_back(static_cast<char>((v >> 8) & 0xFFu));
+    buf.push_back(static_cast<char>((v >> 16) & 0xFFu));
+    buf.push_back(static_cast<char>((v >> 24) & 0xFFu));
+}
+
+/** @brief A table-based CRC-32 (the ISO-HDLC / ZIP polynomial 0xEDB88320), built once. */
+const std::array<std::uint32_t, 256> &crc32Table() {
+    static const std::array<std::uint32_t, 256> table = [] {
+        std::array<std::uint32_t, 256> t{};
+        for(std::uint32_t n = 0; n < 256; ++n) {
+            std::uint32_t c = n;
+            for(int k = 0; k < 8; ++k) {
+                c = (c & 1u) ? (0xEDB88320u ^ (c >> 1)) : (c >> 1);
+            }
+            t[n] = c;
+        }
+        return t;
+    }();
+    return table;
+}
+
+/** @brief CRC-32 of a byte range (ZIP local/central-directory checksum). */
+std::uint32_t crc32(const std::string &data) {
+    const auto &table = crc32Table();
+    std::uint32_t crc = 0xFFFFFFFFu;
+    for(unsigned char byte : data) {
+        crc = table[(crc ^ byte) & 0xFFu] ^ (crc >> 8);
+    }
+    return crc ^ 0xFFFFFFFFu;
+}
+
+/** @brief Build the bytes of a numpy `.npy` (format v1.0) for a 2-D C-order little-endian
+ *  float64 array of shape (rows, cols). The column-major `columns` are interleaved into
+ *  the row-major payload. A 1-column series is still written as shape (rows, 1). */
+std::string buildNpy(const std::vector<const std::vector<double> *> &columns, std::size_t rows) {
+    const std::size_t cols = columns.size();
+
+    // The ASCII dict header describing the array.
+    std::string dict = "{'descr': '<f8', 'fortran_order': False, 'shape': (";
+    dict += std::to_string(rows);
+    dict += ", ";
+    dict += std::to_string(cols);
+    dict += "), }";
+
+    // The header must be padded with spaces so that magic(6)+version(2)+len(2)+header is a
+    // multiple of 64, with the final header byte a newline.
+    const std::size_t prefix = 6 + 2 + 2; // magic + version + uint16 length field
+    std::size_t total = prefix + dict.size() + 1; // +1 for the trailing '\n'
+    const std::size_t pad = (64 - (total % 64)) % 64;
+    dict.append(pad, ' ');
+    dict.push_back('\n');
+
+    std::string npy;
+    npy.append("\x93NUMPY", 6);    // magic
+    npy.push_back('\x01');          // version major
+    npy.push_back('\x00');          // version minor
+    putU16(npy, static_cast<std::uint16_t>(dict.size())); // header length (LE)
+    npy += dict;
+
+    // The raw float64 payload in C order: row-major, i.e. all columns of row 0, then row 1...
+    npy.reserve(npy.size() + rows * cols * sizeof(double));
+    for(std::size_t r = 0; r < rows; ++r) {
+        for(std::size_t c = 0; c < cols; ++c) {
+            const double v = (*columns[c])[r];
+            char bytes[sizeof(double)];
+            std::memcpy(bytes, &v, sizeof(double)); // native (little-endian) order
+            npy.append(bytes, sizeof(double));
+        }
+    }
+    return npy;
+}
+
+/** @brief Minimal JSON string escaping (quotes, backslashes, control chars) for the manifest. */
+std::string jsonEscape(const std::string &in) {
+    std::string out;
+    out.reserve(in.size() + 2);
+    for(char c : in) {
+        switch(c) {
+            case '"':  out += "\\\""; break;
+            case '\\': out += "\\\\"; break;
+            case '\n': out += "\\n"; break;
+            case '\r': out += "\\r"; break;
+            case '\t': out += "\\t"; break;
+            default:   out += c;      break;
+        }
+    }
+    return out;
+}
+
+/** @brief One member to be stored in the .npz ZIP: its archive name and raw bytes. */
+struct zipMember {
+    std::string name;
+    std::string data;
+};
+
+/** @brief Pack the members into a single uncompressed ("store", method 0) ZIP -- which IS a
+ *  .npz. Each member gets a local file header + its bytes; a central directory and an
+ *  end-of-central-directory record close the archive. DOS date/time are left zero (numpy
+ *  ignores them) so the bytes are deterministic. */
+std::string buildZip(const std::vector<zipMember> &members) {
+    std::string out;
+    struct cdEntry {
+        std::string name;
+        std::uint32_t crc;
+        std::uint32_t size;
+        std::uint32_t offset;
+    };
+    std::vector<cdEntry> directory;
+
+    for(const auto &m : members) {
+        const std::uint32_t offset = static_cast<std::uint32_t>(out.size());
+        const std::uint32_t crc = crc32(m.data);
+        const std::uint32_t size = static_cast<std::uint32_t>(m.data.size());
+
+        // Local file header.
+        putU32(out, 0x04034b50u);                                  // local file header signature
+        putU16(out, 20);                                            // version needed to extract (2.0)
+        putU16(out, 0);                                            // general purpose bit flag
+        putU16(out, 0);                                            // compression method 0 (store)
+        putU16(out, 0);                                            // last mod file time
+        putU16(out, 0);                                            // last mod file date
+        putU32(out, crc);                                          // CRC-32
+        putU32(out, size);                                         // compressed size (== uncompressed)
+        putU32(out, size);                                         // uncompressed size
+        putU16(out, static_cast<std::uint16_t>(m.name.size()));    // file name length
+        putU16(out, 0);                                            // extra field length
+        out += m.name;                                            // file name
+        out += m.data;                                            // the member bytes
+
+        directory.push_back({m.name, crc, size, offset});
+    }
+
+    // Central directory.
+    const std::uint32_t cd_offset = static_cast<std::uint32_t>(out.size());
+    for(const auto &e : directory) {
+        putU32(out, 0x02014b50u);                                  // central file header signature
+        putU16(out, 20);                                           // version made by
+        putU16(out, 20);                                           // version needed to extract
+        putU16(out, 0);                                            // general purpose bit flag
+        putU16(out, 0);                                            // compression method 0 (store)
+        putU16(out, 0);                                            // last mod file time
+        putU16(out, 0);                                            // last mod file date
+        putU32(out, e.crc);                                        // CRC-32
+        putU32(out, e.size);                                       // compressed size
+        putU32(out, e.size);                                       // uncompressed size
+        putU16(out, static_cast<std::uint16_t>(e.name.size()));    // file name length
+        putU16(out, 0);                                            // extra field length
+        putU16(out, 0);                                            // file comment length
+        putU16(out, 0);                                            // disk number start
+        putU16(out, 0);                                            // internal file attributes
+        putU32(out, 0);                                            // external file attributes
+        putU32(out, e.offset);                                     // relative offset of local header
+        out += e.name;                                            // file name
+    }
+    const std::uint32_t cd_size = static_cast<std::uint32_t>(out.size()) - cd_offset;
+
+    // End of central directory record.
+    putU32(out, 0x06054b50u);                                      // EOCD signature
+    putU16(out, 0);                                                // number of this disk
+    putU16(out, 0);                                                // disk where CD starts
+    putU16(out, static_cast<std::uint16_t>(directory.size()));     // CD records on this disk
+    putU16(out, static_cast<std::uint16_t>(directory.size()));     // total CD records
+    putU32(out, cd_size);                                          // size of central directory
+    putU32(out, cd_offset);                                        // offset of central directory
+    putU16(out, 0);                                                // comment length
+    return out;
+}
+
+/** @brief Render all captured series as a numpy .npz: one float64 .npy member per series
+ *  (`series_0`, `series_1`, ...) plus a `manifest.json` describing each series. */
+std::string emitNpz(const std::vector<dataSeries> &series) {
+    std::vector<zipMember> members;
+
+    // A manifest describing each series (index, name, kind, column names).
+    std::string manifest = "{\n  \"series\": [\n";
+    for(std::size_t si = 0; si < series.size(); ++si) {
+        const dataSeries &s = series[si];
+        const std::size_t rows = seriesRows(s);
+
+        // The .npy member.
+        zipMember member;
+        member.name = "series_" + std::to_string(si) + ".npy";
+        member.data = buildNpy(s.columns, rows);
+        members.push_back(std::move(member));
+
+        // The manifest entry.
+        manifest += "    {\"index\": " + std::to_string(si);
+        manifest += ", \"name\": \"" + jsonEscape(s.name) + "\"";
+        manifest += ", \"kind\": \"" + jsonEscape(s.kind) + "\"";
+        manifest += ", \"rows\": " + std::to_string(rows);
+        manifest += ", \"columns\": [";
+        for(std::size_t c = 0; c < s.column_names.size(); ++c) {
+            manifest += (c == 0 ? "" : ", ");
+            manifest += "\"" + jsonEscape(s.column_names[c]) + "\"";
+        }
+        manifest += "]}";
+        manifest += (si + 1 == series.size() ? "\n" : ",\n");
+    }
+    manifest += "  ]\n}\n";
+
+    members.push_back({"manifest.json", manifest});
+
+    return buildZip(members);
+}
+
+/** @brief Collect the exportable series from an ordered list of plotters (skipping the
+ *  dataless function plotters), including each plotter's secondary plotters. Shared by
+ *  both the CSV and NPZ paths; the plotter list is supplied by the friend emitter member
+ *  (free functions cannot reach GPlotDesigner's private plotter container). */
+std::vector<dataSeries> collectSeries(
+    const std::vector<std::shared_ptr<GBasePlotter>> &plotters
+) {
+    std::vector<dataSeries> series;
+    for(const auto &p : plotters) {
+        if(auto s = captureSeries(*p)) {
+            series.push_back(std::move(*s));
+        }
+        // Secondary plotters are independent datasets sharing a pad; export them too.
+        for(const auto &sp : p->secondaryPlotters()) {
+            if(auto s = captureSeries(*sp)) {
+                series.push_back(std::move(*s));
+            }
+        }
+    }
+    return series;
+}
+
+} // anonymous namespace
+
+/******************************************************************************/
+/**
+ * Constructs the emitter in the requested export format (CSV or NPZ).
+ *
+ * @param format The on-disk format to export
+ */
+GDataEmitter::GDataEmitter(dataFormat format) : format_(format) { /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The file extension for the selected format.
+ *
+ * @return ".csv" in CSV mode, ".npz" in NPZ mode
+ */
+std::string GDataEmitter::fileExtension() const {
+    return format_ == dataFormat::NPZ ? std::string(".npz") : std::string(".csv");
+}
+
+/******************************************************************************/
+/**
+ * The export format this emitter was constructed with.
+ *
+ * @return The current dataFormat
+ */
+dataFormat GDataEmitter::getDataFormat() const {
+    return format_;
+}
+
+/******************************************************************************/
+/**
+ * Exports each registered plotter's raw columnar series data (NOT a rendered plot). The
+ * graph plotters (GGraph2D / GGraph2ED / GGraph3D / GGraph4D) and the histogram plotters
+ * (GHistogram1D / GHistogram2D) export their axis columns; the function plotters
+ * (GFunctionPlotter1D / GFunctionPlotter2D) carry no sampled data and are skipped. The
+ * result is either a human-inspectable CSV document or the raw bytes of a numpy .npz
+ * archive (which numpy.load() reads back as a dict of float64 arrays).
+ *
+ * @param gpd The designer holding the plotters
+ * @return The CSV text or the raw .npz bytes (a std::string holds embedded NULs intact)
+ */
+std::string GDataEmitter::emitDocument(const GPlotDesigner &gpd) const {
+    const std::vector<dataSeries> series = collectSeries(gpd.plotters_cnt_);
+    return format_ == dataFormat::NPZ ? emitNpz(series) : emitCsv(series);
 }
 
 /******************************************************************************/

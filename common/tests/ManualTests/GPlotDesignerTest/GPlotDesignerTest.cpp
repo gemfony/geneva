@@ -219,4 +219,66 @@ int main(int argc, char **argv) {
     gpd_mpl.registerPlotter(mpl_hist1d_ptr);
     gpd_mpl.registerPlotter(mpl_hist2d_ptr);
     gpd_mpl.writeToFile("result.py");
+
+    // -------------------------------------------------------------------------
+    // The DATA backend (GDataEmitter): export the raw series data (NOT a rendered plot)
+    // in BOTH formats -- a human-inspectable CSV and a binary numpy .npz. A fresh set of
+    // plotters is used because a plotter is registered into exactly one designer; the
+    // values are deterministic so the validity harness can round-trip them exactly.
+    //
+    // The first series (a GGraph2D "data graph") holds simple, exactly-representable
+    // values; the harness asserts that series_0's shape and a couple of values
+    // round-trip bit-exactly through numpy.load().
+    std::shared_ptr<GGraph2D> data_g2d_ptr(new GGraph2D());
+    data_g2d_ptr->setPlotLabel("data graph");
+    data_g2d_ptr->setXAxisLabel("x");
+    data_g2d_ptr->setYAxisLabel("y");
+    for(std::size_t i = 0; i < 5; i++) {
+        const double x = static_cast<double>(i);          // 0,1,2,3,4 -- exact in float64
+        const double y = static_cast<double>(i) * 0.5;     // 0,0.5,1,1.5,2 -- exact in float64
+        (*data_g2d_ptr) & std::tuple<double, double>(x, y);
+    }
+
+    std::shared_ptr<GHistogram1D> data_hist1d_ptr(new GHistogram1D(10, 0.0, 10.0));
+    data_hist1d_ptr->setPlotLabel("data histogram");
+    data_hist1d_ptr->setXAxisLabel("value");
+    for(std::size_t i = 0; i < 8; i++) {
+        (*data_hist1d_ptr) & static_cast<double>(i);
+    }
+
+    // CSV mode -> result_data.csv (human-inspectable text).
+    {
+        GPlotDesigner gpd_csv("Series data (CSV)", 1, 2);
+        gpd_csv.setDataFormat(Gem::Common::dataFormat::CSV);
+        gpd_csv.registerPlotter(data_g2d_ptr);
+        gpd_csv.registerPlotter(data_hist1d_ptr);
+        gpd_csv.writeToFile("result_data.csv");
+    }
+
+    // NPZ mode -> result_data.npz (binary numpy archive). Fresh plotters, identical data,
+    // because each plotter belongs to a single designer.
+    std::shared_ptr<GGraph2D> npz_g2d_ptr(new GGraph2D());
+    npz_g2d_ptr->setPlotLabel("data graph");
+    npz_g2d_ptr->setXAxisLabel("x");
+    npz_g2d_ptr->setYAxisLabel("y");
+    for(std::size_t i = 0; i < 5; i++) {
+        const double x = static_cast<double>(i);
+        const double y = static_cast<double>(i) * 0.5;
+        (*npz_g2d_ptr) & std::tuple<double, double>(x, y);
+    }
+
+    std::shared_ptr<GHistogram1D> npz_hist1d_ptr(new GHistogram1D(10, 0.0, 10.0));
+    npz_hist1d_ptr->setPlotLabel("data histogram");
+    npz_hist1d_ptr->setXAxisLabel("value");
+    for(std::size_t i = 0; i < 8; i++) {
+        (*npz_hist1d_ptr) & static_cast<double>(i);
+    }
+
+    {
+        GPlotDesigner gpd_npz("Series data (NPZ)", 1, 2);
+        gpd_npz.setDataFormat(Gem::Common::dataFormat::NPZ);
+        gpd_npz.registerPlotter(npz_g2d_ptr);
+        gpd_npz.registerPlotter(npz_hist1d_ptr);
+        gpd_npz.writeToFile("result_data.npz");
+    }
 }

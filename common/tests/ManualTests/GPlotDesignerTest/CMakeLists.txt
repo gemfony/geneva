@@ -125,4 +125,33 @@ ELSE()
 	MESSAGE(STATUS "GPlotDesigner: matplotlib validity test skipped (python3 and/or matplotlib not found)")
 ENDIF()
 
+# Optional data-validity test: confirm the raw series data GPlotDesigner exports (via the DATA backend /
+# GDataEmitter) is correct in BOTH formats -- the binary numpy .npz (built by hand) and the CSV. The check
+# loads the .npz with numpy.load() and asserts a known series' shape and a couple of values round-trip
+# BIT-EXACTLY, then parses a couple of CSV values back. Enabled only when python3 is present AND
+# `python3 -c "import numpy"` succeeds; skipped gracefully otherwise. (GENEVA_PYTHON3_EXECUTABLE is found
+# above by the matplotlib block.)
+IF(GENEVA_PYTHON3_EXECUTABLE)
+	EXECUTE_PROCESS(
+		COMMAND ${GENEVA_PYTHON3_EXECUTABLE} -c "import numpy"
+		RESULT_VARIABLE GENEVA_NUMPY_RC
+		OUTPUT_QUIET ERROR_QUIET
+	)
+ELSE()
+	SET(GENEVA_NUMPY_RC 1)
+ENDIF()
+IF(GENEVA_PYTHON3_EXECUTABLE AND GENEVA_NUMPY_RC EQUAL 0)
+	ADD_TEST(
+		NAME GPlotDesignerDataValidity
+		COMMAND ${CMAKE_COMMAND}
+			-DGEN_EXE=$<TARGET_FILE:${EXECUTABLENAME}>
+			-DPYTHON_EXE=${GENEVA_PYTHON3_EXECUTABLE}
+			-DWORKDIR=${CMAKE_CURRENT_BINARY_DIR}
+			-P ${CMAKE_CURRENT_SOURCE_DIR}/RunDataValidity.cmake
+	)
+	MESSAGE(STATUS "GPlotDesigner: data validity test ENABLED (python3=${GENEVA_PYTHON3_EXECUTABLE})")
+ELSE()
+	MESSAGE(STATUS "GPlotDesigner: data validity test skipped (python3 and/or numpy not found)")
+ENDIF()
+
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/common/ManualTests/${EXECUTABLENAME} )

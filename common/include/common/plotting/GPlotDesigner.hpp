@@ -49,6 +49,7 @@ class GPlotDesigner : public GCommonInterfaceT<GPlotDesigner> {
     friend class GRootEmitter;
     friend class GnuplotEmitter;
     friend class MatplotlibEmitter;
+    friend class GDataEmitter;
 
     /**
      * @brief Single declaration of this class'es local data members
@@ -154,6 +155,17 @@ public:
      * @param emitter The emitter to install (must not be empty)
      */
     void setEmitter(std::shared_ptr<IPlotEmitter> emitter);
+
+    /**
+     * @brief Selects the DATA backend in the requested export format
+     *
+     * A convenience for `setEmitter(std::make_shared<GDataEmitter>(format))`: installs a
+     * GDataEmitter that exports the raw series data (CSV text or a numpy .npz archive)
+     * rather than a rendered plot. plot() then delegates to it.
+     *
+     * @param format The on-disk format to export (CSV, the default, or NPZ)
+     */
+    void setDataFormat(dataFormat format);
 
     /**
      * @brief Allows to add a new plotter object
