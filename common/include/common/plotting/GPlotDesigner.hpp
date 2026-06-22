@@ -31,6 +31,7 @@
 
 #include <memory>
 
+#include "common/plotting/GDataLog.hpp"
 #include "common/plotting/GPlotEmitter.hpp"
 #include "common/plotting/GPlots.hpp"
 

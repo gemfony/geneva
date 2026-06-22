@@ -30,6 +30,7 @@
 #pragma once
 
 #include <cstdint>
+#include <span>
 #include <variant>
 #include <vector>
 
@@ -238,6 +239,20 @@ public:
      * @return Type-tagged views of this plotter's per-axis value vectors, in storage order
      */
     [[nodiscard]] virtual std::vector<GPlotColumn> dataColumns() const;
+
+    /**
+     * @brief Appends one data row (one value per axis, in storage/column order) to this
+     * plotter, generically -- the inverse of dataColumns() for feeding data without
+     * knowing the concrete plotter type. This is the data path used by GDataLog to fill
+     * a plotter built from a GPlotSpec.
+     *
+     * The base throws (a plotter that holds no double sample columns -- a function
+     * plotter -- cannot accept rows this way); the columnar collectors override it. The
+     * row size must equal the plotter's column count.
+     *
+     * @param row One value per axis, in column order (size must match the column count)
+     */
+    virtual void appendRow(std::span<const double> row);
 
     /***************************************************************************/
 

@@ -33,6 +33,8 @@
 #include <string>
 #include <vector>
 
+#include "common/plotting/GPlotEnums.hpp" // graphPlotMode
+
 namespace Gem::Common {
 
 /******************************************************************************/
@@ -128,6 +130,8 @@ struct GPlotSpec {
     std::optional<std::size_t> n_bins_x; ///< number of x-bins (histograms only)
     std::optional<std::size_t> n_bins_y; ///< number of y-bins (histograms only)
 
+    std::optional<graphPlotMode> plot_mode; ///< scatter vs. curve (GGraph2D / GGraph2ED only)
+
     /***************************************************************************/
     /** @brief Default constructor (kind=graph_2d, role defaulted from it) */
     GPlotSpec() : role(defaultRole(kind)) { /* nothing */ }
@@ -168,6 +172,11 @@ struct GPlotSpec {
         }
         if(n_bins_y.has_value()) {
             out += ", \"n_bins_y\": " + std::to_string(*n_bins_y);
+        }
+        if(plot_mode.has_value()) {
+            out += ", \"plot_mode\": \"";
+            out += (*plot_mode == graphPlotMode::SCATTER ? "scatter" : "curve");
+            out += "\"";
         }
         out += "}";
         return out;

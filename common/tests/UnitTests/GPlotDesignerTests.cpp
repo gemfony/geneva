@@ -38,6 +38,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <span>
 #include <string>
 #include <tuple>
 
@@ -465,5 +466,90 @@ TEST_CASE("makePlotter reconstructs a plotter from its GPlotSpec", "[plotting]")
         CHECK_THROWS(makePlotter(fspec));
         GPlotSpec ispec(plotKind::hist_1i);
         CHECK_THROWS(makePlotter(ispec));
+    }
+}
+
+/******************************************************************************/
+// GPlotSpec now carries the GGraph2D/2ED plot mode (scatter vs curve), and makePlotter
+// applies it -- so the choice round-trips through the spec.
+TEST_CASE("GPlotSpec round-trips the graph plot mode", "[plotting]") {
+    GGraph2D g;
+    g.setPlotMode(graphPlotMode::SCATTER);
+    REQUIRE(g.plotSpec().plot_mode.has_value());
+    CHECK(*g.plotSpec().plot_mode == graphPlotMode::SCATTER);
+
+    const auto rebuilt = makePlotter(g.plotSpec());
+    const auto *g2 = dynamic_cast<const GGraph2D *>(rebuilt.get());
+    REQUIRE(g2 != nullptr);
+    CHECK(g2->getPlotMode() == graphPlotMode::SCATTER);
+}
+
+/******************************************************************************/
+// GDataLog (the modern, plotter-object-free API) must produce the SAME output as the
+// legacy plotter-object path: declare specs + push data == build plotters + add data.
+// This is the PoC's core equivalence claim -- it lets production code (monitors) drop the
+// fused plotter objects without changing a single byte of emitted output.
+TEST_CASE("GDataLog reproduces the legacy plotter-object output byte-for-byte", "[plotting]") {
+    SECTION("a 2-d graph with a scatter overlay (plot mode + overlay + labels + data)") {
+        // --- Legacy: build plotter objects, set modes/labels, add data, register. ---
+        auto prim = std::make_shared<GGraph2D>();
+        prim->setPlotLabel("global best");
+        prim->setXAxisLabel("Iteration");
+        prim->setYAxisLabel("Best Fitness");
+        prim->setPlotMode(graphPlotMode::CURVE);
+        prim->add(0., 5.);
+        prim->add(1., 3.);
+        prim->add(2., 2.);
+
+        auto over = std::make_shared<GGraph2D>();
+        over->setPlotLabel("iteration best");
+        over->setXAxisLabel("Iteration");
+        over->setYAxisLabel("Best Fitness");
+        over->setPlotMode(graphPlotMode::SCATTER);
+        over->add(0., 6.);
+        over->add(1., 4.);
+        over->add(2., 3.);
+        prim->registerSecondaryPlotter(over);
+
+        GPlotDesigner gpd_legacy("Progress", 1, 1);
+        gpd_legacy.registerPlotter(prim);
+        const std::string legacy = gpd_legacy.plot();
+
+        // --- Modern: declare specs (from the same plotters' plotSpec()) + push the data. ---
+        GDataLog log("Progress", 1, 1);
+        const auto pid = log.declareSeries(prim->plotSpec());
+        log.append(pid, 0., 5.);
+        log.append(pid, 1., 3.);
+        log.append(pid, 2., 2.);
+        const auto oid = log.overlaySeries(pid, over->plotSpec());
+        log.append(oid, 0., 6.);
+        log.append(oid, 1., 4.);
+        log.append(oid, 2., 3.);
+
+        CHECK(log.nSeries() == 2);
+        CHECK(log.toDesigner().plot() == legacy);
+    }
+
+    SECTION("a 1-d (auto-ranged) histogram (bins round-trip through the spec)") {
+        // Auto-ranged: makePlotter rebuilds via the single-bin-count ctor, so both sides
+        // derive the same range from the data. (A FIXED-range histogram does not yet
+        // round-trip -- GPlotSpec carries no range; tracked as a Phase-B follow-up.)
+        auto h = std::make_shared<GHistogram1D>(12);
+        h->setPlotLabel("a distribution");
+        h->setXAxisLabel("value");
+        for(int i = 0; i < 20; ++i) {
+            (*h) & (0.1 * static_cast<double>(i) - 1.0);
+        }
+        GPlotDesigner gpd_legacy("Dist", 1, 1);
+        gpd_legacy.registerPlotter(h);
+        const std::string legacy = gpd_legacy.plot();
+
+        GDataLog log("Dist", 1, 1);
+        const auto id = log.declareSeries(h->plotSpec());
+        for(int i = 0; i < 20; ++i) {
+            const double v = 0.1 * static_cast<double>(i) - 1.0;
+            log.append(id, std::span<const double>(&v, 1));
+        }
+        CHECK(log.toDesigner().plot() == legacy);
     }
 }

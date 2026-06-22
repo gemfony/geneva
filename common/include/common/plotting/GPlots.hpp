@@ -504,6 +504,32 @@ public:
         }
     }
 
+    /***************************************************************************/
+    /**
+	  * Appends one data row (one value per axis, in column order) generically -- the
+	  * inverse of dataColumns(), used by GDataLog to fill a plotter built from a
+	  * GPlotSpec without knowing its concrete type. Only an all-double collector accepts
+	  * rows this way (the values are pushed straight into the columns); a collector with a
+	  * non-double axis (the integer histogram) rejects the call, as does a row of the
+	  * wrong width.
+	  *
+	  * @param row One value per axis, in column order (size must equal the axis count)
+	  */
+    void appendRow(std::span<const double> row) override {
+        if constexpr ((std::is_same_v<Ts, double> && ...)) {
+            if(row.size() != n_axes) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GDataCollectorT::appendRow(): Error!" << '\n'
+                    << "row size " << row.size() << " != axis count " << n_axes << '\n'
+                );
+            }
+            appendRowImpl_(row, std::make_index_sequence<n_axes>{});
+        } else {
+            GBasePlotter::appendRow(row); // non-double collector: rejected with a clear message
+        }
+    }
+
 protected:
     /***************************************************************************/
     /**
@@ -616,6 +642,15 @@ private:
     template <std::size_t... Is>
     std::vector<GPlotColumn> dataColumnsImpl_(std::index_sequence<Is...>) const {
         return {GPlotColumn{&std::get<Is>(columns_)}...};
+    }
+
+    /***************************************************************************/
+    /**
+	  * Pushes row[I] into column I for every axis (all-double collectors only).
+	  */
+    template <std::size_t... Is>
+    void appendRowImpl_(std::span<const double> row, std::index_sequence<Is...>) {
+        (std::get<Is>(columns_).push_back(row[Is]), ...);
     }
 
     /***************************************************************************/

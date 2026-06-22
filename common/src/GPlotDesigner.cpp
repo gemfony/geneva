@@ -535,6 +535,21 @@ std::vector<GPlotColumn> GBasePlotter::dataColumns() const {
 
 /******************************************************************************/
 /**
+ * The base cannot accept a generic data row (a function plotter holds no sample
+ * columns); the columnar collectors override this. See GDataCollectorT::appendRow().
+ *
+ * @param row Unused in the base; always rejected
+ */
+void GBasePlotter::appendRow([[maybe_unused]] std::span<const double> row) {
+    throw geneva_exception(
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+        << "In GBasePlotter::appendRow(): Error!" << '\n'
+        << getPlotterName() << " does not support generic row append." << '\n'
+    );
+}
+
+/******************************************************************************/
+/**
  * Constructs an empty plotter of the kind described by a GPlotSpec (the inverse of
  * GBasePlotter::plotSpec()), applying the spec's labels, drawing arguments and (for
  * histograms) bin counts. The function plotters cannot be reconstructed from a spec
@@ -592,6 +607,17 @@ std::unique_ptr<GBasePlotter> makePlotter(const GPlotSpec &spec) {
     p->setYAxisLabel(spec.y_label);
     p->setZAxisLabel(spec.z_label);
     p->setDrawingArguments(spec.drawing_args);
+
+    // The plot mode (scatter vs. curve) is a GGraph2D / GGraph2ED render choice; apply it
+    // when the spec carries one and the built plotter supports it.
+    if(spec.plot_mode.has_value()) {
+        if(auto *g2d = dynamic_cast<GGraph2D *>(p.get())) {
+            g2d->setPlotMode(*spec.plot_mode);
+        }
+        else if(auto *g2ed = dynamic_cast<GGraph2ED *>(p.get())) {
+            g2ed->setPlotMode(*spec.plot_mode);
+        }
+    }
     return p;
 }
 
@@ -918,6 +944,7 @@ GPlotSpec GGraph2D::plotSpec() const {
     spec.kind = plotKind::graph_2d;
     spec.role = defaultRole(spec.kind);
     spec.columns = {"x", "y"};
+    spec.plot_mode = getPlotMode();
     return spec;
 }
 
@@ -1222,6 +1249,7 @@ GPlotSpec GGraph2ED::plotSpec() const {
     spec.kind = plotKind::graph_2d_err;
     spec.role = defaultRole(spec.kind);
     spec.columns = {"x", "ex", "y", "ey"};
+    spec.plot_mode = getPlotMode();
     return spec;
 }
 
@@ -5105,6 +5133,169 @@ void GPlotDesigner::load_(const GPlotDesigner *cp) {
 
     // Load local data
     g_load_members(localMembers_(*this), localMembers_(*p_load));
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+// GDataLog: the modern, plotter-object-free plot API (declare a GPlotSpec per series +
+// push data; realize into a GPlotDesigner via makePlotter() + appendRow()).
+
+/******************************************************************************/
+/**
+ * Constructs an empty log for the given canvas title and pad grid.
+ *
+ * @param canvas_label The canvas title
+ * @param c_x_div The number of pad columns
+ * @param c_y_div The number of pad rows
+ */
+GDataLog::GDataLog(std::string canvas_label, std::size_t c_x_div, std::size_t c_y_div)
+  : canvas_label_(std::move(canvas_label)), c_x_div_(c_x_div), c_y_div_(c_y_div) { /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Declares a primary series (its own pad) from its plot spec.
+ *
+ * @param spec The plot specification
+ * @return The id of the new series
+ */
+GDataLog::SeriesId GDataLog::declareSeries(GPlotSpec spec) {
+    series_.push_back(Series{std::move(spec), {}, std::nullopt});
+    return series_.size() - 1;
+}
+
+/******************************************************************************/
+/**
+ * Declares an overlay series sharing an existing primary series' pad.
+ *
+ * @param primary The id of the primary series whose pad this overlays
+ * @param spec The plot specification for the overlay
+ * @return The id of the new overlay series
+ */
+GDataLog::SeriesId GDataLog::overlaySeries(SeriesId primary, GPlotSpec spec) {
+    if(primary >= series_.size() || series_[primary].primary.has_value()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GDataLog::overlaySeries(): Error!" << '\n'
+            << "primary id " << primary << " is not a valid primary series" << '\n'
+        );
+    }
+    series_.push_back(Series{std::move(spec), {}, primary});
+    return series_.size() - 1;
+}
+
+/******************************************************************************/
+/**
+ * Appends one data row (one value per column) to a series.
+ *
+ * @param id The series to append to
+ * @param row One value per column
+ */
+void GDataLog::append(SeriesId id, std::span<const double> row) {
+    if(id >= series_.size()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GDataLog::append(): Error!" << '\n'
+            << "series id " << id << " is out of range" << '\n'
+        );
+    }
+    series_[id].rows.emplace_back(row.begin(), row.end());
+}
+
+/******************************************************************************/
+/** @brief Convenience append for a 2-column (x, y) series */
+void GDataLog::append(SeriesId id, double x, double y) {
+    const double row[] = {x, y};
+    this->append(id, std::span<const double>(row));
+}
+
+/******************************************************************************/
+/** @brief Convenience append for a 3-column (x, y, z) series */
+void GDataLog::append(SeriesId id, double x, double y, double z) {
+    const double row[] = {x, y, z};
+    this->append(id, std::span<const double>(row));
+}
+
+/******************************************************************************/
+/** @brief Convenience append for a 4-column (x, y, z, w) series */
+void GDataLog::append(SeriesId id, double x, double y, double z, double w) {
+    const double row[] = {x, y, z, w};
+    this->append(id, std::span<const double>(row));
+}
+
+/******************************************************************************/
+/**
+ * Sets the canvas pixel dimensions, forwarded to the built GPlotDesigner.
+ *
+ * @param x_dim The canvas width in pixels
+ * @param y_dim The canvas height in pixels
+ */
+void GDataLog::setCanvasDimensions(std::uint32_t x_dim, std::uint32_t y_dim) {
+    dims_ = std::make_tuple(x_dim, y_dim);
+}
+
+/******************************************************************************/
+/**
+ * Realizes the log into a populated GPlotDesigner: each series' plotter is built from
+ * its spec (makePlotter) and filled (appendRow); an overlay is attached as a secondary
+ * plotter of its primary. Primaries are registered in declaration order, so the emitted
+ * output matches an equivalent hand-built designer.
+ *
+ * @return The populated GPlotDesigner
+ */
+GPlotDesigner GDataLog::toDesigner() const {
+    GPlotDesigner gpd(canvas_label_, c_x_div_, c_y_div_);
+    if(dims_.has_value()) {
+        gpd.setCanvasDimensions(*dims_);
+    }
+
+    // Build every series' plotter (primary or overlay) from its spec + rows.
+    std::vector<std::shared_ptr<GBasePlotter>> built(series_.size());
+    for(std::size_t i = 0; i < series_.size(); ++i) {
+        std::shared_ptr<GBasePlotter> p = makePlotter(series_[i].spec);
+        for(const auto &row : series_[i].rows) {
+            p->appendRow(row);
+        }
+        built[i] = std::move(p);
+    }
+
+    // Attach overlays to their primary.
+    for(std::size_t i = 0; i < series_.size(); ++i) {
+        if(series_[i].primary.has_value()) {
+            built[*series_[i].primary]->registerSecondaryPlotter(built[i]);
+        }
+    }
+
+    // Register the primaries in declaration order.
+    for(std::size_t i = 0; i < series_.size(); ++i) {
+        if(not series_[i].primary.has_value()) {
+            gpd.registerPlotter(built[i]);
+        }
+    }
+    return gpd;
+}
+
+/******************************************************************************/
+/**
+ * Realizes the log and writes it to a file through the given backend.
+ *
+ * @param path The output file path
+ * @param backend The rendering backend
+ */
+void GDataLog::writeToFile(const std::filesystem::path &path, plotBackend backend) const {
+    GPlotDesigner gpd = this->toDesigner();
+    gpd.setPlotBackend(backend);
+    gpd.writeToFile(path);
+}
+
+/******************************************************************************/
+/**
+ * The number of declared series (primaries + overlays).
+ *
+ * @return The series count
+ */
+std::size_t GDataLog::nSeries() const {
+    return series_.size();
 }
 
 /******************************************************************************/
