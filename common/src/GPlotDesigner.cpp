@@ -519,16 +519,17 @@ bool GBasePlotter::isCompatible(std::shared_ptr<GBasePlotter> other) const {
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, only used when is_secondary is true
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @return A suffix string built from the parent id (if secondary) and this object's own id
  */
-std::string GBasePlotter::suffix(bool is_secondary, std::size_t p_id) const {
+std::string GBasePlotter::suffix(bool is_secondary, std::size_t p_id, std::size_t own_id) const {
     std::string result; // NOLINT(cppcoreguidelines-init-variables)
 
     if(not is_secondary) {
-        result = std::string("_") + to_string(this->id());
+        result = std::string("_") + to_string(own_id);
     }
     else {
-        result = std::string("_") + to_string(p_id) + std::string("_") + to_string(this->id());
+        result = std::string("_") + to_string(p_id) + std::string("_") + to_string(own_id);
     }
 
     return result;
@@ -621,18 +622,17 @@ std::string GBasePlotter::headerData(const std::string &indent) const {
 
     // Add this plot's data
     header_data << indent << "// Header data for primary plotter" << '\n'
-                << this->headerData_(false, 0, indent);
+                << this->headerData_(false, 0, this->id(), indent);
 
-    // Extract data from the secondary plotters, if any
+    // Extract data from the secondary plotters, if any. The secondary plotter's own
+    // emit index (pos) is threaded through the call instead of being stashed in its
+    // id_, so this const emit no longer mutates the shared child state.
     std::size_t pos = 0;
     for(auto const &plotter_ptr : secondary_plotter_) {
-        // Give the plotters their own id which will act as a child id in this case
-        plotter_ptr->setId(pos);
-
         // We parent id 0 is reserved for primary plotters
         header_data << indent << "// Header data for secondary plotter " << pos << " of "
                     << this->getPlotterName() << '\n'
-                    << plotter_ptr->headerData_(true, this->id(), indent) << '\n';
+                    << plotter_ptr->headerData_(true, this->id(), pos, indent) << '\n';
 
         pos++;
     }
@@ -652,14 +652,16 @@ std::string GBasePlotter::bodyData(const std::string &indent) const {
 
     // Add this plot's data
     body_data << indent << "// Body data for primary plotter" << '\n'
-              << this->bodyData_(false, 0, indent);
+              << this->bodyData_(false, 0, this->id(), indent);
 
-    // Extract data from the secondary plotters, if any
+    // Extract data from the secondary plotters, if any. The secondary plotter's own
+    // emit index (pos) is threaded through the call instead of being stashed in its
+    // id_, so this const emit no longer mutates the shared child state.
     std::size_t pos = 0;
     for(auto const &plotter_ptr : secondary_plotter_) {
         body_data << indent << "// Body data for secondary plotter " << pos << " of "
                   << this->getPlotterName() << '\n'
-                  << plotter_ptr->bodyData_(true, this->id(), indent) << '\n';
+                  << plotter_ptr->bodyData_(true, this->id(), pos, indent) << '\n';
 
         pos++;
     }
@@ -679,14 +681,16 @@ std::string GBasePlotter::footerData(const std::string &indent) const {
 
     // Add this plot's data
     footer_data << indent << "// Footer data for primary plotter" << '\n'
-                << this->footerData_(false, 0, indent);
+                << this->footerData_(false, 0, this->id(), indent);
 
-    // Extract data from the secondary plotters, if any
+    // Extract data from the secondary plotters, if any. The secondary plotter's own
+    // emit index (pos) is threaded through the call instead of being stashed in its
+    // id_, so this const emit no longer mutates the shared child state.
     std::size_t pos = 0;
     for(auto const &plotter_ptr : secondary_plotter_) {
         footer_data << indent << "// Footer data for secondary plotter " << pos << " of "
                     << this->getPlotterName() << '\n'
-                    << plotter_ptr->footerData_(true, this->id(), indent) << '\n';
+                    << plotter_ptr->footerData_(true, this->id(), pos, indent) << '\n';
 
         pos++;
     }
@@ -792,15 +796,16 @@ void GGraph2D::compare_(
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build array names for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The header code declaring the x/y data arrays for this graph
  */
 std::string
-GGraph2D::headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GGraph2D::headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
-    std::string base_name = suffix(is_secondary, p_id);
+    std::string base_name = suffix(is_secondary, p_id, own_id);
     std::string array_base_name = "array_" + base_name;
 
     std::string x_array_name = "x_" + array_base_name;
@@ -826,15 +831,16 @@ GGraph2D::headerData_(bool is_secondary, std::size_t p_id, const std::string &in
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build array names for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The body code filling the x/y data arrays with this graph's tuple values
  */
 std::string
-GGraph2D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GGraph2D::bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
-    std::string base_name = suffix(is_secondary, p_id);
+    std::string base_name = suffix(is_secondary, p_id, own_id);
     std::string array_base_name = "array_" + base_name;
 
     std::string x_array_name = "x_" + array_base_name;
@@ -867,15 +873,16 @@ GGraph2D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &inde
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build array/object names for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The footer code creating and drawing the ROOT TGraph (and optional arrows) for this graph
  */
 std::string
-GGraph2D::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GGraph2D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
-    std::string base_name = suffix(is_secondary, p_id);
+    std::string base_name = suffix(is_secondary, p_id, own_id);
     std::string array_base_name = "array_" + base_name;
 
     std::string x_array_name = "x_" + array_base_name;
@@ -1079,15 +1086,16 @@ void GGraph2ED::compare_(
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build array names for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The header code declaring the x/ex/y/ey data arrays for this error graph
  */
 std::string
-GGraph2ED::headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GGraph2ED::headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
-    std::string base_name = suffix(is_secondary, p_id);
+    std::string base_name = suffix(is_secondary, p_id, own_id);
     std::string array_base_name = "array_" + base_name;
 
     std::string x_array_name = "x_" + array_base_name;
@@ -1119,15 +1127,16 @@ GGraph2ED::headerData_(bool is_secondary, std::size_t p_id, const std::string &i
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build array names for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The body code filling the x/ex/y/ey data arrays with this graph's tuple values
  */
 std::string
-GGraph2ED::bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GGraph2ED::bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
-    std::string base_name = suffix(is_secondary, p_id);
+    std::string base_name = suffix(is_secondary, p_id, own_id);
     std::string array_base_name = "array_" + base_name;
 
     std::string x_array_name = "x_" + array_base_name;
@@ -1168,15 +1177,16 @@ GGraph2ED::bodyData_(bool is_secondary, std::size_t p_id, const std::string &ind
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build array/object names for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The footer code creating and drawing the ROOT TGraphErrors object for this graph
  */
 std::string
-GGraph2ED::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GGraph2ED::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
-    std::string base_name = suffix(is_secondary, p_id);
+    std::string base_name = suffix(is_secondary, p_id, own_id);
     std::string array_base_name = "array_" + base_name;
 
     std::string x_array_name = "x_" + array_base_name;
@@ -1352,15 +1362,16 @@ void GGraph3D::compare_(
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build array names for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The header code declaring the x/y/z data arrays for this 3D graph
  */
 std::string
-GGraph3D::headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GGraph3D::headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
-    std::string base_name = suffix(is_secondary, p_id);
+    std::string base_name = suffix(is_secondary, p_id, own_id);
     std::string array_base_name = "array_" + base_name;
 
     std::string x_array_name = "x_" + array_base_name;
@@ -1389,15 +1400,16 @@ GGraph3D::headerData_(bool is_secondary, std::size_t p_id, const std::string &in
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build array names for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The body code filling the x/y/z data arrays with this graph's tuple values
  */
 std::string
-GGraph3D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GGraph3D::bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
-    std::string base_name = suffix(is_secondary, p_id);
+    std::string base_name = suffix(is_secondary, p_id, own_id);
     std::string array_base_name = "array_" + base_name;
 
     std::string x_array_name = "x_" + array_base_name;
@@ -1433,15 +1445,16 @@ GGraph3D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &inde
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build array/object names for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The footer code creating and drawing the ROOT TGraph2D (and optional poly-line) for this graph
  */
 std::string
-GGraph3D::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GGraph3D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
-    std::string base_name = suffix(is_secondary, p_id);
+    std::string base_name = suffix(is_secondary, p_id, own_id);
     std::string array_base_name = "array_" + base_name;
 
     std::string x_array_name = "x_" + array_base_name;
@@ -1726,7 +1739,7 @@ void GGraph4D::compare_(
  *
  * @return An empty string, as this 4D graph emits no header code
  */
-std::string GGraph4D::headerData_([[maybe_unused]] bool is_secondary, [[maybe_unused]] std::size_t parent_id, [[maybe_unused]] std::string const &indent) const {
+std::string GGraph4D::headerData_([[maybe_unused]] bool is_secondary, [[maybe_unused]] std::size_t parent_id, [[maybe_unused]] std::size_t own_id, [[maybe_unused]] std::string const &indent) const {
     EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // nothing
@@ -1742,7 +1755,7 @@ std::string GGraph4D::headerData_([[maybe_unused]] bool is_secondary, [[maybe_un
  *
  * @return An empty string, as this 4D graph emits no body data
  */
-std::string GGraph4D::bodyData_([[maybe_unused]] bool is_secondary, [[maybe_unused]] std::size_t parent_id, [[maybe_unused]] std::string const &indent) const {
+std::string GGraph4D::bodyData_([[maybe_unused]] bool is_secondary, [[maybe_unused]] std::size_t parent_id, [[maybe_unused]] std::size_t own_id, [[maybe_unused]] std::string const &indent) const {
     EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // nothing
@@ -1756,11 +1769,12 @@ std::string GGraph4D::bodyData_([[maybe_unused]] bool is_secondary, [[maybe_unus
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build unique object names for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The footer code creating the 3D frame and per-point poly-markers (sized by the fourth component)
  */
 std::string
-GGraph4D::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GGraph4D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     // Read the four columns directly. Rather than copying the whole data set to
     // sort it on every emission, we sort an index permutation by the w-component
     // (axis 3) and read each point through that permutation; the columns stay put.
@@ -1770,7 +1784,7 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, const std::string &in
     const auto &w_col = this->column<3>();
     const std::size_t data_size = this->currentSize();
 
-    std::string base_name = suffix(is_secondary, p_id);
+    std::string base_name = suffix(is_secondary, p_id, own_id);
 
     // Build the w-ordered index permutation, so we can select the n_best_ best more easily
     std::vector<std::size_t> order(data_size);
@@ -1971,11 +1985,12 @@ GHistogram1D::GHistogram1D(const std::size_t &n_bins_x, const std::tuple<double,
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build a unique histogram name for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The header code declaring the ROOT TH1D histogram (using explicit or auto-detected range)
  */
 std::string
-GHistogram1D::headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GHistogram1D::headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
@@ -1983,7 +1998,7 @@ GHistogram1D::headerData_(bool is_secondary, std::size_t p_id, const std::string
         comment = "// " + rootEscape(ds_marker_);
     }
 
-    std::string hist_name = "histD" + suffix(is_secondary, p_id);
+    std::string hist_name = "histD" + suffix(is_secondary, p_id, own_id);
 
     if(min_x_ != max_x_) {
         header_data << indent << "TH1D *" << hist_name << " = new TH1D(\"" << hist_name << "\", \""
@@ -2008,11 +2023,12 @@ GHistogram1D::headerData_(bool is_secondary, std::size_t p_id, const std::string
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build a unique histogram name for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The body code filling the ROOT TH1D histogram with this plotter's data values
  */
 std::string
-GHistogram1D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GHistogram1D::bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
@@ -2023,7 +2039,7 @@ GHistogram1D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
         comment = "";
     }
 
-    std::string hist_name = "histD" + suffix(is_secondary, p_id);
+    std::string hist_name = "histD" + suffix(is_secondary, p_id, own_id);
 
     const auto &x_col = this->column<0>();
     const std::size_t n = this->currentSize();
@@ -2042,14 +2058,15 @@ GHistogram1D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build a unique histogram name for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The footer code setting titles and drawing the ROOT TH1D histogram
  */
 std::string
-GHistogram1D::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GHistogram1D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
-    std::string hist_name = "histD" + suffix(is_secondary, p_id);
+    std::string hist_name = "histD" + suffix(is_secondary, p_id, own_id);
 
     if(!plot_label_.empty()) {
         footer_data << indent << hist_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
@@ -2244,11 +2261,12 @@ GHistogram1I::GHistogram1I(const std::size_t &n_bins_x, const std::tuple<double,
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build a unique histogram name for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The header code declaring the ROOT TH1I integer histogram
  */
 std::string
-GHistogram1I::headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GHistogram1I::headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
@@ -2256,7 +2274,7 @@ GHistogram1I::headerData_(bool is_secondary, std::size_t p_id, const std::string
         comment = "// " + rootEscape(ds_marker_);
     }
 
-    std::string hist_name = "histI" + suffix(is_secondary, p_id);
+    std::string hist_name = "histI" + suffix(is_secondary, p_id, own_id);
 
     header_data << indent << "TH1I *" << hist_name << " = new TH1I(\"" << hist_name << "\", \""
                 << hist_name << "\"," << n_bins_x_ << ", " << min_x_ << ", " << max_x_ << ");"
@@ -2272,11 +2290,12 @@ GHistogram1I::headerData_(bool is_secondary, std::size_t p_id, const std::string
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build a unique histogram name for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The body code filling the ROOT TH1I histogram with this plotter's integer data values
  */
 std::string
-GHistogram1I::bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GHistogram1I::bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
@@ -2287,7 +2306,7 @@ GHistogram1I::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
         comment = "";
     }
 
-    std::string hist_name = "histI" + suffix(is_secondary, p_id);
+    std::string hist_name = "histI" + suffix(is_secondary, p_id, own_id);
 
     const auto &x_col = this->column<0>();
     const std::size_t n = this->currentSize();
@@ -2307,14 +2326,15 @@ GHistogram1I::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build a unique histogram name for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The footer code setting titles and drawing the ROOT TH1I histogram
  */
 std::string
-GHistogram1I::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GHistogram1I::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
-    std::string hist_name = "histI" + suffix(is_secondary, p_id);
+    std::string hist_name = "histI" + suffix(is_secondary, p_id, own_id);
 
     if(!plot_label_.empty()) {
         footer_data << indent << hist_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
@@ -2551,11 +2571,12 @@ GHistogram2D::GHistogram2D(const std::size_t &n_bins_x, const std::size_t &n_bin
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build a unique histogram name for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The header code declaring the ROOT TH2D histogram (using explicit or auto-detected ranges)
  */
 std::string
-GHistogram2D::headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GHistogram2D::headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
@@ -2563,7 +2584,7 @@ GHistogram2D::headerData_(bool is_secondary, std::size_t p_id, const std::string
         comment = "// " + rootEscape(ds_marker_);
     }
 
-    std::string hist_name = "hist2D" + suffix(is_secondary, p_id);
+    std::string hist_name = "hist2D" + suffix(is_secondary, p_id, own_id);
 
     if(min_x_ != max_x_ && min_y_ != max_y_) {
         header_data << indent << "TH2D *" << hist_name << " = new TH2D(\"" << hist_name << "\", \""
@@ -2591,11 +2612,12 @@ GHistogram2D::headerData_(bool is_secondary, std::size_t p_id, const std::string
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build a unique histogram name for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The body code filling the ROOT TH2D histogram with this plotter's (x, y) data values
  */
 std::string
-GHistogram2D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GHistogram2D::bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
@@ -2606,7 +2628,7 @@ GHistogram2D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
         comment = "";
     }
 
-    std::string hist_name = "hist2D" + suffix(is_secondary, p_id);
+    std::string hist_name = "hist2D" + suffix(is_secondary, p_id, own_id);
 
     const auto &x_col = this->column<0>();
     const auto &y_col = this->column<1>();
@@ -2627,14 +2649,15 @@ GHistogram2D::bodyData_(bool is_secondary, std::size_t p_id, const std::string &
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build a unique histogram name for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The footer code setting titles and drawing the ROOT TH2D histogram
  */
 std::string
-GHistogram2D::footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const {
+GHistogram2D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
-    std::string hist_name = "hist2D" + suffix(is_secondary, p_id);
+    std::string hist_name = "hist2D" + suffix(is_secondary, p_id, own_id);
 
     if(!plot_label_.empty()) {
         footer_data << indent << hist_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
@@ -2998,12 +3021,14 @@ void GFunctionPlotter1D::compare_(
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build a unique function name for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The code to be added to the plot header for this function
  */
 std::string GFunctionPlotter1D::headerData_(
     bool is_secondary,
     std::size_t p_id,
+    std::size_t own_id,
     const std::string &indent
 ) const {
     // Check the extreme values for consistency
@@ -3023,7 +3048,7 @@ std::string GFunctionPlotter1D::headerData_(
         comment = "// " + rootEscape(ds_marker_);
     }
 
-    std::string function_name = "func1D" + suffix(is_secondary, p_id);
+    std::string function_name = "func1D" + suffix(is_secondary, p_id, own_id);
     result << indent << "TF1 *" << function_name << " = new TF1(\"" << function_name << "\", \""
            << rootEscape(function_description_) << "\"," << std::get<0>(x_extremes_) << ", "
            << std::get<1>(x_extremes_) << ");" << (!comment.empty() ? comment : "") << '\n';
@@ -3038,7 +3063,7 @@ std::string GFunctionPlotter1D::headerData_(
  *
  * @return The code to be added to the plot's data section for this function (always empty)
  */
-std::string GFunctionPlotter1D::bodyData_([[maybe_unused]] bool is_secondary, [[maybe_unused]] std::size_t parent_id, [[maybe_unused]] std::string const &indent) const {
+std::string GFunctionPlotter1D::bodyData_([[maybe_unused]] bool is_secondary, [[maybe_unused]] std::size_t parent_id, [[maybe_unused]] std::size_t own_id, [[maybe_unused]] std::string const &indent) const {
     // No data needs to be added for a function plotter
     return {};
 }
@@ -3049,12 +3074,14 @@ std::string GFunctionPlotter1D::bodyData_([[maybe_unused]] bool is_secondary, [[
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build a unique function name for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The draw command to be added to the plot's data for this function
  */
 std::string GFunctionPlotter1D::footerData_(
     bool is_secondary,
     std::size_t p_id,
+    std::size_t own_id,
     const std::string &indent
 ) const {
     EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
@@ -3064,7 +3091,7 @@ std::string GFunctionPlotter1D::footerData_(
         comment = "// " + rootEscape(ds_marker_);
     }
 
-    std::string function_name = "func1D" + suffix(is_secondary, p_id);
+    std::string function_name = "func1D" + suffix(is_secondary, p_id, own_id);
     footer_data << indent << function_name << "->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");"
                 << '\n'
                 << indent << function_name << "->GetYaxis()->SetTitle(\"" << rootEscape(yAxisLabel()) << "\");"
@@ -3235,12 +3262,14 @@ void GFunctionPlotter2D::compare_(
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build a unique function name for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The code to be added to the plot header for this function
  */
 std::string GFunctionPlotter2D::headerData_(
     bool is_secondary,
     std::size_t p_id,
+    std::size_t own_id,
     const std::string &indent
 ) const {
     // Check the extreme values for consistency
@@ -3269,7 +3298,7 @@ std::string GFunctionPlotter2D::headerData_(
         comment = "// " + rootEscape(ds_marker_);
     }
 
-    std::string function_name = "func2D" + suffix(is_secondary, p_id);
+    std::string function_name = "func2D" + suffix(is_secondary, p_id, own_id);
     result << indent << "TF2 *" << function_name << " = new TF2(\"" << function_name << "\", \""
            << rootEscape(function_description_) << "\"," << std::get<0>(x_extremes_) << ", "
            << std::get<1>(x_extremes_) << ", " << std::get<0>(y_extremes_) << ", "
@@ -3285,7 +3314,7 @@ std::string GFunctionPlotter2D::headerData_(
  *
  * @return The code to be added to the plot's data section for this function (always empty)
  */
-std::string GFunctionPlotter2D::bodyData_([[maybe_unused]] bool is_secondary, [[maybe_unused]] std::size_t parent_id, [[maybe_unused]] std::string const &indent) const {
+std::string GFunctionPlotter2D::bodyData_([[maybe_unused]] bool is_secondary, [[maybe_unused]] std::size_t parent_id, [[maybe_unused]] std::size_t own_id, [[maybe_unused]] std::string const &indent) const {
     // No data needs to be added for a function plotter
     return {};
 }
@@ -3296,12 +3325,14 @@ std::string GFunctionPlotter2D::bodyData_([[maybe_unused]] bool is_secondary, [[
  *
  * @param is_secondary Whether this plotter is a secondary plotter (true) or a primary one (false)
  * @param p_id The id of the parent plotter, used to build a unique function name for secondary plotters
+ * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
  * @param indent The indentation string prepended to every emitted line
  * @return The draw command to be added to the plot's data for this function
  */
 std::string GFunctionPlotter2D::footerData_(
     bool is_secondary,
     std::size_t p_id,
+    std::size_t own_id,
     std::string const &indent
 ) const {
     EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
@@ -3311,7 +3342,7 @@ std::string GFunctionPlotter2D::footerData_(
         comment = "// " + rootEscape(ds_marker_);
     }
 
-    std::string function_name = "func2D" + suffix(is_secondary, p_id);
+    std::string function_name = "func2D" + suffix(is_secondary, p_id, own_id);
     footer_data << indent << function_name << "->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");"
                 << '\n'
                 << indent << function_name << "->GetYaxis()->SetTitle(\"" << rootEscape(yAxisLabel()) << "\");"

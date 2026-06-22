@@ -239,28 +239,31 @@ protected:
      * @brief Retrieve specific header settings for this plot
      * @param is_secondary true if this plotter is a secondary plotter sharing a parent's canvas
      * @param parent_id The id of the parent plotter (only meaningful when is_secondary is true)
+     * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
      * @param indent The indentation string prepended to each emitted line
      * @return The plotter-specific header section
      */
-    virtual std::string headerData_(bool is_secondary, std::size_t parent_id, const std::string &indent) const = 0;
+    virtual std::string headerData_(bool is_secondary, std::size_t parent_id, std::size_t own_id, const std::string &indent) const = 0;
 
     /**
      * @brief Retrieves the actual data sets
      * @param is_secondary true if this plotter is a secondary plotter sharing a parent's canvas
      * @param parent_id The id of the parent plotter (only meaningful when is_secondary is true)
+     * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
      * @param indent The indentation string prepended to each emitted line
      * @return The plotter-specific data / body section
      */
-    virtual std::string bodyData_(bool is_secondary, std::size_t parent_id, const std::string &indent) const = 0;
+    virtual std::string bodyData_(bool is_secondary, std::size_t parent_id, std::size_t own_id, const std::string &indent) const = 0;
 
     /**
      * @brief retrieves specific draw commands for this plot
      * @param is_secondary true if this plotter is a secondary plotter sharing a parent's canvas
      * @param parent_id The id of the parent plotter (only meaningful when is_secondary is true)
+     * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
      * @param indent The indentation string prepended to each emitted line
      * @return The plotter-specific footer / draw section
      */
-    virtual std::string footerData_(bool is_secondary, std::size_t parent_id, const std::string &indent) const = 0;
+    virtual std::string footerData_(bool is_secondary, std::size_t parent_id, std::size_t own_id, const std::string &indent) const = 0;
 
     /**
      * @brief Retrieve the current drawing arguments
@@ -280,9 +283,10 @@ protected:
      * @brief calculate a suffix from id and parent ids
      * @param is_secondary true if a parent id should be folded into the suffix
      * @param parent_id The id of the parent plotter (used only when is_secondary is true)
-     * @return A suffix string built from this plotter's id (and the parent id for secondary plotters)
+     * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
+     * @return A suffix string built from this plotter's own id (and the parent id for secondary plotters)
      */
-    std::string suffix(bool is_secondary, std::size_t p_id) const;
+    std::string suffix(bool is_secondary, std::size_t p_id, std::size_t own_id) const;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     bool modify_GUnitTests_() override {

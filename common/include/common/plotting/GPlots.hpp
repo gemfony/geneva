@@ -905,7 +905,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -914,7 +914,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -923,7 +923,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
@@ -1103,7 +1103,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -1112,7 +1112,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -1121,7 +1121,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
@@ -1369,7 +1369,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -1378,7 +1378,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -1387,7 +1387,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
@@ -1532,7 +1532,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -1541,7 +1541,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -1550,7 +1550,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
@@ -1668,7 +1668,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -1677,7 +1677,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -1686,7 +1686,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
@@ -1933,7 +1933,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -1942,7 +1942,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -1951,7 +1951,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
@@ -2284,7 +2284,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string headerData_(bool isSecondary, std::size_t pId, std::size_t ownId, const std::string &indention) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -2293,7 +2293,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string bodyData_(bool isSecondary, std::size_t pId, std::size_t ownId, const std::string &indention) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -2302,7 +2302,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
@@ -2429,7 +2429,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -2438,7 +2438,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string bodyData_(bool isSecondary, std::size_t pId, std::size_t ownId, const std::string &indention) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -2447,7 +2447,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
@@ -2586,7 +2586,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -2595,7 +2595,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool isSecondary, std::size_t pId, const std::string &indention) const override;
+    std::string bodyData_(bool isSecondary, std::size_t pId, std::size_t ownId, const std::string &indention) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -2604,7 +2604,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool is_secondary, std::size_t p_id, const std::string &indent) const override;
+    std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
