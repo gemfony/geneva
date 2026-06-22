@@ -29,6 +29,9 @@
 
 #pragma once
 
+#include <memory>
+
+#include "common/plotting/GPlotEmitter.hpp"
 #include "common/plotting/GPlots.hpp"
 
 namespace Gem::Common {
@@ -41,6 +44,10 @@ namespace Gem::Common {
 class GPlotDesigner : public GCommonInterfaceT<GPlotDesigner> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    // The pluggable backend emitters read the designer's plotters, canvas
+    // dimensions / divisions and label to compose their backend document.
+    friend class GRootEmitter;
+    friend class GnuplotEmitter;
 
     /**
      * @brief Single declaration of this class'es local data members
@@ -126,6 +133,26 @@ public:
      * @param file_name The path of the file the emitted plot script is written to
      */
     void writeToFile(const std::filesystem::path & file_name);
+
+    /**
+     * @brief Selects the backend the designer emits through
+     *
+     * Installs the standard emitter for the requested backend (ROOT, the default,
+     * or GNUPLOT). plot() then delegates to the selected emitter.
+     *
+     * @param backend The plotting backend to use
+     */
+    void setPlotBackend(plotBackend backend);
+
+    /**
+     * @brief Installs a custom plot emitter
+     *
+     * Overrides the backend selected via setPlotBackend() with a caller-supplied
+     * emitter. plot() delegates to it.
+     *
+     * @param emitter The emitter to install (must not be empty)
+     */
+    void setEmitter(std::shared_ptr<IPlotEmitter> emitter);
 
     /**
      * @brief Allows to add a new plotter object
@@ -261,6 +288,13 @@ private:
         false; ///< Indicates whether a print command for the creation of a png file should be added
 
     std::size_t n_indention_spaces_ = (DEFNINDENTIONSPACES);
+
+    // --- Backend selection (transient; not part of the serialized / compared state) ---
+
+    /** @brief The emitter plot() delegates to (lazily defaulted to a GRootEmitter) */
+    std::shared_ptr<IPlotEmitter> emitter_;
+    /** @brief The plot name threaded from plot() to the emitter for the print command */
+    mutable std::filesystem::path pending_plot_name_ = std::filesystem::path("empty");
 };
 
 /******************************************************************************/

@@ -94,6 +94,7 @@ SET ( GENEVACOMMONPLOTTINGINCLUDES
 	plotting/GDecorators.hpp
 	plotting/GBasePlotter.hpp
 	plotting/GPlots.hpp
+	plotting/GPlotEmitter.hpp
 	plotting/GPlotDesigner.hpp
 )
 

@@ -3499,70 +3499,135 @@ void GPlotDesigner::writeToFile(const std::filesystem::path &file_name) {
 
 /******************************************************************************/
 /**
- * Emits the overall plot
+ * Selects the backend the designer emits through, installing the standard emitter
+ * for the requested backend. plot() then delegates to it.
+ *
+ * @param backend The plotting backend to use (ROOT, the default, or GNUPLOT)
+ */
+void GPlotDesigner::setPlotBackend(plotBackend backend) {
+    switch(backend) {
+        case plotBackend::ROOT:    emitter_ = std::make_shared<GRootEmitter>(); break;
+        case plotBackend::GNUPLOT: emitter_ = std::make_shared<GnuplotEmitter>(); break;
+    }
+}
+
+/******************************************************************************/
+/**
+ * Installs a custom plot emitter, overriding the backend selected via
+ * setPlotBackend(). plot() delegates to it.
+ *
+ * @param emitter The emitter to install (must not be empty)
+ */
+void GPlotDesigner::setEmitter(std::shared_ptr<IPlotEmitter> emitter) {
+    if(not emitter) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GPlotDesigner::setEmitter(): Error!" << '\n'
+            << "Got empty emitter" << '\n'
+        );
+    }
+    emitter_ = std::move(emitter);
+}
+
+/******************************************************************************/
+/**
+ * Emits the overall plot by delegating to the selected backend emitter. The ROOT
+ * backend is the default; its output is byte-identical to the historical generator.
  *
  * @param plot_name The output file name; used to derive the png file name in the emitted print command
  * (the literal string "empty" or an empty path suppresses the print command)
- * @return The complete ROOT macro source code for the canvas and all registered plotters
+ * @return The complete backend document for the canvas and all registered plotters
  */
 std::string GPlotDesigner::plot(const std::filesystem::path &plot_name) const {
-    EmitStream result; // NOLINT(cppcoreguidelines-init-variables)
-    std::size_t max_plots = c_x_div_ * c_y_div_;
+    // Thread the plot name to the emitter (used by the ROOT print command).
+    pending_plot_name_ = plot_name;
 
-    if(plotters_cnt_.size() > max_plots) {
-        glogger << "In GPlotDesigner::plot() (Canvas label = \"" << this->getCanvasLabel()
+    // Lazily default to the ROOT backend so the historical behaviour is unchanged.
+    if(not emitter_) {
+        const_cast<GPlotDesigner *>(this)->emitter_ = std::make_shared<GRootEmitter>();
+    }
+
+    return emitter_->emitDocument(*this);
+}
+
+/******************************************************************************/
+/**
+ * The ROOT-macro file extension.
+ *
+ * @return The string ".C"
+ */
+std::string GRootEmitter::fileExtension() const {
+    return std::string(".C");
+}
+
+/******************************************************************************/
+/**
+ * Emits the overall plot as a ROOT macro. This reproduces the historical
+ * GPlotDesigner::plot() body verbatim, so the emitted text is unchanged.
+ *
+ * @param gpd The designer holding the plotters and canvas configuration
+ * @return The complete ROOT macro source code for the canvas and all registered plotters
+ */
+std::string GRootEmitter::emitDocument(const GPlotDesigner &gpd) const {
+    const std::filesystem::path &plot_name = gpd.pending_plot_name_;
+
+    EmitStream result; // NOLINT(cppcoreguidelines-init-variables)
+    std::size_t max_plots = gpd.c_x_div_ * gpd.c_y_div_;
+
+    if(gpd.plotters_cnt_.size() > max_plots) {
+        glogger << "In GPlotDesigner::plot() (Canvas label = \"" << gpd.getCanvasLabel()
                 << "\":" << '\n'
-                << "Warning! Found more plots than pads (" << plotters_cnt_.size() << " vs. "
+                << "Warning! Found more plots than pads (" << gpd.plotters_cnt_.size() << " vs. "
                 << max_plots << ")" << '\n'
                 << "Some of the plots will be ignored" << '\n'
                 << GWARNING;
     }
 
-    result << "{" << '\n' << staticHeader(indent()) << '\n';
+    result << "{" << '\n' << gpd.staticHeader(gpd.indent()) << '\n';
 
     // Plot all body sections up to the maximum allowed number
-    result << indent() << "//===================  Header Section ====================" << '\n'
+    result << gpd.indent() << "//===================  Header Section ====================" << '\n'
            << '\n';
 
     // Plot all headers up to the maximum allowed number
     std::size_t n_plots = 0;
     std::vector<std::shared_ptr<GBasePlotter>>::const_iterator it;
-    for(it = plotters_cnt_.begin(); it != plotters_cnt_.end(); ++it) {
+    for(it = gpd.plotters_cnt_.begin(); it != gpd.plotters_cnt_.end(); ++it) {
         if(n_plots++ < max_plots) {
-            result << (*it)->headerData(indent()) << '\n';
+            result << (*it)->headerData(gpd.indent()) << '\n';
         }
     }
 
     // Plot all body sections up to the maximum allowed number
-    result << indent() << "//===================  Data Section ======================" << '\n'
+    result << gpd.indent() << "//===================  Data Section ======================" << '\n'
            << '\n';
 
     n_plots = 0;
-    for(it = plotters_cnt_.begin(); it != plotters_cnt_.end(); ++it) {
+    for(it = gpd.plotters_cnt_.begin(); it != gpd.plotters_cnt_.end(); ++it) {
         if(n_plots++ < max_plots) {
-            result << (*it)->bodyData(indent()) << '\n';
+            result << (*it)->bodyData(gpd.indent()) << '\n';
         }
     }
 
     // Plot all footer data up to the maximum allowed number
-    result << indent() << "//===================  Plot Section ======================" << '\n'
+    result << gpd.indent() << "//===================  Plot Section ======================" << '\n'
            << '\n';
 
     n_plots = 0;
-    for(it = plotters_cnt_.begin(); it != plotters_cnt_.end(); ++it) {
+    for(it = gpd.plotters_cnt_.begin(); it != gpd.plotters_cnt_.end(); ++it) {
         if(n_plots < max_plots) {
-            result << indent() << "graphPad->cd(" << n_plots + 1 << ");"
+            result << gpd.indent() << "graphPad->cd(" << n_plots + 1 << ");"
                    << '\n' /* cd starts at 1 */
-                   << (*it)->footerData(indent()) << '\n';
+                   << (*it)->footerData(gpd.indent()) << '\n';
 
             n_plots++;
         }
     }
 
-    result << indent() << "graphPad->cd();" << '\n' << indent() << "cc->cd();" << '\n';
+    result << gpd.indent() << "graphPad->cd();" << '\n' << gpd.indent() << "cc->cd();" << '\n';
 
     // Check if we are supposed to output a png file
-    if(add_print_command_ && plot_name.string() != "empty" && not(plot_name.string()).empty()) {
+    if(gpd.add_print_command_ && plot_name.string() != "empty" && not(plot_name.string()).empty()) {
         std::string plot_name_local = plot_name.string(); // Make sure there are no white spaces
         auto ltrim = plot_name_local.find_first_not_of(" \t\r\n");
         auto rtrim = plot_name_local.find_last_not_of(" \t\r\n");
@@ -3573,13 +3638,38 @@ std::string GPlotDesigner::plot(const std::filesystem::path &plot_name) const {
             plot_name_local.clear();
         }
         result << '\n'
-               << indent() << "// Print out the data of this file to a png file" << '\n'
-               << indent() << "cc->Print(\"" << plot_name_local << ".png\");" << '\n';
+               << gpd.indent() << "// Print out the data of this file to a png file" << '\n'
+               << gpd.indent() << "cc->Print(\"" << plot_name_local << ".png\");" << '\n';
     }
 
     result << "}" << '\n';
 
     return result.str();
+}
+
+/******************************************************************************/
+/**
+ * The gnuplot-script file extension.
+ *
+ * @return The string ".gp"
+ */
+std::string GnuplotEmitter::fileExtension() const {
+    return std::string(".gp");
+}
+
+/******************************************************************************/
+/**
+ * Emits a gnuplot script for the graph plotters. Implemented in stage B.
+ *
+ * @param gpd The designer holding the graph plotters and canvas configuration
+ * @return The complete gnuplot script as a string
+ */
+std::string GnuplotEmitter::emitDocument([[maybe_unused]] const GPlotDesigner &gpd) const {
+    throw geneva_exception(
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+        << "In GnuplotEmitter::emitDocument(): Error!" << '\n'
+        << "The gnuplot backend is not yet implemented." << '\n'
+    );
 }
 
 /******************************************************************************/
