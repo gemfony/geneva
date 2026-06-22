@@ -379,3 +379,78 @@ TEST_CASE("data backend (NPZ) emits a non-empty ZIP/.npz archive", "[plotting]")
     CHECK(s.find(std::string("\x93NUMPY", 6)) != std::string::npos);
     CHECK(s.find("manifest.json") != std::string::npos);
 }
+
+/******************************************************************************/
+// dataColumns(): a double-columned plotter reports pointers to its columns in storage
+// order; a dataless / non-double plotter reports an empty list.
+TEST_CASE("dataColumns reports columns generically in storage order", "[plotting]") {
+    // GGraph2ED stores four columns (x, ex, y, ey) -- the tricky reorder case.
+    GGraph2ED g;
+    g & std::tuple<double, double, double, double>(1.0, 0.1, 2.0, 0.2);
+    g & std::tuple<double, double, double, double>(3.0, 0.3, 4.0, 0.4);
+
+    const auto cols = g.dataColumns();
+    REQUIRE(cols.size() == 4); // matches plotSpec().columns {"x","ex","y","ey"}
+    CHECK(g.plotSpec().columns.size() == cols.size());
+    REQUIRE(cols[0]->size() == 2);
+    CHECK((*cols[0])[0] == 1.0); // x
+    CHECK((*cols[1])[0] == 0.1); // ex
+    CHECK((*cols[2])[0] == 2.0); // y
+    CHECK((*cols[3])[1] == 0.4); // ey
+
+    // The integer histogram has a non-double axis -> nothing exported this way (ROOT-only).
+    GHistogram1I hi(5, 0.0, 10.0);
+    CHECK(hi.dataColumns().empty());
+
+    // A function plotter holds no sample columns at all.
+    GFunctionPlotter1D fp(std::string("x^2"), std::tuple<double, double>(-1.0, 1.0));
+    CHECK(fp.dataColumns().empty());
+}
+
+/******************************************************************************/
+// makePlotter(): the inverse of plotSpec(). A plotter -> spec -> makePlotter round-trip
+// reproduces the same plotSpec() (kind, role, labels, columns, bins).
+TEST_CASE("makePlotter reconstructs a plotter from its GPlotSpec", "[plotting]") {
+    SECTION("graph round-trips kind/labels/columns") {
+        GGraph2ED orig;
+        orig.setPlotLabel(std::string("err series"));
+        orig.setXAxisLabel(std::string("xx"));
+        orig.setYAxisLabel(std::string("yy"));
+        orig.setDrawingArguments(std::string("AP"));
+
+        const GPlotSpec spec = orig.plotSpec();
+        const auto rebuilt = makePlotter(spec);
+        REQUIRE(rebuilt != nullptr);
+
+        const GPlotSpec rspec = rebuilt->plotSpec();
+        CHECK(rspec.kind == plotKind::graph_2d_err);
+        CHECK(rspec.role == spec.role);
+        CHECK(rspec.name == std::string("err series"));
+        CHECK(rspec.x_label == std::string("xx"));
+        CHECK(rspec.y_label == std::string("yy"));
+        CHECK(rspec.drawing_args == std::string("AP"));
+        CHECK(rspec.columns == spec.columns);
+        // The rebuilt plotter is empty (no data carried by the spec).
+        CHECK(rebuilt->dataColumns()[0]->empty());
+    }
+
+    SECTION("histogram round-trips its bin counts") {
+        GHistogram2D orig(6, 8);
+        const GPlotSpec spec = orig.plotSpec();
+        const auto rebuilt = makePlotter(spec);
+
+        const GPlotSpec rspec = rebuilt->plotSpec();
+        CHECK(rspec.kind == plotKind::hist_2d);
+        REQUIRE(rspec.n_bins_x.has_value());
+        REQUIRE(rspec.n_bins_y.has_value());
+        CHECK(*rspec.n_bins_x == 6);
+        CHECK(*rspec.n_bins_y == 8);
+    }
+
+    SECTION("function and integer-histogram kinds cannot be rebuilt from a spec") {
+        GPlotSpec fspec(plotKind::function_1d);
+        CHECK_THROWS(makePlotter(fspec));
+        GPlotSpec ispec(plotKind::hist_1i);
+        CHECK_THROWS(makePlotter(ispec));
+    }
+}

@@ -523,6 +523,80 @@ GPlotSpec GBasePlotter::plotSpec() const {
 
 /******************************************************************************/
 /**
+ * The base reports no exportable double columns; the columnar collectors override
+ * this (see GDataCollectorT::dataColumns()). A plotter that stores no double sample
+ * columns -- a function plotter, or the integer histogram -- keeps this default.
+ *
+ * @return An empty list of columns
+ */
+std::vector<const std::vector<double> *> GBasePlotter::dataColumns() const {
+    return {};
+}
+
+/******************************************************************************/
+/**
+ * Constructs an empty plotter of the kind described by a GPlotSpec (the inverse of
+ * GBasePlotter::plotSpec()), applying the spec's labels, drawing arguments and (for
+ * histograms) bin counts. The function plotters cannot be reconstructed from a spec
+ * and therefore throw. See the declaration in GPlots.hpp for the full contract.
+ *
+ * @param spec The plot specification describing the plotter to build
+ * @return A newly-allocated, empty plotter matching the spec
+ */
+std::unique_ptr<GBasePlotter> makePlotter(const GPlotSpec &spec) {
+    std::unique_ptr<GBasePlotter> p;
+    switch(spec.kind) {
+        case plotKind::graph_2d:
+            p = std::make_unique<GGraph2D>();
+            break;
+        case plotKind::graph_2d_err:
+            p = std::make_unique<GGraph2ED>();
+            break;
+        case plotKind::graph_3d:
+            p = std::make_unique<GGraph3D>();
+            break;
+        case plotKind::graph_4d:
+            p = std::make_unique<GGraph4D>();
+            break;
+        case plotKind::hist_1d:
+            // The single-bin-count ctor auto-determines the value range from the data.
+            p = std::make_unique<GHistogram1D>(spec.n_bins_x.value_or(10));
+            break;
+        case plotKind::hist_2d:
+            p = std::make_unique<GHistogram2D>(
+                spec.n_bins_x.value_or(10), spec.n_bins_y.value_or(10)
+            );
+            break;
+        case plotKind::hist_1i:
+            // GHistogram1I needs an explicit value range, which the spec does not carry.
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In makePlotter(): Error!" << '\n'
+                << "an integer histogram (kind \"" << to_string(spec.kind)
+                << "\") cannot be reconstructed from a GPlotSpec -- its value range is "
+                << "not part of the spec." << '\n'
+            );
+        case plotKind::function_1d:
+        case plotKind::function_2d:
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In makePlotter(): Error!" << '\n'
+                << "a function plotter (kind \"" << to_string(spec.kind)
+                << "\") cannot be reconstructed from a GPlotSpec -- its formula and "
+                << "sampling range are not part of the spec." << '\n'
+            );
+    }
+
+    p->setPlotLabel(spec.name);
+    p->setXAxisLabel(spec.x_label);
+    p->setYAxisLabel(spec.y_label);
+    p->setZAxisLabel(spec.z_label);
+    p->setDrawingArguments(spec.drawing_args);
+    return p;
+}
+
+/******************************************************************************/
+/**
  * Allows to assign a marker to data structures in the output file
  *
  * @param ds_marker A marker that has been assigned to the output data structures
@@ -3903,19 +3977,15 @@ namespace {
 /** @brief The graph-plotter kind, used to group compatible plotters into one (s)plot. */
 enum class graphKind { g2d, g2ed, g3d, g4d };
 
-/** @brief Classify a plotter; throws if it is not one of the four graph plotters. */
+/** @brief Classify a plotter by its reported plotSpec().kind; throws if it is not one of
+ *  the four graph plotters. */
 graphKind classifyGraph(const GBasePlotter &p) {
-    if(dynamic_cast<const GGraph2ED *>(&p) != nullptr) {
-        return graphKind::g2ed; // checked before GGraph2D's base would match
-    }
-    if(dynamic_cast<const GGraph2D *>(&p) != nullptr) {
-        return graphKind::g2d;
-    }
-    if(dynamic_cast<const GGraph3D *>(&p) != nullptr) {
-        return graphKind::g3d;
-    }
-    if(dynamic_cast<const GGraph4D *>(&p) != nullptr) {
-        return graphKind::g4d;
+    switch(p.plotSpec().kind) {
+        case plotKind::graph_2d:     return graphKind::g2d;
+        case plotKind::graph_2d_err: return graphKind::g2ed;
+        case plotKind::graph_3d:     return graphKind::g3d;
+        case plotKind::graph_4d:     return graphKind::g4d;
+        default:                     break;
     }
     throw geneva_exception(
         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -3957,41 +4027,40 @@ std::string datasetSpec(const GBasePlotter &p, graphKind k) {
  *  datablock, so it carries no `e`/`EOD` terminator -- the caller adds it. */
 std::string datasetRows(const GBasePlotter &p, graphKind k, const std::string &indent) {
     EmitStream rows; // NOLINT(cppcoreguidelines-init-variables)
+    // Columns come back in storage order (see plotSpec().columns); the gnuplot row
+    // layout is the same EXCEPT GGraph2ED, whose stored (x, ex, y, ey) is re-ordered
+    // to the `x y xdelta ydelta` that the xyerrorbars style expects.
+    const auto cols = p.dataColumns();
     switch(k) {
         case graphKind::g2d: {
-            const auto &g = dynamic_cast<const GGraph2D &>(p);
-            const auto &x = g.column<0>();
-            const auto &y = g.column<1>();
+            const auto &x = *cols[0];
+            const auto &y = *cols[1];
             for(std::size_t i = 0; i < x.size(); ++i) {
                 rows << indent << x[i] << ' ' << y[i] << '\n';
             }
         } break;
         case graphKind::g2ed: {
-            // GGraph2ED stores (x, ex, y, ey); gnuplot xyerrorbars wants x y xdelta ydelta.
-            const auto &g = dynamic_cast<const GGraph2ED &>(p);
-            const auto &x  = g.column<0>();
-            const auto &ex = g.column<1>();
-            const auto &y  = g.column<2>();
-            const auto &ey = g.column<3>();
+            const auto &x  = *cols[0];
+            const auto &ex = *cols[1];
+            const auto &y  = *cols[2];
+            const auto &ey = *cols[3];
             for(std::size_t i = 0; i < x.size(); ++i) {
                 rows << indent << x[i] << ' ' << y[i] << ' ' << ex[i] << ' ' << ey[i] << '\n';
             }
         } break;
         case graphKind::g3d: {
-            const auto &g = dynamic_cast<const GGraph3D &>(p);
-            const auto &x = g.column<0>();
-            const auto &y = g.column<1>();
-            const auto &z = g.column<2>();
+            const auto &x = *cols[0];
+            const auto &y = *cols[1];
+            const auto &z = *cols[2];
             for(std::size_t i = 0; i < x.size(); ++i) {
                 rows << indent << x[i] << ' ' << y[i] << ' ' << z[i] << '\n';
             }
         } break;
         case graphKind::g4d: {
-            const auto &g = dynamic_cast<const GGraph4D &>(p);
-            const auto &x = g.column<0>();
-            const auto &y = g.column<1>();
-            const auto &z = g.column<2>();
-            const auto &w = g.column<3>();
+            const auto &x = *cols[0];
+            const auto &y = *cols[1];
+            const auto &z = *cols[2];
+            const auto &w = *cols[3];
             for(std::size_t i = 0; i < x.size(); ++i) {
                 rows << indent << x[i] << ' ' << y[i] << ' ' << z[i] << ' ' << w[i] << '\n';
             }
@@ -4149,23 +4218,14 @@ enum class mplKind { g2d, g2ed, g3d, g4d, hist1d, hist2d };
 /** @brief Classify a plotter for the matplotlib backend; throws for unsupported types
  *  (e.g. function plotters), directing the caller to the ROOT backend. */
 mplKind classifyMpl(const GBasePlotter &p) {
-    if(dynamic_cast<const GGraph2ED *>(&p) != nullptr) {
-        return mplKind::g2ed; // checked before GGraph2D's base would match
-    }
-    if(dynamic_cast<const GGraph2D *>(&p) != nullptr) {
-        return mplKind::g2d;
-    }
-    if(dynamic_cast<const GGraph3D *>(&p) != nullptr) {
-        return mplKind::g3d;
-    }
-    if(dynamic_cast<const GGraph4D *>(&p) != nullptr) {
-        return mplKind::g4d;
-    }
-    if(dynamic_cast<const GHistogram2D *>(&p) != nullptr) {
-        return mplKind::hist2d;
-    }
-    if(dynamic_cast<const GHistogram1D *>(&p) != nullptr) {
-        return mplKind::hist1d;
+    switch(p.plotSpec().kind) {
+        case plotKind::graph_2d:     return mplKind::g2d;
+        case plotKind::graph_2d_err: return mplKind::g2ed;
+        case plotKind::graph_3d:     return mplKind::g3d;
+        case plotKind::graph_4d:     return mplKind::g4d;
+        case plotKind::hist_2d:      return mplKind::hist2d;
+        case plotKind::hist_1d:      return mplKind::hist1d;
+        default:                     break;
     }
     throw geneva_exception(
         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -4203,44 +4263,42 @@ std::string mplPlotCall(
 ) {
     EmitStream call; // NOLINT(cppcoreguidelines-init-variables)
     const std::string label = pythonEscape(p.plotLabel());
+    // Columns in storage order (see plotSpec().columns); histogram bin counts come
+    // from the same spec. GGraph2ED's stored order is (x, ex, y, ey) -> errorbar wants
+    // x, y with xerr/yerr.
+    const auto cols = p.dataColumns();
+    const GPlotSpec spec = p.plotSpec();
     switch(k) {
         case mplKind::g2d: {
-            const auto &g = dynamic_cast<const GGraph2D &>(p);
-            call << ax << ".plot(" << pyList(g.column<0>()) << ", "
-                 << pyList(g.column<1>()) << ", marker=\"o\", label=\"" << label << "\")" << '\n';
+            call << ax << ".plot(" << pyList(*cols[0]) << ", "
+                 << pyList(*cols[1]) << ", marker=\"o\", label=\"" << label << "\")" << '\n';
         } break;
         case mplKind::g2ed: {
-            // GGraph2ED stores (x, ex, y, ey); errorbar wants xerr/yerr.
-            const auto &g = dynamic_cast<const GGraph2ED &>(p);
-            call << ax << ".errorbar(" << pyList(g.column<0>()) << ", "
-                 << pyList(g.column<2>()) << ", xerr=" << pyList(g.column<1>())
-                 << ", yerr=" << pyList(g.column<3>()) << ", fmt=\"o\", label=\"" << label << "\")"
+            call << ax << ".errorbar(" << pyList(*cols[0]) << ", "
+                 << pyList(*cols[2]) << ", xerr=" << pyList(*cols[1])
+                 << ", yerr=" << pyList(*cols[3]) << ", fmt=\"o\", label=\"" << label << "\")"
                  << '\n';
         } break;
         case mplKind::g3d: {
-            const auto &g = dynamic_cast<const GGraph3D &>(p);
-            call << ax << ".plot(" << pyList(g.column<0>()) << ", "
-                 << pyList(g.column<1>()) << ", " << pyList(g.column<2>())
+            call << ax << ".plot(" << pyList(*cols[0]) << ", "
+                 << pyList(*cols[1]) << ", " << pyList(*cols[2])
                  << ", label=\"" << label << "\")" << '\n';
         } break;
         case mplKind::g4d: {
             // 3-d scatter coloured by the w-component, with a colourbar.
-            const auto &g = dynamic_cast<const GGraph4D &>(p);
-            call << "_sc = " << ax << ".scatter(" << pyList(g.column<0>()) << ", "
-                 << pyList(g.column<1>()) << ", " << pyList(g.column<2>())
-                 << ", c=" << pyList(g.column<3>()) << ", cmap=\"viridis\", label=\"" << label
+            call << "_sc = " << ax << ".scatter(" << pyList(*cols[0]) << ", "
+                 << pyList(*cols[1]) << ", " << pyList(*cols[2])
+                 << ", c=" << pyList(*cols[3]) << ", cmap=\"viridis\", label=\"" << label
                  << "\")" << '\n'
                  << fig << ".colorbar(_sc, ax=" << ax << ")" << '\n';
         } break;
         case mplKind::hist1d: {
-            const auto &h = dynamic_cast<const GHistogram1D &>(p);
-            call << ax << ".hist(" << pyList(h.column<0>()) << ", bins="
-                 << h.getNBinsX() << ", label=\"" << label << "\")" << '\n';
+            call << ax << ".hist(" << pyList(*cols[0]) << ", bins="
+                 << *spec.n_bins_x << ", label=\"" << label << "\")" << '\n';
         } break;
         case mplKind::hist2d: {
-            const auto &h = dynamic_cast<const GHistogram2D &>(p);
-            call << "_h = " << ax << ".hist2d(" << pyList(h.column<0>()) << ", "
-                 << pyList(h.column<1>()) << ", bins=[" << h.getNBinsX() << ", " << h.getNBinsY()
+            call << "_h = " << ax << ".hist2d(" << pyList(*cols[0]) << ", "
+                 << pyList(*cols[1]) << ", bins=[" << *spec.n_bins_x << ", " << *spec.n_bins_y
                  << "])" << '\n'
                  << fig << ".colorbar(_h[3], ax=" << ax << ")" << '\n';
         } break;
@@ -4376,46 +4434,26 @@ struct dataSeries {
 };
 
 /** @brief Capture a plotter's columns as a dataSeries, or std::nullopt for a plotter that
- *  carries no sampled data (the function plotters). Mirrors MatplotlibEmitter::classifyMpl's
- *  most-derived-first dynamic_cast ordering so GGraph2ED is not mistaken for a GGraph2D. */
+ *  carries no exportable sampled data (the function plotters, and the integer histogram).
+ *  The column data and names are read generically through dataColumns() / plotSpec(),
+ *  so the capture is decoupled from the concrete plotter type. */
 std::optional<dataSeries> captureSeries(const GBasePlotter &p) {
     dataSeries s;
     s.name = p.plotLabel();
     s.kind = p.getPlotterName();
     s.spec = p.plotSpec();
+    s.columns = p.dataColumns();
 
-    if(const auto *g = dynamic_cast<const GGraph2ED *>(&p)) { // before GGraph2D
-        s.column_names = {"x", "ex", "y", "ey"};
-        s.columns = {&g->column<0>(), &g->column<1>(), &g->column<2>(), &g->column<3>()};
-        return s;
+    // A plotter with no exportable double columns (a function plotter, or the integer
+    // histogram) reports nothing here -- those are ROOT-only / dataless and are skipped.
+    if(s.columns.empty()) {
+        return std::nullopt;
     }
-    if(const auto *g = dynamic_cast<const GGraph2D *>(&p)) {
-        s.column_names = {"x", "y"};
-        s.columns = {&g->column<0>(), &g->column<1>()};
-        return s;
-    }
-    if(const auto *g = dynamic_cast<const GGraph3D *>(&p)) {
-        s.column_names = {"x", "y", "z"};
-        s.columns = {&g->column<0>(), &g->column<1>(), &g->column<2>()};
-        return s;
-    }
-    if(const auto *g = dynamic_cast<const GGraph4D *>(&p)) {
-        s.column_names = {"x", "y", "z", "w"};
-        s.columns = {&g->column<0>(), &g->column<1>(), &g->column<2>(), &g->column<3>()};
-        return s;
-    }
-    if(const auto *h = dynamic_cast<const GHistogram2D *>(&p)) { // before GHistogram1D
-        s.column_names = {"x", "y"};
-        s.columns = {&h->column<0>(), &h->column<1>()};
-        return s;
-    }
-    if(const auto *h = dynamic_cast<const GHistogram1D *>(&p)) {
-        s.column_names = {"value"}; // the raw (unbinned) sample values
-        s.columns = {&h->column<0>()};
-        return s;
-    }
-    // Function plotters (and any other dataless plotter) have no sampled columns.
-    return std::nullopt;
+
+    // The per-axis names are the spec's column labels, in the same storage order as
+    // dataColumns() (e.g. {"x","ex","y","ey"} for GGraph2ED, {"value"} for GHistogram1D).
+    s.column_names = s.spec.columns;
+    return s;
 }
 
 /** @brief The number of data rows in a captured series (the common column length). */

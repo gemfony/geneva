@@ -207,6 +207,22 @@ public:
      */
     [[nodiscard]] virtual GPlotSpec plotSpec() const;
 
+    /**
+     * @brief Reports this plotter's stored columnar data as a (storage-order) list of
+     * read-only double columns, decoupled from the concrete plotter type.
+     *
+     * Together with plotSpec() this lets the render / data backends consume a plotter
+     * generically -- they switch on plotSpec().kind and read the columns through this
+     * accessor, instead of dynamic_cast'ing back to each concrete plotter. The returned
+     * pointers alias this plotter's columns and stay valid for its lifetime; the order
+     * matches plotSpec().columns. The base returns an empty list (a plotter that holds
+     * no double-typed sample columns -- a function plotter, or the integer histogram --
+     * exports nothing this way).
+     *
+     * @return Pointers to this plotter's per-axis value vectors, in storage order
+     */
+    [[nodiscard]] virtual std::vector<const std::vector<double> *> dataColumns() const;
+
     /***************************************************************************/
 
     /**

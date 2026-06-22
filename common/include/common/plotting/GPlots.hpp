@@ -29,6 +29,9 @@
 
 #pragma once
 
+#include <memory>
+#include <type_traits>
+
 #include "common/plotting/GBasePlotter.hpp"
 
 namespace Gem::Common {
@@ -481,6 +484,25 @@ public:
         return std::get<I>(columns_);
     }
 
+    /***************************************************************************/
+    /**
+	  * Reports this collector's columns generically, as a storage-order list of
+	  * read-only double columns, so the plot backends can read the data without
+	  * knowing the concrete plotter type (they switch on plotSpec().kind instead).
+	  * Only an all-double collector exports its columns; a collector with a
+	  * non-double axis (the integer histogram) reports nothing, exactly as the base
+	  * default does -- such data is ROOT-only.
+	  *
+	  * @return Pointers to every column, in storage order (empty if any axis is not double)
+	  */
+    [[nodiscard]] std::vector<const std::vector<double> *> dataColumns() const override {
+        if constexpr ((std::is_same_v<Ts, double> && ...)) {
+            return dataColumnsImpl_(std::make_index_sequence<n_axes>{});
+        } else {
+            return {};
+        }
+    }
+
 protected:
     /***************************************************************************/
     /**
@@ -584,6 +606,17 @@ protected:
     columns_t columns_; ///< Holds the actual data in columnar (struct-of-arrays) form
 
 private:
+    /***************************************************************************/
+    /**
+	  * Collects pointers to every column, in storage order, for dataColumns().
+	  * Instantiated only when every axis is double (guarded by the caller's
+	  * if constexpr), so the const std::vector<double>* casts are exact.
+	  */
+    template <std::size_t... Is>
+    std::vector<const std::vector<double> *> dataColumnsImpl_(std::index_sequence<Is...>) const {
+        return {(&std::get<Is>(columns_))...};
+    }
+
     /***************************************************************************/
     /**
 	  * Appends one logical item (one value per axis) to the columns.
@@ -2741,5 +2774,25 @@ private:
     std::size_t n_samples_y_ = DEFNSAMPLES; ///< The number of sampling points of the function
 };
 
+/******************************************************************************/
+/**
+ * Constructs an empty plotter of the kind described by a GPlotSpec, the inverse of
+ * GBasePlotter::plotSpec(). The returned plotter carries the spec's labels, drawing
+ * arguments and (for histograms) bin counts, but holds NO data -- the caller fills it
+ * via the usual add() / operator& path. This makes plot-choice a value a caller can
+ * round-trip (plotter -> plotSpec() -> makePlotter() reproduces the same plotSpec()),
+ * the groundwork for monitors that declare a GPlotSpec instead of hard-coding a
+ * concrete plotter type.
+ *
+ * The function plotters (function_1d / function_2d) cannot be reconstructed from a
+ * spec -- their formula and sampling range are not part of the GPlotSpec value -- so
+ * those kinds throw a geneva_exception.
+ *
+ * @param spec The plot specification describing the plotter to build
+ * @return A newly-allocated, empty plotter matching the spec
+ */
+[[nodiscard]] std::unique_ptr<GBasePlotter> makePlotter(const GPlotSpec &spec);
+
+/******************************************************************************/
 
 } /* namespace Gem::Common */
