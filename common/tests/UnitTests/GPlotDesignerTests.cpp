@@ -302,8 +302,12 @@ TEST_CASE("data backend (CSV) emits the raw series data for a GGraph2D", "[plott
 
     const std::string s = gpd.plot();
 
-    // The section header comment names the series, its kind, its (spec) role and its columns.
-    CHECK(s.find("# series 0: \"my series\" kind=GGraph2D role=xy columns=x,y") != std::string::npos);
+    // A leading canvas comment records the title and the pad grid for an external renderer.
+    CHECK(s.find("# canvas: \"data csv\" c_x_div=1 c_y_div=1") != std::string::npos);
+    // The section header comment names the series, its class name, canonical plot kind,
+    // (spec) role, columns and its pad / overlay placement.
+    CHECK(s.find("# series 0: \"my series\" kind=GGraph2D plotkind=graph_2d role=xy "
+                 "columns=x,y pad=0 secondary=0") != std::string::npos);
     // The column-name header row.
     CHECK(s.find("x,y") != std::string::npos);
     // The data rows, full precision, dot decimal separator.

@@ -4431,6 +4431,16 @@ struct dataSeries {
     std::vector<std::string> column_names;         ///< per-axis names (x, ex, y, ...)
     std::vector<const std::vector<double> *> columns; ///< per-axis value vectors (parallel)
     GPlotSpec spec;                                ///< the plotter's full reported plot spec
+    std::size_t pad = 0;                           ///< the canvas pad this series draws into
+    bool secondary = false;                        ///< true if it overlays a primary in the same pad
+};
+
+/** @brief The canvas-level layout the data export records so an external renderer can
+ *  reproduce the multi-pad figure: the canvas title and the pad grid (columns x rows). */
+struct canvasInfo {
+    std::string label;       ///< the canvas title
+    std::size_t c_x_div = 1; ///< number of pad columns
+    std::size_t c_y_div = 1; ///< number of pad rows
 };
 
 /** @brief Capture a plotter's columns as a dataSeries, or std::nullopt for a plotter that
@@ -4482,8 +4492,13 @@ std::string csvComment(const std::string &in) {
 /** @brief Render all captured series as the CSV document: one section per series separated
  *  by a blank line; each section a `# series ...` comment header, a column-name header row,
  *  then the data rows. Values are full-precision and locale-independent (EmitStream). */
-std::string emitCsv(const std::vector<dataSeries> &series) {
+std::string emitCsv(const std::vector<dataSeries> &series, const canvasInfo &canvas) {
     EmitStream out; // NOLINT(cppcoreguidelines-init-variables)
+
+    // A leading canvas comment so an external reader can reproduce the pad grid.
+    out << "# canvas: \"" << csvComment(canvas.label) << "\" c_x_div=" << canvas.c_x_div
+        << " c_y_div=" << canvas.c_y_div << '\n';
+
     for(std::size_t si = 0; si < series.size(); ++si) {
         const dataSeries &s = series[si];
         if(si != 0) {
@@ -4497,7 +4512,9 @@ std::string emitCsv(const std::vector<dataSeries> &series) {
         }
 
         out << "# series " << si << ": \"" << csvComment(s.name) << "\" kind=" << s.kind
-            << " role=" << s.spec.role << " columns=" << col_list << '\n';
+            << " plotkind=" << to_string(s.spec.kind) << " role=" << s.spec.role
+            << " columns=" << col_list
+            << " pad=" << s.pad << " secondary=" << (s.secondary ? 1 : 0) << '\n';
 
         // Column-name header row.
         for(std::size_t c = 0; c < s.column_names.size(); ++c) {
@@ -4682,15 +4699,38 @@ std::string buildZip(const std::vector<zipMember> &members) {
     return out;
 }
 
+/** @brief Minimal JSON string escaping for a manifest field (quotes, backslashes, control
+ *  chars), matching GPlotSpec::toJson()'s own escaping. */
+std::string jsonEscapeField(const std::string &in) {
+    std::string out;
+    out.reserve(in.size() + 2);
+    for(char c : in) {
+        switch(c) {
+            case '"':  out += "\\\""; break;
+            case '\\': out += "\\\\"; break;
+            case '\n': out += "\\n"; break;
+            case '\r': out += "\\r"; break;
+            case '\t': out += "\\t"; break;
+            default:   out += c;      break;
+        }
+    }
+    return out;
+}
+
 /** @brief Render all captured series as a numpy .npz: one float64 .npy member per series
- *  (`series_0`, `series_1`, ...) plus a `manifest.json` describing each series. */
-std::string emitNpz(const std::vector<dataSeries> &series) {
+ *  (`series_0`, `series_1`, ...) plus a `manifest.json`. The manifest is a self-describing
+ *  object -- the canvas (title + pad grid) and an ordered `series` array -- so (data +
+ *  manifest) fully describes the multi-pad figure for an external renderer. Each series
+ *  entry is the plotter's GPlotSpec augmented with the `pad` it draws into and a
+ *  `secondary` flag (true if it overlays a primary in that pad). */
+std::string emitNpz(const std::vector<dataSeries> &series, const canvasInfo &canvas) {
     std::vector<zipMember> members;
 
-    // A manifest: a JSON array of each exported plotter's full GPlotSpec. Each entry
-    // is the plotter's plotSpec().toJson() (kind, role, name, labels, columns, bins),
-    // so (data + manifest) fully describes each plot for an external renderer.
-    std::string manifest = "[\n";
+    std::string manifest = "{\n";
+    manifest += "  \"canvas\": {\"label\": \"" + jsonEscapeField(canvas.label)
+        + "\", \"c_x_div\": " + std::to_string(canvas.c_x_div)
+        + ", \"c_y_div\": " + std::to_string(canvas.c_y_div) + "},\n";
+    manifest += "  \"series\": [\n";
     for(std::size_t si = 0; si < series.size(); ++si) {
         const dataSeries &s = series[si];
         const std::size_t rows = seriesRows(s);
@@ -4701,11 +4741,16 @@ std::string emitNpz(const std::vector<dataSeries> &series) {
         member.data = buildNpy(s.columns, rows);
         members.push_back(std::move(member));
 
-        // The manifest entry: the plotter's reported plot spec as JSON.
-        manifest += "  " + s.spec.toJson();
+        // The manifest entry: the plotter's GPlotSpec JSON ({...}) augmented in-place
+        // with its pad / secondary placement (splice before the closing brace).
+        std::string spec_json = s.spec.toJson();
+        spec_json.pop_back(); // drop the trailing '}'
+        spec_json += ", \"pad\": " + std::to_string(s.pad)
+            + ", \"secondary\": " + (s.secondary ? "true" : "false") + "}";
+        manifest += "    " + spec_json;
         manifest += (si + 1 == series.size() ? "\n" : ",\n");
     }
-    manifest += "]\n";
+    manifest += "  ]\n}\n";
 
     members.push_back({"manifest.json", manifest});
 
@@ -4720,13 +4765,22 @@ std::vector<dataSeries> collectSeries(
     const std::vector<std::shared_ptr<GBasePlotter>> &plotters
 ) {
     std::vector<dataSeries> series;
-    for(const auto &p : plotters) {
+    // The pad index is the primary's registration index (matching the render emitters,
+    // which place plotter i into pad i); its secondary plotters overlay the same pad. A
+    // dataless plotter (function plotter) still consumes its pad index, so the exported
+    // pad numbers line up with where ROOT / matplotlib would draw each plot.
+    for(std::size_t pad = 0; pad < plotters.size(); ++pad) {
+        const auto &p = plotters[pad];
         if(auto s = captureSeries(*p)) {
+            s->pad = pad;
+            s->secondary = false;
             series.push_back(std::move(*s));
         }
-        // Secondary plotters are independent datasets sharing a pad; export them too.
+        // Secondary plotters are independent datasets sharing the primary's pad.
         for(const auto &sp : p->secondaryPlotters()) {
             if(auto s = captureSeries(*sp)) {
+                s->pad = pad;
+                s->secondary = true;
                 series.push_back(std::move(*s));
             }
         }
@@ -4778,7 +4832,8 @@ dataFormat GDataEmitter::getDataFormat() const {
  */
 std::string GDataEmitter::emitDocument(const GPlotDesigner &gpd) const {
     const std::vector<dataSeries> series = collectSeries(gpd.plotters_cnt_);
-    return format_ == dataFormat::NPZ ? emitNpz(series) : emitCsv(series);
+    const canvasInfo canvas{gpd.getCanvasLabel(), gpd.c_x_div_, gpd.c_y_div_};
+    return format_ == dataFormat::NPZ ? emitNpz(series, canvas) : emitCsv(series, canvas);
 }
 
 /******************************************************************************/

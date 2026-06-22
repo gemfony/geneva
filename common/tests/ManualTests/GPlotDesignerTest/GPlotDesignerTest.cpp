@@ -281,4 +281,64 @@ int main(int argc, char **argv) {
         gpd_npz.registerPlotter(npz_hist1d_ptr);
         gpd_npz.writeToFile("result_data.npz");
     }
+
+    // A COMPREHENSIVE data export (result_data_full.npz) covering every kind the external
+    // renderer (scripts/geneva_plot_render.py) understands -- graph_2d (+ a secondary
+    // overlay sharing the pad), graph_2d_err, graph_3d, graph_4d, hist_1d and hist_2d --
+    // laid out on a 2x3 canvas. The render-validity ctest feeds this to the bundled Python
+    // tool, exercising the (data + self-describing manifest) -> figure round-trip end to end.
+    {
+        auto full_g2d = std::make_shared<GGraph2D>();
+        full_g2d->setPlotLabel("g2d primary");
+        auto full_g2d_overlay = std::make_shared<GGraph2D>();
+        full_g2d_overlay->setPlotLabel("g2d overlay");
+        for(std::size_t i = 0; i < 6; i++) {
+            const double x = static_cast<double>(i);
+            (*full_g2d) & std::tuple<double, double>(x, x * x);
+            (*full_g2d_overlay) & std::tuple<double, double>(x, 2.0 * x);
+        }
+        full_g2d->registerSecondaryPlotter(full_g2d_overlay); // overlay -> same pad
+
+        auto full_g2ed = std::make_shared<GGraph2ED>();
+        full_g2ed->setPlotLabel("g2ed");
+        for(std::size_t i = 0; i < 6; i++) {
+            const double x = static_cast<double>(i);
+            (*full_g2ed) & std::tuple<double, double, double, double>(x, 0.1, x * 0.5, 0.2);
+        }
+
+        auto full_g3d = std::make_shared<GGraph3D>();
+        full_g3d->setPlotLabel("g3d");
+        for(std::size_t i = 0; i < 20; i++) {
+            const double t = static_cast<double>(i) * 0.5;
+            (*full_g3d) & std::tuple<double, double, double>(std::sin(t), std::cos(t), t);
+        }
+
+        auto full_g4d = std::make_shared<GGraph4D>();
+        full_g4d->setPlotLabel("g4d");
+        for(std::size_t i = 0; i < 20; i++) {
+            const double t = static_cast<double>(i) * 0.5;
+            (*full_g4d) & std::tuple<double, double, double, double>(std::sin(t), std::cos(t), t, t * t);
+        }
+
+        auto full_h1d = std::make_shared<GHistogram1D>(15, -4.0, 4.0);
+        full_h1d->setPlotLabel("h1d");
+        auto full_h2d = std::make_shared<GHistogram2D>(15, 15, -4.0, 4.0, -4.0, 4.0);
+        full_h2d->setPlotLabel("h2d");
+        for(std::size_t i = 0; i < 64; i++) {
+            const double v = std::sin(static_cast<double>(i)) * 3.0;
+            const double w = std::cos(static_cast<double>(i)) * 3.0;
+            (*full_h1d) & v;
+            (*full_h2d) & std::tuple<double, double>(v, w);
+        }
+
+        GPlotDesigner gpd_full("Series data (render coverage)", 3, 2);
+        gpd_full.setDataFormat(Gem::Common::dataFormat::NPZ);
+        gpd_full.registerPlotter(full_g2d);
+        gpd_full.registerPlotter(full_g2ed);
+        gpd_full.registerPlotter(full_g3d);
+        gpd_full.registerPlotter(full_g4d);
+        gpd_full.registerPlotter(full_h1d);
+        gpd_full.registerPlotter(full_h2d);
+        gpd_full.writeToFile("result_data_full.npz");
+    }
 }

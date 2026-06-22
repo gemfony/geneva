@@ -154,4 +154,24 @@ ELSE()
 	MESSAGE(STATUS "GPlotDesigner: data validity test skipped (python3 and/or numpy not found)")
 ENDIF()
 
+# Optional render-validity test: feed a DATA export (the raw series data + self-describing manifest the
+# DATA backend writes) to the EXTERNAL renderer scripts/geneva_plot_render.py and confirm it reproduces a
+# figure -- i.e. that rendering can live entirely outside the C++ library. Enabled only when python3 +
+# numpy + matplotlib are all present; skipped gracefully otherwise. Keys off a produced (non-trivial) PNG,
+# a zero exit code AND the absence of a Python traceback.
+IF(GENEVA_PYTHON3_EXECUTABLE AND GENEVA_NUMPY_RC EQUAL 0 AND GENEVA_MATPLOTLIB_RC EQUAL 0)
+	ADD_TEST(
+		NAME GPlotDesignerRenderValidity
+		COMMAND ${CMAKE_COMMAND}
+			-DGEN_EXE=$<TARGET_FILE:${EXECUTABLENAME}>
+			-DRENDER_PY=${CMAKE_SOURCE_DIR}/scripts/geneva_plot_render.py
+			-DPYTHON_EXE=${GENEVA_PYTHON3_EXECUTABLE}
+			-DWORKDIR=${CMAKE_CURRENT_BINARY_DIR}
+			-P ${CMAKE_CURRENT_SOURCE_DIR}/RunRenderValidity.cmake
+	)
+	MESSAGE(STATUS "GPlotDesigner: render validity test ENABLED (python3=${GENEVA_PYTHON3_EXECUTABLE})")
+ELSE()
+	MESSAGE(STATUS "GPlotDesigner: render validity test skipped (python3, numpy and/or matplotlib not found)")
+ENDIF()
+
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/common/ManualTests/${EXECUTABLENAME} )

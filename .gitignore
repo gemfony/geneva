@@ -37,3 +37,4 @@ CMakeUserPresets.json
 # Local planning / prompt notes under prompts/ are scratch, not tracked.
 prompts/*.md
 /prompts/obsolete/
+__pycache__/
