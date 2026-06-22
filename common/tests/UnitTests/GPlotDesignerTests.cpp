@@ -148,11 +148,14 @@ TEST_CASE("gnuplot backend emits a multiplot script for a GGraph2D", "[plotting]
 
     const std::string s = gpd.plot();
 
-    // The multiplot grid and an inline 2-d plot command are present.
+    // The multiplot grid is present; the data is a named datablock (NOT an inline '-' inside multiplot,
+    // which gnuplot cannot read) referenced by a 2-d plot command.
     CHECK(s.find("set multiplot") != std::string::npos);
-    CHECK(s.find("plot '-'") != std::string::npos);
+    CHECK(s.find("$D0 << EOD") != std::string::npos);
+    CHECK(s.find("plot $D0 ") != std::string::npos);
+    CHECK(s.find("plot '-'") == std::string::npos);
     CHECK(s.find("unset multiplot") != std::string::npos);
-    // The data rows and the end-of-data marker are present.
+    // The data rows are present (in the datablock).
     CHECK(s.find("1 2") != std::string::npos);
     CHECK(s.find("3 4") != std::string::npos);
     // Labels are gnuplot-escaped (a\"b), never a bare a"b that closes the literal early.
@@ -171,7 +174,8 @@ TEST_CASE("gnuplot backend uses splot for a GGraph3D", "[plotting]") {
     gpd.registerPlotter(g);
 
     const std::string s = gpd.plot();
-    CHECK(s.find("splot '-'") != std::string::npos);
+    CHECK(s.find("$D0 << EOD") != std::string::npos);
+    CHECK(s.find("splot $D0 ") != std::string::npos);
     CHECK(s.find("1 2 3") != std::string::npos);
 }
 

@@ -3730,28 +3730,31 @@ bool isThreeDimensional(graphKind k) {
     return k == graphKind::g3d || k == graphKind::g4d;
 }
 
-/** @brief The `'-' with <style> ...` spec naming a plotter's inline dataset. */
+/** @brief The `with <style> ...` spec for a plotter's dataset (the dataset source -- a named
+ *  datablock -- is prepended by the caller). gnuplot cannot read inline `'-'` data inside a
+ *  `set multiplot` block, so each dataset is emitted as a `$Dn` datablock and referenced here. */
 std::string datasetSpec(const GBasePlotter &p, graphKind k) {
     EmitStream spec; // NOLINT(cppcoreguidelines-init-variables)
     const std::string title = gnuplotEscape(p.plotLabel());
     switch(k) {
         case graphKind::g2d:
-            spec << "'-' with linespoints title \"" << title << "\"";
+            spec << "with linespoints title \"" << title << "\"";
             break;
         case graphKind::g2ed:
-            spec << "'-' with xyerrorbars title \"" << title << "\"";
+            spec << "with xyerrorbars title \"" << title << "\"";
             break;
         case graphKind::g3d:
-            spec << "'-' with linespoints title \"" << title << "\"";
+            spec << "with linespoints title \"" << title << "\"";
             break;
         case graphKind::g4d:
-            spec << "'-' using 1:2:3:4 with points palette pointtype 7 title \"" << title << "\"";
+            spec << "using 1:2:3:4 with points palette pointtype 7 title \"" << title << "\"";
             break;
     }
     return spec.str();
 }
 
-/** @brief A plotter's inline data rows, terminated by the gnuplot end-of-data `e`. */
+/** @brief A plotter's data rows (one point per line). Used as the body of a gnuplot `$Dn << EOD`
+ *  datablock, so it carries no `e`/`EOD` terminator -- the caller adds it. */
 std::string datasetRows(const GBasePlotter &p, graphKind k, const std::string &indent) {
     EmitStream rows; // NOLINT(cppcoreguidelines-init-variables)
     switch(k) {
@@ -3794,7 +3797,6 @@ std::string datasetRows(const GBasePlotter &p, graphKind k, const std::string &i
             }
         } break;
     }
-    rows << indent << "e" << '\n';
     return rows.str();
 }
 
@@ -3847,10 +3849,39 @@ std::string GnuplotEmitter::emitDocument(const GPlotDesigner &gpd) const {
 
     const std::string &indent = gpd.indent();
 
-    // gnuplot multiplot grid (rows = c_y_div, cols = c_x_div).
+    // gnuplot cannot read an inline `'-'` dataset from inside a `set multiplot` block (it warns
+    // "Reading from '-' inside a multiplot not supported" and renders nothing), so every dataset is
+    // emitted up front as a named `$Dn` datablock and referenced from the plot commands below.
+    //
+    // Pass 1 -- the datablocks, one per primary-or-secondary graph, in plot order.
+    std::size_t db_idx = 0;
+    {
+        std::size_t n_plots = 0;
+        for(const auto &p : gpd.plotters_cnt_) {
+            if(n_plots++ >= max_plots) {
+                break;
+            }
+            std::vector<const GBasePlotter *> pad;
+            pad.push_back(p.get());
+            for(const auto &sp : p->secondaryPlotters()) {
+                pad.push_back(sp.get());
+            }
+            for(const auto *dp : pad) {
+                result << "$D" << db_idx << " << EOD" << '\n'
+                       << datasetRows(*dp, classifyGraph(*dp), "") << "EOD" << '\n';
+                ++db_idx;
+            }
+        }
+    }
+    result << '\n';
+
+    // The multiplot grid (rows = c_y_div, cols = c_x_div).
     result << "set multiplot layout " << rows << "," << cols << " title \""
            << gnuplotEscape(gpd.getCanvasLabel()) << "\"" << '\n' << '\n';
 
+    // Pass 2 -- per pad: axis labels / title, then a plot/splot referencing the datablocks. The
+    // datablock counter advances in the SAME order as pass 1, so $Dn lines up with its data.
+    std::size_t db_ref = 0;
     std::size_t n_plots = 0;
     for(const auto &p : gpd.plotters_cnt_) {
         if(n_plots++ >= max_plots) {
@@ -3880,19 +3911,14 @@ std::string GnuplotEmitter::emitDocument(const GPlotDesigner &gpd) const {
             pad.push_back(sp.get());
         }
 
-        // The (s)plot command: one `'-' ...` spec per dataset, comma-separated.
+        // The (s)plot command: one `$Dn <style>` reference per dataset, comma-separated.
         result << indent << (three_d ? "splot " : "plot ");
         for(std::size_t i = 0; i < pad.size(); ++i) {
-            result << (i == 0 ? "" : ", ") << datasetSpec(*pad[i], classifyGraph(*pad[i]));
+            result << (i == 0 ? "" : ", ") << "$D" << db_ref << ' '
+                   << datasetSpec(*pad[i], classifyGraph(*pad[i]));
+            ++db_ref;
         }
-        result << '\n';
-
-        // The inline data blocks, in the same order as the specs.
-        for(const auto *dp : pad) {
-            result << datasetRows(*dp, classifyGraph(*dp), indent);
-        }
-
-        result << '\n';
+        result << '\n' << '\n';
     }
 
     result << "unset multiplot" << '\n';

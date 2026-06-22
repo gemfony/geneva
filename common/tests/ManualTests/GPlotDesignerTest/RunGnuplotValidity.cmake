@@ -43,7 +43,17 @@ execute_process(
 	TIMEOUT 300
 )
 
-# 4. Validate via both gnuplot's exit code and the rendered artifact.
+# 4. Reject the "data silently dropped" case: a script that reads inline `'-'` data from inside a
+#    `set multiplot` block makes gnuplot warn "Reading from '-' inside a multiplot not supported" and
+#    render EMPTY plots, yet it still exits 0 and produces a PNG. Treat that warning as a failure so the
+#    emitter is forced to use datablocks.
+if(_err MATCHES "not supported" OR _err MATCHES "inside a multiplot")
+	message(FATAL_ERROR
+		"gnuplot could not read the script's inline data -- the plots would be empty "
+		"(use datablocks, not '-' inside multiplot).\nstderr:\n${_err}")
+endif()
+
+# 5. Validate via both gnuplot's exit code and the rendered artifact.
 if(NOT _gp_rc EQUAL 0)
 	message(FATAL_ERROR
 		"gnuplot exited non-zero (rc=${_gp_rc}) -- the generated script is not valid gnuplot input.\n"
