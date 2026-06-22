@@ -504,6 +504,25 @@ std::string GBasePlotter::plotLabel() const {
 
 /******************************************************************************/
 /**
+ * Reports this plotter's choice as a GPlotSpec value. The base fills the common
+ * fields (name, labels, drawing args) and a default kind; concrete plotters override
+ * this to set their kind, their column names and (for histograms) the bin counts.
+ * This is a pure const reporter and does not touch serialize()/load_()/compare_().
+ *
+ * @return A GPlotSpec describing this plotter
+ */
+GPlotSpec GBasePlotter::plotSpec() const {
+    GPlotSpec spec; // kind defaults to graph_2d, role defaulted from it
+    spec.name = plot_label_;
+    spec.x_label = x_axis_label_;
+    spec.y_label = y_axis_label_;
+    spec.z_label = z_axis_label_;
+    spec.drawing_args = drawing_arguments_;
+    return spec;
+}
+
+/******************************************************************************/
+/**
  * Allows to assign a marker to data structures in the output file
  *
  * @param ds_marker A marker that has been assigned to the output data structures
@@ -816,6 +835,20 @@ std::string GGraph2D::getPlotterName() const {
 
 /******************************************************************************/
 /**
+ * Reports this plotter's choice as a GPlotSpec (a 2-d xy graph).
+ *
+ * @return A GPlotSpec describing this GGraph2D
+ */
+GPlotSpec GGraph2D::plotSpec() const {
+    GPlotSpec spec = GBasePlotter::plotSpec();
+    spec.kind = plotKind::graph_2d;
+    spec.role = defaultRole(spec.kind);
+    spec.columns = {"x", "y"};
+    return spec;
+}
+
+/******************************************************************************/
+/**
  * Returns the name of this class
  *
  * @return The name of this class as a string
@@ -1106,6 +1139,20 @@ std::string GGraph2ED::getPlotterName() const {
 
 /******************************************************************************/
 /**
+ * Reports this plotter's choice as a GPlotSpec (a 2-d xy graph with x/y errors).
+ *
+ * @return A GPlotSpec describing this GGraph2ED
+ */
+GPlotSpec GGraph2ED::plotSpec() const {
+    GPlotSpec spec = GBasePlotter::plotSpec();
+    spec.kind = plotKind::graph_2d_err;
+    spec.role = defaultRole(spec.kind);
+    spec.columns = {"x", "ex", "y", "ey"};
+    return spec;
+}
+
+/******************************************************************************/
+/**
  * Returns the name of this class
  *
  * @return The name of this class as a string
@@ -1378,6 +1425,20 @@ bool GGraph3D::getDrawLines() const {
  */
 std::string GGraph3D::getPlotterName() const {
     return "GGraph3D";
+}
+
+/******************************************************************************/
+/**
+ * Reports this plotter's choice as a GPlotSpec (a 3-d xyz graph).
+ *
+ * @return A GPlotSpec describing this GGraph3D
+ */
+GPlotSpec GGraph3D::plotSpec() const {
+    GPlotSpec spec = GBasePlotter::plotSpec();
+    spec.kind = plotKind::graph_3d;
+    spec.role = defaultRole(spec.kind);
+    spec.columns = {"x", "y", "z"};
+    return spec;
 }
 
 /******************************************************************************/
@@ -1753,6 +1814,20 @@ std::size_t GGraph4D::getNBest() const {
  */
 std::string GGraph4D::getPlotterName() const {
     return "GGraph4D";
+}
+
+/******************************************************************************/
+/**
+ * Reports this plotter's choice as a GPlotSpec (a 4-d xyzw graph).
+ *
+ * @return A GPlotSpec describing this GGraph4D
+ */
+GPlotSpec GGraph4D::plotSpec() const {
+    GPlotSpec spec = GBasePlotter::plotSpec();
+    spec.kind = plotKind::graph_4d;
+    spec.role = defaultRole(spec.kind);
+    spec.columns = {"x", "y", "z", "w"};
+    return spec;
 }
 
 /******************************************************************************/
@@ -2225,6 +2300,23 @@ std::string GHistogram1D::getPlotterName() const {
 
 /******************************************************************************/
 /**
+ * Reports this plotter's choice as a GPlotSpec (a 1-d histogram of double samples).
+ * The single column holds the raw (unbinned) sample values; n_bins_x carries the
+ * histogram's bin count.
+ *
+ * @return A GPlotSpec describing this GHistogram1D
+ */
+GPlotSpec GHistogram1D::plotSpec() const {
+    GPlotSpec spec = GBasePlotter::plotSpec();
+    spec.kind = plotKind::hist_1d;
+    spec.role = defaultRole(spec.kind);
+    spec.columns = {"value"};
+    spec.n_bins_x = n_bins_x_;
+    return spec;
+}
+
+/******************************************************************************/
+/**
  * Returns the name of this class
  *
  * @return The name of this class as a string
@@ -2489,6 +2581,21 @@ double GHistogram1I::getMaxX() const {
  */
 std::string GHistogram1I::getPlotterName() const {
     return "GHistogram1I";
+}
+
+/******************************************************************************/
+/**
+ * Reports this plotter's choice as a GPlotSpec (a 1-d histogram of integer samples).
+ *
+ * @return A GPlotSpec describing this GHistogram1I
+ */
+GPlotSpec GHistogram1I::plotSpec() const {
+    GPlotSpec spec = GBasePlotter::plotSpec();
+    spec.kind = plotKind::hist_1i;
+    spec.role = defaultRole(spec.kind);
+    spec.columns = {"value"};
+    spec.n_bins_x = n_bins_x_;
+    return spec;
 }
 
 /******************************************************************************/
@@ -2937,6 +3044,23 @@ std::string GHistogram2D::getPlotterName() const {
 
 /******************************************************************************/
 /**
+ * Reports this plotter's choice as a GPlotSpec (a 2-d histogram). The columns hold
+ * the raw (unbinned) x/y sample values; n_bins_x / n_bins_y carry the bin counts.
+ *
+ * @return A GPlotSpec describing this GHistogram2D
+ */
+GPlotSpec GHistogram2D::plotSpec() const {
+    GPlotSpec spec = GBasePlotter::plotSpec();
+    spec.kind = plotKind::hist_2d;
+    spec.role = defaultRole(spec.kind);
+    spec.columns = {"x", "y"};
+    spec.n_bins_x = n_bins_x_;
+    spec.n_bins_y = n_bins_y_;
+    return spec;
+}
+
+/******************************************************************************/
+/**
  * Returns the name of this class
  *
  * @return The name of this class as a string
@@ -3037,6 +3161,20 @@ void GFunctionPlotter1D::setNSamplesX(std::size_t n_samples_x) {
  */
 std::string GFunctionPlotter1D::getPlotterName() const {
     return "GFunctionPlotter1D";
+}
+
+/******************************************************************************/
+/**
+ * Reports this plotter's choice as a GPlotSpec (a sampled 1-d function plot). A
+ * function plotter carries no sampled data columns.
+ *
+ * @return A GPlotSpec describing this GFunctionPlotter1D
+ */
+GPlotSpec GFunctionPlotter1D::plotSpec() const {
+    GPlotSpec spec = GBasePlotter::plotSpec();
+    spec.kind = plotKind::function_1d;
+    spec.role = defaultRole(spec.kind);
+    return spec;
 }
 
 /******************************************************************************/
@@ -3278,6 +3416,20 @@ void GFunctionPlotter2D::setNSamplesY(std::size_t n_samples_y) {
  */
 std::string GFunctionPlotter2D::getPlotterName() const {
     return "GFunctionPlotter2D";
+}
+
+/******************************************************************************/
+/**
+ * Reports this plotter's choice as a GPlotSpec (a sampled 2-d function plot). A
+ * function plotter carries no sampled data columns.
+ *
+ * @return A GPlotSpec describing this GFunctionPlotter2D
+ */
+GPlotSpec GFunctionPlotter2D::plotSpec() const {
+    GPlotSpec spec = GBasePlotter::plotSpec();
+    spec.kind = plotKind::function_2d;
+    spec.role = defaultRole(spec.kind);
+    return spec;
 }
 
 /******************************************************************************/
@@ -4220,6 +4372,7 @@ struct dataSeries {
     std::string kind;                              ///< the plotter's getPlotterName()
     std::vector<std::string> column_names;         ///< per-axis names (x, ex, y, ...)
     std::vector<const std::vector<double> *> columns; ///< per-axis value vectors (parallel)
+    GPlotSpec spec;                                ///< the plotter's full reported plot spec
 };
 
 /** @brief Capture a plotter's columns as a dataSeries, or std::nullopt for a plotter that
@@ -4229,6 +4382,7 @@ std::optional<dataSeries> captureSeries(const GBasePlotter &p) {
     dataSeries s;
     s.name = p.plotLabel();
     s.kind = p.getPlotterName();
+    s.spec = p.plotSpec();
 
     if(const auto *g = dynamic_cast<const GGraph2ED *>(&p)) { // before GGraph2D
         s.column_names = {"x", "ex", "y", "ey"};
@@ -4305,7 +4459,7 @@ std::string emitCsv(const std::vector<dataSeries> &series) {
         }
 
         out << "# series " << si << ": \"" << csvComment(s.name) << "\" kind=" << s.kind
-            << " columns=" << col_list << '\n';
+            << " role=" << s.spec.role << " columns=" << col_list << '\n';
 
         // Column-name header row.
         for(std::size_t c = 0; c < s.column_names.size(); ++c) {
@@ -4411,23 +4565,6 @@ std::string buildNpy(const std::vector<const std::vector<double> *> &columns, st
     return npy;
 }
 
-/** @brief Minimal JSON string escaping (quotes, backslashes, control chars) for the manifest. */
-std::string jsonEscape(const std::string &in) {
-    std::string out;
-    out.reserve(in.size() + 2);
-    for(char c : in) {
-        switch(c) {
-            case '"':  out += "\\\""; break;
-            case '\\': out += "\\\\"; break;
-            case '\n': out += "\\n"; break;
-            case '\r': out += "\\r"; break;
-            case '\t': out += "\\t"; break;
-            default:   out += c;      break;
-        }
-    }
-    return out;
-}
-
 /** @brief One member to be stored in the .npz ZIP: its archive name and raw bytes. */
 struct zipMember {
     std::string name;
@@ -4512,8 +4649,10 @@ std::string buildZip(const std::vector<zipMember> &members) {
 std::string emitNpz(const std::vector<dataSeries> &series) {
     std::vector<zipMember> members;
 
-    // A manifest describing each series (index, name, kind, column names).
-    std::string manifest = "{\n  \"series\": [\n";
+    // A manifest: a JSON array of each exported plotter's full GPlotSpec. Each entry
+    // is the plotter's plotSpec().toJson() (kind, role, name, labels, columns, bins),
+    // so (data + manifest) fully describes each plot for an external renderer.
+    std::string manifest = "[\n";
     for(std::size_t si = 0; si < series.size(); ++si) {
         const dataSeries &s = series[si];
         const std::size_t rows = seriesRows(s);
@@ -4524,20 +4663,11 @@ std::string emitNpz(const std::vector<dataSeries> &series) {
         member.data = buildNpy(s.columns, rows);
         members.push_back(std::move(member));
 
-        // The manifest entry.
-        manifest += "    {\"index\": " + std::to_string(si);
-        manifest += ", \"name\": \"" + jsonEscape(s.name) + "\"";
-        manifest += ", \"kind\": \"" + jsonEscape(s.kind) + "\"";
-        manifest += ", \"rows\": " + std::to_string(rows);
-        manifest += ", \"columns\": [";
-        for(std::size_t c = 0; c < s.column_names.size(); ++c) {
-            manifest += (c == 0 ? "" : ", ");
-            manifest += "\"" + jsonEscape(s.column_names[c]) + "\"";
-        }
-        manifest += "]}";
+        // The manifest entry: the plotter's reported plot spec as JSON.
+        manifest += "  " + s.spec.toJson();
         manifest += (si + 1 == series.size() ? "\n" : ",\n");
     }
-    manifest += "  ]\n}\n";
+    manifest += "]\n";
 
     members.push_back({"manifest.json", manifest});
 

@@ -30,6 +30,7 @@
 #pragma once
 
 #include "common/plotting/GDecorators.hpp"
+#include "common/plotting/GPlotSpec.hpp"
 
 namespace Gem::Common {
 
@@ -191,6 +192,20 @@ public:
      * @return The plotter type's unique name (implemented in derived classes)
      */
     virtual std::string getPlotterName() const = 0;
+
+    /**
+     * @brief Reports this plotter's choice (kind, role, labels, columns, bins) as a
+     * first-class GPlotSpec value.
+     *
+     * This is a pure const reporter derived from the plotter's existing state; it
+     * adds no stored member and does not affect serialize()/load_()/compare_(). The
+     * base fills the common fields (name, labels, drawing args) and a default kind;
+     * each concrete plotter overrides it to set its kind, its column names and (for
+     * histograms) the bin counts.
+     *
+     * @return A GPlotSpec describing this plotter
+     */
+    [[nodiscard]] virtual GPlotSpec plotSpec() const;
 
     /***************************************************************************/
 

@@ -92,6 +92,7 @@ INSTALL ( FILES ${GENEVACOMMONINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/c
 SET ( GENEVACOMMONPLOTTINGINCLUDES
 	plotting/GPlotEnums.hpp
 	plotting/GDecorators.hpp
+	plotting/GPlotSpec.hpp
 	plotting/GBasePlotter.hpp
 	plotting/GPlots.hpp
 	plotting/GPlotEmitter.hpp

@@ -907,6 +907,12 @@ public:
 	 */
     std::string getPlotterName() const override;
 
+    /**
+	 * @brief Reports this plotter's choice (kind, columns, bins) as a GPlotSpec value
+	 * @return A GPlotSpec describing this plotter
+	 */
+    [[nodiscard]] GPlotSpec plotSpec() const override;
+
 protected:
     /**
 	 * @brief Retrieve specific header settings for this plot
@@ -1070,6 +1076,12 @@ public:
 	 * @return A unique name for this plotter
 	 */
     std::string getPlotterName() const override;
+
+    /**
+	 * @brief Reports this plotter's choice (kind, columns, bins) as a GPlotSpec value
+	 * @return A GPlotSpec describing this plotter
+	 */
+    [[nodiscard]] GPlotSpec plotSpec() const override;
 
 protected:
     /**
@@ -1361,6 +1373,12 @@ public:
     std::string getPlotterName() const override;
 
     /**
+	 * @brief Reports this plotter's choice (kind, columns, bins) as a GPlotSpec value
+	 * @return A GPlotSpec describing this plotter
+	 */
+    [[nodiscard]] GPlotSpec plotSpec() const override;
+
+    /**
 	 * @brief Allows to specify 2d-drawing options
 	 * @param dropt The 2-d drawing option to be used for this histogram
 	 */
@@ -1534,6 +1552,12 @@ public:
 	 */
     std::string getPlotterName() const override;
 
+    /**
+	 * @brief Reports this plotter's choice (kind, columns, bins) as a GPlotSpec value
+	 * @return A GPlotSpec describing this plotter
+	 */
+    [[nodiscard]] GPlotSpec plotSpec() const override;
+
 protected:
     /**
 	 * @brief Retrieve specific header settings for this plot
@@ -1669,6 +1693,12 @@ public:
 	 * @return A unique name for this plotter
 	 */
     std::string getPlotterName() const override;
+
+    /**
+	 * @brief Reports this plotter's choice (kind, columns, bins) as a GPlotSpec value
+	 * @return A GPlotSpec describing this plotter
+	 */
+    [[nodiscard]] GPlotSpec plotSpec() const override;
 
 protected:
     /**
@@ -1934,6 +1964,12 @@ public:
 	 * @return A unique name for this plotter
 	 */
     std::string getPlotterName() const override;
+
+    /**
+	 * @brief Reports this plotter's choice (kind, columns, bins) as a GPlotSpec value
+	 * @return A GPlotSpec describing this plotter
+	 */
+    [[nodiscard]] GPlotSpec plotSpec() const override;
 
 protected:
     /**
@@ -2286,6 +2322,12 @@ public:
 	 */
     std::string getPlotterName() const override;
 
+    /**
+	 * @brief Reports this plotter's choice (kind, columns, bins) as a GPlotSpec value
+	 * @return A GPlotSpec describing this plotter
+	 */
+    [[nodiscard]] GPlotSpec plotSpec() const override;
+
 protected:
     /**
 	 * @brief Retrieve specific header settings for this plot
@@ -2430,6 +2472,12 @@ public:
 	 * @return A unique name for this plotter
 	 */
     std::string getPlotterName() const override;
+
+    /**
+	 * @brief Reports this plotter's choice (kind, columns, bins) as a GPlotSpec value
+	 * @return A GPlotSpec describing this plotter
+	 */
+    [[nodiscard]] GPlotSpec plotSpec() const override;
 
 protected:
     /**
@@ -2587,6 +2635,12 @@ public:
 	 * @return A unique name for this plotter
 	 */
     std::string getPlotterName() const override;
+
+    /**
+	 * @brief Reports this plotter's choice (kind, columns, bins) as a GPlotSpec value
+	 * @return A GPlotSpec describing this plotter
+	 */
+    [[nodiscard]] GPlotSpec plotSpec() const override;
 
 protected:
     /**

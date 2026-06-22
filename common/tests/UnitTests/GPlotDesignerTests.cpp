@@ -302,8 +302,8 @@ TEST_CASE("data backend (CSV) emits the raw series data for a GGraph2D", "[plott
 
     const std::string s = gpd.plot();
 
-    // The section header comment names the series, its kind and its columns.
-    CHECK(s.find("# series 0: \"my series\" kind=GGraph2D columns=x,y") != std::string::npos);
+    // The section header comment names the series, its kind, its (spec) role and its columns.
+    CHECK(s.find("# series 0: \"my series\" kind=GGraph2D role=xy columns=x,y") != std::string::npos);
     // The column-name header row.
     CHECK(s.find("x,y") != std::string::npos);
     // The data rows, full precision, dot decimal separator.
@@ -312,6 +312,48 @@ TEST_CASE("data backend (CSV) emits the raw series data for a GGraph2D", "[plott
     // No rendering / script content leaks into the data export.
     CHECK(s.find("import") == std::string::npos);
     CHECK(s.find("TCanvas") == std::string::npos);
+}
+
+/******************************************************************************/
+// GPlotSpec: a GGraph2D reports kind==graph_2d with columns {"x","y"}, and its
+// toJson() carries the kind string and the (escaped) label.
+TEST_CASE("GGraph2D reports a graph_2d GPlotSpec", "[plotting]") {
+    GGraph2D g;
+    g.setPlotLabel(std::string("a\"b")); // an embedded double quote (must be escaped in JSON)
+    g.setXAxisLabel(std::string("the x axis"));
+
+    const GPlotSpec spec = g.plotSpec();
+    CHECK(spec.kind == plotKind::graph_2d);
+    CHECK(spec.role == std::string("xy"));
+    CHECK(spec.columns == std::vector<std::string>({"x", "y"}));
+    CHECK(spec.name == std::string("a\"b"));
+    CHECK(spec.x_label == std::string("the x axis"));
+    CHECK_FALSE(spec.n_bins_x.has_value());
+
+    const std::string j = spec.toJson();
+    // The kind string is present.
+    CHECK(j.find("graph_2d") != std::string::npos);
+    // The embedded quote is JSON-escaped (a\"b), never a bare a"b closing the string early.
+    CHECK(j.find("a\\\"b") != std::string::npos);
+    // The column names appear in the JSON.
+    CHECK(j.find("\"x\"") != std::string::npos);
+    CHECK(j.find("\"y\"") != std::string::npos);
+}
+
+/******************************************************************************/
+// GPlotSpec: a GHistogram1D reports kind==hist_1d and carries its bin count in n_bins_x.
+TEST_CASE("GHistogram1D reports a hist_1d GPlotSpec with n_bins_x", "[plotting]") {
+    GHistogram1D h(7, 0.0, 1.0);
+
+    const GPlotSpec spec = h.plotSpec();
+    CHECK(spec.kind == plotKind::hist_1d);
+    CHECK(spec.role == std::string("distribution"));
+    REQUIRE(spec.n_bins_x.has_value());
+    CHECK(*spec.n_bins_x == 7);
+
+    const std::string j = spec.toJson();
+    CHECK(j.find("hist_1d") != std::string::npos);
+    CHECK(j.find("\"n_bins_x\": 7") != std::string::npos);
 }
 
 /******************************************************************************/
