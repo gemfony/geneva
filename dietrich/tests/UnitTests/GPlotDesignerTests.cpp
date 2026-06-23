@@ -290,6 +290,97 @@ TEST_CASE("matplotlib backend throws for function plotters", "[plotting]") {
 }
 
 /******************************************************************************/
+// The Octave backend emits a base-function .m script for a GGraph2D, with a figure, a
+// subplot, a plot() call, a doubled-apostrophe label and no trailing print (terminal-agnostic).
+TEST_CASE("octave backend emits a .m script for a GGraph2D", "[plotting]") {
+    auto g = std::make_shared<GGraph2D>();
+    (*g) & std::tuple<double, double>(1.0, 2.0);
+    (*g) & std::tuple<double, double>(3.0, 4.0);
+    g->setPlotLabel(std::string("a'b"));         // an embedded apostrophe (must be doubled)
+    g->setXAxisLabel(std::string("the x axis"));
+
+    GPlotDesigner gpd("octave graphs", 1, 1);
+    gpd.setPlotBackend(plotBackend::OCTAVE);
+    gpd.registerPlotter(g);
+
+    const std::string s = gpd.plot();
+
+    // A figure with a subplot and a plot() call, but never a print/saveas (terminal-agnostic).
+    CHECK(s.find("figure();") != std::string::npos);
+    CHECK(s.find("subplot(") != std::string::npos);
+    CHECK(s.find("plot(") != std::string::npos);
+    CHECK(s.find("print(") == std::string::npos);
+    CHECK(s.find("saveas(") == std::string::npos);
+    // The x values land in an inline row-vector literal.
+    CHECK(s.find("[1, 3]") != std::string::npos);
+    // Labels are octave-escaped (a''b), never a bare a'b that would close the literal early.
+    CHECK(s.find("a''b") != std::string::npos);
+    CHECK(s.find("the x axis") != std::string::npos);
+    // The emitter advertises the .m extension.
+    CHECK(OctaveEmitter{}.fileExtension() == std::string(".m"));
+}
+
+/******************************************************************************/
+// The Octave backend uses plot3 + zlabel for a GGraph3D.
+TEST_CASE("octave backend uses plot3 for a GGraph3D", "[plotting]") {
+    auto g = std::make_shared<GGraph3D>();
+    (*g) & std::tuple<double, double, double>(1.0, 2.0, 3.0);
+
+    GPlotDesigner gpd("octave 3d", 1, 1);
+    gpd.setPlotBackend(plotBackend::OCTAVE);
+    gpd.registerPlotter(g);
+
+    const std::string s = gpd.plot();
+    CHECK(s.find("plot3(") != std::string::npos);
+    CHECK(s.find("zlabel(") != std::string::npos);
+}
+
+/******************************************************************************/
+// The Octave backend emits hist() for a 1-d histogram and a base accumarray-based 2-d
+// histogram (no hist3 toolbox dependency) for a 2-d histogram.
+TEST_CASE("octave backend emits histogram calls for histograms", "[plotting]") {
+    {
+        auto h = std::make_shared<GHistogram1D>(7, 0.0, 1.0);
+        (*h) & 0.25;
+        (*h) & 0.75;
+        GPlotDesigner gpd("octave hist1d", 1, 1);
+        gpd.setPlotBackend(plotBackend::OCTAVE);
+        gpd.registerPlotter(h);
+
+        const std::string s = gpd.plot();
+        // A 1-d histogram uses hist(samples, nbins) honouring the bin count.
+        CHECK(s.find("hist(") != std::string::npos);
+        CHECK(s.find(", 7);") != std::string::npos);
+    }
+    {
+        auto h = std::make_shared<GHistogram2D>(5, 3, 0.0, 1.0, 0.0, 1.0);
+        (*h) & std::tuple<double, double>(0.25, 0.5);
+        GPlotDesigner gpd("octave hist2d", 1, 1);
+        gpd.setPlotBackend(plotBackend::OCTAVE);
+        gpd.registerPlotter(h);
+
+        const std::string s = gpd.plot();
+        // A 2-d histogram is binned with histc + accumarray (base only, no hist3) and drawn
+        // with imagesc + a colourbar; the per-axis bin counts come from the spec.
+        CHECK(s.find("accumarray(") != std::string::npos);
+        CHECK(s.find("imagesc(") != std::string::npos);
+        CHECK(s.find("colorbar;") != std::string::npos);
+        CHECK(s.find("_nbx = 5; _nby = 3;") != std::string::npos);
+    }
+}
+
+/******************************************************************************/
+// The Octave backend rejects function plotters (deferred to a later pass, like matplotlib).
+TEST_CASE("octave backend throws for function plotters", "[plotting]") {
+    const std::tuple<double, double> rx(-1., 1.);
+    auto f = std::make_shared<GFunctionPlotter1D>("sin(x)", rx);
+    GPlotDesigner gpd("octave func", 1, 1);
+    gpd.setPlotBackend(plotBackend::OCTAVE);
+    gpd.registerPlotter(f);
+    CHECK_THROWS(gpd.plot());
+}
+
+/******************************************************************************/
 // The DATA backend in CSV mode exports the raw series data: a `# series` header comment,
 // a column-name row and the data rows for a GGraph2D (NOT a rendered plot).
 TEST_CASE("data backend (CSV) emits the raw series data for a GGraph2D", "[plotting]") {

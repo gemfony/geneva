@@ -232,6 +232,73 @@ int main(int argc, char **argv) {
     gpd_mpl.writeToFile("result.py");
 
     // -------------------------------------------------------------------------
+    // The same graphs-and-histograms set emitted through the Octave / MATLAB backend
+    // (which supports the graph plotters and histograms, using only base Octave-and-MATLAB
+    // functions). A fresh set of plotters is used because a plotter is registered into
+    // exactly one designer; the data is identical to the matplotlib demo above.
+    std::shared_ptr<GGraph2D> oct_sin_ptr(new GGraph2D());
+    oct_sin_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::SCATTER);
+    oct_sin_ptr->setPlotLabel("sin(x), octave");
+    oct_sin_ptr->setXAxisLabel("x");
+    oct_sin_ptr->setYAxisLabel("sin(x)");
+
+    // A secondary plotter sharing the first pad (overlaid via `hold on`).
+    std::shared_ptr<GGraph2D> oct_cos_ptr(new GGraph2D());
+    oct_cos_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::SCATTER);
+    oct_cos_ptr->setPlotLabel("cos(x), octave");
+    oct_sin_ptr->registerSecondaryPlotter(oct_cos_ptr);
+
+    std::shared_ptr<GGraph3D> oct_helix_ptr(new GGraph3D());
+    oct_helix_ptr->setPlotLabel("a helix, octave");
+    oct_helix_ptr->setXAxisLabel("x");
+    oct_helix_ptr->setYAxisLabel("y");
+    oct_helix_ptr->setZAxisLabel("z");
+
+    for(std::size_t i = 0; i < 200; i++) {
+        double x = 2 * std::numbers::pi * static_cast<double>(i) / 200. - std::numbers::pi;
+        (*oct_sin_ptr) & std::tuple<double, double>(x, std::sin(x));
+        (*oct_cos_ptr) & std::tuple<double, double>(x, std::cos(x));
+
+        double t = 4 * std::numbers::pi * static_cast<double>(i) / 200.;
+        (*oct_helix_ptr) &
+            std::tuple<double, double, double>(std::cos(t), std::sin(t), t);
+    }
+
+    std::shared_ptr<GHistogram1D> oct_hist1d_ptr(new GHistogram1D(20, -4.0, 4.0));
+    oct_hist1d_ptr->setPlotLabel("a 1d histogram, octave");
+    oct_hist1d_ptr->setXAxisLabel("value");
+    oct_hist1d_ptr->setYAxisLabel("count");
+
+    std::shared_ptr<GHistogram2D> oct_hist2d_ptr(
+        new GHistogram2D(20, 20, -4.0, 4.0, -4.0, 4.0)
+    );
+    oct_hist2d_ptr->setPlotLabel("a 2d histogram, octave");
+    oct_hist2d_ptr->setXAxisLabel("x");
+    oct_hist2d_ptr->setYAxisLabel("y");
+
+    std::shared_ptr<GHistogram1I> oct_hist1i_ptr(new GHistogram1I(11, -5.0, 6.0));
+    oct_hist1i_ptr->setPlotLabel("an integer histogram, octave");
+    oct_hist1i_ptr->setXAxisLabel("value");
+    oct_hist1i_ptr->setYAxisLabel("count");
+
+    for(std::size_t i = 0; i < 2000; i++) {
+        double x = 4. * std::sin(static_cast<double>(i));
+        double y = 4. * std::cos(static_cast<double>(i) * 1.3);
+        (*oct_hist1d_ptr) & x;
+        (*oct_hist2d_ptr) & std::tuple<double, double>(x, y);
+        (*oct_hist1i_ptr) & static_cast<std::int32_t>(std::lround(x));
+    }
+
+    GPlotDesigner gpd_oct("Graphs and histograms through Octave", 2, 3);
+    gpd_oct.setPlotBackend(Gem::Dietrich::plotBackend::OCTAVE);
+    gpd_oct.registerPlotter(oct_sin_ptr);
+    gpd_oct.registerPlotter(oct_helix_ptr);
+    gpd_oct.registerPlotter(oct_hist1d_ptr);
+    gpd_oct.registerPlotter(oct_hist2d_ptr);
+    gpd_oct.registerPlotter(oct_hist1i_ptr);
+    gpd_oct.writeToFile("result.m");
+
+    // -------------------------------------------------------------------------
     // The DATA backend (GDataEmitter): export the raw series data (NOT a rendered plot)
     // in BOTH formats -- a human-inspectable CSV and a binary numpy .npz. A fresh set of
     // plotters is used because a plotter is registered into exactly one designer; the

@@ -65,6 +65,7 @@ class GPlotDesigner : public GCommonInterfaceT<GPlotDesigner> {
     friend class GRootEmitter;
     friend class GnuplotEmitter;
     friend class MatplotlibEmitter;
+    friend class OctaveEmitter;
     friend class GDataEmitter;
 
     /**

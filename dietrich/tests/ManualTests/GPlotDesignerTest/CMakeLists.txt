@@ -116,6 +116,26 @@ ELSE()
 	MESSAGE(STATUS "GPlotDesigner: matplotlib validity test skipped (python3 and/or matplotlib not found)")
 ENDIF()
 
+# Optional Octave-validity test: feed the generated Octave/MATLAB script (OCTAVE backend) to the real
+# `octave` to confirm it is valid, RENDERING input. The script uses only base Octave-and-MATLAB functions;
+# the driver runs it headless (no window system) and keys off a produced (non-trivial) PNG, a zero exit
+# code AND the absence of an Octave error. Enabled only when `octave` is present; skipped gracefully
+# otherwise.
+FIND_PROGRAM(GENEVA_OCTAVE_EXECUTABLE NAMES octave octave-cli)
+IF(GENEVA_OCTAVE_EXECUTABLE)
+	ADD_TEST(
+		NAME GPlotDesignerOctaveValidity
+		COMMAND ${CMAKE_COMMAND}
+			-DGEN_EXE=$<TARGET_FILE:${EXECUTABLENAME}>
+			-DOCTAVE_EXE=${GENEVA_OCTAVE_EXECUTABLE}
+			-DWORKDIR=${CMAKE_CURRENT_BINARY_DIR}
+			-P ${CMAKE_CURRENT_SOURCE_DIR}/RunOctaveValidity.cmake
+	)
+	MESSAGE(STATUS "GPlotDesigner: Octave validity test ENABLED (octave=${GENEVA_OCTAVE_EXECUTABLE})")
+ELSE()
+	MESSAGE(STATUS "GPlotDesigner: Octave validity test skipped (octave not found)")
+ENDIF()
+
 # Optional data-validity test: confirm the raw series data GPlotDesigner exports (via the DATA backend /
 # GDataEmitter) is correct in BOTH formats -- the binary numpy .npz (built by hand) and the CSV. The check
 # loads the .npz with numpy.load() and asserts a known series' shape and a couple of values round-trip

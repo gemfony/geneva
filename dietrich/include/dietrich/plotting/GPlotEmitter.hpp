@@ -47,6 +47,7 @@ enum class plotBackend {
     ROOT,       ///< Emit a ROOT macro (the default; output is byte-identical to the historical generator)
     GNUPLOT,    ///< Emit a gnuplot script (graph plotters only)
     MATPLOTLIB, ///< Emit a Python/matplotlib script (graph plotters and histograms)
+    OCTAVE,     ///< Emit an Octave / MATLAB script (.m; graph plotters and histograms, common-core syntax)
     DATA        ///< Emit the raw series data (NOT a rendered plot); CSV text or a numpy .npz archive
 };
 
@@ -156,6 +157,34 @@ public:
     /**
      * @brief The matplotlib-script file extension
      * @return The string ".py"
+     */
+    [[nodiscard]] std::string fileExtension() const override;
+};
+
+/******************************************************************************/
+/**
+ * The Octave / MATLAB backend. emitDocument() supports the graph plotters
+ * (GGraph2D / GGraph2ED / GGraph3D / GGraph4D) and the histogram plotters
+ * (GHistogram1D / GHistogram2D); any other plotter type (e.g. a function plotter)
+ * triggers a clear geneva_exception directing the caller to the ROOT backend. The
+ * emitted script is a self-contained `.m` program using only the Octave-and-MATLAB
+ * COMMON CORE (base functions, no toolboxes / packages): a `figure()` with one
+ * `subplot` per pad. It deliberately ends WITHOUT a `print` / `saveas`, so it stays
+ * terminal-agnostic -- a validity harness (or the caller) appends its own
+ * `print('-dpng', 'out.png')`.
+ */
+class OctaveEmitter : public IPlotEmitter {
+public:
+    /**
+     * @brief Emits the complete Octave / MATLAB (.m) script for a populated designer
+     * @param gpd The designer holding the plotters and canvas configuration
+     * @return The complete Octave / MATLAB script as a string
+     */
+    [[nodiscard]] std::string emitDocument(const GPlotDesigner &gpd) const override;
+
+    /**
+     * @brief The Octave / MATLAB script file extension
+     * @return The string ".m"
      */
     [[nodiscard]] std::string fileExtension() const override;
 };
