@@ -1633,21 +1633,12 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
     /** @brief Single declaration of this monitor's local data members, feeding serialize() / load_() /
-     *  compare_() from one source. The eight plotters are std::shared_ptr<GGraph2D> that must be deep-cloned
-     *  on load (make_cloneable_member); file_name_ and gpd_ are plain value members. */
+     *  compare_() from one source. Only file_name_ is state; the eight progress curves are declared into
+     *  a transient GDataLog at INFOINIT, filled in INFOPROCESSING and written at INFOEND. */
     template <typename Self>
     static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("file_name_", self.file_name_),
-            Gem::Common::make_member("gpd_", self.gpd_),
-            Gem::Common::make_cloneable_member("progress_plotter_", self.progress_plotter_),
-            Gem::Common::make_cloneable_member("n_parent_plotter_", self.n_parent_plotter_),
-            Gem::Common::make_cloneable_member("n_children_plotter_", self.n_children_plotter_),
-            Gem::Common::make_cloneable_member("ad_prob_plotter_", self.ad_prob_plotter_),
-            Gem::Common::make_cloneable_member("min_sigma_plotter_", self.min_sigma_plotter_),
-            Gem::Common::make_cloneable_member("max_sigma_plotter_", self.max_sigma_plotter_),
-            Gem::Common::make_cloneable_member("sigma_range_plotter_", self.sigma_range_plotter_),
-            Gem::Common::make_cloneable_member("sigma_sigma_plotter_", self.sigma_sigma_plotter_)
+            Gem::Common::make_member("file_name_", self.file_name_)
         );
     }
 
@@ -1659,16 +1650,7 @@ public:
      * @param file_name The name of the file the recorded plots are written to
      */
     GOptOptMonitorT(const std::string file_name)
-      : file_name_(file_name)
-      , gpd_("Progress information", 2, 4)
-      , progress_plotter_(new Gem::Common::GGraph2D())
-      , n_parent_plotter_(new Gem::Common::GGraph2D())
-      , n_children_plotter_(new Gem::Common::GGraph2D())
-      , ad_prob_plotter_(new Gem::Common::GGraph2D())
-      , min_sigma_plotter_(new Gem::Common::GGraph2D())
-      , max_sigma_plotter_(new Gem::Common::GGraph2D())
-      , sigma_range_plotter_(new Gem::Common::GGraph2D())
-      , sigma_sigma_plotter_(new Gem::Common::GGraph2D()) { /* nothing */
+      : file_name_(file_name) { /* nothing -- the progress curves live in a transient data log */
     }
 
     /***************************************************************************/
@@ -1679,20 +1661,9 @@ public:
      */
     GOptOptMonitorT(const GOptOptMonitorT<ind_type> &cp)
       : oa::GBasePluggableOM(cp)
-      , file_name_(cp.file_name_)
-      , gpd_(
-            "Progress information",
-            2,
-            4
-        ) // We do not want to copy progress information of another object
-      , progress_plotter_(new Gem::Common::GGraph2D())
-      , n_parent_plotter_(new Gem::Common::GGraph2D())
-      , n_children_plotter_(new Gem::Common::GGraph2D())
-      , ad_prob_plotter_(new Gem::Common::GGraph2D())
-      , min_sigma_plotter_(new Gem::Common::GGraph2D())
-      , max_sigma_plotter_(new Gem::Common::GGraph2D())
-      , sigma_range_plotter_(new Gem::Common::GGraph2D())
-      , sigma_sigma_plotter_(new Gem::Common::GGraph2D()) { /* nothing */
+      , file_name_(cp.file_name_) {
+        // The transient data log (progress information) is deliberately not copied -- it is
+        // rebuilt per run in INFOINIT.
     }
 
     /***************************************************************************/
@@ -1880,60 +1851,34 @@ private:
         switch(im) {
         case Gem::Geneva::infoMode::INFOINIT: {
             // Initialize the plots we want to record
-            progress_plotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            progress_plotter_->setPlotLabel("Number of solver calls");
-            progress_plotter_->setXAxisLabel("Iteration");
-            progress_plotter_->setYAxisLabel("Best Result (lower is better)");
+            // Declare the eight progress curves into a fresh data log, in the same order they were
+            // registered on the 2x4 canvas. Each is a CURVE graph (x = iteration).
+            const struct {
+                const char *plot_label;
+                const char *y_label;
+            } curves[] = {
+                {"Number of solver calls", "Best Result (lower is better)"},
+                {"Number of parents as a function of the iteration", "Number of parents"},
+                {"Number of children as a function of the iteration", "Number of children"},
+                {"Adaption probability as a function of the iteration", "Adaption probability"},
+                {"Lower sigma boundary as a function of the iteration", "Lower sigma boundary"},
+                {"Upper sigma boundary as a function of the iteration", "Upper sigma boundary"},
+                {"Development of the sigma range as a function of the iteration", "Sigma range"},
+                {"Development of the adaption strength as a function of the iteration", "Sigma-Sigma"}
+            };
 
-            n_parent_plotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            n_parent_plotter_->setPlotLabel("Number of parents as a function of the iteration");
-            n_parent_plotter_->setXAxisLabel("Iteration");
-            n_parent_plotter_->setYAxisLabel("Number of parents");
-
-            n_children_plotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            n_children_plotter_->setPlotLabel("Number of children as a function of the iteration");
-            n_children_plotter_->setXAxisLabel("Iteration");
-            n_children_plotter_->setYAxisLabel("Number of children");
-
-            ad_prob_plotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            ad_prob_plotter_->setPlotLabel("Adaption probability as a function of the iteration");
-            ad_prob_plotter_->setXAxisLabel("Iteration");
-            ad_prob_plotter_->setYAxisLabel("Adaption probability");
-
-            min_sigma_plotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            min_sigma_plotter_->setPlotLabel("Lower sigma boundary as a function of the iteration");
-            min_sigma_plotter_->setXAxisLabel("Iteration");
-            min_sigma_plotter_->setYAxisLabel("Lower sigma boundary");
-
-            max_sigma_plotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            max_sigma_plotter_->setPlotLabel("Upper sigma boundary as a function of the iteration");
-            max_sigma_plotter_->setXAxisLabel("Iteration");
-            max_sigma_plotter_->setYAxisLabel("Upper sigma boundary");
-
-            sigma_range_plotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            sigma_range_plotter_->setPlotLabel(
-                "Development of the sigma range as a function of the iteration"
-            );
-            sigma_range_plotter_->setXAxisLabel("Iteration");
-            sigma_range_plotter_->setYAxisLabel("Sigma range");
-
-            sigma_sigma_plotter_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-            sigma_sigma_plotter_->setPlotLabel(
-                "Development of the adaption strength as a function of the iteration"
-            );
-            sigma_sigma_plotter_->setXAxisLabel("Iteration");
-            sigma_sigma_plotter_->setYAxisLabel("Sigma-Sigma");
-
-            gpd_.registerPlotter(progress_plotter_);
-            gpd_.registerPlotter(n_parent_plotter_);
-            gpd_.registerPlotter(n_children_plotter_);
-            gpd_.registerPlotter(ad_prob_plotter_);
-            gpd_.registerPlotter(min_sigma_plotter_);
-            gpd_.registerPlotter(max_sigma_plotter_);
-            gpd_.registerPlotter(sigma_range_plotter_);
-            gpd_.registerPlotter(sigma_sigma_plotter_);
-
-            gpd_.setCanvasDimensions(P_XDIM, P_YDIM);
+            data_log_.emplace("Progress information", 2, 4);
+            data_log_->setCanvasDimensions(P_XDIM, P_YDIM);
+            ids_.clear();
+            for(const auto &curve : curves) {
+                GPlotSpec spec(plotKind::graph_2d);
+                spec.plot_mode = graphPlotMode::CURVE;
+                spec.name = curve.plot_label;
+                spec.x_label = "Iteration";
+                spec.y_label = curve.y_label;
+                spec.columns = {"x", "y"};
+                ids_.push_back(data_log_->declareSeries(spec));
+            }
         } break;
 
         case Gem::Geneva::infoMode::INFOPROCESSING: {
@@ -1948,31 +1893,36 @@ private:
             std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> p =
                 ea->at(0)->individual().clone<GMetaOptimizerIndividualT<ind_type>>();
 
-            // Retrieve the best fitness and average sigma value and add it to our local storage
-            (*progress_plotter_) &
-                std::tuple<double, double>(static_cast<double>(ea->getIteration()), p->raw_fitness(0));
-            (*n_parent_plotter_) &
-                std::tuple<double, double>(static_cast<double>(ea->getIteration()), static_cast<double>(p->getNParents()));
-            (*n_children_plotter_) &
-                std::tuple<double, double>(static_cast<double>(ea->getIteration()), static_cast<double>(p->getNChildren()));
-            (*ad_prob_plotter_) &
-                std::tuple<double, double>(static_cast<double>(ea->getIteration()), p->getAdProb());
+            // Retrieve the best fitness and average sigma value and append them to the data log,
+            // in the same { progress, n_parent, n_children, ad_prob, min_sigma, max_sigma,
+            // sigma_range, sigma_sigma } order the series were declared.
+            const auto iteration = static_cast<double>(ea->getIteration());
+            const double min_sigma = p->getMinSigma();
+            const double sigma_range = p->getSigmaRange();
+            const double max_sigma = min_sigma + sigma_range;
 
-            double min_sigma = p->getMinSigma();
-            double sigma_range = p->getSigmaRange();
-            double max_sigma = min_sigma + sigma_range;
-
-            (*min_sigma_plotter_) & std::tuple<double, double>(static_cast<double>(ea->getIteration()), min_sigma);
-            (*max_sigma_plotter_) & std::tuple<double, double>(static_cast<double>(ea->getIteration()), max_sigma);
-            (*sigma_range_plotter_) &
-                std::tuple<double, double>(static_cast<double>(ea->getIteration()), sigma_range);
-            (*sigma_sigma_plotter_) &
-                std::tuple<double, double>(static_cast<double>(ea->getIteration()), p->getSigmaSigma());
+            const double values[] = {
+                p->raw_fitness(0),
+                static_cast<double>(p->getNParents()),
+                static_cast<double>(p->getNChildren()),
+                p->getAdProb(),
+                min_sigma,
+                max_sigma,
+                sigma_range,
+                p->getSigmaSigma()
+            };
+            for(std::size_t s = 0; s < ids_.size(); ++s) {
+                data_log_->append(ids_[s], iteration, values[s]);
+            }
         } break;
 
         case Gem::Geneva::infoMode::INFOEND: {
-            // Write out the result
-            gpd_.writeToFile(file_name_);
+            // Write out the result, then drop the transient run state.
+            if(data_log_.has_value()) {
+                data_log_->writeToFile(file_name_);
+            }
+            data_log_.reset();
+            ids_.clear();
         } break;
 
         default: {
@@ -1986,29 +1936,16 @@ private:
 
     /***************************************************************************/
 
-    GOptOptMonitorT()
-      : gpd_("empty", 1, 1) { /* empty */
-      }; ///< Default constructor; Intentionally private (only needed for serialization)
+    GOptOptMonitorT() =
+        default; ///< Default constructor; Intentionally private (only needed for serialization)
 
     std::string file_name_; ///< The name of the output file
 
-    Gem::Common::GPlotDesigner gpd_; ///< Ease recording of essential information
-
-    std::shared_ptr<Gem::Common::GGraph2D> progress_plotter_; ///< Records progress information
-    std::shared_ptr<Gem::Common::GGraph2D>
-        n_parent_plotter_; ///< Records the number of parents in the individual
-    std::shared_ptr<Gem::Common::GGraph2D>
-        n_children_plotter_; ///< Records the number of children in the individual
-    std::shared_ptr<Gem::Common::GGraph2D>
-        ad_prob_plotter_; ///< Records the adaption probability for the individual
-    std::shared_ptr<Gem::Common::GGraph2D>
-        min_sigma_plotter_; ///< Records the development of the lower sigma boundary
-    std::shared_ptr<Gem::Common::GGraph2D>
-        max_sigma_plotter_; ///< Records the development of the upper sigma boundary
-    std::shared_ptr<Gem::Common::GGraph2D>
-        sigma_range_plotter_; ///< Records the development of the sigma range
-    std::shared_ptr<Gem::Common::GGraph2D>
-        sigma_sigma_plotter_; ///< Records the development of the adaption strength
+    // Transient run state: the eight progress curves are declared into this data log at INFOINIT,
+    // filled in INFOPROCESSING and written at INFOEND. It is NOT part of the serialized config.
+    std::optional<Gem::Common::GDataLog> data_log_;
+    std::vector<Gem::Common::GDataLog::SeriesId>
+        ids_; ///< the eight declared series, in registration order
 };
 
 /******************************************************************************/
