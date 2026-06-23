@@ -426,6 +426,22 @@ Recommended Versions:
   OPTIONAL work-item prefetch (off by default; --asio_prefetchDepth / --beast_prefetchDepth),
   which overlaps network transfer with computation while leaving the wire protocol unchanged.
   The processing-status enum value DO_IGNORE was renamed to UNPROCESSED.
+- The plotting code has been extracted into its own first-class library,
+  "dietrich" (named for the versatile 18th-century painter Christian Wilhelm
+  Ernst Dietrich -- see dietrich/README.md). It is a peer of hap on top of
+  common, depends ONLY on common, and is linked through the new
+  gemfony-dietrich shared library / Geneva::dietrich CMake target. SOURCE-
+  breaking: the plotting headers moved from common/ to dietrich/ (include
+  "dietrich/GPlotDesigner.hpp" instead of "common/GPlotDesigner.hpp", and
+  "dietrich/plotting/..." instead of "common/plotting/..."), and the plotting
+  classes / enums / free functions moved from the Gem::Common namespace to
+  Gem::Dietrich (qualify GGraph2D, GHistogram2D, GPlotDesigner, GPlotSpec,
+  GDataLog, plotKind, graphPlotMode, ... with Gem::Dietrich::). Code that links
+  Geneva::geneva needs no change (it pulls dietrich transitively); code that
+  used the plotting library directly must update its includes, namespace
+  qualifiers and -- if it linked the plotting object explicitly -- its link line
+  (gemfony-dietrich).
+
 - The geneva-individuals library has been dissolved into the geneva library.
   The reusable sample individuals now live in the Gem::Geneva::Individuals
   namespace (global alias `gind`), with headers in geneva/individuals/; the
@@ -526,8 +542,9 @@ Recommended Versions:
   applicable, the accumulated data points. Emitted output is unchanged (byte-identical
   ROOT). As part of this, GPlotSpec now also carries a histogram's fixed value range, so
   a fixed-range histogram round-trips through the data-log API (and an integer histogram,
-  which has no auto-range form, can be reconstructed from its spec). This is a precursor
-  to extracting the plotting code into its own library.
+  which has no auto-range form, can be reconstructed from its spec). This was the
+  precursor to extracting the plotting code into the separate "dietrich" library
+  (see the INCOMPATIBILITIES note above).
 
 - GParameterScan's scan-parameter objects (GBScanPar / GInt32ScanPar / GDScanPar /
   GFScanPar) were given the Gemfony common interface (clone_() / load_() / compare_()).

@@ -44,8 +44,18 @@ using namespace Gem::Common;
 
 /******************************************************************************/
 /**
- * A class that outputs a ROOT input file (compare http://root.cern.ch), based
- * on the data providers stored in it.
+ * The central class of the @b dietrich plotting library: it collects data
+ * providers (plotters) and renders them, through pluggable backend emitters, to a
+ * ROOT macro (compare http://root.cern.ch), a gnuplot or matplotlib script, raw
+ * CSV / .npz data, or a self-describing manifest for an external renderer.
+ *
+ * @par About the name
+ * The library is named for the Dresden court painter @b Christian @b Wilhelm @b Ernst
+ * @b Dietrich ("Dietricy", 1712-1774), celebrated for his stylistic versatility -- he
+ * painted fluently in the manner of Rembrandt, Ostade, Salvator Rosa, Watteau and
+ * Claude. One painter, many idioms mirrors one library, many output backends. (As a
+ * bonus, a "Dietrich" is a skeleton key in German: one key, many locks.) See
+ * dietrich/README.md.
  */
 class GPlotDesigner : public GCommonInterfaceT<GPlotDesigner> {
     ///////////////////////////////////////////////////////////////////////
