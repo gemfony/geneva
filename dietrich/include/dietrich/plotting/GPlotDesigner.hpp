@@ -31,9 +31,9 @@
 
 #include <memory>
 
-#include "common/plotting/GDataLog.hpp"
-#include "common/plotting/GPlotEmitter.hpp"
-#include "common/plotting/GPlots.hpp"
+#include "dietrich/plotting/GDataLog.hpp"
+#include "dietrich/plotting/GPlotEmitter.hpp"
+#include "dietrich/plotting/GPlots.hpp"
 
 namespace Gem::Common {
 

@@ -43,7 +43,7 @@
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GContainerT.hpp"
-#include "common/GPlotDesigner.hpp"
+#include "dietrich/GPlotDesigner.hpp"
 #include "common/GSerializeTupleT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/par/GParameterPropertyParser.hpp"

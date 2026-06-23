@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "common/GPlotDesigner.hpp"
+#include "dietrich/GPlotDesigner.hpp"
 #include "common/GCommonEnums.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"

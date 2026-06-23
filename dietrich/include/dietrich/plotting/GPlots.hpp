@@ -32,7 +32,7 @@
 #include <memory>
 #include <type_traits>
 
-#include "common/plotting/GBasePlotter.hpp"
+#include "dietrich/plotting/GBasePlotter.hpp"
 
 namespace Gem::Common {
 

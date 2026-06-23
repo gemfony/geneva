@@ -42,7 +42,7 @@
 #include <string>
 #include <tuple>
 
-#include "common/GPlotDesigner.hpp"
+#include "dietrich/GPlotDesigner.hpp"
 
 using namespace Gem::Common;
 

@@ -27,34 +27,48 @@
 #
 ################################################################################
 
-
-SET ( EXECUTABLENAME DependentDistributionTests )
-
-SET ( ${EXECUTABLENAME}_SRCS
-	DependentDistributionTests.cpp
+SET ( DIETRICHSOURCES
+	GPlotDesigner.cpp
 )
 
-ADD_EXECUTABLE(${EXECUTABLENAME}
-	${${EXECUTABLENAME}_SRCS}
+set_source_files_properties(
+    ${DIETRICHSOURCES}
+    PROPERTIES
+    LANGUAGE CXX
+    CXX_STANDARD 20
 )
 
-SET(LIBRARIES_TO_LINK
-		${HAP_LIBNAME}
-		${DIETRICH_LIBNAME}
-		${COMMON_LIBNAME}
-		${Boost_LIBRARIES})
+ADD_LIBRARY ( ${DIETRICH_LIBNAME} SHARED ${DIETRICHSOURCES} )
 
-# Add MPI Libraries in case building with MPI-consumer
-IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	SET(LIBRARIES_TO_LINK
-			${LIBRARIES_TO_LINK}
-			${MPI_LIBRARIES})
-ENDIF()
+SET_TARGET_PROPERTIES(
+    ${DIETRICH_LIBNAME}
+    PROPERTIES
+    VERSION ${GENEVA_VERSION}
+	CXX_STANDARD 20
+	CXX_STANDARD_REQUIRED ON
+	CXX_EXTENSIONS OFF
+	EXPORT_NAME dietrich
+)
 
-TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-		${LIBRARIES_TO_LINK})
+# Publish the include directory through the target so that both the in-tree
+# build and downstream consumers (via the exported Geneva::dietrich target) pick
+# up the Dietrich headers. PUBLIC so the requirement propagates to dependents.
+TARGET_INCLUDE_DIRECTORIES(
+    ${DIETRICH_LIBNAME}
+    PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/dietrich/include>
+    $<INSTALL_INTERFACE:include>
+)
 
-ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "hap")
+# Dietrich depends ONLY on common (and the Boost components that appear in the
+# public plotting headers). It must NOT link hap, courtier or geneva.
+TARGET_COMPILE_FEATURES(${DIETRICH_LIBNAME} PUBLIC cxx_std_20)
+TARGET_LINK_LIBRARIES(
+    ${DIETRICH_LIBNAME}
+    PUBLIC
+    ${COMMON_LIBNAME}
+    Boost::filesystem
+    Boost::serialization
+)
 
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/hap/DocuPrograms/${EXECUTABLENAME} )
+INSTALL ( TARGETS ${DIETRICH_LIBNAME} EXPORT GenevaTargets DESTINATION ${INSTALL_PREFIX_LIBS} )

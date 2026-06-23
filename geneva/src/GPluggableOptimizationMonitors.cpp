@@ -35,7 +35,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
-#include "common/GPlotDesigner.hpp"
+#include "dietrich/GPlotDesigner.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/Interface/GOptimizerIT.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"

@@ -34,8 +34,8 @@
 #include <variant>
 #include <vector>
 
-#include "common/plotting/GDecorators.hpp"
-#include "common/plotting/GPlotSpec.hpp"
+#include "dietrich/plotting/GDecorators.hpp"
+#include "dietrich/plotting/GPlotSpec.hpp"
 
 namespace Gem::Common {
 

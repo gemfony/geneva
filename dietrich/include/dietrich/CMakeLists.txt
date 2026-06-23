@@ -27,34 +27,35 @@
 #
 ################################################################################
 
-
-SET ( EXECUTABLENAME DependentDistributionTests )
-
-SET ( ${EXECUTABLENAME}_SRCS
-	DependentDistributionTests.cpp
+# The umbrella header re-exports the full plotting stack.
+SET ( GENEVADIETRICHINCLUDES
+	GPlotDesigner.hpp
 )
 
-ADD_EXECUTABLE(${EXECUTABLENAME}
-	${${EXECUTABLENAME}_SRCS}
+# The plotting subsystem lives in focused headers under dietrich/plotting/;
+# dietrich/GPlotDesigner.hpp remains as an umbrella that includes them.
+SET ( GENEVADIETRICHPLOTTINGINCLUDES
+	plotting/GPlotEnums.hpp
+	plotting/GDecorators.hpp
+	plotting/GPlotSpec.hpp
+	plotting/GBasePlotter.hpp
+	plotting/GPlots.hpp
+	plotting/GPlotEmitter.hpp
+	plotting/GDataLog.hpp
+	plotting/GPlotDesigner.hpp
 )
 
-SET(LIBRARIES_TO_LINK
-		${HAP_LIBNAME}
-		${DIETRICH_LIBNAME}
-		${COMMON_LIBNAME}
-		${Boost_LIBRARIES})
+# This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
+ADD_CUSTOM_TARGET(CLION_ALL_DIETRICH_HEADERS SOURCES
+	${GENEVADIETRICHINCLUDES} ${GENEVADIETRICHPLOTTINGINCLUDES})
 
-# Add MPI Libraries in case building with MPI-consumer
-IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	SET(LIBRARIES_TO_LINK
-			${LIBRARIES_TO_LINK}
-			${MPI_LIBRARIES})
-ENDIF()
+SET_TARGET_PROPERTIES(
+	CLION_ALL_DIETRICH_HEADERS
+	PROPERTIES
+	CXX_STANDARD 20
+	CXX_STANDARD_REQUIRED ON
+	CXX_EXTENSIONS OFF
+)
 
-TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-		${LIBRARIES_TO_LINK})
-
-ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "hap")
-
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/hap/DocuPrograms/${EXECUTABLENAME} )
+INSTALL ( FILES ${GENEVADIETRICHINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/dietrich )
+INSTALL ( FILES ${GENEVADIETRICHPLOTTINGINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/dietrich/plotting )

@@ -27,34 +27,7 @@
 #
 ################################################################################
 
-
-SET ( EXECUTABLENAME DependentDistributionTests )
-
-SET ( ${EXECUTABLENAME}_SRCS
-	DependentDistributionTests.cpp
-)
-
-ADD_EXECUTABLE(${EXECUTABLENAME}
-	${${EXECUTABLENAME}_SRCS}
-)
-
-SET(LIBRARIES_TO_LINK
-		${HAP_LIBNAME}
-		${DIETRICH_LIBNAME}
-		${COMMON_LIBNAME}
-		${Boost_LIBRARIES})
-
-# Add MPI Libraries in case building with MPI-consumer
-IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	SET(LIBRARIES_TO_LINK
-			${LIBRARIES_TO_LINK}
-			${MPI_LIBRARIES})
-ENDIF()
-
-TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-		${LIBRARIES_TO_LINK})
-
-ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "hap")
-
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/hap/DocuPrograms/${EXECUTABLENAME} )
+# The bundled external renderer: it turns a DATA export (raw series data + the
+# self-describing manifest the DATA backend writes) into figures entirely outside
+# the C++ library. Installed next to the other Geneva scripts.
+INSTALL ( PROGRAMS geneva_plot_render.py DESTINATION ${INSTALL_PREFIX_DATA}/scripts )

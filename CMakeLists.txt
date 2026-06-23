@@ -259,6 +259,7 @@ SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/common/include
+	${PROJECT_SOURCE_DIR}/dietrich/include
 	${PROJECT_SOURCE_DIR}/hap/include
 	${PROJECT_SOURCE_DIR}/courtier/include
 	${PROJECT_SOURCE_DIR}/geneva/include
@@ -266,6 +267,7 @@ INCLUDE_DIRECTORIES (
 
 # Custom targets for building single libraries only
 ADD_CUSTOM_TARGET( "common"             DEPENDS ${COMMON_LIBNAME}            COMMENT "Building only the Common library." )
+ADD_CUSTOM_TARGET( "dietrich"           DEPENDS ${DIETRICH_LIBNAME}          COMMENT "Building only the Dietrich plotting library." )
 ADD_CUSTOM_TARGET( "hap"                DEPENDS ${HAP_LIBNAME}               COMMENT "Building only the Hap library." )
 ADD_CUSTOM_TARGET( "courtier"           DEPENDS ${COURTIER_LIBNAME}          COMMENT "Building only the Courtier library." )
 ADD_CUSTOM_TARGET( "geneva"             DEPENDS ${GENEVA_LIBNAME}            COMMENT "Building only the Geneva library (now includes the former geneva-individuals sources)." )
@@ -290,13 +292,11 @@ IF (GENEVA_BUILD_WITH_COVERAGE)
         MESSAGE(WARNING "GENEVA_BUILD_WITH_COVERAGE=ON but gcovr was not "
                 "found in PATH; the `coverage` make target will not work.")
     ENDIF ()
-    # Filter: only the Common library's headers and sources count.
+    # Filter: only the Common library's headers and sources count. (The plotting
+    # code now lives in the separate dietrich library and is covered there.)
     SET(_GENEVA_COV_FILTER
         "--filter=${PROJECT_SOURCE_DIR}/common/include/common/.*"
-        "--filter=${PROJECT_SOURCE_DIR}/common/src/.*"
-        # Exclude the deprecated-soon GPlotDesigner from the headline number.
-        "--exclude=${PROJECT_SOURCE_DIR}/common/include/common/GPlotDesigner.hpp"
-        "--exclude=${PROJECT_SOURCE_DIR}/common/src/GPlotDesigner.cpp")
+        "--filter=${PROJECT_SOURCE_DIR}/common/src/.*")
     ADD_CUSTOM_TARGET( "coverage"
         COMMAND ${CMAKE_COMMAND} -E make_directory
                 "${CMAKE_BINARY_DIR}/coverage/common"
@@ -353,6 +353,7 @@ ENDIF ()
 # dependency chain (common <- hap <- courtier <- geneva) so every library's
 # targets exist when its dependents configure.
 ADD_SUBDIRECTORY (common)
+ADD_SUBDIRECTORY (dietrich)
 ADD_SUBDIRECTORY (hap)
 ADD_SUBDIRECTORY (courtier)
 ADD_SUBDIRECTORY (geneva)
@@ -432,6 +433,7 @@ ADD_CUSTOM_TARGET(
 	"gemfony-build-all" DEPENDS
 	core
 	common-all      # lib + tests + examples + benchmarks for the common library
+	dietrich-all    # plotting lib + tests (unit + validity gates)
 	hap-all         # lib + tests + examples
 	courtier-all    # lib + tests + examples-stub + benchmarks
 	geneva-all      # lib + tests + examples + benchmarks (the largest subtree)

@@ -195,6 +195,7 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	# The names of the Geneva libraries
 
 	SET ( COMMON_LIBNAME            "gemfony-common" )
+	SET ( DIETRICH_LIBNAME          "gemfony-dietrich" )
 	SET ( HAP_LIBNAME               "gemfony-hap" )
 	SET ( COURTIER_LIBNAME          "gemfony-courtier" )
 	# The GPU consumer is folded INTO gemfony-courtier as an opt-in add-on (GENEVA_BUILD_WITH_GPU_CONSUMER),
@@ -208,11 +209,14 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	# The geneva-individuals library was dissolved into the geneva library
 	# (the sample individuals now live in Gem::Geneva::Individuals under
 	# geneva/individuals/); there is no separate individuals library.
+	# Dietrich (plotting) is a leaf peer on top of common, used by geneva; it links
+	# after hap so geneva -> dietrich -> common resolves left-to-right.
 	SET (
 			GENEVA_LIBNAMES
 			${GENEVA_LIBNAME}
 			${COURTIER_LIBNAME}
 			${HAP_LIBNAME}
+			${DIETRICH_LIBNAME}
 			${COMMON_LIBNAME}
 	)
 

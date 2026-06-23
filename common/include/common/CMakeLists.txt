@@ -56,7 +56,6 @@ SET ( GENEVACOMMONINCLUDES
 	GMPMCQueueT.hpp
 	GMemberReflectionT.hpp
 	GParserBuilder.hpp
-	GPlotDesigner.hpp
 	GPreallocatedMPMCQueueT.hpp
 	GProviderT.hpp
 	GQueueCommon.hpp
@@ -87,16 +86,5 @@ SET_TARGET_PROPERTIES(
 
 INSTALL ( FILES ${GENEVACOMMONINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/common )
 
-# The plotting subsystem (formerly the monolithic GPlotDesigner.hpp) lives in focused headers under
-# common/plotting/; common/GPlotDesigner.hpp remains as an umbrella that includes them.
-SET ( GENEVACOMMONPLOTTINGINCLUDES
-	plotting/GPlotEnums.hpp
-	plotting/GDecorators.hpp
-	plotting/GPlotSpec.hpp
-	plotting/GBasePlotter.hpp
-	plotting/GPlots.hpp
-	plotting/GPlotEmitter.hpp
-	plotting/GPlotDesigner.hpp
-)
-
-INSTALL ( FILES ${GENEVACOMMONPLOTTINGINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/common/plotting )
+# The plotting subsystem was extracted into its own first-class library, "dietrich"
+# (dietrich/include/dietrich/...). common no longer ships any plotting headers.

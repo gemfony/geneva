@@ -39,7 +39,6 @@ SET ( GENEVASCRIPTS
 	sshList.sh
     startClients.sh
 	startLocalJobs.sh
-	geneva_plot_render.py
 )
 
 INSTALL ( FILES ${GENEVACONFFILES} DESTINATION ${INSTALL_PREFIX_DATA}/scripts )

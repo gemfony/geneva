@@ -223,6 +223,9 @@ TARGET_COMPILE_FEATURES(${GENEVA_LIBNAME} PUBLIC cxx_std_20)
 # downstream consumers that link Geneva::geneva.
 TARGET_LINK_LIBRARIES(${GENEVA_LIBNAME} PUBLIC ${COURTIER_LIBNAME})
 
+# geneva's pluggable monitors render through the dietrich plotting library.
+TARGET_LINK_LIBRARIES(${GENEVA_LIBNAME} PUBLIC ${DIETRICH_LIBNAME})
+
 IF ( GENEVA_BUILD_TESTS )
 	# When built with testing support (-DGEM_TESTING), the library embeds
 	# Catch2-based test scaffolding (GTestIndividual*, GUnitTestFrameworkT) and

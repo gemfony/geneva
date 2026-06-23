@@ -29,7 +29,6 @@
 
 ADD_SUBDIRECTORY ( GHelperFunctionsTest )
 ADD_SUBDIRECTORY ( GLoggerTest )
-ADD_SUBDIRECTORY ( GPlotDesignerTest )
 ADD_SUBDIRECTORY ( GThreadPoolTest )
 
 GENEVA_AGGREGATE_TARGET( "tests-common-manual" )

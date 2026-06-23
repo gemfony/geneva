@@ -47,7 +47,7 @@
 #include "common/GCommonEnums.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GLogger.hpp"
-#include "common/GPlotDesigner.hpp"
+#include "dietrich/GPlotDesigner.hpp"
 #include "geneva/par/GParameterPropertyParser.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"

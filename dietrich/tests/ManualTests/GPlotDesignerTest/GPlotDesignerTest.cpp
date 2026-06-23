@@ -37,7 +37,7 @@
 #include <numbers>
 
 // Geneva headers go here
-#include "common/GPlotDesigner.hpp"
+#include "dietrich/GPlotDesigner.hpp"
 
 using namespace Gem::Common;
 

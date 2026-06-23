@@ -41,7 +41,7 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include "common/GPlotDesigner.hpp"
+#include "dietrich/GPlotDesigner.hpp"
 #include "geneva/individuals/GTestIndividual2.hpp"
 #include "geneva/oa/GAdaption.hpp"
 

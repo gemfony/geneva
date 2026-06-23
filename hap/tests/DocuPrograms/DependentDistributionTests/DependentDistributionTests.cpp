@@ -48,7 +48,7 @@
 // Boost header files
 
 // Geneva header files
-#include "common/GPlotDesigner.hpp"
+#include "dietrich/GPlotDesigner.hpp"
 #include "hap/GRandomT.hpp"
 
 using namespace Gem::Hap;

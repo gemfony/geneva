@@ -40,7 +40,7 @@
 
 // Geneva header files go here
 #include "common/GCommonHelperFunctionsT.hpp"
-#include "common/GPlotDesigner.hpp"
+#include "dietrich/GPlotDesigner.hpp"
 #include "geneva/Go2.hpp"
 
 #include "GOptimizationBenchmarkConfig.hpp"

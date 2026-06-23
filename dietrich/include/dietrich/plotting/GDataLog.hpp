@@ -37,8 +37,8 @@
 #include <tuple>
 #include <vector>
 
-#include "common/plotting/GPlotEmitter.hpp" // plotBackend
-#include "common/plotting/GPlotSpec.hpp"
+#include "dietrich/plotting/GPlotEmitter.hpp" // plotBackend
+#include "dietrich/plotting/GPlotSpec.hpp"
 
 namespace Gem::Common {
 

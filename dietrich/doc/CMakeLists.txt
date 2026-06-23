@@ -22,39 +22,32 @@
 #
 ################################################################################
 #
-# See the NOTICE file in the top-level directory of the Geneva library
-# collection for a list of contributors and copyright information.
+# Per-library Doxygen target for the Dietrich plotting library.
 #
-################################################################################
+# Configures Doxyfile.in from this directory with per-library values and
+# registers `doc-dietrich` as a top-level target. Output (HTML + XML + tag
+# file) lands in this lib's build dir, NOT in the source tree.
 
+IF (NOT DOXYGEN_FOUND)
+	RETURN ()
+ENDIF ()
 
-SET ( EXECUTABLENAME DependentDistributionTests )
+SET (GENEVA_DOC_LIB_NAME "dietrich")
+SET (GENEVA_DOC_LIB_DESC "Plotting library: ROOT macros, gnuplot / matplotlib "
+		"scripts, CSV / .npz data exports and a self-describing manifest for an "
+		"external renderer (named for the painter C. W. E. Dietrich)")
+# Dietrich depends on common; reference its tag file for cross-links.
+SET (GENEVA_DOC_TAGFILES "${CMAKE_BINARY_DIR}/common/doc/common.tag=../../common/doc/html")
 
-SET ( ${EXECUTABLENAME}_SRCS
-	DependentDistributionTests.cpp
+CONFIGURE_FILE (
+	${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
+	${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+	@ONLY
 )
 
-ADD_EXECUTABLE(${EXECUTABLENAME}
-	${${EXECUTABLENAME}_SRCS}
+ADD_CUSTOM_TARGET (doc-dietrich
+	COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	COMMENT "Generating Doxygen documentation for the Dietrich library"
+	VERBATIM
 )
-
-SET(LIBRARIES_TO_LINK
-		${HAP_LIBNAME}
-		${DIETRICH_LIBNAME}
-		${COMMON_LIBNAME}
-		${Boost_LIBRARIES})
-
-# Add MPI Libraries in case building with MPI-consumer
-IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	SET(LIBRARIES_TO_LINK
-			${LIBRARIES_TO_LINK}
-			${MPI_LIBRARIES})
-ENDIF()
-
-TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-		${LIBRARIES_TO_LINK})
-
-ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "hap")
-
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/hap/DocuPrograms/${EXECUTABLENAME} )

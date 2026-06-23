@@ -37,19 +37,10 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
 )
 
-SET(LIBRARIES_TO_LINK
-		${GENEVA_LIBRARIES}
-		${Boost_LIBRARIES})
-
-# Add MPI Libraries in case building with MPI-consumer
-IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	SET(LIBRARIES_TO_LINK
-			${LIBRARIES_TO_LINK}
-			${MPI_LIBRARIES})
-ENDIF()
-
+# Dietrich is a leaf peer on top of common; this validity harness links only those
+# two libraries (plus Boost), never hap / courtier / geneva.
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-		${LIBRARIES_TO_LINK})
+		${DIETRICH_LIBNAME} ${COMMON_LIBNAME} ${Boost_LIBRARIES})
 
 #ADD_SUBDIRECTORY (config)
 
@@ -164,7 +155,7 @@ IF(GENEVA_PYTHON3_EXECUTABLE AND GENEVA_NUMPY_RC EQUAL 0 AND GENEVA_MATPLOTLIB_R
 		NAME GPlotDesignerRenderValidity
 		COMMAND ${CMAKE_COMMAND}
 			-DGEN_EXE=$<TARGET_FILE:${EXECUTABLENAME}>
-			-DRENDER_PY=${CMAKE_SOURCE_DIR}/scripts/geneva_plot_render.py
+			-DRENDER_PY=${CMAKE_SOURCE_DIR}/dietrich/scripts/geneva_plot_render.py
 			-DPYTHON_EXE=${GENEVA_PYTHON3_EXECUTABLE}
 			-DWORKDIR=${CMAKE_CURRENT_BINARY_DIR}
 			-P ${CMAKE_CURRENT_SOURCE_DIR}/RunRenderValidity.cmake
@@ -174,4 +165,4 @@ ELSE()
 	MESSAGE(STATUS "GPlotDesigner: render validity test skipped (python3, numpy and/or matplotlib not found)")
 ENDIF()
 
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/common/ManualTests/${EXECUTABLENAME} )
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/dietrich/ManualTests/${EXECUTABLENAME} )

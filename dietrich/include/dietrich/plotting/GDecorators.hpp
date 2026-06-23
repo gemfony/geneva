@@ -29,7 +29,7 @@
 
 #pragma once
 
-#include "common/plotting/GPlotEnums.hpp"
+#include "dietrich/plotting/GPlotEnums.hpp"
 
 namespace Gem::Common {
 

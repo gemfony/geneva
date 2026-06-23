@@ -34,7 +34,6 @@ SET ( COMMONSOURCES
 	GExpectationChecksT.cpp
 	GLogger.cpp
 	GParserBuilder.cpp
-	GPlotDesigner.cpp
 	GThreadGroup.cpp
 	GThreadPool.cpp
 )

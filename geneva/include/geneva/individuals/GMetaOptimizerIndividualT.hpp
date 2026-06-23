@@ -48,7 +48,7 @@
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
-#include "common/GPlotDesigner.hpp"
+#include "dietrich/GPlotDesigner.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"

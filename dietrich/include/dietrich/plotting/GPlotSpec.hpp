@@ -34,7 +34,7 @@
 #include <tuple>
 #include <vector>
 
-#include "common/plotting/GPlotEnums.hpp" // graphPlotMode
+#include "dietrich/plotting/GPlotEnums.hpp" // graphPlotMode
 
 namespace Gem::Common {
 

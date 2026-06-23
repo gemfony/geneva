@@ -43,7 +43,7 @@
 // Geneva header files go here
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
-#include "common/GPlotDesigner.hpp"
+#include "dietrich/GPlotDesigner.hpp"
 #include "hap/GRandomT.hpp"
 
 using namespace Gem::Common;

@@ -40,7 +40,7 @@
 // Geneva headers go here
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
-#include "common/GPlotDesigner.hpp"
+#include "dietrich/GPlotDesigner.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GParChild.hpp"

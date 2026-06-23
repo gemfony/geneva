@@ -53,7 +53,7 @@
 // Geneva header files
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
-#include "common/GPlotDesigner.hpp"
+#include "dietrich/GPlotDesigner.hpp"
 #include "hap/GRandomDistributionsT.hpp"
 #include "hap/GRandomT.hpp"
 
