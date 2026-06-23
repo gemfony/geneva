@@ -272,3 +272,36 @@ TEST_CASE("GNAdpationsLogger writes a curve + fitness ROOT macro (best only)", "
 
     std::filesystem::remove(out);
 }
+
+/******************************************************************************/
+
+TEST_CASE("GAdaptorPropertyLoggerT writes a property histogram + fitness ROOT macro", "[monitor][plot][oa]") {
+    // Logs the sigma property of the double Gauss adaptor as a fixed-range 2-d histogram, with a
+    // fitness curve below it. Exercises the fixed-range-histogram path through GDataLog (the B0 gap).
+    const auto out = std::filesystem::temp_directory_path() / "geneva_adaptorproperty.C";
+    std::filesystem::remove(out);
+
+    auto monitor = std::make_shared<Gem::Geneva::GAdaptorPropertyLoggerT<double>>();
+    monitor->setFileName(out.string());
+    // Defaults: adaptor "GDoubleGaussAdaptor", property "sigma".
+
+    auto p = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    p->setPopulationSizes(12, 4);
+    p->setMaxIteration(5);
+    p->setReportIteration(100000);
+    Sphere3 src;
+    p->push_back(src.clone_unique());
+    p->setAdaptionConfig(src.buildAdaptionConfig());
+    p->registerPluggableOM(monitor);
+
+    REQUIRE_NOTHROW(p->optimize());
+
+    REQUIRE(std::filesystem::exists(out));
+    REQUIRE(std::filesystem::file_size(out) > 0);
+    const std::string content = readFile(out);
+    CHECK(content.find("Property: sigma") != std::string::npos); // the dynamic y-axis label
+    CHECK(content.find("TH2D") != std::string::npos);            // the fixed-range property histogram
+    CHECK(content.find("TGraph") != std::string::npos);          // the fitness curve
+
+    std::filesystem::remove(out);
+}

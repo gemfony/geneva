@@ -1921,10 +1921,9 @@ class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functio
     /**
      * Single declaration of this class'es local data members, driving
      * serialize(), load_() and compare_() from one place. All members are
-     * handled unconditionally: the two GGraph/GHistogram smart pointers are
-     * deep-cloned on load (make_cloneable_member), every other member (including
-     * the gpd_ GPlotDesigner value, which load_() assigns plainly here) uses
-     * make_member. No manual tail is needed.
+     * plain CONFIG/DATA (make_member); the plotters are no longer state -- they
+     * are materialized into a local GDataLog at INFOEND from the accumulated
+     * adaptor_property_store_ / fitness_store_ vectors. No manual tail is needed.
      */
     template <typename Self>
     static auto localMembers_(Self &self) {
@@ -1933,14 +1932,12 @@ class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functio
             Gem::Common::make_member("adaptor_name_", self.adaptor_name_),
             Gem::Common::make_member("property_", self.property_),
             Gem::Common::make_member("canvas_dimensions_", self.canvas_dimensions_),
-            Gem::Common::make_member("gpd_", self.gpd_),
-            Gem::Common::make_cloneable_member("adaptor_property_hist2_d_oa_", self.adaptor_property_hist2_d_oa_),
-            Gem::Common::make_cloneable_member("fitness_graph2_d_oa_", self.fitness_graph2_d_oa_),
             Gem::Common::make_member("monitor_best_only_", self.monitor_best_only_),
             Gem::Common::make_member("add_print_command_", self.add_print_command_),
             Gem::Common::make_member("max_iteration_", self.max_iteration_),
             Gem::Common::make_member("n_iterations_recorded_", self.n_iterations_recorded_),
-            Gem::Common::make_member("adaptor_property_store_", self.adaptor_property_store_)
+            Gem::Common::make_member("adaptor_property_store_", self.adaptor_property_store_),
+            Gem::Common::make_member("fitness_store_", self.fitness_store_)
         );
     }
 
@@ -1980,8 +1977,7 @@ public:
       : file_name_(std::move(file_name))
       , adaptor_name_(std::move(adaptor_name))
       , property_(std::move(property))
-      , canvas_dimensions_(std::tuple<std::uint32_t, std::uint32_t>(1200, 1600))
-      , gpd_("Adaptor properties", 1, 2) { /* nothing */
+      , canvas_dimensions_(std::tuple<std::uint32_t, std::uint32_t>(1200, 1600)) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1996,18 +1992,12 @@ public:
       , adaptor_name_(cp.adaptor_name_)
       , property_(cp.property_)
       , canvas_dimensions_(cp.canvas_dimensions_)
-      , gpd_(cp.gpd_)
       , monitor_best_only_(cp.monitor_best_only_)
       , add_print_command_(cp.add_print_command_)
       , max_iteration_(cp.max_iteration_)
       , n_iterations_recorded_(cp.n_iterations_recorded_)
-      , adaptor_property_store_(cp.adaptor_property_store_) {
-        // Copy the smart pointers over
-        Gem::Common::copyCloneableSmartPointer(
-            cp.adaptor_property_hist2_d_oa_,
-            adaptor_property_hist2_d_oa_
-        );
-        Gem::Common::copyCloneableSmartPointer(cp.fitness_graph2_d_oa_, fitness_graph2_d_oa_);
+      , adaptor_property_store_(cp.adaptor_property_store_)
+      , fitness_store_(cp.fitness_store_) { /* nothing -- the plotters are no longer state */
     }
 
     /***************************************************************************/
@@ -2324,14 +2314,9 @@ private:
                 std::filesystem::rename(file_name_, new_file_name);
             }
 
-            // Make sure the progress plotter has the desired size
-            gpd_.setCanvasDimensions(canvas_dimensions_);
-
-            // Set up a graph to monitor the best fitness found
-            fitness_graph2_d_oa_ = std::make_shared<Gem::Common::GGraph2D>();
-            fitness_graph2_d_oa_->setXAxisLabel("Iteration");
-            fitness_graph2_d_oa_->setYAxisLabel("Fitness");
-            fitness_graph2_d_oa_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+            // The fitness curve is recorded per-run, so start it fresh (the property store
+            // deliberately accumulates across chained algorithms and is not cleared here).
+            fitness_store_.clear();
         } break;
 
         case Gem::Geneva::infoMode::INFOPROCESSING: {
@@ -2340,8 +2325,7 @@ private:
             // Record the current fitness
             std::shared_ptr<gen::GOptimizableEntity> p =
                 goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividual<gen::GOptimizableEntity>();
-            (*fitness_graph2_d_oa_) &
-                std::tuple<double, double>(static_cast<double>(iteration), p->raw_fitness(0));
+            fitness_store_.emplace_back(static_cast<double>(iteration), p->raw_fitness(0));
 
             // Update the largest known iteration and the number of recorded iterations
             max_iteration_ = iteration;
@@ -2386,49 +2370,49 @@ private:
         } break;
 
         case Gem::Geneva::infoMode::INFOEND: {
-            // Within adaptor_property_store_, find the largest number of adaptions performed
+            // Within adaptor_property_store_, find the largest property value recorded
             double max_property = 0.;
             for(const auto &property_entry : adaptor_property_store_) {
                 max_property = std::max(std::get<1>(property_entry), max_property);
             }
 
-            // Create the histogram object
-            adaptor_property_hist2_d_oa_ = std::make_shared<GHistogram2D>(
-                n_iterations_recorded_,
-                100,
-                0.,
-                double(max_iteration_),
-                0.,
-                max_property
-            );
+            // Materialize the accumulated data into a fresh data log (no plotter objects are kept
+            // as state). The property histogram is declared first and the fitness curve second,
+            // matching the former pad order on the 1x2 canvas.
+            GDataLog log("Adaptor properties", 1, 2);
+            log.setCanvasDimensions(std::get<0>(canvas_dimensions_), std::get<1>(canvas_dimensions_));
 
-            adaptor_property_hist2_d_oa_->setXAxisLabel("Iteration");
-            adaptor_property_hist2_d_oa_->setYAxisLabel(
-                std::string("Adaptor-Name: ") + adaptor_name_ + std::string(", Property: ") +
-                property_
-            );
-            adaptor_property_hist2_d_oa_->setDrawingArguments("BOX");
-
-            // Fill the object with data
+            // A fixed-range 2-d histogram (iteration vs. property value). The explicit ranges make
+            // makePlotter() rebuild exactly the GHistogram2D the legacy path constructed.
+            GPlotSpec spec(plotKind::hist_2d);
+            spec.x_label = "Iteration";
+            spec.y_label = std::string("Adaptor-Name: ") + adaptor_name_ +
+                           std::string(", Property: ") + property_;
+            spec.drawing_args = "BOX";
+            spec.columns = {"x", "y"};
+            spec.n_bins_x = n_iterations_recorded_;
+            spec.n_bins_y = 100;
+            spec.range_x = std::make_tuple(0., static_cast<double>(max_iteration_));
+            spec.range_y = std::make_tuple(0., max_property);
+            const auto id = log.declareSeries(spec);
             for(const auto &property_entry : adaptor_property_store_) {
-                (*adaptor_property_hist2_d_oa_) & property_entry;
+                log.append(id, std::get<0>(property_entry), std::get<1>(property_entry));
             }
 
-            // Add the histogram to the plot designer
-            gpd_.registerPlotter(adaptor_property_hist2_d_oa_);
+            // The best-fitness curve.
+            GPlotSpec fitness_spec(plotKind::graph_2d);
+            fitness_spec.plot_mode = graphPlotMode::CURVE;
+            fitness_spec.x_label = "Iteration";
+            fitness_spec.y_label = "Fitness";
+            fitness_spec.columns = {"x", "y"};
+            const auto fitness_id = log.declareSeries(fitness_spec);
+            for(const auto &fitness : fitness_store_) {
+                log.append(fitness_id, std::get<0>(fitness), std::get<1>(fitness));
+            }
 
-            // Add the fitness monitor
-            gpd_.registerPlotter(fitness_graph2_d_oa_);
-
-            // Inform the plot designer whether it should print png files
-            gpd_.setAddPrintCommand(add_print_command_);
-
-            // Write out the result. Note that we add
-            gpd_.writeToFile(file_name_);
-
-            // Remove all plotters (they will survive inside of gpd)
-            gpd_.resetPlotters();
-            adaptor_property_hist2_d_oa_.reset();
+            // Inform the plot designer whether it should print png files, then write the result.
+            log.setAddPrintCommand(add_print_command_);
+            log.writeToFile(file_name_);
         } break;
 
         default: {
@@ -2452,13 +2436,6 @@ private:
     std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions_ =
         std::tuple<std::uint32_t, std::uint32_t>(1200, 1600); ///< The dimensions of the canvas
 
-    Gem::Common::GPlotDesigner gpd_{"Adaptor properties", 1, 2}; ///< A wrapper for the plots
-
-    std::shared_ptr<Gem::Common::GHistogram2D>
-        adaptor_property_hist2_d_oa_; ///< Holds the actual histogram
-    std::shared_ptr<Gem::Common::GGraph2D>
-        fitness_graph2_d_oa_; ///< Lets us monitor the current fitness of the population
-
     bool monitor_best_only_ =
         false; ///< Indicates whether only the best individuals should be monitored
     bool add_print_command_ =
@@ -2469,7 +2446,9 @@ private:
         0; ///< Holds the number of iterations that were recorded (not necessarily == max_iteration_
 
     std::vector<std::tuple<double, double>>
-        adaptor_property_store_; ///< Holds all information about the number of adaptions
+        adaptor_property_store_; ///< Holds all (iteration, property-value) data points
+    std::vector<std::tuple<double, double>>
+        fitness_store_; ///< Holds all (iteration, best-fitness) data points for the current run
 };
 
 /******************************************************************************/
