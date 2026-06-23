@@ -31,6 +31,7 @@
 
 #include <optional>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include "common/plotting/GPlotEnums.hpp" // graphPlotMode
@@ -130,6 +131,11 @@ struct GPlotSpec {
     std::optional<std::size_t> n_bins_x; ///< number of x-bins (histograms only)
     std::optional<std::size_t> n_bins_y; ///< number of y-bins (histograms only)
 
+    std::optional<std::tuple<double, double>>
+        range_x; ///< fixed (min,max) x-axis range (histograms only; absent = auto-range from data)
+    std::optional<std::tuple<double, double>>
+        range_y; ///< fixed (min,max) y-axis range (2-d histograms only)
+
     std::optional<graphPlotMode> plot_mode; ///< scatter vs. curve (GGraph2D / GGraph2ED only)
 
     /***************************************************************************/
@@ -172,6 +178,14 @@ struct GPlotSpec {
         }
         if(n_bins_y.has_value()) {
             out += ", \"n_bins_y\": " + std::to_string(*n_bins_y);
+        }
+        if(range_x.has_value()) {
+            out += ", \"range_x\": [" + std::to_string(std::get<0>(*range_x)) + ", " +
+                   std::to_string(std::get<1>(*range_x)) + "]";
+        }
+        if(range_y.has_value()) {
+            out += ", \"range_y\": [" + std::to_string(std::get<0>(*range_y)) + ", " +
+                   std::to_string(std::get<1>(*range_y)) + "]";
         }
         if(plot_mode.has_value()) {
             out += ", \"plot_mode\": \"";

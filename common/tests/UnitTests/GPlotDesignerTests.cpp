@@ -448,9 +448,11 @@ TEST_CASE("makePlotter reconstructs a plotter from its GPlotSpec", "[plotting]")
         CHECK(std::get<const std::vector<double> *>(rebuilt->dataColumns()[0])->empty());
     }
 
-    SECTION("histogram round-trips its bin counts") {
+    SECTION("auto-ranged histogram round-trips its bin counts (no range)") {
         GHistogram2D orig(6, 8);
         const GPlotSpec spec = orig.plotSpec();
+        CHECK_FALSE(spec.range_x.has_value()); // auto-ranged -> no fixed range carried
+        CHECK_FALSE(spec.range_y.has_value());
         const auto rebuilt = makePlotter(spec);
 
         const GPlotSpec rspec = rebuilt->plotSpec();
@@ -461,9 +463,55 @@ TEST_CASE("makePlotter reconstructs a plotter from its GPlotSpec", "[plotting]")
         CHECK(*rspec.n_bins_y == 8);
     }
 
-    SECTION("function and integer-histogram kinds cannot be rebuilt from a spec") {
+    SECTION("fixed-range 1-d histogram round-trips its bins AND its range") {
+        GHistogram1D orig(7, -2.0, 3.0);
+        const GPlotSpec spec = orig.plotSpec();
+        REQUIRE(spec.range_x.has_value());
+        CHECK(std::get<0>(*spec.range_x) == -2.0);
+        CHECK(std::get<1>(*spec.range_x) == 3.0);
+
+        const auto rebuilt = makePlotter(spec);
+        const auto *h = dynamic_cast<const GHistogram1D *>(rebuilt.get());
+        REQUIRE(h != nullptr);
+        CHECK(h->getNBinsX() == 7);
+        CHECK(h->getMinX() == -2.0);
+        CHECK(h->getMaxX() == 3.0);
+    }
+
+    SECTION("fixed-range 2-d histogram round-trips both axis ranges") {
+        GHistogram2D orig(5, 9, -4.0, 4.0, 0.0, 10.0);
+        const GPlotSpec spec = orig.plotSpec();
+        REQUIRE(spec.range_x.has_value());
+        REQUIRE(spec.range_y.has_value());
+
+        const auto rebuilt = makePlotter(spec);
+        const auto *h = dynamic_cast<const GHistogram2D *>(rebuilt.get());
+        REQUIRE(h != nullptr);
+        CHECK(h->getNBinsX() == 5);
+        CHECK(h->getNBinsY() == 9);
+        CHECK(h->getMinX() == -4.0);
+        CHECK(h->getMaxX() == 4.0);
+        CHECK(h->getMinY() == 0.0);
+        CHECK(h->getMaxY() == 10.0);
+    }
+
+    SECTION("a fixed-range integer histogram now round-trips through its spec") {
+        GHistogram1I orig(5, 0.0, 10.0);
+        const GPlotSpec spec = orig.plotSpec();
+        REQUIRE(spec.range_x.has_value());
+
+        const auto rebuilt = makePlotter(spec);
+        const auto *h = dynamic_cast<const GHistogram1I *>(rebuilt.get());
+        REQUIRE(h != nullptr);
+        CHECK(h->getNBinsX() == 5);
+        CHECK(h->getMinX() == 0.0);
+        CHECK(h->getMaxX() == 10.0);
+    }
+
+    SECTION("function and range-less integer-histogram kinds cannot be rebuilt from a spec") {
         GPlotSpec fspec(plotKind::function_1d);
         CHECK_THROWS(makePlotter(fspec));
+        // hist_1i with no range still cannot be reconstructed (no auto-range form).
         GPlotSpec ispec(plotKind::hist_1i);
         CHECK_THROWS(makePlotter(ispec));
     }
@@ -532,8 +580,8 @@ TEST_CASE("GDataLog reproduces the legacy plotter-object output byte-for-byte", 
 
     SECTION("a 1-d (auto-ranged) histogram (bins round-trip through the spec)") {
         // Auto-ranged: makePlotter rebuilds via the single-bin-count ctor, so both sides
-        // derive the same range from the data. (A FIXED-range histogram does not yet
-        // round-trip -- GPlotSpec carries no range; tracked as a Phase-B follow-up.)
+        // derive the same range from the data. (The fixed-range case is covered in the
+        // dedicated sections below.)
         auto h = std::make_shared<GHistogram1D>(12);
         h->setPlotLabel("a distribution");
         h->setXAxisLabel("value");
@@ -549,6 +597,52 @@ TEST_CASE("GDataLog reproduces the legacy plotter-object output byte-for-byte", 
         for(int i = 0; i < 20; ++i) {
             const double v = 0.1 * static_cast<double>(i) - 1.0;
             log.append(id, std::span<const double>(&v, 1));
+        }
+        CHECK(log.toDesigner().plot() == legacy);
+    }
+
+    SECTION("a FIXED-range 1-d histogram (range round-trips through the spec)") {
+        // The Phase-B follow-up: a fixed-range histogram (as the monitors use) now round-trips
+        // its range through GPlotSpec, so GDataLog emits byte-identically to the plotter-object path.
+        auto h = std::make_shared<GHistogram1D>(15, -1.0, 2.0);
+        h->setPlotLabel("a fixed distribution");
+        h->setXAxisLabel("value");
+        for(int i = 0; i < 20; ++i) {
+            (*h) & (0.1 * static_cast<double>(i) - 1.0);
+        }
+        GPlotDesigner gpd_legacy("Dist", 1, 1);
+        gpd_legacy.registerPlotter(h);
+        const std::string legacy = gpd_legacy.plot();
+
+        GDataLog log("Dist", 1, 1);
+        const auto id = log.declareSeries(h->plotSpec());
+        for(int i = 0; i < 20; ++i) {
+            const double v = 0.1 * static_cast<double>(i) - 1.0;
+            log.append(id, std::span<const double>(&v, 1));
+        }
+        CHECK(log.toDesigner().plot() == legacy);
+    }
+
+    SECTION("a FIXED-range 2-d histogram (both axis ranges round-trip)") {
+        auto h = std::make_shared<GHistogram2D>(10, 10, -4.0, 4.0, -4.0, 4.0);
+        h->setPlotLabel("a 2-d fixed distribution");
+        h->setXAxisLabel("x");
+        h->setYAxisLabel("y");
+        for(int i = 0; i < 12; ++i) {
+            const double x = 0.5 * static_cast<double>(i) - 3.0;
+            const double y = 3.0 - 0.4 * static_cast<double>(i);
+            h->add(x, y);
+        }
+        GPlotDesigner gpd_legacy("Dist2D", 1, 1);
+        gpd_legacy.registerPlotter(h);
+        const std::string legacy = gpd_legacy.plot();
+
+        GDataLog log("Dist2D", 1, 1);
+        const auto id = log.declareSeries(h->plotSpec());
+        for(int i = 0; i < 12; ++i) {
+            const double x = 0.5 * static_cast<double>(i) - 3.0;
+            const double y = 3.0 - 0.4 * static_cast<double>(i);
+            log.append(id, x, y);
         }
         CHECK(log.toDesigner().plot() == legacy);
     }

@@ -581,23 +581,44 @@ std::unique_ptr<GBasePlotter> makePlotter(const GPlotSpec &spec) {
             p = std::make_unique<GGraph4D>();
             break;
         case plotKind::hist_1d:
-            // The single-bin-count ctor auto-determines the value range from the data.
-            p = std::make_unique<GHistogram1D>(spec.n_bins_x.value_or(10));
+            // With a fixed range use the (n_bins, min, max) ctor; otherwise the single-bin-count
+            // ctor auto-determines the value range from the data.
+            if(spec.range_x.has_value()) {
+                p = std::make_unique<GHistogram1D>(spec.n_bins_x.value_or(10), *spec.range_x);
+            }
+            else {
+                p = std::make_unique<GHistogram1D>(spec.n_bins_x.value_or(10));
+            }
             break;
         case plotKind::hist_2d:
-            p = std::make_unique<GHistogram2D>(
-                spec.n_bins_x.value_or(10), spec.n_bins_y.value_or(10)
-            );
+            // A fixed range needs BOTH per-axis ranges (there is no mixed ctor); otherwise auto-range.
+            if(spec.range_x.has_value() && spec.range_y.has_value()) {
+                p = std::make_unique<GHistogram2D>(
+                    spec.n_bins_x.value_or(10), spec.n_bins_y.value_or(10), *spec.range_x, *spec.range_y
+                );
+            }
+            else {
+                p = std::make_unique<GHistogram2D>(
+                    spec.n_bins_x.value_or(10), spec.n_bins_y.value_or(10)
+                );
+            }
             break;
         case plotKind::hist_1i:
-            // GHistogram1I needs an explicit value range, which the spec does not carry.
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In makePlotter(): Error!" << '\n'
-                << "an integer histogram (kind \"" << to_string(spec.kind)
-                << "\") cannot be reconstructed from a GPlotSpec -- its value range is "
-                << "not part of the spec." << '\n'
-            );
+            // GHistogram1I has no auto-range ctor, so it can only be reconstructed when the spec
+            // carries an explicit value range.
+            if(spec.range_x.has_value()) {
+                p = std::make_unique<GHistogram1I>(spec.n_bins_x.value_or(10), *spec.range_x);
+            }
+            else {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In makePlotter(): Error!" << '\n'
+                    << "an integer histogram (kind \"" << to_string(spec.kind)
+                    << "\") without a fixed value range cannot be reconstructed from a "
+                    << "GPlotSpec -- an integer histogram has no auto-range form." << '\n'
+                );
+            }
+            break;
         case plotKind::function_1d:
         case plotKind::function_2d:
             throw geneva_exception(
@@ -2421,6 +2442,10 @@ GPlotSpec GHistogram1D::plotSpec() const {
     spec.role = defaultRole(spec.kind);
     spec.columns = {"value"};
     spec.n_bins_x = n_bins_x_;
+    // A fixed value range is signalled by min != max (min == max means auto-range from data).
+    if(min_x_ != max_x_) {
+        spec.range_x = std::make_tuple(min_x_, max_x_);
+    }
     return spec;
 }
 
@@ -2704,6 +2729,11 @@ GPlotSpec GHistogram1I::plotSpec() const {
     spec.role = defaultRole(spec.kind);
     spec.columns = {"value"};
     spec.n_bins_x = n_bins_x_;
+    // An integer histogram has no auto-range ctor; emit its range whenever it is fixed
+    // (min != max), which lets makePlotter reconstruct it.
+    if(min_x_ != max_x_) {
+        spec.range_x = std::make_tuple(min_x_, max_x_);
+    }
     return spec;
 }
 
@@ -3165,6 +3195,13 @@ GPlotSpec GHistogram2D::plotSpec() const {
     spec.columns = {"x", "y"};
     spec.n_bins_x = n_bins_x_;
     spec.n_bins_y = n_bins_y_;
+    // Fixed per-axis ranges are signalled by min != max (min == max means auto-range).
+    if(min_x_ != max_x_) {
+        spec.range_x = std::make_tuple(min_x_, max_x_);
+    }
+    if(min_y_ != max_y_) {
+        spec.range_y = std::make_tuple(min_y_, max_y_);
+    }
     return spec;
 }
 
