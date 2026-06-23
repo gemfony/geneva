@@ -1533,8 +1533,7 @@ void GIterationResultsFileLogger::specificTestsFailuresExpected_GUnitTests_() {
  */
 GNAdpationsLogger::GNAdpationsLogger(const std::string &file_name)
   : file_name_(file_name)
-  , canvas_dimensions_(std::tuple<std::uint32_t, std::uint32_t>(1200, 1600))
-  , gpd_("Number of adaptions per iteration", 1, 2) { /* nothing */
+  , canvas_dimensions_(std::tuple<std::uint32_t, std::uint32_t>(1200, 1600)) { /* nothing */
 }
 
 /******************************************************************************/
@@ -1547,15 +1546,12 @@ GNAdpationsLogger::GNAdpationsLogger(const GNAdpationsLogger &cp)
   : oa::GBasePluggableOM(cp)
   , file_name_(cp.file_name_)
   , canvas_dimensions_(cp.canvas_dimensions_)
-  , gpd_(cp.gpd_)
   , monitor_best_only_(cp.monitor_best_only_)
   , add_print_command_(cp.add_print_command_)
   , max_iteration_(cp.max_iteration_)
   , n_iterations_recorded_(cp.n_iterations_recorded_)
-  , n_adaptions_store_(cp.n_adaptions_store_) {
-    Gem::Common::copyCloneableSmartPointer(cp.n_adaptions_hist2_d_oa_, n_adaptions_hist2_d_oa_);
-    Gem::Common::copyCloneableSmartPointer(cp.n_adaptions_graph2_d_oa_, n_adaptions_graph2_d_oa_);
-    Gem::Common::copyCloneableSmartPointer(cp.fitness_graph2_d_oa_, fitness_graph2_d_oa_);
+  , n_adaptions_store_(cp.n_adaptions_store_)
+  , fitness_store_(cp.fitness_store_) { /* nothing -- the plotters are no longer state */
 }
 
 /******************************************************************************/
@@ -1714,14 +1710,9 @@ void GNAdpationsLogger::informationFunction_(
             std::filesystem::rename(file_name_, new_file_name);
         }
 
-        // Make sure the progress plotter has the desired size
-        gpd_.setCanvasDimensions(canvas_dimensions_);
-
-        // Set up a graph to monitor the best fitness found
-        fitness_graph2_d_oa_ = std::make_shared<Gem::Common::GGraph2D>();
-        fitness_graph2_d_oa_->setXAxisLabel("Iteration");
-        fitness_graph2_d_oa_->setYAxisLabel("Fitness");
-        fitness_graph2_d_oa_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+        // The fitness curve is recorded per-run, so start it fresh (the n-adaptions store
+        // deliberately accumulates across chained algorithms and is not cleared here).
+        fitness_store_.clear();
     } break;
 
     case Gem::Geneva::infoMode::INFOPROCESSING: {
@@ -1730,7 +1721,7 @@ void GNAdpationsLogger::informationFunction_(
         // Record the current fitness
         std::shared_ptr<gen::GOptimizableEntity> p =
             goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividual<gen::GOptimizableEntity>();
-        (*fitness_graph2_d_oa_) & std::tuple<double, double>(static_cast<double>(iteration), p->raw_fitness(0));
+        fitness_store_.emplace_back(static_cast<double>(iteration), p->raw_fitness(0));
 
         // Update the largest known iteration and the number of recorded iterations
         max_iteration_ = iteration;
@@ -1753,21 +1744,23 @@ void GNAdpationsLogger::informationFunction_(
     } break;
 
     case Gem::Geneva::infoMode::INFOEND: {
+        // Materialize the accumulated data into a fresh data log (no plotter objects are kept as
+        // state). The n-adaptions plot is declared first and the fitness plot second, matching the
+        // former pad order on the 1x2 canvas.
+        GDataLog log("Number of adaptions per iteration", 1, 2);
+        log.setCanvasDimensions(std::get<0>(canvas_dimensions_), std::get<1>(canvas_dimensions_));
+
         if(monitor_best_only_) {
-            // Create the graph object
-            n_adaptions_graph2_d_oa_ =
-                std::make_shared<Gem::Common::GGraph2D>();
-            n_adaptions_graph2_d_oa_->setXAxisLabel("Iteration");
-            n_adaptions_graph2_d_oa_->setYAxisLabel("Number of parameter adaptions");
-            n_adaptions_graph2_d_oa_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-
-            // Fill the object with data
+            // A simple (iteration, n-adaptions) curve for the best individual.
+            GPlotSpec spec(plotKind::graph_2d);
+            spec.plot_mode = graphPlotMode::CURVE;
+            spec.x_label = "Iteration";
+            spec.y_label = "Number of parameter adaptions";
+            spec.columns = {"x", "y"};
+            const auto id = log.declareSeries(spec);
             for(const auto &n_adaptions : n_adaptions_store_) {
-                (*n_adaptions_graph2_d_oa_) & n_adaptions;
+                log.append(id, std::get<0>(n_adaptions), std::get<1>(n_adaptions));
             }
-
-            // Add the histogram to the plot designer
-            gpd_.registerPlotter(n_adaptions_graph2_d_oa_);
         }
         else { // All individuals are monitored
             // Within n_adaptions_store_, find the largest number of adaptions performed
@@ -1778,42 +1771,37 @@ void GNAdpationsLogger::informationFunction_(
                 }
             }
 
-            // Create the histogram object
-            n_adaptions_hist2_d_oa_ = std::make_shared<GHistogram2D>(
-                n_iterations_recorded_,
-                max_n_adaptions + 1,
-                0.,
-                static_cast<double>(max_iteration_),
-                0.,
-                static_cast<double>(max_n_adaptions)
-            );
-
-            n_adaptions_hist2_d_oa_->setXAxisLabel("Iteration");
-            n_adaptions_hist2_d_oa_->setYAxisLabel("Number of parameter adaptions");
-            n_adaptions_hist2_d_oa_->setDrawingArguments("BOX");
-
-            // Fill the object with data
+            // A fixed-range 2-d histogram (iteration vs. n-adaptions). The explicit ranges make
+            // makePlotter() rebuild exactly the GHistogram2D the legacy path constructed.
+            GPlotSpec spec(plotKind::hist_2d);
+            spec.x_label = "Iteration";
+            spec.y_label = "Number of parameter adaptions";
+            spec.drawing_args = "BOX";
+            spec.columns = {"x", "y"};
+            spec.n_bins_x = n_iterations_recorded_;
+            spec.n_bins_y = max_n_adaptions + 1;
+            spec.range_x = std::make_tuple(0., static_cast<double>(max_iteration_));
+            spec.range_y = std::make_tuple(0., static_cast<double>(max_n_adaptions));
+            const auto id = log.declareSeries(spec);
             for(const auto &n_adaptions : n_adaptions_store_) {
-                (*n_adaptions_hist2_d_oa_) & n_adaptions;
+                log.append(id, std::get<0>(n_adaptions), std::get<1>(n_adaptions));
             }
-
-            // Add the histogram to the plot designer
-            gpd_.registerPlotter(n_adaptions_hist2_d_oa_);
         }
 
-        // Add the fitness monitor
-        gpd_.registerPlotter(fitness_graph2_d_oa_);
+        // The best-fitness curve.
+        GPlotSpec fitness_spec(plotKind::graph_2d);
+        fitness_spec.plot_mode = graphPlotMode::CURVE;
+        fitness_spec.x_label = "Iteration";
+        fitness_spec.y_label = "Fitness";
+        fitness_spec.columns = {"x", "y"};
+        const auto fitness_id = log.declareSeries(fitness_spec);
+        for(const auto &fitness : fitness_store_) {
+            log.append(fitness_id, std::get<0>(fitness), std::get<1>(fitness));
+        }
 
-        // Inform the plot designer whether it should print png files
-        gpd_.setAddPrintCommand(add_print_command_);
-
-        // Write out the result. Note that we add
-        gpd_.writeToFile(file_name_);
-
-        // Remove all plotters
-        gpd_.resetPlotters();
-        n_adaptions_hist2_d_oa_.reset();
-        n_adaptions_graph2_d_oa_.reset();
+        // Inform the plot designer whether it should print png files, then write the result.
+        log.setAddPrintCommand(add_print_command_);
+        log.writeToFile(file_name_);
     } break;
     };
 }

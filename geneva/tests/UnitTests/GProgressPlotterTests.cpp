@@ -207,3 +207,68 @@ TEST_CASE("GFitnessMonitor survives a Pareto run (varying best count)", "[monito
 
     REQUIRE_NOTHROW(p->optimize());
 }
+
+/******************************************************************************/
+
+TEST_CASE("GNAdpationsLogger writes a histogram + fitness ROOT macro (all individuals)", "[monitor][plot][oa]") {
+    // Default (monitor all): the n-adaptions plot is a fixed-range 2-d histogram; the fitness plot
+    // is a curve. This exercises the fixed-range-histogram path through GDataLog (the B0 gap).
+    const auto out = std::filesystem::temp_directory_path() / "geneva_nadaptions_all.C";
+    std::filesystem::remove(out);
+
+    auto monitor = std::make_shared<Gem::Geneva::GNAdpationsLogger>();
+    monitor->setFileName(out.string());
+    monitor->setMonitorBestOnly(false);
+
+    auto p = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    p->setPopulationSizes(12, 4);
+    p->setMaxIteration(5);
+    p->setReportIteration(100000);
+    Sphere3 src;
+    p->push_back(src.clone_unique());
+    p->setAdaptionConfig(src.buildAdaptionConfig());
+    p->registerPluggableOM(monitor);
+
+    REQUIRE_NOTHROW(p->optimize());
+
+    REQUIRE(std::filesystem::exists(out));
+    REQUIRE(std::filesystem::file_size(out) > 0);
+    const std::string content = readFile(out);
+    CHECK(content.find("Number of parameter adaptions") != std::string::npos);
+    CHECK(content.find("TH2D") != std::string::npos);   // the fixed-range 2-d histogram
+    CHECK(content.find("TGraph") != std::string::npos); // the fitness curve
+
+    std::filesystem::remove(out);
+}
+
+/******************************************************************************/
+
+TEST_CASE("GNAdpationsLogger writes a curve + fitness ROOT macro (best only)", "[monitor][plot][oa]") {
+    const auto out = std::filesystem::temp_directory_path() / "geneva_nadaptions_best.C";
+    std::filesystem::remove(out);
+
+    auto monitor = std::make_shared<Gem::Geneva::GNAdpationsLogger>();
+    monitor->setFileName(out.string());
+    monitor->setMonitorBestOnly(true);
+
+    auto p = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    p->setPopulationSizes(12, 4);
+    p->setMaxIteration(5);
+    p->setReportIteration(100000);
+    Sphere3 src;
+    p->push_back(src.clone_unique());
+    p->setAdaptionConfig(src.buildAdaptionConfig());
+    p->registerPluggableOM(monitor);
+
+    REQUIRE_NOTHROW(p->optimize());
+
+    REQUIRE(std::filesystem::exists(out));
+    REQUIRE(std::filesystem::file_size(out) > 0);
+    const std::string content = readFile(out);
+    // Best-only -> the n-adaptions plot is a curve (no histogram).
+    CHECK(content.find("Number of parameter adaptions") != std::string::npos);
+    CHECK(content.find("TGraph") != std::string::npos);
+    CHECK(content.find("TH2D") == std::string::npos);
+
+    std::filesystem::remove(out);
+}

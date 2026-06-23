@@ -1729,25 +1729,21 @@ class GNAdpationsLogger // NOLINT(cppcoreguidelines-special-member-functions)
     /**
      * Single declaration of this class'es local data members, driving
      * serialize(), load_() and compare_() from one place. All members are
-     * handled unconditionally: the three GGraph/GHistogram smart pointers are
-     * deep-cloned on load (make_cloneable_member); every other member (including
-     * the gpd_ GPlotDesigner value, which load_() assigns plainly) uses
-     * make_member. No manual tail is needed.
+     * plain CONFIG/DATA (make_member); the plotters are no longer state -- they
+     * are materialized into a local GDataLog at INFOEND from the accumulated
+     * n_adaptions_store_ / fitness_store_ vectors. No manual tail is needed.
      */
     template <typename Self>
     static auto localMembers_(Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("file_name_", self.file_name_),
             Gem::Common::make_member("canvas_dimensions_", self.canvas_dimensions_),
-            Gem::Common::make_member("gpd_", self.gpd_),
-            Gem::Common::make_cloneable_member("n_adaptions_hist2_d_oa_", self.n_adaptions_hist2_d_oa_),
-            Gem::Common::make_cloneable_member("n_adaptions_graph2_d_oa_", self.n_adaptions_graph2_d_oa_),
-            Gem::Common::make_cloneable_member("fitness_graph2_d_oa_", self.fitness_graph2_d_oa_),
             Gem::Common::make_member("monitor_best_only_", self.monitor_best_only_),
             Gem::Common::make_member("add_print_command_", self.add_print_command_),
             Gem::Common::make_member("max_iteration_", self.max_iteration_),
             Gem::Common::make_member("n_iterations_recorded_", self.n_iterations_recorded_),
-            Gem::Common::make_member("n_adaptions_store_", self.n_adaptions_store_)
+            Gem::Common::make_member("n_adaptions_store_", self.n_adaptions_store_),
+            Gem::Common::make_member("fitness_store_", self.fitness_store_)
         );
     }
 
@@ -1891,19 +1887,6 @@ private:
     std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions_ =
         std::tuple<std::uint32_t, std::uint32_t>(1200, 1600); ///< The dimensions of the canvas
 
-    Gem::Common::GPlotDesigner gpd_{
-        "Number of adaptions per iteration",
-        1,
-        2
-    }; ///< A wrapper for the plots
-
-    std::shared_ptr<Gem::Common::GHistogram2D>
-        n_adaptions_hist2_d_oa_; ///< Holds the actual histogram
-    std::shared_ptr<Gem::Common::GGraph2D>
-        n_adaptions_graph2_d_oa_; ///< Used if we only monitor the best solution in each iteration
-    std::shared_ptr<Gem::Common::GGraph2D>
-        fitness_graph2_d_oa_; ///< Lets us monitor the current fitness of the population
-
     bool monitor_best_only_ =
         false; ///< Indicates whether only the best individuals should be monitored
     bool add_print_command_ =
@@ -1914,7 +1897,9 @@ private:
         0; ///< Holds the number of iterations that were recorded (not necessarily == max_iteration_
 
     std::vector<std::tuple<double, double>>
-        n_adaptions_store_; ///< Holds all information about the number of adaptions
+        n_adaptions_store_; ///< Holds all (iteration, n-adaptions) data points
+    std::vector<std::tuple<double, double>>
+        fitness_store_; ///< Holds all (iteration, best-fitness) data points for the current run
 };
 
 /******************************************************************************/
