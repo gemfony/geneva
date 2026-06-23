@@ -165,3 +165,45 @@ TEST_CASE("GProgressPlotterT with no profiled variable still writes an (empty) c
 
     std::filesystem::remove(out);
 }
+
+/******************************************************************************/
+
+TEST_CASE("GFitnessMonitor accumulates over a real EA without the legacy plotter API", "[monitor][plot][oa]") {
+    // GFitnessMonitor records the global- and iteration-best fitness curves but never renders
+    // them (no output file). After its migration onto GDataLog this exercises the new declare /
+    // overlay / append path under a real optimization; the check is that a full run completes.
+    auto monitor = std::make_shared<Gem::Geneva::GFitnessMonitor>();
+    monitor->setNMonitorIndividuals(2);
+
+    auto p = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    p->setPopulationSizes(12, 4);
+    p->setMaxIteration(5);
+    p->setReportIteration(100000);
+    Sphere3 src;
+    p->push_back(src.clone_unique());
+    p->setAdaptionConfig(src.buildAdaptionConfig());
+    p->registerPluggableOM(monitor);
+
+    REQUIRE_NOTHROW(p->optimize());
+}
+
+/******************************************************************************/
+
+TEST_CASE("GFitnessMonitor survives a Pareto run (varying best count)", "[monitor][plot][oa][pareto]") {
+    // A Pareto sorting scheme can vary the number of best individuals per iteration, exercising
+    // the monitor's "reduce monitored series to 1" branch. It must not crash.
+    auto monitor = std::make_shared<Gem::Geneva::GFitnessMonitor>();
+    monitor->setNMonitorIndividuals(3);
+
+    auto p = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    p->setPopulationSizes(16, 5);
+    p->setMaxIteration(5);
+    p->setReportIteration(100000);
+    p->setSortingScheme(Gem::Geneva::sortingMode::MUPLUSNU_PARETO);
+    Sphere3 src;
+    p->push_back(src.clone_unique());
+    p->setAdaptionConfig(src.buildAdaptionConfig());
+    p->registerPluggableOM(monitor);
+
+    REQUIRE_NOTHROW(p->optimize());
+}

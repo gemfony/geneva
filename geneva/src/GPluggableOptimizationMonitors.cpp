@@ -248,16 +248,9 @@ GFitnessMonitor::GFitnessMonitor(const GFitnessMonitor &cp)
   , x_dim_(cp.x_dim_)
   , y_dim_(cp.y_dim_)
   , n_monitor_inds_(cp.n_monitor_inds_)
-  , result_file_(cp.result_file_)
-  , info_init_run_(cp.info_init_run_) {
-    Gem::Common::copyCloneableSmartPointerContainer(
-        cp.global_fitness_graph_vec_,
-        global_fitness_graph_vec_
-    );
-    Gem::Common::copyCloneableSmartPointerContainer(
-        cp.iteration_fitness_graph_vec_,
-        iteration_fitness_graph_vec_
-    );
+  , result_file_(cp.result_file_) {
+    // data_log_ and the series-id vectors are transient run state (rebuilt on the first
+    // processing call) and are intentionally not copied.
 }
 
 /******************************************************************************/
@@ -401,7 +394,7 @@ void GFitnessMonitor::informationFunction_(
         //------------------------------------------------------------------------------
         // Setup of local vectors
 
-        if(not info_init_run_) {
+        if(not data_log_.has_value()) {
             // Reset the number of monitored individuals to a suitable value, if necessary.
             if(n_monitor_inds_ > global_bests.size()) {
                 glogger << "In GFitnessMonitor::informationFunction_(): Warning!" << '\n'
@@ -414,34 +407,28 @@ void GFitnessMonitor::informationFunction_(
                 n_monitor_inds_ = global_bests.size();
             }
 
-            // Set up the plotters
+            // Set up the data log: one "global best" curve per monitored individual, each with an
+            // overlaid "iteration best" curve sharing its pad (the former secondary-plotter pairing).
+            data_log_.emplace("Fitness progress information", n_monitor_inds_, 1);
+            data_log_->setCanvasDimensions(x_dim_, y_dim_);
             for(std::size_t ind = 0; ind < n_monitor_inds_; ind++) {
-                std::shared_ptr<Gem::Common::GGraph2D> global_graph(new Gem::Common::GGraph2D());
-                global_graph->setXAxisLabel("Iteration");
-                global_graph->setYAxisLabel("Best Fitness");
-                global_graph->setPlotLabel(
-                    std::string("Individual ") + Gem::Common::to_string(ind)
-                );
-                global_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+                Gem::Common::GPlotSpec global_spec(Gem::Common::plotKind::graph_2d);
+                global_spec.plot_mode = Gem::Common::graphPlotMode::CURVE;
+                global_spec.name = std::string("Individual ") + Gem::Common::to_string(ind);
+                global_spec.x_label = "Iteration";
+                global_spec.y_label = "Best Fitness";
+                global_spec.columns = {"x", "y"};
+                const auto gid = data_log_->declareSeries(global_spec);
+                global_series_ids_.push_back(gid);
 
-                global_fitness_graph_vec_.push_back(global_graph);
-
-                std::shared_ptr<Gem::Common::GGraph2D> iteration_graph(new Gem::Common::GGraph2D());
-                iteration_graph->setXAxisLabel("Iteration");
-                iteration_graph->setYAxisLabel("Best Fitness");
-                iteration_graph->setPlotLabel(
-                    std::string("Individual ") + Gem::Common::to_string(ind)
-                );
-                iteration_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-
-                iteration_fitness_graph_vec_.push_back(iteration_graph);
-
-                // Add the iteration graph as secondary plotter
-                global_graph->registerSecondaryPlotter(iteration_graph);
+                Gem::Common::GPlotSpec iter_spec(Gem::Common::plotKind::graph_2d);
+                iter_spec.plot_mode = Gem::Common::graphPlotMode::CURVE;
+                iter_spec.name = std::string("Individual ") + Gem::Common::to_string(ind);
+                iter_spec.x_label = "Iteration";
+                iter_spec.y_label = "Best Fitness";
+                iter_spec.columns = {"x", "y"};
+                iteration_series_ids_.push_back(data_log_->overlaySeries(gid, iter_spec));
             }
-
-            // Make sure global_fitness_graph_vec_ is only initialized once
-            info_init_run_ = true;
         }
         else {
             // We might have a situation where the number of best individuals changes in each
@@ -465,36 +452,34 @@ void GFitnessMonitor::informationFunction_(
                     << GWARNING;
 
                 n_monitor_inds_ = 1;
-                global_fitness_graph_vec_.resize(1);
-                iteration_fitness_graph_vec_.resize(1);
+                global_series_ids_.resize(1);
+                iteration_series_ids_.resize(1);
             }
         }
 
         //------------------------------------------------------------------------------
-        // Fill in the data for the best individuals
+        // Fill in the data for the best individuals (the first n_monitor_inds_ bests)
 
-        std::vector<std::shared_ptr<Gem::Common::GGraph2D>>::iterator global_it;
-        std::vector<std::shared_ptr<Gem::Common::GGraph2D>>::iterator iter_it;
-        std::vector<std::shared_ptr<gen::GOptimizableEntity>>::iterator global_ind_it;
-        std::vector<std::shared_ptr<gen::GOptimizableEntity>>::iterator iter_ind_it;
-
-        std::size_t m_ind = 0;
-        for(global_it = global_fitness_graph_vec_.begin(),
-        iter_it = iteration_fitness_graph_vec_.begin(),
-        global_ind_it = global_bests.begin(),
-        iter_ind_it = iter_bests.begin();
-            global_it != global_fitness_graph_vec_.end();
-            ++global_it, ++iter_it, ++global_ind_it, ++iter_ind_it) {
-            (*global_it)
-                ->add(Gem::Common::narrow<double>(iteration), (*global_ind_it)->raw_fitness(0));
-            (*iter_it)->add(Gem::Common::narrow<double>(iteration), (*iter_ind_it)->raw_fitness(0));
+        for(std::size_t m_ind = 0; m_ind < global_series_ids_.size(); ++m_ind) {
+            data_log_->append(
+                global_series_ids_[m_ind],
+                Gem::Common::narrow<double>(iteration),
+                global_bests[m_ind]->raw_fitness(0)
+            );
+            data_log_->append(
+                iteration_series_ids_[m_ind],
+                Gem::Common::narrow<double>(iteration),
+                iter_bests[m_ind]->raw_fitness(0)
+            );
         }
 
         //------------------------------------------------------------------------------
 
     } break;
 
-    case Gem::Geneva::infoMode::INFOEND: { /* nothing */
+    case Gem::Geneva::infoMode::INFOEND: {
+        // This monitor accumulates fitness curves but does not itself render them (no output
+        // file was ever written here); the behaviour is preserved unchanged by the migration.
     } break;
     }
 }

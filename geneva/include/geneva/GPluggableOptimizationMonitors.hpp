@@ -168,9 +168,10 @@ class GFitnessMonitor // NOLINT(cppcoreguidelines-special-member-functions)
     /**
      * Single declaration of this class'es local data members, driving
      * serialize(), load_() and compare_() from one place. All members are
-     * handled unconditionally: the two graph vectors are deep-cloned on load
-     * (make_cloneable_container_member); the rest are plain (make_member).
-     * No manual tail is needed.
+     * plain CONFIG (make_member); the accumulated fitness curves live in a
+     * transient GDataLog (data_log_), built lazily on the first processing
+     * call and NOT serialized -- so the monitor no longer carries plotter
+     * objects in its state. No manual tail is needed.
      */
     template <typename Self>
     static auto localMembers_(Self &self) {
@@ -178,10 +179,7 @@ class GFitnessMonitor // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_member("x_dim_", self.x_dim_),
             Gem::Common::make_member("y_dim_", self.y_dim_),
             Gem::Common::make_member("n_monitor_inds_", self.n_monitor_inds_),
-            Gem::Common::make_member("result_file_", self.result_file_),
-            Gem::Common::make_member("info_init_run_", self.info_init_run_),
-            Gem::Common::make_cloneable_container_member("global_fitness_graph_vec_", self.global_fitness_graph_vec_),
-            Gem::Common::make_cloneable_container_member("iteration_fitness_graph_vec_", self.iteration_fitness_graph_vec_)
+            Gem::Common::make_member("result_file_", self.result_file_)
         );
     }
 
@@ -322,12 +320,15 @@ private:
     std::string result_file_ =
         DEFAULTROOTRESULTFILEOM; ///< The name of the file to which data is emitted
 
-    bool info_init_run_ =
-        false; ///< Allows to check whether the INFOINIT section of informationFunction has already been passed at least once
-    std::vector<std::shared_ptr<Gem::Common::GGraph2D>>
-        global_fitness_graph_vec_; ///< Will hold progress information for the globally best individual
-    std::vector<std::shared_ptr<Gem::Common::GGraph2D>>
-        iteration_fitness_graph_vec_; ///< Will hold progress information for an iteration best's individual
+    // Transient run state: the data log accumulates the per-individual fitness curves (one
+    // "global best" series per monitored individual, each with an overlaid "iteration best"
+    // series). It is built lazily on the first processing call -- its presence replaces the
+    // former info_init_run_ flag -- and is NOT part of the monitor's serialized config.
+    std::optional<Gem::Common::GDataLog> data_log_;
+    std::vector<Gem::Common::GDataLog::SeriesId>
+        global_series_ids_; ///< ids of the "global best" series (one per monitored individual)
+    std::vector<Gem::Common::GDataLog::SeriesId>
+        iteration_series_ids_; ///< ids of the overlaid "iteration best" series
 };
 
 /******************************************************************************/
