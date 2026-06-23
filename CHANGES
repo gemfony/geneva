@@ -511,6 +511,24 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- The plotting library gained a plotter-object-free data-logging API, GDataLog, and
+  all production code was moved onto it. A monitor (or any recorder) now declares the
+  plots it wants as GPlotSpec values (declareSeries / overlaySeries) and pushes data
+  rows (append), then writes the result (writeToFile); GDataLog materializes the
+  concrete plotters internally via makePlotter() and renders through any backend. The
+  previous model -- programming directly against the fused plotter objects (new
+  GGraph2D / GHistogram2D ... -> add() -> registerPlotter -> GPlotDesigner.writeToFile),
+  with those objects kept as serialized monitor state -- was kept only for convenience.
+  Every pluggable monitor (GProgressPlotterT, GFitnessMonitor, GNAdpationsLogger,
+  GAdaptorPropertyLoggerT, GProcessingTimesLogger) and the meta-optimizer's progress
+  monitor (GOptOptMonitorT) now records through a transient GDataLog instead of holding
+  plotter objects; their serialized state is reduced to plain configuration plus, where
+  applicable, the accumulated data points. Emitted output is unchanged (byte-identical
+  ROOT). As part of this, GPlotSpec now also carries a histogram's fixed value range, so
+  a fixed-range histogram round-trips through the data-log API (and an integer histogram,
+  which has no auto-range form, can be reconstructed from its spec). This is a precursor
+  to extracting the plotting code into its own library.
+
 - GParameterScan's scan-parameter objects (GBScanPar / GInt32ScanPar / GDScanPar /
   GFScanPar) were given the Gemfony common interface (clone_() / load_() / compare_()).
   This lets the four scan-parameter vectors be folded into the single-source
