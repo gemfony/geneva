@@ -5231,6 +5231,18 @@ void GDataLog::append(SeriesId id, double x, double y, double z, double w) {
 }
 
 /******************************************************************************/
+/** @brief Convenience append for a 3-column series from an (x, y, z) tuple */
+void GDataLog::append(SeriesId id, const std::tuple<double, double, double> &row) {
+    this->append(id, std::get<0>(row), std::get<1>(row), std::get<2>(row));
+}
+
+/******************************************************************************/
+/** @brief Convenience append for a 4-column series from an (x, y, z, w) tuple */
+void GDataLog::append(SeriesId id, const std::tuple<double, double, double, double> &row) {
+    this->append(id, std::get<0>(row), std::get<1>(row), std::get<2>(row), std::get<3>(row));
+}
+
+/******************************************************************************/
 /**
  * Sets the canvas pixel dimensions, forwarded to the built GPlotDesigner.
  *

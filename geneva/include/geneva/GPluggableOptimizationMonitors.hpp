@@ -483,22 +483,20 @@ class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
     /***************************************************************************/
     /**
      * Single declaration of this class'es unconditionally-handled local data
-     * members, driving serialize(), load_() and compare_() from one place.
-     * The three progress_plotter*_d_oa_ smart pointers are deep-cloned on load
-     * (make_cloneable_member); the rest are plain config members (make_member).
+     * members, driving serialize(), load_() and compare_() from one place. These are
+     * all plain CONFIG members (make_member); the accumulated plot data lives in a
+     * transient GDataLog (data_log_), built per run and NOT serialized -- so the monitor
+     * no longer carries plotter objects in its state.
      *
      * Handled manually (NOT in this tuple): fp_prof_var_vec_, a
      * std::vector<parPropSpec<fp_type>> of VALUE objects deep-copied via
-     * copyCloneableObjectsContainer() (no tagged tie for value containers), and
-     * gpd_, a GPlotDesigner VALUE member loaded via gpd_.load() rather than a
-     * plain assignment. Both stay in the documented manual tail.
+     * copyCloneableObjectsContainer() (no tagged tie for value containers). It stays in
+     * the documented manual tail.
      */
     template <typename Self>
     static auto localMembers_(Self &self) {
         return std::make_tuple(
-            Gem::Common::make_cloneable_member("progress_plotter2_d_oa_", self.progress_plotter2_d_oa_),
-            Gem::Common::make_cloneable_member("progress_plotter3_d_oa_", self.progress_plotter3_d_oa_),
-            Gem::Common::make_cloneable_member("progress_plotter4_d_oa_", self.progress_plotter4_d_oa_),
+            Gem::Common::make_member("canvas_label_", self.canvas_label_),
             Gem::Common::make_member("file_name_", self.file_name_),
             Gem::Common::make_member("canvas_dimensions_", self.canvas_dimensions_),
             Gem::Common::make_member("monitor_best_only_", self.monitor_best_only_),
@@ -517,9 +515,8 @@ class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
             boost::serialization::base_object<oa::GBasePluggableOM>(*this)
         );
 
-        // Manual tail (kept first to preserve the wire order): the value-object
-        // container and the GPlotDesigner value member.
-        ar & BOOST_SERIALIZATION_NVP(fp_prof_var_vec_) & BOOST_SERIALIZATION_NVP(gpd_);
+        // Manual tail (kept first to preserve the wire order): the value-object container.
+        ar & BOOST_SERIALIZATION_NVP(fp_prof_var_vec_);
 
         // The unconditionally-handled members, derived from localMembers().
         Gem::Common::serialize_members(ar, localMembers_(*this));
@@ -549,8 +546,7 @@ public:
 	  * @param monitor_valid_only If true, only individuals with a valid parameter set are recorded
 	  */
     GProgressPlotterT(bool monitor_best_only, bool monitor_valid_only)
-      : gpd_("Progress information", 1, 1)
-      , canvas_dimensions_(std::tuple<std::uint32_t, std::uint32_t>(1024, 768))
+      : canvas_dimensions_(std::tuple<std::uint32_t, std::uint32_t>(1024, 768))
       , monitor_best_only_(monitor_best_only)
       , monitor_valid_only_(monitor_valid_only) { /* nothing */
     }
@@ -563,16 +559,14 @@ public:
 	  */
     GProgressPlotterT(const GProgressPlotterT<fp_type> &cp)
       : oa::GBasePluggableOM(cp)
-      , gpd_(cp.gpd_)
+      , canvas_label_(cp.canvas_label_)
       , file_name_(cp.file_name_)
       , canvas_dimensions_(cp.canvas_dimensions_)
       , monitor_best_only_(cp.monitor_best_only_)
       , monitor_valid_only_(cp.monitor_valid_only_)
       , observe_boundaries_(cp.observe_boundaries_)
       , add_print_command_(cp.add_print_command_) {
-        Gem::Common::copyCloneableSmartPointer(cp.progress_plotter2_d_oa_, progress_plotter2_d_oa_);
-        Gem::Common::copyCloneableSmartPointer(cp.progress_plotter3_d_oa_, progress_plotter3_d_oa_);
-        Gem::Common::copyCloneableSmartPointer(cp.progress_plotter4_d_oa_, progress_plotter4_d_oa_);
+        // data_log_ is transient run state (rebuilt in INFOINIT) and is not copied.
         Gem::Common::copyCloneableObjectsContainer(cp.fp_prof_var_vec_, fp_prof_var_vec_);
     }
 
@@ -784,7 +778,7 @@ public:
 	  * @param canvas_label The label to assign to the canvas
 	  */
     void setCanvasLabel(const std::string &canvas_label) {
-        gpd_.setCanvasLabel(canvas_label);
+        canvas_label_ = canvas_label;
     }
 
     /***************************************************************************/
@@ -794,7 +788,7 @@ public:
 	  * @return The current canvas label
 	  */
     std::string getCanvasLabel() const {
-        return gpd_.getCanvasLabel();
+        return canvas_label_;
     }
 
     /***************************************************************************/
@@ -857,9 +851,8 @@ protected:
         // Load the parent classes' data ...
         oa::GBasePluggableOM::load_(cp);
 
-        // ... the manual tail (value container + GPlotDesigner value member) ...
+        // ... the manual tail (the value-object container) ...
         Gem::Common::copyCloneableObjectsContainer(p_load->fp_prof_var_vec_, fp_prof_var_vec_);
-        gpd_.load(p_load->gpd_);
 
         // ... and then the unconditionally-handled members, derived from localMembers().
         Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
@@ -897,9 +890,8 @@ protected:
         // Compare our parent data ...
         Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
-        // ... the manual tail (value container + GPlotDesigner value member) ...
+        // ... the manual tail (the value-object container) ...
         compare_t(Gem::Common::getIdentity(fp_prof_var_vec_, p_load->fp_prof_var_vec_, "fp_prof_var_vec_", "p_load->fp_prof_var_vec_"), token);
-        compare_t(Gem::Common::getIdentity(gpd_, p_load->gpd_, "gpd_", "p_load->gpd_"), token);
 
         // ... and then the unconditionally-handled members, derived from localMembers().
         Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
@@ -1002,42 +994,45 @@ private:
     void informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override {
         switch(im) {
         case Gem::Geneva::infoMode::INFOINIT: {
+            // Build a fresh data log for this run and DECLARE the series (its plot choice)
+            // -- no plotter objects are created here; the data is pushed in INFOPROCESSING
+            // and the plotters are materialized only at INFOEND via GDataLog.
+            data_log_.emplace(canvas_label_, 1, 1);
+            have_series_ = true;
             switch(this->nProfileVars()) {
             case 1: {
-                progress_plotter2_d_oa_ = std::make_shared<Gem::Common::GGraph2D>();
-
-                progress_plotter2_d_oa_->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-                progress_plotter2_d_oa_->setPlotLabel("Fitness as a function of a parameter value");
-                progress_plotter2_d_oa_->setXAxisLabel(this->getLabel(fp_prof_var_vec_[0]));
-                progress_plotter2_d_oa_->setYAxisLabel("Fitness");
-
-                gpd_.registerPlotter(progress_plotter2_d_oa_);
+                Gem::Common::GPlotSpec spec(Gem::Common::plotKind::graph_2d);
+                spec.plot_mode = Gem::Common::graphPlotMode::CURVE;
+                spec.name = "Fitness as a function of a parameter value";
+                spec.x_label = this->getLabel(fp_prof_var_vec_[0]);
+                spec.y_label = "Fitness";
+                spec.columns = {"x", "y"};
+                active_series_ = data_log_->declareSeries(spec);
             } break;
             case 2: {
-                progress_plotter3_d_oa_ = std::make_shared<Gem::Common::GGraph3D>();
-
-                progress_plotter3_d_oa_->setPlotLabel("Fitness as a function of parameter values");
-                progress_plotter3_d_oa_->setXAxisLabel(this->getLabel(fp_prof_var_vec_[0]));
-                progress_plotter3_d_oa_->setYAxisLabel(this->getLabel(fp_prof_var_vec_[1]));
-                progress_plotter3_d_oa_->setZAxisLabel("Fitness");
-
-                gpd_.registerPlotter(progress_plotter3_d_oa_);
+                Gem::Common::GPlotSpec spec(Gem::Common::plotKind::graph_3d);
+                spec.name = "Fitness as a function of parameter values";
+                spec.x_label = this->getLabel(fp_prof_var_vec_[0]);
+                spec.y_label = this->getLabel(fp_prof_var_vec_[1]);
+                spec.z_label = "Fitness";
+                spec.columns = {"x", "y", "z"};
+                active_series_ = data_log_->declareSeries(spec);
             } break;
 
             case 3: {
-                progress_plotter4_d_oa_ = std::make_shared<Gem::Common::GGraph4D>();
-
-                progress_plotter4_d_oa_->setPlotLabel(
-                    "Fitness (color-coded) as a function of parameter values"
-                );
-                progress_plotter4_d_oa_->setXAxisLabel(this->getLabel(fp_prof_var_vec_[0]));
-                progress_plotter4_d_oa_->setYAxisLabel(this->getLabel(fp_prof_var_vec_[1]));
-                progress_plotter4_d_oa_->setZAxisLabel(this->getLabel(fp_prof_var_vec_[2]));
-
-                gpd_.registerPlotter(progress_plotter4_d_oa_);
+                Gem::Common::GPlotSpec spec(Gem::Common::plotKind::graph_4d);
+                spec.name = "Fitness (color-coded) as a function of parameter values";
+                spec.x_label = this->getLabel(fp_prof_var_vec_[0]);
+                spec.y_label = this->getLabel(fp_prof_var_vec_[1]);
+                spec.z_label = this->getLabel(fp_prof_var_vec_[2]);
+                spec.columns = {"x", "y", "z", "w"};
+                active_series_ = data_log_->declareSeries(spec);
             } break;
 
             default: {
+                // Too many profiling dimensions to display: no series is declared (an
+                // empty canvas is still written at INFOEND, as before).
+                have_series_ = false;
                 glogger << "NOTE: In "
                            "GProgressPlotterT<fp_type>::informationFunction_(infoMode::INFOINIT):"
                         << '\n'
@@ -1048,7 +1043,10 @@ private:
             } break;
             }
 
-            gpd_.setCanvasDimensions(canvas_dimensions_);
+            data_log_->setCanvasDimensions(
+                std::get<0>(canvas_dimensions_),
+                std::get<1>(canvas_dimensions_)
+            );
         } break;
 
         case Gem::Geneva::infoMode::INFOPROCESSING: {
@@ -1072,11 +1070,11 @@ private:
                         if(observe_boundaries_) {
                             if(val0 >= fp_prof_var_vec_[0].lowerBoundary &&
                                val0 <= fp_prof_var_vec_[0].upperBoundary) {
-                                progress_plotter2_d_oa_->add(double(val0), primary_fitness);
+                                data_log_->append(active_series_, double(val0), primary_fitness);
                             }
                         }
                         else {
-                            progress_plotter2_d_oa_->add(double(val0), primary_fitness);
+                            data_log_->append(active_series_, double(val0), primary_fitness);
                         }
                     } break;
 
@@ -1089,7 +1087,7 @@ private:
                                val0 <= fp_prof_var_vec_[0].upperBoundary &&
                                val1 >= fp_prof_var_vec_[1].lowerBoundary &&
                                val1 <= fp_prof_var_vec_[1].upperBoundary) {
-                                progress_plotter3_d_oa_->add(
+                                data_log_->append(active_series_, 
                                     std::tuple<double, double, double>(
                                         double(val0),
                                         double(val1),
@@ -1099,7 +1097,7 @@ private:
                             }
                         }
                         else {
-                            progress_plotter3_d_oa_->add(
+                            data_log_->append(active_series_, 
                                 std::tuple<double, double, double>(
                                     double(val0),
                                     double(val1),
@@ -1121,7 +1119,7 @@ private:
                                val1 <= fp_prof_var_vec_[1].upperBoundary &&
                                val2 >= fp_prof_var_vec_[2].lowerBoundary &&
                                val2 <= fp_prof_var_vec_[2].upperBoundary) {
-                                progress_plotter4_d_oa_->add(
+                                data_log_->append(active_series_, 
                                     std::tuple<double, double, double, double>(
                                         double(val0),
                                         double(val1),
@@ -1132,7 +1130,7 @@ private:
                             }
                         }
                         else {
-                            progress_plotter4_d_oa_->add(
+                            data_log_->append(active_series_, 
                                 std::tuple<double, double, double, double>(
                                     double(val0),
                                     double(val1),
@@ -1167,11 +1165,11 @@ private:
                             if(observe_boundaries_) {
                                 if(val0 >= fp_prof_var_vec_[0].lowerBoundary &&
                                    val0 <= fp_prof_var_vec_[0].upperBoundary) {
-                                    progress_plotter2_d_oa_->add(double(val0), primary_fitness);
+                                    data_log_->append(active_series_, double(val0), primary_fitness);
                                 }
                             }
                             else {
-                                progress_plotter2_d_oa_->add(double(val0), primary_fitness);
+                                data_log_->append(active_series_, double(val0), primary_fitness);
                             }
                         } break;
 
@@ -1188,7 +1186,7 @@ private:
                                    val0 <= fp_prof_var_vec_[0].upperBoundary &&
                                    val1 >= fp_prof_var_vec_[1].lowerBoundary &&
                                    val1 <= fp_prof_var_vec_[1].upperBoundary) {
-                                    progress_plotter3_d_oa_->add(
+                                    data_log_->append(active_series_, 
                                         std::tuple<double, double, double>(
                                             double(val0),
                                             double(val1),
@@ -1198,7 +1196,7 @@ private:
                                 }
                             }
                             else {
-                                progress_plotter3_d_oa_->add(
+                                data_log_->append(active_series_, 
                                     std::tuple<double, double, double>(
                                         double(val0),
                                         double(val1),
@@ -1226,7 +1224,7 @@ private:
                                    val1 <= fp_prof_var_vec_[1].upperBoundary &&
                                    val2 >= fp_prof_var_vec_[2].lowerBoundary &&
                                    val2 <= fp_prof_var_vec_[2].upperBoundary) {
-                                    progress_plotter4_d_oa_->add(
+                                    data_log_->append(active_series_, 
                                         std::tuple<double, double, double, double>(
                                             double(val0),
                                             double(val1),
@@ -1237,7 +1235,7 @@ private:
                                 }
                             }
                             else {
-                                progress_plotter4_d_oa_->add(
+                                data_log_->append(active_series_, 
                                     std::tuple<double, double, double, double>(
                                         double(val0),
                                         double(val1),
@@ -1257,22 +1255,19 @@ private:
         } break;
 
         case Gem::Geneva::infoMode::INFOEND: {
-            // Make sure 1-D data is sorted
-            if(1 == this->nProfileVars()) {
-                progress_plotter2_d_oa_->sortX();
+            if(data_log_.has_value()) {
+                // Make sure 1-D data is sorted (the GGraph2D::sortX() equivalent).
+                if(have_series_ && 1 == this->nProfileVars()) {
+                    data_log_->sortByFirstColumn(active_series_);
+                }
+
+                // Inform the plot designer whether it should print png files, then write.
+                data_log_->setAddPrintCommand(add_print_command_);
+                data_log_->writeToFile(file_name_);
             }
 
-            // Inform the plot designer whether it should print png files
-            gpd_.setAddPrintCommand(add_print_command_);
-
-            // Write out the result.
-            gpd_.writeToFile(file_name_);
-
-            // Remove all plotters
-            gpd_.resetPlotters();
-            progress_plotter2_d_oa_.reset();
-            progress_plotter3_d_oa_.reset();
-            progress_plotter4_d_oa_.reset();
+            // Drop the transient run state.
+            data_log_.reset();
         } break;
         };
     }
@@ -1282,12 +1277,15 @@ private:
     std::vector<gen::parPropSpec<fp_type>>
         fp_prof_var_vec_; ///< Holds information about variables to be profiled
 
-    Gem::Common::GPlotDesigner gpd_{"Progress information", 1, 1}; ///< A wrapper for the plots
+    std::string canvas_label_ = std::string(
+        "Progress information"
+    ); ///< The canvas title (was held by the former GPlotDesigner member)
 
-    // These are temporaries
-    std::shared_ptr<Gem::Common::GGraph2D> progress_plotter2_d_oa_;
-    std::shared_ptr<Gem::Common::GGraph3D> progress_plotter3_d_oa_;
-    std::shared_ptr<Gem::Common::GGraph4D> progress_plotter4_d_oa_;
+    // Transient run state: the data log is built in INFOINIT, filled in INFOPROCESSING and
+    // realized + written in INFOEND. It is NOT part of the monitor's serialized config.
+    std::optional<Gem::Common::GDataLog> data_log_;
+    Gem::Common::GDataLog::SeriesId active_series_ = 0; ///< the series declared for this run
+    bool have_series_ = false; ///< whether a renderable series was declared (nProfileVars 1..3)
 
     std::string file_name_ = std::string(
         "progressScan.C"

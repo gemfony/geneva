@@ -102,6 +102,10 @@ public:
     void append(SeriesId id, double x, double y, double z);
     /** @brief Convenience append for a 4-column (x, y, z, w) series */
     void append(SeriesId id, double x, double y, double z, double w);
+    /** @brief Convenience append for a 3-column series from an (x, y, z) tuple */
+    void append(SeriesId id, const std::tuple<double, double, double> &row);
+    /** @brief Convenience append for a 4-column series from an (x, y, z, w) tuple */
+    void append(SeriesId id, const std::tuple<double, double, double, double> &row);
 
     /**
      * @brief Marks a series so its data is sorted by the first column before rendering
