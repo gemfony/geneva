@@ -46,6 +46,7 @@ SET ( ${EXECUTABLENAME}_SRCS
 	GAdaptionConfigTests.cpp
 	GIndividualSlotTests.cpp
 	GSharedConsumerTests.cpp
+	GProgressPlotterTests.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
