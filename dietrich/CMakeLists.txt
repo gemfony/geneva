@@ -54,6 +54,10 @@ IF ( GENEVA_BUILD_TESTS )
 	ADD_SUBDIRECTORY ( tests )
 ENDIF ()
 
+IF ( GENEVA_BUILD_EXAMPLES )
+	ADD_SUBDIRECTORY ( examples )
+ENDIF ()
+
 # Per-library Doxygen target (doc-dietrich). The CMakeLists short-circuits
 # when Doxygen was not found.
 ADD_SUBDIRECTORY ( doc )
