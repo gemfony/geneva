@@ -46,6 +46,7 @@
 #include "geneva/oa/GAdaption.hpp"
 
 using namespace Gem::Common;
+using namespace Gem::Dietrich; // plotting types live here now
 using namespace Gem::Geneva;
 using namespace Gem::Geneva::Individuals;
 
@@ -56,35 +57,35 @@ int main(int argc, char **argv) {
     GPlotDesigner gpd(caption, 2, 3);
 
     std::shared_ptr<GGraph2D> gdo_adapt_ptr(new GGraph2D());
-    gdo_adapt_ptr->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+    gdo_adapt_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::CURVE);
     gdo_adapt_ptr->setPlotLabel("GDoubleObject");
     gdo_adapt_ptr->setXAxisLabel("x");
     gdo_adapt_ptr->setYAxisLabel("y");
     // gdo_adapt_ptr->setDrawArrows();
 
     std::shared_ptr<GGraph2D> gcdo_adapt_ptr(new GGraph2D());
-    gcdo_adapt_ptr->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+    gcdo_adapt_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::CURVE);
     gcdo_adapt_ptr->setPlotLabel("GConstrainedDoubleObject");
     gcdo_adapt_ptr->setXAxisLabel("x");
     gcdo_adapt_ptr->setYAxisLabel("y");
     // gcdo_adapt_ptr->setDrawArrows();
 
     std::shared_ptr<GGraph2D> gcdoc_adapt_ptr(new GGraph2D());
-    gcdoc_adapt_ptr->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+    gcdoc_adapt_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::CURVE);
     gcdoc_adapt_ptr->setPlotLabel("GConstrainedDoubleObjectCollection");
     gcdoc_adapt_ptr->setXAxisLabel("x");
     gcdoc_adapt_ptr->setYAxisLabel("y");
     // gcdoc_adapt_ptr->setDrawArrows();
 
     std::shared_ptr<GGraph2D> gdc_adapt_ptr(new GGraph2D());
-    gdc_adapt_ptr->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+    gdc_adapt_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::CURVE);
     gdc_adapt_ptr->setPlotLabel("GDoubleCollection");
     gdc_adapt_ptr->setXAxisLabel("x");
     gdc_adapt_ptr->setYAxisLabel("y");
     // gdc_adapt_ptr->setDrawArrows();
 
     std::shared_ptr<GGraph2D> gcdc_adapt_ptr(new GGraph2D());
-    gcdc_adapt_ptr->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+    gcdc_adapt_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::CURVE);
     gcdc_adapt_ptr->setPlotLabel("GConstrainedDoubleCollection");
     gcdc_adapt_ptr->setXAxisLabel("x");
     gcdc_adapt_ptr->setYAxisLabel("y");

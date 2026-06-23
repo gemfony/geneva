@@ -413,8 +413,8 @@ void GFitnessMonitor::informationFunction_(
             data_log_.emplace("Fitness progress information", n_monitor_inds_, 1);
             data_log_->setCanvasDimensions(x_dim_, y_dim_);
             for(std::size_t ind = 0; ind < n_monitor_inds_; ind++) {
-                Gem::Common::GPlotSpec global_spec(Gem::Common::plotKind::graph_2d);
-                global_spec.plot_mode = Gem::Common::graphPlotMode::CURVE;
+                Gem::Dietrich::GPlotSpec global_spec(Gem::Dietrich::plotKind::graph_2d);
+                global_spec.plot_mode = Gem::Dietrich::graphPlotMode::CURVE;
                 global_spec.name = std::string("Individual ") + Gem::Common::to_string(ind);
                 global_spec.x_label = "Iteration";
                 global_spec.y_label = "Best Fitness";
@@ -422,8 +422,8 @@ void GFitnessMonitor::informationFunction_(
                 const auto gid = data_log_->declareSeries(global_spec);
                 global_series_ids_.push_back(gid);
 
-                Gem::Common::GPlotSpec iter_spec(Gem::Common::plotKind::graph_2d);
-                iter_spec.plot_mode = Gem::Common::graphPlotMode::CURVE;
+                Gem::Dietrich::GPlotSpec iter_spec(Gem::Dietrich::plotKind::graph_2d);
+                iter_spec.plot_mode = Gem::Dietrich::graphPlotMode::CURVE;
                 iter_spec.name = std::string("Individual ") + Gem::Common::to_string(ind);
                 iter_spec.x_label = "Iteration";
                 iter_spec.y_label = "Best Fitness";
@@ -1693,6 +1693,7 @@ void GNAdpationsLogger::informationFunction_(
     oa::GOptimizationAlgorithmBase const *const goa
 ) {
     using namespace Gem::Common;
+    using namespace Gem::Dietrich; // GDataLog / GPlotSpec / plotKind / graphPlotMode
 
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT: {
@@ -2196,8 +2197,8 @@ void GProcessingTimesLogger::informationFunction_(
         // Build the 1-d timing-histogram log and declare its four auto-ranged histograms in the
         // fixed { pre, main, post, all } order, so they land on the same 2x2 pads as before.
         {
-            using Gem::Common::GPlotSpec;
-            using Gem::Common::plotKind;
+            using Gem::Dietrich::GPlotSpec;
+            using Gem::Dietrich::plotKind;
             log_pth_.emplace("Timings for the processing steps of individuals", 2, 2);
             log_pth_->setCanvasDimensions(
                 std::get<0>(canvas_dimensions_pth_), std::get<1>(canvas_dimensions_pth_)
@@ -2241,8 +2242,8 @@ void GProcessingTimesLogger::informationFunction_(
         // Build the 2-d timing-vs-iteration log and declare its four auto-ranged histograms in the
         // same fixed { pre, main, post, all } order.
         {
-            using Gem::Common::GPlotSpec;
-            using Gem::Common::plotKind;
+            using Gem::Dietrich::GPlotSpec;
+            using Gem::Dietrich::plotKind;
             log_pth2_.emplace("Timings for the processing steps of individuals vs. iteration", 2, 2);
             log_pth2_->setCanvasDimensions(
                 std::get<0>(canvas_dimensions_pth2_), std::get<1>(canvas_dimensions_pth2_)

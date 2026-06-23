@@ -47,6 +47,7 @@
 #include "hap/GRandomT.hpp"
 
 using namespace Gem::Common;
+using namespace Gem::Dietrich; // plotting types live here now
 using namespace Gem::Hap;
 
 const std::size_t NPOINTS = 10000;

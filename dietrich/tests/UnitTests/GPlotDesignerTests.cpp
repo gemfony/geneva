@@ -45,6 +45,7 @@
 #include "dietrich/GPlotDesigner.hpp"
 
 using namespace Gem::Common;
+using namespace Gem::Dietrich; // the plotting types under test live here
 
 namespace {
 /** Concatenate a plotter's three emission sections for substring assertions. */

@@ -31,7 +31,7 @@
 
 #include <string>
 
-namespace Gem::Common {
+namespace Gem::Dietrich {
 
 /******************************************************************************/
 
@@ -213,4 +213,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Common */
+} /* namespace Gem::Dietrich */

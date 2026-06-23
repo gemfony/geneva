@@ -37,7 +37,12 @@
 #include "dietrich/plotting/GDecorators.hpp"
 #include "dietrich/plotting/GPlotSpec.hpp"
 
-namespace Gem::Common {
+namespace Gem::Dietrich {
+
+// The plotting library builds on common's facilities (logging, serialization helpers,
+// exception types, make_member, EmitStream, ...); make them visible here without
+// per-name qualification. This affects lookup only within Gem::Dietrich.
+using namespace Gem::Common;
 
 /******************************************************************************/
 /**
@@ -295,7 +300,7 @@ protected:
     void load_(const GBasePlotter *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GBasePlotter>(GBasePlotter const &, GBasePlotter const &, GToken &);
+    friend void Gem::Common::compare_base_t<GBasePlotter>(GBasePlotter const &, GBasePlotter const &, GToken &);
 
     /**
      * @brief Searches for compliance with expectations with respect to another object of the same type
@@ -408,4 +413,4 @@ private:
 };
 
 
-} /* namespace Gem::Common */
+} /* namespace Gem::Dietrich */

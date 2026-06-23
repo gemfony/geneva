@@ -31,7 +31,12 @@
 
 #include "dietrich/plotting/GPlotEnums.hpp"
 
-namespace Gem::Common {
+namespace Gem::Dietrich {
+
+// The plotting library builds on common's facilities (logging, serialization helpers,
+// exception types, make_member, EmitStream, ...); make them visible here without
+// per-name qualification. This affects lookup only within Gem::Dietrich.
+using namespace Gem::Common;
 
 /******************************************************************************/
 /**
@@ -150,7 +155,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GDecorator<dimensions::Dim2, coordinate_type>>(
+    friend void Gem::Common::compare_base_t<GDecorator<dimensions::Dim2, coordinate_type>>(
         GDecorator<dimensions::Dim2, coordinate_type> const &,
         GDecorator<dimensions::Dim2, coordinate_type> const &,
         GToken &
@@ -178,7 +183,7 @@ protected:
         GToken token("GDecorator<dimensions::Dim2, coordinate_type>", e);
 
         // Compare our parent data ...
-        compare_base_t<GCommonInterfaceT<GDecorator<dimensions::Dim2, coordinate_type>>>(
+        Gem::Common::compare_base_t<GCommonInterfaceT<GDecorator<dimensions::Dim2, coordinate_type>>>(
             *this,
             *p_load,
             token
@@ -374,7 +379,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GMarker<coordinate_type>>(
+    friend void Gem::Common::compare_base_t<GMarker<coordinate_type>>(
         GMarker<coordinate_type> const &,
         GMarker<coordinate_type> const &,
         GToken &
@@ -402,7 +407,7 @@ protected:
         GToken token("GMarker<coordinate_type>", e);
 
         // Compare our parent data ...
-        compare_base_t<GDecorator<dimensions::Dim2, coordinate_type>>(*this, *p_load, token);
+        Gem::Common::compare_base_t<GDecorator<dimensions::Dim2, coordinate_type>>(*this, *p_load, token);
 
         // ... and then our local data, derived from the single localMembers() declaration
         g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
@@ -556,7 +561,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GDecorator<dimensions::Dim3, coordinate_type>>(
+    friend void Gem::Common::compare_base_t<GDecorator<dimensions::Dim3, coordinate_type>>(
         GDecorator<dimensions::Dim3, coordinate_type> const &,
         GDecorator<dimensions::Dim3, coordinate_type> const &,
         GToken &
@@ -584,7 +589,7 @@ protected:
         GToken token("GDecorator<dimensions::Dim3, coordinate_type>", e);
 
         // Compare our parent data ...
-        compare_base_t<GCommonInterfaceT<GDecorator<dimensions::Dim3, coordinate_type>>>(
+        Gem::Common::compare_base_t<GCommonInterfaceT<GDecorator<dimensions::Dim3, coordinate_type>>>(
             *this,
             *p_load,
             token
@@ -754,7 +759,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GDecoratorContainer<dimensions::Dim2, coordinate_type>>(
+    friend void Gem::Common::compare_base_t<GDecoratorContainer<dimensions::Dim2, coordinate_type>>(
         GDecoratorContainer<dimensions::Dim2, coordinate_type> const &,
         GDecoratorContainer<dimensions::Dim2, coordinate_type> const &,
         GToken &
@@ -782,7 +787,7 @@ protected:
         GToken token("GDecoratorContainer<dimensions::Dim2>", e);
 
         // Compare our parent data ...
-        compare_base_t<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2, coordinate_type>>>(
+        Gem::Common::compare_base_t<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2, coordinate_type>>>(
             *this,
             *p_load,
             token
@@ -873,7 +878,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GDecoratorContainer_2D<coordinate_type>>(
+    friend void Gem::Common::compare_base_t<GDecoratorContainer_2D<coordinate_type>>(
         GDecoratorContainer_2D<coordinate_type> const &,
         GDecoratorContainer_2D<coordinate_type> const &,
         GToken &
@@ -901,7 +906,7 @@ protected:
         GToken token("GDecoratorContainer_2D<dimensions::Dim2>", e);
 
         // Compare our parent data ...
-        compare_base_t<GDecoratorContainer<dimensions::Dim2, coordinate_type>>(
+        Gem::Common::compare_base_t<GDecoratorContainer<dimensions::Dim2, coordinate_type>>(
             *this,
             *p_load,
             token
@@ -1068,7 +1073,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GDecoratorContainer<dimensions::Dim3, coordinate_type>>(
+    friend void Gem::Common::compare_base_t<GDecoratorContainer<dimensions::Dim3, coordinate_type>>(
         GDecoratorContainer<dimensions::Dim3, coordinate_type> const &,
         GDecoratorContainer<dimensions::Dim3, coordinate_type> const &,
         GToken &
@@ -1096,7 +1101,7 @@ protected:
         GToken token("GDecoratorContainer<dimensions::Dim3>", e);
 
         // Compare our parent data ...
-        compare_base_t<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3, coordinate_type>>>(
+        Gem::Common::compare_base_t<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3, coordinate_type>>>(
             *this,
             *p_load,
             token
@@ -1187,7 +1192,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GDecoratorContainer_3D<coordinate_type>>(
+    friend void Gem::Common::compare_base_t<GDecoratorContainer_3D<coordinate_type>>(
         GDecoratorContainer_3D<coordinate_type> const &,
         GDecoratorContainer_3D<coordinate_type> const &,
         GToken &
@@ -1215,7 +1220,7 @@ protected:
         GToken token("GDecoratorContainer_3D<dimensions::Dim2>", e);
 
         // Compare our parent data ...
-        compare_base_t<GDecoratorContainer<dimensions::Dim3, coordinate_type>>(
+        Gem::Common::compare_base_t<GDecoratorContainer<dimensions::Dim3, coordinate_type>>(
             *this,
             *p_load,
             token
@@ -1264,4 +1269,4 @@ private:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 
-} /* namespace Gem::Common */
+} /* namespace Gem::Dietrich */

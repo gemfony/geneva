@@ -53,6 +53,7 @@
 
 using namespace Gem::Hap;
 using namespace Gem::Common;
+using namespace Gem::Dietrich; // plotting types live here now
 using namespace boost;
 
 const std::size_t NENTRIES = 100000;

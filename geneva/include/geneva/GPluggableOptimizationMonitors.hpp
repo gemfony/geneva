@@ -324,10 +324,10 @@ private:
     // "global best" series per monitored individual, each with an overlaid "iteration best"
     // series). It is built lazily on the first processing call -- its presence replaces the
     // former info_init_run_ flag -- and is NOT part of the monitor's serialized config.
-    std::optional<Gem::Common::GDataLog> data_log_;
-    std::vector<Gem::Common::GDataLog::SeriesId>
+    std::optional<Gem::Dietrich::GDataLog> data_log_;
+    std::vector<Gem::Dietrich::GDataLog::SeriesId>
         global_series_ids_; ///< ids of the "global best" series (one per monitored individual)
-    std::vector<Gem::Common::GDataLog::SeriesId>
+    std::vector<Gem::Dietrich::GDataLog::SeriesId>
         iteration_series_ids_; ///< ids of the overlaid "iteration best" series
 };
 
@@ -1002,8 +1002,8 @@ private:
             have_series_ = true;
             switch(this->nProfileVars()) {
             case 1: {
-                Gem::Common::GPlotSpec spec(Gem::Common::plotKind::graph_2d);
-                spec.plot_mode = Gem::Common::graphPlotMode::CURVE;
+                Gem::Dietrich::GPlotSpec spec(Gem::Dietrich::plotKind::graph_2d);
+                spec.plot_mode = Gem::Dietrich::graphPlotMode::CURVE;
                 spec.name = "Fitness as a function of a parameter value";
                 spec.x_label = this->getLabel(fp_prof_var_vec_[0]);
                 spec.y_label = "Fitness";
@@ -1011,7 +1011,7 @@ private:
                 active_series_ = data_log_->declareSeries(spec);
             } break;
             case 2: {
-                Gem::Common::GPlotSpec spec(Gem::Common::plotKind::graph_3d);
+                Gem::Dietrich::GPlotSpec spec(Gem::Dietrich::plotKind::graph_3d);
                 spec.name = "Fitness as a function of parameter values";
                 spec.x_label = this->getLabel(fp_prof_var_vec_[0]);
                 spec.y_label = this->getLabel(fp_prof_var_vec_[1]);
@@ -1021,7 +1021,7 @@ private:
             } break;
 
             case 3: {
-                Gem::Common::GPlotSpec spec(Gem::Common::plotKind::graph_4d);
+                Gem::Dietrich::GPlotSpec spec(Gem::Dietrich::plotKind::graph_4d);
                 spec.name = "Fitness (color-coded) as a function of parameter values";
                 spec.x_label = this->getLabel(fp_prof_var_vec_[0]);
                 spec.y_label = this->getLabel(fp_prof_var_vec_[1]);
@@ -1284,8 +1284,8 @@ private:
 
     // Transient run state: the data log is built in INFOINIT, filled in INFOPROCESSING and
     // realized + written in INFOEND. It is NOT part of the monitor's serialized config.
-    std::optional<Gem::Common::GDataLog> data_log_;
-    Gem::Common::GDataLog::SeriesId active_series_ = 0; ///< the series declared for this run
+    std::optional<Gem::Dietrich::GDataLog> data_log_;
+    Gem::Dietrich::GDataLog::SeriesId active_series_ = 0; ///< the series declared for this run
     bool have_series_ = false; ///< whether a renderable series was declared (nProfileVars 1..3)
 
     std::string file_name_ = std::string(
@@ -2296,6 +2296,7 @@ private:
      */
     void informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override {
         using namespace Gem::Common;
+        using namespace Gem::Dietrich; // GDataLog / GPlotSpec / plotKind / graphPlotMode
 
         switch(im) {
         case Gem::Geneva::infoMode::INFOINIT: {
@@ -2696,10 +2697,10 @@ private:
     // histograms), built at INFOINIT, filled in INFOPROCESSING and written at INFOEND. They
     // are NOT part of the monitor's serialized config. The id vectors hold the four series of
     // each log in the fixed order { pre, main, post, all }.
-    std::optional<Gem::Common::GDataLog> log_pth_;
-    std::optional<Gem::Common::GDataLog> log_pth2_;
-    std::vector<Gem::Common::GDataLog::SeriesId> pth_ids_;  ///< 1-d histogram series ids
-    std::vector<Gem::Common::GDataLog::SeriesId> pth2_ids_; ///< 2-d histogram series ids
+    std::optional<Gem::Dietrich::GDataLog> log_pth_;
+    std::optional<Gem::Dietrich::GDataLog> log_pth2_;
+    std::vector<Gem::Dietrich::GDataLog::SeriesId> pth_ids_;  ///< 1-d histogram series ids
+    std::vector<Gem::Dietrich::GDataLog::SeriesId> pth2_ids_; ///< 2-d histogram series ids
 };
 
 /******************************************************************************/

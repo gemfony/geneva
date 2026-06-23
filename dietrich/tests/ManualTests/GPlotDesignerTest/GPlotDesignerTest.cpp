@@ -40,6 +40,7 @@
 #include "dietrich/GPlotDesigner.hpp"
 
 using namespace Gem::Common;
+using namespace Gem::Dietrich; // the plotting types live here
 
 int main(int argc, char **argv) {
     std::tuple<double, double> minMaxX(
@@ -52,19 +53,19 @@ int main(int argc, char **argv) {
     );
 
     std::shared_ptr<GGraph2D> gsin_ptr(new GGraph2D());
-    gsin_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
+    gsin_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::SCATTER);
     gsin_ptr->setPlotLabel("Sine and cosine functions, plotted through TGraph");
     gsin_ptr->setXAxisLabel("x");
     gsin_ptr->setYAxisLabel("sin(x) vs. cos(x)");
 
     std::shared_ptr<GGraph2D> gcos_ptr(new GGraph2D());
-    gcos_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
+    gcos_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::SCATTER);
     gcos_ptr->setPlotLabel("A cosine function, plotted through TGraph");
     gcos_ptr->setXAxisLabel("x");
     gcos_ptr->setYAxisLabel("cos(x)");
 
     std::shared_ptr<GGraph2D> gcos_ptr_2(new GGraph2D());
-    gcos_ptr_2->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
+    gcos_ptr_2->setPlotMode(Gem::Dietrich::graphPlotMode::SCATTER);
     gsin_ptr->registerSecondaryPlotter(gcos_ptr_2);
 
     for(std::size_t i = 0; i < 1000; i++) {
@@ -125,14 +126,14 @@ int main(int argc, char **argv) {
     // backend supports only the graph plotters (GGraph2D/2ED/3D/4D), so this uses
     // a separate designer that registers only graphs (no functions / histograms).
     std::shared_ptr<GGraph2D> gp_sin_ptr(new GGraph2D());
-    gp_sin_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
+    gp_sin_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::SCATTER);
     gp_sin_ptr->setPlotLabel("sin(x), gnuplot");
     gp_sin_ptr->setXAxisLabel("x");
     gp_sin_ptr->setYAxisLabel("sin(x)");
 
     // A secondary plotter sharing the first pad (a second inline dataset).
     std::shared_ptr<GGraph2D> gp_cos_ptr(new GGraph2D());
-    gp_cos_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
+    gp_cos_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::SCATTER);
     gp_cos_ptr->setPlotLabel("cos(x), gnuplot");
     gp_sin_ptr->registerSecondaryPlotter(gp_cos_ptr);
 
@@ -153,7 +154,7 @@ int main(int argc, char **argv) {
     }
 
     GPlotDesigner gpd_gnuplot("Graphs through gnuplot", 1, 2);
-    gpd_gnuplot.setPlotBackend(Gem::Common::plotBackend::GNUPLOT);
+    gpd_gnuplot.setPlotBackend(Gem::Dietrich::plotBackend::GNUPLOT);
     gpd_gnuplot.registerPlotter(gp_sin_ptr);
     gpd_gnuplot.registerPlotter(gp_helix_ptr);
     gpd_gnuplot.writeToFile("result.gp");
@@ -164,14 +165,14 @@ int main(int argc, char **argv) {
     // used because a plotter is registered into exactly one designer; the data is
     // identical to the gnuplot demo above.
     std::shared_ptr<GGraph2D> mpl_sin_ptr(new GGraph2D());
-    mpl_sin_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
+    mpl_sin_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::SCATTER);
     mpl_sin_ptr->setPlotLabel("sin(x), matplotlib");
     mpl_sin_ptr->setXAxisLabel("x");
     mpl_sin_ptr->setYAxisLabel("sin(x)");
 
     // A secondary plotter sharing the first pad (overlaid on the same axes).
     std::shared_ptr<GGraph2D> mpl_cos_ptr(new GGraph2D());
-    mpl_cos_ptr->setPlotMode(Gem::Common::graphPlotMode::SCATTER);
+    mpl_cos_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::SCATTER);
     mpl_cos_ptr->setPlotLabel("cos(x), matplotlib");
     mpl_sin_ptr->registerSecondaryPlotter(mpl_cos_ptr);
 
@@ -222,7 +223,7 @@ int main(int argc, char **argv) {
     }
 
     GPlotDesigner gpd_mpl("Graphs and histograms through matplotlib", 2, 3);
-    gpd_mpl.setPlotBackend(Gem::Common::plotBackend::MATPLOTLIB);
+    gpd_mpl.setPlotBackend(Gem::Dietrich::plotBackend::MATPLOTLIB);
     gpd_mpl.registerPlotter(mpl_sin_ptr);
     gpd_mpl.registerPlotter(mpl_helix_ptr);
     gpd_mpl.registerPlotter(mpl_hist1d_ptr);
@@ -259,7 +260,7 @@ int main(int argc, char **argv) {
     // CSV mode -> result_data.csv (human-inspectable text).
     {
         GPlotDesigner gpd_csv("Series data (CSV)", 1, 2);
-        gpd_csv.setDataFormat(Gem::Common::dataFormat::CSV);
+        gpd_csv.setDataFormat(Gem::Dietrich::dataFormat::CSV);
         gpd_csv.registerPlotter(data_g2d_ptr);
         gpd_csv.registerPlotter(data_hist1d_ptr);
         gpd_csv.writeToFile("result_data.csv");
@@ -286,7 +287,7 @@ int main(int argc, char **argv) {
 
     {
         GPlotDesigner gpd_npz("Series data (NPZ)", 1, 2);
-        gpd_npz.setDataFormat(Gem::Common::dataFormat::NPZ);
+        gpd_npz.setDataFormat(Gem::Dietrich::dataFormat::NPZ);
         gpd_npz.registerPlotter(npz_g2d_ptr);
         gpd_npz.registerPlotter(npz_hist1d_ptr);
         gpd_npz.writeToFile("result_data.npz");
@@ -353,7 +354,7 @@ int main(int argc, char **argv) {
         }
 
         GPlotDesigner gpd_full("Series data (render coverage)", 3, 3);
-        gpd_full.setDataFormat(Gem::Common::dataFormat::NPZ);
+        gpd_full.setDataFormat(Gem::Dietrich::dataFormat::NPZ);
         gpd_full.registerPlotter(full_g2d);
         gpd_full.registerPlotter(full_g2ed);
         gpd_full.registerPlotter(full_g3d);

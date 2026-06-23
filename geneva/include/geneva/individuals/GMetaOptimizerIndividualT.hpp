@@ -1847,6 +1847,7 @@ private:
      */
     void informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override {
         using namespace Gem::Common;
+        using namespace Gem::Dietrich; // GPlotSpec / plotKind / graphPlotMode
 
         switch(im) {
         case Gem::Geneva::infoMode::INFOINIT: {
@@ -1943,8 +1944,8 @@ private:
 
     // Transient run state: the eight progress curves are declared into this data log at INFOINIT,
     // filled in INFOPROCESSING and written at INFOEND. It is NOT part of the serialized config.
-    std::optional<Gem::Common::GDataLog> data_log_;
-    std::vector<Gem::Common::GDataLog::SeriesId>
+    std::optional<Gem::Dietrich::GDataLog> data_log_;
+    std::vector<Gem::Dietrich::GDataLog::SeriesId>
         ids_; ///< the eight declared series, in registration order
 };
 

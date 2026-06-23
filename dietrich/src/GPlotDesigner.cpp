@@ -58,33 +58,41 @@
 #include <tuple>
 #include <vector>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<short>)                        // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<std::int32_t>)                 // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<std::uint32_t>)                // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<float>)                        // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<double>)                       // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_2D<short>)         // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_2D<std::int32_t>)  // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_2D<std::uint32_t>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_2D<float>)         // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_2D<double>)        // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<short>)         // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<std::int32_t>)  // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<std::uint32_t>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<float>)         // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<double>)        // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GHistogram1D)                          // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GHistogram1I)                          // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GHistogram2D)                          // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GGraph2D)                              // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GGraph2ED)                             // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GGraph3D)                              // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GGraph4D)                              // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GFunctionPlotter1D)                    // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GFunctionPlotter2D)                    // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GPlotDesigner)                         // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GMarker<short>)                        // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GMarker<std::int32_t>)                 // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GMarker<std::uint32_t>)                // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GMarker<float>)                        // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GMarker<double>)                       // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_2D<short>)         // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_2D<std::int32_t>)  // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_2D<std::uint32_t>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_2D<float>)         // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_2D<double>)        // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_3D<short>)         // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_3D<std::int32_t>)  // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_3D<std::uint32_t>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_3D<float>)         // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_3D<double>)        // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GHistogram1D)                          // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GHistogram1I)                          // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GHistogram2D)                          // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GGraph2D)                              // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GGraph2ED)                             // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GGraph3D)                              // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GGraph4D)                              // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GFunctionPlotter1D)                    // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GFunctionPlotter2D)                    // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GPlotDesigner)                         // NOLINT
 
-namespace Gem::Common {
+namespace Gem::Dietrich {
+
+// The plotting library builds on common's facilities (logging, serialization helpers,
+// exception types, make_member, EmitStream, ...); make them visible here without
+// per-name qualification. This affects lookup only within Gem::Dietrich.
+using namespace Gem::Common;
+// Dietrich declares its own to_string(plotKind), which would otherwise shadow common's
+// numeric to_string(...) for unqualified calls; merge common's overloads back in.
+using Gem::Common::to_string;
 
 namespace {
 
@@ -5392,4 +5400,4 @@ std::size_t GDataLog::nSeries() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Gem::Common */
+} /* namespace Gem::Dietrich */

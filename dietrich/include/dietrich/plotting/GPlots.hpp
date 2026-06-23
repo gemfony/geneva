@@ -34,7 +34,12 @@
 
 #include "dietrich/plotting/GBasePlotter.hpp"
 
-namespace Gem::Common {
+namespace Gem::Dietrich {
+
+// The plotting library builds on common's facilities (logging, serialization helpers,
+// exception types, make_member, EmitStream, ...); make them visible here without
+// per-name qualification. This affects lookup only within Gem::Dietrich.
+using namespace Gem::Common;
 
 /******************************************************************************/
 /**
@@ -589,7 +594,7 @@ protected:
 
     /***************************************************************************/
 
-    friend void compare_base_t<GDataCollectorT<Ts...>>(
+    friend void Gem::Common::compare_base_t<GDataCollectorT<Ts...>>(
         GDataCollectorT<Ts...> const &,
         GDataCollectorT<Ts...> const &,
         GToken &
@@ -615,7 +620,7 @@ protected:
         GToken token("GDataCollectorT<Ts...>", e);
 
         // Compare our parent data ...
-        compare_base_t<GBasePlotter>(*this, *p_load, token);
+        Gem::Common::compare_base_t<GBasePlotter>(*this, *p_load, token);
 
         // ... and then the local data, derived from the single localMembers() declaration
         g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
@@ -866,7 +871,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GDataCollector2ET<x_type, y_type>>(
+    friend void Gem::Common::compare_base_t<GDataCollector2ET<x_type, y_type>>(
         GDataCollector2ET<x_type, y_type> const &,
         GDataCollector2ET<x_type, y_type> const &,
         GToken &
@@ -893,7 +898,7 @@ protected:
         GToken token("GDataCollector2ET<x_type, y_type>", e);
 
         // No own members -- compare the variadic base only
-        compare_base_t<GDataCollectorT<x_type, x_type, y_type, y_type>>(*this, *p_load, token);
+        Gem::Common::compare_base_t<GDataCollectorT<x_type, x_type, y_type, y_type>>(*this, *p_load, token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1048,7 +1053,7 @@ protected:
 
     /***************************************************************************/
 
-    friend void compare_base_t<GHistogram1D>(GHistogram1D const &, GHistogram1D const &, GToken &);
+    friend void Gem::Common::compare_base_t<GHistogram1D>(GHistogram1D const &, GHistogram1D const &, GToken &);
 
     /**
 	 * @brief Searches for compliance with expectations with respect to another object of the same type
@@ -1183,7 +1188,7 @@ protected:
     void load_(const GBasePlotter *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GHistogram1I>(GHistogram1I const &, GHistogram1I const &, GToken &);
+    friend void Gem::Common::compare_base_t<GHistogram1I>(GHistogram1I const &, GHistogram1I const &, GToken &);
 
     /**
 	 * @brief Searches for compliance with expectations with respect to another object of the same type
@@ -1527,7 +1532,7 @@ protected:
     void load_(const GBasePlotter *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GHistogram2D>(GHistogram2D const &, GHistogram2D const &, GToken &);
+    friend void Gem::Common::compare_base_t<GHistogram2D>(GHistogram2D const &, GHistogram2D const &, GToken &);
 
     /**
 	 * @brief Searches for compliance with expectations with respect to another object of the same type
@@ -1691,7 +1696,7 @@ protected:
     void load_(const GBasePlotter *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GGraph2D>(GGraph2D const &, GGraph2D const &, GToken &);
+    friend void Gem::Common::compare_base_t<GGraph2D>(GGraph2D const &, GGraph2D const &, GToken &);
 
     /**
 	 * @brief Searches for compliance with expectations with respect to another object of the same type
@@ -1830,7 +1835,7 @@ protected:
     void load_(const GBasePlotter *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GGraph2ED>(GGraph2ED const &, GGraph2ED const &, GToken &);
+    friend void Gem::Common::compare_base_t<GGraph2ED>(GGraph2ED const &, GGraph2ED const &, GToken &);
 
     /**
 	 * @brief Searches for compliance with expectations with respect to another object of the same type
@@ -2101,7 +2106,7 @@ protected:
     void load_(const GBasePlotter *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GGraph3D>(GGraph3D const &, GGraph3D const &, GToken &);
+    friend void Gem::Common::compare_base_t<GGraph3D>(GGraph3D const &, GGraph3D const &, GToken &);
 
     /**
 	 * @brief Searches for compliance with expectations with respect to another object of the same type
@@ -2463,7 +2468,7 @@ protected:
     void load_(const GBasePlotter *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GGraph4D>(GGraph4D const &, GGraph4D const &, GToken &);
+    friend void Gem::Common::compare_base_t<GGraph4D>(GGraph4D const &, GGraph4D const &, GToken &);
 
     /**
 	 * @brief Searches for compliance with expectations with respect to another object of the same type
@@ -2613,7 +2618,7 @@ protected:
     void load_(const GBasePlotter *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GFunctionPlotter1D>(
+    friend void Gem::Common::compare_base_t<GFunctionPlotter1D>(
         GFunctionPlotter1D const &,
         GFunctionPlotter1D const &,
         GToken &
@@ -2778,7 +2783,7 @@ protected:
     void load_(const GBasePlotter *cp) override;
 
     /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GFunctionPlotter2D>(
+    friend void Gem::Common::compare_base_t<GFunctionPlotter2D>(
         GFunctionPlotter2D const &,
         GFunctionPlotter2D const &,
         GToken &
@@ -2841,4 +2846,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Common */
+} /* namespace Gem::Dietrich */

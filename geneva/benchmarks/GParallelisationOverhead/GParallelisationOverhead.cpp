@@ -53,6 +53,7 @@
 
 using namespace Gem::Geneva;
 using namespace Gem::Common;
+using namespace Gem::Dietrich; // plotting types live here now
 
 /******************************************************************************/
 /**
