@@ -305,3 +305,49 @@ TEST_CASE("GAdaptorPropertyLoggerT writes a property histogram + fitness ROOT ma
 
     std::filesystem::remove(out);
 }
+
+/******************************************************************************/
+
+TEST_CASE("GProcessingTimesLogger writes 1-d and 2-d timing ROOT macros + a text file", "[monitor][plot][oa]") {
+    // Two designers: four auto-ranged 1-d timing histograms (TH1D) and four 2-d timing-vs-iteration
+    // histograms (TH2D), plus an incremental plain-text dump. Exercises the two-transient-log path.
+    const auto dir = std::filesystem::temp_directory_path();
+    const auto pth = dir / "geneva_proctimes_1d.C";
+    const auto pth2 = dir / "geneva_proctimes_2d.C";
+    const auto txt = dir / "geneva_proctimes.txt";
+    for(const auto &f : {pth, pth2, txt}) {
+        std::filesystem::remove(f);
+    }
+
+    auto monitor = std::make_shared<Gem::Geneva::GProcessingTimesLogger>(
+        pth.string(), pth2.string(), txt.string(), 20, 20
+    );
+
+    auto p = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    p->setPopulationSizes(12, 4);
+    p->setMaxIteration(5);
+    p->setReportIteration(100000);
+    Sphere3 src;
+    p->push_back(src.clone_unique());
+    p->setAdaptionConfig(src.buildAdaptionConfig());
+    p->registerPluggableOM(monitor);
+
+    REQUIRE_NOTHROW(p->optimize());
+
+    REQUIRE(std::filesystem::exists(pth));
+    REQUIRE(std::filesystem::exists(pth2));
+    REQUIRE(std::filesystem::exists(txt));
+    REQUIRE(std::filesystem::file_size(pth) > 0);
+    REQUIRE(std::filesystem::file_size(pth2) > 0);
+
+    const std::string c1 = readFile(pth);
+    CHECK(c1.find("TH1D") != std::string::npos);
+    CHECK(c1.find("Pre-processing time [s]") != std::string::npos);
+    const std::string c2 = readFile(pth2);
+    CHECK(c2.find("TH2D") != std::string::npos);
+    CHECK(c2.find("Iteration") != std::string::npos);
+
+    for(const auto &f : {pth, pth2, txt}) {
+        std::filesystem::remove(f);
+    }
+}

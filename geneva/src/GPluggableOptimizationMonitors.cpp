@@ -47,6 +47,7 @@
 #include <iomanip>
 #include <ios>
 #include <memory>
+#include <span>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -1923,10 +1924,8 @@ GProcessingTimesLogger::GProcessingTimesLogger(
 )
   : file_name_pth_(file_name_pth)
   , canvas_dimensions_pth_(std::tuple<std::uint32_t, std::uint32_t>(1600, 1200))
-  , gpd_pth_("Timings for the processing steps of individuals", 2, 2)
   , file_name_pth2_(file_name_pth2)
   , canvas_dimensions_pth2_(std::tuple<std::uint32_t, std::uint32_t>(1600, 1200))
-  , gpd_pth2_("Timings for the processing steps of individuals vs. iteration", 2, 2)
   , file_name_txt_(file_name_txt)
   , n_bins_x_(n_bins_x)
   , n_bins_y_(n_bins_y) { /* nothing */
@@ -2194,36 +2193,32 @@ void GProcessingTimesLogger::informationFunction_(
             std::filesystem::rename(file_name_pth_, new_file_name);
         }
 
-        // Make sure the processing times plotter has the desired size
-        gpd_pth_.setCanvasDimensions(canvas_dimensions_pth_);
-
-        pre_processing_times_hist_ = std::make_shared<Gem::Common::GHistogram1D>(n_bins_x_);
-        pre_processing_times_hist_->setXAxisLabel("Pre-processing time [s]");
-        pre_processing_times_hist_->setYAxisLabel("Number of Entries");
-        pre_processing_times_hist_->setDrawingArguments("hist");
-
-        gpd_pth_.registerPlotter(pre_processing_times_hist_);
-
-        processing_times_hist_ = std::make_shared<Gem::Common::GHistogram1D>(n_bins_x_);
-        processing_times_hist_->setXAxisLabel("Main processing time [s]");
-        processing_times_hist_->setYAxisLabel("Number of Entries");
-        processing_times_hist_->setDrawingArguments("hist");
-
-        gpd_pth_.registerPlotter(processing_times_hist_);
-
-        post_processing_times_hist_ = std::make_shared<Gem::Common::GHistogram1D>(n_bins_x_);
-        post_processing_times_hist_->setXAxisLabel("Post-processing time [s]");
-        post_processing_times_hist_->setYAxisLabel("Number of Entries");
-        post_processing_times_hist_->setDrawingArguments("hist");
-
-        gpd_pth_.registerPlotter(post_processing_times_hist_);
-
-        all_processing_times_hist_ = std::make_shared<Gem::Common::GHistogram1D>(n_bins_x_);
-        all_processing_times_hist_->setXAxisLabel("Overall processing time for all steps [s]");
-        all_processing_times_hist_->setYAxisLabel("Number of Entries");
-        all_processing_times_hist_->setDrawingArguments("hist");
-
-        gpd_pth_.registerPlotter(all_processing_times_hist_);
+        // Build the 1-d timing-histogram log and declare its four auto-ranged histograms in the
+        // fixed { pre, main, post, all } order, so they land on the same 2x2 pads as before.
+        {
+            using Gem::Common::GPlotSpec;
+            using Gem::Common::plotKind;
+            log_pth_.emplace("Timings for the processing steps of individuals", 2, 2);
+            log_pth_->setCanvasDimensions(
+                std::get<0>(canvas_dimensions_pth_), std::get<1>(canvas_dimensions_pth_)
+            );
+            pth_ids_.clear();
+            const char *x_labels_1d[] = {
+                "Pre-processing time [s]",
+                "Main processing time [s]",
+                "Post-processing time [s]",
+                "Overall processing time for all steps [s]"
+            };
+            for(const char *x_label : x_labels_1d) {
+                GPlotSpec spec(plotKind::hist_1d);
+                spec.x_label = x_label;
+                spec.y_label = "Number of Entries";
+                spec.drawing_args = "hist";
+                spec.columns = {"value"};
+                spec.n_bins_x = n_bins_x_;
+                pth_ids_.push_back(log_pth_->declareSeries(spec));
+            }
+        }
 
         //---------------------------------------------------------------
         // 2D Histograms
@@ -2243,43 +2238,34 @@ void GProcessingTimesLogger::informationFunction_(
             std::filesystem::rename(file_name_pth2_, new_file_name);
         }
 
-        // Make sure the processing times has the desired size
-        gpd_pth2_.setCanvasDimensions(canvas_dimensions_pth2_);
-
-        pre_processing_times_hist2_d_ =
-            std::make_shared<Gem::Common::GHistogram2D>(n_bins_x_, n_bins_y_);
-        pre_processing_times_hist2_d_->setXAxisLabel("Iteration");
-        pre_processing_times_hist2_d_->setYAxisLabel("Pre-processing time [s]");
-        pre_processing_times_hist2_d_->setZAxisLabel("Number of Entries");
-        pre_processing_times_hist2_d_->setDrawingArguments("box");
-
-        gpd_pth2_.registerPlotter(pre_processing_times_hist2_d_);
-
-        processing_times_hist2_d_ = std::make_shared<Gem::Common::GHistogram2D>(n_bins_x_, n_bins_y_);
-        processing_times_hist2_d_->setXAxisLabel("Iteration");
-        processing_times_hist2_d_->setYAxisLabel("Main processing time [s]");
-        processing_times_hist2_d_->setZAxisLabel("Number of Entries");
-        processing_times_hist2_d_->setDrawingArguments("box");
-
-        gpd_pth2_.registerPlotter(processing_times_hist2_d_);
-
-        post_processing_times_hist2_d_ =
-            std::make_shared<Gem::Common::GHistogram2D>(n_bins_x_, n_bins_y_);
-        post_processing_times_hist2_d_->setXAxisLabel("Iteration");
-        post_processing_times_hist2_d_->setYAxisLabel("Post-processing time [s]");
-        post_processing_times_hist2_d_->setZAxisLabel("Number of Entries");
-        post_processing_times_hist2_d_->setDrawingArguments("box");
-
-        gpd_pth2_.registerPlotter(post_processing_times_hist2_d_);
-
-        all_processing_times_hist2_d_ =
-            std::make_shared<Gem::Common::GHistogram2D>(n_bins_x_, n_bins_y_);
-        all_processing_times_hist2_d_->setXAxisLabel("Iteration");
-        all_processing_times_hist2_d_->setYAxisLabel("Overall processing time [s]");
-        all_processing_times_hist2_d_->setZAxisLabel("Number of Entries");
-        all_processing_times_hist2_d_->setDrawingArguments("box");
-
-        gpd_pth2_.registerPlotter(all_processing_times_hist2_d_);
+        // Build the 2-d timing-vs-iteration log and declare its four auto-ranged histograms in the
+        // same fixed { pre, main, post, all } order.
+        {
+            using Gem::Common::GPlotSpec;
+            using Gem::Common::plotKind;
+            log_pth2_.emplace("Timings for the processing steps of individuals vs. iteration", 2, 2);
+            log_pth2_->setCanvasDimensions(
+                std::get<0>(canvas_dimensions_pth2_), std::get<1>(canvas_dimensions_pth2_)
+            );
+            pth2_ids_.clear();
+            const char *y_labels_2d[] = {
+                "Pre-processing time [s]",
+                "Main processing time [s]",
+                "Post-processing time [s]",
+                "Overall processing time [s]"
+            };
+            for(const char *y_label : y_labels_2d) {
+                GPlotSpec spec(plotKind::hist_2d);
+                spec.x_label = "Iteration";
+                spec.y_label = y_label;
+                spec.z_label = "Number of Entries";
+                spec.drawing_args = "box";
+                spec.columns = {"x", "y"};
+                spec.n_bins_x = n_bins_x_;
+                spec.n_bins_y = n_bins_y_;
+                pth2_ids_.push_back(log_pth2_->declareSeries(spec));
+            }
+        }
 
         //---------------------------------------------------------------
         // Make sure the output file is empty (rename, if it exists)
@@ -2327,29 +2313,19 @@ void GProcessingTimesLogger::informationFunction_(
             double all_processing_time =
                 pre_processing_time + main_processing_time + post_processing_time;
 
-            // Fill the timings into the histograms
-            pre_processing_times_hist_->add(pre_processing_time);   // PREPROCESSING
-            processing_times_hist_->add(main_processing_time);      // PROCESSING
-            post_processing_times_hist_->add(post_processing_time); // POSTPROCESSING
-            all_processing_times_hist_->add(all_processing_time);   // OVERALL PROCESSING TIME
+            // Fill the timings into the 1-d histograms (one value per series), in the fixed
+            // { pre, main, post, all } order matching the declared series.
+            const double times_1d[] = {
+                pre_processing_time, main_processing_time, post_processing_time, all_processing_time
+            };
+            for(std::size_t s = 0; s < pth_ids_.size(); ++s) {
+                log_pth_->append(pth_ids_[s], std::span<const double>(&times_1d[s], 1));
+            }
 
-            // Fill the timings into the 2D histograms ...
-            pre_processing_times_hist2_d_->add(
-                Gem::Common::narrow<double>(iteration),
-                Gem::Common::narrow<double>(pre_processing_time)
-            ); // PREPROCESSING
-            processing_times_hist2_d_->add(
-                Gem::Common::narrow<double>(iteration),
-                Gem::Common::narrow<double>(main_processing_time)
-            ); // PROCESSING
-            post_processing_times_hist2_d_->add(
-                Gem::Common::narrow<double>(iteration),
-                Gem::Common::narrow<double>(post_processing_time)
-            ); // POSTPROCESSING
-            all_processing_times_hist2_d_->add(
-                Gem::Common::narrow<double>(iteration),
-                Gem::Common::narrow<double>(all_processing_time)
-            ); // OVERALL PROCESSING TIME
+            // Fill the timings into the 2-d (iteration, time) histograms, same order.
+            for(std::size_t s = 0; s < pth2_ids_.size(); ++s) {
+                log_pth2_->append(pth2_ids_[s], iteration, times_1d[s]);
+            }
 
             data_txt << Gem::Common::narrow<std::uint32_t>(iteration) << ", " << std::showpoint
                      << pre_processing_time << ", " << main_processing_time << ", "
@@ -2361,23 +2337,18 @@ void GProcessingTimesLogger::informationFunction_(
     } break;
 
     case Gem::Geneva::infoMode::INFOEND: {
-        // Write out the results
-        gpd_pth_.writeToFile(file_name_pth_);
-        gpd_pth2_.writeToFile(file_name_pth2_);
+        // Write out the results, then drop the transient run state.
+        if(log_pth_.has_value()) {
+            log_pth_->writeToFile(file_name_pth_);
+        }
+        if(log_pth2_.has_value()) {
+            log_pth2_->writeToFile(file_name_pth2_);
+        }
 
-        // Remove all plotters
-        gpd_pth_.resetPlotters();
-        gpd_pth2_.resetPlotters();
-
-        pre_processing_times_hist_.reset();
-        processing_times_hist_.reset();
-        post_processing_times_hist_.reset();
-        all_processing_times_hist_.reset();
-
-        pre_processing_times_hist2_d_.reset();
-        processing_times_hist2_d_.reset();
-        post_processing_times_hist2_d_.reset();
-        all_processing_times_hist2_d_.reset();
+        log_pth_.reset();
+        log_pth2_.reset();
+        pth_ids_.clear();
+        pth2_ids_.clear();
     } break;
     };
 }

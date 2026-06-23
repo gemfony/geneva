@@ -2469,34 +2469,19 @@ class GProcessingTimesLogger // NOLINT(cppcoreguidelines-special-member-function
     /***************************************************************************/
     /**
      * Single declaration of this class'es local data members, driving
-     * serialize(), load_() and compare_() from one place. All members are
-     * handled unconditionally: the eight histogram smart pointers are
-     * deep-cloned on load (make_cloneable_member); every other member (including
-     * the two gpd_pth* GPlotDesigner values, which load_() assigns plainly) uses
-     * make_member. No manual tail is needed.
-     *
-     * NOTE: deriving load_() from this declaration also fixes a latent bug --
-     * the previous hand-written load_() forgot to load n_bins_y_ (it was
-     * serialized and compared but never copied on load).
+     * serialize(), load_() and compare_() from one place. All members are plain
+     * CONFIG (make_member); the histograms are no longer state -- they are
+     * declared into two transient GDataLogs at INFOINIT, filled during
+     * INFOPROCESSING and written at INFOEND. No manual tail is needed.
      */
     template <typename Self>
     static auto localMembers_(Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("file_name_pth_", self.file_name_pth_),
             Gem::Common::make_member("canvas_dimensions_pth_", self.canvas_dimensions_pth_),
-            Gem::Common::make_member("gpd_pth_", self.gpd_pth_),
             Gem::Common::make_member("file_name_pth2_", self.file_name_pth2_),
             Gem::Common::make_member("canvas_dimensions_pth2_", self.canvas_dimensions_pth2_),
-            Gem::Common::make_member("gpd_pth2_", self.gpd_pth2_),
             Gem::Common::make_member("file_name_txt_", self.file_name_txt_),
-            Gem::Common::make_cloneable_member("pre_processing_times_hist_", self.pre_processing_times_hist_),
-            Gem::Common::make_cloneable_member("processing_times_hist_", self.processing_times_hist_),
-            Gem::Common::make_cloneable_member("post_processing_times_hist_", self.post_processing_times_hist_),
-            Gem::Common::make_cloneable_member("all_processing_times_hist_", self.all_processing_times_hist_),
-            Gem::Common::make_cloneable_member("pre_processing_times_hist2_d_", self.pre_processing_times_hist2_d_),
-            Gem::Common::make_cloneable_member("processing_times_hist2_d_", self.processing_times_hist2_d_),
-            Gem::Common::make_cloneable_member("post_processing_times_hist2_d_", self.post_processing_times_hist2_d_),
-            Gem::Common::make_cloneable_member("all_processing_times_hist2_d_", self.all_processing_times_hist2_d_),
             Gem::Common::make_member("n_bins_x_", self.n_bins_x_),
             Gem::Common::make_member("n_bins_y_", self.n_bins_y_)
         );
@@ -2693,47 +2678,28 @@ private:
         "processingTimingsHist.C"; ///< The name of the file to which timings should be written in ROOT format
     std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions_pth_ =
         std::tuple<std::uint32_t, std::uint32_t>(1600, 1200); ///< The dimensions of the canvas
-    Gem::Common::GPlotDesigner gpd_pth_{
-        "Timings for the processing steps of individuals",
-        2,
-        2
-    }; ///< A wrapper for the plots
 
     std::string file_name_pth2_ =
         "processingTimingsVsIteration.C"; ///< The name of the file to which timings should be written in ROOT format
     std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions_pth2_ =
         std::tuple<std::uint32_t, std::uint32_t>(1600, 1200); ///< The dimensions of the canvas
-    Gem::Common::GPlotDesigner gpd_pth2_{
-        "Timings for the processing steps of individuals vs. iteration",
-        2,
-        2
-    }; ///< A wrapper for the plots
 
     std::string file_name_txt_ =
         "processingTimings.txt"; ///< The name of the file to which timings should be written in text format
-
-    std::shared_ptr<Gem::Common::GHistogram1D>
-        pre_processing_times_hist_; ///< The amount of time needed for pre-processing
-    std::shared_ptr<Gem::Common::GHistogram1D>
-        processing_times_hist_; ///< The amount of time needed for processing
-    std::shared_ptr<Gem::Common::GHistogram1D>
-        post_processing_times_hist_; ///< The amount of time needed for post-processing
-    std::shared_ptr<Gem::Common::GHistogram1D>
-        all_processing_times_hist_; ///< The amount of time needed for the entire processing step
-
-    std::shared_ptr<Gem::Common::GHistogram2D>
-        pre_processing_times_hist2_d_; ///< The amount of time needed for pre-processing
-    std::shared_ptr<Gem::Common::GHistogram2D>
-        processing_times_hist2_d_; ///< The amount of time needed for processing
-    std::shared_ptr<Gem::Common::GHistogram2D>
-        post_processing_times_hist2_d_; ///< The amount of time needed for post-processing
-    std::shared_ptr<Gem::Common::GHistogram2D>
-        all_processing_times_hist2_d_; ///< The amount of time needed for the entire processing step
 
     std::size_t n_bins_x_ =
         Gem::Common::DEFAULTNBINSGPD; ///< The number of bins in the histograms in x-direction
     std::size_t n_bins_y_ =
         Gem::Common::DEFAULTNBINSGPD; ///< The number of bins in the histograms in y-direction
+
+    // Transient run state: two data logs (1-d timing histograms / 2-d timing-vs-iteration
+    // histograms), built at INFOINIT, filled in INFOPROCESSING and written at INFOEND. They
+    // are NOT part of the monitor's serialized config. The id vectors hold the four series of
+    // each log in the fixed order { pre, main, post, all }.
+    std::optional<Gem::Common::GDataLog> log_pth_;
+    std::optional<Gem::Common::GDataLog> log_pth2_;
+    std::vector<Gem::Common::GDataLog::SeriesId> pth_ids_;  ///< 1-d histogram series ids
+    std::vector<Gem::Common::GDataLog::SeriesId> pth2_ids_; ///< 2-d histogram series ids
 };
 
 /******************************************************************************/
