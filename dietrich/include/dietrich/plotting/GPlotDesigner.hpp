@@ -280,9 +280,16 @@ protected:
         const double &limit
     ) const override;
 
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    /** @brief Applies modifications to this object. This is needed for testing purposes.
+     *  Mutates the canvas configuration and registers a plotter so the plot list is non-empty.
+     *  As a test-only hook it is never invoked on rendered objects, so it does not affect output. */
     bool modify_GUnitTests_() override {
-        return false;
+        canvas_label_ += "_m";
+        c_x_dim_ += 1;
+        c_y_dim_ += 1;
+        add_print_command_ = not add_print_command_;
+        this->registerPlotter(std::make_shared<GGraph2D>());
+        return true;
     }
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
     void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ };

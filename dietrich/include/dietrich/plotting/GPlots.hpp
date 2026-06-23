@@ -1079,6 +1079,17 @@ private:
 	 */
     GBasePlotter *clone_() const override;
 
+    /** @brief Applies test-only modifications: the base members plus this histogram's bin count,
+     *  value range and a sample datum. Never invoked on rendered objects. */
+    bool modify_GUnitTests_() override {
+        GBasePlotter::modify_GUnitTests_();
+        n_bins_x_ += 5;
+        min_x_ = -2.;
+        max_x_ = 2.;
+        this->add(0.5);
+        return true;
+    }
+
     GHistogram1D() =
         default; ///< The default constructor -- intentionally private as it is only needed for (de-)serialization
 
@@ -1247,6 +1258,17 @@ private:
 	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
 	 */
     GBasePlotter *clone_() const override;
+
+    /** @brief Applies test-only modifications: the base members plus this histogram's bin count,
+     *  value range and an integer sample datum. Never invoked on rendered objects. */
+    bool modify_GUnitTests_() override {
+        GBasePlotter::modify_GUnitTests_();
+        n_bins_x_ += 5;
+        min_x_ = -2.;
+        max_x_ = 2.;
+        this->add(std::int32_t(1));
+        return true;
+    }
 
     GHistogram1I() =
         default; ///< The default constructor -- intentionally private as it is only needed for (de-)serialization
@@ -1558,6 +1580,20 @@ private:
 	 */
     GBasePlotter *clone_() const override;
 
+    /** @brief Applies test-only modifications: the base members plus this histogram's per-axis bin
+     *  counts, value ranges and a sample datum. Never invoked on rendered objects. */
+    bool modify_GUnitTests_() override {
+        GBasePlotter::modify_GUnitTests_();
+        n_bins_x_ += 5;
+        n_bins_y_ += 3;
+        min_x_ = -2.;
+        max_x_ = 2.;
+        min_y_ = -1.;
+        max_y_ = 1.;
+        this->add(0.5, 0.25);
+        return true;
+    }
+
     GHistogram2D() =
         default; ///< The default constructor -- intentionally private, as it is only needed for (de-)serialization
 
@@ -1597,6 +1633,15 @@ class GGraph2D : public GDataCollector2T<double, double> {
 public:
     /**********************************************************************/
     // Defaulted constructors, destructor and assignment operators
+
+    /** @brief Applies test-only modifications: the base members plus this graph's plot mode and a
+     *  data point. Never invoked on rendered objects. */
+    bool modify_GUnitTests_() override {
+        GBasePlotter::modify_GUnitTests_();
+        this->setPlotMode(graphPlotMode::SCATTER);
+        this->add(1.0, 2.0);
+        return true;
+    }
 
     GGraph2D() = default;
     GGraph2D(GGraph2D const &) = default;
@@ -1750,6 +1795,14 @@ class GGraph2ED : public GDataCollector2ET<double, double> {
 public:
     /**********************************************************************/
     // Defaulted constructors, destructor and assignment operators
+
+    /** @brief Applies test-only modifications: the base members plus an (x, ex, y, ey) data point.
+     *  Never invoked on rendered objects. */
+    bool modify_GUnitTests_() override {
+        GBasePlotter::modify_GUnitTests_();
+        this->add(1.0, 0.1, 2.0, 0.2);
+        return true;
+    }
 
     GGraph2ED() = default;
     GGraph2ED(GGraph2ED const &) = default;
@@ -2021,6 +2074,14 @@ class GGraph3D : public GDataCollector3T<double, double, double> {
 public:
     /*********************************************************************/
     // Defaulted constructors, destructor and assignment operators
+
+    /** @brief Applies test-only modifications: the base members plus an (x, y, z) data point.
+     *  Never invoked on rendered objects. */
+    bool modify_GUnitTests_() override {
+        GBasePlotter::modify_GUnitTests_();
+        this->add(1.0, 2.0, 3.0);
+        return true;
+    }
 
     GGraph3D() = default;
     GGraph3D(GGraph3D const &) = default;
@@ -2345,6 +2406,14 @@ class GGraph4D : public GDataCollector4T<double, double, double, double> {
 public:
     /*********************************************************************/
     // Defaulted constructors, destructor and assignment operators
+
+    /** @brief Applies test-only modifications: the base members plus an (x, y, z, w) data point.
+     *  Never invoked on rendered objects. */
+    bool modify_GUnitTests_() override {
+        GBasePlotter::modify_GUnitTests_();
+        this->add(1.0, 2.0, 3.0, 4.0);
+        return true;
+    }
 
     GGraph4D() = default;
     GGraph4D(const GGraph4D &) = default;

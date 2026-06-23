@@ -243,7 +243,9 @@ class GMarker : public GDecorator<dimensions::Dim2, coordinate_type> {
         using boost::serialization::make_nvp;
 
         ar &make_nvp(
-            "GDecorator2<dimensions::Dim2, coordinate_type>",
+            // The NVP tag becomes an XML element name in the XML archive, so it must be a valid
+            // XML name: no angle brackets, commas or spaces (the former tag broke XML round-trips).
+            "GDecorator2_Dim2",
             boost::serialization::base_object<GDecorator<dimensions::Dim2, coordinate_type>>(*this)
         ) & BOOST_SERIALIZATION_NVP(coordinates_) &
             BOOST_SERIALIZATION_NVP(marker_) & BOOST_SERIALIZATION_NVP(color_) &
@@ -417,9 +419,14 @@ protected:
     }
 
     /***************************************************************************/
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    /** @brief Applies test-only modifications: this marker's coordinates and size. Never invoked on
+     *  rendered objects. */
     bool modify_GUnitTests_() override {
-        return false;
+        coordinates_ = std::tuple<coordinate_type, coordinate_type>(
+            static_cast<coordinate_type>(1), static_cast<coordinate_type>(2)
+        );
+        size_ += 1.0;
+        return true;
     }
     /** @brief Performs self-tests that are expected to succeed. This is needed for testing purposes */
     void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ };
@@ -919,9 +926,18 @@ protected:
     }
 
     /***************************************************************************/
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    /** @brief Applies test-only modifications: appends a marker so the decorator list is non-empty.
+     *  Never invoked on rendered objects. */
     bool modify_GUnitTests_() override {
-        return false;
+        this->push_back(std::make_shared<GMarker<coordinate_type>>(
+            std::tuple<coordinate_type, coordinate_type>(
+                static_cast<coordinate_type>(1), static_cast<coordinate_type>(2)
+            ),
+            gMarker::closedCircle,
+            gColor::black,
+            0.1
+        ));
+        return true;
     }
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
     void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ };

@@ -370,9 +370,19 @@ protected:
      */
     std::string suffix(bool is_secondary, std::size_t p_id, std::size_t own_id) const;
 
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    /** @brief Applies modifications to this object. This is needed for testing purposes.
+     *  Mutates this base class'es serialized members (the labels, drawing arguments, data-structure
+     *  marker and id); derived plotters call it and then mutate their own state. As a test-only
+     *  hook it is never invoked on the rendered objects, so it does not affect emitted output. */
     bool modify_GUnitTests_() override {
-        return false;
+        drawing_arguments_ += "_m";
+        x_axis_label_ += "_m";
+        y_axis_label_ += "_m";
+        z_axis_label_ += "_m";
+        plot_label_ += "_m";
+        ds_marker_ += "_m";
+        ++id_;
+        return true;
     }
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
     void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ };

@@ -37,12 +37,16 @@
  ********************************************************************************/
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_template_test_macros.hpp>
 
+#include <memory>
 #include <span>
 #include <string>
 #include <tuple>
 
 #include "dietrich/GPlotDesigner.hpp"
+
+#include "Dietrich_tests.hpp" // the local standard-tests driver (mirrors Geneva_tests.hpp)
 
 using namespace Gem::Common;
 using namespace Gem::Dietrich; // the plotting types under test live here
@@ -776,4 +780,90 @@ TEST_CASE("GDataLog reproduces the legacy plotter-object output byte-for-byte", 
 
         CHECK(log.toDesigner().plot() == legacy);
     }
+}
+
+/******************************************************************************/
+// Standard GCommonInterfaceT-contract tests, conforming to the Geneva test pattern
+// (mirror of GenevaStandardTests.cpp): every plotter / designer / decorator is run
+// through the construction / clone / load / (de-)serialization round-trip driver in
+// Dietrich_tests.hpp. TFactory_GUnitTests<T>() is specialized for the types without a
+// public default constructor, exactly as the Geneva driver requires.
+
+template <>
+std::shared_ptr<GHistogram1D> TFactory_GUnitTests<GHistogram1D>() {
+    return std::make_shared<GHistogram1D>(std::size_t(20));
+}
+template <>
+std::shared_ptr<GHistogram1I> TFactory_GUnitTests<GHistogram1I>() {
+    return std::make_shared<GHistogram1I>(std::size_t(20), 0.0, 10.0);
+}
+template <>
+std::shared_ptr<GHistogram2D> TFactory_GUnitTests<GHistogram2D>() {
+    return std::make_shared<GHistogram2D>(std::size_t(20), std::size_t(20));
+}
+template <>
+std::shared_ptr<GFunctionPlotter1D> TFactory_GUnitTests<GFunctionPlotter1D>() {
+    return std::make_shared<GFunctionPlotter1D>(
+        std::string("x"), std::tuple<double, double>(-1.0, 1.0)
+    );
+}
+template <>
+std::shared_ptr<GFunctionPlotter2D> TFactory_GUnitTests<GFunctionPlotter2D>() {
+    return std::make_shared<GFunctionPlotter2D>(
+        std::string("x*y"),
+        std::tuple<double, double>(-1.0, 1.0),
+        std::tuple<double, double>(-1.0, 1.0)
+    );
+}
+template <>
+std::shared_ptr<GPlotDesigner> TFactory_GUnitTests<GPlotDesigner>() {
+    return std::make_shared<GPlotDesigner>(std::string("test canvas"), std::size_t(1), std::size_t(1));
+}
+template <>
+std::shared_ptr<GMarker<double>> TFactory_GUnitTests<GMarker<double>>() {
+    return std::make_shared<GMarker<double>>(
+        std::tuple<double, double>(0.0, 0.0), gMarker::closedCircle, gColor::black, 0.05
+    );
+}
+
+/******************************************************************************/
+
+TEMPLATE_TEST_CASE(
+    "Dietrich plotting types satisfy the standard GCommonInterfaceT contract (no failure expected)",
+    "[plotting][standard]",
+    GGraph2D,
+    GGraph2ED,
+    GGraph3D,
+    GGraph4D,
+    GHistogram1D,
+    GHistogram1I,
+    GHistogram2D,
+    GFunctionPlotter1D,
+    GFunctionPlotter2D,
+    GPlotDesigner,
+    GMarker<double>,
+    GDecoratorContainer_2D<double>
+) {
+    Gem::Dietrich::Tests::StandardTests_no_failure_expected<TestType>();
+}
+
+/******************************************************************************/
+
+TEMPLATE_TEST_CASE(
+    "Dietrich plotting types satisfy the standard GCommonInterfaceT contract (failures expected)",
+    "[plotting][standard]",
+    GGraph2D,
+    GGraph2ED,
+    GGraph3D,
+    GGraph4D,
+    GHistogram1D,
+    GHistogram1I,
+    GHistogram2D,
+    GFunctionPlotter1D,
+    GFunctionPlotter2D,
+    GPlotDesigner,
+    GMarker<double>,
+    GDecoratorContainer_2D<double>
+) {
+    Gem::Dietrich::Tests::StandardTests_failures_expected<TestType>();
 }
