@@ -95,13 +95,14 @@ BUILDMPICONSUMER="1"
 
 # Whether to build the GPU consumer (GGPUConsumerT) into the courtier library and
 # expose the "gpu" consumer mnemonic. Like the MPI consumer this is an opt-in add-on:
-# when "1", courtier dynamically links the CUDA (NVRTC + driver API) and/or OpenCL
-# device backends that are present on the system (a CPU backend is always available);
-# when "0", no GPU code is compiled and "gpu" is not a selectable consumer. Example 15
-# (GCUDAWorker) and the GPU optimisation benchmark are built only when this is "1".
-# Independent of USECUDARNG (a separate Hap feature). SKIPALLCUDA still forces the CUDA
-# backend off (leaving CPU/OpenCL).
-BUILDGPUCONSUMER="0"
+# when enabled, courtier dynamically links the CUDA (NVRTC + driver API) device backend
+# present on the system (a CPU backend is always available); when disabled, no GPU code is
+# compiled and "gpu" is not a selectable consumer. Example 15 (GCUDAWorker) and the GPU
+# optimisation benchmark are built only when this is enabled. Independent of USECUDARNG (a
+# separate Hap feature). SKIPALLCUDA still forces the whole consumer off.
+# Tri-state: "auto" (use a found CUDA toolkit, else off) | "on" (require CUDA, fail if absent)
+# | "off" (never build it). Legacy "0"/"1" are still accepted.
+BUILDGPUCONSUMER="auto"
 
 # Whether to instrument the Common library and its tests with code-coverage
 # flags (--coverage for GCC, -fprofile-instr-generate -fcoverage-mapping for
@@ -162,7 +163,9 @@ CUDA_ROOT=""
 # programs linked with Geneva become less portable (CUDA toolkit required).
 # CUDA examples and benchmarks are built automatically when nvcc is found,
 # independently of this setting.
-USECUDARNG="0"
+# Tri-state: "auto" (use a found CUDA toolkit, else the SIMD/CPU RNG engine) | "on"
+# (require CUDA, fail if absent) | "off" (never use CUDA). Legacy "0"/"1" still accepted.
+USECUDARNG="auto"
 
 # Build example 15 (GCUDAWorker) with float parameters + a float GPU kernel instead of
 # double. Only affects example 15. Default 1 (float): FP32 is ~14x faster than FP64 at the

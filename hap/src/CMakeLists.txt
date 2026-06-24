@@ -56,7 +56,7 @@ SET_SOURCE_FILES_PROPERTIES(
 )
 
 # If we compile with CUDA support, add the appropriate file
-IF(GENEVA_USE_CUDA_RNG)
+IF(GENEVA_USE_CUDA_RNG_ENABLED)
 	SET(HAPSOURCES
 		${HAPSOURCES}
 		GCUDARng.cu
@@ -106,7 +106,7 @@ TARGET_LINK_LIBRARIES(${HAP_LIBNAME} PUBLIC ${COMMON_LIBNAME})
 # HAP_USE_CUDA compile definition and links the cuRAND + CUDA-runtime host
 # libraries. cuRAND is part of the (optional) NVIDIA CUDA Toolkit the user
 # provides; it is never vendored into the source tree.
-IF(GENEVA_USE_CUDA_RNG)
+IF(GENEVA_USE_CUDA_RNG_ENABLED)
 	FIND_PACKAGE(CUDAToolkit REQUIRED)
 	TARGET_COMPILE_DEFINITIONS(${HAP_LIBNAME} PRIVATE HAP_USE_CUDA=1)
 	TARGET_LINK_LIBRARIES(${HAP_LIBNAME} PRIVATE CUDA::curand CUDA::cudart)

@@ -46,14 +46,27 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # system CUDA installation is broken or incompatible (e.g. CUDA 13.1 + glibc 2.39).
 option(GENEVA_SKIP_CUDA "Disable all CUDA compilation" OFF)
 
-# Set ON to build the GPU consumer (GGPUConsumerT) INTO the courtier library and expose
-# the "gpu" consumer mnemonic. Like the MPI consumer this is an opt-in add-on: when ON the
-# courtier library dynamically links the CUDA (NVRTC + driver API) and/or OpenCL device
-# backends that are present; when OFF no GPU code is compiled and "gpu" is not a selectable
-# consumer (example 15 and the GPU benchmark are skipped too). A CPU backend is always
-# available when the consumer is built. Independent of GENEVA_USE_CUDA_RNG (a separate Hap
-# feature); honours GENEVA_SKIP_CUDA, which forces the CUDA backend off (leaving CPU/OpenCL).
-option(GENEVA_BUILD_WITH_GPU_CONSUMER "Build the GPU consumer (GGPUConsumerT) into courtier and expose the 'gpu' mnemonic" OFF)
+# Tri-state opt-in for the Hap CUDA RNG backend: auto|on|off (legacy 0/1 still accepted).
+#   auto -> use CUDA when a toolkit is present (and GENEVA_SKIP_CUDA is OFF), else the SIMD/CPU engine
+#   on   -> require CUDA (FATAL_ERROR if no toolkit / SKIPALLCUDA)
+#   off  -> never use CUDA for the RNG
+# Resolved below into the normal boolean GENEVA_USE_CUDA_RNG_ENABLED used downstream.
+set(GENEVA_USE_CUDA_RNG "auto" CACHE STRING "Use CUDA for RNG in Hap: auto|on|off")
+set_property(CACHE GENEVA_USE_CUDA_RNG PROPERTY STRINGS auto on off)
+
+# Tri-state opt-in for the GPU consumer (GGPUConsumerT) built INTO the courtier library, exposing
+# the "gpu" consumer mnemonic: auto|on|off (legacy 0/1 still accepted). Like the MPI consumer this
+# is an opt-in add-on: when enabled the courtier library dynamically links the CUDA (NVRTC + driver
+# API) device backend when present; when disabled no GPU code is compiled and "gpu" is not a
+# selectable consumer (example 15 and the GPU benchmark are skipped too). A CPU backend is always
+# available when the consumer is built. Independent of GENEVA_USE_CUDA_RNG (a separate Hap feature);
+# honours GENEVA_SKIP_CUDA, which forces the whole consumer off.
+#   auto -> build the consumer when a CUDA toolkit is present (and GENEVA_SKIP_CUDA is OFF), else off
+#   on   -> require CUDA (FATAL_ERROR if no toolkit / SKIPALLCUDA)
+#   off  -> never build the GPU consumer
+# Resolved below into the normal boolean GENEVA_GPU_CONSUMER_ENABLED used downstream.
+set(GENEVA_BUILD_WITH_GPU_CONSUMER "auto" CACHE STRING "Build the GPU consumer (GGPUConsumerT) into courtier and expose the 'gpu' mnemonic: auto|on|off")
+set_property(CACHE GENEVA_BUILD_WITH_GPU_CONSUMER PROPERTY STRINGS auto on off)
 
 # Set ON to instrument the Common library and its tests with coverage flags
 # (--coverage on GCC, -fprofile-instr-generate -fcoverage-mapping on Clang).
@@ -125,11 +138,87 @@ if(NOT GENEVA_SKIP_CUDA)
     endif()
 else()
     message(STATUS "CUDA disabled (GENEVA_SKIP_CUDA=ON) — skipping all CUDA compilation")
-    if(GENEVA_USE_CUDA_RNG)
-        message(WARNING "GENEVA_USE_CUDA_RNG is ON but GENEVA_SKIP_CUDA=ON overrides it")
-    endif()
-    set(GENEVA_USE_CUDA_RNG OFF CACHE BOOL "Use CUDA for RNG in Hap" FORCE)
 endif()
+
+################################################################################
+# Resolve the two tri-state CUDA opt-ins (GENEVA_USE_CUDA_RNG, GENEVA_BUILD_WITH_GPU_CONSUMER)
+# into the NORMAL (non-cache) booleans the hap/courtier/geneva subdirectories gate on. Done here,
+# once, right after the shared CUDA detection above and before any ADD_SUBDIRECTORY, so the two
+# features stay independent yet share a single source of truth (the detection + SKIPALLCUDA).
+#
+#   _geneva_cuda_available -> a usable CUDA toolkit was detected and not skipped
+#   value -> ON  (legacy 1/TRUE/YES/ON) : require CUDA, FATAL_ERROR if unavailable
+#   value -> AUTO                       : enable iff a toolkit is available, else fall back
+#   value -> OFF (legacy 0/FALSE/NO/empty) : disabled
+#   anything else                       : FATAL_ERROR (must be auto|on|off)
+set(_geneva_cuda_available FALSE)
+if((NOT GENEVA_SKIP_CUDA) AND CMAKE_CUDA_COMPILER)
+    set(_geneva_cuda_available TRUE)
+endif()
+
+# Resolve one tri-state cache STRING (<in_var>) into a normal boolean (<out_var>), naming the
+# feature (<label>) and its fallback (<fallback>) in the messages.
+function(_geneva_resolve_cuda_tristate in_var out_var label fallback)
+    string(TOUPPER "${${in_var}}" _v)
+    if(_v MATCHES "^(1|TRUE|YES|ON)$")
+        set(_v "ON")
+    elseif(_v STREQUAL "" OR _v MATCHES "^(0|FALSE|NO|OFF)$")
+        set(_v "OFF")
+    endif()
+
+    if(GENEVA_SKIP_CUDA)
+        if(_v STREQUAL "ON")
+            message(WARNING "${label}=on but GENEVA_SKIP_CUDA=ON overrides it — ${label} disabled")
+        endif()
+        set(${out_var} FALSE PARENT_SCOPE)
+    elseif(_v STREQUAL "ON")
+        if(_geneva_cuda_available)
+            set(${out_var} TRUE PARENT_SCOPE)
+        else()
+            message(FATAL_ERROR "${label}=on but no CUDA toolkit found (or SKIPALLCUDA on)")
+        endif()
+    elseif(_v STREQUAL "AUTO")
+        if(_geneva_cuda_available)
+            set(${out_var} TRUE PARENT_SCOPE)
+        else()
+            message(STATUS "${label}=auto: no CUDA toolkit — using ${fallback}")
+            set(${out_var} FALSE PARENT_SCOPE)
+        endif()
+    elseif(_v STREQUAL "OFF")
+        set(${out_var} FALSE PARENT_SCOPE)
+    else()
+        message(FATAL_ERROR "${label} must be auto|on|off, got '${${in_var}}'")
+    endif()
+endfunction()
+
+_geneva_resolve_cuda_tristate(GENEVA_USE_CUDA_RNG          GENEVA_USE_CUDA_RNG_ENABLED "GENEVA_USE_CUDA_RNG"          "the SIMD/CPU RNG engine")
+_geneva_resolve_cuda_tristate(GENEVA_BUILD_WITH_GPU_CONSUMER GENEVA_GPU_CONSUMER_ENABLED "GENEVA_BUILD_WITH_GPU_CONSUMER" "no GPU consumer")
+
+# Unified, no-surprise configure summary for the CUDA/GPU features.
+if(_geneva_cuda_available)
+    set(_geneva_cuda_summary "found ${CMAKE_CUDA_COMPILER_VERSION}")
+elseif(GENEVA_SKIP_CUDA)
+    set(_geneva_cuda_summary "skipped (SKIPALLCUDA)")
+else()
+    set(_geneva_cuda_summary "not found")
+endif()
+if(GENEVA_SKIP_CUDA)
+    set(_geneva_skip_summary "on")
+else()
+    set(_geneva_skip_summary "off")
+endif()
+if(GENEVA_USE_CUDA_RNG_ENABLED)
+    set(_geneva_rng_summary "CUDA")
+else()
+    set(_geneva_rng_summary "SIMD-or-CPU")
+endif()
+if(GENEVA_GPU_CONSUMER_ENABLED)
+    set(_geneva_gpu_summary "CUDA")
+else()
+    set(_geneva_gpu_summary "off")
+endif()
+message(STATUS "Geneva GPU/CUDA: SKIPALLCUDA=${_geneva_skip_summary}  CUDA-toolkit=${_geneva_cuda_summary}")
+message(STATUS "  Hap-RNG(USECUDARNG=${GENEVA_USE_CUDA_RNG}) -> ${_geneva_rng_summary}   GPU-consumer(BUILDGPUCONSUMER=${GENEVA_BUILD_WITH_GPU_CONSUMER}) -> ${_geneva_gpu_summary}")
 
 # Detect the CXX compiler's libstdc++.so location and cache it.
 # The GCUDAWorker example uses this to link explicitly against the right
@@ -192,7 +281,7 @@ ENDIF ()
 # This gates the "gpu" mnemonic in GConsumerSetup just as GENEVA_BUILD_WITH_MPI_CONSUMER
 # gates "mpi". The CUDA/OpenCL backend selection inside courtier uses the separate
 # GPUGEN_HAVE_CUDA / GPUGEN_HAVE_OPENCL feature macros (see courtier/src/CMakeLists.txt).
-IF (GENEVA_BUILD_WITH_GPU_CONSUMER)
+IF (GENEVA_GPU_CONSUMER_ENABLED)
 	ADD_COMPILE_DEFINITIONS(GENEVA_BUILD_WITH_GPU_CONSUMER)
 ENDIF ()
 

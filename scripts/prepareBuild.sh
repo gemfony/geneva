@@ -222,8 +222,8 @@ VERBOSEMAKEFILE="0"
 INSTALLDIR="/opt/geneva"
 MPIROOT=""
 BUILDMPICONSUMER="0"
-BUILDGPUCONSUMER="0"
-USECUDARNG="0"
+BUILDGPUCONSUMER="auto"
+USECUDARNG="auto"
 SKIPALLCUDA="0"
 GIMAGE_USE_FLOAT="1"
 WITHCOVERAGE="0"
@@ -265,6 +265,15 @@ _check_bool() {
 		echo -e "\nError: Variable ${1} must be 0 or 1. Got '${2}'\nLeaving...\n"
 		exit 1
 	fi
+}
+
+# The two CUDA opt-ins (USECUDARNG, BUILDGPUCONSUMER) are tri-state: auto|on|off.
+# Legacy 0|1 values are still accepted (and forwarded as-is; CMake maps them).
+_check_cuda_tristate() {
+	case "${2}" in
+		auto|on|off|0|1) ;;
+		*) echo -e "\nError: Variable ${1} must be auto|on|off (or legacy 0|1). Got '${2}'\nLeaving...\n"; exit 1 ;;
+	esac
 }
 
 if [ ! -x "${CMAKE}" ]; then
@@ -309,7 +318,8 @@ _check_bool BUILDEXAMPLES    "${BUILDEXAMPLES}"
 _check_bool BUILDBENCHMARKS  "${BUILDBENCHMARKS}"
 _check_bool VERBOSEMAKEFILE  "${VERBOSEMAKEFILE}"
 _check_bool BUILDMPICONSUMER "${BUILDMPICONSUMER}"
-_check_bool USECUDARNG       "${USECUDARNG}"
+_check_cuda_tristate USECUDARNG       "${USECUDARNG}"
+_check_cuda_tristate BUILDGPUCONSUMER "${BUILDGPUCONSUMER}"
 _check_bool SKIPALLCUDA      "${SKIPALLCUDA}"
 _check_bool GIMAGE_USE_FLOAT "${GIMAGE_USE_FLOAT}"
 _check_bool WITHCOVERAGE     "${WITHCOVERAGE}"
@@ -325,9 +335,9 @@ esac
 if [ "${SANITIZER}" != "none" ]; then
 	echo -e "\nSanitizer '${SANITIZER}' enabled — forcing CUDA, the MPI consumer and the GPU consumer OFF for this build."
 	SKIPALLCUDA="1"
-	USECUDARNG="0"
+	USECUDARNG="off"
 	BUILDMPICONSUMER="0"
-	BUILDGPUCONSUMER="0"
+	BUILDGPUCONSUMER="off"
 	CUDA_NVCC=""
 	CUDA_ROOT=""
 fi
@@ -399,8 +409,8 @@ if [ "${GENERATE_PRESET}" = "1" ]; then
 	_preset_add "GENEVA_BUILD_EXAMPLES"           "BOOL"   "${BUILDEXAMPLES}"
 	_preset_add "GENEVA_BUILD_BENCHMARKS"         "BOOL"   "${BUILDBENCHMARKS}"
 	_preset_add "GENEVA_BUILD_WITH_MPI_CONSUMER"  "BOOL"   "${BUILDMPICONSUMER}"
-	_preset_add "GENEVA_BUILD_WITH_GPU_CONSUMER"  "BOOL"   "${BUILDGPUCONSUMER}"
-	_preset_add "GENEVA_USE_CUDA_RNG"             "BOOL"   "${USECUDARNG}"
+	_preset_add "GENEVA_BUILD_WITH_GPU_CONSUMER"  "STRING" "${BUILDGPUCONSUMER}"
+	_preset_add "GENEVA_USE_CUDA_RNG"             "STRING" "${USECUDARNG}"
 
 	if [ -n "${BOOSTROOT}" ]; then
 		_preset_add "BOOST_ROOT"       "PATH" "${BOOSTROOT}"

@@ -40,7 +40,7 @@
 #
 ################################################################################
 
-IF(GENEVA_USE_CUDA_RNG)
+IF(GENEVA_USE_CUDA_RNG_ENABLED)
 	ENABLE_LANGUAGE(CUDA)
 	set(CMAKE_CUDA_STANDARD 20)
 	set(CMAKE_CUDA_STANDARD_REQUIRED ON)
@@ -56,7 +56,7 @@ SET ( HAPINCLUDES
 	GXoshiro256pp.hpp
 )
 
-IF(GENEVA_USE_CUDA_RNG)
+IF(GENEVA_USE_CUDA_RNG_ENABLED)
 	SET(HAPINCLUDES
 		${HAPINCLUDES}
 		GCUDARng.hpp

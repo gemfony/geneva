@@ -112,10 +112,11 @@ Recommended Versions:
 - The GPU consumer is now an opt-in add-on folded INTO the one gemfony-courtier library,
   exactly like the MPI consumer -- there is no separate gemfony-courtier-gpu library any
   more. A new build flag GENEVA_BUILD_WITH_GPU_CONSUMER (genevaConfig.gcfg:
-  BUILDGPUCONSUMER, default OFF) gates it: when ON, the device backends compile into
+  BUILDGPUCONSUMER, now tri-state auto|on|off, default auto -- see below) gates it: when
+  enabled, the device backends compile into
   courtier and it dynamically links the CUDA (NVRTC + driver API) toolkit when present
   (a CPU backend is always available), and the `gpu` mnemonic becomes
-  selectable; when OFF, no GPU code is compiled, `gpu` is not a consumer, and example 15
+  selectable; when off, no GPU code is compiled, `gpu` is not a consumer, and example 15
   (GCUDAWorker) + the GPU optimisation benchmark are skipped. This mirrors MPI: opt-in,
   dynamically linked, no toolkit requirement on a stock build. It is independent of
   GENEVA_USE_CUDA_RNG (a separate Hap feature); GENEVA_SKIP_CUDA forces the CUDA backend
@@ -131,6 +132,17 @@ Recommended Versions:
   introducing a BackendKind, teaching backendKindFromString()/toString() about it, and
   adding a factory branch behind a new GPUGEN_HAVE_<X> compile guard. SOURCE-breaking only
   for code that explicitly selected the OpenCL backend (the default GPU backend was CUDA).
+
+- The two CUDA build opt-ins -- USECUDARNG (CUDA random numbers in Hap) and BUILDGPUCONSUMER
+  (the GPU consumer) -- are now tri-state auto|on|off (legacy 0/1 still accepted), default
+  auto, with a uniform resolution: auto enables the feature only when a CUDA toolkit is
+  found (else it falls back to the SIMD/CPU path / is skipped, with a message); on requires
+  CUDA (configure fails if absent); off disables it. They remain INDEPENDENT and both sit
+  under the SKIPALLCUDA master kill-switch, sharing one CUDA detection. A configure summary
+  now prints the resolved GPU/CUDA picture (master, toolkit, Hap-RNG and GPU-consumer
+  states) so the result is never a surprise. The previous default left both OFF unless
+  explicitly switched on; with auto, a host that has CUDA now uses it by default (turn it
+  off with USECUDARNG=off / BUILDGPUCONSUMER=off or the SKIPALLCUDA master).
 
 - GGenomeBuilder gained convenience helpers: vector-of-starts group overloads
   (addDoubleGroup / addDoublePlainGroup / addFloatGroup taking a per-element start

@@ -44,7 +44,7 @@ ENDIF ()
 # consumer: the device backends compile in (and CUDA links in) only when requested. The backend
 # source list + toolkit detection come from gpu/GPUBackends.cmake (which sets COURTIER_GPU_SRCS and the
 # COURTIER_GPU_HAVE_CUDA flag used in the link/definitions block below).
-IF (GENEVA_BUILD_WITH_GPU_CONSUMER)
+IF (GENEVA_GPU_CONSUMER_ENABLED)
     INCLUDE( ${CMAKE_CURRENT_SOURCE_DIR}/gpu/GPUBackends.cmake )
     SET( COMMUNICATIONSOURCES
             ${COMMUNICATIONSOURCES}
@@ -93,7 +93,7 @@ ENDIF ()
 # GPUGEN_HAVE_* feature macros are likewise PRIVATE: only GGPUBackendFactory.cpp (a courtier translation
 # unit) switches on them to register the available backends; no public GPU header references them, so a
 # program that builds a GPU marshaller (e.g. example 15) does not need them.
-IF (GENEVA_BUILD_WITH_GPU_CONSUMER)
+IF (GENEVA_GPU_CONSUMER_ENABLED)
     IF (COURTIER_GPU_HAVE_CUDA)
         TARGET_COMPILE_DEFINITIONS(${COURTIER_LIBNAME} PRIVATE GPUGEN_HAVE_CUDA)
         # NVRTC for runtime kernel compilation; the CUDA driver API (cuda) for module load + launch.

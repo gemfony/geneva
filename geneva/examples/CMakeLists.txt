@@ -51,7 +51,7 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 			GMPISubClients)
 ENDIF()
 
-IF(GENEVA_BUILD_WITH_GPU_CONSUMER)
+IF(GENEVA_GPU_CONSUMER_ENABLED)
 	SET(DEPENDENCIES
 		${DEPENDENCIES}
 		GCUDAWorker)
@@ -80,7 +80,7 @@ ADD_SUBDIRECTORY( 14_GDependentConstraints )
 # runtime-compiled (NVRTC), so it needs no CUDA language at build time -- it builds with an
 # ordinary C++ toolchain and selects CPU/CUDA at run time. It also requires libpng (its own
 # CMakeLists skips the example if libpng is absent).
-IF(GENEVA_BUILD_WITH_GPU_CONSUMER)
+IF(GENEVA_GPU_CONSUMER_ENABLED)
 	ADD_SUBDIRECTORY(15_GCUDAWorker)
 ENDIF()
 
