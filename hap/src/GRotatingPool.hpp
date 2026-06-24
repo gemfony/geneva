@@ -53,13 +53,20 @@
 // waits on a reader) makes it deadlock-free; the N>=3 quarantine makes such an
 // overlap reachable only for a reader descheduled across a full pool rotation,
 // and even then it is benign. It is *formally* still a data race (a scheduling
-// delay creates no happens-before edge), so under ThreadSanitizer we mark the
-// writing side no_sanitize -- suppressing one side of the pair silences the
-// (by-design benign) report without changing code generation.
+// delay creates no happens-before edge), so under ThreadSanitizer we annotate
+// the pool STORAGE as a benign race. We annotate the memory (not the writer)
+// because the actual write happens inside the SIMD/cuRAND generate() callee,
+// which is shared with the QUEUE source and must not be blanket-suppressed --
+// a no_sanitize on the refill wrapper would miss it. AnnotateBenignRaceSized
+// covers every access (producer write, in-place reader, atomic_ref copy-out) to
+// the named range, which is exactly the pool buffer.
 #if defined(__SANITIZE_THREAD__) || (defined(__has_feature) && __has_feature(thread_sanitizer))
-#define HAP_NO_TSAN __attribute__((no_sanitize("thread")))
+extern "C" void AnnotateBenignRaceSized(const char *file, int line, const volatile void *mem,
+                                        unsigned long size, const char *description);
+#define HAP_ANNOTATE_BENIGN_RACE(addr, size, desc) \
+    AnnotateBenignRaceSized(__FILE__, __LINE__, (addr), (size), (desc))
 #else
-#define HAP_NO_TSAN
+#define HAP_ANNOTATE_BENIGN_RACE(addr, size, desc) ((void) 0)
 #endif
 
 namespace Gem::Hap::detail {
@@ -109,6 +116,10 @@ public:
       , pools_(static_cast<std::size_t>(NPools)) {
         for(auto &pool : pools_) {
             pool.resize(PoolWords);
+            // Mark the pool storage as an intentional benign race (no-op unless built
+            // under ThreadSanitizer); see the note at the top of this file.
+            HAP_ANNOTATE_BENIGN_RACE(pool.data(), PoolWords * sizeof(std::uint64_t),
+                                     "GRotatingPool: benign refill-vs-stale-reader race (aligned 64-bit)");
         }
         // Fill the initial NPools generations (pool k holds generation k).
         for(int k = 0; k < NPools; ++k) {
@@ -162,9 +173,9 @@ public:
     }
 
 private:
-    /** @brief Bulk-fills pool k from the backend. Marked no_sanitize: this is the write side of
-     *         the documented benign race (a stale reader may concurrently touch pool k). */
-    HAP_NO_TSAN void fillPool(int k) {
+    /** @brief Bulk-fills pool k from the backend. The pool storage is annotated as a benign race
+     *         (see the constructor / file-top note), so a concurrent stale reader is not flagged. */
+    void fillPool(int k) {
         backend_.generate(pools_[static_cast<std::size_t>(k)].data(), PoolWords);
     }
 
