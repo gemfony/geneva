@@ -141,7 +141,7 @@ int main(int argc, char **argv) {
         ,
         source // the default
         ,
-        "The random source to benchmark: 'queue', 'local' or 'staged'"
+        "The random source to benchmark: 'queue', 'local', 'staged' or 'quarantine'"
     );
 
     // Parse the command line and leave if the help flag was given
@@ -169,9 +169,13 @@ int main(int argc, char **argv) {
         throughput = run_measurement<Gem::Hap::randomSource::STAGED>(
             packageSize, nCycles, lowerBoundary, upperBoundary);
     }
+    else if(source == "quarantine") {
+        throughput = run_measurement<Gem::Hap::randomSource::QUARANTINE>(
+            packageSize, nCycles, lowerBoundary, upperBoundary);
+    }
     else {
         std::cerr << "Error: unknown source '" << source
-                  << "' (expected 'queue', 'local' or 'staged')" << '\n';
+                  << "' (expected 'queue', 'local', 'staged' or 'quarantine')" << '\n';
         return 1;
     }
 

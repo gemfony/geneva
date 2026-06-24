@@ -49,6 +49,7 @@
 #include "common/GLogger.hpp"
 #include "hap/GRandomBase.hpp"
 #include "hap/GRandomDefines.hpp"
+#include "hap/GQuarantineSource.hpp"
 #include "hap/GStagedSource.hpp"
 
 #include <array>
@@ -284,6 +285,8 @@ private:
 using GRandom = GRandomT<Gem::Hap::randomSource::LOCAL>;
 #elif defined(HAP_DEFAULT_SOURCE_STAGED)
 using GRandom = GRandomT<Gem::Hap::randomSource::STAGED>;
+#elif defined(HAP_DEFAULT_SOURCE_QUARANTINE)
+using GRandom = GRandomT<Gem::Hap::randomSource::QUARANTINE>;
 #else
 using GRandom = GRandomT<Gem::Hap::randomSource::QUEUE>;
 #endif
@@ -491,6 +494,110 @@ private:
     /** @brief Index (0/1) of the half currently being served */
     int active_ = 0;
     /** @brief Read position within the active half */
+    std::size_t pos_ = 0;
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This specialization of the general GRandomT<> class reads its raw material in
+ * place from a set of N rotating, bulk-filled pools (see GQuarantineSource.hpp).
+ * Each proxy claims a chunk-sized span via an atomic cursor and reads it directly
+ * out of the shared pool -- no private copy (the lower-overhead distinction from
+ * STAGED). A background producer keeps pools filled ahead of the cursor and
+ * refills a pool only after a full rotation, so an active reader never shares a
+ * pool with the refiller; only a descheduled, stale reader can, and that read is
+ * benign on aligned-64-bit hardware (old-or-new, never torn). Copy and move follow
+ * the LOCAL model: each instance claims its own spans, so the source is ignored.
+ */
+template <>
+class GRandomT<Gem::Hap::randomSource::QUARANTINE> : public Gem::Hap::GRandomBase {
+public:
+    /***************************************************************************/
+    /**
+	 * @brief The standard constructor; claims a first span from the quarantine pool set.
+	 */
+    GRandomT() noexcept(false)
+      : span_(Gem::Hap::detail::quarantineClaimSpan()) { /* nothing */
+    }
+
+    /***************************************************************************/
+    /**
+	 * @brief Copy construction delegates to the default constructor (each instance claims its own spans).
+	 *
+	 * @param cp The object to be "copied" (unused; present only for interface compatibility)
+	 */
+    GRandomT([[maybe_unused]] GRandomT<Gem::Hap::randomSource::QUARANTINE> const & cp) noexcept(false)
+      : GRandomT<Gem::Hap::randomSource::QUARANTINE>() { /* nothing */
+    }
+
+    /***************************************************************************/
+    /**
+	 * @brief Move construction delegates to the default constructor (each instance claims its own spans).
+	 *
+	 * @param cp The object to be "moved" from (unused; present only for interface compatibility)
+	 */
+    GRandomT([[maybe_unused]] GRandomT<Gem::Hap::randomSource::QUARANTINE> && cp) noexcept(false)
+      : GRandomT<Gem::Hap::randomSource::QUARANTINE>() { /* nothing */
+    }
+
+    /***************************************************************************/
+    /**
+	 * @brief The standard destructor.
+	 */
+    ~GRandomT() override = default;
+
+    /***************************************************************************/
+    /**
+	 * @brief Copy-assignment does nothing -- each instance reads its own claimed spans.
+	 *
+	 * @param cp The object to be "assigned" (unused; present only for interface compatibility)
+	 * @return A reference to this object
+	 */
+    GRandomT<Gem::Hap::randomSource::QUARANTINE> &
+    operator=([[maybe_unused]] GRandomT<Gem::Hap::randomSource::QUARANTINE> const & cp) noexcept(
+        false
+    ) // NOLINT(cert-oop54-cpp) — intentionally trivial: each instance owns independent state
+    {
+        return *this;
+    }
+
+    /***************************************************************************/
+    /**
+	 * @brief Move-assignment does nothing -- each instance reads its own claimed spans.
+	 *
+	 * @param cp The object to be "moved" from (unused; present only for interface compatibility)
+	 * @return A reference to this object
+	 */
+    GRandomT<Gem::Hap::randomSource::QUARANTINE> &
+    operator=([[maybe_unused]] GRandomT<Gem::Hap::randomSource::QUARANTINE> && cp) noexcept(false) {
+        return *this;
+    }
+
+private:
+    /***************************************************************************/
+    /**
+	 * @brief Serves the next raw random number, claiming a fresh span when the current one is spent.
+	 *
+	 * The span is read straight from the shared pool. The read may race the
+	 * background producer's refill of a quarantined pool; that race is benign by
+	 * design (aligned-64-bit, old-or-new) -- see GQuarantineSource.cpp.
+	 *
+	 * @return The next raw random value from the currently claimed span
+	 */
+    GRandomBase::result_type int_random() override {
+        if(pos_ >= Gem::Hap::QUARANTINE_CHUNK_WORDS) {
+            span_ = Gem::Hap::detail::quarantineClaimSpan();
+            pos_ = 0;
+        }
+        return span_[pos_++];
+    }
+
+    /***************************************************************************/
+    /** @brief Pointer to the currently claimed span inside a shared pool (read in place) */
+    const std::uint64_t *span_;
+    /** @brief Read position within the current span */
     std::size_t pos_ = 0;
 };
 

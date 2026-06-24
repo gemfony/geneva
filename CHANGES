@@ -161,12 +161,24 @@ Recommended Versions:
   Statistical (HapQualityTests) and concurrency/dormancy (HapConcurrencyTests, the TSan
   gate) coverage was added, and GRandomThroughput gained a --source queue|local|staged knob.
 
-- New compile-time option HAP_RANDOM_SOURCE (queue|local|staged, default queue) selects the
-  source the default Gem::Hap::GRandom alias maps to, so a whole build can be benchmarked on
-  any source without code changes. It is exposed as RANDOMSOURCE in genevaConfig.gcfg /
-  prepareBuild.sh and as -DHAP_RANDOM_SOURCE for direct CMake builds; the macro is part of the
-  hap target's public interface, so GRandom stays consistent across all consumers. Other
-  sources remain usable explicitly via GRandomT<randomSource::...>.
+- New random source Gem::Hap::randomSource::QUARANTINE (additive; the default stays QUEUE).
+  A QUARANTINE proxy claims chunk-sized spans from a set of N rotating, bulk-filled pools via
+  an atomic cursor and reads each span IN PLACE -- no private copy (the lower-overhead
+  distinction from STAGED). A single background producer keeps the pools filled ahead of the
+  cursor and refills a pool only after a full rotation (the "quarantine"), so an active reader
+  never shares a pool with the refiller. A descheduled, stale reader can -- and that read is
+  benign on the supported architectures (x86-64 / AArch64), where an aligned 64-bit load is a
+  single hardware-atomic instruction (old-or-new, never torn; both are valid random numbers).
+  It is formally still a data race, so it ships annotated: a static_assert that aligned 64-bit
+  access is lock-free, and the producer's refill marked no_sanitize so ThreadSanitizer does not
+  flag the by-design benign race. Statistical and concurrency coverage was added.
+
+- New compile-time option HAP_RANDOM_SOURCE (queue|local|staged|quarantine, default queue)
+  selects the source the default Gem::Hap::GRandom alias maps to, so a whole build can be
+  benchmarked on any source without code changes. It is exposed as RANDOMSOURCE in
+  genevaConfig.gcfg / prepareBuild.sh and as -DHAP_RANDOM_SOURCE for direct CMake builds; the
+  macro is part of the hap target's public interface, so GRandom stays consistent across all
+  consumers. Other sources remain usable explicitly via GRandomT<randomSource::...>.
 
 - GGenomeBuilder gained convenience helpers: vector-of-starts group overloads
   (addDoubleGroup / addDoublePlainGroup / addFloatGroup taking a per-element start

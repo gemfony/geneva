@@ -326,8 +326,8 @@ _check_bool GIMAGE_USE_FLOAT "${GIMAGE_USE_FLOAT}"
 _check_bool WITHCOVERAGE     "${WITHCOVERAGE}"
 
 case "${RANDOMSOURCE}" in
-	queue|local|staged) ;;
-	*) echo -e "\nError: RANDOMSOURCE must be one of queue|local|staged (got '${RANDOMSOURCE}'). Leaving...\n"; exit 1 ;;
+	queue|local|staged|quarantine) ;;
+	*) echo -e "\nError: RANDOMSOURCE must be one of queue|local|staged|quarantine (got '${RANDOMSOURCE}'). Leaving...\n"; exit 1 ;;
 esac
 
 # Sanitizer: validate and, when enabled, force CUDA + the MPI consumer OFF

@@ -156,6 +156,49 @@ TEST_CASE("Hap quality: STAGED source statistics", "[hap][quality][staged]") {
     }
 }
 
+TEST_CASE("Hap quality: QUARANTINE source statistics", "[hap][quality][quarantine]") {
+    // The QUARANTINE proxy reads spans in place from N rotating, bulk-filled pools.
+    // With N == 1e6 a single run crosses many span claims and pool rotations, so
+    // these checks exercise the rotation and the (benign-race) in-place reads, not
+    // just one pool's worth of numbers.
+    SECTION("uniform Kolmogorov-Smirnov") {
+        GRandomT<randomSource::QUARANTINE>     rng;
+        std::uniform_real_distribution<double> u(0., 1.);
+        std::vector<double>                    v;
+        v.reserve(N);
+        for (std::uint64_t i = 0; i < N; ++i) v.push_back(u(rng));
+        std::sort(v.begin(), v.end());
+        double d = 0.;
+        for (std::uint64_t i = 0; i < N; ++i) {
+            double hi = static_cast<double>(i + 1) / static_cast<double>(N);
+            double lo = static_cast<double>(i) / static_cast<double>(N);
+            d = std::max(d, std::max(hi - v[i], v[i] - lo));
+        }
+        REQUIRE(d < 0.0040);
+    }
+    SECTION("chi-squared frequency (256 buckets)") {
+        GRandomT<randomSource::QUARANTINE> rng;
+        std::vector<std::uint64_t>         buckets(256, 0);
+        for (std::uint64_t i = 0; i < N; ++i) buckets[static_cast<std::uint64_t>(rng()) >> 56]++;
+        const double expected = static_cast<double>(N) / 256.0;
+        double       chi2     = 0.;
+        for (auto o : buckets) {
+            double diff = static_cast<double>(o) - expected;
+            chi2 += diff * diff / expected;
+        }
+        REQUIRE(chi2 < 400.0);
+    }
+    SECTION("monobit (global bit balance)") {
+        GRandomT<randomSource::QUARANTINE> rng;
+        std::uint64_t                      ones = 0;
+        for (std::uint64_t i = 0; i < N; ++i)
+            ones += static_cast<std::uint64_t>(
+                __builtin_popcountll(static_cast<unsigned long long>(rng())));
+        double fraction = static_cast<double>(ones) / static_cast<double>(N * 64);
+        REQUIRE(std::abs(fraction - 0.5) < 0.0005);
+    }
+}
+
 TEST_CASE("Hap quality: scalar xoshiro256++ engine contract", "[hap][quality]") {
     // Deterministic checks on the header-visible scalar engine (the SIMD engine
     // is library-private and is covered above via the proxy).

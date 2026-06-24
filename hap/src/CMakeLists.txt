@@ -47,6 +47,7 @@ SET ( HAPSOURCES
 	GRandomFactory.cpp
 	GRandomT.cpp
 	GStagedSource.cpp
+	GQuarantineSource.cpp
 )
 
 SET_SOURCE_FILES_PROPERTIES(
@@ -108,6 +109,9 @@ IF(HAP_RANDOM_SOURCE STREQUAL "local")
 ELSEIF(HAP_RANDOM_SOURCE STREQUAL "staged")
 	TARGET_COMPILE_DEFINITIONS(${HAP_LIBNAME} PUBLIC HAP_DEFAULT_SOURCE_STAGED=1)
 	MESSAGE(STATUS "Hap: default GRandom source = STAGED (shared staging pool + double buffer)")
+ELSEIF(HAP_RANDOM_SOURCE STREQUAL "quarantine")
+	TARGET_COMPILE_DEFINITIONS(${HAP_LIBNAME} PUBLIC HAP_DEFAULT_SOURCE_QUARANTINE=1)
+	MESSAGE(STATUS "Hap: default GRandom source = QUARANTINE (rotating in-place pools, benign-race)")
 ELSE()
 	MESSAGE(STATUS "Hap: default GRandom source = QUEUE (central factory queue)")
 ENDIF()

@@ -147,3 +147,28 @@ TEST_CASE("Hap concurrency: STAGED dormant proxy keeps a stable private stream",
     }
     REQUIRE(outOfRange.load() == 0);
 }
+
+TEST_CASE("Hap concurrency: 16 QUARANTINE proxies draw raw values",
+          "[hap][concurrency][quarantine]") {
+    // QUARANTINE proxies read spans in place from the shared rotating pools while a
+    // background producer refills them. Under -fsanitize=thread the producer's
+    // refill races a stale reader by design (benign, aligned-64-bit) -- the write
+    // side is marked no_sanitize in GQuarantineSource.cpp, so a clean TSan run here
+    // confirms no OTHER, unintended race crept in. As a normal ctest it catches
+    // crashes/hangs and out-of-range values.
+    std::atomic<std::uint64_t> outOfRange{0};
+    std::vector<std::thread>   threads;
+    threads.reserve(kThreads);
+    for (unsigned t = 0; t < kThreads; ++t) {
+        threads.emplace_back([&]() {
+            GRandomT<randomSource::QUARANTINE>     rng;
+            std::uniform_real_distribution<double> u(0., 1.);
+            for (std::uint64_t i = 0; i < kRawPer; ++i) {
+                double a = u(rng);
+                if (a < 0. || a >= 1.) outOfRange.fetch_add(1, std::memory_order_relaxed);
+            }
+        });
+    }
+    for (auto &th : threads) th.join();
+    REQUIRE(outOfRange.load() == 0); // uniform_real must stay in [0,1)
+}
