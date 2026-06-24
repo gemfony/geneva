@@ -66,6 +66,7 @@
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
 #include "hap/GDistributionCache.hpp"
+#include "hap/GNormalSource.hpp"
 #include "hap/GRandomDistributionsT.hpp"
 #include "hap/GRandomT.hpp"
 
@@ -170,6 +171,70 @@ double run_mutation_load(std::uint32_t nParams, std::uint32_t nGenerations, unsi
 }
 
 /******************************************************************************/
+/**
+ * @brief Measures gap-side standard-normal generation throughput (the Phase-B lever).
+ *
+ * The prefetch transform runs in the gap; this isolates how fast the standard normals can be
+ * produced there, the two ways the cache offers: CPU per-value (Marsaglia over a proxy, as
+ * GNormalCacheT's CPU mode does) versus bulk via generateStandardNormals (GPU-native when a device
+ * is present, else CPU bulk). Each thread produces nGenerations batches of nParams normals.
+ *
+ * @return Throughput in standard normals per second (summed over threads)
+ */
+double run_normal_gen(std::uint32_t nParams, std::uint32_t nGenerations, unsigned nThreads,
+                      bool bulk) {
+    std::vector<std::thread> threads;
+    threads.reserve(nThreads);
+    std::vector<double> rates(nThreads, 0.);
+    std::vector<double> sinks(nThreads, 0.);
+
+    for(unsigned t = 0; t < nThreads; ++t) {
+        threads.emplace_back([&, t]() {
+            std::vector<double> buf(nParams);
+            double              sink = 0.;
+            if(bulk) {
+                Gem::Hap::generateStandardNormals(buf.data(), nParams); // warm-up (thread_local init)
+            }
+            Gem::Hap::GRandomT<Gem::Hap::randomSource::QUEUE> gr;
+            Gem::Hap::g_normal_distribution<double>           nd;
+            const Gem::Hap::g_normal_distribution<double>::param_type std01(0., 1.);
+
+            const std::chrono::steady_clock::time_point t0 = std::chrono::steady_clock::now();
+            for(std::uint32_t g = 0; g < nGenerations; ++g) {
+                if(bulk) {
+                    Gem::Hap::generateStandardNormals(buf.data(), nParams);
+                }
+                else {
+                    for(std::uint32_t i = 0; i < nParams; ++i) {
+                        buf[i] = nd(gr, std01);
+                    }
+                }
+                sink += buf[g % nParams];
+            }
+            const std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+            const double secs = std::chrono::duration<double>(t1 - t0).count();
+            rates[t] = (secs > 0.) ? (static_cast<double>(nGenerations) * nParams / secs) : 0.;
+            sinks[t] = sink;
+        });
+    }
+    for(auto &th : threads) {
+        th.join();
+    }
+    double guard = 0.;
+    for(double s : sinks) {
+        guard += s;
+    }
+    if(guard == 1.0e300) {
+        std::cerr << ""; // keep sinks live
+    }
+    double total = 0.;
+    for(double r : rates) {
+        total += r;
+    }
+    return total;
+}
+
+/******************************************************************************/
 
 } // namespace
 
@@ -250,5 +315,15 @@ int main(int argc, char **argv) {
                   << r.prefetchRate << std::setw(11) << std::setprecision(3) << speedup << "x"
                   << '\n';
     }
+
+    // --- Phase B: gap-side standard-normal generation, CPU per-value vs bulk (GPU-native) ---
+    const double cpuNorm  = run_normal_gen(nParams, nGenerations, workers, /*bulk=*/false);
+    const double bulkNorm = run_normal_gen(nParams, nGenerations, workers, /*bulk=*/true);
+    std::cout << "\nGap-side standard-normal generation (N(0,1)/s, summed over threads):\n"
+              << std::left << std::setw(28) << "  CPU per-value (Marsaglia)" << std::right
+              << std::setw(18) << std::fixed << std::setprecision(0) << cpuNorm << '\n'
+              << std::left << std::setw(28) << "  bulk (GPU-native if avail)" << std::right
+              << std::setw(18) << bulkNorm << std::setw(11) << std::setprecision(3)
+              << (cpuNorm > 0. ? bulkNorm / cpuNorm : 0.) << "x\n";
     return 0;
 }

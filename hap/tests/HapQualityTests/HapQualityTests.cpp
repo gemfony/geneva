@@ -224,6 +224,25 @@ TEST_CASE("Hap quality: prefetch caches preserve the distribution", "[hap][quali
         REQUIRE(std::abs(m - mean) < 0.02);
         REQUIRE(std::abs(std::sqrt(var) - sd) < 0.02);
     }
+    SECTION("GNormalCacheT bulk mode + generateStandardNormals yield N(mean,stddev)") {
+        // Bulk mode draws standard normals from generateStandardNormals (GPU-native when present,
+        // else CPU bulk) rather than per-value from a proxy. The distribution must be unchanged.
+        GNormalCacheT<double> cache(4096); // no proxy -> bulk mode
+        const double          mean = -1.0;
+        const double          sd   = 2.0;
+        double                sum = 0.;
+        double                sumsq = 0.;
+        for (std::uint64_t i = 0; i < N; ++i) {
+            if (i % 4096 == 0) cache.prefetch(4096);
+            double x = cache(mean, sd);
+            sum += x;
+            sumsq += x * x;
+        }
+        const double m   = sum / static_cast<double>(N);
+        const double var = sumsq / static_cast<double>(N) - m * m;
+        REQUIRE(std::abs(m - mean) < 0.02);
+        REQUIRE(std::abs(std::sqrt(var) - sd) < 0.02);
+    }
     SECTION("GDistributionCacheT matches the wrapped distribution (uniform mean 0.5)") {
         GRandom rng;
         GDistributionCacheT<std::uniform_real_distribution<double>> cache(

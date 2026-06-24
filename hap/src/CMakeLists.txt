@@ -48,6 +48,7 @@ SET ( HAPSOURCES
 	GRandomT.cpp
 	GStagedSource.cpp
 	GQuarantineSource.cpp
+	GNormalSource.cpp
 )
 
 SET_SOURCE_FILES_PROPERTIES(

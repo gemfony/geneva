@@ -36,10 +36,12 @@
 #include <algorithm>
 #include <concepts>
 #include <cstddef>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
 // Geneva headers go here
+#include "hap/GNormalSource.hpp"
 #include "hap/GRandomBase.hpp"
 #include "hap/GRandomDistributionsT.hpp"
 
@@ -199,24 +201,49 @@ public:
     using param_type  = typename Gem::Hap::g_normal_distribution<fp_type>::param_type;
 
     /**
+     * @brief CPU per-value mode: the standard normals are transformed on the CPU from @p src.
+     *
      * @param src      The underlying random source (any GRandomT proxy)
      * @param capacity The maximum number of standard normals buffered
      */
     GNormalCacheT(Gem::Hap::GRandomBase &src, std::size_t capacity)
-      : src_(src)
+      : src_(&src)
+      , buf_(capacity) { /* nothing */ }
+
+    /**
+     * @brief Bulk mode: the standard normals are produced by generateStandardNormals (GPU-native when
+     *        available), with no per-proxy source. prefetch() then fills a whole chunk per call.
+     *
+     * @param capacity The maximum number of standard normals buffered
+     */
+    explicit GNormalCacheT(std::size_t capacity)
+      : src_(nullptr)
       , buf_(capacity) { /* nothing */ }
 
     /**
      * @brief Pre-produces standard normals now (intended for the evaluation gap), up to min(n, capacity).
      *
+     * In bulk mode the buffer is filled in contiguous runs by generateStandardNormals (one call per
+     * run -- batched, and GPU-offloaded where a device is present); in CPU mode each is transformed
+     * one at a time from the source.
+     *
      * @param n The number of standard normals that should be ready after the call
      */
     void prefetch(std::size_t n) {
-        const param_type       standard(fp_type(0), fp_type(1));
-        const std::size_t      target = std::min(n, buf_.size());
+        const std::size_t target = std::min(n, buf_.size());
         while(count_ < target) {
-            buf_[(head_ + count_) % buf_.size()] = dist_(src_, standard);
-            ++count_;
+            const std::size_t tail = (head_ + count_) % buf_.size();
+            const std::size_t run  = std::min(target - count_, buf_.size() - tail); // contiguous
+            if(src_ == nullptr) {
+                fillBulk(buf_.data() + tail, run);
+            }
+            else {
+                const param_type standard(fp_type(0), fp_type(1));
+                for(std::size_t i = 0; i < run; ++i) {
+                    buf_[tail + i] = dist_(*src_, standard);
+                }
+            }
+            count_ += run;
         }
     }
 
@@ -230,10 +257,15 @@ public:
     fp_type operator()(fp_type mean, fp_type stddev) {
         fp_type z; // NOLINT(cppcoreguidelines-init-variables)
         if(count_ == 0) {
-            z = dist_(src_, param_type(fp_type(0), fp_type(1))); // underflow: standard normal inline
+            if(src_ != nullptr) {
+                z = dist_(*src_, param_type(fp_type(0), fp_type(1))); // CPU underflow: inline
+            }
+            else {
+                fillBulk(&z, 1); // bulk underflow: a single deviate (rare)
+            }
         }
         else {
-            z    = buf_[head_];
+            z     = buf_[head_];
             head_ = (head_ + 1) % buf_.size();
             --count_;
         }
@@ -244,8 +276,22 @@ public:
     [[nodiscard]] std::size_t ready() const { return count_; }
 
 private:
-    Gem::Hap::GRandomBase                  &src_;       ///< the underlying raw source
-    Gem::Hap::g_normal_distribution<fp_type> dist_;     ///< drives the transform (and its spare deviate)
+    /** @brief Fills run standard normals at dst via generateStandardNormals (double-native; converts for float). */
+    static void fillBulk(fp_type *dst, std::size_t run) {
+        if constexpr (std::is_same_v<fp_type, double>) {
+            Gem::Hap::generateStandardNormals(dst, run);
+        }
+        else {
+            std::vector<double> tmp(run);
+            Gem::Hap::generateStandardNormals(tmp.data(), run);
+            for(std::size_t i = 0; i < run; ++i) {
+                dst[i] = static_cast<fp_type>(tmp[i]);
+            }
+        }
+    }
+
+    Gem::Hap::GRandomBase                   *src_;       ///< raw source (CPU mode); nullptr in bulk mode
+    Gem::Hap::g_normal_distribution<fp_type> dist_;      ///< drives the CPU transform (and its spare deviate)
     std::vector<fp_type>                     buf_;       ///< ring buffer of standard normals
     std::size_t                              head_  = 0; ///< index of the next value to pop
     std::size_t                              count_ = 0; ///< number of buffered values
