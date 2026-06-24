@@ -153,6 +153,17 @@ Recommended Versions:
   tune params/bursts/threads/factor/gap. (The pre-existing GRandomThroughput is sort-bound and
   does not differentiate the sources; this one does.)
 
+- New opt-in prefetch caches (hap/include/hap/GDistributionCache.hpp) let a consumer move a
+  distribution's raw->deviate transform off the hot path. In an EA, random numbers are drawn in
+  per-generation bursts separated by an evaluation gap; the normal transform (a sqrt + log per
+  draw) is a burst hot-spot. GDistributionCacheT<Distribution> wraps any GRandomBase + any C++20
+  RandomNumberDistribution and pre-produces values via prefetch() (intended for the gap), popping
+  them in the burst (inline fallback on underflow, so never blocks). GNormalCacheT<fp_type> is the
+  EA case: it caches STANDARD normals N(0,1) and applies mean+stddev*z at consume, since sigma
+  re-adapts each generation. The URBG path is untouched for non-subscribers. Source-agnostic
+  (works on all four sources). In GRandomMutationLoad (--prefetch A/B), moving the transform into
+  the gap roughly DOUBLED in-burst throughput (~1.8-2.0x) on every source.
+
 - Hap's random-number source selector was renamed as the set of sources grows: the enum
   Gem::Hap::RANDFLAVOURS is now Gem::Hap::randomSource, and its values RANDOMPROXY /
   RANDOMLOCAL are now QUEUE / LOCAL (the underlying integers are preserved, so streamed

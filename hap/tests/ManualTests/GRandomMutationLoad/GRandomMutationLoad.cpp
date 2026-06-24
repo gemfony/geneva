@@ -65,6 +65,7 @@
 
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
+#include "hap/GDistributionCache.hpp"
 #include "hap/GRandomDistributionsT.hpp"
 #include "hap/GRandomT.hpp"
 
@@ -83,12 +84,19 @@ namespace {
  * exactly the regime the factory is designed for. The reported rate is the sum of
  * the per-thread in-burst rates (system throughput while a burst is in flight).
  *
+ * When usePrefetch is true, the normal value step is drawn through a GNormalCacheT
+ * that is filled in the GAP (untimed) via prefetch(); the burst then only pops a
+ * pre-produced standard normal and scales it -- so the sqrt/log of the transform
+ * leaves the timed burst. When false, the same cache is used but never prefetched,
+ * so operator() always produces inline (the transform stays in the burst) -- a clean
+ * A/B that isolates exactly the gap-transform effect.
+ *
  * @tparam S The random source the proxies draw from
  * @return In-burst throughput in value-steps per second
  */
 template <Gem::Hap::randomSource S>
 double run_mutation_load(std::uint32_t nParams, std::uint32_t nGenerations, unsigned nThreads,
-                         std::uint32_t gapMicros) {
+                         std::uint32_t gapMicros, bool usePrefetch) {
     std::vector<std::thread> threads;
     threads.reserve(nThreads);
     std::vector<double>        rates(nThreads, 0.);
@@ -96,27 +104,34 @@ double run_mutation_load(std::uint32_t nParams, std::uint32_t nGenerations, unsi
 
     for(unsigned t = 0; t < nThreads; ++t) {
         threads.emplace_back([&, t]() {
-            Gem::Hap::GRandomT<S>                   gr;
-            Gem::Hap::g_normal_distribution<double> normal;
-            using n_param = Gem::Hap::g_normal_distribution<double>::param_type;
+            Gem::Hap::GRandomT<S>              gr;
             Gem::Hap::g_bernoulli_distribution bernoulli;
             using b_param = Gem::Hap::g_bernoulli_distribution::param_type;
+            // The cache holds standard normals; +2 covers the two self-adaption draws per burst.
+            Gem::Hap::GNormalCacheT<double> normal(gr, nParams + 2);
 
             double sigma      = 0.1;
             double ad_prob    = 1.0;
             double local      = 0.;
             double burstNanos = 0.;
             for(std::uint32_t g = 0; g < nGenerations; ++g) {
+                // --- GAP work (untimed): pre-produce the burst's standard normals ---
+                if(usePrefetch) {
+                    normal.prefetch(nParams + 2);
+                }
+
                 const std::chrono::steady_clock::time_point b0 = std::chrono::steady_clock::now();
 
                 // --- BURST: adapt the whole (per-thread) parameter set ---
-                ad_prob *= std::exp(normal(gr, n_param(0., 0.1)));
+                // normal(mean, stddev) pops a prefetched standard normal and scales it (prefetch
+                // mode), or transforms inline (non-prefetch mode) -- same numbers, different timing.
+                ad_prob *= std::exp(normal(0., 0.1));
                 ad_prob = std::clamp(ad_prob, 1.0e-3, 1.0);
-                sigma *= std::exp(normal(gr, n_param(0., 0.8)));
+                sigma *= std::exp(normal(0., 0.8));
                 sigma = std::clamp(sigma, 1.0e-9, 1.0);
                 for(std::uint32_t p = 0; p < nParams; ++p) {
                     if(bernoulli(gr, b_param(ad_prob))) {
-                        local += normal(gr, n_param(0., sigma));
+                        local += normal(0., sigma);
                     }
                 }
 
@@ -198,29 +213,42 @@ int main(int argc, char **argv) {
               << " bursts=" << nGenerations << " params/burst=" << nParams
               << " gap=" << gapMicros << "us"
               << " producers=" << nProducerThreads << "\n"
-              << "  draw mix per param: bernoulli gate + N(0,sigma) step; timing IN-BURST only\n\n";
+              << "  per param: bernoulli gate + N(0,sigma) step; IN-BURST timing only.\n"
+              << "  'inline' = transform in the burst; 'prefetch' = standard normals produced in\n"
+              << "  the gap (GNormalCacheT), burst only pops + scales. speedup = prefetch / inline.\n\n";
 
     struct Row {
         std::string name;
-        double      rate;
+        double      inlineRate;
+        double      prefetchRate;
     };
     std::vector<Row> rows;
-    rows.push_back({"queue", run_mutation_load<Gem::Hap::randomSource::QUEUE>(nParams, nGenerations, workers, gapMicros)});
-    rows.push_back({"local", run_mutation_load<Gem::Hap::randomSource::LOCAL>(nParams, nGenerations, workers, gapMicros)});
-    rows.push_back({"staged", run_mutation_load<Gem::Hap::randomSource::STAGED>(nParams, nGenerations, workers, gapMicros)});
-    rows.push_back({"quarantine", run_mutation_load<Gem::Hap::randomSource::QUARANTINE>(nParams, nGenerations, workers, gapMicros)});
+    rows.push_back({"queue",
+                    run_mutation_load<Gem::Hap::randomSource::QUEUE>(nParams, nGenerations, workers, gapMicros, false),
+                    run_mutation_load<Gem::Hap::randomSource::QUEUE>(nParams, nGenerations, workers, gapMicros, true)});
+    rows.push_back({"local",
+                    run_mutation_load<Gem::Hap::randomSource::LOCAL>(nParams, nGenerations, workers, gapMicros, false),
+                    run_mutation_load<Gem::Hap::randomSource::LOCAL>(nParams, nGenerations, workers, gapMicros, true)});
+    rows.push_back({"staged",
+                    run_mutation_load<Gem::Hap::randomSource::STAGED>(nParams, nGenerations, workers, gapMicros, false),
+                    run_mutation_load<Gem::Hap::randomSource::STAGED>(nParams, nGenerations, workers, gapMicros, true)});
+    rows.push_back({"quarantine",
+                    run_mutation_load<Gem::Hap::randomSource::QUARANTINE>(nParams, nGenerations, workers, gapMicros, false),
+                    run_mutation_load<Gem::Hap::randomSource::QUARANTINE>(nParams, nGenerations, workers, gapMicros, true)});
 
-    std::sort(rows.begin(), rows.end(), [](const Row &a, const Row &b) { return a.rate > b.rate; });
-    const double best = rows.front().rate;
+    std::sort(rows.begin(), rows.end(),
+              [](const Row &a, const Row &b) { return a.prefetchRate > b.prefetchRate; });
 
-    std::cout << std::left << std::setw(14) << "source" << std::right << std::setw(20)
-              << "in-burst steps/s" << std::setw(12) << "rel." << '\n';
-    std::cout << "--------------------------------------------------\n";
+    std::cout << std::left << std::setw(14) << "source" << std::right << std::setw(18)
+              << "inline steps/s" << std::setw(20) << "prefetch steps/s" << std::setw(12)
+              << "speedup" << '\n';
+    std::cout << "----------------------------------------------------------------\n";
     for(const auto &r : rows) {
-        std::cout << std::left << std::setw(14) << r.name << std::right << std::setw(20)
-                  << std::fixed << std::setprecision(0) << r.rate << std::setw(11)
-                  << std::setprecision(3) << (r.rate / best) << "x"
-                  << (r.name == rows.front().name ? "  <= fastest" : "") << '\n';
+        const double speedup = (r.inlineRate > 0.) ? (r.prefetchRate / r.inlineRate) : 0.;
+        std::cout << std::left << std::setw(14) << r.name << std::right << std::setw(18)
+                  << std::fixed << std::setprecision(0) << r.inlineRate << std::setw(20)
+                  << r.prefetchRate << std::setw(11) << std::setprecision(3) << speedup << "x"
+                  << '\n';
     }
     return 0;
 }
