@@ -33,6 +33,31 @@ along with the Geneva library (see the file licenses/BoostSoftwareLicense-1.0).
 
 
 
+Third-party software and algorithms
+-----------------------------------
+
+The Hap random-number library uses the following third-party algorithms and
+software. Except where noted, Geneva ships no third-party source code; the
+relevant files (under Apache v2) are independent re-implementations or merely call
+an external library's public interface.
+
+* xoshiro256++ (and the splitmix64 seeding routine), by David Blackman and
+  Sebastiano Vigna. Geneva's scalar and SIMD (AVX2 / NEON) CPU pseudo-random
+  generators implement this algorithm. The reference implementations are released
+  into the public domain under the Creative Commons CC0 1.0 dedication
+  (http://prng.di.unimi.it/). Geneva's versions (hap/include/hap/GXoshiro256pp.hpp
+  and hap/include/hap/GXoshiro256ppSIMD.hpp) are independent C++ re-implementations
+  with no vendored code; the Geneva wrappers themselves are licensed under Apache v2.
+
+* NVIDIA cuRAND, part of the NVIDIA CUDA Toolkit. When Geneva is built with the
+  optional CUDA random-number backend, the Hap library calls the cuRAND host API
+  (using the Philox4x32-10 generator) to produce random numbers on the GPU. cuRAND
+  is proprietary NVIDIA software, supplied by the CUDA Toolkit under NVIDIA's
+  license terms; it is dynamically linked and is not distributed with Geneva. The
+  backend is optional -- builds without CUDA do not use or require it.
+
+
+
 Credits
 -------
 
