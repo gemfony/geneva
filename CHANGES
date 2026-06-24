@@ -161,14 +161,18 @@ Recommended Versions:
   RANDFLAVOURS::RANDOMLOCAL must use randomSource::QUEUE / randomSource::LOCAL.
 
 - New random source Gem::Hap::randomSource::STAGED (additive; the default stays QUEUE).
-  A STAGED proxy claims numbers in chunks from a single process-wide, bulk-filled staging
-  pool into a per-proxy double buffer: the pool is refilled in one large GFillBackend call
-  (the GPU/SIMD/scalar bulk source, chosen once), so it is a good fit for the GPU backend,
-  while each proxy serves from its own private copy and so pins no shared memory (safe to
-  leave dormant). The shared engine-selection + CUDA-fallback logic was extracted into a
-  library-private GFillBackend reused by both the QUEUE producer and the staging pool.
-  Statistical (HapQualityTests) and concurrency/dormancy (HapConcurrencyTests, the TSan
-  gate) coverage was added, and GRandomThroughput gained a --source queue|local|staged knob.
+  A STAGED proxy claims numbers in chunks from a shared, bulk-filled pool into a per-proxy
+  double buffer: each chunk is copied out word-by-word into the proxy's private buffer, from
+  which it then serves -- so it pins no shared memory and is safe to leave dormant. The pool
+  is the lock-free rotating-block ring shared with QUARANTINE (GRotatingPool): N>=3 pools
+  bulk-filled by GFillBackend (the GPU/SIMD/scalar source, chosen once -- a good GPU fit) and
+  kept ahead of an atomic claim cursor by a background producer that never waits on readers
+  (deadlock-free). The shared engine-selection + CUDA-fallback logic lives in a library-private
+  GFillBackend reused by the QUEUE producer and the ring. Statistical (HapQualityTests) and
+  concurrency/dormancy (HapConcurrencyTests, the TSan gate) coverage was added, and
+  GRandomThroughput gained a --source queue|local|staged knob. (Removing STAGED's earlier
+  single mutex pool in favour of the lock-free ring lifted it from last place to within reach
+  of LOCAL/QUARANTINE under many threads in the GRandomMutationLoad benchmark.)
 
 - New random source Gem::Hap::randomSource::QUARANTINE (additive; the default stays QUEUE).
   A QUARANTINE proxy claims chunk-sized spans from a set of N rotating, bulk-filled pools via
