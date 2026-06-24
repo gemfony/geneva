@@ -385,10 +385,26 @@ void GRandomFactory::producer(std::uint32_t seed) {
         std::optional<GCudaRNG> cuda;
         if(useCuda) {
             cuda.emplace(static_cast<std::uint64_t>(seed));
-            glogger << "In GRandomFactory::producer(): CUDA device present;"
-                    << " refilling random-number containers via cuRAND." << '\n'
-                    << GLOGGING;
         }
+        // Log the CUDA decision exactly ONCE for the whole factory (not once per producer
+        // thread). When the binary was built with the CUDA backend but no device is present,
+        // emit a clear warning so the SIMD/CPU fallback never comes as a surprise.
+        static std::once_flag cuda_decision_logged;
+        std::call_once(cuda_decision_logged, [useCuda]() {
+            if(useCuda) {
+                glogger << "In GRandomFactory::producer(): a CUDA device is present;"
+                        << " random-number containers are refilled on the GPU via cuRAND." << '\n'
+                        << GLOGGING;
+            }
+            else {
+                glogger
+                    << "In GRandomFactory::producer(): this binary was built with the CUDA"
+                    << " random-number backend, but no CUDA-capable device is available." << '\n'
+                    << "Falling back to the SIMD/CPU bulk-refill engine -- the GPU is NOT being"
+                    << " used for random-number generation." << '\n'
+                    << GWARNING;
+            }
+        });
 #else
         [[maybe_unused]] constexpr bool useCuda = false;
 #endif

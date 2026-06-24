@@ -330,6 +330,15 @@ Recommended Versions:
   catches or explicitly names this exception type must be updated accordingly.
 - The Boost.Test library linkage has been removed from the build-system, instead Geneva now
   uses Catch2 v3 which needs to be present on the system in order to compile the code.
+- Geneva now targets ONLY the x86-64 and AArch64 architectures. Hap's SIMD bulk-refill
+  backend (the universal fallback when the GPU is unavailable) is written for AVX2
+  (x86-64) and NEON (AArch64), so the build hard-fails at configure time on any other
+  ISA. On an x86-64 toolchain that cannot compile AVX2 (effectively pre-Haswell) the
+  build still proceeds with a warning, falling back to the scalar engine. Relatedly, the
+  Hap factory now prints a one-time WARNING when a binary was built with the CUDA RNG
+  backend but no CUDA-capable device is present at run time, so the silent SIMD/CPU
+  fallback is no longer a surprise (it previously logged only the GPU-present case).
+
 - Windows and macOS support has been removed. Geneva now targets Linux exclusively.
   The G_API_COMMON, G_API_HAP, G_API_COURTIER, G_API_GENEVA, and G_API_INDIVIDUALS
   symbol-visibility macros have been removed from all 2266 call sites and from

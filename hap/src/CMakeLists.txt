@@ -120,6 +120,16 @@ ENDIF()
 # type stays scalar). On unsupported ISAs only the scalar path is built --
 # this is by design, not an error.
 
+# Architecture gate: Geneva/Hap targets ONLY x86-64 and AArch64, because its SIMD
+# bulk-refill backend (the universal fallback when the GPU is unavailable) is written
+# for AVX2 (x86-64) / NEON (AArch64). Every other ISA is excluded at configure time.
+IF ( NOT CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64|aarch64|arm64" )
+	MESSAGE ( FATAL_ERROR
+		"Geneva/Hap supports only x86-64 and AArch64 "
+		"(CMAKE_SYSTEM_PROCESSOR='${CMAKE_SYSTEM_PROCESSOR}'). Its SIMD bulk-refill backend "
+		"targets AVX2 (x86-64) / NEON (AArch64); other architectures are not supported." )
+ENDIF ()
+
 INCLUDE ( CheckCXXSourceCompiles )
 
 SET ( CMAKE_REQUIRED_FLAGS "-mavx2" )
@@ -142,7 +152,14 @@ ELSEIF ( HAP_HAS_NEON AND CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64" )
 	TARGET_COMPILE_DEFINITIONS ( ${HAP_LIBNAME} PRIVATE HAP_NEON_BACKEND=1 )
 	MESSAGE ( STATUS "Hap: NEON SIMD bulk-refill backend enabled (AArch64)" )
 ELSE ()
-	MESSAGE ( STATUS "Hap: scalar xoshiro256++ refill (no SIMD backend for this ISA)" )
+	# The arch gate above guarantees x86-64 or AArch64; reaching here means the SIMD probe
+	# failed (e.g. an x86-64 toolchain that cannot compile AVX2). NEON is baseline-mandatory
+	# on AArch64, so this is effectively the pre-AVX2 x86-64 case: warn and fall back to the
+	# scalar engine (decided policy -- do not hard-fail), so a non-SIMD build is never silent.
+	MESSAGE ( WARNING
+		"Hap: no SIMD bulk-refill backend available on this host (x86-64 without AVX2?) -- "
+		"falling back to the slower scalar xoshiro256++ refill. AVX2 (Haswell, 2013+) is the "
+		"x86-64 SIMD floor." )
 ENDIF ()
 
 ################################################################################
