@@ -27,19 +27,32 @@
 #
 ################################################################################
 
-ADD_SUBDIRECTORY ( GAdaptionPrefetch )
-ADD_SUBDIRECTORY ( GBrokerOverhead )
-ADD_SUBDIRECTORY ( GBrokerSanityChecks )
-ADD_SUBDIRECTORY ( GOptimizationBenchmark )
-ADD_SUBDIRECTORY ( GParallelisationOverhead )
-ADD_SUBDIRECTORY ( GSerializationOverhead )
 
-# The GPU optimisation benchmark drives the courtier GPU consumer, so it is built only when that
-# consumer is (GENEVA_BUILD_WITH_GPU_CONSUMER -- the opt-in add-on folded into gemfony-courtier). Like
-# example 15 its kernel is runtime-compiled (NVRTC), so it needs no CUDA language at build time
-# -- it builds with an ordinary C++ toolchain and selects CPU/CUDA at run time.
-IF ( GENEVA_GPU_CONSUMER_ENABLED )
-	ADD_SUBDIRECTORY ( GCUDAOptBenchmark )
-ENDIF ()
+SET ( EXECUTABLENAME GAdaptionPrefetch )
 
-GENEVA_AGGREGATE_TARGET( "benchmarks-geneva" )
+SET ( ${EXECUTABLENAME}_SRCS
+	GAdaptionPrefetch.cpp
+)
+
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
+)
+
+SET(LIBRARIES_TO_LINK
+		${GENEVA_LIBRARIES}
+		${Boost_LIBRARIES})
+
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(LIBRARIES_TO_LINK
+			${LIBRARIES_TO_LINK}
+			${MPI_LIBRARIES})
+ENDIF()
+
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+		${LIBRARIES_TO_LINK})
+
+IF( GENEVA_RUN_BENCHMARKS_AS_TESTS )
+	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME} -d 200 -g 20 -t 2)
+ENDIF()
+
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/geneva/PerformanceTests/${EXECUTABLENAME} )

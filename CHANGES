@@ -153,6 +153,17 @@ Recommended Versions:
   tune params/bursts/threads/factor/gap. (The pre-existing GRandomThroughput is sort-bound and
   does not differentiate the sources; this one does.)
 
+- The Gauss mutation kernel (geneva/ind/GAdaptionKernels.hpp adaptGaussGroup) gained a cache-aware
+  overload: the dominant per-value N(0,sigma) step can be drawn from a Gem::Hap::GNormalCacheT
+  (a prefetched standard normal scaled by sigma) instead of inline, so its sqrt/log can run ahead
+  of the mutation burst. The existing gr-only overload is unchanged and bit-identical (both now
+  delegate to a shared adaptGaussGroupImpl; only the value-step source differs). Opt-in: no
+  production caller uses the cache overload yet, so existing optimization runs are unaffected. A
+  new benchmark geneva/benchmarks/GAdaptionPrefetch drives the real kernel inline vs cached and
+  measured ~4.7x faster in-adaption with the value step prefetched (64 threads, value-step-
+  dominated config). Wiring per-thread caches + a prefetch call into the OA generation loop (so
+  the prefetch overlaps fitness evaluation) is the remaining productionization step.
+
 - GPU-native standard normals. GCudaRNG::generateNormal / GFillBackend::generateNormal produce
   N(0,1) deviates in bulk -- on a CUDA build with a device, natively on the GPU
   (curandGenerateNormalDouble, the Box-Muller transform running on the device), else on the CPU

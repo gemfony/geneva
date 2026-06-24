@@ -41,6 +41,7 @@
 // Geneva headers go here
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
+#include "hap/GDistributionCache.hpp"
 #include "hap/GRandomDistributionsT.hpp"
 #include "hap/GRandomT.hpp"
 
@@ -102,13 +103,20 @@ struct GaussState {
  * @param values The group's parameter values to adapt, in their normalized internal representation.
  * @param gr The per-individual random engine the mutation draws from.
  * @return The number of values that were actually adapted.
+ *
+ * @note Shared implementation behind the two public adaptGaussGroup() overloads. @p vsDelta supplies
+ *       the per-value gaussian step: the gr-only overload draws it inline from the shared @c normal
+ *       object (bit-identical to the historical kernel), the cache overload pops it from a prefetch
+ *       cache. Self-adaption and the gates always draw inline from @p gr.
+ * @tparam ValueDelta A callable (g_normal_distribution<T>&, GRandomBase&, T sigma) -> T.
  */
-template <typename T>
-std::size_t adaptGaussGroup(
+template <typename T, typename ValueDelta>
+std::size_t adaptGaussGroupImpl(
     const GaussConfig<T> &cfg,
     GaussState<T> &st,
     std::span<T> values,
-    Gem::Hap::GRandomBase &gr
+    Gem::Hap::GRandomBase &gr,
+    ValueDelta vsDelta
 ) {
     // Distribution objects hoisted out of the per-value loop (creating them per value is measurably slower).
     Gem::Hap::g_normal_distribution<T> normal;
@@ -166,7 +174,7 @@ std::size_t adaptGaussGroup(
     // GFPGaussAdaptorT::customAdaptions.
     auto gauss_step = [&](T &v) {
         const T before = v;
-        const T delta = normal(gr, n_param(T(0.), st.sigma));
+        const T delta = vsDelta(normal, gr, st.sigma);
         v = before + delta;
         if(v == before) {
             const T dir = (delta < T(0.)) ? std::numeric_limits<T>::lowest()
@@ -195,6 +203,68 @@ std::size_t adaptGaussGroup(
     // adaptionMode::NEVER: nothing to do.
 
     return n_adapted;
+}
+
+/******************************************************************************/
+/**
+ * @brief Adapts one Gauss group, drawing all randomness inline from @p gr (the standard kernel).
+ *
+ * @tparam T The adaption floating-point type (double or float).
+ * @param cfg The static, shared Gauss configuration for this group.
+ * @param st The per-individual evolving Gauss state; updated in place.
+ * @param values The group's parameter values to adapt, in their normalized internal representation.
+ * @param gr The per-individual random engine the mutation draws from.
+ * @return The number of values that were actually adapted.
+ */
+template <typename T>
+std::size_t adaptGaussGroup(
+    const GaussConfig<T> &cfg,
+    GaussState<T> &st,
+    std::span<T> values,
+    Gem::Hap::GRandomBase &gr
+) {
+    using n_param = typename Gem::Hap::g_normal_distribution<T>::param_type;
+    return adaptGaussGroupImpl<T>(
+        cfg, st, values, gr,
+        [](Gem::Hap::g_normal_distribution<T> &normal, Gem::Hap::GRandomBase &g, T sigma) {
+            return normal(g, n_param(T(0.), sigma));
+        }
+    );
+}
+
+/******************************************************************************/
+/**
+ * @brief Adapts one Gauss group, drawing the per-value N(0,sigma) step from a prefetch cache.
+ *
+ * Identical to the gr-only overload except that the dominant per-value gaussian step pops a
+ * prefetched standard normal from @p ncache and scales it by the current sigma -- so the sqrt/log
+ * transform can run ahead of the burst (see Gem::Hap::GNormalCacheT). Self-adaption (sigma /
+ * adaption probability) and the per-value bernoulli gate still draw inline from @p gr. Because the
+ * value-step normals are drawn from the cache rather than interleaved with the inline draws, the
+ * raw-word consumption order differs: results are statistically equivalent but not bit-identical.
+ *
+ * @tparam T The adaption floating-point type (double or float).
+ * @param cfg The static, shared Gauss configuration for this group.
+ * @param st The per-individual evolving Gauss state; updated in place.
+ * @param values The group's parameter values to adapt, in their normalized internal representation.
+ * @param gr The per-individual random engine for self-adaption and the gates.
+ * @param ncache The per-consumer standard-normal prefetch cache supplying the value step.
+ * @return The number of values that were actually adapted.
+ */
+template <typename T>
+std::size_t adaptGaussGroup(
+    const GaussConfig<T> &cfg,
+    GaussState<T> &st,
+    std::span<T> values,
+    Gem::Hap::GRandomBase &gr,
+    Gem::Hap::GNormalCacheT<T> &ncache
+) {
+    return adaptGaussGroupImpl<T>(
+        cfg, st, values, gr,
+        [&ncache](Gem::Hap::g_normal_distribution<T> & /*unused*/, Gem::Hap::GRandomBase & /*unused*/, T sigma) {
+            return ncache(T(0.), sigma);
+        }
+    );
 }
 
 /******************************************************************************/
