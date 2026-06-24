@@ -60,26 +60,33 @@ namespace {
 
 enum class Mode { Inline, CacheCpu };
 
+/** @brief Summed throughputs: in-adaption only (burst), and in-series total (prefetch + burst). */
+struct AdaptRates {
+    double inAdaption = 0.; ///< values/s timing the burst only (the win IF prefetch overlaps evaluation)
+    double total      = 0.; ///< values/s timing prefetch + burst (no overlap -> the realistic net)
+};
+
 /******************************************************************************/
 /**
- * @brief Runs the real adaptGaussGroup over nGenerations bursts and returns in-adaption values/s.
+ * @brief Runs the real adaptGaussGroup over nGenerations bursts; returns in-adaption and total values/s.
  *
- * Mode::Inline uses the gr-only kernel overload; Mode::CacheCpu uses the cache-aware overload,
- * with the value-step standard normals transformed on the CPU from the proxy (GNormalCacheT) and
- * prefetched in the gap. The cache is refilled in the untimed gap; only the adaption call is
- * timed. adaption_threshold is set high so the per-value gaussian step (the cached draw) dominates
- * the normal load.
+ * Mode::Inline uses the gr-only kernel overload; Mode::CacheCpu uses the cache-aware overload, with
+ * the value-step standard normals prefetched from the proxy. The prefetch and the burst are timed
+ * SEPARATELY so the caller can show both the in-adaption-only speedup (achievable only if the
+ * prefetch overlaps fitness evaluation) and the in-series total (no overlap). adaption_threshold is
+ * high so the per-value gaussian step (the cached draw) dominates the normal load.
  *
- * @return Summed in-adaption throughput in adapted-values per second
+ * @return Summed in-adaption and total throughputs in adapted-values per second
  */
-double run_adaption(std::uint32_t nParams, std::uint32_t nGenerations, unsigned nThreads,
-                    std::uint32_t gapMicros, std::uint32_t threshold, Mode mode) {
+AdaptRates run_adaption(std::uint32_t nParams, std::uint32_t nGenerations, unsigned nThreads,
+                        std::uint32_t gapMicros, std::uint32_t threshold, Mode mode) {
     using Gem::Geneva::Genome::GaussConfig;
     using Gem::Geneva::Genome::GaussState;
 
     std::vector<std::thread> threads;
     threads.reserve(nThreads);
-    std::vector<double> rates(nThreads, 0.);
+    std::vector<double> inAdaptionRates(nThreads, 0.);
+    std::vector<double> totalRates(nThreads, 0.);
     std::vector<double> sinks(nThreads, 0.);
 
     for(unsigned t = 0; t < nThreads; ++t) {
@@ -99,15 +106,19 @@ double run_adaption(std::uint32_t nParams, std::uint32_t nGenerations, unsigned 
                 cpuCache.emplace(Gem::Hap::g_normal_distribution<double>(0., 1.)); // self-sizing
             }
 
-            double burstNanos = 0.;
+            double prefetchNanos = 0.;
+            double burstNanos    = 0.;
             for(std::uint32_t g = 0; g < nGenerations; ++g) {
-                // --- GAP (untimed): pre-produce the value-step standard normals (self-sizing) ---
+                // Time the prefetch (the gap-side work) and the burst (the adaption) SEPARATELY,
+                // so we can report both the in-adaption-only speedup (what you get IF the prefetch
+                // overlaps fitness evaluation) and the in-series total (prefetch + burst, no overlap).
                 if(mode == Mode::CacheCpu) {
+                    const std::chrono::steady_clock::time_point p0 = std::chrono::steady_clock::now();
                     cpuCache->prefetch(gr);
+                    const std::chrono::steady_clock::time_point p1 = std::chrono::steady_clock::now();
+                    prefetchNanos += std::chrono::duration<double, std::nano>(p1 - p0).count();
                 }
-
                 const std::chrono::steady_clock::time_point b0 = std::chrono::steady_clock::now();
-                // --- BURST (timed): the real Gauss-mutation kernel ---
                 if(mode == Mode::Inline) {
                     Gem::Geneva::Genome::adaptGaussGroup<double>(cfg, st, std::span<double>(values), gr);
                 }
@@ -122,9 +133,11 @@ double run_adaption(std::uint32_t nParams, std::uint32_t nGenerations, unsigned 
                 }
             }
             sinks[t] = values.empty() ? 0.0 : values[(nGenerations + t) % nParams];
-            rates[t] = (burstNanos > 0.)
-                         ? (static_cast<double>(nGenerations) * nParams / (burstNanos * 1.0e-9))
-                         : 0.;
+            const double steps = static_cast<double>(nGenerations) * nParams;
+            inAdaptionRates[t] = (burstNanos > 0.) ? (steps / (burstNanos * 1.0e-9)) : 0.;
+            totalRates[t] = ((burstNanos + prefetchNanos) > 0.)
+                              ? (steps / ((burstNanos + prefetchNanos) * 1.0e-9))
+                              : 0.;
         });
     }
     for(auto &th : threads) {
@@ -137,11 +150,12 @@ double run_adaption(std::uint32_t nParams, std::uint32_t nGenerations, unsigned 
     if(guard == 1.0e300) {
         std::cerr << ""; // keep sinks live
     }
-    double total = 0.;
-    for(double r : rates) {
-        total += r;
+    AdaptRates out;
+    for(unsigned t = 0; t < nThreads; ++t) {
+        out.inAdaption += inAdaptionRates[t];
+        out.total += totalRates[t];
     }
-    return total;
+    return out;
 }
 
 /******************************************************************************/
@@ -172,18 +186,23 @@ int main(int argc, char **argv) {
 
     std::cout << "Real adaptGaussGroup kernel: " << workers << " threads x " << nGenerations
               << " bursts x " << nParams << " params, gap=" << gapMicros << "us, threshold="
-              << threshold << "\n  IN-ADAPTION timing only; cache prefetched in the gap.\n\n";
+              << threshold << "\n\n";
 
-    const double inl = run_adaption(nParams, nGenerations, workers, gapMicros, threshold, Mode::Inline);
-    const double cpu = run_adaption(nParams, nGenerations, workers, gapMicros, threshold, Mode::CacheCpu);
+    const AdaptRates inl = run_adaption(nParams, nGenerations, workers, gapMicros, threshold, Mode::Inline);
+    const AdaptRates cpu = run_adaption(nParams, nGenerations, workers, gapMicros, threshold, Mode::CacheCpu);
+    const double     base = inl.inAdaption;
 
-    std::cout << std::left << std::setw(34) << "mode" << std::right << std::setw(20)
+    std::cout << std::left << std::setw(40) << "mode" << std::right << std::setw(20)
               << "values/s" << std::setw(12) << "speedup" << '\n'
-              << "------------------------------------------------------------------\n"
-              << std::left << std::setw(34) << "inline (gr-only kernel)" << std::right
-              << std::setw(20) << std::fixed << std::setprecision(0) << inl << std::setw(11)
+              << "------------------------------------------------------------------------\n"
+              << std::left << std::setw(40) << "inline (gr-only kernel)" << std::right
+              << std::setw(20) << std::fixed << std::setprecision(0) << inl.inAdaption << std::setw(11)
               << std::setprecision(3) << 1.0 << "x\n"
-              << std::left << std::setw(34) << "cache (prefetched normals)" << std::right
-              << std::setw(20) << cpu << std::setw(11) << (inl > 0. ? cpu / inl : 0.) << "x\n";
+              << std::left << std::setw(40) << "cache, in-adaption only (IF overlapped)" << std::right
+              << std::setw(20) << cpu.inAdaption << std::setw(11)
+              << (base > 0. ? cpu.inAdaption / base : 0.) << "x\n"
+              << std::left << std::setw(40) << "cache, in-series total (prefetch+burst)" << std::right
+              << std::setw(20) << cpu.total << std::setw(11)
+              << (base > 0. ? cpu.total / base : 0.) << "x\n";
     return 0;
 }
