@@ -77,8 +77,8 @@ ADD_SUBDIRECTORY( 14_GDependentConstraints )
 
 # Example 15 (Mona-Lisa) drives the courtier GPU consumer, so it is built only when that consumer is
 # (GENEVA_BUILD_WITH_GPU_CONSUMER -- the opt-in add-on folded into gemfony-courtier). Its kernel is
-# runtime-compiled (NVRTC/OpenCL), so it needs no CUDA language at build time -- it builds with an
-# ordinary C++ toolchain and selects CPU/CUDA/OpenCL at run time. It also requires libpng (its own
+# runtime-compiled (NVRTC), so it needs no CUDA language at build time -- it builds with an
+# ordinary C++ toolchain and selects CPU/CUDA at run time. It also requires libpng (its own
 # CMakeLists skips the example if libpng is absent).
 IF(GENEVA_BUILD_WITH_GPU_CONSUMER)
 	ADD_SUBDIRECTORY(15_GCUDAWorker)

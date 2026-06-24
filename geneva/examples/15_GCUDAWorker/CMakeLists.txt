@@ -31,7 +31,7 @@
 # gemfony-courtier when GENEVA_BUILD_WITH_GPU_CONSUMER is ON, which gates this whole example -- see
 # geneva/examples/CMakeLists.txt). Unlike the old example 15 it does NOT enable the CUDA language: the kernel
 # is runtime-compiled by NVRTC at run time, so the example builds with an ordinary C++ toolchain and
-# selects CPU / CUDA / OpenCL at run time via config/GGPUConsumer.json. It only needs libpng to load
+# selects CPU / CUDA at run time via config/GGPUConsumer.json. It only needs libpng to load
 # the target image and write result pictures; if libpng is missing the example is skipped.
 
 # Build example 15 (the Mona-Lisa problem) with FLOAT parameters + a float GPU kernel. This is the
@@ -84,7 +84,7 @@ ELSE ()
 	MESSAGE ( STATUS "Example 15 (GCUDAWorker): building with DOUBLE parameters + the double GPU kernel (GIMAGE_USE_FLOAT=OFF)" )
 ENDIF ()
 
-# The Geneva libraries (the GPU consumer + its CUDA/OpenCL backends are folded into gemfony-courtier
+# The Geneva libraries (the GPU consumer + its CUDA backend are folded into gemfony-courtier
 # when GENEVA_BUILD_WITH_GPU_CONSUMER is ON -- which is required for this example to be built at all,
 # see geneva/examples/CMakeLists.txt), Boost and libpng.
 TARGET_LINK_LIBRARIES ( ${EXECUTABLENAME} PRIVATE

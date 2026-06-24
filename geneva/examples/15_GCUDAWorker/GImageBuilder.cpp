@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
 
     // ---- register the GPU consumer builder; select it with "--consumer gpu" -------------------
     // The GPU consumer is now a first-class, mnemonic-selectable consumer: run with "--consumer gpu" to
-    // evaluate on the device (backend cpu/cuda/opencl chosen in GGPUConsumer.json), or with any other
+    // evaluate on the device (backend cpu/cuda chosen in GGPUConsumer.json), or with any other
     // consumer (e.g. the default "--consumer stc") to evaluate on the CPU via the individual's
     // fitnessCalculation(). We only contribute the problem-specific piece -- a closure that builds the
     // device marshaller + consumer; Go2 owns selection and lifecycle. The closure is invoked lazily at

@@ -66,8 +66,8 @@ parameters are specified. There is a whole family of parameter objects.
 14_GDependentConstraints:
 -------------------------
 
-15_GOpenCLConsumer:
--------------------
+15_GCUDAWorker:
+---------------
 
 16_GMPIConsumer:
 ----------------

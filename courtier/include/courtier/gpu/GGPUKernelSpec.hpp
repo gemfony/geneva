@@ -41,35 +41,34 @@ namespace Gem::Courtier::GPU {
  * The GPU consumer framework -- common, device-agnostic descriptors.
  *
  * Which device-programming-model backend evaluates a batch. The CPU backend is always available
- * (it runs the marshaller's host reference evaluation); the Cuda / OpenCL backends are compiled in
- * only when their toolkit was found at configure time.
+ * (it runs the marshaller's host reference evaluation); the CUDA backend is compiled in only when
+ * its toolkit was found at configure time.
+ *
+ * This enum is the extension point for new device backends: add a kind here, then teach
+ * backendKindFromString()/toString() about it and add a branch in the GGPUBackendFactory (guarded by
+ * a matching GPUGEN_HAVE_<X> compile definition).
  */
 enum class BackendKind {
     CPU,
-    CUDA,
-    OpenCL
+    CUDA
 };
 
-/** @brief Parse a backend mnemonic ("cpu" | "cuda" | "opencl"); falls back to Cpu on anything else.
+/** @brief Parse a backend mnemonic ("cpu" | "cuda"); falls back to Cpu on anything else.
  *  @param s The backend mnemonic string to parse
  *  @return The matching BackendKind, or BackendKind::CPU for any unrecognized string */
 inline BackendKind backendKindFromString(const std::string &s) {
     if(s == "cuda") {
         return BackendKind::CUDA;
     }
-    if(s == "opencl") {
-        return BackendKind::OpenCL;
-    }
     return BackendKind::CPU;
 }
 
 /** @brief Human-readable name of a backend kind.
  *  @param k The backend kind to name
- *  @return Its mnemonic ("cuda" | "opencl" | "cpu") */
+ *  @return Its mnemonic ("cuda" | "cpu") */
 inline const char *toString(BackendKind k) {
     switch(k) {
     case BackendKind::CUDA:   return "cuda";
-    case BackendKind::OpenCL: return "opencl";
     case BackendKind::CPU:    return "cpu";
     }
     return "cpu";
@@ -94,9 +93,9 @@ struct LaunchConfig {
 /******************************************************************************/
 /**
  * Everything a backend needs to acquire and launch the user's kernel, all sourced from the config
- * file. `path` points at the device code: a source file (.cu for CUDA / NVRTC, .cl for OpenCL) that
- * is compiled at run time, or a prebuilt module (.ptx / .cubin for CUDA, .spv for OpenCL/SPIR-V)
- * that is loaded directly. `entry` is the kernel's entry-point name (it must be declared so its
+ * file. `path` points at the device code: a source file (.cu for CUDA / NVRTC) that is compiled at
+ * run time, or a prebuilt module (.ptx / .cubin for CUDA) that is loaded directly. `entry` is the
+ * kernel's entry-point name (it must be declared so its
  * symbol is un-mangled, e.g. `extern "C"` for CUDA).
  */
 struct KernelSpec {

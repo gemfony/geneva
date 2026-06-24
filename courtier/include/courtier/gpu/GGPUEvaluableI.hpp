@@ -132,7 +132,7 @@ public:
      *  pixel-stripe of an image), which the CUDA backend serves by launching n_items * this threads and
      *  atomic-accumulating each item's fitness -- essential when the population is small but each item
      *  is heavy. The kernel must be written to match (accumulate, not overwrite); see the Mona-Lisa
-     *  demo. Backends without double atomics (OpenCL) clamp this to 1.
+     *  demo. Backends without double atomics clamp this to 1.
      *  @return The number of GPU threads to cooperate on a single item (>= 1) */
     [[nodiscard]] virtual int parallelWorkPerItem() const { return 1; }
 };

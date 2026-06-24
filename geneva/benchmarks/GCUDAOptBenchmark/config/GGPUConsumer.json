@@ -2,18 +2,17 @@
     "header": {
         "comment": "Configuration for the courtier GPU consumer used by the benchmark.",
         "comment": "Selects the device-programming model AND the kernel, so the benchmark can switch",
-        "comment": "between CPU / CUDA / OpenCL without recompilation."
+        "comment": "between CPU / CUDA without recompilation."
     },
     "backend": {
-        "comment": "GPU backend: cpu | cuda | opencl. 'cpu' runs the marshaller host reference",
-        "comment": "(always available); 'cuda'/'opencl' need the matching backend compiled into",
-        "comment": "gemfony-courtier-gpu (falls back to 'cpu' with a warning otherwise).",
+        "comment": "GPU backend: cpu | cuda. 'cpu' runs the marshaller host reference",
+        "comment": "(always available); 'cuda' needs the CUDA backend compiled into",
+        "comment": "gemfony-courtier (falls back to 'cpu' with a warning otherwise).",
         "default": "cuda",
         "value": "cuda"
     },
     "kernel_path": {
-        "comment": "Kernel source: ./kernels/benchmark_eval.cu for CUDA (NVRTC),",
-        "comment": "./kernels/benchmark_eval.cl for OpenCL.",
+        "comment": "Kernel source: ./kernels/benchmark_eval.cu for CUDA (NVRTC).",
         "default": "./kernels/benchmark_eval.cu",
         "value": "./kernels/benchmark_eval.cu"
     },

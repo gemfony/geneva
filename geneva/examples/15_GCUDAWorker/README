@@ -22,7 +22,7 @@ The kernel (kernels/monalisa_eval.cu) is compiled at RUN TIME (NVRTC for CUDA), 
 
   * the example builds with an ordinary C++ toolchain -- no CUDA language is enabled at build time;
   * the device-programming model AND the kernel are chosen in config/GGPUConsumer.json, so you can
-    switch between CPU, CUDA and OpenCL without recompiling.
+    switch between CPU and CUDA without recompiling.
 
 The kernel is pixel-parallel (256 threads cooperate on each candidate and atomic-accumulate its
 fitness), so even a modest population fills the GPU. The SAME render+score math is also implemented on
@@ -35,8 +35,8 @@ courtier framework, the broker and Hap.
 Building
 --------
 The example is built automatically when libpng is available (it is skipped otherwise). The CUDA
-backend is compiled into gemfony-courtier-gpu when a CUDA toolkit is present; OpenCL when an OpenCL
-SDK is present. With neither, set backend=cpu in config/GGPUConsumer.json to run on the CPU.
+backend is compiled into gemfony-courtier when a CUDA toolkit is present. Without it, set backend=cpu
+in config/GGPUConsumer.json to run on the CPU.
 
 Running
 -------
@@ -51,8 +51,7 @@ Useful options:
   --emitBestOnly <bool> Only emit an image when the best result improved (default true)
 
 To run on the CPU instead of the GPU, edit config/GGPUConsumer.json and set "backend" to "cpu"
-(the kernel path is then ignored; the host reference evaluation is used). For OpenCL, set "backend"
-to "opencl" and point "kernel_path" at an OpenCL (.cl) kernel.
+(the kernel path is then ignored; the host reference evaluation is used).
 
 Output
 ------
@@ -64,4 +63,4 @@ Configuration files (config/)
   Go2.json                   top-level Go2 settings
   GEvolutionaryAlgorithm.json the evolutionary algorithm (population size, iterations, ...)
   GImageIndividual.json      the image individual (number of triangles, adaption, ...)
-  GGPUConsumer.json          GPU consumer: backend (cpu|cuda|opencl), kernel path/entry, launch sizes
+  GGPUConsumer.json          GPU consumer: backend (cpu|cuda), kernel path/entry, launch sizes

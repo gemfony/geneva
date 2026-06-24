@@ -45,18 +45,21 @@ class GGPUHostEvalI;
 /******************************************************************************/
 /**
  * Builds the device backend for @p kind. The CPU backend uses @p hostEval for its host reference
- * evaluation (a marshaller is-a GGPUHostEvalI); the CUDA/OpenCL backends ignore it (they run the
- * kernel) but take it for a uniform signature. Throws a geneva_exception if the requested backend was
- * not compiled in (its toolkit was absent at configure time) -- the caller can fall back to
+ * evaluation (a marshaller is-a GGPUHostEvalI); the CUDA backend ignores it (it runs the kernel) but
+ * takes it for a uniform signature. Throws a geneva_exception if the requested backend was not
+ * compiled in (its toolkit was absent at configure time) -- the caller can fall back to
  * BackendKind::CPU.
  *
- * Templated on scalar_type (default double). The CUDA/OpenCL backends whose definitions live in
- * GGPUBackendFactory.cpp are explicitly instantiated there for double and float; other scalar types
+ * This factory is the extensible backend picker: new device backends (e.g. HIP/SYCL) slot in behind a
+ * new BackendKind and a GPUGEN_HAVE_<X> guard in GGPUBackendFactory.cpp.
+ *
+ * Templated on scalar_type (default double). The CUDA backend whose definition lives in
+ * GGPUBackendFactory.cpp is explicitly instantiated there for double and float; other scalar types
  * would need an additional explicit instantiation.
  *
  * @tparam scalar_type The host-side scalar element type (double or float) of the param/fitness buffers
- * @param kind The requested backend kind (CPU, CUDA or OpenCL)
- * @param hostEval Host-evaluation interface used by the CPU backend; ignored by CUDA/OpenCL backends
+ * @param kind The requested backend kind (CPU or CUDA)
+ * @param hostEval Host-evaluation interface used by the CPU backend; ignored by the CUDA backend
  * @return An owning pointer to the constructed device backend
  */
 template <typename scalar_type = double>

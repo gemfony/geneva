@@ -55,7 +55,7 @@ namespace Gem::Geneva::Benchmarks {
  * A GGPUEvaluableI marshaller for the CUDA optimisation benchmark. It turns a batch of
  * GFunctionIndividuals into flat device buffers for the unified courtier GPU consumer
  * (Gem::Courtier::GPU::GGPUConsumerT): the whole population is scored in ONE bulk, runtime-compiled
- * kernel launch (kernels/benchmark_eval.cu via NVRTC, or .cl via OpenCL), instead of the previous
+ * kernel launch (kernels/benchmark_eval.cu via NVRTC), instead of the previous
  * build-time-compiled .cu consumer. This is what unifies the benchmark with example 15 onto the same
  * backend.
  *

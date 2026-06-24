@@ -113,16 +113,24 @@ Recommended Versions:
   exactly like the MPI consumer -- there is no separate gemfony-courtier-gpu library any
   more. A new build flag GENEVA_BUILD_WITH_GPU_CONSUMER (genevaConfig.gcfg:
   BUILDGPUCONSUMER, default OFF) gates it: when ON, the device backends compile into
-  courtier and it dynamically links the CUDA (NVRTC + driver API) and/or OpenCL toolkits
-  that are present (a CPU backend is always available), and the `gpu` mnemonic becomes
+  courtier and it dynamically links the CUDA (NVRTC + driver API) toolkit when present
+  (a CPU backend is always available), and the `gpu` mnemonic becomes
   selectable; when OFF, no GPU code is compiled, `gpu` is not a consumer, and example 15
   (GCUDAWorker) + the GPU optimisation benchmark are skipped. This mirrors MPI: opt-in,
   dynamically linked, no toolkit requirement on a stock build. It is independent of
-  GENEVA_USE_CUDA_RNG (a separate Hap feature); GENEVA_SKIP_CUDA still forces the CUDA
-  backend off (leaving CPU/OpenCL). The GPU consumer headers stay device-toolkit-clean
-  (CUDA/OpenCL headers are confined to the backend .cpp), so folding them in does not pull
-  device headers into courtier's public interface. Programs that linked the old
+  GENEVA_USE_CUDA_RNG (a separate Hap feature); GENEVA_SKIP_CUDA forces the CUDA backend
+  off (leaving the CPU backend). The GPU consumer headers stay device-toolkit-clean (the
+  CUDA headers are confined to the backend .cpp), so folding them in does not pull device
+  headers into courtier's public interface. Programs that linked the old
   gemfony-courtier-gpu just link gemfony-courtier now.
+
+- GPU support is now CUDA-only: the earlier OpenCL device backend (GOpenCLBackend) has
+  been removed, along with its toolkit detection and the `opencl` backend mnemonic.
+  BackendKind is now { CPU, CUDA }. The device-backend picker (GGPUBackendFactory) is
+  retained as an extensible stub -- a further backend (e.g. HIP or SYCL) is added by
+  introducing a BackendKind, teaching backendKindFromString()/toString() about it, and
+  adding a factory branch behind a new GPUGEN_HAVE_<X> compile guard. SOURCE-breaking only
+  for code that explicitly selected the OpenCL backend (the default GPU backend was CUDA).
 
 - GGenomeBuilder gained convenience helpers: vector-of-starts group overloads
   (addDoubleGroup / addDoublePlainGroup / addFloatGroup taking a per-element start

@@ -40,8 +40,8 @@ would arise if each run used its own `Go2` instance.
 | Boost | ≥ 1.90 (program_options, property_tree) |
 
 The benchmark itself builds with an ordinary C++ toolchain — it does **not** require the CUDA
-language at build time. The GPU backends live in the optional `gemfony-courtier-gpu` add-on: a CUDA
-toolkit enables the CUDA backend, an OpenCL SDK enables the OpenCL backend. With neither, set
+language at build time. The GPU backend lives in the optional GPU consumer folded into
+`gemfony-courtier`: a CUDA toolkit enables the CUDA backend. Without it, set
 `backend` to `cpu` in `config/GGPUConsumer.json` to run on the CPU (the marshaller's host reference).
 The device/backend and kernel are chosen at run time, so no compute-capability list needs editing.
 
@@ -233,9 +233,9 @@ GBenchmarkGPUMarshaller.hpp
            fitness back via process(). Its host reference reuses the shared function math
            (geneva/individuals/GBenchmarkFunctions.hpp), so a CPU run cross-checks the GPU.
 
-kernels/benchmark_eval.cu / .cl
-  The evaluation kernel, loaded and compiled at RUN TIME (NVRTC for CUDA, clBuildProgram for
-           OpenCL) by the consumer's backend. One thread per individual; it mirrors the 15 functions
+kernels/benchmark_eval.cu
+  The evaluation kernel, loaded and compiled at RUN TIME (NVRTC for CUDA) by the consumer's
+           backend. One thread per individual; it mirrors the 15 functions
            of GBenchmarkFunctions.hpp (funcId 0..14). Edit the kernel + rerun — no rebuild needed.
 
 GAlgorithmBenchmarkRunner.hpp/.cpp   (C++20, CUDA-agnostic)

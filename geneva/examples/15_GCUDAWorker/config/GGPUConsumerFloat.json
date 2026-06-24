@@ -2,19 +2,19 @@
     "header": {
         "comment": "Configuration for the courtier GPU consumer (Gem::Courtier::GPU::GGPUConsumerT).",
         "comment": "It selects the device-programming model AND the kernel, so the same program can",
-        "comment": "switch between CPU / CUDA / OpenCL without recompilation.",
+        "comment": "switch between CPU / CUDA without recompilation.",
         "comment": "FLOAT variant: used when example 15 is built with GIMAGE_USE_FLOAT (FP32 kernel)."
     },
     "backend": {
-        "comment": "GPU backend: cpu | cuda | opencl.",
+        "comment": "GPU backend: cpu | cuda.",
         "comment": "'cpu' runs the marshaller's host reference evaluation (always available);",
-        "comment": "'cuda'/'opencl' require the matching backend to have been compiled into",
-        "comment": "gemfony-courtier-gpu (it falls back to 'cpu' with a warning otherwise).",
+        "comment": "'cuda' requires the CUDA backend to have been compiled into",
+        "comment": "gemfony-courtier (it falls back to 'cpu' with a warning otherwise).",
         "default": "cuda",
         "value": "cuda"
     },
     "kernel_path": {
-        "comment": "Path to the kernel source (.cu for CUDA via NVRTC, .cl for OpenCL),",
+        "comment": "Path to the kernel source (.cu for CUDA via NVRTC),",
         "comment": "or a prebuilt module (.ptx/.cubin). Resolved relative to the working directory.",
         "default": "./kernels/monalisa_eval_float.cu",
         "value": "./kernels/monalisa_eval_float.cu"

@@ -1165,7 +1165,7 @@ void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
      * @brief Sets the fitness to a given set of values and clears the dirty flag.
      *
      * This is meant to be used by external methods of performing the actual evaluation, such as the
-     * OpenCL-Consumer. The fitness vector is interpreted as raw fitness values, and transformed
+     * GPU consumer. The fitness vector is interpreted as raw fitness values, and transformed
      * fitness values are calculated as needed (per the configured evaluation policy).
      *
      * @param f_cnt A vector of raw fitness values (size must match the number of fitness criteria)

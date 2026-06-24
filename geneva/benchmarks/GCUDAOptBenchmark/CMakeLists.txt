@@ -30,9 +30,9 @@
 # Multi-algorithm GPU optimisation benchmark. It is evaluated through the SAME unified courtier GPU
 # consumer (folded into gemfony-courtier when GENEVA_BUILD_WITH_GPU_CONSUMER is ON) that example 15 uses
 # -- a whole population scored in one bulk,
-# runtime-compiled kernel launch. The kernel (kernels/benchmark_eval.cu via NVRTC, or .cl via OpenCL)
+# runtime-compiled kernel launch. The kernel (kernels/benchmark_eval.cu via NVRTC)
 # is loaded at run time, so this target no longer enables the CUDA language at build time: it builds
-# with an ordinary C++ toolchain and the backend (cpu/cuda/opencl) is chosen in config/GGPUConsumer.json.
+# with an ordinary C++ toolchain and the backend (cpu/cuda) is chosen in config/GGPUConsumer.json.
 
 SET ( EXECUTABLENAME GCUDAOptBenchmark )
 
@@ -50,7 +50,7 @@ SET_TARGET_PROPERTIES ( ${EXECUTABLENAME} PROPERTIES
 
 TARGET_INCLUDE_DIRECTORIES ( ${EXECUTABLENAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
 
-# The Geneva libraries (the GPU consumer + its CUDA/OpenCL backends + the libstdc++ ABI fix are folded
+# The Geneva libraries (the GPU consumer + its CUDA backend + the libstdc++ ABI fix are folded
 # into gemfony-courtier when GENEVA_BUILD_WITH_GPU_CONSUMER is ON -- required for this benchmark to be
 # built at all, see geneva/benchmarks/CMakeLists.txt) and Boost.
 SET ( LIBRARIES_TO_LINK

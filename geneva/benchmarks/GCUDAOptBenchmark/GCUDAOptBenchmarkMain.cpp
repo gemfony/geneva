@@ -6,8 +6,8 @@
  * The whole population of each generation is scored in one bulk, runtime-compiled kernel launch
  * through the unified courtier GPU consumer (Gem::Courtier::GPU::GGPUConsumerT) -- the SAME consumer
  * example 15 uses. There is no build-time CUDA compilation unit any more: the kernel
- * (kernels/benchmark_eval.cu via NVRTC, or .cl via OpenCL) is loaded at run time, and the backend
- * (cpu/cuda/opencl) is selected in config/GGPUConsumer.json.
+ * (kernels/benchmark_eval.cu via NVRTC) is loaded at run time, and the backend
+ * (cpu/cuda) is selected in config/GGPUConsumer.json.
  */
 
 /********************************************************************************
@@ -163,7 +163,7 @@ int main(int argc, char **argv) {
 
     // Build the unified GPU consumer (the SAME GGPUConsumerT example 15 uses) and register it as the
     // process consumer. The whole population is scored in one bulk, runtime-compiled kernel launch; the
-    // backend (cpu/cuda/opencl) and kernel are selected in config/GGPUConsumer.json. The clone function
+    // backend (cpu/cuda) and kernel are selected in config/GGPUConsumer.json. The clone function
     // is the polymorphic GOptimizableEntity clone needed by the clone-on-partial-return policy.
     auto marshaller = std::make_shared<GBenchmarkGPUMarshaller>();
     auto consumer = std::make_shared<Gem::Courtier::GPU::GGPUConsumerT<gen::GOptimizableEntity>>(

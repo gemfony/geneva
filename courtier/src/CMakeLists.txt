@@ -41,9 +41,9 @@ IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
 ENDIF ()
 
 # GPU-consumer is optional too, and is folded into this one courtier library exactly like the MPI
-# consumer: the device backends compile in (and CUDA/OpenCL link in) only when requested. The backend
+# consumer: the device backends compile in (and CUDA links in) only when requested. The backend
 # source list + toolkit detection come from gpu/GPUBackends.cmake (which sets COURTIER_GPU_SRCS and the
-# COURTIER_GPU_HAVE_{CUDA,OPENCL} flags used in the link/definitions block below).
+# COURTIER_GPU_HAVE_CUDA flag used in the link/definitions block below).
 IF (GENEVA_BUILD_WITH_GPU_CONSUMER)
     INCLUDE( ${CMAKE_CURRENT_SOURCE_DIR}/gpu/GPUBackends.cmake )
     SET( COMMUNICATIONSOURCES
@@ -88,7 +88,7 @@ IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
     TARGET_LINK_LIBRARIES(${COURTIER_LIBNAME} PRIVATE MPI::MPI_CXX)
 ENDIF ()
 
-# The GPU consumer's device dependencies (CUDA driver/NVRTC, OpenCL) are implementation details of the
+# The GPU consumer's device dependencies (CUDA driver/NVRTC) are implementation details of the
 # backend .cpp files -> link them PRIVATE so they do not leak into courtier's exported interface. The
 # GPUGEN_HAVE_* feature macros are likewise PRIVATE: only GGPUBackendFactory.cpp (a courtier translation
 # unit) switches on them to register the available backends; no public GPU header references them, so a
@@ -101,13 +101,6 @@ IF (GENEVA_BUILD_WITH_GPU_CONSUMER)
         MESSAGE(STATUS "${COURTIER_LIBNAME}: GPU consumer CUDA backend enabled (NVRTC + CUDA driver API)")
     ELSE ()
         MESSAGE(STATUS "${COURTIER_LIBNAME}: GPU consumer CUDA backend DISABLED (no CUDA toolkit)")
-    ENDIF ()
-    IF (COURTIER_GPU_HAVE_OPENCL)
-        TARGET_COMPILE_DEFINITIONS(${COURTIER_LIBNAME} PRIVATE GPUGEN_HAVE_OPENCL)
-        TARGET_LINK_LIBRARIES(${COURTIER_LIBNAME} PRIVATE OpenCL::OpenCL)
-        MESSAGE(STATUS "${COURTIER_LIBNAME}: GPU consumer OpenCL backend enabled")
-    ELSE ()
-        MESSAGE(STATUS "${COURTIER_LIBNAME}: GPU consumer OpenCL backend DISABLED (no OpenCL SDK)")
     ENDIF ()
     # The CUDA toolkit's bundled host compiler can inject an older libstdc++ into the link step; link
     # the CXX compiler's own libstdc++.so by full path to satisfy the required CXXABI (see top-level

@@ -45,7 +45,7 @@ namespace Gem::Courtier::GPU {
  * kernel without recompiling.
  */
 struct GGPUConsumerConfig {
-    std::string backend = "cpu";              ///< "cpu" | "cuda" | "opencl"
+    std::string backend = "cpu";              ///< "cpu" | "cuda"
     std::string kernel_path;                  ///< path to the kernel source / prebuilt module
     std::string kernel_entry = "evaluate";    ///< kernel entry-point name
     int device_id = 0;                        ///< which device
@@ -64,10 +64,10 @@ struct GGPUConsumerConfig {
         Gem::Common::GParserBuilder gpb;
         gpb.registerFileParameter<std::string>(
             "backend", backend, backend, Gem::Common::VAR_IS_ESSENTIAL,
-            "GPU backend: cpu | cuda | opencl");
+            "GPU backend: cpu | cuda");
         gpb.registerFileParameter<std::string>(
             "kernel_path", kernel_path, kernel_path, Gem::Common::VAR_IS_ESSENTIAL,
-            "Path to the kernel source (.cu/.cl, runtime-compiled) or prebuilt module (.ptx/.cubin/.spv)");
+            "Path to the kernel source (.cu, runtime-compiled) or prebuilt module (.ptx/.cubin)");
         gpb.registerFileParameter<std::string>(
             "kernel_entry", kernel_entry, kernel_entry, Gem::Common::VAR_IS_ESSENTIAL,
             "Kernel entry-point name (must be un-mangled, e.g. extern \"C\")");
@@ -104,7 +104,7 @@ struct GGPUConsumerConfig {
 
     /**
      * @brief The selected backend kind.
-     * @return The BackendKind parsed from the "backend" string ("cpu" | "cuda" | "opencl")
+     * @return The BackendKind parsed from the "backend" string ("cpu" | "cuda")
      */
     [[nodiscard]] BackendKind backendKind() const { return backendKindFromString(backend); }
 };

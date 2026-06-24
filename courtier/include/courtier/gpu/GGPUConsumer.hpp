@@ -61,10 +61,10 @@ namespace Gem::Courtier::GPU {
  * round's batch at once, which this consumer evaluates in a single bulk kernel launch.
  *
  * The two things that used to be hard-wired per CUDA consumer are now decoupled and configurable:
- *   - the device-programming model (CPU / CUDA / OpenCL) -- chosen at run time from the config file,
+ *   - the device-programming model (CPU / CUDA) -- chosen at run time from the config file,
  *     served by a swappable GGPUDeviceBackendI;
- *   - the kernel code -- a path in the config file, runtime-compiled (NVRTC / clBuildProgram) or
- *     loaded as a prebuilt module.
+ *   - the kernel code -- a path in the config file, runtime-compiled (NVRTC) or loaded as a prebuilt
+ *     module.
  * The problem-specific marshalling (how a batch of individuals becomes flat device buffers and how
  * results are written back) is supplied as a GGPUEvaluableI, so one consumer serves any problem.
  *
