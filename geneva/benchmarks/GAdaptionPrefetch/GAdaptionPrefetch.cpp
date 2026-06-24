@@ -58,15 +58,15 @@
 
 namespace {
 
-enum class Mode { Inline, CacheCpu, CacheGpu };
+enum class Mode { Inline, CacheCpu };
 
 /******************************************************************************/
 /**
  * @brief Runs the real adaptGaussGroup over nGenerations bursts and returns in-adaption values/s.
  *
- * Mode::Inline uses the gr-only kernel overload; Mode::CacheCpu / Mode::CacheGpu use the
- * cache-aware overload, with the standard normals produced on the CPU per-value or in bulk
- * (GPU-native when present). The cache is refilled in the untimed gap; only the adaption call is
+ * Mode::Inline uses the gr-only kernel overload; Mode::CacheCpu uses the cache-aware overload,
+ * with the value-step standard normals transformed on the CPU from the proxy (GNormalCacheT) and
+ * prefetched in the gap. The cache is refilled in the untimed gap; only the adaption call is
  * timed. adaption_threshold is set high so the per-value gaussian step (the cached draw) dominates
  * the normal load.
  *
@@ -96,12 +96,8 @@ double run_adaption(std::uint32_t nParams, std::uint32_t nGenerations, unsigned 
 
             const std::size_t cap = nParams + 8;
             std::optional<Gem::Hap::GNormalCacheT<double>> cpuCache;
-            std::optional<Gem::Hap::GNormalCacheT<double>> gpuCache;
             if(mode == Mode::CacheCpu) {
                 cpuCache.emplace(gr, cap);
-            }
-            else if(mode == Mode::CacheGpu) {
-                gpuCache.emplace(cap); // bulk (no-proxy) constructor
             }
 
             double burstNanos = 0.;
@@ -110,9 +106,6 @@ double run_adaption(std::uint32_t nParams, std::uint32_t nGenerations, unsigned 
                 if(mode == Mode::CacheCpu) {
                     cpuCache->prefetch(cap);
                 }
-                else if(mode == Mode::CacheGpu) {
-                    gpuCache->prefetch(cap);
-                }
 
                 const std::chrono::steady_clock::time_point b0 = std::chrono::steady_clock::now();
                 // --- BURST (timed): the real Gauss-mutation kernel ---
@@ -120,8 +113,7 @@ double run_adaption(std::uint32_t nParams, std::uint32_t nGenerations, unsigned 
                     Gem::Geneva::Genome::adaptGaussGroup<double>(cfg, st, std::span<double>(values), gr);
                 }
                 else {
-                    Gem::Hap::GNormalCacheT<double> &nc = (mode == Mode::CacheCpu) ? *cpuCache : *gpuCache;
-                    Gem::Geneva::Genome::adaptGaussGroup<double>(cfg, st, std::span<double>(values), gr, nc);
+                    Gem::Geneva::Genome::adaptGaussGroup<double>(cfg, st, std::span<double>(values), gr, *cpuCache);
                 }
                 const std::chrono::steady_clock::time_point b1 = std::chrono::steady_clock::now();
                 burstNanos += std::chrono::duration<double, std::nano>(b1 - b0).count();
@@ -185,7 +177,6 @@ int main(int argc, char **argv) {
 
     const double inl = run_adaption(nParams, nGenerations, workers, gapMicros, threshold, Mode::Inline);
     const double cpu = run_adaption(nParams, nGenerations, workers, gapMicros, threshold, Mode::CacheCpu);
-    const double gpu = run_adaption(nParams, nGenerations, workers, gapMicros, threshold, Mode::CacheGpu);
 
     std::cout << std::left << std::setw(34) << "mode" << std::right << std::setw(20)
               << "values/s" << std::setw(12) << "speedup" << '\n'
@@ -193,9 +184,7 @@ int main(int argc, char **argv) {
               << std::left << std::setw(34) << "inline (gr-only kernel)" << std::right
               << std::setw(20) << std::fixed << std::setprecision(0) << inl << std::setw(11)
               << std::setprecision(3) << 1.0 << "x\n"
-              << std::left << std::setw(34) << "cache, CPU per-value normals" << std::right
-              << std::setw(20) << cpu << std::setw(11) << (inl > 0. ? cpu / inl : 0.) << "x\n"
-              << std::left << std::setw(34) << "cache, bulk (GPU-native) normals" << std::right
-              << std::setw(20) << gpu << std::setw(11) << (inl > 0. ? gpu / inl : 0.) << "x\n";
+              << std::left << std::setw(34) << "cache (prefetched normals)" << std::right
+              << std::setw(20) << cpu << std::setw(11) << (inl > 0. ? cpu / inl : 0.) << "x\n";
     return 0;
 }

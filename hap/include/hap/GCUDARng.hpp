@@ -65,25 +65,15 @@ public:
      *  @param dst Destination host buffer holding at least n 64-bit values. @param n The number of values to generate. */
     void generate(result_type *dst, std::size_t n);
 
-    /** @brief Fills dst[0..n) with n standard normal N(0,1) deviates, generated natively on the GPU.
-     *
-     *  One curandGenerateNormalDouble call fills a device buffer which is copied to the host -- the
-     *  Box-Muller transform runs on the device, not the CPU. On any failure it falls back to a
-     *  thread-local CPU normal generator so dst is always filled.
-     *  @param dst Destination host buffer holding at least n doubles. @param n The number of deviates. */
-    void generateNormal(double *dst, std::size_t n);
-
     /** @brief True iff at least one usable CUDA device is present at runtime.
      *  @return true if a CUDA device is available, false otherwise. */
     static bool deviceAvailable() noexcept;
 
 private:
-    void       *gen_{nullptr};      ///< curandGenerator_t
-    void       *stream_{nullptr};   ///< cudaStream_t
-    void       *d_buf_{nullptr};    ///< device buffer (32-bit words) for generate()
-    std::size_t d_words_{0};        ///< current capacity of d_buf_ in 32-bit words
-    void       *d_normbuf_{nullptr};///< device buffer (doubles) for generateNormal()
-    std::size_t d_normd_{0};        ///< current capacity of d_normbuf_ in doubles
+    void       *gen_{nullptr};    ///< curandGenerator_t
+    void       *stream_{nullptr}; ///< cudaStream_t
+    void       *d_buf_{nullptr};  ///< device buffer (32-bit words)
+    std::size_t d_words_{0};      ///< current capacity of d_buf_ in 32-bit words
 };
 
 } /* namespace Gem::Hap */

@@ -36,7 +36,6 @@
 // Geneva headers go here
 #include "common/GLogger.hpp"
 #include "hap/GRandomDefines.hpp"
-#include "hap/GRandomDistributionsT.hpp" // g_normal_distribution (CPU normal fall-back)
 
 // Standard headers go here
 #include <cstddef>
@@ -166,31 +165,6 @@ public:
             dst[i] = cpu_();
         }
 #endif
-    }
-
-    /******************************************************************************/
-    /**
-     * @brief Bulk-fills [dst, dst+n) with standard normal N(0,1) deviates from the active engine.
-     *
-     * On the GPU the transform runs natively on the device (curandGenerateNormalDouble); otherwise
-     * the deviates are produced on the CPU (Marsaglia polar over the same engine that backs
-     * generate()). This is the GPU-native counterpart of generate() for the prefetch path.
-     *
-     * @param dst Start of the destination buffer
-     * @param n   Number of standard normals to write
-     */
-    void generateNormal(double *dst, std::size_t n) {
-#if defined(HAP_USE_CUDA)
-        if(useCuda_) {
-            cuda_->generateNormal(dst, n);
-            return;
-        }
-#endif
-        g_normal_distribution<double>                  nd;
-        const g_normal_distribution<double>::param_type std01(0.0, 1.0);
-        for(std::size_t i = 0; i < n; ++i) {
-            dst[i] = nd(cpu_, std01);
-        }
     }
 
 private:

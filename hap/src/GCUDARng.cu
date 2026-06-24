@@ -132,63 +132,7 @@ GCudaRNG::GCudaRNG(std::uint64_t seed) {
 GCudaRNG::~GCudaRNG() {
     if (gen_ != nullptr) curandDestroyGenerator(static_cast<curandGenerator_t>(gen_));
     if (d_buf_ != nullptr) cudaFree(d_buf_);
-    if (d_normbuf_ != nullptr) cudaFree(d_normbuf_);
     if (stream_ != nullptr) cudaStreamDestroy(static_cast<cudaStream_t>(stream_));
-}
-
-/**
- * @brief Fills dst[0..n) with n standard normal N(0,1) deviates, generated natively on the device.
- *
- * curandGenerateNormalDouble produces the deviates with the Box-Muller transform on the GPU
- * (in pairs, so the device buffer is rounded up to an even count), then copies n of them to the
- * host. Does nothing if n is zero or the runtime is shutting down. On any failure it fills dst
- * with a thread-local CPU normal generator, so the caller never ships unfilled memory.
- *
- * @param dst Destination host buffer that receives n doubles; must hold at least n entries
- * @param n   The number of standard normal deviates to generate
- */
-void GCudaRNG::generateNormal(double *dst, std::size_t n) {
-    if (n == 0 || cudaShuttingDown()) return;
-
-    auto cpuFallback = [dst, n]() {
-        thread_local std::mt19937_64 eng{std::random_device{}()};
-        thread_local std::normal_distribution<double> nd(0.0, 1.0);
-        for (std::size_t i = 0; i < n; ++i) {
-            dst[i] = nd(eng);
-        }
-    };
-
-    // curandGenerateNormalDouble generates deviates in pairs (Box-Muller), so it requires an even
-    // count; round up and copy back only the n requested.
-    const std::size_t nEven = n + (n & 1U);
-
-    if (nEven > d_normd_) {
-        if (d_normbuf_ != nullptr) cudaFree(d_normbuf_);
-        if (!checkCuda(cudaMalloc(&d_normbuf_, nEven * sizeof(double)), "cudaMalloc(normal)")) {
-            d_normbuf_ = nullptr;
-            d_normd_ = 0;
-            cpuFallback();
-            return;
-        }
-        d_normd_ = nEven;
-    }
-
-    auto stream = static_cast<cudaStream_t>(stream_);
-    if (!checkCurand(curandGenerateNormalDouble(static_cast<curandGenerator_t>(gen_),
-                                                static_cast<double *>(d_normbuf_), nEven, 0.0, 1.0),
-                     "curandGenerateNormalDouble")) {
-        cpuFallback();
-        return;
-    }
-    if (!checkCuda(cudaMemcpyAsync(dst, d_normbuf_, n * sizeof(double),
-                                   cudaMemcpyDeviceToHost, stream),
-                   "cudaMemcpyAsync(normal)")) {
-        cpuFallback();
-        return;
-    }
-    if (!checkCuda(cudaStreamSynchronize(stream), "cudaStreamSynchronize(normal)")) {
-        cpuFallback();
-    }
 }
 
 /**

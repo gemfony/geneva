@@ -164,17 +164,6 @@ Recommended Versions:
   dominated config). Wiring per-thread caches + a prefetch call into the OA generation loop (so
   the prefetch overlaps fitness evaluation) is the remaining productionization step.
 
-- GPU-native standard normals. GCudaRNG::generateNormal / GFillBackend::generateNormal produce
-  N(0,1) deviates in bulk -- on a CUDA build with a device, natively on the GPU
-  (curandGenerateNormalDouble, the Box-Muller transform running on the device), else on the CPU
-  (Marsaglia). The public seam Gem::Hap::generateStandardNormals(dst,n) (hap/include/hap/
-  GNormalSource.hpp) exposes it, backed by a thread_local generator so concurrent callers neither
-  block nor share state (on the GPU each thread drives its own cuRAND generator/stream).
-  GNormalCacheT gains a no-proxy "bulk" constructor that fills from this seam, so the prefetched
-  standard normals are produced GPU-native and one chunk per call. In GRandomMutationLoad,
-  gap-side standard-normal generation was ~2.3x faster bulk(GPU) vs CPU per-value (Marsaglia) at
-  64 threads -- on top of the ~2x in-burst win from prefetching itself.
-
 - New opt-in prefetch caches (hap/include/hap/GDistributionCache.hpp) let a consumer move a
   distribution's raw->deviate transform off the hot path. In an EA, random numbers are drawn in
   per-generation bursts separated by an evaluation gap; the normal transform (a sqrt + log per
