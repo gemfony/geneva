@@ -172,6 +172,13 @@ USECUDARNG="auto"
 # 1000-triangle workload on consumer GPUs (few FP64 units). Set to 0 for the double variant.
 GIMAGE_USE_FLOAT="1"
 
+# Selects the source the default Gem::Hap::GRandom proxy draws from (compile-time):
+#   "queue"  -> the central factory package queue (the default; unchanged behaviour)
+#   "local"  -> a per-proxy engine seeded by the factory
+#   "staged" -> chunks from a shared, bulk-filled staging pool into a per-proxy double buffer
+# Other sources stay usable explicitly via GRandomT<randomSource::...>; this only sets the alias.
+RANDOMSOURCE="queue"
+
 # Further CMake parameters you might want to provide; these
 # will be passed 'verbatim' to CMake's command line
 CMAKEEXTRAFLAGS=""

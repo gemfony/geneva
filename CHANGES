@@ -161,6 +161,13 @@ Recommended Versions:
   Statistical (HapQualityTests) and concurrency/dormancy (HapConcurrencyTests, the TSan
   gate) coverage was added, and GRandomThroughput gained a --source queue|local|staged knob.
 
+- New compile-time option HAP_RANDOM_SOURCE (queue|local|staged, default queue) selects the
+  source the default Gem::Hap::GRandom alias maps to, so a whole build can be benchmarked on
+  any source without code changes. It is exposed as RANDOMSOURCE in genevaConfig.gcfg /
+  prepareBuild.sh and as -DHAP_RANDOM_SOURCE for direct CMake builds; the macro is part of the
+  hap target's public interface, so GRandom stays consistent across all consumers. Other
+  sources remain usable explicitly via GRandomT<randomSource::...>.
+
 - GGenomeBuilder gained convenience helpers: vector-of-starts group overloads
   (addDoubleGroup / addDoublePlainGroup / addFloatGroup taking a per-element start
   vector, with the group size inferred from the vector and each member seeded with its

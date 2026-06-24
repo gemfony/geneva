@@ -226,6 +226,7 @@ BUILDGPUCONSUMER="auto"
 USECUDARNG="auto"
 SKIPALLCUDA="0"
 GIMAGE_USE_FLOAT="1"
+RANDOMSOURCE="queue"
 WITHCOVERAGE="0"
 SANITIZER="none"
 CUDA_NVCC=""
@@ -323,6 +324,11 @@ _check_cuda_tristate BUILDGPUCONSUMER "${BUILDGPUCONSUMER}"
 _check_bool SKIPALLCUDA      "${SKIPALLCUDA}"
 _check_bool GIMAGE_USE_FLOAT "${GIMAGE_USE_FLOAT}"
 _check_bool WITHCOVERAGE     "${WITHCOVERAGE}"
+
+case "${RANDOMSOURCE}" in
+	queue|local|staged) ;;
+	*) echo -e "\nError: RANDOMSOURCE must be one of queue|local|staged (got '${RANDOMSOURCE}'). Leaving...\n"; exit 1 ;;
+esac
 
 # Sanitizer: validate and, when enabled, force CUDA + the MPI consumer OFF
 # (nvcc cannot compile with -fsanitize; MPI internals flood ThreadSanitizer).
@@ -422,6 +428,7 @@ if [ "${GENERATE_PRESET}" = "1" ]; then
 	[ -n "${MPIROOT}" ]          && _preset_add "MPI_HOME"               "PATH"   "${MPIROOT}"
 	_preset_add "GENEVA_SKIP_CUDA"              "BOOL"   "${SKIPALLCUDA}"
 	_preset_add "GIMAGE_USE_FLOAT"             "BOOL"   "${GIMAGE_USE_FLOAT}"
+	_preset_add "HAP_RANDOM_SOURCE"            "STRING" "${RANDOMSOURCE}"
 	_preset_add "GENEVA_BUILD_WITH_COVERAGE"    "BOOL"   "${WITHCOVERAGE}"
 	_preset_add "GENEVA_SANITIZER"              "STRING" "${SANITIZER}"
 	[ -n "${CUDA_NVCC}" ] && [ "${SKIPALLCUDA}" = "0" ] && _preset_add "CMAKE_CUDA_COMPILER" "FILEPATH" "${CUDA_NVCC}"
@@ -488,6 +495,7 @@ cmake_args+=(
 	"-DGENEVA_USE_CUDA_RNG=${USECUDARNG}"
 	"-DGENEVA_SKIP_CUDA=${SKIPALLCUDA}"
 	"-DGIMAGE_USE_FLOAT=${GIMAGE_USE_FLOAT}"
+	"-DHAP_RANDOM_SOURCE=${RANDOMSOURCE}"
 	"-DGENEVA_BUILD_WITH_COVERAGE=${WITHCOVERAGE}"
 	"-DGENEVA_SANITIZER=${SANITIZER}"
 )

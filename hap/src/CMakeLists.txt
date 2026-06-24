@@ -98,6 +98,20 @@ TARGET_INCLUDE_DIRECTORIES(
 )
 TARGET_COMPILE_FEATURES(${HAP_LIBNAME} PUBLIC cxx_std_20)
 
+# Default-source selection for the Gem::Hap::GRandom alias (see HAP_RANDOM_SOURCE in the
+# top-level CMakeLists). The macro is PUBLIC so every consumer of <hap/GRandomT.hpp> sees the
+# same GRandom; 'queue' defines nothing (the header defaults to QUEUE), keeping the common case
+# macro-free. The value is validated at the top level, so only the two non-default cases remain.
+IF(HAP_RANDOM_SOURCE STREQUAL "local")
+	TARGET_COMPILE_DEFINITIONS(${HAP_LIBNAME} PUBLIC HAP_DEFAULT_SOURCE_LOCAL=1)
+	MESSAGE(STATUS "Hap: default GRandom source = LOCAL (per-proxy engine)")
+ELSEIF(HAP_RANDOM_SOURCE STREQUAL "staged")
+	TARGET_COMPILE_DEFINITIONS(${HAP_LIBNAME} PUBLIC HAP_DEFAULT_SOURCE_STAGED=1)
+	MESSAGE(STATUS "Hap: default GRandom source = STAGED (shared staging pool + double buffer)")
+ELSE()
+	MESSAGE(STATUS "Hap: default GRandom source = QUEUE (central factory queue)")
+ENDIF()
+
 # Inter-library dependency: hap builds on common (exactly like hap).
 TARGET_LINK_LIBRARIES(${HAP_LIBNAME} PUBLIC ${COMMON_LIBNAME})
 

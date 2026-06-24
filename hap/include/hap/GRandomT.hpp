@@ -270,8 +270,23 @@ private:
     std::shared_ptr<Gem::Hap::GRandomFactory> grf_;
 };
 
-/** @brief Convenience typedef */
+/******************************************************************************/
+/**
+ * @brief The default random-number proxy used throughout Geneva.
+ *
+ * The underlying source is selected at configure time via the HAP_RANDOM_SOURCE
+ * CMake option (queue|local|staged), which defines one of the macros below on
+ * the hap target's public interface. The default (no macro) is QUEUE, so
+ * production behaviour is unchanged unless the build explicitly opts into another
+ * source.
+ */
+#if defined(HAP_DEFAULT_SOURCE_LOCAL)
+using GRandom = GRandomT<Gem::Hap::randomSource::LOCAL>;
+#elif defined(HAP_DEFAULT_SOURCE_STAGED)
+using GRandom = GRandomT<Gem::Hap::randomSource::STAGED>;
+#else
 using GRandom = GRandomT<Gem::Hap::randomSource::QUEUE>;
+#endif
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

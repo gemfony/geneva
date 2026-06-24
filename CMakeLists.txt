@@ -68,6 +68,18 @@ set_property(CACHE GENEVA_USE_CUDA_RNG PROPERTY STRINGS auto on off)
 set(GENEVA_BUILD_WITH_GPU_CONSUMER "auto" CACHE STRING "Build the GPU consumer (GGPUConsumerT) into courtier and expose the 'gpu' mnemonic: auto|on|off")
 set_property(CACHE GENEVA_BUILD_WITH_GPU_CONSUMER PROPERTY STRINGS auto on off)
 
+# Selects the source the default Gem::Hap::GRandom proxy draws from (compile-time only):
+#   queue  -> the central factory package queue (the default; unchanged behaviour)
+#   local  -> a per-proxy engine seeded by the factory
+#   staged -> chunks from a shared, bulk-filled staging pool into a per-proxy double buffer
+# Every other source remains usable explicitly via GRandomT<randomSource::...>; this only
+# picks what the GRandom alias maps to. Consumed in hap/src/CMakeLists.txt.
+set(HAP_RANDOM_SOURCE "queue" CACHE STRING "Source for the default Gem::Hap::GRandom proxy: queue|local|staged")
+set_property(CACHE HAP_RANDOM_SOURCE PROPERTY STRINGS queue local staged)
+if(NOT HAP_RANDOM_SOURCE MATCHES "^(queue|local|staged)$")
+	message(FATAL_ERROR "HAP_RANDOM_SOURCE must be one of queue|local|staged (got '${HAP_RANDOM_SOURCE}').")
+endif()
+
 # Set ON to instrument the Common library and its tests with coverage flags
 # (--coverage on GCC, -fprofile-instr-generate -fcoverage-mapping on Clang).
 # Used together with the `coverage` make target to produce gcovr reports.
