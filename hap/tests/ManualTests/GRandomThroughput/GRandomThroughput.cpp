@@ -37,6 +37,7 @@
 #include <iostream>
 #include <mutex>
 #include <random>
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -47,12 +48,42 @@
 #include "hap/GRandomDistributionsT.hpp"
 #include "hap/GRandomT.hpp"
 
+/******************************************************************************/
+/**
+ * @brief Times one source: fill+sort a payload nCycles times and report numbers/s.
+ *
+ * Templated on the random source so the same loop measures QUEUE, LOCAL and
+ * STAGED identically (the proxy is the only thing that differs).
+ *
+ * @tparam S The random source the proxy draws from
+ * @return The achieved throughput in double random numbers per second
+ */
+template <Gem::Hap::randomSource S>
+double run_measurement(std::uint32_t packageSize, std::uint32_t nCycles, double lo, double hi) {
+    Gem::Hap::GRandomT<S>                  gr;
+    std::vector<double>                    payload(packageSize);
+    std::uniform_real_distribution<double> uniform_real(lo, hi);
+
+    std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
+    for(std::uint32_t c = 0; c < nCycles; c++) {
+        for(auto &p : payload) {
+            p = uniform_real(gr);
+        }
+        std::sort(payload.begin(), payload.end());
+    }
+    std::chrono::system_clock::time_point endTime = std::chrono::system_clock::now();
+    std::chrono::duration<double>         duration = endTime - startTime;
+
+    return static_cast<double>(nCycles * packageSize) / duration.count();
+}
+
 int main(int argc, char **argv) {
     std::uint16_t nProducerThreads = 4;
     std::uint32_t packageSize = 10000;
     std::uint32_t nCycles = 1000;
     double lowerBoundary = 0.;
     double upperBoundary = 1.;
+    std::string source = "queue";
 
     //----------------------------------------------------------------
     // Create the parser builder
@@ -104,6 +135,15 @@ int main(int argc, char **argv) {
         "The upper boundary for the production of random numbers"
     );
 
+    gpb.registerCLParameter<std::string>(
+        "source,s",
+        source // the variable to be filled
+        ,
+        source // the default
+        ,
+        "The random source to benchmark: 'queue', 'local' or 'staged'"
+    );
+
     // Parse the command line and leave if the help flag was given
     if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
         return 0;
@@ -114,28 +154,29 @@ int main(int argc, char **argv) {
     // Configure the random number factory
     Gem::Hap::randomFactory()->setNProducerThreads(nProducerThreads);
 
-    // Retrieve a random number proxy
-    Gem::Hap::GRandomT<Gem::Hap::randomSource::QUEUE> gr;
-
-    // Storage and production of random numbers
-    std::vector<double> payload(packageSize);
-    std::uniform_real_distribution<double> uniform_real(lowerBoundary, upperBoundary);
-
-    // Run the measurement loop
-    std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
-    for(std::uint32_t c = 0; c < nCycles; c++) {
-        for(auto &p : payload) {
-            p = uniform_real(gr);
-        }
-        std::sort(payload.begin(), payload.end());
-        // assert(is_sorted(payload.begin(), payload.end()));
+    // Run the measurement loop for the requested source (the proxy is the only
+    // thing that differs between sources; see run_measurement()).
+    double throughput = 0.;
+    if(source == "queue") {
+        throughput = run_measurement<Gem::Hap::randomSource::QUEUE>(
+            packageSize, nCycles, lowerBoundary, upperBoundary);
     }
-    std::chrono::system_clock::time_point endTime = std::chrono::system_clock::now();
-    std::chrono::duration<double> duration = endTime - startTime;
+    else if(source == "local") {
+        throughput = run_measurement<Gem::Hap::randomSource::LOCAL>(
+            packageSize, nCycles, lowerBoundary, upperBoundary);
+    }
+    else if(source == "staged") {
+        throughput = run_measurement<Gem::Hap::randomSource::STAGED>(
+            packageSize, nCycles, lowerBoundary, upperBoundary);
+    }
+    else {
+        std::cerr << "Error: unknown source '" << source
+                  << "' (expected 'queue', 'local' or 'staged')" << '\n';
+        return 1;
+    }
 
     // Let the audience know
-    double throughput = static_cast<double>(nCycles * packageSize) / duration.count();
     double megabytes = 8. * throughput / (1024 * 1024);
-    std::cout << "Achieved a throughput of " << throughput
+    std::cout << "[" << source << "] achieved a throughput of " << throughput
               << " double random numbers/s (equivalent to " << megabytes << " MB/s)" << '\n';
 }

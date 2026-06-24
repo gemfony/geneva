@@ -56,11 +56,12 @@ constexpr double DEF_BINORM_DISTANCE = 0.5;
  *
  * Renamed from the former RANDFLAVOURS as the set of sources grows: QUEUE was RANDOMPROXY,
  * LOCAL was RANDOMLOCAL. The underlying integer values are preserved (QUEUE=0, LOCAL=1) so
- * any streamed/serialized values are unaffected.
+ * any streamed/serialized values are unaffected. STAGED=2 is a new source (no legacy value).
  */
 enum class randomSource : Gem::Common::ENUMBASETYPE {
     QUEUE = 0, ///< numbers are taken from the central factory (the package queue) -- the default
-    LOCAL = 1  ///< numbers are produced locally, from a per-proxy engine seeded by the factory
+    LOCAL = 1, ///< numbers are produced locally, from a per-proxy engine seeded by the factory
+    STAGED = 2 ///< numbers are claimed in chunks from a shared, bulk-filled staging pool into a per-proxy double buffer
 };
 
 /******************************************************************************/

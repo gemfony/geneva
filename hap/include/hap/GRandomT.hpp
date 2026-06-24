@@ -49,6 +49,10 @@
 #include "common/GLogger.hpp"
 #include "hap/GRandomBase.hpp"
 #include "hap/GRandomDefines.hpp"
+#include "hap/GStagedSource.hpp"
+
+#include <array>
+#include <cstdint>
 
 namespace Gem::Hap {
 
@@ -365,6 +369,114 @@ private:
     /***************************************************************************/
     /** @brief The actual generator for local random number creation */
     G_CPU_BASE_GENERATOR rng_;
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This specialization of the general GRandomT<> class draws its raw material in
+ * chunks from a process-wide, bulk-filled staging pool (see GStagedSource.hpp).
+ * Each proxy keeps two private chunk-sized buffers (a double buffer): it serves
+ * numbers from the active half while the standby half holds an already-claimed
+ * chunk, so a fresh chunk is always ready when the active one runs out. Because
+ * the proxy serves from its own private copy, it pins no shared memory and is
+ * safe to leave dormant. Copy and move follow the LOCAL model: each instance
+ * obtains its own fresh chunks, so the source object is ignored.
+ */
+template <>
+class GRandomT<Gem::Hap::randomSource::STAGED> : public Gem::Hap::GRandomBase {
+public:
+    /***************************************************************************/
+    /**
+	 * @brief The standard constructor; fills both halves of the double buffer from the staging pool.
+	 */
+    GRandomT() noexcept(false) {
+        Gem::Hap::detail::stagedClaim(buf_[0].data(), Gem::Hap::STAGED_CHUNK_WORDS);
+        Gem::Hap::detail::stagedClaim(buf_[1].data(), Gem::Hap::STAGED_CHUNK_WORDS);
+    }
+
+    /***************************************************************************/
+    /**
+	 * @brief Copy construction delegates to the default constructor (each instance gets fresh chunks).
+	 *
+	 * @param cp The object to be "copied" (unused; present only for interface compatibility)
+	 */
+    GRandomT([[maybe_unused]] GRandomT<Gem::Hap::randomSource::STAGED> const & cp) noexcept(false)
+      : GRandomT<Gem::Hap::randomSource::STAGED>() { /* nothing */
+    }
+
+    /***************************************************************************/
+    /**
+	 * @brief Move construction delegates to the default constructor (each instance gets fresh chunks).
+	 *
+	 * @param cp The object to be "moved" from (unused; present only for interface compatibility)
+	 */
+    GRandomT([[maybe_unused]] GRandomT<Gem::Hap::randomSource::STAGED> && cp) noexcept(false)
+      : GRandomT<Gem::Hap::randomSource::STAGED>() { /* nothing */
+    }
+
+    /***************************************************************************/
+    /**
+	 * @brief The standard destructor.
+	 */
+    ~GRandomT() override = default;
+
+    /***************************************************************************/
+    /**
+	 * @brief Copy-assignment does nothing -- each instance owns its independent chunks.
+	 *
+	 * @param cp The object to be "assigned" (unused; present only for interface compatibility)
+	 * @return A reference to this object
+	 */
+    GRandomT<Gem::Hap::randomSource::STAGED> &
+    operator=([[maybe_unused]] GRandomT<Gem::Hap::randomSource::STAGED> const & cp) noexcept(
+        false
+    ) // NOLINT(cert-oop54-cpp) — intentionally trivial: each instance owns independent state
+    {
+        return *this;
+    }
+
+    /***************************************************************************/
+    /**
+	 * @brief Move-assignment does nothing -- each instance owns its independent chunks.
+	 *
+	 * @param cp The object to be "moved" from (unused; present only for interface compatibility)
+	 * @return A reference to this object
+	 */
+    GRandomT<Gem::Hap::randomSource::STAGED> &
+    operator=([[maybe_unused]] GRandomT<Gem::Hap::randomSource::STAGED> && cp) noexcept(false) {
+        return *this;
+    }
+
+private:
+    /***************************************************************************/
+    /**
+	 * @brief Serves the next raw random number, swapping to the standby chunk and re-claiming on exhaustion.
+	 *
+	 * When the active half runs out, it switches to the (already-filled) standby
+	 * half -- an O(1) index flip, no copy -- resets the read position, and claims
+	 * a fresh chunk into the now-standby half so a full buffer is always ready.
+	 *
+	 * @return The next raw random value from the active double-buffer half
+	 */
+    GRandomBase::result_type int_random() override {
+        if(pos_ >= Gem::Hap::STAGED_CHUNK_WORDS) {
+            active_ ^= 1; // switch to the prefilled standby half (O(1), no copy)
+            pos_ = 0;
+            // Refill the half we just drained; it becomes the next standby.
+            Gem::Hap::detail::stagedClaim(buf_[active_ ^ 1].data(), Gem::Hap::STAGED_CHUNK_WORDS);
+        }
+        return buf_[active_][pos_++];
+    }
+
+    /***************************************************************************/
+    /** @brief The two private double-buffer halves, each holding one claimed chunk */
+    std::array<std::array<std::uint64_t, Gem::Hap::STAGED_CHUNK_WORDS>, 2> buf_{};
+    /** @brief Index (0/1) of the half currently being served */
+    int active_ = 0;
+    /** @brief Read position within the active half */
+    std::size_t pos_ = 0;
 };
 
 /******************************************************************************/

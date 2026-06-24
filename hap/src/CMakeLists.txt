@@ -46,6 +46,7 @@ SET ( HAPSOURCES
 	GRandomBase.cpp
 	GRandomFactory.cpp
 	GRandomT.cpp
+	GStagedSource.cpp
 )
 
 SET_SOURCE_FILES_PROPERTIES(
