@@ -391,13 +391,16 @@ Recommended Versions:
   catches or explicitly names this exception type must be updated accordingly.
 - The Boost.Test library linkage has been removed from the build-system, instead Geneva now
   uses Catch2 v3 which needs to be present on the system in order to compile the code.
-- Geneva now targets ONLY the x86-64 and AArch64 architectures. Hap's SIMD bulk-refill
-  backend (the universal fallback when the GPU is unavailable) is written for AVX2
-  (x86-64) and NEON (AArch64), so the build hard-fails at configure time on any other
-  ISA. On an x86-64 toolchain that cannot compile AVX2 (effectively pre-Haswell) the
-  build still proceeds with a warning, falling back to the scalar engine. Relatedly, the
-  Hap factory now prints a one-time WARNING when a binary was built with the CUDA RNG
-  backend but no CUDA-capable device is present at run time, so the silent SIMD/CPU
+- x86-64 and AArch64 are Hap's ACCELERATED, TESTED targets: only they have a SIMD bulk-refill
+  backend (AVX2 / NEON). Other 64-bit architectures are no longer hard-excluded at configure
+  time -- they build on the scalar xoshiro256++ engine (the same fallback an x86-64 CPU without
+  AVX2 uses), with a warning that the configuration is untested. The actual hard requirement --
+  lock-free aligned 64-bit atomics, on which the STAGED/QUARANTINE benign-race sources rely -- is
+  enforced portably by a static_assert in those sources, a precise property test that fails the
+  compile on any platform lacking it (e.g. 32-bit), rather than a processor-name gate. (Earlier
+  in this series the gate hard-failed on any non-x86-64/AArch64 ISA; that is relaxed to a
+  warning.) Relatedly, the Hap factory prints a one-time WARNING when a binary was built with the
+  CUDA RNG backend but no CUDA-capable device is present at run time, so the silent SIMD/CPU
   fallback is no longer a surprise (it previously logged only the GPU-present case).
 
 - Windows and macOS support has been removed. Geneva now targets Linux exclusively.

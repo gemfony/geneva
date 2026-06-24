@@ -139,14 +139,18 @@ ENDIF()
 # type stays scalar). On unsupported ISAs only the scalar path is built --
 # this is by design, not an error.
 
-# Architecture gate: Geneva/Hap targets ONLY x86-64 and AArch64, because its SIMD
-# bulk-refill backend (the universal fallback when the GPU is unavailable) is written
-# for AVX2 (x86-64) / NEON (AArch64). Every other ISA is excluded at configure time.
+# Architecture policy: x86-64 and AArch64 are the ACCELERATED, TESTED targets -- only they have a
+# SIMD bulk-refill backend (AVX2 / NEON). Other 64-bit architectures are NOT excluded: they build
+# on the scalar xoshiro256++ engine (the same fallback an x86-64 CPU without AVX2 already uses).
+# The actual hard requirement -- lock-free aligned 64-bit atomics, on which the STAGED/QUARANTINE
+# benign-race sources rely -- is enforced PORTABLY by a static_assert in those sources (it fails the
+# compile on any platform that does not provide it, e.g. 32-bit), which is a precise property test
+# rather than a processor-name match, so no hard ISA gate is needed here.
 IF ( NOT CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64|aarch64|arm64" )
-	MESSAGE ( FATAL_ERROR
-		"Geneva/Hap supports only x86-64 and AArch64 "
-		"(CMAKE_SYSTEM_PROCESSOR='${CMAKE_SYSTEM_PROCESSOR}'). Its SIMD bulk-refill backend "
-		"targets AVX2 (x86-64) / NEON (AArch64); other architectures are not supported." )
+	MESSAGE ( WARNING
+		"Hap: '${CMAKE_SYSTEM_PROCESSOR}' is not one of the accelerated targets (x86-64 / AArch64); "
+		"building on the scalar xoshiro256++ engine (no SIMD bulk-refill). This configuration is "
+		"untested. Lock-free 64-bit atomics are still required and are checked at compile time." )
 ENDIF ()
 
 INCLUDE ( CheckCXXSourceCompiles )
@@ -171,14 +175,14 @@ ELSEIF ( HAP_HAS_NEON AND CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64" )
 	TARGET_COMPILE_DEFINITIONS ( ${HAP_LIBNAME} PRIVATE HAP_NEON_BACKEND=1 )
 	MESSAGE ( STATUS "Hap: NEON SIMD bulk-refill backend enabled (AArch64)" )
 ELSE ()
-	# The arch gate above guarantees x86-64 or AArch64; reaching here means the SIMD probe
-	# failed (e.g. an x86-64 toolchain that cannot compile AVX2). NEON is baseline-mandatory
-	# on AArch64, so this is effectively the pre-AVX2 x86-64 case: warn and fall back to the
-	# scalar engine (decided policy -- do not hard-fail), so a non-SIMD build is never silent.
+	# No SIMD backend for this host: either a pre-AVX2 x86-64 CPU (NEON is baseline-mandatory on
+	# AArch64, so it is not that), or an architecture other than x86-64 / AArch64 (only those two
+	# have a SIMD backend). Warn and fall back to the scalar engine -- decided policy, do not
+	# hard-fail -- so a non-SIMD build is never silent.
 	MESSAGE ( WARNING
-		"Hap: no SIMD bulk-refill backend available on this host (x86-64 without AVX2?) -- "
-		"falling back to the slower scalar xoshiro256++ refill. AVX2 (Haswell, 2013+) is the "
-		"x86-64 SIMD floor." )
+		"Hap: no SIMD bulk-refill backend available on this host -- falling back to the slower "
+		"scalar xoshiro256++ refill. On x86-64 this means a pre-AVX2 CPU (AVX2 / Haswell 2013+ is "
+		"the x86-64 SIMD floor); on other architectures it is expected." )
 ENDIF ()
 
 ################################################################################
