@@ -56,23 +56,48 @@ namespace Gem::Hap::detail {
 /**
  * @brief The library-private bulk random-number source shared by every source strategy.
  *
- * At construction it selects -- once, for the lifetime of the object -- the
- * fastest engine available in this build, in priority order:
- *   1. the GPU (cuRAND) when the binary was built with CUDA support AND a device
- *      is present at run time;
- *   2. otherwise the vectorised xoshiro256++ (AVX2 on x86-64, NEON on AArch64)
- *      when a SIMD backend was compiled in;
- *   3. otherwise the scalar xoshiro256++.
+ * GFillBackend concentrates the "where do the raw words come from" decision in one place. It
+ * exposes @c generate(dst,n), so it duck-types as a bulk URBG for @c random_container::fill_from
+ * and is reused unchanged by the QUEUE producer (the factory's producer threads), the
+ * GRotatingPool (STAGED / QUARANTINE), and the LOCAL fall-back -- the engine-selection and
+ * fall-back policy lives here and nowhere else.
  *
- * When the binary was built with the CUDA backend but no device is present, the
- * fall-back to the SIMD/CPU engine is logged exactly ONCE for the whole process
- * (a warning, so it never comes as a surprise); when a device is present, the
- * GPU choice is logged once as well.
+ * @par Algorithm
+ * At construction it selects the fastest engine available in this build @e once (for the
+ * object's lifetime), then every @c generate() call dispatches to that fixed choice -- there is
+ * no per-call branching on a device probe. The selection priority is:
+ * @f[
+ *   \text{engine} =
+ *   \begin{cases}
+ *     \text{GPU (cuRAND)} & \text{if built with CUDA } \wedge\; \text{a device is present at run time},\\[2pt]
+ *     \text{SIMD xoshiro256++} & \text{else if a SIMD backend (AVX2 / NEON) was compiled in},\\[2pt]
+ *     \text{scalar xoshiro256++} & \text{otherwise.}
+ *   \end{cases}
+ * @f]
  *
- * It exposes generate(dst, n), so it duck-types as a bulk URBG for
- * random_container::fill_from and is reusable by both the QUEUE producer (the
- * factory's producer threads) and the staged source -- the engine-selection and
- * fall-back policy lives in exactly one place.
+ * @par Selection diagram
+ * @verbatim
+   GFillBackend(seed)            built with CUDA?
+        |                       /              \
+        |                    yes                no
+        |                     |                  \
+        |            device present? ---no--+     \
+        |                     |              |      \
+        |                    yes             v       v
+        |                     |     SIMD backend compiled in (HAP_AVX2/NEON)?
+        |                     |          /                       \
+        |                     |        yes                        no
+        v                     v         v                          v
+   generate(dst,n) ----> [ cuRAND GPU ] [ SIMD xoshiro256++ ]  [ scalar xoshiro256++ ]
+                              (1)              (2)                     (3)
+   @endverbatim
+ *
+ * @par Never a silent fall-back
+ * The CUDA decision is logged exactly ONCE for the whole process (a @c std::call_once gate, not
+ * once per backend): when a device is present the GPU choice is noted; when the binary was built
+ * with the CUDA backend but @e no device is available, a WARNING is emitted so the SIMD/CPU
+ * fall-back never comes as a surprise. The runtime device probe means a CUDA-enabled binary still
+ * runs correctly (just on the CPU engine) on a machine without a GPU.
  */
 class GFillBackend {
 public:

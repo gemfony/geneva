@@ -51,16 +51,17 @@ namespace detail {
 
 /******************************************************************************/
 /**
- * @brief Claims the next QUARANTINE_CHUNK_WORDS-word span from the rotating pool set.
+ * @brief Claims the next QUARANTINE_CHUNK_WORDS-word span from the shared rotating pool.
  *
- * Returns a pointer into one of the N bulk-filled pools; the caller reads
- * QUARANTINE_CHUNK_WORDS words from it in place (no copy). A background producer
- * keeps pools filled ahead of the claim cursor, refilling a pool only after a full
- * rotation (the "quarantine"), so an active reader never shares a pool with the
- * refiller -- only a descheduled, stale reader can, and that read is benign on
- * aligned-64-bit hardware (old-or-new, never torn). This is the library-private
- * seam used by GRandomT<randomSource::QUARANTINE>; the implementation lives in
- * GQuarantineSource.cpp.
+ * QUARANTINE's claim seam. It returns a pointer into the lock-free, bulk-filled
+ * Gem::Hap::detail::GRotatingPool (shared with STAGED); the caller reads the
+ * @f$QUARANTINE\_CHUNK\_WORDS@f$ words from it @e in @e place, with no copy -- the lower-overhead
+ * trade against STAGED (which copies out). Because it does not snapshot, QUARANTINE relies on the
+ * pool's benign race on every read. See Gem::Hap::detail::GRotatingPool for the ring, the
+ * background producer, the N@f$\ge@f$3 quarantine, and the conditions under which the race is
+ * harmless (aligned-64-bit atomicity on x86-64 / AArch64, lock-free @f$\Rightarrow@f$ deadlock-free).
+ * This is the library-private seam used by GRandomT<randomSource::QUARANTINE>; the implementation
+ * lives in GQuarantineSource.cpp.
  *
  * @return Pointer to a QUARANTINE_CHUNK_WORDS-word span inside a shared pool
  */

@@ -88,11 +88,43 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This specialization of the general GRandomT<> class retrieves random numbers
- * in batches from a global random number factory. The functions provided by
- * GRandomBase then produce different types of random numbers from this raw material.
- * Copy and move are explicitly deleted; it is not possible to assign other
- * objects or use copy constructors.
+ * @brief QUEUE proxy: hands out raw words from container packages produced by the global factory.
+ *
+ * The default source. The proxy holds one @c random_container (a package of @f$B=@f$
+ * @c DEFAULTARRAYSIZE 64-bit words) borrowed from the process-global Gem::Hap::GRandomFactory.
+ * It serves the package one word at a time; when the package is exhausted it returns the empty
+ * shell to the factory for recycling and acquires a fresh, full one. GRandomBase layers the
+ * distributions on top of this raw stream. Copy/move are dedicated to keeping each instance's
+ * stream unique (see the members); the source object is otherwise ignored.
+ *
+ * @par Data structure
+ * @verbatim
+   factory producer threads          MPMC "fresh" queue        this proxy
+   (fill packages in bulk)                                      +-----------------+
+        [pkg][pkg][pkg]  --push-->  [pkg][pkg]...[pkg]  --pop-->| p_  [B words]   |
+            ^                                                    | next(): r_[i++] |
+            |                                                    +-----------------+
+            |   recycled empty shells                                 |
+            +------------------- "return" buffer <--- returnUsedPackage(empty)
+   @endverbatim
+ *
+ * @par Algorithm
+ * Each draw advances a read cursor @f$i@f$ into the held package and refills transparently on
+ * exhaustion:
+ * @f[
+ *   \texttt{int\_random}() =
+ *   \begin{cases}
+ *     p\,[\,i{+}{+}\,] & \text{if } i < B,\\[2pt]
+ *     \text{return } p \text{ to the factory, acquire a fresh } p,\ i\leftarrow 0,\ \text{then } p\,[\,i{+}{+}\,] & \text{if } i = B.
+ *   \end{cases}
+ * @f]
+ * Bulk production happens on the factory's own threads, off the consumer's path; see
+ * Gem::Hap::GRandomFactory for the producer / bounded-buffer / recycle pipeline. Amortized cost
+ * is one array read per draw plus one queue pop per @f$B@f$ draws.
+ *
+ * @par Concurrency
+ * The proxy itself is single-consumer (one per thread); all cross-thread synchronization lives in
+ * the factory's lock-based bounded buffers (no benign race here -- contrast STAGED / QUARANTINE).
  */
 template <>
 class GRandomT<Gem::Hap::randomSource::QUEUE> : public Gem::Hap::GRandomBase {
@@ -295,11 +327,28 @@ using GRandom = GRandomT<Gem::Hap::randomSource::QUEUE>;
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This specialization of the general GRandomT<> class produces random numbers
- * locally. The functions provided by GRandomBase<> then produce different types
- * of random numbers from this raw material. A seed can be provided either to
- * the constructor, or is taken from the global seed manager (recommended) in
- * case the default constructor is used.
+ * @brief LOCAL proxy: a private per-proxy engine, no sharing at all.
+ *
+ * Each proxy owns one scalar xoshiro256++ engine (@c G_CPU_BASE_GENERATOR), seeded from the
+ * factory's global seed manager. Every draw is produced inline by that engine; nothing is shared
+ * between proxies, so there is no queue, no pool, no background thread and no contention -- it is
+ * embarrassingly parallel. The trade-off is that it cannot use the shared GPU/SIMD bulk fill the
+ * other sources benefit from. GRandomBase layers the distributions on the raw stream.
+ *
+ * @par Data structure
+ * @verbatim
+   factory seed manager --getSeed()--> [ rng_ : xoshiro256++ ]   (one per proxy, private)
+                                              |
+                                  int_random() = rng_()           (no shared state)
+   @endverbatim
+ *
+ * @par Algorithm
+ * @f[
+ *   \texttt{int\_random}() = \texttt{rng\_}() ,
+ * @f]
+ * a single engine step per draw. Copy/move delegate to default construction (each instance gets
+ * its own freshly seeded engine), so the source object is ignored and every proxy yields an
+ * independent stream.
  */
 template <>
 class GRandomT<Gem::Hap::randomSource::LOCAL> : public Gem::Hap::GRandomBase {
@@ -393,14 +442,45 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This specialization of the general GRandomT<> class draws its raw material in
- * chunks from a process-wide, bulk-filled staging pool (see GStagedSource.hpp).
- * Each proxy keeps two private chunk-sized buffers (a double buffer): it serves
- * numbers from the active half while the standby half holds an already-claimed
- * chunk, so a fresh chunk is always ready when the active one runs out. Because
- * the proxy serves from its own private copy, it pins no shared memory and is
- * safe to leave dormant. Copy and move follow the LOCAL model: each instance
- * obtains its own fresh chunks, so the source object is ignored.
+ * @brief STAGED proxy: a private double buffer copied from the shared lock-free rotating pool.
+ *
+ * The proxy keeps two private chunk-sized halves (@f$W=@f$ @c STAGED_CHUNK_WORDS words each). It
+ * serves words from the @e active half; when that half drains it switches to the @e standby half
+ * (an O(1) index flip) and refills the just-drained half by claiming a fresh chunk from the
+ * shared, bulk-filled Gem::Hap::detail::GRotatingPool via @c detail::stagedClaim(), which @b copies
+ * the chunk out (word-by-word, aligned 64-bit). Because the proxy serves only from its own private
+ * copy, it pins no shared memory and is fully race-free once a chunk is copied -- so it is safe to
+ * leave dormant indefinitely. Copy/move follow the LOCAL model (each instance claims its own
+ * chunks). This is the snapshot, stable-span counterpart to QUARANTINE (which reads in place).
+ *
+ * @par Data structure
+ * @verbatim
+   shared GRotatingPool ==stagedClaim()/copy==> private double buffer (this proxy)
+                                                +-----------+-----------+
+                                                |  half 0   |  half 1   |  W words each
+                                                +-----------+-----------+
+                                                  ^active      standby (already full)
+                                                  | pos_
+                                    drain active -> flip active^=1 -> refill drained half
+   @endverbatim
+ *
+ * @par Algorithm
+ * With read position @f$i@f$ into the active half @f$a\in\{0,1\}@f$:
+ * @f[
+ *   \texttt{int\_random}() =
+ *   \begin{cases}
+ *     \texttt{buf}[a]\,[\,i{+}{+}\,] & \text{if } i < W,\\[2pt]
+ *     a \leftarrow a \oplus 1,\ i\leftarrow 0,\ \texttt{stagedClaim}(\texttt{buf}[a\oplus 1]),\ \text{then } \texttt{buf}[a]\,[\,i{+}{+}\,] & \text{if } i = W.
+ *   \end{cases}
+ * @f]
+ * The standby half is always already full at the swap, so the only per-chunk cost is the copy of
+ * @f$W@f$ words (one queue-free claim per @f$W@f$ draws).
+ *
+ * @par Concurrency
+ * The cross-thread hazard is entirely inside the shared pool, not here: see
+ * Gem::Hap::detail::GRotatingPool for the lock-free ring, the background producer, and the full
+ * benign-race analysis. STAGED takes a private snapshot, so unlike QUARANTINE it does not depend on
+ * the benign race while serving -- after the copy there is no shared access at all.
  */
 template <>
 class GRandomT<Gem::Hap::randomSource::STAGED> : public Gem::Hap::GRandomBase {
@@ -501,15 +581,40 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This specialization of the general GRandomT<> class reads its raw material in
- * place from a set of N rotating, bulk-filled pools (see GQuarantineSource.hpp).
- * Each proxy claims a chunk-sized span via an atomic cursor and reads it directly
- * out of the shared pool -- no private copy (the lower-overhead distinction from
- * STAGED). A background producer keeps pools filled ahead of the cursor and
- * refills a pool only after a full rotation, so an active reader never shares a
- * pool with the refiller; only a descheduled, stale reader can, and that read is
- * benign on aligned-64-bit hardware (old-or-new, never torn). Copy and move follow
- * the LOCAL model: each instance claims its own spans, so the source is ignored.
+ * @brief QUARANTINE proxy: reads chunk spans in place from the shared rotating pool (no copy).
+ *
+ * The proxy claims a chunk-sized span (@f$W=@f$ @c QUARANTINE_CHUNK_WORDS words) from the shared
+ * Gem::Hap::detail::GRotatingPool via @c detail::quarantineClaimSpan() and serves words @e directly
+ * out of that pool span -- no private copy. Skipping the copy makes it the lowest-overhead bulk
+ * source (its distinction from STAGED), at the cost of depending on the pool's benign race on every
+ * read. When the span is exhausted it claims the next one. Copy/move follow the LOCAL model.
+ *
+ * @par Data structure
+ * @verbatim
+   shared GRotatingPool                          this proxy
+   +----+----+----+----+                         span_ ----> points INTO a pool span
+   |pool|pool|pool|pool|  <----- reads in place   pos_  ----> read index 0..W
+   +----+----+----+----+                         (no private buffer; no snapshot)
+        ^ claimSpan() returns a pointer; words are read where they live
+   @endverbatim
+ *
+ * @par Algorithm
+ * With read position @f$i@f$ into the current span:
+ * @f[
+ *   \texttt{int\_random}() =
+ *   \begin{cases}
+ *     \texttt{span}\,[\,i{+}{+}\,] & \text{if } i < W,\\[2pt]
+ *     \texttt{span}\leftarrow\texttt{quarantineClaimSpan}(),\ i\leftarrow 0,\ \text{then } \texttt{span}\,[\,i{+}{+}\,] & \text{if } i = W.
+ *   \end{cases}
+ * @f]
+ *
+ * @par Concurrency -- relies on the benign race
+ * Unlike STAGED, QUARANTINE does @e not snapshot: it reads pool memory directly, so each read may
+ * race the background producer refilling a quarantined pool. That race is harmless under exactly
+ * the conditions analysed in Gem::Hap::detail::GRotatingPool: aligned 64-bit reads are atomic on
+ * x86-64 / AArch64 (old-or-new, never torn), the @f$N\ge 3@f$ quarantine keeps an active reader and
+ * the refiller in different pools, and there are no locks so it is deadlock-free. See that class for
+ * the full derivation.
  */
 template <>
 class GRandomT<Gem::Hap::randomSource::QUARANTINE> : public Gem::Hap::GRandomBase {

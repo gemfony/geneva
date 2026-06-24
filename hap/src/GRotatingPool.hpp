@@ -73,29 +73,84 @@ namespace Gem::Hap::detail {
 
 /******************************************************************************/
 /**
- * @brief A lock-free ring of NPools bulk-filled pools, kept ahead of the claim cursor.
+ * @brief A lock-free ring of @f$N@f$ bulk-filled pools, kept ahead of an atomic claim cursor.
  *
- * This is the shared substrate for the STAGED and QUARANTINE sources. A claim
- * atomically advances a global chunk cursor (fetch_add) and maps it to a span of
- * ChunkWords words inside pool (gen % NPools), where gen is the chunk's pool
- * generation. A single background producer keeps pools filled up to (lead +
- * NPools-1) generations ahead, so the pool the cursor is currently in is never
- * the pool being refilled; the producer never waits on readers (no reader
- * tracking), so the design is lock-free and deadlock-free and a dormant proxy is
- * harmless.
+ * This is the shared substrate for the STAGED and QUARANTINE random sources. Let
+ * @f$W=@f$ @c ChunkWords (words per chunk), @f$C=@f$ @c ChunksPerPool (chunks per pool) and
+ * @f$N=@f$ @c NPools. Each pool holds @f$C\cdot W@f$ 64-bit words; the @f$N@f$ pools form a ring
+ * that a single background producer refills ahead of a monotonic claim cursor.
  *
- * Two read modes share the same claim:
- *   - claimSpan() returns a pointer for reading in place (QUARANTINE);
- *   - copyChunkInto() copies the chunk out word-by-word into a caller buffer
- *     (STAGED's private double buffer). The copy uses per-word atomic_ref relaxed
- *     loads: on x86-64 / AArch64 those lower to the same plain aligned move (zero
- *     cost), but they keep the copy strictly per-word -- no wide SIMD load that
- *     could straddle the 64-bit granularity the old-or-new guarantee relies on --
- *     and they are not subject to the compiler assuming the memory is immutable.
+ * @par Data structure
+ * @verbatim
+   claim cursor s : atomic<uint64_t>, only ever fetch_add(1)   (chunk index)
+                 |
+                 |  maps to  pool k = floor(s/C) mod N ,  offset o = (s mod C)*W
+                 v
+   +===========+===========+===========+===========+
+   |  pool 0   |  pool 1   |  pool 2   |  pool 3   |   N rotating pools (here N=4),
+   | gen g     | gen g+1   | gen g+2   | gen g-1   |   each = C chunks of W words
+   +===========+===========+===========+===========+
+        ^  reader is here              ^  producer refills here
+        |  (the "lead" pool the        |  (>= N-1 generations AHEAD of the lead;
+        |   cursor currently claims     |   i.e. the pool the cursor will reach
+        |   chunks from)                |   only after a full ring rotation)
+        |                               |
+        +------- quarantine gap (>= N-1 pools) keeps these two apart -------+
+   @endverbatim
  *
- * @tparam ChunkWords     Words per claimed chunk
- * @tparam ChunksPerPool  Chunks per pool (pool size = ChunkWords * ChunksPerPool)
- * @tparam NPools         Number of rotating pools (must be >= 3 for the quarantine)
+ * @par Algorithm
+ * A claim advances the cursor and decodes it (no lock):
+ * @f[
+ *   s \;\leftarrow\; \texttt{cursor.fetch\_add}(1), \qquad
+ *   g = \left\lfloor s/C \right\rfloor, \quad
+ *   k = g \bmod N, \quad
+ *   o = (s \bmod C)\,W ,
+ * @f]
+ * yielding the span @f$\texttt{pools}[k]\,[\,o,\,o+W\,)@f$, which holds pool generation @f$g@f$.
+ * The background producer keeps the ring filled ahead of the cursor, maintaining the invariant
+ * @f[
+ *   \texttt{filled\_seq} \;\ge\; \texttt{lead} + (N-1), \qquad
+ *   \texttt{lead} = \left\lfloor \texttt{cursor}/C \right\rfloor ,
+ * @f]
+ * by bulk-filling one pool at a time (pool @f$ (f\!+\!1)\bmod N @f$ for generation @f$f\!+\!1@f$).
+ * It @e never inspects or waits on reader state, so a dormant or dead proxy can stall nothing.
+ *
+ * @par Two read modes (same claim)
+ * @li claimSpan() returns a pointer for reading the chunk @e in @e place (QUARANTINE);
+ * @li copyChunkInto() copies the chunk out word-by-word into the caller's private buffer
+ *     (STAGED's double buffer). The copy uses per-word @c atomic_ref relaxed loads: on x86-64 /
+ *     AArch64 each lowers to the same plain aligned move (zero cost), but it keeps the copy
+ *     strictly per-word -- no wide SIMD load may straddle the 64-bit granularity the
+ *     old-or-new guarantee relies on -- and the compiler may not assume the memory is immutable.
+ *
+ * @par Benign race condition -- when, and why, it does no harm
+ * The single shared-memory hazard is the producer bulk-refilling a pool while a reader still
+ * touches it. It is reachable, but harmless, under exactly these conditions:
+ * @li @b Atomicity. Every shared cell is an aligned 64-bit word. On the supported architectures
+ *     (x86-64, AArch64) an aligned 64-bit load/store is a @e single hardware-atomic instruction,
+ *     so a reader observes a clean @b old-or-new value, never a torn half. This is the hard
+ *     requirement, enforced portably by @c static_assert(@c atomic_ref<uint64_t>::is_always_lock_free)
+ *     below -- a precise property test that fails the compile where it does not hold (e.g. 32-bit).
+ * @li @b Separation. With @f$N\ge 3@f$ the producer refills pool
+ *     @f$ g_{\text{prod}}\bmod N @f$ with @f$ g_{\text{prod}} \le \texttt{lead}+(N\!-\!1) @f$,
+ *     whereas an @e active reader is in pool @f$ \texttt{lead}\bmod N @f$. These differ, so an
+ *     active reader and the refiller never touch the same pool. An overlap requires a reader
+ *     descheduled long enough for the cursor to advance a @e full rotation,
+ *     @f$ \ge (N\!-\!1)\,C @f$ chunks -- astronomically unlikely at realistic sizes.
+ * @li @b Benign @b even @b then. Should that overlap occur, the copied/read chunk is a mix of
+ *     generations @f$g@f$ and @f$g+N@f$ words; by the atomicity condition every individual word
+ *     is a valid random number, so the only effect is mixing two independent draws -- harmless
+ *     for an RNG, where determinism is not required.
+ * @li @b No @b deadlock. There are no locks, and the producer never blocks on reader state, so a
+ *     dormant/dead proxy cannot stall production: lock-free @f$\Rightarrow@f$ deadlock-free.
+ *
+ * It is @e formally still a data race (a wall-clock delay creates no happens-before edge), so the
+ * pool storage is marked with @c AnnotateBenignRaceSized (see the file-top note); a ThreadSanitizer
+ * build of the concurrency tests then reports zero races while all assertions pass.
+ *
+ * @tparam ChunkWords     Words per claimed chunk (@f$W@f$)
+ * @tparam ChunksPerPool  Chunks per pool (@f$C@f$; pool size @f$=W\cdot C@f$ words)
+ * @tparam NPools         Number of rotating pools (@f$N@f$; must be @f$\ge 3@f$ for the quarantine)
  */
 template <std::size_t ChunkWords, std::size_t ChunksPerPool = 64, int NPools = 4>
 class GRotatingPool {

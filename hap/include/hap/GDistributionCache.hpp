@@ -49,24 +49,51 @@ namespace Gem::Hap {
 /**
  * @brief A per-consumer prefetch cache that moves a distribution's transform off the hot path.
  *
- * Random-number demand in an evolutionary algorithm is bursty: a burst of draws per generation,
- * then an evaluation gap. The raw-uint64 -> deviate transform of a distribution (for the normal,
- * a sqrt + log per draw) is a hot-spot inside the burst. This cache lets a consumer "subscribe"
- * to a distribution and pre-produce its values during the GAP, so the burst only pops a ready
- * value.
+ * Random-number demand in an evolutionary algorithm is @b bursty: each generation issues a burst
+ * of draws, then the algorithm spends an evaluation @b gap drawing (almost) nothing. The
+ * raw-@f$\texttt{uint64}@f$ @f$\rightarrow@f$ deviate transform of a distribution (for the normal,
+ * a @f$\sqrt{\cdot}@f$ + @f$\log@f$ per draw) is a hot-spot @e inside the burst. This cache lets a
+ * consumer "subscribe" to a distribution and pre-produce its values during the gap, so the burst
+ * only pops a value that is already transformed.
  *
- * It wraps any GRandomBase (every GRandomT proxy is one) and any object that models a C++20
- * RandomNumberDistribution callable as `dist(urbg)` (a std::*_distribution or a Hap g_*
- * distribution). The distribution's parameters are FIXED for the lifetime of the cache, so the
- * cached values are the final deviates. The URBG path is untouched for non-subscribers; using the
- * cache is entirely opt-in.
+ * It wraps any @c GRandomBase (every @c GRandomT proxy is one) and any object that models a C++20
+ * @c RandomNumberDistribution callable as @f$\texttt{dist}(\texttt{urbg})@f$ (a
+ * @c std::*_distribution or a Hap @c g_* distribution). The distribution's parameters are @b fixed
+ * for the lifetime of the cache, so the cached values are the @e final deviates. The URBG path is
+ * untouched for non-subscribers; the cache is entirely opt-in.
+ *
+ * @par Data structure
+ * A fixed-capacity ring buffer with a head index and a live count; @c prefetch() appends at the
+ * tail, @c operator() pops from the head.
+ * @verbatim
+   prefetch(n): fill tail while count < min(n, capacity)        (runs in the GAP)
+                        |
+                        v
+   buf:  [ . . | v v v v v v v | . . ]   capacity slots, count live
+                ^head           ^head+count (mod capacity)
+                |
+                v
+   operator(): pop one from head ----> burst consumer    (runs in the BURST)
+                |
+                +-- if count == 0 (underflow): produce one inline, never blocks
+   @endverbatim
+ *
+ * @par Algorithm
+ * Let @f$Q@f$ be the capacity and @f$c@f$ the live count. @c prefetch(n) tops the buffer up to a
+ * target @f$t = \min(n, Q)@f$, running the transform @f$t-c@f$ times: while @f$c < t@f$, store
+ * @f$\texttt{dist}(\texttt{src})@f$ at @f$(\texttt{head}+c)\bmod Q@f$ and increment @f$c@f$.
+ * @c operator() returns @f$\texttt{buf}[\texttt{head}]@f$ and advances
+ * @f$\texttt{head}\leftarrow(\texttt{head}+1)\bmod Q@f$, @f$c\leftarrow c-1@f$; on @f$c=0@f$ it
+ * falls back to an inline @f$\texttt{dist}(\texttt{src})@f$, so it is always correct and never
+ * blocks -- it merely forfeits the prefetch benefit for that one draw. Intended use: call
+ * @c prefetch() at the start of the gap, draw through @c operator() during the burst.
  *
  * Usage:
  *   GDistributionCacheT<std::exponential_distribution<double>> cache(gr, dist, capacity);
  *   // in the gap:   cache.prefetch(n);
  *   // in the burst: double x = cache();   // pops a pre-produced value (inline-produces on underflow)
  *
- * Not thread-safe: like a GRandomT proxy, one cache belongs to one consumer/thread.
+ * Not thread-safe: like a @c GRandomT proxy, one cache belongs to one consumer/thread.
  *
  * @tparam Distribution A RandomNumberDistribution callable as dist(GRandomBase&)
  */
@@ -133,17 +160,35 @@ private:
 /**
  * @brief A prefetch cache for normal deviates whose mean/stddev may vary per draw.
  *
- * The EA mutation step is N(0, sigma) with sigma re-adapted every generation, so the final value
- * cannot be pre-baked. Instead this caches STANDARD normals N(0,1) -- which is exactly the
- * sqrt/log work -- and applies the cheap affine `mean + stddev*z` at consume time. It therefore
- * moves the expensive transform into the gap while still letting each draw choose its own mean and
- * standard deviation. (This standardize-then-scale idea generalizes to any location-scale family;
- * normal is the first concrete member.)
+ * The EA mutation step is @f$N(0,\sigma)@f$ with @f$\sigma@f$ re-adapted every generation, so the
+ * @e final value cannot be pre-baked. This cache instead pre-produces @b standard normals
+ * @f$z\sim N(0,1)@f$ -- which is exactly the expensive @f$\sqrt{\cdot}@f$ + @f$\log@f$ work
+ * (Marsaglia polar) -- in the gap, and applies the cheap affine
+ * @f[
+ *   x \;=\; \mu + \sigma\,z, \qquad z \sim N(0,1),
+ * @f]
+ * at consume time, so each draw still chooses its own mean @f$\mu@f$ and standard deviation
+ * @f$\sigma@f$ while the transform itself has already left the burst. The same standardize-then-
+ * scale idea generalizes to any @e location-scale family (e.g. unit-rate exponentials scaled by
+ * @f$1/\lambda@f$); the normal is the first concrete member.
  *
- * Note: because the standard normals are drawn here (in the gap) rather than interleaved with the
+ * @par Data structure / algorithm
+ * Identical ring-buffer mechanics to GDistributionCacheT, but the buffered values are the
+ * standardized deviates @f$z@f$: @c prefetch(n) fills the tail with @f$N(0,1)@f$ draws (the
+ * @f$\sqrt{\cdot}@f$/@f$\log@f$ work, in the gap); @c operator(mean,stddev) pops a @f$z@f$ and
+ * returns @f$\mu+\sigma z@f$, or, on underflow (@f$c=0@f$), draws one standard normal inline and
+ * scales it -- never blocking.
+ *
+ * @par Reproducibility caveat
+ * Because the standard normals are drawn here, in the gap, rather than interleaved with the
  * consumer's other inline draws (e.g. a bernoulli gate), the raw-word consumption order differs
- * from the non-prefetched path -- the result is statistically identical but not bit-for-bit
+ * from the non-prefetched path: the result is statistically identical but @e not bit-for-bit
  * reproducible against it.
+ *
+ * @par Measured benefit
+ * In the GRandomMutationLoad benchmark (which mirrors the EA Gaussian-mutation draw mix), moving
+ * the transform into the gap raised in-burst throughput by roughly @f$1.8@f$--@f$2.0\times@f$ on
+ * every random source.
  *
  * @tparam fp_type The floating-point type of the deviates
  */

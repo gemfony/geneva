@@ -52,16 +52,20 @@ namespace detail {
 
 /******************************************************************************/
 /**
- * @brief Copies one chunk of fresh random words out of the process-wide staging pool.
+ * @brief Copies one chunk of fresh random words out of the shared rotating pool.
  *
- * The shared pool holds a large, bulk-filled buffer (one big GFillBackend::generate
- * per refill -- the GPU-friendly path); claims are serialised so the memcpy never
- * races a refill. The caller receives a private, stable copy (so a dormant proxy
- * pins no shared memory). This is the library-private seam used by
- * GRandomT<randomSource::STAGED>; the implementation lives in GStagedSource.cpp.
+ * STAGED's claim seam. It claims a chunk from the lock-free, bulk-filled
+ * Gem::Hap::detail::GRotatingPool (shared with QUARANTINE) and copies it -- word-by-word, each an
+ * aligned 64-bit atomic load -- into the caller's private buffer @f$dst@f$:
+ * @f[
+ *   dst[i] \;\leftarrow\; \texttt{pool.claimSpan}()[i], \qquad i = 0,\dots,n-1 .
+ * @f]
+ * After the copy the proxy serves from its own memory and touches the pool no further, so a
+ * dormant STAGED proxy pins no shared memory. See GRotatingPool for the ring, the producer, and
+ * the (benign, aligned-64-bit) race analysis. The implementation lives in GStagedSource.cpp.
  *
  * @param dst Start of the destination buffer (must hold at least n words)
- * @param n   Number of 64-bit words to copy out (typically STAGED_CHUNK_WORDS)
+ * @param n   Number of 64-bit words to copy out (equal to STAGED_CHUNK_WORDS)
  */
 void stagedClaim(std::uint64_t *dst, std::size_t n);
 

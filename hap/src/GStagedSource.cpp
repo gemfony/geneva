@@ -41,7 +41,8 @@ namespace Gem::Hap::detail {
  *
  * The pool is a function-local static, constructed on the first claim (after the
  * random factory exists) and shared by every STAGED proxy. It is the same
- * lock-free rotating-block ring the QUARANTINE source uses, but STAGED copies the
+ * lock-free Gem::Hap::detail::GRotatingPool the QUARANTINE source uses (see there for the
+ * ring, the producer, and the benign-race analysis), but STAGED copies the
  * claimed chunk out (word-by-word, each an aligned 64-bit atomic load) into the
  * caller's private double buffer: after the copy the proxy serves from its own
  * memory and touches the pool no further, so a dormant STAGED proxy is fully

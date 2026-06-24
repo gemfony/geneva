@@ -40,7 +40,9 @@ namespace Gem::Hap::detail {
  *
  * The pool is a function-local static, constructed on the first claim (after the
  * random factory exists) and shared by every QUARANTINE proxy. QUARANTINE reads
- * the span in place -- the lower-overhead, benign-race mode of the rotating pool.
+ * the span in place -- the lower-overhead, benign-race read mode of
+ * Gem::Hap::detail::GRotatingPool (see there for the ring and the conditions under which the
+ * race does no harm).
  *
  * @return Pointer to a QUARANTINE_CHUNK_WORDS-word span inside a shared pool
  */

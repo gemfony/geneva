@@ -96,11 +96,33 @@ class GRandomFactory; // Forward declaration, so we can make random_container co
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This struct holds and creates random number containers to be transmitted to GRandomT
- * via a buffer. It does minimal error checking as it is meant for internal usage only,
- * and excessive error checking on the code might have strong performance implications.
- * None of the functions in this class is thread-safe (in the sense of being usable
- * concurrently from multiple threads).
+ * @brief A fixed-size package of @f$B@f$ pre-generated raw random words, handed to a QUEUE proxy.
+ *
+ * A @c random_container is the unit of work the factory ships to a @c GRandomT<QUEUE> proxy: a flat
+ * array of @f$B=@f$ @c DEFAULTARRAYSIZE 64-bit words plus a read cursor. The proxy consumes it one
+ * word at a time and returns the empty shell for recycling. It does minimal error checking (it is
+ * an internal hot-path type) and is @b not thread-safe: exactly one proxy owns a container at a
+ * time, so no synchronization is needed on it -- all cross-thread coordination lives in the
+ * factory's bounded buffers instead.
+ *
+ * @par Data structure
+ * @verbatim
+   random_container
+   +-------------------------------------------+
+   | r_ : array<uint64_t, B>   (B = DEFAULTARRAYSIZE)
+   | current_pos_ : read cursor 0..B           |
+   +-------------------------------------------+
+     fill_from(rng,n): bulk-generate n words   (one SIMD/cuRAND call when rng supports it)
+     next(): return r_[current_pos_++]         empty() == (current_pos_ >= B)
+   @endverbatim
+ *
+ * @par Algorithm -- bulk fill, scalar serve
+ * Filling is delegated to the engine's bulk path when available: @c fill_from() uses
+ * @f$\texttt{rng.generate}(r\_,n)@f$ if the engine exposes it (the SIMD / cuRAND backends do --
+ * one vectorised or device call fills many words), and otherwise draws @f$n@f$ words one at a time.
+ * Serving is then a single array read per draw, @f$\texttt{next}()=r\_[\,p{+}{+}\,]@f$. Recycling
+ * regenerates only the consumed prefix: @c refresh() refills @f$[0,\texttt{current\_pos\_})@f$ and
+ * resets the cursor, so a returned container costs only as much as was actually used.
  */
 class random_container {
     friend class
@@ -263,28 +285,39 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Past implementations of random numbers for the Geneva library showed a
- * particular bottle neck in the random number generation. Every GObject
- * had its own random number generator, and seeding was very expensive.
- * We thus now produce floating point numbers in the range [0,1[ in a separate
- * thread in this class and calculate other numbers from this in the GRandom class.
- * A second thread is responsible for the creation of gaussian random numbers.
- * This circumvents the necessity to seed the generator over and over again and
- * allows us to get rid of a dependency on the MersenneTwister library. We are now
- * using a generator from the boost library instead, so users need to download fewer
- * libraries to use the Geneva library.
+ * @brief The process-global producer/consumer factory that backs the QUEUE source.
  *
- * This class produces packets of random numbers and stores them in bounded buffers.
- * Clients can retrieve packets of random numbers, while separate threads keep
- * filling the buffer up.
+ * Rather than seed a generator per consumer (the historical bottleneck), a single factory runs a
+ * pool of producer threads that bulk-fill @c random_container packages and publish them on a
+ * bounded "fresh" buffer; QUEUE proxies pop full packages and push the empty shells back on a
+ * "return" buffer for recycling. Producers thus run ahead of demand and -- crucially for the
+ * bursty EA workload -- keep refilling during the evaluation gaps between bursts, so a burst finds
+ * packages already waiting. A single instance exists per process (a @c GSingletonT, reached via
+ * @c randomFactory()); it also vends seeds (@c getSeed()) to the LOCAL / STAGED / QUARANTINE
+ * sources.
  *
- * The implementation currently uses the lagged fibonacci generator. According to
- * http://www.boost.org/doc/libs/1_35_0/libs/random/random-performance.html this is
- * the fastest generator amongst all of Boost's generators. It is the author's belief that
- * the "quality" of random numbers is of less concern in evolutionary algorithms, as the
- * geometry of the quality surface adds to the randomness. The original boost random
- * number generators have now been replaced by std::random generators, which are
- * modelled after their boost-equivalents.
+ * @par Data structure
+ * @verbatim
+   n producer threads                  bounded buffers                    QUEUE proxies
+   +-----------------+                                                     +-----------+
+   | GFillBackend    |  full pkg  ===> [ p_fresh_bfr_ : MPMC ] ==pop==>   |  proxy A  |
+   | (GPU/SIMD/CPU)  |                                                     +-----------+
+   |  fill package   |  <== reuse  <== [ p_ret_bfr_ : MPMC ] <==push==     |  proxy B  |
+   +-----------------+   empty shells                                      +-----------+
+        ^  refills while consumers are in their evaluation GAP
+   @endverbatim
+ *
+ * @par Algorithm
+ * Each producer thread loops: take a recycled shell from the return buffer (or allocate one),
+ * fill it through the shared @c detail::GFillBackend (one SIMD or cuRAND bulk call per package),
+ * and block-push it onto the fresh buffer; at shutdown the buffers close and the loop exits. A
+ * producer never lets an exception escape (that would call @c std::terminate); it logs and the
+ * remaining producers carry on. Consumers (@c getNewRandomContainer()) pop with a timeout and
+ * retry, so the path is wait-free of the consumer's logic. The seed manager hands each producer
+ * and each non-QUEUE source a distinct seed, so streams do not overlap. The raw engine is
+ * xoshiro256++ (scalar in the header; SIMD / cuRAND inside @c GFillBackend) -- in an evolutionary
+ * algorithm the geometry of the quality surface tolerates fast generators, so throughput is
+ * favoured over cryptographic strength.
  */
 class GRandomFactory {
 public:
