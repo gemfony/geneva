@@ -219,15 +219,9 @@ Recommended Versions:
   (GOptimizableEntity), the optimization-algorithm engine (GOptimizationAlgorithmBase) and the
   GNeuralNetworkIndividual local engines were hardcoded to GRandomT<randomSource::QUEUE> and
   therefore ignored the configured backend; they now use the Gem::Hap::GRandom alias. So the
-  whole program -- mutation and selection included -- honours one compile-time backend.
-
-- The default random source changed from QUEUE to LOCAL. Now that the backend reaches the
-  parallel adaption path, LOCAL is the better default: every individual draws from its own
-  per-proxy engine, so adapting the population in parallel is contention-free, whereas QUEUE has
-  all those per-individual proxies contend on the one shared factory queue. QUEUE / STAGED /
-  QUARANTINE remain selectable via HAP_RANDOM_SOURCE (RANDOMSOURCE in the gcfg). Note that the GPU
-  random-number backend (cuRAND) bulk-fills the QUEUE/STAGED/QUARANTINE raw pools but is unused
-  under LOCAL (its per-proxy engines are CPU-only); pick QUEUE/STAGED/QUARANTINE to use it.
+  whole program -- mutation and selection included -- honours the one compile-time backend chosen
+  via HAP_RANDOM_SOURCE (RANDOMSOURCE in the gcfg). The default stays QUEUE, so behaviour is
+  byte-identical unless the build opts into LOCAL / STAGED / QUARANTINE.
 
 - GGenomeBuilder gained convenience helpers: vector-of-starts group overloads
   (addDoubleGroup / addDoublePlainGroup / addFloatGroup taking a per-element start
