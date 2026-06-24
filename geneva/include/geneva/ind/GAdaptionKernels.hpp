@@ -207,48 +207,31 @@ std::size_t adaptGaussGroupImpl(
 
 /******************************************************************************/
 /**
- * @brief Adapts one Gauss group, drawing all randomness inline from @p gr (the standard kernel).
+ * @brief The standard-normal prefetch cache type used by adaptGaussGroup's optional fast path.
  *
- * @tparam T The adaption floating-point type (double or float).
- * @param cfg The static, shared Gauss configuration for this group.
- * @param st The per-individual evolving Gauss state; updated in place.
- * @param values The group's parameter values to adapt, in their normalized internal representation.
- * @param gr The per-individual random engine the mutation draws from.
- * @return The number of values that were actually adapted.
+ * One cache type serves every channel: it pre-produces @e standard normals @f$z\sim N(0,1)@f$
+ * (always double, cast where the channel is float); the kernel applies @f$\sigma z@f$ at consume.
  */
-template <typename T>
-std::size_t adaptGaussGroup(
-    const GaussConfig<T> &cfg,
-    GaussState<T> &st,
-    std::span<T> values,
-    Gem::Hap::GRandomBase &gr
-) {
-    using n_param = typename Gem::Hap::g_normal_distribution<T>::param_type;
-    return adaptGaussGroupImpl<T>(
-        cfg, st, values, gr,
-        [](Gem::Hap::g_normal_distribution<T> &normal, Gem::Hap::GRandomBase &g, T sigma) {
-            return normal(g, n_param(T(0.), sigma));
-        }
-    );
-}
+using NormalPrefetchCache = Gem::Hap::GRNGDistributionCacheT<Gem::Hap::g_normal_distribution<double>>;
 
 /******************************************************************************/
 /**
- * @brief Adapts one Gauss group, drawing the per-value N(0,sigma) step from a prefetch cache.
+ * @brief Adapts one Gauss group; the per-value N(0,sigma) step is drawn inline, or from a prefetch cache.
  *
- * Identical to the gr-only overload except that the dominant per-value gaussian step pops a
- * prefetched standard normal from @p ncache and scales it by the current sigma -- so the sqrt/log
- * transform can run ahead of the burst (see Gem::Hap::GNormalCacheT). Self-adaption (sigma /
- * adaption probability) and the per-value bernoulli gate still draw inline from @p gr. Because the
- * value-step normals are drawn from the cache rather than interleaved with the inline draws, the
- * raw-word consumption order differs: results are statistically equivalent but not bit-identical.
+ * When @p ncache is null (the default) every draw is inline -- bit-identical to the historical
+ * kernel. When a cache is supplied, the dominant per-value gaussian step pops a prefetched standard
+ * normal @f$z@f$ and scales it, @f$\delta=\sigma z@f$, so the @f$\sqrt{\cdot}@f$/@f$\log@f$ transform
+ * runs ahead of the burst (see Gem::Hap::GRNGDistributionCacheT); self-adaption (sigma / adaption
+ * probability) and the per-value bernoulli gate still draw inline from @p gr. Because the value-step
+ * normals are then drawn from the cache rather than interleaved with the inline draws, the raw-word
+ * consumption order differs: results are statistically equivalent but not bit-identical.
  *
  * @tparam T The adaption floating-point type (double or float).
  * @param cfg The static, shared Gauss configuration for this group.
  * @param st The per-individual evolving Gauss state; updated in place.
  * @param values The group's parameter values to adapt, in their normalized internal representation.
- * @param gr The per-individual random engine for self-adaption and the gates.
- * @param ncache The per-consumer standard-normal prefetch cache supplying the value step.
+ * @param gr The per-individual random engine for self-adaption, the gates, and (when no cache) the value step.
+ * @param ncache Optional standard-normal prefetch cache for the value step; nullptr draws inline.
  * @return The number of values that were actually adapted.
  */
 template <typename T>
@@ -257,12 +240,21 @@ std::size_t adaptGaussGroup(
     GaussState<T> &st,
     std::span<T> values,
     Gem::Hap::GRandomBase &gr,
-    Gem::Hap::GNormalCacheT<T> &ncache
+    NormalPrefetchCache *ncache = nullptr
 ) {
+    using n_param = typename Gem::Hap::g_normal_distribution<T>::param_type;
+    if(ncache != nullptr) {
+        return adaptGaussGroupImpl<T>(
+            cfg, st, values, gr,
+            [ncache](Gem::Hap::g_normal_distribution<T> & /*unused*/, Gem::Hap::GRandomBase &g, T sigma) {
+                return sigma * static_cast<T>((*ncache)(g)); // pop standard normal z, scale: sigma*z
+            }
+        );
+    }
     return adaptGaussGroupImpl<T>(
         cfg, st, values, gr,
-        [&ncache](Gem::Hap::g_normal_distribution<T> & /*unused*/, Gem::Hap::GRandomBase & /*unused*/, T sigma) {
-            return ncache(T(0.), sigma);
+        [](Gem::Hap::g_normal_distribution<T> &normal, Gem::Hap::GRandomBase &g, T sigma) {
+            return normal(g, n_param(T(0.), sigma));
         }
     );
 }

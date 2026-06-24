@@ -94,17 +94,16 @@ double run_adaption(std::uint32_t nParams, std::uint32_t nGenerations, unsigned 
             st.sigma   = 0.1;
             st.ad_prob = 1.0;
 
-            const std::size_t cap = nParams + 8;
-            std::optional<Gem::Hap::GNormalCacheT<double>> cpuCache;
+            std::optional<Gem::Geneva::Genome::NormalPrefetchCache> cpuCache;
             if(mode == Mode::CacheCpu) {
-                cpuCache.emplace(gr, cap);
+                cpuCache.emplace(Gem::Hap::g_normal_distribution<double>(0., 1.)); // self-sizing
             }
 
             double burstNanos = 0.;
             for(std::uint32_t g = 0; g < nGenerations; ++g) {
-                // --- GAP (untimed): pre-produce the value-step standard normals ---
+                // --- GAP (untimed): pre-produce the value-step standard normals (self-sizing) ---
                 if(mode == Mode::CacheCpu) {
-                    cpuCache->prefetch(cap);
+                    cpuCache->prefetch(gr);
                 }
 
                 const std::chrono::steady_clock::time_point b0 = std::chrono::steady_clock::now();
@@ -113,7 +112,7 @@ double run_adaption(std::uint32_t nParams, std::uint32_t nGenerations, unsigned 
                     Gem::Geneva::Genome::adaptGaussGroup<double>(cfg, st, std::span<double>(values), gr);
                 }
                 else {
-                    Gem::Geneva::Genome::adaptGaussGroup<double>(cfg, st, std::span<double>(values), gr, *cpuCache);
+                    Gem::Geneva::Genome::adaptGaussGroup<double>(cfg, st, std::span<double>(values), gr, &(*cpuCache));
                 }
                 const std::chrono::steady_clock::time_point b1 = std::chrono::steady_clock::now();
                 burstNanos += std::chrono::duration<double, std::nano>(b1 - b0).count();

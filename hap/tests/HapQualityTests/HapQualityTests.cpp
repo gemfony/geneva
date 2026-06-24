@@ -205,16 +205,16 @@ TEST_CASE("Hap quality: prefetch caches preserve the distribution", "[hap][quali
     // The prefetch caches move a distribution's transform off the hot path; they must not
     // change the distribution. Prefetching some values and producing the rest inline (the
     // underflow fallback) must still yield the right statistics.
-    SECTION("GNormalCacheT yields N(mean,stddev)") {
-        GRandom               rng;
-        GNormalCacheT<double> cache(rng, 4096);
-        const double          mean = 2.0;
-        const double          sd   = 3.0;
-        double                sum = 0.;
-        double                sumsq = 0.;
+    SECTION("normal cache yields N(mean,stddev), and self-sizes to fit the burst") {
+        GRandom                                              rng;
+        GRNGDistributionCacheT<g_normal_distribution<double>> cache(g_normal_distribution<double>(0., 1.));
+        const double                                         mean = 2.0;
+        const double                                         sd   = 3.0;
+        double                                               sum = 0.;
+        double                                               sumsq = 0.;
         for (std::uint64_t i = 0; i < N; ++i) {
-            if (i % 4096 == 0) cache.prefetch(4096); // refill periodically; rest hit the buffer/fallback
-            double x = cache(mean, sd);
+            if (i % 4096 == 0) cache.prefetch(rng); // self-sizing: grows to fit the 4096-draw bursts
+            double x = mean + sd * cache(rng);      // standard normal z -> N(mean,sd)
             sum += x;
             sumsq += x * x;
         }
@@ -223,16 +223,17 @@ TEST_CASE("Hap quality: prefetch caches preserve the distribution", "[hap][quali
         // SE(mean) = sd/sqrt(N) ~= 3e-3; SE(var) ~ sd^2*sqrt(2/N) ~= 1.3e-2. Generous bounds.
         REQUIRE(std::abs(m - mean) < 0.02);
         REQUIRE(std::abs(std::sqrt(var) - sd) < 0.02);
+        REQUIRE(cache.capacity() >= 4096); // doubled up from the 1000 default to fit the burst
     }
-    SECTION("GDistributionCacheT matches the wrapped distribution (uniform mean 0.5)") {
+    SECTION("generic cache matches the wrapped distribution (uniform mean 0.5)") {
         GRandom rng;
-        GDistributionCacheT<std::uniform_real_distribution<double>> cache(
-            rng, std::uniform_real_distribution<double>(0., 1.), 4096);
+        GRNGDistributionCacheT<std::uniform_real_distribution<double>> cache(
+            std::uniform_real_distribution<double>(0., 1.));
         double sum = 0.;
         bool   inRange = true;
         for (std::uint64_t i = 0; i < N; ++i) {
-            if (i % 4096 == 0) cache.prefetch(4096);
-            double x = cache();
+            if (i % 4096 == 0) cache.prefetch(rng);
+            double x = cache(rng);
             if (x < 0. || x >= 1.) inRange = false;
             sum += x;
         }

@@ -107,8 +107,10 @@ double run_mutation_load(std::uint32_t nParams, std::uint32_t nGenerations, unsi
             Gem::Hap::GRandomT<S>              gr;
             Gem::Hap::g_bernoulli_distribution bernoulli;
             using b_param = Gem::Hap::g_bernoulli_distribution::param_type;
-            // The cache holds standard normals; +2 covers the two self-adaption draws per burst.
-            Gem::Hap::GNormalCacheT<double> normal(gr, nParams + 2);
+            // The cache holds standard normals N(0,1) and self-sizes to the burst; the consumer
+            // applies sigma*z. (Prefetch mode pops; non-prefetch never prefetches -> all inline.)
+            Gem::Hap::GRNGDistributionCacheT<Gem::Hap::g_normal_distribution<double>> normal(
+                Gem::Hap::g_normal_distribution<double>(0., 1.));
 
             double sigma      = 0.1;
             double ad_prob    = 1.0;
@@ -117,21 +119,21 @@ double run_mutation_load(std::uint32_t nParams, std::uint32_t nGenerations, unsi
             for(std::uint32_t g = 0; g < nGenerations; ++g) {
                 // --- GAP work (untimed): pre-produce the burst's standard normals ---
                 if(usePrefetch) {
-                    normal.prefetch(nParams + 2);
+                    normal.prefetch(gr);
                 }
 
                 const std::chrono::steady_clock::time_point b0 = std::chrono::steady_clock::now();
 
                 // --- BURST: adapt the whole (per-thread) parameter set ---
-                // normal(mean, stddev) pops a prefetched standard normal and scales it (prefetch
-                // mode), or transforms inline (non-prefetch mode) -- same numbers, different timing.
-                ad_prob *= std::exp(normal(0., 0.1));
+                // normal(gr) pops a prefetched standard normal z (prefetch mode) or transforms inline
+                // (non-prefetch mode); the consumer scales by the rate/sigma -- same numbers, different timing.
+                ad_prob *= std::exp(0.1 * normal(gr));
                 ad_prob = std::clamp(ad_prob, 1.0e-3, 1.0);
-                sigma *= std::exp(normal(0., 0.8));
+                sigma *= std::exp(0.8 * normal(gr));
                 sigma = std::clamp(sigma, 1.0e-9, 1.0);
                 for(std::uint32_t p = 0; p < nParams; ++p) {
                     if(bernoulli(gr, b_param(ad_prob))) {
-                        local += normal(0., sigma);
+                        local += sigma * normal(gr);
                     }
                 }
 
