@@ -685,7 +685,7 @@ public:
         }
 
         // Create a local random number generator.
-        GRandomT<randomSource::QUEUE> gr_l;
+        GRandom gr_l;
         std::uniform_real_distribution<double> uniform_real_distribution;
 
         // Retrieve the number of input- and output nodes for easier reference
@@ -795,7 +795,7 @@ public:
         }
 
         // Create a local random number generator.
-        GRandomT<randomSource::QUEUE> gr_l;
+        GRandom gr_l;
         std::uniform_real_distribution<double> uniform_real_distribution;
 
         // Retrieve the number of input- and output nodes for easier reference
@@ -966,7 +966,7 @@ public:
         }
 
         // Create a local random number generator.
-        GRandomT<randomSource::QUEUE> gr_l;
+        GRandom gr_l;
         std::uniform_real_distribution<double> uniform_real_distribution;
 
         // Retrieve the number of input- and output nodes for easier reference
@@ -1090,7 +1090,7 @@ public:
         }
 
         // Create a local random number generator.
-        GRandomT<randomSource::QUEUE> gr_l;
+        GRandom gr_l;
         std::uniform_real_distribution<double> uniform_real_distribution;
 
         // Retrieve the number of input- and output nodes for easier reference

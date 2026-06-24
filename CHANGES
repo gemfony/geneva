@@ -226,6 +226,13 @@ Recommended Versions:
   macro is part of the hap target's public interface, so GRandom stays consistent across all
   consumers. Other sources remain usable explicitly via GRandomT<randomSource::...>.
 
+- HAP_RANDOM_SOURCE now governs the optimizer hot paths. The per-individual mutation engine
+  (GOptimizableEntity), the optimization-algorithm engine (GOptimizationAlgorithmBase) and the
+  GNeuralNetworkIndividual local engines were hardcoded to GRandomT<randomSource::QUEUE> and
+  therefore ignored the configured backend; they now use the Gem::Hap::GRandom alias. So the
+  whole program -- mutation and selection included -- honours one compile-time backend. The
+  default stays QUEUE, so behaviour is byte-identical unless the build opts into another source.
+
 - GGenomeBuilder gained convenience helpers: vector-of-starts group overloads
   (addDoubleGroup / addDoublePlainGroup / addFloatGroup taking a per-element start
   vector, with the group size inferred from the vector and each member seeded with its

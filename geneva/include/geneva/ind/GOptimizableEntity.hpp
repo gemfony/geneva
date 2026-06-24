@@ -907,7 +907,7 @@ protected:
      * A random number generator. Note that the actual calculation is
      * done in a random number proxy / factory
      */
-    Gem::Hap::GRandomT<Gem::Hap::randomSource::QUEUE> gr_;
+    Gem::Hap::GRandom gr_; ///< Per-individual engine; follows the HAP_RANDOM_SOURCE-selected backend
 
     /** @brief Uniformly distributed integer random numbers */
     std::uniform_int_distribution<std::size_t> uniform_int_;
