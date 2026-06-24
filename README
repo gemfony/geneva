@@ -5,9 +5,10 @@ in parallel on devices ranging from multi-processor machines over
 clusters all the way to Grid- and Cloud-installations.
 
 Meanwhile, further optimization algorithms have been added beyond "mere"
-evolutionary algorithms, such as swarm algorithms, simulated annealing 
-and a simple form of gradient descents. Further algorithms will be added 
-over time, and the existing algorithms will be further improved.
+evolutionary algorithms, such as particle swarm optimization, simulated
+annealing, a simple form of gradient descents and an exhaustive parameter scan.
+Further algorithms will be added over time, and the existing algorithms will be
+further improved.
 
 All algorithms act on the same problem definitions, and different 
 optimization algorithms can interact and may be "chained", making it 
