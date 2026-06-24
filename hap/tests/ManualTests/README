@@ -1,3 +1,13 @@
 This directory contains tests that mostly require manual inspection of the
 results. As an example, the GRandomUsage test creates plots with different
 random number distributions that can be viewed with the Root analysis toolkit.
+
+GRandomMutationLoad is a benchmark that ranks the random-number sources
+(QUEUE/LOCAL/STAGED/QUARANTINE) for the Geneva use-case: it reproduces the
+bursty Gaussian-mutation draw load of an evolutionary algorithm (a burst of
+draws per generation, then an evaluation gap in which the factory pre-produces)
+and reports the in-burst throughput of each source. Run it by hand with larger
+-d/-g (and -u for the evaluation-gap microseconds); -h lists all flags.
+
+GRandomThroughput measures raw proxy throughput for a single source (--source),
+but is sort-bound and does not differentiate the sources.
