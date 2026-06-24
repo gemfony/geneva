@@ -33,13 +33,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "hap/GRandomDefines.hpp"
-#if defined(HAP_AVX2_BACKEND) || defined(HAP_NEON_BACKEND)
-#include "hap/GXoshiro256ppSIMD.hpp" // SIMD bulk-refill engine
-#endif
-#if defined(HAP_USE_CUDA)
-#include "hap/GCUDARng.hpp" // GPU bulk-refill backend (cuRAND host API)
-#include <optional>
-#endif
+#include "GFillBackend.hpp" // library-private engine selection (GPU/SIMD/scalar) + fill seam
 #include <atomic>
 #include <chrono>
 #include <cstddef>
@@ -363,65 +357,18 @@ std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
  */
 void GRandomFactory::producer(std::uint32_t seed) {
     try {
-        // When a SIMD backend is compiled in, the producer refills containers
-        // with the vectorised engine (bulk generate()). The public engine type
-        // (G_CPU_BASE_GENERATOR) stays scalar so the headers are consistent for
-        // every consumer; the SIMD type lives only in this (library-private)
-        // translation unit. Without a SIMD backend the scalar engine both
-        // refills and serves the local generator.
-#if defined(HAP_AVX2_BACKEND) || defined(HAP_NEON_BACKEND)
-        using RefillEngine = xoshiro256pp_simd;
-#else
-        using RefillEngine = G_CPU_BASE_GENERATOR;
-#endif
-        RefillEngine mt(static_cast<RefillEngine::result_type>(seed));
+        // The fill backend picks -- once -- the fastest engine available in this
+        // build (GPU cuRAND when a device is present, else the SIMD xoshiro256++,
+        // else the scalar engine) and logs the CUDA decision once for the whole
+        // process. It duck-types as a bulk URBG, so containers (re)fill straight
+        // from it. The engine-selection / fall-back policy lives entirely in
+        // GFillBackend and is shared with the staged source.
+        detail::GFillBackend backend(static_cast<std::uint64_t>(seed));
 
-        // When built with CUDA support and a GPU device is present at run time,
-        // containers are refilled on the GPU via cuRAND; otherwise the CPU engine
-        // above is used. The choice is made once per producer thread, with a
-        // clean fallback when no device is available.
-#if defined(HAP_USE_CUDA)
-        const bool              useCuda = GCudaRNG::deviceAvailable();
-        std::optional<GCudaRNG> cuda;
-        if(useCuda) {
-            cuda.emplace(static_cast<std::uint64_t>(seed));
-        }
-        // Log the CUDA decision exactly ONCE for the whole factory (not once per producer
-        // thread). When the binary was built with the CUDA backend but no device is present,
-        // emit a clear warning so the SIMD/CPU fallback never comes as a surprise.
-        static std::once_flag cuda_decision_logged;
-        std::call_once(cuda_decision_logged, [useCuda]() {
-            if(useCuda) {
-                glogger << "In GRandomFactory::producer(): a CUDA device is present;"
-                        << " random-number containers are refilled on the GPU via cuRAND." << '\n'
-                        << GLOGGING;
-            }
-            else {
-                glogger
-                    << "In GRandomFactory::producer(): this binary was built with the CUDA"
-                    << " random-number backend, but no CUDA-capable device is available." << '\n'
-                    << "Falling back to the SIMD/CPU bulk-refill engine -- the GPU is NOT being"
-                    << " used for random-number generation." << '\n'
-                    << GWARNING;
-            }
-        });
-#else
-        [[maybe_unused]] constexpr bool useCuda = false;
-#endif
-
-        // Fills (fresh=true) or refreshes (fresh=false) a container from the
-        // active backend (GPU when useCuda, else the CPU engine).
+        // Fills (fresh=true) or refreshes (fresh=false) a container from the backend.
         auto fill = [&](std::unique_ptr<random_container> &cont, bool fresh) {
-#if defined(HAP_USE_CUDA)
-            if(useCuda) {
-                if(fresh) { cont.reset(new random_container(*cuda));
-                } else {      cont->refresh(*cuda);
-}
-                return;
-            }
-#endif
-            if(fresh) { cont.reset(new random_container(mt));
-            } else {      cont->refresh(mt);
+            if(fresh) { cont.reset(new random_container(backend));
+            } else {      cont->refresh(backend);
 }
         };
 
