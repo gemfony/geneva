@@ -69,13 +69,14 @@ set(GENEVA_BUILD_WITH_GPU_CONSUMER "auto" CACHE STRING "Build the GPU consumer (
 set_property(CACHE GENEVA_BUILD_WITH_GPU_CONSUMER PROPERTY STRINGS auto on off)
 
 # Selects the source the default Gem::Hap::GRandom proxy draws from (compile-time only):
-#   queue      -> the central factory package queue (the default; unchanged behaviour)
-#   local      -> a per-proxy engine seeded by the factory
+#   local      -> a per-proxy engine seeded by the factory (the default: contention-free, best for
+#                 the parallel adaption hot path where every individual draws from its own engine)
+#   queue      -> the central factory package queue (one shared queue; producers can use cuRAND/SIMD)
 #   staged     -> chunks from a shared, bulk-filled staging pool into a per-proxy double buffer
 #   quarantine -> read in place from N rotating, bulk-filled pools (benign-race, aligned-64-bit)
 # Every other source remains usable explicitly via GRandomT<randomSource::...>; this only
 # picks what the GRandom alias maps to. Consumed in hap/src/CMakeLists.txt.
-set(HAP_RANDOM_SOURCE "queue" CACHE STRING "Source for the default Gem::Hap::GRandom proxy: queue|local|staged|quarantine")
+set(HAP_RANDOM_SOURCE "local" CACHE STRING "Source for the default Gem::Hap::GRandom proxy: queue|local|staged|quarantine")
 set_property(CACHE HAP_RANDOM_SOURCE PROPERTY STRINGS queue local staged quarantine)
 if(NOT HAP_RANDOM_SOURCE MATCHES "^(queue|local|staged|quarantine)$")
 	message(FATAL_ERROR "HAP_RANDOM_SOURCE must be one of queue|local|staged|quarantine (got '${HAP_RANDOM_SOURCE}').")
