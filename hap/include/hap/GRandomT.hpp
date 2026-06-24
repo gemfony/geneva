@@ -60,7 +60,7 @@ namespace Gem::Hap {
  * produced in different ways. We only define the interface here. The actual
  * implementation can be found in the (partial) specializations of this class.
  */
-template <Gem::Hap::RANDFLAVOURS s = Gem::Hap::RANDFLAVOURS::RANDOMPROXY>
+template <Gem::Hap::randomSource s = Gem::Hap::randomSource::QUEUE>
 class GRandomT : public Gem::Hap::GRandomBase {
 public:
     /***************************************************************************/
@@ -90,7 +90,7 @@ public:
  * objects or use copy constructors.
  */
 template <>
-class GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> : public Gem::Hap::GRandomBase {
+class GRandomT<Gem::Hap::randomSource::QUEUE> : public Gem::Hap::GRandomBase {
 public:
     /***************************************************************************/
     /**
@@ -125,8 +125,8 @@ public:
 	 *
 	 * @param cp The object to be "copied" (unused; present only for interface compatibility)
 	 */
-    GRandomT([[maybe_unused]] GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> const & cp) noexcept(false)
-      : GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>() { /* nothing */
+    GRandomT([[maybe_unused]] GRandomT<Gem::Hap::randomSource::QUEUE> const & cp) noexcept(false)
+      : GRandomT<Gem::Hap::randomSource::QUEUE>() { /* nothing */
     }
 
     /***************************************************************************/
@@ -138,7 +138,7 @@ public:
 	 *
 	 * @param cp The object whose random number container is moved from (left in a pristine state)
 	 */
-    GRandomT(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> &&cp) noexcept(false)
+    GRandomT(GRandomT<Gem::Hap::randomSource::QUEUE> &&cp) noexcept(false)
       : p_(std::move(cp.p_))
       , grf_(randomFactory()) // Make sure we have a local pointer to the factory
     {
@@ -156,8 +156,8 @@ public:
 	 * @param cp The object to be "assigned" (unused; present only for interface compatibility)
 	 * @return A reference to this object
 	 */
-    GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> &
-    operator=([[maybe_unused]] GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> const & cp) noexcept(false) {
+    GRandomT<Gem::Hap::randomSource::QUEUE> &
+    operator=([[maybe_unused]] GRandomT<Gem::Hap::randomSource::QUEUE> const & cp) noexcept(false) {
         return *this;
     }
 
@@ -171,8 +171,8 @@ public:
 	 * @param cp The object whose random number container is moved from (re-initialized afterwards)
 	 * @return A reference to this object
 	 */
-    GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> &
-    operator=(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> &&cp) noexcept(false) {
+    GRandomT<Gem::Hap::randomSource::QUEUE> &
+    operator=(GRandomT<Gem::Hap::randomSource::QUEUE> &&cp) noexcept(false) {
         p_ = std::move(cp.p_);
         // We keep our own pointer to the random factory
 
@@ -233,7 +233,7 @@ private:
         if(not grf_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GRandomT<RANDOMPROXY>::getNewRandomContainer(): Error!" << '\n'
+                << "In GRandomT<QUEUE>::getNewRandomContainer(): Error!" << '\n'
                 << "No connection to GRandomFactory object." << '\n'
             );
         }
@@ -267,7 +267,7 @@ private:
 };
 
 /** @brief Convenience typedef */
-using GRandom = GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>;
+using GRandom = GRandomT<Gem::Hap::randomSource::QUEUE>;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -280,7 +280,7 @@ using GRandom = GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>;
  * case the default constructor is used.
  */
 template <>
-class GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> : public Gem::Hap::GRandomBase {
+class GRandomT<Gem::Hap::randomSource::LOCAL> : public Gem::Hap::GRandomBase {
 public:
     /***************************************************************************/
     /**
@@ -298,8 +298,8 @@ public:
 	 *
 	 * @param cp The object to be "copied" (unused; present only for interface compatibility)
 	 */
-    GRandomT([[maybe_unused]] GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> const & cp) noexcept(false)
-      : GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>() { /* nothing */
+    GRandomT([[maybe_unused]] GRandomT<Gem::Hap::randomSource::LOCAL> const & cp) noexcept(false)
+      : GRandomT<Gem::Hap::randomSource::LOCAL>() { /* nothing */
     }
 
     /***************************************************************************/
@@ -310,8 +310,8 @@ public:
 	 *
 	 * @param cp The object to be "moved" from (unused; present only for interface compatibility)
 	 */
-    GRandomT([[maybe_unused]] GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> && cp) noexcept(false)
-      : GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>() { /* nothing */
+    GRandomT([[maybe_unused]] GRandomT<Gem::Hap::randomSource::LOCAL> && cp) noexcept(false)
+      : GRandomT<Gem::Hap::randomSource::LOCAL>() { /* nothing */
     }
 
     /***************************************************************************/
@@ -329,8 +329,8 @@ public:
 	 * @param cp The object to be "assigned" (unused; present only for interface compatibility)
 	 * @return A reference to this object
 	 */
-    GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> &
-    operator=([[maybe_unused]] GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> const & cp) noexcept(
+    GRandomT<Gem::Hap::randomSource::LOCAL> &
+    operator=([[maybe_unused]] GRandomT<Gem::Hap::randomSource::LOCAL> const & cp) noexcept(
         false
     ) // NOLINT(cert-oop54-cpp) — intentionally trivial: each instance owns independent state
     {
@@ -346,8 +346,8 @@ public:
 	 * @param cp The object to be "moved" from (unused; present only for interface compatibility)
 	 * @return A reference to this object
 	 */
-    GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> &
-    operator=([[maybe_unused]] GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> && cp) noexcept(false) {
+    GRandomT<Gem::Hap::randomSource::LOCAL> &
+    operator=([[maybe_unused]] GRandomT<Gem::Hap::randomSource::LOCAL> && cp) noexcept(false) {
         return *this;
     }
 

@@ -571,7 +571,7 @@ protected:
     /***************************************************************************/
     // Some data
 
-    Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>
+    Gem::Hap::GRandomT<Gem::Hap::randomSource::QUEUE>
         gr_; ///< A random number generator. Note that the actual calculation is done in a random number proxy / factory
     std::uniform_real_distribution<double>
         uniform_real_distribution_; ///< Access to uniformly distributed double random values

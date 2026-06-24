@@ -71,8 +71,8 @@ int main(int argc, char **argv) {
     double sum3;
     double sum4;
 
-    std::shared_ptr<GRandomT<RANDFLAVOURS::RANDOMPROXY>> gr_ptr(
-        new GRandomT<RANDFLAVOURS::RANDOMPROXY>()
+    std::shared_ptr<GRandomT<randomSource::QUEUE>> gr_ptr(
+        new GRandomT<randomSource::QUEUE>()
     );
 
     std::shared_ptr<GHistogram1D> x1_ptr(new GHistogram1D(NBINS, 0., 1.));

@@ -112,8 +112,8 @@ int main() {
     double fact_2_08;
 
     std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr =
-        std::shared_ptr<GRandomT<RANDFLAVOURS::RANDOMPROXY>>(
-            new GRandomT<RANDFLAVOURS::RANDOMPROXY>()
+        std::shared_ptr<GRandomT<randomSource::QUEUE>>(
+            new GRandomT<randomSource::QUEUE>()
         );
 
     std::string caption_dist =

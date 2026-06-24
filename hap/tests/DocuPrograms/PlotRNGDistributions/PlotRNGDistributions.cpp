@@ -171,8 +171,8 @@ int main(int argc, char **argv) {
     randomFactory()->setNProducerThreads(nProducerThreads);
 
     // Create a random number proxy
-    gr_ptr = std::shared_ptr<GRandomT<RANDFLAVOURS::RANDOMPROXY>>(
-        new GRandomT<RANDFLAVOURS::RANDOMPROXY>()
+    gr_ptr = std::shared_ptr<GRandomT<randomSource::QUEUE>>(
+        new GRandomT<randomSource::QUEUE>()
     );
 
     std::ofstream ofs("rootPlotRNGDistributions.C");

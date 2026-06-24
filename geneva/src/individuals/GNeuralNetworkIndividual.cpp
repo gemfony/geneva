@@ -1674,7 +1674,7 @@ gen::GenomeData GNeuralNetworkIndividual::buildGenome(const Config &c) {
         );
     }
 
-    GRandomT<RANDFLAVOURS::RANDOMPROXY> gr_l;
+    GRandomT<randomSource::QUEUE> gr_l;
     std::uniform_real_distribution<double> uniform_real_distribution(c.min_var, c.max_var);
 
     gen::GGenomeBuilder gb;

@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
     Gem::Hap::randomFactory()->setNProducerThreads(nProducerThreads);
 
     // Retrieve a random number proxy
-    Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+    Gem::Hap::GRandomT<Gem::Hap::randomSource::QUEUE> gr;
 
     // Storage and production of random numbers
     std::vector<double> payload(packageSize);

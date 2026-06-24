@@ -88,7 +88,7 @@ void GSimpleContainer::print() const {
  */
 GRandomNumberContainer::GRandomNumberContainer(const std::size_t &nrnr)
   : Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>(1) {
-    Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+    Gem::Hap::GRandomT<Gem::Hap::randomSource::QUEUE> gr;
     std::uniform_real_distribution<double> uniform_real_distribution;
     for(std::size_t i = 0; i < nrnr; i++) {
         random_numbers_.push_back(uniform_real_distribution(gr));

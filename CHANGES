@@ -144,6 +144,13 @@ Recommended Versions:
   explicitly switched on; with auto, a host that has CUDA now uses it by default (turn it
   off with USECUDARNG=off / BUILDGPUCONSUMER=off or the SKIPALLCUDA master).
 
+- Hap's random-number source selector was renamed as the set of sources grows: the enum
+  Gem::Hap::RANDFLAVOURS is now Gem::Hap::randomSource, and its values RANDOMPROXY /
+  RANDOMLOCAL are now QUEUE / LOCAL (the underlying integers are preserved, so streamed
+  values are unaffected). The GRandomT<source> proxy template and the GRandom alias are
+  unchanged in spirit. SOURCE-breaking: code that named RANDFLAVOURS::RANDOMPROXY /
+  RANDFLAVOURS::RANDOMLOCAL must use randomSource::QUEUE / randomSource::LOCAL.
+
 - GGenomeBuilder gained convenience helpers: vector-of-starts group overloads
   (addDoubleGroup / addDoublePlainGroup / addFloatGroup taking a per-element start
   vector, with the group size inferred from the vector and each member seeded with its

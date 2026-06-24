@@ -36,17 +36,17 @@ namespace Gem::Hap {
 
 /******************************************************************************/
 /**
- * @brief Puts a Gem::Hap::RANDFLAVOURS item into a stream.
+ * @brief Puts a Gem::Hap::randomSource item into a stream.
  *
  * The enumerator is first cast to its underlying integral base type
  * (Gem::Common::ENUMBASETYPE) and then written, so the textual form is a
  * plain integer.
  *
  * @param o The std::ostream the item should be added to
- * @param grts The RANDFLAVOURS enumerator to be written to the stream
+ * @param grts The randomSource enumerator to be written to the stream
  * @return The std::ostream object passed in (to allow chaining)
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Hap::RANDFLAVOURS &grts) {
+std::ostream &operator<<(std::ostream &o, const Gem::Hap::randomSource &grts) {
     auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(grts);
     o << tmp;
     return o;
@@ -54,19 +54,19 @@ std::ostream &operator<<(std::ostream &o, const Gem::Hap::RANDFLAVOURS &grts) {
 
 /******************************************************************************/
 /**
- * @brief Reads a Gem::Hap::RANDFLAVOURS item from a stream.
+ * @brief Reads a Gem::Hap::randomSource item from a stream.
  *
  * An integer is read into the underlying base type
  * (Gem::Common::ENUMBASETYPE) and then cast back into the enumerator.
  *
  * @param i The std::istream the item should be read from
- * @param grts Output reference receiving the RANDFLAVOURS enumerator read from the stream
+ * @param grts Output reference receiving the randomSource enumerator read from the stream
  * @return The std::istream object passed in (to allow chaining)
  */
-std::istream &operator>>(std::istream &i, Gem::Hap::RANDFLAVOURS &grts) {
+std::istream &operator>>(std::istream &i, Gem::Hap::randomSource &grts) {
     Gem::Common::ENUMBASETYPE tmp = 0;
     i >> tmp;
-    grts = static_cast<Gem::Hap::RANDFLAVOURS>(tmp);
+    grts = static_cast<Gem::Hap::randomSource>(tmp);
     return i;
 }
 

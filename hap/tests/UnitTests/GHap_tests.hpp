@@ -95,13 +95,13 @@ public:
 
         //------------------------------------------------------------------------------
 
-        { // Test that uniform_int(min,max) covers the entire range, including the upper boundary in RANDFLAVOURS::RANDOMLOCAL mode
+        { // Test that uniform_int(min,max) covers the entire range, including the upper boundary in randomSource::LOCAL mode
             // A few settings
             constexpr std::int32_t MINRANDOM = -10;
             constexpr std::int32_t MAXRANDOM = 10;
 
-            std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>> gr_ptr(
-                new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>()
+            std::shared_ptr<GRandomT<Gem::Hap::randomSource::LOCAL>> gr_ptr(
+                new Gem::Hap::GRandomT<Gem::Hap::randomSource::LOCAL>()
             );
             std::uniform_int_distribution<std::int32_t> uniform_int_distribution(
                 MINRANDOM,
@@ -136,13 +136,13 @@ public:
 
         //------------------------------------------------------------------------------
 
-        { // Test that uniform_int(min,max) covers the entire range, including the upper boundary in RANDOMPROXY mode
+        { // Test that uniform_int(min,max) covers the entire range, including the upper boundary in QUEUE mode
             // A few settings
             constexpr std::int32_t MINRANDOM = -10;
             constexpr std::int32_t MAXRANDOM = 10;
 
-            std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>> gr_ptr(
-                new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>()
+            std::shared_ptr<GRandomT<Gem::Hap::randomSource::QUEUE>> gr_ptr(
+                new Gem::Hap::GRandomT<Gem::Hap::randomSource::QUEUE>()
             );
             std::uniform_int_distribution<std::int32_t> uniform_int_distribution(
                 MINRANDOM,
@@ -178,8 +178,8 @@ public:
         //------------------------------------------------------------------------------
 
         { // Check that using extreme values for the boundaries of uniform_int(min,max) and producing random numbers doesn't throw in RAMDOMLOCAL mode
-            std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>> gr_ptr(
-                new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>()
+            std::shared_ptr<GRandomT<Gem::Hap::randomSource::LOCAL>> gr_ptr(
+                new Gem::Hap::GRandomT<Gem::Hap::randomSource::LOCAL>()
             );
             std::uniform_int_distribution<std::int32_t> uniform_int_distribution(
                 -(std::numeric_limits<std::int32_t>::max)(),
@@ -195,8 +195,8 @@ public:
         //------------------------------------------------------------------------------
 
         { // Check that using extreme values for the boundaries of uniform_int(min,max) and producing random numbers doesn't throw in RAMDOMPROXY mode
-            std::shared_ptr<GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>> gr_ptr(
-                new Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>()
+            std::shared_ptr<GRandomT<Gem::Hap::randomSource::QUEUE>> gr_ptr(
+                new Gem::Hap::GRandomT<Gem::Hap::randomSource::QUEUE>()
             );
             std::uniform_int_distribution<std::int32_t> uniform_int_distribution(
                 -(std::numeric_limits<std::int32_t>::max)(),

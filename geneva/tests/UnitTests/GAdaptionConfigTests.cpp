@@ -172,7 +172,7 @@ TEST_CASE("GAdaptionConfig: checkConsistency accepts the authoring genome, rejec
 
 /******************************************************************************/
 TEST_CASE("GAdaption: runAdaptionKernels mutates within bounds (config-driven)", "[flat][adaptcfg]") {
-    Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+    Gem::Hap::GRandomT<Gem::Hap::randomSource::QUEUE> gr;
 
     // Robust over repeats -- stochastic adaption must keep producing in-bounds changes.
     for(int rep = 0; rep < 20; ++rep) {
@@ -233,7 +233,7 @@ TEST_CASE("GAdaption: runAdaptionKernels mutates within bounds (config-driven)",
 
 /******************************************************************************/
 TEST_CASE("GAdaption: readAdaptionSigmas + resetAdaptionState round-trip", "[flat][adaptcfg]") {
-    Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+    Gem::Hap::GRandomT<Gem::Hap::randomSource::QUEUE> gr;
 
     AdaptCfgIndividual ind;
     auto cfg = authoredConfig(ind);

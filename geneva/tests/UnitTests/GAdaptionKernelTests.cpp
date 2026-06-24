@@ -40,7 +40,7 @@ using namespace Gem::Geneva;
 using namespace Gem::Geneva::Genome;
 
 namespace {
-Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+Gem::Hap::GRandomT<Gem::Hap::randomSource::QUEUE> gr;
 }
 
 /******************************************************************************/
