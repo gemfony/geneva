@@ -144,6 +144,15 @@ Recommended Versions:
   explicitly switched on; with auto, a host that has CUDA now uses it by default (turn it
   off with USECUDARNG=off / BUILDGPUCONSUMER=off or the SKIPALLCUDA master).
 
+- New benchmark hap/tests/ManualTests/GRandomMutationLoad ranks the random sources for the
+  Geneva use-case. It reproduces the EA Gaussian-mutation draw mix (a g_bernoulli gate plus a
+  g_normal step per parameter, mirroring GAdaptionKernels) and -- crucially -- models the BURSTY
+  demand of an EA: each generation is a burst of draws followed by an evaluation gap in which the
+  factory pre-produces, with only the in-burst time measured. Thread count adapts to the host
+  (threadFactor x cores, default 2x). All four sources run in one binary; flags -d/-g/-t/-f/-u
+  tune params/bursts/threads/factor/gap. (The pre-existing GRandomThroughput is sort-bound and
+  does not differentiate the sources; this one does.)
+
 - Hap's random-number source selector was renamed as the set of sources grows: the enum
   Gem::Hap::RANDFLAVOURS is now Gem::Hap::randomSource, and its values RANDOMPROXY /
   RANDOMLOCAL are now QUEUE / LOCAL (the underlying integers are preserved, so streamed

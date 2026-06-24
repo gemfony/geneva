@@ -28,8 +28,34 @@
 ################################################################################
 
 
-ADD_SUBDIRECTORY ( GRandomMutationLoad )
-ADD_SUBDIRECTORY ( GRandomThroughput )
-ADD_SUBDIRECTORY ( GRandomUsage )
+SET ( EXECUTABLENAME GRandomMutationLoad )
 
-GENEVA_AGGREGATE_TARGET( "tests-hap-manual" )
+SET ( ${EXECUTABLENAME}_SRCS
+    GRandomMutationLoad.cpp
+)
+
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
+)
+
+SET(LIBRARIES_TO_LINK
+		${HAP_LIBNAME}
+		${COMMON_LIBNAME}
+		${Boost_LIBRARIES})
+
+# Add MPI Libraries in case building with MPI-consumer
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(LIBRARIES_TO_LINK
+			${LIBRARIES_TO_LINK}
+			${MPI_LIBRARIES})
+ENDIF()
+
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+		${LIBRARIES_TO_LINK})
+
+# Registered as a ctest with small args so it stays a quick smoke run; the real
+# benchmark is run by hand with larger -d / -g (and -t for the thread count).
+ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME} -d 200 -g 20 -t 2)
+SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "hap")
+
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/hap/ManualTests/${EXECUTABLENAME} )
