@@ -307,6 +307,55 @@ TEST_CASE("GGenomeLayout::layoutId is a stable content hash", "[flat][layoutid]"
 }
 
 /******************************************************************************/
+TEST_CASE("GGenomeLayout::layoutId survives the WIRE-BLOB round-trip", "[flat][layoutid][wireblob]") {
+    using Gem::Geneva::Genome::layoutToWireBlob;
+    using Gem::Geneva::Genome::layoutFromWireBlob;
+
+    auto roundtrip = [](const std::shared_ptr<const GGenomeLayout> &orig) {
+        const LayoutId id1 = orig->layoutId();
+        const std::string blob = layoutToWireBlob(*orig);
+        const auto back = layoutFromWireBlob(blob);
+        const LayoutId id2 = back->layoutId();
+        const bool same = back->sameStructure(*orig);
+        // id-stable AND structure-stable: this is what send-once relies on for a return-trip layout.
+        CHECK(same);                 // false -> reconstruction changed the structure (serialize bug)
+        CHECK(id2 == id1);           // false while same==true -> the HASH is unstable (hash bug)
+
+        // The genome's inline layout-by-value path uses the OUTER archive, whose format follows the
+        // consumer's serialization mode (may be XML/text, not binary). Does a non-binary round-trip
+        // preserve the content id (which folds exact double bit patterns)?
+        std::ostringstream oss;
+        { boost::archive::xml_oarchive oa(oss); GGenomeLayout cp = *orig;
+          oa << boost::serialization::make_nvp("l", cp); }
+        auto back_xml = std::make_shared<GGenomeLayout>();
+        std::istringstream iss(oss.str());
+        { boost::archive::xml_iarchive ia(iss); ia >> boost::serialization::make_nvp("l", *back_xml); }
+        CHECK(back_xml->sameStructure(*orig));      // structurally equal (same VALUES)?
+        CHECK(back_xml->layoutId() == id1);         // but is the content id (bit-pattern hash) preserved?
+
+        // Multi-hop: server->worker->server. Does re-serializing the RECONSTRUCTED layout keep the id?
+        const auto back2 = layoutFromWireBlob(layoutToWireBlob(*back));
+        CHECK(back2->layoutId() == id1);
+        CHECK(back2->sameStructure(*orig));
+    };
+
+    SECTION("double array (n single-value groups)") {
+        GGenomeBuilder b; b.addDoubleArray(1000, -10., 10.);
+        FlatSphere ind; ind.setGenome(b.build()); roundtrip(ind.getLayout());
+    }
+    SECTION("double groups of 10 (the image case)") {
+        GGenomeBuilder b; for(int t = 0; t < 100; ++t) { b.addDoubleGroup(10, -1., 1.); }
+        FlatSphere ind; ind.setGenome(b.build()); roundtrip(ind.getLayout());
+    }
+    SECTION("the existing mixed layout") {
+        GGenomeBuilder b;
+        b.addDoubleGroup(4, -10., 10.); b.addDoubleArray(3, -2., 2.);
+        b.addInt32Group(2, -5, 5); b.addBoolGroup(2);
+        FlatSphere ind; ind.setGenome(b.build()); roundtrip(ind.getLayout());
+    }
+}
+
+/******************************************************************************/
 TEST_CASE("GGenomeLayout::layoutId survives a serialization round-trip", "[flat][layoutid]") {
     // The structure round-trips losslessly, so a deserialised genome's layout must carry the same id as
     // the original -- this is exactly what lets a receiver match a sent layout to a cached one by id.
