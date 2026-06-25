@@ -348,12 +348,15 @@ TEST_CASE("Wire: an id-only layout the receiver lacks self-heals via fetch, not 
 }
 
 /******************************************************************************/
-TEST_CASE("Wire: a RETURN carries a resolvable layout even when the receiver has no fetch",
+TEST_CASE("Wire: a RETURN OMITS the layout and decodes against a fetch-less receiver",
           "[flat][wire][layoutreturn]") {
-    // The send-once peer-tracking unsoundness only bites where the receiver cannot recover by fetching.
-    // On the RETURN direction the receiving server cannot issue a REQUEST_LAYOUT back to a worker, so a
-    // returned item must NEVER reference its layout id-only -- it must always carry the layout in full.
-    // (Submit direction is unaffected: a worker CAN fetch from the server.)
+    // Layout placement (fix B): on the RETURN direction the layout is dropped from the wire entirely --
+    // neither by value nor by id. The server still holds the population-invariant layout in memory and
+    // re-attaches it on reconciliation, so a return must (a) decode with NO registry and NO fetch and
+    // (b) come back with its VALUES intact but its layout NULL, then (c) recover its layout from a
+    // structurally-identical donor via adoptOmittedStructureFrom(). This removes the layout from the
+    // return path completely (no registry, no peer-tracking, no fetch), which is what dissolves the
+    // return-path send-once unsoundness. (Submit direction is unaffected -- see [layoutfetch].)
     using mode = Gem::Common::serializationMode;
     namespace c2 = Gem::Courtier;
 
@@ -361,30 +364,51 @@ TEST_CASE("Wire: a RETURN carries a resolvable layout even when the receiver has
     item.randomInit(activityMode::ALLPARAMETERS);
     item.process();
     const LayoutId lid = item.getLayout()->layoutId();
-    const c2::GWireLayoutId wid{lid.hi, lid.lo};
+    std::vector<double> sent_values;
+    item.streamline<double>(sent_values);
 
-    // Worker side: RETURNING, registry holds the layout, and (possibly-unsound) peer-tracking marks the
-    // server peer as already having it -- which under the OLD code makes save() emit the layout id-only.
+    // A self-contained encode (no wire scope) for size comparison: it carries the full layout.
+    const std::string self_contained = item.toString(mode::BINARY);
+
+    // Worker side: RETURNING. The layout must be omitted regardless of what the registry/peer-tracking
+    // says, so set them up as if the peer already had it (the OLD code would then emit id-only; fix B
+    // omits unconditionally on a return).
+    const c2::GWireLayoutId wid{lid.hi, lid.lo};
     c2::GWireLayoutRegistry worker_reg;
     worker_reg.put(wid, layoutToWireBlob(*item.getLayout()));
     worker_reg.markPeerHasLayout(0, wid);
     c2::GWireSerializationContext worker_ctx;
     worker_ctx.enabled = true; worker_ctx.peer = 0; worker_ctx.returning = true;
     worker_ctx.registry = &worker_reg;
-    std::string s;
-    { c2::GWireSerializationScope scope(&worker_ctx); s = item.toString(mode::BINARY); }
+    std::string returned;
+    { c2::GWireSerializationScope scope(&worker_ctx); returned = item.toString(mode::BINARY); }
 
-    // Server side: an EMPTY registry and NO fetch (it cannot pull a layout from a worker). The returned
-    // item must still decode -- i.e. the worker must have shipped the layout in full on the return.
+    // The return is strictly smaller than the self-contained form: the whole layout is gone from it.
+    CHECK(returned.size() < self_contained.size());
+
+    // Server side: an EMPTY registry and NO fetch. The return must decode anyway (no layout to resolve),
+    // recovering the VALUES, but with a NULL layout (re-attached separately, below).
     c2::GWireLayoutRegistry server_reg;
     c2::GWireSerializationContext server_ctx;
     server_ctx.enabled = true; server_ctx.registry = &server_reg; // no fetch_blob
     FlatSphere received;
     CHECK_NOTHROW([&] {
         c2::GWireSerializationScope scope(&server_ctx);
-        received.fromString(s, mode::BINARY);
+        received.fromString(returned, mode::BINARY);
     }());
+    CHECK(received.getLayout() == nullptr); // the layout was omitted on the return
+
+    // Re-attach the population-invariant layout from a structurally-identical donor (the live item the
+    // server still holds). The layout is restored AND the recovered values now interpret correctly.
+    received.adoptOmittedStructureFrom(item);
+    REQUIRE(received.getLayout() != nullptr);
     CHECK(received.getLayout()->layoutId() == lid);
+    std::vector<double> got_values;
+    received.streamline<double>(got_values);
+    REQUIRE(got_values.size() == sent_values.size());
+    for(std::size_t i = 0; i < got_values.size(); ++i) {
+        CHECK(std::abs(got_values[i] - sent_values[i]) < 1.0e-9);
+    }
 }
 
 /******************************************************************************/
@@ -1382,7 +1406,10 @@ TEST_CASE("Wire return: a worker's modified genome travels back in full", "[flat
         GWireSerializationScope scope(&server_ctx);
         received.fromString(s, mode::BINARY);
     }
-    // The full return carried the (modified) genome -- no graft needed.
+    // The return carried the (modified) genome VALUES in full -- only the population-invariant layout was
+    // omitted (re-attached on the server from the live item it still holds; here from the submitted one).
+    CHECK(received.getLayout() == nullptr);
+    received.adoptOmittedStructureFrom(submitted);
     CHECK(received.countParameters<double>() == 24);
     CHECK(valuesOf(received) == worker_vals); // the worker's modified parameters travelled back
 }
@@ -1435,30 +1462,31 @@ TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[
     constexpr auto BIN = Gem::Common::serializationMode::BINARY;
 
     constexpr std::size_t N = 100;
-    std::vector<std::unique_ptr<GOptimizableEntity>> items;
+    // The production work item is the GIndividualSlot, so submit slots (each wrapping one
+    // identically-structured genome). The slot path is what re-attaches the population-invariant layout
+    // omitted on a return (fix B), so it is exactly what this over-the-sockets test must exercise.
+    std::vector<std::unique_ptr<GIndividualSlot>> items;
     items.reserve(N);
     for(std::size_t i = 0; i < N; ++i) {
         auto ind = std::make_unique<FlatManyGroups>(40); // all share one layout structure -> one id
         ind->randomInit(activityMode::ALLPARAMETERS);
-        items.push_back(std::move(ind));
+        items.push_back(std::make_unique<GIndividualSlot>(std::move(ind)));
     }
 
     auto consumer =
-        std::make_shared<c2::GWebsocketConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/2, BIN);
-    // The work item is the abstract GOptimizableEntity base, so the consumer needs a polymorphic clone
-    // (copy-construction would slice). This mirrors GConsumerSetup's individualCloneFunction().
+        std::make_shared<c2::GWebsocketConsumerT<GIndividualSlot>>(/*port=*/0, /*threads=*/2, BIN);
     consumer->setCloneFunction(
-        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); }
+        [](const std::unique_ptr<GIndividualSlot> &p) { return p->clone_unique(); }
     );
     consumer->startServer();
     const unsigned short port = consumer->getPort();
 
     constexpr std::size_t n_clients = 3;
-    std::vector<std::shared_ptr<ccons::GWebsocketClientT<GOptimizableEntity>>> clients;
+    std::vector<std::shared_ptr<ccons::GWebsocketClientT<GIndividualSlot>>> clients;
     std::vector<std::thread> client_threads;
     std::atomic<bool> any_threw{false};
     for(std::size_t c = 0; c < n_clients; ++c) {
-        auto client = std::make_shared<ccons::GWebsocketClientT<GOptimizableEntity>>(
+        auto client = std::make_shared<ccons::GWebsocketClientT<GIndividualSlot>>(
             "127.0.0.1", port, BIN, /*verbose_control_frames=*/false, /*prefetch_depth=*/4
         );
         clients.push_back(client);
@@ -1472,7 +1500,7 @@ TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[
         });
     }
 
-    consumer->processBatch(std::span<std::unique_ptr<GOptimizableEntity>>(items.data(), items.size()),
+    consumer->processBatch(std::span<std::unique_ptr<GIndividualSlot>>(items.data(), items.size()),
                            c2::GSubmissionPolicy::full_success_or_fatal());
 
     for(auto &client : clients) {
@@ -1490,12 +1518,14 @@ TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[
         if(it && it->is_processed()) {
             ++processed;
         }
-        if(it && it->countParameters<double>() == 40) {
+        // The genome came back with its layout re-attached (fix B re-attaches on slot reconciliation), so
+        // its parameters are interpretable -- a returned item that lost its genome would not have 40.
+        if(it && it->hasIndividual() && it->individual().countParameters<double>() == 40) {
             ++with_genome;
         }
     }
     CHECK(processed == N); // correctness: every item came back evaluated
-    CHECK(with_genome == N); // results-only returns must still leave each item with its full genome
+    CHECK(with_genome == N); // every item keeps its full genome (layout re-attached on the slot return)
 
     // Send-once: a single layout served the whole population over all clients (had each item carried its
     // own layout copy this would still be 1, since the blob store keys by content id -- but more to the
@@ -1517,27 +1547,27 @@ TEST_CASE("Wire send-once over a real ASIO loopback interns one layout", "[flat]
     constexpr auto BIN = Gem::Common::serializationMode::BINARY;
 
     constexpr std::size_t N = 100;
-    std::vector<std::unique_ptr<GOptimizableEntity>> items;
+    std::vector<std::unique_ptr<GIndividualSlot>> items; // production work item: the slot (re-attaches on return)
     items.reserve(N);
     for(std::size_t i = 0; i < N; ++i) {
         auto ind = std::make_unique<FlatManyGroups>(40);
         ind->randomInit(activityMode::ALLPARAMETERS);
-        items.push_back(std::move(ind));
+        items.push_back(std::make_unique<GIndividualSlot>(std::move(ind)));
     }
 
-    auto consumer = std::make_shared<c2::GAsioConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/2, BIN);
+    auto consumer = std::make_shared<c2::GAsioConsumerT<GIndividualSlot>>(/*port=*/0, /*threads=*/2, BIN);
     consumer->setCloneFunction(
-        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); }
+        [](const std::unique_ptr<GIndividualSlot> &p) { return p->clone_unique(); }
     );
     consumer->startServer();
     const unsigned short port = consumer->getPort();
 
     constexpr std::size_t n_clients = 3;
-    std::vector<std::shared_ptr<ccons::GAsioConsumerClientT<GOptimizableEntity>>> clients;
+    std::vector<std::shared_ptr<ccons::GAsioConsumerClientT<GIndividualSlot>>> clients;
     std::vector<std::thread> client_threads;
     std::atomic<bool> any_threw{false};
     for(std::size_t c = 0; c < n_clients; ++c) {
-        auto client = std::make_shared<ccons::GAsioConsumerClientT<GOptimizableEntity>>(
+        auto client = std::make_shared<ccons::GAsioConsumerClientT<GIndividualSlot>>(
             "127.0.0.1", port, BIN, /*max_reconnects=*/50, /*prefetch_depth=*/8
         );
         clients.push_back(client);
@@ -1551,7 +1581,7 @@ TEST_CASE("Wire send-once over a real ASIO loopback interns one layout", "[flat]
         });
     }
 
-    consumer->processBatch(std::span<std::unique_ptr<GOptimizableEntity>>(items.data(), items.size()),
+    consumer->processBatch(std::span<std::unique_ptr<GIndividualSlot>>(items.data(), items.size()),
                            c2::GSubmissionPolicy::full_success_or_fatal());
 
     for(auto &client : clients) {
@@ -1569,12 +1599,12 @@ TEST_CASE("Wire send-once over a real ASIO loopback interns one layout", "[flat]
         if(it && it->is_processed()) {
             ++processed;
         }
-        if(it && it->countParameters<double>() == 40) {
+        if(it && it->hasIndividual() && it->individual().countParameters<double>() == 40) {
             ++with_genome;
         }
     }
     CHECK(processed == N);
-    CHECK(with_genome == N); // results-only returns must still leave each item with its full genome
+    CHECK(with_genome == N); // every item keeps its full genome (layout re-attached on the slot return)
     CHECK(consumer->getInternedLayoutCount() == 1);
 
     consumer->stopServer();
@@ -1595,28 +1625,28 @@ TEST_CASE("Wire send-once: many distinct layouts under a bounded registry stay c
 
     const std::vector<std::size_t> sizes{8, 16, 24, 32}; // four distinct layout structures
     constexpr std::size_t N = 80;
-    std::vector<std::unique_ptr<GOptimizableEntity>> items;
+    std::vector<std::unique_ptr<GIndividualSlot>> items; // production work item: the slot (re-attaches on return)
     items.reserve(N);
     for(std::size_t i = 0; i < N; ++i) {
         auto ind = std::make_unique<FlatManyGroups>(sizes[i % sizes.size()]);
         ind->randomInit(activityMode::ALLPARAMETERS);
-        items.push_back(std::move(ind));
+        items.push_back(std::make_unique<GIndividualSlot>(std::move(ind)));
     }
 
-    auto consumer = std::make_shared<c2::GWebsocketConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/2, BIN);
+    auto consumer = std::make_shared<c2::GWebsocketConsumerT<GIndividualSlot>>(/*port=*/0, /*threads=*/2, BIN);
     consumer->setCloneFunction(
-        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); }
+        [](const std::unique_ptr<GIndividualSlot> &p) { return p->clone_unique(); }
     );
     consumer->setInternedLayoutCapacity(2); // below the 4 distinct layouts -> eviction is forced
     consumer->startServer();
     const unsigned short port = consumer->getPort();
 
     constexpr std::size_t n_clients = 3;
-    std::vector<std::shared_ptr<ccons::GWebsocketClientT<GOptimizableEntity>>> clients;
+    std::vector<std::shared_ptr<ccons::GWebsocketClientT<GIndividualSlot>>> clients;
     std::vector<std::thread> client_threads;
     std::atomic<bool> any_threw{false};
     for(std::size_t c = 0; c < n_clients; ++c) {
-        auto client = std::make_shared<ccons::GWebsocketClientT<GOptimizableEntity>>(
+        auto client = std::make_shared<ccons::GWebsocketClientT<GIndividualSlot>>(
             "127.0.0.1", port, BIN, /*verbose_control_frames=*/false, /*prefetch_depth=*/4
         );
         clients.push_back(client);
@@ -1630,7 +1660,7 @@ TEST_CASE("Wire send-once: many distinct layouts under a bounded registry stay c
         });
     }
 
-    consumer->processBatch(std::span<std::unique_ptr<GOptimizableEntity>>(items.data(), items.size()),
+    consumer->processBatch(std::span<std::unique_ptr<GIndividualSlot>>(items.data(), items.size()),
                            c2::GSubmissionPolicy::full_success_or_fatal());
 
     for(auto &client : clients) {
@@ -1649,8 +1679,11 @@ TEST_CASE("Wire send-once: many distinct layouts under a bounded registry stay c
             ++processed;
         }
         // Each item must come back with ITS OWN (correctly-sized) genome, even across eviction + the
-        // varying layouts -- not an empty or a wrong-layout genome.
-        if(items[i] && items[i]->countParameters<double>() == sizes[i % sizes.size()]) {
+        // varying layouts -- not an empty or a wrong-layout genome. With fix B the return omits the layout
+        // and the slot re-attaches the CORRECT one from the live slot this result reconciles into (matched
+        // by correlation id), so distinct per-item layouts each come back right.
+        if(items[i] && items[i]->hasIndividual()
+           && items[i]->individual().countParameters<double>() == sizes[i % sizes.size()]) {
             ++with_genome;
         }
     }

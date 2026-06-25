@@ -671,6 +671,20 @@ public:
     maxMode getMaxMode() const;
 
     /**
+     * @brief Re-attaches shared structural metadata that may legitimately be OMITTED on the wire.
+     *
+     * A networked RETURN ships only the per-individual data (values + fitness + coordination); any
+     * population-invariant shared structure (the flat genome's GGenomeLayout) is dropped on the wire and
+     * re-attached on the server from a structurally-identical donor it still holds -- the live slot this
+     * result reconciles into, or a population sibling for a late return. The base does nothing (an entity
+     * with no detachable shared structure is already complete); the flat genome overrides this to copy the
+     * donor's layout handle when its own is missing. A no-op when this entity already carries its structure.
+     *
+     * @param donor A structurally-identical entity to copy the omitted shared metadata from
+     */
+    virtual void adoptOmittedStructureFrom([[maybe_unused]] const GOptimizableEntity &donor) {}
+
+    /**
      * @brief Retrieves the worst possible evaluation result, depending on whether we are in maximization or minimization mode
      * @return The worst-case evaluation value for the current mode
      */

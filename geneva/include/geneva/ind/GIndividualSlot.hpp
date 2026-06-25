@@ -339,7 +339,13 @@ public:
      * live slot stays in the population and is updated in place, so its scratch is never lost.
      * @param returned The deserialized result slot whose genome is adopted (it is emptied).
      */
-    void adoptIndividualFrom(GIndividualSlot &returned) noexcept {
+    void adoptIndividualFrom(GIndividualSlot &returned) {
+        // The returned genome arrived over the wire with its population-invariant shared structure (the
+        // flat genome's layout) OMITTED -- re-attach it from THIS live slot's genome, which still holds it,
+        // before the move replaces our genome. A no-op for genomes that carry no detachable structure.
+        if(individual_ && returned.individual_) {
+            returned.individual_->adoptOmittedStructureFrom(*individual_);
+        }
         individual_ = std::move(returned.individual_);
     }
 

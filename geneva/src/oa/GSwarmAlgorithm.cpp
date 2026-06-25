@@ -1268,10 +1268,14 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     // Retrieve a vector of old work items
     auto old_work_items = this->getOldWorkItems();
 
-    // Update the iteration of older individuals (a late return arrives as a slot with empty scratch)
-    // and attach them to the data vector
+    // Update the iteration of older individuals (a late return arrives as a slot with empty scratch and,
+    // having missed reconciliation into a live slot, with its genome's population-invariant layout OMITTED
+    // on the wire) and attach them to the data vector, re-attaching that layout from an existing member.
     for(auto &slot : old_work_items) {
         slot->setAssignedIteration(this->getIteration());
+        if(not this->empty()) {
+            slot->individual().adoptOmittedStructureFrom(this->at(0)->individual());
+        }
         this->push_back(std::move(slot));
     }
     old_work_items.clear();

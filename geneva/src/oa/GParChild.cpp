@@ -656,9 +656,14 @@ void GParChild::fixAfterJobSubmission() {
     // Attach all old work items to the end of the current population and clear the array of old items.
     // A late return is a slot whose scratch was dropped on the wire, so it arrives with an empty
     // personality. Install the correct concrete one (the marking loop below, and selection, dereference
-    // it). It is tagged as a child by that marking loop.
+    // it). It is tagged as a child by that marking loop. Its genome also arrived with the layout OMITTED
+    // (the networked return form) and, being late, never reconciled into a live slot -- so re-attach the
+    // population-invariant layout from an existing member before it can be interpreted.
     for(auto &slot : old_work_items) {
         slot->setPersonality(this->makePersonalityTraits());
+        if(not this->empty()) {
+            slot->individual().adoptOmittedStructureFrom(this->at(0)->individual());
+        }
         this->push_back(std::move(slot));
     }
     old_work_items.clear();

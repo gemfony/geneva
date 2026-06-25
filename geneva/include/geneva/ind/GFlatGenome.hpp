@@ -153,12 +153,22 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         // A leading `layout_interned` tag makes the stream self-describing, so load() follows the tag
         // regardless of its own scope.
         //
-        // Send-once (id + fetch-on-miss) is used ONLY on the SUBMIT direction. On a RETURN
-        // (ctx->returning) the receiving server cannot issue a REQUEST_LAYOUT back to a worker, so an
-        // id-only reference it happens not to hold would be unresolvable (a fatal cache miss with no
-        // usable fetch). A return therefore always carries the layout self-contained (by value). This
-        // costs the layout's bytes on the return path; lifting the layout off the per-genome wire form
-        // removes that cost entirely (see the layout-placement work).
+        // LAYOUT PLACEMENT: on a RETURN (worker -> server, ctx->returning) the layout is OMITTED from the
+        // wire entirely -- neither by value nor by id. The structural layout is population-invariant and
+        // the server still holds it in memory on the live slot this result reconciles into (matched by
+        // correlation id), so it is re-attached there (GIndividualSlot::adoptIndividualFrom ->
+        // GOptimizableEntity::adoptOmittedStructureFrom); a late return with no live slot is re-attached
+        // from a population sibling on admission. This removes the layout from the return path completely
+        // -- no registry, no peer-tracking, no fetch on returns (only the SUBMIT direction keeps the
+        // send-once machinery below). A leading self-describing tag lets load() follow the form.
+        const bool omitted = (ctx != nullptr) && ctx->enabled && ctx->returning;
+        ar &make_nvp("layout_omitted", omitted);
+        if(omitted) {
+            return; // values + fitness already written above; the layout is re-attached on the server
+        }
+
+        // Send-once (id + fetch-on-miss) is used ONLY on the SUBMIT direction (a return never reaches
+        // here -- see the omitted branch above).
         const bool interned =
             (ctx != nullptr) && ctx->enabled && (ctx->registry != nullptr) && (layout_ != nullptr) &&
             not ctx->returning;
@@ -207,6 +217,17 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         Gem::Common::serialize_members(ar, localMembers_(*this));
         // The per-group adaption state is OA-owned scratch (on the GIndividualSlot): an optimization
         // algorithm seeds each slot's scratch from its config at setup.
+
+        // RETURN form: the layout was omitted on the wire (see save()); leave it null here. The server
+        // re-attaches the population-invariant layout when this result reconciles into its live slot
+        // (or, for a late return, from a population sibling on admission). Until then the genome carries
+        // no layout -- which is fine: nothing interprets its values between deserialization and re-attach.
+        bool omitted = false;
+        ar &make_nvp("layout_omitted", omitted);
+        if(omitted) {
+            layout_ = nullptr;
+            return;
+        }
 
         // Follow the self-describing wire form written by save() (see there for the two forms).
         bool interned = false;
@@ -298,6 +319,23 @@ public:
      * @return A shared handle to the immutable layout describing bounds, grouping and adaption config
      */
     std::shared_ptr<const GGenomeLayout> getLayout() const noexcept { return layout_; }
+
+    /**
+     * @brief Re-attaches the structural layout omitted on a networked RETURN, from a structurally-identical
+     * donor genome. No-op if this genome already holds its layout. The layout is population-invariant, so
+     * any donor from the same population is correct (the live slot being reconciled, or a sibling for a
+     * late return). See GFlatGenome::save()/load() (the "layout_omitted" wire form).
+     *
+     * @param donor A structurally-identical genome to copy the (shared, immutable) layout handle from
+     */
+    void adoptOmittedStructureFrom(const GOptimizableEntity &donor) override {
+        if(layout_) {
+            return; // already complete -- e.g. a submit or checkpoint genome, never omitted
+        }
+        if(const auto *flat_donor = dynamic_cast<const GFlatGenome *>(&donor)) {
+            layout_ = flat_donor->layout_;
+        }
+    }
 
     /***************************************************************************/
     // Mutable access to the raw INTERNAL (normalized) value arrays. The OA-owned adaption kernels add
