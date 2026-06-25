@@ -99,9 +99,8 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
 
     /** @brief Single declaration of this class's plain local data members (the four value channels),
      *  feeding save()/load()/load_()/compare_() from one source. Defined before save() so its deduced
-     *  (auto) return type is available there. The shared layout_ and the transient input_omitted_ are
-     *  handled separately (the layout is interned on the wire and shared, not value-copied; input_omitted_
-     *  is a load-only transient), so they are deliberately NOT listed here. */
+     *  (auto) return type is available there. The shared layout_ is handled separately (interned on the
+     *  wire and shared, not value-copied), so it is deliberately NOT listed here. */
     template <typename Self>
     static auto localMembers_(Self &self) {
         return std::make_tuple(
@@ -205,7 +204,6 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp("GOptimizableEntity", boost::serialization::base_object<GOptimizableEntity>(*this));
 
         // The genome always arrives in full (see save()); there is no results-only/graft return form.
-        input_omitted_ = false;
         Gem::Common::serialize_members(ar, localMembers_(*this));
         // The per-group adaption state is OA-owned scratch (on the GIndividualSlot): an optimization
         // algorithm seeds each slot's scratch from its config at setup.
@@ -469,23 +467,6 @@ private:
     /** @brief Creates a deep clone of this object (supplied by the concrete individual)
      *  @return A heap-allocated deep copy of this genome */
     GFlatGenome *clone_() const override = 0;
-
-    /** @brief Whether this genome was deserialised from a results-only return (input data omitted).
-     *  @return true iff the input parameters were omitted on the wire and must be grafted. */
-    bool inputDataOmitted_() const override { return input_omitted_; }
-    /** @brief Grafts the input parameters (value channels + shared layout) of @p original onto this
-     *  results-only genome, which already carries the computed results. After the graft this genome is
-     *  complete and equivalent to a full return.
-     *  @param original The originally-submitted item (a GFlatGenome) that supplies the input data. */
-    void graftInputDataFrom_(const GOptimizableEntity &original) override {
-        const auto &src = dynamic_cast<const GFlatGenome &>(original);
-        dv_ = src.dv_;
-        fv_ = src.fv_;
-        iv_ = src.iv_;
-        bv_ = src.bv_;
-        layout_ = src.layout_;
-        input_omitted_ = false;
-    }
 
     /** @brief Retrieve the active double parameter at the given positional index.
      *  @param idx The position of the parameter among the active double parameters
@@ -939,10 +920,6 @@ private:
 
     /** @brief The shared, immutable structural descriptor (bounds / grouping / adaption config) */
     std::shared_ptr<const GGenomeLayout> layout_ = std::make_shared<const GGenomeLayout>();
-
-    /** @brief Transient (NOT serialized): set by load() when a results-only return arrived without the
-     *  input parameters, so the server knows to graft them from the originally-submitted item. */
-    bool input_omitted_ = false;
 };
 
 /******************************************************************************/

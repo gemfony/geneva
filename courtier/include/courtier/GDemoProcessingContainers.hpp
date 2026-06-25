@@ -201,7 +201,7 @@ class GFaultyContainer
             boost::serialization::base_object<
                 Gem::Courtier::GProcessingContainerT<GFaultyContainer, bool>>(*this)
         ) & BOOST_SERIALIZATION_NVP(stored_number_) & BOOST_SERIALIZATION_NVP(fault_mode_) &
-            BOOST_SERIALIZATION_NVP(sleep_ms_) & BOOST_SERIALIZATION_NVP(input_omitted_);
+            BOOST_SERIALIZATION_NVP(sleep_ms_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -228,11 +228,6 @@ public:
      *  @return The id/number stored in this container */
     [[nodiscard]] std::size_t get_stored_number() const;
 
-    /** @brief Marks this container as a results-only return (its stored id is treated as omitted input
-     *  data, to be grafted back from the original). Used to exercise the results-only wire path in tests.
-     *  @param omitted Whether this container should report its input data as omitted */
-    void set_input_omitted(bool omitted) { input_omitted_ = omitted; }
-
 private:
     /** @brief The default constructor -- only needed for de-serialization purposes */
     GFaultyContainer() = default;
@@ -240,20 +235,9 @@ private:
      *  @param res_vec An optional externally injected evaluation result vector (unused here) */
     void process_(const std::vector<bool> &res_vec = std::vector<bool>()) final;
 
-    /** @brief Whether this container carries results only (its stored id was omitted on the wire).
-     *  @return true if the input data is to be grafted from the original */
-    bool inputDataOmitted_() const override { return input_omitted_; }
-    /** @brief Grafts the input data (the stored id) from the originally-submitted container.
-     *  @param original The originally-submitted container supplying the omitted input data */
-    void graftInputDataFrom_(const GFaultyContainer &original) override {
-        stored_number_ = original.stored_number_;
-        input_omitted_ = false;
-    }
-
     std::size_t stored_number_ = 0;              ///< Identifies the item (for conservation checks)
     fault_mode fault_mode_ = fault_mode::NONE;   ///< The fault to exhibit during process_()
     unsigned int sleep_ms_ = 0;                  ///< Sleep length for fault_mode::SLEEP
-    bool input_omitted_ = false;                 ///< True iff this is a results-only return (test path)
 };
 
 /**********************************************************************************************/

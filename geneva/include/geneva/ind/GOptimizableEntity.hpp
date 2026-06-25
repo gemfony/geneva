@@ -332,22 +332,6 @@ public:
     void setMaxMode(maxMode const &mode);
 
     /**
-     * @brief Requests that this individual be returned to the server in FULL (its input parameters
-     * included) rather than in the default lightweight results-only form. A networked client that has
-     * MODIFIED the individual -- e.g. a nested / network-tiered optimization that replaces it with a
-     * better one it found locally -- sets this so the new parameters travel back. A transient transport
-     * hint (not serialized, compared or loaded); the default (false) ships only the computed results,
-     * the server grafting the originally-submitted parameters back on.
-     * @param full true to force a full return; false (the default) for the lightweight results-only form
-     */
-    void setReturnFullIndividual(bool full) { return_full_individual_ = full; }
-    /**
-     * @brief Whether a full return was requested for this individual (see setReturnFullIndividual()).
-     * @return true if the full individual should be returned; false for the results-only form
-     */
-    bool getReturnFullIndividual() const { return return_full_individual_; }
-
-    /**
      * @brief Transformation of the individual's parameters into a boost::property_tree object
      * @param ptr The property tree the parameters are written to
      * @param baseName The base name under which the parameters are stored (default "parameterset")
@@ -1137,11 +1121,6 @@ private:
     bool use_random_crash_ =
         false; ///< Indicates whether the individual should crash at random intervals for debugging purposes
     double random_crash_prob_ = 0.; ///< The probability for a random crash
-
-    /** @brief Transient transport hint (NOT serialized / compared / loaded): when a networked client
-     *  has MODIFIED this individual and wants the modified version returned in full, it sets this so the
-     *  return carries the input parameters rather than the default lightweight results-only form. */
-    bool return_full_individual_ = false;
 };
 
 /******************************************************************************/

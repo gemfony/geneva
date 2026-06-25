@@ -360,7 +360,6 @@ TEST_CASE("Wire: a RETURN carries a resolvable layout even when the receiver has
     FlatSphere item(40);
     item.randomInit(activityMode::ALLPARAMETERS);
     item.process();
-    item.setReturnFullIndividual(true); // exercise the full-return path (Increment 1 makes this the default)
     const LayoutId lid = item.getLayout()->layoutId();
     const c2::GWireLayoutId wid{lid.hi, lid.lo};
 
@@ -1350,17 +1349,17 @@ TEST_CASE("Wire send-once: default-off encoding is self-contained and interopera
 // round-trip is covered by the wire send-once and net-loopback tests.
 
 /******************************************************************************/
-TEST_CASE("Wire results-only return: a client may opt into a full return", "[flat][wire]") {
+TEST_CASE("Wire return: a worker's modified genome travels back in full", "[flat][wire]") {
     using mode = Gem::Common::serializationMode;
 
-    // A network-tiered client modifies the individual (here: re-initialises it) and returns it in full.
+    // A network-tiered client modifies the individual (here: re-initialises it) and returns it. A return
+    // always carries the whole genome (there is no results-only form), so the modified parameters travel.
     FlatManyGroups submitted(24);
     submitted.randomInit(activityMode::ALLPARAMETERS);
 
     auto worker_copy = submitted.clone<FlatManyGroups>();
     worker_copy->randomInit(activityMode::ALLPARAMETERS); // a "better" individual the worker found
     worker_copy->process();
-    worker_copy->setReturnFullIndividual(true); // <-- the opt-in
     const std::vector<double> worker_vals = valuesOf(*worker_copy);
 
     GWireLayoutRegistry worker_reg;
@@ -1383,8 +1382,7 @@ TEST_CASE("Wire results-only return: a client may opt into a full return", "[fla
         GWireSerializationScope scope(&server_ctx);
         received.fromString(s, mode::BINARY);
     }
-    // A full return carried the (modified) genome -- no graft needed.
-    CHECK_FALSE(received.inputDataOmitted());
+    // The full return carried the (modified) genome -- no graft needed.
     CHECK(received.countParameters<double>() == 24);
     CHECK(valuesOf(received) == worker_vals); // the worker's modified parameters travelled back
 }

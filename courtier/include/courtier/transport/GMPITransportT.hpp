@@ -293,13 +293,10 @@ public:
         wireCtx_.peer = 0; // worker side: the single upstream master
         wireCtx_.registry = &wireRegistry_;
         wireCtx_.mode = config_.serializationMode;
-        // Return processed items in the lightweight results-only form by default. Like the websocket /
-        // ASIO consumers, the MPI master uses the GNetworkedConsumerT slot model (its getPayloadItem /
-        // putPayloadItem are wired to checkout / checkin), so the input parameters are grafted back from
-        // the still-held original in checkin(). A late results-only return -- one whose batch has already
-        // been reconciled, so no original remains to graft from -- is dropped rather than buffered (see
-        // GNetworkedConsumerT::bufferLateReturn_locked). A work item can force a full return per item via
-        // setReturnFullIndividual().
+        // returning=true marks the worker→master return direction. A worker returns the whole individual
+        // (no results-only form); the layout travels self-contained on the return (send-once is
+        // submit-only). Like the websocket / ASIO consumers the MPI master uses the GNetworkedConsumerT
+        // slot model (getPayloadItem / putPayloadItem wired to checkout / checkin).
         wireCtx_.returning = true;
         wireCtx_.fetch_blob = [this](const Gem::Courtier::GWireLayoutId &id) -> std::string {
             return this->fetchLayoutBlob_(id);
