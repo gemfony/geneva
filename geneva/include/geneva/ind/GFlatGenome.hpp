@@ -134,13 +134,9 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         // The server still holds the originally-submitted item and grafts its parameters back on. A
         // leading `genome_omitted` marker makes the stream self-describing. (The base carries the full
         // multi-criterion result set, so multi-evaluation individuals return correctly.)
-        const bool genome_omitted = (ctx != nullptr) && ctx->enabled && ctx->returning &&
-                                    not this->getReturnFullIndividual();
-        ar &make_nvp("genome_omitted", genome_omitted);
-        if(genome_omitted) {
-            return;
-        }
-
+        // The genome always travels in full (parameters + layout). A processed worker returns the WHOLE
+        // individual -- there is no results-only/graft return form. (A return ships the layout
+        // self-contained: send-once interning is submit-only, see the layout block below.)
         Gem::Common::serialize_members(ar, localMembers_(*this));
 
         // The transient per-group adaption state is NOT serialised here (it is OA-owned slot scratch);
@@ -208,25 +204,8 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         using boost::serialization::make_nvp;
         ar &make_nvp("GOptimizableEntity", boost::serialization::base_object<GOptimizableEntity>(*this));
 
-        // A results-only return (see save()) omits the input parameters + layout: leave the genome empty
-        // and flag it so the server grafts the originally-submitted parameters back on. The base above
-        // already carries the computed results.
-        bool genome_omitted = false;
-        ar &make_nvp("genome_omitted", genome_omitted);
-        if(genome_omitted) {
-            // Leave NO stale input data behind (the object may have been default-constructed with a
-            // genome): an empty, unambiguous genome that the server replaces wholesale when it grafts
-            // the originally-submitted parameters back on (see graftInputDataFrom_).
-            input_omitted_ = true;
-            dv_.clear();
-            fv_.clear();
-            iv_.clear();
-            bv_.clear();
-            layout_ = std::make_shared<const GGenomeLayout>();
-            return;
-        }
+        // The genome always arrives in full (see save()); there is no results-only/graft return form.
         input_omitted_ = false;
-
         Gem::Common::serialize_members(ar, localMembers_(*this));
         // The per-group adaption state is OA-owned scratch (on the GIndividualSlot): an optimization
         // algorithm seeds each slot's scratch from its config at setup.
