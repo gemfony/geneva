@@ -1663,29 +1663,33 @@ TEST_CASE("Wire send-once: many distinct layouts under a bounded registry stay c
 }
 
 /******************************************************************************/
-TEST_CASE("EA over a websocket consumer with results-only returns keeps full genomes", "[wire][net][ea]") {
-    // Isolation test for the results-only-return path under a REAL optimization (many generations,
-    // selection + adaption), as opposed to the single-batch executor.workOn loopbacks above. Runs an EA
-    // over the websocket consumer for enough generations to pass the point where the MPI path was seen
-    // to collapse, then asserts the best individual still has its full genome (not an empty one that
-    // would evaluate a sphere to a spurious 0).
+TEST_CASE("EA over a websocket consumer evaluates GIndividualSlots end-to-end", "[wire][net][ea]") {
+    // The networked SLOT wire path under a REAL optimization (many generations, selection + adaption),
+    // as opposed to the single-batch loopbacks above. Since GIndividualSlot became the courtier work item,
+    // the consumer / client / registry are slot-typed: this is the geneva-level cover for the slot wire
+    // round-trip -- wire-mode scratch-skip on the genome's submit + the scratch-preserving server-side
+    // reconciliation in GNetworkedConsumerT::checkin. The slot-typed registry below is exactly the
+    // production type, so the run genuinely crosses the sockets (no local fallback); running 120
+    // generations without throwing, then recovering a best whose fitness matches its own genome, proves
+    // both the genome+fitness round-trip and that each return preserved its live slot's scratch (a
+    // clobbered personality would derail selection long before iteration 120).
     namespace c2 = Gem::Courtier;
     namespace ccons = Gem::Courtier::Consumers;
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
     constexpr auto BIN = Gem::Common::serializationMode::BINARY;
 
-    auto consumer = std::make_shared<c2::GWebsocketConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/4, BIN);
+    auto consumer = std::make_shared<c2::GWebsocketConsumerT<GIndividualSlot>>(/*port=*/0, /*threads=*/4, BIN);
     consumer->setCloneFunction(
-        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); }
+        [](const std::unique_ptr<GIndividualSlot> &p) { return p->clone_unique(); }
     );
     consumer->startServer();
     const unsigned short port = consumer->getPort();
 
-    std::vector<std::shared_ptr<ccons::GWebsocketClientT<GOptimizableEntity>>> clients;
+    std::vector<std::shared_ptr<ccons::GWebsocketClientT<GIndividualSlot>>> clients;
     std::vector<std::thread> client_threads;
     std::atomic<bool> any_threw{false};
     for(std::size_t c = 0; c < 4; ++c) {
-        auto client = std::make_shared<ccons::GWebsocketClientT<GOptimizableEntity>>(
+        auto client = std::make_shared<ccons::GWebsocketClientT<GIndividualSlot>>(
             "127.0.0.1", port, BIN, /*verbose=*/false, /*prefetch_depth=*/4
         );
         clients.push_back(client);
@@ -1702,7 +1706,7 @@ TEST_CASE("EA over a websocket consumer with results-only returns keeps full gen
         pop->push_back(proto.clone_unique());
     }
     pop->setAdaptionConfig(proto.getAdaptionConfig());
-    c2::GConsumerRegistryT<GOptimizableEntity>::instance().setConsumer(consumer);
+    c2::GConsumerRegistryT<GIndividualSlot>::instance().setConsumer(consumer);
 
     pop->optimize();
     auto best = pop->getBestGlobalIndividual<FlatSphere>();
@@ -1710,12 +1714,82 @@ TEST_CASE("EA over a websocket consumer with results-only returns keeps full gen
     for(auto &client : clients) { client->flagCloseRequested(); }
     for(auto &t : client_threads) { if(t.joinable()) t.join(); }
     consumer->stopServer();
-    c2::GConsumerRegistryT<GOptimizableEntity>::instance().clear(); // don't leak into other test cases
+    c2::GConsumerRegistryT<GIndividualSlot>::instance().clear(); // don't leak into other test cases
 
     REQUIRE(best);
     std::vector<double> v;
     best->streamline<double>(v);
-    CHECK(v.size() == 8);          // the best individual must keep its full genome
+    CHECK(v.size() == 8);                                  // the best individual kept its FULL genome...
+    // ...and its stored fitness is CONSISTENT with that genome: a worker really evaluated the actual
+    // parameters and the slot round-trip carried genome + fitness back together. This deterministically
+    // catches the failure mode the slot wire path could regress into -- a returned item whose evaluated
+    // fitness was lost or whose genome came back empty (an empty sphere would score a spurious 0, which
+    // would NOT match sum(x^2) over the recovered parameters). It is independent of EA convergence: with
+    // this individual's (deliberately untuned) sigma the 8-D sphere stalls near its 1.0-init start
+    // (the known "sigma not n-scaled" high-D behavior), which is orthogonal to wire correctness.
+    double expected = 0.;
+    for(double x : v) { expected += x * x; }
+    CHECK(std::abs(std::get<0>(best->getFitnessTuple()) - expected) < 1.0e-6);
+    CHECK_FALSE(any_threw.load());
+}
+
+/******************************************************************************/
+TEST_CASE("EA over an asio consumer evaluates GIndividualSlots end-to-end", "[wire][net][ea]") {
+    // The asio twin of the websocket slot-wire test above. The reconciliation (GNetworkedConsumerT::checkin)
+    // is shared, but the asio session / framing / serialization path is independent, and the two transports
+    // have historically shown DIFFERENT [net] timing behavior -- so both are covered. Same assertions: the
+    // recovered best keeps its full genome and a fitness consistent with it (proving a correct slot round
+    // trip), and 120 generations complete without throwing (proving scratch preservation per return).
+    namespace c2 = Gem::Courtier;
+    namespace ccons = Gem::Courtier::Consumers;
+    namespace oa = Gem::Geneva::OptimizationAlgorithms;
+    constexpr auto BIN = Gem::Common::serializationMode::BINARY;
+
+    auto consumer = std::make_shared<c2::GAsioConsumerT<GIndividualSlot>>(/*port=*/0, /*threads=*/4, BIN);
+    consumer->setCloneFunction(
+        [](const std::unique_ptr<GIndividualSlot> &p) { return p->clone_unique(); }
+    );
+    consumer->startServer();
+    const unsigned short port = consumer->getPort();
+
+    std::vector<std::shared_ptr<ccons::GAsioConsumerClientT<GIndividualSlot>>> clients;
+    std::vector<std::thread> client_threads;
+    std::atomic<bool> any_threw{false};
+    for(std::size_t c = 0; c < 4; ++c) {
+        auto client = std::make_shared<ccons::GAsioConsumerClientT<GIndividualSlot>>(
+            "127.0.0.1", port, BIN, /*max_reconnects=*/50, /*prefetch_depth=*/4
+        );
+        clients.push_back(client);
+        client_threads.emplace_back([client, &any_threw] {
+            try { client->run(); } catch(...) { any_threw.store(true); }
+        });
+    }
+
+    auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    pop->setPopulationSizes(40, 6);
+    pop->setMaxIteration(120);
+    FlatSphere proto(8);
+    for(std::size_t i = 0; i < 40; ++i) {
+        pop->push_back(proto.clone_unique());
+    }
+    pop->setAdaptionConfig(proto.getAdaptionConfig());
+    c2::GConsumerRegistryT<GIndividualSlot>::instance().setConsumer(consumer);
+
+    pop->optimize();
+    auto best = pop->getBestGlobalIndividual<FlatSphere>();
+
+    for(auto &client : clients) { client->flagCloseRequested(); }
+    for(auto &t : client_threads) { if(t.joinable()) t.join(); }
+    consumer->stopServer();
+    c2::GConsumerRegistryT<GIndividualSlot>::instance().clear(); // don't leak into other test cases
+
+    REQUIRE(best);
+    std::vector<double> v;
+    best->streamline<double>(v);
+    CHECK(v.size() == 8);
+    double expected = 0.;
+    for(double x : v) { expected += x * x; }
+    CHECK(std::abs(std::get<0>(best->getFitnessTuple()) - expected) < 1.0e-6);
     CHECK_FALSE(any_threw.load());
 }
 
