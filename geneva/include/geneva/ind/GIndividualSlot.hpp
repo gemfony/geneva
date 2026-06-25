@@ -49,6 +49,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GMemberReflectionT.hpp"
+#include "courtier/GWireSerializationContext.hpp" // the wire-vs-checkpoint (de)serialization scope
 #include "geneva/ind/GAuxiliaryStore.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 
@@ -131,13 +132,23 @@ class GIndividualSlot // NOLINT(cppcoreguidelines-special-member-functions)
         Gem::Common::serialize_members(ar, localMembers_(*this));
 
         // The OA-owned scratch (the personality OBJECT *and* the per-group POD blocks -- adaption sigma,
-        // swarm velocity, conjugate-gradient memory) rides along for a CHECKPOINT / general
-        // serialization, so a resumed algorithm keeps its evolved state in place. It is OUT of
-        // localMembers() so it is serialized but NOT part of the compared identity. The slot is never
-        // sent over the wire (transport submits bare individuals), so this always runs in checkpoint
-        // form. On resume the optimization algorithm preserves this restored scratch instead of
-        // re-seeding it (see GOptimizationAlgorithmBase::resumed_from_checkpoint_).
-        ar &make_nvp("scratch_", scratch_);
+        // swarm velocity, conjugate-gradient memory) is serialized in exactly TWO modes, driven by the
+        // thread-local wire (de)serialization scope (the same switch the genome's layout send-once uses):
+        //  - CHECKPOINT (no active wire scope): the scratch rides along, so a resumed algorithm keeps its
+        //    evolved state in place -- self-contained archive. On resume the optimization algorithm
+        //    preserves this restored scratch instead of re-seeding it (see
+        //    GOptimizationAlgorithmBase::resumed_from_checkpoint_).
+        //  - WIRE (a scope is active and enabled): the scratch is OMITTED. A remote worker needs no
+        //    OA scratch to evaluate, and on the return the server keeps the LIVE slot's scratch (which
+        //    never travelled) -- only the genome + coordination move back in (see adoptIndividualFrom()).
+        // The decision is symmetric on both wire ends (the scope is engaged on serialize AND deserialize),
+        // so the archive layouts always match. scratch_ is OUT of localMembers() so it is serialized but
+        // NOT part of the compared identity.
+        const auto *wire_ctx = Gem::Courtier::GWireSerializationScope::current();
+        const bool over_the_wire = (wire_ctx != nullptr) && wire_ctx->enabled;
+        if(not over_the_wire) {
+            ar &make_nvp("scratch_", scratch_);
+        }
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -199,6 +210,22 @@ public:
     /** @brief The wrapped individual (const). @return A const reference to the held individual. */
     const GOptimizableEntity &individual() const noexcept {
         return *individual_;
+    }
+
+    /**
+     * @brief The wrapped individual, statically cast to the user's concrete problem type. Convenience for
+     * the user-facing OUTPUT boundary (e.g. inspecting a best slot as the problem subclass it really is).
+     * @tparam derived_type The concrete GFlatIndividualT subclass the genome was built as.
+     * @return A reference to the wrapped individual as derived_type.
+     */
+    template <typename derived_type>
+    derived_type &genomeAs() noexcept {
+        return static_cast<derived_type &>(*individual_);
+    }
+    /** @brief The wrapped individual as the user's concrete problem type (const). @tparam derived_type The concrete subclass. @return A const reference as derived_type. */
+    template <typename derived_type>
+    const derived_type &genomeAs() const noexcept {
+        return static_cast<const derived_type &>(*individual_);
     }
 
     /**
@@ -268,6 +295,19 @@ public:
     void setAssignedIteration(std::uint32_t const &iter) { individual_->setAssignedIteration(iter); }
     /** @brief The iteration in which the wrapped genome was submitted. @return The assigned iteration. */
     std::uint32_t getAssignedIteration() const { return individual_->getAssignedIteration(); }
+
+    /** @brief Sets the transport correlation id (broker batch/slot routing) on the wrapped genome. @param id The correlation id. */
+    void setCorrelationId(const Gem::Courtier::CORRELATION_ID_TYPE &id) noexcept {
+        individual_->setCorrelationId(id);
+    }
+    /** @brief The transport correlation id of the wrapped genome. @return The correlation id. */
+    Gem::Courtier::CORRELATION_ID_TYPE getCorrelationId() const noexcept {
+        return individual_->getCorrelationId();
+    }
+    /** @brief Sets the courtier per-batch scheduling state on the wrapped genome. @param s The dispatch state. */
+    void setDispatchState(Gem::Courtier::dispatchState s) noexcept { individual_->setDispatchState(s); }
+    /** @brief The courtier per-batch scheduling state of the wrapped genome. @return The dispatch state. */
+    Gem::Courtier::dispatchState getDispatchState() const noexcept { return individual_->getDispatchState(); }
     /***************************************************************************/
 
     /**
@@ -284,6 +324,18 @@ public:
      */
     void resetIndividual(std::unique_ptr<GOptimizableEntity> ind) {
         individual_ = std::move(ind);
+    }
+
+    /**
+     * @brief Reconciles a returned (remotely evaluated) slot INTO this live slot, preserving this slot's
+     * scratch. Only the evaluated genome -- which carries its own fitness and courtier coordination
+     * (correlation id / status / result buffer) -- moves in; this slot's OA scratch is left untouched
+     * because it never travelled over the wire (see serialize()). This is the server-side return path: the
+     * live slot stays in the population and is updated in place, so its scratch is never lost.
+     * @param returned The deserialized result slot whose genome is adopted (it is emptied).
+     */
+    void adoptIndividualFrom(GIndividualSlot &returned) noexcept {
+        individual_ = std::move(returned.individual_);
     }
 
     /** @brief The optimization-algorithm-owned scratch (personality + POD adaption state). @return A reference to the scratch store. */
