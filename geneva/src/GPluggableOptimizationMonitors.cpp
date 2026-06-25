@@ -1413,7 +1413,7 @@ void GIterationResultsFileLogger::informationFunction_(
         // (n_fitness_criteria*n_individuals > (i+1)*(pos+1)) was obscure and fragile: it happened to be
         // correct only because the product reaches the total exactly at the final cell.
         const std::size_t n_individuals = goa->size();
-        const std::size_t n_fitness_criteria = goa->at(0)->individual().getNStoredResults();
+        const std::size_t n_fitness_criteria = goa->at(0)->getNStoredResults();
         const std::size_t total = n_fitness_criteria * n_individuals;
         std::size_t emitted = 0;
         for(std::size_t pos = 0; pos < n_individuals; pos++) {

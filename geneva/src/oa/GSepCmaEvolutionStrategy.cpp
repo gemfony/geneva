@@ -481,7 +481,7 @@ void GSepCmaEvolutionStrategy::sampleOffspring() {
         // folded back into range by the genome on assignment (no clamping needed here); an unbounded one
         // roams freely. Mark it for (re)evaluation.
         this->at(k)->individual().assignFPValueVectorInternal(x, activityMode::ACTIVEONLY);
-        this->at(k)->individual().mark_as_due_for_processing();
+        this->at(k)->mark_as_due_for_processing();
     }
 }
 
@@ -497,13 +497,13 @@ void GSepCmaEvolutionStrategy::runFitnessCalculation_() {
     // Drop unprocessed items, if any.
     if(not status.is_complete) {
         std::erase_if(this->data_cnt_, [](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
-            return (p->individual().getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
+            return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
         });
     }
     // Drop items that errored out.
     if(status.has_errors) {
         std::erase_if(this->data_cnt_, [](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
-            return p->individual().has_errors();
+            return p->has_errors();
         });
     }
 }

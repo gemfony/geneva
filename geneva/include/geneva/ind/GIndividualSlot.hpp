@@ -218,6 +218,58 @@ public:
         return individual_;
     }
 
+    /***************************************************************************/
+    // Processing-coordination surface (courtier work-item interface). Phase 1 of the
+    // pc-container-to-slot transition: these forward to the wrapped genome's GProcessingContainerT base
+    // TODAY, so optimization-algorithm call sites can read coordination state off the slot
+    // (slot->is_processed() rather than slot->individual().is_processed()). When GProcessingContainerT is
+    // re-parented onto the slot (Phase 3) these forwarders become the slot's own state with no call-site
+    // churn. NOTE: the fitness accessors (raw_fitness / transformed_fitness / getFitnessTuple) are NOT
+    // here -- fitness is solution data and stays on the genome (accessed via individual()).
+
+    /** @brief The courtier processing status. @return The wrapped genome's processing status. */
+    Gem::Courtier::processingStatus getProcessingStatus() const noexcept {
+        return individual_->getProcessingStatus();
+    }
+    /** @brief Sets the courtier processing status on the wrapped genome. @param ps The target status. */
+    void set_processing_status(
+        Gem::Courtier::processingStatus ps = Gem::Courtier::processingStatus::UNPROCESSED
+    ) {
+        individual_->set_processing_status(ps);
+    }
+    /** @brief Whether the wrapped genome has been processed. @return true if PROCESSED. */
+    bool is_processed() const noexcept { return individual_->is_processed(); }
+    /** @brief Whether the wrapped genome is unprocessed. @return true if UNPROCESSED. */
+    bool is_unprocessed() const noexcept { return individual_->is_unprocessed(); }
+    /** @brief Whether the wrapped genome is due for processing. @return true if DO_PROCESS. */
+    bool is_due_for_processing() const noexcept { return individual_->is_due_for_processing(); }
+    /** @brief Marks the wrapped genome as due for processing. */
+    void mark_as_due_for_processing() { individual_->mark_as_due_for_processing(); }
+    /** @brief Whether the wrapped genome reported processing errors. @return true on errors. */
+    bool has_errors() const noexcept { return individual_->has_errors(); }
+    /** @brief Whether the user flagged an error on the wrapped genome. @return true if user-flagged. */
+    bool error_flagged_by_user() const noexcept { return individual_->error_flagged_by_user(); }
+
+    /** @brief Drives evaluation of the wrapped genome. @param res_vec Optional results (server graft path). @return The first processing result. */
+    individual_processing_result process(
+        const std::vector<individual_processing_result> &res_vec = std::vector<individual_processing_result>()
+    ) {
+        return individual_->process(res_vec);
+    }
+
+    /** @brief A stored processing result of the wrapped genome. @param id The result index. @return The stored result. */
+    individual_processing_result getStoredResult(std::size_t id = 0) const {
+        return individual_->getStoredResult(id);
+    }
+    /** @brief The number of stored processing results on the wrapped genome. @return The result count. */
+    std::size_t getNStoredResults() const { return individual_->getNStoredResults(); }
+
+    /** @brief Sets the iteration in which the wrapped genome was submitted. @param iter The assigned iteration. */
+    void setAssignedIteration(std::uint32_t const &iter) { individual_->setAssignedIteration(iter); }
+    /** @brief The iteration in which the wrapped genome was submitted. @return The assigned iteration. */
+    std::uint32_t getAssignedIteration() const { return individual_->getAssignedIteration(); }
+    /***************************************************************************/
+
     /**
      * @brief Moves the individual out of the slot, leaving it empty.
      * @return The owning pointer to the individual (the slot is empty afterwards).

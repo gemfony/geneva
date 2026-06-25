@@ -450,7 +450,7 @@ void GNelderMead::proposeTrials() {
             // fitness is not; treat such a vertex as the worst so it becomes the
             // reflected point. It is re-evaluated by runFitnessCalculation_()
             // later in this iteration, so proper ranking resumes next cycle.
-            if(ind->individual().is_due_for_processing() || ind->individual().has_errors()) {
+            if(ind->is_due_for_processing() || ind->has_errors()) {
                 vfit[v] = std::numeric_limits<double>::max();
             }
             else {

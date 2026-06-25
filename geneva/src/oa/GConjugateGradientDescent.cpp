@@ -590,7 +590,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         this->at(i)->individual().streamlineFPInternal(parm_vec, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
-        if(this->at(i)->individual().is_due_for_processing() || (this->at(i)->individual().has_errors())) {
+        if(this->at(i)->is_due_for_processing() || (this->at(i)->has_errors())) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConjugateGradientDescent::updateParentIndividuals():" << '\n'
@@ -853,7 +853,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
             this->at(i)->individual().assignFPValueVectorInternal(lr.x_new, activityMode::ACTIVEONLY);
         }
         else {
-            this->at(i)->individual().mark_as_due_for_processing();
+            this->at(i)->mark_as_due_for_processing();
         }
 
         // 6) Remember gradient/direction for the next conjugate step (on the slot's scratch).
@@ -983,7 +983,7 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
 #ifdef DEBUG
     std::size_t pos = 0;
     for(const auto &item_ptr : *this) {
-        if(this->afterFirstIteration() && !item_ptr->individual().is_due_for_processing()) {
+        if(this->afterFirstIteration() && !item_ptr->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConjugateGradientDescent::runFitnessCalculation():" << '\n'

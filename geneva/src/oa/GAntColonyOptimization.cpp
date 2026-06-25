@@ -502,7 +502,7 @@ void GAntColonyOptimization::constructAnts() {
         // Write the sampled vector through the genome; the constrained parameter objects fold/clamp it
         // into the feasible box automatically. Mark the slot for (re)evaluation.
         this->at(a)->individual().assignFPValueVectorInternal(x_new, activityMode::ACTIVEONLY);
-        this->at(a)->individual().mark_as_due_for_processing();
+        this->at(a)->mark_as_due_for_processing();
     }
 }
 

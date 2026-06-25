@@ -484,13 +484,13 @@ void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gen::GIndividualS
         );
     }
 
-    if(ind_ptr->individual().is_due_for_processing() || ind_ptr->individual().has_errors()) {
+    if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSwarmAlgorithm::updatePersonalBest():" << '\n'
             << "ind_ptr is unprocessed or has errors: " << '\n'
-            << "is_due_for_processing() == " << ind_ptr->individual().is_due_for_processing()
-            << ", has_errors() == " << ind_ptr->individual().has_errors() << '\n'
+            << "is_due_for_processing() == " << ind_ptr->is_due_for_processing()
+            << ", has_errors() == " << ind_ptr->has_errors() << '\n'
         );
     }
 #endif /* DEBUG */
@@ -521,7 +521,7 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(const std::unique_ptr<gen::GInd
         );
     }
 
-    if(ind_ptr->individual().is_due_for_processing() || ind_ptr->individual().has_errors()) {
+    if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSwarmAlgorithm::updatePersonalBestIfBetter(): Error!" << '\n'
@@ -1281,7 +1281,7 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     if(not status.is_complete) {
         std::size_t n_erased =
             std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
-                return (p->individual().getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
+                return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
 #ifdef DEBUG
@@ -1296,7 +1296,7 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     if(status.has_errors) {
         std::size_t n_erased =
             std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
-                return p->individual().has_errors();
+                return p->has_errors();
             });
 
 #ifdef DEBUG
@@ -1351,15 +1351,15 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 #ifdef DEBUG
     std::size_t pos = 0;
     for(const auto &ind_ptr : *this) {
-        if(ind_ptr->individual().is_due_for_processing() || ind_ptr->individual().has_errors()) {
+        if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GSwarmAlgorithm::findBests(): Error!" << '\n'
                 << "Found individual in position " << pos << " in iteration "
                 << this->getIteration() << '\n'
                 << "which is unprocessed or has errors" << '\n'
-                << "is_due_for_processing() == " << ind_ptr->individual().is_due_for_processing()
-                << ", has_errors() == " << ind_ptr->individual().has_errors() << '\n'
+                << "is_due_for_processing() == " << ind_ptr->is_due_for_processing()
+                << ", has_errors() == " << ind_ptr->has_errors() << '\n'
             );
         }
 

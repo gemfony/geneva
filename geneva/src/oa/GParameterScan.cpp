@@ -427,7 +427,7 @@ std::tuple<double, double> GParameterScan::cycleLogic_() {
         this->at(0)->individual().getMaxMode(); // We assume that the maxMode is the same for all individuals
     for(it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
-        if(not(*it)->individual().is_processed()) {
+        if(not(*it)->is_processed()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterScan::cycleLogic(): Error!" << '\n'
@@ -554,7 +554,7 @@ void GParameterScan::updateSelectedParameters() {
         //------------------------------------------------------------------------
         // Mark the individual as "dirty", so it gets re-evaluated the
         // next time the fitness() function is called
-        this->at(ind_pos)->individual().mark_as_due_for_processing();
+        this->at(ind_pos)->mark_as_due_for_processing();
 
         // We were successful
         cycle_logic_halt_ = false;
@@ -599,7 +599,7 @@ void GParameterScan::randomInitPopulation() {
     while(true) {
         // Randomly (re-)initialize the current individual and mark it for re-evaluation.
         this->at(ind_pos)->individual().randomInit(activityMode::ACTIVEONLY);
-        this->at(ind_pos)->individual().mark_as_due_for_processing();
+        this->at(ind_pos)->mark_as_due_for_processing();
 
         // Count this initialized work item.
         ++scans_performed_;
@@ -901,7 +901,7 @@ void GParameterScan::runFitnessCalculation_() {
     GParameterScan::iterator it;
     for(it = this->begin(); it != this->end(); ++it) {
         // Make sure the evaluated individuals have the dirty flag set
-        if(not(*it)->individual().is_due_for_processing()) {
+        if(not(*it)->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterScan::runFitnessCalculation():" << '\n'

@@ -65,7 +65,7 @@ GMetaEvolutionaryAlgorithm::evaluatePopulationRange_(std::size_t start, std::siz
     // "complete", flagging errors so the base runFitnessCalculation_ removes any failed umbrella-individual.
     bool has_errors = false;
     for(std::size_t i = start; i < end; ++i) {
-        if(this->at(i)->individual().has_errors()) {
+        if(this->at(i)->has_errors()) {
             has_errors = true;
             break;
         }

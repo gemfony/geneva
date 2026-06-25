@@ -544,7 +544,7 @@ void GGeneralizedSimulatedAnnealing::proposeMoves() {
         }
 
         this->at(proposalPos(c))->individual().assignFPValueVectorInternal(x_new, activityMode::ACTIVEONLY);
-        this->at(proposalPos(c))->individual().mark_as_due_for_processing();
+        this->at(proposalPos(c))->mark_as_due_for_processing();
     }
 }
 

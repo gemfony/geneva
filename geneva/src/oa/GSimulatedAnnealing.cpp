@@ -286,7 +286,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     // through this function. There MAY be situations, where in the first iteration
     // parents are clean, e.g. when they were extracted from another optimization.
     for(std::size_t i = this->getNParents(); i < this->size(); i++) {
-        if(not this->at(i)->individual().is_due_for_processing()) {
+        if(not this->at(i)->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GSimulatedAnnealing::runFitnessCalculation(): Error!" << '\n'
@@ -308,7 +308,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     if(not status.is_complete) {
         std::size_t n_erased =
             std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
-                return (p->individual().getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
+                return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
 #ifdef DEBUG
@@ -324,7 +324,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     if(status.has_errors) {
         std::size_t n_erased =
             std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
-                return p->individual().has_errors();
+                return p->has_errors();
             });
 
 #ifdef DEBUG

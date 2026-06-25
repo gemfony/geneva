@@ -1452,7 +1452,7 @@ void GOptimizationAlgorithmBase::addCleanStoredBests(
     // (and cloned) Unless we have asked for the queue to have an unlimited size, the queue will be
     // resized as required by its maximum allowed size.
     for(auto const &ind_ptr : *this) {
-        if(ind_ptr->individual().is_processed()) {
+        if(ind_ptr->is_processed()) {
             best_individuals.add(ind_ptr->individualPtr(), clone);
         }
     }
@@ -1935,7 +1935,7 @@ std::uint16_t GOptimizationAlgorithmBase::getNThreads() const {
  */
 void GOptimizationAlgorithmBase::markIteration() {
     for(auto const &ind_ptr : *this) {
-        ind_ptr->individual().setAssignedIteration(iteration_);
+        ind_ptr->setAssignedIteration(iteration_);
     }
 }
 

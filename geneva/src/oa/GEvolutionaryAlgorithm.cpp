@@ -184,8 +184,8 @@ GType::evaluatePopulationRange_(std::size_t start, std::size_t end) {
         end = std::min(end, this->size());
         bool has_errors = false;
         for(std::size_t i = start; i < end; ++i) {
-            this->at(i)->individual().process();
-            if(this->at(i)->individual().has_errors()) {
+            this->at(i)->process();
+            if(this->at(i)->has_errors()) {
                 has_errors = true;
             }
         }
@@ -382,7 +382,7 @@ void GType::runFitnessCalculation_() {
 
 #ifdef DEBUG
     for(std::size_t i = this->getNParents(); i < this->size(); i++) {
-        if(not this->at(i)->individual().is_due_for_processing()) {
+        if(not this->at(i)->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << '\n'
@@ -407,14 +407,14 @@ void GType::runFitnessCalculation_() {
 
     if(not status.is_complete) {
         std::erase_if(this->data_cnt_, [](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
-            return (p->individual().getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
+            return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
         });
     }
 
     if(status.has_errors) {
         std::erase_if(
             this->data_cnt_,
-            [](const auto &p) -> bool { return p->individual().has_errors(); }
+            [](const auto &p) -> bool { return p->has_errors(); }
         );
     }
 

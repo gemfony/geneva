@@ -487,7 +487,7 @@ void GStandardPSO2011::updatePositions() {
         // A coordinate that left its range is folded back by the genome on assignment (continuous
         // reflection); no explicit boundary confinement here.
         this->at(i)->individual().assignFPValueVectorInternal(x, activityMode::ACTIVEONLY);
-        this->at(i)->individual().mark_as_due_for_processing();
+        this->at(i)->mark_as_due_for_processing();
     }
 }
 

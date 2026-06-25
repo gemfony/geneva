@@ -684,7 +684,7 @@ void GParChild::fixAfterJobSubmission() {
     }
 
     // Check that the last individual is not unprocessed. This is a severe error.
-    if(this->back()->individual().is_due_for_processing()) {
+    if(this->back()->is_due_for_processing()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParChild::fixAfterJobSubmission(): Error!" << '\n'
@@ -858,7 +858,7 @@ std::tuple<double, double> GParChild::cycleLogic_() {
 
 #ifdef DEBUG
     // The dirty flag of this individual shouldn't be set
-    if(not this->at(0)->individual().is_processed()) {
+    if(not this->at(0)->is_processed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParChild::cycleLogic(): Error!" << '\n'
