@@ -275,6 +275,33 @@ Recommended Versions:
   identity, and is preserved across a checkpoint resume. The individual is thereby
   reduced to pure problem data; this changes the checkpoint serialization format.
 
+- The GIndividualSlot is now also the COURTIER WORK ITEM: an optimization algorithm
+  submits a live std::span over its population of slots directly (no longer moving
+  individuals out into a temporary vector and back), so a slot is never emptied
+  during evaluation. The one process consumer, all transports (serial / threaded /
+  asio / websocket / MPI / GPU) and the networked client are instantiated on the
+  slot; over the wire a slot serializes its genome but NOT its OA scratch (a worker
+  needs none), and on the return the server updates the matching live slot in place,
+  preserving that slot's scratch. Internal/parallelization-only -- problem code is
+  unaffected.
+
+- RESULTS-ONLY RETURNS REMOVED: a processed worker now always returns the WHOLE
+  individual, so the websocket / asio transports match what MPI already did. The
+  opt-in GOptimizableEntity::setReturnFullIndividual() / getReturnFullIndividual()
+  and the server-side parameter-graft path are gone (full return is the only
+  behavior). Source-breaking only for code that called setReturnFullIndividual
+  (e.g. a network-tiered client doing its own nested optimization -- now a no-op to
+  drop).
+
+- WIRE LAYOUT PLACEMENT: a flat genome's population-invariant structural layout
+  (GGenomeLayout) is sent once per population on the SUBMIT direction (content-
+  addressed send-once, unchanged) and is OMITTED ENTIRELY on the RETURN direction --
+  the server still holds it in memory on the live slot the result reconciles into and
+  re-attaches it there (a late return is re-attached from a population sibling). This
+  removes the layout bytes and all registry / peer-tracking from the return path.
+  Checkpoint / file serialization is unaffected (always self-contained). Wire-form
+  change only; no source impact.
+
 - ADDITIVE (opt-in) optimizer modes on the conjugate-gradient descent (beyond the
   GD-retirement / line-search / HESSE / MINOS items below): an L-BFGS quasi-Newton
   mode, configurable beta formulas (Fletcher-Reeves / Hestenes-Stiefel+ / Dai-Yuan
