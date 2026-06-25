@@ -860,12 +860,12 @@ std::tuple<double, double> GParChild::cycleLogic_() {
     selectBest_();
 
 #ifdef DEBUG
-    // The dirty flag of this individual shouldn't be set
-    if(not this->at(0)->is_processed()) {
+    // The best individual's fitness should be current
+    if(not this->at(0)->individual().fitnessIsCurrent()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParChild::cycleLogic(): Error!" << '\n'
-            << "Expected clean individual in best position" << '\n'
+            << "Expected current-fitness individual in best position" << '\n'
         );
     }
 

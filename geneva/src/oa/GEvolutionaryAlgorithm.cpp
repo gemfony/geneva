@@ -382,7 +382,10 @@ void GType::runFitnessCalculation_() {
 
 #ifdef DEBUG
     for(std::size_t i = this->getNParents(); i < this->size(); i++) {
-        if(not this->at(i)->is_due_for_processing()) {
+        // "Dirty" (needs evaluation) is the GENOME's fitness-validity state: adaption marks the child
+        // genome stale, while the slot's transport status only becomes DO_PROCESS later, when the
+        // consumer marks the submitted span.
+        if(not this->at(i)->individual().fitnessIsStale()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << '\n'

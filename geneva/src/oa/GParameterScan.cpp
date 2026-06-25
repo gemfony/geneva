@@ -427,11 +427,11 @@ std::tuple<double, double> GParameterScan::cycleLogic_() {
         this->at(0)->individual().getMaxMode(); // We assume that the maxMode is the same for all individuals
     for(it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
-        if(not(*it)->is_processed()) {
+        if(not(*it)->individual().fitnessIsCurrent()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterScan::cycleLogic(): Error!" << '\n'
-                << "Individual in position " << (it - this->begin()) << " is not processed"
+                << "Individual in position " << (it - this->begin()) << " has stale fitness"
                 << '\n'
             );
         }
@@ -900,8 +900,9 @@ void GParameterScan::runFitnessCalculation_() {
 #ifdef DEBUG
     GParameterScan::iterator it;
     for(it = this->begin(); it != this->end(); ++it) {
-        // Make sure the evaluated individuals have the dirty flag set
-        if(not(*it)->is_due_for_processing()) {
+        // Make sure the to-be-evaluated individuals have stale fitness (the genome's "needs eval" state;
+        // the slot's transport DO_PROCESS is set later by the consumer on the submitted span).
+        if(not(*it)->individual().fitnessIsStale()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterScan::runFitnessCalculation():" << '\n'

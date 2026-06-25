@@ -403,26 +403,18 @@ std::size_t GSwarmAlgorithm::getFirstNIPosVec(
     const std::vector<std::size_t> &vec
 ) {
 #ifdef DEBUG
-    if(neighborhood >= n_neighborhoods_) {
+    // This is a static helper, so it validates against the passed neighborhood-size vector (one entry
+    // per neighborhood) rather than the instance member n_neighborhoods_. The summation below reads
+    // vec[0 .. neighborhood-1], so the requested id must index into vec.
+    if(neighborhood >= vec.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSwarmAlgorithm::getFirstNIPosVec():" << '\n'
             << "Received id " << neighborhood << " of a neighborhood which does not exist."
             << '\n'
-            << "The number of neighborhoods is " << n_neighborhoods_ << "," << '\n'
-            << "hence the maximum allowed value of the id is " << n_neighborhoods_ - 1 << "."
+            << "The number of neighborhoods is " << vec.size() << "," << '\n'
+            << "hence the maximum allowed value of the id is " << vec.size() - 1 << "."
             << '\n'
-        );
-    }
-
-    // The summation below reads vec[0 .. neighborhood-1], so the size vector must cover every
-    // neighborhood up to (and including) the requested one.
-    if(vec.size() < n_neighborhoods_) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GSwarmAlgorithm::getFirstNIPosVec():" << '\n'
-            << "The neighborhood-size vector is too small: size " << vec.size() << '\n'
-            << "but " << n_neighborhoods_ << " neighborhoods are expected." << '\n'
         );
     }
 #endif
@@ -484,13 +476,13 @@ void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gen::GIndividualS
         );
     }
 
-    if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
+    if(ind_ptr->individual().fitnessIsStale() || ind_ptr->individual().evaluationFailed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSwarmAlgorithm::updatePersonalBest():" << '\n'
-            << "ind_ptr is unprocessed or has errors: " << '\n'
-            << "is_due_for_processing() == " << ind_ptr->is_due_for_processing()
-            << ", has_errors() == " << ind_ptr->has_errors() << '\n'
+            << "ind_ptr's fitness is stale or its evaluation failed: " << '\n'
+            << "fitnessIsStale() == " << ind_ptr->individual().fitnessIsStale()
+            << ", evaluationFailed() == " << ind_ptr->individual().evaluationFailed() << '\n'
         );
     }
 #endif /* DEBUG */
@@ -521,11 +513,11 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(const std::unique_ptr<gen::GInd
         );
     }
 
-    if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
+    if(ind_ptr->individual().fitnessIsStale() || ind_ptr->individual().evaluationFailed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSwarmAlgorithm::updatePersonalBestIfBetter(): Error!" << '\n'
-            << "dirty flag of individual is set." << '\n'
+            << "the individual's fitness is stale." << '\n'
         );
     }
 #endif /* DEBUG */
@@ -1355,15 +1347,15 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 #ifdef DEBUG
     std::size_t pos = 0;
     for(const auto &ind_ptr : *this) {
-        if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
+        if(ind_ptr->individual().fitnessIsStale() || ind_ptr->individual().evaluationFailed()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GSwarmAlgorithm::findBests(): Error!" << '\n'
                 << "Found individual in position " << pos << " in iteration "
                 << this->getIteration() << '\n'
-                << "which is unprocessed or has errors" << '\n'
-                << "is_due_for_processing() == " << ind_ptr->is_due_for_processing()
-                << ", has_errors() == " << ind_ptr->has_errors() << '\n'
+                << "whose fitness is stale or whose evaluation failed" << '\n'
+                << "fitnessIsStale() == " << ind_ptr->individual().fitnessIsStale()
+                << ", evaluationFailed() == " << ind_ptr->individual().evaluationFailed() << '\n'
             );
         }
 

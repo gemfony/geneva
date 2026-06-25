@@ -46,6 +46,7 @@
 #include "geneva/oa/GFactoryStore.hpp"
 #include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/par/GOptimizableEntityFactory.hpp" // to stamp work-item pre/post-processors onto slots
 #include "hap/GRandomFactory.hpp"
 #include <boost/program_options.hpp>
 #include <algorithm>
@@ -614,9 +615,23 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
             alg_ptr->registerPluggableOM(pm_ptr);
         }
 
-        // Add the individuals to the algorithm
+        // Add the individuals to the algorithm, wrapping each genome in a work item (slot). Pre-/post-
+        // processing is a WORK-ITEM operation, so any processor registered on the content factory is
+        // stamped onto the slot here (the genome stays pure data); it then travels with the work item to
+        // a remote worker and runs there via the slot's afterProcessing_() seam.
+        const auto entity_factory =
+            std::dynamic_pointer_cast<gen::GOptimizableEntityFactory>(content_creator_ptr_);
         for(const auto &ind_ptr : *this) {
-            alg_ptr->push_back(std::make_unique<gen::GIndividualSlot>(ind_ptr->clone_unique()));
+            auto slot_ptr = std::make_unique<gen::GIndividualSlot>(ind_ptr->clone_unique());
+            if(entity_factory) {
+                if(entity_factory->preProcessor()) {
+                    slot_ptr->registerPreProcessor(entity_factory->preProcessor()->clone());
+                }
+                if(entity_factory->postProcessor()) {
+                    slot_ptr->registerPostProcessor(entity_factory->postProcessor()->clone());
+                }
+            }
+            alg_ptr->push_back(std::move(slot_ptr));
         }
 
         // Remove our local copies
@@ -727,8 +742,8 @@ std::shared_ptr<gen::GOptimizableEntity> Go2::getBestGlobalIndividual_() const {
         );
     }
 
-    // Check if the best individual is processed
-    if(not this->front()->is_processed() && not this->front()->is_unprocessed()) {
+    // Check if the best individual is evaluated
+    if(not this->front()->fitnessIsCurrent() && not this->front()->fitnessIsStale()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::getBestGlobalIndividual_(): Error!" << '\n'
@@ -761,7 +776,7 @@ std::vector<std::shared_ptr<gen::GOptimizableEntity>> Go2::getBestGlobalIndividu
     std::size_t pos = 0;
     std::vector<std::shared_ptr<gen::GOptimizableEntity>> best_individuals;
     for(const auto &ind_ptr : *this) {
-        if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
+        if(ind_ptr->fitnessIsStale() || ind_ptr->evaluationFailed()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In Go2::getBestGlobalIndividuals_(): Error!" << '\n'

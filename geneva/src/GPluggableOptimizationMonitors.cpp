@@ -2302,11 +2302,8 @@ void GProcessingTimesLogger::informationFunction_(
 
         // Loop over all individuals of the algorithm.
         for(std::size_t pos = 0; pos < goa->size(); pos++) {
-            // Get access to each individual in sequence
-            std::shared_ptr<gen::GOptimizableEntity> ind = goa->individual_cast<gen::GOptimizableEntity>(pos);
-
-            // Retrieve the processing timings
-            std::tuple<double, double, double> processing_times = ind->getProcessingTimes();
+            // Retrieve the processing timings from the work item (the slot carries the transport timing).
+            std::tuple<double, double, double> processing_times = goa->at(pos)->getProcessingTimes();
 
             double pre_processing_time = std::get<0>(processing_times);
             double main_processing_time = std::get<1>(processing_times);

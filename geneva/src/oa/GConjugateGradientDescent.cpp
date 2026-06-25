@@ -852,9 +852,11 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         if(lr.success) {
             this->at(i)->individual().assignFPValueVectorInternal(lr.x_new, activityMode::ACTIVEONLY);
         }
-        else {
-            this->at(i)->mark_as_due_for_processing();
-        }
+        // The per-iteration evaluation contract requires every individual to be due for processing. A
+        // successful step changes the parameters (which marks the GENOME's fitness stale), but the slot's
+        // TRANSPORT status must be marked due explicitly in BOTH branches -- the two were one flag before
+        // the genome/slot split, so the success path no longer marks the slot on its own.
+        this->at(i)->mark_as_due_for_processing();
 
         // 6) Remember gradient/direction for the next conjugate step (on the slot's scratch).
         std::copy(gradient.begin(), gradient.end(), prev_gradient.begin());
@@ -986,6 +988,8 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
 #ifdef DEBUG
     std::size_t pos = 0;
     for(const auto &item_ptr : *this) {
+        // CGD manages the slot transport status directly (it marks slots DO_PROCESS for the line search),
+        // so "due for processing" here is genuinely the slot's transport state, not the genome's validity.
         if(this->afterFirstIteration() && !item_ptr->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())

@@ -54,6 +54,8 @@
 
 // Geneva header files go here
 #include "courtier/GCommandContainerT.hpp"
+#include "geneva/GOptimizableEntityCommandContainerExport.hpp" // the GIndividualSlot command-container export
+#include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
 #include "hap/GRandomT.hpp"
 
@@ -128,13 +130,13 @@ int main(int argc, char **argv) {
 
         // Add the object to a new command container
         Gem::Courtier::GCommandContainerT<
-            gen::GOptimizableEntity,
+            gen::GIndividualSlot,
             Gem::Courtier::networked_consumer_payload_command>
-            gcc1(Gem::Courtier::networked_consumer_payload_command::COMPUTE, fi_ptr->clone_unique());
+            gcc1(Gem::Courtier::networked_consumer_payload_command::COMPUTE, std::make_unique<gen::GIndividualSlot>(fi_ptr->clone_unique()));
 
         // Prepare a command container for de-serialization
         Gem::Courtier::GCommandContainerT<
-            gen::GOptimizableEntity,
+            gen::GIndividualSlot,
             Gem::Courtier::networked_consumer_payload_command>
             gcc2(Gem::Courtier::networked_consumer_payload_command::NONE);
 
@@ -157,7 +159,10 @@ int main(int argc, char **argv) {
             return 1; // Indicate an error to the calling process
         }
 
-        // Process payloads 1+2 and compare -- they should now again be identical
+        // Process payloads 1+2 and compare -- they should now again be identical. The work item (slot)
+        // must be marked DO_PROCESS first (the lean process() lifecycle gate accepts only due items).
+        gcc1.get_payload()->mark_as_due_for_processing();
+        gcc2.get_payload()->mark_as_due_for_processing();
         gcc1.process();
         gcc2.process();
         if(gcc1.get_payload().get() == gcc2.get_payload().get()) {
@@ -167,7 +172,7 @@ int main(int argc, char **argv) {
 
         // Prepare a command container for de-serialization
         Gem::Courtier::GCommandContainerT<
-            gen::GOptimizableEntity,
+            gen::GIndividualSlot,
             Gem::Courtier::networked_consumer_payload_command>
             gcc3(Gem::Courtier::networked_consumer_payload_command::NONE);
 

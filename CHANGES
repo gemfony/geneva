@@ -285,6 +285,21 @@ Recommended Versions:
   preserving that slot's scratch. Internal/parallelization-only -- problem code is
   unaffected.
 
+- COURTIER AND GENEVA DISENTANGLED: the courtier work-item base GProcessingContainerT
+  was split into a lean, result-agnostic lifecycle/coordination base (GProcessableT --
+  processing-status state machine, correlation id / counters / timing, the process()
+  envelope) and a thin result-storage layer (GProcessingContainerT, which adds the
+  result buffer + optional pre/post-processor objects) for turnkey users such as the
+  demo containers. The GIndividualSlot now derives the lean GProcessableT directly and
+  IS the work item: it owns the transport coordination and drives the genome's
+  evaluation. The problem individual (GOptimizableEntity) no longer derives any courtier
+  class at all -- it owns its fitness, a native fitness-validity state and an evaluate()
+  entry as pure data, with zero dependency on courtier. Pre-/post-processing (e.g. an EA
+  post-optimizer) is now a work-item operation carried on the slot and stamped onto it
+  at population creation. This moves the per-item courtier coordination out of the
+  individual's archive onto the slot, so the checkpoint serialization format changes
+  (older archives no longer load). Internal -- problem code is unaffected.
+
 - RESULTS-ONLY RETURNS REMOVED: a processed worker now always returns the WHOLE
   individual, so the websocket / asio transports match what MPI already did. The
   opt-in GOptimizableEntity::setReturnFullIndividual() / getReturnFullIndividual()

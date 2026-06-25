@@ -285,7 +285,7 @@ inline std::size_t adaptIndividual(
     }
 
     if(n_adaptions > 0) {
-        ind.mark_as_due_for_processing();
+        ind.markFitnessStale();
     }
     ind.setNAdaptions(n_adaptions);
     return n_adaptions;

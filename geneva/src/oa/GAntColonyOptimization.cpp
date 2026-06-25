@@ -603,7 +603,7 @@ std::tuple<double, double> GAntColonyOptimization::cycleLogic_() {
 
     for(std::size_t pos = 0; pos < n_eval; ++pos) {
         auto &ind = this->at(pos)->individual();
-        if(ind.is_due_for_processing() || ind.has_errors()) {
+        if(ind.fitnessIsStale() || ind.evaluationFailed()) {
             continue;
         }
         if(isBetter(

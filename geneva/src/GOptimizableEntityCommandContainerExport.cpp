@@ -33,6 +33,6 @@
 // export keyed in GOptimizableEntityCommandContainerExport.hpp.
 BOOST_CLASS_EXPORT_IMPLEMENT(
     BOOST_IDENTITY_TYPE((Gem::Courtier::GCommandContainerT<
-                         gen::GOptimizableEntity,
+                         gen::GIndividualSlot,
                          Gem::Courtier::networked_consumer_payload_command>))
 ) // NOLINT

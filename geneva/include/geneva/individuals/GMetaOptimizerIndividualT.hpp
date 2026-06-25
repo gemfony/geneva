@@ -500,7 +500,7 @@ public:
 
         // Stream the results
 
-        bool unprocessed = (not this->is_processed() || this->has_errors());
+        bool unprocessed = (not this->fitnessIsCurrent() || this->evaluationFailed());
         double transformed_primary_fitness =
             unprocessed ? this->getWorstCase() : this->transformed_fitness(0);
 

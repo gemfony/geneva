@@ -362,7 +362,7 @@ TEST_CASE("Wire: a RETURN OMITS the layout and decodes against a fetch-less rece
 
     FlatSphere item(40);
     item.randomInit(activityMode::ALLPARAMETERS);
-    item.process();
+    item.evaluate();
     const LayoutId lid = item.getLayout()->layoutId();
     std::vector<double> sent_values;
     item.streamline<double>(sent_values);
@@ -1383,7 +1383,7 @@ TEST_CASE("Wire return: a worker's modified genome travels back in full", "[flat
 
     auto worker_copy = submitted.clone<FlatManyGroups>();
     worker_copy->randomInit(activityMode::ALLPARAMETERS); // a "better" individual the worker found
-    worker_copy->process();
+    worker_copy->evaluate();
     const std::vector<double> worker_vals = valuesOf(*worker_copy);
 
     GWireLayoutRegistry worker_reg;

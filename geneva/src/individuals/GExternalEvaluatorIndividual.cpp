@@ -349,7 +349,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
         }
 
         // Make sure the individual can be recognized as invalid by Geneva
-        this->force_set_error(error_message.str());
+        this->markEvaluationError(error_message.str());
     }
     else { // Everything is o.k., lets retrieve the evaluation
         // Check that the result file exists
@@ -429,7 +429,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
             }
 
             // Make sure the individual can be recognized as invalid by Geneva
-            this->force_set_error(error_message.str());
+            this->markEvaluationError(error_message.str());
         }
         else { // Extract and store all result values
             // Get the results node

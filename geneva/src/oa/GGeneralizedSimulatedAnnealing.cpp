@@ -663,7 +663,7 @@ std::tuple<double, double> GGeneralizedSimulatedAnnealing::cycleLogic_() {
 
     for(const auto & pos : *this) {
         auto &ind = pos->individual();
-        if(ind.is_due_for_processing() || ind.has_errors()) {
+        if(ind.fitnessIsStale() || ind.evaluationFailed()) {
             continue;
         }
         if(isBetter(

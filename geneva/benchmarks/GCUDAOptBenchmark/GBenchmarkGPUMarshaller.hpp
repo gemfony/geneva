@@ -104,8 +104,11 @@ public:
 
     void scatter(const std::vector<item_ptr> &items, const std::vector<double> &fitness) const override {
         for(std::size_t i = 0; i < items.size(); ++i) {
-            items[i]->process(std::vector<gen::individual_processing_result>(
+            // External (device) evaluation: hand the computed raw result to the genome's own evaluator,
+            // then mark the work item processed for the courtier reconciliation.
+            items[i]->individual().evaluate(std::vector<gen::individual_processing_result>(
                 1, gen::individual_processing_result(fitness[i])));
+            items[i]->markProcessed();
         }
     }
 

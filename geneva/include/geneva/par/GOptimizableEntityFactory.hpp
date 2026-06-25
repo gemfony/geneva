@@ -133,6 +133,18 @@ public:
         }
     }
 
+    /***************************************************************************/
+    /** @brief The registered pre-processor (or empty). Read at slot creation to stamp the work item.
+     *  @return The pre-processor function object, or an empty pointer. */
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> preProcessor() const {
+        return pre_processor_;
+    }
+    /** @brief The registered post-processor (or empty). Read at slot creation to stamp the work item.
+     *  @return The post-processor function object, or an empty pointer. */
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> postProcessor() const {
+        return post_processor_;
+    }
+
 protected:
     /** @brief A pre-processor for GOptimizableEntity-derivatives */
     std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> pre_processor_;
@@ -142,22 +154,15 @@ protected:
 
     /***************************************************************************/
     /**
-     * Production of GOptimizableEntity-derivatives
+     * Production of GOptimizableEntity-derivatives. The genome is PURE DATA and no longer carries the
+     * pre-/post-processor: the processor objects are work-item operations, stamped by Go2 / the
+     * optimization algorithm onto the GIndividualSlot wrapping each produced genome (see
+     * preProcessor()/postProcessor() and Go2::runAlgorithmChain).
      *
-     * @return A shared pointer to a newly produced GOptimizableEntity-derivative, with any registered pre- and post-processor cloned and attached
+     * @return A shared pointer to a newly produced GOptimizableEntity-derivative
      */
     std::shared_ptr<GOptimizableEntity> get_() override {
-        std::shared_ptr<GOptimizableEntity> p = GFactoryT<GOptimizableEntity>::get_();
-
-        if(pre_processor_) {
-            p->registerPreProcessor(pre_processor_->clone());
-        }
-
-        if(post_processor_) {
-            p->registerPostProcessor(post_processor_->clone());
-        }
-
-        return p;
+        return GFactoryT<GOptimizableEntity>::get_();
     }
 
 private:

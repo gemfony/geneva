@@ -56,7 +56,7 @@
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "courtier/GProcessingContainerT.hpp"
+#include "common/GSerializeTupleT.hpp" // serialization of the std::tuple fitness members
 #include "geneva/GMultiConstraintT.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/ind/GAuxiliaryStore.hpp"
@@ -233,8 +233,7 @@ private:
 class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GCommonInterfaceT<GOptimizableEntity>
   , public Interface::GMutableI
-  , public Interface::GRateableI
-  , public Gem::Courtier::GProcessingContainerT<GOptimizableEntity, individual_processing_result> {
+  , public Interface::GRateableI {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -246,8 +245,10 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
      * make_cloneable_member(), so g_load_members() deep-clones them while serialize()
      * and compare_() treat them like any other member.
      *
-     * Handled manually (NOT in this tuple): the GProcessingContainerT processing base,
-     * which is a base-object rather than a local member.
+     * Handled manually (NOT in this tuple): the native fitness storage (fitness_results_), the
+     * fitness-validity flag and the evaluation-error description -- serialized but deliberately kept
+     * OUT of the compared identity (two individuals are compared by their parameters/config, not by
+     * a transient evaluation outcome).
      *
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
@@ -284,14 +285,11 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
         // This is the CRTP category root. Its CRTP base
         // (Gem::Common::GCommonInterfaceT<GOptimizableEntity>) carries no state and is
         // therefore not serialized as a base_object -- mirroring GObject, whose
-        // serialize() is likewise empty. The stateful processing base IS serialized
-        // as a base-object rather than a local member.
-        ar &make_nvp(
-            "GProcessingContainerT_GOptimizableEntity",
-            boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<
-                GOptimizableEntity,
-                individual_processing_result>>(*this)
-        );
+        // serialize() is likewise empty. The genome owns its fitness + validity NATIVELY (it no
+        // longer derives the courtier processing base); these travel with the genome both directions.
+        ar &make_nvp("fitness_results_", fitness_results_) &
+            make_nvp("fitness_state_", fitness_state_) &
+            make_nvp("evaluation_error_description_", evaluation_error_description_);
 
         // All members (plain and cloneable alike) are derived from the single
         // localMembers() declaration. The individual carries NO optimization-algorithm scratch or
@@ -303,6 +301,14 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief The genome's own (transport-agnostic) fitness-validity state: never/needs (re)evaluation
+     *  (STALE), evaluated and up to date (CURRENT), or the evaluation flagged an error (FAILED). */
+    enum class fitnessState : std::uint8_t { STALE, CURRENT, FAILED };
+
+    /** @brief The per-criterion result type produced by evaluation (raw + transformed fitness). Named so
+     *  a work item wrapping this genome can satisfy the courtier work-item contract. */
+    using result_type = individual_processing_result;
+
     /** @brief The default constructor */
     GOptimizableEntity();
     /**
@@ -420,7 +426,7 @@ public:
 #endif /* DEBUG */
         this->assignValueVector_(par_vec, am);
         // As we have modified our internal data sets, make sure the item is reprocessed
-        this->mark_as_due_for_processing();
+        this->markFitnessStale();
     }
 
     /**
@@ -642,7 +648,7 @@ public:
             this->assignValueVectorInternal_(float_vec, am);
         }
         // As with the external assign, modifying the parameters marks the item for reprocessing.
-        this->mark_as_due_for_processing();
+        this->markFitnessStale();
     }
 
     /**
@@ -656,6 +662,51 @@ public:
      * @return true if more than one fitness criterion is present
      */
     bool hasMultipleFitnessCriteria() const;
+
+    /***************************************************************************/
+    // Native fitness-validity vocabulary. This is the GENOME's own notion of whether its stored
+    // fitness reflects its current parameters -- "current" (valid), "stale" (needs (re)evaluation),
+    // "failed" (the evaluation flagged an error). It is deliberately DISTINCT from the courtier
+    // TRANSPORT status (which lives on the work item / GIndividualSlot): a bare genome clone -- a
+    // best-of-queue entry, a swarm best, the user-output individual -- has fitness validity but no
+    // transport role. NOTE the three-state collapse of the former five-state courtier machine: "stale"
+    // covers both the never-evaluated and the parameters-changed cases.
+    /** @brief Whether the stored fitness reflects the current parameters. @return true if fitness is valid. */
+    bool fitnessIsCurrent() const noexcept { return fitness_state_ == fitnessState::CURRENT; }
+    /** @brief Whether the fitness needs (re)evaluation. @return true if the fitness is stale. */
+    bool fitnessIsStale() const noexcept { return fitness_state_ == fitnessState::STALE; }
+    /** @brief Whether the last evaluation flagged an error. @return true on evaluation failure. */
+    bool evaluationFailed() const noexcept { return fitness_state_ == fitnessState::FAILED; }
+    /** @brief Marks the stored fitness as stale (parameters changed -> needs re-evaluation). */
+    void markFitnessStale() noexcept { fitness_state_ = fitnessState::STALE; }
+    /** @brief The description of the last evaluation error, if any. @return The error description. */
+    std::string evaluationErrorDescription() const { return evaluation_error_description_; }
+
+    /***************************************************************************/
+    // Native fitness storage -- the per-criterion (raw, transformed) results, owned by the genome (this
+    // was formerly the inherited GProcessingContainerT result buffer). The optimization algorithms read
+    // fitness through raw_fitness/transformed_fitness/getFitnessTuple; these are the lower-level accessors.
+    /** @brief A stored fitness result. @param id The criterion index. @return The (raw, transformed) result.
+     *  @throw geneva_exception if the fitness is not current (mirrors the former PROCESSED guard). */
+    individual_processing_result getStoredResult(std::size_t id = 0) const;
+    /** @brief The number of stored fitness criteria. @return The criterion count. */
+    std::size_t getNStoredResults() const noexcept { return fitness_results_.size(); }
+    /** @brief Installs a full set of (already-transformed) results and marks the fitness current. Used by
+     *  external evaluators (GPU/setFitness_). @param result_cnt The per-criterion results. @return result 0. */
+    individual_processing_result markAsProcessedWith(const std::vector<individual_processing_result> &result_cnt);
+
+    /***************************************************************************/
+    /**
+     * @brief Evaluates this individual: computes (or adopts) its fitness and marks it current. This is
+     * the genome's own evaluation entry, invoked by the work item (GIndividualSlot::process_) or by an
+     * external evaluator. It is boundary/transport-agnostic -- it knows nothing of the courtier.
+     * @param res_vec Optional pre-computed raw results (e.g. from a GPU/remote evaluator); if empty,
+     *        the user-supplied fitnessCalculation() is invoked.
+     */
+    void evaluate(
+        const std::vector<individual_processing_result> &res_vec =
+            std::vector<individual_processing_result>()
+    );
 
     /**
      * @brief Retrieve the fitness tuple at a given evaluation position
@@ -901,6 +952,30 @@ public:
 
 protected:
     /***************************************************************************/
+    /** @brief Flags that the user's evaluation found this solution invalid (sets the FAILED validity
+     *  state + an error description). The genome's own way to signal a bad evaluation, independent of
+     *  the courtier transport error path. @param desc A non-empty error description. */
+    void markEvaluationError(const std::string &desc) {
+        evaluation_error_description_ += desc;
+        fitness_state_ = fitnessState::FAILED;
+    }
+
+    /***************************************************************************/
+    /** @brief A modifiable reference to a stored fitness result (for the evaluation machinery).
+     *  @param id The criterion index. @return A modifiable reference to result @p id. */
+    individual_processing_result &modifyStoredResult(std::size_t id = 0) {
+        return fitness_results_.at(id);
+    }
+
+    /***************************************************************************/
+    /** @brief Sets the number of stored fitness criteria (resizing the result storage).
+     *  @param n_stored_results The new criterion count. @param new_val Value for any new positions. */
+    void setNStoredResults(std::size_t n_stored_results,
+                           individual_processing_result new_val = individual_processing_result()) {
+        fitness_results_.resize(n_stored_results, new_val);
+    }
+
+    /***************************************************************************/
     /**
      * A random number generator. Note that the actual calculation is
      * done in a random number proxy / factory
@@ -909,17 +984,6 @@ protected:
 
     /** @brief Uniformly distributed integer random numbers */
     std::uniform_int_distribution<std::size_t> uniform_int_;
-
-    /***************************************************************************/
-    /**
-     * @brief Do the required processing for this object
-     * @param res_vec An optional vector of pre-computed processing results; if empty, the
-     *        fitness is calculated here
-     */
-    void process_(
-        const std::vector<individual_processing_result> &res_vec =
-            std::vector<individual_processing_result>()
-    ) final;
 
     /**
      * @brief Adds local configuration options to a GParserBuilder object
@@ -1135,6 +1199,16 @@ private:
     bool use_random_crash_ =
         false; ///< Indicates whether the individual should crash at random intervals for debugging purposes
     double random_crash_prob_ = 0.; ///< The probability for a random crash
+
+    /***************************************************************************/
+    // Native fitness storage + validity (formerly inherited from GProcessingContainerT). Serialized
+    // (both wire and checkpoint), but kept OUT of localMembers_ so they are not part of the compared
+    // identity. fitness_results_ defaults to a single criterion (the common case); the n-criteria
+    // constructor resizes it.
+    std::vector<individual_processing_result> fitness_results_ =
+        std::vector<individual_processing_result>(1, individual_processing_result());
+    fitnessState fitness_state_ = fitnessState::STALE; ///< Whether the stored fitness is current
+    std::string evaluation_error_description_; ///< Description set by markEvaluationError() on a bad evaluation
 };
 
 /******************************************************************************/

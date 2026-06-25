@@ -1452,7 +1452,10 @@ void GOptimizationAlgorithmBase::addCleanStoredBests(
     // (and cloned) Unless we have asked for the queue to have an unlimited size, the queue will be
     // resized as required by its maximum allowed size.
     for(auto const &ind_ptr : *this) {
-        if(ind_ptr->is_processed()) {
+        // Admit only individuals whose GENOME fitness is current: the priority queue stores and COMPARES
+        // genomes by fitness, so it must not ingest a genome whose fitness is stale (the slot's transport
+        // status PROCESSED is decoupled from the genome's fitness validity since the re-parent).
+        if(ind_ptr->individual().fitnessIsCurrent()) {
             best_individuals.add(ind_ptr->individualPtr(), clone);
         }
     }
@@ -1785,15 +1788,15 @@ void GOptimizationAlgorithmBase::setIndividualPersonalities() {
 
         // Decide post-processing eligibility HERE (the algorithm knows its own mnemonic) and veto it on
         // the work items this algorithm is not allowed to post-process -- so the individual carries no
-        // knowledge of which algorithm owns it. The veto rides on the work item's processing metadata
-        // (where the post-processor already lives) and is consulted by GProcessingContainerT::postProcess_().
-        auto pp = slot->individual().postProcessor();
+        // knowledge of which algorithm owns it. The post-processor + veto live on the work item (the
+        // slot) and are consulted by the slot's afterProcessing_() seam.
+        auto pp = slot->postProcessor();
         if(pp) {
             auto post_processor =
                 std::dynamic_pointer_cast<GPostProcessorBaseT<gen::GOptimizableEntity>>(pp);
             const bool eligible =
                 post_processor and post_processor->postProcessingAllowedFor(oa_mnemonic);
-            slot->individual().vetoPostProcessing(not eligible);
+            slot->vetoPostProcessing(not eligible);
         }
     }
 }

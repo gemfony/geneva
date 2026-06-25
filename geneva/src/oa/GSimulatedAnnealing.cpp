@@ -286,7 +286,9 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     // through this function. There MAY be situations, where in the first iteration
     // parents are clean, e.g. when they were extracted from another optimization.
     for(std::size_t i = this->getNParents(); i < this->size(); i++) {
-        if(not this->at(i)->is_due_for_processing()) {
+        // "Dirty" (needs evaluation) is the GENOME's fitness-validity state (set by adaption); the slot's
+        // transport DO_PROCESS is only set later by the consumer on the submitted span.
+        if(not this->at(i)->individual().fitnessIsStale()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GSimulatedAnnealing::runFitnessCalculation(): Error!" << '\n'
