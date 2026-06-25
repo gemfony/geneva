@@ -307,6 +307,88 @@ TEST_CASE("GGenomeLayout::layoutId is a stable content hash", "[flat][layoutid]"
 }
 
 /******************************************************************************/
+TEST_CASE("Wire: an id-only layout the receiver lacks self-heals via fetch, not a fatal throw",
+          "[flat][wire][layoutfetch]") {
+    // Reproduces the live send-once unsoundness (minus threading): a sender's peer-tracking says the peer
+    // already holds the layout, so it emits the layout id-only -- but the receiver's registry does NOT
+    // hold it (peer-id reuse across non-shared caches). The receiver must self-heal by FETCHing the
+    // layout (REQUEST_LAYOUT), NOT throw a fatal exception that tears the session down.
+    using mode = Gem::Common::serializationMode;
+    namespace c2 = Gem::Courtier;
+
+    FlatSphere item(40);
+    item.randomInit(activityMode::ALLPARAMETERS);
+    const LayoutId lid = item.getLayout()->layoutId();
+    const c2::GWireLayoutId wid{lid.hi, lid.lo};
+
+    // The "server": holds the layout and (per possibly-unsound peer tracking) believes peer 7 has it,
+    // so it emits an id-only reference.
+    c2::GWireLayoutRegistry server_reg;
+    server_reg.put(wid, layoutToWireBlob(*item.getLayout()));
+    server_reg.markPeerHasLayout(7, wid);
+    c2::GWireSerializationContext send_ctx;
+    send_ctx.enabled = true; send_ctx.peer = 7; send_ctx.registry = &server_reg;
+    std::string s;
+    { c2::GWireSerializationScope scope(&send_ctx); s = item.toString(mode::BINARY); }
+
+    // The receiver: an EMPTY registry (it never actually received the layout), but a REQUEST_LAYOUT fetch
+    // is available (answered from the server's registry). The decode must RESOLVE, not throw.
+    c2::GWireLayoutRegistry recv_reg;
+    c2::GWireSerializationContext recv_ctx;
+    recv_ctx.enabled = true; recv_ctx.registry = &recv_reg;
+    recv_ctx.fetch_blob = [&](const c2::GWireLayoutId &id) -> std::string {
+        std::string blob; server_reg.tryGet(id, blob); return blob;
+    };
+    FlatSphere received;
+    CHECK_NOTHROW([&] {
+        c2::GWireSerializationScope scope(&recv_ctx);
+        received.fromString(s, mode::BINARY);
+    }());
+    CHECK(received.getLayout()->layoutId() == lid);
+}
+
+/******************************************************************************/
+TEST_CASE("Wire: a RETURN carries a resolvable layout even when the receiver has no fetch",
+          "[flat][wire][layoutreturn]") {
+    // The send-once peer-tracking unsoundness only bites where the receiver cannot recover by fetching.
+    // On the RETURN direction the receiving server cannot issue a REQUEST_LAYOUT back to a worker, so a
+    // returned item must NEVER reference its layout id-only -- it must always carry the layout in full.
+    // (Submit direction is unaffected: a worker CAN fetch from the server.)
+    using mode = Gem::Common::serializationMode;
+    namespace c2 = Gem::Courtier;
+
+    FlatSphere item(40);
+    item.randomInit(activityMode::ALLPARAMETERS);
+    item.process();
+    item.setReturnFullIndividual(true); // exercise the full-return path (Increment 1 makes this the default)
+    const LayoutId lid = item.getLayout()->layoutId();
+    const c2::GWireLayoutId wid{lid.hi, lid.lo};
+
+    // Worker side: RETURNING, registry holds the layout, and (possibly-unsound) peer-tracking marks the
+    // server peer as already having it -- which under the OLD code makes save() emit the layout id-only.
+    c2::GWireLayoutRegistry worker_reg;
+    worker_reg.put(wid, layoutToWireBlob(*item.getLayout()));
+    worker_reg.markPeerHasLayout(0, wid);
+    c2::GWireSerializationContext worker_ctx;
+    worker_ctx.enabled = true; worker_ctx.peer = 0; worker_ctx.returning = true;
+    worker_ctx.registry = &worker_reg;
+    std::string s;
+    { c2::GWireSerializationScope scope(&worker_ctx); s = item.toString(mode::BINARY); }
+
+    // Server side: an EMPTY registry and NO fetch (it cannot pull a layout from a worker). The returned
+    // item must still decode -- i.e. the worker must have shipped the layout in full on the return.
+    c2::GWireLayoutRegistry server_reg;
+    c2::GWireSerializationContext server_ctx;
+    server_ctx.enabled = true; server_ctx.registry = &server_reg; // no fetch_blob
+    FlatSphere received;
+    CHECK_NOTHROW([&] {
+        c2::GWireSerializationScope scope(&server_ctx);
+        received.fromString(s, mode::BINARY);
+    }());
+    CHECK(received.getLayout()->layoutId() == lid);
+}
+
+/******************************************************************************/
 TEST_CASE("GGenomeLayout::layoutId survives the WIRE-BLOB round-trip", "[flat][layoutid][wireblob]") {
     using Gem::Geneva::Genome::layoutToWireBlob;
     using Gem::Geneva::Genome::layoutFromWireBlob;

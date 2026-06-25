@@ -157,8 +157,16 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         //     whole population, from O(parameters) down to a 16-byte id.
         // A leading `layout_interned` tag makes the stream self-describing, so load() follows the tag
         // regardless of its own scope.
+        //
+        // Send-once (id + fetch-on-miss) is used ONLY on the SUBMIT direction. On a RETURN
+        // (ctx->returning) the receiving server cannot issue a REQUEST_LAYOUT back to a worker, so an
+        // id-only reference it happens not to hold would be unresolvable (a fatal cache miss with no
+        // usable fetch). A return therefore always carries the layout self-contained (by value). This
+        // costs the layout's bytes on the return path; lifting the layout off the per-genome wire form
+        // removes that cost entirely (see the layout-placement work).
         const bool interned =
-            (ctx != nullptr) && ctx->enabled && (ctx->registry != nullptr) && (layout_ != nullptr);
+            (ctx != nullptr) && ctx->enabled && (ctx->registry != nullptr) && (layout_ != nullptr) &&
+            not ctx->returning;
         ar &make_nvp("layout_interned", interned);
         if(not interned) {
             GGenomeLayout layout_copy = layout_ ? *layout_ : GGenomeLayout{};
