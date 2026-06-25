@@ -1268,11 +1268,11 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     // Retrieve a vector of old work items
     auto old_work_items = this->getOldWorkItems();
 
-    // Update the iteration of older individuals (they will keep their old neighborhood id)
+    // Update the iteration of older individuals (a late return arrives as a slot with empty scratch)
     // and attach them to the data vector
-    for(auto &item_ptr : old_work_items) {
-        item_ptr->setAssignedIteration(this->getIteration());
-        this->push_back(std::make_unique<gen::GIndividualSlot>(std::move(item_ptr)));
+    for(auto &slot : old_work_items) {
+        slot->setAssignedIteration(this->getIteration());
+        this->push_back(std::move(slot));
     }
     old_work_items.clear();
 

@@ -1533,23 +1533,29 @@ void GOptimizationAlgorithmBase::load_(const GOptimizationAlgorithmBase *cp) {
 	 * @return A struct which indicates whether all items have returned ("is_complete") and whether there were errors ("has_errors")
 	 */
 Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOn(
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>> &work_items,
+    std::vector<std::unique_ptr<gen::GIndividualSlot>> &work_items,
     std::size_t start,
     std::size_t end
 ) {
     // All submission goes through courtier's span+policy path. init() guarantees a courtier routing
-    // is selected (an injected broker, a chosen local kind, or the multithreaded default).
-    return this->workOnViaConsumer_(work_items, start, end);
+    // is selected (an injected broker, a chosen local kind, or the multithreaded default). Submit a span
+    // over exactly [start, end); a transient probe vector (e.g. the CGD line search) is reconciled in
+    // place, just like the live population.
+    end = std::min(end, work_items.size());
+    if(end <= start) {
+        return Gem::Courtier::executor_status_t{.is_complete=true, .has_errors=false};
+    }
+    return this->workOnViaConsumer_(
+        std::span<std::unique_ptr<gen::GIndividualSlot>>(work_items.data() + start, end - start));
 }
 
 /******************************************************************************/
 /**
- * Submits the population's [start, end) range for evaluation. The population holds GIndividualSlots, but
- * the courtier deals in bare individuals: move each slot's individual out into a submission vector
- * (positions preserved), workOn() it, then move the (possibly reconciled) individuals back into their
- * slots. The slots -- and the OA scratch they carry (the personality) -- stay put, so a networked
- * round-trip that replaces an individual does not disturb its slot. workOn() is in-place (the work-item
- * vector keeps its size), so the move-back by index is exact.
+ * Submits the population's [start, end) range for evaluation. The population holds GIndividualSlots and
+ * the courtier now iterates slots, so this submits a std::span over the LIVE population sub-range straight
+ * out of data_cnt_ -- no gather into a temporary, no scatter back, slots never emptied. Each slot is
+ * reconciled in place; a networked round-trip moves only the evaluated genome back into its slot (see
+ * GIndividualSlot::adoptIndividualFrom()), leaving the slot -- and the OA scratch it carries -- in place.
  *
  * @param start The index of the first individual in the population to be evaluated
  * @param end One past the index of the last individual to be evaluated (range is [start, end))
@@ -1557,57 +1563,41 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOn(
  */
 Gem::Courtier::executor_status_t
 GOptimizationAlgorithmBase::workOnPopulation(std::size_t start, std::size_t end) {
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>> work_items;
-    work_items.reserve(this->size());
-    for(auto &slot : this->data_cnt_) {
-        work_items.push_back(slot->releaseIndividual());
+    end = std::min(end, this->size());
+    if(end <= start) {
+        return Gem::Courtier::executor_status_t{.is_complete=true, .has_errors=false};
     }
-
-    auto status = this->workOn(work_items, start, end);
-
-    for(std::size_t i = 0; i < this->size(); ++i) {
-        this->data_cnt_[i]->resetIndividual(std::move(work_items[i]));
-    }
-    return status;
+    return this->workOnViaConsumer_(
+        std::span<std::unique_ptr<gen::GIndividualSlot>>(this->data_cnt_.data() + start, end - start));
 }
 
 /******************************************************************************/
 /**
- * Submit through courtier's span+policy executor. The algorithm passes the contiguous sub-range
- * [start, end) it wants evaluated; we submit a std::span over exactly that range. The span aliases the
- * live population sub-range, so results -- and any cloned refills, written in place over the slot --
- * land directly in the population: no subset copy, no write-back, and no per-item DO_PROCESS/UNPROCESSED
- * flagging (the consumer marks the span DO_PROCESS internally). The policy is chosen per algorithm via
- * getSubmissionPolicy_(): clone-on-partial-return for the tolerant population-based OAs, full-success-
- * or-fatal for the need-all OAs.
+ * Submit through courtier's span+policy executor. The caller passes a std::span over exactly the slots it
+ * wants evaluated; the span aliases live storage (the population sub-range, or a transient probe vector),
+ * so results -- and any cloned refills, written in place over the slot -- land directly there: no subset
+ * copy, no write-back, and no per-item DO_PROCESS/UNPROCESSED flagging (the consumer marks the span
+ * DO_PROCESS internally). The policy is chosen per algorithm via getSubmissionPolicy_():
+ * clone-on-partial-return for the tolerant population-based OAs, full-success-or-fatal for the need-all OAs.
  *
- * @param work_items The vector of work items (bare individuals) to be evaluated
- * @param start The index of the first work item in the contiguous sub-range to submit
- * @param end One past the index of the last work item to submit (range is [start, end), clamped to the vector size)
+ * @param work_items The span of slots to be evaluated (reconciled in place; aliases live storage)
  * @return A struct indicating whether all items returned ("is_complete") and whether there were errors ("has_errors")
  */
 Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>> &work_items,
-    std::size_t start,
-    std::size_t end
+    std::span<std::unique_ptr<gen::GIndividualSlot>> work_items
 ) {
-    // Clamp the requested range to the population and bail out if it is empty.
-    end = std::min(end, work_items.size());
-    if(end <= start) {
+    if(work_items.empty()) {
         return Gem::Courtier::executor_status_t{.is_complete=true, .has_errors=false};
     }
 
-    // Submit a span over exactly [start, end); it aliases the population sub-range, so results + any
-    // cloned refills are written straight into work_items[start..end). The algorithm is
-    // transport-agnostic: it submits through the one process-wide consumer and gets back a fully
-    // reconciled span. The submission policy is the algorithm's choice (clone-on-partial-return vs
+    // The algorithm is transport-agnostic: it submits through the one process-wide consumer and gets back
+    // a fully reconciled span. The submission policy is the algorithm's choice (clone-on-partial-return vs
     // full-success-or-fatal).
-    std::span<std::unique_ptr<gen::GOptimizableEntity>> sp(work_items.data() + start, end - start);
     auto consumer = this->consumerForSubmission_();
-    consumer->processBatch(sp, this->getSubmissionPolicy_());
+    consumer->processBatch(work_items, this->getSubmissionPolicy_());
 
     bool has_errors = false;
-    for(const auto &it : sp) {
+    for(const auto &it : work_items) {
         if(it && it->has_errors()) {
             has_errors = true;
             break;
@@ -1624,14 +1614,16 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
  *
  * @return The shared consumer this algorithm submits through
  */
-std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>
+std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GIndividualSlot>>
 GOptimizationAlgorithmBase::consumerForSubmission_() {
     namespace c2 = Gem::Courtier;
-    auto consumer = c2::GConsumerRegistryT<gen::GOptimizableEntity>::instance().ensureConsumer(
-        []() -> std::shared_ptr<c2::GBaseConsumerT<gen::GOptimizableEntity>> {
-            auto c = std::make_shared<c2::GStdThreadConsumerT<gen::GOptimizableEntity>>();
-            // Polymorphic clone (GOptimizableEntity holds a concrete individual; copy-construction slices).
-            c->setCloneFunction([](const std::unique_ptr<gen::GOptimizableEntity> &p) {
+    auto consumer = c2::GConsumerRegistryT<gen::GIndividualSlot>::instance().ensureConsumer(
+        []() -> std::shared_ptr<c2::GBaseConsumerT<gen::GIndividualSlot>> {
+            auto c = std::make_shared<c2::GStdThreadConsumerT<gen::GIndividualSlot>>();
+            // Polymorphic clone of the whole slot (clone-on-partial-return refill): the slot deep-clones
+            // its genome and copies its scratch, so a refill carries useful per-parameter POD metadata.
+            // The OA re-stamps the refill's positional identity afterward (fixAfterJobSubmission()).
+            c->setCloneFunction([](const std::unique_ptr<gen::GIndividualSlot> &p) {
                 return p->clone_unique();
             });
             return c;
@@ -1647,12 +1639,12 @@ GOptimizationAlgorithmBase::consumerForSubmission_() {
  *
  * @return A vector of late-returned (bare) individuals that the consumer buffered after their batch was reconciled
  */
-std::vector<std::unique_ptr<gen::GOptimizableEntity>> GOptimizationAlgorithmBase::getOldWorkItems() {
+std::vector<std::unique_ptr<gen::GIndividualSlot>> GOptimizationAlgorithmBase::getOldWorkItems() {
     // Reap any LATE returns the consumer buffered -- results that came back after their batch had
     // already been reconciled in place (empty for a local consumer; a networked consumer hands back its
-    // bounded late-return buffer). The OA folds the returned (bare) individuals into the next selection
-    // via fixAfterJobSubmission().
-    auto consumer = Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().consumer();
+    // bounded late-return buffer). The OA folds the returned slots into the next selection via
+    // fixAfterJobSubmission().
+    auto consumer = Gem::Courtier::GConsumerRegistryT<gen::GIndividualSlot>::instance().consumer();
     if(consumer) {
         return consumer->getLateReturns();
     }

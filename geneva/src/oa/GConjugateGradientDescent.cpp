@@ -879,12 +879,15 @@ std::vector<double> GConjugateGradientDescent::evaluateProbes(
     std::size_t starting_point,
     std::vector<std::vector<double>> const &points
 ) {
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>> probes;
+    // The line-search probes are born as transient GIndividualSlots (the courtier's one work-item
+    // currency), so they go through the same slot-typed consumer as the population with no wrap step.
+    // Their scratch stays empty -- a probe is evaluated and discarded, it carries no OA state.
+    std::vector<std::unique_ptr<gen::GIndividualSlot>> probes;
     probes.reserve(points.size());
     for(auto const &pt : points) {
         auto probe = this->at(starting_point)->individual().clone_unique();
         probe->assignFPValueVectorInternal(pt, activityMode::ACTIVEONLY);
-        probes.push_back(std::move(probe));
+        probes.push_back(std::make_unique<gen::GIndividualSlot>(std::move(probe)));
     }
 
     this->workOn(probes, 0, probes.size());
@@ -892,7 +895,7 @@ std::vector<double> GConjugateGradientDescent::evaluateProbes(
     std::vector<double> values;
     values.reserve(probes.size());
     for(auto const &probe : probes) {
-        values.push_back(minOnly_transformed_fitness(*probe));
+        values.push_back(minOnly_transformed_fitness(probe->individual()));
     }
     return values;
 }

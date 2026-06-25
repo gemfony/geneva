@@ -44,6 +44,7 @@
 #include "geneva/individuals/GBenchmarkFunctions.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GIndividualSlot.hpp" // the courtier work item wraps the genome in a slot
 
 namespace gind = Gem::Geneva::Individuals;
 namespace gen = Gem::Geneva::Genome;
@@ -66,12 +67,12 @@ namespace Gem::Geneva::Benchmarks {
  * GPU can be cross-checked.
  */
 class GBenchmarkGPUMarshaller final
-  : public Gem::Courtier::GPU::GGPUEvaluableI<gen::GOptimizableEntity> {
+  : public Gem::Courtier::GPU::GGPUEvaluableI<gen::GIndividualSlot> {
 public:
     /** @brief The flattened dimension of one benchmark genome (its count of double parameters), used by
      *  the consumer to enforce a uniform geometry across the batch. */
     [[nodiscard]] std::size_t itemDimension(const item_ptr &item) const override {
-        return item->countParameters<double>();
+        return item->individual().countParameters<double>();
     }
 
     void flatten(const std::vector<item_ptr> &items, std::vector<double> &params_out) const override {
@@ -80,7 +81,7 @@ public:
             return;
         }
         // All items in a benchmark run share the same function and dimension.
-        auto *first = dynamic_cast<gind::GFunctionIndividual *>(items.front().get());
+        auto *first = dynamic_cast<gind::GFunctionIndividual *>(&items.front()->individual());
         funcId_ = static_cast<int>(first->getDemoFunction());
 
         // Bulk flatten via GFlatGenome::streamlineInto(): each item's external (range-folded) values are
@@ -88,7 +89,7 @@ public:
         const std::size_t dim = this->itemDimension(items.front());
         params_out.resize(items.size() * dim);
         for(std::size_t i = 0; i < items.size(); ++i) {
-            const auto *flat = dynamic_cast<const gen::GFlatGenome *>(items[i].get());
+            const auto *flat = dynamic_cast<const gen::GFlatGenome *>(&items[i]->individual());
             flat->streamlineInto(params_out.data() + i * dim);
         }
     }

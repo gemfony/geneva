@@ -300,13 +300,19 @@ protected:
         recordReturnTime_(now - b.checked_out_at[slot]);
         b.last_progress = now;
 
-        // Replace the work item in this broker slot with the returned result. The broker deals in bare
-        // individuals; all OA scratch (the personality object) now lives on the population's
-        // GIndividualSlot, NOT on the individual, so replacing the individual is lossless -- the
-        // optimization algorithm swaps the reconciled individual back into its slot, which still holds
-        // its own personality. A processed worker returns the whole individual (no results-only/graft).
-        p->setDispatchState(Gem::Courtier::dispatchState::DONE);
-        (*b.items)[slot] = std::move(p);
+        // Reconcile the returned result INTO the live broker slot. If the work item carries OA scratch
+        // that did NOT travel over the wire (the GIndividualSlot: the live item, relocated into this round
+        // vector for the duration of dispatch_, still holds its scratch while the returned p arrived
+        // without it), adopt only p's evaluated genome -- which carries its own fitness and courtier
+        // coordination -- and leave the live item's scratch untouched. Any other work item (which travels
+        // whole) is simply replaced. A processed worker returns the whole item (no results-only/graft).
+        if constexpr(requires(item_ptr &d, item_ptr &s) { d->adoptIndividualFrom(*s); }) {
+            (*b.items)[slot]->adoptIndividualFrom(*p);
+        }
+        else {
+            (*b.items)[slot] = std::move(p);
+        }
+        (*b.items)[slot]->setDispatchState(Gem::Courtier::dispatchState::DONE);
         ++b.done;
         if(b.done == b.target) {
             cv_done_.notify_all(); // each waiting dispatch_ re-checks its own batch

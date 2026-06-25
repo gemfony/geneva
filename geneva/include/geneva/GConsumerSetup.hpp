@@ -44,7 +44,7 @@
 // Geneva headers
 #include "common/GCommonEnums.hpp" // serializationMode
 #include "courtier/GBaseConsumerT.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/ind/GIndividualSlot.hpp"
 
 namespace Gem::Courtier {
 template <typename processable_type>
@@ -86,7 +86,7 @@ struct ConsumerSetup {
     /** @brief The ready consumer (clone function set, server started for networked consumers), also
      *  registered as the process's single consumer in GConsumerRegistry. Null when this process is not a
      *  submitter -- e.g. an MPI worker rank. */
-    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer;
+    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GIndividualSlot>> consumer;
     /** @brief When this process must serve as a worker (an MPI worker rank), the loop to run; null
      *  otherwise. The caller invokes it instead of submitting. */
     std::function<void()> run_worker;
@@ -141,7 +141,7 @@ ConsumerSpec specFromCommandLine(
  * @return The constructed client, or null for mnemonics that have no socket client (sc/stc are local;
  *   the mpi worker loop is obtained from buildConsumerSetup().run_worker instead).
  */
-std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GOptimizableEntity>>
+std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GIndividualSlot>>
 buildConsumerClient(const ConsumerSpec &spec);
 
 /******************************************************************************/

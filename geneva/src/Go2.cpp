@@ -127,7 +127,7 @@ Go2::Go2(
  */
 Go2::~Go2() {
     if(consumer_) {
-        auto &registry = Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance();
+        auto &registry = Gem::Courtier::GConsumerRegistryT<gen::GIndividualSlot>::instance();
         if(registry.consumer() == consumer_) {
             registry.clear();
         }
@@ -283,7 +283,7 @@ int Go2::clientRun_() {
     // Build the networked client for the chosen consumer through the courtier setup layer, from the
     // spec assembled in setupChosenConsumer(). The client is wire-compatible with the courtier socket
     // server. Go2 thus stays free of the concrete consumer/client types and the consumer store.
-    std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GOptimizableEntity>> p =
+    std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GIndividualSlot>> p =
         Gem::Geneva::buildConsumerClient(consumer_spec_);
 
     if(not p) {
@@ -1103,9 +1103,9 @@ void Go2::emitHelpIfRequested(
  * @param consumer The ready-to-use consumer to register as the process consumer (ownership is moved in)
  */
 void Go2::registerConsumer(
-    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer) {
+    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GIndividualSlot>> consumer) {
     consumer_ = consumer;
-    Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().setConsumer(
+    Gem::Courtier::GConsumerRegistryT<gen::GIndividualSlot>::instance().setConsumer(
         std::move(consumer));
     std::cout << "Using a custom registered consumer; it replaces the default \"" << consumer_name_
               << "\" as the process consumer\n";
@@ -1120,7 +1120,7 @@ void Go2::registerConsumer(
  * @param builder A closure returning the ready-to-use GPU consumer (as the courtier base pointer).
  */
 void Go2::registerGPUConsumerBuilder(
-    std::function<std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>()> builder) {
+    std::function<std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GIndividualSlot>>()> builder) {
     gpu_consumer_builder_ = std::move(builder);
 }
 
@@ -1152,7 +1152,7 @@ void Go2::ensureGPUConsumerBuilt() {
             << "The registered GPU consumer builder returned a null consumer." << '\n'
         );
     }
-    Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().setConsumer(consumer_);
+    Gem::Courtier::GConsumerRegistryT<gen::GIndividualSlot>::instance().setConsumer(consumer_);
     std::cout << "Routing consumer \"gpu\" through courtier (problem-registered builder)\n";
 }
 

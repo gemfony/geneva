@@ -102,13 +102,12 @@ class GCommandContainerT {
     }
     ///////////////////////////////////////////////////////////////
 
-    // Make sure processable_type adheres to the GProcessingContainerT interface
+    // Make sure processable_type satisfies the work-item contract (named result_type + process()).
+    // Structural, so a forwarding wrapper (Geneva's GIndividualSlot) qualifies without deriving from
+    // GProcessingContainerT (see ProcessableWorkItem).
     static_assert(
-        std::is_base_of_v<
-            Gem::Courtier::
-                GProcessingContainerT<processable_type, typename processable_type::result_type>,
-            processable_type>,
-        "processable_type does not adhere to the GProcessingContainerT interface"
+        Gem::Courtier::ProcessableWorkItem<processable_type>,
+        "processable_type does not satisfy the work-item contract (result_type + process())"
     );
 
 public:

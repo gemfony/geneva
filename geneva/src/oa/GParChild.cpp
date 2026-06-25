@@ -654,12 +654,10 @@ void GParChild::fixAfterJobSubmission() {
     );
 
     // Attach all old work items to the end of the current population and clear the array of old items.
-    // A late return is a BARE individual -- the personality object lives on the population slot, not on
-    // the individual, so the freshly-wrapped slot starts with an empty personality. Install the correct
-    // concrete one (the marking loop below, and selection, dereference it). It is tagged as a child by
-    // that marking loop.
-    for(auto &item_ptr : old_work_items) {
-        auto slot = std::make_unique<gen::GIndividualSlot>(std::move(item_ptr));
+    // A late return is a slot whose scratch was dropped on the wire, so it arrives with an empty
+    // personality. Install the correct concrete one (the marking loop below, and selection, dereference
+    // it). It is tagged as a child by that marking loop.
+    for(auto &slot : old_work_items) {
         slot->setPersonality(this->makePersonalityTraits());
         this->push_back(std::move(slot));
     }

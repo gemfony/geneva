@@ -153,6 +153,11 @@ class GIndividualSlot // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief The courtier work-item result type, mirrored from the wrapped genome so the slot satisfies
+     *  the duck-typed work-item contract (Gem::Courtier::ProcessableWorkItem) the client / command
+     *  container check -- without deriving from GProcessingContainerT (the genome still owns it). */
+    using result_type = GOptimizableEntity::result_type;
+
     /** @brief The default constructor creates an empty slot (no individual) */
     GIndividualSlot() = default;
 

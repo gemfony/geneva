@@ -78,6 +78,21 @@ class g_processing_exception : public geneva_exception {
 
 /******************************************************************************/
 /**
+ * The duck-typed contract a courtier work item must satisfy: it names its result type and can be
+ * processed. The classic work item IS-A GProcessingContainerT, but the contract is intentionally
+ * structural -- a wrapper (e.g. Geneva's GIndividualSlot) that FORWARDS to an inner
+ * GProcessingContainerT, rather than deriving from one, is an equally valid work item. The client and
+ * command-container layers check this concept instead of an is_base_of<GProcessingContainerT<...>> so
+ * such forwarding wrappers compose without inheriting the base.
+ */
+template <typename processable_type>
+concept ProcessableWorkItem = requires(processable_type &item) {
+    typename processable_type::result_type;
+    item.process();
+};
+
+/******************************************************************************/
+/**
 	 * This class can serve as a base class for items to be submitted through the broker. You need to
 	 * re-implement the purely virtual functions in derived classes. Note that it is mandatory for
 	 * derived classes to be serializable and to trigger serialization of this class.
