@@ -1298,9 +1298,17 @@ private:
                 serialization_mode_
             );
         }
+        catch(const std::exception &e) {
+            glogger << "GWebsocketConsumerSessionT<processable_type>::process_request(): Caught "
+                       "exception: "
+                    << e.what() << '\n'
+                    << GLOGGING;
+
+            do_close(boost::beast::websocket::close_code::internal_error);
+        }
         catch(...) {
             glogger << "GWebsocketConsumerSessionT<processable_type>::process_request(): Caught "
-                       "exception"
+                       "non-std exception"
                     << '\n'
                     << GLOGGING;
 

@@ -1100,11 +1100,17 @@ private:
                 serialization_mode_
             );
         }
+        catch(const std::exception &e) {
+            glogger
+                << "GAsioConsumerSessionT<processable_type>::process_request(): Caught exception: "
+                << e.what() << '\n'
+                << GLOGGING;
+        }
         catch(
             ...
-        ) { // NOLINT(bugprone-empty-catch) — intentionally swallowed; session ends, caller retries
+        ) { // session ends, caller retries
             glogger
-                << "GAsioConsumerSessionT<processable_type>::process_request(): Caught exception"
+                << "GAsioConsumerSessionT<processable_type>::process_request(): Caught non-std exception"
                 << '\n'
                 << GLOGGING;
         }
