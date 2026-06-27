@@ -189,27 +189,25 @@ ENDIF ()
 # Determine the Geneva version found
 
 IF (GENEVA_INCLUDE_DIR)
-	# Read the Geneva version string, which is of the form '#define GENEVA_VERSION 01120'
-	SET ( _VER_PRE "#define GENEVA_VERSION" )
-	FILE (
-		STRINGS
-		${GENEVA_INCLUDE_DIR}/${GENEVA_COMMON_HEADER_PATH}
-		_RAW_VERSION
-		REGEX "${_VER_PRE}"
-		LIMIT_COUNT 100
-		LIMIT_INPUT 10000
-		LIMIT_OUTPUT 100
-	)
-	STRING ( REPLACE "${_VER_PRE} " "" _RAW_VERSION_2 ${_RAW_VERSION} )
-	STRING ( STRIP ${_RAW_VERSION_2} _RAW_VERSION_3 )
+	# Read the Geneva version from the component macros in GGlobalDefines.hpp, each of
+	# the form '#define GENEVA_VERSION_MAJOR 1' (plain decimals, the single source of truth).
+	FOREACH ( _comp MAJOR MINOR PATCH )
+		FILE (
+			STRINGS
+			${GENEVA_INCLUDE_DIR}/${GENEVA_COMMON_HEADER_PATH}
+			_RAW_VERSION_LINE
+			REGEX "#define[ \t]+GENEVA_VERSION_${_comp}[ \t]"
+			LIMIT_COUNT 1
+			LIMIT_INPUT 10000
+		)
+		STRING (
+			REGEX REPLACE ".*GENEVA_VERSION_${_comp}[ \t]+([0-9]+).*" "\\1"
+			_VER_${_comp} "${_RAW_VERSION_LINE}"
+		)
+	ENDFOREACH ()
 
-	# Encoding (see common/include/common/GGlobalDefines.hpp):
-	#   "0" + major(1 digit) + minor(2 digits) + patch(1 digit)
-	# e.g. 01120 -> 1.12.0 .
-	IF ( ${_RAW_VERSION_3} MATCHES "^0([0-9])([0-9][0-9])([0-9])$")
-		SET (GENEVA_VERSION "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}.${CMAKE_MATCH_3}")
-		# Strip a leading zero from the minor component (e.g. "05" -> "5").
-		STRING ( REGEX REPLACE "\\.0([0-9])\\." ".\\1." GENEVA_VERSION ${GENEVA_VERSION} )
+	IF ( DEFINED _VER_MAJOR AND DEFINED _VER_MINOR AND DEFINED _VER_PATCH )
+		SET (GENEVA_VERSION "${_VER_MAJOR}.${_VER_MINOR}.${_VER_PATCH}")
 	ENDIF ()
 ENDIF ()
 

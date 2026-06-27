@@ -66,15 +66,27 @@
 #include <boost/config.hpp>
 
 /**
- * The current version of the Geneva library, encoded as an integer.
- * Encoding: 0 + major(1 digit) + minor(2 digits) + patch(1 digit)
- * Example:  1.12.0  →  "0" + "1" + "12" + "0"  =  01120
+ * The current version of the Geneva library.
  *
- * Keep in sync with VERSION_MAJOR / VERSION_MINOR / VERSION_PATCH
- * in the top-level CMakeLists.txt.
- * Note: FindGeneva.cmake parses this line to determine the installed version.
+ * The three component macros below are the single source of truth; GENEVA_VERSION
+ * composes them into one monotonically comparable integer
+ *   major * 10000 + minor * 100 + patch
+ * so that e.g. 1.12.0 → 11200 and ordinary version tests such as
+ *   #if GENEVA_VERSION >= 11200
+ * work. Each component is a plain decimal literal (no leading zero), so no value is
+ * ever silently reinterpreted as octal — the historical packed-literal form "01120"
+ * was an octal literal (= 592) and would have become an invalid octal literal as
+ * soon as a minor/patch digit reached 8 or 9.
+ *
+ * Keep in sync with VERSION_MAJOR / VERSION_MINOR / VERSION_PATCH in the
+ * top-level CMakeLists.txt.
+ * Note: FindGeneva.cmake parses the three component macros below to determine the
+ * installed version.
  */
-#define GENEVA_VERSION 01120
+#define GENEVA_VERSION_MAJOR 1
+#define GENEVA_VERSION_MINOR 12
+#define GENEVA_VERSION_PATCH 0
+#define GENEVA_VERSION (GENEVA_VERSION_MAJOR * 10000 + GENEVA_VERSION_MINOR * 100 + GENEVA_VERSION_PATCH)
 
 /**
  * The minimum required Boost version, encoded as an integer.

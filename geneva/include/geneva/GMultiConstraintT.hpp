@@ -584,9 +584,12 @@ class GCheckCombinerT : public GValidityCheckContainerT<ind_type> {
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
+        // Serialize the DIRECT base GValidityCheckContainerT (not the grandparent
+        // GPreEvaluationValidityCheckT): the container level carries validity_checks_, so skipping
+        // it would drop the combiner's checks on the wire / in checkpoints.
         ar &boost::serialization::make_nvp(
-            "GPreEvaluationValidityCheckT_ind_type",
-            boost::serialization::base_object<GPreEvaluationValidityCheckT<ind_type>>(*this)
+            "GValidityCheckContainerT_ind_type",
+            boost::serialization::base_object<GValidityCheckContainerT<ind_type>>(*this)
         ) &
             BOOST_SERIALIZATION_NVP(combiner_policy_);
     }
@@ -760,8 +763,9 @@ protected:
                 GPreEvaluationValidityCheckT<ind_type>,
                 GCheckCombinerT<ind_type>>(cp, this);
 
-        // Load our parent class'es data ...
-        GPreEvaluationValidityCheckT<ind_type>::load_(cp);
+        // Load our DIRECT parent class'es data (GValidityCheckContainerT, which carries
+        // validity_checks_) -- not the grandparent, or the combiner's checks would be dropped.
+        GValidityCheckContainerT<ind_type>::load_(cp);
 
         // and then our local data, derived from the single localMembers() declaration
         Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));

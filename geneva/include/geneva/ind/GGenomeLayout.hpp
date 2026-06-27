@@ -367,10 +367,10 @@ struct LayoutId {
  * one ChannelLayout per supported value type. A single layout is built once (by GGenomeBuilder, and
  * in turn by a factory) and shared by every individual of a problem via std::shared_ptr<const ...>,
  * so per-individual state is just the value arrays. The layout carries no evolving state; the
- * per-individual, per-group adaption state (sigma, ...) lives in each genome's GAuxiliaryStore.
+ * per-individual, per-group adaption state (sigma, ...) lives in the GIndividualSlot's scratch (GAuxiliaryStore).
  *
  * Optionally, groups carry an interned LABEL: `labels` holds each distinct label string once, and a
- * GroupSpec stores a small integer index into it (GroupSpec::label_id, -1 = unlabeled). Labels are
+ * GroupStructure stores a small integer index into it (GroupStructure::label_id, -1 = unlabeled). Labels are
  * per-GROUP (never per-value) and one-to-many -- a single label can tag many groups (e.g. "position"
  * tags every cx/cy group in an image problem), so a per-label adaption setting applies to all of them
  * while each group keeps its own evolving state. Labels let a (later, OA-owned) adaption config address
@@ -535,8 +535,8 @@ private:
 
     /** @brief The incremental two-lane hasher over the structural bytes of a layout. */
     struct Hasher128 {
-        std::uint64_t h1 = 1469598103934665603ULL;                   ///< FNV-1a offset basis (lane 1)
-        std::uint64_t h2 = 1469598103934665603ULL ^ 0x9E3779B97F4A7C15ULL; ///< distinct basis (lane 2)
+        std::uint64_t h1 = 14695981039346656037ULL;                   ///< FNV-1a offset basis (lane 1)
+        std::uint64_t h2 = 14695981039346656037ULL ^ 0x9E3779B97F4A7C15ULL; ///< distinct basis (lane 2)
         static constexpr std::uint64_t prime = 1099511628211ULL;     ///< the 64-bit FNV prime
 
         /** @brief Folds one byte into both lanes. @param byte The byte to absorb. */

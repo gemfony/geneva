@@ -154,7 +154,7 @@ public:
 	 *
 	 * @param x The Geneva container type to compare
 	 * @param y The std::vector used for the comparison
-	 * @return A boolean indicating whether both parameters are equal
+	 * @return A boolean indicating whether both parameters are inequal
 	 */
     template <typename geneva_simplecontainer_type>
         requires std::derived_from<geneva_simplecontainer_type,
@@ -220,7 +220,7 @@ public:
 
         try {
             x.Gem::Common::template GPodContainerT<typename geneva_simplecontainer_type::value_type>::
-                compare_base(y,Gem::Common::expectation::INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+                compare_base(y,Gem::Common::expectation::FP_SIMILARITY, CE_DEF_SIMILARITY_DIFFERENCE);
             return true;
         }
         catch(g_expectation_violation &g) {

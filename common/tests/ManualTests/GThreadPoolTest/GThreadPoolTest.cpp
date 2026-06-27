@@ -60,7 +60,7 @@ Gem::Common::GThreadPool gtp{NINITIALTHREADS}; ///< The global threadpool
 
 /************************************************************************/
 /**
- * A simple test task that sets a flag when the operator() has been called
+ * A simple test task that sets a flag when process() has been called
  */
 class testTask {
 public:
@@ -70,12 +70,12 @@ public:
 	 */
     testTask()
       : counter_value_(0)
-      , operator_called_(0) { /* nothing */
+      , process_called_(0) { /* nothing */
     }
 
     /********************************************************************/
     /**
-	 * Allows to check how often increment() has been called
+	 * Returns the current counter value (net result of increment/decrement calls)
 	 */
     std::int32_t getCounterValue() const {
         return counter_value_;
@@ -83,10 +83,10 @@ public:
 
     /********************************************************************/
     /**
-	 * Retrieves the number of operator calls
+	 * Retrieves the number of process() calls
 	 */
-    std::uint32_t getOperatorCalledValue() const {
-        return operator_called_;
+    std::uint32_t getProcessCalledValue() const {
+        return process_called_;
     }
 
     /********************************************************************/
@@ -125,7 +125,7 @@ private:
 	 */
     void increment() {
         counter_value_++;
-        operator_called_++;
+        process_called_++;
     }
 
     /********************************************************************/
@@ -134,13 +134,13 @@ private:
 	 */
     void decrement() {
         counter_value_--;
-        operator_called_++;
+        process_called_++;
     }
 
     /********************************************************************/
     std::int32_t counter_value_; ///< The internal value to be decremented or incremented
     std::uint32_t
-        operator_called_; ///< This counter will be incremented whenever process() is called
+        process_called_; ///< This counter will be incremented whenever process() is called
 
     Gem::Hap::GRandom gr_; // Instantiates a random number generator
     std::uniform_int_distribution<long> uniform_int_;
@@ -248,9 +248,9 @@ int main(int argc, char **argv) {
 
     // Check that each task has been called exactly nIterations times
     for(std::size_t i = 0; i < nJobs; i++) {
-        if(nIterations != (tasks.at(i))->getOperatorCalledValue()) {
+        if(nIterations != (tasks.at(i))->getProcessCalledValue()) {
             glogger << "In task " << i << ":" << '\n'
-                    << "Got wrong number of calls: " << (tasks.at(i))->getOperatorCalledValue()
+                    << "Got wrong number of calls: " << (tasks.at(i))->getProcessCalledValue()
                     << "." << '\n'
                     << GLOGGING;
         }
