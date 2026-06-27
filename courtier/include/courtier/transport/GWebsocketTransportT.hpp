@@ -183,8 +183,9 @@ public:
         wire_ctx_.peer = 0; // the single upstream server
         wire_ctx_.registry = &wire_registry_;
         wire_ctx_.mode = serialization_mode_;
-        // This endpoint returns processed items to the server. A worker returns the whole individual (no
-        // results-only form); the layout travels self-contained on the return (send-once is submit-only).
+        // This endpoint returns processed results to the server, which still holds the originally-
+        // submitted item, so by default a return ships only the computed results (the server grafts the
+        // parameters back). A work item can override per-item via setReturnFullIndividual().
         wire_ctx_.returning = true;
     }
 
@@ -1297,17 +1298,9 @@ private:
                 serialization_mode_
             );
         }
-        catch(const std::exception &e) {
-            glogger << "GWebsocketConsumerSessionT<processable_type>::process_request(): Caught "
-                       "exception: "
-                    << e.what() << '\n'
-                    << GLOGGING;
-
-            do_close(boost::beast::websocket::close_code::internal_error);
-        }
         catch(...) {
             glogger << "GWebsocketConsumerSessionT<processable_type>::process_request(): Caught "
-                       "non-std exception"
+                       "exception"
                     << '\n'
                     << GLOGGING;
 

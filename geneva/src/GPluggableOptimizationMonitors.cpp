@@ -1413,7 +1413,7 @@ void GIterationResultsFileLogger::informationFunction_(
         // (n_fitness_criteria*n_individuals > (i+1)*(pos+1)) was obscure and fragile: it happened to be
         // correct only because the product reaches the total exactly at the final cell.
         const std::size_t n_individuals = goa->size();
-        const std::size_t n_fitness_criteria = goa->at(0)->getNStoredResults();
+        const std::size_t n_fitness_criteria = goa->at(0)->individual().getNStoredResults();
         const std::size_t total = n_fitness_criteria * n_individuals;
         std::size_t emitted = 0;
         for(std::size_t pos = 0; pos < n_individuals; pos++) {
@@ -2302,8 +2302,11 @@ void GProcessingTimesLogger::informationFunction_(
 
         // Loop over all individuals of the algorithm.
         for(std::size_t pos = 0; pos < goa->size(); pos++) {
-            // Retrieve the processing timings from the work item (the slot carries the transport timing).
-            std::tuple<double, double, double> processing_times = goa->at(pos)->getProcessingTimes();
+            // Get access to each individual in sequence
+            std::shared_ptr<gen::GOptimizableEntity> ind = goa->individual_cast<gen::GOptimizableEntity>(pos);
+
+            // Retrieve the processing timings
+            std::tuple<double, double, double> processing_times = ind->getProcessingTimes();
 
             double pre_processing_time = std::get<0>(processing_times);
             double main_processing_time = std::get<1>(processing_times);

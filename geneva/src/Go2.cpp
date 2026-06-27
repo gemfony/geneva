@@ -46,7 +46,6 @@
 #include "geneva/oa/GFactoryStore.hpp"
 #include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/par/GOptimizableEntityFactory.hpp" // to stamp work-item pre/post-processors onto slots
 #include "hap/GRandomFactory.hpp"
 #include <boost/program_options.hpp>
 #include <algorithm>
@@ -128,7 +127,7 @@ Go2::Go2(
  */
 Go2::~Go2() {
     if(consumer_) {
-        auto &registry = Gem::Courtier::GConsumerRegistryT<gen::GIndividualSlot>::instance();
+        auto &registry = Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance();
         if(registry.consumer() == consumer_) {
             registry.clear();
         }
@@ -284,7 +283,7 @@ int Go2::clientRun_() {
     // Build the networked client for the chosen consumer through the courtier setup layer, from the
     // spec assembled in setupChosenConsumer(). The client is wire-compatible with the courtier socket
     // server. Go2 thus stays free of the concrete consumer/client types and the consumer store.
-    std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GIndividualSlot>> p =
+    std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GOptimizableEntity>> p =
         Gem::Geneva::buildConsumerClient(consumer_spec_);
 
     if(not p) {
@@ -615,23 +614,9 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
             alg_ptr->registerPluggableOM(pm_ptr);
         }
 
-        // Add the individuals to the algorithm, wrapping each genome in a work item (slot). Pre-/post-
-        // processing is a WORK-ITEM operation, so any processor registered on the content factory is
-        // stamped onto the slot here (the genome stays pure data); it then travels with the work item to
-        // a remote worker and runs there via the slot's afterProcessing_() seam.
-        const auto entity_factory =
-            std::dynamic_pointer_cast<gen::GOptimizableEntityFactory>(content_creator_ptr_);
+        // Add the individuals to the algorithm
         for(const auto &ind_ptr : *this) {
-            auto slot_ptr = std::make_unique<gen::GIndividualSlot>(ind_ptr->clone_unique());
-            if(entity_factory) {
-                if(entity_factory->preProcessor()) {
-                    slot_ptr->registerPreProcessor(entity_factory->preProcessor()->clone());
-                }
-                if(entity_factory->postProcessor()) {
-                    slot_ptr->registerPostProcessor(entity_factory->postProcessor()->clone());
-                }
-            }
-            alg_ptr->push_back(std::move(slot_ptr));
+            alg_ptr->push_back(std::make_unique<gen::GIndividualSlot>(ind_ptr->clone_unique()));
         }
 
         // Remove our local copies
@@ -742,8 +727,8 @@ std::shared_ptr<gen::GOptimizableEntity> Go2::getBestGlobalIndividual_() const {
         );
     }
 
-    // Check if the best individual is evaluated
-    if(not this->front()->fitnessIsCurrent() && not this->front()->fitnessIsStale()) {
+    // Check if the best individual is processed
+    if(not this->front()->is_processed() && not this->front()->is_unprocessed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::getBestGlobalIndividual_(): Error!" << '\n'
@@ -776,7 +761,7 @@ std::vector<std::shared_ptr<gen::GOptimizableEntity>> Go2::getBestGlobalIndividu
     std::size_t pos = 0;
     std::vector<std::shared_ptr<gen::GOptimizableEntity>> best_individuals;
     for(const auto &ind_ptr : *this) {
-        if(ind_ptr->fitnessIsStale() || ind_ptr->evaluationFailed()) {
+        if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In Go2::getBestGlobalIndividuals_(): Error!" << '\n'
@@ -1118,9 +1103,9 @@ void Go2::emitHelpIfRequested(
  * @param consumer The ready-to-use consumer to register as the process consumer (ownership is moved in)
  */
 void Go2::registerConsumer(
-    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GIndividualSlot>> consumer) {
+    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer) {
     consumer_ = consumer;
-    Gem::Courtier::GConsumerRegistryT<gen::GIndividualSlot>::instance().setConsumer(
+    Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().setConsumer(
         std::move(consumer));
     std::cout << "Using a custom registered consumer; it replaces the default \"" << consumer_name_
               << "\" as the process consumer\n";
@@ -1135,7 +1120,7 @@ void Go2::registerConsumer(
  * @param builder A closure returning the ready-to-use GPU consumer (as the courtier base pointer).
  */
 void Go2::registerGPUConsumerBuilder(
-    std::function<std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GIndividualSlot>>()> builder) {
+    std::function<std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>()> builder) {
     gpu_consumer_builder_ = std::move(builder);
 }
 
@@ -1167,7 +1152,7 @@ void Go2::ensureGPUConsumerBuilt() {
             << "The registered GPU consumer builder returned a null consumer." << '\n'
         );
     }
-    Gem::Courtier::GConsumerRegistryT<gen::GIndividualSlot>::instance().setConsumer(consumer_);
+    Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().setConsumer(consumer_);
     std::cout << "Routing consumer \"gpu\" through courtier (problem-registered builder)\n";
 }
 

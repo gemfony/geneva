@@ -49,21 +49,13 @@ void GIndividualSlot::load_(const GIndividualSlot *cp) {
     const auto *p_load =
         Gem::Common::g_convert_and_compare<GIndividualSlot, GIndividualSlot>(cp, this);
 
-    // The GCommonInterfaceT CRTP base carries no data. The courtier work-item base (GProcessableT) does:
-    // load its transport coordination.
-    Gem::Courtier::GProcessableT<GIndividualSlot>::load_processable_(p_load);
+    // The CRTP base carries no data, so there is no base load.
 
     // The wrapped individual, derived from the single localMembers() declaration.
     Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
 
     // The OA-owned scratch (personality + POD blocks). Not part of localMembers(), copied explicitly.
     scratch_ = p_load->scratch_;
-
-    // The work-item pre-/post-processor objects (deep-cloned).
-    Gem::Common::copyCloneableSmartPointer(p_load->pre_processor_ptr_, pre_processor_ptr_);
-    Gem::Common::copyCloneableSmartPointer(p_load->post_processor_ptr_, post_processor_ptr_);
-    pre_processing_disabled_ = p_load->pre_processing_disabled_;
-    post_processing_disabled_ = p_load->post_processing_disabled_;
 }
 
 /******************************************************************************/

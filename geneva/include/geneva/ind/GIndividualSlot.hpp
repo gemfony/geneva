@@ -49,8 +49,6 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GMemberReflectionT.hpp"
-#include "courtier/GProcessingContainerT.hpp" // GProcessableT -- the lean courtier work-item base
-#include "courtier/GWireSerializationContext.hpp" // the wire-vs-checkpoint (de)serialization scope
 #include "geneva/ind/GAuxiliaryStore.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 
@@ -98,8 +96,7 @@ namespace Gem::Geneva::Genome {
  * load() (present on BOTH the slot and the individual via the common interface) would otherwise create.
  */
 class GIndividualSlot // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GCommonInterfaceT<GIndividualSlot>
-  , public Gem::Courtier::GProcessableT<GIndividualSlot> {
+  : public Gem::Common::GCommonInterfaceT<GIndividualSlot> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -126,52 +123,25 @@ class GIndividualSlot // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
-        // The Gem::Common::GCommonInterfaceT<GIndividualSlot> CRTP base carries no state. The courtier
-        // work-item base (GProcessableT) carries the transport coordination (status / correlation id /
-        // counters) and travels both directions, so it is serialized as a base_object.
-        ar &make_nvp(
-            "GProcessableT",
-            boost::serialization::base_object<Gem::Courtier::GProcessableT<GIndividualSlot>>(*this)
-        );
+        // The CRTP base (Gem::Common::GCommonInterfaceT<GIndividualSlot>) carries no state and is
+        // therefore not serialized as a base_object (mirroring GObject's empty serialize()).
 
         // The wrapped individual -- the part that travels -- derived from the single localMembers()
         // declaration so serialize()/load_()/compare_() stay in lock-step.
         Gem::Common::serialize_members(ar, localMembers_(*this));
 
-        // The pre-/post-processor objects (e.g. an EA post-optimizer) are work-item processing config:
-        // they must reach the remote worker to run there, so they travel in BOTH modes (NOT scratch).
-        ar &make_nvp("pre_processor_ptr_", pre_processor_ptr_) &
-            make_nvp("post_processor_ptr_", post_processor_ptr_) &
-            make_nvp("pre_processing_disabled_", pre_processing_disabled_) &
-            make_nvp("post_processing_disabled_", post_processing_disabled_);
-
         // The OA-owned scratch (the personality OBJECT *and* the per-group POD blocks -- adaption sigma,
-        // swarm velocity, conjugate-gradient memory) is serialized in exactly TWO modes, driven by the
-        // thread-local wire (de)serialization scope (the same switch the genome's layout send-once uses):
-        //  - CHECKPOINT (no active wire scope): the scratch rides along, so a resumed algorithm keeps its
-        //    evolved state in place -- self-contained archive. On resume the optimization algorithm
-        //    preserves this restored scratch instead of re-seeding it (see
-        //    GOptimizationAlgorithmBase::resumed_from_checkpoint_).
-        //  - WIRE (a scope is active and enabled): the scratch is OMITTED. A remote worker needs no
-        //    OA scratch to evaluate, and on the return the server keeps the LIVE slot's scratch (which
-        //    never travelled) -- only the genome + coordination move back in (see adoptIndividualFrom()).
-        // The decision is symmetric on both wire ends (the scope is engaged on serialize AND deserialize),
-        // so the archive layouts always match. scratch_ is OUT of localMembers() so it is serialized but
-        // NOT part of the compared identity.
-        const auto *wire_ctx = Gem::Courtier::GWireSerializationScope::current();
-        const bool over_the_wire = (wire_ctx != nullptr) && wire_ctx->enabled;
-        if(not over_the_wire) {
-            ar &make_nvp("scratch_", scratch_);
-        }
+        // swarm velocity, conjugate-gradient memory) rides along for a CHECKPOINT / general
+        // serialization, so a resumed algorithm keeps its evolved state in place. It is OUT of
+        // localMembers() so it is serialized but NOT part of the compared identity. The slot is never
+        // sent over the wire (transport submits bare individuals), so this always runs in checkpoint
+        // form. On resume the optimization algorithm preserves this restored scratch instead of
+        // re-seeding it (see GOptimizationAlgorithmBase::resumed_from_checkpoint_).
+        ar &make_nvp("scratch_", scratch_);
     }
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The courtier work-item result type, mirrored from the wrapped genome so the slot satisfies
-     *  the duck-typed work-item contract (Gem::Courtier::ProcessableWorkItem) the client / command
-     *  container check -- without deriving from GProcessingContainerT (the genome still owns it). */
-    using result_type = GOptimizableEntity::result_type;
-
     /** @brief The default constructor creates an empty slot (no individual) */
     GIndividualSlot() = default;
 
@@ -189,13 +159,8 @@ public:
      */
     GIndividualSlot(const GIndividualSlot &cp)
       : Gem::Common::GCommonInterfaceT<GIndividualSlot>(cp)
-      , Gem::Courtier::GProcessableT<GIndividualSlot>(cp)
-      , scratch_(cp.scratch_)
-      , pre_processing_disabled_(cp.pre_processing_disabled_)
-      , post_processing_disabled_(cp.post_processing_disabled_) {
+      , scratch_(cp.scratch_) {
         Gem::Common::copyCloneableSmartPointer(cp.individual_, individual_);
-        Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
-        Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
     }
 
     /** @brief The move constructor */
@@ -237,22 +202,6 @@ public:
     }
 
     /**
-     * @brief The wrapped individual, statically cast to the user's concrete problem type. Convenience for
-     * the user-facing OUTPUT boundary (e.g. inspecting a best slot as the problem subclass it really is).
-     * @tparam derived_type The concrete GFlatIndividualT subclass the genome was built as.
-     * @return A reference to the wrapped individual as derived_type.
-     */
-    template <typename derived_type>
-    derived_type &genomeAs() noexcept {
-        return static_cast<derived_type &>(*individual_);
-    }
-    /** @brief The wrapped individual as the user's concrete problem type (const). @tparam derived_type The concrete subclass. @return A const reference as derived_type. */
-    template <typename derived_type>
-    const derived_type &genomeAs() const noexcept {
-        return static_cast<const derived_type &>(*individual_);
-    }
-
-    /**
      * @brief The owning pointer to the wrapped individual. Used by the optimization algorithm to swap
      * the individual out into a courtier submission span for workOn() and back afterwards, so the broker
      * keeps dealing in individuals.
@@ -269,65 +218,6 @@ public:
         return individual_;
     }
 
-    /***************************************************************************/
-    // Processing-coordination surface. The slot IS the courtier work item now: the transport status /
-    // correlation id / dispatch state / counters and the process() lifecycle are INHERITED from
-    // GProcessableT (no longer forwarded to the genome). process() drives the genome's evaluate() via
-    // runProcessing_() below. What remains here forwards GENOME data the algorithms read off the slot:
-    // the fitness criterion count / stored result, and the assigned-iteration tag (a genome member).
-    // NOTE: the fitness accessors (raw_fitness / transformed_fitness / getFitnessTuple) are NOT here --
-    // fitness is solution data on the genome (accessed via individual()).
-
-    /** @brief A stored fitness result of the wrapped genome. @param id The result index. @return The stored result. */
-    individual_processing_result getStoredResult(std::size_t id = 0) const {
-        return individual_->getStoredResult(id);
-    }
-    /** @brief The number of stored fitness criteria on the wrapped genome. @return The criterion count. */
-    std::size_t getNStoredResults() const { return individual_->getNStoredResults(); }
-
-    /** @brief Sets the iteration in which the wrapped genome was submitted. @param iter The assigned iteration. */
-    void setAssignedIteration(std::uint32_t const &iter) { individual_->setAssignedIteration(iter); }
-    /** @brief The iteration in which the wrapped genome was submitted. @return The assigned iteration. */
-    std::uint32_t getAssignedIteration() const { return individual_->getAssignedIteration(); }
-
-    /** @brief Marks this work item PROCESSED directly (for an external evaluator that computed the
-     *  genome's fitness out of band, e.g. the GPU consumer's scatter()). */
-    void markProcessed() { this->mark_as_processed_(); }
-
-    /***************************************************************************/
-    // Pre-/post-processing (work-item operations run on the wrapped genome around evaluation). The
-    // processor objects are owned by the SLOT and stamped onto it at population creation (by Go2 / the
-    // optimization algorithm, from the content factory). They travel to a remote worker so the
-    // processing runs there. See GProcessableT's before/afterProcessing_ seams, overridden below.
-
-    /** @brief Whether pre-processing may run. @return true unless vetoed. */
-    bool mayBePreProcessed() const noexcept { return not pre_processing_disabled_; }
-    /** @brief Vetoes / allows pre-processing. @param veto true to disable. */
-    void vetoPreProcessing(bool veto) noexcept { pre_processing_disabled_ = veto; }
-    /** @brief Registers a pre-processor (ignored if empty). @param p The pre-processor. */
-    void registerPreProcessor(
-        std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> p
-    ) {
-        if(p) { pre_processor_ptr_ = std::move(p); }
-    }
-    /** @brief Whether post-processing may run. @return true unless vetoed. */
-    bool mayBePostProcessed() const noexcept { return not post_processing_disabled_; }
-    /** @brief Vetoes / allows post-processing. @param veto true to disable. */
-    void vetoPostProcessing(bool veto) noexcept { post_processing_disabled_ = veto; }
-    /** @brief Registers a post-processor (ignored if empty). @param p The post-processor. */
-    void registerPostProcessor(
-        std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> p
-    ) {
-        if(p) { post_processor_ptr_ = std::move(p); }
-    }
-    /** @brief The registered post-processor (or empty). @return The post-processor. */
-    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> postProcessor() const {
-        return post_processor_ptr_;
-    }
-    /** @brief Removes any registered post-processor. */
-    void clearPostProcessor() { post_processor_ptr_.reset(); }
-    /***************************************************************************/
-
     /**
      * @brief Moves the individual out of the slot, leaving it empty.
      * @return The owning pointer to the individual (the slot is empty afterwards).
@@ -342,29 +232,6 @@ public:
      */
     void resetIndividual(std::unique_ptr<GOptimizableEntity> ind) {
         individual_ = std::move(ind);
-    }
-
-    /**
-     * @brief Reconciles a returned (remotely evaluated) slot INTO this live slot, preserving this slot's
-     * scratch. The evaluated genome (which carries its own fitness) moves in, AND the returned slot's
-     * transport coordination -- crucially the processing STATUS (PROCESSED / error) -- is carried onto
-     * this live slot; this slot's OA scratch is left untouched because it never travelled over the wire
-     * (see serialize()). This is the server-side return path: the live slot stays in the population and is
-     * updated in place, so its scratch is never lost.
-     * @param returned The deserialized result slot whose genome + coordination are adopted (it is emptied).
-     */
-    void adoptIndividualFrom(GIndividualSlot &returned) {
-        // The returned genome arrived over the wire with its population-invariant shared structure (the
-        // flat genome's layout) OMITTED -- re-attach it from THIS live slot's genome, which still holds it,
-        // before the move replaces our genome. A no-op for genomes that carry no detachable structure.
-        if(individual_ && returned.individual_) {
-            returned.individual_->adoptOmittedStructureFrom(*individual_);
-        }
-        individual_ = std::move(returned.individual_);
-        // The transport coordination (processing status, counters, timing) now lives on the SLOT, not the
-        // genome -- so it must be carried over explicitly: without this the live slot would stay
-        // not-PROCESSED and the algorithm would treat the item as unfinished (resubmit / FATAL).
-        this->load_processable_(&returned);
     }
 
     /** @brief The optimization-algorithm-owned scratch (personality + POD adaption state). @return A reference to the scratch store. */
@@ -498,34 +365,6 @@ private:
     GIndividualSlot *clone_() const override;
 
     /***************************************************************************/
-    /**
-     * @brief The actual processing work (GProcessableT seam): drives the wrapped genome's own
-     * evaluation, then translates a genome-side user-flagged error into a transport error so the
-     * lean lifecycle envelope reports it (-> resubmission). A thrown fitnessCalculation propagates
-     * to the envelope's catch (-> EXCEPTION_CAUGHT) on its own.
-     */
-    void runProcessing_() final {
-        individual_->evaluate();
-        if(individual_->evaluationFailed()) {
-            this->force_set_error(individual_->evaluationErrorDescription());
-        }
-    }
-
-    /** @brief Pre-processing seam: runs the registered pre-processor (if any, not vetoed) on the genome. */
-    void beforeProcessing_() final {
-        if(this->mayBePreProcessed() && pre_processor_ptr_) {
-            (*pre_processor_ptr_)(*individual_);
-        }
-    }
-
-    /** @brief Post-processing seam: runs the registered post-processor (if any, not vetoed) on the genome. */
-    void afterProcessing_() final {
-        if(this->mayBePostProcessed() && post_processor_ptr_) {
-            (*post_processor_ptr_)(*individual_);
-        }
-    }
-
-    /***************************************************************************/
     // Data
 
     /** @brief The wrapped individual -- the part that travels (genome + bounds + fitness + constraint) */
@@ -533,13 +372,6 @@ private:
 
     /** @brief The optimization-algorithm-owned scratch (personality object + per-group POD blocks) */
     GAuxiliaryStore scratch_;
-
-    /** @brief Optional pre-/post-processor objects (work-item operations run on the genome around
-     *  evaluation; serialized so they reach a remote worker). */
-    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> pre_processor_ptr_;
-    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> post_processor_ptr_;
-    bool pre_processing_disabled_ = false; ///< Whether pre-processing has been vetoed
-    bool post_processing_disabled_ = false; ///< Whether post-processing has been vetoed
 };
 
 /******************************************************************************/

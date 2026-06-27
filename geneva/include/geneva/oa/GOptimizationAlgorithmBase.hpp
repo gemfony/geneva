@@ -37,7 +37,6 @@
 #include <concepts>
 #include <ctime>
 #include <iostream>
-#include <span>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -648,28 +647,27 @@ protected:
      * @return The executor status describing the outcome of the submission
      */
     Gem::Courtier::executor_status_t workOn(
-        std::vector<std::unique_ptr<gen::GIndividualSlot>> &work_items,
+        std::vector<std::unique_ptr<gen::GOptimizableEntity>> &work_items,
         std::size_t start,
         std::size_t end
     );
 
     /**
-     * @brief Submits the population's [start, end) range for evaluation. The population holds slots and
-     * the courtier now deals in slots, so this submits a std::span over the LIVE population sub-range
-     * straight out of data_cnt_ -- no gather into a temporary, no scatter back. Each slot is reconciled
-     * in place, so the OA scratch it carries (the personality + POD blocks) is never disturbed by a
-     * networked round-trip (the return moves only the evaluated genome back in; see
-     * GIndividualSlot::adoptIndividualFrom()).
+     * @brief Submits the population's [start, end) range for evaluation. The population holds slots, but
+     * the courtier deals in individuals: this moves each slot's individual out into a submission vector
+     * (positions preserved), runs workOn() on it, then moves the (possibly reconciled) individuals back
+     * into their slots. The slots -- and the OA scratch they carry -- stay put. workOn() is in-place
+     * (the work-item vector keeps its size), so the move-back by index is exact.
      * @param start The (inclusive) start index of the population range to evaluate
      * @param end The (exclusive) end index of the population range to evaluate
      * @return The executor status describing the outcome of the submission
      */
     Gem::Courtier::executor_status_t workOnPopulation(std::size_t start, std::size_t end);
     /**
-     * @brief Retrieves a vector of old (late-returned) work items after job submission.
-     * @return The slots the consumer buffered as late returns during the last submission
+     * @brief Retrieves a vector of old work items after job submission.
+     * @return The work items that were superseded by reconciliation during the last submission
      */
-    static std::vector<std::unique_ptr<gen::GIndividualSlot>> getOldWorkItems();
+    static std::vector<std::unique_ptr<gen::GOptimizableEntity>> getOldWorkItems();
 
     /**
      * @brief Returns a fresh personality-traits object for this algorithm. Protected, non-virtual
@@ -1017,13 +1015,15 @@ private:
      * @return The executor status describing the outcome of the submission
      */
     Gem::Courtier::executor_status_t workOnViaConsumer_(
-        std::span<std::unique_ptr<gen::GIndividualSlot>> work_items
+        std::vector<std::unique_ptr<gen::GOptimizableEntity>> &work_items,
+        std::size_t start,
+        std::size_t end
     );
 
     /** @brief Returns the one process-wide consumer, lazily building+registering a default local
      *  thread-pool consumer (with the polymorphic clone function) if none has been established yet.
      *  @return The shared consumer this algorithm submits through */
-    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GIndividualSlot>> consumerForSubmission_();
+    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumerForSubmission_();
 };
 
 /*******************************************************************************/

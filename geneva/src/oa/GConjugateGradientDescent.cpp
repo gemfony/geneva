@@ -590,7 +590,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         this->at(i)->individual().streamlineFPInternal(parm_vec, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
-        if(this->at(i)->is_due_for_processing() || (this->at(i)->has_errors())) {
+        if(this->at(i)->individual().is_due_for_processing() || (this->at(i)->individual().has_errors())) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConjugateGradientDescent::updateParentIndividuals():" << '\n'
@@ -852,11 +852,9 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         if(lr.success) {
             this->at(i)->individual().assignFPValueVectorInternal(lr.x_new, activityMode::ACTIVEONLY);
         }
-        // The per-iteration evaluation contract requires every individual to be due for processing. A
-        // successful step changes the parameters (which marks the GENOME's fitness stale), but the slot's
-        // TRANSPORT status must be marked due explicitly in BOTH branches -- the two were one flag before
-        // the genome/slot split, so the success path no longer marks the slot on its own.
-        this->at(i)->mark_as_due_for_processing();
+        else {
+            this->at(i)->individual().mark_as_due_for_processing();
+        }
 
         // 6) Remember gradient/direction for the next conjugate step (on the slot's scratch).
         std::copy(gradient.begin(), gradient.end(), prev_gradient.begin());
@@ -881,15 +879,12 @@ std::vector<double> GConjugateGradientDescent::evaluateProbes(
     std::size_t starting_point,
     std::vector<std::vector<double>> const &points
 ) {
-    // The line-search probes are born as transient GIndividualSlots (the courtier's one work-item
-    // currency), so they go through the same slot-typed consumer as the population with no wrap step.
-    // Their scratch stays empty -- a probe is evaluated and discarded, it carries no OA state.
-    std::vector<std::unique_ptr<gen::GIndividualSlot>> probes;
+    std::vector<std::unique_ptr<gen::GOptimizableEntity>> probes;
     probes.reserve(points.size());
     for(auto const &pt : points) {
         auto probe = this->at(starting_point)->individual().clone_unique();
         probe->assignFPValueVectorInternal(pt, activityMode::ACTIVEONLY);
-        probes.push_back(std::make_unique<gen::GIndividualSlot>(std::move(probe)));
+        probes.push_back(std::move(probe));
     }
 
     this->workOn(probes, 0, probes.size());
@@ -897,7 +892,7 @@ std::vector<double> GConjugateGradientDescent::evaluateProbes(
     std::vector<double> values;
     values.reserve(probes.size());
     for(auto const &probe : probes) {
-        values.push_back(minOnly_transformed_fitness(probe->individual()));
+        values.push_back(minOnly_transformed_fitness(*probe));
     }
     return values;
 }
@@ -988,9 +983,7 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
 #ifdef DEBUG
     std::size_t pos = 0;
     for(const auto &item_ptr : *this) {
-        // CGD manages the slot transport status directly (it marks slots DO_PROCESS for the line search),
-        // so "due for processing" here is genuinely the slot's transport state, not the genome's validity.
-        if(this->afterFirstIteration() && !item_ptr->is_due_for_processing()) {
+        if(this->afterFirstIteration() && !item_ptr->individual().is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConjugateGradientDescent::runFitnessCalculation():" << '\n'

@@ -145,7 +145,7 @@ void GFlatGenome::setGenome(GenomeData const &g) {
     iv_ = g.iv;
     bv_ = g.bv;
 
-    this->markFitnessStale();
+    this->mark_as_due_for_processing();
 }
 
 /******************************************************************************/
@@ -200,6 +200,10 @@ void GFlatGenome::load_(const GOptimizableEntity *cp) {
     Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
     // ... and the manual tail: the shared (immutable) layout is shared, not value-copied.
     layout_ = p_load->layout_;
+    // Propagate the transient results-only marker, so a load_()-based copy (e.g. fromString, which
+    // deserialises into a fresh object then load_()s it) reflects that the input data is still pending
+    // a graft. It is cleared again by graftInputDataFrom_() once the parameters are restored.
+    input_omitted_ = p_load->input_omitted_;
 }
 
 /******************************************************************************/
@@ -429,7 +433,7 @@ GFlatGenome::crossOverWith(GOptimizableEntity const &cp_base) const {
     this_cp->assignValueVector(this_b);
     this_cp->assignValueVector(this_i);
 
-    this_cp->markFitnessStale();
+    this_cp->mark_as_due_for_processing();
 
     return this_cp;
 }
@@ -448,7 +452,7 @@ GFlatGenome::crossOverWith(GOptimizableEntity const &cp_base) const {
 void GFlatGenome::cannibalize(GOptimizableEntity &cp_base) {
     auto &cp = dynamic_cast<GFlatGenome &>(cp_base);
 
-    if(cp.fitnessIsStale() || cp.evaluationFailed()) {
+    if(cp.is_due_for_processing() || cp.has_errors()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GFlatGenome::cannibalize(GOptimizableEntity& cp)" << '\n'
@@ -533,13 +537,13 @@ bool GFlatGenome::getVarVal_b_(std::size_t idx) {
  * @param base_name The dotted key prefix under which all entries for this individual are stored
  */
 void GFlatGenome::toPropertyTree(pt::ptree &ptr, std::string const &base_name) const {
-    bool dirty_flag = this->fitnessIsStale();
-    bool evaluationFailed = this->evaluationFailed();
+    bool dirty_flag = (Gem::Courtier::processingStatus::DO_PROCESS == this->getProcessingStatus());
+    bool has_errors = this->has_errors();
 
     ptr.put(base_name + ".iteration", this->getAssignedIteration());
     ptr.put(base_name + ".is_dirty", dirty_flag);
-    ptr.put(base_name + ".evaluationFailed", evaluationFailed);
-    ptr.put(base_name + ".isValid", evaluationFailed || dirty_flag ? false : this->isValid());
+    ptr.put(base_name + ".has_errors", has_errors);
+    ptr.put(base_name + ".isValid", has_errors || dirty_flag ? false : this->isValid());
     ptr.put(base_name + ".type", std::string("GFlatGenome"));
 
     std::vector<double> d_data;
@@ -583,9 +587,9 @@ void GFlatGenome::toPropertyTree(pt::ptree &ptr, std::string const &base_name) c
     ptr.put(base_name + ".n_results", this->getNStoredResults());
     for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
         const double raw_fitness =
-            (dirty_flag || evaluationFailed) ? this->getWorstCase() : this->raw_fitness(i);
+            (dirty_flag || has_errors) ? this->getWorstCase() : this->raw_fitness(i);
         const double transformed_fitness =
-            (dirty_flag || evaluationFailed) ? this->getWorstCase() : this->transformed_fitness(i);
+            (dirty_flag || has_errors) ? this->getWorstCase() : this->transformed_fitness(i);
         ptr.put(base_name + ".results.result" + Gem::Common::to_string(i), transformed_fitness);
         ptr.put(base_name + ".results.rawResult" + Gem::Common::to_string(i), raw_fitness);
     }
@@ -645,7 +649,7 @@ std::string GFlatGenome::toCSV(
             var_names.push_back(std::string("Fitness_") + Gem::Common::to_string(i));
             var_types.emplace_back("double");
         }
-        if(this->fitnessIsCurrent()) {
+        if(this->is_processed()) {
             if(use_raw_fitness) {
                 var_values.push_back(Gem::Common::to_string(this->raw_fitness(i)));
             }
@@ -654,8 +658,8 @@ std::string GFlatGenome::toCSV(
             }
         }
         else {
-            if(this->evaluationFailed()) {
-                var_values.emplace_back("evaluationFailed");
+            if(this->has_errors()) {
+                var_values.emplace_back("has_errors");
             }
             else {
                 var_values.emplace_back("dirty");
@@ -668,7 +672,7 @@ std::string GFlatGenome::toCSV(
             var_names.emplace_back("validity");
             var_types.emplace_back("bool");
         }
-        if(this->fitnessIsCurrent()) {
+        if(this->is_processed()) {
             var_values.push_back(Gem::Common::to_string(this->isValid()));
         }
         else {

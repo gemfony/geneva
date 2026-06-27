@@ -44,7 +44,6 @@
 #include "geneva/individuals/GBenchmarkFunctions.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GIndividualSlot.hpp" // the courtier work item wraps the genome in a slot
 
 namespace gind = Gem::Geneva::Individuals;
 namespace gen = Gem::Geneva::Genome;
@@ -67,12 +66,12 @@ namespace Gem::Geneva::Benchmarks {
  * GPU can be cross-checked.
  */
 class GBenchmarkGPUMarshaller final
-  : public Gem::Courtier::GPU::GGPUEvaluableI<gen::GIndividualSlot> {
+  : public Gem::Courtier::GPU::GGPUEvaluableI<gen::GOptimizableEntity> {
 public:
     /** @brief The flattened dimension of one benchmark genome (its count of double parameters), used by
      *  the consumer to enforce a uniform geometry across the batch. */
     [[nodiscard]] std::size_t itemDimension(const item_ptr &item) const override {
-        return item->individual().countParameters<double>();
+        return item->countParameters<double>();
     }
 
     void flatten(const std::vector<item_ptr> &items, std::vector<double> &params_out) const override {
@@ -81,7 +80,7 @@ public:
             return;
         }
         // All items in a benchmark run share the same function and dimension.
-        auto *first = dynamic_cast<gind::GFunctionIndividual *>(&items.front()->individual());
+        auto *first = dynamic_cast<gind::GFunctionIndividual *>(items.front().get());
         funcId_ = static_cast<int>(first->getDemoFunction());
 
         // Bulk flatten via GFlatGenome::streamlineInto(): each item's external (range-folded) values are
@@ -89,7 +88,7 @@ public:
         const std::size_t dim = this->itemDimension(items.front());
         params_out.resize(items.size() * dim);
         for(std::size_t i = 0; i < items.size(); ++i) {
-            const auto *flat = dynamic_cast<const gen::GFlatGenome *>(&items[i]->individual());
+            const auto *flat = dynamic_cast<const gen::GFlatGenome *>(items[i].get());
             flat->streamlineInto(params_out.data() + i * dim);
         }
     }
@@ -104,11 +103,8 @@ public:
 
     void scatter(const std::vector<item_ptr> &items, const std::vector<double> &fitness) const override {
         for(std::size_t i = 0; i < items.size(); ++i) {
-            // External (device) evaluation: hand the computed raw result to the genome's own evaluator,
-            // then mark the work item processed for the courtier reconciliation.
-            items[i]->individual().evaluate(std::vector<gen::individual_processing_result>(
+            items[i]->process(std::vector<gen::individual_processing_result>(
                 1, gen::individual_processing_result(fitness[i])));
-            items[i]->markProcessed();
         }
     }
 

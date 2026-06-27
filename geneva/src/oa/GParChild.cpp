@@ -654,16 +654,13 @@ void GParChild::fixAfterJobSubmission() {
     );
 
     // Attach all old work items to the end of the current population and clear the array of old items.
-    // A late return is a slot whose scratch was dropped on the wire, so it arrives with an empty
-    // personality. Install the correct concrete one (the marking loop below, and selection, dereference
-    // it). It is tagged as a child by that marking loop. Its genome also arrived with the layout OMITTED
-    // (the networked return form) and, being late, never reconciled into a live slot -- so re-attach the
-    // population-invariant layout from an existing member before it can be interpreted.
-    for(auto &slot : old_work_items) {
+    // A late return is a BARE individual -- the personality object lives on the population slot, not on
+    // the individual, so the freshly-wrapped slot starts with an empty personality. Install the correct
+    // concrete one (the marking loop below, and selection, dereference it). It is tagged as a child by
+    // that marking loop.
+    for(auto &item_ptr : old_work_items) {
+        auto slot = std::make_unique<gen::GIndividualSlot>(std::move(item_ptr));
         slot->setPersonality(this->makePersonalityTraits());
-        if(not this->empty()) {
-            slot->individual().adoptOmittedStructureFrom(this->at(0)->individual());
-        }
         this->push_back(std::move(slot));
     }
     old_work_items.clear();
@@ -687,7 +684,7 @@ void GParChild::fixAfterJobSubmission() {
     }
 
     // Check that the last individual is not unprocessed. This is a severe error.
-    if(this->back()->is_due_for_processing()) {
+    if(this->back()->individual().is_due_for_processing()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParChild::fixAfterJobSubmission(): Error!" << '\n'
@@ -860,12 +857,12 @@ std::tuple<double, double> GParChild::cycleLogic_() {
     selectBest_();
 
 #ifdef DEBUG
-    // The best individual's fitness should be current
-    if(not this->at(0)->individual().fitnessIsCurrent()) {
+    // The dirty flag of this individual shouldn't be set
+    if(not this->at(0)->individual().is_processed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParChild::cycleLogic(): Error!" << '\n'
-            << "Expected current-fitness individual in best position" << '\n'
+            << "Expected clean individual in best position" << '\n'
         );
     }
 

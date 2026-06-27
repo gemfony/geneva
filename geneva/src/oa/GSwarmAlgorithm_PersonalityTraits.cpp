@@ -192,12 +192,12 @@ void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr<gen
         );
     }
 
-    // Is the fitness current ?
-    if(not p->fitnessIsCurrent()) {
+    // Is the dirty flag set ?
+    if(not p->is_processed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSwarmAlgorithm_PersonalityTraits::registerPersonalBest():" << '\n'
-            << "Got individual whose fitness is not current." << '\n'
+            << "Got individual which isn't processed." << '\n'
         );
     }
 #endif

@@ -39,20 +39,19 @@
 // Geneva headers go here
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp" // networked_consumer_payload_command
-#include "geneva/ind/GIndividualSlot.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 
 /******************************************************************************/
 /**
- * Boost.Serialization export of the command container instantiated for GIndividualSlot, the work-item
- * payload type carried over the wire by the networked consumers / clients (the consumer registry is
- * GConsumerRegistryT<GIndividualSlot>). The matching BOOST_CLASS_EXPORT_IMPLEMENT lives in
- * GOptimizableEntityCommandContainerExport.cpp (one translation unit in the geneva library). Including
- * this header makes the registration visible at every networked (de)serialization site -- it is pulled
- * in via GenevaInitializer.hpp.
+ * Boost.Serialization export of the command container instantiated for GOptimizableEntity, the work-item
+ * payload type carried over the wire by the networked consumers / clients. The matching
+ * BOOST_CLASS_EXPORT_IMPLEMENT lives in GOptimizableEntityCommandContainerExport.cpp (one translation unit
+ * in the geneva library). Including this header makes the registration visible at every networked
+ * (de)serialization site -- it is pulled in via GenevaInitializer.hpp.
  */
 BOOST_CLASS_EXPORT_KEY(
     BOOST_IDENTITY_TYPE((Gem::Courtier::GCommandContainerT<
-                         gen::GIndividualSlot,
+                         gen::GOptimizableEntity,
                          Gem::Courtier::networked_consumer_payload_command>))
 ) // NOLINT
 

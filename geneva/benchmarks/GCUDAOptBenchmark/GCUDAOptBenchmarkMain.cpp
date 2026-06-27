@@ -166,12 +166,12 @@ int main(int argc, char **argv) {
     // backend (cpu/cuda) and kernel are selected in config/GGPUConsumer.json. The clone function
     // is the polymorphic GOptimizableEntity clone needed by the clone-on-partial-return policy.
     auto marshaller = std::make_shared<GBenchmarkGPUMarshaller>();
-    auto consumer = std::make_shared<Gem::Courtier::GPU::GGPUConsumerT<gen::GIndividualSlot>>(
+    auto consumer = std::make_shared<Gem::Courtier::GPU::GGPUConsumerT<gen::GOptimizableEntity>>(
         "./config/GGPUConsumer.json", marshaller);
-    consumer->setCloneFunction([](const std::unique_ptr<gen::GIndividualSlot> &p) {
+    consumer->setCloneFunction([](const std::unique_ptr<gen::GOptimizableEntity> &p) {
         return p->clone_unique();
     });
-    Gem::Courtier::GConsumerRegistryT<gen::GIndividualSlot>::instance().setConsumer(consumer);
+    Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().setConsumer(consumer);
 
     GAlgorithmBenchmarkRunner runner(cfg);
     const auto results = runner.run();

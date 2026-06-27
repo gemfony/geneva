@@ -38,7 +38,6 @@
 #include <exception>
 #include <functional>
 #include <optional>
-#include <sstream>
 #include <tuple>
 #include <type_traits>
 #include <vector>
@@ -79,39 +78,18 @@ class g_processing_exception : public geneva_exception {
 
 /******************************************************************************/
 /**
- * The duck-typed contract a courtier work item must satisfy: it can be processed. The classic work
- * item IS-A GProcessableT (and, if it stores results, a GProcessingContainerT), but the contract is
- * intentionally structural -- a wrapper (e.g. Geneva's GIndividualSlot) that derives the lean
- * GProcessableT, or one that merely FORWARDS to an inner processable, is an equally valid work item.
- * The client and command-container layers check this concept instead of an
- * is_base_of<GProcessableT<...>> so such wrappers compose without a fixed base.
- */
-template <typename processable_type>
-concept ProcessableWorkItem = requires(processable_type &item) {
-    item.process();
-};
-
-/******************************************************************************/
-/**
- * @brief The lean, result-agnostic base of every courtier work item.
- *
- * This carries the universal work-item lifecycle and transport coordination and NOTHING about what
- * processing produces: the processing-status state machine, the transport coordination (correlation
- * id, collection position, iteration / resubmission counters, per-batch dispatch state), the broker
- * timing stamps, accumulated error descriptions, and the process() envelope that gates, times and
- * exception-guards a single processing cycle. It owns NO result storage -- a subclass that wants
- * turnkey result storage derives GProcessingContainerT (below); a subclass that stores its outcome
- * elsewhere (e.g. Geneva's genome owns its own fitness) simply implements runProcessing_().
- *
- * Three no-op virtual seams let a subclass extend the cycle without this base knowing what it stores:
- * beforeProcessing_() / afterProcessing_() (run around the work; GProcessingContainerT uses them for
- * its pre-/post-processor objects) and clearResults_() (reset derived result storage on a state
- * transition or an error). The pure virtual runProcessing_() is the actual work.
- *
- * @tparam processable_type The concrete derived work-item type (CRTP).
- */
-template <typename processable_type>
-class GProcessableT {
+	 * This class can serve as a base class for items to be submitted through the broker. You need to
+	 * re-implement the purely virtual functions in derived classes. Note that it is mandatory for
+	 * derived classes to be serializable and to trigger serialization of this class.
+	 *
+	 * @tparam processable_type The type of the class derived from GProcessingContainerT
+	 * @tparam processing_result_type The result type of the process_ call; should be copyable
+	 */
+template <
+    typename processable_type,
+    typename processing_result_type>
+    requires (!std::is_void_v<processing_result_type>)
+class GProcessingContainerT {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -123,6 +101,10 @@ class GProcessableT {
             BOOST_SERIALIZATION_NVP(resubmission_counter_) &
             BOOST_SERIALIZATION_NVP(collection_position_) &
             BOOST_SERIALIZATION_NVP(correlation_id_) &
+            BOOST_SERIALIZATION_NVP(pre_processing_disabled_) &
+            BOOST_SERIALIZATION_NVP(post_processing_disabled_) &
+            BOOST_SERIALIZATION_NVP(pre_processor_ptr_) &
+            BOOST_SERIALIZATION_NVP(post_processor_ptr_) &
             BOOST_SERIALIZATION_NVP(pre_processing_time_) &
             BOOST_SERIALIZATION_NVP(processing_time_) &
             BOOST_SERIALIZATION_NVP(post_processing_time_) &
@@ -130,26 +112,43 @@ class GProcessableT {
             BOOST_SERIALIZATION_NVP(broker_raw_submission_time_) &
             BOOST_SERIALIZATION_NVP(broker_proc_retrieval_time_) &
             BOOST_SERIALIZATION_NVP(broker_proc_submission_time_) &
+            BOOST_SERIALIZATION_NVP(stored_results_cnt_) &
             BOOST_SERIALIZATION_NVP(stored_error_descriptions_) &
             BOOST_SERIALIZATION_NVP(processing_status_);
+        //& BOOST_SERIALIZATION_NVP(evaluation_id_);
     }
 
     ///////////////////////////////////////////////////////////////////////
 
 public:
     using payload_type = processable_type;
+    using result_type = processing_result_type;
+
+    /***************************************************************************/
+    /**
+	  * @brief Initialization with the number of stored results
+	  *
+	  * @param n_stored_results The number of result slots to allocate (each default-initialized)
+	  */
+    explicit GProcessingContainerT(std::size_t n_stored_results)
+      : stored_results_cnt_(n_stored_results, processing_result_type()) { /* nothing */
+    }
 
     /***************************************************************************/
     /**
 	  * @brief The copy constructor
 	  *
-	  * @param cp Another GProcessableT object to be copied
+	  * @param cp Another GProcessingContainerT object to be copied
 	  */
-    GProcessableT(GProcessableT<processable_type> const &cp)
+    explicit GProcessingContainerT(
+        GProcessingContainerT<processable_type, processing_result_type> const &cp
+    )
       : iteration_counter_(cp.iteration_counter_)
       , resubmission_counter_(cp.resubmission_counter_)
       , collection_position_(cp.collection_position_)
       , correlation_id_(cp.correlation_id_)
+      , pre_processing_disabled_(cp.pre_processing_disabled_)
+      , post_processing_disabled_(cp.post_processing_disabled_)
       , pre_processing_time_(cp.pre_processing_time_)
       , processing_time_(cp.processing_time_)
       , post_processing_time_(cp.post_processing_time_)
@@ -157,22 +156,32 @@ public:
       , broker_raw_submission_time_(cp.broker_raw_submission_time_)
       , broker_proc_retrieval_time_(cp.broker_proc_retrieval_time_)
       , broker_proc_submission_time_(cp.broker_proc_submission_time_)
+      , stored_results_cnt_(
+            cp.stored_results_cnt_
+        ) // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
       , stored_error_descriptions_(cp.stored_error_descriptions_)
-      , processing_status_(cp.processing_status_) { /* nothing */
+      , processing_status_(cp.processing_status_)
+    // , evaluation_id_(cp.evaluation_id_)
+    {
+        Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
+        Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
     }
 
     /***************************************************************************/
     /**
 	  * @brief Copy assignment operator
 	  *
-	  * @param cp Another GProcessableT object whose data is copied into this one
+	  * @param cp Another GProcessingContainerT object whose data is copied into this one
 	  * @return A reference to this object
 	  */
-    GProcessableT<processable_type> &operator=(GProcessableT<processable_type> const &cp) {
+    GProcessingContainerT<processable_type, processing_result_type> &
+    operator=(GProcessingContainerT<processable_type, processing_result_type> const &cp) {
         iteration_counter_ = cp.iteration_counter_;
         resubmission_counter_ = cp.resubmission_counter_;
         collection_position_ = cp.collection_position_;
         correlation_id_ = cp.correlation_id_;
+        pre_processing_disabled_ = cp.pre_processing_disabled_;
+        post_processing_disabled_ = cp.post_processing_disabled_;
         pre_processing_time_ = cp.pre_processing_time_;
         processing_time_ = cp.processing_time_;
         post_processing_time_ = cp.post_processing_time_;
@@ -180,65 +189,132 @@ public:
         broker_raw_submission_time_ = cp.broker_raw_submission_time_;
         broker_proc_retrieval_time_ = cp.broker_proc_retrieval_time_;
         broker_proc_submission_time_ = cp.broker_proc_submission_time_;
+        stored_results_cnt_ =
+            cp.stored_results_cnt_; // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
         stored_error_descriptions_ = cp.stored_error_descriptions_;
         processing_status_ = cp.processing_status_;
+        // evaluation_id_ = cp.evaluation_id_;
+
+        Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
+        Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
 
         return *this;
     }
 
     /***************************************************************************/
-    // A defaulted member-wise move is correct and noexcept here.
-    GProcessableT(GProcessableT<processable_type> &&) noexcept = default;
-    GProcessableT<processable_type> &operator=(GProcessableT<processable_type> &&) noexcept = default;
+    // Defaulted or deleted constructors, destructor and move assignment operator
 
-    virtual ~GProcessableT() = default;
+    // Default constructor may be found in private section
+
+    // Move operations: a defaulted member-wise move is correct and noexcept
+    // here. The heavy members (stored_results_cnt_, stored_error_descriptions_,
+    // pre_/post_processor_ptr_) have their ownership transferred rather than
+    // being deep-copied as the copy operations do -- this is the point of being
+    // movable on the work-transport (broker / MPI / websocket) path. The
+    // remaining scalar/enum/time-point members are moved trivially.
+    GProcessingContainerT(
+        GProcessingContainerT<processable_type, processing_result_type> &&
+    ) noexcept = default;
+    GProcessingContainerT<processable_type, processing_result_type> &
+    operator=(GProcessingContainerT<processable_type, processing_result_type> &&) noexcept =
+        default;
+
+    virtual ~GProcessingContainerT() = default;
 
     /***************************************************************************/
     /**
-	  * Perform the actual processing steps. The amount of time needed for each phase is measured for
-	  * logging purposes. Where processing throws an exception, the function stores the exception
-	  * information locally and rethrows it. The actual work is the derived runProcessing_(); the
-	  * derived class is responsible for depositing whatever processing produces.
+	  * @brief Sets the vector of stored results to a given collection and marks
+	  * the object as processed
+	  *
+	  * @param result_cnt The new result vector (must match the configured number of stored results)
+	  * @return The first stored result after the assignment
 	  */
-    void process() {
+    processing_result_type
+    markAsProcessedWith(std::vector<processing_result_type> const &result_cnt) {
+#ifdef DEBUG
+        // Check that we have been given a suitable new results vector
+        if(result_cnt.size() != stored_results_cnt_.size()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GProcessingContainerT::markAsProcessedWith(): Vector dimensions" << '\n'
+                << "do not fit: " << result_cnt.size() << " / " << stored_results_cnt_.size()
+                << '\n'
+            );
+        }
+#endif
+
+        // Transfer the new values
+        stored_results_cnt_ = result_cnt;
+
+        // Clear the error descriptions
+        stored_error_descriptions_.clear();
+
+        // Mark as processed
+        processing_status_ = processingStatus::PROCESSED;
+
+        // This part of the code should never be reached if an exception was thrown
+        return this->stored_results_cnt_.at(0);
+    }
+
+    /***************************************************************************/
+    /**
+	  * Perform the actual processing steps. E.g. in optimization algorithms,
+	  * post-processing allows to run a sub-optimization. The amount of time
+	  * needed for processing is measured for logging purposes. Where one of the
+	  * processing functions throws an exception, the function will store the
+	  * necessary exception information locally and rethrow the exception.
+	  * Note that user-defined processing- and post-processing functions need
+	  * to make sure to set the results (be it main- or secondary results) of the
+	  * process()-call. This function has no way to ensure that this is the case.
+	  *
+	  * @param res_vec Allows to inject an external evaluation
+	  * @return The first result of the processing calls
+	  */
+    processing_result_type process(
+        const std::vector<processing_result_type> &res_vec = std::vector<processing_result_type>()
+    ) {
         // We only accept items that are due for processing
         if(processingStatus::DO_PROCESS != processing_status_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GProcessableT::process(): Function called while processing_status_ "
+                << "In GProcessingContainerT::process(): Function called while processing_status_ "
                    "was set to "
                 << processing_status_ << '\n'
                 << "Expected " << processingStatus::DO_PROCESS << '\n'
             );
         }
 
+        // Assign a new evaluation id
+        // evaluation_id_ = std::string("eval_") + Gem::Common::to_string(boost::uuids::random_generator()());
+
         // Clear the error descriptions
         stored_error_descriptions_.clear();
 
-        // Reset any derived result storage
-        this->clearResults_();
+        // "Nullify the result list.
+        this->clear_stored_results_vec();
 
         std::ostringstream error_description_stream; // NOLINT(cppcoreguidelines-init-variables)
+        processing_result_type main_result;
 
         try {
             // Perform the actual processing
             const auto start_time = std::chrono::high_resolution_clock::now();
-            this->beforeProcessing_();
+            this->preProcess_();
             const auto after_pre_processing = std::chrono::high_resolution_clock::now();
 
             // Do the actual processing
-            this->runProcessing_();
+            this->process_(res_vec);
 
             // The fitness has now been computed, so the work item is processed. Mark it PROCESSED
-            // BEFORE any after-processing: an after-step refines an ALREADY-EVALUATED item (e.g. by
-            // running a short sub-optimization) and rejects a dirty one. If processing flagged an error,
-            // the error status is left intact.
+            // BEFORE post-processing: a post-processor refines an ALREADY-EVALUATED item (e.g. by running
+            // a short sub-optimization) and rejects a dirty one. If processing flagged an error, the
+            // error status is left intact.
             if(not this->has_errors()) {
                 processing_status_ = processingStatus::PROCESSED;
             }
 
             const auto after_processing = std::chrono::high_resolution_clock::now();
-            this->afterProcessing_();
+            this->postProcess_();
             const auto after_post_processing = std::chrono::high_resolution_clock::now();
 
             // Make a note of the time needed for each step
@@ -255,7 +331,7 @@ public:
             // Let the audience know we had an error
             processing_status_ = processingStatus::EXCEPTION_CAUGHT;
             error_description_stream
-                << "In GProcessableT<processable_type>::process():" << '\n'
+                << "In GProcessingContainerT<processable_type>::process():" << '\n'
                 << "Processing has thrown an exception with message" << '\n'
                 << e.what() << '\n'
                 << "We will rethrow this exception" << '\n';
@@ -264,7 +340,7 @@ public:
             // Let the audience know we had an error
             processing_status_ = processingStatus::EXCEPTION_CAUGHT;
             error_description_stream
-                << "In GProcessableT<processable_type>::process():" << '\n'
+                << "In GProcessingContainerT<processable_type>::process():" << '\n'
                 << "Processing has thrown an unknown exception." << '\n';
         }
 
@@ -274,8 +350,8 @@ public:
             processing_time_ = 0.;
             post_processing_time_ = 0.;
 
-            // Reset any derived result storage
-            this->clearResults_();
+            // "Nullify the result list.
+            this->clear_stored_results_vec();
 
             // Store the exceptions for later reference
             if(processingStatus::EXCEPTION_CAUGHT == processing_status_) {
@@ -284,10 +360,45 @@ public:
             }
 
             throw g_processing_exception( // Note: this is a specific exception to flag errors during processing
-				g_error_streamer(DO_LOG, Gem::Common::timeAndPlace()) << stored_error_descriptions_
-			);
+					g_error_streamer(DO_LOG, Gem::Common::timeAndPlace()) << stored_error_descriptions_
+				);
         }
+
+        // This part of the code should never be reached if an exception was thrown
+        return this->stored_results_cnt_.at(0);
     }
+
+    /***************************************************************************/
+    /**
+	  * Retrieval of the stored result. This function does not allow modifications
+	  * of its return value. It will throw, if value retrieval is initiated for a work
+	  * item which does not have the PROCESSED flag set.
+	  *
+	  * @param id The id of the stored result to be returned
+	  * @return The stored result at position id in stored_results_vec_
+	  */
+    processing_result_type getStoredResult(std::size_t id = 0) const {
+        if(not this->is_processed()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GProcessingContainerT::getStoredResult(): Tried to" << '\n'
+                << "retrieve stored result while the PROCESSED flag was not set" << '\n'
+            );
+        }
+
+        return stored_results_cnt_.at(id);
+    }
+
+    /******************************************************************************/
+    /**
+	  * Retrieve the id assigned to the current evaluation. Note that there is no
+	  * guaranty that the item has indeed been processed. This is id simply represents
+	  * the processing id assigned at the beginning of the last process()-call.
+	  */
+    /*
+		std::string getCurrentEvaluationID() const {
+			return evaluation_id_;
+		}*/
 
     /***************************************************************************/
     /**
@@ -303,6 +414,28 @@ public:
     void loadConstantData(std::shared_ptr<processable_type> cd_ptr) {
         this->loadConstantData_(cd_ptr);
     }
+
+    /***************************************************************************/
+    /**
+	  * @brief Whether this (deserialized) work item arrived WITHOUT its input data -- the lightweight
+	  * "results-only" return form, in which a worker returns the computed results but not the (large)
+	  * input parameters, because the server still holds the originally-submitted item. The server grafts
+	  * the input data back on via graftInputDataFrom() before using the item. Default false; a derived
+	  * type that supports results-only returns overrides the hook below.
+	  *
+	  * @return true iff this item's input data was omitted on the wire and must be grafted from the original
+	  */
+    bool inputDataOmitted() const { return this->inputDataOmitted_(); }
+
+    /***************************************************************************/
+    /**
+	  * @brief Grafts the input data (parameters) of @p original onto this item, which carries valid
+	  * computed results but no input data (a results-only return). After the graft the item is complete
+	  * and equivalent to a full return. Default no-op.
+	  *
+	  * @param original The originally-submitted item, still held by the server, that supplies the input data
+	  */
+    void graftInputDataFrom(const processable_type &original) { this->graftInputDataFrom_(original); }
 
     /***************************************************************************/
     /**
@@ -402,7 +535,7 @@ public:
         if(target_ps == processingStatus::PROCESSED) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GProcessableT<>::set_processing_status():" << '\n'
+                << "In GProcessingContainerT<>::set_processing_status():" << '\n'
                 << "An attempt was made to set the processing state to PROCESSED" << '\n'
                 << "which is not allowed through this function." << '\n'
             );
@@ -419,13 +552,13 @@ public:
                 processing_status_ = target_ps;
                 // Clear any remaining error messages
                 stored_error_descriptions_.clear();
-                // Reset any derived result storage
-                this->clearResults_();
+                // "Nullify" the result list.
+                this->clear_stored_results_vec();
             }
             else {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GProcessableT<>::set_processing_status():" << '\n'
+                    << "In GProcessingContainerT<>::set_processing_status():" << '\n'
                     << "Got invalid target processing status " << psToStr(target_ps) << '\n'
                     << "Expected a new state of DO_PROCESS for the" << '\n'
                     << "current state of " << psToStr(processing_status_) << '\n'
@@ -441,13 +574,13 @@ public:
                 processing_status_ = target_ps;
                 // Clear any remaining error messages
                 stored_error_descriptions_.clear();
-                // Reset any derived result storage
-                this->clearResults_();
+                // "Nullify" the result list.
+                this->clear_stored_results_vec();
             }
             else {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GProcessableT<>::set_processing_status():" << '\n'
+                    << "In GProcessingContainerT<>::set_processing_status():" << '\n'
                     << "Got invalid target processing status " << psToStr(target_ps) << '\n'
                     << "Expected a new state of UNPROCESSED for the" << '\n'
                     << "current state of " << psToStr(processing_status_) << '\n'
@@ -464,13 +597,13 @@ public:
                 processing_status_ = target_ps;
                 // Clear any remaining error messages
                 stored_error_descriptions_.clear();
-                // Reset any derived result storage
-                this->clearResults_();
+                // "Nullify" the result list.
+                this->clear_stored_results_vec();
             }
             else {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GProcessableT<>::set_processing_status():" << '\n'
+                    << "In GProcessingContainerT<>::set_processing_status():" << '\n'
                     << "Got invalid target processing status " << psToStr(target_ps) << '\n'
                     << "Expected a new state of UNPROCESSED or DO_PROCESS for the" << '\n'
                     << "current state of " << psToStr(processing_status_) << '\n'
@@ -488,13 +621,13 @@ public:
                 processing_status_ = target_ps;
                 // Clear any remaining error messages
                 stored_error_descriptions_.clear();
-                // Reset any derived result storage
-                this->clearResults_();
+                // "Nullify" the result list.
+                this->clear_stored_results_vec();
             }
             else {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GProcessableT<>::set_processing_status():" << '\n'
+                    << "In GProcessingContainerT<>::set_processing_status():" << '\n'
                     << "Got invalid target processing status " << psToStr(target_ps) << '\n'
                     << "Expected a new state of UNPROCESSED or DO_PROCESS for the" << '\n'
                     << "current state of " << psToStr(processing_status_) << '\n'
@@ -668,382 +801,6 @@ public:
 
     /***************************************************************************/
     /**
-	  * @brief Allows to retrieve the processing time needed for the work item
-	  *
-	  * @return A tuple of (pre-processing, processing, post-processing) times in seconds
-	  */
-    std::tuple<double, double, double> getProcessingTimes() const {
-        return std::make_tuple(pre_processing_time_, processing_time_, post_processing_time_);
-    };
-
-    /***************************************************************************/
-    /**
-	  * @brief Retrieves and clears exceptions and the processing status.
-	  *
-	  * @param ps The desired new processing status to set after extracting the stored exceptions
-	  * @return The stored error descriptions that were present before clearing
-	  */
-    std::string get_and_clear_exceptions(processingStatus ps = processingStatus::UNPROCESSED) {
-        std::string stored_exceptions =
-            stored_error_descriptions_; // NOLINT(cppcoreguidelines-init-variables)
-        this->set_processing_status(ps);
-        return stored_exceptions;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Allows to extract stored error descriptions
-	  *
-	  * @return The accumulated error descriptions stored during processing
-	  */
-    std::string getStoredErrorDescriptions() const {
-        return stored_error_descriptions_;
-    }
-
-    /***************************************************************************/
-    /**
- 	  * @brief Marks the time when the item was added to a GBuffferPortT raw queue
- 	  */
-    void markRawSubmissionTime() {
-        broker_raw_submission_time_ = std::chrono::high_resolution_clock::now();
-    }
-
-    /***************************************************************************/
-    /**
- 	  * @brief Marks the time when the item was retrieved from a GBuffferPortT raw queue
- 	  */
-    void markRawRetrievalTime() {
-        broker_raw_retrieval_time_ = std::chrono::high_resolution_clock::now();
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Marks the time when the item was submitted to a GBuffferPortT processed queue
-	  */
-    void markProcSubmissionTime() {
-        broker_proc_submission_time_ = std::chrono::high_resolution_clock::now();
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Marks the time when the item was retrieved from a GBuffferPortT processed queue
-	  */
-    void markProcRetrievalTime() {
-        broker_proc_retrieval_time_ = std::chrono::high_resolution_clock::now();
-    }
-
-protected:
-    /***************************************************************************/
-    /**
-	  * @brief This function allows derived classes to specify custom error conditions by
-	  * setting their own error messages. The function will also set the internal
-	  * flags that indicate that an error has occurred and that processing was not
-	  * successful. NOTE That the error description may not be empty.
-	  *
-	  * @param error_info An error description (must not be empty; appended to any existing descriptions)
-	  */
-    void force_set_error(const std::string &error_info) {
-        if(error_info.empty()) {
-            throw geneva_exception( // Note: this is a specific exception to flag errors during processing
-				g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-				<< "In GProcessableT::force_set_error(): Error info is empty" << '\n'
-			);
-        }
-
-        // There may already be information stored in this variable. Hence we attach the new information via +=
-        stored_error_descriptions_ += error_info;
-        processing_status_ = processingStatus::ERROR_FLAGGED;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Marks this item PROCESSED directly, clearing any pending error text. Used by a
-	  * subclass that deposits an already-computed result outside the process() envelope (see
-	  * GProcessingContainerT::markAsProcessedWith). set_processing_status() deliberately refuses
-	  * PROCESSED, so this protected hook is the sanctioned way for a derived class to reach it.
-	  */
-    void mark_as_processed_() noexcept {
-        stored_error_descriptions_.clear();
-        processing_status_ = processingStatus::PROCESSED;
-    }
-
-    /***************************************************************************/
-    /**
-     * @brief The default constructor. Protected, so that a derived class can have a defaulted
-     * default constructor. It is mainly needed for (de-)serialization purposes.
-     */
-    GProcessableT() = default;
-
-    /***************************************************************************/
-    /**
-	  * @brief Loads the lifecycle / coordination data of another GProcessableT object
-	  *
-	  * @param p_load A pointer to the source object whose data is copied into this one
-	  */
-    void load_processable_(const GProcessableT<processable_type> *p_load) {
-        iteration_counter_ = p_load->iteration_counter_;
-        resubmission_counter_ = p_load->resubmission_counter_;
-        collection_position_ = p_load->collection_position_;
-        correlation_id_ = p_load->correlation_id_;
-        pre_processing_time_ = p_load->pre_processing_time_;
-        processing_time_ = p_load->processing_time_;
-        post_processing_time_ = p_load->post_processing_time_;
-        broker_raw_submission_time_ = p_load->broker_raw_submission_time_;
-        broker_raw_retrieval_time_ = p_load->broker_raw_retrieval_time_;
-        broker_proc_submission_time_ = p_load->broker_proc_submission_time_;
-        broker_proc_retrieval_time_ = p_load->broker_proc_retrieval_time_;
-        stored_error_descriptions_ = p_load->stored_error_descriptions_;
-        processing_status_ = p_load->processing_status_;
-    }
-
-private:
-    /***************************************************************************/
-    /**
-	  * @brief Loads user-specified data. This function can be overloaded by derived classes (see
-	  * loadConstantData()). The default is a no-op.
-	  *
-	  * @param cd_ptr A pointer to the object whose constant data should be loaded (unused in the default no-op)
-	  */
-    virtual void loadConstantData_([[maybe_unused]] std::shared_ptr<processable_type> cd_ptr) { /* nothing */
-    }
-
-    /***************************************************************************/
-    /** @brief Allows derived classes to specify the actual processing work for this object. */
-    virtual void runProcessing_() = 0;
-
-    /***************************************************************************/
-    /** @brief A no-op extension seam run BEFORE the work (timed as the pre-processing phase). */
-    virtual void beforeProcessing_() { /* nothing */ }
-
-    /***************************************************************************/
-    /** @brief A no-op extension seam run AFTER the work (timed as the post-processing phase). */
-    virtual void afterProcessing_() { /* nothing */ }
-
-    /***************************************************************************/
-    /** @brief A no-op extension seam letting a subclass reset its own result storage on a state
-     *  transition or a processing error. */
-    virtual void clearResults_() { /* nothing */ }
-
-    /***************************************************************************/
-    // Data
-
-    ITERATION_COUNTER_TYPE iteration_counter_ = static_cast<ITERATION_COUNTER_TYPE>(0);
-    RESUBMISSION_COUNTER_TYPE resubmission_counter_ = static_cast<RESUBMISSION_COUNTER_TYPE>(0);
-    COLLECTION_POSITION_TYPE collection_position_ = static_cast<COLLECTION_POSITION_TYPE>(0);
-    CORRELATION_ID_TYPE correlation_id_ = CORRELATION_ID_TYPE();
-
-    /// Transient, server-side-only per-batch scheduling state for the courtier networked consumers.
-    /// Deliberately NOT part of serialize()/load (the wire/clone never needs it; see dispatchState).
-    dispatchState dispatch_state_ = dispatchState::NONE;
-
-    double pre_processing_time_ =
-        0.; ///< The amount of time needed for the before-processing phase (in seconds)
-    double processing_time_ =
-        0.; ///< The amount of time needed for the actual processing step (in seconds)
-    double post_processing_time_ =
-        0.; ///< The amount of time needed for the after-processing phase (in seconds)
-
-    std::chrono::high_resolution_clock::time_point
-        broker_raw_retrieval_time_; ///< Time when the item was retrieved from the raw queue
-    std::chrono::high_resolution_clock::time_point
-        broker_raw_submission_time_; ///< Time when the item was submitted to the raw queue
-    std::chrono::high_resolution_clock::time_point
-        broker_proc_retrieval_time_; ///< Time when the item was retrieved from the processed queue
-    std::chrono::high_resolution_clock::time_point
-        broker_proc_submission_time_; ///< Time when the item was submitted to the processed queue
-
-    std::string
-        stored_error_descriptions_; ///< Stores exceptions that may have occurred during processing
-    processingStatus processing_status_ =
-        processingStatus::UNPROCESSED; ///< By default no processing is initiated
-};
-
-/******************************************************************************/
-/**
-	 * A turnkey work item that adds RESULT STORAGE on top of the lean GProcessableT lifecycle: it
-	 * stores a vector of processing results, lets an external evaluator inject pre-computed results via
-	 * process(res_vec), and offers optional pre-/post-processor function objects run around the work.
-	 * Subclass it and re-implement the purely virtual process_(res_vec). Note that it is mandatory for
-	 * derived classes to be serializable and to trigger serialization of this class.
-	 *
-	 * @tparam processable_type The type of the class derived from GProcessingContainerT
-	 * @tparam processing_result_type The result type of the process_ call; should be copyable
-	 */
-template <
-    typename processable_type,
-    typename processing_result_type>
-    requires (!std::is_void_v<processing_result_type>)
-class GProcessingContainerT : public GProcessableT<processable_type> {
-    ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
-
-    template <typename Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &make_nvp(
-            "GProcessableT",
-            boost::serialization::base_object<GProcessableT<processable_type>>(*this)
-        ) &
-            BOOST_SERIALIZATION_NVP(pre_processing_disabled_) &
-            BOOST_SERIALIZATION_NVP(post_processing_disabled_) &
-            BOOST_SERIALIZATION_NVP(pre_processor_ptr_) &
-            BOOST_SERIALIZATION_NVP(post_processor_ptr_) &
-            BOOST_SERIALIZATION_NVP(stored_results_cnt_);
-    }
-
-    ///////////////////////////////////////////////////////////////////////
-
-public:
-    using payload_type = processable_type;
-    using result_type = processing_result_type;
-
-    /***************************************************************************/
-    /**
-	  * @brief Initialization with the number of stored results
-	  *
-	  * @param n_stored_results The number of result slots to allocate (each default-initialized)
-	  */
-    explicit GProcessingContainerT(std::size_t n_stored_results)
-      : stored_results_cnt_(n_stored_results, processing_result_type()) { /* nothing */
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief The copy constructor
-	  *
-	  * @param cp Another GProcessingContainerT object to be copied
-	  */
-    explicit GProcessingContainerT(
-        GProcessingContainerT<processable_type, processing_result_type> const &cp
-    )
-      : GProcessableT<processable_type>(cp)
-      , pre_processing_disabled_(cp.pre_processing_disabled_)
-      , post_processing_disabled_(cp.post_processing_disabled_)
-      , stored_results_cnt_(
-            cp.stored_results_cnt_
-        ) // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
-    {
-        Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
-        Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Copy assignment operator
-	  *
-	  * @param cp Another GProcessingContainerT object whose data is copied into this one
-	  * @return A reference to this object
-	  */
-    GProcessingContainerT<processable_type, processing_result_type> &
-    operator=(GProcessingContainerT<processable_type, processing_result_type> const &cp) {
-        GProcessableT<processable_type>::operator=(cp);
-
-        pre_processing_disabled_ = cp.pre_processing_disabled_;
-        post_processing_disabled_ = cp.post_processing_disabled_;
-        stored_results_cnt_ =
-            cp.stored_results_cnt_; // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
-
-        Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
-        Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
-
-        return *this;
-    }
-
-    /***************************************************************************/
-    // Move operations: a defaulted member-wise move is correct and noexcept here.
-    GProcessingContainerT(
-        GProcessingContainerT<processable_type, processing_result_type> &&
-    ) noexcept = default;
-    GProcessingContainerT<processable_type, processing_result_type> &
-    operator=(GProcessingContainerT<processable_type, processing_result_type> &&) noexcept =
-        default;
-
-    ~GProcessingContainerT() override = default;
-
-    /***************************************************************************/
-    /**
-	  * @brief Sets the vector of stored results to a given collection and marks
-	  * the object as processed
-	  *
-	  * @param result_cnt The new result vector (must match the configured number of stored results)
-	  * @return The first stored result after the assignment
-	  */
-    processing_result_type
-    markAsProcessedWith(std::vector<processing_result_type> const &result_cnt) {
-#ifdef DEBUG
-        // Check that we have been given a suitable new results vector
-        if(result_cnt.size() != stored_results_cnt_.size()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GProcessingContainerT::markAsProcessedWith(): Vector dimensions" << '\n'
-                << "do not fit: " << result_cnt.size() << " / " << stored_results_cnt_.size()
-                << '\n'
-            );
-        }
-#endif
-
-        // Transfer the new values
-        stored_results_cnt_ = result_cnt;
-
-        // Clear the error descriptions and mark as processed
-        this->mark_as_processed_();
-
-        // This part of the code should never be reached if an exception was thrown
-        return this->stored_results_cnt_.at(0);
-    }
-
-    /***************************************************************************/
-    /**
-	  * Perform the actual processing steps, optionally injecting an external evaluation. The result
-	  * storage is reset, the lean lifecycle envelope (GProcessableT::process()) runs the work, and the
-	  * first stored result is returned.
-	  *
-	  * @param res_vec Allows to inject an external evaluation
-	  * @return The first result of the processing calls
-	  */
-    processing_result_type process(
-        const std::vector<processing_result_type> &res_vec = std::vector<processing_result_type>()
-    ) {
-        injected_res_vec_ = res_vec;
-        GProcessableT<processable_type>::process();
-        // This part of the code should never be reached if an exception was thrown
-        return this->stored_results_cnt_.at(0);
-    }
-
-    /***************************************************************************/
-    /**
-	  * Retrieval of the stored result. This function does not allow modifications
-	  * of its return value. It will throw, if value retrieval is initiated for a work
-	  * item which does not have the PROCESSED flag set.
-	  *
-	  * @param id The id of the stored result to be returned
-	  * @return The stored result at position id in stored_results_vec_
-	  */
-    processing_result_type getStoredResult(std::size_t id = 0) const {
-        if(not this->is_processed()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GProcessingContainerT::getStoredResult(): Tried to" << '\n'
-                << "retrieve stored result while the PROCESSED flag was not set" << '\n'
-            );
-        }
-
-        return stored_results_cnt_.at(id);
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Allows to retrieve the number of stored results
-	  *
-	  * @return The number of result slots held by this object
-	  */
-    std::size_t getNStoredResults() const {
-        return stored_results_cnt_.size();
-    }
-
-    /***************************************************************************/
-    /**
 	  * @brief Allows to check whether any user-defined pre-processing before the process()-
 	  * step may occur. This may alter the individual's data.
 	  *
@@ -1144,6 +901,82 @@ public:
 
     /***************************************************************************/
     /**
+	  * @brief Allows to retrieve the processing time needed for the work item
+	  *
+	  * @return A tuple of (pre-processing, processing, post-processing) times in seconds
+	  */
+    std::tuple<double, double, double> getProcessingTimes() const {
+        return std::make_tuple(pre_processing_time_, processing_time_, post_processing_time_);
+    };
+
+    /***************************************************************************/
+    /**
+	  * @brief Retrieves and clears exceptions and the processing status.
+	  *
+	  * @param ps The desired new processing status to set after extracting the stored exceptions
+	  * @return The stored error descriptions that were present before clearing
+	  */
+    std::string get_and_clear_exceptions(processingStatus ps = processingStatus::UNPROCESSED) {
+        std::string stored_exceptions =
+            stored_error_descriptions_; // NOLINT(cppcoreguidelines-init-variables)
+        this->set_processing_status(ps);
+        return stored_exceptions;
+    }
+
+    /***************************************************************************/
+    /**
+	  * @brief Allows to extract stored error descriptions
+	  *
+	  * @return The accumulated error descriptions stored during processing
+	  */
+    std::string getStoredErrorDescriptions() const {
+        return stored_error_descriptions_;
+    }
+
+    /***************************************************************************/
+    /**
+ 	  * @brief Marks the time when the item was added to a GBuffferPortT raw queue
+ 	  */
+    void markRawSubmissionTime() {
+        broker_raw_submission_time_ = std::chrono::high_resolution_clock::now();
+    }
+
+    /***************************************************************************/
+    /**
+ 	  * @brief Marks the time when the item was retrieved from a GBuffferPortT raw queue
+ 	  */
+    void markRawRetrievalTime() {
+        broker_raw_retrieval_time_ = std::chrono::high_resolution_clock::now();
+    }
+
+    /***************************************************************************/
+    /**
+	  * @brief Marks the time when the item was submitted to a GBuffferPortT processed queue
+	  */
+    void markProcSubmissionTime() {
+        broker_proc_submission_time_ = std::chrono::high_resolution_clock::now();
+    }
+
+    /***************************************************************************/
+    /**
+	  * @brief Marks the time when the item was retrieved from a GBuffferPortT processed queue
+	  */
+    void markProcRetrievalTime() {
+        broker_proc_retrieval_time_ = std::chrono::high_resolution_clock::now();
+    }
+
+    /***************************************************************************/
+    /**
+	  * @brief Allows to retrieve the number of stored results
+	  *
+	  * @return The number of result slots held by this object
+	  */
+    std::size_t getNStoredResults() const {
+        return stored_results_cnt_.size();
+    }
+
+    /***************************************************************************/
+    /**
 	  * @brief Loads the data of another GProcessingContainerT<processable_type, processing_result_type> object
 	  *
 	  * @param cp A pointer to the source object whose data is copied into this one (must differ from this)
@@ -1155,15 +988,26 @@ public:
                 GProcessingContainerT<processable_type, processing_result_type>,
                 GProcessingContainerT<processable_type, processing_result_type>>(cp, this);
 
-        // Load the lifecycle / coordination base
-        GProcessableT<processable_type>::load_processable_(p_load);
-
         // Load local data
+        iteration_counter_ = p_load->iteration_counter_;
+        resubmission_counter_ = p_load->resubmission_counter_;
+        collection_position_ = p_load->collection_position_;
+        correlation_id_ = p_load->correlation_id_;
         pre_processing_disabled_ = p_load->pre_processing_disabled_;
         post_processing_disabled_ = p_load->post_processing_disabled_;
+        pre_processing_time_ = p_load->pre_processing_time_;
+        processing_time_ = p_load->processing_time_;
+        post_processing_time_ = p_load->post_processing_time_;
+        broker_raw_submission_time_ = p_load->broker_raw_submission_time_;
+        broker_raw_retrieval_time_ = p_load->broker_raw_retrieval_time_;
+        broker_proc_submission_time_ = p_load->broker_proc_submission_time_;
+        broker_proc_retrieval_time_ = p_load->broker_proc_retrieval_time_;
         stored_results_cnt_ =
             p_load
                 ->stored_results_cnt_; // note that this implies that processing_result_type is copyable --> e.g. it should not contain pointers
+        stored_error_descriptions_ = p_load->stored_error_descriptions_;
+        processing_status_ = p_load->processing_status_;
+        // evaluation_id_ = p_load->evaluation_id_;
 
         Gem::Common::copyCloneableSmartPointer(p_load->pre_processor_ptr_, pre_processor_ptr_);
         Gem::Common::copyCloneableSmartPointer(p_load->post_processor_ptr_, post_processor_ptr_);
@@ -1223,6 +1067,28 @@ protected:
 
     /***************************************************************************/
     /**
+	  * @brief This function allows derived classes to specify custom error conditions by
+	  * setting their own error messages. The function will also set the internal
+	  * flags that indicate that an error has occurred and that processing was not
+	  * successful. NOTE That the error description may not be empty.
+	  *
+	  * @param error_info An error description (must not be empty; appended to any existing descriptions)
+	  */
+    void force_set_error(const std::string &error_info) {
+        if(error_info.empty()) {
+            throw geneva_exception( // Note: this is a specific exception to flag errors during processing
+					g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+					<< "In GProcessingContainerT::force_set_error(): Error info is empty" << '\n'
+				);
+        }
+
+        // There may already be information stored in this variable. Hence we attach the new information via +=
+        stored_error_descriptions_ += error_info;
+        processing_status_ = processingStatus::ERROR_FLAGGED;
+    }
+
+    /***************************************************************************/
+    /**
      * @brief The default constructor. It is only needed for (de-)serialization purposes.
      * We want to enforce the specification of the number of evaluation criteria
      * in derived classes. Protected, so that a derived class can have a defaulted
@@ -1233,18 +1099,53 @@ protected:
 private:
     /***************************************************************************/
     /**
-	  * @brief Bridges the lean lifecycle hook to the result-carrying process_(res_vec). The injected
-	  * results (empty unless an external evaluator supplied them) are passed through.
+	  * @brief Little helper function to (re-)initialize the result storage vector
 	  */
-    void runProcessing_() final {
-        this->process_(injected_res_vec_);
+    void clear_stored_results_vec() {
+        // "Nullify the result list. We cannot use range-based for here, as stored_results_cnt_ might hold booleans
+        for(auto it = stored_results_cnt_.begin(); it != stored_results_cnt_.end(); ++it) {
+            *it = processing_result_type();
+        }
     }
 
     /***************************************************************************/
     /**
-	  * @brief Runs the registered pre-processor (if any and not vetoed) BEFORE the work.
+	  * @brief Loads user-specified data. This function can be overloaded by derived classes. It
+	  * is mainly intended to provide a mechanism to "deposit" an item at a remote site
+	  * that holds otherwise constant data. That data then does not need to be serialized
+	  * but can be loaded whenever a new work item arrives and has been de-serialized. Note
+	  * that, if your work items do not serialize important parts of an object, you need
+	  * to make sure that constant data is loaded after reloading a checkpoint.
+	  *
+	  * @param cd_ptr A pointer to the object whose constant data should be loaded (unused in the default no-op)
 	  */
-    void beforeProcessing_() final {
+    virtual void loadConstantData_([[maybe_unused]] std::shared_ptr<processable_type> cd_ptr) { /* nothing */
+    }
+
+    /***************************************************************************/
+    /** @brief Hook: whether this item arrived without its input data (a results-only return). Default
+     *  false; overridden by work-item types that support the lightweight return form.
+     *  @return false in the base. */
+    virtual bool inputDataOmitted_() const { return false; }
+
+    /** @brief Hook: graft the input data of @p original onto this (results-only) item. Default no-op.
+     *  @param original The originally-submitted item supplying the input data (unused in the default). */
+    virtual void graftInputDataFrom_([[maybe_unused]] const processable_type &original) { /* nothing */ }
+
+    /***************************************************************************/
+
+    /** @brief Allows derived classes to specify the tasks to be performed for this object
+     *  @param res_vec An optional externally injected evaluation result vector available to the implementation */
+    virtual void process_(
+        const std::vector<processing_result_type> &res_vec = std::vector<processing_result_type>()
+    ) = 0;
+
+    /***************************************************************************/
+    /**
+		  * @brief Specifies tasks to be performed before the process_ call. Note: This function
+		  * will reset the mayBePreProcessed_-flag.
+  		  */
+    void preProcess_() {
         if(this->mayBePreProcessed() && pre_processor_ptr_) {
             auto &p = dynamic_cast<processable_type &>(*this);
             (*pre_processor_ptr_)(p);
@@ -1253,9 +1154,10 @@ private:
 
     /***************************************************************************/
     /**
-	  * @brief Runs the registered post-processor (if any and not vetoed) AFTER the work.
-	  */
-    void afterProcessing_() final {
+	  * @brief Specifies tasks to be performed after the process_ call. Note: This function
+	  * will reset the mayBePostProcessed_-flag.
+  	  */
+    void postProcess_() {
         if(this->mayBePostProcessed() && post_processor_ptr_) {
             auto &p = dynamic_cast<processable_type &>(*this);
             (*post_processor_ptr_)(p);
@@ -1263,43 +1165,53 @@ private:
     }
 
     /***************************************************************************/
-    /**
-	  * @brief Resets the result storage (the lean lifecycle calls this on a state transition or error).
-	  */
-    void clearResults_() final {
-        // "Nullify" the result list. We cannot use range-based for here, as stored_results_cnt_ might hold booleans
-        for(auto it = stored_results_cnt_.begin(); it != stored_results_cnt_.end(); ++it) {
-            *it = processing_result_type();
-        }
-    }
-
-    /***************************************************************************/
-    /** @brief Allows derived classes to specify the tasks to be performed for this object
-     *  @param res_vec An optional externally injected evaluation result vector available to the implementation */
-    virtual void process_(
-        const std::vector<processing_result_type> &res_vec = std::vector<processing_result_type>()
-    ) = 0;
-
-    /***************************************************************************/
     // Data
 
-    bool pre_processing_disabled_ = false; ///< Indicates whether pre-processing was disabled entirely
+    ITERATION_COUNTER_TYPE iteration_counter_ = static_cast<ITERATION_COUNTER_TYPE>(0);
+    RESUBMISSION_COUNTER_TYPE resubmission_counter_ = static_cast<RESUBMISSION_COUNTER_TYPE>(0);
+    COLLECTION_POSITION_TYPE collection_position_ = static_cast<COLLECTION_POSITION_TYPE>(0);
+    CORRELATION_ID_TYPE correlation_id_ = CORRELATION_ID_TYPE();
+
+    /// Transient, server-side-only per-batch scheduling state for the courtier networked consumers.
+    /// Deliberately NOT part of serialize()/load_ (the wire/clone never needs it; see dispatchState).
+    dispatchState dispatch_state_ = dispatchState::NONE;
+
+    bool pre_processing_disabled_ = false; ///< Indicates whether pre-processing was diabled entirely
     bool post_processing_disabled_ =
-        false; ///< Indicates whether post-processing was disabled entirely
+        false; ///< Indicates whether pre-processing was diabled entirely
 
     std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>>
         pre_processor_ptr_; ///< Actions to be performed before processing
     std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>>
         post_processor_ptr_; ///< Actions to be performed after processing
 
+    double pre_processing_time_ =
+        0.; ///< The amount of time needed for pre-processing (in seconds)
+    double processing_time_ =
+        0.; ///< The amount of time needed for the actual processing step (in seconds)
+    double post_processing_time_ =
+        0.; ///< The amount of time needed for post-processing (in seconds)
+
+    std::chrono::high_resolution_clock::time_point
+        broker_raw_retrieval_time_; ///< Time when the item was retrieved from the raw queue
+    std::chrono::high_resolution_clock::time_point
+        broker_raw_submission_time_; ///< Time when the item was submitted to the raw queue
+    std::chrono::high_resolution_clock::time_point
+        broker_proc_retrieval_time_; ///< Time when the item was retrieved from the processed queue
+    std::chrono::high_resolution_clock::time_point
+        broker_proc_submission_time_; ///< Time when the item was submitted to the processed queue
+
     std::vector<processing_result_type> stored_results_cnt_ = std::vector<processing_result_type>(
         1,
         processing_result_type()
     ); ///< The results stored by this object
 
-    /// Transient pass-through of externally injected results from process(res_vec) to process_();
-    /// not serialized (it is reset on every process() call).
-    std::vector<processing_result_type> injected_res_vec_;
+    std::string
+        stored_error_descriptions_; ///< Stores exceptions that may have occurred during processing
+    processingStatus processing_status_ =
+        processingStatus::UNPROCESSED; ///< By default no processing is initiated
+
+    // std::string evaluation_id_ = "empty"; ///< A unique id that is assigned to an evaluation
 };
 
 /******************************************************************************/
@@ -1307,12 +1219,8 @@ private:
 } /* namespace Gem::Courtier */
 
 /******************************************************************************/
-/** @brief Mark these classes as abstract */
+/** @brief Mark this class as abstract */
 namespace boost::serialization {
-template <typename processable_type>
-struct is_abstract<Gem::Courtier::GProcessableT<processable_type>> : public std::true_type {};
-template <typename processable_type>
-struct is_abstract<const Gem::Courtier::GProcessableT<processable_type>> : public std::true_type {};
 template <typename processable_type, typename processing_result_type>
 struct is_abstract<Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>>
   : public std::true_type {};

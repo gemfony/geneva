@@ -403,18 +403,26 @@ std::size_t GSwarmAlgorithm::getFirstNIPosVec(
     const std::vector<std::size_t> &vec
 ) {
 #ifdef DEBUG
-    // This is a static helper, so it validates against the passed neighborhood-size vector (one entry
-    // per neighborhood) rather than the instance member n_neighborhoods_. The summation below reads
-    // vec[0 .. neighborhood-1], so the requested id must index into vec.
-    if(neighborhood >= vec.size()) {
+    if(neighborhood >= n_neighborhoods_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSwarmAlgorithm::getFirstNIPosVec():" << '\n'
             << "Received id " << neighborhood << " of a neighborhood which does not exist."
             << '\n'
-            << "The number of neighborhoods is " << vec.size() << "," << '\n'
-            << "hence the maximum allowed value of the id is " << vec.size() - 1 << "."
+            << "The number of neighborhoods is " << n_neighborhoods_ << "," << '\n'
+            << "hence the maximum allowed value of the id is " << n_neighborhoods_ - 1 << "."
             << '\n'
+        );
+    }
+
+    // The summation below reads vec[0 .. neighborhood-1], so the size vector must cover every
+    // neighborhood up to (and including) the requested one.
+    if(vec.size() < n_neighborhoods_) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GSwarmAlgorithm::getFirstNIPosVec():" << '\n'
+            << "The neighborhood-size vector is too small: size " << vec.size() << '\n'
+            << "but " << n_neighborhoods_ << " neighborhoods are expected." << '\n'
         );
     }
 #endif
@@ -476,13 +484,13 @@ void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gen::GIndividualS
         );
     }
 
-    if(ind_ptr->individual().fitnessIsStale() || ind_ptr->individual().evaluationFailed()) {
+    if(ind_ptr->individual().is_due_for_processing() || ind_ptr->individual().has_errors()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSwarmAlgorithm::updatePersonalBest():" << '\n'
-            << "ind_ptr's fitness is stale or its evaluation failed: " << '\n'
-            << "fitnessIsStale() == " << ind_ptr->individual().fitnessIsStale()
-            << ", evaluationFailed() == " << ind_ptr->individual().evaluationFailed() << '\n'
+            << "ind_ptr is unprocessed or has errors: " << '\n'
+            << "is_due_for_processing() == " << ind_ptr->individual().is_due_for_processing()
+            << ", has_errors() == " << ind_ptr->individual().has_errors() << '\n'
         );
     }
 #endif /* DEBUG */
@@ -513,11 +521,11 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(const std::unique_ptr<gen::GInd
         );
     }
 
-    if(ind_ptr->individual().fitnessIsStale() || ind_ptr->individual().evaluationFailed()) {
+    if(ind_ptr->individual().is_due_for_processing() || ind_ptr->individual().has_errors()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSwarmAlgorithm::updatePersonalBestIfBetter(): Error!" << '\n'
-            << "the individual's fitness is stale." << '\n'
+            << "dirty flag of individual is set." << '\n'
         );
     }
 #endif /* DEBUG */
@@ -1260,15 +1268,11 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     // Retrieve a vector of old work items
     auto old_work_items = this->getOldWorkItems();
 
-    // Update the iteration of older individuals (a late return arrives as a slot with empty scratch and,
-    // having missed reconciliation into a live slot, with its genome's population-invariant layout OMITTED
-    // on the wire) and attach them to the data vector, re-attaching that layout from an existing member.
-    for(auto &slot : old_work_items) {
-        slot->setAssignedIteration(this->getIteration());
-        if(not this->empty()) {
-            slot->individual().adoptOmittedStructureFrom(this->at(0)->individual());
-        }
-        this->push_back(std::move(slot));
+    // Update the iteration of older individuals (they will keep their old neighborhood id)
+    // and attach them to the data vector
+    for(auto &item_ptr : old_work_items) {
+        item_ptr->setAssignedIteration(this->getIteration());
+        this->push_back(std::make_unique<gen::GIndividualSlot>(std::move(item_ptr)));
     }
     old_work_items.clear();
 
@@ -1277,7 +1281,7 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     if(not status.is_complete) {
         std::size_t n_erased =
             std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
-                return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
+                return (p->individual().getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
 #ifdef DEBUG
@@ -1292,7 +1296,7 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     if(status.has_errors) {
         std::size_t n_erased =
             std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
-                return p->has_errors();
+                return p->individual().has_errors();
             });
 
 #ifdef DEBUG
@@ -1347,15 +1351,15 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 #ifdef DEBUG
     std::size_t pos = 0;
     for(const auto &ind_ptr : *this) {
-        if(ind_ptr->individual().fitnessIsStale() || ind_ptr->individual().evaluationFailed()) {
+        if(ind_ptr->individual().is_due_for_processing() || ind_ptr->individual().has_errors()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GSwarmAlgorithm::findBests(): Error!" << '\n'
                 << "Found individual in position " << pos << " in iteration "
                 << this->getIteration() << '\n'
-                << "whose fitness is stale or whose evaluation failed" << '\n'
-                << "fitnessIsStale() == " << ind_ptr->individual().fitnessIsStale()
-                << ", evaluationFailed() == " << ind_ptr->individual().evaluationFailed() << '\n'
+                << "which is unprocessed or has errors" << '\n'
+                << "is_due_for_processing() == " << ind_ptr->individual().is_due_for_processing()
+                << ", has_errors() == " << ind_ptr->individual().has_errors() << '\n'
             );
         }
 

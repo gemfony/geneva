@@ -544,7 +544,7 @@ void GGeneralizedSimulatedAnnealing::proposeMoves() {
         }
 
         this->at(proposalPos(c))->individual().assignFPValueVectorInternal(x_new, activityMode::ACTIVEONLY);
-        this->at(proposalPos(c))->mark_as_due_for_processing();
+        this->at(proposalPos(c))->individual().mark_as_due_for_processing();
     }
 }
 
@@ -663,7 +663,7 @@ std::tuple<double, double> GGeneralizedSimulatedAnnealing::cycleLogic_() {
 
     for(const auto & pos : *this) {
         auto &ind = pos->individual();
-        if(ind.fitnessIsStale() || ind.evaluationFailed()) {
+        if(ind.is_due_for_processing() || ind.has_errors()) {
             continue;
         }
         if(isBetter(

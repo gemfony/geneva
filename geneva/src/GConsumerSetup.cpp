@@ -56,17 +56,15 @@ namespace Gem::Geneva {
 namespace {
 
 /**
- * @brief Builds the polymorphic clone functor for the GIndividualSlot work item.
+ * @brief Builds the polymorphic clone functor for GOptimizableEntity.
  *
- * The slot's virtual clone_unique() deep-clones the held individual (plain copy-construction would slice
- * it) and copies the OA scratch, so a clone-on-partial-return refill carries useful per-parameter POD
- * metadata; the optimization algorithm re-stamps the refill's positional identity afterward.
+ * Copy-construction would slice the held individual, so a virtual clone_unique() is used instead.
  *
- * @return A functor that deep-copies a GIndividualSlot via its virtual clone_unique()
+ * @return A functor that deep-copies a GOptimizableEntity via its virtual clone_unique()
  */
-std::function<std::unique_ptr<gen::GIndividualSlot>(const std::unique_ptr<gen::GIndividualSlot> &)>
-slotCloneFunction() {
-    return [](const std::unique_ptr<gen::GIndividualSlot> &p) { return p->clone_unique(); };
+std::function<std::unique_ptr<gen::GOptimizableEntity>(const std::unique_ptr<gen::GOptimizableEntity> &)>
+individualCloneFunction() {
+    return [](const std::unique_ptr<gen::GOptimizableEntity> &p) { return p->clone_unique(); };
 }
 
 } /* anonymous namespace */
@@ -86,7 +84,7 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
     namespace c2 = Gem::Courtier;
     ConsumerSetup setup;
 
-    auto &registry = c2::GConsumerRegistryT<gen::GIndividualSlot>::instance();
+    auto &registry = c2::GConsumerRegistryT<gen::GOptimizableEntity>::instance();
 
     // Idempotent networked build: a socket server binds a port, so if the process already has a consumer,
     // reuse it rather than binding again -- one listening endpoint per process. (MPI is excluded: its
@@ -100,26 +98,26 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
     }
 
     if(spec.mnemonic == "sc") {
-        auto consumer = std::make_shared<c2::GSerialConsumerT<gen::GIndividualSlot>>();
-        consumer->setCloneFunction(slotCloneFunction());
+        auto consumer = std::make_shared<c2::GSerialConsumerT<gen::GOptimizableEntity>>();
+        consumer->setCloneFunction(individualCloneFunction());
         setup.consumer = consumer;
     }
     else if(spec.mnemonic == "stc") {
-        auto consumer = std::make_shared<c2::GStdThreadConsumerT<gen::GIndividualSlot>>(spec.n_threads);
-        consumer->setCloneFunction(slotCloneFunction());
+        auto consumer = std::make_shared<c2::GStdThreadConsumerT<gen::GOptimizableEntity>>(spec.n_threads);
+        consumer->setCloneFunction(individualCloneFunction());
         setup.consumer = consumer;
     }
     else if(spec.mnemonic == "asio") {
-        auto consumer = std::make_shared<c2::GAsioConsumerT<gen::GIndividualSlot>>(
+        auto consumer = std::make_shared<c2::GAsioConsumerT<gen::GOptimizableEntity>>(
             spec.port, spec.n_threads, spec.serialization_mode);
-        consumer->setCloneFunction(slotCloneFunction());
+        consumer->setCloneFunction(individualCloneFunction());
         consumer->startServer();
         setup.consumer = consumer;
     }
     else if(spec.mnemonic == "beast") {
-        auto consumer = std::make_shared<c2::GWebsocketConsumerT<gen::GIndividualSlot>>(
+        auto consumer = std::make_shared<c2::GWebsocketConsumerT<gen::GOptimizableEntity>>(
             spec.port, spec.n_threads, spec.serialization_mode);
-        consumer->setCloneFunction(slotCloneFunction());
+        consumer->setCloneFunction(individualCloneFunction());
         consumer->startServer();
         setup.consumer = consumer;
     }
@@ -135,10 +133,10 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
         }
         mpi_config.serializationMode = spec.serialization_mode;
         mpi_config.masterCleanSessIntervalMSec = spec.mpi_clean_sess_interval;
-        auto consumer = std::make_shared<c2::GMPIConsumerT<gen::GIndividualSlot>>(
+        auto consumer = std::make_shared<c2::GMPIConsumerT<gen::GOptimizableEntity>>(
             nullptr, nullptr, mpi_config);
         if(consumer->isMasterNode()) {
-            consumer->setCloneFunction(slotCloneFunction());
+            consumer->setCloneFunction(individualCloneFunction());
             consumer->startServer();
             setup.consumer = consumer;
         }
@@ -253,17 +251,17 @@ ConsumerSpec specFromCommandLine(
  * @param spec The consumer specification (mnemonic plus connection/serialization settings)
  * @return A client for asio/beast; nullptr for local-only or non-client consumers
  */
-std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GIndividualSlot>>
+std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GOptimizableEntity>>
 buildConsumerClient(const ConsumerSpec &spec) {
     namespace cons = Gem::Courtier::Consumers;
 
     if(spec.mnemonic == "asio") {
-        return std::make_shared<cons::GAsioConsumerClientT<gen::GIndividualSlot>>(
+        return std::make_shared<cons::GAsioConsumerClientT<gen::GOptimizableEntity>>(
             spec.ip, spec.port, spec.serialization_mode, spec.max_reconnects,
             spec.client_prefetch_depth);
     }
     if(spec.mnemonic == "beast") {
-        return std::make_shared<cons::GWebsocketClientT<gen::GIndividualSlot>>(
+        return std::make_shared<cons::GWebsocketClientT<gen::GOptimizableEntity>>(
             spec.ip, spec.port, spec.serialization_mode, spec.verbose_control_frames,
             spec.client_prefetch_depth);
     }

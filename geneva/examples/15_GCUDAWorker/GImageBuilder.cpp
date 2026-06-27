@@ -124,13 +124,12 @@ int main(int argc, char **argv) {
     go.registerGPUConsumerBuilder([consumerConfig]() {
         auto marshaller = std::make_shared<MonaLisa::GMonaLisaGPUMarshaller>();
         auto consumer =
-            std::make_shared<gpu::GGPUConsumerT<gen::GIndividualSlot, gimage_fp_t>>(consumerConfig, marshaller);
-        // The clone-on-partial-return policy used by the evolutionary algorithm needs a polymorphic clone
-        // of the whole work item (the slot deep-clones its genome and copies its scratch).
-        consumer->setCloneFunction([](const std::unique_ptr<gen::GIndividualSlot> &p) {
+            std::make_shared<gpu::GGPUConsumerT<gen::GOptimizableEntity, gimage_fp_t>>(consumerConfig, marshaller);
+        // The clone-on-partial-return policy used by the evolutionary algorithm needs a polymorphic clone.
+        consumer->setCloneFunction([](const std::unique_ptr<gen::GOptimizableEntity> &p) {
             return p->clone_unique();
         });
-        return std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GIndividualSlot>>(consumer);
+        return std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>(consumer);
     });
 
     // ---- as this is a server, allow interrupting the run "on the fly" -------------------------

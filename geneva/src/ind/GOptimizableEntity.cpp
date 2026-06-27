@@ -49,6 +49,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
+#include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GMultiConstraintT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPersonalityTraits.hpp"
@@ -259,8 +260,9 @@ void individual_processing_result::reset(
      *
      * Using this constructor will result in a single fitness criterion.
      */
-GOptimizableEntity::GOptimizableEntity() {
-    /* fitness_results_ default-initializes to a single criterion */
+GOptimizableEntity::GOptimizableEntity()
+  : Gem::Courtier::GProcessingContainerT<GOptimizableEntity, individual_processing_result>(1) {
+    /* nothing */
 }
 
 /******************************************************************************/
@@ -270,7 +272,9 @@ GOptimizableEntity::GOptimizableEntity() {
      * @param n_fitness_criteria The number of fitness criteria this entity will evaluate to
      */
 GOptimizableEntity::GOptimizableEntity(const std::size_t n_fitness_criteria)
-  : fitness_results_(n_fitness_criteria, individual_processing_result()) {
+  : Gem::Courtier::GProcessingContainerT<GOptimizableEntity, individual_processing_result>(
+        n_fitness_criteria
+    ) {
     /* nothing */
 }
 
@@ -284,6 +288,7 @@ GOptimizableEntity::GOptimizableEntity(GOptimizableEntity const &cp)
   : Gem::Common::GCommonInterfaceT<GOptimizableEntity>(cp)
   , Interface::GMutableI(cp)
   , Interface::GRateableI(cp)
+  , Gem::Courtier::GProcessingContainerT<GOptimizableEntity, individual_processing_result>(cp)
   , best_past_primary_fitness_(cp.best_past_primary_fitness_)
   , n_stalls_(cp.n_stalls_)
   , maxmode_(cp.maxmode_)
@@ -294,10 +299,7 @@ GOptimizableEntity::GOptimizableEntity(GOptimizableEntity const &cp)
   , sigmoid_extremes_(cp.sigmoid_extremes_)
   , max_unsuccessful_adaptions_(cp.max_unsuccessful_adaptions_)
   , max_retries_until_valid_(cp.max_retries_until_valid_)
-  , n_adaptions_(cp.n_adaptions_)
-  , fitness_results_(cp.fitness_results_)
-  , fitness_state_(cp.fitness_state_)
-  , evaluation_error_description_(cp.evaluation_error_description_) {
+  , n_adaptions_(cp.n_adaptions_) {
     // Make sure any constraints are copied over
     Gem::Common::copyCloneableSmartPointer(
         cp.individual_constraint_ptr_,
@@ -352,7 +354,7 @@ bool GOptimizableEntity::randomInit(activityMode const &am) {
     bool modifications_made = this->randomInit_(am);
 
     if(modifications_made) {
-        this->markFitnessStale();
+        this->mark_as_due_for_processing();
     }
 
     return modifications_made;
@@ -396,7 +398,7 @@ bool GOptimizableEntity::isGoodEnough(std::vector<double> const &boundaries) {
     }
 
     // Has the individual been processed
-    if(not this->fitnessIsCurrent()) {
+    if(not this->is_processed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GOptimizableEntity::isGoodEnough(): Error!" << '\n'
@@ -942,7 +944,7 @@ evaluationPolicy GOptimizableEntity::getEvaluationPolicy() const {
      */
 bool GOptimizableEntity::isValid() const {
 #ifdef DEBUG
-    if(this->fitnessIsStale() || this->evaluationFailed()) {
+    if(this->is_due_for_processing() || this->has_errors()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GOptimizableEntity::isValid():" << '\n'
@@ -996,65 +998,7 @@ std::tuple<double, double> GOptimizableEntity::getBestKnownPrimaryFitness() cons
      * @param res_vec Optional pre-computed raw processing results (e.g. from an external/remote evaluator);
      *                if empty, fitnessCalculation() is invoked instead. Its size must match the criteria count.
      */
-/******************************************************************************/
-/**
-     * @brief Retrieves a stored fitness result. Throws if the fitness is not current (mirrors the
-     * former PROCESSED guard) -- a caller must not read fitness off a stale/failed individual.
-     *
-     * @param id The criterion index
-     * @return The stored (raw, transformed) result at position id
-     */
-individual_processing_result GOptimizableEntity::getStoredResult(std::size_t id) const {
-    if(not this->fitnessIsCurrent()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GOptimizableEntity::getStoredResult(): Tried to retrieve a stored result" << '\n'
-            << "while the fitness was not current" << '\n'
-        );
-    }
-    return fitness_results_.at(id);
-}
-
-/******************************************************************************/
-/**
-     * @brief Installs a full set of (already-transformed) results and marks the fitness current. Used
-     * by external evaluators (e.g. the GPU consumer via setFitness_).
-     *
-     * @param result_cnt The per-criterion results (size must match the criterion count)
-     * @return The first stored result after the assignment
-     */
-individual_processing_result GOptimizableEntity::markAsProcessedWith(
-    const std::vector<individual_processing_result> &result_cnt
-) {
-#ifdef DEBUG
-    if(result_cnt.size() != fitness_results_.size()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GOptimizableEntity::markAsProcessedWith(): Vector dimensions do not fit: " << '\n'
-            << result_cnt.size() << " / " << fitness_results_.size() << '\n'
-        );
-    }
-#endif
-    fitness_results_ = result_cnt;
-    evaluation_error_description_.clear();
-    fitness_state_ = fitnessState::CURRENT;
-    return fitness_results_.at(0);
-}
-
-/******************************************************************************/
-/**
-     * @brief Evaluates this individual (see the header). Computes or adopts the fitness, applies the
-     * evaluation policy, and marks the fitness current (or FAILED on a user-flagged error).
-     *
-     * @param res_vec Optional pre-computed raw results; if empty, fitnessCalculation() is invoked
-     */
-void GOptimizableEntity::evaluate(const std::vector<individual_processing_result> &res_vec) {
-    // Fresh evaluation: clear any prior error and treat the fitness as stale until (re)computed below.
-    // A user-flagged error in fitnessCalculation() flips fitness_state_ to FAILED (via markEvaluationError);
-    // a clean run sets it to CURRENT at the very end.
-    evaluation_error_description_.clear();
-    fitness_state_ = fitnessState::STALE;
-
+void GOptimizableEntity::process_(const std::vector<individual_processing_result> &res_vec) {
 #ifdef DEBUG
     //---------------------------------------------
     // Crash if we have been asked to (only active in DEBUG mode)
@@ -1086,7 +1030,7 @@ void GOptimizableEntity::evaluate(const std::vector<individual_processing_result
                 if(res_vec.size() != this->getNStoredResults()) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                        << "In GOptimizableEntity::evaluate : Error!" << '\n'
+                        << "In GOptimizableEntity::process_ : Error!" << '\n'
                         << "res_vec has invalid size. Got " << res_vec.size() << '\n'
                         << "Expected " << this->getNStoredResults() << '\n'
                     );
@@ -1134,7 +1078,7 @@ void GOptimizableEntity::evaluate(const std::vector<individual_processing_result
         // entire solutions as invalid after the evaluation happens relatively rarely so that a flat
         // "worst" quality surface for such solutions does not hinder progress of the optimization
         // procedure too much
-        if(this->evaluationFailed()) {
+        if(this->error_flagged_by_user()) {
             // has the user indicated a problem without throwing an error ?
             // Fill the raw and transformed vectors with the worst case scenario.
             this->setAllFitnessTo(this->getWorstCase());
@@ -1190,13 +1134,6 @@ void GOptimizableEntity::evaluate(const std::vector<individual_processing_result
             this->setAllFitnessTo(this->getWorstCase(), uniform_fitness_value);
         }
     }
-
-    // A clean evaluation: the fitness now reflects the current parameters. A user-flagged error leaves
-    // fitness_state_ == FAILED (set by markEvaluationError) -- which we must NOT overwrite, so that the
-    // work item can translate it into a transport error and trigger resubmission.
-    if(fitness_state_ != fitnessState::FAILED) {
-        fitness_state_ = fitnessState::CURRENT;
-    }
 }
 
 /******************************************************************************/
@@ -1211,10 +1148,10 @@ void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<GOptimizableEntity, GOptimizableEntity>(cp, this);
 
     // This is the category root; there is no GObject parent class to load.
-    // Load the native fitness storage + validity (formerly the processing base class' result buffer).
-    fitness_results_ = p_load->fitness_results_;
-    fitness_state_ = p_load->fitness_state_;
-    evaluation_error_description_ = p_load->evaluation_error_description_;
+    // Load the stateful processing base class' data
+    Gem::Courtier::GProcessingContainerT<GOptimizableEntity, individual_processing_result>::load_pc(
+        p_load
+    );
 
     // All local data, derived from the single localMembers() declaration: plain
     // members are assigned, the cloneable smart pointers are deep-cloned (the tie

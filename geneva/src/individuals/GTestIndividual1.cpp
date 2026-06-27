@@ -240,9 +240,9 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure this individual is not dirty
-        if(p_test->fitnessIsStale()) {
-            CHECK_NOTHROW(p_test->evaluate());
-            CHECK(p_test->fitnessIsCurrent());
+        if(p_test->is_due_for_processing()) {
+            CHECK_NOTHROW(p_test->process());
+            CHECK(p_test->is_processed());
         }
 
         std::size_t n_tests = 1000;
@@ -260,17 +260,19 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         for(std::size_t i = 0; i < n_tests; i++) {
             // Change the parameters without instantly triggering fitness calculation
             CHECK_NOTHROW(OptimizationAlgorithms::runAdaptionKernels(*p_test, scratch, *cfg, p_test->getRandomEngine()));
-            // The fitness should not have been marked stale yet (done in adapt() )
-            INFO("Fitness current = " << p_test->fitnessIsCurrent() << ", i = " << i);
-            CHECK((p_test->fitnessIsCurrent() || p_test->fitnessIsStale()));
-            // Mark the fitness stale manually
-            CHECK_NOTHROW(p_test->markFitnessStale());
-            // Check that the fitness has indeed been marked stale
-            CHECK(p_test->fitnessIsStale());
+            // The dirty flag should not have been set yet (done in adapt() )
+            INFO("Processing status = " << p_test->getProcessingStatusAsStr() << ", i = " << i);
+            CHECK((p_test->is_processed() || p_test->is_unprocessed()));
+            // Set the flag manually
+            CHECK_NOTHROW(p_test->mark_as_due_for_processing());
+            // Check that the dirty flag has indeed been set
+            CHECK(p_test->is_due_for_processing());
+            CHECK(p_test->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
 
             // Trigger value calculation
-            CHECK_NOTHROW(p_test->evaluate());
-            CHECK(p_test->fitnessIsCurrent());
+            CHECK_NOTHROW(p_test->process());
+            CHECK(p_test->is_processed());
+            CHECK(p_test->getProcessingStatus() == Gem::Courtier::processingStatus::PROCESSED);
             CHECK_NOTHROW(current_fitness = p_test->transformed_fitness(0));
 
             // Check that the evaluation has changed
@@ -295,9 +297,9 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure the individual is clean
-        if(p_test1->fitnessIsStale()) {
-            CHECK_NOTHROW(p_test1->evaluate());
-            CHECK(p_test1->fitnessIsCurrent());
+        if(p_test1->is_due_for_processing()) {
+            CHECK_NOTHROW(p_test1->process());
+            CHECK(p_test1->is_processed());
         }
 
         // Create a clone of p_test1
@@ -312,9 +314,9 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         // Make sure adaptions were indeed performed
         CHECK(n_adaptions > 0);
         // Check that it is dirty
-        CHECK(p_test2->fitnessIsStale());
+        CHECK(p_test2->is_due_for_processing());
         // Check that p_test1 is not dirty
-        CHECK(not p_test1->fitnessIsStale());
+        CHECK(not p_test1->is_due_for_processing());
         // Check that the two individuals differ
         CHECK(*p_test1 != *p_test2);
     }
@@ -327,20 +329,23 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure the individual is clean
-        CHECK_NOTHROW(p_test->fitnessIsCurrent() || p_test->fitnessIsStale());
+        CHECK_NOTHROW(p_test->is_processed() || p_test->is_unprocessed());
 
-        // Mark the fitness stale
-        CHECK_NOTHROW(p_test->markFitnessStale());
+        // Set the dirty flag
+        CHECK_NOTHROW(p_test->mark_as_due_for_processing());
 
-        // Check that the fitness has indeed been marked stale
-        CHECK(p_test->fitnessIsStale());
+        // Setting the dirty flag should result in DO_PROCESS being set
+        CHECK(Gem::Courtier::processingStatus::DO_PROCESS == p_test->getProcessingStatus());
+
+        // Check that the dirty flag has indeed been set
+        CHECK(p_test->is_due_for_processing());
 
         // Calling the process() function with the "evaluate" call should clear the dirty flag (the
         // individual is OA-agnostic data; it needs no personality to be processed)
-        CHECK_NOTHROW(p_test->evaluate());
+        CHECK_NOTHROW(p_test->process());
 
         // The dirty flag should have been cleared
-        CHECK(p_test->fitnessIsCurrent());
+        CHECK(p_test->is_processed());
     }
 
     //------------------------------------------------------------------------------
@@ -350,19 +355,19 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure the individual is clean
-        CHECK_NOTHROW(p_test->fitnessIsStale() || p_test->fitnessIsCurrent());
+        CHECK_NOTHROW(p_test->is_unprocessed() || p_test->is_processed());
 
         // Set the dirty flag
-        CHECK_NOTHROW(p_test->markFitnessStale());
+        CHECK_NOTHROW(p_test->mark_as_due_for_processing());
 
         // Check that the dirty flag has indeed been set
-        CHECK(p_test->fitnessIsStale());
+        CHECK(p_test->is_due_for_processing());
 
         // Calling the process() function with the "evaluate" call should clear the dirty flag
-        CHECK_NOTHROW(p_test->evaluate());
+        CHECK_NOTHROW(p_test->process());
 
         // The dirty flag should have been cleared
-        CHECK(p_test->fitnessIsCurrent());
+        CHECK(p_test->is_processed());
     }
 
     //------------------------------------------------------------------------------
@@ -372,19 +377,19 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure the individual is clean
-        CHECK_NOTHROW(p_test->fitnessIsStale() || p_test->fitnessIsCurrent());
+        CHECK_NOTHROW(p_test->is_unprocessed() || p_test->is_processed());
 
         // Set the dirty flag
-        CHECK_NOTHROW(p_test->markFitnessStale());
+        CHECK_NOTHROW(p_test->mark_as_due_for_processing());
 
         // Check that the dirty flag has indeed been set
-        CHECK(p_test->fitnessIsStale());
+        CHECK(p_test->is_due_for_processing());
 
         // Calling the process() function with the "evaluate" call should clear the dirty flag
-        CHECK_NOTHROW(p_test->evaluate());
+        CHECK_NOTHROW(p_test->process());
 
         // The dirty flag should have been cleared
-        CHECK(p_test->fitnessIsCurrent());
+        CHECK(p_test->is_processed());
     }
 
     //------------------------------------------------------------------------------
@@ -401,14 +406,14 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         // Make sure both individuals are clean and evaluated
         double fitness1_old = 0.;
         double fitness2_old = 0;
-        CHECK_NOTHROW(p_test1->markFitnessStale());
-        CHECK_NOTHROW(p_test2->markFitnessStale());
-        CHECK(p_test1->fitnessIsStale());
-        CHECK(p_test2->fitnessIsStale());
-        CHECK_NOTHROW(p_test1->evaluate());
-        CHECK_NOTHROW(p_test2->evaluate());
-        CHECK(p_test1->fitnessIsCurrent());
-        CHECK(p_test2->fitnessIsCurrent());
+        CHECK_NOTHROW(p_test1->mark_as_due_for_processing());
+        CHECK_NOTHROW(p_test2->mark_as_due_for_processing());
+        CHECK(p_test1->is_due_for_processing());
+        CHECK(p_test2->is_due_for_processing());
+        CHECK_NOTHROW(p_test1->process());
+        CHECK_NOTHROW(p_test2->process());
+        CHECK(p_test1->is_processed());
+        CHECK(p_test2->is_processed());
         CHECK_NOTHROW(fitness1_old = p_test1->transformed_fitness(0));
         CHECK_NOTHROW(fitness2_old = p_test2->transformed_fitness(0));
 
@@ -425,11 +430,11 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             CHECK_NOTHROW(OptimizationAlgorithms::runAdaptionKernels(*p_test1, scratch, *cfg, p_test1->getRandomEngine()));
         }
         // We need to manually mark the individual as dirty
-        CHECK_NOTHROW(p_test1->markFitnessStale());
+        CHECK_NOTHROW(p_test1->mark_as_due_for_processing());
 
         // The fitness of individual1 should have changed. Re-evaluate and check
         double fitness1_new = 0.;
-        CHECK_NOTHROW(p_test1->evaluate());
+        CHECK_NOTHROW(p_test1->process());
         CHECK_NOTHROW(fitness1_new = p_test1->transformed_fitness(0));
         CHECK(fitness1_new != fitness1_old);
 
@@ -569,11 +574,11 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
 #ifdef DEBUG
-    { // Tests that reading the fitness off a stale (unevaluated) individual throws
+    { // Tests that evaluating a dirty individual in "server mode" throws
         std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
-        CHECK_NOTHROW(p_test->markFitnessStale());
+        CHECK_NOTHROW(p_test->mark_as_due_for_processing());
         CHECK_THROWS_AS(p_test->transformed_fitness(0), geneva_exception);
     }
 #endif /* DEBUG */

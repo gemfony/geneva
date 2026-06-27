@@ -53,15 +53,11 @@ GMetaEvolutionaryAlgorithm::evaluatePopulationRange_(std::size_t start, std::siz
         orchestration_pool_ = std::make_unique<Gem::Common::GThreadPool>(n);
     }
 
-    // Run each umbrella work item's process() on the orchestration pool. The slot's process() drives the
-    // umbrella-individual's evaluate() and funnels any thrown exception into the item's status
-    // (EXCEPTION_CAUGHT) rather than letting it escape the worker. We mark each slot DO_PROCESS here:
-    // unlike the networked path, this local evaluation does not go through the consumer's submission
-    // (which is what stamps the transport status), so process()'s DO_PROCESS gate would otherwise reject it.
+    // Run each umbrella-individual's process() on the orchestration pool. process() funnels any thrown
+    // exception into the item's status (EXCEPTION_CAUGHT) rather than letting it escape the worker.
     for(std::size_t i = start; i < end; ++i) {
-        auto *slot = this->at(i).get();
-        slot->mark_as_due_for_processing();
-        orchestration_pool_->post([slot]() { slot->process(); });
+        auto *ind = &(this->at(i)->individual());
+        orchestration_pool_->post([ind]() { ind->process(); });
     }
     orchestration_pool_->wait();
 
@@ -69,7 +65,7 @@ GMetaEvolutionaryAlgorithm::evaluatePopulationRange_(std::size_t start, std::siz
     // "complete", flagging errors so the base runFitnessCalculation_ removes any failed umbrella-individual.
     bool has_errors = false;
     for(std::size_t i = start; i < end; ++i) {
-        if(this->at(i)->has_errors()) {
+        if(this->at(i)->individual().has_errors()) {
             has_errors = true;
             break;
         }

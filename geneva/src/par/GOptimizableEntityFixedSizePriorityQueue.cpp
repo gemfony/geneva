@@ -152,7 +152,7 @@ GOptimizableEntityFixedSizePriorityQueue::clone_() const {
 bool GOptimizableEntityFixedSizePriorityQueue::allClean(std::size_t &pos) const {
     pos = 0;
     for(const auto &item_ptr : data_deq_) {
-        if(not item_ptr->fitnessIsCurrent()) {
+        if(not item_ptr->is_processed()) {
             return false;
         }
         pos++;
@@ -171,7 +171,7 @@ std::string GOptimizableEntityFixedSizePriorityQueue::getCleanStatus() const {
     std::size_t pos = 0;
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
     for(const auto &item_ptr : data_deq_) {
-        oss << "(" << pos++ << ", " << (not item_ptr->fitnessIsCurrent() ? "d" : "c") << ") ";
+        oss << "(" << pos++ << ", " << (not item_ptr->is_processed() ? "d" : "c") << ") ";
     }
 
     return oss.str();
@@ -191,7 +191,7 @@ bool GOptimizableEntityFixedSizePriorityQueue::isValid(
     if(not item_ptr) {
         return false; // Empty
     }
-    if(not item_ptr->fitnessIsCurrent()) {
+    if(not item_ptr->is_processed()) {
         return false;
     } // The item has not been worked on
 
@@ -236,7 +236,7 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
         begin,
         end,
         processed_cnt.begin(),
-        [](const std::shared_ptr<GOptimizableEntity> &item_ptr) { return item_ptr->fitnessIsCurrent(); }
+        [](const std::shared_ptr<GOptimizableEntity> &item_ptr) { return item_ptr->is_processed(); }
     );
     processed_cnt.resize(std::distance(processed_cnt.begin(), it));
 
@@ -279,7 +279,7 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
         items_cnt.begin(),
         items_cnt.end(),
         processed_cnt.begin(),
-        [](const std::shared_ptr<GOptimizableEntity> &item_ptr) { return item_ptr->fitnessIsCurrent(); }
+        [](const std::shared_ptr<GOptimizableEntity> &item_ptr) { return item_ptr->is_processed(); }
     );
     processed_cnt.resize(std::distance(processed_cnt.begin(), it));
 
@@ -308,7 +308,7 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
     std::shared_ptr<GOptimizableEntity> const &item_ptr,
     const bool do_clone
 ) {
-    if(item_ptr && item_ptr->fitnessIsCurrent()) {
+    if(item_ptr && item_ptr->is_processed()) {
         Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity>::add(item_ptr, do_clone);
     }
 }
@@ -424,7 +424,7 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
     std::unique_ptr<GOptimizableEntity> const &item_ptr,
     const bool /* do_clone */
 ) {
-    if(item_ptr && item_ptr->fitnessIsCurrent()) {
+    if(item_ptr && item_ptr->is_processed()) {
         this->add(item_ptr->clone<GOptimizableEntity>(), false);
     }
 }

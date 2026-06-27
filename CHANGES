@@ -275,48 +275,6 @@ Recommended Versions:
   identity, and is preserved across a checkpoint resume. The individual is thereby
   reduced to pure problem data; this changes the checkpoint serialization format.
 
-- The GIndividualSlot is now also the COURTIER WORK ITEM: an optimization algorithm
-  submits a live std::span over its population of slots directly (no longer moving
-  individuals out into a temporary vector and back), so a slot is never emptied
-  during evaluation. The one process consumer, all transports (serial / threaded /
-  asio / websocket / MPI / GPU) and the networked client are instantiated on the
-  slot; over the wire a slot serializes its genome but NOT its OA scratch (a worker
-  needs none), and on the return the server updates the matching live slot in place,
-  preserving that slot's scratch. Internal/parallelization-only -- problem code is
-  unaffected.
-
-- COURTIER AND GENEVA DISENTANGLED: the courtier work-item base GProcessingContainerT
-  was split into a lean, result-agnostic lifecycle/coordination base (GProcessableT --
-  processing-status state machine, correlation id / counters / timing, the process()
-  envelope) and a thin result-storage layer (GProcessingContainerT, which adds the
-  result buffer + optional pre/post-processor objects) for turnkey users such as the
-  demo containers. The GIndividualSlot now derives the lean GProcessableT directly and
-  IS the work item: it owns the transport coordination and drives the genome's
-  evaluation. The problem individual (GOptimizableEntity) no longer derives any courtier
-  class at all -- it owns its fitness, a native fitness-validity state and an evaluate()
-  entry as pure data, with zero dependency on courtier. Pre-/post-processing (e.g. an EA
-  post-optimizer) is now a work-item operation carried on the slot and stamped onto it
-  at population creation. This moves the per-item courtier coordination out of the
-  individual's archive onto the slot, so the checkpoint serialization format changes
-  (older archives no longer load). Internal -- problem code is unaffected.
-
-- RESULTS-ONLY RETURNS REMOVED: a processed worker now always returns the WHOLE
-  individual, so the websocket / asio transports match what MPI already did. The
-  opt-in GOptimizableEntity::setReturnFullIndividual() / getReturnFullIndividual()
-  and the server-side parameter-graft path are gone (full return is the only
-  behavior). Source-breaking only for code that called setReturnFullIndividual
-  (e.g. a network-tiered client doing its own nested optimization -- now a no-op to
-  drop).
-
-- WIRE LAYOUT PLACEMENT: a flat genome's population-invariant structural layout
-  (GGenomeLayout) is sent once per population on the SUBMIT direction (content-
-  addressed send-once, unchanged) and is OMITTED ENTIRELY on the RETURN direction --
-  the server still holds it in memory on the live slot the result reconciles into and
-  re-attaches it there (a late return is re-attached from a population sibling). This
-  removes the layout bytes and all registry / peer-tracking from the return path.
-  Checkpoint / file serialization is unaffected (always self-contained). Wire-form
-  change only; no source impact.
-
 - ADDITIVE (opt-in) optimizer modes on the conjugate-gradient descent (beyond the
   GD-retirement / line-search / HESSE / MINOS items below): an L-BFGS quasi-Newton
   mode, configurable beta formulas (Fletcher-Reeves / Hestenes-Stiefel+ / Dai-Yuan

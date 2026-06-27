@@ -50,7 +50,6 @@
 #include "geneva/GConsumerSetup.hpp"
 #include "geneva/ind/GFlatIndividualT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
-#include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
@@ -139,8 +138,8 @@ protected:
 /******************************************************************************/
 
 TEST_CASE("Consumer registry holds one consumer", "[consumer][sharing][registry]") {
-    using Registry = Gem::Courtier::GConsumerRegistryT<gen::GIndividualSlot>;
-    using consumer_t = Gem::Courtier::GStdThreadConsumerT<gen::GIndividualSlot>;
+    using Registry = Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>;
+    using consumer_t = Gem::Courtier::GStdThreadConsumerT<gen::GOptimizableEntity>;
 
     auto &reg = Registry::instance();
     reg.clear();
@@ -172,7 +171,7 @@ TEST_CASE("Consumer registry holds one consumer", "[consumer][sharing][registry]
 TEST_CASE(
     "Concurrent algorithms fan in to one shared thread-pool consumer",
     "[consumer][sharing][stress]") {
-    using StcConsumer = Gem::Courtier::GStdThreadConsumerT<gen::GIndividualSlot>;
+    using StcConsumer = Gem::Courtier::GStdThreadConsumerT<gen::GOptimizableEntity>;
 
     // The shared thread-pool consumer is meant to serve several algorithms at once (the fan-in case):
     // each submitter waits on its OWN per-batch counter in dispatch_, not a global pool drain. Here K
@@ -182,7 +181,7 @@ TEST_CASE(
     // per-algorithm oversubscription). The submitting threads are NOT pool workers, so they block on
     // their batches while the pool drains them -- no pool-reentrancy (a nested EA-in-EA on the SAME pool
     // would instead be split across kinds; see the two-tier meta-optimization model).
-    Gem::Courtier::GConsumerRegistryT<gen::GIndividualSlot>::instance().clear();
+    Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().clear();
     StcConsumer::instances_constructed().store(0);
 
     constexpr int K = 4;
@@ -222,7 +221,7 @@ TEST_CASE(
     }
     CHECK(StcConsumer::instances_constructed().load() == 1); // one shared pool for all K algorithms
 
-    Gem::Courtier::GConsumerRegistryT<gen::GIndividualSlot>::instance().clear();
+    Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().clear();
 }
 
 /******************************************************************************/
@@ -230,7 +229,7 @@ TEST_CASE(
 TEST_CASE(
     "Meta-EA evaluates umbrella-individuals on its own pool; sub-EAs share the one work consumer",
     "[consumer][sharing][metaea]") {
-    using StcConsumer = Gem::Courtier::GStdThreadConsumerT<gen::GIndividualSlot>;
+    using StcConsumer = Gem::Courtier::GStdThreadConsumerT<gen::GOptimizableEntity>;
 
     // The meta-EA evaluates its umbrella-individuals (MetaSphere -- each runs an inner EA) on its OWN
     // orchestration pool, NOT the work consumer. The inner EAs, un-injected, all converge on the one
@@ -238,7 +237,7 @@ TEST_CASE(
     // umbrella-individual blocking on its inner EA never starves the pool it runs on -- no deadlock. (A
     // plain EA here would instead evaluate the umbrellas on the work consumer, whose workers would then
     // block on inner work posted back to the same pool -- the deadlock the meta-EA exists to avoid.)
-    Gem::Courtier::GConsumerRegistryT<gen::GIndividualSlot>::instance().clear();
+    Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().clear();
     StcConsumer::instances_constructed().store(0);
 
     auto meta = std::make_shared<oa::GMetaEvolutionaryAlgorithm>();
@@ -257,13 +256,13 @@ TEST_CASE(
     // pool is not a consumer, so it does not add to this count.
     CHECK(StcConsumer::instances_constructed().load() == 1);
 
-    Gem::Courtier::GConsumerRegistryT<gen::GIndividualSlot>::instance().clear();
+    Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().clear();
 }
 
 /******************************************************************************/
 
 TEST_CASE("buildConsumerSetup registers the process consumer", "[consumer][sharing][registry]") {
-    using Registry = Gem::Courtier::GConsumerRegistryT<gen::GIndividualSlot>;
+    using Registry = Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>;
 
     auto &reg = Registry::instance();
     reg.clear();

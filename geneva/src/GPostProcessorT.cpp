@@ -228,7 +228,7 @@ GEvolutionaryAlgorithmPostOptimizer::clone_() const {
  */
 bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GOptimizableEntity &p) {
     // Make sure p is processed
-    if(not p.fitnessIsCurrent()) {
+    if(not p.is_processed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << '\n'
@@ -247,10 +247,13 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GOptimizableEntit
     // Clone the individual for post-processing
     std::shared_ptr<gen::GOptimizableEntity> p_unopt_ptr = p.template clone<gen::GOptimizableEntity>();
 
-    // No recursion guard is needed on the individual any more: the pre-/post-processor is a WORK-ITEM
-    // (GIndividualSlot) operation, stamped onto slots only by Go2 from the content factory. The sub-EA
-    // this post-optimizer runs is built inline (not via Go2's content creator), so its population slots
-    // carry no post-processor -- there is nothing to recurse into. The individual itself is pure data.
+    // Make sure the post-optimization does not trigger post-optimization recursively: the sub-EA's
+    // population must carry NO post-processor (the optimization algorithm decides post-processing
+    // eligibility at setup from the post-processor + its own mnemonic; with no post-processor there is
+    // nothing to recurse into). The veto flag alone is not enough -- the sub-EA's setIndividualPersonalities
+    // recomputes eligibility and would clear it.
+    p_unopt_ptr->clearPostProcessor();
+    p_unopt_ptr->vetoPostProcessing(true);
 
     // Retrieve an evolutionary algorithm
     oa::GEvolutionaryAlgorithmFactory ea_factory(oa_config_file_);
@@ -297,6 +300,11 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GOptimizableEntit
 
     // Retrieve the best individual
     std::shared_ptr<gen::GOptimizableEntity> p_opt_ptr = ea_ptr->getBestGlobalIndividual<gen::GOptimizableEntity>();
+
+    // Make sure subsequent optimization cycles may generally perform post-optimization again.
+    // This needs to be done on the optimized individual, as it will be loaded into the
+    // original individual.
+    p_opt_ptr->vetoPostProcessing(false);
 
     // Load the parameter data into the argument base_type (will also clear the dirty flag)
     p.cannibalize(*p_opt_ptr);

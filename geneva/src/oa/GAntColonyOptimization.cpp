@@ -502,7 +502,7 @@ void GAntColonyOptimization::constructAnts() {
         // Write the sampled vector through the genome; the constrained parameter objects fold/clamp it
         // into the feasible box automatically. Mark the slot for (re)evaluation.
         this->at(a)->individual().assignFPValueVectorInternal(x_new, activityMode::ACTIVEONLY);
-        this->at(a)->mark_as_due_for_processing();
+        this->at(a)->individual().mark_as_due_for_processing();
     }
 }
 
@@ -603,7 +603,7 @@ std::tuple<double, double> GAntColonyOptimization::cycleLogic_() {
 
     for(std::size_t pos = 0; pos < n_eval; ++pos) {
         auto &ind = this->at(pos)->individual();
-        if(ind.fitnessIsStale() || ind.evaluationFailed()) {
+        if(ind.is_due_for_processing() || ind.has_errors()) {
             continue;
         }
         if(isBetter(

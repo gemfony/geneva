@@ -152,8 +152,9 @@ int main() {
 
         std::shared_ptr<gen::GOptimizableEntity> gfi_test = gfi_ptr->get();
 
-        // Make sure the individual is evaluated (its fitness is current) before inspecting it
-        gfi_test->evaluate();
+        // Make sure the individual is "clean", i.e. the processed flag is set
+        gfi_test->set_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);
+        gfi_test->process();
 
         boost::property_tree::ptree ptr;
         gfi_test->toPropertyTree(ptr);
