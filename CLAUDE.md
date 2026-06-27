@@ -20,7 +20,10 @@ would violate one, stop and find another approach. In particular:
    failure during a refactor/major change, triage first — fix the code only for a genuine failure, else amend
    the test to the new valid contract (never silence a real failure, never bend correct code to a stale test) ·
    8. Full builds go through `cd $HOME/build && $HOME/ClionProjects/geneva/scripts/prepareBuild.sh --clean -y
-   --build genevaConfig.gcfg` (the `.gcfg` centralises compiler/CUDA/build-type choices; use `$HOME`).
+   --build genevaConfig.gcfg` (the `.gcfg` centralises compiler/CUDA/build-type choices; use `$HOME`) · 9. A
+   failing test is fixed before moving on, even if it looks unrelated — never stepped over as "pre-existing"
+   or "environmental"; a green suite is the precondition for continuing and for every commit · 10. Newly
+   discovered compilation warnings must be investigated (root-fix or understand-and-record why benign).
 
 See the file for the full, authoritative list.
 
