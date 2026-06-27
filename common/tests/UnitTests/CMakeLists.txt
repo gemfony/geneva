@@ -65,6 +65,7 @@ geneva_common_test(GBlockingMPMCQueueTTests           GBlockingMPMCQueueTTests.c
 geneva_common_test(GCommonEnumsTests              GCommonEnumsTests.cpp)
 geneva_common_test(GCompletionLatchTTests         GCompletionLatchTTests.cpp)
 geneva_common_test(GContentAddressedStoreTTests   GContentAddressedStoreTTests.cpp)
+geneva_common_test(GSPSCStagingRingTTests        GSPSCStagingRingTTests.cpp)
 geneva_common_test(GThreadSafeKeyedStoreTTests   GThreadSafeKeyedStoreTTests.cpp)
 geneva_common_test(GCommonHelperFunctionsTests    GCommonHelperFunctionsTests.cpp)
 geneva_common_test(GCommonHelperFunctionsTTests   GCommonHelperFunctionsTTests.cpp)
