@@ -96,6 +96,22 @@ and more — so that one file, not scattered command-line flags, determines how 
 builds reproducible and consistent with Invariant 3 (out-of-source). Fast iterative rebuilds of a single target
 may still use `cmake --build <dir> --target <t>`, but a full verifying build uses `prepareBuild.sh`.
 
+## 9. A failing test is fixed before moving on — even if it looks unrelated
+
+If any test errors during development, **fixing it has the highest priority**, even when the failure appears
+unrelated to the change in hand. A red test is never stepped over, deferred, or written off as "pre-existing"
+or "environmental noise" so that other work can proceed: it is diagnosed and made green first. (Invariant 7
+still governs *how* — fix the code for a genuine failure, amend the test for a deliberate contract change — but
+the failure is always addressed, never left red.) A green test suite is the precondition for continuing, and
+for every commit.
+
+## 10. Newly discovered compilation warnings must be investigated
+
+A warning that appears during a build is a signal, not noise: **investigate every newly surfaced compiler
+warning** rather than letting it scroll past. Determine its cause, and either fix it at the root or, if it is
+genuinely benign and unavoidable, understand and record why. The same discipline as Invariant 9 applies to
+warnings as to test failures — they are not stepped over because they look unrelated to the change in hand.
+
 ---
 
 *Add new invariants below as the maintainer establishes them. Keep each rule short, mandatory, and
