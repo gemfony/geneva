@@ -76,6 +76,7 @@ SET ( GENEVACOMMONCONCURRENCYINCLUDES
 	concurrency/GMPMCQueueT.hpp
 	concurrency/GPreallocatedMPMCQueueT.hpp
 	concurrency/GQueueCommon.hpp
+	concurrency/GSPSCStagingRingT.hpp
 	concurrency/GThreadGroup.hpp
 	concurrency/GThreadPool.hpp
 	concurrency/GThreadSafeKeyedStoreT.hpp

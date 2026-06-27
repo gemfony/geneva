@@ -44,6 +44,7 @@
 
 #include "common/concurrency/GCompletionLatchT.hpp"
 #include "common/concurrency/GContentAddressedStoreT.hpp"
+#include "common/concurrency/GSPSCStagingRingT.hpp"
 #include "common/concurrency/GThreadSafeKeyedStoreT.hpp"
 
 using namespace Gem::Common::Concurrency;
@@ -145,6 +146,43 @@ bool demo_completion_latch() {
     return ok;
 }
 
+/** @brief Demonstrates GSPSCStagingRingT: a lock-free ring of bulk-filled pools refilled by one
+ *  background producer ahead of a claim cursor (the Hap RNG prefetch substrate). Here a trivial fill
+ *  paints a sentinel; readers claim chunks and must only ever see filled words.
+ *  @return true iff every demonstrated invariant held. */
+bool demo_spsc_staging_ring() {
+    std::cout << "== GSPSCStagingRingT ==\n";
+    bool ok = true;
+
+    constexpr std::size_t kChunkWords = 8;
+    constexpr std::uint64_t kSentinel = 0xC0FFEEULL;
+
+    // The fill callback bulk-populates one pool's worth of words; it runs only on the producer thread.
+    GSPSCStagingRingT<kChunkWords> ring([](std::uint64_t *dst, std::size_t n) {
+        for(std::size_t i = 0; i < n; ++i) {
+            dst[i] = kSentinel;
+        }
+    });
+
+    // In-place read of a claimed chunk.
+    const std::uint64_t *span = ring.claimSpan();
+    for(std::size_t i = 0; i < kChunkWords; ++i) {
+        ok = ok && span[i] == kSentinel;
+    }
+
+    // Copy-out read of the next chunk into a private buffer.
+    std::uint64_t buf[kChunkWords] = {0};
+    ring.copyChunkInto(buf);
+    for(unsigned long long w : buf) {
+        ok = ok && w == kSentinel;
+    }
+
+    std::cout << "  claimed 2 chunks of " << kChunkWords << " words; all words == sentinel? "
+              << std::boolalpha << ok << "\n";
+    std::cout << "  -> " << (ok ? "OK" : "FAILED") << "\n";
+    return ok;
+}
+
 } // namespace
 
 int main() {
@@ -152,6 +190,7 @@ int main() {
     ok = demo_content_addressed_store() && ok;
     ok = demo_thread_safe_keyed_store() && ok;
     ok = demo_completion_latch() && ok;
+    ok = demo_spsc_staging_ring() && ok;
 
     std::cout << (ok ? "\nAll concurrency-primitive demos passed.\n"
                      : "\nA concurrency-primitive demo FAILED.\n");
