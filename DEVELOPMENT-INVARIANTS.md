@@ -81,6 +81,21 @@ extraction) almost every red is genuine — a characterization test going red me
 something it must not have. In a **behaviour-changing** redesign (e.g. the genome SoC work) a red may simply be
 the test catching up to a deliberate new contract, and amending it is correct.
 
+## 8. Full builds go through `prepareBuild.sh` + a `genevaConfig.gcfg`
+
+For a full (clean) build of Geneva, use the project's build driver rather than a hand-rolled `cmake`
+invocation — e.g.
+
+```bash
+cd $HOME/build && $HOME/ClionProjects/geneva/scripts/prepareBuild.sh --clean -y --build genevaConfig.gcfg
+```
+
+(use `$HOME`, never a hard-coded home path). The `genevaConfig.gcfg` in the build directory centralises the
+build settings — compiler choice (clang vs g++), CUDA on/off, build type, MPI/GPU consumers, Boost location,
+and more — so that one file, not scattered command-line flags, determines how Geneva is built. This keeps full
+builds reproducible and consistent with Invariant 3 (out-of-source). Fast iterative rebuilds of a single target
+may still use `cmake --build <dir> --target <t>`, but a full verifying build uses `prepareBuild.sh`.
+
 ---
 
 *Add new invariants below as the maintainer establishes them. Keep each rule short, mandatory, and

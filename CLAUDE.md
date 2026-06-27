@@ -18,7 +18,9 @@ would violate one, stop and find another approach. In particular:
 3. Build out-of-source only · 4. Serialization complete and single-sourced (`localMembers_`) · 5. One consumer
    per process (`GConsumerRegistry`) · 6. The genome is pure data; mutation lives on the OA · 7. On a test
    failure during a refactor/major change, triage first — fix the code only for a genuine failure, else amend
-   the test to the new valid contract (never silence a real failure, never bend correct code to a stale test).
+   the test to the new valid contract (never silence a real failure, never bend correct code to a stale test) ·
+   8. Full builds go through `cd $HOME/build && $HOME/ClionProjects/geneva/scripts/prepareBuild.sh --clean -y
+   --build genevaConfig.gcfg` (the `.gcfg` centralises compiler/CUDA/build-type choices; use `$HOME`).
 
 See the file for the full, authoritative list.
 
