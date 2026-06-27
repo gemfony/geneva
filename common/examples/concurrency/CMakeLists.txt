@@ -27,7 +27,34 @@
 #
 ################################################################################
 
-ADD_SUBDIRECTORY( GConfigFileCreation )
-ADD_SUBDIRECTORY( concurrency )
+# A runnable tour of the Gem::Common::Concurrency shared primitives -- living documentation of the
+# intended call patterns. Extended as each primitive lands.
 
-GENEVA_AGGREGATE_TARGET( "examples-common" )
+SET ( EXECUTABLENAME GConcurrencyPrimitives )
+
+SET ( ${EXECUTABLENAME}_SRCS
+	GConcurrencyPrimitives.cpp
+)
+
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
+)
+
+SET(LIBRARIES_TO_LINK
+		${GENEVA_LIBRARIES}
+		${Boost_LIBRARIES})
+
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(LIBRARIES_TO_LINK
+			${LIBRARIES_TO_LINK}
+			${MPI_LIBRARIES})
+ENDIF()
+
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+		${LIBRARIES_TO_LINK})
+
+IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
+	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+ENDIF ()
+
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME} )

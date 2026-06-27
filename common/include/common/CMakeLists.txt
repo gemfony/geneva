@@ -71,6 +71,7 @@ SET ( GENEVACOMMONINCLUDES
 # namespace, so they are clearly separated and hard to overlook.
 SET ( GENEVACOMMONCONCURRENCYINCLUDES
 	concurrency/GBlockingMPMCQueueT.hpp
+	concurrency/GContentAddressedStoreT.hpp
 	concurrency/GMPMCQueueT.hpp
 	concurrency/GPreallocatedMPMCQueueT.hpp
 	concurrency/GQueueCommon.hpp

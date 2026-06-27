@@ -63,6 +63,7 @@ ENDFUNCTION()
 
 geneva_common_test(GBlockingMPMCQueueTTests           GBlockingMPMCQueueTTests.cpp)
 geneva_common_test(GCommonEnumsTests              GCommonEnumsTests.cpp)
+geneva_common_test(GContentAddressedStoreTTests   GContentAddressedStoreTTests.cpp)
 geneva_common_test(GCommonHelperFunctionsTests    GCommonHelperFunctionsTests.cpp)
 geneva_common_test(GCommonHelperFunctionsTTests   GCommonHelperFunctionsTTests.cpp)
 geneva_common_test(GCommonInterfaceTTests         GCommonInterfaceTTests.cpp)
