@@ -43,11 +43,12 @@
 // Geneva headers go here
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
-#include "common/GThreadPool.hpp"
+#include "common/concurrency/GThreadPool.hpp"
 #include "hap/GRandomDistributionsT.hpp"
 #include "hap/GRandomT.hpp"
 
 using namespace Gem::Common;
+using namespace Gem::Common::Concurrency;
 
 const std::size_t NRESIZEEVENTS = 0;
 const std::size_t NJOBS = 100;
@@ -56,7 +57,7 @@ const unsigned int MINTHREADS = 1;
 const unsigned int MAXTHREADS = 20;
 const unsigned int NINITIALTHREADS = 4;
 
-Gem::Common::GThreadPool gtp{NINITIALTHREADS}; ///< The global threadpool
+Gem::Common::Concurrency::GThreadPool gtp{NINITIALTHREADS}; ///< The global threadpool
 
 /************************************************************************/
 /**

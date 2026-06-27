@@ -41,7 +41,7 @@
 #include <boost/serialization/nvp.hpp>
 
 // Geneva headers
-#include "common/GThreadPool.hpp"
+#include "common/concurrency/GThreadPool.hpp"
 #include "courtier/GExecutorStatusT.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 
@@ -149,7 +149,7 @@ private:
     }
 
     /***************************************************************************/
-    std::unique_ptr<Gem::Common::GThreadPool> orchestration_pool_; ///< Transient: built on first use
+    std::unique_ptr<Gem::Common::Concurrency::GThreadPool> orchestration_pool_; ///< Transient: built on first use
     unsigned int n_orchestration_threads_ = 0; ///< Orchestration-pool size (0 == hardware concurrency)
 };
 

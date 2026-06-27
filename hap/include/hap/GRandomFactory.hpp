@@ -53,13 +53,13 @@
 
 // Geneva headers go here
 
-#include "common/GMPMCQueueT.hpp"
+#include "common/concurrency/GMPMCQueueT.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GSingletonT.hpp"
-#include "common/GThreadGroup.hpp"
+#include "common/concurrency/GThreadGroup.hpp"
 #include "hap/GRandomDefines.hpp"
 #include "hap/GXoshiro256pp.hpp"
 
@@ -406,16 +406,16 @@ private:
         DEFAULT01PRODUCERTHREADS
     }; ///< The number of threads used to produce random numbers
 
-    Gem::Common::GThreadGroup
+    Gem::Common::Concurrency::GThreadGroup
         producer_threads_; ///< A thread group that holds [0,1[ producer threads
 
     /** @brief A bounded buffer holding the random number packages. The queue backend is selected at
      *  compile time by FACTORYQUEUEBACKEND (default: the std::deque-backed queue -- unchanged
      *  behaviour; switchable to the preallocated ring via GENEVA_HAP_FACTORY_QUEUE_PREALLOCATED). */
-    Gem::Common::GMPMCQueueT<std::unique_ptr<random_container>, DEFAULTFACTORYBUFFERSIZE, FACTORYQUEUEBACKEND>
+    Gem::Common::Concurrency::GMPMCQueueT<std::unique_ptr<random_container>, DEFAULTFACTORYBUFFERSIZE, FACTORYQUEUEBACKEND>
         p_fresh_bfr_; // Note: Absolutely needs to be defined after the thread group !!!
     /** @brief A bounded buffer holding random number packages ready for recycling */
-    Gem::Common::GMPMCQueueT<std::unique_ptr<random_container>, DEFAULTFACTORYBUFFERSIZE, FACTORYQUEUEBACKEND>
+    Gem::Common::Concurrency::GMPMCQueueT<std::unique_ptr<random_container>, DEFAULTFACTORYBUFFERSIZE, FACTORYQUEUEBACKEND>
         p_ret_bfr_;
 
     static std::atomic<bool>

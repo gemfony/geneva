@@ -27,14 +27,14 @@
  *
  ********************************************************************************/
 
-#include "common/GThreadPool.hpp"
+#include "common/concurrency/GThreadPool.hpp"
 #include "common/GCommonEnums.hpp"
 #include "common/GLogger.hpp"
 #include <mutex>
 #include <shared_mutex>
 #include <stop_token>
 
-namespace Gem::Common {
+namespace Gem::Common::Concurrency {
 
 /******************************************************************************/
 /**
@@ -247,4 +247,4 @@ void GThreadPool::setNThreads(unsigned int n_threads) {
 
 /******************************************************************************/
 
-} /* namespace Gem::Common */
+} /* namespace Gem::Common::Concurrency */

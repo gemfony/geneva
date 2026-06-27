@@ -36,7 +36,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
-#include "common/GThreadPool.hpp"
+#include "common/concurrency/GThreadPool.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPersonalityTraits.hpp"
@@ -98,6 +98,7 @@ void GType::compare_(
     const double & /*limit*/
 ) const {
     using namespace Gem::Common;
+using namespace Gem::Common::Concurrency;
 
     const GType *p_load =
         Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GType>(cp, this);

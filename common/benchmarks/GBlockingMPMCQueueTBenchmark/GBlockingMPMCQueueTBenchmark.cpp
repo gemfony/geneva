@@ -29,7 +29,7 @@
 
 /**
  * @file
- * Load / throughput benchmark for Gem::Common::GBlockingMPMCQueueT.
+ * Load / throughput benchmark for Gem::Common::Concurrency::GBlockingMPMCQueueT.
  *
  * This is deliberately NOT a unit test and is NOT registered with CTest: it runs
  * for a while and is meant to be invoked by hand, e.g.
@@ -56,9 +56,9 @@
 #include <thread>
 #include <vector>
 
-#include "common/GBlockingMPMCQueueT.hpp"
+#include "common/concurrency/GBlockingMPMCQueueT.hpp"
 
-using Gem::Common::GBlockingMPMCQueueT;
+using Gem::Common::Concurrency::GBlockingMPMCQueueT;
 using clk = std::chrono::steady_clock;
 
 namespace {

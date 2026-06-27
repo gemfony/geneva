@@ -39,7 +39,7 @@
 #include <optional>
 #include <utility>
 
-namespace Gem::Common {
+namespace Gem::Common::Concurrency {
 
 /******************************************************************************/
 /**
@@ -101,4 +101,4 @@ concept MPMCQueue = requires(Q q, const Q cq, T item, std::chrono::milliseconds 
 
 /******************************************************************************/
 
-} /* namespace Gem::Common */
+} /* namespace Gem::Common::Concurrency */

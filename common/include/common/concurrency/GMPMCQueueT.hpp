@@ -41,12 +41,12 @@
 #include <utility>
 
 // Geneva headers go here
-#include "common/GBlockingMPMCQueueT.hpp"
+#include "common/concurrency/GBlockingMPMCQueueT.hpp"
 #include "common/GCommonEnums.hpp" // for DEFAULTBUFFERSIZE
-#include "common/GPreallocatedMPMCQueueT.hpp"
-#include "common/GQueueCommon.hpp"
+#include "common/concurrency/GPreallocatedMPMCQueueT.hpp"
+#include "common/concurrency/GQueueCommon.hpp"
 
-namespace Gem::Common {
+namespace Gem::Common::Concurrency {
 
 /******************************************************************************/
 /**
@@ -215,4 +215,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Common */
+} /* namespace Gem::Common::Concurrency */

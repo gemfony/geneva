@@ -32,7 +32,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
-#include "common/GThreadPool.hpp"
+#include "common/concurrency/GThreadPool.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
@@ -87,6 +87,7 @@ void GParChild::compare_(
     [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
+using namespace Gem::Common::Concurrency;
 
     // Check that we are dealing with a GParChild  reference independent of this object and convert the pointer
     const GParChild *p_load =
@@ -397,7 +398,7 @@ void GParChild::doRecombine() {
     // written by exactly one task, so there are no data races. load() does not copy
     // the per-individual RNG (gr_ is deliberately absent from localMembers()), so
     // children keep their own generators.
-    Gem::Common::GThreadPool *tp = this->tp_ptr_.get();
+    Gem::Common::Concurrency::GThreadPool *tp = this->tp_ptr_.get();
     const std::size_t n_children = GOptimizationAlgorithmBase::data_cnt_.size() - n_parents_;
     if(tp != nullptr && amalgamation_likelihood_ <= 0. && n_children > 1) {
         const bool value_scheme =

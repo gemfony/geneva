@@ -36,9 +36,10 @@
 #include <thread>
 #include <vector>
 
-#include "common/GThreadGroup.hpp"
+#include "common/concurrency/GThreadGroup.hpp"
 
 using namespace Gem::Common;
+using namespace Gem::Common::Concurrency;
 using namespace std::chrono_literals;
 
 // ---------------------------------------------------------------------------

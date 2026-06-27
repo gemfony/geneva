@@ -47,15 +47,15 @@
 #include <utility>
 
 // Geneva header files go here
-#include "common/GBlockingMPMCQueueT.hpp"
+#include "common/concurrency/GBlockingMPMCQueueT.hpp"
 #include "common/GCommonEnums.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "common/GThreadGroup.hpp"
+#include "common/concurrency/GThreadGroup.hpp"
 
-namespace Gem::Common {
+namespace Gem::Common::Concurrency {
 
 /******************************************************************************/
 /**
@@ -282,4 +282,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Common */
+} /* namespace Gem::Common::Concurrency */

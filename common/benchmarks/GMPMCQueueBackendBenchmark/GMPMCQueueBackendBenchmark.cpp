@@ -56,10 +56,10 @@
 #include <thread>
 #include <vector>
 
-#include "common/GMPMCQueueT.hpp"
+#include "common/concurrency/GMPMCQueueT.hpp"
 
-using Gem::Common::GMPMCQueueT;
-using Gem::Common::QueueBackend;
+using Gem::Common::Concurrency::GMPMCQueueT;
+using Gem::Common::Concurrency::QueueBackend;
 using clk = std::chrono::steady_clock;
 
 namespace {

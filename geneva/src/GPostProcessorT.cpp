@@ -33,7 +33,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GSerializableFunctionObjectT.hpp"
-#include "common/GThreadPool.hpp"
+#include "common/concurrency/GThreadPool.hpp"
 
 #include <atomic>
 #include "geneva/GOptimizationEnums.hpp"
@@ -113,6 +113,7 @@ void GEvolutionaryAlgorithmPostOptimizer::compare_(
     [[maybe_unused]] const double & limit
 ) const {
     using namespace Gem::Common;
+using namespace Gem::Common::Concurrency;
 
     // Check that we are dealing with a Gem::Common::GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
     const GEvolutionaryAlgorithmPostOptimizer *p_load = Gem::Common::g_convert_and_compare<

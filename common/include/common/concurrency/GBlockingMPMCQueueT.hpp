@@ -47,7 +47,7 @@
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"   // for DEFAULTBUFFERSIZE
 
-namespace Gem::Common {
+namespace Gem::Common::Concurrency {
 
 /******************************************************************************/
 /**
@@ -375,4 +375,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Common */
+} /* namespace Gem::Common::Concurrency */

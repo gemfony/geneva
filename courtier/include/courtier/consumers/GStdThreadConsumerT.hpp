@@ -41,7 +41,7 @@
 #include <vector>
 
 // Geneva headers (reused from the common library)
-#include "common/GThreadPool.hpp"
+#include "common/concurrency/GThreadPool.hpp"
 #include "courtier/GBaseConsumerT.hpp"
 
 namespace Gem::Courtier {
@@ -49,7 +49,7 @@ namespace Gem::Courtier {
 /******************************************************************************/
 /**
  * A local, multi-threaded consumer. Each round's items are evaluated concurrently on a
- * Gem::Common::GThreadPool. A local evaluation never goes MISSING -- it either succeeds
+ * Gem::Common::Concurrency::GThreadPool. A local evaluation never goes MISSING -- it either succeeds
  * (PROCESSED) or, when the user's fitnessCalculation() throws, is funnelled by
  * GProcessingContainerT::process() into the item's EXCEPTION_CAUGHT status (the throw is caught
  * here so it never escapes the worker thread). Reconciliation against the policy is inherited
@@ -144,7 +144,7 @@ private:
         return hc == 0 ? 1u : hc;
     }
 
-    Gem::Common::GThreadPool pool_;
+    Gem::Common::Concurrency::GThreadPool pool_;
 };
 
 /******************************************************************************/
