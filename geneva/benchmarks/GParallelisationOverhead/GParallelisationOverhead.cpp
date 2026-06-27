@@ -43,7 +43,7 @@
 // Geneva header files go here
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "dietrich/GPlotDesigner.hpp"
-#include "common/GThreadPool.hpp"
+#include "common/concurrency/GThreadPool.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/Go2.hpp"
@@ -53,6 +53,7 @@
 
 using namespace Gem::Geneva;
 using namespace Gem::Common;
+using namespace Gem::Common::Concurrency;
 using namespace Gem::Dietrich; // plotting types live here now
 
 /******************************************************************************/
@@ -277,7 +278,7 @@ int main(int argc, char **argv) {
     go_parallel.registerDefaultAlgorithm("ea");
 
     // Threadpool for two threads
-    Gem::Common::GThreadPool tp(2);
+    Gem::Common::Concurrency::GThreadPool tp(2);
 
     // Start the reference and parallel threads
     tp.async_schedule([&]() { startReferenceMeasurement(delay_config_ref, ab); });

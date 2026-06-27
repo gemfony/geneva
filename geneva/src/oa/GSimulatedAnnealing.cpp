@@ -33,7 +33,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
-#include "common/GThreadPool.hpp"
+#include "common/concurrency/GThreadPool.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPersonalityTraits.hpp"
@@ -95,6 +95,7 @@ void GSimulatedAnnealing::compare_(
     const double & /*limit*/ // the limit for allowed deviations of floating point types
 ) const {
     using namespace Gem::Common;
+using namespace Gem::Common::Concurrency;
 
     // Check that we are dealing with a GSimulatedAnnealing reference independent of this object and convert the pointer
     const GSimulatedAnnealing *p_load =

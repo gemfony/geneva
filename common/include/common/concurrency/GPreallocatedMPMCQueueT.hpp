@@ -46,9 +46,9 @@
 #include <utility>
 
 // Geneva headers go here
-#include "common/GQueueCommon.hpp" // for the MPMCQueue concept (documentation/checking)
+#include "common/concurrency/GQueueCommon.hpp" // for the MPMCQueue concept (documentation/checking)
 
-namespace Gem::Common {
+namespace Gem::Common::Concurrency {
 
 /******************************************************************************/
 /**
@@ -445,4 +445,4 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Gem::Common */
+} /* namespace Gem::Common::Concurrency */

@@ -47,11 +47,11 @@
  * GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE!
  */
 
-#include "common/GThreadGroup.hpp"
+#include "common/concurrency/GThreadGroup.hpp"
 #include <cstddef>
 #include <mutex>
 
-namespace Gem::Common {
+namespace Gem::Common::Concurrency {
 
 /******************************************************************************/
 /**
@@ -124,4 +124,4 @@ void GThreadGroup::clearThreads() {
 
 /******************************************************************************/
 
-} /* namespace Gem::Common */
+} /* namespace Gem::Common::Concurrency */

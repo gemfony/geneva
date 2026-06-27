@@ -38,7 +38,7 @@
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"  // for DEFAULTBUFFERSIZE
-#include "common/GQueueCommon.hpp"  // for QueueBackend
+#include "common/concurrency/GQueueCommon.hpp"  // for QueueBackend
 
 namespace Gem::Hap {
 
@@ -70,11 +70,11 @@ const std::size_t DEFAULTFACTORYBUFFERSIZE =
 // Selects the MPMC-queue backend the random factory's package buffers use. The default is the
 // std::deque-backed queue, so production behaviour is unchanged; defining
 // GENEVA_HAP_FACTORY_QUEUE_PREALLOCATED at configure time switches them to the preallocated ring
-// buffer (a drop-in, interface-identical alternative -- see Gem::Common::GMPMCQueueT).
+// buffer (a drop-in, interface-identical alternative -- see Gem::Common::Concurrency::GMPMCQueueT).
 #ifdef GENEVA_HAP_FACTORY_QUEUE_PREALLOCATED
-constexpr Gem::Common::QueueBackend FACTORYQUEUEBACKEND = Gem::Common::QueueBackend::Preallocated;
+constexpr Gem::Common::Concurrency::QueueBackend FACTORYQUEUEBACKEND = Gem::Common::Concurrency::QueueBackend::Preallocated;
 #else
-constexpr Gem::Common::QueueBackend FACTORYQUEUEBACKEND = Gem::Common::QueueBackend::Deque;
+constexpr Gem::Common::Concurrency::QueueBackend FACTORYQUEUEBACKEND = Gem::Common::Concurrency::QueueBackend::Deque;
 #endif /* GENEVA_HAP_FACTORY_QUEUE_PREALLOCATED */
 
 #ifdef GENEVA_HAP_RANDOM_FACTORY_DEFAULT_PUT_WAIT

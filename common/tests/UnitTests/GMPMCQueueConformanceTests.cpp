@@ -51,10 +51,10 @@
 #include <catch2/catch_template_test_macros.hpp>
 
 // Geneva headers go here
-#include "common/GMPMCQueueT.hpp"
+#include "common/concurrency/GMPMCQueueT.hpp"
 
-using Gem::Common::GMPMCQueueT;
-using Gem::Common::QueueBackend;
+using Gem::Common::Concurrency::GMPMCQueueT;
+using Gem::Common::Concurrency::QueueBackend;
 using namespace std::chrono_literals;
 
 /******************************************************************************/

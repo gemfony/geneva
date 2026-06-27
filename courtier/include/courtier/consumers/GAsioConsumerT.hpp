@@ -45,7 +45,7 @@
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "common/GThreadGroup.hpp"
+#include "common/concurrency/GThreadGroup.hpp"
 #include "courtier/transport/GAsioTransportT.hpp" // reuse the existing session + client + wire protocol
 #include "courtier/consumers/GNetworkedConsumerT.hpp"
 #include "courtier/GWireSerializationContext.hpp" // layout send-once: shared registry
@@ -307,7 +307,7 @@ private:
     /// Backoff timer used to retry accept after a transient failure (e.g. EMFILE) without busy-spinning.
     boost::asio::steady_timer accept_retry_timer_{io_context_};
 
-    Gem::Common::GThreadGroup gtg_;
+    Gem::Common::Concurrency::GThreadGroup gtg_;
     std::atomic<std::size_t> n_active_sessions_{0};
     std::atomic<bool> stopped_already_{false};
 

@@ -62,7 +62,7 @@
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
-#include "common/GThreadPool.hpp"
+#include "common/concurrency/GThreadPool.hpp"
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
@@ -1192,7 +1192,7 @@ public:
          * To stop the master node and all its threads again the shutdown()-method can be called.
          */
     void async_startProcessing() {
-        handlerThreadPool_ = std::make_unique<Common::GThreadPool>(config_.nHandlerThreads);
+        handlerThreadPool_ = std::make_unique<Common::Concurrency::GThreadPool>(config_.nHandlerThreads);
 
         auto self = this->shared_from_this();
         receiverThread_ = std::thread([self] { self->listenForRequests(); });
@@ -1510,7 +1510,7 @@ private:
     std::int32_t commSize_;
     const MPIConsumerConfig &config_;
 
-    std::unique_ptr<Common::GThreadPool> handlerThreadPool_;
+    std::unique_ptr<Common::Concurrency::GThreadPool> handlerThreadPool_;
     /**
          * thread that receives new incoming connections and schedules the handling of those to the thread pool
          */

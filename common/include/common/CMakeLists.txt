@@ -37,7 +37,6 @@
 #
 
 SET ( GENEVACOMMONINCLUDES
-	GBlockingMPMCQueueT.hpp
 	GCommonEnums.hpp
 	GCommonHelperFunctions.hpp
 	GCommonHelperFunctionsT.hpp
@@ -53,27 +52,34 @@ SET ( GENEVACOMMONINCLUDES
 	GGlobalDefines.hpp
 	GGlobalOptionsT.hpp
 	GLogger.hpp
-	GMPMCQueueT.hpp
 	GMemberReflectionT.hpp
 	GParserBuilder.hpp
-	GPreallocatedMPMCQueueT.hpp
 	GProviderT.hpp
-	GQueueCommon.hpp
 	GSerializableFunctionObjectT.hpp
 	GSerializationHelperFunctionsT.hpp
 	GSerializeTupleT.hpp
 	GSingletonT.hpp
 	GStdFilesystemPathSerialization.hpp
-	GThreadGroup.hpp
-	GThreadPool.hpp
 	GTupleIO.hpp
 	GTypeToStringT.hpp
 	GTypeTraitsT.hpp
 	GUnitTestFrameworkT.hpp
 )
 
+# The concurrency facilities (thread pool/group + MPMC queues) live in a distinct
+# sub-module: the common/concurrency/ sub-directory + the Gem::Common::Concurrency
+# namespace, so they are clearly separated and hard to overlook.
+SET ( GENEVACOMMONCONCURRENCYINCLUDES
+	concurrency/GBlockingMPMCQueueT.hpp
+	concurrency/GMPMCQueueT.hpp
+	concurrency/GPreallocatedMPMCQueueT.hpp
+	concurrency/GQueueCommon.hpp
+	concurrency/GThreadGroup.hpp
+	concurrency/GThreadPool.hpp
+)
+
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
-ADD_CUSTOM_TARGET(CLION_ALL_COMMON_HEADERS SOURCES ${GENEVACOMMONINCLUDES})
+ADD_CUSTOM_TARGET(CLION_ALL_COMMON_HEADERS SOURCES ${GENEVACOMMONINCLUDES} ${GENEVACOMMONCONCURRENCYINCLUDES})
 
 SET_TARGET_PROPERTIES(
 	CLION_ALL_COMMON_HEADERS
@@ -85,6 +91,7 @@ SET_TARGET_PROPERTIES(
 
 
 INSTALL ( FILES ${GENEVACOMMONINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/common )
+INSTALL ( FILES ${GENEVACOMMONCONCURRENCYINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/common/concurrency )
 
 # The plotting subsystem was extracted into its own first-class library, "dietrich"
 # (dietrich/include/dietrich/...). common no longer ships any plotting headers.

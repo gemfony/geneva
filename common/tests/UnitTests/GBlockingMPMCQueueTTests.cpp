@@ -41,9 +41,9 @@
 #include <catch2/catch_test_macros.hpp>
 
 // Geneva headers go here
-#include "common/GBlockingMPMCQueueT.hpp"
+#include "common/concurrency/GBlockingMPMCQueueT.hpp"
 
-using Gem::Common::GBlockingMPMCQueueT;
+using Gem::Common::Concurrency::GBlockingMPMCQueueT;
 using Gem::Common::DEFAULTBUFFERSIZE;
 using namespace std::chrono_literals;
 

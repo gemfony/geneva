@@ -41,9 +41,9 @@
 #include <catch2/catch_test_macros.hpp>
 
 // Geneva headers go here
-#include "common/GThreadPool.hpp"
+#include "common/concurrency/GThreadPool.hpp"
 
-using Gem::Common::GThreadPool;
+using Gem::Common::Concurrency::GThreadPool;
 using namespace std::chrono_literals;
 
 // NOTE: Catch2 assertion macros are NOT thread-safe, so callables running inside
