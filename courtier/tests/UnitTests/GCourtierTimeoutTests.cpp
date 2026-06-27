@@ -390,3 +390,30 @@ TEST_CASE("courtier(late): a results-only late return with no retained original 
     CHECK(consumer.lateReturnBufferSize() == 0);
     CHECK(consumer.lateReturnDroppedCount() == 1);
 }
+
+/******************************************************************************/
+// The retained-originals store is itself TTL-bounded: a clone kept so a slow worker's later results-only
+// return can be grafted must not be held forever if that worker never returns. The late_returns_ FIFO
+// aging is pinned above; this is its retained-store counterpart (evictRetainedOriginals_locked), so the
+// Phase-6 aging-store consolidation has the retention aging characterized directly, not just indirectly.
+/******************************************************************************/
+
+TEST_CASE("courtier(late): a retained original ages out of the retention store past its TTL",
+          "[courtier][latereturn]") {
+    LateNetConsumer consumer;
+    consumer.setLateReturnBuffer(/*cap*/ 8, /*ttl_rounds*/ 2); // small TTL: the retained clone must age out
+
+    // Abandon slot 2 forever so the batch retires with it MISSING -> its original is retained (as in the
+    // graft case above), but here the slow worker NEVER returns a result to graft.
+    auto batch = make_batch(3);
+    run_abandoning_forever(consumer, batch, /*victim_stored*/ 2);
+    REQUIRE(consumer.retainedOriginalCount() == 1);
+
+    // Advance the dispatch-round epoch well past the TTL. With no results-only return ever arriving, the
+    // retained clone must be swept rather than held indefinitely.
+    for(int round = 0; round < 4; ++round) {
+        run_full_batch(consumer, 1);
+    }
+    CHECK(consumer.retainedOriginalCount() == 0); // aged out, not retained forever
+    CHECK(consumer.lateReturnBufferSize() == 0);   // no result ever arrived, so nothing was buffered
+}
