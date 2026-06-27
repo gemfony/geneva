@@ -2,6 +2,26 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## ⚠️ Development Invariants (MANDATORY — read first)
+
+**[`DEVELOPMENT-INVARIANTS.md`](DEVELOPMENT-INVARIANTS.md) holds the non-negotiable rules for all work in this
+repository, and they OVERRIDE convenience and default behaviour.** Read it before making changes; if a change
+would violate one, stop and find another approach. In particular:
+
+1. **Prefer existing Geneva capabilities over re-inventing them** — search `common/`/`hap/`/`courtier/`/`geneva/`
+   for an existing utility, container, or scaffold and use (or improve) it before writing a new one.
+2. **Concurrency primitives come only from the shared concurrency facilities** — thread pools, thread groups,
+   thread-safe queues (`GBlockingMPMCQueueT` / `GPreallocatedMPMCQueueT` / `GMPMCQueueT`), thread-safe keyed
+   stores, lock-free structures (in `common/`, being consolidated into a distinct concurrency sub-module of
+   `common/`). No roll-your-own `deque`+`mutex`, bespoke ring, hand-rolled pool, or ad-hoc thread-safe map;
+   improve/extend the shared ones (creating a new one only after consultation, and in the owning library).
+3. Build out-of-source only · 4. Serialization complete and single-sourced (`localMembers_`) · 5. One consumer
+   per process (`GConsumerRegistry`) · 6. The genome is pure data; mutation lives on the OA · 7. On a test
+   failure during a refactor/major change, triage first — fix the code only for a genuine failure, else amend
+   the test to the new valid contract (never silence a real failure, never bend correct code to a stale test).
+
+See the file for the full, authoritative list.
+
 ## Project Overview
 
 Geneva (Grid-Enabled Evolutionary Algorithms) is a C++20 library for large-scale parametric optimization. It supports evolutionary algorithms, simulated annealing, swarm algorithms, gradient descent, and parameter scans — all running transparently in serial, multi-threaded, MPI, or websocket-distributed modes.
