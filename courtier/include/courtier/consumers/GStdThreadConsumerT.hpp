@@ -33,14 +33,13 @@
 
 // Standard headers
 #include <atomic>
-#include <condition_variable>
 #include <cstddef>
 #include <memory>
-#include <mutex>
 #include <thread>
 #include <vector>
 
 // Geneva headers (reused from the common library)
+#include "common/concurrency/GCompletionLatchT.hpp"
 #include "common/concurrency/GThreadPool.hpp"
 #include "courtier/GBaseConsumerT.hpp"
 
@@ -91,18 +90,14 @@ protected:
      * @brief Evaluates all items of one round concurrently. process() sets PROCESSED on success and
      * EXCEPTION_CAUGHT on a caught processing exception (which it also re-throws -- swallowed here).
      *
-     * Waits on a PER-BATCH counter rather than GThreadPool::wait() (a global drain barrier): the pool
-     * is shared, so several algorithms can submit concurrently (the fan-in case -- e.g. a
+     * Waits on a PER-BATCH completion latch rather than GThreadPool::wait() (a global drain barrier): the
+     * pool is shared, so several algorithms can submit concurrently (the fan-in case -- e.g. a
      * meta-optimization over a population of inner algorithms), and each must wait for ONLY its own
      * items, not the whole pool.
      *
-     * The synchronisation state (@c remaining, @c m, @c cv) is heap-allocated and captured by the tasks
-     * AS WELL AS held by the waiter, so it lives until the last party drops its reference. It must NOT be
-     * stack-allocated: the waiter's predicate (remaining == 0) is satisfied by the atomic decrement, which
-     * happens BEFORE the last worker takes @c m to notify. So the waiter can wake and return -- destroying
-     * stack-allocated m/cv -- while that worker is still about to lock m, locking freed memory (a
-     * use-after-scope: glibc aborts with "mutex->__data.__owner == 0"). Keeping m/cv alive via shared_ptr
-     * makes the at-most-redundant late notify harmless instead of fatal.
+     * The latch is heap-allocated and captured by the tasks AS WELL AS held by the waiter, so it lives
+     * until the last party drops its reference -- see the lifetime note on GCompletionLatchT for why it
+     * must NOT be stack-allocated across this worker/waiter boundary (a use-after-scope otherwise).
      *
      * @param items The work items of one round; each is evaluated on the shared pool and the call blocks until all have finished
      */
@@ -110,14 +105,12 @@ protected:
         if(items.empty()) {
             return;
         }
-        auto remaining = std::make_shared<std::atomic<std::size_t>>(items.size());
-        auto m = std::make_shared<std::mutex>();
-        auto cv = std::make_shared<std::condition_variable>();
+        auto latch = std::make_shared<Gem::Common::Concurrency::GCompletionLatchT>(items.size());
         for(auto &it : items) {
             // Items travel by unique_ptr; the task borrows a raw pointer rather than copying the owner.
-            // The batch (items) outlives every task because dispatch_ blocks until cv fires below.
+            // The batch (items) outlives every task because dispatch_ blocks on the latch below.
             processable_type *raw = it.get();
-            pool_.post([raw, remaining, m, cv]() {
+            pool_.post([raw, latch]() {
                 try {
                     raw->process();
                 }
@@ -126,14 +119,10 @@ protected:
                     // re-thrown exception is intentionally swallowed so it never escapes the
                     // worker thread. Reconciliation reads the status, not an exception.
                 }
-                if(remaining->fetch_sub(1) == 1) { // this was the last item of THIS batch
-                    std::scoped_lock lk(*m);
-                    cv->notify_one();
-                }
+                latch->count_down(); // records this item's completion; wakes the waiter on the last
             });
         }
-        std::unique_lock<std::mutex> lk(*m);
-        cv->wait(lk, [&] { return remaining->load() == 0; });
+        latch->wait();
     }
 
 private:

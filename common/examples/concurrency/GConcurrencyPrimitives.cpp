@@ -34,10 +34,15 @@
  * the program prints what it does and returns non-zero if any demonstrated invariant does not hold.
  */
 
+#include <atomic>
 #include <cstdint>
 #include <iostream>
+#include <memory>
 #include <string>
+#include <thread>
+#include <vector>
 
+#include "common/concurrency/GCompletionLatchT.hpp"
 #include "common/concurrency/GContentAddressedStoreT.hpp"
 #include "common/concurrency/GThreadSafeKeyedStoreT.hpp"
 
@@ -106,12 +111,47 @@ bool demo_thread_safe_keyed_store() {
     return ok;
 }
 
+/** @brief Demonstrates GCompletionLatchT: a per-batch "wait for N completions" latch. N workers each count
+ *  down once; one waiter blocks until the batch is fully drained (the GStdThreadConsumerT round pattern).
+ *  @return true iff every demonstrated invariant held. */
+bool demo_completion_latch() {
+    std::cout << "== GCompletionLatchT ==\n";
+    bool ok = true;
+
+    constexpr std::size_t kWorkers = 8;
+    // Held via shared_ptr by every worker AND this waiter, so it outlives the last count_down().
+    auto latch = std::make_shared<GCompletionLatchT>(kWorkers);
+    std::atomic<std::size_t> done{0};
+
+    std::vector<std::thread> workers;
+    workers.reserve(kWorkers);
+    for(std::size_t i = 0; i < kWorkers; ++i) {
+        workers.emplace_back([latch, &done] {
+            done.fetch_add(1, std::memory_order_relaxed); // stand-in for "process one work item"
+            latch->count_down();
+        });
+    }
+
+    latch->wait(); // unblocks only once all kWorkers have counted down
+    ok = ok && done.load() == kWorkers && latch->remaining() == 0;
+    std::cout << "  waited on " << kWorkers << " workers; completed=" << done.load()
+              << ", remaining=" << latch->remaining() << "\n";
+
+    for(auto &t : workers) {
+        t.join();
+    }
+
+    std::cout << "  -> " << (ok ? "OK" : "FAILED") << "\n";
+    return ok;
+}
+
 } // namespace
 
 int main() {
     bool ok = true;
     ok = demo_content_addressed_store() && ok;
     ok = demo_thread_safe_keyed_store() && ok;
+    ok = demo_completion_latch() && ok;
 
     std::cout << (ok ? "\nAll concurrency-primitive demos passed.\n"
                      : "\nA concurrency-primitive demo FAILED.\n");
