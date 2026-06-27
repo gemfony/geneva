@@ -1,5 +1,5 @@
 /**
- * @file GParaboloidIndividual2D.hpp
+ * @file GParaboloidIndividual2D.cpp
  */
 
 /********************************************************************************
@@ -93,18 +93,17 @@ GParaboloidIndividual2D::GParaboloidIndividual2D(const GParaboloidIndividual2D &
 
 /********************************************************************************************/
 /**
- * The standard destructor. Note that you do not need to care for the parameter objects
- * added in the constructor. Upon destruction, they will take care of releasing the allocated
- * memory.
+ * The standard destructor. The flat genome set in the constructor is managed automatically
+ * by the base class; no manual cleanup is required.
  */
 GParaboloidIndividual2D::~GParaboloidIndividual2D() { /* nothing */
 }
 
 /********************************************************************************************/
 /**
- * Loads the data of another GParaboloidIndividual2D, camouflaged as a GFlatGenome.
+ * Loads the data of another GParaboloidIndividual2D, camouflaged as a GOptimizableEntity.
  *
- * @param cp A copy of another GParaboloidIndividual2D, camouflaged as a GFlatGenome
+ * @param cp A copy of another GParaboloidIndividual2D, camouflaged as a GOptimizableEntity
  */
 void GParaboloidIndividual2D::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GParaboloidIndividual2D reference independent of this object and convert the pointer

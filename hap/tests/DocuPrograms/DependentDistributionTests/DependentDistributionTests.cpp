@@ -81,20 +81,20 @@ int main(int argc, char **argv) {
     std::shared_ptr<GHistogram1D> x4_ptr(new GHistogram1D(NBINS, 0., 1.));
 
     std::shared_ptr<GHistogram1D> sum1_extract_ptr(new GHistogram1D(NBINS, 0., 1.)); // 1 - x1
-    std::shared_ptr<GHistogram1D> sum2_extract_ptr(new GHistogram1D(NBINS, 0., 1.)); // 2 - (x1+x2)
+    std::shared_ptr<GHistogram1D> sum2_extract_ptr(new GHistogram1D(NBINS, 0., 1.)); // 1 - (x1+x2)
     std::shared_ptr<GHistogram1D> sum3_extract_ptr(
         new GHistogram1D(NBINS, 0., 1.)
-    ); // 3 - (x1+x2+x3)
+    ); // 1 - (x1+x2+x3)
     std::shared_ptr<GHistogram1D> sum4_extract_ptr(
         new GHistogram1D(NBINS, 0., 1.)
-    ); // 4 - (x1+x2+x3+x4)
+    ); // 1 - (x1+x2+x3+x4)
 
     std::shared_ptr<GHistogram1D> sum1_all_ptr(new GHistogram1D(NBINS, 0., 1.));  // 1 - x1
-    std::shared_ptr<GHistogram1D> sum2_all_ptr(new GHistogram1D(NBINS, -1., 1.)); // 2 - (x1+x2)
-    std::shared_ptr<GHistogram1D> sum3_all_ptr(new GHistogram1D(NBINS, -2., 1.)); // 3 - (x1+x2+x3)
+    std::shared_ptr<GHistogram1D> sum2_all_ptr(new GHistogram1D(NBINS, -1., 1.)); // 1 - (x1+x2)
+    std::shared_ptr<GHistogram1D> sum3_all_ptr(new GHistogram1D(NBINS, -2., 1.)); // 1 - (x1+x2+x3)
     std::shared_ptr<GHistogram1D> sum4_all_ptr(
         new GHistogram1D(NBINS, -3., 1.)
-    ); // 4 - (x1+x2+x3+x4)
+    ); // 1 - (x1+x2+x3+x4)
 
     x1_ptr->setXAxisLabel("x1");
     x1_ptr->setYAxisLabel("Number of Entries");

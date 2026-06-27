@@ -204,7 +204,7 @@ constexpr bool CLIENT_TERMINATE = false;
  * Currently our longest command has 7 characters. As we read commands synchronously,
  * we want to keep the command length as small as possible. Note that, as the size
  * of the data body is submitted as a "command", data bodies may not have more than
- * 16 digits describing the number of bytes to expect. This should however suffice for
+ * 36 digits describing the number of bytes to expect. This should however suffice for
  * every practical purpose.
  */
 constexpr std::size_t COMMANDLENGTH = 36;

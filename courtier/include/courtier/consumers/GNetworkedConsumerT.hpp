@@ -484,8 +484,8 @@ private:
     static constexpr Gem::Courtier::CORRELATION_ID_TYPE SLOT_MASK = (1ull << SLOT_BITS) - 1ull;
     static constexpr Gem::Courtier::CORRELATION_ID_TYPE BATCH_MASK = (1ull << 48) - 1ull;
 
-    /** @brief Packs a batch_id and slot into the on-wire correlation id (batch in the high 16 bits, slot in the low 16).
-     *  @param batch The batch id (masked to 16 bits)
+    /** @brief Packs a batch_id and slot into the on-wire correlation id (batch in the high 48 bits, slot in the low 16).
+     *  @param batch The batch id (masked to 48 bits)
      *  @param slot The slot index within the batch (masked to 16 bits)
      *  @return The combined (batch_id, slot) correlation id */
     static Gem::Courtier::CORRELATION_ID_TYPE encodeId(batch_key_t batch, std::size_t slot) {
@@ -494,7 +494,7 @@ private:
     }
     /** @brief Extracts the batch id from a correlation id.
      *  @param id The (batch_id, slot) correlation id
-     *  @return The batch id (high 16 bits) */
+     *  @return The batch id (high 48 bits) */
     static batch_key_t decodeBatch(Gem::Courtier::CORRELATION_ID_TYPE id) {
         return (id >> SLOT_BITS) & BATCH_MASK;
     }
@@ -729,7 +729,7 @@ private:
     std::condition_variable cv_work_; ///< Signalled when a slot becomes available
 
     std::map<batch_key_t, BatchState> batches_; ///< All currently-active batches, keyed by batch_id
-    batch_key_t next_batch_id_ = 0;             ///< Monotonic batch_id source (masked to 16 bits)
+    batch_key_t next_batch_id_ = 0;             ///< Monotonic batch_id source (masked to 48 bits)
     batch_key_t last_served_batch_ = 0;         ///< Round-robin cursor across batches (for fairness)
     std::size_t total_pending_ = 0;             ///< Slots PENDING across ALL batches (cv predicate)
 

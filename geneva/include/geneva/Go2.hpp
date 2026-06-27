@@ -495,8 +495,8 @@ private:
     // The list of "chained" optimization algorithms
     std::vector<std::shared_ptr<GOABase>> algorithms_cnt_;
     // OA-owned adaption configs keyed by algorithm personality type ("PERSONALITY_EA", …). Installed on
-    // the matching algorithm before it runs in the chain; empty by default, in which
-    // case each adapting algorithm derives its config from the genome layout.
+    // the matching algorithm before it runs in the chain; an adapting algorithm that runs without a
+    // registered config is a hard error (adaption intent is never inferred from the genome layout).
     std::map<std::string, std::shared_ptr<oa::GAdaptionConfigBase>> adaption_config_registry_;
     // The default algorithm (if any)
     std::shared_ptr<GOABase> default_algorithm_;

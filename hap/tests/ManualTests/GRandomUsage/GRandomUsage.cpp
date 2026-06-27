@@ -104,7 +104,7 @@ bool parseCommandLine(
         "rnrProductionMode,r",
         rnrProductionMode,
         DEFAULTRNRPRODUCTIONMODE,
-        "FACTORY(0), or LOCAL(1)"
+        "QUEUE(0), or LOCAL(1)"
     );
 
     gpb.registerCLParameter<std::string>(

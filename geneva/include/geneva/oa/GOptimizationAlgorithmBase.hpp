@@ -958,7 +958,7 @@ private:
     }; ///< A priority queue with the best individuals found so far
     gen::GOptimizableEntityFixedSizePriorityQueue best_iteration_individuals_pq_{
         n_recordbest_global_individuals_
-    }; ///< A priority queue with the best individuals of a given iteration; unlimited size so all individuals of an iteration fit in
+    }; ///< A priority queue with the best individuals of a given iteration; capped at n_recordbest_global_individuals_ (same capacity as the global-best queue)
 
     std::size_t default_population_size_ =
         DEFAULTPOPULATIONSIZE; ///< The nominal size of the population

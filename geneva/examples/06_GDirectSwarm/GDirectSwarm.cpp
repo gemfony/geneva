@@ -34,7 +34,7 @@
 /*
  * *****************************************************************************
  * NOTE: This file shows how to access some of the optimization algorithms
- * directly (EA in this case), without going through the Go2 class. Usually, Go2
+ * directly (Swarm in this case), without going through the Go2 class. Usually, Go2
  * is the recommended way and will relieve you from many burdensome tasks you
  * otherwise have to perform. Thus, if you are new to Geneva, we recommend that
  * you start with example 01 first rather than following what is shown in this file.

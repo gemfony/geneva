@@ -992,7 +992,7 @@ void GParChild::adjustPopulation_() {
     // Do the smart pointers actually point to any objects ?
     typename std::vector<std::unique_ptr<gen::GIndividualSlot>>::iterator it;
     for(const auto &individual : GOptimizationAlgorithmBase::data_cnt_) {
-        if(not individual) { // shared_ptr can be implicitly converted to bool
+        if(not individual) { // unique_ptr can be implicitly converted to bool
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParChild::adjustPopulation() :" << '\n'

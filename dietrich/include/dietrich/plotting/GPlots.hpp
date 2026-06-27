@@ -793,7 +793,7 @@ private:
 /**
  * The five named data collectors are thin aliases over the single variadic
  * GDataCollectorT. They preserve the historical names, arities and the exact
- * stored layout (std::vector<std::tuple<Ts...>>) the concrete plotters rely on.
+ * stored layout (std::tuple<std::vector<Ts>...>) the concrete plotters rely on.
  *
  * - GDataCollector1T<X>        : 1-d data (e.g. for histograms)
  * - GDataCollector2T<X,Y>      : 2-d data (e.g. for a TGraph)

@@ -457,7 +457,7 @@ void GStandardPSO2011::updatePositions() {
         );
         const double radius_factor = std::pow(u, 1. / static_cast<double>(n_fp_parms_));
 
-        // Sample x' on the hypersphere around G with radius r.
+        // Sample x' inside the ball around G of radius r.
         std::vector<double> x_prime(n_fp_parms_, 0.);
         if(norm > 0. && r > 0.) {
             for(std::size_t d = 0; d < n_fp_parms_; ++d) {

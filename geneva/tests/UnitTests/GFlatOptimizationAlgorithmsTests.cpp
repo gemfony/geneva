@@ -1368,7 +1368,8 @@ TEST_CASE("Separable CMA-ES out-converges the stock EA at high dimension", "[fla
     constexpr std::size_t N = 200;
     using Ind = FlatHighDimSphere<N>;
 
-    // Stock EA: (6 + 24) population, 120 generations -> 6 + 119*24 = 2862 evaluations.
+    // Stock EA: (6 + 24) population, 120 generations -> 30 + 119*24 = 2886 evaluations
+    // (generation 0 evaluates the full population; later generations only the 24 children).
     double ea_best = 0.;
     {
         auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();

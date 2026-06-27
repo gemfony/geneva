@@ -225,7 +225,7 @@ protected:
     }
 
     /**
-     * @brief Loads the data of another GDelayIndividual, camouflaged as a GFlatGenome
+     * @brief Loads the data of another GDelayIndividual, camouflaged as a GOptimizableEntity
      * @param cp Pointer to the other object (a GDelayIndividual passed as a base-class pointer)
      */
     void load_(const gen::GOptimizableEntity *cp) final;

@@ -320,8 +320,8 @@ void GCUDABackend<scalar_type>::evaluate(
     // kernel correct at ANY threads_per_item (including 1).
     cuCheck(cuMemsetD8(p_->d_fitness, 0, fitnessBytes), "cuMemsetD8(fitness)");
 
-    // Kernel ABI: evaluate(const double* params, int n, int dim,
-    //                      const unsigned char* pconst, int pconst_size, double* fitness,
+    // Kernel ABI: evaluate(const scalar_type* params, int n_items, int dim,
+    //                      const unsigned char* pconst, int pconst_size, scalar_type* fitness,
     //                      int threads_per_item)
     int pconstSizeArg = static_cast<int>(pconst_size);
     void *args[] = {

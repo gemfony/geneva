@@ -55,7 +55,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /**
  * This class is a specialization of the GFactoryT<> class for the conjugate
  * gradient descent. It will only return objects which perform all evaluation
- * through the broker.
+ * through the process consumer.
  */
 class GConjugateGradientDescentFactory // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmFactoryT<GConjugateGradientDescent, GConjugateGradientDescent_PersonalityTraits> {

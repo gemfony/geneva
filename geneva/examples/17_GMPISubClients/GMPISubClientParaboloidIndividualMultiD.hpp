@@ -130,7 +130,7 @@ private:
     inline const static std::uint32_t pollIntervalMSec_{5};
 
     /** Maximum time to wait before a timeout is triggered on an mpi communication request */
-    inline const static std::uint32_t pollTimeoutMSec_{5000}; // 30 seconds
+    inline const static std::uint32_t pollTimeoutMSec_{5000}; // 5 seconds
 };
 
 /******************************************************************/

@@ -61,7 +61,6 @@ using namespace Gem::Dietrich; // plotting types live here now
  * measurements. This will usually mean serial execution. The execution mode
  * is however determined by the caller.
  *
- * @param go A reference to the optimization wrapper
  * @param delay_config The parsed delay-individual configuration
  * @param ab The parameters a and b of the line best describing all measurements, so that f(x)=a+b*x
  */

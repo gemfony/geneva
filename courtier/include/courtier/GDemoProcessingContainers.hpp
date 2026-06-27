@@ -176,8 +176,8 @@ enum class fault_mode : std::uint8_t {
     NONE = 0,             ///< Normal: register a result, no fault
     SLEEP = 1,            ///< Sleep for sleep_ms_ then register a result (slow worker)
     FLAG_ERROR = 2,       ///< Call force_set_error() (clean error flag, no throw)
-    THROW_PROCESSING = 3, ///< Throw g_processing_exception (the SAFE path: GWorkerT catches it)
-    THROW_FATAL = 4       ///< Throw a plain std::runtime_error (escapes the worker; pre-T1: terminate)
+    THROW_PROCESSING = 3, ///< Throw g_processing_exception (a std::exception → process()'s catch(std::exception&); item flagged)
+    THROW_FATAL = 4       ///< Throw a non-std::exception (exercises process()'s catch(...) fallback; item flagged)
 };
 
 /**********************************************************************************************/

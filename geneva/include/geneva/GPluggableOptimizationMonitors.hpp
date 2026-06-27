@@ -1290,7 +1290,7 @@ private:
 
     std::string file_name_ = std::string(
         "progressScan.C"
-    ); ///< The name of the file the output should be written to. Note that the class will add the name of the algorithm it acts on
+    ); ///< The name of the file the output should be written to.
     std::tuple<std::uint32_t, std::uint32_t> canvas_dimensions_ =
         std::tuple<std::uint32_t, std::uint32_t>(1024, 768); ///< The dimensions of the canvas
 

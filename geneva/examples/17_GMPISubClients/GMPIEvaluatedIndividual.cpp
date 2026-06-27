@@ -75,9 +75,9 @@ GMPIEvaluatedIndividual::GMPIEvaluatedIndividual(const GMPIEvaluatedIndividual &
 
 /********************************************************************************************/
 /**
- * The standard destructor. Note that you do not need to care for the parameter objects
- * added in the constructor. Upon destruction, they will take care of releasing the allocated
- * memory.
+ * The standard destructor. Note that you do not need to care for the flat genome
+ * built in the constructor. Upon destruction, the parent class will take care of
+ * releasing the allocated memory.
  */
 GMPIEvaluatedIndividual::~GMPIEvaluatedIndividual() { /* nothing */
 }
@@ -92,9 +92,9 @@ void GMPIEvaluatedIndividual::setCommunicator(MPI_Comm c) {
 
 /********************************************************************************************/
 /**
- * Loads the data of another GMPIEvaluatedIndividual, camouflaged as a GFlatGenome.
+ * Loads the data of another GMPIEvaluatedIndividual, camouflaged as a GOptimizableEntity.
  *
- * @param cp A copy of another GMPIEvaluatedIndividual, camouflaged as a GFlatGenome
+ * @param cp A copy of another GMPIEvaluatedIndividual, camouflaged as a GOptimizableEntity
  */
 void GMPIEvaluatedIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GMPIEvaluatedIndividual reference independent of this object and convert the pointer

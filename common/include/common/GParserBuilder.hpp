@@ -101,8 +101,8 @@ constexpr bool GCL_IMPLICIT_NOT_ALLOWED = false;
  * Allows to store values for a single entity from different sources, such
  * as command line, configuration files or environment variables. The enum class
  * parameter_source holds the available parameter sources. These sources are
- * grouped in the order "command line", "environment variable", "configuration
- * file" and "network".
+ * grouped in the order "network", "command line", "environment variable",
+ * "configuration file" and "assignment".
  *
  * @tparam parameter_type The type of the stored parameter value
  */
@@ -936,7 +936,7 @@ protected:
     /***************************************************************************/
     /**
 	  * Allows derived classes to reset the default value. The function assumes
-	  * that no important data is stored in par1_ and par_2, as their values will
+	  * that no important data is stored in par0_ and par1_, as their values will
 	  * be overwritten as well. The reason is that configuration files will otherwise
 	  * contain the "old" par_-value.
 	  *
@@ -2054,7 +2054,7 @@ private:
 
     /***************************************************************************/
 
-    std::array<parameter_type, N> &stored_reference_; ///< Holds a reference to the target vector
+    std::array<parameter_type, N> &stored_reference_; ///< Holds a reference to the target array
 };
 
 /******************************************************************************/

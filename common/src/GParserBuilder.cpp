@@ -760,8 +760,8 @@ std::size_t GParserBuilder::numberOfFileOptions() const {
 
 /******************************************************************************/
 /**
- * Globally selects whether an unknown configuration-file key is treated as an
- * error (true) or merely a warning (false, the default). Intended to be called
+ * Globally enables (true, the default) or disables (false) the diagnostic
+ * that detects unknown configuration-file keys. Intended to be called
  * once at program startup.
  */
 void GParserBuilder::setCheckUnknownKeys(bool enabled) {

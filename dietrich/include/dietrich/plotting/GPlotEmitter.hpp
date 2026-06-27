@@ -39,9 +39,11 @@ class GPlotDesigner; // forward declaration
 
 /******************************************************************************/
 /**
- * The set of backends a GPlotDesigner can emit through. ROOT (the historical
- * default) generates a ROOT macro; GNUPLOT generates a gnuplot script for the
- * graph plotters.
+ * The set of backends a GPlotDesigner can emit through. ROOT (the historical default)
+ * generates a ROOT macro; GNUPLOT generates a gnuplot script for the graph plotters;
+ * MATPLOTLIB generates a Python/matplotlib script and OCTAVE an Octave/MATLAB (.m) script,
+ * both covering graph plotters and histograms; DATA exports the raw series data (CSV text
+ * or a numpy .npz archive) rather than a rendered plot. See the per-enumerator notes below.
  */
 enum class plotBackend {
     ROOT,       ///< Emit a ROOT macro (the default; output is byte-identical to the historical generator)

@@ -52,8 +52,7 @@ namespace Gem::Geneva {
 /**
  * This class performs some necessary initialization work. When
  * using the Go2-class, it will be called for the user. When using optimization
- * algorithms directly, the user needs to manually instantiate this class and
- * register any desired optimization algorithm(-factory).
+ * algorithms directly, the user needs to manually instantiate this class.
  */
 class GenevaInitializer { // NOLINT(cppcoreguidelines-special-member-functions)
 public:

@@ -209,8 +209,8 @@ void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The copy constructor. Note that the executor is neither copied nor cloned.
- * You need to register your own executor or let the algorithm use the default executor.
+ * The copy constructor. There is no per-algorithm executor or consumer to copy: every
+ * algorithm submits to the process-wide consumer held in GConsumerRegistry.
  *
  * @param cp A constant reference to another GOptimizationAlgorithmBase object
  */
@@ -444,7 +444,7 @@ std::string GOptimizationAlgorithmBase::getCheckpointBaseName() const {
 /**
  * Allows to retrieve the directory where checkpoint files should be stored
  *
- * @return The base name used for checkpoint files
+ * @return The path (as a string) to the directory where checkpoint files are stored
  */
 std::string GOptimizationAlgorithmBase::getCheckpointDirectory() const {
     return cp_directory_path_.string();
@@ -454,7 +454,7 @@ std::string GOptimizationAlgorithmBase::getCheckpointDirectory() const {
 /**
  * Allows to retrieve the directory where checkpoint files should be stored
  *
- * @return The base name used for checkpoint files
+ * @return The path to the directory where checkpoint files are stored
  */
 std::filesystem::path GOptimizationAlgorithmBase::getCheckpointDirectoryPath() const {
     return cp_directory_path_;
@@ -766,7 +766,7 @@ bool GOptimizationAlgorithmBase::progress() const {
 /******************************************************************************/
 /**
  * @brief Allows to register a pluggable optimization monitor. Note that this
- * function does NOT take ownership of the optimization monitor.
+ * function shares ownership of the monitor -- it is held by shared_ptr and kept alive while registered.
  *
  * @param pluggable_om A shared pointer to the pluggable optimization monitor to be registered (must not be empty)
  */

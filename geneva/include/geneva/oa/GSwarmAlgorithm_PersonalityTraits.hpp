@@ -216,10 +216,10 @@ private:
      */
     GPersonalityTraits *clone_() const override;
 
-    /** @brief Stores the current position in the population */
+    /** @brief Stores the neighborhood id the individual currently belongs to */
     std::size_t neighborhood_ = 0;
 
-    /** @brief Determines whether the individual has been randomly initialized */
+    /** @brief Determines whether the individual's position should not be updated */
     bool no_position_update_ = false;
 
     /** @brief Holds the personally best GOptimizableEntity */

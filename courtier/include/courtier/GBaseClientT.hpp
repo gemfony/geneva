@@ -121,7 +121,7 @@ public:
     /**
 	  * @brief Allows to set a maximum number of processing steps.
 	  *
-	  * If set to 0 or left unset, processing will be done until process() returns false.
+	  * If set to 0 or left unset, there is no processing-count limit (the client runs until another halt condition triggers).
 	  *
 	  * @param processMax Desired value for the process_max_ variable (maximum number of items to process; 0 == unlimited)
 	  */

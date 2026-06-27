@@ -64,8 +64,8 @@ TEST_CASE("g_error_streamer: templated operator<< accumulates streamable values"
 TEST_CASE("g_error_streamer: stream manipulators are honoured",
           "[common][error-streamer]") {
     g_error_streamer s;
-    // std::endl is `std::ostream& (*)(std::ostream&)` — exercises the
-    // dedicated overload that forwards to the internal ostringstream.
+    // '\n' is a plain char forwarded through the generic templated
+    // operator<< to the internal ostringstream.
     s << "line1" << '\n' << "line2" << '\n';
 
     const std::string out = s.content();

@@ -299,7 +299,7 @@ private:
     /***************************************************************************/
     /** @brief Holds the container of uniform random numbers */
     std::unique_ptr<random_container> p_;
-    /** @brief A local copy of the global GRandomFactory */
+    /** @brief A local shared pointer to the global GRandomFactory */
     std::shared_ptr<Gem::Hap::GRandomFactory> grf_;
 };
 

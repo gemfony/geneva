@@ -990,7 +990,7 @@ void GParameterScan::setParameterSpecs(std::string par_str) {
         auto f_cit = std::get<0>(t_f);
         auto f_end = std::get<1>(t_f);
         for(; f_cit != f_end;
-            ++f_cit) { // Note: f_cit is already set to the begin of the double parameter arrays
+            ++f_cit) { // Note: f_cit is already set to the begin of the float parameter arrays
             f_cnt_.push_back(std::make_shared<GFScanPar>(*f_cit, scan_randomly_));
         }
 

@@ -94,19 +94,19 @@ struct ConsumerSetup {
 
 /******************************************************************************/
 /**
- * @brief Builds a courtier setup (broker and/or worker loop) for the current process from a spec.
+ * @brief Builds a courtier setup (consumer and/or worker loop) for the current process from a spec.
  *
  * Constructs the matching courtier consumer, sets the polymorphic GOptimizableEntity clone function
- * (required by clone-on-partial-return), registers it with a fresh single-consumer broker, and -- for
- * networked consumers -- starts the server (for MPI only on the master rank; a worker rank yields a
- * run_worker loop and a null broker instead).
+ * (required by clone-on-partial-return), registers it in GConsumerRegistry as the process's single
+ * consumer, and -- for networked consumers -- starts the server (for MPI only on the master rank; a
+ * worker rank yields a run_worker loop and a null consumer instead).
  *
  * This is the SINGLE place that knows the concrete courtier consumer types, so callers (Go2 and the
  * standalone examples) share one construction path and stay free of consumer specifics.
  *
  * @param spec The transport-agnostic description of the consumer to build (mnemonic, ports, threads,
  *   serialization, client-side fields).
- * @return A ConsumerSetup whose broker is ready to inject into the algorithms (or null when this
+ * @return A ConsumerSetup whose consumer is registered in GConsumerRegistry (or null when this
  *   process is a worker rather than a submitter), and whose run_worker holds the worker loop when this
  *   process must serve as a worker. An unknown mnemonic yields an empty setup (both fields null).
  */

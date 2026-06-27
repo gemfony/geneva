@@ -63,7 +63,7 @@ namespace Gem::Geneva::Benchmarks {
  */
 struct AlgorithmEntry {
     std::string tag;        ///< Free label, e.g. "ea_pop100"
-    std::string mnemonic;   ///< Algorithm type: "ea", "sa", "swarm", or "gd"
+    std::string mnemonic;   ///< Algorithm type: "ea", "sa", "swarm", "gd", or "cgd"
     std::string configFile; ///< Path to algorithm-specific JSON config
 };
 

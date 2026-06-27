@@ -296,7 +296,7 @@ public:
             data_deq_.end(),
             [this](std::shared_ptr<T> const &x_ptr, std::shared_ptr<T> const &y_ptr) -> bool {
                 if(this->getSortOrder() == sortOrder::LOWERISBETTER) {
-                    // higher is better
+                    // lower is better
                     return this->evaluation(x_ptr) < this->evaluation(y_ptr);
                 }
                                     // HIGHERISBETTER

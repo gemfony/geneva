@@ -309,7 +309,7 @@ private:
     // Data
 
     std::set<std::string>
-        allowed_mnemonics_; ///< A list of mnemonics for which optimization is allowed
+        allowed_mnemonics_; ///< A list of mnemonics for which post-processing is allowed
 };
 
 /******************************************************************************/

@@ -55,7 +55,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /**
  * @brief A specialization of the GFactoryT<> class for simulated annealing.
  *
- * It will only return objects which perform all evaluation through the broker.
+ * It will only return objects which perform all evaluation through the one process consumer.
  */
 class GSimulatedAnnealingFactory // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmFactoryT<GSimulatedAnnealing, GSimulatedAnnealing_PersonalityTraits> {

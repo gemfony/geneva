@@ -84,14 +84,14 @@ int main(int argc, char **argv) {
         go.registerAdaptionConfig("PERSONALITY_EA", gfi.getAdaptionConfig(*sample));
     }
 
-    // Create an evolutionary algorithm in multi-threaded mode
+    // Create an evolutionary algorithm from its configuration file
     oa::GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json");
     std::shared_ptr<oa::GEvolutionaryAlgorithm> ea_ptr = ea.get<oa::GEvolutionaryAlgorithm>();
 
-    // Add the algorithm to the Go2 object. Note that the multi-threaded ea variant will
-    // be executed first, regardless of what other algorithms you might have specified
-    // on the command line. This example simply shows a different way of adding
-    // optimization algorithms to Go2.
+    // Add the algorithm to the Go2 object. Note that this ea is appended to the algorithm
+    // chain, so it is executed AFTER any algorithms you might have specified on the command
+    // line (those are added during Go2's construction, before this point). This example
+    // simply shows a different way of adding optimization algorithms to Go2.
     go & ea_ptr;
 
     // Perform the actual optimization

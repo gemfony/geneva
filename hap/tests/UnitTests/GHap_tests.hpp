@@ -177,7 +177,7 @@ public:
 
         //------------------------------------------------------------------------------
 
-        { // Check that using extreme values for the boundaries of uniform_int(min,max) and producing random numbers doesn't throw in RAMDOMLOCAL mode
+        { // Check that using extreme values for the boundaries of uniform_int(min,max) and producing random numbers doesn't throw in randomSource::LOCAL mode
             std::shared_ptr<GRandomT<Gem::Hap::randomSource::LOCAL>> gr_ptr(
                 new Gem::Hap::GRandomT<Gem::Hap::randomSource::LOCAL>()
             );
@@ -194,7 +194,7 @@ public:
 
         //------------------------------------------------------------------------------
 
-        { // Check that using extreme values for the boundaries of uniform_int(min,max) and producing random numbers doesn't throw in RAMDOMPROXY mode
+        { // Check that using extreme values for the boundaries of uniform_int(min,max) and producing random numbers doesn't throw in randomSource::QUEUE mode
             std::shared_ptr<GRandomT<Gem::Hap::randomSource::QUEUE>> gr_ptr(
                 new Gem::Hap::GRandomT<Gem::Hap::randomSource::QUEUE>()
             );

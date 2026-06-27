@@ -120,10 +120,10 @@ typedef std::tuple<std::size_t, std::size_t> SCREENSIZE_t;
 // (gimage_fp_t = double by default, float when GIMAGE_USE_FLOAT), so getTriangleData() does not
 // narrow the genome values.
 struct CircleTriangle {
-    gimage_fp_t r, g, b, a;             // Colors & transparency (0..255)
+    gimage_fp_t r, g, b, a;             // Colors & transparency (0..1)
     gimage_fp_t cx, cy;                 // Middle-coordinates of the circle
     gimage_fp_t radius;                 // Radius
-    gimage_fp_t angle1, angle2, angle3; // Angles in Radians (0..2*pi)
+    gimage_fp_t angle1, angle2, angle3; // Angles normalized (0..1)
 };
 
 // Add a comparison-operator for our tests

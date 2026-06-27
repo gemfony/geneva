@@ -42,7 +42,7 @@
  * ## Portability
  *
  * Each function is annotated with G_CALLABLE, which expands to
- * `__host__ __device__` when compiled by nvcc (CUDA_ENABLED defined), and to
+ * `__host__ __device__` when compiled by nvcc (__CUDACC__ defined), and to
  * nothing for plain C++ compilation.  This means the same source code is used
  * by GFunctionIndividual::fitnessCalculation() on the CPU and by the batch
  * CUDA kernel in GBenchmarkBatchEvaluator.cu on the GPU — no duplication.

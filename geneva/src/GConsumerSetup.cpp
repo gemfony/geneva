@@ -71,14 +71,14 @@ individualCloneFunction() {
 
 /******************************************************************************/
 /**
- * @brief Builds a broker (and, for MPI workers, a worker loop) from a consumer specification.
+ * @brief Builds a consumer (and, for MPI workers, a worker loop) from a consumer specification.
  *
  * Dispatches on spec.mnemonic to instantiate the matching consumer, sets its clone function, starts
- * any required server, and wraps it in a single-consumer broker. For the MPI mnemonic the master rank
- * yields a broker while a worker rank yields a run_worker callable instead (and no broker).
+ * any required server, and registers it as the process's single consumer. For the MPI mnemonic the master rank
+ * yields a consumer while a worker rank yields a run_worker callable instead (and no consumer).
  *
  * @param spec The consumer specification (mnemonic plus port/threads/serialization settings)
- * @return A ConsumerSetup holding the broker and/or worker loop; empty for an unknown mnemonic
+ * @return A ConsumerSetup holding the consumer and/or worker loop; empty for an unknown mnemonic
  */
 ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
     namespace c2 = Gem::Courtier;
@@ -274,7 +274,7 @@ buildConsumerClient(const ConsumerSpec &spec) {
 
 namespace {
 
-/** @brief One supported consumer: its mnemonic, human-readable name and whether it can have a client. */
+/** @brief One supported consumer: its mnemonic, human-readable name and whether it needs a client. */
 struct C2ConsumerInfo {
     const char *mnemonic;
     const char *name;

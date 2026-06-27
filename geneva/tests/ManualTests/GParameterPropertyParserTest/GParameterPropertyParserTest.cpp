@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
     std::vector<gen::parPropSpec<float>>::const_iterator f_cit = std::get<0>(t_f);
     std::vector<gen::parPropSpec<float>>::const_iterator f_end = std::get<1>(t_f);
     for(; f_cit != f_end;
-        ++f_cit) { // Note: f_cit is already set to the begin of the double parameter arrays
+        ++f_cit) { // Note: f_cit is already set to the begin of the float parameter arrays
         std::cout << *f_cit << '\n' << '\n';
     }
 
@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
     std::vector<gen::parPropSpec<std::int32_t>>::const_iterator i_cit = std::get<0>(t_i);
     std::vector<gen::parPropSpec<std::int32_t>>::const_iterator i_end = std::get<1>(t_i);
     for(; i_cit != i_end;
-        ++i_cit) { // Note: i_cit is already set to the begin of the double parameter arrays
+        ++i_cit) { // Note: i_cit is already set to the begin of the integer (int32_t) parameter arrays
         std::cout << *i_cit << '\n' << '\n';
     }
 
@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
     std::vector<gen::parPropSpec<bool>>::const_iterator b_cit = std::get<0>(t_b);
     std::vector<gen::parPropSpec<bool>>::const_iterator b_end = std::get<1>(t_b);
     for(; b_cit != b_end;
-        ++b_cit) { // Note: b_cit is already set to the begin of the double parameter arrays
+        ++b_cit) { // Note: b_cit is already set to the begin of the boolean parameter arrays
         std::cout << *b_cit << '\n' << '\n';
     }
 }

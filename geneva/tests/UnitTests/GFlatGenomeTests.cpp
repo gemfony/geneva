@@ -736,8 +736,8 @@ private:
 
 /**
  * A flat individual carrying an integer Gauss adaptor (the prerequisite for GMetaOptimizerIndividualT,
- * which mutates n_children with GInt32GaussAdaptor while n_parents uses a flip adaptor). Two int32
- * groups: a constrained one driven by the integer Gauss kernel and another by the flip kernel, so the
+ * which mutates n_children with GInt32GaussAdaptor while n_parents uses a flip adaptor). Four int32
+ * groups: three (groups 0–2) driven by the integer Gauss kernel and one (group 3) by the flip kernel, so the
  * test confirms both int adaptor kinds coexist on the same channel.
  */
 class FlatIntGauss : public GFlatIndividualT<FlatIntGauss> {

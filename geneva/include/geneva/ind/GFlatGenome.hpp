@@ -73,7 +73,7 @@ namespace Gem::Geneva::Genome {
  * GFlatGenome stores the parameters as four contiguous, type-homogeneous value arrays
  * (double / float / int32 / bool) plus a handle to a shared, immutable GGenomeLayout that describes
  * their bounds, grouping and adaption configuration. The per-individual, per-group adaption state
- * (Gauss sigma, ...) lives in the inherited GAuxiliaryStore, not in the genome.
+ * (Gauss sigma, ...) lives in the GIndividualSlot's scratch (GAuxiliaryStore), not in the genome.
  *
  * Because all genome state is generic, a typical concrete individual adds *no* extra members and only
  * supplies a constructor (which builds its genome with GGenomeBuilder and calls setGenome()) and
@@ -518,8 +518,8 @@ private:
     bool getVarVal_b_(std::size_t idx) override;
 
     /** @brief Retrieval of a suitable position for cross over inside of a vector.
-     *  @param lower The size of the value vector to pick a cross-over position in
-     *  @param upper The minimum allowed cross-over position
+     *  @param lower The minimum allowed cross-over position (must be > 0)
+     *  @param upper The exclusive upper bound of the cross-over range (typically the size of the value vector)
      *  @return A valid cross-over position within the vector */
     std::size_t getCrossOverPos(std::size_t lower, std::size_t upper);
 

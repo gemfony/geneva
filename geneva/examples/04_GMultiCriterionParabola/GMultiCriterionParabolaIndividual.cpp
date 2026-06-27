@@ -92,9 +92,9 @@ void GMultiCriterionParabolaIndividual::setMinima(const std::vector<double> &min
 
 /******************************************************************************/
 /**
-     * Loads the data of another GMultiCriterionParabolaIndividual, camouflaged as a GFlatGenome.
+     * Loads the data of another GMultiCriterionParabolaIndividual, camouflaged as a GOptimizableEntity.
      *
-     * @param cp A copy of another GMultiCriterionParabolaIndividual, camouflaged as a GFlatGenome
+     * @param cp A copy of another GMultiCriterionParabolaIndividual, camouflaged as a GOptimizableEntity
      */
 void GMultiCriterionParabolaIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GMultiCriterionParabolaIndividual reference independent of this object and convert the pointer

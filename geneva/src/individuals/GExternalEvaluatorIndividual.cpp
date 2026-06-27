@@ -79,7 +79,7 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
  * @param cp A constant reference to another GExternalEvaluatorIndividual to be copied
  */
 GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual &cp)
-  : gen::GFlatGenome(cp) // copies all local collections
+  : gen::GFlatGenome(cp) // copies the base genome (value channels + layout)
   , program_name_(cp.program_name_)
   , custom_options_(cp.custom_options_)
   , parameter_file_base_name_(cp.parameter_file_base_name_)

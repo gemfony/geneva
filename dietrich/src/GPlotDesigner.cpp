@@ -2009,8 +2009,8 @@ void GGraph4D::compare_(
 
 /******************************************************************************/
 /**
- * Retrieve specific header settings for this plot. The three positional parameters
- * (is_secondary flag, parent id and indentation string) are unused because this 4D
+ * Retrieve specific header settings for this plot. The four positional parameters
+ * (is_secondary flag, parent id, own id and indentation string) are unused because this 4D
  * graph emits all of its ROOT code in the footer section.
  *
  * @return An empty string, as this 4D graph emits no header code
@@ -2025,8 +2025,8 @@ std::string GGraph4D::headerData_([[maybe_unused]] bool is_secondary, [[maybe_un
 
 /******************************************************************************/
 /**
- * Retrieves the actual data sets. The three positional parameters (is_secondary flag,
- * parent id and indentation string) are unused because this 4D graph emits all of its
+ * Retrieves the actual data sets. The four positional parameters (is_secondary flag,
+ * parent id, own id and indentation string) are unused because this 4D graph emits all of its
  * ROOT code in the footer section.
  *
  * @return An empty string, as this 4D graph emits no body data

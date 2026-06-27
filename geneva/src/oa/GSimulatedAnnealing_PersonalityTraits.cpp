@@ -108,7 +108,7 @@ GPersonalityTraits *GSimulatedAnnealing_PersonalityTraits::clone_() const {
 /**
  * @brief Loads the data of another GSimulatedAnnealing_PersonalityTraits object.
  *
- * @param cp A copy of another GSimulatedAnnealing_PersonalityTraits object, camouflaged as a GPersonalityTraits
+ * @param cp A pointer to another GSimulatedAnnealing_PersonalityTraits object, camouflaged as a GPersonalityTraits
  */
 void GSimulatedAnnealing_PersonalityTraits::load_(const GPersonalityTraits *cp) {
     // Check that we are dealing with a GSimulatedAnnealing_PersonalityTraits reference independent of this object and convert the pointer

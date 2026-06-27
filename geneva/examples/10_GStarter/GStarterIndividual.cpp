@@ -84,7 +84,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::targetFunction &tF) {
 
 /******************************************************************************/
 /**
- * The default constructor -- intentionally private. Note that some data members
+ * The default constructor. Note that some data members
  * may be initialized in the class body.
  */
 GStarterIndividual::GStarterIndividual() { /* nothing */
@@ -126,7 +126,7 @@ GStarterIndividual::GStarterIndividual(
 /**
  * A standard copy constructor
  *
- * @param cp A copy of another GFunctionIndidivual
+ * @param cp A copy of another GStarterIndividual
  */
 GStarterIndividual::GStarterIndividual(const GStarterIndividual &cp)
   : gen::GFlatGenome(cp)
@@ -267,7 +267,6 @@ gen::GFlatGenome *GStarterIndividual::clone_() const {
 /**
  * The actual value calculation takes place here
  *
- * @param The id of the target function (ignored here)
  * @return The value of this object, as calculated with the evaluation function
  */
 double GStarterIndividual::fitnessCalculation() {

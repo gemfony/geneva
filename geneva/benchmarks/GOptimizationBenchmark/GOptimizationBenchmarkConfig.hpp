@@ -60,10 +60,9 @@ class GOptimizationBenchmarkConfig {
 public:
     /*****************************************************************************/
     /**
-	 * The default constructor
+	 * The primary constructor
 	 *
 	 * @param configFile The name of a configuration file
-	 * @param resultFile The name of a file to which results should be written
 	 */
     explicit GOptimizationBenchmarkConfig(std::filesystem::path const &configFile)
       : nTests_(DEFNOPTBENCHTESTS)

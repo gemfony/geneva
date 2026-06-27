@@ -43,7 +43,6 @@
 #include <cstddef>
 #include <iostream>
 #include <random>
-#include <stdexcept>
 #include <thread>
 #include <vector>
 
@@ -133,9 +132,11 @@ GFaultyContainer::GFaultyContainer(std::size_t stored_number, fault_mode fm, uns
 /**
  * @brief Performs this object's processing task by exhibiting the configured (mis-)behaviour.
  *
- * THROW_PROCESSING raises the dedicated g_processing_exception, which the worker is expected to
- * catch and turn into a flagged item; THROW_FATAL raises a plain std::runtime_error, which (pre-T1)
- * escapes the worker thread. The input vector is ignored.
+ * THROW_PROCESSING raises the dedicated g_processing_exception (a std::exception, so it hits
+ * GProcessableT::process()'s catch(std::exception&) branch); THROW_FATAL throws a non-std::exception,
+ * exercising process()'s catch(...) fallback instead. The two modes thus cover process()'s two catch
+ * handlers; either branch marks the item EXCEPTION_CAUGHT and re-throws it as a g_processing_exception,
+ * which the worker turns into a flagged item (same outcome). The input vector is ignored.
  */
 void GFaultyContainer::process_([[maybe_unused]] const std::vector<bool> &res_vec) {
     switch(fault_mode_) {
@@ -159,7 +160,9 @@ void GFaultyContainer::process_([[maybe_unused]] const std::vector<bool> &res_ve
         );
 
     case fault_mode::THROW_FATAL:
-        throw std::runtime_error("GFaultyContainer: injected fatal std::runtime_error");
+        // Deliberately throw something that is NOT a std::exception, so it exercises
+        // process()'s catch(...) fallback rather than its catch(std::exception&) branch.
+        throw "GFaultyContainer: injected non-std::exception"; // NOLINT(hicpp-exception-baseclass,cert-err60-cpp)
     }
 }
 

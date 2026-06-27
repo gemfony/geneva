@@ -104,9 +104,9 @@ struct GaussState {
  * @param gr The per-individual random engine the mutation draws from.
  * @return The number of values that were actually adapted.
  *
- * @note Shared implementation behind the two public adaptGaussGroup() overloads. @p vsDelta supplies
- *       the per-value gaussian step: the gr-only overload draws it inline from the shared @c normal
- *       object (bit-identical to the historical kernel), the cache overload pops it from a prefetch
+ * @note Shared implementation behind the public adaptGaussGroup() function. @p vsDelta supplies
+ *       the per-value gaussian step: the ncache==nullptr path draws it inline from the shared @c normal
+ *       object (bit-identical to the historical kernel), the cache path pops it from a prefetch
  *       cache. Self-adaption and the gates always draw inline from @p gr.
  * @tparam ValueDelta A callable (g_normal_distribution<T>&, GRandomBase&, T sigma) -> T.
  */
@@ -267,7 +267,7 @@ std::size_t adaptGaussGroup(
  * probability self-adapts log-normally, the per-value bernoulli gate is the same, and sigma
  * self-adapts log-normally on the threshold / probability trigger (sigma is a double, so it reuses the
  * GaussConfig<double> / GaussState<double> POD). Only the value step differs: instead of an FP delta it
- * adds a rounded gaussian integer step, with a guaranteed minimal change of +/-1 when the rounded step
+ * adds a truncated gaussian integer step, with a guaranteed minimal change of +/-1 when the truncated step
  * is zero (mirroring GIntGaussAdaptorT::customAdaptions). There is NO fold in the kernel -- a
  * constrained integer folds into its range on read (GFlatGenome / foldConstrainedInt), exactly as the
  * tree applies it via GConstrainedIntT.
@@ -275,7 +275,7 @@ std::size_t adaptGaussGroup(
  * @param cfg The static, shared Gauss configuration for this group (sigma is a double; bounds, rates, mode).
  * @param st The per-individual evolving Gauss state (current sigma / adaption probability / counter); updated in place.
  * @param values The group's int32 parameter values to adapt (unbounded internal representation; folded on read).
- * @param range The integer value range scaling the rounded gaussian step.
+ * @param range The integer value range scaling the truncated gaussian step.
  * @param gr The per-individual random engine the mutation draws from.
  * @return The number of values that were actually adapted.
  */
@@ -337,7 +337,7 @@ inline std::size_t adaptGaussIntGroup(
         }
     };
 
-    // The value step (round(range * N(0, sigma)) with a guaranteed +/-1 minimal change), mirroring
+    // The value step (truncate(range * N(0, sigma)) with a guaranteed +/-1 minimal change), mirroring
     // GIntGaussAdaptorT::customAdaptions.
     auto gauss_int_step = [&](std::int32_t &v) {
         auto addition = static_cast<std::int32_t>(

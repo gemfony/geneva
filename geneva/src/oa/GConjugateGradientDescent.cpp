@@ -552,10 +552,10 @@ void GConjugateGradientDescent::updateChildParameters() {
  * For each starting point the (proxy) gradient component in direction j is the
  * forward difference
  *
- *   g_j = f(x + h_j e_j) - f(x)
+ *   g_j = (f(x + h_j e_j) - f(x)) / h_j
  *
- * (the same proxy used by GGradientDescent, i.e. not divided by h_j, so the
- * effective scaling matches the plain gradient descent). The Polak-Ribière+
+ * (a normalised O(h) finite-difference gradient; the central-difference variant uses
+ * (f(x+h_j e_j) - f(x-h_j e_j)) / (2 h_j) when central_differences_ is set). The Polak-Ribière+
  * coefficient and the new conjugate search direction are
  *
  *   beta = max(0, g . (g - g_prev) / (g_prev . g_prev))
@@ -868,7 +868,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
  * @brief Evaluates a batch of trial parameter vectors (the line-search probes) by cloning the given starting
  * point, assigning each probe's floating point values, and submitting the lot through the same
  * span+policy consumer path the main algorithm uses (this->workOn). Because submission goes through the
- * broker/executor, the probes are evaluated on whatever consumer is active -- serial, multi-threaded, GPU
+ * process consumer, the probes are evaluated on whatever consumer is active -- serial, multi-threaded, GPU
  * or networked -- so the line search is fully decoupled from where evaluation happens.
  *
  * @param starting_point The population position of the starting-point individual to clone for each probe

@@ -132,7 +132,7 @@ namespace Gem::Common {
 
 /******************************************************************************/
 /**
- * This function is meant to determine the access-time of a file in a given path.
+ * This function is meant to determine the last-write-time of a file in a given path.
  * The file will be created, if it does not exist, filled with an optional text
  * and removed afterwards, if a) the file did not exist before and b) the user
  * wants the file to be removed. The time of the last write to the file will be
@@ -141,7 +141,7 @@ namespace Gem::Common {
  * @param path The path (including file name) to the file to be touched
  * @param content An optional content for the file (default empty)
  * @param remove_if_not_present Indicates whether the file should be removed after having been touched (default false)
- * @return The time of the last access to the file
+ * @return The time of the last write to the file
  */
 std::filesystem::file_time_type touch_time(
     std::filesystem::path const &path,
@@ -400,7 +400,7 @@ std::vector<std::string> splitString(std::string const &str, const char *sep) {
 /**
  * Splits a string into a vector of unsigned int, if possible, or throws
  * an exception. The list must at least contain one entry and must be
- * comma-separated.
+ * separated by the @p sep character.
  *
  * @param raw The string to be parsed (must contain at least one entry)
  * @param sep The separator character between entries

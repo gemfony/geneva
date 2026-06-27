@@ -132,7 +132,7 @@ TEST_CASE("GLogStreamer: templated operator<< accumulates streamable values",
 TEST_CASE("GLogStreamer: std::endl manipulator goes through the dedicated overload",
           "[common][logger]") {
     GLogStreamer s;
-    s << "line1" << '\n' << "line2";
+    s << "line1" << std::endl << "line2";
     CHECK(s.content().find("line1\n") != std::string::npos);
     CHECK(s.content().find("line2")   != std::string::npos);
 }

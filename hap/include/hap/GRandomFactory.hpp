@@ -132,15 +132,15 @@ public:
     /***************************************************************************/
     // Deleted constructors and assignment operators
 
-    random_container() = delete; ///< The default constructor -- intentionally private and undefined
+    random_container() = delete; ///< The default constructor -- intentionally deleted
     random_container(const random_container &) =
-        delete; ///< The copy constructor -- intentionally private and undefined
+        delete; ///< The copy constructor -- intentionally deleted
     random_container(random_container &&) =
-        delete; ///< The move constructor -- intentionally private and undefined
+        delete; ///< The move constructor -- intentionally deleted
     random_container &
-    operator=(const random_container &) = delete; ///< intentionally private and undefined
+    operator=(const random_container &) = delete; ///< intentionally deleted
     random_container &
-    operator=(random_container &&) = delete; ///< Intentionally private and undefined
+    operator=(random_container &&) = delete; ///< Intentionally deleted
 
     /***************************************************************************/
     /** @brief The destructor */
@@ -447,7 +447,7 @@ private:
     std::vector<seed_type> seed_collection_ =
         std::vector<seed_type>(DEFAULTSEEDVECTORSIZE); ///< Holds pre-calculated seeds
     std::vector<seed_type>::const_iterator seed_cit_ =
-        seed_collection_.begin(); ///< Iterators over the seedCollection_
+        seed_collection_.begin(); ///< Iterator over the seed_collection_
     std::atomic<bool> seeding_has_started_{false};
 };
 

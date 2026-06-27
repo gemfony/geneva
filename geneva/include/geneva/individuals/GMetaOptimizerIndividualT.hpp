@@ -1536,7 +1536,7 @@ private:
     double init_amalgamation_lklh_ =
         GMETAOPT_DEF_INITAMALGLKLHOOD; ///< The initial likelihood for an individual being created from cross-over rather than "just" duplication
     double amalgamation_lklh_lb_ =
-        GMETAOPT_DEF_AMALGLKLHOOD_LB; ///< The upper boundary for the variation of the amalgamation likelihood
+        GMETAOPT_DEF_AMALGLKLHOOD_LB; ///< The lower boundary for the variation of the amalgamation likelihood
     double amalgamation_lklh_ub_ =
         GMETAOPT_DEF_AMALGLKLHOOD_UB; ///< The upper boundary for the variation of the amalgamation likelihood
 

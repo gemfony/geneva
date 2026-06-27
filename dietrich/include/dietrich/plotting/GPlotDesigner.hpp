@@ -141,9 +141,9 @@ public:
     /*********************************************************************/
 
     /**
-     * @brief Emits the overall plot as a ROOT input script
+     * @brief Emits the overall plot through the selected backend emitter
      * @param plot_name The name used in the emitted script (and a warning context); defaults to "empty"
-     * @return The complete ROOT input script as a string
+     * @return The complete backend-specific document as a string
      */
     [[nodiscard]] std::string
     plot(const std::filesystem::path & plot_name = std::filesystem::path("empty")) const;
@@ -156,8 +156,8 @@ public:
     /**
      * @brief Selects the backend the designer emits through
      *
-     * Installs the standard emitter for the requested backend (ROOT, the default,
-     * or GNUPLOT). plot() then delegates to the selected emitter.
+     * Installs the standard emitter for the requested backend (ROOT, GNUPLOT,
+     * MATPLOTLIB, OCTAVE, or DATA). plot() then delegates to the selected emitter.
      *
      * @param backend The plotting backend to use
      */

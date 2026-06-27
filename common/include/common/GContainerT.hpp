@@ -1278,17 +1278,17 @@ public:
     }
 
     /**
-     * @brief Inserts @p count references to @p item_ptr (clones all but the last)
+     * @brief Inserts @p count references to @p item_ptr (clones all but the first)
      *        before @p pos.
      *
-     * Inserts (count-1) clones followed by @p item_ptr itself. This matches the
+     * Inserts @p item_ptr itself followed by (count-1) clones. This matches the
      * semantics of GPtrVectorT::insert_noclone(pos, amount, item).
      *
      * @param pos     An iterator pointing to the insertion position.
      * @param count   The number of elements to insert.
      * @param item_ptr The object to insert.
      * @throws geneva_exception when @p item_ptr is null.
-     * @note Only available for SharedPtrStorage.
+     * @note Only available for SharedPtrStorage or UniquePtrStorage (not PodStorage).
      */
     void insert_noclone(const_iterator pos, size_type count, StoredType item_ptr)
         requires (!std::same_as<StoredType, ValueType>)

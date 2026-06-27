@@ -704,7 +704,7 @@ void Go2::sortIndividualsByFitness() {
 /**
  * @brief Retrieves the best individual found.
  *
- * This function returns a base pointer. Conversion is done through a function stored in GOptimizableI.
+ * This function returns a base pointer. Conversion is done through the clone<>() template in GCommonInterfaceT.
  *
  * @return The best individual found
  */
@@ -744,7 +744,7 @@ std::shared_ptr<gen::GOptimizableEntity> Go2::getBestGlobalIndividual_() const {
 /**
  * @brief Retrieves a list of the best individuals found.
  *
- * This function returns base pointers. Conversion is done through a function stored in GOptimizableI.
+ * This function returns base pointers. Conversion is done through the clone<>() template in GCommonInterfaceT.
  *
  * @return A vector holding the best individuals found
  */

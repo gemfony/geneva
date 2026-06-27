@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedFPTTest.cpp
+ * @file GCommandContainerSerialization.cpp
  */
 
 /********************************************************************************
@@ -32,16 +32,15 @@
  ********************************************************************************/
 
 /**
- * This test takes a GConstrainedDoubleObject object:
- * a) It examines the mapping from internal to external representation of its value.
- * b) It tests the "distortion" of a gaussian when going through the mapping from
- *    internal to external value.
+ * This test creates GFunctionIndividual objects, wraps them in GCommandContainerT
+ * (with a GOptimizableEntity payload), and verifies round-trip serialization fidelity:
+ * a) It serializes and de-serializes a command container and checks that the payload
+ *    contents are identical after the round-trip.
+ * b) It processes the payload (evaluates the individual) and performs another
+ *    serialize/de-serialize round-trip, checking that the results match.
  *
- * Additional tests (including error handling) of the GConstrainedDoubleObject class have been
+ * Additional tests of the GCommandContainerT and GOptimizableEntity classes have been
  * implemented as part of the unit tests.
- *
- * In order to see the results of this test, you need the Root toolkit from http://root.cern.ch.
- * Once installed call "root -l mapping.C" .
  */
 
 // Standard header files go here

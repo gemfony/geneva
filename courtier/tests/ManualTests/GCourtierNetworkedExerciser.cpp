@@ -32,8 +32,8 @@
  * loopback unit tests, this runs the server and the clients as separate OS processes (typically
  * launched together by startCourtierJobs.sh), so it validates the real cross-process behaviour.
  *
- *   server : GCourtierNetworkedExerciser [--server] -c asio|beast --port P [--n N] [--faultEvery K]
- *   client : GCourtierNetworkedExerciser  --client  -c asio|beast --ip HOST --port P
+ *   server : GCourtierNetworkedExerciser [-c asio|beast] [--asio_port P] [--beast_port P] [--nWorkItems N] [--faultEvery K]
+ *   client : GCourtierNetworkedExerciser  --client  -c asio|beast [--asio_ip HOST] [--beast_ip HOST] [--asio_port P] [--beast_port P]
  *
  * The server submits a batch through the courtier span+policy executor and prints OK/FAIL plus the
  * processed count; with --faultEvery K, every K-th item throws and the clone-on-partial-return

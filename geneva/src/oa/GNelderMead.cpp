@@ -687,9 +687,9 @@ void GNelderMead::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
 
 /******************************************************************************/
 /**
- * @brief Triggers fitness calculation of all individuals via the broker.
+ * @brief Triggers fitness calculation of all individuals via the consumer.
  *
- * Throws if the broker does not return a complete set of results or reports errors in any individual.
+ * Throws if the consumer does not return a complete set of results or reports errors in any individual.
  */
 void GNelderMead::runFitnessCalculation_() {
     using namespace Gem::Courtier;
@@ -874,8 +874,9 @@ void GNelderMead::actOnStalls_() {
  * The layout is n_simplices_ blocks of (n_fp_parms_first_ + 1) vertices plus NM_NTRIALS speculative trial
  * slots each. The number of floating-point parameters is read from the first individual; any integer or
  * boolean parameters are left untouched (Nelder-Mead operates only on the continuous parameter space) and
- * merely logged. One randomized seed individual is created per simplex and the remaining slots are filled
- * with clones; the real initial simplex geometry is constructed later in init().
+ * merely logged. Each simplex gets a seed individual; simplices beyond the supplied individuals are seeded
+ * with randomized clones of the first, and the remaining vertex slots are filled with clones; the real
+ * initial simplex geometry is constructed later in init().
  */
 void GNelderMead::adjustPopulation_() {
     std::size_t n_start = this->size();

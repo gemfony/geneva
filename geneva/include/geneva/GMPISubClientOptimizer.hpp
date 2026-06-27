@@ -141,7 +141,7 @@ private:
     int baseCommRank_{};
     /**
           * The number of sub-clients per geneva client. This means each geneva client is part of a sub-group consisting of
-          * nSubClients_ processes.
+          * subClientGroupSize_ processes.
           */
     std::uint16_t subClientGroupSize_{4};
     /**

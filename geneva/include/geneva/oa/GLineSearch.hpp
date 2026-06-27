@@ -98,7 +98,7 @@ struct GLineSearchResult {
  * step in the batch that satisfies Armijo. This is an ordinary backtracking line search, batched to fit
  * the bulk-submission model. The objective is supplied as eval_fn(points) -> values, evaluating a batch
  * of points in a single call, so it can be wired straight to the optimization algorithm's
- * broker/executor and thus runs on whatever consumer the algorithm uses (serial, multi-threaded, GPU
+ * process consumer, so it runs on whatever consumer the algorithm uses (serial, multi-threaded, GPU
  * or networked) -- the line search itself is consumer-agnostic.
  *
  * The class is a transient numeric helper: it holds no optimization state and is NOT a registered

@@ -72,6 +72,6 @@ bool saveRGBImageToFile(
     const int
 );
 
-/** @brief Writes an image in RGB format to disc */
+/** @brief Writes an image in float format to disc */
 bool saveFloatImageToFile(const std::string &, const std::vector<float> &, const int, const int);
 } /* namespace Gem::Common */

@@ -37,8 +37,8 @@
 namespace Gem::Common {
 /******************************************************************************/
 /**
-      * Loads a PNG file from disk and outputs an RGB array (float, based on 8 bits/channel),
-      * storing it in a std::vector<float>. Also outputs the image dimensions.
+      * Loads a PNG file from disk and outputs an RGB array (unsigned char, 8 bits/channel),
+      * storing it in a std::vector<unsigned char>. Also outputs the image dimensions.
       *
       * @param filename  The name of the PNG file to be loaded (as a std::string)
       * @param outData   A reference to a std::vector<unsigned char> to hold the raw RGB data

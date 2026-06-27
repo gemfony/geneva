@@ -54,8 +54,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /******************************************************************************/
 /**
  * This class is a specialization of the GFactoryT<> class for the Nelder-Mead
- * downhill simplex. It will only return objects which perform all evaluation
- * through the broker.
+ * downhill simplex. It produces objects which perform all evaluation through the one process consumer.
  */
 class GNelderMeadFactory // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmFactoryT<GNelderMead, GNelderMead_PersonalityTraits> {

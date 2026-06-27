@@ -319,7 +319,7 @@ std::uint32_t GFitnessMonitor::getYDim() const {
 /******************************************************************************/
 /**
  * Sets the number of individuals in the population that should be monitored.
- * If n_monitor_inds_ == 0, the default will be set to 3, as fitness graphs are plotted in a row,
+ * If n_monitor_inds_ == 0, the default will be set to 1, as fitness graphs are plotted in a row,
  * and more than 3 will not give satisfactory graphical results. You may however
  * request more monitored individuals, but will likely have to postprocess the ROOT script.
  * If n_monitor_inds_ is set to a larger number than there are individuals in the population,

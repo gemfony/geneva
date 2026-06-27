@@ -102,7 +102,8 @@ RunResult<Cap> run_mpmc(int producers, int consumers, long long items_per_produc
     for(int p = 0; p < producers; ++p) {
         prod.emplace_back([&, p]() {
             for(long long i = 0; i < items_per_producer; ++i) {
-                // Encode producer id into the high bits so the checksum is meaningful.
+                // All producers push the same range 0..items_per_producer-1; the
+                // expected sum accounts for that (producers * n*(n-1)/2).
                 (void)q.push(static_cast<std::uint64_t>(i));
             }
         });

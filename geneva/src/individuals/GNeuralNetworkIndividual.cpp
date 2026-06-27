@@ -293,12 +293,12 @@ void networkData::saveToDisk(const std::string &network_data_file) const {
         );
     }
 
-    // Load the data, using the Boost.Serialization library
+    // Save the data, using the Boost.Serialization library
     {
         const networkData *local = this;
         boost::archive::xml_oarchive oa(tr_dat);
         oa << boost::serialization::make_nvp("networkData", local);
-    } // Explicit scope at this point is essential so that ia's destructor is called
+    } // Explicit scope at this point is essential so that oa's destructor is called
 
     tr_dat.close();
 }
@@ -1209,8 +1209,7 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string &vis_fil
 /******************************************************************************/
 /**
  * @brief Creates a C++ output file for the trained network, suitable for usage in
- * other projects. If you just want to retrieve the C++ description of the network,
- * call this function with an empty string "" .
+ * other projects.
  *
  * @param header_file The name of the header file the network should be saved in
  */

@@ -80,9 +80,9 @@ GMPISubClientParaboloidIndividualMultiD::GMPISubClientParaboloidIndividualMultiD
 
 /********************************************************************************************/
 /**
- * Loads the data of another GMPISubClientParaboloidIndividualMultiD, camouflaged as a GFlatGenome.
+ * Loads the data of another GMPISubClientParaboloidIndividualMultiD, camouflaged as a GOptimizableEntity.
  *
- * @param cp A copy of another GMPISubClientParaboloidIndividualMultiD, camouflaged as a GFlatGenome
+ * @param cp A copy of another GMPISubClientParaboloidIndividualMultiD, camouflaged as a GOptimizableEntity
  */
 void GMPISubClientParaboloidIndividualMultiD::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GMPISubClientParaboloidIndividualMultiD reference independent of this object and convert the pointer

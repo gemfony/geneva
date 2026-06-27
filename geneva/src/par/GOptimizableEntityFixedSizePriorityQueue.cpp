@@ -121,7 +121,7 @@ void GOptimizableEntityFixedSizePriorityQueue::compare_(
 void GOptimizableEntityFixedSizePriorityQueue::load_(
     const Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity> *cp
 ) { // NOLINT(misc-unused-parameters)
-    // Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
+    // Check that we are dealing with a GOptimizableEntityFixedSizePriorityQueue reference independent of this object and convert the pointer
     // *** currently not needed ***
     // const GOptimizableEntityFixedSizePriorityQueue *p_load = Gem::Common::g_convert_and_compare(cp, this);
 

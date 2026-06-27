@@ -420,7 +420,7 @@ GDelayIndividual::tupleToTime(const std::tuple<unsigned int, unsigned int> &time
  * @brief Builds a configured delay individual for one fixed sleep time.
  *
  * The genome is n_variables unbounded double parameters (structure only) -- pure transport ballast for
- * the overhead measurement, carrying no adaptor (customAdaptions() is a no-op).
+ * the overhead measurement, carrying no adaptor (no adaption config is registered for it).
  *
  * @param c The Config supplying crash, random-sleep and n_variables settings for the new individual
  * @param sleepTime The fixed sleep time assigned to the new individual, as a duration in seconds

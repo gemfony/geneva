@@ -1,5 +1,5 @@
 /**
- * @file GParallelisationOverhead.cpp
+ * @file GBrokerSanityChecks.cpp
  */
 
 /********************************************************************************

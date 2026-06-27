@@ -71,8 +71,8 @@ class GAdaptionConfigBase;
  * algorithms acting on parameter objects.
  *
  * Populations are collections of individuals, which themselves are objects
- * exhibiting at least the GOptimizableEntity class' API, most notably the GOptimizableEntity::fitness()
- * and GOptimizableEntity::adapt() functions.
+ * exhibiting at least the GOptimizableEntity class' API, most notably the GOptimizableEntity::evaluate()
+ * function.
  *
  * In order to add parents to an instance of this class use the default constructor,
  * then add at least one GOptimizableEntity-derivative to it, and call setPopulationSizes().

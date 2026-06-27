@@ -61,8 +61,9 @@ namespace Gem::Common {
 /**
  * @brief A compile-time index tag used to drive (and terminate) the tuple-printing recursion.
  *
- * Its only purpose is to serve as a stop criterion, so that when tuple_output_seq<1> is
- * reached, recursion stops.
+ * Its only purpose is to serve as a stop criterion: the recursion stops at tuple_output_seq<1>
+ * (the terminator that emits the last element) for tuples of two or more elements, and at
+ * tuple_output_seq<0> (which appends nothing) for a single-element tuple.
  *
  * @tparam The remaining number of tuple elements still to be appended
  */

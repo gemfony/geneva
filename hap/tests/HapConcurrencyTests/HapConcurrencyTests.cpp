@@ -92,9 +92,9 @@ TEST_CASE("Hap concurrency: 16 proxies draw distributions", "[hap][concurrency]"
 }
 
 TEST_CASE("Hap concurrency: 16 STAGED proxies draw raw values", "[hap][concurrency][staged]") {
-    // The STAGED source funnels every proxy through one shared, mutex-guarded
-    // staging pool. Under -fsanitize=thread this is the race gate for that pool
-    // (the refill must never overlap a concurrent copy-out).
+    // The STAGED source funnels every proxy through one shared, lock-free
+    // rotating pool (GRotatingPool). Under -fsanitize=thread this is the race gate for that pool
+    // (each proxy copies its chunk out word-by-word and then serves from a private buffer).
     std::atomic<std::uint64_t> checksum{0};
     std::vector<std::thread>   threads;
     threads.reserve(kThreads);
@@ -152,8 +152,8 @@ TEST_CASE("Hap concurrency: 16 QUARANTINE proxies draw raw values",
           "[hap][concurrency][quarantine]") {
     // QUARANTINE proxies read spans in place from the shared rotating pools while a
     // background producer refills them. Under -fsanitize=thread the producer's
-    // refill races a stale reader by design (benign, aligned-64-bit) -- the write
-    // side is marked no_sanitize in GQuarantineSource.cpp, so a clean TSan run here
+    // refill races a stale reader by design (benign, aligned-64-bit) -- the pool
+    // storage is marked with AnnotateBenignRaceSized in GRotatingPool.hpp, so a clean TSan run here
     // confirms no OTHER, unintended race crept in. As a normal ctest it catches
     // crashes/hangs and out-of-range values.
     std::atomic<std::uint64_t> outOfRange{0};

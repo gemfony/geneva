@@ -34,7 +34,6 @@
 
 // Standard includes go here
 #include <cstdlib>
-#include <limits>
 #include <random>
 
 // Geneva headers go here
@@ -112,14 +111,6 @@ constexpr std::size_t DEFAULTSEEDVECTORSIZE = 2000; ///< The size of the seeding
  * The number of threads that simultaneously produce [0,1[ random numbers
  */
 constexpr std::uint16_t DEFAULT01PRODUCERTHREADS = 2;
-
-/******************************************************************************/
-/**
- * The maximum value of std::int32_t, converted to a double value. This is
- * needed to scale the output of std::minstd_rand0 to a maximum value of 1.
- */
-const double rnr_max =
-    static_cast<double>(std::numeric_limits<std::minstd_rand0::result_type>::max());
 
 /******************************************************************************/
 /**

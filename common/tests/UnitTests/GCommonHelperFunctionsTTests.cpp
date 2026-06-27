@@ -477,8 +477,10 @@ TEST_CASE(
 // narrow<To>(From) is a checked numeric/enum cast: it returns the
 // converted value, or throws std::overflow_error if a narrowing conversion
 // would change the value. Range checks apply when the *target* is an integer
-// (or an enum whose underlying type is an integer); conversions to a
-// floating-point target are NOT range-checked. Enum source/target types are
+// (or an enum whose underlying type is an integer), or when the source is a
+// wider floating-point type and the target is narrower floating-point. Integer
+// or enum conversions to a floating-point target are NOT range-checked. Enum
+// source/target types are
 // handled via their underlying integer type.
 
 TEST_CASE("narrow: lossless widening preserves the value", "[common][helper][narrow]") {

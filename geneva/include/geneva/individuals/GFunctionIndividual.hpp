@@ -1052,7 +1052,7 @@ private:
      */
     GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *clone_() const override;
 
-    double c_ = 1.;    ///< The constant that should not be exceeded by the sum of parameters
+    double c_ = 1.;    ///< The target constant that the sum of parameters should equal (within the gap)
     double gap_ = 0.5; ///< A tolerance around C_ that is still considered to be valid
 };
 

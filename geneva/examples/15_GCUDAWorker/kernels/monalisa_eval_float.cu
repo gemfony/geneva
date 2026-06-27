@@ -59,7 +59,7 @@ extern "C" __global__ void evaluate(
         }
         const int stripe = threadIdx.x;
         const float *p = params + (long long)item * dim;
-        // NT is clamped to MONALISA_MAXTRI so the shared array can never overflow. With the cap at 1024
+        // NT is clamped to MONALISA_MAXTRI so the shared array can never overflow. With the cap at 1000
         // this covers the example-15 1000-triangle workload; any triangles beyond the cap are ignored.
         int NT = NT_full;
         if (NT > MONALISA_MAXTRI) {

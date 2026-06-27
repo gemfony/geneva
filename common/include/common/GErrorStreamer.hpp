@@ -56,7 +56,7 @@ inline constexpr bool NO_LOG = false;
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A simple wrapper for a string_error_streamer, so we can more easily send data to a string
+ * A simple wrapper around a std::ostringstream, so we can more easily send data to a string
  * when throwing an exception. The class may optionally duplicate data and send it
  * to the global logger. This will happen during string conversion, so we may simply
  * construct a g_error_streamer object inside of a throw()-call.

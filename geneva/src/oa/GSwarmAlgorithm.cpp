@@ -77,8 +77,7 @@ GSwarmAlgorithm::GSwarmAlgorithm()
 
 /******************************************************************************/
 /**
- * This constructor sets the number of neighborhoods and the number of individuals in them. Note that there
- * is no public default constructor, as it is only needed for de-serialization purposes.
+ * This constructor sets the number of neighborhoods and the number of individuals in them.
  *
  * @param n_neighborhoods The desired number of neighborhoods (hardwired to >= 1)
  * @param default_n_neighborhood_members The default number of individuals in each neighborhood (hardwired to >= 2)
@@ -245,7 +244,7 @@ void GSwarmAlgorithm::compare_(
 ) const {
     using namespace Gem::Common;
 
-    // Check that we are dealing with a GBooleanAdaptor reference independent of this object and convert the pointer
+    // Check that we are dealing with a GSwarmAlgorithm reference independent of this object and convert the pointer
     const GSwarmAlgorithm *p_load =
         Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GSwarmAlgorithm>(cp, this);
 

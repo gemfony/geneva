@@ -144,13 +144,13 @@ MPICompletionStatus mpiScatterWhile(
     MPI_Request requestHandle{};
 
     MPI_Iscatter(
-        sendBuf,                     // send substrings of the test message
-        static_cast<int>(sendCount), // send one char to each other process
+        sendBuf,                     // data to scatter (only meaningful on root)
+        static_cast<int>(sendCount), // elements sent to each process
         type,
-        recvBuf,                     // receive one character as the root process
-        static_cast<int>(sendCount), // send one character to every other process
+        recvBuf,                     // buffer for this process's slice
+        static_cast<int>(sendCount), // elements received by this process
         type,
-        static_cast<int>(root), // rank 0 (this process) is the root.
+        static_cast<int>(root), // root rank
         comm,
         &requestHandle
     );
@@ -184,13 +184,13 @@ MPICompletionStatus mpiGatherWhile(
     MPI_Request requestHandle{};
 
     MPI_Igather(
-        sendBuf,                     // send substrings of the test message
-        static_cast<int>(sendCount), // send one char to each other process
+        sendBuf,                     // this process's contribution to the gather
+        static_cast<int>(sendCount), // elements sent by each process
         type,
-        recvBuf,                     // receive one character as the root process
-        static_cast<int>(sendCount), // send one character to every other process
+        recvBuf,                     // buffer to gather into (only meaningful on root)
+        static_cast<int>(sendCount), // elements received from each process
         type,
-        static_cast<int>(root), // rank 0 (this process) is the root.
+        static_cast<int>(root), // root rank
         comm,
         &requestHandle
     );

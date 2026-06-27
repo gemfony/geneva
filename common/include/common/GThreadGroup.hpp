@@ -72,11 +72,12 @@ class GThreadPool;
  * A simple thread group based on std::jthread. This class was adapted from
  * a version by Anthony Williams, as offered as part of the Boost 1.36 release.
  *
- * Note: the threads are stored as std::shared_ptr<std::jthread>. No stop_token
- * is observed by the managed functors, so jthread's cooperative cancellation is
- * a no-op here; join()/joinable() behave exactly as for std::thread. The only
- * behavioural difference is that an std::jthread auto-joins on destruction, so
- * a group destroyed without an explicit join_all() will not std::terminate.
+ * Note: the threads are stored as std::shared_ptr<std::jthread>. join_all()
+ * requests cooperative stop on every thread before joining; functors that
+ * observe their std::stop_token (e.g. as in GThreadPool) are signalled before
+ * any join blocks. An additional behavioural difference from std::thread is
+ * that a jthread auto-joins on destruction, so a group destroyed without an
+ * explicit join_all() will not std::terminate.
  */
 class GThreadGroup {
     friend class GThreadPool;

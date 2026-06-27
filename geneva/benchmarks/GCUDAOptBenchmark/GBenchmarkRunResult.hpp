@@ -75,7 +75,7 @@ inline std::string_view terminationReasonToString(TerminationReason r) noexcept 
 /**
  * @brief Result data for a single optimization run of one algorithm.
  *
- * Populated by GAlgorithmBenchmarkRunner after each call to go.optimize().
+ * Populated by GAlgorithmBenchmarkRunner after each call to alg->optimize().
  * All fields except algorithmTag and functionName are filled from the
  * optimisation algorithm's post-run state.
  */
@@ -96,7 +96,7 @@ struct GBenchmarkRunResult {
 /**
  * @brief Aggregated results for one algorithm tag over N runs.
  *
- * Computed by GAlgorithmBenchmarkRunner::aggregateResults() from a
+ * Computed by GAlgorithmBenchmarkRunner::aggregate() from a
  * vector<GBenchmarkRunResult> using GStandardDeviation<double>.
  *
  * "sigma" fields hold the sample standard deviation (not the standard error

@@ -180,7 +180,7 @@ TEST_CASE("GSerializationHelperFunctionsT: sharedPtrFromString returns null on g
           "rather than throwing through",
           "[common][serialization-helpers]") {
     // The implementation catches archive_exception / std::exception, logs, and
-    // returns an empty shared_ptr. (Only unknown-type catches re-throw.)
+    // returns an empty shared_ptr. (Only unknown-type catches throw a geneva_exception.)
     auto out = sharedPtrFromString<TestPayload>("not-a-valid-archive-blob",
                                                 serializationMode::TEXT);
     CHECK_FALSE(out);

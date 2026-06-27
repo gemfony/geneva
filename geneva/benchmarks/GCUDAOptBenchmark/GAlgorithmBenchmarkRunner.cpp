@@ -97,7 +97,7 @@ GAlgorithmBenchmarkRunner::GAlgorithmBenchmarkRunner(BenchmarkConfig cfg)
  * @brief Runs the full benchmark over all algorithm entries.
  *
  * Assumes GenevaInitializer has been created and a consumer has been enrolled
- * with broker<GOptimizableEntity>() by the caller before this is invoked.
+ * with GConsumerRegistryT::setConsumer() by the caller before this is invoked.
  */
 std::vector<GAlgorithmBenchmarkResult> GAlgorithmBenchmarkRunner::run() {
     glogger << "GAlgorithmBenchmarkRunner: starting benchmark." << std::endl
@@ -197,8 +197,8 @@ GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(
  * @brief Creates an optimization algorithm via the appropriate factory.
  *
  * The algorithm is configured entirely from the JSON config file specified
- * in the AlgorithmEntry. Default executor mode is BROKER (see
- * GOptimizationAlgorithmBase::default_exec_mode_).
+ * in the AlgorithmEntry. The algorithm submits through the process consumer
+ * registered via GConsumerRegistryT::setConsumer().
  */
 std::shared_ptr<oa::GOptimizationAlgorithmBase>
 GAlgorithmBenchmarkRunner::makeAlgorithm(const AlgorithmEntry &entry) {

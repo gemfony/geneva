@@ -47,7 +47,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /******************************************************************************/
 /**
  * This class adds variables and functions to GPersonalityTraits that are specific to the dimension-aware
- * adaptive evolutionary algorithm ("ea"). It is a near-twin of GEvolutionaryAlgorithm_PersonalityTraits
+ * adaptive evolutionary algorithm ("ea"). It is a near-twin of GSepCmaEvolutionStrategy_PersonalityTraits
  * (same pareto-front tag) but carries its own nickname so it self-registers a distinct mnemonic.
  */
 class GEvolutionaryAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)

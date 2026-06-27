@@ -141,9 +141,9 @@ double GFMinIndividual::getAverageSigma() const {
 
 /******************************************************************************/
 /**
- * Loads the data of another GFMinIndividual, camouflaged as a GFlatGenome
+ * Loads the data of another GFMinIndividual, camouflaged as a GOptimizableEntity
  *
- * @param cp A copy of another GFMinIndividual, camouflaged as a GFlatGenome
+ * @param cp A copy of another GFMinIndividual, camouflaged as a GOptimizableEntity
  */
 void GFMinIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GFMinIndividual reference independent of this object and convert the pointer

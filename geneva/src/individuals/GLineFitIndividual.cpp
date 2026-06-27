@@ -194,7 +194,7 @@ gen::GFlatGenome *GLineFitIndividual::clone_() const {
 double GLineFitIndividual::fitnessCalculation() {
     double result = 0.;
 
-    // We just calculate the square of all double values
+    // Compute the root of the summed squared deviations between the line (a + b*x) and the data points
     std::vector<double> par_vec;
     this->streamline(par_vec);
 

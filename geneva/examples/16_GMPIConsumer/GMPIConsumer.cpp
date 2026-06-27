@@ -83,14 +83,11 @@ using namespace Gem::Geneva;
 using namespace Gem::Courtier;
 using namespace Gem::Hap;
 using namespace Gem::Common;
-
-using namespace Gem::Common;
 namespace po = boost::program_options;
 
 /******************************************************************************/
 // Default settings
 const std::uint16_t DEFAULTNPRODUCERTHREADS = 10;
-// number of threads in thread-pool of the MPI server that are used to handle connections with workers
 const std::size_t DEFAULTPOPULATIONSIZE06 = 100;
 const std::size_t DEFAULTNPARENTS =
     5; // Allow to explore the parameter space from many starting points

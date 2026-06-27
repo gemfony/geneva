@@ -311,7 +311,7 @@ private:
     /***************************************************************************/
     // Data
 
-    mutable std::mutex get_best_mutex_; ///< Protects access to the best individual of an iteration
+    mutable std::mutex get_best_mutex_; ///< Protects access to the best individuals (global and per-iteration)
 };
 
 /******************************************************************************/

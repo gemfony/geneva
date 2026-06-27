@@ -249,7 +249,7 @@ public:
     /** @brief Retrieves the current sorting scheme. @return The currently configured sorting scheme */
     sortingMode getSortingScheme() const;
 
-    /** @brief Sets the step-size-control strategy. The default is SELF_ADAPT_SCALED.
+    /** @brief Sets the step-size-control strategy. The default is CSA.
      *  @param sc The strategy (SELF_ADAPT, SELF_ADAPT_SCALED, ONE_FIFTH or CSA) */
     void setStepControl(stepControl sc);
     /** @brief Retrieves the step-size-control strategy. @return The configured strategy. */
@@ -381,7 +381,7 @@ private:
 
     sortingMode sorting_mode_ = DEFAULTEASORTINGMODE; ///< The chosen sorting scheme
 
-    /** @brief The step-size-control strategy applied to the adaption config (default SELF_ADAPT_SCALED). */
+    /** @brief The step-size-control strategy applied to the adaption config (default CSA). */
     stepControl step_control_ = stepControl::CSA;
     /** @brief The learning-rate constant c for SELF_ADAPT_SCALED (tau = c/sqrt(2n)). */
     double learning_rate_c_ = 1.;

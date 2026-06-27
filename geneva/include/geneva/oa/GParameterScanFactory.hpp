@@ -56,7 +56,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * @brief A factory that builds GParameterScan optimization algorithms from a configuration file.
  *
  * This class is a specialization of the GOptimizationAlgorithmFactoryT<> scaffold for the parameter-scan
- * algorithm. It will only return objects which perform all evaluation through the broker.
+ * algorithm. It will only return objects which perform all evaluation through the process consumer.
  */
 class GParameterScanFactory // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmFactoryT<GParameterScan, GParameterScan_PersonalityTraits> {

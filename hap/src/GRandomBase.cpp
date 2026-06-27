@@ -35,8 +35,7 @@ namespace Gem::Hap {
 /**
  * @brief The standard constructor.
  *
- * The standard constructor. Note that the seed "val" might just be ignored,
- * if random numbers are obtained from the global factory.
+ * The standard constructor.
  */
 GRandomBase::GRandomBase() { /* nothing */
 }
