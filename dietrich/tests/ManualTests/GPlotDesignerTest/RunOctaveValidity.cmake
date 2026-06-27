@@ -49,7 +49,16 @@ execute_process(
 # 4. Reject an Octave error even if it somehow still produced a PNG: an octave error /
 #    parse-error line means the script did not render cleanly. The match is line-anchored
 #    so a benign environment line (e.g. "Fontconfig error:") is not mistaken for one.
-if(_err MATCHES "(^|\n)error:" OR _err MATCHES "(^|\n)parse error:")
+#
+#    Octave can also emit "error: ignoring const execution_exception& while preparing to
+#    exit" from its at-exit cleanup -- e.g. when the gnuplot toolkit tears down its pipe in
+#    a headless or polluted-FONTCONFIG environment. That message is benign: it appears AFTER
+#    a successful render, octave still exits 0, and the PNG below is produced. So it must not
+#    be mistaken for a script error. Strip that one known line before the check; a genuine
+#    render error still surfaces as a different error:/parse error: line, a non-zero exit
+#    code (step 5), or a missing/too-small PNG.
+string(REGEX REPLACE "[^\n]*ignoring const execution_exception[^\n]*(\n|$)" "" _err_check "${_err}")
+if(_err_check MATCHES "(^|\n)error:" OR _err_check MATCHES "(^|\n)parse error:")
 	message(FATAL_ERROR
 		"octave reported an error while running the generated script.\n"
 		"stdout:\n${_out}\nstderr:\n${_err}")
