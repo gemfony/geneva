@@ -46,6 +46,7 @@
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp" // Gem::Common::serializationMode
+#include "common/concurrency/GContentAddressedStoreT.hpp" // the generic store GWireLayoutRegistry specializes
 
 namespace Gem::Courtier {
 
@@ -102,153 +103,26 @@ struct GWireLayoutIdHash {
  * A capacity bound (LRU over the blob store) keeps a long run with many evolving layouts from growing
  * without limit; eviction never breaks correctness because a missing blob is re-fetched on demand.
  */
-class GWireLayoutRegistry {
+class GWireLayoutRegistry
+    : public Gem::Common::Concurrency::GContentAddressedStoreT<GWireLayoutId, std::string, GWirePeerId, GWireLayoutIdHash> {
 public:
+    using base_type =
+        Gem::Common::Concurrency::GContentAddressedStoreT<GWireLayoutId, std::string, GWirePeerId, GWireLayoutIdHash>;
+
     GWireLayoutRegistry() = default;
 
-    GWireLayoutRegistry(const GWireLayoutRegistry &) = delete;
-    GWireLayoutRegistry &operator=(const GWireLayoutRegistry &) = delete;
+    // The generic store supplies the blob store (has / tryGet / put), capacity (setCapacity), per-peer
+    // tracking (peerHas / markPeerHas / forgetPeer) and introspection (size / trackedPeers / clear). Only
+    // the two domain-named per-peer aliases are added here, matching this header's "layout" vocabulary and
+    // the existing call sites; everything else is inherited unchanged.
 
-    /***************************************************************************/
-    // Blob store (used by both server and worker).
+    /** @brief Whether a peer is known to already hold a given layout (domain alias for base peerHas).
+     *  @param peer The peer (session) to query. @param id The layout id. @return true iff recorded. */
+    bool peerHasLayout(GWirePeerId peer, const GWireLayoutId &id) const { return peerHas(peer, id); }
 
-    /** @brief Whether a blob for the given id is cached.
-     *  @param id The layout id to look up. @return true iff the blob is present. */
-    bool has(const GWireLayoutId &id) const {
-        std::scoped_lock lk(mtx_);
-        return blobs_.contains(id);
-    }
-
-    /** @brief Copies out the cached blob for an id, if present (and marks it most-recently-used).
-     *  @param id The layout id to look up.
-     *  @param out Receives the blob on a hit (left unchanged on a miss).
-     *  @return true on a hit (out written), false on a miss. */
-    bool tryGet(const GWireLayoutId &id, std::string &out) const {
-        std::scoped_lock lk(mtx_);
-        auto it = blobs_.find(id);
-        if(it == blobs_.end()) {
-            return false;
-        }
-        touch_locked(it->second.lru_pos);
-        out = it->second.blob;
-        return true;
-    }
-
-    /** @brief Caches a blob under its id (idempotent; refreshes recency on a repeat). Enforces the
-     *  capacity bound afterwards.
-     *  @param id The layout id. @param blob The serialized layout blob to cache. */
-    void put(const GWireLayoutId &id, std::string blob) {
-        std::scoped_lock lk(mtx_);
-        auto it = blobs_.find(id);
-        if(it != blobs_.end()) {
-            it->second.blob = std::move(blob);
-            touch_locked(it->second.lru_pos);
-            return;
-        }
-        lru_.push_front(id);
-        blobs_.emplace(id, Entry{.blob=std::move(blob), .lru_pos=lru_.begin()});
-        evict_locked();
-    }
-
-    /***************************************************************************/
-    // Per-peer ack tracking (server side).
-
-    /** @brief Whether a peer is known to already hold a given layout.
-     *  @param peer The peer (session) to query. @param id The layout id.
-     *  @return true iff the peer was previously recorded as holding this layout. */
-    bool peerHasLayout(GWirePeerId peer, const GWireLayoutId &id) const {
-        std::scoped_lock lk(mtx_);
-        auto it = peer_acked_.find(peer);
-        return it != peer_acked_.end() && it->second.contains(id);
-    }
-
-    /** @brief Records that a peer now holds a given layout (so it is referenced by id thereafter).
+    /** @brief Records that a peer now holds a given layout (domain alias for base markPeerHas).
      *  @param peer The peer (session). @param id The layout id the peer now holds. */
-    void markPeerHasLayout(GWirePeerId peer, const GWireLayoutId &id) {
-        std::scoped_lock lk(mtx_);
-        peer_acked_[peer].insert(id);
-    }
-
-    /** @brief Drops all per-peer ack state for a peer (its session ended / it reconnected). The blob
-     *  store is left intact (other peers may still need it, and it answers future fetches).
-     *  @param peer The peer whose ack state is forgotten. */
-    void forgetPeer(GWirePeerId peer) {
-        std::scoped_lock lk(mtx_);
-        peer_acked_.erase(peer);
-    }
-
-    /***************************************************************************/
-    // Capacity / introspection.
-
-    /** @brief Sets the maximum number of blobs retained (LRU eviction beyond it); 0 == unbounded.
-     *  @param max_blobs The capacity bound (0 disables eviction). */
-    void setCapacity(std::size_t max_blobs) {
-        std::scoped_lock lk(mtx_);
-        capacity_ = max_blobs;
-        evict_locked();
-    }
-
-    /** @brief @return The number of blobs currently cached. */
-    std::size_t size() const {
-        std::scoped_lock lk(mtx_);
-        return blobs_.size();
-    }
-
-    /** @brief @return The number of peers with recorded ack state. */
-    std::size_t trackedPeers() const {
-        std::scoped_lock lk(mtx_);
-        return peer_acked_.size();
-    }
-
-    /** @brief Clears the entire registry (blob store + all per-peer ack state). */
-    void clear() {
-        std::scoped_lock lk(mtx_);
-        blobs_.clear();
-        lru_.clear();
-        peer_acked_.clear();
-    }
-
-private:
-    /** @brief One cached blob plus its position in the LRU recency list. lru_pos is mutable because a
-     *  read (tryGet, a const op) refreshes recency. */
-    struct Entry {
-        std::string blob;                       ///< the serialized layout blob
-        mutable std::list<GWireLayoutId>::iterator lru_pos; ///< this id's node in lru_ (front == most recent)
-    };
-
-    /** @brief Moves an id to the front of the recency list (most-recently-used). Caller holds mtx_.
-     *  @param pos The id's current node in lru_ (updated in place to the new front node). */
-    void touch_locked(std::list<GWireLayoutId>::iterator &pos) const {
-        lru_.splice(lru_.begin(), lru_, pos);
-        pos = lru_.begin();
-    }
-
-    /** @brief Evicts least-recently-used blobs until the capacity bound is met. Crucially, evicting a
-     *  blob also drops that id from EVERY peer's ack set: otherwise the server would keep referencing the
-     *  evicted layout by id to a peer (because it still believes the peer holds it) while no longer being
-     *  able to answer that peer's cache-miss fetch -- a deadlock. Clearing the acks forces the next send
-     *  of that layout to that peer to re-inline it in full (which re-populates the blob store). Caller
-     *  holds mtx_. */
-    void evict_locked() {
-        if(capacity_ == 0) {
-            return;
-        }
-        while(blobs_.size() > capacity_ && not lru_.empty()) {
-            const GWireLayoutId victim = lru_.back();
-            lru_.pop_back();
-            blobs_.erase(victim);
-            for(auto &kv : peer_acked_) {
-                kv.second.erase(victim);
-            }
-        }
-    }
-
-    mutable std::mutex mtx_;
-    std::unordered_map<GWireLayoutId, Entry, GWireLayoutIdHash> blobs_; ///< id -> (blob, lru node)
-    mutable std::list<GWireLayoutId> lru_;                              ///< recency list (front == MRU)
-    std::unordered_map<GWirePeerId, std::unordered_set<GWireLayoutId, GWireLayoutIdHash>>
-        peer_acked_;            ///< server side: per-peer set of layout ids the peer already holds
-    std::size_t capacity_ = 0;  ///< max blobs retained (0 == unbounded)
+    void markPeerHasLayout(GWirePeerId peer, const GWireLayoutId &id) { markPeerHas(peer, id); }
 };
 
 /******************************************************************************/
