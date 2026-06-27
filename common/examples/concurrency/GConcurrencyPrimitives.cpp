@@ -39,6 +39,7 @@
 #include <string>
 
 #include "common/concurrency/GContentAddressedStoreT.hpp"
+#include "common/concurrency/GThreadSafeKeyedStoreT.hpp"
 
 using namespace Gem::Common::Concurrency;
 
@@ -76,11 +77,41 @@ bool demo_content_addressed_store() {
     return ok;
 }
 
+/** @brief Demonstrates GThreadSafeKeyedStoreT: a mutex-guarded ordered key->value store (the shared
+ *  building block behind the global option stores). @return true iff every demonstrated invariant held. */
+bool demo_thread_safe_keyed_store() {
+    std::cout << "== GThreadSafeKeyedStoreT ==\n";
+    bool ok = true;
+
+    GThreadSafeKeyedStoreT<std::string, int> store;
+    store.set("threads", 8);
+    store.set("retries", 3);
+    ok = ok && store.setOnce("threads", 99) == false; // setOnce refuses to overwrite
+    ok = ok && store.get("threads").value_or(-1) == 8;
+
+    int retries = -1;
+    ok = ok && store.get("retries", retries) && retries == 3;
+
+    // Snapshots come back in key order.
+    const auto keys = store.keys();
+    ok = ok && keys.size() == 2 && keys[0] == "retries" && keys[1] == "threads";
+    std::cout << "  keys (in order): ";
+    for(const auto &k : keys) {
+        std::cout << k << " ";
+    }
+    std::cout << "\n  threads=" << store.get("threads").value_or(-1)
+              << ", retries=" << retries << "\n";
+
+    std::cout << "  -> " << (ok ? "OK" : "FAILED") << "\n";
+    return ok;
+}
+
 } // namespace
 
 int main() {
     bool ok = true;
     ok = demo_content_addressed_store() && ok;
+    ok = demo_thread_safe_keyed_store() && ok;
 
     std::cout << (ok ? "\nAll concurrency-primitive demos passed.\n"
                      : "\nA concurrency-primitive demo FAILED.\n");
