@@ -29,8 +29,10 @@
 
 #
 # This file is part of the Geneva library collection's build system.
-# Its purpose is to find the Geneva libraries and include files for
-# building Geneva applications.
+# Its purpose is to find an installed Geneva and expose it to downstream
+# projects. It is the MODULE-mode fallback for installations that do NOT
+# carry the modern config-file package (GenevaConfig.cmake); when that package
+# is present, prefer find_package(Geneva CONFIG REQUIRED).
 #
 # This module accepts the following variables as hints for the search:
 #
@@ -39,33 +41,43 @@
 # GENEVA_LIBRARYDIR - The directory where the Geneva libraries may be found
 #
 #
-# This module defines the following variables as result of the search:
+# This module defines the following IMPORTED targets (matching those exported by
+# the config-file package, so downstream code can be agnostic about how Geneva
+# was found):
+#
+# Geneva::common      - utilities (logging, threads, serialization helpers)
+# Geneva::hap         - random number generation
+# Geneva::courtier    - broker/consumer parallelization framework
+# Geneva::geneva      - core optimization library (links the three above)
+#
+# Linking Geneva::geneva transitively brings in the other three targets and the
+# Geneva include directory.
+#
+# For backward compatibility the following variables are also defined:
 #
 # GENEVA_INCLUDE_DIR          - The directory below which the Geneva includes may be found
 # GENEVA_LIBRARY_DIR          - The directory below which the Geneva libraries may be found
-#
-# GENEVA_COMMON_LIBRARY       - Points to the library with common functionality needed by all parts of Geneva
-# GENEVA_HAP_LIBRARY          - Points to the library for random number generation
-# GENEVA_COURTIER_LIBRARY     - Points to the library for parallel/distributed computing
-# GENEVA_OPTIMIZATION_LIBRARY - Points to the main geneva library itself, the optimization library
-# GENEVA_INDIVIDUAL_LIBRARY   - Points to the library of sample individuals
-#
-# GENEVA_LIBRARIES            - A list containing all the Geneva libraries mentioned above
-# GENEVA_LIBS                 - A list containing the names (not the paths!) of all the libraries found
-#
+# GENEVA_COMMON_LIBRARY       - Path to the common library
+# GENEVA_HAP_LIBRARY          - Path to the random number generation library
+# GENEVA_COURTIER_LIBRARY     - Path to the parallel/distributed computing library
+# GENEVA_OPTIMIZATION_LIBRARY - Path to the main geneva optimization library
+# GENEVA_LIBRARIES            - The Geneva imported targets, in linking order
+# GENEVA_LIBS                 - The bare library names (not paths) that were found
 # GENEVA_VERSION              - The Geneva version found by this module
-# GENEVA_TESTING              - TRUE if the Geneva libraries found were built with testing support
+# GENEVA_TESTING              - TRUE if the libraries were built with testing support
+# GENEVA_FOUND                - TRUE if all required Geneva components were found
 #
-# GENEVA_FOUND                - TRUE if all of the required Geneva components were found
+# Note: the former GENEVA_INDIVIDUAL_LIBRARY is gone -- the geneva-individuals
+# library was dissolved into the geneva library.
 #
-#
-# Example usages: FIND_PACKAGE(Geneva) or FIND_PACKAGE(Geneva REQUIRED)
+# Example usages: FIND_PACKAGE(Geneva MODULE) or FIND_PACKAGE(Geneva MODULE REQUIRED)
 #
 
 ###############################################################################
 
 # Module for handling standard arguments given through FIND_PACKAGE()
 INCLUDE(FindPackageHandleStandardArgs)
+INCLUDE(CMakeFindDependencyMacro)
 
 ###############################################################################
 # Analyze first the recieved variables
@@ -125,29 +137,21 @@ FIND_PATH (
 	PATH_SUFFIXES "geneva-opt"
 )
 
-# Check that the path was indeed found
-IF (NOT GENEVA_INCLUDE_DIR)
-	SET (GENEVA_ERROR_REASON "Unable to find the Geneva header files. You may"
-	     " need to set GENEVA_INCLUDEDIR to the directory containing Geneva's"
-	     " headers or GENEVA_ROOT to the location of Geneva.\n")
-ENDIF ()
-
 ###############################################################################
 # Find the libraries and set the related variables
 
 # Note: libraries are listed in order of decreasing dependencies, which
 # allows to use the GENEVA_LIBRARIES variable for linking with all of
 # them as a block without linking order issues (hopefully)
-SET ( NAMES
+SET ( _GENEVA_LIB_NAMES
 	"geneva"
 	"courtier"
 	"hap"
 	"common"
 )
 
-UNSET (GENEVA_LIBRARIES)
 UNSET (GENEVA_LIBS)
-FOREACH ( name IN LISTS NAMES )
+FOREACH ( name IN LISTS _GENEVA_LIB_NAMES )
 	STRING (TOUPPER ${name} ucname)
 
 	# Enforce a search order, making sure we first search in the given
@@ -166,122 +170,165 @@ FOREACH ( name IN LISTS NAMES )
 	)
 
 	IF (GENEVA_${ucname}_LIBRARY)
-		SET (GENEVA_LIBRARIES ${GENEVA_LIBRARIES} ${GENEVA_${ucname}_LIBRARY})
 		SET (GENEVA_LIBS ${GENEVA_LIBS} "gemfony-${name}")
 	ENDIF ()
 ENDFOREACH ()
-UNSET (NAMES)
 
-# We rather use more readable variable names for the optimization libraries...
+# We rather use a more readable variable name for the optimization library...
 IF (GENEVA_GENEVA_LIBRARY)
 	SET (GENEVA_OPTIMIZATION_LIBRARY ${GENEVA_GENEVA_LIBRARY})
 ELSE ()
 	SET (GENEVA_OPTIMIZATION_LIBRARY "GENEVA_OPTIMIZATION_LIBRARY-NOTFOUND")
 ENDIF ()
-IF (GENEVA_GENEVA-INDIVIDUALS_LIBRARY)
-	SET (GENEVA_INDIVIDUAL_LIBRARY ${GENEVA_GENEVA-INDIVIDUALS_LIBRARY})
-ELSE ()
-	SET (GENEVA_INDIVIDUAL_LIBRARY "GENEVA_INDIVIDUAL_LIBRARY-NOTFOUND")
+
+IF (GENEVA_COMMON_LIBRARY)
+	GET_FILENAME_COMPONENT (GENEVA_LIBRARY_DIR ${GENEVA_COMMON_LIBRARY} PATH)
 ENDIF ()
 
 ###############################################################################
-# Check that all files and directories were properly found
-
-IF (NOT GENEVA_LIBS)
-	SET (GENEVA_LIBRARIES "GENEVA_LIBRARIES-NOTFOUND")
-	SET (GENEVA_LIBS "GENEVA_LIBS-NOTFOUND")
-	SET (GENEVA_LIBRARY_DIR "GENEVA_LIBRARY_DIR-NOTFOUND")
-	SET (GENEVA_ERROR_REASON "${GENEVA_ERROR_REASON}"
-	     "No Geneva libraries were found. You may need to set GENEVA_LIBRARYDIR"
-	     " to the directory containing Geneva libraries or GENEVA_ROOT to the"
-	     " location of Geneva.\n")
-ELSE ()
-	GET_FILENAME_COMPONENT (
-		GENEVA_LIBRARY_DIR
-		${GENEVA_COMMON_LIBRARY}
-		PATH
-	)
-ENDIF ()
-
-# This function sets the <PKG>_FOUND variable if all the given variables
-# contain valid values. To declare Geneva as "FOUND" we need at least the
-# 'common' library.
-FIND_PACKAGE_HANDLE_STANDARD_ARGS (
-	GENEVA
-	DEFAULT_MSG
-	GENEVA_INCLUDE_DIR
-	GENEVA_LIBRARY_DIR
-	GENEVA_COMMON_LIBRARY
-)
-
-###############################################################################
-# Check that the versions found are consistent
+# Determine the Geneva version found
 
 IF (GENEVA_INCLUDE_DIR)
-	# Read the Geneva version string, which is of the form '#define GENEVA_VERSION 0150'
-	SET ( _VER_PRE "#define GENEVA_VERSION" )
-	FILE (
-		STRINGS
-		${GENEVA_INCLUDE_DIR}/${GENEVA_COMMON_HEADER_PATH}
-		_RAW_VERSION
-		REGEX "${_VER_PRE}"
-		LIMIT_COUNT 100
-		LIMIT_INPUT 10000
-		LIMIT_OUTPUT 100
-	)
-	STRING ( REPLACE "${_VER_PRE} " "" _RAW_VERSION_2 ${_RAW_VERSION} )
-	STRING ( STRIP ${_RAW_VERSION_2} _RAW_VERSION_3 )
+	# Read the Geneva version from the component macros in GGlobalDefines.hpp, each of
+	# the form '#define GENEVA_VERSION_MAJOR 1' (plain decimals, the single source of truth).
+	FOREACH ( _comp MAJOR MINOR PATCH )
+		FILE (
+			STRINGS
+			${GENEVA_INCLUDE_DIR}/${GENEVA_COMMON_HEADER_PATH}
+			_RAW_VERSION_LINE
+			REGEX "#define[ \t]+GENEVA_VERSION_${_comp}[ \t]"
+			LIMIT_COUNT 1
+			LIMIT_INPUT 10000
+		)
+		STRING (
+			REGEX REPLACE ".*GENEVA_VERSION_${_comp}[ \t]+([0-9]+).*" "\\1"
+			_VER_${_comp} "${_RAW_VERSION_LINE}"
+		)
+	ENDFOREACH ()
 
-	IF ( ${_RAW_VERSION_3} MATCHES "^[0-9][0-9][0-9][0-9]([a-z][a-z0-9]*)?$")
-		STRING ( REGEX REPLACE "^([0-9][0-9])([0-9])([0-9].*$)" "\\1.\\2.\\3"
-			GENEVA_VERSION ${_RAW_VERSION_3}
-		)
-		# Remove the initial 0
-		STRING ( REGEX REPLACE "^0(.*)$" "\\1"
-			GENEVA_VERSION ${GENEVA_VERSION}
-		)
-	ELSE ()
-		SET (GENEVA_ERROR_REASON "${GENEVA_ERROR_REASON}"
-		     "Could not determine the Geneva version!")
+	IF ( DEFINED _VER_MAJOR AND DEFINED _VER_MINOR AND DEFINED _VER_PATCH )
+		SET (GENEVA_VERSION "${_VER_MAJOR}.${_VER_MINOR}.${_VER_PATCH}")
 	ENDIF ()
 ENDIF ()
 
 ###############################################################################
 # Determine if Geneva was built with testing support
 
-SET (GENEVA_TEST_HEADER_PATH "geneva/tests/*.hpp" )
-
+# A Geneva built with testing support embeds Catch2-based scaffolding in the
+# geneva library and references Catch2 symbols. We approximate the test build
+# by probing the installed library for a Catch2 symbol; the consumer is then
+# responsible for linking Catch2 (see the message below).
 SET (GENEVA_TESTING "FALSE")
-IF (GENEVA_INCLUDE_DIR)
-	FILE (GLOB _TESTING_HEADERS "${GENEVA_INCLUDE_DIR}/${GENEVA_TEST_HEADER_PATH}")
-	IF (_TESTING_HEADERS)
+IF (GENEVA_GENEVA_LIBRARY)
+	EXECUTE_PROCESS(
+		COMMAND ${CMAKE_NM} -D --defined-only "${GENEVA_GENEVA_LIBRARY}"
+		OUTPUT_VARIABLE _GENEVA_NM_OUT
+		ERROR_QUIET
+	)
+	IF (NOT _GENEVA_NM_OUT)
+		# CMAKE_NM may be unset for the active toolchain; fall back to plain nm.
+		EXECUTE_PROCESS(
+			COMMAND nm -D --defined-only "${GENEVA_GENEVA_LIBRARY}"
+			OUTPUT_VARIABLE _GENEVA_NM_OUT
+			ERROR_QUIET
+		)
+	ENDIF ()
+	IF (_GENEVA_NM_OUT MATCHES "Catch")
 		SET (GENEVA_TESTING "TRUE")
 	ENDIF ()
 ENDIF ()
 
 ###############################################################################
-# Report the results
+# Check that all required files and directories were found, and report.
+# To declare Geneva FOUND we need at least the include dir and the 'common'
+# library; VERSION_VAR enables version-aware find_package(Geneva <ver>).
+
+FIND_PACKAGE_HANDLE_STANDARD_ARGS (
+	Geneva
+	REQUIRED_VARS
+		GENEVA_INCLUDE_DIR
+		GENEVA_LIBRARY_DIR
+		GENEVA_COMMON_LIBRARY
+		GENEVA_HAP_LIBRARY
+		GENEVA_COURTIER_LIBRARY
+		GENEVA_GENEVA_LIBRARY
+	VERSION_VAR GENEVA_VERSION
+)
+
+###############################################################################
+# Define the IMPORTED targets, mirroring those provided by the config package.
+# The targets are wired up in dependency order (common <- hap <- courtier <-
+# geneva), so that linking Geneva::geneva pulls in the rest transitively.
 
 IF (GENEVA_FOUND)
-	IF (GENEVA_VERSION)
-		MESSAGE(STATUS "Geneva version: ${GENEVA_VERSION}")
-	ENDIF ()
-	IF (GENEVA_TESTING)
-		MESSAGE(STATUS "  with testing support")
-	ELSE ()
-		MESSAGE(STATUS "  without testing support")
+	# Geneva exposes Boost through its public headers; re-find it so the
+	# imported targets can carry the Boost include dirs and link libraries,
+	# matching the behaviour of the config-file package. The component list
+	# mirrors GENEVA_BOOST_LIBS in CommonGenevaBuild.cmake.
+	FIND_DEPENDENCY (Boost 1.91 COMPONENTS
+		filesystem
+		program_options
+		regex
+		serialization
+		atomic
+	)
+
+	IF (NOT TARGET Geneva::common)
+		ADD_LIBRARY (Geneva::common UNKNOWN IMPORTED)
+		SET_TARGET_PROPERTIES (Geneva::common PROPERTIES
+			IMPORTED_LOCATION "${GENEVA_COMMON_LIBRARY}"
+			INTERFACE_INCLUDE_DIRECTORIES "${GENEVA_INCLUDE_DIR}"
+			INTERFACE_COMPILE_FEATURES "cxx_std_20"
+			INTERFACE_LINK_LIBRARIES "Boost::filesystem;Boost::program_options;Boost::regex;Boost::serialization;Boost::atomic"
+		)
 	ENDIF ()
 
-	IF (GENEVA_LIBS)
-		MESSAGE(STATUS "Found the following Geneva libraries:")
-		FOREACH ( name IN LISTS GENEVA_LIBS )
-			MESSAGE(STATUS "  ${name}")
-		ENDFOREACH ()
+	IF (NOT TARGET Geneva::hap)
+		ADD_LIBRARY (Geneva::hap UNKNOWN IMPORTED)
+		SET_TARGET_PROPERTIES (Geneva::hap PROPERTIES
+			IMPORTED_LOCATION "${GENEVA_HAP_LIBRARY}"
+			INTERFACE_INCLUDE_DIRECTORIES "${GENEVA_INCLUDE_DIR}"
+			INTERFACE_LINK_LIBRARIES "Geneva::common"
+		)
 	ENDIF ()
+
+	IF (NOT TARGET Geneva::courtier)
+		ADD_LIBRARY (Geneva::courtier UNKNOWN IMPORTED)
+		SET_TARGET_PROPERTIES (Geneva::courtier PROPERTIES
+			IMPORTED_LOCATION "${GENEVA_COURTIER_LIBRARY}"
+			INTERFACE_INCLUDE_DIRECTORIES "${GENEVA_INCLUDE_DIR}"
+			INTERFACE_LINK_LIBRARIES "Geneva::hap"
+		)
+	ENDIF ()
+
+	IF (NOT TARGET Geneva::geneva)
+		ADD_LIBRARY (Geneva::geneva UNKNOWN IMPORTED)
+		SET_TARGET_PROPERTIES (Geneva::geneva PROPERTIES
+			IMPORTED_LOCATION "${GENEVA_GENEVA_LIBRARY}"
+			INTERFACE_INCLUDE_DIRECTORIES "${GENEVA_INCLUDE_DIR}"
+			INTERFACE_LINK_LIBRARIES "Geneva::courtier"
+		)
+	ENDIF ()
+
+	# Backward-compatible aggregate variable, now holding imported targets in
+	# dependency order rather than bare library paths.
+	SET (GENEVA_LIBRARIES
+		Geneva::geneva
+		Geneva::courtier
+		Geneva::hap
+		Geneva::common
+	)
 ENDIF ()
 
-IF (GENEVA_ERROR_REASON)
-	MESSAGE (SEND_ERROR ${GENEVA_ERROR_REASON})
+###############################################################################
+# Report the results
+
+IF (GENEVA_FOUND AND NOT Geneva_FIND_QUIETLY)
+	IF (GENEVA_TESTING)
+		MESSAGE(STATUS "Geneva: built with testing support")
+	ELSE ()
+		MESSAGE(STATUS "Geneva: built without testing support")
+	ENDIF ()
 ENDIF ()
 
 ###############################################################################

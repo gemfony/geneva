@@ -1,0 +1,100 @@
+{
+    "header": {
+        "comment": "This is a not so complicated header",
+        "comment": "with a second line",
+        "comment": "and a third line as well",
+        "comment": "Sat May 23 18:57:35 2026"
+    },
+    "i_option2": {
+        "comment": "This is a comment for a call-back option",
+        "default": "1",
+        "value": "1"
+    },
+    "combined_label": {
+        "i_option3": {
+            "comment": "A comment concerning the first option",
+            "default": "3",
+            "value": "3"
+        },
+        "d_option1": {
+            "comment": "A comment concerning the second option",
+            "comment": "with a second line",
+            "default": "3",
+            "value": "3"
+        }
+    },
+    "i_option": {
+        "comment": "This is a comment",
+        "comment": "This is the second line of the comment",
+        "default": "0",
+        "value": "0"
+    },
+    "vector_options_with_callback": {
+        "comment": "Yet another comment",
+        "default": {
+            "item": "0",
+            "item": "1"
+        },
+        "value": {
+            "item": "0",
+            "item": "1"
+        }
+    },
+    "vector_options_reference": {
+        "comment": "And yet another comment",
+        "default": {
+            "item": "0",
+            "item": "1"
+        },
+        "value": {
+            "item": "0",
+            "item": "1"
+        }
+    },
+    "std_array_with_callback": {
+        "comment": "A comment regarding arrays with call-back functions",
+        "0": {
+            "default": "0",
+            "value": "0"
+        },
+        "1": {
+            "default": "1",
+            "value": "1"
+        },
+        "2": {
+            "default": "2",
+            "value": "2"
+        },
+        "3": {
+            "default": "3",
+            "value": "3"
+        },
+        "4": {
+            "default": "4",
+            "value": "4"
+        }
+    },
+    "std_array_reference": {
+        "comment": "A comment regarding std::array references",
+        "0": {
+            "default": "0",
+            "value": "0"
+        },
+        "1": {
+            "default": "1",
+            "value": "1"
+        },
+        "2": {
+            "default": "2",
+            "value": "2"
+        },
+        "3": {
+            "default": "3",
+            "value": "3"
+        },
+        "4": {
+            "default": "4",
+            "value": "4"
+        }
+    }
+}

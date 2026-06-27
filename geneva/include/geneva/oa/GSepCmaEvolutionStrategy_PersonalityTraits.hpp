@@ -1,0 +1,175 @@
+/********************************************************************************
+ *
+ * This file is part of the Geneva library collection. The following license
+ * applies to this file:
+ *
+ * ------------------------------------------------------------------------------
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------
+ *
+ * Note that other files in the Geneva library collection may use a different
+ * license. Please see the licensing information in each file.
+ *
+ ********************************************************************************
+ *
+ * See the NOTICE file in the top-level directory of the Geneva library
+ * collection for a list of contributors and copyright information.
+ *
+ ********************************************************************************/
+
+#pragma once
+
+// Global checks, defines and includes needed for all of Geneva
+#include "common/GGlobalDefines.hpp"
+
+// Standard headers go here
+#include <string>
+#include <tuple>
+
+// Boost headers go here
+
+// Geneva headers go here
+#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/GPersonalityTraits.hpp"
+
+namespace Gem::Geneva::OptimizationAlgorithms {
+
+/******************************************************************************/
+/**
+ * This class adds variables and functions to GPersonalityTraits that are specific
+ * to the separable CMA / CSA evolution strategy. It carries the offspring's
+ * selection rank (best == 0) and a pareto-front tag for the NSGA-II selection mode,
+ * mirroring the informational tags the other algorithms' personalities carry.
+ */
+class GSepCmaEvolutionStrategy_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
+  : public GPersonalityTraits {
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
+
+    /** @brief Single declaration of this class'es local data members */
+    template <typename Self>
+    static auto localMembers_(Self &self) {
+        return std::make_tuple(
+            Gem::Common::make_member("rank_", self.rank_),
+            Gem::Common::make_member("is_on_pareto_front_", self.is_on_pareto_front_)
+        );
+    }
+
+    template <typename Archive>
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
+        using boost::serialization::make_nvp;
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
+        Gem::Common::serialize_members(ar, localMembers_(*this));
+    }
+    ///////////////////////////////////////////////////////////////////////
+
+public:
+    /** @brief An easy identifier for the class */
+    static const std::string nickname; // Initialized in the .cpp definition file
+
+    /** @brief The default constructor */
+    GSepCmaEvolutionStrategy_PersonalityTraits() = default;
+    /**
+     * @brief The copy constructor.
+     * @param The object to be copied
+     */
+    GSepCmaEvolutionStrategy_PersonalityTraits(
+        const GSepCmaEvolutionStrategy_PersonalityTraits &
+    ) = default;
+    /** @brief The standard destructor */
+    ~GSepCmaEvolutionStrategy_PersonalityTraits() override = default;
+
+    /**
+     * @brief Sets the offspring's selection rank in the current generation (0 == best).
+     * @param rank The selection rank to store
+     */
+    void setRank(std::size_t rank);
+    /**
+     * @brief Retrieves the offspring's selection rank in the current generation.
+     * @return The stored selection rank (0 == best)
+     */
+    std::size_t getRank() const;
+
+    /**
+     * @brief Allows to check whether this individual lies on the current pareto front.
+     * @return true if the individual is tagged as lying on the pareto front, false otherwise
+     */
+    bool isOnParetoFront() const;
+    /** @brief Allows to reset the pareto tag to "true" */
+    void resetParetoTag();
+    /** @brief Allows to specify that this individual does not lie on the pareto front of the current iteration */
+    void setIsNotOnParetoFront();
+
+    /**
+     * @brief Retrieves the mnemonic of the optimization algorithm.
+     * @return The short mnemonic string identifying this personality
+     */
+    std::string getMnemonic() const override;
+
+protected:
+    /***************************************************************************/
+    // Virtual or overridden protected functions
+
+    /**
+     * @brief Loads the data of another GSepCmaEvolutionStrategy_PersonalityTraits object.
+     * @param cp The other object whose data is loaded into this one (downcast from GPersonalityTraits)
+     */
+    void load_(const GPersonalityTraits *cp) override;
+
+    /** @brief Allow access to this classes compare_ function */
+    friend void Gem::Common::compare_base_t<GSepCmaEvolutionStrategy_PersonalityTraits>(
+        GSepCmaEvolutionStrategy_PersonalityTraits const &,
+        GSepCmaEvolutionStrategy_PersonalityTraits const &,
+        Gem::Common::GToken &
+    );
+
+    /**
+     * @brief Searches for compliance with expectations with respect to another object of the same type.
+     * @param cp The other object to compare against (downcast from GPersonalityTraits)
+     * @param e The expectation for this object, e.g. equality
+     * @param limit The limit for allowed deviations of floating point types
+     */
+    void compare_(
+        const GPersonalityTraits &cp // the other object
+        ,
+        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
+        ,
+        const double &limit // the limit for allowed deviations of floating point types
+    ) const override;
+
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    bool modify_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    void specificTestsNoFailureExpected_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    void specificTestsFailuresExpected_GUnitTests_() override;
+
+    /***************************************************************************/
+
+private:
+    /** @brief Emits a name for this class / object */
+    std::string name_() const override;
+    /** @brief Creates a deep clone of this object */
+    GPersonalityTraits *clone_() const override;
+
+    /** @brief The offspring's selection rank in the current generation (0 == best) */
+    std::size_t rank_ = 0;
+    /** @brief Whether the individual lies on the current pareto front (NSGA-II selection) */
+    bool is_on_pareto_front_ = true;
+};
+
+/******************************************************************************/
+
+} /* namespace Gem::Geneva::OptimizationAlgorithms */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GSepCmaEvolutionStrategy_PersonalityTraits) // NOLINT

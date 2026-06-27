@@ -1,29 +1,76 @@
-This directory contains a script to help compiling Geneva, and
-some additional scripts that may be useful for submitting Geneva
-jobs.
+This directory contains a script to help compiling Geneva, plus a number of
+helper scripts for running and testing Geneva jobs (locally and across hosts).
+
+Build
+-----
 
 prepareBuild.sh
-   A wrapper script around CMake that eases compilation. Uses
-   genevaConfig.gcfg as input data
+   A wrapper around CMake that eases compilation. Reads its settings from a
+   .gcfg file (defaulting to genevaConfig.gcfg).
+   Usage: ./prepareBuild.sh [<config.gcfg>] [--clean] [--build] [-y|--yes] [--help]
+   Typical: cp genevaConfig.gcfg myConfig.gcfg && edit it, then
+            (cd ~/build && /path/to/scripts/prepareBuild.sh myConfig.gcfg --clean -y && make -j)
 
 genevaConfig.gcfg
-   The configuration file for prepareBuild.sh
+   The configuration file for prepareBuild.sh (Boost location, build type,
+   examples/tests/benchmarks, CUDA/MPI, etc.).
 
-rsyncList.sh
-   Allows to sync a local directory with a list of hosts, contained
-   in a file with extension .hcfg
+Running networked jobs (server + clients)
+-----------------------------------------
 
-sampleHostFile.hcfg
-   A sample host file, as input for rsyncList.sh and sshList.sh
-
-sshList.sh
-   Allows to execute a given command on a number of hosts, using ssh
+A networked Geneva program is started once as a server and any number of times
+as a client (--client). Both helper scripts take an optional consumer mnemonic:
+"asio" (default) or "beast" (websocket), and map it to the correct command-line
+options (--asio_ip/--asio_port resp. --beast_ip/--beast_port).
 
 startLocalJobs.sh
-   Allows to start a number of Geneva clients plus a server on the
-   local host for testing purposes
+   Starts a Geneva program on the LOCAL host (reliable, low-latency networking)
+   -- for testing networked execution without a cluster. Cleans up all child
+   processes on exit.
+   Usage: ./startLocalJobs.sh <program> <n_clients> <port> [consumer: asio|beast|mpi]
+   For asio/beast it runs the program once as a server plus n_clients times as
+   clients over local TCP. For mpi it launches the program ONCE via mpirun with
+   n_clients + 1 ranks (one rank-0 master plus n_clients workers); the port is
+   ignored (MPI uses no listening socket -- pass any placeholder, e.g. 0) and the
+   launcher can be overridden with the MPIRUN environment variable.
+   Set the environment variable GENEVA_RUN_TIMEOUT=<seconds> to run
+   non-interactively: it then waits up to that long for the server (or mpirun job)
+   to finish, tears everything down, and returns its exit code (124 on timeout).
+   Without it, the server/mpirun output is tailed until interrupted.
 
 startClients.sh
-	Allows to start a number of Geneva clients without the server.
-	They will then try to connect to a server who's IP and port were
-	specified on the command line.
+   Starts a Geneva program N times as clients only (no server) -- they connect
+   to an already-running server (e.g. started by startLocalJobs.sh or on another
+   host). Cleans up the started clients on interrupt.
+   Usage: ./startClients.sh <program> <n_clients> <ip/hostname> <port> [consumer: asio|beast]
+
+Driving many hosts (cluster helpers)
+------------------------------------
+
+sshList.sh
+   Runs a command on every host listed in a host file (one host per line; the
+   file extension MUST be .hcfg), via ssh.
+   Usage: ./sshList.sh <optional ssh options> <hostFile.hcfg> <command>
+
+rsyncList.sh
+   rsyncs a local directory to a target directory on every host in a host file.
+   Usage: ./rsyncList.sh <options> </local/dir> <hostFile.hcfg:/remote/dir> <options>
+
+sampleHostFile.hcfg
+   A sample host file (one host per line) for sshList.sh and rsyncList.sh.
+
+Configuration & testing helpers
+-------------------------------
+
+updateConfigFiles.sh
+   Regenerates/updates the JSON configuration files of all tests and examples in
+   the source tree from a fully built binary tree. (Running any Geneva binary in
+   a directory that contains an empty ./config folder auto-creates its default
+   configs; this script just automates that across the whole tree and copies the
+   results back into the source tree.)
+   Usage: ./updateConfigFiles.sh <GENEVA_SOURCE_DIR> <GENEVA_BUILD_DIR>
+
+Testing/repeatedRun.sh
+   Runs a given command N times and appends each run's output (with a timestamp)
+   to a result file -- useful for shaking out intermittent/flaky behaviour.
+   Usage: ./Testing/repeatedRun.sh <command> <count> <result_file>

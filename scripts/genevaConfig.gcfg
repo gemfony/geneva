@@ -93,11 +93,33 @@ LINKEREXTRAFLAGS=""
 # Whether to build MPI consumer
 BUILDMPICONSUMER="1"
 
+# Whether to build the GPU consumer (GGPUConsumerT) into the courtier library and
+# expose the "gpu" consumer mnemonic. Like the MPI consumer this is an opt-in add-on:
+# when enabled, courtier dynamically links the CUDA (NVRTC + driver API) device backend
+# present on the system (a CPU backend is always available); when disabled, no GPU code is
+# compiled and "gpu" is not a selectable consumer. Example 15 (GCUDAWorker) and the GPU
+# optimisation benchmark are built only when this is enabled. Independent of USECUDARNG (a
+# separate Hap feature). SKIPALLCUDA still forces the whole consumer off.
+# Tri-state: "auto" (use a found CUDA toolkit, else off) | "on" (require CUDA, fail if absent)
+# | "off" (never build it). Legacy "0"/"1" are still accepted.
+BUILDGPUCONSUMER="auto"
+
 # Whether to instrument the Common library and its tests with code-coverage
 # flags (--coverage for GCC, -fprofile-instr-generate -fcoverage-mapping for
 # Clang). Used together with the `coverage` make target to produce gcovr
 # reports. Costs noticeable runtime; leave OFF for production builds.
 WITHCOVERAGE="0"
+
+# Build with a code sanitizer (developer diagnostics). One of:
+#   none       (default) — no sanitizer, normal/production build
+#   thread     — ThreadSanitizer: detects data races
+#   address    — AddressSanitizer: detects memory errors (OOB, use-after-free)
+#   undefined  — UndefinedBehaviorSanitizer
+# When set to anything other than "none", CUDA and the MPI consumer are forced
+# OFF automatically (nvcc cannot compile with -fsanitize; MPI floods TSan), and
+# the whole C++ build is instrumented (much slower, for diagnostics only).
+# See prompts/2026-05-30-sanitizer-rollout-plan.md.
+SANITIZER="none"
 
 # Set to 1 to skip all CUDA compilation entirely — no CUDA examples, no CUDA
 # benchmark, and no CUDA RNG in Hap — even if nvcc is present on the system.
@@ -117,14 +139,22 @@ SKIPALLCUDA="0"
 #   CUDA_NVCC="/usr/local/cuda-13.1/bin/nvcc"
 #   CUDA_ROOT="/usr/local/cuda-13.1"   # optional; derived from CUDA_NVCC if omitted
 #
-# Ubuntu 24.04 + CUDA 13.1 known issue: check_language(CUDA) fails because
-# glibc 2.39 re-declares rsqrt with noexcept(true) (__THROW) after CUDA's
-# crt/math_functions.h declared it without — cudafe++ treats this as a hard
-# error.  There is no cmake/nvcc flag workaround: --diag-suppress has no
-# matching diagnostic number, and -D__THROW= is overridden by <sys/cdefs.h>
-# which redefines __THROW unconditionally (no #ifndef guard).
-# Real fixes: (a) use the apt CUDA 12.4 at /usr/bin/nvcc instead, or
-# (b) patch crt/math_functions.h to add noexcept to rsqrt/rsqrtf — see below.
+# On this machine (Ubuntu 26.04, glibc 2.43): use CUDA 13.1
+#   CUDA_NVCC="/usr/local/cuda-13.1/bin/nvcc"
+# It configures and compiles the whole tree cleanly, including the Asio-using
+# CUDA examples/benchmark (GCUDAWorker, GCUDAOptBenchmark).
+#
+# Do NOT use the apt CUDA 12.4 at /usr/bin/nvcc: its nvcc cannot compile
+# Boost.Asio's C++20 coroutines (boost/asio/impl/co_spawn.hpp: "the operand to
+# this co_await expression resolves to non-class"), so the CUDA examples and
+# the CUDA benchmark fail to build.
+#
+# Historic note (Ubuntu 24.04 + glibc 2.39 only): there 13.1's
+# check_language(CUDA) failed because glibc 2.39 re-declared rsqrt with
+# noexcept(true) (__THROW) after CUDA's crt/math_functions.h declared it
+# without, and cudafe++ treated this as a hard error; the old workaround was to
+# fall back to 12.4.  That glibc/rsqrt interaction does not occur on glibc 2.43,
+# so on the current system 13.1 is the correct choice.
 CUDA_NVCC=""
 CUDA_ROOT=""
 
@@ -133,7 +163,23 @@ CUDA_ROOT=""
 # programs linked with Geneva become less portable (CUDA toolkit required).
 # CUDA examples and benchmarks are built automatically when nvcc is found,
 # independently of this setting.
-USECUDARNG="0"
+# Tri-state: "auto" (use a found CUDA toolkit, else the SIMD/CPU RNG engine) | "on"
+# (require CUDA, fail if absent) | "off" (never use CUDA). Legacy "0"/"1" still accepted.
+USECUDARNG="auto"
+
+# Build example 15 (GCUDAWorker) with float parameters + a float GPU kernel instead of
+# double. Only affects example 15. Default 1 (float): FP32 is ~14x faster than FP64 at the
+# 1000-triangle workload on consumer GPUs (few FP64 units). Set to 0 for the double variant.
+GIMAGE_USE_FLOAT="1"
+
+# Selects the source the default Gem::Hap::GRandom proxy draws from (compile-time -- exactly one
+# backend exists in a given build):
+#   "queue"      -> the central factory package queue (the default; producers may bulk-fill via cuRAND/SIMD)
+#   "local"      -> a per-proxy engine seeded by the factory (CPU-only, contention-free fallback)
+#   "staged"     -> chunks from a shared, bulk-filled staging pool into a per-proxy double buffer
+#   "quarantine" -> read in place from N rotating, bulk-filled pools (benign-race, aligned-64-bit)
+# Other sources stay usable explicitly via GRandomT<randomSource::...>; this only sets the alias.
+RANDOMSOURCE="queue"
 
 # Further CMake parameters you might want to provide; these
 # will be passed 'verbatim' to CMake's command line

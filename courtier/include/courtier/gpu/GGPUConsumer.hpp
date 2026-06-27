@@ -1,0 +1,195 @@
+/********************************************************************************
+ *
+ * This file is part of the Geneva library collection. The following license
+ * applies to this file:
+ *
+ * ------------------------------------------------------------------------------
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------
+ *
+ * Note that other files in the Geneva library collection may use a different
+ * license. Please see the licensing information in each file.
+ *
+ ********************************************************************************
+ *
+ * See the NOTICE file in the top-level directory of the Geneva library
+ * collection for a list of contributors and copyright information.
+ *
+ ********************************************************************************/
+
+#pragma once
+
+// Standard headers
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <vector>
+
+// Geneva headers
+#include "common/GErrorStreamer.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
+#include "courtier/GBaseConsumerT.hpp"
+#include "courtier/gpu/GCPUBackend.hpp"
+#include "courtier/gpu/GGPUBackendFactory.hpp"
+#include "courtier/gpu/GGPUConsumerConfig.hpp"
+#include "courtier/gpu/GGPUDeviceBackendI.hpp"
+#include "courtier/gpu/GGPUEvaluableI.hpp"
+
+namespace Gem::Courtier::GPU {
+
+/******************************************************************************/
+/**
+ * A unified, device-model-agnostic GPU consumer (part of the Courtier consumer family).
+ *
+ * It is an ordinary courtier LOCAL consumer (it derives from the same Gem::Courtier::GBaseConsumerT
+ * that every other consumer -- serial, multi-threaded, asio, beast, mpi -- derives from), so it plugs
+ * into the existing span+policy submission path unchanged. It is mnemonic-selectable like every other
+ * consumer (`--consumer gpu`): a Go2 program contributes its device marshaller via
+ * Go2::registerGPUConsumerBuilder(...) and Go2 builds + registers this consumer; a Go2-less program can
+ * still construct it directly and register it in GConsumerRegistry. courtier hands dispatch_() the WHOLE
+ * round's batch at once, which this consumer evaluates in a single bulk kernel launch.
+ *
+ * The two things that used to be hard-wired per CUDA consumer are now decoupled and configurable:
+ *   - the device-programming model (CPU / CUDA) -- chosen at run time from the config file,
+ *     served by a swappable GGPUDeviceBackendI;
+ *   - the kernel code -- a path in the config file, runtime-compiled (NVRTC) or loaded as a prebuilt
+ *     module.
+ * The problem-specific marshalling (how a batch of individuals becomes flat device buffers and how
+ * results are written back) is supplied as a GGPUEvaluableI, so one consumer serves any problem.
+ *
+ * GPU evaluation is deterministic and all-or-nothing, so a batch should be submitted under
+ * GSubmissionPolicy::full_success_or_fatal.
+ *
+ * @tparam processable_type The work-item type evaluated on the device
+ * @tparam scalar_type The genome/fitness flat-buffer element type and device ABI type (default double)
+ */
+template <typename processable_type, typename scalar_type = double>
+class GGPUConsumerT final : public Gem::Courtier::GBaseConsumerT<processable_type> {
+public:
+    using item_ptr = typename Gem::Courtier::GBaseConsumerT<processable_type>::item_ptr;
+
+    /** @brief Builds the consumer from @p configFile (backend + kernel selection) and the
+     *  problem-specific @p marshaller. The backend is created and the kernel acquired lazily, on the
+     *  first dispatch_, so construction is cheap and device errors surface at run time.
+     *
+     *  @param configFile Path to the config file selecting the backend and the kernel
+     *  @param marshaller The problem-specific flatten/scatter helper (shared ownership) */
+    GGPUConsumerT(const std::string &configFile,
+                  std::shared_ptr<GGPUEvaluableI<processable_type, scalar_type>> marshaller)
+        : marshaller_(std::move(marshaller)) {
+        cfg_.load(configFile);
+    }
+
+    /** @brief The destructor. */
+    ~GGPUConsumerT() override = default;
+
+    GGPUConsumerT(const GGPUConsumerT &) = delete;
+    GGPUConsumerT &operator=(const GGPUConsumerT &) = delete;
+
+    /** @brief The backend actually in use (after the first dispatch_), e.g. "cuda" / "cpu".
+     *  @return The backend name, or "(uninitialised)" before the first dispatch_ */
+    [[nodiscard]] std::string activeBackendName() const {
+        return backend_ ? backend_->name() : std::string("(uninitialised)");
+    }
+
+protected:
+    /***************************************************************************/
+    /** @brief Evaluates the whole round's batch in one bulk launch: flatten -> backend -> scatter.
+     *  Requires a uniform genome geometry across the batch (rejects mixed geometries loudly).
+     *
+     *  @param items The whole round's batch of work items, evaluated in place (fitness written back) */
+    void dispatch_(std::vector<item_ptr> &items) override {
+        if(items.empty()) {
+            return;
+        }
+        ensureBackend_();
+
+        const int n = static_cast<int>(items.size());
+
+        // Enforce a UNIFORM genome geometry across the batch. The GPU evaluates the batch as a single
+        // [n_items * dim] grid in one launch, so every individual must contribute the same number of
+        // parameters. This keeps the bulk-batch capability while making the (previously implicit)
+        // uniform-geometry assumption an explicit, checked contract: a batch mixing individuals of
+        // different geometries (e.g. different problems sharing one GPU consumer) is rejected loudly
+        // instead of silently corrupting the flattened buffer.
+        const std::size_t dim_sz = marshaller_->itemDimension(items.front());
+        for(std::size_t i = 1; i < items.size(); ++i) {
+            if(marshaller_->itemDimension(items[i]) != dim_sz) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GGPUConsumerT::dispatch_(): Error!" << '\n'
+                    << "The GPU consumer requires a UNIFORM genome geometry across a batch, but item "
+                    << i << " has " << marshaller_->itemDimension(items[i]) << " parameters while item 0"
+                    << " has " << dim_sz << "." << '\n'
+                    << "Submit individuals of a single geometry to the GPU consumer (one problem /"
+                    << " genome layout per consumer)." << '\n'
+                );
+            }
+        }
+
+        marshaller_->flatten(items, params_);
+        const int dim = static_cast<int>(dim_sz);
+
+        // Build the problem-constant blob ONCE when it is static (e.g. a fixed target image), rather
+        // than rebuilding it every generation. The backend likewise skips re-uploading an unchanged
+        // blob (it sees the same stable pointer).
+        if(not pconst_built_ || not marshaller_->problemConstantsStatic()) {
+            pconst_ = marshaller_->problemConstants();
+            pconst_built_ = true;
+        }
+        fitness_.assign(static_cast<std::size_t>(n), scalar_type(0));
+
+        backend_->evaluate(
+            params_.data(), n, dim, pconst_.data(), pconst_.size(), fitness_.data(),
+            marshaller_->parallelWorkPerItem());
+
+        marshaller_->scatter(items, fitness_);
+    }
+
+private:
+    /***************************************************************************/
+    /** @brief Lazily builds the backend and acquires the kernel. Falls back to the CPU backend (with
+     *  a warning) if the configured backend was not compiled into this build. */
+    void ensureBackend_() {
+        if(backend_) {
+            return;
+        }
+        BackendKind kind = cfg_.backendKind();
+        if(not backendAvailable(kind)) {
+            glogger << "In Gem::Courtier::GPU::GGPUConsumer: the '" << toString(kind)
+                    << "' backend was not compiled into this build; falling back to 'cpu'." << '\n'
+                    << GWARNING;
+            kind = BackendKind::CPU;
+        }
+        backend_ = makeBackend<scalar_type>(kind, marshaller_.get());
+        backend_->initialize(cfg_.kernelSpec());
+        glogger << "Gem::Courtier::GPU::GGPUConsumer using the '" << backend_->name()
+                << "' backend (kernel: " << cfg_.kernel_path << ")" << '\n'
+                << GLOGGING;
+    }
+
+    /***************************************************************************/
+    std::shared_ptr<GGPUEvaluableI<processable_type, scalar_type>> marshaller_; ///< Problem-specific flatten/scatter
+    GGPUConsumerConfig cfg_;                          ///< backend + kernel selection
+    std::unique_ptr<GGPUDeviceBackendI<scalar_type>> backend_;    ///< The device backend (lazy)
+
+    std::vector<scalar_type> params_;     ///< Reused host parameter buffer (avoids per-round reallocation)
+    std::vector<scalar_type> fitness_;    ///< Reused host fitness buffer
+    std::vector<std::byte> pconst_;  ///< Cached problem-constant blob (built once when static)
+    bool pconst_built_ = false;      ///< Whether pconst_ has been built
+};
+
+/******************************************************************************/
+
+} /* namespace Gem::Courtier::GPU */

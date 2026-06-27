@@ -1,0 +1,79 @@
+This directory contains an example that may be directly used
+as the basis for your own optimization problems. In order to
+adapt the example to your needs, it is recommended to start
+from the GStarterIndividual-code in this directory.
+
+Note that this example is not the best starting point if you
+are new to Geneva. In this case we recommend to check the
+preceding examples first and particularly to read the manual.
+
+The GStarter-example is in contrast targeted at situations, where
+already serious optimization problems should be tackled. It
+therefore contains already some advanced code, such as an
+optimization monitor (optional, it is needed if you want to find
+out more about the inner workings of your individuals and/or
+Geneva).
+
+--------------------------------------------------------------------
+Standalone build (the canonical downstream template)
+--------------------------------------------------------------------
+
+Unlike the other examples, 10_GStarter is NOT built by the in-tree
+Geneva build. It ships with the sources as the canonical template
+that demonstrates how an external project consumes an *installed*
+Geneva via find_package(Geneva) and links the Geneva::geneva imported
+target. You can copy this entire directory out of the Geneva tree and
+use it as the starting point for your own project.
+
+1. Build and install Geneva first (the install step is required --
+   the standalone build needs an installed Geneva, not just a build
+   tree):
+
+       cd /your/geneva/build
+       make -j$(nproc)
+       make install            # installs to CMAKE_INSTALL_PREFIX
+
+2. Configure and build this example out-of-tree, pointing CMake at
+   the Geneva install prefix:
+
+       cd /path/to/examples/geneva/10_GStarter
+       mkdir build && cd build
+       cmake -DCMAKE_PREFIX_PATH=<geneva-install-prefix> ..
+       make
+
+   GENEVA_ROOT may be used as an alternative to CMAKE_PREFIX_PATH:
+
+       cmake -DGENEVA_ROOT=<geneva-install-prefix> ..
+
+   The build prefers the installed CMake config package
+   (find_package(Geneva CONFIG)). If that is not present it falls back
+   to the bundled FindGeneva.cmake module. If Boost is in a
+   non-standard location, also pass -DBOOST_ROOT=<boost-prefix>.
+
+3. Running the GStarter binary requires the Geneva shared libraries to
+   be visible to the dynamic linker. Either register the install lib
+   directory once,
+
+       echo "<geneva-install-prefix>/lib" | sudo tee /etc/ld.so.conf.d/geneva.conf
+       sudo ldconfig
+
+   or set LD_LIBRARY_PATH at runtime:
+
+       export LD_LIBRARY_PATH="<geneva-install-prefix>/lib:$LD_LIBRARY_PATH"
+       ./GStarter --help
+
+   The example expects its configuration files under ./config (copied
+   into the build tree at configure time).
+
+--------------------------------------------------------------------
+Optional unit test
+--------------------------------------------------------------------
+
+The unit test under Tests/UnitTests uses Catch2 together with the
+internal Geneva test scaffolding header (Geneva_tests.hpp), which is
+part of the Geneva *sources* and is not installed. The test target is
+built only when both Catch2 and that header are available; otherwise
+it is skipped with a STATUS message. When this directory is built in
+place (inside a Geneva checkout) the scaffolding header is found
+automatically; otherwise its location can be supplied via
+-DGENEVA_TEST_INCLUDE_DIR=<path-to-tests/geneva/UnitTests>.

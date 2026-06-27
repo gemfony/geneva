@@ -1,0 +1,85 @@
+################################################################################
+#
+# This file is part of the Geneva library collection. The following license
+# applies to this file:
+#
+# ------------------------------------------------------------------------------
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ------------------------------------------------------------------------------
+#
+# Note that other files in the Geneva library collection may use a different
+# license. Please see the licensing information in each file.
+#
+################################################################################
+#
+# See the NOTICE file in the top-level directory of the Geneva library
+# collection for a list of contributors and copyright information.
+#
+################################################################################
+#
+# CMake package configuration file for an installed Geneva library collection.
+#
+# This file is consumed via find_package(Geneva CONFIG REQUIRED). It re-finds
+# the Boost dependency that Geneva exposes through its public interface and then
+# pulls in the exported imported targets:
+#
+#   Geneva::common      - utilities (logging, threads, serialization helpers)
+#   Geneva::dietrich    - plotting library (ROOT / gnuplot / matplotlib / data)
+#   Geneva::hap         - random number generation
+#   Geneva::courtier    - broker/consumer parallelization framework
+#   Geneva::geneva      - core optimization library (links the others above)
+#
+# Linking Geneva::geneva transitively brings in the other three targets, the
+# Geneva include directory, the required Boost components and the C++20
+# requirement.
+#
+################################################################################
+
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# Geneva exposes Boost through its public headers, so consumers need a
+# compatible Boost. The component list mirrors GENEVA_BOOST_LIBS in
+# CommonGenevaBuild.cmake (the test-only "test" component is not part of the
+# installed interface).
+find_dependency(Boost @GENEVA_MIN_BOOST_VERSION@ COMPONENTS
+    filesystem
+    program_options
+    regex
+    serialization
+    atomic
+)
+
+# If this Geneva was installed with testing support, the geneva library embeds
+# Catch2-based test scaffolding and references Catch2 symbols. Such an install
+# can only be consumed by linking Catch2 as well.
+set(GENEVA_TESTING @GENEVA_INSTALLED_WITH_TESTING@)
+if(GENEVA_TESTING)
+    find_dependency(Catch2 3)
+endif()
+
+# Pull in the exported Geneva::* imported targets.
+include("${CMAKE_CURRENT_LIST_DIR}/GenevaTargets.cmake")
+
+# Convenience list of all imported targets, mirroring the legacy
+# GENEVA_LIBRARIES variable (now holding imported targets instead of paths).
+set(GENEVA_LIBRARIES
+    Geneva::geneva
+    Geneva::courtier
+    Geneva::hap
+    Geneva::dietrich
+    Geneva::common
+)
+
+check_required_components(Geneva)

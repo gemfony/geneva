@@ -143,7 +143,7 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	SET (Boost_USE_STATIC_LIBS OFF)
 
 	# The minimum Boost version required for building Geneva and Geneva applications
-	SET (GENEVA_MIN_BOOST_VERSION 1.90)
+	SET (GENEVA_MIN_BOOST_VERSION 1.91)
 
 	# These are the libraries required for any Geneva build
 	SET (
@@ -195,8 +195,12 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	# The names of the Geneva libraries
 
 	SET ( COMMON_LIBNAME            "gemfony-common" )
+	SET ( DIETRICH_LIBNAME          "gemfony-dietrich" )
 	SET ( HAP_LIBNAME               "gemfony-hap" )
 	SET ( COURTIER_LIBNAME          "gemfony-courtier" )
+	# The GPU consumer is folded INTO gemfony-courtier as an opt-in add-on (GENEVA_BUILD_WITH_GPU_CONSUMER),
+	# exactly like the MPI consumer: when enabled, courtier dynamically links the CUDA/OpenCL backends; when
+	# disabled, no GPU code is compiled. There is no separate GPU library.
 	SET ( GENEVA_LIBNAME            "gemfony-geneva" )
 	SET ( GENEVA_INDIVIDUAL_LIBNAME "gemfony-geneva-individuals" )
 
@@ -205,16 +209,18 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	# The geneva-individuals library was dissolved into the geneva library
 	# (the sample individuals now live in Gem::Geneva::Individuals under
 	# geneva/individuals/); there is no separate individuals library.
+	# Dietrich (plotting) is a leaf peer on top of common, used by geneva; it links
+	# after hap so geneva -> dietrich -> common resolves left-to-right.
 	SET (
 			GENEVA_LIBNAMES
 			${GENEVA_LIBNAME}
 			${COURTIER_LIBNAME}
 			${HAP_LIBNAME}
+			${DIETRICH_LIBNAME}
 			${COMMON_LIBNAME}
 	)
 
-	# This variable contains the library names. In case of an independent build,
-	# it is overwritten later by FindGeneva, with the list of full library paths.
+	# This variable contains the library names.
 	# The function TARGET_LINK_LIBRARIES() can use either variant.
 	SET ( GENEVA_LIBRARIES ${GENEVA_LIBNAMES} )
 
@@ -231,89 +237,38 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	ENDIF ()
 
 	################################################################################
-	# Search for Geneva if this is an out-of-tree build of some Geneva application
-
-	IF (NOT GENEVA_FULL_TREE_BUILD)
-
-		# This command sets the variables
-		#   GENEVA_INCLUDE_DIR, GENEVA_LIBRARY_DIR, GENEVA_LIBRARIES, etc.
-		MESSAGE("Searching for Geneva...\n")
-		FIND_PACKAGE (Geneva REQUIRED)
-		MESSAGE("")
-
-		IF (NOT GENEVA_FOUND)
-			MESSAGE (FATAL_ERROR "Geneva not found, can't continue!")
-		ENDIF ()
-
-		IF (GENEVA_TESTING AND NOT GENEVA_BUILD_TESTS)
-			# If Geneva was built with testing, the application must also be built
-			# with testing enabled (Catch2 RTTI symbols are referenced by the shared
-			# library). That case is unsupported for now.
-			MESSAGE (FATAL_ERROR "Geneva was built with testing support,"
-					" building a Geneva application without testing"
-					" is not suported. Please set GENEVA_BUILD_TESTS=TRUE .")
-		ELSEIF (GENEVA_BUILD_TESTS AND NOT GENEVA_TESTING)
-			# This case doesn't really make sense...
-			MESSAGE (FATAL_ERROR "Geneva was built without testing support,"
-					" cannot build a Geneva application with testing."
-					" Please set GENEVA_BUILD_TESTS=FALSE .")
-		ENDIF ()
-
-		INCLUDE_DIRECTORIES(${GENEVA_INCLUDE_DIR})
-
-	ENDIF ()
-
-	################################################################################
 	# Set the installation locations
 
-	IF (GENEVA_FULL_TREE_BUILD)
-
-		IF (INSTALL_PREFIX_INCLUDES AND INSTALL_PREFIX_LIBS
-				AND INSTALL_PREFIX_DOCS AND INSTALL_PREFIX_DATA)
-			# All are set, we ignore CMAKE_INSTALL_PREFIX and install
-			# each kind of files in its own location
-			SET( INFO_INSTALL_PREFIX                       "\n\t\t(libs)\t\t${INSTALL_PREFIX_LIBS}" )
-			SET( INFO_INSTALL_PREFIX "${INFO_INSTALL_PREFIX}\n\t\t(headers)\t${INSTALL_PREFIX_INCLUDES}" )
-			SET( INFO_INSTALL_PREFIX "${INFO_INSTALL_PREFIX}\n\t\t(docs)\t\t${INSTALL_PREFIX_DOCS}" )
-			SET( INFO_INSTALL_PREFIX "${INFO_INSTALL_PREFIX}\n\t\t(other files)\t${INSTALL_PREFIX_DATA}" )
-		ELSEIF (NOT INSTALL_PREFIX_INCLUDES AND NOT INSTALL_PREFIX_LIBS
-				AND NOT INSTALL_PREFIX_DOCS AND NOT INSTALL_PREFIX_DATA)
-			# All unset, Geneva is installed as a standalone tree in CMAKE_INSTALL_PREFIX
-			IF (NOT INSTALL_PREFIX_ROOT)
-				IF (CMAKE_INSTALL_PREFIX)
-					SET( INSTALL_PREFIX_ROOT ${CMAKE_INSTALL_PREFIX} )
-				ELSE ()
-					# If no value was set, use relative paths
-					SET( INSTALL_PREFIX_ROOT "." )
-				ENDIF ()
-			ENDIF ()
-
-			SET( INSTALL_PREFIX_INCLUDES "${INSTALL_PREFIX_ROOT}/include" )
-			SET( INSTALL_PREFIX_LIBS     "${INSTALL_PREFIX_ROOT}/lib" )
-			SET( INSTALL_PREFIX_DOCS     "${INSTALL_PREFIX_ROOT}" )
-			SET( INSTALL_PREFIX_DATA     "${INSTALL_PREFIX_ROOT}" )
-			SET( INFO_INSTALL_PREFIX     "${INSTALL_PREFIX_ROOT}" )
-		ELSE ()
-			# Inconsistent settings
-			MESSAGE (FATAL_ERROR "Please set either all four or none of the"
-					" installation prefix values INSTALL_PREFIX_INCLUDES,"
-					" INSTALL_PREFIX_LIBS, INSTALL_PREFIX_DOCS, and INSTALL_PREFIX_DATA .")
-		ENDIF ()
-
-	ELSE ()
-
-		# This is an out-of-tree build of some Geneva application, only the
-		# INSTALL_PREFIX_DATA or CMAKE_INSTALL_PREFIX are needed
-		IF (NOT INSTALL_PREFIX_DATA)
+	IF (INSTALL_PREFIX_INCLUDES AND INSTALL_PREFIX_LIBS
+			AND INSTALL_PREFIX_DOCS AND INSTALL_PREFIX_DATA)
+		# All are set, we ignore CMAKE_INSTALL_PREFIX and install
+		# each kind of files in its own location
+		SET( INFO_INSTALL_PREFIX                       "\n\t\t(libs)\t\t${INSTALL_PREFIX_LIBS}" )
+		SET( INFO_INSTALL_PREFIX "${INFO_INSTALL_PREFIX}\n\t\t(headers)\t${INSTALL_PREFIX_INCLUDES}" )
+		SET( INFO_INSTALL_PREFIX "${INFO_INSTALL_PREFIX}\n\t\t(docs)\t\t${INSTALL_PREFIX_DOCS}" )
+		SET( INFO_INSTALL_PREFIX "${INFO_INSTALL_PREFIX}\n\t\t(other files)\t${INSTALL_PREFIX_DATA}" )
+	ELSEIF (NOT INSTALL_PREFIX_INCLUDES AND NOT INSTALL_PREFIX_LIBS
+			AND NOT INSTALL_PREFIX_DOCS AND NOT INSTALL_PREFIX_DATA)
+		# All unset, Geneva is installed as a standalone tree in CMAKE_INSTALL_PREFIX
+		IF (NOT INSTALL_PREFIX_ROOT)
 			IF (CMAKE_INSTALL_PREFIX)
-				SET( INSTALL_PREFIX_DATA "${CMAKE_INSTALL_PREFIX}" )
+				SET( INSTALL_PREFIX_ROOT ${CMAKE_INSTALL_PREFIX} )
 			ELSE ()
 				# If no value was set, use relative paths
-				SET( INSTALL_PREFIX_DATA "." )
+				SET( INSTALL_PREFIX_ROOT "." )
 			ENDIF ()
 		ENDIF ()
-		SET( INFO_INSTALL_PREFIX "${INSTALL_PREFIX_DATA}" )
 
+		SET( INSTALL_PREFIX_INCLUDES "${INSTALL_PREFIX_ROOT}/include" )
+		SET( INSTALL_PREFIX_LIBS     "${INSTALL_PREFIX_ROOT}/lib" )
+		SET( INSTALL_PREFIX_DOCS     "${INSTALL_PREFIX_ROOT}" )
+		SET( INSTALL_PREFIX_DATA     "${INSTALL_PREFIX_ROOT}" )
+		SET( INFO_INSTALL_PREFIX     "${INSTALL_PREFIX_ROOT}" )
+	ELSE ()
+		# Inconsistent settings
+		MESSAGE (FATAL_ERROR "Please set either all four or none of the"
+				" installation prefix values INSTALL_PREFIX_INCLUDES,"
+				" INSTALL_PREFIX_LIBS, INSTALL_PREFIX_DOCS, and INSTALL_PREFIX_DATA .")
 	ENDIF ()
 
 	################################################################################
@@ -322,11 +277,7 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	MESSAGE ("========================================")
 	MESSAGE ("")
 	MESSAGE ("Building:")
-	IF (GENEVA_FULL_TREE_BUILD)
-		MESSAGE ("\tthe Geneva library collection")
-	ELSE ()
-		MESSAGE ("\ta Geneva application")
-	ENDIF ()
+	MESSAGE ("\tthe Geneva library collection")
 	MESSAGE ("\tdynamically linked")
 	IF (GENEVA_BUILD_TESTS)
 		MESSAGE ("\tincluding testing code")
@@ -343,10 +294,6 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 
 	MESSAGE ("\twith Boost include location:\t ${Boost_INCLUDE_DIRS}")
 	MESSAGE ("\twith Boost library location:\t ${Boost_LIBRARY_DIRS}")
-	IF (NOT GENEVA_FULL_TREE_BUILD)
-		MESSAGE ("\twith Geneva include location:\t ${GENEVA_INCLUDE_DIR}")
-		MESSAGE ("\twith Geneva library location:\t ${GENEVA_LIBRARY_DIR}")
-	ENDIF ()
 
 	IF(GENEVA_BUILD_WITH_OPENCL_EXAMPLES)
 		MESSAGE ("\twith OpenCL include location:\t ${OpenCL_INCLUDE_DIRS}")
@@ -381,6 +328,37 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	MESSAGE ("\tto install into prefix:\t\t ${INFO_INSTALL_PREFIX}")
 	MESSAGE ("")
 	MESSAGE ("========================================\n")
+
+	###############################################################################
+	# Drift-proof aggregate-target helper.
+	#
+	# GENEVA_AGGREGATE_TARGET(<name>) creates a custom target depending on EVERY
+	# buildsystem target defined in the current directory and all of its
+	# subdirectories (recursively). Call it AFTER the ADD_SUBDIRECTORY() calls of
+	# a CMakeLists. This replaces hand-maintained DEPENDS lists -- which have
+	# silently drifted in the past (commented-out entries, missing sub-aggregates,
+	# new tests/benchmarks/examples never added) -- so that anything added under
+	# the directory is picked up automatically.
+
+	FUNCTION(_GENEVA_COLLECT_TARGETS_RECURSIVE _out_var _dir)
+		GET_PROPERTY(_subdirs DIRECTORY "${_dir}" PROPERTY SUBDIRECTORIES)
+		GET_PROPERTY(_targets DIRECTORY "${_dir}" PROPERTY BUILDSYSTEM_TARGETS)
+		SET(_acc ${_targets})
+		FOREACH(_sub ${_subdirs})
+			_GENEVA_COLLECT_TARGETS_RECURSIVE(_child "${_sub}")
+			LIST(APPEND _acc ${_child})
+		ENDFOREACH()
+		SET(${_out_var} "${_acc}" PARENT_SCOPE)
+	ENDFUNCTION()
+
+	FUNCTION(GENEVA_AGGREGATE_TARGET _name)
+		_GENEVA_COLLECT_TARGETS_RECURSIVE(_collected "${CMAKE_CURRENT_SOURCE_DIR}")
+		IF(_collected)
+			LIST(REMOVE_DUPLICATES _collected)
+		ENDIF()
+		ADD_CUSTOM_TARGET("${_name}" DEPENDS ${_collected}
+			COMMENT "Building all auto-collected targets for \"${_name}\".")
+	ENDFUNCTION()
 
 	###############################################################################
 	# End of the include-guard

@@ -1,0 +1,53 @@
+# Geneva release-test harness configuration.
+#
+# Every key here has a built-in default in releaseharness/config.py, so this
+# file is optional. Edit it to change the matrix or paths without touching code.
+
+# Absolute path to the Geneva source tree (the repo root). If omitted, the
+# harness infers it as the parent of the ReleaseTests/ directory.
+source_dir: /home/rberlich/ClionProjects/geneva
+
+# Writable scratch area: per-job build dirs, generated Dockerfiles, logs, reports.
+workdir: /home/rberlich/Testplan
+
+# Container backend. Only Podman is supported (rootless: no daemon, no 'docker'
+# group needed). 'auto' resolves to podman.
+backend: podman
+
+# Where the from-source Boost 1.91 (built in C++20 mode) lives inside the guest
+# images. The Containerfile downloads Boost 1.91.0 and installs it here; the
+# distro libboost packages are NOT used (Ubuntu ships 1.83/1.88/1.89 < 1.91).
+boost_root: /opt/boost
+
+# Parallel jobs (matrix cells run concurrently). 1 = sequential.
+jobs: 2
+
+# Guest operating systems to test against.
+guests:
+  - slug: ubuntu-26.04
+    image: ubuntu:26.04
+  - slug: ubuntu-24.04
+    image: ubuntu:24.04
+
+# Compilers.
+compilers:
+  - gcc
+  - clang
+
+# Build types for the SHORT tier (the fast release smoke check).
+short_build_types:
+  - Debug
+  - Release
+
+# Additional build types exercised only in the LONG (--full) tier.
+long_build_types:
+  - RelWithDebInfo
+  - Sanitize
+
+# Feature combinations to add on top of the base matrix.
+#   "minimal" => all optional components OFF (tests/examples/benchmarks/MPI/CUDA).
+#   "full"    => tests+examples+benchmarks ON, MPI ON, CUDA gated on a GPU.
+feature_sets:
+  base:        { tests: true,  examples: true,  benchmarks: false, mpi: false, cuda: false }
+  minimal:     { tests: false, examples: false, benchmarks: false, mpi: false, cuda: false }
+  full:        { tests: true,  examples: true,  benchmarks: true,  mpi: true,  cuda: true  }

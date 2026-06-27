@@ -113,6 +113,23 @@ for arg in "$@"; do
 	esac
 done
 
+# Geneva REQUIRES an out-of-source build. The build directory is the directory this script is invoked
+# from (GENEVA_BUILDROOT = PWD). Refuse to proceed when that is the source tree itself -- a common
+# footgun when the script is run from the checkout instead of a dedicated build directory. Left
+# unguarded, --clean would delete the sources (find PWD ... -exec rm -rf) and a configure/build would
+# litter the source tree with CMake artifacts. This check is independent of all other options.
+_SRC_ROOT="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)"
+_BUILD_ROOT_CANON="$(cd "${GENEVA_BUILDROOT}" 2>/dev/null && pwd)"
+if [ -n "${_SRC_ROOT}" ] && [ "${_BUILD_ROOT_CANON}" = "${_SRC_ROOT}" ]; then
+	echo -e "\nError: refusing to use the Geneva source tree as the build directory:"
+	echo -e "  ${_SRC_ROOT}"
+	echo -e "Geneva requires an out-of-source build. Run this script from a dedicated build"
+	echo -e "directory, for example:\n"
+	echo -e "  mkdir -p ~/build && cd ~/build"
+	echo -e "  $(cd "$(dirname "$0")" && pwd)/$(basename "$0") /path/to/myConfig.gcfg --clean -y --build\n"
+	exit 1
+fi
+
 # --clean may not be combined with --dryrun or --generate-preset.
 if [ "${CLEAN}" = "1" ]; then
 	if [ "${DRYRUN}" = "1" ] || [ "${GENERATE_PRESET}" = "1" ]; then
@@ -205,9 +222,13 @@ VERBOSEMAKEFILE="0"
 INSTALLDIR="/opt/geneva"
 MPIROOT=""
 BUILDMPICONSUMER="0"
-USECUDARNG="0"
+BUILDGPUCONSUMER="auto"
+USECUDARNG="auto"
 SKIPALLCUDA="0"
+GIMAGE_USE_FLOAT="1"
+RANDOMSOURCE="queue"
 WITHCOVERAGE="0"
+SANITIZER="none"
 CUDA_NVCC=""
 CUDA_ROOT=""
 COMPILER="clang"
@@ -245,6 +266,15 @@ _check_bool() {
 		echo -e "\nError: Variable ${1} must be 0 or 1. Got '${2}'\nLeaving...\n"
 		exit 1
 	fi
+}
+
+# The two CUDA opt-ins (USECUDARNG, BUILDGPUCONSUMER) are tri-state: auto|on|off.
+# Legacy 0|1 values are still accepted (and forwarded as-is; CMake maps them).
+_check_cuda_tristate() {
+	case "${2}" in
+		auto|on|off|0|1) ;;
+		*) echo -e "\nError: Variable ${1} must be auto|on|off (or legacy 0|1). Got '${2}'\nLeaving...\n"; exit 1 ;;
+	esac
 }
 
 if [ ! -x "${CMAKE}" ]; then
@@ -289,9 +319,34 @@ _check_bool BUILDEXAMPLES    "${BUILDEXAMPLES}"
 _check_bool BUILDBENCHMARKS  "${BUILDBENCHMARKS}"
 _check_bool VERBOSEMAKEFILE  "${VERBOSEMAKEFILE}"
 _check_bool BUILDMPICONSUMER "${BUILDMPICONSUMER}"
-_check_bool USECUDARNG       "${USECUDARNG}"
+_check_cuda_tristate USECUDARNG       "${USECUDARNG}"
+_check_cuda_tristate BUILDGPUCONSUMER "${BUILDGPUCONSUMER}"
 _check_bool SKIPALLCUDA      "${SKIPALLCUDA}"
+_check_bool GIMAGE_USE_FLOAT "${GIMAGE_USE_FLOAT}"
 _check_bool WITHCOVERAGE     "${WITHCOVERAGE}"
+
+case "${RANDOMSOURCE}" in
+	queue|local|staged|quarantine) ;;
+	*) echo -e "\nError: RANDOMSOURCE must be one of queue|local|staged|quarantine (got '${RANDOMSOURCE}'). Leaving...\n"; exit 1 ;;
+esac
+
+# Sanitizer: validate and, when enabled, force CUDA + the MPI consumer OFF
+# (nvcc cannot compile with -fsanitize; MPI internals flood ThreadSanitizer).
+# The actual -fsanitize flags are applied centrally by CMake via the
+# GENEVA_SANITIZER cache variable passed below.
+case "${SANITIZER}" in
+	none|thread|address|undefined) ;;
+	*) echo -e "\nError: SANITIZER must be none|thread|address|undefined. Got '${SANITIZER}'. Leaving...\n"; exit 1 ;;
+esac
+if [ "${SANITIZER}" != "none" ]; then
+	echo -e "\nSanitizer '${SANITIZER}' enabled — forcing CUDA, the MPI consumer and the GPU consumer OFF for this build."
+	SKIPALLCUDA="1"
+	USECUDARNG="off"
+	BUILDMPICONSUMER="0"
+	BUILDGPUCONSUMER="off"
+	CUDA_NVCC=""
+	CUDA_ROOT=""
+fi
 
 # Validate CUDA path: if set, the file must exist and be executable.
 if [ -n "${CUDA_NVCC}" ] && [ ! -x "${CUDA_NVCC}" ]; then
@@ -360,7 +415,8 @@ if [ "${GENERATE_PRESET}" = "1" ]; then
 	_preset_add "GENEVA_BUILD_EXAMPLES"           "BOOL"   "${BUILDEXAMPLES}"
 	_preset_add "GENEVA_BUILD_BENCHMARKS"         "BOOL"   "${BUILDBENCHMARKS}"
 	_preset_add "GENEVA_BUILD_WITH_MPI_CONSUMER"  "BOOL"   "${BUILDMPICONSUMER}"
-	_preset_add "GENEVA_USE_CUDA_RNG"             "BOOL"   "${USECUDARNG}"
+	_preset_add "GENEVA_BUILD_WITH_GPU_CONSUMER"  "STRING" "${BUILDGPUCONSUMER}"
+	_preset_add "GENEVA_USE_CUDA_RNG"             "STRING" "${USECUDARNG}"
 
 	if [ -n "${BOOSTROOT}" ]; then
 		_preset_add "BOOST_ROOT"       "PATH" "${BOOSTROOT}"
@@ -371,7 +427,10 @@ if [ "${GENERATE_PRESET}" = "1" ]; then
 
 	[ -n "${MPIROOT}" ]          && _preset_add "MPI_HOME"               "PATH"   "${MPIROOT}"
 	_preset_add "GENEVA_SKIP_CUDA"              "BOOL"   "${SKIPALLCUDA}"
+	_preset_add "GIMAGE_USE_FLOAT"             "BOOL"   "${GIMAGE_USE_FLOAT}"
+	_preset_add "HAP_RANDOM_SOURCE"            "STRING" "${RANDOMSOURCE}"
 	_preset_add "GENEVA_BUILD_WITH_COVERAGE"    "BOOL"   "${WITHCOVERAGE}"
+	_preset_add "GENEVA_SANITIZER"              "STRING" "${SANITIZER}"
 	[ -n "${CUDA_NVCC}" ] && [ "${SKIPALLCUDA}" = "0" ] && _preset_add "CMAKE_CUDA_COMPILER" "FILEPATH" "${CUDA_NVCC}"
 	[ -n "${CUDA_ROOT}" ] && [ "${SKIPALLCUDA}" = "0" ] && _preset_add "CUDAToolkit_ROOT"   "PATH"     "${CUDA_ROOT}"
 	[ -n "${_C_COMPILER}" ]      && _preset_add "CMAKE_C_COMPILER"        "FILEPATH" "${_C_COMPILER}"
@@ -432,9 +491,13 @@ cmake_args+=(
 	"-DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE}"
 	"-DCMAKE_INSTALL_PREFIX=${INSTALLDIR}"
 	"-DGENEVA_BUILD_WITH_MPI_CONSUMER=${BUILDMPICONSUMER}"
+	"-DGENEVA_BUILD_WITH_GPU_CONSUMER=${BUILDGPUCONSUMER}"
 	"-DGENEVA_USE_CUDA_RNG=${USECUDARNG}"
 	"-DGENEVA_SKIP_CUDA=${SKIPALLCUDA}"
+	"-DGIMAGE_USE_FLOAT=${GIMAGE_USE_FLOAT}"
+	"-DHAP_RANDOM_SOURCE=${RANDOMSOURCE}"
 	"-DGENEVA_BUILD_WITH_COVERAGE=${WITHCOVERAGE}"
+	"-DGENEVA_SANITIZER=${SANITIZER}"
 )
 [ -n "${MPIROOT}" ]          && cmake_args+=("-DMPI_HOME=${MPIROOT}")
 if [ -n "${CUDA_NVCC}" ] && [ "${SKIPALLCUDA}" = "0" ]; then

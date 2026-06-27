@@ -1,0 +1,160 @@
+{
+    "header": {
+        "comment": "Fri Jun 19 08:20:52 2026"
+    },
+    "n_adaption_threads": {
+        "comment": "0 means \"automatic\"",
+        "default": "2",
+        "value": "2"
+    },
+    "max_iteration": {
+        "comment": "The maximum allowed number of iterations",
+        "default": "1000",
+        "value": "1000"
+    },
+    "min_iteration": {
+        "comment": "The minimum allowed number of iterations",
+        "default": "0",
+        "value": "0"
+    },
+    "max_stall_iteration": {
+        "comment": "0 means: no constraint.",
+        "default": "20",
+        "value": "20"
+    },
+    "touched_termination": {
+        "termination_file": {
+            "comment": "run, which will lead to the termination of the run after the current iteration.",
+            "default": "empty",
+            "value": "empty"
+        },
+        "touched_termination_active": {
+            "comment": "Activates (1) or de-activates (0) the \"touched termination\"",
+            "default": "false",
+            "value": "false"
+        }
+    },
+    "individual_update_stall_counter_threshold": {
+        "comment": "through the actOnStalls() function. A value of 0 disables this check",
+        "default": "0",
+        "value": "0"
+    },
+    "report_iteration": {
+        "comment": "The number of iterations after which a report should be issued",
+        "default": "1",
+        "value": "1"
+    },
+    "n_record_best_individuals": {
+        "comment": "Indicates how many \"best\" individuals should be recorded in each iteration",
+        "default": "10",
+        "value": "10"
+    },
+    "cp_interval": {
+        "comment": "0 means: Never emit checkpoint files.",
+        "default": "0",
+        "value": "0"
+    },
+    "checkpoint_location": {
+        "cp_directory": {
+            "comment": "The directory where checkpoint files should be stored.",
+            "default": "./checkpoints/",
+            "value": "./checkpoints/"
+        },
+        "cp_base_name": {
+            "comment": "The significant part of the checkpoint file name.",
+            "default": "geneva.cp",
+            "value": "geneva.cp"
+        }
+    },
+    "cp_overwrite": {
+        "comment": "When set to \"true\", old checkpoint files will not be kept",
+        "default": "true",
+        "value": "true"
+    },
+    "cp_ser_mode": {
+        "comment": "text- (0), XML- (1), or binary-mode (2)",
+        "default": "2",
+        "value": "2"
+    },
+    "quality_termination": {
+        "threshold": {
+            "comment": "set \"hasQualityThreshold\" to 1.",
+            "default": "0",
+            "value": "0"
+        },
+        "threshold_active": {
+            "comment": "Activates (1) or de-activates (0) the quality threshold",
+            "default": "false",
+            "value": "false"
+        }
+    },
+    "max_duration": {
+        "comment": "in the format hours:minutes:seconds",
+        "default": "00:00:00",
+        "value": "00:00:00"
+    },
+    "min_duration": {
+        "comment": "in the format hours:minutes:seconds",
+        "default": "00:00:00",
+        "value": "00:00:00"
+    },
+    "emit_termination_reason": {
+        "comment": "Triggers emission (1) or omission (0) of information about reasons for termination",
+        "default": "true",
+        "value": "true"
+    },
+    "amalgamation_likelihood": {
+        "comment": "rather than \"just\" being created through duplication schemes",
+        "default": "0",
+        "value": "0"
+    },
+    "population": {
+        "size": {
+            "comment": "The total size of the population",
+            "default": "42",
+            "value": "42"
+        },
+        "n_parents": {
+            "comment": "The number of parents in the population",
+            "default": "2",
+            "value": "2"
+        }
+    },
+    "recombination_method": {
+        "comment": "2: selection according to the parent's value",
+        "default": "0",
+        "value": "0"
+    },
+    "population_growth": {
+        "growth_rate": {
+            "comment": "Specifies the number of individuals added per iteration",
+            "default": "0",
+            "value": "0"
+        },
+        "max_population_size": {
+            "comment": "if growth is enabled",
+            "default": "0",
+            "value": "0"
+        }
+    },
+    "sorting_method": {
+        "comment": "4: MUCOMMANU mode for multiple evaluation criteria, pareto selection",
+        "default": "1",
+        "value": "1"
+    },
+    "step_control": {
+        "comment": "3: CSA (cumulative step-size adaptation on a single global sigma) [default]",
+        "default": "3",
+        "value": "3"
+    },
+    "learning_rate_c": {
+        "comment": "The learning-rate constant c used by SELF_ADAPT_SCALED (tau = c/sqrt(2n))",
+        "default": "1",
+        "value": "1"
+    },
+    "recombine_sigma": {
+        "comment": "Whether to intermediate-recombine the per-individual sigma after recombination",
+        "default": "true",
+        "value": "true"
+    }
+}

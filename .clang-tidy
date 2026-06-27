@@ -38,10 +38,12 @@ Checks: >-
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -cppcoreguidelines-pro-bounds-constant-array-index,
   -cppcoreguidelines-pro-type-vararg,
+  -cppcoreguidelines-avoid-c-arrays,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
   -cppcoreguidelines-non-private-member-variables-in-classes,
   -cppcoreguidelines-avoid-const-or-ref-data-members,
-  -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
   -cppcoreguidelines-avoid-do-while,
+  -cppcoreguidelines-virtual-class-destructor,
   -google-build-using-namespace,
   google-explicit-constructor,
   google-readability-casting,
@@ -65,6 +67,7 @@ Checks: >-
   -modernize-avoid-c-arrays,
   -modernize-use-nodiscard,
   performance-*,
+  -performance-enum-size,
   portability-*,
   -portability-avoid-pragma-once,
   -portability-template-virtual-member-function,
@@ -74,6 +77,7 @@ Checks: >-
   -readability-uppercase-literal-suffix,
   -readability-function-size,
   -readability-function-cognitive-complexity,
+  -readability-convert-member-functions-to-static,
   -readability-identifier-length
 
 WarningsAsErrors: ''
@@ -164,11 +168,14 @@ CheckOptions:
   readability-identifier-naming.ConstexprFunctionCase: camelBack
   readability-identifier-naming.ConstexprMethodCase: camelBack
   # Geneva 5.B / §4 STL carve-out: exempt the STL-like container method
-  # surface from the camelBack rule. The explicit list covers the
-  # underscore-free STL names; the trailing '|_' also exempts any method
-  # containing an underscore (push_back/pop_back/emplace_back/shrink_to_fit
-  # and Geneva's trailing-underscore private-virtual pattern, e.g. load_).
-  readability-identifier-naming.MethodIgnoredRegexp: '^(push_back|pop_back|emplace_back|shrink_to_fit|max_size)$|_'
+  # surface from the camelBack rule, plus any method containing an underscore
+  # (the STL names push_back/pop_back/emplace_back/shrink_to_fit/max_size, and
+  # Geneva's trailing-underscore private-virtual pattern, e.g. load_, plus
+  # snake_case internal helpers such as compare_base / clone_unique).
+  # NOTE: clang-tidy matches *IgnoredRegexp against the WHOLE identifier, so the
+  # exemption must be a full-string pattern ('.*_.*'), not a bare '_' (which
+  # would only match the identifier literally named "_").
+  readability-identifier-naming.MethodIgnoredRegexp: '.*_.*'
 
   # ------------------------------------------------------------------
   # Modernization knobs.
@@ -202,7 +209,12 @@ CheckOptions:
   # Allowed: G_API_* visibility macros, GEM_* build guards, G_DEPRECATED,
   # GSQUARED utility macro, GENEVA_* config macros, DEBUG, and the
   # intentionally lowercase `time_and_place` source-location macro.
-  cppcoreguidelines-macro-usage.AllowedRegexp: '^(DEBUG|G_.*|GEM_.*|GENEVA_.*|GSQUARED|time_and_place)$'
+  # Also allowed (cannot be constexpr): raiseException/LOGEXIT capture
+  # __FILE__/__LINE__ at the throw/exit site; MIN_BOOST_VERSION and
+  # BOOST_FILESYSTEM_VERSION / CL_TARGET_OPENCL_VERSION are preprocessor
+  # version/feature gates that must be #defines (used in #if / before a
+  # third-party #include).
+  cppcoreguidelines-macro-usage.AllowedRegexp: '^(DEBUG|G_.*|GEM_.*|GENEVA_.*|GSQUARED|time_and_place|raiseException|LOGEXIT|MIN_BOOST_VERSION|BOOST_FILESYSTEM_VERSION|CL_TARGET_OPENCL_VERSION)$'
 
   # Performance.
   performance-for-range-copy.WarnOnAllAutoCopies: 'true'

@@ -1,0 +1,32 @@
+GAlgorithmChaining
+==================
+
+This example demonstrates how to *chain* several optimization algorithms in a
+single optimization run.
+
+Algorithms are appended to the Go2 object with the &-operator:
+
+    go & "ea" & "gd";
+
+Go2 then executes them in sequence, handing the best individual(s) found by one
+algorithm to the next. Each algorithm runs its own full iteration budget (as
+configured in its JSON file under ./config/), starting its iteration counter at
+zero -- a chained algorithm does NOT inherit the previous algorithm's final
+iteration number.
+
+The chosen chain is a common pattern: an evolutionary algorithm ("ea") performs
+the global exploration first, then gradient descent ("gd") locally refines its
+best result.
+
+The optimized problem (a GFunctionIndividual) and its factory are reused from
+the Geneva library, so no problem-specific individual or factory has to be
+written for this example. Edit ./config/GFunctionIndividual.json to choose the
+target function and its dimensionality, and the per-algorithm JSON files to
+tune each stage of the chain.
+
+Run it with, e.g.:
+
+    ./GAlgorithmChaining
+
+Other algorithm mnemonics (sa, swarm, nm, cgd, ps) can be chained in the same
+way, both here in code and on the command line via --optimizationAlgorithms.

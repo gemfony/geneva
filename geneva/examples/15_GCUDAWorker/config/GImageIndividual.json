@@ -1,0 +1,187 @@
+{
+    "header": {
+        "comment": "Sat May 23 18:57:10 2026"
+    },
+    "min_size": {
+        "comment": "The allowed value range is [0,maxSize[",
+        "default": "0",
+        "value": "0"
+    },
+    "max_size": {
+        "comment": "The allowed value range is ]minSize,1]",
+        "default": "0.29999999999999999",
+        "value": "0.29999999999999999"
+    },
+    "start_size": {
+        "comment": "A value < 0 means random in the range [minSize,maxSize]",
+        "default": "0",
+        "value": "0"
+    },
+    "min_opaqueness": {
+        "comment": "The allowed value range is [0,maxOpaqueness]",
+        "default": "0.29999999999999999",
+        "value": "0.29999999999999999"
+    },
+    "max_opaqueness": {
+        "comment": "The allowed value range is [minOpaqueness,1]",
+        "default": "0.59999999999999998",
+        "value": "0.59999999999999998"
+    },
+    "adapt_ad_prob": {
+        "comment": "Determines the rate of adaption of adProb. Set to 0, if you do not need this feature",
+        "default": "0.10000000000000001",
+        "value": "0.10000000000000001"
+    },
+    "loc_adapt_ad_prob": {
+        "comment": "Determines the rate of adaption of location-adProb. Set to 0, if you do not need this feature",
+        "default": "0.10000000000000001",
+        "value": "0.10000000000000001"
+    },
+    "min_ad_prob": {
+        "comment": "The lower allowed boundary for adProb-variation",
+        "default": "0.050000000000000003",
+        "value": "0.050000000000000003"
+    },
+    "max_ad_prob": {
+        "comment": "The upper allowed boundary for adProb-variation",
+        "default": "0.20000000000000001",
+        "value": "0.20000000000000001"
+    },
+    "loc_min_ad_prob": {
+        "comment": "The lower allowed boundary for loc_adProb-variation",
+        "default": "0.10000000000000001",
+        "value": "0.10000000000000001"
+    },
+    "loc_max_ad_prob": {
+        "comment": "The upper allowed boundary for loc_adProb-variation",
+        "default": "0.29999999999999999",
+        "value": "0.29999999999999999"
+    },
+    "ad_prob": {
+        "comment": "The allowed value range is [0,1]",
+        "default": "0.050000000000000003",
+        "value": "0.050000000000000003"
+    },
+    "loc_ad_prob": {
+        "comment": "The allowed value range is [0,1]",
+        "default": "0.10000000000000001",
+        "value": "0.10000000000000001"
+    },
+    "sigma": {
+        "comment": "Recommended value range [0,1]",
+        "default": "0.10000000000000001",
+        "value": "1.0"
+    },
+    "min_sigma": {
+        "comment": "minSigma must be positive and smaller than maxSigma",
+        "default": "0.050000000000000003",
+        "value": "0.050000000000000003"
+    },
+    "max_sigma": {
+        "comment": "maxSigma must be positive and larger than minSigma",
+        "default": "0.20000000000000001",
+        "value": "2.0"
+    },
+    "sigma_sigma": {
+        "comment": "The allowed value range is [0,1]",
+        "default": "0.80000000000000004",
+        "value": "0.80000000000000004"
+    },
+    "loc_sigma": {
+        "comment": "Recommended value range [0,1]",
+        "default": "0.20000000000000001",
+        "value": "1.0"
+    },
+    "loc_min_sigma": {
+        "comment": "loc_minSigma must be positive and smaller than loc_maxSigma",
+        "default": "0.10000000000000001",
+        "value": "0.10000000000000001"
+    },
+    "loc_max_sigma": {
+        "comment": "loc_maxSigma must be positive and larger than loc_minSigma",
+        "default": "0.40000000000000002",
+        "value": "2.0"
+    },
+    "loc_sigma_sigma": {
+        "comment": "The allowed value range is [0,1]",
+        "default": "0.80000000000000004",
+        "value": "0.80000000000000004"
+    },
+    "bg_red": {
+        "comment": "Otherwise the allowed value range is [0.,1.]",
+        "default": "0.90000000000000002",
+        "value": "0.90000000000000002"
+    },
+    "bg_green": {
+        "comment": "Otherwise the allowed value range is [0.,1.]",
+        "default": "0.90000000000000002",
+        "value": "0.90000000000000002"
+    },
+    "bg_blue": {
+        "comment": "Otherwise the allowed value range is [0.,1.]",
+        "default": "0.90000000000000002",
+        "value": "0.90000000000000002"
+    },
+    "n_triangles": {
+        "comment": "Number of triangles per candidate image. Allowed range [1,1000]; the GPU kernel caches all corners cooperatively in shared memory once per block (MONALISA_MAXTRI=1000), so the whole range runs on the GPU.",
+        "default": "300",
+        "value": "64"
+    },
+    "alpha_sort": {
+        "comment": "Disabled so streamline order == render order (CPU/GPU parity)",
+        "default": "true",
+        "value": "false"
+    },
+    "mutate_alpha_channel": {
+        "comment": "Whether the alpha channel shall be mutated",
+        "default": "false",
+        "value": "false"
+    },
+    "change_bg_color": {
+        "comment": "Whether the background color shall be mutated",
+        "default": "false",
+        "value": "false"
+    },
+    "eval_policy": {
+        "comment": "2 (a.k.a. USESIGMOID): Assign a multiple of validity_level_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations",
+        "default": "0",
+        "value": "0"
+    },
+    "steepness": {
+        "comment": "The parameter must have a value > 0.",
+        "default": "1000",
+        "value": "1000"
+    },
+    "barrier": {
+        "comment": "The parameter must have a value > 0.",
+        "default": "10000",
+        "value": "10000"
+    },
+    "max_unsuccessful_adaptions": {
+        "comment": "The maximum number of unsuccessful adaptions in a row for one call to adapt()",
+        "default": "1000",
+        "value": "1000"
+    },
+    "max_retries_until_valid": {
+        "comment": "it passes all validity checks",
+        "default": "10",
+        "value": "10"
+    },
+    "maxmode": {
+        "comment": "Note that minimization is the by far most common option.",
+        "default": "0",
+        "value": "0"
+    },
+    "random_crash_parameters": {
+        "use_random_crash": {
+            "comment": "Indicates whether random crashes should occur for debugging purposes",
+            "default": "false",
+            "value": "false"
+        },
+        "random_crash_prob": {
+            "comment": "The probability of a random crash to occur",
+            "default": "0.001",
+            "value": "0.001"
+        }
+    }
+}

@@ -1,0 +1,59 @@
+{
+    "header": {
+        "comment": "Configuration for the courtier GPU consumer used by the benchmark.",
+        "comment": "Selects the device-programming model AND the kernel, so the benchmark can switch",
+        "comment": "between CPU / CUDA without recompilation."
+    },
+    "backend": {
+        "comment": "GPU backend: cpu | cuda. 'cpu' runs the marshaller host reference",
+        "comment": "(always available); 'cuda' needs the CUDA backend compiled into",
+        "comment": "gemfony-courtier (falls back to 'cpu' with a warning otherwise).",
+        "default": "cuda",
+        "value": "cuda"
+    },
+    "kernel_path": {
+        "comment": "Kernel source: ./kernels/benchmark_eval.cu for CUDA (NVRTC).",
+        "default": "./kernels/benchmark_eval.cu",
+        "value": "./kernels/benchmark_eval.cu"
+    },
+    "kernel_entry": {
+        "comment": "Kernel entry-point name (must be un-mangled, e.g. extern \"C\").",
+        "default": "evaluate",
+        "value": "evaluate"
+    },
+    "device_id": {
+        "comment": "Which GPU/device to use.",
+        "default": "0",
+        "value": "0"
+    },
+    "block_x": {
+        "comment": "Launch block size (x).",
+        "default": "256",
+        "value": "256"
+    },
+    "block_y": {
+        "comment": "Launch block size (y).",
+        "default": "1",
+        "value": "1"
+    },
+    "block_z": {
+        "comment": "Launch block size (z).",
+        "default": "1",
+        "value": "1"
+    },
+    "grid_x": {
+        "comment": "Launch grid size (x; 0 == auto).",
+        "default": "0",
+        "value": "0"
+    },
+    "grid_y": {
+        "comment": "Launch grid size (y; 0 == auto).",
+        "default": "0",
+        "value": "0"
+    },
+    "grid_z": {
+        "comment": "Launch grid size (z; 0 == auto).",
+        "default": "0",
+        "value": "0"
+    }
+}

@@ -1,0 +1,10 @@
+This sample program illustrates how the parameters of an optimization problem are
+authored with Geneva's flat genome. Parameters are declared once through the
+GGenomeBuilder fluent API (addDouble / addFloat / addInt32 / addBool, in single,
+shared-group and per-parameter-array shapes, plain or constrained, each optionally
+carrying a Gauss / bi-Gauss / integer-Gauss / flip adaptor), rather than by pushing
+back individual parameter objects.
+
+The program builds several example genomes and prints their shape, dumps a complete
+GFunctionIndividual genome to a boost::property_tree, and demonstrates inspecting and
+mutating a minimal flat individual (streamline / boundaries / adapt / toCSV).

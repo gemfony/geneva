@@ -31,12 +31,56 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.27 FATAL_ERROR)
 
 MESSAGE ("")
 
-PROJECT (Geneva_Library_Collection LANGUAGES CXX)
+# C is enabled alongside CXX so the C compiler that the build scripts pass (CMAKE_C_COMPILER) is
+# actually consumed by the project -- otherwise CMake warns that it was "not used". Geneva itself
+# has no C sources, but several find-modules (Threads, ZLIB, MPI, ...) probe with the C toolchain.
+PROJECT (Geneva_Library_Collection LANGUAGES C CXX)
+
+# Emit compile_commands.json so clang-tidy / IWYU / clangd / IDE code-insight
+# can pick up the exact per-TU flags without an extra cmake invocation. Free
+# at build time (just writes one JSON next to the Makefiles).
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Set ON to skip all CUDA compilation regardless of whether nvcc is present.
 # Overrides GENEVA_USE_CUDA_RNG, CUDA_NVCC, and CUDA_ROOT.  Useful when a
 # system CUDA installation is broken or incompatible (e.g. CUDA 13.1 + glibc 2.39).
 option(GENEVA_SKIP_CUDA "Disable all CUDA compilation" OFF)
+
+# Tri-state opt-in for the Hap CUDA RNG backend: auto|on|off (legacy 0/1 still accepted).
+#   auto -> use CUDA when a toolkit is present (and GENEVA_SKIP_CUDA is OFF), else the SIMD/CPU engine
+#   on   -> require CUDA (FATAL_ERROR if no toolkit / SKIPALLCUDA)
+#   off  -> never use CUDA for the RNG
+# Resolved below into the normal boolean GENEVA_USE_CUDA_RNG_ENABLED used downstream.
+set(GENEVA_USE_CUDA_RNG "auto" CACHE STRING "Use CUDA for RNG in Hap: auto|on|off")
+set_property(CACHE GENEVA_USE_CUDA_RNG PROPERTY STRINGS auto on off)
+
+# Tri-state opt-in for the GPU consumer (GGPUConsumerT) built INTO the courtier library, exposing
+# the "gpu" consumer mnemonic: auto|on|off (legacy 0/1 still accepted). Like the MPI consumer this
+# is an opt-in add-on: when enabled the courtier library dynamically links the CUDA (NVRTC + driver
+# API) device backend when present; when disabled no GPU code is compiled and "gpu" is not a
+# selectable consumer (example 15 and the GPU benchmark are skipped too). A CPU backend is always
+# available when the consumer is built. Independent of GENEVA_USE_CUDA_RNG (a separate Hap feature);
+# honours GENEVA_SKIP_CUDA, which forces the whole consumer off.
+#   auto -> build the consumer when a CUDA toolkit is present (and GENEVA_SKIP_CUDA is OFF), else off
+#   on   -> require CUDA (FATAL_ERROR if no toolkit / SKIPALLCUDA)
+#   off  -> never build the GPU consumer
+# Resolved below into the normal boolean GENEVA_GPU_CONSUMER_ENABLED used downstream.
+set(GENEVA_BUILD_WITH_GPU_CONSUMER "auto" CACHE STRING "Build the GPU consumer (GGPUConsumerT) into courtier and expose the 'gpu' mnemonic: auto|on|off")
+set_property(CACHE GENEVA_BUILD_WITH_GPU_CONSUMER PROPERTY STRINGS auto on off)
+
+# Selects the source the default Gem::Hap::GRandom proxy draws from (compile-time only -- exactly
+# one backend exists in a given build):
+#   queue      -> the central factory package queue (the default; producers may bulk-fill via cuRAND/SIMD)
+#   local      -> a per-proxy engine seeded by the factory (CPU-only, contention-free fallback)
+#   staged     -> chunks from a shared, bulk-filled staging pool into a per-proxy double buffer
+#   quarantine -> read in place from N rotating, bulk-filled pools (benign-race, aligned-64-bit)
+# Every other source remains usable explicitly via GRandomT<randomSource::...>; this only
+# picks what the GRandom alias maps to. Consumed in hap/src/CMakeLists.txt.
+set(HAP_RANDOM_SOURCE "queue" CACHE STRING "Source for the default Gem::Hap::GRandom proxy: queue|local|staged|quarantine")
+set_property(CACHE HAP_RANDOM_SOURCE PROPERTY STRINGS queue local staged quarantine)
+if(NOT HAP_RANDOM_SOURCE MATCHES "^(queue|local|staged|quarantine)$")
+	message(FATAL_ERROR "HAP_RANDOM_SOURCE must be one of queue|local|staged|quarantine (got '${HAP_RANDOM_SOURCE}').")
+endif()
 
 # Set ON to instrument the Common library and its tests with coverage flags
 # (--coverage on GCC, -fprofile-instr-generate -fcoverage-mapping on Clang).
@@ -108,11 +152,87 @@ if(NOT GENEVA_SKIP_CUDA)
     endif()
 else()
     message(STATUS "CUDA disabled (GENEVA_SKIP_CUDA=ON) — skipping all CUDA compilation")
-    if(GENEVA_USE_CUDA_RNG)
-        message(WARNING "GENEVA_USE_CUDA_RNG is ON but GENEVA_SKIP_CUDA=ON overrides it")
-    endif()
-    set(GENEVA_USE_CUDA_RNG OFF CACHE BOOL "Use CUDA for RNG in Hap" FORCE)
 endif()
+
+################################################################################
+# Resolve the two tri-state CUDA opt-ins (GENEVA_USE_CUDA_RNG, GENEVA_BUILD_WITH_GPU_CONSUMER)
+# into the NORMAL (non-cache) booleans the hap/courtier/geneva subdirectories gate on. Done here,
+# once, right after the shared CUDA detection above and before any ADD_SUBDIRECTORY, so the two
+# features stay independent yet share a single source of truth (the detection + SKIPALLCUDA).
+#
+#   _geneva_cuda_available -> a usable CUDA toolkit was detected and not skipped
+#   value -> ON  (legacy 1/TRUE/YES/ON) : require CUDA, FATAL_ERROR if unavailable
+#   value -> AUTO                       : enable iff a toolkit is available, else fall back
+#   value -> OFF (legacy 0/FALSE/NO/empty) : disabled
+#   anything else                       : FATAL_ERROR (must be auto|on|off)
+set(_geneva_cuda_available FALSE)
+if((NOT GENEVA_SKIP_CUDA) AND CMAKE_CUDA_COMPILER)
+    set(_geneva_cuda_available TRUE)
+endif()
+
+# Resolve one tri-state cache STRING (<in_var>) into a normal boolean (<out_var>), naming the
+# feature (<label>) and its fallback (<fallback>) in the messages.
+function(_geneva_resolve_cuda_tristate in_var out_var label fallback)
+    string(TOUPPER "${${in_var}}" _v)
+    if(_v MATCHES "^(1|TRUE|YES|ON)$")
+        set(_v "ON")
+    elseif(_v STREQUAL "" OR _v MATCHES "^(0|FALSE|NO|OFF)$")
+        set(_v "OFF")
+    endif()
+
+    if(GENEVA_SKIP_CUDA)
+        if(_v STREQUAL "ON")
+            message(WARNING "${label}=on but GENEVA_SKIP_CUDA=ON overrides it — ${label} disabled")
+        endif()
+        set(${out_var} FALSE PARENT_SCOPE)
+    elseif(_v STREQUAL "ON")
+        if(_geneva_cuda_available)
+            set(${out_var} TRUE PARENT_SCOPE)
+        else()
+            message(FATAL_ERROR "${label}=on but no CUDA toolkit found (or SKIPALLCUDA on)")
+        endif()
+    elseif(_v STREQUAL "AUTO")
+        if(_geneva_cuda_available)
+            set(${out_var} TRUE PARENT_SCOPE)
+        else()
+            message(STATUS "${label}=auto: no CUDA toolkit — using ${fallback}")
+            set(${out_var} FALSE PARENT_SCOPE)
+        endif()
+    elseif(_v STREQUAL "OFF")
+        set(${out_var} FALSE PARENT_SCOPE)
+    else()
+        message(FATAL_ERROR "${label} must be auto|on|off, got '${${in_var}}'")
+    endif()
+endfunction()
+
+_geneva_resolve_cuda_tristate(GENEVA_USE_CUDA_RNG          GENEVA_USE_CUDA_RNG_ENABLED "GENEVA_USE_CUDA_RNG"          "the SIMD/CPU RNG engine")
+_geneva_resolve_cuda_tristate(GENEVA_BUILD_WITH_GPU_CONSUMER GENEVA_GPU_CONSUMER_ENABLED "GENEVA_BUILD_WITH_GPU_CONSUMER" "no GPU consumer")
+
+# Unified, no-surprise configure summary for the CUDA/GPU features.
+if(_geneva_cuda_available)
+    set(_geneva_cuda_summary "found ${CMAKE_CUDA_COMPILER_VERSION}")
+elseif(GENEVA_SKIP_CUDA)
+    set(_geneva_cuda_summary "skipped (SKIPALLCUDA)")
+else()
+    set(_geneva_cuda_summary "not found")
+endif()
+if(GENEVA_SKIP_CUDA)
+    set(_geneva_skip_summary "on")
+else()
+    set(_geneva_skip_summary "off")
+endif()
+if(GENEVA_USE_CUDA_RNG_ENABLED)
+    set(_geneva_rng_summary "CUDA")
+else()
+    set(_geneva_rng_summary "SIMD-or-CPU")
+endif()
+if(GENEVA_GPU_CONSUMER_ENABLED)
+    set(_geneva_gpu_summary "CUDA")
+else()
+    set(_geneva_gpu_summary "off")
+endif()
+message(STATUS "Geneva GPU/CUDA: SKIPALLCUDA=${_geneva_skip_summary}  CUDA-toolkit=${_geneva_cuda_summary}")
+message(STATUS "  Hap-RNG(USECUDARNG=${GENEVA_USE_CUDA_RNG}) -> ${_geneva_rng_summary}   GPU-consumer(BUILDGPUCONSUMER=${GENEVA_BUILD_WITH_GPU_CONSUMER}) -> ${_geneva_gpu_summary}")
 
 # Detect the CXX compiler's libstdc++.so location and cache it.
 # The GCUDAWorker example uses this to link explicitly against the right
@@ -132,15 +252,6 @@ if(CMAKE_CUDA_COMPILER_LOADED AND CMAKE_CXX_COMPILER)
     unset(_cxx_libstdcxx_path)
     unset(_cxx_lib_dir)
 endif()
-
-################################################################################
-# We create some examples and test programs as part of the build process.
-# This variable allows their build-scripts to detect that they are being
-# called from within the master build-script. This prevents redundant searches
-# and checks, while still allowing examples to be built independently of the
-# main Geneva source tree.
-
-SET(GENEVA_FULL_TREE_BUILD TRUE)
 
 ################################################################################
 # Set these variables to make all examples and/or benchmarks run as part of the
@@ -180,10 +291,57 @@ IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
 	ADD_COMPILE_DEFINITIONS(GENEVA_BUILD_WITH_MPI_CONSUMER)
 ENDIF ()
 
+# Set preprocessor define to use in source code if building with the GPU consumer.
+# This gates the "gpu" mnemonic in GConsumerSetup just as GENEVA_BUILD_WITH_MPI_CONSUMER
+# gates "mpi". The CUDA/OpenCL backend selection inside courtier uses the separate
+# GPUGEN_HAVE_CUDA / GPUGEN_HAVE_OPENCL feature macros (see courtier/src/CMakeLists.txt).
+IF (GENEVA_GPU_CONSUMER_ENABLED)
+	ADD_COMPILE_DEFINITIONS(GENEVA_BUILD_WITH_GPU_CONSUMER)
+ENDIF ()
+
 ###############################################################################
 # Include the shared functionality module for any Geneva build
 
 INCLUDE(CommonGenevaBuild)
+
+###############################################################################
+# Sanitizer support (ThreadSanitizer / AddressSanitizer / UBSan).
+#
+# OFF by default (GENEVA_SANITIZER=none). When enabled it instruments the whole
+# C++ build (compile + every link kind, including the shared libraries). CUDA
+# and MPI are deliberately EXCLUDED: nvcc cannot compile device code with
+# -fsanitize, and MPI internals flood ThreadSanitizer. The caller (prepareBuild.sh)
+# forces GENEVA_SKIP_CUDA=ON and GENEVA_BUILD_WITH_MPI_CONSUMER=OFF when a
+# sanitizer is selected; we hard-fail here if that contract is violated.
+# See prompts/2026-05-30-sanitizer-rollout-plan.md.
+SET(GENEVA_SANITIZER "none" CACHE STRING
+    "Build with a sanitizer: none | thread | address | undefined (default: none)")
+SET_PROPERTY(CACHE GENEVA_SANITIZER PROPERTY STRINGS none thread address undefined)
+
+IF(NOT GENEVA_SANITIZER STREQUAL "none")
+    IF(NOT GENEVA_SANITIZER MATCHES "^(thread|address|undefined)$")
+        MESSAGE(FATAL_ERROR "GENEVA_SANITIZER must be none|thread|address|undefined, got '${GENEVA_SANITIZER}'")
+    ENDIF()
+    IF(NOT GENEVA_SKIP_CUDA)
+        MESSAGE(FATAL_ERROR
+            "GENEVA_SANITIZER=${GENEVA_SANITIZER} requires GENEVA_SKIP_CUDA=ON "
+            "(CUDA device code cannot be built with -fsanitize).")
+    ENDIF()
+    IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+        MESSAGE(FATAL_ERROR
+            "GENEVA_SANITIZER=${GENEVA_SANITIZER} requires GENEVA_BUILD_WITH_MPI_CONSUMER=OFF "
+            "(MPI is excluded from sanitizing).")
+    ENDIF()
+    SET(_geneva_san "-fsanitize=${GENEVA_SANITIZER} -g -fno-omit-frame-pointer")
+    STRING(APPEND CMAKE_CXX_FLAGS           " ${_geneva_san}")
+    STRING(APPEND CMAKE_C_FLAGS             " ${_geneva_san}")
+    STRING(APPEND CMAKE_EXE_LINKER_FLAGS    " -fsanitize=${GENEVA_SANITIZER}")
+    STRING(APPEND CMAKE_SHARED_LINKER_FLAGS " -fsanitize=${GENEVA_SANITIZER}")
+    STRING(APPEND CMAKE_MODULE_LINKER_FLAGS " -fsanitize=${GENEVA_SANITIZER}")
+    MESSAGE(STATUS "Sanitizer ENABLED: -fsanitize=${GENEVA_SANITIZER} (CUDA + MPI excluded)")
+ELSE()
+    MESSAGE(STATUS "Sanitizer: none (default)")
+ENDIF()
 
 ###############################################################################
 # Set the library/package version. Uneven minor numbers denote development
@@ -191,7 +349,7 @@ INCLUDE(CommonGenevaBuild)
 #
 # IMPORTANT: When bumping the version here, also update the two macros
 #   GENEVA_VERSION  and  MIN_BOOST_VERSION
-# in include/common/GGlobalDefines.hpp accordingly.
+# in common/include/common/GGlobalDefines.hpp accordingly.
 
 SET(VERSION_MAJOR "1")
 SET(VERSION_MINOR "12")
@@ -203,11 +361,16 @@ SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 # Include directories, libraries
 
 INCLUDE_DIRECTORIES (
-	${PROJECT_SOURCE_DIR}/include
+	${PROJECT_SOURCE_DIR}/common/include
+	${PROJECT_SOURCE_DIR}/dietrich/include
+	${PROJECT_SOURCE_DIR}/hap/include
+	${PROJECT_SOURCE_DIR}/courtier/include
+	${PROJECT_SOURCE_DIR}/geneva/include
 )
 
 # Custom targets for building single libraries only
 ADD_CUSTOM_TARGET( "common"             DEPENDS ${COMMON_LIBNAME}            COMMENT "Building only the Common library." )
+ADD_CUSTOM_TARGET( "dietrich"           DEPENDS ${DIETRICH_LIBNAME}          COMMENT "Building only the Dietrich plotting library." )
 ADD_CUSTOM_TARGET( "hap"                DEPENDS ${HAP_LIBNAME}               COMMENT "Building only the Hap library." )
 ADD_CUSTOM_TARGET( "courtier"           DEPENDS ${COURTIER_LIBNAME}          COMMENT "Building only the Courtier library." )
 ADD_CUSTOM_TARGET( "geneva"             DEPENDS ${GENEVA_LIBNAME}            COMMENT "Building only the Geneva library (now includes the former geneva-individuals sources)." )
@@ -232,15 +395,11 @@ IF (GENEVA_BUILD_WITH_COVERAGE)
         MESSAGE(WARNING "GENEVA_BUILD_WITH_COVERAGE=ON but gcovr was not "
                 "found in PATH; the `coverage` make target will not work.")
     ENDIF ()
-    # Filter: only the Common library's headers and sources count.
+    # Filter: only the Common library's headers and sources count. (The plotting
+    # code now lives in the separate dietrich library and is covered there.)
     SET(_GENEVA_COV_FILTER
-        "--filter=${PROJECT_SOURCE_DIR}/include/common/.*"
-        "--filter=${PROJECT_SOURCE_DIR}/src/common/.*"
-        # Exclude headers that are not in scope (e.g. test-support headers).
-        "--exclude=${PROJECT_SOURCE_DIR}/include/common/tests/.*"
-        # Exclude the deprecated-soon GPlotDesigner from the headline number.
-        "--exclude=${PROJECT_SOURCE_DIR}/include/common/GPlotDesigner.hpp"
-        "--exclude=${PROJECT_SOURCE_DIR}/src/common/GPlotDesigner.cpp")
+        "--filter=${PROJECT_SOURCE_DIR}/common/include/common/.*"
+        "--filter=${PROJECT_SOURCE_DIR}/common/src/.*")
     ADD_CUSTOM_TARGET( "coverage"
         COMMAND ${CMAKE_COMMAND} -E make_directory
                 "${CMAKE_BINARY_DIR}/coverage/common"
@@ -273,38 +432,114 @@ ADD_SUBDIRECTORY (CMakeModules)
 ADD_SUBDIRECTORY (licenses)
 ADD_SUBDIRECTORY (scripts)
 
-# The main code lays here, and the compilation takes place in 'src'
-ADD_SUBDIRECTORY (include)
-ADD_SUBDIRECTORY (src)
-
-# Examples and tests are compiled at the end
-IF( GENEVA_BUILD_TESTS )
+# Enable CTest before any subdirectory's add_test() runs: common/ (and the
+# upcoming per-library subtrees) own their own tests/ subdirectories, so
+# enable_testing() must be in scope before those add_subdirectory calls or
+# their add_test() invocations are silently dropped.
+IF (GENEVA_BUILD_TESTS)
 	INCLUDE(CTest)
-	ADD_SUBDIRECTORY (tests)
-ENDIF()
+ENDIF ()
 
-# Examples are also run as tests if enabled with 'GENEVA_RUN_EXAMPLES_AS_TESTS'
-IF( GENEVA_BUILD_EXAMPLES )
-	ADD_SUBDIRECTORY (examples)
-ENDIF()
+# Find Doxygen ONCE here so the per-library <lib>/doc/CMakeLists.txt files
+# can short-circuit when it is absent. DOXYGEN_FOUND propagates to all
+# subdirectories.
+FIND_PACKAGE (Doxygen)
+IF (DOXYGEN_FOUND)
+	MESSAGE (STATUS "Doxygen found (${DOXYGEN_VERSION}); per-library 'doc-<lib>' targets and the aggregated 'doc' target are available.")
+ELSE ()
+	MESSAGE (STATUS "Doxygen not found; the per-library doc targets and 'make doc' are disabled.")
+ENDIF ()
 
-# Benchmarks are also run as tests if enabled with GENEVA_RUN_BENCHMARKS_AS_TESTS
-IF( GENEVA_BUILD_BENCHMARKS )
-	ADD_SUBDIRECTORY (benchmarks)
-ENDIF()
+# Self-contained per-library subtrees. All four libraries now live under
+# their own top-level directory; the legacy split-by-kind include/, src/,
+# tests/, examples/, benchmarks/ trees no longer exist. Order matches the
+# dependency chain (common <- hap <- courtier <- geneva) so every library's
+# targets exist when its dependents configure.
+ADD_SUBDIRECTORY (common)
+ADD_SUBDIRECTORY (dietrich)
+ADD_SUBDIRECTORY (hap)
+ADD_SUBDIRECTORY (courtier)
+ADD_SUBDIRECTORY (geneva)
 
-# Holds an incubator facility for new optimization algorithms
-# ADD_SUBDIRECTORY (incubator)
+################################################################################
+# Installed CMake config-file package.
+#
+# This is the modern, preferred way for downstream projects to consume an
+# installed Geneva: find_package(Geneva CONFIG REQUIRED) then link the imported
+# targets Geneva::common / Geneva::hap / Geneva::courtier / Geneva::geneva.
+#
+# The exported targets carry their include directories ($<INSTALL_INTERFACE>),
+# their inter-library link dependencies (geneva -> courtier -> hap -> common),
+# the C++20 requirement and the Boost dependency transitively. The config file
+# re-finds Boost so consumers do not have to.
+#
+# The cmake-config directory is placed next to the installed libraries
+# (<libdir>/cmake/Geneva), honouring the INSTALL_PREFIX_LIBS indirection.
+
+INCLUDE(CMakePackageConfigHelpers)
+
+# Where the config package lands: alongside the installed libraries.
+SET(GENEVA_INSTALL_CMAKEDIR "${INSTALL_PREFIX_LIBS}/cmake/Geneva")
+
+# Export the imported targets accumulated via EXPORT GenevaTargets in the
+# per-library install(TARGETS ...) calls, under the Geneva:: namespace.
+INSTALL(
+	EXPORT GenevaTargets
+	NAMESPACE Geneva::
+	DESTINATION ${GENEVA_INSTALL_CMAKEDIR}
+	FILE GenevaTargets.cmake
+)
+
+# Record whether this install was built with testing support. A testing-enabled
+# libgemfony-geneva references Catch2 symbols, so the config package must re-find
+# Catch2 for consumers in that case (see GenevaConfig.cmake.in).
+IF (GENEVA_BUILD_TESTS)
+	SET(GENEVA_INSTALLED_WITH_TESTING TRUE)
+ELSE ()
+	SET(GENEVA_INSTALLED_WITH_TESTING FALSE)
+ENDIF ()
+
+# Generate GenevaConfig.cmake from the template. PATH_VARS / INSTALL_DESTINATION
+# allow the file to be relocatable.
+CONFIGURE_PACKAGE_CONFIG_FILE(
+	${PROJECT_SOURCE_DIR}/CMakeModules/GenevaConfig.cmake.in
+	${CMAKE_CURRENT_BINARY_DIR}/GenevaConfig.cmake
+	INSTALL_DESTINATION ${GENEVA_INSTALL_CMAKEDIR}
+)
+
+# Version compatibility policy: SameMinorVersion. Geneva's minor version encodes
+# release vs. development series (even = production, odd = development) and the
+# ABI of the shared libraries may change between minor releases, so a consumer
+# that requested e.g. 1.12 must not silently be satisfied by 1.14.
+WRITE_BASIC_PACKAGE_VERSION_FILE(
+	${CMAKE_CURRENT_BINARY_DIR}/GenevaConfigVersion.cmake
+	VERSION ${GENEVA_VERSION}
+	COMPATIBILITY SameMinorVersion
+)
+
+INSTALL(
+	FILES
+	${CMAKE_CURRENT_BINARY_DIR}/GenevaConfig.cmake
+	${CMAKE_CURRENT_BINARY_DIR}/GenevaConfigVersion.cmake
+	DESTINATION ${GENEVA_INSTALL_CMAKEDIR}
+)
+
+# Tests / examples / benchmarks are gated and dispatched inside each library's
+# own CMakeLists.txt (common/, hap/, courtier/, geneva/) now that the legacy
+# top-level tests/ examples/ benchmarks/ trees have been removed. CTest was
+# enabled earlier (above ADD_SUBDIRECTORY (common)) so per-library add_test()
+# calls register.
 
 ################################################################################
 # Custom target for all compilable items in the distribution
 ADD_CUSTOM_TARGET(
 	"gemfony-build-all" DEPENDS
 	core
-	benchmarks
-	examples
-	tests
-	# incubator
+	common-all      # lib + tests + examples + benchmarks for the common library
+	dietrich-all    # plotting lib + tests (unit + validity gates)
+	hap-all         # lib + tests + examples
+	courtier-all    # lib + tests + examples-stub + benchmarks
+	geneva-all      # lib + tests + examples + benchmarks (the largest subtree)
 	COMMENT "Build the entire Gemfony library collection"
 )
 
@@ -333,23 +568,17 @@ SET ( INFORMATIONFILES
 INSTALL ( FILES ${INFORMATIONFILES} DESTINATION ${INSTALL_PREFIX_DOCS} )
 
 ################################################################################
-# Code for the creation of reference documentation for Geneva
+# Aggregated reference documentation: depends on every per-library doc-<lib>
+# target so `make doc` produces all four lib bundles with cross-references
+# wired via Doxygen TAGFILES (the per-library CMakeLists declares the
+# upstream tag-file dependencies, so ordering is automatic).
 #
-FIND_PACKAGE(Doxygen)
-
-IF( DOXYGEN_FOUND )
-	CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
-	ADD_CUSTOM_TARGET (
-		doc
-		${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-		COMMENT "Creation of reference documentation for Geneva with 'make doc'" VERBATIM
+IF (DOXYGEN_FOUND)
+	ADD_CUSTOM_TARGET (doc
+		DEPENDS doc-common doc-hap doc-courtier doc-geneva
+		COMMENT "Generating aggregated Doxygen documentation for all Geneva libraries."
 	)
-	SET(MSG "Reference documentation for Geneva may now be created with 'make doc'")
-ELSE()
-	SET(MSG "Doxygen not found. No support for the creation of reference documentation")
-ENDIF()
-MESSAGE("${MSG}\n")
+ENDIF ()
 
 ################################################################################
 # Code for package generation with CPack. This is experimental and the packages

@@ -1,0 +1,62 @@
+{
+    "header": {
+        "comment": "Configuration for the courtier GPU consumer (Gem::Courtier::GPU::GGPUConsumerT).",
+        "comment": "It selects the device-programming model AND the kernel, so the same program can",
+        "comment": "switch between CPU / CUDA without recompilation.",
+        "comment": "FLOAT variant: used when example 15 is built with GIMAGE_USE_FLOAT (FP32 kernel)."
+    },
+    "backend": {
+        "comment": "GPU backend: cpu | cuda.",
+        "comment": "'cpu' runs the marshaller's host reference evaluation (always available);",
+        "comment": "'cuda' requires the CUDA backend to have been compiled into",
+        "comment": "gemfony-courtier (it falls back to 'cpu' with a warning otherwise).",
+        "default": "cuda",
+        "value": "cuda"
+    },
+    "kernel_path": {
+        "comment": "Path to the kernel source (.cu for CUDA via NVRTC),",
+        "comment": "or a prebuilt module (.ptx/.cubin). Resolved relative to the working directory.",
+        "default": "./kernels/monalisa_eval_float.cu",
+        "value": "./kernels/monalisa_eval_float.cu"
+    },
+    "kernel_entry": {
+        "comment": "Kernel entry-point name (must be un-mangled, e.g. extern \"C\").",
+        "default": "evaluate",
+        "value": "evaluate"
+    },
+    "device_id": {
+        "comment": "Which GPU/device to use.",
+        "default": "0",
+        "value": "0"
+    },
+    "block_x": {
+        "comment": "Launch block size (x).",
+        "default": "256",
+        "value": "256"
+    },
+    "block_y": {
+        "comment": "Launch block size (y).",
+        "default": "1",
+        "value": "1"
+    },
+    "block_z": {
+        "comment": "Launch block size (z).",
+        "default": "1",
+        "value": "1"
+    },
+    "grid_x": {
+        "comment": "Launch grid size (x; 0 == auto).",
+        "default": "0",
+        "value": "0"
+    },
+    "grid_y": {
+        "comment": "Launch grid size (y; 0 == auto).",
+        "default": "0",
+        "value": "0"
+    },
+    "grid_z": {
+        "comment": "Launch grid size (z; 0 == auto).",
+        "default": "0",
+        "value": "0"
+    }
+}
