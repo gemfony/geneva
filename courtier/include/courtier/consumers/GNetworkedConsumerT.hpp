@@ -38,17 +38,18 @@
 #include <condition_variable>
 #include <cstddef>
 #include <cstdint>
-#include <deque>
 #include <functional>
 #include <map>
 #include <set>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <utility>
 #include <vector>
 
 // Geneva headers
 #include "common/GLogger.hpp" // glogger << ... << GWARNING (late-return drop warning)
+#include "common/concurrency/GAgingStoreT.hpp" // the shared aging keyed+FIFO store (late-return facility)
 #include "courtier/GCourtierEnums.hpp" // CORRELATION_ID_TYPE, dispatchState
 #include "courtier/GBaseConsumerT.hpp"
 
@@ -154,22 +155,18 @@ public:
      * @param ttl_rounds A held item is evicted after this many dispatch rounds
      */
     void setLateReturnBuffer(std::size_t cap, std::uint64_t ttl_rounds) {
-        std::scoped_lock lk(mtx_);
-        late_buffer_cap_ = cap;
-        late_buffer_ttl_rounds_ = ttl_rounds;
+        late_store_.configure(cap, ttl_rounds);
     }
     /** @brief Number of late returns currently held in the buffer (reaped by the OA via getOldWorkItems()).
      *  @return The count of late items currently buffered */
     [[nodiscard]] std::size_t lateReturnBufferSize() const {
-        std::scoped_lock lk(mtx_);
-        return late_returns_.size();
+        return late_store_.parkedSize();
     }
     /** @brief Number of un-returned originals currently retained so a later results-only return can be
      *  grafted (see setLateReturnBuffer()). Mostly for tests/diagnostics.
      *  @return The count of retained originals currently held */
     [[nodiscard]] std::size_t retainedOriginalCount() const {
-        std::scoped_lock lk(mtx_);
-        return retained_originals_.size();
+        return late_store_.retainedSize();
     }
     /** @brief Total late returns dropped since construction -- an observable, non-silent drop count.
      *  Counts cap/TTL evictions, arrivals while buffering is disabled, and results-only late returns
@@ -195,14 +192,7 @@ public:
      *  setLateReturnBuffer()).
      *  @return The buffered late items in arrival order (ownership transferred; the buffer is emptied) */
     std::vector<item_ptr> getLateReturns() override {
-        std::scoped_lock lk(mtx_);
-        std::vector<item_ptr> out;
-        out.reserve(late_returns_.size());
-        for(auto &entry : late_returns_) {
-            out.push_back(std::move(entry.second));
-        }
-        late_returns_.clear();
-        return out;
+        return late_store_.drainParked();
     }
 
 protected:
@@ -451,13 +441,12 @@ protected:
             // correlation id, so a slow-but-alive worker's later results-only return can still be grafted
             // (its input parameters reconstructed) and reaped via getOldWorkItems() instead of dropped.
             // Only when buffering is enabled; bounded by the same TTL + cap as the late-return buffer.
-            if(late_buffer_cap_ > 0) {
+            if(late_store_.buffering()) {
                 for(std::size_t k = 0; k < b.items->size(); ++k) {
                     if((*b.items)[k] &&
                        (*b.items)[k]->getDispatchState() != Gem::Courtier::dispatchState::DONE) {
-                        retained_originals_.insert_or_assign(
-                            (*b.items)[k]->getCorrelationId(),
-                            std::make_pair(buffer_epoch_, this->clone_item_((*b.items)[k])));
+                        late_store_.retain((*b.items)[k]->getCorrelationId(),
+                                           this->clone_item_((*b.items)[k]));
                     }
                 }
             }
@@ -465,9 +454,8 @@ protected:
             batches_.erase(my_it);
             // A dispatch round completed: advance the late-buffer epoch and age out any TTL-expired
             // entries (so stale late returns / retained originals are evicted even when none arrives).
-            ++buffer_epoch_;
-            evictLateReturns_locked();
-            evictRetainedOriginals_locked();
+            // Parked entries evicted here are genuine drops -> record them.
+            recordLateDrop_locked(late_store_.advanceEpochAndEvict());
         }
     }
 
@@ -523,70 +511,33 @@ private:
         // individual; otherwise the genome is unrecoverable and the result is dropped (buffering it would
         // let the algorithm reap an individual with an empty genome).
         if(p->inputDataOmitted()) {
-            auto rit = retained_originals_.find(id);
-            if(rit == retained_originals_.end()) {
+            auto orig = late_store_.takeRetained(id);
+            if(not orig) {
                 recordLateDrop_locked(1); // no retained original -> unrecoverable
                 return;
             }
-            p->graftInputDataFrom(*rit->second.second);
-            retained_originals_.erase(rit);
+            p->graftInputDataFrom(**orig);
             // p is now a complete individual -> fall through to park it
         }
         else {
             // A full late return makes any retained original for this id redundant.
-            retained_originals_.erase(id);
+            late_store_.dropRetained(id);
         }
-        if(late_buffer_cap_ == 0) {
+        if(not late_store_.buffering()) {
             recordLateDrop_locked(1); // buffering off: count the drop, do not hold the item
             return;
         }
-        late_returns_.emplace_back(buffer_epoch_, std::move(p));
-        evictLateReturns_locked();
-    }
-
-    /** @brief Evicts retained originals (the un-returned clones kept so results-only late returns stay
-     *  graftable) past their TTL horizon, and bounds their number by the late-return cap (oldest first).
-     *  Caller holds mtx_. */
-    void evictRetainedOriginals_locked() {
-        for(auto it = retained_originals_.begin(); it != retained_originals_.end();) {
-            if(buffer_epoch_ - it->second.first >= late_buffer_ttl_rounds_) {
-                it = retained_originals_.erase(it);
-            }
-            else {
-                ++it;
-            }
-        }
-        while(retained_originals_.size() > late_buffer_cap_) {
-            auto oldest = std::min_element(
-                retained_originals_.begin(), retained_originals_.end(),
-                [](const auto &a, const auto &b) { return a.second.first < b.second.first; });
-            retained_originals_.erase(oldest);
-        }
-    }
-
-    /** @brief Enforces the TTL and capacity bounds on the late-return buffer (FIFO eviction of the
-     *  oldest), counting + warning on what is dropped. Entries are stamped in arrival order, so their
-     *  epochs are non-decreasing and the front is always the oldest. Caller holds mtx_. */
-    void evictLateReturns_locked() {
-        std::uint64_t evicted = 0;
-        while(not late_returns_.empty() &&
-              (buffer_epoch_ - late_returns_.front().first) >= late_buffer_ttl_rounds_) {
-            late_returns_.pop_front();
-            ++evicted;
-        }
-        while(late_returns_.size() > late_buffer_cap_) {
-            late_returns_.pop_front();
-            ++evicted;
-        }
-        if(evicted > 0) {
-            recordLateDrop_locked(evicted);
-        }
+        // Park it; any TTL/cap eviction the park triggers is a genuine drop -> record it.
+        recordLateDrop_locked(late_store_.park(std::move(p)));
     }
 
     /** @brief Records that @p n late returns were dropped (disabled-buffer arrival, or cap/TTL
      *  eviction) and warns ONCE so the loss is observable without log spam. Caller holds mtx_.
      *  @param n The number of late returns just dropped, added to the running total */
     void recordLateDrop_locked(std::uint64_t n) {
+        if(n == 0) {
+            return; // nothing dropped (e.g. an eviction sweep that freed nothing) -> no count, no warning
+        }
         late_dropped_count_ += n;
         if(not late_drop_warned_) {
             late_drop_warned_ = true;
@@ -733,20 +684,15 @@ private:
     batch_key_t last_served_batch_ = 0;         ///< Round-robin cursor across batches (for fairness)
     std::size_t total_pending_ = 0;             ///< Slots PENDING across ALL batches (cv predicate)
 
-    // --- late-return buffer: a result that arrives after its batch finished/timed out
-    //     is parked here instead of dropped, for a later getOldWorkItems() to reap. Bounded by cap +
-    //     TTL rounds; the per-entry epoch is the dispatch-round tag used only for TTL eviction (the
-    //     48-bit batch id never wraps, so it is not an aliasing concern). Disabled by default (cap == 0);
-    //     when enabled, the OA-side reaper (GOptimizerExecutionPolicy, via enableLateReturns() /
-    //     getOldWorkItems()) drains it. All access is under mtx_. ---
-    std::deque<std::pair<std::uint64_t, item_ptr>> late_returns_; ///< (epoch, item) FIFO of late arrivals
-    // Clones of un-returned originals, keyed by correlation id, kept so a late RESULTS-ONLY return can
-    // still be grafted (its input parameters reconstructed) instead of dropped. Populated when a batch
-    // retires with MISSING slots; bounded by the same TTL + cap as the late-return buffer. (epoch, clone).
-    std::map<Gem::Courtier::CORRELATION_ID_TYPE, std::pair<std::uint64_t, item_ptr>> retained_originals_;
-    std::uint64_t buffer_epoch_ = 0;            ///< Monotonic round counter (advances per retired batch)
-    std::size_t late_buffer_cap_ = 0;           ///< Max buffered late items (0 = buffering disabled)
-    std::uint64_t late_buffer_ttl_rounds_ = 8;  ///< Evict a late entry this many rounds after buffering
+    // --- late-return facility: a result that arrives after its batch finished/timed out is PARKED for a
+    //     later getOldWorkItems() to reap instead of dropped, and a clone of each un-returned original is
+    //     RETAINED (keyed by correlation id) so a late results-only return can still be grafted. Both live
+    //     in one shared aging store (FIFO + keyed faces, one epoch + cap + TTL); the epoch advances once
+    //     per retired batch. Disabled by default (cap == 0); when enabled, the OA-side reaper
+    //     (GOptimizerExecutionPolicy, via enableLateReturns() / getOldWorkItems()) drains the FIFO. The
+    //     graft-or-drop policy and the drop accounting below are the consumer's; the store is invoked
+    //     under mtx_, so its operations stay consistent with the batch bookkeeping. ---
+    Gem::Common::Concurrency::GAgingStoreT<Gem::Courtier::CORRELATION_ID_TYPE, item_ptr> late_store_;
     std::uint64_t late_dropped_count_ = 0;      ///< Total late items dropped (disabled/cap/TTL) -- observable
     bool late_drop_warned_ = false;             ///< One-shot warning guard for the first dropped late item
 

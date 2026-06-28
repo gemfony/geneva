@@ -70,6 +70,7 @@ SET ( GENEVACOMMONINCLUDES
 # sub-module: the common/concurrency/ sub-directory + the Gem::Common::Concurrency
 # namespace, so they are clearly separated and hard to overlook.
 SET ( GENEVACOMMONCONCURRENCYINCLUDES
+	concurrency/GAgingStoreT.hpp
 	concurrency/GBlockingMPMCQueueT.hpp
 	concurrency/GCompletionLatchT.hpp
 	concurrency/GContentAddressedStoreT.hpp
