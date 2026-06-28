@@ -626,6 +626,64 @@ TEST_CASE("GFlatGenome: serialization round-trip", "[flat]") {
 }
 
 /******************************************************************************/
+// CHARACTERIZATION NET (B0, 2026-06-28): outcome-pins for the individual-architecture swap. These
+// assert behaviour that must survive the GProcessable / GCandidateSolution / GFlatGenomeBase rebuild,
+// independent of the mechanisms being retired (results-only wire form, GIndividualSlot, genome_omitted).
+// See prompts/2026-06-28-characterization-net.md.
+
+// External-result acceptance (D14): a precomputed evaluation injected via process(res_vec) is taken
+// VERBATIM and marks the item PROCESSED, WITHOUT invoking the local fitnessCalculation(). This is the
+// GPU / external-marshaller path; pinned so the contract survives the swap (and a prospective
+// acceptEvaluationResults rename of the injection entry point).
+TEST_CASE("GFlatGenome: external evaluation result is accepted verbatim (no local fitnessCalculation)",
+          "[flat][external]") {
+    FlatSphere ind(5);
+    // Place the genome where the true sphere fitness is a known NON-zero value (five 1.0s -> 5.0), so
+    // an injected result that differs proves the external value was taken, not locally computed.
+    ind.assignValueVector<double>(std::vector<double>{1., 1., 1., 1., 1.});
+
+    const std::size_t n = ind.getNStoredResults();
+    REQUIRE(n >= 1);
+    const double injected = 42.0; // deliberately != the true sphere fitness (5.0)
+    std::vector<individual_processing_result> res;
+    res.emplace_back(injected);
+    for(std::size_t k = 1; k < n; ++k) {
+        res.emplace_back(0.0); // res_vec size must match the stored-result count
+    }
+
+    ind.mark_as_due_for_processing();
+    ind.process(res);
+
+    CHECK(ind.is_processed());
+    CHECK(ind.getStoredResult(0).rawFitness() == injected); // external value taken verbatim
+}
+
+// A derived individual round-trips its value identity in ALL THREE archive formats. The basic
+// round-trip above exercises XML only; the swap rewrites the individual inheritance graph, and Boost
+// class export/tracking is sensitive to that exact graph, so a re-run of this same test post-swap
+// proves the new export macros produce valid archives in text, XML and binary alike.
+TEST_CASE("GFlatGenome: a derived individual round-trips in TEXT, XML and BINARY",
+          "[flat][serialize][formats]") {
+    using mode = Gem::Common::serializationMode;
+    const std::vector<double> vals{1., -2., 3., -4., 5.};
+
+    for(auto m : {mode::TEXT, mode::XML, mode::BINARY}) {
+        FlatSphere ind(5);
+        ind.assignValueVector<double>(vals);
+
+        FlatSphere restored;
+        REQUIRE_NOTHROW(restored.fromString(ind.toString(m), m));
+
+        CHECK_NOTHROW(restored.compare(
+            ind, Gem::Common::expectation::EQUALITY, Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE));
+
+        std::vector<double> v;
+        restored.streamline<double>(v);
+        CHECK(v == vals);
+    }
+}
+
+/******************************************************************************/
 TEST_CASE("GFlatGenome: adapt() mutates within bounds", "[flat]") {
     FlatSphere ind(8);
 
