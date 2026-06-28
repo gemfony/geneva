@@ -47,6 +47,7 @@
 #include "common/concurrency/GContentAddressedStoreT.hpp"
 #include "common/concurrency/GSPSCStagingRingT.hpp"
 #include "common/concurrency/GThreadSafeKeyedStoreT.hpp"
+#include "common/concurrency/GThreadSafeSetT.hpp"
 
 using namespace Gem::Common::Concurrency;
 
@@ -217,6 +218,29 @@ bool demo_aging_store() {
     return ok;
 }
 
+/** @brief Demonstrates GThreadSafeSetT: a mutex-guarded membership set with an atomic drain (a network
+ *  session's in-flight borrow set -- insert on hand-out, erase on return, drain the leftovers if the
+ *  session dies). @return true iff every demonstrated invariant held. */
+bool demo_thread_safe_set() {
+    std::cout << "== GThreadSafeSetT ==\n";
+    bool ok = true;
+
+    GThreadSafeSetT<std::uint64_t> in_flight;
+    in_flight.insert(1001);
+    in_flight.insert(1002);
+    in_flight.insert(1003);
+    in_flight.erase(1002);        // 1002 was returned normally
+    ok = ok && in_flight.size() == 2 && in_flight.contains(1001) && not in_flight.contains(1002);
+
+    // The session dies: drain reclaims everything still outstanding, atomically emptying the set.
+    const auto leftover = in_flight.drain();
+    ok = ok && leftover.size() == 2 && leftover[0] == 1001 && leftover[1] == 1003 && in_flight.empty();
+
+    std::cout << "  3 handed out, 1 returned, 2 reclaimed on drain\n";
+    std::cout << "  -> " << (ok ? "OK" : "FAILED") << "\n";
+    return ok;
+}
+
 } // namespace
 
 int main() {
@@ -226,6 +250,7 @@ int main() {
     ok = demo_completion_latch() && ok;
     ok = demo_spsc_staging_ring() && ok;
     ok = demo_aging_store() && ok;
+    ok = demo_thread_safe_set() && ok;
 
     std::cout << (ok ? "\nAll concurrency-primitive demos passed.\n"
                      : "\nA concurrency-primitive demo FAILED.\n");

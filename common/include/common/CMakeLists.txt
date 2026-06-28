@@ -81,6 +81,7 @@ SET ( GENEVACOMMONCONCURRENCYINCLUDES
 	concurrency/GThreadGroup.hpp
 	concurrency/GThreadPool.hpp
 	concurrency/GThreadSafeKeyedStoreT.hpp
+	concurrency/GThreadSafeSetT.hpp
 )
 
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
