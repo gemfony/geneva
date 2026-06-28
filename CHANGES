@@ -109,6 +109,18 @@ Recommended Versions:
   `--consumer gpu`; omit for a CPU run via the individual's fitnessCalculation()).
   Selecting `gpu` without a registered builder is a clear, early error.
 
+- The courtier consumers now evaluate a batch DIRECTLY over the optimization algorithm's
+  own population span, with no intermediate working copy. GBaseConsumerT's per-round
+  `dispatch_` takes a `std::span<item_ptr>` (was `std::vector<item_ptr>&`) and processes
+  the DO_PROCESS slots in place -- the former gather of pending items into a temporary
+  vector each round is gone, so a consumer operates on the live span the algorithm
+  submitted. The GPU marshaller interface (GGPUEvaluableI::flatten / scatter) is
+  correspondingly widened from `const std::vector<item_ptr>&` to
+  `std::span<const item_ptr>` -- SOURCE-breaking for any custom GPU marshaller (a vector
+  still binds implicitly, so only the override signatures need updating). Behaviour is
+  unchanged; the serial, thread-pool, networked (ASIO / websocket / MPI) and GPU
+  consumers all reconcile the span in place.
+
 - The GPU consumer is now an opt-in add-on folded INTO the one gemfony-courtier library,
   exactly like the MPI consumer -- there is no separate gemfony-courtier-gpu library any
   more. A new build flag GENEVA_BUILD_WITH_GPU_CONSUMER (genevaConfig.gcfg:

@@ -37,6 +37,7 @@
 #include <cstddef>
 #include <cstring>
 #include <memory>
+#include <span>
 #include <vector>
 
 // Geneva headers
@@ -74,7 +75,7 @@ public:
         return item->countParameters<double>();
     }
 
-    void flatten(const std::vector<item_ptr> &items, std::vector<double> &params_out) const override {
+    void flatten(std::span<const item_ptr> items, std::vector<double> &params_out) const override {
         if(items.empty()) {
             params_out.clear();
             return;
@@ -101,7 +102,7 @@ public:
         return b;
     }
 
-    void scatter(const std::vector<item_ptr> &items, const std::vector<double> &fitness) const override {
+    void scatter(std::span<const item_ptr> items, const std::vector<double> &fitness) const override {
         for(std::size_t i = 0; i < items.size(); ++i) {
             items[i]->process(std::vector<gen::individual_processing_result>(
                 1, gen::individual_processing_result(fitness[i])));

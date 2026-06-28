@@ -43,6 +43,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <span>
 #include <utility>
 #include <vector>
 
@@ -299,8 +300,8 @@ protected:
         }
         BatchState &b = it->second;
         const std::size_t slot = decodeSlot(id);
-        if(slot >= b.items->size() ||
-           (*b.items)[slot]->getDispatchState() != Gem::Courtier::dispatchState::IN_FLIGHT) {
+        if(slot >= b.items.size() ||
+           b.items[slot]->getDispatchState() != Gem::Courtier::dispatchState::IN_FLIGHT) {
             return; // out of range, or duplicate / not currently in flight
         }
         // Feed the (shared) adaptive timeout: how long this item took from checkout to return.
@@ -318,10 +319,10 @@ protected:
         // parameters; the originally-submitted item -- still occupying this slot until the line below --
         // supplies them, grafted onto the result before it replaces the original.
         if(p->inputDataOmitted()) {
-            p->graftInputDataFrom(*(*b.items)[slot]);
+            p->graftInputDataFrom(*b.items[slot]);
         }
         p->setDispatchState(Gem::Courtier::dispatchState::DONE);
-        (*b.items)[slot] = std::move(p);
+        b.items[slot] = std::move(p);
         ++b.done;
         if(b.done == b.target) {
             cv_done_.notify_all(); // each waiting dispatch_ re-checks its own batch
@@ -375,7 +376,7 @@ protected:
      *
      * @param items The round's work items, BORROWED (not owned) for the duration of the call; results are written back into their slots in place
      */
-    void dispatch_(std::vector<item_ptr> &items) override {
+    void dispatch_(std::span<item_ptr> items) override {
         const std::size_t n = items.size();
         if(n == 0) {
             return;
@@ -387,19 +388,28 @@ protected:
             std::scoped_lock lk(mtx_);
             const batch_key_t key = (next_batch_id_++ & BATCH_MASK);
             BatchState b;
-            b.items = &items;
-            b.target = n;
-            b.pending = n;
+            b.items = items;
             b.cursor = 0;
-            b.checked_out_at.assign(n, start);
+            b.checked_out_at.assign(n, start); // indexed by slot (the span index)
             b.last_progress = start;
+            // Select exactly the DO_PROCESS slots of the span for this batch: tag each with its
+            // (batch_id, slot) correlation token (slot == span index) and mark it PENDING. Slots in any
+            // other state -- already resolved, or null -- are left in dispatchState NONE and are ignored
+            // by checkout()/checkin()/leaseSweep(), so the span may carry non-participating slots without
+            // affecting routing or the write-back position.
+            std::size_t n_sel = 0;
             for(std::size_t k = 0; k < n; ++k) {
-                // (batch_id, slot) correlation token; slot is the index into this round's batch.
-                items[k]->setCorrelationId(encodeId(key, k));
-                items[k]->setDispatchState(Gem::Courtier::dispatchState::PENDING);
+                if(items[k] &&
+                   items[k]->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS) {
+                    items[k]->setCorrelationId(encodeId(key, k));
+                    items[k]->setDispatchState(Gem::Courtier::dispatchState::PENDING);
+                    ++n_sel;
+                }
             }
+            b.target = n_sel;
+            b.pending = n_sel;
             my_it = batches_.emplace(key, std::move(b)).first;
-            total_pending_ += n;
+            total_pending_ += n_sel;
         }
         cv_work_.notify_all(); // wake any session blocked in checkoutWait()
 
@@ -438,11 +448,15 @@ protected:
             // (its input parameters reconstructed) and reaped via getOldWorkItems() instead of dropped.
             // Only when buffering is enabled; bounded by the same TTL + cap as the late-return buffer.
             if(late_store_.buffering()) {
-                for(std::size_t k = 0; k < b.items->size(); ++k) {
-                    if((*b.items)[k] &&
-                       (*b.items)[k]->getDispatchState() != Gem::Courtier::dispatchState::DONE) {
-                        late_store_.retain((*b.items)[k]->getCorrelationId(),
-                                           this->clone_item_((*b.items)[k]));
+                for(std::size_t k = 0; k < b.items.size(); ++k) {
+                    // Retain only THIS batch's still-unreturned slots (PENDING/IN_FLIGHT == MISSING):
+                    // a DONE slot already returned, and a NONE slot never participated in this batch.
+                    const auto ds = b.items[k] ? b.items[k]->getDispatchState()
+                                               : Gem::Courtier::dispatchState::NONE;
+                    if(b.items[k] && (ds == Gem::Courtier::dispatchState::PENDING ||
+                                      ds == Gem::Courtier::dispatchState::IN_FLIGHT)) {
+                        late_store_.retain(b.items[k]->getCorrelationId(),
+                                           this->clone_item_(b.items[k]));
                     }
                 }
             }
@@ -550,7 +564,7 @@ private:
     /** @brief Per-batch scheduling state. `items` is a BORROWED pointer to the caller's round vector
      *  (valid only while that call's dispatch_ blocks); everything else is this batch's bookkeeping. */
     struct BatchState {
-        std::vector<item_ptr> *items = nullptr; ///< Borrowed round vector (not owned)
+        std::span<item_ptr> items; ///< Borrowed batch span (not owned); empty by default
         std::size_t target = 0;                 ///< Number of slots in this batch
         std::size_t done = 0;                   ///< Slots that have reached DONE
         std::size_t pending = 0;                ///< Slots currently PENDING (awaiting a client)
@@ -574,13 +588,13 @@ private:
                 it = batches_.begin();
             }
             BatchState &b = it->second;
-            while(b.cursor < b.items->size() &&
-                  (*b.items)[b.cursor]->getDispatchState() != Gem::Courtier::dispatchState::PENDING) {
+            while(b.cursor < b.items.size() &&
+                  b.items[b.cursor]->getDispatchState() != Gem::Courtier::dispatchState::PENDING) {
                 ++b.cursor;
             }
-            if(b.cursor < b.items->size()) {
+            if(b.cursor < b.items.size()) {
                 const std::size_t k = b.cursor++;
-                (*b.items)[k]->setDispatchState(Gem::Courtier::dispatchState::IN_FLIGHT);
+                b.items[k]->setDispatchState(Gem::Courtier::dispatchState::IN_FLIGHT);
                 b.checked_out_at[k] = clock::now();
                 --b.pending;
                 --total_pending_;
@@ -588,7 +602,7 @@ private:
                 // Hand the session a clone to serialize and ship; the owning copy stays in the slot,
                 // marked IN_FLIGHT. Its correlation id rides the clone, so checkin() finds the slot again.
                 // Clone via the consumer's type-generic helper (polymorphic functor or copy-construct).
-                return this->clone_item_((*b.items)[k]);
+                return this->clone_item_(b.items[k]);
             }
             ++it;
         }
@@ -602,11 +616,11 @@ private:
      *  @param slot The slot index to flip back to PENDING
      *  @return true if the slot was flipped; false if it was out of range or not currently IN_FLIGHT */
     bool requeueSlot_locked(BatchState &b, std::size_t slot) {
-        if(slot >= b.items->size() ||
-           (*b.items)[slot]->getDispatchState() != Gem::Courtier::dispatchState::IN_FLIGHT) {
+        if(slot >= b.items.size() ||
+           b.items[slot]->getDispatchState() != Gem::Courtier::dispatchState::IN_FLIGHT) {
             return false;
         }
-        (*b.items)[slot]->setDispatchState(Gem::Courtier::dispatchState::PENDING);
+        b.items[slot]->setDispatchState(Gem::Courtier::dispatchState::PENDING);
         ++b.pending;
         ++total_pending_;
         if(slot < b.cursor) {
@@ -623,8 +637,8 @@ private:
     void leaseSweep_locked(BatchState &b, clock::time_point now) {
         const auto lease = currentLease();
         bool any = false;
-        for(std::size_t k = 0; k < b.items->size(); ++k) {
-            if((*b.items)[k]->getDispatchState() == Gem::Courtier::dispatchState::IN_FLIGHT &&
+        for(std::size_t k = 0; k < b.items.size(); ++k) {
+            if(b.items[k]->getDispatchState() == Gem::Courtier::dispatchState::IN_FLIGHT &&
                (now - b.checked_out_at[k]) > lease) {
                 any = requeueSlot_locked(b, k) || any;
             }

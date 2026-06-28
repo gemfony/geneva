@@ -32,6 +32,7 @@
 // Standard headers
 #include <cstddef>
 #include <cstring>
+#include <span>
 #include <vector>
 
 // Geneva headers
@@ -76,7 +77,7 @@ public:
         return item->countParameters<gimage_fp_t>();
     }
 
-    void flatten(const std::vector<item_ptr> &items, std::vector<gimage_fp_t> &params_out) const override {
+    void flatten(std::span<const item_ptr> items, std::vector<gimage_fp_t> &params_out) const override {
         if(items.empty()) {
             params_out.clear();
             return;
@@ -112,7 +113,7 @@ public:
      *  kernel atomic-accumulates each item's fitness; the CPU backend clamps this to 1. */
     [[nodiscard]] int parallelWorkPerItem() const override { return 256; }
 
-    void scatter(const std::vector<item_ptr> &items, const std::vector<gimage_fp_t> &fitness) const override {
+    void scatter(std::span<const item_ptr> items, const std::vector<gimage_fp_t> &fitness) const override {
         for(std::size_t i = 0; i < items.size(); ++i) {
             items[i]->process(std::vector<gen::individual_processing_result>(
                 1, gen::individual_processing_result(fitness[i])));

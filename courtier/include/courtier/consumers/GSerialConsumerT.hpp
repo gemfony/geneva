@@ -33,6 +33,7 @@
 
 // Standard headers
 #include <memory>
+#include <span>
 #include <vector>
 
 // Geneva headers
@@ -59,11 +60,14 @@ public:
 
 protected:
     /***************************************************************************/
-    /** @brief Evaluates each item inline on the calling thread, funnelling any thrown processing
-     *  exception into the item's status so it does not escape.
-     *  @param items The round of (uniquely owned) work items to evaluate in place */
-    void dispatch_(std::vector<item_ptr> &items) override {
+    /** @brief Evaluates each DO_PROCESS slot of the batch span inline on the calling thread, funnelling
+     *  any thrown processing exception into the item's status so it does not escape.
+     *  @param items The batch span; only slots flagged DO_PROCESS are evaluated, in place */
+    void dispatch_(std::span<item_ptr> items) override {
         for(auto &it : items) {
+            if(not it || it->getProcessingStatus() != Gem::Courtier::processingStatus::DO_PROCESS) {
+                continue;
+            }
             try {
                 it->process();
             }

@@ -133,32 +133,32 @@ public:
         // Reconciliation loop. Terminates because every MISSING/FAILED slot eventually exhausts
         // its budget and becomes "unresolved" (so it stops being pending).
         while(true) {
-            std::vector<item_ptr> to_eval;
-            std::vector<std::size_t> idx;
+            // Any slot still pending and flagged for processing? (A pending slot is always DO_PROCESS;
+            // resolved/unresolved slots are not.) There is no temporary working vector: the consumer
+            // evaluates the batch span IN PLACE, processing exactly the slots whose status is DO_PROCESS
+            // and writing each (possibly replaced) result straight back into its own slot.
+            bool any_pending = false;
             for(std::size_t i = 0; i < n; ++i) {
-                if(state[i] == slot::pending &&
+                if(state[i] == slot::pending && items[i] &&
                    items[i]->getProcessingStatus() == processingStatus::DO_PROCESS) {
-                    // Items are uniquely owned: move each into the working set for this round and
-                    // move the (possibly replaced) result straight back below. The batch slot is
-                    // transiently null only for the duration of the synchronous dispatch_ call.
-                    to_eval.push_back(std::move(items[i]));
-                    idx.push_back(i);
+                    any_pending = true;
+                    break;
                 }
             }
-            if(to_eval.empty()) {
+            if(not any_pending) {
                 break; // every slot is resolved or unresolved
             }
 
-            // Consumer-specific evaluation of this round. A networked consumer evaluates a copy on
-            // a remote client and hands back a *different* object (the deserialized result), so
-            // dispatch_ may replace entries of to_eval with those results; write them back into the
-            // batch. A local consumer mutates each item in place, so the write-back is a no-op.
-            this->dispatch_(to_eval);
-            for(std::size_t k = 0; k < idx.size(); ++k) {
-                items[idx[k]] = std::move(to_eval[k]);
-            }
+            // Consumer-specific evaluation of this round, directly over the batch span. A networked
+            // consumer evaluates a copy on a remote client and writes the returned object back into the
+            // originating slot; a local consumer mutates each item in place. Either way every DO_PROCESS
+            // slot carries its (possibly replaced) result on return, and non-DO_PROCESS slots are skipped.
+            this->dispatch_(items);
 
-            for(unsigned long i : idx) {
+            for(std::size_t i = 0; i < n; ++i) {
+                if(state[i] != slot::pending) {
+                    continue;
+                }
                 const auto st = items[i]->getProcessingStatus();
                 if(st == processingStatus::PROCESSED) {
                     state[i] = slot::resolved;
@@ -173,7 +173,7 @@ public:
                         items[i]->set_processing_status(processingStatus::DO_PROCESS);
                     }
                     else {
-                        state[i] = slot::unresolved;
+                        state[i] = slot::unresolved; // status already non-DO_PROCESS
                     }
                 }
                 else {
@@ -185,6 +185,10 @@ public:
                     }
                     else {
                         state[i] = slot::unresolved;
+                        // Clear the DO_PROCESS flag (DO_PROCESS -> UNPROCESSED is the only valid
+                        // transition here) so the next round's in-place dispatch no longer selects this
+                        // permanently-unresolved slot. The slot is reconciled below by clone/fatal.
+                        items[i]->set_processing_status(processingStatus::UNPROCESSED);
                     }
                 }
             }
@@ -218,20 +222,20 @@ public:
 protected:
     /***************************************************************************/
     /**
-     * Consumer-specific evaluation of one round of items. Must, for each item, either evaluate it
-     * (leaving it PROCESSED or, on a caught processing exception, EXCEPTION_CAUGHT/ERROR_FLAGGED)
-     * or -- for networked consumers that time out -- leave it DO_PROCESS to signal MISSING. Must
-     * not let exceptions escape (a failed evaluation is reported via the item's status, not by
-     * throwing).
+     * Consumer-specific evaluation of one round, directly over the batch span. The consumer processes
+     * exactly the slots whose status is DO_PROCESS (skipping null slots and slots in any other state),
+     * leaving each evaluated item PROCESSED or -- on a caught processing exception -- EXCEPTION_CAUGHT/
+     * ERROR_FLAGGED, or -- for networked consumers that time out -- DO_PROCESS to signal MISSING. Must
+     * not let exceptions escape (a failed evaluation is reported via the item's status, not by throwing).
      *
-     * A consumer that evaluates a copy elsewhere (e.g. a remote client) may overwrite an entry of
-     * @p items with the resulting object; the replacement is written back into the batch by the
-     * caller. A consumer that mutates each item in place simply leaves the pointers untouched.
+     * A consumer that evaluates a copy elsewhere (e.g. a remote client) writes the resulting object back
+     * into its originating span slot in place; a consumer that mutates each item in place leaves the
+     * pointers untouched. No working copy of the batch is made -- the span is the OA's own population view.
      *
-     * @param items One round of (uniquely owned) work items to evaluate; entries may be replaced
-     *        with the resulting objects for consumers that evaluate a copy elsewhere
+     * @param items The batch span to evaluate in place; the consumer acts on the DO_PROCESS slots and
+     *        writes each (possibly replaced) result straight back into the same slot
      */
-    virtual void dispatch_(std::vector<item_ptr> &items) = 0;
+    virtual void dispatch_(std::span<item_ptr> items) = 0;
 
     /***************************************************************************/
     /** @brief Clean, fatal exit when the policy cannot be honoured. This is an expected terminal

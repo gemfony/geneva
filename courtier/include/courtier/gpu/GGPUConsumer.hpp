@@ -106,10 +106,12 @@ public:
 protected:
     /***************************************************************************/
     /** @brief Evaluates the whole round's batch in one bulk launch: flatten -> backend -> scatter.
-     *  Requires a uniform genome geometry across the batch (rejects mixed geometries loudly).
+     *  Requires a uniform genome geometry across the batch (rejects mixed geometries loudly). The GPU
+     *  consumer is non-networked and evaluates a batch all-or-nothing, so a round is always a full,
+     *  uniform-geometry batch of DO_PROCESS items (no MISSING/partial re-dispatch, no gaps).
      *
-     *  @param items The whole round's batch of work items, evaluated in place (fitness written back) */
-    void dispatch_(std::vector<item_ptr> &items) override {
+     *  @param items The whole round's batch span of work items, evaluated in place (fitness written back) */
+    void dispatch_(std::span<item_ptr> items) override {
         if(items.empty()) {
             return;
         }

@@ -35,6 +35,7 @@
 #include <atomic>
 #include <cstddef>
 #include <memory>
+#include <span>
 #include <thread>
 #include <vector>
 
@@ -101,12 +102,23 @@ protected:
      *
      * @param items The work items of one round; each is evaluated on the shared pool and the call blocks until all have finished
      */
-    void dispatch_(std::vector<item_ptr> &items) override {
-        if(items.empty()) {
+    void dispatch_(std::span<item_ptr> items) override {
+        // Post one pool task per DO_PROCESS slot of the batch span (skipping null/already-resolved
+        // slots); the latch is sized to exactly the number of tasks posted.
+        std::size_t n_pending = 0;
+        for(auto &it : items) {
+            if(it && it->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS) {
+                ++n_pending;
+            }
+        }
+        if(n_pending == 0) {
             return;
         }
-        auto latch = std::make_shared<Gem::Common::Concurrency::GCompletionLatchT>(items.size());
+        auto latch = std::make_shared<Gem::Common::Concurrency::GCompletionLatchT>(n_pending);
         for(auto &it : items) {
+            if(not it || it->getProcessingStatus() != Gem::Courtier::processingStatus::DO_PROCESS) {
+                continue;
+            }
             // Items travel by unique_ptr; the task borrows a raw pointer rather than copying the owner.
             // The batch (items) outlives every task because dispatch_ blocks on the latch below.
             processable_type *raw = it.get();

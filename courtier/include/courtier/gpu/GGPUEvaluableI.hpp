@@ -32,6 +32,7 @@
 // Standard headers
 #include <cstddef>
 #include <memory>
+#include <span>
 #include <vector>
 
 namespace Gem::Courtier::GPU {
@@ -105,9 +106,9 @@ public:
 
     /** @brief Flattens every item's parameters into a row-major buffer of n_items * dim scalar_type, where
      *  dim == itemDimension(item) is the same for every item (the consumer has already validated this).
-     *  @param items The batch of items to flatten
+     *  @param items The batch span of items to flatten
      *  @param params_out Output buffer filled row-major with n_items * dim scalar_type (parameter j of item i at index i*dim + j) */
-    virtual void flatten(const std::vector<item_ptr> &items, std::vector<scalar_type> &params_out) const = 0;
+    virtual void flatten(std::span<const item_ptr> items, std::vector<scalar_type> &params_out) const = 0;
 
     /** @brief Optional opaque constants the kernel needs. Default: none.
      *  @return The problem-constant byte blob handed to the kernel (empty by default) */
@@ -122,9 +123,9 @@ public:
 
     /** @brief Writes the per-item fitness back into each item (typically via item->process(result),
      *  which also leaves the item PROCESSED for the courtier reconciliation).
-     *  @param items The batch of items to write results into
+     *  @param items The batch span of items to write results into
      *  @param fitness The per-item fitness values produced by the device/host evaluation (one per item, in batch order) */
-    virtual void scatter(const std::vector<item_ptr> &items, const std::vector<scalar_type> &fitness) const = 0;
+    virtual void scatter(std::span<const item_ptr> items, const std::vector<scalar_type> &fitness) const = 0;
 
     /** @brief How many GPU threads should cooperate on ONE item (intra-item / pixel-level parallelism).
      *  The default 1 means one thread per item (good when the population is large -- thousands of items
