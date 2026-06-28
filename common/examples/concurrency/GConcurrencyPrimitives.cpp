@@ -42,6 +42,7 @@
 #include <thread>
 #include <vector>
 
+#include "common/concurrency/GAgingStoreT.hpp"
 #include "common/concurrency/GCompletionLatchT.hpp"
 #include "common/concurrency/GContentAddressedStoreT.hpp"
 #include "common/concurrency/GSPSCStagingRingT.hpp"
@@ -183,6 +184,39 @@ bool demo_spsc_staging_ring() {
     return ok;
 }
 
+/** @brief Demonstrates GAgingStoreT: an epoch-stamped store with a keyed face and a FIFO face, both
+ *  aged by TTL + capacity (the courtier late-return facility: retain un-returned originals by id, park
+ *  late arrivals for the algorithm to reap). @return true iff every demonstrated invariant held. */
+bool demo_aging_store() {
+    std::cout << "== GAgingStoreT ==\n";
+    bool ok = true;
+
+    GAgingStoreT<int, std::string> store;
+    store.configure(/*cap*/ 4, /*ttl_rounds*/ 2);
+
+    // Keyed face: retain a value by id, then take it back (removing it).
+    store.retain(101, "original-for-101");
+    auto taken = store.takeRetained(101);
+    ok = ok && taken.has_value() && *taken == "original-for-101" && store.retainedSize() == 0;
+
+    // FIFO face: park two late arrivals, then drain them in order.
+    store.park("late-A");
+    store.park("late-B");
+    ok = ok && store.parkedSize() == 2;
+    const auto drained = store.drainParked();
+    ok = ok && drained.size() == 2 && drained[0] == "late-A" && drained[1] == "late-B";
+
+    // Aging: a parked value falls out once it is older than ttl_rounds epochs.
+    store.park("ages-out");
+    const std::uint64_t e1 = store.advanceEpochAndEvict(); // epoch 1: still young
+    const std::uint64_t e2 = store.advanceEpochAndEvict(); // epoch 2: evicted (age == ttl)
+    ok = ok && e1 == 0 && e2 == 1 && store.parkedSize() == 0;
+
+    std::cout << "  retained+took by key; parked+drained 2 in order; one aged out after ttl=2\n";
+    std::cout << "  -> " << (ok ? "OK" : "FAILED") << "\n";
+    return ok;
+}
+
 } // namespace
 
 int main() {
@@ -191,6 +225,7 @@ int main() {
     ok = demo_thread_safe_keyed_store() && ok;
     ok = demo_completion_latch() && ok;
     ok = demo_spsc_staging_ring() && ok;
+    ok = demo_aging_store() && ok;
 
     std::cout << (ok ? "\nAll concurrency-primitive demos passed.\n"
                      : "\nA concurrency-primitive demo FAILED.\n");
