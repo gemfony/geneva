@@ -32,7 +32,11 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers
+#include <array>
+#include <atomic>
 #include <chrono>
+#include <cstdint>
+#include <random>
 #include <string>
 #include <tuple>
 
@@ -47,6 +51,50 @@
 #include "courtier/GCourtierHelperFunctions.hpp" // psToStr
 
 namespace Gem::Courtier {
+
+/******************************************************************************/
+namespace detail {
+
+/**
+ * @brief Mints a process-unique 128-bit work-item lineage id: a per-process random salt combined with a
+ * monotonic atomic counter. The salt makes ids minted in different runs (or after a checkpoint resume,
+ * where the counter restarts at 0) non-colliding with serialized ids from an earlier run; the counter
+ * makes them unique within the run. Minting is cheap (no per-call RNG) so it is affordable at every
+ * work-item construction.
+ * @return A fresh, process-unique 128-bit lineage id
+ */
+inline SUBMISSION_UUID_TYPE mint_submission_uuid() {
+    static const std::uint64_t salt = [] {
+        std::random_device rd;
+        return (static_cast<std::uint64_t>(rd()) << 32) ^ static_cast<std::uint64_t>(rd());
+    }();
+    static std::atomic<std::uint64_t> counter{0};
+    return SUBMISSION_UUID_TYPE{salt, counter.fetch_add(1, std::memory_order_relaxed)};
+}
+
+/**
+ * @brief A self-minting lineage id whose value-semantics encode the D11 identity contract in ONE place, so
+ * the enclosing GProcessable can keep its special members defaulted:
+ *  - default construction / move  -> a fresh (or transferred) id, as usual;
+ *  - COPY construction            -> a FRESH id (a copy of a work item is a NEW individual: offspring / refill);
+ *  - COPY assignment              -> KEEPS the target's own id (load(other) must not steal the source's lineage);
+ *  - Boost (de)serialization      -> the raw value is written/read, so a wire or checkpoint round-trip PRESERVES
+ *                                    the id (a deserialized object is default-constructed -> fresh -> then the
+ *                                    archived value overwrites it).
+ * The asymmetry is intentional and is pinned by the [proc][id] unit tests.
+ */
+struct LineageId {
+    SUBMISSION_UUID_TYPE value = mint_submission_uuid();
+
+    LineageId() = default;
+    LineageId(const LineageId & /* cp */) : value(mint_submission_uuid()) { /* a copy is a new individual */ }
+    LineageId(LineageId &&) noexcept = default;
+    LineageId &operator=(const LineageId & /* cp */) { return *this; /* keep our own lineage on load */ }
+    LineageId &operator=(LineageId &&) noexcept = default;
+    ~LineageId() = default;
+};
+
+} // namespace detail
 
 /******************************************************************************/
 // An exception to be thrown if an exception was thrown during a work item's processing. It lives on the
@@ -92,7 +140,12 @@ class GProcessable {
      */
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &BOOST_SERIALIZATION_NVP(iteration_counter_) &
+        using boost::serialization::make_nvp;
+        // The stable lineage id travels by value (its two 64-bit halves) so a wire / checkpoint round-trip
+        // PRESERVES it -- see detail::LineageId for why this preserves while clone() mints fresh.
+        ar &make_nvp("submission_uuid_hi", submission_uuid_.value[0]) &
+            make_nvp("submission_uuid_lo", submission_uuid_.value[1]) &
+            BOOST_SERIALIZATION_NVP(iteration_counter_) &
             BOOST_SERIALIZATION_NVP(resubmission_counter_) &
             BOOST_SERIALIZATION_NVP(collection_position_) &
             BOOST_SERIALIZATION_NVP(correlation_id_) &
@@ -304,6 +357,23 @@ public:
     CORRELATION_ID_TYPE getCorrelationId() const noexcept { return correlation_id_; }
 
     /**
+     * @brief The stable, per-individual lineage id (D11). Minted once at construction, preserved across
+     * every (re-)dispatch and serialized round-trip, fresh only on clone(). Unlike the per-dispatch
+     * correlation id (which routes a single return to its slot), this identifies the INDIVIDUAL, so a late
+     * return can be reunited with -- and de-duplicated against -- the live individual it belongs to even
+     * after it has been resubmitted under a new correlation id.
+     * @return This work item's 128-bit lineage id
+     */
+    SUBMISSION_UUID_TYPE getSubmissionUuid() const noexcept { return submission_uuid_.value; }
+    /**
+     * @brief Overwrites the lineage id. Used only to RESTORE a source's identity onto a retention clone
+     * (cloneForRetention): a plain clone mints a fresh id, but a retained original must keep the lineage of
+     * the item it stands in for. Not for general use -- the id is otherwise immutable after construction.
+     * @param uuid The lineage id to stamp onto this work item
+     */
+    void setSubmissionUuid(const SUBMISSION_UUID_TYPE &uuid) noexcept { submission_uuid_.value = uuid; }
+
+    /**
      * @brief Sets the courtier per-batch scheduling state. This is transient, server-side-only
      * bookkeeping (NOT serialized): it lets a networked consumer track, on the item itself, whether
      * the slot is awaiting a client / in flight / done within one dispatch round.
@@ -426,6 +496,10 @@ protected:
 
     /***************************************************************************/
     // Data -- protected so the result-bearing derived class's process()/etc. can read/write it.
+
+    /// Stable, per-individual lineage id (D11). A self-minting value type whose copy/assign/serialize
+    /// semantics implement "fresh on clone, kept on load, preserved on the wire" -- see detail::LineageId.
+    detail::LineageId submission_uuid_;
 
     ITERATION_COUNTER_TYPE iteration_counter_ = static_cast<ITERATION_COUNTER_TYPE>(0);
     RESUBMISSION_COUNTER_TYPE resubmission_counter_ = static_cast<RESUBMISSION_COUNTER_TYPE>(0);

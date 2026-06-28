@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <array>
 #include <chrono>
 #include <cstdint>
 #include <istream>
@@ -274,9 +275,20 @@ using ITERATION_COUNTER_TYPE = std::uint64_t;
 using RESUBMISSION_COUNTER_TYPE = std::size_t;
 using COLLECTION_POSITION_TYPE = std::size_t;
 // 64-bit so the networked consumer can pack a 48-bit, process-unique, never-wrapping batch id with a
-// 16-bit slot index (GNetworkedConsumerT). A wide batch id is what makes late-return routing safe when
-// many algorithms submit through one shared consumer: a stale return cannot alias a freshly-minted batch.
+// 16-bit slot index (GNetworkedConsumerT). This is the per-DISPATCH ROUTING token: it is minted fresh each
+// dispatch and is unique per in-flight slot, so a return is matched back to exactly the slot it was served
+// from -- correct even when an individual is submitted more than once within a single OA iteration (large
+// populations chunked into several spans, in-iteration re-dispatch). It deliberately does NOT identify the
+// individual across re-dispatch; that LINEAGE identity is SUBMISSION_UUID_TYPE below.
 using CORRELATION_ID_TYPE = std::uint64_t;
+
+// The stable, per-individual LINEAGE identity of a work item (D11). Minted ONCE, at construction, and
+// carried IMMUTABLY across every (re-)dispatch and serialized round-trip (fresh only on clone() = a new
+// individual). Distinct from the per-dispatch CORRELATION_ID_TYPE above: the correlation id routes a single
+// return to its slot, while the uuid lets a LATE return be reunited with -- and de-duplicated against -- the
+// live individual it belongs to, even after that individual has been resubmitted under a new correlation id.
+// 128-bit (process salt + monotonic counter) so ids never collide within or across runs / checkpoint resumes.
+using SUBMISSION_UUID_TYPE = std::array<std::uint64_t, 2>;
 
 /******************************************************************************/
 
