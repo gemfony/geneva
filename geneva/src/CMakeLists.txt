@@ -63,7 +63,6 @@ SET ( OPTIMIZATIONSOURCES
 	ind/GProblemPolicy.cpp
 	ind/GOptimizableEntity.cpp
 	ind/GFlatGenome.cpp
-	ind/GIndividualSlot.cpp
 	par/GOptimizableEntityFixedSizePriorityQueue.cpp
 	par/GOptimizableEntityMultiConstraint.cpp
 	GPersonalityTraits.cpp

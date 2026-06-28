@@ -133,7 +133,7 @@ targetFunction GFMinIndividual::getTargetFunction() const {
  */
 double GFMinIndividual::getAverageSigma() const {
     // The Gauss adaptor configuration now lives on the OA-owned config (the genome is structure-only), and
-    // the live evolving sigma is OA-owned scratch on the GIndividualSlot, not on the individual. An
+    // the live evolving sigma is OA-owned scratch carried on the individual itself (its GAuxiliaryStore). An
     // individual queried in isolation (as here) is detached from its slot, so this reports the configured
     // SEED sigma the factory stamped at construction.
     return seed_sigma_;

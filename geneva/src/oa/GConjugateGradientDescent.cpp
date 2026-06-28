@@ -63,9 +63,9 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /******************************************************************************/
 /**
  * The auxiliary-store keys under which each starting point keeps its conjugate-gradient memory on the
- * OA scratch of its CENTRAL individual's GIndividualSlot (the slot at population position == starting
+ * OA scratch of its CENTRAL individual (the individual at population position == starting
  * point). This per-starting-point scratch (previously parallel vectors on the
- * algorithm) rides on the slot as plain POD blocks. The two double blocks hold g_{k-1} / d_{k-1}
+ * algorithm) rides on the individual as plain POD blocks. The two double blocks hold g_{k-1} / d_{k-1}
  * (n_fp_parms entries each); the one-byte block flags whether a previous gradient/direction exists. The
  * values are distinct from the adaption AuxKeys 1-7 and the swarm velocity key 8.
  */
@@ -478,15 +478,15 @@ std::tuple<double, double> GConjugateGradientDescent::cycleLogic_() {
     runFitnessCalculation_();
 
     std::tuple<double, double> best_fitness =
-        std::make_tuple(this->at(0)->individual().getWorstCase(), this->at(0)->individual().getWorstCase());
+        std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
     std::tuple<double, double> fitness_candidate =
-        std::make_tuple(this->at(0)->individual().getWorstCase(), this->at(0)->individual().getWorstCase());
+        std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 
     GConjugateGradientDescent::iterator it;
-    auto m = this->at(0)->individual().getMaxMode(); // All individuals share the same max mode
+    auto m = this->at(0)->getMaxMode(); // All individuals share the same max mode
     for(it = this->begin(); it != this->begin() + this->getNStartingPoints(); ++it) {
-        std::get<G_RAW_FITNESS>(fitness_candidate) = (*it)->individual().raw_fitness(0);
-        std::get<G_TRANSFORMED_FITNESS>(fitness_candidate) = (*it)->individual().transformed_fitness(0);
+        std::get<G_RAW_FITNESS>(fitness_candidate) = (*it)->raw_fitness(0);
+        std::get<G_TRANSFORMED_FITNESS>(fitness_candidate) = (*it)->transformed_fitness(0);
 
         if(isBetter(
                std::get<G_TRANSFORMED_FITNESS>(fitness_candidate),
@@ -518,7 +518,7 @@ void GConjugateGradientDescent::updateChildParameters() {
     const std::size_t children_per_sp = n_fp_parms_first_ * n_probes;
     for(std::size_t i = 0; i < n_starting_points_; i++) {
         std::vector<double> parm_vec;
-        this->at(i)->individual().streamlineFPInternal(parm_vec, activityMode::ACTIVEONLY);
+        this->at(i)->streamlineFPInternal(parm_vec, activityMode::ACTIVEONLY);
 
         for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
             const double orig_parm_val = parm_vec[j];
@@ -537,7 +537,7 @@ void GConjugateGradientDescent::updateChildParameters() {
                 // probe 0 = forward (+h); probe 1 (central only) = backward (-h)
                 const double sign = (probe == 0) ? 1. : -1.;
                 parm_vec[j] = orig_parm_val + (sign * adjusted_finite_step_);
-                this->at(child_pos)->individual().assignFPValueVectorInternal(parm_vec, activityMode::ACTIVEONLY);
+                this->at(child_pos)->assignFPValueVectorInternal(parm_vec, activityMode::ACTIVEONLY);
             }
             // Restore the original value for the next direction
             parm_vec[j] = orig_parm_val;
@@ -587,10 +587,10 @@ void GConjugateGradientDescent::updateParentIndividuals() {
 
     for(std::size_t i = 0; i < n_starting_points_; i++) {
         std::vector<double> parm_vec;
-        this->at(i)->individual().streamlineFPInternal(parm_vec, activityMode::ACTIVEONLY);
+        this->at(i)->streamlineFPInternal(parm_vec, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
-        if(this->at(i)->individual().is_due_for_processing() || (this->at(i)->individual().has_errors())) {
+        if(this->at(i)->is_due_for_processing() || (this->at(i)->has_errors())) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConjugateGradientDescent::updateParentIndividuals():" << '\n'
@@ -600,7 +600,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         }
 #endif /* DEBUG */
 
-        const double parent_fitness = minOnly_transformed_fitness(this->at(i)->individual());
+        const double parent_fitness = minOnly_transformed_fitness((*this->at(i)));
 
         // The conjugate-gradient memory for this starting point lives on its central individual's slot
         // scratch (position i). Robustness: a central slot spliced in after a lost return has no CG
@@ -637,9 +637,9 @@ void GConjugateGradientDescent::updateParentIndividuals() {
                 continue;
             }
             const std::size_t fwd = n_starting_points_ + (i * children_per_sp) + (j * n_probes);
-            const double f_fwd = minOnly_transformed_fitness(this->at(fwd)->individual());
+            const double f_fwd = minOnly_transformed_fitness((*this->at(fwd)));
             if(central_differences_) {
-                const double f_bwd = minOnly_transformed_fitness(this->at(fwd + 1)->individual());
+                const double f_bwd = minOnly_transformed_fitness((*this->at(fwd + 1)));
                 gradient[j] = (f_fwd - f_bwd) / (2. * h);
             }
             else {
@@ -850,10 +850,10 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         //    unchanged, so the recomputed fitness is identical), so mark it due either way -- the
         //    per-iteration evaluation contract requires every individual to be due for processing.
         if(lr.success) {
-            this->at(i)->individual().assignFPValueVectorInternal(lr.x_new, activityMode::ACTIVEONLY);
+            this->at(i)->assignFPValueVectorInternal(lr.x_new, activityMode::ACTIVEONLY);
         }
         else {
-            this->at(i)->individual().mark_as_due_for_processing();
+            this->at(i)->mark_as_due_for_processing();
         }
 
         // 6) Remember gradient/direction for the next conjugate step (on the slot's scratch).
@@ -882,7 +882,7 @@ std::vector<double> GConjugateGradientDescent::evaluateProbes(
     std::vector<std::unique_ptr<gen::GOptimizableEntity>> probes;
     probes.reserve(points.size());
     for(auto const &pt : points) {
-        auto probe = this->at(starting_point)->individual().clone_unique();
+        auto probe = this->at(starting_point)->clone_unique();
         probe->assignFPValueVectorInternal(pt, activityMode::ACTIVEONLY);
         probes.push_back(std::move(probe));
     }
@@ -983,7 +983,7 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
 #ifdef DEBUG
     std::size_t pos = 0;
     for(const auto &item_ptr : *this) {
-        if(this->afterFirstIteration() && !item_ptr->individual().is_due_for_processing()) {
+        if(this->afterFirstIteration() && !item_ptr->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConjugateGradientDescent::runFitnessCalculation():" << '\n'
@@ -1099,9 +1099,9 @@ void GConjugateGradientDescent::finalize() {
     if(error_estimation_ != errorEstimationMode::NONE && n_fp_parms_first_ > 0 && not this->empty()) {
         // Pick the best starting point (the lowest min-only fitness).
         std::size_t best = 0;
-        double best_fitness = minOnly_transformed_fitness(this->at(0)->individual());
+        double best_fitness = minOnly_transformed_fitness((*this->at(0)));
         for(std::size_t i = 1; i < n_starting_points_ && i < this->size(); ++i) {
-            const double f = minOnly_transformed_fitness(this->at(i)->individual());
+            const double f = minOnly_transformed_fitness((*this->at(i)));
             if(f < best_fitness) {
                 best_fitness = f;
                 best = i;
@@ -1109,7 +1109,7 @@ void GConjugateGradientDescent::finalize() {
         }
 
         std::vector<double> x_min;
-        this->at(best)->individual().streamlineFPInternal(x_min, activityMode::ACTIVEONLY);
+        this->at(best)->streamlineFPInternal(x_min, activityMode::ACTIVEONLY);
 
         GHesseErrorOptions opts;
         opts.up = error_up_;
@@ -1202,7 +1202,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
         );
     }
 
-    n_fp_parms_first_ = this->at(0)->individual().countFPParameters(activityMode::ACTIVEONLY);
+    n_fp_parms_first_ = this->at(0)->countFPParameters(activityMode::ACTIVEONLY);
 
     if(n_fp_parms_first_ == 0) {
         throw geneva_exception(
@@ -1217,7 +1217,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
     // normal, user-expected behaviour, so it is merely logged (not warned about).
     {
         // countParameters<T> is part of the genome-agnostic value-channel interface.
-        auto const &ind0 = this->at(0)->individual();
+        auto const &ind0 = (*this->at(0));
         const std::size_t n_int_parms =
             ind0.countParameters<std::int32_t>(activityMode::ACTIVEONLY);
         const std::size_t n_bool_parms =
@@ -1237,13 +1237,13 @@ void GConjugateGradientDescent::adjustPopulation_() {
 
 #ifdef DEBUG
     for(std::size_t i = 1; i < this->size(); i++) {
-        if(this->at(i)->individual().countFPParameters(activityMode::ACTIVEONLY) != n_fp_parms_first_) {
+        if(this->at(i)->countFPParameters(activityMode::ACTIVEONLY) != n_fp_parms_first_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GConjugateGradientDescent::adjustPopulation():" << '\n'
                 << "Found individual in position " << i << " with different" << '\n'
                 << "number of floating point parameters than the first one: "
-                << this->at(i)->individual().countFPParameters(activityMode::ACTIVEONLY) << "/"
+                << this->at(i)->countFPParameters(activityMode::ACTIVEONLY) << "/"
                 << n_fp_parms_first_ << '\n'
             );
         }
@@ -1261,7 +1261,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
     if(n_start < n_starting_points_) {
         for(std::size_t i = 0; i < (n_starting_points_ - n_start); i++) {
             this->push_back(this->at(0)->clone_unique());
-            this->back()->individual().randomInit(activityMode::ACTIVEONLY);
+            this->back()->randomInit(activityMode::ACTIVEONLY);
         }
     }
     else {

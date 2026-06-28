@@ -44,7 +44,6 @@
 #include "common/GParserBuilder.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/GPersonalityTraits.hpp"
-#include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 
 #ifdef GEM_TESTING
@@ -316,7 +315,7 @@ void GGeneralizedSimulatedAnnealing::adjustPopulation_() {
     const std::size_t total_size = n_chains_ * GSA_SLOTS_PER_CHAIN;
 
     while(this->size() < total_size) {
-        this->push_back(this->at(0)->individual().clone_unique());
+        this->push_back(this->at(0)->clone_unique());
     }
     if(this->size() > total_size) {
         this->resize(total_size);
@@ -336,7 +335,7 @@ void GGeneralizedSimulatedAnnealing::init() {
 
     // The chains move in the normalized internal coordinate, so no per-parameter bounds are needed; only
     // the count of active floating point parameters matters (the proposal jump is dimensionless).
-    n_fp_parms_ = this->at(0)->individual().countFPParameters(activityMode::ACTIVEONLY);
+    n_fp_parms_ = this->at(0)->countFPParameters(activityMode::ACTIVEONLY);
 
     if(n_fp_parms_ == 0) {
         throw geneva_exception(
@@ -363,10 +362,10 @@ void GGeneralizedSimulatedAnnealing::init() {
     // chains' current slots are randomized uniformly inside the box. Each proposal slot is initialized
     // from its chain's current slot.
     for(std::size_t c = 1; c < n_chains_; ++c) {
-        this->at(currentPos(c))->individual().randomInit(activityMode::ACTIVEONLY);
+        this->at(currentPos(c))->randomInit(activityMode::ACTIVEONLY);
     }
     for(std::size_t c = 0; c < n_chains_; ++c) {
-        this->at(proposalPos(c))->individual().load(this->at(currentPos(c))->individual());
+        this->at(proposalPos(c))->load((*this->at(currentPos(c))));
     }
 
     // Initialize the per-chain cooling clocks and stall trackers.
@@ -534,7 +533,7 @@ void GGeneralizedSimulatedAnnealing::proposeMoves() {
         const double tqv = this->visitingTemperature(chain_step_[c]);
 
         std::vector<double> x;
-        this->at(currentPos(c))->individual().streamlineFPInternal(x, activityMode::ACTIVEONLY);
+        this->at(currentPos(c))->streamlineFPInternal(x, activityMode::ACTIVEONLY);
 
         const std::vector<double> dx = this->drawVisitingJump(tqv);
 
@@ -543,8 +542,8 @@ void GGeneralizedSimulatedAnnealing::proposeMoves() {
             x_new[k] = x[k] + dx[k];
         }
 
-        this->at(proposalPos(c))->individual().assignFPValueVectorInternal(x_new, activityMode::ACTIVEONLY);
-        this->at(proposalPos(c))->individual().mark_as_due_for_processing();
+        this->at(proposalPos(c))->assignFPValueVectorInternal(x_new, activityMode::ACTIVEONLY);
+        this->at(proposalPos(c))->mark_as_due_for_processing();
     }
 }
 
@@ -558,8 +557,8 @@ void GGeneralizedSimulatedAnnealing::proposeMoves() {
  */
 void GGeneralizedSimulatedAnnealing::applyAcceptance() {
     for(std::size_t c = 0; c < n_chains_; ++c) {
-        const double e_cur = minOnly_transformed_fitness(this->at(currentPos(c))->individual());
-        const double e_new = minOnly_transformed_fitness(this->at(proposalPos(c))->individual());
+        const double e_cur = minOnly_transformed_fitness((*this->at(currentPos(c))));
+        const double e_new = minOnly_transformed_fitness((*this->at(proposalPos(c))));
         const double delta_e = e_new - e_cur;
 
         bool accepted = false;
@@ -583,14 +582,14 @@ void GGeneralizedSimulatedAnnealing::applyAcceptance() {
 
         if(accepted) {
             // Loading also transfers the proposal's already known fitness.
-            this->at(currentPos(c))->individual().load(this->at(proposalPos(c))->individual());
+            this->at(currentPos(c))->load((*this->at(proposalPos(c))));
             this->at(currentPos(c))
                 ->getPersonalityTraits<GGeneralizedSimulatedAnnealing_PersonalityTraits>()
                 ->setPopulationPosition(currentPos(c));
         }
 
         // Track per-chain improvement for reannealing.
-        const double e_after = minOnly_transformed_fitness(this->at(currentPos(c))->individual());
+        const double e_after = minOnly_transformed_fitness((*this->at(currentPos(c))));
         if(e_after < chain_best_energy_[c]) {
             chain_best_energy_[c] = e_after;
             chain_stall_[c] = 0;
@@ -654,15 +653,15 @@ std::tuple<double, double> GGeneralizedSimulatedAnnealing::cycleLogic_() {
 
     // Report the best (raw, transformed) fitness among all evaluated individuals this iteration, using
     // the standard EA/ES ranking helpers (isBetter / getMaxMode).
-    const auto m = this->at(0)->individual().getMaxMode();
+    const auto m = this->at(0)->getMaxMode();
 
     std::tuple<double, double> best_fitness = std::make_tuple(
-        this->at(0)->individual().getWorstCase(),
-        this->at(0)->individual().getWorstCase()
+        this->at(0)->getWorstCase(),
+        this->at(0)->getWorstCase()
     );
 
     for(const auto & pos : *this) {
-        auto &ind = pos->individual();
+        auto &ind = (*pos);
         if(ind.is_due_for_processing() || ind.has_errors()) {
             continue;
         }

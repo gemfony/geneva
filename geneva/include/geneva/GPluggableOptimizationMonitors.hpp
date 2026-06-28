@@ -1150,16 +1150,16 @@ private:
             else { // Monitor all individuals
                 for(const auto &ind_ptr : *goa) {
                     if(oa::GBasePluggableOM::use_raw_evaluation_) {
-                        primary_fitness = ind_ptr->individual().raw_fitness(0);
+                        primary_fitness = ind_ptr->raw_fitness(0);
                     }
                     else {
-                        primary_fitness = ind_ptr->individual().transformed_fitness(0);
+                        primary_fitness = ind_ptr->transformed_fitness(0);
                     }
 
-                    if(not monitor_valid_only_ || ind_ptr->individual().isValid()) {
+                    if(not monitor_valid_only_ || ind_ptr->isValid()) {
                         switch(this->nProfileVars()) {
                         case 1: {
-                            auto val0 = ind_ptr->individual().getVarVal<fp_type>(
+                            auto val0 = ind_ptr->getVarVal<fp_type>(
                                 fp_prof_var_vec_[0].var
                             );
 
@@ -1175,10 +1175,10 @@ private:
                         } break;
 
                         case 2: {
-                            auto val0 = ind_ptr->individual().getVarVal<fp_type>(
+                            auto val0 = ind_ptr->getVarVal<fp_type>(
                                 fp_prof_var_vec_[0].var
                             );
-                            auto val1 = ind_ptr->individual().getVarVal<fp_type>(
+                            auto val1 = ind_ptr->getVarVal<fp_type>(
                                 fp_prof_var_vec_[1].var
                             );
 
@@ -1208,13 +1208,13 @@ private:
                         } break;
 
                         case 3: {
-                            auto val0 = ind_ptr->individual().getVarVal<fp_type>(
+                            auto val0 = ind_ptr->getVarVal<fp_type>(
                                 fp_prof_var_vec_[0].var
                             );
-                            auto val1 = ind_ptr->individual().getVarVal<fp_type>(
+                            auto val1 = ind_ptr->getVarVal<fp_type>(
                                 fp_prof_var_vec_[1].var
                             );
-                            auto val2 = ind_ptr->individual().getVarVal<fp_type>(
+                            auto val2 = ind_ptr->getVarVal<fp_type>(
                                 fp_prof_var_vec_[2].var
                             );
 
@@ -2333,7 +2333,7 @@ private:
             n_iterations_recorded_++;
 
             // Do the actual logging. The per-group adaption state (sigma, …) is OA-owned
-            // scratch and lives on the GIndividualSlot, not on the individual. The live evolving sigma
+            // scratch carried on the individual itself. The live evolving sigma
             // is therefore read from each population slot's scratch via readAdaptionSigmas(). Only the
             // "sigma" property is exposed by the flat genome.
             //

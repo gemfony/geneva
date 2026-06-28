@@ -372,6 +372,22 @@ public:
     /** @brief @return The accumulated error descriptions stored during processing */
     std::string getStoredErrorDescriptions() const { return stored_error_descriptions_; }
 
+    /***************************************************************************/
+    // OA scratch transfer (server-side return reconciliation)
+
+    /**
+     * @brief Re-attaches the optimization-algorithm scratch of @p original onto this work item.
+     *
+     * The OA-owned scratch (a geneva concept: the per-individual personality object + per-group adaption
+     * POD state) is deliberately omitted on the wire, so a work item that has made a networked round-trip
+     * comes back WITHOUT it. When a networked consumer reconciles such a return against the
+     * originally-submitted item it still holds, it calls this to graft the scratch back from that
+     * original, so the live population element keeps its evolved OA state across the round-trip. The base
+     * carries no scratch, so this is a no-op unless a derived class (geneva's individual) overrides it.
+     * @param original The originally-submitted item supplying the scratch to graft back
+     */
+    void graftOaScratchFrom(const GProcessable &original) { this->graftOaScratchFrom_(original); }
+
 protected:
     /***************************************************************************/
     /**
@@ -380,6 +396,16 @@ protected:
      * overrides it to clear its result vector.
      */
     virtual void clearStoredResults_() { /* no result store in the base */ }
+
+    /**
+     * @brief Hook: re-attaches the OA-owned scratch from @p original (see graftOaScratchFrom()). The base
+     * carries no scratch, so the default is a no-op; geneva's GOptimizableEntity overrides it to deep-copy
+     * the scratch back.
+     * @param original The originally-submitted item supplying the scratch to graft back
+     */
+    virtual void graftOaScratchFrom_([[maybe_unused]] const GProcessable &original) {
+        /* no OA scratch in the base */
+    }
 
     /**
      * @brief Lets derived classes flag a custom error condition. Sets the ERROR_FLAGGED status and

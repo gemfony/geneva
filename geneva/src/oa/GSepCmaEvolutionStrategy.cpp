@@ -46,7 +46,6 @@
 #include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/GPersonalityTraits.hpp"
-#include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GParetoTools.hpp"
 
@@ -252,7 +251,7 @@ void GSepCmaEvolutionStrategy::resetToOptimizationStart_() {
  * genome on assignment (no clamping in the algorithm).
  */
 void GSepCmaEvolutionStrategy::determineDimension() {
-    n_ = this->at(0)->individual().countFPParameters(activityMode::ACTIVEONLY);
+    n_ = this->at(0)->countFPParameters(activityMode::ACTIVEONLY);
 
     if(n_ == 0) {
         throw geneva_exception(
@@ -361,7 +360,7 @@ void GSepCmaEvolutionStrategy::adjustPopulation_() {
 
     // Grow the population to lambda offspring, all clones of the prototype.
     while(this->size() < lambda_) {
-        this->push_back(this->at(0)->individual().clone_unique());
+        this->push_back(this->at(0)->clone_unique());
     }
     if(this->size() > lambda_) {
         this->resize(lambda_);
@@ -384,7 +383,7 @@ void GSepCmaEvolutionStrategy::init() {
     // silently held at their start values for the whole run. Use a different algorithm (e.g. the EA) for
     // problems with integer or boolean parameters.
     if(not this->empty()) {
-        const auto &ind = this->at(0)->individual();
+        const auto &ind = (*this->at(0));
         const std::size_t n_int = ind.countParameters<std::int32_t>(activityMode::ACTIVEONLY);
         const std::size_t n_bool = ind.countParameters<bool>(activityMode::ACTIVEONLY);
         if(n_int + n_bool > 0) {
@@ -402,13 +401,13 @@ void GSepCmaEvolutionStrategy::init() {
 
     // The dimension / constants were established in adjustPopulation_(); refresh if the dimension is
     // unset or no longer matches the genome (e.g. a resumed run carrying a stale value).
-    if(n_ == 0 || n_ != this->at(0)->individual().countFPParameters(activityMode::ACTIVEONLY)) {
+    if(n_ == 0 || n_ != this->at(0)->countFPParameters(activityMode::ACTIVEONLY)) {
         determineDimension();
         setUpStrategyParameters();
     }
 
     std::vector<double> mean;
-    this->at(0)->individual().streamlineFPInternal(mean, activityMode::ACTIVEONLY);
+    this->at(0)->streamlineFPInternal(mean, activityMode::ACTIVEONLY);
 
     if(not state_initialized_) {
         // Fresh start (not resumed from a checkpoint): seed the distribution.
@@ -480,8 +479,8 @@ void GSepCmaEvolutionStrategy::sampleOffspring() {
         // Write the sampled values into the individual. A bounded coordinate that overshot its range is
         // folded back into range by the genome on assignment (no clamping needed here); an unbounded one
         // roams freely. Mark it for (re)evaluation.
-        this->at(k)->individual().assignFPValueVectorInternal(x, activityMode::ACTIVEONLY);
-        this->at(k)->individual().mark_as_due_for_processing();
+        this->at(k)->assignFPValueVectorInternal(x, activityMode::ACTIVEONLY);
+        this->at(k)->mark_as_due_for_processing();
     }
 }
 
@@ -496,14 +495,14 @@ void GSepCmaEvolutionStrategy::runFitnessCalculation_() {
 
     // Drop unprocessed items, if any.
     if(not status.is_complete) {
-        std::erase_if(this->data_cnt_, [](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
-            return (p->individual().getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
+        std::erase_if(this->data_cnt_, [](const std::unique_ptr<gen::GOptimizableEntity> &p) -> bool {
+            return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
         });
     }
     // Drop items that errored out.
     if(status.has_errors) {
-        std::erase_if(this->data_cnt_, [](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
-            return p->individual().has_errors();
+        std::erase_if(this->data_cnt_, [](const std::unique_ptr<gen::GOptimizableEntity> &p) -> bool {
+            return p->has_errors();
         });
     }
 }
@@ -521,10 +520,10 @@ std::vector<std::size_t> GSepCmaEvolutionStrategy::rankPopulation() const {
     std::vector<std::size_t> idx(sz);
     std::iota(idx.begin(), idx.end(), 0);
 
-    const bool maximize = (this->at(0)->individual().getMaxMode() == maxMode::MAXIMIZE);
+    const bool maximize = (this->at(0)->getMaxMode() == maxMode::MAXIMIZE);
     std::stable_sort(idx.begin(), idx.end(), [this, maximize](std::size_t a, std::size_t b) -> bool {
-        double fa = this->at(a)->individual().transformed_fitness();
-        double fb = this->at(b)->individual().transformed_fitness();
+        double fa = this->at(a)->transformed_fitness();
+        double fb = this->at(b)->transformed_fitness();
         return maximize ? (fa > fb) : (fa < fb);
     });
 
@@ -542,7 +541,7 @@ std::vector<std::size_t> GSepCmaEvolutionStrategy::rankPopulationPareto() const 
     std::vector<const gen::GOptimizableEntity *> pop;
     pop.reserve(this->size());
     for(const auto & i : *this) {
-        pop.push_back(&i->individual());
+        pop.push_back(&(*i));
     }
     return nonDominatedRank(pop);
 }
@@ -562,7 +561,7 @@ void GSepCmaEvolutionStrategy::updateDistribution(const std::vector<std::size_t>
     std::vector<std::vector<double>> selected(mu);
     double w_used = 0.;
     for(std::size_t i = 0; i < mu; ++i) {
-        this->at(ranked[i])->individual().streamlineFPInternal(selected[i], activityMode::ACTIVEONLY);
+        this->at(ranked[i])->streamlineFPInternal(selected[i], activityMode::ACTIVEONLY);
         w_used += weights_[i];
     }
     if(not(w_used > 0.)) {
@@ -675,7 +674,7 @@ std::tuple<double, double> GSepCmaEvolutionStrategy::cycleLogic_() {
     }
 
     // 5) Report the best fitness of this iteration.
-    return this->at(0)->individual().getFitnessTuple();
+    return this->at(0)->getFitnessTuple();
 }
 
 /******************************************************************************/

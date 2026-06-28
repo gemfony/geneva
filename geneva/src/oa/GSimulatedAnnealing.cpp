@@ -287,7 +287,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     // through this function. There MAY be situations, where in the first iteration
     // parents are clean, e.g. when they were extracted from another optimization.
     for(std::size_t i = this->getNParents(); i < this->size(); i++) {
-        if(not this->at(i)->individual().is_due_for_processing()) {
+        if(not this->at(i)->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GSimulatedAnnealing::runFitnessCalculation(): Error!" << '\n'
@@ -308,8 +308,8 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     // Take care of unprocessed items, if these exist. We simply remove them and continue.
     if(not status.is_complete) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
-                return (p->individual().getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
+            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GOptimizableEntity> &p) -> bool {
+                return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
 #ifdef DEBUG
@@ -324,8 +324,8 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     // We simply remove them and continue.
     if(status.has_errors) {
         std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
-                return p->individual().has_errors();
+            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GOptimizableEntity> &p) -> bool {
+                return p->has_errors();
             });
 
 #ifdef DEBUG
@@ -416,16 +416,16 @@ void GSimulatedAnnealing::sortSAMode() {
         this->begin() + 2 * this->n_parents_,
         this->end(),
         [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(x_ptr->individual()) <
-                   minOnly_transformed_fitness(y_ptr->individual());
+            return minOnly_transformed_fitness((*x_ptr)) <
+                   minOnly_transformed_fitness((*y_ptr));
         }
     );
 
     // Check for each parent whether it should be replaced by the corresponding child
     for(std::size_t np = 0; np < this->n_parents_; np++) {
         double p_pass = saProb(
-            minOnly_transformed_fitness(this->at(np)->individual()),
-            minOnly_transformed_fitness(this->at(this->n_parents_ + np)->individual())
+            minOnly_transformed_fitness((*this->at(np))),
+            minOnly_transformed_fitness((*this->at(this->n_parents_ + np)))
         );
         if(p_pass >= 1.) {
             this->at(np)->load(this->at(this->n_parents_ + np));
@@ -446,8 +446,8 @@ void GSimulatedAnnealing::sortSAMode() {
         this->begin(),
         this->begin() + this->n_parents_,
         [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(x_ptr->individual()) <
-                   minOnly_transformed_fitness(y_ptr->individual());
+            return minOnly_transformed_fitness((*x_ptr)) <
+                   minOnly_transformed_fitness((*y_ptr));
         }
     );
 

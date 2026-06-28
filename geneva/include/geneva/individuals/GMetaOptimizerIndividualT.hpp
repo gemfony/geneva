@@ -52,7 +52,7 @@
 #include "geneva/individuals/GFunctionIndividual.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
-#include "geneva/ind/GIndividualSlot.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
@@ -798,7 +798,7 @@ protected:
                 // Retrieve an individual
                 std::shared_ptr<gen::GOptimizableEntity> gi_ptr = ind_factory_->get();
 
-                ea_ptr->push_back(std::make_unique<gen::GIndividualSlot>(gi_ptr->clone_unique()));
+                ea_ptr->push_back(gi_ptr->clone_unique());
             }
 
             // Drive the sub-individuals' adaption through the OA-owned config built above.
@@ -1892,7 +1892,7 @@ private:
             // Extract the requested data. First retrieve the best individual.
             // It can always be found in the first position with evolutionary algorithms
             std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> p =
-                ea->at(0)->individual().clone<GMetaOptimizerIndividualT<ind_type>>();
+                ea->at(0)->clone<GMetaOptimizerIndividualT<ind_type>>();
 
             // Retrieve the best fitness and average sigma value and append them to the data log,
             // in the same { progress, n_parent, n_children, ad_prob, min_sigma, max_sigma,

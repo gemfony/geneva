@@ -34,7 +34,7 @@
 
 #include "common/GExpectationChecksT.hpp"
 #include "geneva/ind/GAuxiliaryStore.hpp"
-#include "geneva/ind/GIndividualSlot.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/individuals/GTestIndividual3.hpp"
 
 using namespace Gem::Geneva::Genome;
@@ -83,38 +83,38 @@ TEST_CASE("GAuxiliaryStore POD blocks: install / typed access / copy-independenc
 }
 
 /******************************************************************************/
-TEST_CASE("GIndividualSlot scratch: clone copies it; compare ignores it; resetPersonality drops it", "[aux][slot]") {
+TEST_CASE("Individual scratch: clone copies it; compare ignores it; resetPersonality drops it", "[aux]") {
     using Gem::Geneva::Individuals::GTestIndividual3;
 
-    // The per-group POD adaption scratch is OA-owned and lives on the GIndividualSlot, not on
-    // the individual. Its clone-copies / compare-ignores / boundary-clears contract is therefore a slot
-    // property now.
-    GIndividualSlot slot(std::make_unique<GTestIndividual3>());
+    // The per-group POD adaption scratch is OA-owned and rides on the individual itself (in its
+    // GAuxiliaryStore). Its clone-copies / compare-ignores / boundary-clears contract is therefore a
+    // property of the individual.
+    auto ind = std::make_unique<GTestIndividual3>();
 
-    // A copy taken BEFORE installing scratch -> an identical-genome twin with no scratch.
-    GIndividualSlot bare(slot);
-    REQUIRE_FALSE(bare.scratch().hasAux(KEY));
+    // A clone taken BEFORE installing scratch -> an identical-genome twin with no scratch.
+    auto bare = ind->clone_unique();
+    REQUIRE_FALSE(bare->scratch().hasAux(KEY));
 
-    // Install per-group metadata on the slot's scratch only.
-    slot.scratch().installAuxBlock<AuxGaussRecord>(KEY, 2);
-    slot.scratch().metaRecords<AuxGaussRecord>(KEY)[0].sigma = 1.5f;
-    REQUIRE(slot.scratch().hasAux(KEY));
+    // Install per-group metadata on the individual's scratch only.
+    ind->scratch().installAuxBlock<AuxGaussRecord>(KEY, 2);
+    ind->scratch().metaRecords<AuxGaussRecord>(KEY)[0].sigma = 1.5f;
+    REQUIRE(ind->scratch().hasAux(KEY));
 
-    // A copy taken AFTER installing copies the scratch, independently.
-    GIndividualSlot twin(slot);
-    REQUIRE(twin.scratch().hasAux(KEY));
-    CHECK(twin.scratch().metaRecords<AuxGaussRecord>(KEY)[0].sigma == 1.5f);
-    twin.scratch().metaRecords<AuxGaussRecord>(KEY)[0].sigma = 9.f;
-    CHECK(slot.scratch().metaRecords<AuxGaussRecord>(KEY)[0].sigma == 1.5f); // independent
+    // A clone taken AFTER installing copies the scratch, independently.
+    auto twin = ind->clone_unique();
+    REQUIRE(twin->scratch().hasAux(KEY));
+    CHECK(twin->scratch().metaRecords<AuxGaussRecord>(KEY)[0].sigma == 1.5f);
+    twin->scratch().metaRecords<AuxGaussRecord>(KEY)[0].sigma = 9.f;
+    CHECK(ind->scratch().metaRecords<AuxGaussRecord>(KEY)[0].sigma == 1.5f); // independent
 
-    // compare() ignores the scratch: slot (with scratch) equals bare (without).
-    CHECK_NOTHROW(slot.compare(
-        bare,
+    // compare() ignores the scratch: ind (with scratch) equals bare (without).
+    CHECK_NOTHROW(ind->compare(
+        *bare,
         Gem::Common::expectation::EQUALITY,
         Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
     ));
 
     // resetPersonality() drops the whole OA-owned scratch (personality + POD blocks).
-    slot.resetPersonality();
-    CHECK_FALSE(slot.scratch().hasAux(KEY));
+    ind->resetPersonality();
+    CHECK_FALSE(ind->scratch().hasAux(KEY));
 }

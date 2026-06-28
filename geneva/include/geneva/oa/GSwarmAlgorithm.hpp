@@ -422,7 +422,7 @@ protected:
      */
     void updateIndividualPositions(
         const std::size_t &neighborhood,
-        const std::unique_ptr<gen::GIndividualSlot> &ind, // the population slot being moved (borrowed)
+        const std::unique_ptr<gen::GOptimizableEntity> &ind, // the population slot being moved (borrowed)
         std::shared_ptr<gen::GOptimizableEntity> neighborhood_best,      // neighborhood best
         std::shared_ptr<gen::GOptimizableEntity> global_best,      // global best
         std::tuple<double, double, double, double> constants      // c_personal / c_neighborhood / c_global / c_velocity
@@ -441,14 +441,14 @@ protected:
      *
      * The (unnamed) argument is the population slot whose personal best is unconditionally updated (borrowed).
      */
-    static void updatePersonalBest(const std::unique_ptr<gen::GIndividualSlot> &ind_ptr);
+    static void updatePersonalBest(const std::unique_ptr<gen::GOptimizableEntity> &ind_ptr);
     /**
      * @brief Updates the personal best of an individual, if a better solution was found.
      *
      * The (unnamed) argument is the population slot whose personal best is updated only when the current
      * solution is better (borrowed).
      */
-    void updatePersonalBestIfBetter(const std::unique_ptr<gen::GIndividualSlot> &ind_ptr);
+    void updatePersonalBestIfBetter(const std::unique_ptr<gen::GOptimizableEntity> &ind_ptr);
 
     std::size_t n_neighborhoods_ =
         (DEFAULTNNEIGHBORHOODS ? DEFAULTNNEIGHBORHOODS
@@ -468,7 +468,7 @@ protected:
         std::vector<std::shared_ptr<gen::GOptimizableEntity>>(
             n_neighborhoods_
         ); ///< The collection of best individuals from each neighborhood
-    // (Per-particle velocities now live on each GIndividualSlot's OA scratch as a POD double block --
+    // (Per-particle velocities now live on each individual's OA scratch as a POD double block --
     //  key AUXKEY_SWARM_VELOCITY in GSwarmAlgorithm.cpp -- not in a parallel vector here.)
 
     double c_personal_ =

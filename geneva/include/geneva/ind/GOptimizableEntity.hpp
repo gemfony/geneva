@@ -59,9 +59,11 @@
 #include "common/GSerializationHelperFunctionsT.hpp" // serialization of std::chrono time_point (GProcessable timing)
 #include "common/GSerializeTupleT.hpp"               // serialization of std::tuple (best_past_primary_fitness_)
 #include "courtier/GProcessable.hpp" // the non-generic processing-lifecycle base
+#include "courtier/GWireSerializationContext.hpp" // the wire scope: scratch is skipped on transport
 #include "geneva/GMultiConstraintT.hpp" // GPreEvaluationValidityCheckT (registered on the shared policy)
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/Interface/GRateableI.hpp"
+#include "geneva/ind/GAuxiliaryStore.hpp" // the OA-owned scratch (personality + per-group adaption PODs)
 #include "geneva/ind/GIndividualProcessingResult.hpp"
 #include "geneva/ind/GProblemPolicy.hpp"
 #include "hap/GRandomT.hpp"
@@ -165,6 +167,27 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
             BOOST_SERIALIZATION_NVP(stored_results_cnt_);
 
         Gem::Common::serialize_members(ar, localMembers_(*this));
+
+        // The OA-owned scratch (the personality OBJECT and the per-group adaption POD blocks) is
+        // server-side state: it rides a CHECKPOINT so a resumed algorithm keeps its evolved per-individual
+        // state, but it must NOT travel on the wire -- a remote worker neither needs it nor should mutate
+        // it, and the server keeps the originally-submitted item's scratch to graft results back onto. So
+        // under an active wire-serialisation scope (transport) the scratch is OMITTED (a leading
+        // `has_scratch` flag keeps the stream self-describing and symmetric); with no scope (checkpoint /
+        // file) it travels by value. It is OUT of localMembers_() so it is serialized but never part of
+        // the compared identity (two individuals touched by different algorithms compare equal).
+        const auto *ctx = Gem::Courtier::GWireSerializationScope::current();
+        const bool on_the_wire = (ctx != nullptr) && ctx->enabled;
+        bool has_scratch = (not on_the_wire) && static_cast<bool>(scratch_);
+        ar &make_nvp("has_scratch", has_scratch);
+        if(has_scratch) {
+            if constexpr(Archive::is_loading::value) {
+                if(not scratch_) {
+                    scratch_ = std::make_unique<GAuxiliaryStore>();
+                }
+            }
+            ar &make_nvp("scratch_", *scratch_);
+        }
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -424,6 +447,81 @@ public:
      */
     void registerConstraint(std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>> c_ptr) {
         policy_->registerConstraint(c_ptr);
+    }
+
+    /***************************************************************************/
+    // OA-owned scratch (the personality OBJECT + per-group adaption POD blocks). Held ON the work item so
+    // it permutes coherently through every sort / select / swap; it is server-side state, dropped at the
+    // algorithm boundary (resetPersonality / clearScratch), and never travels on the wire (see serialize()).
+
+    /** @brief The optimization-algorithm-owned scratch (personality + POD adaption state).
+     *  @return A reference to the scratch store */
+    GAuxiliaryStore &scratch() noexcept { return *scratch_; }
+    /** @brief The OA-owned scratch (const). @return A const reference to the scratch store */
+    const GAuxiliaryStore &scratch() const noexcept { return *scratch_; }
+
+    /**
+     * @brief Converts the personality base pointer to the desired type. Only accessible when
+     * personality_type derives from GPersonalityTraits.
+     * @tparam personality_type The concrete personality-traits type (must derive from GPersonalityTraits)
+     * @return A shared pointer to the personality traits cast to personality_type
+     */
+    template <typename personality_type>
+        requires std::derived_from<personality_type, GPersonalityTraits>
+    std::shared_ptr<personality_type> getPersonalityTraits() {
+#ifdef DEBUG
+        if(not scratch_->personalityRef()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GOptimizableEntity::getPersonalityTraits<personality_type>() : Empty personality "
+                   "pointer found"
+                << '\n'
+            );
+        }
+#endif /* DEBUG */
+        return Gem::Common::convertSmartPointer<GPersonalityTraits, personality_type>(
+            scratch_->personalityRef()
+        );
+    }
+
+    /** @brief The personality-traits base pointer.
+     *  @return A shared pointer to this entity's GPersonalityTraits
+     *  @throw geneva_exception (DEBUG builds) if the personality pointer is empty */
+    std::shared_ptr<GPersonalityTraits> getPersonalityTraits() {
+#ifdef DEBUG
+        if(not scratch_->personalityRef()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GOptimizableEntity::getPersonalityTraits() : Empty personality pointer found" << '\n'
+            );
+        }
+#endif /* DEBUG */
+        return scratch_->personalityRef();
+    }
+
+    /** @brief Sets the personality of this entity.
+     *  @param gpt The personality-traits object to install (must be non-null)
+     *  @throw geneva_exception if gpt is empty */
+    void setPersonality(std::shared_ptr<GPersonalityTraits> gpt) {
+        if(not gpt) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GOptimizableEntity::setPersonality() : Empty personality pointer passed" << '\n'
+            );
+        }
+        scratch_->personalityRef() = std::move(gpt);
+    }
+
+    /** @brief Resets the OA-owned scratch (personality + any POD blocks held on this entity) */
+    void resetPersonality() { scratch_->clearScratch(); }
+
+    /** @brief A string identifier for the current personality.
+     *  @return The personality's name(), or "PERSONALITY_NONE" if no personality is set */
+    std::string getPersonality() const {
+        if(scratch_->personalityRef()) {
+            return scratch_->personalityRef()->name();
+        }
+        return std::string("PERSONALITY_NONE");
     }
 
     /***************************************************************************/
@@ -884,6 +982,17 @@ private:
     virtual bool inputDataOmitted_() const { return false; }
     /** @brief Default no-op graft; the genome overrides. @param original The originally-submitted item */
     virtual void graftInputDataFrom_([[maybe_unused]] const GOptimizableEntity &original) { /* nothing */ }
+
+    /** @brief Re-attaches the OA-owned scratch from @p original onto this individual (the wire omits the
+     *  scratch, so a networked return arrives without it; the consumer grafts it back from the retained
+     *  original -- see Gem::Courtier::GProcessable::graftOaScratchFrom()).
+     *  @param original The originally-submitted item supplying the scratch (ignored if not a GOptimizableEntity) */
+    void graftOaScratchFrom_(const Gem::Courtier::GProcessable &original) override {
+        const auto *src = dynamic_cast<const GOptimizableEntity *>(&original);
+        if(src != nullptr && src->scratch_) {
+            scratch_ = std::make_unique<GAuxiliaryStore>(*src->scratch_);
+        }
+    }
     /** @brief Default no-op constant-data load; a derived type overrides if it deposits constant data at a
      *  remote site. @param cd_ptr A template item whose constant data would be loaded into this one */
     virtual void loadConstantData_([[maybe_unused]] std::shared_ptr<GOptimizableEntity> cd_ptr) { /* nothing */ }
@@ -943,6 +1052,11 @@ private:
         Gem::Geneva::DEFMAXUNSUCCESSFULADAPTIONS; ///< Max consecutive unsuccessful adaptions per adapt()
     std::size_t max_retries_until_valid_ =
         Gem::Geneva::DEFMAXRETRIESUNTILVALID; ///< Max adaption retries until a valid solution is found
+
+    /** @brief The OA-owned scratch (personality object + per-group adaption POD blocks). Always allocated
+     *  (so the accessors never null-check); deep-copied on clone/load; serialized only on a checkpoint
+     *  (omitted on the wire, see serialize()); excluded from the compared identity (not in localMembers_). */
+    std::unique_ptr<GAuxiliaryStore> scratch_ = std::make_unique<GAuxiliaryStore>();
 };
 
 /******************************************************************************/

@@ -59,11 +59,6 @@
 namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
-// Forward declaration: the OA population is a vector of slots; the slot-population add() overload below
-// clones each slot's individual across the ownership boundary into this (shared_ptr) archive.
-class GIndividualSlot;
-
-/******************************************************************************/
 /**
  * This class implements a fixed size priority queue for GOptimizableEntity objects,
  * based on the maximization/minimization property and the current fitness of
@@ -186,27 +181,6 @@ public:
      * @param do_clone If true, the individual is cloned before being added
      */
     void add(std::unique_ptr<GOptimizableEntity> const &item_ptr, bool do_clone);
-    /**
-     * @brief Adds the individuals held by a SLOT population to the queue (cloning each slot's individual across the boundary)
-     *
-     * @param items_cnt A constant reference to a vector of GIndividualSlot objects whose held individuals are to be added
-     * @param do_clone If true, each slot's individual is cloned before being added
-     * @param replace If true, the queue's existing content is replaced rather than merged with the new items
-     */
-    void add(std::vector<std::unique_ptr<GIndividualSlot>> const &items_cnt, bool do_clone, bool do_replace);
-    /**
-     * @brief Adds the individuals held by a SLOT population sub-range [begin, end) to the queue (cloning each slot's individual across the boundary)
-     *
-     * @param begin A const_iterator pointing to the start of the GIndividualSlot range whose individuals are to be added
-     * @param end A const_iterator pointing one past the end of the GIndividualSlot range whose individuals are to be added
-     * @param do_clone If true, each slot's individual is cloned before being added
-     * @param replace If true, the queue's existing content is replaced rather than merged with the new items
-     */
-    void
-    add(std::vector<std::unique_ptr<GIndividualSlot>>::const_iterator begin,
-        std::vector<std::unique_ptr<GIndividualSlot>>::const_iterator end,
-        bool do_clone,
-        bool do_replace);
 
 protected:
     /***************************************************************************/

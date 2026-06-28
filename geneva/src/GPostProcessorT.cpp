@@ -41,7 +41,6 @@
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
-#include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include <memory>
 #include <string>
@@ -271,7 +270,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GOptimizableEntit
 
     // Add our individual to the algorithm (the population owns its individuals by unique_ptr; this
     // shared_ptr is bridged across the boundary with a clone -- the optimized result is read back below).
-    ea_ptr->push_back(std::make_unique<gen::GIndividualSlot>(p_unopt_ptr->clone_unique()));
+    ea_ptr->push_back(p_unopt_ptr->clone_unique());
 
     // The genome carries only structure -- the adaptors live on an OA-owned config. The post-optimizer is
     // a GENERIC local refiner with no knowledge of the problem's specific adaptor configuration, so it

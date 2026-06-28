@@ -43,7 +43,6 @@
 #include "common/GParserBuilder.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/GPersonalityTraits.hpp"
-#include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 
 #ifdef GEM_TESTING
@@ -219,7 +218,7 @@ void GStandardPSO2011::adjustPopulation_() {
     }
 
     while(this->size() < swarm_size_) {
-        this->push_back(this->at(0)->individual().clone_unique());
+        this->push_back(this->at(0)->clone_unique());
     }
     if(this->size() > swarm_size_) {
         this->resize(swarm_size_);
@@ -239,7 +238,7 @@ void GStandardPSO2011::init() {
     // The swarm works in the normalized internal coordinate (boundary-agnostic): a bounded parameter
     // occupies the unit interval [-0.5, 0.5) and an unbounded one its perimeter image, so no per-parameter
     // bounds are needed -- only the count of active floating point parameters.
-    n_fp_parms_ = this->at(0)->individual().countFPParameters(activityMode::ACTIVEONLY);
+    n_fp_parms_ = this->at(0)->countFPParameters(activityMode::ACTIVEONLY);
 
     if(n_fp_parms_ == 0) {
         throw geneva_exception(
@@ -265,7 +264,7 @@ void GStandardPSO2011::init() {
             ->setParticle(i);
 
         std::vector<double> pos;
-        this->at(i)->individual().streamlineFPInternal(pos, activityMode::ACTIVEONLY);
+        this->at(i)->streamlineFPInternal(pos, activityMode::ACTIVEONLY);
 
         // Particle 0 keeps the registered start individual; all others are randomized uniformly within the
         // normalized unit interval [-0.5, 0.5) (an out-of-range value is folded back by the genome).
@@ -276,7 +275,7 @@ void GStandardPSO2011::init() {
                     std::uniform_real_distribution<double>::param_type(-0.5, 0.5)
                 );
             }
-            this->at(i)->individual().assignFPValueVectorInternal(pos, activityMode::ACTIVEONLY);
+            this->at(i)->assignFPValueVectorInternal(pos, activityMode::ACTIVEONLY);
         }
 
         // Half-diff velocity initialization: v_d = (U(-0.5, 0.5) - x_d) / 2 (SPSO-2011, normalized box).
@@ -407,7 +406,7 @@ void GStandardPSO2011::updatePositions() {
 
     for(std::size_t i = 0; i < swarm_size_; ++i) {
         std::vector<double> x;
-        this->at(i)->individual().streamlineFPInternal(x, activityMode::ACTIVEONLY);
+        this->at(i)->streamlineFPInternal(x, activityMode::ACTIVEONLY);
 
         const std::vector<double> &p = personal_bests_[i];
         const std::vector<double> l = localBest(i);
@@ -486,8 +485,8 @@ void GStandardPSO2011::updatePositions() {
 
         // A coordinate that left its range is folded back by the genome on assignment (continuous
         // reflection); no explicit boundary confinement here.
-        this->at(i)->individual().assignFPValueVectorInternal(x, activityMode::ACTIVEONLY);
-        this->at(i)->individual().mark_as_due_for_processing();
+        this->at(i)->assignFPValueVectorInternal(x, activityMode::ACTIVEONLY);
+        this->at(i)->mark_as_due_for_processing();
     }
 }
 
@@ -499,18 +498,18 @@ void GStandardPSO2011::updatePositions() {
  * class's best-extraction (slot 0) picks it up.
  */
 std::tuple<double, double> GStandardPSO2011::updateBests() {
-    const auto m = this->at(0)->individual().getMaxMode();
+    const auto m = this->at(0)->getMaxMode();
 
     global_best_improved_ = false;
 
     std::size_t best_idx = 0;
     std::tuple<double, double> best_iteration_fitness = std::make_tuple(
-        this->at(0)->individual().getWorstCase(),
-        this->at(0)->individual().getWorstCase()
+        this->at(0)->getWorstCase(),
+        this->at(0)->getWorstCase()
     );
 
     for(std::size_t i = 0; i < swarm_size_; ++i) {
-        auto &ind = this->at(i)->individual();
+        auto &ind = (*this->at(i));
         const double fit = minOnly_transformed_fitness(ind);
 
         // Update the personal best (lower minimization fitness is always better).

@@ -286,12 +286,12 @@ protected:
 
     /** @brief This function implements the RANDOMDUPLICATIONSCHEME scheme
      *  @param child The child slot whose value is replaced by a randomly chosen parent's */
-    void randomRecombine(const std::unique_ptr<gen::GIndividualSlot> &child);
+    void randomRecombine(const std::unique_ptr<gen::GOptimizableEntity> &child);
     /** @brief This function implements the VALUEDUPLICATIONSCHEME scheme
      *  @param child The child slot whose value is replaced by a fitness-weighted chosen parent's
      *  @param threshold The cumulative-probability thresholds used to pick the source parent */
     void
-    valueRecombine(const std::unique_ptr<gen::GIndividualSlot> &child, const std::vector<double> &threshold);
+    valueRecombine(const std::unique_ptr<gen::GOptimizableEntity> &child, const std::vector<double> &threshold);
 
     /***************************************************************************/
 

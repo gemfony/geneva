@@ -367,7 +367,7 @@ struct LayoutId {
  * one ChannelLayout per supported value type. A single layout is built once (by GGenomeBuilder, and
  * in turn by a factory) and shared by every individual of a problem via std::shared_ptr<const ...>,
  * so per-individual state is just the value arrays. The layout carries no evolving state; the
- * per-individual, per-group adaption state (sigma, ...) lives in the GIndividualSlot's scratch (GAuxiliaryStore).
+ * per-individual, per-group adaption state (sigma, ...) lives in the individual's scratch (GAuxiliaryStore).
  *
  * Optionally, groups carry an interned LABEL: `labels` holds each distinct label string once, and a
  * GroupStructure stores a small integer index into it (GroupStructure::label_id, -1 = unlabeled). Labels are

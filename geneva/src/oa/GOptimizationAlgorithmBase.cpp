@@ -216,7 +216,7 @@ void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_() {
  */
 GOptimizationAlgorithmBase::GOptimizationAlgorithmBase(const GOptimizationAlgorithmBase &cp)
   : Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>(cp)
-  , Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>(cp)
+  , Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>(cp)
   , iteration_(cp.iteration_)
   , offset_(DEFAULTOFFSET)
   , min_iteration_(cp.min_iteration_)
@@ -635,7 +635,7 @@ GOptimizationAlgorithmBase const *GOptimizationAlgorithmBase::optimize_(std::uin
     }
 
     // We want to know if no better values were found for a longer period of time
-    double worst_case = this->at(0)->individual().getWorstCase();
+    double worst_case = this->at(0)->getWorstCase();
     best_known_primary_fitness_ = std::make_tuple(worst_case, worst_case);
     best_current_primary_fitness_ = std::make_tuple(worst_case, worst_case);
 
@@ -1452,8 +1452,8 @@ void GOptimizationAlgorithmBase::addCleanStoredBests(
     // (and cloned) Unless we have asked for the queue to have an unlimited size, the queue will be
     // resized as required by its maximum allowed size.
     for(auto const &ind_ptr : *this) {
-        if(ind_ptr->individual().is_processed()) {
-            best_individuals.add(ind_ptr->individualPtr(), clone);
+        if(ind_ptr->is_processed()) {
+            best_individuals.add(ind_ptr, clone);
         }
     }
 }
@@ -1508,7 +1508,7 @@ void GOptimizationAlgorithmBase::load_(const GOptimizationAlgorithmBase *cp) {
 
     // This is the category root; there is no GObject parent class to load.
     // Load the stateful base classes' data
-    Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>::operator=(*p_load);
+    Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>::operator=(*p_load);
 
     // All local data, derived from the single localMembers() declaration: plain members
     // are assigned, the cloneable container pluggable_monitors_cnt_ is deep-cloned, and
@@ -1544,12 +1544,10 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOn(
 
 /******************************************************************************/
 /**
- * Submits the population's [start, end) range for evaluation. The population holds GIndividualSlots, but
- * the courtier deals in bare individuals: move each slot's individual out into a submission vector
- * (positions preserved), workOn() it, then move the (possibly reconciled) individuals back into their
- * slots. The slots -- and the OA scratch they carry (the personality) -- stay put, so a networked
- * round-trip that replaces an individual does not disturb its slot. workOn() is in-place (the work-item
- * vector keeps its size), so the move-back by index is exact.
+ * Submits the population's [start, end) range for evaluation. The population element IS the work item
+ * (a gen::GOptimizableEntity carrying its own OA scratch), so the population vector is the submission
+ * vector: workOn() submits a span over the live sub-range and reconciles it in place. No move-out /
+ * move-back is needed -- the scratch rides along on each individual untouched.
  *
  * @param start The index of the first individual in the population to be evaluated
  * @param end One past the index of the last individual to be evaluated (range is [start, end))
@@ -1557,18 +1555,7 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOn(
  */
 Gem::Courtier::executor_status_t
 GOptimizationAlgorithmBase::workOnPopulation(std::size_t start, std::size_t end) {
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>> work_items;
-    work_items.reserve(this->size());
-    for(auto &slot : this->data_cnt_) {
-        work_items.push_back(slot->releaseIndividual());
-    }
-
-    auto status = this->workOn(work_items, start, end);
-
-    for(std::size_t i = 0; i < this->size(); ++i) {
-        this->data_cnt_[i]->resetIndividual(std::move(work_items[i]));
-    }
-    return status;
+    return this->workOn(this->data_cnt_, start, end);
 }
 
 /******************************************************************************/
@@ -1782,26 +1769,26 @@ GOptimizationAlgorithmBase::getBestIterationIndividuals_() const {
  */
 void GOptimizationAlgorithmBase::setIndividualPersonalities() {
     const std::string oa_mnemonic = this->getPersonalityTraits_()->getMnemonic();
-    for(auto const &slot : *this) {
-        // The rich personality OBJECT is OA scratch -- it lives on the slot. Each slot gets its own
-        // (getPersonalityTraits_() returns a fresh instance per call). On a checkpoint resume, however,
-        // the slot already carries its restored personality (e.g. a swarm's personal-best lives there);
-        // preserve it rather than overwriting it with a fresh, empty one.
-        if(not(resumed_from_checkpoint_ && slot->scratch().personalityRef())) {
-            slot->setPersonality(this->getPersonalityTraits_());
+    for(auto const &ind : *this) {
+        // The rich personality OBJECT is OA scratch -- it rides on the individual itself. Each individual
+        // gets its own (getPersonalityTraits_() returns a fresh instance per call). On a checkpoint resume,
+        // however, the individual already carries its restored personality (e.g. a swarm's personal-best
+        // lives there); preserve it rather than overwriting it with a fresh, empty one.
+        if(not(resumed_from_checkpoint_ && ind->scratch().personalityRef())) {
+            ind->setPersonality(this->getPersonalityTraits_());
         }
 
         // Decide post-processing eligibility HERE (the algorithm knows its own mnemonic) and veto it on
         // the work items this algorithm is not allowed to post-process -- so the individual carries no
         // knowledge of which algorithm owns it. The veto rides on the work item's processing metadata
         // (where the post-processor already lives) and is consulted by GProcessingContainerT::postProcess_().
-        auto pp = slot->individual().postProcessor();
+        auto pp = ind->postProcessor();
         if(pp) {
             auto post_processor =
                 std::dynamic_pointer_cast<GPostProcessorBaseT<gen::GOptimizableEntity>>(pp);
             const bool eligible =
                 post_processor and post_processor->postProcessingAllowedFor(oa_mnemonic);
-            slot->individual().vetoPostProcessing(not eligible);
+            ind->vetoPostProcessing(not eligible);
         }
     }
 }
@@ -1811,12 +1798,12 @@ void GOptimizationAlgorithmBase::setIndividualPersonalities() {
  * @brief Resets the individual's personality types
  */
 void GOptimizationAlgorithmBase::resetIndividualPersonalities() {
-    for(auto const &slot : *this) {
-        // Drop the slot's OA-owned scratch -- BOTH the personality OBJECT and the per-group adaption
-        // POD state now live on the slot, so resetPersonality() (which clears the whole GAuxiliaryStore)
+    for(auto const &ind : *this) {
+        // Drop the individual's OA-owned scratch -- BOTH the personality OBJECT and the per-group adaption
+        // POD state ride on the individual, so resetPersonality() (which clears the whole GAuxiliaryStore)
         // performs the algorithm-boundary teardown (an EA's sigma / personality is meaningless to a
         // chained CGD).
-        slot->resetPersonality();
+        ind->resetPersonality();
     }
 }
 
@@ -1935,7 +1922,7 @@ std::uint16_t GOptimizationAlgorithmBase::getNThreads() const {
  */
 void GOptimizationAlgorithmBase::markIteration() {
     for(auto const &ind_ptr : *this) {
-        ind_ptr->individual().setAssignedIteration(iteration_);
+        ind_ptr->setAssignedIteration(iteration_);
     }
 }
 
@@ -1945,7 +1932,7 @@ void GOptimizationAlgorithmBase::markIteration() {
  */
 void GOptimizationAlgorithmBase::markNStalls() {
     for(auto const &ind_ptr : *this) {
-        ind_ptr->individual().setNStalls(stall_counter_);
+        ind_ptr->setNStalls(stall_counter_);
     }
 }
 
@@ -1958,7 +1945,7 @@ void GOptimizationAlgorithmBase::markNStalls() {
  * @param best_eval The best raw and transformed fitness tuple found in the current iteration; the transformed value is compared against the best known so far
  */
 void GOptimizationAlgorithmBase::updateStallCounter(const std::tuple<double, double> &best_eval) {
-    auto m = this->at(0)->individual().getMaxMode(); // We assume the same maxMode for all individuals
+    auto m = this->at(0)->getMaxMode(); // We assume the same maxMode for all individuals
     if(isBetter(
            std::get<G_TRANSFORMED_FITNESS>(best_eval),
            std::get<G_TRANSFORMED_FITNESS>(best_known_primary_fitness_),
@@ -2020,7 +2007,7 @@ bool GOptimizationAlgorithmBase::minTimePassed(
  * @return A boolean indicating whether the quality is above or below a given threshold
  */
 bool GOptimizationAlgorithmBase::qualityHalt() const {
-    auto m = this->at(0)->individual().getMaxMode(); // We assume the same maxMode for all individuals
+    auto m = this->at(0)->getMaxMode(); // We assume the same maxMode for all individuals
     if(isBetter(
            std::get<G_RAW_FITNESS>(
                best_known_primary_fitness_
@@ -2310,7 +2297,7 @@ bool GOptimizationAlgorithmBase::qualityThresholdHaltSet() const {
  */
 void GOptimizationAlgorithmBase::markBestFitness() {
     for(auto const &ind_ptr : *this) {
-        ind_ptr->individual().setBestKnownPrimaryFitness(this->getBestKnownPrimaryFitness());
+        ind_ptr->setBestKnownPrimaryFitness(this->getBestKnownPrimaryFitness());
     }
 }
 
@@ -2336,7 +2323,7 @@ bool GOptimizationAlgorithmBase::modify_GUnitTests_() {
 
     // This is the category root; there is no modifiable GObject parent class.
     // Call the stateful base class'es function
-    if(Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>::modify_GUnitTests_()) {
+    if(Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -2367,7 +2354,7 @@ void GOptimizationAlgorithmBase::specificTestsNoFailureExpected_GUnitTests_() {
 
     // This is the category root; there is no GObject parent class to delegate to.
     // Call the stateful base class'es function
-    Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>::specificTestsNoFailureExpected_GUnitTests_();
+    Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
@@ -2386,7 +2373,7 @@ void GOptimizationAlgorithmBase::specificTestsFailuresExpected_GUnitTests_() {
 
     // This is the category root; there is no GObject parent class to delegate to.
     // Call the stateful base class'es function
-    Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>::specificTestsFailuresExpected_GUnitTests_();
+    Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(

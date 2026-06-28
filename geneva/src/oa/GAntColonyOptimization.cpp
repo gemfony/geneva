@@ -44,7 +44,6 @@
 #include "common/GParserBuilder.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/GPersonalityTraits.hpp"
-#include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 
 #ifdef GEM_TESTING
@@ -270,7 +269,7 @@ void GAntColonyOptimization::adjustPopulation_() {
     }
 
     while(this->size() < archive_size_) {
-        this->push_back(this->at(0)->individual().clone_unique());
+        this->push_back(this->at(0)->clone_unique());
     }
     if(this->size() > archive_size_) {
         this->resize(archive_size_);
@@ -290,7 +289,7 @@ void GAntColonyOptimization::init() {
     // ACOR samples in the normalized internal coordinate (boundary-agnostic): a bounded parameter occupies
     // the unit interval and an out-of-range sample is folded back by the genome on assignment, so only the
     // count of active floating point parameters is needed.
-    n_fp_parms_ = this->at(0)->individual().countFPParameters(activityMode::ACTIVEONLY);
+    n_fp_parms_ = this->at(0)->countFPParameters(activityMode::ACTIVEONLY);
 
     if(n_fp_parms_ == 0) {
         throw geneva_exception(
@@ -316,15 +315,15 @@ void GAntColonyOptimization::init() {
  */
 void GAntColonyOptimization::seedInitialArchive() {
     archive_parms_.assign(archive_size_, std::vector<double>(n_fp_parms_, 0.));
-    archive_fitness_.assign(archive_size_, this->at(0)->individual().getWorstCase());
+    archive_fitness_.assign(archive_size_, this->at(0)->getWorstCase());
 
     // Member 0: the (user-supplied) start individual, unchanged.
-    this->at(0)->individual().streamlineFPInternal(archive_parms_[0], activityMode::ACTIVEONLY);
+    this->at(0)->streamlineFPInternal(archive_parms_[0], activityMode::ACTIVEONLY);
 
     // Members 1..k-1: random restarts within the bounds (reuses the genome's randomInit channel).
     for(std::size_t l = 1; l < archive_size_; ++l) {
-        this->at(l)->individual().randomInit(activityMode::ACTIVEONLY);
-        this->at(l)->individual().streamlineFPInternal(archive_parms_[l], activityMode::ACTIVEONLY);
+        this->at(l)->randomInit(activityMode::ACTIVEONLY);
+        this->at(l)->streamlineFPInternal(archive_parms_[l], activityMode::ACTIVEONLY);
     }
 }
 
@@ -501,8 +500,8 @@ void GAntColonyOptimization::constructAnts() {
 
         // Write the sampled vector through the genome; the constrained parameter objects fold/clamp it
         // into the feasible box automatically. Mark the slot for (re)evaluation.
-        this->at(a)->individual().assignFPValueVectorInternal(x_new, activityMode::ACTIVEONLY);
-        this->at(a)->individual().mark_as_due_for_processing();
+        this->at(a)->assignFPValueVectorInternal(x_new, activityMode::ACTIVEONLY);
+        this->at(a)->mark_as_due_for_processing();
     }
 }
 
@@ -516,7 +515,7 @@ void GAntColonyOptimization::constructAnts() {
  */
 void GAntColonyOptimization::updateArchive() {
     for(std::size_t a = 0; a < n_ants_; ++a) {
-        auto &ind = this->at(a)->individual();
+        auto &ind = (*this->at(a));
 
         std::vector<double> parms;
         ind.streamlineFPInternal(parms, activityMode::ACTIVEONLY);
@@ -584,7 +583,7 @@ std::tuple<double, double> GAntColonyOptimization::cycleLogic_() {
         runFitnessCalculation_();
 
         for(std::size_t l = 0; l < archive_size_; ++l) {
-            auto &ind = this->at(l)->individual();
+            auto &ind = (*this->at(l));
             ind.streamlineFPInternal(archive_parms_[l], activityMode::ACTIVEONLY);
             archive_fitness_[l] = minOnly_transformed_fitness(ind);
         }
@@ -593,16 +592,16 @@ std::tuple<double, double> GAntColonyOptimization::cycleLogic_() {
 
     // Report the best (raw, transformed) fitness among the individuals actually evaluated this iteration,
     // using the standard EA/ES ranking helpers (isBetter / getMaxMode).
-    const auto m = this->at(0)->individual().getMaxMode();
+    const auto m = this->at(0)->getMaxMode();
     const std::size_t n_eval = this->afterFirstIteration() ? n_ants_ : archive_size_;
 
     std::tuple<double, double> best_fitness = std::make_tuple(
-        this->at(0)->individual().getWorstCase(),
-        this->at(0)->individual().getWorstCase()
+        this->at(0)->getWorstCase(),
+        this->at(0)->getWorstCase()
     );
 
     for(std::size_t pos = 0; pos < n_eval; ++pos) {
-        auto &ind = this->at(pos)->individual();
+        auto &ind = (*this->at(pos));
         if(ind.is_due_for_processing() || ind.has_errors()) {
             continue;
         }

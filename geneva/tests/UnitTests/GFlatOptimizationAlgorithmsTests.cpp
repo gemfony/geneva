@@ -468,13 +468,13 @@ TEST_CASE("EA in a PARETO mode degenerates safely on a single-objective individu
 
 /******************************************************************************/
 
-TEST_CASE("EA checkpoint round-trip preserves the per-slot adaption scratch", "[flat][oa]") {
+TEST_CASE("EA checkpoint round-trip preserves the per-individual adaption scratch", "[flat][oa]") {
     using gen::GFlatGenome;
     using Gem::Geneva::Genome::AUXKEY_GAUSS_DOUBLE;
     using Gem::Geneva::Genome::GaussState;
 
-    // The per-individual OA scratch (adaption sigma/state) lives on the GIndividualSlot and is
-    // serialized for check-pointing, so a resumed algorithm keeps its evolved state. Here we seed a slot's
+    // The per-individual OA scratch (adaption sigma/state) lives on the individual itself (in its GAuxiliaryStore) and is
+    // serialized for check-pointing, so a resumed algorithm keeps its evolved state. Here we seed an individual's
     // scratch (as the EA does at setup), drive its sigma to a known value, round-trip the whole algorithm
     // through the exact checkpoint path (toFile -> loadCheckpoint) and confirm the scratch survives. A
     // fully serialization-registered individual (GLineFitIndividual) is used so the algorithm can be
@@ -485,11 +485,11 @@ TEST_CASE("EA checkpoint round-trip preserves the per-slot adaption scratch", "[
     auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
     pop->push_back(gind::GLineFitIndividual(data_points).clone_unique());
 
-    auto &slot0 = pop->at(0);
+    auto &ind0 = pop->at(0);
     // The Gauss adaptor lives on the OA-owned config the individual authors (the genome is structure-only).
-    auto cfg = dynamic_cast<gind::GLineFitIndividual &>(slot0->individual()).getAdaptionConfig();
-    cfg->installInto(slot0->scratch());
-    auto states = slot0->scratch().metaRecords<GaussState<double>>(AUXKEY_GAUSS_DOUBLE);
+    auto cfg = dynamic_cast<gind::GLineFitIndividual &>((*ind0)).getAdaptionConfig();
+    cfg->installInto(ind0->scratch());
+    auto states = ind0->scratch().metaRecords<GaussState<double>>(AUXKEY_GAUSS_DOUBLE);
     REQUIRE(not states.empty());
     states[0].sigma = 0.123456;
     states[0].counter = 17;
@@ -504,9 +504,9 @@ TEST_CASE("EA checkpoint round-trip preserves the per-slot adaption scratch", "[
     resumed->loadCheckpoint(cp);
 
     REQUIRE(resumed->size() == pop->size());
-    auto &rslot0 = resumed->at(0);
-    REQUIRE(rslot0->scratch().hasAux(AUXKEY_GAUSS_DOUBLE)); // the POD scratch block rode along
-    auto rstates = rslot0->scratch().metaRecords<GaussState<double>>(AUXKEY_GAUSS_DOUBLE);
+    auto &rind0 = resumed->at(0);
+    REQUIRE(rind0->scratch().hasAux(AUXKEY_GAUSS_DOUBLE)); // the POD scratch block rode along
+    auto rstates = rind0->scratch().metaRecords<GaussState<double>>(AUXKEY_GAUSS_DOUBLE);
     REQUIRE(not rstates.empty());
     CHECK(rstates[0].sigma == 0.123456); // the evolved sigma survived the checkpoint intact
     CHECK(rstates[0].counter == 17u);
@@ -518,9 +518,9 @@ TEST_CASE("EA checkpoint round-trip preserves the per-slot adaption scratch", "[
     resumed->setMaxIteration(300);
     resumed->setReportIteration(100000);
     // The resumed algorithm adapts through the OA-owned config (the genome is structure-only); the
-    // restored per-slot scratch is preserved, not re-seeded, by the resume path.
+    // restored per-individual scratch is preserved, not re-seeded, by the resume path.
     resumed->setAdaptionConfig(
-        dynamic_cast<gind::GLineFitIndividual &>(resumed->at(0)->individual()).getAdaptionConfig());
+        dynamic_cast<gind::GLineFitIndividual &>((*resumed->at(0))).getAdaptionConfig());
     resumed->optimize();
 
     auto best = resumed->getBestGlobalIndividual<gind::GLineFitIndividual>();
@@ -1487,7 +1487,7 @@ TEST_CASE("ea NSGA-II Pareto selection spreads the survivors across the front", 
     std::vector<std::pair<double, double>> pts; // (f1, f2)
     pts.reserve(pop->getNParents());
     for(std::size_t i = 0; i < pop->getNParents(); ++i) {
-        const auto &ind = pop->at(i)->individual();
+        const auto &ind = (*pop->at(i));
         pts.emplace_back(ind.transformed_fitness(0), ind.transformed_fitness(1));
     }
     REQUIRE(pts.size() == MU);

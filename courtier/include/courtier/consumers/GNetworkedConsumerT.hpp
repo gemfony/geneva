@@ -309,18 +309,19 @@ protected:
         recordReturnTime_(now - b.checked_out_at[slot]);
         b.last_progress = now;
 
-        // Replace the work item in this broker slot with the returned result. The broker deals in bare
-        // individuals; all OA scratch (the personality object) now lives on the population's
-        // GIndividualSlot, NOT on the individual, so replacing the individual is lossless -- the
-        // optimization algorithm swaps the reconciled individual back into its slot, which still holds
-        // its own personality.
+        // Replace the work item in this broker slot (which aliases the live population element) with the
+        // returned result. The OA-owned scratch (the personality object + per-group adaption POD state)
+        // is omitted on the wire, so the returned item carries none; graft it back from the
+        // originally-submitted item -- still occupying this slot until the move below -- so the population
+        // element keeps its evolved OA state across the round-trip. (A no-op for work items with no OA
+        // scratch.)
         //
-        // A lightweight "results-only" return carries the computed results but not the (large) input
-        // parameters; the originally-submitted item -- still occupying this slot until the line below --
-        // supplies them, grafted onto the result before it replaces the original.
+        // A lightweight "results-only" return additionally carries the computed results but not the
+        // (large) input parameters; the same retained original supplies them, grafted before the replace.
         if(p->inputDataOmitted()) {
             p->graftInputDataFrom(*b.items[slot]);
         }
+        p->graftOaScratchFrom(*b.items[slot]);
         p->setDispatchState(Gem::Courtier::dispatchState::DONE);
         b.items[slot] = std::move(p);
         ++b.done;
@@ -527,11 +528,15 @@ private:
                 return;
             }
             p->graftInputDataFrom(**orig);
+            p->graftOaScratchFrom(**orig); // the wire stripped the OA scratch; restore it from the original
             // p is now a complete individual -> fall through to park it
         }
         else {
-            // A full late return makes any retained original for this id redundant.
-            late_store_.dropRetained(id);
+            // A full late return carries its own genome; the retained original is only still needed for
+            // its OA scratch (omitted on the wire), which we graft back before discarding it.
+            if(auto orig = late_store_.takeRetained(id)) {
+                p->graftOaScratchFrom(**orig);
+            }
         }
         if(not late_store_.buffering()) {
             recordLateDrop_locked(1); // buffering off: count the drop, do not hold the item

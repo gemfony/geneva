@@ -33,7 +33,7 @@
 #include <algorithm>
 #include <thread>
 
-#include "geneva/ind/GIndividualSlot.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GMetaEvolutionaryAlgorithm) // NOLINT
 
@@ -56,7 +56,7 @@ GMetaEvolutionaryAlgorithm::evaluatePopulationRange_(std::size_t start, std::siz
     // Run each umbrella-individual's process() on the orchestration pool. process() funnels any thrown
     // exception into the item's status (EXCEPTION_CAUGHT) rather than letting it escape the worker.
     for(std::size_t i = start; i < end; ++i) {
-        auto *ind = &(this->at(i)->individual());
+        auto *ind = &((*this->at(i)));
         orchestration_pool_->post([ind]() { ind->process(); });
     }
     orchestration_pool_->wait();
@@ -65,7 +65,7 @@ GMetaEvolutionaryAlgorithm::evaluatePopulationRange_(std::size_t start, std::siz
     // "complete", flagging errors so the base runFitnessCalculation_ removes any failed umbrella-individual.
     bool has_errors = false;
     for(std::size_t i = start; i < end; ++i) {
-        if(this->at(i)->individual().has_errors()) {
+        if(this->at(i)->has_errors()) {
             has_errors = true;
             break;
         }

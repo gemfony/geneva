@@ -78,7 +78,10 @@ GOptimizableEntity::GOptimizableEntity(GOptimizableEntity const &cp)
   , validity_level_(cp.validity_level_)
   , n_adaptions_(cp.n_adaptions_)
   , max_unsuccessful_adaptions_(cp.max_unsuccessful_adaptions_)
-  , max_retries_until_valid_(cp.max_retries_until_valid_) {
+  , max_retries_until_valid_(cp.max_retries_until_valid_)
+  // The OA-owned scratch is deep-copied (a clone mid-optimization keeps the live personality + adaption
+  // state, e.g. an EA child inheriting its parent's sigma).
+  , scratch_(cp.scratch_ ? std::make_unique<GAuxiliaryStore>(*cp.scratch_) : nullptr) {
     Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
     Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
 }
@@ -694,6 +697,14 @@ void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
     Gem::Common::copyCloneableSmartPointer(p_load->pre_processor_ptr_, pre_processor_ptr_);
     Gem::Common::copyCloneableSmartPointer(p_load->post_processor_ptr_, post_processor_ptr_);
     policy_ = p_load->policy_;
+
+    // The OA-owned scratch is deep-copied (it is serialized but not among the compared members).
+    if(p_load->scratch_) {
+        scratch_ = std::make_unique<GAuxiliaryStore>(*p_load->scratch_);
+    }
+    else {
+        scratch_.reset();
+    }
 }
 
 /******************************************************************************/

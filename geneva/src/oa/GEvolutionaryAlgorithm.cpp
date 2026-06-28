@@ -166,13 +166,13 @@ void GType::extractCurrentParetoIndividuals(
     for(std::size_t i = 0; i < sz; ++i) {
         bool dominated = false;
         for(std::size_t j = 0; j < sz; ++j) {
-            if(i != j && paretoDominates(this->at(j)->individual(), this->at(i)->individual())) {
+            if(i != j && paretoDominates((*this->at(j)), (*this->at(i)))) {
                 dominated = true;
                 break;
             }
         }
         if(not dominated) {
-            pareto_inds.push_back(this->at(i)->individual().clone<gen::GOptimizableEntity>());
+            pareto_inds.push_back(this->at(i)->clone<gen::GOptimizableEntity>());
         }
     }
 }
@@ -185,8 +185,8 @@ GType::evaluatePopulationRange_(std::size_t start, std::size_t end) {
         end = std::min(end, this->size());
         bool has_errors = false;
         for(std::size_t i = start; i < end; ++i) {
-            this->at(i)->individual().process();
-            if(this->at(i)->individual().has_errors()) {
+            this->at(i)->process();
+            if(this->at(i)->has_errors()) {
                 has_errors = true;
             }
         }
@@ -383,7 +383,7 @@ void GType::runFitnessCalculation_() {
 
 #ifdef DEBUG
     for(std::size_t i = this->getNParents(); i < this->size(); i++) {
-        if(not this->at(i)->individual().is_due_for_processing()) {
+        if(not this->at(i)->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << '\n'
@@ -407,15 +407,15 @@ void GType::runFitnessCalculation_() {
     auto status = this->evaluatePopulationRange_(std::get<0>(range), std::get<1>(range));
 
     if(not status.is_complete) {
-        std::erase_if(this->data_cnt_, [](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
-            return (p->individual().getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
+        std::erase_if(this->data_cnt_, [](const std::unique_ptr<gen::GOptimizableEntity> &p) -> bool {
+            return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
         });
     }
 
     if(status.has_errors) {
         std::erase_if(
             this->data_cnt_,
-            [](const auto &p) -> bool { return p->individual().has_errors(); }
+            [](const auto &p) -> bool { return p->has_errors(); }
         );
     }
 
@@ -591,7 +591,7 @@ void GType::driveGlobalSigmaController() {
     }
 
     // The best (min-only transformed) fitness of the current generation's selected parents.
-    const double best_now = minOnly_transformed_fitness(this->at(0)->individual());
+    const double best_now = minOnly_transformed_fitness((*this->at(0)));
 
     // The success rate: the fraction of this generation's SELECTED survivors (the np new parents, now at
     // the front of the population) that improved on the PREVIOUS generation's best fitness. Measuring the
@@ -603,7 +603,7 @@ void GType::driveGlobalSigmaController() {
     {
         std::size_t n_success = 0;
         for(std::size_t i = 0; i < np; ++i) {
-            if(minOnly_transformed_fitness(this->at(i)->individual()) < prev_best_fitness_) {
+            if(minOnly_transformed_fitness((*this->at(i))) < prev_best_fitness_) {
                 ++n_success;
             }
         }
@@ -708,7 +708,7 @@ void GType::sortMuPlusNuMode() {
         GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_,
         GOptimizationAlgorithmBase::data_cnt_.end(),
         [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
+            return minOnly_transformed_fitness((*x_ptr)) < minOnly_transformed_fitness((*y_ptr));
         }
     );
 }
@@ -721,7 +721,7 @@ void GType::sortMuCommaNuMode() {
         GOptimizationAlgorithmBase::data_cnt_.begin() + 2 * n_parents_,
         GOptimizationAlgorithmBase::data_cnt_.end(),
         [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
+            return minOnly_transformed_fitness((*x_ptr)) < minOnly_transformed_fitness((*y_ptr));
         }
     );
 
@@ -740,15 +740,15 @@ void GType::sortMunu1pretainMode() {
         GOptimizationAlgorithmBase::data_cnt_.begin() + 2 * n_parents_,
         GOptimizationAlgorithmBase::data_cnt_.end(),
         [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
+            return minOnly_transformed_fitness((*x_ptr)) < minOnly_transformed_fitness((*y_ptr));
         }
     );
 
     double best_child = minOnly_transformed_fitness(
-        (*(GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_))->individual()
+        (*(*(GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_)))
     );
     double best_parent =
-        minOnly_transformed_fitness((*(GOptimizationAlgorithmBase::data_cnt_.begin()))->individual());
+        minOnly_transformed_fitness((*(*(GOptimizationAlgorithmBase::data_cnt_.begin()))));
 
     if(best_child < best_parent) {
         std::swap_ranges(
@@ -780,13 +780,13 @@ void GType::selectParetoParents(bool include_parents) {
     std::vector<const gen::GOptimizableEntity *> eligible;
     eligible.reserve(sz - start);
     for(std::size_t i = start; i < sz; ++i) {
-        eligible.push_back(&this->at(i)->individual());
+        eligible.push_back(&(*this->at(i)));
     }
     const std::vector<std::size_t> order = nonDominatedRank(eligible); // best-first, local to [start, sz)
 
     // Rebuild the population: eligible individuals in NSGA-II order (so [0, n_parents_) are the survivors),
     // then -- for mu,nu -- the discarded old parents at the tail (overwritten by the next recombination).
-    std::vector<std::unique_ptr<gen::GIndividualSlot>> reordered;
+    std::vector<std::unique_ptr<gen::GOptimizableEntity>> reordered;
     reordered.reserve(sz);
     for(std::size_t local : order) {
         reordered.push_back(std::move(this->data_cnt_[start + local]));
@@ -805,8 +805,8 @@ void GType::selectParetoParents(bool include_parents) {
         this->begin(),
         this->begin() + this->n_parents_,
         [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(x_ptr->individual()) <
-                   minOnly_transformed_fitness(y_ptr->individual());
+            return minOnly_transformed_fitness((*x_ptr)) <
+                   minOnly_transformed_fitness((*y_ptr));
         }
     );
 }
@@ -814,7 +814,7 @@ void GType::selectParetoParents(bool include_parents) {
 /******************************************************************************/
 
 void GType::sortMuPlusNuParetoMode() {
-    if(not(*this->begin())->individual().hasMultipleFitnessCriteria()) {
+    if(not(*this->begin())->hasMultipleFitnessCriteria()) {
         static std::atomic<bool> warned{false};
         if(not warned.exchange(true)) {
             glogger << "In GEvolutionaryAlgorithm::sortMuPlusNuParetoMode(): Warning!" << '\n'
@@ -833,7 +833,7 @@ void GType::sortMuPlusNuParetoMode() {
 /******************************************************************************/
 
 void GType::sortMuCommaNuParetoMode() {
-    if(not(*this->begin())->individual().hasMultipleFitnessCriteria()) {
+    if(not(*this->begin())->hasMultipleFitnessCriteria()) {
         static std::atomic<bool> warned{false};
         if(not warned.exchange(true)) {
             glogger << "In GEvolutionaryAlgorithm::sortMuCommaNuParetoMode(): Warning!" << '\n'
@@ -882,12 +882,12 @@ void GType::fillWithObjects(const std::size_t &n_individuals) {
     CHECK_NOTHROW(this->clear());
 
     for(std::size_t i = 0; i < n_individuals; i++) {
-        this->push_back(std::make_unique<gen::GIndividualSlot>(
-            std::make_unique<Gem::Geneva::Individuals::GTestIndividual1>()));
+        this->push_back(
+            std::make_unique<Gem::Geneva::Individuals::GTestIndividual1>());
     }
 
     for(const auto &ind_ptr : *this) {
-        ind_ptr->individual().randomInit(activityMode::ALLPARAMETERS);
+        ind_ptr->randomInit(activityMode::ALLPARAMETERS);
     }
 
 #else /* GEM_TESTING */
@@ -946,7 +946,7 @@ void GType::specificTestsFailuresExpected_GUnitTests_() {
 std::ostream &operator<<(std::ostream &os, const GEvolutionaryAlgorithm &pop) {
     os << '\n' << '\n';
     for(auto it = pop.begin(); it != pop.begin() + pop.getNParents(); ++it) {
-        os << (*it)->individual().raw_fitness() << " " << (*it)->individual().transformed_fitness() << '\n';
+        os << (*it)->raw_fitness() << " " << (*it)->transformed_fitness() << '\n';
     }
     os << "***************************************" << '\n';
 

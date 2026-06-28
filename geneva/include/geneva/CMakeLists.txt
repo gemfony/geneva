@@ -41,7 +41,6 @@ SET ( IND_INCLUDES
     ind/GGenomeBuilder.hpp
     ind/GGenomeArchitecture.hpp
     ind/GFlatGenome.hpp
-    ind/GIndividualSlot.hpp
     ind/GFlatIndividualFactory.hpp
 )
 

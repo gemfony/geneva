@@ -45,7 +45,6 @@ SET ( ${EXECUTABLENAME}_SRCS
 	GOABenchmark.cpp
 	GEvolutionaryAlgorithmModesTests.cpp
 	GAdaptionConfigTests.cpp
-	GIndividualSlotTests.cpp
 	GSharedConsumerTests.cpp
 	GProgressPlotterTests.cpp
 	GMultiConstraintTests.cpp

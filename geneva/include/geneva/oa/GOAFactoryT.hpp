@@ -48,7 +48,7 @@
 #include "common/GFactoryT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
-#include "geneva/ind/GIndividualSlot.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
@@ -399,7 +399,7 @@ protected:
                 if(not p_ind) { // No valid item received, the factory has run empty
                     break;
                 }
-                p_alg->push_back(std::make_unique<gen::GIndividualSlot>(p_ind->clone_unique()));
+                p_alg->push_back(p_ind->clone_unique());
                
             }
         }

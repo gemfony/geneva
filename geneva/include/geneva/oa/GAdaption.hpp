@@ -54,7 +54,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * RNG). The adaption is driven by an OA-OWNED GAdaptionConfig rather than by the structure-only genome
  * layout. The config supplies each group's adaptor kind + parameters; the genome supplies the mutable
  * internal value spans; the per-group evolving state lives in an OA-owned GAuxiliaryStore (the
- * GIndividualSlot's scratch_) passed in explicitly — the individual itself is pure data. The RNG is the
+ * the individual's scratch_) passed in explicitly — the individual itself is pure data. The RNG is the
  * individual's own per-individual stream. Each call
  * touches only this individual's values + its slot's scratch + its RNG and reads the shared config
  * read-only, so the functions compose with the EA's parallel adaptChildren_.

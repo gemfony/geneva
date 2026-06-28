@@ -310,13 +310,17 @@ Recommended Versions:
   GOptimizationAlgorithmT CRTP scaffold. SOURCE-breaking for code that subclassed
   the individual or algorithm factories.
 
-- The population is now a vector of GIndividualSlot objects (a problem individual
-  plus its per-run, optimization-algorithm-owned scratch) rather than bare
-  individuals. All per-individual OA state -- adaption sigmas, swarm velocity /
-  personal best, conjugate-gradient history, and the algorithm personality traits --
-  now lives on the slot's transient scratch, not on the (serialized) individual
-  identity, and is preserved across a checkpoint resume. The individual is thereby
-  reduced to pure problem data; this changes the checkpoint serialization format.
+- The per-run, optimization-algorithm-owned scratch (the algorithm personality
+  traits plus the per-individual OA state -- adaption sigmas, swarm velocity /
+  personal best, conjugate-gradient history) is carried directly on the work item in
+  its own GAuxiliaryStore, and the population is a flat vector of work items
+  submitted to the consumer as a span in place (the former GIndividualSlot wrapper
+  has been removed). That scratch is excluded from the individual's compared identity
+  and is OMITTED on the wire, so it costs nothing on the network path but is
+  serialized for a checkpoint and preserved across a resume; on a networked return
+  the consumer grafts it back from the originally-submitted item, so an algorithm's
+  evolved state (e.g. a self-adapting sigma) survives every round-trip. The genome
+  payload thus stays pure problem data. This changes the checkpoint serialization format.
 
 - ADDITIVE (opt-in) optimizer modes on the conjugate-gradient descent (beyond the
   GD-retirement / line-search / HESSE / MINOS items below): an L-BFGS quasi-Newton

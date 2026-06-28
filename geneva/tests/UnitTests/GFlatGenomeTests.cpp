@@ -461,9 +461,10 @@ TEST_CASE("GGenomeBuilder: interned group labels", "[flat]") {
 
 /******************************************************************************/
 // (The former "personality is OA scratch" / "OA-identity mnemonic" individual test was retired: the
-// individual is now fully OA-agnostic -- it carries neither the personality object (which lives on the
-// GIndividualSlot, see the [slot] tests) nor any OA-identity mnemonic (post-processing eligibility is
-// decided by the algorithm and vetoed on the work item's processing metadata).)
+// individual's GENOME payload is OA-agnostic -- the OA scratch (the personality object + per-group
+// adaption POD state) rides in the individual's own GAuxiliaryStore, excluded from the compared identity
+// and omitted on the wire (see the [aux] tests), and post-processing eligibility is decided by the
+// algorithm and vetoed on the work item's processing metadata, leaving no OA-identity mnemonic on the genome.)
 
 /******************************************************************************/
 TEST_CASE("GFlatGenome: layout interning round-trips losslessly (compact + escape route)", "[flat]") {
@@ -628,7 +629,7 @@ TEST_CASE("GFlatGenome: serialization round-trip", "[flat]") {
 /******************************************************************************/
 // CHARACTERIZATION NET (B0, 2026-06-28): outcome-pins for the individual-architecture swap. These
 // assert behaviour that must survive the GProcessable / GOptimizableEntity / GFlatGenome rebuild,
-// independent of the mechanisms being retired (results-only wire form, GIndividualSlot, genome_omitted).
+// independent of the mechanisms being retired (results-only wire form, the population slot, genome_omitted).
 // See prompts/2026-06-28-characterization-net.md.
 
 // External-result acceptance (D14): a precomputed evaluation injected via process(res_vec) is taken
@@ -726,8 +727,8 @@ TEST_CASE("GFlatGenome: OA stall-reset restores sigma to its seed", "[flat][oa]"
     FlatSphere ind(3);
 
     // The OA-owned config drives both the sigma readout and the stall-reset. It is the
-    // config the individual authors; the per-group adaption STATE is OA-owned scratch (held on the
-    // GIndividualSlot in a live run) -- here a standalone GAuxiliaryStore, seeded from the config.
+    // config the individual authors; the per-group adaption STATE is OA-owned scratch (held in the
+    // individual's own GAuxiliaryStore in a live run) -- here a standalone GAuxiliaryStore, seeded from the config.
     auto cfg_ptr = ind.getAdaptionConfig();
     auto &cfg = *cfg_ptr;
     GAuxiliaryStore scratch;
@@ -1469,7 +1470,15 @@ TEST_CASE("Wire send-once: large-genome wire-size before/after", "[flat][wire]")
 
     // The id-only submit drops the whole O(2000) layout, keeping only the values + a 16-byte id.
     CHECK(idonly_submit < full_submit);
-    CHECK(first_submit >= full_submit); // the first send still carries the layout (plus the id framing)
+    // The first send still carries the whole O(2000) layout: it is essentially the size of the
+    // self-contained full encoding and dwarfs the id-only form. It is in fact a handful of bytes SMALLER
+    // than the self-contained encoding, because a wire submit additionally omits the OA scratch (the
+    // GAuxiliaryStore) that the self-contained encoding serializes by value -- so the meaningful pin is
+    // that the first send is NOT the compressed id-only form, differing from `full` only by that tiny
+    // omitted-scratch delta.
+    CHECK(first_submit > idonly_submit);
+    CHECK(full_submit >= first_submit);
+    CHECK(full_submit - first_submit < 256);
     // The results-only return drops both the values and the layout, keeping only the computed results.
     CHECK(results_only_return < full_return);
     CHECK(results_only_return < idonly_submit); // no parameter values at all on a results-only return

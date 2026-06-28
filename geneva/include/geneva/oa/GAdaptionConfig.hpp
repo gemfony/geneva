@@ -670,7 +670,7 @@ public:
     /**
      * @brief Seeds the per-group adaption state blocks into an OA-owned auxiliary store (the slot's
      * scratch) from this config (one block per adaptor kind + channel that is actually used). The
-     * per-group adaption state is OA scratch and lives on the GIndividualSlot, NOT on the individual,
+     * per-group adaption state is OA scratch carried on the individual itself (its GAuxiliaryStore),
      * so the seeding targets a GAuxiliaryStore directly. The seeds also serve as the reset targets used
      * by the stall-reset free function.
      *
