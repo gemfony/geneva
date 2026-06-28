@@ -16,7 +16,7 @@ easy to tackle even complicated problems. Parallelization (on the level
 of optimization algorithms) happens mostly transparently for the user. 
 
 Geneva does not want to be the fastest library of optimization
-algorithms on single-processor machines, but is instead targeted at
+algorithms on small machines, but is instead targeted at
 large scale problems, where the evaluation of a single individual will
 typically take longer than a few seconds.
 
@@ -27,7 +27,4 @@ will not only be useful, but will also encourage users to let us know
 about bugs or suggest or even implement features they would want to
 see in Geneva.
 
-To users and programmers wishing to contribute to this software, the
-terms of the Apache License guarantee the continued availability of
-the code under this license.
 
