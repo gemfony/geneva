@@ -323,6 +323,22 @@ constexpr std::uint32_t DEFAULTMINIT = 0;
 constexpr std::uint32_t DEFAULTMAXSTALLIT = 20;
 
 /**
+ * The default time-to-live (in dispatch rounds) of an entry in a networked consumer's late-return
+ * buffer: a buffered late return that is not reaped within this many rounds is evicted (and the drop
+ * counted/logged). Kept deliberately small -- a late return is only useful for the iteration that
+ * immediately follows its submission.
+ */
+constexpr std::uint64_t DEFAULTLATERETURNTTL = 2;
+
+/**
+ * The default capacity of a networked consumer's late-return buffer, expressed as a MULTIPLE of the
+ * population size (the cap scales with the population so it is independent of how a generation is
+ * chunked into submission batches). 2.0 lets a full generation's worth of returns linger while the
+ * next generation is in flight. 0.0 disables late-return buffering entirely.
+ */
+constexpr double DEFAULTLATERETURNCAPFACTOR = 2.0;
+
+/**
  * The default maximum number of iterations without improvement for paramneter
  * scans. As the algorithm has been instructed to scan an entire range, the
  * value is set to 0 (i.e. it is disabled).

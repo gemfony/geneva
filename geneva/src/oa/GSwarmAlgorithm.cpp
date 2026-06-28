@@ -1262,7 +1262,10 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
     // Submit work items and wait for results (courtier marks + reconciles the whole population).
     auto status = this->workOnPopulation(0, this->data_cnt_.size());
 
-    // Retrieve a vector of old work items
+    // Retrieve a vector of old work items. getOldWorkItems() has already applied the universal gate:
+    // only clean successes survive and each lineage (submission UUID) appears at most once, de-duplicated
+    // against the live population -- so the errored/unprocessed sweep below only ever acts on the FRESH
+    // batch, never on these late returns.
     auto old_work_items = this->getOldWorkItems();
 
     // Update the iteration of older individuals (they will keep their old neighborhood id)

@@ -37,6 +37,7 @@
 #include <concepts>
 #include <ctime>
 #include <iostream>
+#include <set>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -51,6 +52,7 @@
 #include "common/GContainerT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GStdFilesystemPathSerialization.hpp"
+#include "courtier/GCourtierEnums.hpp"     // SUBMISSION_UUID_TYPE (late-return lineage de-dup)
 #include "courtier/GExecutorStatusT.hpp" // executor_status_t (workOn's return type)
 // --- Submission goes through the one process-wide consumer (GConsumerRegistry): the algorithm is
 //     transport-agnostic, it just reads that consumer and calls processBatch(), see workOn ---
@@ -130,6 +132,8 @@ private:
             Gem::Common::make_member("best_current_primary_fitness_", self.best_current_primary_fitness_),
             Gem::Common::make_member("stall_counter_", self.stall_counter_),
             Gem::Common::make_member("stall_counter_threshold_", self.stall_counter_threshold_),
+            Gem::Common::make_member("late_return_ttl_", self.late_return_ttl_),
+            Gem::Common::make_member("late_return_cap_factor_", self.late_return_cap_factor_),
             Gem::Common::make_member("cp_interval_", self.cp_interval_),
             Gem::Common::make_member("cp_base_name_", self.cp_base_name_),
             Gem::Common::make_member("cp_directory_path_", self.cp_directory_path_),
@@ -470,6 +474,45 @@ public:
     std::uint32_t getStallCounterThreshold() const;
 
     /**
+     * @brief Sets the time-to-live (in dispatch rounds) of a networked consumer's late-return buffer
+     * entry. A buffered late return that is not reaped within this many rounds is evicted (the drop is
+     * counted and warned). Applied to the consumer on the next submission.
+     * @param ttl_rounds The late-return buffer TTL, in dispatch rounds
+     */
+    void setLateReturnTTL(std::uint64_t ttl_rounds);
+    /**
+     * @brief @return The late-return buffer TTL (in dispatch rounds)
+     */
+    std::uint64_t getLateReturnTTL() const;
+
+    /**
+     * @brief Sets the capacity of a networked consumer's late-return buffer as a MULTIPLE of the
+     * population size (the absolute cap is recomputed from the live population on each submission, so it
+     * is independent of how a generation is split into submission batches). 0.0 disables late-return
+     * buffering entirely.
+     * @param cap_factor The late-return buffer capacity as a multiple of the population size (>= 0)
+     */
+    void setLateReturnCapFactor(double cap_factor);
+    /**
+     * @brief @return The late-return buffer capacity factor (multiple of the population size)
+     */
+    double getLateReturnCapFactor() const;
+
+    /**
+     * @brief The pure validity + lineage-dedup filter behind getOldWorkItems(), exposed (and static) so
+     * it can be unit-tested in isolation without a consumer. Mutates @p items in place, keeping only
+     * clean successes whose submission UUID is not already in @p seen; each surviving item's UUID is
+     * inserted into @p seen (so within-batch duplicates are also dropped). Pre-load @p seen with the
+     * live population's UUIDs to also reject lineages that are still present.
+     * @param items The drained late returns to filter (mutated in place)
+     * @param seen The set of already-represented submission UUIDs (updated with survivors)
+     */
+    static void retainIntegrableLateReturns(
+        std::vector<std::unique_ptr<gen::GOptimizableEntity>> &items,
+        std::set<Gem::Courtier::SUBMISSION_UUID_TYPE> &seen
+    );
+
+    /**
      * @brief Retrieve the best value found in the entire optimization run so far.
      * @return A tuple holding the best known primary fitness (raw, transformed)
      */
@@ -650,10 +693,22 @@ protected:
      */
     Gem::Courtier::executor_status_t workOnPopulation(std::size_t start, std::size_t end);
     /**
-     * @brief Retrieves a vector of old work items after job submission.
-     * @return The work items that were superseded by reconciliation during the last submission
+     * @brief Drains the consumer's late-return buffer and returns only the late returns that are SAFE
+     * TO INTEGRATE -- this is the single, algorithm-agnostic gate every optimization algorithm reaps
+     * late returns through. Two universal correctness filters are applied here (NOT per algorithm), so
+     * no algorithm can integrate a meaningless or duplicated late return:
+     *  - VALIDITY: only clean successes survive (is_processed() and not has_errors()); an errored,
+     *    exception-flagged or still-unprocessed return is dropped (its results are meaningless and
+     *    selection would otherwise treat them as a real solution).
+     *  - LINEAGE de-duplication: a return whose stable per-individual submission UUID is already
+     *    represented in the live population (a re-dispatched individual whose fresh copy already
+     *    returned) or duplicated within this drained batch (a reclaimed lease re-dispatched one
+     *    individual to two clients, both returning late) is dropped, so a lineage is never counted twice.
+     * Algorithm-specific reaping policy (age windowing, personality re-stamping, neighborhood handling)
+     * stays in the calling algorithm.
+     * @return The integrable (clean, de-duplicated) late returns the consumer buffered
      */
-    static std::vector<std::unique_ptr<gen::GOptimizableEntity>> getOldWorkItems();
+    std::vector<std::unique_ptr<gen::GOptimizableEntity>> getOldWorkItems() const;
 
     /**
      * @brief Returns a fresh personality-traits object for this algorithm. Protected, non-virtual
@@ -958,6 +1013,11 @@ private:
     std::uint32_t stall_counter_ = 0; ///< Counts the number of iterations without improvement
     std::uint32_t stall_counter_threshold_ =
         DEFAULTSTALLCOUNTERTHRESHOLD; ///< The number of stalls after which individuals are asked to update their internal data structures
+
+    std::uint64_t late_return_ttl_ =
+        DEFAULTLATERETURNTTL; ///< TTL (in dispatch rounds) of a networked consumer's late-return buffer entry
+    double late_return_cap_factor_ =
+        DEFAULTLATERETURNCAPFACTOR; ///< Late-return buffer capacity as a multiple of the population size (0 disables buffering)
 
     std::int32_t cp_interval_ =
         DEFAULTCHECKPOINTIT; ///< Number of iterations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered

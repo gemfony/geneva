@@ -58,6 +58,7 @@
 #include <span>
 #include <tuple>
 #include <utility>
+#include <set>
 #include <vector>
 
 /******************************************************************************/
@@ -1125,6 +1126,53 @@ std::uint32_t GOptimizationAlgorithmBase::getStallCounterThreshold() const {
 
 /******************************************************************************/
 /**
+ * @brief Sets the time-to-live (in dispatch rounds) of a networked consumer's late-return buffer entry.
+ *
+ * @param ttl_rounds The late-return buffer TTL, in dispatch rounds
+ */
+void GOptimizationAlgorithmBase::setLateReturnTTL(std::uint64_t ttl_rounds) {
+    late_return_ttl_ = ttl_rounds;
+}
+
+/******************************************************************************/
+/**
+ * @brief Retrieves the time-to-live (in dispatch rounds) of a networked consumer's late-return entry.
+ *
+ * @return The late-return buffer TTL, in dispatch rounds
+ */
+std::uint64_t GOptimizationAlgorithmBase::getLateReturnTTL() const {
+    return late_return_ttl_;
+}
+
+/******************************************************************************/
+/**
+ * @brief Sets the late-return buffer capacity as a multiple of the population size (0 disables it).
+ *
+ * @param cap_factor The late-return buffer capacity as a multiple of the population size (>= 0)
+ */
+void GOptimizationAlgorithmBase::setLateReturnCapFactor(double cap_factor) {
+    if(cap_factor < 0.) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GOptimizationAlgorithmBase::setLateReturnCapFactor(): Error!" << '\n'
+            << "Received a negative capacity factor " << cap_factor << '\n'
+        );
+    }
+    late_return_cap_factor_ = cap_factor;
+}
+
+/******************************************************************************/
+/**
+ * @brief Retrieves the late-return buffer capacity factor (multiple of the population size).
+ *
+ * @return The late-return buffer capacity factor
+ */
+double GOptimizationAlgorithmBase::getLateReturnCapFactor() const {
+    return late_return_cap_factor_;
+}
+
+/******************************************************************************/
+/**
  * Retrieve the best value found in the entire optimization run so far
  *
  * @return The best raw and transformed fitness found so far
@@ -1265,6 +1313,24 @@ void GOptimizationAlgorithmBase::addConfigurationOptions_(Gem::Common::GParserBu
       << '\n'
       << "individuals are asked to update their internal data structures" << '\n'
       << "through the actOnStalls() function. A value of 0 disables this check";
+
+    gpb.registerFileParameter<std::uint64_t>(
+        "late_return_ttl" // The name of the variable
+        ,
+        DEFAULTLATERETURNTTL // The default value
+        ,
+        [this](std::uint64_t ttl) { this->setLateReturnTTL(ttl); }
+    ) << "Time-to-live (in dispatch rounds) of a networked consumer's late-return" << '\n'
+      << "buffer entry. A late return not reaped within this many rounds is evicted.";
+
+    gpb.registerFileParameter<double>(
+        "late_return_cap_factor" // The name of the variable
+        ,
+        DEFAULTLATERETURNCAPFACTOR // The default value
+        ,
+        [this](double cap_factor) { this->setLateReturnCapFactor(cap_factor); }
+    ) << "Capacity of a networked consumer's late-return buffer, as a multiple of" << '\n'
+      << "the population size. 0 disables late-return buffering entirely.";
 
     gpb.registerFileParameter<std::uint32_t>(
         "report_iteration" // The name of the variable
@@ -1623,27 +1689,69 @@ GOptimizationAlgorithmBase::consumerForSubmission_() {
             });
             return c;
         });
-    // Enable the late-return buffer (sized to ~one generation). Idempotent: re-setting the cap is harmless.
-    consumer->enableLateReturns(this->size(), /*ttl_rounds*/ 3);
+    // Enable the late-return buffer. The cap scales with the live population (cap_factor x size) so it
+    // is independent of how a generation is chunked into submission batches; cap_factor 0 disables
+    // buffering. TTL and cap_factor are configurable (see set/getLateReturnTTL / set/getLateReturnCapFactor).
+    // Idempotent: re-setting the knobs each submission is harmless.
+    const auto cap = static_cast<std::size_t>(late_return_cap_factor_ * static_cast<double>(this->size()));
+    consumer->enableLateReturns(cap, late_return_ttl_);
     return consumer;
 }
 
 /******************************************************************************/
 /**
- * @brief Retrieves a vector of old work items after job submission
+ * @brief Drains the consumer's late-return buffer and returns only the late returns that are SAFE TO
+ * INTEGRATE. See the header for the full contract; in short this is the single, algorithm-agnostic gate
+ * every OA reaps late returns through, applying a VALIDITY filter (clean successes only) and a LINEAGE
+ * de-duplication (drop a return whose submission UUID is already live or duplicated within the batch).
  *
- * @return A vector of late-returned (bare) individuals that the consumer buffered after their batch was reconciled
+ * @return A vector of integrable (clean, de-duplicated) late-returned individuals the consumer buffered
  */
-std::vector<std::unique_ptr<gen::GOptimizableEntity>> GOptimizationAlgorithmBase::getOldWorkItems() {
+std::vector<std::unique_ptr<gen::GOptimizableEntity>> GOptimizationAlgorithmBase::getOldWorkItems() const {
     // Reap any LATE returns the consumer buffered -- results that came back after their batch had
     // already been reconciled in place (empty for a local consumer; a networked consumer hands back its
-    // bounded late-return buffer). The OA folds the returned (bare) individuals into the next selection
-    // via fixAfterJobSubmission().
+    // bounded late-return buffer). The OA folds the integrable individuals into the next selection.
     auto consumer = Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().consumer();
-    if(consumer) {
-        return consumer->getLateReturns();
+    if(not consumer) {
+        return {};
     }
-    return {};
+    auto items = consumer->getLateReturns();
+
+    // Pre-load the de-dup set with the UUIDs already represented in the LIVE population, so a late
+    // return whose lineage is still present (a re-dispatched individual whose fresh copy already
+    // returned) is rejected. retainIntegrableLateReturns() then drops invalid and duplicate returns.
+    std::set<Gem::Courtier::SUBMISSION_UUID_TYPE> seen;
+    for(const auto &p : *this) {
+        seen.insert(p->getSubmissionUuid());
+    }
+    retainIntegrableLateReturns(items, seen);
+    return items;
+}
+
+/******************************************************************************/
+/**
+ * @brief The pure validity + lineage-dedup filter behind getOldWorkItems(). See the header for the
+ * contract. Factored out (and static) so it can be unit-tested with synthetic items, no consumer needed.
+ *
+ * @param items The drained late returns to filter (mutated in place)
+ * @param seen The set of already-represented submission UUIDs (updated with survivors)
+ */
+void GOptimizationAlgorithmBase::retainIntegrableLateReturns(
+    std::vector<std::unique_ptr<gen::GOptimizableEntity>> &items,
+    std::set<Gem::Courtier::SUBMISSION_UUID_TYPE> &seen
+) {
+    // VALIDITY: keep only clean successes. is_processed() and has_errors() are mutually exclusive states,
+    // but we test both so the filter stays watertight against any status added between them in future.
+    std::erase_if(items, [](const auto &x) -> bool {
+        return (not x->is_processed()) || x->has_errors();
+    });
+
+    // LINEAGE de-dup: drop a return whose UUID is already represented (live population, pre-loaded above)
+    // or that recurs within this batch. set::insert reports false on a duplicate, so the first occurrence
+    // of each UUID is kept and every later one removed.
+    std::erase_if(items, [&seen](const auto &x) -> bool {
+        return not seen.insert(x->getSubmissionUuid()).second;
+    });
 }
 
 /******************************************************************************/

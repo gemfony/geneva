@@ -50,12 +50,20 @@ Recommended Versions:
   per-individual lineage id (GProcessable submission uuid), a 128-bit identity minted
   once at construction and preserved across every re-dispatch and serialized round-trip
   (fresh only on clone). It is distinct from the per-dispatch correlation id, which
-  still routes each return to its slot. Using it, the EA / SA population reconciliation
-  (GParChild::fixAfterJobSubmission) now integrates late networked returns more safely:
-  a late return is admitted only if it is a CLEAN SUCCESS (processed, no error flag) --
-  errored or still-unprocessed returns are dropped instead of polluting selection --
-  and only if its lineage is not already represented, so a re-dispatched individual or a
-  lease-reclaimed duplicate that returns late cannot be counted twice.
+  still routes each return to its slot. Using it, late networked returns are now
+  integrated through a single, algorithm-agnostic gate
+  (GOptimizationAlgorithmBase::getOldWorkItems, the one drain point every algorithm
+  reaps through): a late return is admitted only if it is a CLEAN SUCCESS (processed, no
+  error flag) -- errored or still-unprocessed returns are dropped instead of polluting
+  selection -- and only if its lineage is not already represented in the live population
+  or within the drained batch, so a re-dispatched individual or a lease-reclaimed
+  duplicate that returns late cannot be counted twice. Because the gate is in the shared
+  base, every algorithm (EA, SA, swarm, ...) benefits uniformly; algorithm-specific
+  reaping policy (the EA/SA age window, personality re-stamping) stays in the algorithm.
+  The networked late-return buffer is now configurable per algorithm: late_return_ttl
+  (dispatch-round time-to-live, default 2) and late_return_cap_factor (buffer capacity as
+  a multiple of the population size, default 2.0; 0 disables buffering), exposed both in
+  the JSON config and via set/getLateReturnTTL() / set/getLateReturnCapFactor().
 
 - CONFIG-STRIP: mutation adaptors no longer live on the genome. The genome's shared
   layout (GGenomeLayout) is now STRUCTURE-ONLY (type / bounds / grouping / labels);
