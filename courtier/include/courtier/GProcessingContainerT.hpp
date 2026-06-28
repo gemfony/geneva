@@ -77,11 +77,27 @@ namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
-	 * This class can serve as a base class for items to be submitted through the broker. You need to
-	 * re-implement the purely virtual functions in derived classes. Note that it is mandatory for
-	 * derived classes to be serializable and to trigger serialization of this class.
+	 * @brief The generic, self-contained base for a consumer-submittable work item: GProcessable plus a
+	 * typed result store and the process() orchestration.
 	 *
-	 * @tparam processable_type The type of the class derived from GProcessingContainerT
+	 * GProcessable (the base) carries only the non-generic processing LIFECYCLE (status / routing / timing)
+	 * and has no process() and no result store, so it is not by itself a submittable work item. This class
+	 * adds the missing half: a typed result store (one or more processing_result_type values), the
+	 * process() orchestration (timing, the configured pre-/post-processors, error/exception handling around
+	 * the user's process_() hook) and the results-only return graft -- i.e. the full contract the courtier
+	 * consumers require of an item they evaluate. Derive this (CRTP-style, passing yourself as
+	 * processable_type) to make your OWN type runnable on any courtier consumer; re-implement the pure
+	 * virtual process_() and make the derived class serializable so it travels on the networked transports.
+	 *
+	 * This base is deliberately free of any dependency on the geneva optimization library, which keeps the
+	 * courtier consumer/transport machinery testable on its own (courtier sits BELOW geneva in the library
+	 * order): the geneva-free demo work items in GDemoProcessingContainers derive this and are what the
+	 * courtier unit tests submit. Geneva's own work item, Gem::Geneva::Genome::GOptimizableEntity, is a
+	 * SPECIALIZED, standalone second implementation of the same contract -- it derives GProcessable directly
+	 * and provides its own result store + process() (folding in optimization-specific orchestration:
+	 * feasibility, the evaluation policy, multi-criterion fitness), so it does NOT derive this class.
+	 *
+	 * @tparam processable_type The concrete type deriving GProcessingContainerT (CRTP)
 	 * @tparam processing_result_type The result type of the process_ call; should be copyable
 	 */
 template <
