@@ -67,6 +67,7 @@
 #include "common/GSerializeTupleT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
+#include "courtier/GProcessable.hpp" // the non-generic processing-lifecycle base
 
 namespace Gem::Courtier {
 
@@ -89,7 +90,7 @@ template <
     typename processable_type,
     typename processing_result_type>
     requires (!std::is_void_v<processing_result_type>)
-class GProcessingContainerT {
+class GProcessingContainerT : public GProcessable {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -97,25 +98,15 @@ class GProcessingContainerT {
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_NVP(iteration_counter_) &
-            BOOST_SERIALIZATION_NVP(resubmission_counter_) &
-            BOOST_SERIALIZATION_NVP(collection_position_) &
-            BOOST_SERIALIZATION_NVP(correlation_id_) &
+        // The non-generic lifecycle state (status, errors, routing counters, timing) is serialised by
+        // the GProcessable base; this class adds only the result store and the (typed) pre-/post-
+        // processors plus their veto flags.
+        ar &make_nvp("GProcessable", boost::serialization::base_object<GProcessable>(*this)) &
             BOOST_SERIALIZATION_NVP(pre_processing_disabled_) &
             BOOST_SERIALIZATION_NVP(post_processing_disabled_) &
             BOOST_SERIALIZATION_NVP(pre_processor_ptr_) &
             BOOST_SERIALIZATION_NVP(post_processor_ptr_) &
-            BOOST_SERIALIZATION_NVP(pre_processing_time_) &
-            BOOST_SERIALIZATION_NVP(processing_time_) &
-            BOOST_SERIALIZATION_NVP(post_processing_time_) &
-            BOOST_SERIALIZATION_NVP(broker_raw_retrieval_time_) &
-            BOOST_SERIALIZATION_NVP(broker_raw_submission_time_) &
-            BOOST_SERIALIZATION_NVP(broker_proc_retrieval_time_) &
-            BOOST_SERIALIZATION_NVP(broker_proc_submission_time_) &
-            BOOST_SERIALIZATION_NVP(stored_results_cnt_) &
-            BOOST_SERIALIZATION_NVP(stored_error_descriptions_) &
-            BOOST_SERIALIZATION_NVP(processing_status_);
-        //& BOOST_SERIALIZATION_NVP(evaluation_id_);
+            BOOST_SERIALIZATION_NVP(stored_results_cnt_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -143,25 +134,12 @@ public:
     explicit GProcessingContainerT(
         GProcessingContainerT<processable_type, processing_result_type> const &cp
     )
-      : iteration_counter_(cp.iteration_counter_)
-      , resubmission_counter_(cp.resubmission_counter_)
-      , collection_position_(cp.collection_position_)
-      , correlation_id_(cp.correlation_id_)
+      : GProcessable(cp) // copies the non-generic lifecycle state (status, errors, counters, timing)
       , pre_processing_disabled_(cp.pre_processing_disabled_)
       , post_processing_disabled_(cp.post_processing_disabled_)
-      , pre_processing_time_(cp.pre_processing_time_)
-      , processing_time_(cp.processing_time_)
-      , post_processing_time_(cp.post_processing_time_)
-      , broker_raw_retrieval_time_(cp.broker_raw_retrieval_time_)
-      , broker_raw_submission_time_(cp.broker_raw_submission_time_)
-      , broker_proc_retrieval_time_(cp.broker_proc_retrieval_time_)
-      , broker_proc_submission_time_(cp.broker_proc_submission_time_)
       , stored_results_cnt_(
             cp.stored_results_cnt_
         ) // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
-      , stored_error_descriptions_(cp.stored_error_descriptions_)
-      , processing_status_(cp.processing_status_)
-    // , evaluation_id_(cp.evaluation_id_)
     {
         Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
         Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
@@ -176,24 +154,11 @@ public:
 	  */
     GProcessingContainerT<processable_type, processing_result_type> &
     operator=(GProcessingContainerT<processable_type, processing_result_type> const &cp) {
-        iteration_counter_ = cp.iteration_counter_;
-        resubmission_counter_ = cp.resubmission_counter_;
-        collection_position_ = cp.collection_position_;
-        correlation_id_ = cp.correlation_id_;
+        GProcessable::operator=(cp); // the non-generic lifecycle state
         pre_processing_disabled_ = cp.pre_processing_disabled_;
         post_processing_disabled_ = cp.post_processing_disabled_;
-        pre_processing_time_ = cp.pre_processing_time_;
-        processing_time_ = cp.processing_time_;
-        post_processing_time_ = cp.post_processing_time_;
-        broker_raw_retrieval_time_ = cp.broker_raw_retrieval_time_;
-        broker_raw_submission_time_ = cp.broker_raw_submission_time_;
-        broker_proc_retrieval_time_ = cp.broker_proc_retrieval_time_;
-        broker_proc_submission_time_ = cp.broker_proc_submission_time_;
         stored_results_cnt_ =
             cp.stored_results_cnt_; // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
-        stored_error_descriptions_ = cp.stored_error_descriptions_;
-        processing_status_ = cp.processing_status_;
-        // evaluation_id_ = cp.evaluation_id_;
 
         Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
         Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
@@ -439,368 +404,6 @@ public:
 
     /***************************************************************************/
     /**
-	  * @brief Allows to retrieve the current processing status
-	  *
-	  * @return The current processing status of this work item
-	  */
-    processingStatus getProcessingStatus() const noexcept {
-        return processing_status_;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Allows to retrieve the current processing status as a string (mostly for
-	  * debugging purposes).
-	  *
-	  * @return A string representation of the current processing status
-	  */
-    std::string getProcessingStatusAsStr() const noexcept {
-        return psToStr(processing_status_);
-    }
-
-    /***************************************************************************/
-    /**
-	  * Checks whether the processed flag was set for this item
-	  *
-	  * @return A boolean indicating whether the item was processed
-	  */
-    bool is_processed() const noexcept {
-        return (processingStatus::PROCESSED == this->getProcessingStatus());
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Checks whether the UNPROCESSED flag is set
-	  *
-	  * @return A boolean indicating whether the item is currently unprocessed
-	  */
-    bool is_unprocessed() const noexcept {
-        return (processingStatus::UNPROCESSED == this->getProcessingStatus());
-    }
-
-    /***************************************************************************/
-    /**
-	  * Checks whether the DO_PROCESS flag was  set for this item
-	  *
-	  * @return A boolean indicating whether the item is due for processing
-	  */
-    bool is_due_for_processing() const noexcept {
-        return (processingStatus::DO_PROCESS == this->getProcessingStatus());
-    }
-
-    /***************************************************************************/
-    /**
-	  * Checks if there were errors during processing
-	  *
-	  * @return A boolean indicating whether there were errors during processing
-	  */
-    bool has_errors() const noexcept {
-        return (processingStatus::EXCEPTION_CAUGHT == processing_status_) ||
-               (processingStatus::ERROR_FLAGGED == processing_status_);
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Allows to check whether an error was flagged by the user
-	  *
-	  * @return A boolean indicating whether the user explicitly flagged an error
-	  */
-    bool error_flagged_by_user() const noexcept {
-        return (processingStatus::ERROR_FLAGGED == processing_status_);
-    }
-
-    /***************************************************************************/
-    /**
-	  * Sets a given new processing state. Which new states are
-	  * accepted depends on the current state:
-	  * - IGNORE --> IGNORE, DO_PROCESS
-	  * - DO_PROCESS --> DO_PROCESS, IGNORE
-	  * - PROCESSED --> PROCESSED, IGNORE, DO_PROCESS
-	  * - EXCEPTION_CAUGHT --> EXCEPTION_CAUGHT, IGNORE, DO_PROCESS
-	  * - ERROR_FLAGGED --> ERROR_FLAGGED, IGNORE, DO_PROCESS
-	  * Note that some target states may result in the erasure of existing
-	  * information, such as past error messages. Setting a new processing state
-	  * of "PROCESSED" via this function is not allowed and will result in an
-	  * exception being thrown, unless this state is already set.
-	  *
-	  * @param target_ps The desired new processing status
-	  */
-    void set_processing_status(processingStatus target_ps = processingStatus::UNPROCESSED) {
-        // Do nothing if the new state is equal to the old one
-        if(target_ps == processing_status_) {
-            return;
-        }
-
-        // We do not accept setting a target state of PROCESSED via this function
-        if(target_ps == processingStatus::PROCESSED) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GProcessingContainerT<>::set_processing_status():" << '\n'
-                << "An attempt was made to set the processing state to PROCESSED" << '\n'
-                << "which is not allowed through this function." << '\n'
-            );
-        }
-
-        // We want to enforce specific targets depending on the current state
-        switch(processing_status_) {
-            using enum Gem::Courtier::processingStatus;
-            //------------------------------------------------------------------------------------
-
-        case UNPROCESSED:
-            if(target_ps == processingStatus::DO_PROCESS) {
-                // Store the new state
-                processing_status_ = target_ps;
-                // Clear any remaining error messages
-                stored_error_descriptions_.clear();
-                // "Nullify" the result list.
-                this->clear_stored_results_vec();
-            }
-            else {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GProcessingContainerT<>::set_processing_status():" << '\n'
-                    << "Got invalid target processing status " << psToStr(target_ps) << '\n'
-                    << "Expected a new state of DO_PROCESS for the" << '\n'
-                    << "current state of " << psToStr(processing_status_) << '\n'
-                );
-            }
-            break;
-
-            //------------------------------------------------------------------------------------
-
-        case DO_PROCESS:
-            if(target_ps == processingStatus::UNPROCESSED) {
-                // Store the new state
-                processing_status_ = target_ps;
-                // Clear any remaining error messages
-                stored_error_descriptions_.clear();
-                // "Nullify" the result list.
-                this->clear_stored_results_vec();
-            }
-            else {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GProcessingContainerT<>::set_processing_status():" << '\n'
-                    << "Got invalid target processing status " << psToStr(target_ps) << '\n'
-                    << "Expected a new state of UNPROCESSED for the" << '\n'
-                    << "current state of " << psToStr(processing_status_) << '\n'
-                );
-            }
-            break;
-
-            //------------------------------------------------------------------------------------
-
-        case PROCESSED:
-            if(target_ps == processingStatus::UNPROCESSED ||
-               target_ps == processingStatus::DO_PROCESS) {
-                // Store the new state
-                processing_status_ = target_ps;
-                // Clear any remaining error messages
-                stored_error_descriptions_.clear();
-                // "Nullify" the result list.
-                this->clear_stored_results_vec();
-            }
-            else {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GProcessingContainerT<>::set_processing_status():" << '\n'
-                    << "Got invalid target processing status " << psToStr(target_ps) << '\n'
-                    << "Expected a new state of UNPROCESSED or DO_PROCESS for the" << '\n'
-                    << "current state of " << psToStr(processing_status_) << '\n'
-                );
-            }
-            break;
-
-            //------------------------------------------------------------------------------------
-
-        case EXCEPTION_CAUGHT:
-        case ERROR_FLAGGED:
-            if(target_ps == processingStatus::UNPROCESSED ||
-               target_ps == processingStatus::DO_PROCESS) {
-                // Store the new state
-                processing_status_ = target_ps;
-                // Clear any remaining error messages
-                stored_error_descriptions_.clear();
-                // "Nullify" the result list.
-                this->clear_stored_results_vec();
-            }
-            else {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GProcessingContainerT<>::set_processing_status():" << '\n'
-                    << "Got invalid target processing status " << psToStr(target_ps) << '\n'
-                    << "Expected a new state of UNPROCESSED or DO_PROCESS for the" << '\n'
-                    << "current state of " << psToStr(processing_status_) << '\n'
-                );
-            }
-            break;
-
-            //------------------------------------------------------------------------------------
-        };
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Marks this item as being due for processing.
-	  */
-    void mark_as_due_for_processing() {
-        processing_status_ = processingStatus::DO_PROCESS;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Sets the UNPROCESSED flag for this work item so that it will not be processed.
-	  */
-    void mark_as_ignorable() {
-        processing_status_ = processingStatus::UNPROCESSED;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Allows to set the counter of a given iteration
-	  *
-	  * @param counter The iteration counter value to store on this work item
-	  */
-    void setIterationCounter(const ITERATION_COUNTER_TYPE &counter) noexcept {
-        iteration_counter_ = counter;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Allows to retrieve the counter of a given iteration
-	  *
-	  * @return The iteration counter stored on this work item
-	  */
-    ITERATION_COUNTER_TYPE getIterationCounter() const noexcept {
-        return iteration_counter_;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Allows to set the counter of the current submission inside of an iteration
-	  *
-	  * @param resubmission_counter The resubmission counter value to store on this work item
-	  */
-    void setResubmissionCounter(const RESUBMISSION_COUNTER_TYPE &resubmission_counter) noexcept {
-        resubmission_counter_ = resubmission_counter;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Allows to retrieve the counter of the current submission inside of an iteration
-	  *
-	  * @return The resubmission counter stored on this work item
-	  */
-    RESUBMISSION_COUNTER_TYPE getResubmissionCounter() const noexcept {
-        return resubmission_counter_;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Allows to set the position inside of a given collection submitted to the broker
-	  *
-	  * @param pos The position of this work item within its submitted collection
-	  */
-    void setCollectionPosition(const COLLECTION_POSITION_TYPE &pos) noexcept {
-        collection_position_ = pos;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Allows to retrieve the position inside of a given collection submitted to the broker
-	  *
-	  * @return The position of this work item within its submitted collection
-	  */
-    COLLECTION_POSITION_TYPE getCollectionPosition() const noexcept {
-        return collection_position_;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Sets the transport correlation id -- the token used to route/match a work item through the
-	  * transport layer (the originating buffer-port index in the courtier broker; a (generation,
-	  * slot) token in the courtier networked consumers).
-	  *
-	  * @param id The transport correlation id to store on this work item
-	  */
-    void setCorrelationId(const CORRELATION_ID_TYPE &id) noexcept {
-        correlation_id_ = id;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Retrieves the transport correlation id (see setCorrelationId()).
-	  *
-	  * @return The transport correlation id stored on this work item
-	  */
-    CORRELATION_ID_TYPE getCorrelationId() const noexcept {
-        return correlation_id_;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Sets the courtier per-batch scheduling state. This is transient, server-side-only
-	  * bookkeeping (NOT serialized): it lets a networked consumer track, on the item itself,
-	  * whether the slot is awaiting a client / in flight / done within one dispatch round.
-	  *
-	  * @param s The new per-batch dispatch/scheduling state for this work item
-	  */
-    void setDispatchState(dispatchState s) noexcept {
-        dispatch_state_ = s;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Retrieves the courtier per-batch scheduling state (see setDispatchState()).
-	  *
-	  * @return The current per-batch dispatch/scheduling state of this work item
-	  */
-    dispatchState getDispatchState() const noexcept {
-        return dispatch_state_;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Allows to retrieve the timepoint when a work item was retrieved from the raw queue
-	  *
-	  * @return The time point at which this item was retrieved from the raw queue
-	  */
-    std::chrono::high_resolution_clock::time_point getRawRetrievalTime() const {
-        return broker_raw_retrieval_time_;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Allows to retrieve the timepoint when a work item was submitted to the raw queue
-	  *
-	  * @return The time point at which this item was submitted to the raw queue
-	  */
-    std::chrono::high_resolution_clock::time_point getRawSubmissionTime() const {
-        return broker_raw_submission_time_;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Allows to retrieve the timepoint when a work item was retrieved from the processed queue
-	  *
-	  * @return The time point at which this item was retrieved from the processed queue
-	  */
-    std::chrono::high_resolution_clock::time_point getProcRetrievalTime() const {
-        return broker_proc_retrieval_time_;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Allows to retrieve the timepoint when a work item was submitted to the processed queue
-	  *
-	  * @return The time point at which this item was submitted to the processed queue
-	  */
-    std::chrono::high_resolution_clock::time_point getProcSubmissionTime() const {
-        return broker_proc_submission_time_;
-    }
-
-    /***************************************************************************/
-    /**
 	  * @brief Allows to check whether any user-defined pre-processing before the process()-
 	  * step may occur. This may alter the individual's data.
 	  *
@@ -897,72 +500,6 @@ public:
 	  */
     void clearPostProcessor() {
         post_processor_ptr_.reset();
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Allows to retrieve the processing time needed for the work item
-	  *
-	  * @return A tuple of (pre-processing, processing, post-processing) times in seconds
-	  */
-    std::tuple<double, double, double> getProcessingTimes() const {
-        return std::make_tuple(pre_processing_time_, processing_time_, post_processing_time_);
-    };
-
-    /***************************************************************************/
-    /**
-	  * @brief Retrieves and clears exceptions and the processing status.
-	  *
-	  * @param ps The desired new processing status to set after extracting the stored exceptions
-	  * @return The stored error descriptions that were present before clearing
-	  */
-    std::string get_and_clear_exceptions(processingStatus ps = processingStatus::UNPROCESSED) {
-        std::string stored_exceptions =
-            stored_error_descriptions_; // NOLINT(cppcoreguidelines-init-variables)
-        this->set_processing_status(ps);
-        return stored_exceptions;
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Allows to extract stored error descriptions
-	  *
-	  * @return The accumulated error descriptions stored during processing
-	  */
-    std::string getStoredErrorDescriptions() const {
-        return stored_error_descriptions_;
-    }
-
-    /***************************************************************************/
-    /**
- 	  * @brief Marks the time when the item was added to a GBuffferPortT raw queue
- 	  */
-    void markRawSubmissionTime() {
-        broker_raw_submission_time_ = std::chrono::high_resolution_clock::now();
-    }
-
-    /***************************************************************************/
-    /**
- 	  * @brief Marks the time when the item was retrieved from a GBuffferPortT raw queue
- 	  */
-    void markRawRetrievalTime() {
-        broker_raw_retrieval_time_ = std::chrono::high_resolution_clock::now();
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Marks the time when the item was submitted to a GBuffferPortT processed queue
-	  */
-    void markProcSubmissionTime() {
-        broker_proc_submission_time_ = std::chrono::high_resolution_clock::now();
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Marks the time when the item was retrieved from a GBuffferPortT processed queue
-	  */
-    void markProcRetrievalTime() {
-        broker_proc_retrieval_time_ = std::chrono::high_resolution_clock::now();
     }
 
     /***************************************************************************/
@@ -1067,28 +604,6 @@ protected:
 
     /***************************************************************************/
     /**
-	  * @brief This function allows derived classes to specify custom error conditions by
-	  * setting their own error messages. The function will also set the internal
-	  * flags that indicate that an error has occurred and that processing was not
-	  * successful. NOTE That the error description may not be empty.
-	  *
-	  * @param error_info An error description (must not be empty; appended to any existing descriptions)
-	  */
-    void force_set_error(const std::string &error_info) {
-        if(error_info.empty()) {
-            throw geneva_exception( // Note: this is a specific exception to flag errors during processing
-					g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-					<< "In GProcessingContainerT::force_set_error(): Error info is empty" << '\n'
-				);
-        }
-
-        // There may already be information stored in this variable. Hence we attach the new information via +=
-        stored_error_descriptions_ += error_info;
-        processing_status_ = processingStatus::ERROR_FLAGGED;
-    }
-
-    /***************************************************************************/
-    /**
      * @brief The default constructor. It is only needed for (de-)serialization purposes.
      * We want to enforce the specification of the number of evaluation criteria
      * in derived classes. Protected, so that a derived class can have a defaulted
@@ -1107,6 +622,11 @@ private:
             *it = processing_result_type();
         }
     }
+
+    /***************************************************************************/
+    /** @brief Bridges the GProcessable status machine to this class's result store: when a status reset
+     *  clears stored results, GProcessable::set_processing_status() calls this hook. */
+    void clearStoredResults_() override { this->clear_stored_results_vec(); }
 
     /***************************************************************************/
     /**
@@ -1165,51 +685,22 @@ private:
     }
 
     /***************************************************************************/
-    // Data
+    // Data -- the result store and the (typed) pre-/post-processors. The non-generic lifecycle state
+    // (status, errors, routing counters, dispatch-scheduling, timing) lives on the GProcessable base.
 
-    ITERATION_COUNTER_TYPE iteration_counter_ = static_cast<ITERATION_COUNTER_TYPE>(0);
-    RESUBMISSION_COUNTER_TYPE resubmission_counter_ = static_cast<RESUBMISSION_COUNTER_TYPE>(0);
-    COLLECTION_POSITION_TYPE collection_position_ = static_cast<COLLECTION_POSITION_TYPE>(0);
-    CORRELATION_ID_TYPE correlation_id_ = CORRELATION_ID_TYPE();
-
-    /// Transient, server-side-only per-batch scheduling state for the courtier networked consumers.
-    /// Deliberately NOT part of serialize()/load_ (the wire/clone never needs it; see dispatchState).
-    dispatchState dispatch_state_ = dispatchState::NONE;
-
-    bool pre_processing_disabled_ = false; ///< Indicates whether pre-processing was diabled entirely
+    bool pre_processing_disabled_ = false; ///< Indicates whether pre-processing was disabled entirely
     bool post_processing_disabled_ =
-        false; ///< Indicates whether pre-processing was diabled entirely
+        false; ///< Indicates whether post-processing was disabled entirely
 
     std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>>
         pre_processor_ptr_; ///< Actions to be performed before processing
     std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>>
         post_processor_ptr_; ///< Actions to be performed after processing
 
-    double pre_processing_time_ =
-        0.; ///< The amount of time needed for pre-processing (in seconds)
-    double processing_time_ =
-        0.; ///< The amount of time needed for the actual processing step (in seconds)
-    double post_processing_time_ =
-        0.; ///< The amount of time needed for post-processing (in seconds)
-
-    std::chrono::high_resolution_clock::time_point
-        broker_raw_retrieval_time_; ///< Time when the item was retrieved from the raw queue
-    std::chrono::high_resolution_clock::time_point
-        broker_raw_submission_time_; ///< Time when the item was submitted to the raw queue
-    std::chrono::high_resolution_clock::time_point
-        broker_proc_retrieval_time_; ///< Time when the item was retrieved from the processed queue
-    std::chrono::high_resolution_clock::time_point
-        broker_proc_submission_time_; ///< Time when the item was submitted to the processed queue
-
     std::vector<processing_result_type> stored_results_cnt_ = std::vector<processing_result_type>(
         1,
         processing_result_type()
     ); ///< The results stored by this object
-
-    std::string
-        stored_error_descriptions_; ///< Stores exceptions that may have occurred during processing
-    processingStatus processing_status_ =
-        processingStatus::UNPROCESSED; ///< By default no processing is initiated
 
     // std::string evaluation_id_ = "empty"; ///< A unique id that is assigned to an evaluation
 };
