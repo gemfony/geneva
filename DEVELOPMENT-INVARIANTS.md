@@ -26,19 +26,22 @@ example of this rule; apply the same reflex everywhere.
 ## 2. Concurrency primitives come only from the shared concurrency facilities
 
 All concurrency building blocks — **thread pools, thread groups, thread-safe queues, thread-safe keyed
-stores, and any lock-free structures** — come from Geneva's shared concurrency facilities in `common/`
-(`GBlockingMPMCQueueT`, `GPreallocatedMPMCQueueT`, the `GMPMCQueueT` facade + the `MPMCQueue` concept, the
-thread pool/group; **being consolidated into a distinct concurrency sub-module of `common/`** — mirroring
-geneva's `par`/`ind`/`oa` — so they stay able to use `common`'s facilities yet are clearly separated and
-impossible to overlook). No part of Geneva rolls its own. If a primitive does not meet a requirement,
-**improve it or add a variant there** — never a local `deque`+`mutex`, bespoke ring, hand-rolled thread pool,
-or ad-hoc thread-safe map at the use site.
+stores, completion latches, content-addressed/aging stores, and any lock-free structures** — come from
+Geneva's shared concurrency facilities, consolidated in the distinct sub-module
+`common/include/common/concurrency/` (namespace `Gem::Common::Concurrency`) — mirroring geneva's
+`par`/`ind`/`oa`, so they stay able to use `common`'s facilities yet are clearly separated and impossible to
+overlook. These include `GBlockingMPMCQueueT`, `GPreallocatedMPMCQueueT`, the `GMPMCQueueT` facade + the
+`MPMCQueue` concept, the thread pool/group, `GContentAddressedStoreT`, `GThreadSafeKeyedStoreT`,
+`GThreadSafeSetT`, `GCompletionLatchT`, `GSPSCStagingRingT` and `GAgingStoreT`. No part of Geneva rolls its
+own. If a primitive does not meet a requirement, **improve it or add a variant there** — never a local
+`deque`+`mutex`, bespoke ring, hand-rolled thread pool, or ad-hoc thread-safe map at the use site.
 
 *Why:* one place to get memory ordering / ThreadSanitizer correctness right, one set of semantics, isolated
-tests — and a distinct, named dependency makes Invariant 1 unforgettable. *Known cleanups owed to this rule:*
-the consumer's roll-your-own `late_returns_` buffer → a library queue, its `{uuid,iteration}`→clone retention
-map → a (new) library thread-safe keyed store, and Hap's lock-free `GRotatingPool` → a lock-free SPSC ring
-lifted into the library (the existing lock-based queues would regress the RNG hot path).
+tests — and a distinct, named dependency makes Invariant 1 unforgettable. The original cleanups owed to this
+rule are discharged (the consumer's `late_returns_` buffer + retained-original map → `GAgingStoreT`, the
+in-flight borrow set → `GThreadSafeSetT`, Hap's `GRotatingPool` → `GSPSCStagingRingT`, the global option
+stores → `GThreadSafeKeyedStoreT`). *Remaining (deferred, MPI-transport-local):* the MPI transport's raw
+`receiverThread_`/`cleanUpThread_` → `GThreadGroup` and its `openSessions_` vector reaping → a library store.
 
 ## 3. Build out-of-source only
 

@@ -40,7 +40,6 @@
 #include <cstdint>
 #include <functional>
 #include <map>
-#include <set>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -50,6 +49,7 @@
 // Geneva headers
 #include "common/GLogger.hpp" // glogger << ... << GWARNING (late-return drop warning)
 #include "common/concurrency/GAgingStoreT.hpp" // the shared aging keyed+FIFO store (late-return facility)
+#include "common/concurrency/GThreadSafeSetT.hpp" // the per-session in-flight borrow set (CheckoutLease)
 #include "courtier/GCourtierEnums.hpp" // CORRELATION_ID_TYPE, dispatchState
 #include "courtier/GBaseConsumerT.hpp"
 
@@ -208,16 +208,15 @@ protected:
      * lease instead -- see usesTimeLease().
      *
      * Items are keyed by their (batch_id, slot) correlation id, so add()/remove() pair up regardless of
-     * the order results come back in. Guarded by an internal mutex: although a single session drives its
-     * add()/remove() on one strand, the destructor may run on whichever io thread releases the last
-     * reference, so the two must not race.
+     * the order results come back in. The in-flight set is a thread-safe GThreadSafeSetT: although a
+     * single session drives its add()/remove() on one strand, the destructor may run on whichever io
+     * thread releases the last reference, so the two must not race.
      */
     struct CheckoutLease {
-        std::mutex mtx;
         // Items travel by unique_ptr, so the lease cannot co-own them: it tracks only the in-flight
         // correlation ids (a borrow). The owning copy stays in the consumer's batch; on abandon the
         // lease asks the consumer to requeue those ids.
-        std::set<Gem::Courtier::CORRELATION_ID_TYPE> in_flight;
+        Gem::Common::Concurrency::GThreadSafeSetT<Gem::Courtier::CORRELATION_ID_TYPE> in_flight;
         std::function<void(Gem::Courtier::CORRELATION_ID_TYPE)> on_abandon;
 
         CheckoutLease() = default;
@@ -230,7 +229,6 @@ protected:
             if(not p) {
                 return;
             }
-            std::scoped_lock lk(mtx);
             in_flight.insert(p->getCorrelationId());
         }
         /** @brief Drops an item the session returned normally (nothing left for the lease to reclaim).
@@ -239,19 +237,17 @@ protected:
             if(not p) {
                 return;
             }
-            std::scoped_lock lk(mtx);
             in_flight.erase(p->getCorrelationId());
         }
         ~CheckoutLease() {
-            std::set<Gem::Courtier::CORRELATION_ID_TYPE> remaining;
-            {
-                std::scoped_lock lk(mtx);
-                remaining.swap(in_flight);
-            }
+            // Atomically take everything still in flight; requeue outside the set's lock.
             if(on_abandon) {
-                for(auto id : remaining) {
+                for(auto id : in_flight.drain()) {
                     on_abandon(id);
                 }
+            }
+            else {
+                in_flight.clear();
             }
         }
     };

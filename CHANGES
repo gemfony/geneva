@@ -144,6 +144,19 @@ Recommended Versions:
   explicitly switched on; with auto, a host that has CUDA now uses it by default (turn it
   off with USECUDARNG=off / BUILDGPUCONSUMER=off or the SKIPALLCUDA master).
 
+- Geneva's concurrency primitives are now consolidated in a single sub-module: the directory
+  common/include/common/concurrency/ and the namespace Gem::Common::Concurrency. The existing
+  shared facilities (GThreadPool, GThreadGroup, the GBlockingMPMCQueueT / GPreallocatedMPMCQueueT
+  / GMPMCQueueT queues) moved there, and the hand-rolled concurrency structures scattered across
+  the libraries were lifted into reusable, individually unit-tested primitives in the same place:
+  GContentAddressedStoreT (the wire-layout send-once registry), GThreadSafeKeyedStoreT (the global
+  option stores), GCompletionLatchT (the thread-pool consumer's per-batch barrier), GSPSCStagingRingT
+  (the Hap RNG prefetch ring, the fill source now injected so the ring is domain-agnostic),
+  GAgingStoreT (the networked consumer's late-return park + retained-original buffer, both faces over
+  one epoch/TTL/cap) and GThreadSafeSetT (a session's in-flight borrow set). Behaviour is unchanged;
+  a runnable tour lives in common/examples/concurrency/. Internal only -- not source-breaking for
+  problem definitions.
+
 - New benchmark hap/tests/ManualTests/GRandomMutationLoad ranks the random sources for the
   Geneva use-case. It reproduces the EA Gaussian-mutation draw mix (a g_bernoulli gate plus a
   g_normal step per parameter, mirroring GAdaptionKernels) and -- crucially -- models the BURSTY
