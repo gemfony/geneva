@@ -115,6 +115,34 @@ warning** rather than letting it scroll past. Determine its cause, and either fi
 genuinely benign and unavoidable, understand and record why. The same discipline as Invariant 9 applies to
 warnings as to test failures — they are not stepped over because they look unrelated to the change in hand.
 
+## 11. Usage and impact searches must cover the WHOLE tree
+
+When determining whether something is used, or assessing the blast radius of a change, **search across all of
+Geneva — every library, both headers (`.hpp`/`.h`/`.cuh`) and sources (`.cpp`/`.cu`), and including examples,
+tests, benchmarks, and demos.** Do not scope the search to a single directory, to `src/` only, or to
+`.cpp` only: a symbol declared and consumed entirely in a header (e.g. an inline OA helper) is invisible to a
+`src/*.cpp` grep, and a "no callers" conclusion drawn from a partial search is worse than none — it licenses a
+wrong deletion or migration. Confirm "unused" only after a tree-wide search; when in doubt, widen the net.
+
+## 12. Substantial changes keep the Doxygen documentation in sync
+
+When making a substantial change — altered signatures, moved or renamed members, new/removed classes, changed
+ownership or lifecycle, a different invariant — **cross-check the Doxygen documentation (class/file/function
+comments, `@param`/`@return`, `@par` notes, cross-references) and bring it up to date in the same change.**
+Stale API documentation silently misleads; the docs are part of the contract, not an afterthought, and drift is
+fixed where it is introduced rather than left for a later sweep.
+
+## 13. Tests and demos adapt to a worthwhile change — they never veto it
+
+A worthwhile architecture or code change is **not** abandoned because it would make existing tests, demos, or
+examples fail, nor because the **only** remaining consumer of a feature or data member is a test, demo, or
+example. In that case it is the test/demo/example that is updated (or the feature retired), **not** the change
+that is dropped. A sole test/demo consumer does **not** make a feature "used" for the purpose of justifying its
+retention. This composes with two neighbours: Invariant 11 (search the whole tree — *including* tests and demos —
+to find a feature's real consumers) and Invariant 7 (how to triage the resulting red test: amend it when the
+change is a deliberate new contract, fix the code only for a genuine regression). Tests guard behaviour that must
+hold; they are never an excuse to forgo an improvement to that behaviour.
+
 ---
 
 *Add new invariants below as the maintainer establishes them. Keep each rule short, mandatory, and

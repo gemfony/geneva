@@ -25,7 +25,13 @@ would violate one, stop and find another approach. In particular:
    --build genevaConfig.gcfg` (the `.gcfg` centralises compiler/CUDA/build-type choices; use `$HOME`) · 9. A
    failing test is fixed before moving on, even if it looks unrelated — never stepped over as "pre-existing"
    or "environmental"; a green suite is the precondition for continuing and for every commit · 10. Newly
-   discovered compilation warnings must be investigated (root-fix or understand-and-record why benign).
+   discovered compilation warnings must be investigated (root-fix or understand-and-record why benign) · 11.
+   Usage/impact searches cover the WHOLE tree — every library, headers AND sources, including examples, tests,
+   benchmarks, demos (never just `src/` or `.cpp`; a header-only consumer is invisible to a partial grep) · 12.
+   Substantial changes keep the Doxygen documentation in sync (update class/file/function comments, `@param`/
+   `@return`, cross-refs in the same change) · 13. Tests/demos adapt to a worthwhile change, never veto it — a
+   sole test/demo consumer doesn't make a feature "used"; update the test or retire the feature (cf. Inv 7, Inv
+   11), never drop the improvement.
 
 See the file for the full, authoritative list.
 
