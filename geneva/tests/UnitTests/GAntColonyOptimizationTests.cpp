@@ -40,7 +40,7 @@
 #include <memory>
 #include <vector>
 
-#include "geneva/ind/GFlatIndividualT.hpp"
+#include "geneva/ind/GFlatGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAntColonyOptimization.hpp"
 
@@ -56,7 +56,7 @@ namespace {
  * adaption config. fitness = sum of squares (optimum: the origin).
  */
 template <std::size_t N_DIM>
-class FlatSphereACOR : public gen::GFlatIndividualT<FlatSphereACOR<N_DIM>> {
+class FlatSphereACOR : public gen::GFlatGenomeT<FlatSphereACOR<N_DIM>> {
 public:
     FlatSphereACOR() {
         gen::GGenomeBuilder b;

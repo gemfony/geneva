@@ -108,7 +108,7 @@ common  <--  hap  <--  courtier  <--  geneva  <--  geneva-individuals
 | `common` | Utilities: logging (`GLogger`), thread pool (`GThreadPool`), Boost.Serialization helpers, formula parser, plot designer, bounded buffers, exception types |
 | `hap` | Random number generation (`GRandomT`, `GRandomFactory`). Optional CUDA GPU-based RNG via `GCUDARng` |
 | `courtier` | Consumer-based parallelization framework. A process uses ONE consumer, held in a process-global `GConsumerRegistry`: `GSerialConsumerT` (`sc`), `GStdThreadConsumerT` (`stc`), `GAsioConsumerT` (`asio`), `GWebsocketConsumerT` (`beast`), `GMPIConsumerT` (`mpi`), or the optional `GGPUConsumerT` (`gpu`, folded into `gemfony-courtier` when built with `GENEVA_BUILD_WITH_GPU_CONSUMER` — opt-in like the MPI consumer; there is no separate GPU library). An algorithm submits a batch straight to that consumer (`GBaseConsumerT::processBatch`), which evaluates and reconciles it against the submission policy |
-| `geneva` | Core optimization: per-category CRTP roots (each deriving from `Gem::Common::GCommonInterfaceT<Root>`), `GFlatIndividualT<Derived>` (user subclass this to define a problem; flat genome built via `GGenomeBuilder`), `G_OptimizationAlgorithm_*` (EA, SA, Swarm, GD, ParameterScan), `Go2` (top-level orchestrator) |
+| `geneva` | Core optimization: per-category CRTP roots (each deriving from `Gem::Common::GCommonInterfaceT<Root>`), `GFlatGenomeT<Derived>` (user subclass this to define a problem; flat genome built via `GGenomeBuilder`), `G_OptimizationAlgorithm_*` (EA, SA, Swarm, GD, ParameterScan), `Go2` (top-level orchestrator) |
 | `geneva-individuals` | Reusable problem definitions (individuals) for examples and tests |
 
 Headers are in `include/<library>/`, sources in `src/<library>/`. All code is in the `Gem::` namespace (e.g., `Gem::Geneva`, `Gem::Courtier`, `Gem::Common`, `Gem::Hap`).
@@ -120,7 +120,7 @@ Headers are in `include/<library>/`, sources in `src/<library>/`. All code is in
 The genome is a **flat** list of parameters with a fixed structure; adaptors (mutation strategy) are
 **owned by the optimization algorithm**, not the genome (the "config-strip" model).
 
-1. Subclass `GFlatIndividualT<YourProblem>` (CRTP, in `include/geneva/ind/GFlatIndividualT.hpp`) and override `fitnessCalculation()`.
+1. Subclass `GFlatGenomeT<YourProblem>` (CRTP, in `include/geneva/ind/GFlatGenomeT.hpp`) and override `fitnessCalculation()`.
 2. Build the genome **structure** in the constructor with `GGenomeBuilder` (`addDoubleGroup`, `addDouble`, `addInt32Group`, `addBoolArray`, …) and `setGenome(b.build())` — structure only, no adaptors. Read values in `fitnessCalculation()` via `streamline<T>()` / `streamlineFP()`.
 3. Author adaptors on an **OA-owned `GAdaptionConfig`** via `oa::makeAdaptionConfig<...>(genome)` + the fluent API (`cfg->groupDouble(i).gauss(...)`, `cfg->forLabel(...)`), and distribute it with `oa_ptr->setAdaptionConfig(cfg)`, `Go2::registerAdaptionConfig(personality, cfg)`, or `oa::StandaloneAdapter(genome, cfg)`. An adapting algorithm with **no** config is a hard error (no auto-derivation).
 4. Use `Go2` (in `include/geneva/Go2.hpp`) as the top-level driver — it reads configuration from a JSON file and handles client/server mode automatically.

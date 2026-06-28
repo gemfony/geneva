@@ -17,7 +17,7 @@ Recommended Versions:
   GParameterObjectCollection nodes, each carrying its own adaptor) has been removed
   entirely and replaced by a single, FLAT genome. A problem is now defined by
   subclassing GFlatGenome (typically through the CRTP helper
-  GFlatIndividualT<Derived>) and building a flat, fixed-structure array of
+  GFlatGenomeT<Derived>) and building a flat, fixed-structure array of
   double / float / int32 / bool values once in the constructor with GGenomeBuilder
   (addDoubleGroup, addDouble, addInt32Group, addBoolArray, ...) installed via
   setGenome(); values are read by position in fitnessCalculation() via
@@ -27,6 +27,24 @@ Recommended Versions:
   problem definition and changes the serialization format (older archives no longer
   load). See docs/writing-optimization-problems.md and examples/geneva/10_GStarter
   for the new authoring model.
+
+- INDIVIDUAL HIERARCHY RESTRUCTURED (source- and serialization-breaking; older
+  archives / checkpoints no longer load). The individual base class GOptimizableEntity
+  was rebuilt around a clean separation of concerns: the generic processing lifecycle
+  (status / routing / timing) now lives in the courtier base GProcessable, which
+  GOptimizableEntity derives directly (it no longer derives GProcessingContainerT);
+  GOptimizableEntity itself owns the result store and the process() orchestration. The
+  population-uniform feasibility and ranking rules (optimization direction, evaluation
+  policy, sigmoid parameters and the constraint object) were hoisted out of every
+  individual into a single shared, reference-counted GProblemPolicy (1:N), so they
+  travel and checkpoint once per population rather than once per individual. The
+  algorithm-facing value API (streamline<T>() / assignValueVector<T>() /
+  countParameters<T>() / boundaries<T>() and the FP / internal views, plus
+  toPropertyTree / toCSV / crossOverWith / cannibalize) is declared on
+  GOptimizableEntity and implemented by GFlatGenome, so the algorithms reach the
+  parameters through the base. The CRTP authoring helper was renamed
+  GFlatIndividualT<Derived> -> GFlatGenomeT<Derived> (derive that, or GFlatGenome
+  directly). The per-individual debugging "random crash" facility was retired.
 
 - CONFIG-STRIP: mutation adaptors no longer live on the genome. The genome's shared
   layout (GGenomeLayout) is now STRUCTURE-ONLY (type / bounds / grouping / labels);

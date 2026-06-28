@@ -62,7 +62,7 @@
 #include "geneva/ind/GGenomeLayoutSerialization.hpp" // ChannelLayout (de)serialisation (layout interning)
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GFlatIndividualFactory.hpp"
-#include "geneva/ind/GFlatIndividualT.hpp"
+#include "geneva/ind/GFlatGenomeT.hpp"
 #include "geneva/ind/GGenomeArchitecture.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
@@ -85,7 +85,7 @@ namespace Gem::Tests {
  * fitnessCalculation(), and the serialize hook; clone/load/compare come from the CRTP base +
  * GFlatGenome.
  */
-class FlatSphere : public GFlatIndividualT<FlatSphere> {
+class FlatSphere : public GFlatGenomeT<FlatSphere> {
 public:
     FlatSphere() { buildGenome(5); }
     explicit FlatSphere(std::size_t n) { buildGenome(n); }
@@ -122,8 +122,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatIndividualT",
-            boost::serialization::base_object<GFlatIndividualT<FlatSphere>>(*this)
+            "GFlatGenomeT",
+            boost::serialization::base_object<GFlatGenomeT<FlatSphere>>(*this)
         );
     }
 };
@@ -134,7 +134,7 @@ private:
  * GFlatIndividualFactory from a Config that the factory reads from a configuration file. The default
  * constructor leaves the genome empty -- the factory installs it via setGenome() in postProcess_.
  */
-class FactorySphere : public GFlatIndividualT<FactorySphere> {
+class FactorySphere : public GFlatGenomeT<FactorySphere> {
 public:
     FactorySphere() = default; // the factory installs the genome
     FactorySphere(const FactorySphere &) = default;
@@ -197,8 +197,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatIndividualT",
-            boost::serialization::base_object<GFlatIndividualT<FactorySphere>>(*this)
+            "GFlatGenomeT",
+            boost::serialization::base_object<GFlatGenomeT<FactorySphere>>(*this)
         );
     }
 };
@@ -627,7 +627,7 @@ TEST_CASE("GFlatGenome: serialization round-trip", "[flat]") {
 
 /******************************************************************************/
 // CHARACTERIZATION NET (B0, 2026-06-28): outcome-pins for the individual-architecture swap. These
-// assert behaviour that must survive the GProcessable / GCandidateSolution / GFlatGenomeBase rebuild,
+// assert behaviour that must survive the GProcessable / GOptimizableEntity / GFlatGenome rebuild,
 // independent of the mechanisms being retired (results-only wire form, GIndividualSlot, genome_omitted).
 // See prompts/2026-06-28-characterization-net.md.
 
@@ -758,7 +758,7 @@ TEST_CASE("GFlatGenome: OA stall-reset restores sigma to its seed", "[flat][oa]"
  */
 namespace Gem::Tests {
 
-class FlatMixed : public GFlatIndividualT<FlatMixed> {
+class FlatMixed : public GFlatGenomeT<FlatMixed> {
 public:
     FlatMixed() {
         GGenomeBuilder b;
@@ -786,8 +786,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatIndividualT",
-            boost::serialization::base_object<GFlatIndividualT<FlatMixed>>(*this)
+            "GFlatGenomeT",
+            boost::serialization::base_object<GFlatGenomeT<FlatMixed>>(*this)
         );
     }
 };
@@ -798,7 +798,7 @@ private:
  * groups: three (groups 0–2) driven by the integer Gauss kernel and one (group 3) by the flip kernel, so the
  * test confirms both int adaptor kinds coexist on the same channel.
  */
-class FlatIntGauss : public GFlatIndividualT<FlatIntGauss> {
+class FlatIntGauss : public GFlatGenomeT<FlatIntGauss> {
 public:
     FlatIntGauss() {
         GGenomeBuilder b;
@@ -828,8 +828,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatIndividualT",
-            boost::serialization::base_object<GFlatIndividualT<FlatIntGauss>>(*this)
+            "GFlatGenomeT",
+            boost::serialization::base_object<GFlatGenomeT<FlatIntGauss>>(*this)
         );
     }
 };
@@ -839,7 +839,7 @@ private:
  * so it makes the transport layout send-once visible: the full layout is sizeable, but every item after
  * the first to a peer carries only a 16-byte layout id.
  */
-class FlatManyGroups : public GFlatIndividualT<FlatManyGroups> {
+class FlatManyGroups : public GFlatGenomeT<FlatManyGroups> {
 public:
     FlatManyGroups() { build(64); }
     explicit FlatManyGroups(std::size_t n) { build(n); }
@@ -865,8 +865,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatIndividualT",
-            boost::serialization::base_object<GFlatIndividualT<FlatManyGroups>>(*this)
+            "GFlatGenomeT",
+            boost::serialization::base_object<GFlatGenomeT<FlatManyGroups>>(*this)
         );
     }
 };

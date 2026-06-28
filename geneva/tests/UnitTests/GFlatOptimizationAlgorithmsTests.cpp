@@ -59,7 +59,7 @@
 #include "geneva/ind/GAdaptionAuxKeys.hpp"
 #include "geneva/ind/GAdaptionKernels.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GFlatIndividualT.hpp"
+#include "geneva/ind/GFlatGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/individuals/GLineFitIndividual.hpp"
 #include "geneva/oa/GAdaption.hpp"
@@ -87,7 +87,7 @@ constexpr std::size_t N_DIM = 5;
  * started at 3.0 (so the initial fitness is N_DIM * 9 = 45). Authored entirely through the builder;
  * clone/load/compare come from the CRTP base + GFlatGenome.
  */
-class FlatSphereOA : public gen::GFlatIndividualT<FlatSphereOA> {
+class FlatSphereOA : public gen::GFlatGenomeT<FlatSphereOA> {
 public:
     FlatSphereOA() {
         gen::GGenomeBuilder b;
@@ -125,7 +125,7 @@ protected:
  * constrained fold never distorts a line-search probe (the same setup real CGD usage employs, e.g. the
  * GFunctionMinimizer example over GConstrainedDoubleObject).
  */
-class FlatSphereWideOA : public gen::GFlatIndividualT<FlatSphereWideOA> {
+class FlatSphereWideOA : public gen::GFlatGenomeT<FlatSphereWideOA> {
 public:
     FlatSphereWideOA() {
         gen::GGenomeBuilder b;
@@ -151,7 +151,7 @@ protected:
  * A continuous flat sphere driven by a BI-GAUSSIAN adaptor (instead of the single gaussian): N_DIM
  * constrained doubles in [-5, 5), started at 3.0. Demonstrates the bi-gauss kernel end-to-end.
  */
-class FlatBiGaussSphereOA : public gen::GFlatIndividualT<FlatBiGaussSphereOA> {
+class FlatBiGaussSphereOA : public gen::GFlatGenomeT<FlatBiGaussSphereOA> {
 public:
     FlatBiGaussSphereOA() {
         gen::GGenomeBuilder b;
@@ -190,7 +190,7 @@ protected:
  */
 constexpr std::size_t N_INT = 5;
 
-class FlatIntSphereOA : public gen::GFlatIndividualT<FlatIntSphereOA> {
+class FlatIntSphereOA : public gen::GFlatGenomeT<FlatIntSphereOA> {
 public:
     FlatIntSphereOA() {
         gen::GGenomeBuilder b;
@@ -225,7 +225,7 @@ protected:
  */
 constexpr std::size_t N_BOOL = 16;
 
-class FlatOneMaxOA : public gen::GFlatIndividualT<FlatOneMaxOA> {
+class FlatOneMaxOA : public gen::GFlatGenomeT<FlatOneMaxOA> {
 public:
     FlatOneMaxOA() {
         gen::GGenomeBuilder b;
@@ -261,7 +261,7 @@ protected:
  * per-dimension velocity range is l*(upper-lower) == 0 for the frozen dim) tolerates a fixed parameter
  * rather than crashing.
  */
-class FlatFrozenOA : public gen::GFlatIndividualT<FlatFrozenOA> {
+class FlatFrozenOA : public gen::GFlatGenomeT<FlatFrozenOA> {
 public:
     FlatFrozenOA() {
         gen::GGenomeBuilder b;
@@ -293,7 +293,7 @@ std::vector<std::int32_t> g_scan_int_samples;            ///< every int value th
 std::vector<std::pair<double, double>> g_scan_pair_samples; ///< every (x, y) the 2-double probe was evaluated at
 
 /** @brief A single-int32 probe (genome bound [-10, 10]) recording each evaluated int value. */
-class FlatScanIntProbe : public gen::GFlatIndividualT<FlatScanIntProbe> {
+class FlatScanIntProbe : public gen::GFlatGenomeT<FlatScanIntProbe> {
 public:
     FlatScanIntProbe() {
         gen::GGenomeBuilder b;
@@ -315,7 +315,7 @@ protected:
 };
 
 /** @brief A two-double probe (genome bounds [-5, 5)) recording each evaluated (x, y) pair. */
-class FlatScanPairProbe : public gen::GFlatIndividualT<FlatScanPairProbe> {
+class FlatScanPairProbe : public gen::GFlatGenomeT<FlatScanPairProbe> {
 public:
     FlatScanPairProbe() {
         gen::GGenomeBuilder b;
@@ -342,7 +342,7 @@ protected:
 
 /** @brief A ONE-dimensional flat sphere: a single constrained double in [-5, 5), started at 3.0. Used to
  *  exercise the n_vert == 2 (1-D) Nelder-Mead simplex path. */
-class FlatSphere1D : public gen::GFlatIndividualT<FlatSphere1D> {
+class FlatSphere1D : public gen::GFlatGenomeT<FlatSphere1D> {
 public:
     FlatSphere1D() {
         gen::GGenomeBuilder b;
@@ -362,7 +362,7 @@ protected:
 /** @brief A flat individual with INVERTED bounds (lower > upper): three constrained doubles declared as
  *  [5, -5]. The genome builder does not reject this, so it is used to confirm the swarm rejects the
  *  resulting negative velocity range with a clear error instead of hitting undefined behaviour. */
-class FlatInvertedBoundsOA : public gen::GFlatIndividualT<FlatInvertedBoundsOA> {
+class FlatInvertedBoundsOA : public gen::GFlatGenomeT<FlatInvertedBoundsOA> {
 public:
     FlatInvertedBoundsOA() {
         gen::GGenomeBuilder b;
@@ -386,7 +386,7 @@ protected:
 /** @brief A MIXED flat individual: 3 constrained doubles in [-5, 5) plus 2 constrained int32 in [-10, 10].
  *  Used to confirm sep-CMA-ES (an FP-only evolution strategy) optimizes the doubles, leaves the integers
  *  at their start values, and warns rather than crashing on the non-FP parameters. */
-class FlatMixedOA : public gen::GFlatIndividualT<FlatMixedOA> {
+class FlatMixedOA : public gen::GFlatGenomeT<FlatMixedOA> {
 public:
     FlatMixedOA() {
         gen::GGenomeBuilder b;
@@ -1252,7 +1252,7 @@ namespace {
 
 /** @brief A high-dimensional flat sphere: N constrained doubles in [-5, 5), started at 3.0. */
 template <std::size_t N>
-class FlatHighDimSphere : public gen::GFlatIndividualT<FlatHighDimSphere<N>> {
+class FlatHighDimSphere : public gen::GFlatGenomeT<FlatHighDimSphere<N>> {
 public:
     FlatHighDimSphere() {
         gen::GGenomeBuilder b;
@@ -1296,7 +1296,7 @@ double sphereValue(const std::shared_ptr<gen::GOptimizableEntity> &best) {
  * constrained doubles in [-5, 5). The Pareto front is the segment x_i in [0, 2]; used for the NSGA-II
  * selection smoke test.
  */
-class FlatBiObjective : public gen::GFlatIndividualT<FlatBiObjective> {
+class FlatBiObjective : public gen::GFlatGenomeT<FlatBiObjective> {
 public:
     FlatBiObjective() {
         gen::GGenomeBuilder b;

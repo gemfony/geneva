@@ -29,8 +29,8 @@
 
 /**
  * @file
- * @brief Characterization tests for the new candidate-solution hierarchy (GCandidateSolution /
- * GFlatGenomeBase / GFlatGenomeT). The hierarchy is additive and unwired at this stage; these tests
+ * @brief Characterization tests for the new candidate-solution hierarchy (GOptimizableEntity /
+ * GFlatGenome / GFlatGenomeT). The hierarchy is additive and unwired at this stage; these tests
  * exercise it in isolation: value-channel round-trips, evaluation + external-result acceptance, the
  * multi-format serialization round-trip, clone independence, and -- the watertight part -- the
  * layout-keyed countParameters cache and its invalidation when the genome's layout changes.
@@ -46,7 +46,7 @@
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/base_object.hpp>
 
-#include "geneva/ind/GCandidateSolution.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/ind/GFlatGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 
@@ -60,7 +60,7 @@ namespace Gem::Tests {
 /**
  * A minimal flat individual on the NEW hierarchy: a sphere over its double channel, with optional int32
  * and bool channels so the parameter-count cache can be exercised across channels. Adds no data members,
- * so clone/load/compare come from the CRTP base + GFlatGenomeBase.
+ * so clone/load/compare come from the CRTP base + GFlatGenome.
  */
 class NewSphere : public GFlatGenomeT<NewSphere> {
 public:
@@ -112,7 +112,7 @@ BOOST_CLASS_EXPORT(Gem::Tests::NewSphere) // NOLINT
 using Gem::Tests::NewSphere;
 
 /******************************************************************************/
-TEST_CASE("GCandidateSolution: a fresh flat individual evaluates and reaches PROCESSED", "[candidate]") {
+TEST_CASE("GOptimizableEntity: a fresh flat individual evaluates and reaches PROCESSED", "[candidate]") {
     NewSphere ind(3, 0, 0); // 3 doubles, all initialised to 1.0
 
     // setGenome() marks the item due for processing.
@@ -128,7 +128,7 @@ TEST_CASE("GCandidateSolution: a fresh flat individual evaluates and reaches PRO
 }
 
 /******************************************************************************/
-TEST_CASE("GCandidateSolution: streamline / assignValueVector round-trip", "[candidate]") {
+TEST_CASE("GOptimizableEntity: streamline / assignValueVector round-trip", "[candidate]") {
     NewSphere ind(4, 0, 0);
 
     std::vector<double> before;
@@ -149,7 +149,7 @@ TEST_CASE("GCandidateSolution: streamline / assignValueVector round-trip", "[can
 }
 
 /******************************************************************************/
-TEST_CASE("GCandidateSolution: an external evaluation result is accepted verbatim", "[candidate][external]") {
+TEST_CASE("GOptimizableEntity: an external evaluation result is accepted verbatim", "[candidate][external]") {
     NewSphere ind(3, 0, 0);
     REQUIRE(ind.is_due_for_processing());
 
@@ -163,7 +163,7 @@ TEST_CASE("GCandidateSolution: an external evaluation result is accepted verbati
 }
 
 /******************************************************************************/
-TEST_CASE("GCandidateSolution: a derived individual round-trips in TEXT, XML and BINARY", "[candidate][serialize]") {
+TEST_CASE("GOptimizableEntity: a derived individual round-trips in TEXT, XML and BINARY", "[candidate][serialize]") {
     using Gem::Common::serializationMode;
 
     NewSphere ind(5, 2, 3);
@@ -197,7 +197,7 @@ TEST_CASE("GCandidateSolution: a derived individual round-trips in TEXT, XML and
 }
 
 /******************************************************************************/
-TEST_CASE("GCandidateSolution: clone is independent of the original", "[candidate]") {
+TEST_CASE("GOptimizableEntity: clone is independent of the original", "[candidate]") {
     NewSphere ind(4, 0, 0);
     ind.process();
 
@@ -218,7 +218,7 @@ TEST_CASE("GCandidateSolution: clone is independent of the original", "[candidat
 }
 
 /******************************************************************************/
-TEST_CASE("GFlatGenomeBase: countParameters is cached and re-keyed on layout change", "[candidate][cache]") {
+TEST_CASE("GFlatGenome: countParameters is cached and re-keyed on layout change", "[candidate][cache]") {
     NewSphere ind(3, 2, 4); // 3 doubles, 2 int32, 4 bool, 0 float
 
     SECTION("counts are correct and stable across repeated queries (cache hit)") {

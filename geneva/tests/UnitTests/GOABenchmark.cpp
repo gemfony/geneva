@@ -54,7 +54,7 @@
 #include <string>
 #include <vector>
 
-#include "geneva/ind/GFlatIndividualT.hpp"
+#include "geneva/ind/GFlatGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
@@ -122,7 +122,7 @@ const char *fnName(BenchFn fn) {
  * The start value is offset from the optimum so the run has somewhere to go.
  */
 template <std::size_t N, BenchFn FN>
-class BenchIndividual : public gen::GFlatIndividualT<BenchIndividual<N, FN>> {
+class BenchIndividual : public gen::GFlatGenomeT<BenchIndividual<N, FN>> {
 public:
     BenchIndividual() {
         gen::GGenomeBuilder b;

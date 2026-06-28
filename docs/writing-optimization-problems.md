@@ -8,15 +8,15 @@ the genome). This guide covers the current API after the "config-strip": the gen
 Canonical examples: `examples/10_GStarter` (minimal), `examples/03_GParameterObjectUsagePatterns`
 (parameter patterns), `examples/09_GNeuralNetwork` (an architecture-decoded flat genome).
 
-## 1. Subclass `GFlatIndividualT` and override `fitnessCalculation()`
+## 1. Subclass `GFlatGenomeT` and override `fitnessCalculation()`
 
 ```cpp
-#include "geneva/ind/GFlatIndividualT.hpp"
+#include "geneva/ind/GFlatGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 
 namespace gen = Gem::Geneva::Genome;
 
-class MyProblem : public gen::GFlatIndividualT<MyProblem> {       // CRTP: pass yourself
+class MyProblem : public gen::GFlatGenomeT<MyProblem> {       // CRTP: pass yourself
 public:
     MyProblem() { buildGenome(); }                                 // build the STRUCTURE in the ctor
     MyProblem(const MyProblem &) = default;
@@ -39,7 +39,7 @@ private:
 };
 ```
 
-`GFlatIndividualT<Derived>` supplies the clone/load/compare/serialize machinery. Your genome is a
+`GFlatGenomeT<Derived>` supplies the clone/load/compare/serialize machinery. Your genome is a
 flat set of value channels (double / float / int32 / bool); read it with `streamline<T>()`,
 `streamlineFP()`, or — for a structured genome — a `GGenomeArchitecture` decoder (see ex09).
 

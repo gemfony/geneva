@@ -106,7 +106,7 @@ concept HasApplyConfigHook =
  *
  * Usage (Tier 2):
  * @code
- *   class MyIndividual : public GFlatIndividualT<MyIndividual> {
+ *   class MyIndividual : public GFlatGenomeT<MyIndividual> {
  *   public:
  *       MyIndividual() = default;   // genome is installed by the factory
  *       double fitnessCalculation() override { ... }

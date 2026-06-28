@@ -47,7 +47,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "courtier/GCourtierEnums.hpp"       // processingStatus
-#include "courtier/GProcessingContainerT.hpp" // the work-item base (reused)
+#include "courtier/GProcessable.hpp"          // the non-generic work-item lifecycle base
 #include "courtier/GSubmissionPolicy.hpp"
 
 namespace Gem::Courtier {

@@ -72,10 +72,8 @@
 namespace Gem::Courtier {
 
 /******************************************************************************/
-// An exception to be thrown if an exception was thrown during processing
-class g_processing_exception : public geneva_exception {
-    using geneva_exception::geneva_exception;
-};
+// The processing exception (g_processing_exception) lives on the GProcessable lifecycle base, included
+// above, so transports and processables share one type.
 
 /******************************************************************************/
 /**

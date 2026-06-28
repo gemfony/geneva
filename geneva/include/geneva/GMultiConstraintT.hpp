@@ -76,12 +76,12 @@ class GPreEvaluationValidityCheckT // NOLINT(cppcoreguidelines-special-member-fu
     }
     ///////////////////////////////////////////////////////////////////////
 
-    // A constraint reads the candidate's parameter values via streamlineFP(); accept any individual type
-    // that exposes that genome value API. This is duck-typed rather than tied to one category root, so it
-    // serves both the legacy GOptimizableEntity hierarchy and the GFlatGenomeBase hierarchy.
+    // A constraint reads the candidate's parameter values via the genome value API (streamlineFP), which
+    // lives on the algorithm-facing base GOptimizableEntity. Every individual derives that base, so the
+    // constraint is parameterised on it.
     static_assert(
-        requires(const ind_type &ind, std::vector<double> &v) { ind.streamlineFP(v); },
-        "ind_type must expose the genome value API (streamlineFP())"
+        std::is_base_of_v<Genome::GOptimizableEntity, ind_type>,
+        "ind_type must derive from Gem::Geneva::Genome::GOptimizableEntity"
     );
 
 public:

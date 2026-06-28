@@ -63,7 +63,7 @@
 #include "common/GLogger.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "courtier/GCourtierEnums.hpp"
-#include "courtier/GProcessingContainerT.hpp"
+#include "courtier/GProcessable.hpp"
 
 namespace Gem::Courtier {
 
@@ -75,19 +75,16 @@ namespace Gem::Courtier {
  * corresponding object, to process it and to deliver the results to the server.
  * This class assumes that the template parameter implements the "process()" call.
  *
- * @tparam processable_type The work-item type the client retrieves, processes and returns (must model GProcessingContainerT)
+ * @tparam processable_type The work-item type the client retrieves, processes and returns (must derive GProcessable)
  *
  * TODO: Identify this client with a UUID
  */
 template <typename processable_type>
 class GBaseClientT {
-    // Make sure processable_type adheres to the GProcessingContainerT interface
+    // The work item must be a processable (status / process() lifecycle).
     static_assert(
-        std::is_base_of_v<
-            Gem::Courtier::
-                GProcessingContainerT<processable_type, typename processable_type::result_type>,
-            processable_type>,
-        "GBaseClientT: processable_type does not adhere to the GProcessingContainerT interface"
+        std::is_base_of_v<Gem::Courtier::GProcessable, processable_type>,
+        "GBaseClientT: processable_type must derive from Gem::Courtier::GProcessable"
     );
 
 public:

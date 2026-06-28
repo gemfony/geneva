@@ -45,7 +45,7 @@
 #include "geneva/Go2.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GFlatIndividualT.hpp"
+#include "geneva/ind/GFlatGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 
@@ -55,18 +55,18 @@ namespace oa = Gem::Geneva::OptimizationAlgorithms;
 /******************************************************************************/
 /**
  * A minimal flat individual, used here only to demonstrate genome inspection /
- * adaption. It carries no extra members, so the CRTP base GFlatIndividualT
+ * adaption. It carries no extra members, so the CRTP base GFlatGenomeT
  * supplies clone_(); only a constructor (which authors the genome) and a trivial
  * fitnessCalculation() remain.
  */
-class GDemoIndividual : public gen::GFlatIndividualT<GDemoIndividual> {
+class GDemoIndividual : public gen::GFlatGenomeT<GDemoIndividual> {
     friend class boost::serialization::access;
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatIndividualT",
-            boost::serialization::base_object<gen::GFlatIndividualT<GDemoIndividual>>(*this)
+            "GFlatGenomeT",
+            boost::serialization::base_object<gen::GFlatGenomeT<GDemoIndividual>>(*this)
         );
     }
 

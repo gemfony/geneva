@@ -30,7 +30,7 @@
 #include "geneva/ind/GProblemPolicy.hpp"
 
 // The constraint reads the genome's parameter values, so its full definition is needed here.
-#include "geneva/ind/GFlatGenomeBase.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 
 namespace Gem::Geneva::Genome {
 
@@ -71,7 +71,7 @@ GProblemPolicy &GProblemPolicy::operator=(GProblemPolicy const &cp) {
  * @param c_ptr The validity-check constraint to register (must not be empty)
  */
 void GProblemPolicy::registerConstraint(
-    std::shared_ptr<GPreEvaluationValidityCheckT<GFlatGenomeBase>> c_ptr
+    std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>> c_ptr
 ) {
     if(not c_ptr) {
         throw geneva_exception(
@@ -82,7 +82,7 @@ void GProblemPolicy::registerConstraint(
     }
 
     // We store a clone, so two policies never share one constraint object.
-    constraint_ptr_ = c_ptr->clone<GPreEvaluationValidityCheckT<GFlatGenomeBase>>();
+    constraint_ptr_ = c_ptr->clone<GPreEvaluationValidityCheckT<GOptimizableEntity>>();
 }
 
 /******************************************************************************/
@@ -93,7 +93,7 @@ void GProblemPolicy::registerConstraint(
  * @param validity_level Out-parameter receiving the computed validity level
  * @return true if the candidate satisfies the constraint (or none is registered)
  */
-bool GProblemPolicy::fulfillsConstraints(const GFlatGenomeBase &genome, double &validity_level) const {
+bool GProblemPolicy::fulfillsConstraints(const GOptimizableEntity &genome, double &validity_level) const {
     if(constraint_ptr_) {
         return constraint_ptr_->isValid(&genome, validity_level);
     }

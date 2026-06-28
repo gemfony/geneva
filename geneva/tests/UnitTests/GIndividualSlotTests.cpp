@@ -43,7 +43,7 @@
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/ind/GIndividualSlot.hpp"
-#include "geneva/ind/GFlatIndividualT.hpp"
+#include "geneva/ind/GFlatGenomeT.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 
 using namespace Gem::Geneva;
@@ -56,7 +56,7 @@ namespace Gem::Tests {
  * A minimal flat individual used as the slot's payload: a sphere over n constrained doubles sharing
  * one Gauss adaptor.
  */
-class SlotSphere : public Gem::Geneva::Genome::GFlatIndividualT<SlotSphere> {
+class SlotSphere : public Gem::Geneva::Genome::GFlatGenomeT<SlotSphere> {
 public:
     SlotSphere() { buildGenome(5); }
     explicit SlotSphere(std::size_t n) { buildGenome(n); }
@@ -84,8 +84,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatIndividualT",
-            boost::serialization::base_object<GFlatIndividualT<SlotSphere>>(*this)
+            "GFlatGenomeT",
+            boost::serialization::base_object<GFlatGenomeT<SlotSphere>>(*this)
         );
     }
 };

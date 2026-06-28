@@ -45,7 +45,7 @@
 #include <boost/serialization/export.hpp>
 
 #include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GFlatIndividualT.hpp"
+#include "geneva/ind/GFlatGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
@@ -68,7 +68,7 @@ namespace {
  * structure only; the Gauss adaptor lives on the OA-owned config (config-strip model).
  */
 template <std::size_t N>
-class HighDimSphere : public gen::GFlatIndividualT<HighDimSphere<N>> {
+class HighDimSphere : public gen::GFlatGenomeT<HighDimSphere<N>> {
 public:
     HighDimSphere() {
         gen::GGenomeBuilder b;

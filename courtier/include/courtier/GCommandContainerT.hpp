@@ -44,6 +44,10 @@
 #include <vector>
 
 // Boost headers go here
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/beast/core.hpp>
@@ -56,7 +60,7 @@
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
-#include "courtier/GProcessingContainerT.hpp"
+#include "courtier/GProcessable.hpp"
 #include "courtier/GWireSerializationContext.hpp" // GWireLayoutId / GWirePeerId for the layout-fetch commands
 
 namespace Gem::Courtier {
@@ -102,13 +106,10 @@ class GCommandContainerT {
     }
     ///////////////////////////////////////////////////////////////
 
-    // Make sure processable_type adheres to the GProcessingContainerT interface
+    // The payload must be a processable (status / process() lifecycle).
     static_assert(
-        std::is_base_of_v<
-            Gem::Courtier::
-                GProcessingContainerT<processable_type, typename processable_type::result_type>,
-            processable_type>,
-        "processable_type does not adhere to the GProcessingContainerT interface"
+        std::is_base_of_v<Gem::Courtier::GProcessable, processable_type>,
+        "processable_type must derive from Gem::Courtier::GProcessable"
     );
 
 public:

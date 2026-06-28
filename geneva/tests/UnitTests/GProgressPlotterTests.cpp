@@ -50,7 +50,7 @@
 #include <vector>
 
 #include "geneva/GPluggableOptimizationMonitors.hpp"
-#include "geneva/ind/GFlatIndividualT.hpp"
+#include "geneva/ind/GFlatGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
@@ -65,7 +65,7 @@ namespace {
  * A tiny flat-genome sphere: three constrained doubles in [-5, 5), sharing one Gauss group, started at
  * 2.0. Enough to give the monitor a profileable parameter (index 0) and a real, evaluated fitness.
  */
-class Sphere3 : public gen::GFlatIndividualT<Sphere3> {
+class Sphere3 : public gen::GFlatGenomeT<Sphere3> {
 public:
     Sphere3() {
         gen::GGenomeBuilder b;

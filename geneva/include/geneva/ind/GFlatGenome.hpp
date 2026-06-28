@@ -33,13 +33,14 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
-#include <any>
+#include <array>
 #include <cstdint>
+#include <limits>
 #include <memory>
-#include <random>
 #include <span>
 #include <string>
 #include <tuple>
+#include <type_traits>
 #include <vector>
 
 // Boost header files go here
@@ -55,10 +56,10 @@
 #include "courtier/GWireSerializationContext.hpp" // layout send-once: the wire (de)serialization context
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GAdaptionKernels.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/ind/GGenomeLayout.hpp"
 #include "geneva/ind/GGenomeLayoutSerialization.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
 
 // aliases for ease of use
 namespace pt = boost::property_tree;
@@ -69,28 +70,29 @@ namespace Gem::Geneva::Genome {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The flat-genome implementation of GOptimizableEntity, and the sole genome implementation.
- * GFlatGenome stores the parameters as four contiguous, type-homogeneous value arrays
- * (double / float / int32 / bool) plus a handle to a shared, immutable GGenomeLayout that describes
- * their bounds, grouping and adaption configuration. The per-individual, per-group adaption state
- * (Gauss sigma, ...) lives in the GIndividualSlot's scratch (GAuxiliaryStore), not in the genome.
+ * The flat-genome representation layer of the individual hierarchy and the non-template concrete cast /
+ * signature target the optimization algorithms operate on.
  *
- * Because all genome state is generic, a typical concrete individual adds *no* extra members and only
- * supplies a constructor (which builds its genome with GGenomeBuilder and calls setGenome()) and
- * fitnessCalculation(). The clone/load/compare/serialize machinery is provided here and reused
- * unchanged via the GFlatIndividualT CRTP base.
+ * GFlatGenome derives the genome-agnostic GOptimizableEntity and adds the parameter STORAGE: four
+ * contiguous, type-homogeneous value arrays (double / float / int32 / bool) plus a handle to a shared,
+ * immutable GGenomeLayout that describes their bounds, grouping and adaption configuration. The
+ * per-individual, per-group adaption state (Gauss sigma, ...) lives in the OA-owned slot scratch, not in
+ * the genome. Because all genome state is generic, a concrete individual adds no extra members and only
+ * supplies a constructor (building its genome with GGenomeBuilder + setGenome()) and fitnessCalculation();
+ * the clone/load/compare/serialize machinery is provided here and reused unchanged via GFlatGenomeT.
  *
- * Value access is genome-agnostic: GFlatGenome implements the DM §2 per-type channel virtuals declared
- * on GOptimizableEntity, so the optimization algorithms read and write parameter values without a
- * downcast. A floating-point parameter is stored in the NORMALIZED INTERNAL coordinate (magnitude ≈ 1,
- * confined to [-0.5, 0.5) for a bounded parameter); the user-facing EXTERNAL value is its affine image
- * (normalized-genome architecture, §2). This realizes the two-reader split: the OAs read/write the raw
- * internal value (streamlineInternal_/assignValueVectorInternal_), while the objective function, GPU
- * marshaller and user inspection read the scaled external value (streamline_/assignValueVector_). The
- * fold lives at WRITE time, not read time: an internal (OA) write folds an overshooting bounded value
- * back into [-0.5, 0.5) (and the post-kernel foldConstrainedValuesInPlace() does the same for the
- * adaption path), while an external (user) write range-validates and throws. Integer parameters are not
- * normalized (§2.7): they keep the closed-range integer fold, applied on read.
+ * Value access is genome-agnostic: GFlatGenome implements the per-type value-channel virtuals declared on
+ * GOptimizableEntity (streamline_ / assignValueVector_ / countParametersX_ / boundaries_ and the FP /
+ * internal views), so the algorithms read and write parameter values through the base's templated surface
+ * without a downcast. A floating-point parameter is stored in the NORMALIZED INTERNAL coordinate (magnitude
+ * ~ 1, confined to [-0.5, 0.5) for a bounded parameter); the user-facing EXTERNAL value is its affine
+ * image (normalized-genome architecture, §2). This realizes the two-reader split: the OAs read/write the
+ * raw internal value (streamlineInternal_/assignValueVectorInternal_), while the objective function, GPU
+ * marshaller and user inspection read the scaled external value. The fold lives at WRITE time, not read
+ * time. Integer parameters are not normalized (§2.7): they keep the closed-range integer fold on read.
+ *
+ * Feasibility is a concrete operation on the base (GOptimizableEntity::fulfillsConstraints), reading this
+ * genome's values through the shared GProblemPolicy's constraint -- the genome adds no feasibility hook.
  */
 class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizableEntity {
@@ -98,10 +100,12 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
     friend class boost::serialization::access;
 
     /** @brief Single declaration of this class's plain local data members (the four value channels),
-     *  feeding save()/load()/load_()/compare_() from one source. Defined before save() so its deduced
-     *  (auto) return type is available there. The shared layout_ and the transient input_omitted_ are
-     *  handled separately (the layout is interned on the wire and shared, not value-copied; input_omitted_
-     *  is a load-only transient), so they are deliberately NOT listed here. */
+     *  feeding save()/load()/load_()/compare_() from one source. The shared layout_ and the transient
+     *  input_omitted_ are handled separately (the layout is interned on the wire and shared, not
+     *  value-copied; input_omitted_ is a load-only transient), so they are NOT listed here.
+     *  @tparam Self The (const or non-const) deduced type of *this
+     *  @param self A reference to *this whose members are tied into the tuple
+     *  @return A tuple of named member references */
     template <typename Self>
     static auto localMembers_(Self &self) {
         return std::make_tuple(
@@ -113,10 +117,9 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
     }
 
     /**
-     * @brief Serialises the genome: the four value channels plus the shared structural layout, the
-     * latter either by value (self-contained form) or by content id (transport send-once form), as
-     * selected by the active wire-serialisation scope. See the body for the two forms.
-     *
+     * @brief Serialises the genome: the four value channels plus the shared structural layout, the latter
+     * either by value (self-contained form) or by content id (transport send-once form), as selected by
+     * the active wire-serialisation scope. See the body for the two forms.
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to write the genome into
      * @param version The (unused) serialization version number
@@ -128,14 +131,12 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
 
         const auto *ctx = Gem::Courtier::GWireSerializationScope::current();
 
-        // RESULTS-ONLY RETURN: when a worker returns a processed item (ctx->returning) and has not been
-        // asked to return the modified individual in full, omit the (potentially large) input parameters
-        // and layout entirely -- only the computed results, already written via the base above, travel.
-        // The server still holds the originally-submitted item and grafts its parameters back on. A
-        // leading `genome_omitted` marker makes the stream self-describing. (The base carries the full
-        // multi-criterion result set, so multi-evaluation individuals return correctly.)
-        const bool genome_omitted = (ctx != nullptr) && ctx->enabled && ctx->returning &&
-                                    not this->getReturnFullIndividual();
+        // RESULTS-ONLY RETURN: when a worker returns a processed item (ctx->returning) and the genome was
+        // not modified, omit the (potentially large) input parameters + layout -- only the computed
+        // results (already written via the base) travel; the server grafts the input back on. A leading
+        // `genome_omitted` marker makes the stream self-describing.
+        const bool genome_omitted =
+            (ctx != nullptr) && ctx->enabled && ctx->returning && not this->getReturnFullIndividual();
         ar &make_nvp("genome_omitted", genome_omitted);
         if(genome_omitted) {
             return;
@@ -143,20 +144,10 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
 
         Gem::Common::serialize_members(ar, localMembers_(*this));
 
-        // The transient per-group adaption state is NOT serialised here (it is OA-owned slot scratch);
-        // full-state checkpointing is a separate concern.
-        //
-        // The layout is shared & immutable in memory; sharing does not survive serialisation, so a
-        // deserialised genome legitimately owns its own layout copy. There are two wire forms:
-        //   - SELF-CONTAINED (checkpoint / file, or any transport with interning off): the full layout
-        //     travels by value. This is the only form when no wire-serialisation scope is active.
-        //   - SEND-ONCE (transport with an enabled scope): the layout is referenced by its content id;
-        //     the full layout is shipped to a given peer only the FIRST time that id is seen on its
-        //     session, and id-only thereafter (a worker cache miss is resolved by a fetch). This cuts
-        //     the per-item payload for a large structured genome, whose layout is identical across the
-        //     whole population, from O(parameters) down to a 16-byte id.
-        // A leading `layout_interned` tag makes the stream self-describing, so load() follows the tag
-        // regardless of its own scope.
+        // The layout is shared & immutable in memory; sharing does not survive serialisation. Two wire
+        // forms (see GFlatGenome's historical note): SELF-CONTAINED (full layout by value, the only form
+        // with no active scope -- checkpoint / file) and SEND-ONCE (referenced by content id, shipped to a
+        // peer only the first time the id is seen). A leading `layout_interned` tag is self-describing.
         const bool interned =
             (ctx != nullptr) && ctx->enabled && (ctx->registry != nullptr) && (layout_ != nullptr);
         ar &make_nvp("layout_interned", interned);
@@ -170,8 +161,6 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         Gem::Courtier::GWireLayoutId wid{lid.hi, lid.lo};
         ar &make_nvp("layout_id_hi", wid[0]);
         ar &make_nvp("layout_id_lo", wid[1]);
-        // Keep a blob in the registry so the server can answer a worker's later cache-miss fetch for
-        // this id (amortised: serialised once per distinct layout, not per item).
         if(not ctx->registry->has(wid)) {
             ctx->registry->put(wid, layoutToWireBlob(*layout_));
         }
@@ -180,8 +169,6 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         if(layout_present) {
             GGenomeLayout layout_copy = *layout_;
             ar &make_nvp("layout_", layout_copy);
-            // Optimistic: assume the peer receives it. If the send fails the worker simply cache-misses
-            // and fetches, so marking before the wire write is safe (and keeps subsequent items id-only).
             ctx->registry->markPeerHasLayout(ctx->peer, wid);
         }
     }
@@ -190,7 +177,6 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
      * @brief Restores the genome from an archive: the value channels plus a freshly-owned layout, read
      * either by value or resolved from a content id against the wire registry (with a cache-miss fetch),
      * following the self-describing tag written by save().
-     *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to read the genome from
      * @param version The (unused) serialization version number
@@ -200,36 +186,27 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         using boost::serialization::make_nvp;
         ar &make_nvp("GOptimizableEntity", boost::serialization::base_object<GOptimizableEntity>(*this));
 
-        // A results-only return (see save()) omits the input parameters + layout: leave the genome empty
-        // and flag it so the server grafts the originally-submitted parameters back on. The base above
-        // already carries the computed results.
         bool genome_omitted = false;
         ar &make_nvp("genome_omitted", genome_omitted);
         if(genome_omitted) {
-            // Leave NO stale input data behind (the object may have been default-constructed with a
-            // genome): an empty, unambiguous genome that the server replaces wholesale when it grafts
-            // the originally-submitted parameters back on (see graftInputDataFrom_).
             input_omitted_ = true;
             dv_.clear();
             fv_.clear();
             iv_.clear();
             bv_.clear();
-            layout_ = std::make_shared<const GGenomeLayout>();
+            this->setLayout(std::make_shared<const GGenomeLayout>());
             return;
         }
         input_omitted_ = false;
 
         Gem::Common::serialize_members(ar, localMembers_(*this));
-        // The per-group adaption state is OA-owned scratch (on the GIndividualSlot): an optimization
-        // algorithm seeds each slot's scratch from its config at setup.
 
-        // Follow the self-describing wire form written by save() (see there for the two forms).
         bool interned = false;
         ar &make_nvp("layout_interned", interned);
         if(not interned) {
             auto fresh = std::make_shared<GGenomeLayout>();
             ar &make_nvp("layout_", *fresh);
-            layout_ = fresh;
+            this->setLayout(fresh);
             return;
         }
 
@@ -243,16 +220,13 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         if(layout_present) {
             auto fresh = std::make_shared<GGenomeLayout>();
             ar &make_nvp("layout_", *fresh);
-            layout_ = fresh;
-            // Cache the blob so subsequent id-only items for this layout resolve locally (no fetch).
+            this->setLayout(fresh);
             if(ctx != nullptr && ctx->registry != nullptr && not ctx->registry->has(wid)) {
                 ctx->registry->put(wid, layoutToWireBlob(*fresh));
             }
             return;
         }
 
-        // id-only reference: resolve from the local registry, fetching from the server on a miss
-        // (reconnect / late-joining worker / server-side eviction).
         std::string blob;
         bool have = (ctx != nullptr) && (ctx->registry != nullptr) && ctx->registry->tryGet(wid, blob);
         if(not have && ctx != nullptr && ctx->fetch_blob) {
@@ -272,7 +246,7 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
                 << '\n'
             );
         }
-        layout_ = layoutFromWireBlob(blob);
+        this->setLayout(layoutFromWireBlob(blob));
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -281,136 +255,70 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
 public:
     /** @brief The default constructor */
     GFlatGenome();
-    /**
-     * @brief Initialization with the number of fitness criteria.
-     *
-     * @param n_fitness_criteria The number of fitness criteria this genome will report
-     */
+    /** @brief Initialization with the number of fitness criteria.
+     *  @param n_fitness_criteria The number of fitness criteria this genome will report */
     explicit GFlatGenome(std::size_t n_fitness_criteria);
-    /**
-     * @brief The copy constructor.
-     *
-     * @param cp The genome to copy from (value channels and shared layout handle)
-     */
+    /** @brief The copy constructor.
+     *  @param cp The genome to copy from (value channels and shared layout handle) */
     GFlatGenome(GFlatGenome const &cp);
     /** @brief The destructor */
     ~GFlatGenome() override = default;
 
-    /** @brief Un-hide the inherited public load(shared_ptr/unique_ptr/ref) overloads, which the
-     *  boost split-member load(Archive&, unsigned) below would otherwise hide by name. */
+    /** @brief Un-hide the inherited public load(shared_ptr/unique_ptr/ref) overloads, which the boost
+     *  split-member load(Archive&, unsigned) below would otherwise hide by name. */
     using GOptimizableEntity::load;
 
-    /**
-     * @brief Installs the value arrays + shared layout produced by a GGenomeBuilder.
-     *
-     * @param g The genome data (the four value channels plus the shared immutable layout)
-     */
+    /** @brief Installs the value arrays + shared layout produced by a GGenomeBuilder.
+     *  @param g The genome data (the four value channels plus the shared immutable layout) */
     void setGenome(GenomeData const &g);
 
-    /**
-     * @brief Direct, shared access to the structural layout (problem metadata).
-     *
-     * @return A shared handle to the immutable layout describing bounds, grouping and adaption config
-     */
+    /** @brief Direct, shared access to the structural layout (problem metadata).
+     *  @return A shared handle to the immutable layout describing bounds, grouping and adaption config */
     std::shared_ptr<const GGenomeLayout> getLayout() const noexcept { return layout_; }
 
     /***************************************************************************/
-    // Mutable access to the raw INTERNAL (normalized) value arrays. The OA-owned adaption kernels add
-    // their step directly to these spans (then foldConstrainedValuesInPlace() folds a bounded value back
-    // into [-0.5, 0.5)); ordinary external value access goes through streamline()/assignValueVector().
+    // Mutable access to the raw INTERNAL (normalized) value arrays (the OA-owned adaption kernels write here).
 
-    /** @brief @return A mutable span over the raw internal double channel (unfolded representation) */
+    /** @brief @return A mutable span over the raw internal double channel */
     std::span<double> internalDoubleValues() noexcept { return {dv_.data(), dv_.size()}; }
-    /** @brief @return A mutable span over the raw internal float channel (unfolded representation) */
+    /** @brief @return A mutable span over the raw internal float channel */
     std::span<float> internalFloatValues() noexcept { return {fv_.data(), fv_.size()}; }
-    /** @brief @return A mutable span over the raw internal int32 channel (unfolded representation) */
+    /** @brief @return A mutable span over the raw internal int32 channel */
     std::span<std::int32_t> internalInt32Values() noexcept { return {iv_.data(), iv_.size()}; }
     /** @brief @return A mutable span over the raw internal bool channel (bytes, 1/0) */
     std::span<std::uint8_t> internalBoolValues() noexcept { return {bv_.data(), bv_.size()}; }
 
-    /** @brief @return A read-only span over the raw internal double channel (unfolded representation) */
+    /** @brief @return A read-only span over the raw internal double channel */
     std::span<const double> internalDoubleValues() const noexcept { return {dv_.data(), dv_.size()}; }
-    /** @brief @return A read-only span over the raw internal float channel (unfolded representation) */
+    /** @brief @return A read-only span over the raw internal float channel */
     std::span<const float> internalFloatValues() const noexcept { return {fv_.data(), fv_.size()}; }
-    /** @brief @return A read-only span over the raw internal int32 channel (unfolded representation) */
+    /** @brief @return A read-only span over the raw internal int32 channel */
     std::span<const std::int32_t> internalInt32Values() const noexcept { return {iv_.data(), iv_.size()}; }
     /** @brief @return A read-only span over the raw internal bool channel (bytes, 1/0) */
     std::span<const std::uint8_t> internalBoolValues() const noexcept { return {bv_.data(), bv_.size()}; }
 
-    /**
-     * @brief Transformation of the individual's parameters into a boost::property_tree object.
-     *
-     * @param ptr The property tree to populate with this individual's parameters
-     * @param base_name The base path / key prefix to write under (defaults to "parameterset")
-     */
-    void toPropertyTree(pt::ptree &ptr, std::string const &base_name = "parameterset") const override;
-
-    /**
-     * @brief Transformation of the individual's parameters into a list of comma-separated values.
-     *
-     * @param with_name_and_type Whether to prefix each value with its name and type (default false)
-     * @param with_commas Whether to separate the values with commas (default true)
-     * @param use_raw_fitness Whether to emit the raw rather than the transformed fitness (default true)
-     * @param show_validity Whether to append the individual's validity flag (default true)
-     * @return The parameters (and optionally fitness/validity) as a single CSV string
-     */
-    std::string toCSV(
-        bool with_name_and_type = false
-        ,
-        bool with_commas = true
-        ,
-        bool use_raw_fitness = true
-        ,
-        bool show_validity = true
-    ) const override;
-
-    /**
-     * @brief Perform a cross-over operation between this object and another.
-     *
-     * @param cp_base The other genome to cross over with (must be a GFlatGenome)
-     * @return A new genome holding the recombined parameter values
-     */
-    std::shared_ptr<GOptimizableEntity> crossOverWith(GOptimizableEntity const &cp_base) const override;
-
-    /**
-     * @brief Retrieves parameters relevant for the evaluation from another GFlatGenome.
-     *
-     * @param cp_base The genome whose evaluation-relevant parameters are absorbed into this one
-     */
-    void cannibalize(GOptimizableEntity &cp_base) override;
-
     /***************************************************************************/
-    /** @brief Bulk-flatten fast path: streamlines an FP/int32 channel DIRECTLY into a caller-provided
-     *  buffer (no temporary vector, no second copy), returning the number of values written. Produces
-     *  exactly the same external (scaled) values as streamline<T>() with the same activityMode --
-     *  use it to flatten a whole population into one contiguous device buffer (the GPU marshallers).
-     *  NB: a raw memcpy of the channel storage is NOT a valid substitute -- the stored value is the
-     *  normalized internal coordinate, mapped to the external user value only here.
-     *
-     *  @param dst The caller-provided destination buffer for the double channel (must be large enough)
-     *  @param am The activity mode selecting which parameters are written (default: all parameters)
+    // Bulk-flatten fast path (the GPU marshallers) -- see GFlatGenome's historical notes.
+
+    /** @brief Bulk-flatten the double channel directly into a caller buffer (external/scaled values).
+     *  @param dst The destination buffer (must be large enough)
+     *  @param am The activity mode selecting which parameters are written
      *  @return The number of values written into dst */
     std::size_t streamlineInto(double *dst, activityMode const &am = activityMode::DEFAULTACTIVITYMODE) const {
         return streamlineIntoImpl<double>(dst, layout_->d, dv_, am);
     }
-    /** @brief Bulk-flatten fast path for the float channel (see the double overload).
-     *  @param dst The caller-provided destination buffer for the float channel (must be large enough)
-     *  @param am The activity mode selecting which parameters are written (default: all parameters)
-     *  @return The number of values written into dst */
+    /** @brief Bulk-flatten the float channel (see the double overload).
+     *  @param dst The destination buffer. @param am The activity mode. @return The number written */
     std::size_t streamlineInto(float *dst, activityMode const &am = activityMode::DEFAULTACTIVITYMODE) const {
         return streamlineIntoImpl<float>(dst, layout_->f, fv_, am);
     }
-    /** @brief Bulk-flatten fast path for the int32 channel (see the double overload).
-     *  @param dst The caller-provided destination buffer for the int32 channel (must be large enough)
-     *  @param am The activity mode selecting which parameters are written (default: all parameters)
-     *  @return The number of values written into dst */
+    /** @brief Bulk-flatten the int32 channel (see the double overload).
+     *  @param dst The destination buffer. @param am The activity mode. @return The number written */
     std::size_t streamlineInto(std::int32_t *dst, activityMode const &am = activityMode::DEFAULTACTIVITYMODE) const {
         return streamlineIntoImpl<std::int32_t>(dst, layout_->i, iv_, am);
     }
 
-    /** @brief Adaption-time write-fold (§2.2): folds every bounded value back into range in the FP and
-     *  int32 stores (see foldChannelInPlace for the per-channel semantics). Called by the OA adaption
-     *  driver right after the kernels run. The bool channel is always valid (0/1), so it is not folded. */
+    /** @brief Adaption-time write-fold (§2.2): folds every bounded value back into range (FP + int32). */
     void foldConstrainedValuesInPlace() {
         foldChannelInPlace<double>(layout_->d, dv_);
         foldChannelInPlace<float>(layout_->f, fv_);
@@ -418,51 +326,72 @@ public:
     }
 
     /***************************************************************************/
+    // Algorithm-facing genome operations (the flat-genome overrides of the GOptimizableEntity virtuals).
+
+    /** @brief Transformation of the individual's parameters into a boost::property_tree object.
+     *  @param ptr The property tree to populate. @param base_name The base path / key prefix */
+    void toPropertyTree(pt::ptree &ptr, std::string const &base_name = "parameterset") const override;
+
+    /** @brief Transformation of the individual's parameters into a list of comma-separated values.
+     *  @param with_name_and_type Whether to prefix each value with its name and type
+     *  @param with_commas Whether to separate the values with commas
+     *  @param use_raw_fitness Whether to emit the raw rather than the transformed fitness
+     *  @param show_validity Whether to append the individual's validity flag
+     *  @return The parameters (and optionally fitness/validity) as a single CSV string */
+    std::string toCSV(
+        bool with_name_and_type = false,
+        bool with_commas = true,
+        bool use_raw_fitness = true,
+        bool show_validity = true
+    ) const override;
+
+    /** @brief Perform a cross-over operation between this genome and another (a GFlatGenome).
+     *  @param cp_base The other entity to cross over with (must be a GFlatGenome)
+     *  @return A new genome holding the recombined parameter values */
+    std::shared_ptr<GOptimizableEntity> crossOverWith(GOptimizableEntity const &cp_base) const override;
+
+    /** @brief Retrieves parameters relevant for the evaluation from another GFlatGenome.
+     *  @param cp_base The entity whose evaluation-relevant parameters are absorbed into this one */
+    void cannibalize(GOptimizableEntity &cp_base) override;
+
+    /** @brief Whether a full return was requested for this individual (transient transport hint).
+     *  @return true if the full individual should be returned; false for the results-only form */
+    bool getReturnFullIndividual() const { return return_full_individual_; }
+    /** @brief Requests that this individual be returned to the server in FULL (input parameters included).
+     *  @param full true to force a full return; false for the lightweight results-only form */
+    void setReturnFullIndividual(bool full) { return_full_individual_ = full; }
+
+    /***************************************************************************/
     // Deleted functions
 
-    explicit GFlatGenome(float const &) = delete;  ///< Intentionally undefined (deleted to forbid a single-float init)
-    explicit GFlatGenome(double const &) = delete; ///< Intentionally undefined (deleted to forbid a single-double init)
+    explicit GFlatGenome(float const &) = delete;  ///< Intentionally undefined
+    explicit GFlatGenome(double const &) = delete; ///< Intentionally undefined
 
 protected:
-    /**
-     * @brief Loads the data of another GFlatGenome, camouflaged as a base pointer.
-     *
-     * @param cp A base pointer to the GFlatGenome whose data is copied into this object
-     */
+    /** @brief Loads the data of another GFlatGenome, camouflaged as a base pointer.
+     *  @param cp A base pointer to the GFlatGenome whose data is copied into this object */
     void load_(const GOptimizableEntity *cp) override;
 
-    /**
-     * @brief Allow access to this class's compare_ function.
-     *
-     * @param GFlatGenome The first genome to compare
-     * @param GFlatGenome The second genome to compare
-     * @param GToken The token accumulating the comparison results / deviations
-     */
+    /** @brief Allow access to this class's compare_ function. */
     friend void Gem::Common::compare_base_t<GFlatGenome>(
         GFlatGenome const &,
         GFlatGenome const &,
         Gem::Common::GToken &
     );
 
-    /**
-     * @brief Searches for compliance with expectations with respect to another object of the same type.
-     *
-     * @param cp The other object to compare this one against
-     * @param e The expected relation (equality / inequality) between the two objects
-     * @param limit The maximum allowed deviation for floating-point comparisons (the limit)
-     */
+    /** @brief Searches for compliance with expectations with respect to another object.
+     *  @param cp The other object to compare this one against
+     *  @param e The expected relation (equality / inequality)
+     *  @param limit The maximum allowed deviation for floating-point comparisons */
     void compare_(
         GOptimizableEntity const &cp,
         Gem::Common::expectation const &e,
-        [[maybe_unused]] double const &limit
+        double const &limit
     ) const override;
 
-    /**
-     * @brief Random initialization of the genome's parameter values.
-     *
-     * @param activityMode The activity mode selecting which parameters are randomly initialised
-     * @return true if at least one parameter value was changed, false otherwise
-     */
+    /** @brief Random initialization of the genome's parameter values.
+     *  @param am The activity mode selecting which parameters are randomly initialised
+     *  @return true if at least one parameter value was changed */
     bool randomInit_(activityMode const &am) override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -474,52 +403,84 @@ protected:
 
 private:
     /***************************************************************************/
-    // Overridden or virtual private functions
-
-    /** @brief Emits a name for this class / object
-     *  @return The name of this class / object */
-    std::string name_() const override;
-    /** @brief Creates a deep clone of this object (supplied by the concrete individual)
-     *  @return A heap-allocated deep copy of this genome */
+    /** @brief Emits a name for this class / object. @return The name of this class / object */
+    std::string name_() const override { return std::string("GFlatGenome"); }
+    /** @brief Creates a deep clone of this object (supplied by the concrete individual). @return A copy */
     GFlatGenome *clone_() const override = 0;
 
     /** @brief Whether this genome was deserialised from a results-only return (input data omitted).
      *  @return true iff the input parameters were omitted on the wire and must be grafted. */
     bool inputDataOmitted_() const override { return input_omitted_; }
-    /** @brief Grafts the input parameters (value channels + shared layout) of @p original onto this
-     *  results-only genome, which already carries the computed results. After the graft this genome is
-     *  complete and equivalent to a full return.
-     *  @param original The originally-submitted item (a GFlatGenome) that supplies the input data. */
+    /** @brief Grafts the input parameters of @p original onto this results-only genome.
+     *  @param original The originally-submitted item (a GFlatGenome) supplying the input data. */
     void graftInputDataFrom_(const GOptimizableEntity &original) override {
         const auto &src = dynamic_cast<const GFlatGenome &>(original);
         dv_ = src.dv_;
         fv_ = src.fv_;
         iv_ = src.iv_;
         bv_ = src.bv_;
-        layout_ = src.layout_;
+        this->setLayout(src.layout_);
         input_omitted_ = false;
     }
 
+    /** @brief Installs a new shared layout and invalidates the parameter-count cache.
+     *  @param layout The new shared, immutable layout (the count cache is re-keyed to it) */
+    void setLayout(std::shared_ptr<const GGenomeLayout> layout) {
+        layout_ = std::move(layout);
+        // Re-key the count cache. Holding a copy of the shared_ptr keeps the layout alive while cached, so
+        // a later pointer comparison can never alias a freed-then-reallocated layout (ABA-safe).
+        counts_layout_sp_.reset();
+    }
+
+    /** @brief Maps an activity mode to a cache column (0 == ALL, 1 == ACTIVEONLY, 2 == INACTIVEONLY).
+     *  @param am The activity mode. @return The cache column index */
+    static std::size_t amIndex(activityMode const &am) {
+        switch(am) {
+        case activityMode::ACTIVEONLY: return 1;
+        case activityMode::INACTIVEONLY: return 2;
+        case activityMode::ALLPARAMETERS: // == DEFAULTACTIVITYMODE
+        default: return 0;
+        }
+    }
+
+    /** @brief Returns a cached parameter count, recomputing the whole cache if the layout has changed.
+     *  The cache is keyed on the SHARED layout (a held shared_ptr), so a structural change (a new layout
+     *  object) re-keys it and the layout cannot be freed-and-reused underneath us while cached.
+     *  @param type_idx The channel index (0 double, 1 float, 2 int32, 3 bool)
+     *  @param am The activity mode. @return The number of matching parameters */
+    std::size_t cachedCount(std::size_t type_idx, activityMode const &am) const {
+        if(counts_layout_sp_.get() != layout_.get()) {
+            // Recompute all 4 channels x 3 activity modes for the current layout.
+            for(std::size_t a = 0; a < 3; ++a) {
+                const activityMode m = (a == 1) ? activityMode::ACTIVEONLY
+                                     : (a == 2) ? activityMode::INACTIVEONLY
+                                                : activityMode::ALLPARAMETERS;
+                counts_cache_[0][a] = countImpl<double>(layout_->d, m);
+                counts_cache_[1][a] = countImpl<float>(layout_->f, m);
+                counts_cache_[2][a] = countImpl<std::int32_t>(layout_->i, m);
+                counts_cache_[3][a] = countImpl<bool>(layout_->b, m);
+            }
+            counts_layout_sp_ = layout_; // re-key (also pins the layout while cached)
+        }
+        return counts_cache_[type_idx][amIndex(am)];
+    }
+
     /** @brief Retrieve the active double parameter at the given positional index.
-     *  @param idx The position of the parameter among the active double parameters
-     *  @return The (range-folded) value of that double parameter */
+     *  @param idx The position among the active double parameters. @return Its (folded) value */
     double getVarVal_d_(std::size_t idx) override;
     /** @brief Retrieve the active float parameter at the given positional index.
-     *  @param idx The position of the parameter among the active float parameters
-     *  @return The (range-folded) value of that float parameter */
+     *  @param idx The position among the active float parameters. @return Its (folded) value */
     float getVarVal_f_(std::size_t idx) override;
     /** @brief Retrieve the active int32 parameter at the given positional index.
-     *  @param idx The position of the parameter among the active int32 parameters
-     *  @return The (range-folded) value of that int32 parameter */
+     *  @param idx The position among the active int32 parameters. @return Its (folded) value */
     std::int32_t getVarVal_i_(std::size_t idx) override;
     /** @brief Retrieve the active bool parameter at the given positional index.
-     *  @param idx The position of the parameter among the active bool parameters
-     *  @return The value of that bool parameter */
+     *  @param idx The position among the active bool parameters. @return Its value */
     bool getVarVal_b_(std::size_t idx) override;
 
     /** @brief Retrieval of a suitable position for cross over inside of a vector.
      *  @param lower The minimum allowed cross-over position (must be > 0)
-     *  @param upper The exclusive upper bound of the cross-over range (typically the size of the value vector)
+     *  @param upper The exclusive upper bound of the cross-over range
      *  @return A valid cross-over position within the vector */
     std::size_t getCrossOverPos(std::size_t lower, std::size_t upper);
 
@@ -528,33 +489,20 @@ private:
 
     /** @brief Whether a value with the given active flag matches the requested activity mode.
      *  @param active The per-parameter active flag (non-zero == active)
-     *  @param am The requested activity mode (active-only / inactive-only / all)
+     *  @param am The requested activity mode
      *  @return true if the parameter should be included under the given activity mode */
     static bool amMatch(std::uint8_t active, activityMode const &am) {
         switch(am) {
-        case activityMode::ACTIVEONLY:
-            return active != 0;
-        case activityMode::INACTIVEONLY:
-            return active == 0;
+        case activityMode::ACTIVEONLY: return active != 0;
+        case activityMode::INACTIVEONLY: return active == 0;
         case activityMode::ALLPARAMETERS: // == DEFAULTACTIVITYMODE
-        default:
-            return true;
+        default: return true;
         }
     }
 
-    /** @brief THE single source of truth for the per-element internal->external map (normalized-genome
-     *  architecture §2.1). For a FLOATING-POINT channel the stored value is the NORMALIZED internal
-     *  coordinate (magnitude ≈ 1, confined to [-0.5, 0.5) for a bounded parameter); the external value is
-     *  its affine image `anchor + u*scale` (composed in long double), with the half-open [lo, hi) contract
-     *  re-enforced after the narrowing cast for a bounded parameter (an unbounded one has no wall). The
-     *  fold is NOT applied here -- it was moved to write time (§2.2), so the read path is scale-only; a
-     *  DEBUG build asserts the internal value really is in range, catching any write path that forgot to
-     *  fold/validate. INTEGER channels are NOT normalized (§2.7): they keep the closed-range integer fold.
-     *
+    /** @brief THE single source of truth for the per-element internal->external map (§2.1).
      *  @tparam T The channel's value type (double / float / int32)
-     *  @param ch The channel layout describing the parameter's kind and bounds
-     *  @param stored The internally stored value (normalized internal for FP, unbounded int for int32)
-     *  @param k The index of the parameter within the channel
+     *  @param ch The channel layout. @param stored The internally stored value. @param k The index
      *  @return The external (user-coordinate) representation of the stored value */
     template <typename T>
     static T externalValue(ChannelLayout<T> const &ch, T stored, std::size_t k) {
@@ -562,12 +510,9 @@ private:
             const T scale = ngScale<T>(ch, k);
             const T anchor = ngAnchor<T>(ch, k);
             if(not ch.fold[k]) {
-                // Unbounded (plain): the internal value may roam ℝ; affine-map it, no fold, no clamp.
                 return ngInternalToExternal<T>(stored, scale, anchor);
             }
 #ifdef DEBUG
-            // Fold-on-write guarantees the internal value is in [-0.5, 0.5); a violation means a write
-            // path stored a raw value without folding/validating. (Frozen scale <= 0 stores the centre 0.)
             if(scale > T(0) && not(stored >= T(-0.5) && stored < T(0.5))) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -577,9 +522,6 @@ private:
                 );
             }
 #endif /* DEBUG */
-            // The read-side clamp is in EXTERNAL coordinates and is not redundant with the write-side
-            // internal clamp: a valid internal value (< 0.5) can still round, through the affine map and
-            // the narrowing cast, exactly onto the exclusive external upper -- this enforces [lo, hi) there.
             return ngClampHalfOpen<T>(
                 ngInternalToExternal<T>(stored, scale, anchor), ch.lower[k], ch.upper[k]
             );
@@ -592,22 +534,10 @@ private:
         }
     }
 
-    /** @brief The per-element EXTERNAL->INTERNAL map for a floating-point external write (§2.2 write
-     *  taxonomy). A bounded parameter is range-validated against the half-open [lo, hi) (throwing on an
-     *  out-of-range value, INCLUDING exactly the open upper bound -- a user error, not silently clamped),
-     *  then scaled to the normalized internal coordinate; an unbounded parameter is scaled with no
-     *  validation. A frozen parameter (scale <= 0, lo == hi) maps to the interval centre 0.
-     *
-     *  @p allow_upper_bound relaxes the upper check to the CLOSED [lo, hi] for a DECLARED start value (the
-     *  builder's init / a factory default may legitimately sit exactly on the bound, e.g. a tunable whose
-     *  default equals its max); such a boundary value snaps to the largest representable internal value
-     *  just inside the wall. A runtime user assignment leaves it false, so exactly the upper bound throws.
-     *
+    /** @brief The per-element EXTERNAL->INTERNAL map for a floating-point external write (§2.2).
      *  @tparam T The floating-point channel's value type (double / float)
-     *  @param ch The channel layout describing the parameter's kind and bounds
-     *  @param x The external (user-coordinate) value being written
-     *  @param k The index of the parameter within the channel
-     *  @param allow_upper_bound Whether a value exactly on the (inclusive) upper bound is accepted + snapped
+     *  @param ch The channel layout. @param x The external value. @param k The index
+     *  @param allow_upper_bound Whether a value exactly on the (inclusive) upper bound is accepted
      *  @return The normalized internal coordinate to store */
     template <typename T>
     static T externalToInternalChecked(
@@ -618,7 +548,7 @@ private:
         const T anchor = ngAnchor<T>(ch, k);
         if(ch.fold[k]) {
             if(scale <= T(0)) {
-                return T(0); // frozen: the single valid value maps to the centre
+                return T(0);
             }
             const bool below = x < ch.lower[k];
             const bool above = allow_upper_bound ? (x > ch.upper[k]) : not(x < ch.upper[k]);
@@ -632,28 +562,20 @@ private:
                     << " of bounded parameter " << k << '\n'
                 );
             }
-            // A validated in-range x maps into [-0.5, 0.5); enforce the half-open internal contract in
-            // case the narrowing cast (or an inclusive-upper start value) lands exactly on the open upper.
             return ngClampHalfOpen<T>(ngExternalToInternal<T>(x, scale, anchor), T(-0.5), T(0.5));
         }
-        return ngExternalToInternal<T>(x, scale, anchor); // unbounded: no validation
+        return ngExternalToInternal<T>(x, scale, anchor);
     }
 
     /***************************************************************************/
-    // Per-type channel helpers -- the templated bodies the typed virtual overrides forward to.
+    // Per-type channel helpers -- the templated bodies the public surface forwards to.
 
     /** @brief Collects a channel's active, range-folded values into an output vector.
-     *  @tparam T The channel's value type (double / float / int32)
-     *  @param out The output vector, cleared then filled with the selected external values
-     *  @param ch The channel layout (kind / bounds / active flags)
-     *  @param store The internal value storage for this channel
-     *  @param am The activity mode selecting which parameters are collected */
+     *  @tparam T The channel's value type. @param out The output vector (cleared then filled)
+     *  @param ch The channel layout. @param store The internal value storage. @param am The activity mode */
     template <typename T>
     void streamlineImpl(
-        std::vector<T> &out,
-        ChannelLayout<T> const &ch,
-        std::vector<T> const &store,
-        activityMode const &am
+        std::vector<T> &out, ChannelLayout<T> const &ch, std::vector<T> const &store, activityMode const &am
     ) const {
         out.clear();
         for(std::size_t k = 0; k < store.size(); ++k) {
@@ -663,24 +585,13 @@ private:
         }
     }
 
-    /** @brief Writes the active channel's external (scaled) values DIRECTLY into a caller buffer,
-     *  returning the count written. Same per-element internal->external map as streamlineImpl() (both via
-     *  externalValue()), but no temporary vector and no second copy -- the bulk-flatten fast path behind
-     *  streamlineInto(). The stored value is the normalized internal coordinate, so a raw memcpy of
-     *  `store` is not a valid substitute.
-     *
-     *  @tparam T The channel's value type (double / float / int32)
-     *  @param dst The caller-provided destination buffer (must hold at least the active count)
-     *  @param ch The channel layout (kind / bounds / active flags)
-     *  @param store The internal value storage for this channel
-     *  @param am The activity mode selecting which parameters are written
+    /** @brief Writes the active channel's external values directly into a caller buffer (count returned).
+     *  @tparam T The channel's value type. @param dst The destination buffer
+     *  @param ch The channel layout. @param store The internal value storage. @param am The activity mode
      *  @return The number of values written into dst */
     template <typename T>
     std::size_t streamlineIntoImpl(
-        T *dst,
-        ChannelLayout<T> const &ch,
-        std::vector<T> const &store,
-        activityMode const &am
+        T *dst, ChannelLayout<T> const &ch, std::vector<T> const &store, activityMode const &am
     ) const {
         std::size_t n = 0;
         for(std::size_t k = 0; k < store.size(); ++k) {
@@ -691,21 +602,13 @@ private:
         return n;
     }
 
-    /** @brief Adaption-time write-fold (§2.2): contains every bounded value IN THE STORE after the
-     *  adaption kernels added their (unbounded) step. A floating-point bounded value is folded into the
-     *  canonical internal interval [-0.5, 0.5) (ngFoldInternal); an integer bounded value is folded into
-     *  its closed [lo, hi] range (foldConstrainedInt); unbounded values are left to roam. The fold is
-     *  external-value-preserving and idempotent, so this keeps the stored internal magnitude bounded
-     *  without changing the value an OA's step produced.
-     *
-     *  @tparam T The channel's value type (double / float / int32)
-     *  @param ch The channel layout (kind / bounds)
-     *  @param store The internal value storage, folded in place */
+    /** @brief Adaption-time write-fold (§2.2): contains every bounded value in the store.
+     *  @tparam T The channel's value type. @param ch The channel layout. @param store The storage (folded) */
     template <typename T>
     static void foldChannelInPlace(ChannelLayout<T> const &ch, std::vector<T> &store) {
         for(std::size_t k = 0; k < store.size(); ++k) {
             if(not ch.fold[k]) {
-                continue; // unbounded: roams freely
+                continue;
             }
             if constexpr(std::is_floating_point_v<T>) {
                 store[k] = ngFoldInternal<T>(store[k]);
@@ -716,22 +619,12 @@ private:
         }
     }
 
-    /** @brief Writes a vector of EXTERNAL (user-coordinate) values back into the active slots of a
-     *  channel's storage (§2.2 external write). A floating-point value is range-validated and scaled to
-     *  the normalized internal coordinate (externalToInternalChecked -- throws on an out-of-range bounded
-     *  value); an integer value is stored raw (it is not normalized -- folded into its closed range on
-     *  read).
-     *  @tparam T The channel's value type (double / float / int32)
-     *  @param in The incoming external values, consumed in order for each active parameter
-     *  @param ch The channel layout (kind / bounds / active flags)
-     *  @param store The internal value storage to update at the active positions
-     *  @param am The activity mode selecting which parameters are overwritten */
+    /** @brief Writes a vector of EXTERNAL values back into the active slots of a channel (§2.2).
+     *  @tparam T The channel's value type. @param in The incoming external values
+     *  @param ch The channel layout. @param store The storage to update. @param am The activity mode */
     template <typename T>
     void assignImpl(
-        std::vector<T> const &in,
-        ChannelLayout<T> const &ch,
-        std::vector<T> &store,
-        activityMode const &am
+        std::vector<T> const &in, ChannelLayout<T> const &ch, std::vector<T> &store, activityMode const &am
     ) {
         std::size_t pos = 0;
         for(std::size_t k = 0; k < store.size(); ++k) {
@@ -741,26 +634,18 @@ private:
                     store[k] = externalToInternalChecked<T>(ch, x, k);
                 }
                 else {
-                    store[k] = x; // int: stored raw, folded into its closed range on read
+                    store[k] = x;
                 }
             }
         }
     }
 
-    /** @brief Collects a channel's active values in their raw INTERNAL representation (no scale, no fold)
-     *  -- the OA-facing read of the two-reader split (§2.3). For an FP channel this is the normalized
-     *  internal coordinate; only the FP channels use it.
-     *  @tparam T The channel's value type (double / float)
-     *  @param out The output vector, cleared then filled with the selected internal values
-     *  @param ch The channel layout (active flags)
-     *  @param store The internal value storage for this channel
-     *  @param am The activity mode selecting which parameters are collected */
+    /** @brief Collects a channel's active values in their raw INTERNAL representation (§2.3).
+     *  @tparam T The channel's value type. @param out The output vector (cleared then filled)
+     *  @param ch The channel layout. @param store The internal value storage. @param am The activity mode */
     template <typename T>
     void streamlineInternalImpl(
-        std::vector<T> &out,
-        ChannelLayout<T> const &ch,
-        std::vector<T> const &store,
-        activityMode const &am
+        std::vector<T> &out, ChannelLayout<T> const &ch, std::vector<T> const &store, activityMode const &am
     ) const {
         out.clear();
         for(std::size_t k = 0; k < store.size(); ++k) {
@@ -770,21 +655,12 @@ private:
         }
     }
 
-    /** @brief Writes a vector of raw INTERNAL values back into the active slots of an FP channel (§2.2
-     *  internal write): a bounded value is FOLDED into the canonical interval [-0.5, 0.5) (the fold is
-     *  external-value-preserving, so an OA's overshooting step is contained, not rejected); an unbounded
-     *  value is stored as-is (it may roam). Never validates / throws -- that is the external write's job.
-     *  @tparam T The FP channel's value type (double / float)
-     *  @param in The incoming internal values, consumed in order for each active parameter
-     *  @param ch The channel layout (kind / active flags)
-     *  @param store The internal value storage to update at the active positions
-     *  @param am The activity mode selecting which parameters are overwritten */
+    /** @brief Writes a vector of raw INTERNAL values back into the active slots of an FP channel (§2.2).
+     *  @tparam T The FP channel's value type. @param in The incoming internal values
+     *  @param ch The channel layout. @param store The storage to update. @param am The activity mode */
     template <typename T>
     void assignInternalImpl(
-        std::vector<T> const &in,
-        ChannelLayout<T> const &ch,
-        std::vector<T> &store,
-        activityMode const &am
+        std::vector<T> const &in, ChannelLayout<T> const &ch, std::vector<T> &store, activityMode const &am
     ) {
         static_assert(std::is_floating_point_v<T>, "the internal write is FP-only");
         std::size_t pos = 0;
@@ -797,9 +673,7 @@ private:
     }
 
     /** @brief Counts how many of a channel's parameters match the requested activity mode.
-     *  @tparam T The channel's value type (double / float / int32 / bool)
-     *  @param ch The channel layout (active flags)
-     *  @param am The activity mode selecting which parameters are counted
+     *  @tparam T The channel's value type. @param ch The channel layout. @param am The activity mode
      *  @return The number of matching parameters */
     template <typename T>
     std::size_t countImpl(ChannelLayout<T> const &ch, activityMode const &am) const {
@@ -813,17 +687,11 @@ private:
     }
 
     /** @brief Collects the lower/upper bounds of a channel's active parameters.
-     *  @tparam T The channel's value type (double / float / int32)
-     *  @param l Output vector filled with each active parameter's lower bound (type lowest if unbounded)
-     *  @param u Output vector filled with each active parameter's upper bound (type max if unbounded)
-     *  @param ch The channel layout (kind / bounds / active flags)
-     *  @param am The activity mode selecting which parameters are reported */
+     *  @tparam T The channel's value type. @param l Lower bounds out. @param u Upper bounds out
+     *  @param ch The channel layout. @param am The activity mode */
     template <typename T>
     void boundariesImpl(
-        std::vector<T> &l,
-        std::vector<T> &u,
-        ChannelLayout<T> const &ch,
-        activityMode const &am
+        std::vector<T> &l, std::vector<T> &u, ChannelLayout<T> const &ch, activityMode const &am
     ) const {
         l.clear();
         u.clear();
@@ -846,8 +714,7 @@ private:
     // The bool channel is stored as bytes; these adapt the byte storage to the bool-typed surface.
 
     /** @brief Collects the active bool parameters from the byte storage into a bool vector.
-     *  @param out The output vector, cleared then filled with the selected bool values
-     *  @param am The activity mode selecting which bool parameters are collected */
+     *  @param out The output vector (cleared then filled). @param am The activity mode */
     void streamlineBool(std::vector<bool> &out, activityMode const &am) const {
         out.clear();
         for(std::size_t k = 0; k < bv_.size(); ++k) {
@@ -857,8 +724,7 @@ private:
         }
     }
     /** @brief Writes a bool vector back into the active slots of the byte storage.
-     *  @param in The incoming bool values, consumed in order for each active parameter
-     *  @param am The activity mode selecting which bool parameters are overwritten */
+     *  @param in The incoming bool values. @param am The activity mode */
     void assignBool(std::vector<bool> const &in, activityMode const &am) {
         std::size_t pos = 0;
         for(std::size_t k = 0; k < bv_.size(); ++k) {
@@ -867,30 +733,37 @@ private:
             }
         }
     }
+    /** @brief Collects the bounds of the active bool parameters (always [false, true]).
+     *  @param l Lower bounds out. @param u Upper bounds out. @param am The activity mode */
+    void boundariesBool(std::vector<bool> &l, std::vector<bool> &u, activityMode const &am) const {
+        l.clear();
+        u.clear();
+        for(std::size_t k = 0; k < layout_->b.size(); ++k) {
+            if(amMatch(layout_->b.active[k], am)) {
+                l.push_back(false);
+                u.push_back(true);
+            }
+        }
+    }
 
     /***************************************************************************/
-    // Random-init channel helpers. (The per-channel ADAPTION kernels are OA-owned -- see
-    // geneva/oa/GAdaption.hpp, fed by the GIndividualSlot's scratch.)
+    // Random-init channel helpers (the per-channel ADAPTION kernels are OA-owned).
 
     /** @brief Randomly initialises a floating-point channel's active parameters.
-     *  @tparam T The channel's value type (double / float)
-     *  @param store The internal value storage for this channel, overwritten at active positions
-     *  @param ch The channel layout (kind / bounds / active flags)
-     *  @param am The activity mode selecting which parameters are initialised
-     *  @return true if at least one value was changed, false otherwise */
+     *  @tparam T The channel's value type. @param store The internal storage (overwritten at active positions)
+     *  @param ch The channel layout. @param am The activity mode. @return true if a value changed */
     template <typename T>
     bool randomInitFP(std::vector<T> &store, ChannelLayout<T> const &ch, activityMode const &am);
     /** @brief Randomly initialises the int32 channel's active parameters.
-     *  @param am The activity mode selecting which parameters are initialised
-     *  @return true if at least one value was changed, false otherwise */
+     *  @param am The activity mode. @return true if a value changed */
     bool randomInitInt(activityMode const &am);
     /** @brief Randomly initialises the bool channel's active parameters.
-     *  @param am The activity mode selecting which parameters are initialised
-     *  @return true if at least one value was changed, false otherwise */
+     *  @param am The activity mode. @return true if a value changed */
     bool randomInitBool(activityMode const &am);
 
     /***************************************************************************/
-    // The DM §2 per-type virtual overrides (forward to the templated helpers above).
+    // The §2 per-type virtual overrides of the GOptimizableEntity value-channel dispatch targets (forward
+    // to the templated helpers above). The algorithms reach these through the base's streamline<T>() etc.
 
     /** @brief Streamlines the double channel into v. @param v Output value vector. @param am Activity mode. */
     void streamline_(std::vector<double> &v, activityMode const &am) const override { streamlineImpl<double>(v, layout_->d, dv_, am); }
@@ -910,14 +783,14 @@ private:
     /** @brief Assigns v into the bool channel's active slots. @param v Incoming values. @param am Activity mode. */
     void assignValueVector_(std::vector<bool> const &v, activityMode const &am) override { assignBool(v, am); }
 
-    /** @brief @param am Activity mode. @return The number of matching double parameters. */
-    std::size_t countParametersDouble_(activityMode const &am) const override { return countImpl<double>(layout_->d, am); }
-    /** @brief @param am Activity mode. @return The number of matching float parameters. */
-    std::size_t countParametersFloat_(activityMode const &am) const override { return countImpl<float>(layout_->f, am); }
-    /** @brief @param am Activity mode. @return The number of matching int32 parameters. */
-    std::size_t countParametersInt32_(activityMode const &am) const override { return countImpl<std::int32_t>(layout_->i, am); }
-    /** @brief @param am Activity mode. @return The number of matching bool parameters. */
-    std::size_t countParametersBool_(activityMode const &am) const override { return countImpl<bool>(layout_->b, am); }
+    /** @brief @param am Activity mode. @return The number of matching double parameters (cached). */
+    std::size_t countParametersDouble_(activityMode const &am) const override { return cachedCount(0, am); }
+    /** @brief @param am Activity mode. @return The number of matching float parameters (cached). */
+    std::size_t countParametersFloat_(activityMode const &am) const override { return cachedCount(1, am); }
+    /** @brief @param am Activity mode. @return The number of matching int32 parameters (cached). */
+    std::size_t countParametersInt32_(activityMode const &am) const override { return cachedCount(2, am); }
+    /** @brief @param am Activity mode. @return The number of matching bool parameters (cached). */
+    std::size_t countParametersBool_(activityMode const &am) const override { return cachedCount(3, am); }
 
     /** @brief Collects double-channel bounds. @param l Lower bounds out. @param u Upper bounds out. @param am Activity mode. */
     void boundaries_(std::vector<double> &l, std::vector<double> &u, activityMode const &am) const override { boundariesImpl<double>(l, u, layout_->d, am); }
@@ -926,11 +799,7 @@ private:
     /** @brief Collects int32-channel bounds. @param l Lower bounds out. @param u Upper bounds out. @param am Activity mode. */
     void boundaries_(std::vector<std::int32_t> &l, std::vector<std::int32_t> &u, activityMode const &am) const override { boundariesImpl<std::int32_t>(l, u, layout_->i, am); }
     /** @brief Collects bool-channel bounds. @param l Lower bounds out. @param u Upper bounds out. @param am Activity mode. */
-    void boundaries_(std::vector<bool> &l, std::vector<bool> &u, activityMode const &am) const override;
-
-    /***************************************************************************/
-    // The INTERNAL (normalized) FP-channel virtuals (normalized-genome architecture §2.3) -- the OA-facing
-    // half of the two-reader split. Only double/float have an internal/external distinction.
+    void boundaries_(std::vector<bool> &l, std::vector<bool> &u, activityMode const &am) const override { boundariesBool(l, u, am); }
 
     /** @brief Reads the raw internal double channel into v. @param v Output vector. @param am Activity mode. */
     void streamlineInternal_(std::vector<double> &v, activityMode const &am) const override { streamlineInternalImpl<double>(v, layout_->d, dv_, am); }
@@ -953,9 +822,20 @@ private:
     /** @brief The shared, immutable structural descriptor (bounds / grouping / adaption config) */
     std::shared_ptr<const GGenomeLayout> layout_ = std::make_shared<const GGenomeLayout>();
 
-    /** @brief Transient (NOT serialized): set by load() when a results-only return arrived without the
-     *  input parameters, so the server knows to graft them from the originally-submitted item. */
+    /** @brief Transient (NOT serialized): set by load() when a results-only return arrived. */
     bool input_omitted_ = false;
+
+    /** @brief Transient transport hint (NOT serialized / compared / loaded): force a full return. */
+    bool return_full_individual_ = false;
+
+    /***************************************************************************/
+    // The layout-keyed parameter-count cache (watertight: re-keyed whenever the shared layout changes;
+    // holding the shared_ptr pins the layout while cached, so pointer comparison can never alias). All
+    // mutable, because the count accessors are logically const.
+
+    mutable std::shared_ptr<const GGenomeLayout> counts_layout_sp_; ///< the layout the cache is keyed to
+    mutable std::array<std::array<std::size_t, 3>, 4>
+        counts_cache_{}; ///< [channel: d/f/i/b][activity mode: ALL/ACTIVEONLY/INACTIVEONLY]
 };
 
 /******************************************************************************/

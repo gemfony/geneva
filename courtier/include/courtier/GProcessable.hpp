@@ -49,6 +49,15 @@
 namespace Gem::Courtier {
 
 /******************************************************************************/
+// An exception to be thrown if an exception was thrown during a work item's processing. It lives on the
+// non-generic lifecycle base so both the courtier transports (which catch it around a process() call) and
+// any processable (GProcessingContainerT or a self-contained work item such as the geneva individual)
+// throw and catch the SAME type.
+class g_processing_exception : public geneva_exception {
+    using geneva_exception::geneva_exception;
+};
+
+/******************************************************************************/
 /**
  * @brief The non-generic processing lifecycle of a courtier work item.
  *

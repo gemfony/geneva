@@ -29,292 +29,378 @@
 
 #include "geneva/ind/GOptimizableEntity.hpp"
 
-#include <algorithm>
+#include <chrono>
 #include <cmath>
-#include <cstddef>
-#include <cstdint>
-#include <cstdlib>
-#include <functional>
 #include <limits>
-#include <memory>
-#include <random>
 #include <sstream>
-#include <tuple>
-#include <vector>
 
 #include "common/GCommonHelperFunctionsT.hpp"
-#include "common/GCommonInterfaceT.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
-#include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
-#include "courtier/GProcessingContainerT.hpp"
-#include "geneva/GMultiConstraintT.hpp"
-#include "geneva/GOptimizationEnums.hpp"
-#include "geneva/GPersonalityTraits.hpp"
-#include "geneva/Interface/GMutableI.hpp"
-#include "geneva/Interface/GRateableI.hpp"
 
 namespace Gem::Geneva::Genome {
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
-     * @brief The default constructor.
-     *
-     * Using this constructor will result in a single fitness criterion.
-     */
-GOptimizableEntity::GOptimizableEntity()
-  : Gem::Courtier::GProcessingContainerT<GOptimizableEntity, individual_processing_result>(1) {
-    /* nothing */
-}
 
 /******************************************************************************/
 /**
-     * @brief Initialization with the number of fitness criteria.
-     *
-     * @param n_fitness_criteria The number of fitness criteria this entity will evaluate to
-     */
+ * @brief The default constructor: a single fitness criterion and a fresh private policy.
+ */
+GOptimizableEntity::GOptimizableEntity() = default;
+
+/******************************************************************************/
+/**
+ * @brief Initialization with the number of fitness criteria.
+ * @param n_fitness_criteria The number of fitness criteria this candidate evaluates to
+ */
 GOptimizableEntity::GOptimizableEntity(const std::size_t n_fitness_criteria)
-  : Gem::Courtier::GProcessingContainerT<GOptimizableEntity, individual_processing_result>(
-        n_fitness_criteria
-    ) {
+  : stored_results_cnt_(n_fitness_criteria, individual_processing_result()) {
     /* nothing */
 }
 
 /******************************************************************************/
 /**
-     * @brief The copy constructor.
-     *
-     * @param cp A constant reference to another GOptimizableEntity object to be copied
-     */
+ * @brief The copy constructor. The shared policy is copied by shared pointer (1:N), the
+ * pre-/post-processors are deep-cloned.
+ * @param cp The other candidate whose data is copied
+ */
 GOptimizableEntity::GOptimizableEntity(GOptimizableEntity const &cp)
-  : Gem::Common::GCommonInterfaceT<GOptimizableEntity>(cp)
-  , Interface::GMutableI(cp)
+  : Gem::Courtier::GProcessable(cp)
+  , Gem::Common::GCommonInterfaceT<GOptimizableEntity>(cp)
   , Interface::GRateableI(cp)
-  , Gem::Courtier::GProcessingContainerT<GOptimizableEntity, individual_processing_result>(cp)
+  , pre_processing_disabled_(cp.pre_processing_disabled_)
+  , post_processing_disabled_(cp.post_processing_disabled_)
+  , stored_results_cnt_(cp.stored_results_cnt_)
+  , policy_(cp.policy_) // shared 1:N -- the clone references the same policy
   , best_past_primary_fitness_(cp.best_past_primary_fitness_)
   , n_stalls_(cp.n_stalls_)
-  , maxmode_(cp.maxmode_)
   , assigned_iteration_(cp.assigned_iteration_)
   , validity_level_(cp.validity_level_)
-  , eval_policy_(cp.eval_policy_)
-  , sigmoid_steepness_(cp.sigmoid_steepness_)
-  , sigmoid_extremes_(cp.sigmoid_extremes_)
+  , n_adaptions_(cp.n_adaptions_)
   , max_unsuccessful_adaptions_(cp.max_unsuccessful_adaptions_)
-  , max_retries_until_valid_(cp.max_retries_until_valid_)
-  , n_adaptions_(cp.n_adaptions_) {
-    // Make sure any constraints are copied over
-    Gem::Common::copyCloneableSmartPointer(
-        cp.individual_constraint_ptr_,
-        individual_constraint_ptr_
-    );
+  , max_retries_until_valid_(cp.max_retries_until_valid_) {
+    Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
+    Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
 }
 
 /******************************************************************************/
 /**
-     * @brief Searches for compliance with expectations with respect to another object of the same type.
-     *
-     * @param cp A constant reference to another GOptimizableEntity object
-     * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation tolerated for floating point comparisons (unused here)
-     */
-void GOptimizableEntity::compare_(
-    GOptimizableEntity const &cp,
-    Gem::Common::expectation const &e,
-    [[maybe_unused]] double const & limit
-) const {
-    using namespace Gem::Common;
-
-    // Check that we are dealing with a GOptimizableEntity reference independent of this object and convert the pointer
-    const auto *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizableEntity, GOptimizableEntity>(cp, this);
-
-    GToken token("GOptimizableEntity", e);
-
-    // Compare our CRTP base data (the category root has no GObject parent) ...
-    Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GOptimizableEntity>>(*this, *p_load, token);
-
-    // ... and all the local data (plain + cloneable pointers), derived from the
-    // single localMembers() declaration.
-    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
-
-    // React on deviations from the expectation
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
-     * @brief Allows to randomly initialize parameter members.
-     *
-     * This function is responsible for setting the dirty flag, so overloaded randomInit_ functions do
-     * not need to take care of this. Note though that overloads of randomInit_() need to take care to
-     * indicate whether modifications were made.
-     *
-     * @param am The activity mode that selects which parameters are (re-)initialized
-     * @return A boolean indicating whether modifications where made
-     */
-bool GOptimizableEntity::randomInit(activityMode const &am) {
-    bool modifications_made = this->randomInit_(am);
-
-    if(modifications_made) {
-        this->mark_as_due_for_processing();
-    }
-
-    return modifications_made;
-}
-
-/******************************************************************************/
-/**
-     * @brief Specifies whether to work in maximization or minimization mode.
-     *
-     * Allows to specify whether we want to work in maximization (maxMode::MAXIMIZE) or minimization
-     * (maxMode::MINIMIZE) mode (the default). The idea is that GOptimizableEntity, depending on the
-     * maxMode, changes its evaluation in such a way that the optimization algorithm always sees a
-     * minimization problem.
-     *
-     * @param mode An enum class which indicates whether we want to work in maximization or minimization mode
-     */
-void GOptimizableEntity::setMaxMode(maxMode const &mode) {
-    maxmode_ = mode;
-}
-
-/******************************************************************************/
-/**
-     * @brief Checks whether this object is better than a given set of evaluations.
-     *
-     * This function compares "real" boundaries with evaluations, hence we use "raw" measurements here
-     * instead of transformed measurements. In MAXIMIZE mode the individual passes if every raw fitness
-     * is at least the matching boundary; in MINIMIZE mode if every raw fitness is at most the boundary.
-     *
-     * @param boundaries One boundary value per stored fitness criterion (size must match the criteria count)
-     * @return true if this individual is at least as good as every boundary, false otherwise
-     */
-bool GOptimizableEntity::isGoodEnough(std::vector<double> const &boundaries) {
-#ifdef DEBUG
-    // Does the number of fitness criteria match the number of boundaries ?
-    if(boundaries.size() != this->getNStoredResults()) {
+ * @brief Installs the shared problem policy (the 1:N feasibility/ranking rules).
+ * @param policy The shared policy to reference (must not be empty)
+ */
+void GOptimizableEntity::setPolicy(std::shared_ptr<GProblemPolicy> policy) {
+    if(not policy) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GOptimizableEntity::isGoodEnough(): Error!" << '\n'
-            << "Number of boundaries does not match number of fitness criteria" << '\n'
+            << "In GOptimizableEntity::setPolicy(): Error!" << '\n'
+            << "Tried to install an empty problem policy" << '\n'
         );
     }
+    policy_ = std::move(policy);
+}
 
-    // Has the individual been processed
+/******************************************************************************/
+/**
+ * @brief Resets every stored result to a default-constructed value.
+ */
+void GOptimizableEntity::clear_stored_results_vec() {
+    // Cannot use range-based for here, as the value type might be a proxy (kept for parity with the
+    // historical processing container).
+    for(auto it = stored_results_cnt_.begin(); it != stored_results_cnt_.end(); ++it) {
+        *it = individual_processing_result();
+    }
+}
+
+/******************************************************************************/
+/**
+ * @brief Sets the vector of stored results to a given collection and marks the candidate PROCESSED.
+ * @param result_cnt The new result vector (size must match the configured number of stored results)
+ * @return The first stored result after the assignment
+ */
+individual_processing_result
+GOptimizableEntity::markAsProcessedWith(std::vector<individual_processing_result> const &result_cnt) {
+#ifdef DEBUG
+    if(result_cnt.size() != stored_results_cnt_.size()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GOptimizableEntity::markAsProcessedWith(): Vector dimensions" << '\n'
+            << "do not fit: " << result_cnt.size() << " / " << stored_results_cnt_.size() << '\n'
+        );
+    }
+#endif
+
+    stored_results_cnt_ = result_cnt;
+    stored_error_descriptions_.clear();
+    processing_status_ = Gem::Courtier::processingStatus::PROCESSED;
+
+    return this->stored_results_cnt_.at(0);
+}
+
+/******************************************************************************/
+/**
+ * @brief Read-only retrieval of a stored result. Throws if the PROCESSED flag is not set.
+ * @param id The position of the stored result to return
+ * @return The stored result at position id
+ */
+individual_processing_result GOptimizableEntity::getStoredResult(const std::size_t id) const {
     if(not this->is_processed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GOptimizableEntity::isGoodEnough(): Error!" << '\n'
-            << "Trying to compare fitness values although the individual isn't processed"
-            << '\n'
+            << "In GOptimizableEntity::getStoredResult(): Tried to" << '\n'
+            << "retrieve stored result while the PROCESSED flag was not set" << '\n'
         );
     }
-#endif /* DEBUG */
 
-    // Check the fitness values. If we find at least one
-    // which is worse than the one supplied by the boundaries
-    // vector, then this individual fails the test
-    if(maxMode::MAXIMIZE == this->getMaxMode()) {
-        // Maximization
-        for(std::size_t i = 0; i < boundaries.size(); i++) {
-            if(this->raw_fitness(i) < boundaries.at(i)) {
-                return false;
+    return stored_results_cnt_.at(id);
+}
+
+/******************************************************************************/
+/**
+ * @brief Performs the evaluation of this candidate (see the header for the full sequence).
+ * @param res_vec Optional pre-computed raw results; if empty, fitnessCalculation() is invoked
+ * @return The first stored result after processing
+ */
+individual_processing_result
+GOptimizableEntity::process(const std::vector<individual_processing_result> &res_vec) {
+    using Gem::Courtier::processingStatus;
+
+    if(processingStatus::DO_PROCESS != processing_status_) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GOptimizableEntity::process(): Function called while processing_status_ was set to "
+            << processing_status_ << '\n'
+            << "Expected " << processingStatus::DO_PROCESS << '\n'
+        );
+    }
+
+    stored_error_descriptions_.clear();
+    this->clear_stored_results_vec();
+
+    std::ostringstream error_description_stream; // NOLINT(cppcoreguidelines-init-variables)
+
+    try {
+        const auto start_time = std::chrono::high_resolution_clock::now();
+        this->preProcess_();
+        const auto after_pre_processing = std::chrono::high_resolution_clock::now();
+
+        this->runEvaluation_(res_vec);
+
+        // The fitness has now been computed, so the work item is processed. Mark it PROCESSED before
+        // post-processing: a post-processor refines an ALREADY-EVALUATED item and rejects a dirty one.
+        // If processing flagged an error, the error status is left intact.
+        if(not this->has_errors()) {
+            processing_status_ = processingStatus::PROCESSED;
+        }
+
+        const auto after_processing = std::chrono::high_resolution_clock::now();
+        this->postProcess_();
+        const auto after_post_processing = std::chrono::high_resolution_clock::now();
+
+        pre_processing_time_ =
+            std::chrono::duration<double>(after_pre_processing - start_time).count();
+        processing_time_ =
+            std::chrono::duration<double>(after_processing - after_pre_processing).count();
+        post_processing_time_ =
+            std::chrono::duration<double>(after_post_processing - after_processing).count();
+
+        processing_status_ = processingStatus::PROCESSED;
+    }
+    catch(std::exception &e) {
+        processing_status_ = processingStatus::EXCEPTION_CAUGHT;
+        error_description_stream << "In GOptimizableEntity::process():" << '\n'
+                                 << "Processing has thrown an exception with message" << '\n'
+                                 << e.what() << '\n'
+                                 << "We will rethrow this exception" << '\n';
+    }
+    catch(...) {
+        processing_status_ = processingStatus::EXCEPTION_CAUGHT;
+        error_description_stream << "In GOptimizableEntity::process():" << '\n'
+                                 << "Processing has thrown an unknown exception." << '\n';
+    }
+
+    if(this->has_errors()) { // Either an exception was caught or the user flagged an error
+        pre_processing_time_ = 0.;
+        processing_time_ = 0.;
+        post_processing_time_ = 0.;
+
+        this->clear_stored_results_vec();
+
+        if(processingStatus::EXCEPTION_CAUGHT == processing_status_) {
+            stored_error_descriptions_ += error_description_stream.str();
+        }
+
+        throw Gem::Courtier::g_processing_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace()) << stored_error_descriptions_
+        );
+    }
+
+    return this->stored_results_cnt_.at(0);
+}
+
+/******************************************************************************/
+/**
+ * @brief The evaluation body run inside process(): feasibility check + fitnessCalculation()/res_vec
+ * adoption + the evaluation-policy transform.
+ * @param res_vec Optional pre-computed raw results
+ */
+void GOptimizableEntity::runEvaluation_(const std::vector<individual_processing_result> &res_vec) {
+    // Find out whether this is a valid solution (must be called first, to fill validity_level_).
+    if(this->fulfillsConstraints(validity_level_) ||
+       evaluationPolicy::USESIMPLEEVALUATION == this->getEvaluationPolicy()) {
+        double main_raw_result = 0.;
+
+        try {
+            if(not res_vec.empty()) {
+                if(res_vec.size() != this->getNStoredResults()) {
+                    throw geneva_exception(
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                        << "In GOptimizableEntity::runEvaluation_(): Error!" << '\n'
+                        << "res_vec has invalid size. Got " << res_vec.size() << '\n'
+                        << "Expected " << this->getNStoredResults() << '\n'
+                    );
+                }
+
+                main_raw_result = res_vec.begin()->rawFitness();
+
+                std::size_t pos = 0;
+                for(const auto &res : res_vec) {
+                    if(pos == 0) {
+                        ++pos;
+                        continue; // skip the main raw result
+                    }
+                    this->setResult(pos, res.rawFitness());
+                    ++pos;
+                }
+            }
+            else {
+                // With multiple fitness criteria, fitnessCalculation() also sets the additional raw values.
+                main_raw_result = this->fitnessCalculation();
+            }
+        }
+        catch(...) {
+            this->setAllFitnessTo(this->getWorstCase());
+            throw;
+        }
+
+        this->setResult(0, main_raw_result);
+        this->modifyStoredResult(0).setTransformedFitnessToRaw();
+
+        if(this->error_flagged_by_user()) {
+            // The user indicated a problem without throwing: worst-case the whole quality surface.
+            this->setAllFitnessTo(this->getWorstCase());
+        }
+        else {
+            for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
+                if(evaluationPolicy::USESIGMOID == this->getEvaluationPolicy()) {
+                    this->modifyStoredResult(i).setTransformedFitnessWith(
+                        [this](const double raw_value) { return policy_->sigmoidTransform(raw_value); }
+                    );
+                }
+                else {
+                    this->modifyStoredResult(i).setTransformedFitnessToRaw();
+                }
             }
         }
     }
     else {
-        // maxMode::MINIMIZE
-        for(std::size_t i = 0; i < boundaries.size(); i++) {
-            if(this->raw_fitness(i) > boundaries.at(i)) {
-                return false;
+        // Some constraints were violated. Act on the chosen policy.
+        if(evaluationPolicy::USEWORSTCASEFORINVALID == this->getEvaluationPolicy()) {
+            this->setAllFitnessTo(this->getWorstCase());
+        }
+        else if(evaluationPolicy::USESIGMOID == this->getEvaluationPolicy()) {
+            double uniform_fitness_value = 0.;
+            const double barrier = this->getBarrier();
+            if(maxMode::MAXIMIZE == this->getMaxMode()) {
+                uniform_fitness_value = (std::numeric_limits<double>::max() == validity_level_)
+                                            ? this->getWorstCase()
+                                            : -validity_level_ * barrier;
             }
+            else {
+                uniform_fitness_value = (std::numeric_limits<double>::max() == validity_level_)
+                                            ? this->getWorstCase()
+                                            : validity_level_ * barrier;
+            }
+            this->setAllFitnessTo(this->getWorstCase(), uniform_fitness_value);
         }
     }
-
-    // All fitness values are better than those supplied by boundaries
-    return true;
 }
 
 /******************************************************************************/
 /**
-     * @brief Retrieves the stored raw fitness with a given id.
-     *
-     * @param id The position of the fitness criterion to retrieve
-     * @return The raw fitness value stored at the given position
-     */
-double GOptimizableEntity::raw_fitness_(const std::size_t id) const {
-    return this->getStoredResult(id).rawFitness();
-}
-
-/******************************************************************************/
-/**
-     * @brief Retrieves the stored transformed fitness with a given id.
-     *
-     * @param id The position of the fitness criterion to retrieve
-     * @return The transformed fitness value stored at the given position
-     */
-double GOptimizableEntity::transformed_fitness_(const std::size_t id) const {
-    return this->getStoredResult(id).transformedFitness();
-}
-
-/******************************************************************************/
-/**
-     * @brief Returns all raw fitness results in a std::vector.
-     *
-     * @return A vector holding the raw fitness value of every stored fitness criterion, in order
-     */
-std::vector<double> GOptimizableEntity::raw_fitness_vec_() const {
-    std::size_t n_fitness_criteria = this->getNStoredResults();
-    std::vector<double> result_vec;
-
-    for(std::size_t i = 0; i < n_fitness_criteria; i++) {
-        result_vec.push_back(this->raw_fitness(i));
+ * @brief Sets the fitness from a vector of externally-computed raw values (the GPU consumer / external
+ * evaluation), applying the feasibility check and evaluation-policy transform, then marking PROCESSED.
+ * @param f_cnt A vector of raw fitness values (size must match the criteria count)
+ */
+void GOptimizableEntity::setFitness_(std::vector<double> const &f_cnt) {
+#ifdef DEBUG
+    if(f_cnt.size() != this->getNStoredResults()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GOptimizableEntity::setFitness_(): Error!" << '\n'
+            << "Invalid size of fitness vector: " << f_cnt.size()
+            << ", expected: " << this->getNStoredResults() << '\n'
+        );
     }
+#endif /* DEBUG */
 
-    return result_vec;
-}
+    if(this->fulfillsConstraints(validity_level_) ||
+       evaluationPolicy::USESIMPLEEVALUATION == this->getEvaluationPolicy()) {
+        std::vector<individual_processing_result> processing_results(
+            f_cnt.size(),
+            individual_processing_result()
+        );
 
-/******************************************************************************/
-/**
-     * @brief Returns all transformed fitness results in a std::vector.
-     *
-     * @return A vector holding the transformed fitness value of every stored fitness criterion, in order
-     */
-std::vector<double> GOptimizableEntity::transformed_fitness_vec_() const {
-    std::size_t n_fitness_criteria = this->getNStoredResults();
-    std::vector<double> result_vec;
+        std::size_t pos = 0;
+        for(auto &p : processing_results) {
+            p.reset(f_cnt.at(pos));
 
-    for(std::size_t i = 0; i < n_fitness_criteria; i++) {
-        result_vec.push_back(this->transformed_fitness(i));
+            if(evaluationPolicy::USESIGMOID == this->getEvaluationPolicy()) {
+                p.setTransformedFitnessWith(
+                    [this](const double raw_value) { return policy_->sigmoidTransform(raw_value); }
+                );
+            }
+            else {
+                p.setTransformedFitnessToRaw();
+            }
+            ++pos;
+        }
+
+        this->markAsProcessedWith(processing_results);
     }
-
-    return result_vec;
+    else {
+        if(evaluationPolicy::USEWORSTCASEFORINVALID == this->getEvaluationPolicy()) {
+            this->setAllFitnessTo(this->getWorstCase());
+        }
+        else if(evaluationPolicy::USESIGMOID == this->getEvaluationPolicy()) {
+            double uniform_fitness_value = 0.;
+            const double barrier = this->getBarrier();
+            if(maxMode::MAXIMIZE == this->getMaxMode()) {
+                uniform_fitness_value = (std::numeric_limits<double>::max() == validity_level_)
+                                            ? this->getWorstCase()
+                                            : -validity_level_ * barrier;
+            }
+            else {
+                uniform_fitness_value = (std::numeric_limits<double>::max() == validity_level_)
+                                            ? this->getWorstCase()
+                                            : validity_level_ * barrier;
+            }
+            this->setAllFitnessTo(this->getWorstCase(), uniform_fitness_value);
+        }
+    }
 }
 
 /******************************************************************************/
 /**
-     * @brief Register another result value of the fitness calculation.
-     *
-     * Multiple fitness
-     * criteria are used in multi-criterion optimization. fitnessCalculation() returns
-     * the main fitness value, but may also add further, secondary results. Note that,
-     * whether these are actually used, depends on the optimization algorithm being
-     * used. Transformation for the second fitness value will be done in the process_()
-     * function. You may store the primary fitness value with this function as well.
-     * As the primary (raw) value is however also returned by fitnessCalculation() and
-     * integrated into the list of results, this is redundant.
-     *
-     * @param id The position of the fitness criterion (must be >= 0 !)
-     * @param value The fitness value to be registered
-     */
+ * @brief Registers a (raw) result value of the fitness calculation at a given criterion position.
+ * @param id The position of the fitness criterion
+ * @param value The raw fitness value to register
+ */
 void GOptimizableEntity::setResult(const std::size_t id, const double value) {
 #ifdef DEBUG
     if(id >= this->getNStoredResults()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GOptimizableEntity::setResult(...): Error!" << '\n'
+            << "In GOptimizableEntity::setResult(): Error!" << '\n'
             << "Invalid position in vector: " << id << " (expected min 0 and max "
             << this->getNStoredResults() - 1 << ")" << '\n'
         );
@@ -326,427 +412,61 @@ void GOptimizableEntity::setResult(const std::size_t id, const double value) {
 
 /******************************************************************************/
 /**
-     * @brief Determines whether more than one fitness criterion is present for this individual.
-     *
-     * @return A boolean indicating whether more than one target function is present
-     */
-bool GOptimizableEntity::hasMultipleFitnessCriteria() const {
-    return this->getNStoredResults() > 1;
-}
-
-/******************************************************************************/
-/**
-     * @brief Retrieve the fitness tuple at a given evaluation position.
-     *
-     * @param id The position of the fitness criterion to retrieve
-     * @return A tuple holding (raw fitness, transformed fitness) for the given position
-     */
+ * @brief Retrieve the (raw, transformed) fitness tuple at a given evaluation position.
+ * @param id The evaluation position (fitness criterion index)
+ * @return A (raw, transformed) fitness tuple at the requested position
+ */
 std::tuple<double, double> GOptimizableEntity::getFitnessTuple(const std::uint32_t id) const {
     return std::make_tuple<double, double>(this->raw_fitness(id), this->transformed_fitness(id));
 }
 
 /******************************************************************************/
 /**
-     * @brief Allows to retrieve the maxmode_ parameter.
-     *
-     * @return The current value of the maxmode_ parameter
-     */
-maxMode GOptimizableEntity::getMaxMode() const {
-    return maxmode_;
-}
-
-/***************************************************************************/
-/**
-     * @brief Helper function that emits the worst case value depending on the optimization direction.
-     *
-     * @return The worst case value: lowest representable double in MAXIMIZE mode, highest in MINIMIZE mode
-     */
-double GOptimizableEntity::getWorstCase() const {
-    return (
-        (maxMode::MAXIMIZE == this->getMaxMode()) ? std::numeric_limits<double>::lowest()
-                                                  : std::numeric_limits<double>::max()
-    );
-}
-
-/******************************************************************************/
-/**
-     * @brief Retrieves the best possible evaluation result, depending on the optimization direction.
-     *
-     * @return The best case value: highest representable double in MAXIMIZE mode, lowest in MINIMIZE mode
-     */
-double GOptimizableEntity::getBestCase() const {
-    return (
-        (maxMode::MAXIMIZE == this->getMaxMode()) ? std::numeric_limits<double>::max()
-                                                  : std::numeric_limits<double>::lowest()
-    );
-}
-
-/******************************************************************************/
-/**
-     * @brief Retrieves the steepness_ variable (used for the sigmoid transformation).
-     *
-     * @return The current sigmoid steepness value
-     */
-double GOptimizableEntity::getSteepness() const {
-    return sigmoid_steepness_;
-}
-
-/******************************************************************************/
-/**
-     * @brief Sets the steepness variable (used for the sigmoid transformation).
-     *
-     * Throws if the value is not strictly positive.
-     *
-     * @param steepness The new sigmoid steepness; must be > 0
-     */
-void GOptimizableEntity::setSteepness(const double steepness) {
-    if(steepness <= 0.) {
+ * @brief Checks whether this candidate is at least as good as a set of raw boundaries.
+ * @param boundaries One boundary value per fitness criterion
+ * @return true if every raw fitness is at least as good as its boundary
+ */
+bool GOptimizableEntity::isGoodEnough(std::vector<double> const &boundaries) {
+#ifdef DEBUG
+    if(boundaries.size() != this->getNStoredResults()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GOptimizableEntity::setSteepness(double steepness): Error!" << '\n'
-            << "Invalid value of steepness parameter: " << steepness << '\n'
+            << "In GOptimizableEntity::isGoodEnough(): Error!" << '\n'
+            << "Number of boundaries does not match number of fitness criteria" << '\n'
         );
     }
-
-    sigmoid_steepness_ = steepness;
-}
-
-/******************************************************************************/
-/**
-     * @brief Retrieves the barrier_ variable (used for the sigmoid transformation).
-     *
-     * @return The current sigmoid barrier (extreme) value
-     */
-double GOptimizableEntity::getBarrier() const {
-    return sigmoid_extremes_;
-}
-
-/******************************************************************************/
-/**
-     * @brief Sets the barrier variable (used for the sigmoid transformation).
-     *
-     * Throws if the value is not strictly positive.
-     *
-     * @param barrier The new sigmoid barrier (extreme) value; must be > 0
-     */
-void GOptimizableEntity::setBarrier(const double barrier) {
-    if(barrier <= 0.) {
+    if(not this->is_processed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GOptimizableEntity::setBarrier(double barrier): Error!" << '\n'
-            << "Invalid value of barrier parameter: " << barrier << '\n'
+            << "In GOptimizableEntity::isGoodEnough(): Error!" << '\n'
+            << "Trying to compare fitness values although the individual isn't processed" << '\n'
         );
     }
+#endif /* DEBUG */
 
-    sigmoid_extremes_ = barrier;
-}
-
-/******************************************************************************/
-/**
-     * @brief Sets the maximum number of adaption attempts that may pass without actual modifications.
-     *
-     * Setting this to 0 disables this check. You should only do this if you are sure that an adaption
-     * will eventually happen. Otherwise you would get an endless loop.
-     *
-     * @param max_unsuccessful_adaptions The maximum number of consecutive unsuccessful adaptions (0 disables the check)
-     */
-void GOptimizableEntity::setMaxUnsuccessfulAdaptions(const std::size_t max_unsuccessful_adaptions) {
-    max_unsuccessful_adaptions_ = max_unsuccessful_adaptions;
-}
-
-/******************************************************************************/
-/**
-     * @brief Retrieves the maximum number of adaption attempts that may pass without actual modifications.
-     *
-     * @return The maximum number of consecutive unsuccessful adaptions (0 means the check is disabled)
-     */
-std::size_t GOptimizableEntity::getMaxUnsuccessfulAdaptions() const {
-    return max_unsuccessful_adaptions_;
-}
-
-/******************************************************************************/
-/**
-     * @brief Sets the maximum number of retries during adaption until a valid individual was found.
-     *
-     * Setting this value to 0 will disable retries.
-     *
-     * @param max_retries_until_valid The maximum number of adaption retries until validity (0 disables retries)
-     */
-void GOptimizableEntity::setMaxRetriesUntilValid(const std::size_t max_retries_until_valid) {
-    max_retries_until_valid_ = max_retries_until_valid;
-}
-
-/******************************************************************************/
-/**
-     * @brief Retrieves the current maximum number of adaption retries until a valid individual was found.
-     *
-     * @return The maximum number of adaption retries until validity (0 means retries are disabled)
-     */
-std::size_t GOptimizableEntity::getMaxRetriesUntilValid() const {
-    return max_retries_until_valid_;
-}
-
-/******************************************************************************/
-/**
-     * @brief Retrieves the number of adaptions performed during the last call to adapt().
-     *
-     * @return The number of adaptions performed during the last adapt() call (0 if none so far)
-     */
-std::size_t GOptimizableEntity::getNAdaptions() const {
-    return n_adaptions_;
-}
-
-/******************************************************************************/
-/**
-     * @brief Allows to set the current iteration of the parent optimization algorithm.
-     *
-     * @param parent_alg_iteration The current iteration of the optimization algorithm
-     */
-void GOptimizableEntity::setAssignedIteration(std::uint32_t const &parent_alg_iteration) {
-    assigned_iteration_ = parent_alg_iteration;
-}
-
-/******************************************************************************/
-/**
-     * @brief Gives access to the parent optimization algorithm's iteration.
-     *
-     * @return The parent optimization algorithm's current iteration
-     */
-std::uint32_t GOptimizableEntity::getAssignedIteration() const {
-    return assigned_iteration_;
-}
-
-/******************************************************************************/
-/**
-     * @brief Specifies the number of optimization cycles without improvement of the primary fitness criterion.
-     *
-     * @param n_stalls The number of optimization cycles without improvement in the parent algorithm
-     */
-void GOptimizableEntity::setNStalls(std::uint32_t const &n_stalls) {
-    n_stalls_ = n_stalls;
-}
-
-/******************************************************************************/
-/**
-     * @brief Retrieves the number of optimization cycles without improvement of the primary fitness criterion.
-     *
-     * @return The number of optimization cycles without improvement in the parent algorithm
-     */
-std::uint32_t GOptimizableEntity::getNStalls() const {
-    return n_stalls_;
-}
-
-/******************************************************************************/
-/**
-     * @brief Allows to check whether random crashs of individuals are enabled.
-     *
-     * @return A tuple holding (random-crash enabled flag, random-crash probability)
-     */
-std::tuple<bool, double> GOptimizableEntity::getRandomCrash() const {
-    return std::tuple<bool, double>{use_random_crash_, random_crash_prob_};
-};
-
-/******************************************************************************/
-/**
-     * @brief Allows to enable random crashs of individuals for testing purposes.
-     *
-     * The crash probability is range-checked to lie in [0, 1].
-     *
-     * @param use_random_crash Whether random crashes during processing are enabled
-     * @param crash_prob The probability of a random crash to occur; must lie in [0, 1]
-     */
-void GOptimizableEntity::setRandomCrash(const bool use_random_crash, const double crash_prob) {
-    // Check that the crash probability is in the allowed value range
-    Gem::Common::checkRangeCompliance(crash_prob, 0., 1., "GOptimizableEntity::setRandomCrash()");
-
-    // Set the value as demanded
-    use_random_crash_ = use_random_crash;
-    random_crash_prob_ = crash_prob;
-}
-
-/******************************************************************************/
-/**
-     * @brief Adds local configuration options to a GParserBuilder object.
-     *
-     * @param gpb The GParserBuilder object to which configuration options should be added
-     */
-void GOptimizableEntity::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
-    // Call our CRTP base class'es function (the category root has no GObject parent)
-    Gem::Common::GCommonInterfaceT<GOptimizableEntity>::addConfigurationOptions_(gpb);
-
-    // Add local data
-    gpb.registerFileParameter<evaluationPolicy>(
-        "eval_policy" // The name of the variable
-        ,
-        Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION
-        // The default value
-        ,
-        [this](const evaluationPolicy ep) { this->setEvaluationPolicy(ep); }
-    ) << "Specifies which strategy should be used to calculate the evaluation:"
-      << '\n'
-      << "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid "
-         "solutions"
-      << '\n'
-      << "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and "
-         "evaluate only valid solutions"
-      << '\n'
-      << "2 (a.k.a. USESIGMOID): Assign a multiple of validity_level_ and sigmoid barrier to "
-         "invalid solutions, apply a sigmoid function to valid evaluations"
-      << '\n';
-
-    gpb.registerFileParameter<double>(
-        "steepness" // The name of the variable
-        ,
-        Gem::Geneva::FITNESSSIGMOIDSTEEPNESS // The default value
-        ,
-        [this](const double ss) { this->setSteepness(ss); }
-    ) << "When using a sigmoid function to transform the individual's fitness,"
-      << '\n'
-      << "this parameter influences the steepness of the function at the center of the sigmoid."
-      << '\n'
-      << "The parameter must have a value > 0.";
-
-    gpb.registerFileParameter<double>(
-        "barrier" // The name of the variable
-        ,
-        Gem::Geneva::WORSTALLOWEDVALIDFITNESS // The default value
-        ,
-        [this](const double barrier) { this->setBarrier(barrier); }
-    ) << "When using a sigmoid function to transform the individual's fitness,"
-      << '\n'
-      << "this parameter sets the upper/lower boundary of the sigmoid." << '\n'
-      << "The parameter must have a value > 0.;";
-
-    gpb.registerFileParameter<std::size_t>(
-        "max_unsuccessful_adaptions" // The name of the variable
-        ,
-        DEFMAXUNSUCCESSFULADAPTIONS // The default value
-        ,
-        [this](const std::size_t mua) { this->setMaxUnsuccessfulAdaptions(mua); }
-    ) << "The maximum number of unsuccessful adaptions in a row for one call to adapt()";
-
-    gpb.registerFileParameter<std::size_t>(
-        "max_retries_until_valid" // The name of the variable
-        ,
-        DEFMAXRETRIESUNTILVALID // The default value
-        ,
-        [this](const std::size_t mruv) { this->setMaxRetriesUntilValid(mruv); }
-    ) << "The maximum allowed number of retries during the"
-      << '\n'
-      << "adaption of individuals until a valid solution was found" << '\n'
-      << "A parameter set is considered to be \"valid\" if" << '\n'
-      << "it passes all validity checks;";
-
-    // Add local data
-    gpb.registerFileParameter<maxMode>(
-        "maxmode" // The name of the variable
-        ,
-        maxMode::MINIMIZE // The default value
-        ,
-        [this](const maxMode mm) { this->setMaxMode(mm); }
-    ) << "Specifies whether the individual should be maximized (1) or minimized (0)"
-      << '\n'
-      << "Note that minimization is the by far most common option.";
-
-    gpb.registerFileParameter<bool, double>(
-        "use_random_crash" // The name of the variable
-        ,
-        "random_crash_prob",
-        GPS_DEF_USE_RANDOMCRASH // The default value
-        ,
-        GPS_DEF_RANDOMCRASHPROB,
-        [this](const bool use_rc, const double rc_prob) { this->setRandomCrash(use_rc, rc_prob); },
-        "random_crash_parameters"
-    ) << "Indicates whether random crashes should occur for debugging purposes"
-      << '\n'
-      << Gem::Common::nextComment() << "The probability of a random crash to occur";
-}
-
-/******************************************************************************/
-/**
-     * @brief Emits a name for this class / object.
-     *
-     * @return The string "GOptimizableEntity"
-     */
-std::string GOptimizableEntity::name_() const {
-    return std::string("GOptimizableEntity");
-}
-
-/******************************************************************************/
-/**
-     * @brief Check how valid a given solution is.
-     *
-     * @return The validity level of this solution (<= 1 means all constraints are fulfilled)
-     */
-double GOptimizableEntity::getValidityLevel() const {
-    return validity_level_;
-}
-
-/******************************************************************************/
-/**
-     * @brief Checks whether all registered constraints are fulfilled.
-     *
-     * @return A boolean indicating, whether all constraints were fulfilled
-     */
-bool GOptimizableEntity::constraintsFulfilled() const {
-    return validity_level_ <= 1.;
-
-}
-
-/******************************************************************************/
-/**
-     * @brief Allows to register a constraint with this individual.
-     *
-     * Note that the constraint object will be cloned, so individuals do not share the same object.
-     * Throws if an empty constraint pointer is passed.
-     *
-     * @param c_ptr A shared pointer to the validity-check constraint to register; must not be empty
-     */
-void GOptimizableEntity::registerConstraint(
-    std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>> c_ptr
-) {
-    if(not c_ptr) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GOptimizableEntity::registerConstraint(): Error!" << '\n'
-            << "Tried to register empty constraint object" << '\n'
-        );
+    if(maxMode::MAXIMIZE == this->getMaxMode()) {
+        for(std::size_t i = 0; i < boundaries.size(); i++) {
+            if(this->raw_fitness(i) < boundaries.at(i)) {
+                return false;
+            }
+        }
+    }
+    else {
+        for(std::size_t i = 0; i < boundaries.size(); i++) {
+            if(this->raw_fitness(i) > boundaries.at(i)) {
+                return false;
+            }
+        }
     }
 
-    // We store clones, so individual objects do not share the same object
-    individual_constraint_ptr_ =
-        c_ptr->clone<GPreEvaluationValidityCheckT<GOptimizableEntity>>();
+    return true;
 }
 
 /******************************************************************************/
 /**
-     * @brief Allows to set the policy to use in case this individual represents an invalid solution.
-     *
-     * @param eval_policy The evaluation policy to apply to invalid solutions
-     */
-void GOptimizableEntity::setEvaluationPolicy(const evaluationPolicy eval_policy) {
-    eval_policy_ = eval_policy;
-}
-
-/******************************************************************************/
-/**
-     * @brief Allows to retrieve the current policy in case this individual represents an invalid solution.
-     *
-     * @return The currently configured evaluation policy
-     */
-evaluationPolicy GOptimizableEntity::getEvaluationPolicy() const {
-    return eval_policy_;
-}
-
-/******************************************************************************/
-/**
-     * @brief Checks whether this solution is valid.
-     *
-     * This function is meant to be called for "clean" individuals only and will throw (in DEBUG builds)
-     * when called for unprocessed or erroneous individuals.
-     *
-     * @return true if the validity level is <= 1 (all constraints fulfilled), false otherwise
-     */
+ * @brief Checks whether this candidate is a valid solution (meant for processed candidates).
+ * @return true if the validity level is <= 1 (all constraints fulfilled)
+ */
 bool GOptimizableEntity::isValid() const {
 #ifdef DEBUG
     if(this->is_due_for_processing() || this->has_errors()) {
@@ -759,413 +479,74 @@ bool GOptimizableEntity::isValid() const {
 #endif
 
     return validity_level_ <= 1.;
-
 }
 
 /******************************************************************************/
 /**
-     * @brief Checks whether this solution is invalid.
-     *
-     * @return true if the solution is not valid, false otherwise
-     */
-bool GOptimizableEntity::isInValid() const {
-    return not this->isValid();
-}
-
-/******************************************************************************/
-/**
-     * @brief Allows to set the globally best known primary fitness so far.
-     *
-     * @param bnf The best known primary fitness so far, as a (raw, transformed) tuple
-     */
-void GOptimizableEntity::setBestKnownPrimaryFitness(const std::tuple<double, double> &bnf) {
-    best_past_primary_fitness_ = bnf;
-}
-
-/******************************************************************************/
-/**
-     * @brief Retrieves the value of the globally best known primary fitness so far.
-     *
-     * @return The best known primary fitness so far, as a (raw, transformed) tuple
-     */
-std::tuple<double, double> GOptimizableEntity::getBestKnownPrimaryFitness() const {
-    return best_past_primary_fitness_;
-}
-
-/******************************************************************************/
-/**
-     * @brief Performs all necessary (remote-)processing steps for this object.
-     *
-     * Either adopts pre-computed raw results from res_vec, or (when res_vec is empty) triggers the
-     * user-supplied fitnessCalculation(); then applies the configured evaluation policy (worst-case,
-     * sigmoid or simple) and stores the resulting raw and transformed fitness values.
-     *
-     * @param res_vec Optional pre-computed raw processing results (e.g. from an external/remote evaluator);
-     *                if empty, fitnessCalculation() is invoked instead. Its size must match the criteria count.
-     */
-void GOptimizableEntity::process_(const std::vector<individual_processing_result> &res_vec) {
-#ifdef DEBUG
-    //---------------------------------------------
-    // Crash if we have been asked to (only active in DEBUG mode)
-    if(use_random_crash_) {
-        std::uniform_real_distribution<double> dist01{0., 1.};
-        if(dist01(this->gr_) <= random_crash_prob_) {
-            glogger << "GOptimizableEntity is performing random crash for debugging purposes"
-                    << '\n'
-                    << '\n'
-                    << GLOGGING;
-
-            throw;
-        }
+ * @brief Randomly initializes the parameters (marking the item for reprocessing on change).
+ * @param am The activity mode selecting which parameters are (re-)initialized
+ * @return true if at least one parameter was changed
+ */
+bool GOptimizableEntity::randomInit(activityMode const &am) {
+    bool modifications_made = this->randomInit_(am);
+    if(modifications_made) {
+        this->mark_as_due_for_processing();
     }
-#endif
+    return modifications_made;
+}
 
-    // Find out, whether this is a valid solution
-    if(this->individualFulfillsConstraints(validity_level_)
-       // Needs to be called first, or else the validity_level_ will not be filled
-       || evaluationPolicy::USESIMPLEEVALUATION == eval_policy_) {
-        // Trigger actual fitness calculation using the user-supplied function. This will
-        // also register any secondary "raw" fitness values used in multi-criterion optimization.
-        // Transformation of values is taken care of below.
-        double main_raw_result = 0.;
-
-        try {
-            if(not res_vec.empty()) {
-                // Check that sizes match
-                if(res_vec.size() != this->getNStoredResults()) {
-                    throw geneva_exception(
-                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                        << "In GOptimizableEntity::process_ : Error!" << '\n'
-                        << "res_vec has invalid size. Got " << res_vec.size() << '\n'
-                        << "Expected " << this->getNStoredResults() << '\n'
-                    );
-                }
-
-                // Just assign the main *raw* result
-                main_raw_result = res_vec.begin()->rawFitness();
-
-                // Extract all additional *raw* results. Then we are on par with fitnessCalculation()
-                std::size_t pos = 0;
-                for(const auto &res : res_vec) {
-                    if(pos == 0) {
-                        continue; // Skip the main raw result
-                    }
-
-                    this->setResult(pos, res_vec.at(pos).rawFitness());
-
-                    pos++;
-                }
-            }
-            else {
-                // If we are dealing with multiple fitness criteria,
-                // then fitnessCalculation() will set additional raw values
-                main_raw_result = this->fitnessCalculation();
-            }
-        }
-        catch(...) {
-            // Make sure we invalidate all fitness values, if an exception was thrown
-            this->setAllFitnessTo(this->getWorstCase());
-
-            // Rethrow the exception
-            throw;
-        }
-
-        // Make sure the main result is stored
-        // TODO: result setting should be done in the parent class'es process()-function, not in process_()
-        this->setResult(0, main_raw_result);
-        // Provisionally mirror criterion 0's transformed fitness to its raw value. With multiple criteria
-        // this is not the final word: the transformed fitness of EVERY stored criterion (including this
-        // one) is set authoritatively just below -- to its raw value, the sigmoid transform, or the worst
-        // case -- so the additional criteria are handled there, not here.
-        this->modifyStoredResult(0).setTransformedFitnessToRaw();
-
-        // Take care of erroneous calculations, flagged by the user. It is assumed here that marking
-        // entire solutions as invalid after the evaluation happens relatively rarely so that a flat
-        // "worst" quality surface for such solutions does not hinder progress of the optimization
-        // procedure too much
-        if(this->error_flagged_by_user()) {
-            // has the user indicated a problem without throwing an error ?
-            // Fill the raw and transformed vectors with the worst case scenario.
-            this->setAllFitnessTo(this->getWorstCase());
-        }
-        else {
-            // So this is a valid solution!
-            for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
-                if(evaluationPolicy::USESIGMOID == eval_policy_) {
-                    // Update the fitness value to use sigmoidal values
-                    this->modifyStoredResult(i).setTransformedFitnessWith(
-                        [this](const double raw_value) {
-                            return Gem::Common::grational_sigmoid(
-                                raw_value,
-                                this->sigmoid_extremes_,
-                                this->sigmoid_steepness_
-                            );
-                        }
-                    );
-                }
-                else {
-                    // All other transformation policies use the same value for the transformed fitness as a (valid) raw fitness
-                    this->modifyStoredResult(i).setTransformedFitnessToRaw();
-                }
-            }
-        }
+/******************************************************************************/
+/**
+ * @brief Returns all raw fitness results in a std::vector.
+ * @return A vector of all stored raw fitness results
+ */
+std::vector<double> GOptimizableEntity::raw_fitness_vec_() const {
+    std::vector<double> result_vec;
+    for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
+        result_vec.push_back(this->raw_fitness(i));
     }
-    else {
-        // Some constraints were violated. Act on the chosen policy
-        if(evaluationPolicy::USEWORSTCASEFORINVALID == eval_policy_) {
-            this->setAllFitnessTo(this->getWorstCase());
-        }
-        else if(evaluationPolicy::USESIGMOID == eval_policy_) {
-            double uniform_fitness_value = 0.;
-            if(maxMode::MAXIMIZE == this->getMaxMode()) {
-                // maximize
-                if(std::numeric_limits<double>::max() == validity_level_) {
-                    uniform_fitness_value = this->getWorstCase();
-                }
-                else {
-                    uniform_fitness_value = -validity_level_ * sigmoid_extremes_;
-                }
-            }
-            else {
-                // minimize
-                if(std::numeric_limits<double>::max() == validity_level_) {
-                    uniform_fitness_value = this->getWorstCase();
-                }
-                else {
-                    uniform_fitness_value = validity_level_ * sigmoid_extremes_;
-                }
-            }
+    return result_vec;
+}
 
-            this->setAllFitnessTo(this->getWorstCase(), uniform_fitness_value);
-        }
+/******************************************************************************/
+/**
+ * @brief Returns all transformed fitness results in a std::vector.
+ * @return A vector of all stored transformed fitness results
+ */
+std::vector<double> GOptimizableEntity::transformed_fitness_vec_() const {
+    std::vector<double> result_vec;
+    for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
+        result_vec.push_back(this->transformed_fitness(i));
+    }
+    return result_vec;
+}
+
+/******************************************************************************/
+/**
+ * @brief Runs the registered pre-processor (if allowed) on this candidate.
+ */
+void GOptimizableEntity::preProcess_() {
+    if(this->mayBePreProcessed() && pre_processor_ptr_) {
+        (*pre_processor_ptr_)(*this);
     }
 }
 
 /******************************************************************************/
 /**
-     * @brief Loads the data of another GOptimizableEntity object.
-     *
-     * @param cp A pointer to another GOptimizableEntity object whose data is copied into this one
-     */
-void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
-    // Check that we are dealing with a GOptimizableEntity reference independent of this object and convert the pointer
-    const auto *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizableEntity, GOptimizableEntity>(cp, this);
-
-    // This is the category root; there is no GObject parent class to load.
-    // Load the stateful processing base class' data
-    Gem::Courtier::GProcessingContainerT<GOptimizableEntity, individual_processing_result>::load_pc(
-        p_load
-    );
-
-    // All local data, derived from the single localMembers() declaration: plain
-    // members are assigned, the cloneable smart pointers are deep-cloned (the tie
-    // dispatches on the member kind). The OA-owned scratch (personality + the per-group adaption POD
-    // state) is not held here — it lives on the GIndividualSlot and is copied by GIndividualSlot::load_.
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
-}
-
-/******************************************************************************/
-/**
-     * @brief Sets the fitness to a given set of values and clears the dirty flag.
-     *
-     * This is meant to be used by external methods of performing the actual evaluation, such as the
-     * GPU consumer. The fitness vector is interpreted as raw fitness values, and transformed
-     * fitness values are calculated as needed (per the configured evaluation policy).
-     *
-     * @param f_cnt A vector of raw fitness values (size must match the number of fitness criteria)
-     */
-void GOptimizableEntity::setFitness_(std::vector<double> const &f_cnt) {
-#ifdef DEBUG
-    if(f_cnt.size() != this->getNStoredResults()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GOptimizableEntity::setFitness_(...): Error!" << '\n'
-            << "Invalid size of fitness vector: " << '\n'
-            << f_cnt.size() << ", expected: " << this->getNStoredResults() << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    // Find out, whether this is a valid solution
-    if(this->individualFulfillsConstraints(validity_level_)
-       // Needs to be called first, or else the validity_level_ will not be filled
-       || evaluationPolicy::USESIMPLEEVALUATION == eval_policy_) {
-        // Create a vector of individual_processing_result objects
-        std::vector<individual_processing_result> processing_results(
-            f_cnt.size(),
-            individual_processing_result()
-        );
-
-        // Take care of the transformed fitness
-        std::size_t pos = 0;
-        for(auto &p : processing_results) {
-            // Set the raw fitness
-            p.reset(f_cnt.at(pos));
-
-            if(evaluationPolicy::USESIGMOID == eval_policy_) {
-                // Update the fitness value to use sigmoidal values
-                p.setTransformedFitnessWith([this](const double raw_value) {
-                    return Gem::Common::grational_sigmoid(
-                        raw_value,
-                        this->sigmoid_extremes_,
-                        this->sigmoid_steepness_
-                    );
-                });
-            }
-            else {
-                // All other transformation policies use the same value for the transformed fitness as a (valid) raw fitness
-                p.setTransformedFitnessToRaw();
-            }
-
-            pos++;
-        }
-
-        // Transfer the data into the individual
-        this->markAsProcessedWith(processing_results);
-    }
-    else {
-        // Some constraints were violated. Act on the chosen policy
-        if(evaluationPolicy::USEWORSTCASEFORINVALID == eval_policy_) {
-            this->setAllFitnessTo(this->getWorstCase());
-        }
-        else if(evaluationPolicy::USESIGMOID == eval_policy_) {
-            double uniform_fitness_value = 0.;
-            if(maxMode::MAXIMIZE == this->getMaxMode()) {
-                // maximize
-                if(std::numeric_limits<double>::max() == validity_level_) {
-                    uniform_fitness_value = this->getWorstCase();
-                }
-                else {
-                    uniform_fitness_value = -validity_level_ * sigmoid_extremes_;
-                }
-            }
-            else {
-                // minimize
-                if(std::numeric_limits<double>::max() == validity_level_) {
-                    uniform_fitness_value = this->getWorstCase();
-                }
-                else {
-                    uniform_fitness_value = validity_level_ * sigmoid_extremes_;
-                }
-            }
-
-            this->setAllFitnessTo(this->getWorstCase(), uniform_fitness_value);
-        }
+ * @brief Runs the registered post-processor (if allowed) on this candidate.
+ */
+void GOptimizableEntity::postProcess_() {
+    if(this->mayBePostProcessed() && post_processor_ptr_) {
+        (*post_processor_ptr_)(*this);
     }
 }
 
 /******************************************************************************/
 /**
-     * @brief Combines evaluation results by adding the individual results.
-     *
-     *  @return The sum of all stored transformed fitness values
-     */
-double GOptimizableEntity::sumCombiner() const {
-    double result = 0.;
-
-    for(std::size_t id = 0; id < this->getNStoredResults(); id++) {
-        result += this->transformed_fitness(id);
-    }
-
-    return result;
-}
-
-/******************************************************************************/
-/**
-     * @brief Combines evaluation results by adding the absolute values of individual results.
-     *
-     *  @return The sum of the absolute values of all stored transformed fitness values
-     */
-double GOptimizableEntity::fabsSumCombiner() const {
-    double result = 0.;
-
-    for(std::size_t id = 0; id < this->getNStoredResults(); id++) {
-        result += std::abs(this->transformed_fitness(id));
-    }
-
-    return result;
-}
-
-/******************************************************************************/
-/**
-     * @brief Combines evaluation results by calculating the square root of the squared sum.
-     *
-     * It is assumed that the result of this function is returned as the main result of the
-     * fitnessCalculation() function.
-     *
-     * @return The square root of the sum of squares of all stored transformed fitness values
-     */
-double GOptimizableEntity::squaredSumCombiner() const {
-    double result = 0.;
-
-    for(std::size_t id = 0; id < this->getNStoredResults(); id++) {
-        result += Gem::Common::gsquared(this->transformed_fitness(id));
-    }
-
-    return sqrt(result);
-}
-
-/******************************************************************************/
-/**
-     * @brief Combines evaluation results by calculating the square root of the weighed squared sum.
-     *
-     * It is assumed that the result of this function is returned as the main result of the
-     * fitnessCalculation() function. Throws if the number of weights does not match the criteria count.
-     *
-     * @param weights The weights to be multiplied with the cached results (one per fitness criterion)
-     * @return The square root of the sum of squares of weight-scaled transformed fitness values
-     */
-double GOptimizableEntity::weighedSquaredSumCombiner(std::vector<double> const &weights) const {
-    if(this->getNStoredResults() != weights.size()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GOptimizableEntity::weighedSquaredSumCombine(): Error!" << '\n'
-            << "Sizes of transformedCurrentFitnessVec_ and the weights vector don't match: "
-            << this->getNStoredResults() << " / " << weights.size() << '\n'
-        );
-    }
-
-    double result = 0.;
-    auto cit_weights = weights.begin();
-
-    for(std::size_t id = 0; id < this->getNStoredResults(); id++, ++cit_weights) {
-        result += Gem::Common::gsquared((*cit_weights) * this->transformed_fitness(id));
-    }
-
-    return sqrt(result);
-}
-
-/******************************************************************************/
-/**
-     * @brief Checks whether this solution fulfills the set of registered constraints.
-     *
-     * Note that this function may be called prior to evaluation. If no constraint object is registered,
-     * the solution is always valid and validity_level is set to 0.
-     *
-     * @param validity_level Output parameter receiving the computed validity level of this solution
-     * @return true if the constraints are fulfilled (or none are registered), false otherwise
-     */
-bool GOptimizableEntity::individualFulfillsConstraints(double &validity_level) const {
-    if(individual_constraint_ptr_) {
-        return individual_constraint_ptr_->isValid(this, validity_level);
-    }
-            // Always valid, if no constraint object has been registered
-        validity_level = 0.;
-        return true;
-
-
-    // Make the compiler happy
-    return false;
-}
-
-/***************************************************************************/
-/**
-     * @brief Allows to set all fitnesses to the same value (raw and transformed values separately).
-     *
-     * @param raw_value The raw fitness value assigned to every fitness criterion
-     * @param transformed_value The transformed fitness value assigned to every fitness criterion
-     */
+ * @brief Sets every raw fitness to raw_value and every transformed fitness to transformed_value.
+ * @param raw_value The raw value
+ * @param transformed_value The transformed value
+ */
 void GOptimizableEntity::setAllFitnessTo(const double raw_value, const double transformed_value) {
     for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
         this->modifyStoredResult(i).reset(raw_value);
@@ -1173,17 +554,176 @@ void GOptimizableEntity::setAllFitnessTo(const double raw_value, const double tr
     }
 }
 
-/***************************************************************************/
+/******************************************************************************/
 /**
-     * @brief Allows to set all fitnesses to the same value (both raw and transformed values).
-     *
-     * @param val The value assigned to both the raw and transformed fitness of every criterion
-     */
-void GOptimizableEntity::setAllFitnessTo(const double val) {
-    this->setAllFitnessTo(val, val);
+ * @brief @return The sum of all stored transformed fitness values.
+ */
+double GOptimizableEntity::sumCombiner() const {
+    double result = 0.;
+    for(std::size_t id = 0; id < this->getNStoredResults(); id++) {
+        result += this->transformed_fitness(id);
+    }
+    return result;
 }
 
 /******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
+/**
+ * @brief @return The sum of the absolute values of all stored transformed fitness values.
+ */
+double GOptimizableEntity::fabsSumCombiner() const {
+    double result = 0.;
+    for(std::size_t id = 0; id < this->getNStoredResults(); id++) {
+        result += std::abs(this->transformed_fitness(id));
+    }
+    return result;
+}
+
+/******************************************************************************/
+/**
+ * @brief @return The square root of the sum of squares of all stored transformed fitness values.
+ */
+double GOptimizableEntity::squaredSumCombiner() const {
+    double result = 0.;
+    for(std::size_t id = 0; id < this->getNStoredResults(); id++) {
+        result += Gem::Common::gsquared(this->transformed_fitness(id));
+    }
+    return sqrt(result);
+}
+
+/******************************************************************************/
+/**
+ * @brief @param weights The per-criterion weights. @return The square root of the weighed sum of squares.
+ */
+double GOptimizableEntity::weighedSquaredSumCombiner(std::vector<double> const &weights) const {
+    if(this->getNStoredResults() != weights.size()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GOptimizableEntity::weighedSquaredSumCombiner(): Error!" << '\n'
+            << "Sizes of results and the weights vector don't match: " << this->getNStoredResults()
+            << " / " << weights.size() << '\n'
+        );
+    }
+
+    double result = 0.;
+    auto cit_weights = weights.begin();
+    for(std::size_t id = 0; id < this->getNStoredResults(); id++, ++cit_weights) {
+        result += Gem::Common::gsquared((*cit_weights) * this->transformed_fitness(id));
+    }
+    return sqrt(result);
+}
+
+/******************************************************************************/
+/**
+ * @brief Adds local configuration options (eval policy, sigmoid, max mode, adaption limits).
+ * @param gpb The parser builder the configuration options are registered with
+ */
+void GOptimizableEntity::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
+    // Call our CRTP base class's function (the category root has no GObject parent).
+    Gem::Common::GCommonInterfaceT<GOptimizableEntity>::addConfigurationOptions_(gpb);
+
+    gpb.registerFileParameter<evaluationPolicy>(
+        "eval_policy",
+        Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION,
+        [this](const evaluationPolicy ep) { this->setEvaluationPolicy(ep); }
+    ) << "Specifies which strategy should be used to calculate the evaluation:" << '\n'
+      << "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions"
+      << '\n'
+      << "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions"
+      << '\n'
+      << "2 (a.k.a. USESIGMOID): Assign a multiple of validity_level_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations"
+      << '\n';
+
+    gpb.registerFileParameter<double>(
+        "steepness",
+        Gem::Geneva::FITNESSSIGMOIDSTEEPNESS,
+        [this](const double ss) { this->setSteepness(ss); }
+    ) << "When using a sigmoid function to transform the individual's fitness," << '\n'
+      << "this parameter influences the steepness of the function at the center of the sigmoid." << '\n'
+      << "The parameter must have a value > 0.";
+
+    gpb.registerFileParameter<double>(
+        "barrier",
+        Gem::Geneva::WORSTALLOWEDVALIDFITNESS,
+        [this](const double barrier) { this->setBarrier(barrier); }
+    ) << "When using a sigmoid function to transform the individual's fitness," << '\n'
+      << "this parameter sets the upper/lower boundary of the sigmoid." << '\n'
+      << "The parameter must have a value > 0.;";
+
+    gpb.registerFileParameter<std::size_t>(
+        "max_unsuccessful_adaptions",
+        DEFMAXUNSUCCESSFULADAPTIONS,
+        [this](const std::size_t mua) { this->setMaxUnsuccessfulAdaptions(mua); }
+    ) << "The maximum number of unsuccessful adaptions in a row for one call to adapt()";
+
+    gpb.registerFileParameter<std::size_t>(
+        "max_retries_until_valid",
+        DEFMAXRETRIESUNTILVALID,
+        [this](const std::size_t mruv) { this->setMaxRetriesUntilValid(mruv); }
+    ) << "The maximum allowed number of retries during the" << '\n'
+      << "adaption of individuals until a valid solution was found" << '\n'
+      << "A parameter set is considered to be \"valid\" if" << '\n'
+      << "it passes all validity checks;";
+
+    gpb.registerFileParameter<maxMode>(
+        "maxmode",
+        maxMode::MINIMIZE,
+        [this](const maxMode mm) { this->setMaxMode(mm); }
+    ) << "Specifies whether the individual should be maximized (1) or minimized (0)" << '\n'
+      << "Note that minimization is the by far most common option.";
+}
+
+/******************************************************************************/
+/**
+ * @brief Loads the data of another GOptimizableEntity.
+ * @param cp The source candidate whose data is copied into this one
+ */
+void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
+    const auto *p_load =
+        Gem::Common::g_convert_and_compare<GOptimizableEntity, GOptimizableEntity>(cp, this);
+
+    // Copy the non-generic processing lifecycle state (status, errors, routing counters, timing).
+    Gem::Courtier::GProcessable::operator=(*p_load);
+
+    // The plain local members (veto flags, feasibility / best-known state).
+    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+
+    // The result store is copied directly (it is serialized/loaded but not among the compared members).
+    stored_results_cnt_ = p_load->stored_results_cnt_;
+
+    // The cloneable pre-/post-processors are deep-cloned; the shared policy is referenced (1:N).
+    Gem::Common::copyCloneableSmartPointer(p_load->pre_processor_ptr_, pre_processor_ptr_);
+    Gem::Common::copyCloneableSmartPointer(p_load->post_processor_ptr_, post_processor_ptr_);
+    policy_ = p_load->policy_;
+}
+
+/******************************************************************************/
+/**
+ * @brief Searches for compliance with expectations with respect to another candidate.
+ * @param cp The other candidate to compare against
+ * @param e The expectation (e.g. equality)
+ * @param limit The limit for allowed floating-point deviations
+ */
+void GOptimizableEntity::compare_(
+    GOptimizableEntity const &cp,
+    Gem::Common::expectation const &e,
+    [[maybe_unused]] double const &limit
+) const {
+    using namespace Gem::Common;
+
+    const auto *p_load =
+        Gem::Common::g_convert_and_compare<GOptimizableEntity, GOptimizableEntity>(cp, this);
+
+    GToken token("GOptimizableEntity", e);
+
+    // Compare our CRTP base data (the category root has no GObject parent) ...
+    Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GOptimizableEntity>>(*this, *p_load, token);
+
+    // ... and the plain local data, derived from the single localMembers() declaration. The shared policy
+    // is referenced 1:N (compared by configuration is the OA-setup concern, not per-individual equality).
+    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+
+    token.evaluate();
+}
+
 /******************************************************************************/
 } /* namespace Gem::Geneva::Genome */
