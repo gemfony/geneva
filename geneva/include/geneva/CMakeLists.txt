@@ -30,6 +30,11 @@ SET ( PARAM_INCLUDES
 # so every one must ship.
 SET ( IND_INCLUDES
     ind/GAuxiliaryStore.hpp
+    ind/GIndividualProcessingResult.hpp
+    ind/GProblemPolicy.hpp
+    ind/GCandidateSolution.hpp
+    ind/GFlatGenomeBase.hpp
+    ind/GFlatGenomeT.hpp
     ind/GOptimizableEntity.hpp
     ind/GAdaptionAuxKeys.hpp
     ind/GAdaptionKernels.hpp

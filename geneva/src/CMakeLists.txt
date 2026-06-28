@@ -59,6 +59,10 @@ SET ( OPTIMIZATIONSOURCES
 	GOptimizationEnums.cpp
 	GSigHupHandler.cpp
 	par/GParameterPropertyParser.cpp
+	ind/GIndividualProcessingResult.cpp
+	ind/GProblemPolicy.cpp
+	ind/GCandidateSolution.cpp
+	ind/GFlatGenomeBase.cpp
 	ind/GOptimizableEntity.cpp
 	ind/GFlatGenome.cpp
 	ind/GIndividualSlot.cpp

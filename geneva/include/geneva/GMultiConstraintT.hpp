@@ -35,6 +35,7 @@
 // Standard header files go here
 #include <tuple>
 #include <type_traits>
+#include <vector>
 
 // Boost header files go here
 
@@ -75,10 +76,12 @@ class GPreEvaluationValidityCheckT // NOLINT(cppcoreguidelines-special-member-fu
     }
     ///////////////////////////////////////////////////////////////////////
 
-    // We only accept validity checks for types derived directly or indirectly from GOptimizableEntity
+    // A constraint reads the candidate's parameter values via streamlineFP(); accept any individual type
+    // that exposes that genome value API. This is duck-typed rather than tied to one category root, so it
+    // serves both the legacy GOptimizableEntity hierarchy and the GFlatGenomeBase hierarchy.
     static_assert(
-        std::is_base_of_v<gen::GOptimizableEntity, ind_type>,
-        "GOptimizableEntity is no base of ind_type"
+        requires(const ind_type &ind, std::vector<double> &v) { ind.streamlineFP(v); },
+        "ind_type must expose the genome value API (streamlineFP())"
     );
 
 public:
