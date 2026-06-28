@@ -46,6 +46,17 @@ Recommended Versions:
   GFlatIndividualT<Derived> -> GFlatGenomeT<Derived> (derive that, or GFlatGenome
   directly). The per-individual debugging "random crash" facility was retired.
 
+- LATE-RETURN REUNION AND DE-DUPLICATION: every work item now carries a stable
+  per-individual lineage id (GProcessable submission uuid), a 128-bit identity minted
+  once at construction and preserved across every re-dispatch and serialized round-trip
+  (fresh only on clone). It is distinct from the per-dispatch correlation id, which
+  still routes each return to its slot. Using it, the EA / SA population reconciliation
+  (GParChild::fixAfterJobSubmission) now integrates late networked returns more safely:
+  a late return is admitted only if it is a CLEAN SUCCESS (processed, no error flag) --
+  errored or still-unprocessed returns are dropped instead of polluting selection --
+  and only if its lineage is not already represented, so a re-dispatched individual or a
+  lease-reclaimed duplicate that returns late cannot be counted twice.
+
 - CONFIG-STRIP: mutation adaptors no longer live on the genome. The genome's shared
   layout (GGenomeLayout) is now STRUCTURE-ONLY (type / bounds / grouping / labels);
   the Gauss / bi-Gauss / flip mutation settings live on a separate, OPTIMIZATION-

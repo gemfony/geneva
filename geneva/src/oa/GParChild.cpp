@@ -48,6 +48,7 @@
 #include <future>
 #include <memory>
 #include <random>
+#include <set>
 #include <tuple>
 #include <vector>
 
@@ -619,12 +620,12 @@ void GParChild::fixAfterJobSubmission() {
     const std::size_t np = this->getNParents();
     const std::uint32_t iteration = this->getIteration();
 
-    // Retrieve any LATE returns the consumer buffered -- bare individuals that came back after their
-    // batch had already been reconciled (only networked consumers produce these; local consumers return
-    // an empty list). They carry no OA personality (that lives on the population slot), so we
-    // reconcile purely by assigned iteration: each is appended below as a fresh child candidate and the
-    // subsequent selection keeps it only if it is competitive -- which makes this MO-safe without any
-    // bespoke "fitness >" comparison.
+    // Retrieve any LATE returns the consumer buffered -- individuals that came back after their batch had
+    // already been reconciled (only networked consumers produce these; local consumers return an empty
+    // list). The OA personality (parent/child role, traits) now rides ON the individual, but a late
+    // return arrives with a wire-stripped scratch and a stale personality, so we re-stamp a fresh
+    // concrete personality below and let the subsequent selection keep each return only if it is
+    // competitive -- which makes this MO-safe without any bespoke "fitness >" comparison.
     auto old_work_items = this->getOldWorkItems();
 
     // Admit late returns from the current OR the immediately-preceding iteration: a child evaluated in
@@ -633,6 +634,30 @@ void GParChild::fixAfterJobSubmission() {
     // >= getAssignedIteration() always (no items from the future), so the subtraction cannot underflow.
     std::erase_if(old_work_items, [iteration](const auto &x) -> bool {
         return (iteration - x->getAssignedIteration()) > 1;
+    });
+
+    // VALIDITY filter: only integrate CLEAN SUCCESSES. A late return that errored out (an evaluation
+    // exception or a user-flagged error), or that somehow came back still unprocessed, must NOT enter the
+    // candidate pool -- its results are meaningless and selection would treat it as a real solution. Admit
+    // an item iff it carries the PROCESSED flag and no error flag (the two are mutually exclusive states,
+    // but we test both so the contract is watertight against any future status added between them).
+    std::erase_if(old_work_items, [](const auto &x) -> bool {
+        return (!x->is_processed()) || x->has_errors();
+    });
+
+    // LINEAGE dedup: each individual carries a stable per-individual submission UUID (minted once at
+    // construction, preserved across re-dispatch and the wire, see GProcessable). Drop a late return whose
+    // lineage is ALREADY represented -- either because the live population still holds that individual (it
+    // was re-dispatched and the fresh copy already returned) or because the same item was duplicated within
+    // this late batch (a reclaimed lease re-dispatched one individual to two clients and both returned
+    // late). Without this, a single lineage could be admitted twice and skew selection. Preload the seen
+    // set from the live population, then keep only the first occurrence of each remaining UUID.
+    std::set<Gem::Courtier::SUBMISSION_UUID_TYPE> seen;
+    for(const auto &p : *this) {
+        seen.insert(p->getSubmissionUuid());
+    }
+    std::erase_if(old_work_items, [&seen](const auto &x) -> bool {
+        return !seen.insert(x->getSubmissionUuid()).second;
     });
 
     // Make it known to remaining old individuals that they are now part of a new iteration
@@ -654,15 +679,12 @@ void GParChild::fixAfterJobSubmission() {
         }
     );
 
-    // Attach all old work items to the end of the current population and clear the array of old items.
-    // A late return is a BARE individual -- the personality object lives on the population slot, not on
-    // the individual, so the freshly-wrapped slot starts with an empty personality. Install the correct
-    // concrete one (the marking loop below, and selection, dereference it). It is tagged as a child by
-    // that marking loop.
+    // Attach all surviving old work items to the end of the current population and clear the array of old
+    // items. A late return arrives with a stale/empty personality, so install the correct concrete one
+    // (the marking loop below, and selection, dereference it). It is tagged as a child by that marking loop.
     for(auto &item_ptr : old_work_items) {
-        auto slot = std::move(item_ptr);
-        slot->setPersonality(this->makePersonalityTraits());
-        this->push_back(std::move(slot));
+        item_ptr->setPersonality(this->makePersonalityTraits());
+        this->push_back(std::move(item_ptr));
     }
     old_work_items.clear();
 
