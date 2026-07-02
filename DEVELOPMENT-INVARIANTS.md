@@ -143,6 +143,19 @@ to find a feature's real consumers) and Invariant 7 (how to triage the resulting
 change is a deliberate new contract, fix the code only for a genuine regression). Tests guard behaviour that must
 hold; they are never an excuse to forgo an improvement to that behaviour.
 
+## 14. Generalize a generalizable solution — no special-purpose code where a general one fits
+
+When a problem can be solved at a general level, solve it there — do **not** write a special-purpose,
+one-off, or per-case variant of something that admits a single general formulation. If the same logic would
+otherwise be duplicated, hard-coded per algorithm/type/transport, or branched by a fixed enumeration of
+cases, hoist it into one general mechanism (a shared function, a template/policy, a virtual hook with a
+sensible default, a data-driven parameter) and let the specific sites specialize only where they genuinely
+differ. A special-purpose solution is justified **only** when a general one is genuinely infeasible or would
+be materially more complex, error-prone, or slower — and then the reason is recorded at the site. This is the
+positive form of Invariant 1 (prefer existing capabilities) and composes with Invariant 13 (a general
+improvement is not blocked by a special-purpose consumer): prefer the general shape, generalize the
+special-purpose code you find, and only descend to the specific when the general level cannot express it.
+
 ---
 
 *Add new invariants below as the maintainer establishes them. Keep each rule short, mandatory, and

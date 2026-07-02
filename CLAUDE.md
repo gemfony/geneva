@@ -31,7 +31,10 @@ would violate one, stop and find another approach. In particular:
    Substantial changes keep the Doxygen documentation in sync (update class/file/function comments, `@param`/
    `@return`, cross-refs in the same change) · 13. Tests/demos adapt to a worthwhile change, never veto it — a
    sole test/demo consumer doesn't make a feature "used"; update the test or retire the feature (cf. Inv 7, Inv
-   11), never drop the improvement.
+   11), never drop the improvement. · 14. Generalize a generalizable solution — when a problem admits one general
+   formulation, solve it there (a shared function, template/policy, virtual hook with a sensible default, or
+   data-driven parameter); do not write special-purpose or per-case variants where a general one fits, unless a
+   general solution is genuinely infeasible (record the reason at the site). Positive form of Inv 1.
 
 See the file for the full, authoritative list.
 
