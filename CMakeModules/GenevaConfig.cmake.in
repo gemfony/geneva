@@ -40,7 +40,7 @@
 #   Geneva::geneva      - core optimization library (links the others above)
 #
 # Linking Geneva::geneva transitively brings in the other three targets, the
-# Geneva include directory, the required Boost components and the C++20
+# Geneva include directory, the required Boost components and the C++23
 # requirement.
 #
 ################################################################################

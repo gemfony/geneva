@@ -87,10 +87,13 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	################################################################################
 	# Set the C++ standard to be used
 
-	# Geneva requires at least the C++20 Standard. The user may force another
-	# value at his own risk by setting the variable CMAKE_CXX_STANDARD.
+	# Geneva requires at least the C++23 Standard. The user may force a NEWER value
+	# at his own risk by setting CMAKE_CXX_STANDARD; anything below 23 is rejected.
 	IF( NOT DEFINED CMAKE_CXX_STANDARD )
-		SET( CMAKE_CXX_STANDARD "20" )
+		SET( CMAKE_CXX_STANDARD "23" )
+	ELSEIF( CMAKE_CXX_STANDARD LESS 23 )
+		MESSAGE(FATAL_ERROR
+			"Geneva requires C++23 or newer, but CMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD} was requested.")
 	ENDIF()
 
 	SET(CMAKE_CXX_STANDARD_REQUIRED ON)

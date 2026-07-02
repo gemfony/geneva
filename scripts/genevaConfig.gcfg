@@ -38,7 +38,7 @@
 CMAKE="/usr/bin/cmake"
 
 # Compiler selection: 'clang', 'gcc', or '' (leave empty to let CMake choose).
-# Default is 'clang'. Geneva requires GCC >= 13 or Clang >= 18.
+# Default is 'clang'. Geneva is C++23 and requires GCC >= 14 or Clang >= 18.
 COMPILER="clang"
 
 #
@@ -127,34 +127,40 @@ SANITIZER="none"
 # this is 1.  Useful when the system CUDA is broken or incompatible.
 SKIPALLCUDA="0"
 
+# By default, CUDA-dependent code (CUDA examples/benchmark, the CUDA RNG backend and the GPU
+# consumer) is only enabled when BOTH the CUDA toolkit AND the build host's GPU driver support the
+# required CUDA version (>= 13.3). A new toolkit paired with an older driver compiles but fails at
+# runtime in the NVRTC/PTX JIT, so that combination is auto-disabled (the rest of Geneva still builds,
+# with a clear warning). Set FORCECUDA="1" to bypass the DRIVER check and build CUDA code whenever a
+# new-enough toolkit is present, regardless of the build host's driver -- intended for build farms / CI
+# where the machine that builds Geneva is not the machine that runs it. The toolkit-version
+# requirement is NOT bypassed.
+FORCECUDA="0"
+
 # CUDA toolkit selection.
 #
+# MINIMUM SUPPORTED CUDA: 13.3.  Geneva is C++23, and 13.3 is the first toolkit
+# whose host front end consumes the C++23 code base; CMake rejects an older
+# toolkit (build without CUDA via SKIPALLCUDA=1 if you only have an older one).
+#
 # Leave both variables empty (the default) to let CMake auto-detect any
-# installed CUDA.  Set CUDA_NVCC when you have multiple toolkits installed
-# (e.g. 12.4 and 13.1) and want to pin a specific one.  CUDAToolkit_ROOT is
+# installed CUDA (it must be >= 13.3).  Set CUDA_NVCC when you have multiple
+# toolkits installed and want to pin a specific one.  CUDAToolkit_ROOT is
 # derived automatically from CUDA_NVCC if left empty, so you usually only
 # need to set the one path.
 #
-# Example — select CUDA 13.1 alongside a system CUDA 12.4:
-#   CUDA_NVCC="/usr/local/cuda-13.1/bin/nvcc"
-#   CUDA_ROOT="/usr/local/cuda-13.1"   # optional; derived from CUDA_NVCC if omitted
+# Example — pin a specific >= 13.3 toolkit:
+#   CUDA_NVCC="/usr/local/cuda-13.3/bin/nvcc"
+#   CUDA_ROOT="/usr/local/cuda-13.3"   # optional; derived from CUDA_NVCC if omitted
 #
-# On this machine (Ubuntu 26.04, glibc 2.43): use CUDA 13.1
-#   CUDA_NVCC="/usr/local/cuda-13.1/bin/nvcc"
 # It configures and compiles the whole tree cleanly, including the Asio-using
 # CUDA examples/benchmark (GCUDAWorker, GCUDAOptBenchmark).
 #
-# Do NOT use the apt CUDA 12.4 at /usr/bin/nvcc: its nvcc cannot compile
-# Boost.Asio's C++20 coroutines (boost/asio/impl/co_spawn.hpp: "the operand to
-# this co_await expression resolves to non-class"), so the CUDA examples and
-# the CUDA benchmark fail to build.
-#
-# Historic note (Ubuntu 24.04 + glibc 2.39 only): there 13.1's
+# Historic note (Ubuntu 24.04 + glibc 2.39 only): an older 13.1's
 # check_language(CUDA) failed because glibc 2.39 re-declared rsqrt with
 # noexcept(true) (__THROW) after CUDA's crt/math_functions.h declared it
-# without, and cudafe++ treated this as a hard error; the old workaround was to
-# fall back to 12.4.  That glibc/rsqrt interaction does not occur on glibc 2.43,
-# so on the current system 13.1 is the correct choice.
+# without, and cudafe++ treated this as a hard error.  That glibc/rsqrt
+# interaction does not occur on glibc 2.43+.
 CUDA_NVCC=""
 CUDA_ROOT=""
 

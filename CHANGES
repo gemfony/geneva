@@ -5,12 +5,37 @@ Recommended Versions:
 - Make sure Catch 2 v3 is installed in your system
 - Boost version 1.91 or higher is required
 - CMake version 3.27 or higher is required
-- GCC is recommended to be at least version 13, clang should be at least version 18.
-  Earlier versions might work if C++20 is sufficiently supported
+- Geneva now requires the C++23 standard. GCC must be at least version 14, clang
+  at least version 18. Earlier compilers are rejected at configure time.
+- CUDA is optional, but when enabled it must be version 13.3 or newer (older
+  toolkits are rejected at configure time; build with SKIPALLCUDA=1 to opt out).
 - We suggest to use Ubuntu 24.04 LTS or 26.04 LTS as the host platform if you plan
   to use the CUDA example.
 
 ********************** INCOMPATIBILITIES / PLEASE NOTE *************************
+
+- BUILD REQUIREMENTS RAISED TO C++23. The minimum language standard is now C++23
+  (was C++20); the build system pins CMAKE_CXX_STANDARD to 23 and rejects any
+  lower value. Consequently the minimum compiler is GCC >= 14 or Clang >= 18, and
+  the exported CMake package advertises the cxx_std_23 compile feature, so any
+  downstream consumer of the Geneva:: targets is compiled as C++23 too. This is a
+  source/toolchain-breaking change: a C++20-only toolchain will no longer build or
+  link against Geneva.
+
+- MINIMUM CUDA RAISED TO 13.3, NOW GATED ON THE DEVICE TOO. CUDA-dependent code
+  (the CUDA examples/benchmark, the CUDA RNG backend and the GPU consumer) is now
+  enabled only when CUDA 13.3+ is genuinely usable on the build host: BOTH the CUDA
+  toolkit AND the installed GPU driver must support CUDA >= 13.3. 13.3 is the first
+  CUDA whose host front end consumes the C++23 code base; and a 13.3 toolkit paired
+  with an older driver compiles but fails at runtime in the NVRTC/PTX JIT
+  (CUDA_ERROR_UNSUPPORTED_PTX_VERSION), so that combination is now detected at
+  configure time. If the requirement is not met, CUDA is AUTO-DISABLED with a clear
+  warning (the rest of Geneva still builds) rather than silently producing a broken
+  GPU build. Escape hatches: SKIPALLCUDA=1 (gcfg) / -DGENEVA_SKIP_CUDA=ON builds
+  without CUDA; FORCECUDA=1 (gcfg) / -DGENEVA_FORCE_CUDA=ON bypasses the DRIVER
+  check (for build farms / CI where the build host is not the deploy host) while
+  still requiring the 13.3 toolkit. The bundled genevaConfig.gcfg, prepareBuild.sh
+  and the CMake CUDA detection were updated accordingly.
 
 - THE INDIVIDUAL MODEL HAS CHANGED FUNDAMENTALLY: the former tree of parameter
   objects (GParameterSet holding GConstrainedDoubleObject / GDoubleCollection /

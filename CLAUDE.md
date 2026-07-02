@@ -168,8 +168,8 @@ Parameter mutation is handled by adaptors (e.g., `GDoubleGaussAdaptor`, `GInt32F
 
 - **Boost 1.91+** (filesystem, program_options, regex, serialization, test, atomic): must be compiled with C++20
 - **CMake 3.27+**
-- **GCC 13+ or Clang 18+** (C++20 required)
-- **CUDA** (optional, for GPU-based RNG and CUDA example 15)
+- **GCC 14+ or Clang 18+** (C++23 required)
+- **CUDA 13.3+** (optional, for GPU-based RNG and CUDA example 15)
 - **MPI** (optional, for `GMPIConsumerT` and examples 16/17)
 
 ## Notable CMake Flags
