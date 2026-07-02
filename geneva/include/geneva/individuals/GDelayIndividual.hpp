@@ -214,7 +214,7 @@ protected:
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("fixed_sleep_time_", self.fixed_sleep_time_),
             Gem::Common::make_member("may_crash_", self.may_crash_),

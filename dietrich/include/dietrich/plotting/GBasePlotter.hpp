@@ -70,7 +70,7 @@ class GBasePlotter : public GCommonInterfaceT<GBasePlotter> {
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("drawing_arguments_", self.drawing_arguments_),
             Gem::Common::make_member("x_axis_label_", self.x_axis_label_),
@@ -94,7 +94,7 @@ class GBasePlotter : public GCommonInterfaceT<GBasePlotter> {
         using boost::serialization::make_nvp;
         // The member list is derived from the single localMembers() declaration
         // so serialize()/load_()/compare_() stay in sync (no silently-dropped member).
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 

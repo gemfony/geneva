@@ -80,7 +80,7 @@ class GPostProcessorBaseT // NOLINT(cppcoreguidelines-special-member-functions)
             )
         );
         // The sole local member, derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ class GPostProcessorBaseT // NOLINT(cppcoreguidelines-special-member-functions)
     /** @brief Single declaration of this class's local data (just allowed_mnemonics_), feeding
      *  serialize()/load_()/compare_() from one source. */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(Gem::Common::make_member("allowed_mnemonics_", self.allowed_mnemonics_));
     }
 
@@ -183,7 +183,7 @@ protected:
         Gem::Common::GSerializableFunctionObjectT<base_type>::load_(cp);
 
         // ... and then our local data, derived from the single localMembers() declaration
-        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
     }
 
     /**************************************************************************/
@@ -221,7 +221,7 @@ protected:
         Gem::Common::compare_base_t<GSerializableFunctionObjectT<base_type>>(*this, *p_load, token);
 
         // ... and then our local data, derived from the single localMembers() declaration
-        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -396,7 +396,7 @@ protected:
      * @return A tuple of named, comparable/serializable references to this object's local data members
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("oa_config_file_", self.oa_config_file_),
             Gem::Common::make_member("execution_mode_", self.execution_mode_)

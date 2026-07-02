@@ -101,7 +101,7 @@ protected:
 
     /** @brief Single declaration of this class'es local data members */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(Gem::Common::make_member("pop_pos_", self.pop_pos_));
     }
 

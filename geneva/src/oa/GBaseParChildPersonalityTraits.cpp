@@ -70,7 +70,7 @@ void GBaseParChildPersonalityTraits::compare_(
     Gem::Common::compare_base_t<GPersonalityTraits>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -130,7 +130,7 @@ void GBaseParChildPersonalityTraits::load_(const GPersonalityTraits *cp) {
     GPersonalityTraits::load_(cp);
 
     // Then load our local data, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/

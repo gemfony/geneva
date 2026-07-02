@@ -57,7 +57,7 @@ class GGradientDescent_PersonalityTraits // NOLINT(cppcoreguidelines-special-mem
      * @return A tuple of named-member bindings used by serialization and comparison.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(Gem::Common::make_member("pop_pos_", self.pop_pos_));
     }
 
@@ -73,7 +73,7 @@ class GGradientDescent_PersonalityTraits // NOLINT(cppcoreguidelines-special-mem
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
         // ... and then our own data, derived from the single localMembers() declaration
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 

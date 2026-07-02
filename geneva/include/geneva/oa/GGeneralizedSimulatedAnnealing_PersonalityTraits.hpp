@@ -58,7 +58,7 @@ class GGeneralizedSimulatedAnnealing_PersonalityTraits // NOLINT(cppcoreguidelin
 
     /** @brief Single declaration of this class'es local data members */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("population_position_", self.population_position_)
         );
@@ -68,7 +68,7 @@ class GGeneralizedSimulatedAnnealing_PersonalityTraits // NOLINT(cppcoreguidelin
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 

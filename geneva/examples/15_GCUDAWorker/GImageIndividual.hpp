@@ -146,7 +146,7 @@ class GImageIndividual final : public gen::GFlatGenome {
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("width_", self.width_),
             Gem::Common::make_member("height_", self.height_),
@@ -166,7 +166,7 @@ class GImageIndividual final : public gen::GFlatGenome {
         // previously dropped, leaving a networked worker or a resumed checkpoint with
         // default dimensions / flags while load_()/compare_() already carried them).
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////

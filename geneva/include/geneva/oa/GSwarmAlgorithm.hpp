@@ -115,7 +115,7 @@ private:
     // The member list is written ONCE, in the static template helper below; the two localMembers()
     // overloads are trivial forwarders. Self is deduced as the (const) class type.
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("default_n_neighborhood_members_", self.default_n_neighborhood_members_),
             Gem::Common::make_member("c_personal_", self.c_personal_),
@@ -135,7 +135,7 @@ private:
 
         ar &make_nvp("GOptimizationAlgorithmBase", boost::serialization::base_object<GOptimizationAlgorithmBase>(*this));
         // Unconditional members derived from the single localMembers() declaration ...
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
         // ... and the manual tail for the conditionally-reconstructed members (kept as
         // separate NVPs, with the same names as before).
         ar & BOOST_SERIALIZATION_NVP(n_neighborhoods_) &

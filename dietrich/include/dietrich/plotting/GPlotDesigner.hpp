@@ -73,7 +73,7 @@ class GPlotDesigner : public GCommonInterfaceT<GPlotDesigner> {
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_cloneable_container_member("plotters_cnt_", self.plotters_cnt_),
             Gem::Common::make_member("c_x_div_", self.c_x_div_),
@@ -100,7 +100,7 @@ class GPlotDesigner : public GCommonInterfaceT<GPlotDesigner> {
         // list) is included so a checkpointed monitor's accumulated plots survive
         // a resume -- it was previously dropped from the wire while load_()/compare_()
         // carried it.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 

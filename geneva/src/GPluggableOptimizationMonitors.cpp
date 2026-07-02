@@ -520,7 +520,7 @@ void GFitnessMonitor::compare_(
     Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
     // ... and then all local data, derived from the single localMembers() declaration.
-    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -540,7 +540,7 @@ void GFitnessMonitor::load_(const oa::GBasePluggableOM *cp) {
     oa::GBasePluggableOM::load_(cp);
 
     // ... and then all local data, derived from the single localMembers() declaration.
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /************************************************************************/
@@ -719,7 +719,7 @@ void GCollectiveMonitor::compare_(
     Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration.
-    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -739,7 +739,7 @@ void GCollectiveMonitor::load_(const oa::GBasePluggableOM *cp) {
     oa::GBasePluggableOM::load_(cp);
 
     // ... and then the local data, derived from the single localMembers() declaration.
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /************************************************************************/
@@ -879,7 +879,7 @@ void GAllSolutionFileLogger::compare_(
     Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
     // ... and then all local data, derived from the single localMembers() declaration.
-    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1131,7 +1131,7 @@ void GAllSolutionFileLogger::load_(const oa::GBasePluggableOM *cp) {
     oa::GBasePluggableOM::load_(cp);
 
     // ... and then all local data, derived from the single localMembers() declaration.
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
@@ -1304,7 +1304,7 @@ void GIterationResultsFileLogger::compare_(
     Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
     // ... and then all local data, derived from the single localMembers() declaration.
-    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1449,7 +1449,7 @@ void GIterationResultsFileLogger::load_(const oa::GBasePluggableOM *cp) {
     oa::GBasePluggableOM::load_(cp);
 
     // ... and then all local data, derived from the single localMembers() declaration.
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /************************************************************************/
@@ -1581,7 +1581,7 @@ void GNAdpationsLogger::compare_(
     Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
     // ... and then all local data, derived from the single localMembers() declaration.
-    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1823,7 +1823,7 @@ void GNAdpationsLogger::load_(const oa::GBasePluggableOM *cp) {
     oa::GBasePluggableOM::load_(cp);
 
     // ... and then all local data, derived from the single localMembers() declaration.
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /************************************************************************/
@@ -1968,7 +1968,7 @@ void GProcessingTimesLogger::compare_(
     Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
     // ... and then all local data, derived from the single localMembers() declaration.
-    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -2370,7 +2370,7 @@ void GProcessingTimesLogger::load_(const oa::GBasePluggableOM *cp) {
     // ... and then all local data, derived from the single localMembers() declaration.
     // (This also fixes a latent bug: the previous hand-written load_() forgot to
     // load n_bins_y_, which was serialized and compared but never copied on load.)
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /************************************************************************/

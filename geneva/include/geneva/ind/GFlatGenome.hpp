@@ -107,7 +107,7 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
      *  @param self A reference to *this whose members are tied into the tuple
      *  @return A tuple of named member references */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("dv_", self.dv_),
             Gem::Common::make_member("fv_", self.fv_),
@@ -142,7 +142,7 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
             return;
         }
 
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
 
         // The layout is shared & immutable in memory; sharing does not survive serialisation. Two wire
         // forms (see GFlatGenome's historical note): SELF-CONTAINED (full layout by value, the only form
@@ -199,7 +199,7 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         }
         input_omitted_ = false;
 
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
 
         bool interned = false;
         ar &make_nvp("layout_interned", interned);

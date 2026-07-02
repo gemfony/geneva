@@ -89,7 +89,7 @@ class GParChild // NOLINT(cppcoreguidelines-special-member-functions)
     // The member list is written ONCE, in the static template helper below; the two localMembers()
     // overloads are trivial forwarders. Self is deduced as the (const) class type.
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("n_parents_", self.n_parents_),
             Gem::Common::make_member("recombination_method_", self.recombination_method_),
@@ -111,7 +111,7 @@ class GParChild // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp("GOptimizationAlgorithmBase", boost::serialization::base_object<GOptimizationAlgorithmBase>(*this));
         // The member list is derived from the single localMembers() declaration,
         // emitting the same NVP names in the same order as the previous explicit list.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     /////////////////////////////////////////////////////////////////////////////
 

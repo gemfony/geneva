@@ -96,7 +96,7 @@ void GBasePluggableOM::compare_(
     Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GBasePluggableOM>>(*this, *p_load, token);
 
     // ... and then our local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -151,7 +151,7 @@ void GBasePluggableOM::load_(const GBasePluggableOM *cp) {
     // This is the category root; there is no GObject parent class to load.
 
     // Our own data, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
@@ -542,7 +542,7 @@ void GOptimizationAlgorithmBase::compare_(
 
     // ... all the local data (plain members, cloneable pointers, and the atomic
     // halted_), derived from the single localMembers() declaration ...
-    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // ... and finally best_iteration_individuals_pq_, which is intentionally not
     // persisted (so it is not part of localMembers()) but is still compared.
@@ -1576,7 +1576,7 @@ void GOptimizationAlgorithmBase::load_(const GOptimizationAlgorithmBase *cp) {
     // All local data, derived from the single localMembers() declaration: plain members
     // are assigned, the cloneable container pluggable_monitors_cnt_ is deep-cloned, and
     // halted_ (atomic) is loaded via .store(.load()) -- the tie dispatches on the member kind.
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 
     // best_iteration_individuals_pq_ is intentionally not persisted (transient per
     // iteration), so it is not part of localMembers(); copied in memory here.

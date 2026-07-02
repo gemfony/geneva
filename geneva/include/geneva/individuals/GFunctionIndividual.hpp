@@ -770,7 +770,7 @@ protected:
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
     /** @brief Single declaration of this class'es local data members */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(Gem::Common::make_member("demo_function_", self.demo_function_));
     }
 
@@ -880,7 +880,7 @@ class GDoubleSumConstraint
 
     /** @brief Single declaration of this class'es local data members */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(Gem::Common::make_member("c_", self.c_));
     }
 
@@ -888,7 +888,7 @@ class GDoubleSumConstraint
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GOptimizableEntityConstraint);
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -973,7 +973,7 @@ class GDoubleSumGapConstraint
 
     /** @brief The single declaration of this class'es local data members. */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("c_", self.c_),
             Gem::Common::make_member("gap_", self.gap_));
@@ -983,7 +983,7 @@ class GDoubleSumGapConstraint
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GOptimizableEntityConstraint);
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -1070,7 +1070,7 @@ class GSphereConstraint
 
     /** @brief Single declaration of this class'es local data members */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(Gem::Common::make_member("diameter_", self.diameter_));
     }
 
@@ -1080,7 +1080,7 @@ class GSphereConstraint
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GOptimizableEntityConstraint);
         // diameter_ was previously not serialized at all -- it was silently lost on
         // (de)serialization. Derive it from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 public:

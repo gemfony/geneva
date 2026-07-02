@@ -692,7 +692,7 @@ void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
     Gem::Courtier::GProcessable::operator=(*p_load);
 
     // The plain local members (veto flags, feasibility / best-known state).
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 
     // The result store is copied directly (it is serialized/loaded but not among the compared members).
     stored_results_cnt_ = p_load->stored_results_cnt_;
@@ -735,7 +735,7 @@ void GOptimizableEntity::compare_(
 
     // ... and the plain local data, derived from the single localMembers() declaration. The shared policy
     // is referenced 1:N (compared by configuration is the OA-setup concern, not per-individual equality).
-    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     token.evaluate();
 }

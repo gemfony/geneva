@@ -111,7 +111,7 @@ protected:
      * @return A tuple of named members used by the comparison and serialization framework
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(Gem::Common::make_member("pop_pos_", self.pop_pos_));
     }
 

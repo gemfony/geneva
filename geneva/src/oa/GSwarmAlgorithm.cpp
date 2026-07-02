@@ -157,7 +157,7 @@ void GSwarmAlgorithm::load_(const GOptimizationAlgorithmBase *cp) {
     GOptimizationAlgorithmBase::load_(cp);
 
     // ... and then our own unconditional data, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 
     // MANUAL tail: the following members are reconstructed conditionally (depending on the
     // number of neighborhoods, their member counts and the iteration state), so they cannot
@@ -254,7 +254,7 @@ void GSwarmAlgorithm::compare_(
     Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
 
     // ... and then the unconditional local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // MANUAL tail: the conditionally-reconstructed members (see load_()).
     compare_t(Gem::Common::getIdentity(n_neighborhoods_, p_load->n_neighborhoods_, "n_neighborhoods_", "p_load->n_neighborhoods_"), token);

@@ -153,7 +153,7 @@ void GStandardPSO2011::load_(const GOptimizationAlgorithmBase *cp) {
 
     // ... and then our own data, derived from the single localMembers() declaration. All other members
     // are transient and re-set in init().
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
@@ -178,7 +178,7 @@ void GStandardPSO2011::compare_(
     Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     token.evaluate();
 }

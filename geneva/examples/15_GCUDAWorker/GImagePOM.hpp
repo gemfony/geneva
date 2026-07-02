@@ -131,7 +131,7 @@ class GImagePOM final : public oa::GBasePluggableOM {
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("resultImageDirectory_", self.resultImageDirectory_),
             Gem::Common::make_member("emitBestOnly_", self.emitBestOnly_)
@@ -147,7 +147,7 @@ class GImagePOM final : public oa::GBasePluggableOM {
             "GBasePluggableOM",
             boost::serialization::base_object<oa::GBasePluggableOM>(*this)
         );
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -204,7 +204,7 @@ protected:
         oa::GBasePluggableOM::load_(cp);
 
         // ... and then our local data
-        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
     }
 
     /** @brief Allow access to this classes compare_ function */
@@ -231,7 +231,7 @@ protected:
         Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
         // ... and then our local data
-        g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+        g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
         // React on deviations from the expectation
         token.evaluate();

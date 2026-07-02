@@ -72,7 +72,7 @@ class GPreEvaluationValidityCheckT // NOLINT(cppcoreguidelines-special-member-fu
         // carries no state and is therefore not serialized as a base_object --
         // mirroring GObject, whose serialize() is likewise empty. The polymorphic
         // base_object chain bottoms out here; only our own data is serialized.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -234,7 +234,7 @@ protected:
     // The member list is written ONCE, in the static template helper below; the two localMembers()
     // overloads are trivial forwarders.
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("allow_negative_", self.allow_negative_)
         );
@@ -259,7 +259,7 @@ protected:
         // This is the category root; there is no GObject parent class to load.
 
         // Our own data, derived from the single localMembers() declaration
-        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
     }
 
     /***************************************************************************/
@@ -300,7 +300,7 @@ protected:
         Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GPreEvaluationValidityCheckT<ind_type>>>(*this, *p_load, token);
 
         // ... and then the local data, derived from the single localMembers() declaration
-        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -388,7 +388,7 @@ class GValidityCheckContainerT : public GPreEvaluationValidityCheckT<ind_type> {
      *  deep-cloned on load (make_cloneable_container_member). Defined before serialize() so its deduced
      *  return type is available there. */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_cloneable_container_member("validity_checks_", self.validity_checks_)
         );
@@ -403,7 +403,7 @@ class GValidityCheckContainerT : public GPreEvaluationValidityCheckT<ind_type> {
         );
         // The validity checks, derived from the single localMembers() declaration. (Previously they were
         // compared and loaded but NOT serialized -- they now travel in checkpoints / on the wire too.)
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -511,7 +511,7 @@ protected:
 
         // and then our local data, derived from the single localMembers() declaration (the checks are
         // deep-cloned, not pointer-aliased).
-        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
     }
 
     /***************************************************************************/
@@ -552,7 +552,7 @@ protected:
         compare_base_t<GPreEvaluationValidityCheckT<ind_type>>(*this, *p_load, token);
 
         // ... and then the local data, derived from the single localMembers() declaration
-        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -747,7 +747,7 @@ protected:
      * @return A tuple of named, mutable references to the local data members
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("combiner_policy_", self.combiner_policy_)
         );
@@ -771,7 +771,7 @@ protected:
         GValidityCheckContainerT<ind_type>::load_(cp);
 
         // and then our local data, derived from the single localMembers() declaration
-        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
     }
 
     /***************************************************************************/
@@ -809,7 +809,7 @@ protected:
         compare_base_t<GValidityCheckContainerT<ind_type>>(*this, *p_load, token);
 
         // ... and then the local data, derived from the single localMembers() declaration
-        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
         // React on deviations from the expectation
         token.evaluate();

@@ -326,7 +326,7 @@ void GNelderMead::compare_(
 
     // Local data, derived from the single localMembers() declaration. trials_pending_ is transient:
     // reset in init() and not restored in load_(). Comparing it would fail round-trip equality spuriously.
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     token.evaluate();
 }
@@ -360,7 +360,7 @@ void GNelderMead::load_(const GOptimizationAlgorithmBase *cp) {
 
     // ... and then our own (serialized) data, derived from the single localMembers() declaration.
     // dbl*ParameterBoundaries_ and trials_pending_ are transient and re-set in init().
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/

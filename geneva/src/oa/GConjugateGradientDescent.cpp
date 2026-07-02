@@ -416,7 +416,7 @@ void GConjugateGradientDescent::compare_(
     // adjusted_finite_step_ is transient: recomputed in init() from the serialized fields above and not
     // restored in load_(). Comparing it would cause round-trip equality tests to fail spuriously. (The
     // conjugate-gradient memory likewise transient now lives on the central slots' OA scratch.)
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     token.evaluate();
 }
@@ -450,7 +450,7 @@ void GConjugateGradientDescent::load_(const GOptimizationAlgorithmBase *cp) {
     // ... and then our own (serialized) data, derived from the single localMembers() declaration.
     // adjusted_finite_step_ is transient and recomputed in init(); the conjugate-gradient memory is
     // transient too and lives on the central slots' OA scratch.
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/

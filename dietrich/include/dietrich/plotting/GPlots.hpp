@@ -553,7 +553,7 @@ protected:
 	  * @return A tuple of named members (the data vector) of this object
 	  */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         // Expose one named member per column, so each column is compared via the
         // existing sequence-container comparison path (exactly as the former single
         // data_ vector was). The columns are the serialized / compared state.
@@ -589,7 +589,7 @@ protected:
         GBasePlotter::load_(cp);
 
         // ... and then our own, derived from the single localMembers() declaration
-        g_load_members(localMembers_(*this), localMembers_(*p_load));
+        g_load_members(this->localMembers_(), p_load->localMembers_());
     }
 
     /***************************************************************************/
@@ -623,7 +623,7 @@ protected:
         Gem::Common::compare_base_t<GBasePlotter>(*this, *p_load, token);
 
         // ... and then the local data, derived from the single localMembers() declaration
-        g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+        g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1037,7 +1037,7 @@ protected:
 	 * @return A tuple of named local members of this object
 	 */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             make_member("n_bins_x_", self.n_bins_x_),
             make_member("min_x_", self.min_x_),
@@ -1184,7 +1184,7 @@ protected:
 	 * @return A tuple of named local members of this object
 	 */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             make_member("n_bins_x_", self.n_bins_x_),
             make_member("min_x_", self.min_x_),
@@ -1535,7 +1535,7 @@ protected:
 	 * @return A tuple of named local members of this object
 	 */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             make_member("n_bins_x_", self.n_bins_x_),
             make_member("n_bins_y_", self.n_bins_y_),
@@ -1727,7 +1727,7 @@ protected:
 	 * @return A tuple of named local members of this object
 	 */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             make_member("p_m_", self.p_m_),
             make_member("draw_arrows_", self.draw_arrows_)
@@ -1877,7 +1877,7 @@ protected:
 	 * @return A tuple of named local members of this object
 	 */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(make_member("p_m_", self.p_m_));
     }
 
@@ -2156,7 +2156,7 @@ protected:
 	 * @return A tuple of named local members of this object
 	 */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(make_member("draw_lines_", self.draw_lines_));
     }
 
@@ -2521,7 +2521,7 @@ protected:
 	 * @return A tuple of named local members of this object
 	 */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             make_member("min_marker_size_", self.min_marker_size_),
             make_member("max_marker_size_", self.max_marker_size_),
@@ -2672,7 +2672,7 @@ protected:
 	 * @return A tuple of named local members of this object
 	 */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             make_member("function_description_", self.function_description_),
             make_member("x_extremes_", self.x_extremes_),
@@ -2835,7 +2835,7 @@ protected:
 	 * @return A tuple of named local members of this object
 	 */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             make_member("function_description_", self.function_description_),
             make_member("x_extremes_", self.x_extremes_),

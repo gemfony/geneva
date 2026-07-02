@@ -635,7 +635,7 @@ protected:
      * separately; do not derive serialize() from localMembers() for this class.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("n_runs_per_optimization_", self.n_runs_per_optimization_),
             Gem::Common::make_member("fitness_target_", self.fitness_target_),
@@ -663,7 +663,7 @@ protected:
         gen::GFlatGenome::load_(cp);
 
         // ... and then our local data, derived from the single localMembers() declaration
-        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 
         // We simply keep our local individual factory, as all settings are made inside of fitnessCalculation
     }
@@ -703,7 +703,7 @@ protected:
         Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
 
         // ... and then the local data, derived from the single localMembers() declaration
-        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1628,7 +1628,7 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
             boost::serialization::base_object<oa::GBasePluggableOM>(*this)
         );
         // All local members, derived from the single localMembers() declaration (same NVP tags as before).
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1636,7 +1636,7 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
      *  compare_() from one source. Only file_name_ is state; the eight progress curves are declared into
      *  a transient GDataLog at INFOINIT, filled in INFOPROCESSING and written at INFOEND. */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("file_name_", self.file_name_)
         );
@@ -1711,7 +1711,7 @@ protected:
 
         // Load local data, derived from the single localMembers() declaration (the cloneable plotter
         // pointers are deep-cloned, the plain members assigned).
-        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
     }
 
     /***************************************************************************/
@@ -1748,7 +1748,7 @@ protected:
         Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
         // ... and then our local data, derived from the single localMembers() declaration
-        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
         // React on deviations from the expectation
         token.evaluate();

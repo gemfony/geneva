@@ -63,7 +63,7 @@ class GBaseParChildPersonalityTraits // NOLINT(cppcoreguidelines-special-member-
      * @return A tuple of named member bindings for parent_counter_, pop_pos_ and parent_id_
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("parent_counter_", self.parent_counter_),
             Gem::Common::make_member("pop_pos_", self.pop_pos_),
@@ -83,7 +83,7 @@ class GBaseParChildPersonalityTraits // NOLINT(cppcoreguidelines-special-member-
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
         // ... and then our own data, derived from the single localMembers() declaration
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 

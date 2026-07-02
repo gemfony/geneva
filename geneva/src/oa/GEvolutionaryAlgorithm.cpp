@@ -107,7 +107,7 @@ using namespace Gem::Common::Concurrency;
     GToken token("GEvolutionaryAlgorithm", e);
 
     Gem::Common::compare_base_t<GParChild>(*this, *p_load, token);
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     token.evaluate();
 }
@@ -345,7 +345,7 @@ void GType::load_(const GOptimizationAlgorithmBase *cp) {
         Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GType>(cp, this);
 
     GParChild::load_(cp);
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/

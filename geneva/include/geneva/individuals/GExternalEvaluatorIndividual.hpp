@@ -126,7 +126,7 @@ class GExternalEvaluatorIndividual
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("program_name_", self.program_name_),
             Gem::Common::make_member("custom_options_", self.custom_options_),
@@ -150,7 +150,7 @@ class GExternalEvaluatorIndividual
         // (de)serialization; derive the member list from the single
         // localMembers() declaration so it stays in sync.
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////

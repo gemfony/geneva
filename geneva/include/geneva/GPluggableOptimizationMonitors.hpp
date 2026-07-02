@@ -174,7 +174,7 @@ class GFitnessMonitor // NOLINT(cppcoreguidelines-special-member-functions)
      * objects in its state. No manual tail is needed.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("x_dim_", self.x_dim_),
             Gem::Common::make_member("y_dim_", self.y_dim_),
@@ -193,7 +193,7 @@ class GFitnessMonitor // NOLINT(cppcoreguidelines-special-member-functions)
         );
 
         // All members are derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -355,7 +355,7 @@ class GCollectiveMonitor // NOLINT(cppcoreguidelines-special-member-functions)
      * its bespoke body below.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_cloneable_container_member("pluggable_monitors_", self.pluggable_monitors_)
         );
@@ -495,7 +495,7 @@ class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
      * the documented manual tail.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("canvas_label_", self.canvas_label_),
             Gem::Common::make_member("file_name_", self.file_name_),
@@ -520,7 +520,7 @@ class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
         ar & BOOST_SERIALIZATION_NVP(fp_prof_var_vec_);
 
         // The unconditionally-handled members, derived from localMembers().
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -856,7 +856,7 @@ protected:
         Gem::Common::copyCloneableObjectsContainer(p_load->fp_prof_var_vec_, fp_prof_var_vec_);
 
         // ... and then the unconditionally-handled members, derived from localMembers().
-        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
     }
 
     /***************************************************************************/
@@ -895,7 +895,7 @@ protected:
         compare_t(Gem::Common::getIdentity(fp_prof_var_vec_, p_load->fp_prof_var_vec_, "fp_prof_var_vec_", "p_load->fp_prof_var_vec_"), token);
 
         // ... and then the unconditionally-handled members, derived from localMembers().
-        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1332,7 +1332,7 @@ class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-function
      * config values (make_member); no manual tail is needed.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("file_name_", self.file_name_),
             Gem::Common::make_member("boundaries_", self.boundaries_),
@@ -1356,7 +1356,7 @@ class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-function
         );
 
         // All members are derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1579,7 +1579,7 @@ class GIterationResultsFileLogger // NOLINT(cppcoreguidelines-special-member-fun
      * config values (make_member); no manual tail is needed.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("file_name_", self.file_name_),
             Gem::Common::make_member("with_commas_", self.with_commas_),
@@ -1597,7 +1597,7 @@ class GIterationResultsFileLogger // NOLINT(cppcoreguidelines-special-member-fun
         );
 
         // All members are derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1734,7 +1734,7 @@ class GNAdpationsLogger // NOLINT(cppcoreguidelines-special-member-functions)
      * n_adaptions_store_ / fitness_store_ vectors. No manual tail is needed.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("file_name_", self.file_name_),
             Gem::Common::make_member("canvas_dimensions_", self.canvas_dimensions_),
@@ -1757,7 +1757,7 @@ class GNAdpationsLogger // NOLINT(cppcoreguidelines-special-member-functions)
         );
 
         // All members are derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1926,7 +1926,7 @@ class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functio
      * adaptor_property_store_ / fitness_store_ vectors. No manual tail is needed.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("file_name_", self.file_name_),
             Gem::Common::make_member("adaptor_name_", self.adaptor_name_),
@@ -1951,7 +1951,7 @@ class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functio
         );
 
         // All members are derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -2156,7 +2156,7 @@ protected:
         oa::GBasePluggableOM::load_(cp);
 
         // ... and then all local data, derived from the single localMembers() declaration.
-        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
     }
 
     /** @brief Allow access to this classes compare_ function */
@@ -2195,7 +2195,7 @@ protected:
         Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
         // ... and then all local data, derived from the single localMembers() declaration.
-        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -2476,7 +2476,7 @@ class GProcessingTimesLogger // NOLINT(cppcoreguidelines-special-member-function
      * INFOPROCESSING and written at INFOEND. No manual tail is needed.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("file_name_pth_", self.file_name_pth_),
             Gem::Common::make_member("canvas_dimensions_pth_", self.canvas_dimensions_pth_),
@@ -2498,7 +2498,7 @@ class GProcessingTimesLogger // NOLINT(cppcoreguidelines-special-member-function
         );
 
         // All members are derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 

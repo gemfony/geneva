@@ -54,7 +54,7 @@ class GParameterScan_PersonalityTraits // NOLINT(cppcoreguidelines-special-membe
 
     /** @brief Single declaration of this class'es local data members */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(Gem::Common::make_member("pop_pos_", self.pop_pos_));
     }
 
@@ -68,7 +68,7 @@ class GParameterScan_PersonalityTraits // NOLINT(cppcoreguidelines-special-membe
 
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
         // ... and then our own data, derived from the single localMembers() declaration
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 

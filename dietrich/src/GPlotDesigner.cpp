@@ -807,7 +807,7 @@ void GBasePlotter::compare_(
     compare_base_t<GCommonInterfaceT<GBasePlotter>>(*this, *p_load, token);
 
     // ... and then the local data
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -826,7 +826,7 @@ void GBasePlotter::load_(const GBasePlotter *cp) {
     // No parent class with loadable data
 
     // Load local data
-    g_load_members(localMembers_(*this), localMembers_(*p_load));
+    g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
@@ -1018,7 +1018,7 @@ void GGraph2D::compare_(
     compare_base_t<GDataCollector2T<double, double>>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1240,7 +1240,7 @@ void GGraph2D::load_(const GBasePlotter *cp) {
     GDataCollector2T<double, double>::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
-    g_load_members(localMembers_(*this), localMembers_(*p_load));
+    g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
@@ -1323,7 +1323,7 @@ void GGraph2ED::compare_(
     compare_base_t<GDataCollector2ET<double, double>>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1531,7 +1531,7 @@ void GGraph2ED::load_(const GBasePlotter *cp) {
     GDataCollector2ET<double, double>::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
-    g_load_members(localMembers_(*this), localMembers_(*p_load));
+    g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
@@ -1613,7 +1613,7 @@ void GGraph3D::compare_(
     compare_base_t<GDataCollector3T<double, double, double>>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1840,7 +1840,7 @@ void GGraph3D::load_(const GBasePlotter *cp) {
     GDataCollector3T<double, double, double>::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
-    g_load_members(localMembers_(*this), localMembers_(*p_load));
+    g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
@@ -2002,7 +2002,7 @@ void GGraph4D::compare_(
     compare_base_t<GDataCollector4T<double, double, double, double>>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -2214,7 +2214,7 @@ void GGraph4D::load_(const GBasePlotter *cp) {
     GDataCollector4T<double, double, double, double>::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
-    g_load_members(localMembers_(*this), localMembers_(*p_load));
+    g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
@@ -2491,7 +2491,7 @@ void GHistogram1D::compare_(
     compare_base_t<GDataCollector1T<double>>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -2521,7 +2521,7 @@ void GHistogram1D::load_(const GBasePlotter *cp) {
     GDataCollector1T<double>::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
-    g_load_members(localMembers_(*this), localMembers_(*p_load));
+    g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
@@ -2779,7 +2779,7 @@ void GHistogram1I::compare_(
     compare_base_t<GDataCollector1T<std::int32_t>>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -2809,7 +2809,7 @@ void GHistogram1I::load_(const GBasePlotter *cp) {
     GDataCollector1T<std::int32_t>::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
-    g_load_members(localMembers_(*this), localMembers_(*p_load));
+    g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
@@ -3247,7 +3247,7 @@ void GHistogram2D::compare_(
     compare_base_t<GDataCollector2T<double, double>>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -3277,7 +3277,7 @@ void GHistogram2D::load_(const GBasePlotter *cp) {
     GDataCollector2T<double, double>::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
-    g_load_members(localMembers_(*this), localMembers_(*p_load));
+    g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
@@ -3365,7 +3365,7 @@ void GFunctionPlotter1D::compare_(
     compare_base_t<GBasePlotter>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -3520,7 +3520,7 @@ void GFunctionPlotter1D::load_(const GBasePlotter *cp) {
     GBasePlotter::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
-    g_load_members(localMembers_(*this), localMembers_(*p_load));
+    g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
@@ -3620,7 +3620,7 @@ void GFunctionPlotter2D::compare_(
     compare_base_t<GBasePlotter>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -3788,7 +3788,7 @@ void GFunctionPlotter2D::load_(const GBasePlotter *cp) {
     GBasePlotter::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
-    g_load_members(localMembers_(*this), localMembers_(*p_load));
+    g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
@@ -5383,7 +5383,7 @@ void GPlotDesigner::compare_(
     compare_base_t<GCommonInterfaceT<GPlotDesigner>>(*this, *p_load, token);
 
     // ... and then the local data
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -5412,7 +5412,7 @@ void GPlotDesigner::load_(const GPlotDesigner *cp) {
     // No "loadable" parent class
 
     // Load local data
-    g_load_members(localMembers_(*this), localMembers_(*p_load));
+    g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/

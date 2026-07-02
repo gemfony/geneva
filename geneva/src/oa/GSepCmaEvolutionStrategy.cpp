@@ -197,7 +197,7 @@ void GSepCmaEvolutionStrategy::load_(const GOptimizationAlgorithmBase *cp) {
     GOptimizationAlgorithmT<GSepCmaEvolutionStrategy>::load_(cp);
 
     // ... and then our own data, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
@@ -220,7 +220,7 @@ void GSepCmaEvolutionStrategy::compare_(
     Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     token.evaluate();
 }

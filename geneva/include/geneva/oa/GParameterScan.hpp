@@ -198,7 +198,7 @@ class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
     // GBaseScanParT or const GBaseScanParT, so each member binds with the matching const-ness and
     // make_member() deduces accordingly; the two localMembers() overloads are trivial forwarders.
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("var_mode", std::get<0>(self.var_)),
             Gem::Common::make_member("var_name", std::get<1>(self.var_)),
@@ -225,7 +225,7 @@ class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
             boost::serialization::base_object<Gem::Common::GPodContainerT<T>>(*this)
         );
         // ... and the scan-state members, derived from the single localMembers_() declaration.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -333,7 +333,7 @@ public:
         // The pre-computed grid (held by the GPodContainerT base) ...
         compare_t(Gem::Common::getIdentity(this->data_cnt_, other.data_cnt_, "this->data_cnt_", "other.data_cnt_"), token);
         // ... and all the scan-state members, derived from the single localMembers_() declaration.
-        g_compare_members(localMembers_(*this), localMembers_(other), token);
+        g_compare_members(this->localMembers_(), other.localMembers_(), token);
     }
 
     /***************************************************************************/
@@ -400,7 +400,7 @@ protected:
         // base ...
         Gem::Common::GPodContainerT<T>::operator=(*cp);
         // ... and the scan state, derived from the single localMembers_() declaration.
-        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*cp));
+        Gem::Common::g_load_members(this->localMembers_(), cp->localMembers_());
     }
 
     /**
@@ -779,7 +779,7 @@ private:
     // each member binds with the matching const-ness and make_member()/make_cloneable_container_member()
     // deduce accordingly.
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("scan_randomly_", self.scan_randomly_),
             Gem::Common::make_member("n_monitor_inds_", self.n_monitor_inds_),
@@ -805,7 +805,7 @@ private:
         // All members -- the plain scalars AND the scan-parameter vectors -- are derived from the single
         // localMembers() declaration; the scan parameters now carry the Gemfony common interface, so no
         // hand-written tail is needed.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////

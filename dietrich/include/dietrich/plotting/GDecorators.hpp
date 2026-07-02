@@ -353,7 +353,7 @@ protected:
      * @return A tuple of named handles to this object's local data members
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             make_member("coordinates_", self.coordinates_),
             make_member("marker_", self.marker_),
@@ -376,7 +376,7 @@ protected:
         GDecorator<dimensions::Dim2, coordinate_type>::load_(cp);
 
         // ... and then our local data, derived from the single localMembers() declaration
-        g_load_members(localMembers_(*this), localMembers_(*p_load));
+        g_load_members(this->localMembers_(), p_load->localMembers_());
     }
 
     /***************************************************************************/
@@ -412,7 +412,7 @@ protected:
         Gem::Common::compare_base_t<GDecorator<dimensions::Dim2, coordinate_type>>(*this, *p_load, token);
 
         // ... and then our local data, derived from the single localMembers() declaration
-        g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+        g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
         // React on deviations from the expectation
         token.evaluate();

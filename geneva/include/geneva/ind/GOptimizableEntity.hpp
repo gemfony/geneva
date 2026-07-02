@@ -123,7 +123,7 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("pre_processing_disabled_", self.pre_processing_disabled_),
             Gem::Common::make_member("post_processing_disabled_", self.post_processing_disabled_),
@@ -161,7 +161,7 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
             BOOST_SERIALIZATION_NVP(policy_) &
             BOOST_SERIALIZATION_NVP(stored_results_cnt_);
 
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
 
         // The OA-owned scratch (the personality OBJECT and the per-group adaption POD blocks) is
         // server-side state: it rides a CHECKPOINT so a resumed algorithm keeps its evolved per-individual

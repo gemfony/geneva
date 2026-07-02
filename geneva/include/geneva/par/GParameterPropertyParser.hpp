@@ -145,7 +145,7 @@ protected:
      * @return A tuple of named members (mutable references) bundling var, lowerBoundary, upperBoundary and nSteps
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("var", self.var),
             Gem::Common::make_member("lowerBoundary", self.lowerBoundary),
@@ -167,7 +167,7 @@ protected:
         // No parent class with loadable data
 
         // Load local data, derived from the single localMembers() declaration
-        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
     }
 
     /***************************************************************************/
@@ -210,7 +210,7 @@ protected:
         );
 
         // ... and then the local data, derived from the single localMembers() declaration
-        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
         // React on deviations from the expectation
         token.evaluate();

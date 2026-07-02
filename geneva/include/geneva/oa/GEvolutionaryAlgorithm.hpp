@@ -216,7 +216,7 @@ private:
     // The member list is written ONCE, in the static template helper below; the two localMembers()
     // overloads are trivial forwarders. Self is deduced as the (const) class type.
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("sorting_mode_", self.sorting_mode_),
             Gem::Common::make_member("step_control_", self.step_control_),
@@ -230,7 +230,7 @@ private:
         using boost::serialization::make_nvp;
 
         ar &make_nvp("GParChild", boost::serialization::base_object<GParChild>(*this));
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////

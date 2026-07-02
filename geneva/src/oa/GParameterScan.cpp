@@ -324,7 +324,7 @@ void GParameterScan::compare_(
     // Gemfony common interface, so g_compare_members() compares them element-by-element through each scan
     // parameter's compare_() (which feeds the full scan state -- including the pre-computed grid -- to the
     // token).
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -394,7 +394,7 @@ void GParameterScan::load_(const GOptimizationAlgorithmBase *cp) {
     // ... and then ALL of our own data, derived from the single localMembers() declaration. This now also
     // deep-copies the scan-parameter vectors (cycle_logic_halt_ included): their element types carry the
     // Gemfony common interface, so make_cloneable_container_member() clones each element via clone_()/load_().
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
