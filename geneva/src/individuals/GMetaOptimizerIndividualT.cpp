@@ -33,6 +33,7 @@
 #include "geneva/individuals/GFunctionIndividual.hpp"
 #include <istream>
 #include <ostream>
+#include <utility>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(
     Gem::Geneva::Individuals::GMetaOptimizerIndividualT<Gem::Geneva::Individuals::GFunctionIndividual>
@@ -54,7 +55,7 @@ namespace Gem::Geneva::Individuals {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::metaOptimizationTarget &mot) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(mot);
+    auto tmp = std::to_underlying(mot);
     o << tmp;
     return o;
 }

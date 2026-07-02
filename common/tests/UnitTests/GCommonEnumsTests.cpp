@@ -32,6 +32,7 @@
 #include <sstream>
 #include <string>
 #include <type_traits>
+#include <utility>
 
 #include "common/GCommonEnums.hpp"
 
@@ -43,7 +44,7 @@ using namespace Gem::Common;
 template <class E>
 E round_trip_int(E in) {
     std::ostringstream oss;
-    oss << static_cast<ENUMBASETYPE>(in);   // numeric form, matches operator<< overloads
+    oss << std::to_underlying(in);   // numeric form, matches operator<< overloads
     std::istringstream iss(oss.str());
     E out{};
     iss >> out;

@@ -53,6 +53,7 @@
 #include <tuple>
 #include <type_traits>
 #include <typeinfo>
+#include <utility>
 #include <vector>
 
 // Boost headers go here
@@ -1113,7 +1114,7 @@ std::string to_string(fp_type val) {
 template <typename enum_type>
     requires (std::is_enum_v<enum_type> && !std::is_convertible_v<enum_type, int>)
 std::string to_string(enum_type val) {
-    return std::to_string(static_cast<std::uint32_t>(val));
+    return std::to_string(std::to_underlying(val));
 }
 
 /******************************************************************************/

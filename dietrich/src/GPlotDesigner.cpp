@@ -56,6 +56,7 @@
 #include <ranges>
 #include <sstream>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GMarker<short>)                        // NOLINT
@@ -202,7 +203,7 @@ std::string pythonEscape(const std::string &in) {
  * @return A reference to the output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, const gColor &x) {
-    auto tmp = static_cast<ENUMBASETYPE>(x);
+    auto tmp = std::to_underlying(x);
     o << tmp;
     return o;
 }
@@ -237,7 +238,7 @@ std::istream &operator>>(std::istream &i, gColor &x) {
  * @return A reference to the output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, const gMarker &x) {
-    auto tmp = static_cast<ENUMBASETYPE>(x);
+    auto tmp = std::to_underlying(x);
     o << tmp;
     return o;
 }
@@ -272,7 +273,7 @@ std::istream &operator>>(std::istream &i, gMarker &x) {
  * @return A reference to the output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, const gLineStyle &x) {
-    auto tmp = static_cast<ENUMBASETYPE>(x);
+    auto tmp = std::to_underlying(x);
     o << tmp;
     return o;
 }
@@ -307,7 +308,7 @@ std::istream &operator>>(std::istream &i, gLineStyle &x) {
  * @return A reference to the output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, const graphPlotMode &x) {
-    auto tmp = static_cast<ENUMBASETYPE>(x);
+    auto tmp = std::to_underlying(x);
     o << tmp;
     return o;
 }
@@ -342,7 +343,7 @@ std::istream &operator>>(std::istream &i, graphPlotMode &x) {
  * @return A reference to the output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, const tddropt &x) {
-    auto tmp = static_cast<ENUMBASETYPE>(x);
+    auto tmp = std::to_underlying(x);
     o << tmp;
     return o;
 }

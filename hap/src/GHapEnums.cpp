@@ -31,6 +31,7 @@
 #include "common/GCommonEnums.hpp"
 #include <istream>
 #include <ostream>
+#include <utility>
 
 namespace Gem::Hap {
 
@@ -47,7 +48,7 @@ namespace Gem::Hap {
  * @return The std::ostream object passed in (to allow chaining)
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Hap::randomSource &grts) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(grts);
+    auto tmp = std::to_underlying(grts);
     o << tmp;
     return o;
 }

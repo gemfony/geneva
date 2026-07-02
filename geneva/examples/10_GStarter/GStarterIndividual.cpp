@@ -42,6 +42,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
+#include <utility>
 #endif /* GEM_TESTING */
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GStarterIndividual) // NOLINT
@@ -56,7 +57,7 @@ namespace Gem::Geneva {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::targetFunction &tF) {
-    Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(tF);
+    Gem::Common::ENUMBASETYPE tmp = std::to_underlying(tF);
     o << tmp;
     return o;
 }

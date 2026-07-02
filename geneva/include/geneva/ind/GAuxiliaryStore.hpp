@@ -40,6 +40,7 @@
 #include <span>
 #include <type_traits>
 #include <typeinfo>
+#include <utility>
 #include <vector>
 
 // Boost headers go here
@@ -91,7 +92,7 @@ struct AuxBlock {
      */
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        auto scope_u = static_cast<std::uint8_t>(scope);
+        auto scope_u = std::to_underlying(scope);
         ar &boost::serialization::make_nvp("scope", scope_u);
         scope = static_cast<AuxScope>(scope_u);
 

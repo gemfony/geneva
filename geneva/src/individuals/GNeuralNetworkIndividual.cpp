@@ -54,6 +54,7 @@
 #include <random>
 #include <sstream>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::trainingSet)              // NOLINT
@@ -605,7 +606,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::trainingData
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::trainingDataType &tdt) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(tdt);
+    auto tmp = std::to_underlying(tdt);
     o << tmp;
     return o;
 }
@@ -642,7 +643,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::transferFunc
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::transferFunction &t_f) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(t_f);
+    auto tmp = std::to_underlying(t_f);
     o << tmp;
     return o;
 }

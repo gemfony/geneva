@@ -63,6 +63,7 @@
 #include <ostream>
 #include <sstream>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 #ifdef GEM_TESTING
@@ -315,7 +316,7 @@ void GType::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
 
     gpb.registerFileParameter<std::uint8_t>(
         "step_control",
-        static_cast<std::uint8_t>(stepControl::CSA),
+        std::to_underlying(stepControl::CSA),
         [this](std::uint8_t sc) { this->setStepControl(static_cast<stepControl>(sc)); }
     ) << "The step-size control strategy. Options"
       << '\n'

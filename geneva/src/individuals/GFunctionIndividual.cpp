@@ -55,6 +55,7 @@
 #include <memory>
 #include <ostream>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GFunctionIndividual)        // NOLINT
@@ -405,7 +406,7 @@ GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *GSphereConstraint::clone_
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::solverFunction &ur) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ur);
+    auto tmp = std::to_underlying(ur);
     o << tmp;
     return o;
 }
@@ -440,7 +441,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::solverFuncti
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::parameterType &ur) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ur);
+    auto tmp = std::to_underlying(ur);
     o << tmp;
     return o;
 }
@@ -475,7 +476,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::parameterTyp
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::initMode &ur) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ur);
+    auto tmp = std::to_underlying(ur);
     o << tmp;
     return o;
 }

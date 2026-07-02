@@ -40,6 +40,7 @@
 #include <istream>
 #include <memory>
 #include <ostream>
+#include <utility>
 #include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GTestIndividual2) // NOLINT
@@ -54,7 +55,7 @@ namespace Gem::Geneva::Individuals {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::PERFOBJECTTYPE &lt) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(lt);
+    auto tmp = std::to_underlying(lt);
     o << tmp;
     return o;
 }

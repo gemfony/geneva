@@ -31,6 +31,7 @@
 #include "common/GCommonEnums.hpp"
 #include <istream>
 #include <ostream>
+#include <utility>
 
 namespace Gem::Courtier {
 
@@ -43,7 +44,7 @@ namespace Gem::Courtier {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Courtier::run_state &rs) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(rs);
+    auto tmp = std::to_underlying(rs);
     o << tmp;
     return o;
 }
@@ -73,7 +74,7 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::run_state &rs) {
  */
 std::ostream &
 operator<<(std::ostream &o, const Gem::Courtier::networked_consumer_payload_command &ps) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ps);
+    auto tmp = std::to_underlying(ps);
     o << tmp;
     return o;
 }
@@ -102,7 +103,7 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::networked_consumer_payl
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Courtier::beast_ping_state &ps) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ps);
+    auto tmp = std::to_underlying(ps);
     o << tmp;
     return o;
 }
@@ -131,7 +132,7 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::beast_ping_state &ps) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Courtier::submissionReturnMode &srm) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(srm);
+    auto tmp = std::to_underlying(srm);
     o << tmp;
     return o;
 }
@@ -209,7 +210,7 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::processingStatus &srm) 
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Courtier::consumerType &bm) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(bm);
+    auto tmp = std::to_underlying(bm);
     o << tmp;
     return o;
 }

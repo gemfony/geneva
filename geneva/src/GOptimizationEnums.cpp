@@ -30,6 +30,7 @@
 #include "common/GCommonEnums.hpp"
 #include <istream>
 #include <ostream>
+#include <utility>
 
 namespace Gem::Geneva {
 
@@ -42,7 +43,7 @@ namespace Gem::Geneva {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::maxMode &am) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(am);
+    auto tmp = std::to_underlying(am);
     o << tmp;
     return o;
 }
@@ -71,7 +72,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::maxMode &am) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::activityMode &am) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(am);
+    auto tmp = std::to_underlying(am);
     o << tmp;
     return o;
 }
@@ -100,7 +101,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::activityMode &am) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::validityCheckCombinerPolicy &vccp) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(vccp);
+    auto tmp = std::to_underlying(vccp);
     o << tmp;
     return o;
 }
@@ -129,7 +130,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::validityCheckCombinerPoli
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::evaluationPolicy &iip) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(iip);
+    auto tmp = std::to_underlying(iip);
     o << tmp;
     return o;
 }
@@ -158,7 +159,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::evaluationPolicy &iip) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::execMode &pm) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(pm);
+    auto tmp = std::to_underlying(pm);
     o << tmp;
     return o;
 }
@@ -187,7 +188,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::execMode &pm) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::duplicationScheme &rc) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(rc);
+    auto tmp = std::to_underlying(rc);
     o << tmp;
     return o;
 }
@@ -216,7 +217,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::duplicationScheme &rc) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::infoMode &im) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(im);
+    auto tmp = std::to_underlying(im);
     o << tmp;
     return o;
 }
@@ -245,7 +246,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::infoMode &im) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::adaptorId &aid) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(aid);
+    auto tmp = std::to_underlying(aid);
     o << tmp;
     return o;
 }
@@ -274,7 +275,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::adaptorId &aid) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::sortingMode &smode) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(smode);
+    auto tmp = std::to_underlying(smode);
     o << tmp;
     return o;
 }
@@ -303,7 +304,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::sortingMode &smode) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::sortingModeMP &smode) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(smode);
+    auto tmp = std::to_underlying(smode);
     o << tmp;
     return o;
 }
@@ -332,7 +333,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::sortingModeMP &smode) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::updateRule &ur) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ur);
+    auto tmp = std::to_underlying(ur);
     o << tmp;
     return o;
 }
@@ -361,7 +362,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::updateRule &ur) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::adaptionMode &am) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(am);
+    auto tmp = std::to_underlying(am);
     o << tmp;
     return o;
 }

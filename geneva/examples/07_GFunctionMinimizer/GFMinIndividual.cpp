@@ -37,6 +37,7 @@
 #include "geneva/oa/GAdaptionConfig.hpp"
 
 #include <any>
+#include <utility>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFMinIndividual) // NOLINT
 namespace Gem::Geneva {
@@ -50,7 +51,7 @@ namespace Gem::Geneva {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::targetFunction &tF) {
-    Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(tF);
+    Gem::Common::ENUMBASETYPE tmp = std::to_underlying(tF);
     o << tmp;
     return o;
 }
