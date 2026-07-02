@@ -153,18 +153,21 @@ double GMPISubClientParaboloidIndividualMultiD::fitnessCalculation() {
         []() { return true; }
     );
 
+    // Qualify the case labels below: MPIStatusCode and the (unscoped) ClientStatus both export an
+    // ERROR enumerator, so a bare `case ERROR:` binds to ClientStatus::ERROR and mismatches the
+    // MPIStatusCode switch condition (clang -Wenum-compare-switch).
     switch(status.statusCode) {
-    case ERROR:
+    case MPIStatusCode::ERROR:
         std::cerr << "MPI error occurred: " << '\n'
                   << mpiErrorString(status.mpiStatus.MPI_ERROR) << '\n';
         break;
-    case STOPPED:
+    case MPIStatusCode::STOPPED:
         std::cerr
             << "Client executed fitnessCalculation while being stopped. This is an internal error. "
                "Client should only be stopped after the fitnessCalculation has been finished."
             << '\n';
         break;
-    case SUCCESS: {
+    case MPIStatusCode::SUCCESS: {
         // Calculate the sum of all individual results as the fitness value
         for(auto const &d : recvVecOpt.value()) {
             result += d;

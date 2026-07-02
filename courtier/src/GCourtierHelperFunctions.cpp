@@ -177,6 +177,12 @@ std::string pcToStr(const networked_consumer_payload_command &pc) {
 
     case STOP:
         return "STOP";
+
+    case REQUEST_LAYOUT:
+        return "REQUEST_LAYOUT";
+
+    case SEND_LAYOUT:
+        return "SEND_LAYOUT";
     }
 
     // Make the compiler happy

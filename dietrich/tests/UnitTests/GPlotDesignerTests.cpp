@@ -43,6 +43,7 @@
 #include <span>
 #include <string>
 #include <tuple>
+#include <vector>
 
 #include "dietrich/GPlotDesigner.hpp"
 
@@ -681,17 +682,23 @@ TEST_CASE("GDataLog reproduces the legacy plotter-object output byte-for-byte", 
         auto h = std::make_shared<GHistogram1D>(12);
         h->setPlotLabel("a distribution");
         h->setXAxisLabel("value");
-        for(int i = 0; i < 20; ++i) {
-            (*h) & (0.1 * static_cast<double>(i) - 1.0);
-        }
+        // Compute the sample data ONCE and feed both paths from it, so both receive bit-identical
+        // doubles. Recomputing 0.1*i-1.0 separately per path is NOT reproducible across compilers:
+        // clang FMA-contracts the `const double v = ...` statement but not the `& (...)` argument
+        // expression, so the two paths would otherwise Fill() values differing in the last ULP and
+        // the byte-identity check would (correctly) fail on that incidental difference, not on any
+        // real divergence between the plotting paths.
+        std::vector<double> data;
+        data.reserve(20);
+        for(int i = 0; i < 20; ++i) { data.push_back(0.1 * static_cast<double>(i) - 1.0); }
+        for(const double v : data) { (*h) & v; }
         GPlotDesigner gpd_legacy("Dist", 1, 1);
         gpd_legacy.registerPlotter(h);
         const std::string legacy = gpd_legacy.plot();
 
         GDataLog log("Dist", 1, 1);
         const auto id = log.declareSeries(h->plotSpec());
-        for(int i = 0; i < 20; ++i) {
-            const double v = 0.1 * static_cast<double>(i) - 1.0;
+        for(const double v : data) {
             log.append(id, std::span<const double>(&v, 1));
         }
         CHECK(log.toDesigner().plot() == legacy);
@@ -703,17 +710,19 @@ TEST_CASE("GDataLog reproduces the legacy plotter-object output byte-for-byte", 
         auto h = std::make_shared<GHistogram1D>(15, -1.0, 2.0);
         h->setPlotLabel("a fixed distribution");
         h->setXAxisLabel("value");
-        for(int i = 0; i < 20; ++i) {
-            (*h) & (0.1 * static_cast<double>(i) - 1.0);
-        }
+        // Compute the data once and feed both paths from it (see the auto-ranged section above for
+        // why per-path recomputation is not bit-reproducible across compilers).
+        std::vector<double> data;
+        data.reserve(20);
+        for(int i = 0; i < 20; ++i) { data.push_back(0.1 * static_cast<double>(i) - 1.0); }
+        for(const double v : data) { (*h) & v; }
         GPlotDesigner gpd_legacy("Dist", 1, 1);
         gpd_legacy.registerPlotter(h);
         const std::string legacy = gpd_legacy.plot();
 
         GDataLog log("Dist", 1, 1);
         const auto id = log.declareSeries(h->plotSpec());
-        for(int i = 0; i < 20; ++i) {
-            const double v = 0.1 * static_cast<double>(i) - 1.0;
+        for(const double v : data) {
             log.append(id, std::span<const double>(&v, 1));
         }
         CHECK(log.toDesigner().plot() == legacy);
@@ -724,22 +733,21 @@ TEST_CASE("GDataLog reproduces the legacy plotter-object output byte-for-byte", 
         h->setPlotLabel("a 2-d fixed distribution");
         h->setXAxisLabel("x");
         h->setYAxisLabel("y");
+        // Compute the (x, y) samples once and feed both paths from them (see the 1-d auto-ranged
+        // section for why per-path recomputation is not bit-reproducible across compilers).
+        std::vector<std::pair<double, double>> data;
+        data.reserve(12);
         for(int i = 0; i < 12; ++i) {
-            const double x = 0.5 * static_cast<double>(i) - 3.0;
-            const double y = 3.0 - 0.4 * static_cast<double>(i);
-            h->add(x, y);
+            data.emplace_back(0.5 * static_cast<double>(i) - 3.0, 3.0 - 0.4 * static_cast<double>(i));
         }
+        for(const auto &[x, y] : data) { h->add(x, y); }
         GPlotDesigner gpd_legacy("Dist2D", 1, 1);
         gpd_legacy.registerPlotter(h);
         const std::string legacy = gpd_legacy.plot();
 
         GDataLog log("Dist2D", 1, 1);
         const auto id = log.declareSeries(h->plotSpec());
-        for(int i = 0; i < 12; ++i) {
-            const double x = 0.5 * static_cast<double>(i) - 3.0;
-            const double y = 3.0 - 0.4 * static_cast<double>(i);
-            log.append(id, x, y);
-        }
+        for(const auto &[x, y] : data) { log.append(id, x, y); }
         CHECK(log.toDesigner().plot() == legacy);
     }
 
