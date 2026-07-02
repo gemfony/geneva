@@ -47,6 +47,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPostProcessorT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -56,6 +57,7 @@
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <ranges>
 #include <span>
 #include <tuple>
 #include <utility>
@@ -1654,13 +1656,8 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
     auto consumer = this->consumerForSubmission_();
     consumer->processBatch(sp, this->getSubmissionPolicy_());
 
-    bool has_errors = false;
-    for(const auto &it : sp) {
-        if(it && it->has_errors()) {
-            has_errors = true;
-            break;
-        }
-    }
+    const bool has_errors =
+        std::ranges::any_of(sp, [](const auto &it) { return it && it->has_errors(); });
     return Gem::Courtier::executor_status_t{.is_complete=true, .has_errors=has_errors};
 }
 
@@ -1721,10 +1718,9 @@ std::vector<std::unique_ptr<gen::GOptimizableEntity>> GOptimizationAlgorithmBase
     // Pre-load the de-dup set with the UUIDs already represented in the LIVE population, so a late
     // return whose lineage is still present (a re-dispatched individual whose fresh copy already
     // returned) is rejected. retainIntegrableLateReturns() then drops invalid and duplicate returns.
-    std::set<Gem::Courtier::SUBMISSION_UUID_TYPE> seen;
-    for(const auto &p : *this) {
-        seen.insert(p->getSubmissionUuid());
-    }
+    auto seen = *this
+        | std::views::transform([](const auto &p) { return p->getSubmissionUuid(); })
+        | std::ranges::to<std::set<Gem::Courtier::SUBMISSION_UUID_TYPE>>();
     retainIntegrableLateReturns(items, seen);
 
     // OPTIONAL per-algorithm age window (on top of the consumer-side TTL): drop late returns older than

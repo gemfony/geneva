@@ -602,12 +602,11 @@ void GType::driveGlobalSigmaController() {
     const std::size_t np = this->getNParents();
     double p_success = 0.;
     {
-        std::size_t n_success = 0;
-        for(std::size_t i = 0; i < np; ++i) {
-            if(minOnly_transformed_fitness((*this->at(i))) < prev_best_fitness_) {
-                ++n_success;
-            }
-        }
+        const auto n_success = std::ranges::count_if(
+            this->begin(),
+            this->begin() + np,
+            [this](const auto &p) { return minOnly_transformed_fitness(*p) < prev_best_fitness_; }
+        );
         p_success = (np > 0) ? static_cast<double>(n_success) / static_cast<double>(np)
                              : (best_now < prev_best_fitness_ ? 1. : 0.);
     }
