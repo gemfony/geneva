@@ -411,14 +411,12 @@ std::shared_ptr<GPersonalityTraits> GSimulatedAnnealing::getPersonalityTraits_()
  */
 void GSimulatedAnnealing::sortSAMode() {
     // Position the n_parents best children of the population right behind the parents
-    std::partial_sort(
+    std::ranges::partial_sort(
         this->begin() + this->n_parents_,
         this->begin() + 2 * this->n_parents_,
         this->end(),
-        [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness((*x_ptr)) <
-                   minOnly_transformed_fitness((*y_ptr));
-        }
+        std::ranges::less{},
+        [](const auto &p) static { return minOnly_transformed_fitness(*p); }
     );
 
     // Check for each parent whether it should be replaced by the corresponding child
@@ -442,13 +440,11 @@ void GSimulatedAnnealing::sortSAMode() {
     }
 
     // Sort the new parents -- it is possible that a child with a worse fitness has replaced a parent
-    std::sort(
+    std::ranges::sort(
         this->begin(),
         this->begin() + this->n_parents_,
-        [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness((*x_ptr)) <
-                   minOnly_transformed_fitness((*y_ptr));
-        }
+        std::ranges::less{},
+        [](const auto &p) static { return minOnly_transformed_fitness(*p); }
     );
 
     // Make sure the temperature gets updated

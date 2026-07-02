@@ -704,26 +704,24 @@ void GType::recombine() {
 /******************************************************************************/
 
 void GType::sortMuPlusNuMode() {
-    std::partial_sort(
+    std::ranges::partial_sort(
         GOptimizationAlgorithmBase::data_cnt_.begin(),
         GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_,
         GOptimizationAlgorithmBase::data_cnt_.end(),
-        [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness((*x_ptr)) < minOnly_transformed_fitness((*y_ptr));
-        }
+        std::ranges::less{},
+        [](const auto &p) static { return minOnly_transformed_fitness(*p); }
     );
 }
 
 /******************************************************************************/
 
 void GType::sortMuCommaNuMode() {
-    std::partial_sort(
+    std::ranges::partial_sort(
         GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_,
         GOptimizationAlgorithmBase::data_cnt_.begin() + 2 * n_parents_,
         GOptimizationAlgorithmBase::data_cnt_.end(),
-        [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness((*x_ptr)) < minOnly_transformed_fitness((*y_ptr));
-        }
+        std::ranges::less{},
+        [](const auto &p) static { return minOnly_transformed_fitness(*p); }
     );
 
     std::swap_ranges(
@@ -736,13 +734,12 @@ void GType::sortMuCommaNuMode() {
 /******************************************************************************/
 
 void GType::sortMunu1pretainMode() {
-    std::partial_sort(
+    std::ranges::partial_sort(
         GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_,
         GOptimizationAlgorithmBase::data_cnt_.begin() + 2 * n_parents_,
         GOptimizationAlgorithmBase::data_cnt_.end(),
-        [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness((*x_ptr)) < minOnly_transformed_fitness((*y_ptr));
-        }
+        std::ranges::less{},
+        [](const auto &p) static { return minOnly_transformed_fitness(*p); }
     );
 
     double best_child = minOnly_transformed_fitness(
@@ -802,13 +799,11 @@ void GType::selectParetoParents(bool include_parents) {
     // Order the surviving parent block by the min-only scalar fitness -- the EA convention (parent[0] is
     // the single-objective best for reporting, and the rank drives the recombination weighting). The
     // NSGA-II step already decided WHICH mu survive; this only orders that block.
-    std::sort(
+    std::ranges::sort(
         this->begin(),
         this->begin() + this->n_parents_,
-        [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness((*x_ptr)) <
-                   minOnly_transformed_fitness((*y_ptr));
-        }
+        std::ranges::less{},
+        [](const auto &p) static { return minOnly_transformed_fitness(*p); }
     );
 }
 
